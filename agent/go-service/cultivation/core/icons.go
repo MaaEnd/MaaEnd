@@ -3,6 +3,7 @@ package core
 import (
 	"image"
 	"math"
+	"sort"
 )
 
 // Stationary compares only the material list, excluding account/connection text.
@@ -135,4 +136,75 @@ func AlignCellX(img image.Image, cell image.Rectangle, reach int) image.Rectangl
 		return cell
 	}
 	return cell.Add(image.Pt(best-cell.Min.X, 0))
+}
+
+// FindCards locates operator cards inside area by the rarity bar along each
+// card's bottom edge: a uniform, strongly saturated strip about 98x4 px on
+// 1280x720 (orange for 6★, gold for 5★, ...). Cards are returned top to bottom,
+// left to right; the box is the whole card above its bar. Works for any column
+// count, so it does not assume one client's layout.
+func FindCards(img image.Image, area image.Rectangle) []image.Rectangle {
+	rgb := func(x, y int) [3]int {
+		r, g, b, _ := img.At(x, y).RGBA()
+		return [3]int{int(r >> 8), int(g >> 8), int(b >> 8)}
+	}
+	saturated := func(c [3]int) bool {
+		hi, lo := max(c[0], c[1], c[2]), min(c[0], c[1], c[2])
+		return hi > 180 && hi-lo > 150
+	}
+	near := func(a, b [3]int) bool {
+		return abs(a[0]-b[0]) <= 12 && abs(a[1]-b[1]) <= 12 && abs(a[2]-b[2]) <= 12
+	}
+	type bar struct{ x0, x1, y int }
+	var bars []bar
+	for y := area.Min.Y; y < area.Max.Y; y++ {
+		start := -1
+		var first [3]int
+		for x := area.Min.X; x <= area.Max.X; x++ {
+			if x < area.Max.X {
+				c := rgb(x, y)
+				if start >= 0 && near(c, first) {
+					continue
+				}
+				if start < 0 && saturated(c) {
+					start, first = x, c
+					continue
+				}
+			}
+			if start >= 0 && x-start >= 60 {
+				// Rows of the same 4 px bar collapse into its top row.
+				merged := false
+				for i := range bars {
+					if y-bars[i].y <= 4 && abs(bars[i].x0-start) <= 3 {
+						merged = true
+						break
+					}
+				}
+				if !merged {
+					bars = append(bars, bar{start, x, y})
+				}
+			}
+			start = -1
+			// The pixel that ended a run may itself start the next one.
+			if x < area.Max.X && saturated(rgb(x, y)) {
+				start, first = x, rgb(x, y)
+			}
+		}
+	}
+	var cards []image.Rectangle
+	for _, b := range bars {
+		width := b.x1 - b.x0
+		card := image.Rect(b.x0, b.y-width*139/98, b.x1, b.y)
+		// Keep cards whose lower half is visible; that part is safe to click.
+		if card.Min.Y+card.Dy()/2 >= area.Min.Y {
+			cards = append(cards, card.Intersect(area))
+		}
+	}
+	sort.Slice(cards, func(i, j int) bool {
+		if abs(cards[i].Max.Y-cards[j].Max.Y) > 4 {
+			return cards[i].Max.Y < cards[j].Max.Y
+		}
+		return cards[i].Min.X < cards[j].Min.X
+	})
+	return cards
 }

@@ -97,6 +97,13 @@ func showModules(ctx *maa.Context, plan core.Plan, export bool) error {
 			chosen = i18n.T("cultivation.weapon_none")
 		}
 		maafocus.Print(ctx, i18n.T("cultivation.weapons", strings.Join(names, "\n"), chosen))
+		if weapon := plan.ChosenWeapon(); weapon != nil {
+			key := "cultivation.essence_missing"
+			if weapon.EssenceSatisfied() {
+				key = "cultivation.essence_satisfied"
+			}
+			maafocus.Print(ctx, i18n.T(key, weapon.Name))
+		}
 	}
 	if !export {
 		return nil

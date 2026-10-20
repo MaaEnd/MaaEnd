@@ -88,3 +88,38 @@ func TestIconHashIgnoresQuantityBand(t *testing.T) {
 		t.Fatal("unknown ID prefix")
 	}
 }
+
+func TestFindCardsOnCloudScreenshot(t *testing.T) {
+	path := os.Getenv("CULTIVATION_OVERVIEW_SAMPLE")
+	if path == "" {
+		t.Skip("set CULTIVATION_OVERVIEW_SAMPLE to a 1280x720 cultivation overview screenshot")
+	}
+	file, err := os.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+	img, err := png.Decode(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cards := FindCards(img, image.Rect(30, 100, 380, 620))
+	// 3 recent cards plus two full rows of 3 below them.
+	if len(cards) < 9 {
+		t.Fatalf("found %d cards: %v", len(cards), cards)
+	}
+	if first := cards[0]; abs(first.Min.X-44) > 3 || abs(first.Max.Y-256) > 3 {
+		t.Fatalf("first card %v", first)
+	}
+}
+
+func TestFindCardsSynthetic(t *testing.T) {
+	img := image.NewRGBA(image.Rect(0, 0, 1280, 720))
+	for _, c := range []image.Point{{44, 256}, {154, 256}, {44, 450}} {
+		draw.Draw(img, image.Rect(c.X, c.Y, c.X+98, c.Y+4), &image.Uniform{color.RGBA{247, 105, 0, 255}}, image.Point{}, draw.Src)
+	}
+	cards := FindCards(img, image.Rect(30, 100, 380, 620))
+	if len(cards) != 3 || cards[0].Min.X != 44 || cards[1].Min.X != 154 || cards[2].Max.Y != 450 {
+		t.Fatalf("cards %v", cards)
+	}
+}

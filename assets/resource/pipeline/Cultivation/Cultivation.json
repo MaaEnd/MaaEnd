@@ -164,7 +164,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "CultivationOperatorSelected"
+            "CultivationOperatorSelected",
+            "CultivationOperatorSweepTop",
+            "CultivationOperatorSweepUp"
         ]
     },
     "CultivationOperatorTop": {
@@ -251,18 +253,13 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "CultivationAction",
-                "custom_action_param": {
-                    "step": "operator_missing"
-                }
-            }
-        },
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [],
+        "next": [
+            "CultivationOperatorSweepTop",
+            "CultivationOperatorSweepUp"
+        ],
         "attach": {
             "ready": false
         }
@@ -302,6 +299,178 @@
             "CultivationOperatorFind",
             "CultivationOperatorEnd",
             "CultivationOperatorDown"
+        ]
+    },
+    "CultivationOperatorSweepTop": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "custom_recognition_param": {
+                    "threshold": 0.98
+                },
+                "roi": [
+                    30,
+                    100,
+                    350,
+                    520
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSelected",
+            "CultivationOperatorSweepCard",
+            "CultivationOperatorSweepEnd",
+            "CultivationOperatorSweepDown"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "CultivationOperatorSweepUp": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    200,
+                    330
+                ],
+                "end": [
+                    200,
+                    580
+                ],
+                "end_hold": 200,
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                30,
+                100,
+                350,
+                520
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSweepTop",
+            "CultivationOperatorSweepUp"
+        ]
+    },
+    "CultivationOperatorSweepCard": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationNextCard",
+                "roi": [
+                    30,
+                    100,
+                    350,
+                    520
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                420,
+                75,
+                810,
+                160
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSelected",
+            "CultivationOperatorSweepCard",
+            "CultivationOperatorSweepEnd",
+            "CultivationOperatorSweepDown"
+        ]
+    },
+    "CultivationOperatorSweepEnd": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "custom_recognition_param": {
+                    "threshold": 0.98
+                },
+                "roi": [
+                    30,
+                    100,
+                    350,
+                    520
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "operator_missing"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [],
+        "attach": {
+            "ready": false
+        }
+    },
+    "CultivationOperatorSweepDown": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    200,
+                    580
+                ],
+                "end": [
+                    200,
+                    330
+                ],
+                "end_hold": 200,
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                30,
+                100,
+                350,
+                520
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSelected",
+            "CultivationOperatorSweepCard",
+            "CultivationOperatorSweepEnd",
+            "CultivationOperatorSweepDown"
         ]
     },
     "CultivationP0T0Select": {

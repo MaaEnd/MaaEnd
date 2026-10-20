@@ -290,6 +290,9 @@ func BuildModules(plan Plan, protocol, collect, essence, weapons TaskDocument) (
 	blockers := []string{"beta_excludes_CloudADB", "cloud_essence_validation_pending", "skill_levels_and_equipment_not_verified", "formal_review_pending", "consumption_authorization_required"}
 	if weapon := plan.ChosenWeapon(); weapon == nil {
 		blockers = append(blockers, "weapon_not_chosen")
+	} else if weapon.EssenceSatisfied() {
+		// A matching flawless essence is owned or already injected: nothing to farm.
+		blockers = append(blockers, "essence_satisfied")
 	} else if weapon.ID == "" || len(weapon.CandidateIDs) != 1 || weapon.CandidateIDs[0] != weapon.ID || attach[weapon.ID] == nil {
 		blockers = append(blockers, "weapon_identity_confirmation_required")
 	} else {
@@ -301,6 +304,9 @@ func BuildModules(plan Plan, protocol, collect, essence, weapons TaskDocument) (
 		if row.Owned < row.Need {
 			out.MaterialsReady = false
 		}
+	}
+	if weapon := plan.ChosenWeapon(); weapon != nil && !weapon.EssenceSatisfied() {
+		out.MaterialsReady = false
 	}
 	if out.MaterialsReady {
 		out.CompletionState = "materials_ready_cultivation_unverified"

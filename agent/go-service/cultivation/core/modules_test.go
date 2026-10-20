@@ -100,6 +100,11 @@ func TestMaterialsReadyDoesNotCompleteCultivation(t *testing.T) {
 	plan.Materials = []Material{{ID: "item_expcard_stage1_high", Name: "高级作战记录", Need: 2, Owned: 3}, {ID: "item_expcard_stage1_low", Name: "基础作战记录", Need: 5, Owned: 0}}
 	plan.Weapons[0].ID = "wpn_sword_0021"
 	plan.Weapons[0].CandidateIDs = []string{plan.Weapons[0].ID}
+	// Without a matching flawless essence the chosen weapon still needs farming.
+	if got, err := BuildModules(plan, docs[0], docs[1], docs[2], docs[3]); err != nil || got.MaterialsReady {
+		t.Fatalf("essence not covered but ready: %v %+v", err, got.MaterialsReady)
+	}
+	plan.Weapons[0].Essence = &Essence{Flawless: 1}
 	got, err := BuildModules(plan, docs[0], docs[1], docs[2], docs[3])
 	if err != nil {
 		t.Fatal(err)

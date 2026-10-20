@@ -38,13 +38,16 @@ def operator_nodes():
     """Find an operator card by portrait (from the top of the list), click it and
     confirm the header name. Option cases fill the template and names."""
     find_next = ['CultivationOperatorSelected', 'CultivationOperatorFind']
+    sweep_start = ['CultivationOperatorSweepTop', 'CultivationOperatorSweepUp']
+    sweep_next = ['CultivationOperatorSelected', 'CultivationOperatorSweepCard']
     swipe = lambda begin, end: {'type': 'Swipe', 'param': {'begin': begin, 'end': end, 'duration': 500, 'end_hold': 200}}
     list_end = lambda: {'type': 'Custom', 'param': {'custom_recognition': 'ListCompleteRecognition',
                                                     'custom_recognition_param': {'threshold': 0.98}, 'roi': OPERATOR_LIST}}
     return {
         'CultivationOperatorSelected': node('DoNothing', ['CultivationBegin'], {
             'type': 'OCR', 'param': {'roi': OPERATOR_NAME, 'expected': ['(?!)']}}),
-        'CultivationOperatorFind': node({'type': 'Click', 'param': {}}, ['CultivationOperatorSelected'], {
+        # A portrait click on the wrong operator (e.g. a look-alike skin) falls back to the sweep.
+        'CultivationOperatorFind': node({'type': 'Click', 'param': {}}, ['CultivationOperatorSelected'] + sweep_start, {
             'type': 'TemplateMatch', 'param': {'roi': OPERATOR_LIST, 'template': ['Cultivation/Operators/chr_0027_tangtang.png'], 'threshold': 0.8}},
             post_wait_freezes=OPERATOR_FREEZE),
         # Scroll to the top first: the target may sit above the current viewport.
@@ -53,10 +56,25 @@ def operator_nodes():
         'CultivationOperatorUp': node(swipe([200, 330], [200, 580]),
                                       find_next + ['CultivationOperatorTop', 'CultivationOperatorUp'],
                                       post_wait_freezes=LIST_FREEZE),
-        'CultivationOperatorEnd': node(action('operator_missing'), [], list_end(), attach={'ready': False}),
+        # No portrait matched in the whole list: fall back to the sweep.
+        'CultivationOperatorEnd': node('DoNothing', sweep_start, list_end(), attach={'ready': False}),
         'CultivationOperatorDown': node(swipe([200, 580], [200, 330]),
                                         find_next + ['CultivationOperatorEnd', 'CultivationOperatorDown'],
                                         post_wait_freezes=LIST_FREEZE),
+        # Fallback without portraits (skins, operators newer than the templates):
+        # from the top, click every card once and read the header name.
+        'CultivationOperatorSweepTop': node('DoNothing', sweep_next + ['CultivationOperatorSweepEnd', 'CultivationOperatorSweepDown'],
+                                            list_end(), attach={'ready': False}),
+        'CultivationOperatorSweepUp': node(swipe([200, 330], [200, 580]),
+                                           ['CultivationOperatorSweepTop', 'CultivationOperatorSweepUp'],
+                                           post_wait_freezes=LIST_FREEZE),
+        'CultivationOperatorSweepCard': node({'type': 'Click', 'param': {}}, sweep_next + ['CultivationOperatorSweepEnd', 'CultivationOperatorSweepDown'], {
+            'type': 'Custom', 'param': {'custom_recognition': 'CultivationNextCard', 'roi': OPERATOR_LIST}},
+            post_wait_freezes=OPERATOR_FREEZE),
+        'CultivationOperatorSweepEnd': node(action('operator_missing'), [], list_end(), attach={'ready': False}),
+        'CultivationOperatorSweepDown': node(swipe([200, 580], [200, 330]),
+                                             sweep_next + ['CultivationOperatorSweepEnd', 'CultivationOperatorSweepDown'],
+                                             post_wait_freezes=LIST_FREEZE),
     }
 
 
@@ -251,6 +269,13 @@ def build():
         for case, label in zip(['Keep', 'None', 'First', 'Second', 'Third', 'Fourth'], weapon_texts[2:]):
             data[f'option.CultivationWeapon.cases.{case}.label'] = label
         write(str(path.relative_to(ROOT)), data)
+    # CultivationNextCard takes no parameters: register the name only, no schema.
+    path = ROOT/'tools/schema/custom.recognition.schema.json'
+    original = path.read_text(encoding='utf-8')
+    if '"CultivationNextCard"' not in original:
+        original = re.sub(r'("custom_recognition":\s*\{\s*"enum":\s*\[)',
+                          lambda match: match[0]+'\n                "CultivationNextCard",', original, count=1)
+        path.write_text(original, encoding='utf-8', newline='\n')
     for kind, name, ref in [('action', 'CultivationAction', 'Action'), ('recognition', 'CultivationGuard', 'Guard')]:
         path = ROOT/f'tools/schema/custom.{kind}.schema.json'
         # Preserve unrelated upstream formatting in these shared schema files.
@@ -305,7 +330,9 @@ def operator_cases():
             'CultivationInOverview': {'action': {'type': 'Custom', 'param': {
                 'custom_action': 'PipelineOverrideAction', 'custom_action_param': {'patch': {
                     'CultivationOperatorTop': {'attach': {'ready': False}},
-                    'CultivationOperatorEnd': {'attach': {'ready': False}}}}}},
+                    'CultivationOperatorEnd': {'attach': {'ready': False}},
+                    'CultivationOperatorSweepTop': {'attach': {'ready': False}},
+                    'CultivationOperatorSweepEnd': {'attach': {'ready': False}}}}}},
                 'next': ['CultivationOperatorSelected', 'CultivationOperatorFind', 'CultivationOperatorTop', 'CultivationOperatorUp']},
             'CultivationOperatorSelected': {'recognition': {'type': 'OCR', 'param': {'roi': OPERATOR_NAME, 'expected': entry['names']}}},
             'CultivationOperatorFind': {'recognition': {'type': 'TemplateMatch', 'param': {

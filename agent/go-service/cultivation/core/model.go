@@ -469,3 +469,10 @@ func NothingNeeded(texts []Text) bool {
 	}
 	return false
 }
+
+// EssenceSatisfied reports whether the weapon's essence need is met: it already
+// carries an injected essence, or at least one owned flawless (gold) essence
+// matches its three traits.
+func (w Weapon) EssenceSatisfied() bool {
+	return w.Essence != nil && (w.Essence.Injected != "" || w.Essence.Flawless > 0)
+}

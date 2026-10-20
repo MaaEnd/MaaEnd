@@ -5,6 +5,7 @@
     "properties": {
         "custom_recognition": {
             "enum": [
+                "CultivationNextCard",
                 "CultivationGuard",
                 "AutoFightEntryRecognition",
                 "AeroSalvageBalloonStateRecognition",

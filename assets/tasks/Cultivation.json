@@ -317,6 +317,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -386,6 +396,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -460,6 +480,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -528,6 +558,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -602,6 +642,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -669,6 +719,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -743,6 +803,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -811,6 +881,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -885,6 +965,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -953,6 +1043,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -1027,6 +1127,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -1095,6 +1205,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -1169,6 +1289,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -1237,6 +1367,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -1310,6 +1450,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -1377,6 +1527,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -1451,6 +1611,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -1518,6 +1688,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -1592,6 +1772,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -1663,6 +1853,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -1730,6 +1930,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -1804,6 +2014,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -1872,6 +2092,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -1946,6 +2176,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -2014,6 +2254,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -2088,6 +2338,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -2159,6 +2419,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -2226,6 +2496,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -2300,6 +2580,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -2371,6 +2661,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -2438,6 +2738,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }
@@ -2512,6 +2822,16 @@
                                                 "attach": {
                                                     "ready": false
                                                 }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
                                             }
                                         }
                                     }
@@ -2579,6 +2899,16 @@
                                                 }
                                             },
                                             "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
                                                 "attach": {
                                                     "ready": false
                                                 }

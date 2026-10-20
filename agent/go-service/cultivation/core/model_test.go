@@ -214,3 +214,20 @@ func TestReadEssencePanelsInjected(t *testing.T) {
 		t.Fatalf("lines=%+v err=%v", lines, err)
 	}
 }
+
+func TestEssenceSatisfied(t *testing.T) {
+	cases := []struct {
+		essence *Essence
+		want    bool
+	}{
+		{nil, false},
+		{&Essence{Flawless: 0}, false},
+		{&Essence{Flawless: 1}, true},
+		{&Essence{Injected: "完全适配"}, true},
+	}
+	for _, c := range cases {
+		if got := (Weapon{Name: "望乡", Essence: c.essence}).EssenceSatisfied(); got != c.want {
+			t.Fatalf("%+v: got %v", c.essence, got)
+		}
+	}
+}
