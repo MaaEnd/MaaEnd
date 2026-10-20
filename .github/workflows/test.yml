@@ -73,7 +73,7 @@ jobs:
           cache-python: true
 
       - name: Install test dependencies
-        run: uv sync --locked --no-default-groups --group pipeline --group images
+        run: uv sync --locked
 
       # 与 install.yml 相同：以 MaaFramework 最新 release 为准，SDK、Python 绑定与 MaaUtils 均对齐到该版本。
       - name: Resolve MaaFramework version

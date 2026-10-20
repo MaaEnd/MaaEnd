@@ -35,4 +35,4 @@ jobs:
           cache-python: true
 
       - name: Run ruff
-        run: uv run --frozen --no-default-groups --group dev ruff check .
+        run: uv run --frozen ruff check .

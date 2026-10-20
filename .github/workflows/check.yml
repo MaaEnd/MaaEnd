@@ -55,4 +55,4 @@ jobs:
           pnpm run check
 
       - name: Validate JSON Schema
-        run: uv run --frozen --only-group schema tools/validate_schema.py --resource-dirs assets/resource --exclude-dirs assets/resource/gamedata assets/resource/image assets/resource/model --task-dirs assets/tasks
+        run: uv run --frozen tools/validate_schema.py --resource-dirs assets/resource --exclude-dirs assets/resource/gamedata assets/resource/image assets/resource/model --task-dirs assets/tasks

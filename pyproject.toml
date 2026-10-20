@@ -40,11 +40,6 @@ scripts = [
     { include-group = "images" },
     { include-group = "map-navigator" },
 ]
-optimize-templates = [
-    "numpy>=2.5.4",
-    "pillow>=13.0.0",
-    "tqdm>=4.70.1",
-]
 dev = ["ruff>=0.17"]
 
 [tool.ruff]
@@ -80,7 +75,7 @@ ignore = ["RUF001", "RUF002", "RUF003"]
 extend-immutable-calls = ["fastapi.Body"]
 
 [tool.uv]
-default-groups = ["scripts"]
+default-groups = ["scripts", "dev"]
 package = true
 
 [tool.uv.build-backend]

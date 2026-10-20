@@ -186,7 +186,7 @@ wheels = [
 name = "maaend"
 version = "0.0.0"
 source = { editable = "." }
-default-groups = ["scripts"]
+default-groups = ["dev", "scripts"]
 dependencies = [
     { name = "click" },
     { name = "httpx" },
@@ -211,11 +211,6 @@ map-navigator = [
     { name = "starlette" },
     { name = "uvicorn" },
     { name = "websockets" },
-]
-optimize-templates = [
-    { name = "numpy" },
-    { name = "pillow" },
-    { name = "tqdm" },
 ]
 pipeline = [
     { name = "json5" },
@@ -265,11 +260,6 @@ map-navigator = [
     { name = "starlette", specifier = ">=1.9" },
     { name = "uvicorn", specifier = ">=0.41" },
     { name = "websockets", specifier = ">=17.2" },
-]
-optimize-templates = [
-    { name = "numpy", specifier = ">=2.5.4" },
-    { name = "pillow", specifier = ">=13.0.0" },
-    { name = "tqdm", specifier = ">=4.70.1" },
 ]
 pipeline = [
     { name = "json5", specifier = ">=0.17" },
