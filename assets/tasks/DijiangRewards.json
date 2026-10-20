@@ -507,9 +507,6 @@
                         "ReceptionRoomSendCluesQuickGiveDuplicates": {
                             "enabled": false
                         },
-                        "ReceptionRoomSendCluesSendMain": {
-                            "enabled": false
-                        },
                         "ReceptionRoomSendCluesSwipe": {
                             "enabled": false
                         }
