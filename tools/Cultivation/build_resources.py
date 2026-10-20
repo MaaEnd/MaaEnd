@@ -27,8 +27,44 @@ def node(operation, next_nodes=None, recognition='DirectHit', **extra):
             'post_delay': 0, 'rate_limit': 0, 'next': next_nodes or [], **extra}
 
 
+# Left operator list and the selected operator's name in the overview header.
+OPERATOR_LIST = [30, 100, 350, 520]
+OPERATOR_NAME = [480, 85, 300, 40]
+OPERATOR_FREEZE = {'time': 300, 'target': [420, 75, 810, 160], 'threshold': 0.98}
+LIST_FREEZE = {'time': 300, 'target': OPERATOR_LIST, 'threshold': 0.98}
+
+
+def operator_nodes():
+    """Find an operator card by portrait (from the top of the list), click it and
+    confirm the header name. Option cases fill the template and names."""
+    find_next = ['CultivationOperatorSelected', 'CultivationOperatorFind']
+    swipe = lambda begin, end: {'type': 'Swipe', 'param': {'begin': begin, 'end': end, 'duration': 500, 'end_hold': 200}}
+    list_end = lambda: {'type': 'Custom', 'param': {'custom_recognition': 'ListCompleteRecognition',
+                                                    'custom_recognition_param': {'threshold': 0.98}, 'roi': OPERATOR_LIST}}
+    return {
+        'CultivationOperatorSelected': node('DoNothing', ['CultivationBegin'], {
+            'type': 'OCR', 'param': {'roi': OPERATOR_NAME, 'expected': ['(?!)']}}),
+        'CultivationOperatorFind': node({'type': 'Click', 'param': {}}, ['CultivationOperatorSelected'], {
+            'type': 'TemplateMatch', 'param': {'roi': OPERATOR_LIST, 'template': ['Cultivation/Operators/chr_0027_tangtang.png'], 'threshold': 0.8}},
+            post_wait_freezes=OPERATOR_FREEZE),
+        # Scroll to the top first: the target may sit above the current viewport.
+        'CultivationOperatorTop': node('DoNothing', find_next + ['CultivationOperatorEnd', 'CultivationOperatorDown'],
+                                       list_end(), attach={'ready': False}),
+        'CultivationOperatorUp': node(swipe([200, 330], [200, 580]),
+                                      find_next + ['CultivationOperatorTop', 'CultivationOperatorUp'],
+                                      post_wait_freezes=LIST_FREEZE),
+        'CultivationOperatorEnd': node(action('operator_missing'), [], list_end(), attach={'ready': False}),
+        'CultivationOperatorDown': node(swipe([200, 580], [200, 330]),
+                                        find_next + ['CultivationOperatorEnd', 'CultivationOperatorDown'],
+                                        post_wait_freezes=LIST_FREEZE),
+    }
+
+
 def build():
-    pipeline = {'CultivationScan': node(action('begin'), ['CultivationP0T0Select'])}
+    # Default (current operator): read whoever is selected in the overview.
+    pipeline = {'CultivationScan': node('DoNothing', ['CultivationBegin']),
+                'CultivationBegin': node(action('begin'), ['CultivationP0T0Select'])}
+    pipeline.update(operator_nodes())
     for p in range(2):
         for tab, x in enumerate([568, 750, 952, 1143]):
             prefix = f'CultivationP{p}T{tab}'
@@ -65,7 +101,9 @@ def build():
     for name in ['Scan', 'Preview', 'Export', 'Clear', 'Confirm']:
         task = {'name': 'Cultivation'+name, 'label': '$task.Cultivation'+name+'.label',
                 'entry': 'Cultivation'+name, 'group': ['other_menu'], 'controller': ['CloudADB']}
-        if name in ('Scan', 'Preview', 'Export'):
+        if name == 'Scan':
+            task['option'] = ['CultivationOperator', 'CultivationWeapon']
+        elif name in ('Preview', 'Export'):
             task['option'] = ['CultivationWeapon']
         tasks.append(task)
     # An operator equips one weapon, so the user picks which usable weapon's
@@ -76,7 +114,10 @@ def build():
         cases.append({'name': case, 'label': f'$option.CultivationWeapon.cases.{case}.label', 'pipeline_override': {
             node: {'action': action(step, weapon=index)} for node, step in steps.items()}})
     options = {'CultivationWeapon': {'type': 'select', 'label': '$option.CultivationWeapon.label',
-                                     'description': '$option.CultivationWeapon.description', 'cases': cases}}
+                                     'description': '$option.CultivationWeapon.description', 'cases': cases},
+               'CultivationOperator': {'type': 'select', 'label': '$option.CultivationOperator.label',
+                                       'description': '$option.CultivationOperator.description',
+                                       'cases': operator_cases()}}
     write('assets/tasks/Cultivation.json', {'task': tasks, 'option': options})
     path = ROOT/'assets/interface.json'
     text = path.read_text(encoding='utf-8')
@@ -181,6 +222,15 @@ def build():
                       '이전 선택 유지', '무기 육성 안 함', '1번째', '2번째', '3번째', '4번째'],
         }[lang]
         data['option.CultivationWeapon.label'], data['option.CultivationWeapon.description'] = weapon_texts[:2]
+        operator_texts = {
+            'zh_cn': ['干员', '在培养总览中自动选中该干员后读取；「当前已选」读取游戏里已经选中的干员。需先打开培养总览。', '当前已选'],
+            'zh_tw': ['幹員', '在培養總覽中自動選中該幹員後讀取；「目前已選」讀取遊戲中已選中的幹員。需先開啟培養總覽。', '目前已選'],
+            'en_us': ['Operator', 'Selects this operator in the cultivation overview before reading; "Current" reads the operator already selected in game. Open the cultivation overview first.', 'Current'],
+            'ja_jp': ['オペレーター', '育成一覧でこのオペレーターを選択してから読み取ります。「現在の選択」はゲーム内で選択中のオペレーターを読み取ります。先に育成一覧を開いてください。', '現在の選択'],
+            'ko_kr': ['오퍼레이터', '육성 개요에서 이 오퍼레이터를 선택한 뒤 읽습니다. "현재 선택"은 게임에서 이미 선택한 오퍼레이터를 읽습니다. 먼저 육성 개요를 여세요.', '현재 선택'],
+        }[lang]
+        data['option.CultivationOperator.label'], data['option.CultivationOperator.description'], \
+            data['option.CultivationOperator.cases.Current.label'] = operator_texts
         for case, label in zip(['Keep', 'None', 'First', 'Second', 'Third', 'Fourth'], weapon_texts[2:]):
             data[f'option.CultivationWeapon.cases.{case}.label'] = label
         write(str(path.relative_to(ROOT)), data)
@@ -203,7 +253,7 @@ def build():
         path.write_text(original, encoding='utf-8', newline='\n')
     write('tools/schema/components/cultivation.schema.json', {'$schema': 'https://json-schema.org/draft/2020-12/schema', '$defs': {
         'Action': {'type': 'object', 'required': ['step'], 'additionalProperties': False, 'properties': {
-            'step': {'enum': ['begin', 'reset', 'top', 'read', 'bottom', 'finish', 'preview', 'export', 'clear', 'confirm']},
+            'step': {'enum': ['begin', 'reset', 'top', 'read', 'bottom', 'finish', 'preview', 'export', 'clear', 'confirm', 'operator_missing']},
             'tab': {'type': 'integer', 'minimum': 0, 'maximum': 3},
             'pass': {'type': 'integer', 'minimum': 0, 'maximum': 1},
             'again': {'type': 'string', 'pattern': '^Cultivation'}, 'done': {'type': 'string', 'pattern': '^Cultivation'},
@@ -211,6 +261,39 @@ def build():
         'Guard': {'type': 'object', 'additionalProperties': False,
                   'properties': {'tab': {'type': 'integer', 'minimum': 0, 'maximum': 3}}}}})
     print(f'Generated {len(pipeline)} native nodes, five tasks, five locale entries, and Custom schemas.')
+
+
+def operator_cases():
+    """One case per operator from zmdmap, labelled with the existing operator.<Name>
+    locale key, matched by the generated portrait and confirmed by name OCR."""
+    operators = json.loads((ROOT/'tools/zmdmap/data/sell_product.json').read_text(encoding='utf-8'))['operators']
+    labels = json.loads((ROOT/'assets/locales/interface/zh_cn.json').read_text(encoding='utf-8'))
+    key_by_name = {v: k for k, v in labels.items() if k.startswith('operator.')}
+    grouped = {}
+    for char_id, operator in operators.items():
+        key = key_by_name.get(operator['names']['zh_cn'])
+        if key is None:
+            raise ValueError(f'{char_id}: no operator.<Name> locale key; add the name before generating')
+        if not (ROOT/f'assets/resource_adb/image/Cultivation/Operators/{char_id}.png').exists():
+            raise ValueError(f'{char_id}: missing portrait; run tools.Cultivation.build_operator_templates first')
+        entry = grouped.setdefault(key, {'templates': [], 'names': []})
+        entry['templates'].append(f'Cultivation/Operators/{char_id}.png')
+        for name in operator['names'].values():
+            pattern = '^' + re.escape(name) + '$'
+            if pattern not in entry['names']:
+                entry['names'].append(pattern)
+    cases = [{'name': 'Current', 'label': '$option.CultivationOperator.cases.Current.label'}]
+    for key, entry in grouped.items():
+        cases.append({'name': key[len('operator.'):], 'label': '$' + key, 'pipeline_override': {
+            'CultivationScan': {'action': {'type': 'Custom', 'param': {
+                'custom_action': 'PipelineOverrideAction', 'custom_action_param': {'patch': {
+                    'CultivationOperatorTop': {'attach': {'ready': False}},
+                    'CultivationOperatorEnd': {'attach': {'ready': False}}}}}},
+                'next': ['CultivationOperatorSelected', 'CultivationOperatorFind', 'CultivationOperatorTop', 'CultivationOperatorUp']},
+            'CultivationOperatorSelected': {'recognition': {'type': 'OCR', 'param': {'roi': OPERATOR_NAME, 'expected': entry['names']}}},
+            'CultivationOperatorFind': {'recognition': {'type': 'TemplateMatch', 'param': {
+                'roi': OPERATOR_LIST, 'template': entry['templates'], 'threshold': 0.8}}}}})
+    return cases
 
 
 if __name__ == '__main__':

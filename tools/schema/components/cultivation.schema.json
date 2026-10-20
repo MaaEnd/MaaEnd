@@ -19,7 +19,8 @@
                         "preview",
                         "export",
                         "clear",
-                        "confirm"
+                        "confirm",
+                        "operator_missing"
                     ]
                 },
                 "tab": {

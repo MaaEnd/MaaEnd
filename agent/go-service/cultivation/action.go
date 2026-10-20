@@ -79,6 +79,11 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 		return finishOrFail(ctx, preview(ctx, false, nil), "")
 	}
+	if p.Step == "operator_missing" {
+		// The whole operator list was searched without a portrait match.
+		maafocus.Print(ctx, i18n.T("cultivation.operator_missing"))
+		return false
+	}
 	if p.Step == "preview" || p.Step == "export" {
 		return finishOrFail(ctx, preview(ctx, p.Step == "export", p.Weapon), "")
 	}

@@ -66,6 +66,7 @@
     "autostockpile.warning_skip.text": "⚠️%s（%s）",
     "batchaddfriends.strangers_progress": "添加好友進度 [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s：已發送好友申請（%d/%d）",
+    "cultivation.operator_missing": "在培養總覽的幹員列表中沒有找到所選幹員，請確認已開啟培養總覽，或改用「目前已選」。",
     "cultivation.unknown_item": "未識別物品 %s",
     "cultivation.unknown_notice": "有 %d 種材料不在 MaaEnd 物品圖示庫中（可能是新版本物品），已列為「人工補充」，不會自動刷取。圖示已儲存到 debug/cultivation/，更新 MaaEnd 後重新讀取培養需求即可識別。",
     "cultivation.weapon_choice_invalid": "「培養武器」選擇了第 %d 把，但本次讀取到的可用武器只有 %d 把，未變更選擇。",

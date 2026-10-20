@@ -2,6 +2,16 @@
     "CultivationScan": {
         "recognition": "DirectHit",
         "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationBegin"
+        ]
+    },
+    "CultivationBegin": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -15,6 +25,203 @@
         "rate_limit": 0,
         "next": [
             "CultivationP0T0Select"
+        ]
+    },
+    "CultivationOperatorSelected": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    480,
+                    85,
+                    300,
+                    40
+                ],
+                "expected": [
+                    "(?!)"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationBegin"
+        ]
+    },
+    "CultivationOperatorFind": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    30,
+                    100,
+                    350,
+                    520
+                ],
+                "template": [
+                    "Cultivation/Operators/chr_0027_tangtang.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                420,
+                75,
+                810,
+                160
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSelected"
+        ]
+    },
+    "CultivationOperatorTop": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "custom_recognition_param": {
+                    "threshold": 0.98
+                },
+                "roi": [
+                    30,
+                    100,
+                    350,
+                    520
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSelected",
+            "CultivationOperatorFind",
+            "CultivationOperatorEnd",
+            "CultivationOperatorDown"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "CultivationOperatorUp": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    200,
+                    330
+                ],
+                "end": [
+                    200,
+                    580
+                ],
+                "end_hold": 200,
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                30,
+                100,
+                350,
+                520
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSelected",
+            "CultivationOperatorFind",
+            "CultivationOperatorTop",
+            "CultivationOperatorUp"
+        ]
+    },
+    "CultivationOperatorEnd": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "custom_recognition_param": {
+                    "threshold": 0.98
+                },
+                "roi": [
+                    30,
+                    100,
+                    350,
+                    520
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "operator_missing"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [],
+        "attach": {
+            "ready": false
+        }
+    },
+    "CultivationOperatorDown": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    200,
+                    580
+                ],
+                "end": [
+                    200,
+                    330
+                ],
+                "end_hold": 200,
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                30,
+                100,
+                350,
+                520
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSelected",
+            "CultivationOperatorFind",
+            "CultivationOperatorEnd",
+            "CultivationOperatorDown"
         ]
     },
     "CultivationP0T0Select": {
@@ -156,8 +363,8 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -238,8 +445,8 @@
                     1215,
                     380
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -434,8 +641,8 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -516,8 +723,8 @@
                     1215,
                     380
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -712,8 +919,8 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -794,8 +1001,8 @@
                     1215,
                     380
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -990,8 +1197,8 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -1072,8 +1279,8 @@
                     1215,
                     380
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -1268,8 +1475,8 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -1350,8 +1557,8 @@
                     1215,
                     380
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -1546,8 +1753,8 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -1628,8 +1835,8 @@
                     1215,
                     380
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -1824,8 +2031,8 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -1906,8 +2113,8 @@
                     1215,
                     380
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -2102,8 +2309,8 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
@@ -2184,8 +2391,8 @@
                     1215,
                     380
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
         "post_wait_freezes": {
