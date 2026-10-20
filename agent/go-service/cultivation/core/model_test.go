@@ -237,11 +237,22 @@ func TestEssenceSatisfied(t *testing.T) {
 func TestOwnedRowsKeepsWholeEdgeRow(t *testing.T) {
 	// 祀 on CloudADB: the bottom row's labels straddle the limit by a few pixels.
 	in := []Text{{"拥有9", [4]int{747, 635, 49, 19}, 1}, {"拥有0", [4]int{661, 637, 48, 19}, 1}, {"拥有93", [4]int{944, 636, 59, 21}, 1}}
-	if got := OwnedRows(in); len(got) != 3 || got[0].Text != "拥有0" {
+	if got := OwnedRows(in, false); len(got) != 3 || got[0].Text != "拥有0" {
 		t.Fatalf("row starting inside the limit must be kept whole: %+v", got)
 	}
 	in = []Text{{"拥有9", [4]int{747, 640, 49, 19}, 1}, {"拥有0", [4]int{661, 636, 48, 19}, 1}}
-	if got := OwnedRows(in); len(got) != 0 {
+	if got := OwnedRows(in, false); len(got) != 0 {
 		t.Fatalf("row starting below the limit must be dropped whole: %+v", got)
+	}
+}
+
+func TestOwnedRowsSkipsFadedTopRowWhenScrolled(t *testing.T) {
+	// 祀 on CloudADB: the 稀有采集物 icon under the top fade read as unknown.
+	in := []Text{{"拥有94", [4]int{922, 346, 50, 19}, 1}, {"拥有0", [4]int{661, 476, 48, 19}, 1}}
+	if got := OwnedRows(in, false); len(got) != 2 {
+		t.Fatalf("list top keeps the first row: %+v", got)
+	}
+	if got := OwnedRows(in, true); len(got) != 1 || got[0].Text != "拥有0" {
+		t.Fatalf("scrolled page skips the faded top row: %+v", got)
 	}
 }

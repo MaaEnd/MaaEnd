@@ -109,7 +109,7 @@ type iconIdentity struct {
 // readMaterialPage reads one viewport. section is the weapon section continuing
 // from the previous page ("" for the operator); it returns the section in effect
 // at the page bottom and the weapon headers seen.
-func readMaterialPage(ctx *maa.Context, img image.Image, section string, catalog map[string][]string, cache map[uint64]iconIdentity) ([]core.Material, bool, string, []string, error) {
+func readMaterialPage(ctx *maa.Context, img image.Image, section string, scrolled bool, catalog map[string][]string, cache map[uint64]iconIdentity) ([]core.Material, bool, string, []string, error) {
 	texts, err := ocrTexts(ctx, img, [4]int{420, 245, 820, 420})
 	if err != nil {
 		return nil, false, "", nil, err
@@ -138,7 +138,7 @@ func readMaterialPage(ctx *maa.Context, img image.Image, section string, catalog
 		}
 	}
 	var rows []core.Material
-	for _, owned := range core.OwnedRows(texts) {
+	for _, owned := range core.OwnedRows(texts, scrolled) {
 		estimate := image.Rect(owned.Box[0]+owned.Box[2]/2-40, owned.Box[1]-83, owned.Box[0]+owned.Box[2]/2+40, owned.Box[1]-3)
 		cell := core.AlignCellX(img, estimate, 12)
 		if !cell.In(image.Rect(0, 0, 1280, 720)) {

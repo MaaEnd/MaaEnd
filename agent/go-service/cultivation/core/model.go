@@ -226,11 +226,18 @@ func SplitOwned(texts []Text) []Text {
 }
 
 // OwnedRows returns stable row/column order, excluding other screen text.
-func OwnedRows(texts []Text) []Text {
+func OwnedRows(texts []Text, scrolled bool) []Text {
+	// On a scrolled page the top row sits under the list's fade and its icon can
+	// fail recognition; one 240 px swipe kept it whole near the previous page's
+	// bottom, so it is skipped here.
+	top := 335
+	if scrolled {
+		top = 355
+	}
 	var rows []Text
 	for _, t := range texts {
 		// The bottom limit is applied per row below; label boxes jitter by a few pixels.
-		if t.Score < .6 || t.Box[0] < 420 || t.Box[0] > 1240 || t.Box[1] < 335 || t.Box[1] > 635+12 {
+		if t.Score < .6 || t.Box[0] < 420 || t.Box[0] > 1240 || t.Box[1] < top || t.Box[1] > 635+12 {
 			continue
 		}
 		s := strings.ReplaceAll(t.Text, " ", "")
