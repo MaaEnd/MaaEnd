@@ -32,11 +32,35 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "GameLauncherClickStartGame"
+            "GameLauncherFindButton"
+        ]
+    },
+    "GameLauncherFindButton": {
+        "desc": "间隔10秒轮询右下角按钮：更新游戏 or 开始游戏",
+        "pre_delay": 10000,
+        "next": [
+            "GameLauncherClickUpdateGame",
+            "GameLauncherClickStartGame",
+            "GameLauncherFindButton"
+        ]
+    },
+    "GameLauncherClickUpdateGame": {
+        "desc": "右下角按钮显示更新游戏，点击更新",
+        "max_hit": 3,
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherStartGameYellow",
+            "GameLauncherUpdateGameText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_delay": 3000,
+        "next": [
+            "GameLauncherFindButton"
         ]
     },
     "GameLauncherClickStartGame": {
-        "desc": "已选中终末地，点击右下角开始游戏",
+        "desc": "右下角按钮显示开始游戏，点击开始",
         "max_hit": 3,
         "recognition": "And",
         "all_of": [
@@ -87,6 +111,9 @@
             "游戏中",
             "遊戲中",
             "(?i)\\bRunning\\b"
+        ],
+        "next": [
+            "GameLauncherExit"
         ]
     },
     "GameLauncherExit": {
@@ -128,6 +155,22 @@
             "开始游戏",
             "開始遊戲",
             "(?i)\\bPlay\\b"
+        ]
+    },
+    "GameLauncherUpdateGameText": {
+        "desc": "右下角更新游戏按钮",
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // @i18n-skip
+            "更新游戏",
+            "更新遊戲",
+            "(?i)\\bUpdate\\b"
         ]
     }
 }
