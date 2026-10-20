@@ -367,6 +367,7 @@
         "CultivationFarmClaim": {
             "type": "select",
             "label": "$option.CultivationFarmClaim.label",
+            "default_case": "ObtainScaling1",
             "cases": [
                 {
                     "name": "ObtainScaling1",
@@ -390,12 +391,12 @@
                         }
                     }
                 }
-            ],
-            "default_case": "ObtainScaling1"
+            ]
         },
         "CultivationFarmMedication": {
             "type": "select",
             "label": "$option.CultivationFarmMedication.label",
+            "default_case": "EndTask",
             "cases": [
                 {
                     "name": "EndTask",
@@ -419,12 +420,12 @@
                         }
                     }
                 }
-            ],
-            "default_case": "EndTask"
+            ]
         },
         "CultivationExpectation": {
             "type": "select",
             "label": "$option.CultivationExpectation.label",
+            "default_case": "Excellent",
             "cases": [
                 {
                     "name": "Basic",
@@ -578,8 +579,7 @@
                         }
                     }
                 }
-            ],
-            "default_case": "Excellent"
+            ]
         },
         "CultivationOperator": {
             "type": "select",

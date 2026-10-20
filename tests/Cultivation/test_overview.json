@@ -1,0 +1,44 @@
+{
+    "configs": {
+        "name": "(CloudADB-官服)干员培养，培养总览入口与培养期望",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "name": "干员详情：右上角培养总览按钮",
+            "image": "干员_管理员_详情.png",
+            "hits": [
+                "CultivationOverviewButton",
+                "CultivationOpenOverview"
+            ]
+        },
+        {
+            "name": "培养总览：期望为卓越",
+            "image": "培养总览_培养期望卓越.png",
+            "hits": [
+                "CultivationInOverview",
+                "CultivationExpectationReady",
+                "CultivationExpectationOpen"
+            ]
+        },
+        {
+            "name": "培养总览：期望为精通，默认（卓越）不应判定就绪",
+            "image": "培养总览_培养期望精通.png",
+            "hits": [
+                "CultivationInOverview",
+                "CultivationExpectationOpen"
+            ]
+        },
+        {
+            "name": "培养期望选择面板：可点卓越",
+            "image": "培养总览_培养期望选择面板.png",
+            "hits": [
+                "CultivationInOverview",
+                "CultivationExpectationReady",
+                "CultivationExpectationOpen",
+                "CultivationExpectationPick"
+            ]
+        }
+    ]
+}

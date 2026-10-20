@@ -19,7 +19,7 @@
     "controller.Win32-Window-Background.description": "Due to game updates, it can no longer be adapted. The background controller has been deprecated and will be removed in a future version.",
     "controller.Win32-Window-Background.label": "PC-Background (Deprecated - incompatible with new version)",
     "cultivation.cleared": "Cultivation plan cleared.",
-    "cultivation.exported": "CultivationSupplyPlan.preview.json exported. The export only previews goals; run \"Farm Protocol Space for the cultivation plan\" to farm.",
+    "cultivation.exported": "CultivationModules.preview.json exported. The export only previews goals; run \"Farm Protocol Space for the cultivation plan\" to farm.",
     "cultivation.failed": "Cultivation read failed; previous plan retained. Check the page and logs.",
     "cultivation.materials_missing": "Materials missing. Quantities are from the last complete scan; verify again after running modules.",
     "cultivation.materials_ready": "Materials were ready at the last scan; actual upgrades, promotions, skills and weapon development remain unverified.",

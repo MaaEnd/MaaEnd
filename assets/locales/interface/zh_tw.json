@@ -19,7 +19,7 @@
     "controller.Win32-Window-Background.description": "因遊戲更新導致無法繼續適配，後台控制器已棄用，並將在後續版本中移除。",
     "controller.Win32-Window-Background.label": "電腦端-後台棄用(無法適配新版本)",
     "cultivation.cleared": "已清空培養需求。",
-    "cultivation.exported": "已產生 CultivationSupplyPlan.preview.json。匯出僅預覽目標；刷取請執行「依培養計畫刷協議空間」。",
+    "cultivation.exported": "已產生 CultivationModules.preview.json。匯出僅預覽目標；刷取請執行「依培養計畫刷協議空間」。",
     "cultivation.failed": "培養讀取失敗；保留原計畫，請核對目前頁面和日誌。",
     "cultivation.materials_missing": "材料待補齊。以下為上次完整掃描庫存，執行模組後需重新核驗。",
     "cultivation.materials_ready": "上次掃描時材料已備齊；實際升級、突破、技能及武器培養結果待確認。",

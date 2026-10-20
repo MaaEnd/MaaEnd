@@ -108,6 +108,7 @@ Only required when maintaining the corresponding task.
 | [SeizeDeliveryJobs](./tasks/seize-delivery-jobs-maintain.md) | Data-driven endpoint generation, landmark-name maintenance, fallback text, and locale synchronization |
 | [GiftOperator](./tasks/gift-operator-maintain.md) | Navigation pathfinding, contact operator selection, gift giving/receiving branches, and operator extension maintenance |
 | [DeliveryJobs](./tasks/delivery-jobs-maintain.md) | Depot node handling modes, anchor landing rules, bid branches, and cargo packing priority maintenance |
+| [Cultivation](./tasks/cultivation-maintain.md) | Cultivation overview reading, operator and goal selection, Protocol Space goal integration, and PC support to do |
 
 ### Third-Party Protocol Documents (`protocol/`)
 

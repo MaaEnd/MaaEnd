@@ -19,7 +19,7 @@
     "controller.Win32-Window-Background.description": "게임 업데이트로 인해 더 이상 호환할 수 없습니다. 백그라운드 컨트롤러는 사용 중단되었으며 향후 버전에서 제거될 예정입니다.",
     "controller.Win32-Window-Background.label": "PC-백그라운드 (사용 중단 - 새 버전 호환 불가)",
     "cultivation.cleared": "육성 계획을 지웠습니다.",
-    "cultivation.exported": "CultivationSupplyPlan.preview.json을 내보냈습니다. 내보내기는 목표 미리 보기만 합니다. 파밍은 \"육성 계획대로 프로토콜 공간 파밍\"을 실행하세요.",
+    "cultivation.exported": "CultivationModules.preview.json을 내보냈습니다. 내보내기는 목표 미리 보기만 합니다. 파밍은 \"육성 계획대로 프로토콜 공간 파밍\"을 실행하세요.",
     "cultivation.failed": "읽기에 실패했습니다. 이전 계획을 유지합니다. 화면과 로그를 확인하세요.",
     "cultivation.materials_missing": "재료가 부족합니다. 수량은 마지막 전체 스캔 기준이며 실행 후 다시 확인해야 합니다.",
     "cultivation.materials_ready": "마지막 스캔에서 재료가 준비되었습니다. 실제 레벨, 돌파, 스킬 및 무기 육성 결과는 미확인입니다.",

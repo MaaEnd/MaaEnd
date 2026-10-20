@@ -256,6 +256,13 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 		return true
 	case "bottom":
+		// The page just read already shows the scrollbar at the bottom: the
+		// list is complete without another identical read. Lists without a
+		// visible scrollbar still need the stationary proof below.
+		if _, end, hasBar := scrollbarOf(scan.Previous); hasBar && end >= 652 && (len(scan.Rows) > 0 || scan.Empty) {
+			scan.Passes[p.Pass] = append(scan.Passes[p.Pass], scan.Rows...)
+			return choose(ctx, arg, p.Done)
+		}
 		if core.Stationary(img, scan.Previous) {
 			scan.Stable++
 		} else {
@@ -384,4 +391,12 @@ func readEssenceStep(ctx *maa.Context, img image.Image, p stepParam, catalog map
 		return fail(ctx, errors.New("list end not confirmed within measured traversal bound"))
 	}
 	return true
+}
+
+// scrollbarOf is core.Scrollbar for a possibly missing frame.
+func scrollbarOf(img image.Image) (int, int, bool) {
+	if img == nil {
+		return 0, 0, false
+	}
+	return core.Scrollbar(img)
 }
