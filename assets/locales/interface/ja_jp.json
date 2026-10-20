@@ -1675,6 +1675,8 @@
     "option.OperatorProgression.SkillUp.label": "スキルアップ",
     "option.OperatorProgression.TCreds.label": "コイン収集（折金券）",
     "option.OperatorProgression.label": "オペレーター育成",
+    "option.PerfectMinLevelTotal.inputs.PerfectMinLevelTotal.label": "完璧基質の合計レベル下限",
+    "option.PerfectMinLevelTotal.label": "完璧基質の合計レベル下限",
     "option.ProductionAssistControl.ProductionAssistControlNexus.label": "総合制御中枢を支援",
     "option.ProductionAssistControl.ProductionAssistGrowthChamber.label": "培養艙を支援",
     "option.ProductionAssistControl.ProductionAssistMFGCabin.label": "製造艙を支援",

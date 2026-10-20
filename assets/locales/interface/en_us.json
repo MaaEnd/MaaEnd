@@ -1675,6 +1675,8 @@
     "option.OperatorProgression.SkillUp.label": "Skill Upgrade",
     "option.OperatorProgression.TCreds.label": "Coin Collection (T-Creds)",
     "option.OperatorProgression.label": "Operator Progression",
+    "option.PerfectMinLevelTotal.inputs.PerfectMinLevelTotal.label": "Perfect-Match Min Total Level",
+    "option.PerfectMinLevelTotal.label": "Perfect-Match Min Total Level",
     "option.ProductionAssistControl.ProductionAssistControlNexus.label": "Assist Control Nexus",
     "option.ProductionAssistControl.ProductionAssistGrowthChamber.label": "Assist Growth Chamber",
     "option.ProductionAssistControl.ProductionAssistMFGCabin.label": "Assist MFG Cabin",

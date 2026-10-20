@@ -1675,6 +1675,8 @@
     "option.OperatorProgression.SkillUp.label": "技能提升",
     "option.OperatorProgression.TCreds.label": "钱币收集（折金票）",
     "option.OperatorProgression.label": "干员养成",
+    "option.PerfectMinLevelTotal.inputs.PerfectMinLevelTotal.label": "完美基质总等级下限",
+    "option.PerfectMinLevelTotal.label": "完美基质总等级下限",
     "option.ProductionAssistControl.ProductionAssistControlNexus.label": "助力总控中枢",
     "option.ProductionAssistControl.ProductionAssistGrowthChamber.label": "助力培养舱",
     "option.ProductionAssistControl.ProductionAssistMFGCabin.label": "助力制造舱",

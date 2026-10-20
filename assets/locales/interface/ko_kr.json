@@ -1675,6 +1675,8 @@
     "option.OperatorProgression.SkillUp.label": "스킬 업그레이드",
     "option.OperatorProgression.TCreds.label": "코인 수집 (탈로시안 화폐)",
     "option.OperatorProgression.label": "오퍼레이터 육성",
+    "option.PerfectMinLevelTotal.inputs.PerfectMinLevelTotal.label": "완벽 기질 최소 총 레벨",
+    "option.PerfectMinLevelTotal.label": "완벽 기질 최소 총 레벨",
     "option.ProductionAssistControl.ProductionAssistControlNexus.label": "총괄 제어 넥서스 지원",
     "option.ProductionAssistControl.ProductionAssistGrowthChamber.label": "배양실 지원",
     "option.ProductionAssistControl.ProductionAssistMFGCabin.label": "제조 캐빈 지원",
