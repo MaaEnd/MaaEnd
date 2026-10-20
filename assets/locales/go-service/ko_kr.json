@@ -66,6 +66,7 @@
     "autostockpile.warning_skip.text": "⚠️%s (%s)",
     "batchaddfriends.strangers_progress": "친구 추가 진행도 [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s: 친구 신청을 보냈습니다 (%d/%d)",
+    "cultivation.nothing_needed": "육성: %s / %s. 게임에서 모든 항목이 상한에 도달해 필요한 재료가 없습니다.",
     "cultivation.operator_missing": "육성 개요의 오퍼레이터 목록에서 선택한 오퍼레이터를 찾지 못했습니다. 육성 개요가 열려 있는지 확인하거나 \"현재 선택\"을 사용하세요.",
     "cultivation.unknown_item": "미확인 아이템 %s",
     "cultivation.unknown_notice": "%d종의 재료가 MaaEnd 아이템 아이콘 목록에 없습니다(신규 아이템일 수 있음). \"수동\"으로 표시하며 자동 파밍하지 않습니다. 아이콘은 debug/cultivation/에 저장했습니다. MaaEnd 업데이트 후 육성 재료를 다시 읽어 주세요.",

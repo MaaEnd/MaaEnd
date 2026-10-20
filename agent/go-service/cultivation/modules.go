@@ -54,6 +54,11 @@ func showModules(ctx *maa.Context, plan core.Plan, export bool) error {
 		}
 		lines = append(lines, fmt.Sprintf("%s [%s]: %d / %d (-%d)", name, i18n.T("cultivation.module."+row.Module), row.Owned, row.Need, max(row.Need-row.Owned, 0)))
 	}
+	if len(plan.Materials) == 0 {
+		// Every tab said it needs nothing: the target is already reached.
+		maafocus.Print(ctx, i18n.T("cultivation.nothing_needed", plan.Header.Operator, plan.Header.Expectation))
+		return nil
+	}
 	state := "cultivation.materials_missing"
 	if preview.MaterialsReady {
 		state = "cultivation.materials_ready"

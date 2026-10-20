@@ -179,14 +179,7 @@ func readMaterialPage(ctx *maa.Context, img image.Image, section string, catalog
 		}
 		rows = append(rows, core.Material{ID: item.ID, Name: item.Name, Need: need, Owned: have, Unknown: item.Unknown, Weapon: sectionAt(cell.Min.Y)})
 	}
-	empty := false
-	for _, text := range texts {
-		for _, s := range []string{"当前注入基质", "暂无养成需求", "暂无材料需求"} {
-			if strings.Contains(text.Text, s) {
-				empty = true
-			}
-		}
-	}
+	empty := core.NothingNeeded(texts)
 	if len(rows) == 0 && !empty && len(headers) == 0 {
 		return nil, false, "", nil, errors.New("empty recognition is not proof of no demand")
 	}

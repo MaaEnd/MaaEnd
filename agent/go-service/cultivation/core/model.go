@@ -291,7 +291,9 @@ func Merge(rows []Material) ([]Material, error) {
 }
 
 // Confirm requires two identical complete reads before producing a new plan.
-func Confirm(header Header, first, second []Material, revision uint64, now time.Time) (Plan, error) {
+// An empty result is accepted only when every tab stated that it needs nothing
+// (e.g. 「干员等级已达上限」 on a fully trained operator), never from an empty read.
+func Confirm(header Header, first, second []Material, revision uint64, now time.Time, statedEmpty bool) (Plan, error) {
 	a, err := Merge(first)
 	if err != nil {
 		return Plan{}, err
@@ -300,7 +302,7 @@ func Confirm(header Header, first, second []Material, revision uint64, now time.
 	if err != nil {
 		return Plan{}, err
 	}
-	if header.Operator == "" || header.Expectation == "" || len(a) == 0 || !slices.Equal(a, b) {
+	if header.Operator == "" || header.Expectation == "" || (len(a) == 0 && !statedEmpty) || !slices.Equal(a, b) {
 		return Plan{}, errors.New("两遍材料不一致、为空或目标未确认，保留旧计划")
 	}
 	return Plan{Version: 1, Source: SourceVersion, Revision: revision, Header: header, ReadAt: now.UTC(), Materials: a}, nil
@@ -330,7 +332,7 @@ var ItemTargets = map[string]TargetSpec{
 
 // BuildTargets emits total stock goals, never deficits; unsupported items remain manual.
 func BuildTargets(plan Plan) (map[string]int64, []Material, error) {
-	if plan.Version != 1 || plan.Source != SourceVersion || plan.Header.Operator == "" || plan.Header.Expectation == "" || plan.ReadAt.IsZero() || len(plan.Materials) == 0 {
+	if plan.Version != 1 || plan.Source != SourceVersion || plan.Header.Operator == "" || plan.Header.Expectation == "" || plan.ReadAt.IsZero() {
 		return nil, nil, errors.New("invalid/version-mismatched plan")
 	}
 	if done := plan.Completion; done != nil && (done.Method != "user_confirmed" || done.Revision != plan.Revision || done.Header != plan.Header || done.At.Before(plan.ReadAt)) {
@@ -425,4 +427,18 @@ func abs(v int) int {
 		return -v
 	}
 	return v
+}
+
+// NothingNeeded reports the page's own statement that this tab needs nothing,
+// e.g. 「干员等级已达上限」 on a maxed operator. An empty read alone is never
+// taken as no demand.
+func NothingNeeded(texts []Text) bool {
+	for _, text := range texts {
+		for _, marker := range []string{"已达上限", "当前注入基质", "暂无养成需求", "暂无材料需求"} {
+			if strings.Contains(strings.ReplaceAll(text.Text, " ", ""), marker) {
+				return true
+			}
+		}
+	}
+	return false
 }

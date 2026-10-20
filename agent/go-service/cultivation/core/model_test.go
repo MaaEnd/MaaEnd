@@ -77,15 +77,19 @@ func TestSupplyGoalsUseTotalAndWeightedExperience(t *testing.T) {
 func TestTwoCompletePassesRequired(t *testing.T) {
 	h := Header{"管理员", "卓越"}
 	a := []Material{{ID: "item_gold", Name: "折金票", Need: 40, Owned: 30}}
-	if _, err := Confirm(h, a, a, 5, time.Now()); err != nil {
+	if _, err := Confirm(h, a, a, 5, time.Now(), false); err != nil {
 		t.Fatal(err)
 	}
 	b := []Material{{ID: "item_gold", Name: "折金票", Need: 41, Owned: 30}}
-	if _, err := Confirm(h, a, b, 5, time.Now()); err == nil {
+	if _, err := Confirm(h, a, b, 5, time.Now(), false); err == nil {
 		t.Fatal("accepted inconsistent passes")
 	}
-	if _, err := Confirm(h, nil, nil, 5, time.Now()); err == nil {
+	if _, err := Confirm(h, nil, nil, 5, time.Now(), false); err == nil {
 		t.Fatal("empty recognition became completion")
+	}
+	// A fully trained operator: every tab said 已达上限, so nothing is needed.
+	if plan, err := Confirm(h, nil, nil, 5, time.Now(), true); err != nil || len(plan.Materials) != 0 {
+		t.Fatalf("stated-empty plan rejected: %v", err)
 	}
 }
 
@@ -181,5 +185,14 @@ func TestReadEssencePanelsLeadingIconDigit(t *testing.T) {
 	lines, _, err := ReadEssencePanels(texts, []Text{texts[1]}, "")
 	if err != nil || len(lines) != 1 || lines[0].Weapon != "落草" || lines[0].Y != 453 {
 		t.Fatalf("lines=%+v err=%v", lines, err)
+	}
+}
+
+func TestNothingNeededOnMaxedTab(t *testing.T) {
+	if !NothingNeeded([]Text{{Text: "干员等级已达上限", Box: [4]int{752, 505, 166, 21}, Score: 1}}) {
+		t.Fatal("maxed operator level not recognised")
+	}
+	if NothingNeeded([]Text{{Text: "干员等级提升", Box: [4]int{443, 270, 103, 20}, Score: 1}}) {
+		t.Fatal("section title taken as no demand")
 	}
 }

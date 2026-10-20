@@ -67,6 +67,7 @@
     "autostockpile.warning_skip.text": "⚠️%s (%s)",
     "batchaddfriends.strangers_progress": "Add friends progress [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s: Friend request sent (%d/%d)",
+    "cultivation.nothing_needed": "Cultivation: %s / %s. The game shows every item at its limit; no materials are needed.",
     "cultivation.operator_missing": "The chosen operator was not found in the cultivation overview list. Make sure the overview is open, or use \"Current\".",
     "cultivation.unknown_item": "Unrecognized item %s",
     "cultivation.unknown_notice": "%d material(s) are not in the MaaEnd item icon catalog (possibly new items). They are listed as Manual and will not be farmed automatically. Icons were saved to debug/cultivation/; update MaaEnd and read cultivation needs again.",

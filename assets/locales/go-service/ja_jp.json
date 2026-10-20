@@ -66,6 +66,7 @@
     "autostockpile.warning_skip.text": "⚠️%s（%s）",
     "batchaddfriends.strangers_progress": "フレンド追加の進捗 [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s：フレンド申請を送信しました（%d/%d）",
+    "cultivation.nothing_needed": "育成：%s / %s。ゲーム上すべて上限に達しており、必要な素材はありません。",
     "cultivation.operator_missing": "育成一覧のオペレーター一覧に選択したオペレーターが見つかりません。育成一覧を開いているか確認するか、「現在の選択」を使用してください。",
     "cultivation.unknown_item": "未識別アイテム %s",
     "cultivation.unknown_notice": "%d 種の素材が MaaEnd のアイテムアイコン一覧にありません（新規アイテムの可能性）。「手動」として表示し、自動周回の対象にはしません。アイコンは debug/cultivation/ に保存しました。MaaEnd を更新後、育成素材を再度読み取ってください。",

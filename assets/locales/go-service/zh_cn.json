@@ -67,6 +67,7 @@
     "autostockpile.warning_skip.text": "⚠️%s（%s）",
     "batchaddfriends.strangers_progress": "添加好友进度 [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s：已发送好友申请（%d/%d）",
+    "cultivation.nothing_needed": "培养任务：%s / %s；游戏显示各项已达上限，没有需要的材料。",
     "cultivation.operator_missing": "在培养总览的干员列表中没有找到所选干员，请确认已打开培养总览，或改用「当前已选」。",
     "cultivation.unknown_item": "未识别物品 %s",
     "cultivation.unknown_notice": "有 %d 种材料不在 MaaEnd 物品图标库中（可能是新版本物品），已按「人工补充」列出，不会自动刷取。图标已保存到 debug/cultivation/，更新 MaaEnd 后重新读取培养需求即可识别。",

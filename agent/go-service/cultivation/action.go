@@ -122,7 +122,9 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return fail(ctx, errors.New("scan identity or target changed"))
 	}
 	if p.Step == "finish" {
-		plan, err := core.Confirm(scan.Header, scan.Passes[0], scan.Passes[1], scan.Revision, time.Now())
+		// Every tab finished only with rows or the page's own "nothing needed"
+		// statement, so empty passes here mean the operator needs nothing.
+		plan, err := core.Confirm(scan.Header, scan.Passes[0], scan.Passes[1], scan.Revision, time.Now(), true)
 		if err != nil {
 			return fail(ctx, err)
 		}
@@ -351,8 +353,9 @@ func readEssenceStep(ctx *maa.Context, img image.Image, p stepParam, catalog map
 		Interface("essence", scan.Essence[p.Pass]).Msg("cultivation essence page read")
 	scan.Section = section
 	scan.Previous = img
-	// The tab has no material rows; a read panel stands for a confirmed list.
-	scan.Empty = scan.Empty || len(lines) > 0
+	// The tab has no material rows; a read panel or the page's own "maxed"
+	// statement stands for a confirmed list.
+	scan.Empty = scan.Empty || len(lines) > 0 || core.NothingNeeded(texts)
 	scan.Pages++
 	if scan.Pages > 16 {
 		return fail(ctx, errors.New("list end not confirmed within measured traversal bound"))
