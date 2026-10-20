@@ -9,6 +9,9 @@
             ],
             "controller": [
                 "CloudADB"
+            ],
+            "option": [
+                "CultivationWeapon"
             ]
         },
         {
@@ -20,6 +23,9 @@
             ],
             "controller": [
                 "CloudADB"
+            ],
+            "option": [
+                "CultivationWeapon"
             ]
         },
         {
@@ -31,6 +37,9 @@
             ],
             "controller": [
                 "CloudADB"
+            ],
+            "option": [
+                "CultivationWeapon"
             ]
         },
         {
@@ -55,5 +64,228 @@
                 "CloudADB"
             ]
         }
-    ]
+    ],
+    "option": {
+        "CultivationWeapon": {
+            "type": "select",
+            "label": "$option.CultivationWeapon.label",
+            "description": "$option.CultivationWeapon.description",
+            "cases": [
+                {
+                    "name": "Keep",
+                    "label": "$option.CultivationWeapon.cases.Keep.label"
+                },
+                {
+                    "name": "None",
+                    "label": "$option.CultivationWeapon.cases.None.label",
+                    "pipeline_override": {
+                        "CultivationFinish": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "finish",
+                                        "weapon": 0
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationPreview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "preview",
+                                        "weapon": 0
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationExport": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "export",
+                                        "weapon": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "First",
+                    "label": "$option.CultivationWeapon.cases.First.label",
+                    "pipeline_override": {
+                        "CultivationFinish": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "finish",
+                                        "weapon": 1
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationPreview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "preview",
+                                        "weapon": 1
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationExport": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "export",
+                                        "weapon": 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Second",
+                    "label": "$option.CultivationWeapon.cases.Second.label",
+                    "pipeline_override": {
+                        "CultivationFinish": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "finish",
+                                        "weapon": 2
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationPreview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "preview",
+                                        "weapon": 2
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationExport": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "export",
+                                        "weapon": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Third",
+                    "label": "$option.CultivationWeapon.cases.Third.label",
+                    "pipeline_override": {
+                        "CultivationFinish": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "finish",
+                                        "weapon": 3
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationPreview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "preview",
+                                        "weapon": 3
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationExport": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "export",
+                                        "weapon": 3
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Fourth",
+                    "label": "$option.CultivationWeapon.cases.Fourth.label",
+                    "pipeline_override": {
+                        "CultivationFinish": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "finish",
+                                        "weapon": 4
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationPreview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "preview",
+                                        "weapon": 4
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationExport": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "export",
+                                        "weapon": 4
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }

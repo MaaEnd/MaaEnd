@@ -2722,5 +2722,13 @@
     "weapon.wpn_sword_0023": "★5 點心時刻",
     "weapon.wpn_sword_0024": "★6 聚合工業",
     "weapon.wpn_sword_0025": "★6 喚月",
-    "weapon.wpn_sword_0026": "★6 遙望"
+    "weapon.wpn_sword_0026": "★6 遙望",
+    "option.CultivationWeapon.label": "培養武器",
+    "option.CultivationWeapon.description": "幹員只能裝備一把武器。讀取後日誌會依遊戲順序列出可用武器，在此選擇要計入刷取目標的那一把。",
+    "option.CultivationWeapon.cases.Keep.label": "保持上次選擇",
+    "option.CultivationWeapon.cases.None.label": "不培養武器",
+    "option.CultivationWeapon.cases.First.label": "第 1 把",
+    "option.CultivationWeapon.cases.Second.label": "第 2 把",
+    "option.CultivationWeapon.cases.Third.label": "第 3 把",
+    "option.CultivationWeapon.cases.Fourth.label": "第 4 把"
 }

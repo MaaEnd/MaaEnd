@@ -38,6 +38,9 @@ type Material struct {
 	// Unknown marks an icon missing from the IconRecognition catalog; it is kept for
 	// display and never mapped to a farming module.
 	Unknown bool `json:"unknown,omitempty"`
+	// Weapon names the 干员可用武器 section a row belongs to; empty for the
+	// operator's own needs. Only one weapon can be equipped, so the user picks one.
+	Weapon string `json:"weapon,omitempty"`
 }
 
 // UnknownIDPrefix starts the synthetic ID of an icon missing from the catalog.
@@ -50,14 +53,43 @@ func UnknownID(hash uint64) string {
 
 // Plan is a complete two-pass read of one operator; the prototype replaces it.
 type Plan struct {
-	Version    int         `json:"version"`
-	Source     string      `json:"source"`
-	Revision   uint64      `json:"revision"`
-	Header     Header      `json:"header"`
-	ReadAt     time.Time   `json:"read_at"`
-	Materials  []Material  `json:"materials"`
-	Weapon     *Weapon     `json:"weapon,omitempty"`
-	Completion *Completion `json:"completion,omitempty"`
+	Version   int        `json:"version"`
+	Source    string     `json:"source"`
+	Revision  uint64     `json:"revision"`
+	Header    Header     `json:"header"`
+	ReadAt    time.Time  `json:"read_at"`
+	Materials []Material `json:"materials"`
+	// Weapons lists the usable weapons in on-screen order.
+	Weapons []Weapon `json:"weapons,omitempty"`
+	// WeaponChoice is the weapon name the user chose to develop; empty counts
+	// only the operator's own materials. It is a setting, not scan data.
+	WeaponChoice string      `json:"weapon_choice,omitempty"`
+	Completion   *Completion `json:"completion,omitempty"`
+}
+
+// ChosenWeapon returns the chosen weapon, or nil when none is chosen.
+func (p Plan) ChosenWeapon() *Weapon {
+	for i := range p.Weapons {
+		if p.Weapons[i].Name == p.WeaponChoice {
+			return &p.Weapons[i]
+		}
+	}
+	return nil
+}
+
+// Selected keeps the operator's rows and those of the chosen weapon, merged by item.
+func (p Plan) Selected() ([]Material, error) {
+	if p.WeaponChoice != "" && p.ChosenWeapon() == nil {
+		return nil, fmt.Errorf("chosen weapon %q is not in the plan", p.WeaponChoice)
+	}
+	var picked []Material
+	for _, r := range p.Materials {
+		if r.Weapon == "" || r.Weapon == p.WeaponChoice {
+			r.Weapon = ""
+			picked = append(picked, r)
+		}
+	}
+	return Merge(picked)
 }
 
 // Completion records explicit user attestation, never inferred module success.
@@ -208,14 +240,16 @@ func MergePage(seen, page []Material) []Material {
 	return append(slices.Clone(seen), page...)
 }
 
-// Merge sums needs by stable item ID and counts account inventory once.
+// Merge sums needs by stable item ID within each weapon section and counts
+// account inventory once.
 func Merge(rows []Material) ([]Material, error) {
 	byID := map[string]Material{}
 	for _, r := range rows {
+		key := r.Weapon + "|" + r.ID
 		if r.ID == "" || (r.Name == "" && !r.Unknown) || r.Need < 0 || r.Owned < 0 {
 			return nil, errors.New("invalid material identity or amount")
 		}
-		if old, ok := byID[r.ID]; ok {
+		if old, ok := byID[key]; ok {
 			if old.Name != r.Name || old.Owned != r.Owned {
 				return nil, fmt.Errorf("inconsistent identity/inventory for %s", r.ID)
 			}
@@ -224,13 +258,18 @@ func Merge(rows []Material) ([]Material, error) {
 			}
 			r.Need += old.Need
 		}
-		byID[r.ID] = r
+		byID[key] = r
 	}
 	result := make([]Material, 0, len(byID))
 	for _, r := range byID {
 		result = append(result, r)
 	}
-	sort.Slice(result, func(i, j int) bool { return result[i].ID < result[j].ID })
+	sort.Slice(result, func(i, j int) bool {
+		if result[i].Weapon != result[j].Weapon {
+			return result[i].Weapon < result[j].Weapon
+		}
+		return result[i].ID < result[j].ID
+	})
 	return result, nil
 }
 
@@ -280,7 +319,7 @@ func BuildTargets(plan Plan) (map[string]int64, []Material, error) {
 	if done := plan.Completion; done != nil && (done.Method != "user_confirmed" || done.Revision != plan.Revision || done.Header != plan.Header || done.At.Before(plan.ReadAt)) {
 		return nil, nil, errors.New("completion evidence does not bind to this plan")
 	}
-	rows, err := Merge(plan.Materials)
+	rows, err := plan.Selected()
 	if err != nil {
 		return nil, nil, err
 	}

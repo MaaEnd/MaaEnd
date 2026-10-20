@@ -66,17 +66,34 @@ func header(ctx *maa.Context, img image.Image) (core.Header, error) {
 	return core.ReadHeader(append(title, identity...))
 }
 
-func readMaterialPage(ctx *maa.Context, img image.Image) ([]core.Material, bool, error) {
+// readMaterialPage reads one viewport. section is the weapon section continuing
+// from the previous page ("" for the operator); it returns the section in effect
+// at the page bottom and the weapon headers seen.
+func readMaterialPage(ctx *maa.Context, img image.Image, section string, catalog map[string][]string) ([]core.Material, bool, string, []string, error) {
 	texts, err := ocrTexts(ctx, img, [4]int{420, 245, 820, 420})
 	if err != nil {
-		return nil, false, err
+		return nil, false, "", nil, err
 	}
 	texts = core.SplitOwned(texts)
+	headers := weaponHeaders(texts, catalog)
+	var names []string
+	for _, h := range headers {
+		names = append(names, h.Text)
+	}
+	sectionAt := func(y int) string {
+		current := section
+		for _, h := range headers {
+			if h.Box[1] < y {
+				current = h.Text
+			}
+		}
+		return current
+	}
 	for _, text := range texts {
 		label := strings.ReplaceAll(text.Text, " ", "")
 		if strings.HasPrefix(label, "拥有") {
 			if _, err := core.Amount(strings.TrimPrefix(label, "拥有")); err != nil || text.Score < .6 {
-				return nil, false, fmt.Errorf("unreadable owned-material slot %q at %v (score %.2f)", text.Text, text.Box, text.Score)
+				return nil, false, "", nil, fmt.Errorf("unreadable owned-material slot %q at %v (score %.2f)", text.Text, text.Box, text.Score)
 			}
 		}
 	}
@@ -85,7 +102,7 @@ func readMaterialPage(ctx *maa.Context, img image.Image) ([]core.Material, bool,
 		estimate := image.Rect(owned.Box[0]+owned.Box[2]/2-40, owned.Box[1]-83, owned.Box[0]+owned.Box[2]/2+40, owned.Box[1]-3)
 		cell := core.AlignCellX(img, estimate, 12)
 		if !cell.In(image.Rect(0, 0, 1280, 720)) {
-			return nil, false, errors.New("invalid icon ROI")
+			return nil, false, "", nil, errors.New("invalid icon ROI")
 		}
 		roi := maa.Rect{cell.Min.X, cell.Min.Y, 80, 80}
 		// Reuse upstream single_roi rather than importing SRC's icon matcher/runtime.
@@ -94,11 +111,11 @@ func readMaterialPage(ctx *maa.Context, img image.Image) ([]core.Material, bool,
 		patch := map[string]any{"CultivationIcon": map[string]any{"recognition": map[string]any{"type": "Custom", "param": map[string]any{"custom_recognition": iconrecognition.CustomRecognitionName, "custom_recognition_param": params, "roi": roi}}}}
 		detail, err := ctx.RunRecognition("CultivationIcon", img, patch)
 		if err != nil {
-			return nil, false, err
+			return nil, false, "", nil, err
 		}
 		item, box, err := identifyIcon(img, roi, detail)
 		if err != nil {
-			return nil, false, err
+			return nil, false, "", nil, err
 		}
 		if box {
 			// Boxes listed beside a material are optional substitutes, not a need.
@@ -107,7 +124,7 @@ func readMaterialPage(ctx *maa.Context, img image.Image) ([]core.Material, bool,
 		// The required amount is printed on the bottom strip of the card itself.
 		numbers, err := ocrTexts(ctx, img, [4]int{cell.Min.X, cell.Min.Y + 52, 80, 28})
 		if err != nil {
-			return nil, false, err
+			return nil, false, "", nil, err
 		}
 		values := map[int64]bool{}
 		for _, text := range numbers {
@@ -118,7 +135,7 @@ func readMaterialPage(ctx *maa.Context, img image.Image) ([]core.Material, bool,
 			}
 		}
 		if len(values) != 1 {
-			return nil, false, fmt.Errorf("ambiguous material quantity: %s", item.ID)
+			return nil, false, "", nil, fmt.Errorf("ambiguous material quantity: %s", item.ID)
 		}
 		var need int64
 		for n := range values {
@@ -126,9 +143,9 @@ func readMaterialPage(ctx *maa.Context, img image.Image) ([]core.Material, bool,
 		}
 		have, err := core.Amount(strings.TrimPrefix(strings.ReplaceAll(owned.Text, " ", ""), "拥有"))
 		if err != nil {
-			return nil, false, err
+			return nil, false, "", nil, err
 		}
-		rows = append(rows, core.Material{ID: item.ID, Name: item.Name, Need: need, Owned: have, Unknown: item.Unknown})
+		rows = append(rows, core.Material{ID: item.ID, Name: item.Name, Need: need, Owned: have, Unknown: item.Unknown, Weapon: sectionAt(cell.Min.Y)})
 	}
 	empty := false
 	for _, text := range texts {
@@ -138,53 +155,47 @@ func readMaterialPage(ctx *maa.Context, img image.Image) ([]core.Material, bool,
 			}
 		}
 	}
-	if len(rows) == 0 && !empty {
-		return nil, false, errors.New("empty recognition is not proof of no demand")
+	if len(rows) == 0 && !empty && len(headers) == 0 {
+		return nil, false, "", nil, errors.New("empty recognition is not proof of no demand")
 	}
-	return rows, empty, nil
+	return rows, empty, sectionAt(720), names, nil
 }
 
-func readWeapon(ctx *maa.Context, img image.Image) (core.Weapon, error) {
-	texts, err := ocrTexts(ctx, img, [4]int{485, 295, 290, 65})
-	if err != nil {
-		return core.Weapon{}, err
-	}
+// weaponCatalog maps each weapon display name to its catalog IDs; one name can
+// cover several IDs (e.g. skins), which stay candidates.
+func weaponCatalog() (map[string][]string, error) {
 	var catalog map[string]struct {
 		Name         string `json:"name"`
 		CategoryType string `json:"categoryType"`
 	}
-	if err = resource.ReadJsonResource("data/IconRecognition/recognition_items.json", &catalog); err != nil {
-		return core.Weapon{}, err
+	if err := resource.ReadJsonResource("data/IconRecognition/recognition_items.json", &catalog); err != nil {
+		return nil, err
 	}
-	hits := map[string]map[string]bool{}
+	out := map[string][]string{}
+	for id, item := range catalog {
+		if item.CategoryType == "Weapon" {
+			out[item.Name] = append(out[item.Name], id)
+		}
+	}
+	for name := range out {
+		sort.Strings(out[name])
+	}
+	return out, nil
+}
+
+// weaponHeaders returns the 干员可用武器 section headers on a page, top first:
+// a catalogued weapon name in the left part of the header bar.
+func weaponHeaders(texts []core.Text, catalog map[string][]string) []core.Text {
+	var headers []core.Text
 	for _, text := range texts {
-		if text.Score < .6 {
-			continue
-		}
-		for id, item := range catalog {
-			if item.CategoryType == "Weapon" && item.Name == strings.ReplaceAll(text.Text, " ", "") {
-				if hits[item.Name] == nil {
-					hits[item.Name] = map[string]bool{}
-				}
-				hits[item.Name][id] = true
-			}
+		name := strings.ReplaceAll(text.Text, " ", "")
+		if text.Score >= .6 && text.Box[0] >= 480 && text.Box[0] <= 760 && catalog[name] != nil {
+			text.Text = name
+			headers = append(headers, text)
 		}
 	}
-	if len(hits) != 1 {
-		return core.Weapon{}, errors.New("weapon name not uniquely confirmed")
-	}
-	for name, ids := range hits {
-		weapon := core.Weapon{Name: name, EssenceStatus: "unverified_manual"}
-		for id := range ids {
-			weapon.CandidateIDs = append(weapon.CandidateIDs, id)
-		}
-		sort.Strings(weapon.CandidateIDs)
-		if len(weapon.CandidateIDs) == 1 {
-			weapon.ID = weapon.CandidateIDs[0]
-		}
-		return weapon, nil
-	}
-	return core.Weapon{}, errors.New("weapon missing")
+	sort.Slice(headers, func(i, j int) bool { return headers[i].Box[1] < headers[j].Box[1] })
+	return headers
 }
 
 // boxCategory is the IconRecognition category of every selectable/random box.

@@ -122,3 +122,27 @@ func TestSplitOwnedMergedLabels(t *testing.T) {
 		t.Fatalf("second label centre %d", c)
 	}
 }
+
+func TestWeaponChoiceSelectsOneSection(t *testing.T) {
+	p := plan(
+		Material{ID: "item_gold", Name: "折金票", Need: 100, Owned: 500},
+		Material{ID: "item_gold", Name: "折金票", Need: 40, Owned: 500, Weapon: "落草"},
+		Material{ID: "item_weapon_break_low", Name: "轻黯石", Need: 23, Owned: 199, Weapon: "落草"},
+		Material{ID: "item_gold", Name: "折金票", Need: 50, Owned: 500, Weapon: "望乡"},
+		Material{ID: "item_weapon_break_high", Name: "重黯石", Need: 50, Owned: 99, Weapon: "望乡"},
+	)
+	p.Weapons = []Weapon{{Name: "落草"}, {Name: "望乡"}}
+	goals, _, err := BuildTargets(p)
+	if err != nil || goals["T_CREDS"] != 100 || goals["CAST_DIE"] != 0 || goals["HEAVY_CAST_DIE"] != 0 {
+		t.Fatalf("no weapon: %v %v", goals, err)
+	}
+	p.WeaponChoice = "望乡"
+	goals, _, err = BuildTargets(p)
+	if err != nil || goals["T_CREDS"] != 150 || goals["CAST_DIE"] != 0 || goals["HEAVY_CAST_DIE"] != 50 {
+		t.Fatalf("望乡: %v %v", goals, err)
+	}
+	p.WeaponChoice = "不存在"
+	if _, _, err = BuildTargets(p); err == nil {
+		t.Fatal("unknown weapon choice accepted")
+	}
+}

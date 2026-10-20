@@ -2722,5 +2722,13 @@
     "weapon.wpn_sword_0023": "★5 간식 시간",
     "weapon.wpn_sword_0024": "★6 응집 공업",
     "weapon.wpn_sword_0025": "★6 환월",
-    "weapon.wpn_sword_0026": "★6 조망"
+    "weapon.wpn_sword_0026": "★6 조망",
+    "option.CultivationWeapon.label": "육성할 무기",
+    "option.CultivationWeapon.description": "오퍼레이터는 무기를 하나만 장착합니다. 읽은 뒤 로그에 사용 가능 무기가 게임 순서대로 표시됩니다. 파밍 목표에 포함할 무기를 선택하세요.",
+    "option.CultivationWeapon.cases.Keep.label": "이전 선택 유지",
+    "option.CultivationWeapon.cases.None.label": "무기 육성 안 함",
+    "option.CultivationWeapon.cases.First.label": "1번째",
+    "option.CultivationWeapon.cases.Second.label": "2번째",
+    "option.CultivationWeapon.cases.Third.label": "3번째",
+    "option.CultivationWeapon.cases.Fourth.label": "4번째"
 }

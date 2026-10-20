@@ -52,7 +52,8 @@ func TestPreservedDeviceTabLayout(t *testing.T) {
 
 func TestWeaponMetadataDoesNotBecomeMaterialGoal(t *testing.T) {
 	p := plan(Material{ID: "item_gold", Name: "折金票", Need: 40, Owned: 30})
-	p.Weapon = &Weapon{Name: "宏愿", CandidateIDs: []string{"wpn_sword_0021", "wpn_sword_0021_ink"}, EssenceStatus: "unverified_manual"}
+	p.Weapons = []Weapon{{Name: "宏愿", CandidateIDs: []string{"wpn_sword_0021", "wpn_sword_0021_ink"}, EssenceStatus: "unverified_manual"}}
+	p.WeaponChoice = "宏愿"
 	goals, manual, err := BuildTargets(p)
 	if err != nil || len(goals) != 16 || len(manual) != 0 || goals["T_CREDS"] != 40 {
 		t.Fatalf("%v %+v %+v", err, goals, manual)

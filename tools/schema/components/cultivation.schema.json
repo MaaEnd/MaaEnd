@@ -39,6 +39,11 @@
                 "done": {
                     "type": "string",
                     "pattern": "^Cultivation"
+                },
+                "weapon": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4
                 }
             }
         },

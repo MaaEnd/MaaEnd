@@ -78,8 +78,37 @@ func savePlan(plan core.Plan, expected uint64) error {
 	if stored.Revision != expected {
 		return errors.New("plan cleared or changed during scan")
 	}
+	// A rescan keeps the weapon chosen before if that weapon is still listed.
+	if plan.WeaponChoice == "" && stored.Plan != nil {
+		for _, weapon := range plan.Weapons {
+			if weapon.Name == stored.Plan.WeaponChoice {
+				plan.WeaponChoice = weapon.Name
+			}
+		}
+	}
 	stored.Revision++
 	plan.Revision = stored.Revision
+	stored.Plan = &plan
+	return writePlan(stored)
+}
+
+// setWeaponChoice records which usable weapon to develop. It is a setting on
+// the stored scan, so the revision stays; a changed plan revision rejects it.
+func setWeaponChoice(revision uint64, name string) error {
+	planMu.Lock()
+	defer planMu.Unlock()
+	stored, err := loadPlan()
+	if err != nil {
+		return err
+	}
+	if stored.Plan == nil || stored.Revision != revision {
+		return errors.New("plan cleared or changed before the weapon choice was saved")
+	}
+	plan := *stored.Plan
+	plan.WeaponChoice = name
+	if _, _, err = core.BuildTargets(plan); err != nil {
+		return err
+	}
 	stored.Plan = &plan
 	return writePlan(stored)
 }

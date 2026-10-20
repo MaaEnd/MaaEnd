@@ -3,6 +3,7 @@ package cultivation
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"image"
 	"slices"
 	"strings"
@@ -28,6 +29,9 @@ type stepParam struct {
 	Pass  int    `json:"pass"`
 	Again string `json:"again"`
 	Done  string `json:"done"`
+	// Weapon is the CultivationWeapon option: 0 none, n the n-th usable weapon,
+	// absent keeps the stored choice.
+	Weapon *int `json:"weapon"`
 }
 type session struct {
 	TaskID       int64
@@ -41,7 +45,8 @@ type session struct {
 	Stable       int
 	Pages        int
 	Empty        bool
-	Weapons      [2]*core.Weapon
+	Section      string
+	WeaponNames  [2][]string
 }
 
 var scanMu sync.Mutex
@@ -69,10 +74,10 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		if err := confirmPlan(); err != nil {
 			return fail(ctx, err)
 		}
-		return finishOrFail(ctx, preview(ctx, false), "")
+		return finishOrFail(ctx, preview(ctx, false, nil), "")
 	}
 	if p.Step == "preview" || p.Step == "export" {
-		return finishOrFail(ctx, preview(ctx, p.Step == "export"), "")
+		return finishOrFail(ctx, preview(ctx, p.Step == "export", p.Weapon), "")
 	}
 	if pienv.ControllerName() != "CloudADB" {
 		return fail(ctx, errors.New("CloudADB controller required for prototype"))
@@ -113,16 +118,26 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		if err != nil {
 			return fail(ctx, err)
 		}
-		if scan.Weapons[0] == nil || scan.Weapons[1] == nil || scan.Weapons[0].Name != scan.Weapons[1].Name || !slices.Equal(scan.Weapons[0].CandidateIDs, scan.Weapons[1].CandidateIDs) {
-			return fail(ctx, errors.New("weapon identity differs between complete passes"))
+		if !slices.Equal(scan.WeaponNames[0], scan.WeaponNames[1]) {
+			return fail(ctx, errors.New("usable weapons differ between complete passes"))
 		}
-		plan.Weapon = scan.Weapons[0]
+		catalog, err := weaponCatalog()
+		if err != nil {
+			return fail(ctx, err)
+		}
+		for _, name := range scan.WeaponNames[0] {
+			weapon := core.Weapon{Name: name, CandidateIDs: catalog[name], EssenceStatus: "unverified_manual"}
+			if len(weapon.CandidateIDs) == 1 {
+				weapon.ID = weapon.CandidateIDs[0]
+			}
+			plan.Weapons = append(plan.Weapons, weapon)
+		}
 		err = savePlan(plan, scan.Revision)
 		scan = nil
 		if err != nil {
 			return fail(ctx, err)
 		}
-		return finishOrFail(ctx, preview(ctx, false), "")
+		return finishOrFail(ctx, preview(ctx, false, p.Weapon), "")
 	}
 	if p.Tab < 0 || p.Tab >= 4 || p.Pass < 0 || p.Pass > 1 {
 		return fail(ctx, errors.New("invalid scan phase"))
@@ -132,6 +147,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 	switch p.Step {
 	case "reset":
+		scan.Section = ""
 		scan.Rows = nil
 		scan.PreviousRows = nil
 		scan.Previous = nil
@@ -168,16 +184,30 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 		return choose(ctx, arg, p.Again)
 	case "read":
-		if p.Tab == 3 && scan.Weapons[p.Pass] == nil {
-			weapon, err := readWeapon(ctx, img)
-			if err != nil {
-				return fail(ctx, err)
-			}
-			scan.Weapons[p.Pass] = &weapon
-		}
-		rows, empty, err := readMaterialPage(ctx, img)
+		catalog, err := weaponCatalog()
 		if err != nil {
 			return fail(ctx, err)
+		}
+		rows, empty, section, names, err := readMaterialPage(ctx, img, scan.Section, catalog)
+		if err != nil {
+			return fail(ctx, err)
+		}
+		if slices.ContainsFunc(rows, func(m core.Material) bool { return m.Unknown }) {
+			// A single blurred frame can miss a catalogued icon; an unknown item
+			// must survive a re-read on a fresh frame.
+			ctrl.PostScreencap().Wait()
+			if img, err = ctrl.CacheImage(); err != nil {
+				return fail(ctx, err)
+			}
+			if rows, empty, section, names, err = readMaterialPage(ctx, img, scan.Section, catalog); err != nil {
+				return fail(ctx, err)
+			}
+		}
+		scan.Section = section
+		for _, name := range names {
+			if !slices.Contains(scan.WeaponNames[p.Pass], name) {
+				scan.WeaponNames[p.Pass] = append(scan.WeaponNames[p.Pass], name)
+			}
 		}
 		if scan.PreviousRows != nil && slices.Equal(scan.PreviousRows, rows) && !core.Stationary(img, scan.Previous) {
 			return fail(ctx, errors.New("repeated material sequence on a changed viewport"))
@@ -238,7 +268,7 @@ func finishOrFail(ctx *maa.Context, err error, key string) bool {
 	return true
 }
 
-func preview(ctx *maa.Context, export bool) error {
+func preview(ctx *maa.Context, export bool, choice *int) error {
 	planMu.Lock()
 	stored, err := loadPlan()
 	planMu.Unlock()
@@ -248,5 +278,22 @@ func preview(ctx *maa.Context, export bool) error {
 	if stored.Plan == nil {
 		return errors.New("no complete cultivation plan")
 	}
-	return showModules(ctx, *stored.Plan, export)
+	plan := *stored.Plan
+	if choice != nil {
+		name := ""
+		if *choice > 0 {
+			if *choice > len(plan.Weapons) {
+				maafocus.Print(ctx, i18n.T("cultivation.weapon_choice_invalid", *choice, len(plan.Weapons)))
+				return fmt.Errorf("weapon choice %d out of %d usable weapons", *choice, len(plan.Weapons))
+			}
+			name = plan.Weapons[*choice-1].Name
+		}
+		if name != plan.WeaponChoice {
+			if err = setWeaponChoice(plan.Revision, name); err != nil {
+				return err
+			}
+			plan.WeaponChoice = name
+		}
+	}
+	return showModules(ctx, plan, export)
 }

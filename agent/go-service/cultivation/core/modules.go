@@ -135,12 +135,12 @@ func BuildModules(plan Plan, protocol, collect, essence, weapons TaskDocument) (
 	if err != nil {
 		return ModulePreview{}, err
 	}
-	rows, err := Merge(plan.Materials)
+	rows, err := plan.Selected()
 	if err != nil {
 		return ModulePreview{}, err
 	}
 	out := ModulePreview{Source: SourceVersion, Revision: plan.Revision, Controller: "CloudADB", ObservedAt: plan.ReadAt,
-		MaterialsReady: true, CompletionState: "materials_missing", Weapon: plan.Weapon}
+		MaterialsReady: true, CompletionState: "materials_missing", Weapon: plan.ChosenWeapon()}
 	stock := map[string]int64{}
 	for _, row := range rows {
 		if spec, ok := ItemTargets[row.ID]; ok {
@@ -288,10 +288,12 @@ func BuildModules(plan Plan, protocol, collect, essence, weapons TaskDocument) (
 		return out, errors.New("missing essence weapon options")
 	}
 	blockers := []string{"beta_excludes_CloudADB", "cloud_essence_validation_pending", "skill_levels_and_equipment_not_verified", "formal_review_pending", "consumption_authorization_required"}
-	if plan.Weapon == nil || plan.Weapon.ID == "" || len(plan.Weapon.CandidateIDs) != 1 || plan.Weapon.CandidateIDs[0] != plan.Weapon.ID || attach[plan.Weapon.ID] == nil {
+	if weapon := plan.ChosenWeapon(); weapon == nil {
+		blockers = append(blockers, "weapon_not_chosen")
+	} else if weapon.ID == "" || len(weapon.CandidateIDs) != 1 || weapon.CandidateIDs[0] != weapon.ID || attach[weapon.ID] == nil {
 		blockers = append(blockers, "weapon_identity_confirmation_required")
 	} else {
-		attach[plan.Weapon.ID] = true
+		attach[weapon.ID] = true
 	}
 	essencePatch["AutoEssenceTargetPlan"] = map[string]any{"attach": attach}
 	out.Modules = append(out.Modules, ModulePlan{Name: "AutoEssence", Entry: "AutoEssenceSchedule", Mode: "Target", Blockers: blockers, Patch: essencePatch})

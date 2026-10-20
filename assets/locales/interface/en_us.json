@@ -2722,5 +2722,13 @@
     "weapon.wpn_sword_0023": "★5 Dessert Moment",
     "weapon.wpn_sword_0024": "★6 Complexed Industry",
     "weapon.wpn_sword_0025": "★6 Lunar Calling",
-    "weapon.wpn_sword_0026": "★6 Farsight"
+    "weapon.wpn_sword_0026": "★6 Farsight",
+    "option.CultivationWeapon.label": "Weapon to develop",
+    "option.CultivationWeapon.description": "An operator equips one weapon. After reading, the log lists the usable weapons in game order; choose which one counts toward farming goals.",
+    "option.CultivationWeapon.cases.Keep.label": "Keep last choice",
+    "option.CultivationWeapon.cases.None.label": "No weapon",
+    "option.CultivationWeapon.cases.First.label": "Weapon 1",
+    "option.CultivationWeapon.cases.Second.label": "Weapon 2",
+    "option.CultivationWeapon.cases.Third.label": "Weapon 3",
+    "option.CultivationWeapon.cases.Fourth.label": "Weapon 4"
 }

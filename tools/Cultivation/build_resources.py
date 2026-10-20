@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 def write(path, data):
     target = ROOT / path
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(data, ensure_ascii=False, indent=4) + '\n', encoding='utf-8')
+    target.write_text(json.dumps(data, ensure_ascii=False, indent=4) + '\n', encoding='utf-8', newline='\n')
 
 
 def action(step, **kwargs):
@@ -63,14 +63,26 @@ def build():
     write('assets/resource/pipeline/Cultivation/Cultivation.json', pipeline)
     tasks = []
     for name in ['Scan', 'Preview', 'Export', 'Clear', 'Confirm']:
-        tasks.append({'name': 'Cultivation'+name, 'label': '$task.Cultivation'+name+'.label',
-                      'entry': 'Cultivation'+name, 'group': ['other_menu'], 'controller': ['CloudADB']})
-    write('assets/tasks/Cultivation.json', {'task': tasks})
+        task = {'name': 'Cultivation'+name, 'label': '$task.Cultivation'+name+'.label',
+                'entry': 'Cultivation'+name, 'group': ['other_menu'], 'controller': ['CloudADB']}
+        if name in ('Scan', 'Preview', 'Export'):
+            task['option'] = ['CultivationWeapon']
+        tasks.append(task)
+    # An operator equips one weapon, so the user picks which usable weapon's
+    # materials count. Keep leaves the stored choice untouched.
+    cases = [{'name': 'Keep', 'label': '$option.CultivationWeapon.cases.Keep.label'}]
+    for index, case in enumerate(['None', 'First', 'Second', 'Third', 'Fourth']):
+        steps = {'CultivationFinish': 'finish', 'CultivationPreview': 'preview', 'CultivationExport': 'export'}
+        cases.append({'name': case, 'label': f'$option.CultivationWeapon.cases.{case}.label', 'pipeline_override': {
+            node: {'action': action(step, weapon=index)} for node, step in steps.items()}})
+    options = {'CultivationWeapon': {'type': 'select', 'label': '$option.CultivationWeapon.label',
+                                     'description': '$option.CultivationWeapon.description', 'cases': cases}}
+    write('assets/tasks/Cultivation.json', {'task': tasks, 'option': options})
     path = ROOT/'assets/interface.json'
     text = path.read_text(encoding='utf-8')
     if '"tasks/Cultivation.json"' not in text:
         text = text.replace('"tasks/PullCountCalculator.json",', '"tasks/PullCountCalculator.json",\n        "tasks/Cultivation.json",')
-        path.write_text(text, encoding='utf-8')
+        path.write_text(text, encoding='utf-8', newline='\n')
     translations = {
         'zh_cn': ['读取培养需求（原生试作）', '预览培养需求', '生成刷取目标预览', '清空培养需求',
                   '培养读取失败；保留原计划，请核对当前页面和日志。', '已清空培养需求。',
@@ -156,6 +168,21 @@ def build():
             'ja_jp': ['ゲーム内の育成を完了した（手動確認）', 'ユーザーが育成完了を確認：%s。確認日時：%s。結果の自動検証はありません。以下は過去の素材読取です。'],
             'ko_kr': ['게임 내 육성을 완료했습니다 (수동 확인)', '사용자가 육성 완료 확인: %s, %s. 결과를 자동 검증하지 않았습니다. 아래 재료 수량은 과거 스캔 기준입니다.']
         }[lang]
+        weapon_texts = {
+            'zh_cn': ['培养武器', '干员只能装备一把武器。读取后日志会按游戏顺序列出可用武器，在此选择要计入刷取目标的那一把。',
+                      '保持上次选择', '不培养武器', '第 1 把', '第 2 把', '第 3 把', '第 4 把'],
+            'zh_tw': ['培養武器', '幹員只能裝備一把武器。讀取後日誌會依遊戲順序列出可用武器，在此選擇要計入刷取目標的那一把。',
+                      '保持上次選擇', '不培養武器', '第 1 把', '第 2 把', '第 3 把', '第 4 把'],
+            'en_us': ['Weapon to develop', 'An operator equips one weapon. After reading, the log lists the usable weapons in game order; choose which one counts toward farming goals.',
+                      'Keep last choice', 'No weapon', 'Weapon 1', 'Weapon 2', 'Weapon 3', 'Weapon 4'],
+            'ja_jp': ['育成する武器', 'オペレーターが装備できる武器は1つです。読み取り後、使用可能な武器がゲーム内の順にログへ表示されます。周回目標に含める武器を選択してください。',
+                      '前回の選択を維持', '武器を育成しない', '1番目', '2番目', '3番目', '4番目'],
+            'ko_kr': ['육성할 무기', '오퍼레이터는 무기를 하나만 장착합니다. 읽은 뒤 로그에 사용 가능 무기가 게임 순서대로 표시됩니다. 파밍 목표에 포함할 무기를 선택하세요.',
+                      '이전 선택 유지', '무기 육성 안 함', '1번째', '2번째', '3번째', '4번째'],
+        }[lang]
+        data['option.CultivationWeapon.label'], data['option.CultivationWeapon.description'] = weapon_texts[:2]
+        for case, label in zip(['Keep', 'None', 'First', 'Second', 'Third', 'Fourth'], weapon_texts[2:]):
+            data[f'option.CultivationWeapon.cases.{case}.label'] = label
         write(str(path.relative_to(ROOT)), data)
     for kind, name, ref in [('action', 'CultivationAction', 'Action'), ('recognition', 'CultivationGuard', 'Guard')]:
         path = ROOT/f'tools/schema/custom.{kind}.schema.json'
@@ -173,13 +200,14 @@ def build():
                           lambda match: match[0]+'\n                '+json.dumps(name)+',', original, count=1)
         addition = '\n'.join('        '+line for line in json.dumps(condition, indent=4).splitlines())
         original = re.sub(r'("allOf":\s*\[)', lambda match: match[0]+'\n'+addition+',', original, count=1)
-        path.write_text(original, encoding='utf-8')
+        path.write_text(original, encoding='utf-8', newline='\n')
     write('tools/schema/components/cultivation.schema.json', {'$schema': 'https://json-schema.org/draft/2020-12/schema', '$defs': {
         'Action': {'type': 'object', 'required': ['step'], 'additionalProperties': False, 'properties': {
             'step': {'enum': ['begin', 'reset', 'top', 'read', 'bottom', 'finish', 'preview', 'export', 'clear', 'confirm']},
             'tab': {'type': 'integer', 'minimum': 0, 'maximum': 3},
             'pass': {'type': 'integer', 'minimum': 0, 'maximum': 1},
-            'again': {'type': 'string', 'pattern': '^Cultivation'}, 'done': {'type': 'string', 'pattern': '^Cultivation'}}},
+            'again': {'type': 'string', 'pattern': '^Cultivation'}, 'done': {'type': 'string', 'pattern': '^Cultivation'},
+            'weapon': {'type': 'integer', 'minimum': 0, 'maximum': 4}}},
         'Guard': {'type': 'object', 'additionalProperties': False,
                   'properties': {'tab': {'type': 'integer', 'minimum': 0, 'maximum': 3}}}}})
     print(f'Generated {len(pipeline)} native nodes, five tasks, five locale entries, and Custom schemas.')

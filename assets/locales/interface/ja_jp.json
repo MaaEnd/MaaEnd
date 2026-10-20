@@ -2722,5 +2722,13 @@
     "weapon.wpn_sword_0023": "★5 スイーツタイム",
     "weapon.wpn_sword_0024": "★6 複合工業",
     "weapon.wpn_sword_0025": "★6 喚月",
-    "weapon.wpn_sword_0026": "★6 ファーサイト"
+    "weapon.wpn_sword_0026": "★6 ファーサイト",
+    "option.CultivationWeapon.label": "育成する武器",
+    "option.CultivationWeapon.description": "オペレーターが装備できる武器は1つです。読み取り後、使用可能な武器がゲーム内の順にログへ表示されます。周回目標に含める武器を選択してください。",
+    "option.CultivationWeapon.cases.Keep.label": "前回の選択を維持",
+    "option.CultivationWeapon.cases.None.label": "武器を育成しない",
+    "option.CultivationWeapon.cases.First.label": "1番目",
+    "option.CultivationWeapon.cases.Second.label": "2番目",
+    "option.CultivationWeapon.cases.Third.label": "3番目",
+    "option.CultivationWeapon.cases.Fourth.label": "4番目"
 }

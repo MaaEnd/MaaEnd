@@ -33,7 +33,7 @@ func exampleModulePlan() Plan {
 			{ID: "item_char_skill_level_1_6", Name: "协议棱柱", Need: 80, Owned: 30},
 			{ID: "item_plant_crylplant_2_1", Name: "采集材料", Need: 6, Owned: 1},
 			{ID: "unmapped", Name: "人工材料", Need: 2, Owned: 0},
-		}, Weapon: &Weapon{Name: "宏愿", CandidateIDs: []string{"wpn_sword_0021", "wpn_sword_0021_ink"}}}
+		}, Weapons: []Weapon{{Name: "宏愿", CandidateIDs: []string{"wpn_sword_0021", "wpn_sword_0021_ink"}}}, WeaponChoice: "宏愿"}
 }
 
 func TestModuleAdaptersAgainstUpstream(t *testing.T) {
@@ -98,8 +98,8 @@ func TestMaterialsReadyDoesNotCompleteCultivation(t *testing.T) {
 	docs := upstreamDocuments(t)
 	plan := exampleModulePlan()
 	plan.Materials = []Material{{ID: "item_expcard_stage1_high", Name: "高级作战记录", Need: 2, Owned: 3}, {ID: "item_expcard_stage1_low", Name: "基础作战记录", Need: 5, Owned: 0}}
-	plan.Weapon.ID = "wpn_sword_0021"
-	plan.Weapon.CandidateIDs = []string{plan.Weapon.ID}
+	plan.Weapons[0].ID = "wpn_sword_0021"
+	plan.Weapons[0].CandidateIDs = []string{plan.Weapons[0].ID}
 	got, err := BuildModules(plan, docs[0], docs[1], docs[2], docs[3])
 	if err != nil {
 		t.Fatal(err)
