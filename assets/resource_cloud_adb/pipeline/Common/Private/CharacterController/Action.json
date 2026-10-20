@@ -1,0 +1,50 @@
+{
+    // 云终末地：设备不能推送 maatouch / minitouch 时（如 /data 只读），输入回退到 adb shell input，
+    // 不支持 LongPress（会退化成单击），摇杆按不住，角色原地不动，协议空间「触摸光点」一直循环。
+    // 改为起止点只差 1 像素的 Swipe：input swipe 能按住 duration，触控后端正常时效果与 LongPress 相同。
+    // duration 仍由 CharacterController 按需覆盖。
+    "__CharacterControllerAxisLongPressForwardAction": {
+        "action": "Swipe",
+        "begin": [
+            195,
+            536
+        ],
+        "end": [
+            195,
+            535
+        ]
+    },
+    "__CharacterControllerAxisLongPressBackwardAction": {
+        "action": "Swipe",
+        "begin": [
+            195,
+            566
+        ],
+        "end": [
+            195,
+            567
+        ]
+    },
+    "__CharacterControllerAxisLongPressLeftAction": {
+        "action": "Swipe",
+        "begin": [
+            180,
+            551
+        ],
+        "end": [
+            179,
+            551
+        ]
+    },
+    "__CharacterControllerAxisLongPressRightAction": {
+        "action": "Swipe",
+        "begin": [
+            210,
+            551
+        ],
+        "end": [
+            211,
+            551
+        ]
+    }
+}
