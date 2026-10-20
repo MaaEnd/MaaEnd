@@ -58,7 +58,7 @@
                     }
                 }
             ],
-            "default_case": "No"
+            "default_case": "Yes"
         },
         "WaitExchangeBeforeStart": {
             "type": "switch",
@@ -631,7 +631,6 @@
         "QuickGiveDuplicateClues": {
             "type": "switch",
             "label": "$option.QuickGiveDuplicateClues.label",
-            "description": "$option.QuickGiveDuplicateClues.description",
             "cases": [
                 {
                     "name": "Yes",
