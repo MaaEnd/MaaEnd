@@ -83,6 +83,9 @@ func farm(ctx *maa.Context, node string, choice *int) error {
 	if err = resource.ReadJsonResource("tasks/ProtocolSpace.json", &doc); err != nil {
 		return err
 	}
+	if err = addSharedOptions(&doc); err != nil {
+		return err
+	}
 	override, err := core.ProtocolSpaceOverride(doc, *module, map[string]string{
 		"ProtocolSpaceMode":            "TargetInventory",
 		"ProtocolSpaceObtainModeClaim": options.Claim,
@@ -103,5 +106,29 @@ func farm(ctx *maa.Context, node string, choice *int) error {
 	}
 	// Owned counts in the plan are from the scan; only a new scan shows the result.
 	maafocus.Print(ctx, i18n.T("cultivation.farm_done"))
+	return nil
+}
+
+// addSharedOptions adds options defined in other imported task files (e.g. the
+// AutoFight sub-options of AutoFightSetting live in RealTimeTask.json); the
+// client resolves options across all imports the same way.
+func addSharedOptions(doc *core.TaskDocument) error {
+	var iface struct {
+		Import []string `json:"import"`
+	}
+	if err := resource.ReadJsonResource("interface.json", &iface); err != nil {
+		return err
+	}
+	for _, path := range iface.Import {
+		var other core.TaskDocument
+		if err := resource.ReadJsonResource(path, &other); err != nil {
+			return err
+		}
+		for name, option := range other.Option {
+			if _, ok := doc.Option[name]; !ok {
+				doc.Option[name] = option
+			}
+		}
+	}
 	return nil
 }

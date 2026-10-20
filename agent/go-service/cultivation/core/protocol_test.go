@@ -2,7 +2,11 @@ package core
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"testing"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/jsonclean"
 )
 
 func TestProtocolSpaceOverride(t *testing.T) {
@@ -41,5 +45,55 @@ func TestProtocolSpaceOverride(t *testing.T) {
 	}
 	if _, err = ProtocolSpaceOverride(doc, module, map[string]string{"Mode": "TargetInventory", "Claim": "Triple"}); err == nil {
 		t.Fatal("an unknown case must be rejected")
+	}
+}
+
+func TestProtocolSpaceOverrideUpstream(t *testing.T) {
+	// The real upstream task and its shared options, resolved like the client.
+	read := func(path string, out any) {
+		data, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "assets", path))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = json.Unmarshal(jsonclean.Clean(data), out); err != nil {
+			t.Fatalf("%s: %v", path, err)
+		}
+	}
+	var doc TaskDocument
+	read("tasks/ProtocolSpace.json", &doc)
+	var iface struct {
+		Import []string `json:"import"`
+	}
+	read("interface.json", &iface)
+	for _, path := range iface.Import {
+		var other TaskDocument
+		read(path, &other)
+		for name, option := range other.Option {
+			if _, ok := doc.Option[name]; !ok {
+				doc.Option[name] = option
+			}
+		}
+	}
+	module := ModulePlan{Entry: "ProtocolSpaceSchedule", Patch: map[string]any{}}
+	got, err := ProtocolSpaceOverride(doc, module, map[string]string{
+		"ProtocolSpaceMode": "TargetInventory", "ProtocolSpaceObtainModeClaim": "ObtainScaling1", "ProtocolSpaceUseSpMedication": "EndTask"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	field := func(node, key string) any {
+		m, _ := got[node].(map[string]any)
+		return m[key]
+	}
+	attach, _ := field("ProtocolSpaceScheduleEnabled", "attach").(map[string]any)
+	if len(attach) != 7 {
+		t.Fatalf("all weekdays must stay scheduled: %v", attach)
+	}
+	if next, _ := field("ProtocolSpaceScheduleEnabled", "next").([]any); len(next) != 1 || next[0] != "SupplyPlanMain" {
+		t.Fatalf("TargetInventory must route to SupplyPlan: %v", next)
+	}
+	for _, node := range []string{"ProtocolSpacePopupSanityLowUseSpMedicationPrepare", "ProtocolSpaceRewardClaimRestoreSanityUseMedication", "ProtocolSpaceRewardUsePermit"} {
+		if field(node, "enabled") != false {
+			t.Fatalf("%s must be disabled by the safe defaults", node)
+		}
 	}
 }
