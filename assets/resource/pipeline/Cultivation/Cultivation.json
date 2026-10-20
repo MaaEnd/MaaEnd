@@ -1,8 +1,8 @@
 {
     "CultivationScan": {
         "recognition": "DirectHit",
-        "action": "DoNothing",
         "pre_delay": 0,
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -26,8 +26,8 @@
                 ]
             }
         },
-        "action": "DoNothing",
         "pre_delay": 0,
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -50,8 +50,8 @@
                 ]
             }
         },
-        "action": "DoNothing",
         "pre_delay": 0,
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": []
@@ -67,16 +67,11 @@
                 "box_index": 1
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationInOverview"
-        ],
         "post_wait_freezes": {
             "time": 500,
             "target": [
@@ -86,10 +81,16 @@
                 720
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationInOverview"
+        ]
     },
     "CultivationBegin": {
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -99,7 +100,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -121,8 +121,8 @@
                 ]
             }
         },
-        "action": "DoNothing",
         "pre_delay": 0,
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -146,18 +146,11 @@
                 "threshold": 0.8
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationOperatorSelected",
-            "CultivationOperatorSweepTop",
-            "CultivationOperatorSweepUp"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -167,7 +160,14 @@
                 160
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSelected",
+            "CultivationOperatorSweepTop",
+            "CultivationOperatorSweepUp"
+        ]
     },
     "CultivationOperatorTop": {
         "recognition": {
@@ -185,8 +185,8 @@
                 ]
             }
         },
-        "action": "DoNothing",
         "pre_delay": 0,
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -201,6 +201,7 @@
     },
     "CultivationOperatorUp": {
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -212,19 +213,10 @@
                     200,
                     580
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationOperatorSelected",
-            "CultivationOperatorFind",
-            "CultivationOperatorTop",
-            "CultivationOperatorUp"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -234,7 +226,15 @@
                 520
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSelected",
+            "CultivationOperatorFind",
+            "CultivationOperatorTop",
+            "CultivationOperatorUp"
+        ]
     },
     "CultivationOperatorEnd": {
         "recognition": {
@@ -252,8 +252,8 @@
                 ]
             }
         },
-        "action": "DoNothing",
         "pre_delay": 0,
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -266,6 +266,7 @@
     },
     "CultivationOperatorDown": {
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -277,19 +278,10 @@
                     200,
                     330
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationOperatorSelected",
-            "CultivationOperatorFind",
-            "CultivationOperatorEnd",
-            "CultivationOperatorDown"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -299,7 +291,15 @@
                 520
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSelected",
+            "CultivationOperatorFind",
+            "CultivationOperatorEnd",
+            "CultivationOperatorDown"
+        ]
     },
     "CultivationOperatorSweepTop": {
         "recognition": {
@@ -317,8 +317,8 @@
                 ]
             }
         },
-        "action": "DoNothing",
         "pre_delay": 0,
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -333,6 +333,7 @@
     },
     "CultivationOperatorSweepUp": {
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -344,17 +345,10 @@
                     200,
                     580
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationOperatorSweepTop",
-            "CultivationOperatorSweepUp"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -364,7 +358,13 @@
                 520
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSweepTop",
+            "CultivationOperatorSweepUp"
+        ]
     },
     "CultivationOperatorSweepCard": {
         "recognition": {
@@ -379,19 +379,11 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationOperatorSelected",
-            "CultivationOperatorSweepCard",
-            "CultivationOperatorSweepEnd",
-            "CultivationOperatorSweepDown"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -401,7 +393,15 @@
                 160
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSelected",
+            "CultivationOperatorSweepCard",
+            "CultivationOperatorSweepEnd",
+            "CultivationOperatorSweepDown"
+        ]
     },
     "CultivationOperatorSweepEnd": {
         "recognition": {
@@ -419,6 +419,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -428,7 +429,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [],
@@ -438,6 +438,7 @@
     },
     "CultivationOperatorSweepDown": {
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -449,19 +450,10 @@
                     200,
                     330
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationOperatorSelected",
-            "CultivationOperatorSweepCard",
-            "CultivationOperatorSweepEnd",
-            "CultivationOperatorSweepDown"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -471,7 +463,15 @@
                 520
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationOperatorSelected",
+            "CultivationOperatorSweepCard",
+            "CultivationOperatorSweepEnd",
+            "CultivationOperatorSweepDown"
+        ]
     },
     "CultivationExpectationReady": {
         "recognition": {
@@ -488,8 +488,8 @@
                 ]
             }
         },
-        "action": "DoNothing",
         "pre_delay": 0,
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -514,17 +514,11 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationExpectationPick",
-            "CultivationExpectationMissing"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -534,7 +528,13 @@
                 400
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationExpectationPick",
+            "CultivationExpectationMissing"
+        ]
     },
     "CultivationExpectationPick": {
         "recognition": {
@@ -551,17 +551,11 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationExpectationReady",
-            "CultivationExpectationMissing"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -571,10 +565,17 @@
                 400
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationExpectationReady",
+            "CultivationExpectationMissing"
+        ]
     },
     "CultivationExpectationMissing": {
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -584,7 +585,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": []
@@ -603,6 +603,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -612,12 +613,6 @@
                 ]
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP0T0Reset"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -627,7 +622,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T0Reset"
+        ]
     },
     "CultivationP0T0Reset": {
         "recognition": {
@@ -645,6 +645,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -656,7 +657,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -679,6 +679,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -692,7 +693,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -716,6 +716,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -727,16 +728,10 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP0T0Top"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -746,7 +741,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T0Top"
+        ]
     },
     "CultivationP0T0Read": {
         "recognition": {
@@ -764,6 +764,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -775,7 +776,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -798,6 +798,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -809,16 +810,10 @@
                     1215,
                     500
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP0T0Bottom"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -828,7 +823,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T0Bottom"
+        ]
     },
     "CultivationP0T0Bottom": {
         "recognition": {
@@ -846,6 +846,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -859,7 +860,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -881,6 +881,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -890,12 +891,6 @@
                 ]
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP0T1Reset"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -905,7 +900,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T1Reset"
+        ]
     },
     "CultivationP0T1Reset": {
         "recognition": {
@@ -923,6 +923,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -934,7 +935,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -957,6 +957,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -970,7 +971,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -994,6 +994,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -1005,16 +1006,10 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP0T1Top"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -1024,7 +1019,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T1Top"
+        ]
     },
     "CultivationP0T1Read": {
         "recognition": {
@@ -1042,6 +1042,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1053,7 +1054,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1076,6 +1076,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -1087,16 +1088,10 @@
                     1215,
                     500
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP0T1Bottom"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -1106,7 +1101,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T1Bottom"
+        ]
     },
     "CultivationP0T1Bottom": {
         "recognition": {
@@ -1124,6 +1124,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1137,7 +1138,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1159,6 +1159,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -1168,12 +1169,6 @@
                 ]
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP0T2Reset"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -1183,7 +1178,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T2Reset"
+        ]
     },
     "CultivationP0T2Reset": {
         "recognition": {
@@ -1201,6 +1201,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1212,7 +1213,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1235,6 +1235,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1248,7 +1249,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1272,6 +1272,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -1283,16 +1284,10 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP0T2Top"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -1302,7 +1297,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T2Top"
+        ]
     },
     "CultivationP0T2Read": {
         "recognition": {
@@ -1320,6 +1320,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1331,7 +1332,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1354,6 +1354,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -1365,16 +1366,10 @@
                     1215,
                     500
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP0T2Bottom"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -1384,7 +1379,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T2Bottom"
+        ]
     },
     "CultivationP0T2Bottom": {
         "recognition": {
@@ -1402,6 +1402,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1415,7 +1416,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1437,6 +1437,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -1446,12 +1447,6 @@
                 ]
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP0T3Reset"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -1461,7 +1456,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T3Reset"
+        ]
     },
     "CultivationP0T3Reset": {
         "recognition": {
@@ -1479,6 +1479,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1490,7 +1491,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1513,6 +1513,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1526,7 +1527,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1550,6 +1550,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -1561,16 +1562,10 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP0T3Top"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -1580,7 +1575,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T3Top"
+        ]
     },
     "CultivationP0T3Read": {
         "recognition": {
@@ -1598,6 +1598,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1609,7 +1610,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1632,6 +1632,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -1643,16 +1644,10 @@
                     1215,
                     500
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP0T3Bottom"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -1662,7 +1657,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T3Bottom"
+        ]
     },
     "CultivationP0T3Bottom": {
         "recognition": {
@@ -1680,6 +1680,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1693,7 +1694,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1715,6 +1715,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -1724,12 +1725,6 @@
                 ]
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP1T0Reset"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -1739,7 +1734,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T0Reset"
+        ]
     },
     "CultivationP1T0Reset": {
         "recognition": {
@@ -1757,6 +1757,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1768,7 +1769,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1791,6 +1791,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1804,7 +1805,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1828,6 +1828,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -1839,16 +1840,10 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP1T0Top"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -1858,7 +1853,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T0Top"
+        ]
     },
     "CultivationP1T0Read": {
         "recognition": {
@@ -1876,6 +1876,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1887,7 +1888,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1910,6 +1910,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -1921,16 +1922,10 @@
                     1215,
                     500
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP1T0Bottom"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -1940,7 +1935,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T0Bottom"
+        ]
     },
     "CultivationP1T0Bottom": {
         "recognition": {
@@ -1958,6 +1958,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -1971,7 +1972,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1993,6 +1993,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -2002,12 +2003,6 @@
                 ]
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP1T1Reset"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -2017,7 +2012,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T1Reset"
+        ]
     },
     "CultivationP1T1Reset": {
         "recognition": {
@@ -2035,6 +2035,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2046,7 +2047,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2069,6 +2069,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2082,7 +2083,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2106,6 +2106,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -2117,16 +2118,10 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP1T1Top"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -2136,7 +2131,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T1Top"
+        ]
     },
     "CultivationP1T1Read": {
         "recognition": {
@@ -2154,6 +2154,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2165,7 +2166,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2188,6 +2188,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -2199,16 +2200,10 @@
                     1215,
                     500
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP1T1Bottom"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -2218,7 +2213,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T1Bottom"
+        ]
     },
     "CultivationP1T1Bottom": {
         "recognition": {
@@ -2236,6 +2236,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2249,7 +2250,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2271,6 +2271,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -2280,12 +2281,6 @@
                 ]
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP1T2Reset"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -2295,7 +2290,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T2Reset"
+        ]
     },
     "CultivationP1T2Reset": {
         "recognition": {
@@ -2313,6 +2313,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2324,7 +2325,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2347,6 +2347,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2360,7 +2361,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2384,6 +2384,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -2395,16 +2396,10 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP1T2Top"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -2414,7 +2409,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T2Top"
+        ]
     },
     "CultivationP1T2Read": {
         "recognition": {
@@ -2432,6 +2432,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2443,7 +2444,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2466,6 +2466,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -2477,16 +2478,10 @@
                     1215,
                     500
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP1T2Bottom"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -2496,7 +2491,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T2Bottom"
+        ]
     },
     "CultivationP1T2Bottom": {
         "recognition": {
@@ -2514,6 +2514,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2527,7 +2528,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2549,6 +2549,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -2558,12 +2559,6 @@
                 ]
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP1T3Reset"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -2573,7 +2568,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T3Reset"
+        ]
     },
     "CultivationP1T3Reset": {
         "recognition": {
@@ -2591,6 +2591,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2602,7 +2603,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2625,6 +2625,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2638,7 +2639,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2662,6 +2662,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -2673,16 +2674,10 @@
                     1215,
                     620
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP1T3Top"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -2692,7 +2687,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T3Top"
+        ]
     },
     "CultivationP1T3Read": {
         "recognition": {
@@ -2710,6 +2710,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2721,7 +2722,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2744,6 +2744,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -2755,16 +2756,10 @@
                     1215,
                     500
                 ],
-                "duration": 500,
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 500
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CultivationP1T3Bottom"
-        ],
         "post_wait_freezes": {
             "time": 300,
             "target": [
@@ -2774,7 +2769,12 @@
                 415
             ],
             "threshold": 0.98
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T3Bottom"
+        ]
     },
     "CultivationP1T3Bottom": {
         "recognition": {
@@ -2792,6 +2792,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2805,7 +2806,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2827,6 +2827,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2836,13 +2837,13 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": []
     },
     "CultivationPreview": {
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2852,13 +2853,13 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": []
     },
     "CultivationExport": {
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2868,13 +2869,13 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": []
     },
     "CultivationClear": {
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2884,13 +2885,13 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": []
     },
     "CultivationConfirm": {
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2900,13 +2901,13 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": []
     },
     "CultivationFarm": {
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2916,7 +2917,6 @@
                 }
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [],
@@ -2937,8 +2937,8 @@
                 ]
             }
         },
-        "action": "DoNothing",
         "pre_delay": 0,
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": []
@@ -2965,8 +2965,8 @@
                 ]
             }
         },
-        "action": "DoNothing",
         "pre_delay": 0,
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": []
