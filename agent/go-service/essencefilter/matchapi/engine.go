@@ -136,8 +136,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 			exact = exactMatched
 		}
 	}
-	if exact != nil && (opts.PerfectMinLevelTotal <= 0 ||
-		ocrLevels[0]+ocrLevels[1]+ocrLevels[2] >= opts.PerfectMinLevelTotal) {
+	if exact != nil && ocrLevels[0]+ocrLevels[1]+ocrLevels[2] >= opts.PerfectMinLevelTotal {
 		return &MatchResult{
 			Kind:          MatchExact,
 			SkillIDs:      exact.SkillIDs,

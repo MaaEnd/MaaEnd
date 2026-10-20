@@ -71,7 +71,7 @@ type EssenceFilterOptions struct {
 	Rarity5Weapon bool `json:"rarity5_weapon"`
 	Rarity4Weapon bool `json:"rarity4_weapon"`
 
-	// Min total level to lock an exact match; 0 = off.
+	// Min total level to lock an exact match.
 	PerfectMinLevelTotal int `json:"perfect_min_level_total"`
 
 	// Future Promising extension.
