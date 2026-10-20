@@ -116,13 +116,17 @@ type Weapon struct {
 type Essence struct {
 	Adapted  string `json:"adapted,omitempty"`
 	Flawless int64  `json:"flawless"`
+	// Injected is the match status shown when the weapon already carries an
+	// essence (「当前注入基质：完全适配」); counts are not shown then.
+	Injected string `json:"injected,omitempty"`
 }
 
 // EssenceLine locates one weapon's "无瑕基质 N 高纯基质 M" line on a page.
 type EssenceLine struct {
-	Weapon  string
-	Y       int
-	Adapted string
+	Weapon   string
+	Y        int
+	Adapted  string
+	Injected string
 }
 
 var amountPattern = regexp.MustCompile(`^(\d+(?:\.\d+)?)([万亿]?)$`)
@@ -399,6 +403,28 @@ func ReadEssencePanels(texts []Text, headers []Text, section string) ([]EssenceL
 	}
 	var lines []EssenceLine
 	for _, t := range texts {
+		label := strings.ReplaceAll(t.Text, " ", "")
+		if strings.Contains(label, "当前注入基质") {
+			name := sectionAt(t.Box[1])
+			if name == "" {
+				return nil, "", errors.New("injected essence outside a weapon section")
+			}
+			status := strings.TrimLeft(label[strings.Index(label, "当前注入基质")+len("当前注入基质"):], ":：")
+			if status == "" {
+				// The status is often a separate (highlighted) text on the same line.
+				for _, other := range texts {
+					if other.Box[0] > t.Box[0]+t.Box[2]-4 && other.Box[0] < t.Box[0]+t.Box[2]+200 && abs(other.Box[1]-t.Box[1]) < 12 {
+						status = strings.ReplaceAll(other.Text, " ", "")
+						break
+					}
+				}
+			}
+			if status == "" {
+				return nil, "", fmt.Errorf("unreadable injected essence status for %s", name)
+			}
+			lines = append(lines, EssenceLine{Weapon: name, Y: t.Box[1], Injected: status})
+			continue
+		}
 		// OCR may merge the line ("无瑕基质0高纯基质") or read the leading dot
 		// icon as a digit ("0 无瑕基质0").
 		if !strings.Contains(strings.ReplaceAll(t.Text, " ", ""), "无瑕基质") {

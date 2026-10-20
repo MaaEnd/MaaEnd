@@ -72,6 +72,7 @@
     "cultivation.unknown_notice": "%d 種の素材が MaaEnd のアイテムアイコン一覧にありません（新規アイテムの可能性）。「手動」として表示し、自動周回の対象にはしません。アイコンは debug/cultivation/ に保存しました。MaaEnd を更新後、育成素材を再度読み取ってください。",
     "cultivation.weapon_choice_invalid": "「育成する武器」で %d 番目を選択していますが、読み取った使用可能な武器は %d 個です。選択は変更しませんでした。",
     "cultivation.weapon_entry": "%d. %s（特性：%s。所持の一致する無瑕基質 %d 個）",
+    "cultivation.weapon_entry_injected": "%d. %s（特性：%s。注入済み基質：%s）",
     "cultivation.weapon_none": "未選択（オペレーター自身の素材のみ）",
     "cultivation.weapons": "使用可能な武器：\n%s\n育成する武器：%s。オペレーターが装備できる武器は1つです。「育成する武器」で選択し、「育成タスクの進捗」を実行してください（再読み取り不要）。",
     "deliveryjobs.focus.ongoing_depot_resolved": "🚚 この配達任務の所属は（%s）",

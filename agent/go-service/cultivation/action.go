@@ -338,6 +338,10 @@ func readEssenceStep(ctx *maa.Context, img image.Image, p stepParam, catalog map
 		if !slices.Contains(scan.WeaponNames[p.Pass], line.Weapon) {
 			return fail(ctx, fmt.Errorf("weapon %s on the essence tab was not listed on the weapon tab", line.Weapon))
 		}
+		if line.Injected != "" {
+			scan.Essence[p.Pass][line.Weapon] = core.Essence{Injected: line.Injected}
+			continue
+		}
 		// The flawless count sits at a fixed offset in the panel; single digits
 		// are often missed by full-page OCR, so read it in its own box.
 		value, ok, err := iconqty.RecognizeQuantityInROI(ctx, img, maa.Rect{672, line.Y - 4, 40, 28})

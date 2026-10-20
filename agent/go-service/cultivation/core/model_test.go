@@ -199,3 +199,18 @@ func TestNothingNeededOnMaxedTab(t *testing.T) {
 		t.Fatal("section title taken as no demand")
 	}
 }
+
+func TestReadEssencePanelsInjected(t *testing.T) {
+	// 莱万汀 on CloudADB: the equipped weapon already carries a matching essence.
+	texts := []Text{
+		{Text: "基质注入", Box: [4]int{443, 270, 70, 20}, Score: 1},
+		{Text: "熔铸火焰", Box: [4]int{503, 303, 80, 20}, Score: 1},
+		{Text: "当前注入基质：", Box: [4]int{561, 401, 140, 20}, Score: 1},
+		{Text: "完全适配", Box: [4]int{707, 401, 80, 20}, Score: 1},
+		{Text: "蚀刻已达上限", Box: [4]int{1062, 516, 104, 20}, Score: 1},
+	}
+	lines, _, err := ReadEssencePanels(texts, []Text{texts[1]}, "")
+	if err != nil || len(lines) != 1 || lines[0].Weapon != "熔铸火焰" || lines[0].Injected != "完全适配" {
+		t.Fatalf("lines=%+v err=%v", lines, err)
+	}
+}

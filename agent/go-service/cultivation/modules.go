@@ -85,7 +85,9 @@ func showModules(ctx *maa.Context, plan core.Plan, export bool) error {
 		var names []string
 		for index, weapon := range plan.Weapons {
 			entry := fmt.Sprintf("%d. %s", index+1, weapon.Name)
-			if e := weapon.Essence; e != nil {
+			if e := weapon.Essence; e != nil && e.Injected != "" {
+				entry = i18n.T("cultivation.weapon_entry_injected", index+1, weapon.Name, strings.Join(traits[weapon.ID], " | "), e.Injected)
+			} else if e != nil {
 				entry = i18n.T("cultivation.weapon_entry", index+1, weapon.Name, strings.Join(traits[weapon.ID], " | "), e.Flawless)
 			}
 			names = append(names, entry)

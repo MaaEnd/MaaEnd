@@ -154,24 +154,12 @@ func readMaterialPage(ctx *maa.Context, img image.Image, section string, catalog
 			continue
 		}
 		// The required amount is printed on the bottom strip of the card itself.
-		numbers, err := ocrTexts(ctx, img, [4]int{cell.Min.X, cell.Min.Y + 52, 80, 28})
+		// The required amount is printed on the card's bottom strip. Read the whole
+		// strip without text detection: detection sometimes dropped a thin "1"
+		// ("18" read as "8") on CloudADB.
+		need, err := readStripAmount(ctx, img, maa.Rect{cell.Min.X, cell.Min.Y + 52, 80, 28})
 		if err != nil {
-			return nil, false, "", nil, err
-		}
-		values := map[int64]bool{}
-		for _, text := range numbers {
-			if text.Score >= .6 {
-				if value, e := core.Amount(text.Text); e == nil {
-					values[value] = true
-				}
-			}
-		}
-		if len(values) != 1 {
-			return nil, false, "", nil, fmt.Errorf("ambiguous material quantity: %s", item.ID)
-		}
-		var need int64
-		for n := range values {
-			need = n
+			return nil, false, "", nil, fmt.Errorf("material quantity of %s: %w", item.ID, err)
 		}
 		have, err := core.Amount(strings.TrimPrefix(strings.ReplaceAll(owned.Text, " ", ""), "拥有"))
 		if err != nil {
@@ -272,4 +260,21 @@ func saveUnknownIcon(img image.Image, cell image.Rectangle, id string) {
 	if err := fsutil.WriteFileAtomic(path, buf.Bytes(), 0644); err != nil {
 		log.Warn().Err(err).Str("component", "Cultivation").Str("path", path).Msg("failed to save unknown icon")
 	}
+}
+
+// readStripAmount reads one numeric label filling roi with recognition-only OCR
+// and the strict whole-label parser, so a partial number is never accepted.
+func readStripAmount(ctx *maa.Context, img image.Image, roi maa.Rect) (int64, error) {
+	detail, err := ctx.RunRecognitionDirect(maa.RecognitionTypeOCR, &maa.OCRParam{ROI: maa.NewTargetRect(roi), OnlyRec: true}, img)
+	if err != nil {
+		return 0, err
+	}
+	if detail == nil || detail.Results == nil || detail.Results.Best == nil {
+		return 0, errors.New("no text")
+	}
+	result, ok := detail.Results.Best.AsOCR()
+	if !ok || result.Score < .6 {
+		return 0, errors.New("unreadable amount")
+	}
+	return core.Amount(result.Text)
 }
