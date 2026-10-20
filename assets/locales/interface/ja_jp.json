@@ -1393,6 +1393,7 @@
     "option.ClientVersionCloudLocked.label": "クライアントバージョン",
     "option.CloseGamePCApplyGameSetting.label": "終了後にゲーム設定を適用",
     "option.CloseGamePCAutoHDR.label": "自動 HDR",
+    "option.CloseGamePCCloseLauncher.label": "ランチャーを終了",
     "option.CloseGamePCGameSettingFrameRate.cases.Fps120.label": "120",
     "option.CloseGamePCGameSettingFrameRate.cases.Fps30.label": "30",
     "option.CloseGamePCGameSettingFrameRate.cases.Fps60.label": "60",

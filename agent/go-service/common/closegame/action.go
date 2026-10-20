@@ -24,6 +24,7 @@ type CloseGameAction struct{}
 var _ maa.CustomActionRunner = &CloseGameAction{}
 
 type closeGameSettingParam struct {
+	CloseLauncher          bool            `json:"CloseLauncher,omitempty"`
 	ApplyGameSetting       bool            `json:"ApplyGameSetting,omitempty"`
 	GameSettingRegion      string          `json:"GameSettingRegion,omitempty"`
 	GameSettingLanguage    string          `json:"GameSettingLanguage,omitempty"`
@@ -92,6 +93,7 @@ func loadAttach(ctx *maa.Context, nodeName string) closeGameSettingParam {
 	if wrapper.Attach.GameSettingDisplayType != "" {
 		params.GameSettingDisplayType = wrapper.Attach.GameSettingDisplayType
 	}
+	params.CloseLauncher = wrapper.Attach.CloseLauncher
 	params.ApplyGameSetting = wrapper.Attach.ApplyGameSetting
 	params.ResolutionWidth = wrapper.Attach.ResolutionWidth
 	params.ResolutionHeight = wrapper.Attach.ResolutionHeight
@@ -135,9 +137,11 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	// 先关启动器，再关游戏：启动器若仍在运行可能会重新拉起游戏进程。
-	for _, name := range launcherProcessNames {
-		if !killByName(name) {
-			return false
+	if params.CloseLauncher {
+		for _, name := range launcherProcessNames {
+			if !killByName(name) {
+				return false
+			}
 		}
 	}
 

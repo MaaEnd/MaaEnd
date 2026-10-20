@@ -1393,6 +1393,7 @@
     "option.ClientVersionCloudLocked.label": "客户端版本",
     "option.CloseGamePCApplyGameSetting.label": "关闭后设置游戏",
     "option.CloseGamePCAutoHDR.label": "自动 HDR",
+    "option.CloseGamePCCloseLauncher.label": "关闭启动器",
     "option.CloseGamePCGameSettingFrameRate.cases.Fps120.label": "120",
     "option.CloseGamePCGameSettingFrameRate.cases.Fps30.label": "30",
     "option.CloseGamePCGameSettingFrameRate.cases.Fps60.label": "60",

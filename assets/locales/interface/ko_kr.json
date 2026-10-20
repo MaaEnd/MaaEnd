@@ -1393,6 +1393,7 @@
     "option.ClientVersionCloudLocked.label": "클라이언트 버전",
     "option.CloseGamePCApplyGameSetting.label": "종료 후 게임 설정 적용",
     "option.CloseGamePCAutoHDR.label": "자동 HDR",
+    "option.CloseGamePCCloseLauncher.label": "런처 종료",
     "option.CloseGamePCGameSettingFrameRate.cases.Fps120.label": "120",
     "option.CloseGamePCGameSettingFrameRate.cases.Fps30.label": "30",
     "option.CloseGamePCGameSettingFrameRate.cases.Fps60.label": "60",

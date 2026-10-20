@@ -1393,6 +1393,7 @@
     "option.ClientVersionCloudLocked.label": "Client Version",
     "option.CloseGamePCApplyGameSetting.label": "Apply game settings after close",
     "option.CloseGamePCAutoHDR.label": "Auto HDR",
+    "option.CloseGamePCCloseLauncher.label": "Close launcher",
     "option.CloseGamePCGameSettingFrameRate.cases.Fps120.label": "120",
     "option.CloseGamePCGameSettingFrameRate.cases.Fps30.label": "30",
     "option.CloseGamePCGameSettingFrameRate.cases.Fps60.label": "60",

@@ -15,11 +15,39 @@
                 "Linux-Wlroots"
             ],
             "option": [
+                "CloseGamePCCloseLauncher",
                 "CloseGamePCApplyGameSetting"
             ]
         }
     ],
     "option": {
+        "CloseGamePCCloseLauncher": {
+            "type": "switch",
+            "label": "$option.CloseGamePCCloseLauncher.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CloseLauncher": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CloseLauncher": false
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
         "CloseGamePCApplyGameSetting": {
             "type": "switch",
             "controller": [
