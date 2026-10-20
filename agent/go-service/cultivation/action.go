@@ -43,8 +43,10 @@ type session struct {
 	Rows     []core.Material
 	// Placed holds this tab's cells by list position; Offset is how far the
 	// list has scrolled since the top, measured page to page.
-	Placed      core.PlacedRows
-	Offset      int
+	Placed core.PlacedRows
+	Offset int
+	// Headers are the weapon section titles seen in this tab, by list position.
+	Headers     []placedHeader
 	Previous    image.Image
 	Stable      int
 	Pages       int
@@ -185,6 +187,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		scan.Rows = nil
 		scan.Placed = core.PlacedRows{}
 		scan.Offset = 0
+		scan.Headers = nil
 		scan.Previous = nil
 		scan.Stable = 0
 		scan.Pages = 0
@@ -229,27 +232,6 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		if scan.Icons[p.Pass] == nil {
 			scan.Icons[p.Pass] = map[uint64]iconIdentity{}
 		}
-		rows, points, empty, section, names, err := readMaterialPage(ctx, img, scan.Section, scan.Pages > 0, catalog, scan.Icons[p.Pass])
-		if err != nil {
-			return fail(ctx, err)
-		}
-		if slices.ContainsFunc(rows, func(m core.Material) bool { return m.Unknown }) {
-			// A single blurred frame can miss a catalogued icon; an unknown item
-			// must survive a re-read on a fresh frame.
-			ctrl.PostScreencap().Wait()
-			if img, err = ctrl.CacheImage(); err != nil {
-				return fail(ctx, err)
-			}
-			if rows, points, empty, section, names, err = readMaterialPage(ctx, img, scan.Section, scan.Pages > 0, catalog, scan.Icons[p.Pass]); err != nil {
-				return fail(ctx, err)
-			}
-		}
-		scan.Section = section
-		for _, name := range names {
-			if !slices.Contains(scan.WeaponNames[p.Pass], name) {
-				scan.WeaponNames[p.Pass] = append(scan.WeaponNames[p.Pass], name)
-			}
-		}
 		if scan.Pages > 0 {
 			// A swipe scrolls the list by a varying distance (0.5x-1.6x the
 			// finger on CloudADB), so measure it instead of guessing overlap.
@@ -261,6 +243,41 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				return fail(ctx, fmt.Errorf("list scrolled %d px, past rows between pages", shift))
 			}
 			scan.Offset += shift
+		}
+		// The section a page starts in is the last weapon title above its top,
+		// not the one at the previous page's bottom: that title can still be
+		// below rows that belong to the earlier weapon.
+		top := ""
+		for _, h := range scan.Headers {
+			if h.Y <= scan.Offset+core.ListArea.Min.Y {
+				top = h.Name
+			}
+		}
+		rows, points, empty, section, headers, err := readMaterialPage(ctx, img, top, scan.Pages > 0, catalog, scan.Icons[p.Pass])
+		if err != nil {
+			return fail(ctx, err)
+		}
+		if slices.ContainsFunc(rows, func(m core.Material) bool { return m.Unknown }) {
+			// A single blurred frame can miss a catalogued icon; an unknown item
+			// must survive a re-read on a fresh frame.
+			ctrl.PostScreencap().Wait()
+			if img, err = ctrl.CacheImage(); err != nil {
+				return fail(ctx, err)
+			}
+			if rows, points, empty, section, headers, err = readMaterialPage(ctx, img, top, scan.Pages > 0, catalog, scan.Icons[p.Pass]); err != nil {
+				return fail(ctx, err)
+			}
+		}
+		scan.Section = section
+		for _, h := range headers {
+			if !slices.Contains(scan.WeaponNames[p.Pass], h.Text) {
+				scan.WeaponNames[p.Pass] = append(scan.WeaponNames[p.Pass], h.Text)
+			}
+			at := h.Box[1] + scan.Offset
+			if !slices.ContainsFunc(scan.Headers, func(q placedHeader) bool { return q.Name == h.Text && q.Y-at <= 14 && at-q.Y <= 14 }) {
+				scan.Headers = append(scan.Headers, placedHeader{Y: at, Name: h.Text})
+				slices.SortFunc(scan.Headers, func(a, b placedHeader) int { return a.Y - b.Y })
+			}
 		}
 		log.Info().Str("component", "Cultivation").Int("tab", p.Tab).Int("pass", p.Pass).Int("page", scan.Pages).
 			Interface("rows", rows).Bool("empty", empty).Msg("cultivation page read")
@@ -427,4 +444,10 @@ func scrollbarOf(img image.Image) (int, int, bool) {
 		return 0, 0, false
 	}
 	return core.Scrollbar(img)
+}
+
+// placedHeader is a weapon section title at its position in the whole list.
+type placedHeader struct {
+	Y    int
+	Name string
 }

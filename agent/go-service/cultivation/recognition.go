@@ -111,17 +111,13 @@ type iconIdentity struct {
 // at the page bottom and the weapon headers seen.
 // It also returns each cell's 「拥有」 label position (centre x, top y) for
 // placing the cell in the whole list.
-func readMaterialPage(ctx *maa.Context, img image.Image, section string, scrolled bool, catalog map[string][]string, cache map[uint64]iconIdentity) ([]core.Material, []image.Point, bool, string, []string, error) {
+func readMaterialPage(ctx *maa.Context, img image.Image, section string, scrolled bool, catalog map[string][]string, cache map[uint64]iconIdentity) ([]core.Material, []image.Point, bool, string, []core.Text, error) {
 	texts, err := ocrTexts(ctx, img, [4]int{420, 245, 820, 420})
 	if err != nil {
 		return nil, nil, false, "", nil, err
 	}
 	texts = core.SplitOwned(texts)
 	headers := weaponHeaders(texts, catalog)
-	var names []string
-	for _, h := range headers {
-		names = append(names, h.Text)
-	}
 	sectionAt := func(y int) string {
 		current := section
 		for _, h := range headers {
@@ -175,7 +171,7 @@ func readMaterialPage(ctx *maa.Context, img image.Image, section string, scrolle
 	if len(rows) == 0 && !empty && len(headers) == 0 {
 		return nil, nil, false, "", nil, errors.New("empty recognition is not proof of no demand")
 	}
-	return rows, points, empty, sectionAt(720), names, nil
+	return rows, points, empty, sectionAt(720), headers, nil
 }
 
 // weaponCatalog maps each weapon display name to its catalog IDs; one name can
