@@ -26,9 +26,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CHARICON_URL = "https://voice.fz.wiki/assets/beyond/dynamicassets/gameplay/ui/sprites/charicon"
 OPERATORS = REPO_ROOT / "tools" / "zmdmap" / "data" / "sell_product.json"
 BACKGROUND = (190, 190, 190)
-# 移动端（ADB / 云终末地）0.67 已用截图验证。移动端 UI 是 PC 的 1.25 倍，PC 按
-# 0.67 / 1.25 ≈ 0.536 生成，尚无 PC 截图验证；任务目前只对 CloudADB 开放。
-RESOURCE_SCALES = {"resource": 0.67 / 1.25, "resource_adb": 0.67}
+# 两端都由 calibrate_operator_scale 在截图上测定：移动端（云终末地）0.67，PC 0.54
+# （1600×900 窗口缩放到 1280×720 的一张截图，12 名可见干员 0.91–0.98 全部命中）。
+# 培养读取流程目前只对 CloudADB 开放，PC 端布局尚未适配。
+RESOURCE_SCALES = {"resource": 0.54, "resource_adb": 0.67}
 FACE = (0.20, 0.22, 0.80, 0.62)
 
 

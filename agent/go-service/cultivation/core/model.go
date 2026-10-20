@@ -430,11 +430,12 @@ func abs(v int) int {
 }
 
 // NothingNeeded reports the page's own statement that this tab needs nothing,
-// e.g. 「干员等级已达上限」 on a maxed operator. An empty read alone is never
+// e.g. 「干员等级已达上限」 or 「干员技能与天赋培养已满级」 on a maxed operator. An empty read alone is never
 // taken as no demand.
 func NothingNeeded(texts []Text) bool {
 	for _, text := range texts {
-		for _, marker := range []string{"已达上限", "当前注入基质", "暂无养成需求", "暂无材料需求"} {
+		// 「干员等级已达上限」「干员技能与天赋培养已满级」 (PC sample from the user).
+		for _, marker := range []string{"已达上限", "已满级", "当前注入基质", "暂无养成需求", "暂无材料需求"} {
 			if strings.Contains(strings.ReplaceAll(text.Text, " ", ""), marker) {
 				return true
 			}

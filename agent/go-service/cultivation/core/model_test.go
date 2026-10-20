@@ -192,6 +192,9 @@ func TestNothingNeededOnMaxedTab(t *testing.T) {
 	if !NothingNeeded([]Text{{Text: "干员等级已达上限", Box: [4]int{752, 505, 166, 21}, Score: 1}}) {
 		t.Fatal("maxed operator level not recognised")
 	}
+	if !NothingNeeded([]Text{{Text: "干员技能与天赋培养已满级", Box: [4]int{745, 498, 190, 20}, Score: 1}}) {
+		t.Fatal("maxed skills and talents not recognised")
+	}
 	if NothingNeeded([]Text{{Text: "干员等级提升", Box: [4]int{443, 270, 103, 20}, Score: 1}}) {
 		t.Fatal("section title taken as no demand")
 	}
