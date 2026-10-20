@@ -196,15 +196,15 @@ jobs:
           cache-python: true
 
       - name: Fetch zmdmap data
-        run: uv run --frozen zmdmap fetch --only weapons --only energy_point_gems
+        run: uv run zmdmap fetch --only weapons --only energy_point_gems
 
       # 依赖都在 pyproject 的默认组里，uv 按 uv.lock 建好环境即可，不必单独装 python 或 pip install。
       - name: Generate EssenceFilter data
         run: |
-          uv run --frozen python -u tools/essence_filter/sync_zmdmap.py
-          uv run --frozen python -u tools/essence_filter/extract_skill_pools.py
-          uv run --frozen python -u tools/essence_filter/build_locations.py --data-version "$(jq -r '.version // "unknown"' tools/zmdmap/data/energy_point_gems.json)"
-          uv run --frozen python -u tools/essence_filter/build_autoessence_tasks.py
+          uv run python -u tools/essence_filter/sync_zmdmap.py
+          uv run python -u tools/essence_filter/extract_skill_pools.py
+          uv run python -u tools/essence_filter/build_locations.py --data-version "$(jq -r '.version // "unknown"' tools/zmdmap/data/energy_point_gems.json)"
+          uv run python -u tools/essence_filter/build_autoessence_tasks.py
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
@@ -256,14 +256,14 @@ jobs:
           cache-python: true
 
       - name: Fetch zmdmap data
-        run: uv run --frozen zmdmap fetch --only item_mini_table --only weapons
+        run: uv run zmdmap fetch --only item_mini_table --only weapons
 
       # json5（读物品表）与 pillow（合成 UI 图标）都在默认组里，httpx 是核心依赖。
       - name: Download icon resources
-        run: uv run --frozen python tools/icon_recognition/download.py --workers 16
+        run: uv run python tools/icon_recognition/download.py --workers 16
 
       - name: Publish icon resources
-        run: uv run --frozen python tools/icon_recognition/publish.py
+        run: uv run python tools/icon_recognition/publish.py
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8

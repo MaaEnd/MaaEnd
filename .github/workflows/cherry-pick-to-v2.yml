@@ -206,7 +206,7 @@ jobs:
           fi
 
           # 用 uv 管理的 python 拼接原 PR body + footer，避免 shell 注入
-          PR_BODY="$(uv run --frozen python -c "
+          PR_BODY="$(uv run python -c "
           import os
           original = os.environ.get('PR_BODY', '') or ''
           n = os.environ['PR_NUMBER']

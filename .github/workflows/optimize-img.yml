@@ -50,7 +50,7 @@ jobs:
 
       - name: Optimize png images
         run: |
-          uv run --frozen tools/optimize_templates/optimize_templates.py
+          uv run tools/optimize_templates/optimize_templates.py
 
       - name: Commit and push changes
         uses: actions-js/push@master

@@ -27,7 +27,7 @@ jobs:
 
       - name: Sync QQ group references
         run: |
-          uv run --frozen python .github/scripts/sync_qq_groups.py
+          uv run python .github/scripts/sync_qq_groups.py
 
       - name: Commit and push
         uses: actions-js/push@master

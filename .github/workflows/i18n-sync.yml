@@ -61,7 +61,7 @@ jobs:
 
       - name: Run OCR expected sync (write mode)
         run: |
-          uv run --frozen tools/i18n/sync_ocr_expected.py --write --i18n-dir "$RUNNER_TEMP/EndFieldTranslationReferrer/i18n"
+          uv run tools/i18n/sync_ocr_expected.py --write --i18n-dir "$RUNNER_TEMP/EndFieldTranslationReferrer/i18n"
 
       - name: Check changes
         id: changes

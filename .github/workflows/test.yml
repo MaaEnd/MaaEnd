@@ -86,7 +86,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
-        run: uv run --frozen python tools/check_maautils_sync.py --maafw-ref "$MAAFW_VERSION"
+        run: uv run python tools/check_maautils_sync.py --maafw-ref "$MAAFW_VERSION"
 
       - name: Download MaaFramework SDK
         uses: robinraju/release-downloader@v1
@@ -115,7 +115,7 @@ jobs:
         if: steps.maadeps.outputs.cache-hit != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: uv run --frozen python tools/maadeps-download.py x64-linux
+        run: uv run python tools/maadeps-download.py x64-linux
 
       - name: Restore ccache
         uses: actions/cache/restore@v5
@@ -145,12 +145,12 @@ jobs:
       - name: Run location tests
         env:
           MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
-        run: uv run --frozen --with "maafw==${MAAFW_VERSION#v}" python -u tests/MapLocateAssertLocation/map_locate.py
+        run: uv run --with "maafw==${MAAFW_VERSION#v}" python -u tests/MapLocateAssertLocation/map_locate.py
 
       # 与定位测试解耦：定位失败时仍执行规划连通性检查。
       - name: Run navmesh connectivity tests
         if: ${{ !cancelled() }}
-        run: uv run --frozen --with "maafw==${MAAFW_VERSION#v}" python -u tests/MapNavmeshConnectivity/navmesh_connectivity.py
+        run: uv run --with "maafw==${MAAFW_VERSION#v}" python -u tests/MapNavmeshConnectivity/navmesh_connectivity.py
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v6

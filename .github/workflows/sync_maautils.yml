@@ -72,7 +72,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set +e
-          out=$(uv run --frozen python tools/check_maautils_sync.py --resolve-latest)
+          out=$(uv run python tools/check_maautils_sync.py --resolve-latest)
           rc=$?
           set -e
           echo "$out"

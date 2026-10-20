@@ -35,4 +35,4 @@ jobs:
           cache-python: true
 
       - name: Run ruff
-        run: uv run --frozen ruff check .
+        run: uv run ruff check .

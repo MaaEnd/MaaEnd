@@ -54,7 +54,7 @@
 ## 运行
 
 ```powershell
-uv sync --locked
+uv sync
 uv run build-and-install --cpp-algo
 uv run python tests/MapNavmeshConnectivity/navmesh_connectivity.py
 ```

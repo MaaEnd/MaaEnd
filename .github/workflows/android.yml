@@ -164,7 +164,7 @@ jobs:
           MAAFW_VERSION: ${{ needs.meta.outputs.maafw_version }}
           VERSION_TAG: ${{ needs.meta.outputs.tag }}
         run: |
-          uv run --frozen python tools/build_android_agents.py \
+          uv run python tools/build_android_agents.py \
             --ndk "$ANDROID_NDK_ROOT" \
             --abi "$ABI" \
             --maafw-version "$MAAFW_VERSION" \
@@ -229,7 +229,7 @@ jobs:
       - name: Prepend AndroidOpenGame to presets
         shell: bash
         run: |
-          uv run --frozen python - <<'PY'
+          uv run python - <<'PY'
           import json
           from pathlib import Path
 
@@ -274,7 +274,7 @@ jobs:
           FW_ABI: ${{ matrix.variant == 'universal' && 'all' || matrix.variant }}
           MAAFW_VERSION: ${{ needs.meta.outputs.maafw_version }}
         run: |
-          uv run --frozen python scripts/setup_maa_framework.py \
+          uv run python scripts/setup_maa_framework.py \
             --abi "$FW_ABI" \
             --tag "$MAAFW_VERSION"
 
