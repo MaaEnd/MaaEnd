@@ -67,7 +67,7 @@
     "batchaddfriends.strangers_progress": "フレンド追加の進捗 [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s：フレンド申請を送信しました（%d/%d）",
     "cultivation.essence_missing": "基質：%s は未充足。特性が一致する無瑕基質を所持していないため、周回が必要です。",
-    "cultivation.essence_satisfied": "基質：%s は充足（注入済み、または特性が一致する無瑕基質を所持）。",
+    "cultivation.essence_satisfied": "基質：%s は充足（完全適合の基質を注入済み、または特性が一致する無瑕基質を所持）。",
     "cultivation.nothing_needed": "育成：%s / %s。ゲーム上すべて上限に達しており、必要な素材はありません。",
     "cultivation.operator_missing": "育成一覧のオペレーター一覧に選択したオペレーターが見つかりません。育成一覧を開いているか確認するか、「現在の選択」を使用してください。",
     "cultivation.unknown_item": "未識別アイテム %s",

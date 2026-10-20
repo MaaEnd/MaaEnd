@@ -67,7 +67,7 @@
     "batchaddfriends.strangers_progress": "친구 추가 진행도 [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s: 친구 신청을 보냈습니다 (%d/%d)",
     "cultivation.essence_missing": "기질: %s 미충족. 특성이 일치하는 무결 기질이 없어 파밍이 필요합니다.",
-    "cultivation.essence_satisfied": "기질: %s 충족 (기질 주입 완료 또는 특성이 일치하는 무결 기질 보유).",
+    "cultivation.essence_satisfied": "기질: %s 충족 (완전 적합 기질 주입 완료 또는 특성이 일치하는 무결 기질 보유).",
     "cultivation.nothing_needed": "육성: %s / %s. 게임에서 모든 항목이 상한에 도달해 필요한 재료가 없습니다.",
     "cultivation.operator_missing": "육성 개요의 오퍼레이터 목록에서 선택한 오퍼레이터를 찾지 못했습니다. 육성 개요가 열려 있는지 확인하거나 \"현재 선택\"을 사용하세요.",
     "cultivation.unknown_item": "미확인 아이템 %s",

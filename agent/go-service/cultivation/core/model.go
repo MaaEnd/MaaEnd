@@ -470,9 +470,13 @@ func NothingNeeded(texts []Text) bool {
 	return false
 }
 
-// EssenceSatisfied reports whether the weapon's essence need is met: it already
-// carries an injected essence, or at least one owned flawless (gold) essence
-// matches its three traits.
+// PerfectFit is the injected-essence status whose traits match the weapon's.
+const PerfectFit = "完全适配"
+
+// EssenceSatisfied reports whether the weapon's essence need is met: the
+// injected essence is a perfect fit, or at least one owned flawless (gold)
+// essence matches its three traits. An injected essence with other traits
+// does not count.
 func (w Weapon) EssenceSatisfied() bool {
-	return w.Essence != nil && (w.Essence.Injected != "" || w.Essence.Flawless > 0)
+	return w.Essence != nil && (strings.Contains(w.Essence.Injected, PerfectFit) || w.Essence.Flawless > 0)
 }

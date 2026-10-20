@@ -68,7 +68,7 @@
     "batchaddfriends.strangers_progress": "添加好友进度 [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s：已发送好友申请（%d/%d）",
     "cultivation.essence_missing": "基质：%s 未满足，库存中没有符合词条的无瑕基质，需要刷取。",
-    "cultivation.essence_satisfied": "基质：%s 已满足（已注入基质，或库存中已有符合词条的无瑕基质）。",
+    "cultivation.essence_satisfied": "基质：%s 已满足（已注入完全适配的基质，或库存中已有符合词条的无瑕基质）。",
     "cultivation.nothing_needed": "培养任务：%s / %s；游戏显示各项已达上限，没有需要的材料。",
     "cultivation.operator_missing": "在培养总览的干员列表中没有找到所选干员，请确认已打开培养总览，或改用「当前已选」。",
     "cultivation.unknown_item": "未识别物品 %s",

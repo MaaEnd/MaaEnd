@@ -291,7 +291,7 @@ func BuildModules(plan Plan, protocol, collect, essence, weapons TaskDocument) (
 	if weapon := plan.ChosenWeapon(); weapon == nil {
 		blockers = append(blockers, "weapon_not_chosen")
 	} else if weapon.EssenceSatisfied() {
-		// A matching flawless essence is owned or already injected: nothing to farm.
+		// A matching flawless essence is owned or a perfect fit is injected: nothing to farm.
 		blockers = append(blockers, "essence_satisfied")
 	} else if weapon.ID == "" || len(weapon.CandidateIDs) != 1 || weapon.CandidateIDs[0] != weapon.ID || attach[weapon.ID] == nil {
 		blockers = append(blockers, "weapon_identity_confirmation_required")

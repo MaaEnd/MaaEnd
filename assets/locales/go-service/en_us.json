@@ -68,7 +68,7 @@
     "batchaddfriends.strangers_progress": "Add friends progress [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s: Friend request sent (%d/%d)",
     "cultivation.essence_missing": "Essence: %s is not covered; no matching flawless essence is owned, so it needs farming.",
-    "cultivation.essence_satisfied": "Essence: %s is covered (an essence is injected, or a matching flawless essence is owned).",
+    "cultivation.essence_satisfied": "Essence: %s is covered (a perfectly fitting essence is injected, or a matching flawless essence is owned).",
     "cultivation.nothing_needed": "Cultivation: %s / %s. The game shows every item at its limit; no materials are needed.",
     "cultivation.operator_missing": "The chosen operator was not found in the cultivation overview list. Make sure the overview is open, or use \"Current\".",
     "cultivation.unknown_item": "Unrecognized item %s",

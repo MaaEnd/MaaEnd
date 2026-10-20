@@ -224,6 +224,8 @@ func TestEssenceSatisfied(t *testing.T) {
 		{&Essence{Flawless: 0}, false},
 		{&Essence{Flawless: 1}, true},
 		{&Essence{Injected: "完全适配"}, true},
+		{&Essence{Injected: "部分适配"}, false},
+		{&Essence{Injected: "部分适配", Flawless: 1}, true},
 	}
 	for _, c := range cases {
 		if got := (Weapon{Name: "望乡", Essence: c.essence}).EssenceSatisfied(); got != c.want {
