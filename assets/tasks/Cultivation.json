@@ -1,0 +1,48 @@
+{
+    "task": [
+        {
+            "name": "CultivationScan",
+            "label": "$task.CultivationScan.label",
+            "entry": "CultivationScan",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "CloudADB"
+            ]
+        },
+        {
+            "name": "CultivationPreview",
+            "label": "$task.CultivationPreview.label",
+            "entry": "CultivationPreview",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "CloudADB"
+            ]
+        },
+        {
+            "name": "CultivationExport",
+            "label": "$task.CultivationExport.label",
+            "entry": "CultivationExport",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "CloudADB"
+            ]
+        },
+        {
+            "name": "CultivationClear",
+            "label": "$task.CultivationClear.label",
+            "entry": "CultivationClear",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "CloudADB"
+            ]
+        }
+    ]
+}

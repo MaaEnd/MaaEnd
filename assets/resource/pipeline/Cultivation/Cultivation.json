@@ -1,0 +1,2349 @@
+{
+    "CultivationScan": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "begin"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T0Select"
+        ]
+    },
+    "CultivationP0T0Select": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {},
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    568,
+                    207
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T0Reset"
+        ]
+    },
+    "CultivationP0T0Reset": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 0
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "reset",
+                    "tab": 0,
+                    "pass": 0
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T0Top"
+        ]
+    },
+    "CultivationP0T0Top": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 0
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "top",
+                    "tab": 0,
+                    "pass": 0,
+                    "again": "CultivationP0T0TopSwipe",
+                    "done": "CultivationP0T0Read"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T0TopSwipe",
+            "CultivationP0T0Read"
+        ]
+    },
+    "CultivationP0T0TopSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 0
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    380
+                ],
+                "end": [
+                    640,
+                    620
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T0Top"
+        ]
+    },
+    "CultivationP0T0Read": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 0
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "read",
+                    "tab": 0,
+                    "pass": 0
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T0DownSwipe"
+        ]
+    },
+    "CultivationP0T0DownSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 0
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    620
+                ],
+                "end": [
+                    640,
+                    380
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T0Bottom"
+        ]
+    },
+    "CultivationP0T0Bottom": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 0
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "bottom",
+                    "tab": 0,
+                    "pass": 0,
+                    "again": "CultivationP0T0Read",
+                    "done": "CultivationP0T1Select"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T0Read",
+            "CultivationP0T1Select"
+        ]
+    },
+    "CultivationP0T1Select": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {},
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    750,
+                    207
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T1Reset"
+        ]
+    },
+    "CultivationP0T1Reset": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 1
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "reset",
+                    "tab": 1,
+                    "pass": 0
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T1Top"
+        ]
+    },
+    "CultivationP0T1Top": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 1
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "top",
+                    "tab": 1,
+                    "pass": 0,
+                    "again": "CultivationP0T1TopSwipe",
+                    "done": "CultivationP0T1Read"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T1TopSwipe",
+            "CultivationP0T1Read"
+        ]
+    },
+    "CultivationP0T1TopSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 1
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    380
+                ],
+                "end": [
+                    640,
+                    620
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T1Top"
+        ]
+    },
+    "CultivationP0T1Read": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 1
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "read",
+                    "tab": 1,
+                    "pass": 0
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T1DownSwipe"
+        ]
+    },
+    "CultivationP0T1DownSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 1
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    620
+                ],
+                "end": [
+                    640,
+                    380
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T1Bottom"
+        ]
+    },
+    "CultivationP0T1Bottom": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 1
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "bottom",
+                    "tab": 1,
+                    "pass": 0,
+                    "again": "CultivationP0T1Read",
+                    "done": "CultivationP0T2Select"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T1Read",
+            "CultivationP0T2Select"
+        ]
+    },
+    "CultivationP0T2Select": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {},
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    952,
+                    207
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T2Reset"
+        ]
+    },
+    "CultivationP0T2Reset": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 2
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "reset",
+                    "tab": 2,
+                    "pass": 0
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T2Top"
+        ]
+    },
+    "CultivationP0T2Top": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 2
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "top",
+                    "tab": 2,
+                    "pass": 0,
+                    "again": "CultivationP0T2TopSwipe",
+                    "done": "CultivationP0T2Read"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T2TopSwipe",
+            "CultivationP0T2Read"
+        ]
+    },
+    "CultivationP0T2TopSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 2
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    380
+                ],
+                "end": [
+                    640,
+                    620
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T2Top"
+        ]
+    },
+    "CultivationP0T2Read": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 2
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "read",
+                    "tab": 2,
+                    "pass": 0
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T2DownSwipe"
+        ]
+    },
+    "CultivationP0T2DownSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 2
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    620
+                ],
+                "end": [
+                    640,
+                    380
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T2Bottom"
+        ]
+    },
+    "CultivationP0T2Bottom": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 2
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "bottom",
+                    "tab": 2,
+                    "pass": 0,
+                    "again": "CultivationP0T2Read",
+                    "done": "CultivationP0T3Select"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T2Read",
+            "CultivationP0T3Select"
+        ]
+    },
+    "CultivationP0T3Select": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {},
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1143,
+                    207
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T3Reset"
+        ]
+    },
+    "CultivationP0T3Reset": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 3
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "reset",
+                    "tab": 3,
+                    "pass": 0
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T3Top"
+        ]
+    },
+    "CultivationP0T3Top": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 3
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "top",
+                    "tab": 3,
+                    "pass": 0,
+                    "again": "CultivationP0T3TopSwipe",
+                    "done": "CultivationP0T3Read"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T3TopSwipe",
+            "CultivationP0T3Read"
+        ]
+    },
+    "CultivationP0T3TopSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 3
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    380
+                ],
+                "end": [
+                    640,
+                    620
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T3Top"
+        ]
+    },
+    "CultivationP0T3Read": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 3
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "read",
+                    "tab": 3,
+                    "pass": 0
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T3DownSwipe"
+        ]
+    },
+    "CultivationP0T3DownSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 3
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    620
+                ],
+                "end": [
+                    640,
+                    380
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T3Bottom"
+        ]
+    },
+    "CultivationP0T3Bottom": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 3
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "bottom",
+                    "tab": 3,
+                    "pass": 0,
+                    "again": "CultivationP0T3Read",
+                    "done": "CultivationP1T0Select"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP0T3Read",
+            "CultivationP1T0Select"
+        ]
+    },
+    "CultivationP1T0Select": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {},
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    568,
+                    207
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T0Reset"
+        ]
+    },
+    "CultivationP1T0Reset": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 0
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "reset",
+                    "tab": 0,
+                    "pass": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T0Top"
+        ]
+    },
+    "CultivationP1T0Top": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 0
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "top",
+                    "tab": 0,
+                    "pass": 1,
+                    "again": "CultivationP1T0TopSwipe",
+                    "done": "CultivationP1T0Read"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T0TopSwipe",
+            "CultivationP1T0Read"
+        ]
+    },
+    "CultivationP1T0TopSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 0
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    380
+                ],
+                "end": [
+                    640,
+                    620
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T0Top"
+        ]
+    },
+    "CultivationP1T0Read": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 0
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "read",
+                    "tab": 0,
+                    "pass": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T0DownSwipe"
+        ]
+    },
+    "CultivationP1T0DownSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 0
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    620
+                ],
+                "end": [
+                    640,
+                    380
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T0Bottom"
+        ]
+    },
+    "CultivationP1T0Bottom": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 0
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "bottom",
+                    "tab": 0,
+                    "pass": 1,
+                    "again": "CultivationP1T0Read",
+                    "done": "CultivationP1T1Select"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T0Read",
+            "CultivationP1T1Select"
+        ]
+    },
+    "CultivationP1T1Select": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {},
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    750,
+                    207
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T1Reset"
+        ]
+    },
+    "CultivationP1T1Reset": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 1
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "reset",
+                    "tab": 1,
+                    "pass": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T1Top"
+        ]
+    },
+    "CultivationP1T1Top": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 1
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "top",
+                    "tab": 1,
+                    "pass": 1,
+                    "again": "CultivationP1T1TopSwipe",
+                    "done": "CultivationP1T1Read"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T1TopSwipe",
+            "CultivationP1T1Read"
+        ]
+    },
+    "CultivationP1T1TopSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 1
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    380
+                ],
+                "end": [
+                    640,
+                    620
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T1Top"
+        ]
+    },
+    "CultivationP1T1Read": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 1
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "read",
+                    "tab": 1,
+                    "pass": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T1DownSwipe"
+        ]
+    },
+    "CultivationP1T1DownSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 1
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    620
+                ],
+                "end": [
+                    640,
+                    380
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T1Bottom"
+        ]
+    },
+    "CultivationP1T1Bottom": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 1
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "bottom",
+                    "tab": 1,
+                    "pass": 1,
+                    "again": "CultivationP1T1Read",
+                    "done": "CultivationP1T2Select"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T1Read",
+            "CultivationP1T2Select"
+        ]
+    },
+    "CultivationP1T2Select": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {},
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    952,
+                    207
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T2Reset"
+        ]
+    },
+    "CultivationP1T2Reset": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 2
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "reset",
+                    "tab": 2,
+                    "pass": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T2Top"
+        ]
+    },
+    "CultivationP1T2Top": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 2
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "top",
+                    "tab": 2,
+                    "pass": 1,
+                    "again": "CultivationP1T2TopSwipe",
+                    "done": "CultivationP1T2Read"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T2TopSwipe",
+            "CultivationP1T2Read"
+        ]
+    },
+    "CultivationP1T2TopSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 2
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    380
+                ],
+                "end": [
+                    640,
+                    620
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T2Top"
+        ]
+    },
+    "CultivationP1T2Read": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 2
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "read",
+                    "tab": 2,
+                    "pass": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T2DownSwipe"
+        ]
+    },
+    "CultivationP1T2DownSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 2
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    620
+                ],
+                "end": [
+                    640,
+                    380
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T2Bottom"
+        ]
+    },
+    "CultivationP1T2Bottom": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 2
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "bottom",
+                    "tab": 2,
+                    "pass": 1,
+                    "again": "CultivationP1T2Read",
+                    "done": "CultivationP1T3Select"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T2Read",
+            "CultivationP1T3Select"
+        ]
+    },
+    "CultivationP1T3Select": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {},
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1143,
+                    207
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T3Reset"
+        ]
+    },
+    "CultivationP1T3Reset": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 3
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "reset",
+                    "tab": 3,
+                    "pass": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T3Top"
+        ]
+    },
+    "CultivationP1T3Top": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 3
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "top",
+                    "tab": 3,
+                    "pass": 1,
+                    "again": "CultivationP1T3TopSwipe",
+                    "done": "CultivationP1T3Read"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T3TopSwipe",
+            "CultivationP1T3Read"
+        ]
+    },
+    "CultivationP1T3TopSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 3
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    380
+                ],
+                "end": [
+                    640,
+                    620
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T3Top"
+        ]
+    },
+    "CultivationP1T3Read": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 3
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "read",
+                    "tab": 3,
+                    "pass": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T3DownSwipe"
+        ]
+    },
+    "CultivationP1T3DownSwipe": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 3
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    620
+                ],
+                "end": [
+                    640,
+                    380
+                ],
+                "duration": 900
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                425,
+                250,
+                813,
+                415
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T3Bottom"
+        ]
+    },
+    "CultivationP1T3Bottom": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {
+                    "tab": 3
+                },
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "bottom",
+                    "tab": 3,
+                    "pass": 1,
+                    "again": "CultivationP1T3Read",
+                    "done": "CultivationFinish"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationP1T3Read",
+            "CultivationFinish"
+        ]
+    },
+    "CultivationFinish": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CultivationGuard",
+                "custom_recognition_param": {},
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    160
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "finish"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "CultivationPreview": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "preview"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "CultivationExport": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "export"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "CultivationClear": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "clear"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "CultivationOCR": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    420,
+                    75,
+                    810,
+                    590
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "CultivationIcon": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "single_roi",
+                    "item_filters": [
+                        "ValuableDepot:*",
+                        "Normal:*",
+                        "Isolate:Gold"
+                    ]
+                },
+                "roi": [
+                    910,
+                    386,
+                    80,
+                    80
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    }
+}

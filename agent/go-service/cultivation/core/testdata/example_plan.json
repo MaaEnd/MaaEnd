@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "source": "v2.35.0-beta.1/01d31cf39ef00a8bb5f3efecdfbd309f6648a418",
+    "revision": 1,
+    "header": {
+        "operator": "演示干员（合成样例）",
+        "expectation": "卓越"
+    },
+    "read_at": "2026-10-20T00:00:00Z",
+    "materials": [
+        {"id": "item_char_skill_level_1_6", "name": "协议棱柱", "need": 80, "owned": 30},
+        {"id": "item_expcard_stage1_high", "name": "高级作战记录", "need": 2, "owned": 7},
+        {"id": "item_expcard_stage1_low", "name": "基础作战记录", "need": 3, "owned": 8},
+        {"id": "manual_plant", "name": "人工来源示例", "need": 4, "owned": 1}
+    ],
+    "weapon": {
+        "id": "",
+        "name": "宏愿",
+        "candidate_ids": ["wpn_sword_0021", "wpn_sword_0021_ink"],
+        "essence_status": "unverified_manual"
+    }
+}

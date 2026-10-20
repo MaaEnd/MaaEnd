@@ -2703,5 +2703,14 @@
     "weapon.wpn_sword_0023": "★5 Dessert Moment",
     "weapon.wpn_sword_0024": "★6 Complexed Industry",
     "weapon.wpn_sword_0025": "★6 Lunar Calling",
-    "weapon.wpn_sword_0026": "★6 Farsight"
+    "weapon.wpn_sword_0026": "★6 Farsight",
+    "task.CultivationScan.label": "Read cultivation needs (native prototype)",
+    "task.CultivationPreview.label": "Preview cultivation needs",
+    "task.CultivationExport.label": "Export farming goal preview",
+    "task.CultivationClear.label": "Clear cultivation needs",
+    "cultivation.failed": "Cultivation read failed; previous plan retained. Check the page and logs.",
+    "cultivation.cleared": "Cultivation plan cleared.",
+    "cultivation.preview": "Cultivation plan: %s / %s; %d manual material types. Owned / required (gap):",
+    "cultivation.exported": "CultivationSupplyPlan.preview.json exported. This prototype previews goals without starting farming.",
+    "cultivation.weapon": "Weapon: %s. Essence readiness is unverified; tracked separately for manual review, outside material farming goals."
 }

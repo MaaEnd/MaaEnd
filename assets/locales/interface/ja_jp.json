@@ -2703,5 +2703,14 @@
     "weapon.wpn_sword_0023": "★5 スイーツタイム",
     "weapon.wpn_sword_0024": "★6 複合工業",
     "weapon.wpn_sword_0025": "★6 喚月",
-    "weapon.wpn_sword_0026": "★6 ファーサイト"
+    "weapon.wpn_sword_0026": "★6 ファーサイト",
+    "task.CultivationScan.label": "育成素材を読み取る（試作）",
+    "task.CultivationPreview.label": "育成素材を確認",
+    "task.CultivationExport.label": "周回目標のプレビューを出力",
+    "task.CultivationClear.label": "育成計画を消去",
+    "cultivation.failed": "読み取り失敗。以前の計画を保持しました。画面とログを確認してください。",
+    "cultivation.cleared": "育成計画を消去しました。",
+    "cultivation.preview": "育成計画：%s / %s。手動素材 %d 種。所持 / 必要（不足）：",
+    "cultivation.exported": "CultivationSupplyPlan.preview.json を出力しました。この試作版は周回を開始しません。",
+    "cultivation.weapon": "武器：%s。基質の状態は未確認です。素材周回の対象には含めず、手動確認として保持します。"
 }

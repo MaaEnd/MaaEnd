@@ -5,6 +5,7 @@
     "properties": {
         "custom_action": {
             "enum": [
+                "CultivationAction",
                 "325",
                 "AccountSwitchWindowAction",
                 "AddItemData",
@@ -98,6 +99,28 @@
         }
     },
     "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {
+                        "const": "CultivationAction"
+                    }
+                },
+                "required": [
+                    "custom_action"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "$ref": "./components/cultivation.schema.json#/$defs/Action"
+                    }
+                },
+                "required": [
+                    "custom_action_param"
+                ]
+            }
+        },
         {
             "if": {
                 "properties": {

@@ -2703,5 +2703,14 @@
     "weapon.wpn_sword_0023": "★5 간식 시간",
     "weapon.wpn_sword_0024": "★6 응집 공업",
     "weapon.wpn_sword_0025": "★6 환월",
-    "weapon.wpn_sword_0026": "★6 조망"
+    "weapon.wpn_sword_0026": "★6 조망",
+    "task.CultivationScan.label": "육성 재료 읽기 (시험판)",
+    "task.CultivationPreview.label": "육성 재료 미리 보기",
+    "task.CultivationExport.label": "파밍 목표 미리 보기 내보내기",
+    "task.CultivationClear.label": "육성 계획 지우기",
+    "cultivation.failed": "읽기에 실패했습니다. 이전 계획을 유지합니다. 화면과 로그를 확인하세요.",
+    "cultivation.cleared": "육성 계획을 지웠습니다.",
+    "cultivation.preview": "육성 계획: %s / %s. 수동 재료 %d종. 보유 / 필요 (부족):",
+    "cultivation.exported": "CultivationSupplyPlan.preview.json을 내보냈습니다. 이 시험판은 파밍을 시작하지 않습니다.",
+    "cultivation.weapon": "무기: %s. 기질 상태는 미확인입니다. 재료 파밍 목표와 분리하여 수동 확인 항목으로 유지합니다."
 }

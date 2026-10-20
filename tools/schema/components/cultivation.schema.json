@@ -1,0 +1,56 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+        "Action": {
+            "type": "object",
+            "required": [
+                "step"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "step": {
+                    "enum": [
+                        "begin",
+                        "reset",
+                        "top",
+                        "read",
+                        "bottom",
+                        "finish",
+                        "preview",
+                        "export",
+                        "clear"
+                    ]
+                },
+                "tab": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3
+                },
+                "pass": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "again": {
+                    "type": "string",
+                    "pattern": "^Cultivation"
+                },
+                "done": {
+                    "type": "string",
+                    "pattern": "^Cultivation"
+                }
+            }
+        },
+        "Guard": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "tab": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3
+                }
+            }
+        }
+    }
+}

@@ -2703,5 +2703,14 @@
     "weapon.wpn_sword_0023": "★5 點心時刻",
     "weapon.wpn_sword_0024": "★6 聚合工業",
     "weapon.wpn_sword_0025": "★6 喚月",
-    "weapon.wpn_sword_0026": "★6 遙望"
+    "weapon.wpn_sword_0026": "★6 遙望",
+    "task.CultivationScan.label": "讀取培養需求（原生試作）",
+    "task.CultivationPreview.label": "預覽培養需求",
+    "task.CultivationExport.label": "產生刷取目標預覽",
+    "task.CultivationClear.label": "清空培養需求",
+    "cultivation.failed": "培養讀取失敗；保留原計畫，請核對目前頁面和日誌。",
+    "cultivation.cleared": "已清空培養需求。",
+    "cultivation.preview": "培養計畫：%s / %s；人工材料 %d 類。擁有 / 需要（缺口）：",
+    "cultivation.exported": "已產生 CultivationSupplyPlan.preview.json。此試作僅預覽目標，不啟動刷取。",
+    "cultivation.weapon": "武器：%s。基質狀態未驗收，另列人工待辦，不進入材料刷取目標。"
 }
