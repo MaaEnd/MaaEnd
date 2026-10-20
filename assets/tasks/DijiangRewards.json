@@ -148,7 +148,37 @@
                     ]
                 },
                 {
-                    "name": "No"
+                    "name": "No",
+                    "pipeline_override": {
+                        "RecoveryEmotionMain": {
+                            "enabled": true
+                        },
+                        "RecoveryEmotionCabinControlNexus": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        },
+                        "RecoveryEmotionCabinReceptionRoom": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        },
+                        "RecoveryEmotionCabinGrowthChamberI": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        },
+                        "RecoveryEmotionCabinManufacturingI": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        },
+                        "RecoveryEmotionCabinManufacturingII": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        }
+                    }
                 }
             ],
             "default_case": "No"
