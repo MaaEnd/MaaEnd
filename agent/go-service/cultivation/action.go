@@ -115,8 +115,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return fail(ctx, errors.New("missing controller"))
 	}
 	// DirectHit entry nodes do not capture, so always take a fresh frame
-	ctrl.PostScreencap().Wait()
-	img, err := ctrl.CacheImage()
+	img, err := capture(ctrl)
 	if err != nil {
 		return fail(ctx, err)
 	}
@@ -232,27 +231,10 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		if scan.Icons[p.Pass] == nil {
 			scan.Icons[p.Pass] = map[uint64]iconIdentity{}
 		}
-		if scan.Pages > 0 {
-			// A swipe scrolls the list by a varying distance (0.5x-1.6x the
-			// finger on CloudADB), so measure it instead of guessing overlap.
-			shift, err := core.ScrollShift(scan.Previous, img, core.ListArea, 340)
-			if err != nil {
-				return fail(ctx, err)
-			}
-			if shift > core.ReadBand {
-				return fail(ctx, fmt.Errorf("list scrolled %d px, past rows between pages", shift))
-			}
-			scan.Offset += shift
+		if err := advanceList(img); err != nil {
+			return fail(ctx, err)
 		}
-		// The section a page starts in is the last weapon title above its top,
-		// not the one at the previous page's bottom: that title can still be
-		// below rows that belong to the earlier weapon.
-		top := ""
-		for _, h := range scan.Headers {
-			if h.Y <= scan.Offset+core.ListArea.Min.Y {
-				top = h.Name
-			}
-		}
+		top := sectionAtTop()
 		rows, points, empty, section, headers, err := readMaterialPage(ctx, img, top, scan.Pages > 0, catalog, scan.Icons[p.Pass])
 		if err != nil {
 			return fail(ctx, err)
@@ -260,8 +242,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		if slices.ContainsFunc(rows, func(m core.Material) bool { return m.Unknown }) {
 			// A single blurred frame can miss a catalogued icon; an unknown item
 			// must survive a re-read on a fresh frame.
-			ctrl.PostScreencap().Wait()
-			if img, err = ctrl.CacheImage(); err != nil {
+			if img, err = capture(ctrl); err != nil {
 				return fail(ctx, err)
 			}
 			if rows, points, empty, section, headers, err = readMaterialPage(ctx, img, top, scan.Pages > 0, catalog, scan.Icons[p.Pass]); err != nil {
@@ -273,12 +254,8 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			if !slices.Contains(scan.WeaponNames[p.Pass], h.Text) {
 				scan.WeaponNames[p.Pass] = append(scan.WeaponNames[p.Pass], h.Text)
 			}
-			at := h.Box[1] + scan.Offset
-			if !slices.ContainsFunc(scan.Headers, func(q placedHeader) bool { return q.Name == h.Text && q.Y-at <= 14 && at-q.Y <= 14 }) {
-				scan.Headers = append(scan.Headers, placedHeader{Y: at, Name: h.Text})
-				slices.SortFunc(scan.Headers, func(a, b placedHeader) int { return a.Y - b.Y })
-			}
 		}
+		placeHeaders(headers)
 		log.Info().Str("component", "Cultivation").Int("tab", p.Tab).Int("pass", p.Pass).Int("page", scan.Pages).
 			Interface("rows", rows).Bool("empty", empty).Msg("cultivation page read")
 		if err = scan.Placed.Add(rows, points, scan.Offset); err != nil {
@@ -397,11 +374,15 @@ func readEssenceStep(ctx *maa.Context, img image.Image, p stepParam, catalog map
 	if err != nil {
 		return fail(ctx, err)
 	}
+	if err := advanceList(img); err != nil {
+		return fail(ctx, err)
+	}
 	headers := weaponHeaders(texts, catalog)
-	lines, section, err := core.ReadEssencePanels(texts, headers, scan.Section)
+	lines, section, err := core.ReadEssencePanels(texts, headers, sectionAtTop())
 	if err != nil {
 		return fail(ctx, err)
 	}
+	placeHeaders(headers)
 	if scan.Essence[p.Pass] == nil {
 		scan.Essence[p.Pass] = map[string]core.Essence{}
 	}
@@ -450,4 +431,54 @@ func scrollbarOf(img image.Image) (int, int, bool) {
 type placedHeader struct {
 	Y    int
 	Name string
+}
+
+// capture takes a fresh frame and fails when the screenshot did not succeed.
+func capture(ctrl *maa.Controller) (image.Image, error) {
+	if job := ctrl.PostScreencap().Wait(); job == nil || !job.Success() {
+		return nil, errors.New("screenshot failed")
+	}
+	return ctrl.CacheImage()
+}
+
+// advanceList adds how far the list scrolled since the last read page. A swipe
+// scrolls by a varying distance (0.5x-1.6x the finger on CloudADB), so it is
+// measured instead of guessed.
+func advanceList(img image.Image) error {
+	if scan.Pages == 0 {
+		return nil
+	}
+	shift, err := core.ScrollShift(scan.Previous, img, core.ListArea, 340)
+	if err != nil {
+		return err
+	}
+	if shift > core.ReadBand {
+		return fmt.Errorf("list scrolled %d px, past rows between pages", shift)
+	}
+	scan.Offset += shift
+	return nil
+}
+
+// sectionAtTop is the weapon whose title is the last one above the page top.
+// The title at the previous page's bottom is not enough: rows of the earlier
+// weapon can still sit above it on this page.
+func sectionAtTop() string {
+	top := ""
+	for _, h := range scan.Headers {
+		if h.Y <= scan.Offset+core.ListArea.Min.Y {
+			top = h.Name
+		}
+	}
+	return top
+}
+
+// placeHeaders records this page's weapon titles by list position.
+func placeHeaders(headers []core.Text) {
+	for _, h := range headers {
+		at := h.Box[1] + scan.Offset
+		if !slices.ContainsFunc(scan.Headers, func(q placedHeader) bool { return q.Name == h.Text && q.Y-at <= 14 && at-q.Y <= 14 }) {
+			scan.Headers = append(scan.Headers, placedHeader{Y: at, Name: h.Text})
+			slices.SortFunc(scan.Headers, func(a, b placedHeader) int { return a.Y - b.Y })
+		}
+	}
 }

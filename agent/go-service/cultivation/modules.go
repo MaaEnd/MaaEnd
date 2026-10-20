@@ -58,7 +58,11 @@ func showModules(ctx *maa.Context, plan core.Plan, export bool) error {
 				if material.ID == row.Key {
 					name = iconqty.ItemDisplayName(material.ID)
 					if material.Unknown {
-						name = i18n.T("cultivation.unknown_item", strings.TrimPrefix(material.ID, core.UnknownIDPrefix)[:6])
+						short := strings.TrimPrefix(material.ID, core.UnknownIDPrefix)
+						if len(short) > 6 {
+							short = short[:6]
+						}
+						name = i18n.T("cultivation.unknown_item", short)
 					}
 					break
 				}

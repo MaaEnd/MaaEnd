@@ -51,14 +51,12 @@ def main() -> None:
     parser.add_argument("--rebuild", choices=sorted(RESOURCE_SCALES), action="append", default=[])
     args = parser.parse_args()
     operators = json.loads(OPERATORS.read_text(encoding="utf-8"))["operators"]
-    for resource in args.rebuild:
-        for char_id in operators:
-            template_path(resource, char_id).unlink(missing_ok=True)
+    # --rebuild replaces existing templates only after every download succeeded.
     jobs = [
         (char_id, resource)
         for char_id in operators
         for resource in RESOURCE_SCALES
-        if not template_path(resource, char_id).exists()
+        if resource in args.rebuild or not template_path(resource, char_id).exists()
     ]
     outputs = []
     with new_client() as client:
@@ -76,10 +74,9 @@ def main() -> None:
     # 先全部下载、解码成功再写文件，避免中途失败留下半套模板。
     for path, template in outputs:
         path.parent.mkdir(parents=True, exist_ok=True)
-        if not path.exists():
-            with path.open("xb") as output:
-                template.save(output, format="PNG")
-            print(f"[Cultivation] {path.relative_to(REPO_ROOT)}")
+        with path.open("wb") as output:
+            template.save(output, format="PNG")
+        print(f"[Cultivation] {path.relative_to(REPO_ROOT)}")
 
 
 if __name__ == "__main__":

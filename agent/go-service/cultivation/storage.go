@@ -90,7 +90,7 @@ func savePlanWithWeapon(plan core.Plan, expected uint64, choice *int) error {
 		if err != nil {
 			return err
 		}
-	} else if plan.WeaponChoice == "" && stored.Plan != nil {
+	} else if plan.WeaponChoice == "" && stored.Plan != nil && stored.Plan.Header.Operator == plan.Header.Operator {
 		for _, weapon := range plan.Weapons {
 			if weapon.Name == stored.Plan.WeaponChoice {
 				plan.WeaponChoice = weapon.Name
