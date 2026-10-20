@@ -265,16 +265,6 @@ func OwnedRows(texts []Text, scrolled bool) []Text {
 	return kept
 }
 
-// MergePage removes only adjacent viewport overlap, retaining repeated later costs.
-func MergePage(seen, page []Material) []Material {
-	for n := min(len(seen), len(page)); n > 0; n-- {
-		if slices.Equal(seen[len(seen)-n:], page[:n]) {
-			return append(slices.Clone(seen), page[n:]...)
-		}
-	}
-	return append(slices.Clone(seen), page...)
-}
-
 // Merge sums needs by stable item ID within each weapon section and counts
 // account inventory once.
 func Merge(rows []Material) ([]Material, error) {

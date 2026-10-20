@@ -51,7 +51,7 @@ pnpm format
 ### Reading rules
 
 - Only whole rows are read: a row at the bottom edge is kept or dropped as a whole, and on scrolled pages the faded top row is skipped (the previous page read it whole).
-- Pages scroll with a 120 px swipe. On CloudADB the list scrolls about 1.6x the finger distance, and the earlier 240 px left whole rows between two pages.
+- Each page is aligned with the previous one to measure the real scroll (0.5x-1.6x the finger distance on CloudADB), and cells are merged by their position in the list, so any overlap neither drops nor repeats rows; a scroll longer than the ~280 px read band is an error. Pages scroll with a 160 px swipe.
 - Items merge by their stable `IconRecognition` ID; needs of the same item in several sections add up, and inventory is counted once.
 - Substitute boxes are skipped and not counted as needs.
 - Items whose icon is not in the `IconRecognition` catalog are kept as "uncatalogued items" and saved to `debug/cultivation/`; reading continues.

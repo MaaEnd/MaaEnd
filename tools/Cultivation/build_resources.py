@@ -141,11 +141,11 @@ def build():
                 'begin': [1215, 380], 'end': [1215, 620], 'duration': 500, 'end_hold': 200}},
                 [prefix+'Top'], guard(tab), post_wait_freezes=freeze)
             pipeline[prefix+'Read'] = node(action('read', **phase), [prefix+'DownSwipe'], guard(tab))
-            # The list scrolls about 1.6x the finger distance on CloudADB (a 240 px
-            # swipe moved it 381 px, more than the ~280 px read band, so rows fell
-            # between pages). 120 px keeps consecutive pages overlapping.
+            # The list scrolls 0.5x-1.6x the finger distance on CloudADB (240 px
+            # moved it 381 px, past the 280 px read band). The scan measures each
+            # scroll and fails past the band; 160 px stays within it.
             pipeline[prefix+'DownSwipe'] = node({'type': 'Swipe', 'param': {
-                'begin': [1215, 620], 'end': [1215, 500], 'duration': 500, 'end_hold': 200}},
+                'begin': [1215, 620], 'end': [1215, 460], 'duration': 500, 'end_hold': 200}},
                 [prefix+'Bottom'], guard(tab), post_wait_freezes=freeze)
             pipeline[prefix+'Bottom'] = node(action('bottom', **phase, again=prefix+'Read', done=after),
                                              [prefix+'Read', after], guard(tab))

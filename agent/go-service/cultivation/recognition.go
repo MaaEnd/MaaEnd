@@ -109,10 +109,12 @@ type iconIdentity struct {
 // readMaterialPage reads one viewport. section is the weapon section continuing
 // from the previous page ("" for the operator); it returns the section in effect
 // at the page bottom and the weapon headers seen.
-func readMaterialPage(ctx *maa.Context, img image.Image, section string, scrolled bool, catalog map[string][]string, cache map[uint64]iconIdentity) ([]core.Material, bool, string, []string, error) {
+// It also returns each cell's 「拥有」 label position (centre x, top y) for
+// placing the cell in the whole list.
+func readMaterialPage(ctx *maa.Context, img image.Image, section string, scrolled bool, catalog map[string][]string, cache map[uint64]iconIdentity) ([]core.Material, []image.Point, bool, string, []string, error) {
 	texts, err := ocrTexts(ctx, img, [4]int{420, 245, 820, 420})
 	if err != nil {
-		return nil, false, "", nil, err
+		return nil, nil, false, "", nil, err
 	}
 	texts = core.SplitOwned(texts)
 	headers := weaponHeaders(texts, catalog)
@@ -133,21 +135,22 @@ func readMaterialPage(ctx *maa.Context, img image.Image, section string, scrolle
 		label := strings.ReplaceAll(text.Text, " ", "")
 		if strings.HasPrefix(label, "拥有") {
 			if _, err := core.Amount(strings.TrimPrefix(label, "拥有")); err != nil || text.Score < .6 {
-				return nil, false, "", nil, fmt.Errorf("unreadable owned-material slot %q at %v (score %.2f)", text.Text, text.Box, text.Score)
+				return nil, nil, false, "", nil, fmt.Errorf("unreadable owned-material slot %q at %v (score %.2f)", text.Text, text.Box, text.Score)
 			}
 		}
 	}
 	var rows []core.Material
+	var points []image.Point
 	for _, owned := range core.OwnedRows(texts, scrolled) {
 		estimate := image.Rect(owned.Box[0]+owned.Box[2]/2-40, owned.Box[1]-83, owned.Box[0]+owned.Box[2]/2+40, owned.Box[1]-3)
 		cell := core.AlignCellX(img, estimate, 12)
 		if !cell.In(image.Rect(0, 0, 1280, 720)) {
-			return nil, false, "", nil, errors.New("invalid icon ROI")
+			return nil, nil, false, "", nil, errors.New("invalid icon ROI")
 		}
 		roi := maa.Rect{cell.Min.X, cell.Min.Y, 80, 80}
 		item, box, err := identifyCell(ctx, img, roi, cell, cache)
 		if err != nil {
-			return nil, false, "", nil, err
+			return nil, nil, false, "", nil, err
 		}
 		if box {
 			// Boxes listed beside a material are optional substitutes, not a need.
@@ -159,19 +162,20 @@ func readMaterialPage(ctx *maa.Context, img image.Image, section string, scrolle
 		// ("18" read as "8") on CloudADB.
 		need, err := readStripAmount(ctx, img, maa.Rect{cell.Min.X, cell.Min.Y + 52, 80, 28})
 		if err != nil {
-			return nil, false, "", nil, fmt.Errorf("material quantity of %s: %w", item.ID, err)
+			return nil, nil, false, "", nil, fmt.Errorf("material quantity of %s: %w", item.ID, err)
 		}
 		have, err := core.Amount(strings.TrimPrefix(strings.ReplaceAll(owned.Text, " ", ""), "拥有"))
 		if err != nil {
-			return nil, false, "", nil, err
+			return nil, nil, false, "", nil, err
 		}
 		rows = append(rows, core.Material{ID: item.ID, Name: item.Name, Need: need, Owned: have, Unknown: item.Unknown, Weapon: sectionAt(cell.Min.Y)})
+		points = append(points, image.Pt(owned.Box[0]+owned.Box[2]/2, owned.Box[1]))
 	}
 	empty := core.NothingNeeded(texts)
 	if len(rows) == 0 && !empty && len(headers) == 0 {
-		return nil, false, "", nil, errors.New("empty recognition is not proof of no demand")
+		return nil, nil, false, "", nil, errors.New("empty recognition is not proof of no demand")
 	}
-	return rows, empty, sectionAt(720), names, nil
+	return rows, points, empty, sectionAt(720), names, nil
 }
 
 // weaponCatalog maps each weapon display name to its catalog IDs; one name can

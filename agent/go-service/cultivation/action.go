@@ -35,21 +35,24 @@ type stepParam struct {
 	Weapon *int `json:"weapon"`
 }
 type session struct {
-	TaskID       int64
-	Header       core.Header
-	Revision     uint64
-	Started      time.Time
-	Passes       [2][]core.Material
-	Rows         []core.Material
-	PreviousRows []core.Material
-	Previous     image.Image
-	Stable       int
-	Pages        int
-	Empty        bool
-	Section      string
-	WeaponNames  [2][]string
-	Essence      [2]map[string]core.Essence
-	Icons        [2]map[uint64]iconIdentity
+	TaskID   int64
+	Header   core.Header
+	Revision uint64
+	Started  time.Time
+	Passes   [2][]core.Material
+	Rows     []core.Material
+	// Placed holds this tab's cells by list position; Offset is how far the
+	// list has scrolled since the top, measured page to page.
+	Placed      core.PlacedRows
+	Offset      int
+	Previous    image.Image
+	Stable      int
+	Pages       int
+	Empty       bool
+	Section     string
+	WeaponNames [2][]string
+	Essence     [2]map[string]core.Essence
+	Icons       [2]map[uint64]iconIdentity
 }
 
 var scanMu sync.Mutex
@@ -175,7 +178,8 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	case "reset":
 		scan.Section = ""
 		scan.Rows = nil
-		scan.PreviousRows = nil
+		scan.Placed = core.PlacedRows{}
+		scan.Offset = 0
 		scan.Previous = nil
 		scan.Stable = 0
 		scan.Pages = 0
@@ -220,7 +224,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		if scan.Icons[p.Pass] == nil {
 			scan.Icons[p.Pass] = map[uint64]iconIdentity{}
 		}
-		rows, empty, section, names, err := readMaterialPage(ctx, img, scan.Section, scan.Pages > 0, catalog, scan.Icons[p.Pass])
+		rows, points, empty, section, names, err := readMaterialPage(ctx, img, scan.Section, scan.Pages > 0, catalog, scan.Icons[p.Pass])
 		if err != nil {
 			return fail(ctx, err)
 		}
@@ -231,7 +235,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			if img, err = ctrl.CacheImage(); err != nil {
 				return fail(ctx, err)
 			}
-			if rows, empty, section, names, err = readMaterialPage(ctx, img, scan.Section, scan.Pages > 0, catalog, scan.Icons[p.Pass]); err != nil {
+			if rows, points, empty, section, names, err = readMaterialPage(ctx, img, scan.Section, scan.Pages > 0, catalog, scan.Icons[p.Pass]); err != nil {
 				return fail(ctx, err)
 			}
 		}
@@ -241,13 +245,24 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				scan.WeaponNames[p.Pass] = append(scan.WeaponNames[p.Pass], name)
 			}
 		}
-		if scan.PreviousRows != nil && slices.Equal(scan.PreviousRows, rows) && !core.Stationary(img, scan.Previous) {
-			return fail(ctx, errors.New("repeated material sequence on a changed viewport"))
+		if scan.Pages > 0 {
+			// A swipe scrolls the list by a varying distance (0.5x-1.6x the
+			// finger on CloudADB), so measure it instead of guessing overlap.
+			shift, err := core.ScrollShift(scan.Previous, img, core.ListArea, 340)
+			if err != nil {
+				return fail(ctx, err)
+			}
+			if shift > core.ReadBand {
+				return fail(ctx, fmt.Errorf("list scrolled %d px, past rows between pages", shift))
+			}
+			scan.Offset += shift
 		}
 		log.Info().Str("component", "Cultivation").Int("tab", p.Tab).Int("pass", p.Pass).Int("page", scan.Pages).
 			Interface("rows", rows).Bool("empty", empty).Msg("cultivation page read")
-		scan.Rows = core.MergePage(scan.Rows, rows)
-		scan.PreviousRows = rows
+		if err = scan.Placed.Add(rows, points, scan.Offset); err != nil {
+			return fail(ctx, err)
+		}
+		scan.Rows = scan.Placed.Rows
 		scan.Previous = img
 		scan.Empty = scan.Empty || empty
 		scan.Pages++

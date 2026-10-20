@@ -2,6 +2,7 @@ package core
 
 import (
 	"encoding/json"
+	"image"
 	"strings"
 	"testing"
 	"time"
@@ -40,14 +41,18 @@ func TestHeaderRejectsChangedOrAmbiguousTarget(t *testing.T) {
 func TestViewportOverlapAndRepeatedSkillCosts(t *testing.T) {
 	a := Material{ID: "item_gold", Name: "折金票", Need: 40, Owned: 30}
 	b := Material{ID: "item_char_skill_level_1_6", Name: "协议棱柱", Need: 80, Owned: 20}
-	rows := MergePage([]Material{a}, []Material{a, b})
-	if len(rows) != 2 {
-		t.Fatal(rows)
+	var placed PlacedRows
+	if err := placed.Add([]Material{a}, []image.Point{{950, 400}}, 0); err != nil {
+		t.Fatal(err)
 	}
-	rows = MergePage(rows, []Material{a})
-	if len(rows) != 3 {
+	if err := placed.Add([]Material{a, b}, []image.Point{{950, 400}, {950, 530}}, 0); err != nil || len(placed.Rows) != 2 {
+		t.Fatal(placed.Rows, err)
+	}
+	// The same cost further down the list (another skill) is a separate need.
+	if err := placed.Add([]Material{a}, []image.Point{{950, 400}}, 260); err != nil || len(placed.Rows) != 3 {
 		t.Fatal("later identical cost was lost")
 	}
+	rows := placed.Rows
 	merged, err := Merge(rows)
 	if err != nil || merged[1].Need != 80 {
 		t.Fatalf("%+v %v", merged, err)
