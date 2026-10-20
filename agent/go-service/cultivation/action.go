@@ -90,6 +90,11 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		maafocus.Print(ctx, i18n.T("cultivation.expectation_missing"))
 		return false
 	}
+	if p.Step == "farm" {
+		// Consumes sanity through the upstream ProtocolSpace task; runs only from
+		// the CultivationFarm task the user starts.
+		return finishOrFail(ctx, farm(ctx, arg.CurrentTaskName, p.Weapon), "")
+	}
 	if p.Step == "preview" || p.Step == "export" {
 		return finishOrFail(ctx, preview(ctx, p.Step == "export", p.Weapon), "")
 	}
@@ -307,22 +312,30 @@ func preview(ctx *maa.Context, export bool, choice *int) error {
 	}
 	plan := *stored.Plan
 	if choice != nil {
-		name := ""
-		if *choice > 0 {
-			if *choice > len(plan.Weapons) {
-				maafocus.Print(ctx, i18n.T("cultivation.weapon_choice_invalid", *choice, len(plan.Weapons)))
-				return fmt.Errorf("weapon choice %d out of %d usable weapons", *choice, len(plan.Weapons))
-			}
-			name = plan.Weapons[*choice-1].Name
-		}
-		if name != plan.WeaponChoice {
-			if err = setWeaponChoice(plan.Revision, name); err != nil {
-				return err
-			}
-			plan.WeaponChoice = name
+		if err = applyWeaponChoice(ctx, &plan, *choice); err != nil {
+			return err
 		}
 	}
 	return showModules(ctx, plan, export)
+}
+
+// applyWeaponChoice stores the CultivationWeapon option: 0 none, n the n-th usable weapon.
+func applyWeaponChoice(ctx *maa.Context, plan *core.Plan, choice int) error {
+	name := ""
+	if choice > 0 {
+		if choice > len(plan.Weapons) {
+			maafocus.Print(ctx, i18n.T("cultivation.weapon_choice_invalid", choice, len(plan.Weapons)))
+			return fmt.Errorf("weapon choice %d out of %d usable weapons", choice, len(plan.Weapons))
+		}
+		name = plan.Weapons[choice-1].Name
+	}
+	if name != plan.WeaponChoice {
+		if err := setWeaponChoice(plan.Revision, name); err != nil {
+			return err
+		}
+		plan.WeaponChoice = name
+	}
+	return nil
 }
 
 // readEssenceStep reads one 武器基质 page: per-weapon essence counts, no

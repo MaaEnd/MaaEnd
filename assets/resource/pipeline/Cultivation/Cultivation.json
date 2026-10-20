@@ -2905,6 +2905,26 @@
         "rate_limit": 0,
         "next": []
     },
+    "CultivationFarm": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "farm"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [],
+        "attach": {
+            "claim": "ObtainScaling1",
+            "medication": "EndTask"
+        }
+    },
     "CultivationOCR": {
         "recognition": {
             "type": "OCR",

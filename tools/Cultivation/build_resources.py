@@ -149,6 +149,8 @@ def build():
     pipeline['CultivationFinish'] = node(action('finish'), recognition=guard())
     for name, step in [('Preview', 'preview'), ('Export', 'export'), ('Clear', 'clear'), ('Confirm', 'confirm')]:
         pipeline['Cultivation'+name] = node(action(step))
+    # Farming consumes sanity: safe defaults are single claim and no medication.
+    pipeline['CultivationFarm'] = node(action('farm'), attach={'claim': 'ObtainScaling1', 'medication': 'EndTask'})
     pipeline['CultivationOCR'] = node('DoNothing', recognition={
         'type': 'OCR', 'param': {'roi': [420, 75, 810, 590]}})
     pipeline['CultivationIcon'] = node('DoNothing', recognition={
@@ -158,23 +160,33 @@ def build():
         'roi': [910, 386, 80, 80]}})
     write('assets/resource/pipeline/Cultivation/Cultivation.json', pipeline)
     tasks = []
-    for name in ['Scan', 'Preview', 'Export', 'Clear', 'Confirm']:
+    for name in ['Scan', 'Preview', 'Farm', 'Export', 'Clear', 'Confirm']:
         task = {'name': 'Cultivation'+name, 'label': '$task.Cultivation'+name+'.label',
                 'entry': 'Cultivation'+name, 'group': ['other_menu'], 'controller': ['CloudADB']}
         if name == 'Scan':
             task['option'] = ['CultivationOperator', 'CultivationExpectation', 'CultivationWeapon']
         elif name in ('Preview', 'Export'):
             task['option'] = ['CultivationWeapon']
+        elif name == 'Farm':
+            task['option'] = ['CultivationWeapon', 'CultivationFarmClaim', 'CultivationFarmMedication']
         tasks.append(task)
     # An operator equips one weapon, so the user picks which usable weapon's
     # materials count. Keep leaves the stored choice untouched.
     cases = [{'name': 'Keep', 'label': '$option.CultivationWeapon.cases.Keep.label'}]
     for index, case in enumerate(['None', 'First', 'Second', 'Third', 'Fourth']):
-        steps = {'CultivationFinish': 'finish', 'CultivationPreview': 'preview', 'CultivationExport': 'export'}
+        steps = {'CultivationFinish': 'finish', 'CultivationPreview': 'preview', 'CultivationExport': 'export', 'CultivationFarm': 'farm'}
         cases.append({'name': case, 'label': f'$option.CultivationWeapon.cases.{case}.label', 'pipeline_override': {
             node: {'action': action(step, weapon=index)} for node, step in steps.items()}})
     options = {'CultivationWeapon': {'type': 'select', 'label': '$option.CultivationWeapon.label',
                                      'description': '$option.CultivationWeapon.description', 'cases': cases},
+               'CultivationFarmClaim': {'type': 'select', 'label': '$option.CultivationFarmClaim.label',
+                                        'description': '$option.CultivationFarmClaim.description', 'default_case': 'ObtainScaling1', 'cases': [
+                   {'name': case, 'label': f'$option.CultivationFarmClaim.cases.{case}.label',
+                    'pipeline_override': {'CultivationFarm': {'attach': {'claim': case}}}} for case in ['ObtainScaling1', 'ObtainScaling2']]},
+               'CultivationFarmMedication': {'type': 'select', 'label': '$option.CultivationFarmMedication.label',
+                                             'description': '$option.CultivationFarmMedication.description', 'default_case': 'EndTask', 'cases': [
+                   {'name': case, 'label': f'$option.CultivationFarmMedication.cases.{case}.label',
+                    'pipeline_override': {'CultivationFarm': {'attach': {'medication': case}}}} for case in ['EndTask', 'UseMedication']]},
                'CultivationExpectation': {'type': 'select', 'label': '$option.CultivationExpectation.label',
                                           'description': '$option.CultivationExpectation.description',
                                           'default_case': 'Excellent', 'cases': [
@@ -303,6 +315,23 @@ def build():
             'ja_jp': ['育成目標', '育成目標はオペレーター・スキル・武器の目標レベルを決め、目標ごとに必要な素材が異なります。読み取り前にゲーム内でこの目標に切り替えます（表示設定のみで、消費はありません）。', '基礎', '進階', '精通', '卓越'],
             'ko_kr': ['육성 목표', '육성 목표는 오퍼레이터·스킬·무기의 목표 레벨을 정하며, 목표마다 필요한 재료가 다릅니다. 읽기 전에 게임에서 이 목표로 전환합니다(표시 설정만 바뀌며 소모는 없습니다).', '기초', '진급', '정통', '탁월'],
         }[lang]
+        farm_texts = {
+            'zh_cn': ['按培养计划刷协议空间', '领取方式', '与协议空间的「领取方式」相同。双倍领取会消耗双倍许可。', '单倍领取', '优先双倍领取',
+                      '理智不足时', '与协议空间相同。默认结束任务，不使用理智药。', '结束任务', '使用应急理智加强剂'],
+            'zh_tw': ['依培養計畫刷協議空間', '領取方式', '與協議空間的「領取方式」相同。雙倍領取會消耗雙倍許可。', '單倍領取', '優先雙倍領取',
+                      '理智不足時', '與協議空間相同。預設結束任務，不使用理智藥。', '結束任務', '使用應急理智加強劑'],
+            'en_us': ['Farm Protocol Space for the cultivation plan', 'Claim mode', 'Same as Protocol Space. Double claims use double permits.', 'Single claim', 'Prefer double claim',
+                      'When sanity runs out', 'Same as Protocol Space. By default the task ends without using sanity medicine.', 'End task', 'Use emergency sanity boosters'],
+            'ja_jp': ['育成計画に沿って協議空間を周回', '受取方法', '協議空間の「受取方法」と同じです。2倍受取は2倍許可を消費します。', '1倍受取', '2倍受取を優先',
+                      '理性不足時', '協議空間と同じです。既定ではタスクを終了し、理性回復薬は使いません。', 'タスク終了', '緊急理性強化剤を使用'],
+            'ko_kr': ['육성 계획대로 프로토콜 공간 파밍', '수령 방식', '프로토콜 공간의 수령 방식과 같습니다. 2배 수령은 2배 허가를 소모합니다.', '1배 수령', '2배 수령 우선',
+                      '이성 부족 시', '프로토콜 공간과 같습니다. 기본값은 이성 회복제를 쓰지 않고 작업을 끝냅니다.', '작업 종료', '긴급 이성 강화제 사용'],
+        }[lang]
+        data['task.CultivationFarm.label'] = farm_texts[0]
+        data['option.CultivationFarmClaim.label'], data['option.CultivationFarmClaim.description'] = farm_texts[1:3]
+        data['option.CultivationFarmClaim.cases.ObtainScaling1.label'], data['option.CultivationFarmClaim.cases.ObtainScaling2.label'] = farm_texts[3:5]
+        data['option.CultivationFarmMedication.label'], data['option.CultivationFarmMedication.description'] = farm_texts[5:7]
+        data['option.CultivationFarmMedication.cases.EndTask.label'], data['option.CultivationFarmMedication.cases.UseMedication.label'] = farm_texts[7:9]
         data['option.CultivationExpectation.label'], data['option.CultivationExpectation.description'] = expectation_texts[:2]
         for case, label in zip(EXPECTATIONS, expectation_texts[2:]):
             data[f'option.CultivationExpectation.cases.{case}.label'] = label
@@ -337,7 +366,7 @@ def build():
         path.write_text(original, encoding='utf-8', newline='\n')
     write('tools/schema/components/cultivation.schema.json', {'$schema': 'https://json-schema.org/draft/2020-12/schema', '$defs': {
         'Action': {'type': 'object', 'required': ['step'], 'additionalProperties': False, 'properties': {
-            'step': {'enum': ['begin', 'reset', 'top', 'read', 'bottom', 'finish', 'preview', 'export', 'clear', 'confirm', 'operator_missing', 'expectation_missing']},
+            'step': {'enum': ['begin', 'reset', 'top', 'read', 'bottom', 'finish', 'preview', 'export', 'clear', 'confirm', 'operator_missing', 'expectation_missing', 'farm']},
             'tab': {'type': 'integer', 'minimum': 0, 'maximum': 3},
             'pass': {'type': 'integer', 'minimum': 0, 'maximum': 1},
             'again': {'type': 'string', 'pattern': '^Cultivation'}, 'done': {'type': 'string', 'pattern': '^Cultivation'},

@@ -16,6 +16,7 @@ type TaskDocument struct {
 		Name       string   `json:"name"`
 		Entry      string   `json:"entry"`
 		Controller []string `json:"controller"`
+		Option     []string `json:"option"`
 	} `json:"task"`
 	Option map[string]OptionDefinition `json:"option"`
 }
@@ -26,6 +27,11 @@ type OptionDefinition struct {
 	PipelineOverride map[string]any     `json:"pipeline_override"`
 	Cases            []OptionDefinition `json:"cases"`
 	Name             string             `json:"name"`
+	Type             string             `json:"type"`
+	// DefaultCase is a case name, or a list of names for a checkbox.
+	DefaultCase json.RawMessage `json:"default_case"`
+	// Option lists the sub-options a case enables.
+	Option []string `json:"option"`
 }
 
 // ModulePlan is a data adapter, not an execution or consumption authorization.

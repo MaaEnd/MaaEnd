@@ -21,7 +21,8 @@
                         "clear",
                         "confirm",
                         "operator_missing",
-                        "expectation_missing"
+                        "expectation_missing",
+                        "farm"
                     ]
                 },
                 "tab": {

@@ -31,6 +31,22 @@
             ]
         },
         {
+            "name": "CultivationFarm",
+            "label": "$task.CultivationFarm.label",
+            "entry": "CultivationFarm",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "CloudADB"
+            ],
+            "option": [
+                "CultivationWeapon",
+                "CultivationFarmClaim",
+                "CultivationFarmMedication"
+            ]
+        },
+        {
             "name": "CultivationExport",
             "label": "$task.CultivationExport.label",
             "entry": "CultivationExport",
@@ -116,6 +132,18 @@
                                     }
                                 }
                             }
+                        },
+                        "CultivationFarm": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "farm",
+                                        "weapon": 0
+                                    }
+                                }
+                            }
                         }
                     }
                 },
@@ -154,6 +182,18 @@
                                     "custom_action": "CultivationAction",
                                     "custom_action_param": {
                                         "step": "export",
+                                        "weapon": 1
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationFarm": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "farm",
                                         "weapon": 1
                                     }
                                 }
@@ -200,6 +240,18 @@
                                     }
                                 }
                             }
+                        },
+                        "CultivationFarm": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "farm",
+                                        "weapon": 2
+                                    }
+                                }
+                            }
                         }
                     }
                 },
@@ -238,6 +290,18 @@
                                     "custom_action": "CultivationAction",
                                     "custom_action_param": {
                                         "step": "export",
+                                        "weapon": 3
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationFarm": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "farm",
                                         "weapon": 3
                                     }
                                 }
@@ -284,10 +348,82 @@
                                     }
                                 }
                             }
+                        },
+                        "CultivationFarm": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "farm",
+                                        "weapon": 4
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             ]
+        },
+        "CultivationFarmClaim": {
+            "type": "select",
+            "label": "$option.CultivationFarmClaim.label",
+            "description": "$option.CultivationFarmClaim.description",
+            "cases": [
+                {
+                    "name": "ObtainScaling1",
+                    "label": "$option.CultivationFarmClaim.cases.ObtainScaling1.label",
+                    "pipeline_override": {
+                        "CultivationFarm": {
+                            "attach": {
+                                "claim": "ObtainScaling1"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ObtainScaling2",
+                    "label": "$option.CultivationFarmClaim.cases.ObtainScaling2.label",
+                    "pipeline_override": {
+                        "CultivationFarm": {
+                            "attach": {
+                                "claim": "ObtainScaling2"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "ObtainScaling1"
+        },
+        "CultivationFarmMedication": {
+            "type": "select",
+            "label": "$option.CultivationFarmMedication.label",
+            "description": "$option.CultivationFarmMedication.description",
+            "cases": [
+                {
+                    "name": "EndTask",
+                    "label": "$option.CultivationFarmMedication.cases.EndTask.label",
+                    "pipeline_override": {
+                        "CultivationFarm": {
+                            "attach": {
+                                "medication": "EndTask"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "UseMedication",
+                    "label": "$option.CultivationFarmMedication.cases.UseMedication.label",
+                    "pipeline_override": {
+                        "CultivationFarm": {
+                            "attach": {
+                                "medication": "UseMedication"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "EndTask"
         },
         "CultivationExpectation": {
             "type": "select",
