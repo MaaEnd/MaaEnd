@@ -836,9 +836,9 @@
                 {
                     "name": "EssenceFilterAfterBattlePerfectMinLevelTotal",
                     "label": "$option.PerfectMinLevelTotal.inputs.PerfectMinLevelTotal.label",
-                    "default": "0",
+                    "default": "3",
                     "pipeline_type": "int",
-                    "verify": "^[0-9]$|^1[0-5]$"
+                    "verify": "^[3-9]$|^1[0-5]$"
                 }
             ],
             "pipeline_override": {
