@@ -1,0 +1,22 @@
+{
+    "configs": {
+        "name": "批量添加好友-陌生人头像菜单",
+        "resource": [
+            "官服"
+        ],
+        "controller": [
+            "Win32"
+        ]
+    },
+    "cases": [
+        {
+            "image": "好友_添加好友_头像菜单.png",
+            "hits": [
+                "BatchAddFriendsStrangersMenuViewProfile",
+                "BatchAddFriendsStrangersResetMenu",
+                "BatchAddFriendsStrangersAddButtonColumn",
+                "BatchAddFriendsChangeBatch"
+            ]
+        }
+    ]
+}

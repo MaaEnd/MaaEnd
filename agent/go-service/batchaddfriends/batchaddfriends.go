@@ -13,15 +13,17 @@ import (
 )
 
 type batchAddConfig struct {
-	DefaultMaxCount int `json:"default_max_count"`
-	MaxFailStreak   int `json:"max_fail_streak"`
+	DefaultMaxCount    int `json:"default_max_count"`
+	DefaultMaxAttempts int `json:"default_max_attempts"`
+	MaxFailStreak      int `json:"max_fail_streak"`
 }
 
 var (
 	// defaultConfig 用于在 pipeline 侧未传参时提供安全默认值。
 	defaultConfig = batchAddConfig{
-		DefaultMaxCount: 20,
-		MaxFailStreak:   5,
+		DefaultMaxCount:    20,
+		DefaultMaxAttempts: 30,
+		MaxFailStreak:      5,
 	}
 
 	// state 保存当前 BatchAddFriends 的运行状态。
@@ -65,22 +67,26 @@ type batchAddState struct {
 	uidCurrent       string
 
 	// 添加陌生人模式
-	strangersProcessed int
-	strangersMaxCount  int
+	strangersProcessed   int
+	strangersMaxCount    int
+	strangersAttempts    int
+	strangersMaxAttempts int
 }
 
 // BatchAddFriendsAction 是批量添加好友任务的入口动作：解析参数，决定分支，并回写 pipeline 的动态参数/跳转。
 func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	cfg := defaultConfig
 	var params struct {
-		UidList  string      `json:"uid_list"`
-		MaxCount interface{} `json:"max_count"`
+		UidList     string      `json:"uid_list"`
+		MaxCount    interface{} `json:"max_count"`
+		MaxAttempts interface{} `json:"max_attempts"`
 	}
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
 		log.Error().Err(err).Msg("[BatchAddFriends]参数解析失败")
 		return false
 	}
 	maxCount := parseMaxCount(params.MaxCount, cfg.DefaultMaxCount)
+	maxAttempts := parseMaxCount(params.MaxAttempts, cfg.DefaultMaxAttempts)
 	uids := splitUIDs(params.UidList)
 
 	controller := ctx.GetTasker().GetController()
@@ -116,20 +122,30 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	}
 
 	state = batchAddState{
-		mode:               "strangers",
-		strangersProcessed: 0,
-		strangersMaxCount:  maxCount,
+		mode:                 "strangers",
+		strangersProcessed:   0,
+		strangersMaxCount:    maxCount,
+		strangersMaxAttempts: maxAttempts,
 	}
+	// max_hit 沿用「添加数量」：只有添加成功才会再次命中 AddStrangersLoop，
+	// 所以它天然等价于「加够 N 个就停」。尝试次数另在 Go 里独立计数。
+	// +1：流程进循环时 S.Start 会先命中一次 AddStrangersLoop，那次并不产生添加，
+	// 所以想要「加够 maxCount 个」需要多给一轮配额，否则实际只能加 maxCount-1 个。
 	_ = ctx.OverridePipeline(map[string]any{
 		"BatchAddFriendsAddStrangersLoop": map[string]any{
-			"max_hit": maxCount,
+			"max_hit": maxCount + 1,
 		},
 	})
-	// 立即跳转到添加陌生人分支。
+	// 先跑一次残留菜单清理，再进陌生人分支。
+	// ResetMenu 只在列表存在残留二级菜单时命中，未命中会自然落到 StrangersStart。
 	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+		{Name: "BatchAddFriendsStrangersResetMenu"},
 		{Name: "BatchAddFriendsStrangersStart"},
 	})
-	log.Info().Int("maxCount", maxCount).Msg("[BatchAddFriends]陌生人模式开始")
+	log.Info().
+		Int("maxCount", maxCount).
+		Int("maxAttempts", maxAttempts).
+		Msg("[BatchAddFriends]陌生人模式开始")
 	return true
 }
 
@@ -229,11 +245,31 @@ func (a *BatchAddFriendsUIDFinishAction) Run(ctx *maa.Context, arg *maa.CustomAc
 
 func (a *BatchAddFriendsStrangersOnAddAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	state.strangersProcessed++
+	state.strangersAttempts++
 	maafocus.Print(
 		ctx,
 		i18n.T("batchaddfriends.strangers_progress", state.strangersProcessed, state.strangersMaxCount),
 	)
+	endIfAttemptsExceeded(ctx, arg.CurrentTaskName)
 	return true
+}
+
+// endIfAttemptsExceeded 在「判定过的玩家数」达到上限时立即结束陌生人模式。
+// 不论上方「添加数量」是否达到，只要累计判定（添加成功 + 被拒绝）达到该次数就停，
+// 避免一直换批判定拖长任务时间。
+func endIfAttemptsExceeded(ctx *maa.Context, node string) {
+	if state.strangersMaxAttempts <= 0 || state.strangersAttempts < state.strangersMaxAttempts {
+		return
+	}
+	log.Info().
+		Int("attempts", state.strangersAttempts).
+		Int("maxAttempts", state.strangersMaxAttempts).
+		Int("processed", state.strangersProcessed).
+		Msg("[BatchAddFriends]尝试判定达到上限，结束陌生人模式")
+	maafocus.Print(ctx, i18n.T("batchaddfriends.strangers_attempts_limit", state.strangersAttempts))
+	_ = ctx.OverrideNext(node, []maa.NextItem{
+		{Name: "BatchAddFriendsStrangersEnd"},
+	})
 }
 
 func (a *BatchAddFriendsStrangersFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
