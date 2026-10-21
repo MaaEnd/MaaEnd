@@ -644,9 +644,13 @@
                     ],
                     "pipeline_override": {
                         "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            // Observed split OCR of the complete label "Operator Progression" is unstable;
+                            // retain the bounded first-line fallback only within the inherited category ROI.
                             "expected": [
+                                // @i18n-skip
                                 "员养成",
-                                "Operator Progression"
+                                "Operator Progression",
+                                "(?i)^Operator$"
                             ],
                             "anchor": {
                                 "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
@@ -667,9 +671,13 @@
                     ],
                     "pipeline_override": {
                         "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            // Observed split OCR of the complete label "Weapon Progression" is unstable;
+                            // retain the bounded first-line fallback only within the inherited category ROI.
                             "expected": [
+                                // @i18n-skip
                                 "武器养成",
-                                "Weapon Progression"
+                                "Weapon Progression",
+                                "(?i)^Weapon$"
                             ],
                             "anchor": {
                                 "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",

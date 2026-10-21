@@ -115,10 +115,10 @@
         "desc": "本日剩余奖励演算次数（OCR，值 3/2/1/0）",
         "recognition": "OCR",
         "roi": [
-            547,
-            49,
-            187,
-            25
+            514,
+            44,
+            270,
+            34
         ]
     },
     "TrialOfSwordmancyRemainDoubleText": {

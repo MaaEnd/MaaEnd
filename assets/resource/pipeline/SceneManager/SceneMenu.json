@@ -181,6 +181,7 @@
                             "任务",
                             "任務",
                             "(?i)Missions",
+                            "(?i)^Mission$",
                             "任務",
                             "임무"
                         ]
@@ -586,9 +587,10 @@
         "all_of": [
             "InMenuList",
             {
-                "recognition": {
-                    "type": "OCR",
-                    "param": {
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        "recognition": "OCR",
                         "roi": [
                             -400,
                             0,
@@ -602,8 +604,42 @@
                             "地域建設",
                             "지역 건설"
                         ]
+                    },
+                    {
+                        "recognition": "And",
+                        "all_of": [
+                            {
+                                "recognition": "OCR",
+                                "roi": [
+                                    -400,
+                                    0,
+                                    400,
+                                    720
+                                ],
+                                // "Regional Development" is split into two OCR boxes in the English menu.
+                                "expected": [
+                                    // @i18n-skip
+                                    "(?i)^Regional$"
+                                ]
+                            },
+                            {
+                                "recognition": "OCR",
+                                "roi": [
+                                    -400,
+                                    0,
+                                    400,
+                                    720
+                                ],
+                                // "Regional Development" is split into two OCR boxes in the English menu.
+                                "expected": [
+                                    // @i18n-skip
+                                    "(?i)^Development$"
+                                ]
+                            }
+                        ],
+                        "box_index": 0
                     }
-                }
+                ]
             }
         ],
         "box_index": 1,
@@ -1223,9 +1259,10 @@
         "all_of": [
             "InMenuList",
             {
-                "recognition": {
-                    "type": "OCR",
-                    "param": {
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        "recognition": "OCR",
                         "roi": [
                             -400,
                             0,
@@ -1239,8 +1276,42 @@
                             "案内所",
                             "작전 매뉴얼"
                         ]
+                    },
+                    {
+                        "recognition": "And",
+                        "all_of": [
+                            {
+                                "recognition": "OCR",
+                                "roi": [
+                                    -400,
+                                    0,
+                                    400,
+                                    720
+                                ],
+                                // "Operational Manual" is split into two OCR boxes in the English menu.
+                                "expected": [
+                                    // @i18n-skip
+                                    "(?i)^Operational$"
+                                ]
+                            },
+                            {
+                                "recognition": "OCR",
+                                "roi": [
+                                    -400,
+                                    0,
+                                    400,
+                                    720
+                                ],
+                                // "Operational Manual" is split into two OCR boxes in the English menu.
+                                "expected": [
+                                    // @i18n-skip
+                                    "(?i)^Manual$"
+                                ]
+                            }
+                        ],
+                        "box_index": 0
                     }
-                }
+                ]
             }
         ],
         "box_index": 1,
@@ -1419,9 +1490,10 @@
         "all_of": [
             "InMenuList",
             {
-                "recognition": {
-                    "type": "OCR",
-                    "param": {
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        "recognition": "OCR",
                         "roi": [
                             -400,
                             0,
@@ -1437,8 +1509,42 @@
                             "プロトコルパス",
                             "프로토콜 패스"
                         ]
+                    },
+                    {
+                        "recognition": "And",
+                        "all_of": [
+                            {
+                                "recognition": "OCR",
+                                "roi": [
+                                    -400,
+                                    0,
+                                    400,
+                                    720
+                                ],
+                                // "Protocol Pass" is split into two OCR boxes in the English menu.
+                                "expected": [
+                                    // @i18n-skip
+                                    "(?i)^Protocol$"
+                                ]
+                            },
+                            {
+                                "recognition": "OCR",
+                                "roi": [
+                                    -400,
+                                    0,
+                                    400,
+                                    720
+                                ],
+                                // "Protocol Pass" is split into two OCR boxes in the English menu.
+                                "expected": [
+                                    // @i18n-skip
+                                    "(?i)^Pass$"
+                                ]
+                            }
+                        ],
+                        "box_index": 0
                     }
-                }
+                ]
             }
         ],
         "box_index": 1,
@@ -1726,7 +1832,7 @@
                 "roi": [
                     0,
                     0,
-                    200,
+                    300,
                     60
                 ],
                 "expected": [
@@ -1778,7 +1884,7 @@
                 "roi": [
                     0,
                     0,
-                    200,
+                    300,
                     60
                 ],
                 "expected": [
@@ -2428,9 +2534,10 @@
         "all_of": [
             "InMenuList",
             {
-                "recognition": {
-                    "type": "OCR",
-                    "param": {
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        "recognition": "OCR",
                         "roi": [
                             0,
                             0,
@@ -2444,8 +2551,42 @@
                             "購買部",
                             "구매 센터"
                         ]
+                    },
+                    {
+                        "recognition": "And",
+                        "all_of": [
+                            {
+                                "recognition": "OCR",
+                                "roi": [
+                                    0,
+                                    0,
+                                    400,
+                                    720
+                                ],
+                                // "Acquisition Center" is split into two OCR boxes in the English menu.
+                                "expected": [
+                                    // @i18n-skip
+                                    "(?i)^Acquisition$"
+                                ]
+                            },
+                            {
+                                "recognition": "OCR",
+                                "roi": [
+                                    0,
+                                    0,
+                                    400,
+                                    720
+                                ],
+                                // "Acquisition Center" is split into two OCR boxes in the English menu.
+                                "expected": [
+                                    // @i18n-skip
+                                    "(?i)^Center$"
+                                ]
+                            }
+                        ],
+                        "box_index": 0
                     }
-                }
+                ]
             }
         ],
         "box_index": 1,

@@ -345,7 +345,8 @@
                     200
                 ],
                 "template": [
-                    "SceneManager/LoadingIcon.png"
+                    "SceneManager/LoadingIcon.png",
+                    "SceneManager/LoadingIconEnglish.png"
                 ]
             }
         },

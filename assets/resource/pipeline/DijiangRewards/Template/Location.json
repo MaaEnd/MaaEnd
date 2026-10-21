@@ -269,9 +269,9 @@
             "param": {
                 "roi": [
                     47,
-                    44,
-                    189,
-                    215
+                    12,
+                    389,
+                    247
                 ],
                 "roi_offset": [
                     0,
@@ -282,7 +282,8 @@
                 "expected": [
                     "全部",
                     "(?i)All",
-                    "すべて"
+                    "すべて",
+                    "(?i)^(?://\\s*)?Growth\\s*Chamber\\s*/\\s*Select\\s*Materials\\s*to\\s*Grow$"
                 ]
             }
         }

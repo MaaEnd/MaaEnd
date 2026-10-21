@@ -115,7 +115,8 @@
             130
         ],
         "expected": [
-            "恢复理智"
+            "恢复理智",
+            "(?i)^Sanity\\s*Recovery$"
         ]
     }
 }

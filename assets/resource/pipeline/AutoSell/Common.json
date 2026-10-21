@@ -36,7 +36,9 @@
                     "interact_text": [
                         "物资调度终端",
                         "物資調度終端",
-                        "(?i)Stock\\s*Redistribution\\s*Terminal",
+                        "(?i)^Stock\\s*Redistribution\\s*Terminal$",
+                        // English "Stock Redistribution Terminal" can be split or truncated by OCR.
+                        "(?i)^Stock\\s*Redistribution$",
                         "(?i)Stock\\s*Redistrib\\.",
                         "商品取引端末",
                         "물자\\s*관리\\s*단말기"
@@ -70,10 +72,13 @@
             297,
             312
         ],
+        // English "Stock Redistribution Terminal" is split across two OCR lines.
         "expected": [
+            // @i18n-skip
             "物资调度终端",
             "物資調度終端",
-            "(?i)Stock\\s*Redistribution\\s*Terminal",
+            "(?i)^Stock\\s*Redistribution\\s*Terminal$",
+            "(?i)^Stock\\s*Redistribution$",
             "(?i)Stock\\s*Redistrib\\.",
             "商品取引端末",
             "물자\\s*관리\\s*단말기"

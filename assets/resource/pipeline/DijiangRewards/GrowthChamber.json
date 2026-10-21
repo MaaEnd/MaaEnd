@@ -64,6 +64,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "InDijiangControlNexus",
             "[JumpBack]GrowthChamberClaimReward",
             "[JumpBack]GrowthChamberGrow",
             "GrowthChamberExit"
@@ -661,7 +662,7 @@
         ]
     },
     "GrowthChamberNoMaterials": {
-        "desc": "[培养舱·基核] 原料不足时返回目标列表并重新查找候选",
+        "desc": "[培养舱·基核] 原料不足时逐级返回并退出培养舱",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -674,7 +675,8 @@
                 "expected": [
                     "缺少原料",
                     "无法获取",
-                    "無法提取"
+                    "無法提取",
+                    "(?i)^Not\\s*Enough\\s*Materials$"
                 ]
             }
         },
@@ -682,7 +684,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GrowthChamberGrowBack"
+            "GrowthChamberNoMaterialsBack"
         ]
     },
     "GrowthChamberBackToMain": {
@@ -943,5 +945,83 @@
                 "contact": 1
             }
         }
+    },
+    "GrowthChamberNoMaterialsBack": {
+        "desc": "[培养舱·基核] 确认原料不足与返回按钮后，退出提取界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrowthChamberNoMaterials",
+                    "GrowthChamberBackButton"
+                ],
+                "box_index": 1
+            }
+        },
+        // SeedExtract 打开提取面板后约 750ms 内游戏忽略点击（#6586）；即使已识别原料不足，也须先等待该面板静止再首次返回。
+        "pre_wait_freezes": {
+            "time": 800,
+            "target": [
+                43,
+                130,
+                1155,
+                480
+            ],
+            "timeout": 3000
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        // 转场约 750ms 内游戏忽略点击（#6586）；等待切换后的面板静止，再识别下一层，避免盲目补点。
+        "post_wait_freezes": {
+            "time": 800,
+            "target": [
+                43,
+                130,
+                1155,
+                480
+            ],
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GrowthChamberNoMaterialsReturn",
+            "GrowthChamberExit"
+        ]
+    },
+    "GrowthChamberNoMaterialsReturn": {
+        "desc": "[培养舱·基核] 确认已返回培养素材选择界面，再返回设施详情",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrowthChamberGrowViewIn",
+                    "GrowthChamberBackButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        // 实机返回后仅间隔 548ms 点击退出会被转场输入锁忽略；面板稳定后才允许下一次操作。
+        "post_wait_freezes": {
+            "time": 800,
+            "target": [
+                43,
+                130,
+                1155,
+                480
+            ],
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GrowthChamberExit"
+        ]
     }
 }
