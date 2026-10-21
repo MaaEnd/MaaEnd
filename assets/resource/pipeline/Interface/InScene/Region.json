@@ -802,10 +802,10 @@
         // Complete English title: "Environment Monitoring Terminal".
         // Saved-image OCR splits it into "Environment" and "Monitoring Terminal"; keep the bounded second-line match.
         "expected": [
-            // @i18n-skip
             "环境监测终端",
             "環境監測終端",
             "(?i)Environment\\s*Monitoring\\s*Terminal",
+            // @i18n-skip
             "(?i)^Monitoring\\s*Terminal$",
             "環境観測端末",
             "환경 관측 단말기"
