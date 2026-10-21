@@ -1,0 +1,14 @@
+# .NET 构建产物
+bin/
+obj/
+*.user
+
+# 运行时产物
+*.log
+udf/
+shots/
+shot-*.png
+
+# Python
+__pycache__/
+*.pyc
