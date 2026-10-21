@@ -2337,6 +2337,8 @@
     "task.Keymap.focus.interact_failed": "Interaction failed. Please confirm  Game-Settings-Controls  matches  MaaEnd-Settings-Task Settings-Key Binding Settings.",
     "task.LaunchGameLinux.description": "Only clicks the Start Game button inside the Hypergryph Launcher window. Starting the Hypergryph Launcher itself should be done by a pretask or your own script.",
     "task.LaunchGameLinux.label": "Launch Game (Linux)",
+    "task.LevelUpOperator.description": "Automatically select an operator below the level limit and level them up once",
+    "task.LevelUpOperator.label": "📈Level Up Operator",
     "task.OpenGame.focus.start_app_failed": "Failed to launch the app",
     "task.OpenGame.focus.start_up_game_failed": "Failed to start the game",
     "task.OpenGame.focus.stuck_repair": "Attempting to recover from a stuck state",

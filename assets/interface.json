@@ -259,6 +259,7 @@
         "tasks/ReadAllWiki.json",
         "tasks/IntelArchive.json",
         "tasks/DailyRewards.json",
+        "tasks/LevelUpOperator.json",
         "tasks/ClaimSimulationRewards.json",
         "tasks/TrialOfSwordmancy.json",
         "tasks/CreditShopping.json",

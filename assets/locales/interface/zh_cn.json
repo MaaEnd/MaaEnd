@@ -2337,6 +2337,8 @@
     "task.Keymap.focus.interact_failed": "交互失败，请确认 游戏-设置-按键 与 MaaEnd-设置-任务设置-按键绑定设置 保持一致",
     "task.LaunchGameLinux.description": "只负责点击鹰角网络启动器界面内的开始游戏按钮。启动鹰角网络启动器的工作应使用前置程序，或自行编排脚本完成。",
     "task.LaunchGameLinux.label": "启动游戏（Linux）",
+    "task.LevelUpOperator.description": "自动选择一名等级低于设定上限的干员，升级一次",
+    "task.LevelUpOperator.label": "📈干员升级",
     "task.OpenGame.focus.start_app_failed": "应用启动失败",
     "task.OpenGame.focus.start_up_game_failed": "启动游戏失败",
     "task.OpenGame.focus.stuck_repair": "尝试修复卡死",

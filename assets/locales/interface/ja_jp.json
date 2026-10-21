@@ -2337,6 +2337,8 @@
     "task.Keymap.focus.interact_failed": "インタラクトに失敗しました。 ゲーム-設定-操作 と MaaEnd-設定-タスク設定-キー割り当て設定 が一致しているか確認してください。",
     "task.LaunchGameLinux.description": "ハイパーグリフランチャー画面内の「ゲーム開始」ボタンをクリックするだけです。ハイパーグリフランチャー自体の起動は、前置プログラムまたは独自のスクリプトで行ってください。",
     "task.LaunchGameLinux.label": "ゲーム起動（Linux）",
+    "task.LevelUpOperator.description": "設定した上限レベル未満のオペレーターを自動で1人選択し、1回レベルアップします",
+    "task.LevelUpOperator.label": "📈オペレーターのレベルアップ",
     "task.OpenGame.focus.start_app_failed": "アプリの起動に失敗しました",
     "task.OpenGame.focus.start_up_game_failed": "ゲームの起動に失敗しました",
     "task.OpenGame.focus.stuck_repair": "フリーズ修復を試行しています",
