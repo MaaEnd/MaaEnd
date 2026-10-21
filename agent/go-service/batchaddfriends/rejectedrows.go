@@ -168,6 +168,18 @@ func (a *ClearRejectsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 	return true
 }
 
+// resetRejectedRows 清空黑名单并重置最近挑中的行。
+//
+// 任务开始时必须调用：这些记录是包级状态，上一次任务结束后会残留，
+// 而行的 y 坐标只在同一批列表内有效，跨任务复用会误跳过新玩家。
+func resetRejectedRows() {
+	rejectedRows.mu.Lock()
+	defer rejectedRows.mu.Unlock()
+
+	rejectedRows.ys = nil
+	rejectedRows.last = 0
+}
+
 // isRejectedLocked 判断某个按钮框 y 是否落在黑名单内（调用方需已持锁）。
 func isRejectedLocked(y int) bool {
 	for _, rejected := range rejectedRows.ys {

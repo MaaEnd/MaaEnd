@@ -136,6 +136,9 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		strangersMaxCount:    maxCount,
 		strangersMaxAttempts: maxAttempts,
 	}
+	// 黑名单是包级状态，上一次任务结束后会残留；行的 y 只在同一批列表内有效，
+	// 跨任务复用会误跳过新玩家。
+	resetRejectedRows()
 	consecutiveEmptyBatches = 0
 	// max_hit 沿用「添加数量」：只有添加成功才会再次命中 AddStrangersLoop，
 	// 所以它天然等价于「加够 N 个就停」。尝试次数另在 Go 里独立计数。
