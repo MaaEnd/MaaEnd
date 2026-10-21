@@ -39,6 +39,9 @@
                     "pipeline_override": {
                         "ReceptionRoomStartExchange": {
                             "enabled": true
+                        },
+                        "ReceptionRoomSetCluesQuickAdd": {
+                            "enabled": true
                         }
                     }
                 },
@@ -46,6 +49,9 @@
                     "name": "No",
                     "pipeline_override": {
                         "ReceptionRoomStartExchange": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSetCluesQuickAdd": {
                             "enabled": false
                         },
                         "ReceptionRoomWaitExchangeBeforeStart": {
@@ -510,7 +516,9 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "option": ["CustomSendCluesCheckbox"],
+                    "option": [
+                        "CustomSendCluesCheckbox"
+                    ],
                     "pipeline_override": {
                         "ReceptionRoomSendClueOne": {
                             "enabled": false
