@@ -31,6 +31,9 @@
                 },
                 "ReceptionRoomStartExchange": {
                     "enabled": true
+                },
+                "ReceptionRoomSetCluesQuickAdd": {
+                    "enabled": true
                 }
             },
             "option": [
