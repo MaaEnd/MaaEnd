@@ -1,9 +1,7 @@
 """AutoCollect 采集路线生成器入口：从项目根目录运行 `uv run autocollect-route`。"""
 
-from __future__ import annotations
-
 import argparse
-from typing import Sequence
+from collections.abc import Sequence
 
 
 def _port(value: str) -> int:

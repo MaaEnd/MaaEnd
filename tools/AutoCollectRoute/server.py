@@ -12,13 +12,13 @@
   GET  /basemap/{path}        -> assets/resource/image/ 下的底图与图标
 """
 
-from __future__ import annotations
-
+import itertools
 import math
 import sys
+from collections.abc import Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 TOOL_DIR = Path(__file__).resolve().parent
 MAPNAV_DIR = TOOL_DIR.parent / "MapNavigator"
@@ -28,15 +28,14 @@ for _path in (MAPNAV_DIR, TOOL_DIR):
         sys.path.insert(0, str(_path))
 
 import route_builder  # noqa: E402
-from local_server import NoStoreMiddleware, serve_local  # noqa: E402
-from navmesh_backend import NAVMESH_GZ, NAVMESH_RAW, NOGO_JSON, NavmeshBackend, default_pack_path  # noqa: E402
-from runtime import configure_runtime_env, map_image_file  # noqa: E402
-
 from fastapi import Body, FastAPI, HTTPException  # noqa: E402
 from fastapi.concurrency import run_in_threadpool  # noqa: E402
 from fastapi.responses import FileResponse, Response  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
+from local_server import NoStoreMiddleware, serve_local  # noqa: E402
+from navmesh_backend import NAVMESH_GZ, NAVMESH_RAW, NOGO_JSON, NavmeshBackend, default_pack_path  # noqa: E402
 from pydantic import BaseModel  # noqa: E402
+from runtime import configure_runtime_env, map_image_file  # noqa: E402
 
 WEB_DIR = TOOL_DIR / "web"
 MAPNAV_STATIC_DIR = MAPNAV_DIR / "web" / "static"
@@ -106,7 +105,7 @@ def walk_length() -> route_builder.WalkFn:
             except RuntimeError as exc:
                 raise route_builder.RouteError(f"navmesh 尚未就绪，无法按步行距离排序: {exc}") from exc
             points = result.get("points") or [] if result.get("ok") else None
-            lengths[key] = None if points is None else sum(math.dist(a[:2], b[:2]) for a, b in zip(points, points[1:]))
+            lengths[key] = None if points is None else sum(math.dist(a[:2], b[:2]) for a, b in itertools.pairwise(points))
         return lengths[key]
 
     return walk
@@ -130,7 +129,7 @@ async def _run(task: Callable[[], dict[str, Any]]) -> dict[str, Any]:
     try:
         return await run_in_threadpool(task)
     except route_builder.RouteError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/api/catalog")
@@ -188,9 +187,9 @@ async def api_basemap(path: str) -> FileResponse:
     try:
         return FileResponse(map_image_file(path))
     except PermissionError:
-        raise HTTPException(status_code=403, detail="非法路径")
+        raise HTTPException(status_code=403, detail="非法路径") from None
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="未找到底图")
+        raise HTTPException(status_code=404, detail="未找到底图") from None
 
 
 @app.get("/favicon.ico", include_in_schema=False)

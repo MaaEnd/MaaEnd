@@ -4,8 +4,7 @@ MapNavigator 与其他基于同一套地图前端的工具共用。端口的唯�
 URL，入口脚本不自行猜端口 —— 否则端口顺延后浏览器会开到错误的地址。
 """
 
-from __future__ import annotations
-
+import contextlib
 import logging
 import os
 import socket
@@ -142,10 +141,8 @@ class _QuietAccessLog(logging.Filter):
 
         status_code = None
         if record.args and len(record.args) >= 5:
-            try:
+            with contextlib.suppress(ValueError, TypeError, IndexError):
                 status_code = int(record.args[4])
-            except (ValueError, TypeError, IndexError):
-                pass
 
         if status_code is not None:
             if 200 <= status_code < 400:
@@ -182,8 +179,6 @@ def serve_local(
         ).start()
 
     # 交出已绑定的 socket (而非让 uvicorn 自己 bind), 端口即为上面宣告给浏览器的那个。
-    try:
+    # Python 3.14 的 asyncio.run 会在 Uvicorn 完成 shutdown 后重新抛出 KeyboardInterrupt。
+    with contextlib.suppress(KeyboardInterrupt):
         uvicorn.Server(uvicorn.Config(app, host=LISTEN_HOST, port=listen_port)).run(sockets=[listen_socket])
-    except KeyboardInterrupt:
-        # Python 3.14 的 asyncio.run 会在 Uvicorn 完成 shutdown 后重新抛出 KeyboardInterrupt。
-        pass

@@ -37,9 +37,13 @@ def doodad_ids_in(node: Any, found: dict[str, str]) -> None:
                 record_doodad_id(key, value, found)
             doodad_ids_in(value, found)
     elif isinstance(node, list):
-        if len(node) == 2 and isinstance(node[0], str) and node[0].startswith(DOODAD_PREFIX):
-            if isinstance(node[1], dict):
-                record_doodad_id(node[0], node[1], found)
+        if (
+            len(node) == 2
+            and isinstance(node[0], str)
+            and node[0].startswith(DOODAD_PREFIX)
+            and isinstance(node[1], dict)
+        ):
+            record_doodad_id(node[0], node[1], found)
         for child in node:
             doodad_ids_in(child, found)
 

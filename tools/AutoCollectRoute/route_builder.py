@@ -1,7 +1,5 @@
 """AutoCollect 路线生成：选中的采集物 -> 采集顺序与路径 -> 路线文件与任务注册。"""
 
-from __future__ import annotations
-
 import json
 import math
 import re
