@@ -220,7 +220,7 @@
                 0,
                 0,
                 200,
-                100
+                400
             ]
         },
         "pre_delay": 0,
@@ -267,6 +267,7 @@
                     113,
                     72
                 ],
+                "only_rec": true,
                 "color_filter": "CurrentLevelColorFilter"
             }
         },
