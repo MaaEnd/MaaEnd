@@ -76,6 +76,7 @@
     "batchaddfriends.reject.unparsable": "解析不可",
     "batchaddfriends.reject.unreadable": "未認識",
     "batchaddfriends.strangers_attempts_limit": "%d 人を判定し、試行回数の上限に達したためタスクを終了します",
+    "batchaddfriends.strangers_empty_batch_limit": "%d 回連続でリスト更新しても追加できるプレイヤーがいないため、タスクを終了します",
     "batchaddfriends.strangers_progress": "フレンド追加の進捗 [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s：フレンド申請を送信しました（%d/%d）",
     "deliveryjobs.focus.ongoing_depot_resolved": "🚚 この配達任務の所属は（%s）",

@@ -76,6 +76,7 @@
     "batchaddfriends.reject.unparsable": "無法解析",
     "batchaddfriends.reject.unreadable": "未識別",
     "batchaddfriends.strangers_attempts_limit": "已判定 %d 個玩家，達到嘗試次數上限，結束任務",
+    "batchaddfriends.strangers_empty_batch_limit": "連續 %d 次換批都沒有可新增的玩家，結束任務",
     "batchaddfriends.strangers_progress": "添加好友進度 [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s：已發送好友申請（%d/%d）",
     "deliveryjobs.focus.ongoing_depot_resolved": "🚚 該送貨任務屬於（%s）",

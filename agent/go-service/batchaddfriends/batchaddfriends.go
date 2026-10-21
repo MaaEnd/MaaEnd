@@ -136,6 +136,7 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		strangersMaxCount:    maxCount,
 		strangersMaxAttempts: maxAttempts,
 	}
+	consecutiveEmptyBatches = 0
 	// max_hit 沿用「添加数量」：只有添加成功才会再次命中 AddStrangersLoop，
 	// 所以它天然等价于「加够 N 个就停」。尝试次数另在 Go 里独立计数。
 	// +1：流程进循环时 S.Start 会先命中一次 AddStrangersLoop，那次并不产生添加，

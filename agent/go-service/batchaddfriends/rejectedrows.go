@@ -41,6 +41,11 @@ const (
 	// 同一行的按钮框 y 在相邻两次识别之间会有像素级抖动，容差必须覆盖它，
 	// 否则已拒绝的行会被当成新行重复挑中。行距约 105px，20 不会把相邻行并成一行。
 	rejectMatchTolerance = 20
+
+	// 连续空批上限。
+	// 「换一批」回路不经过任何计数节点，推荐列表翻到底后会一直空转，
+	// 连续这么多次换批都没挑到人就直接结束。
+	maxConsecutiveEmptyBatches = 3
 )
 
 var rejectedRows = struct {
@@ -48,6 +53,11 @@ var rejectedRows = struct {
 	ys   []int // 已拒绝行的按钮框 y
 	last int   // 最近一次挑中的按钮框 y，供拒绝动作使用
 }{}
+
+// consecutiveEmptyBatches 记录连续「换一批后仍然没有任何可添加行」的次数。
+// Scan → ChangeBatch → ClearRejects 这条回路不经过任何计数节点，
+// 单靠尝试次数兜不住，需要单独设上限。
+var consecutiveEmptyBatches int
 
 // PickStrangerRowRecognition 挑选最上面一个「未被拒绝」的可添加行，返回其头像位置。
 type PickStrangerRowRecognition struct{}
@@ -77,6 +87,8 @@ func (r *PickStrangerRowRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			continue
 		}
 		rejectedRows.last = button.Y()
+		// 挑到了人，连续空批计数归零。
+		consecutiveEmptyBatches = 0
 		return &maa.CustomRecognitionResult{Box: avatarBox(button)}, true
 	}
 
@@ -133,7 +145,26 @@ func (a *ClearRejectsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 
 	rejectedRows.ys = nil
 	rejectedRows.last = 0
-	log.Debug().Str("component", componentClearRejects).Msg("reject list cleared")
+
+	// 「换一批」回路不经过任何计数节点，连续空批要单独兜底，
+	// 否则推荐列表翻到底之后会一直换批空转。
+	consecutiveEmptyBatches++
+	if consecutiveEmptyBatches > maxConsecutiveEmptyBatches {
+		log.Warn().
+			Str("component", componentClearRejects).
+			Int("emptyBatches", consecutiveEmptyBatches).
+			Msg("too many consecutive empty batches, end strangers mode")
+		maafocus.Print(ctx, i18n.T("batchaddfriends.strangers_empty_batch_limit", consecutiveEmptyBatches))
+		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+			{Name: "BatchAddFriendsStrangersEnd"},
+		})
+		return true
+	}
+
+	log.Debug().
+		Str("component", componentClearRejects).
+		Int("emptyBatches", consecutiveEmptyBatches).
+		Msg("reject list cleared")
 	return true
 }
 
