@@ -1,0 +1,3260 @@
+{
+    "task": [
+        {
+            "name": "CultivationScan",
+            "label": "$task.CultivationScan.label",
+            "entry": "CultivationScan",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "CloudADB"
+            ],
+            "option": [
+                "CultivationOperator",
+                "CultivationExpectation",
+                "CultivationWeapon"
+            ]
+        },
+        {
+            "name": "CultivationPreview",
+            "label": "$task.CultivationPreview.label",
+            "entry": "CultivationPreview",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "CloudADB"
+            ],
+            "option": [
+                "CultivationWeapon"
+            ]
+        },
+        {
+            "name": "CultivationFarm",
+            "label": "$task.CultivationFarm.label",
+            "entry": "CultivationFarm",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "CloudADB"
+            ],
+            "option": [
+                "CultivationWeapon",
+                "CultivationFarmClaim",
+                "CultivationFarmMedication"
+            ]
+        },
+        {
+            "name": "CultivationExport",
+            "label": "$task.CultivationExport.label",
+            "entry": "CultivationExport",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "CloudADB"
+            ],
+            "option": [
+                "CultivationWeapon"
+            ]
+        },
+        {
+            "name": "CultivationClear",
+            "label": "$task.CultivationClear.label",
+            "entry": "CultivationClear",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "CloudADB"
+            ]
+        },
+        {
+            "name": "CultivationConfirm",
+            "label": "$task.CultivationConfirm.label",
+            "entry": "CultivationConfirm",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "CloudADB"
+            ]
+        }
+    ],
+    "option": {
+        "CultivationWeapon": {
+            "type": "select",
+            "label": "$option.CultivationWeapon.label",
+            "cases": [
+                {
+                    "name": "Keep",
+                    "label": "$option.CultivationWeapon.cases.Keep.label"
+                },
+                {
+                    "name": "None",
+                    "label": "$option.CultivationWeapon.cases.None.label",
+                    "pipeline_override": {
+                        "CultivationFinish": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "finish",
+                                        "weapon": 0
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationPreview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "preview",
+                                        "weapon": 0
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationExport": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "export",
+                                        "weapon": 0
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationFarm": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "farm",
+                                        "weapon": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "First",
+                    "label": "$option.CultivationWeapon.cases.First.label",
+                    "pipeline_override": {
+                        "CultivationFinish": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "finish",
+                                        "weapon": 1
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationPreview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "preview",
+                                        "weapon": 1
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationExport": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "export",
+                                        "weapon": 1
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationFarm": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "farm",
+                                        "weapon": 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Second",
+                    "label": "$option.CultivationWeapon.cases.Second.label",
+                    "pipeline_override": {
+                        "CultivationFinish": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "finish",
+                                        "weapon": 2
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationPreview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "preview",
+                                        "weapon": 2
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationExport": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "export",
+                                        "weapon": 2
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationFarm": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "farm",
+                                        "weapon": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Third",
+                    "label": "$option.CultivationWeapon.cases.Third.label",
+                    "pipeline_override": {
+                        "CultivationFinish": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "finish",
+                                        "weapon": 3
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationPreview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "preview",
+                                        "weapon": 3
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationExport": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "export",
+                                        "weapon": 3
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationFarm": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "farm",
+                                        "weapon": 3
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Fourth",
+                    "label": "$option.CultivationWeapon.cases.Fourth.label",
+                    "pipeline_override": {
+                        "CultivationFinish": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "finish",
+                                        "weapon": 4
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationPreview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "preview",
+                                        "weapon": 4
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationExport": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "export",
+                                        "weapon": 4
+                                    }
+                                }
+                            }
+                        },
+                        "CultivationFarm": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "CultivationAction",
+                                    "custom_action_param": {
+                                        "step": "farm",
+                                        "weapon": 4
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CultivationFarmClaim": {
+            "type": "select",
+            "label": "$option.CultivationFarmClaim.label",
+            "cases": [
+                {
+                    "name": "ObtainScaling1",
+                    "label": "$option.CultivationFarmClaim.cases.ObtainScaling1.label",
+                    "pipeline_override": {
+                        "CultivationFarm": {
+                            "attach": {
+                                "claim": "ObtainScaling1"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ObtainScaling2",
+                    "label": "$option.CultivationFarmClaim.cases.ObtainScaling2.label",
+                    "pipeline_override": {
+                        "CultivationFarm": {
+                            "attach": {
+                                "claim": "ObtainScaling2"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "ObtainScaling1"
+        },
+        "CultivationFarmMedication": {
+            "type": "select",
+            "label": "$option.CultivationFarmMedication.label",
+            "cases": [
+                {
+                    "name": "EndTask",
+                    "label": "$option.CultivationFarmMedication.cases.EndTask.label",
+                    "pipeline_override": {
+                        "CultivationFarm": {
+                            "attach": {
+                                "medication": "EndTask"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "UseMedication",
+                    "label": "$option.CultivationFarmMedication.cases.UseMedication.label",
+                    "pipeline_override": {
+                        "CultivationFarm": {
+                            "attach": {
+                                "medication": "UseMedication"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "EndTask"
+        },
+        "CultivationExpectation": {
+            "type": "select",
+            "label": "$option.CultivationExpectation.label",
+            "cases": [
+                {
+                    "name": "Basic",
+                    "label": "$option.CultivationExpectation.cases.Basic.label",
+                    "pipeline_override": {
+                        "CultivationExpectationReady": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        990,
+                                        110,
+                                        180,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "培养期望：基础"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationExpectationPick": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        860,
+                                        265,
+                                        340,
+                                        195
+                                    ],
+                                    "expected": [
+                                        "培养期望：基础"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Advanced",
+                    "label": "$option.CultivationExpectation.cases.Advanced.label",
+                    "pipeline_override": {
+                        "CultivationExpectationReady": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        990,
+                                        110,
+                                        180,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "培养期望：进阶"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationExpectationPick": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        860,
+                                        265,
+                                        340,
+                                        195
+                                    ],
+                                    "expected": [
+                                        "培养期望：进阶"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Proficient",
+                    "label": "$option.CultivationExpectation.cases.Proficient.label",
+                    "pipeline_override": {
+                        "CultivationExpectationReady": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        990,
+                                        110,
+                                        180,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "培养期望：精通"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationExpectationPick": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        860,
+                                        265,
+                                        340,
+                                        195
+                                    ],
+                                    "expected": [
+                                        "培养期望：精通"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Excellent",
+                    "label": "$option.CultivationExpectation.cases.Excellent.label",
+                    "pipeline_override": {
+                        "CultivationExpectationReady": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        990,
+                                        110,
+                                        180,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "培养期望：卓越"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationExpectationPick": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        860,
+                                        265,
+                                        340,
+                                        195
+                                    ],
+                                    "expected": [
+                                        "培养期望：卓越"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Excellent"
+        },
+        "CultivationOperator": {
+            "type": "select",
+            "label": "$option.CultivationOperator.label",
+            "cases": [
+                {
+                    "name": "Current",
+                    "label": "$option.CultivationOperator.cases.Current.label"
+                },
+                {
+                    "name": "Endministrator",
+                    "label": "$operator.Endministrator",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^管理员$",
+                                        "^管理員$",
+                                        "^Endministrator$",
+                                        "^管理人$",
+                                        "^관리자$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0002_endminm.png",
+                                        "Cultivation/Operators/chr_0003_endminf.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Perlica",
+                    "label": "$operator.Perlica",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^佩丽卡$",
+                                        "^佩麗卡$",
+                                        "^Perlica$",
+                                        "^ペリカ$",
+                                        "^펠리카$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0004_pelica.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ChenQianyu",
+                    "label": "$operator.ChenQianyu",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^陈千语$",
+                                        "^陳千語$",
+                                        "^Chen\\ Qianyu$",
+                                        "^チェン・センユー$",
+                                        "^진천우$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0005_chen.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Wulfgard",
+                    "label": "$operator.Wulfgard",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^狼卫$",
+                                        "^狼衛$",
+                                        "^Wulfgard$",
+                                        "^ウルフガード$",
+                                        "^울프가드$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0006_wolfgd.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Arclight",
+                    "label": "$operator.Arclight",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^弧光$",
+                                        "^Arclight$",
+                                        "^アークライト$",
+                                        "^아크라이트$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0007_ikut.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Ember",
+                    "label": "$operator.Ember",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^余烬$",
+                                        "^餘燼$",
+                                        "^Ember$",
+                                        "^エンバー$",
+                                        "^엠버$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0009_azrila.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Xaihi",
+                    "label": "$operator.Xaihi",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^赛希$",
+                                        "^賽希$",
+                                        "^Xaihi$",
+                                        "^ザイヒ$",
+                                        "^자이히$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0011_seraph.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Avywenna",
+                    "label": "$operator.Avywenna",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^艾维文娜$",
+                                        "^艾維文娜$",
+                                        "^Avywenna$",
+                                        "^アイビーエナ$",
+                                        "^아비웨나$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0012_avywen.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Gilberta",
+                    "label": "$operator.Gilberta",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^洁尔佩塔$",
+                                        "^潔爾佩塔$",
+                                        "^Gilberta$",
+                                        "^ギルベルタ$",
+                                        "^질베르타$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0013_aglina.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Snowshine",
+                    "label": "$operator.Snowshine",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^昼雪$",
+                                        "^晝雪$",
+                                        "^Snowshine$",
+                                        "^スノーシャイン$",
+                                        "^스노우샤인$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0014_aurora.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Lifeng",
+                    "label": "$operator.Lifeng",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^黎风$",
+                                        "^黎風$",
+                                        "^Lifeng$",
+                                        "^リーフォン$",
+                                        "^여풍$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0015_lifeng.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Laevatain",
+                    "label": "$operator.Laevatain",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^莱万汀$",
+                                        "^萊萬汀$",
+                                        "^Laevatain$",
+                                        "^レーヴァテイン$",
+                                        "^레바테인$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0016_laevat.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Yvonne",
+                    "label": "$operator.Yvonne",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^伊冯$",
+                                        "^伊馮$",
+                                        "^Yvonne$",
+                                        "^イヴォンヌ$",
+                                        "^이본$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0017_yvonne.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DaPan",
+                    "label": "$operator.DaPan",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^大潘$",
+                                        "^Da\\ Pan$",
+                                        "^ダパン$",
+                                        "^판$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0018_dapan.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Akekuri",
+                    "label": "$operator.Akekuri",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^秋栗$",
+                                        "^Akekuri$",
+                                        "^アケクリ$",
+                                        "^아케쿠리$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0019_karin.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Catcher",
+                    "label": "$operator.Catcher",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^卡契尔$",
+                                        "^卡契爾$",
+                                        "^Catcher$",
+                                        "^キャッチャー$",
+                                        "^카치르$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0020_meurs.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Estella",
+                    "label": "$operator.Estella",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^埃特拉$",
+                                        "^Estella$",
+                                        "^エステーラ$",
+                                        "^에스텔라$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0021_whiten.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Fluorite",
+                    "label": "$operator.Fluorite",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^萤石$",
+                                        "^螢石$",
+                                        "^Fluorite$",
+                                        "^フローライト$",
+                                        "^플루라이트$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0022_bounda.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Antal",
+                    "label": "$operator.Antal",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^安塔尔$",
+                                        "^安塔爾$",
+                                        "^Antal$",
+                                        "^アンタル$",
+                                        "^안탈$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0023_antal.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Alesh",
+                    "label": "$operator.Alesh",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^阿列什$",
+                                        "^Alesh$",
+                                        "^アレッシュ$",
+                                        "^알레쉬$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0024_deepfin.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Ardelia",
+                    "label": "$operator.Ardelia",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^艾尔黛拉$",
+                                        "^艾爾黛拉$",
+                                        "^Ardelia$",
+                                        "^アルデリア$",
+                                        "^아델리아$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0025_ardelia.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "LastRite",
+                    "label": "$operator.LastRite",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^别礼$",
+                                        "^別禮$",
+                                        "^Last\\ Rite$",
+                                        "^ラストライト$",
+                                        "^라스트\\ 라이트$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0026_lastrite.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Tangtang",
+                    "label": "$operator.Tangtang",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^汤汤$",
+                                        "^湯湯$",
+                                        "^Tangtang$",
+                                        "^タンタン$",
+                                        "^탕탕$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0027_tangtang.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Rossi",
+                    "label": "$operator.Rossi",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^洛茜$",
+                                        "^洛西$",
+                                        "^Rossi$",
+                                        "^ロッシ$",
+                                        "^로시$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0028_wulfa.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Pogranichnik",
+                    "label": "$operator.Pogranichnik",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^骏卫$",
+                                        "^駿衛$",
+                                        "^Pogranichnik$",
+                                        "^ポグラニチニク$",
+                                        "^포그라니치니크$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0029_pograni.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "label": "$operator.ZhuangFangyi",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^庄方宜$",
+                                        "^莊方宜$",
+                                        "^Zhuang\\ Fangyi$",
+                                        "^ゾアン・ファンイ$",
+                                        "^장방이$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0030_zhuangfy.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^弭弗$",
+                                        "^Mi\\ Fu$",
+                                        "^ミ・フ$",
+                                        "^미브$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0031_mifu.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Arcane",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^诀$",
+                                        "^訣$",
+                                        "^Arcane$",
+                                        "^オクギ$",
+                                        "^결$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0032_lizhiyan.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Camille",
+                    "label": "$operator.Camille",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^卡缪$",
+                                        "^卡繆$",
+                                        "^Camille$",
+                                        "^カミーユ$",
+                                        "^카뮤$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0033_camille.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Typhoeus",
+                    "label": "$operator.Typhoeus",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^提弗洛斯$",
+                                        "^Typhoeus$",
+                                        "^ティフォロス$",
+                                        "^티프로스$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0034_typhoea.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Liino",
+                    "label": "$operator.Liino",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^梨诺$",
+                                        "^梨諾$",
+                                        "^Liino$",
+                                        "^リーノ$",
+                                        "^리노$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0035_liino.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Si",
+                    "label": "$operator.Si",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^祀$",
+                                        "^Si$",
+                                        "^スー$",
+                                        "^사$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0036_jsspsi.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Purrchena",
+                    "label": "$operator.Purrchena",
+                    "pipeline_override": {
+                        "CultivationInOverview": {
+                            "action": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "PipelineOverrideAction",
+                                    "custom_action_param": {
+                                        "patch": {
+                                            "CultivationOperatorTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepTop": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            },
+                                            "CultivationOperatorSweepEnd": {
+                                                "attach": {
+                                                    "ready": false
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": [
+                                "CultivationOperatorSelected",
+                                "CultivationOperatorFind",
+                                "CultivationOperatorTop",
+                                "CultivationOperatorUp"
+                            ]
+                        },
+                        "CultivationOperatorSelected": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        85,
+                                        300,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "^噗切娜$",
+                                        "^Purrchena$",
+                                        "^プチエナ$",
+                                        "^푸치나$"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationOperatorFind": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        30,
+                                        100,
+                                        350,
+                                        520
+                                    ],
+                                    "template": [
+                                        "Cultivation/Operators/chr_0038_purrche.png"
+                                    ],
+                                    "threshold": 0.8
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

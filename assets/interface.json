@@ -255,6 +255,7 @@
         "tasks/BatchDeleteFriends.json",
         // group: other_menu
         "tasks/PullCountCalculator.json",
+        "tasks/Cultivation.json",
         "tasks/BakerEntry.json",
         "tasks/ReadAllWiki.json",
         "tasks/IntelArchive.json",

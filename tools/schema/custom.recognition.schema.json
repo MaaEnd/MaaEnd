@@ -5,6 +5,8 @@
     "properties": {
         "custom_recognition": {
             "enum": [
+                "CultivationNextCard",
+                "CultivationGuard",
                 "AutoFightEntryRecognition",
                 "AeroSalvageBalloonStateRecognition",
                 "AeroSalvageGridRecognition",
@@ -56,6 +58,28 @@
         }
     },
     "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "custom_recognition": {
+                        "const": "CultivationGuard"
+                    }
+                },
+                "required": [
+                    "custom_recognition"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_recognition_param": {
+                        "$ref": "./components/cultivation.schema.json#/$defs/Guard"
+                    }
+                },
+                "required": [
+                    "custom_recognition_param"
+                ]
+            }
+        },
         {
             "if": {
                 "type": "object",

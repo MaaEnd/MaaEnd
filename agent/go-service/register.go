@@ -33,6 +33,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/cultivation"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/deliveryjobs"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dijiangrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
@@ -108,6 +109,7 @@ func registerAll() {
 	autostockstaple.Register()
 	autostockpile.Register()
 	ims.Register()
+	cultivation.Register()
 	intelarchive.Register()
 	itemtransfer.Register()
 	outposttrading.Register()
