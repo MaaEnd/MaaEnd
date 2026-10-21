@@ -4,7 +4,6 @@
             "name": "LevelUpOperator",
             "label": "$task.LevelUpOperator.label",
             "entry": "OperatorLevelUpStart",
-            "description": "$task.LevelUpOperator.description",
             "group": [
                 "other_menu"
             ],

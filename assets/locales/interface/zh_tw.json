@@ -2337,7 +2337,6 @@
     "task.Keymap.focus.interact_failed": "互動失敗，請確認 遊戲-設定-按鍵 與 MaaEnd-設定-任務設定-按鍵綁定設定 保持一致",
     "task.LaunchGameLinux.description": "只負責點擊鷹角網路啟動器介面內的開始遊戲按鈕。啟動鷹角網路啟動器的工作應使用前置程式，或自行編排腳本完成。",
     "task.LaunchGameLinux.label": "啟動遊戲（Linux）",
-    "task.LevelUpOperator.description": "自動選擇一名等級低於設定上限的幹員，升級一次",
     "task.LevelUpOperator.label": "📈幹員升級",
     "task.OpenGame.focus.start_app_failed": "應用程式啟動失敗",
     "task.OpenGame.focus.start_up_game_failed": "啟動遊戲失敗",
