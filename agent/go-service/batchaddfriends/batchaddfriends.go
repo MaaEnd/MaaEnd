@@ -77,6 +77,7 @@ type batchAddState struct {
 func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	cfg := defaultConfig
 	var params struct {
+		Mode        string      `json:"mode"`
 		UidList     string      `json:"uid_list"`
 		MaxCount    interface{} `json:"max_count"`
 		MaxAttempts interface{} `json:"max_attempts"`
@@ -95,7 +96,15 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		return false
 	}
 
-	if len(uids) > 0 {
+	if params.Mode == "uid" {
+		if len(uids) == 0 {
+			// 选了 UID 模式却没填列表：直接结束，不回退到陌生人模式
+			log.Warn().Msg("[BatchAddFriends]UID 列表为空，直接结束")
+			_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+				{Name: "BatchAddFriendsUIDEnd"},
+			})
+			return true
+		}
 		if maxCount > 0 && len(uids) > maxCount {
 			uids = uids[:maxCount]
 		}

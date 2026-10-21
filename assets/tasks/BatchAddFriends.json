@@ -74,6 +74,7 @@
                     "action": {
                         "param": {
                             "custom_action_param": {
+                                "mode": "strangers",
                                 "uid_list": "",
                                 "max_count": "{MaxCount}",
                                 "max_attempts": "{MaxAttempts}"
@@ -313,6 +314,7 @@
                     "action": {
                         "param": {
                             "custom_action_param": {
+                                "mode": "uid",
                                 "uid_list": "{UidList}",
                                 "max_count": "{MaxCount}"
                             }
