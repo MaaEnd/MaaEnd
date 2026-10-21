@@ -23,7 +23,10 @@
             "cases": [
                 {
                     "name": "CN",
-                    "label": "$option.LaunchGamePCRegion.cases.CN.label"
+                    "label": "$option.LaunchGamePCRegion.cases.CN.label",
+                    "option": [
+                        "LaunchGamePCCheckUpdate"
+                    ]
                 },
                 {
                     "name": "Global",
@@ -79,6 +82,19 @@
                     "pattern_msg": "$option.LaunchGamePCLauncherExe.LauncherExe.pattern_msg"
                 }
             ]
+        },
+        "LaunchGamePCCheckUpdate": {
+            "type": "switch",
+            "label": "$option.LaunchGamePCCheckUpdate.label",
+            "cases": [
+                {
+                    "name": "Yes"
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
         },
         "LaunchGamePCGameSetting": {
             "type": "switch",

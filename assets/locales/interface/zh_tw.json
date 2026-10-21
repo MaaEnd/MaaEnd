@@ -1647,6 +1647,7 @@
     "option.LaunchGamePCAutoHDR.cases.Unchanged.label": "不修改",
     "option.LaunchGamePCAutoHDR.description": "設定項：系統設定 → 系統 → 螢幕 → 顯示卡 → Endfield.exe → 自動 HDR",
     "option.LaunchGamePCAutoHDR.label": "自動 HDR",
+    "option.LaunchGamePCCheckUpdate.label": "檢查遊戲是否需要更新",
     "option.LaunchGamePCDisplayType.cases.Fullscreen.label": "全螢幕",
     "option.LaunchGamePCDisplayType.cases.Window.label": "視窗",
     "option.LaunchGamePCDisplayType.label": "顯示模式",

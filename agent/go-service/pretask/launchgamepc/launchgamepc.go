@@ -112,6 +112,7 @@ type launchGamePCOptions struct {
 	GraphicsQuality string `json:"LaunchGamePCGraphicsQuality"`
 	FrameRate       string `json:"LaunchGamePCFrameRate"`
 	AutoHDR         string `json:"LaunchGamePCAutoHDR"`
+	CheckUpdate     string `json:"LaunchGamePCCheckUpdate"`
 }
 
 // Run 对应 assets/tasks/pretasks/LaunchGamePC.json 的 pretask 入口。
@@ -191,7 +192,7 @@ func Run(args []string) bool {
 		return false
 	}
 
-	if info.windowRegex != nil && !runLauncher(info.windowRegex) {
+	if info.windowRegex != nil && !runLauncher(info.windowRegex, opts.CheckUpdate == "Yes" && opts.Region == regionCN) {
 		return false
 	}
 
@@ -213,7 +214,7 @@ func Run(args []string) bool {
 }
 
 // runLauncher 等待启动器窗口出现后执行启动器 pipeline。
-func runLauncher(windowRegex *regexp.Regexp) bool {
+func runLauncher(windowRegex *regexp.Regexp, checkUpdate bool) bool {
 	log.Info().
 		Str("component", component).
 		Str("title", windowRegex.String()).
@@ -248,7 +249,7 @@ func runLauncher(windowRegex *regexp.Regexp) bool {
 		Str("component", component).
 		Str("entry", pipelineEntry).
 		Msg("running launcher pipeline")
-	return runLauncherPipeline(hWnd)
+	return runLauncherPipeline(hWnd, checkUpdate)
 }
 
 // startLauncherFromInstallDir 按任务设置或注册表找到安装目录并运行 Launcher.exe。
@@ -483,8 +484,8 @@ func waitGame(timeout time.Duration) bool {
 	return true
 }
 
-func runLauncherPipeline(hWnd unsafe.Pointer) bool {
-	if err := runPipeline(hWnd); err != nil {
+func runLauncherPipeline(hWnd unsafe.Pointer, checkUpdate bool) bool {
+	if err := runPipeline(hWnd, checkUpdate); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", component).
@@ -497,7 +498,7 @@ func runLauncherPipeline(hWnd unsafe.Pointer) bool {
 	return true
 }
 
-func runPipeline(hWnd unsafe.Pointer) error {
+func runPipeline(hWnd unsafe.Pointer, checkUpdate bool) error {
 	ctrl, err := maa.NewWin32Controller(hWnd, win32.ScreencapPrintWindow, win32.InputPostMessage, win32.InputPostMessage)
 	if err != nil {
 		return err
@@ -515,6 +516,13 @@ func runPipeline(hWnd unsafe.Pointer) error {
 	resourceDir := fsutil.OutputPath("resource")
 	if !res.PostBundle(resourceDir).Wait().Success() {
 		return fmt.Errorf("failed to load resource: %s", resourceDir)
+	}
+	if !checkUpdate {
+		if err := res.OverridePipeline(map[string]any{
+			"GameLauncherClickUpdate": map[string]any{"enabled": false},
+		}); err != nil {
+			return fmt.Errorf("failed to disable game update detection: %w", err)
+		}
 	}
 
 	tasker, err := maa.NewTasker()

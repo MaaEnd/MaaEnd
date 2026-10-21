@@ -1647,6 +1647,7 @@
     "option.LaunchGamePCAutoHDR.cases.Unchanged.label": "변경 안 함",
     "option.LaunchGamePCAutoHDR.description": "설정 항목: 설정 → 시스템 → 디스플레이 → 그래픽 → Endfield.exe → 자동 HDR",
     "option.LaunchGamePCAutoHDR.label": "자동 HDR",
+    "option.LaunchGamePCCheckUpdate.label": "게임 업데이트 필요 여부 확인",
     "option.LaunchGamePCDisplayType.cases.Fullscreen.label": "전체 화면",
     "option.LaunchGamePCDisplayType.cases.Window.label": "창 모드",
     "option.LaunchGamePCDisplayType.label": "표시 모드",

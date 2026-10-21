@@ -133,6 +133,39 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "GameLauncherClickUpdate",
+            "GameLauncherClickStartGame"
+        ]
+    },
+    "GameLauncherClickUpdate": {
+        "desc": "点击黄色按钮中的更新",
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherStartGameYellow",
+            "GameLauncherUpdateText"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "GameLauncherWaitUpdate"
+        ]
+    },
+    "GameLauncherWaitUpdate": {
+        "desc": "等待鹰角启动器完成游戏更新",
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // @i18n-skip
+            "开始游戏"
+        ],
+        "timeout": -1,
+        "next": [
             "GameLauncherClickStartGame"
         ]
     },
@@ -250,6 +283,21 @@
             "开始游戏",
             "開始遊戲",
             "(?i)\\bPlay\\b"
+        ]
+    },
+    "GameLauncherUpdateText": {
+        "desc": "识别黄色按钮文字中的更新",
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // 黄色按钮完整文案为“更新”或带有“更新”的状态文字
+            // @i18n-skip
+            ".*更新.*"
         ]
     }
 }

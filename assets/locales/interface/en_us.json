@@ -1647,6 +1647,7 @@
     "option.LaunchGamePCAutoHDR.cases.Unchanged.label": "Do not change",
     "option.LaunchGamePCAutoHDR.description": "Setting: Settings → System → Display → Graphics → Endfield.exe → Auto HDR",
     "option.LaunchGamePCAutoHDR.label": "Auto HDR",
+    "option.LaunchGamePCCheckUpdate.label": "Check whether the game needs an update",
     "option.LaunchGamePCDisplayType.cases.Fullscreen.label": "Fullscreen",
     "option.LaunchGamePCDisplayType.cases.Window.label": "Windowed",
     "option.LaunchGamePCDisplayType.label": "Display Mode",
