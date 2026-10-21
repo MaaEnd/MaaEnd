@@ -799,7 +799,10 @@
             300,
             62
         ],
+        // Complete English title: "Environment Monitoring Terminal".
+        // Saved-image OCR splits it into "Environment" and "Monitoring Terminal"; keep the bounded second-line match.
         "expected": [
+            // @i18n-skip
             "环境监测终端",
             "環境監測終端",
             "(?i)Environment\\s*Monitoring\\s*Terminal",
