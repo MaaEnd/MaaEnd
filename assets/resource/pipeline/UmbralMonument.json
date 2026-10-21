@@ -159,7 +159,10 @@
         ]
     },
     "UmbralMonumentAllCleared": {
-        "desc": "没有普通模式未通关的关卡，结束任务"
+        "desc": "没有普通模式未通关的关卡，结束任务",
+        "focus": {
+            "Node.Action.Succeeded": "$task.UmbralMonument.focus.all_cleared"
+        }
     },
     "UmbralMonumentChallenge": {
         "desc": "在关卡详情界面，点击挑战影拓丰碑",

@@ -2625,6 +2625,7 @@
     "task.TrialOfSwordmancy.focus.overflow_stopped": "<span style=\"color: red; font-weight: bold;\">오버플로우된 패가 유지된 채 작업이 끝났습니다. 수동으로 연산을 시작해 주세요.</span>",
     "task.TrialOfSwordmancy.label": "🗡️검술 연무",
     "task.UmbralMonument.description": "그림자 이정표의 미클리어 일반 스테이지에 자동 도전",
+    "task.UmbralMonument.focus.all_cleared": "일반 스테이지 모두 클리어, 작업 종료",
     "task.UmbralMonument.focus.retry_exhausted": "이 스테이지의 재도전 횟수 소진, 작업 종료",
     "task.UmbralMonument.focus.stage_cleared": "스테이지 클리어",
     "task.UmbralMonument.label": "🗿그림자 이정표",

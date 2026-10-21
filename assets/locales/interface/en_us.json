@@ -2625,6 +2625,7 @@
     "task.TrialOfSwordmancy.focus.overflow_stopped": "<span style=\"color: red; font-weight: bold;\">This overflowed hand has been preserved. Please start the trial manually.</span>",
     "task.TrialOfSwordmancy.label": "🗡️Trial of Swordmancy",
     "task.UmbralMonument.description": "Auto-challenge uncleared normal stages of Umbral Monument",
+    "task.UmbralMonument.focus.all_cleared": "All normal stages cleared; ending task",
     "task.UmbralMonument.focus.retry_exhausted": "Retry limit reached for this stage; ending task",
     "task.UmbralMonument.focus.stage_cleared": "Stage cleared",
     "task.UmbralMonument.label": "🗿 Umbral Monument",

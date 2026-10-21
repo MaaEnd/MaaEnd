@@ -2625,6 +2625,7 @@
     "task.TrialOfSwordmancy.focus.overflow_stopped": "<span style=\"color: red; font-weight: bold;\">今回の手札はオーバーフローしており保持されています。手動で演算を開始してください。</span>",
     "task.TrialOfSwordmancy.label": "🗡️剣術演武",
     "task.UmbralMonument.description": "映像の記念碑の未クリアのノーマルステージに自動挑戦",
+    "task.UmbralMonument.focus.all_cleared": "ノーマルステージはすべてクリア済みのため、タスクを終了します",
     "task.UmbralMonument.focus.retry_exhausted": "このステージの再挑戦回数の上限に達したため、タスクを終了します",
     "task.UmbralMonument.focus.stage_cleared": "ステージをクリアしました",
     "task.UmbralMonument.label": "🗿映像の記念碑",

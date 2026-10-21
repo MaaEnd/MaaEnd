@@ -2625,6 +2625,7 @@
     "task.TrialOfSwordmancy.focus.overflow_stopped": "<span style=\"color: red; font-weight: bold;\">本局已溢出并保留手牌，请手动开始演算。</span>",
     "task.TrialOfSwordmancy.label": "🗡️选剑演武",
     "task.UmbralMonument.description": "自动挑战影拓丰碑未通关的普通关卡",
+    "task.UmbralMonument.focus.all_cleared": "普通关卡已全部通关，结束任务",
     "task.UmbralMonument.focus.retry_exhausted": "本关重试次数已用完，结束任务",
     "task.UmbralMonument.focus.stage_cleared": "关卡挑战成功",
     "task.UmbralMonument.label": "🗿影拓丰碑",
