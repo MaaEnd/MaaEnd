@@ -145,7 +145,7 @@
                     "name": "ProtocolSpaceTeamChooseDefault",
                     "label": "$option.ProtocolSpaceTeamChoose.case.ProtocolSpaceTeamChooseDefault.label",
                     "pipeline_override": {
-                        "ProtocolSpaceTeamChoose": {
+                        "PrepareTeamChoose": {
                             "enabled": false
                         }
                     }
@@ -154,9 +154,9 @@
                     "name": "ProtocolSpaceTeamChoose01",
                     "label": "01",
                     "pipeline_override": {
-                        "ProtocolSpaceTeamChooseTextRecognition": {
-                            "expected": [
-                                "01"
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot01"
                             ]
                         }
                     }
@@ -165,9 +165,9 @@
                     "name": "ProtocolSpaceTeamChoose02",
                     "label": "02",
                     "pipeline_override": {
-                        "ProtocolSpaceTeamChooseTextRecognition": {
-                            "expected": [
-                                "02"
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot02"
                             ]
                         }
                     }
@@ -176,9 +176,9 @@
                     "name": "ProtocolSpaceTeamChoose03",
                     "label": "03",
                     "pipeline_override": {
-                        "ProtocolSpaceTeamChooseTextRecognition": {
-                            "expected": [
-                                "03"
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot03"
                             ]
                         }
                     }
@@ -187,9 +187,9 @@
                     "name": "ProtocolSpaceTeamChoose04",
                     "label": "04",
                     "pipeline_override": {
-                        "ProtocolSpaceTeamChooseTextRecognition": {
-                            "expected": [
-                                "04"
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot04"
                             ]
                         }
                     }
@@ -198,9 +198,9 @@
                     "name": "ProtocolSpaceTeamChoose05",
                     "label": "05",
                     "pipeline_override": {
-                        "ProtocolSpaceTeamChooseTextRecognition": {
-                            "expected": [
-                                "05"
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot05"
                             ]
                         }
                     }
@@ -209,9 +209,9 @@
                     "name": "ProtocolSpaceTeamChoose06",
                     "label": "06",
                     "pipeline_override": {
-                        "ProtocolSpaceTeamChooseTextRecognition": {
-                            "expected": [
-                                "06"
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot06"
                             ]
                         }
                     }
@@ -220,9 +220,9 @@
                     "name": "ProtocolSpaceTeamChoose07",
                     "label": "07",
                     "pipeline_override": {
-                        "ProtocolSpaceTeamChooseTextRecognition": {
-                            "expected": [
-                                "07"
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot07"
                             ]
                         }
                     }

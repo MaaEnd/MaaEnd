@@ -1319,6 +1319,94 @@
         "pre_delay": 0,
         "post_delay": 0
     },
+    "__ScenePrivateMenuOperationalManualEnterPermanentTab": {
+        "desc": "在行动手册界面，切换到常驻标签页",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            130,
+                            130,
+                            1020,
+                            60
+                        ],
+                        "expected": [
+                            "常驻",
+                            "常駐",
+                            "(?i)Permanent",
+                            "常時",
+                            "상시"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "__ScenePrivateMenuOperationalManualEnterUmbralMonument"
+        ]
+    },
+    "__ScenePrivateMenuOperationalManualEnterUmbralMonument": {
+        "desc": "在行动手册常驻标签页，进入影拓丰碑",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            160,
+                            200,
+                            960,
+                            80
+                        ],
+                        "expected": [
+                            "影拓丰碑",
+                            "影拓豐碑",
+                            "(?i)Umbral\\s*Monument",
+                            "映像の記念碑",
+                            "그림자 이정표"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__ScenePrivateAnyEnterMenuOperationalManualUmbralMonumentSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuOperationalManualUmbralMonumentSuccess": {
+        "desc": "成功进入行动手册-影拓丰碑",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManualUmbralMonument"
+        ],
+        // 卡片逐张浮现，等卡片下方名字行稳定；卡面有动画，不能等整张卡片
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                540,
+                1280,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "__ScenePrivateWorldEnterMenuTeam": {
         "desc": "从大世界进入编队菜单",
         "recognition": {

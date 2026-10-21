@@ -89,56 +89,9 @@
         "threshold": 0.9,
         "pre_wait_freezes": 200,
         "next": [
-            "[JumpBack]ProtocolSpaceTeamChoose",
+            "[JumpBack]PrepareTeamChoose",
             "ProtocolSpaceEnterSpaceConfirm"
         ]
-    },
-    "ProtocolSpaceTeamChooseTextRecognition": {
-        "desc": "识别协议空间队伍",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            -70,
-            620,
-            45
-        ],
-        "expected": [
-            "01"
-        ]
-    },
-    "ProtocolSpaceTeamChoose": {
-        "desc": "选择协议空间队伍",
-        "recognition": "And",
-        "all_of": [
-            "ProtocolSpaceTeamChooseTextRecognition",
-            {
-                "recognition": "ColorMatch",
-                "roi": "ProtocolSpaceTeamChooseTextRecognition",
-                "roi_offset": [
-                    -30,
-                    0,
-                    10,
-                    0
-                ],
-                "lower": [
-                    0,
-                    0,
-                    0
-                ],
-                "upper": [
-                    45,
-                    45,
-                    45
-                ],
-                "connected": true,
-                "count": 200
-            }
-        ],
-        "action": "Click",
-        "post_wait_freezes": 200,
-        "focus": {
-            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.select_team"
-        }
     },
     "ProtocolSpacePopupSanityLowExit": {
         "desc": "弹出理智不足",

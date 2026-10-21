@@ -22,5 +22,29 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "InOperationalManualUmbralMonument": {
+        "desc": "在行动手册-影拓丰碑界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    215,
+                    60
+                ],
+                "expected": [
+                    "影拓丰碑",
+                    "影拓豐碑",
+                    "(?i)Umbral\\s*Monument",
+                    "映像の記念碑",
+                    "그림자 이정표"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
