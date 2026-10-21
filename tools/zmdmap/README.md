@@ -63,6 +63,7 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 | `datasets/energy_point_gems.py` | `energy_point_gems.json`（基质筛选的能量淤积点） | 复制 |
 | `datasets/environment_monitoring.py` | `environment_monitoring.json` | 复制 |
 | `datasets/item_mini_table.py` | `item_mini_table.json`（图标识别的物品表，带多语言名字） | 复制 |
+| `datasets/operator_growth.py` | `operator_growth.json`（干员培养素材需求：等级经验、突破、技能与天赋消耗） | 复制 |
 | `datasets/sell_product.py` | `sell_product.json` | 复制 |
 | `datasets/stock_staple.py` | `stock_staple.json`（稳定需求物资的名单、分类、价格档与五语名称） | 复制 |
 | `datasets/weapons.py` | `weapons.json`（基质筛选与图标识别共用的武器表） | 复制 |
