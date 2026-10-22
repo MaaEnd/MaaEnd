@@ -1,14 +1,20 @@
 """``zmdmap fetch``：从 zmdmap 下载已发布的原始数据，再入库。
 
 上游发布的清单（``manifest.json``）给出这批数据是哪一版、每份原始形态的内容指纹，数据按
-``?ver=<版本>&t=<指纹前 8 位>`` 从发布 CDN 拉取。清单还没发布时不比对，这几份直接下载；无论清单在不在，
-下载回来的文件都原样保留上游写的 ``version`` 与 ``sha256``（它们是这份数据原始形态的标签与批次标识），
-这里只读不改。下哪几份由调用方给出 —— 各任务生成器只要自己用的那几份，就只下那几份，不必被整包牵着走。
+``?ver=<版本>&t=<指纹前 8 位>`` 从发布 CDN 拉取。清单还没发布时不比对，这几份直接下载。下哪几份由调用方
+给出 —— 各任务生成器只要自己用的那几份，就只下那几份，不必被整包牵着走。
 
-本地已是最新时跳过下载：逐份拿本地文件里自称的 ``sha256`` 跟清单比，一样的跳过，不一样的才下；下完核对
-一遍拿到的内容（不符只提示、不当失败）。清单本身每次都带时间戳取 —— 它只有几百字节，却决定了整批判断，
-被远端缓存住就会拿旧索引判断。无论下载与否都会跑一次入库。上游还没发布的数据只提示、不当失败：本地可以用
-``uv run zmdmap generate --only <名字>`` 生成。
+每份下回来都先核对内容再落盘：有清单指纹就按它算，清单里没有这一份就按文件自称的 ``sha256``；不符时换一个
+带时间戳的 URL 重取一次，仍不符就报错、不写盘 —— 免得坏内容配上好指纹进 ``data/raw/``，入库之后再也比不
+出来。``--force`` 时校验不过也照收，只提示。
+
+``version`` 与 ``sha256`` 都沿用上游写的（它们是这份数据原始形态的标签与批次标识）；``sha256`` 在这里会按
+内容核一遍，文件自称的值和内容对不上时写回实际算出来的指纹，于是字段始终与内容一致 —— 下次 ``fetch`` 拿它
+跟清单比才靠得住。
+
+本地已是最新时跳过下载：逐份拿本地文件里自称的 ``sha256`` 跟清单比，一样的跳过，不一样的才下。清单本身
+每次都带时间戳取 —— 它只有几百字节，却决定了整批判断，被远端缓存住就会拿旧索引判断。无论下载与否都会跑
+一次入库。上游还没发布的数据只提示、不当失败：本地可以用 ``uv run zmdmap generate --only <名字>`` 生成。
 
 发布的都是**原始形态**（只带游戏世界坐标），一律先落不入库的 ``data/raw/``，再由
 :mod:`tools.zmdmap.materialize` 材料化进入库的 ``data/``：需要投影的补上底图像素，不需要投影的原样复制。
@@ -23,6 +29,7 @@ from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlencode
 
 import click
@@ -43,6 +50,9 @@ from .utils.http import get, new_client
 
 #: 并发下载的连接数；共用 :func:`tools.zmdmap.utils.http.new_client` 的连接池。
 DOWNLOAD_WORKERS = 4
+
+#: 一份数据最多取几次：第一次按清单指纹当 ``t``，校验不过再换成时间戳重取一次（绕开远端缓存）。
+VERIFY_ATTEMPTS = 2
 
 
 class DownloadError(ValueError):
@@ -129,24 +139,18 @@ def manifest_plan(
     return todo, unlisted
 
 
-def _download_json(
-    client: httpx.Client,
-    file_name: str,
-    destination: Path,
-    version: str | None,
-    token: str | None,
-    expect: str | None = None,
-) -> None:
-    params: dict[str, str] = {}
-    if version:
-        params["ver"] = version
-    if token:
-        params["t"] = token
-    url = f"{DATA_BASE_URL}/{file_name}" + (f"?{urlencode(params)}" if params else "")
+def _data_url(file_name: str, params: dict[str, str]) -> str:
+    """数据文件的下载地址：``params`` 里的 ``ver`` / ``t`` 拼成查询串。"""
+    return f"{DATA_BASE_URL}/{file_name}" + (f"?{urlencode(params)}" if params else "")
+
+
+def _request_json(client: httpx.Client, file_name: str, url: str) -> Any:
+    """取一份数据并解析成 JSON；网络层错误、非 2xx、非法 JSON 一律换成 :class:`DownloadError`。"""
     print(f"[fetch-data] 下载 {url}", flush=True)
     try:
         response = get(client, url)
-    except httpx.TransportError as error:
+    except httpx.HTTPError as error:
+        # 网络层错误与 5xx 重试用完都落到这里：type 不同，但对调用方都是「这一份没取到」。
         raise DownloadError(file_name, str(error)) from error
     if response.status_code >= 400:
         raise DownloadError(
@@ -155,33 +159,91 @@ def _download_json(
             status_code=response.status_code,
         )
     try:
-        data = json.loads(response.text)
+        return json.loads(response.text)
     except json.JSONDecodeError as error:
         raise DownloadError(file_name, f"不是合法 JSON：{error}") from error
 
-    # 元数据原样保留：``version`` 与 ``sha256`` 都是上游 generate 写的（``sha256`` 是这份原始形态的批次
-    # 标识），这里一个字都不改，只按仓库的写法把文件重新排版。清单里的指纹与文件自称的指纹都跟本体重算的
-    # 结果对一遍，不符说明拿到的不是它该有的那一份（远端缓存串了 / 上游算错了）。
-    payload = payload_of(data)
-    digest = payload_hash(payload)
-    if expect and digest != expect:
+
+def content_problem(file_name: str, data: Any, digest: str, expect: str | None) -> str | None:
+    """内容与预期不符时的说明；一致或无从核对时返回 ``None``。
+
+    有清单给的指纹就以它为准 —— 那是发布端按内容算的。清单里没有这一份（上游还没发布清单，或这批没它）
+    时退回文件自称的 ``sha256``；两个都没有就无从核对，只能照收（上游的老形态）。
+    """
+    if expect is not None:
+        return None if digest == expect else f"与清单不符：清单 {expect}，拿到 {digest}"
+    claimed = data.get(HASH_KEY) if isinstance(data, dict) else None
+    if not claimed:
+        print(f"[fetch-data] {file_name} 没带 sha256 字段，无从核对内容，照收", file=sys.stderr)
+        return None
+    return None if claimed == digest else f"自称的 sha256 与内容不符：{claimed} != {digest}"
+
+
+def _fetch_verified(
+    client: httpx.Client,
+    file_name: str,
+    params: dict[str, str],
+    expect: str | None,
+    *,
+    accept_mismatch: bool,
+) -> tuple[Any, str]:
+    """取一份数据并核对内容，返回 ``(解析结果, 内容指纹)``；不符时换 URL 再取一次。
+
+    校验不过的内容不落盘：先换成带时间戳的 URL 再要一次 —— 远端缓存串了的时候，重取原 URL 只会拿到同一份
+    —— 仍不符就抛 :class:`DownloadError`。``accept_mismatch`` 为真（``--force``）时只提示、照收。
+    """
+    data: Any = None
+    digest = ""
+    problem = ""
+    for attempt in range(VERIFY_ATTEMPTS):
+        request_params = dict(params)
+        if attempt:
+            request_params["t"] = str(int(time.time() * 1000))
+        data = _request_json(client, file_name, _data_url(file_name, request_params))
+        digest = payload_hash(payload_of(data))
+        problem = content_problem(file_name, data, digest, expect) or ""
+        if not problem:
+            return data, digest
+        retrying = attempt + 1 < VERIFY_ATTEMPTS
         print(
-            f"[fetch-data] {file_name} 与清单不符：清单 {expect}，拿到 {digest}"
-            "（远端缓存串了？可以加 --force 再试）",
+            f"[fetch-data] {file_name} {problem}" + ("；换 URL 再取一次" if retrying else ""),
             file=sys.stderr,
         )
+    if not accept_mismatch:
+        raise DownloadError(file_name, f"{problem}（换 URL 重取后仍不符，确认无误可加 --force 照收）")
+    print(f"[fetch-data] {file_name}：--force 下照收上面那份内容", file=sys.stderr)
+    return data, digest
+
+
+def _download_json(
+    client: httpx.Client,
+    file_name: str,
+    destination: Path,
+    version: str | None,
+    token: str | None,
+    expect: str | None = None,
+    *,
+    accept_mismatch: bool = False,
+) -> None:
+    """下载一份原始数据，核对内容之后再落盘。
+
+    ``expect`` 是清单给的指纹；``accept_mismatch``（``--force``）时校验不过也照收，只提示。
+    """
+    params: dict[str, str] = {}
+    if version:
+        params["ver"] = version
+    if token:
+        params["t"] = token
+    data, digest = _fetch_verified(
+        client, file_name, params, expect, accept_mismatch=accept_mismatch
+    )
+
+    # 元数据沿用上游 generate 写的那份 ``version``。``sha256`` 换成这一步核出来的指纹：清单核过时它就是清单
+    # 的值，``--force`` 照收时它是实际内容的值 —— 两种情况下文件里的字段都与内容一致。若照抄上游自称的那个
+    # （可能与内容不符），入库后 ``data/`` 会带着一个比不出来的字段，坏内容再也发现不了。
     if isinstance(data, dict):
-        known = data.get(HASH_KEY)
-        if not known:
-            print(
-                f"[fetch-data] {file_name} 没带 sha256 字段，只能照收（指纹由上游 generate 写）",
-                file=sys.stderr,
-            )
-        elif known != digest:
-            print(
-                f"[fetch-data] {file_name} 自称的 sha256 与内容不符：{known} != {digest}",
-                file=sys.stderr,
-            )
+        if expect is not None:
+            data[HASH_KEY] = digest
         if not version_of(data):
             print(
                 f"[fetch-data] {file_name} 没带 version 字段，只能照收（版本由上游 generate 写）",
@@ -202,11 +264,13 @@ def fetch_and_cache(
     *,
     token: str | None = None,
     hashes: dict[str, str] | None = None,
+    force: bool = False,
 ) -> list[str]:
     """并发把这几份发布的原始数据下载到 ``raw_dir``；返回上游还没发布、被跳过的文件名。
 
     ``hashes`` 是清单给的每份内容指纹：有指纹的用指纹前 8 位当 ``t`` 参数 —— 同一份内容的 URL 稳定、内容
     一变就是新 URL，绕开远端缓存。``token`` 给了就替掉指纹（``--force`` 时是时间戳），让这几份一律回源。
+    ``force`` 时校验不过也照收，只提示。
     """
     hashes = hashes or {}
     raw_dir.mkdir(parents=True, exist_ok=True)
@@ -221,6 +285,7 @@ def fetch_and_cache(
                 version,
                 token or hashes.get(file_name, "")[:8],
                 hashes.get(file_name),
+                accept_mismatch=force,
             )
             for file_name in (*projected_files, *plain_files)
         }
@@ -307,6 +372,7 @@ def download(
             [file_name for file_name in plain_files if file_name in pending],
             token=token,
             hashes=hashes,
+            force=force,
         )
         if missing:
             print(f"[fetch-data] 上游还没发布：{', '.join(missing)}", file=sys.stderr)
