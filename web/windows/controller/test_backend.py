@@ -216,6 +216,35 @@ def webview2_cases() -> None:
         shutil.rmtree(browser.default_profile().parent / "webview2-test", ignore_errors=True)
 
 
+
+def mode_override_cases() -> None:
+    """显式 mode 参数要能压过环境变量——热切换（switch_mode）就靠这条。"""
+    if sys.platform != "win32":
+        print("SKIP  mode 覆盖用例（仅 Windows）")
+        return
+    os.environ[browser.ENV_MODE] = "offscreen"
+    os.environ[browser.ENV_PROFILE] = str(browser.default_profile().parent / "web-profile-mode-test")
+    b = None
+    try:
+        b = browser.ensure_backend(viewport=VIEWPORT, url="about:blank", mode="headless")
+        case("switch：显式 mode=headless 压过 env=offscreen",
+             b.mode == "headless" and b.hwnd == 0, f"env=offscreen 实际 mode={b.mode} hwnd={b.hwnd}")
+    except Exception as e:
+        case("switch：显式 mode 覆盖", False, f"{type(e).__name__}: {e}")
+    finally:
+        if b is not None:
+            b.close()
+        os.environ.pop(browser.ENV_MODE, None)
+        os.environ.pop(browser.ENV_PROFILE, None)
+        shutil.rmtree(browser.default_profile().parent / "web-profile-mode-test", ignore_errors=True)
+    # 未知模式必须响亮报错，不能静默退回默认值
+    try:
+        browser.resolve_mode("nonsense")
+        case("switch：未知模式报错", False, "没有抛异常")
+    except ValueError as e:
+        case("switch：未知模式报错", True, str(e)[:70])
+
+
 def main() -> int:
     # ---- 1. 冷启动 + 2. 无窗口 + 3. 视口 ----
     t0 = time.time()
@@ -313,6 +342,7 @@ def main() -> int:
 
     offscreen_cases()
     webview2_cases()
+    mode_override_cases()
 
     failed = [r for r in RESULTS if not r[1]]
     print(f"\n=== {len(RESULTS) - len(failed)}/{len(RESULTS)} 通过 ===")

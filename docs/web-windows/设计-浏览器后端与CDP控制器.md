@@ -110,6 +110,31 @@ Python 侧通过宿主的**本地控制口**驱动（`127.0.0.1:<随机>`，按�
 多实例不抢端口，也不给本机留一个可猜的调试入口。**同一 profile 只能有一个实例**
 （第二个会静默转发 URL 后退出），所以启动失败时会把"谁占着这个 profile"列进报错。
 
+### 3.2 运行时热切换（`switch_mode` / `promote` / `demote`）
+
+需求形态：**平时无头跑批，人在场时能立刻接管，接管完再回到无头**。
+无头进程没有窗口对象，系统浏览器也没有"凭空造一个窗口给它"的原语，
+所以"切出来"只能**换进程**：优雅关闭当前后端 → 用同一 profile 以目标模式重开 → 重新装配 CDP。
+
+```
+connect()   -> headless（零窗口）
+promote()   -> offscreen（同一 profile 重开，窗口直接摆进屏幕内）
+demote()    -> headless（窗口消失、hwnd 归零）
+switch_mode("webview2") / switch_mode("headless")     # 任意两模式互切
+```
+
+| 项 | 实测 |
+|---|---|
+| headless → offscreen | **1839 ms** |
+| offscreen → headless | **2505 ms** |
+| 登录态 | 两次切换后 `localStorage` 标记仍在（走优雅关闭，强杀会丢） |
+| 切回无头后 | `hwnd = 0`，确实没有窗口了 |
+| 用例 | `smoke_test.py --switch` 9/9 |
+
+约束：切换期间 CDP 会断开，**只能在任务之间调**；页面按配置的 `url` 重开，页内临时状态不保留。
+要"同进程、零重载"的显示，只有 `webview2` 的 `show` 能做到。
+顺手把 `close()` 也改成优雅关闭——之前强杀会让刚扫码登录的状态白丢一次。
+
 ---
 
 ## 4. 控制器契约（MaaFramework `CustomController`）
@@ -195,6 +220,8 @@ WebController.close() / atexit
 | UA 修正 | ✅ 抹掉 `HeadlessChrome` 后官网"浏览器可能影响体验"警告消失（截图对照） |
 | 点击 / 拖动 | ✅ 派发无异常，画面差异符合预期（点开登录弹窗 81% 像素变化） |
 | 收尸 | ✅ 退出后 0 残留进程、pidfile 已删 |
+| **热切换** | ✅ headless→offscreen 1839 ms / offscreen→headless 2505 ms；两次切换后 `localStorage` 标记仍在；切回后 `hwnd=0`（真零窗口）；9/9 |
+| 优雅关闭 | ✅ 正常 `close()` 也走 `Browser.close`（0.4 s），避免刚登录的状态被强杀丢掉 |
 | ruff | ✅ `ruff check web/windows` 通过 |
 
 ## 9. 待实测（决定这条路线能否真正跑任务）

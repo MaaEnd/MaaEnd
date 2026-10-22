@@ -601,9 +601,11 @@ def ensure_backend(viewport: tuple[int, int] = (1280, 720),
                    url: str | None = None,
                    port: int | None = None,
                    log=print,
-                   ready_timeout: float = 25.0) -> Backend:
-    """按后端边界拿到一个可用后端：外部端点优先，否则拉起无头浏览器。
+                   ready_timeout: float = 25.0,
+                   mode: str | None = None) -> Backend:
+    """按后端边界拿到一个可用后端：外部端点优先，否则拉起本地浏览器/宿主。
 
+    mode 传 None 时读 `MAAEND_WEB_MODE`（headless / offscreen / webview2）。
     port 传 None 时用随机端口（`--remote-debugging-port=0` + DevToolsActivePort），
     避免多实例互相抢固定端口，也不给本机其它程序留下一个可猜的入口。
     """
@@ -626,7 +628,7 @@ def ensure_backend(viewport: tuple[int, int] = (1280, 720),
     profile.mkdir(parents=True, exist_ok=True)
     reap_stale(profile, log)
 
-    mode = resolve_mode()
+    mode = resolve_mode(mode)
     visible = os.environ.get(ENV_VISIBLE) == "1"
     if visible:
         # 可见调试必须真窗口，无头状态下没有窗口可显示

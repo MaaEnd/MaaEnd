@@ -57,6 +57,35 @@ MAAEND_WEB_MODE=webview2 python smoke_test.py            # 控制器自动找 bi
 `external` 是为"自带宿主"留的口：企业锁版本的 Chrome、自己编的 WebView2 宿主、公司内网调试实例，
 都只需要给出 `host:port`，仓库里不必多一门语言、CI 不必多一条构建链。
 
+### 热切换：无头 ↔ 可交互（`switch_mode` / `promote` / `demote`）
+
+三种模式可以在**运行时**互切，用来实现"平时无头跑批，我要看时才切出来"：
+
+```python
+ctrl.connect()                    # 默认 headless：零窗口
+...
+ctrl.promote()                    # → offscreen，窗口已在屏幕内，可以直接操作
+# 用户扫码 / 手动过验证 / 看一眼在干什么
+ctrl.demote()                     # → 回 headless，窗口消失，继续无人值守
+# 也可以直接指定：ctrl.switch_mode("webview2") / ctrl.switch_mode("headless")
+```
+
+**为什么无头也能"切出来"**：无头进程没有窗口对象，所以它不是"显示"，而是
+**优雅关闭 + 用同一 profile 以 offscreen 重开**。实测 headless→offscreen **1.8 s**、
+offscreen→headless **2.5 s**，`localStorage` 里的登录标记两次切换后都还在（9/9 用例）。
+
+代价与约束：
+
+| | `switch_mode` |
+|---|---|
+| 期间 CDP 会短暂断开 | 是，**只能在任务之间调**，不要在 `click`/`screencap` 中途切 |
+| 登录态 | 保住（走 `Browser.close` 优雅退出，强杀才丢） |
+| 页面状态 | 起始地址按配置的 `url` 重新打开；页面内的临时状态不保留 |
+| 无头 → 有窗口 | 会有一次真窗口创建，`park` 到屏幕外（`promote` 会直接摆进屏幕内） |
+
+> 如果要求"切出来是**同一个进程**、不重新加载页面"，那只有 `webview2` 模式能做到
+> （控制口 `show`，零重载）；系统浏览器没有"给无头进程凭空造窗口"的原语。
+
 ## 结构
 
 | 路径 | 作用 |
@@ -86,7 +115,7 @@ MAAEND_WEB_CDP_ENDPOINT=127.0.0.1:9338 python smoke_test.py
 
 | 变量 | 作用 |
 |---|---|
-| `MAAEND_WEB_MODE` | `headless`（默认）/ `offscreen`；非法值直接报错，不静默降级 |
+| `MAAEND_WEB_MODE` | `headless`（默认）/ `offscreen` / `webview2`；非法值直接报错，不静默降级 |
 | `MAAEND_WEB_CDP_ENDPOINT` | 直连外部端点，如 `127.0.0.1:9338`；设了就不拉起、也不关闭 |
 | `MAAEND_WEB_BROWSER` | 浏览器可执行文件路径，覆盖自动探测 |
 | `MAAEND_WEB_PROFILE` | 用户数据目录（登录态 + 诊断截图 + browser.log 都在这里） |
@@ -109,8 +138,9 @@ MAAEND_WEB_CDP_ENDPOINT=127.0.0.1:9338 python smoke_test.py
 | 控制器 `screencap()`（screencast 缓存） | 8–11 ms | 8–11 ms |
 | 整棵进程树占用 | 15 进程 / 空闲 ~850 MB | 同左 |
 | 空闲 CPU | ~0.3 核（≈2% 整机） | 同左 |
-| 拉回屏幕给用户 | ❌ 需换进程 ≈1.1 s | **2–12 ms**，不夺焦点 |
+| 拉回屏幕给用户 | 不能"显示"，但可 `promote()` 换进程 ≈1.8 s | **2–12 ms**，不夺焦点 |
 | 任务栏 / Alt+Tab | 无 | 挂 `WS_EX_TOOLWINDOW` 后无 |
+| 运行时互切 | `switch_mode()`：headless↔offscreen↔webview2，1.8–2.5 s，登录态保住 |
 
 三点结论：
 
@@ -142,7 +172,8 @@ MAAEND_WEB_CDP_ENDPOINT=127.0.0.1:9338 python smoke_test.py
 ## 已知限制 / 待实测
 
 1. **登录**：无头没有可见窗口，登录靠截图（登录页会把 PNG 落到 `diagnostics/`）让用户扫码；
-   登录态存在 profile 里，之后不需要重复登录。
+   也可以 `promote()` 切出真窗口让人自己操作，完事 `demote()` 回无头。
+   登录态存在 profile 里，之后不需要重复登录（前提是优雅关闭，见上）。
 2. **真实会话未验**：本仓库只验到"能起、能截、能点"。真实登录后的取帧延迟、视角转向、
    `document.visibilityState` 对串流的影响，要用真实账号跑 `smoke_test.py` 才作数。
 3. **仅 Windows 已验证**：`--headless=new` + CDP 本身跨平台，Linux 侧理论上同一套代码可用，

@@ -125,21 +125,27 @@ class WebController(CustomController):
     # ---------- Maa 控制器接口 ----------
 
     def connect(self) -> bool:
-        """拉起/连接后端 → 连 CDP → 校正视口 → 开触屏与 screencast → 探测页面状态。"""
+        """拉起/连接后端 → 装配 CDP 通道（护栏、UA、视口、触屏、screencast）→ 探测页面。"""
         self._closed = False
         try:
             self.backend = browser.ensure_backend(viewport=self.viewport, url=self.url, port=self.port,
                                                   log=self._log)
-            self.client = CDPClient(port=self.backend.port, host=self.backend.host,
-                                    page_match=self.page_match)
-            self.cdp.connect()
-            self._log(f"connected: {self.backend.version} target={self.cdp.target_url[:90]}")
         except Exception as e:
             self._log(f"connect failed: {type(e).__name__}: {e}")
             self._teardown()
             return False
+        return self._attach()
 
+    def _attach(self) -> bool:
+        """在已就绪的后端上装配 CDP 通道与状态；connect 与 switch_mode 共用这一段。"""
+        be = self.backend
+        if be is None:
+            self._log("attach：没有可用后端")
+            return False
         try:
+            self.client = CDPClient(port=be.port, host=be.host, page_match=self.page_match)
+            self.client.connect()
+            self._log(f"connected: {be.version} target={self.client.target_url[:90]}")
             # 1) 护栏：拦掉全屏/指针锁，避免误点后顶掉用户桌面
             self._inject_guards()
             # 2) 先修 UA：无头 UA 里带 HeadlessChrome，官网会弹"当前浏览器可能影响游戏体验"
@@ -157,9 +163,47 @@ class WebController(CustomController):
                 self._log(f"touch mode: {'on' if self.switch_touch_mode_on() else '未找到「触屏」按钮'}")
             return self._check_page()
         except Exception as e:
-            self._log(f"connect failed(2): {type(e).__name__}: {e}")
-            self._teardown()
+            self._log(f"attach failed: {type(e).__name__}: {e}")
             return False
+
+    def switch_mode(self, mode: str, left: int = 120, top: int = 120) -> bool:
+        """运行时切换后端模式（headless <-> offscreen <-> webview2）。
+
+        无头没有窗口对象，所以"切出来"= 优雅关闭 + 用同一 profile 重开，登录态保留。
+        实测 headless -> offscreen 全程约 1.1 s。**只能在任务之间调用**（会短暂断开 CDP）。
+        切到有窗口的模式后顺手把窗口摆到屏幕内，切回 headless 时窗口自然消失。
+        """
+        if self.backend is None:
+            self._log("switch_mode：还没 connect")
+            return False
+        if mode not in browser.MODES:
+            self._log(f"switch_mode：未知模式 {mode!r}（可选 {' / '.join(browser.MODES)}）")
+            return False
+        if mode == self.backend.mode:
+            return True
+        old = self.backend.mode
+        self._log(f"switch_mode: {old} -> {mode}（优雅关闭当前后端，用同一 profile 重开）")
+        t0 = time.time()
+        self._teardown(graceful=True)
+        try:
+            self.backend = browser.ensure_backend(viewport=self.viewport, url=self.url,
+                                                  port=self.port, log=self._log, mode=mode)
+        except Exception as e:
+            self._log(f"switch_mode 失败：{type(e).__name__}: {e}")
+            return False
+        ok = self._attach()
+        if ok and mode in ("offscreen", "webview2"):
+            self.pop_to_screen(left, top)
+        self._log(f"switch_mode 完成 ok={ok} 耗时 {time.time() - t0:.2f}s uuid={self.request_uuid()}")
+        return ok
+
+    def promote(self, left: int = 120, top: int = 120) -> bool:
+        """从无头切到可交互（offscreen）并把窗口摆到屏幕内——"我需要看一眼/操作一下"。"""
+        return self.switch_mode("offscreen", left=left, top=top)
+
+    def demote(self) -> bool:
+        """用完切回无头（零窗口）。"""
+        return self.switch_mode("headless")
 
     def request_uuid(self) -> str:
         """uuid 里带后端标识（含模式），MXU/日志里一眼能看出走的是哪条路。"""
@@ -451,13 +495,20 @@ class WebController(CustomController):
             self._log(f"页面还没有视频画面（可能仍在加载）。截图已存 {shot}")
         return True
 
-    def _teardown(self) -> None:
+    def _teardown(self, graceful: bool = False) -> None:
         if self.screencast and self.client is not None:
             with contextlib.suppress(Exception):
-                self.cdp.stop_screencast()
+                self.client.stop_screencast()
         if self.client is not None:
+            if graceful and self.backend is not None and self.backend.owned \
+                    and self.backend.mode in ("headless", "offscreen"):
+                # 优雅关闭：让 Chromium 自己把 profile 刷盘（强杀会丢掉刚写的 localStorage，
+                # 实测强杀后重启读回 None；优雅关闭能读回）
+                with contextlib.suppress(Exception):
+                    self.client("Browser.close")
+                time.sleep(0.4)
             with contextlib.suppress(Exception):
-                self.cdp.close()
+                self.client.close()
             self.client = None
         if self.backend is not None:
             with contextlib.suppress(Exception):
@@ -465,11 +516,15 @@ class WebController(CustomController):
             self.backend = None
 
     def close(self) -> None:
-        """关闭 CDP 连接，并回收本进程拉起的浏览器（外部端点不动）。"""
+        """关闭 CDP 连接，并回收本进程拉起的浏览器（外部端点不动）。
+
+        默认走**优雅关闭**（先 `Browser.close` 再收尸）：强杀会丢掉还没落盘的
+        localStorage —— 也就是刚扫码登录的状态可能白登一次。
+        """
         if self._closed:
             return
         self._closed = True
-        self._teardown()
+        self._teardown(graceful=True)
         self._log("closed")
 
 
