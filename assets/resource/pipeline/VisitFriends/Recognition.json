@@ -98,16 +98,16 @@
             }
         }
     },
-    "VisitFriendsRecognitionItemNamePriorityRemarkByEnterButton": {
+    "VisitFriendsRecognitionItemNamePriorityByEnterButton": {
         "desc": "按进船按钮偏移识别指定优先好友名",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": "VisitFriendsRecognitionItemOnline",
                 "roi_offset": [
-                    0,
+                    -10,
                     -62,
-                    135,
+                    151,
                     62
                 ],
                 "expected": [
@@ -141,21 +141,21 @@
         ],
         "box_index": 4
     },
-    "VisitFriendsRecognitionItemWithPriorityRemark": {
+    "VisitFriendsRecognitionItemWithPriority": {
         "desc": "识别进船按钮与指定优先好友名；box_index=3 返回名字框，供优先选友链路消费",
         "recognition": "And",
         "all_of": [
             "VisitFriendsRecognitionItemEnterButton",
             "VisitFriendsRecognitionItemClueExchange",
             "VisitFriendsRecognitionItemOnline",
-            "VisitFriendsRecognitionItemNamePriorityRemarkByEnterButton"
+            "VisitFriendsRecognitionItemNamePriorityByEnterButton"
         ],
         "box_index": 3
     },
-    "VisitFriendsRecognitionItemEnterButtonByNamePriorityRemark": {
+    "VisitFriendsRecognitionItemEnterButtonByNamePriority": {
         "desc": "优先链路：以白名单名框为锚向右偏移，识别该行进船（飞船）图标",
         "recognition": "TemplateMatch",
-        "roi": "VisitFriendsMenuScanSelectPriorityRemarkConsumable",
+        "roi": "VisitFriendsMenuScanSelectPriorityConsumable",
         "roi_offset": [
             956,
             -18,
@@ -270,5 +270,17 @@
         "template": "VisitFriends/QuickNextClueExchangeAvailable.png",
         "green_mask": true,
         "threshold": 0.9
+    },
+    "VisitFriendsPrioritySearchExhausted": {
+        "desc": "白名单搜索队列耗尽：走既有回退链路",
+        "recognition": "Custom",
+        "custom_recognition": "TextInputExhaustedRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScanPriorityFallbackToRemark",
+            "VisitFriendsMenuScanPriorityFallbackToNormal",
+            "VisitFriendsPrioritySearchDone"
+        ]
     }
 }
