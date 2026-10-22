@@ -1,3 +1,8 @@
+# .NET 构建产物（webview2 宿主）
+bin/
+obj/
+*.user
+
 # 运行时产物
 *.log
 shots/

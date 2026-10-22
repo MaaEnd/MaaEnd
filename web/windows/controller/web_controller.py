@@ -165,9 +165,11 @@ class WebController(CustomController):
         """uuid 里带后端标识（含模式），MXU/日志里一眼能看出走的是哪条路。"""
         if self.backend is None:
             return "web-cdp:pending"
-        if self.backend.owned:
-            return f"web-cdp:{self.backend.kind}-{self.backend.mode}"
-        return f"web-cdp:external:{self.backend.port}"
+        if not self.backend.owned:
+            return f"web-cdp:external:{self.backend.port}"
+        if self.backend.kind == self.backend.mode:
+            return f"web-cdp:{self.backend.kind}"
+        return f"web-cdp:{self.backend.kind}-{self.backend.mode}"
 
     def screencap(self) -> np.ndarray:
         if self.client is None:
@@ -247,10 +249,15 @@ class WebController(CustomController):
 
     def pop_to_screen(self, left: int = 120, top: int = 120) -> bool:
         """把窗口挪到屏幕内交给用户操作：同进程、不重载、不丢登录态、不抢焦点。"""
-        if self.backend is None or not self.backend.owned or self.backend.mode != "offscreen":
-            self._log("pop_to_screen：只有 offscreen 模式支持（headless 没有窗口可切）")
+        if self.backend is None or not self.backend.owned or self.backend.mode not in ("offscreen", "webview2"):
+            self._log("pop_to_screen：只有 offscreen / webview2 模式支持（headless 没有窗口可切）")
             return False
         try:
+            if self.backend.mode == "webview2":
+                r = browser.host_cmd(self.backend.control_port,
+                                     {"cmd": "show", "left": left, "top": top})
+                self._log(f"pop_to_screen(宿主)：{r}")
+                return bool(r.get("ok"))
             win = self.cdp("Browser.getWindowForTarget")
             self.cdp("Browser.setWindowBounds", windowId=win["windowId"],
                      bounds={"left": left, "top": top, "windowState": "normal"})
@@ -263,10 +270,14 @@ class WebController(CustomController):
 
     def park_offscreen(self) -> bool:
         """把窗口挪回屏幕外继续无人值守（不动焦点、页面仍 visible）。"""
-        if self.backend is None or not self.backend.owned or self.backend.mode != "offscreen":
-            self._log("park_offscreen：只有 offscreen 模式支持")
+        if self.backend is None or not self.backend.owned or self.backend.mode not in ("offscreen", "webview2"):
+            self._log("park_offscreen：只有 offscreen / webview2 模式支持")
             return False
         try:
+            if self.backend.mode == "webview2":
+                r = browser.host_cmd(self.backend.control_port, {"cmd": "park"})
+                self._log(f"park_offscreen(宿主)：{r}")
+                return bool(r.get("ok"))
             win = self.cdp("Browser.getWindowForTarget")
             self.cdp("Browser.setWindowBounds", windowId=win["windowId"],
                      bounds={"left": -32000, "top": -32000})
@@ -275,6 +286,31 @@ class WebController(CustomController):
             return True
         except Exception as e:
             self._log(f"park_offscreen 失败：{type(e).__name__}: {e}")
+            return False
+
+    def sleep_host(self) -> bool:
+        """真正停车（只有 webview2 支持）：宿主不再渲染、省 GPU，代价是自动化也跑不了。"""
+        if self.backend is None or self.backend.mode != "webview2":
+            self._log("sleep_host：只有 webview2 模式支持（系统浏览器没有停车原语）")
+            return False
+        try:
+            r = browser.host_cmd(self.backend.control_port, {"cmd": "hide"})
+            self._log(f"sleep_host：{r}")
+            return bool(r.get("ok"))
+        except Exception as e:
+            self._log(f"sleep_host 失败：{type(e).__name__}: {e}")
+            return False
+
+    def resume_host(self) -> bool:
+        if self.backend is None or self.backend.mode != "webview2":
+            self._log("resume_host：只有 webview2 模式支持")
+            return False
+        try:
+            r = browser.host_cmd(self.backend.control_port, {"cmd": "resume"})
+            self._log(f"resume_host：{r}")
+            return bool(r.get("ok"))
+        except Exception as e:
+            self._log(f"resume_host 失败：{type(e).__name__}: {e}")
             return False
 
     def switch_touch_mode_on(self) -> bool:
@@ -353,6 +389,11 @@ class WebController(CustomController):
     def _fix_viewport(self) -> None:
         """用窗口尺寸把 CSS 视口校正到目标值（而不是 setDeviceMetricsOverride，那个会砍帧）。"""
         tw, th = self.viewport
+        if self.backend is not None and self.backend.mode == "webview2":
+            # 宿主的 ClientSize 就是 1280x720（且强制 DPR=1），不需要再改窗口
+            inner = self.cdp.eval("[innerWidth, innerHeight]") or [0, 0]
+            self._log(f"viewport = {inner[0]}x{inner[1]}（目标 {tw}x{th}；webview2 由宿主定尺寸）")
+            return
         for _ in range(3):
             inner = self.cdp.eval("[innerWidth, innerHeight]") or [0, 0]
             if (inner[0], inner[1]) == (tw, th):

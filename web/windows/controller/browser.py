@@ -36,6 +36,7 @@ import json
 import os
 import shutil
 import signal
+import socket
 import subprocess
 import sys
 import time
@@ -49,9 +50,10 @@ ENV_BROWSER = "MAAEND_WEB_BROWSER"
 ENV_PROFILE = "MAAEND_WEB_PROFILE"
 ENV_VISIBLE = "MAAEND_WEB_VISIBLE"
 ENV_KEEP_ALIVE = "MAAEND_WEB_KEEP_ALIVE"
-ENV_MODE = "MAAEND_WEB_MODE"        # headless（默认）| offscreen
+ENV_MODE = "MAAEND_WEB_MODE"        # headless（默认）| offscreen | webview2
+ENV_WEBVIEW2_HOST = "MAAEND_WEB_WEBVIEW2_HOST"   # 指定 MaaEndWebHost.exe 路径
 
-MODES = ("headless", "offscreen")
+MODES = ("headless", "offscreen", "webview2")
 
 # 屏外模式必须的四个反遮挡开关：没有它们，窗口在屏幕外/被遮挡时页面会自认为 hidden
 # （云游戏据此降帧或停推流），实测加上后屏外仍报 visible。
@@ -90,13 +92,17 @@ class Backend:
     profile: str = ""
     owned: bool = False
     hwnd: int = 0            # offscreen 模式下浏览器顶层窗口句柄（Windows）
+    control_port: int = 0    # webview2 模式下宿主的控制口
     proc: subprocess.Popen | None = field(default=None, repr=False)
     extra: dict[str, Any] = field(default_factory=dict)
 
     def describe(self) -> str:
         owner = "本进程拉起" if self.owned else "外部提供"
-        name = self.kind if self.kind == "external" else f"{self.kind}-{self.mode}"
+        name = self.kind if self.kind == "external" else (
+            self.kind if self.kind == self.mode else f"{self.kind}-{self.mode}")
         bits = [f"backend={name}", f"{self.host}:{self.port}", self.version or "version=?", owner]
+        if self.control_port:
+            bits.append(f"control={self.control_port}")
         if self.hwnd:
             bits.append(f"hwnd={self.hwnd}")
         if self.exe:
@@ -109,11 +115,18 @@ class Backend:
         return probe(self.host, self.port) is not None
 
     def close(self) -> None:
-        """只关闭自己拉起的浏览器；外部端点一律不碰。"""
+        """只关闭自己拉起的后端；外部端点一律不碰。"""
         if not self.owned:
             return
         if os.environ.get(ENV_KEEP_ALIVE) == "1":
             return
+        if self.mode == "webview2" and self.control_port:
+            # 先让宿主优雅退出：WebView2 的 profile（登录态）要它自己 flush
+            with contextlib.suppress(Exception):
+                host_cmd(self.control_port, {"cmd": "quit"}, timeout=5)
+            deadline = time.time() + 10
+            while time.time() < deadline and self.proc is not None and self.proc.poll() is None:
+                time.sleep(0.1)
         if self.proc is not None:
             kill_tree(self.proc.pid)
             with contextlib.suppress(Exception):
@@ -195,6 +208,43 @@ def find_browser(override: str | None = None) -> tuple[str, str]:
         f"Linux 建议安装 google-chrome（Chromium 不含 H.264 专有编解码，云游戏画面放不出来）；"
         f"也可以用 {ENV_BROWSER} 指定可执行文件路径。"
     )
+
+
+def find_webview2_host(override: str | None = None) -> str:
+    """定位 MaaEndWebHost.exe（WebView2 宿主）。找不到就报错，不静默降级。"""
+    override = override or os.environ.get(ENV_WEBVIEW2_HOST)
+    if override:
+        if not Path(override).exists():
+            raise FileNotFoundError(f"{ENV_WEBVIEW2_HOST}={override} 指向的宿主不存在")
+        return override
+    here = Path(__file__).resolve().parent
+    for rel in (
+        "../MaaEndWebHost/bin/Release/net10.0-windows/MaaEndWebHost.exe",
+        "../MaaEndWebHost/bin/Release/net8.0-windows/MaaEndWebHost.exe",
+        "../MaaEndWebHost/bin/Debug/net10.0-windows/MaaEndWebHost.exe",
+    ):
+        p = (here / rel).resolve()
+        if p.exists():
+            return str(p)
+    raise FileNotFoundError(
+        "找不到 MaaEndWebHost.exe。先构建一次："
+        "`dotnet build -c Release web/windows/MaaEndWebHost`；"
+        f"或用 {ENV_WEBVIEW2_HOST} 指定路径。"
+    )
+
+
+def free_port(host: str = "127.0.0.1") -> int:
+    with socket.socket() as s:
+        s.bind((host, 0))
+        return int(s.getsockname()[1])
+
+
+def host_cmd(port: int, payload: dict, timeout: float = 10.0) -> dict:
+    """给 WebView2 宿主的控制口发一条 JSON 命令（一行一答）。"""
+    with socket.create_connection(("127.0.0.1", int(port)), timeout=timeout) as s:
+        s.sendall((json.dumps(payload) + "\n").encode("utf-8"))
+        line = s.makefile("rb").readline()
+    return json.loads(line or b"{}")
 
 
 def default_profile() -> Path:
@@ -485,6 +535,68 @@ def _browser_args(url: str | None, port: int, profile: Path, viewport: tuple[int
     return args
 
 
+def _ensure_webview2(viewport: tuple[int, int], url: str | None, port: int | None,
+                     log, visible: bool, ready_timeout: float) -> Backend:
+    """拉起 MaaEndWebHost.exe（WebView2 宿主）并等它的 CDP + 控制口就绪。"""
+    exe = find_webview2_host()
+    prof_env = os.environ.get("MAAEND_WEB_WEBVIEW2_PROFILE")
+    profile = Path(prof_env) if prof_env else (default_profile().parent / "webview2-profile")
+    profile.mkdir(parents=True, exist_ok=True)
+    state_path = profile / "host-state.json"
+    with contextlib.suppress(Exception):
+        state_path.unlink()          # 上一轮的状态文件别拿来误判
+
+    cdp_port = port or free_port()
+    ctl_port = free_port()
+    w, h = viewport
+    args = [exe, "--cdp-port", str(cdp_port), "--control-port", str(ctl_port),
+            "--profile", str(profile), f"--size={w}x{h}", "--state", str(state_path),
+            "--block-pointer-lock"]
+    if visible:
+        args.append("--on-screen")
+    if url:
+        args += ["--url", url]
+
+    log(f"[backend] 启动 webview2 宿主: {exe}")
+    log(f"[backend] 参数 {' '.join(args[1:])}")
+    proc = subprocess.Popen(args, cwd=str(profile),
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                            stdin=subprocess.DEVNULL,
+                            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    try:
+        deadline = time.time() + ready_timeout
+        ver = None
+        while time.time() < deadline:
+            if proc.poll() is not None:
+                raise RuntimeError(
+                    f"WebView2 宿主启动后立即退出（exit={proc.returncode}），"
+                    f"日志见 {Path(exe).parent / 'host.log'}")
+            ver = probe("127.0.0.1", cdp_port)
+            if ver and state_path.exists():
+                break
+            time.sleep(0.15)
+        if not ver:
+            raise TimeoutError(f"{ready_timeout:.0f}s 内 WebView2 宿主的 CDP 端口 {cdp_port} 没就绪")
+        status: dict = {}
+        for _ in range(60):
+            with contextlib.suppress(Exception):
+                status = host_cmd(ctl_port, {"cmd": "status"}, timeout=2)
+                if status.get("ok"):
+                    break
+            time.sleep(0.2)
+        if not status.get("ok"):
+            raise TimeoutError(f"WebView2 宿主的控制口 {ctl_port} 没响应（{status}）")
+    except BaseException:
+        kill_tree(proc.pid)
+        raise
+
+    backend = Backend(kind="webview2", mode="webview2", host="127.0.0.1", port=cdp_port,
+                      version=ver.get("Browser", ""), exe=exe, profile=str(profile),
+                      owned=True, proc=proc, control_port=ctl_port)
+    log(f"[backend] 就绪 {backend.describe()}")
+    return backend
+
+
 def ensure_backend(viewport: tuple[int, int] = (1280, 720),
                    url: str | None = None,
                    port: int | None = None,
@@ -521,6 +633,10 @@ def ensure_backend(viewport: tuple[int, int] = (1280, 720),
         mode = "offscreen"
         log(f"[backend] {ENV_VISIBLE}=1：调试模式，窗口会真的显示在屏幕上")
     log(f"[backend] 模式 = {mode}（{ENV_MODE}）")
+
+    if mode == "webview2":
+        return _ensure_webview2(viewport=viewport, url=url, port=port, log=log,
+                                visible=visible, ready_timeout=ready_timeout)
 
     # 屏外真窗口会抢一次前台（新窗口有一次性激活权），先记下用户当前窗口，起来后还回去
     prev_fg = get_foreground() if (mode == "offscreen" and not visible) else 0

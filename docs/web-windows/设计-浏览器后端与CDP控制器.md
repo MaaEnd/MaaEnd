@@ -79,13 +79,32 @@ WebView2 的优势集中在四点，只是一旦出现下列需求，它才重�
 
 两种模式的取舍点是**"要不要能随时交给人操作"**，不是性能：
 
-| | `headless` | `offscreen` |
-|---|---|---|
-| 窗口对象 | 无 | 有（屏幕外 + `WS_EX_TOOLWINDOW`） |
-| 页面 `visibilityState` | `visible` | `visible`（四个反遮挡开关） |
-| 交给人操作 | ❌ 只能换进程（≈1.1 s，且必须优雅关闭否则状态不落盘） | ✅ `pop_to_screen()` 实测 **2–12 ms**，同进程不重载 |
-| 抢焦点 | 不涉及 | 启动瞬时会抢 → 自动还原前台；`pop_to_screen` 不夺焦点 |
-| 资源 | 渲染常驻 | 同样常驻（实测同级） |
+| | `headless` | `offscreen` | `webview2` |
+|---|---|---|---|
+| 窗口对象 | 无 | 有（屏幕外 + `WS_EX_TOOLWINDOW`） | 有（屏幕外 + `WS_EX_TOOLWINDOW`） |
+| 页面 `visibilityState` | `visible` | `visible`（四个反遮挡开关） | `visible` |
+| 交给人操作 | ❌ 只能换进程（≈1.1 s，且必须优雅关闭否则状态不落盘） | ✅ `pop_to_screen()` 实测 **2–12 ms**，同进程不重载 | ✅ 控制口 `show`，同进程 |
+| 挂着时停渲染 | ❌ | ❌ | ✅ `sleep_host()`（`Visible=false`） |
+| 额外依赖 | 无 | 无 | .NET + WebView2 Runtime，需构建 |
+
+### 3.1 `webview2` 模式（第三条线）
+
+`MaaEndWebHost`（C# WinForms）重新引入，但**只做只有它能做的事**：进程内停车。
+它启动时是一个无边框、屏幕外、`WS_EX_TOOLWINDOW` 的真窗口，ClientSize 固定 1280×720、
+强制 DPR=1，因此 CSS 视口天然精确（实测 `1280×720`、截图 `(720,1280,3)`、`screencap` 20 ms）。
+
+Python 侧通过宿主的**本地控制口**驱动（`127.0.0.1:<随机>`，按行 JSON）：
+
+| 命令 | 语义 |
+|---|---|
+| `{"cmd":"show","left":120,"top":120}` | 窗口挪到屏幕内 + `Visible=true`（显式 `SW_SHOWNOACTIVATE`，不抢焦点） |
+| `{"cmd":"park"}` | 挪回屏幕外、`Visible=true`：渲染继续，自动化可继续跑 |
+| `{"cmd":"hide"}` | `Visible=false`：**真停车**，不渲染、省 GPU；此时自动化也跑不了 |
+| `{"cmd":"resume"}` | 恢复渲染 |
+| `{"cmd":"status"}` | 返回 `visible/x/y/size/cdp_port/control_port/url` |
+| `{"cmd":"quit"}` | 优雅退出（让 WebView2 自己 flush profile，保住登录态） |
+
+端口与 pid 写在 `<profile>/host-state.json`；控制器退出时先发 `quit` 再收进程树。
 
 拉起时用 `--remote-debugging-port=0`，端口由 Chromium 写进 `<profile>/DevToolsActivePort` 后读回：
 多实例不抢端口，也不给本机留一个可猜的调试入口。**同一 profile 只能有一个实例**
@@ -171,6 +190,8 @@ WebController.close() / atexit
 | 启动不打扰 | ✅ 启动瞬间会抢前台，随后自动还原（`SetForegroundWindow` + `AttachThreadInput` 兜底） |
 | 输入不打扰 | ✅ 触摸点击/触摸拖动/鼠标拖动全程 122 次采样：前台窗口不变、系统光标未被搬动 |
 | 护栏 | ✅ 注入后 `requestFullscreen` / `requestPointerLock` 被废（误点全屏不会顶掉桌面） |
+| webview2 后台 | ✅ 无边框屏幕外窗口 + `WS_EX_TOOLWINDOW`；CSS 视口 `1280×720`、截图 `(720,1280,3)`、`screencap` 20 ms |
+| webview2 控制口 | ✅ `show`/`park`/`hide`/`resume`/`status`/`quit` 全部生效；`quit` 后端口不可连、进程退出 |
 | UA 修正 | ✅ 抹掉 `HeadlessChrome` 后官网"浏览器可能影响体验"警告消失（截图对照） |
 | 点击 / 拖动 | ✅ 派发无异常，画面差异符合预期（点开登录弹窗 81% 像素变化） |
 | 收尸 | ✅ 退出后 0 残留进程、pidfile 已删 |

@@ -26,18 +26,33 @@
 |---|---|---|---|
 | `edge-headless` | Windows 找到 Edge + `MAAEND_WEB_MODE=headless`（默认） | 本模块 | `web-cdp:edge-headless` |
 | `edge-offscreen` | 同上但 `MAAEND_WEB_MODE=offscreen` | 本模块 | `web-cdp:edge-offscreen` |
+| `webview2` | `MAAEND_WEB_MODE=webview2`（需先构建宿主） | 本模块拉起宿主 | `web-cdp:webview2` |
 | `chrome-headless` / `chrome-offscreen` | 只找到 Chrome（Linux 服务器常见） | 本模块 | `web-cdp:chrome-<mode>` |
 | `external` | 设了 `MAAEND_WEB_CDP_ENDPOINT` | 用户自己 | `web-cdp:external:<port>` |
 
-**两种模式怎么选**（不是性能问题，是"要不要能随时交给人操作"）：
+**三种模式怎么选**：
 
-| | `headless`（默认） | `offscreen` |
-|---|---|---|
-| 窗口对象 | 无 | 有，但在屏幕外 + `WS_EX_TOOLWINDOW`（不进任务栏/Alt+Tab） |
-| 页面 `visibilityState` | `visible` | `visible`（靠四个反遮挡开关） |
-| 随时拉出来给人操作 | ❌ 做不到（只能换进程，≈1.1 s） | ✅ `pop_to_screen()`，实测 **2–12 ms**，同一进程不重载 |
-| 抢焦点 | 不涉及 | 启动那一瞬会抢 → 自动把前台还给原窗口；`pop_to_screen` 不抢焦点 |
-| 资源 | 渲染常驻 | 同样常驻（实测内存/CPU 同级） |
+| | `headless`（默认） | `offscreen` | `webview2` |
+|---|---|---|---|
+| 窗口对象 | 无 | 有，屏幕外 + `WS_EX_TOOLWINDOW` | 有，屏幕外 + `WS_EX_TOOLWINDOW` |
+| 页面 `visibilityState` | `visible` | `visible`（四个反遮挡开关） | `visible` |
+| 随时拉出来给人操作 | ❌ 只能换进程（≈1.1 s） | ✅ `pop_to_screen()` **2–12 ms** | ✅ 控制口 `show`，同进程 |
+| **挂着时能不能停渲染** | ❌ 渲染常驻 | ❌ 渲染常驻 | ✅ `sleep_host()`（`Visible=false`，省 GPU） |
+| 额外依赖 | 无 | 无 | **.NET 8/10 + WebView2 Runtime**，需构建 |
+| 适合 | 无人值守跑批 | 要人能随时接手 | 挂着不想占 GPU / 企业环境 |
+
+`webview2` 这条线的唯一不可替代能力是**进程内停车**（`Visible=false` 时真的不渲染）；
+代价是要构建一个 C# 宿主，且仅 Windows。
+
+**构建并运行 WebView2 宿主**：
+
+```bash
+dotnet build -c Release web/windows/MaaEndWebHost        # 只需 .NET 8 或 10 的 SDK
+MAAEND_WEB_MODE=webview2 python smoke_test.py            # 控制器自动找 bin/Release/net*/MaaEndWebHost.exe
+```
+
+宿主自带一个本地控制口（`127.0.0.1:<随机>`，端口写在 `<profile>/host-state.json`），
+按行 JSON 收发：`{"cmd":"show","left":120,"top":120}` / `park` / `hide` / `resume` / `status` / `quit`。
 
 `external` 是为"自带宿主"留的口：企业锁版本的 Chrome、自己编的 WebView2 宿主、公司内网调试实例，
 都只需要给出 `host:port`，仓库里不必多一门语言、CI 不必多一条构建链。

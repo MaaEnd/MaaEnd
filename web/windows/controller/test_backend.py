@@ -158,6 +158,64 @@ def offscreen_cases() -> None:
             shutil.rmtree(browser.default_profile().parent / "web-profile-offscreen-test", ignore_errors=True)
 
 
+
+def webview2_cases() -> None:
+    """WebView2 宿主：屏外真窗口 + 进程内停车（hide/resume）+ 控制口。"""
+    if sys.platform != "win32":
+        print("SKIP  webview2 用例（仅 Windows）")
+        return
+    try:
+        browser.find_webview2_host()
+    except FileNotFoundError as e:
+        print(f"SKIP  webview2 用例（{e}）")
+        return
+    os.environ[browser.ENV_MODE] = "webview2"
+    os.environ["MAAEND_WEB_WEBVIEW2_PROFILE"] = str(browser.default_profile().parent / "webview2-test")
+    backend = None
+    try:
+        backend = browser.ensure_backend(viewport=VIEWPORT, url="about:blank")
+        case("webview2：后端就绪（CDP + 控制口）",
+             backend.mode == "webview2" and backend.control_port != 0,
+             f"cdp={backend.port} control={backend.control_port}")
+
+        st = browser.host_cmd(backend.control_port, {"cmd": "status"})
+        case("webview2：默认在屏幕外（用户看不见）",
+             st.get("x", 0) < -10000 and st.get("visible") is True, str(st))
+
+        client = CDPClient(port=backend.port, host=backend.host)
+        client.connect()
+        vis = client.eval("document.visibilityState")
+        png = client.screenshot_png()
+        case("webview2：页面 visible 且能截图", vis == "visible" and len(png) > 1000,
+             f"visibilityState={vis} png={len(png)}B")
+
+        r = browser.host_cmd(backend.control_port, {"cmd": "show", "left": 150, "top": 150})
+        case("webview2：show 立刻拉回屏幕（不重载）",
+             r.get("ok") and r.get("x") == 150 and r.get("visible") is True, str(r))
+        r2 = browser.host_cmd(backend.control_port, {"cmd": "park"})
+        case("webview2：park 回屏幕外且仍在渲染",
+             r2.get("ok") and r2.get("x", 0) < -10000 and r2.get("visible") is True, str(r2))
+
+        h = browser.host_cmd(backend.control_port, {"cmd": "hide"})
+        case("webview2：hide 真正停车（visible=False）",
+             h.get("ok") and h.get("visible") is False, str(h))
+        rv = browser.host_cmd(backend.control_port, {"cmd": "resume"})
+        case("webview2：resume 能重新出画面", rv.get("ok") and rv.get("visible") is True, str(rv))
+        client.close()
+    except Exception as e:
+        case("webview2：整体流程", False, f"{type(e).__name__}: {e}")
+    finally:
+        if backend is not None:
+            port = backend.port
+            with contextlib.suppress(Exception):
+                backend.close()
+            time.sleep(1.5)
+            case("webview2：quit 后端口不可连（宿主已退出）", not probe_ok(port), f"port={port}")
+        os.environ.pop(browser.ENV_MODE, None)
+        os.environ.pop("MAAEND_WEB_WEBVIEW2_PROFILE", None)
+        shutil.rmtree(browser.default_profile().parent / "webview2-test", ignore_errors=True)
+
+
 def main() -> int:
     # ---- 1. 冷启动 + 2. 无窗口 + 3. 视口 ----
     t0 = time.time()
@@ -254,6 +312,7 @@ def main() -> int:
         time.sleep(1.0)
 
     offscreen_cases()
+    webview2_cases()
 
     failed = [r for r in RESULTS if not r[1]]
     print(f"\n=== {len(RESULTS) - len(failed)}/{len(RESULTS)} 通过 ===")
