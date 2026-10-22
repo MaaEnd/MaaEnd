@@ -66,3 +66,6 @@ wsl -d Ubuntu-24.04 -u root -- bash -c "pkill -f 'user-data-dir=/root/chrome-pro
 4. **preAction 「启动网页端」**：`program=/bin/bash`，`args=/root/maaend/web/linux/wsl/start_web.sh`，`waitForExit=true`。非网页端预设里默认关闭（PC 上执行 `/bin/bash` 会报错）。
 5. **MaaEnd 的配置在退出时才落盘**：改 `config/mxu-MaaEnd.json` 前先 `pkill -9 -x MaaEnd`，否则内存里的旧配置会把改动覆盖掉。
 6. **真·无头不可用**（homesrv 已证）：`--headless=new` 下游戏内视频流模板分从 0.9407 掉到 0.5528。sway headless 是唯一可行形态。
+7. **Chrome 155 的翻译气泡会盖住右上角**（实测压在 `[1215,19,51,42]` 附近，与 `WebAlreadyInGame` 的 ROI 重合）：
+   `--disable-features=Translate,TranslateUI` 和 `--lang=zh-CN` 都压不住——它来自 profile 里已保存的翻译状态。
+   必须先停 Chrome，再跑 `python3 web/linux/wsl/disable_translate.py <profile>`（改 `Default/Preferences` 的 `translate.enabled=false`）。
