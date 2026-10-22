@@ -36,17 +36,37 @@
         "all_of": [
             "InMapAny",
             {
-                "recognition": "OCR",
-                "roi": [
-                    0,
-                    0,
-                    250,
-                    60
-                ],
-                "expected": [
-                    "武陵城",
-                    "Wuling City",
-                    "무릉성"
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        "recognition": "OCR",
+                        "roi": [
+                            0,
+                            0,
+                            250,
+                            60
+                        ],
+                        "expected": [
+                            "武陵城",
+                            "Wuling City",
+                            "무릉성"
+                        ]
+                    },
+                    {
+                        "recognition": "OCR",
+                        // Keep English header separate from overlapping map-marker labels below it.
+                        "roi": [
+                            0,
+                            12,
+                            250,
+                            28
+                        ],
+                        // Keep the complete English map header "Wuling City" distinct from marker labels below it.
+                        "expected": [
+                            // @i18n-skip
+                            "(?i)Wuling\\s*City"
+                        ]
+                    }
                 ]
             }
         ]
@@ -461,24 +481,63 @@
     },
     "CheckMenuListText2": {
         "desc": "检查菜单列表界面 权限等阶 探索等级 文字",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            -300,
-            500,
-            300
-        ],
-        "expected": [
-            "权限等阶",
-            "權限等階",
-            "Authority Level",
-            "行動レベル",
-            "권한 등급",
-            "探索等级",
-            "探索等級",
-            "Exploration Level",
-            "探索レベル",
-            "탐색 레벨"
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    -300,
+                    500,
+                    300
+                ],
+                "expected": [
+                    "权限等阶",
+                    "權限等階",
+                    "Authority Level",
+                    "行動レベル",
+                    "권한 등급",
+                    "探索等级",
+                    "探索等級",
+                    "Exploration Level",
+                    "探索レベル",
+                    "탐색 레벨"
+                ]
+            },
+            {
+                "recognition": "And",
+                "all_of": [
+                    {
+                        "recognition": "OCR",
+                        "roi": [
+                            285,
+                            475,
+                            175,
+                            105
+                        ],
+                        // "Exploration Level" is split into two OCR boxes; exclude the profile and its separate "Authority Level" label.
+                        "expected": [
+                            // @i18n-skip
+                            "(?i)^Exploration$"
+                        ]
+                    },
+                    {
+                        "recognition": "OCR",
+                        "roi": [
+                            285,
+                            475,
+                            175,
+                            105
+                        ],
+                        // "Exploration Level" is split into two OCR boxes; exclude the profile and its separate "Authority Level" label.
+                        "expected": [
+                            // @i18n-skip
+                            "(?i)^Level$"
+                        ]
+                    }
+                ],
+                "box_index": 0
+            }
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -740,10 +799,14 @@
             300,
             62
         ],
+        // Complete English title: "Environment Monitoring Terminal".
+        // Saved-image OCR splits it into "Environment" and "Monitoring Terminal"; keep the bounded second-line match.
         "expected": [
             "环境监测终端",
             "環境監測終端",
             "(?i)Environment\\s*Monitoring\\s*Terminal",
+            // @i18n-skip
+            "(?i)^Monitoring\\s*Terminal$",
             "環境観測端末",
             "환경 관측 단말기"
         ]

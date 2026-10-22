@@ -87,6 +87,7 @@
                     "物资调度",
                     "物資調度",
                     "(?i)Stock\\s*Redistribution",
+                    "Staple Goods",
                     "商品取引"
                 ]
             }
