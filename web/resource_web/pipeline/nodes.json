@@ -691,5 +691,19 @@
       },
       "type": "And"
     }
+  },
+  "WebLaunchBrowserStart": {
+    "desc": "【网页端 · 启动器】拉起 sway + Chrome（调 start_web.sh；已在跑会秒退）。参数名在 Linux 控制器上待实测：command / path",
+    "action": {
+      "type": "StartApp",
+      "param": {
+        "command": "/root/maaend/web/linux/wsl/start_web.sh"
+      }
+    },
+    "next": [
+      "WebStartGameEntry"
+    ],
+    "post_delay": 8000,
+    "timeout": 60000
   }
 }

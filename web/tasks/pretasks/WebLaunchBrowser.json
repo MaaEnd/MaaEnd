@@ -1,0 +1,18 @@
+{
+  "task": [
+    {
+      "name": "WebLaunchBrowser",
+      "label": "$task.WebLaunchBrowser.label",
+      "entry": "WebLaunchBrowserStart",
+      "description": "$task.WebLaunchBrowser.description",
+      "group": [
+        "open_world"
+      ],
+      "controller": [
+        "Linux-Wlroots",
+        "Linux-ScreenCast",
+        "Linux-Gamescope"
+      ]
+    }
+  ]
+}
