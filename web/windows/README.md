@@ -24,22 +24,27 @@
 
 | 后端标识 | 出现条件 | 起停归属 | uuid |
 |---|---|---|---|
-| `edge-headless` | Windows 找到 Edge + `MAAEND_WEB_MODE=headless`（默认） | 本模块 | `web-cdp:edge-headless` |
-| `edge-offscreen` | 同上但 `MAAEND_WEB_MODE=offscreen` | 本模块 | `web-cdp:edge-offscreen` |
+| `edge-offscreen` | Windows 找到 Edge（**默认**，屏外真窗口） | 本模块 | `web-cdp:edge-offscreen` |
+| `edge-headless` | `MAAEND_WEB_MODE=headless`（纯无头，零窗口） | 本模块 | `web-cdp:edge-headless` |
 | `webview2` | `MAAEND_WEB_MODE=webview2`（需先构建宿主） | 本模块拉起宿主 | `web-cdp:webview2` |
 | `chrome-headless` / `chrome-offscreen` | 只找到 Chrome（Linux 服务器常见） | 本模块 | `web-cdp:chrome-<mode>` |
 | `external` | 设了 `MAAEND_WEB_CDP_ENDPOINT` | 用户自己 | `web-cdp:external:<port>` |
 
 **三种模式怎么选**：
 
-| | `headless`（默认） | `offscreen` | `webview2` |
+| | `offscreen`（默认） | `headless` | `webview2` |
 |---|---|---|---|
-| 窗口对象 | 无 | 有，屏幕外 + `WS_EX_TOOLWINDOW` | 有，屏幕外 + `WS_EX_TOOLWINDOW` |
-| 页面 `visibilityState` | `visible` | `visible`（四个反遮挡开关） | `visible` |
-| 随时拉出来给人操作 | ❌ 只能换进程（≈1.1 s） | ✅ `pop_to_screen()` **2–12 ms** | ✅ 控制口 `show`，同进程 |
+| 窗口对象 | 有，屏幕外 + `WS_EX_TOOLWINDOW` | 无 | 有，屏幕外 + `WS_EX_TOOLWINDOW` |
+| 页面 `visibilityState` | `visible`（四个反遮挡开关） | `visible` | `visible` |
+| 随时拉出来给人操作 | ✅ `pop_to_screen()` **2–12 ms** | ❌ 只能换进程（`promote()` ≈1.8 s） | ✅ 控制口 `show`，同进程 |
 | **挂着时能不能停渲染** | ❌ 渲染常驻 | ❌ 渲染常驻 | ✅ `sleep_host()`（`Visible=false`，省 GPU） |
 | 额外依赖 | 无 | 无 | **.NET 8/10 + WebView2 Runtime**，需构建 |
-| 适合 | 无人值守跑批 | 要人能随时接手 | 挂着不想占 GPU / 企业环境 |
+| 适合 | 默认档：要人能随时接手 | 无人值守跑批、CI、不想有任何窗口 | 挂着不想占 GPU / 企业环境 |
+
+> **默认为什么是 `offscreen`**：这个工具的价值在于"跑起来之后用户随时能接管"，
+> 无头做不到这一点。屏外窗口对用户是隐形的（屏幕外 + `WS_EX_TOOLWINDOW`，任务栏与 Alt+Tab 都没有），
+> 代价只是一次真窗口创建 + 启动瞬间抢一次前台（已自动还原）。
+> 要绝对干净（无窗口、无窗口对象、可进 CI），显式 `MAAEND_WEB_MODE=headless`。
 
 `webview2` 这条线的唯一不可替代能力是**进程内停车**（`Visible=false` 时真的不渲染）；
 代价是要构建一个 C# 宿主，且仅 Windows。
@@ -59,20 +64,26 @@ MAAEND_WEB_MODE=webview2 python smoke_test.py            # 控制器自动找 bi
 
 ### 热切换：无头 ↔ 可交互（`switch_mode` / `promote` / `demote`）
 
-三种模式可以在**运行时**互切，用来实现"平时无头跑批，我要看时才切出来"：
+三种模式可以在**运行时**互切，用来实现"平时后台跑批，我要看时才拿出来"：
 
 ```python
-ctrl.connect()                    # 默认 headless：零窗口
+ctrl.connect()                    # 默认 offscreen：窗口在屏幕外，用户看不见
 ...
-ctrl.promote()                    # → offscreen，窗口已在屏幕内，可以直接操作
-# 用户扫码 / 手动过验证 / 看一眼在干什么
-ctrl.demote()                     # → 回 headless，窗口消失，继续无人值守
-# 也可以直接指定：ctrl.switch_mode("webview2") / ctrl.switch_mode("headless")
+ctrl.pop_to_screen()              # 2–12 ms 摆到屏幕上，直接操作
+ctrl.park_offscreen()             # 挪回屏幕外继续跑
+```
+
+如果当前是纯无头（`MAAEND_WEB_MODE=headless`），切换要换进程：
+
+```python
+ctrl.promote()                    # headless -> offscreen，窗口已在屏幕内，可以直接操作
+ctrl.demote()                     # -> 回 headless，窗口消失、hwnd 归零
+ctrl.switch_mode("webview2")      # 任意两模式互切
 ```
 
 **为什么无头也能"切出来"**：无头进程没有窗口对象，所以它不是"显示"，而是
 **优雅关闭 + 用同一 profile 以 offscreen 重开**。实测 headless→offscreen **1.8 s**、
-offscreen→headless **2.5 s**，`localStorage` 里的登录标记两次切换后都还在（9/9 用例）。
+offscreen→headless **2.5–3.6 s**（机器负载有关），`localStorage` 里的登录标记两次切换后都还在（10/10 用例）。
 
 代价与约束：
 
@@ -90,7 +101,7 @@ offscreen→headless **2.5 s**，`localStorage` 里的登录标记两次切换�
 
 | 路径 | 作用 |
 |---|---|
-| `controller/browser.py` | 后端边界：定位/拉起无头浏览器、随机调试端口、pidfile、残留清理、收尸 |
+| `controller/browser.py` | 后端边界：定位/拉起浏览器或 WebView2 宿主、随机调试端口、pidfile、残留清理、收尸 |
 | `controller/cdp_client.py` | 最小 CDP 客户端（多指触摸、截图、screencast 帧缓存） |
 | `controller/web_controller.py` | `CustomController` 实现，Maa 的回调 → CDP；UA 修正、视口校正、登录提示、收尸 |
 | `controller/smoke_test.py` | 不跑任务，直接验证"控制器 → 后端 → CDP"链路 |
@@ -105,6 +116,13 @@ cd web/windows/controller
 uv run --with maafw --with websocket-client --with pillow python smoke_test.py
 ```
 
+默认会拉起一个**屏幕外的真窗口**（用户看不见、任务栏没有条目），
+所以随时可以 `pop_to_screen()` 交给人操作。要纯无头（一个窗口都不建）：
+
+```bash
+MAAEND_WEB_MODE=headless python smoke_test.py
+```
+
 连外部端点（不拉起浏览器，也不关闭它）：
 
 ```bash
@@ -115,7 +133,7 @@ MAAEND_WEB_CDP_ENDPOINT=127.0.0.1:9338 python smoke_test.py
 
 | 变量 | 作用 |
 |---|---|
-| `MAAEND_WEB_MODE` | `headless`（默认）/ `offscreen` / `webview2`；非法值直接报错，不静默降级 |
+| `MAAEND_WEB_MODE` | `offscreen`（默认）/ `headless` / `webview2`；非法值直接报错，不静默降级 |
 | `MAAEND_WEB_CDP_ENDPOINT` | 直连外部端点，如 `127.0.0.1:9338`；设了就不拉起、也不关闭 |
 | `MAAEND_WEB_BROWSER` | 浏览器可执行文件路径，覆盖自动探测 |
 | `MAAEND_WEB_PROFILE` | 用户数据目录（登录态 + 诊断截图 + browser.log 都在这里） |

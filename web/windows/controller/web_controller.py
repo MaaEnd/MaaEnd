@@ -3,7 +3,7 @@
 Maa 侧看到的是一台"会截图、会多指触摸"的设备；实际上画面来自浏览器（默认无头 Edge），
 输入走 CDP，不碰系统光标、不创建任何窗口。
 
-后端由 `browser.py` 决定，并会在日志与 uuid 里带标识（`edge-headless` / `chrome-headless` / `external`）。
+后端由 `browser.py` 决定，并会在日志与 uuid 里带标识（`edge-offscreen`（默认）/ `edge-headless` / `webview2` / `external`）。
 
 依赖：maafw、numpy、pillow、websocket-client
 
@@ -170,7 +170,7 @@ class WebController(CustomController):
         """运行时切换后端模式（headless <-> offscreen <-> webview2）。
 
         无头没有窗口对象，所以"切出来"= 优雅关闭 + 用同一 profile 重开，登录态保留。
-        实测 headless -> offscreen 全程约 1.1 s。**只能在任务之间调用**（会短暂断开 CDP）。
+        实测 headless -> offscreen 约 1.8 s、反向约 2.5 s。**只能在任务之间调用**（会短暂断开 CDP）。
         切到有窗口的模式后顺手把窗口摆到屏幕内，切回 headless 时窗口自然消失。
         """
         if self.backend is None:

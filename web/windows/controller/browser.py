@@ -1,14 +1,14 @@
-"""浏览器后端：默认拉起系统浏览器的无头模式，也可以直连外部 CDP 端点。
+"""浏览器后端：默认拉起系统浏览器（屏外窗口，可随时交给用户），也可以直连外部 CDP 端点。
 
 后端边界（每种后端都会在日志和控制器 uuid 里带明确标识，排障时一眼看出走的是哪条路）：
 
 | 后端标识        | 什么时候出现                              | 起停由谁负责 |
 | --------------- | ----------------------------------------- | ------------ |
-| `edge-headless` | Windows 上找到 Edge（默认）               | 本模块       |
+| `edge-offscreen` | Windows 上找到 Edge（默认，屏外真窗口）    | 本模块       |
 | `chrome-headless` | 只找到 Chrome（Linux 服务器常见）       | 本模块       |
 | `external`      | 设了 `MAAEND_WEB_CDP_ENDPOINT`            | 用户自己     |
 
-两种运行模式（`MAAEND_WEB_MODE`，默认 `headless`）：
+两种运行模式（`MAAEND_WEB_MODE`，默认 `offscreen`）：
 
   * `headless` —— `--headless=new`，零窗口对象：任务栏/Alt+Tab 都不可能有。适合无人值守跑批。
   * `offscreen` —— 真窗口但放在屏幕外 + 四个反遮挡开关：页面仍报 `visible`（不自降帧）、
@@ -50,10 +50,11 @@ ENV_BROWSER = "MAAEND_WEB_BROWSER"
 ENV_PROFILE = "MAAEND_WEB_PROFILE"
 ENV_VISIBLE = "MAAEND_WEB_VISIBLE"
 ENV_KEEP_ALIVE = "MAAEND_WEB_KEEP_ALIVE"
-ENV_MODE = "MAAEND_WEB_MODE"        # headless（默认）| offscreen | webview2
+ENV_MODE = "MAAEND_WEB_MODE"        # offscreen（默认）| headless | webview2
 ENV_WEBVIEW2_HOST = "MAAEND_WEB_WEBVIEW2_HOST"   # 指定 MaaEndWebHost.exe 路径
 
-MODES = ("headless", "offscreen", "webview2")
+MODES = ("offscreen", "headless", "webview2")
+DEFAULT_MODE = "offscreen"      # 默认就能随时交给人操作；MAAEND_WEB_MODE=headless 要纯无头
 
 # 屏外模式必须的四个反遮挡开关：没有它们，窗口在屏幕外/被遮挡时页面会自认为 hidden
 # （云游戏据此降帧或停推流），实测加上后屏外仍报 visible。
@@ -67,7 +68,7 @@ _ANTI_OCCLUSION = [
 
 def resolve_mode(value: str | None = None) -> str:
     """解析运行模式；非法值直接报错，不静默降级。"""
-    m = (value if value is not None else os.environ.get(ENV_MODE, "headless")).strip().lower()
+    m = (value if value is not None else os.environ.get(ENV_MODE, DEFAULT_MODE)).strip().lower()
     if m not in MODES:
         raise ValueError(f"{ENV_MODE}={m!r} 不合法，只能是 {' / '.join(MODES)}")
     return m

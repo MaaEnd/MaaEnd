@@ -245,10 +245,24 @@ def mode_override_cases() -> None:
         case("switch：未知模式报错", True, str(e)[:70])
 
 
+def default_mode_case() -> None:
+    """默认档必须是 offscreen（能随时交给人操作），纯无头要靠 env 显式要求。"""
+    os.environ.pop(browser.ENV_MODE, None)
+    case("默认档：不设环境变量时是 offscreen", browser.resolve_mode() == "offscreen",
+         browser.resolve_mode())
+    os.environ[browser.ENV_MODE] = "headless"
+    case("默认档：MAAEND_WEB_MODE=headless 能要到纯无头", browser.resolve_mode() == "headless",
+         browser.resolve_mode())
+    os.environ.pop(browser.ENV_MODE, None)
+
+
 def main() -> int:
     # ---- 1. 冷启动 + 2. 无窗口 + 3. 视口 ----
+    # 这一段是无头的专项契约（零窗口、UA 里带 Headless），所以显式要 headless 模式，
+    # 不跟着默认档走——否则改默认值时这些用例会静默失效。
+    default_mode_case()
     t0 = time.time()
-    backend = browser.ensure_backend(viewport=VIEWPORT, url="about:blank")
+    backend = browser.ensure_backend(viewport=VIEWPORT, url="about:blank", mode="headless")
     ready = time.time() - t0
     case("冷启动：后端就绪", backend.port > 0 and backend.version != "",
          f"{backend.kind} {backend.version} {ready:.2f}s port={backend.port}")

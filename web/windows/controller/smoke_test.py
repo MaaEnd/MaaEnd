@@ -69,6 +69,13 @@ def run_switch(ctrl: WebController, out: str) -> list[tuple[str, bool, str]]:
         res.append((f"{label}:窗口", bool(ctrl.backend.hwnd) == want_hwnd,
                     f"hwnd={ctrl.backend.hwnd}（期望 {'有' if want_hwnd else '无'}）"))
 
+    assert ctrl.backend is not None
+    start = ctrl.backend.mode
+    if start != "headless":
+        # 默认可能已经是 offscreen：先切回无头，保证"两个方向"都被测到
+        t0 = time.time()
+        res.append((f"0-demote({start}->headless)", ctrl.demote(),
+                    f"耗时 {(time.time() - t0) * 1000:.0f} ms"))
     state("1-headless", True)
     t0 = time.time()
     ok = ctrl.promote()
@@ -84,6 +91,8 @@ def run_switch(ctrl: WebController, out: str) -> list[tuple[str, bool, str]]:
     res.append(("3-demote", ok, f"offscreen -> headless 耗时 {(time.time() - t0) * 1000:.0f} ms，"
                                 f"uuid={ctrl.request_uuid()}"))
     state("3-headless", True)
+    if start != "headless":          # 收尾回到启动时的模式，别偷偷改了用户的偏好
+        ctrl.switch_mode(start)
     ctrl.cdp.eval("localStorage.removeItem('maaend_switch_probe')")
     return res
 

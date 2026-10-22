@@ -72,8 +72,8 @@ WebView2 的优势集中在四点，只是一旦出现下列需求，它才重�
 
 | 后端标识 | 出现条件 | 起停归属 | uuid |
 |---|---|---|---|
-| `edge-headless` | Windows 找到 Edge + `headless`（默认） | 本模块 | `web-cdp:edge-headless` |
-| `edge-offscreen` | 同上 + `offscreen` | 本模块 | `web-cdp:edge-offscreen` |
+| `edge-offscreen` | Windows 找到 Edge + `offscreen`（**默认**，屏外真窗口） | 本模块 | `web-cdp:edge-offscreen` |
+| `edge-headless` | `MAAEND_WEB_MODE=headless`（纯无头） | 本模块 | `web-cdp:edge-headless` |
 | `chrome-headless` / `chrome-offscreen` | 只找到 Chrome（Linux 常见） | 本模块 | `web-cdp:chrome-<mode>` |
 | `external` | `MAAEND_WEB_CDP_ENDPOINT` 非空 | 用户自己（既不拉起也不关闭） | `web-cdp:external:<port>` |
 
@@ -112,24 +112,29 @@ Python 侧通过宿主的**本地控制口**驱动（`127.0.0.1:<随机>`，按�
 
 ### 3.2 运行时热切换（`switch_mode` / `promote` / `demote`）
 
-需求形态：**平时无头跑批，人在场时能立刻接管，接管完再回到无头**。
+**默认档是 `offscreen`**：启动就是一个屏幕外的真窗口，用户看不见，但 `pop_to_screen()`
+2–12 ms 就能摆到屏幕上交给人操作——这是这个工具的核心价值，所以不把它藏在环境变量后面。
+纯无头（不建任何窗口）仍可用：`MAAEND_WEB_MODE=headless`。
+
+需求形态：**平时后台跑批，人在场时能立刻接管，接管完再回到后台**。
 无头进程没有窗口对象，系统浏览器也没有"凭空造一个窗口给它"的原语，
-所以"切出来"只能**换进程**：优雅关闭当前后端 → 用同一 profile 以目标模式重开 → 重新装配 CDP。
+所以从无头"切出来"只能**换进程**：优雅关闭当前后端 → 用同一 profile 以目标模式重开 → 重新装配 CDP。
 
 ```
-connect()   -> headless（零窗口）
-promote()   -> offscreen（同一 profile 重开，窗口直接摆进屏幕内）
-demote()    -> headless（窗口消失、hwnd 归零）
+connect()   -> offscreen（默认：屏外窗口，看不见）
+pop_to_screen() / park_offscreen()          -> 2–12 ms，同进程
+promote()   -> headless 起步时切到 offscreen（换进程，窗口直接摆进屏幕内）
+demote()    -> offscreen 起步时切回 headless（窗口消失、hwnd 归零）
 switch_mode("webview2") / switch_mode("headless")     # 任意两模式互切
 ```
 
 | 项 | 实测 |
 |---|---|
-| headless → offscreen | **1839 ms** |
-| offscreen → headless | **2505 ms** |
+| headless → offscreen | **1748–1839 ms** |
+| offscreen → headless | **2312–3649 ms**（随机器负载） |
 | 登录态 | 两次切换后 `localStorage` 标记仍在（走优雅关闭，强杀会丢） |
 | 切回无头后 | `hwnd = 0`，确实没有窗口了 |
-| 用例 | `smoke_test.py --switch` 9/9 |
+| 用例 | `smoke_test.py --switch` 10/10（含起步就是 offscreen 的情形） |
 
 约束：切换期间 CDP 会断开，**只能在任务之间调**；页面按配置的 `url` 重开，页内临时状态不保留。
 要"同进程、零重载"的显示，只有 `webview2` 的 `show` 能做到。
@@ -220,7 +225,7 @@ WebController.close() / atexit
 | UA 修正 | ✅ 抹掉 `HeadlessChrome` 后官网"浏览器可能影响体验"警告消失（截图对照） |
 | 点击 / 拖动 | ✅ 派发无异常，画面差异符合预期（点开登录弹窗 81% 像素变化） |
 | 收尸 | ✅ 退出后 0 残留进程、pidfile 已删 |
-| **热切换** | ✅ headless→offscreen 1839 ms / offscreen→headless 2505 ms；两次切换后 `localStorage` 标记仍在；切回后 `hwnd=0`（真零窗口）；9/9 |
+| **热切换** | ✅ headless→offscreen 1748 ms / offscreen→headless 2312–3649 ms；两次切换后 `localStorage` 标记仍在；切回后 `hwnd=0`（真零窗口）；10/10 |
 | 优雅关闭 | ✅ 正常 `close()` 也走 `Browser.close`（0.4 s），避免刚登录的状态被强杀丢掉 |
 | ruff | ✅ `ruff check web/windows` 通过 |
 
