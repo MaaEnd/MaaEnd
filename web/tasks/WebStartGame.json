@@ -1,0 +1,19 @@
+{
+  "task": [
+    {
+      "name": "WebStartGame",
+      "label": "开始游戏（云·终末地网页版）",
+      "entry": "WebStartGameEntry",
+      "description": "在云·终末地页面点「开始游戏」→ 标题页「点击任意位置继续」，直到进入大世界/菜单。已在游戏内会自动跳过。",
+      "group": [
+        "open_world"
+      ],
+      "controller": [
+        "Linux-Wlroots",
+        "Linux-ScreenCast",
+        "Linux-Gamescope"
+      ],
+      "option": []
+    }
+  ]
+}

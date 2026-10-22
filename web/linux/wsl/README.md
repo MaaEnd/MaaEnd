@@ -77,3 +77,9 @@ wsl -d Ubuntu-24.04 -u root -- bash -c "pkill -f 'user-data-dir=/root/chrome-pro
    先跑 `fix_resource_linux.py`（迭代剔除悬空 next），再用 `verify_resource.py` 确认 5 个路径 loaded 全 True。
    根治办法：升级时也刷新平台层（`resource_linux`/`resource_adb`/`resource_cloud_adb`/`resource_macos`/`resource_playcover`），
    homesrv 的 `auto_update.sh` 目前只换 `resource`/`interface.json`/`agent`/`maafw`，存在同样的漂移。
+9. **「开始游戏」不是内置任务，要自己接进去**
+   base 的 `tasks/` 里没有任何 Web 任务（`interface.json` 的 `task` 是空数组，任务全靠 `import` 里的 `tasks/*.json`）。
+   我们的 runner 是脚本里硬跑 `WebStartGameEntry`，MXU 里没有对应任务，所以点运行会直接跑日常、停在启动页失败。
+   修法：任务定义放 `web/tasks/WebStartGame.json`（升级只换 base `tasks/`，不会删），
+   在 `interface.json` 的 `import` 追加 `web/tasks/WebStartGame.json`，
+   再把 `WebStartGame` 放到网页端预设的任务列表第 1 位。`add_webstart_task.py` 一次做完这两步。
