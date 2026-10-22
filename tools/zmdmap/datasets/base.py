@@ -6,7 +6,7 @@
 扫包把它们收成 ``DATASETS``，没有需要手工维护的登记表。以 ``_`` 开头的模块不算数据集。
 
 除了登记与入库声明，基类还给各份数据提供共用的手法 —— 五语文本（:meth:`Dataset.localized_names`）与
-关卡索引（:meth:`Dataset.level_index`），以及组装错误 :class:`DatasetError`；取数逻辑留在各自模块里。
+关卡索引（:meth:`Dataset.level_index`），以及组装错误 :class:`DatasetError`；读数据的逻辑留在各自模块里。
 """
 
 import re
@@ -15,8 +15,8 @@ from pathlib import Path
 from typing import Any, ClassVar
 
 from ..utils.config import MAAEND_LOCALES
-from ..utils.game_data import build_level_index, localized_text, read_gameplay_config
-from ..utils.shapes import is_object
+from ..utils.game_data import build_level_index, inline_text_of, localized_text, text_id_of
+from ..utils.tables import LevelBasicInfoRow, load_config
 
 #: 内联文本算哪一种语言：表里自带的那份 ``text`` 是游戏里的中文原文。
 INLINE_LOCALE = "zh_cn"
@@ -77,8 +77,8 @@ class Dataset(ABC):
         才退回它 —— 直接把中文铺满五种语言会让产物里的英/日/韩名字变成中文，而外面看不出来。缺失一律
         报错：管线按 locale 取名字，少一种语言是任务侧的隐形失败，不如在这里挡下来。
         """
-        inline = ref.get("text") if is_object(ref) else None
-        text_id = ref.get("id") if is_object(ref) else None
+        inline = inline_text_of(ref)
+        text_id = text_id_of(ref)
         if not text_id and not inline:
             raise DatasetError(f"{label} 缺少 i18n id")
 
@@ -88,7 +88,7 @@ class Dataset(ABC):
                 names[locale] = inline
                 continue
             text = localized_text(table_cfg_dir, text_id, lang_code) if text_id else ""
-            text = text or (inline if isinstance(inline, str) else "")
+            text = text or inline
             if not text:
                 raise DatasetError(f"{label} 在 {locale} 中缺少文本 {text_id}")
             names[locale] = text
@@ -108,4 +108,6 @@ class Dataset(ABC):
     @staticmethod
     def level_index(json_data_dir: Path) -> dict[int, str]:
         """读 ``LevelBasicInfoTable`` 建 ``idNum -> levelId``（ID 前缀 → 关卡 → 底图的第一步）。"""
-        return build_level_index(read_gameplay_config(json_data_dir, "LevelBasicInfoTable"))
+        return build_level_index(
+            load_config(json_data_dir, "LevelBasicInfoTable", dict[str, LevelBasicInfoRow])
+        )

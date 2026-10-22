@@ -200,7 +200,7 @@ def repo_data_build(repo: Path) -> str | None:
 def repo_data_version(repo: Path) -> str | None:
     """这个仓库的游戏数据版本（``1.6.3+11010254-4``），读不到返回 ``None``。
 
-    构建号优先取数据（:func:`repo_data_build`）；客户端版本只在提交标题里有，构建号读不到数据时
+    优先用数据仓库里的构建号（:func:`repo_data_build`）；客户端版本只在提交标题里有，读不到时
     也用标题兜底。合并 / revert 提交会盖住标题，所以往上翻几个提交找，优先带 ``Data:`` 构建号的那条。
     """
     matched = None

@@ -1,6 +1,6 @@
 """读取本地游戏数据，以及从读进来的记录里取值、建索引。
 
-各份数据的 ``Dataset.build`` 只从本地游戏数据的表目录取数据：
+各份数据的 ``Dataset.build`` 只从本地游戏数据的表目录里读表格：
 
 - TableCfg：``<workspace>/BeyondTableCfg/TableCfg``，一批 ``<表名>.json``，另有各语言文本表
   ``I18nTextTable_{CN,TC,EN,JP,KR}.json``；
@@ -8,11 +8,14 @@
   ``UILevelMapLoadConfig/<关卡>.json``。
 
 目录默认取与 MaaEnd 平级的兄弟仓库（见 :mod:`tools.zmdmap.utils.config`），可用 CLI 参数或环境变量
-覆盖。读出来的 JSON 换成属性可访问的 ``Record``，``build`` 里就能直接写 ``entry.position.x``。
+覆盖。表按 :mod:`tools.zmdmap.utils.tables` 里的结构体解码，``build`` 里直接写 ``entry.position.x``。
+
+少数结构完全动态的地方（交互模板、``LevelData`` 里按组件名分的属性）仍按原始 JSON 读，用
+:mod:`tools.zmdmap.utils.shapes` 里的 ``is_object`` / ``as_objects`` 一层层取值。
 
 记录里常取的另两类东西也在这里：
 
-- **世界坐标**：:func:`read_xz` / :func:`read_xyz` 从坐标记录取 x/z 或 x/y/z（y 是世界高度，原样透传给
+- **世界坐标**：:func:`read_xyz` 从坐标记录取 x/y/z（y 是世界高度，原样透传给
   NAVMESH 终点）。投影参数（``zone`` / ``sx`` / ``tx`` / ``sy`` / ``ty``）与底图像素属于 BaseNav pack，
   只有 MaaEnd 手里有，换算由入库步骤（:mod:`tools.zmdmap.utils.project`）完成。
 - **关卡归属**：:func:`map_of_level` / :func:`build_level_index` / :func:`level_of` 走「ID 前缀 -> 关卡 ->
@@ -24,31 +27,13 @@
 
 import json
 import sys
+from collections.abc import Mapping
 from functools import cache
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Protocol
 
 from .config import I18N_TABLE_SUFFIXES
-from .shapes import is_array, is_object
-
-
-class Record(dict[str, Any]):
-    """属性可访问的 JSON 记录：``record.field`` 等价于 ``record["field"]``。"""
-
-    def __getattr__(self, name: str) -> Any:
-        try:
-            return wrap(self[name])
-        except KeyError:
-            raise AttributeError(name) from None
-
-
-def wrap(value: Any) -> Any:
-    """把读出来的 JSON 递归换成属性可访问的 ``Record``。"""
-    if is_object(value):
-        return Record({key: wrap(item) for key, item in value.items()})
-    if is_array(value):
-        return [wrap(item) for item in value]
-    return value
+from .shapes import is_object
 
 
 class LocalDataError(ValueError):
@@ -92,58 +77,6 @@ def _read_json(path: Path, label: str) -> Any:
         raise LocalDataError(f"{label} 文件不是合法 JSON：{path}（{error}）") from error
 
 
-def _as_record(data: Any, label: str) -> Record:
-    if not isinstance(data, Record):
-        raise LocalDataError(f"{label} 不是 JSON 对象")
-    return data
-
-
-@cache
-def read_table_cfg(table_cfg_dir: Path, name: str) -> Record:
-    """``<table_cfg_dir>/<name>.json``。"""
-    return _as_record(wrap(_read_json(table_cfg_dir / f"{name}.json", "TableCfg")), "TableCfg")
-
-
-@cache
-def read_gameplay_config(json_data_dir: Path, name: str) -> Record:
-    """``<json_data_dir>/GameplayConfig/<name>.json``。"""
-    data = _as_record(
-        wrap(_read_json(json_data_dir / "GameplayConfig" / f"{name}.json", "GameplayConfig")),
-        "GameplayConfig",
-    )
-    if name == "WorldEntityRegistry":
-        _fill_world_entity_defaults(data)
-    return data
-
-
-@cache
-def read_level_map_config(json_data_dir: Path, level_id: str) -> Record:
-    """``<json_data_dir>/UILevelMapLoadConfig/<level_id>.json``。"""
-    return _as_record(
-        wrap(
-            _read_json(
-                json_data_dir / "UILevelMapLoadConfig" / f"{level_id}.json", "UILevelMapLoadConfig"
-            )
-        ),
-        "UILevelMapLoadConfig",
-    )
-
-
-# ``WorldEntityRegistry`` 里有几十条实体没有 ``detailId``：读进来时补上默认值，
-# 免得各份数据的 ``build`` 里取值时分情况。
-WORLD_ENTITY_BRIEF_DEFAULTS: dict[str, Any] = {"detailId": "", "position": {}}
-
-
-def _fill_world_entity_defaults(data: Record) -> None:
-    brief_infos = data.get("worldEntityBriefInfos")
-    if not is_object(brief_infos):
-        return
-    for entity in brief_infos.values():
-        if is_object(entity):
-            for field, default in WORLD_ENTITY_BRIEF_DEFAULTS.items():
-                entity.setdefault(field, wrap(default))
-
-
 @cache
 def _text_table(table_cfg_dir: Path, lang: str) -> dict[str, Any]:
     suffix = I18N_TABLE_SUFFIXES.get(lang)
@@ -162,13 +95,25 @@ def localized_text(table_cfg_dir: Path, text_id: int, lang: str) -> str:
     return text if isinstance(text, str) else ""
 
 
+def _text_ref(ref: Any) -> tuple[int, str]:
+    """文本引用的 ``(id, 内联文本)``。
+
+    表格行现在是 :class:`tools.zmdmap.utils.tables.TextRef`（带属性的结构），而少数读原始 JSON 的
+    地方还是 dict，两种都认；不是这个形状一律当「没有」。
+    """
+    if is_object(ref):
+        return as_int(ref.get("id")), as_text(ref.get("text"))
+    return as_int(getattr(ref, "id", 0)), as_text(getattr(ref, "text", None))
+
+
 def text_id_of(ref: Any) -> int:
     """``{"id": N, "text": ...}`` 里的文本 id；不是这个形状就是 0。"""
-    if is_object(ref):
-        value = ref.get("id")
-        if isinstance(value, int):
-            return value
-    return 0
+    return _text_ref(ref)[0]
+
+
+def inline_text_of(ref: Any) -> str:
+    """文本引用里内联的那份文本（没有就是空串）。"""
+    return _text_ref(ref)[1]
 
 
 def as_text(value: Any) -> str:
@@ -181,23 +126,6 @@ def as_int(value: Any, default: int = 0) -> int:
     if isinstance(value, bool) or not isinstance(value, int):
         return default
     return value
-
-
-def as_record(value: Any) -> Record:
-    """当成记录用；不是对象时给个空记录。"""
-    return value if isinstance(value, Record) else Record()
-
-
-def as_records(value: Any) -> list[Record]:
-    """当成「记录数组」用；不是数组时给空列表，数组里不是记录的元素丢掉。"""
-    return [item for item in value if isinstance(item, Record)] if is_array(value) else []
-
-
-def as_number(value: Any, default: float = 0.0) -> float:
-    """表里的数值字段当浮点数用；缺失或不是数值时用 ``default``（布尔值不算数值）。"""
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        return default
-    return float(value)
 
 
 #: 内联文本算哪一种语言：表里自带的那份 ``text`` 是游戏里的中文原文。
@@ -225,18 +153,14 @@ def texts_of(table_cfg_dir: Path, text_id: int, inline: str = "") -> dict[str, s
 
 def ref_texts(table_cfg_dir: Path, ref: Any) -> dict[str, str]:
     """表里 ``{"id", "text"}`` 这类文本引用的多语言文本。"""
-    return texts_of(table_cfg_dir, text_id_of(ref), inline=_inline_text(ref))
+    return texts_of(table_cfg_dir, text_id_of(ref), inline=inline_text_of(ref))
 
 
 def ref_text(table_cfg_dir: Path, ref: Any, lang: str = "zh-CN") -> str:
     """表里文本引用的某一语言文本。"""
-    return _inline_text(ref) or localized_text(table_cfg_dir, text_id_of(ref), lang)
+    return inline_text_of(ref) or localized_text(table_cfg_dir, text_id_of(ref), lang)
 
 
-def _inline_text(ref: Any) -> str:
-    """文本引用里直接带的那份文本（没有就是空串）。"""
-    inline = ref.get("text") if is_object(ref) else ""
-    return inline if isinstance(inline, str) else ""
 
 
 # ── 世界坐标 ────────────────────────────────────────────────────────────────
@@ -246,23 +170,23 @@ class CoordinateError(ValueError):
     """坐标记录缺字段或不是数值。"""
 
 
+def _axis_value(pos: Any, axis: str) -> Any:
+    """坐标记录的某个轴：表格结构体走属性，原始 dict 走键。"""
+    if is_object(pos):
+        return pos.get(axis)
+    return getattr(pos, axis, None)
+
+
 def _read_axes(pos: Any, axes: tuple[str, ...], label: str) -> tuple[float, ...]:
-    if not isinstance(pos, dict):
+    if not is_object(pos) and not hasattr(pos, "x"):
         raise CoordinateError(f"{label} 不是坐标记录")
-    record = cast("dict[str, Any]", pos)
     values: list[float] = []
     for axis in axes:
-        number = record.get(axis)
+        number = _axis_value(pos, axis)
         if not isinstance(number, (int, float)) or isinstance(number, bool):
             raise CoordinateError(f"{label} 缺少或不是数值的 {axis}")
         values.append(float(number))
     return tuple(values)
-
-
-def read_xz(pos: Any, label: str) -> tuple[float, float]:
-    """从坐标记录取 (x, z)；缺字段时报出是哪条数据。"""
-    x, z = _read_axes(pos, ("x", "z"), label)
-    return x, z
 
 
 def read_xyz(pos: Any, label: str) -> tuple[float, float, float]:
@@ -282,17 +206,24 @@ class LevelIndexError(ValueError):
     """关卡编号表有问题。"""
 
 
+class HasIdNum(Protocol):
+    """``LevelBasicInfoTable`` 的一行要有的东西：只是关卡编号 ``id_num``。"""
+
+    @property
+    def id_num(self) -> int: ...
+
+
 def map_of_level(level_id: str) -> str:
     """关卡 ID -> 底图 key。"""
     head = level_id.split("_")[0]
     return level_id if head == INDIE_LEVEL_HEAD else head
 
 
-def build_level_index(level_basic_info: dict[str, Record]) -> dict[int, str]:
+def build_level_index(level_basic_info: Mapping[str, HasIdNum]) -> dict[int, str]:
     """``idNum -> levelId``。"""
     levels: dict[int, str] = {}
     for level_id in sorted(level_basic_info):
-        id_num = level_basic_info[level_id].idNum
+        id_num = level_basic_info[level_id].id_num
         if id_num in levels:
             raise LevelIndexError(f"idNum {id_num} 同时属于 {levels[id_num]} 和 {level_id}")
         levels[id_num] = level_id

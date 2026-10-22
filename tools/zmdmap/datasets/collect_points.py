@@ -14,17 +14,16 @@ MapNavigator 的采集动作（拾取 ``COLLECT`` / 挖掘 ``DIG``），``item``
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import (
-    as_text,
-    level_of,
-    load_json_dict,
-    logger,
-    map_of_level,
-    read_gameplay_config,
-    read_table_cfg,
-    read_xyz,
-)
+from ..utils.game_data import as_text, level_of, load_json_dict, logger, map_of_level, read_xyz
 from ..utils.shapes import as_object, as_objects, is_array, is_object
+from ..utils.tables import (
+    DoodadRow,
+    ItemRow,
+    RewardRow,
+    WorldEntityRegistry,
+    load_config,
+    load_table,
+)
 from .base import Dataset, DatasetError
 
 DOODAD_PREFIX = "int_doodad_"
@@ -60,15 +59,15 @@ def record_doodad_id(template_id: str, template: dict[str, Any], found: dict[str
             found[template_id] = text
 
 
-def primary_item(doodad: Any, reward_table: Any) -> str:
+def primary_item(doodad: DoodadRow, reward_table: dict[str, RewardRow]) -> str:
     """主产物：通用配置直接写了就用它，否则取拾取或破坏掉落里的第一个物品。"""
-    if doodad.itemId:
-        return doodad.itemId
-    for reward_id in doodad.pickableRewardId or doodad.breakedDropRewardId:
+    if doodad.item_id:
+        return doodad.item_id
+    for reward_id in doodad.pickable_reward_id or doodad.breaked_drop_reward_id:
         reward = reward_table.get(reward_id)
         if reward is None:
             continue
-        bundles = reward.itemBundles or reward.probItemBundles
+        bundles = reward.item_bundles or reward.prob_item_bundles
         if bundles:
             return bundles[0].id
     return ""
@@ -84,7 +83,9 @@ class CollectPoints(Dataset):
     @classmethod
     def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
         """全部可交互采集物都收，按实体 ID 数值升序。"""
-        brief_infos = read_gameplay_config(json_data_dir, "WorldEntityRegistry").worldEntityBriefInfos
+        brief_infos = load_config(
+            json_data_dir, "WorldEntityRegistry", WorldEntityRegistry
+        ).world_entity_brief_infos
         if not brief_infos:
             raise DatasetError("WorldEntityRegistry 缺少 worldEntityBriefInfos")
         levels = cls.level_index(json_data_dir)
@@ -92,7 +93,8 @@ class CollectPoints(Dataset):
         points: list[dict[str, Any]] = []
         for entity_id in sorted(brief_infos, key=lambda key: (len(key), key)):
             entity = brief_infos[entity_id]
-            if not entity.detailId.startswith(DOODAD_PREFIX):
+            detail_id = entity.detail_id
+            if not detail_id or not detail_id.startswith(DOODAD_PREFIX):
                 continue
             level_id = level_of(levels, entity_id)
             if level_id is None:
@@ -102,7 +104,7 @@ class CollectPoints(Dataset):
             points.append(
                 {
                     "id": entity_id,
-                    "detail_id": entity.detailId,
+                    "detail_id": detail_id,
                     "map": map_of_level(level_id),
                     "x": x,
                     "y": round(y, 3),
@@ -127,14 +129,14 @@ class CollectPoints(Dataset):
         if not doodad_ids:
             raise DatasetError(f"{interactive_dir} 里没有找到采集物的 doodad_id")
 
-        doodad_table = read_table_cfg(table_cfg_dir, "DoodadGeneralTable")
-        reward_table = read_table_cfg(table_cfg_dir, "RewardTable")
-        item_table = read_table_cfg(table_cfg_dir, "ItemTable")
+        doodad_table = load_table(table_cfg_dir, "DoodadGeneralTable", DoodadRow)
+        reward_table = load_table(table_cfg_dir, "RewardTable", RewardRow)
+        item_table = load_table(table_cfg_dir, "ItemTable", ItemRow)
 
         types: dict[str, Any] = {}
         for detail_id in sorted(detail_ids):
             doodad = doodad_table.get(doodad_ids.get(detail_id, ""))
-            if doodad is None or not (doodad.isPickable or doodad.isBreakable):
+            if doodad is None or not (doodad.is_pickable or doodad.is_breakable):
                 continue
             item_id = primary_item(doodad, reward_table)
             item = item_table.get(item_id)
@@ -153,12 +155,12 @@ class CollectPoints(Dataset):
                 )
             types[detail_id] = {
                 "names": names,
-                "action": "COLLECT" if doodad.isPickable else "DIG",
+                "action": "COLLECT" if doodad.is_pickable else "DIG",
                 "item": item_id,
                 "item_names": item_names,
-                "icon": item.iconId or item_id,
+                "icon": item.icon_id or item_id,
                 "item_type": item.type,
-                "showing_type": item.showingType,
+                "showing_type": item.showing_type,
                 "rarity": item.rarity,
             }
         return types

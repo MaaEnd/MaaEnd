@@ -4,7 +4,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import logger, read_table_cfg
+from ..utils.game_data import logger
+from ..utils.tables import (
+    DomainDepotLevelRow,
+    DomainDepotRow,
+    DomainRow,
+    FactoryItemRow,
+    ItemRow,
+    load_table,
+)
 from .base import Dataset, DatasetError
 
 
@@ -28,22 +36,21 @@ class DeliveryJobs(Dataset):
         transferDomainIds), DomainDepotTable -> depot region/name,
         DomainDepotLevelTable -> per-level deliverItemTypeList,
         DomainDataTable -> region names, ItemTable -> item names."""
-        factory_item = read_table_cfg(table_cfg_dir, "FactoryItemTable")
-        depot_table = read_table_cfg(table_cfg_dir, "DomainDepotTable")
-        depot_level_table = read_table_cfg(table_cfg_dir, "DomainDepotLevelTable")
-        domain_table = read_table_cfg(table_cfg_dir, "DomainDataTable")
-        item_table = read_table_cfg(table_cfg_dir, "ItemTable")
+        factory_item = load_table(table_cfg_dir, "FactoryItemTable", FactoryItemRow)
+        depot_table = load_table(table_cfg_dir, "DomainDepotTable", DomainDepotRow)
+        depot_level_table = load_table(table_cfg_dir, "DomainDepotLevelTable", DomainDepotLevelRow)
+        domain_table = load_table(table_cfg_dir, "DomainDataTable", DomainRow)
+        item_table = load_table(table_cfg_dir, "ItemTable", ItemRow)
 
         # ── 可装箱物品 ───────────────────────────────────────────────
         deliverable_items: dict[str, DeliverableItem] = {}
         for item_id in sorted(factory_item.keys()):
             entry = factory_item[item_id]
-            deliver_item_types = entry.deliverItemTypeList
-            if not deliver_item_types:
+            if not entry.deliver_item_type_list:
                 continue
             deliverable_items[item_id] = DeliverableItem(
-                item_types=frozenset(deliver_item_types),
-                regions=frozenset(entry.transferDomainIds),
+                item_types=frozenset(entry.deliver_item_type_list),
+                regions=frozenset(entry.transfer_domain_ids),
             )
 
         # ── 仓储节点 ─────────────────────────────────────────────────
@@ -53,11 +60,11 @@ class DeliveryJobs(Dataset):
 
         for depot_id in sorted(depot_table.keys()):
             entry = depot_table[depot_id]
-            if entry.domainDepotId and entry.domainDepotId != depot_id:
+            if entry.domain_depot_id and entry.domain_depot_id != depot_id:
                 raise DatasetError(
-                    f"DomainDepotTable 键 {depot_id} 与 domainDepotId {entry.domainDepotId} 不一致"
+                    f"DomainDepotTable 键 {depot_id} 与 domainDepotId {entry.domain_depot_id} 不一致"
                 )
-            region_id = entry.domainId
+            region_id = entry.domain_id
             if region_id not in domain_table:
                 raise DatasetError(f"仓储节点 {depot_id} 引用了未知地区 {region_id}")
             used_region_ids.add(region_id)
@@ -65,7 +72,7 @@ class DeliveryJobs(Dataset):
             level_record = depot_level_table.get(depot_id)
             if level_record is None:
                 raise DatasetError(f"仓储节点 {depot_id} 缺少等级配置")
-            level_list = level_record.levelList
+            level_list = level_record.level_list
             if not level_list:
                 raise DatasetError(f"仓储节点 {depot_id} 没有等级配置")
 
@@ -74,7 +81,7 @@ class DeliveryJobs(Dataset):
                 level_list.values(),
                 key=lambda value: value.level,
             ):
-                level_item_types = frozenset(level_value.deliverItemTypeList)
+                level_item_types = frozenset(level_value.deliver_item_type_list)
                 fillable_item_ids.update(
                     item_id
                     for item_id, item in deliverable_items.items()
@@ -86,7 +93,7 @@ class DeliveryJobs(Dataset):
 
             depots[depot_id] = {
                 "region_id": region_id,
-                "names": cls.localized_names(entry.depotName, table_cfg_dir, f"仓储节点 {depot_id}"),
+                "names": cls.localized_names(entry.depot_name, table_cfg_dir, f"仓储节点 {depot_id}"),
                 "fillable_items": fillable_items,
             }
 
@@ -94,10 +101,10 @@ class DeliveryJobs(Dataset):
         regions: dict[str, Any] = {}
         for region_id in sorted(used_region_ids):
             entry = domain_table[region_id]
-            if entry.domainName is None:
+            if not entry.domain_name:
                 raise DatasetError(f"地区 {region_id} 缺少 domainName")
             regions[region_id] = {
-                "names": cls.localized_names(entry.domainName, table_cfg_dir, f"地区 {region_id}"),
+                "names": cls.localized_names(entry.domain_name, table_cfg_dir, f"地区 {region_id}"),
             }
 
         # ── 物品 ─────────────────────────────────────────────────────

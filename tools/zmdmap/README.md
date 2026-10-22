@@ -71,7 +71,7 @@ uv run zmdmap fetch --dry-run                     # 只看会下哪几份、会�
 
 要加一份新数据，就在 `datasets/` 加一个同名模块、定义 `Dataset` 子类并实现 `build`，再声明要不要投影（需要投影的用 `projection_containers` 列出条目数组所在的键）。
 
-各份数据共用的手法收在 `Dataset` 上，不用各抄一份：`localized_names`（表里的文本引用 → 五语字典，五语缺一即报错）、`level_index`（读 `LevelBasicInfoTable` 建 `idNum -> levelId`），组装错误统一用 `DatasetError`（cli 会补上数据集名）。取数逻辑在各份数据的模块里。
+各份数据共用的手法收在 `Dataset` 上，不用各抄一份：`localized_names`（表里的文本引用 → 五语字典，五语缺一即报错）、`level_index`（读 `LevelBasicInfoTable` 建 `idNum -> levelId`），组装错误统一用 `DatasetError`（cli 会补上数据集名）。读数据的逻辑在各份数据的模块里。
 
 只有要读 JsonData（`GameplayConfig` / `LevelMapLoadConfig`）的数据集才声明 `requires_json_data = True`——目前是 `collect_points`、`delivery_destinations`、`teleport_anchors`；其余只读 TableCfg 的默认关着，单独生成时不要求 JsonData 目录存在。`stock_staple` 从地区商店、商品、奖励、物品、分类与渠道供货表生成，不依赖其他精简数据或人工商品绑定表；消费链见[稳定需求物资维护文档](../../docs/zh_cn/developers/tasks/auto-stockstaple-maintain.md#数据来源与增量更新)。
 
@@ -83,8 +83,9 @@ uv run zmdmap fetch --dry-run                     # 只看会下哪几份、会�
 | `utils/project.py` | 带坐标的数据按 BaseNav 的 zone 表把 x/z 原位换成 u/v |
 | `utils/navmesh.py` | 从 `BNAV` / `BGEO` 二进制 nav 数据里读出 zone 表 |
 | `utils/sync.py` | 同步兄弟仓库、读出游戏数据版本、预检输入是否齐备 |
-| `utils/http.py` | 数据下载与 nav 取数共用的 HTTP 客户端：连接池、超时与瞬时失败重试 |
-| `utils/game_data.py` | 读 TableCfg / GameplayConfig 与各语言文本表，并从记录里取世界坐标、建关卡索引 |
+| `utils/http.py` | 下载数据与下载 nav 共用的 HTTP 客户端：连接池、超时与瞬时失败重试 |
+| `utils/tables.py` | 游戏表格的结构定义（`msgspec.Struct`）与类型化解码入口 |
+| `utils/game_data.py` | 各语言文本表、文本引用、世界坐标与关卡索引 |
 | `utils/config.py` | 静态配置：文件树与路径、语言 key 的映射、发布渠道的地址与清单名 |
 
 入库 JSON 用 `utils/datafile.py` 里的写法序列化（`ensure_ascii=False`、缩进 4），并且统一写 LF（仓库的 `.gitattributes` 是 `eol=lf`）。整型浮点会带小数点（`520.0` 而不是 `520`），解析出来的值与键顺序不受影响。
@@ -159,16 +160,20 @@ uv run zmdmap fetch                               # 下载 → 入库（等同 p
 
 ## 读取本地数据
 
-数据入口只有 `utils/game_data.py` 里的几个函数：
+表按结构体解码，入口在 `utils/tables.py`；文本与坐标的小工具在 `utils/game_data.py`：
 
 | 函数 | 读什么 |
 | --- | --- |
-| `read_table_cfg(dir, name)` | `<table_cfg_dir>/<name>.json` |
-| `read_gameplay_config(dir, name)` | `<json_data_dir>/GameplayConfig/<name>.json` |
+| `load_table(dir, name, model)` | `<table_cfg_dir>/<name>.json`，解成 `{行 id: model}` |
+| `load_config(dir, name, model)` | `<json_data_dir>/GameplayConfig/<name>.json` |
+| `load_level(dir, level_id, model)` | `<json_data_dir>/UILevelMapLoadConfig/<level_id>.json` |
+| `load_level_data(path)` | `<json_data_dir>/LevelData/<关卡>/*.json` 里的交互实体 |
 | `localized_text(dir, text_id, lang)` | `<table_cfg_dir>/I18nTextTable_<后缀>.json` |
 | `ref_texts(dir, ref)` / `ref_text(dir, ref, lang)` | 表里 `{"id", "text"}` 文本引用的各语言 / 单语文本 |
 
-读出来的 JSON 会换成属性可访问的 `Record`，`Dataset.build` 里直接写 `entry.position.x`；几个函数都按「目录 + 文件名」缓存，多份数据共用同一次读取。
+`model` 是 `utils/tables.py` 里声明的 `msgspec.Struct`，只写我们用得到的字段（未声明的字段解码时忽略），`Dataset.build` 里直接写 `entry.position.x`。读取按「目录 + 名称 + 模型」缓存，多份数据共用同一次解码。
+
+表里字段名是 camelCase，结构体上写 `rename="camel"` 即可对应到 snake_case 属性（个别例外如 `SkillPatchDataBundle` 用 `msgspec.field(name=...)` 单独指明）。少数结构完全动态的地方（例如 `LevelData` 里按组件名分的属性）仍按原始 JSON 读，用 `utils/shapes.py` 的 `is_object` / `as_objects` 取值。
 
 ## 给其他工具读数据
 
@@ -189,4 +194,4 @@ uv run zmdmap fetch                               # 下载 → 入库（等同 p
 uv run zmdmap generate --force --out-dir <临时目录> --data-dir <临时目录>
 ```
 
-再逐份比对 `tools/zmdmap/data/` 下的同名文件。只改注释、重命名这类不动输出的改动，应当零差异；动了取数逻辑就看差异是否符合预期。注意入库数据是「上一次生成（或下载）的快照」：各份数据可能停在不同版本上，要确认某一份是哪一版就看它自己的 `version` 字段。
+再逐份比对 `tools/zmdmap/data/` 下的同名文件。只改注释、重命名这类不动输出的改动，应当零差异；动了读数据的逻辑就看差异是否符合预期。注意入库数据是「上一次生成（或下载）的快照」：各份数据可能停在不同版本上，要确认某一份是哪一版就看它自己的 `version` 字段。
