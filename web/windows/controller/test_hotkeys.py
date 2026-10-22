@@ -25,6 +25,7 @@ import window_style
 EXE = browser.find_webview2_host()
 PROF = os.path.join(os.environ["LOCALAPPDATA"], "MaaEnd", "webview2-hotkey-test")
 STATE = os.path.join(PROF, "host-state.json")
+HOSTLOG = os.path.join(PROF, "test-host.log")
 
 u32 = ctypes.windll.user32
 KEYUP, KEYDOWN = 0x2, 0x0
@@ -56,7 +57,7 @@ def main() -> int:
     cdp_port, ctl_port = free_port(), free_port()
     proc = subprocess.Popen(
         [EXE, f"--cdp-port={cdp_port}", f"--control-port={ctl_port}", f"--profile={PROF}",
-         "--size=1280x720", "--on-screen", "--url=https://example.com"],
+         "--size=1280x720", "--on-screen", "--url=https://example.com", f"--log={HOSTLOG}"],
         creationflags=0x08000000, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         for _ in range(200):
@@ -69,6 +70,15 @@ def main() -> int:
         time.sleep(2)
 
         print("启动:", ctl(ctl_port, {"cmd": "status"}))
+
+        # 热键是系统级独占资源：另一个实例（比如正在跑的演示窗口）占着就会全注册失败，
+        # 这时不是本用例的错，直接 SKIP 并提示，别把真失败和"被占用"混在一起。
+        text = ""
+        with contextlib.suppress(OSError), open(HOSTLOG, encoding="utf-8", errors="replace") as fh:
+            text = fh.read()
+        if "[hotkey]" in text and "藏 / 显" not in text:
+            print("SKIP  热键都被别的实例占用了（先关掉正在跑的宿主再测）")
+            return 0
         hotkey("ctrl", "alt", "h")
         hidden = ctl(ctl_port, {"cmd": "status"})["visible"] is False
         print(f"{'PASS' if hidden else 'FAIL'}  Ctrl+Alt+H 藏")
