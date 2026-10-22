@@ -1,22 +1,6 @@
 {
   "CheckMenuListColor": {
-    "count": 100,
     "desc": "【网页端覆盖 · 云串流适配】检查菜单列表界面左下角颜色。上游原判据 lower=[90,35,35] upper=[191,83,85] 在云·终末地上只命中 23/17 像素（需 ≥100）⇒ InMenuList 不过 ⇒ 所有要走「进入菜单」的任务 20 秒超时失败（实测 2026-10-17：VisitFriends / DijiangRewards / DailyRewards 全卡这里）。用 MaaFramework 自己的 ColorMatch 逐维扫描（不要用自写 HSV 模拟，两者数量级会差很多：框架报的是最大连通块像素数）：只改 V 上下界几乎无效（23→24），真正的杠杆是**饱和度上界**——云端画面被做了对比度/饱和度拉伸，该区域饱和度超过上游 83 的上限。故仅把 upper 的 S 由 83 放宽到 130，其余阈值与 count 全部保持上游值。实测：正样本 168/152（过），负对照「大世界内」75、「云启动页」2（均在阈值下，区分力保留）。",
-    "lower": [
-      90,
-      35,
-      35
-    ],
-    "post_delay": 0,
-    "pre_delay": 0,
-    "rate_limit": 0,
-    "recognition": "ColorMatch",
-    "roi": [
-      0,
-      -200,
-      200,
-      200
-    ],
     "upper": [
       191,
       130,
@@ -25,46 +9,6 @@
   },
   "__ScenePrivateWorldEnterMenuList": {
     "desc": "【网页端覆盖 · 云串流适配】从大世界进入菜单总列表。上游 next 是 [__SceneImageCheck, __ScenePrivateAnyEnterMenuListSuccess]：前者会点左下角，期待弹出「登录界面/确认」登出对话框，再借那张对话框做 OSD/Mod/画面颜色/语言/抓 UID 五项 PC 渲染自检。云端实测（2026-10-17 15:31~15:33 日志）：点击后画面回到大世界、登出对话框从未出现 ⇒ __SceneImageCheckDialogIn 在 20 秒内空转 5640 次全部落空 ⇒ 任务失败。这五项自检对浏览器/云串流无意义：OSD 遮挡与 Mod 检测针对 PC 客户端；CaptureUid 在 Win32 控制器下读游戏注册表，而浏览器无该注册表项。故这里只保留「Alt+点开菜单」与「确认已在菜单列表」两步，去掉整条自检链。ImageCheckNotPassedRecognition 仅被 __SceneImageCheck 使用（已核），跳过不影响其他节点。",
-    "recognition": {
-      "param": {
-        "green_mask": true,
-        "roi": [
-          -200,
-          0,
-          200,
-          200
-        ],
-        "template": [
-          "SceneManager/WorldMenu.png"
-        ]
-      },
-      "type": "TemplateMatch"
-    },
-    "action": {
-      "param": {
-        "custom_action": "RepeatUntilFoundAction",
-        "custom_action_param": {
-          "custom_action": "AutoAltClickAction",
-          "interval_ms": 6000,
-          "wait_nodes": [
-            "__ScenePrivateAnyEnterMenuListSuccess"
-          ]
-        },
-        "target_offset": [
-          5,
-          5,
-          -10,
-          -10
-        ]
-      },
-      "type": "Custom"
-    },
-    "pre_wait_freezes": {
-      "time": 100,
-      "timeout": 1000
-    },
-    "post_delay": 0,
-    "rate_limit": 0,
     "next": [
       "__ScenePrivateAnyEnterMenuListSuccess"
     ]
@@ -253,15 +197,7 @@
   "__ScenePrivateEndVisit": {
     "desc": "【网页端覆盖】结束拜访。上游 OCR ROI 是右下角 260x100（[-260,-100,260,100]），但云网页端的「结束拜访」提示在画面中部偏右（实测 x≈825-895, y≈385-410，1280x720 空间），上游 ROI 完全覆盖不到 ⇒ OCR 永远 miss，拜访流程收不了尾。这里放宽到 [600,300,680,400]。",
     "recognition": {
-      "type": "OCR",
       "param": {
-        "expected": [
-          "结束拜访",
-          "結束拜訪",
-          "(?i)End\\s*Visit",
-          "訪問終了",
-          "방문 종료"
-        ],
         "roi": [
           600,
           300,
@@ -325,12 +261,6 @@
   "__ScenePrivateAnyExit": {
     "desc": "【网页端覆盖】退出当前场景：保留 base 的 ESC 行为（网页有键盘，ESC 在「总控中枢」这类面板里最可靠），但把 max_hit 从 100 降到 6 —— 100 次 × post_delay 3000 会在认不出的 WebView 页面上空转 300 秒（2026-10-20 实测 DailyRewards 重试 399 秒）。点击式 AnyExit（识别 X 再点）实测会把「总控中枢」留在原地、后续任务全部 21 秒超时，故不采用。",
     "recognition": "DirectHit",
-    "action": {
-      "type": "ClickKey",
-      "param": {
-        "key": 27
-      }
-    },
     "post_delay": 600,
     "max_hit": 6
   },
@@ -448,39 +378,20 @@
     }
   },
   "CanAfford": {
-    "lower": [
-      0,
-      0,
-      70
-    ],
     "upper": [
       180,
       25,
       150
     ]
   },
-  "YellowButtonBackground": {
-    "recognition": {
-      "param": {
-        "upper": [
-          30,
-          255,
-          255
-        ]
-      }
-    }
-  },
   "DailyEventRecognitionRedDot": {
     "recognition": {
       "param": {
-        "connected": true,
-        "count": 40,
         "lower": [
           13,
           217,
           222
         ],
-        "method": 40,
         "roi": [
           190,
           102,
@@ -492,8 +403,7 @@
           255,
           247
         ]
-      },
-      "type": "ColorMatch"
+      }
     }
   },
   "DailyEventUnreadChallengeEventColor": {
@@ -580,20 +490,7 @@
       123
     ]
   },
-  "OutpostTradingZeroProductColorMatch": {
-    "lower": [
-      170,
-      90,
-      200
-    ],
-    "upper": [
-      180,
-      140,
-      250
-    ]
-  },
   "__AutoUseSpMedicationColorRecognitionEmergencySanityBoosterDeadline": {
-    "desc": "颜色识别,确认是时限应急理智加强剂(绿色或红色时限)",
     "lower": [
       [
         65,
@@ -666,31 +563,10 @@
       "[JumpBack]__ScenePrivateScreenshotStableAbnormal",
       "WebCloseProtocolPass",
       "[JumpBack]__ScenePrivateAnyExit"
-    ],
-    "post_delay": 0,
-    "pre_delay": 0,
-    "rate_limit": 0
+    ]
   },
   "AutoStockpileGotoElasticGoods": {
-    "action": {
-      "param": {},
-      "type": "Click"
-    },
-    "desc": "选择弹性物资调度",
-    "next": [
-      "AutoStockpileSelectMarket"
-    ],
-    "post_delay": 800,
-    "pre_delay": 0,
-    "rate_limit": 0,
-    "recognition": {
-      "param": {
-        "all_of": [
-          "AutoStockpileElasticGoodsButton"
-        ]
-      },
-      "type": "And"
-    }
+    "post_delay": 800
   },
   "WebLaunchBrowserStart": {
     "desc": "【网页端 · 启动器】拉起 sway + Chrome（调 start_web.sh；已在跑会秒退）。参数名在 Linux 控制器上待实测：command / path",
