@@ -69,3 +69,11 @@ wsl -d Ubuntu-24.04 -u root -- bash -c "pkill -f 'user-data-dir=/root/chrome-pro
 7. **Chrome 155 的翻译气泡会盖住右上角**（实测压在 `[1215,19,51,42]` 附近，与 `WebAlreadyInGame` 的 ROI 重合）：
    `--disable-features=Translate,TranslateUI` 和 `--lang=zh-CN` 都压不住——它来自 profile 里已保存的翻译状态。
    必须先停 Chrome，再跑 `python3 web/linux/wsl/disable_translate.py <profile>`（改 `Default/Preferences` 的 `translate.enabled=false`）。
+8. **「资源加载失败」= MXU 自动追加的 `resource_linux` 层是旧版残留**
+   MXU 用 Linux 控制器时会在资源列表末尾自动加 `resource_linux`（我们自己的 runner 不加，所以一直没暴露）。
+   v2.35.0-beta.2 的 base 里已经没有 `_AutoEcoFarmTargeInCenter` / `_AutoEcoFarmSwipeLoopCommon` /
+   `_AutoEcoFarmMoveToTargetErr` / `_AutoEcoFarmJumpBack`，而旧 `resource_linux` 的 6 个节点 next 指向它们
+   → PipelineChecker 整包校验失败，且会**污染后续所有层的加载**（连带 `resource_web` 一起 False）。
+   先跑 `fix_resource_linux.py`（迭代剔除悬空 next），再用 `verify_resource.py` 确认 5 个路径 loaded 全 True。
+   根治办法：升级时也刷新平台层（`resource_linux`/`resource_adb`/`resource_cloud_adb`/`resource_macos`/`resource_playcover`），
+   homesrv 的 `auto_update.sh` 目前只换 `resource`/`interface.json`/`agent`/`maafw`，存在同样的漂移。
