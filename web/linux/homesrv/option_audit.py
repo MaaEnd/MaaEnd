@@ -17,13 +17,14 @@
     python3 option_audit.py --check            # 与基线对比，有丢失/变化返回非 0
     python3 option_audit.py --check --json-out /path/drift.json
 """
+
 import hashlib
 import json
 import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(HERE))          # web/linux
+sys.path.insert(0, os.path.dirname(HERE))  # web/linux
 
 import resolve_preset as rp  # noqa: E402
 
@@ -53,14 +54,18 @@ def collect():
         per = {}
         for p in plan:
             ov = p.get("override") or {}
-            attach = {k: len(v["attach"]) for k, v in ov.items()
-                      if isinstance(v, dict) and isinstance(v.get("attach"), dict)}
-            per[p["name"]] = {"n": p.get("n_override", len(ov)),
-                              "attach": attach,
-                              "keys": sorted(ov.keys()),
-                              "hash": _fingerprint(ov),
-                              "notes": [n for n in (p.get("notes") or [])
-                                        if n.startswith(("MISSING", "UNKNOWN", "TRUNCATED", "ERROR"))]}
+            attach = {
+                k: len(v["attach"]) for k, v in ov.items() if isinstance(v, dict) and isinstance(v.get("attach"), dict)
+            }
+            per[p["name"]] = {
+                "n": p.get("n_override", len(ov)),
+                "attach": attach,
+                "keys": sorted(ov.keys()),
+                "hash": _fingerprint(ov),
+                "notes": [
+                    n for n in (p.get("notes") or []) if n.startswith(("MISSING", "UNKNOWN", "TRUNCATED", "ERROR"))
+                ],
+            }
         out[iid] = per
     return out
 
@@ -82,20 +87,22 @@ def compare(cur, base):
                 continue
             if info["n"] < b["n"]:
                 lost_keys = sorted(set(b.get("keys") or []) - set(info["keys"]))
-                loss.append({"instance": iid, "task": task,
-                             "detail": "覆盖 %d→%d，丢失键 %s" % (b["n"], info["n"], lost_keys[:5])})
+                loss.append(
+                    {
+                        "instance": iid,
+                        "task": task,
+                        "detail": "覆盖 %d→%d，丢失键 %s" % (b["n"], info["n"], lost_keys[:5]),
+                    }
+                )
                 continue
             for k, cnt in (b.get("attach") or {}).items():
                 now = (info.get("attach") or {}).get(k, 0)
                 if now < cnt:
-                    loss.append({"instance": iid, "task": task,
-                                 "detail": "attach %s %d→%d" % (k, cnt, now)})
+                    loss.append({"instance": iid, "task": task, "detail": "attach %s %d→%d" % (k, cnt, now)})
             if b.get("hash") and info["n"] == b["n"] and info["hash"] != b["hash"]:
-                changed.append({"instance": iid, "task": task,
-                                "detail": "覆盖键数相同但内容变了（检查类型/取值）"})
+                changed.append({"instance": iid, "task": task, "detail": "覆盖键数相同但内容变了（检查类型/取值）"})
             if info["notes"]:
-                changed.append({"instance": iid, "task": task,
-                                "detail": "解析告警: {}".format(info["notes"][:3])})
+                changed.append({"instance": iid, "task": task, "detail": "解析告警: %s" % info["notes"][:3]})
     return loss, changed, added
 
 
@@ -114,15 +121,18 @@ def main():
             base = json.load(open(BASELINE, encoding="utf-8")).get("data") or {}
             loss, changed, _ = compare(cur, base)
             if loss or changed:
-                print("拒绝覆盖基线：相对旧基线有 %d 处丢失、%d 处变化，"
-                      "确认无误后加 --force" % (len(loss), len(changed)))
+                print(
+                    "拒绝覆盖基线：相对旧基线有 %d 处丢失、%d 处变化，确认无误后加 --force" % (len(loss), len(changed))
+                )
                 for x in (loss + changed)[:8]:
-                    print("  - {}/{} {}".format(x["instance"], x["task"], x["detail"]))
+                    print("  - %s/%s %s" % (x["instance"], x["task"], x["detail"]))
                 return 1
-        payload = {"saved_at": __import__("time").strftime("%Y-%m-%dT%H:%M:%S"),
-                   "tasks_version": _version(), "data": cur}
-        json.dump(payload, open(BASELINE, "w", encoding="utf-8"),
-                  ensure_ascii=False, indent=1)
+        payload = {
+            "saved_at": __import__("time").strftime("%Y-%m-%dT%H:%M:%S"),
+            "tasks_version": _version(),
+            "data": cur,
+        }
+        json.dump(payload, open(BASELINE, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
         print("基线已写入 %s（%d 个任务画像）" % (BASELINE, total))
         return 0
 
@@ -141,10 +151,18 @@ def main():
         print("  ＋ %-10s %-20s 新任务（基线里没有）" % (x["instance"], x["task"]))
 
     if json_out:
-        json.dump({"at": __import__("time").strftime("%Y-%m-%dT%H:%M:%S"),
-                   "version": _version(), "loss": loss, "changed": changed,
-                   "added": added}, open(json_out, "w", encoding="utf-8"),
-                  ensure_ascii=False, indent=1)
+        json.dump(
+            {
+                "at": __import__("time").strftime("%Y-%m-%dT%H:%M:%S"),
+                "version": _version(),
+                "loss": loss,
+                "changed": changed,
+                "added": added,
+            },
+            open(json_out, "w", encoding="utf-8"),
+            ensure_ascii=False,
+            indent=1,
+        )
 
     if loss:
         print("结果: %d 处覆盖减少 —— 大概率是上游改了选项树，检查 resolve_preset.py" % len(loss))

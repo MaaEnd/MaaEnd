@@ -31,6 +31,14 @@ export MAAEND_RES_DIRS="$ROOT/resource:$ROOT/web/resource_web:$ROOT/web/linux/re
 export MAA_AGENT_BIN="$ROOT/agent/go-service"
 export MAA_AGENT_LIB="$ROOT/maafw"
 
+# 日志轮转：只保留最近 3 次运行（daily.log + daily.log.1 + daily.log.2）
+if [ -s "$LOG" ]; then
+  rm -f "$LOG.2"
+  [ -f "$LOG.1" ] && mv -f "$LOG.1" "$LOG.2"
+  mv -f "$LOG" "$LOG.1"
+fi
+: > "$LOG"
+
 exec >>"$LOG" 2>&1
 
 cleanup() {

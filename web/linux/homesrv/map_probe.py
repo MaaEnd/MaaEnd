@@ -7,6 +7,7 @@
     MAA_AGENT_BIN=$HOME/maaend/agent/go-service MAA_AGENT_LIB=$HOME/maaend/maafw \
     python3 ~/maaend/web/linux/homesrv/map_probe.py
 """
+
 import os
 import sys
 import time
@@ -20,31 +21,37 @@ from maa.resource import Resource  # noqa: E402
 from maa.tasker import Tasker  # noqa: E402
 from run_daily_linux import DIRS, SOCK, log, start_agent  # noqa: E402
 
-PROBE_NODES = ["InMapAny", "InMapWulingMarkerStone", "__ScenePrivateMapAnyEnterMapOverview",
-               "ProbeMapTitle", "ProbeMapTitleWide"]
+PROBE_NODES = [
+    "InMapAny",
+    "InMapWulingMarkerStone",
+    "__ScenePrivateMapAnyEnterMapOverview",
+    "ProbeMapTitle",
+    "ProbeMapTitleWide",
+]
 
 
 def main():
     res = Resource()
     for d in [x for x in DIRS if os.path.isdir(x)]:
         res.post_bundle(d).wait()
-    log(f"资源加载: {res.loaded}")
+    log("资源加载: %s" % res.loaded)
 
     ctrl = WlRootsController(SOCK, use_win32_vk_code=True)
     ctrl.post_connection().wait()
-    log(f"控制器: connected={ctrl.connected}")
+    log("控制器: connected=%s" % ctrl.connected)
 
     tasker = Tasker()
     tasker.bind(res, ctrl)
     try:
         from maa.define import LoggingLevelEnum
+
         tasker.set_stdout_level(LoggingLevelEnum.Info)
         tasker.set_log_dir(os.path.expanduser("~/maaend-log"))
     except Exception as e:
-        log(f"(日志设置失败: {e})")
+        log("(日志设置失败: %s)" % e)
 
     client, _proc = start_agent(res, "Linux-Wlroots", "官服-网页端")
-    log(f"agent: {bool(client)}")
+    log("agent: %s" % bool(client))
 
     def run_node(node, cap=180):
         jb = tasker.post_task(node)
@@ -72,13 +79,13 @@ def main():
             texts = []
             for a in alls if isinstance(alls, list) else []:
                 if isinstance(a, dict) and a.get("text"):
-                    texts.append("{}({:.2f})".format(a["text"], a.get("score", 0)))
+                    texts.append("%s(%.2f)" % (a["text"], a.get("score", 0)))
                 elif isinstance(a, list):
                     for b in a:
                         if isinstance(b, dict) and b.get("text"):
-                            texts.append("{}({:.2f})".format(b["text"], b.get("score", 0)))
+                            texts.append("%s(%.2f)" % (b["text"], b.get("score", 0)))
             if texts:
-                log("      OCR: {}".format(" | ".join(texts[:12])))
+                log("      OCR: %s" % " | ".join(texts[:12]))
 
     log("== 1) 进游戏")
     run_node("WebStartGameEntry", cap=900)
@@ -99,9 +106,9 @@ def main():
     try:
         png = os.path.expanduser("~/maaend-log/map_probe.png")
         img.save(png) if hasattr(img, "save") else None
-        log(f"截图保存: {png}")
+        log("截图保存: %s" % png)
     except Exception as e:
-        log(f"(截图保存失败: {e})")
+        log("(截图保存失败: %s)" % e)
 
     log("完成")
     return 0

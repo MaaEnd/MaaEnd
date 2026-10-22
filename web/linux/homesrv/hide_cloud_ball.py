@@ -10,6 +10,7 @@
     python3 hide_cloud_ball.py --check    # 只报告当前状态
     python3 hide_cloud_ball.py --watch    # 常驻：每 2s 检查，新标签页自动注入（日常跑期间用）
 """
+
 import contextlib
 import json
 import sys
@@ -109,8 +110,7 @@ def targets():
 
 
 def endfield_pages():
-    return [t for t in targets()
-            if t.get("type") == "page" and "endfield" in (t.get("url") or "")]
+    return [t for t in targets() if t.get("type") == "page" and "endfield" in (t.get("url") or "")]
 
 
 class CDP:
@@ -148,7 +148,7 @@ def apply_all(registered):
             out.append((tid, t.get("url", "")[:50], c.js(CHECK_JS)))
             c.close()
         except Exception as e:
-            out.append((tid, t.get("url", "")[:50], f"ERR:{str(e)[:60]}"))
+            out.append((tid, t.get("url", "")[:50], "ERR:%s" % str(e)[:60]))
     return out
 
 
@@ -161,7 +161,7 @@ def main():
         for t in endfield_pages():
             try:
                 c = CDP(t["webSocketDebuggerUrl"])
-                print("{} {}".format(t.get("url", "")[:60], c.js(CHECK_JS)))
+                print("%s %s" % (t.get("url", "")[:60], c.js(CHECK_JS)))
                 c.close()
             except Exception as e:
                 print("ERR", e)
