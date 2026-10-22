@@ -64,6 +64,7 @@
     "autostockpile.reconcile_decision_unchanged": "決策未變化，繼續執行",
     "autostockpile.reconcile_price_corrected": "檢測到價格辨識錯誤(%d -> %d)，正在重新選擇",
     "autostockpile.warning_skip.text": "⚠️%s（%s）",
+    "batchaddfriends.friend_list_full": "好友數量已滿，停止新增",
     "batchaddfriends.level.authority": "權限等級",
     "batchaddfriends.level.valleyIV": "四號谷地建設等級",
     "batchaddfriends.level.warEcho": "戰爭迴響增輝",

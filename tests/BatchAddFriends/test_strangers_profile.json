@@ -17,7 +17,11 @@
                 "BatchAddFriendsStrangersProfileValleyIVIcon",
                 "BatchAddFriendsStrangersProfileWulingIcon",
                 "BatchAddFriendsStrangersProfileAddFriend",
-                "BatchAddFriendsStrangersProfileCloseButton"
+                "BatchAddFriendsStrangersProfileCloseButton",
+                "BatchAddFriendsStrangersProfileMoreButton",
+                "BatchAddFriendsStrangersProfilePage",
+                "BatchAddFriendsStrangersProfileFallbackClose",
+                "BatchAddFriendsStrangersApplySentToast"
             ]
         }
     ]

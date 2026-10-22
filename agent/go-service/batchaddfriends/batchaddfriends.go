@@ -295,12 +295,14 @@ func (a *BatchAddFriendsStrangersFinishAction) Run(ctx *maa.Context, arg *maa.Cu
 
 func (a *BatchAddFriendsFriendListFullAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Warn().Msg("[BatchAddFriends]好友列表已满，提前结束")
+	maafocus.Print(ctx, i18n.T("batchaddfriends.friend_list_full"))
 	if state.mode == "uid" {
 		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "BatchAddFriendsUIDEnd"},
 		})
 		return true
 	}
+	// 好友列表已满：提示后直接结束，不做界面收尾（与其它任务一致）。
 	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 		{Name: "BatchAddFriendsStrangersEnd"},
 	})

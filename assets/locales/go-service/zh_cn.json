@@ -65,6 +65,7 @@
     "autostockpile.reconcile_decision_unchanged": "决策未变化，继续执行",
     "autostockpile.reconcile_price_corrected": "检测到价格识别错误 (%d -> %d)，正在重新选择",
     "autostockpile.warning_skip.text": "⚠️%s（%s）",
+    "batchaddfriends.friend_list_full": "好友数量已满，停止添加",
     "batchaddfriends.level.authority": "权限等级",
     "batchaddfriends.level.valleyIV": "四号谷地建设等级",
     "batchaddfriends.level.warEcho": "战争回响增辉",

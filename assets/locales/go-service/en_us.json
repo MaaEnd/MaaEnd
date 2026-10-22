@@ -65,6 +65,7 @@
     "autostockpile.reconcile_decision_unchanged": "Decision unchanged, continuing",
     "autostockpile.reconcile_price_corrected": "Detected price recognition error (%d -> %d), reselecting",
     "autostockpile.warning_skip.text": "⚠️%s (%s)",
+    "batchaddfriends.friend_list_full": "Friend list is full, stopping",
     "batchaddfriends.level.authority": "Authority level",
     "batchaddfriends.level.valleyIV": "Valley IV construction level",
     "batchaddfriends.level.warEcho": "Echoes of War Lustrous",

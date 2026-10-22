@@ -3,22 +3,24 @@
         "desc": "批量添加好友主入口",
         "next": [
             "BatchAddFriendsOnAddPage",
+            "BatchAddFriendsClickAddFriendTab",
             "[JumpBack]SceneEnterMenuFriendsAdd"
         ]
     },
     "BatchAddFriendsOnAddPage": {
-        "desc": "确认已进入添加好友页面",
+        "desc": "已在「添加好友」页面：顶部该 tab 处于选中（黄底）状态",
+        // 图标判断，不依赖语言
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    63,
-                    106,
-                    50,
-                    24
+                    650,
+                    0,
+                    90,
+                    60
                 ],
-                "expected": "陌生人",
-                "threshold": 0.7
+                "template": "BatchAddFriends/addFriend2.png",
+                "threshold": 0.9
             }
         },
         "action": {
@@ -27,6 +29,29 @@
         },
         "next": [
             "BatchAddFriendsStart"
+        ]
+    },
+    "BatchAddFriendsClickAddFriendTab": {
+        "desc": "顶部「添加好友」tab 处于未选中状态：点它切过去",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    650,
+                    0,
+                    90,
+                    60
+                ],
+                "template": "BatchAddFriends/addFriend.png",
+                "threshold": 0.85
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsOnAddPage"
         ]
     },
     "BatchAddFriendsSearchFlow": {
@@ -145,7 +170,12 @@
                     "好友列表已满",
                     "好友列表已滿",
                     "你的好友列表已满",
-                    "你的好友列表已滿"
+                    "你的好友列表已滿",
+                    "Friends List full",
+                    "Cannot send more requests",
+                    "フレンド上限に達したため",
+                    "친구 목록이 가득 찼습니다",
+                    "신청을 보낼 수 없습니다"
                 ],
                 "threshold": 0.7
             }
@@ -159,10 +189,7 @@
         "next": [
             "BatchAddFriendsStrangersEnd",
             "BatchAddFriendsUIDEnd"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "好友列表已满，结束任务"
-        }
+        ]
     },
     "BatchAddFriendsAfterAddEnd": {
         "desc": "点击添加好友后结束",
@@ -623,7 +650,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "BatchAddFriendsStrangersProfileReady",
+                    "BatchAddFriendsStrangersProfilePage",
                     "BatchAddFriendsStrangersProfileCloseButton"
                 ],
                 "box_index": 1
@@ -688,8 +715,7 @@
     },
     "BatchAddFriendsStrangersProfileReady": {
         "desc": "名片页已打开：以「权限等级」图标为标志",
-        // 图标只在名片页出现、形状固定。
-        // 它同时给「申请好友」和「关闭 X」提供布局锚点。
+        // 图标只在名片页出现、形状固定
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -719,7 +745,7 @@
         ]
     },
     "BatchAddFriendsStrangersProfileFallbackClose": {
-        "desc": "名片已打开但「权限等级」图标没认出来时的兜底：确认在名片页后关掉",
+        "desc": "名片已打开但「权限等级」图标没认出来时的兜底：用「申请好友」确认在名片页后关掉",
         // ProfileReady 失败可能只是图标没匹配上，名片其实已经打开了。
         // 这时直接回 Scan 会把名片留在屏幕上，后续点击全部错位。
         // 用「申请好友」按钮作为第二个名片页锚点（列表页没有这个按钮），
@@ -729,9 +755,10 @@
             "param": {
                 "all_of": [
                     "BatchAddFriendsStrangersProfileAddFriend",
+                    "BatchAddFriendsStrangersProfileMoreButton",
                     "BatchAddFriendsStrangersProfileCloseButton"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "pre_delay": 0,
@@ -1085,7 +1112,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "BatchAddFriendsStrangersProfileReady",
+                    "BatchAddFriendsStrangersProfilePage",
                     "BatchAddFriendsStrangersProfileCloseButton"
                 ],
                 "box_index": 1
@@ -1124,7 +1151,10 @@
         "desc": "点名片页右下角「申请好友」",
         // 直接 OCR 按钮文字：命中的框就是按钮本身，点击默认取框中心，
         // 不需要任何偏移量，也不怕名片页整体布局漂移。
-        // 名片页是否已打开由上游 ProfileReady（权限等级图标）保证。
+        // 名片页是否已打开由上游 ProfileReady（头像下方的「…」按钮）保证。
+        // 「好友列表已满」与「已发送好友申请」都是点击后才弹出的提示，
+        // 立刻判定会先命中 ProfileClose 而当成添加成功。这里靠 next 反复判定
+        // 捕捉这两个提示，都等不到才由 on_error 走保底的成功路径。
         "recognition": {
             "type": "OCR",
             "param": {
@@ -1154,16 +1184,57 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "timeout": 4000,
+        "on_error": [
+            "BatchAddFriendsStrangersProfileClose"
+        ],
         "next": [
             "BatchAddFriendsFriendListFullToast",
-            "BatchAddFriendsStrangersProfileClose"
+            "BatchAddFriendsStrangersApplySentToast"
         ]
+    },
+    "BatchAddFriendsStrangersProfileMoreButton": {
+        "desc": "名片头像下方的「…」按钮：指定 ROI 内仅个人名片页面独有，用作「在名片页」的判据",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    59,
+                    90,
+                    545,
+                    451
+                ],
+                "template": "Common/Button/moreButton.png",
+                "green_mask": true,
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "BatchAddFriendsStrangersProfilePage": {
+        "desc": "在名片页：权限等级图标或「…」按钮任一命中即可",
+        // 两个都是名片独有，任一命中则说明当前在名片页
+        // 拆成 Or 节点，方便各处 And 守卫复用
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "BatchAddFriendsStrangersProfileReady",
+                    "BatchAddFriendsStrangersProfileMoreButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "BatchAddFriendsStrangersProfileCloseButton": {
         "desc": "名片页/列表页右上角的 X 按钮",
         // 复用仓库通用素材 Common/Button/CloseButtonType5.png。
         // 两页的 X 完全相同、位置也一样，所以它不能单独当判据，
-        // 只负责给出点击位置；是否允许点由 ProfileReady（权限等级图标）把关。
+        // 只负责给出点击位置；是否在名片页由 ProfileReady / ProfileMoreButton 把关。
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1181,13 +1252,47 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "BatchAddFriendsStrangersApplySentToast": {
+        "desc": "点「申请好友」后弹出的「已发送好友申请」提示",
+        // 与「好友列表已满」同一个位置、互斥出现。
+        // 每轮按 next 顺序判定，都没命中就重新截图再判，直到命中或超时。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    481,
+                    108,
+                    304,
+                    29
+                ],
+                "expected": [
+                    "已发送好友申请",
+                    "已傳送好友申請",
+                    "Friend request sent",
+                    "申請しました",
+                    "친구 추가를 신청했습니다"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchAddFriendsStrangersProfileClose"
+        ]
+    },
     "BatchAddFriendsStrangersProfileClose": {
-        "desc": "添加成功后关闭名片：名片的 X 与列表页的 X 同位置，故用权限等级图标作守卫",
+        "desc": "添加成功后关闭名片：权限等级图标与「…」按钮确认在名片页，X 提供点击位置",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "BatchAddFriendsStrangersProfileReady",
+                    "BatchAddFriendsStrangersProfilePage",
                     "BatchAddFriendsStrangersProfileCloseButton"
                 ],
                 "box_index": 1

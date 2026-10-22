@@ -64,6 +64,7 @@
     "autostockpile.reconcile_decision_unchanged": "判断は変わっていません。そのまま続行します",
     "autostockpile.reconcile_price_corrected": "価格認識エラーを検出しました(%d -> %d)。再選択しています",
     "autostockpile.warning_skip.text": "⚠️%s（%s）",
+    "batchaddfriends.friend_list_full": "フレンド数が上限に達したため、追加を停止します",
     "batchaddfriends.level.authority": "権限レベル",
     "batchaddfriends.level.valleyIV": "第4谷地 開発レベル",
     "batchaddfriends.level.warEcho": "戦争の残響「光輝」",
