@@ -59,11 +59,12 @@ setsid "$CHROME" \
   --no-sandbox --test-type \
   --window-size=1706,960 --kiosk \
   --use-angle=swiftshader --enable-unsafe-swiftshader \
-  --disable-features=Translate,msEdgeTranslate,CalculateNativeWinOcclusion,WebContentsOcclusion \
+  --disable-features=Translate,TranslateUI,msEdgeTranslate,CalculateNativeWinOcclusion,WebContentsOcclusion \
   --disable-backgrounding-occluded-windows \
   --disable-renderer-backgrounding \
   --disable-background-timer-throttling \
   --deny-permission-prompts \
+  --lang=zh-CN --accept-lang=zh-CN \
   --autoplay-policy=no-user-gesture-required \
   --remote-debugging-port=9334 --remote-debugging-address=127.0.0.1 \
   --user-data-dir="$PROFILE" \
