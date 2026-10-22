@@ -81,3 +81,34 @@
 - import：`web/tasks/WebStartGame.json`、`web/tasks/pretasks/WebLaunchBrowser.json`
 - 7 个实例 socket 全部 `wayland-1`；`快速日常` 9 项全开
 - 每次运行前 `apply_wsl_setup.py` 自愈（防 MXU 覆盖）
+---
+
+## 2026-10-23 03:2x · 会被覆盖的资产盘点 + 三层策略
+
+### 规模（WSL 现网 /root/maaend）
+
+| 位置 | 文件数 | 大小 | 覆盖方式 |
+|---|---:|---:|---|
+| `resource/pipeline/nodes.json` | 1 | 3.7 MB | 整文件替换（5997 节点） |
+| `resource/image/` | 2284 | 34 MB | 整目录 |
+| `resource/model/` | 15 | 224 MB | 整目录（ONNX） |
+| `resource_linux/` | 1 | 12 KB | 整目录 |
+| `resource_adb/` | 409 | 3.5 MB | 整目录 |
+| `resource_cloud_adb/` `resource_macos/` `resource_playcover/` | 各 1 | 20/24/12 KB | 整目录 |
+| `locales/` | 46 | 1.6 MB | 整目录 |
+| `maafw/` | 30 | 67 MB | 整目录 |
+| `agent/go-service` `agent/cpp-algo` | 2 | 66 MB | 整文件（`agent/maafw` 链接会被冲掉） |
+| `interface.json` | 1 | 8 KB | 整文件重写 |
+| `config/mxu-MaaEnd.json` | 1 | 92 KB | MXU 每次退出全量重写 |
+
+base 侧合计 ≈ 2790 文件 / ≈400 MB；我们自己的 `web/` 只有 45 文件 / 576 KB（全在 git 里，无人覆盖）。
+
+### 策略（三层）
+
+1. **base 资产**：快照锁定，不试图阻止更新。`/root/maaend-pinned`（399 MB）+ `pin_base.sh` 版本比对，不一致整体还原。
+2. **interface.json**：每次运行前用 `apply_wsl_setup.py` 重放（官服 4 层 path + 两条 web import）。
+3. **config/mxu-MaaEnd.json**：只重放运行必需项，不当作持久化手段；真正的持久化在 `web/tasks/*.json`、`web/resource_web/pipeline/nodes.json`、`apply_wsl_setup.py`、`pin_base.sh`。
+
+### 未做（待定）
+
+- MXU 手动点运行不经过 `daily_run_wsl.sh`，因此不触发锁版/重放；若长期用 MXU，需加 5 分钟一次的 cron 跑 `pin_base.sh`。
