@@ -179,13 +179,29 @@ def default_profile() -> Path:
 
 
 def _pid_alive(pid: int) -> bool:
+    """Windows 上必须走 OpenProcess/GetExitCodeProcess：`os.kill(pid, 0)` 在 Windows 上没有
+    "探测"语义，它会调 TerminateProcess，等于把目标进程杀掉（实测踩到，回归测试里有用例）。"""
     if pid <= 0:
         return False
+    if sys.platform == "win32":
+        import ctypes
+
+        k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        k32.OpenProcess.restype = ctypes.c_void_p
+        # PROCESS_QUERY_LIMITED_INFORMATION；没有权限就认为"不是我们能处理的进程"
+        handle = k32.OpenProcess(0x1000, False, int(pid))
+        if not handle:
+            return False
+        try:
+            code = ctypes.c_ulong(0)
+            if not k32.GetExitCodeProcess(ctypes.c_void_p(handle), ctypes.byref(code)):
+                return False
+            return code.value == 259  # STILL_ACTIVE
+        finally:
+            k32.CloseHandle(ctypes.c_void_p(handle))
     try:
         os.kill(pid, 0)
     except OSError:
-        return False
-    except Exception:
         return False
     return True
 

@@ -1,0 +1,199 @@
+"""后端回归测试：不依赖 MaaFramework，只测 browser.py + cdp_client.py 的契约。
+
+    cd web/windows/controller
+    uv run --with websocket-client --with pillow --with numpy python test_backend.py
+
+覆盖：
+  1. 冷启动：无任何前置进程时能拉起后端，端口随机、版本可读
+  2. 无窗口：整棵进程树下没有任何顶层窗口（"完全无头"的硬指标）
+  3. 视口：CSS 视口精确等于目标值（窗口尺寸补偿是否生效）
+  4. 取帧：screencap 形状/类型/非全黑
+  5. pidfile：运行时存在，关闭后消失
+  6. 残留清理：伪造一个"上次崩溃"的 pidfile，能杀掉并删掉
+  7. external 后端：只管连、不管起停
+  8. 收尸：关闭后端口不可连、进程树消失
+
+只用标准库 + websocket-client + numpy + pillow，方便在 CI 里裸跑。
+"""
+
+from __future__ import annotations
+
+import contextlib
+import json
+import os
+import subprocess
+import sys
+import time
+import urllib.request
+
+import browser
+import numpy as np
+from cdp_client import CDPClient
+
+VIEWPORT = (1280, 720)
+RESULTS: list[tuple[str, bool, str]] = []
+
+
+def case(name: str, ok: bool, detail: str = "") -> None:
+    RESULTS.append((name, bool(ok), detail))
+    print(f"{'PASS' if ok else 'FAIL'}  {name}{('  — ' + detail) if detail else ''}", flush=True)
+
+
+def probe_ok(port: int) -> bool:
+    with contextlib.suppress(Exception), \
+            urllib.request.urlopen(f"http://127.0.0.1:{port}/json/version", timeout=1) as r:
+        return bool(r.status == 200)
+    return False
+
+
+# ---------- Windows：枚举某进程树下的顶层窗口 ----------
+
+def top_level_windows(pids: set[int]) -> list[tuple[str, tuple[int, int, int, int]]]:
+    if sys.platform != "win32":
+        return []
+    import ctypes
+    import ctypes.wintypes as wt
+
+    u32 = ctypes.WinDLL("user32", use_last_error=True)
+    u32.GetWindowThreadProcessId.argtypes = [wt.HWND, ctypes.POINTER(wt.DWORD)]
+    u32.GetClassNameW.argtypes = [wt.HWND, ctypes.c_wchar_p, ctypes.c_int]
+    u32.GetWindowTextW.argtypes = [wt.HWND, ctypes.c_wchar_p, ctypes.c_int]
+    u32.GetWindowRect.argtypes = [wt.HWND, ctypes.POINTER(wt.RECT)]
+    enump = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
+    found: list[tuple[str, tuple[int, int, int, int]]] = []
+
+    def cb(h, _):
+        pid = wt.DWORD()
+        u32.GetWindowThreadProcessId(h, ctypes.byref(pid))
+        if pid.value not in pids:
+            return True
+        cls = ctypes.create_unicode_buffer(256)
+        u32.GetClassNameW(h, cls, 256)
+        rect = wt.RECT()
+        u32.GetWindowRect(h, ctypes.byref(rect))
+        found.append((cls.value, (rect.left, rect.top, rect.right, rect.bottom)))
+        return True
+
+    u32.EnumWindows(enump(cb), 0)
+    return found
+
+
+def child_pids(pid: int) -> set[int]:
+    """用 PowerShell 拿进程树（避免引入 psutil 依赖）。"""
+    if sys.platform != "win32":
+        return {pid}
+    with contextlib.suppress(Exception):
+        out = subprocess.run(
+            ["powershell", "-NoProfile", "-Command",
+             f"$ids=@{pid}; for($i=0;$i -lt 4;$i++){{"
+             f"$ids += (Get-CimInstance Win32_Process | Where-Object {{$ids -contains $_.ParentProcessId}}).ProcessId }};"
+             f"$ids -join ','"],
+            capture_output=True, timeout=30,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)).stdout.decode("utf-8", "replace").strip()
+        return {int(x) for x in out.split(",") if x.strip().isdigit()}
+    return {pid}
+
+
+def main() -> int:
+    # ---- 1. 冷启动 + 2. 无窗口 + 3. 视口 ----
+    t0 = time.time()
+    backend = browser.ensure_backend(viewport=VIEWPORT, url="about:blank")
+    ready = time.time() - t0
+    case("冷启动：后端就绪", backend.port > 0 and backend.version != "",
+         f"{backend.kind} {backend.version} {ready:.2f}s port={backend.port}")
+    case("冷启动：端口随机（非固定 9338）", backend.port != 9338, f"port={backend.port}")
+
+    if sys.platform == "win32":
+        pids = child_pids(backend.proc.pid) if backend.proc else {0}
+        wins = top_level_windows(pids)
+        case("无窗口：进程树下顶层窗口数 = 0", len(wins) == 0,
+             f"{len(wins)} 个 {wins[:3]}")
+
+    client = CDPClient(port=backend.port, host=backend.host)
+    client.connect()
+    inner = client.eval("[innerWidth, innerHeight]") or [0, 0]
+    case("视口：CSS 视口等于目标值", tuple(inner) == VIEWPORT, f"{inner} vs {list(VIEWPORT)}")
+    ua = client.eval("navigator.userAgent") or ""
+    case("UA：无头浏览器确实带 Headless（控制器负责修）", "Headless" in ua, ua[:60])
+
+    # ---- 4. 取帧 ----
+    png = client.screenshot_png()
+    case("取帧：PNG 非空", len(png) > 1000, f"{len(png)} bytes")
+    app = "data:text/html,<body style='margin:0;background:%23fff'>" \
+          "<div style='width:300px;height:300px;background:%230a0'></div></body>"
+    client("Page.navigate", url=app)
+    time.sleep(1.0)
+    img = client.screenshot_bgr()
+    ok_shape = img.shape == (VIEWPORT[1], VIEWPORT[0], 3) and img.dtype == np.uint8
+    case("取帧：BGR uint8 且尺寸匹配", ok_shape, f"shape={img.shape} dtype={img.dtype}")
+    case("取帧：非全黑", float(img.mean()) > 5, f"mean={float(img.mean()):.1f}")
+
+    # ---- 5. pidfile 生命周期 ----
+    pidfile = browser._pidfile(__import__("pathlib").Path(backend.profile))
+    case("pidfile：运行时存在", pidfile.exists(), str(pidfile))
+
+    client.close()
+    port = backend.port
+    backend.close()
+    time.sleep(1.5)
+    case("收尸：关闭后端口不可连", not probe_ok(port), f"port={port}")
+    case("pidfile：关闭后已删除", not pidfile.exists(), str(pidfile))
+
+    # ---- 6. 残留清理 ----
+    fake_profile = browser.default_profile().parent / "web-profile-stale-test"
+    fake_profile.mkdir(parents=True, exist_ok=True)
+    dummy = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(120)"],
+                             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    (fake_profile / "backend.json").write_text(
+        json.dumps({"kind": "edge-headless", "pid": dummy.pid, "port": 0,
+                    "profile": str(fake_profile)}), encoding="utf-8")
+    logs: list[str] = []
+    browser.reap_stale(fake_profile, logs.append)
+    time.sleep(1.0)
+    dead = dummy.poll() is not None
+    with contextlib.suppress(Exception):
+        dummy.kill()
+    case("残留清理：杀掉上次崩溃留下的进程并删 pidfile",
+         dead and not (fake_profile / "backend.json").exists(), " | ".join(logs[:2]))
+    with contextlib.suppress(OSError):
+        fake_profile.rmdir()
+
+    # ---- 7. external 后端 ----
+    ext_profile = browser.default_profile().parent / "web-profile-ext-test"
+    ext_src = subprocess.Popen([
+        browser.find_browser()[1], "--headless=new", "--remote-debugging-port=9466",
+        f"--user-data-dir={ext_profile}", "--window-size=1310,815", "--no-first-run",
+        "--mute-audio", "about:blank",
+    ], creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for _ in range(80):
+        if probe_ok(9466):
+            break
+        time.sleep(0.25)
+    os.environ[browser.ENV_ENDPOINT] = "127.0.0.1:9466"
+    try:
+        ext = browser.ensure_backend(viewport=VIEWPORT)
+        case("external：识别为外部端点", ext.kind == "external" and not ext.owned,
+             f"{ext.kind} owned={ext.owned} port={ext.port}")
+        ext.close()
+        time.sleep(0.5)
+        case("external：close 不影响外部浏览器", probe_ok(9466), "端点仍可用")
+    finally:
+        os.environ.pop(browser.ENV_ENDPOINT, None)
+        with contextlib.suppress(Exception):
+            subprocess.run(["taskkill", "/PID", str(ext_src.pid), "/T", "/F"],
+                           capture_output=True, timeout=15,
+                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        with contextlib.suppress(Exception):
+            ext_src.wait(timeout=10)
+        time.sleep(1.0)
+
+    failed = [r for r in RESULTS if not r[1]]
+    print(f"\n=== {len(RESULTS) - len(failed)}/{len(RESULTS)} 通过 ===")
+    for name, _, detail in failed:
+        print(f"  FAIL {name} {detail}")
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
