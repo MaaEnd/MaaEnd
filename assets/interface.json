@@ -155,24 +155,21 @@
             "label": "$tool.web.window.show",
             "description": "$tool.web.window.show.desc",
             "exec": "agent/go-service",
-            "args": ["--tool", "web-window", "show"],
-            "controller": ["ADB", "CloudADB"]
+            "args": ["--tool", "web-window", "show"]
         },
         {
             "name": "web-window-hide",
             "label": "$tool.web.window.hide",
             "description": "$tool.web.window.hide.desc",
             "exec": "agent/go-service",
-            "args": ["--tool", "web-window", "hide"],
-            "controller": ["ADB", "CloudADB"]
+            "args": ["--tool", "web-window", "hide"]
         },
         {
             "name": "web-window-taskbar",
             "label": "$tool.web.window.taskbar",
             "description": "$tool.web.window.taskbar.desc",
             "exec": "agent/go-service",
-            "args": ["--tool", "web-window", "taskbar-on"],
-            "controller": ["ADB", "CloudADB"]
+            "args": ["--tool", "web-window", "taskbar-on"]
         },
         {
             "name": "web-window-close",
@@ -180,8 +177,7 @@
             "description": "$tool.web.window.close.desc",
             "exec": "agent/go-service",
             "args": ["--tool", "web-window", "close"],
-            "confirm": true,
-            "controller": ["ADB", "CloudADB"]
+            "confirm": true
         }
     ],
     "agent": [
