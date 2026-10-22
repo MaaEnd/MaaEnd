@@ -10,6 +10,7 @@ require (
 	github.com/shirou/gopsutil/v4 v4.26.2
 	golang.org/x/image v0.37.0
 	golang.org/x/sys v0.42.0
+	golang.org/x/text v0.35.0
 )
 
 require (
@@ -29,7 +30,6 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/arch v0.25.0 // indirect
 	golang.org/x/net v0.50.0 // indirect
-	golang.org/x/text v0.35.0 // indirect
 )
 
 replace github.com/ebitengine/purego => github.com/ebitengine/purego v0.9.1 // indirect; pinned for maa-framework-go compatibility

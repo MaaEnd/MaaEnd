@@ -647,9 +647,9 @@
                             // Observed split OCR of the complete label "Operator Progression" is unstable;
                             // retain the bounded first-line fallback only within the inherited category ROI.
                             "expected": [
-                                // @i18n-skip
                                 "员养成",
                                 "Operator Progression",
+                                // @i18n-skip
                                 "(?i)^Operator$"
                             ],
                             "anchor": {
@@ -674,9 +674,9 @@
                             // Observed split OCR of the complete label "Weapon Progression" is unstable;
                             // retain the bounded first-line fallback only within the inherited category ROI.
                             "expected": [
-                                // @i18n-skip
                                 "武器养成",
                                 "Weapon Progression",
+                                // @i18n-skip
                                 "(?i)^Weapon$"
                             ],
                             "anchor": {

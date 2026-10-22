@@ -63,10 +63,10 @@
         // Observed split OCR of the complete label "Operator Progression" is unstable;
         // retain the bounded first-line fallback only within the category ROI above.
         "expected": [
-            // @i18n-skip
             "员养成",
             "員養成",
             "Operator Progression",
+            // @i18n-skip
             "(?i)^Operator$"
         ],
         "pre_wait_freezes": 200,

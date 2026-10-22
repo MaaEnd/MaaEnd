@@ -8,10 +8,13 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/outposttrading/internal/ocrmatch"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/text/unicode/norm"
 )
 
 const (
@@ -227,15 +230,94 @@ func stockNameWithinAnchorColumns(
 
 func matchStockPageNames(ocrItems []ocrmatch.Item, groups []itemPriorityGroup) []stockNameMatch {
 	matches := make([]stockNameMatch, 0, len(groups))
+	matchedIDs := make(map[string]bool, len(groups))
+	usedBoxes := make(map[maa.Rect]bool, len(groups))
+	// Exact matches always win. English OCR may read the colored rarity bar as a
+	// leading I, or add a spurious Latin accent; only then try a strict fallback.
 	for _, group := range groups {
 		match := ocrmatch.FindBest(ocrItems, group.Candidates)
 		if match == nil {
 			continue
 		}
 		matches = append(matches, stockNameMatch{itemID: group.ItemID, box: match.Box})
+		matchedIDs[group.ItemID] = true
+		usedBoxes[match.Box] = true
+	}
+
+	for _, item := range ocrmatch.SortItemsByPosition(ocrItems) {
+		if usedBoxes[item.Box] {
+			continue
+		}
+		cleaned, changed := cleanEnglishStockOCRNoise(item.Text)
+		if !changed {
+			continue
+		}
+		key := ocrmatch.StripSeparators(cleaned)
+		if key == "" {
+			continue
+		}
+		var candidateID string
+		ambiguous := false
+		for _, group := range groups {
+			for _, name := range group.Candidates {
+				if !latinStockName(name) || ocrmatch.StripSeparators(foldLatinStockAccents(name)) != key {
+					continue
+				}
+				if candidateID != "" && candidateID != group.ItemID {
+					ambiguous = true
+				}
+				candidateID = group.ItemID
+			}
+		}
+		if candidateID == "" || ambiguous || matchedIDs[candidateID] {
+			continue
+		}
+		matches = append(matches, stockNameMatch{itemID: candidateID, box: item.Box})
+		matchedIDs[candidateID] = true
+		usedBoxes[item.Box] = true
 	}
 	sortStockNameMatchesByGrid(matches)
 	return matches
+}
+
+// Only tolerate OCR noise observed in Latin item names. Never use edit distance:
+// similar product names can have different prices and must not be confused.
+func cleanEnglishStockOCRNoise(text string) (string, bool) {
+	text = strings.TrimSpace(text)
+	changed := false
+	if strings.HasPrefix(text, "I") && len(text) > 1 {
+		next, _ := utf8.DecodeRuneInString(text[1:])
+		if unicode.IsUpper(next) || unicode.IsSpace(next) {
+			text = strings.TrimSpace(text[1:])
+			changed = true
+		}
+	}
+	folded := foldLatinStockAccents(text)
+	return folded, changed || folded != text
+}
+
+func foldLatinStockAccents(text string) string {
+	var out strings.Builder
+	latinBase := false
+	for _, r := range norm.NFD.String(text) {
+		if unicode.Is(unicode.Mn, r) && latinBase {
+			continue
+		}
+		out.WriteRune(r)
+		if !unicode.Is(unicode.Mn, r) {
+			latinBase = unicode.Is(unicode.Latin, r)
+		}
+	}
+	return norm.NFC.String(out.String())
+}
+
+func latinStockName(name string) bool {
+	for _, r := range name {
+		if unicode.IsLetter(r) && !unicode.Is(unicode.Latin, r) {
+			return false
+		}
+	}
+	return true
 }
 
 func findStockNameForAnchor(

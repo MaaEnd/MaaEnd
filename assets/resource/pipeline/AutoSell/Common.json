@@ -74,10 +74,10 @@
         ],
         // English "Stock Redistribution Terminal" is split across two OCR lines.
         "expected": [
-            // @i18n-skip
             "物资调度终端",
             "物資調度終端",
             "(?i)^Stock\\s*Redistribution\\s*Terminal$",
+            // @i18n-skip
             "(?i)^Stock\\s*Redistribution$",
             "(?i)Stock\\s*Redistrib\\.",
             "商品取引端末",
