@@ -431,7 +431,9 @@ public sealed class HostForm : Form
         height = ClientSize.Height,
         cdp_port = _cdpPort,
         control_port = _controlPort,
-        url = _web.CoreWebView2?.Source ?? "",
+        // 刚启动时 Source 还是 about:blank，别让调用方以为 url 参数没生效
+        url = _web.CoreWebView2?.Source is { Length: > 0 } src and not "about:blank"
+            ? src : _o.Url,
         ready = _ready,
     });
 
