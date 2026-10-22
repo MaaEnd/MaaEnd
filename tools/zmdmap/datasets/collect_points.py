@@ -74,6 +74,7 @@ class CollectPoints(Dataset):
     """AutoCollect 采集路线的采集物（``collect_points.json``）。"""
 
     needs_projection = True
+    requires_json_data = True
     projection_containers = ("points",)
 
     @classmethod

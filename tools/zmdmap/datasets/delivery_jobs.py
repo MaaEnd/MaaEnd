@@ -1,10 +1,22 @@
 """运送委托（``delivery_jobs.json``）：地区、仓储节点及其可装箱物品，都取自 TableCfg。"""
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from ..utils.game_data import logger, read_table_cfg
 from .base import Dataset, DatasetError
+
+
+@dataclass(frozen=True)
+class DeliverableItem:
+    """一件可装箱物品：能装它的运送类型与可转运到的地区。
+
+    这两样只用来跟仓储节点的等级配置做交集，不进产物，所以用集合；产物里出现的是它的 id。
+    """
+
+    item_types: frozenset[str]
+    regions: frozenset[str]
 
 
 class DeliveryJobs(Dataset):
@@ -23,18 +35,15 @@ class DeliveryJobs(Dataset):
         item_table = read_table_cfg(table_cfg_dir, "ItemTable")
 
         # ── 可装箱物品 ───────────────────────────────────────────────
-        deliverable_items: list[dict[str, Any]] = []
+        deliverable_items: dict[str, DeliverableItem] = {}
         for item_id in sorted(factory_item.keys()):
             entry = factory_item[item_id]
             deliver_item_types = entry.deliverItemTypeList
             if not deliver_item_types:
                 continue
-            deliverable_items.append(
-                {
-                    "id": item_id,
-                    "deliver_item_types": sorted(set(deliver_item_types)),
-                    "transfer_regions": set(entry.transferDomainIds),
-                }
+            deliverable_items[item_id] = DeliverableItem(
+                item_types=frozenset(deliver_item_types),
+                regions=frozenset(entry.transferDomainIds),
             )
 
         # ── 仓储节点 ─────────────────────────────────────────────────
@@ -65,12 +74,11 @@ class DeliveryJobs(Dataset):
                 level_list.values(),
                 key=lambda value: value.level,
             ):
-                deliver_item_types = set(level_value.deliverItemTypeList)
+                level_item_types = frozenset(level_value.deliverItemTypeList)
                 fillable_item_ids.update(
-                    item["id"]
-                    for item in deliverable_items
-                    if region_id in item["transfer_regions"]
-                    and bool(deliver_item_types & set(item["deliver_item_types"]))
+                    item_id
+                    for item_id, item in deliverable_items.items()
+                    if region_id in item.regions and level_item_types & item.item_types
                 )
 
             fillable_items = sorted(fillable_item_ids)

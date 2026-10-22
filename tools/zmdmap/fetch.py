@@ -15,6 +15,7 @@
 本地已是最新时跳过下载：逐份拿本地文件里自称的 ``sha256`` 跟清单比，一样的跳过，不一样的才下。清单本身
 每次都带时间戳取 —— 它只有几百字节，却决定了整批判断，被远端缓存住就会拿旧索引判断。无论下载与否都会跑
 一次入库。上游还没发布的数据只提示、不当失败：本地可以用 ``uv run zmdmap generate --only <名字>`` 生成。
+``--dry-run`` 走到「这一批会下哪几份」为止就停：清单照读、照比对，但不下载、不写文件。
 
 发布的都是**原始形态**（只带游戏世界坐标），一律先落不入库的 ``data/raw/``，再由
 :mod:`tools.zmdmap.materialize` 材料化进入库的 ``data/``：需要投影的补上底图像素，不需要投影的原样复制。
@@ -323,6 +324,7 @@ def download(
     plain_files: Sequence[str],
     *,
     force: bool = False,
+    dry_run: bool = False,
 ) -> list[str]:
     """按需把这几份数据下载到 ``raw_dir``；返回这次**真的下过**的文件名（也就是还要入库的那几份）。
 
@@ -333,6 +335,8 @@ def download(
 
     ``force`` 是不比对、直接重下这几份，并且请求 URL 上的 ``t`` 用时间戳而不是清单指纹 —— 「怀疑远端说辞」
     时的唯一手段（这个 CDN 只看 URL，请求头说了不算）。CI 上没有额外开关：本地与 CI 跑的是同一套判断。
+
+    ``dry_run`` 只把「这一批会下哪几份」算出来（照样读清单、照样比对），不下文件也不写盘。
     """
     todo = [*projected_files, *plain_files]
     token = str(int(time.time() * 1000)) if force else None
@@ -343,16 +347,16 @@ def download(
         print("[fetch-data] 强制下载（--force），不比对本地内容")
     elif manifest is not None:
         todo, unlisted = manifest_plan(target_dir, todo, manifest)
-        label = f"v{version}" if version else "清单没写版本"
+        label = f"清单 v{version}" if version else "清单（没写版本）"
         if unlisted:
             print(
-                f"[fetch-data] 清单里没有这几份，保持本地原样：{'、'.join(unlisted)}",
+                f"[fetch-data] 这几份不在{label}里，保持本地原样：{'、'.join(unlisted)}",
                 file=sys.stderr,
             )
         if todo:
-            print(f"[fetch-data] 清单 {label}：{len(todo)} 份内容有变化")
+            print(f"[fetch-data] {label}：{len(todo)} 份内容有变化")
         else:
-            print(f"[fetch-data] 本地内容与清单一致（{label}），跳过下载")
+            print(f"[fetch-data] 本地内容与{label}一致，跳过下载")
             return []
     else:
         print(
@@ -364,21 +368,25 @@ def download(
     hashes = manifest.files if manifest is not None else {}
     written = list(todo)
     if todo:
-        pending = set(todo)
-        missing = fetch_and_cache(
-            raw_dir,
-            version,
-            [file_name for file_name in projected_files if file_name in pending],
-            [file_name for file_name in plain_files if file_name in pending],
-            token=token,
-            hashes=hashes,
-            force=force,
-        )
-        if missing:
-            print(f"[fetch-data] 上游还没发布：{', '.join(missing)}", file=sys.stderr)
-            unpublished = set(missing)
-            written = [file_name for file_name in todo if file_name not in unpublished]
-    print(f"[fetch-data] 完成，当前版本: v{version}" if version else "[fetch-data] 完成")
+        if dry_run:
+            print(f"[fetch-data] --dry-run：这一批会下载 {len(todo)} 份")
+        else:
+            pending = set(todo)
+            missing = fetch_and_cache(
+                raw_dir,
+                version,
+                [file_name for file_name in projected_files if file_name in pending],
+                [file_name for file_name in plain_files if file_name in pending],
+                token=token,
+                hashes=hashes,
+                force=force,
+            )
+            if missing:
+                print(f"[fetch-data] 上游还没发布：{', '.join(missing)}", file=sys.stderr)
+                unpublished = set(missing)
+                written = [file_name for file_name in todo if file_name not in unpublished]
+    if not dry_run:
+        print(f"[fetch-data] 完成，当前版本: v{version}" if version else "[fetch-data] 完成")
     return written
 
 
@@ -420,6 +428,7 @@ def download(
     help="先下载已发布数据（--no-download 时只用本地 data/raw/ 重新入库）",
 )
 @click.option("--raw-only", is_flag=True, help="只下载原始形态（只写 --out-dir），不做入库")
+@click.option("--dry-run", is_flag=True, help="只报告会下载、入库哪几份，不下载也不写文件")
 def fetch_command(
     out_dir: Path,
     data_dir: Path,
@@ -428,6 +437,7 @@ def fetch_command(
     force: bool,
     with_download: bool,
     raw_only: bool,
+    dry_run: bool,
 ) -> None:
     """下载 zmdmap 已发布的原始数据，并入库到 data/。"""
     raw_dir = out_dir.expanduser().resolve()
@@ -444,12 +454,35 @@ def fetch_command(
         # --raw-only 下产出的就是原始形态、比它自己。原始形态目录是 .gitignore 的本地缓存，空着不算旧。
         target_dir = raw_dir if raw_only else data_dir
         try:
-            pending = set(download(raw_dir, target_dir, pipeline_files, plain_files, force=force))
+            pending = set(
+                download(
+                    raw_dir,
+                    target_dir,
+                    pipeline_files,
+                    plain_files,
+                    force=force,
+                    dry_run=dry_run,
+                )
+            )
         except (OSError, ValueError) as error:
             raise click.ClickException(str(error)) from error
     else:
         click.echo("── 下载：跳过（--no-download），直接用现有 data/raw/")
         pending = {*pipeline_files, *plain_files}
+
+    if dry_run:
+        click.echo("\n── 将执行（--dry-run，未执行）────────────────────")
+        click.echo(f"  原始数据目录：{raw_dir}")
+        click.echo(f"  入库数据目录：{data_dir}")
+        if raw_only:
+            click.echo("  入库    ：未启用（--raw-only）")
+        else:
+            projected = [file_name for file_name in pipeline_files if file_name in pending]
+            plain = [file_name for file_name in plain_files if file_name in pending]
+            click.echo(f"  投影    ：{len(projected)} 份 {raw_dir} -> {data_dir}")
+            click.echo(f"  复制    ：{len(plain)} 份 {raw_dir} -> {data_dir}")
+        click.echo("\n--dry-run：没有下载，也没有写任何数据文件")
+        return
 
     if raw_only:
         click.echo("入库：未执行（--raw-only）")

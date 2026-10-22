@@ -17,6 +17,9 @@ from typing import Any, ClassVar
 from ..utils.config import MAAEND_LOCALES
 from ..utils.game_data import build_level_index, localized_text, read_gameplay_config
 
+#: 内联文本算哪一种语言：表里自带的那份 ``text`` 是游戏里的中文原文。
+INLINE_LOCALE = "zh_cn"
+
 #: 数据集名（= 模块名）-> :class:`Dataset` 子类；子类定义时自动登记。
 REGISTRY: dict[str, type[Dataset]] = {}
 
@@ -36,8 +39,9 @@ class Dataset(ABC):
 
     #: 入库时是否需要投影：需要投影的按 BaseNav 的 zone 表把世界坐标换成底图像素，其余原样复制。
     needs_projection: ClassVar[bool] = False
-    #: 只消费 TableCfg 的数据集可关闭 JsonData 目录预检。
-    requires_json_data: ClassVar[bool] = True
+    #: 是否要读 JsonData（``GameplayConfig`` / ``LevelMapLoadConfig``）。缺省关掉：只读 TableCfg 的数据集
+    #: 单独生成时，不必要求另一个兄弟仓库的 JsonData 目录也挂着。真正读它的数据集要显式打开。
+    requires_json_data: ClassVar[bool] = False
     #: 需要投影时，条目数组在数据里的键（按投影顺序）。
     projection_containers: ClassVar[tuple[str, ...]] = ()
 
@@ -68,20 +72,22 @@ class Dataset(ABC):
     def localized_names(ref: Any, table_cfg_dir: Path, label: str) -> dict[str, str]:
         """表里的文本引用（``{"id": …, "text": …}``）-> 五语字典（locale -> 文本）。
 
-        文本自带（``text``）就不用查表；否则按 ``id`` 逐语查 ``I18nTextTable_*.json``。缺失一律报错：
-        管线按 locale 取名字，少一种语言是任务侧的隐形失败，不如在这里挡下来。
+        逐语查 ``I18nTextTable_*.json``；文本自带（``text``）时它只顶中文那一份，其余语言照样查表，查不到
+        才退回它 —— 直接把中文铺满五种语言会让产物里的英/日/韩名字变成中文，而外面看不出来。缺失一律
+        报错：管线按 locale 取名字，少一种语言是任务侧的隐形失败，不如在这里挡下来。
         """
         inline = ref.get("text") if isinstance(ref, dict) else None
-        if inline:
-            return {locale: inline for locale, _ in MAAEND_LOCALES}
-
         text_id = ref.get("id") if isinstance(ref, dict) else None
-        if not text_id:
+        if not text_id and not inline:
             raise DatasetError(f"{label} 缺少 i18n id")
 
         names: dict[str, str] = {}
         for locale, lang_code in MAAEND_LOCALES:
-            text = localized_text(table_cfg_dir, text_id, lang_code)
+            if locale == INLINE_LOCALE and inline:
+                names[locale] = inline
+                continue
+            text = localized_text(table_cfg_dir, text_id, lang_code) if text_id else ""
+            text = text or (inline if isinstance(inline, str) else "")
             if not text:
                 raise DatasetError(f"{label} 在 {locale} 中缺少文本 {text_id}")
             names[locale] = text

@@ -23,8 +23,6 @@ def _entry(table: dict, key: str, label: str) -> dict:
 class StockStaple(Dataset):
     """常规地区商店的可补货商品（不含一次性商品和弹性需求物资）。"""
 
-    requires_json_data = False
-
     @classmethod
     def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
         domains = read_table_cfg(table_cfg_dir, "DomainDataTable")

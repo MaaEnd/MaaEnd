@@ -175,12 +175,25 @@ def as_text(value: Any) -> str:
     return value if isinstance(value, str) else ""
 
 
+#: 内联文本算哪一种语言：表里自带的那份 ``text`` 是游戏里的中文原文。
+INLINE_TEXT_SUFFIX = "CN"
+
+
 def texts_of(table_cfg_dir: Path, text_id: int, inline: str = "") -> dict[str, str]:
-    """多语言文本：内联 ``text`` 优先，否则查该语言的文本表；key 是语言后缀（CN/TC/...）。"""
-    if inline:
-        return dict.fromkeys(I18N_TABLE_SUFFIXES.values(), inline)
+    """多语言文本：key 是语言后缀（CN/TC/...）。
+
+    表里自带 ``text`` 时把它当中文，其余语言照 ``text_id`` 查表 —— 只有查不到才退回这份中文。以前是直接
+    把中文铺满五种语言，于是英文/日文/韩文的名字都会变成中文，而产物里看不出来。
+    """
+    if not inline:
+        return {
+            suffix: localized_text(table_cfg_dir, text_id, lang)
+            for lang, suffix in I18N_TABLE_SUFFIXES.items()
+        }
     return {
-        suffix: localized_text(table_cfg_dir, text_id, lang)
+        suffix: inline
+        if suffix == INLINE_TEXT_SUFFIX
+        else (localized_text(table_cfg_dir, text_id, lang) or inline)
         for lang, suffix in I18N_TABLE_SUFFIXES.items()
     }
 

@@ -153,6 +153,7 @@ class DeliveryDestinations(Dataset):
     """送货目的地（普通收货 NPC / 回收站）及其所属仓储节点（``delivery_destinations.json``）。"""
 
     needs_projection = True
+    requires_json_data = True
     projection_containers = ("depots", "destinations")
 
     @classmethod

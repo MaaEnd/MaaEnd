@@ -20,7 +20,7 @@
 | `generate` | 从本地 TableCfg / JsonData 生成到 `data/raw/`，再入库（`--raw-only` 时只出原始形态） |
 | `fetch` | 从 zmdmap 下载已发布的数据到 `data/raw/`，再入库（`--raw-only` 时只下载） |
 
-不带子命令时只打印帮助。`fetch` 的两个步骤各由一个开关控制：`--download/--no-download`、`--raw-only`。两个子命令的 `--only` 都只处理列出的数据集；对 `fetch` 来说，它同时决定**下哪几份**与入库哪几份（缺省全部），各任务生成器就靠它只取自己用得到的数据，不必每次把整包拖下来。
+不带子命令时只打印帮助。`fetch` 的两个步骤各由一个开关控制：`--download/--no-download`、`--raw-only`；`--dry-run` 只报告会下载、入库哪几份，不下载也不写文件（两个子命令都有）。两个子命令的 `--only` 都只处理列出的数据集；对 `fetch` 来说，它同时决定**下哪几份**与入库哪几份（缺省全部），各任务生成器就靠它只取自己用得到的数据，不必每次把整包拖下来。
 
 ```shell
 uv run zmdmap                                     # 打印帮助
@@ -33,6 +33,7 @@ uv run zmdmap generate --out-dir /tmp/x --force
 uv run zmdmap fetch                               # 下载已发布数据并入库
 uv run zmdmap fetch --only sell_product            # 只下载 → 只入库这一份
 uv run zmdmap fetch --no-download                 # 不下载，只用现有 data/raw/ 重新入库
+uv run zmdmap fetch --dry-run                     # 只看会下哪几份、会入库哪几份
 ```
 
 `python -m tools.zmdmap` 与 `uv run zmdmap` 等价。
@@ -72,7 +73,7 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 
 各份数据共用的手法收在 `Dataset` 上，不用各抄一份：`localized_names`（表里的文本引用 → 五语字典，五语缺一即报错）、`level_index`（读 `LevelBasicInfoTable` 建 `idNum -> levelId`），组装错误统一用 `DatasetError`（cli 会补上数据集名）。取数逻辑在各份数据的模块里。
 
-只读 TableCfg 的数据集可声明 `requires_json_data = False`，单独生成时不要求无关的 JsonData 目录。`stock_staple` 从地区商店、商品、奖励、物品、分类与渠道供货表生成，不依赖其他精简数据或人工商品绑定表；消费链见[稳定需求物资维护文档](../../docs/zh_cn/developers/tasks/auto-stockstaple-maintain.md#数据来源与增量更新)。
+只有要读 JsonData（`GameplayConfig` / `LevelMapLoadConfig`）的数据集才声明 `requires_json_data = True`——目前是 `collect_points`、`delivery_destinations`、`teleport_anchors`；其余只读 TableCfg 的默认关着，单独生成时不要求 JsonData 目录存在。`stock_staple` 从地区商店、商品、奖励、物品、分类与渠道供货表生成，不依赖其他精简数据或人工商品绑定表；消费链见[稳定需求物资维护文档](../../docs/zh_cn/developers/tasks/auto-stockstaple-maintain.md#数据来源与增量更新)。
 
 ### 共用件（`utils/`）
 
@@ -107,7 +108,7 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 | `--raw-only` | 只出原始形态（只写 `--out-dir`），不做入库 |
 | `--dry-run` | 只报告会做什么（不合并、不生成、不入库） |
 
-版本默认读兄弟仓库**数据里记的构建号**：`.beyond/ledger/table.json`（BeyondTableCfg）与 `.beyond/ledger/jsondata.json`（BeyondMemoryPack）的 `state.last_res_version` —— 仓库停在 revert 提交上时它仍然准，`*_unpacker.json` 里的那份会过期，不用。客户端版本只有提交标题里有（`Client:1.6.3 Data:…`），所以读不到构建号时才退回标题。两个仓库给出的版本不一致时，按 `utils/config.py` 里 `WORKSPACE_REPO_NAMES` 的顺序取第一个，并在日志里提示是哪一个盖过了哪一个。
+版本默认读兄弟仓库**数据里记的构建号**：`.beyond/ledger/table.json`（BeyondTableCfg）与 `.beyond/ledger/jsondata.json`（BeyondMemoryPack）的 `state.last_res_version` —— 仓库停在 revert 提交上时它仍然准，`*_unpacker.json` 里的那份会过期，不用。客户端版本只有提交标题里有（`Client:1.6.3 Data:…`），所以读不到构建号时才退回标题。两个仓库给出的版本不一致时**取最新的那一份**（客户端版本相同就比数据构建号，如 `11095949-5` 比 `10731330-8` 新），并在日志里提示各自是什么、最后用了哪个。
 
 只对干净的工作区做快进合并，绝不 stash / reset / 覆盖本地改动；本地重算不会凭空改掉版本号（版本写在每份数据里，读不到新的就沿用原有的，见上）。
 

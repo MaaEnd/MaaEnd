@@ -66,6 +66,42 @@ def compose_version(client: str | None, res_version: str | None) -> str | None:
     return client or short
 
 
+_CLIENT_LEADING_DIGITS = re.compile(r"^(\d+)")
+
+
+def build_key(version: str) -> tuple[int, ...] | None:
+    """版本标签里的数据构建号（``11010254-4``）化成可比较的数字段；没有构建号返回 ``None``。
+
+    ``compose_version`` 写出来的形态是「客户端版本 + 构建号」（``1.6.3+11010254-4``），只有构建号时整串就是
+    构建号（``11010254-4``）。
+    """
+    head, _, build = version.partition("+")
+    parts = (build or head).split("-")
+    if len(parts) < 2 or not all(part.isdigit() for part in parts):
+        return None
+    return tuple(int(part) for part in parts)
+
+
+def _client_key(client: str) -> tuple[int, ...]:
+    """客户端版本化成可比较的数字段：``1.10.0`` 比 ``1.9.3`` 新，带字母后缀的取前面的数字。"""
+    parts: list[int] = []
+    for part in client.split("."):
+        matched = _CLIENT_LEADING_DIGITS.match(part)
+        parts.append(int(matched.group(1)) if matched else 0)
+    return tuple(parts)
+
+
+def version_order(version: str) -> tuple[tuple[int, ...], int, tuple[int, ...]]:
+    """比较版本标签谁更新用的 key：先比客户端版本，再比有没有构建号，最后比构建号本身。
+
+    客户端版本更新的一律算更新（``1.7.0`` 比 ``1.6.3+11095949-5`` 新）；客户端版本相同时比数据构建号，
+    有构建号的比没有的具体。所以两个兄弟仓库落后/超前时，取的是数据最新的那一份，而不是列表里排前面的那个。
+    """
+    client = version.partition("+")[0]
+    key = build_key(version)
+    return (_client_key(client), 1 if key is not None else 0, key or ())
+
+
 @dataclass
 class RepoOutcome:
     """一个仓库的同步结果。"""
@@ -185,8 +221,8 @@ def repo_data_version(repo: Path) -> str | None:
 def data_version(workspace: Path) -> str | None:
     """工作区下兄弟仓库的游戏数据版本（``1.6.3+11010254-4``），读不到返回 ``None``。
 
-    每个仓库都先看**数据**里的构建号、再退回提交标题（见 :func:`repo_data_version`），按
-    ``WORKSPACE_REPO_NAMES`` 的顺序取第一个有值的；几个仓库的版本不一致时提示一句再取第一个。
+    每个仓库都先看**数据**里的构建号、再退回提交标题（见 :func:`repo_data_version`），几个仓库
+    **取最新的那一份**（:func:`version_order`）—— 两个仓库通常一起解包，落后的一方不该把版本标签拉回去。
     数据文件里的 ``version`` 字段就是这个值：给 ``zmdmap generate`` 用，免得每份数据各写各的版本，
     也免得另外维护一份「当前是哪一版」的记录。
     """
@@ -195,10 +231,17 @@ def data_version(workspace: Path) -> str | None:
         version = repo_data_version(workspace / name)
         if version:
             found.append((name, version))
+    if not found:
+        return None
+    newest = max(found, key=lambda item: version_order(item[1]))
     if len({version for _, version in found}) > 1:
         detail = "、".join(f"{name} {version}" for name, version in found)
-        print(f"[zmdmap] 兄弟仓库数据版本不一致：{detail}；取 {found[0][1]}", file=sys.stderr)
-    return found[0][1] if found else None
+        print(
+            f"[zmdmap] 兄弟仓库数据版本不一致：{detail}；取最新的 {newest[1]}（{newest[0]}）。"
+            "两侧停在不同批次时可以先跑 uv run zmdmap generate --sync",
+            file=sys.stderr,
+        )
+    return newest[1]
 
 
 def sync_workspace(workspace: Path, *, dry_run: bool) -> tuple[list[RepoOutcome], bool]:

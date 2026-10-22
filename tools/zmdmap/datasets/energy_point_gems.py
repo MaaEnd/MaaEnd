@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from ..utils.game_data import Record, as_text, logger, read_table_cfg, ref_text
-from .base import Dataset
+from .base import Dataset, DatasetError
 
 
 class EnergyPointGems(Dataset):
@@ -38,7 +38,7 @@ class EnergyPointGems(Dataset):
             group_id = as_text(point.get("gameGroupId"))
             group = groups.get(group_id)
             if group is None:
-                raise ValueError(f"能量淤积点 {point_id} 引用了未知分组 {group_id!r}")
+                raise DatasetError(f"能量淤积点 {point_id} 引用了未知分组 {group_id!r}")
             mechanics_id = as_text(point.get("gameMechanicsId")) or point_id
             mechanic = mechanics.get(mechanics_id)
             rows.append(

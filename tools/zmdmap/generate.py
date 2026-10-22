@@ -7,7 +7,6 @@ BaseNav 的 zone 表补上底图像素，不需要投影的原样复制；``--ra
 提交标题）或 ``--version``，写到每份原始数据的最前面；入库与 ``fetch`` 都只沿用，不改它。
 """
 
-import json
 import time
 from collections.abc import Sequence
 from pathlib import Path
@@ -51,16 +50,6 @@ _SOURCE_LABELS = {
     click.core.ParameterSource.ENVIRONMENT: "环境变量",
     click.core.ParameterSource.DEFAULT: "默认",
 }
-
-
-def should_skip(output_path: Path, data: Any, force: bool) -> bool:
-    if force or not output_path.is_file():
-        return False
-    try:
-        current = json.loads(output_path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return False
-    return current == data
 
 
 def parameter_source(ctx: click.Context, name: str) -> str:
@@ -128,7 +117,7 @@ def generate_datasets(
             raise click.ClickException(f"[{dataset.name}] {error}") from error
         stamp = version or read_version(output_path) or read_version(data_dir / dataset.file_name)
         data = with_metadata(data, stamp)
-        if should_skip(output_path, data, force):
+        if not force and is_unchanged(output_path, data):
             click.echo(f"[{dataset.name}] 生成结果未变化，跳过写入：{output_path}")
             continue
         try:
@@ -288,8 +277,9 @@ def generate_command(
     click.echo("\n── 生成（原始形态）──────────────────────────────")
     started = time.monotonic()
     generated_ok = True
+    written = 0
     try:
-        generate_datasets(
+        written = generate_datasets(
             datasets,
             table_cfg_dir,
             json_data_dir,
@@ -333,7 +323,13 @@ def generate_command(
         click.echo(f"同步：{'有失败' if sync_failed else '正常'}")
     else:
         click.echo("同步：未执行（--no-sync）")
-    click.echo(f"生成：{'正常' if generated_ok else '失败'}（{generate_seconds:.1f}s）")
+    if generated_ok:
+        unchanged = len(datasets) - written
+        click.echo(
+            f"生成：正常（{generate_seconds:.1f}s，重写 {written} 份、未变化 {unchanged} 份）"
+        )
+    else:
+        click.echo(f"生成：失败（{generate_seconds:.1f}s）")
     if materialized_ok is None:
         click.echo("入库：未执行（--raw-only）")
     else:

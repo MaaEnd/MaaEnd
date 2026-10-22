@@ -65,14 +65,6 @@ DATASET_NAMES: tuple[str, ...] = tuple(dataset.name for dataset in DATASETS)
 #: 产物文件名 -> 数据集。
 _BY_FILE: dict[str, type[Dataset]] = {dataset.file_name: dataset for dataset in DATASETS}
 
-#: 入库要投影 / 原样复制的数据集文件名。
-PROJECT_FILES: tuple[str, ...] = tuple(
-    dataset.file_name for dataset in DATASETS if dataset.needs_projection
-)
-COPY_FILES: tuple[str, ...] = tuple(
-    dataset.file_name for dataset in DATASETS if not dataset.needs_projection
-)
-
 
 def select_datasets(names: Sequence[str]) -> tuple[type[Dataset], ...]:
     """按名字挑数据集；顺序始终跟随 :data:`DATASETS`。"""

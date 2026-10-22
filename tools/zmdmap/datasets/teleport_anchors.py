@@ -55,6 +55,7 @@ class TeleportAnchors(Dataset):
     """营地（地图上的传送锚点）（``teleport_anchors.json``）。"""
 
     needs_projection = True
+    requires_json_data = True
     projection_containers = ("anchors",)
 
     @classmethod
