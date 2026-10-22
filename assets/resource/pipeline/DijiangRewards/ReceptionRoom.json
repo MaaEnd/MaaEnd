@@ -21,12 +21,21 @@
         "pre_wait_freezes": 200,
         "pre_delay": 0,
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    35,
+                    0,
+                    0
+                ]
+            }
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "ReceptionRoomClueExchangeWait",
+            "[JumpBack]SceneNoticeRewardsConfirm",
             "ReceptionRoomViewWait"
         ]
     },
@@ -151,6 +160,7 @@
         "rate_limit": 0,
         "next": [
             "ReceptionRoomClueExchangeWait",
+            "[JumpBack]SceneNoticeRewardsConfirm",
             "ReceptionRoomViewIn"
         ],
         "focus": {
@@ -191,6 +201,7 @@
             "ReceptionRoomWaitExchangeBeforeStart",
             "[JumpBack]ReceptionRoomSendCluesDirect",
             "ReceptionRoomClueExchangeWait",
+            "[JumpBack]SceneNoticeRewardsConfirm",
             "ReceptionRoomExit"
         ],
         "focus": {
