@@ -715,6 +715,7 @@
     "VisitFriendsQuickVisitNext": {
         "desc": "识别快速拜访下一位提示并点击；未选任何助力时需同时命中线索交流图标",
         "enabled": false,
+        "max_hit": 10,
         "recognition": "And",
         "all_of": [
             {
