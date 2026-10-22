@@ -86,5 +86,8 @@ wsl -d Ubuntu-24.04 -u root -- bash -c "pkill -f 'user-data-dir=/root/chrome-pro
 10. **MXU 白屏「加载失败 Object.entries requires that input parameter not be null or undefined」的两种触发**
    - 往 `interface.json` 的 `resource` 里**新增条目**（哪怕补了 `label`）→ 前端崩。改用扩充「官服」的 `path`（`merge_web_into_cn_resource.py`）。
    - 往预设里**手插任务**时缺 `optionValues` 字段 → 前端对该字段做 `Object.entries` 直接抛错。手写任务条目必须带 `"optionValues": {}`（`insert_webstart_task.py`）。
-11. **任务名显示成 `task.LaunchGameLinux.label` 这种原始键**：`locales/interface/*.json` 是旧版语言包，v2.35 新增任务的键缺失。
-   不是改坏的，升级时要把 `locales/` 一起换（`auto_update.sh` 目前也没换 locales）。
+11. **任务名显示成 `task.LaunchGameLinux.label` 这种原始键**：`locales/interface/*.json` 是旧版语言包（2532 键），
+   v2.35 新增任务的键缺失。**语言包源在仓库 `assets/locales/interface/`**（2705 键，含 DESCRIPTION/*.md），
+   不是 GitHub raw（那个路径 404）。同步后重跑 `add_webstart_i18n.py` 补我们自己的键。
+   实测：换完语言包，MXU 任务列表立刻从 `task.LaunchGameLinux.label` 变成「启动游戏（Linux）」。
+   `auto_update.sh` 目前也没换 locales，属于同类漂移。
