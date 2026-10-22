@@ -28,6 +28,7 @@ from ..utils.game_data import (
     text_id_of,
     texts_of,
 )
+from ..utils.shapes import as_array
 from .base import Dataset
 
 # 配方 / 配方升级 / 装备配方：制造说明，不是可用物品。
@@ -125,8 +126,8 @@ def _fluid_maps(
     )
     for table, fluid_type, full_field, empty_field in families:
         for fluid_id, fluid in table.items():
-            full = [as_text(container) for container in fluid.get(full_field) or []]
-            empty = [as_text(container) for container in fluid.get(empty_field) or []]
+            full = [as_text(container) for container in as_array(fluid.get(full_field))]
+            empty = [as_text(container) for container in as_array(fluid.get(empty_field))]
             fluid_type_by_item[fluid_id] = fluid_type
             for container_id in full:
                 fluid_type_by_item[container_id] = fluid_type

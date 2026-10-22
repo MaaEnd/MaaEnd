@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from ..utils.game_data import (
+    as_text,
     level_of,
     load_json_dict,
     logger,
@@ -23,6 +24,7 @@ from ..utils.game_data import (
     read_table_cfg,
     read_xyz,
 )
+from ..utils.shapes import as_object, as_objects, is_array, is_object
 from .base import Dataset, DatasetError
 
 DOODAD_PREFIX = "int_doodad_"
@@ -31,17 +33,17 @@ DOODAD_ID_KEY = "doodad_id"
 
 def doodad_ids_in(node: Any, found: dict[str, str]) -> None:
     """交互数据里每个 ``int_doodad_*`` 模板 -> 它的 ``doodad_id`` 参数；模板表是对象或键值对数组都认。"""
-    if isinstance(node, dict):
+    if is_object(node):
         for key, value in node.items():
-            if key.startswith(DOODAD_PREFIX) and isinstance(value, dict):
+            if key.startswith(DOODAD_PREFIX) and is_object(value):
                 record_doodad_id(key, value, found)
             doodad_ids_in(value, found)
-    elif isinstance(node, list):
+    elif is_array(node):
         if (
             len(node) == 2
             and isinstance(node[0], str)
             and node[0].startswith(DOODAD_PREFIX)
-            and isinstance(node[1], dict)
+            and is_object(node[1])
         ):
             record_doodad_id(node[0], node[1], found)
         for child in node:
@@ -49,11 +51,13 @@ def doodad_ids_in(node: Any, found: dict[str, str]) -> None:
 
 
 def record_doodad_id(template_id: str, template: dict[str, Any], found: dict[str, str]) -> None:
-    for prop in template.get("diffProperties") or []:
-        if isinstance(prop, dict) and prop.get("key") == DOODAD_ID_KEY:
-            values = (prop.get("value") or {}).get("valueArray") or []
-            if values and values[0].get("valueString"):
-                found[template_id] = values[0]["valueString"]
+    for prop in as_objects(template.get("diffProperties")):
+        if prop.get("key") != DOODAD_ID_KEY:
+            continue
+        values = as_objects(as_object(prop.get("value")).get("valueArray"))
+        text = as_text(values[0].get("valueString")) if values else ""
+        if text:
+            found[template_id] = text
 
 
 def primary_item(doodad: Any, reward_table: Any) -> str:

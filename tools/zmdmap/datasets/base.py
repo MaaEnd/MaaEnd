@@ -16,6 +16,7 @@ from typing import Any, ClassVar
 
 from ..utils.config import MAAEND_LOCALES
 from ..utils.game_data import build_level_index, localized_text, read_gameplay_config
+from ..utils.shapes import is_object
 
 #: 内联文本算哪一种语言：表里自带的那份 ``text`` 是游戏里的中文原文。
 INLINE_LOCALE = "zh_cn"
@@ -76,8 +77,8 @@ class Dataset(ABC):
         才退回它 —— 直接把中文铺满五种语言会让产物里的英/日/韩名字变成中文，而外面看不出来。缺失一律
         报错：管线按 locale 取名字，少一种语言是任务侧的隐形失败，不如在这里挡下来。
         """
-        inline = ref.get("text") if isinstance(ref, dict) else None
-        text_id = ref.get("id") if isinstance(ref, dict) else None
+        inline = ref.get("text") if is_object(ref) else None
+        text_id = ref.get("id") if is_object(ref) else None
         if not text_id and not inline:
             raise DatasetError(f"{label} 缺少 i18n id")
 

@@ -43,13 +43,14 @@ def get(
     4xx 立刻返回（不算失败，由调用方决定怎么办）；重试用完仍失败时抛最后一次的异常。``headers``
     是这次请求额外的头（例如 ``Range`` / ``Accept``）；UA 之类共用的那份由 :func:`new_client` 统一设。
     """
+    failure: Exception = RuntimeError(f"没有发起请求：{url}")
     for attempt in range(REQUEST_ATTEMPTS):
         if attempt:
             time.sleep(RETRY_BACKOFF * attempt)
         try:
             response = client.get(url, headers=headers)
         except httpx.TransportError as error:
-            failure: Exception = error
+            failure = error
         else:
             if response.status_code < 500:
                 return response

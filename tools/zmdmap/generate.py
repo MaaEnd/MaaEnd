@@ -45,7 +45,7 @@ from .utils.sync import (
 )
 
 # 路径是怎么定下来的，日志里说清楚（CI 上排查「读的是哪份数据」时最有用）。
-_SOURCE_LABELS = {
+_SOURCE_LABELS: dict[click.core.ParameterSource, str] = {
     click.core.ParameterSource.COMMANDLINE: "命令行",
     click.core.ParameterSource.ENVIRONMENT: "环境变量",
     click.core.ParameterSource.DEFAULT: "默认",
@@ -55,6 +55,8 @@ _SOURCE_LABELS = {
 def parameter_source(ctx: click.Context, name: str) -> str:
     """这个参数的值是命令行给的、环境变量给的，还是没给走的默认值。"""
     source = ctx.get_parameter_source(name)
+    if source is None:
+        return "默认"
     return _SOURCE_LABELS.get(source, "默认")
 
 

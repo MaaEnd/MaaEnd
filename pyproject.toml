@@ -40,7 +40,10 @@ scripts = [
     { include-group = "images" },
     { include-group = "map-navigator" },
 ]
-dev = ["ruff>=0.17"]
+dev = [
+    "pyright>=1.1.414",
+    "ruff>=0.17",
+]
 
 [tool.ruff]
 target-version = "py314"
@@ -81,3 +84,11 @@ package = true
 [tool.uv.build-backend]
 module-name = ["tools.AutoCollectRoute", "tools.MapNavigator", "tools.sentry", "tools.setup", "tools.zmdmap"]
 module-root = ""
+
+[tool.pyright]
+# 先只纳入 tools/zmdmap（strict）；其余 Python 工具逐步跟进，别一次把几百条历史问题当成本次改动。
+include = ["tools/zmdmap"]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.14"
+typeCheckingMode = "strict"

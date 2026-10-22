@@ -15,6 +15,8 @@ from typing import Any
 
 from ..utils.game_data import (
     Record,
+    as_record,
+    as_records,
     level_of,
     logger,
     map_of_level,
@@ -47,7 +49,7 @@ def area_text_key(level_map: Record, basic: Record, x: float, z: float) -> str:
         labels, key=lambda element: (element.position.x - x) ** 2 + (element.position.z - z) ** 2
     )
     # 任务推进后标签会换字，取最后一段
-    phases = nearest.get("textPhases") or []
+    phases = as_records(nearest.get("textPhases"))
     return phases[-1].textId if phases else nearest.textId
 
 
@@ -87,7 +89,7 @@ class TeleportAnchors(Dataset):
                 label = f"营地 {basic.markInstId}"
                 x, z = read_xz(basic.pos, f"LevelMapMark[{basic.markInstId}].pos")
 
-                detailed = mark.detailedData or {}
+                detailed = as_record(mark.detailedData)
                 teleport_id = detailed.get("teleportValidationId")
                 if not isinstance(teleport_id, str) or not teleport_id:
                     logger.warning(f"{label} 缺少 teleportValidationId")

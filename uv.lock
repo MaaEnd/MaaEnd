@@ -194,6 +194,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "pyright" },
     { name = "ruff" },
 ]
 images = [
@@ -244,7 +245,10 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "ruff", specifier = ">=0.17" }]
+dev = [
+    { name = "pyright", specifier = ">=1.1.414" },
+    { name = "ruff", specifier = ">=0.17" },
+]
 images = [
     { name = "numpy", specifier = ">=2.5" },
     { name = "pillow", specifier = ">=13.0" },
@@ -303,6 +307,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/ef/2a/ce32ec6be75a857b03da6b88bc19d8f3109497da2f26ee5cfb546892870a/maafw-5.14.3-py3-none-manylinux2014_x86_64.whl", hash = "sha256:b6fb6b7a6f31db8940622ec1f8ffb2d8ab319238a20b4fcd5bdb07b6a662ebdc", size = 23484491, upload-time = "2026-10-10T06:37:52.484Z" },
     { url = "https://files.pythonhosted.org/packages/63/13/139f635742beb6ae8fc63c9975c0de414905af2022d1174f59e054bf261d/maafw-5.14.3-py3-none-win_amd64.whl", hash = "sha256:5fcd48d85b2110150f19848da777564abe64e4ca64966704cb8dec948d243ce5", size = 36390526, upload-time = "2026-10-10T06:37:55.342Z" },
     { url = "https://files.pythonhosted.org/packages/23/2e/225c1911bc6cf89816072fad7493f1fbee79c1bfa301c80dd1fa60cdf19b/maafw-5.14.3-py3-none-win_arm64.whl", hash = "sha256:609e8306c8c39a4bc60f56c17df5a2fd0d63df955b87d040567b208b53eef139", size = 36968952, upload-time = "2026-10-10T06:37:58.335Z" },
+]
+
+[[package]]
+name = "nodeenv"
+version = "1.11.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9a/8e/105de02c1322cfada6d9710d9146ef8026419d433c9d08359a2d35805811/nodeenv-1.11.0.tar.gz", hash = "sha256:3ce8fe5b71d16e8af7039ca65257354100bc772965d6bc549070649e53b1b146", size = 99301, upload-time = "2026-09-26T11:29:21.367Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/54/c8/12811c9b48fde162bb72b6f2e78fada9a247a09d7bb5be2050a5d099c77b/nodeenv-1.11.0-py2.py3-none-any.whl", hash = "sha256:edaa16e6c14d7cf395d75d4bbd5a26390f4dc06501a33b4e76282b02cc688a25", size = 34277, upload-time = "2026-09-26T11:29:19.933Z" },
 ]
 
 [[package]]
@@ -606,6 +619,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e8/52/d87eba7cb129b81563019d1679026e7a112ef76855d6159d24754dbd2a51/pyperclip-1.11.0.tar.gz", hash = "sha256:244035963e4428530d9e3a6101a1ef97209c6825edab1567beac148ccc1db1b6", size = 12185, upload-time = "2025-09-26T14:40:37.245Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/df/80/fc9d01d5ed37ba4c42ca2b55b4339ae6e200b456be3a1aaddf4a9fa99b8c/pyperclip-1.11.0-py3-none-any.whl", hash = "sha256:299403e9ff44581cb9ba2ffeed69c7aa96a008622ad0c46cb575ca75b5b84273", size = 11063, upload-time = "2025-09-26T14:40:36.069Z" },
+]
+
+[[package]]
+name = "pyright"
+version = "1.1.414"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nodeenv" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e1/1b/244c7b710031ada80f27e579ec20d28a2285dfc318fed0339866b1047f12/pyright-1.1.414.tar.gz", hash = "sha256:523c0a97c60da6333234955c277730c9cf4f5bd6d5399e7b7d2b0fc5d3599524", size = 4154638, upload-time = "2026-09-10T12:26:53.181Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d7/ba/18b6e682ead424ad24bcc134339ae5d1b931cd9ae260540592a058a91279/pyright-1.1.414-py3-none-any.whl", hash = "sha256:2a6b4b3298c9eec174c5ed83bd338de6eee82df2992f3e1930e6199d381be36f", size = 6225049, upload-time = "2026-09-10T12:26:51.427Z" },
 ]
 
 [[package]]

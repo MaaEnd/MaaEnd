@@ -10,11 +10,11 @@ import math
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import read_table_cfg
+from ..utils.game_data import Record, read_table_cfg
 from .base import Dataset, DatasetError
 
 
-def _entry(table: dict, key: str, label: str) -> dict:
+def _entry(table: Record, key: str, label: str) -> Record:
     if key not in table:
         raise DatasetError(f"{label} 引用了不存在的 {key}")
     return table[key]
@@ -34,7 +34,7 @@ class StockStaple(Dataset):
         tags = read_table_cfg(table_cfg_dir, "ShopGoodsTagTable")
         channels = read_table_cfg(table_cfg_dir, "ShopChannelDevelopmentTable")
 
-        supplies: dict[str, list[dict]] = {}
+        supplies: dict[str, list[dict[str, Any]]] = {}
         for channel_id, channel in sorted(channels.items()):
             for level, row in sorted(channel.channelLevelMap.items(), key=lambda x: int(x[0])):
                 if len(row.newGoodsList) != len(row.newGoodsNum):
@@ -48,7 +48,12 @@ class StockStaple(Dataset):
                         "time_id": row.timeId,
                     })
 
-        output: dict[str, dict] = {"regions": {}, "categories": {}, "items": {}, "goods": {}}
+        output: dict[str, dict[str, Any]] = {
+            "regions": {},
+            "categories": {},
+            "items": {},
+            "goods": {},
+        }
         for region_id, domain in sorted(domains.items(), key=lambda x: (x[1].sortId, x[0])):
             group_id = domain.domainShopGroupId
             if not group_id:

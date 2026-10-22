@@ -15,12 +15,15 @@ from typing import Any
 
 from ..utils.game_data import (
     Record,
+    as_int,
+    as_number,
     load_json_dict,
     logger,
     read_gameplay_config,
     read_table_cfg,
     read_xyz,
 )
+from ..utils.shapes import as_object, as_objects
 from .base import Dataset, DatasetError
 
 # DomainDepotDeliverTargetTable.entityType 枚举 -> 输出 kind。
@@ -69,16 +72,12 @@ def _build_depots_by_level(
 
 def _extract_system_instance_id(entity: dict[str, Any], system_component: str) -> str | None:
     """从 LevelData 交互实体的 componentProperties 中取 system_inst_key。"""
-    component_properties = entity.get("componentProperties") or {}
-    prop_list = component_properties.get(system_component)
-    if not prop_list:
-        return None
+    component_properties = as_object(entity.get("componentProperties"))
+    prop_list = as_objects(component_properties.get(system_component))
     for item in prop_list:
-        if not isinstance(item, dict):
-            continue
         if item.get("key") == "system_inst_key":
-            arr = (item.get("value") or {}).get("valueArray", [])
-            if arr and isinstance(arr[0], dict):
+            arr = as_objects(as_object(item.get("value")).get("valueArray"))
+            if arr:
                 return str(arr[0].get("valueString", ""))
     return None
 
@@ -127,16 +126,14 @@ def _find_entity_pose(
         except Exception as e:
             logger.warning(f"读取关卡文件失败 {json_file}: {e}")
             continue
-        for entity in data.get("interactives", []):
-            if not isinstance(entity, dict):
-                continue
+        for entity in as_objects(data.get("interactives")):
             if entity.get("entityDataIdKey") != interactive_id:
                 continue
             if _extract_system_instance_id(entity, system_component) != target_id:
                 continue
 
-            rotation = entity.get("rotation") or {}
-            yaw = float(rotation.get("y", 0.0) or 0.0)
+            rotation = as_object(entity.get("rotation"))
+            yaw = float(as_number(rotation.get("y")))
 
             return {"yaw": yaw}
     return None
@@ -263,7 +260,7 @@ class DeliveryDestinations(Dataset):
                     raise DatasetError(
                         f"资源回收站 {entity_key} 的层级与{label}的层级 {level_id} 不一致"
                     )
-                serial_id = recycle_bin.serialId
+                serial_id = as_int(recycle_bin.serialId)
                 if serial_id <= 0:
                     raise DatasetError(f"资源回收站 {entity_key} 的 serialId {serial_id!r} 无效")
 

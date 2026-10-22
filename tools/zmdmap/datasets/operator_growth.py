@@ -19,12 +19,10 @@
 消费端要单独统计货币时不必再认别的字段。
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import as_text, logger, read_table_cfg
+from ..utils.game_data import as_records, as_text, logger, read_table_cfg
 from .base import Dataset, DatasetError
 
 # 技能组的排列顺序（游戏里就是这么排的）；表里没有的组名排在后面按名字排。
@@ -97,7 +95,7 @@ class OperatorGrowth(Dataset):
     def _items_of(node: Any, used: set[str]) -> dict[str, int]:
         """节点 ``requiredItem`` / ``itemBundle`` -> 「素材 id -> 数量」。"""
         items: dict[str, int] = {}
-        for required in node.get("requiredItem") or node.get("itemBundle") or []:
+        for required in as_records(node.get("requiredItem")) or as_records(node.get("itemBundle")):
             item_id = as_text(required.get("id"))
             count = required.get("count", 0)
             if not item_id or not isinstance(count, int) or count <= 0:
@@ -140,7 +138,7 @@ class OperatorGrowth(Dataset):
     def _skills(cls, entry: Any, used: set[str]) -> list[dict[str, Any]]:
         """四组技能的逐级消耗，按游戏里的顺序排。"""
         groups: dict[str, list[dict[str, Any]]] = {}
-        for row in entry.get("skillLevelUp") or []:
+        for row in as_records(entry.get("skillLevelUp")):
             group_id = as_text(row.get("skillGroupId"))
             if not group_id:
                 continue

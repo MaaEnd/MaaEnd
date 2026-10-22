@@ -48,6 +48,7 @@ from .utils.datafile import (
     version_of,
 )
 from .utils.http import get, new_client
+from .utils.shapes import is_object
 
 #: 并发下载的连接数；共用 :func:`tools.zmdmap.utils.http.new_client` 的连接池。
 DOWNLOAD_WORKERS = 4
@@ -79,10 +80,10 @@ def parse_manifest(text: str) -> Manifest | None:
         data = json.loads(text)
     except json.JSONDecodeError:
         return None
-    if not isinstance(data, dict):
+    if not is_object(data):
         return None
     files = data.get("files")
-    if not isinstance(files, dict):
+    if not is_object(files):
         return None
     return Manifest(
         version_of(data), {name: value for name, value in files.items() if isinstance(value, str)}
@@ -173,7 +174,7 @@ def content_problem(file_name: str, data: Any, digest: str, expect: str | None) 
     """
     if expect is not None:
         return None if digest == expect else f"与清单不符：清单 {expect}，拿到 {digest}"
-    claimed = data.get(HASH_KEY) if isinstance(data, dict) else None
+    claimed = data.get(HASH_KEY) if is_object(data) else None
     if not claimed:
         print(f"[fetch-data] {file_name} 没带 sha256 字段，无从核对内容，照收", file=sys.stderr)
         return None

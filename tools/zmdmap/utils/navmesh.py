@@ -20,6 +20,7 @@ import httpx
 
 from .config import MODEL_SUBPATH, NAVMESH_FILES, NAVMESH_SUBPATH
 from .http import get, new_client
+from .shapes import is_object
 
 NAV_MAGIC = b"BNAV"
 NAV_HEADER_SIZE = 64
@@ -149,7 +150,7 @@ def _resolve_nav_submodule_sha(client: httpx.Client) -> str:
     if response.status_code >= 400:
         raise ValueError(f"查询 assets/resource/model 版本失败：{response.status_code}")
     body = response.json()
-    sha = body.get("sha") if isinstance(body, dict) else None
+    sha = body.get("sha") if is_object(body) else None
     if not isinstance(sha, str) or not sha:
         raise ValueError("没能确定 assets/resource/model 的版本")
     return sha

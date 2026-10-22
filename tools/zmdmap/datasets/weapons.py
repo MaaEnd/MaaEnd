@@ -19,6 +19,7 @@ from typing import Any
 from ..utils.config import UPSTREAM_LOCALES
 from ..utils.game_data import (
     Record,
+    as_records,
     as_text,
     logger,
     read_table_cfg,
@@ -26,6 +27,7 @@ from ..utils.game_data import (
     text_id_of,
     texts_of,
 )
+from ..utils.shapes import as_array
 from .base import Dataset
 
 
@@ -64,7 +66,7 @@ class Weapons(Dataset):
             if _already_released(table_cfg_dir, weapon_id, row.get("name"), output, released):
                 logger.warning(f"前瞻武器 {row_key}（{weapon_id}）已经发布过，跳过")
                 continue
-            skill_ids = row.get("skIds") or []
+            skill_ids = [as_text(item) for item in as_array(row.get("skIds"))]
             output[weapon_id] = _weapon_entry(
                 table_cfg_dir,
                 weapon_id=weapon_id,
@@ -112,7 +114,7 @@ def _skill_name_ids(patches: Record) -> dict[str, int]:
     """技能 id -> 技能名文本 id（取 ``SkillPatchDataBundle`` 第一级的名字）。"""
     mapping: dict[str, int] = {}
     for skill_id, data in patches.items():
-        bundle = data.get("SkillPatchDataBundle") or []
+        bundle = as_records(data.get("SkillPatchDataBundle"))
         if not bundle:
             continue
         text_id = text_id_of(bundle[0].get("skillName"))

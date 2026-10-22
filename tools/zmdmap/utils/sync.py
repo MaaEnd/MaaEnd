@@ -24,6 +24,7 @@ from .config import (
     WORKSPACE_REPO_NAMES,
     ZMDMAP_DATA_DIR,
 )
+from .shapes import is_object
 
 # 状态 -> 单字符标记，打印同步结果时用。标记只用 GBK 能编出来的字符：Windows 中文控制台
 # 编不出 ✘ / ⚠ 这类符号，写出去就是 UnicodeEncodeError。
@@ -189,8 +190,8 @@ def repo_data_build(repo: Path) -> str | None:
             data = json.loads(ledger.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
-        state = data.get("state") if isinstance(data, dict) else None
-        value = state.get("last_res_version") if isinstance(state, dict) else None
+        state = data.get("state") if is_object(data) else None
+        value = state.get("last_res_version") if is_object(state) else None
         if isinstance(value, str) and value:
             return value
     return None

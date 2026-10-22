@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from ..utils.game_data import Record, as_text, logger, read_table_cfg, ref_text
+from ..utils.shapes import as_array
 from .base import Dataset, DatasetError
 
 
@@ -59,8 +60,9 @@ class EnergyPointGems(Dataset):
 def _term_names(table_cfg_dir: Path, gems: Record, term_ids: Any) -> list[str]:
     """词条 id -> 中文名；查不到就留 id 本身。"""
     names: list[str] = []
-    for term_id in term_ids or []:
-        gem = gems.get(term_id)
+    for term_id in as_array(term_ids):
+        key = as_text(term_id)
+        gem = gems.get(key)
         name = ref_text(table_cfg_dir, gem.get("tagName") if gem else None)
-        names.append(name or term_id)
+        names.append(name or key)
     return names

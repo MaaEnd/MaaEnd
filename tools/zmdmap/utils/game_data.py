@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from .config import I18N_TABLE_SUFFIXES
+from .shapes import is_array, is_object
 
 
 class Record(dict[str, Any]):
@@ -43,9 +44,9 @@ class Record(dict[str, Any]):
 
 def wrap(value: Any) -> Any:
     """把读出来的 JSON 递归换成属性可访问的 ``Record``。"""
-    if isinstance(value, dict):
+    if is_object(value):
         return Record({key: wrap(item) for key, item in value.items()})
-    if isinstance(value, list):
+    if is_array(value):
         return [wrap(item) for item in value]
     return value
 
@@ -130,15 +131,15 @@ def read_level_map_config(json_data_dir: Path, level_id: str) -> Record:
 
 # ``WorldEntityRegistry`` 里有几十条实体没有 ``detailId``：读进来时补上默认值，
 # 免得各份数据的 ``build`` 里取值时分情况。
-WORLD_ENTITY_BRIEF_DEFAULTS = {"detailId": "", "position": {}}
+WORLD_ENTITY_BRIEF_DEFAULTS: dict[str, Any] = {"detailId": "", "position": {}}
 
 
 def _fill_world_entity_defaults(data: Record) -> None:
     brief_infos = data.get("worldEntityBriefInfos")
-    if not isinstance(brief_infos, dict):
+    if not is_object(brief_infos):
         return
     for entity in brief_infos.values():
-        if isinstance(entity, dict):
+        if is_object(entity):
             for field, default in WORLD_ENTITY_BRIEF_DEFAULTS.items():
                 entity.setdefault(field, wrap(default))
 
@@ -163,7 +164,7 @@ def localized_text(table_cfg_dir: Path, text_id: int, lang: str) -> str:
 
 def text_id_of(ref: Any) -> int:
     """``{"id": N, "text": ...}`` 里的文本 id；不是这个形状就是 0。"""
-    if isinstance(ref, dict):
+    if is_object(ref):
         value = ref.get("id")
         if isinstance(value, int):
             return value
@@ -173,6 +174,30 @@ def text_id_of(ref: Any) -> int:
 def as_text(value: Any) -> str:
     """表里的 id/名字字段当字符串用；不是字符串就是空串。"""
     return value if isinstance(value, str) else ""
+
+
+def as_int(value: Any, default: int = 0) -> int:
+    """表里的整数字段当 int 用；缺失、不是整数或是布尔值时用 ``default``。"""
+    if isinstance(value, bool) or not isinstance(value, int):
+        return default
+    return value
+
+
+def as_record(value: Any) -> Record:
+    """当成记录用；不是对象时给个空记录。"""
+    return value if isinstance(value, Record) else Record()
+
+
+def as_records(value: Any) -> list[Record]:
+    """当成「记录数组」用；不是数组时给空列表，数组里不是记录的元素丢掉。"""
+    return [item for item in value if isinstance(item, Record)] if is_array(value) else []
+
+
+def as_number(value: Any, default: float = 0.0) -> float:
+    """表里的数值字段当浮点数用；缺失或不是数值时用 ``default``（布尔值不算数值）。"""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return default
+    return float(value)
 
 
 #: 内联文本算哪一种语言：表里自带的那份 ``text`` 是游戏里的中文原文。
@@ -210,7 +235,7 @@ def ref_text(table_cfg_dir: Path, ref: Any, lang: str = "zh-CN") -> str:
 
 def _inline_text(ref: Any) -> str:
     """文本引用里直接带的那份文本（没有就是空串）。"""
-    inline = ref.get("text") if isinstance(ref, dict) else ""
+    inline = ref.get("text") if is_object(ref) else ""
     return inline if isinstance(inline, str) else ""
 
 
