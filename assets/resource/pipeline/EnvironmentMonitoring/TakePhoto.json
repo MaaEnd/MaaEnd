@@ -135,10 +135,11 @@
         "roi": [
             20,
             20,
-            110,
-            70
+            60,
+            40
         ],
-        // OCR returns the complete tab label "Scene" when open and "Scene Format" when closed.
+        // Complete English tab label: "Scene"; "Formation" is a separate adjacent tab.
+        // Historical OCR joined them as "Scene Format"; retain that bounded alternative.
         "expected": [
             "画面",
             "畫面",
