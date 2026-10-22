@@ -744,7 +744,7 @@
         "rate_limit": 0,
         "timeout": 8000,
         "on_error": [
-            "BatchAddFriendsStrangersScan"
+            "BatchAddFriendsStrangersEnd"
         ],
         "next": [
             "BatchAddFriendsStrangersRecordReject"
