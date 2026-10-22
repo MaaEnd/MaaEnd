@@ -166,6 +166,13 @@ rollback() {
   [ -d "$DEST/maafw" ] && mv "$DEST/maafw" "$ROOT/maafw"
   [ -f "$DEST/interface.json" ] && cp -a "$DEST/interface.json" "$ROOT/interface.json"
   [ -d "$DEST/agent" ] && cp -a "$DEST/agent/." "$ROOT/agent/" 2>/dev/null
+  # 平台层 / 语言包也一起回滚（存在才回，旧的部署里可能没有）
+  for d in locales resource_linux resource_adb resource_cloud_adb resource_macos resource_playcover; do
+    if [ -e "$DEST/$d" ]; then
+      rm -rf "$ROOT/$d"
+      cp -a "$DEST/$d" "$ROOT/$d" 2>/dev/null
+    fi
+  done
   ln -sfn "$ROOT/maafw" "$ROOT/agent/maafw"
   log "已回滚；当前版本 $(cur_version)"
 }
@@ -179,6 +186,10 @@ mkdir -p "$DEST/agent"
 mv "$ROOT/agent/go-service" "$DEST/agent/" 2>/dev/null
 mv "$ROOT/agent/cpp-algo"   "$DEST/agent/" 2>/dev/null
 [ -d "$ROOT/maafw" ] && mv "$ROOT/maafw" "$DEST/maafw"
+# 平台层 / 语言包也备份一份（都很小，几 MB）
+for d in locales resource_linux resource_adb resource_cloud_adb resource_macos resource_playcover; do
+  [ -e "$ROOT/$d" ] && cp -a "$ROOT/$d" "$DEST/$d" 2>/dev/null
+done
 log "已备份到 $DEST"
 
 # 3) 下载 + 解包
@@ -215,6 +226,16 @@ if [ -f "$SRC/agent/go-service" ]; then
   chmod +x "$ROOT/agent/go-service" "$ROOT/agent/cpp-algo" 2>/dev/null
 fi
 [ -d "$SRC/maafw" ] && cp -a "$SRC/maafw" "$ROOT/maafw"
+# 平台层与语言包：MXU 用 Linux 控制器会自动追加 resource_linux —— 版本不一致时
+# PipelineChecker 整包校验失败（悬空 next），而且会连带后面所有覆盖层 load 失败；
+# locales 落后则新任务名显示成 task.Xxx.label 原始键。
+for d in locales resource_linux resource_adb resource_cloud_adb resource_macos resource_playcover; do
+  if [ -e "$SRC/$d" ]; then
+    rm -rf "$ROOT/$d"
+    cp -a "$SRC/$d" "$ROOT/$d" || { log "拷贝 $d 失败"; rollback; rm -rf "$TMP"; exit 0; }
+    log "已同步 $d"
+  fi
+done
 ln -sfn "$ROOT/maafw" "$ROOT/agent/maafw"
 rm -rf "$TMP"
 log "已替换为 $TAG"
