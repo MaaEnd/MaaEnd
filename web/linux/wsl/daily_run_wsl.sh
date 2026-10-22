@@ -67,6 +67,12 @@ trap cleanup EXIT INT TERM
 echo
 echo "===== $(date -Is) WSL 开始  预设=$INSTANCE 任务=[${TASKS:-全部}] ====="
 
+# MXU 自更新会覆盖 resource/interface.json 并冲掉 agent/maafw 链接 → 每次运行前自愈一次
+SELFHEAL="$WEB/linux/wsl/apply_wsl_setup.py"
+if [ -f "$SELFHEAL" ]; then
+  python3 "$SELFHEAL" 2>&1 | sed 's/^/  [自愈] /'
+fi
+
 bash "$WEB/linux/homesrv/chrome_homesrv.sh" || { echo "[X] 启动浏览器失败"; exit 10; }
 
 python3 "$WEB/linux/reset_page.py" --port 9334 --url https://endfield.hypergryph.com/cloud --wait 12 2>&1 | tail -2
