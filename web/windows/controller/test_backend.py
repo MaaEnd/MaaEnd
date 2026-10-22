@@ -256,6 +256,54 @@ def default_mode_case() -> None:
     os.environ.pop(browser.ENV_MODE, None)
 
 
+
+def window_style_cases() -> None:
+    """任务栏可见性与无边框：运行中随时能改、能改回来。"""
+    if sys.platform != "win32":
+        print("SKIP  窗口样式用例（仅 Windows）")
+        return
+    import window_style
+    os.environ[browser.ENV_MODE] = "offscreen"
+    os.environ[browser.ENV_PROFILE] = str(browser.default_profile().parent / "web-profile-style-test")
+    b = None
+    try:
+        b = browser.ensure_backend(viewport=VIEWPORT, url="about:blank")
+        hwnd = b.hwnd
+        st0 = window_style.state(hwnd)
+        case("样式：默认不进任务栏（WS_EX_TOOLWINDOW）", st0["toolwindow"] and not st0["in_taskbar"],
+             f"exstyle={st0['exstyle']}")
+
+        window_style.set_taskbar(hwnd, True)
+        st1 = window_style.state(hwnd)
+        case("样式：随时能改回任务栏/Alt+Tab", st1["in_taskbar"] and not st1["toolwindow"],
+             f"exstyle={st1['exstyle']}")
+
+        window_style.set_taskbar(hwnd, False)
+        st2 = window_style.state(hwnd)
+        case("样式：也能再藏回去", st2["toolwindow"] and not st2["in_taskbar"],
+             f"exstyle={st2['exstyle']}")
+
+        window_style.set_borderless(hwnd, True)
+        window_style.fit_client(hwnd, *VIEWPORT)
+        st3 = window_style.state(hwnd)
+        case("样式：去边框后客户区仍精确 1280x720",
+             st3["borderless"] and st3["client"] == VIEWPORT,
+             f"client={st3['client']} style={st3['style']}")
+
+        window_style.set_borderless(hwnd, False)
+        st4 = window_style.state(hwnd)
+        case("样式：标题栏能恢复（用户可拖动/关闭）", not st4["borderless"], f"style={st4['style']}")
+    except Exception as e:
+        case("样式：整体流程", False, f"{type(e).__name__}: {e}")
+    finally:
+        if b is not None:
+            b.close()
+        os.environ.pop(browser.ENV_MODE, None)
+        os.environ.pop(browser.ENV_PROFILE, None)
+        time.sleep(1.0)
+        shutil.rmtree(browser.default_profile().parent / "web-profile-style-test", ignore_errors=True)
+
+
 def main() -> int:
     # ---- 1. 冷启动 + 2. 无窗口 + 3. 视口 ----
     # 这一段是无头的专项契约（零窗口、UA 里带 Headless），所以显式要 headless 模式，
@@ -357,6 +405,7 @@ def main() -> int:
     offscreen_cases()
     webview2_cases()
     mode_override_cases()
+    window_style_cases()
 
     failed = [r for r in RESULTS if not r[1]]
     print(f"\n=== {len(RESULTS) - len(failed)}/{len(RESULTS)} 通过 ===")

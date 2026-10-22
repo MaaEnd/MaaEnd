@@ -332,6 +332,45 @@ class WebController(CustomController):
             self._log(f"park_offscreen 失败：{type(e).__name__}: {e}")
             return False
 
+    def set_borderless(self, on: bool = True) -> bool:
+        """去掉/恢复窗口标题栏与边框（只对"我们自己拉起且有窗口"的后端有效）。
+
+        注意：Edge/Chrome 的窗口里那条"标签页+地址栏+书签栏"是 **Chromium 自己画的**，
+        不是 Windows 标题栏，改窗口样式去不掉；`--app` 模式能去掉工具栏/标签页/书签，
+        但 Chromium 仍会画一条约 30px 的应用窗口标题条。
+        要"只剩页面画面"，用 `MAAEND_WEB_MODE=webview2`（宿主是无边框窗体）。
+        """
+        hwnd = self.backend.hwnd if self.backend is not None else 0
+        if not self.backend or not self.backend.owned or not hwnd:
+            self._log("set_borderless：当前后端没有可由我们改样式的窗口")
+            return False
+        try:
+            from window_style import set_borderless as _sb
+        except Exception as e:  # 非 Windows
+            self._log(f"set_borderless 不可用：{type(e).__name__}: {e}")
+            return False
+        r = _sb(hwnd, on)
+        self._log(f"set_borderless({on})：{r}")
+        return True
+
+    def set_taskbar_visible(self, on: bool = True) -> bool:
+        """让窗口出现在任务栏/Alt+Tab（on），或重新变成工具窗口、对用户隐形（off）。
+
+        运行中随时可改，不需要重启；改完任务栏条目会立刻刷新。
+        """
+        hwnd = self.backend.hwnd if self.backend is not None else 0
+        if not self.backend or not self.backend.owned or not hwnd:
+            self._log("set_taskbar_visible：当前后端没有可由我们改样式的窗口")
+            return False
+        try:
+            from window_style import set_taskbar as _st
+        except Exception as e:
+            self._log(f"set_taskbar_visible 不可用：{type(e).__name__}: {e}")
+            return False
+        r = _st(hwnd, on)
+        self._log(f"set_taskbar_visible({on})：{r}")
+        return True
+
     def sleep_host(self) -> bool:
         """真正停车（只有 webview2 支持）：宿主不再渲染、省 GPU，代价是自动化也跑不了。"""
         if self.backend is None or self.backend.mode != "webview2":

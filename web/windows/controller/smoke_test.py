@@ -106,6 +106,10 @@ def main() -> int:
     ap.add_argument("--touch-mode", action="store_true", help="尝试点「触屏」按钮")
     ap.add_argument("--switch", action="store_true",
                     help="测热切换：headless → offscreen（人在场）→ headless")
+    ap.add_argument("--show", action="store_true",
+                    help="把窗口摆到屏幕上并保持，直到关掉窗口（Ctrl-C 也可）")
+    ap.add_argument("--show-minutes", type=float, default=30.0,
+                    help="--show 的最长保持时间（默认 30 分钟）")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
 
@@ -123,6 +127,25 @@ def main() -> int:
         print(f"target  = {ctrl.cdp.target_url}")
         print(f"viewport = {ctrl.cdp.eval('[innerWidth, innerHeight, devicePixelRatio]')}")
         print(f"page     = {ctrl.cdp.eval('[document.title, document.visibilityState]')}")
+
+        if a.show:
+            if not ctrl.pop_to_screen():
+                print("pop_to_screen 失败（当前模式没有窗口可切，见上面的日志）")
+                return 2
+            assert ctrl.backend is not None
+            win = ctrl.cdp("Browser.getWindowForTarget")
+            print(f"窗口已摆到屏幕：bounds={win['bounds']}  hwnd={ctrl.backend.hwnd}", flush=True)
+            print(f"观看到 {a.show_minutes:.0f} 分钟为止，或者你直接关掉窗口 / 按 Ctrl-C。", flush=True)
+            t_end = time.time() + a.show_minutes * 60
+            try:
+                while time.time() < t_end:
+                    time.sleep(2)
+                    st = ctrl.cdp.eval("[document.visibilityState, location.href]")
+                    print(f"[{time.strftime('%H:%M:%S')}] visibilityState={st[0]} url={st[1][:70]}",
+                          flush=True)
+            except (KeyboardInterrupt, Exception) as e:
+                print(f"结束观看：{type(e).__name__}: {e}")
+            return 0
 
         if a.switch:
             print("\n=== 热切换：headless → offscreen → headless")

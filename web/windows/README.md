@@ -170,6 +170,37 @@ MAAEND_WEB_CDP_ENDPOINT=127.0.0.1:9338 python smoke_test.py
    `document.visibilityState == "hidden"`（云游戏客户端普遍据此降帧），而且任务栏会多一个条目、
    Alt+Tab 能切过去。真无头报 `visible` + `hasFocus`。
 
+## 窗口外观：无边框 / 任务栏（运行中随时可改）
+
+`controller/window_style.py` 对**已经在跑**的窗口改样式，不重启、不重载页面：
+
+```bash
+python window_style.py --pid 47276                     # 看当前状态（rect/client/style/exstyle）
+python window_style.py --pid 47276 --taskbar            # 出现在任务栏 + Alt+Tab
+python window_style.py --pid 47276 --no-taskbar         # 改回工具窗口（隐形）
+python window_style.py --pid 47276 --borderless --fit 1280x720   # 去标题栏/边框，客户区仍精确 1280×720
+python window_style.py --pid 47276 --frame --fit 1280x720        # 恢复标题栏（能拖能关）
+```
+
+控制器侧同名方法：`set_taskbar_visible(True/False)`、`set_borderless(True/False)`。
+
+| 项 | 实测 |
+|---|---|
+| 任务栏可见 ↔ 隐形 | ✅ 互切即时生效（`exstyle` `0x00240100` ↔ `0x00200180`） |
+| 去边框后客户区 | ✅ 仍精确 `1280×720`（`--fit` 调外框补偿） |
+| 恢复标题栏 | ✅ 样式回到 `0x16CF0000` |
+
+**"只保留页面画面"能到什么程度**（实测截图对照）：
+
+| 方案 | 结果 |
+|---|---|
+| 普通 Edge 窗口（当前默认） | 标签页条 + 地址栏 + 书签栏 ≈ 88 px，全是 Chromium 自己画的 |
+| `--app=<url>` | 标签页/地址栏/书签都没了，但 Chromium 仍画一条 ≈30 px 的应用窗口标题条 |
+| **`--app` + 去 `WS_CAPTION`** | 那条**还在**——它不是 Windows 标题栏，是 Chromium 画在客户区里的，改窗口样式无效 |
+| **`MAAEND_WEB_MODE=webview2`** | ✅ 真正的"只有页面画面"：无边框窗体，`1280×720` 全是网页，零残留条 |
+
+⇒ Edge/Chrome 窗口做不到纯画面（除非 `--kiosk` 全屏），要纯画面就用 WebView2 宿主。
+
 ## 三个坑（都已处理，别改回去）
 
 - **UA**：无头 UA 带 `HeadlessChrome`，官网点开登录弹窗后会弹

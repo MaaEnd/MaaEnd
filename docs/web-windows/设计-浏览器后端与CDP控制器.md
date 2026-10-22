@@ -142,6 +142,21 @@ switch_mode("webview2") / switch_mode("headless")     # 任意两模式互切
 
 ---
 
+### 3.3 窗口外观（无边框 / 任务栏）与"只有页面画面"的边界
+
+`controller/window_style.py` 可以在**运行中**改窗口样式（跨进程也可以）：任务栏/Alt+Tab 可见 ↔
+工具窗口互切、去掉/恢复标题栏，并且用 `--fit` 在去边框后把客户区重新校正到 1280×720。
+控制器侧对应 `set_taskbar_visible()` / `set_borderless()`。
+
+**为什么"只有页面画面"在 Edge 上做不到**：窗口顶部那 88 px（标签页 + 地址栏 + 书签栏）
+是 Chromium 自己画在客户区里的，不是 Windows 非客户区，所以改 `WS_CAPTION` 无效。
+`--app=URL` 能去掉工具栏/标签页/书签，但 Chromium 仍画约 30 px 的应用窗口标题条。
+真正的纯画面只有两条路：`--kiosk`（全屏，放弃当窗口用）或 **WebView2 宿主**
+（`FormBorderStyle.None`，实测窗口 1280×720 全是网页，零残留条）。
+
+⇒ 这条差异正好落在三条线的定位上：**要"人看着舒服"的纯画面就选 webview2**；
+只要"人能操作"，Edge 的 offscreen 就够。
+
 ## 4. 控制器契约（MaaFramework `CustomController`）
 
 | Maa 回调 | 本实现 | 备注 |
