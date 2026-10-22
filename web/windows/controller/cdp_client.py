@@ -91,8 +91,11 @@ class CDPClient:
                 if not t:
                     time.sleep(interval)
                     continue
+                # suppress_origin=True：不发 Origin 头。浏览器对带 Origin 的连接要求
+                # --remote-allow-origins（等于向本机任意网页开放调试口），不发就不需要。
                 self.ws = websocket.create_connection(t["webSocketDebuggerUrl"],
-                                                      timeout=self.timeout, max_size=None)
+                                                      timeout=self.timeout, max_size=None,
+                                                      suppress_origin=True)
                 self.target_url = t.get("url", "")
                 self._closed = False
                 self._reader = threading.Thread(target=self._read_loop, name="cdp-reader", daemon=True)

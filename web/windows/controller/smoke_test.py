@@ -1,6 +1,12 @@
-"""冒烟测试：不依赖 Maa 任务，直接验证"控制器 → CDP → 宿主"这条链路。
+"""冒烟测试：不依赖 Maa 任务，直接验证"控制器 → 后端 → CDP"这条链路。
 
-    uv run --with maafw --with websocket-client --with pillow python smoke_test.py --port 9338
+默认会自己拉起无头浏览器（不需要事先开任何东西）：
+
+    uv run --with maafw --with websocket-client --with pillow python smoke_test.py
+
+连外部端点（比如你自己开的浏览器）：
+
+    MAAEND_WEB_CDP_ENDPOINT=127.0.0.1:9338 python smoke_test.py
 """
 
 from __future__ import annotations
@@ -33,60 +39,64 @@ def frame_diff(a: np.ndarray, b: np.ndarray) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--port", type=int, default=9338)
+    ap.add_argument("--port", type=int, default=None, help="固定调试端口；默认随机")
+    ap.add_argument("--url", default=None, help="起始地址；默认云·终末地网页端")
     ap.add_argument("--page-match", default=None)
     ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "shots"))
     ap.add_argument("--touch-mode", action="store_true", help="尝试点「触屏」按钮")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
 
-    print(f"=== 目标 CDP {a.port}")
-    ctrl = WebController(port=a.port, page_match=a.page_match, switch_touch_mode=a.touch_mode)
-    if not ctrl.connect():
-        print("connect 失败")
-        return 2
+    ctrl = WebController(port=a.port, url=a.url, page_match=a.page_match,
+                         switch_touch_mode=a.touch_mode)
+    try:
+        if not ctrl.connect():
+            print("connect 失败（看上面的日志：后端选择 / 浏览器路径 / 登录提示都会写出来）")
+            return 2
+        assert ctrl.backend is not None
 
-    print(f"target = {ctrl.client.target_url}")
-    video_js = (
-        "(()=>{const v=document.getElementById('WelinkGameVideo');"
-        "return v?{rs:v.readyState,w:v.videoWidth,h:v.videoHeight,paused:v.paused}:null})()"
-    )
-    print(f"video  = {ctrl.client.eval(video_js)}")
-    print(f"viewport = {ctrl.client.eval('[innerWidth, innerHeight, devicePixelRatio]')}")
+        print(f"backend = {ctrl.backend.describe()}")
+        print(f"uuid    = {ctrl.request_uuid()}")
+        print(f"target  = {ctrl.cdp.target_url}")
+        print(f"viewport = {ctrl.cdp.eval('[innerWidth, innerHeight, devicePixelRatio]')}")
+        print(f"page     = {ctrl.cdp.eval('[document.title, document.visibilityState]')}")
 
-    t0 = time.time()
-    img = ctrl.screencap()
-    dt = (time.time() - t0) * 1000
-    print(f"screencap -> shape={img.shape} dtype={img.dtype} 耗时 {dt:.0f} ms")
-    save_bgr(img, os.path.join(a.out, "01-baseline.png"))
+        t0 = time.time()
+        img = ctrl.screencap()
+        dt = (time.time() - t0) * 1000
+        print(f"screencap -> shape={img.shape} dtype={img.dtype} 耗时 {dt:.0f} ms")
+        save_bgr(img, os.path.join(a.out, "01-baseline.png"))
 
-    h, w = img.shape[:2]
-    cx, cy = w // 2, h // 2
+        h, w = img.shape[:2]
+        cx, cy = w // 2, h // 2
 
-    print("=== 点击中心")
-    ctrl.click(cx, cy)
-    time.sleep(0.6)
-    img2 = ctrl.screencap()
-    save_bgr(img2, os.path.join(a.out, "02-after-click.png"))
-    print("click diff:", frame_diff(img, img2))
+        print("=== 点击中心")
+        ctrl.click(cx, cy)
+        time.sleep(0.6)
+        img2 = ctrl.screencap()
+        save_bgr(img2, os.path.join(a.out, "02-after-click.png"))
+        print("click diff:", frame_diff(img, img2))
 
-    print("=== 触摸拖动（contact=1，模拟视角）")
-    ctrl.client.swipe(cx + 160, cy, cx - 160, cy, duration_ms=250, contact=1)
-    time.sleep(0.6)
-    img3 = ctrl.screencap()
-    save_bgr(img3, os.path.join(a.out, "03-after-drag.png"))
-    print("drag diff:", frame_diff(img2, img3))
+        print("=== 触摸拖动（contact=1，模拟视角）")
+        ctrl.cdp.swipe(cx + 160, cy, cx - 160, cy, duration_ms=250, contact=1)
+        time.sleep(0.6)
+        img3 = ctrl.screencap()
+        save_bgr(img3, os.path.join(a.out, "03-after-drag.png"))
+        print("drag diff:", frame_diff(img2, img3))
 
-    print("=== 连续 5 帧间隔（判断帧率）")
-    stamps = []
-    for _ in range(5):
-        ctrl.screencap()
-        stamps.append(time.time())
-    gaps = [(stamps[i + 1] - stamps[i]) * 1000 for i in range(4)]
-    print("每帧耗时 ms:", [round(g) for g in gaps], "≈", round(1000 / (sum(gaps) / len(gaps))), "fps")
+        print("=== 连续 5 帧间隔（判断帧率）")
+        stamps = []
+        for _ in range(5):
+            ctrl.screencap()
+            stamps.append(time.time())
+        gaps = [(stamps[i + 1] - stamps[i]) * 1000 for i in range(4)]
+        print("每帧耗时 ms:", [round(g) for g in gaps], "≈", round(1000 / (sum(gaps) / len(gaps))), "fps")
 
-    print(f"\n截图已存: {a.out}")
-    return 0
+        print(f"\n截图已存: {a.out}")
+        return 0
+    finally:
+        ctrl.close()   # 自己拉起的浏览器会被回收；外部端点不会被动
+        print(f"closed; 后端={'已回收' if ctrl.backend is None else '为外部端点，未关闭'}")
 
 
 if __name__ == "__main__":

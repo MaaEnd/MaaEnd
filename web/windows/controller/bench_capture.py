@@ -1,4 +1,4 @@
-"""测 WebView2 的截图吞吐：静态页 vs 动画页 vs screencast。"""
+"""截图吞吐基准：静态页 vs 动画页 vs screencast（默认自己拉起无头浏览器）。"""
 from __future__ import annotations
 
 import json
@@ -7,9 +7,9 @@ import sys
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import browser
 from cdp_client import CDPClient
 
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 9338
 ANIM = (
     "data:text/html,<html><body style='margin:0;background:%23123'>"
     "<div style='width:200px;height:200px;background:%23e33;animation:spin 1s linear infinite'></div>"
@@ -53,20 +53,26 @@ def bench_screencast(c: CDPClient, seconds: float = 3.0) -> None:
 
 
 def main() -> None:
-    c = CDPClient(port=PORT)
-    c.connect()
-    print("target:", c.target_url)
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else None
+    backend = browser.ensure_backend(url="about:blank", port=port)
+    try:
+        c = CDPClient(port=backend.port, host=backend.host)
+        c.connect()
+        print("backend:", backend.describe())
+        print("target:", c.target_url)
 
-    print("\n=== A. 静态页")
-    bench_capture(c)
+        print("\n=== A. 静态页")
+        bench_capture(c)
 
-    print("\n=== B. 动画页（rAF/CSS 持续重绘）")
-    c("Page.navigate", url=ANIM)
-    time.sleep(1.5)
-    bench_capture(c)
+        print("\n=== B. 动画页（rAF/CSS 持续重绘）")
+        c("Page.navigate", url=ANIM)
+        time.sleep(1.5)
+        bench_capture(c)
 
-    print("\n=== C. screencast（持续推帧）")
-    bench_screencast(c)
+        print("\n=== C. screencast（持续推帧）")
+        bench_screencast(c)
+    finally:
+        backend.close()
 
 
 if __name__ == "__main__":

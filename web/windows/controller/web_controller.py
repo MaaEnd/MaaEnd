@@ -1,7 +1,9 @@
 """把 CDP 包装成 MaaFramework 的自定义控制器。
 
-Maa 侧看到的是一台"会截图、会多指触摸"的设备；实际上画面来自 WebView2/Chrome，
-输入走 CDP，不碰系统光标、不需要窗口在前台。
+Maa 侧看到的是一台"会截图、会多指触摸"的设备；实际上画面来自浏览器（默认无头 Edge），
+输入走 CDP，不碰系统光标、不创建任何窗口。
+
+后端由 `browser.py` 决定，并会在日志与 uuid 里带标识（`edge-headless` / `chrome-headless` / `external`）。
 
 依赖：maafw、numpy、pillow、websocket-client
 
@@ -11,21 +13,25 @@ Maa 侧看到的是一台"会截图、会多指触摸"的设备；实际上画�
     from maa.resource import Resource
     from maa.tasker import Tasker
 
-    ctrl = WebController(port=9338)
+    ctrl = WebController()          # 自动拉起无头浏览器 + 随机调试端口
     res = Resource()
     res.load("assets/resource", "assets/resource_web")
     tasker = Tasker()
     tasker.bind(res, ctrl)
     tasker.post_task("入口节点").wait()
+    ctrl.close()
 """
 
 from __future__ import annotations
 
+import atexit
 import contextlib
 import os
+import sys
 import time
 from typing import Any
 
+import browser
 import numpy as np
 from cdp_client import CDPClient, CDPError
 from maa.controller import CustomController
@@ -44,22 +50,47 @@ TOUCH_MODE_JS = r"""
 })()
 """
 
+# 页面就绪探测：有没有在播的视频 + 像不像登录页
+PAGE_PROBE_JS = r"""
+(() => {
+  const v = document.querySelector('video');
+  const text = (document.body ? document.body.innerText : '').slice(0, 4000);
+  const title = document.title || '';
+  const hit = /登录|扫码|二维码|账号|同意|sign\s?in|log\s?in|login/i;
+  return {
+    href: location.href, title,
+    video: v ? { w: v.videoWidth, h: v.videoHeight, paused: v.paused } : null,
+    login_hint: hit.test(title) || hit.test(text),
+  };
+})()
+"""
+
+DEFAULT_URL = "https://endfield.hypergryph.com/cloud"
+
 
 class WebController(CustomController):
-    """CDP（Chrome / Edge / WebView2）控制器。"""
+    """CDP 控制器：把无头浏览器伪装成一台可截图、可多指触摸的设备。"""
 
-    def __init__(self, port: int = 9338, page_match: str | None = None,
+    def __init__(self, port: int | None = None, page_match: str | None = None,
                  viewport: tuple[int, int] = (1280, 720),
                  switch_touch_mode: bool = False,
                  screencast: bool = True,
-                 log_path: str | None = None):
+                 log_path: str | None = None,
+                 url: str | None = None,
+                 strict_login: bool | None = None):
         super().__init__()
         self.port = port
+        self.page_match = page_match
         self.viewport = viewport
         self.switch_touch_mode = switch_touch_mode
         self.screencast = screencast
-        self.client = CDPClient(port=port, page_match=page_match)
+        self.url = url or os.environ.get("MAAEND_WEB_URL") or DEFAULT_URL
+        self.strict_login = (os.environ.get("MAAEND_WEB_STRICT") == "1") if strict_login is None else strict_login
         self.log_path = log_path or os.path.join(os.path.dirname(os.path.abspath(__file__)), "web-controller.log")
+        self.backend: browser.Backend | None = None
+        self.client: CDPClient | None = None
+        self._closed = False
+        atexit.register(self.close)
 
     # ---------- 日志 ----------
 
@@ -69,79 +100,115 @@ class WebController(CustomController):
             f.write(line + "\n")
         print(line, flush=True)
 
+    @property
+    def cdp(self) -> CDPClient:
+        """已连接的 CDP 客户端；未连接时直接报错，避免 None 上的属性访问。"""
+        if self.client is None:
+            raise CDPError("控制器未连接：先调用 connect()")
+        return self.client
+
     # ---------- Maa 控制器接口 ----------
 
     def connect(self) -> bool:
+        """拉起/连接后端 → 连 CDP → 校正视口 → 开触屏与 screencast → 探测页面状态。"""
+        self._closed = False
         try:
-            self.client.connect()
-            v = self.client.version()
-            self._log(f"connected: {v.get('Browser')} target={self.client.target_url[:90]}")
-            w, h = self.viewport
-            self.client.set_viewport(w, h)
-            self.client.enable_touch(5)
-            if self.screencast:
-                self.client.start_screencast(max_w=w, max_h=h)
-                self._log("screencast: on（本地缓存最新帧）")
-            if self.switch_touch_mode:
-                self._log(f"touch mode: {'on' if self.switch_touch_mode_on() else '未找到「触屏」按钮'}")
-            return True
+            self.backend = browser.ensure_backend(viewport=self.viewport, url=self.url, port=self.port,
+                                                  log=self._log)
+            self.client = CDPClient(port=self.backend.port, host=self.backend.host,
+                                    page_match=self.page_match)
+            self.cdp.connect()
+            self._log(f"connected: {self.backend.version} target={self.cdp.target_url[:90]}")
         except Exception as e:
             self._log(f"connect failed: {type(e).__name__}: {e}")
+            self._teardown()
+            return False
+
+        try:
+            # 1) 先修 UA：无头 UA 里带 HeadlessChrome，官网会弹"当前浏览器可能影响游戏体验"
+            #    并劝用户去下载客户端（实测点开登录弹窗后必现）。抹掉后警告消失。
+            self._sanitize_ua()
+            # 2) 视口：不要用 Emulation.setDeviceMetricsOverride 强制视口——实测它会把
+            #    screencast 从 ~26 fps 砍到 ~15 fps。改用窗口尺寸拿到精确的 CSS 视口。
+            self._fix_viewport()
+            self.cdp.enable_touch(5)
+            if self.screencast:
+                w, h = self.viewport
+                self.cdp.start_screencast(max_w=w, max_h=h)
+                self._log("screencast: on（本地缓存最新帧，静态页回落 captureScreenshot）")
+            if self.switch_touch_mode:
+                self._log(f"touch mode: {'on' if self.switch_touch_mode_on() else '未找到「触屏」按钮'}")
+            return self._check_page()
+        except Exception as e:
+            self._log(f"connect failed(2): {type(e).__name__}: {e}")
+            self._teardown()
             return False
 
     def request_uuid(self) -> str:
-        return f"web-cdp:{self.port}"
+        """uuid 里带后端标识，MXU/日志里一眼能看出走的是哪条路。"""
+        if self.backend is None:
+            return "web-cdp:pending"
+        if self.backend.owned:
+            return f"web-cdp:{self.backend.kind}"
+        return f"web-cdp:external:{self.backend.port}"
 
     def screencap(self) -> np.ndarray:
-        return self.client.screenshot_bgr()
+        if self.client is None:
+            raise CDPError("screencap 前必须先 connect")
+        return self.cdp.screenshot_bgr()
 
     def click(self, x: int, y: int) -> bool:
-        self.client.tap(x, y, contact=0)
+        self.cdp.tap(x, y, contact=0)
         return True
 
     def swipe(self, x1: int, y1: int, x2: int, y2: int, duration: int) -> bool:
-        self.client.swipe(x1, y1, x2, y2, duration_ms=max(int(duration), 16), contact=0)
+        self.cdp.swipe(x1, y1, x2, y2, duration_ms=max(int(duration), 16), contact=0)
         return True
 
     def touch_down(self, contact: int, x: int, y: int, pressure: int) -> bool:
-        self.client.touch_down(contact, x, y)
+        self.cdp.touch_down(contact, x, y)
         return True
 
     def touch_move(self, contact: int, x: int, y: int, pressure: int) -> bool:
-        self.client.touch_move(contact, x, y)
+        self.cdp.touch_move(contact, x, y)
         return True
 
     def touch_up(self, contact: int) -> bool:
-        self.client.touch_up(contact)
+        self.cdp.touch_up(contact)
         return True
 
     def key_down(self, keycode: int) -> bool:
-        self.client.key(keycode, down=True)
+        self.cdp.key(keycode, down=True)
         return True
 
     def key_up(self, keycode: int) -> bool:
-        self.client.key(keycode, down=False)
+        self.cdp.key(keycode, down=False)
         return True
 
     def click_key(self, keycode: int) -> bool:
-        self.client.key(keycode, down=True)
+        self.cdp.key(keycode, down=True)
         time.sleep(0.03)
-        self.client.key(keycode, down=False)
+        self.cdp.key(keycode, down=False)
         return True
 
     def input_text(self, text: str) -> bool:
-        self.client.text(text)
+        self.cdp.text(text)
         return True
 
     def start_app(self, intent: str) -> bool:
-        """云游戏不需要"启动 App"：页面已在宿主里加载，这里只保证 target 还在。"""
+        """云游戏不需要"启动 App"：页面已在浏览器里加载，这里只保证 target 还在。"""
         try:
-            self.client.ensure()
+            self.cdp.ensure()
             return True
         except Exception:
             return False
 
     def stop_app(self, intent: str) -> bool:
+        return True
+
+    def inactive(self) -> bool:
+        """Maa 在控制器空闲时调用。浏览器不在这里关——任务之间还要复用它。"""
+        self._log("controller inactive（空闲，浏览器保持运行）")
         return True
 
     # ---------- 可选增强 ----------
@@ -162,13 +229,153 @@ class WebController(CustomController):
     def switch_touch_mode_on(self) -> bool:
         """点客户端工具栏里的「触屏」，切到触摸输入模式。"""
         try:
-            hit: Any = self.client.eval(TOUCH_MODE_JS)
+            hit: Any = self.cdp.eval(TOUCH_MODE_JS)
             if not hit:
                 return False
-            self.client.tap(hit["x"], hit["y"], contact=0, hold_ms=40)
+            self.cdp.tap(hit["x"], hit["y"], contact=0, hold_ms=40)
             self._log(f"clicked 触屏 @({hit['x']:.0f},{hit['y']:.0f}) cls={hit.get('cls')}")
             time.sleep(0.8)
             return True
         except Exception as e:
             self._log(f"switch_touch_mode failed: {e}")
             return False
+
+    # ---------- 视口 / 页面状态 / 收尸 ----------
+
+    def _sanitize_ua(self) -> None:
+        """把 `HeadlessChrome/x` 换成 `Chrome/x`，并同步 client hints。
+
+        无头浏览器的 UA 会让云游戏官网判定"浏览器可能影响游戏体验"，弹出劝退提示；
+        抹掉之后官网按普通 Edge 对待（实测）。外部端点不动——那是用户自己的浏览器。
+        """
+        if self.backend is not None and not self.backend.owned:
+            return
+        if os.environ.get("MAAEND_WEB_KEEP_UA") == "1":
+            self._log("MAAEND_WEB_KEEP_UA=1：保留原始无头 UA")
+            return
+        ua = self.cdp.eval("navigator.userAgent") or ""
+        if "Headless" not in ua:
+            return
+        clean = ua.replace("HeadlessChrome", "Chrome")
+        major = "155"
+        for token in ("Edg/", "Chrome/"):
+            if token in clean:
+                with contextlib.suppress(ValueError):
+                    major = clean.split(token, 1)[1].split(".", 1)[0]
+                break
+        brands = [{"brand": "Microsoft Edge", "version": major},
+                  {"brand": "Chromium", "version": major},
+                  {"brand": "Not:A-Brand", "version": "99"}]
+        full = [{"brand": b["brand"], "version": f"{major}.0.0.0"} for b in brands[:2]]
+        full.append({"brand": "Not:A-Brand", "version": "99.0.0.0"})
+        win = "Windows" in clean
+        self.cdp("Network.enable")
+        self.cdp("Network.setUserAgentOverride",
+                 userAgent=clean,
+                 acceptLanguage="zh-CN,zh;q=0.9,en;q=0.8",
+                 platform="Win32" if win else "Linux x86_64",
+                 userAgentMetadata={"brands": brands, "fullVersionList": full,
+                                    "platform": "Windows" if win else "Linux",
+                                    "platformVersion": "15.0.0", "architecture": "x86",
+                                    "model": "", "mobile": False, "bitness": "64", "wow64": False})
+        self._log(f"UA 已修正：{clean[:80]}…")
+        # 首屏是在旧 UA 下加载的，重载一次让页面（含风控脚本）按新 UA 走
+        self.cdp("Page.reload")
+        deadline = time.time() + 15
+        while time.time() < deadline:
+            with contextlib.suppress(Exception):
+                if self.cdp.eval("document.readyState") == "complete":
+                    break
+            time.sleep(0.15)
+
+    def _fix_viewport(self) -> None:
+        """用窗口尺寸把 CSS 视口校正到目标值（而不是 setDeviceMetricsOverride，那个会砍帧）。"""
+        tw, th = self.viewport
+        for _ in range(3):
+            inner = self.cdp.eval("[innerWidth, innerHeight]") or [0, 0]
+            if (inner[0], inner[1]) == (tw, th):
+                self._log(f"viewport = {inner[0]}x{inner[1]}（精确匹配）")
+                return
+            try:
+                win = self.client("Browser.getWindowForTarget")
+                wid = win.get("windowId")
+                bounds = win.get("bounds") or {}
+                dw = int(bounds.get("width", inner[0]) - inner[0])
+                dh = int(bounds.get("height", inner[1]) - inner[1])
+                self.client("Browser.setWindowBounds", windowId=wid,
+                            bounds={"width": tw + dw, "height": th + dh})
+                time.sleep(0.3)
+            except Exception as e:
+                self._log(f"viewport 校正不可用（{type(e).__name__}: {e}），沿用浏览器实际视口")
+                break
+        inner = self.cdp.eval("[innerWidth, innerHeight]") or [0, 0]
+        self._log(f"viewport = {inner[0]}x{inner[1]}（目标 {tw}x{th}；Maa 侧按 display 缩放换算）")
+
+    def _diag_dir(self) -> str:
+        base = os.environ.get("MAAEND_WEB_LOG_DIR")
+        if not base and self.backend and self.backend.profile:
+            base = os.path.join(self.backend.profile, "diagnostics")
+        base = base or os.path.join(os.path.dirname(os.path.abspath(__file__)), "diagnostics")
+        with contextlib.suppress(OSError):
+            os.makedirs(base, exist_ok=True)
+        return base
+
+    def _check_page(self) -> bool:
+        """页面就绪判断。登录/风控页会把截图落盘并给出人话提示，避免用户对着"识别失败"猜谜。"""
+        try:
+            info: dict = self.cdp.eval(PAGE_PROBE_JS) or {}
+        except Exception as e:
+            self._log(f"页面探测失败（忽略）：{type(e).__name__}: {e}")
+            return True
+
+        video = info.get("video") or {}
+        playing = bool(video.get("w"))
+        self._log(f"page: title={info.get('title')!r} video={video or None} "
+                  f"login_hint={info.get('login_hint')}")
+
+        if playing:
+            return True
+
+        shot = os.path.join(self._diag_dir(), f"page-{time.strftime('%Y%m%d-%H%M%S')}.png")
+        with contextlib.suppress(Exception), open(shot, "wb") as f:
+            f.write(self.cdp.screenshot_png())
+        if info.get("login_hint"):
+            self._log(f"看起来是登录/风控页（没有画面）。截图已存 {shot}；"
+                      f"请先扫码登录，登录态会留在 profile 里，之后不用再登。")
+            if self.strict_login:
+                return False
+        else:
+            self._log(f"页面还没有视频画面（可能仍在加载）。截图已存 {shot}")
+        return True
+
+    def _teardown(self) -> None:
+        if self.screencast and self.client is not None:
+            with contextlib.suppress(Exception):
+                self.cdp.stop_screencast()
+        if self.client is not None:
+            with contextlib.suppress(Exception):
+                self.cdp.close()
+            self.client = None
+        if self.backend is not None:
+            with contextlib.suppress(Exception):
+                self.backend.close()
+            self.backend = None
+
+    def close(self) -> None:
+        """关闭 CDP 连接，并回收本进程拉起的浏览器（外部端点不动）。"""
+        if self._closed:
+            return
+        self._closed = True
+        self._teardown()
+        self._log("closed")
+
+
+if __name__ == "__main__":  # 手动连一次，方便排查
+    out = sys.argv[1] if len(sys.argv) > 1 else "."
+    c = WebController(log_path=os.path.join(out, "web-controller.log"))
+    ok = c.connect()
+    print("connect =", ok, "| uuid =", c.request_uuid())
+    if ok:
+        img = c.screencap()
+        print("screencap =", img.shape, img.dtype)
+    c.close()
