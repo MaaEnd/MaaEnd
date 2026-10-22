@@ -54,3 +54,30 @@
 1. 复跑验证 `WebStartGame`：`__ScenePrivateLoginContinue` → `WebAlreadyInGame`
 2. 把「打开网页端」做成任务体系的一部分（pretask `tasks/pretasks/WebLaunchBrowser.json`，用 `StartApp`），替代预设里的 preAction
 3. 验证通过后接 `VisitFriends` 跑一项真实日常
+---
+
+## 2026-10-23 03:10 · 快照（MXU 直跑，rc.1）
+
+状态：**网页端已能自己拉起（pretask 生效）**，MXU 侧 `merged import "web/tasks/pretasks/WebLaunchBrowser.json"` 确认。
+
+这一轮跑出来的失败点（`debug_exports/MaaEnd-logs-v2.35.0-rc.1-20261023-031026`）：
+
+| 任务 | 失败节点 | 次数 |
+|---|---|---|
+| 环境监测 | `GoToIndoorCropsMove` | 9 |
+| 环境监测 | `IndoorCropsQuickTeleportDone` | 3 |
+| 出售 | `AutoSellFriendsPricesExpected` | on_error 截图 |
+| 出售 | `AutoSellExecuteValleyIVMain` | on_error 截图 |
+
+含义：环境监测卡在「室内作物」这条子路线的**快速传送**（`IndoorCropsQuickTeleportDone` 没命中 → 后续 `GoToIndoorCropsMove` 反复走位失败）；
+出售卡在**好友价格面板**（`AutoSellFriendsPricesExpected`）与四号谷地执行节点。
+
+待办：拉这两个节点在失败时刻的识别分数与截图，区分「没找到 UI」与「找到但点不动」；室内作物路线属可选路线，可先在预设里关掉以恢复其余项。
+
+### 当前装配基线（归档时）
+
+- base：v2.35.0-rc.1（MXU 自更新）
+- 资源层：`./resource` + `./web/resource_web` + `./web/linux/resource_web_linux` + `./web/resource_web_homesrv`（5 路径全 loaded=True）
+- import：`web/tasks/WebStartGame.json`、`web/tasks/pretasks/WebLaunchBrowser.json`
+- 7 个实例 socket 全部 `wayland-1`；`快速日常` 9 项全开
+- 每次运行前 `apply_wsl_setup.py` 自愈（防 MXU 覆盖）
