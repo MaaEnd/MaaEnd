@@ -241,6 +241,16 @@ def main():
         log_dir = os.environ.get("MAA_LOG_DIR") or os.path.expanduser("~/maaend-log")
         os.makedirs(log_dir, exist_ok=True)
         tasker.set_log_dir(log_dir)
+        # 识别可视化：MAA_SAVE_DRAW=1 时把每个节点的识别框/截图落盘到 <log_dir>/debug/
+        # （默认关闭，一次全量会产出上百 MB）
+        if os.environ.get("MAA_SAVE_DRAW") == "1":
+            try:
+                tasker.set_save_draw(True)
+                tasker.set_save_on_error(True)
+                tasker.set_draw_quality(85)
+                log("  识别可视化已开启：draw/on_error -> %s/debug" % log_dir)
+            except Exception as e:  # noqa: BLE001
+                log("  (开启识别可视化失败: %s)" % str(e)[:60])
         log("  日志: stdout=Info  目录=%s" % log_dir)
     except Exception as e:
         log("  (设置日志级别失败: %s)" % e)
