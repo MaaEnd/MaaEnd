@@ -112,3 +112,23 @@ base 侧合计 ≈ 2790 文件 / ≈400 MB；我们自己的 `web/` 只有 45 �
 ### 未做（待定）
 
 - MXU 手动点运行不经过 `daily_run_wsl.sh`，因此不触发锁版/重放；若长期用 MXU，需加 5 分钟一次的 cron 跑 `pin_base.sh`。
+---
+
+## 2026-10-23 03:33 · ✅ WebStartGame 首次完整通过
+
+```
+03:30:11  开始  预设=hmuddz8 任务=[WebStartGame]
+03:33:56  WebStartGame  OK  191.1s
+03:33:56  通过 1 / 1   rc=0
+```
+
+链路：起 sway/Chrome → 点「开始游戏」→ 排队/加载 → 标题页「点击任意位置继续」→ 进大世界。
+
+凑齐的 6 处修复：`67bc1450f`（`$WEB` unbound）、`5ac907956`（agent/maafw 链接）、
+`f3b3f6ca2`（Leave site? 自动接受）、`792bae27f`（WebQueueDetected 收紧）、
+`1d3ea5851`（云层薄化，复用 base 登录链）、`a0605ab74`（覆盖层收敛 + 删无证据覆盖）。
+
+### 踩坑补记
+
+- **MaaFw 在任务结束时会清空 draw 目录**：跑完 `ls <log_dir>/vision` 得 0，但中途有 2200 张。
+  要留证据必须在跑的中途复制，或依赖 `on_error`（仅失败时保留）。
