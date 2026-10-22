@@ -135,8 +135,8 @@
         "roi": [
             20,
             20,
-            60,
-            40
+            110,
+            70
         ],
         // Complete English tab label: "Scene"; "Formation" is a separate adjacent tab.
         // Historical OCR joined them as "Scene Format"; retain that bounded alternative.
@@ -144,7 +144,7 @@
             "画面",
             "畫面",
             // @i18n-skip
-            "(?i)^Scene(?:\\s+Format)?$",
+            "(?i)^Scene(?:\\s+Format(?:i)?)?$",
             "화면"
         ],
         "pre_delay": 0,
