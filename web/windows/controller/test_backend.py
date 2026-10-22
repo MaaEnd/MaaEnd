@@ -21,6 +21,7 @@ from __future__ import annotations
 import contextlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -154,8 +155,6 @@ def offscreen_cases() -> None:
         os.environ.pop(browser.ENV_MODE, None)
         os.environ.pop(browser.ENV_PROFILE, None)
         with contextlib.suppress(OSError):
-            import shutil
-
             shutil.rmtree(browser.default_profile().parent / "web-profile-offscreen-test", ignore_errors=True)
 
 
@@ -251,6 +250,7 @@ def main() -> int:
                            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
         with contextlib.suppress(Exception):
             ext_src.wait(timeout=10)
+        shutil.rmtree(ext_profile, ignore_errors=True)
         time.sleep(1.0)
 
     offscreen_cases()
