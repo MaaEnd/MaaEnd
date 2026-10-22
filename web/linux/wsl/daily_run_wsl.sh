@@ -75,6 +75,14 @@ fi
 
 bash "$WEB/linux/homesrv/chrome_homesrv.sh" || { echo "[X] 启动浏览器失败"; exit 10; }
 
+# 浏览器原生对话框自动接受（Leave site? 等），必须 nohup+setsid 才能脱离本会话存活
+if [ -f "$WEB/linux/auto_dismiss_dialog.py" ]; then
+  pkill -f "auto_dismiss_dialo[g].py" 2>/dev/null
+  nohup setsid python3 "$WEB/linux/auto_dismiss_dialog.py" --port 9334 </dev/null >/tmp/auto_dialog.log 2>&1 &
+  sleep 2
+  echo "[i] 对话框自动接受: $(pgrep -fc "auto_dismiss_dialo[g].py" || echo 0) 个进程"
+fi
+
 python3 "$WEB/linux/reset_page.py" --port 9334 --url https://endfield.hypergryph.com/cloud --wait 12 2>&1 | tail -2
 
 ARGS=(--instance "$INSTANCE")

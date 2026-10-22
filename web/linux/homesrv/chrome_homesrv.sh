@@ -73,9 +73,10 @@ setsid "$CHROME" \
 sleep 16
 
 # 自动接受浏览器原生对话框（云页面注册了 beforeunload，会弹 "Leave site?" 遮住标题页）
-if [ -f "$WEB/linux/auto_dismiss_dialog.py" ]; then
+_HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$_HERE/../auto_dismiss_dialog.py" ]; then
   pkill -f "auto_dismiss_dialo[g].py" 2>/dev/null
-  setsid python3 "$WEB/linux/auto_dismiss_dialog.py" --port 9334 </dev/null >/tmp/auto_dialog.log 2>&1 &
+  setsid python3 "$_HERE/../auto_dismiss_dialog.py" --port 9334 </dev/null >/tmp/auto_dialog.log 2>&1 &
 fi
 
 # 隐藏云端悬浮球：它浮在 canvas 上、默认停在左上角，会遮住游戏标题区（OCR/模板都会受它影响）。
