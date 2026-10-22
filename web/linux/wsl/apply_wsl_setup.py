@@ -24,7 +24,8 @@ CFG = os.path.join(ROOT, "config", "mxu-MaaEnd.json")
 LOC = os.path.join(ROOT, "locales", "interface")
 PATHS = ["./resource", "./web/resource_web",
          "./web/linux/resource_web_linux", "./web/resource_web_homesrv"]
-IMPORT_ITEM = "web/tasks/WebStartGame.json"
+IMPORT_ITEMS = ["web/tasks/WebStartGame.json", "web/tasks/pretasks/WebLaunchBrowser.json"]
+IMPORT_ITEM = IMPORT_ITEMS[0]
 WEB_ON = {"hmuddz8", "hyasuml"}
 DAILY9 = ["WebStartGame", "VisitFriends", "DijiangRewards", "CreditShoppingN2",
           "AutoStockpile", "AutoStockStaple", "SellProduct", "DailyRewards", "DeliveryJobs"]
@@ -47,8 +48,9 @@ for r in d["resource"]:
         r["path"] = PATHS
 d["resource"] = [r for r in d["resource"] if r.get("name") != "官服-网页端"]
 imp = d.setdefault("import", [])
-if IMPORT_ITEM not in imp:
-    imp.append(IMPORT_ITEM)
+for _it in IMPORT_ITEMS:
+    if _it not in imp:
+        imp.append(_it)
 json.dump(d, open(IFACE, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 
 # 2) config
@@ -115,7 +117,7 @@ for lang, (lb, ds) in TEXTS.items():
 d = json.load(open(IFACE, encoding="utf-8"))
 print("interface version:", d.get("version"))
 print("官服 path 层数:", [len(r["path"]) for r in d["resource"] if r["name"] == "官服"])
-print("import 含 WebStartGame:", IMPORT_ITEM in d["import"])
+print("import 含 web 任务:", [x for x in IMPORT_ITEMS if x in d["import"]])
 c = json.load(open(CFG, encoding="utf-8"))
 it = [x for x in c["instances"] if x["id"] == "hmuddz8"][0]
 print("快速日常:", [(t["taskName"], t["enabled"]) for t in it["tasks"]])
