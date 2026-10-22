@@ -71,9 +71,12 @@
                 "custom_action_param": {
                     "patch": {
                         "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            // Full English label: "Operator Progression"; OCR may return only "Operator".
                             "expected": [
                                 "员养成",
-                                "Operator Progression"
+                                "Operator Progression",
+                                // @i18n-skip
+                                "(?i)^Operator$"
                             ],
                             "anchor": {
                                 "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
