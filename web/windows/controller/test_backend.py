@@ -94,6 +94,71 @@ def child_pids(pid: int) -> set[int]:
     return {pid}
 
 
+def offscreen_cases() -> None:
+    """屏外模式：能随时拉回屏幕给人操作，且不打扰用户（不进任务栏、不抢焦点）。"""
+    if sys.platform != "win32":
+        print("SKIP  offscreen 用例（仅 Windows）")
+        return
+    import ctypes
+    import ctypes.wintypes
+
+    os.environ[browser.ENV_MODE] = "offscreen"
+    os.environ[browser.ENV_PROFILE] = str(browser.default_profile().parent / "web-profile-offscreen-test")
+    backend = None
+    try:
+        backend = browser.ensure_backend(viewport=VIEWPORT, url="about:blank")
+        case("offscreen：模式与窗口句柄", backend.mode == "offscreen" and backend.hwnd != 0,
+             f"mode={backend.mode} hwnd={backend.hwnd}")
+
+        hwnd = backend.hwnd
+        ex = ctypes.windll.user32.GetWindowLongW(hwnd, -20) & 0xFFFFFFFF
+        case("offscreen：WS_EX_TOOLWINDOW 已挂（不进任务栏/Alt+Tab）", bool(ex & 0x80), hex(ex))
+
+        client = CDPClient(port=backend.port, host=backend.host)
+        client.connect()
+        vis = client.eval("document.visibilityState")
+        case("offscreen：屏幕外时页面仍 visible（反遮挡开关生效）", vis == "visible", str(vis))
+
+        wid = client("Browser.getWindowForTarget")["windowId"]
+        fg_before = int(ctypes.windll.user32.GetForegroundWindow() or 0)
+        t0 = time.time()
+        client("Browser.setWindowBounds", windowId=wid,
+               bounds={"left": 120, "top": 120, "windowState": "normal"})
+        dt = (time.time() - t0) * 1000
+        time.sleep(0.5)
+        rect = ctypes.wintypes.RECT()
+        ctypes.windll.user32.GetWindowRect(hwnd, ctypes.byref(rect))
+        on_screen = rect.left > -1000 and rect.top > -1000
+        case("offscreen：能拉回屏幕（<200ms、不重载）", on_screen and dt < 200,
+             f"{dt:.0f}ms rect=({rect.left},{rect.top})")
+        fg_after = int(ctypes.windll.user32.GetForegroundWindow() or 0)
+        case("offscreen：拉回屏幕不主动抢焦点", fg_after == fg_before,
+             f"前后前台 {fg_before}->{fg_after}")
+
+        client("Browser.setWindowBounds", windowId=wid, bounds={"left": -32000, "top": -32000})
+        time.sleep(0.5)
+        ctypes.windll.user32.GetWindowRect(hwnd, ctypes.byref(rect))
+        vis2 = client.eval("document.visibilityState")
+        case("offscreen：能挪回屏幕外继续跑（仍 visible）",
+             rect.left < -10000 and vis2 == "visible", f"rect={rect.left} vis={vis2}")
+        client.close()
+    except Exception as e:
+        case("offscreen：整体流程", False, f"{type(e).__name__}: {e}")
+    finally:
+        if backend is not None:
+            port = backend.port
+            with contextlib.suppress(Exception):
+                backend.close()
+            time.sleep(1.2)
+            case("offscreen：关闭后端口不可连", not probe_ok(port), f"port={port}")
+        os.environ.pop(browser.ENV_MODE, None)
+        os.environ.pop(browser.ENV_PROFILE, None)
+        with contextlib.suppress(OSError):
+            import shutil
+
+            shutil.rmtree(browser.default_profile().parent / "web-profile-offscreen-test", ignore_errors=True)
+
+
 def main() -> int:
     # ---- 1. 冷启动 + 2. 无窗口 + 3. 视口 ----
     t0 = time.time()
@@ -187,6 +252,8 @@ def main() -> int:
         with contextlib.suppress(Exception):
             ext_src.wait(timeout=10)
         time.sleep(1.0)
+
+    offscreen_cases()
 
     failed = [r for r in RESULTS if not r[1]]
     print(f"\n=== {len(RESULTS) - len(failed)}/{len(RESULTS)} 通过 ===")

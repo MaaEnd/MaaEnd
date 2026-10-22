@@ -20,16 +20,27 @@
 
 ## 后端边界
 
-`controller/browser.py` 是唯一的后端出入口，两种后端，标识会写进日志和控制器 uuid：
+`controller/browser.py` 是唯一的后端出入口。后端 = 浏览器 × 运行模式，两者都写进日志和控制器 uuid：
 
-| 后端标识 | 什么时候出现 | 起停由谁负责 | uuid |
+| 后端标识 | 出现条件 | 起停归属 | uuid |
 |---|---|---|---|
-| `edge-headless` | Windows 找到 Edge（默认） | 本模块 | `web-cdp:edge-headless` |
-| `chrome-headless` | 只找到 Chrome（Linux 服务器常见） | 本模块 | `web-cdp:chrome-headless` |
+| `edge-headless` | Windows 找到 Edge + `MAAEND_WEB_MODE=headless`（默认） | 本模块 | `web-cdp:edge-headless` |
+| `edge-offscreen` | 同上但 `MAAEND_WEB_MODE=offscreen` | 本模块 | `web-cdp:edge-offscreen` |
+| `chrome-headless` / `chrome-offscreen` | 只找到 Chrome（Linux 服务器常见） | 本模块 | `web-cdp:chrome-<mode>` |
 | `external` | 设了 `MAAEND_WEB_CDP_ENDPOINT` | 用户自己 | `web-cdp:external:<port>` |
 
-`external` 是为"自带宿主"留的口：企业锁版本的 Chrome、自己编的 WebView2 宿主、
-公司内网的调试实例，都只需要给出 `host:port`，仓库里不必多一门语言、CI 不必多一条构建链。
+**两种模式怎么选**（不是性能问题，是"要不要能随时交给人操作"）：
+
+| | `headless`（默认） | `offscreen` |
+|---|---|---|
+| 窗口对象 | 无 | 有，但在屏幕外 + `WS_EX_TOOLWINDOW`（不进任务栏/Alt+Tab） |
+| 页面 `visibilityState` | `visible` | `visible`（靠四个反遮挡开关） |
+| 随时拉出来给人操作 | ❌ 做不到（只能换进程，≈1.1 s） | ✅ `pop_to_screen()`，实测 **2–12 ms**，同一进程不重载 |
+| 抢焦点 | 不涉及 | 启动那一瞬会抢 → 自动把前台还给原窗口；`pop_to_screen` 不抢焦点 |
+| 资源 | 渲染常驻 | 同样常驻（实测内存/CPU 同级） |
+
+`external` 是为"自带宿主"留的口：企业锁版本的 Chrome、自己编的 WebView2 宿主、公司内网调试实例，
+都只需要给出 `host:port`，仓库里不必多一门语言、CI 不必多一条构建链。
 
 ## 结构
 
@@ -60,28 +71,31 @@ MAAEND_WEB_CDP_ENDPOINT=127.0.0.1:9338 python smoke_test.py
 
 | 变量 | 作用 |
 |---|---|
+| `MAAEND_WEB_MODE` | `headless`（默认）/ `offscreen`；非法值直接报错，不静默降级 |
 | `MAAEND_WEB_CDP_ENDPOINT` | 直连外部端点，如 `127.0.0.1:9338`；设了就不拉起、也不关闭 |
 | `MAAEND_WEB_BROWSER` | 浏览器可执行文件路径，覆盖自动探测 |
 | `MAAEND_WEB_PROFILE` | 用户数据目录（登录态 + 诊断截图 + browser.log 都在这里） |
 | `MAAEND_WEB_URL` | 起始地址，默认云·终末地网页端 |
-| `MAAEND_WEB_VISIBLE=1` | 调试：不要无头，把窗口正常显示出来（排查登录/识图） |
+| `MAAEND_WEB_VISIBLE=1` | 调试：窗口真的显示在屏幕上（等价 offscreen + 放在屏幕内） |
 | `MAAEND_WEB_KEEP_ALIVE=1` | 控制器退出时保留本模块拉起的浏览器 |
 | `MAAEND_WEB_KEEP_UA=1` | 保留原始无头 UA（默认会把 `HeadlessChrome` 抹成 `Chrome`） |
+| `MAAEND_WEB_ALLOW_FULLSCREEN=1` | 不注入「禁全屏/禁指针锁」护栏 |
 | `MAAEND_WEB_LOG_DIR` | 诊断截图目录（默认放在 profile 下的 `diagnostics/`） |
 | `MAAEND_WEB_STRICT=1` | 识别到登录/风控页时让 `connect()` 直接失败，而不是只告警 |
 
-## 实测数据（无头 Edge 155 / 1280×720 CSS 视口 / 本机）
+## 实测数据（Edge 155 / 1280×720 CSS 视口 / 本机）
 
-| 项目 | 结果 |
-|---|---|
-| 后端就绪（`/json/version` 可连） | **0.6–1.0 s** |
-| CSS 视口 | **精确 1280×720**（`--window-size=1310,815` 补偿 30×95，之后用 `Browser.setWindowBounds` 兜底） |
-| `Page.captureScreenshot`（静态页） | **~55 ms/帧** |
-| `Page.captureScreenshot`（在播视频） | **47–52 ms/帧** |
-| `Page.startScreencast`（在播视频） | **~26–30 fps** |
-| 控制器 `screencap()`（screencast 缓存） | 8–11 ms（缓存新鲜时） |
-| 整棵进程树占用 | 15 进程 / 空闲 ~850 MB / 播放 ~960 MB |
-| 空闲 CPU | ~0.3 核（≈2% 整机，16 逻辑核） |
+| 项目 | headless | offscreen |
+|---|---|---|
+| 后端就绪（`/json/version` 可连） | **0.55–0.85 s** | 0.55–0.85 s |
+| CSS 视口 | **精确 1280×720** | 精确 1280×720（`--force-device-scale-factor=1` + `setWindowBounds` 校正） |
+| `Page.captureScreenshot`（在播视频） | 47–52 ms | 47–55 ms |
+| `Page.startScreencast`（在播视频） | ~26–30 fps | 同左（屏外时也推帧） |
+| 控制器 `screencap()`（screencast 缓存） | 8–11 ms | 8–11 ms |
+| 整棵进程树占用 | 15 进程 / 空闲 ~850 MB | 同左 |
+| 空闲 CPU | ~0.3 核（≈2% 整机） | 同左 |
+| 拉回屏幕给用户 | ❌ 需换进程 ≈1.1 s | **2–12 ms**，不夺焦点 |
+| 任务栏 / Alt+Tab | 无 | 挂 `WS_EX_TOOLWINDOW` 后无 |
 
 三点结论：
 
@@ -93,13 +107,16 @@ MAAEND_WEB_CDP_ENDPOINT=127.0.0.1:9338 python smoke_test.py
    `document.visibilityState == "hidden"`（云游戏客户端普遍据此降帧），而且任务栏会多一个条目、
    Alt+Tab 能切过去。真无头报 `visible` + `hasFocus`。
 
-## 无头相关的两个坑（已处理，别改回去）
+## 三个坑（都已处理，别改回去）
 
 - **UA**：无头 UA 带 `HeadlessChrome`，官网点开登录弹窗后会弹
   "当前浏览器可能影响游戏体验 / 建议使用最新版本 Chrome"。控制器在 `connect()` 里把
   `HeadlessChrome` 换成 `Chrome` 并同步 client hints，然后 reload 一次——实测警告消失。
 - **CDP 握手 403**：`websocket-client` 默认带 `Origin` 头，Chromium 会拒。客户端用
   `suppress_origin=True`，因此**不需要** `--remote-allow-origins`（那等于向本机任意网页开放调试口）。
+- **视口对不齐（两个独立原因）**：① `--window-size` 会被 profile 里记住的窗口尺寸覆盖 → 启动后必须
+  用 `Browser.setWindowBounds` 校正一次；② 真窗口会继承系统缩放（150% 屏上实测 `devicePixelRatio=1.5`，
+  视口只能凑到 1281×721、截图 1279×720）→ 必须带 `--force-device-scale-factor=1`。
 
 ## 依赖
 

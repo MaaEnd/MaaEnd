@@ -67,6 +67,21 @@ PAGE_PROBE_JS = r"""
 
 DEFAULT_URL = "https://endfield.hypergryph.com/cloud"
 
+# 护栏：云页面上的「全屏」按钮会调 requestFullscreen，指针锁会 requestPointerLock——
+# 两者都可能把用户的桌面顶掉。这里直接把它们废掉（可用 MAAEND_WEB_ALLOW_FULLSCREEN=1 关掉护栏）。
+GUARD_JS = r"""
+(() => {
+  try {
+    const block = () => Promise.reject(new Error('blocked by MaaEnd web backend'));
+    const P = Element.prototype, H = HTMLElement.prototype;
+    if (P.requestFullscreen) P.requestFullscreen = block;
+    if (P.webkitRequestFullscreen) P.webkitRequestFullscreen = block;
+    if (P.requestPointerLock) P.requestPointerLock = block;
+    if (H.requestPointerLock) H.requestPointerLock = block;
+  } catch (e) {}
+})();
+"""
+
 
 class WebController(CustomController):
     """CDP 控制器：把无头浏览器伪装成一台可截图、可多指触摸的设备。"""
@@ -125,10 +140,12 @@ class WebController(CustomController):
             return False
 
         try:
-            # 1) 先修 UA：无头 UA 里带 HeadlessChrome，官网会弹"当前浏览器可能影响游戏体验"
+            # 1) 护栏：拦掉全屏/指针锁，避免误点后顶掉用户桌面
+            self._inject_guards()
+            # 2) 先修 UA：无头 UA 里带 HeadlessChrome，官网会弹"当前浏览器可能影响游戏体验"
             #    并劝用户去下载客户端（实测点开登录弹窗后必现）。抹掉后警告消失。
             self._sanitize_ua()
-            # 2) 视口：不要用 Emulation.setDeviceMetricsOverride 强制视口——实测它会把
+            # 3) 视口：不要用 Emulation.setDeviceMetricsOverride 强制视口——实测它会把
             #    screencast 从 ~26 fps 砍到 ~15 fps。改用窗口尺寸拿到精确的 CSS 视口。
             self._fix_viewport()
             self.cdp.enable_touch(5)
@@ -145,11 +162,11 @@ class WebController(CustomController):
             return False
 
     def request_uuid(self) -> str:
-        """uuid 里带后端标识，MXU/日志里一眼能看出走的是哪条路。"""
+        """uuid 里带后端标识（含模式），MXU/日志里一眼能看出走的是哪条路。"""
         if self.backend is None:
             return "web-cdp:pending"
         if self.backend.owned:
-            return f"web-cdp:{self.backend.kind}"
+            return f"web-cdp:{self.backend.kind}-{self.backend.mode}"
         return f"web-cdp:external:{self.backend.port}"
 
     def screencap(self) -> np.ndarray:
@@ -226,6 +243,40 @@ class WebController(CustomController):
         # 网页端没有相对鼠标模式；视角走 touch（contact=1）。
         return False
 
+    # ---------- 前台 / 后台切换（仅 offscreen 模式） ----------
+
+    def pop_to_screen(self, left: int = 120, top: int = 120) -> bool:
+        """把窗口挪到屏幕内交给用户操作：同进程、不重载、不丢登录态、不抢焦点。"""
+        if self.backend is None or not self.backend.owned or self.backend.mode != "offscreen":
+            self._log("pop_to_screen：只有 offscreen 模式支持（headless 没有窗口可切）")
+            return False
+        try:
+            win = self.cdp("Browser.getWindowForTarget")
+            self.cdp("Browser.setWindowBounds", windowId=win["windowId"],
+                     bounds={"left": left, "top": top, "windowState": "normal"})
+            st = self.cdp.eval("document.visibilityState")
+            self._log(f"pop_to_screen：窗口 -> ({left},{top})，页面 visibilityState={st}")
+            return True
+        except Exception as e:
+            self._log(f"pop_to_screen 失败：{type(e).__name__}: {e}")
+            return False
+
+    def park_offscreen(self) -> bool:
+        """把窗口挪回屏幕外继续无人值守（不动焦点、页面仍 visible）。"""
+        if self.backend is None or not self.backend.owned or self.backend.mode != "offscreen":
+            self._log("park_offscreen：只有 offscreen 模式支持")
+            return False
+        try:
+            win = self.cdp("Browser.getWindowForTarget")
+            self.cdp("Browser.setWindowBounds", windowId=win["windowId"],
+                     bounds={"left": -32000, "top": -32000})
+            st = self.cdp.eval("document.visibilityState")
+            self._log(f"park_offscreen：窗口 -> 屏幕外，页面 visibilityState={st}")
+            return True
+        except Exception as e:
+            self._log(f"park_offscreen 失败：{type(e).__name__}: {e}")
+            return False
+
     def switch_touch_mode_on(self) -> bool:
         """点客户端工具栏里的「触屏」，切到触摸输入模式。"""
         try:
@@ -241,6 +292,17 @@ class WebController(CustomController):
             return False
 
     # ---------- 视口 / 页面状态 / 收尸 ----------
+
+    def _inject_guards(self) -> None:
+        """拦掉全屏与指针锁：被误点的全屏按钮不该顶掉用户的桌面。"""
+        if os.environ.get("MAAEND_WEB_ALLOW_FULLSCREEN") == "1":
+            self._log("MAAEND_WEB_ALLOW_FULLSCREEN=1：不注入全屏/指针锁护栏")
+            return
+        with contextlib.suppress(Exception):
+            self.cdp("Page.addScriptToEvaluateOnNewDocument", source=GUARD_JS)
+        with contextlib.suppress(Exception):
+            self.cdp.eval(GUARD_JS)
+        self._log("已注入护栏：禁 requestFullscreen / requestPointerLock")
 
     def _sanitize_ua(self) -> None:
         """把 `HeadlessChrome/x` 换成 `Chrome/x`，并同步 client hints。

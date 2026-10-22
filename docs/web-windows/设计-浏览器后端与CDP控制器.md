@@ -67,16 +67,29 @@ WebView2 的优势集中在四点，只是一旦出现下列需求，它才重�
 
 ## 3. 后端边界
 
-`controller/browser.py` 是唯一出入口，标识写进日志与控制器 `request_uuid()`：
+`controller/browser.py` 是唯一出入口，标识写进日志与控制器 `request_uuid()`。
+**后端 = 浏览器 × 运行模式**（`MAAEND_WEB_MODE`）：
 
 | 后端标识 | 出现条件 | 起停归属 | uuid |
 |---|---|---|---|
-| `edge-headless` | Windows 找到 Edge（默认） | 本模块 | `web-cdp:edge-headless` |
-| `chrome-headless` | 只找到 Chrome（Linux 常见） | 本模块 | `web-cdp:chrome-headless` |
+| `edge-headless` | Windows 找到 Edge + `headless`（默认） | 本模块 | `web-cdp:edge-headless` |
+| `edge-offscreen` | 同上 + `offscreen` | 本模块 | `web-cdp:edge-offscreen` |
+| `chrome-headless` / `chrome-offscreen` | 只找到 Chrome（Linux 常见） | 本模块 | `web-cdp:chrome-<mode>` |
 | `external` | `MAAEND_WEB_CDP_ENDPOINT` 非空 | 用户自己（既不拉起也不关闭） | `web-cdp:external:<port>` |
 
+两种模式的取舍点是**"要不要能随时交给人操作"**，不是性能：
+
+| | `headless` | `offscreen` |
+|---|---|---|
+| 窗口对象 | 无 | 有（屏幕外 + `WS_EX_TOOLWINDOW`） |
+| 页面 `visibilityState` | `visible` | `visible`（四个反遮挡开关） |
+| 交给人操作 | ❌ 只能换进程（≈1.1 s，且必须优雅关闭否则状态不落盘） | ✅ `pop_to_screen()` 实测 **2–12 ms**，同进程不重载 |
+| 抢焦点 | 不涉及 | 启动瞬时会抢 → 自动还原前台；`pop_to_screen` 不夺焦点 |
+| 资源 | 渲染常驻 | 同样常驻（实测同级） |
+
 拉起时用 `--remote-debugging-port=0`，端口由 Chromium 写进 `<profile>/DevToolsActivePort` 后读回：
-多实例不抢端口，也不给本机留一个可猜的调试入口。
+多实例不抢端口，也不给本机留一个可猜的调试入口。**同一 profile 只能有一个实例**
+（第二个会静默转发 URL 后退出），所以启动失败时会把"谁占着这个 profile"列进报错。
 
 ---
 
@@ -153,6 +166,11 @@ WebController.close() / atexit
 | 无头能力 | ✅ 真 GPU（ANGLE/NVIDIA D3D11）、MSE H.264、Widevine、WebRTC |
 | 精确视口 | ✅ CSS `1280×720`（截图 `(720,1280,3)` uint8） |
 | 页面状态 | ✅ `visibilityState=visible`、`hasFocus=true` |
+| offscreen 模式 | ✅ 窗口在 `(-21845,-21845)`、`WS_EX_TOOLWINDOW` 已挂（`0x200180`）、页面仍 `visible` |
+| offscreen 交接 | ✅ `setWindowBounds` 拉回屏幕 **2–12 ms**、不夺焦点；再挪回屏幕外仍 `visible` |
+| 启动不打扰 | ✅ 启动瞬间会抢前台，随后自动还原（`SetForegroundWindow` + `AttachThreadInput` 兜底） |
+| 输入不打扰 | ✅ 触摸点击/触摸拖动/鼠标拖动全程 122 次采样：前台窗口不变、系统光标未被搬动 |
+| 护栏 | ✅ 注入后 `requestFullscreen` / `requestPointerLock` 被废（误点全屏不会顶掉桌面） |
 | UA 修正 | ✅ 抹掉 `HeadlessChrome` 后官网"浏览器可能影响体验"警告消失（截图对照） |
 | 点击 / 拖动 | ✅ 派发无异常，画面差异符合预期（点开登录弹窗 81% 像素变化） |
 | 收尸 | ✅ 退出后 0 残留进程、pidfile 已删 |
