@@ -29,6 +29,14 @@ public sealed class HostForm : Form
     private int _cdpPort;
     private int _controlPort;
     private bool _ready;
+    private bool _hotkeys;
+    private bool _inTaskbar;
+    private readonly HashSet<int> _hotkeyIds = new();
+    private const int HOTKEY_HIDE = 1;      // Ctrl+Alt+H：藏/显切换
+    private const int HOTKEY_QUIT = 2;      // Ctrl+Alt+Q：优雅退出
+    private const int HOTKEY_TASKBAR = 3;   // Ctrl+Alt+T：任务栏/Alt+Tab 可见性切换
+    private const uint MOD_ALT = 0x1, MOD_CONTROL = 0x2, MOD_NOREPEAT = 0x4000;
+    private const int WM_HOTKEY = 0x0312;
 
     public HostForm(HostOptions o)
     {
@@ -43,6 +51,12 @@ public sealed class HostForm : Form
         ShowInTaskbar = false;
         BackColor = Color.Black;
 
+        if (o.Hotkeys)
+        {
+            HandleCreated += (_, __) => RegisterHotkeys();
+            FormClosing += (_, __) => UnregisterHotkeys();
+        }
+
         _web.Dock = DockStyle.Fill;
         _web.DefaultBackgroundColor = Color.Black;
         Controls.Add(_web);
@@ -53,6 +67,74 @@ public sealed class HostForm : Form
             try { _log?.Flush(); _log?.Dispose(); } catch { }
             try { File.Delete(_o.StatePath); } catch { }
         };
+    }
+
+    // ---------- 全局热键（无边框窗口没有标题栏，看不见也关不掉，所以给键盘出口） ----------
+
+    /// <summary>注册一条热键；被别的程序占用时换备选组合，而不是整组放弃。</summary>
+    private bool TryRegister(int id, int vk, string label)
+    {
+        if (RegisterHotKey(Handle, id, MOD_CONTROL | MOD_ALT | MOD_NOREPEAT, vk))
+        {
+            Log($"[hotkey] Ctrl+Alt+{(char)vk} = {label}");
+            _hotkeyIds.Add(id);
+            return true;
+        }
+        Log($"[hotkey] Ctrl+Alt+{(char)vk} 注册失败（被占用？）");
+        return false;
+    }
+
+    private void RegisterHotkeys()
+    {
+        // 藏/显
+        _hotkeys = TryRegister(HOTKEY_HIDE, (int)Keys.H, "藏 / 显")
+                   || TryRegister(HOTKEY_HIDE, (int)Keys.OemOpenBrackets, "藏 / 显（备选）");
+        // 退出
+        _hotkeys &= TryRegister(HOTKEY_QUIT, (int)Keys.Q, "优雅退出")
+                    || TryRegister(HOTKEY_QUIT, (int)Keys.OemCloseBrackets, "优雅退出（备选）");
+        // 任务栏可见性：Ctrl+Alt+T 常被别的程序占用，备选 Ctrl+Alt+B / Ctrl+Alt+G
+        bool tb = TryRegister(HOTKEY_TASKBAR, (int)Keys.T, "任务栏切换")
+                  || TryRegister(HOTKEY_TASKBAR, (int)Keys.B, "任务栏切换（备选 B）")
+                  || TryRegister(HOTKEY_TASKBAR, (int)Keys.G, "任务栏切换（备选 G）");
+        if (!tb) Log("[hotkey] 任务栏切换热键全部被占用；用控制口 status/taskbar 或 webctl.py");
+        Log($"[hotkey] {( _hotkeys ? "已就绪" : "部分失败")}：藏/显 + 退出"
+            + (tb ? " + 任务栏" : "（任务栏不可用）"));
+    }
+
+    private void UnregisterHotkeys()
+    {
+        foreach (int id in _hotkeyIds)
+        {
+            try { UnregisterHotKey(Handle, id); } catch { }
+        }
+        _hotkeyIds.Clear();
+        _hotkeys = false;
+    }
+
+    protected override void WndProc(ref Message m)
+    {
+        if (m.Msg == WM_HOTKEY)
+        {
+            switch (m.WParam.ToInt32())
+            {
+                case HOTKEY_HIDE:
+                    // 藏起来但进程还在：再按一次回来（自动化期间被藏 = 不再渲染）
+                    Visible = !Visible;
+                    Log($"热键：Visible={Visible}");
+                    break;
+                case HOTKEY_QUIT:
+                    Log("热键：退出");
+                    Close();
+                    break;
+                case HOTKEY_TASKBAR:
+                    // 不能用 WinForms 的 ShowInTaskbar：改它会重建窗口句柄，
+                    // 热键（注册在旧句柄上）会一起失效。直接改扩展样式。
+                    ToggleTaskbar();
+                    break;
+            }
+            return;
+        }
+        base.WndProc(ref m);
     }
 
     private static StreamWriter? OpenLog(string path)
@@ -214,7 +296,24 @@ public sealed class HostForm : Form
     {
         // 不进任务栏 / 不进 Alt+Tab
         long ex = GetWindowLongPtr(Handle, GWL_EXSTYLE).ToInt64();
-        SetWindowLongPtr(Handle, GWL_EXSTYLE, new IntPtr(ex | WS_EX_TOOLWINDOW));
+        SetWindowLongPtr(Handle, GWL_EXSTYLE, new IntPtr((ex & ~WS_EX_APPWINDOW) | WS_EX_TOOLWINDOW));
+        _inTaskbar = false;
+    }
+
+    private void ToggleTaskbar()
+    {
+        _inTaskbar = !_inTaskbar;
+        long ex = GetWindowLongPtr(Handle, GWL_EXSTYLE).ToInt64();
+        long next = _inTaskbar
+            ? (ex & ~WS_EX_TOOLWINDOW) | WS_EX_APPWINDOW
+            : (ex & ~WS_EX_APPWINDOW) | WS_EX_TOOLWINDOW;
+        SetWindowLongPtr(Handle, GWL_EXSTYLE, new IntPtr(next));
+        SetWindowPos(Handle, IntPtr.Zero, 0, 0, 0, 0,
+                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+        // 任务栏条目是窗口创建时登记的：藏一下再显示才会刷新
+        ShowWindow(Handle, SW_HIDE);
+        ShowWindow(Handle, SW_SHOWNOACTIVATE);
+        Log($"热键：任务栏可见 = {_inTaskbar}（exstyle=0x{(ulong)next:X8}）");
     }
 
     // ---------- 本地控制口 ----------
@@ -340,11 +439,20 @@ public sealed class HostForm : Form
 
     private const int GWL_EXSTYLE = -20;
     private const long WS_EX_TOOLWINDOW = 0x00000080;
-    private const int SW_SHOWNOACTIVATE = 4;
+    private const long WS_EX_APPWINDOW = 0x00040000;
+    private const uint SWP_NOSIZE = 0x0001, SWP_NOMOVE = 0x0002, SWP_NOZORDER = 0x0004,
+                        SWP_NOACTIVATE = 0x0010, SWP_FRAMECHANGED = 0x0020;
+    private const int SW_HIDE = 0, SW_SHOWNOACTIVATE = 4;
 
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, int vk);
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
     [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
     [DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr after, int x, int y, int cx, int cy, uint flags);
     [DllImport("user32.dll", SetLastError = true)]
     private static extern IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex);
     [DllImport("user32.dll", SetLastError = true)]

@@ -110,6 +110,13 @@ def client_rect(hwnd: int) -> tuple[int, int]:
     return r.right - r.left, r.bottom - r.top
 
 
+def move(hwnd: int, x: int, y: int) -> tuple[int, int, int, int]:
+    """把窗口挪到屏幕坐标 (x, y)，尺寸不变。纯 Win32，不需要 CDP。"""
+    _, _, w, h = window_rect(hwnd)
+    user32.SetWindowPos(wt.HWND(hwnd), None, x, y, w, h, SWP_NOZORDER | SWP_NOACTIVATE)
+    return window_rect(hwnd)
+
+
 def set_borderless(hwnd: int, on: bool) -> dict:
     """on=True 去掉标题栏/边框（只剩页面画面）；on=False 恢复可拖动可关闭的普通窗口。"""
     style, _ = _styles(hwnd)

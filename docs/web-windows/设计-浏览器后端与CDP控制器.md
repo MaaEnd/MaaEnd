@@ -157,6 +157,28 @@ switch_mode("webview2") / switch_mode("headless")     # 任意两模式互切
 ⇒ 这条差异正好落在三条线的定位上：**要"人看着舒服"的纯画面就选 webview2**；
 只要"人能操作"，Edge 的 offscreen 就够。
 
+### 3.4 窗口操作入口（关闭 / 隐藏 / 任务栏）与 MXU 的边界
+
+窗口可以无边框、可以不在任务栏，但**用户必须还能关掉它、藏起来、找回来**。给三条入口：
+
+| 入口 | 形态 | 适用 |
+|---|---|---|
+| 全局热键 | `Ctrl+Alt+H` 藏/显、`Ctrl+Alt+Q` 关闭、`Ctrl+Alt+B` 任务栏切换 | 用户在电脑前，没有终端 |
+| `webctl.py` | `status / show / hide / close / taskbar / borderless`，按 `--profile` 自动发现实例 | 脚本、排错、CI |
+| 宿主控制口 | 按行 JSON：`show / park / hide / resume / status / quit` | 其它宿主程序（如 MXU） |
+
+两个实现要点：
+
+1. **热键不能用 WinForms 的 `ShowInTaskbar`**：改它会重建窗口句柄，注册在旧句柄上的热键会一起失效
+   （实测按下任务栏热键后 H/Q 就死了）。直接改 `WS_EX_TOOLWINDOW`/`WS_EX_APPWINDOW` 再
+   `SW_HIDE`→`SW_SHOWNOACTIVATE` 刷新任务栏条目。
+2. **热键要能降级**：`Ctrl+Alt+T` 在本机被别的程序占用（`RegisterHotKey` 返回 False），
+   所以注册表按"主选 → 备选"逐个尝试，并把每条的真实结果写进日志，而不是整组静默失败。
+
+**MXU 边界**：MXU（Tauri + 前端）里没有"网页窗口操作"按钮，加按钮要改 MXU 本体，
+不属于 `web/` 这条线。这边只负责把入口做干净——MXU 将来加按钮时 `exec` 一次 `webctl.py`
+或往控制口发一条 JSON 即可，不需要再动控制器。
+
 ## 4. 控制器契约（MaaFramework `CustomController`）
 
 | Maa 回调 | 本实现 | 备注 |

@@ -201,6 +201,50 @@ python window_style.py --pid 47276 --frame --fit 1280x720        # 恢复标题�
 
 ⇒ Edge/Chrome 窗口做不到纯画面（除非 `--kiosk` 全屏），要纯画面就用 WebView2 宿主。
 
+## 窗口操作：关闭 / 隐藏 / 任务栏（三种入口）
+
+自动化跑起来之后，用户总要有办法"藏起来""关掉""在任务栏找到它"。给了三条入口，
+**都不需要重启，也不需要改 MXU**：
+
+### 1. 热键（离线也能用，不依赖终端）
+
+| 热键 | 动作 | 在哪儿生效 |
+|---|---|---|
+| `Ctrl+Alt+H` | 藏 ⇄ 显（挪屏幕外 / 摆回屏幕内） | WebView2 宿主内建；`smoke_test.py --show` 也装了 |
+| `Ctrl+Alt+Q` | 优雅关闭（flush profile，保住登录态） | 同上 |
+| `Ctrl+Alt+B` | 任务栏/Alt+Tab 可见 ⇄ 隐形 | 仅 WebView2 宿主（`Ctrl+Alt+T` 常被别的程序占用，自动退到 B） |
+
+宿主的注册结果写进 `host.log`：`[hotkey] Ctrl+Alt+T 注册失败（被占用？）` → `[hotkey] Ctrl+Alt+B = 任务栏切换（备选 B）`。
+`--no-hotkeys` 可关掉。
+
+### 2. 命令行（对任何已经在跑的实例）
+
+```bash
+python webctl.py --profile "%LOCALAPPDATA%\MaaEnd\webview2-demo" status
+python webctl.py --profile "%LOCALAPPDATA%\MaaEnd\webview2-demo" hide      # 藏（WebView2 是真停车）
+python webctl.py --profile "%LOCALAPPDATA%\MaaEnd\webview2-demo" show --at 120,120
+python webctl.py --profile "%LOCALAPPDATA%\MaaEnd\webview2-demo" close     # 优雅关闭
+python webctl.py --profile "%LOCALAPPDATA%\MaaEnd\webview2-demo" taskbar on
+```
+
+`--profile` 指用户数据目录（读 `backend.json` / `host-state.json` 自动发现实例），
+也可以直接 `--port <CDP 端口>` 或 `--control-port <宿主控制口>`。
+不用装 `websocket-client` 也能 `show/hide`（回落 Win32）；只有 `close` 想走优雅关闭才需要 CDP。
+
+### 3. 控制口（给 MXU 这类宿主程序调的）
+
+WebView2 宿主的本地控制口按行 JSON 收发（端口在 `<profile>/host-state.json`）：
+
+```json
+{"cmd":"show","left":120,"top":120}
+{"cmd":"park"}      {"cmd":"hide"}      {"cmd":"resume"}
+{"cmd":"status"}    {"cmd":"quit"}
+```
+
+**关于 MXU**：MXU 目前的界面里没有"网页窗口操作"的按钮，加它需要改 MXU 本体（Tauri + 前端），
+不在 `web/` 这条线的范围里。所以这边先把**入口**备好：MXU 侧要加按钮时，
+只要 `exec` 一次 `webctl.py`，或者往控制口发一条上面的 JSON 就行，不需要再动控制器。
+
 ## 三个坑（都已处理，别改回去）
 
 - **UA**：无头 UA 带 `HeadlessChrome`，官网点开登录弹窗后会弹

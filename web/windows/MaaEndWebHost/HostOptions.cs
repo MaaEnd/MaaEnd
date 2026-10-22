@@ -17,6 +17,7 @@ public sealed class HostOptions
     public int Height { get; private set; } = 720;
     public bool Mute { get; private set; } = true;
     public bool ShowConsole { get; private set; }
+    public bool Hotkeys { get; private set; } = true;
     public bool BlockPointerLock { get; private set; }
     public bool HideFloatingBall { get; private set; } = true;
     /// <summary>窗口放到屏幕外但保持可见（渲染继续，用户看不见）。</summary>
@@ -63,6 +64,7 @@ public sealed class HostOptions
                 case "--console": o.ShowConsole = true; break;
                 case "--block-pointer-lock": o.BlockPointerLock = true; break;
                 case "--keep-ball": o.HideFloatingBall = false; break;
+            case "--no-hotkeys": o.Hotkeys = false; break;
                 case "--log": o.LogPath = Next() ?? o.LogPath; break;
                 case "--state": o.StatePath = Next() ?? o.StatePath; break;
                 case "--help":

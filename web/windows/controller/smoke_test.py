@@ -24,6 +24,7 @@ import numpy as np
 from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import hotkeys
 from web_controller import WebController
 
 
@@ -135,16 +136,39 @@ def main() -> int:
             assert ctrl.backend is not None
             win = ctrl.cdp("Browser.getWindowForTarget")
             print(f"窗口已摆到屏幕：bounds={win['bounds']}  hwnd={ctrl.backend.hwnd}", flush=True)
+
+            # 无边框/不进任务栏的窗口关不掉也没法最小化，所以留键盘出口
+            stop = {"flag": False}
+
+            def _toggle() -> None:
+                parked = ctrl.backend is not None and ctrl.backend.mode == "offscreen"
+                win2 = ctrl.cdp("Browser.getWindowForTarget")["bounds"]
+                if win2["left"] < -10000:
+                    ctrl.pop_to_screen()
+                elif parked:
+                    ctrl.park_offscreen()
+                print(f"[hotkey] 窗口 -> {ctrl.cdp('Browser.getWindowForTarget')['bounds']}", flush=True)
+
+            def _close() -> None:
+                print("[hotkey] 关闭", flush=True)
+                stop["flag"] = True
+
+            hk = hotkeys.install({"ctrl+alt+h": _toggle, "ctrl+alt+q": _close},
+                                 log=lambda m: print(m, flush=True))
+            ok = [c for c, v in hk.registered.items() if v]
+            print(f"热键：{'、'.join(ok) if ok else '都被占用'}（Ctrl+Alt+H 藏/显，Ctrl+Alt+Q 关闭）", flush=True)
             print(f"观看到 {a.show_minutes:.0f} 分钟为止，或者你直接关掉窗口 / 按 Ctrl-C。", flush=True)
             t_end = time.time() + a.show_minutes * 60
             try:
-                while time.time() < t_end:
-                    time.sleep(2)
+                while time.time() < t_end and not stop["flag"]:
+                    time.sleep(1)
                     st = ctrl.cdp.eval("[document.visibilityState, location.href]")
                     print(f"[{time.strftime('%H:%M:%S')}] visibilityState={st[0]} url={st[1][:70]}",
                           flush=True)
             except (KeyboardInterrupt, Exception) as e:
                 print(f"结束观看：{type(e).__name__}: {e}")
+            finally:
+                hk.stop()
             return 0
 
         if a.switch:
