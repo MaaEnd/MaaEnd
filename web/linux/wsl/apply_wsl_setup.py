@@ -113,6 +113,8 @@ for lang, (lb, ds) in TEXTS.items():
     j = json.load(open(p, encoding="utf-8"))
     j["task.WebStartGame.label"] = lb
     j["task.WebStartGame.description"] = ds
+    j["task.WebLaunchBrowser.label"] = "▶️启动网页端（sway + Chrome）"
+    j["task.WebLaunchBrowser.description"] = "起 WSL 里的合成器与 Chrome，并等页面就绪；已在跑会直接跳过。"
     json.dump(j, open(p, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 
 # 4) 自检
