@@ -2,6 +2,8 @@
 
 This document describes the Windows web implementation for [Issue #6483](https://github.com/MaaEnd/MaaEnd/issues/6483). Cloud automation uses a single background input design, with window visibility controlled by the user. This remains experimental. The modified companion MXU controller connects to the WebView host through a local named pipe and supplies shared video frames and CDP input to the existing Tasker.
 
+The GUI integration currently depends on [MXU PR #395](https://github.com/MaaXYZ/MXU/pull/395) and is not yet part of the generic client. Building only this repository's host and resources does not enable the controller in a GUI without the companion changes; custom-controller discovery and lifecycle contracts still require coordination between the two repositories.
+
 ## Usage
 
 1. Install the system WebView2 Runtime and select the `Cloud Endfield Web (Experimental)` controller.

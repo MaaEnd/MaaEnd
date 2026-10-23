@@ -2,6 +2,8 @@
 
 本文说明 [Issue #6483](https://github.com/MaaEnd/MaaEnd/issues/6483) 的 Windows 网页适配。云游戏统一采用后台输入的设计，窗口显示状态由用户控制。功能仍处于测试阶段，配套修改的 MXU 控制器通过本地命名管道连接 WebView 宿主，以共享视频帧和 CDP 输入接入原有 Tasker。
 
+当前 GUI 接入依赖 [MXU PR #395](https://github.com/MaaXYZ/MXU/pull/395)，尚未纳入通用客户端。只构建本仓库的宿主和资源，不能让未包含配套修改的 GUI 使用该控制器；自定义控制器发现与生命周期契约仍待两仓协调。
+
 ## 使用方式
 
 1. 安装系统 WebView2 Runtime，选择 `云终末地网页版（实验性）` 控制器。
