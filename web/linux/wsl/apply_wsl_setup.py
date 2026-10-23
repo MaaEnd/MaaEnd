@@ -24,7 +24,7 @@ CFG = os.path.join(ROOT, "config", "mxu-MaaEnd.json")
 LOC = os.path.join(ROOT, "locales", "interface")
 PATHS = ["./resource", "./web/resource_web",
          "./web/linux/resource_web_linux", "./web/resource_web_homesrv"]
-IMPORT_ITEMS = ["web/tasks/WebStartGame.json", "web/tasks/WebLaunchBrowser.json"]
+IMPORT_ITEMS = ["web/tasks/WebStartGame.json"]
 IMPORT_ITEM = IMPORT_ITEMS[0]
 WEB_ON = {"hmuddz8", "hyasuml"}
 DAILY9 = ["WebStartGame", "VisitFriends", "DijiangRewards", "CreditShoppingN2",
