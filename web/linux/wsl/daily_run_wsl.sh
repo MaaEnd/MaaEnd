@@ -18,13 +18,18 @@ CONF="$ROOT/daily.conf"
 LOG="$ROOT/daily.log"
 # 旧会话的 profile 在 ~/chrome-profile；新部署用 ~/.config/endfield-web。两者都认。
 if [ -z "${MAAEND_PROFILE:-}" ]; then
-  if [ -d "$HOME/.config/endfield-web" ]; then
-    MAAEND_PROFILE="$HOME/.config/endfield-web"
-  elif [ -d "$HOME/chrome-profile" ]; then
-    MAAEND_PROFILE="$HOME/chrome-profile"
+  # 选「真正有登录态」的那个 profile：按 Local Storage 体积比，
+  # 只看目录是否存在会选到空 profile → 页面弹登录框，整批任务空转。
+  _A="$HOME/.config/endfield-web"
+  _B="$HOME/chrome-profile"
+  _SA=$(du -sb "$_A/Default/Local Storage/leveldb" 2>/dev/null | cut -f1); _SA=${_SA:-0}
+  _SB=$(du -sb "$_B/Default/Local Storage/leveldb" 2>/dev/null | cut -f1); _SB=${_SB:-0}
+  if [ "$_SB" -ge "$_SA" ] && [ -d "$_B" ]; then
+    MAAEND_PROFILE="$_B"
   else
-    MAAEND_PROFILE="$HOME/.config/endfield-web"
+    MAAEND_PROFILE="$_A"
   fi
+  echo "[i] profile: $MAAEND_PROFILE (endfield-web=${_SA}B chrome-profile=${_SB}B)"
 fi
 PROFILE="$MAAEND_PROFILE"
 INSTANCE="hmuddz8"
