@@ -541,7 +541,8 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
     case NaviPhase::WaitTransfer:
     case NaviPhase::WaitZipline:
     case NaviPhase::WaitFind:
-    case NaviPhase::WaitJumpPad: {
+    case NaviPhase::WaitJumpPad:
+    case NaviPhase::WaitRope: {
         // 顶墙计数和设备命中只在 Navigate 里攒, 语义动作做完人可能已换了地方
         runtime_state_.flow.motionless_hold_ticks = 0;
         runtime_state_.flow.futile_forward_reasserts = 0;
@@ -1096,6 +1097,7 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
     else {
         replan_param.zipline_ledger = ledger;
     }
+    replan_param.rope_off.insert(replan_param.rope_off.end(), rope_off_.begin(), rope_off_.end());
     replan_param.path.assign(authored.begin() + static_cast<std::ptrdiff_t>(slice_begin), authored.end());
     std::vector<Waypoint> replanned;
     const bool expanded = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
@@ -1154,6 +1156,23 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
     }
     LogInfo << "Zipline recovery re-expanded the remaining authored route." << VAR(reason) << VAR(slice_begin)
             << VAR(session_->current_path().size()) << VAR(position_->x) << VAR(position_->y) << VAR(position_->zone_id);
+    return true;
+}
+
+bool NavigationStateMachine::AbandonRope(uint32_t uid)
+{
+    rope_off_.push_back(uid);
+    LogWarn << "Rope unavailable at the bottom; re-expanding the remaining route without it." << VAR(uid) << VAR(position_->x)
+            << VAR(position_->y) << VAR(rope_off_.size());
+    if (!TryReplanRemainingAuthoredRoute("rope_unavailable")) {
+        return FailNavigation(
+            "rope_unavailable",
+            "Rope prompt not recognized at the bottom and the remaining route could not be re-expanded without it.",
+            0.0,
+            0.0,
+            0);
+    }
+    SelectPhaseForCurrentWaypoint("rope_unavailable");
     return true;
 }
 
@@ -1734,6 +1753,9 @@ bool NavigationStateMachine::TickNavigate()
             do {
                 const semantic_nodes::Result arrival_result =
                     semantic_nodes::HandleArrival(semantic_ctx, waypoint, route.waypoint_distance);
+                if (arrival_result.rope_unavailable != 0) {
+                    return AbandonRope(arrival_result.rope_unavailable);
+                }
                 if (arrival_result.request_failure) {
                     return FailNavigation(
                         arrival_result.failure_reason,
@@ -2633,12 +2655,27 @@ void NavigationStateMachine::CompleteWaypointAfterPromptTrigger()
     }
 
     const ActionType action = session_->CurrentWaypoint().action;
+    const std::optional<RopeRideInfo> rope_ride = session_->CurrentWaypoint().rope_ride;
     const std::optional<size_t> consumed_absolute_node_idx = session_->CurrentAbsoluteNodeIndex();
     session_->NoteCanonicalFinalGoalConsumed(consumed_absolute_node_idx, *position_, "async_prompt_completed");
     session_->AdvanceToNextWaypoint(action, "async_prompt_completed");
     runtime_state_.OnWaypointAdvance();
     if (!session_->HasCurrentWaypoint()) {
         session_->NoteRouteTailConsumed(*position_, "route_tail_consumed");
+        return;
+    }
+    if (rope_ride) {
+        semantic_nodes::StartRopeRide(
+            BuildSemanticContext(
+                action_wrapper_,
+                position_provider_,
+                session_,
+                motion_controller_,
+                action_executor_,
+                position_,
+                &runtime_state_,
+                maa_context_),
+            *rope_ride);
         return;
     }
     SelectPhaseForCurrentWaypoint("async_prompt_completed");

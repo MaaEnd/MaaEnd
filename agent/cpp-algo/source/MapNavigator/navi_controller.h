@@ -39,6 +39,10 @@ struct NaviParam
     std::vector<Waypoint> authored_path;
     // 本次导航到目前为止每一跳的记录。重展开时带上, 规划从连通图里拿掉滑不动/滑错的索, 其余滑索照常参与。
     HopLedger zipline_ledger;
+    // 绳底交互提示的文字, 开跑前从共享 OCR 节点读出; 为空则这次规划不用升降索。
+    std::vector<std::string> rope_interact_text;
+    // 这次导航里到了绳底认不出提示的升降索(底端 uid), 之后的规划不再选它们。
+    std::vector<uint32_t> rope_off;
 };
 
 // 滑不动、滑错、滑丢的跳才算索本身出了问题; 主动下索交给恢复的那种不算

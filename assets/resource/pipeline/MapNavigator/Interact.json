@@ -63,5 +63,24 @@
                 "threshold": 0.75
             }
         }
+    },
+    "MapNavigatorRopeUseText": {
+        "desc": "升降索绳底交互提示中的使用选项文字，只给寻路读取 expected",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    755,
+                    330,
+                    297,
+                    312
+                ],
+                "expected": [
+                    "使用",
+                    "(?i)Interact",
+                    "사용"
+                ]
+            }
+        }
     }
 }

@@ -67,6 +67,8 @@ struct NavmeshExpansionState
     bool no_go_rejected = false;
     // 本趟导航已生成的虚拟禁区, 每条腿的规划都会带上。首次展开时尚未生成, 为空。
     const std::vector<VirtualNoGoDisc>* no_go = nullptr;
+    // 判定用不了的升降索; 空指针表示这次不用升降索。
+    const std::vector<uint32_t>* rope_off = nullptr;
 
     // 起点一挪，原来那张面的证据就不再成立：新起点属于哪层由生成它的那一段自己决定。
     // 两者绑在一起改，免得哪条支路只挪了点忘了清证据，把上一腿的层带进下一腿。
@@ -468,12 +470,16 @@ navmesh::BaseNavRouteRequest BuildRouteRequest(
     float goal_floor_y = navmesh::kBaseNavFloorYNone,
     std::optional<double> goal_deck_y = std::nullopt,
     std::optional<double> start_floor_y = std::nullopt,
-    std::optional<double> start_deck_y = std::nullopt)
+    std::optional<double> start_deck_y = std::nullopt,
+    const std::vector<uint32_t>* rope_off = nullptr)
 {
     navmesh::BaseNavRouteRequest request;
     request.zone_name = navmesh_zone;
     request.start = start;
     request.goal = goal;
+    if (rope_off != nullptr) {
+        request.rope_off = *rope_off;
+    }
     // 禁区按生成时所在的定位区记录, 只有同区规划把它当作墙; 已判定封闭唯一通路的禁区不再计入
     if (no_go != nullptr) {
         for (const VirtualNoGoDisc& disc : *no_go) {
@@ -577,7 +583,8 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
         request.goal_deck_y,
         request.start_deck_y,
         request.no_go_discs,
-        should_stop);
+        should_stop,
+        request.rope_off ? &*request.rope_off : nullptr);
     result.gap_start = plan.debug.gap_start;
     result.gap_goal = plan.debug.gap_goal;
     result.gap_distance = plan.debug.gap_distance;
@@ -608,6 +615,7 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
     result.path.heights = std::move(plan.heights);
     result.path.waypoints = std::move(plan.waypoints);
     result.path.drops = std::move(plan.drops);
+    result.path.ropes = std::move(plan.ropes);
     result.cost = plan.length;
     if (out_diagnostic != nullptr) {
         out_diagnostic->start = request.start;
@@ -828,7 +836,8 @@ bool AppendBlindTargetFallback(
             goal_floor_y,
             std::nullopt,
             state.route_start_floor_y,
-            state.route_start_deck_y);
+            state.route_start_deck_y,
+            state.rope_off);
         NavmeshRouteDiagnostic diagnostic;
         const auto route = PlanCorridorRoute(navmesh, request, should_stop, out_diagnostics == nullptr ? nullptr : &diagnostic);
         if (!route.ok() || route.path.points.empty()) {
@@ -1038,7 +1047,8 @@ bool AppendNavmeshWaypoint(
         target.floor_y,
         target.deck_y,
         state.route_start_floor_y,
-        state.route_start_deck_y);
+        state.route_start_deck_y,
+        state.rope_off);
     const auto plan_started_at = std::chrono::steady_clock::now();
     NavmeshRouteDiagnostic route_diagnostic;
     auto route_result = PlanCorridorRoute(navmesh, request, should_stop, out_diagnostics == nullptr ? nullptr : &route_diagnostic);
@@ -1529,6 +1539,7 @@ bool ExpandNavmeshWaypoints(
         return false;
     }
     state->no_go = no_go;
+    state->rope_off = param.rope_interact_text.empty() ? nullptr : &param.rope_off;
     state->route_start_deck_y = start_deck_y;
 
     const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
@@ -1562,12 +1573,19 @@ bool ExpandNavmeshWaypoints(
         }
         return false;
     }
+    size_t rope_rides = 0;
+    for (Waypoint& waypoint : out_path) {
+        if (waypoint.rope_ride) {
+            waypoint.interact_text = param.rope_interact_text;
+            ++rope_rides;
+        }
+    }
     const int64_t expand_total_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - expand_started_at).count();
     const size_t authored_waypoints = param.path.size();
     const size_t expanded_waypoints = out_path.size();
     LogInfo << "NAVMESH route expansion finished." << VAR(state->navmesh_zone) << VAR(authored_waypoints) << VAR(expanded_waypoints)
-            << VAR(navmesh_load_ms) << VAR(expand_total_ms);
+            << VAR(rope_rides) << VAR(navmesh_load_ms) << VAR(expand_total_ms);
     return true;
 }
 
@@ -1876,6 +1894,30 @@ bool AppendGeneratedNavmeshWaypoints(
             }
         }
     };
+    // 绳顶落脚点坐完升降索就算到; 它前一个点是绳底站位, 改成按交互坐上去
+    const auto mark_rope = [&](size_t index) {
+        for (const navmesh::RopeRide& rope : world_path.ropes) {
+            if (rope.index != index || index == 0) {
+                continue;
+            }
+            Waypoint top = std::move(out_path.back());
+            out_path.pop_back();
+            const navmesh::WorldPoint& base = world_path.points[index - 1];
+            if (out_path.empty() || out_path.back().x != base.x || out_path.back().y != base.y) {
+                out_path.emplace_back(base.x, base.y, ActionType::RUN);
+                out_path.back().corridor_clearance = clearance_at(index - 1);
+                out_path.back().route_floor_y = height_at(index - 1);
+            }
+            Waypoint& bottom = out_path.back();
+            bottom.action = ActionType::INTERACT;
+            bottom.strict_arrival = true;
+            bottom.rope_ride = RopeRideInfo { .uid = rope.uid, .ride_s = rope.ride_s, .top_height = rope.top_height };
+            top.strict_arrival = true;
+            top.target_deck_y = rope.top_height;
+            top.rope_top = true;
+            out_path.push_back(std::move(top));
+        }
+    };
 
     if (emit_interior_corners) {
         for (size_t index = 1; index < loop_end; ++index) {
@@ -1885,6 +1927,7 @@ bool AppendGeneratedNavmeshWaypoints(
             out_path.back().corridor_clearance = clearance_at(index);
             out_path.back().route_floor_y = height_at(index);
             mark_drop(index);
+            mark_rope(index);
         }
         if (include_goal && total >= 2) {
             const navmesh::WorldPoint& goal = world_path.points[total - 1];
@@ -1907,6 +1950,7 @@ bool AppendGeneratedNavmeshWaypoints(
         out_path.back().corridor_clearance = clearance_at(index);
         out_path.back().route_floor_y = height_at(index);
         mark_drop(index);
+        mark_rope(index);
     };
     const auto restore_corners_to = [&](size_t anchor) {
         // 规划器自己拉直过的路线直接照抄下标。它那边看得到窗口挡线格图和起点所在面的高度,
@@ -1931,6 +1975,11 @@ bool AppendGeneratedNavmeshWaypoints(
             for (const navmesh::DropLanding& drop : world_path.drops) {
                 if (drop.index > cursor && drop.index < reach_limit) {
                     reach_limit = drop.index;
+                }
+            }
+            for (const navmesh::RopeRide& rope : world_path.ropes) {
+                if (rope.index > cursor && rope.index < reach_limit) {
+                    reach_limit = rope.index;
                 }
             }
             double swallowed_clearance = std::numeric_limits<double>::infinity();
@@ -1965,6 +2014,7 @@ bool AppendGeneratedNavmeshWaypoints(
         out_path.back().corridor_clearance = clearance_at(anchor);
         out_path.back().route_floor_y = height_at(anchor);
         mark_drop(anchor);
+        mark_rope(anchor);
         prev = anchor;
     };
 

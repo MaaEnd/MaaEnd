@@ -25,6 +25,8 @@ enum class NaviPhase
     WaitFind,
     // 飞行中位置一路在跳, 与滑索一样挡住卡死检测与重规划
     WaitJumpPad,
+    // 坐升降索中: 小地图坐标不动、人在往上走, 同样挡住卡死检测与重规划
+    WaitRope,
     Finished,
     Failed,
 };

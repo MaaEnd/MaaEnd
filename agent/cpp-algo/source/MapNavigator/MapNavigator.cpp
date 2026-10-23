@@ -4,8 +4,10 @@
 
 #include <MaaUtils/Logger.h>
 
+#include "navi_config.h"
 #include "navi_controller.h"
 #include "navi_param_parser.h"
+#include "prompt_scan_profile.h"
 #include "zipline_preference.h"
 
 namespace mapnavigator
@@ -46,6 +48,8 @@ MaaBool MAA_CALL MapNavigateActionRun(
 
     // 文字表指了节点的交互点在这里解析: pipeline 已经问得到, 而且还没开始走。
     ResolveInteractTextNodes(context, param);
+    // 读不出绳底提示文字就这次不用升降索, 错误行由被调用方写
+    TryReadNodeInteractTexts(context, kRopeInteractTextNode, &param.rope_interact_text);
     param.zipline_enabled = ResolveZiplineEnabled(context, param.zipline_enabled);
     if (param.zipline_enabled) {
         param.zipline_account_id = ResolveZiplineAccountId(context);

@@ -82,6 +82,8 @@ private:
     // 滑索恢复的下一级回退: 剩余展开路径全够不着时, 切出剩余作者路线重新展开并整条换路。
     // 滑索照常参与重展开, 只有判死过的跳被封禁; 弃索次数太多才整段退回纯走路。
     bool TryReplanRemainingAuthoredRoute(const char* reason);
+    // 到了绳底认不出提示: 这次导航不再用这根升降索, 剩余作者路线从脚下重新展开
+    bool AbandonRope(uint32_t uid);
     bool HandleDynamicReplanRequest(const char* reason);
     bool TryEnterCrossTierEscape();
     bool PlanCrossTierEscapeCorridorFromHere(const char* reason);
@@ -130,6 +132,8 @@ private:
     std::optional<NaviPhase> last_tick_phase_;
     // 连续多少拍用了先验。链式本身不越权（纪元保证先验永远来自没被指令动过的观测），留着只为诊断。
     int consecutive_prior_uses_ = 0;
+    // 这次导航里到了绳底认不出提示的升降索(底端 uid), 重展开时不再选它们
+    std::vector<uint32_t> rope_off_;
 
     // Two instances of one flow; they differ only in the pipeline node names and who supplies the text.
     AsyncPromptAction collect_prompt_;
