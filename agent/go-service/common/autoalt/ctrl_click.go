@@ -1,6 +1,7 @@
 package autoalt
 
 import (
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/touchcheck"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -22,6 +23,10 @@ func (a *AutoCtrlClickAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		log.Error().Str("component", "AutoCtrlClickAction").Msg("modifier click action received nil context or arg")
 		return false
 	}
+	if touchcheck.Propagate(ctx, arg) {
+		return false
+	}
+	defer touchcheck.Propagate(ctx, arg)
 
 	return runModifierClickActions(
 		ctx,

@@ -67,6 +67,9 @@ func (a *RunTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Error().Err(err).Str("task", param.Task).Msg("FailureCollector subtask failed")
 	if param.RecoveryTask != "" {
 		recovery, recoveryErr := ctx.RunTask(param.RecoveryTask)
+		if touchcheck.Propagate(ctx, arg) {
+			return false
+		}
 		if recoveryErr != nil || recovery == nil || !recovery.Status.Success() {
 			log.Error().Err(recoveryErr).Str("task", param.RecoveryTask).Msg("FailureCollector recovery subtask failed")
 		}
@@ -79,9 +82,15 @@ func (a *FinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if !ok {
 		return false
 	}
+	if touchcheck.Propagate(ctx, arg) {
+		return false
+	}
 	failures := Finish(param.Key)
 	for _, failureTask := range failures {
 		detail, err := ctx.RunTask(failureTask)
+		if touchcheck.Propagate(ctx, arg) {
+			return false
+		}
 		if err != nil || detail == nil || !detail.Status.Success() {
 			log.Error().Err(err).Str("task", failureTask).Msg("FailureCollector failure notification task failed")
 		}

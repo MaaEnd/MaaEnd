@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/touchcheck"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -112,6 +113,9 @@ func runRepeatUntil(
 	intervalMs int64,
 	untilFound bool,
 ) bool {
+	if ctx == nil || arg == nil || touchcheck.Propagate(ctx, arg) {
+		return false
+	}
 	if len(waitNodes) == 0 || intervalMs < 0 {
 		log.Error().
 			Str("component", component).
@@ -128,7 +132,14 @@ func runRepeatUntil(
 		intervalMs = defaultIntervalMs
 	}
 
-	ctrl := ctx.GetTasker().GetController()
+	tasker := ctx.GetTasker()
+	if tasker == nil {
+		return false
+	}
+	ctrl := tasker.GetController()
+	if ctrl == nil {
+		return false
+	}
 	poll := time.Duration(pollIntervalMs) * time.Millisecond
 
 	for i := 0; i < repeatCount; i++ {
@@ -147,6 +158,9 @@ func runRepeatUntil(
 			},
 		}); err != nil {
 			log.Warn().Err(err).Str("component", component).Int("attempt", i+1).Msg("inner action failed")
+		}
+		if touchcheck.Propagate(ctx, arg) {
+			return false
 		}
 
 		// Within intervalMs, poll recognition every pollIntervalMs so a fast UI
@@ -181,12 +195,19 @@ func runRepeatUntil(
 
 			if untilFound {
 				for _, node := range waitNodes {
-					if detail, err := ctx.RunRecognition(node, img); err == nil && detail != nil && detail.Hit {
+					detail, err := ctx.RunRecognition(node, img)
+					if touchcheck.Propagate(ctx, arg) {
+						return false
+					}
+					if err == nil && detail != nil && detail.Hit {
 						return true
 					}
 				}
 			} else {
 				detail, err := ctx.RunRecognition(waitNodes[0], img)
+				if touchcheck.Propagate(ctx, arg) {
+					return false
+				}
 				if err != nil || detail == nil || !detail.Hit {
 					return true
 				}
