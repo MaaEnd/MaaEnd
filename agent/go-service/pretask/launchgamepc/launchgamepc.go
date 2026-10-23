@@ -33,15 +33,17 @@ const (
 
 	gameProcessName = "Endfield.exe"
 	launcherExeName = "Launcher.exe"
-	// 安装目录下的 Launcher.exe 只负责拉起 <版本号>\Games.exe 后退出，启动器窗口属于 Games.exe
-	launcherProcessName = "Games.exe"
 
 	pipelineEntry = "GameLauncherMain"
 
-	launcherWindowTimeout = 60 * time.Second
-	gameWindowTimeout     = 120 * time.Second
+	// 开机自启动时负载高、游戏首次启动较慢，与 MXU 前置程序等待窗口的时长保持一致
+	launcherWindowTimeout = 300 * time.Second
+	gameWindowTimeout     = 300 * time.Second
 	pollInterval          = 5 * time.Second
-	launcherRelaunchWait  = 5 * time.Second
+	// 与 MXU 前置程序 preActionConnectDelaySec 的默认值一致，窗口出现后先等待初始化再连接
+	// 启动器过早连接会出现异常画面 https://github.com/MaaEnd/MaaEnd/issues/6585
+	launcherWindowSettleWait = 5 * time.Second
+	gameWindowSettleWait     = 5 * time.Second
 )
 
 // 与 interface.json 中 Win32-Front 的窗口匹配规则保持一致，供 MXU 后续连接。
@@ -128,7 +130,7 @@ func Run(args []string) bool {
 		return false
 	}
 
-	if isProcessRunning(gameProcessName, "") {
+	if isProcessRunning(gameProcessName) {
 		log.Info().
 			Str("component", component).
 			Msg("game is already running, skip launching")
@@ -233,6 +235,12 @@ func runLauncher(windowRegex *regexp.Regexp) bool {
 		Str("title", windowRegex.String()).
 		Msg("launcher window found")
 
+	log.Info().
+		Str("component", component).
+		Dur("wait", launcherWindowSettleWait).
+		Msg("waiting before connecting launcher window")
+	time.Sleep(launcherWindowSettleWait)
+
 	if moved, err := moveLauncherToPrimaryMonitor(hWnd); err != nil {
 		log.Warn().
 			Err(err).
@@ -299,7 +307,6 @@ func startLauncherFromInstallDir(opts launchGamePCOptions, info launcherInfo) bo
 		Msg("launcher install directory found")
 
 	// 启动器最小化到托盘时进程仍在但窗口不可见，需要再执行一次 Launcher.exe 唤出窗口。
-	launcherRunning := isProcessRunning(launcherProcessName, installDir)
 	if err := startLauncher(installDir); err != nil {
 		log.Error().
 			Err(err).
@@ -307,14 +314,6 @@ func startLauncherFromInstallDir(opts launchGamePCOptions, info launcherInfo) bo
 			Str("install_dir", installDir).
 			Msg("failed to start launcher")
 		return false
-	}
-	if launcherRunning {
-		log.Info().
-			Str("component", component).
-			Dur("wait", launcherRelaunchWait).
-			Msg("launcher process was already running, waiting before connecting")
-		// 启动器进程已在运行时再次执行 Launcher.exe，等待一段时间再继续，避免maa过早连接出现异常画面 https://github.com/MaaEnd/MaaEnd/issues/6585
-		time.Sleep(launcherRelaunchWait)
 	}
 	return true
 }
@@ -365,8 +364,8 @@ func parseOptions(args []string) launchGamePCOptions {
 	return opts
 }
 
-// isProcessRunning 按进程名查找；dirPrefix 非空时还要求可执行文件位于该目录下，用于区分不同区服的启动器。
-func isProcessRunning(name, dirPrefix string) bool {
+// isProcessRunning 按进程名查找。
+func isProcessRunning(name string) bool {
 	procs, err := process.Processes()
 	if err != nil {
 		log.Warn().
@@ -376,17 +375,9 @@ func isProcessRunning(name, dirPrefix string) bool {
 		return false
 	}
 
-	prefix := strings.ToLower(filepath.Clean(dirPrefix)) + string(filepath.Separator)
 	for _, p := range procs {
 		procName, err := p.Name()
-		if err != nil || !strings.EqualFold(procName, name) {
-			continue
-		}
-		if dirPrefix == "" {
-			return true
-		}
-		exe, err := p.Exe()
-		if err == nil && strings.HasPrefix(strings.ToLower(filepath.Clean(exe)), prefix) {
+		if err == nil && strings.EqualFold(procName, name) {
 			return true
 		}
 	}
@@ -477,6 +468,11 @@ func waitGame(timeout time.Duration) bool {
 	if _, ok := waitWindow(gameClassRegex, gameWindowRegex, timeout); !ok {
 		return false
 	}
+	log.Info().
+		Str("component", component).
+		Dur("wait", gameWindowSettleWait).
+		Msg("game window found, waiting before connecting")
+	time.Sleep(gameWindowSettleWait)
 	log.Info().
 		Str("component", component).
 		Msg("game window is ready")
