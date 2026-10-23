@@ -3,7 +3,7 @@
     {
       "name": "WebLaunchBrowser",
       "label": "$task.WebLaunchBrowser.label",
-      "entry": "WebLaunchBrowserStart",
+      "entry": "WebLaunchSwayStart",
       "description": "$task.WebLaunchBrowser.description",
       "group": [
         "open_world"
