@@ -1,6 +1,6 @@
 {
     "__SceneMapOverviewClick_region01_map01_lv001": {
-        "desc": "在地图总览对应区域中，点击进入枢纽区地图",
+        "desc": "在四号谷地总览界面，点击进入枢纽区地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -16,7 +16,7 @@
         ]
     },
     "__SceneMapOverviewClick_region01_map01_lv002": {
-        "desc": "在地图总览对应区域中，点击进入谷地通道地图",
+        "desc": "在四号谷地总览界面，点击进入谷地通道地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -32,7 +32,7 @@
         ]
     },
     "__SceneMapOverviewClick_region01_map01_lv003": {
-        "desc": "在地图总览对应区域中，点击进入阿伯莉采石场地图",
+        "desc": "在四号谷地总览界面，点击进入阿伯莉采石场地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -48,7 +48,7 @@
         ]
     },
     "__SceneMapOverviewClick_region01_map01_lv005": {
-        "desc": "在地图总览对应区域中，点击进入源石研究园地图",
+        "desc": "在四号谷地总览界面，点击进入源石研究园地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -64,7 +64,7 @@
         ]
     },
     "__SceneMapOverviewClick_region01_map01_lv006": {
-        "desc": "在地图总览对应区域中，点击进入矿脉源区地图",
+        "desc": "在四号谷地总览界面，点击进入矿脉源区地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -80,7 +80,7 @@
         ]
     },
     "__SceneMapOverviewClick_region01_map01_lv007": {
-        "desc": "在地图总览对应区域中，点击进入供能高地地图",
+        "desc": "在四号谷地总览界面，点击进入供能高地地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -96,7 +96,7 @@
         ]
     },
     "__SceneMapOverviewClick_region02_indie_dg016": {
-        "desc": "在地图总览对应区域中，点击进入遂明地图",
+        "desc": "在武陵总览界面，点击进入遂明地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -112,7 +112,7 @@
         ]
     },
     "__SceneMapOverviewClick_region02_map02_lv001": {
-        "desc": "在地图总览对应区域中，点击进入景玉谷地图",
+        "desc": "在武陵总览界面，点击进入景玉谷地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -128,7 +128,7 @@
         ]
     },
     "__SceneMapOverviewClick_region02_map02_lv002": {
-        "desc": "在地图总览对应区域中，点击进入武陵城地图",
+        "desc": "在武陵总览界面，点击进入武陵城地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -144,7 +144,7 @@
         ]
     },
     "__SceneMapOverviewClick_region02_map02_lv003": {
-        "desc": "在地图总览对应区域中，点击进入清波寨地图",
+        "desc": "在武陵总览界面，点击进入清波寨地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -160,7 +160,7 @@
         ]
     },
     "__SceneMapOverviewClick_region02_map02_lv004": {
-        "desc": "在地图总览对应区域中，点击进入首墩地图",
+        "desc": "在武陵总览界面，点击进入首墩地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -176,7 +176,7 @@
         ]
     },
     "__SceneMapOverviewClick_region02_map02_lv005": {
-        "desc": "在地图总览对应区域中，点击进入试验园区地图",
+        "desc": "在武陵总览界面，点击进入试验园区地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -192,7 +192,7 @@
         ]
     },
     "__SceneMapOverviewClick_region02_map02_lv006": {
-        "desc": "在地图总览对应区域中，点击进入藏剑谷地图",
+        "desc": "在武陵总览界面，点击进入藏剑谷地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -208,7 +208,7 @@
         ]
     },
     "__SceneMapOverviewClick_region02_map02_lv007": {
-        "desc": "在地图总览对应区域中，点击进入应龙关地图",
+        "desc": "在武陵总览界面，点击进入应龙关地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -224,7 +224,7 @@
         ]
     },
     "__SceneMapOverviewClick_region02_map02_lv008": {
-        "desc": "在地图总览对应区域中，点击进入北部禁区地图",
+        "desc": "在武陵总览界面，点击进入北部禁区地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -240,7 +240,7 @@
         ]
     },
     "__SceneMapOverviewClick_region02_map02_lv009": {
-        "desc": "在地图总览对应区域中，点击进入雪松林地图",
+        "desc": "在武陵总览界面，点击进入雪松林地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -256,7 +256,7 @@
         ]
     },
     "__SceneMapOverviewClick_region02_map02_lv010": {
-        "desc": "在地图总览对应区域中，点击进入祀的画地图",
+        "desc": "在武陵总览界面，点击进入祀的画地图",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -272,7 +272,7 @@
         ]
     },
     "__SceneMapOverviewSuccess_region02_indie_dg016": {
-        "desc": "待实现地图成功确认，实现后启用",
+        "desc": "在地图界面，成功进入武陵-遂明地图；待实现地图成功确认，实现后启用",
         "enabled": false
     }
 }

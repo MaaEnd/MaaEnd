@@ -13,6 +13,7 @@ const directory = fileURLToPath(new URL(".", import.meta.url));
 const clicksPath = resolve(directory, "clicks.json");
 const outputPath = resolve(repoRoot, "assets/resource/pipeline/SceneManager/SceneMapOverview.json");
 const nodePrefix = "__SceneMapOverviewClick";
+const placeholderHint = "待实现地图成功确认，实现后启用";
 
 export function nodeName(region, map) {
     return `${nodePrefix}_${region}_${map}`;
@@ -28,16 +29,24 @@ function validateClicks(clicks) {
     }
     for (const [
         region,
-        maps,
+        data,
     ] of Object.entries(clicks)) {
-        if (!/^region\d+$/.test(region) || !maps || typeof maps !== "object" || Array.isArray(maps)) {
+        if (!/^region\d+$/.test(region) || !data || typeof data !== "object" || Array.isArray(data)) {
             throw new Error(`[MapOverview] 非法地区: ${region}`);
+        }
+        if (typeof data.name !== "string" || !data.name.trim()) {
+            throw new Error(`[MapOverview] ${region} 缺少地区名称`);
+        }
+        const maps = data.area;
+        if (!maps || typeof maps !== "object" || Array.isArray(maps)) {
+            throw new Error(`[MapOverview] ${region} 缺少 area 地图字典`);
         }
         if (Object.keys(maps).length === 0) throw new Error(`[MapOverview] ${region} 没有地图`);
         for (const [
             map,
-            point,
+            entry,
         ] of Object.entries(maps)) {
+            const point = entry?.click;
             // 总览点击坐标采用 1280×720 基准；拒绝缺失、越界和非整数数据，避免写入错误点击。
             if (
                 !/^[a-z0-9_]+$/.test(map) ||
@@ -57,51 +66,70 @@ function validateClicks(clicks) {
 }
 
 export function extractClicks(source) {
-    if (JSON.stringify(source._meta?.screen_size) !== "[1280,720]") {
+    if (source._meta?.screen_size !== undefined && JSON.stringify(source._meta.screen_size) !== "[1280,720]") {
         throw new Error("[MapOverview] 数据源必须使用 1280×720 基准");
     }
     const clicks = {};
     for (const [
         region,
-        maps,
+        data,
     ] of Object.entries(source)) {
         if (!/^region\d+$/.test(region)) continue;
-        clicks[region] = {};
+        if (
+            !data ||
+            typeof data !== "object" ||
+            !data.area ||
+            typeof data.area !== "object" ||
+            Array.isArray(data.area)
+        ) {
+            throw new Error(`[MapOverview] ${region} 缺少 area 地图字典`);
+        }
+        clicks[region] = {name: data.name, area: {}};
         for (const [
             map,
             entry,
-        ] of Object.entries(maps)) {
-            if (entry.status !== "ok") throw new Error(`[MapOverview] ${region}/${map} 状态异常: ${entry.status}`);
-            // 当前发布结构以 center_px 提供点击点；不保存 area/polygon 等几何数据。
-            clicks[region][map] = entry.center_px;
+        ] of Object.entries(data.area)) {
+            if (entry?.status !== undefined && entry.status !== "ok") {
+                throw new Error(`[MapOverview] ${region}/${map} 状态异常: ${entry.status}`);
+            }
+            // 只缓存名称和点击点，polygon 及来源元数据均不保留。
+            const point = {click: entry?.click};
+            if (typeof entry?.name === "string" && entry.name.trim()) point.name = entry.name.trim();
+            clicks[region].area[map] = point;
         }
     }
     return validateClicks(clicks);
 }
 
-export function buildPipeline(clicks, levels, source = {}) {
+export function buildPipeline(clicks, levels) {
     validateClicks(clicks);
     const nodes = {};
+    const successes = {};
     for (const [
         region,
-        maps,
+        data,
     ] of Object.entries(clicks).sort()) {
         for (const [
             map,
-            point,
-        ] of Object.entries(maps).sort()) {
-            // 在线名称与点击点来自同一份数据；离线复用同步名称表，不维护地区名称映射。
-            const remoteName = source[region]?.[map]?.name;
+            entry,
+        ] of Object.entries(data.area).sort()) {
+            const regionName = data.name.trim();
+            // 未提供地图名时，复用现有同步名称表；地区名始终取远端并随缓存更新。
+            const remoteName = entry.name;
             const mapName = (typeof remoteName === "string" && remoteName.trim()) || levels[map]?.names?.zh_cn || map;
             nodes[nodeName(region, map)] = {
-                desc: `在地图总览对应区域中，点击进入${mapName}地图`,
+                desc: `在${regionName}总览界面，点击进入${mapName}地图`,
                 recognition: "DirectHit",
-                action: {type: "Click", param: {target: point}},
+                action: {type: "Click", param: {target: entry.click}},
                 next: [successName(region, map)],
+            };
+            successes[successName(region, map)] = {
+                desc: `在地图界面，成功进入${regionName}-${mapName}地图；${placeholderHint}`,
+                enabled: false,
             };
         }
     }
-    return nodes;
+    return {clicks: nodes, successes};
 }
 
 // jsonc-parser 的属性删除会连同相邻注释一起移除；这里只删生成节点和紧随的逗号。
@@ -117,7 +145,7 @@ function removeClick(text, name) {
     return applyEdits(text, edits);
 }
 
-export function updatePipeline(text, clicks, externalNames) {
+export function updatePipeline(text, {clicks, successes}, externalNames) {
     const existing = parseJsonc(text, outputPath);
     for (const name of Object.keys(existing)) {
         if (name.startsWith(`${nodePrefix}_`) && !Object.hasOwn(clicks, name)) text = removeClick(text, name);
@@ -139,21 +167,12 @@ export function updatePipeline(text, clicks, externalNames) {
             }),
         );
     }
-    for (const node of Object.values(clicks)) {
-        const [next] = node.next;
+    for (const [
+        next,
+        node,
+    ] of Object.entries(successes)) {
         if (externalNames.has(next) || Object.hasOwn(existing, next)) continue;
-        text = applyEdits(
-            text,
-            modify(
-                text,
-                [next],
-                {
-                    desc: "待实现地图成功确认，实现后启用",
-                    enabled: false,
-                },
-                options,
-            ),
-        );
+        text = applyEdits(text, modify(text, [next], node, options));
     }
     return text;
 }
@@ -202,21 +221,22 @@ async function main() {
         throw new Error("用法: node tools/pipeline-generate/MapOverview/generate.mjs [--no-download]");
     }
     let clicks;
-    let source;
     if (args.includes("--no-download")) {
         clicks = readJsonc(clicksPath);
     } else {
-        const response = await fetch(sourceUrl, {signal: AbortSignal.timeout(60000)});
+        // 发布地址由 CDN 缓存，使用独立请求地址获取最新发布内容。
+        const url = new URL(sourceUrl);
+        url.searchParams.set("refresh", Date.now().toString());
+        const response = await fetch(url, {signal: AbortSignal.timeout(60000), cache: "no-store"});
         if (!response.ok) throw new Error(`[MapOverview] 下载失败: HTTP ${response.status}`);
-        source = await response.json();
-        clicks = extractClicks(source);
+        clicks = extractClicks(await response.json());
     }
     const {levels} = readJsonc(resolve(dataDir, "teleport_anchors.json"));
-    const nodes = buildPipeline(clicks, levels, source);
+    const nodes = buildPipeline(clicks, levels);
     const output = updatePipeline(readOutput(), nodes, collectExternalNames());
     await writeJson(clicksPath, clicks);
     await writeText(outputPath, output);
-    console.log(`[MapOverview] 已生成 ${Object.keys(nodes).length} 个点击节点：${outputPath}`);
+    console.log(`[MapOverview] 已生成 ${Object.keys(nodes.clicks).length} 个点击节点：${outputPath}`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

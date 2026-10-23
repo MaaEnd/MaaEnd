@@ -4,33 +4,74 @@ import {test} from "node:test";
 import {parseJsonc} from "../jsonc.mjs";
 import {buildPipeline, extractClicks, nodeName, successName, updatePipeline} from "./generate.mjs";
 
-test("只提取点击点，拒绝非 720p、异常状态和越界坐标", () => {
-    const source = {
-        _meta: {
-            screen_size: [
-                1280,
-                720,
-            ],
-        },
+function sourceFixture() {
+    return {
         region01: {
-            map01_lv001: {
-                status: "ok",
-                center_px: [
-                    455,
-                    478,
-                ],
-                area: {polygon: []},
+            name: "四号谷地",
+            area: {
+                map01_lv001: {
+                    polygon: [
+                        [
+                            0,
+                            0,
+                        ],
+                        [
+                            1,
+                            1,
+                        ],
+                    ],
+                    click: [
+                        455,
+                        478,
+                    ],
+                },
+                map01_lv002: {
+                    click: [
+                        295,
+                        261,
+                    ],
+                },
             },
         },
     };
+}
+
+const levels = {map01_lv001: {names: {zh_cn: "枢纽区"}}, map01_lv002: {names: {zh_cn: "谷地通道"}}};
+
+test("按地区 name/area 和地图 click 提取缓存，不保留 polygon 或元数据", () => {
+    const source = sourceFixture();
+    source._meta = {
+        screen_size: [
+            1280,
+            720,
+        ],
+    };
+    source.region01.area.map01_lv001.status = "ok";
     assert.deepEqual(extractClicks(source), {
         region01: {
-            map01_lv001: [
-                455,
-                478,
-            ],
+            name: "四号谷地",
+            area: {
+                map01_lv001: {
+                    click: [
+                        455,
+                        478,
+                    ],
+                },
+                map01_lv002: {
+                    click: [
+                        295,
+                        261,
+                    ],
+                },
+            },
         },
     });
+    // 元数据可选，地区与地图字段完整时即可生成。
+    assert.deepEqual(extractClicks(sourceFixture()), extractClicks(source));
+});
+
+test("拒绝错误分辨率、异常状态、非法点击点和缺失地区结构", () => {
+    const source = sourceFixture();
     assert.throws(
         () =>
             extractClicks({
@@ -44,89 +85,143 @@ test("只提取点击点，拒绝非 720p、异常状态和越界坐标", () => 
             }),
         /1280/,
     );
-    source.region01.map01_lv001.status = "failed";
+    source.region01.area.map01_lv001.status = "failed";
     assert.throws(() => extractClicks(source), /状态异常/);
-    source.region01.map01_lv001.status = "ok";
-    source.region01.map01_lv001.center_px = [
-        1280,
-        478,
-    ];
-    assert.throws(() => extractClicks(source), /坐标非法/);
-});
-
-test("按地区和地图 key 生成点击节点和 Success 引用，并从名称表生成 desc", () => {
-    const clicks = {
-        region01: {
-            map01_lv001: [
-                455,
-                478,
-            ],
-            map01_lv002: [
-                295,
-                261,
-            ],
-        },
-    };
-    const nodes = buildPipeline(clicks, {
-        map01_lv001: {names: {zh_cn: "枢纽区"}},
-    });
-    assert.equal(nodeName("region01", "map01_lv001"), "__SceneMapOverviewClick_region01_map01_lv001");
-    assert.deepEqual(nodes[nodeName("region01", "map01_lv001")].next, [
-        "__SceneMapOverviewSuccess_region01_map01_lv001",
-    ]);
-    assert.equal(nodes[nodeName("region01", "map01_lv001")].desc, "在地图总览对应区域中，点击进入枢纽区地图");
-    assert.equal(nodes[nodeName("region01", "map01_lv002")].desc, "在地图总览对应区域中，点击进入map01_lv002地图");
-    assert.deepEqual(nodes[nodeName("region01", "map01_lv002")].next, [successName("region01", "map01_lv002")]);
-});
-
-test("新地区无需登记，在线优先使用远端地图名，名称缺失时回退名称表或地图 key", () => {
-    const clicks = {
-        region03: {
-            map03_lv001: [
-                1,
-                2,
-            ],
-            map03_lv002: [
-                3,
-                4,
-            ],
-            map03_lv003: [
-                5,
-                6,
-            ],
-        },
-    };
-    const nodes = buildPipeline(
-        clicks,
-        {map03_lv001: {names: {zh_cn: "旧名称"}}, map03_lv002: {names: {zh_cn: "同步名称"}}},
-        {region03: {map03_lv001: {name: "远端新名称"}, map03_lv002: {name: " "}, map03_lv003: {name: 123}}},
-    );
-    assert.equal(nodes[nodeName("region03", "map03_lv001")].desc, "在地图总览对应区域中，点击进入远端新名称地图");
-    assert.equal(nodes[nodeName("region03", "map03_lv002")].desc, "在地图总览对应区域中，点击进入同步名称地图");
-    assert.equal(nodes[nodeName("region03", "map03_lv003")].desc, "在地图总览对应区域中，点击进入map03_lv003地图");
-    assert.deepEqual(nodes[nodeName("region03", "map03_lv001")].next, [successName("region03", "map03_lv001")]);
-});
-
-test("只补缺失占位到文件末尾，保留原 Success、其他手写节点和注释，并清理过期点击", () => {
-    const clicks = buildPipeline(
-        {
-            region01: {
-                map01_lv001: [
+    delete source.region01.area.map01_lv001.status;
+    for (const point of [
+        undefined,
+        [
+            1280,
+            478,
+        ],
+        [
+            -1,
+            0,
+        ],
+        [
+            0,
+            720,
+        ],
+        [
+            1.5,
+            2,
+        ],
+        [1],
+        "455,478",
+    ]) {
+        source.region01.area.map01_lv001.click = point;
+        assert.throws(() => extractClicks(source), /坐标非法/);
+    }
+    for (const invalid of [
+        {name: "四号谷地"},
+        {name: "四号谷地", area: []},
+        {name: "四号谷地", area: {}},
+    ]) {
+        assert.throws(() => extractClicks({region01: invalid}), /area|没有地图/);
+    }
+    source.region01 = {
+        name: " ",
+        area: {
+            map01_lv001: {
+                click: [
                     1,
                     2,
                 ],
-                map01_lv002: [
-                    3,
-                    4,
-                ],
-                map01_lv003: [
-                    5,
-                    6,
+            },
+        },
+    };
+    assert.throws(() => extractClicks(source), /缺少地区名称/);
+    assert.throws(
+        () =>
+            buildPipeline(
+                {
+                    region01: {name: "四号谷地", area: {}},
+                },
+                levels,
+            ),
+        /没有地图/,
+    );
+});
+
+test("点击和占位描述包含地区及地图名，按地区和地图 key 命名并引用 Success", () => {
+    const generated = buildPipeline(extractClicks(sourceFixture()), levels);
+    const name = nodeName("region01", "map01_lv001");
+    const next = successName("region01", "map01_lv001");
+    assert.equal(name, "__SceneMapOverviewClick_region01_map01_lv001");
+    assert.equal(next, "__SceneMapOverviewSuccess_region01_map01_lv001");
+    assert.deepEqual(generated.clicks[name], {
+        desc: "在四号谷地总览界面，点击进入枢纽区地图",
+        recognition: "DirectHit",
+        action: {
+            type: "Click",
+            param: {
+                target: [
+                    455,
+                    478,
                 ],
             },
         },
-        {},
+        next: [next],
+    });
+    assert.deepEqual(generated.successes[next], {
+        desc: "在地图界面，成功进入四号谷地-枢纽区地图；待实现地图成功确认，实现后启用",
+        enabled: false,
+    });
+});
+
+test("新地区无需登记，可选远端地图名随缓存保留，缺失地图名回退名称表或 key", () => {
+    const source = {
+        region03: {
+            name: "新地区",
+            area: {
+                map03_lv001: {
+                    click: [
+                        1,
+                        2,
+                    ],
+                    name: "远端新名称",
+                },
+                map03_lv002: {
+                    click: [
+                        3,
+                        4,
+                    ],
+                    name: " ",
+                },
+                map03_lv003: {
+                    click: [
+                        5,
+                        6,
+                    ],
+                },
+            },
+        },
+    };
+    const cached = JSON.parse(JSON.stringify(extractClicks(source)));
+    const generated = buildPipeline(cached, {
+        map03_lv001: {names: {zh_cn: "名称表名称"}},
+        map03_lv002: {names: {zh_cn: "同步名称"}},
+    });
+    assert.equal(
+        generated.clicks[nodeName("region03", "map03_lv001")].desc,
+        "在新地区总览界面，点击进入远端新名称地图",
     );
+    assert.equal(generated.clicks[nodeName("region03", "map03_lv002")].desc, "在新地区总览界面，点击进入同步名称地图");
+    assert.equal(
+        generated.clicks[nodeName("region03", "map03_lv003")].desc,
+        "在新地区总览界面，点击进入map03_lv003地图",
+    );
+});
+
+test("只补缺失占位到文件末尾，保留手写 Success 和注释，并清理过期点击", () => {
+    const source = sourceFixture();
+    source.region01.area.map01_lv003 = {
+        click: [
+            5,
+            6,
+        ],
+    };
+    const generated = buildPipeline(extractClicks(source), levels);
     const external = successName("region01", "map01_lv001");
     const local = successName("region01", "map01_lv002");
     const missing = successName("region01", "map01_lv003");
@@ -136,17 +231,36 @@ test("只补缺失占位到文件末尾，保留原 Success、其他手写节点
         `"${local}"`,
         `// 保留成功节点注释\n    "${local}"`,
     );
-    const updated = updatePipeline(original, clicks, new Set([external]));
+    const updated = updatePipeline(original, generated, new Set([external]));
     const nodes = parseJsonc(updated);
     assert.equal(stale in nodes, false);
     assert.equal(external in nodes, false);
     assert.deepEqual(nodes[local], manual);
     assert.deepEqual(nodes.OtherManualNode, {enabled: false});
     assert.ok(updated.includes("// 保留成功节点注释"));
-    assert.equal(nodes[missing].enabled, false);
+    assert.deepEqual(nodes[missing], generated.successes[missing]);
     assert.equal(Object.keys(nodes).at(-1), missing);
-    assert.deepEqual(Object.keys(nodes).slice(0, 3), Object.keys(clicks));
-    assert.equal(updatePipeline(updated, clicks, new Set([external])), updated);
+    assert.deepEqual(Object.keys(nodes).slice(0, 3), Object.keys(generated.clicks));
+    assert.equal(updatePipeline(updated, generated, new Set([external])), updated);
+});
+
+test("已有 Success 的占位描述、识别逻辑、启用状态和自定义内容均保留", () => {
+    const generated = buildPipeline(extractClicks(sourceFixture()), levels);
+    const next = successName("region01", "map01_lv001");
+    const placeholder = {...generated.successes[next], desc: "作者维护的目标描述；待实现地图成功确认，实现后启用"};
+    const original = `{// 保留占位注释\n"${next}": ${JSON.stringify(placeholder)}}`;
+    const updated = updatePipeline(original, generated, new Set());
+    assert.deepEqual(parseJsonc(updated)[next], placeholder);
+    assert.ok(updated.includes("// 保留占位注释"));
+    assert.equal(updatePipeline(updated, generated, new Set()), updated);
+    for (const manual of [
+        {...placeholder, recognition: {type: "OCR", param: {expected: ["枢纽区"]}}},
+        {...placeholder, enabled: true},
+        {...placeholder, desc: "作者维护的禁用节点"},
+    ]) {
+        const result = updatePipeline(JSON.stringify({[next]: manual}), generated, new Set());
+        assert.deepEqual(parseJsonc(result)[next], manual);
+    }
 });
 
 test("过期点击位于末尾时也保留 Success 的内容与注释", () => {
@@ -154,7 +268,7 @@ test("过期点击位于末尾时也保留 Success 的内容与注释", () => {
     const stale = nodeName("region01", "removed_map");
     const updated = updatePipeline(
         `{\n// 手写确认\n"${manual}": {"enabled": false},\n"${stale}": {}\n}`,
-        {},
+        {clicks: {}, successes: {}},
         new Set(),
     );
     assert.deepEqual(parseJsonc(updated), {[manual]: {enabled: false}});
