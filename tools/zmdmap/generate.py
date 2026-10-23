@@ -119,6 +119,10 @@ def generate_datasets(
         except (OSError, ValueError) as error:
             raise click.ClickException(f"[{dataset.name}] {error}") from error
         stamp = version or read_version(output_path) or read_version(data_dir / dataset.file_name)
+        if stamp is None:
+            logger.warning(
+                f"{dataset.name}：没有可用的版本，这次生成的原始形态不会写 version 字段"
+            )
         data = with_metadata(data, stamp)
         if not force and is_unchanged(output_path, data):
             logger.info(f"{dataset.name} 生成结果未变化，跳过写入：{output_path}")
@@ -241,7 +245,10 @@ def generate_command(
         origin = "命令行" if data_version_option else "兄弟仓库"
         logger.info(f"数据版本：{version}（{origin}）")
     else:
-        logger.info("数据版本：读不到，沿用各份数据原有的版本")
+        logger.warning(
+            "数据版本：读不到（兄弟仓库没有、也没给 --version）。沿用各份数据原有的版本 —— 原来就没有 "
+            "version 的那几份生成出来仍然没有，发布出去之后补不回来"
+        )
 
     sync_failed = False
     if sync:

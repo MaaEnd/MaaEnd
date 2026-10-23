@@ -235,7 +235,9 @@ def _download_json(
         if expect is not None:
             data[HASH_KEY] = digest
         if not version_of(data):
-            logger.warning(f"{file_name} 没带 version 字段，只能照收（版本由上游 generate 写）")
+            logger.warning(
+                f"{file_name} 没带 version 字段（上游发布时就没写）：fetch 只照抄，不自己编版本"
+            )
     formatted = dump_json(data)
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(formatted, encoding="utf-8", newline="\n")
