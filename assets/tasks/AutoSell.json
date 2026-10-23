@@ -39,6 +39,12 @@
                         },
                         "AutoSellExecuteValleyIVMain": {
                             "enabled": true
+                        },
+                        "AutoSellScanOwnValleyIVMain": {
+                            "enabled": true
+                        },
+                        "AutoSellExecuteOwnValleyIVMain": {
+                            "enabled": true
                         }
                     }
                 },
@@ -49,6 +55,12 @@
                             "enabled": false
                         },
                         "AutoSellExecuteValleyIVMain": {
+                            "enabled": false
+                        },
+                        "AutoSellScanOwnValleyIVMain": {
+                            "enabled": false
+                        },
+                        "AutoSellExecuteOwnValleyIVMain": {
                             "enabled": false
                         }
                     }
@@ -71,6 +83,12 @@
                         },
                         "AutoSellExecuteWulingMain": {
                             "enabled": true
+                        },
+                        "AutoSellScanOwnWulingMain": {
+                            "enabled": true
+                        },
+                        "AutoSellExecuteOwnWulingMain": {
+                            "enabled": true
                         }
                     }
                 },
@@ -81,6 +99,12 @@
                             "enabled": false
                         },
                         "AutoSellExecuteWulingMain": {
+                            "enabled": false
+                        },
+                        "AutoSellScanOwnWulingMain": {
+                            "enabled": false
+                        },
+                        "AutoSellExecuteOwnWulingMain": {
                             "enabled": false
                         }
                     }
@@ -179,6 +203,24 @@
                         "large_price": "{AutoSellPriceGlobalValue}",
                         "massive_price": "{AutoSellPriceGlobalValue}"
                     }
+                },
+                "AutoSellExecuteOwnValleyIVMain": {
+                    "custom_action_param": {
+                        "region": "ValleyIV",
+                        "moderate_price": "{AutoSellPriceGlobalValue}",
+                        "large_price": "{AutoSellPriceGlobalValue}",
+                        "massive_price": "{AutoSellPriceGlobalValue}",
+                        "own_only": true
+                    }
+                },
+                "AutoSellExecuteOwnWulingMain": {
+                    "custom_action_param": {
+                        "region": "Wuling",
+                        "moderate_price": "{AutoSellPriceGlobalValue}",
+                        "large_price": "{AutoSellPriceGlobalValue}",
+                        "massive_price": "{AutoSellPriceGlobalValue}",
+                        "own_only": true
+                    }
                 }
             }
         },
@@ -223,6 +265,24 @@
                         "moderate_price": "{AutoSellPricePerCategoryModeratePriceVolatilityValue}",
                         "large_price": "{AutoSellPricePerCategoryLargePriceVolatilityValue}",
                         "massive_price": "{AutoSellPricePerCategoryMassivePriceVolatilityValue}"
+                    }
+                },
+                "AutoSellExecuteOwnValleyIVMain": {
+                    "custom_action_param": {
+                        "region": "ValleyIV",
+                        "moderate_price": "{AutoSellPricePerCategoryModeratePriceVolatilityValue}",
+                        "large_price": "{AutoSellPricePerCategoryLargePriceVolatilityValue}",
+                        "massive_price": "{AutoSellPricePerCategoryMassivePriceVolatilityValue}",
+                        "own_only": true
+                    }
+                },
+                "AutoSellExecuteOwnWulingMain": {
+                    "custom_action_param": {
+                        "region": "Wuling",
+                        "moderate_price": "{AutoSellPricePerCategoryModeratePriceVolatilityValue}",
+                        "large_price": "{AutoSellPricePerCategoryLargePriceVolatilityValue}",
+                        "massive_price": "{AutoSellPricePerCategoryMassivePriceVolatilityValue}",
+                        "own_only": true
                     }
                 }
             }

@@ -34,6 +34,9 @@ func (r *AutoSellScanItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 		return nil, false
 	}
 
+	// 每轮扫描都替换名单，空货架或识别失败时不能沿用上一轮的商品。
+	delete(regionItemMap, params.Region)
+
 	detail, recoErr := ctx.RunRecognition("AutoSellStockRedistributionItemText", arg.Img)
 	if recoErr != nil || detail == nil {
 		log.Error().Err(recoErr).Str("component", "autosell").Str("step", "scan_item").Msg("run recognition")
@@ -84,13 +87,16 @@ func (r *AutoSellScanItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 
 type AutoSellItemExecuteItemTaskAction struct{}
 
+type executeItemTaskParam struct {
+	Region        string `json:"region"`
+	ModeratePrice int    `json:"moderate_price"`
+	LargePrice    int    `json:"large_price"`
+	MassivePrice  int    `json:"massive_price"`
+	OwnOnly       bool   `json:"own_only"`
+}
+
 func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	var param struct {
-		Region        string `json:"region"`
-		ModeratePrice int    `json:"moderate_price"`
-		LargePrice    int    `json:"large_price"`
-		MassivePrice  int    `json:"massive_price"`
-	}
+	var param executeItemTaskParam
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &param); err != nil {
 		log.Error().Err(err).Str("component", "autosell").Str("step", "execute_sell").Msg("parse params")
 		return false
@@ -106,6 +112,13 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 		return true
 	}
 
+	entry := "AutoSellStockRedistributionItemOpenPrepare"
+	priceLogPrefix := "autosell.check_item_price_"
+	if param.OwnOnly {
+		entry = "AutoSellOwnItemOpenPrepare"
+		priceLogPrefix = "autosell.check_own_item_price_"
+	}
+
 	hasError := false
 	for _, name := range names {
 		// 翻译有缘再写
@@ -114,22 +127,22 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 		if k := firstContainedKeyword(name, moderatePriceKeywords); k != "" {
 			targetPrice = param.ModeratePrice
 			targetName = k
-			maafocus.Print(ctx, i18n.T("autosell.check_item_price_moderate", name))
+			maafocus.Print(ctx, i18n.T(priceLogPrefix+"moderate", name))
 		} else if k := firstContainedKeyword(name, largePriceKeywords); k != "" {
 			targetPrice = param.LargePrice
 			targetName = k
-			maafocus.Print(ctx, i18n.T("autosell.check_item_price_large", name))
+			maafocus.Print(ctx, i18n.T(priceLogPrefix+"large", name))
 		} else if k := firstContainedKeyword(name, massivePriceKeywords); k != "" {
 			targetPrice = param.MassivePrice
 			targetName = k
-			maafocus.Print(ctx, i18n.T("autosell.check_item_price_massive", name))
+			maafocus.Print(ctx, i18n.T(priceLogPrefix+"massive", name))
 		} else {
 			log.Warn().
 				Str("component", "autosell").
 				Str("step", "execute_sell").
 				Str("item_name", name).
 				Msg("unknown item, default price")
-			maafocus.Print(ctx, i18n.T("autosell.check_item_price_unknown", name))
+			maafocus.Print(ctx, i18n.T(priceLogPrefix+"unknown", name))
 			continue
 		}
 
@@ -164,12 +177,19 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 					"expression": "{AutoSellFriendsPriceCurrentRecognition} >= " + strconv.Itoa(targetPrice),
 				},
 			},
+			"AutoSellOwnPricesExpected": map[string]any{
+				"custom_recognition_param": map[string]any{
+					"expression":                          "{AutoSellOwnPriceRecognition} >= " + strconv.Itoa(targetPrice),
+					"focus_matched_resolved_expression":   true,
+					"focus_unmatched_resolved_expression": true,
+				},
+			},
 			"AutoSellStockRedistributionItemFindTextRecognition": map[string]any{
 				"expected": targetName,
 			},
 		}
 
-		detail, err := ctx.RunTask("AutoSellStockRedistributionItemOpenPrepare", override)
+		detail, err := ctx.RunTask(entry, override)
 		if detail == nil || err != nil {
 			log.Error().Err(err).Str("component", "autosell").Str("step", "execute_sell").Str("item_name", name).Msg("run prepare task")
 			hasError = true

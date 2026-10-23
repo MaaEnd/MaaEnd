@@ -9,6 +9,10 @@
             "[JumpBack]AutoSellExecuteValleyIVMain",
             "[JumpBack]AutoSellScanWulingMain",
             "[JumpBack]AutoSellExecuteWulingMain",
+            "[JumpBack]AutoSellScanOwnValleyIVMain",
+            "[JumpBack]AutoSellExecuteOwnValleyIVMain",
+            "[JumpBack]AutoSellScanOwnWulingMain",
+            "[JumpBack]AutoSellExecuteOwnWulingMain",
             "AutoSellFinish"
         ]
     },
@@ -45,5 +49,37 @@
     "AutoSellFinish": {
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "AutoSellExecuteOwnValleyIVMain": {
+        "desc": "第二轮在本家执行四号谷地剩余物资售卖",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellItemExecuteItemTaskAction",
+        "custom_action_param": {
+            "region": "ValleyIV",
+            "moderate_price": 4600,
+            "large_price": 5000,
+            "massive_price": 5300,
+            "own_only": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellExecuteOwnWulingMain": {
+        "desc": "第二轮在本家执行武陵剩余物资售卖",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellItemExecuteItemTaskAction",
+        "custom_action_param": {
+            "region": "Wuling",
+            "moderate_price": 4600,
+            "large_price": 5000,
+            "massive_price": 5300,
+            "own_only": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
