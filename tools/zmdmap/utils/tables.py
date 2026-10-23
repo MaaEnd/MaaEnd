@@ -620,8 +620,8 @@ class DomainDepotLevelRow(msgspec.Struct, frozen=True, rename="camel"):
 class GrowthNode(msgspec.Struct, frozen=True, rename="camel"):
     """``CharGrowthTable`` 里的一个培养节点。
 
-    ``node_type`` 在旧版表里是 1–5 的整数，现在的表里换成了名字（``CharBreak`` 等），两种都要收；
-    统一由 :func:`tools.zmdmap.datasets.operator_growth.node_type` 转成数字再比较。
+    ``node_type`` 有两种写法：1–5 的整数，或名字（``CharBreak`` 等）；两种都收，统一由
+    :func:`tools.zmdmap.datasets.operator_growth.node_type` 转成数字再比较。
     """
 
     node_id: str = ""

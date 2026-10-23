@@ -42,7 +42,7 @@ SKILL_ORDER = ("NormalAttack", "NormalSkill", "ComboSkill", "UltimateSkill")
 NODE_TYPE_BREAK = 1
 NODE_TYPE_EQUIP_BREAK = 2
 
-# 旧版表里 ``nodeType`` 就是 1–5 的整数，现在的表里换成了名字；两种都得认，否则突破节点会一个都取不到。
+# ``nodeType`` 有两种写法：1–5 的整数，或名字；两种都得认，只认一种时突破节点会一个都取不到。
 NODE_TYPE_BY_NAME: dict[str, int] = {
     "CharBreak": NODE_TYPE_BREAK,
     "EquipBreak": NODE_TYPE_EQUIP_BREAK,

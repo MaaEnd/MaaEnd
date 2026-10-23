@@ -96,7 +96,7 @@ uv run zmdmap fetch --only sell_product            # 只要这一份
 uv run zmdmap fetch --no-download                  # 不下载，拿现有 data/raw/ 重新入库
 uv run zmdmap generate                             # 从本地游戏数据生成并入库
 uv run zmdmap generate --raw-only                  # 只出原始形态（发布用的那一份）
-uv run zmdmap generate --version 11262943-8         # 手动指定版本
+uv run zmdmap generate --version 11262943-8        # 手动指定版本
 uv run zmdmap generate --list                      # 列出有哪些数据、各自怎么入库
 ```
 
@@ -171,7 +171,7 @@ uv run zmdmap generate --list                      # 列出有哪些数据、各
 | `清单（…）里没有这一份，本地也没有` | 上游这批没发它，等发完再 fetch；本地也可以先 `uv run zmdmap generate --only xxx` |
 | `与清单不符` | 上游发布的那份和清单写的不一致（地址由指纹决定，所以不是缓存问题）；确认内容没问题后可以加 `--force` 照收，或者等上游重新发布 |
 | `上游还没有发布 manifest.json` | 上游这一批还没发完，先别 fetch |
-| `没带 version 字段` | 上游发布时就没写版本，只能照抄；要完整的版本标签得让发布端生成时带上 |
+| `没带 version 字段` | 上游发布时就没写版本，只能照抄；要版本标签就得让发布端生成时带上 `--version` |
 | `数据版本：读不到` | 生成时没找到版本，产物里不会写 `version`；用 `--version` 手动指定 |
 | `投影落在 … 底图外` | 几份输入来自不同版本，先 `uv run zmdmap generate --sync` 或重新解包 |
 | `没有 xxx 对应的 zone` | 那份数据里有新底图，本地 BaseNav 还没更新（`assets/resource/model` 子模块） |

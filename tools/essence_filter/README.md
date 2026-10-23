@@ -66,7 +66,7 @@ uv run tools/essence_filter/build_locations.py
 | `--skill-pools` | `assets/data/EssenceFilter/skill_pools.json` | 当前技能池 |
 | `--output` / `-o` | `assets/data/EssenceFilter/locations.json` | 输出 locations |
 | `--debug` | 关闭 | 打印未匹配项以便排查 |
-| `--data-version` | 不更新 | 本轮数据版本，取 `energy_point_gems.json` 的 `version`（如 `1.6.3`） |
+| `--data-version` | 不更新 | 本轮数据版本，取 `energy_point_gems.json` 的 `version`（数据构建号，如 `11262943-8`） |
 
 ### 解析规则
 

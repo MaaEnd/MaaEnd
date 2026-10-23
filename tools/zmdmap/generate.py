@@ -3,9 +3,10 @@
 各份数据一律先出原始形态（只带游戏世界坐标）进 ``--out-dir``，再入库到 ``--data-dir``：需要投影的按
 BaseNav 的 zone 表补上底图像素，不需要投影的原样复制；``--raw-only`` 时只出原始形态。
 
-``version`` 只在这里写：取 ``--version``、:func:`tools.zmdmap.utils.version.data_version`（兄弟仓库数据里的
-构建号 > 提交标题）；两处都没有时从数据目录路径里认构建号 —— 发布端把解包目录直接递进来，路径里就带着
-``initial_…_main_…``。写到每份原始数据的最前面；入库与 ``fetch`` 都只沿用，不改它。
+``version`` 只在这里写：取 ``--version``，其次 :func:`tools.zmdmap.utils.version.data_version`（兄弟仓库提交
+标题里的 ``Data:``），再次 :func:`tools.zmdmap.utils.version.data_version_from_path`（数据目录路径里的
+``initial_…_main_…``，发布端把解包目录直接递进来时用）。写到每份原始数据的最前面；入库与 ``fetch`` 都只
+沿用，不改它。
 """
 
 import time
@@ -251,7 +252,7 @@ def generate_command(
     else:
         logger.warning(
             "数据版本：读不到（兄弟仓库没有、数据目录路径里也没有、也没给 --version）。沿用各份数据原有的"
-            "版本 —— 原来就没有 version 的那几份生成出来仍然没有，发布出去之后补不回来"
+            "版本；文件里没有 version 字段时，生成结果也不会补上 —— 发布出去之后补不回来"
         )
 
     sync_failed = False

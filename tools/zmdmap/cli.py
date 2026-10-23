@@ -3,8 +3,7 @@
 - ``generate``：从本地 TableCfg / JsonData 生成精简数据，再入库（:mod:`tools.zmdmap.generate`）；
 - ``fetch``：从 zmdmap 下载已发布的原始数据，再入库（:mod:`tools.zmdmap.fetch`）。
 
-两个子命令各自的流程在自己的文件里，选项也各写各的（`--out-dir` / `--data-dir` / `--only` / `--nav` 一样，
-但重复两份比多一个转手的中转文件更好读）；入库（投影 / 原样复制）共用一个
+两个子命令各自的流程在自己的文件里，选项也各写各的；入库（投影 / 原样复制）共用一个
 :mod:`tools.zmdmap.materialize`。``version`` 只由 ``generate`` 写进 ``data/raw/``，``fetch`` 与入库都只沿用；
 细节见 ``tools/zmdmap/README.md``。
 

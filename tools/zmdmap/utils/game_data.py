@@ -68,8 +68,8 @@ INLINE_TEXT_SUFFIX = "CN"
 def texts_of(table_cfg_dir: Path, text_id: int, inline: str = "") -> dict[str, str]:
     """多语言文本：key 是语言后缀（CN/TC/...）。
 
-    表里自带 ``text`` 时把它当中文，其余语言照 ``text_id`` 查表 —— 只有查不到才退回这份中文。以前是直接
-    把中文铺满五种语言，于是英文/日文/韩文的名字都会变成中文，而产物里看不出来。
+    表里自带的 ``text`` 只是中文原文：``CN`` 用它，其余语言照 ``text_id`` 查表，查不到才退回这份中文。
+    ``text_id`` 也查不到时，五种语言都是同一份中文。
     """
     if not inline:
         return {
