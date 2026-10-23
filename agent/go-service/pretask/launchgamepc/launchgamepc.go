@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -42,6 +43,13 @@ const (
 	gameWindowTimeout     = 120 * time.Second
 	pollInterval          = 5 * time.Second
 	launcherRelaunchWait  = 5 * time.Second
+
+	readyPingMs   = 100 * time.Millisecond
+	readyStreak   = 5
+	readyTimeout  = 60 * time.Second
+	readyPollWait = 200 * time.Millisecond
+
+	launcherCloseTimeout = 10 * time.Second
 )
 
 // 与 interface.json 中 Win32-Front 的窗口匹配规则保持一致，供 MXU 后续连接。
@@ -105,6 +113,7 @@ type launchGamePCOptions struct {
 	LauncherExe  struct {
 		LauncherExe string `json:"LauncherExe"`
 	} `json:"LaunchGamePCLauncherExe"`
+	CloseLauncher   string `json:"LaunchGamePCCloseLauncher"`
 	GameSetting     string `json:"LaunchGamePCGameSetting"`
 	Language        string `json:"LaunchGamePCLanguage"`
 	DisplayType     string `json:"LaunchGamePCDisplayType"`
@@ -178,6 +187,11 @@ func Run(args []string) bool {
 		Str("component", component).
 		Msg("MAA framework initialized")
 
+	var (
+		launcherInstallDir string
+		launcherPID        uint32
+	)
+
 	if info.launchURL != "" {
 		if err := openLaunchURL(info.launchURL); err != nil {
 			log.Error().
@@ -187,8 +201,13 @@ func Run(args []string) bool {
 				Msg("failed to open launch url")
 			return false
 		}
-	} else if !startLauncherFromInstallDir(opts, info) {
-		return false
+	} else {
+		dir, pid, ok := startLauncherFromInstallDir(opts, info)
+		if !ok {
+			return false
+		}
+		launcherInstallDir = dir
+		launcherPID = pid
 	}
 
 	if info.windowRegex != nil && !runLauncher(info.windowRegex) {
@@ -204,6 +223,24 @@ func Run(args []string) bool {
 			Str("component", component).
 			Msg("game window not found after launching")
 		return false
+	}
+
+	if opts.CloseLauncher == "Yes" {
+		if !waitGameReady(readyTimeout) {
+			log.Warn().
+				Str("component", component).
+				Dur("timeout", readyTimeout).
+				Msg("game did not become responsive in time, skip closing launcher")
+		} else {
+			log.Info().
+				Str("component", component).
+				Msg("game is ready, closing launcher")
+			closeLauncher(launcherInstallDir, launcherPID)
+		}
+	} else {
+		log.Info().
+			Str("component", component).
+			Msg("close launcher is disabled, keep launcher running")
 	}
 
 	log.Info().
@@ -253,18 +290,63 @@ func runLauncher(windowRegex *regexp.Regexp) bool {
 
 // startLauncherFromInstallDir 按任务设置或注册表找到安装目录并运行 Launcher.exe。
 // 启动器窗口已存在时直接复用，不再运行 Launcher.exe，避免启动器窗口进入异常状态。
-func startLauncherFromInstallDir(opts launchGamePCOptions, info launcherInfo) bool {
+// 返回安装目录与本次拉起的 Launcher.exe PID（复用已有窗口时 PID 为 0），供关闭启动器使用。
+func startLauncherFromInstallDir(opts launchGamePCOptions, info launcherInfo) (string, uint32, bool) {
 	if info.windowRegex != nil {
 		if _, ok := findWindow(launcherClassRegex, info.windowRegex); ok {
 			log.Info().
 				Str("component", component).
 				Str("title", info.windowRegex.String()).
 				Msg("launcher window already exists, reuse it")
-			return true
+			// 未启用关闭启动器时无需定位安装目录，避免无关的注册表查找失败刷错误日志。
+			if opts.CloseLauncher != "Yes" {
+				return "", 0, true
+			}
+			dir, err := resolveInstallDir(opts, info)
+			if err != nil {
+				log.Warn().
+					Err(err).
+					Str("component", component).
+					Msg("failed to resolve launcher install directory, launcher will not be closed")
+			}
+			return dir, 0, true
 		}
 	}
 
-	var installDir string
+	installDir, err := resolveInstallDir(opts, info)
+	if err != nil {
+		return "", 0, false
+	}
+	log.Info().
+		Str("component", component).
+		Str("region", opts.Region).
+		Str("install_dir", installDir).
+		Msg("launcher install directory found")
+
+	// 启动器最小化到托盘时进程仍在但窗口不可见，需要再执行一次 Launcher.exe 唤出窗口。
+	launcherRunning := isProcessRunning(launcherProcessName, installDir)
+	pid, err := startLauncher(installDir)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", component).
+			Str("install_dir", installDir).
+			Msg("failed to start launcher")
+		return "", 0, false
+	}
+	if launcherRunning {
+		log.Info().
+			Str("component", component).
+			Dur("wait", launcherRelaunchWait).
+			Msg("launcher process was already running, waiting before connecting")
+		// 启动器进程已在运行时再次执行 Launcher.exe，等待一段时间再继续，避免maa过早连接出现异常画面 https://github.com/MaaEnd/MaaEnd/issues/6585
+		time.Sleep(launcherRelaunchWait)
+	}
+	return installDir, pid, true
+}
+
+// resolveInstallDir 根据任务设置或注册表定位启动器安装目录。
+func resolveInstallDir(opts launchGamePCOptions, info launcherInfo) (string, error) {
 	if opts.LauncherPath == "Manual" {
 		launcherPath := filepath.Clean(strings.Trim(strings.TrimSpace(opts.LauncherExe.LauncherExe), `"`))
 		_, err := os.Stat(launcherPath)
@@ -277,46 +359,21 @@ func startLauncherFromInstallDir(opts launchGamePCOptions, info launcherInfo) bo
 				Str("component", component).
 				Str("launcher_path", launcherPath).
 				Msg("填写的 Launcher.exe 路径无效，请检查任务设置中的路径")
-			return false
+			return "", err
 		}
-		installDir = filepath.Dir(launcherPath)
-	} else {
-		dir, err := findLauncherInstallDir(info)
-		if err != nil {
-			log.Error().
-				Err(err).
-				Str("component", component).
-				Str("region", opts.Region).
-				Msg("无法找到启动器，请在任务设置中手动填写路径")
-			return false
-		}
-		installDir = dir
+		return filepath.Dir(launcherPath), nil
 	}
-	log.Info().
-		Str("component", component).
-		Str("region", opts.Region).
-		Str("install_dir", installDir).
-		Msg("launcher install directory found")
 
-	// 启动器最小化到托盘时进程仍在但窗口不可见，需要再执行一次 Launcher.exe 唤出窗口。
-	launcherRunning := isProcessRunning(launcherProcessName, installDir)
-	if err := startLauncher(installDir); err != nil {
+	dir, err := findLauncherInstallDir(info)
+	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", component).
-			Str("install_dir", installDir).
-			Msg("failed to start launcher")
-		return false
+			Str("region", opts.Region).
+			Msg("无法找到启动器，请在任务设置中手动填写路径")
+		return "", err
 	}
-	if launcherRunning {
-		log.Info().
-			Str("component", component).
-			Dur("wait", launcherRelaunchWait).
-			Msg("launcher process was already running, waiting before connecting")
-		// 启动器进程已在运行时再次执行 Launcher.exe，等待一段时间再继续，避免maa过早连接出现异常画面 https://github.com/MaaEnd/MaaEnd/issues/6585
-		time.Sleep(launcherRelaunchWait)
-	}
-	return true
+	return dir, nil
 }
 
 // findLauncherInstallDir 先查 Uninstall 卸载项，找不到再查 URL 协议键。
@@ -393,22 +450,28 @@ func isProcessRunning(name, dirPrefix string) bool {
 	return false
 }
 
-func startLauncher(installDir string) error {
+func startLauncher(installDir string) (uint32, error) {
 	exePath := filepath.Join(installDir, launcherExeName)
 	if _, err := os.Stat(exePath); err != nil {
-		return err
+		return 0, err
 	}
 
 	cmd := exec.Command(exePath)
 	cmd.Dir = installDir
 	if err := cmd.Start(); err != nil {
-		return err
+		return 0, err
 	}
 	log.Info().
 		Str("component", component).
 		Str("path", exePath).
 		Msg("launcher started")
-	return cmd.Process.Release()
+
+	pid := cmd.Process.Pid
+	if pid <= 0 || uint64(pid) > math.MaxUint32 {
+		_ = cmd.Process.Release()
+		return 0, fmt.Errorf("unexpected launcher pid: %d", pid)
+	}
+	return uint32(pid), cmd.Process.Release()
 }
 
 // openLaunchURL 交给系统的协议处理程序打开链接；不经过 cmd，避免 & 被解析。

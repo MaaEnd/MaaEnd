@@ -1663,6 +1663,7 @@
     "option.LaunchGamePCAutoHDR.cases.Unchanged.label": "不修改",
     "option.LaunchGamePCAutoHDR.description": "设置项：系统设置 → 系统 → 屏幕 → 显示卡 → Endfield.exe → 自动 HDR",
     "option.LaunchGamePCAutoHDR.label": "自动 HDR",
+    "option.LaunchGamePCCloseLauncher.label": "关闭启动器",
     "option.LaunchGamePCDisplayType.cases.Fullscreen.label": "全屏",
     "option.LaunchGamePCDisplayType.cases.Window.label": "窗口",
     "option.LaunchGamePCDisplayType.label": "显示模式",

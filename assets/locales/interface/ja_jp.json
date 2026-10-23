@@ -1663,6 +1663,7 @@
     "option.LaunchGamePCAutoHDR.cases.Unchanged.label": "変更しない",
     "option.LaunchGamePCAutoHDR.description": "設定項目：設定 → システム → ディスプレイ → グラフィックス → Endfield.exe → 自動 HDR",
     "option.LaunchGamePCAutoHDR.label": "自動 HDR",
+    "option.LaunchGamePCCloseLauncher.label": "ランチャーを閉じる",
     "option.LaunchGamePCDisplayType.cases.Fullscreen.label": "全画面",
     "option.LaunchGamePCDisplayType.cases.Window.label": "ウィンドウ",
     "option.LaunchGamePCDisplayType.label": "表示モード",

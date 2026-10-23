@@ -23,7 +23,10 @@
             "cases": [
                 {
                     "name": "CN",
-                    "label": "$option.LaunchGamePCRegion.cases.CN.label"
+                    "label": "$option.LaunchGamePCRegion.cases.CN.label",
+                    "option": [
+                        "LaunchGamePCCloseLauncher"
+                    ]
                 },
                 {
                     "name": "Global",
@@ -31,7 +34,10 @@
                 },
                 {
                     "name": "Bilibili",
-                    "label": "$option.LaunchGamePCRegion.cases.Bilibili.label"
+                    "label": "$option.LaunchGamePCRegion.cases.Bilibili.label",
+                    "option": [
+                        "LaunchGamePCCloseLauncher"
+                    ]
                 },
                 {
                     "name": "TapTap",
@@ -79,6 +85,19 @@
                     "pattern_msg": "$option.LaunchGamePCLauncherExe.LauncherExe.pattern_msg"
                 }
             ]
+        },
+        "LaunchGamePCCloseLauncher": {
+            "type": "switch",
+            "label": "$option.LaunchGamePCCloseLauncher.label",
+            "cases": [
+                {
+                    "name": "Yes"
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
         },
         "LaunchGamePCGameSetting": {
             "type": "switch",
