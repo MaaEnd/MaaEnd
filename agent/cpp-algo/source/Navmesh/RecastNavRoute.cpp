@@ -3058,6 +3058,7 @@ std::optional<RecastPlanResult> RecastNavEngine::tryRopes(
     const std::string& zone_name,
     uint16_t zone_id,
     uint32_t start_region,
+    uint32_t goal_region,
     const WorldPoint& start,
     const WorldPoint& goal,
     float start_floor_y,
@@ -3099,8 +3100,10 @@ std::optional<RecastPlanResult> RecastNavEngine::tryRopes(
             cands.push_back({ .bound = bound, .rope = &r });
         }
     }
-    std::sort(cands.begin(), cands.end(), [](const Cand& p, const Cand& q) {
-        return std::tie(p.bound, p.rope->uid_bottom) < std::tie(q.bound, q.rope->uid_bottom);
+    // 绳顶已在终点那一类的先试, 尝试名额不被还得再跳一次的绳索占满
+    std::sort(cands.begin(), cands.end(), [goal_region](const Cand& p, const Cand& q) {
+        return std::make_tuple(p.rope->top.rid != goal_region, p.bound, p.rope->uid_bottom)
+               < std::make_tuple(q.rope->top.rid != goal_region, q.bound, q.rope->uid_bottom);
     });
 
     struct Unrope
@@ -3139,8 +3142,11 @@ std::optional<RecastPlanResult> RecastNavEngine::tryRopes(
     double best_total = best_cost;
     size_t tried = 0;
     for (const Cand& c : cands) {
-        if (tried >= max_tries || c.bound >= best_total || (should_stop && should_stop())) {
+        if (tried >= max_tries || (should_stop && should_stop())) {
             break;
+        }
+        if (c.bound >= best_total) {
+            continue;
         }
         const FieldsRopeRec& rope = *c.rope;
         if (walk_of(rope) <= rope.cost_px) {
@@ -3722,6 +3728,7 @@ RecastPlanResult RecastNavEngine::planLocked(
                     zone_name,
                     zone_id,
                     region,
+                    peer,
                     start,
                     goal,
                     start_floor_y,
@@ -3772,6 +3779,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         std::optional<RecastPlanResult> roped = tryRopes(
             zone_name,
             zone_id,
+            region,
             region,
             start,
             goal,

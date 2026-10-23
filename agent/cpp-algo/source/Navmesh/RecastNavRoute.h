@@ -164,6 +164,7 @@ private:
         const std::string& zone_name,
         uint16_t zone_id,
         uint32_t start_region,
+        uint32_t goal_region,
         const WorldPoint& start,
         const WorldPoint& goal,
         float start_floor_y,
