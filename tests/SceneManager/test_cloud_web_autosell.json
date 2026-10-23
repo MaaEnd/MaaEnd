@@ -1,0 +1,39 @@
+{
+    "configs": {
+        "name": "云视频物资与好友价格识别",
+        "resource": "官服",
+        "controller": "Win32-CloudWeb"
+    },
+    "cases": [
+        {
+            "image": "云终末地_好友价格高亮.png",
+            "hits": [
+                "AutoSellFriendsPricesExpectedGoTo"
+            ]
+        },
+        {
+            "image": "云终末地_好友价格高亮_第二帧.png",
+            "hits": [
+                "AutoSellFriendsPricesExpectedGoTo"
+            ]
+        },
+        {
+            "image": "云终末地_好友价格高亮_遮挡竖条.png",
+            "hits": []
+        },
+        {
+            "image": "云终末地_物资调度绿线.png",
+            "hits": [
+                "AutoSellStockRedistributionItemText"
+            ]
+        },
+        {
+            "image": "云终末地_物资调度绿线_遮挡绿线.png",
+            "hits": []
+        },
+        {
+            "image": "云终末地_物资调度绿线_遮挡名称.png",
+            "hits": []
+        }
+    ]
+}

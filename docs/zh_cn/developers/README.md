@@ -52,6 +52,7 @@ flowchart TD
 | [DeepWiki — MaaEnd](https://deepwiki.com/MaaEnd/MaaEnd) | 带 AI 的在线项目文档速览 |
 | [组件指南](./components-guide.md) | 项目架构、判断改哪、可复用节点目录 |
 | [工具与调试](./tools-and-debug.md) | 开发工具清单、常用调试入口、交流群信息 |
+| [云终末地 PC 网页支持](./cloud-webview.md) | Windows WebView2 宿主、前台控制器与 PC 资源覆盖 |
 | [节点测试](./node-testing.md) | 如何编写和运行节点测试，验证识别是否稳定命中 |
 | [Android 构建环境准备](./android-build-env.md) | JDK / Android SDK / NDK / CMake 安装与环境变量（构建步骤见 `Android/README.md`） |
 | [Go Service `pkg/` 公共包](./go-service-pkg.md) | And 解包、条件计算、OCR 数值、i18n / focus / 资源读取等通用工具 |

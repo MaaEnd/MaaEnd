@@ -54,11 +54,12 @@ FramelessWindow::~FramelessWindow()
 
 bool FramelessWindow::Open()
 {
-    // 一旦置为 true 就不会回退；后续的 SetXxx 与重复的 Open 都会被短路。
-    // 重复调用时直接复用首次 Open 的结果。
-    if (opened_.exchange(true, std::memory_order_acq_rel)) {
-        return create_ok_;
+    if (started_.exchange(true, std::memory_order_acq_rel)) {
+        std::unique_lock<std::mutex> lock(create_mutex_);
+        create_cv_.wait(lock, [this] { return create_done_; });
+        return create_ok_ && opened_.load(std::memory_order_acquire);
     }
+    opened_.store(true, std::memory_order_release);
 
     {
         std::lock_guard<std::mutex> lock(create_mutex_);
@@ -75,6 +76,7 @@ bool FramelessWindow::Open()
 
     if (!ok) {
         // 窗口创建失败，UI 线程会自然退出。这里 join 一下，确保 hwnd_ 一定为空。
+        std::lock_guard<std::mutex> close_lock(close_mutex_);
         if (ui_thread_.joinable()) {
             ui_thread_.join();
         }
@@ -90,6 +92,11 @@ void FramelessWindow::Close()
         // PostMessage 不会阻塞调用方线程，UI 线程在处理 WM_CLOSE 时会触发 DestroyWindow。
         PostMessageW(hwnd, WM_CLOSE, 0, 0);
     }
+    // UI callbacks must return to the message pump instead of joining themselves.
+    if (ui_thread_id_.load(std::memory_order_acquire) == GetCurrentThreadId()) {
+        return;
+    }
+    std::lock_guard<std::mutex> close_lock(close_mutex_);
     if (ui_thread_.joinable()) {
         ui_thread_.join();
     }
@@ -127,6 +134,24 @@ void FramelessWindow::SetShowInTaskbar(bool show)
     show_in_taskbar_ = show;
 }
 
+void FramelessWindow::SetSystemTitleBar(bool enabled)
+{
+    if (isOpened()) {
+        LogWarn << "FramelessWindow::SetSystemTitleBar: ignored, must be called before Open()";
+        return;
+    }
+    system_title_bar_ = enabled;
+}
+
+void FramelessWindow::SetActivateOnShow(bool enabled)
+{
+    if (isOpened()) {
+        LogWarn << "FramelessWindow::SetActivateOnShow: ignored, must be called before Open()";
+        return;
+    }
+    activate_on_show_ = enabled;
+}
+
 void FramelessWindow::SetOpacity(double opacity)
 {
     if (isOpened()) {
@@ -150,6 +175,9 @@ RECT FramelessWindow::getContentRect() const
     RECT rc {};
     if (hwnd_) {
         GetClientRect(hwnd_, &rc);
+    }
+    if (system_title_bar_) {
+        return rc;
     }
     rc.left += kResizeBorderPx;
     rc.right -= kResizeBorderPx;
@@ -197,8 +225,14 @@ LRESULT FramelessWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 
     switch (msg) {
     case WM_NCCALCSIZE:
+        if (system_title_bar_) {
+            return DefWindowProcW(hwnd_, msg, wparam, lparam);
+        }
         return onNcCalcSize(wparam, lparam);
     case WM_NCHITTEST:
+        if (system_title_bar_) {
+            return DefWindowProcW(hwnd_, msg, wparam, lparam);
+        }
         return onNcHitTest(lparam);
     case WM_GETMINMAXINFO: {
         auto* mmi = reinterpret_cast<MINMAXINFO*>(lparam);
@@ -215,6 +249,7 @@ LRESULT FramelessWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         DestroyWindow(hwnd_);
         return 0;
     case WM_DESTROY:
+        opened_.store(false, std::memory_order_release);
         PostQuitMessage(0);
         return 0;
     default:
@@ -224,6 +259,7 @@ LRESULT FramelessWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 
 void FramelessWindow::uiThreadMain()
 {
+    ui_thread_id_.store(GetCurrentThreadId(), std::memory_order_release);
     // FramelessWindow 本身只依赖 GDI/USER32，不做 CoInitializeEx；
     // 需要 COM/STA 的派生类（如 WebView2）应在 onUiThreadInit / onUiThreadShutdown 中
     // 自行 CoInitializeEx / CoUninitialize。
@@ -246,6 +282,8 @@ void FramelessWindow::uiThreadMain()
     create_cv_.notify_all();
 
     if (!ok) {
+        opened_.store(false, std::memory_order_release);
+        ui_thread_id_.store(0, std::memory_order_release);
         return;
     }
 
@@ -262,14 +300,13 @@ void FramelessWindow::uiThreadMain()
         constexpr DWORD WDA_EXCLUDEFROMCAPTURE = 0x00000011;
 #endif
         if (!SetWindowDisplayAffinity(hwnd_, WDA_EXCLUDEFROMCAPTURE)) {
-            const DWORD ec1 = GetLastError();
             if (!SetWindowDisplayAffinity(hwnd_, WDA_MONITOR)) {
-                LogWarn << "FramelessWindow: SetWindowDisplayAffinity failed" << VAR(ec1) << VAR(GetLastError());
+                LogWarn << "FramelessWindow: capture exclusion unavailable" << VAR(GetLastError());
             }
         }
     }
 
-    ShowWindow(hwnd_, SW_SHOW);
+    ShowWindow(hwnd_, activate_on_show_ ? SW_SHOW : SW_SHOWNOACTIVATE);
     UpdateWindow(hwnd_);
 
     onUiThreadInit();
@@ -285,6 +322,8 @@ void FramelessWindow::uiThreadMain()
     // 走到这里时 hwnd_ 已经被 DestroyWindow 释放，但 GWLP_USERDATA 不再可用，
     // 显式置空让外部线程的访问能立即跳过。
     hwnd_ = nullptr;
+    opened_.store(false, std::memory_order_release);
+    ui_thread_id_.store(0, std::memory_order_release);
 }
 
 bool FramelessWindow::createNativeWindow()
@@ -338,7 +377,7 @@ bool FramelessWindow::createNativeWindow()
     }
 
     // 强制重新计算 NC 区域，让 WM_NCCALCSIZE 立刻生效（移除标题栏视觉残留）。
-    SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
 
     return true;
 }
@@ -484,6 +523,24 @@ void FramelessWindow::SetShowInTaskbar(bool show)
         return;
     }
     show_in_taskbar_ = show;
+}
+
+void FramelessWindow::SetSystemTitleBar(bool enabled)
+{
+    if (isOpened()) {
+        LogWarn << "FramelessWindow::SetSystemTitleBar: ignored, must be called before Open()";
+        return;
+    }
+    system_title_bar_ = enabled;
+}
+
+void FramelessWindow::SetActivateOnShow(bool enabled)
+{
+    if (isOpened()) {
+        LogWarn << "FramelessWindow::SetActivateOnShow: ignored, must be called before Open()";
+        return;
+    }
+    activate_on_show_ = enabled;
 }
 
 void FramelessWindow::SetOpacity(double opacity)

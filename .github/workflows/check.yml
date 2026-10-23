@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/check.yml"
       - "assets/**"
+      - "agent/cpp-algo/cloud-webview/**"
       - "!assets/resource/model"
       - "tools/schema/**"
       - "package.json"
@@ -20,6 +21,7 @@ on:
     paths:
       - ".github/workflows/check.yml"
       - "assets/**"
+      - "agent/cpp-algo/cloud-webview/**"
       - "!assets/resource/model"
       - "tools/schema/**"
       - "package.json"
@@ -55,4 +57,7 @@ jobs:
           pnpm run check
 
       - name: Validate JSON Schema
-        run: uv run tools/validate_schema.py --resource-dirs assets/resource --exclude-dirs assets/resource/gamedata assets/resource/image assets/resource/model --task-dirs assets/tasks
+        run: uv run tools/validate_schema.py --resource-dirs assets/resource assets/resource_cloud_web --exclude-dirs assets/resource/gamedata assets/resource/image assets/resource/model --task-dirs assets/tasks
+
+      - name: Test cloud browser policies
+        run: node --test agent/cpp-algo/cloud-webview/tests/*.test.mjs

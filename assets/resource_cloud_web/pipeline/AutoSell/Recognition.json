@@ -1,0 +1,25 @@
+{
+    // 云视频黄色竖条的蓝色通道为 11~15，保留 PC 的区域与连通面积限制。
+    "AutoSellFriendsPricesExpectedGoToHighlightRecognition": {
+        "upper": [
+            255,
+            248,
+            40
+        ]
+    },
+    "AutoSellFriendsPriceCurrentAreaRecognition": {
+        "upper": [
+            255,
+            248,
+            40
+        ]
+    },
+    "AutoSellStockRedistributionItemGreenLineRecognition": {
+        // 云视频缩放后绿线边缘混入背景色，保留原连通面积要求。
+        "upper": [
+            200,
+            220,
+            125
+        ]
+    }
+}

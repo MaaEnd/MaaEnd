@@ -4,6 +4,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/gamesetting"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -20,6 +21,11 @@ type HDRChecker struct {
 func (c *HDRChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, detail maa.TaskerTaskDetail) {
 	// Only check on task starting
 	if event != maa.EventStatusStarting {
+		return
+	}
+	// Shared video frames do not include desktop HDR or the local client's
+	// Auto HDR setting. Those checks would warn about an unrelated game.
+	if pienv.ControllerName() == "Win32-CloudWeb" {
 		return
 	}
 

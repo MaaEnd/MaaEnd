@@ -1,0 +1,87 @@
+{
+    "__ScenePrivateAnyEnterWorldSuccess": {
+        "desc": "云网页：确认大世界后复用缓存或 OCR 发布账号身份，覆盖未进入菜单检查的独立寻路任务",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CaptureUid"
+            }
+        }
+    },
+    "__ScenePrivateCloudWebProtocolPrepareExit": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ProtocolSpaceNormalPrepareEnter",
+                    "ProtocolSpaceEnterSpaceText"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "TouchMove",
+            "param": {"target": [
+                    640,
+                    360
+                ]}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["__ScenePrivateCloudWebProtocolPrepareExitKey"]
+    },
+    "__ScenePrivateCloudWebProtocolPrepareExitKey": {
+        "recognition": {
+            "type": "And",
+            "param": {"all_of": ["__ScenePrivateCloudWebProtocolPrepareExit"]}
+        },
+        "pre_delay": 0,
+        "action": {"type": "ClickKey", "param": {"key": 27}},
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["__ScenePrivateCloudWebProtocolPrepareExited"]
+    },
+    "__ScenePrivateCloudWebProtocolPrepareExited": {
+        "recognition": {
+            "type": "And",
+            "param": {"all_of": ["__ScenePrivateCloudWebProtocolPrepareExit"]}
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateWorldSpaceExit": {
+        "action": {
+            "type": "TouchMove",
+            "param": {
+                "target": [
+                    640,
+                    360
+                ]
+            }
+        },
+        "next": ["__ScenePrivateCloudWebWorldSpaceExit"]
+    },
+    "__ScenePrivateCloudWebWorldSpaceExit": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": ["__ScenePrivateWorldSpaceExit"]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldSpaceExitConfirm",
+            "__ScenePrivateEndVisit"
+        ]
+    }
+}

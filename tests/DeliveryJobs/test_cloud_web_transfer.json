@@ -1,0 +1,40 @@
+{
+    "configs": {
+        "name": "云终末地委托按钮辨别",
+        "resource": "官服",
+        "controller": "Win32-CloudWeb"
+    },
+    "cases": [
+        {
+            "image": "云终末地_调度申请_开始运送.png",
+            "hits": [
+                "DeliveryJobsInCargoRedistributionBid",
+                "DeliveryJobsRedistributionBidNextStep"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_调度申请_快速转交.png",
+            "hits": [
+                "DeliveryJobsQuickTransfer",
+                "DeliveryJobsInCargoRedistributionBid",
+                "DeliveryJobsRedistributionBidNextStep"
+            ]
+        },
+        {
+            "image": "武陵_地区建设_仓储节点_货物装箱_调度申请_快速转交.png",
+            "hits": [
+                "DeliveryJobsQuickTransfer",
+                "DeliveryJobsInCargoRedistributionBid",
+                "DeliveryJobsRedistributionBidNextStep"
+            ]
+        },
+        {
+            "image": "云终末地_大世界.png",
+            "hits": []
+        },
+        {
+            "image": "云终末地_菜单总列表.png",
+            "hits": []
+        }
+    ]
+}

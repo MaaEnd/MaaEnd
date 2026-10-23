@@ -407,7 +407,9 @@ jobs:
           name: cpp-algo-${{ matrix.os }}-${{ matrix.arch }}
           path: |
             install/agent/cpp-algo*
+            install/agent/cloud-webview*
             install/agent/WebView2Loader.dll
+            install/agent/MaaUtils.dll
           retention-days: 90
 
   package_linux_tarball:

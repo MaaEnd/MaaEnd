@@ -1,0 +1,113 @@
+{
+    "ProtocolSpaceEnterSpaceText": {
+        "roi": [
+            1050,
+            640,
+            170,
+            40
+        ],
+        "expected": ["进入协议空间"]
+    },
+    "ProtocolSpaceEnterSpaceConfirm": {
+        "next": [
+            "[JumpBack]ProtocolSpaceCloudWebMechanicsClose",
+            "[JumpBack]SceneWaitLoadingExit",
+            "ProtocolSpaceEnterSpaceSuccess"
+        ]
+    },
+    "ProtocolSpaceCloudWebMechanicsClose": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    550,
+                                    210,
+                                    180,
+                                    45
+                                ],
+                                "expected": ["机制特性"]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    1070,
+                                    210,
+                                    60,
+                                    50
+                                ],
+                                "template": "Common/Button/CloseButtonType4.png"
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ProtocolSpaceRewardClaimSuccessContinue": {
+        "all_of": [
+            "ProtocolSpaceRewardClaimSuccess",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            360,
+                            590,
+                            230,
+                            60
+                        ],
+                        "expected": ["重新挑战"]
+                    }
+                }
+            }
+        ],
+        "box_index": 1
+    },
+    "ProtocolSpaceRewardClaimSuccessContinueAfterMedication": {
+        "all_of": ["ProtocolSpaceRewardClaimSuccessContinue"]
+    },
+    "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+        "all_of": ["ProtocolSpaceRewardClaimSuccessFinish"],
+        "box_index": 0
+    },
+    "ProtocolSpaceRewardClaimSuccessFinish": {
+        "all_of": [
+            "ProtocolSpaceRewardClaimSuccess",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            700,
+                            590,
+                            220,
+                            60
+                        ],
+                        "expected": ["离开"]
+                    }
+                }
+            }
+        ],
+        "box_index": 1
+    },
+    "ProtocolSpaceEnterSpace": {
+        "all_of": [
+            "ProtocolSpaceNormalPrepareEnter",
+            "ProtocolSpaceEnterSpaceText"
+        ]
+    }
+}

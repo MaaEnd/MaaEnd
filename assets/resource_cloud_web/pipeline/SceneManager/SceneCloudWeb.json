@@ -1,0 +1,63 @@
+{
+    "__ScenePrivateCloudWebStartButton": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1044,
+                    570,
+                    121,
+                    48
+                ],
+                "expected": ["开始游戏"]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateCloudWebHeader": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1136,
+                    16,
+                    102,
+                    39
+                ],
+                "expected": ["用户中心"]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateCloudWebStartGame": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__ScenePrivateCloudWebHeader",
+                    "__ScenePrivateCloudWebStartButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {"type": "Click"},
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["__ScenePrivateCloudWebStartAccepted"]
+    },
+    "__ScenePrivateCloudWebStartAccepted": {
+        "recognition": {
+            "type": "And",
+            "param": {"all_of": ["__ScenePrivateCloudWebStartButton"]}
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "pretask": {
+        "controller": [
+            "Win32-CloudWeb"
+        ],
+        "exec": "agent/cloud-webview",
+        "args": [
+            "--login"
+        ],
+        "name": "LoginCloudWeb",
+        "label": "$pretask.LoginCloudWeb.label"
+    }
+}

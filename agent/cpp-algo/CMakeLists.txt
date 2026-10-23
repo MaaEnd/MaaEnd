@@ -42,3 +42,7 @@ find_package(MaaAgentServer REQUIRED)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/WebView2.cmake)
 
 add_subdirectory(source)
+
+if(WIN32)
+    add_subdirectory(cloud-webview)
+endif()
