@@ -97,7 +97,7 @@ The commit title format is `type(scope): description`. The scope is optional; it
 | `ai` | AI collaboration: skills (`.agents/skills/`), `AGENTS.md`, AI-related workflows, etc. | 🤖 人工智能 (AI) |
 | `revert` | Reverting a previous commit | ◀️ 撤销 (Reverts) |
 
-- Misspelled or wrongly-cased types (such as `pref`, `doc` or `CI`) are not rejected, but they do not go into the correct section: git-cliff uses the type itself as the section name, so an extra section like "Pref" appears at the end of the changelog (see v2.23.0). `cliff.toml` also accepts the legacy spellings `rft` and `styles`, but use the new spellings in the table for new commits whenever possible.
+- Misspelled or wrongly-cased types (such as `pref`, `doc` or `CI`) are rejected by CI: git-cliff uses the type itself as the section name, so an extra section like "Pref" appears at the end of the changelog (see v2.23.0), and the `pr-title` check fails such PR titles with the type you should have used. `cliff.toml` also accepts the legacy spellings `rft` and `styles`, but use the new spellings in the table for new commits whenever possible.
 - PRs are usually squash-merged: the PR title becomes the commit title and the PR description becomes the commit body. Write the PR title in the same format.
 
 > **Example**: `feat(OutpostTrading): Add Regional Development auto-sell Pipeline`

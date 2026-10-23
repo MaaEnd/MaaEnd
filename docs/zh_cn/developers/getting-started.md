@@ -97,7 +97,7 @@ pnpm install
 | `ai` | AI 协作相关：skill（`.agents/skills/`）、`AGENTS.md`、AI 相关工作流等 | 🤖 人工智能 |
 | `revert` | 撤销之前的提交 | ◀️ 撤销 |
 
-- 拼错或大小写不对的类型（如 `pref`、`doc`、`CI`）不会报错，但不会归入正确的分组：git-cliff 会直接用类型名当分组名，在更新日志末尾多出类似「Pref」这样的分组（见 v2.23.0）。`cliff.toml` 还兼容 `rft`、`styles` 两种旧写法，但新提交请尽可能用上表的新写法。
+- 拼错或大小写不对的类型（如 `pref`、`doc`、`CI`）会被 CI 判为不合规：git-cliff 会直接用类型名当分组名，在更新日志末尾多出类似「Pref」这样的分组（见 v2.23.0），所以 `pr-title` 检查会拦下这类 PR 标题并提示应改成的类型。`cliff.toml` 还兼容 `rft`、`styles` 两种旧写法，但新提交请尽可能用上表的新写法。
 - PR 一般以 squash 方式合并：PR 标题成为提交标题，PR 描述成为提交正文。所以 PR 标题也要按上面的格式写。
 
 > **示例**：`feat(OutpostTrading): 新增地区建设自动售卖 Pipeline`
