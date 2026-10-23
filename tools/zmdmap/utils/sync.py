@@ -10,11 +10,12 @@
 这一层由 ``uv run zmdmap generate --sync`` 触发。
 """
 
-import json
 import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
+
+import msgspec
 
 from .config import (
     NAVMESH_DIR,
@@ -24,7 +25,6 @@ from .config import (
     ZMDMAP_DATA_DIR,
 )
 from .log import logger
-from .shapes import is_object
 
 # 状态 -> 单字符标记，打印同步结果时用。标记只用 GBK 能编出来的字符：Windows 中文控制台
 # 编不出 ✘ / ⚠ 这类符号，写出去就是 UnicodeEncodeError。
@@ -179,6 +179,21 @@ def sync_repo(name: str, repo: Path, *, dry_run: bool) -> RepoOutcome:
     return RepoOutcome(name, "updated", f"{head} → {after}（{behind} 个提交，{branch}）")
 
 
+class LedgerState(msgspec.Struct, frozen=True):
+    """解包工具记在这份数据里的状态。"""
+
+    last_res_version: str | None = None
+    """这批数据来自哪个资源构建，如 initial_11010254-4_main_11010254-4；
+    这个文件用蛇形命名，所以这里不加 ``rename="camel"``"""
+
+
+class Ledger(msgspec.Struct, frozen=True):
+    """``.beyond/ledger/*.json``：解包工具留下的记录。"""
+
+    state: LedgerState = LedgerState()
+    """这份数据的状态"""
+
+
 def repo_data_build(repo: Path) -> str | None:
     """这个仓库数据里的资源构建号（``initial_11010254-4_main_11010254-4``），读不到返回 ``None``。
 
@@ -187,13 +202,11 @@ def repo_data_build(repo: Path) -> str | None:
     """
     for ledger in sorted(repo.glob(".beyond/ledger/*.json")):
         try:
-            data = json.loads(ledger.read_text(encoding="utf-8"))
+            data = msgspec.json.decode(ledger.read_bytes(), type=Ledger)
         except (OSError, ValueError):
             continue
-        state = data.get("state") if is_object(data) else None
-        value = state.get("last_res_version") if is_object(state) else None
-        if isinstance(value, str) and value:
-            return value
+        if data.state.last_res_version:
+            return data.state.last_res_version
     return None
 
 

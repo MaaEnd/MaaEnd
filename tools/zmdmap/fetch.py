@@ -26,12 +26,12 @@
 import json
 import time
 from collections.abc import Sequence
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
 
 import click
+import msgspec
 import requests
 
 from .datasets import DATASET_NAMES, files_of, select_datasets
@@ -62,28 +62,21 @@ class DownloadError(ValueError):
         self.status_code = status_code
 
 
-@dataclass
-class Manifest:
+class Manifest(msgspec.Struct):
     """上游发布的清单：这批数据是哪一版，以及每份原始形态的内容指纹。"""
 
-    version: str | None
-    files: dict[str, str]
+    version: str | None = None
+    """这批数据的版本标签；上游没写就没有"""
+    files: dict[str, str] = msgspec.field(default_factory=dict[str, str])
+    """文件名 -> 原始形态的内容指纹"""
 
 
 def parse_manifest(text: str) -> Manifest | None:
     """解析清单；形状不对就当没清单（上游还是老形态，或者拿到的是错误页）。"""
     try:
-        data = json.loads(text)
-    except json.JSONDecodeError:
+        return msgspec.json.decode(text, type=Manifest)
+    except msgspec.ValidationError:
         return None
-    if not is_object(data):
-        return None
-    files = data.get("files")
-    if not is_object(files):
-        return None
-    return Manifest(
-        version_of(data), {name: value for name, value in files.items() if isinstance(value, str)}
-    )
 
 
 def read_manifest() -> Manifest | None:

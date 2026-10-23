@@ -497,19 +497,48 @@ class NpcProxyTable(msgspec.Struct, frozen=True, rename="camel"):
     """NPC key -> 坐标与朝向"""
 
 
-class LevelInteractive(msgspec.Struct, frozen=True, rename="camel"):
-    """``LevelData`` 里 ``interactives`` 的一项。
+class ComponentValue(msgspec.Struct, frozen=True, rename="camel"):
+    """组件参数里的一个值。
 
-    ``componentProperties`` 里每个组件的值形状按组件类型各不一样，只有我们要找的
-    ``system_inst_key`` 有固定结构，所以这一层保持动态，交给 :mod:`tools.zmdmap.utils.shapes` 取值。
+    参数自己带 ``type`` 说该读哪一项：``Float`` / ``Int`` 之类的读 ``valueBit64``，``String`` 读
+    ``valueString``。我们只用到字符串那一项，整数也声明出来，免得上游换了类型时这里静默变空。
     """
+
+    value_string: str | None = None
+    """字符串取值（``type`` 为 ``String`` 时用它）"""
+    value_bit64: int | None = None
+    """整数或位掩码取值（``type`` 为 ``Float`` / ``Int`` 时用它）"""
+
+
+class ComponentValueSet(msgspec.Struct, frozen=True, rename="camel"):
+    """组件的某个参数可以带一串值；要用到的参数都只取第一项。"""
+
+    value_array: list[ComponentValue] = msgspec.field(
+        default_factory=list[ComponentValue], name="valueArray"
+    )
+    """取值列表"""
+
+
+class ComponentProperty(msgspec.Struct, frozen=True, rename="camel"):
+    """交互实体的一个组件参数：``[{"key": "system_inst_key", "value": {...}}]`` 里的一项。"""
+
+    key: str = ""
+    """参数名，如 ``system_inst_key`` / ``doodad_id``"""
+    value: ComponentValueSet = ComponentValueSet()
+    """取值"""
+
+
+class LevelInteractive(msgspec.Struct, frozen=True, rename="camel"):
+    """``LevelData`` 里 ``interactives`` 的一项。"""
 
     entity_data_id_key: str = ""
     """实体模板 key，如 int_system_domain_depot"""
     rotation: Position3 = Position3()
     """朝向，只用 y 当水平朝向"""
-    component_properties: dict[str, Any] = msgspec.field(default_factory=dict[str, Any])
-    """各组件自己的属性表，结构随组件类型变，所以保持动态"""
+    component_properties: dict[str, list[ComponentProperty]] = msgspec.field(
+        default_factory=dict[str, list[ComponentProperty]]
+    )
+    """组件名 -> 这个组件的参数列表（如 ``NpcProxy`` / ``RecycleBin``）"""
 
 
 class LevelData(msgspec.Struct, frozen=True, rename="camel"):
@@ -517,6 +546,30 @@ class LevelData(msgspec.Struct, frozen=True, rename="camel"):
 
     interactives: list[LevelInteractive] = msgspec.field(default_factory=list[LevelInteractive])
     """这份关卡文件里的交互实体"""
+
+
+class InteractiveTemplateVariant(msgspec.Struct, frozen=True, rename="camel"):
+    """交互模板的一个变体：它默认参数里被改掉的那几项。"""
+
+    diff_properties: list[ComponentProperty] = msgspec.field(
+        default_factory=list[ComponentProperty]
+    )
+    """改掉的默认参数，采集物的 ``doodad_id`` 在这里"""
+
+
+class InteractiveTemplate(msgspec.Struct, frozen=True, rename="camel"):
+    """``Interactive/InteractiveData/data_*.json``：交互模板表。
+
+    一份文件里按 ``templateVariant`` 分若干变体，每个变体各自改掉一批默认参数；采集物的 ``doodad_id``
+    就在变体的 ``diffProperties`` 里。
+    """
+
+    id: str = ""
+    """文件自己的模板 id，如 int_doodad_common"""
+    template_variant: dict[str, InteractiveTemplateVariant] = msgspec.field(
+        default_factory=dict[str, InteractiveTemplateVariant]
+    )
+    """变体 id -> 这个变体的参数覆盖"""
 
 
 # ── 运送委托 ────────────────────────────────────────────────────────────────
@@ -696,6 +749,15 @@ class ShopChannelRow(msgspec.Struct, frozen=True, rename="camel"):
     """渠道等级（字符串数字）-> 这一级的供货"""
 
 
+class UnlockCondition(msgspec.Struct, frozen=True, rename="camel"):
+    """``ShopGoodsTable`` 里的一个解锁条件。"""
+
+    condition_id: str = ""
+    """条件 id，如 condition_shop_activity_contingency_contract_0_4_1_1"""
+    desc: TextRef = TextRef()
+    """条件说明"""
+
+
 class ShopGoodsRow(msgspec.Struct, frozen=True, rename="camel"):
     """``ShopGoodsTable`` 的一行。
 
@@ -722,8 +784,10 @@ class ShopGoodsRow(msgspec.Struct, frozen=True, rename="camel"):
     """限购数量"""
     sort_id: int = 0
     """排序"""
-    unlock_conditions: list[Any] = msgspec.field(default_factory=list[Any])
-    """解锁条件，结构随商品类型变，所以保持动态"""
+    unlock_conditions: list[UnlockCondition] = msgspec.field(
+        default_factory=list[UnlockCondition]
+    )
+    """解锁条件；原样写进产物，不给产物换形状"""
 
 
 # ── 读取 ────────────────────────────────────────────────────────────────────
@@ -782,6 +846,17 @@ def load_level[T](json_data_dir: Path, level_id: str, model: type[T]) -> T:
     if cached is None:
         raw = _read_bytes(json_data_dir / "UILevelMapLoadConfig" / f"{level_id}.json", "UILevelMapLoadConfig")
         cached = _decode(raw, model, f"{level_id}.json")
+        _level_cache[key] = cached
+    return cached
+
+
+def load_interactive_data(path: Path) -> InteractiveTemplate:
+    """``<JsonData>/Interactive/InteractiveData/data_*.json`` 类型化解码。"""
+    key = (path, "interactive", InteractiveTemplate)
+    cached = _level_cache.get(key)
+    if cached is None:
+        raw = _read_bytes(path, "InteractiveData")
+        cached = _decode(raw, InteractiveTemplate, path.name)
         _level_cache[key] = cached
     return cached
 

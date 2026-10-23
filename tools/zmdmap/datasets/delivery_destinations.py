@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any
 
 from ..utils.log import logger
-from ..utils.shapes import as_object, as_objects
 from ..utils.tables import (
     BuyerRow,
     DeliverTargetRow,
@@ -74,12 +73,10 @@ def _build_depots_by_level(depot_table: dict[str, DomainDepotRow]) -> dict[str, 
 
 def _extract_system_instance_id(entity: LevelInteractive, system_component: str) -> str | None:
     """从 LevelData 交互实体的 componentProperties 中取 system_inst_key。"""
-    prop_list = as_objects(entity.component_properties.get(system_component))
-    for item in prop_list:
-        if item.get("key") == "system_inst_key":
-            values = as_objects(as_object(item.get("value")).get("valueArray"))
-            if values:
-                return str(values[0].get("valueString", ""))
+    for prop in entity.component_properties.get(system_component, []):
+        if prop.key == "system_inst_key":
+            values = prop.value.value_array
+            return values[0].value_string if values else None
     return None
 
 

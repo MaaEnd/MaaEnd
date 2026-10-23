@@ -14,15 +14,16 @@ MapNavigator 的采集动作（拾取 ``COLLECT`` / 挖掘 ``DIG``），``item``
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import as_text, level_of, load_json_dict, map_of_level, read_xyz
+from ..utils.game_data import level_of, map_of_level, read_xyz
 from ..utils.log import logger
-from ..utils.shapes import as_object, as_objects, is_array, is_object
 from ..utils.tables import (
+    ComponentProperty,
     DoodadRow,
     ItemRow,
     RewardRow,
     WorldEntityRegistry,
     load_config,
+    load_interactive_data,
     load_table,
 )
 from .base import Dataset, DatasetError
@@ -31,33 +32,12 @@ DOODAD_PREFIX = "int_doodad_"
 DOODAD_ID_KEY = "doodad_id"
 
 
-def doodad_ids_in(node: Any, found: dict[str, str]) -> None:
-    """交互数据里每个 ``int_doodad_*`` 模板 -> 它的 ``doodad_id`` 参数；模板表是对象或键值对数组都认。"""
-    if is_object(node):
-        for key, value in node.items():
-            if key.startswith(DOODAD_PREFIX) and is_object(value):
-                record_doodad_id(key, value, found)
-            doodad_ids_in(value, found)
-    elif is_array(node):
-        if (
-            len(node) == 2
-            and isinstance(node[0], str)
-            and node[0].startswith(DOODAD_PREFIX)
-            and is_object(node[1])
-        ):
-            record_doodad_id(node[0], node[1], found)
-        for child in node:
-            doodad_ids_in(child, found)
-
-
-def record_doodad_id(template_id: str, template: dict[str, Any], found: dict[str, str]) -> None:
-    for prop in as_objects(template.get("diffProperties")):
-        if prop.get("key") != DOODAD_ID_KEY:
-            continue
-        values = as_objects(as_object(prop.get("value")).get("valueArray"))
-        text = as_text(values[0].get("valueString")) if values else ""
-        if text:
-            found[template_id] = text
+def template_doodad_id(props: list[ComponentProperty]) -> str:
+    """一组模板参数里的 ``doodad_id``；没有就是空串。"""
+    for prop in props:
+        if prop.key == DOODAD_ID_KEY and prop.value.value_array:
+            return prop.value.value_array[0].value_string or ""
+    return ""
 
 
 def primary_item(doodad: DoodadRow, reward_table: dict[str, RewardRow]) -> str:
@@ -126,7 +106,11 @@ class CollectPoints(Dataset):
         interactive_dir = json_data_dir / "Interactive" / "InteractiveData"
         doodad_ids: dict[str, str] = {}
         for path in sorted(interactive_dir.glob(f"data_{DOODAD_PREFIX}*.json")):
-            doodad_ids_in(load_json_dict(path), doodad_ids)
+            template = load_interactive_data(path)
+            for template_id, variant in template.template_variant.items():
+                doodad_id = template_doodad_id(variant.diff_properties)
+                if doodad_id:
+                    doodad_ids[template_id] = doodad_id
         if not doodad_ids:
             raise DatasetError(f"{interactive_dir} 里没有找到采集物的 doodad_id")
 

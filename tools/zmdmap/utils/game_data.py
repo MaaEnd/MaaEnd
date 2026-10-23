@@ -8,10 +8,8 @@
   ``UILevelMapLoadConfig/<关卡>.json``。
 
 目录默认取与 MaaEnd 平级的兄弟仓库（见 :mod:`tools.zmdmap.utils.config`），可用 CLI 参数或环境变量
-覆盖。表按 :mod:`tools.zmdmap.utils.tables` 里的结构体解码，``build`` 里直接写 ``entry.position.x``。
-
-少数结构完全动态的地方（交互模板、``LevelData`` 里按组件名分的属性）仍按原始 JSON 读，用
-:mod:`tools.zmdmap.utils.shapes` 里的 ``is_object`` / ``as_objects`` 一层层取值。
+覆盖。表、关卡数据、交互模板都按 :mod:`tools.zmdmap.utils.tables` 里的结构体解码，``build`` 里直接写
+``entry.position.x``、``prop.value.value_array[0].value_string``；没有「按原始 JSON 读」的旁路了。
 
 记录里常取的另两类东西也在这里：
 
@@ -25,21 +23,14 @@
 数据文件里不放字段说明，说明写在 ``datasets/`` 的模块与文档里。
 """
 
-import json
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Protocol
 
 from .config import I18N_TABLE_SUFFIXES
 from .errors import LocalDataError
 from .log import logger
 from .tables import Position3, TextRef, load_table
-
-
-def load_json_dict(file_path: str | Path) -> dict[str, Any]:
-    """原样返回 JSON 对象。"""
-    with open(file_path, encoding="utf-8") as handle:
-        return json.load(handle)
 
 
 def _text_table(table_cfg_dir: Path, lang: str) -> dict[str, str]:
@@ -68,18 +59,6 @@ def text_id_of(ref: TextRef | None) -> int:
 def inline_text_of(ref: TextRef | None) -> str:
     """文本引用里内联的那份中文；多数时候没有（``None``），当空串。"""
     return (ref.text or "") if ref is not None else ""
-
-
-def as_text(value: Any) -> str:
-    """表里的 id/名字字段当字符串用；不是字符串就是空串。"""
-    return value if isinstance(value, str) else ""
-
-
-def as_int(value: Any, default: int = 0) -> int:
-    """表里的整数字段当 int 用；缺失、不是整数或是布尔值时用 ``default``。"""
-    if isinstance(value, bool) or not isinstance(value, int):
-        return default
-    return value
 
 
 #: 内联文本算哪一种语言：表里自带的那份 ``text`` 是游戏里的中文原文。
@@ -113,8 +92,6 @@ def ref_texts(table_cfg_dir: Path, ref: TextRef | None) -> dict[str, str]:
 def ref_text(table_cfg_dir: Path, ref: TextRef | None, lang: str = "zh-CN") -> str:
     """表里文本引用的某一语言文本。"""
     return inline_text_of(ref) or localized_text(table_cfg_dir, text_id_of(ref), lang)
-
-
 
 
 # ── 世界坐标 ────────────────────────────────────────────────────────────────

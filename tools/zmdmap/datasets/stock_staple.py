@@ -10,6 +10,8 @@ import math
 from pathlib import Path
 from typing import Any
 
+import msgspec
+
 from ..utils.tables import (
     DomainRow,
     ItemRow,
@@ -121,7 +123,7 @@ class StockStaple(Dataset):
                         "refresh_type": row.limit_count_refresh_type,
                         "limit_count": row.limit_count,
                         "sort_id": row.sort_id,
-                        "unlock_conditions": row.unlock_conditions,
+                        "unlock_conditions": msgspec.to_builtins(row.unlock_conditions),
                         "channel_supply": supplies.get(goods_id, []),
                     }
                     region_goods.append(goods_id)

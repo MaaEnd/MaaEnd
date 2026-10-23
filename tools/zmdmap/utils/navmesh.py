@@ -16,12 +16,12 @@ import zlib
 from collections.abc import Callable
 from pathlib import Path
 
+import msgspec
 import requests
 
 from .config import MODEL_SUBPATH, NAVMESH_FILES, NAVMESH_SUBPATH
 from .http import get
 from .log import logger
-from .shapes import is_object
 
 NAV_MAGIC = b"BNAV"
 NAV_HEADER_SIZE = 64
@@ -142,6 +142,12 @@ def _read_decompressed(read: Reader, size: int) -> bytes:
     raise ValueError("没能读完 nav 数据的 zone 表")
 
 
+class SubmoduleRef(msgspec.Struct):
+    """GitHub contents API 返回的提交信息（只取 ``sha``）。"""
+
+    sha: str = ""
+
+
 def _resolve_nav_submodule_sha() -> str:
     """查 model 子模块当前提交（GitHub API 上 ``v2`` 分支的那份）。"""
     try:
@@ -150,9 +156,11 @@ def _resolve_nav_submodule_sha() -> str:
         raise ValueError(f"查询 assets/resource/model 版本失败：{error}") from error
     if response.status_code >= 400:
         raise ValueError(f"查询 assets/resource/model 版本失败：{response.status_code}")
-    body = response.json()
-    sha = body.get("sha") if is_object(body) else None
-    if not isinstance(sha, str) or not sha:
+    try:
+        sha = msgspec.json.decode(response.content, type=SubmoduleRef).sha
+    except msgspec.ValidationError as error:
+        raise ValueError(f"没能确定 assets/resource/model 的版本：{error}") from error
+    if not sha:
         raise ValueError("没能确定 assets/resource/model 的版本")
     return sha
 
