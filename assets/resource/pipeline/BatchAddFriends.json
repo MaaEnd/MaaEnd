@@ -586,8 +586,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "BatchAddFriendsStrangersMenuViewProfile",
-            "BatchAddFriendsStrangersProfileReady"
+            "BatchAddFriendsStrangersMenuViewProfile"
         ],
         "on_error": [
             "BatchAddFriendsChangeBatch"
