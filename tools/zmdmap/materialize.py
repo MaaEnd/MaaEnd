@@ -127,8 +127,8 @@ def report_data_changes(data_dir: Path, file_names: Sequence[str]) -> None:
         return
     changed = changed_data_files(list(file_names))
     if changed:
-        click.echo("data/*.json 改动：")
+        logger.info("data/*.json 改动：")
         for line in changed:
-            click.echo(f"  {line}")
+            logger.info(line)
     else:
-        click.echo("data/*.json：没有改动")
+        logger.info("data/*.json：没有改动")

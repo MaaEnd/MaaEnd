@@ -219,7 +219,7 @@ def generate_command(
     if list_datasets:
         for dataset in DATASETS:
             how = "投影" if dataset.needs_projection else "复制"
-            click.echo(f"{dataset.name}\t{dataset.file_name}\t{how}")
+            logger.info(f"{dataset.name}\t{dataset.file_name}\t{how}")
         return
 
     # click 的 envvar 已经把环境变量填进参数值了，这里只补最后的默认值。
@@ -256,39 +256,39 @@ def generate_command(
 
     sync_failed = False
     if sync:
-        click.echo("\n── 同步 ──────────────────────────────────────────")
+        logger.section("同步")
         outcomes, sync_failed = sync_workspace(workspace, dry_run=dry_run)
         for outcome in outcomes:
             mark = SYNC_MARKS.get(outcome.state, SYNC_MARK_UNKNOWN)
-            click.echo(f"  [{mark}] {outcome.name:<20} {outcome.detail}")
+            logger.info(f"[{mark}] {outcome.name:<20} {outcome.detail}")
 
     problems = preflight(
         table_cfg_dir, json_data_dir, check_navmesh=not raw_only and bool(pipeline_files),
         check_json_data=any(dataset.requires_json_data for dataset in datasets),
     )
     if problems:
-        click.echo("\n── 预检提示 ─────────────────────────────────────")
+        logger.section("预检提示")
         for problem in problems:
             # 只用 GBK 能编出来的字符：Windows 中文控制台编不出 ⚠ / ✘ 会直接抛 UnicodeEncodeError。
-            click.echo(f"  ! {problem}")
+            logger.warning(f"! {problem}")
 
     if dry_run:
-        click.echo("\n── 将执行（--dry-run，未执行）────────────────────")
-        click.echo(f"  原始数据目录：{out_dir}")
-        click.echo(f"  入库数据目录：{data_dir}")
+        logger.section("将执行（--dry-run，未执行）")
+        logger.info(f"原始数据目录：{out_dir}")
+        logger.info(f"入库数据目录：{data_dir}")
         if raw_only:
-            click.echo("  入库    ：未启用（--raw-only）")
+            logger.info("入库    ：未启用（--raw-only）")
         else:
-            click.echo(f"  投影    ：{len(pipeline_files)} 份 {out_dir} -> {data_dir}")
-            click.echo(f"  复制    ：{len(plain_files)} 份 {out_dir} -> {data_dir}")
-        click.echo("\n--dry-run：没有合并仓库，也没有写任何数据文件")
+            logger.info(f"投影    ：{len(pipeline_files)} 份 {out_dir} -> {data_dir}")
+            logger.info(f"复制    ：{len(plain_files)} 份 {out_dir} -> {data_dir}")
+        logger.info("--dry-run：没有合并仓库，也没有写任何数据文件")
         return
 
     check_input_dir("TableCfg", table_cfg_dir, "--table-cfg-dir", TABLE_CFG_DIR_ENV)
     if any(dataset.requires_json_data for dataset in datasets):
         check_input_dir("JsonData", json_data_dir, "--json-data-dir", JSON_DATA_DIR_ENV)
 
-    click.echo("\n── 生成（原始形态）──────────────────────────────")
+    logger.section("生成（原始形态）")
     started = time.monotonic()
     generated_ok = True
     written = 0
@@ -306,13 +306,13 @@ def generate_command(
             out_dir, [dataset.file_name for dataset in datasets], version
         )
         if manifest_path is not None:
-            click.echo(f"  {MANIFEST_FILE} -> {manifest_path}")
+            logger.info(f"{MANIFEST_FILE} -> {manifest_path}")
     except click.ClickException as error:
         generated_ok = False
-        click.echo(f"  x {error.message}")
+        logger.warning(f"x {error.message}")
     except OSError as error:
         generated_ok = False
-        click.echo(f"  x 写 {MANIFEST_FILE} 失败：{error}")
+        logger.warning(f"x 写 {MANIFEST_FILE} 失败：{error}")
     generate_seconds = time.monotonic() - started
 
     materialized_ok: bool | None = None
@@ -320,37 +320,40 @@ def generate_command(
         materialized_ok = None
     elif not generated_ok:
         materialized_ok = False
-        click.echo("\n── 入库：（跳过：生成失败）───────────────────────")
+        logger.section("入库：（跳过：生成失败）")
     else:
-        click.echo("\n── 入库（原始形态 -> data/）─────────────────────")
+        logger.section("入库（原始形态 -> data/）")
         materialized_ok = True
         try:
             projected = run_projection(out_dir, data_dir, pipeline_files, nav=nav, force=force)
             copied = copy_plain(out_dir, data_dir, plain_files, force=force)
-            click.echo(f"  投影 {projected} 份、复制 {copied} 份")
+            logger.info(f"投影 {projected} 份、复制 {copied} 份")
         except click.ClickException as error:
-            click.echo(f"  x {error.message}")
+            logger.warning(f"x {error.message}")
             materialized_ok = False
 
-    click.echo("\n── 汇总 ──────────────────────────────────────────")
+    logger.section("汇总")
     if sync:
-        click.echo(f"同步：{'有失败' if sync_failed else '正常'}")
+        logger.info(f"同步：{'有失败' if sync_failed else '正常'}")
     else:
-        click.echo("同步：未执行（--no-sync）")
+        logger.info("同步：未执行（--no-sync）")
     if generated_ok:
         unchanged = len(datasets) - written
-        click.echo(
+        logger.info(
             f"生成：正常（{generate_seconds:.1f}s，重写 {written} 份、未变化 {unchanged} 份）"
         )
     else:
-        click.echo(f"生成：失败（{generate_seconds:.1f}s）")
+        logger.info(f"生成：失败（{generate_seconds:.1f}s）")
     if materialized_ok is None:
-        click.echo("入库：未执行（--raw-only）")
+        logger.info("入库：未执行（--raw-only）")
     else:
-        click.echo(f"入库：{'正常' if materialized_ok else '失败'}（{data_dir}）")
+        logger.info(f"入库：{'正常' if materialized_ok else '失败'}（{data_dir}）")
     report_data_changes(data_dir, [dataset.file_name for dataset in datasets])
     if data_dir == ZMDMAP_DATA_DIR:
-        click.echo("提示：每份数据最前面写着 version（版本标签）与 sha256（原始形态的内容指纹）；两个字段都只在这里写，入库与 fetch 只沿用。")
+        logger.info(
+            "提示：每份数据最前面写着 version（版本标签）与 sha256（原始形态的内容指纹）；"
+            "两个字段都只在这里写，入库与 fetch 只沿用。"
+        )
 
     if sync_failed or not generated_ok or materialized_ok is False:
         ctx.exit(1)

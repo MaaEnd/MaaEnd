@@ -416,9 +416,9 @@ def fetch_command(
     plain_files = files_of(datasets, projected=False)
 
     if with_download:
-        click.echo("── 下载 ──────────────────────────────────────────")
+        logger.section("下载")
         files = (*pipeline_files, *plain_files)
-        click.echo(f"   {len(files)} 份：{'、'.join(files)}")
+        logger.info(f"{len(files)} 份：{'、'.join(files)}")
         # 跟清单比的是「本地这份数据」：入库模式下比入库目录里那一份（它在仓库里，新克隆下来就有），
         # --raw-only 下产出的就是原始形态、比它自己。原始形态目录是 .gitignore 的本地缓存，空着不算旧。
         target_dir = raw_dir if raw_only else data_dir
@@ -436,36 +436,36 @@ def fetch_command(
         except (OSError, ValueError) as error:
             raise click.ClickException(str(error)) from error
     else:
-        click.echo("── 下载：跳过（--no-download），直接用现有 data/raw/")
+        logger.info("下载：跳过（--no-download），直接用现有 data/raw/")
         pending = {*pipeline_files, *plain_files}
 
     if dry_run:
-        click.echo("\n── 将执行（--dry-run，未执行）────────────────────")
-        click.echo(f"  原始数据目录：{raw_dir}")
-        click.echo(f"  入库数据目录：{data_dir}")
+        logger.section("将执行（--dry-run，未执行）")
+        logger.info(f"原始数据目录：{raw_dir}")
+        logger.info(f"入库数据目录：{data_dir}")
         if raw_only:
-            click.echo("  入库    ：未启用（--raw-only）")
+            logger.info("入库    ：未启用（--raw-only）")
         else:
             projected = [file_name for file_name in pipeline_files if file_name in pending]
             plain = [file_name for file_name in plain_files if file_name in pending]
-            click.echo(f"  投影    ：{len(projected)} 份 {raw_dir} -> {data_dir}")
-            click.echo(f"  复制    ：{len(plain)} 份 {raw_dir} -> {data_dir}")
-        click.echo("\n--dry-run：没有下载，也没有写任何数据文件")
+            logger.info(f"投影    ：{len(projected)} 份 {raw_dir} -> {data_dir}")
+            logger.info(f"复制    ：{len(plain)} 份 {raw_dir} -> {data_dir}")
+        logger.info("--dry-run：没有下载，也没有写任何数据文件")
         return
 
     if raw_only:
-        click.echo("入库：未执行（--raw-only）")
+        logger.info("入库：未执行（--raw-only）")
         return
 
     if not pending:
         # 本地已经是清单里那一批，一份都不用下；原始形态可能根本不在（.gitignore 的缓存），
         # 拿它重投影反而会把入库数据改回旧内容，所以这一步整个跳过。
-        click.echo("\n── 入库 ──────────────────────────────────────────")
-        click.echo("   跳过：本地数据已经是清单里那一批（原始形态目录没有也不影响）")
+        logger.section("入库")
+        logger.info("跳过：本地数据已经是清单里那一批（原始形态目录没有也不影响）")
         report_data_changes(data_dir, [dataset.file_name for dataset in datasets])
         return
 
-    click.echo("\n── 入库（原始形态 -> data/）─────────────────────")
+    logger.section("入库（原始形态 -> data/）")
     projected = run_projection(
         raw_dir, data_dir, [file_name for file_name in pipeline_files if file_name in pending],
         nav=nav, force=force,
@@ -474,6 +474,6 @@ def fetch_command(
         raw_dir, data_dir, [file_name for file_name in plain_files if file_name in pending],
         force=force,
     )
-    click.echo("\n── 汇总 ──────────────────────────────────────────")
-    click.echo(f"入库：正常（投影 {projected} 份、复制 {copied} 份，输出到 {data_dir}）")
+    logger.section("汇总")
+    logger.info(f"入库：正常（投影 {projected} 份、复制 {copied} 份，输出到 {data_dir}）")
     report_data_changes(data_dir, [dataset.file_name for dataset in datasets])

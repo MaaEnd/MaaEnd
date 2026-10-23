@@ -9,12 +9,21 @@
 
 import os
 import sys
+import unicodedata
 
 #: 每条输出前面的标记：命令行里只有这一个工具，具体是哪一步看消息本身。
 PREFIX = "[zmdmap]"
 
 #: 是否打印 ``debug``：默认关掉，排查时设 ``ZMDMAP_DEBUG=1``。
 DEBUG_ENABLED = os.environ.get("ZMDMAP_DEBUG", "") not in ("", "0")
+
+#: 分节横幅的总显示宽度；中文按两格算，见 :func:`_display_width`。
+SECTION_WIDTH = 50
+
+
+def _display_width(text: str) -> int:
+    """终端里占几格：全角/宽字符算两格，其余一格。"""
+    return sum(2 if unicodedata.east_asian_width(char) in ("W", "F") else 1 for char in text)
 
 
 class _Logger:
@@ -23,6 +32,11 @@ class _Logger:
     def info(self, message: str) -> None:
         """正常进度。"""
         print(f"{PREFIX} {message}", flush=True)
+
+    def section(self, title: str) -> None:
+        """一条分节横幅，如 ``[zmdmap] ── 汇总 ────…``。"""
+        head = f"── {title} "
+        print(f"{PREFIX} {head}{'─' * max(0, SECTION_WIDTH - _display_width(head))}", flush=True)
 
     def warning(self, message: str) -> None:
         """还能继续、但要让人知道的情况。"""
