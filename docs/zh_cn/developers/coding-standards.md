@@ -98,7 +98,7 @@ _Custom 代码通常只能由作者本人维护。若连作者都看不懂，就
 
 ### OCR 写完整文本
 
-`expected` 必须写完整文本，不写半截。多语言处理交给 i18n 工具链。**仅当 OCR 引擎对完整文本识别不稳定时**，才允许用片段或手写正则，此时必须加 `// @i18n-skip` 并在数组上方注释保留完整原文。详见下文 [OCR 与 i18n](#ocr-与-i18n)。
+`expected` 必须写完整文本，不写半截。同一个数组里并列写会出现的各语言文本，英文写成忽略大小写的宽松正则。**仅当 OCR 引擎对完整文本识别不稳定时**，才允许用片段或手写正则，此时必须加 `// @i18n-skip` 并在数组上方注释保留完整原文。详见下文 [OCR 与 i18n](#ocr-与-i18n)。
 
 ### 先复用，再新增
 
@@ -268,24 +268,27 @@ uv run build-and-install --cpp-algo
 
 ### JSON 允许注释（JSONC）
 
-资源 JSON 一律按 JSONC 处理，可以写 `//`、`/* */` 注释和尾逗号，`.json` 后缀不代表严格 JSON。`.vscode/settings.json` 的 `files.associations` 已把 `assets/**`、`tests/**` 和几个 `tools/` 子目录关联成 `jsonc`，编辑器不会报错。**在 `assets/`、`tests/` 之外新建放 JSON 的目录时，要往 `files.associations` 补一行**，否则编辑器会按严格 JSON 标红。
+资源 JSON 一律按 JSONC 处理，可以写 `//`、`/* */` 注释和尾逗号，`.json` 后缀不代表严格 JSON。
 
 读仓库 JSON 的代码同样要按 JSONC 解析：Go 用 `pkg/jsonclean`（或 `resource.ReadJsonResource`），C++ 用 `Common/JsoncFile.h` 的 `OpenJsoncFile`，Node 用 `tools/pipeline-generate/jsonc.mjs`，Python 用 `json5`。
 
-例外是 `assets/locales/**`：`tools/i18n/sync_auto_collect_locales.py`、`tools/essence_filter/build_autoessence_tasks.py` 和 `tools/AutoCollectRoute/route_builder.py` 用严格的 `json` 读它，加注释会直接解析失败；其余写回 locale 的脚本重新序列化时也会把注释清掉。由外部工具严格解析的文件（`tools/schema/**`、`package.json` 等）同理保持严格 JSON。
+例外是 `assets/locales/**`：`tools/essence_filter/build_autoessence_tasks.py` 和 `tools/AutoCollectRoute/route_builder.py` 用严格的 `json` 读它，加注释会直接解析失败；其余写回 locale 的脚本重新序列化时也会把注释清掉。由外部工具严格解析的文件（`tools/schema/**`、`package.json` 等）同理保持严格 JSON。
+
+`.vscode/settings.json` 的 `files.associations` 已把 `assets/**`、`tests/**` 和几个 `tools/` 子目录关联成 `jsonc`，编辑器不会报错。**在 `assets/`、`tests/` 之外新建放 JSON 的目录时，要往 `files.associations` 补一行**，否则编辑器会按严格 JSON 标红。
 
 ## OCR 与 i18n
 
-开发者无需手动维护多语言 OCR，只需按当前语言写入预期文本，`tools/i18n` 会自动处理。
+OCR 节点会在游戏里遇到各种语言的界面，所以 `expected` 要由大家手工维护，把会出现的语言文本都写进同一个数组。目前支持 zh_cn、zh_tw、en_us、ja_jp、ko_kr 五种语言。
 
 ### 写法要求
 
 - `expected` 写完整文本，不要只写片段。例如应写 `这是一段示例内容`，而不是只写 `示例内容`。
-- 仅当 OCR 引擎对完整文本识别不稳定（如夹杂百分号、特殊符号、易混字符），确需用片段或手写正则才能稳定命中时，才允许跳过自动处理。**截断不是默认手段，而是兜底手段。**
+- 会出现的各语言文本并列写进同一个 `expected` 数组。简中必写，就写你手头这份界面的原文；其它语言尽量一并补上，拿不到对应界面时不要凭猜测自己翻译，遇到再补。
+- 仅当 OCR 引擎对完整文本识别不稳定（如夹杂百分号、特殊符号、易混字符），确需用片段或手写正则才能稳定命中时，才允许截断。**截断不是默认手段，而是兜底手段。**
 
 要求：
 
-1. 在 `expected` 数组内加 `// @i18n-skip`，让 i18n 工具跳过该节点；
+1. 在 `expected` 数组内加 `// @i18n-skip`，标记这个节点的文本由人工逐条维护；
 2. 在数组上方用普通 JSON 注释保留**完整原文**，方便审查、多语言对照以及未来 OCR 引擎升级后恢复完整匹配。
 
 ```jsonc
@@ -297,16 +300,63 @@ uv run build-and-install --cpp-algo
 ]
 ```
 
-默认写法（推荐，会自动 i18n 处理）：
+默认写法（推荐）。这个界面五种语言都会出现，就按遇到的写全：
 
 ```jsonc
 "expected": [
-    "这是一段示例内容"
+    "开始追踪",
+    "開始追蹤",
+    "(?i)Track",
+    "追跡開始",
+    "추적 시작"
 ]
 ```
 
-- 英文 `expected` 自动处理后会生成忽略大小写的正则，单词间使用 `\\s*`。例如 `Send Local Clues` → `(?i)Send\\s*Local\\s*Clues`。
-- 未跳过处理的 OCR 节点，脚本会根据显示宽度差异自动补充 `roi_offset`；`only_rec: true` 的节点除外。
+只在简中界面见过的节点，先只写简中；之后在别的语言下跑到这个界面，再回来把对应文本补上。
+
+### 英文写成忽略大小写的宽松正则
+
+OCR 对英文单词之间的空白很不稳定，可能识别成多个空格等，所以英文条目不要写纯文本，改写成忽略大小写的正则，并在单词之间用 `\\s*`：
+
+1. 整个正则以 `(?i)` 开头，让大小写不敏感。游戏里的英文标题经常全大写，不写 `(?i)` 会识别失败。
+2. 把英文里的每个空格换成 `\\s*`：正则里写作 `\s*`，JSON 字符串里反斜杠要转义，所以文件里写两个反斜杠。
+3. 单词里的其它字符照抄，一般不用转义。真遇到 `(`、`)`、`+`、`[`、`]` 这类正则元字符，前面加一个反斜杠转义。
+
+例：`Send Local Clues` → `(?i)Send\\s*Local\\s*Clues`。
+
+标点要单独处理：OCR 认不出引号、撇号、点号和连字符，逐个用可缺省的 `.` 代替。
+
+- 撇号：`Friend's Price` → `(?i)Friend.?s\\s*Price`。
+- 点号：`N.A` → `(?i)N.?A`。
+- 连字符：`Kilo-Nova` → `(?i)Kilo.?Nova`。
+- 冒号：`Photo: Autumn Gold` → `(?i)Photo.?\\s*Autumn\\s*Gold`。
+
+### `roi_offset`
+
+同一条文本在不同语言下的显示宽度不一样，英文和韩文往往比中文长，`roi` 只按中文框住的话，换语言后两端会被切掉。这时用 `roi_offset` 把识别范围往两边放宽，不必改动 `roi` 本身。
+
+`roi_offset` 的四个值依次是左、上、右、下的增量 [left, top, right, bottom]：`x` 加上 `left`、`y` 加上 `top`，宽度变成 `w + right - left`、高度变成 `h + bottom - top`。所以左边留负值、右边留正值，就是把范围往两侧扩。
+
+例如 `roi` 是 `[1100, 300, 120, 40]`，想左右各扩 60 像素：
+
+```jsonc
+"roi": [
+    1100,
+    300,
+    120,
+    40
+],
+"roi_offset": [
+    -60,
+    0,
+    60,
+    0
+]
+```
+
+最终识别范围是 `[1040, 300, 240, 40]`。左右各扩多少按实际文本估；在不影响任务流程的前提下，宁可多留一点。
+
+`only_rec: true` 的节点不用管：它不做文字检测，`roi` 框住多少就识别多少，放宽范围帮不上忙。
 
 ## 测试
 
