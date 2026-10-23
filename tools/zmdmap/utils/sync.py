@@ -232,6 +232,29 @@ def repo_data_version(repo: Path) -> str | None:
     return compose_version(client, res_version)
 
 
+def data_version_from_path(*paths: Path) -> str | None:
+    """数据目录自己带的版本：``…/initial_11262943-8_main_11262943-8/Data/TableCfg`` 里的构建号。
+
+    发布端（zmdmap 的 CI）把解包结果放在 ``<存储根>/<构建号>/Data/…`` 直接生成，那里既没有兄弟仓库、也没有
+    ``.beyond/ledger``，:func:`data_version` 与提交标题都读不到版本。构建号本来就在路径里，认它就行 —— 少了
+    客户端那一半不影响「这份数据是哪一批」（:func:`compose_version` 缺哪半就写哪半），总比留空强。
+
+    先从路径里找 ``initial_…_main_…``，找不到再往上两三层的 ``.beyond/ledger`` 里找。
+    """
+    for path in paths:
+        # 先用原样的路径找：目录若是软链接，``resolve()`` 会把 ``initial_…_main_…`` 这几层也展开掉。
+        for candidate in (str(path), str(path.resolve())):
+            match = RES_VERSION_RE.search(candidate)
+            if match:
+                return compose_version(None, match.group(0))
+        resolved = path.resolve()
+        for ancestor in (resolved.parent, resolved.parent.parent):
+            build = repo_data_build(ancestor)
+            if build:
+                return compose_version(None, build)
+    return None
+
+
 def data_version(workspace: Path) -> str | None:
     """工作区下兄弟仓库的游戏数据版本（``1.6.3+11010254-4``），读不到返回 ``None``。
 

@@ -3,8 +3,9 @@
 各份数据一律先出原始形态（只带游戏世界坐标）进 ``--out-dir``，再入库到 ``--data-dir``：需要投影的按
 BaseNav 的 zone 表补上底图像素，不需要投影的原样复制；``--raw-only`` 时只出原始形态。
 
-``version`` 只在这里写：取 :func:`tools.zmdmap.utils.sync.data_version`（兄弟仓库数据里的构建号 >
-提交标题）或 ``--version``，写到每份原始数据的最前面；入库与 ``fetch`` 都只沿用，不改它。
+``version`` 只在这里写：取 ``--version``、:func:`tools.zmdmap.utils.sync.data_version`（兄弟仓库数据里的
+构建号 > 提交标题）；两处都没有时从数据目录路径里认构建号 —— 发布端把解包目录直接递进来，路径里就带着
+``initial_…_main_…``。写到每份原始数据的最前面；入库与 ``fetch`` 都只沿用，不改它。
 """
 
 import time
@@ -40,6 +41,7 @@ from .utils.sync import (
     SYNC_MARK_UNKNOWN,
     SYNC_MARKS,
     data_version,
+    data_version_from_path,
     preflight,
     repo_data_version,
     sync_workspace,
@@ -238,16 +240,20 @@ def generate_command(
     logger.info(f"数据集：{len(datasets)} 个（{'、'.join(d.name for d in datasets)}）")
 
     # 版本优先命令行；否则从兄弟仓库读（数据里的构建号 > 提交标题），工作区里没有兄弟仓库时退回
-    # TableCfg 所在的那个仓库，它通常就是 BeyondTableCfg。
-    detected = data_version(workspace) or repo_data_version(table_cfg_dir.parent)
+    # TableCfg 所在的那个仓库，它通常就是 BeyondTableCfg；两处都没有（发布端直接把解包目录递进来）
+    # 就从数据目录路径里认构建号。
+    detected, origin = data_version(workspace), "兄弟仓库"
+    if not detected:
+        detected, origin = repo_data_version(table_cfg_dir.parent), "数据仓库"
+    if not detected:
+        detected, origin = data_version_from_path(table_cfg_dir, json_data_dir), "数据目录路径"
     version = data_version_option or detected
     if version:
-        origin = "命令行" if data_version_option else "兄弟仓库"
-        logger.info(f"数据版本：{version}（{origin}）")
+        logger.info(f"数据版本：{version}（{'命令行' if data_version_option else origin}）")
     else:
         logger.warning(
-            "数据版本：读不到（兄弟仓库没有、也没给 --version）。沿用各份数据原有的版本 —— 原来就没有 "
-            "version 的那几份生成出来仍然没有，发布出去之后补不回来"
+            "数据版本：读不到（兄弟仓库没有、数据目录路径里也没有、也没给 --version）。沿用各份数据原有的"
+            "版本 —— 原来就没有 version 的那几份生成出来仍然没有，发布出去之后补不回来"
         )
 
     sync_failed = False
