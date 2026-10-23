@@ -19,8 +19,7 @@
                     90,
                     60
                 ],
-                "template": "BatchAddFriends/addFriend2.png",
-                "threshold": 0.9
+                "template": "BatchAddFriends/addFriend2.png"
             }
         },
         "action": {
@@ -42,8 +41,7 @@
                     90,
                     60
                 ],
-                "template": "BatchAddFriends/addFriend.png",
-                "threshold": 0.85
+                "template": "BatchAddFriends/addFriend.png"
             }
         },
         "action": {
@@ -562,7 +560,6 @@
                     "フレンド追加",
                     "친구\\s*추가"
                 ],
-                "threshold": 0.7,
                 "order_by": "Vertical"
             }
         },
@@ -616,8 +613,7 @@
                     "(?i)View\\s*Profile",
                     "個人情報",
                     "개인\\s*명함\\s*보기"
-                ],
-                "threshold": 0.7
+                ]
             }
         },
         "pre_delay": 0,
@@ -651,8 +647,7 @@
                     "(?i)View\\s*Profile",
                     "個人情報",
                     "개인\\s*명함\\s*보기"
-                ],
-                "threshold": 0.7
+                ]
             }
         },
         "pre_delay": 0,
@@ -717,8 +712,7 @@
                     "(?i)View\\s*Profile",
                     "個人情報",
                     "개인\\s*명함\\s*보기"
-                ],
-                "threshold": 0.7
+                ]
             }
         },
         "pre_delay": 0,
@@ -748,8 +742,7 @@
                     120,
                     60
                 ],
-                "template": "BatchAddFriends/authorityLevel.png",
-                "threshold": 0.8
+                "template": "BatchAddFriends/authorityLevel.png"
             }
         },
         "pre_delay": 0,
@@ -813,8 +806,7 @@
                     // "60"
                     // @i18n-skip
                     "^\\d{1,2}$"
-                ],
-                "threshold": 0.5
+                ]
             }
         },
         "rate_limit": 0,
@@ -841,8 +833,7 @@
                     400,
                     120
                 ],
-                "template": "BatchAddFriends/valleyIV.png",
-                "threshold": 0.8
+                "template": "BatchAddFriends/valleyIV.png"
             }
         },
         "action": {
@@ -879,8 +870,7 @@
                     // 再由 ocrnum 解析出数值。
                     // @i18n-skip
                     ".*\\d+.*"
-                ],
-                "threshold": 0.4
+                ]
             }
         },
         "rate_limit": 0,
@@ -903,8 +893,7 @@
                     400,
                     120
                 ],
-                "template": "BatchAddFriends/wuling.png",
-                "threshold": 0.8
+                "template": "BatchAddFriends/wuling.png"
             }
         },
         "action": {
@@ -941,8 +930,7 @@
                     // 再由 ocrnum 解析出数值。
                     // @i18n-skip
                     ".*\\d+.*"
-                ],
-                "threshold": 0.4
+                ]
             }
         },
         "rate_limit": 0,
@@ -1191,8 +1179,7 @@
                     "(?i)Add\\s*Friend",
                     "フレンド申請",
                     "친구\\s*신청"
-                ],
-                "threshold": 0.7
+                ]
             }
         },
         "pre_delay": 0,
@@ -1223,8 +1210,7 @@
                     451
                 ],
                 "template": "Common/Button/moreButton.png",
-                "green_mask": true,
-                "threshold": 0.8
+                "green_mask": true
             }
         },
         "pre_delay": 0,
@@ -1262,8 +1248,7 @@
                     100,
                     60
                 ],
-                "template": "Common/Button/CloseButtonType5.png",
-                "threshold": 0.8
+                "template": "Common/Button/CloseButtonType5.png"
             }
         },
         "pre_delay": 0,
@@ -1289,8 +1274,7 @@
                     "(?i)Friend\\s*request\\s*sent",
                     "申請しました",
                     "친구\\s*추가를\\s*신청했습니다"
-                ],
-                "threshold": 0.7
+                ]
             }
         },
         "pre_delay": 0,
