@@ -105,6 +105,17 @@ struct FieldsLinkRec
     FieldsLinkSide hi;
 };
 
+// 一根一开始就放下来的升降索 (FROP 段), 只往上坐; cost_px 是坐一次折成的走路像素, ride_s 是按下交互到人到顶的秒数。
+struct FieldsRopeRec
+{
+    uint32_t uid_bottom = 0;
+    uint32_t uid_top = 0;
+    FieldsLinkSide bottom;
+    FieldsLinkSide top;
+    float cost_px = 0.0F;
+    float ride_s = 0.0F;
+};
+
 struct FieldsLinkZone
 {
     uint16_t zone_id = 0;
@@ -150,6 +161,9 @@ public:
     // 区 zone_id 的可打通死格, 按 (gy, gx, h) 升序; 没有 FOPN 段或该区没有时 n = 0。
     const FieldsOpenRec* opensOfZone(uint16_t zone_id, size_t& n) const;
 
+    // 区 zone_id 的升降索; 没有 FROP 段或该区没有时 n = 0。
+    const FieldsRopeRec* ropesOfZone(uint16_t zone_id, size_t& n) const;
+
 private:
     std::vector<uint8_t> bytes_;
     bool loaded_ = false;
@@ -159,6 +173,8 @@ private:
     std::vector<FieldsLinkZone> link_zones_;
     std::vector<FieldsOpenRec> opens_;
     std::vector<FieldsLinkZone> open_zones_;
+    std::vector<FieldsRopeRec> ropes_;
+    std::vector<FieldsLinkZone> rope_zones_;
 };
 
 // 同一旁包配同一主包的各引擎共用一份 FieldsPack。返回值同 load。

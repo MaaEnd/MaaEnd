@@ -21,6 +21,15 @@ struct DropLanding
     double height = 0.0;
 };
 
+// 坐升降索上去: index 是绳顶落脚点在 points 里的下标, 绳底站位是它前一个点
+struct RopeRide
+{
+    size_t index = 0;
+    double top_height = 0.0;
+    uint32_t uid = 0;
+    double ride_s = 0.0;
+};
+
 struct WorldPath
 {
     uint16_t zone_id = 0;
@@ -34,6 +43,7 @@ struct WorldPath
     std::vector<size_t> waypoints;
     std::vector<size_t> segment_breaks;
     std::vector<DropLanding> drops;
+    std::vector<RopeRide> ropes;
 };
 
 }

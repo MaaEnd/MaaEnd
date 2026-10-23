@@ -135,6 +135,58 @@ bool parseLinks(const uint8_t* p, size_t len, std::vector<FieldsLinkRec>& recs, 
     return true;
 }
 
+// FROP 段: 头 16 B, 区索引 zone_count × 12 B, 记录 count × 64 B。段可选, 存在时须整段合规。
+constexpr size_t kRopeHeaderSize = 16;
+constexpr size_t kRopeZoneSize = 12;
+constexpr size_t kRopeRecSize = 64;
+constexpr uint16_t kRopeRecVersion = 1;
+
+bool parseRopes(const uint8_t* p, size_t len, std::vector<FieldsRopeRec>& recs, std::vector<FieldsLinkZone>& zones, std::string& err)
+{
+    if (len < kRopeHeaderSize) {
+        err = "旁包升降索段残缺";
+        return false;
+    }
+    const uint32_t count = peekU32(p);
+    const uint16_t ver = peekU16(p + 4);
+    const uint32_t zone_count = peekU32(p + 8);
+    if (ver != kRopeRecVersion) {
+        err = "旁包升降索记录版本不符 (" + std::to_string(ver) + " ≠ " + std::to_string(kRopeRecVersion) + ")";
+        return false;
+    }
+    const uint64_t want = kRopeHeaderSize + static_cast<uint64_t>(zone_count) * kRopeZoneSize + static_cast<uint64_t>(count) * kRopeRecSize;
+    if (want != len) {
+        err = "旁包升降索段长度与条数不符";
+        return false;
+    }
+    const uint8_t* zp = p + kRopeHeaderSize;
+    const uint8_t* rp = zp + static_cast<size_t>(zone_count) * kRopeZoneSize;
+    zones.resize(zone_count);
+    for (uint32_t i = 0; i < zone_count; ++i) {
+        const uint8_t* e = zp + static_cast<size_t>(i) * kRopeZoneSize;
+        FieldsLinkZone& z = zones[i];
+        z.zone_id = peekU16(e);
+        z.first = peekU32(e + 4);
+        z.len = peekU32(e + 8);
+        if (z.first > count || z.len > count - z.first) {
+            err = "旁包升降索区索引越界";
+            return false;
+        }
+    }
+    recs.resize(count);
+    for (uint32_t i = 0; i < count; ++i) {
+        const uint8_t* e = rp + static_cast<size_t>(i) * kRopeRecSize;
+        FieldsRopeRec& r = recs[i];
+        r.uid_bottom = peekU32(e);
+        r.uid_top = peekU32(e + 4);
+        r.bottom = peekLinkSide(e + 8);
+        r.top = peekLinkSide(e + 32);
+        r.cost_px = peekF32(e + 56);
+        r.ride_s = peekF32(e + 60);
+    }
+    return true;
+}
+
 // FOPN 段: 头 16 B, 区索引 zone_count × 12 B, 记录 count × 16 B, 区内按 (gy, gx, h 位模式) 升序。
 constexpr size_t kOpenHeaderSize = 16;
 constexpr size_t kOpenZoneSize = 12;
@@ -437,6 +489,13 @@ bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main
             return false;
         }
     }
+    ropes_.clear();
+    rope_zones_.clear();
+    if (const auto it = secs.find("FROP"); it != secs.end()) {
+        if (!parseRopes(it->second.p, it->second.len, ropes_, rope_zones_, err)) {
+            return false;
+        }
+    }
     const Sec con = secs["FCON"];
     const std::vector<uint8_t> want = expectedConst();
     if (con.len != kConstSize || std::memcmp(con.p, want.data(), kConstSize) != 0) {
@@ -591,6 +650,18 @@ const FieldsLinkRec* FieldsPack::linksOfZone(uint16_t zone_id, size_t& n) const
         if (z.zone_id == zone_id) {
             n = z.len;
             return z.len == 0 ? nullptr : links_.data() + z.first;
+        }
+    }
+    n = 0;
+    return nullptr;
+}
+
+const FieldsRopeRec* FieldsPack::ropesOfZone(uint16_t zone_id, size_t& n) const
+{
+    for (const FieldsLinkZone& z : rope_zones_) {
+        if (z.zone_id == zone_id) {
+            n = z.len;
+            return z.len == 0 ? nullptr : ropes_.data() + z.first;
         }
     }
     n = 0;
