@@ -132,9 +132,13 @@
                                 "type": "integer",
                                 "minimum": 0
                             },
-                            "own_only": {
-                                "type": "boolean",
-                                "default": false
+                            "mode": {
+                                "enum": [
+                                    "friends",
+                                    "cache",
+                                    "own"
+                                ],
+                                "default": "friends"
                             }
                         },
                         "required": [

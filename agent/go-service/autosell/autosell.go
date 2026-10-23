@@ -92,7 +92,7 @@ type executeItemTaskParam struct {
 	ModeratePrice int    `json:"moderate_price"`
 	LargePrice    int    `json:"large_price"`
 	MassivePrice  int    `json:"massive_price"`
-	OwnOnly       bool   `json:"own_only"`
+	Mode          string `json:"mode"`
 }
 
 func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -106,17 +106,32 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 		return false
 	}
 
+	entry := "AutoSellStockRedistributionItemOpenPrepare"
+	priceLogPrefix := "autosell.check_item_price_"
+	mode := param.Mode
+	switch mode {
+	case "", "friends":
+		mode = "friends"
+	case "cache":
+		entry = "AutoSellCacheOwnItemOpenPrepare"
+		priceLogPrefix = "autosell.check_own_item_price_"
+		// 新一轮预扫开始时清空该地区的旧价格，不能用上次任务的缓存。
+		delete(regionOwnPriceMap, param.Region)
+	case "own":
+		entry = "AutoSellOwnItemOpenPrepare"
+		priceLogPrefix = "autosell.check_own_item_price_"
+	default:
+		log.Error().
+			Str("component", "autosell").
+			Str("mode", mode).
+			Msg("unknown execute mode")
+		return false
+	}
+
 	names, ok := regionItemMap[param.Region]
 	if !ok {
 		log.Warn().Str("component", "autosell").Str("step", "execute_sell").Str("region", param.Region).Msg("no scanned items for region")
 		return true
-	}
-
-	entry := "AutoSellStockRedistributionItemOpenPrepare"
-	priceLogPrefix := "autosell.check_item_price_"
-	if param.OwnOnly {
-		entry = "AutoSellOwnItemOpenPrepare"
-		priceLogPrefix = "autosell.check_own_item_price_"
 	}
 
 	hasError := false
@@ -146,6 +161,21 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			continue
 		}
 
+		ownPrice := 0
+		if mode == "friends" {
+			var known bool
+			ownPrice, known = regionOwnPriceMap[param.Region][name]
+			if !known {
+				log.Warn().
+					Str("component", "autosell").
+					Str("region", param.Region).
+					Str("item_name", name).
+					Msg("own price is unavailable, skip friend sale")
+				maafocus.Print(ctx, i18n.T("autosell.own_price_unavailable", name))
+				continue
+			}
+		}
+
 		override := map[string]any{
 			"AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentValleyIV": map[string]any{
 				"enabled": param.Region == "ValleyIV",
@@ -167,14 +197,14 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			},
 			"AutoSellFriendsPricesExpected": map[string]any{
 				"custom_recognition_param": map[string]any{
-					"expression":                          "{AutoSellFriendsPriceRecognition} >= " + strconv.Itoa(targetPrice),
+					"expression":                          friendPriceExpression("AutoSellFriendsPriceRecognition", targetPrice, ownPrice),
 					"focus_matched_resolved_expression":   true,
 					"focus_unmatched_resolved_expression": true,
 				},
 			},
 			"AutoSellFriendsPricesExpectedBuy": map[string]any{
 				"custom_recognition_param": map[string]any{
-					"expression": "{AutoSellFriendsPriceCurrentRecognition} >= " + strconv.Itoa(targetPrice),
+					"expression": friendPriceExpression("AutoSellFriendsPriceCurrentRecognition", targetPrice, ownPrice),
 				},
 			},
 			"AutoSellOwnPricesExpected": map[string]any{
@@ -186,6 +216,12 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			},
 			"AutoSellStockRedistributionItemFindTextRecognition": map[string]any{
 				"expected": targetName,
+			},
+			"AutoSellCacheOwnPrice": map[string]any{
+				"custom_recognition_param": map[string]any{
+					"region":    param.Region,
+					"item_name": name,
+				},
 			},
 		}
 
@@ -205,6 +241,12 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 	}
 
 	return true
+}
+
+// friendPriceExpression 同时保留配置门槛和预扫本家价，便于日志显示两个比较条件。
+func friendPriceExpression(nodeName string, targetPrice int, ownPrice int) string {
+	price := "{" + nodeName + "}"
+	return price + " >= " + strconv.Itoa(targetPrice) + " && " + price + " >= " + strconv.Itoa(ownPrice)
 }
 
 // firstContainedKeyword 按 subs 顺序返回首个被 s 包含的关键词，无匹配则返回空串。

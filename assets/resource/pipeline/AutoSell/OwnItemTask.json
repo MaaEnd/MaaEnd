@@ -1,6 +1,6 @@
 {
     "AutoSellOwnItemOpenPrepare": {
-        "desc": "第二轮仅在本家打开剩余物资",
+        "desc": "最后回本家逐件处理剩余物资",
         "pre_delay": 0,
         "anchor": {
             "AutoSellRegionalItemOpenSuccessAnchor": "AutoSellOwnSellGoodsOpenSuccess"

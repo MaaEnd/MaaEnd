@@ -42,6 +42,8 @@
     "autosell.check_own_item_price_massive": "自分の拠点の物資 %s の価格を確認中（価格変動は極大）",
     "autosell.check_own_item_price_moderate": "自分の拠点の物資 %s の価格を確認中（価格変動は中程度）",
     "autosell.check_own_item_price_unknown": "自分の拠点の物資 %s の価格を確認中（価格変動は不明）",
+    "autosell.own_price_cached": "自分の拠点の物資 %s の価格を記録：%d",
+    "autosell.own_price_unavailable": "物資 %s の自分の拠点での価格が取得できないため、フレンド先での販売をスキップ",
     "autosell.scan_item_owned": "所持している弾性需要物資：%s",
     "autosell.ticket_overflow": "配車チケットが上限を超えました",
     "autostockpile.abort.GoodsOCRUnavailableWarn": "商品のOCR結果が利用できません",

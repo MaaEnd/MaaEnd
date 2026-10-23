@@ -158,7 +158,7 @@
         }
     },
     "AutoSellScanOwnValleyIVMain": {
-        "desc": "第二轮重新扫描本家四号谷地剩余物资",
+        "desc": "最后回本家重新扫描四号谷地剩余物资",
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
@@ -175,7 +175,7 @@
         ]
     },
     "AutoSellScanOwnWulingMain": {
-        "desc": "第二轮重新扫描本家武陵剩余物资",
+        "desc": "最后回本家重新扫描武陵剩余物资",
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",

@@ -42,6 +42,8 @@
     "autosell.check_own_item_price_massive": "檢查本家物資 %s 價格，該物資價格變動極大",
     "autosell.check_own_item_price_moderate": "檢查本家物資 %s 價格，該物資價格變動適中",
     "autosell.check_own_item_price_unknown": "檢查本家物資 %s 價格，該物資價格變動未知",
+    "autosell.own_price_cached": "已記錄本家物資 %s 售價：%d",
+    "autosell.own_price_unavailable": "未取得物資 %s 的本家售價，略過好友出售",
     "autosell.scan_item_owned": "擁有彈性需求物資：%s",
     "autosell.ticket_overflow": "調度券已溢出",
     "autostockpile.abort.GoodsOCRUnavailableWarn": "商品識別結果不可用",

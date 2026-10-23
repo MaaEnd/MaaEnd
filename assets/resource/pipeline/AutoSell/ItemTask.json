@@ -3,6 +3,7 @@
         "desc": "准备售卖物资",
         "pre_delay": 0,
         "anchor": {
+            "AutoSellCurrentFriendSellAnchor": "",
             "AutoSellRegionalItemOpenSuccessAnchor": "AutoSellSellGoodsOpenSuccess",
             "AutoSellStockRedistributionItemFailedToValleyIVAnchor": "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV",
             "AutoSellStockRedistributionItemFailedToWulingAnchor": "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling"
@@ -104,6 +105,9 @@
             "InFriendsStockRedistribution"
         ],
         "pre_delay": 0,
+        "anchor": {
+            "AutoSellCurrentFriendSellAnchor": "AutoSellFriendsPricesExpectedBuy"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -273,6 +277,9 @@
             -60,
             0
         ],
+        "anchor": {
+            "AutoSellCurrentFriendSellAnchor": ""
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -394,7 +401,7 @@
         ]
     },
     "AutoSellFriendsPricesExpected": {
-        "desc": "价格符合预期",
+        "desc": "[Go覆盖] 好友最高价同时不低于配置门槛和预扫本家价",
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
@@ -406,7 +413,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellFriendsPricesExpectedBuy",
+            "[Anchor]AutoSellCurrentFriendSellAnchor",
             "AutoSellFriendsPricesExpectedGoTo"
         ]
     },
@@ -447,7 +454,7 @@
         "rate_limit": 0
     },
     "AutoSellFriendsPricesExpectedBuy": {
-        "desc": "当前价格符合预期，在当前好友飞船上，可以直接售卖",
+        "desc": "[Go覆盖] 已在好友处且当前价格同时不低于配置门槛和预扫本家价",
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {

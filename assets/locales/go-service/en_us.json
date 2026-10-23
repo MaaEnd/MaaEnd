@@ -42,6 +42,8 @@
     "autosell.check_own_item_price_massive": "Checking home price for %s; extreme price volatility",
     "autosell.check_own_item_price_moderate": "Checking home price for %s; moderate price volatility",
     "autosell.check_own_item_price_unknown": "Checking home price for %s; unknown price volatility",
+    "autosell.own_price_cached": "Recorded home price for %s: %d",
+    "autosell.own_price_unavailable": "Home price unavailable for %s; skipping sale at friends",
     "autosell.scan_item_owned": "Elastic demand supplies owned: %s",
     "autosell.ticket_overflow": "Dispatch tickets have overflowed",
     "autostockpile.abort.GoodsOCRUnavailableWarn": "Goods OCR unavailable",

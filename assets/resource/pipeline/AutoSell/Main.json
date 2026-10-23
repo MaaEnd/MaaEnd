@@ -6,8 +6,12 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoSellScanValleyIVMain",
-            "[JumpBack]AutoSellExecuteValleyIVMain",
+            "[JumpBack]AutoSellCacheOwnValleyIVMain",
             "[JumpBack]AutoSellScanWulingMain",
+            "[JumpBack]AutoSellCacheOwnWulingMain",
+            "[JumpBack]AutoSellPrepareFriendsValleyIVMain",
+            "[JumpBack]AutoSellExecuteValleyIVMain",
+            "[JumpBack]AutoSellPrepareFriendsWulingMain",
             "[JumpBack]AutoSellExecuteWulingMain",
             "[JumpBack]AutoSellScanOwnValleyIVMain",
             "[JumpBack]AutoSellExecuteOwnValleyIVMain",
@@ -51,7 +55,7 @@
         "post_delay": 0
     },
     "AutoSellExecuteOwnValleyIVMain": {
-        "desc": "第二轮在本家执行四号谷地剩余物资售卖",
+        "desc": "最后在本家出售四号谷地剩余达标物资",
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
@@ -61,13 +65,13 @@
             "moderate_price": 4600,
             "large_price": 5000,
             "massive_price": 5300,
-            "own_only": true
+            "mode": "own"
         },
         "post_delay": 0,
         "rate_limit": 0
     },
     "AutoSellExecuteOwnWulingMain": {
-        "desc": "第二轮在本家执行武陵剩余物资售卖",
+        "desc": "最后在本家出售武陵剩余达标物资",
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
@@ -77,7 +81,67 @@
             "moderate_price": 4600,
             "large_price": 5000,
             "massive_price": 5300,
-            "own_only": true
+            "mode": "own"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellCacheOwnValleyIVMain": {
+        "desc": "预扫本家四号谷地物资价格，完成后再检查好友",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellItemExecuteItemTaskAction",
+        "custom_action_param": {
+            "region": "ValleyIV",
+            "moderate_price": 4600,
+            "large_price": 5000,
+            "massive_price": 5300,
+            "mode": "cache"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellCacheOwnWulingMain": {
+        "desc": "预扫本家武陵物资价格，完成后再检查好友",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellItemExecuteItemTaskAction",
+        "custom_action_param": {
+            "region": "Wuling",
+            "moderate_price": 4600,
+            "large_price": 5000,
+            "massive_price": 5300,
+            "mode": "cache"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellPrepareFriendsValleyIVMain": {
+        "desc": "好友阶段先回到对应地区物资页，避免预扫结束后的地区不一致",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellPrepareFriendsWulingMain": {
+        "desc": "好友阶段先回到对应地区物资页，避免预扫结束后的地区不一致",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0
