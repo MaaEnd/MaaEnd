@@ -3,7 +3,7 @@
 各份数据一律先出原始形态（只带游戏世界坐标）进 ``--out-dir``，再入库到 ``--data-dir``：需要投影的按
 BaseNav 的 zone 表补上底图像素，不需要投影的原样复制；``--raw-only`` 时只出原始形态。
 
-``version`` 只在这里写：取 ``--version``、:func:`tools.zmdmap.utils.sync.data_version`（兄弟仓库数据里的
+``version`` 只在这里写：取 ``--version``、:func:`tools.zmdmap.utils.version.data_version`（兄弟仓库数据里的
 构建号 > 提交标题）；两处都没有时从数据目录路径里认构建号 —— 发布端把解包目录直接递进来，路径里就带着
 ``initial_…_main_…``。写到每份原始数据的最前面；入库与 ``fetch`` 都只沿用，不改它。
 """
@@ -37,13 +37,11 @@ from .utils.datafile import (
     write_json,
 )
 from .utils.log import logger
-from .utils.sync import (
+from .utils.version import data_version, data_version_from_path, repo_data_version
+from .utils.workspace import (
     SYNC_MARK_UNKNOWN,
     SYNC_MARKS,
-    data_version,
-    data_version_from_path,
     preflight,
-    repo_data_version,
     sync_workspace,
 )
 

@@ -1,39 +1,30 @@
-"""同步放数据的兄弟仓库，读出游戏数据版本，以及预检输入是否齐备。
+"""游戏数据的版本标签：怎么解析、怎么拼、怎么比新旧、从哪儿读。
 
-只做 ``git fetch`` + ``--ff-only`` 快进合并：工作区有未提交改动、处于分离头指针、没有配置上游
-时一律只提示并跳过该仓库 —— **绝不** stash / reset / 覆盖本地改动。
+一个标签长这样 ``1.6.3+11010254-4`` —— 客户端版本 + 数据构建号（:func:`compose_version`）。构建号有短写法
+``11010254-4``（:func:`res_short`）和完整写法 ``initial_11010254-4_main_11010254-4``。读到它的顺序是：
 
-游戏数据版本也从这里读（:func:`data_version`）：优先兄弟仓库数据里的资源构建号
-（``.beyond/ledger/*.json`` 的 ``last_res_version``，仓库处于 revert 提交时也仍然准），读不到再退回
-提交标题（``Client:… Data:…``，客户端版本只有这里有）；拼法见 :func:`compose_version`。
+1. 兄弟仓库数据里的构建号（``.beyond/ledger/*.json`` 的 ``last_res_version``，仓库停在 revert 提交上也准）；
+2. 提交标题里的 ``Client:… Data:…``（客户端版本只有这里有，见 :func:`repo_data_version`）；
+3. 数据目录路径里的 ``initial_…_main_…``（发布端把解包目录直接递进来，既没兄弟仓库也没 ledger），
+   这时只拿得到构建号那一半（:func:`data_version_from_path`）。
 
-这一层由 ``uv run zmdmap generate --sync`` 触发。
+客户端版本不唯一 —— 同一版客户端下会发多批数据 —— 带上构建号才分得清是哪一批；``+`` 用 semver 构建元数据
+的写法，不参与优先级比较：数据是哪一份由 ``sha256`` 说了算，版本只是标签。
 """
 
 import re
-import subprocess
-from dataclasses import dataclass
 from pathlib import Path
 
 import msgspec
 
-from .config import (
-    NAVMESH_DIR,
-    NAVMESH_FILES,
-    REPO_ROOT,
-    WORKSPACE_REPO_NAMES,
-    ZMDMAP_DATA_DIR,
-)
+from .config import WORKSPACE_REPO_NAMES
 from .log import logger
-
-# 状态 -> 单字符标记，打印同步结果时用。标记只用 GBK 能编出来的字符：Windows 中文控制台
-# 编不出 ✘ / ⚠ 这类符号，写出去就是 UnicodeEncodeError。
-SYNC_MARKS = {"updated": "↓", "current": "=", "pending": "→", "skipped": "·", "missing": "·"}
-SYNC_MARK_UNKNOWN = "x"
+from .workspace import git
 
 #: 资源构建号的长写法：游戏补丁接口的 ``res_version`` 与提交标题的 ``Data:`` 字段都是它，
 #: 如 ``initial_11010254-4_main_11010254-4``。
 RES_VERSION_RE = re.compile(r"initial_([0-9]+-[0-9]+)_main_([0-9]+-[0-9]+)")
+
 
 #: 兄弟仓库提交标题里的游戏数据版本，如 ``Client:1.6.3 Data:initial_11010254-4_main_11010254-4``：
 #: 客户端版本 + 可选的资源构建号（``Data:`` 字段）。它是数据里读不到构建号时的兜底，拼法见
@@ -101,82 +92,6 @@ def version_order(version: str) -> tuple[tuple[int, ...], int, tuple[int, ...]]:
     client = version.partition("+")[0]
     key = build_key(version)
     return (_client_key(client), 1 if key is not None else 0, key or ())
-
-
-@dataclass
-class RepoOutcome:
-    """一个仓库的同步结果。"""
-
-    name: str
-    state: str
-    detail: str
-    ok: bool = True
-
-
-def last_lines(text: str, count: int = 1) -> str:
-    lines = [line.strip() for line in text.splitlines() if line.strip()]
-    return " / ".join(lines[-count:])
-
-
-def git(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
-    """在指定仓库里跑一条 git 命令，输出合并返回，不抛异常。"""
-    try:
-        return subprocess.run(
-            ["git", "-C", str(repo), *args],
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            check=False,
-        )
-    except OSError as error:  # git 不在 PATH
-        return subprocess.CompletedProcess(
-            args=["git", *args], returncode=127, stdout=f"无法执行 git：{error}", stderr=""
-        )
-
-
-def sync_repo(name: str, repo: Path, *, dry_run: bool) -> RepoOutcome:
-    """fetch + 仅快进合并到上游；任何会动到本地改动的路径都只跳过。"""
-    if not (repo / ".git").exists():
-        return RepoOutcome(name, "missing", f"{repo} 不是 git 仓库，跳过同步")
-
-    if git(repo, "status", "--porcelain").stdout.strip():
-        return RepoOutcome(name, "skipped", "工作区有未提交改动，跳过同步（不动你的文件）")
-
-    branch = git(repo, "rev-parse", "--abbrev-ref", "HEAD").stdout.strip()
-    if not branch or branch == "HEAD":
-        return RepoOutcome(name, "skipped", "处于分离头指针状态，跳过同步")
-
-    upstream = git(repo, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
-    if upstream.returncode != 0 or not upstream.stdout.strip():
-        return RepoOutcome(name, "skipped", f"{branch} 没有配置上游分支，跳过同步")
-    upstream_ref = upstream.stdout.strip()
-
-    fetched = git(repo, "fetch", "--prune", "origin")
-    if fetched.returncode != 0:
-        return RepoOutcome(name, "failed", f"git fetch 失败：{last_lines(fetched.stdout)}", ok=False)
-
-    head = git(repo, "rev-parse", "--short", "HEAD").stdout.strip()
-    target = git(repo, "rev-parse", "--short", upstream_ref).stdout.strip()
-    behind = git(repo, "rev-list", "--count", f"HEAD..{upstream_ref}").stdout.strip() or "?"
-
-    if head == target:
-        return RepoOutcome(name, "current", f"已是最新（{branch} @ {head}）")
-
-    if dry_run:
-        subjects = git(repo, "log", "--oneline", f"HEAD..{upstream_ref}").stdout.strip()
-        detail = f"可更新 {head} → {target}（{behind} 个提交）"
-        if subjects:
-            detail += f"：{last_lines(subjects, 3)}"
-        return RepoOutcome(name, "pending", detail)
-
-    merged = git(repo, "merge", "--ff-only", upstream_ref)
-    if merged.returncode != 0:
-        return RepoOutcome(
-            name, "failed", f"无法快进到 {upstream_ref}（本地与远端分叉），需要人工处理", ok=False
-        )
-    after = git(repo, "rev-parse", "--short", "HEAD").stdout.strip()
-    return RepoOutcome(name, "updated", f"{head} → {after}（{behind} 个提交，{branch}）")
 
 
 class LedgerState(msgspec.Struct, frozen=True):
@@ -279,43 +194,3 @@ def data_version(workspace: Path) -> str | None:
         )
     return newest[1]
 
-
-def sync_workspace(workspace: Path, *, dry_run: bool) -> tuple[list[RepoOutcome], bool]:
-    """同步 workspace 下的兄弟仓库。
-
-    返回 ``(各仓库结果, 是否有失败)``。
-    """
-    outcomes: list[RepoOutcome] = []
-    failed = False
-    for name in WORKSPACE_REPO_NAMES:
-        outcome = sync_repo(name, workspace / name, dry_run=dry_run)
-        failed = failed or not outcome.ok
-        outcomes.append(outcome)
-    return outcomes, failed
-
-
-def preflight(table_cfg_dir: Path, json_data_dir: Path, *, check_navmesh: bool, check_json_data: bool = True) -> list[str]:
-    """生成/投影前的提示项；返回问题列表（只提示，不阻止）。"""
-    problems: list[str] = []
-    if not table_cfg_dir.is_dir():
-        problems.append(f"缺少 TableCfg 目录：{table_cfg_dir}")
-    if check_json_data and not json_data_dir.is_dir():
-        problems.append(f"缺少 JsonData 目录：{json_data_dir}")
-    elif check_json_data and not (json_data_dir / "GameplayConfig" / "LevelMapMark.json").is_file():
-        problems.append(f"缺少 {json_data_dir / 'GameplayConfig' / 'LevelMapMark.json'}")
-    if check_navmesh and not any((NAVMESH_DIR / name).exists() for name in NAVMESH_FILES):
-        problems.append("本地没有 navmesh（投影会改用远端 nav 数据，需要联网）")
-    return problems
-
-
-def changed_data_files(file_names: list[str]) -> list[str]:
-    """入库 data/ 目录里与本次生成相关的改动（git status 的原始行）。"""
-    expected = set(file_names)
-    changed = git(
-        REPO_ROOT, "status", "--porcelain", "--", str(ZMDMAP_DATA_DIR)
-    ).stdout.strip()
-    return [
-        line
-        for line in changed.splitlines()
-        if Path(line[3:].strip()).name in expected
-    ]

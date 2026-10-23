@@ -20,7 +20,7 @@ from .utils.config import REPO_ROOT, ZMDMAP_DATA_DIR
 from .utils.log import logger
 from .utils.navmesh import load_nav_zones
 from .utils.project import project_dataset
-from .utils.sync import changed_data_files
+from .utils.workspace import changed_data_files
 
 
 def _missing_raw(source_path: Path) -> ValueError:

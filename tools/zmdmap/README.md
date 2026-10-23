@@ -82,7 +82,8 @@ uv run zmdmap fetch --dry-run                     # 只看会下哪几份、会�
 | `utils/datafile.py` | 数据文件的形态：`version` / `sha256` 元数据（只在生成原始形态时写，别处一律照抄）、本体指纹、读写与落盘 |
 | `utils/project.py` | 带坐标的数据按 BaseNav 的 zone 表把 x/z 原位换成 u/v |
 | `utils/navmesh.py` | 从 `BNAV` / `BGEO` 二进制 nav 数据里读出 zone 表 |
-| `utils/sync.py` | 同步兄弟仓库、读出游戏数据版本、预检输入是否齐备 |
+| `utils/workspace.py` | 工作区与兄弟仓库：同步它们（只快进、绝不动本地改动）、预检输入是否齐备、看入库目录有哪些改动 |
+| `utils/version.py` | 游戏数据的版本标签：解析构建号、拼标签、比新旧，以及从 ledger / 提交标题 / 数据目录路径读版本 |
 | `utils/http.py` | 下载数据、下载 nav、下载图标共用的 HTTP 助手：一次带重试的 GET，以及「下到文件、来源没变就跳过」的下载函数 |
 | `utils/tables.py` | 游戏表格的结构定义（`msgspec.Struct`）与类型化解码入口 |
 | `utils/game_data.py` | 各语言文本表、文本引用、世界坐标与关卡索引 |
