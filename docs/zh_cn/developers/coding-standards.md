@@ -266,6 +266,14 @@ uv run build-and-install --cpp-algo
 - 文件夹统一使用无下划线的普通命名，如 `Private`、`Button`；
 - 此限制仅针对**文件夹名**。任务名（pipeline JSON 中的键名）仍可使用 `__` 前缀，如 `__AutoAltClickAltKeyDownAction`，两者互不影响。
 
+### JSON 允许注释（JSONC）
+
+资源 JSON 一律按 JSONC 处理，可以写 `//`、`/* */` 注释和尾逗号，`.json` 后缀不代表严格 JSON。`.vscode/settings.json` 的 `files.associations` 已把 `assets/**`、`tests/**` 和几个 `tools/` 子目录关联成 `jsonc`，编辑器不会报错。**在 `assets/`、`tests/` 之外新建放 JSON 的目录时，要往 `files.associations` 补一行**，否则编辑器会按严格 JSON 标红。
+
+读仓库 JSON 的代码同样要按 JSONC 解析：Go 用 `pkg/jsonclean`（或 `resource.ReadJsonResource`），C++ 用 `Common/JsoncFile.h` 的 `OpenJsoncFile`，Node 用 `tools/pipeline-generate/jsonc.mjs`，Python 用 `json5`。
+
+例外是 `assets/locales/**`：`tools/i18n/sync_auto_collect_locales.py`、`tools/essence_filter/build_autoessence_tasks.py` 和 `tools/AutoCollectRoute/route_builder.py` 用严格的 `json` 读它，加注释会直接解析失败；其余写回 locale 的脚本重新序列化时也会把注释清掉。由外部工具严格解析的文件（`tools/schema/**`、`package.json` 等）同理保持严格 JSON。
+
 ## OCR 与 i18n
 
 开发者无需手动维护多语言 OCR，只需按当前语言写入预期文本，`tools/i18n` 会自动处理。
