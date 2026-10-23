@@ -197,3 +197,34 @@ go-service 的 85 个自定义动作里也没有“执行外部命令”这类�
 唯一可行路径是**自定义 agent**：用一个极小的 agent 注册 `LaunchWebClient` 动作（exec 脚本），
 pipeline 写 `action: Custom, custom_action: LaunchWebClient`，并接到 MXU 的 `child_exec`。
 不要在 `StartApp` 上再花时间。
+---
+
+## 2026-10-23 15:4x · 云串流取图链路实测 + 原生帧方案立项
+
+### 图像从哪来（实测）
+```
+串流 1920x1080 @60fps → CSS 2561x1440（浏览器放大 1.33x）→ sway 合成 2560x1440
+→ wlr-screencopy → MaaFw 默认缩到 1280x720
+```
+`<video>` 元素可直接抠出原生帧：`wsl_raw.png` 1920x1080（1.5–2.4 MB PNG），无浏览器 UI。
+
+### 抓帧分辨率可调，但被上游锁在 720p
+控制器支持 `set_screenshot_target_long_side(1920/2560)`、`set_screenshot_use_raw_size(True)`，实测四档均生效。
+但上游 `resource` 5997 节点中 650 个带框模板全在 1280x720 空间（最大右边界 1287 / 下边界 800），
+MaaFw 不做模板缩放 → 改抓帧分辨率会让 650 个模板全部失效，且每次上游更新覆盖回来。
+
+### 同屏实测（静止画面，两次 720p 抓帧平均像素差 0.98）
+| 来源 | 720p 锐度 | 相对现状 |
+|---|---|---|
+| 现有链路 1080→1440→720 | 501.1 | 基准 |
+| 原生 1080 + LANCZOS | 651.3 | +30% |
+| 原生 1080 + AREA/BOX | 640.7 | +28% |
+| 原生 1080 + BICUBIC | 534.0 | +7% |
+| 原生 1080 + BILINEAR | 353.2 | −30% |
+
+结论：**缩放算法比来源更关键**；「舞台降到 720p 让 Chrome 下采样」有变糊风险（Chrome 视频缩放接近 bilinear）。
+
+### 立项
+写 `CdpController`（`maa.controller.CustomController`）：screencap 从 `<video>` 抠原生帧 → AREA 降到 720p，
+输入走 CDP `Input.dispatchMouseEvent` / `dispatchKeyEvent`。设计、风险、验收标准见
+`web/docs/cdp-native-capture.md`。
