@@ -6,7 +6,7 @@
             "InMapAny"
         ],
         "next": [
-            "__SceneMapOverviewSuccess_region02_map02_lv001",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv001_Success",
             "__ScenePrivateMapOverviewEnterMapWulingJingyuValley",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -18,7 +18,7 @@
             "InMapAny"
         ],
         "next": [
-            "__SceneMapOverviewSuccess_region02_map02_lv002",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv002_Success",
             "__ScenePrivateMapOverviewEnterMapWulingWulingCity",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -30,7 +30,7 @@
             "InMapAny"
         ],
         "next": [
-            "__SceneMapOverviewSuccess_region02_map02_lv003",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv003_Success",
             "__ScenePrivateMapOverviewEnterMapWulingQingboStockade",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -42,7 +42,7 @@
             "InMapAny"
         ],
         "next": [
-            "__SceneMapOverviewSuccess_region02_map02_lv004",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv004_Success",
             "__ScenePrivateMapOverviewEnterMapWulingMarkerStone",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -54,7 +54,7 @@
             "InMapAny"
         ],
         "next": [
-            "__SceneMapOverviewSuccess_region02_map02_lv005",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv005_Success",
             "__ScenePrivateMapOverviewEnterMapWulingTestArea",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -66,12 +66,12 @@
             "InMapAny"
         ],
         "next": [
-            "__SceneMapOverviewSuccess_region02_map02_lv006",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv006_Success",
             "__ScenePrivateMapOverviewEnterMapWulingSwordVaultDale",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "__SceneMapOverviewSuccess_region02_map02_lv001": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv001_Success": {
         "desc": "在地图界面，成功进入武陵-景玉谷地图",
         "recognition": "And",
         "all_of": [
@@ -81,7 +81,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__SceneMapOverviewSuccess_region02_map02_lv002": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv002_Success": {
         "desc": "在地图界面，成功进入武陵-武陵城地图",
         "recognition": "And",
         "all_of": [
@@ -91,7 +91,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__SceneMapOverviewSuccess_region02_map02_lv003": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv003_Success": {
         "desc": "在地图界面，成功进入武陵-清波寨地图",
         "recognition": "And",
         "all_of": [
@@ -101,7 +101,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__SceneMapOverviewSuccess_region02_map02_lv004": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv004_Success": {
         "desc": "在地图界面，成功进入武陵-首墩地图",
         "recognition": "And",
         "all_of": [
@@ -111,7 +111,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__SceneMapOverviewSuccess_region02_map02_lv005": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv005_Success": {
         "desc": "在地图界面，成功进入武陵-试验园区地图",
         "recognition": "And",
         "all_of": [
@@ -121,7 +121,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__SceneMapOverviewSuccess_region02_map02_lv006": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv006_Success": {
         "desc": "在地图界面，成功进入武陵-藏剑谷地图",
         "recognition": "And",
         "all_of": [
@@ -173,7 +173,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__SceneMapOverviewClick_region02_map02_lv001"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv001"
         ]
     },
     "__ScenePrivateMapOverviewEnterMapWulingWulingCity": {
@@ -196,7 +196,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__SceneMapOverviewClick_region02_map02_lv002"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv002"
         ]
     },
     "__ScenePrivateMapOverviewEnterMapWulingQingboStockade": {
@@ -219,7 +219,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__SceneMapOverviewClick_region02_map02_lv003"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv003"
         ]
     },
     "__ScenePrivateMapOverviewEnterMapWulingMarkerStone": {
@@ -242,7 +242,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__SceneMapOverviewClick_region02_map02_lv004"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv004"
         ]
     },
     "__ScenePrivateMapOverviewEnterMapWulingTestArea": {
@@ -265,7 +265,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__SceneMapOverviewClick_region02_map02_lv005"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv005"
         ]
     },
     "__ScenePrivateMapOverviewEnterMapWulingSwordVaultDale": {
@@ -288,7 +288,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__SceneMapOverviewClick_region02_map02_lv006"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv006"
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldAnchor": {
@@ -448,12 +448,12 @@
             "InMapAny"
         ],
         "next": [
-            "__SceneMapOverviewSuccess_region02_map02_lv007",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv007_Success",
             "__ScenePrivateMapOverviewEnterMapWulingYinglungPass",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "__SceneMapOverviewSuccess_region02_map02_lv007": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv007_Success": {
         "desc": "在地图界面，成功进入武陵-应龙关地图",
         "recognition": "And",
         "all_of": [
@@ -483,7 +483,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__SceneMapOverviewClick_region02_map02_lv007"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv007"
         ]
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldAnchorWithPick": {
@@ -508,12 +508,12 @@
             "InMapAny"
         ],
         "next": [
-            "__SceneMapOverviewSuccess_region02_map02_lv008",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv008_Success",
             "__ScenePrivateMapOverviewEnterMapWulingNorthWulingExclusionZone",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "__SceneMapOverviewSuccess_region02_map02_lv008": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv008_Success": {
         "desc": "在地图界面，成功进入武陵-北部禁区地图",
         "recognition": "And",
         "all_of": [
@@ -543,7 +543,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__SceneMapOverviewClick_region02_map02_lv008"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv008"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick": {
@@ -568,12 +568,12 @@
             "InMapAny"
         ],
         "next": [
-            "__SceneMapOverviewSuccess_region02_map02_lv009",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv009_Success",
             "__ScenePrivateMapOverviewEnterMapWulingSnowyForest",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "__SceneMapOverviewSuccess_region02_map02_lv009": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv009_Success": {
         "desc": "在地图界面，成功进入武陵-雪松林地图",
         "recognition": "And",
         "all_of": [
@@ -603,7 +603,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__SceneMapOverviewClick_region02_map02_lv009"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv009"
         ]
     },
     "__ScenePrivateMapWulingSnowyForestEnterWorldAnchorWithPick": {
@@ -628,12 +628,12 @@
             "InMapAny"
         ],
         "next": [
-            "__SceneMapOverviewSuccess_region02_map02_lv010",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv010_Success",
             "__ScenePrivateMapOverviewEnterMapWulingSisPainting",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "__SceneMapOverviewSuccess_region02_map02_lv010": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv010_Success": {
         "desc": "在地图界面，成功进入武陵-祀的画地图",
         "recognition": "And",
         "all_of": [
@@ -663,7 +663,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__SceneMapOverviewClick_region02_map02_lv010"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv010"
         ]
     },
     "__ScenePrivateMapWulingSisPaintingEnterWorldAnchorWithPick": {

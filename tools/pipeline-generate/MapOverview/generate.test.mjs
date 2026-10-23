@@ -147,8 +147,8 @@ test("点击和占位描述包含地区及地图名，按地区和地图 key 命
     const generated = buildPipeline(extractClicks(sourceFixture()), levels);
     const name = nodeName("region01", "map01_lv001");
     const next = successName("region01", "map01_lv001");
-    assert.equal(name, "__SceneMapOverviewClick_region01_map01_lv001");
-    assert.equal(next, "__SceneMapOverviewSuccess_region01_map01_lv001");
+    assert.equal(name, "__ScenePrivateMapOverview_region01_EnterMap_map01_lv001");
+    assert.equal(next, "__ScenePrivateMapAnyEnterMap_region01_map01_lv001_Success");
     assert.deepEqual(generated.clicks[name], {
         desc: "在四号谷地总览界面，点击进入枢纽区地图",
         recognition: "DirectHit",

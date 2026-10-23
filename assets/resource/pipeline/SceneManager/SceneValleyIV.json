@@ -23,7 +23,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__SceneMapOverviewSuccess_region01_map01_lv001",
+            "__ScenePrivateMapAnyEnterMap_region01_map01_lv001_Success",
             "__ScenePrivateMapOverviewEnterMapValleyIVTheHub",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -38,7 +38,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__SceneMapOverviewSuccess_region01_map01_lv002",
+            "__ScenePrivateMapAnyEnterMap_region01_map01_lv002_Success",
             "__ScenePrivateMapOverviewEnterMapValleyIVValleyPass",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -53,7 +53,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__SceneMapOverviewSuccess_region01_map01_lv005",
+            "__ScenePrivateMapAnyEnterMap_region01_map01_lv005_Success",
             "__ScenePrivateMapOverviewEnterMapValleyIVOriginiumSciencePark",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -68,7 +68,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__SceneMapOverviewSuccess_region01_map01_lv003",
+            "__ScenePrivateMapAnyEnterMap_region01_map01_lv003_Success",
             "__ScenePrivateMapOverviewEnterMapValleyIVAburreyQuarry",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -83,7 +83,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__SceneMapOverviewSuccess_region01_map01_lv006",
+            "__ScenePrivateMapAnyEnterMap_region01_map01_lv006_Success",
             "__ScenePrivateMapOverviewEnterMapValleyIVOriginLodespring",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -98,12 +98,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__SceneMapOverviewSuccess_region01_map01_lv007",
+            "__ScenePrivateMapAnyEnterMap_region01_map01_lv007_Success",
             "__ScenePrivateMapOverviewEnterMapValleyIVPowerPlateau",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "__SceneMapOverviewSuccess_region01_map01_lv001": {
+    "__ScenePrivateMapAnyEnterMap_region01_map01_lv001_Success": {
         "desc": "在地图界面，成功进入四号谷地-枢纽区地图",
         "recognition": {
             "type": "OCR",
@@ -127,7 +127,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__SceneMapOverviewSuccess_region01_map01_lv002": {
+    "__ScenePrivateMapAnyEnterMap_region01_map01_lv002_Success": {
         "desc": "在地图界面，成功进入四号谷地-谷地通道地图",
         "recognition": {
             "type": "OCR",
@@ -150,7 +150,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__SceneMapOverviewSuccess_region01_map01_lv005": {
+    "__ScenePrivateMapAnyEnterMap_region01_map01_lv005_Success": {
         "desc": "在地图界面，成功进入四号谷地-源石研究园地图",
         "recognition": {
             "type": "OCR",
@@ -174,7 +174,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__SceneMapOverviewSuccess_region01_map01_lv003": {
+    "__ScenePrivateMapAnyEnterMap_region01_map01_lv003_Success": {
         "desc": "在地图界面，成功进入四号谷地-阿伯莉采石场地图",
         "recognition": {
             "type": "OCR",
@@ -198,7 +198,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__SceneMapOverviewSuccess_region01_map01_lv006": {
+    "__ScenePrivateMapAnyEnterMap_region01_map01_lv006_Success": {
         "desc": "在地图界面，成功进入四号谷地-矿脉源区地图",
         "recognition": {
             "type": "OCR",
@@ -222,7 +222,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__SceneMapOverviewSuccess_region01_map01_lv007": {
+    "__ScenePrivateMapAnyEnterMap_region01_map01_lv007_Success": {
         "desc": "在地图界面，成功进入四号谷地-供能高地地图",
         "recognition": {
             "type": "OCR",
@@ -287,7 +287,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
-            "__SceneMapOverviewClick_region01_map01_lv001"
+            "__ScenePrivateMapOverview_region01_EnterMap_map01_lv001"
         ]
     },
     "__ScenePrivateMapOverviewEnterMapValleyIVValleyPass": {
@@ -310,7 +310,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
-            "__SceneMapOverviewClick_region01_map01_lv002"
+            "__ScenePrivateMapOverview_region01_EnterMap_map01_lv002"
         ]
     },
     "__ScenePrivateMapOverviewEnterMapValleyIVOriginiumSciencePark": {
@@ -333,7 +333,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
-            "__SceneMapOverviewClick_region01_map01_lv005"
+            "__ScenePrivateMapOverview_region01_EnterMap_map01_lv005"
         ]
     },
     "__ScenePrivateMapOverviewEnterMapValleyIVAburreyQuarry": {
@@ -356,7 +356,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
-            "__SceneMapOverviewClick_region01_map01_lv003"
+            "__ScenePrivateMapOverview_region01_EnterMap_map01_lv003"
         ]
     },
     "__ScenePrivateMapOverviewEnterMapValleyIVOriginLodespring": {
@@ -379,7 +379,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
-            "__SceneMapOverviewClick_region01_map01_lv006"
+            "__ScenePrivateMapOverview_region01_EnterMap_map01_lv006"
         ]
     },
     "__ScenePrivateMapOverviewEnterMapValleyIVPowerPlateau": {
@@ -402,7 +402,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
-            "__SceneMapOverviewClick_region01_map01_lv007"
+            "__ScenePrivateMapOverview_region01_EnterMap_map01_lv007"
         ]
     },
     "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor": {
