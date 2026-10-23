@@ -21,8 +21,41 @@
                 "GrayCancelButton",
                 "YellowConfirmButtonType1",
                 "TrialOfSwordmancyAbandonPopupCancel",
-                "TrialOfSwordmancyAbandonPopupExhausted"
+                {
+                    "node": "TrialOfSwordmancyAbandonPopupExhausted",
+                    "box": [
+                        240,
+                        335,
+                        630,
+                        35
+                    ]
+                }
             ]
+        },
+        {
+            "name": "数据溢出红色画面不是放弃次数耗尽弹窗",
+            "image": "武陵_选剑演武_演算_数据溢出.png",
+            "hits": []
+        },
+        {
+            "name": "正常演算界面没有放弃次数耗尽提示",
+            "image": "武陵_选剑演武_演算_奖励翻倍_关.png",
+            "hits": []
+        },
+        {
+            "name": "实测免费放弃耗尽，红字提示与取消按钮",
+            "image": "武陵_选剑演武_演算_放弃次数耗尽_实测.png",
+            "hits": [
+                "TrialOfSwordmancyAbandonPopupExhausted",
+                "TrialOfSwordmancyAbandonPopupCancel",
+                "GrayCancelButton",
+                "YellowConfirmButtonType1"
+            ]
+        },
+        {
+            "name": "实测锁定关闭溢出菜单不是耗尽弹窗",
+            "image": "武陵_选剑演武_演算_奖励翻倍_锁定关闭.png",
+            "hits": []
         }
     ]
 }

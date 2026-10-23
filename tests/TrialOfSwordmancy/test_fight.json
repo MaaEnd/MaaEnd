@@ -10,12 +10,48 @@
             "image": "武陵_选剑演武_挑战目标.png",
             "hits": [
                 "TrialOfSwordmancyChallengeBackground",
-                "TrialOfSwordmancyCloseChallengeTarget"
+                {
+                    "node": "TrialOfSwordmancyCloseChallengeTarget",
+                    "box": [
+                        1180,
+                        170,
+                        70,
+                        60
+                    ]
+                }
             ]
         },
         {
             "name": "获得奖励",
             "image": "武陵_选剑演武_获得奖励.png",
+            "hits": [
+                "TrialOfSwordmancyFightFinishButton",
+                "TrialOfSwordmancyFightSuccess",
+                "TrialOfSwordmancyFightSuccessContinue",
+                "TrialOfSwordmancyFightSuccessLeave"
+            ]
+        },
+        {
+            "name": "实测挑战目标复用公共关闭按钮",
+            "image": "武陵_选剑演武_挑战目标_实测.png",
+            "hits": [
+                "TrialOfSwordmancyChallengeBackground",
+                "TrialOfSwordmancyCloseChallengeTarget"
+            ]
+        },
+        {
+            "name": "实测双倍胜利结算",
+            "image": "武陵_选剑演武_双倍结算_实测.png",
+            "hits": [
+                "TrialOfSwordmancyFightSuccess",
+                "TrialOfSwordmancyFightSuccessContinue",
+                "TrialOfSwordmancyFightSuccessLeave",
+                "TrialOfSwordmancyFightFinishButton"
+            ]
+        },
+        {
+            "name": "实测普通胜利结算",
+            "image": "武陵_选剑演武_普通结算_实测.png",
             "hits": [
                 "TrialOfSwordmancyFightFinishButton",
                 "TrialOfSwordmancyFightSuccess",

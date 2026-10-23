@@ -1,0 +1,52 @@
+{
+    "configs": {
+        "name": "(CloudADB-官服)选剑演武，奖励模式零与非零战力点",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "name": "零战力点：奖励零值为金底白字",
+            "image": "武陵_选剑演武_演算_奖励模式_未抽取铭牌.png",
+            "hits": [
+                "TrialOfSwordmancyInRewardMode"
+            ]
+        },
+        {
+            "name": "非零战力点：奖励零值为灰底黑字",
+            "image": "武陵_选剑演武_演算_奖励翻倍_关.png",
+            "hits": [
+                "TrialOfSwordmancyInRewardMode"
+            ]
+        },
+        {
+            "name": "非零战力点：翻倍开启仍为奖励模式",
+            "image": "武陵_选剑演武_演算_奖励翻倍_开.png",
+            "hits": [
+                "TrialOfSwordmancyInRewardMode"
+            ]
+        },
+        {
+            "name": "数据溢出仍处于奖励模式（画面剩余奖励演算次数为1）",
+            "image": "武陵_选剑演武_演算_数据溢出.png",
+            "hits": [
+                "TrialOfSwordmancyInRewardMode"
+            ]
+        },
+        {
+            "name": "放弃弹窗遮挡奖励表",
+            "image": "武陵_选剑演武_演算_放弃确认.png",
+            "hits": []
+        },
+        {
+            "name": "自由演算入口尚在大世界，不是奖励演算界面",
+            "image": "武陵_藏剑谷_演武平台_进入自由演算.png",
+            "hits": []
+        },
+        {
+            "name": "实测奖励用尽后的自由演算菜单不应误识别为奖励模式",
+            "image": "武陵_选剑演武_自由演算菜单_实测.png",
+            "hits": []
+        }
+    ]
+}
