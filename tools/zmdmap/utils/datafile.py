@@ -20,8 +20,8 @@ from typing import Any
 
 from .shapes import is_object
 
-#: 数据文件最前面的两个元数据字段：``version`` 是给人看的版本标签（「客户端版本 + 数据构建号」，见
-#: :func:`tools.zmdmap.utils.version.compose_version`），``sha256`` 是这份数据原始形态的内容指纹。
+#: 数据文件最前面的两个元数据字段：``version`` 是给人看的版本标签（数据构建号，如 ``11262943-8``，见
+#: :func:`tools.zmdmap.utils.version.res_short`），``sha256`` 是这份数据原始形态的内容指纹。
 #: 两个都由 ``generate`` 写一次，``fetch`` 与入库都只照抄（见 :func:`keep_metadata`）。
 VERSION_KEY = "version"
 HASH_KEY = "sha256"
