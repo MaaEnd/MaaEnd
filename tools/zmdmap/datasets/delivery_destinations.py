@@ -13,13 +13,20 @@ NAVMESH 终点的 ``target_deck_y``；``yaw`` 是朝向（度）：仓储与回�
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import (
-    Record,
-    load_json_dict,
-    logger,
-    read_gameplay_config,
-    read_table_cfg,
-    read_xyz,
+from ..utils.log import logger
+from ..utils.tables import (
+    BuyerRow,
+    DeliverTargetRow,
+    DomainDepotRow,
+    LevelDescRow,
+    LevelInteractive,
+    LevelMark,
+    LevelMarkBasic,
+    NpcProxyTable,
+    RecycleBinRow,
+    load_config,
+    load_level_data,
+    load_table,
 )
 from .base import Dataset, DatasetError
 
@@ -37,50 +44,41 @@ _DEPOT_SYSTEM_COMPONENT = "DomainDepotSystemComponent"
 _RECYCLE_INTERACTIVE_ID = "int_doodad_core_recycle"
 _RECYCLE_SYSTEM_COMPONENT = "RecycleBinSystemComponent"
 
-def _build_mark_index(
-    level_map_mark: dict[str, list[Any]],
-) -> dict[str, Record]:
+
+def _build_mark_index(level_map_mark: dict[str, list[LevelMark]]) -> dict[str, LevelMarkBasic]:
     """LevelMapMark（{level: [mark...]}）-> {markInstId: basicData}。"""
-    index: dict[str, Record] = {}
+    index: dict[str, LevelMarkBasic] = {}
     for level_key in sorted(level_map_mark):
-        for _offset, mark in enumerate(level_map_mark[level_key]):
-            basic = mark.basicData
-            mark_inst_id = basic.markInstId
-            if not mark_inst_id:
+        for mark in level_map_mark[level_key]:
+            basic = mark.basic_data
+            if not basic.mark_inst_id:
                 continue
-            if mark_inst_id in index:
-                raise DatasetError(f"标记 {mark_inst_id} 在 LevelMapMark 中重复")
-            index[mark_inst_id] = basic
+            if basic.mark_inst_id in index:
+                raise DatasetError(f"标记 {basic.mark_inst_id} 在 LevelMapMark 中重复")
+            index[basic.mark_inst_id] = basic
     return index
 
-def _build_depots_by_level(
-    depot_table: dict[str, Any],
-) -> dict[str, dict[str, Any]]:
-    """DomainDepotTable -> {refLevelId: {id}}，用于「关卡 -> 仓储节点」。"""
-    depot_by_level: dict[str, dict[str, Any]] = {}
+
+def _build_depots_by_level(depot_table: dict[str, DomainDepotRow]) -> dict[str, str]:
+    """DomainDepotTable -> {refLevelId: depotId}，用于「关卡 -> 仓储节点」。"""
+    depot_by_level: dict[str, str] = {}
     for depot_id, entry in sorted(depot_table.items()):
-        level_id = entry.refLevelId
-        if not level_id:
+        if not entry.ref_level_id:
             raise DatasetError(f"仓储节点 {depot_id} 缺少 refLevelId")
-        if level_id in depot_by_level:
-            raise DatasetError(f"层级 {level_id} 对应多个仓储节点")
-        depot_by_level[level_id] = {"id": depot_id}
+        if entry.ref_level_id in depot_by_level:
+            raise DatasetError(f"层级 {entry.ref_level_id} 对应多个仓储节点")
+        depot_by_level[entry.ref_level_id] = depot_id
     return depot_by_level
 
-def _extract_system_instance_id(entity: dict[str, Any], system_component: str) -> str | None:
+
+def _extract_system_instance_id(entity: LevelInteractive, system_component: str) -> str | None:
     """从 LevelData 交互实体的 componentProperties 中取 system_inst_key。"""
-    component_properties = entity.get("componentProperties") or {}
-    prop_list = component_properties.get(system_component)
-    if not prop_list:
-        return None
-    for item in prop_list:
-        if not isinstance(item, dict):
-            continue
-        if item.get("key") == "system_inst_key":
-            arr = (item.get("value") or {}).get("valueArray", [])
-            if arr and isinstance(arr[0], dict):
-                return str(arr[0].get("valueString", ""))
+    for prop in entity.component_properties.get(system_component, []):
+        if prop.key == "system_inst_key":
+            values = prop.value.value_array
+            return values[0].value_string if values else None
     return None
+
 
 def _load_poses(
     json_data_dir: Path,
@@ -88,31 +86,30 @@ def _load_poses(
     interactive_id: str,
     system_component: str,
     label: str,
-) -> dict[str, dict[str, Any]]:
-    """为每个 ``(level_id, target_id)`` 读取 LevelData 交互实体，计算朝向 yaw。
+) -> dict[str, float]:
+    """为每个 ``(level_id, target_id)`` 读取 LevelData 交互实体，取朝向 yaw。
 
-    返回 ``{target_id: {yaw}}``。yaw 取交互实体 rotation.y；关卡目录或实体缺失时整条跳过，
-    由调用方按 yaw=0 处理（不影响其它字段）。
+    关卡目录或实体缺失时整条跳过，由调用方按 yaw=0 处理（不影响其它字段）。
     """
-    poses: dict[str, dict[str, Any]] = {}
-
+    poses: dict[str, float] = {}
     for level_id, target_id in targets:
-        pose = _find_entity_pose(json_data_dir, level_id, interactive_id, system_component, target_id)
-        if pose is None:
+        yaw = _find_entity_yaw(json_data_dir, level_id, interactive_id, system_component, target_id)
+        if yaw is None:
             # 遍历完整个关卡目录仍未找到对应实体。
             logger.warning(f"{label} {target_id} 在 {level_id} 的 LevelData 中未找到朝向实体")
         else:
-            poses[target_id] = pose
+            poses[target_id] = yaw
     return poses
 
-def _find_entity_pose(
+
+def _find_entity_yaw(
     json_data_dir: Path,
     level_id: str,
     interactive_id: str,
     system_component: str,
     target_id: str,
-) -> dict[str, Any] | None:
-    """在指定关卡的 LevelData 中查找交互实体并计算朝向 yaw。
+) -> float | None:
+    """在指定关卡的 LevelData 中查找交互实体并取其朝向 yaw。
 
     按 ``entityDataIdKey == interactive_id`` 且 ``system_component.system_inst_key ==
     target_id`` 匹配；找到即返回，关卡目录缺失或未匹配到实体时返回 None。
@@ -123,23 +120,18 @@ def _find_entity_pose(
         return None
     for json_file in sorted(level_dir.glob("*.json")):
         try:
-            data = load_json_dict(json_file)
-        except Exception as e:
-            logger.warning(f"读取关卡文件失败 {json_file}: {e}")
+            data = load_level_data(json_file)
+        except Exception as error:
+            logger.warning(f"读取关卡文件失败 {json_file}: {error}")
             continue
-        for entity in data.get("interactives", []):
-            if not isinstance(entity, dict):
-                continue
-            if entity.get("entityDataIdKey") != interactive_id:
+        for entity in data.interactives:
+            if entity.entity_data_id_key != interactive_id:
                 continue
             if _extract_system_instance_id(entity, system_component) != target_id:
                 continue
-
-            rotation = entity.get("rotation") or {}
-            yaw = float(rotation.get("y", 0.0) or 0.0)
-
-            return {"yaw": yaw}
+            return entity.rotation.y
     return None
+
 
 def _check_unique_names(destinations: list[dict[str, Any]]) -> None:
     """每个语言的 name 不允许重复（普通收货任务的 OCR 歧义检查）。"""
@@ -149,42 +141,49 @@ def _check_unique_names(destinations: list[dict[str, Any]]) -> None:
             dupes = sorted({value for value in values if values.count(value) > 1})
             raise DatasetError(f"{locale} 的 name 有重复：{dupes}")
 
+
 class DeliveryDestinations(Dataset):
     """送货目的地（普通收货 NPC / 回收站）及其所属仓储节点（``delivery_destinations.json``）。"""
 
     needs_projection = True
+    requires_json_data = True
     projection_containers = ("depots", "destinations")
 
     @classmethod
     def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
-        """Data chain: DomainDepotDeliverTargetTable -> delivery points; the
-        point's position comes from NpcProxyTable (npc) or LevelMapMark
-        (recycle_bin), names/areas from DomainDepotBuyerTable/LevelDescTable;
-        DomainDepotTable -> depots + level linkage. 坐标按游戏世界坐标发布，
-        底图像素由 MaaEnd 侧投影。
-        """
-        deliver_target_table = read_table_cfg(table_cfg_dir, "DomainDepotDeliverTargetTable")
-        buyer_table = read_table_cfg(table_cfg_dir, "DomainDepotBuyerTable")
-        depot_table = read_table_cfg(table_cfg_dir, "DomainDepotTable")
-        recycle_bin_table = read_table_cfg(table_cfg_dir, "RecycleBinTable")
-        level_desc_table = read_table_cfg(table_cfg_dir, "LevelDescTable")
+        """送货目的地（普通收货 NPC 与回收站）与它们所属的仓储节点。
 
-        npc_positions = read_gameplay_config(json_data_dir, "NpcProxyTable").dataTable
-        mark_index = _build_mark_index(read_gameplay_config(json_data_dir, "LevelMapMark"))
+        坐标按游戏世界坐标发布（``x`` / ``y`` / ``z`` 与朝向 ``yaw``），底图像素由 MaaEnd 侧的入库步骤投影。
+        仓储节点与回收站的坐标取 ``LevelMapMark`` 里的同名标记，普通收货 NPC 取 ``NpcProxyTable``；朝向取关卡
+        文件里交互实体的 ``rotation.y``（回收站翻 180 度），读不到时按 0。目的地按「关卡 -> 仓储节点」挂到
+        节点下，回收站还要与 ``RecycleBinTable`` 的层级和序号对上，对不上都直接报错。
+        """
+        deliver_target_table = load_table(
+            table_cfg_dir, "DomainDepotDeliverTargetTable", DeliverTargetRow
+        )
+        buyer_table = load_table(table_cfg_dir, "DomainDepotBuyerTable", BuyerRow)
+        depot_table = load_table(table_cfg_dir, "DomainDepotTable", DomainDepotRow)
+        recycle_bin_table = load_table(table_cfg_dir, "RecycleBinTable", RecycleBinRow)
+        level_desc_table = load_table(table_cfg_dir, "LevelDescTable", LevelDescRow)
+
+        npc_positions = load_config(json_data_dir, "NpcProxyTable", NpcProxyTable).data_table
+        mark_index = _build_mark_index(
+            load_config(json_data_dir, "LevelMapMark", dict[str, list[LevelMark]])
+        )
         # 关卡 -> 仓储节点，两半都要用（送货目的地要记自己属于哪个节点）。
         depot_by_level = _build_depots_by_level(depot_table)
 
         # ── 仓储节点 ────────────────────────────────────────────────
         depot_pose = _load_poses(
             json_data_dir,
-            [(level_id, info["id"]) for level_id, info in depot_by_level.items()],
+            [(level_id, depot_id) for level_id, depot_id in depot_by_level.items()],
             _DEPOT_INTERACTIVE_ID,
             _DEPOT_SYSTEM_COMPONENT,
             "仓储节点",
         )
         depots: list[dict[str, Any]] = []
         for depot_id, entry in sorted(depot_table.items()):
-            level_id = entry.refLevelId
+            level_id = entry.ref_level_id
             if level_id.count("_") != 1:
                 raise DatasetError(
                     f"仓储节点 {depot_id} 的 refLevelId {level_id!r} 不是 mapXX_lvYYY"
@@ -194,18 +193,17 @@ class DeliveryDestinations(Dataset):
             basic = mark_index.get(depot_id)
             if basic is None:
                 raise DatasetError(f"仓储节点 {depot_id} 在 LevelMapMark 中没有同名标记")
-            x, y, z = read_xyz(basic.pos, f"LevelMapMark[{depot_id}].pos")
-
-            pose = depot_pose.get(depot_id, {})
             depots.append(
                 {
                     "id": depot_id,
-                    "name": Dataset.localized_names(entry.depotName, table_cfg_dir, f"仓储节点 {depot_id}"),
+                    "name": Dataset.localized_names(
+                        entry.depot_name, table_cfg_dir, f"仓储节点 {depot_id}"
+                    ),
                     "map": map_id,
-                    "x": x,
-                    "y": round(y, 3),
-                    "z": z,
-                    "yaw": pose.get("yaw", 0.0),
+                    "x": basic.pos.x,
+                    "y": round(basic.pos.y, 3),
+                    "z": basic.pos.z,
+                    "yaw": depot_pose.get(depot_id, 0.0),
                 }
             )
         if not depots:
@@ -215,9 +213,9 @@ class DeliveryDestinations(Dataset):
         recycle_pose = _load_poses(
             json_data_dir,
             [
-                (entry.level, entry.targetId)
+                (entry.level, entry.target_id)
                 for entry in deliver_target_table.values()
-                if entry.entityType == "RecycleBin"
+                if entry.entity_type == "RecycleBin"
             ],
             _RECYCLE_INTERACTIVE_ID,
             _RECYCLE_SYSTEM_COMPONENT,
@@ -233,36 +231,36 @@ class DeliveryDestinations(Dataset):
                 raise DatasetError(f"{label} 的 level {level_id!r} 不是 mapXX_lvYYY")
             map_id = level_id.split("_")[0]
 
-            entity_key = entry.targetId
+            entity_key = entry.target_id
             if not entity_key:
                 raise DatasetError(f"{label} 缺少 targetId")
 
-            kind = ENTITY_TYPE_KINDS.get(entry.entityType)
+            kind = ENTITY_TYPE_KINDS.get(entry.entity_type)
             if kind is None:
-                raise DatasetError(f"{label} 的 entityType {entry.entityType!r} 不是已知枚举值")
+                raise DatasetError(f"{label} 的 entityType {entry.entity_type!r} 不是已知枚举值")
 
-            if entry.entityType == "NpcProxy":
+            if entry.entity_type == "NpcProxy":
                 npc = npc_positions.get(entity_key)
                 if npc is None:
                     raise DatasetError(f"{label} 在 NpcProxyTable 中的 {entity_key} 不存在")
-                x, y, z = read_xyz(npc.position, f"NpcProxyTable[{entity_key}].position")
+                x, y, z = npc.position.x, npc.position.y, npc.position.z
                 # 普通收货 NPC 同样保留朝向：读取 NpcProxyTable 的 rotation.y。
-                pose: dict[str, Any] = {"yaw": float(npc.rotation.get("y", 0.0) or 0.0)}
+                raw_yaw: float | None = npc.rotation.y
                 serial_id: int | None = None
             else:
                 basic = mark_index.get(entity_key)
                 if basic is None:
                     raise DatasetError(f"{label} 在 LevelMapMark 中没有 {entity_key}")
-                x, y, z = read_xyz(basic.pos, f"LevelMapMark[{entity_key}].pos")
-                pose = recycle_pose.get(entity_key, {})
+                x, y, z = basic.pos.x, basic.pos.y, basic.pos.z
+                raw_yaw = recycle_pose.get(entity_key)
                 recycle_bin = recycle_bin_table.get(entity_key)
                 if recycle_bin is None:
                     raise DatasetError(f"{label} 对应的资源回收站 {entity_key} 不存在")
-                if recycle_bin.levelId != level_id:
+                if recycle_bin.level_id != level_id:
                     raise DatasetError(
                         f"资源回收站 {entity_key} 的层级与{label}的层级 {level_id} 不一致"
                     )
-                serial_id = recycle_bin.serialId
+                serial_id = recycle_bin.serial_id
                 if serial_id <= 0:
                     raise DatasetError(f"资源回收站 {entity_key} 的 serialId {serial_id!r} 无效")
 
@@ -276,10 +274,10 @@ class DeliveryDestinations(Dataset):
             level_desc = level_desc_table.get(level_id)
             if level_desc is None:
                 raise DatasetError(f"{label} 对应的关卡 {level_id} 不存在")
-            area = Dataset.localized_names(level_desc.showName, table_cfg_dir, f"关卡 {level_id}")
+            area = Dataset.localized_names(level_desc.show_name, table_cfg_dir, f"关卡 {level_id}")
 
-            mission_ref = entry.missionObjDesc
-            if mission_ref is None:
+            mission_ref = entry.mission_obj_desc
+            if not mission_ref.id and not mission_ref.text:
                 raise DatasetError(f"{label} 缺少任务目标文案")
             depot = depot_by_level.get(level_id)
 
@@ -287,13 +285,15 @@ class DeliveryDestinations(Dataset):
                 "id": target_id,
                 "kind": kind,
                 **({"serial_id": serial_id} if serial_id is not None else {}),
-                "name": Dataset.localized_names(buyer.buyerName, table_cfg_dir, f"收货人 {buyer_id}"),
+                "name": Dataset.localized_names(
+                    buyer.buyer_name, table_cfg_dir, f"收货人 {buyer_id}"
+                ),
                 "mission": Dataset.plain_names(
                     Dataset.localized_names(mission_ref, table_cfg_dir, f"{label}任务目标"),
                     f"{label}任务目标",
                 ),
                 "area": area,
-                "depot_id": depot["id"] if depot is not None else "",
+                "depot_id": depot or "",
                 "map": map_id,
                 "x": x,
                 "y": round(y, 3),
@@ -301,9 +301,8 @@ class DeliveryDestinations(Dataset):
             }
             # 回收站交互实体的 rotation.y 与实际正面方向相反，需要翻转 180 度；普通 NPC 直接使用 rotation.y，
             # 实体没读到（raw_yaw 为 None）时按 0 处理。
-            raw_yaw = pose.get("yaw")
             dest_entry["yaw"] = (
-                round((float(raw_yaw) + 180.0) % 360.0, 9)
+                round((raw_yaw + 180.0) % 360.0, 9)
                 if kind == "recycle_bin" and raw_yaw is not None
                 else float(raw_yaw or 0.0)
             )

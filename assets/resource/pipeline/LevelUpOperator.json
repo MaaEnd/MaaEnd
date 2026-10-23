@@ -249,13 +249,92 @@
             }
         },
         "next": [
-            "[JumpBack]LevelUpOperatorSearchSwipeLeft",
-            "LevelUpOperatorSearchFinished",
-            "LevelUpOperatorSwitchToNextOperator"
+            "LevelUpOperatorSwitchToNextOperator",
+            "LevelUpOperatorAtListRear"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "当前干员等级大于等于最大等级限制，切换到下一个干员"
         }
+    },
+    "LevelUpOperatorAtListRear": {
+        "desc": "检查是否到达队列末尾",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    850,
+                    0,
+                    120,
+                    70
+                ],
+                "template": [
+                    "LevelUpOperator/OperatorSelected.png",
+                    "LevelUpOperator/OperatorSelected2.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "next": [
+            "LevelUpOperatorSetSelectedAtCenter"
+        ]
+    },
+    "LevelUpOperatorSetSelectedAtCenter": {
+        "desc": "选中干员置中",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InOperator",
+                    "LevelUpOperatorFilterButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "next": [
+            "LevelUpOperatorExitCentralize"
+        ]
+    },
+    "LevelUpOperatorExitCentralize": {
+        "desc": "退出置中流程",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    300,
+                    620,
+                    100,
+                    100
+                ],
+                "template": [
+                    "LevelUpOperator/FilterDesc.png",
+                    "LevelUpOperator/FilterDescHover.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    -100,
+                    100,
+                    30,
+                    30
+                ]
+            }
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "LevelUpOperatorSearchFinished",
+            "LevelUpOperatorSearchAvailableOperator"
+        ]
     },
     "SelectedOperatorCurrentLevel": {
         "recognition": {
@@ -353,11 +432,12 @@
                 ]
             }
         },
+
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "LevelUpOperatorSearchFinished",
-            "LevelUpOperatorSwitchToNextOperator"
+            "LevelUpOperatorSwitchToNextOperator",
+            "LevelUpOperatorAtListRear"
         ]
     },
     "LevelUpOperatorSelectedInList": {
@@ -368,7 +448,7 @@
                 "roi": [
                     273,
                     0,
-                    650,
+                    581,
                     100
                 ],
                 "template": [
@@ -379,52 +459,27 @@
             }
         }
     },
-    "LevelUpOperatorSearchSwipeLeft": {
-        "desc": "向左滑动，以搜索下一个干员",
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "LevelUpOperatorSelectedInList"
-        ],
-        "inverse": true,
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    940,
-                    30
-                ],
-                "end": [
-                    310,
-                    30
-                ],
-                "end_hold": 500
-            }
-        },
-        "focus": {
-            "Node.Action.Succeeded": "向左滑动"
-        }
-    },
     "LevelUpOperatorSearchFinished": {
         "desc": "搜索完成",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    920,
+                    850,
                     0,
-                    90,
+                    120,
                     70
                 ],
                 "template": [
-                    "LevelUpOperator/OperatorSelected.png"
+                    "LevelUpOperator/OperatorSelected.png",
+                    "LevelUpOperator/OperatorSelected2.png"
                 ],
                 "green_mask": true
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
+        "next": [
+            "LevelUpOperatorFinished"
+        ],
         "focus": {
             "Node.Recognition.Succeeded": "已搜索完所有干员，未发现可升级干员"
         }
@@ -458,20 +513,6 @@
         "post_wait_freezes": 100,
         "next": [
             "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "LevelUpOperatorClearSwipeLeftHitCount"
-        ]
-    },
-    "LevelUpOperatorClearSwipeLeftHitCount": {
-        "desc": "清除左滑计数",
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "ClearHitCount",
-        "custom_action_param": {
-            "nodes": [
-                "LevelUpOperatorSearchSwipeLeft"
-            ]
-        },
-        "next": [
             "LevelUpOperatorSearchAvailableOperator"
         ]
     },
@@ -492,7 +533,7 @@
                 "green_mask": true
             }
         },
-        "pre_wait_freezes": 100,
+        "pre_wait_freezes": 200,
         "action": "Click",
         "post_delay": 0,
         "next": [

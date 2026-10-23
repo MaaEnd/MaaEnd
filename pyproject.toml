@@ -3,9 +3,9 @@ name = "maaend"
 version = "0.0.0"
 description = "Python dependencies for MaaEnd development scripts"
 requires-python = ">=3.14"
-# zmdmap 的 CLI 用 click、下载数据用 httpx；放核心依赖是为了让 CI 能
-# `uv run --no-default-groups zmdmap` 只装这两个包就出数据，不必拉 scripts 组里的 maafw / fastapi / numpy。
-dependencies = ["click>=8.1", "httpx>=0.28"]
+# zmdmap 的 CLI 用 click、下载数据用 requests、解析游戏表格用 msgspec；放核心依赖是为了让 CI 能
+# `uv run --no-default-groups zmdmap` 只装这三个包就出数据，不必拉 scripts 组里的 maafw / fastapi / numpy。
+dependencies = ["click>=8.1", "msgspec>=0.22", "requests>=2.32"]
 
 [project.scripts]
 autocollect-route = "tools.AutoCollectRoute.main:main"
@@ -40,7 +40,11 @@ scripts = [
     { include-group = "images" },
     { include-group = "map-navigator" },
 ]
-dev = ["ruff>=0.17"]
+dev = [
+    "pyright>=1.1.414",
+    "ruff>=0.17",
+    "types-requests>=2.32",
+]
 
 [tool.ruff]
 target-version = "py314"
@@ -81,3 +85,11 @@ package = true
 [tool.uv.build-backend]
 module-name = ["tools.AutoCollectRoute", "tools.MapNavigator", "tools.sentry", "tools.setup", "tools.zmdmap"]
 module-root = ""
+
+[tool.pyright]
+# 先只纳入 tools/zmdmap（strict）；其余 Python 工具逐步跟进，别一次把几百条历史问题当成本次改动。
+include = ["tools/zmdmap"]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.14"
+typeCheckingMode = "strict"

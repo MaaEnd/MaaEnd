@@ -4,11 +4,11 @@
 ``uv run zmdmap generate`` 本地生成）：条目自带多语言名字，所以不再下载 ``lang_*.json`` 那几份
 i18n 包（每份约 950 KB）。图标仍然只能从站点下载。
 
-图标走 httpx 的共享连接池并发下载：几百个图标共用一个 TLS 会话池，比每个文件重新握手快得多。
+图标用线程池并发下载；单个请求的超时与重试、条件请求（``ETag``）都走
+:mod:`tools.zmdmap.utils.http`，与下载 zmdmap 数据是同一套逻辑。
 """
 
 import argparse
-import hashlib
 import json
 import struct
 import sys
@@ -17,17 +17,17 @@ from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qsl, quote, urlencode, urlsplit, urlunsplit
 
-import httpx
 import json5
+import requests
 from fixed_items import FIXED_ITEMS
 from text import clean_text, validate_identifier
 
 from tools.zmdmap import read_payload
+from tools.zmdmap.utils.http import download, get, metadata_path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 #: zmdmap 的数据目录：物品表与武器表的来源。
@@ -38,63 +38,9 @@ WEAPON_TABLE_NAME = "weapons.json"
 IMAGE_BASE_URL = "https://voice.fz.wiki/output_image/itemicon"
 BIG_IMAGE_BASE_URL = "https://voice.fz.wiki/output_image/itemiconbig"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
-USER_AGENT = "MaaEnd-IconRecognition/1.0"
 DEFAULT_CACHE_ROOT = REPO_ROOT / "tools" / "icon_recognition" / ".cache" / "downloads"
 DEFAULT_BLACKLIST_PATH = Path(__file__).with_name("blacklist.json")
 BIG_ICON_IDS_PATH = Path(__file__).with_name("big_icon_ids.json")
-#: 共享连接池上限；要大于 `--workers`，否则线程会排队等连接。
-MAX_CONNECTIONS = 32
-#: httpx 自带的建连重试次数（只覆盖建连阶段）。
-CONNECT_RETRIES = 2
-#: 网络层瞬时失败的重试次数：CDN 会在并发下直接断开连接，重试一次通常就好。
-REQUEST_ATTEMPTS = 3
-#: 重试前的等待秒数，按次数递增。
-RETRY_BACKOFF = 1.0
-
-
-@lru_cache(maxsize=1)
-def http_client() -> httpx.Client:
-    """进程内共享的连接池客户端；线程池里的下载共用它复用连接。"""
-    return httpx.Client(
-        headers={"User-Agent": USER_AGENT},
-        follow_redirects=True,
-        limits=httpx.Limits(max_connections=MAX_CONNECTIONS),
-        transport=httpx.HTTPTransport(retries=CONNECT_RETRIES),
-    )
-
-
-def timeout_for(seconds: float) -> httpx.Timeout:
-    """单次请求超时；连接（含 TLS 握手）单独限时，握手卡住时不必把整个超时耗满。"""
-    return httpx.Timeout(seconds, connect=min(seconds, 20.0))
-
-
-def request_with_retry(
-    url: str,
-    *,
-    headers: Mapping[str, str] | None = None,
-    timeout: float,
-) -> httpx.Response:
-    """带瞬时失败重试的 GET：网络层错误与被断开都会重试，返回可用的响应。"""
-    for attempt in range(REQUEST_ATTEMPTS):
-        if attempt:
-            time.sleep(RETRY_BACKOFF * attempt)
-        try:
-            response = http_client().get(
-                url, headers=headers or {}, timeout=timeout_for(timeout)
-            )
-        except httpx.TransportError as error:
-            failure: Exception = error
-        else:
-            if response.status_code < 500:
-                return response
-            failure = httpx.HTTPStatusError(
-                f"{response.status_code} {response.reason_phrase}",
-                request=response.request,
-                response=response,
-            )
-    raise failure
-
-
 def load_big_icon_ids(path: Path = BIG_ICON_IDS_PATH) -> set[str]:
     ids = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(ids, list) or any(not isinstance(icon_id, str) for icon_id in ids):
@@ -624,8 +570,8 @@ def relocate_rarity_changed_icons(
             continue
 
         source = candidates[0]
-        source_metadata = _metadata_path(source)
-        destination_metadata = _metadata_path(destination)
+        source_metadata = metadata_path(source)
+        destination_metadata = metadata_path(destination)
         if destination.is_file():
             # 目标已存在时保留它，避免覆盖可能经过 CI 处理的图片。
             source.unlink()
@@ -651,74 +597,14 @@ def is_valid_png(path: Path) -> bool:
         return False
 
 
-def _metadata_path(destination: Path) -> Path:
-    return destination.with_suffix(destination.suffix + ".meta.json")
-
-
-def fetch(
-    url: str,
-    destination: Path,
-    *,
-    timeout: float = 60,
-    validate_content: Callable[[bytes], Any] | None = None,
-) -> dict[str, Any]:
-    """来源地址未变化时使用条件请求；切换来源后重新下载并原子更新。"""
-
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    metadata_path = _metadata_path(destination)
-    metadata = (
-        json.loads(metadata_path.read_text(encoding="utf-8"))
-        if metadata_path.is_file()
-        else {}
-    )
-    headers = {}
-    if destination.is_file() and metadata.get("url") == url and (
-        validate_content is None or is_valid_png(destination)
-    ):
-        if isinstance(metadata.get("etag"), str):
-            headers["If-None-Match"] = metadata["etag"]
-        if isinstance(metadata.get("lastModified"), str):
-            headers["If-Modified-Since"] = metadata["lastModified"]
-    response = request_with_retry(url, headers=headers, timeout=timeout)
-    if response.status_code == 304 and destination.is_file():
-        return metadata
-    response.raise_for_status()
-    data = response.content
-    if validate_content is not None:
-        validate_content(data)
-    result: dict[str, Any] = {
-        "url": url,
-        "bytes": len(data),
-        "sha256": hashlib.sha256(data).hexdigest(),
-        "updatedAt": int(time.time()),
-    }
-    for source_key, output_key in (
-        ("ETag", "etag"),
-        ("Last-Modified", "lastModified"),
-    ):
-        if response.headers.get(source_key):
-            result[output_key] = response.headers[source_key]
-
-    temporary = destination.with_suffix(destination.suffix + ".part")
-    try:
-        temporary.write_bytes(data)
-        temporary.replace(destination)
-        metadata_path.write_text(
-            json.dumps(result, ensure_ascii=False, indent=4) + "\n",
-            encoding="utf-8",
-        )
-    finally:
-        temporary.unlink(missing_ok=True)
-    return result
-
-
 def _download_icon(job: DownloadJob, timeout: float) -> str:
     previous = job.destination.read_bytes() if is_valid_png(job.destination) else None
-    fetch(
+    download(
         job.url,
         job.destination,
         timeout=timeout,
-        validate_content=validate_icon_png_bytes,
+        validate=validate_icon_png_bytes,
+        reuse_existing=is_valid_png,
     )
     return "skipped" if previous == job.destination.read_bytes() else "downloaded"
 
@@ -755,7 +641,11 @@ def download_images(
                     "error": str(error),
                 }
                 # 404 是站点上没有这个图标（上游的缺口），不是下载失败：重试也不会出现。
-                if isinstance(error, httpx.HTTPStatusError) and error.response.status_code == 404:
+                if (
+                    isinstance(error, requests.HTTPError)
+                    and error.response is not None
+                    and error.response.status_code == 404
+                ):
                     unpublished.append(row)
                 else:
                     failures.append(row)
@@ -787,7 +677,7 @@ def _write_json(path: Path, payload: Any) -> None:
 def probe_icon_downloadable(icon_id: str, *, timeout: float) -> bool:
     validate_identifier(icon_id, field="待探测 iconId")
     url = f"{IMAGE_BASE_URL}/{quote(icon_id, safe='')}.png@raw"
-    response = request_with_retry(url, timeout=timeout)
+    response = get(url, timeout=timeout)
     if response.status_code == 404:
         return False
     response.raise_for_status()

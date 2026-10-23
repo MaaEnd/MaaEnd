@@ -7,7 +7,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-from tools.zmdmap.utils.http import get, new_client
+from tools.zmdmap.utils.http import get
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CHARICON_URL = "https://voice.fz.wiki/assets/beyond/dynamicassets/gameplay/ui/sprites/charicon"
@@ -39,20 +39,19 @@ def build_avatar(source: Image.Image, factor: float) -> Image.Image:
 def main() -> None:
     jobs = json.load(sys.stdin)
     outputs = []
-    with new_client() as client:
-        for job in jobs:
-            response = get(client, f"{CHARICON_URL}/icon_{job['id']}.png@raw")
-            response.raise_for_status()
-            with Image.open(BytesIO(response.content)) as source:
-                # 固定裁剪只适用于这一规格；源图改变时必须重新验证几何参数。
-                if source.format != "PNG" or source.size != (152, 212):
-                    raise ValueError(
-                        f"{job['id']}: expected a 152x212 PNG, "
-                        f"got {source.format} {source.size}"
-                    )
-                for resource in job["resources"]:
-                    path = REPO_ROOT / "assets" / resource / "image" / job["template"]
-                    outputs.append((path, build_avatar(source, RESOURCE_FACTORS[resource])))
+    for job in jobs:
+        response = get(f"{CHARICON_URL}/icon_{job['id']}.png@raw")
+        response.raise_for_status()
+        with Image.open(BytesIO(response.content)) as source:
+            # 固定裁剪只适用于这一规格；源图改变时必须重新验证几何参数。
+            if source.format != "PNG" or source.size != (152, 212):
+                raise ValueError(
+                    f"{job['id']}: expected a 152x212 PNG, "
+                    f"got {source.format} {source.size}"
+                )
+            for resource in job["resources"]:
+                path = REPO_ROOT / "assets" / resource / "image" / job["template"]
+                outputs.append((path, build_avatar(source, RESOURCE_FACTORS[resource])))
     for path, template in outputs:
         path.parent.mkdir(parents=True, exist_ok=True)
         # 即使在下载期间有人补入了模板，也不覆盖已有文件。

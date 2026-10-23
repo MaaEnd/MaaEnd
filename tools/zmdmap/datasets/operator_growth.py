@@ -19,20 +19,44 @@
 消费端要单独统计货币时不必再认别的字段。
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import as_text, logger, read_table_cfg
+from ..utils.log import logger
+from ..utils.tables import (
+    CharacterRow,
+    CharGrowthRow,
+    CharLevelUpRow,
+    GrowthNode,
+    ItemRow,
+    ItemStack,
+    SkillLevelUp,
+    load_table,
+)
 from .base import Dataset, DatasetError
 
 # 技能组的排列顺序（游戏里就是这么排的）；表里没有的组名排在后面按名字排。
 SKILL_ORDER = ("NormalAttack", "NormalSkill", "ComboSkill", "UltimateSkill")
 
-# ``charBreakCostMap`` 里的节点类型：1 突破，2 装备档位突破。
+# ``charBreakCostMap`` 里的节点类型：1 突破，2 装备档位突破，3 潜能，4 被动，5 基建。
 NODE_TYPE_BREAK = 1
 NODE_TYPE_EQUIP_BREAK = 2
+
+# ``nodeType`` 有两种写法：1–5 的整数，或名字；两种都得认，只认一种时突破节点会一个都取不到。
+NODE_TYPE_BY_NAME: dict[str, int] = {
+    "CharBreak": NODE_TYPE_BREAK,
+    "EquipBreak": NODE_TYPE_EQUIP_BREAK,
+    "Attr": 3,
+    "PassiveSkill": 4,
+    "FactorySkill": 5,
+}
+
+
+def node_type(value: str | int) -> int:
+    """``nodeType`` -> 1–5；认不出的记 0（既不算突破也不算装备）。"""
+    if isinstance(value, int):
+        return value
+    return NODE_TYPE_BY_NAME.get(value, 0)
 
 #: 满级（最后一个等级）在表里是 ``-1`` 的哨兵行，不参与累加。
 MAX_LEVEL_SENTINEL = -1
@@ -47,10 +71,10 @@ class OperatorGrowth(Dataset):
     @classmethod
     def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
         """等级曲线 + 各干员的突破/技能/天赋消耗 + 素材表。"""
-        characters = read_table_cfg(table_cfg_dir, "CharacterTable")
-        growth = read_table_cfg(table_cfg_dir, "CharGrowthTable")
-        level_up_table = read_table_cfg(table_cfg_dir, "CharLevelUpTable")
-        item_table = read_table_cfg(table_cfg_dir, "ItemTable")
+        characters = load_table(table_cfg_dir, "CharacterTable", CharacterRow)
+        growth = load_table(table_cfg_dir, "CharGrowthTable", CharGrowthRow)
+        level_up_table = load_table(table_cfg_dir, "CharLevelUpTable", CharLevelUpRow)
+        item_table = load_table(table_cfg_dir, "ItemTable", ItemRow)
 
         level_up = cls._level_up(level_up_table)
         used_items: set[str] = set()
@@ -66,8 +90,8 @@ class OperatorGrowth(Dataset):
                 "names": cls.localized_names(character.name, table_cfg_dir, f"干员 {char_id}"),
                 "rarity": character.rarity,
                 "profession": character.profession,
-                "char_type": as_text(character.charTypeId),
-                "weapon_type": character.weaponType,
+                "char_type": character.char_type_id,
+                "weapon_type": character.weapon_type,
                 "break_nodes": cls._break_nodes(entry, used_items),
                 "equip_break_nodes": cls._equip_break_nodes(entry, used_items),
                 "skills": cls._skills(entry, used_items),
@@ -79,13 +103,13 @@ class OperatorGrowth(Dataset):
         return {"level_up": level_up, "operators": operators, "items": items}
 
     @staticmethod
-    def _level_up(level_up_table: Any) -> dict[str, dict[str, int]]:
+    def _level_up(level_up_table: dict[str, CharLevelUpRow]) -> dict[str, dict[str, int]]:
         """``level -> {exp, gold}``：升到下一级的消耗，哨兵行丢掉。"""
         level_up: dict[str, dict[str, int]] = {}
         for level in sorted(level_up_table, key=int):
             row = level_up_table[level]
-            exp = row.get("exp", 0)
-            gold = row.get("gold", 0)
+            exp = row.exp
+            gold = row.gold
             if exp == MAX_LEVEL_SENTINEL or gold < 0:
                 continue
             level_up[level] = {"exp": exp, "gold": gold}
@@ -94,61 +118,65 @@ class OperatorGrowth(Dataset):
         return level_up
 
     @staticmethod
-    def _items_of(node: Any, used: set[str]) -> dict[str, int]:
-        """节点 ``requiredItem`` / ``itemBundle`` -> 「素材 id -> 数量」。"""
+    def _items_of(node: GrowthNode | SkillLevelUp, used: set[str]) -> dict[str, int]:
+        """节点里的素材清单 -> 「素材 id -> 数量」。
+
+        突破/天赋节点写 ``requiredItem``，技能行写 ``itemBundle``，两种都收。
+        """
+        stack: list[ItemStack] = (
+            node.required_item if isinstance(node, GrowthNode) else node.item_bundle
+        )
         items: dict[str, int] = {}
-        for required in node.get("requiredItem") or node.get("itemBundle") or []:
-            item_id = as_text(required.get("id"))
-            count = required.get("count", 0)
-            if not item_id or not isinstance(count, int) or count <= 0:
+        for bundle in stack:
+            if not bundle.id or bundle.count <= 0:
                 continue
-            items[item_id] = items.get(item_id, 0) + count
-            used.add(item_id)
+            items[bundle.id] = items.get(bundle.id, 0) + bundle.count
+            used.add(bundle.id)
         return items
 
     @classmethod
-    def _break_nodes(cls, entry: Any, used: set[str]) -> list[dict[str, Any]]:
+    def _break_nodes(cls, entry: CharGrowthRow, used: set[str]) -> list[dict[str, Any]]:
         """突破节点，按 ``break_stage`` 排序。"""
         nodes = [
             {
-                "node_id": as_text(node.get("nodeId")),
-                "break_stage": node.get("breakStage", 0),
-                "equip_tier_limit": node.get("equipTierLimit", 0),
+                "node_id": node.node_id,
+                "break_stage": node.break_stage,
+                "equip_tier_limit": node.equip_tier_limit,
                 "items": cls._items_of(node, used),
             }
-            for node in entry.get("charBreakCostMap", {}).values()
-            if node.get("nodeType") == NODE_TYPE_BREAK
+            for node in entry.char_break_cost_map.values()
+            if node_type(node.node_type) == NODE_TYPE_BREAK
         ]
         return sorted(nodes, key=lambda node: node["break_stage"])
 
     @classmethod
-    def _equip_break_nodes(cls, entry: Any, used: set[str]) -> list[dict[str, Any]]:
+    def _equip_break_nodes(cls, entry: CharGrowthRow, used: set[str]) -> list[dict[str, Any]]:
         """装备档位突破，按 ``break_stage`` 排序。"""
         nodes = [
             {
-                "node_id": as_text(node.get("nodeId")),
-                "break_stage": node.get("breakStage", 0),
-                "equip_tier_limit": node.get("equipTierLimit", 0),
+                "node_id": node.node_id,
+                "break_stage": node.break_stage,
+                "equip_tier_limit": node.equip_tier_limit,
                 "items": cls._items_of(node, used),
             }
-            for node in entry.get("charBreakCostMap", {}).values()
-            if node.get("nodeType") == NODE_TYPE_EQUIP_BREAK
+            for node in entry.char_break_cost_map.values()
+            if node_type(node.node_type) == NODE_TYPE_EQUIP_BREAK
         ]
         return sorted(nodes, key=lambda node: node["break_stage"])
 
     @classmethod
-    def _skills(cls, entry: Any, used: set[str]) -> list[dict[str, Any]]:
+    def _skills(cls, entry: CharGrowthRow, used: set[str]) -> list[dict[str, Any]]:
         """四组技能的逐级消耗，按游戏里的顺序排。"""
         groups: dict[str, list[dict[str, Any]]] = {}
-        for row in entry.get("skillLevelUp") or []:
-            group_id = as_text(row.get("skillGroupId"))
+        for row in entry.skill_level_up:
+            group_id = row.skill_group_id
             if not group_id:
                 continue
             items = cls._items_of(row, used)
             groups.setdefault(group_id, []).append(
                 {
-                    "level": row.get("level", 0),
-                    "gold": row.get("goldCost", 0),
+                    "level": row.level,
+                    "gold": row.gold_cost,
                     "items": items,
                 }
             )
@@ -162,21 +190,23 @@ class OperatorGrowth(Dataset):
         return [{"group_id": group_id, "levels": groups[group_id]} for group_id in sorted(groups, key=order)]
 
     @classmethod
-    def _talent_nodes(cls, entry: Any, used: set[str]) -> list[dict[str, Any]]:
+    def _talent_nodes(cls, entry: CharGrowthRow, used: set[str]) -> list[dict[str, Any]]:
         """天赋节点（潜能 / 被动 / 基建），突破与装备节点不重复收。"""
         nodes = [
             {
-                "node_id": as_text(node.get("nodeId")),
-                "node_type": node.get("nodeType", 0),
+                "node_id": node.node_id,
+                "node_type": node_type(node.node_type),
                 "items": cls._items_of(node, used),
             }
-            for node in entry.get("talentNodeMap", {}).values()
-            if node.get("nodeType") not in (NODE_TYPE_BREAK, NODE_TYPE_EQUIP_BREAK)
+            for node in entry.talent_node_map.values()
+            if node_type(node.node_type) not in (NODE_TYPE_BREAK, NODE_TYPE_EQUIP_BREAK)
         ]
         return sorted(nodes, key=lambda node: node["node_id"])
 
     @classmethod
-    def _items(cls, table_cfg_dir: Path, item_table: Any, used: set[str]) -> dict[str, dict[str, Any]]:
+    def _items(
+        cls, table_cfg_dir: Path, item_table: dict[str, ItemRow], used: set[str]
+    ) -> dict[str, dict[str, Any]]:
         """素材表：五语名字、稀有度、图标。"""
         items: dict[str, dict[str, Any]] = {}
         for item_id in sorted(used):
@@ -186,6 +216,6 @@ class OperatorGrowth(Dataset):
             items[item_id] = {
                 "names": cls.localized_names(entry.name, table_cfg_dir, f"素材 {item_id}"),
                 "rarity": entry.rarity,
-                "icon": as_text(entry.iconId),
+                "icon": entry.icon_id,
             }
         return items

@@ -221,17 +221,330 @@
         "pre_wait_freezes": 300,
         "action": "Click",
         "next": [
+            "UmbralMonumentStageStart"
+        ]
+    },
+    "UmbralMonumentStageStart": {
+        "desc": "进入关卡后：等待加载，已开战则进入战斗，关卡目标为触摸光点则先走触摸路径",
+        "next": [
+            "UmbralMonumentFightStart",
+            "UmbralMonumentTouchMove1",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "UmbralMonumentFightStart": {
+        "desc": "左侧出现重开按钮，说明战斗已开始",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            200,
+            160,
+            200
+        ],
+        "template": "ProtocolSpace/SpaceResart.png",
+        "green_mask": true,
+        "next": [
             "UmbralMonumentFighting"
         ]
     },
     "UmbralMonumentFighting": {
-        "desc": "进入战斗后：等待加载、自动战斗，直到出现胜利或失败结算界面",
+        "desc": "战斗开始后：自动战斗，直到出现胜利或失败结算界面",
         "next": [
             "UmbralMonumentFightSuccess",
             "UmbralMonumentFightFailed",
             "[JumpBack]SceneWaitLoadingExit",
             "[JumpBack]AutoFight"
         ]
+    },
+    "UmbralMonumentTouchObjective": {
+        "desc": "左侧关卡目标为触摸光点，需要先触碰光点才会开始战斗",
+        "recognition": "OCR",
+        "roi": [
+            50,
+            200,
+            240,
+            35
+        ],
+        "expected": [
+            "触摸光点",
+            "觸摸光點",
+            "(?i)Touch\\s*the\\s*light",
+            "光に触れる",
+            "빛나는 점과 접촉하기"
+        ]
+    },
+    "UmbralMonumentTouchStart": {
+        "desc": "出现触碰提示，触碰光点开始战斗",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "ProtocolSpaceTouchStartPrompt"
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "ProtocolSpaceTouchStartPrompt"
+        },
+        "next": [
+            "UmbralMonumentFightStart"
+        ]
+    },
+    "UmbralMonumentTouchMove1": {
+        "desc": "关卡目标为触摸光点，尝试第一次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove2"
+        ]
+    },
+    "UmbralMonumentTouchMove2": {
+        "desc": "关卡目标为触摸光点，尝试第二次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove3"
+        ]
+    },
+    "UmbralMonumentTouchMove3": {
+        "desc": "关卡目标为触摸光点，尝试第三次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove4"
+        ]
+    },
+    "UmbralMonumentTouchMove4": {
+        "desc": "关卡目标为触摸光点，尝试第四次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove5"
+        ]
+    },
+    "UmbralMonumentTouchMove5": {
+        "desc": "关卡目标为触摸光点，尝试第五次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove6"
+        ]
+    },
+    "UmbralMonumentTouchMove6": {
+        "desc": "关卡目标为触摸光点，尝试第六次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove7"
+        ]
+    },
+    "UmbralMonumentTouchMove7": {
+        "desc": "关卡目标为触摸光点，尝试第七次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove8"
+        ]
+    },
+    "UmbralMonumentTouchMove8": {
+        "desc": "关卡目标为触摸光点，尝试第八次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove9"
+        ]
+    },
+    "UmbralMonumentTouchMove9": {
+        "desc": "关卡目标为触摸光点，尝试第九次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove10"
+        ]
+    },
+    "UmbralMonumentTouchMove10": {
+        "desc": "关卡目标为触摸光点，尝试第十次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove11"
+        ]
+    },
+    "UmbralMonumentTouchMove11": {
+        "desc": "关卡目标为触摸光点，尝试第十一次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove12"
+        ]
+    },
+    "UmbralMonumentTouchMove12": {
+        "desc": "关卡目标为触摸光点，尝试第十二次向前移动，因为存在视角锁定，锁定过程中没有什么特征可以识别，因此前进12步",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "[JumpBack]UmbralMonumentTouchMoveToTarget",
+            "[JumpBack]UmbralMonumentTouchNotFound"
+        ]
+    },
+    "UmbralMonumentTouchMoveToTarget": {
+        "desc": "向前移动后仍未出现触碰提示，识别光点并向其移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            {
+                "recognition": "NeuralNetworkDetect",
+                "roi": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "expected": 1,
+                "model": "ProtocolSpace/best.onnx"
+            }
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "CharacterMoveToTargetAction",
+        "custom_action_param": {
+            "align_threshold": 120
+        },
+        "post_delay": 600
+    },
+    "UmbralMonumentTouchNotFound": {
+        "desc": "光点未找到，向右旋转",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterMoveToTargetNotFoundAction",
+        "custom_action_param": {
+            "delta": 45
+        }
     },
     "UmbralMonumentFightFinished": {
         "desc": "战斗结算界面（胜利或失败），供 AutoFight 的 pause_exit_nodes 使用；两种界面的标题位置相同，一次 OCR 覆盖",
@@ -311,7 +624,7 @@
         "box_index": 1,
         "action": "Click",
         "next": [
-            "UmbralMonumentFighting"
+            "UmbralMonumentStageStart"
         ]
     },
     "UmbralMonumentFightFailedLeave": {

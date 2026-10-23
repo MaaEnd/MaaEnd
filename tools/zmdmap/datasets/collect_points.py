@@ -1,27 +1,34 @@
 """AutoCollect 采集路线的数据源（``collect_points.json``）。
 
-``WorldEntityRegistry`` 中 ``detailId`` 以 ``int_doodad_`` 开头的可交互采集物，全量输出。
+``points`` 是 ``WorldEntityRegistry`` 里 ``detailId`` 以 ``int_doodad_`` 开头、且能按 ID 前缀定位到关卡的
+可交互采集物，按实体 ID 的数值升序（定位不到关卡的那几条不收，因为不知道挂哪张底图）。
 
-``types`` 只收能拾取或挖掘的采集物类型：``names`` 是采集物的五语名字（没有就用产物名），``action`` 是
-MapNavigator 的采集动作（拾取 ``COLLECT`` / 挖掘 ``DIG``），``item`` 是主产物，``icon`` 是它在
-``assets/resource/image/UI/Item/`` 下的图标名；``item_type`` / ``showing_type`` / ``rarity`` 是主产物
-的物品类型、展示分类与稀有度。基建矿点等不进 ``types``。
+``types`` 是按 ``detailId`` 汇总的类型表，只收能拾取或挖掘的（基建矿点等不进）：
 
-只发布游戏世界坐标 x/z（另有世界高度 y）：投影参数属于 BaseNav pack，换算由 MaaEnd 侧的投影步骤
-（``tools/zmdmap/utils/project.py``）完成，所以这里不做任何底图筛选。
+- ``names``：采集物的五语名字；它自己有名字就用它，没有就用产物名；
+- ``action``：MapNavigator 的采集动作，能拾取是 ``COLLECT``，只能打碎取 ``DIG``；
+- ``item`` / ``item_names`` / ``icon``：主产物 id、主产物五语名字、主产物在
+  ``assets/resource/image/UI/Item/`` 下的图标名（没有图标 id 时退回物品 id）；
+- ``item_type`` / ``showing_type`` / ``rarity``：主产物的物品类型、背包页签与稀有度。
+
+只发布游戏世界坐标（``x`` / ``y`` / ``z``，其中 ``y`` 是世界高度）：投影参数属于 BaseNav pack，换算由
+MaaEnd 侧的入库步骤（``tools/zmdmap/utils/project.py``）完成，所以这里不做任何底图筛选。
 """
 
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import (
-    level_of,
-    load_json_dict,
-    logger,
-    map_of_level,
-    read_gameplay_config,
-    read_table_cfg,
-    read_xyz,
+from ..utils.game_data import level_of, map_of_level, read_xyz
+from ..utils.log import logger
+from ..utils.tables import (
+    ComponentProperty,
+    DoodadRow,
+    ItemRow,
+    RewardRow,
+    WorldEntityRegistry,
+    load_config,
+    load_interactive_data,
+    load_table,
 )
 from .base import Dataset, DatasetError
 
@@ -29,42 +36,23 @@ DOODAD_PREFIX = "int_doodad_"
 DOODAD_ID_KEY = "doodad_id"
 
 
-def doodad_ids_in(node: Any, found: dict[str, str]) -> None:
-    """交互数据里每个 ``int_doodad_*`` 模板 -> 它的 ``doodad_id`` 参数；模板表是对象或键值对数组都认。"""
-    if isinstance(node, dict):
-        for key, value in node.items():
-            if key.startswith(DOODAD_PREFIX) and isinstance(value, dict):
-                record_doodad_id(key, value, found)
-            doodad_ids_in(value, found)
-    elif isinstance(node, list):
-        if (
-            len(node) == 2
-            and isinstance(node[0], str)
-            and node[0].startswith(DOODAD_PREFIX)
-            and isinstance(node[1], dict)
-        ):
-            record_doodad_id(node[0], node[1], found)
-        for child in node:
-            doodad_ids_in(child, found)
+def template_doodad_id(props: list[ComponentProperty]) -> str:
+    """一组模板参数里的 ``doodad_id``；没有就是空串。"""
+    for prop in props:
+        if prop.key == DOODAD_ID_KEY and prop.value.value_array:
+            return prop.value.value_array[0].value_string or ""
+    return ""
 
 
-def record_doodad_id(template_id: str, template: dict[str, Any], found: dict[str, str]) -> None:
-    for prop in template.get("diffProperties") or []:
-        if isinstance(prop, dict) and prop.get("key") == DOODAD_ID_KEY:
-            values = (prop.get("value") or {}).get("valueArray") or []
-            if values and values[0].get("valueString"):
-                found[template_id] = values[0]["valueString"]
-
-
-def primary_item(doodad: Any, reward_table: Any) -> str:
+def primary_item(doodad: DoodadRow, reward_table: dict[str, RewardRow]) -> str:
     """主产物：通用配置直接写了就用它，否则取拾取或破坏掉落里的第一个物品。"""
-    if doodad.itemId:
-        return doodad.itemId
-    for reward_id in doodad.pickableRewardId or doodad.breakedDropRewardId:
+    if doodad.item_id:
+        return doodad.item_id
+    for reward_id in doodad.pickable_reward_id or doodad.breaked_drop_reward_id:
         reward = reward_table.get(reward_id)
         if reward is None:
             continue
-        bundles = reward.itemBundles or reward.probItemBundles
+        bundles = reward.item_bundles or reward.prob_item_bundles
         if bundles:
             return bundles[0].id
     return ""
@@ -74,12 +62,15 @@ class CollectPoints(Dataset):
     """AutoCollect 采集路线的采集物（``collect_points.json``）。"""
 
     needs_projection = True
+    requires_json_data = True
     projection_containers = ("points",)
 
     @classmethod
     def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
         """全部可交互采集物都收，按实体 ID 数值升序。"""
-        brief_infos = read_gameplay_config(json_data_dir, "WorldEntityRegistry").worldEntityBriefInfos
+        brief_infos = load_config(
+            json_data_dir, "WorldEntityRegistry", WorldEntityRegistry
+        ).world_entity_brief_infos
         if not brief_infos:
             raise DatasetError("WorldEntityRegistry 缺少 worldEntityBriefInfos")
         levels = cls.level_index(json_data_dir)
@@ -87,17 +78,18 @@ class CollectPoints(Dataset):
         points: list[dict[str, Any]] = []
         for entity_id in sorted(brief_infos, key=lambda key: (len(key), key)):
             entity = brief_infos[entity_id]
-            if not entity.detailId.startswith(DOODAD_PREFIX):
+            detail_id = entity.detail_id
+            if not detail_id or not detail_id.startswith(DOODAD_PREFIX):
                 continue
             level_id = level_of(levels, entity_id)
             if level_id is None:
                 continue
 
-            x, y, z = read_xyz(entity.position, f"世界实体 {entity_id}.position")
+            x, y, z = read_xyz(entity.position)
             points.append(
                 {
                     "id": entity_id,
-                    "detail_id": entity.detailId,
+                    "detail_id": detail_id,
                     "map": map_of_level(level_id),
                     "x": x,
                     "y": round(y, 3),
@@ -118,18 +110,22 @@ class CollectPoints(Dataset):
         interactive_dir = json_data_dir / "Interactive" / "InteractiveData"
         doodad_ids: dict[str, str] = {}
         for path in sorted(interactive_dir.glob(f"data_{DOODAD_PREFIX}*.json")):
-            doodad_ids_in(load_json_dict(path), doodad_ids)
+            template = load_interactive_data(path)
+            for template_id, variant in template.template_variant.items():
+                doodad_id = template_doodad_id(variant.diff_properties)
+                if doodad_id:
+                    doodad_ids[template_id] = doodad_id
         if not doodad_ids:
             raise DatasetError(f"{interactive_dir} 里没有找到采集物的 doodad_id")
 
-        doodad_table = read_table_cfg(table_cfg_dir, "DoodadGeneralTable")
-        reward_table = read_table_cfg(table_cfg_dir, "RewardTable")
-        item_table = read_table_cfg(table_cfg_dir, "ItemTable")
+        doodad_table = load_table(table_cfg_dir, "DoodadGeneralTable", DoodadRow)
+        reward_table = load_table(table_cfg_dir, "RewardTable", RewardRow)
+        item_table = load_table(table_cfg_dir, "ItemTable", ItemRow)
 
         types: dict[str, Any] = {}
         for detail_id in sorted(detail_ids):
             doodad = doodad_table.get(doodad_ids.get(detail_id, ""))
-            if doodad is None or not (doodad.isPickable or doodad.isBreakable):
+            if doodad is None or not (doodad.is_pickable or doodad.is_breakable):
                 continue
             item_id = primary_item(doodad, reward_table)
             item = item_table.get(item_id)
@@ -148,12 +144,12 @@ class CollectPoints(Dataset):
                 )
             types[detail_id] = {
                 "names": names,
-                "action": "COLLECT" if doodad.isPickable else "DIG",
+                "action": "COLLECT" if doodad.is_pickable else "DIG",
                 "item": item_id,
                 "item_names": item_names,
-                "icon": item.iconId or item_id,
+                "icon": item.icon_id or item_id,
                 "item_type": item.type,
-                "showing_type": item.showingType,
+                "showing_type": item.showing_type,
                 "rarity": item.rarity,
             }
         return types

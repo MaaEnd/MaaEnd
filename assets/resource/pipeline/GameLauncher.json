@@ -7,94 +7,18 @@
         ]
     },
     "GameLauncherBlackScreenClick": {
-        "desc": "DP 显示器息屏后启动器截图为黑屏，点击任意位置激活",
-        "recognition": "And",
-        "all_of": [
-            {
-                "recognition": "ColorMatch",
-                "roi": [
-                    0,
-                    0,
-                    40,
-                    40
-                ],
-                "lower": [
-                    0,
-                    0,
-                    0
-                ],
-                "upper": [
-                    10,
-                    10,
-                    10
-                ],
-                "connected": true,
-                "count": 400
-            },
-            {
-                "recognition": "ColorMatch",
-                "roi": [
-                    -40,
-                    0,
-                    40,
-                    40
-                ],
-                "lower": [
-                    0,
-                    0,
-                    0
-                ],
-                "upper": [
-                    10,
-                    10,
-                    10
-                ],
-                "connected": true,
-                "count": 400
-            },
-            {
-                "recognition": "ColorMatch",
-                "roi": [
-                    0,
-                    -40,
-                    40,
-                    40
-                ],
-                "lower": [
-                    0,
-                    0,
-                    0
-                ],
-                "upper": [
-                    10,
-                    10,
-                    10
-                ],
-                "connected": true,
-                "count": 400
-            },
-            {
-                "recognition": "ColorMatch",
-                "roi": [
-                    -40,
-                    -40,
-                    40,
-                    40
-                ],
-                "lower": [
-                    0,
-                    0,
-                    0
-                ],
-                "upper": [
-                    10,
-                    10,
-                    10
-                ],
-                "connected": true,
-                "count": 400
-            }
+        "desc": "DP 显示器息屏后启动器截图为黑屏，找不到左侧终末地图标时点击激活，多次点击顺带解锁屏幕",
+        "max_hit": 10,
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            60,
+            100,
+            600
         ],
+        "template": "GameLauncher/EndfieldIcon.png",
+        "green_mask": true,
+        "inverse": true,
         "action": "Click",
         "target": [
             640,
@@ -102,8 +26,11 @@
             1,
             1
         ],
+        // 显示器从息屏唤醒需要 1~3 秒，期间画面一直是黑屏不变，无法用 post_wait_freezes 等待
+        "post_delay": 2000,
         "next": [
-            "GameLauncherSelectEndfield"
+            "GameLauncherSelectEndfield",
+            "GameLauncherBlackScreenClick"
         ]
     },
     "GameLauncherSelectEndfield": {

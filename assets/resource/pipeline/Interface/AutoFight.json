@@ -22,7 +22,11 @@
             "enable_end_skill": true,
             "enable_lock_target": true,
             "end_axis_timeline_code": "",
-            "skip_combo_cooldown": false
+            "skip_combo_cooldown": false,
+            "skill_mode_1": "cycle",
+            "skill_mode_2": "cycle",
+            "skill_mode_3": "cycle",
+            "skill_mode_4": "cycle"
         }
     }
 }

@@ -9,6 +9,9 @@
                 "other_menu"
             ],
             "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
                 "Win32-Front"
             ],
             "pipeline_override": {
@@ -36,6 +39,27 @@
                 {
                     "name": "Latest",
                     "label": "$option.UmbralMonumentTarget.case.Latest.label"
+                },
+                {
+                    "name": "MurmursOfTheDeepForest",
+                    "label": "$option.UmbralMonumentTarget.case.MurmursOfTheDeepForest.label",
+                    "pipeline_override": {
+                        "UmbralMonumentSelectLatest": {
+                            "enabled": false
+                        },
+                        "UmbralMonumentSelectByName": {
+                            "enabled": true
+                        },
+                        "UmbralMonumentNameText": {
+                            "expected": [
+                                "深林呓语",
+                                "深林囈語",
+                                "(?i)Murmurs\\s*of\\s*the\\s*Deep\\s*Forest",
+                                "深き森の囁き",
+                                "깊은 숲의 잠꼬대"
+                            ]
+                        }
+                    }
                 },
                 {
                     "name": "MarkedByDarkShadows",
