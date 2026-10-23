@@ -7,15 +7,12 @@
 
 读过的地方，按可靠性排：
 
-1. 兄弟仓库数据里的构建号（``.beyond/ledger/*.json`` 的 ``last_res_version``，仓库停在 revert 提交上也准）；
-2. 兄弟仓库的提交标题（``Client:1.6.4 Data:initial_11262943-8_main_11262943-8`` 里的 ``Data:`` 那半）；
-3. 数据目录路径里的 ``initial_…_main_…``（发布端把解包目录直接递进来，既没兄弟仓库也没 ledger）。
+1. 兄弟仓库的提交标题（``Client:1.6.4 Data:initial_11262943-8_main_11262943-8`` 里的 ``Data:`` 那半）；
+2. 数据目录路径里的 ``initial_…_main_…``（发布端把解包目录直接递进来，没有兄弟仓库、也没有 git）。
 """
 
 import re
 from pathlib import Path
-
-import msgspec
 
 from .config import WORKSPACE_REPO_NAMES
 from .log import logger
@@ -62,46 +59,13 @@ def version_order(version: str) -> tuple[int, ...]:
     return build_key(version) or ()
 
 
-class LedgerState(msgspec.Struct, frozen=True):
-    """解包工具记在这份数据里的状态。"""
-
-    last_res_version: str | None = None
-    """这批数据来自哪个资源构建，如 initial_11010254-4_main_11010254-4；
-    这个文件用蛇形命名，所以这里不加 ``rename="camel"``"""
-
-
-class Ledger(msgspec.Struct, frozen=True):
-    """``.beyond/ledger/*.json``：解包工具留下的记录。"""
-
-    state: LedgerState = LedgerState()
-    """这份数据的状态"""
-
-
-def repo_data_build(repo: Path) -> str | None:
-    """这个仓库数据里的资源构建号（``initial_11010254-4_main_11010254-4``），读不到返回 ``None``。
-
-    读 ``.beyond/ledger/*.json`` 的 ``state.last_res_version``：解包工具记在数据里的「这批数据来自哪个
-    资源构建」，比提交标题可靠 —— revert / 手动提交的标题会说谎，数据不会。
-    """
-    for ledger in sorted(repo.glob(".beyond/ledger/*.json")):
-        try:
-            data = msgspec.json.decode(ledger.read_bytes(), type=Ledger)
-        except (OSError, ValueError):
-            continue
-        if data.state.last_res_version:
-            return data.state.last_res_version
-    return None
-
-
 def repo_data_version(repo: Path) -> str | None:
     """这个仓库的游戏数据版本（``11262943-8``），读不到返回 ``None``。
 
-    优先用数据里的构建号（:func:`repo_data_build`）；没有 ledger 时退回提交标题里的 ``Data:`` 字段。
-    合并 / revert 提交会盖住标题，所以往上翻几个提交找。
+    读提交标题里的 ``Data:`` 字段：解包工具每次推数据都写成
+    ``Client:1.6.4 Data:initial_11262943-8_main_11262943-8``。合并 / revert 提交会盖住标题，所以往上翻
+    几个提交找。
     """
-    build = repo_data_build(repo)
-    if build:
-        return res_short(build)
     if not (repo / ".git").exists():
         return None
     result = git(repo, "log", f"-{DATA_VERSION_LOOKBACK}", "--format=%s")
@@ -115,31 +79,24 @@ def repo_data_version(repo: Path) -> str | None:
 def data_version_from_path(*paths: Path) -> str | None:
     """数据目录自己带的版本：``…/initial_11262943-8_main_11262943-8/Data/TableCfg`` 里的构建号。
 
-    发布端（zmdmap 的 CI）把解包结果放在 ``<存储根>/<构建号>/Data/…`` 直接生成，那里既没有兄弟仓库、也没有
-    ``.beyond/ledger``，提交标题同样读不到 —— 构建号本来就在路径里，认它就行。发布端手里只有这一份数据，
-    所以这是它唯一能自己拿到的来源；要别的标签就在命令行用 ``--version`` 给。
-
-    先从路径里找 ``initial_…_main_…``，找不到再往上两三层的 ``.beyond/ledger`` 里找。
+    发布端（zmdmap 的 CI）把解包结果放在 ``<存储根>/<构建号>/Data/…`` 直接生成，那边没有兄弟仓库、也没有
+    git，提交标题读不到 —— 构建号本来就在路径里，认它就行。发布端手里只有这一份数据，所以这是它唯一能自己
+    拿到的来源；要别的标签就在命令行用 ``--version`` 给。
     """
     for path in paths:
-        # 先用原样的路径找：目录若是软链接，``resolve()`` 会把 ``initial_…_main_…`` 这几层也展开掉。
+        # 用原样的路径找：目录若是软链接，``resolve()`` 会把 ``initial_…_main_…`` 这几层也展开掉。
         for candidate in (str(path), str(path.resolve())):
             match = RES_VERSION_RE.search(candidate)
             if match:
                 return res_short(match.group(0))
-        resolved = path.resolve()
-        for ancestor in (resolved.parent, resolved.parent.parent):
-            build = repo_data_build(ancestor)
-            if build:
-                return res_short(build)
     return None
 
 
 def data_version(workspace: Path) -> str | None:
     """工作区下兄弟仓库的游戏数据版本（``11262943-8``），读不到返回 ``None``。
 
-    每个仓库都先看**数据**里的构建号、再退回提交标题（见 :func:`repo_data_version`），几个仓库取**最新的
-    那一份**（:func:`version_order`）—— 两个仓库通常一起解包，落后的一方不该把版本标签拉回去。数据文件里的
+    每个仓库读提交标题里的 ``Data:``（:func:`repo_data_version`），几个仓库取**最新的那一份**
+    （:func:`version_order`）—— 两个仓库通常一起解包，落后的一方不该把版本标签拉回去。数据文件里的
     ``version`` 字段就是这个值：给 ``zmdmap generate`` 用，免得每份数据各写各的版本，也免得另外维护一份
     「当前是哪一版」的记录。
     """

@@ -37,7 +37,7 @@ from .utils.datafile import (
     write_json,
 )
 from .utils.log import logger
-from .utils.version import data_version, data_version_from_path, repo_data_version
+from .utils.version import data_version, data_version_from_path, repo_data_version, res_short
 from .utils.workspace import (
     SYNC_MARK_UNKNOWN,
     SYNC_MARKS,
@@ -244,7 +244,8 @@ def generate_command(
         detected, origin = repo_data_version(table_cfg_dir.parent), "数据仓库"
     if not detected:
         detected, origin = data_version_from_path(table_cfg_dir, json_data_dir), "数据目录路径"
-    version = data_version_option or detected
+    # ``--version`` 也认资源构建号的长写法（``initial_11262943-8_main_11262943-8``），统一缩成短号再写。
+    version = res_short(data_version_option) if data_version_option else detected
     if version:
         logger.info(f"数据版本：{version}（{'命令行' if data_version_option else origin}）")
     else:
