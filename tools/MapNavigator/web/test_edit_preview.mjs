@@ -64,9 +64,20 @@ test("default preview asks for a manual start when only one target exists", () =
 test("runtime preview responses fill every overlay field", () => {
   const route = routePreviewData({ok: true, points: [[1, 2]]});
 
-  assert.deepEqual(route, {points: [[1, 2]], walk_segments: [], zipline_segments: [], diagnostics: [], zipline: {}});
+  assert.deepEqual(route, {
+    points: [[1, 2]],
+    walk_segments: [],
+    zipline_segments: [],
+    rope_segments: [],
+    diagnostics: [],
+    zipline: {},
+  });
   assert.deepEqual(routePreviewStatus(route, {expanded_waypoints: 7}, "片段"), [
     "片段：展开为 7 个运行时路点。",
+    "#10b981",
+  ]);
+  assert.deepEqual(routePreviewStatus({...route, rope_segments: [{from: [0, 0], to: [0, 0]}]}, {expanded_waypoints: 7}, "片段"), [
+    "片段：坐 1 次升降索，展开为 7 个运行时路点。",
     "#10b981",
   ]);
   assert.deepEqual(routePreviewStatus({...route, zipline: {no_data: true}}, {}, "片段"), [
@@ -88,8 +99,10 @@ test("runtime preview display projects the route and the failure gap into the vi
         [5, 0],
       ],
     ],
+    rope_segments: [{from: [5, 0], to: [5, 1], uid: 7, ride_s: 3.4}, {from: null, to: [1, 1]}],
   });
   const shown = routePreviewForDisplay(route, null, shift);
+  assert.deepEqual(shown.ropeSegments, [{from: [105, 0], to: [105, 1], uid: 7, ride_s: 3.4}]);
 
   assert.deepEqual(shown.previewPoints, [
     [100, 0],

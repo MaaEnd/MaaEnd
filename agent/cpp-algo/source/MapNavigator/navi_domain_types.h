@@ -130,6 +130,14 @@ constexpr ActionTraits TraitsOf(ActionType action)
     return {};
 }
 
+// 一段升降索: 从绳底按交互坐上去, ride_s 秒后人站在绳顶那层 (top_height)
+struct RopeRideInfo
+{
+    uint32_t uid = 0;
+    double ride_s = 0.0;
+    double top_height = 0.0;
+};
+
 // 运行期在卡死点前方生成的圆形禁区, 用于占位网格中未记录的障碍, 此后每次规划都绕开它。
 // 圆心按生成时所在定位区的坐标记录, 仅对同区规划生效。push_through 表示该禁区封闭了唯一通路,
 // 规划时不再计入, 只作为恢复流程判定此处需要物理脱困的依据。
@@ -196,6 +204,10 @@ struct Waypoint
     // ZIPLINE only: 这一跳的计划(两端架子、落点仰角、备用站位)。只由滑索规划写入; 缺这个字段的
     // ZIPLINE 点是配置写错了, 执行侧拒绝
     std::optional<ZiplineHopPlan> zipline_hop;
+    // 规划生成的绳底交互点专用: 按下交互后等这段升降索坐完, 再接绳顶落脚点
+    std::optional<RopeRideInfo> rope_ride;
+    // 规划生成的绳顶落脚点: 坐完升降索就算到了, 不靠走过去判
+    bool rope_top = false;
     // 展开路径专用: 这个点由原始作者 path 的哪一组(组首下标)展开而来。滑索链半路失败时按它把
     // 进度折回作者路线重新展开; 作者原始点和运行时生成的点不带(= max)。
     size_t authored_group_begin = std::numeric_limits<size_t>::max();

@@ -1530,8 +1530,9 @@ std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uin
     return out;
 }
 
-// 两段接成一条: 前段止于台沿, 后段起于落点, 落点记一次台沿下落。
-RecastPlanResult JoinDropHop(RecastPlanResult a, RecastPlanResult b, double land_h)
+// 两段接成一条, 接点事件由 mark 按后段首点下标记下, 后段自己的事件挪到拼接后的下标。
+RecastPlanResult
+    JoinLegs(RecastPlanResult a, RecastPlanResult b, const std::function<void(RecastPlanResult&, size_t)>& mark, const char* warning)
 {
     const size_t base = a.points.size();
     const size_t nb = b.points.size();
@@ -1557,13 +1558,17 @@ RecastPlanResult JoinDropHop(RecastPlanResult a, RecastPlanResult b, double land
     else {
         r.waypoints.clear();
     }
-    r.drops.push_back({ .index = base, .height = land_h });
+    mark(r, base);
     for (const DropLanding& d : b.drops) {
         r.drops.push_back({ .index = base + d.index, .height = d.height });
     }
+    for (RopeRide rope : b.ropes) {
+        rope.index += base;
+        r.ropes.push_back(rope);
+    }
     r.snap_goal = b.snap_goal;
     r.warnings.insert(r.warnings.end(), b.warnings.begin(), b.warnings.end());
-    r.warnings.push_back("台沿下落换类");
+    r.warnings.push_back(warning);
     RecastPlanResult::Debug& da = r.debug;
     const RecastPlanResult::Debug& db = b.debug;
     da.tier_notes.insert(da.tier_notes.end(), db.tier_notes.begin(), db.tier_notes.end());
@@ -1575,6 +1580,36 @@ RecastPlanResult JoinDropHop(RecastPlanResult a, RecastPlanResult b, double land
     da.planned_points = r.points;
     da.warnings = r.warnings;
     return r;
+}
+
+// 前段止于台沿, 后段起于落点, 落点记一次台沿下落。
+RecastPlanResult JoinDropHop(RecastPlanResult a, RecastPlanResult b, double land_h)
+{
+    return JoinLegs(
+        std::move(a),
+        std::move(b),
+        [land_h](RecastPlanResult& r, size_t base) { r.drops.push_back({ .index = base, .height = land_h }); },
+        "台沿下落换类");
+}
+
+// 前段止于绳底站位, 后段起于绳顶落脚点, 绳顶记一次坐升降索。
+RecastPlanResult JoinRopeHop(RecastPlanResult a, RecastPlanResult b, const FieldsRopeRec& rope)
+{
+    return JoinLegs(
+        std::move(a),
+        std::move(b),
+        [&rope](RecastPlanResult& r, size_t base) {
+            r.ropes.push_back({ .index = base,
+                                .top_height = static_cast<double>(rope.top.h),
+                                .uid = rope.uid_bottom,
+                                .ride_s = static_cast<double>(rope.ride_s) });
+        },
+        "升降索换层");
+}
+
+WorldPoint CellCentre(const FieldsLinkSide& s)
+{
+    return { .x = (static_cast<double>(s.gx) + 0.5) * kCS, .y = (static_cast<double>(s.gy) + 0.5) * kCS };
 }
 
 // 弦沿线的最小净空。取样与层走查同一套整数插值, 于是"弦经过哪些格"在两处判据里是同一个答案。
@@ -3002,11 +3037,14 @@ RecastPlanResult RecastNavEngine::plan(
     float goal_deck_y,
     float start_deck_y,
     const std::vector<BaseNavNoGoDisc>& no_go_discs,
-    const std::function<bool()>& should_stop)
+    const std::function<bool()>& should_stop,
+    const std::vector<uint32_t>* rope_off)
 {
     const std::lock_guard<std::mutex> lock(mutex_);
+    rope_off_ = rope_off;
     RecastPlanResult res =
         planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, goal_deck_y, start_deck_y, no_go_discs, should_stop);
+    rope_off_ = nullptr;
     // 规划完把空闲页还给系统。
 #if defined(__APPLE__)
     malloc_zone_pressure_relief(nullptr, 0);
@@ -3014,6 +3052,123 @@ RecastPlanResult RecastNavEngine::plan(
     _heapmin();
 #endif
     return res;
+}
+
+std::optional<RecastPlanResult> RecastNavEngine::tryRopes(
+    const std::string& zone_name,
+    uint16_t zone_id,
+    uint32_t start_region,
+    uint32_t goal_region,
+    const WorldPoint& start,
+    const WorldPoint& goal,
+    float start_floor_y,
+    float goal_floor_y,
+    float goal_deck_y,
+    float start_deck_y,
+    const std::vector<BaseNavNoGoDisc>& no_go_discs,
+    const std::function<bool()>& should_stop,
+    double best_cost,
+    size_t max_tries,
+    const std::vector<uint32_t>& out_of_reach)
+{
+    size_t n = 0;
+    const FieldsRopeRec* recs = fields_->ropesOfZone(zone_id, n);
+    if (roping_ || hopping_ || rope_off_ == nullptr || recs == nullptr) {
+        return std::nullopt;
+    }
+
+    // 直线距离是两段路程的下界, 下界都不比现有线省的绳索不必规划
+    struct Cand
+    {
+        double bound = 0.0;
+        const FieldsRopeRec* rope = nullptr;
+    };
+
+    const auto listed = [](const std::vector<uint32_t>& v, uint32_t uid) {
+        return std::find(v.begin(), v.end(), uid) != v.end();
+    };
+    std::vector<Cand> cands;
+    for (size_t i = 0; i < n; ++i) {
+        const FieldsRopeRec& r = recs[i];
+        if (r.bottom.rid != start_region || listed(*rope_off_, r.uid_bottom) || listed(out_of_reach, r.uid_bottom)) {
+            continue;
+        }
+        const WorldPoint b = CellCentre(r.bottom);
+        const WorldPoint t = CellCentre(r.top);
+        const double bound = std::hypot(b.x - start.x, b.y - start.y) + r.cost_px + std::hypot(goal.x - t.x, goal.y - t.y);
+        if (bound < best_cost) {
+            cands.push_back({ .bound = bound, .rope = &r });
+        }
+    }
+    // 绳顶已在终点那一类的先试, 尝试名额不被还得再跳一次的绳索占满
+    std::sort(cands.begin(), cands.end(), [goal_region](const Cand& p, const Cand& q) {
+        return std::make_tuple(p.rope->top.rid != goal_region, p.bound, p.rope->uid_bottom)
+               < std::make_tuple(q.rope->top.rid != goal_region, q.bound, q.rope->uid_bottom);
+    });
+
+    struct Unrope
+    {
+        bool& f;
+
+        ~Unrope() { f = false; }
+    };
+
+    roping_ = true;
+    const Unrope unrope { roping_ };
+    // 从绳底走到绳顶不比坐上去远的绳索永远省不了路, 这段路程每根只量一次
+    const auto walk_of = [&](const FieldsRopeRec& rope) {
+        const uint64_t key = (static_cast<uint64_t>(zone_id) << 32) | rope.uid_bottom;
+        if (const auto it = rope_walk_.find(key); it != rope_walk_.end()) {
+            return it->second;
+        }
+        // 往上走不靠台沿下落, 量这段时不接下落
+        hopping_ = true;
+        const Unrope unhop { hopping_ };
+        const RecastPlanResult w = planLocked(
+            zone_name,
+            CellCentre(rope.bottom),
+            CellCentre(rope.top),
+            kBaseNavFloorYNone,
+            kBaseNavFloorYNone,
+            rope.top.h,
+            rope.bottom.h,
+            {},
+            should_stop);
+        const double walk = w.ok ? w.length : std::numeric_limits<double>::infinity();
+        rope_walk_.emplace(key, walk);
+        return walk;
+    };
+    std::optional<RecastPlanResult> best;
+    double best_total = best_cost;
+    size_t tried = 0;
+    for (const Cand& c : cands) {
+        if (tried >= max_tries || (should_stop && should_stop())) {
+            break;
+        }
+        if (c.bound >= best_total) {
+            continue;
+        }
+        const FieldsRopeRec& rope = *c.rope;
+        if (walk_of(rope) <= rope.cost_px) {
+            continue;
+        }
+        ++tried;
+        const WorldPoint bottom = CellCentre(rope.bottom);
+        const WorldPoint top = CellCentre(rope.top);
+        RecastPlanResult a =
+            planLocked(zone_name, start, bottom, start_floor_y, kBaseNavFloorYNone, rope.bottom.h, start_deck_y, no_go_discs, should_stop);
+        if (!a.ok || a.length + rope.cost_px + std::hypot(goal.x - top.x, goal.y - top.y) >= best_total) {
+            continue;
+        }
+        RecastPlanResult b =
+            planLocked(zone_name, top, goal, kBaseNavFloorYNone, goal_floor_y, goal_deck_y, rope.top.h, no_go_discs, should_stop);
+        if (!b.ok || a.length + rope.cost_px + b.length >= best_total) {
+            continue;
+        }
+        best_total = a.length + rope.cost_px + b.length;
+        best = JoinRopeHop(std::move(a), std::move(b), rope);
+    }
+    return best;
 }
 
 void RecastNavEngine::warm(const std::string& zone_name)
@@ -3443,6 +3598,31 @@ RecastPlanResult RecastNavEngine::planLocked(
             last_resort = true;
             continue;
         }
+        // 窗内找得到而起点可达域够不着的绳底, 去那里的一段必然不通
+        const auto ropesOutOfReach = [&] {
+            std::vector<uint32_t> out;
+            size_t n_rope = 0;
+            const FieldsRopeRec* ropes = fields_->ropesOfZone(zone_id, n_rope);
+            for (size_t i = 0; i < n_rope; ++i) {
+                const FieldsLinkSide& b = ropes[i].bottom;
+                const int64_t cx = b.gx - gx0;
+                const int64_t cy = b.gy - gy0;
+                if (b.rid != region || cx < 0 || cy < 0 || cx >= nx || cy >= ny) {
+                    continue;
+                }
+                const int64_t j = info->st3.j(cy * nx + cx);
+                if (j < 0) {
+                    continue;
+                }
+                for (int64_t k = info->st3.cstart(j), ke = k + info->st3.ccnt(j); k < ke; ++k) {
+                    const auto sk = static_cast<size_t>(k);
+                    if (info->st3.sp_h[sk] == b.h && info->vis3[sk] != 0 && info->reach3[sk] == 0) {
+                        out.push_back(ropes[i].uid_bottom);
+                    }
+                }
+            }
+            return out;
+        };
         // 失败的腿才最需要诊断: 断开时的缝、窗口范围、各阶段耗时全在这里, 两条出口都得带上。
         const auto dump = [&] {
             res.debug.timing = dg.timing;
@@ -3491,6 +3671,7 @@ RecastPlanResult RecastNavEngine::planLocked(
                         hops = CrossDropHops(*info, peer3, start, goal);
                     }
                 }
+                const std::vector<uint32_t> far_ropes = ropesOutOfReach();
                 info.reset();
 
                 struct Unhop
@@ -3500,46 +3681,69 @@ RecastPlanResult RecastNavEngine::planLocked(
                     ~Unhop() { f = false; }
                 };
 
-                hopping_ = true;
-                const Unhop unhop { hopping_ };
-                for (const DropHop& hop : hops) {
-                    if (should_stop && should_stop()) {
+                std::optional<RecastPlanResult> dropped;
+                {
+                    hopping_ = true;
+                    const Unhop unhop { hopping_ };
+                    for (const DropHop& hop : hops) {
+                        if (should_stop && should_stop()) {
+                            break;
+                        }
+                        RecastPlanResult a = planLocked(
+                            zone_name,
+                            start,
+                            hop.take,
+                            start_floor_y,
+                            kBaseNavFloorYNone,
+                            static_cast<float>(hop.take_h),
+                            start_deck_y,
+                            no_go_discs,
+                            should_stop);
+                        if (!a.ok) {
+                            continue;
+                        }
+                        RecastPlanResult b = planLocked(
+                            zone_name,
+                            hop.land,
+                            goal,
+                            kBaseNavFloorYNone,
+                            goal_floor_y,
+                            kBaseNavFloorYNone,
+                            static_cast<float>(hop.land_h),
+                            no_go_discs,
+                            should_stop);
+                        if (!b.ok) {
+                            continue;
+                        }
+                        dropped = JoinDropHop(std::move(a), std::move(b), hop.land_h);
                         break;
                     }
-                    RecastPlanResult a = planLocked(
-                        zone_name,
-                        start,
-                        hop.take,
-                        start_floor_y,
-                        kBaseNavFloorYNone,
-                        static_cast<float>(hop.take_h),
-                        start_deck_y,
-                        no_go_discs,
-                        should_stop);
-                    if (!a.ok) {
-                        continue;
-                    }
-                    RecastPlanResult b = planLocked(
-                        zone_name,
-                        hop.land,
-                        goal,
-                        kBaseNavFloorYNone,
-                        goal_floor_y,
-                        kBaseNavFloorYNone,
-                        static_cast<float>(hop.land_h),
-                        no_go_discs,
-                        should_stop);
-                    if (!b.ok) {
-                        continue;
-                    }
-                    RecastPlanResult r = JoinDropHop(std::move(a), std::move(b), hop.land_h);
-                    r.debug.timing.total_ms = nowMs() - t_all0;
-                    return r;
                 }
                 // 试跳点途中取消的, 照取消报
-                if (should_stop && should_stop()) {
+                if (!dropped && should_stop && should_stop()) {
                     res.error = "规划已取消";
                     return res;
+                }
+                std::optional<RecastPlanResult> roped = tryRopes(
+                    zone_name,
+                    zone_id,
+                    region,
+                    peer,
+                    start,
+                    goal,
+                    start_floor_y,
+                    goal_floor_y,
+                    goal_deck_y,
+                    start_deck_y,
+                    no_go_discs,
+                    should_stop,
+                    dropped ? dropped->length : std::numeric_limits<double>::infinity(),
+                    kDropHopTries,
+                    far_ropes);
+                if (roped || dropped) {
+                    RecastPlanResult r = std::move(roped ? *roped : *dropped);
+                    r.debug.timing.total_ms = nowMs() - t_all0;
+                    return r;
                 }
             }
             // 两端都已过全区核心闸, 端点确实在可走面上, 差的是从起点出发的可达域够不着它。图铺满了
@@ -3570,6 +3774,28 @@ RecastPlanResult RecastNavEngine::planLocked(
         res.drops = std::move(dg.drops);
         dump();
         res.debug.planned_points = res.points;
+        const std::vector<uint32_t> far_ropes = ropesOutOfReach();
+        info.reset();
+        std::optional<RecastPlanResult> roped = tryRopes(
+            zone_name,
+            zone_id,
+            region,
+            region,
+            start,
+            goal,
+            start_floor_y,
+            goal_floor_y,
+            goal_deck_y,
+            start_deck_y,
+            no_go_discs,
+            should_stop,
+            res.length,
+            1,
+            far_ropes);
+        if (roped) {
+            roped->debug.timing.total_ms = nowMs() - t_all0;
+            return std::move(*roped);
+        }
         return res;
     }
 }

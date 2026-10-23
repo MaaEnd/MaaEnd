@@ -101,6 +101,10 @@ struct SemanticState
     std::chrono::steady_clock::time_point portal_transit_started {};
     // 这一次上索是行进预筛叫停的, 人可能还差几步。此时认不出提示只说明预筛看错了, 不该丢链
     bool zipline_prompt_probe = false;
+    // 坐升降索: 按下交互的时刻、这段要坐多久、坐完后连续取位成功了几次
+    std::chrono::steady_clock::time_point rope_ride_started {};
+    int64_t rope_ride_ms = 0;
+    int rope_stable_hits = 0;
 
     void ResetTransient()
     {
@@ -113,6 +117,9 @@ struct SemanticState
         portal_transit_needs_reacquire = false;
         portal_transit_started = {};
         zipline_prompt_probe = false;
+        rope_ride_started = {};
+        rope_ride_ms = 0;
+        rope_stable_hits = 0;
     }
 };
 

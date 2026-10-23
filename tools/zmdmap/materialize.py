@@ -17,9 +17,10 @@ import click
 
 from .utils import datafile
 from .utils.config import REPO_ROOT, ZMDMAP_DATA_DIR
+from .utils.log import logger
 from .utils.navmesh import load_nav_zones
 from .utils.project import project_dataset
-from .utils.sync import changed_data_files
+from .utils.workspace import changed_data_files
 
 
 def _missing_raw(source_path: Path) -> ValueError:
@@ -68,17 +69,17 @@ def _project(
         result = datafile.keep_metadata(raw, body)
         output_path = data_dir / file_name
         if not force and datafile.is_unchanged(output_path, result):
-            click.echo(f"[materialize] {file_name} 未变化，跳过写入")
+            logger.info(f"{file_name} 未变化，跳过写入")
             continue
         pending.append((file_name, output_path, result))
 
     data_dir.mkdir(parents=True, exist_ok=True)
     for file_name, output_path, result in pending:
         datafile.write_json(output_path, result)
-        click.echo(f"[materialize] {file_name} -> {output_path}")
+        logger.info(f"{file_name} -> {output_path}")
     if skipped_maps:
         names = ", ".join(sorted(skipped_maps))
-        click.echo(f"[materialize] 以下底图没有对应的 BaseNav zone，其条目未纳入：{names}", err=True)
+        logger.warning(f"以下底图没有对应的 BaseNav zone，其条目未纳入：{names}")
     return len(pending)
 
 
@@ -112,10 +113,10 @@ def _copy(raw_dir: Path, data_dir: Path, file_names: Sequence[str], *, force: bo
         except (OSError, UnicodeError):
             unchanged = False
         if unchanged:
-            click.echo(f"[materialize] {file_name} 未变化，跳过写入")
+            logger.info(f"{file_name} 未变化，跳过写入")
             continue
         output_path.write_text(text, encoding="utf-8", newline="\n")
-        click.echo(f"[materialize] {file_name} -> {output_path}")
+        logger.info(f"{file_name} -> {output_path}")
         written += 1
     return written
 
@@ -126,8 +127,8 @@ def report_data_changes(data_dir: Path, file_names: Sequence[str]) -> None:
         return
     changed = changed_data_files(list(file_names))
     if changed:
-        click.echo("data/*.json 改动：")
+        logger.info("data/*.json 改动：")
         for line in changed:
-            click.echo(f"  {line}")
+            logger.info(line)
     else:
-        click.echo("data/*.json：没有改动")
+        logger.info("data/*.json：没有改动")

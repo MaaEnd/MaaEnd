@@ -66,6 +66,8 @@ struct QueryParam
     json::value custom_action_param = json::object {};
     std::string zipline_account_id;
     std::string out_file;
+    // 绳底交互提示文字; 给了才规划升降索, 同实机读共享 OCR 节点的结果
+    std::vector<std::string> rope_interact_text;
 
     MEO_JSONIZATION(
         op,
@@ -82,7 +84,8 @@ struct QueryParam
         MEO_OPT position_zone,
         MEO_OPT custom_action_param,
         MEO_OPT zipline_account_id,
-        MEO_OPT out_file)
+        MEO_OPT out_file,
+        MEO_OPT rope_interact_text)
 };
 
 // 整包常驻：几何区元信息要全，路线又要按区取网格，一份全量加载同时喂得起两边。
@@ -345,9 +348,18 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
     const navmesh::WorldPoint start { .x = param.start[0], .y = param.start[1] };
     const navmesh::WorldPoint goal { .x = param.goal[0], .y = param.goal[1] };
     const float floor_y = FloorOrNone(param.floor_y);
-    const auto plan =
-        context.engine
-            ->plan(zone->name, start, goal, floor_y, floor_y, FloorOrNone(param.goal_deck_y), navmesh::kBaseNavFloorYNone, {}, {});
+    const std::vector<uint32_t> no_rope_off;
+    const auto plan = context.engine->plan(
+        zone->name,
+        start,
+        goal,
+        floor_y,
+        floor_y,
+        FloorOrNone(param.goal_deck_y),
+        navmesh::kBaseNavFloorYNone,
+        {},
+        {},
+        param.rope_interact_text.empty() ? nullptr : &no_rope_off);
 
     if (!plan.ok) {
         // 失败时带上两端的离网探针，调用方才能标出是哪个点掉在网格外。
@@ -421,6 +433,11 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
     for (const navmesh::DropLanding& drop : plan.drops) {
         debug["planned_drops"].as_array().emplace_back(json::array { drop.index, drop.height });
     }
+    json::array planned_ropes;
+    for (const navmesh::RopeRide& rope : plan.ropes) {
+        planned_ropes.emplace_back(json::array { rope.index, rope.top_height, rope.uid, rope.ride_s });
+    }
+    debug["planned_ropes"] = std::move(planned_ropes);
     for (const auto& warning : plan.debug.warnings) {
         debug["warnings"].as_array().emplace_back(warning);
     }
@@ -554,6 +571,7 @@ json::object BuildRoutePreview(const QueryParam& query)
     }
     param.navmesh_file = query.navmesh_file;
     param.normalize_position_via_navmesh = true;
+    param.rope_interact_text = query.rope_interact_text;
     if (param.zipline_enabled) {
         // 这是开发工具的顶层查询字段，不属于 MapNavigateAction 参数。正式运行仍只认当前游戏 UID。
         param.zipline_account_id = query.zipline_account_id;
@@ -625,6 +643,7 @@ json::object BuildRoutePreview(const QueryParam& query)
     std::vector<navmesh::WorldPoint> current_walk;
     json::array walk_segments;
     json::array zipline_segments;
+    json::array rope_segments;
     const navmesh::WorldPoint start { .x = position.x, .y = position.y };
     AppendDistinct(all_points, start);
     AppendDistinct(current_walk, start);
@@ -636,13 +655,25 @@ json::object BuildRoutePreview(const QueryParam& query)
         current_walk.clear();
     };
 
-    for (const mapnavigator::Waypoint& waypoint : expanded) {
+    for (size_t index = 0; index < expanded.size(); ++index) {
+        const mapnavigator::Waypoint& waypoint = expanded[index];
         if (!waypoint.HasPosition()) {
             continue;
         }
         const navmesh::WorldPoint point { .x = waypoint.x, .y = waypoint.y };
         AppendDistinct(all_points, point);
         AppendDistinct(current_walk, point);
+        if (waypoint.rope_ride && index + 1 < expanded.size()) {
+            const mapnavigator::Waypoint& top = expanded[index + 1];
+            rope_segments.emplace_back(json::object {
+                { "from", json::array { point.x, point.y } },
+                { "to", json::array { top.x, top.y } },
+                { "from_height", waypoint.route_floor_y ? json::value(*waypoint.route_floor_y) : json::value() },
+                { "to_height", waypoint.rope_ride->top_height },
+                { "uid", waypoint.rope_ride->uid },
+                { "ride_s", waypoint.rope_ride->ride_s },
+            });
+        }
 
         if (waypoint.action != mapnavigator::ActionType::ZIPLINE) {
             continue;
@@ -686,6 +717,7 @@ json::object BuildRoutePreview(const QueryParam& query)
         { "points", PointsToJson(all_points) },
         { "walk_segments", std::move(walk_segments) },
         { "zipline_segments", std::move(zipline_segments) },
+        { "rope_segments", std::move(rope_segments) },
         { "diagnostics", std::move(diagnostic_items) },
         { "expanded_waypoints", expanded.size() },
         { "zipline",

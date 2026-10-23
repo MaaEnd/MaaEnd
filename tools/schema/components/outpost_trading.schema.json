@@ -133,7 +133,8 @@
                         "strategy": {
                             "enum": [
                                 "rarity",
-                                "price"
+                                "price",
+                                "stock"
                             ]
                         }
                     }
@@ -143,14 +144,11 @@
                     "additionalProperties": false,
                     "required": [
                         "operation",
-                        "strategy"
+                        "minimum_unit_price"
                     ],
                     "properties": {
                         "operation": {
-                            "const": "configure_strategy"
-                        },
-                        "strategy": {
-                            "const": "stock"
+                            "const": "configure_minimum_price"
                         },
                         "minimum_unit_price": {
                             "type": "integer",

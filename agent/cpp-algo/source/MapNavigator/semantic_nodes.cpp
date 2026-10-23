@@ -233,6 +233,51 @@ Result TickTransferWaitImpl(const Context& ctx)
     return result;
 }
 
+// 坐升降索时小地图坐标几乎不动, 位移判不出坐没坐完: 先等满数据给的乘坐时长, 再要连续几次取位成功才放行
+Result TickRopeRideImpl(const Context& ctx)
+{
+    SemanticState& s = ctx.runtime_state->semantic;
+    ctx.motion_controller->SetForwardState(false);
+    const int64_t waited_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - s.rope_ride_started).count();
+    if (waited_ms < s.rope_ride_ms) {
+        utils::SleepFor(kRelocationRetryIntervalMs);
+        return { .stay_in_current_tick = true };
+    }
+    if (waited_ms > s.rope_ride_ms + kRelocationWaitTimeoutMs) {
+        return { .request_failure = true,
+                 .failure_reason = "rope_ride_timeout",
+                 .failure_log_message = "Rope ride finished but the position never stabilized." };
+    }
+    if (!ctx.position_provider->Capture(ctx.position, false, {})) {
+        s.rope_stable_hits = 0;
+        utils::SleepFor(kRelocationRetryIntervalMs);
+        return { .stay_in_current_tick = true };
+    }
+    if (++s.rope_stable_hits < kRelocationStableFixes) {
+        utils::SleepFor(kRelocationRetryIntervalMs);
+        return { .stay_in_current_tick = true };
+    }
+
+    LogInfo << "Rope ride finished." << VAR(waited_ms) << VAR(ctx.position->x) << VAR(ctx.position->y) << VAR(ctx.position->zone_id);
+    s.rope_ride_started = {};
+    s.rope_ride_ms = 0;
+    s.rope_stable_hits = 0;
+    ctx.session->UpdateCurrentZone(ctx.position->zone_id);
+    if (ctx.session->HasCurrentWaypoint() && ctx.session->CurrentWaypoint().rope_top) {
+        const Waypoint& top = ctx.session->CurrentWaypoint();
+        return CompleteArrival(ctx, top, ctx.session->CurrentAbsoluteNodeIndex(), "rope_ride_completed");
+    }
+    ctx.session->ResetProgress();
+    ctx.runtime_state->ResetNavigationAssistState();
+    if (!ctx.session->HasCurrentWaypoint()) {
+        ctx.session->NoteRouteTailConsumed(*ctx.position, "route_tail_consumed");
+        return { .consumed = true, .stay_in_current_tick = true };
+    }
+    SelectPhaseForCurrentWaypoint(ctx, "rope_ride_completed");
+    return { .consumed = true, .stay_in_current_tick = true };
+}
+
 Result ConsumeHeadingNodesImpl(const Context& ctx)
 {
     Result result;
@@ -806,6 +851,9 @@ Result TickSemanticFlow(const Context& ctx, NaviPhase phase)
     if (phase == NaviPhase::WaitJumpPad) {
         return TickJumpPad(ctx);
     }
+    if (phase == NaviPhase::WaitRope) {
+        return TickRopeRideImpl(ctx);
+    }
     if (ctx.runtime_state->semantic.portal_transit_active) {
         return TickPortalTransit(ctx);
     }
@@ -961,9 +1009,22 @@ Result ArriveInteract(const Context& ctx, const Waypoint& waypoint, const std::o
                      .failure_reason = "interact_prompt_missing",
                      .failure_log_message = "Interact prompt not recognized on the point." };
         }
+        if (waypoint.rope_ride) {
+            const RopeRideInfo ride = *waypoint.rope_ride;
+            if (!recognized) {
+                LogWarn << "Action: rope prompt missing at the bottom." << VAR(actual_distance) << VAR(ride.uid);
+                return { .consumed = true, .rope_unavailable = ride.uid };
+            }
+            CompleteArrival(ctx, waypoint, node_idx, "rope_interact_pressed");
+            return StartRopeRide(ctx, ride);
+        }
         return CompleteArrival(ctx, waypoint, node_idx, "async_interact_completed");
     }
 
+    // 绳底没有提示文字就确认不了坐没坐上, 当这根用不了
+    if (waypoint.rope_ride) {
+        return { .consumed = true, .rope_unavailable = waypoint.rope_ride->uid };
+    }
     // rec 模式走到这里是文本没解析出来, 到点狂按 F 正是它要避开的
     if (waypoint.IsRecInteract()) {
         LogInfo << "Action: INTERACT in rec mode, skipping the key press." << VAR(waypoint.interact_text_node);
@@ -977,6 +1038,22 @@ Result ArriveInteract(const Context& ctx, const Waypoint& waypoint, const std::o
 }
 
 } // namespace
+
+Result StartRopeRide(const Context& ctx, const RopeRideInfo& ride)
+{
+    StopMotionAndCommitment(ctx);
+    SemanticState& s = ctx.runtime_state->semantic;
+    s.rope_ride_started = std::chrono::steady_clock::now();
+    s.rope_ride_ms = static_cast<int64_t>(std::ceil(ride.ride_s * 1000.0));
+    s.rope_stable_hits = 0;
+    ctx.position_provider->ResetTracking();
+    LogInfo << "Rope ride started." << VAR(ride.uid) << VAR(ride.ride_s) << VAR(ride.top_height);
+    if (!ctx.session->HasCurrentWaypoint() || !ctx.session->CurrentWaypoint().rope_top) {
+        LogWarn << "Rope ride started without a top landing as the next point." << VAR(ride.uid);
+    }
+    ctx.session->UpdatePhase(NaviPhase::WaitRope, "rope_ride_started");
+    return { .consumed = true, .stay_in_current_tick = true };
+}
 
 Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual_distance)
 {

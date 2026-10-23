@@ -36,6 +36,7 @@ struct RecastPlanResult
     // 空 = 该腿没有层预言机,拉直交给调用方。
     std::vector<size_t> waypoints;
     std::vector<DropLanding> drops;
+    std::vector<RopeRide> ropes;
 
     // 规划各阶段的中间产物。每个数组恰好对应一段算法的出口, 看哪一段把线拐坏了就开哪一层。
     struct Debug
@@ -95,7 +96,8 @@ public:
     // goal_deck_y = 终点所在重叠面的高度,选层用,与吸附用的 floor_y 是两件事;
     // start_deck_y = 起点脚下那层的确切高度,给了就盖过 start_floor_y;
     // no_go_discs = 运行期虚拟禁区, 与作者禁区同口径盖格, 但端点落在里面照常规划;
-    // should_stop = 外部取消,两档窗口之间查一次
+    // should_stop = 外部取消,两档窗口之间查一次;
+    // rope_off = 这次导航判定用不了的升降索(底端 uid), 空指针表示不用升降索
     RecastPlanResult plan(
         const std::string& zone_name,
         const WorldPoint& start,
@@ -105,7 +107,8 @@ public:
         float goal_deck_y = kBaseNavFloorYNone,
         float start_deck_y = kBaseNavFloorYNone,
         const std::vector<BaseNavNoGoDisc>& no_go_discs = {},
-        const std::function<bool()>& should_stop = {});
+        const std::function<bool()>& should_stop = {},
+        const std::vector<uint32_t>* rope_off = nullptr);
 
     // 把该区的清洗网格与预烘场提前建好,让首条路线不必冷吃这份开销。
     void warm(const std::string& zone_name);
@@ -151,6 +154,28 @@ private:
     NoGoTable nogo_;       // 虚拟禁区表, 缺了就是没有禁区
     std::string grid_error_;
     bool hopping_ = false; // 正在规划跨类下落的两段, 它们自己不再往下接
+    bool roping_ = false;  // 正在规划升降索的两段, 它们自己不再接升降索
+    const std::vector<uint32_t>* rope_off_ = nullptr;
+    // 每根升降索从绳底走到绳顶的路程 px, 键是 区号 << 32 | 底端 uid; 走不到记无穷
+    std::unordered_map<uint64_t, double> rope_walk_;
+
+    // 绳底、绳顶各接一段拼起来, 比 best_cost 省才换; 最多试 max_tries 根, 跳过 out_of_reach 里的绳底
+    std::optional<RecastPlanResult> tryRopes(
+        const std::string& zone_name,
+        uint16_t zone_id,
+        uint32_t start_region,
+        uint32_t goal_region,
+        const WorldPoint& start,
+        const WorldPoint& goal,
+        float start_floor_y,
+        float goal_floor_y,
+        float goal_deck_y,
+        float start_deck_y,
+        const std::vector<BaseNavNoGoDisc>& no_go_discs,
+        const std::function<bool()>& should_stop,
+        double best_cost,
+        size_t max_tries,
+        const std::vector<uint32_t>& out_of_reach);
 };
 
 }

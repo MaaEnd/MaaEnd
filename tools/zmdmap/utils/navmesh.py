@@ -6,7 +6,7 @@ BaseNav 包是二进制：头部是 ``BNAV``，版本 >= 5 时 zone 表的位置
 
 nav 数据默认读 ``assets/resource/model`` 子模块里的 ``map/navmesh/base.nav.gz``；本地没有时按该子模块当前
 提交从远端取（Range 请求只拉前缀），``--nav`` 可以指定别的本地文件或 URL。远端那一趟走
-:mod:`tools.zmdmap.utils.http` —— 与数据下载同一套 UA / 超时 / 重试，反复加长前缀时也复用同一条连接。
+:mod:`tools.zmdmap.utils.http` —— 与数据下载同一套 UA / 超时 / 重试。
 """
 
 import math
@@ -16,10 +16,12 @@ import zlib
 from collections.abc import Callable
 from pathlib import Path
 
-import httpx
+import msgspec
+import requests
 
 from .config import MODEL_SUBPATH, NAVMESH_FILES, NAVMESH_SUBPATH
-from .http import get, new_client
+from .http import get
+from .log import logger
 
 NAV_MAGIC = b"BNAV"
 NAV_HEADER_SIZE = 64
@@ -40,14 +42,14 @@ class NavPrefixTooShort(Exception):
     """nav 数据只读到一段前缀，需要再读多一点。"""
 
 
-def _read_remote(client: httpx.Client, url: str, count: int) -> bytes:
+def _read_remote(url: str, count: int) -> bytes:
     """读远端文件的开头 ``count`` 字节（Range 请求；服务端不认 Range 就整份读回来）。"""
     try:
-        response = get(client, url, headers={"Range": f"bytes=0-{count - 1}"})
-    except httpx.HTTPError as error:
+        response = get(url, headers={"Range": f"bytes=0-{count - 1}"})
+    except requests.RequestException as error:
         raise ValueError(f"读取 nav 数据失败：{error}") from error
     if response.status_code >= 400:
-        raise ValueError(f"读取 nav 数据失败：{response.status_code} {response.reason_phrase}")
+        raise ValueError(f"读取 nav 数据失败：{response.status_code} {response.reason}")
     return response.content
 
 
@@ -140,26 +142,34 @@ def _read_decompressed(read: Reader, size: int) -> bytes:
     raise ValueError("没能读完 nav 数据的 zone 表")
 
 
-def _resolve_nav_submodule_sha(client: httpx.Client) -> str:
+class SubmoduleRef(msgspec.Struct):
+    """GitHub contents API 返回的提交信息（只取 ``sha``）。"""
+
+    sha: str = ""
+
+
+def _resolve_nav_submodule_sha() -> str:
     """查 model 子模块当前提交（GitHub API 上 ``v2`` 分支的那份）。"""
     try:
-        response = get(client, NAV_SUBMODULE_API, headers={"Accept": "application/vnd.github+json"})
-    except httpx.HTTPError as error:
+        response = get(NAV_SUBMODULE_API, headers={"Accept": "application/vnd.github+json"})
+    except requests.RequestException as error:
         raise ValueError(f"查询 assets/resource/model 版本失败：{error}") from error
     if response.status_code >= 400:
         raise ValueError(f"查询 assets/resource/model 版本失败：{response.status_code}")
-    body = response.json()
-    sha = body.get("sha") if isinstance(body, dict) else None
-    if not isinstance(sha, str) or not sha:
+    try:
+        sha = msgspec.json.decode(response.content, type=SubmoduleRef).sha
+    except msgspec.DecodeError as error:
+        raise ValueError(f"没能确定 assets/resource/model 的版本：{error}") from error
+    if not sha:
         raise ValueError("没能确定 assets/resource/model 的版本")
     return sha
 
 
-def resolve_nav_source(client: httpx.Client, nav: str | None, repo_root: Path) -> tuple[str, Reader]:
-    """定下 nav 数据的来源，返回 ``(日志用的标签, 读前缀的函数)``；远端读取用 ``client``。"""
+def resolve_nav_source(nav: str | None, repo_root: Path) -> tuple[str, Reader]:
+    """定下 nav 数据的来源，返回 ``(日志用的标签, 读前缀的函数)``。"""
     if nav:
         if re.match(r"^https?://", nav):
-            return nav, lambda count: _read_remote(client, nav, count)
+            return nav, lambda count: _read_remote(nav, count)
         path = Path(nav).expanduser().resolve()
         if not path.exists():
             raise ValueError(f"nav 数据不存在：{path}")
@@ -171,22 +181,21 @@ def resolve_nav_source(client: httpx.Client, nav: str | None, repo_root: Path) -
         if candidate.exists():
             return str(candidate), lambda count, candidate=candidate: _read_file_prefix(candidate, count)
 
-    url = NAV_REMOTE_TEMPLATE.format(sha=_resolve_nav_submodule_sha(client))
-    return url, lambda count: _read_remote(client, url, count)
+    url = NAV_REMOTE_TEMPLATE.format(sha=_resolve_nav_submodule_sha())
+    return url, lambda count: _read_remote(url, count)
 
 
 def load_nav_zones(nav: str | None, repo_root: Path) -> dict[str, NavZone]:
     """读出 zone 表：``zone 名 -> {zone_id, size, sx, tx, sy, ty}``。
 
-    前缀不够就得加长重读（见 :data:`NAV_PREFIX_BYTES`），几次读取共用同一个客户端，重试之间不重握连接。
+    前缀不够就得加长重读（见 :data:`NAV_PREFIX_BYTES`），每次重读都是一次新的 Range 请求。
     """
-    with new_client() as client:
-        label, read = resolve_nav_source(client, nav, repo_root)
-        print(f"[materialize] nav 数据：{label}")
-        size = NAV_PREFIX_BYTES
-        while size <= NAV_PREFIX_LIMIT:
-            try:
-                return parse_nav_zones(_read_decompressed(read, size), label)
-            except NavPrefixTooShort:
-                size *= 2
-        raise ValueError(f"没能读全 zone 表：{label}")
+    label, read = resolve_nav_source(nav, repo_root)
+    logger.info(f"nav 数据：{label}")
+    size = NAV_PREFIX_BYTES
+    while size <= NAV_PREFIX_LIMIT:
+        try:
+            return parse_nav_zones(_read_decompressed(read, size), label)
+        except NavPrefixTooShort:
+            size *= 2
+    raise ValueError(f"没能读全 zone 表：{label}")

@@ -78,10 +78,10 @@
     },
     "PullCountCalculatorCarryToNextVoucherQuantityOCR": {
         "roi_offset": [
-            -25,
-            84,
-            38,
-            -58
+            11,
+            97,
+            -22,
+            -84
         ]
     },
     "PullCountCalculatorCarryToNextVoucherTitleOCR": {

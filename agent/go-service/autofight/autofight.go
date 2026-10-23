@@ -34,6 +34,44 @@ type autoFightAttach struct {
 	EndAxisTimelineCode          string   `json:"end_axis_timeline_code"`
 	SkipComboCooldown            bool     `json:"skip_combo_cooldown"`
 	PauseExitNodes               []string `json:"pause_exit_nodes"`
+	SkillMode1                   string   `json:"skill_mode_1"`
+	SkillMode2                   string   `json:"skill_mode_2"`
+	SkillMode3                   string   `json:"skill_mode_3"`
+	SkillMode4                   string   `json:"skill_mode_4"`
+}
+
+// 每名干员的战技释放方式；空值按 cycle 处理。
+const (
+	skillModeCycle = "cycle"
+	skillModeOnce  = "once"
+	skillModeNever = "never"
+)
+
+func (p *autoFightAttach) skillModes() [4]string {
+	return [4]string{p.SkillMode1, p.SkillMode2, p.SkillMode3, p.SkillMode4}
+}
+
+// pickSkillOperator 从 cycleIndex 起轮转查找下一个可释放战技的干员（1-based），
+// 跳过 never 以及已释放过的 once；返回选中的干员与下一轮的起点，找不到时 ok 为 false。
+func pickSkillOperator(modes [4]string, usedOnce *[4]bool, cycleIndex, characterCount int) (op, next int, ok bool) {
+	n := characterCount
+	if n <= 0 || n > 4 {
+		n = 4
+	}
+	for i := range n {
+		candidate := ((cycleIndex-1+i)%n + n) % n
+		switch modes[candidate] {
+		case skillModeNever:
+			continue
+		case skillModeOnce:
+			if usedOnce[candidate] {
+				continue
+			}
+			usedOnce[candidate] = true
+		}
+		return candidate + 1, candidate + 2, true
+	}
+	return 0, cycleIndex, false
 }
 
 var screenAnalyzer = NewScreenAnalyzer()
@@ -402,6 +440,8 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	firstNoLockIteration := true
 	characterCount := -1
 	skillCycleIndex := 1
+	skillModes := params.skillModes()
+	var skillUsedOnce [4]bool
 
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchDown", maa.Rect{600, 320, 80, 80}, "", nil)
@@ -661,31 +701,27 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			}
 			if params.EnableSkill && energyLevel >= 1 {
 				if params.EnableBreakAccumulatingPower && screenAnalyzer.GetEnemyAccumulatingPower(true) {
-					maafocus.Print(ctx, i18n.T("autofight.enemy_accumulating_power"))
-					op := skillCycleIndex
-					if characterCount > 0 {
-						op = ((op - 1) % characterCount) + 1
+					if op, next, ok := pickSkillOperator(skillModes, &skillUsedOnce, skillCycleIndex, characterCount); ok {
+						maafocus.Print(ctx, i18n.T("autofight.enemy_accumulating_power"))
+						enqueueAction(fightAction{
+							executeAt: time.Now(),
+							action:    skillAction(op),
+						})
+						skillCycleIndex = next
 					}
-					enqueueAction(fightAction{
-						executeAt: time.Now(),
-						action:    skillAction(op),
-					})
-					skillCycleIndex++
 				} else if energyLevel > params.ReserveSkillLevel && hasEnemyTarget {
 					log.Debug().
 						Str("component", "AutoFight").
 						Int("energyLevel", energyLevel).
 						Int("reserveLevel", params.ReserveSkillLevel).
 						Msg("energy level above reserve, using skill")
-					op := skillCycleIndex
-					if characterCount > 0 {
-						op = ((op - 1) % characterCount) + 1
+					if op, next, ok := pickSkillOperator(skillModes, &skillUsedOnce, skillCycleIndex, characterCount); ok {
+						enqueueAction(fightAction{
+							executeAt: time.Now(),
+							action:    skillAction(op),
+						})
+						skillCycleIndex = next
 					}
-					enqueueAction(fightAction{
-						executeAt: time.Now(),
-						action:    skillAction(op),
-					})
-					skillCycleIndex++
 				}
 				screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
 			}

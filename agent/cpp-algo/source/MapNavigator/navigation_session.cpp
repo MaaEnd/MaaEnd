@@ -46,6 +46,8 @@ const char* NaviPhaseName(NaviPhase phase)
         return "WaitFind";
     case NaviPhase::WaitJumpPad:
         return "WaitJumpPad";
+    case NaviPhase::WaitRope:
+        return "WaitRope";
     case NaviPhase::Finished:
         return "Finished";
     case NaviPhase::Failed:

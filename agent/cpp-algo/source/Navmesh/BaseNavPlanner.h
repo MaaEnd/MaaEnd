@@ -50,6 +50,8 @@ struct BaseNavRouteRequest
     // Height of the deck the start stands on, set only when it is known exactly (just landed on a zipline
     // tower). The start snaps onto the surface nearest that height instead of the nearest surface.
     float start_deck_y = kBaseNavFloorYNone;
+    // 为空表示这次不用升降索; 有值时列着这次导航里判定用不了的那些(底端 uid)。
+    std::optional<std::vector<uint32_t>> rope_off;
 };
 
 enum class BaseNavRouteStatus

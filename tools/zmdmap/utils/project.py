@@ -15,11 +15,12 @@ from typing import Any
 
 from ..datasets import dataset_of
 from .navmesh import NavZone
+from .shapes import is_array, is_object
 
 #: 投影前的世界坐标轴与投影后原位顶替它的底图像素轴，一一对应（x -> u、z -> v）。
 #: ``y`` 是世界高度，不参与换算，原样保留。
-WORLD_AXES = ("x", "z")
-PIXEL_AXES = ("u", "v")
+WORLD_AXES: tuple[str, ...] = ("x", "z")
+PIXEL_AXES: tuple[str, ...] = ("u", "v")
 
 
 def round3(value: float) -> float:
@@ -74,12 +75,12 @@ def project_entries(
     skipped_maps: set[str],
     label: str,
 ) -> list[dict[str, Any]]:
-    if not isinstance(entries, list):
+    if not is_array(entries):
         raise ValueError(f"{label} 不是数组")
 
     projected: list[dict[str, Any]] = []
     for entry in entries:
-        if not isinstance(entry, dict):
+        if not is_object(entry):
             raise ValueError(f"{label} 条目不是对象")
         map_id = entry.get("map")
         if not isinstance(map_id, str) or not map_id:
@@ -134,13 +135,13 @@ def project_dataset(
     if dataset is None or not dataset.needs_projection:
         return payload
 
-    if not isinstance(payload, dict):
+    if not is_object(payload):
         # 本体按约定是「容器名 -> 条目」的对象；不是就当数据坏了报明确错误。若先 dict(payload)，
         # 数组 / null 会抛 TypeError，而 run_projection 只接 OSError / ValueError，用户会看到栈。
         raise ValueError(f"{file_name} 的本体不是对象，没法投影：拿到 {type(payload).__name__}")
 
     used_zones: dict[str, dict[str, Any]] = {}
-    projected = dict(payload)
+    projected: dict[str, Any] = dict(payload)
     for container in dataset.projection_containers:
         projected[container] = project_entries(
             payload.get(container),

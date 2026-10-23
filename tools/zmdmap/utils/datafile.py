@@ -18,8 +18,11 @@ import json
 from pathlib import Path
 from typing import Any
 
-#: 数据文件最前面的两个元数据字段：``version`` 是给人看的版本标签（「客户端版本 + 数据构建号」，见
-#: :func:`tools.zmdmap.utils.sync.compose_version`），``sha256`` 是这份数据原始形态的内容指纹。
+from .shapes import is_object
+
+#: 数据文件最前面的两个元数据字段：``version`` 是给人看的版本标签（「客户端版本 + 数据构建号」，
+#: 如 ``1.6.3+11010254-4``，见 :func:`tools.zmdmap.utils.version.compose_version`），``sha256`` 是这份数据
+#: 原始形态的内容指纹。
 #: 两个都由 ``generate`` 写一次，``fetch`` 与入库都只照抄（见 :func:`keep_metadata`）。
 VERSION_KEY = "version"
 HASH_KEY = "sha256"
@@ -44,14 +47,14 @@ def read_json(path: Path) -> Any:
 
 def payload_of(data: Any) -> Any:
     """去掉最前面的元数据字段之后的数据本体。"""
-    if not isinstance(data, dict):
+    if not is_object(data):
         return data
     return {key: value for key, value in data.items() if key not in METADATA_KEYS}
 
 
 def metadata_of(data: Any) -> dict[str, Any]:
     """数据文件最前面的元数据字段（原键序、原样）。"""
-    if not isinstance(data, dict):
+    if not is_object(data):
         return {}
     return {key: value for key, value in data.items() if key in METADATA_KEYS}
 
@@ -68,7 +71,7 @@ def payload_hash(payload: Any) -> str:
 
 def version_of(data: Any) -> str | None:
     """解析好的数据里记的版本；没有、或不是非空字符串时返回 ``None``。"""
-    value = data.get(VERSION_KEY) if isinstance(data, dict) else None
+    value = data.get(VERSION_KEY) if is_object(data) else None
     return value if isinstance(value, str) and value else None
 
 
@@ -91,7 +94,7 @@ def read_hash(path: Path) -> str | None:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
-    value = data.get(HASH_KEY) if isinstance(data, dict) else None
+    value = data.get(HASH_KEY) if is_object(data) else None
     return value if isinstance(value, str) and value else None
 
 
@@ -132,7 +135,7 @@ def with_metadata(data: Any, version: str | None = None) -> Any:
     走 :func:`keep_metadata` 原样沿用。
     """
     payload = payload_of(data)
-    if not isinstance(payload, dict):
+    if not is_object(payload):
         return payload
     metadata: dict[str, Any] = {}
     stamp = version or version_of(data)
@@ -148,7 +151,7 @@ def keep_metadata(source: Any, body: Any) -> Any:
     入库投影走这里 —— 投影之后本体与原始形态不同，但 ``sha256`` 仍然记原始形态那一份，于是 ``data/`` 与
     ``data/raw/`` 里同名的两份指纹一致，入库也不会把上游写的元数据改掉。
     """
-    if not isinstance(body, dict):
+    if not is_object(body):
         return body
     return {**metadata_of(source), **body}
 

@@ -266,6 +266,14 @@ The resource folder is in a linked state. Modifying `assets` is equivalent to mo
 - Use plain names without underscores for folders, e.g. `Private`, `Button`;
 - This restriction applies to **folder names only**. Task names (keys in the pipeline JSON) may still use a `__` prefix, e.g. `__AutoAltClickAltKeyDownAction`; the two do not affect each other.
 
+### JSON Comments Are Allowed (JSONC)
+
+Resource JSON is always treated as JSONC, so `//`, `/* */` comments and trailing commas are fine; a `.json` extension does not mean strict JSON. `files.associations` in `.vscode/settings.json` already maps `assets/**`, `tests/**` and several `tools/` subdirectories to `jsonc`, so the editor does not complain. **When you add a new directory for JSON files outside `assets/` and `tests/`, add a line to `files.associations`**, otherwise the editor treats those files as strict JSON and flags them.
+
+Code that reads repository JSON must parse JSONC too: `pkg/jsonclean` (or `resource.ReadJsonResource`) in Go, `OpenJsoncFile` from `Common/JsoncFile.h` in C++, `tools/pipeline-generate/jsonc.mjs` in Node, and `json5` in Python.
+
+The exception is `assets/locales/**`: `tools/i18n/sync_auto_collect_locales.py`, `tools/essence_filter/build_autoessence_tasks.py` and `tools/AutoCollectRoute/route_builder.py` read those files with strict `json`, so a comment makes them fail to parse; the other scripts that rewrite locales also drop comments when they re-serialize. Files parsed strictly by external tools (`tools/schema/**`, `package.json`, and so on) likewise stay strict JSON.
+
 ## OCR and i18n
 
 Developers do not need to manually maintain multi-language OCR; just write the expected text in the current language, and `tools/i18n` will automatically process it.
