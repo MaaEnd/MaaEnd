@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from agent_session import AgentSession
+from json_import import load_jsonc
 from runtime import RESOURCE_DIR, load_maa_runtime
 
 _NODE = "MapNavmeshQuery"
@@ -21,11 +22,27 @@ NAVMESH_GZ = NAVMESH_DIR / "base.nav.gz"
 NAVMESH_RAW = NAVMESH_DIR / "base.nav"
 # 虚拟禁区表是本仓库的配置, 与 zipline_frames.json 同规矩放 data/MapNavigator/, 与 planner 的解析一致。
 NOGO_JSON = RESOURCE_DIR.parent / "data" / "MapNavigator" / "nogo_zones.json"
+ROPE_TEXT_PIPELINE = RESOURCE_DIR / "pipeline" / "MapNavigator" / "Interact.json"
+ROPE_TEXT_NODE = "MapNavigatorRopeUseText"
 
 
 def default_pack_path() -> Path:
     """navmesh 包: 优先 base.nav.gz, 缺失时用未压缩的 base.nav。"""
     return NAVMESH_GZ if NAVMESH_GZ.exists() else NAVMESH_RAW
+
+
+def rope_interact_text() -> list[str]:
+    """升降索绳底的交互文字, 与运行时读同一个节点; 读不到时返回空表, agent 就不接升降索。"""
+    try:
+        node = load_jsonc(ROPE_TEXT_PIPELINE).get(ROPE_TEXT_NODE)
+    except (OSError, ValueError):
+        return []
+    recognition = node.get("recognition") if isinstance(node, dict) else None
+    param = recognition.get("param") if isinstance(recognition, dict) else None
+    expected = param.get("expected") if isinstance(param, dict) else None
+    if not isinstance(expected, list) or not expected or not all(isinstance(text, str) and text for text in expected):
+        return []
+    return expected
 
 
 def _make_null_controller() -> Any:
@@ -244,6 +261,7 @@ class NavmeshBackend:
             "floor_y": [] if floor_y is None else [float(floor_y)],
             "custom_action_param": custom_action_param,
             "zipline_account_id": zipline_account_id,
+            "rope_interact_text": rope_interact_text(),
         }
         if latest_key is not None:
             return self.query_latest(latest_key, "route_preview", **params)
