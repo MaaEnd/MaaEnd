@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """验证资源能不能按 MXU 的那 5 个路径加载成功（Linux 控制器会额外追加 resource_linux）"""
 import os
 import sys
@@ -7,7 +6,7 @@ import sys
 sys.path.insert(0, "/root/maaend/web/linux")
 os.environ.setdefault("LD_LIBRARY_PATH", "/root/maaend/maafw")
 
-from maa.resource import Resource  # noqa: E402
+from maa.resource import Resource
 
 PATHS = [
     "/root/maaend/resource",

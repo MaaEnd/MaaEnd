@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """修 MXU 白屏 / 「加载失败 Object.entries requires that input parameter not be null or undefined」。
 
 根因：我们往 interface.json 的 resource 里塞了「官服-网页端」，但没给 `label`。

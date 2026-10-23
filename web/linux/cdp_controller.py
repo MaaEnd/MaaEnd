@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """CdpController —— 用 CDP 直接读云串流 <video> 原生帧，并用 CDP 注入鼠标/键盘。
 
 为什么需要它：合成器截图那条链路是 1080p →（浏览器放大）1440p →（MaaFw 缩小）720p，
@@ -20,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import contextlib
 import io
 import json
 import os
@@ -101,10 +101,8 @@ class _Sess:
         return res.get("value")
 
     def close(self):
-        try:
+        with contextlib.suppress(Exception):
             self.ws.close()
-        except Exception:
-            pass
 
 
 class CdpController:
@@ -246,7 +244,7 @@ class CdpController:
         self.last_ms = (time.time() - t0) * 1000
         return np.asarray(img)[:, :, ::-1].copy()          # MaaFw 要 BGR
 
-    def _ensure_sess(self) -> "_Sess":
+    def _ensure_sess(self) -> _Sess:
         """抓帧连接可能因页面刷新/浏览器重启而失效，这里按需重建。"""
         if self._cap is None:
             self._cap = _Sess(self._target_url())
@@ -277,8 +275,8 @@ class CdpController:
             self._refresh_rect()
         if self._rect is None:
             return x, y
-        l, t, w, h = self._rect
-        return l + x * w / CAP_W, t + y * h / CAP_H
+        left, t, w, h = self._rect
+        return left + x * w / CAP_W, t + y * h / CAP_H
 
     def _mouse(self, kind: str, x: int, y: int, buttons: int = 1, clicks: int = 0):
         self._last_xy = (x, y)

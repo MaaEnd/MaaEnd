@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """把 WebStartGame 的 i18n 文案写进 locales/interface/<lang>.json。
 
 MXU 的界面文案全部走 `$task.X.label` 形式的键；任务文件里写死中文会让前端在

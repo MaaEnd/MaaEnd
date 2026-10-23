@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """照安卓云的做法：web 层只留「点开始游戏」+ 云 UI 覆盖，进入游戏交给 base 的 __ScenePrivateLogin 链。
 
 依据 resource_cloud_adb 的设计：云专有节点只有 2 个

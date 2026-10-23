@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """等用户点进会话，然后抓一张全分辨率 PNG（同时报告 video/canvas 情况）。
 
 用法：python3 wait_and_grab.py [--timeout 240] [--out /mnt/d/maaend-dist/session_hires.png]
@@ -38,7 +37,7 @@ last = ""
 while time.time() - t0 < a.timeout:
     try:
         ts = json.loads(urllib.request.urlopen("http://127.0.0.1:%d/json/list" % a.port, timeout=5).read())
-        pg = [t for t in ts if t.get("type") == "page"][0]
+        pg = next(t for t in ts if t.get("type") == "page")
         ws = websocket.create_connection(pg["webSocketDebuggerUrl"], timeout=15, suppress_origin=True)
         ws.send(json.dumps({"id": 1, "method": "Runtime.evaluate",
                             "params": {"expression": PROBE, "returnByValue": True}}))

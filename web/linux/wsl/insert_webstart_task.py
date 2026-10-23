@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """把 WebStartGame 插到网页端预设第 1 位（id 用与 MXU 同风格 7 位随机串）。
 
 上一次用 "webstartgame" 当 id，MXU 启动后把整条丢掉了；这次用同风格 id 再试。
@@ -21,7 +20,7 @@ for it in c["instances"]:
         "id": "webst01",
         "taskName": "WebStartGame",
         "enabled": True,
-        "enabledByController": {k: True for k in CTRL},
+        "enabledByController": dict.fromkeys(CTRL, True),
     })
     it["tasks"] = tasks
     print("%-9s 任务数=%d 首项=%s id=%s" % (it["id"], len(tasks), tasks[0]["taskName"], tasks[0]["id"]))

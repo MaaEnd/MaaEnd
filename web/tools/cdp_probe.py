@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """在 CDP 控制器上验证：资源加载 → 绑定 → 单个识别节点。"""
 import os
 import sys
@@ -12,11 +11,10 @@ os.environ.setdefault("LD_LIBRARY_PATH", os.path.join(DIST, "maafw"))
 
 from pathlib import Path  # noqa: E402
 
+from cdp_controller import make_custom_controller  # noqa: E402
 from maa.library import Library  # noqa: E402
 from maa.resource import Resource  # noqa: E402
 from maa.tasker import Tasker  # noqa: E402
-
-from cdp_controller import make_custom_controller  # noqa: E402
 
 Library.open(Path(os.path.join(DIST, "maafw")))
 

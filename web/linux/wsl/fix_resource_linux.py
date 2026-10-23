@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """中和损坏的 resource_linux 层。
 
 背景：MXU 用 Linux 控制器时会自动给资源列表追加 `resource_linux`。
@@ -12,7 +11,6 @@ _AutoEcoFarmMoveToTargetErr / _AutoEcoFarmJumpBack），PipelineChecker 整体�
 原始文件备份为 nodes.json.bak-orig。
 """
 import json
-import os
 import shutil
 
 RL = "/root/maaend/resource_linux/pipeline/nodes.json"

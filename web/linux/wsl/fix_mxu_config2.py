@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """只对网页端预设生效：resourceName=官服-网页端、savedDevice.wlrSocketPath=wayland-1。
 其它实例从备份恢复原始 resourceName / savedDevice。
 """
 import json
-import shutil
 
 CFG = "/root/maaend/config/mxu-MaaEnd.json"
 BAK = CFG + ".bak-wlr"

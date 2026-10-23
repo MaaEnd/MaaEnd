@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """把安卓云那套云 UI 节点接进我们的启动链。
 
 resource_cloud_adb 里云专有的两个节点，我们已经在 web 层抄了一份：

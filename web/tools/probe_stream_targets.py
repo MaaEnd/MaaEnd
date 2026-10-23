@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """全量排查：所有 CDP target 里的 video/canvas/iframe，并尝试抓原始帧。"""
 import base64
 import json
@@ -58,12 +57,12 @@ for t in ts:
         continue
     i = 0
 
-    def call(method, **p):
+    def call(method, _ws=ws, **p):
         global i
         i += 1
-        ws.send(json.dumps({"id": i, "method": method, "params": p}))
+        _ws.send(json.dumps({"id": i, "method": method, "params": p}))
         while True:
-            r = json.loads(ws.recv())
+            r = json.loads(_ws.recv())
             if r.get("id") == i:
                 return r.get("result", {})
 

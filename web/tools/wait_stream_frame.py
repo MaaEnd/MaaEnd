@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """等 <video> 真正出帧（videoWidth>0 且 readyState>=2），再抓原始帧。
 
 关键输出：云串流实际给的分辨率（videoWidth x videoHeight）。
@@ -19,7 +18,7 @@ ap.add_argument("--outdir", default="/mnt/d/maaend-dist")
 a = ap.parse_args()
 
 ts = json.loads(urllib.request.urlopen("http://127.0.0.1:%d/json/list" % a.port, timeout=6).read())
-pg = [t for t in ts if t.get("type") == "page"][0]
+pg = next(t for t in ts if t.get("type") == "page")
 ws = websocket.create_connection(pg["webSocketDebuggerUrl"], timeout=60, suppress_origin=True)
 ws.settimeout(60)
 _i = [0]

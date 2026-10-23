@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """关掉 profile 里的翻译功能（Chrome 155 的翻译气泡会盖住右上角 ROI）。
 Chrome 运行时改 Preferences 会被回写，所以必须先停 Chrome。"""
 import json

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """直接抓云串流 <video> 的原始帧（绕开合成器缩放的母版来源）。
 
 用法：

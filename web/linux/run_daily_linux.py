@@ -286,7 +286,7 @@ def main():
                 tasker.set_save_on_error(True)
                 tasker.set_draw_quality(85)
                 log("  识别可视化已开启：draw/on_error -> %s/debug" % log_dir)
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 log("  (开启识别可视化失败: %s)" % str(e)[:60])
         log("  日志: stdout=Info  目录=%s" % log_dir)
     except Exception as e:

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """修 MXU 在本机 WSL 上跑网页端的两处硬伤：
 
 1) interface.json 里只有「官服」一个资源（只有 ./resource），
@@ -35,10 +34,9 @@ c = json.load(open(CFG, encoding="utf-8"))
 n_sock = n_res = 0
 for it in c.get("instances", []):
     sd = it.get("savedDevice")
-    if isinstance(sd, dict) and "wlrSocketPath" in sd:
-        if sd["wlrSocketPath"] != "wayland-1":
-            sd["wlrSocketPath"] = "wayland-1"
-            n_sock += 1
+    if isinstance(sd, dict) and "wlrSocketPath" in sd and sd["wlrSocketPath"] != "wayland-1":
+        sd["wlrSocketPath"] = "wayland-1"
+        n_sock += 1
     if it.get("resourceName") != RES_NAME:
         it["resourceName"] = RES_NAME
         n_res += 1

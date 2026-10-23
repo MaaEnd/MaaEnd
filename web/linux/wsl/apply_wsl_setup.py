@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """一键把 WSL 上的网页端装配恢复到位（幂等，可反复跑）。
 
 背景：MXU 自带更新（会把 base 换到新版本）会重写 interface.json、resource/ ——
@@ -13,7 +12,6 @@
 3) locales：补 task.WebStartGame.* / resource.CNWeb.label 文案
 4) 打印自检结果
 """
-import glob
 import json
 import os
 import shutil
@@ -123,6 +121,6 @@ print("interface version:", d.get("version"))
 print("官服 path 层数:", [len(r["path"]) for r in d["resource"] if r["name"] == "官服"])
 print("import 含 web 任务:", [x for x in IMPORT_ITEMS if x in d["import"]])
 c = json.load(open(CFG, encoding="utf-8"))
-it = [x for x in c["instances"] if x["id"] == "hmuddz8"][0]
+it = next(x for x in c["instances"] if x["id"] == "hmuddz8")
 print("快速日常:", [(t["taskName"], t["enabled"]) for t in it["tasks"]])
 print("socket:", it["savedDevice"].get("wlrSocketPath"), "| resource:", it["resourceName"])

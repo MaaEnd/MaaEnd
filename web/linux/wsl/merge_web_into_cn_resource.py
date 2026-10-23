@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """改用「扩充官服路径」而不是新增资源条目。
 
 实测：往 interface.json 的 resource 里新增一个条目（即使补了 label），MXU 前端会崩

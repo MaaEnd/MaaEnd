@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """在 WSL 的 Chrome 里点「开始游戏」，进入云串流后抓原始画面。
 
 打印：页面文本摘要、与画质相关的 localStorage 项、video/canvas 尺寸、
@@ -20,7 +19,7 @@ ap.add_argument("--outdir", default="/mnt/d/maaend-dist")
 a = ap.parse_args()
 
 ts = json.loads(urllib.request.urlopen("http://127.0.0.1:%d/json/list" % a.port, timeout=6).read())
-pg = [t for t in ts if t.get("type") == "page"][0]
+pg = next(t for t in ts if t.get("type") == "page")
 ws = websocket.create_connection(pg["webSocketDebuggerUrl"], timeout=40, suppress_origin=True)
 ws.settimeout(40)
 _id = [0]

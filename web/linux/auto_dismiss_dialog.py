@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """自动接受 Chrome 的 JS 原生对话框（beforeunload 的 "Leave site?" 等）。
 
 云游戏页面注册了 beforeunload，脚本一旦触发导航/关闭，Chrome 会弹出

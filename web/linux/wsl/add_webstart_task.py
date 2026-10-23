@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """把「开始游戏（云·终末地网页版）」作为正式任务接进 interface.json 与 MXU 预设。
 
 1) interface.json 的 import 追加 web/tasks/WebStartGame.json（任务定义放 web/ 下，
@@ -7,7 +6,6 @@
 2) 网页端预设（hmuddz8 / hyasuml）把 WebStartGame 放到任务列表第 1 位并启用
 """
 import json
-import os
 import shutil
 
 IFACE = "/root/maaend/interface.json"
@@ -36,7 +34,7 @@ for it in c["instances"]:
         "id": "webstartgame",
         "taskName": "WebStartGame",
         "enabled": True,
-        "enabledByController": {k: True for k in CTRL},
+        "enabledByController": dict.fromkeys(CTRL, True),
         "options": [],
     })
     it["tasks"] = tasks
