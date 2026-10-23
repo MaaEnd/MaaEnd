@@ -587,10 +587,6 @@
             "param": {}
         },
         "post_delay": 0,
-        // 兜底：点头像之后 4 秒内没等到菜单（MenuViewProfile）或名片（ProfileReady），
-        // 说明这一击没打开任何东西，多半是列表里其实已经没人可加了、但按钮列 OCR
-        // 还残留着「添加好友」的误读。此时不能干等，直接去换一批。
-        "timeout": 4000,
         "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersMenuViewProfile",
@@ -631,7 +627,6 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "timeout": 3000,
         "on_error": [
             "BatchAddFriendsStrangersStart"
         ],
@@ -667,7 +662,6 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "timeout": 3000,
         "on_error": [
             "BatchAddFriendsStrangersScan"
         ],
@@ -696,7 +690,6 @@
         "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
-        "timeout": 8000,
         "on_error": [
             "BatchAddFriendsStrangersScan"
         ],
@@ -800,7 +793,6 @@
         "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
-        "timeout": 8000,
         "on_error": [
             "BatchAddFriendsStrangersEnd"
         ],
@@ -1215,7 +1207,6 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "timeout": 4000,
         "on_error": [
             "BatchAddFriendsStrangersProfileClose"
         ],
