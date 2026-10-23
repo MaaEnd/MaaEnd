@@ -12,15 +12,15 @@ const sourceUrl = "https://voice.fz.wiki/output_maaend/region3d_data.json";
 const directory = fileURLToPath(new URL(".", import.meta.url));
 const clicksPath = resolve(directory, "clicks.json");
 const outputPath = resolve(repoRoot, "assets/resource/pipeline/SceneManager/SceneMapOverview.json");
-const nodePrefix = "__SceneMapOverviewClick";
+const nodePrefix = "__ScenePrivateMapOverview";
 const placeholderHint = "待实现地图成功确认，实现后启用";
 
 export function nodeName(region, map) {
-    return `${nodePrefix}_${region}_${map}`;
+    return `${nodePrefix}_${region}_EnterMap_${map}`;
 }
 
 export function successName(region, map) {
-    return `__SceneMapOverviewSuccess_${region}_${map}`;
+    return `__ScenePrivateMapAnyEnterMap_${region}_${map}_Success`;
 }
 
 function validateClicks(clicks) {
