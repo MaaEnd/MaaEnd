@@ -1900,6 +1900,8 @@
     "option.inputs.AutoSellTicketOverflowValue.label": "調度券最高持有數量",
     "preset.DailyFull.description": "覆蓋所有每日例行任務，適合每天上線時一鍵執行",
     "preset.DailyFull.label": "全套日常",
+    "preset.IndependentTasks.description": "不屬於每日流程、需要單獨執行的任務集合",
+    "preset.IndependentTasks.label": "獨立任務",
     "preset.QuickDaily.description": "只做最核心的領獎任務，省時省力",
     "preset.QuickDaily.label": "快速日常",
     "preset.RealtimeAssist.description": "掛機時開啟的實時輔助功能全套",

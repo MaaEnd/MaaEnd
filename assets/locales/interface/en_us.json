@@ -1900,6 +1900,8 @@
     "option.inputs.AutoSellTicketOverflowValue.label": "Maximum dispatch voucher amount",
     "preset.DailyFull.description": "Covers all daily routine tasks, perfect for one-click execution upon login.",
     "preset.DailyFull.label": "Full Daily Routine",
+    "preset.IndependentTasks.description": "A set of tasks outside the daily routine that are run individually.",
+    "preset.IndependentTasks.label": "Standalone Tasks",
     "preset.QuickDaily.description": "Only performs core reward-claiming tasks, saving time and effort.",
     "preset.QuickDaily.label": "Quick Daily",
     "preset.RealtimeAssist.description": "Full suite of real-time assist features for AFK.",

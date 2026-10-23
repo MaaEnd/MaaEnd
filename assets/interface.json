@@ -282,6 +282,7 @@
         "tasks/StashBackpack.json",
         // preset
         "tasks/preset/DailyFull.json",
+        "tasks/preset/IndependentTasks.json",
         "tasks/preset/QuickDaily.json",
         "tasks/preset/RealtimeAssist.json",
         // setting

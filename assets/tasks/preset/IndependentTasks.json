@@ -1,0 +1,166 @@
+{
+    "preset": [
+        {
+            "name": "IndependentTasks",
+            "label": "$preset.IndependentTasks.label",
+            "description": "$preset.IndependentTasks.description",
+            "task": [
+                {
+                    "name": "BatchUseDetector",
+                    "option": {
+                        "BatchUseDetectorRegion": "Wuling",
+                        "BatchUseDetectorCategory": "Detector",
+                        "BatchUseDetectorTimes": {
+                            "Times": "99"
+                        }
+                    }
+                },
+                {
+                    "name": "EssenceFilter",
+                    "option": {
+                        "ExportInventory": "No",
+                        "SelectWeaponRarity": "Yes",
+                        "Rarity6Weapon": "Yes",
+                        "Rarity5Weapon": "Yes",
+                        "Rarity4Weapon": "No",
+                        "SelectEssence": "Yes",
+                        "FlawlessEssence": "Yes",
+                        "PureEssence": "No",
+                        "SelectExtraRules": "No",
+                        "SkipThumbLock": "Yes",
+                        "SkipThumbDiscard": "Yes"
+                    }
+                },
+                {
+                    "name": "DecomposeWeaponEssence",
+                    "option": {
+                        "DecomposeWeaponEssenceThreshold": {
+                            "DecomposeWeaponEssenceThreshold": "1800"
+                        }
+                    }
+                },
+                {
+                    "name": "PuzzleSolver",
+                    "option": {
+                        "PuzzleSolverMode": "Single"
+                    }
+                },
+                {
+                    "name": "ImportBluePrints",
+                    "option": {
+                        "ImportBluePrints": {
+                            "ImportBluePrintsText": ""
+                        }
+                    }
+                },
+                {
+                    "name": "AeroSalvage"
+                },
+                {
+                    "name": "ZiplineImport",
+                    "option": {
+                        "ZiplineImportClearLogin": "No"
+                    }
+                },
+                {
+                    "name": "SharedZiplineDelete",
+                    "option": {
+                        "SharedZiplineDeleteValleyIV": "Yes",
+                        "SharedZiplineDeleteValleyIVRegions": [
+                            "VFTheHub",
+                            "VFValleyPass",
+                            "VFOriginiumSciencePark",
+                            "VFAburreyQuarry",
+                            "VFOriginLodespring",
+                            "VFPowerPlateau"
+                        ],
+                        "SharedZiplineDeleteWuling": "Yes",
+                        "SharedZiplineDeleteWulingRegions": [
+                            "WLWulingCity",
+                            "WLJingyuValley",
+                            "WLQingboStockade",
+                            "WLMarkerStone",
+                            "WLTestArea",
+                            "WLSwordVaultDale",
+                            "WLYinglungPass",
+                            "WLNorthWulingExclusionZone",
+                            "WLSnowyForest"
+                        ]
+                    }
+                },
+                {
+                    "name": "BatchAddFriends",
+                    "option": {
+                        "BatchAddFriends": {
+                            "UidList": "",
+                            "MaxCount": "20"
+                        }
+                    }
+                },
+                {
+                    "name": "BatchDeleteFriends",
+                    "option": {
+                        "BatchDeleteFriendsInactiveDays": "Days30"
+                    }
+                },
+                {
+                    "name": "ItemTransfer",
+                    "option": {
+                        "WhatToTransfer": "蓝铁矿",
+                        "TransferAll": "Yes",
+                        "EnableReturnTransfer": "No",
+                        "OriginRegion": "ValleyIV",
+                        "DestinationRegion": "Wuling",
+                        "ItemTransferStashBackpackWhenBothFull": "Yes",
+                        "ItemTransferStashBackpack": "Yes",
+                        "StashBackpackType": [
+                            "StashBackpackQuick",
+                            "StashBackpackUsableItemsLimited"
+                        ]
+                    }
+                },
+                {
+                    "name": "ReceiveProdManual"
+                },
+                {
+                    "name": "PullCountCalculator"
+                },
+                {
+                    "name": "BakerEntry"
+                },
+                {
+                    "name": "ReadAllWiki"
+                },
+                {
+                    "name": "IntelArchive"
+                },
+                {
+                    "name": "ClaimSimulationRewards",
+                    "option": {
+                        "ClaimSimulationArea": "ValleyIV"
+                    }
+                },
+                {
+                    "name": "UmbralMonument",
+                    "option": {
+                        "UmbralMonumentTarget": "Latest",
+                        "UmbralMonumentTeamChoose": "Default",
+                        "UmbralMonumentRetryCount": "Retry3",
+                        "AutoFightSetting": "Yes",
+                        "AutoFightHealthDangerousSwitch": "Yes",
+                        "AutoFightDodge": "Yes",
+                        "AutoFightDodgeCompat": "No",
+                        "AutoFightLockTarget": "Yes",
+                        "AutoFightAxis": "No",
+                        "AutoFightReserveSkillLevel": "1",
+                        "AutoFightBreakAccumulatingPower": "Yes",
+                        "AutoFightSkillOperator1": "Cycle",
+                        "AutoFightSkillOperator2": "Cycle",
+                        "AutoFightSkillOperator3": "Cycle",
+                        "AutoFightSkillOperator4": "Cycle"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1900,6 +1900,8 @@
     "option.inputs.AutoSellTicketOverflowValue.label": "조달권 최대 보유 수량",
     "preset.DailyFull.description": "모든 일일 임무를 포함하며, 로그인 시 원클릭 실행에 적합합니다.",
     "preset.DailyFull.label": "전체 일일 임무",
+    "preset.IndependentTasks.description": "일일 루틴에 포함되지 않고 개별적으로 실행하는 임무 모음입니다.",
+    "preset.IndependentTasks.label": "개별 임무",
     "preset.QuickDaily.description": "핵심 보상 수령 임무만 수행하여 시간과 노력을 절약합니다.",
     "preset.QuickDaily.label": "빠른 일일 임무",
     "preset.RealtimeAssist.description": "방치 시 활성화하는 실시간 어시스트 기능 풀세트입니다.",

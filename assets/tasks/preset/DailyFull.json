@@ -6,8 +6,20 @@
             "description": "$preset.DailyFull.description",
             "task": [
                 {
+                    "name": "AccountSwitch",
+                    "enabled": false,
+                    "option": {
+                        "AccountSwitchMatchMode": "LastFourDigits",
+                        "AccountSwitchLastFourDigits": {
+                            "LastFourDigits": ""
+                        }
+                    }
+                },
+                {
                     "name": "VisitFriends",
                     "option": {
+                        "VisitFriendsRemark": "No",
+                        "VisitFriendsPriorityRemarkEnable": "No",
                         "ProductionAssistControl": [
                             "ProductionAssistControlNexus",
                             "ProductionAssistMFGCabin",
@@ -16,30 +28,524 @@
                     }
                 },
                 {
+                    "name": "GiftOperator",
+                    "option": {
+                        "StashBackpackSubTask": "Yes",
+                        "StashBackpackType": [
+                            "StashBackpackQuick",
+                            "StashBackpackUsableItemsLimited"
+                        ],
+                        "OnlyReceiveGift": "No",
+                        "SelectOperator": "Any",
+                        "GiftCount": {
+                            "Count": "1"
+                        }
+                    }
+                },
+                {
                     "name": "DijiangRewards",
                     "option": {
+                        "StageTaskSetting": "Yes",
+                        "ClueSetting": "Yes",
+                        "SelectToGrow": "Any",
+                        "SelectToGrowItems": [
+                            "Wulingstone",
+                            "Igneosite",
+                            "FalseAggela",
+                            "BlightedJadeleaf",
+                            "Cosmagaric",
+                            "Bloodcap",
+                            "Umbronyx",
+                            "Auronyx",
+                            "Kalkonyx",
+                            "Vitrodendra",
+                            "Chrysodendra",
+                            "Kalkodendra",
+                            "RubyBolete",
+                            "RedBolete",
+                            "PinkBolete",
+                            "TalosCap",
+                            "CrimsonSpearleaf",
+                            "Protocolith"
+                        ],
+                        "AutoExtractSeed": "Yes",
+                        "SortBy": "Default",
+                        "SortOrder": "ASC",
                         "AutoStartExchange": "Yes",
-                        "StageTaskSetting": "No",
-                        "ClueStockLimit": "2"
+                        "ClueStockLimit": "2",
+                        "SendCluesDirect": "No",
+                        "ClueSend": {
+                            "MaxClueSend": "3"
+                        },
+                        "QuickGiveDuplicateClues": "No",
+                        "CustomSendClues": "No",
+                        "FastCollect": "Yes",
+                        "FastCollectClue": "No",
+                        "FastCollectProduction": "Yes",
+                        "RecoveryEmotionStage": "No",
+                        "RecoveryEmotionCabins": [],
+                        "ReceptionRoomStage": "Yes",
+                        "ManufacturingStage": "Yes",
+                        "GrowthChamberStage": "Yes"
+                    }
+                },
+                {
+                    "name": "SellProduct",
+                    "option": {
+                        "SellProductSchedule": [
+                            "SellProductScheduleMonday",
+                            "SellProductScheduleTuesday",
+                            "SellProductScheduleWednesday",
+                            "SellProductScheduleThursday",
+                            "SellProductScheduleFriday",
+                            "SellProductScheduleSaturday",
+                            "SellProductScheduleSunday"
+                        ],
+                        "SellProductOperatorAutoSwitch": "Yes",
+                        "SellProductForceRefreshOperatorCache": "No",
+                        "SellProductSelectionStrategy": "Rarity",
+                        "SellProductStockMinimumUnitPrice": {
+                            "SellProductStockMinimumUnitPrice": "10"
+                        },
+                        "SellProductPriorityRules": "No",
+                        "SellProductItemReserveRules": "No",
+                        "ValleyIVSell": "Yes",
+                        "ValleyIVRefugeeCamp": "Yes",
+                        "ValleyIVInfraStation": "Yes",
+                        "ValleyIVReconstructionHQ": "Yes",
+                        "WulingSell": "Yes",
+                        "WulingSkyKingFlatsConstructionSite": "Yes",
+                        "WulingCardiacRemediationStation": "Yes",
+                        "WulingXiranflowCloudseederStation": "Yes"
+                    }
+                },
+                {
+                    "name": "AutoStockStaple",
+                    "enabled": false,
+                    "option": {
+                        "AutoStockStapleSchedule": [
+                            "AutoStockStapleScheduleMonday",
+                            "AutoStockStapleScheduleTuesday",
+                            "AutoStockStapleScheduleWednesday",
+                            "AutoStockStapleScheduleThursday",
+                            "AutoStockStapleScheduleFriday",
+                            "AutoStockStapleScheduleSaturday",
+                            "AutoStockStapleScheduleSunday"
+                        ],
+                        "AutoStockStapleValleyIV": "Yes",
+                        "AutoStockReserveValleyIV": {
+                            "ReserveValleyIV": "240000"
+                        },
+                        "AutoStockBuyDailyGoodsValleyIV": "Yes",
+                        "AutoStockBuyDailyGoodsValleyIVItems": [
+                            "ValleyEngravingPermit"
+                        ],
+                        "AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit": {
+                            "ValleyEngravingPermitLimit": "100"
+                        },
+                        "AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit": {
+                            "ValleyFoodAndBuffLimit": "20"
+                        },
+                        "AutoStockBuyStockFactoryGoodsValleyIV": "Yes",
+                        "AutoStockBuyStockFactoryGoodsValleyIVItems": [
+                            "KeenValleyDetector",
+                            "KeenValleyCompass"
+                        ],
+                        "AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit": {
+                            "ValleyDetectorCompassLimit": "20"
+                        },
+                        "AutoStockBuyCulturalGoodsValleyIV": "Yes",
+                        "AutoStockBuyCulturalGoodsValleyIVItems": [
+                            "BreezeOfKjersch",
+                            "AuryleneCamera",
+                            "CosmicGatePuzzle",
+                            "TidestoneSpecimen",
+                            "SimonchShawl",
+                            "FrontiersWatch",
+                            "SurfingFestivalTicket"
+                        ],
+                        "AutoStockBuyCulturalGoodsValleyIVGiftLimit": {
+                            "ValleyGiftLimit": "20"
+                        },
+                        "AutoStockMinDiscountValleyIV": "-50%",
+                        "AutoStockStapleWuling": "Yes",
+                        "AutoStockReserveWuling": {
+                            "ReserveWuling": "240000"
+                        },
+                        "AutoStockBuyDailyGoodsWuling": "Yes",
+                        "AutoStockBuyDailyGoodsWulingItems": [
+                            "WulingEngravingPermit"
+                        ],
+                        "AutoStockBuyDailyGoodsWulingEngravingPermitLimit": {
+                            "WulingEngravingPermitLimit": "20"
+                        },
+                        "AutoStockBuyDailyGoodsWulingFoodAndBuffLimit": {
+                            "WulingFoodAndBuffLimit": "20"
+                        },
+                        "AutoStockBuyStockFactoryGoodsWuling": "Yes",
+                        "AutoStockBuyStockFactoryGoodsWulingItems": [
+                            "WulingArtificingCatalyst",
+                            "KeenWulingDetector",
+                            "KeenWulingCompass"
+                        ],
+                        "AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit": {
+                            "WulingArtificingCatalystLimit": "100"
+                        },
+                        "AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit": {
+                            "WulingDetectorCompassLimit": "20"
+                        },
+                        "AutoStockBuyCulturalGoodsWuling": "No",
+                        "AutoStockBuyCulturalGoodsWulingItems": [],
+                        "AutoStockBuyCulturalGoodsWulingGiftLimit": {
+                            "WulingGiftLimit": "20"
+                        },
+                        "AutoStockMinDiscountWuling": "-90%"
+                    }
+                },
+                {
+                    "name": "AutoEcoFarm",
+                    "option": {
+                        "CollectWulingCityFarm": "Yes",
+                        "CollectSisPaintingFarm": "Yes",
+                        "CollectRanch": "Yes"
+                    }
+                },
+                {
+                    "name": "ResourceRecycleStation",
+                    "option": {
+                        "ResourceRecycleStationRegion": [
+                            "Wuling",
+                            "ValleyIV"
+                        ]
+                    }
+                },
+                {
+                    "name": "AutoCollect",
+                    "enabled": false,
+                    "option": {
+                        "AutoCollectSchedule": [
+                            "AutoCollectScheduleMonday",
+                            "AutoCollectScheduleTuesday",
+                            "AutoCollectScheduleWednesday",
+                            "AutoCollectScheduleThursday",
+                            "AutoCollectScheduleFriday",
+                            "AutoCollectScheduleSaturday",
+                            "AutoCollectScheduleSunday"
+                        ],
+                        "AutoCollectValleyIV": "Yes",
+                        "AutoCollectValleyIVRareRoutes": [
+                            "Route4",
+                            "Route5",
+                            "Route6",
+                            "Route13",
+                            "Route14"
+                        ],
+                        "AutoCollectValleyIVCommonRoutes": [],
+                        "AutoCollectWuling": "Yes",
+                        "AutoCollectWulingRareRoutes": [
+                            "Route1",
+                            "Route2",
+                            "Route3",
+                            "Route7",
+                            "Route8",
+                            "Route9",
+                            "Route10",
+                            "Route11",
+                            "Route12",
+                            "Route15",
+                            "Route16",
+                            "Route17"
+                        ],
+                        "AutoCollectWulingCommonRoutes": [
+                            "CommonRoute5",
+                            "CommonRoute7"
+                        ],
+                        "AutoCollectMode": "Always",
+                        "AutoCollectStashBackpackSubTask": "Yes",
+                        "StashBackpackType": [
+                            "StashBackpackQuick",
+                            "StashBackpackUsableItemsLimited"
+                        ]
+                    }
+                },
+                {
+                    "name": "AutoStockpile",
+                    "option": {
+                        "AutoStockpileServerTime": "CN_UTC_PLUS_8",
+                        "AutoStockpileAllowDataUpload": "Yes",
+                        "AutoStockpileElasticValleyIV": "Yes",
+                        "AutoStockpileElasticWuling": "Yes",
+                        "AutoStockpileMinBuy": "No"
+                    }
+                },
+                {
+                    "name": "AutoSell",
+                    "option": {
+                        "AutoSellValleyIV": "Yes",
+                        "AutoSellTicketOverflowValleyIV": {
+                            "AutoSellTicketOverflowValleyIVValue": "30000000"
+                        },
+                        "AutoSellWuling": "Yes",
+                        "AutoSellTicketOverflowWuling": {
+                            "AutoSellTicketOverflowWulingValue": "30000000"
+                        },
+                        "AutoSellPriceType": "AutoSellPriceTypePerCategory",
+                        "AutoSellPricePerCategory": {
+                            "AutoSellPricePerCategoryModeratePriceVolatilityValue": "4600",
+                            "AutoSellPricePerCategoryLargePriceVolatilityValue": "5000",
+                            "AutoSellPricePerCategoryMassivePriceVolatilityValue": "5300"
+                        }
+                    }
+                },
+                {
+                    "name": "EnvironmentMonitoring"
+                },
+                {
+                    "name": "TrialOfSwordmancy",
+                    "option": {
+                        "TrialOfSwordmancyMode": "Daily",
+                        "TrialOfSwordmancyOverflow": "None",
+                        "TrialOfSwordmancyAutoFight": "Yes",
+                        "AutoFightSetting": "Yes",
+                        "AutoFightHealthDangerousSwitch": "Yes",
+                        "AutoFightDodge": "Yes",
+                        "AutoFightDodgeCompat": "No",
+                        "AutoFightLockTarget": "Yes",
+                        "AutoFightAxis": "No",
+                        "AutoFightReserveSkillLevel": "1",
+                        "AutoFightBreakAccumulatingPower": "Yes",
+                        "AutoFightSkillOperator1": "Cycle",
+                        "AutoFightSkillOperator2": "Cycle",
+                        "AutoFightSkillOperator3": "Cycle",
+                        "AutoFightSkillOperator4": "Cycle",
+                        "TrialOfSwordmancyRecoverBeforeBattle": "Yes"
+                    }
+                },
+                {
+                    "name": "ProtocolSpace",
+                    "option": {
+                        "ProtocolSpaceSchedule": [
+                            "ProtocolSpaceScheduleMonday",
+                            "ProtocolSpaceScheduleTuesday",
+                            "ProtocolSpaceScheduleWednesday",
+                            "ProtocolSpaceScheduleThursday",
+                            "ProtocolSpaceScheduleFriday",
+                            "ProtocolSpaceScheduleSaturday",
+                            "ProtocolSpaceScheduleSunday"
+                        ],
+                        "AutoFightSetting": "Yes",
+                        "AutoFightHealthDangerousSwitch": "Yes",
+                        "AutoFightDodge": "Yes",
+                        "AutoFightDodgeCompat": "No",
+                        "AutoFightLockTarget": "Yes",
+                        "AutoFightAxis": "No",
+                        "AutoFightReserveSkillLevel": "1",
+                        "AutoFightBreakAccumulatingPower": "Yes",
+                        "AutoFightSkillOperator1": "Cycle",
+                        "AutoFightSkillOperator2": "Cycle",
+                        "AutoFightSkillOperator3": "Cycle",
+                        "AutoFightSkillOperator4": "Cycle",
+                        "ProtocolSpaceTeamChoose": "ProtocolSpaceTeamChooseDefault",
+                        "ProtocolSpaceMode": "TargetInventory",
+                        "ProtocolSpaceObtainMode": "ObtainScaling2",
+                        "ProtocolSpaceUseSpMedication": "UseMedication",
+                        "ProtocolSpaceSpMedicationExpireWithinDays": "Days3",
+                        "ProtocolSpaceSuccessCount": "ProtocolSpaceSuccessCountUnlimited",
+                        "ProtocolSpaceFailedCount": "ProtocolSpaceFailedCount3",
+                        "ProtocolSpaceTab": "OperatorProgression",
+                        "OperatorProgression": "OperatorEXP",
+                        "OperatorEXPRewardsSetOption": "AdvancedCombatRecord",
+                        "ProtocolSpaceLevel": "ProtocolSpaceLevel05",
+                        "ProtocolSpaceObtainModeClaim": "ObtainScaling1",
+                        "SupplyPlanLimits": {
+                            "SupplyPlanLimit_T_CREDS": "3580000",
+                            "SupplyPlanLimit_PROTOHEDRON": "1100",
+                            "SupplyPlanLimit_PROTOPRISM": "920",
+                            "SupplyPlanLimit_COGNITIVE_CARRIER_EXP": "2100000",
+                            "SupplyPlanLimit_COMBAT_RECORD_EXP": "1500000",
+                            "SupplyPlanLimit_PROTOSET": "120",
+                            "SupplyPlanLimit_PROTODISK": "65",
+                            "SupplyPlanLimit_WEAPON_EXP": "5000000",
+                            "SupplyPlanLimit_HEAVY_CAST_DIE": "100",
+                            "SupplyPlanLimit_CAST_DIE": "45",
+                            "SupplyPlanLimit_WARP_PLASMA_COATED_SLIDE": "260",
+                            "SupplyPlanLimit_TRIPHASIC_NANOFLAKE": "260",
+                            "SupplyPlanLimit_QUADRANT_FITTING_FLUID": "260",
+                            "SupplyPlanLimit_TACHYON_SCREENING_LATTICE": "260",
+                            "SupplyPlanLimit_D96_STEEL_SAMPLE_4": "260",
+                            "SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE": "260"
+                        }
+                    }
+                },
+                {
+                    "name": "AutoEssence",
+                    "enabled": false,
+                    "option": {
+                        "AutoEssenceSchedule": [
+                            "AutoEssenceScheduleMonday",
+                            "AutoEssenceScheduleTuesday",
+                            "AutoEssenceScheduleWednesday",
+                            "AutoEssenceScheduleThursday",
+                            "AutoEssenceScheduleFriday",
+                            "AutoEssenceScheduleSaturday",
+                            "AutoEssenceScheduleSunday"
+                        ],
+                        "AutoEssenceMenu": "Target",
+                        "AutoEssenceChooseLocation": [
+                            "VFTheHub",
+                            "VFOriginiumSciencePark",
+                            "VFOriginLodespring",
+                            "VFPowerPlateau",
+                            "WLWulingCity",
+                            "WLQingboStockade",
+                            "WLMarkerStone",
+                            "WLTestArea",
+                            "WLSwordVaultDale",
+                            "WLYinglungPass",
+                            "WLNorthWulingExclusionZone",
+                            "WLSnowyForest"
+                        ],
+                        "AutoEssenceObtainMode": "ObtainScaling2",
+                        "AutoEssenceDoOverride": "Yes",
+                        "EssenceFilterAfterBattle": "No",
+                        "AutoUseSpMedication": "UseMedication",
+                        "AutoEssenceSpMedicationExpireWithinDays": "Days3",
+                        "AutoEssenceRepeatCount": {
+                            "AutoEssenceRepeatCountValue": "5"
+                        },
+                        "AutoFightSettingFull": "Yes",
+                        "AutoFightAttack": "Yes",
+                        "AutoFightDodge": "Yes",
+                        "AutoFightDodgeCompat": "No",
+                        "AutoFightLockTarget": "Yes",
+                        "AutoFightHealthDangerousSwitch": "Yes",
+                        "AutoFightAxisFullSetting": "No",
+                        "AutoFightCombo": "Yes",
+                        "AutoFightSkill": "Yes",
+                        "AutoFightReserveSkillLevel": "1",
+                        "AutoFightBreakAccumulatingPower": "Yes",
+                        "AutoFightSkillOperator1": "Cycle",
+                        "AutoFightSkillOperator2": "Cycle",
+                        "AutoFightSkillOperator3": "Cycle",
+                        "AutoFightSkillOperator4": "Cycle",
+                        "AutoFightEndSkill": "Yes",
+                        "AutoEssenceWeaponTypeSword": "Yes",
+                        "AutoEssenceWeaponsSword": [
+                            "wpn_sword_0006",
+                            "wpn_sword_0010",
+                            "wpn_sword_0011",
+                            "wpn_sword_0012",
+                            "wpn_sword_0013",
+                            "wpn_sword_0014",
+                            "wpn_sword_0016",
+                            "wpn_sword_0017",
+                            "wpn_sword_0021",
+                            "wpn_sword_0022",
+                            "wpn_sword_0024",
+                            "wpn_sword_0025",
+                            "wpn_sword_0026"
+                        ],
+                        "AutoEssenceWeaponTypeClaymore": "Yes",
+                        "AutoEssenceWeaponsClaymore": [
+                            "wpn_claym_0004",
+                            "wpn_claym_0006",
+                            "wpn_claym_0007",
+                            "wpn_claym_0008",
+                            "wpn_claym_0013",
+                            "wpn_claym_0016",
+                            "wpn_claym_0017",
+                            "wpn_claym_0018",
+                            "wpn_claym_0019"
+                        ],
+                        "AutoEssenceWeaponTypePistol": "Yes",
+                        "AutoEssenceWeaponsPistol": [
+                            "wpn_pistol_0005",
+                            "wpn_pistol_0007",
+                            "wpn_pistol_0008",
+                            "wpn_pistol_0009",
+                            "wpn_pistol_0010",
+                            "wpn_pistol_0011"
+                        ],
+                        "AutoEssenceWeaponTypeWand": "Yes",
+                        "AutoEssenceWeaponsWand": [
+                            "wpn_funnel_0006",
+                            "wpn_funnel_0008",
+                            "wpn_funnel_0009",
+                            "wpn_funnel_0010",
+                            "wpn_funnel_0011",
+                            "wpn_funnel_0013",
+                            "wpn_funnel_0015",
+                            "wpn_funnel_0016",
+                            "wpn_funnel_0017",
+                            "wpn_funnel_0018",
+                            "wpn_funnel_0019",
+                            "wpn_funnel_0020"
+                        ],
+                        "AutoEssenceWeaponTypeLance": "Yes",
+                        "AutoEssenceWeaponsLance": [
+                            "wpn_lance_0007",
+                            "wpn_lance_0010",
+                            "wpn_lance_0011",
+                            "wpn_lance_0012",
+                            "wpn_lance_0014",
+                            "wpn_lance_0015",
+                            "wpn_lance_0016"
+                        ],
+                        "AutoEssenceObtainModeClaimOnlyForcedFilter": "ObtainScaling1"
+                    }
+                },
+                {
+                    "name": "DeliveryJobs",
+                    "option": {
+                        "ValleyIV": "Yes",
+                        "OriginiumSciencePark": "Transfer",
+                        "OriginLodespring": "Transfer",
+                        "PowerPlateau": "Transfer",
+                        "Wuling": "Yes",
+                        "WulingCity": "Transfer",
+                        "TestArea": "Transfer",
+                        "PackCargoSelectItem": "No",
+                        "DeliveryJobsAutoDeliveryPreferZipline": "No",
+                        "DeliveryJobsOngoingDeliveryFallback": "No"
+                    }
+                },
+                {
+                    "name": "SeizeDeliveryJobs",
+                    "option": {
+                        "SeizeDeliveryJobsReward": {
+                            "Reward": "15.9"
+                        },
+                        "SeizeDeliveryJobsRefreshLimit": {
+                            "Limit": "100"
+                        },
+                        "SeizeDeliveryJobsCommissionSource": "Unlimited",
+                        "SeizeDeliveryJobsSpecifyDeliveryPointUnlimited": "No",
+                        "SeizeDeliveryJobsPostProcessing": "Disable"
                     }
                 },
                 {
                     "name": "CreditShoppingN2",
                     "option": {
-                        "CreditShoppingForce": "Refresh",
                         "CreditShoppingReserve": {
                             "ReserveCreditThreshold": "300"
                         },
+                        "CreditShoppingClueSend": {
+                            "MaxClueSendWhenInsufficient": "2"
+                        },
+                        "CreditShoppingQuickGiveDuplicateClues": "No",
+                        "CreditShoppingClueStockLimit": "2",
                         "CreditShoppingPriority1": "Yes",
+                        "CreditShoppingPriority1AutoGetCredits": "Yes",
+                        "CreditShoppingPriority1UnconditionalPurchase": "Yes",
                         "CreditShoppingPriority1Items": [
                             "ArsenalTicket",
                             "Oroberyl"
                         ],
                         "CreditShoppingPriority1DiscountValue": "Any",
                         "CreditShoppingPriority2": "Yes",
+                        "CreditShoppingPriority2AutoGetCredits": "No",
+                        "CreditShoppingPriority2UnconditionalPurchase": "Yes",
                         "CreditShoppingPriority2Items": [
-                            "ArsenalTicket",
-                            "Oroberyl",
                             "TCreds",
                             "ElementaryCognitiveCarrier",
                             "ElementaryCombatRecord",
@@ -53,66 +559,48 @@
                             "Protoprism",
                             "Protohedron"
                         ],
-                        "CreditShoppingPriority2DiscountValue": "-75%",
-                        "CreditShoppingPriority3": "No"
+                        "CreditShoppingPriority2DiscountValue": "-95%",
+                        "CreditShoppingPriority3": "No",
+                        "CreditShoppingForce": "Refresh",
+                        "PrudentRefresh": "Yes",
+                        "CreditShoppingRefreshCheckPrice": "No",
+                        "CreditShoppingKeepShelfRecord": "No",
+                        "PrudentRefreshThreshold": {
+                            "PrudentRefreshThreshold": "400"
+                        }
                     }
-                },
-                {
-                    "name": "DeliveryJobs",
-                    "option": {
-                        "ValleyIV": "Yes",
-                        "Wuling": "Yes"
-                    }
-                },
-                {
-                    "name": "SellProduct"
-                },
-                {
-                    "name": "AutoStockpile"
-                },
-                {
-                    "name": "AutoStockStaple"
-                },
-                {
-                    "name": "AutoSell"
-                },
-                {
-                    "name": "EnvironmentMonitoring"
                 },
                 {
                     "name": "DailyRewards",
                     "option": {
                         "DailyEmailRewards": "Yes",
-                        "DailyEventRewards": "Yes",
                         "DailyTaskRewards": "Yes",
+                        "DailyTaskUpgradeWeapon": "No",
+                        "DailyTaskCreation": "No",
+                        "DailyTaskAssemble": "No",
+                        "DailyTaskLevelUpOperator": "No",
                         "DailyClaimDeliveryJobsRewards": "Yes",
-                        "DailyProtocolPassRewards": "Yes"
+                        "DailyEventRewards": "Yes",
+                        "DailyProtocolPassRewards": "Yes",
+                        "DailyActivityFullWarning": "Yes"
                     }
                 },
                 {
-                    "name": "SeizeDeliveryJobs"
-                },
-                {
-                    "name": "ProtocolSpace"
-                },
-                {
-                    "name": "AutoCollect",
+                    "name": "CloseGamePC",
                     "option": {
-                        "AutoCollectValleyIVRareRoutes": [
-                            "Route4",
-                            "Route5"
-                        ],
-                        "AutoCollectWulingRareRoutes": [
-                            "Route1",
-                            "Route2",
-                            "Route3"
-                        ]
+                        "CloseGamePCCloseLauncher": "No",
+                        "CloseGamePCApplyGameSetting": "No"
                     }
                 }
             ],
             "pretask": [
                 {
-                    "name": "LaunchGamePC"
+                    "name": "LaunchGamePC",
+                    "option": {
+                        "LaunchGamePCRegion": "CN",
+                        "LaunchGamePCLauncherPath": "Auto",
+                        "LaunchGamePCGameSetting": "No"
+                    }
                 }
             ]
         }
