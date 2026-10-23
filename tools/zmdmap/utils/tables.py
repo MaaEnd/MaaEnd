@@ -18,7 +18,7 @@ from typing import Any
 
 import msgspec
 
-from .game_data import LocalDataError
+from .errors import LocalDataError
 
 
 class TextRef(msgspec.Struct, frozen=True):

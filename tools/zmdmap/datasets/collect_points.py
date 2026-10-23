@@ -14,7 +14,8 @@ MapNavigator 的采集动作（拾取 ``COLLECT`` / 挖掘 ``DIG``），``item``
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import as_text, level_of, load_json_dict, logger, map_of_level, read_xyz
+from ..utils.game_data import as_text, level_of, load_json_dict, map_of_level, read_xyz
+from ..utils.log import logger
 from ..utils.shapes import as_object, as_objects, is_array, is_object
 from ..utils.tables import (
     DoodadRow,
@@ -100,7 +101,7 @@ class CollectPoints(Dataset):
             if level_id is None:
                 continue
 
-            x, y, z = read_xyz(entity.position, f"世界实体 {entity_id}.position")
+            x, y, z = read_xyz(entity.position)
             points.append(
                 {
                     "id": entity_id,

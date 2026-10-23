@@ -24,7 +24,6 @@
 """
 
 import json
-import sys
 import time
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -47,6 +46,7 @@ from .utils.datafile import (
     version_of,
 )
 from .utils.http import get
+from .utils.log import logger
 from .utils.shapes import is_object
 
 #: 一份数据最多取几次：第一次按清单指纹当 ``t``，校验不过再换成时间戳重取一次（绕开远端缓存）。
@@ -99,7 +99,7 @@ def read_manifest() -> Manifest | None:
         response = get(f"{DATA_BASE_URL}/{MANIFEST_FILE}?{token}")
     except requests.RequestException as error:
         # 5xx 重试完仍失败也走这条路：取不到清单就直接下载，不让清单的问题挡住整次 fetch。
-        print(f"[fetch-data] 取清单失败 ({error})", file=sys.stderr)
+        logger.warning(f"取清单失败 ({error})")
         return None
     if response.status_code >= 400:
         return None
@@ -143,7 +143,7 @@ def _data_url(file_name: str, params: dict[str, str]) -> str:
 
 def _request_json(file_name: str, url: str) -> Any:
     """取一份数据并解析成 JSON；网络故障、非 2xx、非法 JSON 一律换成 :class:`DownloadError`。"""
-    print(f"[fetch-data] 下载 {url}", flush=True)
+    logger.info(f"下载 {url}")
     try:
         response = get(url)
     except requests.RequestException as error:
@@ -171,7 +171,7 @@ def content_problem(file_name: str, data: Any, digest: str, expect: str | None) 
         return None if digest == expect else f"与清单不符：清单 {expect}，拿到 {digest}"
     claimed = data.get(HASH_KEY) if is_object(data) else None
     if not claimed:
-        print(f"[fetch-data] {file_name} 没带 sha256 字段，无从核对内容，照收", file=sys.stderr)
+        logger.warning(f"{file_name} 没带 sha256 字段，无从核对内容，照收")
         return None
     return None if claimed == digest else f"自称的 sha256 与内容不符：{claimed} != {digest}"
 
@@ -201,13 +201,10 @@ def _fetch_verified(
         if not problem:
             return data, digest
         retrying = attempt + 1 < VERIFY_ATTEMPTS
-        print(
-            f"[fetch-data] {file_name} {problem}" + ("；换 URL 再取一次" if retrying else ""),
-            file=sys.stderr,
-        )
+        logger.warning(f"{file_name} {problem}" + ("；换 URL 再取一次" if retrying else ""))
     if not accept_mismatch:
         raise DownloadError(file_name, f"{problem}（换 URL 重取后仍不符，确认无误可加 --force 照收）")
-    print(f"[fetch-data] {file_name}：--force 下照收上面那份内容", file=sys.stderr)
+    logger.warning(f"{file_name}：--force 下照收上面那份内容")
     return data, digest
 
 
@@ -238,15 +235,12 @@ def _download_json(
         if expect is not None:
             data[HASH_KEY] = digest
         if not version_of(data):
-            print(
-                f"[fetch-data] {file_name} 没带 version 字段，只能照收（版本由上游 generate 写）",
-                file=sys.stderr,
-            )
+            logger.warning(f"{file_name} 没带 version 字段，只能照收（版本由上游 generate 写）")
     formatted = dump_json(data)
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(formatted, encoding="utf-8", newline="\n")
     size_kb = len(formatted.encode("utf-8")) / 1024
-    print(f"[fetch-data] 已缓存 {destination} ({size_kb:.0f} KB)", flush=True)
+    logger.info(f"已缓存 {destination} ({size_kb:.0f} KB)")
 
 
 def fetch_and_cache(
@@ -293,10 +287,7 @@ def fetch_and_cache(
             continue
         if error.status_code != 404:
             raise error
-        print(
-            f"[fetch-data] 上游还没发布 {file_name}，跳过（本地可用 uv run zmdmap generate 生成）",
-            file=sys.stderr,
-        )
+        logger.warning(f"上游还没发布 {file_name}，跳过（本地可用 uv run zmdmap generate 生成）")
         missing.append(file_name)
 
     return missing
@@ -329,32 +320,27 @@ def download(
     manifest = read_manifest()
     version = manifest.version if manifest is not None else None
     if force:
-        print("[fetch-data] 强制下载（--force），不比对本地内容")
+        logger.info("强制下载（--force），不比对本地内容")
     elif manifest is not None:
         todo, unlisted = manifest_plan(target_dir, todo, manifest)
         label = f"清单 v{version}" if version else "清单（没写版本）"
         if unlisted:
-            print(
-                f"[fetch-data] 这几份不在{label}里，保持本地原样：{'、'.join(unlisted)}",
-                file=sys.stderr,
-            )
+            logger.warning(f"这几份不在{label}里，保持本地原样：{'、'.join(unlisted)}")
         if todo:
-            print(f"[fetch-data] {label}：{len(todo)} 份内容有变化")
+            logger.info(f"{label}：{len(todo)} 份内容有变化")
         else:
-            print(f"[fetch-data] 本地内容与{label}一致，跳过下载")
+            logger.info(f"本地内容与{label}一致，跳过下载")
             return []
     else:
-        print(
-            f"[fetch-data] 上游还没发布 {MANIFEST_FILE}，不比对本地内容，直接下载"
-            "（版本沿用数据文件自带的）",
-            file=sys.stderr,
+        logger.warning(
+            f"上游还没发布 {MANIFEST_FILE}，不比对本地内容，直接下载（版本沿用数据文件自带的）"
         )
 
     hashes = manifest.files if manifest is not None else {}
     written = list(todo)
     if todo:
         if dry_run:
-            print(f"[fetch-data] --dry-run：这一批会下载 {len(todo)} 份")
+            logger.info(f"--dry-run：这一批会下载 {len(todo)} 份")
         else:
             pending = set(todo)
             missing = fetch_and_cache(
@@ -367,11 +353,11 @@ def download(
                 force=force,
             )
             if missing:
-                print(f"[fetch-data] 上游还没发布：{', '.join(missing)}", file=sys.stderr)
+                logger.warning(f"上游还没发布：{', '.join(missing)}")
                 unpublished = set(missing)
                 written = [file_name for file_name in todo if file_name not in unpublished]
     if not dry_run:
-        print(f"[fetch-data] 完成，当前版本: v{version}" if version else "[fetch-data] 完成")
+        logger.info(f"完成，当前版本: v{version}" if version else "完成")
     return written
 
 

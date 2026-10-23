@@ -17,7 +17,8 @@
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import logger, ref_text
+from ..utils.game_data import ref_text
+from ..utils.log import logger
 from ..utils.tables import (
     GameMechanicRow,
     GemRow,

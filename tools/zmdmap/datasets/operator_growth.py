@@ -22,7 +22,7 @@
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import logger
+from ..utils.log import logger
 from ..utils.tables import (
     CharacterRow,
     CharGrowthRow,

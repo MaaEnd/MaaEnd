@@ -13,7 +13,7 @@ NAVMESH 终点的 ``target_deck_y``；``yaw`` 是朝向（度）：仓储与回�
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import logger
+from ..utils.log import logger
 from ..utils.shapes import as_object, as_objects
 from ..utils.tables import (
     BuyerRow,

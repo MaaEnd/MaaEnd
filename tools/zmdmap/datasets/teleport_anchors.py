@@ -13,7 +13,8 @@
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import level_of, logger, map_of_level
+from ..utils.game_data import level_of, map_of_level
+from ..utils.log import logger
 from ..utils.tables import (
     LevelDescRow,
     LevelMap,

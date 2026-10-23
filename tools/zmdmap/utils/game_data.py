@@ -26,40 +26,14 @@
 """
 
 import json
-import sys
 from collections.abc import Mapping
-from functools import cache
 from pathlib import Path
 from typing import Any, Protocol
 
 from .config import I18N_TABLE_SUFFIXES
-from .shapes import is_object
-
-
-class LocalDataError(ValueError):
-    """本地数据缺失或不是预期形状。"""
-
-
-class _Logger:
-    """把 ``logger.info`` / ``warning`` 这类调用打到标准输出/标准错误。"""
-
-    def info(self, message: str) -> None:
-        print(f"[maaend] {message}")
-
-    def success(self, message: str) -> None:
-        print(f"[maaend] {message}")
-
-    def debug(self, message: str) -> None:
-        print(f"[maaend] {message}")
-
-    def warning(self, message: str) -> None:
-        print(f"[maaend] {message}", file=sys.stderr)
-
-    def error(self, message: str) -> None:
-        print(f"[maaend] {message}", file=sys.stderr)
-
-
-logger = _Logger()
+from .errors import LocalDataError
+from .log import logger
+from .tables import Position3, TextRef, load_table
 
 
 def load_json_dict(file_path: str | Path) -> dict[str, Any]:
@@ -68,21 +42,12 @@ def load_json_dict(file_path: str | Path) -> dict[str, Any]:
         return json.load(handle)
 
 
-def _read_json(path: Path, label: str) -> Any:
-    if not path.is_file():
-        raise LocalDataError(f"缺少 {label} 文件：{path}")
-    try:
-        return load_json_dict(path)
-    except json.JSONDecodeError as error:
-        raise LocalDataError(f"{label} 文件不是合法 JSON：{path}（{error}）") from error
-
-
-@cache
-def _text_table(table_cfg_dir: Path, lang: str) -> dict[str, Any]:
+def _text_table(table_cfg_dir: Path, lang: str) -> dict[str, str]:
+    """``I18nTextTable_<后缀>.json``：``{文本 id: 该语言的文字}``。"""
     suffix = I18N_TABLE_SUFFIXES.get(lang)
     if suffix is None:
         raise LocalDataError(f"MaaEnd 不读 {lang} 的文本表")
-    return _read_json(table_cfg_dir / f"I18nTextTable_{suffix}.json", f"文本表 {suffix}")
+    return load_table(table_cfg_dir, f"I18nTextTable_{suffix}", str)
 
 
 def localized_text(table_cfg_dir: Path, text_id: int, lang: str) -> str:
@@ -91,29 +56,18 @@ def localized_text(table_cfg_dir: Path, text_id: int, lang: str) -> str:
         return ""
     text = _text_table(table_cfg_dir, lang).get(str(text_id), "")
     if not text:
-        logger.debug(f"No text found for ID {text_id} in {lang}")
-    return text if isinstance(text, str) else ""
+        logger.debug(f"文本 {text_id} 在 {lang} 里没有译文")
+    return text
 
 
-def _text_ref(ref: Any) -> tuple[int, str]:
-    """文本引用的 ``(id, 内联文本)``。
-
-    表格行现在是 :class:`tools.zmdmap.utils.tables.TextRef`（带属性的结构），而少数读原始 JSON 的
-    地方还是 dict，两种都认；不是这个形状一律当「没有」。
-    """
-    if is_object(ref):
-        return as_int(ref.get("id")), as_text(ref.get("text"))
-    return as_int(getattr(ref, "id", 0)), as_text(getattr(ref, "text", None))
+def text_id_of(ref: TextRef | None) -> int:
+    """文本引用里的文本 id；没有引用就是 0。"""
+    return ref.id if ref is not None else 0
 
 
-def text_id_of(ref: Any) -> int:
-    """``{"id": N, "text": ...}`` 里的文本 id；不是这个形状就是 0。"""
-    return _text_ref(ref)[0]
-
-
-def inline_text_of(ref: Any) -> str:
-    """文本引用里内联的那份文本（没有就是空串）。"""
-    return _text_ref(ref)[1]
+def inline_text_of(ref: TextRef | None) -> str:
+    """文本引用里内联的那份中文；多数时候没有（``None``），当空串。"""
+    return (ref.text or "") if ref is not None else ""
 
 
 def as_text(value: Any) -> str:
@@ -151,12 +105,12 @@ def texts_of(table_cfg_dir: Path, text_id: int, inline: str = "") -> dict[str, s
     }
 
 
-def ref_texts(table_cfg_dir: Path, ref: Any) -> dict[str, str]:
+def ref_texts(table_cfg_dir: Path, ref: TextRef | None) -> dict[str, str]:
     """表里 ``{"id", "text"}`` 这类文本引用的多语言文本。"""
     return texts_of(table_cfg_dir, text_id_of(ref), inline=inline_text_of(ref))
 
 
-def ref_text(table_cfg_dir: Path, ref: Any, lang: str = "zh-CN") -> str:
+def ref_text(table_cfg_dir: Path, ref: TextRef | None, lang: str = "zh-CN") -> str:
     """表里文本引用的某一语言文本。"""
     return inline_text_of(ref) or localized_text(table_cfg_dir, text_id_of(ref), lang)
 
@@ -166,33 +120,9 @@ def ref_text(table_cfg_dir: Path, ref: Any, lang: str = "zh-CN") -> str:
 # ── 世界坐标 ────────────────────────────────────────────────────────────────
 
 
-class CoordinateError(ValueError):
-    """坐标记录缺字段或不是数值。"""
-
-
-def _axis_value(pos: Any, axis: str) -> Any:
-    """坐标记录的某个轴：表格结构体走属性，原始 dict 走键。"""
-    if is_object(pos):
-        return pos.get(axis)
-    return getattr(pos, axis, None)
-
-
-def _read_axes(pos: Any, axes: tuple[str, ...], label: str) -> tuple[float, ...]:
-    if not is_object(pos) and not hasattr(pos, "x"):
-        raise CoordinateError(f"{label} 不是坐标记录")
-    values: list[float] = []
-    for axis in axes:
-        number = _axis_value(pos, axis)
-        if not isinstance(number, (int, float)) or isinstance(number, bool):
-            raise CoordinateError(f"{label} 缺少或不是数值的 {axis}")
-        values.append(float(number))
-    return tuple(values)
-
-
-def read_xyz(pos: Any, label: str) -> tuple[float, float, float]:
-    """从坐标记录取 (x, y, z)；y 是世界高度，原样透传给 NAVMESH 终点。"""
-    x, y, z = _read_axes(pos, ("x", "y", "z"), label)
-    return x, y, z
+def read_xyz(pos: Position3) -> tuple[float, float, float]:
+    """从坐标结构里取 (x, y, z)；y 是世界高度，原样透传给 NAVMESH 终点。"""
+    return pos.x, pos.y, pos.z
 
 
 # ── 关卡归属 ────────────────────────────────────────────────────────────────

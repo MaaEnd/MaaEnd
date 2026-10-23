@@ -17,7 +17,8 @@ from pathlib import Path
 from typing import Any
 
 from ..utils.config import UPSTREAM_LOCALES
-from ..utils.game_data import logger, ref_texts, text_id_of, texts_of
+from ..utils.game_data import ref_texts, text_id_of, texts_of
+from ..utils.log import logger
 from ..utils.tables import (
     ForesightWeaponRow,
     ItemRow,

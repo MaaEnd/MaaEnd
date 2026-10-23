@@ -35,6 +35,7 @@ from .utils.datafile import (
     with_metadata,
     write_json,
 )
+from .utils.log import logger
 from .utils.sync import (
     SYNC_MARK_UNKNOWN,
     SYNC_MARKS,
@@ -120,13 +121,13 @@ def generate_datasets(
         stamp = version or read_version(output_path) or read_version(data_dir / dataset.file_name)
         data = with_metadata(data, stamp)
         if not force and is_unchanged(output_path, data):
-            click.echo(f"[{dataset.name}] 生成结果未变化，跳过写入：{output_path}")
+            logger.info(f"{dataset.name} 生成结果未变化，跳过写入：{output_path}")
             continue
         try:
             write_json(output_path, data)
         except OSError as error:
             raise click.ClickException(f"[{dataset.name}] 写入失败：{error}") from error
-        click.echo(f"[{dataset.name}] 已生成：{output_path}")
+        logger.info(f"{dataset.name} 已生成：{output_path}")
         written += 1
     return written
 
@@ -227,10 +228,10 @@ def generate_command(
     pipeline_files = files_of(datasets, projected=True)
     plain_files = files_of(datasets, projected=False)
 
-    click.echo(f"[zmdmap] 工作区（兄弟仓库）：{workspace}（{parameter_source(ctx, 'workspace')}）")
-    click.echo(f"[zmdmap] TableCfg：{table_cfg_dir}（{parameter_source(ctx, 'table_cfg_dir')}）")
-    click.echo(f"[zmdmap] JsonData：{json_data_dir}（{parameter_source(ctx, 'json_data_dir')}）")
-    click.echo(f"[zmdmap] 数据集：{len(datasets)} 个（{'、'.join(d.name for d in datasets)}）")
+    logger.info(f"工作区（兄弟仓库）：{workspace}（{parameter_source(ctx, 'workspace')}）")
+    logger.info(f"TableCfg：{table_cfg_dir}（{parameter_source(ctx, 'table_cfg_dir')}）")
+    logger.info(f"JsonData：{json_data_dir}（{parameter_source(ctx, 'json_data_dir')}）")
+    logger.info(f"数据集：{len(datasets)} 个（{'、'.join(d.name for d in datasets)}）")
 
     # 版本优先命令行；否则从兄弟仓库读（数据里的构建号 > 提交标题），工作区里没有兄弟仓库时退回
     # TableCfg 所在的那个仓库，它通常就是 BeyondTableCfg。
@@ -238,9 +239,9 @@ def generate_command(
     version = data_version_option or detected
     if version:
         origin = "命令行" if data_version_option else "兄弟仓库"
-        click.echo(f"[zmdmap] 数据版本：{version}（{origin}）")
+        logger.info(f"数据版本：{version}（{origin}）")
     else:
-        click.echo("[zmdmap] 数据版本：读不到，沿用各份数据原有的版本")
+        logger.info("数据版本：读不到，沿用各份数据原有的版本")
 
     sync_failed = False
     if sync:

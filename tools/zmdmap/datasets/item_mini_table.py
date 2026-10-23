@@ -20,7 +20,8 @@
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import logger, ref_text, text_id_of, texts_of
+from ..utils.game_data import ref_text, text_id_of, texts_of
+from ..utils.log import logger
 from ..utils.tables import (
     FactoryBuildingItemReverseRow,
     FactoryBuildingRow,

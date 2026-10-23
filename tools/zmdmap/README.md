@@ -87,6 +87,9 @@ uv run zmdmap fetch --dry-run                     # 只看会下哪几份、会�
 | `utils/tables.py` | 游戏表格的结构定义（`msgspec.Struct`）与类型化解码入口 |
 | `utils/game_data.py` | 各语言文本表、文本引用、世界坐标与关卡索引 |
 | `utils/config.py` | 静态配置：文件树与路径、语言 key 的映射、发布渠道的地址与清单名 |
+| `utils/log.py` | 命令行输出：`logger.info` 走标准输出、`logger.warning` 走标准错误，前缀统一加，排查时 `ZMDMAP_DEBUG=1` 才打印 `logger.debug` |
+| `utils/errors.py` | 共用的小异常（`LocalDataError`：本地数据读不出来或形状不对） |
+| `utils/shapes.py` | 读「没有建模的 JSON」时的收窄助手（任意结构的载荷、随组件变化的属性） |
 
 入库 JSON 用 `utils/datafile.py` 里的写法序列化（`ensure_ascii=False`、缩进 4），并且统一写 LF（仓库的 `.gitattributes` 是 `eol=lf`）。整型浮点会带小数点（`520.0` 而不是 `520`），解析出来的值与键顺序不受影响。
 

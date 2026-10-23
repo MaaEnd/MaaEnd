@@ -13,7 +13,6 @@
 import json
 import re
 import subprocess
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -24,6 +23,7 @@ from .config import (
     WORKSPACE_REPO_NAMES,
     ZMDMAP_DATA_DIR,
 )
+from .log import logger
 from .shapes import is_object
 
 # 状态 -> 单字符标记，打印同步结果时用。标记只用 GBK 能编出来的字符：Windows 中文控制台
@@ -237,10 +237,9 @@ def data_version(workspace: Path) -> str | None:
     newest = max(found, key=lambda item: version_order(item[1]))
     if len({version for _, version in found}) > 1:
         detail = "、".join(f"{name} {version}" for name, version in found)
-        print(
-            f"[zmdmap] 兄弟仓库数据版本不一致：{detail}；取最新的 {newest[1]}（{newest[0]}）。"
-            "两侧停在不同批次时可以先跑 uv run zmdmap generate --sync",
-            file=sys.stderr,
+        logger.warning(
+            f"兄弟仓库数据版本不一致：{detail}；取最新的 {newest[1]}（{newest[0]}）。"
+            "两侧停在不同批次时可以先跑 uv run zmdmap generate --sync"
         )
     return newest[1]
 

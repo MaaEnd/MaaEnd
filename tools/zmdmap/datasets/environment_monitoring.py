@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import logger
+from ..utils.log import logger
 from ..utils.tables import KiteStationEntrustRow, KiteStationLevelRow, load_table
 from .base import Dataset, DatasetError
 

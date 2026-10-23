@@ -20,6 +20,7 @@ import requests
 
 from .config import MODEL_SUBPATH, NAVMESH_FILES, NAVMESH_SUBPATH
 from .http import get
+from .log import logger
 from .shapes import is_object
 
 NAV_MAGIC = b"BNAV"
@@ -182,7 +183,7 @@ def load_nav_zones(nav: str | None, repo_root: Path) -> dict[str, NavZone]:
     前缀不够就得加长重读（见 :data:`NAV_PREFIX_BYTES`），每次重读都是一次新的 Range 请求。
     """
     label, read = resolve_nav_source(nav, repo_root)
-    print(f"[materialize] nav 数据：{label}")
+    logger.info(f"nav 数据：{label}")
     size = NAV_PREFIX_BYTES
     while size <= NAV_PREFIX_LIMIT:
         try:
