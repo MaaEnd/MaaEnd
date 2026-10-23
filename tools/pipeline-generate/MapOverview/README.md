@@ -30,4 +30,4 @@ node --test tools/pipeline-generate/MapOverview/generate.test.mjs
 
 找不到 Success 时，工具在 `SceneMapOverview.json` 末尾追加带 `enabled: false` 的占位节点，避免空节点直接命中。占位描述为“在地图界面，成功进入四号谷地-枢纽区地图；待实现地图成功确认，实现后启用”。接入者可直接补全占位节点的识别逻辑并启用；若将实际 Success 放在其他文件，需要先删除原占位节点，并沿用相同节点名。
 
-`SceneValleyIV.json` 和 `SceneWuling.json` 负责确认总览界面、切换地区标签，以及确认进入了目标地图；它们在地区切换后引用对应地图的单个生成点击节点。
+`SceneValleyIV.json` 和 `SceneWuling.json` 负责确认总览界面、切换地区标签，以及确认进入了目标地图。四号谷地入口在地区切换后引用对应地图的生成点击节点；武陵入口优先通过 OCR 识别地图名称并点击，未命中时使用生成坐标兜底，两条路径都接入同一 Success。试验园区和应龙关的 OCR 引用因识别不稳定保持注释禁用，直接使用生成坐标。OCR 节点及入口引用由接入者维护，生成器不修改。
