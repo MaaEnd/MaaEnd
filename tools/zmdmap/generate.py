@@ -309,10 +309,10 @@ def generate_command(
             logger.info(f"{MANIFEST_FILE} -> {manifest_path}")
     except click.ClickException as error:
         generated_ok = False
-        logger.warning(f"x {error.message}")
+        logger.error(f"x {error.message}")
     except OSError as error:
         generated_ok = False
-        logger.warning(f"x 写 {MANIFEST_FILE} 失败：{error}")
+        logger.error(f"x 写 {MANIFEST_FILE} 失败：{error}")
     generate_seconds = time.monotonic() - started
 
     materialized_ok: bool | None = None
@@ -329,7 +329,7 @@ def generate_command(
             copied = copy_plain(out_dir, data_dir, plain_files, force=force)
             logger.info(f"投影 {projected} 份、复制 {copied} 份")
         except click.ClickException as error:
-            logger.warning(f"x {error.message}")
+            logger.error(f"x {error.message}")
             materialized_ok = False
 
     logger.section("汇总")

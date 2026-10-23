@@ -22,15 +22,35 @@ import click
 
 from .fetch import fetch_command
 from .generate import generate_command
+from .utils.log import logger
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
-def main() -> None:
+def _command() -> None:
     """生成 / 下载 / 入库 MaaEnd 的精简游戏数据。"""
 
 
-main.add_command(generate_command)
-main.add_command(fetch_command)
+_command.add_command(generate_command)
+_command.add_command(fetch_command)
+
+
+def main() -> None:
+    """命令行入口。
+
+    click 自己报错时会写一行 ``Error: …``（没有前缀），那样日志里就混进了一行不带标记的。这里接住它，
+    改走 :func:`tools.zmdmap.utils.log.logger.error`，前缀、颜色、标准错误都和别处一致；``--help`` 的输出
+    仍然交给 click（那是用法说明，不是日志）。
+    """
+    try:
+        _command(standalone_mode=False)
+    except click.ClickException as error:
+        logger.error(f"x {error.format_message()}")
+        raise SystemExit(error.exit_code) from error
+    except click.Abort:
+        logger.error("x 已中断")
+        raise SystemExit(1) from None
+    except click.exceptions.Exit as stopped:
+        raise SystemExit(stopped.exit_code) from None
 
 
 if __name__ == "__main__":

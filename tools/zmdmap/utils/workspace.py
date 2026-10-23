@@ -19,8 +19,8 @@ from .config import (
     ZMDMAP_DATA_DIR,
 )
 
-# 状态 -> 单字符标记，打印同步结果时用。标记只用 GBK 能编出来的字符：Windows 中文控制台
-# 编不出 ✘ / ⚠ 这类符号，写出去就是 UnicodeEncodeError。
+# 状态 -> 单字符标记，打印同步结果时用。标记只用 GBK 里有的字符：输出虽然走 click（写不了的字符它会替换成
+# ``?`` 而不是抛错），但 Windows 中文控制台上显示成问号一样没法看。
 SYNC_MARKS = {"updated": "↓", "current": "=", "pending": "→", "skipped": "·", "missing": "·"}
 SYNC_MARK_UNKNOWN = "x"
 
