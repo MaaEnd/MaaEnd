@@ -1,6 +1,7 @@
 # 开发手册 - OutpostTrading 据点交易
 
-`OutpostTrading` 按用户配置的地区/据点自动完成据点交易。任务遵循「Pipeline 管流程，Go 管算法」：Pipeline（`assets/resource/pipeline/OutpostTrading*.json`）负责界面识别与点击；Go Service（`agent/go-service/outposttrading/`）负责选品策略、保留规则、干员规划与缓存。
+`OutpostTrading` 按用户配置的地区/据点自动完成据点交易。任务遵循「Pipeline 管流程，Go 管算法」：Pipeline（`assets/resource/pipeline/OutpostTrading*.json`）负责界面识别与点击；Go Service（`agent/go-service/outposttrading/`）负责选品策略、保留规则、干员规划与缓存。  
+该文档更新于 2026 年 10 月 23 日。
 
 ## 要点速览
 
