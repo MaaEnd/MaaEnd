@@ -228,3 +228,20 @@ MaaFw 不做模板缩放 → 改抓帧分辨率会让 650 个模板全部失效�
 写 `CdpController`（`maa.controller.CustomController`）：screencap 从 `<video>` 抠原生帧 → AREA 降到 720p，
 输入走 CDP `Input.dispatchMouseEvent` / `dispatchKeyEvent`。设计、风险、验收标准见
 `web/docs/cdp-native-capture.md`。
+---
+
+## 2026-10-23 15:5x · CdpController 落地（`d11036679`）
+
+从云串流 `<video>` 取原生帧，绕开「1080→1440→720」两次重采样。
+
+验收（WSL 实测）：
+| 项 | 结果 |
+|---|---|
+| 抓帧 | 1280x720，锐度 1174（现有链路 501，+134%） |
+| 延迟 | 后台 ~190ms/帧，screencap 命中缓存 0–7ms |
+| 鼠标 | 点 (1252,30) → CSS (1669.7,40.0)，Esc 菜单关闭回大世界 |
+| 键盘 | `key_down/key_up(27)` 打开 Esc 菜单 |
+| 任务 | `--controller cdp --tasks WebStartGame` → OK 1.0s |
+
+同时修 `resolve_preset.ROOT` 默认回落到 Windows 安装目录的问题（导致直跑时
+自有任务被判「未知任务」）。归档副本在 `archive_wsl_20261023/`，tag `web-cdp-20261023`。
