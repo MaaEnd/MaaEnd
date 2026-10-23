@@ -1,8 +1,9 @@
 """``zmdmap fetch``：从 zmdmap 下载已发布的原始数据，再入库。
 
 上游发布的清单（``manifest.json``）给出这批数据是哪一版、每份原始形态的内容指纹，数据按
-``?ver=<版本>&t=<清单给的内容指纹>`` 从发布 CDN 拉取。``t`` 是完整指纹，于是「同一份内容 = 同一个 URL、
-内容一变就是新 URL」：这个 CDN 只看 URL 判断缓存，这样它就没机会拿旧内容顶新的。**清单是必需的前提**：
+``?t=<清单给的内容指纹>`` 从发布 CDN 拉取。``t`` 是完整指纹，于是「同一份内容 = 同一个 URL、内容一变就是
+新 URL」：这个 CDN 只看 URL 判断缓存，这样它就没机会拿旧内容顶新的。地址里不带版本号 —— 那是给日志和标签用
+的，CDN 不认它。**清单是必需的前提**：
 取不到清单（没发布、404、形状不对）就直接报错，不再「不比对就下」—— 没有清单既不知道该下哪几份，也不知道
 本地是不是已经最新，硬下只会让本地数据与批次对不上。下哪几份仍由调用方给出 —— 各任务生成器只要自己用的那
 几份，就只下那几份，不必被整包牵着走。清单里没有的文件也不会下：那是「这批没发它」，本地有就保持原样；
@@ -136,9 +137,9 @@ def manifest_plan(
     return todo, unlisted, absent
 
 
-def _data_url(file_name: str, params: dict[str, str]) -> str:
-    """数据文件的下载地址：``params`` 里的 ``ver`` / ``t`` 拼成查询串。"""
-    return f"{DATA_BASE_URL}/{file_name}" + (f"?{urlencode(params)}" if params else "")
+def _data_url(file_name: str, token: str) -> str:
+    """数据文件的下载地址：查询串只有 ``t=<内容指纹>``，没有版本号（CDN 不认它）。"""
+    return f"{DATA_BASE_URL}/{file_name}" + (f"?{urlencode({'t': token})}" if token else "")
 
 
 def _request_json(file_name: str, url: str) -> Any:
@@ -178,7 +179,7 @@ def content_problem(file_name: str, data: Any, digest: str, expect: str | None) 
 
 def _fetch_verified(
     file_name: str,
-    params: dict[str, str],
+    token: str,
     expect: str | None,
     *,
     accept_mismatch: bool,
@@ -189,7 +190,7 @@ def _fetch_verified(
     旧的顶替。所以内容还对不上，只能是上游发布的那份和清单不一致 —— 再取一次还是同一份，重试只会白等。
     ``accept_mismatch`` 为真（``--force``）时只提示、照收。
     """
-    data = _request_json(file_name, _data_url(file_name, params))
+    data = _request_json(file_name, _data_url(file_name, token))
     digest = payload_hash(payload_of(data))
     problem = content_problem(file_name, data, digest, expect)
     if problem is None:
@@ -207,22 +208,17 @@ def _fetch_verified(
 def _download_json(
     file_name: str,
     destination: Path,
-    version: str | None,
-    token: str | None,
+    token: str,
     expect: str | None = None,
     *,
     accept_mismatch: bool = False,
 ) -> None:
     """下载一份原始数据，核对内容之后再落盘。
 
-    ``expect`` 是清单给的指纹；``accept_mismatch``（``--force``）时校验不过也照收，只提示。
+    ``token`` 是查询串里的 ``t``（清单指纹，``--force`` 时是时间戳）；``expect`` 是清单给的指纹；
+    ``accept_mismatch``（``--force``）时校验不过也照收，只提示。
     """
-    params: dict[str, str] = {}
-    if version:
-        params["ver"] = version
-    if token:
-        params["t"] = token
-    data, digest = _fetch_verified(file_name, params, expect, accept_mismatch=accept_mismatch)
+    data, digest = _fetch_verified(file_name, token, expect, accept_mismatch=accept_mismatch)
 
     # 元数据沿用上游 generate 写的那份 ``version``。``sha256`` 换成这一步核出来的指纹：清单核过时它就是清单
     # 的值，``--force`` 照收时它是实际内容的值 —— 两种情况下文件里的字段都与内容一致。若照抄上游自称的那个
@@ -243,7 +239,6 @@ def _download_json(
 
 def fetch_and_cache(
     raw_dir: Path,
-    version: str | None,
     projected_files: Sequence[str],
     plain_files: Sequence[str],
     *,
@@ -264,7 +259,6 @@ def fetch_and_cache(
             _download_json(
                 file_name,
                 raw_dir / file_name,
-                version,
                 token or hashes.get(file_name, ""),
                 hashes.get(file_name),
                 accept_mismatch=force,
@@ -353,7 +347,6 @@ def download(
             pending = set(todo)
             missing = fetch_and_cache(
                 raw_dir,
-                version,
                 [file_name for file_name in projected_files if file_name in pending],
                 [file_name for file_name in plain_files if file_name in pending],
                 token=token,
