@@ -796,7 +796,7 @@ class ShopGoodsRow(msgspec.Struct, frozen=True, rename="camel"):
 def _decode(raw: bytes, model: Any, label: str) -> Any:
     try:
         return msgspec.json.decode(raw, type=model)
-    except msgspec.ValidationError as error:
+    except msgspec.DecodeError as error:
         raise LocalDataError(f"{label} 的结构与预期不符：{error}") from error
 
 

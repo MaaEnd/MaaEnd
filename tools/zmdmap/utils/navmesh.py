@@ -158,7 +158,7 @@ def _resolve_nav_submodule_sha() -> str:
         raise ValueError(f"查询 assets/resource/model 版本失败：{response.status_code}")
     try:
         sha = msgspec.json.decode(response.content, type=SubmoduleRef).sha
-    except msgspec.ValidationError as error:
+    except msgspec.DecodeError as error:
         raise ValueError(f"没能确定 assets/resource/model 的版本：{error}") from error
     if not sha:
         raise ValueError("没能确定 assets/resource/model 的版本")

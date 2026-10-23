@@ -1,8 +1,9 @@
 """``zmdmap fetch``：从 zmdmap 下载已发布的原始数据，再入库。
 
 上游发布的清单（``manifest.json``）给出这批数据是哪一版、每份原始形态的内容指纹，数据按
-``?ver=<版本>&t=<指纹前 8 位>`` 从发布 CDN 拉取。清单还没发布时不比对，这几份直接下载。下哪几份由调用方
-给出 —— 各任务生成器只要自己用的那几份，就只下那几份，不必被整包牵着走。
+``?ver=<版本>&t=<指纹前 8 位>`` 从发布 CDN 拉取。**清单是必需的前提**：取不到清单（没发布、404、形状不对）
+就直接报错，不再「不比对就下」—— 没有清单既不知道该下哪几份，也不知道本地是不是已经最新，硬下只会让本地
+数据与批次对不上。下哪几份仍由调用方给出 —— 各任务生成器只要自己用的那几份，就只下那几份，不必被整包牵着走。
 
 每份下回来都先核对内容再落盘：有清单指纹就按它算，清单里没有这一份就按文件自称的 ``sha256``；不符时换一个
 带时间戳的 URL 重取一次，仍不符就报错、不写盘 —— 免得坏内容配上好指纹进 ``data/raw/``，入库之后再也比不
@@ -62,6 +63,10 @@ class DownloadError(ValueError):
         self.status_code = status_code
 
 
+class ManifestError(ValueError):
+    """取不到发布清单，或者清单的形状不对。"""
+
+
 class Manifest(msgspec.Struct):
     """上游发布的清单：这批数据是哪一版，以及每份原始形态的内容指纹。"""
 
@@ -71,32 +76,34 @@ class Manifest(msgspec.Struct):
     """文件名 -> 原始形态的内容指纹"""
 
 
-def parse_manifest(text: str) -> Manifest | None:
-    """解析清单；形状不对就当没清单（上游还是老形态，或者拿到的是错误页）。"""
-    try:
-        return msgspec.json.decode(text, type=Manifest)
-    except msgspec.ValidationError:
-        return None
+def read_manifest() -> Manifest:
+    """取上游清单；取不到就抛 :class:`ManifestError` —— 没有清单这一批下不了。
 
-
-def read_manifest() -> Manifest | None:
-    """取上游清单；没发布（404）或形状不对时返回 ``None``，由调用方按「不比对」处理。
-
-    清单决定了「后面下哪几份」，被远端缓存住就等于拿旧索引判断，所以每次带一个时间戳当 URL 的一部分。
-    实测这个 CDN 只看 URL：请求头带 ``Cache-Control: no-cache`` 照样命中缓存（``Age`` 不变），换 URL 才真的
-    回源。只有它需要这样 —— 数据文件的 URL 自带清单给的内容指纹（``t=<指纹前 8 位>``），本来就随内容变。
+    清单决定了「后面下哪几份、内容是不是已经最新」，被远端缓存住就等于拿旧索引判断，所以每次带一个时间戳
+    当 URL 的一部分。实测这个 CDN 只看 URL：请求头带 ``Cache-Control: no-cache`` 照样命中缓存（``Age``
+    不变），换 URL 才真的回源。只有它需要这样 —— 数据文件的 URL 自带清单给的内容指纹（``t=<指纹前 8 位>``），
+    本来就随内容变。
     """
     # 清单只有几百字节，每次都回源不心疼；它错了会连带整批判断都错。
     token = urlencode({"t": int(time.time() * 1000)})
+    url = f"{DATA_BASE_URL}/{MANIFEST_FILE}?{token}"
     try:
-        response = get(f"{DATA_BASE_URL}/{MANIFEST_FILE}?{token}")
+        response = get(url)
     except requests.RequestException as error:
-        # 5xx 重试完仍失败也走这条路：取不到清单就直接下载，不让清单的问题挡住整次 fetch。
-        logger.warning(f"取清单失败 ({error})")
-        return None
+        # 网络层错误与 5xx 重试用完都落到这里：这一批没有清单可用。
+        raise ManifestError(f"取清单失败（{url}）：{error}") from error
+    if response.status_code == 404:
+        raise ManifestError(
+            f"上游还没有发布 {MANIFEST_FILE}（{url} 返回 404）：先确认数据发完再 fetch"
+        )
     if response.status_code >= 400:
-        return None
-    return parse_manifest(response.text)
+        raise ManifestError(f"取清单失败（{url}）：{response.status_code} {response.reason}")
+    try:
+        return msgspec.json.decode(response.text, type=Manifest)
+    except msgspec.DecodeError as error:
+        raise ManifestError(
+            f"{MANIFEST_FILE} 不是预期形状（{url}）：{error}；可能是错误页或上游换了格式"
+        ) from error
 
 
 def manifest_plan(
@@ -157,8 +164,8 @@ def _request_json(file_name: str, url: str) -> Any:
 def content_problem(file_name: str, data: Any, digest: str, expect: str | None) -> str | None:
     """内容与预期不符时的说明；一致或无从核对时返回 ``None``。
 
-    有清单给的指纹就以它为准 —— 那是发布端按内容算的。清单里没有这一份（上游还没发布清单，或这批没它）
-    时退回文件自称的 ``sha256``；两个都没有就无从核对，只能照收（上游的老形态）。
+    有清单给的指纹就以它为准 —— 那是发布端按内容算的。清单里没有这一份（这批没发它）时退回文件自称的
+    ``sha256``；两个都没有就无从核对，只能照收（上游的老形态）。
     """
     if expect is not None:
         return None if digest == expect else f"与清单不符：清单 {expect}，拿到 {digest}"
@@ -243,7 +250,7 @@ def fetch_and_cache(
     plain_files: Sequence[str],
     *,
     token: str | None = None,
-    hashes: dict[str, str] | None = None,
+    hashes: dict[str, str],
     force: bool = False,
 ) -> list[str]:
     """把这几份发布的原始数据逐个下载到 ``raw_dir``；返回上游还没发布、被跳过的文件名。
@@ -252,7 +259,6 @@ def fetch_and_cache(
     一变就是新 URL，绕开远端缓存。``token`` 给了就替掉指纹（``--force`` 时是时间戳），让这几份一律回源。
     ``force`` 时校验不过也照收，只提示。
     """
-    hashes = hashes or {}
     raw_dir.mkdir(parents=True, exist_ok=True)
     failures: dict[str, DownloadError] = {}
     for file_name in (*projected_files, *plain_files):
@@ -299,8 +305,9 @@ def download(
 
     本地是不是最新以发布清单为准：逐份拿 ``target_dir`` 里同名文件**自称的** ``sha256`` 跟清单比，一样的跳过
     下载，不一样的才下 —— 不必问任何接口，也认得「同一个版本号下重新发布过」；``version`` 不参与比较。
-    清单还没发布时不比对，这几份直接下载；``version`` 与 ``sha256`` 都沿用数据文件自带的（上游 ``generate``
-    写进文件的那份），这里不改它们。
+
+    清单是必需的前提：取不到就直接抛 :class:`ManifestError`，不会退化成「不比对就整批下」。没有清单既不知道
+    该下哪几份，也不知道本地是不是已经最新，硬下只会把本地数据换成对不上批次的内容。
 
     ``force`` 是不比对、直接重下这几份，并且请求 URL 上的 ``t`` 用时间戳而不是清单指纹 —— 「怀疑远端说辞」
     时的唯一手段（这个 CDN 只看 URL，请求头说了不算）。CI 上没有额外开关：本地与 CI 跑的是同一套判断。
@@ -311,10 +318,10 @@ def download(
     token = str(int(time.time() * 1000)) if force else None
 
     manifest = read_manifest()
-    version = manifest.version if manifest is not None else None
+    version = manifest.version
     if force:
-        logger.info("强制下载（--force），不比对本地内容")
-    elif manifest is not None:
+        logger.info("强制下载（--force），不比对本地内容（版本与指纹仍按清单）")
+    else:
         todo, unlisted = manifest_plan(target_dir, todo, manifest)
         label = f"清单 v{version}" if version else "清单（没写版本）"
         if unlisted:
@@ -324,12 +331,8 @@ def download(
         else:
             logger.info(f"本地内容与{label}一致，跳过下载")
             return []
-    else:
-        logger.warning(
-            f"上游还没发布 {MANIFEST_FILE}，不比对本地内容，直接下载（版本沿用数据文件自带的）"
-        )
 
-    hashes = manifest.files if manifest is not None else {}
+    hashes = manifest.files
     written = list(todo)
     if todo:
         if dry_run:
