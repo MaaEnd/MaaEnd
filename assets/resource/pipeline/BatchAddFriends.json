@@ -655,6 +655,15 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                93,
+                262,
+                486,
+                430
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "on_error": [
@@ -727,7 +736,45 @@
             "BatchAddFriendsStrangersScan"
         ],
         "next": [
-            "BatchAddFriendsStrangersProfileReady"
+            "BatchAddFriendsStrangersProfileCardOpened"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileCardOpened": {
+        "desc": "名片已打开：申请好友按钮与权限等级 LOGO 同时存在",
+        // 只用权限等级图标判断容易在淡入过程中误命中，
+        // 两个名片独有元素同时命中才认为名片确实打开了。
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddFriendsStrangersProfileAddFriend",
+                    "BatchAddFriendsStrangersProfileReady"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        // 确认名片已打开后，等左下角信息区域稳定再读等级。
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                93,
+                262,
+                486,
+                430
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "on_error": [
+            "BatchAddFriendsStrangersProfileFallbackClose"
+        ],
+        "next": [
+            "BatchAddFriendsStrangersProfileAuthorityLevel"
         ]
     },
     "BatchAddFriendsStrangersProfileReady": {
