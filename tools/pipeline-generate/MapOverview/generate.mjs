@@ -1,5 +1,5 @@
 import {readFileSync, readdirSync, writeFileSync} from "node:fs";
-import {resolve} from "node:path";
+import {relative, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
 
 import {applyEdits, createScanner, modify, parseTree, SyntaxKind} from "jsonc-parser";
@@ -145,11 +145,53 @@ function removeClick(text, name) {
     return applyEdits(text, edits);
 }
 
-export function updatePipeline(text, {clicks, successes}, externalNames) {
-    const existing = parseJsonc(text, outputPath);
-    for (const name of Object.keys(existing)) {
-        if (name.startsWith(`${nodePrefix}_`) && !Object.hasOwn(clicks, name)) text = removeClick(text, name);
+export function collectReferences(nodes, path) {
+    const references = [];
+    for (const [
+        name,
+        node,
+    ] of Object.entries(nodes)) {
+        for (const field of [
+            "next",
+            "on_error",
+        ]) {
+            const targets = node[field];
+            for (const [
+                index,
+                target,
+            ] of (Array.isArray(targets) ? targets : [targets]).entries()) {
+                if (typeof target !== "string" || target.includes("[Anchor]")) continue;
+                // Anchor 解析的是运行时锚点；JumpBack 则仍直接引用静态节点。
+                references.push({
+                    target: target.replace(/^(?:\[JumpBack\])+/, ""),
+                    source: `${path}: ${name}.${field}[${index}]`,
+                });
+            }
+        }
     }
+    return references;
+}
+
+export function updatePipeline(text, {clicks, successes}, externalNames, externalReferences = []) {
+    const existing = parseJsonc(text, outputPath);
+    const removed = new Set(
+        Object.keys(existing).filter((name) => name.startsWith(`${nodePrefix}_`) && !Object.hasOwn(clicks, name)),
+    );
+    // 生成点击节点会整体替换，只检查其他文件和本文件中仍保留的手写流程。
+    const manual = Object.fromEntries(Object.entries(existing).filter(([name]) => !name.startsWith(`${nodePrefix}_`)));
+    const references = [
+        ...externalReferences,
+        ...collectReferences(manual, relative(repoRoot, outputPath)),
+    ];
+    const blocked = references.filter(({target}) => removed.has(target));
+    if (blocked.length > 0) {
+        throw new Error(
+            `[MapOverview] 拒绝删除仍被流程引用的点击节点，请先确认数据并调整引用：\n${blocked
+                .map(({target, source}) => `${target} ← ${source}`)
+                .join("\n")}`,
+        );
+    }
+    for (const name of removed) text = removeClick(text, name);
     const options = {formattingOptions: {insertSpaces: true, tabSize: 4}};
     for (const [
         name,
@@ -186,16 +228,19 @@ function readOutput() {
     }
 }
 
-function collectExternalNames() {
+function collectExternalNodes() {
     const names = new Set();
+    const references = [];
     const pipelineDir = resolve(repoRoot, "assets/resource/pipeline");
     for (const entry of readdirSync(pipelineDir, {recursive: true, withFileTypes: true})) {
         if (!entry.isFile() || !/\.jsonc?$/.test(entry.name)) continue;
         const path = resolve(entry.parentPath, entry.name);
         if (path === outputPath) continue;
-        for (const name of Object.keys(readJsonc(path))) names.add(name);
+        const nodes = readJsonc(path);
+        for (const name of Object.keys(nodes)) names.add(name);
+        references.push(...collectReferences(nodes, relative(repoRoot, path)));
     }
-    return names;
+    return {names, references};
 }
 
 async function writeText(path, source) {
@@ -233,7 +278,8 @@ async function main() {
     }
     const {levels} = readJsonc(resolve(dataDir, "teleport_anchors.json"));
     const nodes = buildPipeline(clicks, levels);
-    const output = updatePipeline(readOutput(), nodes, collectExternalNames());
+    const external = collectExternalNodes();
+    const output = updatePipeline(readOutput(), nodes, external.names, external.references);
     await writeJson(clicksPath, clicks);
     await writeText(outputPath, output);
     console.log(`[MapOverview] 已生成 ${Object.keys(nodes.clicks).length} 个点击节点：${outputPath}`);

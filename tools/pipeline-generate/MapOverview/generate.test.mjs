@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
+import {spawnSync} from "node:child_process";
+import {readFileSync} from "node:fs";
 import {test} from "node:test";
+import {fileURLToPath} from "node:url";
 
 import {parseJsonc} from "../jsonc.mjs";
-import {buildPipeline, extractClicks, nodeName, successName, updatePipeline} from "./generate.mjs";
+import {buildPipeline, collectReferences, extractClicks, nodeName, successName, updatePipeline} from "./generate.mjs";
 
 function sourceFixture() {
     return {
@@ -273,4 +276,114 @@ test("过期点击位于末尾时也保留 Success 的内容与注释", () => {
     );
     assert.deepEqual(parseJsonc(updated), {[manual]: {enabled: false}});
     assert.ok(updated.includes("// 手写确认"));
+});
+
+test("收集 next 和 on_error 静态引用，识别 JumpBack，忽略描述与运行时 Anchor", () => {
+    const target = nodeName("region01", "map01_lv001");
+    assert.deepEqual(
+        collectReferences(
+            {
+                Entry: {
+                    desc: target,
+                    next: [
+                        target,
+                        `[JumpBack]${target}`,
+                        `[Anchor]${target}`,
+                    ],
+                    on_error: target,
+                },
+            },
+            "SceneValleyIV.json",
+        ),
+        [
+            {target, source: "SceneValleyIV.json: Entry.next[0]"},
+            {target, source: "SceneValleyIV.json: Entry.next[1]"},
+            {target, source: "SceneValleyIV.json: Entry.on_error[0]"},
+        ],
+    );
+});
+
+test("地区只遗漏一张地图时，仍有外部流程引用就拒绝删除并报告引用位置", () => {
+    const complete = buildPipeline(extractClicks(sourceFixture()), levels);
+    const partialSource = sourceFixture();
+    delete partialSource.region01.area.map01_lv001;
+    const partial = buildPipeline(extractClicks(partialSource), levels);
+    const target = nodeName("region01", "map01_lv001");
+    const original = JSON.stringify({...complete.clicks, ...complete.successes});
+    for (const field of [
+        "next",
+        "on_error",
+    ]) {
+        const references = collectReferences({TheHubEntry: {[field]: [`[JumpBack]${target}`]}}, "SceneValleyIV.json");
+        assert.throws(
+            () => updatePipeline(original, partial, new Set(), references),
+            (error) => {
+                assert.match(error.message, /拒绝删除仍被流程引用/);
+                assert.ok(error.message.includes(target));
+                assert.ok(error.message.includes(`SceneValleyIV.json: TheHubEntry.${field}[0]`));
+                return true;
+            },
+        );
+    }
+});
+
+test("本文件手写流程仍有引用时拒绝删除，解除引用后正常删除并保留 Success", () => {
+    const complete = buildPipeline(extractClicks(sourceFixture()), levels);
+    const partialSource = sourceFixture();
+    delete partialSource.region01.area.map01_lv001;
+    const partial = buildPipeline(extractClicks(partialSource), levels);
+    const target = nodeName("region01", "map01_lv001");
+    const nodes = {...complete.clicks, ...complete.successes, LocalEntry: {next: [target]}};
+    assert.throws(
+        () => updatePipeline(JSON.stringify(nodes), partial, new Set()),
+        /SceneMapOverview\.json: LocalEntry\.next\[0\]/,
+    );
+    nodes.LocalEntry.next = [nodeName("region01", "map01_lv002")];
+    const updated = parseJsonc(updatePipeline(JSON.stringify(nodes), partial, new Set()));
+    assert.equal(target in updated, false);
+    assert.deepEqual(updated.LocalEntry, nodes.LocalEntry);
+    assert.deepEqual(
+        updated[successName("region01", "map01_lv001")],
+        complete.successes[successName("region01", "map01_lv001")],
+    );
+});
+
+test("下载数据遗漏仍被地区入口引用的地图时，主程序在写缓存和 Pipeline 前失败", () => {
+    const cachePath = new URL("./clicks.json", import.meta.url);
+    const pipelinePath = new URL(
+        "../../../assets/resource/pipeline/SceneManager/SceneMapOverview.json",
+        import.meta.url,
+    );
+    const beforeCache = readFileSync(cachePath);
+    const beforePipeline = readFileSync(pipelinePath);
+    const source = JSON.parse(beforeCache.toString("utf8"));
+    delete source.region01.area.map01_lv001;
+    const generator = new URL("./generate.mjs", import.meta.url);
+    // 拦截写入，即使未来发生回归，这个测试也不会覆盖开发者的真实缓存和 Pipeline。
+    const script = `
+        import fs from "node:fs";
+        import {syncBuiltinESMExports} from "node:module";
+        fs.writeFileSync = () => { throw new Error("测试禁止写文件"); };
+        syncBuiltinESMExports();
+        globalThis.fetch = async () => ({ok: true, json: async () => (${JSON.stringify(source)})});
+        process.argv[1] = ${JSON.stringify(fileURLToPath(generator))};
+        await import(${JSON.stringify(generator.href)});
+    `;
+    const result = spawnSync(
+        process.execPath,
+        [
+            "--input-type=module",
+            "-e",
+            script,
+        ],
+        {encoding: "utf8", timeout: 30000},
+    );
+    assert.equal(result.error, undefined);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /拒绝删除仍被流程引用/);
+    assert.ok(result.stderr.includes(nodeName("region01", "map01_lv001")));
+    assert.match(result.stderr, /SceneValleyIV\.json/);
+    assert.doesNotMatch(result.stderr, /测试禁止写文件/);
+    assert.deepEqual(readFileSync(cachePath), beforeCache);
+    assert.deepEqual(readFileSync(pipelinePath), beforePipeline);
 });
