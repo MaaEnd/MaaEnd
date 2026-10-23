@@ -589,7 +589,7 @@
             "BatchAddFriendsStrangersMenuViewProfile"
         ],
         "on_error": [
-            "BatchAddFriendsChangeBatch"
+            "BatchAddFriendsStrangersRecordReject"
         ]
     },
     "BatchAddFriendsStrangersResetMenuProbe": {
