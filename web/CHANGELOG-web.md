@@ -132,3 +132,35 @@ base 侧合计 ≈ 2790 文件 / ≈400 MB；我们自己的 `web/` 只有 45 �
 
 - **MaaFw 在任务结束时会清空 draw 目录**：跑完 `ls <log_dir>/vision` 得 0，但中途有 2200 张。
   要留证据必须在跑的中途复制，或依赖 `on_error`（仅失败时保留）。
+---
+
+## 2026-10-23 04:0x · 「启动网页端」节点化 + 在 MXU「添加任务」可见（✅ 已验证）
+
+### 节点化（`43a7be738`）
+
+```
+WebLaunchSwayStart    StartApp → start_sway.sh       （幂等：socket 在即秒退）
+WebLaunchChromeStart  StartApp → start_chrome.sh     （幂等 + 对话框守护）
+WebLaunchReady        识别 Or(WebLauncherStartButton, WebPageReady)
+WebLaunchFailed       兜底，回 Ready 继续等（max_hit 10）
+WebPageReady          OCR 用户中心/开始游戏/畅玩卡/通行证UID（右侧面板 ROI）
+```
+
+要点：**就绪判据用识别，不用 sleep**（替代原来的 `post_delay 8000`）。sway 与 Chrome 拆两个脚本、两个节点，失败时一眼看出是哪一步没起来。
+
+### 任务在 MXU 里看不到的三个原因（逐个踩过）
+
+| 现象 | 原因 | 修法 |
+|---|---|---|
+| 添加任务面板没有 | 放成了 **pretask**（`web/tasks/pretasks/`），pretask 不进添加面板 | 移到 `web/tasks/WebLaunchBrowser.json` |
+| 移动后仍没有 | `entry` 还指节点化时删掉的 `WebLaunchBrowserStart` | entry 改 `WebLaunchSwayStart` |
+| entry 修好仍没有 | `label` 用 `$task.WebLaunchBrowser.label` 但**语言包没这个键**，任务面板解析不到 label 就跳过渲染 | 五个语言包补 `task.WebLaunchBrowser.label/description`，并写进 `apply_wsl_setup.py` |
+
+### 附带修掉
+
+- `interface.json` 的 import 里残留两条历史 `pretasks/` 路径（74 → 72），`apply_wsl_setup.py` 现在按片段清理
+- `WebLaunchBrowser` 的 i18n 键纳入装配脚本（防 MXU 更新覆盖 locales 后再丢）
+
+### 提交
+
+`43a7be738`（节点化）→ `04fb42ec8`（改普通任务）→ `460485529`（import 过滤）→ `777634643`（i18n）
