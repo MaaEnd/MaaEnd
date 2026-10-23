@@ -1,0 +1,47 @@
+name: pr-title
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+    branches:
+      - "**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check-title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # git-cliff 只需要一个提交和 .github/cliff.toml
+          fetch-depth: 1
+          sparse-checkout: .github
+
+      # 版本须与 orhun/git-cliff-action 的默认版本一致，否则判定期与发版期的行为可能不同
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff@2.14.2
+
+      - uses: astral-sh/setup-uv@v10.3.0
+
+      - name: Self test
+        run: uv run --no-project python -m unittest discover -s .github/scripts -p "test_check_pr_title.py" -v
+
+      - name: Check PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          uv run --no-project .github/scripts/check_pr_title.py \
+            --title "$PR_TITLE" \
+            --github \
+            --step-summary "$GITHUB_STEP_SUMMARY"
