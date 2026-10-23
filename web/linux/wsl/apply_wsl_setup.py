@@ -49,7 +49,7 @@ for r in d["resource"]:
 d["resource"] = [r for r in d["resource"] if r.get("name") != "官服-网页端"]
 imp = d.setdefault("import", [])
 # 清掉历史遗留的 pretask 路径（已改为普通任务）
-imp = [x for x in imp if x != "web/tasks/pretasks/WebLaunchBrowser.json"]
+imp = [x for x in imp if "pretasks/" + "WebLaunchBrowser" not in x]
 for _it in IMPORT_ITEMS:
     if _it not in imp:
         imp.append(_it)
