@@ -573,7 +573,7 @@
     "action": {
       "type": "StartApp",
       "param": {
-        "command": "/root/maaend/web/linux/wsl/start_sway.sh"
+        "path": "/root/maaend/web/linux/wsl/start_sway.sh"
       }
     },
     "post_delay": 3000,
@@ -587,7 +587,7 @@
     "action": {
       "type": "StartApp",
       "param": {
-        "command": "/root/maaend/web/linux/wsl/start_chrome.sh"
+        "path": "/root/maaend/web/linux/wsl/start_chrome.sh"
       }
     },
     "post_delay": 3000,
