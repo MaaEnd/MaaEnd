@@ -179,7 +179,7 @@ A declaration applies to its own waypoint only: **it pins which deck that leg st
 
 ### Applicability
 
-`NAVMESH` only handles movement and does not infer business semantics. When the route contains interactions, map transitions, jump platforms, or external teleports, they must be annotated explicitly in `path`; in that case, use the recording method in the next section.
+`NAVMESH` only handles movement and does not infer business semantics. When the route contains interactions, map transitions, jump platforms, or external teleports, they must be annotated explicitly in `path`; in that case, use the recording method in the next section. Rope lifts are the one exception: the planner hooks up rope lifts that start out lowered and inserts the interaction itself, see [Rope lifts](#rope-lifts).
 
 ---
 
@@ -573,6 +573,17 @@ Floor snapping is worth calling out separately: on multi-floor maps, triangle fa
 > [!NOTE]
 >
 > The path editor's planning preview directly calls the C++ route expansion logic used by `MapNavigateAction` and reads the same `base.nav.gz`. The preview does not implement a separate routing algorithm in JavaScript; actual execution is still affected by localization, terrain, and in-game conditions, so the outer Pipeline still needs failure fallback.
+
+### Rope lifts
+
+`base.fields.nav.gz` contains the rope lifts whose two ends are both marked in the data as lowered from the start. Each one carries a bottom and a top foothold plus the seconds one ride takes (the rise divided by the lift speed, plus one second of animation). Rope lifts the player has to lower from the top first are left out: an account may never have opened them, and planning through one could mean finding out only at the bottom that it cannot be used.
+
+Rope lifts are only ridden upwards; going down always jumps off a ledge. The planner tries them in two situations:
+
+- The start and the end are on walkable surfaces that are not connected: when no ledge jump gets there, or the rope route is shorter than the route with the jump, the rope route is used;
+- The start and the end are on the same connected surface: the ride time is converted into a distance at running speed, and the rope route is taken only when walking from the start to the bottom, riding, and walking from the top to the end is shorter than walking directly. A rope whose top is closer on foot from its bottom than the ride itself is never considered.
+
+Rope lifts are hooked up only by the full expansion at the start of a route; local re-planning after drifting off the route mid-run does not use them. In the planned route the rope bottom becomes a strictly reached `INTERACT` point whose text comes from `MapNavigatorRopeUseText` in `MapNavigator/Interact.json`; when that node is missing or has no text, the full expansion uses no rope lifts. After the interaction is pressed, the navigator waits for the ride time, then for consecutive stable localizations, and continues from the top. When no interaction prompt shows up at the bottom (for example because this account has the rope raised), that rope is marked unusable for the rest of this navigation and the remaining route is expanded again from the current position.
 
 ---
 
