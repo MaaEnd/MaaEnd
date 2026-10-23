@@ -335,7 +335,7 @@ Punctuation needs separate handling: OCR often misses quotes, apostrophes, dots 
 
 The same text is displayed at different widths across languages, and English and Korean are usually longer than Chinese. A `roi` framed for Chinese gets its two ends cut off once the language changes. Use `roi_offset` to widen the recognition range instead of editing `roi`.
 
-The four values are added straight onto the `roi`'s `[x, y, w, h]`, in the order [left, top, right, bottom]: `x` gets the first value, `y` gets the second, **`w` gets the third** and `h` gets the fourth. The third value is an increment on the width, not on the right edge: widening `d` pixels on the left means writing `-d` as the first value, which already makes the width `d` larger by itself, so the third value has to add up the widening on both sides.
+The four values are added straight onto the `roi`'s `[x, y, w, h]`, in the order [left, top, right, bottom]: `x` gets the first value, `y` gets the second, **`w` gets the third** and `h` gets the fourth. The third value is an increment on the width, not on the right edge: to widen `d` pixels on the left, write `-d` as the first value and add `d` to the third value; to widen `d` pixels on each side, the third value becomes `2d`.
 
 For example, with `roi` set to `[1100, 300, 120, 40]`, to widen 60 pixels on each side: `-60` on the left, and `120` for the third value (60 left + 60 right):
 
