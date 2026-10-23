@@ -21,7 +21,7 @@ type cacheOwnPriceParam struct {
 	ItemName string `json:"item_name"`
 }
 
-// Run 仅在价格识别成功且为正数时写入缓存，失败时不提供好友出售基准。
+// Run 仅在价格识别成功且为正数时写入缓存，缺失的缓存由好友阶段按 0 比较。
 func (r *AutoSellCacheOwnPriceRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if ctx == nil || arg == nil || arg.Img == nil {
 		return nil, false

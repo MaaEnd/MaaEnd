@@ -43,7 +43,7 @@
     "autosell.check_own_item_price_moderate": "检查本家物资 %s 价格，该物资价格变动适中",
     "autosell.check_own_item_price_unknown": "检查本家物资 %s 价格，该物资价格变动未知",
     "autosell.own_price_cached": "已记录本家物资 %s 售价：%d",
-    "autosell.own_price_unavailable": "未获取到物资 %s 的本家售价，跳过好友出售",
+    "autosell.own_price_unavailable": "未获取到物资 %s 的本家售价，按 0 比较好友价格",
     "autosell.scan_item_owned": "拥有弹性需求物资：%s",
     "autosell.ticket_overflow": "调度券已溢出",
     "autostockpile.abort.GoodsOCRUnavailableWarn": "商品识别结果不可用",

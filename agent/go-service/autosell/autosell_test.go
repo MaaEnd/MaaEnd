@@ -21,6 +21,8 @@ func TestFriendPriceRequiresOwnPriceAndThreshold(t *testing.T) {
 		{name: "equal to home above threshold", friend: 5300, own: 5300, threshold: 5000, matched: true},
 		{name: "equal to threshold above home", friend: 5000, own: 4800, threshold: 5000, matched: true},
 		{name: "above both", friend: 5500, own: 5300, threshold: 5000, matched: true},
+		{name: "missing home price meets threshold", friend: 5000, own: 0, threshold: 5000, matched: true},
+		{name: "missing home price below threshold", friend: 4954, own: 0, threshold: 5000, matched: false},
 	}
 	for _, node := range []string{"AutoSellFriendsPriceRecognition", "AutoSellFriendsPriceCurrentRecognition"} {
 		for _, tc := range cases {

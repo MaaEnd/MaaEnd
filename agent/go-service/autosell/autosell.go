@@ -170,9 +170,8 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 					Str("component", "autosell").
 					Str("region", param.Region).
 					Str("item_name", name).
-					Msg("own price is unavailable, skip friend sale")
+					Msg("own price is unavailable, use zero for comparison")
 				maafocus.Print(ctx, i18n.T("autosell.own_price_unavailable", name))
-				continue
 			}
 		}
 
