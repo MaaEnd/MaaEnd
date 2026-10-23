@@ -62,7 +62,6 @@
         "**/tools/setup/locals/**/*.json": "jsonc",
         "**/tools/icon_recognition/**/*.json": "jsonc",
         "**/tools/pipeline-generate/**/*.json": "jsonc",
-        "**/tools/i18n/**/*.json": "jsonc",
         "**/tools/essence_filter/**/*.json": "jsonc",
         "**/tools/optimize_templates/**/*.json": "jsonc"
     },

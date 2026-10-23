@@ -7,6 +7,7 @@ function escapeRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// 英文展开成忽略大小写的宽松正则：词间空白匹配 \s*，连字符两侧也允许有空白。
 function toFlexibleEnglishRegex(text) {
     const escaped = escapeRegex(text.trim());
     return `(?i)${escaped.replace(/\s+/g, "\\s*").replace(/-/g, "\\s*-\\s*")}`;
