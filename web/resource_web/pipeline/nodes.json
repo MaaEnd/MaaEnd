@@ -568,18 +568,79 @@
   "AutoStockpileGotoElasticGoods": {
     "post_delay": 800
   },
-  "WebLaunchBrowserStart": {
-    "desc": "【网页端 · 启动器】拉起 sway + Chrome（调 start_we…（详见 docs/overlay-desc-notes.md）",
+  "WebLaunchSwayStart": {
+    "desc": "起合成器 sway（已在跑则秒退）",
     "action": {
       "type": "StartApp",
       "param": {
-        "command": "/root/maaend/web/linux/wsl/start_web.sh"
+        "command": "/root/maaend/web/linux/wsl/start_sway.sh"
       }
     },
+    "post_delay": 3000,
+    "timeout": 30000,
     "next": [
+      "WebLaunchChromeStart"
+    ]
+  },
+  "WebLaunchChromeStart": {
+    "desc": "起 Chrome（含对话框守护，已在跑则秒退）",
+    "action": {
+      "type": "StartApp",
+      "param": {
+        "command": "/root/maaend/web/linux/wsl/start_chrome.sh"
+      }
+    },
+    "post_delay": 3000,
+    "timeout": 60000,
+    "next": [
+      "WebLaunchReady"
+    ]
+  },
+  "WebLaunchReady": {
+    "desc": "浏览器就绪判据：启动页「开始游戏」按钮 或 云页面「用户中心」",
+    "recognition": {
+      "type": "Or",
+      "param": {
+        "any_of": [
+          "WebLauncherStartButton",
+          "WebPageReady"
+        ]
+      }
+    },
+    "action": "DoNothing",
+    "timeout": 60000,
+    "next": [
+      "WebLaunchFailed",
       "WebStartGameEntry"
+    ]
+  },
+  "WebPageReady": {
+    "desc": "云页面已渲染出登录态（用户中心/畅玩卡文本）",
+    "recognition": {
+      "type": "OCR",
+      "param": {
+        "expected": [
+          "用户中心",
+          "开始游戏",
+          "畅玩卡",
+          "通行证UID"
+        ],
+        "roi": [
+          1000,
+          0,
+          280,
+          720
+        ]
+      }
+    }
+  },
+  "WebLaunchFailed": {
+    "desc": "启动未就绪（兜底：回 Ready 继续等，直到外层超时）",
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [
+      "WebLaunchReady"
     ],
-    "post_delay": 8000,
-    "timeout": 60000
+    "max_hit": 10
   }
 }
