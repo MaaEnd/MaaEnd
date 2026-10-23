@@ -3,10 +3,12 @@
 各份数据一律先出原始形态（只带游戏世界坐标）进 ``--out-dir``，再入库到 ``--data-dir``：需要投影的按
 BaseNav 的 zone 表补上底图像素，不需要投影的原样复制；``--raw-only`` 时只出原始形态。
 
-``version`` 只在这里写：取 ``--version``（发布端显式传，通常形如 ``1.6.4+11262943-8``），其次
+``version`` 只在这里写，且必须是完整标签（客户端版本 + 构建号，如 ``1.6.4+11262943-8``）：取
+``--version``（发布端显式传），其次
 :func:`tools.zmdmap.utils.version.data_version`（兄弟仓库的 ledger 构建号 + 提交标题里的 ``Client:``），再次
 :func:`tools.zmdmap.utils.version.data_version_from_path`（数据目录路径里的 ``initial_…_main_…``，只有构建号
-那一半）。写到每份原始数据的最前面；入库与 ``fetch`` 都只沿用，不改它。
+那一半）。都拿不到、或只凑到一半，就直接报错，不生成没有版本或版本不全的数据。写到每份原始数据的最前面；
+入库与 ``fetch`` 都只沿用，不改它。
 """
 
 import time
@@ -33,7 +35,6 @@ from .utils.datafile import (
     VERSION_KEY,
     is_unchanged,
     read_payload_hash,
-    read_version,
     with_metadata,
     write_json,
 )
@@ -41,6 +42,7 @@ from .utils.log import logger
 from .utils.version import (
     data_version,
     data_version_from_path,
+    is_complete_version,
     normalize_version,
     repo_data_version,
 )
@@ -107,15 +109,14 @@ def generate_datasets(
     out_dir: Path,
     data_dir: Path,
     *,
-    version: str | None,
+    version: str,
     force: bool,
 ) -> int:
     """跑 ``build`` 并把原始形态落到 ``out_dir``；返回成功生成的份数。
 
-    每份数据都在最前面写上元数据：版本取 ``--version`` / 从兄弟仓库 ledger 与提交标题拼出来的标签（形如
-    ``1.6.3+11010254-4``；只剩构建号时就是 ``11010254-4``），都读不到就沿用已有文件里的版本（本地重算不会
-    凭空改掉版本号）；``sha256`` 是这份数据原始形态的内容指纹，按这次生成的本体重算 —— 只有这里算它，入库与
-    ``fetch`` 都照抄。
+    每份数据都在最前面写上元数据：``version`` 是调用方定好的完整标签（``1.6.3+11010254-4``，客户端版本与
+    构建号都在，调用前已校验）；``sha256`` 是这份数据原始形态的内容指纹，按这次生成的本体重算 —— 只有这里
+    算它，入库与 ``fetch`` 都照抄。
     """
     written = 0
     for dataset in datasets:
@@ -124,12 +125,7 @@ def generate_datasets(
             data = dataset.build(table_cfg_dir, json_data_dir)
         except (OSError, ValueError) as error:
             raise click.ClickException(f"[{dataset.name}] {error}") from error
-        stamp = version or read_version(output_path) or read_version(data_dir / dataset.file_name)
-        if stamp is None:
-            logger.warning(
-                f"{dataset.name}：没有可用的版本，这次生成的原始形态不会写 version 字段"
-            )
-        data = with_metadata(data, stamp)
+        data = with_metadata(data, version)
         if not force and is_unchanged(output_path, data):
             logger.info(f"{dataset.name} 生成结果未变化，跳过写入：{output_path}")
             continue
@@ -189,7 +185,7 @@ def generate_datasets(
     "--version",
     "data_version_option",
     default=None,
-    help="写进每份数据的版本，形如 1.6.4+11262943-8（客户端版本+数据构建号；默认从兄弟仓库或数据目录路径读，都读不到就沿用原有的）",
+    help="写进每份数据的版本，形如 1.6.4+11262943-8（客户端版本+数据构建号，两半都要有）；不给就从兄弟仓库读，读不到就报错",
 )
 @click.option(
     "--raw-only",
@@ -253,13 +249,17 @@ def generate_command(
         detected, origin = data_version_from_path(table_cfg_dir, json_data_dir), "数据目录路径"
     # ``--version`` 也认资源构建号的长写法（``1.6.4+initial_11262943-8_main_11262943-8``），统一缩成短号再写。
     version = normalize_version(data_version_option) if data_version_option else detected
-    if version:
-        logger.info(f"数据版本：{version}（{'命令行' if data_version_option else origin}）")
-    else:
-        logger.warning(
-            "数据版本：读不到（兄弟仓库没有、数据目录路径里也没有、也没给 --version）。沿用各份数据原有的"
-            "版本；文件里没有 version 字段时，生成结果也不会补上 —— 发布出去之后补不回来"
+    if version is None:
+        raise click.ClickException(
+            "拿不到版本：兄弟仓库里没有（ledger 与提交标题都读不到）、数据目录路径里也没有构建号，"
+            "也没给 --version。版本必须写成 客户端版本+构建号（如 1.6.3+11010254-4），请用 --version 指定"
         )
+    if not is_complete_version(version):
+        raise click.ClickException(
+            f"版本不完整：{version} —— 必须同时有客户端版本和构建号（如 1.6.3+11010254-4）。"
+            "数据目录路径里只有构建号、提交标题里的 Client: 才有客户端版本；凑不齐就用 --version 指定"
+        )
+    logger.info(f"数据版本：{version}（{'命令行' if data_version_option else origin}）")
 
     sync_failed = False
     if sync:

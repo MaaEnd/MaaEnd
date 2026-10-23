@@ -74,6 +74,20 @@ def normalize_version(label: str) -> str:
 
 
 _CLIENT_LEADING_DIGITS = re.compile(r"^(\d+)")
+#: 客户端版本至少是「主版本.次版本」（``1.6``），后面可以跟任意后缀。
+_CLIENT_RE = re.compile(r"^\d+\.\d+")
+
+
+def is_complete_version(label: str) -> bool:
+    """这个标签是不是完整形态：客户端版本与数据构建号都在，如 ``1.6.3+11010254-4``。
+
+    只有构建号（``11010254-4``）、只有客户端版本（``1.6.3``）、空串都不算 —— 写进数据之后补不回来，
+    与其发一份没有客户端版本的数据，不如在这里就报错。
+    """
+    client, sep, build = label.partition("+")
+    if not sep or not client or not build:
+        return False
+    return bool(_CLIENT_RE.match(client)) and build_key(build) is not None
 
 
 def build_key(version: str) -> tuple[int, ...] | None:
