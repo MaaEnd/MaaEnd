@@ -335,9 +335,9 @@ Punctuation needs separate handling: OCR often misses quotes, apostrophes, dots 
 
 The same text is displayed at different widths across languages, and English and Korean are usually longer than Chinese. A `roi` framed for Chinese gets its two ends cut off once the language changes. Use `roi_offset` to widen the recognition range instead of editing `roi`.
 
-The four values are the increments for left, top, right and bottom, in the order [left, top, right, bottom]: `x` gets `left`, `y` gets `top`, the width becomes `w + right - left` and the height becomes `h + bottom - top`. So a negative left value and a positive right value widen the range on both sides.
+The four values are added straight onto the `roi`'s `[x, y, w, h]`, in the order [left, top, right, bottom]: `x` gets the first value, `y` gets the second, **`w` gets the third** and `h` gets the fourth. The third value is an increment on the width, not on the right edge: widening `d` pixels on the left means writing `-d` as the first value, which already makes the width `d` larger by itself, so the third value has to add up the widening on both sides.
 
-For example, with `roi` set to `[1100, 300, 120, 40]`, to widen 60 pixels on each side:
+For example, with `roi` set to `[1100, 300, 120, 40]`, to widen 60 pixels on each side: `-60` on the left, and `120` for the third value (60 left + 60 right):
 
 ```jsonc
 "roi": [
@@ -349,12 +349,12 @@ For example, with `roi` set to `[1100, 300, 120, 40]`, to widen 60 pixels on eac
 "roi_offset": [
     -60,
     0,
-    60,
+    120,
     0
 ]
 ```
 
-The final recognition range is `[1040, 300, 240, 40]`. Estimate how much to widen from the actual text; as long as it does not affect the task flow, prefer a little extra margin.
+The final recognition range is `[1040, 300, 240, 40]`: `x` moves from 1100 to 1040, the width grows from 120 to 240, and the right edge extends from 1220 to 1280. Estimate how much to widen from the actual text; as long as it does not affect the task flow, prefer a little extra margin.
 
 Nodes with `only_rec: true` need no attention: they skip text detection and recognize exactly what the `roi` frames, so widening the range does not help.
 
