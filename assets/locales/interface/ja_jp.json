@@ -2406,7 +2406,7 @@
     "task.OutpostTrading.ReserveSwitch": "商品の保留ルールを有効化",
     "task.OutpostTrading.ReserveSwitchDescription": "商品の最低在庫数を設定するか、販売対象から除外します。",
     "task.OutpostTrading.SelectionStrategy": "商品選択戦略",
-    "task.OutpostTrading.SelectionStrategyDescription": "レア度優先：レア度 → 単価。単価優先：単価 → レア度。在庫優先：最低単価以上で在庫 → 単価 → レア度。",
+    "task.OutpostTrading.SelectionStrategyDescription": "レア度優先：レア度 → 単価。単価優先：単価 → レア度。在庫優先：在庫 → 単価 → レア度。どの戦略でも最低販売単価未満の商品は飛ばします（優先商品は対象外）。",
     "task.OutpostTrading.SelectionStrategyPrice": "単価優先",
     "task.OutpostTrading.SelectionStrategyRarity": "レア度優先",
     "task.OutpostTrading.SelectionStrategyStock": "在庫優先",

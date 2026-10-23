@@ -20,6 +20,7 @@ const (
 	priorityResultExhausted         = "exhausted"
 	priorityOperationConfigure      = "configure"
 	priorityOperationStrategy       = "configure_strategy"
+	priorityOperationMinimumPrice   = "configure_minimum_price"
 	priorityOperationResetItems     = "reset_preferred"
 	priorityOperationResetSelection = "reset_goods_selection"
 	priorityOperationRegister       = "register"
@@ -39,10 +40,10 @@ type prioritySessionActionParam struct {
 }
 
 type prioritySelectionPolicy struct {
-	Preferred      []string
-	OnlyPreferred  bool
-	Strategy       sellstrategy.Kind
-	StrategyConfig sellstrategy.Config
+	Preferred        []string
+	OnlyPreferred    bool
+	Strategy         sellstrategy.Kind
+	MinimumUnitPrice int
 }
 
 type priorityExhaustionObservation struct {
@@ -56,18 +57,18 @@ type goodsSelectionSessionState struct {
 }
 
 type prioritySelectionSessionState struct {
-	Enabled        bool
-	OnlyPreferred  bool
-	RegionEnabled  bool
-	Strategy       sellstrategy.Kind
-	StrategyConfig sellstrategy.Config
-	Preferred      []string
-	Attempted      map[string]map[string]struct{}
-	Pending        map[string]string
-	Current        map[string]string
-	OutOfStock     map[string]struct{}
-	Exhaustion     map[string]priorityExhaustionObservation
-	GoodsSelection goodsSelectionSessionState
+	Enabled          bool
+	OnlyPreferred    bool
+	RegionEnabled    bool
+	Strategy         sellstrategy.Kind
+	MinimumUnitPrice int
+	Preferred        []string
+	Attempted        map[string]map[string]struct{}
+	Pending          map[string]string
+	Current          map[string]string
+	OutOfStock       map[string]struct{}
+	Exhaustion       map[string]priorityExhaustionObservation
+	GoodsSelection   goodsSelectionSessionState
 }
 
 var (
@@ -99,13 +100,21 @@ func (a *PrioritySessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		}
 		return true
 	case priorityOperationStrategy:
-		configureSelectionStrategy(param.Strategy, sellstrategy.Config{MinimumUnitPrice: param.MinimumPrice})
+		configureSelectionStrategy(param.Strategy)
 		log.Info().Str("component", prioritySessionActionName).
 			Str("strategy", string(param.Strategy)).
-			Int("minimum_unit_price", param.MinimumPrice).
 			Msg("goods selection strategy configured")
 		if param.Strategy == sellstrategy.KindStock {
-			printRuntimeStockPriorityEnabled(ctx, param.MinimumPrice)
+			printRuntimeStockPriorityEnabled(ctx)
+		}
+		return true
+	case priorityOperationMinimumPrice:
+		configureMinimumUnitPrice(param.MinimumPrice)
+		log.Info().Str("component", prioritySessionActionName).
+			Int("minimum_unit_price", param.MinimumPrice).
+			Msg("minimum unit price configured")
+		if param.MinimumPrice > 0 {
+			printRuntimeMinimumUnitPriceEnabled(ctx, param.MinimumPrice)
 		}
 		return true
 	case priorityOperationResetItems:
@@ -190,8 +199,12 @@ func parsePrioritySessionActionParam(arg *maa.CustomActionArg) (*prioritySession
 	switch param.Operation {
 	case priorityOperationConfigure, priorityOperationResetItems, priorityOperationResetSelection:
 	case priorityOperationStrategy:
-		if _, ok := sellstrategy.New(param.Strategy, sellstrategy.Config{MinimumUnitPrice: param.MinimumPrice}); !ok {
+		if _, ok := sellstrategy.New(param.Strategy); !ok {
 			return nil, fmt.Errorf("invalid selection strategy %q", param.Strategy)
+		}
+	case priorityOperationMinimumPrice:
+		if param.MinimumPrice < 0 {
+			return nil, fmt.Errorf("minimum unit price must not be negative: %d", param.MinimumPrice)
 		}
 	case priorityOperationRegister:
 	case priorityOperationCommit, priorityOperationAdopt, priorityOperationOutOfStock:
@@ -266,8 +279,8 @@ func priorityPolicySnapshot() prioritySelectionPolicy {
 	prioritySelectionMu.Lock()
 	defer prioritySelectionMu.Unlock()
 	policy := prioritySelectionPolicy{
-		Strategy:       prioritySelection.Strategy,
-		StrategyConfig: prioritySelection.StrategyConfig,
+		Strategy:         prioritySelection.Strategy,
+		MinimumUnitPrice: prioritySelection.MinimumUnitPrice,
 	}
 	if !prioritySelection.Enabled || !prioritySelection.RegionEnabled {
 		return policy
@@ -311,11 +324,17 @@ func configurePrioritySession(enabled, onlyPreferred bool) {
 	prioritySelection.OnlyPreferred = enabled && onlyPreferred
 }
 
-func configureSelectionStrategy(kind sellstrategy.Kind, config sellstrategy.Config) {
+func configureSelectionStrategy(kind sellstrategy.Kind) {
 	prioritySelectionMu.Lock()
 	defer prioritySelectionMu.Unlock()
 	prioritySelection.Strategy = kind
-	prioritySelection.StrategyConfig = config
+}
+
+// configureMinimumUnitPrice 设置最低售卖单价，对所有选品策略生效。
+func configureMinimumUnitPrice(minimumUnitPrice int) {
+	prioritySelectionMu.Lock()
+	defer prioritySelectionMu.Unlock()
+	prioritySelection.MinimumUnitPrice = minimumUnitPrice
 }
 
 // resetPreferredPriorityItems 切换当前地区是否启用优先配置并清空地区优先表，
