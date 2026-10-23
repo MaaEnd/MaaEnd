@@ -3,9 +3,9 @@ name = "maaend"
 version = "0.0.0"
 description = "Python dependencies for MaaEnd development scripts"
 requires-python = ">=3.14"
-# zmdmap 的 CLI 用 click、下载数据用 httpx、解析游戏表格用 msgspec；放核心依赖是为了让 CI 能
+# zmdmap 的 CLI 用 click、下载数据用 requests、解析游戏表格用 msgspec；放核心依赖是为了让 CI 能
 # `uv run --no-default-groups zmdmap` 只装这三个包就出数据，不必拉 scripts 组里的 maafw / fastapi / numpy。
-dependencies = ["click>=8.1", "httpx>=0.28", "msgspec>=0.22"]
+dependencies = ["click>=8.1", "msgspec>=0.22", "requests>=2.32"]
 
 [project.scripts]
 autocollect-route = "tools.AutoCollectRoute.main:main"
@@ -43,6 +43,7 @@ scripts = [
 dev = [
     "pyright>=1.1.414",
     "ruff>=0.17",
+    "types-requests>=2.32",
 ]
 
 [tool.ruff]

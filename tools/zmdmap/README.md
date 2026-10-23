@@ -83,7 +83,7 @@ uv run zmdmap fetch --dry-run                     # 只看会下哪几份、会�
 | `utils/project.py` | 带坐标的数据按 BaseNav 的 zone 表把 x/z 原位换成 u/v |
 | `utils/navmesh.py` | 从 `BNAV` / `BGEO` 二进制 nav 数据里读出 zone 表 |
 | `utils/sync.py` | 同步兄弟仓库、读出游戏数据版本、预检输入是否齐备 |
-| `utils/http.py` | 下载数据与下载 nav 共用的 HTTP 客户端：连接池、超时与瞬时失败重试 |
+| `utils/http.py` | 下载数据、下载 nav、下载图标共用的 HTTP 助手：一次带重试的 GET，以及「下到文件、来源没变就跳过」的下载函数 |
 | `utils/tables.py` | 游戏表格的结构定义（`msgspec.Struct`）与类型化解码入口 |
 | `utils/game_data.py` | 各语言文本表、文本引用、世界坐标与关卡索引 |
 | `utils/config.py` | 静态配置：文件树与路径、语言 key 的映射、发布渠道的地址与清单名 |

@@ -20,21 +20,20 @@
 发布的都是**原始形态**（只带游戏世界坐标），一律先落不入库的 ``data/raw/``，再由
 :mod:`tools.zmdmap.materialize` 材料化进入库的 ``data/``：需要投影的补上底图像素，不需要投影的原样复制。
 
-下载走 :mod:`tools.zmdmap.utils.http` 的共享连接池并发拉取：数据文件各自独立，串行等一个文件会把整包耗时乘上文件数。
+下载逐个进行：一份取完再取下一份。每份只有几百 KB，串行的耗时可以接受，判断与报错也简单得多。
 """
 
 import json
 import sys
 import time
 from collections.abc import Sequence
-from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
 
 import click
-import httpx
+import requests
 
 from .datasets import DATASET_NAMES, files_of, select_datasets
 from .materialize import copy_plain, report_data_changes, run_projection
@@ -47,11 +46,8 @@ from .utils.datafile import (
     read_hash,
     version_of,
 )
-from .utils.http import get, new_client
+from .utils.http import get
 from .utils.shapes import is_object
-
-#: 并发下载的连接数；共用 :func:`tools.zmdmap.utils.http.new_client` 的连接池。
-DOWNLOAD_WORKERS = 4
 
 #: 一份数据最多取几次：第一次按清单指纹当 ``t``，校验不过再换成时间戳重取一次（绕开远端缓存）。
 VERIFY_ATTEMPTS = 2
@@ -100,9 +96,8 @@ def read_manifest() -> Manifest | None:
     # 清单只有几百字节，每次都回源不心疼；它错了会连带整批判断都错。
     token = urlencode({"t": int(time.time() * 1000)})
     try:
-        with new_client() as client:
-            response = get(client, f"{DATA_BASE_URL}/{MANIFEST_FILE}?{token}")
-    except httpx.HTTPError as error:
+        response = get(f"{DATA_BASE_URL}/{MANIFEST_FILE}?{token}")
+    except requests.RequestException as error:
         # 5xx 重试完仍失败也走这条路：取不到清单就直接下载，不让清单的问题挡住整次 fetch。
         print(f"[fetch-data] 取清单失败 ({error})", file=sys.stderr)
         return None
@@ -146,18 +141,18 @@ def _data_url(file_name: str, params: dict[str, str]) -> str:
     return f"{DATA_BASE_URL}/{file_name}" + (f"?{urlencode(params)}" if params else "")
 
 
-def _request_json(client: httpx.Client, file_name: str, url: str) -> Any:
-    """取一份数据并解析成 JSON；网络层错误、非 2xx、非法 JSON 一律换成 :class:`DownloadError`。"""
+def _request_json(file_name: str, url: str) -> Any:
+    """取一份数据并解析成 JSON；网络故障、非 2xx、非法 JSON 一律换成 :class:`DownloadError`。"""
     print(f"[fetch-data] 下载 {url}", flush=True)
     try:
-        response = get(client, url)
-    except httpx.HTTPError as error:
+        response = get(url)
+    except requests.RequestException as error:
         # 网络层错误与 5xx 重试用完都落到这里：type 不同，但对调用方都是「这一份没取到」。
         raise DownloadError(file_name, str(error)) from error
     if response.status_code >= 400:
         raise DownloadError(
             file_name,
-            f"{response.status_code} {response.reason_phrase}",
+            f"{response.status_code} {response.reason}",
             status_code=response.status_code,
         )
     try:
@@ -182,7 +177,6 @@ def content_problem(file_name: str, data: Any, digest: str, expect: str | None) 
 
 
 def _fetch_verified(
-    client: httpx.Client,
     file_name: str,
     params: dict[str, str],
     expect: str | None,
@@ -201,7 +195,7 @@ def _fetch_verified(
         request_params = dict(params)
         if attempt:
             request_params["t"] = str(int(time.time() * 1000))
-        data = _request_json(client, file_name, _data_url(file_name, request_params))
+        data = _request_json(file_name, _data_url(file_name, request_params))
         digest = payload_hash(payload_of(data))
         problem = content_problem(file_name, data, digest, expect) or ""
         if not problem:
@@ -218,7 +212,6 @@ def _fetch_verified(
 
 
 def _download_json(
-    client: httpx.Client,
     file_name: str,
     destination: Path,
     version: str | None,
@@ -236,9 +229,7 @@ def _download_json(
         params["ver"] = version
     if token:
         params["t"] = token
-    data, digest = _fetch_verified(
-        client, file_name, params, expect, accept_mismatch=accept_mismatch
-    )
+    data, digest = _fetch_verified(file_name, params, expect, accept_mismatch=accept_mismatch)
 
     # 元数据沿用上游 generate 写的那份 ``version``。``sha256`` 换成这一步核出来的指纹：清单核过时它就是清单
     # 的值，``--force`` 照收时它是实际内容的值 —— 两种情况下文件里的字段都与内容一致。若照抄上游自称的那个
@@ -268,7 +259,7 @@ def fetch_and_cache(
     hashes: dict[str, str] | None = None,
     force: bool = False,
 ) -> list[str]:
-    """并发把这几份发布的原始数据下载到 ``raw_dir``；返回上游还没发布、被跳过的文件名。
+    """把这几份发布的原始数据逐个下载到 ``raw_dir``；返回上游还没发布、被跳过的文件名。
 
     ``hashes`` 是清单给的每份内容指纹：有指纹的用指纹前 8 位当 ``t`` 参数 —— 同一份内容的 URL 稳定、内容
     一变就是新 URL，绕开远端缓存。``token`` 给了就替掉指纹（``--force`` 时是时间戳），让这几份一律回源。
@@ -277,11 +268,9 @@ def fetch_and_cache(
     hashes = hashes or {}
     raw_dir.mkdir(parents=True, exist_ok=True)
     failures: dict[str, DownloadError] = {}
-    with new_client() as client, ThreadPoolExecutor(max_workers=DOWNLOAD_WORKERS) as executor:
-        pending = {
-            file_name: executor.submit(
-                _download_json,
-                client,
+    for file_name in (*projected_files, *plain_files):
+        try:
+            _download_json(
                 file_name,
                 raw_dir / file_name,
                 version,
@@ -289,13 +278,8 @@ def fetch_and_cache(
                 hashes.get(file_name),
                 accept_mismatch=force,
             )
-            for file_name in (*projected_files, *plain_files)
-        }
-        for file_name, future in pending.items():
-            try:
-                future.result()
-            except DownloadError as error:
-                failures[file_name] = error
+        except DownloadError as error:
+            failures[file_name] = error
 
     # 需要投影的数据必须齐全；原样复制的允许上游还没发布（404 时跳过）。
     for file_name in projected_files:
