@@ -2525,7 +2525,6 @@
     "task.SanityExtractor.description": "在貴重品庫使用理智萃取器，把理智保存為理智精粹藥劑",
     "task.SanityExtractor.focus.close_panel": "關閉注入萃取器介面",
     "task.SanityExtractor.focus.find": "尋找理智萃取器",
-    "task.SanityExtractor.focus.finish": "萃取結束",
     "task.SanityExtractor.focus.inject": "注入理智",
     "task.SanityExtractor.focus.inject_panel": "已進入注入萃取器介面",
     "task.SanityExtractor.focus.no_item": "未找到理智萃取器",

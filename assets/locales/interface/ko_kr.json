@@ -2525,7 +2525,6 @@
     "task.SanityExtractor.description": "귀중품 보관함에서 이성 추출기를 사용해 이성을 이성 정수 약제로 저장합니다",
     "task.SanityExtractor.focus.close_panel": "주입 추출기 화면을 닫는 중",
     "task.SanityExtractor.focus.find": "이성 추출기를 찾는 중",
-    "task.SanityExtractor.focus.finish": "이성 추출 종료",
     "task.SanityExtractor.focus.inject": "이성 주입 중",
     "task.SanityExtractor.focus.inject_panel": "주입 추출기 화면을 열었습니다",
     "task.SanityExtractor.focus.no_item": "이성 추출기를 찾지 못했습니다",

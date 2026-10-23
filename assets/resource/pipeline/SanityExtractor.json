@@ -61,9 +61,7 @@
         "rate_limit": 0,
         "next": [
             "SanityExtractorInValuablesTab",
-            "[JumpBack]SceneEnterMenuValuablesValuableTab",
-            "[JumpBack]SceneDialogConfirm",
-            "[JumpBack]SceneWaitLoadingExit"
+            "[JumpBack]SceneEnterMenuValuablesValuableTab"
         ],
         "focus": {
             "Node.Action.Starting": "$task.SanityExtractor.focus.start"
@@ -88,7 +86,7 @@
         ]
     },
     "SanityExtractorRoundGate": {
-        "desc": "轮次闸门：唯一计数节点。每命中一次代表开始一轮萃取（查找→注入→领奖），达到设定次数后被跳过",
+        "desc": "轮次闸门：每命中一次代表开始一轮萃取（查找→注入→领奖），达到设定次数后被跳过",
         "max_hit": 10,
         "recognition": {
             "type": "DirectHit",
@@ -122,14 +120,11 @@
             "type": "Custom",
             "param": {
                 "custom_recognition": "ListCompleteRecognition",
-                "custom_recognition_param": {
-                    "threshold": 0.98
-                },
                 "roi": [
-                    24,
-                    76,
-                    950,
-                    520
+                    313,
+                    362,
+                    542,
+                    348
                 ]
             }
         },
@@ -174,8 +169,7 @@
                 76,
                 950,
                 520
-            ],
-            "timeout": 3000
+            ]
         },
         "action": {
             "type": "Click"
@@ -210,8 +204,7 @@
         ]
     },
     "SanityExtractorScrollDown": {
-        "desc": "列表未到底时向下滚动，滑动后等画面稳定再回查找循环；命中次数上限防止画面抖动导致无限滚动",
-        "max_hit": 20,
+        "desc": "列表未到底时向下滚动，滑动后等画面稳定再回查找循环；滑不动时画面不变会被 ListComplete 判为到底，循环自终止",
         "recognition": {
             "type": "DirectHit",
             "param": {}
@@ -238,9 +231,7 @@
                 76,
                 950,
                 520
-            ],
-            "threshold": 0.97,
-            "timeout": 2000
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -310,8 +301,11 @@
         "rate_limit": 0,
         "next": [
             "SanityExtractorNotEnoughSanity",
-            "SanityExtractorInject",
-            "SanityExtractorTimesExhausted"
+            "SanityExtractorInject"
+        ],
+        "on_error": [
+            // 兜底：注入面板内两个子项都识别失败时，用通用关闭按钮退出面板，避免面板悬置导致任务卡死
+            "SanityExtractorCloseInjectPanel"
         ],
         "focus": {
             "Node.Action.Starting": "$task.SanityExtractor.focus.inject_panel"
@@ -348,7 +342,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SanityExtractorResetHitCount"
+            "SanityExtractorFinished"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.SanityExtractor.focus.times_done"
@@ -368,7 +362,6 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 300,
         "rate_limit": 0,
         "next": [
             "SanityExtractorRewardDialog"
@@ -391,7 +384,6 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 300,
         "rate_limit": 0,
         "next": [
             "SanityExtractorAfterReward"
@@ -510,7 +502,11 @@
                     115
                 ],
                 "expected": [
-                    "理智不足"
+                    // 繁中「理智不足」与简中同形，CN 条目已覆盖
+                    "理智不足",
+                    "Insufficient Sanity",
+                    "理性が足りません",
+                    "이성 부족"
                 ]
             }
         },
@@ -555,7 +551,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SanityExtractorResetHitCount"
+            "SanityExtractorFinished"
         ]
     },
     "SanityExtractorNoExtractor": {
@@ -568,36 +564,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SanityExtractorResetHitCount"
+            "SanityExtractorFinished"
         ],
         "focus": {
             "Node.Action.Starting": "$task.SanityExtractor.focus.no_item"
         }
-    },
-    "SanityExtractorResetHitCount": {
-        "desc": "收尾时清掉本轮命中计数，避免遗留到下一次任务",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {}
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "ClearHitCount",
-                "custom_action_param": {
-                    "nodes": [
-                        "SanityExtractorRoundGate"
-                    ],
-                    "strict": false
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SanityExtractorFinished"
-        ]
     },
     "SanityExtractorFinished": {
         "desc": "萃取任务结束",
@@ -607,9 +578,6 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Action.Starting": "$task.SanityExtractor.focus.finish"
-        }
+        "rate_limit": 0
     }
 }
