@@ -1369,9 +1369,6 @@
             "param": {
                 "custom_action": "BatchAddFriendsStrangersFinishAction"
             }
-        },
-        "focus": {
-            "Node.Action.Succeeded": "陌生人列表添加结束"
         }
     },
     "BatchAddFriendsStart": {
