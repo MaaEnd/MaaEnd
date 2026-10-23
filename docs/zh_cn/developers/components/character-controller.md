@@ -11,6 +11,20 @@
 > 视角类节点（Yaw / Pitch / MoveToTarget 等）在 Win32 下依赖键盘/鼠标输入，**必须在前台模式（Seize）下运行**，否则输入事件无法正确传递至游戏。  
 > 在 **ADB** 下，[`resource_adb/.../CharacterController/Action.json`](../../../../assets/resource_adb/pipeline/Common/Private/CharacterController/Action.json) 把轴向移动节点（`CharacterControllerForwardAxisAction`、`CharacterSearchAction` 所用的 `__CharacterControllerAxisLongPress*Action`）映射为虚拟摇杆 `LongPress`，视角拖动映射为触摸滑动、Shift 冲刺映射为冲刺按钮点击，均无需 Seize。
 
+## ADB 输入能力与任务保护
+
+`AdbShell` 的单指 `Swipe` 不能提供自动战斗所需的多触点。不能用移动成功证明战斗输入正常。
+
+协议空间、自动基质、自动采集、环境监测、访问好友、干员赠礼及送货任务的全自动送货子流程，在业务执行前运行无参数的 `TouchInputCheck`，保护这些入口中的自动战斗和地图导航依赖；未命中的计划日仍正常跳过，送货的其他处理模式不因新增入口检查而全局禁用。`AutoFightMainAction` 在战斗循环前再次检查。当前 Go API 的 `GetInfo()` 仅提供输入方法配置，无法证明实际选中的后端。因此检查在 ADB 控制器上只释放一次普攻触点 `4`，不按下、点击或移动；`AdbShell` 不支持该触点 API，会直接拒绝。此预检只验证必要的触点 API，不代替游戏内多指操作验收。
+
+生态农场在 `__AutoEcoFarmFilterClosed` 检查后才通过锚点查找设施，未启用的分支仍跳过；送货的 `AutoDelivery` 入口检查先于任务解析和回收站地图定位。两处均在进入 C++ `MapFind` 识别器前拒绝能力不足的输入，避免仅让内部缩放失败、外层定位却继续。检查不能放在 `MapFind` 所在节点的 action 中，因为 recognition 先于 action 执行。
+
+公共地图缩放、ADB 拍照轮盘和送货对话中的光标移动通过 `TouchInputAction` 检查后再执行原动作；其唯一参数 `node` 是原动作节点名，原识别框和外层等待设置保持。公共菜单和遗留流程中的按键保持候选节点在 ADB 资源层也有此保护，仅在实际执行该节点时检查，不全局禁用所有引用公共菜单的任务。受保护不代表已验收其完整业务。失败提示写入运行日志及 Go 日志，明确说明检测到 ADB 回退或持续触控不可用、当前任务无法完成，并建议检查模拟器、重启并重新连接。接口不能确认实际后端名称，因此不把任意触控错误断言为已确认的后端切换。
+
+能力拒绝按当前任务 ID 记录，并清空拒绝节点在当前上下文中的 `on_error`。`SubTask` 即使配置了忽略子任务失败，或 `FailureCollector` 配置了恢复路线，也必须传播此拒绝，停止本任务的依赖步骤、领奖与重试。普通路线失败保留原有处理方式。任务生命周期结束清理拒绝状态，不调用会把失败显示为成功的 `PostStop`；后续独立任务继续，但仍须验证自身场景前置条件。直接绕开这些 Pipeline 入口调用 C++ 导航不属于受保护的业务接线。
+
+战斗循环中的输入动作失败会结束当前战斗回调；普通输入失败由上层原有错误策略决定是否恢复或继续，其提示不承诺整个任务已中断或不再重试。主战斗回调退出时有界释放本次请求过的触点，释放失败保留最初错误，并清空待执行动作，避免下次战斗继承旧队列。能力检查拒绝仍按前述任务级规则传播；恢复设备或触控后端后应重新连接，不能只重新运行已降级的控制器。
+
 ## 节点说明
 
 下面将详细介绍 CharacterController 提供的节点的具体用法。这些节点都是 Custom 类型的节点，需要在 pipeline 中指定 `custom_action` 来使用。

@@ -11,6 +11,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/touchcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -394,7 +395,18 @@ var (
 
 type AutoFightMainAction struct{}
 
-func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) (result bool) {
+	actionQueue = nil
+	in := &fightInput{run: func(name string) bool { return runFightAction(ctx, name) }}
+	defer func() {
+		finishBattle(in, &result)
+		if !result && arg != nil {
+			touchcheck.PreventRecovery(ctx, arg.CurrentTaskName)
+		}
+	}()
+	if !touchcheck.Require(ctx) {
+		return false
+	}
 	// 回调入口刷新一次控制器布局，下游的识别区域与 label 都按它取。
 	screenAnalyzer.RefreshLayout(ctx)
 
@@ -444,10 +456,12 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	var skillUsedOnce [4]bool
 
 	if params.EnableAttack {
-		ctx.RunAction("__AutoFightActionAttackTouchDown", maa.Rect{600, 320, 80, 80}, "", nil)
+		if !in.execute("__AutoFightActionAttackTouchDown") {
+			return false
+		}
 	}
 
-	result := false
+	result = false
 	for {
 		if ctx.GetTasker().Stopping() {
 			log.Info().Str("component", "AutoFight").Msg("task stopping signal received, exiting fight")
@@ -792,10 +806,14 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			})
 		}
 
-		drainActionQueue(ctx)
+		if !drainActionQueue(ctx, in) {
+			return false
+		}
 	}
 	if params.EnableAttack {
-		ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)
+		if !in.execute("__AutoFightActionAttackTouchUp") {
+			return false
+		}
 	}
 
 	// 确保最后的攻击动作执行完毕，避免还在位移时进入下一个pipeline
@@ -815,12 +833,14 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			executeAt: time.Now().Add(time.Millisecond),
 			action:    ActionLockTarget,
 		})
-		drainActionQueue(ctx)
+		if !drainActionQueue(ctx, in) {
+			return false
+		}
 	}
 	return result
 }
 
-func drainActionQueue(ctx *maa.Context) {
+func drainActionQueue(ctx *maa.Context, in *fightInput) bool {
 	now := time.Now()
 	for len(actionQueue) > 0 && !actionQueue[0].executeAt.After(now) {
 		fa, ok := dequeueAction()
@@ -829,64 +849,137 @@ func drainActionQueue(ctx *maa.Context) {
 		}
 		switch fa.action {
 		case ActionAttack:
-			ctx.RunAction("__AutoFightActionAttackClick", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionAttackClick") {
+				return false
+			}
 		case ActionCombo:
-			ctx.RunAction("__AutoFightActionComboClick", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionComboClick") {
+				return false
+			}
 		case ActionSkill1:
-			ctx.RunAction("__AutoFightActionSkillOperators1", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionSkillOperators1") {
+				return false
+			}
 		case ActionSkill2:
-			ctx.RunAction("__AutoFightActionSkillOperators2", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionSkillOperators2") {
+				return false
+			}
 		case ActionSkill3:
-			ctx.RunAction("__AutoFightActionSkillOperators3", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionSkillOperators3") {
+				return false
+			}
 		case ActionSkill4:
-			ctx.RunAction("__AutoFightActionSkillOperators4", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionSkillOperators4") {
+				return false
+			}
 		case ActionEndSkill1:
-			ctx.RunAction("__AutoFightActionEndSkillOperators1", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionEndSkillOperators1") {
+				return false
+			}
 		case ActionEndSkill2:
-			ctx.RunAction("__AutoFightActionEndSkillOperators2", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionEndSkillOperators2") {
+				return false
+			}
 		case ActionEndSkill3:
-			ctx.RunAction("__AutoFightActionEndSkillOperators3", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionEndSkillOperators3") {
+				return false
+			}
 		case ActionEndSkill4:
-			ctx.RunAction("__AutoFightActionEndSkillOperators4", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionEndSkillOperators4") {
+				return false
+			}
 		case ActionLockTarget:
-			ctx.RunAction("__AutoFightActionLockTarget", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionLockTarget") {
+				return false
+			}
 		case ActionDodge:
-			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionDodge") {
+				return false
+			}
 		case ActionSleepSecond:
 			time.Sleep(1000 * time.Millisecond)
 		case ActionSwitchCharacter1:
 			maafocus.Print(ctx, i18n.T("autofight.switch_character", 1))
-			ctx.RunAction("__AutoFightActionSwitchCharacterOperators1", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionSwitchCharacterOperators1") {
+				return false
+			}
 		case ActionSwitchCharacter2:
 			maafocus.Print(ctx, i18n.T("autofight.switch_character", 2))
-			ctx.RunAction("__AutoFightActionSwitchCharacterOperators2", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionSwitchCharacterOperators2") {
+				return false
+			}
 		case ActionSwitchCharacter3:
 			maafocus.Print(ctx, i18n.T("autofight.switch_character", 3))
-			ctx.RunAction("__AutoFightActionSwitchCharacterOperators3", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionSwitchCharacterOperators3") {
+				return false
+			}
 		case ActionSwitchCharacter4:
 			maafocus.Print(ctx, i18n.T("autofight.switch_character", 4))
-			ctx.RunAction("__AutoFightActionSwitchCharacterOperators4", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionSwitchCharacterOperators4") {
+				return false
+			}
 		case ActionMoveBack:
-			ctx.RunAction("__AutoFightActionMoveBackKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionMoveBackKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionMoveBackKeyDown") {
+				return false
+			}
+			if !in.execute("__AutoFightActionDodge") {
+				return false
+			}
+			if !in.execute("__AutoFightActionMoveBackKeyUp") {
+				return false
+			}
 		case ActionMoveForward:
-			ctx.RunAction("__AutoFightActionMoveForwardKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionMoveForwardKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionMoveForwardKeyDown") {
+				return false
+			}
+			if !in.execute("__AutoFightActionDodge") {
+				return false
+			}
+			if !in.execute("__AutoFightActionMoveForwardKeyUp") {
+				return false
+			}
 		case ActionMoveLeft:
-			ctx.RunAction("__AutoFightActionMoveLeftKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionMoveLeftKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionMoveLeftKeyDown") {
+				return false
+			}
+			if !in.execute("__AutoFightActionDodge") {
+				return false
+			}
+			if !in.execute("__AutoFightActionMoveLeftKeyUp") {
+				return false
+			}
 		case ActionMoveRight:
-			ctx.RunAction("__AutoFightActionMoveRightKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionMoveRightKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
+			if !in.execute("__AutoFightActionMoveRightKeyDown") {
+				return false
+			}
+			if !in.execute("__AutoFightActionDodge") {
+				return false
+			}
+			if !in.execute("__AutoFightActionMoveRightKeyUp") {
+				return false
+			}
 		case ActionReassertAttack:
 			// 先抬起再按下：对已经按住的触点重复 TouchDown 在后端行为不一致，
-			// 而触点已断时 TouchUp 只是空操作，错误无需处理。
-			ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionAttackTouchDown", maa.Rect{600, 320, 80, 80}, "", nil)
+			// 触点已断时 TouchUp 只是空操作；API 失败仍按输入故障返回。
+			if !in.execute("__AutoFightActionAttackTouchUp") {
+				return false
+			}
+			if !in.execute("__AutoFightActionAttackTouchDown") {
+				return false
+			}
 		}
 	}
+	return true
+}
+
+// runFightAction propagates controller failures instead of continuing the combat loop.
+func runFightAction(ctx *maa.Context, name string) bool {
+	detail, err := ctx.RunAction(name, maa.Rect{600, 320, 80, 80}, "", nil)
+	if err == nil && detail != nil && detail.Success {
+		return true
+	}
+	log.Error().Err(err).Str("component", "AutoFight").Str("action", name).
+		Msg("combat input action failed; stopping task")
+	touchcheck.ReportFailure(ctx)
+	return false
 }

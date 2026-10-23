@@ -18,6 +18,8 @@
             }
         },
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "TouchInputCheck",
         "post_delay": 0,
         "next": [
             "AutoCollectResetFailures"

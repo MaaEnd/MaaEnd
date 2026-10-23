@@ -373,8 +373,11 @@
         "all_of": [
             "__ScenePrivateMapZoomOutWhite"
         ],
-        "action": "LongPress",
-        "duration": 2000,
+        "action": "Custom",
+        "custom_action": "TouchInputAction",
+        "custom_action_param": {
+            "node": "__ScenePrivateMapZoomOutTouchAction"
+        },
         "post_wait_freezes": {
             "time": 400,
             "target": [
@@ -573,5 +576,9 @@
         "next": [
             "__ScenePrivateAnyEnterMapSuccess"
         ]
+    },
+    "__ScenePrivateMapZoomOutTouchAction": {
+        "action": "LongPress",
+        "duration": 2000
     }
 }

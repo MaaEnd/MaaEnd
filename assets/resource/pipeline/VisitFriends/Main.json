@@ -2,6 +2,8 @@
     "VisitFriendsMain": {
         "desc": "函数入口",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "TouchInputCheck",
         "post_delay": 0,
         "next": [
             "[JumpBack]VisitFriendsEnter",

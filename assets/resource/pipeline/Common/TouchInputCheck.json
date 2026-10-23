@@ -1,0 +1,11 @@
+{
+    "TouchInputCheck": {
+        "desc": "在执行依赖持续触控的任务前检查输入能力，不按下或移动触点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "TouchInputCheck",
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

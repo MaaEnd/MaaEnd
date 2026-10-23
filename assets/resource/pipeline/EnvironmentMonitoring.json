@@ -3,15 +3,11 @@
         "desc": "环境监测主流程",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "FailureCollectorReset",
-        "custom_action_param": {
-            "key": "EnvironmentMonitoring"
-        },
+        "custom_action": "TouchInputCheck",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringLoop",
-            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring"
+            "EnvironmentMonitoringResetFailures"
         ]
     },
     "EnvironmentMonitoringLoop": {
@@ -52,5 +48,20 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "EnvironmentMonitoringResetFailures": {
+        "desc": "重置环境监测路线结果；触控预检通过后执行",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorReset",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring"
+        ]
     }
 }

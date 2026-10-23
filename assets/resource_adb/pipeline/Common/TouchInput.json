@@ -1,0 +1,173 @@
+{
+    "AltClickProtosyncMenuButtonKeyDown": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "TouchInputAction",
+                "custom_action_param": {
+                    "node": "AltClickProtosyncMenuButtonKeyDownTouchAction"
+                }
+            }
+        }
+    },
+    "AltClickProtosyncMenuButtonKeyDownTouchAction": {
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 164
+    },
+    "AltClickProtosyncMenuButtonKeyUp": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "TouchInputAction",
+                "custom_action_param": {
+                    "node": "AltClickProtosyncMenuButtonKeyUpTouchAction"
+                }
+            }
+        }
+    },
+    "AltClickProtosyncMenuButtonKeyUpTouchAction": {
+        "action": "KeyUp",
+        "key": 164
+    },
+    "AltClickRegionalDevelopmentButtonKeyDown": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "TouchInputAction",
+                "custom_action_param": {
+                    "node": "AltClickRegionalDevelopmentButtonKeyDownTouchAction"
+                }
+            }
+        }
+    },
+    "AltClickRegionalDevelopmentButtonKeyDownTouchAction": {
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 164
+    },
+    "AltClickRegionalDevelopmentButtonKeyUp": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "TouchInputAction",
+                "custom_action_param": {
+                    "node": "AltClickRegionalDevelopmentButtonKeyUpTouchAction"
+                }
+            }
+        }
+    },
+    "AltClickRegionalDevelopmentButtonKeyUpTouchAction": {
+        "action": "KeyUp",
+        "key": 164
+    },
+    "__AutoCtrlClickCtrlKeyDownAction": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "TouchInputAction",
+                "custom_action_param": {
+                    "node": "__AutoCtrlClickCtrlKeyDownActionTouchAction"
+                }
+            }
+        }
+    },
+    "__AutoCtrlClickCtrlKeyDownActionTouchAction": {
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 17
+    },
+    "__AutoCtrlClickCtrlKeyUpAction": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "TouchInputAction",
+                "custom_action_param": {
+                    "node": "__AutoCtrlClickCtrlKeyUpActionTouchAction"
+                }
+            }
+        }
+    },
+    "__AutoCtrlClickCtrlKeyUpActionTouchAction": {
+        "action": "KeyUp",
+        "key": 17
+    },
+    "ProdManualOpenInMain": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "TouchInputAction",
+                "custom_action_param": {
+                    "node": "ProdManualOpenInMainTouchAction"
+                }
+            }
+        }
+    },
+    "ProdManualOpenInMainTouchAction": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "auto_up": true,
+                "key": 18
+            }
+        }
+    },
+    "ProdManualOpenInMainDone": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "TouchInputAction",
+                "custom_action_param": {
+                    "node": "ProdManualOpenInMainDoneTouchAction"
+                }
+            }
+        }
+    },
+    "ProdManualOpenInMainDoneTouchAction": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 18
+            }
+        }
+    },
+    "StashBackpackUsableItemsLimitedDrag": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "TouchInputAction",
+                "custom_action_param": {
+                    "node": "StashBackpackUsableItemsLimitedDragTouchAction"
+                }
+            }
+        }
+    },
+    "StashBackpackUsableItemsLimitedDragTouchAction": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "auto_up": true,
+                "key": 16
+            }
+        }
+    },
+    "StashBackpackUsableItemsLimitedQuickMoveKeyUp": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "TouchInputAction",
+                "custom_action_param": {
+                    "node": "StashBackpackUsableItemsLimitedQuickMoveKeyUpTouchAction"
+                }
+            }
+        }
+    },
+    "StashBackpackUsableItemsLimitedQuickMoveKeyUpTouchAction": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 16
+            }
+        }
+    }
+}

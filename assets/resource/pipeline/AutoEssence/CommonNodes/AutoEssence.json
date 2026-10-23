@@ -40,6 +40,8 @@
     "AutoEssenceMain": {
         "desc": "自动基质刷取的主入口",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "TouchInputCheck",
         "post_delay": 0,
         "next": [
             // 在 SetupLocation 节点的 max_hit 未耗尽时，先经过该节点进行初始化步骤

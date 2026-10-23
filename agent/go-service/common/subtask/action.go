@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"math/rand"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/touchcheck"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -23,6 +24,9 @@ var _ maa.CustomActionRunner = &SubTaskAction{}
 func (a *SubTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().Msg("SubTask got nil custom action arg")
+		return false
+	}
+	if touchcheck.Propagate(ctx, arg) {
 		return false
 	}
 
@@ -106,6 +110,9 @@ func (a *SubTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 
 		detail, err := ctx.RunTask(taskName)
+		if touchcheck.Propagate(ctx, arg) {
+			return false
+		}
 
 		if err != nil || detail == nil {
 			log.Error().

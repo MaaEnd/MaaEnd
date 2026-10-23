@@ -7,15 +7,11 @@
     },
     // 移动端没有 R 键：按住右侧工具键，轮盘按手指相对按键中心的方向选工具，松开确认
     "EnterCameraModeLongPress": {
-        "action": "TouchDown",
-        // 只按在中心的死区里：偏出几个像素就会按方向预选别的工具（实测偏左下预选了盛装）
-        "target": [
-            1176,
-            282,
-            4,
-            4
-        ],
-        "auto_up": true,
+        "action": "Custom",
+        "custom_action": "TouchInputAction",
+        "custom_action_param": {
+            "node": "EnterCameraModeLongPressTouchAction"
+        },
         "timeout": 5000,
         // 轮盘开着就往下走：中心是「选择工具」最好；已经预选了某个工具时直接认拍照图标，
         // 否则 InSelectTool 永远等不到，手指一直按着
@@ -34,14 +30,11 @@
         ]
     },
     "EnterCameraModeChooseCamera": {
-        "action": "TouchMove",
-        // 朝拍照图标方向（左上 45°）拖到扇区中线附近，离两侧边界都留足余量
-        "target": [
-            1112,
-            218,
-            10,
-            10
-        ],
+        "action": "Custom",
+        "custom_action": "TouchInputAction",
+        "custom_action_param": {
+            "node": "EnterCameraModeChooseCameraTouchAction"
+        },
         "timeout": 5000,
         "on_error": [
             "EnterCameraModeReleaseOnError"
@@ -59,7 +52,11 @@
             "time": 100,
             "timeout": 3000
         },
-        "action": "TouchUp",
+        "action": "Custom",
+        "custom_action": "TouchInputAction",
+        "custom_action_param": {
+            "node": "EnterCameraModeKeyUpTouchAction"
+        },
         "on_error": [
             "EnterCameraModeReleaseOnError"
         ]
@@ -67,11 +64,40 @@
     "EnterCameraModeReleaseOnError": {
         "desc": "进入拍照模式失败，松开按住的工具键；随后仍按失败结束，交给上层记录",
         "pre_delay": 0,
-        "action": "TouchUp",
+        "action": "Custom",
+        "custom_action": "TouchInputAction",
+        "custom_action_param": {
+            "node": "EnterCameraModeReleaseOnErrorTouchAction"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "FailedNode"
         ]
+    },
+    "EnterCameraModeLongPressTouchAction": {
+        "action": "TouchDown",
+        "target": [
+            1176,
+            282,
+            4,
+            4
+        ],
+        "auto_up": true
+    },
+    "EnterCameraModeChooseCameraTouchAction": {
+        "action": "TouchMove",
+        "target": [
+            1112,
+            218,
+            10,
+            10
+        ]
+    },
+    "EnterCameraModeKeyUpTouchAction": {
+        "action": "TouchUp"
+    },
+    "EnterCameraModeReleaseOnErrorTouchAction": {
+        "action": "TouchUp"
     }
 }

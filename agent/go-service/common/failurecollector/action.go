@@ -3,6 +3,7 @@ package failurecollector
 import (
 	"encoding/json"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/touchcheck"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -44,6 +45,9 @@ func (a *RunTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if !ok || param.Task == "" || param.FailureTask == "" {
 		return false
 	}
+	if touchcheck.Propagate(ctx, arg) {
+		return false
+	}
 	node, err := ctx.GetNode(param.Task)
 	if err != nil {
 		log.Error().Err(err).Str("task", param.Task).Msg("FailureCollector failed to get subtask node")
@@ -53,6 +57,9 @@ func (a *RunTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return true
 	}
 	detail, err := ctx.RunTask(param.Task)
+	if touchcheck.Propagate(ctx, arg) {
+		return false
+	}
 	if err == nil && detail != nil && detail.Status.Success() {
 		return true
 	}

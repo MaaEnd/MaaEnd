@@ -13,11 +13,11 @@
                 "AutoAltClickAction",
                 "AutoAltSwipeAction",
                 "AutoCtrlClickAction",
-                "AutoFightMainAction",
                 "AutoDeliveryResolveDepotAction",
                 "AutoDeliveryResolveDestinationAction",
                 "AutoEssenceLoadInventoryAction",
                 "AutoEssenceTargetPlanAction",
+                "AutoFightMainAction",
                 "AutoSellItemExecuteItemTaskAction",
                 "AutoStockStapleQuantityControlAction",
                 "AutoStockpile.ReconcileDecision",
@@ -34,6 +34,7 @@
                 "BatchAddFriendsUIDOnEmptyAction",
                 "BetterSliding",
                 "CameraScanAction",
+                "CaptureUid",
                 "CharacterControllerForwardAxisAction",
                 "CharacterControllerPitchDeltaAction",
                 "CharacterControllerRelativeMoveAction",
@@ -41,7 +42,6 @@
                 "CharacterMoveToTargetAction",
                 "CharacterMoveToTargetNotFoundAction",
                 "CharacterSearchAction",
-                "CaptureUid",
                 "ClearHitCount",
                 "CloseGameAction",
                 "CreditShoppingScanItemAction",
@@ -55,17 +55,17 @@
                 "EssenceFilterInitAction",
                 "EssenceFilterSkillDecisionAction",
                 "ExitGameLauncherAction",
-				"FailureCollectorFinish",
-				"FailureCollectorRunTask",
-				"FailureCollectorReset",
+                "FailureCollectorFinish",
+                "FailureCollectorReset",
+                "FailureCollectorRunTask",
                 "FalseAction",
                 "FocusOCRAction",
                 "ImageCheckSetResultAction",
                 "ImportBluePrintsEnterCodeAction",
                 "ImportBluePrintsFinishAction",
                 "ImportBluePrintsInitTextAction",
-                "IntelArchiveResolveTruncAction",
                 "IntelArchiveResetSessionAction",
+                "IntelArchiveResolveTruncAction",
                 "IntelArchiveShowInventoryAction",
                 "ItemTransferFallbackAction",
                 "ItemTransferOCRAction",
@@ -79,14 +79,16 @@
                 "PostStop",
                 "PullCountCalculatorAction",
                 "PuzzleAction",
-                "SeizeDeliveryJobsResetScanStateAction",
-                "SeizeDeliveryJobsScanTargetAction",
                 "RealTimeTaskAction",
                 "RepeatUntilFoundAction",
                 "RepeatUntilNotFoundAction",
                 "SceneManagerMenuListClickItemAction",
+                "SeizeDeliveryJobsResetScanStateAction",
+                "SeizeDeliveryJobsScanTargetAction",
                 "SubTask",
                 "SyncItemData",
+                "TouchInputAction",
+                "TouchInputCheck",
                 "TrialOfSwordmancy.Decide",
                 "UpdateItemQuantity",
                 "WebEvent202605Action",
@@ -342,7 +344,39 @@
 				},
 				"required": [ "custom_action_param" ]
 			}
-		}
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {
+                        "const": "TouchInputAction"
+                    }
+                },
+                "required": [
+                    "custom_action"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "node": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        },
+                        "required": [
+                            "node"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "custom_action_param"
+                ]
+            }
+        }
 	],
     "if": {
         "type": "object",

@@ -32,6 +32,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/repeataction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/touchcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/deliveryjobs"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dijiangrewards"
@@ -69,6 +70,7 @@ func registerAll() {
 
 	// General Custom
 	subtask.Register()
+	touchcheck.Register()
 	failurecollector.Register()
 	clearhitcount.Register()
 	closegame.Register()

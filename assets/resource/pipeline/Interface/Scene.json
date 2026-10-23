@@ -265,8 +265,11 @@
             "__ScenePrivateMapZoomOutWhite"
         ],
         "box_index": 1,
-        "action": "LongPress",
-        "duration": 2000,
+        "action": "Custom",
+        "custom_action": "TouchInputAction",
+        "custom_action_param": {
+            "node": "SceneMapZoomOutTouchAction"
+        },
         "post_wait_freezes": {
             "time": 400,
             "target": [
@@ -388,5 +391,9 @@
             "SceneWaitBlackScreenLoadingExit",
             "__ScenePrivateNextTrue"
         ]
+    },
+    "SceneMapZoomOutTouchAction": {
+        "action": "LongPress",
+        "duration": 2000
     }
 }

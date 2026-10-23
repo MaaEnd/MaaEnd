@@ -344,13 +344,11 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "TouchMove",
-        "target": [
-            0,
-            0,
-            1,
-            1
-        ],
+        "action": "Custom",
+        "custom_action": "TouchInputAction",
+        "custom_action_param": {
+            "node": "AutoDeliverySkipChatTouchAction"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -375,8 +373,11 @@
     "AutoDeliverySkipChatMoveToButton": {
         "desc": "按移开后重新识别到的跳过按钮位置，将鼠标移回跳过按钮",
         "pre_delay": 0,
-        "action": "TouchMove",
-        "target": "AutoDeliveryCheckSkipChatAfterMoveAway",
+        "action": "Custom",
+        "custom_action": "TouchInputAction",
+        "custom_action_param": {
+            "node": "AutoDeliverySkipChatMoveToButtonTouchAction"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -459,5 +460,18 @@
         "focus": {
             "Node.Action.Starting": "$task.AutoDelivery.focus.submit_goods"
         }
+    },
+    "AutoDeliverySkipChatTouchAction": {
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ]
+    },
+    "AutoDeliverySkipChatMoveToButtonTouchAction": {
+        "action": "TouchMove",
+        "target": "AutoDeliveryCheckSkipChatAfterMoveAway"
     }
 }
