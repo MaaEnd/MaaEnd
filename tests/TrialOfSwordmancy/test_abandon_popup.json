@@ -44,7 +44,7 @@
         },
         {
             "name": "实测免费放弃耗尽，红字提示与取消按钮",
-            "image": "武陵_选剑演武_演算_放弃次数耗尽_实测.png",
+            "image": "武陵_选剑演武_演算_放弃确认_放弃次数耗尽_翻倍锁定关闭.png",
             "hits": [
                 "TrialOfSwordmancyAbandonPopupExhausted",
                 "TrialOfSwordmancyAbandonPopupCancel",

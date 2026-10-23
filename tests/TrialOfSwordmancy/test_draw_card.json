@@ -77,7 +77,7 @@
         },
         {
             "name": "实测抽牌动画固定区域",
-            "image": "武陵_选剑演武_演算_抽牌动画稳定_实测.png",
+            "image": "武陵_选剑演武_演算_抽取铭牌_动画帧.png",
             "hits": [
                 "TrialOfSwordmancyDrawCardButton"
             ]
