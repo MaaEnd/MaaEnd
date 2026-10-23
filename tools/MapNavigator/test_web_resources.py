@@ -58,7 +58,7 @@ class WebResourceTest(unittest.TestCase):
         )
 
     def test_route_preview_reads_the_runtime_rope_text_node(self) -> None:
-        self.assertIn("使用", rope_interact_text())
+        self.assertIn("^使用$", rope_interact_text())
 
 
 if __name__ == "__main__":
