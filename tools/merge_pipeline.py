@@ -6,6 +6,7 @@ from pathlib import Path
 
 import json5
 
+
 def merge_pipeline(resource_dir: Path) -> None:
     pipeline_dir = resource_dir / "pipeline"
     if not pipeline_dir.is_dir():
@@ -22,7 +23,7 @@ def merge_pipeline(resource_dir: Path) -> None:
                 collect(item)
             elif item.suffix == ".json":
                 try:
-                    with open(item, "r", encoding="utf-8") as f:
+                    with open(item, encoding="utf-8") as f:
                         # check.yml 已通过 maa-tools 检测跨文件重复键（conflict-task），
                         # 此处 dict.update 静默覆盖是安全的
                         merged.update(json5.load(f))

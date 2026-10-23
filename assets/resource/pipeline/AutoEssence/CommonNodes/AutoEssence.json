@@ -131,7 +131,9 @@
         },
         "post_delay": 0,
         "next": [
-            "AutoEssenceTargetRunInventoryFilter"
+            // 盘点只做一次：该节点 max_hit=1，[JumpBack] 回跳后重扫 next 时会被跳过，落到加载仓储
+            "[JumpBack]AutoEssenceTargetRunInventoryFilter",
+            "AutoEssenceTargetLoadInventory"
         ],
         "on_error": [
             "AutoEssenceTargetPrepareFailed"
@@ -141,24 +143,12 @@
         }
     },
     "AutoEssenceTargetRunInventoryFilter": {
-        "desc": "目标模式：SubTask 跑 EssenceFilterMain（库存导出）",
+        "desc": "目标模式：内联执行 EssenceFilterMain（库存导出）；max_hit=1 保证 [JumpBack] 回跳后不再重跑",
+        "max_hit": 1,
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "EssenceFilterMain"
-                    ],
-                    "continue": false,
-                    "strict": true
-                }
-            }
-        },
         "post_delay": 0,
         "next": [
-            "AutoEssenceTargetLoadInventory"
+            "EssenceFilterMain"
         ],
         "on_error": [
             "AutoEssenceTargetPrepareFailed"
@@ -572,6 +562,15 @@
         },
         "pre_delay": 0,
         "action": "DoNothing",
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                1083,
+                514,
+                197,
+                93
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

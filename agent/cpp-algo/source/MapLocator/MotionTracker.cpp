@@ -53,6 +53,7 @@ void MotionTracker::forceLost()
 {
     lostTrackingCount = MaxLostTrackingCount + 100;
     lastKnownPos = std::nullopt;
+    clearVelocity();
 }
 
 bool MotionTracker::isTracking(int maxAllowedLost) const

@@ -713,21 +713,29 @@
         ]
     },
     "VisitFriendsQuickVisitNext": {
-        "desc": "识别快速拜访下一位提示并点击",
+        "desc": "识别快速拜访下一位提示并点击；未选任何助力时需同时命中线索交流图标",
         "enabled": false,
-        "recognition": "OCR",
-        "roi": [
-            -400,
-            70,
-            400,
-            90
+        "max_hit": 10,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    -400,
+                    70,
+                    400,
+                    90
+                ],
+                "expected": [
+                    "快速拜访下位",
+                    "快速拜訪下一位",
+                    "Visit.*Next",
+                    "快速訪問.*次へ"
+                ]
+            },
+            "VisitFriendsQuickVisitNextClue"
         ],
-        "expected": [
-            "快速拜访下位",
-            "快速拜訪下一位",
-            "Visit.*Next",
-            "快速訪問.*次へ"
-        ],
+        "box_index": 0,
         "pre_wait_freezes": 100,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",

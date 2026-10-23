@@ -22,26 +22,38 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.base.sha }}
+
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-python: true
+
       - name: Cleanup closed PR merge-ref caches
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_REF: refs/pull/${{ github.event.pull_request.number }}/merge
         run: |
           echo "Cleaning caches for ${PR_REF}"
-          python tools/cleanup_caches.py --ref "${PR_REF}" --apply
+          uv run tools/cleanup_caches.py --ref "${PR_REF}" --apply
 
   scheduled:
     if: ${{ github.event_name != 'pull_request_target' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-python: true
+
       - name: Dry-run report
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python tools/cleanup_caches.py
+          uv run tools/cleanup_caches.py
       - name: Apply cleanup
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python tools/cleanup_caches.py --apply
+          uv run tools/cleanup_caches.py --apply

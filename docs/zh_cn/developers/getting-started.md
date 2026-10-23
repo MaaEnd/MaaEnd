@@ -5,7 +5,7 @@
 ## 环境准备
 
 - Git
-- [uv](https://docs.astral.sh/uv/)（自动管理 Python 3.10+ 与脚本依赖）
+- [uv](https://docs.astral.sh/uv/)（自动管理 Python 3.14+ 与脚本依赖）
 - Node.js 22
 - pnpm 10+
 - Go 1.25.6+

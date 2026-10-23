@@ -61,7 +61,7 @@ async function errorMessage(res) {
  * @param {string} url
  * @returns {Promise<any>}
  */
-async function getJson(url) {
+export async function getJson(url) {
   let res;
   try {
     res = await fetch(url, {headers: {Accept: "application/json"}});
@@ -79,7 +79,7 @@ async function getJson(url) {
  * @param {string} [method='POST']
  * @returns {Promise<any>}
  */
-async function sendJson(url, body, method = "POST") {
+export async function sendJson(url, body, method = "POST") {
   let res;
   try {
     res = await fetch(url, {

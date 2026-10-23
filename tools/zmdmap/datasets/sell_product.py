@@ -3,30 +3,26 @@
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import logger, read_table_cfg
+from ..utils.log import logger
+from ..utils.tables import CharacterRow, CharacterTagRow, ItemRow, SettlementRow, SettlementTagRow, load_table
 from .base import Dataset, DatasetError
 
-# settlement tag 增强字段 -> 输出中的 bonus 类型名。
-SETTLEMENT_BONUS_FIELDS: dict[str, str] = {
-    "enhanceExpProfitRate": "expProfit",
-    "enhanceMoneyProfitRate": "moneyProfit",
-    "enhanceMoneyProduceSpeedRate": "moneyProduceSpeed",
-}
 
 class SellProduct(Dataset):
     """据点、可售物品、据点特性与匹配干员（``sell_product.json``）。"""
 
     @classmethod
     def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
-        """Data chain: SettlementBasicDataTable -> settlements/prosperity levels/
-        wantTagIdGroup, SettlementTagTable -> feature tags + enhance rates,
-        CharacterTable + CharacterTagTable -> operator tags/names,
-        ItemTable -> item names/rarity."""
-        settlement_table = read_table_cfg(table_cfg_dir, "SettlementBasicDataTable")
-        settlement_tag_table = read_table_cfg(table_cfg_dir, "SettlementTagTable")
-        character_table = read_table_cfg(table_cfg_dir, "CharacterTable")
-        character_tag_table = read_table_cfg(table_cfg_dir, "CharacterTagTable")
-        item_table = read_table_cfg(table_cfg_dir, "ItemTable")
+        """据点、各级繁荣度能卖的物品、据点特性，以及按标签匹配上的干员。
+
+        干员的标签来自 ``CharacterTagTable``，据点特性按 ``wantTagIdGroup`` 去匹配；能卖什么由
+        ``SettlementBasicDataTable`` 的各级 ``settlementTradeItemMap`` 给出，并排掉限定活动的物品。
+        """
+        settlement_table = load_table(table_cfg_dir, "SettlementBasicDataTable", SettlementRow)
+        settlement_tag_table = load_table(table_cfg_dir, "SettlementTagTable", SettlementTagRow)
+        character_table = load_table(table_cfg_dir, "CharacterTable", CharacterRow)
+        character_tag_table = load_table(table_cfg_dir, "CharacterTagTable", CharacterTagRow)
+        item_table = load_table(table_cfg_dir, "ItemTable", ItemRow)
 
         # ── 干员 ─────────────────────────────────────────────────────
         operator_tags: list[dict[str, Any]] = []
@@ -36,11 +32,7 @@ class SellProduct(Dataset):
             if character is None:
                 raise DatasetError(f"CharacterTable 缺少干员 {operator_id}")
 
-            tags = [
-                tag_entry.blocTagId,
-                *tag_entry.expertTagIds,
-                *tag_entry.hobbyTagIds,
-            ]
+            tags = [tag_entry.bloc_tag_id, *tag_entry.expert_tag_ids, *tag_entry.hobby_tag_ids]
             operator_tags.append(
                 {
                     "id": operator_id,
@@ -66,16 +58,16 @@ class SellProduct(Dataset):
         for settlement_id in sorted(settlement_table.keys()):
             settlement = settlement_table[settlement_id]
 
-            settlement_level_map = settlement.settlementLevelMap
+            settlement_level_map = settlement.settlement_level_map
             prosperity_levels: list[dict[str, Any]] = []
             for level, level_value in sorted(
                 settlement_level_map.items(), key=lambda entry: int(entry[0])
             ):
-                trade_item_map = level_value.settlementTradeItemMap
+                trade_item_map = level_value.settlement_trade_item_map
                 trade_items: list[dict[str, Any]] = []
                 for trade_key, trade_value in trade_item_map.items():
                     # itemId 优先取 value 字段，缺失时 fallback 到 map key。
-                    item_id = trade_value.itemId or trade_key
+                    item_id = trade_value.item_id or trade_key
                     if item_id not in item_table:
                         raise DatasetError(
                             f"据点 {settlement_id} 引用了 ItemTable 中不存在的物品 {item_id}"
@@ -84,8 +76,8 @@ class SellProduct(Dataset):
                     trade_items.append(
                         {
                             "item_id": item_id,
-                            "unit_price": trade_value.rewardMoneyCount,
-                            "activity_id": trade_value.activityId or "",
+                            "unit_price": trade_value.reward_money_count,
+                            "activity_id": trade_value.activity_id,
                         }
                     )
                 trade_items.sort(key=lambda item: item["unit_price"], reverse=True)
@@ -97,31 +89,27 @@ class SellProduct(Dataset):
                 )
 
             features: list[dict[str, Any]] = []
-            for settlement_tag_id in settlement.wantTagIdGroup:
+            for settlement_tag_id in settlement.want_tag_id_group:
                 tag_entry = settlement_tag_table.get(settlement_tag_id)
                 if tag_entry is None:
                     raise DatasetError(f"据点特性 {settlement_tag_id} 不存在")
-                required_tags = tag_entry.enhanceCharTagId
+                required_tags = set(tag_entry.enhance_char_tag_id)
                 features.append(
                     {
-                        "bonus_types": [
-                            bonus_type
-                            for field, bonus_type in SETTLEMENT_BONUS_FIELDS.items()
-                            if getattr(tag_entry, field, 0) > 0
-                        ],
+                        "bonus_types": _bonus_types(tag_entry),
                         "operator_ids": [
                             operator["id"]
                             for operator in operator_tags
-                            if bool(set(operator["tags"]) & set(required_tags))
+                            if bool(set(operator["tags"]) & required_tags)
                         ],
                     }
                 )
 
             settlements[settlement_id] = {
                 "id": settlement_id,
-                "region_id": settlement.domainId,
+                "region_id": settlement.domain_id,
                 "names": cls.localized_names(
-                    settlement.settlementName, table_cfg_dir, f"据点 {settlement_id}"
+                    settlement.settlement_name, table_cfg_dir, f"据点 {settlement_id}"
                 ),
                 "prosperity_levels": prosperity_levels,
                 "features": features,
@@ -147,3 +135,14 @@ class SellProduct(Dataset):
             "settlements": settlements,
         }
 
+
+def _bonus_types(tag: SettlementTagRow) -> list[str]:
+    """这个据点特性的三项收益里，哪几项是「有」的。"""
+    bonuses: list[str] = []
+    if tag.enhance_exp_profit_rate > 0:
+        bonuses.append("expProfit")
+    if tag.enhance_money_profit_rate > 0:
+        bonuses.append("moneyProfit")
+    if tag.enhance_money_produce_speed_rate > 0:
+        bonuses.append("moneyProduceSpeed")
+    return bonuses

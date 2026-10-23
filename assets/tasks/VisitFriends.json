@@ -162,6 +162,9 @@
                         },
                         "VisitFriendsAssistFullInit": {
                             "enabled": false
+                        },
+                        "VisitFriendsQuickVisitNextClue": {
+                            "recognition": "DirectHit"
                         }
                     }
                 },
@@ -183,6 +186,9 @@
                         },
                         "VisitFriendsAssistFullInit": {
                             "enabled": false
+                        },
+                        "VisitFriendsQuickVisitNextClue": {
+                            "recognition": "DirectHit"
                         }
                     }
                 },
@@ -201,6 +207,9 @@
                         },
                         "VisitFriendsAssistFullInit": {
                             "enabled": false
+                        },
+                        "VisitFriendsQuickVisitNextClue": {
+                            "recognition": "DirectHit"
                         }
                     }
                 }
@@ -209,8 +218,7 @@
                 "ProductionAssistControlNexus",
                 "ProductionAssistMFGCabin",
                 "ProductionAssistGrowthChamber"
-            ],
-            "min_count": 1
+            ]
         },
         "BtwAutoStockpileElasticGoodsEnable": {
             "type": "switch",

@@ -14,6 +14,7 @@
 | ``energy_point_gems`` | ``energy_point_gems.json`` | 复制 |
 | ``environment_monitoring`` | ``environment_monitoring.json`` | 复制 |
 | ``item_mini_table`` | ``item_mini_table.json`` | 复制 |
+| ``operator_growth`` | ``operator_growth.json`` | 复制 |
 | ``sell_product`` | ``sell_product.json`` | 复制 |
 | ``stock_staple`` | ``stock_staple.json`` | 复制 |
 | ``weapons`` | ``weapons.json`` | 复制 |
@@ -24,8 +25,6 @@ zone 表投影，其余原样复制。要加一份新数据，就在 ``datasets/
 各数据集都用的手法（五语文本 ``localized_names``、关卡索引 ``level_index``）与组装错误 ``DatasetError``
 在 ``base.py`` 的 ``Dataset`` 上。
 """
-
-from __future__ import annotations
 
 import importlib
 import pkgutil
@@ -66,14 +65,6 @@ DATASET_NAMES: tuple[str, ...] = tuple(dataset.name for dataset in DATASETS)
 
 #: 产物文件名 -> 数据集。
 _BY_FILE: dict[str, type[Dataset]] = {dataset.file_name: dataset for dataset in DATASETS}
-
-#: 入库要投影 / 原样复制的数据集文件名。
-PROJECT_FILES: tuple[str, ...] = tuple(
-    dataset.file_name for dataset in DATASETS if dataset.needs_projection
-)
-COPY_FILES: tuple[str, ...] = tuple(
-    dataset.file_name for dataset in DATASETS if not dataset.needs_projection
-)
 
 
 def select_datasets(names: Sequence[str]) -> tuple[type[Dataset], ...]:

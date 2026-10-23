@@ -1,13 +1,11 @@
 import sys
-
-from typing import List
 from pathlib import Path
 
 from maa.resource import Resource
-from maa.tasker import Tasker, LoggingLevelEnum
+from maa.tasker import LoggingLevelEnum, Tasker
 
 
-def check(dirs: List[Path]) -> bool:
+def check(dirs: list[Path]) -> bool:
     resource = Resource()
 
     print(f"Checking {len(dirs)} directories...")

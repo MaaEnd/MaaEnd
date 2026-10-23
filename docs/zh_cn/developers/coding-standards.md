@@ -158,6 +158,7 @@ Cpp Algo 支持原生 OpenCV 和 ONNX Runtime，但仅推荐用于实现单个�
 pnpm format        # JSON/YAML 格式化
 pnpm format:go     # Go 格式化（改了 agent/go-service/ 时）
 pnpm format:md     # Markdown 格式化（改了 md 文档时）
+pnpm lint:py       # Python 静态检查（改了 .py 时）
 ```
 
 `pnpm check` 与 `pnpm test` **按需执行**：
@@ -171,7 +172,7 @@ pnpm test          # 节点测试
 - 其他改动（Pipeline、Go、Cpp、文档等）→ 不必在本地跑这两条命令，提 PR 后跟进相应 CI 即可（Go 由 `go-check.yml` 校验，纯文档改动不触发 PR CI）。
 - 需要本地自查时（例如调试某个识别节点的命中率、确认改动的影响范围），可随时单独执行。
 
-CI 与这些命令的对应关系：`pnpm check` + `uv run tools/validate_schema.py`（[`check.yml`](../../../.github/workflows/check.yml)）、`pnpm test`（[`test.yml`](../../../.github/workflows/test.yml)，目标为 `v2` 的 PR 或推送改动 `assets/**`、`tests/**` 或 `agent/cpp-algo/**` 时触发）、`pnpm format:all`（[`format.yml`](../../../.github/workflows/format.yml)，定时全量格式化并自动提交）。
+CI 与这些命令的对应关系：`pnpm check` + `uv run tools/validate_schema.py`（[`check.yml`](../../../.github/workflows/check.yml)）、`pnpm test`（[`test.yml`](../../../.github/workflows/test.yml)，目标为 `v2` 的 PR 或推送改动 `assets/**`、`tests/**` 或 `agent/cpp-algo/**` 时触发）、`pnpm lint:py`（[`lint.yml`](../../../.github/workflows/lint.yml)，改动 `**/*.py`、`pyproject.toml` 或 `uv.lock` 时触发）、`pnpm format:all`（[`format.yml`](../../../.github/workflows/format.yml)，定时全量格式化并自动提交）。
 
 ## 配套文件
 

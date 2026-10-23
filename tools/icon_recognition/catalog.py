@@ -1,12 +1,11 @@
 """从合并后的 item.json 和已下载图标生成运行时识别目录。"""
 
-from __future__ import annotations
-
 import argparse
 import json
 from collections import OrderedDict
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 from text import clean_text, validate_identifier
 

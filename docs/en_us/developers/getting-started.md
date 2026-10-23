@@ -5,7 +5,7 @@ Take "Auto-sell Items" as an example, go through the complete development proces
 ## Environment Preparation
 
 - Git
-- [uv](https://docs.astral.sh/uv/) (manages Python 3.10+ and script dependencies automatically)
+- [uv](https://docs.astral.sh/uv/) (manages Python 3.14+ and script dependencies automatically)
 - Node.js 22
 - pnpm 10+
 - Go 1.25.6+

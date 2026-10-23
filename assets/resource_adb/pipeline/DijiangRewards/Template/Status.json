@@ -14,5 +14,117 @@
             29,
             0
         ]
+    },
+    "ClueOne": {
+        "roi": [
+            49,
+            162,
+            57,
+            449
+        ]
+    },
+    "ClueTwo": {
+        "roi": [
+            49,
+            162,
+            57,
+            449
+        ]
+    },
+    "ClueThree": {
+        "roi": [
+            49,
+            162,
+            57,
+            449
+        ]
+    },
+    "ClueFour": {
+        "roi": [
+            49,
+            162,
+            57,
+            449
+        ]
+    },
+    "ClueFive": {
+        "roi": [
+            49,
+            162,
+            57,
+            449
+        ]
+    },
+    "ClueSix": {
+        "roi": [
+            49,
+            162,
+            57,
+            449
+        ]
+    },
+    "ClueSeven": {
+        "roi": [
+            49,
+            162,
+            57,
+            449
+        ]
+    },
+    "ClueOneCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
+    },
+    "ClueTwoCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
+    },
+    "ClueThreeCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
+    },
+    "ClueFourCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
+    },
+    "ClueFiveCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
+    },
+    "ClueSixCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
+    },
+    "ClueSevenCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
     }
 }

@@ -1,11 +1,12 @@
 import argparse
+import contextlib
 import http.client
 import json
 import os
+import platform
 import shutil
 import subprocess
 import sys
-import platform
 import tempfile
 import time
 import traceback
@@ -18,7 +19,6 @@ from urllib.parse import quote, urlencode, urlparse
 from . import dep_3rdparty
 from .cli_support import Console, init_localization
 from .path_utils import is_directory_link, remove_directory_or_link
-
 
 PROJECT_BASE: Path = Path(__file__).resolve().parents[2]
 MFW_REPO: str = "MaaXYZ/MaaFramework"
@@ -102,7 +102,8 @@ def ensure_directory_link(
 LOCALS_DIR = Path(__file__).parent / "locals" / "setup_workspace"
 
 
-_local_t = lambda key, **kwargs: key.format(**kwargs) if kwargs else key
+def _local_t(key, **kwargs):
+    return key.format(**kwargs) if kwargs else key
 
 
 def init_local() -> None:
@@ -319,8 +320,8 @@ def get_latest_release_url(
         for tag in tags:
             assert isinstance(tag, dict)
             if (
-                not prerelease
-                and tag.get("prerelease", False)
+                (not prerelease
+                and tag.get("prerelease", False))
                 or tag.get("draft", False)
             ):
                 continue
@@ -346,7 +347,7 @@ def read_versions_file(path: Path) -> dict[str, str]:
     if not path.exists():
         return {}
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
         versions = data.get("versions", {})
         if isinstance(versions, dict):
@@ -436,7 +437,7 @@ def parse_semver(version: str) -> tuple[list[int], list[str]]:
         v = v.split("+", 1)[0]
 
     # Split core and prerelease.
-    core_part, pre_part = (v.split("-", 1) + [""])[:2] if "-" in v else (v, "")
+    core_part, pre_part = ([*v.split("-", 1), ""])[:2] if "-" in v else (v, "")
 
     def parse_core_number(part: str) -> int:
         num = ""
@@ -467,10 +468,10 @@ def compare_semver(a: str | None, b: str | None) -> int:
     max_len = max(len(left_core), len(right_core))
     left_core += [0] * (max_len - len(left_core))
     right_core += [0] * (max_len - len(right_core))
-    for l, r in zip(left_core, right_core):
-        if l > r:
+    for left_item, right_item in zip(left_core, right_core, strict=False):
+        if left_item > right_item:
             return 1
-        if l < r:
+        if left_item < right_item:
             return -1
 
     # Core equal: version without prerelease has higher precedence.
@@ -485,12 +486,12 @@ def compare_semver(a: str | None, b: str | None) -> int:
     def is_numeric_identifier(s: str) -> bool:
         return s.isdigit()
 
-    for l, r in zip(left_pre, right_pre):
-        l_num = is_numeric_identifier(l)
-        r_num = is_numeric_identifier(r)
+    for left_item, right_item in zip(left_pre, right_pre, strict=False):
+        l_num = is_numeric_identifier(left_item)
+        r_num = is_numeric_identifier(right_item)
 
         if l_num and r_num:
-            li, ri = int(l), int(r)
+            li, ri = int(left_item), int(right_item)
             if li > ri:
                 return 1
             if li < ri:
@@ -503,9 +504,9 @@ def compare_semver(a: str | None, b: str | None) -> int:
             return 1
 
         # both non-numeric: ASCII lexical compare
-        if l > r:
+        if left_item > right_item:
             return 1
-        if l < r:
+        if left_item < right_item:
             return -1
 
     # All shared identifiers equal: shorter prerelease has lower precedence.
@@ -600,17 +601,21 @@ def download_file(
 
         url_meta = Path(str(dest_path) + ".url")
 
-        if resume and dest_path.exists() and dest_path.stat().st_size > 0:
-            if url_meta.exists():
-                try:
-                    cached_url = url_meta.read_text(encoding="utf-8").strip()
-                except OSError:
-                    cached_url = ""
-                if cached_url and cached_url != url:
-                    print(Console.warn(t("wrn_cache_url_mismatch")))
-                    cleanup_cache_file(dest_path)
-                    if dest_path.exists():
-                        resume = False
+        if (
+            resume
+            and dest_path.exists()
+            and dest_path.stat().st_size > 0
+            and url_meta.exists()
+        ):
+            try:
+                cached_url = url_meta.read_text(encoding="utf-8").strip()
+            except OSError:
+                cached_url = ""
+            if cached_url and cached_url != url:
+                print(Console.warn(t("wrn_cache_url_mismatch")))
+                cleanup_cache_file(dest_path)
+                if dest_path.exists():
+                    resume = False
 
         existing_size = 0
         if resume and dest_path.exists():
@@ -697,10 +702,8 @@ def download_file(
                         cached_progress_str = progress_str
         print()
         print(Console.ok(t("inf_download_complete", path=dest_path)))
-        try:
+        with contextlib.suppress(OSError):
             url_meta.write_text(url, encoding="utf-8")
-        except OSError:
-            pass
         return True
     except urllib.error.HTTPError as e:
         print(Console.err(t("err_network_error_with_code", reason=e.reason, code=e.code)))

@@ -48,6 +48,7 @@ func matchOptsFromPipeline(opts *EssenceFilterOptions) matchapi.EssenceFilterOpt
 		Rarity6Weapon:            opts.Rarity6Weapon,
 		Rarity5Weapon:            opts.Rarity5Weapon,
 		Rarity4Weapon:            opts.Rarity4Weapon,
+		PerfectMinLevelTotal:     opts.PerfectMinLevelTotal,
 		KeepFuturePromising:      opts.KeepFuturePromising,
 		FuturePromisingMinTotal:  opts.FuturePromisingMinTotal,
 		LockFuturePromising:      opts.LockFuturePromising,

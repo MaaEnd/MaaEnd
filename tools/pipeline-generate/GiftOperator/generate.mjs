@@ -191,11 +191,6 @@ if (avatars.length) {
         "uv",
         [
             "run",
-            "--frozen",
-            "--no-default-groups",
-            "--group",
-            "images",
-            "python",
             "tools/gift_operator/build_avatars.py",
         ],
         {

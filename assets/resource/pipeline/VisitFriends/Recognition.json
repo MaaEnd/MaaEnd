@@ -257,5 +257,18 @@
         ],
         "template": "VisitFriends/DetailGrowthChamberAssist.png",
         "threshold": 0.9
+    },
+    "VisitFriendsQuickVisitNextClue": {
+        "desc": "识别快速访问上的线索交流图标，勾选任一助力时被覆盖为 DirectHit",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -230,
+            80,
+            60,
+            70
+        ],
+        "template": "VisitFriends/QuickNextClueExchangeAvailable.png",
+        "green_mask": true,
+        "threshold": 0.9
     }
 }

@@ -10,31 +10,30 @@
 
 """Import one MaaEnd test screenshot after redacting private information."""
 
-from __future__ import annotations
-
 import argparse
-from pathlib import Path
 import sys
 import uuid
+from pathlib import Path
 
 import cv2
+import numpy as np
 from maa.controller import CustomController
 from maa.pipeline import JOCR
 from maa.resource import Resource
 from maa.tasker import Tasker
 from maa.toolkit import Toolkit
-import numpy as np
 from PIL import Image as PILImage
 
 # 同目录脚本：uv 按路径执行时脚本目录已在 sys.path 上，显式加一次以便直接 import。
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from detect_screenshot_platform import (  # noqa: E402
+from detect_screenshot_platform import (
     UID_FIXED_ROIS as FIXED_ROIS,
+)
+from detect_screenshot_platform import (
     covers,
     detect_platform,
     format_extra_rois,
 )
-
 
 SUPPORTED_CONTROLLERS = {"adb": "ADB", "win32": "Win32"}
 EXPECTED_SIZE = (1280, 720)

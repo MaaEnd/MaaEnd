@@ -10,17 +10,14 @@
 完成全部校验，避免中文源文案不完整时写出错误的多语言文案。
 """
 
-from __future__ import annotations
-
 import argparse
 import difflib
 import json
 import re
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple
-
 
 LOCALES = ("zh_cn", "zh_tw", "en_us", "ja_jp", "ko_kr")
 GLOSSARY_PREFIXES = ("item.", "iconRecognition.name.")
@@ -51,7 +48,7 @@ class RouteSource:
     failed_key: str
     source_label: str
     material_text: str
-    materials: Tuple[GlossaryEntry, ...]
+    materials: tuple[GlossaryEntry, ...]
 
 
 @dataclass(frozen=True)
@@ -61,7 +58,7 @@ class LocaleStyle:
     failure_suffix: str
 
 
-LOCALE_STYLES: Dict[str, LocaleStyle] = {
+LOCALE_STYLES: dict[str, LocaleStyle] = {
     "zh_tw": LocaleStyle("路線{number}：", "", "採集失敗"),
     "en_us": LocaleStyle("Collect Route {number}: ", " and ", " collection failed"),
     "ja_jp": LocaleStyle("採集ルート{number}：", "と", "：採集失敗"),
@@ -69,7 +66,7 @@ LOCALE_STYLES: Dict[str, LocaleStyle] = {
 }
 
 
-def load_json(path: Path) -> Dict[str, object]:
+def load_json(path: Path) -> dict[str, object]:
     try:
         with path.open(encoding="utf-8") as file:
             value = json.load(file)
@@ -80,10 +77,10 @@ def load_json(path: Path) -> Dict[str, object]:
     return value
 
 
-def build_glossary(messages: Dict[str, object]) -> Dict[str, GlossaryEntry]:
+def build_glossary(messages: dict[str, object]) -> dict[str, GlossaryEntry]:
     """按中文显示文本建立词表，优先使用 item.* 词条。"""
 
-    entries: Dict[str, List[GlossaryEntry]] = {}
+    entries: dict[str, list[GlossaryEntry]] = {}
     for key, value in messages.items():
         if not isinstance(value, str) or not value:
             continue
@@ -91,36 +88,36 @@ def build_glossary(messages: Dict[str, object]) -> Dict[str, GlossaryEntry]:
             continue
         entries.setdefault(value, []).append(GlossaryEntry(key, value))
 
-    result: Dict[str, GlossaryEntry] = {}
+    result: dict[str, GlossaryEntry] = {}
     for text, candidates in entries.items():
         candidates.sort(key=lambda entry: (0 if entry.key.startswith("item.") else 1, entry.key))
         result[text] = candidates[0]
     return result
 
 
-def segment_material(text: str, glossary: Dict[str, GlossaryEntry]) -> Optional[Tuple[GlossaryEntry, ...]]:
+def segment_material(text: str, glossary: dict[str, GlossaryEntry]) -> tuple[GlossaryEntry, ...] | None:
     """将无分隔的材料名拆成词表条目，优先少分段、长词条。"""
 
     if text in glossary:
         return (glossary[text],)
 
     phrases = sorted(glossary, key=lambda phrase: (-len(phrase), phrase))
-    memo: Dict[int, Optional[Tuple[GlossaryEntry, ...]]] = {}
+    memo: dict[int, tuple[GlossaryEntry, ...] | None] = {}
 
-    def visit(offset: int) -> Optional[Tuple[GlossaryEntry, ...]]:
+    def visit(offset: int) -> tuple[GlossaryEntry, ...] | None:
         if offset == len(text):
             return ()
         if offset in memo:
             return memo[offset]
 
-        best: Optional[Tuple[GlossaryEntry, ...]] = None
+        best: tuple[GlossaryEntry, ...] | None = None
         for phrase in phrases:
             if not text.startswith(phrase, offset):
                 continue
             tail = visit(offset + len(phrase))
             if tail is None:
                 continue
-            candidate = (glossary[phrase],) + tail
+            candidate = (glossary[phrase], *tail)
             if best is None or len(candidate) < len(best):
                 best = candidate
         memo[offset] = best
@@ -129,15 +126,15 @@ def segment_material(text: str, glossary: Dict[str, GlossaryEntry]) -> Optional[
     return visit(0)
 
 
-def route_sort_key(key: str) -> Tuple[int, int]:
+def route_sort_key(key: str) -> tuple[int, int]:
     match = ROUTE_KEY_RE.match(key)
     assert match is not None
     return (0 if match.group("route") == "AutoCollectRoute" else 1, int(match.group("number")))
 
 
-def extract_routes(messages: Dict[str, object], glossary: Dict[str, GlossaryEntry]) -> Tuple[List[RouteSource], List[str]]:
-    errors: List[str] = []
-    routes: List[RouteSource] = []
+def extract_routes(messages: dict[str, object], glossary: dict[str, GlossaryEntry]) -> tuple[list[RouteSource], list[str]]:
+    errors: list[str] = []
+    routes: list[RouteSource] = []
     label_keys = sorted(
         (key for key in messages if ROUTE_KEY_RE.fullmatch(key) and key.endswith(".label")),
         key=route_sort_key,
@@ -194,10 +191,10 @@ def extract_routes(messages: Dict[str, object], glossary: Dict[str, GlossaryEntr
     return routes, errors
 
 
-def render_route(route: RouteSource, locale: str, messages: Dict[str, object]) -> Tuple[str, str, List[str]]:
+def render_route(route: RouteSource, locale: str, messages: dict[str, object]) -> tuple[str, str, list[str]]:
     style = LOCALE_STYLES[locale]
-    translated: List[str] = []
-    errors: List[str] = []
+    translated: list[str] = []
+    errors: list[str] = []
     for material in route.materials:
         value = messages.get(material.key)
         if not isinstance(value, str) or not value:
@@ -210,11 +207,11 @@ def render_route(route: RouteSource, locale: str, messages: Dict[str, object]) -
     return label, failed, errors
 
 
-def replace_locale_values(path: Path, replacements: Dict[str, str]) -> int:
+def replace_locale_values(path: Path, replacements: dict[str, str]) -> int:
     original = path.read_text(encoding="utf-8")
     lines = original.splitlines(keepends=True)
     replaced: set[str] = set()
-    output: List[str] = []
+    output: list[str] = []
 
     for line in lines:
         match = KEY_LINE_RE.match(line)
@@ -245,9 +242,9 @@ def replace_locale_values(path: Path, replacements: Dict[str, str]) -> int:
 
 def collect_replacements(
     locale_dir: Path, routes: Sequence[RouteSource]
-) -> Tuple[Dict[str, Dict[str, str]], List[str], int]:
-    replacements: Dict[str, Dict[str, str]] = {}
-    errors: List[str] = []
+) -> tuple[dict[str, dict[str, str]], list[str], int]:
+    replacements: dict[str, dict[str, str]] = {}
+    errors: list[str] = []
     differences = 0
     for locale in LOCALES:
         path = locale_dir / f"{locale}.json"
@@ -257,7 +254,7 @@ def collect_replacements(
         messages = load_json(path)
         if locale == "zh_cn":
             continue
-        locale_replacements: Dict[str, str] = {}
+        locale_replacements: dict[str, str] = {}
         for route in routes:
             label, failed, render_errors = render_route(route, locale, messages)
             errors.extend(render_errors)

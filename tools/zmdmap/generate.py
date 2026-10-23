@@ -3,13 +3,14 @@
 各份数据一律先出原始形态（只带游戏世界坐标）进 ``--out-dir``，再入库到 ``--data-dir``：需要投影的按
 BaseNav 的 zone 表补上底图像素，不需要投影的原样复制；``--raw-only`` 时只出原始形态。
 
-``version`` 只在这里写：取 :func:`tools.zmdmap.utils.sync.data_version`（兄弟仓库数据里的构建号 >
-提交标题）或 ``--version``，写到每份原始数据的最前面；入库与 ``fetch`` 都只沿用，不改它。
+``version`` 只在这里写，且必须是完整标签（客户端版本 + 构建号，如 ``1.6.4+11262943-8``）：取
+``--version``（发布端显式传），其次
+:func:`tools.zmdmap.utils.version.data_version`（兄弟仓库的 ledger 构建号 + 提交标题里的 ``Client:``），再次
+:func:`tools.zmdmap.utils.version.data_version_from_path`（数据目录路径里的 ``initial_…_main_…``，只有构建号
+那一半）。都拿不到、或只凑到一半，就直接报错，不生成没有版本或版本不全的数据。写到每份原始数据的最前面；
+入库与 ``fetch`` 都只沿用，不改它。
 """
 
-from __future__ import annotations
-
-import json
 import time
 from collections.abc import Sequence
 from pathlib import Path
@@ -34,40 +35,37 @@ from .utils.datafile import (
     VERSION_KEY,
     is_unchanged,
     read_payload_hash,
-    read_version,
     with_metadata,
     write_json,
 )
-from .utils.sync import (
+from .utils.log import logger
+from .utils.version import (
+    data_version,
+    data_version_from_path,
+    is_complete_version,
+    normalize_version,
+    repo_data_version,
+)
+from .utils.workspace import (
     SYNC_MARK_UNKNOWN,
     SYNC_MARKS,
-    data_version,
     preflight,
-    repo_data_version,
     sync_workspace,
 )
 
 # 路径是怎么定下来的，日志里说清楚（CI 上排查「读的是哪份数据」时最有用）。
-_SOURCE_LABELS = {
+_SOURCE_LABELS: dict[click.core.ParameterSource, str] = {
     click.core.ParameterSource.COMMANDLINE: "命令行",
     click.core.ParameterSource.ENVIRONMENT: "环境变量",
     click.core.ParameterSource.DEFAULT: "默认",
 }
 
 
-def should_skip(output_path: Path, data: Any, force: bool) -> bool:
-    if force or not output_path.is_file():
-        return False
-    try:
-        current = json.loads(output_path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return False
-    return current == data
-
-
 def parameter_source(ctx: click.Context, name: str) -> str:
     """这个参数的值是命令行给的、环境变量给的，还是没给走的默认值。"""
     source = ctx.get_parameter_source(name)
+    if source is None:
+        return "默认"
     return _SOURCE_LABELS.get(source, "默认")
 
 
@@ -111,15 +109,14 @@ def generate_datasets(
     out_dir: Path,
     data_dir: Path,
     *,
-    version: str | None,
+    version: str,
     force: bool,
 ) -> int:
     """跑 ``build`` 并把原始形态落到 ``out_dir``；返回成功生成的份数。
 
-    每份数据都在最前面写上元数据：版本取 ``--version`` / 从兄弟仓库读到的版本（形如
-    ``1.6.3+11010254-4``：客户端版本 + 数据构建号），都读不到就沿用已有文件里的版本（本地重算不会
-    凭空改掉版本号）；``sha256`` 是这份数据原始形态的内容指纹，按这次生成的本体重算 —— 只有这里算它，
-    入库与 ``fetch`` 都照抄。
+    每份数据都在最前面写上元数据：``version`` 是调用方定好的完整标签（``1.6.3+11010254-4``，客户端版本与
+    构建号都在，调用前已校验）；``sha256`` 是这份数据原始形态的内容指纹，按这次生成的本体重算 —— 只有这里
+    算它，入库与 ``fetch`` 都照抄。
     """
     written = 0
     for dataset in datasets:
@@ -128,16 +125,15 @@ def generate_datasets(
             data = dataset.build(table_cfg_dir, json_data_dir)
         except (OSError, ValueError) as error:
             raise click.ClickException(f"[{dataset.name}] {error}") from error
-        stamp = version or read_version(output_path) or read_version(data_dir / dataset.file_name)
-        data = with_metadata(data, stamp)
-        if should_skip(output_path, data, force):
-            click.echo(f"[{dataset.name}] 生成结果未变化，跳过写入：{output_path}")
+        data = with_metadata(data, version)
+        if not force and is_unchanged(output_path, data):
+            logger.info(f"{dataset.name} 生成结果未变化，跳过写入：{output_path}")
             continue
         try:
             write_json(output_path, data)
         except OSError as error:
             raise click.ClickException(f"[{dataset.name}] 写入失败：{error}") from error
-        click.echo(f"[{dataset.name}] 已生成：{output_path}")
+        logger.info(f"{dataset.name} 已生成：{output_path}")
         written += 1
     return written
 
@@ -189,7 +185,7 @@ def generate_datasets(
     "--version",
     "data_version_option",
     default=None,
-    help="写进每份数据的版本，形如 1.6.3+11010254-4（客户端版本+数据构建号；默认从兄弟仓库读，都读不到就沿用原有的）",
+    help="写进每份数据的版本，形如 1.6.4+11262943-8（客户端版本+数据构建号，两半都要有）；不给就从兄弟仓库读，读不到就报错",
 )
 @click.option(
     "--raw-only",
@@ -225,7 +221,7 @@ def generate_command(
     if list_datasets:
         for dataset in DATASETS:
             how = "投影" if dataset.needs_projection else "复制"
-            click.echo(f"{dataset.name}\t{dataset.file_name}\t{how}")
+            logger.info(f"{dataset.name}\t{dataset.file_name}\t{how}")
         return
 
     # click 的 envvar 已经把环境变量填进参数值了，这里只补最后的默认值。
@@ -238,60 +234,73 @@ def generate_command(
     pipeline_files = files_of(datasets, projected=True)
     plain_files = files_of(datasets, projected=False)
 
-    click.echo(f"[zmdmap] 工作区（兄弟仓库）：{workspace}（{parameter_source(ctx, 'workspace')}）")
-    click.echo(f"[zmdmap] TableCfg：{table_cfg_dir}（{parameter_source(ctx, 'table_cfg_dir')}）")
-    click.echo(f"[zmdmap] JsonData：{json_data_dir}（{parameter_source(ctx, 'json_data_dir')}）")
-    click.echo(f"[zmdmap] 数据集：{len(datasets)} 个（{'、'.join(d.name for d in datasets)}）")
+    logger.info(f"工作区（兄弟仓库）：{workspace}（{parameter_source(ctx, 'workspace')}）")
+    logger.info(f"TableCfg：{table_cfg_dir}（{parameter_source(ctx, 'table_cfg_dir')}）")
+    logger.info(f"JsonData：{json_data_dir}（{parameter_source(ctx, 'json_data_dir')}）")
+    logger.info(f"数据集：{len(datasets)} 个（{'、'.join(d.name for d in datasets)}）")
 
     # 版本优先命令行；否则从兄弟仓库读（数据里的构建号 > 提交标题），工作区里没有兄弟仓库时退回
-    # TableCfg 所在的那个仓库，它通常就是 BeyondTableCfg。
-    detected = data_version(workspace) or repo_data_version(table_cfg_dir.parent)
-    version = data_version_option or detected
-    if version:
-        origin = "命令行" if data_version_option else "兄弟仓库"
-        click.echo(f"[zmdmap] 数据版本：{version}（{origin}）")
-    else:
-        click.echo("[zmdmap] 数据版本：读不到，沿用各份数据原有的版本")
+    # TableCfg 所在的那个仓库，它通常就是 BeyondTableCfg；两处都没有（发布端直接把解包目录递进来）
+    # 就从数据目录路径里认构建号。
+    detected, origin = data_version(workspace), "兄弟仓库"
+    if not detected:
+        detected, origin = repo_data_version(table_cfg_dir.parent), "数据仓库"
+    if not detected:
+        detected, origin = data_version_from_path(table_cfg_dir, json_data_dir), "数据目录路径"
+    # ``--version`` 也认资源构建号的长写法（``1.6.4+initial_11262943-8_main_11262943-8``），统一缩成短号再写。
+    version = normalize_version(data_version_option) if data_version_option else detected
+    if version is None:
+        raise click.ClickException(
+            "拿不到版本：兄弟仓库里没有（ledger 与提交标题都读不到）、数据目录路径里也没有构建号，"
+            "也没给 --version。版本必须写成 客户端版本+构建号（如 1.6.3+11010254-4），请用 --version 指定"
+        )
+    if not is_complete_version(version):
+        raise click.ClickException(
+            f"版本不完整：{version} —— 必须同时有客户端版本和构建号（如 1.6.3+11010254-4）。"
+            "数据目录路径里只有构建号、提交标题里的 Client: 才有客户端版本；凑不齐就用 --version 指定"
+        )
+    logger.info(f"数据版本：{version}（{'命令行' if data_version_option else origin}）")
 
     sync_failed = False
     if sync:
-        click.echo("\n── 同步 ──────────────────────────────────────────")
+        logger.section("同步")
         outcomes, sync_failed = sync_workspace(workspace, dry_run=dry_run)
         for outcome in outcomes:
             mark = SYNC_MARKS.get(outcome.state, SYNC_MARK_UNKNOWN)
-            click.echo(f"  [{mark}] {outcome.name:<20} {outcome.detail}")
+            logger.info(f"[{mark}] {outcome.name:<20} {outcome.detail}")
 
     problems = preflight(
         table_cfg_dir, json_data_dir, check_navmesh=not raw_only and bool(pipeline_files),
         check_json_data=any(dataset.requires_json_data for dataset in datasets),
     )
     if problems:
-        click.echo("\n── 预检提示 ─────────────────────────────────────")
+        logger.section("预检提示")
         for problem in problems:
-            # 只用 GBK 能编出来的字符：Windows 中文控制台编不出 ⚠ / ✘ 会直接抛 UnicodeEncodeError。
-            click.echo(f"  ! {problem}")
+            # 只用 GBK 里有的字符：输出走 click，写不出的字符会被替换成问号而不是报错，但问号同样没法看。
+            logger.warning(f"! {problem}")
 
     if dry_run:
-        click.echo("\n── 将执行（--dry-run，未执行）────────────────────")
-        click.echo(f"  原始数据目录：{out_dir}")
-        click.echo(f"  入库数据目录：{data_dir}")
+        logger.section("将执行（--dry-run，未执行）")
+        logger.info(f"原始数据目录：{out_dir}")
+        logger.info(f"入库数据目录：{data_dir}")
         if raw_only:
-            click.echo("  入库    ：未启用（--raw-only）")
+            logger.info("入库    ：未启用（--raw-only）")
         else:
-            click.echo(f"  投影    ：{len(pipeline_files)} 份 {out_dir} -> {data_dir}")
-            click.echo(f"  复制    ：{len(plain_files)} 份 {out_dir} -> {data_dir}")
-        click.echo("\n--dry-run：没有合并仓库，也没有写任何数据文件")
+            logger.info(f"投影    ：{len(pipeline_files)} 份 {out_dir} -> {data_dir}")
+            logger.info(f"复制    ：{len(plain_files)} 份 {out_dir} -> {data_dir}")
+        logger.info("--dry-run：没有合并仓库，也没有写任何数据文件")
         return
 
     check_input_dir("TableCfg", table_cfg_dir, "--table-cfg-dir", TABLE_CFG_DIR_ENV)
     if any(dataset.requires_json_data for dataset in datasets):
         check_input_dir("JsonData", json_data_dir, "--json-data-dir", JSON_DATA_DIR_ENV)
 
-    click.echo("\n── 生成（原始形态）──────────────────────────────")
+    logger.section("生成（原始形态）")
     started = time.monotonic()
     generated_ok = True
+    written = 0
     try:
-        generate_datasets(
+        written = generate_datasets(
             datasets,
             table_cfg_dir,
             json_data_dir,
@@ -304,13 +313,13 @@ def generate_command(
             out_dir, [dataset.file_name for dataset in datasets], version
         )
         if manifest_path is not None:
-            click.echo(f"  {MANIFEST_FILE} -> {manifest_path}")
+            logger.info(f"{MANIFEST_FILE} -> {manifest_path}")
     except click.ClickException as error:
         generated_ok = False
-        click.echo(f"  x {error.message}")
+        logger.error(f"x {error.message}")
     except OSError as error:
         generated_ok = False
-        click.echo(f"  x 写 {MANIFEST_FILE} 失败：{error}")
+        logger.error(f"x 写 {MANIFEST_FILE} 失败：{error}")
     generate_seconds = time.monotonic() - started
 
     materialized_ok: bool | None = None
@@ -318,31 +327,40 @@ def generate_command(
         materialized_ok = None
     elif not generated_ok:
         materialized_ok = False
-        click.echo("\n── 入库：（跳过：生成失败）───────────────────────")
+        logger.section("入库：（跳过：生成失败）")
     else:
-        click.echo("\n── 入库（原始形态 -> data/）─────────────────────")
+        logger.section("入库（原始形态 -> data/）")
         materialized_ok = True
         try:
             projected = run_projection(out_dir, data_dir, pipeline_files, nav=nav, force=force)
             copied = copy_plain(out_dir, data_dir, plain_files, force=force)
-            click.echo(f"  投影 {projected} 份、复制 {copied} 份")
+            logger.info(f"投影 {projected} 份、复制 {copied} 份")
         except click.ClickException as error:
-            click.echo(f"  x {error.message}")
+            logger.error(f"x {error.message}")
             materialized_ok = False
 
-    click.echo("\n── 汇总 ──────────────────────────────────────────")
+    logger.section("汇总")
     if sync:
-        click.echo(f"同步：{'有失败' if sync_failed else '正常'}")
+        logger.info(f"同步：{'有失败' if sync_failed else '正常'}")
     else:
-        click.echo("同步：未执行（--no-sync）")
-    click.echo(f"生成：{'正常' if generated_ok else '失败'}（{generate_seconds:.1f}s）")
+        logger.info("同步：未执行（--no-sync）")
+    if generated_ok:
+        unchanged = len(datasets) - written
+        logger.info(
+            f"生成：正常（{generate_seconds:.1f}s，重写 {written} 份、未变化 {unchanged} 份）"
+        )
+    else:
+        logger.info(f"生成：失败（{generate_seconds:.1f}s）")
     if materialized_ok is None:
-        click.echo("入库：未执行（--raw-only）")
+        logger.info("入库：未执行（--raw-only）")
     else:
-        click.echo(f"入库：{'正常' if materialized_ok else '失败'}（{data_dir}）")
+        logger.info(f"入库：{'正常' if materialized_ok else '失败'}（{data_dir}）")
     report_data_changes(data_dir, [dataset.file_name for dataset in datasets])
     if data_dir == ZMDMAP_DATA_DIR:
-        click.echo("提示：每份数据最前面写着 version（版本标签）与 sha256（原始形态的内容指纹）；两个字段都只在这里写，入库与 fetch 只沿用。")
+        logger.info(
+            "提示：每份数据最前面写着 version（版本标签）与 sha256（原始形态的内容指纹）。"
+            "sha256 只在这里算一次，入库原样沿用、fetch 核对内容后照抄。"
+        )
 
     if sync_failed or not generated_ok or materialized_ok is False:
         ctx.exit(1)

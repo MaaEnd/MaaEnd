@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>采集路线生成</title>
+    <link rel="stylesheet" href="/mapnav/css/style.css" />
+    <link rel="stylesheet" href="./collect.css" />
+  </head>
+  <body class="collect-page">
+    <div id="app">
+      <!-- 左列与编辑器同一张工作区卡：顶上一行切地图，下面按采集物筛选，最底下是选择与生成 -->
+      <aside class="side-column">
+        <div class="side-card">
+          <nav id="map-rail" class="rail" aria-label="地图"></nav>
+
+          <div id="sidebar">
+            <!-- 稀有与常规是两类路线、两批采集物：先选类别，列表与地图只列这一类 -->
+            <section class="sidebar-section panel-map">
+              <div id="route-kind" class="project-node-kinds" role="group" aria-label="路线类别">
+                <button class="project-node-kind active" type="button" data-kind="rare" aria-pressed="true">
+                  稀有采集物
+                </button>
+                <button class="project-node-kind" type="button" data-kind="common" aria-pressed="false">
+                  常规采集物
+                </button>
+              </div>
+              <input id="type-search" class="entry" type="search" placeholder="搜索采集物名称" />
+              <div class="io-row io-row-2">
+                <button id="types-all" class="btn btn-secondary" type="button">全部显示</button>
+                <button id="types-none" class="btn btn-secondary" type="button">全部隐藏</button>
+              </div>
+            </section>
+
+            <section class="sidebar-section panel-main">
+              <div class="waypoint-list-header">
+                <span>采集物</span>
+                <span class="waypoint-list-hint">勾选显示 · 右侧为本图点数</span>
+              </div>
+              <div id="type-list" class="waypoint-list"></div>
+            </section>
+
+            <section class="sidebar-section panel-io">
+              <div class="start-head">
+                <span id="selection-count" class="start-label">未选择采集物</span>
+                <button id="selection-clear" class="btn-ghost start-clear" type="button" title="清空选择 (Esc)">
+                  清空
+                </button>
+              </div>
+              <div id="selection-summary" class="sidebar-hint" hidden></div>
+              <button id="route-preview" class="btn btn-primary btn-block" type="button" disabled>生成稀有路线</button>
+            </section>
+          </div>
+        </div>
+      </aside>
+
+      <div id="main-content">
+        <div id="canvas-wrap">
+          <canvas id="gl-canvas"></canvas>
+          <canvas id="marker-canvas"></canvas>
+          <canvas id="overlay-canvas"></canvas>
+
+          <div class="map-bar">
+            <!-- 框选是主操作，平移不占左键，不设工具切换 -->
+            <div class="map-tools" role="note" aria-label="操作说明">
+              <span class="collect-map-hint">
+                左键拖动框选（Shift 追加，Ctrl / ⌘ 减选）· 单击切换单个采集物 · 右键或中键拖动、按住空格或 Alt 拖动平移
+              </span>
+            </div>
+
+            <div class="map-view-controls" role="group" aria-label="视图控制">
+              <button id="btn-zoom-in" class="btn btn-float" type="button" title="放大">
+                <svg
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  <line x1="11" y1="8" x2="11" y2="14"></line>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                </svg>
+              </button>
+              <button id="btn-zoom-out" class="btn btn-float" type="button" title="缩小">
+                <svg
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                </svg>
+              </button>
+              <button id="btn-fit-view" class="btn btn-float" type="button" title="自适应大小">
+                <svg
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="M15 3h6v6M9 21H3v-6M21 15v6h-6M3 9V3h6M21 3l-7 7M3 21l7-7"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- 生成结果跟编辑器的检视框同一副面孔，浮在画布右上 -->
+          <div class="canvas-right-panels">
+            <div class="context-panel">
+              <div id="route-box" class="log-distance-box" hidden>
+                <div class="log-distance-header">
+                  <span id="route-title" class="log-distance-title">路线预览</span>
+                  <button id="route-clear" class="btn btn-secondary btn-sm" type="button">清除</button>
+                </div>
+                <dl id="route-facts" class="log-point-detail"></dl>
+                <div class="collect-route-names">
+                  <span class="sidebar-label">路线名称（各语言）</span>
+                  <div id="route-names" class="collect-route-names-grid"></div>
+                </div>
+                <div class="io-row io-row-2">
+                  <button id="copy-route" class="btn btn-secondary btn-sm" type="button">复制路线文件</button>
+                  <button id="copy-path" class="btn btn-secondary btn-sm" type="button">复制 path</button>
+                </div>
+                <button id="route-apply" class="btn btn-primary btn-block" type="button">写入任务</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="legend-panel">
+            <div id="collect-legend" class="legend-card"></div>
+          </div>
+        </div>
+
+        <div id="footer-status-bar">
+          <div id="status-label" class="status-line">正在读取采集物数据…</div>
+          <div class="footer-spacer"></div>
+          <div id="view-label" class="locator-line"></div>
+        </div>
+      </div>
+    </div>
+    <!-- 写入前确认：要改动的文件逐个列出来 -->
+    <div id="apply-dialog" class="modal" role="dialog" aria-labelledby="apply-dialog-title" hidden>
+      <div class="modal-panel">
+        <h2 id="apply-dialog-title" class="modal-title">写入任务</h2>
+        <p id="apply-dialog-hint" class="modal-hint"></p>
+        <dl id="apply-dialog-files" class="log-point-detail"></dl>
+        <div class="modal-actions">
+          <button id="apply-dialog-cancel" class="btn btn-secondary" type="button">取消</button>
+          <button id="apply-dialog-ok" class="btn btn-primary" type="button">写入</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

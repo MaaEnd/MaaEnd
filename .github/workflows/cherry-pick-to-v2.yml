@@ -101,8 +101,8 @@ jobs:
 
           # checkout 之前没有 git remote，必须显式指定 --repo
           PR_JSON="$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json title,body)"
-          PR_TITLE="$(printf '%s' "$PR_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["title"])')"
-          PR_BODY="$(printf '%s' "$PR_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("body") or "")')"
+          PR_TITLE="$(printf '%s' "$PR_JSON" | jq -r '.title')"
+          PR_BODY="$(printf '%s' "$PR_JSON" | jq -r '.body // ""')"
 
           {
             echo "pr_title<<PRTITLE_EOF"
@@ -126,6 +126,12 @@ jobs:
           ref: v2
           # cherry-pick 需要访问 release 分支上的 commit，必须全量 clone
           fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v10.3.0
+        if: steps.pr.outputs.proceed == 'true' && steps.precheck.outputs.exists != 'true'
+        with:
+          enable-cache: true
+          cache-python: true
 
       - name: Cherry-pick merge commit and push fix branch
         if: steps.pr.outputs.proceed == 'true' && steps.precheck.outputs.exists != 'true'
@@ -199,8 +205,8 @@ jobs:
             exit 0
           fi
 
-          # 用 python 拼接原 PR body + footer，避免 shell 注入
-          PR_BODY="$(python3 -c "
+          # 用 uv 管理的 python 拼接原 PR body + footer，避免 shell 注入
+          PR_BODY="$(uv run python -c "
           import os
           original = os.environ.get('PR_BODY', '') or ''
           n = os.environ['PR_NUMBER']

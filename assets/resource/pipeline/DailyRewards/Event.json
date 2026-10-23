@@ -124,7 +124,7 @@
                 "template": [
                     "DailyRewards/Event/EventSwitchSuccess.png"
                 ],
-                "threshold": 0.9
+                "threshold": 0.85
             }
         }
     },
@@ -144,7 +144,7 @@
                 "template": [
                     "DailyRewards/Event/EventSwitchSuccess.png"
                 ],
-                "threshold": 0.9
+                "threshold": 0.85
             }
         }
     },

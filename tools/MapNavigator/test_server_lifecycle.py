@@ -1,12 +1,9 @@
-from __future__ import annotations
-
 import asyncio
 import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from connection_models import RecordingSessionConfig
-
 from web import serve
 
 

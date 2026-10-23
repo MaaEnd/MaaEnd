@@ -8,14 +8,12 @@
 - 输出：每个 location 含 name、level_id、slot2_ids/slot3_ids（当前 skill_pools 的 id）、slot2/slot3（完整条目）。
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import sys
 import unicodedata
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import json5
 
@@ -40,7 +38,7 @@ _TC_TO_SC = str.maketrans("強藝", "强艺")
 # slot2 基名歧义：
 # - strip 提升 会得到「源石技艺」，对应 pool 的「源石技艺强度」
 # - strip 效率提升 会得到「终结技」，对应 pool 的「终结技充能」
-SLOT2_STEM_ALIAS: Dict[str, str] = {
+SLOT2_STEM_ALIAS: dict[str, str] = {
     "源石技艺": "源石技艺强度",
     "终结技": "终结技充能",
 }
@@ -116,7 +114,7 @@ def main() -> int:
     pool2_by_cn = {_norm_key(e.get("cn") or ""): e for e in pool_slot2}
     pool3_by_cn = {_norm_key(e.get("cn") or ""): e for e in pool_slot3}
 
-    out_locations: List[Dict[str, Any]] = []
+    out_locations: list[dict[str, Any]] = []
     seen_names: set[str] = set()
 
     for loc in energy_points:
@@ -141,10 +139,10 @@ def main() -> int:
                 f"location {name!r}: secAttrTermNames 或 skillTermNames 不是数组"
             )
 
-        slot2_entries: List[Dict[str, Any]] = []
-        slot3_entries: List[Dict[str, Any]] = []
+        slot2_entries: list[dict[str, Any]] = []
+        slot3_entries: list[dict[str, Any]] = []
 
-        missing_slot2: List[str] = []
+        missing_slot2: list[str] = []
         for raw in sec_terms:
             if not isinstance(raw, str):
                 continue
@@ -156,7 +154,7 @@ def main() -> int:
                 continue
             slot2_entries.append(matched)
 
-        missing_slot3: List[str] = []
+        missing_slot3: list[str] = []
         for raw in skill_terms:
             if not isinstance(raw, str):
                 continue

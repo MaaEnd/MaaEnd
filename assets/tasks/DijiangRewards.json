@@ -20,10 +20,8 @@
                 "Win32-Front"
             ],
             "option": [
-                "AutoStartExchange",
                 "StageTaskSetting",
                 "ClueSetting",
-                "QuickGiveDuplicateClues",
                 "SelectToGrow"
             ]
         }
@@ -32,7 +30,6 @@
         "AutoStartExchange": {
             "type": "switch",
             "label": "$option.AutoStartExchange.label",
-            "description": "$option.AutoStartExchange.description",
             "cases": [
                 {
                     "name": "Yes",
@@ -42,6 +39,9 @@
                     "pipeline_override": {
                         "ReceptionRoomStartExchange": {
                             "enabled": true
+                        },
+                        "ReceptionRoomSetCluesQuickAdd": {
+                            "enabled": true
                         }
                     }
                 },
@@ -49,6 +49,9 @@
                     "name": "No",
                     "pipeline_override": {
                         "ReceptionRoomStartExchange": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSetCluesQuickAdd": {
                             "enabled": false
                         },
                         "ReceptionRoomWaitExchangeBeforeStart": {
@@ -60,7 +63,7 @@
                     }
                 }
             ],
-            "default_case": "No"
+            "default_case": "Yes"
         },
         "WaitExchangeBeforeStart": {
             "type": "switch",
@@ -148,7 +151,37 @@
                     ]
                 },
                 {
-                    "name": "No"
+                    "name": "No",
+                    "pipeline_override": {
+                        "RecoveryEmotionMain": {
+                            "enabled": true
+                        },
+                        "RecoveryEmotionCabinControlNexus": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        },
+                        "RecoveryEmotionCabinReceptionRoom": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        },
+                        "RecoveryEmotionCabinGrowthChamberI": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        },
+                        "RecoveryEmotionCabinManufacturingI": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        },
+                        "RecoveryEmotionCabinManufacturingII": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        }
+                    }
                 }
             ],
             "default_case": "No"
@@ -160,11 +193,58 @@
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "FastCollectClue",
+                        "FastCollectProduction"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DijiangRewardsFastCollectClues": {
+                            "enabled": false
+                        },
+                        "DijiangRewardsFastCollectProduction": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "FastCollectClue": {
+            "type": "switch",
+            "label": "$option.FastCollectClue.label",
+            "description": "$option.FastCollectClue.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DijiangRewardsFastCollectClues": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DijiangRewardsFastCollectClues": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "FastCollectProduction": {
+            "type": "switch",
+            "label": "$option.FastCollectProduction.label",
+            "description": "$option.FastCollectProduction.description",
+            "cases": [
+                {
+                    "name": "Yes",
                     "pipeline_override": {
                         "DijiangRewardsFastCollectProduction": {
-                            "enabled": true
-                        },
-                        "DijiangRewardsFastCollectClues": {
                             "enabled": true
                         }
                     }
@@ -174,14 +254,11 @@
                     "pipeline_override": {
                         "DijiangRewardsFastCollectProduction": {
                             "enabled": false
-                        },
-                        "DijiangRewardsFastCollectClues": {
-                            "enabled": false
                         }
                     }
                 }
             ],
-            "default_case": "No"
+            "default_case": "Yes"
         },
         "RecoveryEmotionStage": {
             "type": "switch",
@@ -368,18 +445,39 @@
                 {
                     "name": "Yes",
                     "option": [
+                        "AutoStartExchange",
                         "SendCluesDirect",
                         "ClueSend",
-                        "ClueStockLimit"
+                        "ClueStockLimit",
+                        "QuickGiveDuplicateClues",
+                        "CustomSendClues"
                     ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "ReceptionRoomSendCluesSelectClues": {
+                        "ReceptionRoomSendCluesSendMain": {
                             "max_hit": 3
                         },
-                        "ClueItemCount": {
+                        "ClueOneCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueTwoCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueThreeCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueFourCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueFiveCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueSixCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueSevenCount": {
                             "expected": "^(?:[3-9]|[1-9]\\d+)$"
                         }
                     }
@@ -411,10 +509,165 @@
             ],
             "default_case": "No"
         },
+        "CustomSendClues": {
+            "type": "switch",
+            "label": "$option.ClueSendCustomize.label",
+            "description": "$option.ClueSendCustomize.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "CustomSendCluesCheckbox"
+                    ],
+                    "pipeline_override": {
+                        "ReceptionRoomSendClueOne": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendClueTwo": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendClueThree": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendClueFour": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendClueFive": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendClueSix": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendClueSeven": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendCluesQuickGiveDuplicates": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendCluesSwipe": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ReceptionRoomSendClueOne": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomSendClueTwo": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomSendClueThree": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomSendClueFour": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomSendClueFive": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomSendClueSix": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomSendClueSeven": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
+        "CustomSendCluesCheckbox": {
+            "type": "checkbox",
+            "label": "$option.ClueSendCustomizeCheckbox.label",
+            "description": "$option.ClueSendCustomizeCheckbox.description",
+            "cases": [
+                {
+                    "name": "UWST",
+                    "label": "$option.ClueSendCustomize.cases.UWST.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue001.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendClueOne": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "TGCC",
+                    "label": "$option.ClueSendCustomize.cases.TGCC.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue002.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendClueTwo": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "HAS",
+                    "label": "$option.ClueSendCustomize.cases.HAS.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue003.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendClueThree": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "SteelOath",
+                    "label": "$option.ClueSendCustomize.cases.SteelOath.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue004.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendClueFour": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Tranquility",
+                    "label": "$option.ClueSendCustomize.cases.Tranquility.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue005.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendClueFive": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Hannabit",
+                    "label": "$option.ClueSendCustomize.cases.Hannabit.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue006.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendClueSix": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Sesqa",
+                    "label": "$option.ClueSendCustomize.cases.Sesqa.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue007.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendClueSeven": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ],
+            "default_case": [
+                "UWST",
+                "TGCC",
+                "HAS",
+                "SteelOath",
+                "Tranquility",
+                "Hannabit",
+                "Sesqa"
+            ],
+            "min_count": 1
+        },
         "QuickGiveDuplicateClues": {
             "type": "switch",
             "label": "$option.QuickGiveDuplicateClues.label",
-            "description": "$option.QuickGiveDuplicateClues.description",
             "cases": [
                 {
                     "name": "Yes",
@@ -447,7 +700,7 @@
                 }
             ],
             "pipeline_override": {
-                "ReceptionRoomSendCluesSelectClues": {
+                "ReceptionRoomSendCluesSendMain": {
                     "max_hit": "{MaxClueSend}"
                 }
             }
@@ -458,10 +711,55 @@
             "description": "$option.ClueStockLimit.description",
             "cases": [
                 {
+                    "name": "0",
+                    "label": "$option.ClueStockLimit.cases.0.label",
+                    "pipeline_override": {
+                        "ClueOneCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueTwoCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueThreeCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueFourCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueFiveCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueSixCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueSevenCount": {
+                            "expected": "^[1-9]\\d*$"
+                        }
+                    }
+                },
+                {
                     "name": "1",
                     "label": "$option.ClueStockLimit.cases.1.label",
                     "pipeline_override": {
-                        "ClueItemCount": {
+                        "ClueOneCount": {
+                            "expected": "^(?:[2-9]|[1-9]\\d+)$"
+                        },
+                        "ClueTwoCount": {
+                            "expected": "^(?:[2-9]|[1-9]\\d+)$"
+                        },
+                        "ClueThreeCount": {
+                            "expected": "^(?:[2-9]|[1-9]\\d+)$"
+                        },
+                        "ClueFourCount": {
+                            "expected": "^(?:[2-9]|[1-9]\\d+)$"
+                        },
+                        "ClueFiveCount": {
+                            "expected": "^(?:[2-9]|[1-9]\\d+)$"
+                        },
+                        "ClueSixCount": {
+                            "expected": "^(?:[2-9]|[1-9]\\d+)$"
+                        },
+                        "ClueSevenCount": {
                             "expected": "^(?:[2-9]|[1-9]\\d+)$"
                         }
                     }
@@ -470,7 +768,25 @@
                     "name": "2",
                     "label": "$option.ClueStockLimit.cases.2.label",
                     "pipeline_override": {
-                        "ClueItemCount": {
+                        "ClueOneCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueTwoCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueThreeCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueFourCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueFiveCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueSixCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueSevenCount": {
                             "expected": "^(?:[3-9]|[1-9]\\d+)$"
                         }
                     }
