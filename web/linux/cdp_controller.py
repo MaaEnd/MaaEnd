@@ -169,6 +169,11 @@ class CdpController:
             self._cap = _Sess(url)
             self._io = _Sess(url)
             self._refresh_rect()
+            # 起跑前先确认能真的抓到一帧：连得上但抓不到帧（页面还没加载完）
+            # 会让整批任务在"识别全失败"里空转，不如早点判定。
+            self._latest = self._grab(self._cap)
+            self._latest_t = time.time()
+            self._dirty = False
             self._start_worker()
             return True
         except Exception:
@@ -177,6 +182,16 @@ class CdpController:
     def _refresh_rect(self):
         v = self._io.ev(self.JS_RECT)
         if not v:
+            # 启动页/登录页没有 <video>。这时必须按页面视口映射：
+            # 抓帧是 1280x720，而 CSS 视口通常是 1707x960（DSF 1.5），
+            # 少了这层缩放，点击会整体偏左上（曾经表现为「Click 成功但游戏不启动」）。
+            vp = self._io.ev("JSON.stringify({w:window.innerWidth,h:window.innerHeight})")
+            if vp:
+                d = json.loads(vp)
+                if d.get("w") and d.get("h"):
+                    self._rect = (0.0, 0.0, float(d["w"]), float(d["h"]))
+                    self._vw = self._vh = 0
+                    return True
             self._rect = None
             return False
         d = json.loads(v)
@@ -231,11 +246,22 @@ class CdpController:
         self.last_ms = (time.time() - t0) * 1000
         return np.asarray(img)[:, :, ::-1].copy()          # MaaFw 要 BGR
 
+    def _ensure_sess(self) -> "_Sess":
+        """抓帧连接可能因页面刷新/浏览器重启而失效，这里按需重建。"""
+        if self._cap is None:
+            self._cap = _Sess(self._target_url())
+        return self._cap
+
     def screencap(self) -> np.ndarray:
         age = (time.time() - self._latest_t) * 1000
         if not self._dirty and self._latest is not None and age < self.max_age_ms:
             return self._latest.copy()          # 预抓线程已备好，直接给
-        frame = self._grab(self._cap)           # 动作后/过期 → 同步取新帧（约 190ms）
+        try:
+            frame = self._grab(self._ensure_sess())   # 动作后/过期 → 同步取新帧（约 190ms）
+        except Exception:
+            # 连接已断（浏览器重启/页面跳转）：重建一次再试，仍失败就抛给框架
+            self._cap = None
+            frame = self._grab(self._ensure_sess())
         self._latest, self._latest_t = frame, time.time()
         self._dirty = False
         return frame.copy()

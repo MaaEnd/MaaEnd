@@ -245,3 +245,33 @@ MaaFw 不做模板缩放 → 改抓帧分辨率会让 650 个模板全部失效�
 
 同时修 `resolve_preset.ROOT` 默认回落到 Windows 安装目录的问题（导致直跑时
 自有任务被判「未知任务」）。归档副本在 `archive_wsl_20261023/`，tag `web-cdp-20261023`。
+---
+
+## 2026-10-23 16:5x · CDP 控制器设为默认 + 三个真 bug
+
+`--controller` 默认值从 `wlroots` 改为 `cdp`（`MAAEND_CONTROLLER=wlroots` 可退回），
+并加**显式回退**：CDP 连不上时日志打印 `[!] CDP 控制器连接失败，回退到 wlroots`，不静默降级。
+
+### 修掉的三处（都是实测踩出来的）
+
+1. **灰度匹配分数不够** —— `WebLauncherStartButton` 模板是从合成器帧抠的，
+   在 `Page.captureScreenshot` 帧上 RGB NCC 0.9919，但 MaaFw 用**灰度**匹配只有 **0.9013**
+   （阈值 0.95），日志里 0.9160 反复失败。→ 新增 `web/linux/resource_web_cdp/image/WebStartGame/StartButton.png`，
+   只在 `--controller cdp` 时作为最后一层追加（homesrv 合成器路径不受影响）。改后分数 **1.000000**。
+
+2. **无 video 时点击坐标没有缩放** —— 坐标换算原来只认 `<video>` 的 rect；启动页没有 video，
+   于是 1280x720 的点击坐标被当成 CSS 坐标直接派发（CSS 视口是 1707x960，差 1.33 倍），
+   表现为「Click 成功但游戏不启动」。→ `_refresh_rect()` 在无 video 时回落到 `window.innerWidth/Height`。
+   改后点 (1017,540) → CSS (1356.3,720)，云会话正常拉起（video 1920x1080）。
+
+3. **标题页「点击任意位置继续」没有任何节点覆盖** —— 原 `__ScenePrivateCloudClickToContinue`
+   期望的是「点击屏幕继续」且 ROI 在底部中间 `[440,630,400,90]`，
+   而游戏标题页写的是「点击任意位置继续」，位置在右中 `≈(1205,380)`。→ 新增
+   `WebTitleClickToContinue`（OCR，ROI `[300,300,980,420]`）+ `WebWaitInGame`（轮询等待加载，
+   timeout 180s），插到 `WebStartGameEntry` / `WebLauncherStartButton` 的 next 首位。
+
+### 验证（默认控制器，无 `--controller` 参数）
+
+- 启动器 `开始游戏` 命中 1.000000 → Click 生效 → 云会话拉起（video 1920x1080）
+- 标题页 OCR 命中 → 点击 → 进入 NOW LOADING 界面
+- 加载完成后 `WebAlreadyInGame` 命中 → `WebStartGame OK 1.0s`，`通过 1 / 1`

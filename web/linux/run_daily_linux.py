@@ -171,8 +171,9 @@ def main():
     ap.add_argument("--skip-in-game-check", action="store_true")
     ap.add_argument("--no-agent", action="store_true")
     ap.add_argument("--dry-run", action="store_true", help="只打印要跑的任务，不连控制器")
-    ap.add_argument("--controller", default=os.environ.get("MAAEND_CONTROLLER", "wlroots"),
-                    choices=["wlroots", "cdp"], help="wlroots=合成器截图；cdp=云串流原生帧")
+    ap.add_argument("--controller", default=os.environ.get("MAAEND_CONTROLLER", "cdp"),
+                    choices=["wlroots", "cdp"],
+                    help="cdp=云串流原生帧（默认，锐度 +134%）；wlroots=合成器截图（兜底）")
     a = ap.parse_args()
 
     from maa.resource import Resource
@@ -211,12 +212,21 @@ def main():
             log("  %2d. %-22s -> %-32s 覆盖 %d 项" % (i, p["name"], p["entry"], p["n_override"]))
         return 0
 
+    # CDP 路径的模板要单独一层：无视频时走 Page.captureScreenshot，
+    # 渲染与合成器帧有细微差异，灰度匹配分数会掉到 0.90~0.92（阈值 0.95）。
+    # 这一层只在 --controller cdp 下追加，homesrv 的合成器路径不受影响。
+    dirs = list(DIRS)
+    if a.controller == "cdp":
+        _cdp_layer = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resource_web_cdp")
+        if os.path.isdir(_cdp_layer):
+            dirs.append(_cdp_layer)
+
     res = Resource()
-    missing = [d for d in DIRS if not os.path.isdir(d)]
+    missing = [d for d in dirs if not os.path.isdir(d)]
     if missing:
         for d in missing:
             log("  ! 资源目录不存在，已跳过: %s" % d)
-    for d in [x for x in DIRS if os.path.isdir(x)]:
+    for d in [x for x in dirs if os.path.isdir(x)]:
         job = res.post_bundle(d)
         job.wait()
     log("资源加载: %s" % res.loaded)
@@ -243,7 +253,20 @@ def main():
     _conn = _conn() if callable(_conn) else bool(_conn)
     log("控制器: %s connected=%s" % (a.controller, _conn))
     if not _conn:
-        return 4
+        if a.controller != "cdp":
+            return 4
+        # CDP 连不上（浏览器没起来 / 端口没开）不能让整批任务白跑：
+        # 退回合成器截图，并在日志里显式标注，避免"静默降级"看不见。
+        log("[!] CDP 控制器连接失败，回退到 wlroots（合成器截图）")
+        from maa.controller import WlRootsController
+
+        ctrl = WlRootsController(SOCK, use_win32_vk_code=True)
+        ctrl.post_connection().wait()
+        _conn = getattr(ctrl, "connected", False)
+        _conn = _conn() if callable(_conn) else bool(_conn)
+        log("控制器: wlroots(回退) connected=%s" % _conn)
+        if not _conn:
+            return 4
 
     tasker = Tasker()
     tasker.bind(res, ctrl)
