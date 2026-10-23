@@ -69,3 +69,22 @@ MAA_SAVE_DRAW=1 python3 run_daily_linux.py --tasks EnvironmentMonitoring --insta
 
 2026-10-23 00:10 的 homesrv 全量 9 项 `9/9 rc=0`，环境监测当天通过；
 历史上那批 `EnvironmentMonitoringFinish` 失败集中在 10-21 的日志里。
+
+## 6. A/B 对照：与 CDP 抓帧无关（2026-10-23 17:5x）
+
+同样预设、同一台机器，仅把控制器从 `cdp` 换回 `wlroots`（合成器帧），环境监测**照样失败**：
+
+| 控制器 | 结果 | `XiraniteNexusInQuickTeleportMap` | `__CameraScanMove*` |
+|---|---|---|---|
+| cdp | FAIL（163.5s，含重试） | 832 次 / 412 失败（49.5%） | 0 |
+| wlroots | FAIL（177.2s + 83.1s） | 516 次 / 250 失败（48.4%） | 0 |
+
+同一屏背靠背抓帧对比：两帧均 1280x720，平均像素差 3.26；10 个模板的灰度 NCC 平均差
+（cdp − wlroots）= −0.0085（噪声量级）。即 CDP 帧在灰度匹配上没有系统性劣势。
+
+> 启动页那条 0.90 的坑是另一回事：无 `<video>` 时走 `Page.captureScreenshot`，
+> 已用独立模板层 `resource_web_cdp` 修掉，与游戏内画面无关。
+
+结论：环境监测的失败属于**任务流程/状态**问题，不是换画面引起；
+同类问题的当期清单：① WebStartGame 单项超时 60s 偏短；② 任务间未归位（上一项留在菜单）；
+③ 环境监测「追踪→任务地图」未成功；④ AutoCollect 恢复链回不去大世界。修复延后。
