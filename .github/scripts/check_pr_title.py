@@ -54,6 +54,8 @@ TITLE_RE = re.compile(r"^(?P<type>[A-Za-z]+)(?:\((?P<scope>[^()\r\n]*)\))?(?P<ba
 # 分组串带 "<!-- N -->" 排序前缀，例如 "<!-- 0 -->✨ 新功能"
 GROUP_PREFIX_RE = re.compile(r"^<!--\s*\d+\s*-->\s*")
 REVERT_RE = re.compile(r'^Revert "')
+# 该标记让 git-cliff 整条提交不进更新日志；写在标题里时先剥掉再校验格式，否则可以拿它绕过检查
+SKIP_MARKER_RE = re.compile(r"\[skip changelog\]", re.IGNORECASE)
 
 
 class CliffError(Exception):
@@ -143,6 +145,7 @@ def suggest_type(type_name: str) -> str:
 
 def describe_format_issue(title: str) -> str:
     """标题不匹配 类型(范围): 描述 时，指出具体是哪里写错了。"""
+    title = SKIP_MARKER_RE.sub("", title)
     if "：" in title:
         return "冒号须为半角 `:`，检测到全角 `：`"
     if re.match(r"^[A-Za-z]+ *:", title):
@@ -161,12 +164,18 @@ def judge(title: str, injected: dict | None, valid_groups: set[str]) -> list[Pro
         return [
             Problem(ERROR, "PR 标题是空的", "请按 `类型(范围): 描述` 填写，例如 `feat(OutpostTrading): 新增自动售卖`")
         ]
+    # 标记会让整条提交不进更新日志，所以剥掉后照样校验格式，否则加个标记就能绕过检查
+    skip_marker = SKIP_MARKER_RE.search(text) is not None
+    if skip_marker:
+        text = SKIP_MARKER_RE.sub("", text).strip()
+    if not text:
+        return [Problem(ERROR, "PR 标题只有 `[skip changelog]` 标记，缺少实际内容", "示例：`chore: 同步资源`")]
     if injected is None:
         return [
             Problem(
                 WARNING,
                 "标题含 `[skip changelog]`，这个 PR 不会出现在更新日志里",
-                "该标记一般只给 bot 的自动提交用，请写在 PR 描述里而不是标题里",
+                "这个标记一般只给 bot 的自动提交用，请写在 PR 描述里而不是标题里",
             ),
         ]
     if REVERT_RE.match(text):
@@ -185,7 +194,7 @@ def judge(title: str, injected: dict | None, valid_groups: set[str]) -> list[Pro
 
     if match is None:
         message = f"标题不符合 `类型(范围): 描述` 格式：{describe_format_issue(text)}"
-        if group is None:
+        if group is None and not skip_marker:
             message += "；合并后这条提交会从更新日志里消失"
         return [Problem(ERROR, message, "示例：`feat(OutpostTrading): 新增自动售卖`")]
 
@@ -228,6 +237,14 @@ def judge(title: str, injected: dict | None, valid_groups: set[str]) -> list[Pro
         problems.append(Problem(ERROR, f"类型须全小写，`{type_name}` 应写作 `{type_name.lower()}`"))
     if not conventional and desc and match is not None:
         problems.append(Problem(ERROR, "git-cliff 无法把这条标题解析为约定式提交", describe_format_issue(text)))
+    if skip_marker:
+        problems.append(
+            Problem(
+                WARNING,
+                "标题含 `[skip changelog]`，这个 PR 不会出现在更新日志里",
+                "这个标记一般只给 bot 的自动提交用，请写在 PR 描述里而不是标题里",
+            )
+        )
     return problems
 
 
@@ -287,8 +304,10 @@ def main(argv: list[str] | None = None) -> int:
     reports: list[str] = []
     exit_code = 0
     for title in args.title:
+        # 带 [skip changelog] 的标题会被 git-cliff 整条丢掉，用剥掉标记的版本去问分组，格式照样校验
+        probe = SKIP_MARKER_RE.sub("", title).strip() or title
         try:
-            injected = run_cliff(args.repo, config, title, args.git_cliff)
+            injected = run_cliff(args.repo, config, probe, args.git_cliff)
         except CliffError as exc:
             print(f"::error::{escape_command(str(exc))}" if args.github else f"错误：{exc}", file=sys.stderr)
             return 2
