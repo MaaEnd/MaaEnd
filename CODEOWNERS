@@ -136,6 +136,18 @@
 /.agents/skills/map-navigator-guide/                              @Lemon-miaow
 
 # ---------------------------------------------------------------------------
+# 大地图识别（WorldMap）                                                  @Lemon-miaow
+# ---------------------------------------------------------------------------
+/agent/cpp-algo/source/WorldMap/                                  @Lemon-miaow
+/tools/schema/components/world_map.schema.json                    @Lemon-miaow
+/docs/*/developers/components/world-map.md                        @Lemon-miaow
+
+# ---------------------------------------------------------------------------
+# 采集路线生成器（AutoCollectRoute）                                      @Lemon-miaow
+# ---------------------------------------------------------------------------
+/tools/AutoCollectRoute/                                          @Lemon-miaow
+
+# ---------------------------------------------------------------------------
 # 仓库级工具与脚本                                                        @he0119
 # ---------------------------------------------------------------------------
 /tools/zmdmap/                                                    @he0119
