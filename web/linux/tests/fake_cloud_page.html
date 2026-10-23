@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>fake cloud endfield</title>
+<style>
+  body { margin: 0; background: #111; color: #eee; font-family: sans-serif; }
+  #landing { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+  #start { font-size: 24px; padding: 14px 36px; }
+  #game { position: fixed; inset: 0; display: none; }
+  video { width: 100vw; height: 100vh; object-fit: fill; }
+  #gamePlayLayer { position: fixed; inset: 0; }
+</style></head>
+<body>
+  <div id="landing"><button id="start">开始游戏</button></div>
+  <div id="game">
+    <video id="WelinkGameVideo" autoplay muted playsinline></video>
+    <div id="gamePlayLayer"></div>
+  </div>
+<script>
+  // 用 canvas.captureStream() 造一路真视频，让 <video> 拿到 readyState>=2 且 videoWidth>0，
+  // 这样 kPageState 的 video_ready 分支能被真实触发。
+  const canvas = document.createElement('canvas');
+  canvas.width = 640; canvas.height = 360;
+  const ctx = canvas.getContext('2d');
+  let t = 0;
+  setInterval(() => {
+    t += 0.05;
+    ctx.fillStyle = `hsl(${(t * 40) % 360} 70% 40%)`;
+    ctx.fillRect(0, 0, 640, 360);
+    ctx.fillStyle = '#fff';
+    ctx.font = '32px sans-serif';
+    ctx.fillText('cloud stream ' + t.toFixed(1), 40, 190);
+  }, 50);
+
+  document.getElementById('start').addEventListener('click', () => {
+    document.getElementById('landing').style.display = 'none';
+    const game = document.getElementById('game');
+    game.style.display = 'block';
+    const v = document.getElementById('WelinkGameVideo');
+    v.srcObject = canvas.captureStream(20);
+    v.play().catch(() => {});
+    // 模拟「已登录」的页面特征，避免被判定成 signed_out
+    const li = document.createElement('li');
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    li.appendChild(svg);
+    const label = document.createElement('span');
+    label.textContent = '用户中心';
+    li.appendChild(label);
+    document.body.appendChild(li);
+  });
+</script>
+</body></html>

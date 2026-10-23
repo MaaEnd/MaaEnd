@@ -29,6 +29,7 @@ import time
 import urllib.request
 
 import numpy as np
+import page_js
 import websocket
 from PIL import Image
 
@@ -145,6 +146,7 @@ class CdpController:
         self._dirty = True
         self._stop = threading.Event()
         self._worker = None
+        self.policy_installed = False
         self.last_source = ""       # "video" | "page"
         self.last_ms = 0.0
         self._last_xy = (CAP_W // 2, CAP_H // 2)
@@ -166,6 +168,7 @@ class CdpController:
             url = self._target_url()
             self._cap = _Sess(url)
             self._io = _Sess(url)
+            self.install_policy()
             self._refresh_rect()
             # 起跑前先确认能真的抓到一帧：连得上但抓不到帧（页面还没加载完）
             # 会让整批任务在"识别全失败"里空转，不如早点判定。
@@ -173,6 +176,66 @@ class CdpController:
             self._latest_t = time.time()
             self._dirty = False
             self._start_worker()
+            return True
+        except Exception:
+            return False
+
+    def install_policy(self):
+        """把输入策略注入页面（对应上游 kInputPolicy）。
+
+        两个动作缺一不可：
+        - ``Page.addScriptToEvaluateOnNewDocument``：之后每次导航都自动注入；
+        - 立刻在**当前**文档再跑一遍：页面可能在我们连上之前就加载完了。
+        """
+        io = self._io
+        if io is None:
+            return False
+        ok = False
+        try:
+            io.call("Page.addScriptToEvaluateOnNewDocument",
+                    source=page_js.INPUT_POLICY_JS)
+            ok = True
+        except Exception:
+            pass
+        try:
+            io.ev(page_js.INPUT_POLICY_JS)
+            ok = True
+        except Exception:
+            pass
+        self.policy_installed = ok
+        return ok
+
+    def page_state(self):
+        """当前页面状态（结构化），给启动链和诊断用。"""
+        import page_state as ps
+        if self._io is None:
+            return ps.State({"page": "unknown"})
+        return ps.inspect(self._io)
+
+    def prepare_page(self, timeout: float = 90.0, log=None) -> bool:
+        """把页面推进到「有解码帧」为止（页面状态机版启动链）。"""
+        import page_state as ps
+        io = self._io
+        if io is None:
+            return False
+        return ps.prepare(io, log=log or (lambda _m: None), timeout=timeout)
+
+    def relative_move(self, dx: int, dy: int) -> bool:
+        """相对移动：锚在视口中心，由页面侧的 mousemove 钩子改写 movementX/Y。
+
+        CDP 只支持绝对坐标；直接发绝对坐标推到边界就转不动了。这里把增量交给
+        注入的策略脚本，页面收到的 movementX/Y 就是 dx/dy。
+        """
+        io = self._io
+        if io is None:
+            return False
+        try:
+            ax, ay = page_js.RELATIVE_ANCHOR
+            io.ev("window.__maaCloudRelativeMove && window.__maaCloudRelativeMove(%d, %d)"
+                  % (int(dx), int(dy)))
+            io.call("Input.dispatchMouseEvent", type="mouseMoved", x=ax, y=ay,
+                    button="none", buttons=0, pointerType="mouse")
+            self._dirty = True
             return True
         except Exception:
             return False

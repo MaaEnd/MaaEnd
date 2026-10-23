@@ -169,6 +169,8 @@ def main():
     ap.add_argument("--to", dest="to", type=int, default=99)
     ap.add_argument("--instance", default="hyasuml")
     ap.add_argument("--skip-in-game-check", action="store_true")
+    ap.add_argument("--no-state-machine", dest="state_machine", action="store_false",
+                    help="不用页面状态机启动，退回 pipeline 启动链")
     ap.add_argument("--no-agent", action="store_true")
     ap.add_argument("--dry-run", action="store_true", help="只打印要跑的任务，不连控制器")
     ap.add_argument("--controller", default=os.environ.get("MAAEND_CONTROLLER", "cdp"),
@@ -365,15 +367,21 @@ def main():
         return run_node("WebStartGameEntry", cap=900)
 
     def ensure_in_game_once(tag="[启动]"):
-        """开跑前跑一次 WebStartGameEntry，由它自己判断该不该启动。
+        """开跑前把页面推进游戏：优先用页面状态机，失败再回退 pipeline 启动链。
 
-        WebStartGameEntry = DirectHit + timeout 600s + next 链：
-          WebAlreadyInGame（InWorld|InMenuList）→ 已在游戏里，命中即结束；
-          WebLauncherStartButton → 点「开始游戏」；
-          WebQueueDetected / WebTitleContinue / WebSessionBusy / WebMonthlyCard → 各自处理。
-        这与上游把「启动」写成 pretask/pipeline 的做法一致：判断写在节点里，
-        外层脚本不再做单帧判断（会漏判）或轮询（已在游戏里时白等）。
+        状态机（page_state.prepare）直接读页面九态、点开始/确认，能当场告出
+        「现在到底卡在哪一态」；pipeline 那 9 个启动链节点仍保留作兜底
+        （尤其会话中途结束、页面掉回落地页时）。
         """
+        if getattr(a, "state_machine", True) and hasattr(ctrl, "prepare_page"):
+            log("  %s 页面状态机：等页面进入串流" % tag)
+            try:
+                if ctrl.prepare_page(timeout=90, log=log):
+                    log("    状态机已确认进入串流，跳过 pipeline 启动链")
+                    return True
+            except Exception as e:
+                log("    (状态机异常: %s)" % str(e)[:80])
+            log("  ! 状态机没走通，回退到 pipeline 启动链")
         log("  %s 先跑 WebStartGameEntry（已在游戏内会自动跳过）" % tag)
         ok = run_node("WebStartGameEntry", cap=900)
         log("    WebStartGameEntry -> %s" % ok)
