@@ -133,6 +133,7 @@
         "SellProductStockMinimumUnitPrice": {
             "type": "input",
             "label": "$task.OutpostTrading.StockMinimumUnitPriceInput",
+            "description": "$task.OutpostTrading.StockMinimumUnitPriceDescription",
             "inputs": [
                 {
                     "name": "SellProductStockMinimumUnitPrice",
