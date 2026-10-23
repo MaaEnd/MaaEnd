@@ -5,7 +5,8 @@
 内容一变就是新 URL」：这个 CDN 只看 URL 判断缓存，这样它就没机会拿旧内容顶新的。**清单是必需的前提**：
 取不到清单（没发布、404、形状不对）就直接报错，不再「不比对就下」—— 没有清单既不知道该下哪几份，也不知道
 本地是不是已经最新，硬下只会让本地数据与批次对不上。下哪几份仍由调用方给出 —— 各任务生成器只要自己用的那
-几份，就只下那几份，不必被整包牵着走。
+几份，就只下那几份，不必被整包牵着走。清单里没有的文件也不会下：那是「这批没发它」，本地有就保持原样；
+本地也没有的，需要投影的那几份直接报错，只需复制的提示一句跳过。
 
 每份下回来都先核对内容再落盘：有清单指纹就按它算，清单里没有这一份就按文件自称的 ``sha256``。不符就报错、
 不写盘 —— 免得坏内容配上好指纹进 ``data/raw/``，入库之后再也比不出来。这里不重试：URL 已经由完整指纹决定，
@@ -107,15 +108,16 @@ def read_manifest() -> Manifest:
 
 def manifest_plan(
     target_dir: Path, file_names: Sequence[str], manifest: Manifest
-) -> tuple[list[str], list[str]]:
-    """按清单挑出要重下的文件，并另列出「不在这批里、保持本地原样」的那几份。
+) -> tuple[list[str], list[str], list[str]]:
+    """按清单把这几份分成三类：要重下的、清单里没有但本地有的、清单里没有且本地也没有的。
 
     比的是 ``target_dir`` 里同名文件**自称的** ``sha256`` 与清单里记的指纹
     （:func:`tools.zmdmap.utils.datafile.read_hash`）—— 只读字段、不读本体。与文件里写的 ``version``
     无关：上游只换了版本号、内容没变时不必重下，本地那份也一个字都不会改。
 
     清单列的是「这一批发了哪几份」（``generate --only`` 就只列那几份），所以清单里没有的那份不是「过期」、
-    是「这批没它」：本地已经有就不动它，本地也没有才只能下回来，否则这份数据就彻底缺了。
+    是「这批没它」：本地有就保持原样，本地也没有就不下 —— 清单没授权发这一份，下回来的是哪一批说不清，
+    而且没有指纹可核对（只能信文件自称的那个），不如让调用方按「上游还没发」处理。
 
     ``target_dir`` 是「本地这份数据」所在的地方：入库模式下就是入库目录（``data/``，它在仓库里，新克隆
     下来也有），``--raw-only`` 下是原始形态目录自己（那正是它的产物）。原始形态目录是 ``.gitignore`` 的
@@ -123,16 +125,15 @@ def manifest_plan(
     """
     todo: list[str] = []
     unlisted: list[str] = []
+    absent: list[str] = []
     for file_name in file_names:
         local = read_hash(target_dir / file_name)
         expected = manifest.files.get(file_name)
-        if local is None:  # 本地没有：只能下回来，清单里有没有都一样
+        if expected is None:  # 清单里没有这一份：这批没发它，本地有就留着、没有就算了
+            (unlisted if local is not None else absent).append(file_name)
+        elif local != expected:  # 本地没有，或者指纹对不上：要下
             todo.append(file_name)
-        elif expected is None:  # 不在这批里：保持本地那份
-            unlisted.append(file_name)
-        elif local != expected:  # 指纹对不上：过期了
-            todo.append(file_name)
-    return todo, unlisted
+    return todo, unlisted, absent
 
 
 def _data_url(file_name: str, params: dict[str, str]) -> str:
@@ -253,9 +254,8 @@ def fetch_and_cache(
     """把这几份发布的原始数据逐个下载到 ``raw_dir``；返回上游还没发布、被跳过的文件名。
 
     ``hashes`` 是清单给的每份内容指纹，**原样**当 ``t`` 参数：同一份内容的 URL 稳定、内容一变就是新 URL，
-    内容寻址，远端缓存不可能拿旧的顶替。清单里没有这一份（这批没发它）时没有指纹可用，就退回时间戳当 ``t``，
-    至少能绕开缓存。``token`` 给了就整批替掉（``--force`` 时是时间戳），让这几份一律回源。``force`` 时校验
-    不过也照收，只提示。
+    内容寻址，远端缓存不可能拿旧的顶替。走到这里的文件都在清单里（不在清单里的不会被下载），所以一定有指纹。
+    ``token`` 给了就整批替掉（``--force`` 时是时间戳），让这几份一律回源。``force`` 时校验不过也照收，只提示。
     """
     raw_dir.mkdir(parents=True, exist_ok=True)
     failures: dict[str, DownloadError] = {}
@@ -265,7 +265,7 @@ def fetch_and_cache(
                 file_name,
                 raw_dir / file_name,
                 version,
-                token or hashes.get(file_name) or str(int(time.time() * 1000)),
+                token or hashes.get(file_name, ""),
                 hashes.get(file_name),
                 accept_mismatch=force,
             )
@@ -305,7 +305,8 @@ def download(
     下载，不一样的才下 —— 不必问任何接口，也认得「同一个版本号下重新发布过」；``version`` 不参与比较。
 
     清单是必需的前提：取不到就直接抛 :class:`ManifestError`，不会退化成「不比对就整批下」。没有清单既不知道
-    该下哪几份，也不知道本地是不是已经最新，硬下只会把本地数据换成对不上批次的内容。
+    该下哪几份，也不知道本地是不是已经最新，硬下只会把本地数据换成对不上批次的内容。清单里没有的文件也不
+    下：那是「这批没发它」，本地有就保持原样；本地也没有的，需要投影的直接报错、只需复制的提示一句跳过。
 
     ``force`` 是不比对、直接重下这几份，并且请求 URL 上的 ``t`` 用时间戳而不是清单指纹 —— 「怀疑远端说辞」
     时的唯一手段（这个 CDN 只看 URL，请求头说了不算）。CI 上没有额外开关：本地与 CI 跑的是同一套判断。
@@ -320,14 +321,27 @@ def download(
     if force:
         logger.info("强制下载（--force），不比对本地内容（版本与指纹仍按清单）")
     else:
-        todo, unlisted = manifest_plan(target_dir, todo, manifest)
+        todo, unlisted, absent = manifest_plan(target_dir, todo, manifest)
         label = f"清单 v{version}" if version else "清单（没写版本）"
         if unlisted:
             logger.warning(f"这几份不在{label}里，保持本地原样：{'、'.join(unlisted)}")
+        if absent:
+            required = [file_name for file_name in absent if file_name in set(projected_files)]
+            if required:
+                raise DownloadError(
+                    required[0],
+                    f"{label}里没有这一份，本地也没有：上游这批没发它，等发完再 fetch；"
+                    "本地也可以先跑 uv run zmdmap generate 生成",
+                )
+            for file_name in absent:
+                logger.warning(f"{file_name}：{label}里没有它、本地也没有，跳过（上游还没发这一份）")
         if todo:
             logger.info(f"{label}：{len(todo)} 份内容有变化")
         else:
-            logger.info(f"本地内容与{label}一致，跳过下载")
+            if absent or unlisted:
+                logger.info(f"{label}：没有要下载的（清单里没有的那几份按上面的提示处理）")
+            else:
+                logger.info(f"本地内容与{label}一致，跳过下载")
             return []
 
     hashes = manifest.files
