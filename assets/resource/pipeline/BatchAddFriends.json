@@ -600,11 +600,10 @@
             "BatchAddFriendsChangeBatch"
         ]
     },
-    "BatchAddFriendsStrangersResetMenu": {
-        "desc": "开局清理：列表页若残留二级菜单，先点「查看个人名片」把它带走",
+    "BatchAddFriendsStrangersResetMenuProbe": {
+        "desc": "开局清理：判断列表页是否残留二级菜单",
         // 任务开始时列表可能残留上一次留下的头像菜单。此时点头像只会关闭菜单，
-        // 后续点击与识别全部错位。这里只在开局跑一次：命中菜单项就点开名片，
-        // 再由 ResetMenuClose 关掉，既不判定也不记黑名单。
+        // 后续点击与识别全部错位。这里只做一次判断，不点击。
         "recognition": {
             "type": "OCR",
             "param": {
@@ -626,7 +625,42 @@
             }
         },
         "pre_delay": 0,
-        "pre_wait_freezes": 100,
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "timeout": 3000,
+        "on_error": [
+            "BatchAddFriendsStrangersStart"
+        ],
+        "next": [
+            "BatchAddFriendsStrangersResetMenuOpen"
+        ]
+    },
+    "BatchAddFriendsStrangersResetMenuOpen": {
+        "desc": "点残留菜单里的「查看个人名片」，进入名片页",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    2,
+                    50,
+                    434,
+                    639
+                ],
+                "expected": [
+                    "查看个人名片",
+                    "查看個人名片",
+                    "(?i)View\\s*Profile",
+                    "個人情報",
+                    "개인\\s*명함\\s*보기"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
@@ -635,7 +669,7 @@
         "rate_limit": 0,
         "timeout": 3000,
         "on_error": [
-            "BatchAddFriendsStrangersStart"
+            "BatchAddFriendsStrangersScan"
         ],
         "next": [
             "BatchAddFriendsStrangersResetMenuClose"

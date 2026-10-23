@@ -150,9 +150,9 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		},
 	})
 	// 先跑一次残留菜单清理，再进陌生人分支。
-	// ResetMenu 只在列表存在残留二级菜单时命中，未命中会自然落到 StrangersStart。
+	// ResetMenuProbe 只在列表存在残留二级菜单时命中，未命中会自然落到 StrangersStart。
 	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
-		{Name: "BatchAddFriendsStrangersResetMenu"},
+		{Name: "BatchAddFriendsStrangersResetMenuProbe"},
 		{Name: "BatchAddFriendsStrangersStart"},
 	})
 	log.Info().
