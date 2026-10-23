@@ -2526,6 +2526,7 @@
     "task.SanityExtractor.focus.close_panel": "주입 추출기 화면을 닫는 중",
     "task.SanityExtractor.focus.find": "이성 추출기를 찾는 중",
     "task.SanityExtractor.focus.inject": "이성 주입 중",
+    "task.SanityExtractor.focus.inject_failed": "추출 화면 인식 실패, 화면을 닫으려고 시도합니다",
     "task.SanityExtractor.focus.inject_panel": "주입 추출기 화면을 열었습니다",
     "task.SanityExtractor.focus.no_item": "이성 추출기를 찾지 못했습니다",
     "task.SanityExtractor.focus.reward": "이성 정수 약제 획득 중",

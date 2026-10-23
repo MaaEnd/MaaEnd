@@ -2526,6 +2526,7 @@
     "task.SanityExtractor.focus.close_panel": "关闭注入萃取器界面",
     "task.SanityExtractor.focus.find": "查找理智萃取器",
     "task.SanityExtractor.focus.inject": "注入理智",
+    "task.SanityExtractor.focus.inject_failed": "萃取界面识别失败，正在尝试关闭面板",
     "task.SanityExtractor.focus.inject_panel": "已进入注入萃取器界面",
     "task.SanityExtractor.focus.no_item": "未找到理智萃取器",
     "task.SanityExtractor.focus.reward": "领取理智精粹药剂",

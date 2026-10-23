@@ -2526,6 +2526,7 @@
     "task.SanityExtractor.focus.close_panel": "注入抽出器画面を閉じています",
     "task.SanityExtractor.focus.find": "理性抽出器を探しています",
     "task.SanityExtractor.focus.inject": "理性を注入しています",
+    "task.SanityExtractor.focus.inject_failed": "抽出画面の認識に失敗しました。画面を閉じようとしています",
     "task.SanityExtractor.focus.inject_panel": "注入抽出器画面を開きました",
     "task.SanityExtractor.focus.no_item": "理性抽出器が見つかりません",
     "task.SanityExtractor.focus.reward": "精粋理性回復剤を受け取り中",

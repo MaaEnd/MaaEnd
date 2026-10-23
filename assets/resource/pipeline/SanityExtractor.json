@@ -287,7 +287,7 @@
         }
     },
     "SanityExtractorInInjectPanel": {
-        "desc": "确认已进入注入萃取器界面：中央药水图案命中",
+        "desc": "确认已进入注入萃取器界面：中央药剂图案命中",
         "recognition": {
             "type": "And",
             "param": {
@@ -304,8 +304,8 @@
             "SanityExtractorInject"
         ],
         "on_error": [
-            // 兜底：注入面板内两个子项都识别失败时，用通用关闭按钮退出面板，避免面板悬置导致任务卡死
-            "SanityExtractorCloseInjectPanel"
+            // 注入面板内两个子项都识别失败：尝试退出面板
+            "SanityExtractorInjectRecognitionFailed"
         ],
         "focus": {
             "Node.Action.Starting": "$task.SanityExtractor.focus.inject_panel"
@@ -552,6 +552,46 @@
         "rate_limit": 0,
         "next": [
             "SanityExtractorFinished"
+        ]
+    },
+    "SanityExtractorInjectRecognitionFailed": {
+        "desc": "注入面板两个子识别都失败：先尝试关闭面板，再走失败节点",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorInjectRecognitionFailedToValuables"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.SanityExtractor.focus.inject_failed"
+        }
+    },
+    "SanityExtractorInjectRecognitionFailedToValuables": {
+        "desc": "确认失败路径已回到珍贵物品页",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FailedNode"
         ]
     },
     "SanityExtractorNoExtractor": {

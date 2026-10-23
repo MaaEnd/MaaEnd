@@ -2526,6 +2526,7 @@
     "task.SanityExtractor.focus.close_panel": "Closing the Sanity Extractor panel",
     "task.SanityExtractor.focus.find": "Looking for Sanity Extractors",
     "task.SanityExtractor.focus.inject": "Injecting sanity",
+    "task.SanityExtractor.focus.inject_failed": "Extraction screen recognition failed, attempting to close the panel",
     "task.SanityExtractor.focus.inject_panel": "Opened the Sanity Extractor panel",
     "task.SanityExtractor.focus.no_item": "No Sanity Extractor found",
     "task.SanityExtractor.focus.reward": "Claiming Sanity Essence",
