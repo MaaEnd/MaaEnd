@@ -269,7 +269,7 @@ def generate_command(
     if problems:
         logger.section("预检提示")
         for problem in problems:
-            # 只用 GBK 能编出来的字符：Windows 中文控制台编不出 ⚠ / ✘ 会直接抛 UnicodeEncodeError。
+            # 只用 GBK 里有的字符：输出走 click，写不出的字符会被替换成问号而不是报错，但问号同样没法看。
             logger.warning(f"! {problem}")
 
     if dry_run:
@@ -351,8 +351,8 @@ def generate_command(
     report_data_changes(data_dir, [dataset.file_name for dataset in datasets])
     if data_dir == ZMDMAP_DATA_DIR:
         logger.info(
-            "提示：每份数据最前面写着 version（版本标签）与 sha256（原始形态的内容指纹）；"
-            "两个字段都只在这里写，入库与 fetch 只沿用。"
+            "提示：每份数据最前面写着 version（版本标签）与 sha256（原始形态的内容指纹）。"
+            "sha256 只在这里算一次，入库原样沿用、fetch 核对内容后照抄。"
         )
 
     if sync_failed or not generated_ok or materialized_ok is False:

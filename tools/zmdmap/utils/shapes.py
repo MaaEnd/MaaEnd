@@ -1,13 +1,14 @@
-"""读「没有建模、也不该建模的 JSON」时用的收窄助手。
+"""读「必须原样保留未知字段」的 JSON 时用的收窄助手。
 
-游戏内容全部有结构：表格、关卡数据、交互模板都在 :mod:`tools.zmdmap.utils.tables` 里声明成
-``msgspec.Struct``，形状一变解码就报错并指出文件与字段。留在这里的只有**必须原样保留未知字段**的三处：
+游戏内容都有结构：表格、关卡数据、交互模板都在 :mod:`tools.zmdmap.utils.tables` 里声明成 ``msgspec.Struct``，
+形状一变解码就报错并指出是哪个文件、哪个字段。留在这里的只有**不能建模**的三处，它们的共同点是必须把没声明
+的字段原样带走：
 
 - 投影（:mod:`~tools.zmdmap.utils.project`）要在不改动其它字段的前提下换坐标；
 - 数据文件（:mod:`~tools.zmdmap.utils.datafile`）要按内容算指纹、读 ``version`` / ``sha256``；
-- 下载回来的内容校验（:mod:`~tools.zmdmap.fetch` 里的 ``content_problem``）要先看清它自称的字段。
+- 下载回来的内容校验（:mod:`tools.zmdmap.fetch` 里的 ``content_problem``）要先看清它自称的字段。
 
-这几处一旦建模就会丢掉没声明的字段，正好破坏「逐字节不变」这个前提，所以只能按原始 JSON 走。
+一旦建模就会丢掉没声明的字段，正好破坏「别的字段一个字都不动」这个前提，所以只能按原始 JSON 走。
 """
 
 from typing import Any, TypeGuard
@@ -21,22 +22,3 @@ def is_object(value: Any) -> TypeGuard[dict[str, Any]]:
 def is_array(value: Any) -> TypeGuard[list[Any]]:
     """这个值是不是 JSON 数组。"""
     return isinstance(value, list)
-
-
-def as_object(value: Any) -> dict[str, Any]:
-    """当成 JSON 对象用；不是对象时给个空对象（「没有这段」与「这段是空的」一起处理）。"""
-    return value if is_object(value) else {}
-
-
-def as_objects(value: Any) -> list[dict[str, Any]]:
-    """当成「对象数组」用；不是数组时给空列表，数组里不是对象的元素丢掉。"""
-    return [item for item in value if is_object(item)] if is_array(value) else []
-
-
-def as_array(value: Any) -> list[Any]:
-    """当成 JSON 数组用；不是数组时给空列表。
-
-    pyright 在 strict 下把「直接迭代 ``Any``」当成 ``Any | Unknown`` 报「部分未知」，
-    统一从这里取元素类型是 ``Any`` 的列表就没有这个噪音了。
-    """
-    return value if is_array(value) else []

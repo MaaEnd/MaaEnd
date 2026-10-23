@@ -13,9 +13,11 @@ class EnvironmentMonitoring(Dataset):
 
     @classmethod
     def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
-        """Data chain: KiteStationEntrustTasksTable -> per-terminal missions
-        (entrustIdx/kiteStation/missionId/name/shotTargetName),
-        KiteStationLevelTable -> terminal display name."""
+        """监测终端 -> 它下面的观察点，以及观察点与终端的五语名字。
+
+        同一个终端里的观察点按 ``entrustIdx`` 排序；观察点写了 ``kiteStation`` 就必须跟所在终端一致，
+        写错直接报错。
+        """
         entrust_table = load_table(table_cfg_dir, "KiteStationEntrustTasksTable", KiteStationEntrustRow)
         level_table = load_table(table_cfg_dir, "KiteStationLevelTable", KiteStationLevelRow)
 

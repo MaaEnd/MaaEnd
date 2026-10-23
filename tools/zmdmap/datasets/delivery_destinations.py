@@ -151,11 +151,12 @@ class DeliveryDestinations(Dataset):
 
     @classmethod
     def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
-        """Data chain: DomainDepotDeliverTargetTable -> delivery points; the
-        point's position comes from NpcProxyTable (npc) or LevelMapMark
-        (recycle_bin), names/areas from DomainDepotBuyerTable/LevelDescTable;
-        DomainDepotTable -> depots + level linkage. 坐标按游戏世界坐标发布，
-        底图像素由 MaaEnd 侧投影。
+        """送货目的地（普通收货 NPC 与回收站）与它们所属的仓储节点。
+
+        坐标按游戏世界坐标发布（``x`` / ``y`` / ``z`` 与朝向 ``yaw``），底图像素由 MaaEnd 侧的入库步骤投影。
+        仓储节点与回收站的坐标取 ``LevelMapMark`` 里的同名标记，普通收货 NPC 取 ``NpcProxyTable``；朝向取关卡
+        文件里交互实体的 ``rotation.y``（回收站翻 180 度），读不到时按 0。目的地按「关卡 -> 仓储节点」挂到
+        节点下，回收站还要与 ``RecycleBinTable`` 的层级和序号对上，对不上都直接报错。
         """
         deliver_target_table = load_table(
             table_cfg_dir, "DomainDepotDeliverTargetTable", DeliverTargetRow

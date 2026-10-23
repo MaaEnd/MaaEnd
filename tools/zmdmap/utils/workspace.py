@@ -36,6 +36,7 @@ class RepoOutcome:
 
 
 def last_lines(text: str, count: int = 1) -> str:
+    """取一段命令输出最后几行、用 `` / `` 连起来：拼进一行日志里，不把多行输出铺开。"""
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     return " / ".join(lines[-count:])
 

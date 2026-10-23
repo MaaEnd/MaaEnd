@@ -1,14 +1,18 @@
 """AutoCollect 采集路线的数据源（``collect_points.json``）。
 
-``WorldEntityRegistry`` 中 ``detailId`` 以 ``int_doodad_`` 开头的可交互采集物，全量输出。
+``points`` 是 ``WorldEntityRegistry`` 里 ``detailId`` 以 ``int_doodad_`` 开头、且能按 ID 前缀定位到关卡的
+可交互采集物，按实体 ID 的数值升序（定位不到关卡的那几条不收，因为不知道挂哪张底图）。
 
-``types`` 只收能拾取或挖掘的采集物类型：``names`` 是采集物的五语名字（没有就用产物名），``action`` 是
-MapNavigator 的采集动作（拾取 ``COLLECT`` / 挖掘 ``DIG``），``item`` 是主产物，``icon`` 是它在
-``assets/resource/image/UI/Item/`` 下的图标名；``item_type`` / ``showing_type`` / ``rarity`` 是主产物
-的物品类型、展示分类与稀有度。基建矿点等不进 ``types``。
+``types`` 是按 ``detailId`` 汇总的类型表，只收能拾取或挖掘的（基建矿点等不进）：
 
-只发布游戏世界坐标 x/z（另有世界高度 y）：投影参数属于 BaseNav pack，换算由 MaaEnd 侧的投影步骤
-（``tools/zmdmap/utils/project.py``）完成，所以这里不做任何底图筛选。
+- ``names``：采集物的五语名字；它自己有名字就用它，没有就用产物名；
+- ``action``：MapNavigator 的采集动作，能拾取是 ``COLLECT``，只能打碎取 ``DIG``；
+- ``item`` / ``item_names`` / ``icon``：主产物 id、主产物五语名字、主产物在
+  ``assets/resource/image/UI/Item/`` 下的图标名（没有图标 id 时退回物品 id）；
+- ``item_type`` / ``showing_type`` / ``rarity``：主产物的物品类型、背包页签与稀有度。
+
+只发布游戏世界坐标（``x`` / ``y`` / ``z``，其中 ``y`` 是世界高度）：投影参数属于 BaseNav pack，换算由
+MaaEnd 侧的入库步骤（``tools/zmdmap/utils/project.py``）完成，所以这里不做任何底图筛选。
 """
 
 from pathlib import Path

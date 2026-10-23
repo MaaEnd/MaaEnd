@@ -13,10 +13,11 @@ class SellProduct(Dataset):
 
     @classmethod
     def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
-        """Data chain: SettlementBasicDataTable -> settlements/prosperity levels/
-        wantTagIdGroup, SettlementTagTable -> feature tags + enhance rates,
-        CharacterTable + CharacterTagTable -> operator tags/names,
-        ItemTable -> item names/rarity."""
+        """据点、各级繁荣度能卖的物品、据点特性，以及按标签匹配上的干员。
+
+        干员的标签来自 ``CharacterTagTable``，据点特性按 ``wantTagIdGroup`` 去匹配；能卖什么由
+        ``SettlementBasicDataTable`` 的各级 ``settlementTradeItemMap`` 给出，并排掉限定活动的物品。
+        """
         settlement_table = load_table(table_cfg_dir, "SettlementBasicDataTable", SettlementRow)
         settlement_tag_table = load_table(table_cfg_dir, "SettlementTagTable", SettlementTagRow)
         character_table = load_table(table_cfg_dir, "CharacterTable", CharacterRow)

@@ -5,16 +5,18 @@
 - 珍贵物品（``ValuableDepot.type == "CommercialItem"``）：抽卡券、理智/食物补给这类真正的获得物；
 - 培养素材（``SpecialItem``）：种子与养成材料。
 
-每个条目带一组固定字段（``storageKind`` / ``categoryType`` 决定 ``category``），外加：
-
-- ``names{五语}``：物品名，直接给五语文本，消费端不必再下 ``lang_*.json``（每份约 950 KB）还原名字。
-- ``nameId``：名字的文本 id。消费端按「名字 + 图标」去重时用得上——拿哈希去重时用的就是它，而哈希就是
-  文本 id 的函数，所以按文本 id 去重与上游结果一致；只按文本去重会把「同一句文案挂在两个文本 id 上」
-  的条目误并。
-- ``regionRestricted``：仅当物品由「只在某些地区存在」的工厂建筑产出时才写 ``true``。
-
 配方类（配方/配方升级/装备配方）是制造说明而不是可用物品，名字 id 为 0 的（如 ``item_port_*`` 工厂摆件）
-没有名字，两类都不收。
+没有名字，两类都不收。每个条目带这些字段：
+
+- ``name`` / ``nameId`` / ``names{五语}``：中文名、名字的文本 id、五语名字表。直接给五语，消费端不必再下
+  ``lang_*.json``（每份约 950 KB）还原名字。按「名字 + 图标」去重时用 ``nameId`` —— 上游那套去重哈希就是
+  文本 id 的函数，只按名字去重会把「同一句文案挂在两个文本 id 上」的条目误并。
+- ``category`` / ``storageKind`` / ``categoryType``：展示用的分类名，这条来自背包（``Normal``）还是仓库页签
+  （``ValuableDepot``），以及对应的页签 key。
+- ``iconId`` / ``rarity`` / ``sortId1`` / ``sortId2``：图标名、稀有度、页签内排序与次级排序。
+- ``fluidType`` / ``fluid`` / ``fullContainers`` / ``emptyContainers``：这条是气体还是液体、满容器里装的是
+  哪种流体、这种流体的满/空容器物品 id；与流体无关的条目这几项是 ``null`` 或空数组。
+- ``regionRestricted``：仅当物品由「只在某些地区存在」的工厂建筑产出时才写 ``true``。
 """
 
 from pathlib import Path

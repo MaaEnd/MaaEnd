@@ -1,9 +1,20 @@
-"""稳定需求物资：地区商店中的周期补货商品及其五语名称。
+"""稳定需求物资（``stock_staple.json``）：地区商店里会周期补货的商品，AutoStockStaple 用。
 
-DomainDataTable -> ShopGroupTable -> ShopTable -> ShopGoodsTable ->
-RewardTable -> ItemTable；分类来自 ShopGoodsTagTable。渠道等级的供货量
-来自 ShopChannelDevelopmentTable，不把同一物品的不同售卖档合并成一个价格。
-只读 TableCfg，不依赖其他精简数据、网站页面或人工商品名单。
+数据链是 DomainDataTable -> ShopGroupTable -> ShopTable -> ShopGoodsTable -> RewardTable -> ItemTable；
+分类名来自 ShopGoodsTagTable，渠道各等级的供货量来自 ShopChannelDevelopmentTable。只读 TableCfg，不依赖
+其他精简数据、网站页面或人工商品名单。
+
+两道筛选：商店本身得是常驻货架（``shopRefreshType`` 是 ``None`` / 0），商品得会周期补货
+（``limitCountRefreshType`` 不是 ``None`` / 0）。奖励必须是「一件固定物品」，概率掉落或多物品奖励直接报错。
+同一物品在不同渠道档位是几条独立的商品，各记各的价格，不合并。
+
+顶层四个字典：
+
+- ``regions``：地区 -> 五语名字、商店组、排序，以及这个地区卖的商品 id（顺序就是货架顺序）；
+- ``categories``：商品分类 -> 五语名字与排序；
+- ``items``：物品 -> 五语名字与图标名；
+- ``goods``：商品 -> 地区、商店、分类、物品、一次给几个、价格、折扣、币种（id 与五语名）、补货方式与限购、
+  排序、解锁条件（原样照抄表里的结构）、渠道供货（第几级解锁、解锁版本、数量）。
 """
 
 import math

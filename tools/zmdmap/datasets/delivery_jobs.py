@@ -32,10 +32,11 @@ class DeliveryJobs(Dataset):
 
     @classmethod
     def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
-        """Data chain: FactoryItemTable -> deliverable items (deliverItemTypeList +
-        transferDomainIds), DomainDepotTable -> depot region/name,
-        DomainDepotLevelTable -> per-level deliverItemTypeList,
-        DomainDataTable -> region names, ItemTable -> item names."""
+        """地区、仓储节点，以及每个节点每一级能装哪些物品。
+
+        装配范围是「物品能装的运送类型」与「这一级能装的运送类型」的交集；物品还要能转运到这个节点所在的
+        地区（``transferDomainIds``）。物品名、地区名都取五语。
+        """
         factory_item = load_table(table_cfg_dir, "FactoryItemTable", FactoryItemRow)
         depot_table = load_table(table_cfg_dir, "DomainDepotTable", DomainDepotRow)
         depot_level_table = load_table(table_cfg_dir, "DomainDepotLevelTable", DomainDepotLevelRow)

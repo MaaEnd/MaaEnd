@@ -57,11 +57,11 @@ class TeleportAnchors(Dataset):
 
     @classmethod
     def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
-        """Data chain: LevelMapMark 的营地标记 -> 传送锚点；LevelBasicInfoTable 提供
-        ID 前缀到关卡的对照；UILevelMapLoadConfig 的地名标签与地下层名经 TextTable 落到文本，
-        关卡名取自 LevelDescTable。
+        """营地（传送锚点）：坐标、所属关卡与底图、区域与关卡的名称。
 
-        只认 ``templateId == mark_sp_campfire`` 的标记，按 markInstId 数值升序。
+        只认 ``templateId`` 是 ``mark_sp_campfire`` 的标记，按 ``markInstId`` 的数值升序。区域名优先取
+        地下层名（``LevelMapLoadConfig`` 的 ``tierNames`` 对上标记的 ``tierMap``），没有就取同关卡地图上
+        离它最近的地名标签，两者都没有时为空。
         """
         level_map_mark = load_config(json_data_dir, "LevelMapMark", dict[str, list[LevelMark]])
         levels = cls.level_index(json_data_dir)

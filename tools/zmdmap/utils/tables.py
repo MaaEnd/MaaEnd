@@ -12,7 +12,6 @@ TableCfg / JsonData 里的一行就是一个 JSON 对象，字段名是 camelCas
   类型也照数据里真实出现的形态写（比如 ``str | int`` 的枚举）。
 """
 
-import json
 from pathlib import Path
 from typing import Any
 
@@ -865,12 +864,3 @@ def load_level_data(path: Path) -> LevelData:
     """``LevelData`` 下的一个关卡文件；每份文件只读一次，不需要缓存。"""
     raw = _read_bytes(path, "LevelData")
     return _decode(raw, LevelData, path.name)
-
-
-def load_json(path: Path) -> Any:
-    """读一份结构完全动态的 JSON（少数嵌套太深、没有建模价值的地方用）。"""
-    raw = _read_bytes(path, "JSON")
-    try:
-        return json.loads(raw)
-    except ValueError as error:
-        raise LocalDataError(f"{path.name} 不是合法 JSON：{error}") from error
