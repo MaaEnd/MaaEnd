@@ -171,9 +171,10 @@ def main():
     ap.add_argument("--skip-in-game-check", action="store_true")
     ap.add_argument("--no-agent", action="store_true")
     ap.add_argument("--dry-run", action="store_true", help="只打印要跑的任务，不连控制器")
+    ap.add_argument("--controller", default=os.environ.get("MAAEND_CONTROLLER", "wlroots"),
+                    choices=["wlroots", "cdp"], help="wlroots=合成器截图；cdp=云串流原生帧")
     a = ap.parse_args()
 
-    from maa.controller import WlRootsController
     from maa.resource import Resource
     from maa.tasker import Tasker
 
@@ -223,12 +224,25 @@ def main():
         log("[X] 资源加载失败，任务不可能跑对，直接退出")
         return 3
 
-    # use_win32_vk_code=True：管线的动作节点用的是 Win32 虚拟键码（Alt=18），
-    # 不加这个参数，18 会被当成 Linux 键码（=E）。
-    ctrl = WlRootsController(SOCK, use_win32_vk_code=True)
+    # --controller wlroots：合成器截图（1080→1440→720 两次重采样）
+    # --controller cdp    ：直接从云串流 <video> 取原生 1080 帧，Python AREA 降到 720
+    #                       （实测锐度 +30%；输入走 CDP 注入，不依赖 sway）
+    if a.controller == "cdp":
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from cdp_controller import make_custom_controller
+
+        ctrl = make_custom_controller()
+    else:
+        from maa.controller import WlRootsController
+
+        # use_win32_vk_code=True：管线的动作节点用的是 Win32 虚拟键码（Alt=18），
+        # 不加这个参数，18 会被当成 Linux 键码（=E）。
+        ctrl = WlRootsController(SOCK, use_win32_vk_code=True)
     ctrl.post_connection().wait()
-    log("控制器: connected=%s" % ctrl.connected)
-    if not ctrl.connected:
+    _conn = getattr(ctrl, "connected", False)
+    _conn = _conn() if callable(_conn) else bool(_conn)
+    log("控制器: %s connected=%s" % (a.controller, _conn))
+    if not _conn:
         return 4
 
     tasker = Tasker()

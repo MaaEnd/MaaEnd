@@ -34,10 +34,13 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from introspect_tasks import load_jsonc
 
-ROOT = os.environ.get("MAAEND_ROOT") or (
-    "/mnt/d/jiaoben/MaaEnd-win-x86_64-v2.3.0"
-    if os.path.isdir("/mnt/d/jiaoben/MaaEnd-win-x86_64-v2.3.0")
-    else r"D:\jiaoben\MaaEnd-win-x86_64-v2.3.0"
+# 必须指向当前部署目录（~/maaend）。此前默认回落到 Windows 安装目录，
+# 导致直跑 run_daily_linux.py 时读到的是另一份 config/interface.json，
+# 自有任务（WebStartGame）被判成「未知任务」。
+ROOT = (
+    os.environ.get("MAAEND_ROOT")
+    or os.environ.get("MAAEND_DIST")
+    or os.path.expanduser("~/maaend")
 )
 CONFIG = os.path.join(ROOT, "config", "mxu-MaaEnd.json")
 

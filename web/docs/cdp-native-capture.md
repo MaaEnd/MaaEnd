@@ -80,3 +80,28 @@ input_text() CDP Input.insertText
 3. `press_key()` 能打开游戏内菜单（验证 Win32 虚拟键码映射）；
 4. `WebStartGame` 在 CDP 控制器下通过，耗时不超过 sway 方案的 1.5 倍；
 5. 全部通过后，homesrv 是否切换另行决定（当前 sway 方案是已验证的生产形态）。
+
+## 7. 验收结果（2026-10-23，WSL 实测）
+
+| 验收项 | 结果 |
+|---|---|
+| `screencap()` 尺寸/锐度 | 1280×720；锐度 1174（对照现有链路 501，**+134%**；场景不同时 1598~1700） |
+| 抓帧耗时 | 后台预抓线程约 190 ms/帧；`screencap()` 命中缓存 **0–7 ms** |
+| 鼠标点击 | ✅ 点 1280×720 坐标 (1252,30) → CSS (1669.7,40.0)，Esc 菜单关闭回到大世界 |
+| 键盘 | ✅ `key_down/key_up(27)` 打开 Esc 系统菜单 |
+| 整条任务 | ✅ `run_daily_linux.py --controller cdp --tasks WebStartGame` → **OK 1.0s**（已在大世界，`WebAlreadyInGame` 一次命中） |
+
+### 直跑踩到的坑
+
+`run_daily_linux.py` 依赖 `resolve_preset.ROOT` 定位 `config/` 与 `interface.json`；
+该默认值原先是 Windows 安装目录，直跑时会读到**另一份** interface，
+于是自有任务被判「未知任务」。已改为回落到 `MAAEND_DIST` 或 `~/maaend`。
+
+### 使用
+
+```bash
+# 走 CDP 原生帧
+MAAEND_ROOT=~/maaend python3 run_daily_linux.py --instance hmuddz8 --controller cdp --tasks WebStartGame
+# 走原来的合成器截图
+... --controller wlroots
+```
