@@ -1,15 +1,15 @@
 """``zmdmap fetch``：从 zmdmap 下载已发布的原始数据，再入库。
 
 上游发布的清单（``manifest.json``）给出这批数据是哪一版、每份原始形态的内容指纹，数据按
-``?ver=<版本>&t=<指纹前 8 位>`` 从发布 CDN 拉取。``t`` 只用来让 URL 随内容变（这个 CDN 只看 URL 判断
-缓存），截断它没关系：内容对不对由完整指纹核对，``t`` 撞了也只会多取一次。**清单是必需的前提**：取不到清单
-（没发布、404、形状不对）就直接报错，不再「不比对就下」—— 没有清单既不知道该下哪几份，也不知道本地是不是
-已经最新，硬下只会让本地数据与批次对不上。下哪几份仍由调用方给出 —— 各任务生成器只要自己用的那几份，就只
-下那几份，不必被整包牵着走。
+``?ver=<版本>&t=<清单给的内容指纹>`` 从发布 CDN 拉取。``t`` 是完整指纹，于是「同一份内容 = 同一个 URL、
+内容一变就是新 URL」：这个 CDN 只看 URL 判断缓存，这样它就没机会拿旧内容顶新的。**清单是必需的前提**：
+取不到清单（没发布、404、形状不对）就直接报错，不再「不比对就下」—— 没有清单既不知道该下哪几份，也不知道
+本地是不是已经最新，硬下只会让本地数据与批次对不上。下哪几份仍由调用方给出 —— 各任务生成器只要自己用的那
+几份，就只下那几份，不必被整包牵着走。
 
-每份下回来都先核对内容再落盘：有清单指纹就按它算（完整的 64 位，不是 ``t`` 那 8 位），清单里没有这一份就
-按文件自称的 ``sha256``；不符时换一个带时间戳的 URL 重取一次，仍不符就报错、不写盘 —— 免得坏内容配上好指纹
-进 ``data/raw/``，入库之后再也比不出来。``--force`` 时校验不过也照收，只提示。
+每份下回来都先核对内容再落盘：有清单指纹就按它算，清单里没有这一份就按文件自称的 ``sha256``。不符就报错、
+不写盘 —— 免得坏内容配上好指纹进 ``data/raw/``，入库之后再也比不出来。这里不重试：URL 已经由完整指纹决定，
+再取一次还是同一份，不符只能是上游发布的那份和清单不一致。``--force`` 时校验不过也照收，只提示。
 
 ``version`` 与 ``sha256`` 都沿用上游写的（它们是这份数据原始形态的标签与批次标识）；``sha256`` 在这里会按
 内容核一遍，文件自称的值和内容对不上时写回实际算出来的指纹，于是字段始终与内容一致 —— 下次 ``fetch`` 拿它
@@ -52,9 +52,6 @@ from .utils.http import get
 from .utils.log import logger
 from .utils.shapes import is_object
 
-#: 一份数据最多取几次：第一次按清单指纹当 ``t``，校验不过再换成时间戳重取一次（绕开远端缓存）。
-VERIFY_ATTEMPTS = 2
-
 
 class DownloadError(ValueError):
     """一份数据下载失败；``status_code`` 为 ``None`` 表示网络层错误。"""
@@ -83,7 +80,7 @@ def read_manifest() -> Manifest:
 
     清单决定了「后面下哪几份、内容是不是已经最新」，被远端缓存住就等于拿旧索引判断，所以每次带一个时间戳
     当 URL 的一部分。实测这个 CDN 只看 URL：请求头带 ``Cache-Control: no-cache`` 照样命中缓存（``Age``
-    不变），换 URL 才真的回源。只有它需要这样 —— 数据文件的 URL 自带清单给的内容指纹（``t=<指纹前 8 位>``），
+    不变），换 URL 才真的回源。只有它需要这样 —— 数据文件的 URL 自带清单给的完整指纹（``t=<内容指纹>``），
     本来就随内容变。
     """
     # 清单只有几百字节，每次都回源不心疼；它错了会连带整批判断都错。
@@ -185,29 +182,25 @@ def _fetch_verified(
     *,
     accept_mismatch: bool,
 ) -> tuple[Any, str]:
-    """取一份数据并核对内容，返回 ``(解析结果, 内容指纹)``；不符时换 URL 再取一次。
+    """取一份数据并核对内容，返回 ``(解析结果, 内容指纹)``；不符就抛 :class:`DownloadError`，不写盘。
 
-    校验不过的内容不落盘：先换成带时间戳的 URL 再要一次 —— 远端缓存串了的时候，重取原 URL 只会拿到同一份
-    —— 仍不符就抛 :class:`DownloadError`。``accept_mismatch`` 为真（``--force``）时只提示、照收。
+    不重试：``t`` 用的是清单给的**完整**指纹，同一份内容永远同一个 URL、内容一变就是新 URL，远端缓存没法拿
+    旧的顶替。所以内容还对不上，只能是上游发布的那份和清单不一致 —— 再取一次还是同一份，重试只会白等。
+    ``accept_mismatch`` 为真（``--force``）时只提示、照收。
     """
-    data: Any = None
-    digest = ""
-    problem = ""
-    for attempt in range(VERIFY_ATTEMPTS):
-        request_params = dict(params)
-        if attempt:
-            request_params["t"] = str(int(time.time() * 1000))
-        data = _request_json(file_name, _data_url(file_name, request_params))
-        digest = payload_hash(payload_of(data))
-        problem = content_problem(file_name, data, digest, expect) or ""
-        if not problem:
-            return data, digest
-        retrying = attempt + 1 < VERIFY_ATTEMPTS
-        logger.warning(f"{file_name} {problem}" + ("；换 URL 再取一次" if retrying else ""))
-    if not accept_mismatch:
-        raise DownloadError(file_name, f"{problem}（换 URL 重取后仍不符，确认无误可加 --force 照收）")
-    logger.warning(f"{file_name}：--force 下照收上面那份内容")
-    return data, digest
+    data = _request_json(file_name, _data_url(file_name, params))
+    digest = payload_hash(payload_of(data))
+    problem = content_problem(file_name, data, digest, expect)
+    if problem is None:
+        return data, digest
+    if accept_mismatch:
+        logger.warning(f"{file_name} {problem}；--force 下照收这份内容")
+        return data, digest
+    raise DownloadError(
+        file_name,
+        f"{problem}（URL 里的 t 就是清单给的完整指纹，还取到别的内容说明上游发布有问题；"
+        "确认没问题可以加 --force 照收）",
+    )
 
 
 def _download_json(
@@ -259,10 +252,10 @@ def fetch_and_cache(
 ) -> list[str]:
     """把这几份发布的原始数据逐个下载到 ``raw_dir``；返回上游还没发布、被跳过的文件名。
 
-    ``hashes`` 是清单给的每份内容指纹：有指纹的用指纹前 8 位当 ``t`` 参数 —— 同一份内容的 URL 稳定、内容
-    一变就是新 URL，绕开远端缓存。截这 8 位只是让 URL 短一点、日志好读；内容是否对得上由完整指纹核对，8 位
-    撞了顶多多取一次（:func:`_fetch_verified` 会用时间戳再取）。``token`` 给了就替掉指纹（``--force`` 时是
-    时间戳），让这几份一律回源。``force`` 时校验不过也照收，只提示。
+    ``hashes`` 是清单给的每份内容指纹，**原样**当 ``t`` 参数：同一份内容的 URL 稳定、内容一变就是新 URL，
+    内容寻址，远端缓存不可能拿旧的顶替。清单里没有这一份（这批没发它）时没有指纹可用，就退回时间戳当 ``t``，
+    至少能绕开缓存。``token`` 给了就整批替掉（``--force`` 时是时间戳），让这几份一律回源。``force`` 时校验
+    不过也照收，只提示。
     """
     raw_dir.mkdir(parents=True, exist_ok=True)
     failures: dict[str, DownloadError] = {}
@@ -272,7 +265,7 @@ def fetch_and_cache(
                 file_name,
                 raw_dir / file_name,
                 version,
-                token or hashes.get(file_name, "")[:8],
+                token or hashes.get(file_name) or str(int(time.time() * 1000)),
                 hashes.get(file_name),
                 accept_mismatch=force,
             )
