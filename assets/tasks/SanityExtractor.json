@@ -3,7 +3,7 @@
         {
             "name": "SanityExtractor",
             "label": "$task.SanityExtractor.label",
-            "entry": "SanityExtractorMain",
+            "entry": "SanityExtractorSchedule",
             "description": "$task.SanityExtractor.description",
             "group": [
                 "valuables_vault"
@@ -17,11 +17,104 @@
                 "Win32-Front"
             ],
             "option": [
+                "SanityExtractorSchedule",
                 "SanityExtractorTimes"
             ]
         }
     ],
     "option": {
+        "SanityExtractorSchedule": {
+            "type": "checkbox",
+            "label": "$option.TaskSchedule.label",
+            "cases": [
+                {
+                    "name": "SanityExtractorScheduleMonday",
+                    "label": "$option.TaskScheduleMonday.label",
+                    "pipeline_override": {
+                        "SanityExtractorScheduleEnabled": {
+                            "attach": {
+                                "monday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SanityExtractorScheduleTuesday",
+                    "label": "$option.TaskScheduleTuesday.label",
+                    "pipeline_override": {
+                        "SanityExtractorScheduleEnabled": {
+                            "attach": {
+                                "tuesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SanityExtractorScheduleWednesday",
+                    "label": "$option.TaskScheduleWednesday.label",
+                    "pipeline_override": {
+                        "SanityExtractorScheduleEnabled": {
+                            "attach": {
+                                "wednesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SanityExtractorScheduleThursday",
+                    "label": "$option.TaskScheduleThursday.label",
+                    "pipeline_override": {
+                        "SanityExtractorScheduleEnabled": {
+                            "attach": {
+                                "thursday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SanityExtractorScheduleFriday",
+                    "label": "$option.TaskScheduleFriday.label",
+                    "pipeline_override": {
+                        "SanityExtractorScheduleEnabled": {
+                            "attach": {
+                                "friday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SanityExtractorScheduleSaturday",
+                    "label": "$option.TaskScheduleSaturday.label",
+                    "pipeline_override": {
+                        "SanityExtractorScheduleEnabled": {
+                            "attach": {
+                                "saturday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SanityExtractorScheduleSunday",
+                    "label": "$option.TaskScheduleSunday.label",
+                    "pipeline_override": {
+                        "SanityExtractorScheduleEnabled": {
+                            "attach": {
+                                "sunday": true
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": [
+                "SanityExtractorScheduleMonday",
+                "SanityExtractorScheduleTuesday",
+                "SanityExtractorScheduleWednesday",
+                "SanityExtractorScheduleThursday",
+                "SanityExtractorScheduleFriday",
+                "SanityExtractorScheduleSaturday",
+                "SanityExtractorScheduleSunday"
+            ]
+        },
         "SanityExtractorTimes": {
             "type": "input",
             "label": "$task.SanityExtractor.option.Times.label",

@@ -1,4 +1,42 @@
 {
+    "SanityExtractorSchedule": {
+        "desc": "萃取理智计划任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SanityExtractorScheduleEnabled",
+            "SanityExtractorScheduleEnd"
+        ]
+    },
+    "SanityExtractorScheduleEnabled": {
+        "desc": "萃取理智计划任务命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SanityExtractorMain"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "SanityExtractorScheduleEnd": {
+        "desc": "萃取理智计划任务跳过",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "SanityExtractorMain": {
         // 清掉遗留的计数
         "desc": "萃取理智入口：先清空上一轮任务遗留的命中计数，再进入贵重品库珍贵物品页",
