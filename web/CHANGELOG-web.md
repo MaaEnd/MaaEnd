@@ -164,3 +164,36 @@ WebPageReady          OCR 用户中心/开始游戏/畅玩卡/通行证UID（右
 ### 提交
 
 `43a7be738`（节点化）→ `04fb42ec8`（改普通任务）→ `460485529`（import 过滤）→ `777634643`（i18n）
+---
+
+## 2026-10-23 14:5x · 启动网页端最终定性：退回 preAction（`b7a116a42`）
+
+### 实测结论：`StartApp` 在 Linux 控制器上不可用
+
+| 参数写法 | 结果 |
+|---|---|
+| `{"command": "/root/maaend/web/linux/wsl/start_sway.sh"}` | `Node.Action.Failed`，4.0s |
+| `{"path": "/root/maaend/web/linux/wsl/start_sway.sh"}` | `Node.Action.Failed`，4.0s |
+
+任务链本身是通的（任务名解析、节点链接、i18n、预设排序全对），失败只发生在动作层：
+
+```
+--- (1/1) WebLaunchBrowser -> WebLaunchSwayStart
+action [i=0] result={"action":"StartApp", ...}  → Node.Action.Failed
+=> done=True succeeded=False 4.0s    （重试一次，同样 4.0s）
+```
+
+`StartApp` 在 MaaFw 里是 ADB 语义（`package/activity`），Linux/Wayland 控制器未实现；
+go-service 的 85 个自定义动作里也没有“执行外部命令”这类动作。
+
+### 因此的最终形态
+
+- **启动**：预设 preAction `▶️ 启动网页端（sway + Chrome，无头）` → `start_web.sh`（通过 `program: /bin/bash` + `args`，由 MXU 直接 exec，绕过 pipeline）
+- **进游戏**：任务 `WebStartGame` → `WebStartGameEntry` → base 登录链 → 大世界
+- 删除：`web/tasks/WebLaunchBrowser.json`、对应 import（72→71）、5 个 StartApp 节点（35→30）
+
+### 若将来要把“启动”搬回任务体系
+
+唯一可行路径是**自定义 agent**：用一个极小的 agent 注册 `LaunchWebClient` 动作（exec 脚本），
+pipeline 写 `action: Custom, custom_action: LaunchWebClient`，并接到 MXU 的 `child_exec`。
+不要在 `StartApp` 上再花时间。
