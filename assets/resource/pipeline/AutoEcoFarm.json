@@ -9,24 +9,144 @@
         ]
     },
     "AutoEcoFarmMain": {
-        "desc": "生态农场主入口",
+        "desc": "生态农场主流程，重置失败收集后进入设施子任务循环",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorReset",
+                "custom_action_param": {
+                    "key": "AutoEcoFarm"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEcoFarmLoop"
+        ]
+    },
+    "AutoEcoFarmLoop": {
+        "desc": "生态农场设施子任务循环",
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__AutoEcoFarmWulingCityFarmStart",
-            "__AutoEcoFarmSisPaintingFarmStart",
-            "__AutoEcoFarmRanchStart",
-            "AutoEcoFarmExit"
+            "[JumpBack]AutoEcoFarmWulingCityFarmJob",
+            "[JumpBack]AutoEcoFarmSisPaintingFarmJob",
+            "[JumpBack]AutoEcoFarmRanchJob",
+            "AutoEcoFarmFinish"
         ]
     },
-    "AutoEcoFarmExit": {
-        "desc": "生态农场处理完成",
+    "AutoEcoFarmWulingCityFarmJob": {
+        "desc": "武陵城 - 自动农植机子任务",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
-            "type": "StopTask"
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoEcoFarm",
+                    "task": "__AutoEcoFarmWulingCityFarmExecute",
+                    "failure_task": "AutoEcoFarmWulingCityFarmFailed",
+                    "recovery_task": "AutoEcoFarmRecoverToMap"
+                }
+            }
         },
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "AutoEcoFarmSisPaintingFarmJob": {
+        "desc": "祀的画 - 自动农植机子任务",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoEcoFarm",
+                    "task": "__AutoEcoFarmSisPaintingFarmExecute",
+                    "failure_task": "AutoEcoFarmSisPaintingFarmFailed",
+                    "recovery_task": "AutoEcoFarmRecoverToMap"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoEcoFarmRanchJob": {
+        "desc": "祀的画 - 牧场子任务",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoEcoFarm",
+                    "task": "__AutoEcoFarmRanchExecute",
+                    "failure_task": "AutoEcoFarmRanchFailed",
+                    "recovery_task": "AutoEcoFarmRecoverToMap"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoEcoFarmWulingCityFarmFailed": {
+        "desc": "武陵城自动农植机失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoEcoFarm.failed.WulingCityFarm"
+        }
+    },
+    "AutoEcoFarmSisPaintingFarmFailed": {
+        "desc": "祀的画自动农植机失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoEcoFarm.failed.SisPaintingFarm"
+        }
+    },
+    "AutoEcoFarmRanchFailed": {
+        "desc": "祀的画牧场失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoEcoFarm.failed.Ranch"
+        }
+    },
+    "AutoEcoFarmFinish": {
+        "desc": "汇总生态农场子任务执行结果",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorFinish",
+                "custom_action_param": {
+                    "key": "AutoEcoFarm"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.PipelineNode.Failed": {
+                "trace": false
+            }
+        }
     }
 }

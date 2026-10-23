@@ -32,7 +32,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "__AutoEcoFarmWulingCityFarmStart": {
+                        "AutoEcoFarmWulingCityFarmJob": {
                             "enabled": true
                         }
                     }
@@ -40,7 +40,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "__AutoEcoFarmWulingCityFarmStart": {
+                        "AutoEcoFarmWulingCityFarmJob": {
                             "enabled": false
                         }
                     }
@@ -55,7 +55,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "__AutoEcoFarmSisPaintingFarmStart": {
+                        "AutoEcoFarmSisPaintingFarmJob": {
                             "enabled": true
                         }
                     }
@@ -63,7 +63,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "__AutoEcoFarmSisPaintingFarmStart": {
+                        "AutoEcoFarmSisPaintingFarmJob": {
                             "enabled": false
                         }
                     }
@@ -78,7 +78,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "__AutoEcoFarmRanchStart": {
+                        "AutoEcoFarmRanchJob": {
                             "enabled": true
                         }
                     }
@@ -86,7 +86,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "__AutoEcoFarmRanchStart": {
+                        "AutoEcoFarmRanchJob": {
                             "enabled": false
                         }
                     }
