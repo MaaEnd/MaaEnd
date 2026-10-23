@@ -1,7 +1,8 @@
 name: pr-title
 
 on:
-  pull_request:
+  # 用 pull_request_target：工作流与脚本都取自基础分支，PR 无法通过改本工作流或 check_pr_title.py 绕过检查
+  pull_request_target:
     types:
       - opened
       - edited
@@ -23,6 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          # 显式检出基础分支：判定规则（cliff.toml）与被判定的 PR 内容必须来自不同侧
+          ref: ${{ github.event.pull_request.base.sha }}
           # git-cliff 只需要一个提交和 .github/cliff.toml
           fetch-depth: 1
           sparse-checkout: .github
@@ -42,6 +45,6 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           uv run --no-project .github/scripts/check_pr_title.py \
-            --title "$PR_TITLE" \
+            --title="$PR_TITLE" \
             --github \
             --step-summary "$GITHUB_STEP_SUMMARY"

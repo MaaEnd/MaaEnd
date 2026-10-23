@@ -54,8 +54,10 @@ TITLE_RE = re.compile(r"^(?P<type>[A-Za-z]+)(?:\((?P<scope>[^()\r\n]*)\))?(?P<ba
 # 分组串带 "<!-- N -->" 排序前缀，例如 "<!-- 0 -->✨ 新功能"
 GROUP_PREFIX_RE = re.compile(r"^<!--\s*\d+\s*-->\s*")
 REVERT_RE = re.compile(r'^Revert "')
-# 该标记让 git-cliff 整条提交不进更新日志；写在标题里时先剥掉再校验格式，否则可以拿它绕过检查
-SKIP_MARKER_RE = re.compile(r"\[skip changelog\]", re.IGNORECASE)
+# 与 cliff.toml 的 skip 正则保持一致（大小写敏感）；写在标题里时先剥掉再校验格式，否则可以拿它绕过检查
+SKIP_MARKER_RE = re.compile(r"\[skip changelog\]")
+# 大小写写错时 git-cliff 不会跳过这条提交，单独提示
+SKIP_MARKER_VARIANT_RE = re.compile(r"\[skip changelog\]", re.IGNORECASE)
 
 
 class CliffError(Exception):
@@ -146,6 +148,8 @@ def suggest_type(type_name: str) -> str:
 def describe_format_issue(title: str) -> str:
     """标题不匹配 类型(范围): 描述 时，指出具体是哪里写错了。"""
     title = SKIP_MARKER_RE.sub("", title)
+    if len(title.splitlines()) > 1:
+        return "标题不能包含换行"
     if "：" in title:
         return "冒号须为半角 `:`，检测到全角 `：`"
     if re.match(r"^[A-Za-z]+ *:", title):
@@ -166,8 +170,18 @@ def judge(title: str, injected: dict | None, valid_groups: set[str]) -> list[Pro
         ]
     # 标记会让整条提交不进更新日志，所以剥掉后照样校验格式，否则加个标记就能绕过检查
     skip_marker = SKIP_MARKER_RE.search(text) is not None
+    marker_problems: list[Problem] = []
     if skip_marker:
         text = SKIP_MARKER_RE.sub("", text).strip()
+    elif SKIP_MARKER_VARIANT_RE.search(text):
+        # 大小写与 cliff.toml 的正则不一致时标记不生效，别让作者以为提交被跳过了
+        marker_problems.append(
+            Problem(
+                WARNING,
+                "`[skip changelog]` 区分大小写，写成这样不会跳过这条提交，它仍会出现在更新日志里",
+                "要跳过更新日志就写成全小写的 `[skip changelog]`，并写在 PR 描述里",
+            )
+        )
     if not text:
         return [Problem(ERROR, "PR 标题只有 `[skip changelog]` 标记，缺少实际内容", "示例：`chore: 同步资源`")]
     if injected is None:
@@ -245,14 +259,20 @@ def judge(title: str, injected: dict | None, valid_groups: set[str]) -> list[Pro
                 "这个标记一般只给 bot 的自动提交用，请写在 PR 描述里而不是标题里",
             )
         )
+    problems.extend(marker_problems)
     return problems
+
+
+def flatten(text: str) -> str:
+    """把标题里的换行压平：Actions 会把输出里以 :: 开头的行当工作流命令，标题不能带换行。"""
+    return " ".join(text.splitlines())
 
 
 def render(title: str, problems: list[Problem]) -> tuple[str, int]:
     """渲染 Markdown 报告与退出码。"""
     errors = [problem for problem in problems if problem.level == ERROR]
     lines = ["### ❌ PR 标题不符合约定式提交规范" if errors else "### ✅ PR 标题检查通过", ""]
-    lines.append(f"**PR 标题**：`{title}`")
+    lines.append(f"**PR 标题**：`{flatten(title)}`")
     if problems:
         lines.append("")
     for problem in problems:
@@ -321,10 +341,15 @@ def main(argv: list[str] | None = None) -> int:
         print(report)
 
     if args.step_summary is not None and reports:
-        # 多次运行共用同一个汇总文件，块之间留一个空行，避免标题紧贴上一条
-        prefix = "\n" if args.step_summary.exists() and args.step_summary.stat().st_size else ""
-        with args.step_summary.open("a", encoding="utf-8") as summary:
-            summary.write(prefix + "\n\n".join(reports) + "\n")
+        try:
+            # 多次运行共用同一个汇总文件，块之间留一个空行，避免标题紧贴上一条
+            prefix = "\n" if args.step_summary.exists() and args.step_summary.stat().st_size else ""
+            with args.step_summary.open("a", encoding="utf-8") as summary:
+                summary.write(prefix + "\n\n".join(reports) + "\n")
+        except OSError as exc:
+            # 汇总只是附带信息，写不进去不该改变判定结果
+            message = f"写入 {args.step_summary} 失败：{exc}"
+            print(f"::warning::{escape_command(message)}" if args.github else f"警告：{message}", file=sys.stderr)
     return exit_code
 
 
