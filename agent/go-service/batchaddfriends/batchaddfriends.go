@@ -122,6 +122,10 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		strangersMaxCount:    maxCount,
 		strangersMaxAttempts: maxAttempts,
 	}
+	// 黑名单是包级状态，上一次任务结束后会残留；行的 y 只在同一批列表内有效，
+	// 跨任务复用会误跳过新玩家。
+	resetRejectedRows()
+	consecutiveEmptyBatches = 0
 	// max_hit 沿用「添加数量」：只有添加成功才会再次命中 AddStrangersLoop，
 	// 所以它天然等价于「加够 N 个就停」。尝试次数另在 Go 里独立计数。
 	// +1：流程进循环时 S.Start 会先命中一次 AddStrangersLoop，那次并不产生添加，
@@ -132,9 +136,9 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		},
 	})
 	// 先跑一次残留菜单清理，再进陌生人分支。
-	// ResetMenu 只在列表存在残留二级菜单时命中，未命中会自然落到 StrangersStart。
+	// ResetMenuProbe 只在列表存在残留二级菜单时命中，未命中会自然落到 StrangersStart。
 	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
-		{Name: "BatchAddFriendsStrangersResetMenu"},
+		{Name: "BatchAddFriendsStrangersResetMenuProbe"},
 		{Name: "BatchAddFriendsStrangersStart"},
 	})
 	log.Info().
@@ -269,12 +273,14 @@ func (a *BatchAddFriendsStrangersFinishAction) Run(ctx *maa.Context, arg *maa.Cu
 
 func (a *BatchAddFriendsFriendListFullAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Warn().Msg("[BatchAddFriends]好友列表已满，提前结束")
+	maafocus.Print(ctx, i18n.T("batchaddfriends.friend_list_full"))
 	if state.mode == "uid" {
 		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "BatchAddFriendsUIDEnd"},
 		})
 		return true
 	}
+	// 好友列表已满：提示后直接结束，不做界面收尾（与其它任务一致）。
 	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 		{Name: "BatchAddFriendsStrangersEnd"},
 	})

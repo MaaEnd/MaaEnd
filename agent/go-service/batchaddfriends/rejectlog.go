@@ -68,7 +68,15 @@ func (r *RejectLogRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionA
 		// 关闭时不要在日志里出现这一项，否则 DirectHit 会恒显示「有」，看着像真的检测到了。
 		Echo bool `json:"echo"`
 	}
-	_ = json.Unmarshal([]byte(strings.TrimSpace(arg.CustomRecognitionParam)), &params)
+	if err := json.Unmarshal([]byte(strings.TrimSpace(arg.CustomRecognitionParam)), &params); err != nil {
+		// 参数损坏时字段会退化为零值：failed 回退成通用文案、echo 关闭。
+		// 保留回退行为（少一项总比不出日志好），但要留下线索，避免排查时无从下手。
+		log.Warn().
+			Err(err).
+			Str("component", componentRejectLog).
+			Str("param", arg.CustomRecognitionParam).
+			Msg("reject log param parse failed, fallback to defaults")
+	}
 
 	failedKey := strings.TrimSpace(params.Failed)
 	if failedKey == "" {

@@ -37,17 +37,27 @@ const (
 	// 框越大落点越漂；1×1 等价于精确点。
 	pickRowAvatarSize = 1
 
-	// 行位置匹配容差。
-	// 同一行的按钮框 y 在相邻两次识别之间会有像素级抖动，容差必须覆盖它，
-	// 否则已拒绝的行会被当成新行重复挑中。行距约 105px，20 不会把相邻行并成一行。
-	rejectMatchTolerance = 20
+	// 行身份用「本批列表内从上往下的序号」，不用像素坐标。
+	// 同一批列表里行序稳定，而按钮框 y 会随渲染与测量轻微抖动，
+	// 用 y 加容差匹配会在容差边缘把邻居行误判成同一行，导致挑行顺序错乱。
+
+	// 连续空批上限。
+	// 「换一批」回路不经过任何计数节点，推荐列表翻到底后会一直空转，
+	// 连续这么多次换批都没挑到人就直接结束。
+	maxConsecutiveEmptyBatches = 3
 )
 
 var rejectedRows = struct {
-	mu   sync.Mutex
-	ys   []int // 已拒绝行的按钮框 y
-	last int   // 最近一次挑中的按钮框 y，供拒绝动作使用
+	mu      sync.Mutex
+	indexes []int // 已拒绝行的序号（本批列表按 y 从上到下）
+	last    int   // 最近一次挑中的行序号
+	hasLast bool  // last 是否有效，序号 0 也是合法行
 }{}
+
+// consecutiveEmptyBatches 记录连续「换一批后仍然没有任何可添加行」的次数。
+// Scan → ChangeBatch → ClearRejects 这条回路不经过任何计数节点，
+// 单靠尝试次数兜不住，需要单独设上限。
+var consecutiveEmptyBatches int
 
 // PickStrangerRowRecognition 挑选最上面一个「未被拒绝」的可添加行，返回其头像位置。
 type PickStrangerRowRecognition struct{}
@@ -68,15 +78,19 @@ func (r *PickStrangerRowRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	rejectedRows.mu.Lock()
 	defer rejectedRows.mu.Unlock()
 
-	for _, button := range buttons {
-		if isRejectedLocked(button.Y()) {
+	for index, button := range buttons {
+		if isRejectedLocked(index) {
 			log.Debug().
 				Str("component", componentPickRow).
+				Int("index", index).
 				Int("y", button.Y()).
 				Msg("row is in reject list, skip")
 			continue
 		}
-		rejectedRows.last = button.Y()
+		rejectedRows.last = index
+		rejectedRows.hasLast = true
+		// 挑到了人，连续空批计数归零。
+		consecutiveEmptyBatches = 0
 		return &maa.CustomRecognitionResult{Box: avatarBox(button)}, true
 	}
 
@@ -87,7 +101,7 @@ func (r *PickStrangerRowRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	log.Info().
 		Str("component", componentPickRow).
 		Int("visible", len(buttons)).
-		Int("rejected", len(rejectedRows.ys)).
+		Int("rejected", len(rejectedRows.indexes)).
 		Msg(message)
 	maafocus.Print(ctx, message)
 	return nil, false
@@ -103,16 +117,16 @@ func (a *RecordRejectAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 	rejectedRows.mu.Lock()
 	defer rejectedRows.mu.Unlock()
 
-	if rejectedRows.last == 0 {
+	if !rejectedRows.hasLast {
 		log.Warn().Str("component", componentRecordReject).Msg("no picked row to reject")
 		return true
 	}
 
-	rejectedRows.ys = append(rejectedRows.ys, rejectedRows.last)
+	rejectedRows.indexes = append(rejectedRows.indexes, rejectedRows.last)
 	log.Info().
 		Str("component", componentRecordReject).
-		Int("y", rejectedRows.last).
-		Int("total", len(rejectedRows.ys)).
+		Int("index", rejectedRows.last).
+		Int("total", len(rejectedRows.indexes)).
 		Msg("row added to reject list")
 
 	// 被拒绝也算「判定过一个玩家」，计入尝试次数。
@@ -131,20 +145,49 @@ func (a *ClearRejectsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 	rejectedRows.mu.Lock()
 	defer rejectedRows.mu.Unlock()
 
-	rejectedRows.ys = nil
+	rejectedRows.indexes = nil
 	rejectedRows.last = 0
-	log.Debug().Str("component", componentClearRejects).Msg("reject list cleared")
+	rejectedRows.hasLast = false
+
+	// 「换一批」回路不经过任何计数节点，连续空批要单独兜底，
+	// 否则推荐列表翻到底之后会一直换批空转。
+	consecutiveEmptyBatches++
+	if consecutiveEmptyBatches > maxConsecutiveEmptyBatches {
+		log.Warn().
+			Str("component", componentClearRejects).
+			Int("emptyBatches", consecutiveEmptyBatches).
+			Msg("too many consecutive empty batches, end strangers mode")
+		maafocus.Print(ctx, i18n.T("batchaddfriends.strangers_empty_batch_limit", consecutiveEmptyBatches))
+		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+			{Name: "BatchAddFriendsStrangersEnd"},
+		})
+		return true
+	}
+
+	log.Debug().
+		Str("component", componentClearRejects).
+		Int("emptyBatches", consecutiveEmptyBatches).
+		Msg("reject list cleared")
 	return true
 }
 
-// isRejectedLocked 判断某个按钮框 y 是否落在黑名单内（调用方需已持锁）。
-func isRejectedLocked(y int) bool {
-	for _, rejected := range rejectedRows.ys {
-		diff := rejected - y
-		if diff < 0 {
-			diff = -diff
-		}
-		if diff <= rejectMatchTolerance {
+// resetRejectedRows 清空黑名单并重置最近挑中的行。
+//
+// 任务开始时必须调用：这些记录是包级状态，上一次任务结束后会残留，
+// 而行的序号只在同一批列表内有效，跨任务复用会误跳过新玩家。
+func resetRejectedRows() {
+	rejectedRows.mu.Lock()
+	defer rejectedRows.mu.Unlock()
+
+	rejectedRows.indexes = nil
+	rejectedRows.last = 0
+	rejectedRows.hasLast = false
+}
+
+// isRejectedLocked 判断某个行序号是否落在黑名单内（调用方需已持锁）。
+func isRejectedLocked(index int) bool {
+	for _, rejected := range rejectedRows.indexes {
+		if rejected == index {
 			return true
 		}
 	}

@@ -1405,7 +1405,7 @@
     "option.BatchAddFriendsUID.inputs.UidList.label": "UID 목록",
     "option.BatchAddFriendsUID.label": "추가 설정",
     "option.BatchAddFriendsWulingLevel.label": "범위",
-    "option.BatchAddFriendsWulingLimit.label": "武陵 개발 레벨 제한",
+    "option.BatchAddFriendsWulingLimit.label": "무릉 개발 레벨 제한",
     "option.BatchDeleteFriendsInactiveDays.cases.Days1.label": "1일",
     "option.BatchDeleteFriendsInactiveDays.cases.Days14.label": "14일",
     "option.BatchDeleteFriendsInactiveDays.cases.Days3.label": "3일",
