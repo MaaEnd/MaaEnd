@@ -1,0 +1,55 @@
+{
+    // 先确认制作页恢复，再交给公共退出，避免把刚关闭的奖励旧帧再次交给 IMS。
+    "CraftingCloseProductPopup": {
+        "next": [
+            "CraftingCreationFinish",
+            "CraftingRewardPopupGone"
+        ]
+    },
+    "CraftingAfterRewardsPanelReady": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": ["InCrafting"]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CraftingCreationFinish",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    // inverse 在独立流程节点执行，不能作为 And 的子识别条件。
+    "CraftingRewardPopupGone": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": ["CraftingRewardPopupVisible"]
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CraftingCreationFinish",
+            "CraftingAfterRewardsPanelReady"
+        ]
+    },
+    "CraftingRewardPopupVisible": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "InNoticeRewards",
+                    "CraftingCloseProductPopup"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
