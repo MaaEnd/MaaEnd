@@ -146,6 +146,7 @@
         "VisitFriendsPrioritySearchEnable": {
             "type": "switch",
             "label": "$option.VisitFriendsPrioritySearchEnable.label",
+            "description": "$option.VisitFriendsPrioritySearchEnable.description",
             "cases": [
                 {
                     "name": "Yes",
