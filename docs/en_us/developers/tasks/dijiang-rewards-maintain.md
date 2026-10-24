@@ -2,7 +2,7 @@
 
 This document explains the file distribution and execution flow of `DijiangRewards`.  
 The core design is "Control Nexus dispatching + sub-stage jump-back": each sub-stage is independent, and options only modify stage entry points or branches without altering the main flow skeleton.  
-This document was updated on October 17, 2026.
+This document was updated on October 25, 2026.
 
 ## File Paths
 
