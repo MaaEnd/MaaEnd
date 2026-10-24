@@ -60,8 +60,7 @@
             "name": "PlayCover",
             "type": "PlayCover",
             "attach_resource_path": [
-                "./resource_adb",
-                "./resource_playcover"
+                "./resource_adb"
             ],
             "playcover": {
                 "uuid": "maa.playcover"
