@@ -9,13 +9,7 @@
             "param": {
                 "all_of": [
                     "AutoEssenceCapacityOnWeaponTab",
-                    {
-                        "recognition": "Or",
-                        "any_of": [
-                            "CloseButtonType1",
-                            "BackButton"
-                        ]
-                    }
+                    "CloseButtonType1"
                 ],
                 "box_index": 1
             }
