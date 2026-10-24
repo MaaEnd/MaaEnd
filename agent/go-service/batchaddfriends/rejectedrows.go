@@ -78,20 +78,12 @@ func (r *PickStrangerRowRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	rejectedRows.mu.Lock()
 	defer rejectedRows.mu.Unlock()
 
-	for index, button := range buttons {
-		if isRejectedLocked(index) {
-			log.Debug().
-				Str("component", componentPickRow).
-				Int("index", index).
-				Int("y", button.Y()).
-				Msg("row is in reject list, skip")
-			continue
-		}
+	if index, ok := pickNextRowLocked(buttons); ok {
 		rejectedRows.last = index
 		rejectedRows.hasLast = true
 		// 挑到了人，连续空批计数归零。
 		consecutiveEmptyBatches = 0
-		return &maa.CustomRecognitionResult{Box: avatarBox(button)}, true
+		return &maa.CustomRecognitionResult{Box: avatarBox(buttons[index])}, true
 	}
 
 	// 屏幕上还剩下的人全在黑名单里，当作「没人可加」，让 Pipeline 去换一批。
@@ -153,13 +145,13 @@ func (a *ClearRejectsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 
 	// 「换一批」回路不经过任何计数节点，连续空批要单独兜底，
 	// 否则推荐列表翻到底之后会一直换批空转。
-	consecutiveEmptyBatches++
-	if consecutiveEmptyBatches > maxConsecutiveEmptyBatches {
+	emptyBatches, exceeded := bumpEmptyBatch()
+	if exceeded {
 		log.Warn().
 			Str("component", componentClearRejects).
-			Int("emptyBatches", consecutiveEmptyBatches).
+			Int("emptyBatches", emptyBatches).
 			Msg("too many consecutive empty batches, end strangers mode")
-		maafocus.Print(ctx, i18n.T("batchaddfriends.strangers_empty_batch_limit", consecutiveEmptyBatches))
+		maafocus.Print(ctx, i18n.T("batchaddfriends.strangers_empty_batch_limit", emptyBatches))
 		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "BatchAddFriendsStrangersEnd"},
 		})
@@ -168,7 +160,7 @@ func (a *ClearRejectsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 
 	log.Debug().
 		Str("component", componentClearRejects).
-		Int("emptyBatches", consecutiveEmptyBatches).
+		Int("emptyBatches", emptyBatches).
 		Msg("reject list cleared")
 	return true
 }
@@ -194,6 +186,28 @@ func isRejectedLocked(index int) bool {
 		}
 	}
 	return false
+}
+
+// pickNextRowLocked 返回按钮列里第一个未被拒绝的行序号（调用方需已持锁）。
+func pickNextRowLocked(buttons []maa.Rect) (int, bool) {
+	for index, button := range buttons {
+		if isRejectedLocked(index) {
+			log.Debug().
+				Str("component", componentPickRow).
+				Int("index", index).
+				Int("y", button.Y()).
+				Msg("row is in reject list, skip")
+			continue
+		}
+		return index, true
+	}
+	return 0, false
+}
+
+// bumpEmptyBatch 记录一次「换批后仍没挑到人」，返回连续次数以及是否超过上限。
+func bumpEmptyBatch() (int, bool) {
+	consecutiveEmptyBatches++
+	return consecutiveEmptyBatches, consecutiveEmptyBatches > maxConsecutiveEmptyBatches
 }
 
 // runButtonOCR 执行按钮列 OCR 节点，返回按纵向排序的按钮框。

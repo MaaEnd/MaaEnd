@@ -545,8 +545,10 @@
                 "custom_recognition": "BatchAddFriendsStrangersPickRowRecognition"
             }
         },
-        "pre_delay": 0,
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
         "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
@@ -590,11 +592,11 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "on_error": [
-            "BatchAddFriendsStrangersStart"
-        ],
         "next": [
             "BatchAddFriendsStrangersResetMenuOpen"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersStart"
         ]
     },
     "BatchAddFriendsStrangersResetMenuOpen": {
@@ -633,12 +635,12 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "on_error": [
-            "BatchAddFriendsStrangersScan"
-        ],
         "next": [
             "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersResetMenuClose"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersScan"
         ]
     },
     "BatchAddFriendsStrangersResetMenuClose": {
@@ -653,20 +655,22 @@
                 "box_index": 1
             }
         },
-        "pre_delay": 0,
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
         "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "on_error": [
-            "BatchAddFriendsStrangersScan"
-        ],
         "next": [
             "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersStart"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersScan"
         ]
     },
     "BatchAddFriendsStrangersMenuViewProfile": {
@@ -693,20 +697,22 @@
                 ]
             }
         },
-        "pre_delay": 0,
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
         "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "on_error": [
-            "BatchAddFriendsStrangersScan"
-        ],
         "next": [
             "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersProfileCardOpened"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersScan"
         ]
     },
     "BatchAddFriendsStrangersProfileCardOpened": {
@@ -740,12 +746,12 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "on_error": [
-            "BatchAddFriendsStrangersProfileFallbackClose"
-        ],
         "next": [
             "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersProfileAuthorityLevel"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersProfileFallbackClose"
         ]
     },
     "BatchAddFriendsStrangersProfileReady": {
@@ -770,11 +776,11 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "on_error": [
-            "BatchAddFriendsStrangersProfileFallbackClose"
-        ],
         "next": [
             "BatchAddFriendsStrangersProfileAuthorityLevel"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersProfileFallbackClose"
         ]
     },
     "BatchAddFriendsStrangersProfileFallbackClose": {
@@ -801,11 +807,11 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "on_error": [
-            "BatchAddFriendsStrangersEnd"
-        ],
         "next": [
             "BatchAddFriendsStrangersRecordReject"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersEnd"
         ]
     },
     "BatchAddFriendsStrangersProfileAuthorityLevel": {
@@ -827,9 +833,9 @@
                 ]
             }
         },
-        "rate_limit": 0,
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileValleyIVIcon",
             "BatchAddFriendsStrangersProfileWulingIcon",
@@ -855,18 +861,18 @@
                 "template": "BatchAddFriends/valleyIV.png"
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "DoNothing",
             "param": {}
         },
-        "rate_limit": 0,
-        "pre_delay": 0,
         "post_delay": 0,
-        "on_error": [
-            "BatchAddFriendsStrangersProfileReject"
-        ],
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileValleyIVLevel"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersProfileReject"
         ]
     },
     "BatchAddFriendsStrangersProfileValleyIVLevel": {
@@ -892,9 +898,9 @@
                 ]
             }
         },
-        "rate_limit": 0,
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileWulingIcon",
             "BatchAddFriendsStrangersProfileAuthorityGate",
@@ -915,18 +921,18 @@
                 "template": "BatchAddFriends/wuling.png"
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "DoNothing",
             "param": {}
         },
-        "rate_limit": 0,
-        "pre_delay": 0,
         "post_delay": 0,
-        "on_error": [
-            "BatchAddFriendsStrangersProfileReject"
-        ],
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileWulingLevel"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersProfileReject"
         ]
     },
     "BatchAddFriendsStrangersProfileWulingLevel": {
@@ -952,9 +958,9 @@
                 ]
             }
         },
-        "rate_limit": 0,
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileAuthorityGate",
             "BatchAddFriendsStrangersProfileRejectLogAuthority"
@@ -963,13 +969,13 @@
     "BatchAddFriendsStrangersProfileQualify": {
         "desc": "全部门槛通过：去点「申请好友」",
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "DoNothing",
             "param": {}
         },
-        "rate_limit": 0,
-        "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileAddFriend"
         ]
@@ -978,13 +984,13 @@
         "desc": "权限等级区间闸门（表达式由「权限等级限制」选项注入）",
         // 兜底必须是「权限等级」自己的日志：本闸门不命中才轮到它。
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "DoNothing",
             "param": {}
         },
-        "rate_limit": 0,
-        "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileValleyGate",
             "BatchAddFriendsStrangersProfileRejectLogValley"
@@ -994,13 +1000,13 @@
         "desc": "四号谷地建设等级区间闸门",
         // 四号谷地不命中 → 走四号谷地自己的日志。
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "DoNothing",
             "param": {}
         },
-        "rate_limit": 0,
-        "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileWulingGate",
             "BatchAddFriendsStrangersProfileRejectLogWuling"
@@ -1010,13 +1016,13 @@
         "desc": "武陵建设等级区间闸门",
         // 武陵不命中 → 走武陵自己的日志；通过则去点申请好友。
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "DoNothing",
             "param": {}
         },
-        "rate_limit": 0,
-        "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileWarEcho",
             "BatchAddFriendsStrangersProfileRejectLogWarEcho"
@@ -1034,16 +1040,16 @@
                 }
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "DoNothing",
             "param": {}
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileReject"
-        ],
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0
+        ]
     },
     "BatchAddFriendsStrangersProfileRejectLogValley": {
         "desc": "「batchaddfriends.level.valleyIV」不达标时输出诊断并跳过该玩家",
@@ -1057,16 +1063,16 @@
                 }
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "DoNothing",
             "param": {}
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileReject"
-        ],
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0
+        ]
     },
     "BatchAddFriendsStrangersProfileRejectLogWuling": {
         "desc": "「batchaddfriends.level.wuling」不达标时输出诊断并跳过该玩家",
@@ -1080,16 +1086,16 @@
                 }
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "DoNothing",
             "param": {}
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileReject"
-        ],
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0
+        ]
     },
     "BatchAddFriendsStrangersProfileWarEcho": {
         "desc": "「战争回响增辉」标识检查：开关未开启时直接通过",
@@ -1097,14 +1103,16 @@
         // 由 switch 的 pipeline_override 把本节点的 recognition 换成 TemplateMatch，
         // 于是「没有该标识」就会落到下面的失败分支。
         "recognition": "DirectHit",
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "action": {
             "type": "DoNothing",
             "param": {}
         },
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "pre_wait_freezes": 100,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersProfileQualify"
@@ -1122,16 +1130,16 @@
                 }
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "DoNothing",
             "param": {}
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileReject"
-        ],
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0
+        ]
     },
     "BatchAddFriendsStrangersProfileReject": {
         "desc": "权限等级不达标：关闭名片并拉黑这一行",
@@ -1146,14 +1154,16 @@
                 "box_index": 1
             }
         },
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "pre_wait_freezes": 100,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersRecordReject"
@@ -1162,15 +1172,15 @@
     "BatchAddFriendsStrangersRecordReject": {
         "desc": "把刚才这一行记入拒绝黑名单",
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "BatchAddFriendsStrangersRecordRejectAction"
             }
         },
-        "rate_limit": 0,
-        "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersScan"
         ]
@@ -1203,21 +1213,23 @@
                 ]
             }
         },
-        "pre_delay": 0,
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
         "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "on_error": [
-            "BatchAddFriendsStrangersProfileClose"
-        ],
         "next": [
             "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsFriendListFullToast",
             "BatchAddFriendsStrangersApplySentToast"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersProfileClose"
         ]
     },
     "BatchAddFriendsStrangersProfilePage": {
@@ -1303,8 +1315,10 @@
                 "box_index": 1
             }
         },
-        "pre_delay": 0,
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
         "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {}
@@ -1356,19 +1370,19 @@
         // 黑名单按「按钮框 y」记录，换一批后行位置全部改变，旧记录必须作废，
         // 否则会误跳过刷新后出现在同一位置的新玩家。
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "BatchAddFriendsStrangersClearRejectsAction"
             }
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersScan"
-        ],
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0
+        ]
     },
     "BatchAddFriendsStrangersEnd": {
         "desc": "陌生人批量添加结束",
