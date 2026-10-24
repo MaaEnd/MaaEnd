@@ -1,0 +1,10 @@
+{
+    "GrowthChamberBackButton": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": ["BackButton"]
+            }
+        }
+    }
+}

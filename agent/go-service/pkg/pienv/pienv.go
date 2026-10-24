@@ -22,6 +22,14 @@ const (
 	EnvResource           = "PI_RESOURCE"
 )
 
+// ControllerNameCloudWeb matches the cloud controller name in interface.json.
+const ControllerNameCloudWeb = "Win32-CloudWeb"
+
+// IsCloudWebController identifies the cloud browser independently of its Win32 adapter.
+func IsCloudWebController() bool {
+	return ControllerName() == ControllerNameCloudWeb
+}
+
 // ---- Controller sub-object types (per PI protocol) ----
 
 // Win32Config holds Win32 controller-specific fields (class/window regex, screencap and input methods).

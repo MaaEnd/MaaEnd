@@ -153,7 +153,7 @@ except KeyError as e:
 MXU_DIST_NAME: str = "mxu.exe" if OS_KEYWORD == "win" else "mxu"
 CPP_ALGO_DIST_NAME: str = "cpp-algo.exe" if OS_KEYWORD == "win" else "cpp-algo"
 CPP_ALGO_COMPANION_FILES: tuple[str, ...] = (
-    ("WebView2Loader.dll",) if OS_KEYWORD == "win" else ()
+    ("WebView2Loader.dll", "MaaUtils.dll") if OS_KEYWORD == "win" else ()
 )
 ARCH_VARIANT_HINTS: dict[str, tuple[str, ...]] = {
     "x86_64": ("x86_64", "amd64", "x64"),
@@ -972,31 +972,65 @@ def _is_supported_archive(path: Path) -> bool:
     return False
 
 
+def _replace_cpp_runtime(files: list[tuple[Path, Path]]) -> None:
+    """任一运行时文件替换失败时恢复整组旧文件，避免 Agent 与宿主版本混用。"""
+    backup_dir = Path(tempfile.mkdtemp(prefix=".cpp-runtime-", dir=files[0][1].parent))
+    replaced: list[tuple[Path, Path | None]] = []
+    rollback_complete = True
+    try:
+        backups = {}
+        for _, target in files:
+            backup = backup_dir / target.name if target.exists() else None
+            if backup is not None:
+                shutil.copy2(target, backup)
+            backups[target] = backup
+        for source, target in files:
+            _replace_file_with_retry(source, target)
+            replaced.append((target, backups[target]))
+    except BaseException:
+        for target, backup in reversed(replaced):
+            try:
+                if backup is None:
+                    target.unlink(missing_ok=True)
+                else:
+                    os.replace(backup, target)
+            except OSError as error:
+                rollback_complete = False
+                # Preserve all remaining backups if another process acquired a
+                # replaced file during installation; never silently delete them.
+                print(Console.err(t("err_runtime_rollback", path=target, backup=backup_dir, error=error)))
+        raise
+    finally:
+        if rollback_complete:
+            shutil.rmtree(backup_dir)
+
+
 def copy_cpp_algo_binary(src_path: Path, install_root: Path) -> None:
     agent_dir = install_root / "agent"
     agent_dir.mkdir(parents=True, exist_ok=True)
 
     target_path = agent_dir / CPP_ALGO_DIST_NAME
-    _replace_file_with_retry(src_path, target_path)
-    print(Console.ok(t("inf_updated_file", name=target_path.name)))
-
-    if OS_KEYWORD != "win":
-        target_path.chmod(target_path.stat().st_mode | 0o111)
+    files = [(src_path, target_path)]
 
     pdb_src = src_path.with_suffix(".pdb")
     if pdb_src.exists():
         pdb_target = agent_dir / f"{Path(CPP_ALGO_DIST_NAME).stem}.pdb"
-        _replace_file_with_retry(pdb_src, pdb_target)
-        print(Console.ok(t("inf_updated_file", name=pdb_target.name)))
+        files.append((pdb_src, pdb_target))
 
     for companion_name in CPP_ALGO_COMPANION_FILES:
         companion_src = src_path.parent / companion_name
-        if not companion_src.exists():
-            print(Console.warn(t("wrn_cpp_algo_companion_missing", name=companion_name)))
+        if not companion_src.is_file():
+            if companion_name == "WebView2Loader.dll":
+                print(Console.warn(t("wrn_cpp_algo_companion_missing", name=companion_name)))
             continue
         companion_target = agent_dir / companion_name
-        _replace_file_with_retry(companion_src, companion_target)
-        print(Console.ok(t("inf_updated_file", name=companion_target.name)))
+        files.append((companion_src, companion_target))
+
+    _replace_cpp_runtime(files)
+    if OS_KEYWORD != "win":
+        target_path.chmod(target_path.stat().st_mode | 0o111)
+    for _, target in files:
+        print(Console.ok(t("inf_updated_file", name=target.name)))
 
 
 def _github_auth_headers() -> dict[str, str] | None:

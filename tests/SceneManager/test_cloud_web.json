@@ -1,0 +1,102 @@
+{
+    "configs": {
+        "name": "云终末地官网启动与菜单识别",
+        "resource": "官服",
+        "controller": "Win32-CloudWeb"
+    },
+    "cases": [
+        {
+            "image": "云终末地_据点交易.png",
+            "hits": [
+                "OutpostTradingSell",
+                "OutpostTradingSellThenLoop"
+            ]
+        },
+        {
+            "image": "云终末地_协议空间领奖.png",
+            "hits": [
+                "ProtocolSpaceRewardClaimSuccessContinue",
+                "ProtocolSpaceRewardClaimSuccessContinueAfterMedication",
+                "ProtocolSpaceRewardClaimSuccessFinish",
+                "ProtocolSpaceRewardClaimSuccessSanityLowFinish"
+            ]
+        },
+        {
+            "image": "云终末地_协议空间机制提示.png",
+            "hits": ["ProtocolSpaceCloudWebMechanicsClose"]
+        },
+        {
+            "image": "云终末地_协议空间入场.png",
+            "hits": [
+                "ProtocolSpaceEnterSpace",
+                "__ScenePrivateCloudWebProtocolPrepareExit",
+                "__ScenePrivateCloudWebProtocolPrepareExitKey"
+            ]
+        },
+        {
+            "image": "云终末地_武陵城地图总览入口.png",
+            "hits": ["__ScenePrivateMapOtherAreaEnterMapOverview"]
+        },
+        {
+            "image": "云终末地_培养舱提取基核.png",
+            "hits": [
+                {
+                    "node": "GrowthChamberBackButton",
+                    "box": [
+                        1216,
+                        11,
+                        31,
+                        33
+                    ]
+                },
+                "GrowthChamberGrowBack"
+            ]
+        },
+        {
+            "image": "云终末地_官网开始游戏.png",
+            "hits": ["__ScenePrivateCloudWebStartGame"]
+        },
+        {
+            "image": "云终末地_官网开始游戏_遮挡用户中心.png",
+            "hits": []
+        },
+        {
+            "image": "云终末地_官网开始游戏_遮挡开始按钮.png",
+            "hits": []
+        },
+        {
+            "image": "云终末地_菜单总列表.png",
+            "hits": ["InMenuList"]
+        },
+        {
+            "image": "云终末地_菜单总列表_遮挡底部标志.png",
+            "hits": []
+        },
+        {
+            "image": "云终末地_菜单总列表_遮挡等级文字.png",
+            "hits": []
+        },
+        {
+            "image": "云终末地_菜单总列表_遮挡顶部新闻.png",
+            "hits": []
+        },
+        {
+            "image": "云终末地_大世界.png",
+            "hits": []
+        },
+        {
+            "image": "云终末地_帝江号传送.png",
+            "hits": [
+                "TeleportButton",
+                "__ScenePrivateMapTeleportConfirm"
+            ]
+        },
+        {
+            "image": "云终末地_好友拜访确认.png",
+            "hits": [
+                "YellowConfirmButtonType1",
+                "VisitFriendsEnterShipConfirm"
+            ]
+        }
+    ]
+}

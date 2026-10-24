@@ -1,0 +1,13 @@
+{
+    "pretask": {
+        "controller": [
+            "Win32-CloudWeb"
+        ],
+        "exec": "agent/cpp-algo",
+        "args": [
+            "--cloud-launch"
+        ],
+        "name": "LaunchCloudWeb",
+        "label": "$pretask.LaunchCloudWeb.label"
+    }
+}

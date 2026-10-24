@@ -4,10 +4,12 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <memory>
 #include <system_error>
 
 #include <objbase.h>
 
+#include <WebView2EnvironmentOptions.h>
 #include <wrl.h>
 
 #include <MaaUtils/Logger.h>
@@ -77,7 +79,7 @@ std::wstring utf8ToWide(const std::string& src)
 // 保留 agent/<exe>.WebView2 的原有布局，以启动工作目录为根目录。
 // GetModuleFileNameW 仅用于获取 exe 文件名；失败时返回空路径，
 // 调用方回退到 nullptr 让 SDK 自己处理。
-std::filesystem::path redirect_user_data_folder()
+std::filesystem::path redirect_user_data_folder(const std::filesystem::path& requested)
 {
     wchar_t exe_buf[MAX_PATH] = {};
     DWORD len = GetModuleFileNameW(nullptr, exe_buf, MAX_PATH);
@@ -88,6 +90,9 @@ std::filesystem::path redirect_user_data_folder()
 
     std::filesystem::path udf = common::OutputPath("agent") / std::filesystem::path(exe_buf).filename();
     udf += L".WebView2";
+    if (!requested.empty()) {
+        udf = requested;
+    }
 
     std::error_code ec;
     std::filesystem::create_directories(udf, ec);
@@ -110,6 +115,15 @@ std::filesystem::path redirect_user_data_folder()
 } // namespace
 
 WebView2::WebView2() = default;
+
+void WebView2::SetAdditionalBrowserArguments(std::wstring arguments)
+{
+    if (isOpened()) {
+        LogWarn << "WebView2::SetAdditionalBrowserArguments: ignored, must be called before Open()";
+        return;
+    }
+    browser_arguments_ = std::move(arguments);
+}
 
 WebView2::~WebView2()
 {
@@ -134,6 +148,15 @@ void WebView2::SetURL(std::string url)
         return;
     }
     initial_url_ = std::move(url);
+}
+
+void WebView2::SetUserDataFolder(std::filesystem::path folder)
+{
+    if (GetHwnd()) {
+        LogWarn << "WebView2: user data folder must be set before Open";
+        return;
+    }
+    user_data_folder_ = std::move(folder);
 }
 
 void WebView2::SetClearWebData(bool enabled)
@@ -218,6 +241,14 @@ void WebView2::onUiThreadShutdown()
 
 std::optional<LRESULT> WebView2::onMessage(UINT msg, WPARAM, LPARAM)
 {
+    if (msg == WM_SETFOCUS && controller_ && focusWebContentOnActivation() && GetForegroundWindow() == GetHwnd()) {
+        // 宿主重新获得焦点时，键盘输入也必须回到网页；仅激活外层 HWND 不会自动恢复子控件焦点。
+        const HRESULT hr = controller_->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
+        if (FAILED(hr)) {
+            LogWarn << "WebView2: MoveFocus failed" << VAR(hr);
+        }
+        return 0;
+    }
     if (msg == WM_SIZE && controller_) {
         resizeToClientRect();
     }
@@ -239,16 +270,22 @@ void WebView2::initializeWebView()
 
     // 必须在 CreateCoreWebView2EnvironmentWithOptions 之前完成；已经创建过的
     // environment 不会回头读环境变量。详见 redirect_user_data_folder 注释。
-    const std::filesystem::path udf = redirect_user_data_folder();
+    const std::filesystem::path udf = redirect_user_data_folder(user_data_folder_);
     const wchar_t* udf_param = udf.empty() ? nullptr : udf.c_str();
 
     using Microsoft::WRL::Callback;
     using EnvHandler = ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler;
 
+    auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
+    if (!options || FAILED(options->put_AdditionalBrowserArguments(browser_arguments_.c_str()))) {
+        signalInitDone(false);
+        return;
+    }
+
     HRESULT hr = CreateCoreWebView2EnvironmentWithOptions(
-        nullptr,   // browserExecutableFolder：使用系统已安装的 WebView2 Runtime
-        udf_param, // userDataFolder：和环境变量保持一致，双保险
-        nullptr,   // environmentOptions
+        nullptr,       // browserExecutableFolder：使用系统已安装的 WebView2 Runtime
+        udf_param,     // userDataFolder：和环境变量保持一致，双保险
+        options.Get(), // 显式传递参数，兼容启动时已缓存环境变量的 Loader。
         Callback<EnvHandler>([this](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
             // 该回调在 UI 线程上被触发（创建时所在的 STA 线程）。
             onEnvironmentCreated(result, env);
@@ -372,12 +409,24 @@ void WebView2::onControllerCreated(HRESULT result, ICoreWebView2Controller* cont
                 signalInitDone(false);
                 return;
             }
-            navigateInitialUrl();
+            prepareNavigation();
         });
         return;
     }
 
-    navigateInitialUrl();
+    prepareNavigation();
+}
+
+void WebView2::prepareNavigation()
+{
+    onBeforeNavigate([this](bool ok) {
+        if (!ok) {
+            LogError << "WebView2: pre-navigation setup failed";
+            signalInitDone(false);
+            return;
+        }
+        navigateInitialUrl();
+    });
 }
 
 void WebView2::clearSiteData(std::function<void(bool ok)> on_done)
@@ -457,14 +506,23 @@ void WebView2::signalInitDone(bool ok)
 
 void WebView2::resizeToClientRect()
 {
-    if (!controller_) {
+    if (!controller_ || IsIconic(GetHwnd())) {
+        // 最小化时不能把 WebView 视口压成零尺寸：即使开启焦点仿真，
+        // 零尺寸渲染仍会使 CDP mouseMoved 回调退化到约 1 秒一次。
+        // 保留最后一次有效视口，恢复窗口后再按实际客户区更新。
         return;
     }
 
     // 留出基类的 chrome 边距：顶部 caption + 四周 resize 边框；这部分由基类 WM_NCHITTEST
     // 原生处理拖拽 / 缩放。基类在 onPaint 里把 chrome 涂成深色，配合 WS_CLIPCHILDREN 自然分割。
     RECT rc = getContentRect();
-    controller_->put_Bounds(rc);
+    if (rc.right <= rc.left || rc.bottom <= rc.top) {
+        return;
+    }
+    const HRESULT hr = controller_->put_Bounds(rc);
+    if (FAILED(hr)) {
+        LogWarn << "WebView2: resize failed" << VAR(hr);
+    }
 }
 
 bool WebView2::postToUiThread(std::function<void()> fn)
@@ -628,9 +686,21 @@ void WebView2::SubscribeDevToolsEvent(std::string method, std::function<void(std
                         LogWarn << "WebView2: devtools event without parameters" << VAR(method);
                         return S_OK;
                     }
-                    std::string params_json = wideToUtf8(params);
-                    CoTaskMemFree(params);
-                    on_event(std::move(params_json));
+                    const auto release = [](wchar_t* value) {
+                        CoTaskMemFree(value);
+                    };
+                    const std::unique_ptr<wchar_t, decltype(release)> owned_params(params, release);
+                    try {
+                        on_event(wideToUtf8(owned_params.get()));
+                    }
+                    catch (const std::exception& error) {
+                        LogError << "WebView2: devtools event handler failed" << VAR(method) << error.what();
+                        return E_FAIL;
+                    }
+                    catch (...) {
+                        LogError << "WebView2: devtools event handler failed with unknown exception" << VAR(method);
+                        return E_FAIL;
+                    }
                     return S_OK;
                 })
                 .Get(),

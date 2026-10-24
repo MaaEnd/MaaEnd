@@ -3,6 +3,8 @@
 #include <memory>
 #include <string>
 
+#include "Common/CloudViewInput.h"
+
 #include "../backend.h"
 
 namespace mapnavigator::backend::desktop
@@ -67,6 +69,7 @@ private:
     double default_pitch_units_per_degree_ = 0.0;
     bool mouse_lock_follow_enabled_ = false;
     bool background_managed_keys_enabled_ = false;
+    cloud::ViewInput cloud_view_input_;
     int hover_x_ = 0;
     int hover_y_ = 0;
     bool hover_inited_ = false;

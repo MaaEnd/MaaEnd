@@ -1,0 +1,12 @@
+{
+    "task": [
+        {
+            "name": "CloseCloudWeb",
+            "label": "$task.CloseGamePC.label",
+            "entry": "CloseCloudWeb",
+            "controller": [
+                "Win32-CloudWeb"
+            ]
+        }
+    ]
+}

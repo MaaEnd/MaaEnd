@@ -1,0 +1,31 @@
+{
+    "__ScenePrivateMapOtherAreaEnterMapOverview": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InMapAny",
+                    "__ScenePrivateCloudWebMapOverviewButton"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "__ScenePrivateCloudWebMapOverviewButton": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1070,
+                    640,
+                    120,
+                    40
+                ],
+                "expected": ["地区总览"]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

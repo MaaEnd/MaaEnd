@@ -38,6 +38,22 @@
             }
         },
         {
+            "name": "Win32-CloudWeb",
+            "label": "$controller.Win32-CloudWeb.label",
+            "description": "$controller.Win32-CloudWeb.description",
+            "type": "Win32",
+            "attach_resource_path": [
+                "./resource_cloud_web"
+            ],
+            "win32": {
+                "class_regex": "^MaaEnd\\.CloudWeb\\.Controller\\.v1$",
+                "window_regex": "^MaaEnd - Cloud Web Controller$",
+                "screencap": "PrintWindow",
+                "mouse": "SendMessage",
+                "keyboard": "SendMessage"
+            }
+        },
+        {
             "name": "ADB",
             "label": "$controller.ADB.label",
             "description": "$controller.ADB.description",
@@ -204,6 +220,8 @@
     "import": [
         // pretask
         "tasks/pretasks/LaunchGamePC.json",
+        "tasks/LoginCloudWeb.json",
+        "tasks/pretasks/LaunchCloudWeb.json",
         // group: regional_development
         "tasks/OutpostTrading.json",
         "tasks/SeizeDeliveryJobs.json",
@@ -272,6 +290,7 @@
         "tasks/AndroidOpenGame.json",
         "tasks/CloseGame.json",
         "tasks/CloseGamePC.json",
+        "tasks/CloseCloudWeb.json",
         // group: realtime
         "tasks/RealTimeTask.json",
         // group: backpack

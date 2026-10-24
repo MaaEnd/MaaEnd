@@ -15,7 +15,8 @@
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
                 "PlayCover",
-                "Win32-Front"
+                "Win32-Front",
+                "Win32-CloudWeb"
             ],
             "option": [
                 "AutoCollectSchedule",
@@ -151,7 +152,8 @@
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
-                "Win32-Front"
+                "Win32-Front",
+                "Win32-CloudWeb"
             ],
             "label": "$option.AutoCollectMode.label",
             "description": "$option.AutoCollectMode.description",
@@ -406,7 +408,8 @@
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
-                "Win32-Front"
+                "Win32-Front",
+                "Win32-CloudWeb"
             ],
             "label": "$option.AutoCollectTargetInventory.label",
             "description": "$option.AutoCollectTargetInventory.description",
