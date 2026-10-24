@@ -1635,6 +1635,12 @@
                     "description": "识别参数，任意类型，会通过 `MaaCustomRecognitionCallback`.`custom_recognition_param` 传出。可选，默认 `null` 。",
                     "$ref": "#/$defs/jsonDefaultObject",
                     "markdownDescription": "*any*\n\n识别参数，任意类型，会通过 `MaaCustomRecognitionCallback`.`custom_recognition_param` 传出。可选，默认 `null` 。"
+                },
+                "index": {
+                    "title": "Index Property",
+                    "description": "命中第几个结果。可选，默认 0。负数从结果末尾计数，越界视为未命中。",
+                    "$ref": "#/$defs/jsonInt32",
+                    "markdownDescription": "*int*\n\n从回调提供的 filtered 结果中选择最终命中，默认 0。负数从末尾计数，越界视为未命中。Custom 结果顺序由回调决定。"
                 }
             },
             "allOf": [

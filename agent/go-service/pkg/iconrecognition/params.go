@@ -24,6 +24,14 @@ const (
 // CustomRecognitionName 是 Maa Pipeline 注册的 IconRecognition 名称。
 const CustomRecognitionName = "IconRecognition"
 
+// ResultOrder 是 IconRecognition 的结果排序方式。
+type ResultOrder string
+
+const (
+	ResultOrderScore   ResultOrder = "score"
+	ResultOrderNatural ResultOrder = "natural"
+)
+
 // Params 是 IconRecognition custom_recognition_param 的公共表示。
 // 候选 ID、基础/附加/排除条件和反查过滤器是否必填由具体调用场景决定。
 type Params struct {
@@ -37,6 +45,8 @@ type Params struct {
 	Threshold                  *float64     `json:"threshold,omitempty"`
 	SubpixelThreshold          *float64     `json:"subpixel_threshold,omitempty"`
 	Deduplicate                *bool        `json:"deduplicate,omitempty"`
+	OrderBy                    ResultOrder  `json:"order_by,omitempty"`
+	Reverse                    *bool        `json:"reverse,omitempty"`
 	Debug                      *bool        `json:"debug,omitempty"`
 }
 
@@ -129,6 +139,20 @@ func WithDeduplicate(deduplicate bool) Option {
 	}
 }
 
+// WithOrderBy 配置识别结果的最终输出顺序。
+func WithOrderBy(order ResultOrder) Option {
+	return func(params *Params) {
+		params.OrderBy = order
+	}
+}
+
+// WithReverse 配置是否反转最终输出顺序。
+func WithReverse(reverse bool) Option {
+	return func(params *Params) {
+		params.Reverse = pointerOf(reverse)
+	}
+}
+
 // WithDebug 配置是否生成调试诊断；显式传入 false 时仍会序列化。
 func WithDebug(debug bool) Option {
 	return func(params *Params) {
@@ -136,12 +160,14 @@ func WithDebug(debug bool) Option {
 	}
 }
 
-// WithTuningFrom 复制另一组参数的阈值、去重和调试选项，不复制候选条件或场景行为。
+// WithTuningFrom 复制另一组参数的阈值、排序、去重和调试选项，不复制候选条件或场景行为。
 func WithTuningFrom(source Params) Option {
 	return func(params *Params) {
 		params.Threshold = clonePointer(source.Threshold)
 		params.SubpixelThreshold = clonePointer(source.SubpixelThreshold)
 		params.Deduplicate = clonePointer(source.Deduplicate)
+		params.OrderBy = source.OrderBy
+		params.Reverse = clonePointer(source.Reverse)
 		params.Debug = clonePointer(source.Debug)
 	}
 }
@@ -161,6 +187,9 @@ func ParseParams(raw string) (Params, error) {
 	params.AdditionalItemFilters = normalizeItemFilters(params.AdditionalItemFilters)
 	params.ExcludedItemIDs = normalizeStrings(params.ExcludedItemIDs)
 	params.ItemRecheckFilters = normalizeItemFilters(params.ItemRecheckFilters)
+	if params.OrderBy != "" && params.OrderBy != ResultOrderScore && params.OrderBy != ResultOrderNatural {
+		return params, fmt.Errorf("IconRecognition order_by must be score or natural")
+	}
 	if params.GridType == "" {
 		return params, fmt.Errorf("IconRecognition grid_type is required")
 	}
