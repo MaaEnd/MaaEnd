@@ -859,7 +859,8 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 以下文件由 cpp-algo 维护者负责，路线作者无需修改：
 
 - `agent/cpp-algo/source/MapNavigator/semantic/async_prompt_action.h` / `.cpp`：提示驱动动作的公共实现，`COLLECT` 与异步 `INTERACT` 共用一套。
-- `agent/cpp-algo/source/MapNavigator/sensing/prompt_scan_profile.h` / `.cpp`：从 Pipeline 节点读预筛参数与交互文字表，以及那一串校验。
+- `agent/cpp-algo/source/MapNavigator/sensing/prompt_scan_profile.h` / `.cpp`：从 Pipeline 节点读预筛参数，以及那一串校验。
+- `agent/cpp-algo/source/MapNavigator/sensing/pipeline_node_reader.h` / `.cpp`：读 Pipeline 节点的 ROI、识别类型与交互文字表。
 - `agent/cpp-algo/source/MapNavigator/navi_config.h`：子任务节点名、预筛节拍与兜底常量、判定值等。
 - `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`：`interact_text` / `interact_scan` / `interact_rec` 的解析与路线级默认值下发，以及开跑前把点名的 OCR 节点读成文字表。
 - `agent/cpp-algo/source/MapNavigator/semantic/semantic_nodes.cpp`：到点后的兜底执行逻辑。

@@ -19,7 +19,7 @@
 
 #include "navi_config.h"
 #include "navi_log.h"
-#include "sensing/prompt_scan_profile.h"
+#include "sensing/pipeline_node_reader.h"
 
 namespace mapnavigator
 {

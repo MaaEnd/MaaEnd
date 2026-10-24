@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <cmath>
 
 #include "navi_math.h"
@@ -40,13 +39,6 @@ double NaviMath::NormalizeHeading(double angle)
         angle += 360.0;
     }
     return angle;
-}
-
-double NaviMath::BlendAngle(double from, double to, double weight)
-{
-    const double clamped_weight = std::clamp(weight, 0.0, 1.0);
-    const double delta = NormalizeAngle(to - from);
-    return NormalizeHeading(from + delta * clamped_weight);
 }
 
 } // namespace mapnavigator

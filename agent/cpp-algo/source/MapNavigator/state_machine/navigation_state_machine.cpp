@@ -8,6 +8,7 @@
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
+#include "../navi_time.h"
 #include "../semantic/action_executor.h"
 #include "../semantic/async_prompt_action.h"
 #include "../semantic/semantic_nodes.h"
@@ -231,12 +232,12 @@ TickStep NavigationStateMachine::RunInlineSemantics()
 TickStep NavigationStateMachine::IdleWhileNotWalking()
 {
     if (runtime_state_.semantic.portal_transit_active || session_->phase() != NaviPhase::Navigate) {
-        utils::SleepFor(kTargetTickMs);
+        SleepFor(kTargetTickMs);
         return TickStep::EndTick;
     }
     if (session_->CurrentWaypoint().IsZoneDeclaration()) {
         motion_controller_->SetForwardState(true);
-        utils::SleepFor(kTargetTickMs);
+        SleepFor(kTargetTickMs);
         return TickStep::EndTick;
     }
     return TickStep::Next;
@@ -257,7 +258,7 @@ TickStep NavigationStateMachine::FinishNavigateTick(const NavigateTick& tick)
             tick.stalled_ms));
     }
 
-    utils::SleepFor(kTargetTickMs);
+    SleepFor(kTargetTickMs);
     return TickStep::EndTick;
 }
 

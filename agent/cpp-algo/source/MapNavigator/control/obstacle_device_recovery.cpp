@@ -11,7 +11,7 @@
 #include <MaaUtils/Logger.h>
 
 #include "../navi_config.h"
-#include "../navi_math.h"
+#include "../navi_time.h"
 #include "../planning/navigation_session.h"
 #include "../planning/route_tracker.h"
 #include "../semantic/semantic_helpers.h"
@@ -145,7 +145,7 @@ DeviceRemovalOutcome ObstacleDeviceRecovery::TryRemove(const RouteTrackingState&
         || !position_->valid) {
         // 旧定位会让随后的跳跃从旧点量位移, 误报已脱困
         LogWarn << "Dynamic recovery waiting for a local tracking fix after the device move.";
-        utils::SleepFor(kTargetTickMs);
+        SleepFor(kTargetTickMs);
         return DeviceRemovalOutcome::NeedsFreshFix;
     }
 

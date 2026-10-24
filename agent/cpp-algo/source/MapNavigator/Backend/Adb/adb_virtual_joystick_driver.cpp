@@ -1,11 +1,11 @@
 #include <algorithm>
-#include <array>
-#include <chrono>
+#include <cmath>
 #include <numbers>
-#include <thread>
+#include <utility>
 
 #include <MaaUtils/Logger.h>
 
+#include "../../navi_time.h"
 #include "adb_virtual_joystick_driver.h"
 
 namespace mapnavigator::backend::adb
@@ -16,16 +16,17 @@ namespace
 
 constexpr int32_t kAdbDefaultTouchPressure = 0;
 
+cv::Point ResolveDirection(const MovementState& state)
+{
+    return { (state.right ? 1 : 0) - (state.left ? 1 : 0), (state.backward ? 1 : 0) - (state.forward ? 1 : 0) };
+}
+
 } // namespace
 
-AdbVirtualJoystickDriver::AdbVirtualJoystickDriver(
-    MaaController* controller,
-    std::shared_ptr<maplocator::MapLocator> locator,
-    AdbVirtualJoystickDriverConfig config)
+AdbVirtualJoystickDriver::AdbVirtualJoystickDriver(MaaController* controller, AdbVirtualJoystickDriverConfig config)
     : controller_(controller)
     , config_(std::move(config))
 {
-    (void)locator;
 }
 
 AdbVirtualJoystickDriver::~AdbVirtualJoystickDriver()
@@ -34,10 +35,10 @@ AdbVirtualJoystickDriver::~AdbVirtualJoystickDriver()
     (void)released;
 }
 
-bool AdbVirtualJoystickDriver::SetMovementState(bool forward, bool left, bool backward, bool right, int delay_millis)
+bool AdbVirtualJoystickDriver::SetMovementState(MovementState state, int delay_millis)
 {
-    const Direction direction = ResolveDirection(forward, left, backward, right);
-    if (direction == Direction::kNone) {
+    const cv::Point direction = ResolveDirection(state);
+    if (direction == cv::Point()) {
         return Release(delay_millis);
     }
 
@@ -55,44 +56,36 @@ bool AdbVirtualJoystickDriver::SetMovementState(bool forward, bool left, bool ba
         }
     }
 
-    SleepIfNeeded(delay_millis);
+    SleepFor(delay_millis);
     return true;
 }
 
 bool AdbVirtualJoystickDriver::PulseForward(int hold_millis)
 {
-    if (!SetMovementState(true, false, false, false, 0)) {
+    if (!SetMovementState({ .forward = true }, 0)) {
         return false;
     }
-    SleepIfNeeded(hold_millis);
+    SleepFor(hold_millis);
     return Release(0);
 }
 
 bool AdbVirtualJoystickDriver::Release(int delay_millis)
 {
     if (!touch_active_) {
-        active_direction_ = Direction::kNone;
-        active_geometry_.reset();
-        active_touch_point_ = {};
-        SleepIfNeeded(delay_millis);
+        ClearContact();
+        SleepFor(delay_millis);
         return true;
     }
 
     if (!PostTouchUp()) {
         LogWarn << "AdbVirtualJoystickDriver: failed to release joystick touch contact.";
-        touch_active_ = false;
-        active_direction_ = Direction::kNone;
-        active_geometry_.reset();
-        active_touch_point_ = {};
-        SleepIfNeeded(delay_millis);
+        ClearContact();
+        SleepFor(delay_millis);
         return false;
     }
 
-    touch_active_ = false;
-    active_direction_ = Direction::kNone;
-    active_geometry_.reset();
-    active_touch_point_ = {};
-    SleepIfNeeded(std::max(delay_millis, config_.release_settle_ms));
+    ClearContact();
+    SleepFor(std::max(delay_millis, config_.release_settle_ms));
     return true;
 }
 
@@ -100,20 +93,6 @@ bool AdbVirtualJoystickDriver::SetWalking(bool walking)
 {
     walking_ = walking;
     return !touch_active_ || UpdateDirectionalDrag(active_direction_);
-}
-
-AdbVirtualJoystickDriver::Direction AdbVirtualJoystickDriver::ResolveDirection(bool forward, bool left, bool backward, bool right) const
-{
-    const int horizontal = (right ? 1 : 0) - (left ? 1 : 0);
-    const int vertical = (backward ? 1 : 0) - (forward ? 1 : 0);
-
-    constexpr std::array<std::array<Direction, 3>, 3> kDirectionGrid = { {
-        { Direction::kForwardLeft, Direction::kForward, Direction::kForwardRight },
-        { Direction::kLeft, Direction::kNone, Direction::kRight },
-        { Direction::kBackwardLeft, Direction::kBackward, Direction::kBackwardRight },
-    } };
-
-    return kDirectionGrid[vertical + 1][horizontal + 1];
 }
 
 std::optional<AdbVirtualJoystickDriver::ControlGeometry> AdbVirtualJoystickDriver::AcquireControlGeometry()
@@ -142,24 +121,24 @@ std::optional<AdbVirtualJoystickDriver::ControlGeometry> AdbVirtualJoystickDrive
     return geometry;
 }
 
-bool AdbVirtualJoystickDriver::BeginDirectionalDrag(Direction direction)
+bool AdbVirtualJoystickDriver::BeginDirectionalDrag(cv::Point direction)
 {
     active_geometry_ = AcquireControlGeometry();
     if (!active_geometry_.has_value()) {
-        active_direction_ = Direction::kNone;
+        active_direction_ = {};
         return false;
     }
 
     const cv::Point start = ClampPoint(active_geometry_->control_origin, active_geometry_->frame_size);
     if (!PostTouchDown(start)) {
         active_geometry_.reset();
-        active_direction_ = Direction::kNone;
+        active_direction_ = {};
         return false;
     }
 
     touch_active_ = true;
     active_touch_point_ = start;
-    SleepIfNeeded(config_.touch_down_hold_ms);
+    SleepFor(config_.touch_down_hold_ms);
 
     if (!UpdateDirectionalDrag(direction)) {
         Release(0);
@@ -168,7 +147,7 @@ bool AdbVirtualJoystickDriver::BeginDirectionalDrag(Direction direction)
     return true;
 }
 
-bool AdbVirtualJoystickDriver::UpdateDirectionalDrag(Direction direction)
+bool AdbVirtualJoystickDriver::UpdateDirectionalDrag(cv::Point direction)
 {
     if (!touch_active_ || !active_geometry_.has_value()) {
         return false;
@@ -189,12 +168,20 @@ bool AdbVirtualJoystickDriver::UpdateDirectionalDrag(Direction direction)
         if (!PostTouchMove({ next_x, next_y })) {
             return false;
         }
-        SleepIfNeeded(config_.move_step_delay_ms);
+        SleepFor(config_.move_step_delay_ms);
     }
 
     active_touch_point_ = target;
     active_direction_ = direction;
     return true;
+}
+
+void AdbVirtualJoystickDriver::ClearContact()
+{
+    touch_active_ = false;
+    active_direction_ = {};
+    active_geometry_.reset();
+    active_touch_point_ = {};
 }
 
 bool AdbVirtualJoystickDriver::PostTouchDown(const cv::Point& point) const
@@ -230,42 +217,22 @@ bool AdbVirtualJoystickDriver::PostTouchUp() const
     return true;
 }
 
-cv::Point AdbVirtualJoystickDriver::ComputeTargetPoint(Direction direction) const
+cv::Point AdbVirtualJoystickDriver::ComputeTargetPoint(cv::Point direction) const
 {
     if (!active_geometry_.has_value()) {
         return {};
     }
 
-    const cv::Point vector = DirectionVector(direction);
     const int radius = ComputeDragRadius();
-    const bool diagonal = vector.x != 0 && vector.y != 0;
+    const bool diagonal = direction.x != 0 && direction.y != 0;
     const double unit_scale = (diagonal ? 1.0 / std::numbers::sqrt2_v<double> : 1.0) * (walking_ ? config_.walk_drag_ratio : 1.0);
 
     const cv::Point image_target(
         active_geometry_->control_origin.x
-            + static_cast<int>(std::lround(static_cast<double>(vector.x) * static_cast<double>(radius) * unit_scale)),
+            + static_cast<int>(std::lround(static_cast<double>(direction.x) * static_cast<double>(radius) * unit_scale)),
         active_geometry_->control_origin.y
-            + static_cast<int>(std::lround(static_cast<double>(vector.y) * static_cast<double>(radius) * unit_scale)));
+            + static_cast<int>(std::lround(static_cast<double>(direction.y) * static_cast<double>(radius) * unit_scale)));
     return ClampPoint(image_target, active_geometry_->frame_size);
-}
-
-cv::Point AdbVirtualJoystickDriver::DirectionVector(Direction direction) const
-{
-    constexpr std::array<std::pair<int, int>, 9> kDirectionVectors = { {
-        { 0, 0 },
-        { 0, -1 },
-        { -1, -1 },
-        { -1, 0 },
-        { -1, 1 },
-        { 0, 1 },
-        { 1, 1 },
-        { 1, 0 },
-        { 1, -1 },
-    } };
-
-    const auto index = static_cast<std::size_t>(direction);
-    const auto [x, y] = kDirectionVectors[index];
-    return { x, y };
 }
 
 int AdbVirtualJoystickDriver::ComputeDragRadius() const
@@ -284,14 +251,6 @@ cv::Point AdbVirtualJoystickDriver::ClampPoint(cv::Point point, const cv::Size& 
     point.x = std::clamp(point.x, 0, std::max(0, bounds.width - 1));
     point.y = std::clamp(point.y, 0, std::max(0, bounds.height - 1));
     return point;
-}
-
-void AdbVirtualJoystickDriver::SleepIfNeeded(int delay_millis)
-{
-    if (delay_millis <= 0) {
-        return;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(delay_millis));
 }
 
 } // namespace mapnavigator::backend::adb

@@ -32,17 +32,16 @@ public:
     bool SteeringDropsTurnSends() const { return steering_profile_.drops_turn_sends; }
 
 private:
-    bool ActionProducesTranslation(LocalDriverAction action) const;
-    bool ActionMovesForward(LocalDriverAction action) const;
+    bool SteeringGateOpen(double yaw_delta_deg, std::chrono::steady_clock::time_point now) const;
+    int64_t PlanBatchCount(double yaw_delta_deg, int64_t tick_gap_ms) const;
+    TurnCommandResult EmitBatches(double yaw_delta_deg, int64_t batches);
     TurnCommandResult SendViewDelta(double delta_degrees);
     void ArmSteeringQuietPeriod();
-    void ClearPendingSteering();
     void HoldPosition();
 
     ActionWrapper* action_wrapper_;
     bool enable_local_driver_;
     SteeringTransportProfile steering_profile_ {};
-    double pending_yaw_deg_ = 0.0;
     std::chrono::steady_clock::time_point last_steering_sent_at_ {};
     std::chrono::steady_clock::time_point steering_quiet_until_ {};
     LocalDriverAction applied_action_ = LocalDriverAction::Forward;

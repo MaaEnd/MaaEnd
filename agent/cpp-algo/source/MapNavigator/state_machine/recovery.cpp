@@ -11,6 +11,7 @@
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
+#include "../navi_time.h"
 #include "../planning/navmesh_path_expander.h"
 #include "../semantic/semantic_nodes.h"
 #include "../sensing/position_provider.h"
@@ -158,12 +159,12 @@ bool NavigationStateMachine::ClimbRecoveryLadder(const NavigateTick& tick, bool 
     const NaviPosition jump_start = *position_;
     LogInfo << "Dynamic recovery jump pulse issued." << VAR(escalation.jump_attempt_count) << VAR(escalation.detour_attempt_count);
     motion_controller_->SetAction(LocalDriverAction::JumpForward, true);
-    utils::SleepFor(kActionJumpSettleMs);
+    SleepFor(kActionJumpSettleMs);
     motion_controller_->SetForwardState(false);
     if (!CaptureCurrentPosition(false) || position_provider_->LastCaptureWasBlackScreen() || !position_->valid) {
         LogWarn << "Dynamic recovery waiting for post-jump local tracking fix." << VAR_AS(stalled_ms, tick.stalled_ms)
                 << VAR(escalation.jump_attempt_count);
-        utils::SleepFor(kTargetTickMs);
+        SleepFor(kTargetTickMs);
         return true;
     }
 
@@ -188,7 +189,7 @@ bool NavigationStateMachine::EscalatePastJump(const NavigateTick& tick)
     if (!post_jump_anchor) {
         LogWarn << "Dynamic recovery skipped: no future anchor after post-jump local tracking." << VAR(position_->x) << VAR(position_->y)
                 << VAR(position_->zone_id);
-        utils::SleepFor(kTargetTickMs);
+        SleepFor(kTargetTickMs);
         return true;
     }
     if (post_jump_anchor->first != recovery.anchor_index) {
@@ -201,7 +202,7 @@ bool NavigationStateMachine::EscalatePastJump(const NavigateTick& tick)
     }
 
     if (escalation.jump_attempt_count < kRecoveryJumpAttemptsBeforeDetour) {
-        utils::SleepFor(kTargetTickMs);
+        SleepFor(kTargetTickMs);
         return true;
     }
     const double stuck_heading = EffectiveRouteHeading(tick.nav_run_result, route);
@@ -219,7 +220,7 @@ bool NavigationStateMachine::EscalatePastJump(const NavigateTick& tick)
     if (ExecutePhysicalUnstick(stuck_heading)) {
         return true;
     }
-    utils::SleepFor(kTargetTickMs);
+    SleepFor(kTargetTickMs);
     return true;
 }
 
@@ -244,7 +245,7 @@ bool NavigationStateMachine::ExecutePhysicalUnstick(double stuck_heading)
     const double target_heading = NaviMath::CalcTargetRotation(position_->x, position_->y, target->x, target->y);
     const double heading_delta = NaviMath::CalcDeltaRotation(position_->angle, target_heading);
     motion_controller_->SetForwardState(false);
-    utils::SleepFor(kStopWaitMs);
+    SleepFor(kStopWaitMs);
     int units = static_cast<int>(std::lround(heading_delta * action_wrapper_->DefaultTurnUnitsPerDegree()));
     if (units == 0) {
         units = heading_delta > 0.0 ? 1 : -1;

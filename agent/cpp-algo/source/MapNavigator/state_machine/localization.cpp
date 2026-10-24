@@ -10,6 +10,7 @@
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
+#include "../navi_time.h"
 #include "../planning/navmesh_path_expander.h"
 #include "../semantic/semantic_nodes.h"
 #include "../semantic/trigger_action.h"
@@ -172,12 +173,12 @@ bool NavigationStateMachine::HandleLocalizationLoss()
         loss.last_unstick_at = now;
         LogInfo << "Localization lost; blind unstick hop issued." << VAR(loss_elapsed.count());
         motion_controller_->SetAction(LocalDriverAction::JumpForward, true);
-        utils::SleepFor(kActionJumpSettleMs);
+        SleepFor(kActionJumpSettleMs);
         motion_controller_->SetForwardState(false);
         return true;
     }
 
-    utils::SleepFor(kLocatorRetryIntervalMs);
+    SleepFor(kLocatorRetryIntervalMs);
     return true;
 }
 

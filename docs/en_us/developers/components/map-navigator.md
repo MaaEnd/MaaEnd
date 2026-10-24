@@ -859,7 +859,8 @@ The `MapNavigatorInteract` node ships with a placeholder text that can never mat
 The following files are maintained by cpp-algo developers; path authors do not need to modify them:
 
 - `agent/cpp-algo/source/MapNavigator/semantic/async_prompt_action.h` / `.cpp`: the shared implementation of prompt-driven actions, used by both `COLLECT` and async `INTERACT`.
-- `agent/cpp-algo/source/MapNavigator/sensing/prompt_scan_profile.h` / `.cpp`: reading the pre-filter parameters and the interact text table out of a Pipeline node, and the validation chain around it.
+- `agent/cpp-algo/source/MapNavigator/sensing/prompt_scan_profile.h` / `.cpp`: reading the pre-filter parameters out of a Pipeline node, and the validation chain around it.
+- `agent/cpp-algo/source/MapNavigator/sensing/pipeline_node_reader.h` / `.cpp`: reading a Pipeline node's ROI, recognition type and interact text table.
 - `agent/cpp-algo/source/MapNavigator/navi_config.h`: subtask node names, pre-filter cadence and last-resort constants, arrival values and others.
 - `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`: parsing of `interact_text` / `interact_scan` / `interact_rec` and propagation of the route-wide defaults, plus reading a named OCR node into a text table before the run starts.
 - `agent/cpp-algo/source/MapNavigator/semantic/semantic_nodes.cpp`: the fallback execution logic upon arrival.

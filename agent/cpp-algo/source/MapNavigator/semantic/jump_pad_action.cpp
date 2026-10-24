@@ -10,6 +10,7 @@
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
+#include "../navi_time.h"
 #include "../sensing/position_provider.h"
 #include "semantic_helpers.h"
 
@@ -24,14 +25,9 @@ namespace semantic_nodes
 namespace
 {
 
-int64_t ElapsedMs(std::chrono::steady_clock::time_point since)
-{
-    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - since).count();
-}
-
 Result WaitNextFix()
 {
-    utils::SleepFor(kRelocationRetryIntervalMs);
+    SleepFor(kRelocationRetryIntervalMs);
     return { .stay_in_current_tick = true };
 }
 
@@ -64,7 +60,7 @@ void NudgeTowardPad(const Context& ctx, JumpPadState& state, double offset)
     if (std::abs(heading_delta) > kStrictSettleHeadingToleranceDeg) {
         LogInfo << "Jump pad aligning toward the center." << VAR(offset) << VAR(bearing) << VAR(heading_delta) << VAR(state.nudges);
         TurnToHeadingOnce(ctx, heading_delta);
-        utils::SleepFor(kWaitAfterFirstTurnMs);
+        SleepFor(kWaitAfterFirstTurnMs);
         return;
     }
     const StrictSettleInputProfile& input =
@@ -72,7 +68,7 @@ void NudgeTowardPad(const Context& ctx, JumpPadState& state, double offset)
     const int hold_ms = PlanPulseHoldMs(offset, input.max_hold_ms);
     LogInfo << "Jump pad forward pulse." << VAR(offset) << VAR(hold_ms) << VAR(state.nudges);
     ctx.motion_controller->SetForwardState(true);
-    utils::SleepFor(hold_ms);
+    SleepFor(hold_ms);
     ctx.motion_controller->SetForwardState(false);
 }
 
@@ -103,7 +99,7 @@ Result TickJumpPad(const Context& ctx)
 
     // 起飞前要用可信的镜头朝向对准板心, 起飞后只看位置
     const bool captured = state.launched ? ctx.position_provider->Capture(ctx.position, false, {})
-                                         : ctx.position_provider->captureForStrictGoal(ctx.position, state.pad.zone_id);
+                                         : ctx.position_provider->CaptureForStrictGoal(ctx.position, state.pad.zone_id);
     if (!captured) {
         state.last_fix.reset();
         state.still_reads = 0;

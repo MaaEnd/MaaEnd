@@ -14,7 +14,8 @@
 #include "../control/controller_type_utils.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
-#include "../navi_math.h"
+#include "../navi_time.h"
+#include "../sensing/pipeline_node_reader.h"
 #include "../sensing/position_provider.h"
 #include "../sensing/prompt_scan_profile.h"
 #include "../sensing/roi_template_scanner.h"
@@ -54,11 +55,6 @@ std::string BuildInlineTextOverride(const std::vector<std::string>& texts)
 cv::Mat FrameAsMat(const MaaImageBuffer* buffer)
 {
     return { MaaImageBufferHeight(buffer), MaaImageBufferWidth(buffer), MaaImageBufferType(buffer), MaaImageBufferGetRawData(buffer) };
-}
-
-int64_t ElapsedMs(std::chrono::steady_clock::time_point from, std::chrono::steady_clock::time_point now)
-{
-    return std::chrono::duration_cast<std::chrono::milliseconds>(now - from).count();
 }
 
 bool ReachedArrivePoint(const Context& ctx, const Waypoint& waypoint)
@@ -125,7 +121,7 @@ void ArmStopProbe(const Context& ctx, const Waypoint& waypoint, FindState& find)
 Result BeginFind(const Context& ctx, const char* reason)
 {
     StopMotionAndCommitment(ctx);
-    utils::SleepFor(kStopWaitMs);
+    SleepFor(kStopWaitMs);
 
     FindState& find = ctx.runtime_state->find;
     find.Reset();
@@ -167,7 +163,7 @@ bool ApproachSighting(const Context& ctx, FindState& find, const MaaRect& box, i
         if (!walk_through) {
             ctx.motion_controller->SetForwardState(false);
             // 停下也算移动指令, 紧接着的转向会被后端静默期吞掉
-            utils::SleepFor(ctx.action_wrapper->SteeringProfile().action_quiet_period_ms);
+            SleepFor(ctx.action_wrapper->SteeringProfile().action_quiet_period_ms);
         }
         const double degrees_per_px = kTurnDegreesPerCircle / static_cast<double>(ComputeTurn360Units(frame_width));
         const double yaw_deg = static_cast<double>(offset_px) * degrees_per_px * kFindSteerGain;
@@ -182,8 +178,8 @@ bool ApproachSighting(const Context& ctx, FindState& find, const MaaRect& box, i
     if (static_cast<double>(center_y) > static_cast<double>(frame_height) * kFindPassedCenterYRatio) {
         LogDebug << "FIND: target is behind, stepping back." << VAR(find.steps) << VAR(center_y);
         ctx.motion_controller->SetForwardState(false);
-        ctx.action_wrapper->SetMovementStateSync(false, false, true, false, kFindBackwardPulseMs);
-        ctx.action_wrapper->SetMovementStateSync(false, false, false, false, 0);
+        ctx.action_wrapper->SetMovementStateSync({ .backward = true }, kFindBackwardPulseMs);
+        ctx.action_wrapper->SetMovementStateSync({}, 0);
         return true;
     }
 
@@ -215,12 +211,12 @@ Result ProbeStopWhileWalking(const Context& ctx, const Waypoint& waypoint, MaaCo
             flagged = MatchTemplateOnFrame(FrameAsMat(probe.Get()), profile.base_roi, profile.icons, "find-stop");
         }
         if (!flagged) {
-            utils::SleepFor(kFindStopProbeIntervalMs);
+            SleepFor(kFindStopProbeIntervalMs);
             continue;
         }
         // 先站住再确认, 走着确认会多滑出去一段
         ctx.motion_controller->SetForwardState(false);
-        utils::SleepFor(kStopWaitMs);
+        SleepFor(kStopWaitMs);
         NodeSighting sighting {};
         if (!RunRecognitionNode(ctx.maa_context, waypoint.find_stop, "{}", probe.Get(), &sighting)) {
             return FailFind(ctx, "find_recognition_failed", "FIND stop node failed to recognize.");
@@ -232,7 +228,7 @@ Result ProbeStopWhileWalking(const Context& ctx, const Waypoint& waypoint, MaaCo
         }
         LogDebug << "FIND: stop probe did not confirm; resuming the walk." << VAR(find.steps);
         ctx.motion_controller->SetForwardState(true);
-        utils::SleepFor(kFindStopProbeIntervalMs);
+        SleepFor(kFindStopProbeIntervalMs);
     }
     return result;
 }
@@ -283,7 +279,7 @@ Result TickFindTarget(const Context& ctx)
 
     FindState& find = ctx.runtime_state->find;
     const auto now = std::chrono::steady_clock::now();
-    if (find.started_at.time_since_epoch().count() == 0) {
+    if (IsUnset(find.started_at)) {
         find.started_at = now;
     }
     if (find.steps >= kFindMaxSteps || ElapsedMs(find.started_at, now) >= kFindBudgetMs) {
@@ -300,7 +296,7 @@ Result TickFindTarget(const Context& ctx)
     if (controller == nullptr || !CaptureFreshFrame(controller, image.Get())) {
         ctx.motion_controller->SetForwardState(false);
         LogWarn << "FIND: screencap failed, holding this step empty." << VAR(find.steps);
-        utils::SleepFor(kFindStepSleepMs);
+        SleepFor(kFindStepSleepMs);
         return result;
     }
 
@@ -340,13 +336,13 @@ Result TickFindTarget(const Context& ctx)
         // 见过的目标漏认几拍先原地等, 从没见过则直接搜
         if (find.last_seen_side != 0 && find.miss_streak < kFindMissGraceTicks) {
             LogDebug << "FIND: target lost for a beat, holding." << VAR(find.steps) << VAR(find.miss_streak);
-            utils::SleepFor(kFindStepSleepMs);
+            SleepFor(kFindStepSleepMs);
             return result;
         }
         if (!SearchOneStep(ctx, find)) {
             return FailFind(ctx, "find_turn_failed", "FIND failed to issue the search turn.");
         }
-        utils::SleepFor(kFindStepSleepMs);
+        SleepFor(kFindStepSleepMs);
         return result;
     }
     find.miss_streak = 0;
@@ -361,7 +357,7 @@ Result TickFindTarget(const Context& ctx)
     if (frame_width <= 0 || frame_height <= 0) {
         LogWarn << "FIND: the captured frame has no size." << VAR(frame_width) << VAR(frame_height);
         ctx.motion_controller->SetForwardState(false);
-        utils::SleepFor(kFindStepSleepMs);
+        SleepFor(kFindStepSleepMs);
         return result;
     }
 
@@ -373,7 +369,7 @@ Result TickFindTarget(const Context& ctx)
     if (probe_result.consumed) {
         return probe_result;
     }
-    utils::SleepFor(kFindStepSleepMs);
+    SleepFor(kFindStepSleepMs);
     return result;
 }
 

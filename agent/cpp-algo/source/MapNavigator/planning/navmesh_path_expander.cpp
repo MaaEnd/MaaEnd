@@ -30,6 +30,7 @@
 #include "../navi_config.h"
 #include "../navi_math.h"
 #include "../navi_param.h"
+#include "../navi_time.h"
 #include "../zipline/zipline_leg_planner.h"
 #include "navmesh_path_expander.h"
 
@@ -671,8 +672,7 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
     const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
     const auto load_started_at = std::chrono::steady_clock::now();
     const auto navmesh = LoadCachedNavmesh(navmesh_path, navmesh_zone);
-    const int64_t navmesh_load_ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - load_started_at).count();
+    const int64_t navmesh_load_ms = ElapsedMs(load_started_at);
     if (!navmesh) {
         return std::nullopt;
     }
@@ -706,8 +706,7 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
             }
         }
     }
-    const int64_t plan_ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - plan_started_at).count();
+    const int64_t plan_ms = ElapsedMs(plan_started_at);
     if (!route_result.ok()) {
         LogWarn << "Failed to plan NAVMESH route." << VAR(navmesh_zone) << VAR(locator_zone) << VAR(start.x) << VAR(start.y) << VAR(goal.x)
                 << VAR(goal.y) << VAR(navmesh::ToString(route_result.status)) << VAR(plan_ms);
@@ -777,8 +776,7 @@ bool AppendBlindTargetFallback(
         if (should_stop()) {
             return fail("规划已取消");
         }
-        const int64_t probe_elapsed_ms =
-            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - probe_started_at).count();
+        const int64_t probe_elapsed_ms = ElapsedMs(probe_started_at);
         if (probe_elapsed_ms > kBlindTargetProbeBudgetMs) {
             LogWarn << "NAVMESH blind-target fallback gave up: probe budget exhausted." << VAR(state.navmesh_zone)
                     << VAR(state.current_zone) << VAR(target.x) << VAR(target.y) << VAR(offset) << VAR(probe_limit)
@@ -1018,8 +1016,7 @@ bool AppendNavmeshWaypoint(
         route_result = PlanCorridorRoute(navmesh, request, should_stop, out_diagnostics == nullptr ? nullptr : &route_diagnostic);
         start_recovered = true;
     }
-    const int64_t plan_ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - plan_started_at).count();
+    const int64_t plan_ms = ElapsedMs(plan_started_at);
     if (!route_result.ok()) {
         // 下面的兜底都不看可走面, 禁区必须先拦下, 否则会穿过禁区
         if (route_result.status == navmesh::BaseNavRouteStatus::NoGo) {
@@ -1131,8 +1128,7 @@ bool AppendNavmeshWaypoint(
     const size_t path_point_count = route_result.path.points.size();
     const size_t appended_waypoints = out_path.size() - insert_index;
     const size_t route_waypoints = out_path.size();
-    const int64_t expand_ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - expand_started_at).count();
+    const int64_t expand_ms = ElapsedMs(expand_started_at);
     LogInfo << "Expanded NAVMESH waypoint." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(path_point_count)
             << VAR(insert_index) << VAR(appended_waypoints) << VAR(route_waypoints) << VAR(start_recovered) << VAR(plan_ms)
             << VAR(expand_ms);
@@ -1488,8 +1484,7 @@ bool ExpandNavmeshWaypoints(
     const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
     const auto expand_started_at = std::chrono::steady_clock::now();
     const auto navmesh = LoadCachedNavmesh(navmesh_path, state->navmesh_zone);
-    const int64_t navmesh_load_ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - expand_started_at).count();
+    const int64_t navmesh_load_ms = ElapsedMs(expand_started_at);
     if (!navmesh) {
         if (!contains_navmesh && !needs_regular_projection) {
             out_path = param.path;
@@ -1523,8 +1518,7 @@ bool ExpandNavmeshWaypoints(
             ++rope_rides;
         }
     }
-    const int64_t expand_total_ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - expand_started_at).count();
+    const int64_t expand_total_ms = ElapsedMs(expand_started_at);
     const size_t authored_waypoints = param.path.size();
     const size_t expanded_waypoints = out_path.size();
     LogInfo << "NAVMESH route expansion finished." << VAR(state->navmesh_zone) << VAR(authored_waypoints) << VAR(expanded_waypoints)

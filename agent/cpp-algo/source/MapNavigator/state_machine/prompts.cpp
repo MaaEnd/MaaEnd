@@ -10,9 +10,10 @@
 #include "../control/action_wrapper.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
-#include "../navi_math.h"
+#include "../navi_time.h"
 #include "../semantic/async_prompt_action.h"
 #include "../semantic/semantic_nodes.h"
+#include "../sensing/pipeline_node_reader.h"
 #include "../sensing/position_provider.h"
 #include "../sensing/prompt_scan_profile.h"
 #include "../sensing/roi_template_scanner.h"
@@ -272,7 +273,7 @@ void NavigationStateMachine::TryRunPromptSubtaskAtRouteTail()
     }
 
     StopMotion();
-    utils::SleepFor(kStopWaitMs); // 先站定, 还在滑行就动手容易白按一次
+    SleepFor(kStopWaitMs); // 先站定, 还在滑行就动手容易白按一次
     const auto started_at = std::chrono::steady_clock::now();
     while (!should_stop_()) {
         if (tail_prompt->TryTriggerAtRouteTail()) {
@@ -287,7 +288,7 @@ void NavigationStateMachine::TryRunPromptSubtaskAtRouteTail()
         }
 
         CaptureCurrentPosition(false); // 只为把新画面喂给检测器
-        utils::SleepFor(kTargetTickMs);
+        SleepFor(kTargetTickMs);
     }
 }
 

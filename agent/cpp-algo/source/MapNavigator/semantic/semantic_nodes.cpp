@@ -16,6 +16,7 @@
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
+#include "../navi_time.h"
 #include "../sensing/position_provider.h"
 #include "../zipline/zipline_action.h"
 #include "async_prompt_action.h"
@@ -102,12 +103,12 @@ Result TickPortalTransit(const Context& ctx)
     if (ctx.runtime_state->semantic.portal_transit_needs_reacquire) {
         if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())) {
             result.stay_in_current_tick = true;
-            utils::SleepFor(kZoneConfirmRetryIntervalMs);
+            SleepFor(kZoneConfirmRetryIntervalMs);
             return result;
         }
         if (ctx.position->zone_id != ctx.session->current_zone_id()) {
             result.stay_in_current_tick = true;
-            utils::SleepFor(kZoneConfirmRetryIntervalMs);
+            SleepFor(kZoneConfirmRetryIntervalMs);
             return result;
         }
 
@@ -130,14 +131,14 @@ Result TickPortalTransit(const Context& ctx)
     NaviPosition candidate;
     if (!ctx.position_provider->Capture(&candidate, true, {})) {
         result.stay_in_current_tick = true;
-        utils::SleepFor(kZoneConfirmRetryIntervalMs);
+        SleepFor(kZoneConfirmRetryIntervalMs);
         return result;
     }
 
     *ctx.position = candidate;
     if (candidate.zone_id.empty() || candidate.zone_id == ctx.session->current_zone_id()) {
         result.stay_in_current_tick = true;
-        utils::SleepFor(kZoneConfirmRetryIntervalMs);
+        SleepFor(kZoneConfirmRetryIntervalMs);
         return result;
     }
 
@@ -145,7 +146,7 @@ Result TickPortalTransit(const Context& ctx)
     if (matched_zone_index == std::numeric_limits<size_t>::max()) {
         StopMotionAndCommitment(ctx);
         result.stay_in_current_tick = true;
-        utils::SleepFor(kZoneConfirmRetryIntervalMs);
+        SleepFor(kZoneConfirmRetryIntervalMs);
         return result;
     }
 
@@ -169,7 +170,7 @@ Result TickTransferWaitImpl(const Context& ctx)
     ctx.motion_controller->SetForwardState(false);
 
     const auto now = std::chrono::steady_clock::now();
-    if (ctx.runtime_state->semantic.transfer_wait_started.time_since_epoch().count() == 0) {
+    if (IsUnset(ctx.runtime_state->semantic.transfer_wait_started)) {
         ctx.runtime_state->semantic.transfer_wait_started = now;
     }
 
@@ -182,7 +183,7 @@ Result TickTransferWaitImpl(const Context& ctx)
             return result;
         }
         result.stay_in_current_tick = true;
-        utils::SleepFor(kRelocationRetryIntervalMs);
+        SleepFor(kRelocationRetryIntervalMs);
         return result;
     }
 
@@ -202,14 +203,14 @@ Result TickTransferWaitImpl(const Context& ctx)
             return result;
         }
         result.stay_in_current_tick = true;
-        utils::SleepFor(kRelocationRetryIntervalMs);
+        SleepFor(kRelocationRetryIntervalMs);
         return result;
     }
 
     ++ctx.runtime_state->semantic.transfer_stable_hits;
     if (ctx.runtime_state->semantic.transfer_stable_hits < kRelocationStableFixes) {
         result.stay_in_current_tick = true;
-        utils::SleepFor(kRelocationRetryIntervalMs);
+        SleepFor(kRelocationRetryIntervalMs);
         return result;
     }
 
@@ -241,7 +242,7 @@ Result TickRopeRideImpl(const Context& ctx)
     const int64_t waited_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - s.rope_ride_started).count();
     if (waited_ms < s.rope_ride_ms) {
-        utils::SleepFor(kRelocationRetryIntervalMs);
+        SleepFor(kRelocationRetryIntervalMs);
         return { .stay_in_current_tick = true };
     }
     if (waited_ms > s.rope_ride_ms + kRelocationWaitTimeoutMs) {
@@ -251,11 +252,11 @@ Result TickRopeRideImpl(const Context& ctx)
     }
     if (!ctx.position_provider->Capture(ctx.position, false, {})) {
         s.rope_stable_hits = 0;
-        utils::SleepFor(kRelocationRetryIntervalMs);
+        SleepFor(kRelocationRetryIntervalMs);
         return { .stay_in_current_tick = true };
     }
     if (++s.rope_stable_hits < kRelocationStableFixes) {
-        utils::SleepFor(kRelocationRetryIntervalMs);
+        SleepFor(kRelocationRetryIntervalMs);
         return { .stay_in_current_tick = true };
     }
 
@@ -299,7 +300,7 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         const double heading_delta = NaviMath::NormalizeAngle(target_heading - start_heading);
 
         ctx.motion_controller->SetForwardState(false);
-        utils::SleepFor(kStopWaitMs);
+        SleepFor(kStopWaitMs);
 
         double achieved_heading = start_heading;
         if (std::abs(heading_delta) <= 1.0) {
@@ -369,7 +370,7 @@ bool capture_strict_goal_fix(
         if (frame > 0 && !wait_for_strict_settle(std::chrono::milliseconds(kStrictSettleFixIntervalMs), deadline, should_stop)) {
             break;
         }
-        if (!ctx.position_provider->captureForStrictGoal(out_pos, ctx.session->current_zone_id())) {
+        if (!ctx.position_provider->CaptureForStrictGoal(out_pos, ctx.session->current_zone_id())) {
             continue;
         }
         if (should_stop() || std::chrono::steady_clock::now() >= deadline) {
@@ -490,7 +491,7 @@ bool CaptureStableHeadingImpl(const Context& ctx, double* out_heading, const Can
     std::optional<double> previous;
     for (int frame = 0; can_capture_frame(frame); ++frame) {
         if (frame > 0) {
-            utils::SleepFor(kHeadingStableReadIntervalMs);
+            SleepFor(kHeadingStableReadIntervalMs);
         }
         if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())) {
             previous.reset();
@@ -531,7 +532,7 @@ bool TurnToHeadingOnce(const Context& ctx, double heading_delta, const std::func
             return false;
         }
         if (step + 1 < step_count) {
-            utils::SleepFor(step_interval_ms);
+            SleepFor(step_interval_ms);
         }
     }
     return true;
@@ -556,7 +557,7 @@ void AlignCameraToHeadingOnce(const Context& ctx)
         LogWarn << "Camera align turn not sent." << VAR(heading) << VAR(camera_before) << VAR(delta);
         return;
     }
-    utils::SleepFor(kWaitAfterFirstTurnMs);
+    SleepFor(kWaitAfterFirstTurnMs);
 
     const bool captured = ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id());
     LogInfo << "Camera aligned to navigation heading." << VAR(heading) << VAR(camera_before) << VAR(delta) << VAR(captured);
@@ -597,10 +598,10 @@ bool CommitHeadingTurn(const Context& ctx, double heading_delta)
     if (!TurnToHeadingOnce(ctx, heading_delta)) {
         return false;
     }
-    utils::SleepFor(kWaitAfterFirstTurnMs);
+    SleepFor(kWaitAfterFirstTurnMs);
     ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
     ctx.motion_controller->SetForwardState(false);
-    utils::SleepFor(kWaitAfterFirstTurnMs);
+    SleepFor(kWaitAfterFirstTurnMs);
     return true;
 }
 
@@ -963,7 +964,7 @@ Result ArriveDig(const Context& ctx, const Waypoint& waypoint, const std::option
     }
 
     LogInfo << "Action: DIG subtask returned." << VAR(sub_id);
-    utils::SleepFor(kDigPostSleepMs);
+    SleepFor(kDigPostSleepMs);
     ctx.runtime_state->route.Reset();
     return CompleteArrival(ctx, waypoint, node_idx, "dig_completed");
 }
@@ -1046,7 +1047,7 @@ Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual
     const std::optional<size_t> node_idx = ctx.session->CurrentAbsoluteNodeIndex();
     if (waypoint.RequiresStrictArrival() && ctx.motion_controller->IsMoving()) {
         StopMotionAndCommitment(ctx);
-        utils::SleepFor(kStopWaitMs);
+        SleepFor(kStopWaitMs);
     }
 
     switch (waypoint.action) {

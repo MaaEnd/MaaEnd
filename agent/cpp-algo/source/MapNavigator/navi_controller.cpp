@@ -1,3 +1,4 @@
+#include <functional>
 #include <limits>
 #include <mutex>
 #include <optional>
@@ -59,6 +60,37 @@ private:
     bool taken_ = false;
 };
 
+// 首次展开失败就跳过已走过的前缀重试, 返回跳过的作者点数
+std::optional<size_t>
+    ExpandRoute(const NaviParam& param, const NaviPosition& pos, const std::function<bool()>& is_stopping, std::vector<Waypoint>& out_path)
+{
+    if (ExpandNavmeshWaypoints(param, pos, is_stopping, out_path)) {
+        return 0;
+    }
+    const std::optional<size_t> resume = ResolveRouteResumeIndex(param.path, pos);
+    if (!resume) {
+        return std::nullopt;
+    }
+    NaviParam resumed_param = param;
+    resumed_param.path.assign(param.path.begin() + static_cast<std::ptrdiff_t>(*resume), param.path.end());
+    if (!ExpandNavmeshWaypoints(resumed_param, pos, is_stopping, out_path)) {
+        return std::nullopt;
+    }
+    const size_t resume_index = *resume;
+    LogInfo << "Expanded the route again after skipping the traversed prefix." << VAR(resume_index);
+    return resume_index;
+}
+
+// 展开时记的组首是相对跳过前缀后的路线, 补回跳过的点数
+void OffsetAuthoredGroups(std::vector<Waypoint>& path, size_t resume_index)
+{
+    for (Waypoint& waypoint : path) {
+        if (waypoint.authored_group_begin != std::numeric_limits<size_t>::max()) {
+            waypoint.authored_group_begin += resume_index;
+        }
+    }
+}
+
 } // namespace
 
 NaviController::NaviController(MaaContext* ctx)
@@ -117,19 +149,9 @@ bool NaviController::Navigate(const NaviParam& requested_param)
     LogInfo << "Initial Pos fixed:" << VAR(position_x) << VAR(position_y);
 
     std::vector<Waypoint> expanded_path;
-    size_t resume_index = 0;
-    if (!ExpandNavmeshWaypoints(param, pos, is_stopping, expanded_path)) {
-        const std::optional<size_t> resume = ResolveRouteResumeIndex(param.path, pos);
-        if (!resume) {
-            return false;
-        }
-        NaviParam resumed_param = param;
-        resumed_param.path.assign(param.path.begin() + static_cast<std::ptrdiff_t>(*resume), param.path.end());
-        if (!ExpandNavmeshWaypoints(resumed_param, pos, is_stopping, expanded_path)) {
-            return false;
-        }
-        resume_index = *resume;
-        LogInfo << "Expanded the route again after skipping the traversed prefix." << VAR(resume_index);
+    const std::optional<size_t> resume_index = ExpandRoute(param, pos, is_stopping, expanded_path);
+    if (!resume_index) {
+        return false;
     }
     if (expanded_path.empty()) {
         return true;
@@ -138,13 +160,7 @@ bool NaviController::Navigate(const NaviParam& requested_param)
     NaviParam expanded_param = param;
     expanded_param.path = std::move(expanded_path);
     expanded_param.authored_path = std::move(param.path);
-    if (resume_index > 0) {
-        for (Waypoint& waypoint : expanded_param.path) {
-            if (waypoint.authored_group_begin != std::numeric_limits<size_t>::max()) {
-                waypoint.authored_group_begin += resume_index;
-            }
-        }
-    }
+    OffsetAuthoredGroups(expanded_param.path, *resume_index);
 
     NavigationSession session(expanded_param.path, pos);
     session.UpdatePhase(NaviPhase::Bootstrap, "initial_fix");

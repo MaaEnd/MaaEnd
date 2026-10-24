@@ -23,8 +23,6 @@ struct AdbCameraSwipeDriverConfig
     // 单笔过长时按下点会落进左侧摇杆区, 那一笔不转镜头
     int max_stroke_dx = 270;
 
-    int turn_swipe_duration_ms = kAdbTouchTurnProfile.swipe_duration_ms;
-
     // 与按下或抬起同帧的位移会整步丢失, 两端停留须盖过一帧
     int touch_down_hold_ms = 100;
     // 离按下点不超过起拖阈值的位移游戏不认, 第一步直接移出这么远
@@ -53,14 +51,12 @@ private:
     };
 
     std::optional<ScreenGeometry> GetScreenGeometry() const;
-    bool ExecuteSwipe(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
     bool ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
     bool PostTouchDown(const cv::Point& point) const;
     bool PostTouchMove(const cv::Point& point) const;
     bool PostTouchUp() const;
     bool EnsureControllerActionPosted(MaaCtrlId ctrl_id, const char* action_name) const;
     bool WaitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const;
-    static void SleepIfNeeded(int delay_millis);
 
     MaaController* controller_ = nullptr;
     AdbCameraSwipeDriverConfig config_;

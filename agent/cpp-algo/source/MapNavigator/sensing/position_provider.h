@@ -26,7 +26,7 @@ public:
         const std::vector<maplocator::SearchHint>& search_hints = {},
         std::optional<double> camera_heading_prior = std::nullopt);
     // 停车测量用, 取未平滑的定位和过了置信度检查的镜头朝向
-    bool captureForStrictGoal(NaviPosition* out_pos, const std::string& expected_zone_id);
+    bool CaptureForStrictGoal(NaviPosition* out_pos, const std::string& expected_zone_id);
     bool WaitForFix(
         NaviPosition* out_pos,
         const std::string& expected_zone_id,
@@ -43,21 +43,22 @@ public:
     void SetFrameObserver(std::function<void(const cv::Mat&)> observer);
 
 private:
-    bool captureImpl(
+    bool CaptureWith(NaviPosition* out_pos, maplocator::LocateOptions options, HeadingSource heading_source);
+    bool WaitForScreencap() const;
+    void FillPosition(
         NaviPosition* out_pos,
-        bool force_global_search,
-        const std::string& expected_zone_id,
-        const std::vector<maplocator::SearchHint>& search_hints,
-        HeadingSource heading_source,
-        bool precise_position,
-        std::optional<double> camera_heading_prior = std::nullopt);
+        const maplocator::LocateResult& locate_result,
+        double heading,
+        std::optional<double> confident_camera,
+        std::chrono::steady_clock::time_point captured_at) const;
 
     MaaController* controller_;
     std::shared_ptr<maplocator::MapLocator> locator_;
     const HeadingSource heading_source_;
     std::function<void(NaviPosition&)> position_normalizer_;
     std::function<void(const cv::Mat&)> frame_observer_;
-    bool uses_adb_minimap_roi_ = false;
+    // 移动端界面, 小地图位置和镜头朝向的取法都与桌面端不同
+    bool adb_like_controller_ = false;
     bool last_capture_was_black_screen_ = false;
 };
 

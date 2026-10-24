@@ -15,7 +15,7 @@
 #include "../control/action_wrapper.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
-#include "../navi_math.h"
+#include "../navi_time.h"
 #include "../semantic/semantic_helpers.h"
 #include "../sensing/position_provider.h"
 #include "zipline_ride_machine.h"
@@ -163,7 +163,7 @@ public:
 
     void Dismount() override { ctx_.action_wrapper->TriggerZiplineDismountSync(kZiplineDismountHoldMs); }
 
-    void Wait(int32_t ms) override { utils::SleepFor(ms); }
+    void Wait(int32_t ms) override { SleepFor(ms); }
 
 private:
     const Context& ctx_;
@@ -323,7 +323,7 @@ void LeaveZiplineTower(const Context& ctx)
     ride.Dismount(actuator);
     // 刚下来的那几百毫秒移动指令还会被架子吃掉
     if (was_on_tower) {
-        utils::SleepFor(kZiplineLaunchSettleMs);
+        SleepFor(kZiplineLaunchSettleMs);
     }
 }
 
@@ -401,7 +401,7 @@ Result TickZiplineRide(const Context& ctx)
         return AdvanceMountSpot(ctx, ctx.session->CurrentWaypoint(), "zipline_mount_unmounted");
     }
     result.stay_in_current_tick = true;
-    utils::SleepFor(kZiplineRideRetryIntervalMs);
+    SleepFor(kZiplineRideRetryIntervalMs);
     return result;
 }
 

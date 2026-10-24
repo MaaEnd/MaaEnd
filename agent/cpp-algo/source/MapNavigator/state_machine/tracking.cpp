@@ -8,6 +8,7 @@
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
+#include "../navi_time.h"
 #include "../planning/route_tracker.h"
 #include "../semantic/semantic_helpers.h"
 #include "../semantic/semantic_nodes.h"
@@ -162,7 +163,7 @@ TickStep NavigationStateMachine::CheckRouteProgress(NavigateTick& tick)
         if (tick.fix.degraded_fix) {
             motion_controller_->SetForwardState(false);
         }
-        utils::SleepFor(kTargetTickMs);
+        SleepFor(kTargetTickMs);
         return TickStep::EndTick;
     }
     return TickStep::Next;

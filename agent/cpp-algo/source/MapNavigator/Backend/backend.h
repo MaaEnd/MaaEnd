@@ -18,28 +18,36 @@ struct SteeringTransportProfile
     bool drops_turn_sends = false;
 };
 
+struct MovementState
+{
+    bool forward = false;
+    bool left = false;
+    bool backward = false;
+    bool right = false;
+};
+
 class IInputBackend
 {
 public:
     virtual ~IInputBackend() = default;
 
     virtual MaaController* GetCtrl() const = 0;
-    virtual const std::string& controller_type() const = 0;
-    virtual bool uses_touch_backend() const = 0;
-    virtual bool is_supported() const = 0;
-    virtual const std::string& unsupported_reason() const = 0;
-    virtual double default_turn_units_per_degree() const = 0;
+    virtual const std::string& ControllerType() const = 0;
+    virtual bool UsesTouchBackend() const = 0;
+    virtual bool IsSupported() const = 0;
+    virtual const std::string& UnsupportedReason() const = 0;
+    virtual double DefaultTurnUnitsPerDegree() const = 0;
 
-    virtual double default_pitch_units_per_degree() const { return default_turn_units_per_degree(); }
+    virtual double DefaultPitchUnitsPerDegree() const { return DefaultTurnUnitsPerDegree(); }
 
-    virtual SteeringTransportProfile steering_transport_profile() const = 0;
+    virtual SteeringTransportProfile SteeringProfile() const = 0;
 
-    virtual bool supports_sprint() const { return true; }
+    virtual bool SupportsSprint() const { return true; }
 
     // 返回 false 时走路请求不生效, 保持跑步速度
-    virtual bool supports_walk_toggle() const { return false; }
+    virtual bool SupportsWalkToggle() const { return false; }
 
-    virtual void SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis) = 0;
+    virtual void SetMovementStateSync(MovementState state, int delay_millis) = 0;
     virtual void TriggerJumpSync(int hold_millis) = 0;
     virtual void TriggerInteractSync(int hold_millis) = 0;
     virtual void PulseForwardSync(int hold_millis) = 0;
@@ -49,17 +57,8 @@ public:
 
     virtual void ResetForwardWalkSync(int release_millis) = 0;
     virtual void ClickMouseLeftSync() = 0;
-    virtual void MouseRightDownSync(int delay_millis) = 0;
-    virtual void MouseRightUpSync(int delay_millis) = 0;
-
-    virtual void TriggerZiplineLaunchSync() { ClickMouseLeftSync(); }
-
-    virtual void TriggerZiplineDismountSync(int hold_millis)
-    {
-        MouseRightDownSync(hold_millis);
-        MouseRightUpSync(0);
-    }
-
+    virtual void TriggerZiplineLaunchSync() = 0;
+    virtual void TriggerZiplineDismountSync(int hold_millis) = 0;
     virtual bool SendViewDeltaSync(int dx, int dy) = 0;
 };
 

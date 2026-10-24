@@ -1,11 +1,10 @@
 #include <algorithm>
-#include <chrono>
 #include <cmath>
-#include <thread>
 #include <utility>
 
 #include <MaaUtils/Logger.h>
 
+#include "../../navi_time.h"
 #include "adb_camera_swipe_driver.h"
 
 namespace mapnavigator::backend::adb
@@ -13,9 +12,6 @@ namespace mapnavigator::backend::adb
 
 namespace
 {
-
-constexpr int kAdbTouchReferenceWidth = 1280;
-constexpr int kAdbTouchReferenceHeight = 720;
 
 cv::Point ClampPoint(const cv::Point& point, const cv::Size& resolution)
 {
@@ -63,7 +59,7 @@ bool AdbCameraSwipeDriver::SwipeByPixels(int dx, int dy) const
     do {
         const int swipe_dx = std::clamp(remaining_dx, -stroke_dx_limit, stroke_dx_limit);
         const int swipe_dy = std::clamp(remaining_dy, -geometry->up_limit, geometry->down_limit);
-        if (!ExecuteSwipe(*geometry, swipe_dx, swipe_dy)) {
+        if (!ExecuteStableDrag(*geometry, swipe_dx, swipe_dy)) {
             return false;
         }
         remaining_dx -= swipe_dx;
@@ -82,24 +78,16 @@ std::optional<AdbCameraSwipeDriver::ScreenGeometry> AdbCameraSwipeDriver::GetScr
     const int safe_margin = std::max(0, config_.edge_margin);
     const int x_denominator = std::max(1, config_.origin_x_denominator);
     const int y_denominator = std::max(1, config_.origin_y_denominator);
-    const int origin_x = std::clamp(kAdbTouchReferenceWidth * config_.origin_x_numerator / x_denominator, 0, kAdbTouchReferenceWidth - 1);
-    const int origin_y = std::clamp(
-        kAdbTouchReferenceHeight * config_.origin_y_numerator / y_denominator + config_.origin_y_offset,
-        0,
-        kAdbTouchReferenceHeight - 1);
+    const int origin_x = std::clamp(kWorkWidth * config_.origin_x_numerator / x_denominator, 0, kWorkWidth - 1);
+    const int origin_y = std::clamp(kWorkHeight * config_.origin_y_numerator / y_denominator + config_.origin_y_offset, 0, kWorkHeight - 1);
     const cv::Point center(origin_x, origin_y);
 
     ScreenGeometry geometry;
-    geometry.resolution = { kAdbTouchReferenceWidth, kAdbTouchReferenceHeight };
+    geometry.resolution = { kWorkWidth, kWorkHeight };
     geometry.center = center;
     geometry.up_limit = std::max(1, center.y - safe_margin);
-    geometry.down_limit = std::max(1, (kAdbTouchReferenceHeight - 1 - safe_margin) - center.y);
+    geometry.down_limit = std::max(1, (kWorkHeight - 1 - safe_margin) - center.y);
     return geometry;
-}
-
-bool AdbCameraSwipeDriver::ExecuteSwipe(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const
-{
-    return ExecuteStableDrag(geometry, swipe_dx, swipe_dy);
 }
 
 bool AdbCameraSwipeDriver::ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const
@@ -114,7 +102,7 @@ bool AdbCameraSwipeDriver::ExecuteStableDrag(const ScreenGeometry& geometry, int
         return false;
     }
 
-    SleepIfNeeded(config_.touch_down_hold_ms);
+    SleepFor(config_.touch_down_hold_ms);
 
     const int move_steps = std::max(2, config_.move_steps);
     for (int step = 1; step <= move_steps; ++step) {
@@ -129,17 +117,17 @@ bool AdbCameraSwipeDriver::ExecuteStableDrag(const ScreenGeometry& geometry, int
         }
 
         if (step < move_steps) {
-            SleepIfNeeded(config_.move_step_delay_ms);
+            SleepFor(config_.move_step_delay_ms);
         }
     }
 
-    SleepIfNeeded(config_.end_hold_ms);
+    SleepFor(config_.end_hold_ms);
 
     if (!PostTouchUp()) {
         return false;
     }
 
-    SleepIfNeeded(config_.post_swipe_settle_ms);
+    SleepFor(config_.post_swipe_settle_ms);
     return true;
 }
 
@@ -196,14 +184,6 @@ bool AdbCameraSwipeDriver::WaitForControllerAction(MaaCtrlId ctrl_id, const char
 
     LogWarn << "AdbCameraSwipeDriver: controller action did not succeed." << VAR(action_name) << VAR(ctrl_id) << VAR(status);
     return false;
-}
-
-void AdbCameraSwipeDriver::SleepIfNeeded(int delay_millis)
-{
-    if (delay_millis <= 0) {
-        return;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(delay_millis));
 }
 
 } // namespace mapnavigator::backend::adb

@@ -12,6 +12,7 @@
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
+#include "../navi_time.h"
 #include "../planning/navmesh_path_expander.h"
 #include "../semantic/semantic_nodes.h"
 #include "../zipline/zipline_action.h"
@@ -234,7 +235,7 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
 
     const bool force_global_search = recovery.stable_hits == 0;
     if (!CaptureCurrentPosition(force_global_search)) {
-        utils::SleepFor(kZiplineRecoveryRetryIntervalMs);
+        SleepFor(kZiplineRecoveryRetryIntervalMs);
         return true;
     }
 
@@ -249,7 +250,7 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
     recovery.stable_pos = *position_;
     recovery.stable_hits = same_fix ? recovery.stable_hits + 1 : 1;
     if (recovery.stable_hits < kZiplineRecoveryStableFixes) {
-        utils::SleepFor(kZiplineRecoveryRetryIntervalMs);
+        SleepFor(kZiplineRecoveryRetryIntervalMs);
         return true;
     }
 

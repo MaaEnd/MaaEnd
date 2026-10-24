@@ -21,54 +21,54 @@ MaaController* ActionWrapper::GetCtrl() const
 
 const char* ActionWrapper::controller_type() const
 {
-    return backend_->controller_type().c_str();
+    return backend_->ControllerType().c_str();
 }
 
 bool ActionWrapper::uses_touch_backend() const
 {
-    return backend_->uses_touch_backend();
+    return backend_->UsesTouchBackend();
 }
 
 bool ActionWrapper::is_supported() const
 {
-    return backend_->is_supported();
+    return backend_->IsSupported();
 }
 
 const char* ActionWrapper::unsupported_reason() const
 {
-    return backend_->unsupported_reason().c_str();
+    return backend_->UnsupportedReason().c_str();
 }
 
 double ActionWrapper::DefaultTurnUnitsPerDegree() const
 {
     // 灵敏度校正系数只在这里和下面的俯仰处乘
-    return backend_->default_turn_units_per_degree() * sensitivity::TurnUnitsScale();
+    return backend_->DefaultTurnUnitsPerDegree() * sensitivity::TurnUnitsScale();
 }
 
 double ActionWrapper::DefaultPitchUnitsPerDegree() const
 {
     // 游戏视角灵敏度两轴共用, 偏航测出的倍率俯仰照乘
-    return backend_->default_pitch_units_per_degree() * sensitivity::TurnUnitsScale();
+    return backend_->DefaultPitchUnitsPerDegree() * sensitivity::TurnUnitsScale();
 }
 
 SteeringTransportProfile ActionWrapper::SteeringProfile() const
 {
-    return backend_->steering_transport_profile();
+    return backend_->SteeringProfile();
 }
 
 bool ActionWrapper::SupportsSprint() const
 {
-    return backend_->supports_sprint();
+    return backend_->SupportsSprint();
 }
 
 bool ActionWrapper::SupportsWalkToggle() const
 {
-    return backend_->supports_walk_toggle();
+    return backend_->SupportsWalkToggle();
 }
 
-void ActionWrapper::SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis)
+void ActionWrapper::SetMovementStateSync(MovementState state, int delay_millis)
 {
-    backend_->SetMovementStateSync(forward, left, backward, right, delay_millis);
+    backend_->SetMovementStateSync(state, delay_millis);
 }
 
 void ActionWrapper::TriggerJumpSync(int hold_millis)
@@ -104,16 +104,6 @@ void ActionWrapper::ResetForwardWalkSync(int release_millis)
 void ActionWrapper::ClickMouseLeftSync()
 {
     backend_->ClickMouseLeftSync();
-}
-
-void ActionWrapper::MouseRightDownSync(int delay_millis)
-{
-    backend_->MouseRightDownSync(delay_millis);
-}
-
-void ActionWrapper::MouseRightUpSync(int delay_millis)
-{
-    backend_->MouseRightUpSync(delay_millis);
 }
 
 void ActionWrapper::TriggerZiplineLaunchSync()

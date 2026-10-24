@@ -1,12 +1,11 @@
-#include <chrono>
-#include <thread>
 #include <utility>
 #include <vector>
 
 #include <MaaUtils/Logger.h>
 
+#include "../../control/controller_info_utils.h"
 #include "../../navi_config.h"
-#include "MapNavigator/control/controller_info_utils.h"
+#include "../../navi_time.h"
 #include "desktop_input_backend.h"
 
 namespace mapnavigator::backend::desktop
@@ -15,9 +14,8 @@ namespace mapnavigator::backend::desktop
 namespace
 {
 
-constexpr int32_t kDesktopReferenceFrameHeight = 720;
 constexpr int32_t kDesktopDefaultHoverAnchorX = kWorkWidth / 2;
-constexpr int32_t kDesktopDefaultHoverAnchorY = kDesktopReferenceFrameHeight / 2;
+constexpr int32_t kDesktopDefaultHoverAnchorY = kWorkHeight / 2;
 constexpr int32_t kDesktopHoverTouchContactId = 0;
 constexpr int32_t kDesktopPrimaryTouchContactId = 1;
 constexpr int32_t kDesktopDefaultTouchPressure = 0;
@@ -74,14 +72,6 @@ ViewUnitsPerDegree ComputeViewUnitsPerDegree(MaaController* ctrl, const std::str
 
 } // namespace
 
-void DesktopInputBackend::SleepIfNeeded(int delay_millis)
-{
-    if (delay_millis <= 0) {
-        return;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(delay_millis));
-}
-
 DesktopInputBackend::DesktopInputBackend(
     MaaController* ctrl,
     std::string controller_type,
@@ -134,37 +124,37 @@ MaaController* DesktopInputBackend::GetCtrl() const
     return ctrl_;
 }
 
-const std::string& DesktopInputBackend::controller_type() const
+const std::string& DesktopInputBackend::ControllerType() const
 {
     return controller_type_;
 }
 
-bool DesktopInputBackend::uses_touch_backend() const
+bool DesktopInputBackend::UsesTouchBackend() const
 {
     return false;
 }
 
-bool DesktopInputBackend::is_supported() const
+bool DesktopInputBackend::IsSupported() const
 {
     return ctrl_ != nullptr;
 }
 
-const std::string& DesktopInputBackend::unsupported_reason() const
+const std::string& DesktopInputBackend::UnsupportedReason() const
 {
     return unsupported_reason_;
 }
 
-double DesktopInputBackend::default_turn_units_per_degree() const
+double DesktopInputBackend::DefaultTurnUnitsPerDegree() const
 {
     return default_turn_units_per_degree_;
 }
 
-double DesktopInputBackend::default_pitch_units_per_degree() const
+double DesktopInputBackend::DefaultPitchUnitsPerDegree() const
 {
     return default_pitch_units_per_degree_;
 }
 
-SteeringTransportProfile DesktopInputBackend::steering_transport_profile() const
+SteeringTransportProfile DesktopInputBackend::SteeringProfile() const
 {
     return SteeringTransportProfile {
         .supports_concurrent_move_and_look = true,
@@ -175,13 +165,13 @@ SteeringTransportProfile DesktopInputBackend::steering_transport_profile() const
     };
 }
 
-void DesktopInputBackend::SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis)
+void DesktopInputBackend::SetMovementStateSync(MovementState state, int delay_millis)
 {
-    ApplyMovementKeyState(key_codes_.move_forward, forward);
-    ApplyMovementKeyState(key_codes_.move_left, left);
-    ApplyMovementKeyState(key_codes_.move_backward, backward);
-    ApplyMovementKeyState(key_codes_.move_right, right);
-    SleepIfNeeded(delay_millis);
+    ApplyMovementKeyState(key_codes_.move_forward, state.forward);
+    ApplyMovementKeyState(key_codes_.move_left, state.left);
+    ApplyMovementKeyState(key_codes_.move_backward, state.backward);
+    ApplyMovementKeyState(key_codes_.move_right, state.right);
+    SleepFor(delay_millis);
 }
 
 void DesktopInputBackend::TriggerJumpSync(int hold_millis)
@@ -197,14 +187,14 @@ void DesktopInputBackend::TriggerInteractSync(int hold_millis)
 void DesktopInputBackend::PulseForwardSync(int hold_millis)
 {
     PostKeyDownSync(key_codes_.move_forward, 0);
-    SleepIfNeeded(hold_millis);
+    SleepFor(hold_millis);
     PostKeyUpSync(key_codes_.move_forward, 0);
 }
 
 void DesktopInputBackend::TriggerSprintSync()
 {
     MouseRightDownSync(0);
-    SleepIfNeeded(kActionSprintPressMs);
+    SleepFor(kActionSprintPressMs);
     MouseRightUpSync(0);
 }
 
@@ -216,7 +206,7 @@ void DesktopInputBackend::ToggleWalkModeSync()
 void DesktopInputBackend::ResetForwardWalkSync(int release_millis)
 {
     PostKeyUpSync(key_codes_.move_forward, 0);
-    SleepIfNeeded(release_millis);
+    SleepFor(release_millis);
     PostKeyDownSync(key_codes_.move_forward, 0);
 }
 
@@ -227,20 +217,31 @@ void DesktopInputBackend::ClickMouseLeftSync()
     MaaControllerWait(ctrl_, ctrl_id);
 }
 
+void DesktopInputBackend::TriggerZiplineLaunchSync()
+{
+    ClickMouseLeftSync();
+}
+
+void DesktopInputBackend::TriggerZiplineDismountSync(int hold_millis)
+{
+    MouseRightDownSync(hold_millis);
+    MouseRightUpSync(0);
+}
+
 void DesktopInputBackend::MouseRightDownSync(int delay_millis)
 {
     EnsureHoverAnchorSync();
     const MaaCtrlId ctrl_id =
         MaaControllerPostTouchDown(ctrl_, kDesktopPrimaryTouchContactId, hover_x_, hover_y_, kDesktopDefaultTouchPressure);
     MaaControllerWait(ctrl_, ctrl_id);
-    SleepIfNeeded(delay_millis);
+    SleepFor(delay_millis);
 }
 
 void DesktopInputBackend::MouseRightUpSync(int delay_millis)
 {
     const MaaCtrlId ctrl_id = MaaControllerPostTouchUp(ctrl_, kDesktopPrimaryTouchContactId);
     MaaControllerWait(ctrl_, ctrl_id);
-    SleepIfNeeded(delay_millis);
+    SleepFor(delay_millis);
 }
 
 bool DesktopInputBackend::SendViewDeltaSync(int dx, int dy)
@@ -270,7 +271,7 @@ void DesktopInputBackend::PostKeyDownSync(int key_code, int delay_millis)
 
     const MaaCtrlId ctrl_id = MaaControllerPostKeyDown(ctrl_, key_code);
     MaaControllerWait(ctrl_, ctrl_id);
-    SleepIfNeeded(delay_millis);
+    SleepFor(delay_millis);
 }
 
 void DesktopInputBackend::PostKeyUpSync(int key_code, int delay_millis)
@@ -281,13 +282,13 @@ void DesktopInputBackend::PostKeyUpSync(int key_code, int delay_millis)
 
     const MaaCtrlId ctrl_id = MaaControllerPostKeyUp(ctrl_, key_code);
     MaaControllerWait(ctrl_, ctrl_id);
-    SleepIfNeeded(delay_millis);
+    SleepFor(delay_millis);
 }
 
 void DesktopInputBackend::ClickKeySync(int key_code, int hold_millis)
 {
     PostKeyDownSync(key_code, 0);
-    SleepIfNeeded(hold_millis);
+    SleepFor(hold_millis);
     PostKeyUpSync(key_code, 0);
 }
 

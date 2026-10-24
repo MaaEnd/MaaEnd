@@ -30,7 +30,7 @@ public:
     bool SupportsSprint() const;
     bool SupportsWalkToggle() const;
 
-    void SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis);
+    void SetMovementStateSync(MovementState state, int delay_millis);
     void TriggerJumpSync(int hold_millis);
     void TriggerInteractSync(int hold_millis);
     void PulseForwardSync(int hold_millis);
@@ -38,9 +38,6 @@ public:
     void ToggleWalkModeSync();
     void ResetForwardWalkSync(int release_millis);
     void ClickMouseLeftSync();
-
-    void MouseRightDownSync(int delay_millis);
-    void MouseRightUpSync(int delay_millis);
 
     void TriggerZiplineLaunchSync();
     void TriggerZiplineDismountSync(int hold_millis);

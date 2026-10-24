@@ -15,7 +15,7 @@
 
 #include "../control/controller_type_utils.h"
 #include "../control/motion_controller.h"
-#include "../navi_math.h"
+#include "../navi_time.h"
 #include "../planning/navigation_session.h"
 #include "../sensing/prompt_scan_profile.h"
 #include "../sensing/roi_template_scanner.h"
@@ -122,7 +122,7 @@ bool RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, co
         LogWarn << "Prompt subtask produced no result." << VAR(spec.tag) << VAR(spec.entry_node);
         return false;
     }
-    utils::SleepFor(kPromptPostSleepMs);
+    SleepFor(kPromptPostSleepMs);
     return std::any_of(completed->begin(), completed->end(), [&spec](const std::string& name) { return name == spec.recognition_node; });
 }
 
@@ -225,7 +225,7 @@ PromptTriggerOutcome
     }
 
     const auto now = std::chrono::steady_clock::now();
-    if (last_trigger_at_.time_since_epoch().count() != 0 && now - last_trigger_at_ < std::chrono::milliseconds(kPromptScanIntervalMs)) {
+    if (!IsUnset(last_trigger_at_) && now - last_trigger_at_ < std::chrono::milliseconds(kPromptScanIntervalMs)) {
         return PromptTriggerOutcome::NotTriggered;
     }
 
@@ -258,7 +258,7 @@ PromptTriggerOutcome
     LogInfo << "Async prompt flagged — stopping for authoritative recognition." << VAR(spec_.tag) << VAR(waypoint_distance) << VAR(node_idx)
             << VAR(rec);
     motion_controller->SetForwardState(false);
-    utils::SleepFor(kStopWaitMs);
+    SleepFor(kStopWaitMs);
     if (!RunPromptSubtask(context_, spec_, expected, rec)) {
         // 间隔从识别结束算起, 否则常驻的别家提示会挤掉到点判定
         last_trigger_at_ = std::chrono::steady_clock::now();

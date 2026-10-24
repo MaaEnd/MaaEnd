@@ -5,7 +5,7 @@
 #include "../control/action_wrapper.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
-#include "../navi_math.h"
+#include "../navi_time.h"
 #include "river_fall_recovery.h"
 
 namespace mapnavigator
@@ -36,7 +36,7 @@ RiverFallRecovery::Step RiverFallRecovery::Advance(double current_heading)
     // 上岸瞬间的箭头读数不可信, 先站定再算转身
     if (!rf.settled) {
         rf.settled = true;
-        utils::SleepFor(kRiverFallRecoverySettleMs);
+        SleepFor(kRiverFallRecoverySettleMs);
         LogInfo << "River-fall recovery settling before the about-face." << VAR(rf_displacement) << VAR(position_->x) << VAR(position_->y);
         return Step::Escaping;
     }
@@ -45,7 +45,7 @@ RiverFallRecovery::Step RiverFallRecovery::Advance(double current_heading)
         rf.water_heading = current_heading;
         const int turn_units = static_cast<int>(std::lround(180.0 * action_wrapper_->DefaultTurnUnitsPerDegree()));
         action_wrapper_->SendViewDeltaSync(turn_units, 0);
-        utils::SleepFor(kWaitAfterFirstTurnMs);
+        SleepFor(kWaitAfterFirstTurnMs);
         LogInfo << "River-fall recovery about-face issued." << VAR(rf.water_heading) << VAR(turn_units) << VAR(rf_displacement);
     }
     // 角色朝向要迈一步才跟上镜头, 这一步沿相机方向离水

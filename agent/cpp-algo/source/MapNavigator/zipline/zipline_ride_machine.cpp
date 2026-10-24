@@ -9,6 +9,7 @@
 
 #include "../navi_config.h"
 #include "../navi_math.h"
+#include "../navi_time.h"
 
 namespace mapnavigator
 {
@@ -61,11 +62,6 @@ double AwaySideCapDeg(const std::vector<double>& neighbor_offsets_deg, double aw
 double DistanceWu(const NaviPosition& a, const NaviPosition& b)
 {
     return std::hypot(a.x - b.x, a.y - b.y);
-}
-
-int64_t ElapsedMs(std::chrono::steady_clock::time_point from, std::chrono::steady_clock::time_point to)
-{
-    return std::chrono::duration_cast<std::chrono::milliseconds>(to - from).count();
 }
 
 const char* StageName(ZiplineStage stage)

@@ -10,6 +10,7 @@
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
+#include "../navi_time.h"
 #include "semantic_helpers.h"
 
 #include "../../utils.h"
@@ -24,11 +25,6 @@ namespace
 {
 
 constexpr const char* kTriggerPipelineOverride = "{}";
-
-int64_t ElapsedMs(std::chrono::steady_clock::time_point from, std::chrono::steady_clock::time_point now)
-{
-    return std::chrono::duration_cast<std::chrono::milliseconds>(now - from).count();
-}
 
 Result HoldTick()
 {
@@ -62,7 +58,7 @@ Result ProbeTriggerWhileNavigating(const Context& ctx)
 
     TriggerState& trigger = ctx.runtime_state->trigger;
     const auto now = std::chrono::steady_clock::now();
-    if (trigger.last_probe_at.time_since_epoch().count() != 0 && ElapsedMs(trigger.last_probe_at, now) < kTriggerProbeIntervalMs) {
+    if (!IsUnset(trigger.last_probe_at) && ElapsedMs(trigger.last_probe_at, now) < kTriggerProbeIntervalMs) {
         return {};
     }
     trigger.last_probe_at = now;
