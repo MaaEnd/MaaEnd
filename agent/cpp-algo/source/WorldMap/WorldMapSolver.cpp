@@ -11,7 +11,7 @@
 
 #include "../Common/JsoncFile.h"
 #include "MapLocator/MatchStrategy.h"
-#include "MapNavigator/controller_type_utils.h"
+#include "MapNavigator/control/controller_type_utils.h"
 #include "utils.h"
 
 namespace fs = std::filesystem;

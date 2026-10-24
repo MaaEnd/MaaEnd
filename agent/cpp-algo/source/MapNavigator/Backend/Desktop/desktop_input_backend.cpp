@@ -6,7 +6,7 @@
 #include <MaaUtils/Logger.h>
 
 #include "../../navi_config.h"
-#include "MapNavigator/controller_info_utils.h"
+#include "MapNavigator/control/controller_info_utils.h"
 #include "desktop_input_backend.h"
 
 namespace mapnavigator::backend::desktop

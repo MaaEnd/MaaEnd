@@ -630,7 +630,7 @@ The following files are maintained by cpp-algo developers; path authors do not n
 
 - `agent/cpp-algo/source/MapNavigator/navi_domain_types.h`: `ActionType` enum, `COLLECT`/`DIG` declared here.
 - `agent/cpp-algo/source/MapNavigator/navi_config.h`: Subtask entry names, `pipeline_override`, wait time after collection, and other constants.
-- `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`: Execution logic after arriving at the collection point.
+- `agent/cpp-algo/source/MapNavigator/semantic/semantic_nodes.cpp`: Execution logic after arriving at the collection point.
 
 ### Notes
 
@@ -858,11 +858,11 @@ The `MapNavigatorInteract` node ships with a placeholder text that can never mat
 
 The following files are maintained by cpp-algo developers; path authors do not need to modify them:
 
-- `agent/cpp-algo/source/MapNavigator/async_prompt_action.h` / `.cpp`: the shared implementation of prompt-driven actions, used by both `COLLECT` and async `INTERACT`.
-- `agent/cpp-algo/source/MapNavigator/prompt_scan_profile.h` / `.cpp`: reading the pre-filter parameters and the interact text table out of a Pipeline node, and the validation chain around it.
+- `agent/cpp-algo/source/MapNavigator/semantic/async_prompt_action.h` / `.cpp`: the shared implementation of prompt-driven actions, used by both `COLLECT` and async `INTERACT`.
+- `agent/cpp-algo/source/MapNavigator/sensing/prompt_scan_profile.h` / `.cpp`: reading the pre-filter parameters and the interact text table out of a Pipeline node, and the validation chain around it.
 - `agent/cpp-algo/source/MapNavigator/navi_config.h`: subtask node names, pre-filter cadence and last-resort constants, arrival values and others.
 - `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`: parsing of `interact_text` / `interact_scan` / `interact_rec` and propagation of the route-wide defaults, plus reading a named OCR node into a text table before the run starts.
-- `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`: the fallback execution logic upon arrival.
+- `agent/cpp-algo/source/MapNavigator/semantic/semantic_nodes.cpp`: the fallback execution logic upon arrival.
 
 ---
 
@@ -956,7 +956,7 @@ Control node (search starts as soon as the point is reached):
 | The business's own route JSON | The `MapNavigateAction` `path`, the `FIND` point and its `find_*` fields | Add a search point, change the target |
 | The business's own recognition nodes | The nodes named by `find_target` / `find_stop` | The ROI or the text of the target or prompt changes |
 | `assets/resource/pipeline/MapNavigator/Find.json` | The built-in OCR node `MapNavigatorFind` used for inline text; called per frame by the navigator and never dispatched on its own | The default ROI for inline text |
-| `agent/cpp-algo/source/MapNavigator/find_action.cpp` | The search and approach implementation and the bookkeeping it clears on the way out | Maintained by cpp-algo developers, tuned against a live client |
+| `agent/cpp-algo/source/MapNavigator/semantic/find_action.cpp` | The search and approach implementation and the bookkeeping it clears on the way out | Maintained by cpp-algo developers, tuned against a live client |
 
 ---
 
@@ -1015,7 +1015,7 @@ The hit screen often covers the minimap. The navigator loses its position then, 
 | ----------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------- |
 | The business's own route JSON | The `MapNavigateAction` `path`, the `TRIGGER` point and its `trigger_node` | Add a trigger end point, change the node |
 | The business's own recognition nodes | The node named by `trigger_node` | The ROI or the text of the hit screen changes |
-| `agent/cpp-algo/source/MapNavigator/trigger_action.cpp` | Recognition on the way and completion on arrival | Maintained by cpp-algo developers |
+| `agent/cpp-algo/source/MapNavigator/semantic/trigger_action.cpp` | Recognition on the way and completion on arrival | Maintained by cpp-algo developers |
 
 ---
 
@@ -1081,7 +1081,7 @@ There are two kinds of jump pads: ones that launch the character as soon as it s
 | File | Responsibility | When Changes Are Needed |
 | ------------------------------------------------------ | -------------------------------------------- | --------------------------------- |
 | The business's own route JSON | The `JUMP_PAD` point, its approach point and landing point | Add or adjust a jump pad segment |
-| `agent/cpp-algo/source/MapNavigator/jump_pad_action.cpp` | Standing, jumping, launch and landing detection | Maintained by cpp-algo developers |
+| `agent/cpp-algo/source/MapNavigator/semantic/jump_pad_action.cpp` | Standing, jumping, launch and landing detection | Maintained by cpp-algo developers |
 
 ---
 

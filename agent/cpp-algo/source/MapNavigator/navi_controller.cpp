@@ -10,15 +10,15 @@
 #include <MaaUtils/Logger.h>
 
 #include "../MapLocator/MapLocateAction.h"
-#include "action_executor.h"
-#include "action_wrapper.h"
-#include "motion_controller.h"
+#include "control/action_wrapper.h"
+#include "control/motion_controller.h"
 #include "navi_config.h"
 #include "navi_controller.h"
-#include "navigation_session.h"
-#include "navigation_state_machine.h"
-#include "navmesh_path_expander.h"
-#include "position_provider.h"
+#include "planning/navigation_session.h"
+#include "planning/navmesh_path_expander.h"
+#include "semantic/action_executor.h"
+#include "sensing/position_provider.h"
+#include "state_machine/navigation_state_machine.h"
 
 namespace mapnavigator
 {

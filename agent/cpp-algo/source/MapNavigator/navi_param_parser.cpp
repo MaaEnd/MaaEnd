@@ -17,7 +17,7 @@
 #include <MaaUtils/Logger.h>
 
 #include "navi_config.h"
-#include "prompt_scan_profile.h"
+#include "sensing/prompt_scan_profile.h"
 
 namespace mapnavigator
 {

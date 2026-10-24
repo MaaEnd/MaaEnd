@@ -21,8 +21,8 @@
 #include <MaaUtils/Platform.h>
 
 #include "../MapNavigator/navi_param_parser.h"
-#include "../MapNavigator/navmesh_path_expander.h"
-#include "../MapNavigator/zipline_leg_planner.h"
+#include "../MapNavigator/planning/navmesh_path_expander.h"
+#include "../MapNavigator/zipline/zipline_leg_planner.h"
 #include "../Navmesh/BaseNavGeometry.h"
 #include "../Navmesh/BaseNavPlanner.h"
 #include "../Navmesh/BaseNavReader.h"

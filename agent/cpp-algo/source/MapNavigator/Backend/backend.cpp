@@ -3,11 +3,11 @@
 #include <MaaUtils/Logger.h>
 
 #include "../../MapLocator/MapLocateAction.h"
-#include "../controller_type_utils.h"
+#include "../control/controller_type_utils.h"
 #include "Adb/adb_input_backend.h"
 #include "Desktop/desktop_input_backend.h"
 #include "Linux/linux_input_backend.h"
-#include "MapNavigator/controller_info_utils.h"
+#include "MapNavigator/control/controller_info_utils.h"
 #include "backend.h"
 
 namespace mapnavigator

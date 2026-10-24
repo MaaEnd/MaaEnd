@@ -7,8 +7,8 @@
 #include "navi_config.h"
 #include "navi_controller.h"
 #include "navi_param_parser.h"
-#include "prompt_scan_profile.h"
-#include "zipline_preference.h"
+#include "sensing/prompt_scan_profile.h"
+#include "zipline/zipline_preference.h"
 
 namespace mapnavigator
 {

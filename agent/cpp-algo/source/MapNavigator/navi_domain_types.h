@@ -12,7 +12,7 @@
 
 #include "navi_config.h"
 #include "navi_position.h"
-#include "zipline_types.h"
+#include "zipline/zipline_types.h"
 
 namespace mapnavigator
 {

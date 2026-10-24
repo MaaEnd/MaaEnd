@@ -25,8 +25,8 @@
 #include <Psapi.h>
 #endif
 
-#include "../MapNavigator/controller_info_utils.h"
-#include "../MapNavigator/controller_type_utils.h"
+#include "../MapNavigator/control/controller_info_utils.h"
+#include "../MapNavigator/control/controller_type_utils.h"
 #include "../utils.h"
 #ifdef __APPLE__
 #include "MacAppHost.h"
