@@ -1388,7 +1388,7 @@
     "option.BatchAddFriendsMaxCount.inputs.MaxAttempts.label": "試行回数",
     "option.BatchAddFriendsMaxCount.inputs.MaxCount.label": "追加数",
     "option.BatchAddFriendsMaxCount.label": "追加設定",
-    "option.BatchAddFriendsMode.cases.Strangers.label": "陌生人",
+    "option.BatchAddFriendsMode.cases.Strangers.label": "見知らぬ人",
     "option.BatchAddFriendsMode.cases.UID.label": "UID 指定",
     "option.BatchAddFriendsMode.label": "追加方法",
     "option.BatchAddFriendsStrangers.inputs.MaxLevel.label": "最高レベル",

@@ -127,12 +127,11 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	resetRejectedRows()
 	consecutiveEmptyBatches = 0
 	// max_hit 沿用「添加数量」：只有添加成功才会再次命中 AddStrangersLoop，
-	// 所以它天然等价于「加够 N 个就停」。尝试次数另在 Go 里独立计数。
-	// +1：流程进循环时 S.Start 会先命中一次 AddStrangersLoop，那次并不产生添加，
-	// 所以想要「加够 maxCount 个」需要多给一轮配额，否则实际只能加 maxCount-1 个。
+	// 拒绝和换批走的是 Scan，不会回到 Loop，所以 Loop 的命中次数就等于添加人数。
+	// 尝试次数另在 Go 里独立计数。
 	_ = ctx.OverridePipeline(map[string]any{
 		"BatchAddFriendsAddStrangersLoop": map[string]any{
-			"max_hit": maxCount + 1,
+			"max_hit": maxCount,
 		},
 	})
 	// 先跑一次残留菜单清理，再进陌生人分支。

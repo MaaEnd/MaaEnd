@@ -711,7 +711,11 @@
             "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersProfileCardOpened"
         ],
+        // 名片已打开但「申请好友」按钮没认到时，ProfileCardOpened 不会命中。
+        // 直接回 Scan 会把名片留在屏幕上、后续点击错位，所以先尝试关掉名片；
+        // 名片没打开时 ProfileReject 不会命中，自然落到 Scan。
         "on_error": [
+            "BatchAddFriendsStrangersProfileReject",
             "BatchAddFriendsStrangersScan"
         ]
     },
