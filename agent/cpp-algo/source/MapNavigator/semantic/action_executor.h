@@ -9,7 +9,7 @@ class ActionWrapper;
 class ActionExecutor
 {
 public:
-    ActionExecutor(ActionWrapper* action_wrapper, MotionController* motion_controller, bool enable_local_driver);
+    ActionExecutor(ActionWrapper* action_wrapper, MotionController* motion_controller);
 
     void Sprint();
     void Jump();

@@ -11,6 +11,7 @@
 #include "../navi_config.h"
 #include "../navi_math.h"
 #include "../navi_time.h"
+#include "../sensing/maa_task.h"
 #include "semantic_helpers.h"
 
 #include "../../utils.h"
@@ -25,11 +26,6 @@ namespace
 {
 
 constexpr const char* kTriggerPipelineOverride = "{}";
-
-Result HoldTick()
-{
-    return { .consumed = true, .stay_in_current_tick = true };
-}
 
 Result FailTrigger(const Context& ctx, const char* reason, const char* log_message)
 {
@@ -88,7 +84,7 @@ Result ProbeTriggerWhileNavigating(const Context& ctx)
     ctx.session->SkipPastWaypoint(trigger_idx, "trigger_hit");
     ctx.runtime_state->OnWaypointAdvance();
     ctx.session->NoteRouteTailConsumed(*ctx.position, "route_tail_consumed");
-    return HoldTick();
+    return Handled();
 }
 
 Result ArriveTrigger(const Context& ctx, const Waypoint& waypoint, double actual_distance)

@@ -102,7 +102,7 @@ void NavigationStateMachine::StopScanners()
 void NavigationStateMachine::StartPromptScanners()
 {
     for (AsyncPromptAction* prompt : PromptActions()) {
-        if (prompt->armed() || !prompt->RouteHasPoint()) {
+        if (prompt->started() || !prompt->RouteHasPoint()) {
             continue;
         }
 
@@ -263,7 +263,7 @@ void NavigationStateMachine::TryRunPromptSubtaskAtRouteTail()
 
     AsyncPromptAction* tail_prompt = nullptr;
     for (AsyncPromptAction* prompt : PromptActions()) {
-        if (prompt->armed() && !prompt->spec().CompletesWaypointOnTrigger() && prompt->RouteEndsWithPoint()) {
+        if (prompt->started() && !prompt->spec().CompletesWaypointOnTrigger() && prompt->RouteEndsWithPoint()) {
             tail_prompt = prompt;
             break;
         }

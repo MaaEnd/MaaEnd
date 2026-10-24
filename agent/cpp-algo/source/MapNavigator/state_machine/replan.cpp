@@ -102,9 +102,7 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
     runtime_state_.offroute.InvalidateBaseline();
     runtime_state_.nav_run_dirty = true;
     if (generated_count == 0 && std::hypot(anchor.x - position_->x, anchor.y - position_->y) <= ArrivalBandForStartupBypass(anchor)) {
-        runtime_state_.route.startup_anchor_pos = *position_;
-        runtime_state_.route.startup_anchor_initialized = true;
-        runtime_state_.route.startup_motion_confirmed = true;
+        runtime_state_.route.ConfirmStartupAt(*position_);
     }
     runtime_state_.dynamic_replan_requested = false;
     const size_t planned_points = route->path.points.size();

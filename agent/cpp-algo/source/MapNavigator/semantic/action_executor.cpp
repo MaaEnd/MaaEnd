@@ -9,11 +9,10 @@
 namespace mapnavigator
 {
 
-ActionExecutor::ActionExecutor(ActionWrapper* action_wrapper, MotionController* motion_controller, bool enable_local_driver)
+ActionExecutor::ActionExecutor(ActionWrapper* action_wrapper, MotionController* motion_controller)
     : action_wrapper_(action_wrapper)
     , motion_controller_(motion_controller)
 {
-    (void)enable_local_driver;
 }
 
 void ActionExecutor::Sprint()

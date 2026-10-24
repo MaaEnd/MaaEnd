@@ -43,6 +43,13 @@ struct RouteTrackerState
         startup_anchor_initialized = false;
         startup_motion_confirmed = false;
     }
+
+    void ConfirmStartupAt(const NaviPosition& position)
+    {
+        startup_anchor_pos = position;
+        startup_anchor_initialized = true;
+        startup_motion_confirmed = true;
+    }
 };
 
 struct FlowState
@@ -81,38 +88,49 @@ struct JumpPadState
     bool launched = false;
 };
 
+// anchor 是到点时的位置, 离开它的读数连续够数才算已被传走
+struct TransferWaitState
+{
+    std::chrono::steady_clock::time_point started {};
+    NaviPosition anchor {};
+    int moved_fixes = 0;
+};
+
+enum class PortalTransitPhase
+{
+    Idle,
+    // 边往前走边等进入新区的读数
+    AwaitZone,
+    // 已切到新区, 停下等一次落在该区的读数
+    Reacquire,
+};
+
+struct PortalTransitState
+{
+    PortalTransitPhase phase = PortalTransitPhase::Idle;
+    std::chrono::steady_clock::time_point started {};
+
+    bool active() const { return phase != PortalTransitPhase::Idle; }
+};
+
+// 按下交互的时刻、这段要坐多久、坐完后连续取位成功了几次
+struct RopeRideState
+{
+    std::chrono::steady_clock::time_point started {};
+    int64_t ride_ms = 0;
+    int stable_fixes = 0;
+};
+
 struct SemanticState
 {
     JumpPadState jump_pad;
-    std::chrono::steady_clock::time_point transfer_wait_started {};
-    NaviPosition transfer_anchor_pos {};
-    int transfer_stable_hits = 0;
-    bool portal_transit_active = false;
-    bool portal_transit_keep_moving_until_fix = false;
-    bool portal_transit_needs_reacquire = false;
-    std::chrono::steady_clock::time_point portal_transit_started {};
+    TransferWaitState transfer;
+    PortalTransitState portal;
+    RopeRideState rope;
     // 这次上索由行进预筛叫停, 认不出提示时只说明预筛看错了
     bool zipline_prompt_probe = false;
-    // 坐升降索: 按下交互的时刻、这段要坐多久、坐完后连续取位成功了几次
-    std::chrono::steady_clock::time_point rope_ride_started {};
-    int64_t rope_ride_ms = 0;
-    int rope_stable_hits = 0;
 
-    void ResetTransient()
-    {
-        jump_pad = {};
-        transfer_wait_started = {};
-        transfer_anchor_pos = {};
-        transfer_stable_hits = 0;
-        portal_transit_active = false;
-        portal_transit_keep_moving_until_fix = false;
-        portal_transit_needs_reacquire = false;
-        portal_transit_started = {};
-        zipline_prompt_probe = false;
-        rope_ride_started = {};
-        rope_ride_ms = 0;
-        rope_stable_hits = 0;
-    }
+    void ResetTransient() { *this = {}; }
 };
 
 struct DynamicRecoveryState
@@ -149,9 +167,7 @@ struct FindState
     int32_t steps = 0;
     // 连续漏认的拍数, 见 kFindMissGraceTicks
     int32_t miss_streak = 0;
-    // 没见过目标时的搜索方向 (±1)
-    int32_t search_sign = 1;
-    // 上次看到目标时框中心在中线哪一侧 (+1 右 / -1 左 / 0 没见过), 搜索第一步朝这边转
+    // 上次看到目标时框中心在中线哪一侧 (+1 右 / -1 左 / 0 没见过), 搜索第一步朝这边转, 没见过时向右
     int32_t last_seen_side = 0;
     // 停车判据的模板预筛, 为空时探测直接跑识别
     std::optional<PromptScanProfile> stop_probe;
@@ -161,7 +177,6 @@ struct FindState
         started_at = {};
         steps = 0;
         miss_streak = 0;
-        search_sign = 1;
         last_seen_side = 0;
         stop_probe.reset();
     }

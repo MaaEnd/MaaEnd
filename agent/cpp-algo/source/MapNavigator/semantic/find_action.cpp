@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -15,10 +16,12 @@
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_time.h"
+#include "../sensing/maa_task.h"
 #include "../sensing/pipeline_node_reader.h"
 #include "../sensing/position_provider.h"
 #include "../sensing/prompt_scan_profile.h"
 #include "../sensing/roi_template_scanner.h"
+#include "heading_turn.h"
 #include "semantic_helpers.h"
 
 #include "../../utils.h"
@@ -32,22 +35,10 @@ namespace semantic_nodes
 namespace
 {
 
-// 只覆盖 expected, roi 与阈值留给 pipeline
 std::string BuildInlineTextOverride(const std::vector<std::string>& texts)
 {
-    json::array expected;
-    for (const std::string& text : texts) {
-        expected.emplace_back(text);
-    }
-
-    json::object param;
-    param["expected"] = std::move(expected);
-    json::object recognition;
-    recognition["param"] = std::move(param);
-    json::object node;
-    node["recognition"] = std::move(recognition);
     json::object root;
-    root[kFindInlineOcrNode] = std::move(node);
+    root[kFindInlineOcrNode] = ExpectedTextOverride(texts);
     return json::value(std::move(root)).dumps();
 }
 
@@ -86,18 +77,30 @@ void LeaveFindPhase(const Context& ctx)
     ctx.runtime_state->find.Reset();
 }
 
+// consumed 也要置位, 走路探测靠它把失败转给 TickFindTarget
 Result FailFind(const Context& ctx, const char* reason, const char* message)
 {
     LogError << message << VAR(reason) << VAR(ctx.runtime_state->find.steps);
     LeaveFindPhase(ctx);
+    return {
+        .consumed = true,
+        .stay_in_current_tick = true,
+        .request_failure = true,
+        .failure_reason = reason,
+        .failure_log_message = message,
+    };
+}
 
-    Result result;
-    result.consumed = true;
-    result.stay_in_current_tick = true;
-    result.request_failure = true;
-    result.failure_reason = reason;
-    result.failure_log_message = message;
-    return result;
+Result FinishFind(const Context& ctx, const Waypoint& waypoint, const char* reason)
+{
+    LeaveFindPhase(ctx);
+    return CompleteArrival(ctx, waypoint, ctx.session->CurrentAbsoluteNodeIndex(), reason);
+}
+
+Result HoldFindStep()
+{
+    SleepFor(kFindStepSleepMs);
+    return Handled();
 }
 
 void ArmStopProbe(const Context& ctx, const Waypoint& waypoint, FindState& find)
@@ -132,17 +135,13 @@ Result BeginFind(const Context& ctx, const char* reason)
     ArmStopProbe(ctx, waypoint, find);
     LogInfo << "Action: FIND started." << VAR(reason) << VAR(waypoint.find_target) << VAR(waypoint.find_text.size())
             << VAR(waypoint.find_stop);
-
-    Result result;
-    result.consumed = true;
-    result.stay_in_current_tick = true;
-    return result;
+    return Handled();
 }
 
 // 保持同向转, 否则正后方的目标会让镜头来回摆
 bool SearchOneStep(const Context& ctx, const FindState& find)
 {
-    const int32_t sign = find.last_seen_side != 0 ? find.last_seen_side : find.search_sign;
+    const int32_t sign = find.last_seen_side != 0 ? find.last_seen_side : 1;
     const double step_deg = kFindSearchStepDeg * static_cast<double>(sign);
     LogDebug << "FIND: target is not on screen, searching." << VAR(find.steps) << VAR(step_deg) << VAR(find.miss_streak);
     return TurnToHeadingOnce(ctx, step_deg);
@@ -191,10 +190,9 @@ bool ApproachSighting(const Context& ctx, FindState& find, const MaaRect& box, i
 // 提示窗口可能夹在两拍之间, 所以走路时要更密地探测停车判据
 Result ProbeStopWhileWalking(const Context& ctx, const Waypoint& waypoint, MaaController* controller)
 {
-    Result result;
     FindState& find = ctx.runtime_state->find;
     if (waypoint.find_stop.empty() || controller == nullptr || !ctx.motion_controller->IsMovingForward()) {
-        return result;
+        return {};
     }
 
     LogDebug << "FIND: probing the stop node while walking." << VAR(find.steps) << VAR(waypoint.find_stop)
@@ -223,14 +221,94 @@ Result ProbeStopWhileWalking(const Context& ctx, const Waypoint& waypoint, MaaCo
         }
         if (sighting.hit) {
             LogInfo << "FIND: stop node hit while walking, target reached." << VAR(waypoint.find_stop) << VAR(find.steps);
-            LeaveFindPhase(ctx);
-            return CompleteArrival(ctx, waypoint, ctx.session->CurrentAbsoluteNodeIndex(), "find_target_reached");
+            return FinishFind(ctx, waypoint, "find_target_reached");
         }
         LogDebug << "FIND: stop probe did not confirm; resuming the walk." << VAR(find.steps);
         ctx.motion_controller->SetForwardState(true);
         SleepFor(kFindStopProbeIntervalMs);
     }
-    return result;
+    return {};
+}
+
+// 返回空表示停车判据和到达点都还没满足
+std::optional<Result> CheckFindDone(const Context& ctx, const Waypoint& waypoint, const MaaImageBuffer* image)
+{
+    const FindState& find = ctx.runtime_state->find;
+    if (!waypoint.find_stop.empty()) {
+        NodeSighting stop_sighting {};
+        if (!RunRecognitionNode(ctx.maa_context, waypoint.find_stop, "{}", image, &stop_sighting)) {
+            return FailFind(ctx, "find_recognition_failed", "FIND stop node failed to recognize.");
+        }
+        if (stop_sighting.hit) {
+            LogInfo << "FIND: stop node hit, target reached." << VAR(waypoint.find_stop) << VAR(find.steps) << VAR(waypoint.x)
+                    << VAR(waypoint.y);
+            return FinishFind(ctx, waypoint, "find_target_reached");
+        }
+    }
+
+    if (ReachedArrivePoint(ctx, waypoint)) {
+        LogInfo << "FIND: arrive point reached." << VAR(find.steps) << VAR(waypoint.find_arrive->at(0)) << VAR(waypoint.find_arrive->at(1));
+        return FinishFind(ctx, waypoint, "find_arrive_reached");
+    }
+    return std::nullopt;
+}
+
+Result HandleTargetMiss(const Context& ctx, FindState& find)
+{
+    ctx.motion_controller->SetForwardState(false);
+    ++find.miss_streak;
+    // 见过的目标漏认几拍先原地等, 从没见过则直接搜
+    if (find.last_seen_side != 0 && find.miss_streak < kFindMissGraceTicks) {
+        LogDebug << "FIND: target lost for a beat, holding." << VAR(find.steps) << VAR(find.miss_streak);
+        return HoldFindStep();
+    }
+    if (!SearchOneStep(ctx, find)) {
+        return FailFind(ctx, "find_turn_failed", "FIND failed to issue the search turn.");
+    }
+    return HoldFindStep();
+}
+
+Result PursueTarget(const Context& ctx, const Waypoint& waypoint, MaaController* controller, const MaaImageBuffer* image)
+{
+    FindState& find = ctx.runtime_state->find;
+    const bool inline_text = waypoint.find_target.empty();
+    if (inline_text && waypoint.find_text.empty()) {
+        return FailFind(ctx, "find_target_missing", "FIND point names neither a target node nor a text list.");
+    }
+    const std::string target_node = inline_text ? std::string(kFindInlineOcrNode) : waypoint.find_target;
+    const std::string target_override = inline_text ? BuildInlineTextOverride(waypoint.find_text) : std::string("{}");
+
+    NodeSighting target_sighting {};
+    if (!RunRecognitionNode(ctx.maa_context, target_node, target_override, image, &target_sighting)) {
+        return FailFind(ctx, "find_recognition_failed", "FIND target node failed to recognize.");
+    }
+    if (!target_sighting.hit) {
+        return HandleTargetMiss(ctx, find);
+    }
+    find.miss_streak = 0;
+
+    // DirectHit 之类命中没有框, 不能拿来定方向
+    if (target_sighting.box.width <= 0 || target_sighting.box.height <= 0) {
+        return FailFind(ctx, "find_empty_box", "FIND target node hit without a usable box.");
+    }
+
+    const int32_t frame_width = MaaImageBufferWidth(image);
+    const int32_t frame_height = MaaImageBufferHeight(image);
+    if (frame_width <= 0 || frame_height <= 0) {
+        LogWarn << "FIND: the captured frame has no size." << VAR(frame_width) << VAR(frame_height);
+        ctx.motion_controller->SetForwardState(false);
+        return HoldFindStep();
+    }
+
+    if (!ApproachSighting(ctx, find, target_sighting.box, frame_width, frame_height)) {
+        return FailFind(ctx, "find_turn_failed", "FIND failed to issue a view turn.");
+    }
+
+    const Result probe_result = ProbeStopWhileWalking(ctx, waypoint, controller);
+    if (probe_result.consumed) {
+        return probe_result;
+    }
+    return HoldFindStep();
 }
 
 } // namespace
@@ -257,24 +335,23 @@ Result ConsumeFindNodes(const Context& ctx)
 
 Result TickFindTarget(const Context& ctx)
 {
-    Result result;
-    result.consumed = true;
-    result.stay_in_current_tick = true;
-
     if (ctx.maa_context == nullptr || ctx.session == nullptr || !ctx.session->HasCurrentWaypoint()) {
         // FailFind 会解引用 session, 上下文不全时只能直接返回失败
         LogError << "FIND is running without a waypoint or a MaaContext." << VAR(ctx.maa_context == nullptr) << VAR(ctx.session == nullptr);
-        result.request_failure = true;
-        result.failure_reason = "find_context_missing";
-        result.failure_log_message = "FIND is running without a waypoint or a MaaContext.";
-        return result;
+        return {
+            .consumed = true,
+            .stay_in_current_tick = true,
+            .request_failure = true,
+            .failure_reason = "find_context_missing",
+            .failure_log_message = "FIND is running without a waypoint or a MaaContext.",
+        };
     }
 
     const Waypoint& waypoint = ctx.session->CurrentWaypoint();
     if (!waypoint.IsFindPoint()) {
         LeaveFindPhase(ctx);
         SelectPhaseForCurrentWaypoint(ctx, "find_phase_mismatch");
-        return result;
+        return Handled();
     }
 
     FindState& find = ctx.runtime_state->find;
@@ -296,81 +373,13 @@ Result TickFindTarget(const Context& ctx)
     if (controller == nullptr || !CaptureFreshFrame(controller, image.Get())) {
         ctx.motion_controller->SetForwardState(false);
         LogWarn << "FIND: screencap failed, holding this step empty." << VAR(find.steps);
-        SleepFor(kFindStepSleepMs);
-        return result;
+        return HoldFindStep();
     }
 
-    if (!waypoint.find_stop.empty()) {
-        NodeSighting stop_sighting {};
-        if (!RunRecognitionNode(ctx.maa_context, waypoint.find_stop, "{}", image.Get(), &stop_sighting)) {
-            return FailFind(ctx, "find_recognition_failed", "FIND stop node failed to recognize.");
-        }
-        if (stop_sighting.hit) {
-            LogInfo << "FIND: stop node hit, target reached." << VAR(waypoint.find_stop) << VAR(find.steps) << VAR(waypoint.x)
-                    << VAR(waypoint.y);
-            LeaveFindPhase(ctx);
-            return CompleteArrival(ctx, waypoint, ctx.session->CurrentAbsoluteNodeIndex(), "find_target_reached");
-        }
+    if (const std::optional<Result> done = CheckFindDone(ctx, waypoint, image.Get())) {
+        return *done;
     }
-
-    if (ReachedArrivePoint(ctx, waypoint)) {
-        LogInfo << "FIND: arrive point reached." << VAR(find.steps) << VAR(waypoint.find_arrive->at(0)) << VAR(waypoint.find_arrive->at(1));
-        LeaveFindPhase(ctx);
-        return CompleteArrival(ctx, waypoint, ctx.session->CurrentAbsoluteNodeIndex(), "find_arrive_reached");
-    }
-
-    const bool inline_text = waypoint.find_target.empty();
-    if (inline_text && waypoint.find_text.empty()) {
-        return FailFind(ctx, "find_target_missing", "FIND point names neither a target node nor a text list.");
-    }
-    const std::string target_node = inline_text ? std::string(kFindInlineOcrNode) : waypoint.find_target;
-    const std::string target_override = inline_text ? BuildInlineTextOverride(waypoint.find_text) : std::string("{}");
-
-    NodeSighting target_sighting {};
-    if (!RunRecognitionNode(ctx.maa_context, target_node, target_override, image.Get(), &target_sighting)) {
-        return FailFind(ctx, "find_recognition_failed", "FIND target node failed to recognize.");
-    }
-    if (!target_sighting.hit) {
-        ctx.motion_controller->SetForwardState(false);
-        ++find.miss_streak;
-        // 见过的目标漏认几拍先原地等, 从没见过则直接搜
-        if (find.last_seen_side != 0 && find.miss_streak < kFindMissGraceTicks) {
-            LogDebug << "FIND: target lost for a beat, holding." << VAR(find.steps) << VAR(find.miss_streak);
-            SleepFor(kFindStepSleepMs);
-            return result;
-        }
-        if (!SearchOneStep(ctx, find)) {
-            return FailFind(ctx, "find_turn_failed", "FIND failed to issue the search turn.");
-        }
-        SleepFor(kFindStepSleepMs);
-        return result;
-    }
-    find.miss_streak = 0;
-
-    // DirectHit 之类命中没有框, 不能拿来定方向
-    if (target_sighting.box.width <= 0 || target_sighting.box.height <= 0) {
-        return FailFind(ctx, "find_empty_box", "FIND target node hit without a usable box.");
-    }
-
-    const int32_t frame_width = MaaImageBufferWidth(image.Get());
-    const int32_t frame_height = MaaImageBufferHeight(image.Get());
-    if (frame_width <= 0 || frame_height <= 0) {
-        LogWarn << "FIND: the captured frame has no size." << VAR(frame_width) << VAR(frame_height);
-        ctx.motion_controller->SetForwardState(false);
-        SleepFor(kFindStepSleepMs);
-        return result;
-    }
-
-    if (!ApproachSighting(ctx, find, target_sighting.box, frame_width, frame_height)) {
-        return FailFind(ctx, "find_turn_failed", "FIND failed to issue a view turn.");
-    }
-
-    Result probe_result = ProbeStopWhileWalking(ctx, waypoint, controller);
-    if (probe_result.consumed) {
-        return probe_result;
-    }
-    SleepFor(kFindStepSleepMs);
-    return result;
+    return PursueTarget(ctx, waypoint, controller, image.Get());
 }
 
 } // namespace semantic_nodes

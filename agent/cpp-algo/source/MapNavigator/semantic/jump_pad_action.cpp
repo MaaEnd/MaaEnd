@@ -12,9 +12,9 @@
 #include "../navi_math.h"
 #include "../navi_time.h"
 #include "../sensing/position_provider.h"
+#include "heading_turn.h"
 #include "semantic_helpers.h"
-
-#include "../../utils.h"
+#include "strict_settle.h"
 
 namespace mapnavigator
 {
@@ -25,28 +25,13 @@ namespace semantic_nodes
 namespace
 {
 
-Result WaitNextFix()
-{
-    SleepFor(kRelocationRetryIntervalMs);
-    return { .stay_in_current_tick = true };
-}
-
-Result Fail(const char* reason, const char* message)
-{
-    return { .request_failure = true, .failure_reason = reason, .failure_log_message = message };
-}
-
 Result FinishLanding(const Context& ctx)
 {
     JumpPadState& state = ctx.runtime_state->semantic.jump_pad;
     LogInfo << "Jump pad landed." << VAR(ctx.position->zone_id) << VAR(ctx.position->x) << VAR(ctx.position->y)
             << VAR(ElapsedMs(state.launched_at)) << VAR(state.jumps) << VAR(state.nudges);
-    ctx.session->UpdateCurrentZone(ctx.position->zone_id);
-    ctx.session->ResetProgress();
-    ctx.runtime_state->ResetNavigationAssistState();
     state = {};
-    SelectPhaseForCurrentWaypoint(ctx, "jump_pad_landed");
-    return { .consumed = true, .stay_in_current_tick = true };
+    return ResumeAfterRelocation(ctx, "jump_pad_landed");
 }
 
 // 转镜头和前进都会挪人, 做完要重新等站定
@@ -72,6 +57,50 @@ void NudgeTowardPad(const Context& ctx, JumpPadState& state, double offset)
     ctx.motion_controller->SetForwardState(false);
 }
 
+Result TickLanding(const Context& ctx, const JumpPadState& state)
+{
+    if (state.still_reads >= kRelocationStableFixes) {
+        return FinishLanding(ctx);
+    }
+    if (ElapsedMs(state.launched_at) > kRelocationWaitTimeoutMs) {
+        return Failure("jump_pad_landing_timeout", "Jump pad: did not settle after launch before the timeout.");
+    }
+    return WaitNextFix(kRelocationRetryIntervalMs);
+}
+
+Result TickOnPad(const Context& ctx, JumpPadState& state, double offset)
+{
+    if (ElapsedMs(state.started) > kJumpPadBudgetMs) {
+        return Failure("jump_pad_not_launched", "Jump pad: still on the pad when the budget ran out.");
+    }
+    if (state.jumps > 0 && ElapsedMs(state.jumped_at) < kJumpPadLaunchWindowMs) {
+        return WaitNextFix(kRelocationRetryIntervalMs);
+    }
+    if (state.still_reads < 1) {
+        return WaitNextFix(kRelocationRetryIntervalMs);
+    }
+
+    const double stand_band = state.jumps == 0 ? kStrictSettleAcceptBandWu : kJumpPadRetryBandWu;
+    if (offset > stand_band) {
+        if (state.nudges >= kJumpPadMaxNudges) {
+            return Failure("jump_pad_not_reached", "Jump pad: could not stand on the center.");
+        }
+        NudgeTowardPad(ctx, state, offset);
+        return Pending();
+    }
+    if (state.jumps >= kJumpPadMaxJumps) {
+        return Failure("jump_pad_not_launched", "Jump pad: jumped on the center without launching.");
+    }
+
+    ++state.jumps;
+    state.jumped_at = std::chrono::steady_clock::now();
+    state.last_fix.reset();
+    state.still_reads = 0;
+    LogInfo << "Jump pad jump." << VAR(offset) << VAR(state.jumps) << VAR(state.nudges);
+    ctx.action_executor->Jump();
+    return Pending();
+}
+
 } // namespace
 
 Result ArriveJumpPad(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, double actual_distance)
@@ -89,7 +118,7 @@ Result ArriveJumpPad(const Context& ctx, const Waypoint& waypoint, const std::op
     state.started = std::chrono::steady_clock::now();
     LogInfo << "Action: JUMP_PAD reached." << VAR(actual_distance) << VAR(waypoint.x) << VAR(waypoint.y);
     ctx.session->UpdatePhase(NaviPhase::WaitJumpPad, "jump_pad_reached");
-    return { .consumed = true, .stay_in_current_tick = true };
+    return Handled();
 }
 
 Result TickJumpPad(const Context& ctx)
@@ -104,12 +133,12 @@ Result TickJumpPad(const Context& ctx)
         state.last_fix.reset();
         state.still_reads = 0;
         if (state.launched && ElapsedMs(state.launched_at) > kRelocationWaitTimeoutMs) {
-            return Fail("jump_pad_landing_timeout", "Jump pad: no fix after launch before the timeout.");
+            return Failure("jump_pad_landing_timeout", "Jump pad: no fix after launch before the timeout.");
         }
         if (!state.launched && ElapsedMs(state.started) > kJumpPadBudgetMs) {
-            return Fail("jump_pad_not_launched", "Jump pad: no usable fix on the pad before the timeout.");
+            return Failure("jump_pad_not_launched", "Jump pad: no usable fix on the pad before the timeout.");
         }
-        return WaitNextFix();
+        return WaitNextFix(kRelocationRetryIntervalMs);
     }
 
     const NaviPosition& fix = *ctx.position;
@@ -126,45 +155,7 @@ Result TickJumpPad(const Context& ctx)
         ctx.position_provider->ResetTracking();
         LogInfo << "Jump pad launched." << VAR(offset) << VAR(state.jumps) << VAR(state.nudges);
     }
-    if (state.launched) {
-        if (state.still_reads >= kRelocationStableFixes) {
-            return FinishLanding(ctx);
-        }
-        if (ElapsedMs(state.launched_at) > kRelocationWaitTimeoutMs) {
-            return Fail("jump_pad_landing_timeout", "Jump pad: did not settle after launch before the timeout.");
-        }
-        return WaitNextFix();
-    }
-
-    if (ElapsedMs(state.started) > kJumpPadBudgetMs) {
-        return Fail("jump_pad_not_launched", "Jump pad: still on the pad when the budget ran out.");
-    }
-    if (state.jumps > 0 && ElapsedMs(state.jumped_at) < kJumpPadLaunchWindowMs) {
-        return WaitNextFix();
-    }
-    if (state.still_reads < 1) {
-        return WaitNextFix();
-    }
-
-    const double stand_band = state.jumps == 0 ? kStrictSettleAcceptBandWu : kJumpPadRetryBandWu;
-    if (offset > stand_band) {
-        if (state.nudges >= kJumpPadMaxNudges) {
-            return Fail("jump_pad_not_reached", "Jump pad: could not stand on the center.");
-        }
-        NudgeTowardPad(ctx, state, offset);
-        return { .stay_in_current_tick = true };
-    }
-    if (state.jumps >= kJumpPadMaxJumps) {
-        return Fail("jump_pad_not_launched", "Jump pad: jumped on the center without launching.");
-    }
-
-    ++state.jumps;
-    state.jumped_at = std::chrono::steady_clock::now();
-    state.last_fix.reset();
-    state.still_reads = 0;
-    LogInfo << "Jump pad jump." << VAR(offset) << VAR(state.jumps) << VAR(state.nudges);
-    ctx.action_executor->Jump();
-    return { .stay_in_current_tick = true };
+    return state.launched ? TickLanding(ctx, state) : TickOnPad(ctx, state, offset);
 }
 
 } // namespace semantic_nodes

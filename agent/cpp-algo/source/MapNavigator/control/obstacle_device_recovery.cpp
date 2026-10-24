@@ -14,7 +14,7 @@
 #include "../navi_time.h"
 #include "../planning/navigation_session.h"
 #include "../planning/route_tracker.h"
-#include "../semantic/semantic_helpers.h"
+#include "../sensing/maa_task.h"
 #include "../sensing/position_provider.h"
 #include "../sensing/roi_template_scanner.h"
 #include "motion_controller.h"
@@ -126,8 +126,7 @@ DeviceRemovalOutcome ObstacleDeviceRecovery::TryRemove(const RouteTrackingState&
     LogInfo << "Dynamic recovery carrying off the blocking device." << VAR(route.waypoint_distance);
     // 边走边点会点到滚到下面的另一行提示, 移动点击前须站定
     motion_controller_->SetForwardState(false);
-    const std::optional<std::vector<std::string>> handled =
-        semantic_nodes::RunTaskForCompletedNodes(maa_context_, kObstacleDeviceEntry, "{}");
+    const std::optional<std::vector<std::string>> handled = RunTaskForCompletedNodes(maa_context_, kObstacleDeviceEntry, "{}");
     if (!handled) {
         LogWarn << "Blocking-device subtask result unavailable.";
         return DeviceRemovalOutcome::StillPinned;

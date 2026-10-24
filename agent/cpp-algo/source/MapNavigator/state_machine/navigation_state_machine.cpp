@@ -11,7 +11,10 @@
 #include "../navi_time.h"
 #include "../semantic/action_executor.h"
 #include "../semantic/async_prompt_action.h"
+#include "../semantic/heading_turn.h"
+#include "../semantic/semantic_helpers.h"
 #include "../semantic/semantic_nodes.h"
+#include "../semantic/transit_wait.h"
 #include "../sensing/latency_observer.h"
 #include "../sensing/position_provider.h"
 #include "../sensing/sensitivity_observer.h"
@@ -127,7 +130,7 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
         runtime_state_.flow.motionless_hold_ticks = 0;
         runtime_state_.flow.futile_forward_reasserts = 0;
         device_recovery_.ForgetObservation();
-        const semantic_nodes::Result semantic_result = semantic_nodes::TickSemanticFlow(SemanticContext(), phase);
+        const semantic_nodes::Result semantic_result = semantic_nodes::TickWaitPhase(SemanticContext(), phase);
         if (semantic_result.request_failure) {
             return FailNavigation(semantic_result.failure_reason, semantic_result.failure_log_message, 0.0, 0.0, 0);
         }
@@ -183,7 +186,7 @@ TickStep NavigationStateMachine::RunSemanticFlow()
         session_->NoteRouteTailConsumed(*position_, "route_tail_consumed");
         return TickStep::EndTick;
     }
-    return ConcludeSemanticStep(semantic_nodes::TickSemanticFlow(SemanticContext(), NaviPhase::Navigate));
+    return ConcludeSemanticStep(semantic_nodes::TickPortalTransit(SemanticContext()));
 }
 
 TickStep NavigationStateMachine::ConcludeSemanticStep(const semantic_nodes::Result& result)
@@ -231,12 +234,7 @@ TickStep NavigationStateMachine::RunInlineSemantics()
 
 TickStep NavigationStateMachine::IdleWhileNotWalking()
 {
-    if (runtime_state_.semantic.portal_transit_active || session_->phase() != NaviPhase::Navigate) {
-        SleepFor(kTargetTickMs);
-        return TickStep::EndTick;
-    }
-    if (session_->CurrentWaypoint().IsZoneDeclaration()) {
-        motion_controller_->SetForwardState(true);
+    if (runtime_state_.semantic.portal.active() || session_->phase() != NaviPhase::Navigate) {
         SleepFor(kTargetTickMs);
         return TickStep::EndTick;
     }
@@ -264,11 +262,7 @@ TickStep NavigationStateMachine::FinishNavigateTick(const NavigateTick& tick)
 
 void NavigationStateMachine::SelectPhaseForCurrentWaypoint(const char* reason)
 {
-    if (!session_->HasCurrentWaypoint()) {
-        session_->NoteRouteTailConsumed(*position_, "route_tail_consumed");
-        return;
-    }
-    session_->UpdatePhase(NaviPhase::Navigate, reason);
+    semantic_nodes::SelectPhaseForCurrentWaypoint(SemanticContext(), reason);
 }
 
 bool NavigationStateMachine::ResumeAfterEscape(const char* reason)

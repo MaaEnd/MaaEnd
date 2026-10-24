@@ -16,7 +16,9 @@
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_time.h"
+#include "../semantic/heading_turn.h"
 #include "../semantic/semantic_helpers.h"
+#include "../sensing/maa_task.h"
 #include "../sensing/position_provider.h"
 #include "zipline_ride_machine.h"
 
@@ -32,8 +34,7 @@ namespace
 // 识别不中的节点不进本趟节点表, 表里有它就说明提示在屏幕上且动作已发出
 bool RunNodeAndReportHit(MaaContext* context, const char* entry, const char* node, const std::string& pipeline_override)
 {
-    const std::optional<std::vector<std::string>> completed = RunTaskForCompletedNodes(context, entry, pipeline_override);
-    return completed && std::find(completed->begin(), completed->end(), node) != completed->end();
+    return RunTaskAndCheckNode(context, entry, node, pipeline_override).value_or(false);
 }
 
 std::string BuildMountOverride()
@@ -229,9 +230,7 @@ Result FinishHop(const Context& ctx, const HopCompleted& done)
     ctx.runtime_state->ResetNavigationAssistState();
     ctx.runtime_state->route.Reset();
     // 起步确认直接置位, 下一跳的上索点就在脚下, 拦住就得先走开再走回来
-    ctx.runtime_state->route.startup_anchor_pos = done.at;
-    ctx.runtime_state->route.startup_anchor_initialized = true;
-    ctx.runtime_state->route.startup_motion_confirmed = true;
+    ctx.runtime_state->route.ConfirmStartupAt(done.at);
     ctx.position_provider->ResetTracking();
 
     if (!ctx.session->HasCurrentWaypoint()) {
@@ -274,9 +273,7 @@ Result AdvanceMountSpot(const Context& ctx, const Waypoint& waypoint, const char
     LogWarn << "Action: ZIPLINE no mount prompt here; walking to the next stand point." << VAR(reason) << VAR(retargeted)
             << VAR(approach.spot_index) << VAR(spot_count) << VAR(spot.x) << VAR(spot.y);
     ctx.runtime_state->route.Reset();
-    ctx.runtime_state->route.startup_anchor_pos = *ctx.position;
-    ctx.runtime_state->route.startup_anchor_initialized = true;
-    ctx.runtime_state->route.startup_motion_confirmed = true;
+    ctx.runtime_state->route.ConfirmStartupAt(*ctx.position);
     ctx.position_provider->ResetTracking();
     SelectPhaseForCurrentWaypoint(ctx, reason);
 

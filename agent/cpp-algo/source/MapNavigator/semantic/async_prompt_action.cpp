@@ -17,9 +17,9 @@
 #include "../control/motion_controller.h"
 #include "../navi_time.h"
 #include "../planning/navigation_session.h"
+#include "../sensing/maa_task.h"
 #include "../sensing/prompt_scan_profile.h"
 #include "../sensing/roi_template_scanner.h"
-#include "semantic_helpers.h"
 
 #include "../../utils.h"
 
@@ -40,18 +40,7 @@ std::string BuildRunOverride(const AsyncPromptActionSpec& spec, const std::vecto
 
     const bool has_expected = expected != nullptr && !expected->empty();
     if (has_expected || rec) {
-        json::object recognition_node;
-        if (has_expected) {
-            json::array expected_list;
-            for (const std::string& text : *expected) {
-                expected_list.emplace_back(text);
-            }
-            json::object param;
-            param["expected"] = std::move(expected_list);
-            json::object recognition;
-            recognition["param"] = std::move(param);
-            recognition_node["recognition"] = std::move(recognition);
-        }
+        json::object recognition_node = has_expected ? ExpectedTextOverride(*expected) : json::object {};
         if (rec) {
             json::object do_nothing;
             do_nothing["type"] = "DoNothing";
@@ -116,14 +105,13 @@ bool RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, co
     }
 
     const std::string pipeline_override = BuildRunOverride(spec, expected, rec);
-    const std::optional<std::vector<std::string>> completed =
-        semantic_nodes::RunTaskForCompletedNodes(context, spec.entry_node, pipeline_override);
-    if (!completed) {
+    const std::optional<bool> recognized = RunTaskAndCheckNode(context, spec.entry_node, spec.recognition_node, pipeline_override);
+    if (!recognized) {
         LogWarn << "Prompt subtask produced no result." << VAR(spec.tag) << VAR(spec.entry_node);
         return false;
     }
     SleepFor(kPromptPostSleepMs);
-    return std::any_of(completed->begin(), completed->end(), [&spec](const std::string& name) { return name == spec.recognition_node; });
+    return *recognized;
 }
 
 AsyncPromptAction::AsyncPromptAction(
@@ -151,7 +139,7 @@ bool AsyncPromptAction::RouteHasPoint() const
 
 bool AsyncPromptAction::RouteEndsWithPoint() const
 {
-    return LastWaypointOfThisKind() != nullptr;
+    return TailWaypointOfThisKind() != nullptr;
 }
 
 void AsyncPromptAction::Start(const cv::Rect& fallback_roi, std::string_view controller_type)
@@ -274,7 +262,7 @@ bool AsyncPromptAction::TryTriggerAtRouteTail()
         return false;
     }
 
-    const Waypoint* waypoint = LastWaypointOfThisKind();
+    const Waypoint* waypoint = TailWaypointOfThisKind();
     if (spec_.text_from_route && waypoint == nullptr) {
         return false;
     }
@@ -342,7 +330,7 @@ const Waypoint* AsyncPromptAction::CurrentWaypointOfThisKind() const
     return spec_.Matches(waypoint) ? &waypoint : nullptr;
 }
 
-const Waypoint* AsyncPromptAction::LastWaypointOfThisKind() const
+const Waypoint* AsyncPromptAction::TailWaypointOfThisKind() const
 {
     if (session_ == nullptr) {
         return nullptr;

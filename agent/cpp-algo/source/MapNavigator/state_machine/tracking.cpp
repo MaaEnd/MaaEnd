@@ -12,6 +12,7 @@
 #include "../planning/route_tracker.h"
 #include "../semantic/semantic_helpers.h"
 #include "../semantic/semantic_nodes.h"
+#include "../semantic/strict_settle.h"
 #include "../sensing/position_provider.h"
 #include "internal.h"
 
