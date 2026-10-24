@@ -6,200 +6,55 @@
             "description": "$preset.QuickDaily.description",
             "task": [
                 {
-                    "name": "VisitFriends",
-                    "option": {
-                        "VisitFriendsRemark": "No",
-                        "VisitFriendsPriorityRemarkEnable": "No",
-                        "ProductionAssistControl": [
-                            "ProductionAssistControlNexus",
-                            "ProductionAssistMFGCabin",
-                            "ProductionAssistGrowthChamber"
-                        ]
-                    }
+                    "name": "VisitFriends"
                 },
                 {
                     "name": "DijiangRewards",
                     "option": {
                         "StageTaskSetting": "Yes",
                         "ClueSetting": "Yes",
-                        "SelectToGrow": "Any",
-                        "SelectToGrowItems": [
-                            "Wulingstone",
-                            "Igneosite",
-                            "FalseAggela",
-                            "BlightedJadeleaf",
-                            "Cosmagaric",
-                            "Bloodcap",
-                            "Umbronyx",
-                            "Auronyx",
-                            "Kalkonyx",
-                            "Vitrodendra",
-                            "Chrysodendra",
-                            "Kalkodendra",
-                            "RubyBolete",
-                            "RedBolete",
-                            "PinkBolete",
-                            "TalosCap",
-                            "CrimsonSpearleaf",
-                            "Protocolith"
-                        ],
-                        "AutoExtractSeed": "Yes",
-                        "SortBy": "Default",
-                        "SortOrder": "ASC",
-                        "AutoStartExchange": "Yes",
-                        "ClueStockLimit": "2",
-                        "FastCollect": "Yes",
                         "FastCollectClue": "No",
-                        "FastCollectProduction": "Yes",
-                        "RecoveryEmotionStage": "Yes",
-                        "RecoveryEmotionCabins": [
-                            "ControlNexus",
-                            "ReceptionRoom",
-                            "ManufacturingI",
-                            "ManufacturingII",
-                            "GrowthChamberI"
-                        ],
-                        "ReceptionRoomStage": "Yes",
-                        "ManufacturingStage": "Yes",
-                        "GrowthChamberStage": "Yes",
-                        "SendCluesDirect": "No",
                         "ClueSend": {
                             "MaxClueSend": "2"
-                        },
-                        "QuickGiveDuplicateClues": "No",
-                        "CustomSendClues": "No"
+                        }
                     }
                 },
                 {
                     "name": "CreditShoppingN2",
                     "option": {
-                        "CreditShoppingReserve": {
-                            "ReserveCreditThreshold": "300"
-                        },
                         "CreditShoppingClueSend": {
                             "MaxClueSendWhenInsufficient": "3"
                         },
                         "CreditShoppingQuickGiveDuplicateClues": "Yes",
                         "CreditShoppingClueStockLimit": "1",
-                        "CreditShoppingPriority1": "Yes",
-                        "CreditShoppingPriority1AutoGetCredits": "Yes",
-                        "CreditShoppingPriority1UnconditionalPurchase": "Yes",
-                        "CreditShoppingPriority1Items": [
-                            "ArsenalTicket",
-                            "Oroberyl"
-                        ],
-                        "CreditShoppingPriority1DiscountValue": "Any",
-                        "CreditShoppingPriority2": "Yes",
-                        "CreditShoppingPriority2AutoGetCredits": "No",
                         "CreditShoppingPriority2UnconditionalPurchase": "Yes",
-                        "CreditShoppingPriority2Items": [
-                            "ArsenalTicket",
-                            "Oroberyl",
-                            "TCreds",
-                            "ElementaryCognitiveCarrier",
-                            "ElementaryCombatRecord",
-                            "IntermediateCombatRecord",
-                            "ArmsInspector",
-                            "ArmsINSPKit",
-                            "CastDie",
-                            "HeavyCastDie",
-                            "Protodisk",
-                            "Protoset",
-                            "Protoprism",
-                            "Protohedron"
-                        ],
                         "CreditShoppingPriority2DiscountValue": "-95%",
-                        "CreditShoppingPriority3": "No",
-                        "CreditShoppingForce": "Refresh",
                         "PrudentRefresh": "Yes",
                         "CreditShoppingRefreshCheckPrice": "No",
-                        "CreditShoppingKeepShelfRecord": "No",
-                        "PrudentRefreshThreshold": {
-                            "PrudentRefreshThreshold": "400"
-                        }
+                        "CreditShoppingKeepShelfRecord": "No"
                     }
                 },
                 {
-                    "name": "SellProduct",
-                    "option": {
-                        "SellProductSchedule": [
-                            "SellProductScheduleMonday",
-                            "SellProductScheduleTuesday",
-                            "SellProductScheduleWednesday",
-                            "SellProductScheduleThursday",
-                            "SellProductScheduleFriday",
-                            "SellProductScheduleSaturday",
-                            "SellProductScheduleSunday"
-                        ],
-                        "SellProductOperatorAutoSwitch": "Yes",
-                        "SellProductForceRefreshOperatorCache": "No",
-                        "SellProductSelectionStrategy": "Rarity",
-                        "SellProductStockMinimumUnitPrice": {
-                            "SellProductStockMinimumUnitPrice": "10"
-                        },
-                        "SellProductPriorityRules": "No",
-                        "SellProductItemReserveRules": "No",
-                        "ValleyIVSell": "Yes",
-                        "ValleyIVRefugeeCamp": "Yes",
-                        "ValleyIVInfraStation": "Yes",
-                        "ValleyIVReconstructionHQ": "Yes",
-                        "WulingSell": "Yes",
-                        "WulingSkyKingFlatsConstructionSite": "Yes",
-                        "WulingCardiacRemediationStation": "Yes",
-                        "WulingXiranflowCloudseederStation": "Yes"
-                    }
+                    "name": "SellProduct"
                 },
                 {
-                    "name": "DeliveryJobs",
-                    "option": {
-                        "ValleyIV": "Yes",
-                        "OriginiumSciencePark": "Transfer",
-                        "OriginLodespring": "Transfer",
-                        "PowerPlateau": "Transfer",
-                        "Wuling": "Yes",
-                        "WulingCity": "Transfer",
-                        "TestArea": "Transfer",
-                        "PackCargoSelectItem": "No",
-                        "DeliveryJobsAutoDeliveryPreferZipline": "No",
-                        "DeliveryJobsOngoingDeliveryFallback": "No"
-                    }
+                    "name": "DeliveryJobs"
                 },
                 {
                     "name": "DailyRewards",
                     "option": {
-                        "DailyEmailRewards": "Yes",
-                        "DailyTaskRewards": "Yes",
-                        "DailyTaskUpgradeWeapon": "No",
-                        "DailyTaskCreation": "No",
                         "DailyTaskAssemble": "Yes",
                         "DailyTaskLevelUpOperator": "Yes",
-                        "DailyClaimDeliveryJobsRewards": "Yes",
-                        "DailyEventRewards": "Yes",
-                        "DailyProtocolPassRewards": "Yes",
-                        "DailyActivityFullWarning": "Yes",
-                        "LevelUpOperatorMaxLevelThreshold": {
-                            "MaxLevelThreshold": "80"
-                        },
-                        "GearAssemblyType": "NonsetGear",
-                        "GearAssemblySortOrder": "Lower"
+                        "GearAssemblyType": "NonsetGear"
                     }
                 },
                 {
-                    "name": "CloseGamePC",
-                    "option": {
-                        "CloseGamePCCloseLauncher": "No",
-                        "CloseGamePCApplyGameSetting": "No"
-                    }
+                    "name": "CloseGamePC"
                 }
             ],
             "pretask": [
                 {
-                    "name": "LaunchGamePC",
-                    "option": {
-                        "LaunchGamePCRegion": "CN",
-                        "LaunchGamePCLauncherPath": "Auto",
-                        "LaunchGamePCGameSetting": "No"
-                    }
+                    "name": "LaunchGamePC"
                 }
             ]
         }
