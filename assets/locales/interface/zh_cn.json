@@ -2524,6 +2524,7 @@
     "task.ResourceRecycleStation.label": "🦉资源回收站",
     "task.SanityExtractor.description": "在贵重品库使用理智萃取器，把理智保存为理智精粹药剂",
     "task.SanityExtractor.focus.close_panel": "关闭注入萃取器界面",
+    "task.SanityExtractor.focus.confirm_failed": "已点击但无法确认选中物品为理智萃取器，终止任务",
     "task.SanityExtractor.focus.find": "查找理智萃取器",
     "task.SanityExtractor.focus.inject": "注入理智",
     "task.SanityExtractor.focus.inject_failed": "萃取界面识别失败，正在尝试关闭面板",

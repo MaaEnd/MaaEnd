@@ -171,7 +171,7 @@
         }
     },
     "SanityExtractorConfirmSelected": {
-        "desc": "确认详情栏显示的是理智萃取器；点击已发生，这里失败直接结束而不翻页",
+        "desc": "确认详情栏显示的是理智萃取器；点击已发生，这里失败说明选中的不是萃取器，属异常而非未找到",
         "recognition": {
             "type": "And",
             "param": {
@@ -187,8 +187,24 @@
             "SanityExtractorUse"
         ],
         "on_error": [
-            "SanityExtractorNoExtractor"
+            "SanityExtractorConfirmFailed"
         ]
+    },
+    "SanityExtractorConfirmFailed": {
+        "desc": "点击后未能确认理智萃取器：详情栏不是模态弹窗，无需关闭，直接终止任务以暴露问题",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FailedNode"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.SanityExtractor.focus.confirm_failed"
+        }
     },
     "SanityExtractorScrollDown": {
         "desc": "列表未到底时向下滚动，滑动后等画面稳定再回查找循环；滑不动时画面不变会被 ListComplete 判为到底，循环自终止",

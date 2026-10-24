@@ -2524,6 +2524,7 @@
     "task.ResourceRecycleStation.label": "🦉자원 재활용 스테이션",
     "task.SanityExtractor.description": "귀중품 보관함에서 이성 추출기를 사용해 이성을 이성 정수 약제로 저장합니다",
     "task.SanityExtractor.focus.close_panel": "주입 추출기 화면을 닫는 중",
+    "task.SanityExtractor.focus.confirm_failed": "클릭했지만 선택한 아이템이 이성 추출기인지 확인할 수 없습니다. 작업을 종료합니다",
     "task.SanityExtractor.focus.find": "이성 추출기를 찾는 중",
     "task.SanityExtractor.focus.inject": "이성 주입 중",
     "task.SanityExtractor.focus.inject_failed": "추출 화면 인식 실패, 화면을 닫으려고 시도합니다",
