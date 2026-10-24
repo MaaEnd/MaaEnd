@@ -39,9 +39,28 @@ func TestAdvanceSkipsCallAfterHit(t *testing.T) {
 	}
 }
 
-func TestAdvanceLoopRhythmSkipsJumpBackScan(t *testing.T) {
+func TestStartRunResetsCountAndSkipsFirstCall(t *testing.T) {
+	const key = "restart"
+	t.Cleanup(func() { ResetAll() })
+
+	if Advance(key, 3) {
+		t.Fatal("first call should miss")
+	}
+
+	startRun()
+
+	for i, want := range []bool{false, false, false, true} {
+		if got := Advance(key, 3); got != want {
+			t.Fatalf("call %d after startRun: Advance() = %v, want %v", i+1, got, want)
+		}
+	}
+}
+
+func TestAdvanceLoopRhythmSkipsFirstAndJumpBackScan(t *testing.T) {
 	const key = "loop"
 	t.Cleanup(func() { ResetAll() })
+
+	startRun()
 
 	steps := []struct {
 		stage string
@@ -52,14 +71,15 @@ func TestAdvanceLoopRhythmSkipsJumpBackScan(t *testing.T) {
 		{stage: "route 2 scan", want: false},
 		{stage: "route 3 scan", want: false},
 		{stage: "route 4 scan", want: false},
-		{stage: "route 5 scan", want: true},
+		{stage: "route 5 scan", want: false},
+		{stage: "route 6 scan", want: true},
 		{stage: "stash jump back scan", want: false},
-		{stage: "route 6 scan", want: false},
 		{stage: "route 7 scan", want: false},
 		{stage: "route 8 scan", want: false},
 		{stage: "route 9 scan", want: false},
 		{stage: "route 10 scan", want: false},
-		{stage: "route 11 scan", want: true},
+		{stage: "route 11 scan", want: false},
+		{stage: "route 12 scan", want: true},
 		{stage: "stash jump back scan", want: false},
 	}
 
