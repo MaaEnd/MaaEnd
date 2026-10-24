@@ -20,6 +20,14 @@ YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThresh
     : yoloConfThreshold(confThreshold)
 {
     if (!yoloModelPath.empty()) {
+        fs::path modelPath = MAA_NS::path(yoloModelPath);
+#ifdef MAAEND_WITH_NCNN
+        ncnn_model_ = NcnnModel::load(modelPath, threads, "yolo");
+        if (!ncnn_model_) {
+            LogError << "YOLO Error: ncnn model failed to load; predictor disabled.";
+            return;
+        }
+#else
         ortEnv = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "MapLocatorYolo");
         Ort::SessionOptions sessionOptions;
         sessionOptions.SetIntraOpNumThreads(std::max(1, threads));
@@ -27,10 +35,14 @@ YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThresh
 
         auto osModelPath = MAA_NS::to_osstring(yoloModelPath);
         ortSession = std::make_unique<Ort::Session>(*ortEnv, osModelPath.c_str(), sessionOptions);
+#endif
         isYoloLoaded = true;
 
-        fs::path modelPath = MAA_NS::path(yoloModelPath);
         fs::path jsonPath = modelPath;
+#ifdef MAAEND_WITH_NCNN
+        // cls.ncnn.param 与 cls.onnx 共用 cls.json 的类别与区域映射。
+        jsonPath.replace_extension();
+#endif
         jsonPath.replace_extension(".json");
 
         auto j_opt = common::OpenJsoncFile(jsonPath);
@@ -57,6 +69,15 @@ YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThresh
         else {
             LogWarn << "Config file not found or invalid json: " << jsonPath;
         }
+
+#ifdef MAAEND_WITH_NCNN
+        if (yoloClassNames.empty()) {
+            LogError << "YOLO Error: ncnn model requires a nonempty class list" << VAR(jsonPath);
+            ncnn_model_.reset();
+            isYoloLoaded = false;
+            return;
+        }
+#endif
 
         fs::path tileMappingPath = modelPath;
         tileMappingPath.replace_filename(MAA_NS::path("tile_mapping.json"));
@@ -103,7 +124,7 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
     std::lock_guard<std::mutex> lock(yoloMutex);
     YoloCoarseResult result;
 
-    if (!isYoloLoaded || !ortSession) {
+    if (!isYoloLoaded) {
         LogError << "YOLO Error: Model is NOT loaded.";
         return result;
     }
@@ -163,6 +184,16 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
         }
     }
 
+    const float* outputData = nullptr;
+    size_t outputCount = 0;
+#ifdef MAAEND_WITH_NCNN
+    if (!ncnn_model_->run(inputTensorScratch.data(), 3, OUTPUT_SIZE, OUTPUT_SIZE, yoloClassNames.size(), output_scratch_)) {
+        LogError << "YOLO Error: ncnn inference failed.";
+        return result;
+    }
+    outputData = output_scratch_.data();
+    outputCount = output_scratch_.size();
+#else
     constexpr std::array<int64_t, 4> kInputShape { 1, 3, OUTPUT_SIZE, OUTPUT_SIZE };
 
     auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
@@ -187,8 +218,9 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
         return result;
     }
 
-    float* outputData = outputTensors.front().GetTensorMutableData<float>();
-    size_t outputCount = outputTensors.front().GetTensorTypeAndShapeInfo().GetElementCount();
+    outputData = outputTensors.front().GetTensorData<float>();
+    outputCount = outputTensors.front().GetTensorTypeAndShapeInfo().GetElementCount();
+#endif
 
     // Find max confidence
     int maxIdx = -1;
