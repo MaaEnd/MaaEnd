@@ -6,40 +6,113 @@
             "description": "$preset.DailyFull.description",
             "task": [
                 {
-                    "name": "VisitFriends",
-                    "option": {
-                        "ProductionAssistControl": [
-                            "ProductionAssistControlNexus",
-                            "ProductionAssistMFGCabin",
-                            "ProductionAssistGrowthChamber"
-                        ]
-                    }
+                    "name": "AccountSwitch",
+                    "enabled": false
+                },
+                {
+                    "name": "VisitFriends"
+                },
+                {
+                    "name": "GiftOperator"
                 },
                 {
                     "name": "DijiangRewards",
                     "option": {
-                        "AutoStartExchange": "Yes",
-                        "StageTaskSetting": "No",
-                        "ClueStockLimit": "2"
+                        "StageTaskSetting": "Yes",
+                        "ClueSetting": "Yes",
+                        "FastCollectClue": "No"
                     }
+                },
+                {
+                    "name": "SellProduct"
+                },
+                {
+                    "name": "AutoStockStaple",
+                    "enabled": false,
+                    "option": {
+                        "AutoStockBuyDailyGoodsValleyIVItems": [
+                            "ValleyEngravingPermit"
+                        ],
+                        "AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit": {
+                            "ValleyEngravingPermitLimit": "100"
+                        },
+                        "AutoStockBuyCulturalGoodsValleyIVItems": [
+                            "BreezeOfKjersch",
+                            "AuryleneCamera",
+                            "CosmicGatePuzzle",
+                            "TidestoneSpecimen",
+                            "SimonchShawl",
+                            "FrontiersWatch",
+                            "SurfingFestivalTicket"
+                        ],
+                        "AutoStockBuyDailyGoodsWulingItems": [
+                            "WulingEngravingPermit"
+                        ],
+                        "AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit": {
+                            "WulingArtificingCatalystLimit": "100"
+                        },
+                        "AutoStockBuyCulturalGoodsWuling": "No",
+                        "AutoStockMinDiscountWuling": "-90%"
+                    }
+                },
+                {
+                    "name": "AutoEcoFarm"
+                },
+                {
+                    "name": "ResourceRecycleStation"
+                },
+                {
+                    "name": "AutoCollect",
+                    "enabled": false,
+                    "option": {
+                        "AutoCollectValleyIVCommonRoutes": [],
+                        "AutoCollectWulingCommonRoutes": [
+                            "CommonRoute5",
+                            "CommonRoute7"
+                        ]
+                    }
+                },
+                {
+                    "name": "AutoStockpile"
+                },
+                {
+                    "name": "AutoSell"
+                },
+                {
+                    "name": "EnvironmentMonitoring"
+                },
+                {
+                    "name": "TrialOfSwordmancy"
+                },
+                {
+                    "name": "ProtocolSpace",
+                    "option": {
+                        "ProtocolSpaceMode": "TargetInventory",
+                        "ProtocolSpaceObtainModeClaim": "ObtainScaling1"
+                    }
+                },
+                {
+                    "name": "AutoEssence",
+                    "enabled": false,
+                    "option": {
+                        "AutoEssenceMenu": "Target",
+                        "AutoEssenceObtainModeClaimOnlyForcedFilter": "ObtainScaling1"
+                    }
+                },
+                {
+                    "name": "DeliveryJobs"
+                },
+                {
+                    "name": "SeizeDeliveryJobs"
                 },
                 {
                     "name": "CreditShoppingN2",
                     "option": {
-                        "CreditShoppingForce": "Refresh",
-                        "CreditShoppingReserve": {
-                            "ReserveCreditThreshold": "300"
+                        "CreditShoppingClueSend": {
+                            "MaxClueSendWhenInsufficient": "2"
                         },
-                        "CreditShoppingPriority1": "Yes",
-                        "CreditShoppingPriority1Items": [
-                            "ArsenalTicket",
-                            "Oroberyl"
-                        ],
-                        "CreditShoppingPriority1DiscountValue": "Any",
-                        "CreditShoppingPriority2": "Yes",
+                        "CreditShoppingPriority2UnconditionalPurchase": "Yes",
                         "CreditShoppingPriority2Items": [
-                            "ArsenalTicket",
-                            "Oroberyl",
                             "TCreds",
                             "ElementaryCognitiveCarrier",
                             "ElementaryCombatRecord",
@@ -53,61 +126,17 @@
                             "Protoprism",
                             "Protohedron"
                         ],
-                        "CreditShoppingPriority2DiscountValue": "-75%",
-                        "CreditShoppingPriority3": "No"
+                        "CreditShoppingPriority2DiscountValue": "-95%",
+                        "PrudentRefresh": "Yes",
+                        "CreditShoppingRefreshCheckPrice": "No",
+                        "CreditShoppingKeepShelfRecord": "No"
                     }
                 },
                 {
-                    "name": "DeliveryJobs",
-                    "option": {
-                        "ValleyIV": "Yes",
-                        "Wuling": "Yes"
-                    }
+                    "name": "DailyRewards"
                 },
                 {
-                    "name": "SellProduct"
-                },
-                {
-                    "name": "AutoStockpile"
-                },
-                {
-                    "name": "AutoStockStaple"
-                },
-                {
-                    "name": "AutoSell"
-                },
-                {
-                    "name": "EnvironmentMonitoring"
-                },
-                {
-                    "name": "DailyRewards",
-                    "option": {
-                        "DailyEmailRewards": "Yes",
-                        "DailyEventRewards": "Yes",
-                        "DailyTaskRewards": "Yes",
-                        "DailyClaimDeliveryJobsRewards": "Yes",
-                        "DailyProtocolPassRewards": "Yes"
-                    }
-                },
-                {
-                    "name": "SeizeDeliveryJobs"
-                },
-                {
-                    "name": "ProtocolSpace"
-                },
-                {
-                    "name": "AutoCollect",
-                    "option": {
-                        "AutoCollectValleyIVRareRoutes": [
-                            "Route4",
-                            "Route5"
-                        ],
-                        "AutoCollectWulingRareRoutes": [
-                            "Route1",
-                            "Route2",
-                            "Route3"
-                        ]
-                    }
+                    "name": "CloseGamePC"
                 }
             ],
             "pretask": [

@@ -284,6 +284,7 @@
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
         "tasks/preset/RealtimeAssist.json",
+        "tasks/preset/IndependentTasks.json",
         // setting
         "tasks/setting/Keymap.json",
         "tasks/setting/Zipline.json"
