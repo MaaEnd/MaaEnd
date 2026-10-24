@@ -107,7 +107,9 @@ def build_transfer_cases(catalog: dict, zh_cn: dict, nodes: TransferNodes) -> li
             "label": f"${locale_key}",
             "pipeline_override": {
                 nodes.category_node: {
-                    "template": f"ItemTransfer/{item['categoryType']}.png",
+                    "custom_action_param": {
+                        "sub": [f"SceneEnterMenuBackpackWithDepot{item['categoryType']}"],
+                    },
                 },
                 nodes.repo_find_node: _item_id_override(
                     item["id"],
