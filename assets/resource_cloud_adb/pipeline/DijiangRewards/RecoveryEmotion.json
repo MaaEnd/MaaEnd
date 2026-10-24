@@ -1,0 +1,27 @@
+{
+    // 云端数量图标的位置会变化，直接点击「生产助力」文字，避免旧偏移落在数量图标上。
+    "RecoveryEmotionMain": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangControlNexus",
+                    "NeedAssistColor",
+                    "AssistText"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        }
+    }
+}

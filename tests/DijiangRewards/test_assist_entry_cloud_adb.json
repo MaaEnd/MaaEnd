@@ -1,0 +1,35 @@
+{
+    "configs": {
+        "name": "云终末地生产助力入口文字点击框",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "image": "帝江号_总控中枢_可生产助力.png",
+            "hits": [
+                {
+                    "node": "RecoveryEmotionMain",
+                    "box": [
+                        975,
+                        0,
+                        130,
+                        65
+                    ]
+                }
+            ]
+        },
+        {
+            "image": "菜单总列表_已展开.png",
+            "hits": []
+        },
+        {
+            "image": "贵重品库_武器_高等级.png",
+            "hits": []
+        },
+        {
+            "image": "武陵_大世界_菜单关闭.png",
+            "hits": []
+        }
+    ]
+}
