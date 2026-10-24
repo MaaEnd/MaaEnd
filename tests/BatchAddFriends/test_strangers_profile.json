@@ -1,0 +1,28 @@
+{
+    "configs": {
+        "name": "批量添加好友-陌生人名片",
+        "resource": [
+            "官服"
+        ],
+        "controller": [
+            "Win32"
+        ]
+    },
+    "cases": [
+        {
+            "image": "好友_名片_权限等级与增辉.png",
+            "hits": [
+                "BatchAddFriendsStrangersProfileReady",
+                "BatchAddFriendsStrangersProfileAuthorityLevel",
+                "BatchAddFriendsStrangersProfileValleyIVIcon",
+                "BatchAddFriendsStrangersProfileWulingIcon",
+                "BatchAddFriendsStrangersProfileAddFriend",
+                "BatchAddFriendsStrangersProfileCloseButton",
+                "ProfilePageMoreButton",
+                "BatchAddFriendsStrangersProfilePage",
+                "BatchAddFriendsStrangersProfileFallbackClose",
+                "BatchAddFriendsStrangersApplySentToast"
+            ]
+        }
+    ]
+}

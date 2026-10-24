@@ -17,26 +17,293 @@
                 "Win32-Front"
             ],
             "option": [
-                "BatchAddFriends"
+                "BatchAddFriendsMode"
             ]
         }
     ],
     "option": {
-        "BatchAddFriends": {
+        "BatchAddFriendsMode": {
+            "type": "select",
+            "label": "$option.BatchAddFriendsMode.label",
+            "cases": [
+                {
+                    "name": "Strangers",
+                    "label": "$option.BatchAddFriendsMode.cases.Strangers.label",
+                    "option": [
+                        "BatchAddFriendsMaxCount",
+                        "BatchAddFriendsAuthorityLimit",
+                        "BatchAddFriendsValleyLimit",
+                        "BatchAddFriendsWulingLimit",
+                        "BatchAddFriendsWarEcho"
+                    ],
+                    "pipeline_override": {}
+                },
+                {
+                    "name": "UID",
+                    "label": "$option.BatchAddFriendsMode.cases.UID.label",
+                    "option": [
+                        "BatchAddFriendsUID"
+                    ],
+                    "pipeline_override": {}
+                }
+            ],
+            "default_case": "Strangers"
+        },
+        "BatchAddFriendsMaxCount": {
             "type": "input",
-            "label": "$option.BatchAddFriends.label",
+            "label": "$option.BatchAddFriendsMaxCount.label",
+            "inputs": [
+                {
+                    "name": "MaxCount",
+                    "label": "$option.BatchAddFriendsMaxCount.inputs.MaxCount.label",
+                    "default": "20",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$"
+                },
+                {
+                    "name": "MaxAttempts",
+                    "label": "$option.BatchAddFriendsMaxCount.inputs.MaxAttempts.label",
+                    "description": "$option.BatchAddFriendsMaxCount.inputs.MaxAttempts.description",
+                    "default": "30",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$"
+                }
+            ],
+            "pipeline_override": {
+                "BatchAddFriendsStart": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "mode": "strangers",
+                                "uid_list": "",
+                                "max_count": "{MaxCount}",
+                                "max_attempts": "{MaxAttempts}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "BatchAddFriendsAuthorityLimit": {
+            "type": "switch",
+            "label": "$option.BatchAddFriendsAuthorityLimit.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "BatchAddFriendsStrangers"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "BatchAddFriendsStrangers": {
+            "type": "input",
+            "label": "$option.BatchAddFriendsStrangers.label",
+            "inputs": [
+                {
+                    "name": "MinLevel",
+                    "label": "$option.BatchAddFriendsStrangers.inputs.MinLevel.label",
+                    "default": "0",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$"
+                },
+                {
+                    "name": "MaxLevel",
+                    "label": "$option.BatchAddFriendsStrangers.inputs.MaxLevel.label",
+                    "default": "60",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$"
+                }
+            ],
+            "pipeline_override": {
+                "BatchAddFriendsStrangersProfileAuthorityGate": {
+                    "recognition": {
+                        "type": "Custom",
+                        "param": {
+                            "custom_recognition": "ExpressionRecognition",
+                            "custom_recognition_param": {
+                                "expression": "{BatchAddFriendsStrangersProfileAuthorityLevel} >= {MinLevel} && {BatchAddFriendsStrangersProfileAuthorityLevel} <= {MaxLevel}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "BatchAddFriendsValleyLimit": {
+            "type": "switch",
+            "label": "$option.BatchAddFriendsValleyLimit.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "BatchAddFriendsValleyIVLevel"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "BatchAddFriendsValleyIVLevel": {
+            "type": "input",
+            "label": "$option.BatchAddFriendsValleyIVLevel.label",
+            "inputs": [
+                {
+                    "name": "MinValleyIVLevel",
+                    "label": "$option.BatchAddFriendsValleyIVLevel.inputs.MinValleyIVLevel.label",
+                    "default": "0",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$"
+                },
+                {
+                    "name": "MaxValleyIVLevel",
+                    "label": "$option.BatchAddFriendsValleyIVLevel.inputs.MaxValleyIVLevel.label",
+                    "default": "99",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$"
+                }
+            ],
+            "pipeline_override": {
+                "BatchAddFriendsStrangersProfileValleyGate": {
+                    "recognition": {
+                        "type": "Custom",
+                        "param": {
+                            "custom_recognition": "ExpressionRecognition",
+                            "custom_recognition_param": {
+                                "expression": "{BatchAddFriendsStrangersProfileValleyIVLevel} >= {MinValleyIVLevel} && {BatchAddFriendsStrangersProfileValleyIVLevel} <= {MaxValleyIVLevel}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "BatchAddFriendsWulingLimit": {
+            "type": "switch",
+            "label": "$option.BatchAddFriendsWulingLimit.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "BatchAddFriendsWulingLevel"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "BatchAddFriendsWulingLevel": {
+            "type": "input",
+            "label": "$option.BatchAddFriendsWulingLevel.label",
+            "inputs": [
+                {
+                    "name": "MinWulingLevel",
+                    "label": "$option.BatchAddFriendsWulingLevel.inputs.MinWulingLevel.label",
+                    "default": "0",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$"
+                },
+                {
+                    "name": "MaxWulingLevel",
+                    "label": "$option.BatchAddFriendsWulingLevel.inputs.MaxWulingLevel.label",
+                    "default": "99",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$"
+                }
+            ],
+            "pipeline_override": {
+                "BatchAddFriendsStrangersProfileWulingGate": {
+                    "recognition": {
+                        "type": "Custom",
+                        "param": {
+                            "custom_recognition": "ExpressionRecognition",
+                            "custom_recognition_param": {
+                                "expression": "{BatchAddFriendsStrangersProfileWulingLevel} >= {MinWulingLevel} && {BatchAddFriendsStrangersProfileWulingLevel} <= {MaxWulingLevel}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "BatchAddFriendsWarEcho": {
+            "type": "switch",
+            "label": "$option.BatchAddFriendsWarEcho.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "BatchAddFriendsStrangersProfileWarEcho": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "roi": [
+                                        292,
+                                        102,
+                                        336,
+                                        123
+                                    ],
+                                    "template": "BatchAddFriends/echoesOfWarLustrous.png",
+                                    "threshold": 0.7
+                                }
+                            }
+                        },
+                        "BatchAddFriendsStrangersProfileRejectLogAuthority": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "failed": "batchaddfriends.level.authority",
+                                        "echo": true
+                                    }
+                                }
+                            }
+                        },
+                        "BatchAddFriendsStrangersProfileRejectLogValley": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "failed": "batchaddfriends.level.valleyIV",
+                                        "echo": true
+                                    }
+                                }
+                            }
+                        },
+                        "BatchAddFriendsStrangersProfileRejectLogWuling": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "failed": "batchaddfriends.level.wuling",
+                                        "echo": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "BatchAddFriendsUID": {
+            "type": "input",
+            "label": "$option.BatchAddFriendsUID.label",
             "inputs": [
                 {
                     "name": "UidList",
-                    "label": "$option.BatchAddFriends.inputs.UidList.label",
-                    "description": "$option.BatchAddFriends.inputs.UidList.description",
+                    "label": "$option.BatchAddFriendsUID.inputs.UidList.label",
                     "default": "",
                     "pipeline_type": "string"
                 },
                 {
                     "name": "MaxCount",
-                    "label": "$option.BatchAddFriends.inputs.MaxCount.label",
-                    "description": "$option.BatchAddFriends.inputs.MaxCount.description",
+                    "label": "$option.BatchAddFriendsUID.inputs.MaxCount.label",
                     "default": "20",
                     "pipeline_type": "int",
                     "verify": "^\\d+$"
@@ -47,6 +314,7 @@
                     "action": {
                         "param": {
                             "custom_action_param": {
+                                "mode": "uid",
                                 "uid_list": "{UidList}",
                                 "max_count": "{MaxCount}"
                             }

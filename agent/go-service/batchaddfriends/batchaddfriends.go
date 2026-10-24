@@ -12,15 +12,17 @@ import (
 )
 
 type batchAddConfig struct {
-	DefaultMaxCount int `json:"default_max_count"`
-	MaxFailStreak   int `json:"max_fail_streak"`
+	DefaultMaxCount    int `json:"default_max_count"`
+	DefaultMaxAttempts int `json:"default_max_attempts"`
+	MaxFailStreak      int `json:"max_fail_streak"`
 }
 
 var (
 	// defaultConfig 用于在 pipeline 侧未传参时提供安全默认值。
 	defaultConfig = batchAddConfig{
-		DefaultMaxCount: 20,
-		MaxFailStreak:   5,
+		DefaultMaxCount:    20,
+		DefaultMaxAttempts: 30,
+		MaxFailStreak:      5,
 	}
 
 	// state 保存当前 BatchAddFriends 的运行状态。
@@ -60,22 +62,27 @@ type batchAddState struct {
 	uidMaxCount      int
 
 	// 添加陌生人模式
-	strangersProcessed int
-	strangersMaxCount  int
+	strangersProcessed   int
+	strangersMaxCount    int
+	strangersAttempts    int
+	strangersMaxAttempts int
 }
 
 // BatchAddFriendsAction 是批量添加好友任务的入口动作：解析参数，决定分支，并回写 pipeline 的动态参数/跳转。
 func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	cfg := defaultConfig
 	var params struct {
-		UidList  string      `json:"uid_list"`
-		MaxCount interface{} `json:"max_count"`
+		Mode        string      `json:"mode"`
+		UidList     string      `json:"uid_list"`
+		MaxCount    interface{} `json:"max_count"`
+		MaxAttempts interface{} `json:"max_attempts"`
 	}
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
 		log.Error().Err(err).Msg("[BatchAddFriends]参数解析失败")
 		return false
 	}
 	maxCount := parseMaxCount(params.MaxCount, cfg.DefaultMaxCount)
+	maxAttempts := parseMaxCount(params.MaxAttempts, cfg.DefaultMaxAttempts)
 	uidList := strings.TrimSpace(params.UidList)
 
 	controller := ctx.GetTasker().GetController()
@@ -84,7 +91,15 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		return false
 	}
 
-	if len(uidList) > 0 {
+	if params.Mode == "uid" {
+		if uidList == "" {
+			// 选了 UID 模式却没填列表：直接结束，不回退到陌生人模式
+			log.Warn().Msg("[BatchAddFriends]UID 列表为空，直接结束")
+			_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+				{Name: "BatchAddFriendsUIDEnd"},
+			})
+			return true
+		}
 		state = batchAddState{
 			mode:             "uid",
 			uidMaxFailStreak: cfg.MaxFailStreak,
@@ -102,20 +117,33 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	}
 
 	state = batchAddState{
-		mode:               "strangers",
-		strangersProcessed: 0,
-		strangersMaxCount:  maxCount,
+		mode:                 "strangers",
+		strangersProcessed:   0,
+		strangersMaxCount:    maxCount,
+		strangersMaxAttempts: maxAttempts,
 	}
+	// 黑名单是包级状态，上一次任务结束后会残留；行的 y 只在同一批列表内有效，
+	// 跨任务复用会误跳过新玩家。
+	resetRejectedRows()
+	consecutiveEmptyBatches = 0
+	// max_hit 沿用「添加数量」：只有添加成功才会再次命中 AddStrangersLoop，
+	// 拒绝和换批走的是 Scan，不会回到 Loop，所以 Loop 的命中次数就等于添加人数。
+	// 尝试次数另在 Go 里独立计数。
 	_ = ctx.OverridePipeline(map[string]any{
 		"BatchAddFriendsAddStrangersLoop": map[string]any{
 			"max_hit": maxCount,
 		},
 	})
-	// 立即跳转到添加陌生人分支。
+	// 先跑一次残留菜单清理，再进陌生人分支。
+	// ResetMenuProbe 只在列表存在残留二级菜单时命中，未命中会自然落到 StrangersStart。
 	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+		{Name: "BatchAddFriendsStrangersResetMenuProbe"},
 		{Name: "BatchAddFriendsStrangersStart"},
 	})
-	log.Info().Int("maxCount", maxCount).Msg("[BatchAddFriends]陌生人模式开始")
+	log.Info().
+		Int("maxCount", maxCount).
+		Int("maxAttempts", maxAttempts).
+		Msg("[BatchAddFriends]陌生人模式开始")
 	return true
 }
 
@@ -205,15 +233,37 @@ func readAttach(ctx *maa.Context) (current string, total int) {
 	return w.Attach.Current, w.Attach.Total
 }
 
+// BatchAddFriendsStrangersOnAddAction 记一次陌生人添加成功，输出进度，并检查尝试次数上限。
 func (a *BatchAddFriendsStrangersOnAddAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	state.strangersProcessed++
+	state.strangersAttempts++
 	maafocus.Print(
 		ctx,
 		i18n.T("batchaddfriends.strangers_progress", state.strangersProcessed, state.strangersMaxCount),
 	)
+	endIfAttemptsExceeded(ctx, arg.CurrentTaskName)
 	return true
 }
 
+// endIfAttemptsExceeded 在「判定过的玩家数」达到上限时立即结束陌生人模式。
+// 不论上方「添加数量」是否达到，只要累计判定（添加成功 + 被拒绝）达到该次数就停，
+// 避免一直换批判定拖长任务时间。
+func endIfAttemptsExceeded(ctx *maa.Context, node string) {
+	if state.strangersMaxAttempts <= 0 || state.strangersAttempts < state.strangersMaxAttempts {
+		return
+	}
+	log.Info().
+		Int("attempts", state.strangersAttempts).
+		Int("maxAttempts", state.strangersMaxAttempts).
+		Int("processed", state.strangersProcessed).
+		Msg("[BatchAddFriends]尝试判定达到上限，结束陌生人模式")
+	maafocus.Print(ctx, i18n.T("batchaddfriends.strangers_attempts_limit", state.strangersAttempts))
+	_ = ctx.OverrideNext(node, []maa.NextItem{
+		{Name: "BatchAddFriendsStrangersEnd"},
+	})
+}
+
+// BatchAddFriendsStrangersFinishAction 输出陌生人模式结束日志，并重置任务状态。
 func (a *BatchAddFriendsStrangersFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Int("maxCount", state.strangersMaxCount).Msg("[BatchAddFriends]陌生人模式结束")
 	if state.mode == "strangers" {
@@ -222,14 +272,17 @@ func (a *BatchAddFriendsStrangersFinishAction) Run(ctx *maa.Context, arg *maa.Cu
 	return true
 }
 
+// BatchAddFriendsFriendListFullAction 好友列表已满时的收尾：提示后按当前模式结束任务。
 func (a *BatchAddFriendsFriendListFullAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Warn().Msg("[BatchAddFriends]好友列表已满，提前结束")
+	maafocus.Print(ctx, i18n.T("batchaddfriends.friend_list_full"))
 	if state.mode == "uid" {
 		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "BatchAddFriendsUIDEnd"},
 		})
 		return true
 	}
+	// 好友列表已满：提示后直接结束，不做界面收尾（与其它任务一致）。
 	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 		{Name: "BatchAddFriendsStrangersEnd"},
 	})

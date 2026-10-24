@@ -1,0 +1,23 @@
+{
+    "ProfilePageMoreButton": {
+        "desc": "玩家名片上的更多按钮，位于头像下方",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    88,
+                    199,
+                    221,
+                    162
+                ],
+                "template": [
+                    "Common/Button/ProfilePageMoreButton.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

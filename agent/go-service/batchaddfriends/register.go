@@ -10,4 +10,8 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("BatchAddFriendsStrangersOnAddAction", &BatchAddFriendsStrangersOnAddAction{})
 	maa.AgentServerRegisterCustomAction("BatchAddFriendsStrangersFinishAction", &BatchAddFriendsStrangersFinishAction{})
 	maa.AgentServerRegisterCustomAction("BatchAddFriendsFriendListFullAction", &BatchAddFriendsFriendListFullAction{})
+	maa.AgentServerRegisterCustomRecognition("BatchAddFriendsStrangersPickRowRecognition", &PickStrangerRowRecognition{})
+	maa.AgentServerRegisterCustomRecognition("BatchAddFriendsStrangersRejectLogRecognition", &RejectLogRecognition{})
+	maa.AgentServerRegisterCustomAction("BatchAddFriendsStrangersRecordRejectAction", &RecordRejectAction{})
+	maa.AgentServerRegisterCustomAction("BatchAddFriendsStrangersClearRejectsAction", &ClearRejectsAction{})
 }
