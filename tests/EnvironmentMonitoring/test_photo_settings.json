@@ -1,12 +1,16 @@
 {
     "configs": {
-        "name": "云终末地拍照设置与干员显示",
+        "name": "环境监测：拍照设置与干员显示",
         "resource": "官服",
-        "controller": "CloudADB"
+        "controller": [
+            "Win32",
+            "ADB",
+            "CloudADB"
+        ]
     },
     "cases": [
         {
-            "image": "武陵_拍照模式_画面设置_显示全部.png",
+            "image": "武陵_拍照模式_画面设置.png",
             "hits": [
                 "EnvironmentMonitoringPhotoSettingsTab",
                 "EnvironmentMonitoringOpenPhotoSettings",
@@ -15,7 +19,7 @@
             ]
         },
         {
-            "image": "武陵_拍照模式_画面设置_隐藏全部.png",
+            "image": "武陵_拍照模式_隐藏全部.png",
             "hits": [
                 "EnvironmentMonitoringPhotoSettingsTab",
                 "EnvironmentMonitoringOpenPhotoSettings",
@@ -23,10 +27,6 @@
                 "EnvironmentMonitoringPhotoSettingsOperatorsHidden",
                 "EnvironmentMonitoringClosePhotoSettingsWithOperatorsHidden"
             ]
-        },
-        {
-            "image": "帝江号_物资调度_好友价格_待前往.png",
-            "hits": []
         }
     ]
 }
