@@ -77,7 +77,7 @@
     "batchaddfriends.reject.skipped": "%s out of range, skipping this player. Read: %s",
     "batchaddfriends.reject.unparsable": "unparsable",
     "batchaddfriends.reject.unreadable": "not recognized",
-    "batchaddfriends.strangers_attempts_limit": "Judged %d players — attempt limit reached, ending the task",
+    "batchaddfriends.strangers_attempts_limit": "Viewed %d players — attempt limit reached",
     "batchaddfriends.strangers_empty_batch_limit": "No addable players after %d consecutive batch refreshes, ending the task",
     "batchaddfriends.strangers_progress": "Add friends progress [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s: Friend request sent (%d/%d)",

@@ -76,7 +76,7 @@
     "batchaddfriends.reject.skipped": "%s이(가) 범위를 벗어나 이 플레이어를 건너뜁니다. 읽은 값: %s",
     "batchaddfriends.reject.unparsable": "해석 불가",
     "batchaddfriends.reject.unreadable": "인식 실패",
-    "batchaddfriends.strangers_attempts_limit": "%d명을 판정해 시도 횟수 상한에 도달했습니다. 작업을 종료합니다",
+    "batchaddfriends.strangers_attempts_limit": "%d명을 확인했으며 시도 횟수 상한에 도달했습니다",
     "batchaddfriends.strangers_empty_batch_limit": "%d회 연속 목록 새로고침 후에도 추가할 수 있는 플레이어가 없어 작업을 종료합니다",
     "batchaddfriends.strangers_progress": "친구 추가 진행도 [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s: 친구 신청을 보냈습니다 (%d/%d)",
