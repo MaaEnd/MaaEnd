@@ -120,6 +120,12 @@ func (a *InputAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				controller.PostKeyDown(0x10).Wait()
 			}
 			if job := controller.PostClickKey(int32(r)).Wait(); job == nil || !job.Success() {
+				if upper {
+					controller.PostKeyUp(0x10).Wait()
+				}
+				log.Error().
+					Str("component", componentName+".InputAction").
+					Msg("failed to click key")
 				return false
 			}
 			if upper {

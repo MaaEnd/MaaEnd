@@ -151,6 +151,24 @@
 		{
 			"if": {
 				"properties": {
+					"custom_action": { "const": "TextInputInitAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": {
+						"type": "object",
+						"properties": {
+							"texts": { "type": "string" }
+						}
+					}
+				}
+			}
+		},
+		{
+			"if": {
+				"properties": {
 					"custom_action": { "const": "AutoDeliveryResolveDestinationAction" }
 				},
 				"required": [ "custom_action" ]

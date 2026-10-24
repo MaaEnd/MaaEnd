@@ -27,13 +27,15 @@ var (
 	state batchAddState
 )
 
-type BatchAddFriendsAction struct{}
-type BatchAddFriendsUIDOnAddAction struct{}
-type BatchAddFriendsUIDOnEmptyAction struct{}
-type BatchAddFriendsUIDFinishAction struct{}
-type BatchAddFriendsStrangersOnAddAction struct{}
-type BatchAddFriendsStrangersFinishAction struct{}
-type BatchAddFriendsFriendListFullAction struct{}
+type (
+	BatchAddFriendsAction                struct{}
+	BatchAddFriendsUIDOnAddAction        struct{}
+	BatchAddFriendsUIDOnEmptyAction      struct{}
+	BatchAddFriendsUIDFinishAction       struct{}
+	BatchAddFriendsStrangersOnAddAction  struct{}
+	BatchAddFriendsStrangersFinishAction struct{}
+	BatchAddFriendsFriendListFullAction  struct{}
+)
 
 // Compile-time interface checks
 var (
@@ -193,7 +195,11 @@ func readAttach(ctx *maa.Context) (current string, total int) {
 		} `json:"attach"`
 	}
 	raw, err := ctx.GetNodeJSON("TextInput")
-	if err != nil || json.Unmarshal([]byte(raw), &w) != nil {
+	if err == nil {
+		err = json.Unmarshal([]byte(raw), &w)
+	}
+	if err != nil {
+		log.Error().Err(err).Msg("[BatchAddFriends]读取输入进度失败")
 		return "", 0
 	}
 	return w.Attach.Current, w.Attach.Total
