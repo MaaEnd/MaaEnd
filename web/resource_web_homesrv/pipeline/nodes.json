@@ -1,0 +1,21 @@
+{
+ "WebLauncherStartButton": {
+  "desc": "【homesrv 变体】启动页「开始游戏」在部分页面配色下是青绿色，这里同时认黄/青两版模板。",
+  "recognition": {
+   "type": "TemplateMatch",
+   "param": {
+    "template": [
+     "WebStartGame/StartButton.png",
+     "WebStartGame/StartButtonCyan.png"
+    ],
+    "threshold": 0.95,
+    "roi": [
+     700,
+     450,
+     560,
+     200
+    ]
+   }
+  }
+ }
+}
