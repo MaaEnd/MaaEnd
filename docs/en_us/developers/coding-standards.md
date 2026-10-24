@@ -98,7 +98,7 @@ Common practice is to add to `next`:
 
 ### OCR Write Complete Text
 
-`expected` must contain the complete text, not partial. Multi-language processing is delegated to the i18n toolchain. **Only when the OCR engine is unstable in recognizing complete text** is it allowed to use fragments or handwritten regular expressions. In this case, you must add `// @i18n-skip` and a comment above the array to retain the complete original text. See below [OCR and i18n](#ocr-and-i18n) for details.
+`expected` must contain the complete text, not partial. Write the text of every language that can appear side by side in the same array, and write the English one as a loose case-insensitive regular expression. **Only when the OCR engine is unstable in recognizing complete text** is it allowed to use fragments or handwritten regular expressions. In this case, you must add `// @i18n-skip` and a comment above the array to retain the complete original text. See below [OCR and i18n](#ocr-and-i18n) for details.
 
 ### Reuse First, Then Add New
 
@@ -268,24 +268,27 @@ The resource folder is in a linked state. Modifying `assets` is equivalent to mo
 
 ### JSON Comments Are Allowed (JSONC)
 
-Resource JSON is always treated as JSONC, so `//`, `/* */` comments and trailing commas are fine; a `.json` extension does not mean strict JSON. `files.associations` in `.vscode/settings.json` already maps `assets/**`, `tests/**` and several `tools/` subdirectories to `jsonc`, so the editor does not complain. **When you add a new directory for JSON files outside `assets/` and `tests/`, add a line to `files.associations`**, otherwise the editor treats those files as strict JSON and flags them.
+Resource JSON is always treated as JSONC, so `//`, `/* */` comments and trailing commas are fine; a `.json` extension does not mean strict JSON.
 
 Code that reads repository JSON must parse JSONC too: `pkg/jsonclean` (or `resource.ReadJsonResource`) in Go, `OpenJsoncFile` from `Common/JsoncFile.h` in C++, `tools/pipeline-generate/jsonc.mjs` in Node, and `json5` in Python.
 
-The exception is `assets/locales/**`: `tools/i18n/sync_auto_collect_locales.py`, `tools/essence_filter/build_autoessence_tasks.py` and `tools/AutoCollectRoute/route_builder.py` read those files with strict `json`, so a comment makes them fail to parse; the other scripts that rewrite locales also drop comments when they re-serialize. Files parsed strictly by external tools (`tools/schema/**`, `package.json`, and so on) likewise stay strict JSON.
+The exception is `assets/locales/**`: `tools/essence_filter/build_autoessence_tasks.py` and `tools/AutoCollectRoute/route_builder.py` read those files with strict `json`, so a comment makes them fail to parse; the other scripts that rewrite locales also drop comments when they re-serialize. Files parsed strictly by external tools (`tools/schema/**`, `package.json`, and so on) likewise stay strict JSON.
+
+`files.associations` in `.vscode/settings.json` already maps `assets/**`, `tests/**` and several `tools/` subdirectories to `jsonc`, so the editor does not complain. **When you add a new directory for JSON files outside `assets/` and `tests/`, add a line to `files.associations`**, otherwise the editor treats those files as strict JSON and flags them.
 
 ## OCR and i18n
 
-Developers do not need to manually maintain multi-language OCR; just write the expected text in the current language, and `tools/i18n` will automatically process it.
+OCR nodes run into interfaces in many languages, so `expected` is maintained by hand: write the text of every language that can appear into the same array. The project currently supports five languages: zh_cn, zh_tw, en_us, ja_jp and ko_kr.
 
 ### Writing Requirements
 
 - `expected` should contain the complete text, not just a fragment. For example, write `这是一段示例内容` (a piece of sample text) instead of just `示例内容` (sample text).
-- Only when the OCR engine is unstable in recognizing complete text (e.g., containing percent signs, special symbols, easily confused characters) and it is truly necessary to use fragments or handwritten regular expressions for stable matching is skipping automatic processing allowed. **Truncation is not a default method but a fallback.**
+- Write the text of every language that can appear side by side in the same `expected` array. Simplified Chinese is required: it is the text of the interface in front of you. Fill in the other languages as well wherever you can; if you cannot get the interface in that language, do not invent a translation — add it when you run into it.
+- Only when the OCR engine is unstable in recognizing complete text (e.g., containing percent signs, special symbols, easily confused characters) and it is truly necessary to use fragments or handwritten regular expressions for stable matching is truncation allowed. **Truncation is not a default method but a fallback.**
 
 Requirements:
 
-1. Add `// @i18n-skip` inside the `expected` array to have the i18n tool skip that node;
+1. Add `// @i18n-skip` inside the `expected` array to mark this node as hand-maintained;
 2. Add a normal JSON comment above the array to retain the **complete original text** for review, multilingual reference, and future restoration of complete matching after OCR engine upgrades.
 
 ```jsonc
@@ -297,16 +300,63 @@ Requirements:
 ]
 ```
 
-Default writing (recommended, automatic i18n processing):
+Default writing (recommended). This interface shows up in all five languages, so list them all:
 
 ```jsonc
 "expected": [
-    "这是一段示例内容"
+    "开始追踪",
+    "開始追蹤",
+    "(?i)Track",
+    "追跡開始",
+    "추적 시작"
 ]
 ```
 
-- English `expected` will automatically generate case-insensitive regular expressions after processing, using `\\s*` between words. For example, `Send Local Clues` → `(?i)Send\\s*Local\\s*Clues`.
-- For OCR nodes not skipped in processing, the script will automatically supplement `roi_offset` based on display width differences; nodes with `only_rec: true` are excluded.
+For a node only seen in the Simplified Chinese interface so far, write just the Simplified Chinese entry; when you later reach that interface in another language, come back and add the matching text.
+
+### Write English as a Loose Case-Insensitive Regex
+
+OCR is very unreliable about whitespace between English words: it may read several spaces, one space, or none. So do not write the English entry as plain text; write it as a case-insensitive regular expression with `\\s*` between words:
+
+1. Start the whole regex with `(?i)` to make it case-insensitive. In-game English titles are often all caps, and without `(?i)` matching fails.
+2. Replace every space in the English text with `\\s*`: in the regex it is `\s*`, and because a JSON string escapes backslashes, the file shows two of them.
+3. Copy every other character as is; in general no escaping is needed. If a regex metacharacter such as `(`, `)`, `+`, `[` or `]` does show up, escape it with a backslash.
+
+Example: `Send Local Clues` → `(?i)Send\\s*Local\\s*Clues`.
+
+Punctuation needs separate handling: OCR often misses quotes, apostrophes, dots and hyphens, so replace each of them with an optional `.`.
+
+- Apostrophe: `Friend's Price` → `(?i)Friend.?s\\s*Price`.
+- Dot: `N.A` → `(?i)N.?A`.
+- Hyphen: `Kilo-Nova` → `(?i)Kilo.?Nova`.
+- Colon: `Photo: Autumn Gold` → `(?i)Photo.?\\s*Autumn\\s*Gold`.
+
+### `roi_offset`
+
+The same text is displayed at different widths across languages, and English and Korean are usually longer than Chinese. A `roi` framed for Chinese gets its two ends cut off once the language changes. Use `roi_offset` to widen the recognition range instead of editing `roi`.
+
+The four values are added straight onto the `roi`'s `[x, y, w, h]`, in the order [left, top, right, bottom]: `x` gets the first value, `y` gets the second, **`w` gets the third** and `h` gets the fourth. The third value is an increment on the width, not on the right edge: to widen `d` pixels on the left, write `-d` as the first value and add `d` to the third value; to widen `d` pixels on each side, the third value becomes `2d`.
+
+For example, with `roi` set to `[1100, 300, 120, 40]`, to widen 60 pixels on each side: `-60` on the left, and `120` for the third value (60 left + 60 right):
+
+```jsonc
+"roi": [
+    1100,
+    300,
+    120,
+    40
+],
+"roi_offset": [
+    -60,
+    0,
+    120,
+    0
+]
+```
+
+The final recognition range is `[1040, 300, 240, 40]`: `x` moves from 1100 to 1040, the width grows from 120 to 240, and the right edge extends from 1220 to 1280. Estimate how much to widen from the actual text; as long as it does not affect the task flow, prefer a little extra margin.
+
+Nodes with `only_rec: true` need no attention: they skip text detection and recognize exactly what the `roi` frames, so widening the range does not help.
 
 ## Testing
 
