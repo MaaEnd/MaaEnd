@@ -12,13 +12,13 @@ node --test tools/pipeline-generate/MapOverview/generate.test.mjs
 
 ## 数据和命名
 
-- 数据结构为 `region01: {name: "四号谷地", area: {map01_lv001: {polygon: [...], click: [455, 478]}}}`。生成器读取地区 `name` 和 `area` 内各地图的 `click`，不保留 polygon 或来源元数据。
-- `clicks.json` 保留地区的 `name`、`area` 以及地图的 `click`；地图存在非空 `name` 时也保留，保证名称可以随点击数据一起离线使用，不维护手写地区映射。
-- 地区名称和非空 `area` 必须存在，坐标必须是 1280×720 基准下的两个整数。若数据提供 `_meta.screen_size`，必须为 `[1280, 720]`；若地图提供 `status`，必须为 `ok`。不满足时直接报错。
+- 数据结构为 `region01: {name: "四号谷地", area: {map01_lv001: {polygon: [...], click: [455, 478]}}}`。生成器读取地区 `name` 和 `area` 内各地图的 `click`，不保留 `polygon`。
+- `clicks.json` 保留地区的 `name`、`area` 以及地图的 `click`，不维护手写地区映射。
+- 地区名称和非空 `area` 必须存在，坐标必须是 1280×720 基准下的两个整数。不满足时直接报错。
 - 总览入口节点按 `__ScenePrivateMapOverview_地区key_EnterMap_地图key` 命名，例如 `__ScenePrivateMapOverview_region01_EnterMap_map01_lv001`，保留“从该地区总览进入目标地图”的语义。
 - 点击节点的 `next` 自动指向 `__ScenePrivateMapAnyEnterMap_地区key_地图key_Success`，表示已从任意地图界面进入目标地图，无需逐张地图登记。
 - 点击节点的 `desc` 使用“在四号谷地总览界面，点击进入枢纽区地图”这样的描述，地区名来自远端地区 `name`。
-- 地图名优先使用地图的可选 `name`，缺失时使用 `tools/zmdmap/data/teleport_anchors.json` 中的 `levels.<地图 key>.names.zh_cn`；名称表也没有记录时显示地图 key。该名称表由现有 zmdmap 工具链同步，无需手动补充。
+- 地图名使用 `tools/zmdmap/data/teleport_anchors.json` 中的 `levels.<地图 key>.names.zh_cn`，名称表没有记录时显示地图 key。该名称表由现有 zmdmap 工具链同步，无需手动补充。
 
 ## 流程边界
 
