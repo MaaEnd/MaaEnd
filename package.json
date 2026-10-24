@@ -24,7 +24,8 @@
         "generate:OutpostTrading": "pnpm fetch:zmdmap --only sell_product && node tools/pipeline-generate/OutpostTrading/sync-locales.mjs && node tools/pipeline-generate/OutpostTrading/selection-data.mjs && node tools/pipeline-generate/run-all.mjs OutpostTrading",
         "generate:GiftOperator": "pnpm fetch:zmdmap --only sell_product && node tools/pipeline-generate/GiftOperator/generate.mjs",
         "generate:SeizeDeliveryJobs": "pnpm fetch:zmdmap --only delivery_destinations && node tools/pipeline-generate/run-all.mjs SeizeDeliveryJobs",
-        "generate:SceneTeleport": "pnpm fetch:zmdmap --only teleport_anchors && node tools/pipeline-generate/SceneTeleport/sync-anchors.mjs && node tools/pipeline-generate/run-all.mjs SceneTeleport"
+        "generate:SceneTeleport": "pnpm fetch:zmdmap --only teleport_anchors && node tools/pipeline-generate/SceneTeleport/sync-anchors.mjs && node tools/pipeline-generate/run-all.mjs SceneTeleport",
+        "generate:AutoEssence": "pnpm fetch:zmdmap --only energy_points --only teleport_anchors && node tools/pipeline-generate/AutoEssence/sync-routes.mjs && node tools/pipeline-generate/run-all.mjs AutoEssence"
     },
     "devDependencies": {
         "@joebao/maa-pipeline-generate": "^1.3.0",
