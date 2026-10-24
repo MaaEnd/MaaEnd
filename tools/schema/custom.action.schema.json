@@ -101,6 +101,63 @@
         {
             "if": {
                 "properties": {
+                    "custom_action": {
+                        "const": "AutoSellItemExecuteItemTaskAction"
+                    }
+                },
+                "required": [
+                    "custom_action"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "region": {
+                                "enum": [
+                                    "ValleyIV",
+                                    "Wuling"
+                                ]
+                            },
+                            "moderate_price": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "large_price": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "massive_price": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "mode": {
+                                "enum": [
+                                    "friends",
+                                    "cache",
+                                    "own"
+                                ],
+                                "default": "friends"
+                            }
+                        },
+                        "required": [
+                            "region",
+                            "moderate_price",
+                            "large_price",
+                            "massive_price"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "custom_action_param"
+                ]
+            }
+        },
+        {
+            "if": {
+                "properties": {
                     "custom_action": { "const": "MapNavigateAction" }
                 },
                 "required": [

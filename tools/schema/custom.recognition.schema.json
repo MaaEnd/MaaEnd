@@ -5,6 +5,7 @@
     "properties": {
         "custom_recognition": {
             "enum": [
+                "AutoSellCacheOwnPriceRecognition",
                 "AutoFightEntryRecognition",
                 "AeroSalvageBalloonStateRecognition",
                 "AeroSalvageGridRecognition",
@@ -56,6 +57,45 @@
         }
     },
     "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "custom_recognition": {
+                        "const": "AutoSellCacheOwnPriceRecognition"
+                    }
+                },
+                "required": [
+                    "custom_recognition"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "properties": {
+                            "region": {
+                                "enum": [
+                                    "ValleyIV",
+                                    "Wuling"
+                                ]
+                            },
+                            "item_name": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        },
+                        "required": [
+                            "region",
+                            "item_name"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "custom_recognition_param"
+                ]
+            }
+        },
         {
             "if": {
                 "type": "object",

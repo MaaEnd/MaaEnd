@@ -156,5 +156,39 @@
         "focus": {
             "Node.Recognition.Succeeded": "当前区域物资为空"
         }
+    },
+    "AutoSellScanOwnValleyIVMain": {
+        "desc": "最后回本家重新扫描四号谷地剩余物资",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellScanValleyIVSwitchTab"
+        ]
+    },
+    "AutoSellScanOwnWulingMain": {
+        "desc": "最后回本家重新扫描武陵剩余物资",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellScanWulingSwitchTab"
+        ]
     }
 }
