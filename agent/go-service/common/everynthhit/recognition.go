@@ -19,15 +19,14 @@ type recognitionParam struct {
 // EveryNthHit hits once every N counted calls that share the same key, where N
 // is the every parameter. A hit clears the counter of the key, and the call
 // right after a hit is not counted, so the next cycle needs N more counted
-// calls. The task-start sink clears every counter and leaves the first call of
-// the run uncounted, so the pre-route scan does not consume an interval.
+// calls.
 type EveryNthHit struct{}
 
 var _ maa.CustomRecognitionRunner = &EveryNthHit{}
 
 // Run reports a hit when the counted calls of the key reach every, and a miss
-// otherwise. The first call of a task run and the call right after a hit are
-// not counted. Invalid parameters never panic and never hit.
+// otherwise. The call right after a hit is not counted. Invalid parameters
+// never panic and never hit.
 func (*EveryNthHit) Run(_ *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if arg == nil {
 		log.Error().Str("component", recognitionName).Msg("custom recognition arg is nil")
