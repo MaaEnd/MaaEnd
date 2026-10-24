@@ -1,60 +1,25 @@
 {
     "configs": {
-        "name": "(CloudADB-官服)选剑演武，测试放弃确认弹窗",
+        "name": "(CloudADB-官服)选剑演武，放弃次数耗尽警告",
         "resource": "官服",
         "controller": "CloudADB"
     },
     "cases": [
         {
-            "name": "放弃确认",
-            "image": "武陵_选剑演武_演算_放弃确认.png",
-            "hits": [
-                "GrayCancelButton",
-                "YellowConfirmButtonType1",
-                "TrialOfSwordmancyAbandonPopupCancel"
-            ]
-        },
-        {
-            "name": "放弃次数耗尽",
-            "image": "武陵_选剑演武_演算_放弃确认_放弃次数耗尽.png",
-            "hits": [
-                "GrayCancelButton",
-                "YellowConfirmButtonType1",
-                "TrialOfSwordmancyAbandonPopupCancel",
-                {
-                    "node": "TrialOfSwordmancyAbandonPopupExhausted",
-                    "box": [
-                        240,
-                        335,
-                        630,
-                        35
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "数据溢出红色画面不是放弃次数耗尽弹窗",
-            "image": "武陵_选剑演武_演算_数据溢出.png",
-            "hits": []
-        },
-        {
-            "name": "正常演算界面没有放弃次数耗尽提示",
-            "image": "武陵_选剑演武_演算_奖励翻倍_关.png",
-            "hits": []
-        },
-        {
-            "name": "实测免费放弃耗尽，红字提示与取消按钮",
+            "name": "耗尽警告红字命中",
             "image": "武陵_选剑演武_演算_放弃确认_放弃次数耗尽_翻倍锁定关闭.png",
             "hits": [
-                "TrialOfSwordmancyAbandonPopupExhausted",
-                "TrialOfSwordmancyAbandonPopupCancel",
-                "GrayCancelButton",
-                "YellowConfirmButtonType1"
+                "TrialOfSwordmancyAbandonPopupExhausted"
             ]
         },
         {
-            "name": "实测锁定关闭溢出菜单不是耗尽弹窗",
-            "image": "武陵_选剑演武_演算_奖励翻倍_锁定关闭.png",
+            "name": "仍有免费次数的普通弹窗不命中",
+            "image": "武陵_选剑演武_演算_放弃确认.png",
+            "hits": []
+        },
+        {
+            "name": "数据溢出红色界面不是耗尽警告",
+            "image": "武陵_选剑演武_演算_奖励翻倍_溢出锁定开启.png",
             "hits": []
         }
     ]

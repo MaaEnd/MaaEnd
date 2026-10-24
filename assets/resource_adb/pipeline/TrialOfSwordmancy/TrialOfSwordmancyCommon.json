@@ -36,11 +36,16 @@
         "template": "SceneManager/RegionalOverview/ViewPositionButton.png"
     },
     "TrialOfSwordmancyDrawCardButton": {
+        // 入场时骰子图标会旋转，识别完整按钮文字；文字框也用于既有点击流程定位。
+        "recognition": "OCR",
         "roi": [
-            1060,
-            445,
-            90,
-            95
+            1120,
+            480,
+            120,
+            45
+        ],
+        "expected": [
+            "抽取铭牌"
         ]
     },
     "TrialOfSwordmancyInRewardMode": {
@@ -88,10 +93,12 @@
         "count": 700
     },
     "TrialOfSwordmancyIsDoubled": {
+        // 每次抽牌后都会重读本局状态；第三张牌后开关锁定变灰，但已开启的翻倍仍有效。
         "recognition": {
             "type": "Or",
             "param": {
                 "any_of": [
+                    // 左侧亮白滑块：正常开启。
                     {
                         "recognition": "ColorMatch",
                         "roi": [
@@ -112,6 +119,7 @@
                         ],
                         "count": 700
                     },
+                    // 左侧灰色滑块：锁定后仍开启；同时确认演算界面，排除弹窗等画面。
                     {
                         "recognition": "And",
                         "all_of": [

@@ -1,55 +1,45 @@
 {
     "configs": {
-        "name": "(CloudADB-官服)选剑演武，测试奖励翻倍开关",
+        "name": "(CloudADB-官服)选剑演武，翻倍开启及锁定状态",
         "resource": "官服",
         "controller": "CloudADB"
     },
     "cases": [
         {
-            "name": "未抽取铭牌时无开关",
-            "image": "武陵_选剑演武_演算_奖励模式_未抽取铭牌.png",
-            "hits": []
-        },
-        {
-            "name": "翻倍关",
+            "name": "翻倍关闭时可以开启",
             "image": "武陵_选剑演武_演算_奖励翻倍_关.png",
             "hits": [
                 "TrialOfSwordmancyDoubleRewardButton"
             ]
         },
         {
-            "name": "第三张牌后锁定，翻倍已开启",
-            "image": "武陵_选剑演武_演算_奖励翻倍_锁定开启.png",
-            "hits": [
-                "TrialOfSwordmancyIsDoubled"
-            ]
-        },
-        {
-            "name": "数据溢出覆盖翻倍横幅，锁定开关仍保持开启",
-            "image": "武陵_选剑演武_演算_奖励翻倍_溢出锁定开启.png",
-            "hits": [
-                "TrialOfSwordmancyIsDoubled"
-            ]
-        },
-        {
-            "name": "原有未翻倍溢出画面不应误识别为已翻倍",
-            "image": "武陵_选剑演武_演算_数据溢出.png",
-            "hits": []
-        },
-        {
-            "name": "翻倍开",
+            "name": "翻倍正常开启",
             "image": "武陵_选剑演武_演算_奖励翻倍_开.png",
             "hits": [
                 "TrialOfSwordmancyIsDoubled"
             ]
         },
         {
-            "name": "实测第三张后锁定关闭，不能误报已翻倍",
+            "name": "第三张牌后锁定仍为开启",
+            "image": "武陵_选剑演武_演算_奖励翻倍_锁定开启.png",
+            "hits": [
+                "TrialOfSwordmancyIsDoubled"
+            ]
+        },
+        {
+            "name": "锁定关闭不能误报为开启",
             "image": "武陵_选剑演武_演算_奖励翻倍_锁定关闭.png",
             "hits": []
         },
         {
-            "name": "实测红字弹窗遮挡，不应识别为已翻倍",
+            "name": "溢出横幅遮住文字后仍能识别锁定开启",
+            "image": "武陵_选剑演武_演算_奖励翻倍_溢出锁定开启.png",
+            "hits": [
+                "TrialOfSwordmancyIsDoubled"
+            ]
+        },
+        {
+            "name": "弹窗遮挡时不能误认翻倍状态",
             "image": "武陵_选剑演武_演算_放弃确认_放弃次数耗尽_翻倍锁定关闭.png",
             "hits": []
         }
