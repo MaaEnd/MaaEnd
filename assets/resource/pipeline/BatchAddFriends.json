@@ -1236,8 +1236,11 @@
             "BatchAddFriendsFriendListFullToast",
             "BatchAddFriendsStrangersApplySentToast"
         ],
+        // 两个提示都没认到：点击可能落空，也可能申请已发出但提示没识别出来。
+        // 两种情况都无法确认，所以不做成功计数，只关名片并把这一行记入黑名单，
+        // 既避免重复挑同一行，也不给用户假的成功提示。
         "on_error": [
-            "BatchAddFriendsStrangersProfileClose"
+            "BatchAddFriendsStrangersProfileCloseUncounted"
         ]
     },
     "BatchAddFriendsStrangersProfilePage": {
@@ -1337,6 +1340,37 @@
             "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersOnAdd",
             "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileCloseUncounted": {
+        "desc": "申请结果未知时关闭名片：不计成功，只把这一行记入黑名单",
+        // 命中条件与 ProfileClose 相同，区别只在 next：
+        // 不经过 OnAdd（不增加添加成功计数），直接记拒绝并回扫。
+        // 若这一行其实已发送成功，列表里按钮会变成「等待接受」，AddButtonColumn 不会再挑它；
+        // 若点击确实落空，这一行被拉黑后也不会在本次批次里反复重试。
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddFriendsStrangersProfilePage",
+                    "BatchAddFriendsStrangersProfileCloseButton"
+                ],
+                "box_index": 1
+            }
+        },
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
+            "BatchAddFriendsStrangersRecordReject"
         ]
     },
     "BatchAddFriendsChangeBatch": {
