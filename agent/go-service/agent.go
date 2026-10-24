@@ -51,7 +51,6 @@ func runAgent(identifier string) {
 	}
 
 	registerAll()
-	beforeStart()
 
 	if err := maa.AgentServerStartUp(identifier); err != nil {
 		log.Fatal().
