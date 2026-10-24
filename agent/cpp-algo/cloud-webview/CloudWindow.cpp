@@ -9,8 +9,8 @@
 #include <MaaUtils/Logger.h>
 #include <wrl.h>
 
-#include "input_policy.h"
-#include "video_frame_policy.h"
+#include "Common/output_paths.h"
+#include "cloud_scripts.h"
 
 namespace
 {
@@ -23,6 +23,7 @@ constexpr int kViewportHeight = 720;
 
 CloudWindow::CloudWindow()
 {
+    SetUserDataFolder(common::OutputPath("agent/cloud-webview.exe.WebView2"));
     SetSystemTitleBar(true);
     SetActivateOnShow(false);
     SetURL("https://endfield.hypergryph.com/cloud");
@@ -319,36 +320,44 @@ void CloudWindow::onBeforeNavigate(std::function<void(bool)> on_done)
     const auto scripts = std::make_shared<std::unordered_map<std::string, BootstrapRequest>>();
     SubscribeDevToolsEvent("Network.requestWillBeSent", [scripts](const std::string& params) {
         const auto event = json::parse(params);
-        if (!event || event->get("type", std::string {}) != "Script") {
+        if (!event || !event->is_object() || event->get("type", std::string {}) != "Script") {
             return;
         }
-        auto source = event->at("request").get("url", std::string {});
+        const auto request_id = event->find<std::string>("requestId");
+        const auto request = event->find<json::object>("request");
+        if (!request_id || !request) {
+            return;
+        }
+        auto source = request->get("url", std::string {});
         source.erase(source.find_first_of("?#") == std::string::npos ? source.size() : source.find_first_of("?#"));
         if (source == "https://web.hycdn.cn/hg_web_sdk/lib/sdk.entry.js"
             || source == "https://web.hycdn.cn/static/js/umd/react/react@18.3.1.js"
             || source == "https://web.hycdn.cn/static/js/umd/react-dom/react-dom@18.3.1.js"
             || (source.starts_with("https://cloud-game-web-static.hycdn.cn/cloud-game/prod/") && source.ends_with(".js"))) {
-            scripts->insert_or_assign(event->at("requestId").as_string(), BootstrapRequest { std::move(source), {} });
+            scripts->insert_or_assign(*request_id, BootstrapRequest { std::move(source), {} });
         }
     });
     SubscribeDevToolsEvent("Network.responseReceived", [scripts](const std::string& params) {
         const auto event = json::parse(params);
-        if (!event) {
+        if (!event || !event->is_object()) {
             return;
         }
         const auto it = scripts->find(event->get("requestId", std::string {}));
         if (it == scripts->end()) {
             return;
         }
-        const auto& response = event->at("response");
-        it->second.response["status"] = response.get("status", 0);
-        it->second.response["mime"] = response.get("mimeType", std::string {});
-        it->second.response["disk_cache"] = response.get("fromDiskCache", false);
-        it->second.response["service_worker"] = response.get("fromServiceWorker", false);
+        const auto response = event->find<json::object>("response");
+        if (!response) {
+            return;
+        }
+        it->second.response["status"] = response->get("status", 0);
+        it->second.response["mime"] = response->get("mimeType", std::string {});
+        it->second.response["disk_cache"] = response->get("fromDiskCache", false);
+        it->second.response["service_worker"] = response->get("fromServiceWorker", false);
     });
     SubscribeDevToolsEvent("Network.responseReceivedExtraInfo", [scripts](const std::string& params) {
         const auto event = json::parse(params);
-        if (!event) {
+        if (!event || !event->is_object()) {
             return;
         }
         const auto it = scripts->find(event->get("requestId", std::string {}));
@@ -358,9 +367,12 @@ void CloudWindow::onBeforeNavigate(std::function<void(bool)> on_done)
         // ORB can reject before responseReceived. Retain only public response
         // metadata, never the complete headers or account/session information.
         it->second.response["status"] = event->get("statusCode", 0);
-        const auto& headers = event->at("headers");
+        const auto headers = event->find<json::object>("headers");
+        if (!headers) {
+            return;
+        }
         for (const auto name : { "content-type", "content-encoding", "content-length", "x-content-type-options", "server" }) {
-            for (const auto& [key, value] : headers.as_object()) {
+            for (const auto& [key, value] : *headers) {
                 auto lower = key;
                 std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c) { return std::tolower(c); });
                 if (lower == name) {
@@ -371,7 +383,7 @@ void CloudWindow::onBeforeNavigate(std::function<void(bool)> on_done)
     });
     SubscribeDevToolsEvent("Network.loadingFailed", [this, scripts](const std::string& params) {
         const auto event = json::parse(params);
-        if (!event) {
+        if (!event || !event->is_object()) {
             return;
         }
         const auto it = scripts->find(event->get("requestId", std::string {}));
@@ -398,7 +410,7 @@ void CloudWindow::onBeforeNavigate(std::function<void(bool)> on_done)
         scripts->erase(it);
     });
     SubscribeDevToolsEvent("Network.loadingFinished", [scripts](const std::string& params) {
-        if (const auto event = json::parse(params)) {
+        if (const auto event = json::parse(params); event && event->is_object()) {
             scripts->erase(event->get("requestId", std::string {}));
         }
     });

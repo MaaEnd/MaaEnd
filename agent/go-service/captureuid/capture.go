@@ -55,7 +55,7 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 	if typ == "" {
 		return captureErr(allowUnknown, "cannot determine controller type")
 	}
-	if typ != pienv.ControllerKindWin32 || pienv.ControllerName() == "Win32-CloudWeb" {
+	if typ != pienv.ControllerKindWin32 || pienv.IsCloudWebController() {
 		return captureByOCR(ctx, ctrl, stayOnCurrentScreen, allowUnknown, outputType)
 	}
 
@@ -89,7 +89,7 @@ func captureByOCR(ctx *maa.Context, ctrl *maa.Controller, stayOnCurrentScreen, a
 		return captureErr(allowUnknown, "screenshot failed: %w", err)
 	}
 	roi := maa.Rect{60, 690, 155, 25}
-	if pienv.ControllerName() == "Win32-CloudWeb" {
+	if pienv.IsCloudWebController() {
 		// The desktop stream places the complete UID at the left video edge.
 		roi = maa.Rect{0, 690, 220, 30}
 	}

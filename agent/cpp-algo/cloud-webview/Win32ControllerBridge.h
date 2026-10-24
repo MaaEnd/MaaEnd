@@ -38,6 +38,8 @@ private:
     std::mutex capture_mutex_;
     std::condition_variable_any capture_cv_;
     bool capturing_ = false;
+    bool capture_available_ = false;
+    std::atomic<bool> game_frame_ = true;
     std::chrono::steady_clock::time_point preparation_deadline_ {};
     HANDLE owner_ = nullptr;
     HANDLE task_process_ = nullptr;

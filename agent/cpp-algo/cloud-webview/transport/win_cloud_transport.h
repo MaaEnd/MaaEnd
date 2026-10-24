@@ -20,6 +20,7 @@ public:
     bool relative_move(int32_t dx, int32_t dy, int32_t buttons, int32_t modifiers) override;
 
 private:
+    bool capturePage(CloudFrame& output);
     bool send(const json::value& body);
 
     DWORD process_id_;

@@ -62,6 +62,9 @@ jobs:
       - name: Test cloud browser policies
         run: node --test agent/cpp-algo/cloud-webview/tests/*.test.mjs
 
+      - name: Test cloud startup Pipeline
+        run: uv run agent/cpp-algo/cloud-webview/tests/test_startup_pipeline.py
+
       - name: Test portable cloud controller policies
         run: |
           cmake -S agent/cpp-algo/cloud-webview/tests -B build/cloud-policy -DCMAKE_BUILD_TYPE=Release

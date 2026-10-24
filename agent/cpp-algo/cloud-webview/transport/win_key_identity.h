@@ -19,7 +19,23 @@ inline std::pair<std::string, std::string> cloud_key_identity(int32_t code)
         const auto function_key = "F" + std::to_string(code - 112 + 1);
         return { function_key, function_key };
     }
+    if (code >= 96 && code <= 105) {
+        const auto digit = std::to_string(code - 96);
+        return { digit, "Numpad" + digit };
+    }
     switch (code) {
+    case 106:
+        return { "*", "NumpadMultiply" };
+    case 107:
+        return { "+", "NumpadAdd" };
+    case 108:
+        return { ",", "NumpadComma" };
+    case 109:
+        return { "-", "NumpadSubtract" };
+    case 110:
+        return { ".", "NumpadDecimal" };
+    case 111:
+        return { "/", "NumpadDivide" };
     case 8:
         return { "Backspace", "Backspace" };
     case 27:

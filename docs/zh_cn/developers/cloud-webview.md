@@ -1,101 +1,67 @@
 # 云终末地 PC 网页支持
 
-本文说明 [Issue #6483](https://github.com/MaaEnd/MaaEnd/issues/6483) 的 Windows 网页适配。入口使用未修改的 MXU GUI，兼容代码全部位于 MaaEnd，不修改 MXU 或 MaaFramework。目前仍处于测试阶段。
+Windows 网页适配使用未修改的 MXU 和 MaaFramework，改动全部位于 MaaEnd。目前仍为兼容方案，不能视为已满足直接 CDP 控制器的评审要求。
 
-## 使用方式
+## 使用
 
-1. 安装系统 WebView2 Runtime，在原 GUI 选择云终末地网页控制器。
-2. 启用登录并启动网页的预任务，选择 PC 任务后开始。预任务打开或复用云窗口，检查账号，启动官网游戏并等待排队和首帧。
-3. 未登录时在官网自行选择扫码、手机号、密码或验证码等方式。人工登录不占用启动超时。单独登录预任务仅用于提前登录，完成后可以移除，启动仍会检查账号。
-4. 原 GUI 负责选项、预设、日志和停止。任务结束或失败时释放输入并停止桥接刷新。添加云控制器专用的结束游戏任务可关闭云窗口；关闭 GUI 也会回收关联的云窗口。下次运行由预任务重新打开。
+1. 安装系统 WebView2 Runtime，在 GUI 选择云终末地网页控制器，启用启动网页的预任务。
+2. 预任务只打开或复用窗口并绑定 GUI 生命周期。日常任务通过云资源中的 `CloudWebPrepare` 检查账号、启动游戏并等待排队和视频就绪。
+3. 未登录时在官网自行选择扫码、手机号、密码或验证码等方式，等待人工登录不消耗启动超时。也可添加单独的登录任务，确认登录后移除；该任务不会启动游戏。
+4. 停止、完成或失败均释放按键和鼠标。云控制器专用的结束游戏任务关闭云窗口，GUI 退出也会回收窗口；下次由预任务重新打开。
 
-默认直连，不继承系统代理。仅显式设置 `MAAEND_CLOUD_PROXY` 为主机与端口时使用代理。WebView2 独立登录目录为 `agent/cloud-webview.exe.WebView2/`，不要读取、提交或随测试包分发该目录。账号检测只检查公开界面，不读取 Cookie、令牌、账号字段或表单值；未知状态不算已登录。
+默认直连，不继承系统代理。仅显式设置 `MAAEND_CLOUD_PROXY=主机:端口` 时使用代理。`MAAEND_CLOUD_SOFTWARE_RENDERING=1` 禁用 GPU 合成和硬件解码，切换前须关闭已有云窗口；CPU 开销取决于视频和硬件，不能据此宣称所有无 GPU 设备均已验证。
 
-云宿主通过固定的 `--disable-features=AsyncDns` 使用系统 DNS 解析路径，保持与桌面网络配置一致；不更改系统 DNS、固定 CDN IP 或放宽证书校验。该配置仅影响云宿主的连接建立，不增加游戏输入等待，不修改滑索导入 WebView。
+登录目录继续使用 `agent/cloud-webview.exe.WebView2/`，与滑索导入窗口分离。不要读取、提交或随包分发此目录。账号检测只检查公开 DOM 状态，不读取 Cookie、令牌、账号字段或登录表单值。
 
-## 兼容桥接
+## 职责与接口
 
-`Win32-CloudWeb` 使用 MXU 已有 Win32 控制器：`PrintWindow` 截图、普通 `SendMessage` 键鼠。`agent/cpp-algo/cloud-webview/` 复用已有 `Common/WebView2` 和系统 Runtime 承载[官网](https://endfield.hypergryph.com/cloud)，提供固定 1280×720 的透明、鼠标穿透、不激活的桥接 HWND。桥接窗口和可见游戏窗口分离，消息线程与 WebView STA 分离，避免同步浏览器调用死锁。
+浏览器宿主是现有 `cpp-algo` 的独立进程模式，没有新增 `main.cpp` 或独立宿主可执行文件。`CloudHost.cpp` 只处理进程、窗口及 GUI 退出回收；初始化超时针对本次创建的进程句柄清理，不依赖尚未发布的窗口标题。
 
-游戏帧从现有视频经 WebView2 SharedBuffer 获取，不依赖画质增强，任务截图不进行 PNG 编解码。启动首帧检查仍使用视频转 PNG；无解码视频时不开放任务控制器。传输校验版本、尺寸、步长和 RGBA8 布局，将只读映射转换为 BGR8。原 Framework 的 `PrintWindow` 读取 Windows 合成表面，因此桥接在任务运行时以最高约 30 fps 更新缓存和 GDI 表面，增加像素转换及拷贝开销。准备连接时短暂刷新，任务结束后停止刷新。
+登录、开始游戏、排队和提示恢复位于 `resource_cloud_web/pipeline/SceneManager/SceneCloudWeb.json`。`CloudPageState` Custom Recognition 查询公开状态和经 DOM 命中检查的按钮位置；`CloudPageReload` 只刷新仍处于已识别失败状态的同一文档。每次操作后重新识别。结束和排队超时提示分别只确认一次，未出现按钮、未关闭或重复出现时失败；上次游戏数据处理提示有有限次数的单独退避，正常输入不增加等待。
 
-桥接复用两块图像缓冲，捕获与绘制不共享可写像素，避免每帧分配和释放；同时最多保留一条待处理的帧通知，消息线程繁忙时直接绘制最新缓存。同进程键鼠通过宿主回调发送，避免在外部串行管道中排队等待视频取帧。外部协议保留，输入事务仍串行且失败不重放，刷新频率不降低。上述优化不能消除 `PrintWindow` 和 Windows 合成表面的耗时，也不能视为已解决导航问题。
+网页脚本独立位于 `cloud-webview/scripts/`，由 CMake 在构建时嵌入，测试直接读取脚本。应用仍使用现有 C++、Go 和 WebView2，不分发 Node、Python 或其他新增语言运行时。JavaScript 仅在 WebView2 内执行。
 
-窗口消息转换为现有 CDP 输入，不使用 `Seize` 或会调整系统光标、窗口位置的输入变体。`CloudRelativeMove` Custom Action 和 C++ 导航输入回调发送 32 位相对增量，绕过 Framework 原生 Win32 相对移动的系统鼠标锁定路径；普通 PC 保留原路径。AgentServer 已有 Tasker Sink 通知任务启停并释放输入。桥接按 Framework 任务 ID 忽略迟到事件，避免上一项的结束事件暂停下一项的画面刷新。
+`CloudTransport` 返回独立持有、无行填充、从上到下的 BGR8 像素，输入使用固定 1280×720 网页空间；按键沿用 PC 虚拟键约定，文本单独使用 UTF-8。`ViewInput` 仅接受有符号 32 位相对增量。Windows HWND、管道、共享映射和生命周期实现留在平台适配层，其他桌面平台可替换这些实现；目前没有可运行的 Linux 网页宿主，Android 继续使用已有 `CloudADB`。
 
-GUI 断开 Agent 时，异步结束事件可能尚未送达，因此桥接还监视本轮 C++ Agent 进程，退出时释放输入并暂停刷新。启动准备失败时撤销桥接窗口并关闭宿主，避免 GUI 继续队列后连接到未就绪画面。桥接异常销毁也回收宿主，GUI 进程退出由关联进程监视处理。
+## 兼容桥与开销
 
-`CloudTransport`、`ViewInput` 使用标准 C++ 类型，Windows HWND、管道及共享映射位于平台适配实现。其他桌面平台可实现相应传输和输入回调，目前没有可运行的 Linux 网页宿主。Android 继续使用已有 `CloudADB` 客户端，不加载网页资源。
+原版 GUI 的 PI 没有任意 Custom Controller 入口，远程 Agent 不能替换 GUI Tasker 的控制器，因此 `Win32-CloudWeb` 仍通过透明、不激活、鼠标穿透的桥接 HWND 兼容 `PrintWindow` 与 `SendMessage`。桥接消息线程与 WebView STA 分离，输入在宿主内直接调用 CDP；外部协议保留，但不自动重放可能已生效的失败输入。
 
-## 语言与平台接口
+游戏取帧使用 `video → Canvas → WebView2 SharedBuffer → BGR → GDI → PrintWindow`，不依赖画质增强，也不逐帧编码 PNG。这条路径仍包含像素转换、拷贝和第二次位图读取，不是零拷贝或直接返回 BGR 的控制器。浏览器尚无解码视频时，使用页面 PNG 截图让 GUI 能先连接并执行启动 Pipeline；此路径最高每秒 2 帧，不作为游戏取帧的常规路径。
 
-`cloud-webview` 是 `agent/cpp-algo` 中的 C++ 构建目标，Windows 产物为 `cloud-webview.exe`，不另带 Python、Node 或其他语言的应用运行时。网页 DOM 检查与输入策略使用宿主内嵌的 JavaScript，由现有 WebView2 执行；构建安装脚本使用仓库已有的 Python，策略测试使用已有的 Node 工具链。Go 只增加云控制器专用的 UID 识别入口及本地显示设置检查豁免，不接管游戏业务流程。
+Windows 的 `PrintWindow` 可直接读取 DWM 缓存而不触发 `WM_PRINT`，现有接口不能保证每次请求都同步触发浏览器取帧。任务期间按视频最高约 30 fps 刷新；停止或完成后降为每秒 2 帧，避免预览永久停在最后一帧。这保留少量空闲开销，空闲截图可能落后约一个刷新周期；严格按需取帧和移除 GDI 中间层仍受当前 GUI 接口限制。
 
-其他桌面平台的适配边界如下，不应将 Windows 消息、句柄或进程管理扩散到导航算法：
+桥接复用两块帧缓冲，同时最多保留一个帧通知。任务 ID 和进程监视防止迟到的结束事件降低下一任务的刷新频率。停止释放输入不依赖截图刷新。
 
-1. 实现 `transport/cloud_transport.h` 的 `CloudTransport`：截图返回独立持有、无行填充、从上到下排列的 BGR8 像素；绝对坐标及相对增量使用固定 1280×720 网页空间；按键沿用 PC Pipeline 虚拟键约定，平台原生键码须在适配层转换，文本单独使用 UTF-8。返回失败的输入可能已生效，不自动重放。
-2. 在 `Common/CloudViewInput.cpp` 接入该平台的控制器识别、`CreateViewInput` 相对输入回调以及 `TaskerEvent` / `CloseActionRun` 生命周期适配。`ViewInput` 只接受有符号 32 位增量；不支持的控制器返回空回调，继续沿用原有平台后端。当前非 Windows 分支没有网页宿主实现，不能据此宣称 Linux 已支持。
-3. 提供平台浏览器宿主与 GUI 已支持的控制器之间的桥接，独立处理准备就绪、任务启停、输入释放、关闭及进程退出回收，再增加对应控制器资源绑定。`Win32ControllerBridge`、Windows 命名管道及共享映射无需照搬到其他平台。Android 不接入此网页路径。
+## 输入和显示
 
-输入状态和启动提示的通用 C++ 测试不依赖 Windows、MaaFramework 或 WebView2，可在具备 CMake 3.28 与 C++20 编译器的环境独立构建；这验证接口策略，不代表该平台 GUI 或真实云游戏已通过：
+可见窗口可主动聚焦、失焦、最小化、最大化及调整尺寸，自动操作不恢复窗口或抢占系统光标。固定 CSS 视口和 DPR，显示缩放不参与输入坐标或转向系数。失焦时屏蔽物理悬停和滚轮，主动点击后允许手动操作。云窗口拒绝指针锁定、主动 `window.focus()` 和读取剪贴板权限，不影响滑索导入窗口。
 
-```sh
-cmake -S agent/cpp-algo/cloud-webview/tests -B build/cloud-policy
-cmake --build build/cloud-policy --config Release
-ctest --test-dir build/cloud-policy -C Release -L '^cloud-policy$' --no-tests=error --output-on-failure
-```
+绝对定位抑制多余镜头增量，按住按钮的拖动保留浏览器运动量；相对输入使用明确增量。仅在自动输入确被官网浮球遮挡时，临时屏蔽浮球的 DOM 命中，发送后恢复，手动操作不受影响。滚轮保留当前目标坐标；小键盘及左右修饰键有独立映射，不支持的键记录警告，不关闭宿主。
 
-## 窗口与资源
+云网页导航使用每度 4 单位的初始水平换算，仅对云控制器生效，保留上游灵敏度观察器。测量依据上游小地图模型的镜头方位 `camRot`：120 单位的一次样本转过约 29.27°，PC 默认每度约 7.927778 单位应转约 15.14°，比值约 1.93；16 次双向样本的中位比值约 1.94。这是图像测量结果，不是 CDP 固定系数；保留模型残差，不改公共阈值或用户 DPI。
 
-用户可以主动聚焦、失焦、最小化、最大化、调整可见窗口；任务不应恢复窗口或抢回焦点。网页固定 1280×720 CSS 视口及 DPR，等比显示，最小化保留有效视口。截图和输入始终使用视频坐标，不随系统缩放改用桌面坐标。
+网页使用 PC 资源，仅追加 `resource_cloud_web`。公共 PC 业务流程、路线和阈值不变；黄色修正限于已有证据的云资源节点。
 
-官网脚本加载前拒绝 `requestPointerLock`、禁止 `window.focus()` 主动聚焦。失焦时透明子窗口屏蔽物理悬停和滚轮，主动点击后允许手动操作。相对输入使用 `movementX/Y` 并按官网 SDK 上限拆分，不移动系统光标。鼠标重置避开官网浮球；云层按场景移开遮挡后发送 Esc，中键禁止浏览器自动滚动。
+## 构建和验证
 
-官网 SDK 也会将普通鼠标移动的 `movementX/Y` 当作镜头增量。控制器在投递绝对移动前，仅为对应坐标的下一次可信事件准备零增量；未按住按钮时抑制意外转向，按住按钮的拖动保留浏览器增量，避免官网丢弃零增量的滑块或地图拖动。相对转向使用明确请求的增量，发送失败时清理待处理状态，不重放。Win32 拖动消息也会更新所有按住按钮的坐标，松手使用终点。真实用户移动保持浏览器原值。绝对移动因此增加一次页面调用，相对输入的调用次数不变。网页策略测试覆盖绝对定位、拖动、相对转向、无关事件和取消后的手动输入。
-
-自动鼠标输入前检查实际 DOM 命中。仅当播放中的视频被官网浮球容器遮挡时，临时将该容器设为 `inert`，投递原始坐标的 CDP 输入后恢复原状态；相对输入整批共用保护。无遮挡输入不更改浮球，也不增加恢复调用。启动、暂停和结束页面保留官网控件，用户手动操作仍可使用菜单。视频帧不含官网浮球，因此不能只凭任务截图判断 DOM 是否拦截点击。
-
-网页输入的水平转向单位与原生 PC 不同。原地双向测量中，沿用 PC 默认值会使转角接近两倍，因此云导航采用每度 4 单位的初始水平换算，上游灵敏度观察器仍可校正用户设置造成的偏差。此初值仅在识别到云桥时使用，不改变普通 PC、绝对点击坐标或手动输入，也不调整上游校正阈值。俯仰尚无独立测量，保持原值。
-
-测量使用上游 `MapLocateRecognition` 从左上角小地图估计的镜头方位 `camRot`，不是角色箭头的 `rot`，也不读取游戏内存。角色原地不动，每次发送已知水平增量，再计算输入前后方位的有符号环形差。例如 120 单位输入前后为 14.933613° 与 44.199921°，估计转角约 29.27°；PC 默认约 7.927778 单位/度对应约 15.14°，比值约 1.93。16 次双向样本的比值中位数约 1.94，这是当前网页输入链的图像测量结果，不是 CDP 的固定系数；模型误差、画面稳定性及用户设置都限制其精度。
-
-这里的单位属于固定网页输入空间，不是宿主窗口的物理像素。官网 SDK 将水平增量按 `round(movementX × gameWidth / round(screen.width × devicePixelRatio) × SDK 鼠标倍率)` 转换；宿主将分母固定为 1280。因此自动水平转向按 `目标角度 × 4 × 现有灵敏度校正量` 换算，不再乘桌面分辨率、窗口宽度或 Windows 的 100%/125%/150% 缩放比例。显示缩放单独使用 `s = 16 × max(1, min(floor(客户区宽 / 16), floor(客户区高 / 9))) / 1280`，并同步设置 WebView 原生光栅比例及 CDP 显示比例；这不是额外的转向系数。若以后改变网页 CSS 视口、DPR 或 SDK 输入映射，必须重新验证该边界，不能直接沿用初值。
-
-网页加载 PC `resource`，仅追加 `resource_cloud_web`，不加载 Android 资源。公共业务 Pipeline 和 Go Service 保留原流程。自动采集复用 PC 定位、转向、拾取。黄色修正限于云资源的具体节点，不全局校色或放宽全部阈值。滑索导入仍使用 `cpp-algo` 的独立 WebView，云窗口策略和生命周期不作用于导入窗口。
-
-启动预任务针对官网公开状态恢复：上次数据处理中时确认对应消息的「知道了」，待首页恢复再申请启动；页面完成加载后，明确的启动脚本失败先刷新一次，依赖仍失败时再绕过浏览器缓存刷新一次，随后仍失败则退出。仅在这些失败路径中分别退避 1 秒、2 秒，期间持续检查页面状态，网站自行恢复或进入登录等其他状态时取消刷新，避免连续命中同一段网络故障。网页自行重载成功的资源会清除对应旧错误，加载中、登录、排队和游戏启动状态不因旧资源错误被刷新。空闲结束和排队超时各确认一次；文字先出现、按钮尚不可点时，在固定的 10 秒边界内等待按钮就绪，确认后另给 10 秒观察弹窗消失，轮询不延长边界，重复弹窗明确失败。诊断仅包含公开启动资源的路径、Chromium 错误及响应类型等白名单元数据，不记录请求头、响应正文或账号会话信息。恢复过程不关闭浏览器安全校验，不清理登录目录，不重放输入，不修改游戏业务流程，正常游戏输入没有新增等待。
-
-## 构建与验证
-
-按[开发环境](./tools-and-debug.md)准备依赖后构建：
+按[开发环境](./tools-and-debug.md)准备依赖，构建现有 Agent：
 
 ```powershell
 uv run build-and-install --cpp-algo
 ```
 
-开发时可单独构建 `cloud-webview`。宿主创建前设置 `MAAEND_CLOUD_SOFTWARE_RENDERING=1`，可禁用 GPU 合成和硬件解码；切换前关闭已有云窗口。软件模式不更换控制器或资源，CPU 开销仍随视频及硬件变化，不能据此宣称所有无 GPU 设备均已验证。
-
-通用输入和启动策略可使用前述独立 CMake 命令验证。完整 Agent 工程配置 `MAAEND_BUILD_CLOUD_WEBVIEW_TESTS=ON` 后，还提供使用原版 Toolkit 和 Framework 的 Windows 桥接测试：
+C++ Agent 与随附 DLL 按整组替换，任何文件被占用或复制失败时恢复旧组；回滚失败保留备份并报告路径。
 
 ```sh
-# 在构建目录执行；多配置生成器按实际配置调整 -C。
-ctest -C Release -L '^cloud-policy$' --no-tests=error --output-on-failure
-ctest -C Release -L '^cloud-desktop$' --no-tests=error --output-on-failure
-# 在仓库根目录执行。
 node --test agent/cpp-algo/cloud-webview/tests/*.test.mjs
+uv run agent/cpp-algo/cloud-webview/tests/test_startup_pipeline.py
 uv run python -m unittest tools.setup.test_setup_workspace
+cmake -S agent/cpp-algo/cloud-webview/tests -B build/cloud-policy
+cmake --build build/cloud-policy --config Release
+ctest --test-dir build/cloud-policy -C Release -L '^cloud-policy$' --no-tests=error --output-on-failure
 ```
 
-`cloud-desktop` 需要启用 DWM 的空闲交互桌面，运行期间不要操作鼠标或切换焦点；它覆盖枚举、连续截图、点击、Esc、Unicode、拖动终点、相对输入、停止释放及重启，不替代官网实测。实测任务需同时连接现有 Go Service。
+完整 Agent 工程配置 `MAAEND_BUILD_CLOUD_WEBVIEW_TESTS=ON` 后，还可运行 `ctest -C Release -L '^cloud-desktop$' --no-tests=error --output-on-failure`。该测试使用原版 Framework 和 Toolkit，需要启用 DWM 的空闲交互桌面，覆盖连续截图、空闲低频刷新、滚轮、按键、拖动、停止释放及重开。启动 Pipeline 测试在真实 Framework 中运行实际节点，浏览器状态由隔离的测试控制器提供，不能替代官网实测。
 
-开发环境安装兼容尚未包含云宿主的旧版上游 C++ Agent 产物；包含 `cloud-webview.exe` 的产物必须同时提供 `WebView2Loader.dll` 和 `MaaUtils.dll`，缺失时在替换文件前失败。
-
-## 验证边界
-
-当前兼容桥的实际重测中，普通路线一连续两次、普通路线二一次自然到达终点并关闭云窗口；普通路线二覆盖最小化、最大化、失焦恢复及物理指针掠过。官网浮球遮挡奖励退出的修复通过隔离 WebView2 输入回归。这些结果对应具体路线和输入场景，不代表完整日常已全部通过；旧独立任务 GUI 的结果也不能替代当前兼容桥的验证。
-
-真实持续 125%/150% DPI、多桌面分辨率、多显示器、QQ/微信截图和低端 CPU 仍需补测。短暂达到高 DPI 后回落到 96 的样本无效；必须核对每个正式样本的实际窗口 DPI。转角来自小地图模型估计，仍有残差，不应另叠加未经验证的固定系数。
-
-兼容桥存在持续刷新、像素转换和 `PrintWindow` 合成表面读取开销。缓冲复用和输入直达仅优化对应阶段，不代表整条识别链路、CPU 或导航稳定性已改善。最终包须分别核验变化帧、空闲开销、输入延迟、窗口操作、任务取消、重开及 GUI 退出回收。
-
-识别回归用例使用 `tests/MaaEndTestset` 子模块。若素材来自尚未合并的配套提交，须先协调测试集再合入主仓；禁止在缺图时静默跳过云用例。不要提交或分发含其他窗口、UID、账号信息的截图、运行日志和浏览器数据。
+持续 125%/150% DPI、多显示器、第三方截图、低端 CPU 及当前架构的完整日常仍需分别核验。既有路线样本和旧独立 GUI 测试不能替代重构后的验证。测试集来自 `tests/MaaEndTestset` 子模块；不得提交含其他窗口、UID、账号信息的截图或运行日志。

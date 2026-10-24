@@ -1,13 +1,13 @@
 {
     "SceneAnyEnterWorld": {
         "next": [
+            "[JumpBack]CloudWebPrepare",
             "[JumpBack]__ScenePrivateCloudWebReconnect",
             "__ScenePrivateCloseADBExit",
             "__ScenePrivateMenuListLoadingEnterWorld",
             "__ScenePrivateMenuListEnterWorld",
             "__ScenePrivateTrialOfSwordmancyEnterWorld",
             "__ScenePrivateAnyEnterWorldSuccess",
-            "[JumpBack]__ScenePrivateCloudWebStartGame",
             "[JumpBack]__ScenePrivateLogin",
             "[JumpBack]SceneNoticeRewardsUpgrade",
             "[JumpBack]SceneNoticeRewardsConfirm",

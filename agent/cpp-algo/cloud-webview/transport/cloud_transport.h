@@ -31,6 +31,8 @@ struct CloudFrame
 {
     int32_t width = 0;
     int32_t height = 0;
+    // Website preparation can use a page image before decoded video exists.
+    bool game_frame = true;
     // Packed, top-down BGR8: width * height * 3 bytes, without row padding.
     // The adapter owns capture synchronization; output must not alias a buffer
     // still being written by the host after capture returns.

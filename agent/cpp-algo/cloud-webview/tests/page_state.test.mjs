@@ -3,9 +3,7 @@ import {readFileSync} from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 
-const source = readFileSync(new URL("../CloudBridge.cpp", import.meta.url), "utf8");
-const script = source.match(/constexpr char kPageState\[\] = R"JS\(([\s\S]*?)\)JS";/)?.[1];
-assert.ok(script);
+const script = readFileSync(new URL("../scripts/page_state.js", import.meta.url), "utf8");
 
 function inspect({
     text = "",

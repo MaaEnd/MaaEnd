@@ -52,7 +52,8 @@
                 "SeizeDeliveryJobsFindTargetRecognition",
                 "SeizeDeliveryJobsScanTargetRecognition",
                 "autoEcoFarmCalculateSwipeTarget",
-                "autoEcoFarmFindNearestRecognitionResult"
+                "autoEcoFarmFindNearestRecognitionResult",
+                "CloudPageState"
             ]
         }
     },
@@ -536,6 +537,50 @@
                 "required": [ "custom_recognition_param" ],
                 "properties": {
                     "custom_recognition_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/PriorityItemRecognitionParam" }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_recognition": {
+                        "const": "CloudPageState"
+                    }
+                },
+                "required": [
+                    "custom_recognition"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "match": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": [
+                                        "string",
+                                        "boolean",
+                                        "number"
+                                    ]
+                                }
+                            },
+                            "target": {
+                                "enum": [
+                                    "start_target",
+                                    "session_busy_confirm_target",
+                                    "ended_confirm_target",
+                                    "queue_timeout_confirm_target"
+                                ]
+                            },
+                            "changed_from": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        }
+                    }
                 }
             }
         }

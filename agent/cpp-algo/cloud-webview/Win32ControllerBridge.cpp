@@ -6,6 +6,7 @@
 #include <MaaUtils/Logger.h>
 #include <windowsx.h>
 
+#include "transport/win_key_identity.h"
 #include "win32_bridge_protocol.h"
 
 using namespace cloud::win32bridge;
@@ -22,7 +23,7 @@ constexpr auto kFrameInterval = std::chrono::milliseconds(33);
 
 Win32ControllerBridge::Win32ControllerBridge(CloudTransport& transport, std::function<void()> close_host)
     : transport_(transport)
-    , input_(transport_)
+    , input_(transport_, [](const char* message) { LogError << message; })
     , close_host_(std::move(close_host))
 {
     std::promise<bool> ready;
@@ -146,6 +147,7 @@ bool Win32ControllerBridge::RefreshFrame()
     }
     {
         std::lock_guard lock(frame_mutex_);
+        game_frame_.store(next_frame_.game_frame);
         std::swap(frame_, next_frame_);
     }
     return true;
@@ -156,6 +158,7 @@ void Win32ControllerBridge::SetCapturing(bool enabled)
     {
         std::lock_guard lock(capture_mutex_);
         capturing_ = enabled;
+        capture_available_ = capture_available_ || enabled;
     }
     capture_cv_.notify_all();
 }
@@ -164,8 +167,10 @@ void Win32ControllerBridge::CaptureFrames(std::stop_token stop)
 {
     try {
         std::unique_lock lock(capture_mutex_);
-        while (capture_cv_.wait(lock, stop, [this] { return capturing_; })) {
-            const auto next = std::chrono::steady_clock::now() + kFrameInterval;
+        while (!stop.stop_requested() && capture_cv_.wait(lock, stop, [this] { return capture_available_; })) {
+            const bool active = capturing_;
+            const auto next =
+                std::chrono::steady_clock::now() + (active && game_frame_.load() ? kFrameInterval : std::chrono::milliseconds(500));
             lock.unlock();
             const bool ok = RefreshFrame();
             if (const auto hwnd = hwnd_.load()) {
@@ -181,8 +186,9 @@ void Win32ControllerBridge::CaptureFrames(std::stop_token stop)
             lock.lock();
             if (!ok) {
                 capturing_ = false;
+                capture_available_ = false;
             }
-            capture_cv_.wait_until(lock, stop, next, [this] { return !capturing_; });
+            capture_cv_.wait_until(lock, stop, next, [this, active] { return capturing_ != active; });
         }
     }
     catch (const std::exception& error) {
@@ -202,7 +208,7 @@ LRESULT Win32ControllerBridge::HandleMessage(HWND hwnd, UINT message, WPARAM wpa
         // event reaches their sinks. Process lifetime also covers cancellation
         // and agent crashes without requiring any change to the GUI.
         if (task_process_ && WaitForSingleObject(task_process_, 0) == WAIT_OBJECT_0) {
-            LogInfo << "Cloud task owner exited; pausing frame bridge";
+            LogInfo << "Cloud task owner exited; reducing frame refresh";
             CloseHandle(task_process_);
             task_process_ = nullptr;
             SetCapturing(false);
@@ -346,6 +352,10 @@ LRESULT Win32ControllerBridge::HandleMessage(HWND hwnd, UINT message, WPARAM wpa
     case WM_SYSKEYDOWN:
     case WM_KEYUP:
     case WM_SYSKEYUP:
+        if (cloud_key_identity(static_cast<int32_t>(wparam)).first.empty()) {
+            LogWarn << "Unsupported cloud key" << VAR(wparam);
+            return 0;
+        }
         ok = input_.key(static_cast<int32_t>(wparam), message == WM_KEYDOWN || message == WM_SYSKEYDOWN);
         break;
     case WM_CHAR: {

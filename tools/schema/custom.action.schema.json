@@ -95,7 +95,8 @@
                 "ZiplineImport",
                 "autoEcoFarmInterruptibleSleep",
                 "autoEcoFarmOverrideTargetTemplate",
-                "autoEcoFarmResetSwipeState"
+                "autoEcoFarmResetSwipeState",
+                "CloudPageReload"
             ]
         }
     },
@@ -439,7 +440,32 @@
 				},
 				"required": [ "custom_action_param" ]
 			}
-		}
+		},
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {
+                        "const": "CloudPageReload"
+                    }
+                },
+                "required": [
+                    "custom_action"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "ignore_cache": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        }
 	],
     "if": {
         "type": "object",

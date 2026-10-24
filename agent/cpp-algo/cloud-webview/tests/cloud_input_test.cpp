@@ -84,13 +84,25 @@ int main()
         { 161, "Shift", "ShiftRight" },
         { 163, "Control", "ControlRight" },
         { 165, "Alt", "AltRight" },
+        { 96, "0", "Numpad0" },
+        { 97, "1", "Numpad1" },
+        { 105, "9", "Numpad9" },
+        { 106, "*", "NumpadMultiply" },
+        { 107, "+", "NumpadAdd" },
+        { 108, ",", "NumpadComma" },
+        { 109, "-", "NumpadSubtract" },
+        { 110, ".", "NumpadDecimal" },
+        { 111, "/", "NumpadDivide" },
     };
     for (const auto& [value, key, code] : mapped_keys) {
         expect(cloud_key_identity(value) == std::pair { key, code }, code.c_str());
     }
     expect(cloud_key_identity(-1).first.empty() && cloud_key_identity(255).first.empty(), "unknown keys are rejected");
     RecordingTransport transport;
-    CloudInput input(transport);
+    const auto report_error = [](const char* message) {
+        std::cerr << message << '\n';
+    };
+    CloudInput input(transport, report_error);
     expect(input.touchDown(-1, 100, 200) && input.touchUp(-1) && transport.mouse_events.empty(), "hover cannot press a button");
     expect(input.touchMove(-1, 100, 200) && transport.mouse_events.back().buttons == 0, "hover moves with no held buttons");
     expect(!input.touchDown(31, 0, 0) && !input.touchMove(-2, 0, 0) && !input.touchUp(3), "invalid contacts cannot be shifted");
@@ -120,6 +132,10 @@ int main()
         input.scroll(0, 100) && transport.mouse_events.back().buttons == 1 && transport.mouse_events.back().modifiers == 8,
         "scroll retains held buttons and modifiers");
     expect(
+        input.touchMove(-1, 231, 381) && input.scroll(0, 100) && transport.mouse_events.back().x == 231
+            && transport.mouse_events.back().y == 381,
+        "scroll retains the Pipeline target in the left panel");
+    expect(
         input.releaseAll() && transport.mouse_events.back().buttons == 0 && std::get<1>(transport.key_events.back()) == false,
         "inactive releases every key and button");
     const auto idle_events = transport.mouse_events.size() + transport.key_events.size();
@@ -136,7 +152,7 @@ int main()
             && std::get<0>(transport.key_events.back()) == 27 && !std::get<1>(transport.key_events.back()),
         "uncertain presses can still be released after a transport failure");
     {
-        CloudInput temporary(transport);
+        CloudInput temporary(transport, report_error);
         temporary.touchDown(0, 12, 34);
         temporary.key('A', true);
     }

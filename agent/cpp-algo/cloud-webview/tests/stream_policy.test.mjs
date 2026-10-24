@@ -3,9 +3,7 @@ import {readFileSync} from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 
-const source = readFileSync(new URL("../input_policy.h", import.meta.url), "utf8");
-const script = source.match(/LR"JS\(([\s\S]*?)\)JS";/)?.[1];
-assert.ok(script);
+const script = readFileSync(new URL("../scripts/input_policy.js", import.meta.url), "utf8");
 
 for (const gpu of [
     false,

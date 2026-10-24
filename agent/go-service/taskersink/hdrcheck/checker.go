@@ -25,7 +25,7 @@ func (c *HDRChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, det
 	}
 	// Shared video frames do not include desktop HDR or the local client's
 	// Auto HDR setting. Those checks would warn about an unrelated game.
-	if pienv.ControllerName() == "Win32-CloudWeb" {
+	if pienv.IsCloudWebController() {
 		return
 	}
 

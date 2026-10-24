@@ -9,6 +9,7 @@
 #include <MaaFramework/MaaAPI.h>
 #include <MaaToolkit/MaaToolkitAPI.h>
 
+#include "Common/CloudRelativeMoveParam.h"
 #include "Common/CloudViewInput.h"
 #include "Win32ControllerBridge.h"
 #include "transport/win_cloud_transport.h"
@@ -84,7 +85,24 @@ int main(int argc, char** argv)
         Sleep(500);
         return 0;
     }
+    std::cout << std::unitbuf;
     try {
+        const auto parse_move = [](const char* params) {
+            return cloud::ParseRelativeMove(*json::parse(params), std::pair { 10, 20 });
+        };
+        Check(parse_move(R"({"dx":-4,"dy":7})") == std::pair { -4, 7 }, "relative deltas rejected");
+        Check(parse_move(R"({"begin":[3,4]})") == std::pair { 7, 16 }, "relative origin rejected");
+        for (const auto params : {
+                 R"({"begin":[1,2],"dx":3,"dy":4})",
+                 R"({"begin":[1,2],"extra":0})",
+                 R"({"dx":1,"dy":2,"extra":0})",
+                 R"({"dx":1})",
+                 R"({"dx":2147483648,"dy":0})",
+                 R"({"dx":0.5,"dy":0})",
+                 R"({"begin":[-2147483648,0]})",
+             }) {
+            Check(!parse_move(params), "relative move accepted invalid Schema parameters");
+        }
         SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
         std::vector<std::string> local_operations;
         bool accepted = true;
@@ -120,6 +138,7 @@ int main(int argc, char** argv)
             },
             reinterpret_cast<LPARAM>(&hwnd));
         Check(hwnd != nullptr, "bridge window absent");
+        Check(SendMessageW(hwnd, WM_KEYDOWN, 255, 0) == 0 && IsWindow(hwnd), "unsupported key closed the host");
         auto windows = MaaToolkitDesktopWindowListCreate();
         Check(MaaToolkitDesktopWindowFindAll(windows), "Toolkit enumeration failed");
         bool found = false;
@@ -181,6 +200,16 @@ int main(int argc, char** argv)
         Check(
             press.action == CloudMouseAction::Press && press.x == 1001 && press.y == 613 && press.buttons == 1,
             "click coordinate or button mismatch");
+        const auto scroll_resource = MaaResourceCreate();
+        Check(scroll_resource && MaaResourceClear(scroll_resource), "scroll resource initialization failed");
+        Check(MaaTaskerBindResource(tasker, scroll_resource), "scroll resource binding failed");
+        const auto scroll_task = MaaTaskerPostTask(
+            tasker,
+            "TestScroll",
+            R"({"TestScroll":{"action":{"type":"Scroll","param":{"target":[231,381],"dy":-120}},"pre_delay":0,"post_delay":0}})");
+        Check(MaaTaskerWait(tasker, scroll_task) == MaaStatus_Succeeded, "Pipeline scroll failed");
+        const auto& wheel = transport.mouse_events.back();
+        Check(wheel.action == CloudMouseAction::Wheel && wheel.x == 231 && wheel.y == 381, "wheel target was replaced by screen center");
         wait(MaaControllerPostSwipe(ctrl, 1025, 575, 1180, 575, 200));
         const auto& release = transport.mouse_events.back();
         Check(
@@ -198,14 +227,17 @@ int main(int argc, char** argv)
         wait(MaaControllerPostKeyDown(ctrl, 87));
         cloud::TaskerEvent(tasker, "Tasker.Task.Failed", R"({"task_id":1})", nullptr);
         Check(transport.keys.back() == std::pair<int32_t, bool> { 87, false }, "cancel left key held");
-        // Allow the single in-flight capture to settle, then idle must do no work.
+        // DWM PrintWindow reads a cached surface. Keep idle previews changing
+        // at 2 fps rather than freezing them at the completed task's last frame.
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         const auto idle_captures = transport.captures.load();
-        std::this_thread::sleep_for(std::chrono::milliseconds(150));
-        Check(transport.captures.load() == idle_captures, "idle bridge still captures");
+        std::this_thread::sleep_for(std::chrono::milliseconds(1100));
+        Check(transport.captures.load() > idle_captures, "idle preview froze");
+        Check(transport.captures.load() <= idle_captures + 3, "idle preview refresh was not throttled");
+        wait(MaaControllerPostScreencap(ctrl));
         cloud::TaskerEvent(tasker, "Tasker.Task.Starting", R"({"task_id":2})", nullptr);
         std::this_thread::sleep_for(std::chrono::milliseconds(120));
-        Check(transport.captures.load() > idle_captures, "restart did not resume captures");
+        Check(transport.captures.load() > idle_captures, "restart did not restore active captures");
         // Reentrant AgentServer RPC can deliver an older end after the next
         // start. It must neither stop captures nor release the new task's hold.
         wait(MaaControllerPostKeyDown(ctrl, 87));
@@ -221,7 +253,7 @@ int main(int argc, char** argv)
         cloud::TaskerEvent(tasker, "Tasker.Task.Starting", R"({"task_id":2})", nullptr);
         cloud::TaskerEvent(tasker, "Tasker.Task.Starting", R"({"task_id":1})", nullptr);
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
-        Check(transport.captures.load() == completed_captures, "delayed start resumed a completed task");
+        Check(transport.captures.load() <= completed_captures + 1, "delayed start resumed active captures for a completed task");
         wchar_t executable[32768] {};
         Check(GetModuleFileNameW(nullptr, executable, static_cast<DWORD>(std::size(executable))), "test executable unavailable");
         std::wstring command = L"\"" + std::wstring(executable) + L"\" --bridge-owner";
@@ -242,13 +274,14 @@ int main(int argc, char** argv)
         Check(transport.keys.back() == std::pair<int32_t, bool> { 87, false }, "agent exit left key held");
         const auto exited_captures = transport.captures.load();
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
-        Check(transport.captures.load() == exited_captures, "agent exit left frame capture running");
+        Check(transport.captures.load() <= exited_captures + 1, "agent exit left active frame capture running");
         POINT after {};
         GetCursorPos(&after);
         Check(before.x == after.x && before.y == after.y, "bridge moved system cursor");
         Check(GetForegroundWindow() == foreground, "bridge stole foreground");
         MaaImageBufferDestroy(image);
         MaaTaskerDestroy(tasker);
+        MaaResourceDestroy(scroll_resource);
         MaaControllerDestroy(ctrl);
         std::cout << "Unmodified Toolkit + Framework bridge integration passed.\n";
     }

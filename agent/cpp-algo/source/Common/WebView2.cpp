@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <memory>
 #include <system_error>
 
 #include <objbase.h>
@@ -78,7 +79,7 @@ std::wstring utf8ToWide(const std::string& src)
 // 保留 agent/<exe>.WebView2 的原有布局，以启动工作目录为根目录。
 // GetModuleFileNameW 仅用于获取 exe 文件名；失败时返回空路径，
 // 调用方回退到 nullptr 让 SDK 自己处理。
-std::filesystem::path redirect_user_data_folder()
+std::filesystem::path redirect_user_data_folder(const std::filesystem::path& requested)
 {
     wchar_t exe_buf[MAX_PATH] = {};
     DWORD len = GetModuleFileNameW(nullptr, exe_buf, MAX_PATH);
@@ -89,6 +90,9 @@ std::filesystem::path redirect_user_data_folder()
 
     std::filesystem::path udf = common::OutputPath("agent") / std::filesystem::path(exe_buf).filename();
     udf += L".WebView2";
+    if (!requested.empty()) {
+        udf = requested;
+    }
 
     std::error_code ec;
     std::filesystem::create_directories(udf, ec);
@@ -144,6 +148,15 @@ void WebView2::SetURL(std::string url)
         return;
     }
     initial_url_ = std::move(url);
+}
+
+void WebView2::SetUserDataFolder(std::filesystem::path folder)
+{
+    if (GetHwnd()) {
+        LogWarn << "WebView2: user data folder must be set before Open";
+        return;
+    }
+    user_data_folder_ = std::move(folder);
 }
 
 void WebView2::SetClearWebData(bool enabled)
@@ -257,7 +270,7 @@ void WebView2::initializeWebView()
 
     // 必须在 CreateCoreWebView2EnvironmentWithOptions 之前完成；已经创建过的
     // environment 不会回头读环境变量。详见 redirect_user_data_folder 注释。
-    const std::filesystem::path udf = redirect_user_data_folder();
+    const std::filesystem::path udf = redirect_user_data_folder(user_data_folder_);
     const wchar_t* udf_param = udf.empty() ? nullptr : udf.c_str();
 
     using Microsoft::WRL::Callback;
@@ -673,9 +686,21 @@ void WebView2::SubscribeDevToolsEvent(std::string method, std::function<void(std
                         LogWarn << "WebView2: devtools event without parameters" << VAR(method);
                         return S_OK;
                     }
-                    std::string params_json = wideToUtf8(params);
-                    CoTaskMemFree(params);
-                    on_event(std::move(params_json));
+                    const auto release = [](wchar_t* value) {
+                        CoTaskMemFree(value);
+                    };
+                    const std::unique_ptr<wchar_t, decltype(release)> owned_params(params, release);
+                    try {
+                        on_event(wideToUtf8(owned_params.get()));
+                    }
+                    catch (const std::exception& error) {
+                        LogError << "WebView2: devtools event handler failed" << VAR(method) << error.what();
+                        return E_FAIL;
+                    }
+                    catch (...) {
+                        LogError << "WebView2: devtools event handler failed with unknown exception" << VAR(method);
+                        return E_FAIL;
+                    }
                     return S_OK;
                 })
                 .Get(),

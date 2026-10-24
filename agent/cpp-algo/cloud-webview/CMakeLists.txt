@@ -1,35 +1,35 @@
-add_executable(cloud-webview
-    main.cpp
-    CloudWindow.cpp
-    CloudBridge.cpp
-    Win32ControllerBridge.cpp
-    transport/win_cloud_transport.cpp
-    cloud_protocol.cpp
-    ../source/Common/FramelessWindow.cpp
-    ../source/Common/WebView2.cpp
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/scripts/input_policy.js" kInputPolicy)
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/scripts/capture_video_png.js" kCaptureVideoPng)
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/scripts/capture_video_frame.js" kCaptureVideoFrame)
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/scripts/page_state.js" kPageState)
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/scripts/diagnostics.js" kDiagnostics)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/input_policy.js"
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/capture_video_png.js"
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/capture_video_frame.js"
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/page_state.js"
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/diagnostics.js"
 )
-target_include_directories(cloud-webview PRIVATE ../source ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(cloud-webview PRIVATE MaaUtils WebView2::WebView2 ${OpenCV_LIBS})
+configure_file(cloud_scripts.h.in cloud_scripts.h @ONLY)
+
+# The existing C++ Agent hosts the browser in a separate process mode. No
+# additional executable or entry point is installed.
+target_sources(cpp-algo PRIVATE
+    CloudHost.cpp CloudWindow.cpp CloudBridge.cpp Win32ControllerBridge.cpp
+    transport/win_cloud_transport.cpp cloud_protocol.cpp)
+target_link_libraries(cpp-algo PRIVATE crypt32)
+target_include_directories(cpp-algo PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 if(MSVC)
-    # Layered child windows require a Windows 8+ compatibility declaration.
-    target_sources(cloud-webview PRIVATE cloud-webview.manifest)
+    target_sources(cpp-algo PRIVATE cloud-webview.manifest)
 endif()
-add_custom_command(TARGET cloud-webview POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "$<TARGET_FILE:WebView2::WebView2>"
-        "$<TARGET_FILE_DIR:cloud-webview>"
-    VERBATIM)
-install(TARGETS cloud-webview RUNTIME DESTINATION agent)
-# The pre-task is also launched outside MXU's MaaFramework DLL search path.
 install(FILES "$<TARGET_FILE:MaaUtils>" DESTINATION agent)
-install(IMPORTED_RUNTIME_ARTIFACTS WebView2::WebView2 RUNTIME DESTINATION agent)
 
 if(MAAEND_BUILD_CLOUD_WEBVIEW_TESTS)
     add_executable(cloud-win32-bridge-test
         tests/win32_bridge_test.cpp Win32ControllerBridge.cpp transport/win_cloud_transport.cpp
         cloud_protocol.cpp ../source/Common/CloudViewInput.cpp)
     target_include_directories(cloud-win32-bridge-test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../source)
-    target_link_libraries(cloud-win32-bridge-test PRIVATE MaaUtils MaaFramework::MaaFramework MaaFramework::MaaToolkit ${OpenCV_LIBS})
+    target_link_libraries(cloud-win32-bridge-test PRIVATE MaaUtils MaaFramework::MaaFramework MaaFramework::MaaToolkit ${OpenCV_LIBS} crypt32)
     if(MSVC)
         target_compile_options(cloud-win32-bridge-test PRIVATE /utf-8)
     endif()

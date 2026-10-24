@@ -1,5 +1,7 @@
 #pragma once
 
+#include <filesystem>
+
 #ifdef _WIN32
 
 #include "FramelessWindow.h"
@@ -57,6 +59,7 @@ public:
     // 在首次导航前清空网页数据（Cookie 与站点存储）。
     // 仅在 Open() 之前调用有效；清理失败时 Open() 返回 false，避免继续使用旧登录态。
     void SetClearWebData(bool enabled);
+    void SetUserDataFolder(std::filesystem::path folder);
 
     // 启用 Chromium 触屏仿真（通过 CDP 的 Emulation.setTouchEmulationEnabled）。
     // 启用后 navigator/document 会上报具备触屏，document.createEvent("TouchEvent") 不再抛异常。
@@ -114,6 +117,7 @@ protected:
     ICoreWebView2Controller* GetController() const noexcept { return controller_.Get(); }
 
 private:
+    std::filesystem::path user_data_folder_;
     void initializeWebView();
     void onEnvironmentCreated(HRESULT result, ICoreWebView2Environment* env);
     void onControllerCreated(HRESULT result, ICoreWebView2Controller* controller);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iostream>
+#include <functional>
 #include <map>
 #include <mutex>
 #include <set>
@@ -13,8 +13,9 @@
 class CloudInput
 {
 public:
-    explicit CloudInput(CloudTransport& transport)
+    CloudInput(CloudTransport& transport, std::function<void(const char*)> report_error)
         : transport_(transport)
+        , report_error_(std::move(report_error))
     {
     }
 
@@ -22,11 +23,11 @@ public:
     {
         try {
             if (!releaseAll()) {
-                std::cerr << "Could not release all cloud controller input during cleanup.\n";
+                report_error_("Could not release all cloud controller input during cleanup");
             }
         }
         catch (...) {
-            std::cerr << "Cloud controller input cleanup failed.\n";
+            report_error_("Cloud controller input cleanup failed");
         }
     }
 
@@ -44,6 +45,7 @@ public:
         for (auto& [held_contact, position] : contacts_) {
             position = { x, y };
         }
+        pointer_ = { x, y };
         contacts_[contact] = { x, y };
         return transport_.mouse({ CloudMouseAction::Press, x, y, buttons(), 0, 0, contact, modifiers() });
     }
@@ -60,6 +62,7 @@ public:
         for (auto& [held_contact, position] : contacts_) {
             position = { x, y };
         }
+        pointer_ = { x, y };
         return transport_.mouse({ CloudMouseAction::Move, x, y, buttons(), 0, 0, -1, modifiers() });
     }
 
@@ -94,7 +97,7 @@ public:
     bool scroll(int32_t dx, int32_t dy)
     {
         std::lock_guard lock(mutex_);
-        return transport_.mouse({ CloudMouseAction::Wheel, 640, 360, buttons(), dx, dy, -1, modifiers() });
+        return transport_.mouse({ CloudMouseAction::Wheel, pointer_.first, pointer_.second, buttons(), dx, dy, -1, modifiers() });
     }
 
     bool releaseAll()
@@ -161,7 +164,9 @@ private:
     }
 
     CloudTransport& transport_;
+    std::function<void(const char*)> report_error_;
     std::mutex mutex_;
     std::map<int32_t, std::pair<int32_t, int32_t>> contacts_;
+    std::pair<int32_t, int32_t> pointer_ { 640, 360 };
     std::set<int32_t> keys_;
 };

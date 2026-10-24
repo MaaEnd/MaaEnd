@@ -3,9 +3,9 @@
         "controller": [
             "Win32-CloudWeb"
         ],
-        "exec": "agent/cloud-webview",
+        "exec": "agent/cpp-algo",
         "args": [
-            "--prepare"
+            "--cloud-launch"
         ],
         "name": "LaunchCloudWeb",
         "label": "$pretask.LaunchCloudWeb.label"

@@ -1,0 +1,10 @@
+#pragma once
+
+namespace cloud
+{
+inline constexpr wchar_t kInputPolicy[] = LR"MAASCRIPT(@kInputPolicy@)MAASCRIPT";
+inline constexpr char kCaptureVideoPng[] = R"MAASCRIPT(@kCaptureVideoPng@)MAASCRIPT";
+inline constexpr char kCaptureVideoFrame[] = R"MAASCRIPT(@kCaptureVideoFrame@)MAASCRIPT";
+inline constexpr char kPageState[] = R"MAASCRIPT(@kPageState@)MAASCRIPT";
+inline constexpr char kDiagnostics[] = R"MAASCRIPT(@kDiagnostics@)MAASCRIPT";
+} // namespace cloud

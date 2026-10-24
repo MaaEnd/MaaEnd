@@ -9,7 +9,9 @@
                     121,
                     48
                 ],
-                "expected": ["开始游戏"]
+                "expected": [
+                    "开始游戏"
+                ]
             }
         },
         "pre_delay": 0,
@@ -26,12 +28,531 @@
                     102,
                     39
                 ],
-                "expected": ["用户中心"]
+                "expected": [
+                    "用户中心"
+                ]
             }
         },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "CloudWebPrepare": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "stream",
+                        "video_ready": true
+                    }
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "anchor": {
+            "CloudWebReturn": "__ScenePrivateCloudWebAwait"
+        },
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "__ScenePrivateCloudWebAwait"
+        ]
+    },
+    "__ScenePrivateCloudWebAwait": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 60000,
+        "rate_limit": 500,
+        "next": [
+            "__ScenePrivateCloudWebReady",
+            "__ScenePrivateCloudWebWaitLogin",
+            "__ScenePrivateCloudWebWaitQueue",
+            "__ScenePrivateCloudWebWaitStarting",
+            "__ScenePrivateCloudWebStartGameDom",
+            "__ScenePrivateCloudWebReload",
+            "__ScenePrivateCloudWebReloadUncached",
+            "__ScenePrivateCloudWebEnded",
+            "__ScenePrivateCloudWebQueueTimeout",
+            "__ScenePrivateCloudWebSessionBusy"
+        ]
+    },
+    "__ScenePrivateCloudWebReady": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "stream",
+                        "video_ready": true
+                    }
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 500
+    },
+    "__ScenePrivateCloudWebWaitLogin": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "account": "signed_out"
+                    }
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "[Anchor]CloudWebReturn"
+        ]
+    },
+    "__ScenePrivateCloudWebWaitQueue": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "queue"
+                    }
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "[Anchor]CloudWebReturn"
+        ]
+    },
+    "__ScenePrivateCloudWebWaitStarting": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "starting"
+                    }
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "[Anchor]CloudWebReturn"
+        ]
+    },
+    "__ScenePrivateCloudWebEnded": {
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "ended"
+                    }
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 10000,
+        "rate_limit": 500,
+        "next": [
+            "__ScenePrivateCloudWebEndedConfirm"
+        ]
+    },
+    "__ScenePrivateCloudWebEndedConfirm": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "ended"
+                    },
+                    "target": "ended_confirm_target"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "timeout": 10000,
+        "rate_limit": 500,
+        "next": [
+            "__ScenePrivateCloudWebEndedDismissed"
+        ]
+    },
+    "__ScenePrivateCloudWebEndedDismissed": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "ended"
+                    }
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 10000,
+        "rate_limit": 500,
+        "next": [
+            "[Anchor]CloudWebReturn"
+        ]
+    },
+    "__ScenePrivateCloudWebQueueTimeout": {
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "queue_timeout"
+                    }
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 10000,
+        "rate_limit": 500,
+        "next": [
+            "__ScenePrivateCloudWebQueueTimeoutConfirm"
+        ]
+    },
+    "__ScenePrivateCloudWebQueueTimeoutConfirm": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "queue_timeout"
+                    },
+                    "target": "queue_timeout_confirm_target"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "timeout": 10000,
+        "rate_limit": 500,
+        "next": [
+            "__ScenePrivateCloudWebQueueTimeoutDismissed"
+        ]
+    },
+    "__ScenePrivateCloudWebQueueTimeoutDismissed": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "queue_timeout"
+                    }
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 10000,
+        "rate_limit": 500,
+        "next": [
+            "[Anchor]CloudWebReturn"
+        ]
+    },
+    "__ScenePrivateCloudWebSessionBusy": {
+        "max_hit": 10,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "session_busy"
+                    }
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 10000,
+        "rate_limit": 500,
+        "next": [
+            "__ScenePrivateCloudWebSessionBusyConfirm"
+        ]
+    },
+    "__ScenePrivateCloudWebSessionBusyConfirm": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "session_busy"
+                    },
+                    "target": "session_busy_confirm_target"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "timeout": 10000,
+        "rate_limit": 500,
+        "next": [
+            "__ScenePrivateCloudWebSessionBusyDismissed"
+        ]
+    },
+    "__ScenePrivateCloudWebSessionBusyDismissed": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "session_busy"
+                    }
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 5000,
+        "timeout": 10000,
+        "rate_limit": 500,
+        "next": [
+            "[Anchor]CloudWebReturn"
+        ]
+    },
+    "__ScenePrivateCloudWebReload": {
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "startup_resource_failed": true
+                    }
+                }
+            }
+        },
+        "pre_delay": 1000,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CloudPageReload",
+                "custom_action_param": {
+                    "ignore_cache": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "timeout": 15000,
+        "rate_limit": 500,
+        "next": [
+            "__ScenePrivateCloudWebReloadNavigated",
+            "__ScenePrivateCloudWebResourceRecovered"
+        ]
+    },
+    "__ScenePrivateCloudWebReloadNavigated": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "changed_from": "__ScenePrivateCloudWebReload"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 15000,
+        "rate_limit": 500,
+        "next": [
+            "[Anchor]CloudWebReturn"
+        ]
+    },
+    "__ScenePrivateCloudWebReloadUncached": {
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "startup_resource_failed": true
+                    }
+                }
+            }
+        },
+        "pre_delay": 2000,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CloudPageReload",
+                "custom_action_param": {
+                    "ignore_cache": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "timeout": 15000,
+        "rate_limit": 500,
+        "next": [
+            "__ScenePrivateCloudWebReloadUncachedNavigated",
+            "__ScenePrivateCloudWebResourceRecovered"
+        ]
+    },
+    "__ScenePrivateCloudWebReloadUncachedNavigated": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "changed_from": "__ScenePrivateCloudWebReloadUncached"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 15000,
+        "rate_limit": 500,
+        "next": [
+            "[Anchor]CloudWebReturn"
+        ]
+    },
+    "__ScenePrivateCloudWebResourceRecovered": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "startup_resource_failed": false
+                    }
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "[Anchor]CloudWebReturn"
+        ]
+    },
+    "CloudWebLogin": {
+        "enabled": true,
+        "pre_delay": 0,
+        "anchor": {
+            "CloudWebReturn": "__ScenePrivateCloudWebLoginAwait"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateCloudWebLoginAwait"
+        ]
+    },
+    "__ScenePrivateCloudWebLoginAwait": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 60000,
+        "rate_limit": 500,
+        "next": [
+            "__ScenePrivateCloudWebSignedIn",
+            "__ScenePrivateCloudWebWaitLogin",
+            "__ScenePrivateCloudWebReload",
+            "__ScenePrivateCloudWebReloadUncached"
+        ]
+    },
+    "__ScenePrivateCloudWebSignedIn": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "account": "signed_in"
+                    }
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 500
+    },
+    "__ScenePrivateCloudWebStartGameDom": {
+        "max_hit": 12,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "landing",
+                        "account": "signed_in"
+                    },
+                    "target": "start_target"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "timeout": 60000,
+        "rate_limit": 500,
+        "next": [
+            "__ScenePrivateCloudWebStartAcceptedDom"
+        ]
+    },
+    "__ScenePrivateCloudWebStartAcceptedDom": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CloudPageState",
+                "custom_recognition_param": {
+                    "match": {
+                        "page": "landing"
+                    }
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 60000,
+        "rate_limit": 500,
+        "next": [
+            "[Anchor]CloudWebReturn"
+        ]
     },
     "__ScenePrivateCloudWebStartGame": {
         "recognition": {
@@ -45,15 +566,23 @@
             }
         },
         "pre_delay": 0,
-        "action": {"type": "Click"},
+        "action": {
+            "type": "Click"
+        },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": ["__ScenePrivateCloudWebStartAccepted"]
+        "next": [
+            "__ScenePrivateCloudWebStartAccepted"
+        ]
     },
     "__ScenePrivateCloudWebStartAccepted": {
         "recognition": {
             "type": "And",
-            "param": {"all_of": ["__ScenePrivateCloudWebStartButton"]}
+            "param": {
+                "all_of": [
+                    "__ScenePrivateCloudWebStartButton"
+                ]
+            }
         },
         "inverse": true,
         "pre_delay": 0,

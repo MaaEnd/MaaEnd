@@ -8,6 +8,7 @@
 #include <meojson/json.hpp>
 
 #include "../utils.h"
+#include "CloudRelativeMoveParam.h"
 
 #ifdef _WIN32
 #include "../../cloud-webview/win32_bridge_protocol.h"
@@ -60,18 +61,6 @@ BridgeMessage GetBridge(MaaController* controller)
 }
 #endif
 
-bool Int32(const json::value& value, int32_t& output)
-{
-    if (!value.is_number()) {
-        return false;
-    }
-    const auto number = value.as_long_long();
-    if (number < std::numeric_limits<int32_t>::min() || number > std::numeric_limits<int32_t>::max()) {
-        return false;
-    }
-    output = static_cast<int32_t>(number);
-    return true;
-}
 } // namespace
 
 ViewInput CreateViewInput(MaaController* controller)
@@ -155,22 +144,15 @@ MaaBool MAA_CALL RelativeMoveActionRun(
         if (!parsed || !parsed->is_object()) {
             return false;
         }
-        int32_t dx = 0, dy = 0;
-        if (parsed->contains("begin")) {
-            const auto& begin = parsed->at("begin");
-            int32_t x = 0, y = 0;
-            if (!begin.is_array() || begin.as_array().size() != 2 || !box || reco_id == MaaInvalidId || !Int32(begin[0], x)
-                || !Int32(begin[1], y) || !Int32(json::value(int64_t(box->x) - x), dx) || !Int32(json::value(int64_t(box->y) - y), dy)) {
-                return false;
-            }
-        }
-        else if (!parsed->contains("dx") || !parsed->contains("dy") || !Int32(parsed->at("dx"), dx) || !Int32(parsed->at("dy"), dy)) {
+        const auto target = box && reco_id != MaaInvalidId ? std::make_optional(std::pair { box->x, box->y }) : std::nullopt;
+        const auto move = ParseRelativeMove(*parsed, target);
+        if (!move || !context) {
             return false;
         }
         auto tasker = MaaContextGetTasker(context);
         auto controller = tasker ? MaaTaskerGetController(tasker) : nullptr;
         const auto send = CreateViewInput(controller);
-        return send && send(dx, dy);
+        return send && send(move->first, move->second);
     }
     catch (const std::exception& error) {
         LogError << "Invalid cloud relative move" << error.what();

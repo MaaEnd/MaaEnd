@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <system_error>
 #include <thread>
 
@@ -10,7 +11,11 @@
 #include <MaaFramework/Global/MaaGlobal.h>
 #include <MaaUtils/Platform.h>
 
+#include "Common/CloudPage.h"
 #include "Common/CloudViewInput.h"
+#ifdef _WIN32
+#include "../cloud-webview/CloudHost.h"
+#endif
 #include "Common/CrashHandler.h"
 #include "Common/MacAppHost.h"
 #include "Common/ParentProcessWatcher.h"
@@ -32,7 +37,7 @@ namespace
 {
 constexpr const char* kLogDir = "debug/cpp-algo/debug";
 
-bool initialize_logging()
+bool initialize_logging(const char* output_dir = kLogDir)
 {
     bool logging = true;
     MaaLoggingLevel stdout_level = MaaLoggingLevel_Error;
@@ -71,7 +76,7 @@ bool initialize_logging()
     }
 
     // AgentServer 只支持日志选项，图像保存等配置由主进程负责。
-    std::string log_dir = logging ? MAA_NS::path_to_utf8_string(common::OutputPath(MAA_NS::path(kLogDir))) : "";
+    std::string log_dir = logging ? MAA_NS::path_to_utf8_string(common::OutputPath(MAA_NS::path(output_dir))) : "";
     if (!MaaGlobalSetOption(MaaGlobalOption_LogDir, log_dir.data(), log_dir.size())) {
         std::cerr << "Failed to set AgentServer LogDir" << std::endl;
         return false;
@@ -106,9 +111,16 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    if (!initialize_logging()) {
+    const bool cloud_command = std::string_view(argv[1]).starts_with("--cloud-");
+    if (!initialize_logging(cloud_command ? "debug/cloud-webview/debug" : kLogDir)) {
         return -1;
     }
+
+#ifdef _WIN32
+    if (cloud_command) {
+        return cloud::HostCommand(argc, argv);
+    }
+#endif
 
     // 转储落到 maafw.log 同一目录，报 issue 打包日志时会一并带上。
     common::InstallCrashHandler(common::OutputPath(MAA_NS::path(kLogDir)));
@@ -137,6 +149,8 @@ int main(int argc, char** argv)
     MaaAgentServerRegisterCustomRecognition("IconRecognition", iconrecognition::IconRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapFind", worldmap::MapFindRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
+    MaaAgentServerRegisterCustomRecognition("CloudPageState", cloud::PageStateRun, nullptr);
+    MaaAgentServerRegisterCustomAction("CloudPageReload", cloud::PageReloadRun, nullptr);
     MaaAgentServerRegisterCustomAction("CloudRelativeMove", cloud::RelativeMoveActionRun, nullptr);
     MaaAgentServerRegisterCustomAction("CloseCloudWeb", cloud::CloseActionRun, nullptr);
     MaaAgentServerAddTaskerSink(cloud::TaskerEvent, nullptr);

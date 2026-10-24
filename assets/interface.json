@@ -220,7 +220,7 @@
     "import": [
         // pretask
         "tasks/pretasks/LaunchGamePC.json",
-        "tasks/pretasks/LoginCloudWeb.json",
+        "tasks/LoginCloudWeb.json",
         "tasks/pretasks/LaunchCloudWeb.json",
         // group: regional_development
         "tasks/OutpostTrading.json",

@@ -1,0 +1,11 @@
+{
+    "task": [
+        {
+            "name": "LoginCloudWeb",
+            "label": "$task.LoginCloudWeb.label",
+            "entry": "CloudWebLogin",
+            "group": ["other_menu"],
+            "controller": ["Win32-CloudWeb"]
+        }
+    ]
+}

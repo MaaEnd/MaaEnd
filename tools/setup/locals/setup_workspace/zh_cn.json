@@ -71,6 +71,7 @@
     "inf_delete_old_file": "[INF] 正在尝试删除旧文件: {path}",
     "err_cannot_delete_mxu": "[!] 无法删除 {name}，请确保该程序已完全退出。",
     "err_unknown_error_delete_file": "[ERR] 删除文件时发生未知错误: {error}",
+    "err_runtime_rollback": "[!] 无法回滚 {path}。旧文件备份保留在 {backup}: {error}",
     "err_user_declined_replace": "[!] 用户取消替换文件: {path}",
     "inf_extract_install_mxu": "[INF] 解压并安装 MXU...",
     "inf_updated_file": "[INF] 已更新: {name}",

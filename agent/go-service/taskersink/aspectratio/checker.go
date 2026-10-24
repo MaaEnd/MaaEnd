@@ -301,7 +301,7 @@ func isNonADBResolutionOK(width, height int32) (bool, bool, bool, int, int) {
 func trySwitchFullscreenToWindowedAndRecheck(controller *maa.Controller, detail maa.TaskerTaskDetail, width, height int32) (int32, int32, bool) {
 	// Cloud frames have a fixed video viewport; native registry settings and
 	// Alt+Enter cannot correct them and must not change the user's window.
-	if pienv.ControllerName() == "Win32-CloudWeb" {
+	if pienv.IsCloudWebController() {
 		return width, height, false
 	}
 	if runtime.GOOS != "windows" {
@@ -416,7 +416,7 @@ var sendAltEnterWindowsImpl = func(*maa.Controller) (resolutionReader, error) {
 // stopIfFullscreenIllegal 在 PC 全屏时校验游戏设置里的分辨率。
 // 全屏截图是显示器尺寸，不能代表游戏内分辨率；读不到注册表时交给截图检测。
 func (c *AspectRatioChecker) stopIfFullscreenIllegal(tasker *maa.Tasker, controllerDisplay string, detail maa.TaskerTaskDetail) bool {
-	if runtime.GOOS != "windows" || pienv.ControllerName() == "Win32-CloudWeb" {
+	if runtime.GOOS != "windows" || pienv.IsCloudWebController() {
 		return false
 	}
 
