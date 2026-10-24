@@ -170,51 +170,6 @@
             "BatchAddFriendsUIDLoopTop"
         ]
     },
-    "BatchAddFriendsHasAddButtonStranger": {
-        "desc": "存在添加好友按钮（陌生人列表）",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "BatchAddfriendsAddFriendButtonColor",
-                    "BatchAddfriendsAddFriendTextColor",
-                    "BatchAddfriendsAddFriendText"
-                ],
-                "box_index": 2
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "BatchAddFriendsAddStrangersLoop",
-            "BatchAddFriendsStrangersEnd"
-        ]
-    },
-    "BatchAddFriendsClickAddButtonStranger": {
-        "desc": "点击添加好友（陌生人列表）",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "BatchAddfriendsAddFriendButtonColor",
-                    "BatchAddfriendsAddFriendTextColor",
-                    "BatchAddfriendsAddFriendText"
-                ],
-                "box_index": 2
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "post_wait_freezes": 200,
-        "next": [
-            "BatchAddFriendsFriendListFullToast",
-            "BatchAddFriendsStrangersOnAdd"
-        ]
-    },
     "BatchAddfriendsAddFriendButtonColor": {
         "recognition": {
             "type": "ColorMatch",
@@ -279,51 +234,6 @@
                 "threshold": 0.7
             }
         }
-    },
-    "BatchAddFriendsStrangersOnAdd": {
-        "desc": "陌生人添加进度",
-        "recognition": "DirectHit",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BatchAddFriendsStrangersOnAddAction"
-            }
-        },
-        "next": [
-            "BatchAddFriendsStrangersStart",
-            "BatchAddFriendsStrangersEnd"
-        ]
-    },
-    "BatchAddFriendsSwipeList": {
-        "desc": "陌生人列表向下滑",
-        "recognition": "DirectHit",
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    640,
-                    560
-                ],
-                "end": [
-                    640,
-                    220
-                ],
-                "end_hold": 200
-            }
-        },
-        "post_wait_freezes": 500,
-        "next": [
-            "BatchAddFriendsStrangersAfterSwipe"
-        ]
-    },
-    "BatchAddFriendsStrangersAfterSwipe": {
-        "desc": "下滑后再次尝试添加，否则换一批",
-        "recognition": "DirectHit",
-        "next": [
-            "BatchAddFriendsHasAddButtonStranger",
-            "BatchAddFriendsChangeBatch",
-            "BatchAddFriendsStrangersEnd"
-        ]
     },
     "BatchAddFriendsHandleSearchResult": {
         "desc": "处理搜索结果",
@@ -514,38 +424,744 @@
         }
     },
     "BatchAddFriendsStrangersStart": {
-        "desc": "陌生人批量添加入口",
+        "desc": "陌生人批量添加入口：先过数量闸门，未达上限则进入扫描，达到上限直接结束",
+        // 陌生人模式的第一个节点。只做数量闸门：还有名额就进 AddStrangersLoop（它带 max_hit），
+        // 名额用尽时 max_hit 已满、该节点被跳过，于是落到 StrangersEnd 直接收工。
+        // 只有「添加成功」这条回路会再次经过这里，所以名额只被真正添加消耗。
         "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "BatchAddFriendsHasAddButtonStranger",
-            "BatchAddFriendsSwipeList",
+            "BatchAddFriendsAddStrangersLoop",
             "BatchAddFriendsStrangersEnd"
         ]
     },
     "BatchAddFriendsAddStrangersLoop": {
-        "desc": "陌生人批量添加计数",
-        "max_hit": 20,
+        "desc": "陌生人添加计数并驱动扫描；命中一次代表本次添加占用一个名额，上限由任务选项注入",
+        // 计数节点，max_hit 由 Go 的 BatchAddFriendsAction 按 MaxCount 注入。
+        // 只有「添加成功」会回到本节点，因此一次命中就代表加到了一个人。
+        // 挑到人就进 PickRow，挑不到就换一批。
         "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "BatchAddFriendsClickAddButtonStranger"
+            "BatchAddFriendsStrangersPickRow",
+            "BatchAddFriendsChangeBatch"
         ]
     },
-    "BatchAddFriendsChangeBatch": {
-        "desc": "换一批",
+    "BatchAddFriendsStrangersScan": {
+        "desc": "拒绝/换批后的再扫描调度：不经过计数节点，因此不消耗添加名额",
+        // 不计数的调度节点：被拒绝或换一批之后从这里重新开始扫描。
+        // 与 AddStrangersLoop 的唯一区别是它不在计数回路上，因此不消耗名额。
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchAddFriendsStrangersPickRow",
+            "BatchAddFriendsChangeBatch"
+        ]
+    },
+    "BatchAddFriendsStrangersOnAdd": {
+        "desc": "陌生人添加进度",
+        // Go 侧记录进度（BatchAddFriendsStrangersOnAddAction）后回到计数节点，形成添加回路。
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsStrangersOnAddAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchAddFriendsAddStrangersLoop",
+            "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsStrangersAddButtonColumn": {
+        "desc": "陌生人列表按钮列：命中项即「可添加」的行，order_by 保证取最上面那行",
+        // 已申请过的行按钮会变成「等待接受」，不匹配 expected，天然被排除。
+        // 本节点只负责定位行，不点击；点击点由 PickRow 识别器换算成头像坐标。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                // 高度覆盖到最底一行：收窄 ROI 会漏掉第 5 个人。
+                "roi": [
+                    1145,
+                    145,
+                    135,
+                    470
+                ],
+                "expected": [
+                    // 已确认原文：添加好友 / 新增好友 / Add Friend / フレンド追加 / 친구 추가。
+                    "添加好友",
+                    "新增好友",
+                    "(?i)Add\\s*Friend",
+                    "フレンド追加",
+                    "친구 추가"
+                ],
+                "threshold": 0.7,
+                "order_by": "Vertical"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "BatchAddFriendsStrangersPickRow": {
+        "desc": "挑选最上面一个「未被拒绝」的可添加行，点击其头像展开菜单",
+        // 识别器内部会：跑按钮列 OCR → 跳过黑名单里的行 → 返回该行头像的点击框。
+        // 黑名单按「按钮框 y」记录（列表不滚动，位置稳定），换一批时清空。
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "BatchAddFriendsStrangersPickRowRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "pre_wait_freezes": 100,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        // 兜底：点头像之后 4 秒内没等到菜单（MenuViewProfile）或名片（ProfileReady），
+        // 说明这一击没打开任何东西，多半是列表里其实已经没人可加了、但按钮列 OCR
+        // 还残留着「添加好友」的误读。此时不能干等，直接去换一批。
+        "timeout": 4000,
+        "rate_limit": 0,
+        "next": [
+            "BatchAddFriendsStrangersMenuViewProfile",
+            "BatchAddFriendsStrangersProfileReady"
+        ],
+        "on_error": [
+            "BatchAddFriendsChangeBatch"
+        ]
+    },
+    "BatchAddFriendsStrangersResetMenu": {
+        "desc": "开局清理：列表页若残留二级菜单，先点「查看个人名片」把它带走",
+        // 任务开始时列表可能残留上一次留下的头像菜单。此时点头像只会关闭菜单，
+        // 后续点击与识别全部错位。这里只在开局跑一次：命中菜单项就点开名片，
+        // 再由 ResetMenuClose 关掉，既不判定也不记黑名单。
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    1151,
-                    648,
-                    55,
-                    26
+                    2,
+                    50,
+                    434,
+                    639
                 ],
                 "expected": [
+                    // 已确认原文：查看个人名片 / 查看個人名片 / View Profile / 個人情報 / 개인 명함 보기。
+                    "查看个人名片",
+                    "查看個人名片",
+                    "View Profile",
+                    "個人情報",
+                    "개인 명함 보기"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "pre_delay": 0,
+        "pre_wait_freezes": 100,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "timeout": 3000,
+        "on_error": [
+            "BatchAddFriendsStrangersStart"
+        ],
+        "next": [
+            "BatchAddFriendsStrangersResetMenuClose"
+        ]
+    },
+    "BatchAddFriendsStrangersResetMenuClose": {
+        "desc": "清理残留菜单时打开的名片：直接关掉，不做任何判定",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddFriendsStrangersProfileReady",
+                    "BatchAddFriendsStrangersProfileCloseButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "pre_wait_freezes": 100,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "timeout": 8000,
+        "on_error": [
+            "BatchAddFriendsStrangersScan"
+        ],
+        "next": [
+            "BatchAddFriendsStrangersStart"
+        ]
+    },
+    "BatchAddFriendsStrangersMenuViewProfile": {
+        "desc": "头像菜单里点「查看个人名片」",
+        // 菜单是弹在头像附近的上下文菜单，位置随点击点浮动，故 ROI 取宽一些。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                // 菜单跟随被点击的行弹出，纵向位置不固定，因此 ROI 覆盖左侧整片区域。
+                // 文案「查看个人名片」足够独特，放宽 ROI 不会误匹配。
+                "roi": [
+                    2,
+                    50,
+                    434,
+                    639
+                ],
+                "expected": [
+                    // 已确认原文：查看个人名片 / 查看個人名片 / View Profile / 個人情報 / 개인 명함 보기。
+                    "查看个人名片",
+                    "查看個人名片",
+                    "View Profile",
+                    "個人情報",
+                    "개인 명함 보기"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "pre_delay": 0,
+        "pre_wait_freezes": 100,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "on_error": [
+            "BatchAddFriendsStrangersScan"
+        ],
+        "next": [
+            "BatchAddFriendsStrangersProfileReady"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileReady": {
+        "desc": "名片页已打开：以「权限等级」图标为标志",
+        // 图标只在名片页出现、形状固定。
+        // 它同时给「申请好友」和「关闭 X」提供布局锚点。
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    150,
+                    280,
+                    120,
+                    60
+                ],
+                "template": "BatchAddFriends/authorityLevel.png",
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "on_error": [
+            "BatchAddFriendsStrangersScan"
+        ],
+        "next": [
+            "BatchAddFriendsStrangersProfileAuthorityLevel"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileAuthorityLevel": {
+        "desc": "读名片页「权限等级」的数值",
+        // ROI 覆盖图标右侧的数值区，内容是纯数字，与语言无关。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    335,
+                    304,
+                    34,
+                    22
+                ],
+                "expected": [
+                    // "60"
+                    // @i18n-skip
+                    "^\\d{1,2}$"
+                ],
+                "threshold": 0.5
+            }
+        },
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "BatchAddFriendsStrangersProfileValleyIVIcon",
+            "BatchAddFriendsStrangersProfileValleyIVLevel",
+            "BatchAddFriendsStrangersProfileWulingIcon",
+            "BatchAddFriendsStrangersProfileWulingLevel",
+            "BatchAddFriendsStrangersProfileAuthorityGate",
+            "BatchAddFriendsStrangersProfileRejectLogAuthority"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileValleyIVIcon": {
+        "desc": "定位「地区建设概况 · 四号谷地」的图标",
+        // 用图标定位而不是写死坐标：版本更新挪位置时，数值 ROI 会跟着图标走。
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    100,
+                    500,
+                    400,
+                    120
+                ],
+                "template": "BatchAddFriends/valleyIV.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "on_error": [
+            "BatchAddFriendsStrangersProfileReject"
+        ],
+        "next": [
+            "BatchAddFriendsStrangersProfileValleyIVLevel"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileValleyIVLevel": {
+        "desc": "读「四号谷地」的地区等级数值",
+        // ROI 挂在图标节点上：图标 [186,553,41,26] 加上偏移后覆盖 [275,534,41,36]，
+        // 该范围完整包住数字区 [279,540,33,24]。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "BatchAddFriendsStrangersProfileValleyIVIcon",
+                "roi_offset": [
+                    89,
+                    -19,
+                    41,
+                    36
+                ],
+                "expected": [
+                    // 等级由 OCR 实时读取，不预设任何具体数值。
+                    // 文本可能带「LV.」「等级」等前后缀，因此只要求含数字，
+                    // 再由 ocrnum 解析出数值。
+                    // @i18n-skip
+                    ".*\\d+.*"
+                ],
+                "threshold": 0.4
+            }
+        },
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "BatchAddFriendsStrangersProfileWulingIcon",
+            "BatchAddFriendsStrangersProfileAuthorityGate",
+            "BatchAddFriendsStrangersProfileRejectLogAuthority"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileWulingIcon": {
+        "desc": "定位「地区建设概况 · 武陵」的图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    100,
+                    500,
+                    400,
+                    120
+                ],
+                "template": "BatchAddFriends/wuling.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "on_error": [
+            "BatchAddFriendsStrangersProfileReject"
+        ],
+        "next": [
+            "BatchAddFriendsStrangersProfileWulingLevel"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileWulingLevel": {
+        "desc": "读「武陵」的地区等级数值",
+        // ROI 挂在图标节点上：图标 [322,553,34,27] 加上偏移后覆盖 [408,534,45,38]，
+        // 该范围完整包住数字区 [412,540,37,26]。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "BatchAddFriendsStrangersProfileWulingIcon",
+                "roi_offset": [
+                    86,
+                    -19,
+                    45,
+                    38
+                ],
+                "expected": [
+                    // 等级由 OCR 实时读取，不预设任何具体数值。
+                    // 文本可能带「LV.」「等级」等前后缀，因此只要求含数字，
+                    // 再由 ocrnum 解析出数值。
+                    // @i18n-skip
+                    ".*\\d+.*"
+                ],
+                "threshold": 0.4
+            }
+        },
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "BatchAddFriendsStrangersProfileAuthorityGate",
+            "BatchAddFriendsStrangersProfileRejectLogAuthority"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileQualify": {
+        "desc": "全部门槛通过：去点「申请好友」",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "BatchAddFriendsStrangersProfileAddFriend"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileAuthorityGate": {
+        "desc": "权限等级区间闸门（表达式由「权限等级限制」选项注入）",
+        // 兜底必须是「权限等级」自己的日志：本闸门不命中才轮到它。
+        "recognition": "DirectHit",
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "BatchAddFriendsStrangersProfileValleyGate",
+            "BatchAddFriendsStrangersProfileRejectLogValley"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileValleyGate": {
+        "desc": "四号谷地建设等级区间闸门",
+        // 四号谷地不命中 → 走四号谷地自己的日志。
+        "recognition": "DirectHit",
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "BatchAddFriendsStrangersProfileWulingGate",
+            "BatchAddFriendsStrangersProfileRejectLogWuling"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileWulingGate": {
+        "desc": "武陵建设等级区间闸门",
+        // 武陵不命中 → 走武陵自己的日志；通过则去点申请好友。
+        "recognition": "DirectHit",
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "BatchAddFriendsStrangersProfileWarEcho",
+            "BatchAddFriendsStrangersProfileRejectLogWarEcho"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileRejectLogAuthority": {
+        "desc": "「batchaddfriends.level.authority」不达标时输出诊断并跳过该玩家",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "BatchAddFriendsStrangersRejectLogRecognition",
+                "custom_recognition_param": {
+                    "failed": "batchaddfriends.level.authority",
+                    "echo": false
+                }
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsStrangersProfileReject"
+        ],
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "BatchAddFriendsStrangersProfileRejectLogValley": {
+        "desc": "「batchaddfriends.level.valleyIV」不达标时输出诊断并跳过该玩家",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "BatchAddFriendsStrangersRejectLogRecognition",
+                "custom_recognition_param": {
+                    "failed": "batchaddfriends.level.valleyIV",
+                    "echo": false
+                }
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsStrangersProfileReject"
+        ],
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "BatchAddFriendsStrangersProfileRejectLogWuling": {
+        "desc": "「batchaddfriends.level.wuling」不达标时输出诊断并跳过该玩家",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "BatchAddFriendsStrangersRejectLogRecognition",
+                "custom_recognition_param": {
+                    "failed": "batchaddfriends.level.wuling",
+                    "echo": false
+                }
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsStrangersProfileReject"
+        ],
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "BatchAddFriendsStrangersProfileWarEcho": {
+        "desc": "「战争回响增辉」标识检查：开关未开启时直接通过",
+        // 默认 DirectHit = 恒通过。任务选项「战争回响增辉」打开时，
+        // 由 switch 的 pipeline_override 把本节点的 recognition 换成 TemplateMatch，
+        // 于是「没有该标识」就会落到下面的失败分支。
+        "recognition": "DirectHit",
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "pre_wait_freezes": 100,
+        "post_delay": 0,
+        "next": [
+            "BatchAddFriendsStrangersProfileQualify"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileRejectLogWarEcho": {
+        "desc": "「战争回响增辉」不满足时输出诊断并跳过该玩家",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "BatchAddFriendsStrangersRejectLogRecognition",
+                "custom_recognition_param": {
+                    "failed": "batchaddfriends.level.warEcho",
+                    "echo": true
+                }
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsStrangersProfileReject"
+        ],
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "BatchAddFriendsStrangersProfileReject": {
+        "desc": "权限等级不达标：关闭名片并拉黑这一行",
+        // 与 ProfileClose 相同的守卫：权限等级图标在（确认在名片页）+ X 模板命中。
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddFriendsStrangersProfileReady",
+                    "BatchAddFriendsStrangersProfileCloseButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "pre_wait_freezes": 100,
+        "post_delay": 0,
+        "next": [
+            "BatchAddFriendsStrangersRecordReject"
+        ]
+    },
+    "BatchAddFriendsStrangersRecordReject": {
+        "desc": "把刚才这一行记入拒绝黑名单",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsStrangersRecordRejectAction"
+            }
+        },
+        "post_wait_freezes": 500,
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "BatchAddFriendsStrangersScan"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileAddFriend": {
+        "desc": "点名片页右下角「申请好友」",
+        // 直接 OCR 按钮文字：命中的框就是按钮本身，点击默认取框中心，
+        // 不需要任何偏移量，也不怕名片页整体布局漂移。
+        // 名片页是否已打开由上游 ProfileReady（权限等级图标）保证。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    860,
+                    600,
+                    320,
+                    80
+                ],
+                "expected": [
+                    // 已确认原文：申请好友 / 申請好友 / Add Friend / フレンド申請 / 친구 신청。
+                    // 名片页与列表页的按钮文案不同，不能混用其它任务的翻译。
+                    "申请好友",
+                    "申請好友",
+                    "Add Friend",
+                    "フレンド申請",
+                    "친구 신청"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "pre_delay": 0,
+        "pre_wait_freezes": 100,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchAddFriendsFriendListFullToast",
+            "BatchAddFriendsStrangersProfileClose"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileCloseButton": {
+        "desc": "名片页/列表页右上角的 X 按钮",
+        // 复用仓库通用素材 Common/Button/CloseButtonType5.png。
+        // 两页的 X 完全相同、位置也一样，所以它不能单独当判据，
+        // 只负责给出点击位置；是否允许点由 ProfileReady（权限等级图标）把关。
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1180,
+                    0,
+                    100,
+                    60
+                ],
+                "template": "Common/Button/CloseButtonType5.png",
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "BatchAddFriendsStrangersProfileClose": {
+        "desc": "添加成功后关闭名片：名片的 X 与列表页的 X 同位置，故用权限等级图标作守卫",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddFriendsStrangersProfileReady",
+                    "BatchAddFriendsStrangersProfileCloseButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "pre_wait_freezes": 100,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchAddFriendsStrangersOnAdd",
+            "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsChangeBatch": {
+        "desc": "屏幕上没有可添加的人时，点「换一批」刷新列表",
+        // 换一批而不是滚动列表：滚动容易在列表底缘点到裁切区域而卡死，
+        // 换批也更接近正常操作。
+        // ROI 放宽到整条底部栏：不同窗口尺寸下该按钮的横向位置会有几十像素浮动。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    640,
+                    270,
+                    60
+                ],
+                "expected": [
+                    // 已确认原文：换一批 / 換一批 / Refresh List / リスト更新 / 친구 추천。
                     "换一批",
                     "換一批",
-                    "(?i)Refresh\\s*List",
-                    "リスト更新"
+                    "Refresh List",
+                    "リスト更新",
+                    "친구 추천"
                 ],
                 "threshold": 0.7
             }
@@ -554,56 +1170,28 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 800,
         "next": [
-            "BatchAddFriendsWaitChangeBatchLoadingExit"
+            "BatchAddFriendsStrangersClearRejects"
         ]
     },
-    "BatchAddFriendsWaitChangeBatchLoadingExit": {
-        "desc": "等待换一批加载结束",
+    "BatchAddFriendsStrangersClearRejects": {
+        "desc": "换一批之后清空拒绝黑名单",
+        // 黑名单按「按钮框 y」记录，换一批后行位置全部改变，旧记录必须作废，
+        // 否则会误跳过刷新后出现在同一位置的新玩家。
         "recognition": "DirectHit",
         "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "BatchAddFriendsAddButtonVisibleAfterChangeBatch",
-            "BatchAddFriendsWaitChangeBatchTick",
-            "BatchAddFriendsStrangersStart"
-        ]
-    },
-    "BatchAddFriendsAddButtonVisibleAfterChangeBatch": {
-        "desc": "换一批后检测到添加好友按钮",
-        "recognition": {
-            "type": "And",
+            "type": "Custom",
             "param": {
-                "all_of": [
-                    "BatchAddfriendsAddFriendButtonColor",
-                    "BatchAddfriendsAddFriendTextColor",
-                    "BatchAddfriendsAddFriendText"
-                ],
-                "box_index": 2
+                "custom_action": "BatchAddFriendsStrangersClearRejectsAction"
             }
         },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
         "next": [
-            "BatchAddFriendsStrangersStart"
-        ]
-    },
-    "BatchAddFriendsWaitChangeBatchTick": {
-        "desc": "换一批等待节拍",
-        "max_hit": 20,
-        "recognition": "DirectHit",
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "post_wait_freezes": 200,
-        "next": [
-            "BatchAddFriendsWaitChangeBatchLoadingExit"
-        ]
+            "BatchAddFriendsStrangersScan"
+        ],
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "BatchAddFriendsStrangersEnd": {
         "desc": "陌生人批量添加结束",
