@@ -442,66 +442,9 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectStashProbeWuling",
-            "AutoCollectStashProbeValleyIV",
-            "EmptyNode"
-        ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoCollect.focus.mid_sweep_stash"
         }
-    },
-    "AutoCollectStashProbeWuling": {
-        "desc": "仅记录本次存放时仓库面板停在武陵地区",
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "InDijiangDepotWuling"
-        ],
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoCollectStashProbeValleyIV",
-            "AutoCollectStashCapacity"
-        ]
-    },
-    "AutoCollectStashProbeValleyIV": {
-        "desc": "仅记录本次存放时仓库面板停在谷地地区",
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "InDijiangDepotValleyIV"
-        ],
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoCollectStashCapacity"
-        ]
-    },
-    "AutoCollectStashCapacity": {
-        "desc": "存放后背包容量读数，仅记录不参与判定",
-        "enabled": true,
-        "recognition": "OCR",
-        "roi": [
-            755,
-            170,
-            120,
-            34
-        ],
-        // 完整原文：容量 27/40
-        "expected": [
-            // @i18n-skip
-            "容量\\s*\\d+\\s*/\\s*\\d+"
-        ],
-        "only_rec": true,
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0
     },
     "AutoCollectLoop": {
         "desc": "依次调度已勾选的自动采集路线，未选路线不进入库存判断",
@@ -556,8 +499,6 @@
             "key": "AutoCollect"
         },
         "next": [
-            "AutoCollectStashProbeWuling",
-            "AutoCollectStashProbeValleyIV",
             "AutoCollectEnd"
         ]
     },
