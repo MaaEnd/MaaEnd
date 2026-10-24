@@ -88,20 +88,17 @@ struct JumpPadState
     bool launched = false;
 };
 
-// anchor 是到点时的位置, 离开它的读数连续够数才算已被传走
 struct TransferWaitState
 {
     std::chrono::steady_clock::time_point started {};
     NaviPosition anchor {};
-    int moved_fixes = 0;
+    int moved_reads = 0;
 };
 
 enum class PortalTransitPhase
 {
     Idle,
-    // 边往前走边等进入新区的读数
     AwaitZone,
-    // 已切到新区, 停下等一次落在该区的读数
     Reacquire,
 };
 
@@ -113,12 +110,11 @@ struct PortalTransitState
     bool active() const { return phase != PortalTransitPhase::Idle; }
 };
 
-// 按下交互的时刻、这段要坐多久、坐完后连续取位成功了几次
 struct RopeRideState
 {
     std::chrono::steady_clock::time_point started {};
     int64_t ride_ms = 0;
-    int stable_fixes = 0;
+    int stable_reads = 0;
 };
 
 struct SemanticState
@@ -167,7 +163,7 @@ struct FindState
     int32_t steps = 0;
     // 连续漏认的拍数, 见 kFindMissGraceTicks
     int32_t miss_streak = 0;
-    // 上次看到目标时框中心在中线哪一侧 (+1 右 / -1 左 / 0 没见过), 搜索第一步朝这边转, 没见过时向右
+    // 上次看到目标时框中心在中线哪一侧 (+1 右 / -1 左 / 0 没见过), 搜索第一步朝这边转
     int32_t last_seen_side = 0;
     // 停车判据的模板预筛, 为空时探测直接跑识别
     std::optional<PromptScanProfile> stop_probe;

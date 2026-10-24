@@ -122,14 +122,14 @@ Result TickTransferWait(const Context& ctx)
     const double moved_from_anchor = std::hypot(ctx.position->x - transfer.anchor.x, ctx.position->y - transfer.anchor.y);
     const bool movement_observed = ctx.position->zone_id != transfer.anchor.zone_id || moved_from_anchor >= kRelocationResumeMinDistance;
     if (!movement_observed) {
-        transfer.moved_fixes = 0;
+        transfer.moved_reads = 0;
         if (waited_ms > kRelocationWaitTimeoutMs) {
             return Failure("transfer_wait_timeout", "TRANSFER wait timed out without external movement.");
         }
         return WaitNextFix(kRelocationRetryIntervalMs);
     }
 
-    if (++transfer.moved_fixes < kRelocationStableFixes) {
+    if (++transfer.moved_reads < kRelocationStableFixes) {
         return WaitNextFix(kRelocationRetryIntervalMs);
     }
 
@@ -150,10 +150,10 @@ Result TickRopeRide(const Context& ctx)
         return Failure("rope_ride_timeout", "Rope ride finished but the position never stabilized.");
     }
     if (!ctx.position_provider->Capture(ctx.position, false, {})) {
-        rope.stable_fixes = 0;
+        rope.stable_reads = 0;
         return WaitNextFix(kRelocationRetryIntervalMs);
     }
-    if (++rope.stable_fixes < kRelocationStableFixes) {
+    if (++rope.stable_reads < kRelocationStableFixes) {
         return WaitNextFix(kRelocationRetryIntervalMs);
     }
 

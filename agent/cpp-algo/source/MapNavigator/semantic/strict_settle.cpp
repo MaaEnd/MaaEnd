@@ -39,7 +39,6 @@ struct StrictSettleBudget
         return should_stop() || std::chrono::steady_clock::now() + reserve >= deadline;
     }
 
-    // 睡满 duration 返回 true, 睡完会超过截止时间或中途取消时返回 false
     bool Sleep(std::chrono::steady_clock::duration duration) const
     {
         const auto until = std::chrono::steady_clock::now() + duration;
@@ -182,7 +181,6 @@ private:
 
 PulseResponseModel g_pulse_model;
 
-// 一次停车纠正: 停稳读数, 对准目标, 按脉冲前进, 直到进圈或用完预算
 struct StrictSettle
 {
     const Context& ctx;
@@ -226,7 +224,6 @@ struct StrictSettle
         }
     }
 
-    // 返回空表示镜头已对准目标, 有值即最终结论
     std::optional<bool> AlignTowardGoal()
     {
         for (int turns = 0;; ++turns) {
@@ -253,7 +250,6 @@ struct StrictSettle
         }
     }
 
-    // 返回空表示这一下已量完, 回到 Run 重新判定
     std::optional<bool> PulseAndMeasure()
     {
         const int hold_ms = g_pulse_model.PlanHoldMs(residual, input.max_hold_ms);

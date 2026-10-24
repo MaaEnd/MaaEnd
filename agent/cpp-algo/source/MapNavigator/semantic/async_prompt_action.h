@@ -104,7 +104,6 @@ public:
 
 private:
     const Waypoint* CurrentWaypointOfThisKind() const;
-    // 路线最后一个带坐标的点, 不是本类时返回 nullptr
     const Waypoint* TailWaypointOfThisKind() const;
 
     // 扫描节点变了才重建, 重建会一并丢掉旧闩

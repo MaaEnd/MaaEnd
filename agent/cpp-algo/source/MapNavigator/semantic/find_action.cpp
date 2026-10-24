@@ -230,7 +230,6 @@ Result ProbeStopWhileWalking(const Context& ctx, const Waypoint& waypoint, MaaCo
     return {};
 }
 
-// 返回空表示停车判据和到达点都还没满足
 std::optional<Result> CheckFindDone(const Context& ctx, const Waypoint& waypoint, const MaaImageBuffer* image)
 {
     const FindState& find = ctx.runtime_state->find;

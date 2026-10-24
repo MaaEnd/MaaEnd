@@ -38,13 +38,11 @@ struct Result
     uint32_t rope_unavailable = 0;
 };
 
-// 这一拍已处理完
 inline Result Handled()
 {
     return { .consumed = true, .stay_in_current_tick = true };
 }
 
-// 还在等, 这一拍到此为止
 inline Result Pending()
 {
     return { .stay_in_current_tick = true };
@@ -55,7 +53,6 @@ inline Result Failure(const char* reason, const char* log_message)
     return { .request_failure = true, .failure_reason = reason, .failure_log_message = log_message };
 }
 
-// 只接 Wait* 相位
 Result TickWaitPhase(const Context& ctx, NaviPhase phase);
 Result ConsumeInlineSemantics(const Context& ctx);
 Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual_distance);
