@@ -156,7 +156,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.inputs.ReserveValleyIV.description",
                     "default": "240000",
                     "pipeline_type": "int",
-                    "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
+                    "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,8})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.inputs.ReserveValleyIV.pattern_msg"
                 }
             ],
@@ -335,7 +335,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.pattern_msg"
                 }
             ],
@@ -371,7 +371,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.inputs.ValleyFoodAndBuffLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.inputs.ValleyFoodAndBuffLimit.pattern_msg"
                 }
             ],
@@ -562,7 +562,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.inputs.ValleyDetectorCompassLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.inputs.ValleyDetectorCompassLimit.pattern_msg"
                 }
             ],
@@ -767,7 +767,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.inputs.ValleyGiftLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.inputs.ValleyGiftLimit.pattern_msg"
                 }
             ],
@@ -1140,7 +1140,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.description",
                     "default": "240000",
                     "pipeline_type": "int",
-                    "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
+                    "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,8})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.pattern_msg"
                 }
             ],
@@ -1391,7 +1391,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.inputs.WulingEngravingPermitLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.inputs.WulingEngravingPermitLimit.pattern_msg"
                 }
             ],
@@ -1427,7 +1427,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.inputs.WulingFoodAndBuffLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.inputs.WulingFoodAndBuffLimit.pattern_msg"
                 }
             ],
@@ -1728,7 +1728,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.inputs.WulingArtificingCatalystLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.inputs.WulingArtificingCatalystLimit.pattern_msg"
                 }
             ],
@@ -1764,7 +1764,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.inputs.WulingDetectorCompassLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.inputs.WulingDetectorCompassLimit.pattern_msg"
                 }
             ],
@@ -2103,7 +2103,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.inputs.WulingGiftLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.inputs.WulingGiftLimit.pattern_msg"
                 }
             ],

@@ -2,7 +2,35 @@
     "GameLauncherMain": {
         "desc": "在鹰角启动器中启动终末地",
         "next": [
-            "GameLauncherSelectEndfield"
+            "GameLauncherSelectEndfield",
+            "GameLauncherBlackScreenClick"
+        ]
+    },
+    "GameLauncherBlackScreenClick": {
+        "desc": "DP 显示器息屏后启动器截图为黑屏，找不到左侧终末地图标时点击激活，多次点击顺带解锁屏幕",
+        "max_hit": 10,
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            60,
+            100,
+            600
+        ],
+        "template": "GameLauncher/EndfieldIcon.png",
+        "green_mask": true,
+        "inverse": true,
+        "action": "Click",
+        "target": [
+            640,
+            360,
+            1,
+            1
+        ],
+        // 显示器从息屏唤醒需要 1~3 秒，期间画面一直是黑屏不变，无法用 post_wait_freezes 等待
+        "post_delay": 2000,
+        "next": [
+            "GameLauncherSelectEndfield",
+            "GameLauncherBlackScreenClick"
         ]
     },
     "GameLauncherSelectEndfield": {
@@ -38,20 +66,18 @@
     },
     "GameLauncherClickStartGame": {
         "desc": "已选中终末地，点击右下角开始游戏",
-        "max_hit": 3,
         "recognition": "And",
         "all_of": [
             "GameLauncherStartGameYellow",
             "GameLauncherStartGameText"
         ],
         "box_index": 1,
-        "pre_wait_freezes": 100,
+        "pre_wait_freezes": 500,
         "action": "Click",
-        "post_delay": 3000, // 这里暂时不调用RepeatUntilAction，先保持纯pipeline
         "next": [
             "GameLauncherInGame",
             "GameLauncherDriverTipIgnore",
-            "GameLauncherClickStartGame"
+            "GameLauncherMinimized"
         ]
     },
     "GameLauncherDriverTipIgnore": {
@@ -71,7 +97,8 @@
         "pre_wait_freezes": 100,
         "action": "Click",
         "next": [
-            "GameLauncherInGame"
+            "GameLauncherInGame",
+            "GameLauncherMinimized"
         ]
     },
     "GameLauncherInGame": {
@@ -89,6 +116,29 @@
             "遊戲中",
             "(?i)\\bRunning\\b"
         ]
+    },
+    "GameLauncherMinimized": {
+        "desc": "启动器点击开始游戏后会最小化，截图变为全黑，开始游戏按钮所在区域几乎全黑时视为启动成功",
+        // 启动器窗口为圆角，未最小化时截图四角也是黑边，不能只看角落
+        "recognition": "ColorMatch",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "lower": [
+            0,
+            0,
+            0
+        ],
+        "upper": [
+            10,
+            10,
+            10
+        ],
+        "connected": true,
+        "count": 40000
     },
     "GameLauncherExit": {
         "desc": "不写这个节点 CI 会报错"

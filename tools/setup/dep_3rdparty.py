@@ -21,8 +21,8 @@
 
 import argparse
 import platform
-import socket
 import shutil
+import socket
 import sys
 import time
 import urllib.error
@@ -51,7 +51,8 @@ WEBVIEW2_HEADER_SENTINEL: Path = (
 )
 
 
-_local_t = lambda key, **kwargs: key.format(**kwargs) if kwargs else key
+def _local_t(key, **kwargs):
+    return key.format(**kwargs) if kwargs else key
 
 
 def init_local() -> None:
@@ -300,10 +301,7 @@ def main() -> None:
 
     skip_if_exist = not args.update
     # --all 与 --webview2 在目前只有 WebView2 一个依赖时等价；后者用于显式选择依赖。
-    if args.all:
-        ok = download_all(skip_if_exist=skip_if_exist)
-    else:
-        ok = download_webview2(skip_if_exist=skip_if_exist)
+    ok = download_all(skip_if_exist=skip_if_exist) if args.all else download_webview2(skip_if_exist=skip_if_exist)
     if not ok:
         sys.exit(1)
 

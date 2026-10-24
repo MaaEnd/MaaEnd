@@ -158,6 +158,7 @@ By default you only need to format; there is no need to run the full checks loca
 pnpm format        # JSON/YAML formatting
 pnpm format:go     # Go formatting (when agent/go-service/ is changed)
 pnpm format:md     # Markdown formatting (when Markdown docs are changed)
+pnpm lint:py       # Python static checks (when .py files are changed)
 ```
 
 Run `pnpm check` and `pnpm test` **as needed**:
@@ -171,7 +172,7 @@ pnpm test          # Node testing
 - Other changes (Pipeline, Go, Cpp, docs, etc.) → no need to run these two commands locally; follow the relevant CI after opening a PR (Go is checked by `go-check.yml`; docs-only changes trigger no PR CI).
 - When you want to check something locally (for example, debugging the hit rate of a recognition node or confirming the scope of a change), you can run either command on its own at any time.
 
-How CI maps to these commands: `pnpm check` + `uv run tools/validate_schema.py` ([`check.yml`](../../../.github/workflows/check.yml)), `pnpm test` ([`test.yml`](../../../.github/workflows/test.yml), triggered when a PR to or a push on `v2` changes `assets/**`, `tests/**` or `agent/cpp-algo/**`), `pnpm format:all` ([`format.yml`](../../../.github/workflows/format.yml), scheduled full formatting with automatic commits).
+How CI maps to these commands: `pnpm check` + `uv run tools/validate_schema.py` ([`check.yml`](../../../.github/workflows/check.yml)), `pnpm test` ([`test.yml`](../../../.github/workflows/test.yml), triggered when a PR to or a push on `v2` changes `assets/**`, `tests/**` or `agent/cpp-algo/**`), `pnpm lint:py` ([`lint.yml`](../../../.github/workflows/lint.yml), triggered when `**/*.py`, `pyproject.toml` or `uv.lock` changes), `pnpm format:all` ([`format.yml`](../../../.github/workflows/format.yml), scheduled full formatting with automatic commits).
 
 ## Supporting Files
 
@@ -264,6 +265,14 @@ The resource folder is in a linked state. Modifying `assets` is equivalent to mo
 
 - Use plain names without underscores for folders, e.g. `Private`, `Button`;
 - This restriction applies to **folder names only**. Task names (keys in the pipeline JSON) may still use a `__` prefix, e.g. `__AutoAltClickAltKeyDownAction`; the two do not affect each other.
+
+### JSON Comments Are Allowed (JSONC)
+
+Resource JSON is always treated as JSONC, so `//`, `/* */` comments and trailing commas are fine; a `.json` extension does not mean strict JSON. `files.associations` in `.vscode/settings.json` already maps `assets/**`, `tests/**` and several `tools/` subdirectories to `jsonc`, so the editor does not complain. **When you add a new directory for JSON files outside `assets/` and `tests/`, add a line to `files.associations`**, otherwise the editor treats those files as strict JSON and flags them.
+
+Code that reads repository JSON must parse JSONC too: `pkg/jsonclean` (or `resource.ReadJsonResource`) in Go, `OpenJsoncFile` from `Common/JsoncFile.h` in C++, `tools/pipeline-generate/jsonc.mjs` in Node, and `json5` in Python.
+
+The exception is `assets/locales/**`: `tools/i18n/sync_auto_collect_locales.py`, `tools/essence_filter/build_autoessence_tasks.py` and `tools/AutoCollectRoute/route_builder.py` read those files with strict `json`, so a comment makes them fail to parse; the other scripts that rewrite locales also drop comments when they re-serialize. Files parsed strictly by external tools (`tools/schema/**`, `package.json`, and so on) likewise stay strict JSON.
 
 ## OCR and i18n
 

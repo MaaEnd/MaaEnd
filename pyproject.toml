@@ -2,15 +2,13 @@
 name = "maaend"
 version = "0.0.0"
 description = "Python dependencies for MaaEnd development scripts"
-requires-python = ">=3.10"
-# zmdmap 的 CLI 用 click、下载数据用 httpx；放核心依赖是为了让 CI 能
-# `uv run --no-default-groups zmdmap` 只装这两个包就出数据，不必拉 scripts 组里的 maafw / fastapi / numpy。
-dependencies = [
-    "click>=8.1,<9.0",
-    "httpx>=0.28,<1.0",
-]
+requires-python = ">=3.14"
+# zmdmap 的 CLI 用 click、下载数据用 requests、解析游戏表格用 msgspec；放核心依赖是为了让 CI 能
+# `uv run --no-default-groups zmdmap` 只装这三个包就出数据，不必拉 scripts 组里的 maafw / fastapi / numpy。
+dependencies = ["click>=8.1", "msgspec>=0.22", "requests>=2.32"]
 
 [project.scripts]
+autocollect-route = "tools.AutoCollectRoute.main:main"
 build-and-install = "tools.setup.build_and_install:main"
 map-navigator = "tools.MapNavigator.main:main"
 sentry-report = "tools.sentry.cli:main"
@@ -18,33 +16,23 @@ setup-workspace = "tools.setup.setup_workspace:main"
 zmdmap = "tools.zmdmap.cli:main"
 
 [build-system]
-requires = ["uv_build>=0.12.1,<0.13"]
+requires = ["uv_build>=0.13.1,<0.14"]
 build-backend = "uv_build"
 
 [dependency-groups]
-schema = [
-    "jsonschema==4.26.0",
-    "referencing==0.37.0",
-]
-pipeline = [
-    "json5",
-    "maafw>=5.12,<6.0",
-]
-images = [
-    "numpy",
-    "pillow",
-    "tqdm",
-]
+schema = ["jsonschema>=4.26", "referencing>=0.37"]
+pipeline = ["json5>=0.17", "maafw>=5.12"]
+images = ["numpy>=2.5", "pillow>=13.0", "tqdm>=4.70"]
 map-navigator = [
-    "fastapi>=0.129,<1.0",
-    "maafw>=5.13.0b4,<6.0",
-    "numpy",
-    "pydantic",
+    "fastapi>=0.129",
+    "maafw>=5.13.0b4",
+    "numpy>=2.5",
+    "pydantic>=2.14",
     "pynput>=1.7.0",
-    "pyperclip",
-    "starlette",
-    "uvicorn>=0.41,<1.0",
-    "websockets",
+    "pyperclip>=1.11",
+    "starlette>=1.9",
+    "uvicorn>=0.41",
+    "websockets>=17.2",
 ]
 scripts = [
     { include-group = "schema" },
@@ -52,11 +40,56 @@ scripts = [
     { include-group = "images" },
     { include-group = "map-navigator" },
 ]
+dev = [
+    "pyright>=1.1.414",
+    "ruff>=0.17",
+    "types-requests>=2.32",
+]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 120
+extend-exclude = [
+    "Android",
+    "agent/cpp-algo/MaaUtils",
+    "deps",
+    "install",
+    "tests/MaaEndTestset",
+]
+
+[tool.ruff.lint]
+select = [
+    "B",
+    "C4",
+    "E4",
+    "E7",
+    "E9",
+    "F",
+    "I",
+    "RUF",
+    "SIM",
+    "UP",
+    "W",
+]
+# 中文注释和文案里大量使用全角标点，RUF001/002/003 会把它们当成“易混淆字符”报错。
+ignore = ["RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI 的 Body(...) 必须写在参数默认值里，B008 在这里是误报。
+extend-immutable-calls = ["fastapi.Body"]
 
 [tool.uv]
-default-groups = ["scripts"]
+default-groups = ["scripts", "dev"]
 package = true
 
 [tool.uv.build-backend]
-module-name = ["tools.MapNavigator", "tools.sentry", "tools.setup", "tools.zmdmap"]
+module-name = ["tools.AutoCollectRoute", "tools.MapNavigator", "tools.sentry", "tools.setup", "tools.zmdmap"]
 module-root = ""
+
+[tool.pyright]
+# 先只纳入 tools/zmdmap（strict）；其余 Python 工具逐步跟进，别一次把几百条历史问题当成本次改动。
+include = ["tools/zmdmap"]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.14"
+typeCheckingMode = "strict"

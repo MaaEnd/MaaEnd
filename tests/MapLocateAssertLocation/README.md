@@ -47,9 +47,9 @@
 ## 运行
 
 ```powershell
-uv sync --locked
+uv sync
 uv run build-and-install --cpp-algo
-uv run python tests/MapLocateAssertLocation/map_locate.py
+uv run tests/MapLocateAssertLocation/map_locate.py
 ```
 
 也可以用 `pnpm test:map-locate`。运行前确认 `install/agent/cpp-algo` 由当前源码构建，`install/maafw` 与 Agent 版本匹配，`install/resource` 包含定位底图和模型。

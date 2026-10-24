@@ -26,15 +26,12 @@ uv run .agents/skills/maaend-test-image/scripts/detect_screenshot_platform.py <�
 退出码：每张图都能给出明确平台时为 0，存在无法判定（unknown / ambiguous）时为 2。
 """
 
-from __future__ import annotations
-
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
 from PIL import Image
-
 
 SUPPORTED_CONTROLLERS = {"adb": "ADB", "win32": "Win32"}
 

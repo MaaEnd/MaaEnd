@@ -21,8 +21,8 @@
 #include <MaaUtils/Platform.h>
 
 #include "../MapNavigator/navi_param_parser.h"
-#include "../MapNavigator/navmesh_path_expander.h"
-#include "../MapNavigator/zipline_leg_planner.h"
+#include "../MapNavigator/planning/navmesh_path_expander.h"
+#include "../MapNavigator/zipline/zipline_leg_planner.h"
 #include "../Navmesh/BaseNavGeometry.h"
 #include "../Navmesh/BaseNavPlanner.h"
 #include "../Navmesh/BaseNavReader.h"
@@ -43,9 +43,8 @@ namespace mapnavmesh
 namespace
 {
 
-// 探针往外找多远才算"最近的网格点": 取运行时两个盲走预算里更大的那个, 再远也已经无解。
+// 离网探针的搜索半径, 再远运行时也已无解
 constexpr double kOffMeshSearchRadius = std::max(mapnavigator::kStartRecoveryMaxBlindWalk, mapnavigator::kBlindTargetMaxExtension);
-// 路线预览拼接相邻片段时，只消除计算噪声造成的同点重复。
 constexpr double kPreviewPointMergeEpsilon = 1e-6;
 
 struct QueryParam
@@ -58,7 +57,7 @@ struct QueryParam
     std::vector<double> start;
     std::vector<double> goal;
     double snap_radius = 5.0;
-    // 空 = 不限层 / 不限面，meojson 没有 optional，用空槽表达。
+    // 为空表示不限层, 不限面
     std::vector<double> floor_y;
     std::vector<double> goal_deck_y;
     std::vector<double> position;
@@ -66,6 +65,8 @@ struct QueryParam
     json::value custom_action_param = json::object {};
     std::string zipline_account_id;
     std::string out_file;
+    // 绳底交互提示文字, 为空时不规划升降索
+    std::vector<std::string> rope_interact_text;
 
     MEO_JSONIZATION(
         op,
@@ -82,10 +83,10 @@ struct QueryParam
         MEO_OPT position_zone,
         MEO_OPT custom_action_param,
         MEO_OPT zipline_account_id,
-        MEO_OPT out_file)
+        MEO_OPT out_file,
+        MEO_OPT rope_interact_text)
 };
 
-// 整包常驻：几何区元信息要全，路线又要按区取网格，一份全量加载同时喂得起两边。
 struct QueryContext
 {
     navmesh::BaseNavPack pack;
@@ -101,7 +102,7 @@ json::object Fail(const std::string& message)
     return json::object { { "ok", false }, { "error", message } };
 }
 
-// 建好就不再销毁，指针长期有效；调用方只在建的时候持锁。
+// 建好就不再销毁, 返回的指针长期有效
 QueryContext* AcquireContext(const std::string& configured_path, std::string& error)
 {
     std::error_code ec;
@@ -166,7 +167,6 @@ json::object BuildZones(const navmesh::BaseNavPack& pack)
     return json::object { { "ok", true }, { "zones", std::move(zones) } };
 }
 
-// 顶点按被引用的全局下标升序去重后重编号，与前端读的 NMSH 布局一致。
 json::object BuildMesh(const QueryContext& context, uint16_t zone_id, const std::string& out_file)
 {
     if (out_file.empty()) {
@@ -198,8 +198,7 @@ json::object BuildMesh(const QueryContext& context, uint16_t zone_id, const std:
     std::vector<uint8_t> blob;
     blob.resize(16 + static_cast<size_t>(vertex_count) * 12 + refs.size() * 4);
     uint8_t* cursor = blob.data();
-    // 前端读的 mesh 线格式(gl/renderer.js setMesh): 小端 "NMSH" + u32 版本 + u32 顶点数 + u32 三角数,
-    // magic 与版本都被前端校验, 对不上直接 throw。
+    // 小端 "NMSH" + u32 版本 + u32 顶点数 + u32 三角数, magic 与版本都被前端校验
     std::memcpy(cursor, "NMSH", 4);
     cursor += 4;
     for (const uint32_t field : { 1U, vertex_count, count }) {
@@ -236,7 +235,7 @@ json::object BuildMesh(const QueryContext& context, uint16_t zone_id, const std:
                           { "triangle_count", count } };
 }
 
-// 吸得上就什么都不报（运行时会悄悄吸过去）；吸不上才给最近网格点，让调用方标出这个点掉在网格外。
+// 吸得上时返回空, 吸不上才给最近网格点
 json::value ProbeOffMesh(
     const navmesh::BaseNavPlanner& planner,
     uint16_t geom_zone_id,
@@ -273,7 +272,6 @@ json::object BuildOffMeshProbe(const QueryContext& context, const QueryParam& pa
     return json::object { { "ok", true }, { "results", std::move(results) } };
 }
 
-// 同一个二维坐标底下可能压着走廊/天桥/屋顶好几层，按高度归并成可选面。
 json::object BuildDeckProbe(const QueryContext& context, const QueryParam& param)
 {
     if (param.point.size() < 2) {
@@ -322,10 +320,9 @@ json::object BuildDeckProbe(const QueryContext& context, const QueryParam& param
     for (const Hit& deck : decks) {
         out.emplace_back(
             json::object { { "height", deck.height },
-                           // 寻路认这张面的高度带, 前端拿它高亮同层三角形
                            { "band", json::array { deck.height - navmesh::recast::kDeckBand, deck.height + navmesh::recast::kDeckBand } },
                            { "on_surface", deck.distance == 0.0 },
-                           // 烘焙出来的墙顶/檐口薄片, 不是真地面
+                           // 墙顶或檐口薄片, 不是真地面
                            { "thin", planner.isSmallIslandTriangle(deck.triangle) } });
     }
     return json::object { { "ok", true }, { "decks", std::move(out) } };
@@ -345,12 +342,20 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
     const navmesh::WorldPoint start { .x = param.start[0], .y = param.start[1] };
     const navmesh::WorldPoint goal { .x = param.goal[0], .y = param.goal[1] };
     const float floor_y = FloorOrNone(param.floor_y);
-    const auto plan =
-        context.engine
-            ->plan(zone->name, start, goal, floor_y, floor_y, FloorOrNone(param.goal_deck_y), navmesh::kBaseNavFloorYNone, {}, {});
+    const std::vector<uint32_t> no_rope_off;
+    const auto plan = context.engine->plan(
+        zone->name,
+        start,
+        goal,
+        floor_y,
+        floor_y,
+        FloorOrNone(param.goal_deck_y),
+        navmesh::kBaseNavFloorYNone,
+        {},
+        {},
+        param.rope_interact_text.empty() ? nullptr : &no_rope_off);
 
     if (!plan.ok) {
-        // 失败时带上两端的离网探针，调用方才能标出是哪个点掉在网格外。
         return json::object {
             { "ok", false },
             { "error", plan.error },
@@ -421,6 +426,11 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
     for (const navmesh::DropLanding& drop : plan.drops) {
         debug["planned_drops"].as_array().emplace_back(json::array { drop.index, drop.height });
     }
+    json::array planned_ropes;
+    for (const navmesh::RopeRide& rope : plan.ropes) {
+        planned_ropes.emplace_back(json::array { rope.index, rope.top_height, rope.uid, rope.ride_s });
+    }
+    debug["planned_ropes"] = std::move(planned_ropes);
     for (const auto& warning : plan.debug.warnings) {
         debug["warnings"].as_array().emplace_back(warning);
     }
@@ -554,8 +564,9 @@ json::object BuildRoutePreview(const QueryParam& query)
     }
     param.navmesh_file = query.navmesh_file;
     param.normalize_position_via_navmesh = true;
+    param.rope_interact_text = query.rope_interact_text;
     if (param.zipline_enabled) {
-        // 这是开发工具的顶层查询字段，不属于 MapNavigateAction 参数。正式运行仍只认当前游戏 UID。
+        // 仅开发工具用的查询字段, 正式运行只认当前游戏 UID
         param.zipline_account_id = query.zipline_account_id;
         if (param.zipline_account_id.empty()) {
             zipline::ZiplineStore store;
@@ -568,7 +579,7 @@ json::object BuildRoutePreview(const QueryParam& query)
     mapnavigator::NaviPosition position {
         .x = query.position[0],
         .y = query.position[1],
-        // 预览里点了哪一层就按哪一层吸起点；空槽等同实机，落回区的主层。
+        // 为空时同实机, 落回区的主层
         .floor_y = query.floor_y.empty() ? std::optional<double> {} : std::optional<double> { query.floor_y.front() },
         .zone_id = query.position_zone,
     };
@@ -625,6 +636,7 @@ json::object BuildRoutePreview(const QueryParam& query)
     std::vector<navmesh::WorldPoint> current_walk;
     json::array walk_segments;
     json::array zipline_segments;
+    json::array rope_segments;
     const navmesh::WorldPoint start { .x = position.x, .y = position.y };
     AppendDistinct(all_points, start);
     AppendDistinct(current_walk, start);
@@ -636,13 +648,25 @@ json::object BuildRoutePreview(const QueryParam& query)
         current_walk.clear();
     };
 
-    for (const mapnavigator::Waypoint& waypoint : expanded) {
+    for (size_t index = 0; index < expanded.size(); ++index) {
+        const mapnavigator::Waypoint& waypoint = expanded[index];
         if (!waypoint.HasPosition()) {
             continue;
         }
         const navmesh::WorldPoint point { .x = waypoint.x, .y = waypoint.y };
         AppendDistinct(all_points, point);
         AppendDistinct(current_walk, point);
+        if (waypoint.rope_ride && index + 1 < expanded.size()) {
+            const mapnavigator::Waypoint& top = expanded[index + 1];
+            rope_segments.emplace_back(json::object {
+                { "from", json::array { point.x, point.y } },
+                { "to", json::array { top.x, top.y } },
+                { "from_height", waypoint.route_floor_y ? json::value(*waypoint.route_floor_y) : json::value() },
+                { "to_height", waypoint.rope_ride->top_height },
+                { "uid", waypoint.rope_ride->uid },
+                { "ride_s", waypoint.rope_ride->ride_s },
+            });
+        }
 
         if (waypoint.action != mapnavigator::ActionType::ZIPLINE) {
             continue;
@@ -686,6 +710,7 @@ json::object BuildRoutePreview(const QueryParam& query)
         { "points", PointsToJson(all_points) },
         { "walk_segments", std::move(walk_segments) },
         { "zipline_segments", std::move(zipline_segments) },
+        { "rope_segments", std::move(rope_segments) },
         { "diagnostics", std::move(diagnostic_items) },
         { "expanded_waypoints", expanded.size() },
         { "zipline",
@@ -756,7 +781,7 @@ std::optional<QueryParam> ParseParam(const char* custom_recognition_param)
     }
     QueryParam value {};
     if (!value.from_json(*parsed)) {
-        // from_json 中途失败会留下写了一半的字段，整个丢掉。
+        // from_json 中途失败会留下写了一半的字段
         return std::nullopt;
     }
     return value;
@@ -794,7 +819,7 @@ MaaBool MAA_CALL MapNavmeshQueryRun(
         if (out_box != nullptr) {
             *out_box = { 0, 0, 1, 1 };
         }
-        // 恒命中：查不出来也要把原因带回调用方，返回 false 会让 detail 一并丢掉。
+        // 返回 false 会让 detail 一并丢掉, 所以恒命中
         return MAA_TRUE;
     }
     catch (const std::exception& error) {

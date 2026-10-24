@@ -9,8 +9,8 @@
             "name": "准备界面：07 已选，01 未选中",
             "image": "协议空间_准备界面_07已选.png",
             "hits": [
-                "ProtocolSpaceTeamChooseTextRecognition",
-                "ProtocolSpaceTeamChoose"
+                "PrepareTeamChooseText",
+                "PrepareTeamChoose"
             ]
         }
     ]

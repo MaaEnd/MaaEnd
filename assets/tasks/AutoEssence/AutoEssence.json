@@ -817,6 +817,7 @@
                 {
                     "name": "Yes",
                     "option": [
+                        "EssenceFilterAfterBattlePerfectMinLevelTotal",
                         "EssenceFilterAfterBattleKeepFuturePromising",
                         "EssenceFilterAfterBattleKeepSlot3Level3Practical",
                         "EssenceFilterAfterBattleDiscardUnmatched"
@@ -827,6 +828,26 @@
                 }
             ],
             "default_case": "No"
+        },
+        "EssenceFilterAfterBattlePerfectMinLevelTotal": {
+            "type": "input",
+            "label": "$option.PerfectMinLevelTotal.label",
+            "inputs": [
+                {
+                    "name": "EssenceFilterAfterBattlePerfectMinLevelTotal",
+                    "label": "$option.PerfectMinLevelTotal.inputs.PerfectMinLevelTotal.label",
+                    "default": "3",
+                    "pipeline_type": "int",
+                    "verify": "^[3-9]$|^1[0-5]$"
+                }
+            ],
+            "pipeline_override": {
+                "EssenceFilterAfterBattleInit": {
+                    "attach": {
+                        "perfect_min_level_total": "{EssenceFilterAfterBattlePerfectMinLevelTotal}"
+                    }
+                }
+            }
         },
         "EssenceFilterAfterBattleKeepFuturePromising": {
             "type": "switch",

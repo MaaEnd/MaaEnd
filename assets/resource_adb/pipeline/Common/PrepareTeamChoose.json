@@ -1,0 +1,59 @@
+{
+    // 移动端队伍条更宽、位置更高
+    "PrepareTeamSlot01": {
+        "roi": [
+            79,
+            651,
+            78,
+            22
+        ]
+    },
+    "PrepareTeamSlot02": {
+        "roi": [
+            161,
+            651,
+            78,
+            22
+        ]
+    },
+    "PrepareTeamSlot03": {
+        "roi": [
+            243,
+            651,
+            78,
+            22
+        ]
+    },
+    "PrepareTeamSlot04": {
+        "roi": [
+            325,
+            651,
+            78,
+            22
+        ]
+    },
+    "PrepareTeamSlot05": {
+        "roi": [
+            407,
+            651,
+            78,
+            22
+        ]
+    },
+    "PrepareTeamSlot06": {
+        "roi": [
+            489,
+            651,
+            78,
+            22
+        ]
+    },
+    "PrepareTeamSlot07": {
+        "roi": [
+            571,
+            651,
+            78,
+            22
+        ]
+    }
+}

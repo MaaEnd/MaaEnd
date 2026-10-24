@@ -14,7 +14,8 @@
             ],
             "option": [
                 "ClientVersion",
-                "ClientVersionCloudLocked"
+                "ClientVersionCloudLocked",
+                "EnterGameRecognitionMaxHit"
             ]
         }
     ],
@@ -150,6 +151,25 @@
                 }
             ],
             "default_case": "Cloud"
+        },
+        "EnterGameRecognitionMaxHit": {
+            "type": "input",
+            "label": "$option.EnterGameRecognitionMaxHit.label",
+            "inputs": [
+                {
+                    "name": "HitLimit",
+                    "label": "$option.EnterGameRecognitionMaxHit.input.label",
+                    "default": "60",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9]\\d*$",
+                    "pattern_msg": "$option.EnterGameRecognitionMaxHit.input.error"
+                }
+            ],
+            "pipeline_override": {
+                "EnterGameRecognition": {
+                    "max_hit": "{HitLimit}"
+                }
+            }
         }
     }
 }

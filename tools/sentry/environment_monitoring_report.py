@@ -6,8 +6,6 @@
 观察点、同一 trace 中的同类重复 span 只计数一次，总失败按三类失败 trace 的并集统计。
 """
 
-from __future__ import annotations
-
 import argparse
 import csv
 import json
@@ -15,10 +13,11 @@ import math
 import re
 import sys
 from collections import defaultdict
+from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Iterable, Iterator, Sequence, TextIO
+from typing import Any, TextIO
 
 try:
     from .report_common import (
@@ -121,7 +120,7 @@ def extend_period_for_trace_lookup(period: str) -> str:
         return period
     try:
         start = datetime.strptime(absolute_match.group(1), "%Y-%m-%d").replace(
-            tzinfo=timezone.utc
+            tzinfo=UTC
         )
         datetime.strptime(absolute_match.group(2), "%Y-%m-%d")
     except ValueError:

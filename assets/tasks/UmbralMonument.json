@@ -1,0 +1,375 @@
+{
+    "task": [
+        {
+            "name": "UmbralMonument",
+            "label": "$task.UmbralMonument.label",
+            "entry": "UmbralMonumentEntry",
+            "description": "$task.UmbralMonument.description",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
+            ],
+            "pipeline_override": {
+                "AutoFight": {
+                    "attach": {
+                        "pause_exit_nodes": [
+                            "UmbralMonumentFightFinished"
+                        ]
+                    }
+                }
+            },
+            "option": [
+                "UmbralMonumentTarget",
+                "UmbralMonumentTeamChoose",
+                "UmbralMonumentRetryCount",
+                "AutoFightSetting"
+            ]
+        }
+    ],
+    "option": {
+        "UmbralMonumentTarget": {
+            "type": "select",
+            "label": "$option.UmbralMonumentTarget.label",
+            "cases": [
+                {
+                    "name": "Latest",
+                    "label": "$option.UmbralMonumentTarget.case.Latest.label"
+                },
+                {
+                    "name": "MurmursOfTheDeepForest",
+                    "label": "$option.UmbralMonumentTarget.case.MurmursOfTheDeepForest.label",
+                    "pipeline_override": {
+                        "UmbralMonumentSelectLatest": {
+                            "enabled": false
+                        },
+                        "UmbralMonumentSelectByName": {
+                            "enabled": true
+                        },
+                        "UmbralMonumentNameText": {
+                            "expected": [
+                                "深林呓语",
+                                "深林囈語",
+                                "(?i)Murmurs\\s*of\\s*the\\s*Deep\\s*Forest",
+                                "深き森の囁き",
+                                "깊은 숲의 잠꼬대"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MarkedByDarkShadows",
+                    "label": "$option.UmbralMonumentTarget.case.MarkedByDarkShadows.label",
+                    "pipeline_override": {
+                        "UmbralMonumentSelectLatest": {
+                            "enabled": false
+                        },
+                        "UmbralMonumentSelectByName": {
+                            "enabled": true
+                        },
+                        "UmbralMonumentNameText": {
+                            "expected": [
+                                "幽影刻形",
+                                "幽影刻形",
+                                "(?i)Marked\\s*by\\s*Dark\\s*Shadows",
+                                "刻まれた影",
+                                "그림자 형상 각인"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "HowlersOfTheCrag",
+                    "label": "$option.UmbralMonumentTarget.case.HowlersOfTheCrag.label",
+                    "pipeline_override": {
+                        "UmbralMonumentSelectLatest": {
+                            "enabled": false
+                        },
+                        "UmbralMonumentSelectByName": {
+                            "enabled": true
+                        },
+                        "UmbralMonumentNameText": {
+                            // 山中见犼 / 山中見犼：OCR 会把「犼」识别成「孔」
+                            "expected": [
+                                // @i18n-skip
+                                "山中见.",
+                                "山中見.",
+                                "(?i)Howlers\\s*of\\s*the\\s*Crag",
+                                "山の獣吼",
+                                "산을 울리는 외침"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ContentionOfDeathlySilences",
+                    "label": "$option.UmbralMonumentTarget.case.ContentionOfDeathlySilences.label",
+                    "pipeline_override": {
+                        "UmbralMonumentSelectLatest": {
+                            "enabled": false
+                        },
+                        "UmbralMonumentSelectByName": {
+                            "enabled": true
+                        },
+                        "UmbralMonumentNameText": {
+                            "expected": [
+                                "死寂争鸣",
+                                "死寂爭鳴",
+                                "(?i)Contention\\s*of\\s*Deathly\\s*Silences",
+                                "死の争鳴",
+                                "적막 속의 외침"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "TurbidityManifest",
+                    "label": "$option.UmbralMonumentTarget.case.TurbidityManifest.label",
+                    "pipeline_override": {
+                        "UmbralMonumentSelectLatest": {
+                            "enabled": false
+                        },
+                        "UmbralMonumentSelectByName": {
+                            "enabled": true
+                        },
+                        "UmbralMonumentNameText": {
+                            "expected": [
+                                "浊流具现",
+                                "濁流具現",
+                                "(?i)Turbidity\\s*Manifest",
+                                "濁流具現",
+                                "탁류 구현"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "SearingScars",
+                    "label": "$option.UmbralMonumentTarget.case.SearingScars.label",
+                    "pipeline_override": {
+                        "UmbralMonumentSelectLatest": {
+                            "enabled": false
+                        },
+                        "UmbralMonumentSelectByName": {
+                            "enabled": true
+                        },
+                        "UmbralMonumentNameText": {
+                            "expected": [
+                                "灼痛疤痕",
+                                "灼痛疤痕",
+                                "(?i)Searing\\s*Scars",
+                                "灼ける傷跡",
+                                "작열의 흉터"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "InorganicConstruct",
+                    "label": "$option.UmbralMonumentTarget.case.InorganicConstruct.label",
+                    "pipeline_override": {
+                        "UmbralMonumentSelectLatest": {
+                            "enabled": false
+                        },
+                        "UmbralMonumentSelectByName": {
+                            "enabled": true
+                        },
+                        "UmbralMonumentNameText": {
+                            "expected": [
+                                "无机造物",
+                                "無機造物",
+                                "(?i)Inorganic\\s*Construct",
+                                "無機的造物",
+                                "무기물"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ThoseForsakenByTheLand",
+                    "label": "$option.UmbralMonumentTarget.case.ThoseForsakenByTheLand.label",
+                    "pipeline_override": {
+                        "UmbralMonumentSelectLatest": {
+                            "enabled": false
+                        },
+                        "UmbralMonumentSelectByName": {
+                            "enabled": true
+                        },
+                        "UmbralMonumentNameText": {
+                            "expected": [
+                                "大地的弃子",
+                                "大地的棄子",
+                                "(?i)Those\\s*Forsaken\\s*by\\s*the\\s*Land",
+                                "大地に見捨てられし者",
+                                "대지에게 버림받은 존재"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "Latest"
+        },
+        "UmbralMonumentTeamChoose": {
+            "type": "select",
+            "label": "$option.UmbralMonumentTeamChoose.label",
+            "cases": [
+                {
+                    "name": "Default",
+                    "label": "$option.UmbralMonumentTeamChoose.case.Default.label",
+                    "pipeline_override": {
+                        "PrepareTeamChoose": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Team01",
+                    "label": "01",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot01"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Team02",
+                    "label": "02",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot02"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Team03",
+                    "label": "03",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot03"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Team04",
+                    "label": "04",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot04"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Team05",
+                    "label": "05",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot05"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Team06",
+                    "label": "06",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot06"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Team07",
+                    "label": "07",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot07"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "Default"
+        },
+        "UmbralMonumentRetryCount": {
+            "type": "select",
+            "label": "$option.UmbralMonumentRetryCount.label",
+            "cases": [
+                {
+                    "name": "Retry0",
+                    "label": "0",
+                    "pipeline_override": {
+                        "UmbralMonumentFightFailedRetry": {
+                            "max_hit": 0
+                        }
+                    }
+                },
+                {
+                    "name": "Retry1",
+                    "label": "1",
+                    "pipeline_override": {
+                        "UmbralMonumentFightFailedRetry": {
+                            "max_hit": 1
+                        }
+                    }
+                },
+                {
+                    "name": "Retry2",
+                    "label": "2",
+                    "pipeline_override": {
+                        "UmbralMonumentFightFailedRetry": {
+                            "max_hit": 2
+                        }
+                    }
+                },
+                {
+                    "name": "Retry3",
+                    "label": "3",
+                    "pipeline_override": {
+                        "UmbralMonumentFightFailedRetry": {
+                            "max_hit": 3
+                        }
+                    }
+                },
+                {
+                    "name": "Retry4",
+                    "label": "4",
+                    "pipeline_override": {
+                        "UmbralMonumentFightFailedRetry": {
+                            "max_hit": 4
+                        }
+                    }
+                },
+                {
+                    "name": "Retry5",
+                    "label": "5",
+                    "pipeline_override": {
+                        "UmbralMonumentFightFailedRetry": {
+                            "max_hit": 5
+                        }
+                    }
+                },
+                {
+                    "name": "Unlimited",
+                    "label": "$option.UmbralMonumentRetryCount.case.Unlimited.label"
+                }
+            ],
+            "default_case": "Retry3"
+        }
+    }
+}

@@ -1,3 +1,4 @@
+#include <functional>
 #include <limits>
 #include <mutex>
 #include <optional>
@@ -10,15 +11,15 @@
 #include <MaaUtils/Logger.h>
 
 #include "../MapLocator/MapLocateAction.h"
-#include "action_executor.h"
-#include "action_wrapper.h"
-#include "motion_controller.h"
+#include "control/action_wrapper.h"
+#include "control/motion_controller.h"
 #include "navi_config.h"
 #include "navi_controller.h"
-#include "navigation_session.h"
-#include "navigation_state_machine.h"
-#include "navmesh_path_expander.h"
-#include "position_provider.h"
+#include "planning/navigation_session.h"
+#include "planning/navmesh_path_expander.h"
+#include "semantic/action_executor.h"
+#include "sensing/position_provider.h"
+#include "state_machine/navigation_state_machine.h"
 
 namespace mapnavigator
 {
@@ -26,9 +27,7 @@ namespace mapnavigator
 namespace
 {
 
-// 导航期间调起的交互子任务是 pipeline, 它的 next 能被接回导航动作本身。子任务同步调起, 那会在同一条 nav
-// 线程上套第二层导航: 两层抢同一个控制器与定位器, 而且能无限套下去。这道闸把栈深封死在 1, 按 tasker 分,
-// 一个进程里跑多台设备时互不误伤。
+// 子任务 pipeline 可能重入导航动作, 按 tasker 把导航嵌套深度限制为 1
 std::mutex g_navigating_taskers_mutex;
 std::set<MaaTasker*> g_navigating_taskers;
 
@@ -61,6 +60,37 @@ private:
     bool taken_ = false;
 };
 
+// 首次展开失败就跳过已走过的前缀重试, 返回跳过的作者点数
+std::optional<size_t>
+    ExpandRoute(const NaviParam& param, const NaviPosition& pos, const std::function<bool()>& is_stopping, std::vector<Waypoint>& out_path)
+{
+    if (ExpandNavmeshWaypoints(param, pos, is_stopping, out_path)) {
+        return 0;
+    }
+    const std::optional<size_t> resume = ResolveRouteResumeIndex(param.path, pos);
+    if (!resume) {
+        return std::nullopt;
+    }
+    NaviParam resumed_param = param;
+    resumed_param.path.assign(param.path.begin() + static_cast<std::ptrdiff_t>(*resume), param.path.end());
+    if (!ExpandNavmeshWaypoints(resumed_param, pos, is_stopping, out_path)) {
+        return std::nullopt;
+    }
+    const size_t resume_index = *resume;
+    LogInfo << "Expanded the route again after skipping the traversed prefix." << VAR(resume_index);
+    return resume_index;
+}
+
+// 展开时记的组首是相对跳过前缀后的路线, 补回跳过的点数
+void OffsetAuthoredGroups(std::vector<Waypoint>& path, size_t resume_index)
+{
+    for (Waypoint& waypoint : path) {
+        if (waypoint.authored_group_begin != std::numeric_limits<size_t>::max()) {
+            waypoint.authored_group_begin += resume_index;
+        }
+    }
+}
+
 } // namespace
 
 NaviController::NaviController(MaaContext* ctx)
@@ -70,7 +100,7 @@ NaviController::NaviController(MaaContext* ctx)
 
 bool NaviController::Navigate(const NaviParam& requested_param)
 {
-    // 先取闸再做任何事: 作者的图若无限重试这个被拒的节点, 每次都必须是零成本的。
+    // 须最先取闸, 被拒的节点可能被无限重试
     const NavigationEntryGuard entry_guard(MaaContextGetTasker(ctx_));
     if (!entry_guard.taken()) {
         LogError << "Refusing to nest navigation: this tasker is already navigating.";
@@ -119,19 +149,9 @@ bool NaviController::Navigate(const NaviParam& requested_param)
     LogInfo << "Initial Pos fixed:" << VAR(position_x) << VAR(position_y);
 
     std::vector<Waypoint> expanded_path;
-    size_t resume_index = 0;
-    if (!ExpandNavmeshWaypoints(param, pos, is_stopping, expanded_path)) {
-        const std::optional<size_t> resume = ResolveRouteResumeIndex(param.path, pos);
-        if (!resume) {
-            return false;
-        }
-        NaviParam resumed_param = param;
-        resumed_param.path.assign(param.path.begin() + static_cast<std::ptrdiff_t>(*resume), param.path.end());
-        if (!ExpandNavmeshWaypoints(resumed_param, pos, is_stopping, expanded_path)) {
-            return false;
-        }
-        resume_index = *resume;
-        LogInfo << "Expanded the route again after skipping the traversed prefix." << VAR(resume_index);
+    const std::optional<size_t> resume_index = ExpandRoute(param, pos, is_stopping, expanded_path);
+    if (!resume_index) {
+        return false;
     }
     if (expanded_path.empty()) {
         return true;
@@ -140,13 +160,7 @@ bool NaviController::Navigate(const NaviParam& requested_param)
     NaviParam expanded_param = param;
     expanded_param.path = std::move(expanded_path);
     expanded_param.authored_path = std::move(param.path);
-    if (resume_index > 0) {
-        for (Waypoint& waypoint : expanded_param.path) {
-            if (waypoint.authored_group_begin != std::numeric_limits<size_t>::max()) {
-                waypoint.authored_group_begin += resume_index;
-            }
-        }
-    }
+    OffsetAuthoredGroups(expanded_param.path, *resume_index);
 
     NavigationSession session(expanded_param.path, pos);
     session.UpdatePhase(NaviPhase::Bootstrap, "initial_fix");

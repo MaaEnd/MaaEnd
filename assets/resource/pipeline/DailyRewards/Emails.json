@@ -183,6 +183,7 @@
         }
     },
     "DailyEmailExistTSA": {
+        "max_hit": 1,
         "recognition": {
             "type": "TemplateMatch",
             "param": {

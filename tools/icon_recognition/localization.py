@@ -4,8 +4,6 @@
 哈希表。
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 from collections.abc import Mapping
@@ -13,11 +11,10 @@ from pathlib import Path
 from typing import Any
 
 import json5
-
 from fixed_items import FIXED_ITEMS
 from text import clean_text
-from tools.zmdmap import read_payload
 
+from tools.zmdmap import read_payload
 
 LOCALE_MAP = {
     "zh_cn": ("CN", "zh-CN"),

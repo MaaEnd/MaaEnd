@@ -10,13 +10,11 @@ macOS 注意事项：
     首次运行时需要在 *系统设置 → 隐私与安全性 → 输入监控* 中授权终端或 Python。
 """
 
-from __future__ import annotations
-
-import os
+import contextlib
 import sys
 import threading
 import time
-from typing import Callable
+from collections.abc import Callable
 
 _lock = threading.Lock()
 _listener = None
@@ -93,10 +91,8 @@ def stop() -> None:
     """停止后台按键监听并清空状态。"""
     global _listener, _started
     if _listener is not None:
-        try:
+        with contextlib.suppress(Exception):
             _listener.stop()
-        except Exception:
-            pass
         _listener = None
     _started = False
     unregister_all()

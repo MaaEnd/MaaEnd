@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import ctypes
 import inspect
 import json
@@ -16,7 +14,13 @@ from connection_models import (
     RecordingSessionConfig,
     Win32ConnectionConfig,
 )
-from runtime import AGENT_DIR, MAAFW_BIN_DIR, MaaRuntime, RESOURCE_ADB_DIR, RESOURCE_LINUX_DIR
+from runtime import (
+    AGENT_DIR,
+    MAAFW_BIN_DIR,
+    RESOURCE_ADB_DIR,
+    RESOURCE_LINUX_DIR,
+    MaaRuntime,
+)
 
 DEFAULT_ADB_INPUT_METHODS = 1 | 2 | 4
 DEFAULT_ADB_SCREENCAP_METHODS = 1 | 2 | 4 | 64
@@ -251,7 +255,7 @@ def list_gamescope_instances(runtime: Any) -> list[dict[str, Any]]:
     try:
         runtime.Library.open(MAAFW_BIN_DIR)
         instances = toolkit.find_gamescope_instances()
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return [{"error": str(exc)}]
     return [
         {
@@ -441,7 +445,7 @@ def find_toolkit_adb_device(toolkit_type: Any, adb_path: str, address: str) -> d
     candidate_invocations = []
     if adb_path:
         candidate_invocations.append((adb_path,))
-    candidate_invocations.append(tuple())
+    candidate_invocations.append(())
 
     for args in candidate_invocations:
         try:

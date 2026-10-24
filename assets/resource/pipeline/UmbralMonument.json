@@ -1,0 +1,654 @@
+{
+    "UmbralMonumentEntry": {
+        "desc": "影拓丰碑任务入口，强制重新进入影拓丰碑列表",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuOperationalManualUmbralMonument"
+            ]
+        },
+        "next": [
+            "UmbralMonumentSelectLatest",
+            "UmbralMonumentSelectByName",
+            "UmbralMonumentListComplete",
+            "[JumpBack]UmbralMonumentListSwipe"
+        ]
+    },
+    "UmbralMonumentSelectLatest": {
+        "desc": "在影拓丰碑列表，点击第一个（最新）影拓丰碑的名字",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManualUmbralMonument",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    40,
+                    555,
+                    230,
+                    35
+                ],
+                "order_by": "Area"
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UmbralMonumentDetailIn"
+        ]
+    },
+    "UmbralMonumentSelectByName": {
+        "desc": "在影拓丰碑列表，OCR 查找指定名字的影拓丰碑并点击",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManualUmbralMonument",
+            "UmbralMonumentNameText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UmbralMonumentDetailIn"
+        ]
+    },
+    "UmbralMonumentNameText": {
+        "desc": "影拓丰碑列表卡片下方的名字，expected 由选项覆盖",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            550,
+            1280,
+            40
+        ],
+        "expected": [
+            "幽影刻形"
+        ]
+    },
+    "UmbralMonumentListComplete": {
+        "desc": "列表已到底仍未找到目标影拓丰碑：比较滑动前后的名字行，卡面有动画所以不比整张卡片",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "roi": [
+            0,
+            550,
+            1280,
+            40
+        ],
+        "next": [
+            "UmbralMonumentNotFound"
+        ]
+    },
+    "UmbralMonumentNotFound": {
+        "desc": "列表中没有目标影拓丰碑，结束任务"
+    },
+    "UmbralMonumentListSwipe": {
+        "desc": "当前画面没有目标影拓丰碑，列表向右滑动",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManualUmbralMonument"
+        ],
+        "action": "Swipe",
+        "begin": [
+            1100,
+            330,
+            10,
+            10
+        ],
+        "end": [
+            200,
+            330,
+            10,
+            10
+        ],
+        "end_hold": 500,
+        "duration": 600,
+        // 等卡片下方名字行稳定；卡面有动画，不能等整张卡片
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                540,
+                1280,
+                60
+            ]
+        }
+    },
+    "UmbralMonumentDetailIn": {
+        "desc": "在影拓丰碑关卡详情界面：右下角有苦难模式开关；每次回到详情界面（即开始新一关）清零失败重试计数",
+        "recognition": "OCR",
+        "roi": [
+            830,
+            648,
+            90,
+            28
+        ],
+        "expected": [
+            "苦难模式",
+            "苦難模式",
+            "(?i)Agony\\s*Mode",
+            "ハードモード",
+            "고난 모드"
+        ],
+        "pre_wait_freezes": 300,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "UmbralMonumentFightFailedRetry"
+            ]
+        },
+        "next": [
+            "UmbralMonumentStageSelect",
+            "UmbralMonumentAllCleared"
+        ]
+    },
+    "UmbralMonumentStageSelect": {
+        "desc": "选择第一个普通模式未通关的关卡（左侧白色点阵方块图标）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            30,
+            85,
+            60,
+            560
+        ],
+        "template": "UmbralMonument/StageUncleared.png",
+        "order_by": "Vertical",
+        "action": "Click",
+        "next": [
+            "UmbralMonumentChallenge"
+        ]
+    },
+    "UmbralMonumentAllCleared": {
+        "desc": "没有普通模式未通关的关卡，结束任务",
+        "focus": {
+            "Node.Action.Succeeded": "$task.UmbralMonument.focus.all_cleared"
+        }
+    },
+    "UmbralMonumentChallenge": {
+        "desc": "在关卡详情界面，点击挑战影拓丰碑",
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentDetailIn",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    1040,
+                    640,
+                    210,
+                    45
+                ],
+                "expected": [
+                    "挑战影拓丰碑",
+                    "挑戰影拓豐碑",
+                    "(?i)Challenge",
+                    "挑戦",
+                    "도전"
+                ]
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 300,
+        "action": "Click",
+        "next": [
+            "UmbralMonumentPrepareIn"
+        ]
+    },
+    "UmbralMonumentPrepareIn": {
+        "desc": "在编队准备界面：左上角队伍图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "template": "ProtocolSpace/TeamChooseIcon.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 300,
+        "next": [
+            "[JumpBack]PrepareTeamChoose",
+            "UmbralMonumentConfirm"
+        ]
+    },
+    "UmbralMonumentConfirm": {
+        "desc": "在编队准备界面，点击挑战影拓丰碑进入战斗",
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentPrepareIn",
+            "YellowConfirmButtonType2"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 300,
+        "action": "Click",
+        "next": [
+            "UmbralMonumentStageStart"
+        ]
+    },
+    "UmbralMonumentStageStart": {
+        "desc": "进入关卡后：等待加载，已开战则进入战斗，关卡目标为触摸光点则先走触摸路径",
+        "next": [
+            "UmbralMonumentFightStart",
+            "UmbralMonumentTouchMove1",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "UmbralMonumentFightStart": {
+        "desc": "左侧出现重开按钮，说明战斗已开始",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            200,
+            160,
+            200
+        ],
+        "template": "ProtocolSpace/SpaceResart.png",
+        "green_mask": true,
+        "next": [
+            "UmbralMonumentFighting"
+        ]
+    },
+    "UmbralMonumentFighting": {
+        "desc": "战斗开始后：自动战斗，直到出现胜利或失败结算界面",
+        "next": [
+            "UmbralMonumentFightSuccess",
+            "UmbralMonumentFightFailed",
+            "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]AutoFight"
+        ]
+    },
+    "UmbralMonumentTouchObjective": {
+        "desc": "左侧关卡目标为触摸光点，需要先触碰光点才会开始战斗",
+        "recognition": "OCR",
+        "roi": [
+            50,
+            200,
+            240,
+            35
+        ],
+        "expected": [
+            "触摸光点",
+            "觸摸光點",
+            "(?i)Touch\\s*the\\s*light",
+            "光に触れる",
+            "빛나는 점과 접촉하기"
+        ]
+    },
+    "UmbralMonumentTouchStart": {
+        "desc": "出现触碰提示，触碰光点开始战斗",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "ProtocolSpaceTouchStartPrompt"
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "ProtocolSpaceTouchStartPrompt"
+        },
+        "next": [
+            "UmbralMonumentFightStart"
+        ]
+    },
+    "UmbralMonumentTouchMove1": {
+        "desc": "关卡目标为触摸光点，尝试第一次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove2"
+        ]
+    },
+    "UmbralMonumentTouchMove2": {
+        "desc": "关卡目标为触摸光点，尝试第二次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove3"
+        ]
+    },
+    "UmbralMonumentTouchMove3": {
+        "desc": "关卡目标为触摸光点，尝试第三次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove4"
+        ]
+    },
+    "UmbralMonumentTouchMove4": {
+        "desc": "关卡目标为触摸光点，尝试第四次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove5"
+        ]
+    },
+    "UmbralMonumentTouchMove5": {
+        "desc": "关卡目标为触摸光点，尝试第五次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove6"
+        ]
+    },
+    "UmbralMonumentTouchMove6": {
+        "desc": "关卡目标为触摸光点，尝试第六次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove7"
+        ]
+    },
+    "UmbralMonumentTouchMove7": {
+        "desc": "关卡目标为触摸光点，尝试第七次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove8"
+        ]
+    },
+    "UmbralMonumentTouchMove8": {
+        "desc": "关卡目标为触摸光点，尝试第八次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove9"
+        ]
+    },
+    "UmbralMonumentTouchMove9": {
+        "desc": "关卡目标为触摸光点，尝试第九次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove10"
+        ]
+    },
+    "UmbralMonumentTouchMove10": {
+        "desc": "关卡目标为触摸光点，尝试第十次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove11"
+        ]
+    },
+    "UmbralMonumentTouchMove11": {
+        "desc": "关卡目标为触摸光点，尝试第十一次向前移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "UmbralMonumentTouchMove12"
+        ]
+    },
+    "UmbralMonumentTouchMove12": {
+        "desc": "关卡目标为触摸光点，尝试第十二次向前移动，因为存在视角锁定，锁定过程中没有什么特征可以识别，因此前进12步",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "UmbralMonumentTouchStart",
+            "[JumpBack]UmbralMonumentTouchMoveToTarget",
+            "[JumpBack]UmbralMonumentTouchNotFound"
+        ]
+    },
+    "UmbralMonumentTouchMoveToTarget": {
+        "desc": "向前移动后仍未出现触碰提示，识别光点并向其移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            {
+                "recognition": "NeuralNetworkDetect",
+                "roi": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "expected": 1,
+                "model": "ProtocolSpace/best.onnx"
+            }
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "CharacterMoveToTargetAction",
+        "custom_action_param": {
+            "align_threshold": 120
+        },
+        "post_delay": 600
+    },
+    "UmbralMonumentTouchNotFound": {
+        "desc": "光点未找到，向右旋转",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "UmbralMonumentTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterMoveToTargetNotFoundAction",
+        "custom_action_param": {
+            "delta": 45
+        }
+    },
+    "UmbralMonumentFightFinished": {
+        "desc": "战斗结算界面（胜利或失败），供 AutoFight 的 pause_exit_nodes 使用；两种界面的标题位置相同，一次 OCR 覆盖",
+        "recognition": "OCR",
+        "roi": [
+            520,
+            60,
+            240,
+            60
+        ],
+        "expected": [
+            "获得奖励",
+            "獲得獎勵",
+            "(?i)Rewards\\s*Acquired",
+            "報酬一覧",
+            "보상 획득",
+            "行动失败",
+            "行動失敗",
+            "(?i)Operation\\s*Failed",
+            "작전 실패"
+        ]
+    },
+    "UmbralMonumentFightSuccessText": {
+        "desc": "战斗胜利结算界面顶部的获得奖励",
+        "recognition": "OCR",
+        "roi": [
+            540,
+            70,
+            200,
+            45
+        ],
+        "expected": [
+            "获得奖励",
+            "獲得獎勵",
+            "(?i)Rewards\\s*Acquired",
+            "報酬一覧",
+            "보상 획득"
+        ]
+    },
+    "UmbralMonumentFightSuccess": {
+        "desc": "战斗胜利，点击离开回到关卡详情界面",
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentFightSuccessText",
+            "WhiteCancelButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 300,
+        "action": "Click",
+        "next": [
+            "UmbralMonumentDetailIn",
+            "[JumpBack]SceneWaitLoadingExit"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.UmbralMonument.focus.stage_cleared"
+        }
+    },
+    "UmbralMonumentFightFailed": {
+        "desc": "战斗失败结算界面",
+        "recognition": "And",
+        "all_of": [
+            "CheckOperationFailedText"
+        ],
+        "pre_wait_freezes": 300,
+        "next": [
+            "UmbralMonumentFightFailedRetry",
+            "UmbralMonumentFightFailedLeave"
+        ]
+    },
+    "UmbralMonumentFightFailedRetry": {
+        "desc": "战斗失败，点击重新挑战；max_hit 由选项覆盖为每关重试次数（在 UmbralMonumentDetailIn 清零），不覆盖即不限次数",
+        "recognition": "And",
+        "all_of": [
+            "CheckOperationFailedText",
+            "WhiteConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UmbralMonumentStageStart"
+        ]
+    },
+    "UmbralMonumentFightFailedLeave": {
+        "desc": "重试次数用完，点击离开并回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "CheckOperationFailedText",
+            "WhiteCancelButton"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UmbralMonumentExitToWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.UmbralMonument.focus.retry_exhausted"
+        }
+    },
+    "UmbralMonumentExitToWorld": {
+        "desc": "已回到大世界，结束任务",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ]
+    }
+}

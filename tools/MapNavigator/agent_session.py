@@ -4,8 +4,6 @@
 Agent 叫什么、要不要预置节点不同。热键不在这里: key_listener 是模块级单例, 由各自的服务自己管。
 """
 
-from __future__ import annotations
-
 import os
 import subprocess
 import time

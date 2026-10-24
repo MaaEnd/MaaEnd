@@ -1,12 +1,4 @@
 {
-    "ProtocolSpaceTeamChooseTextRecognition": {
-        "roi": [
-            0,
-            -70,
-            660,
-            45
-        ]
-    },
     "ProtocolSpaceTouchExitMoveToTarget": {
         "custom_action_param": {
             "align_threshold": 120,

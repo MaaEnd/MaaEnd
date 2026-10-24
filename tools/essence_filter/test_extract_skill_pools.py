@@ -1,7 +1,5 @@
 """Tests for tools/essence_filter/extract_skill_pools.py JSONC handling."""
 
-from __future__ import annotations
-
 import sys
 import tempfile
 import unittest

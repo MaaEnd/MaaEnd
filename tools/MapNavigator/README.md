@@ -339,7 +339,8 @@ uv run map-navigator --port 9000 --no-browser
 
 - `main.py`: 入口，拉起 web 后端并自动打开浏览器。
 - `web/serve.py`: FastAPI 后端（静态站点托管、寻路/导入导出/设置 API、录制 WebSocket 桥），仅监听 `127.0.0.1`。
-- `web/static/`: 浏览器前端（原生 JS + JSDoc + WebGL，ESM 模块，零构建）。
+- `web/static/`: 浏览器前端（原生 JS + JSDoc + WebGL，ESM 模块，零构建）。地图交互（`js/map_view.js`）、绘制、路线展开与请求封装是独立模块，[AutoCollect 采集路线生成器](../AutoCollectRoute/README.md)的页面直接引用它们。
+- `local_server.py`: 本机 Web 服务启动：只监听 `127.0.0.1`、选端口、就绪后开浏览器，采集路线生成器也用它启动。
 - `connection_models.py`: 录制会话、Win32/ADB/PlayCover 配置与设备模型。
 - `connectors.py`: 录制连接器抽象，以及各 controller 建连实现。
 - `settings_store.py`: 本地用户连接偏好持久化。
@@ -349,7 +350,7 @@ uv run map-navigator --port 9000 --no-browser
 - `session_worker.py`: 提权会话子进程。Windows 非管理员时录制与试跑跑在这里，与后端用回连 socket 通信（服务自身不重启、不提权）。
 - `session_modes.py`: 录制与试跑的差异表（服务怎么建、哪些消息算终结），进程内会话与子进程共用。
 - `clipboard.py`: 系统剪贴板写入（G 热键复制坐标）。
-- `navmesh_backend.py`: navmesh 查询后端，把 cpp-algo agent 当作常驻查询进程；几何解码、吸附、路线都在 agent 里算。
+- `navmesh_backend.py`: navmesh 查询后端，把 cpp-algo agent 当作常驻查询进程；几何解码、吸附、路线都在 agent 里算。navmesh 包与禁区表的路径、按运行时语义展开路线（`route_preview`）也在这里。
 - `json_import.py`: JSON/JSONC 导入解析与动作语义校验。
 - `key_listener.py`: 录制期间的全局按键监听与系统权限检查。
 - `model.py`: 路径数据结构、动作类型与路径规范化工具。

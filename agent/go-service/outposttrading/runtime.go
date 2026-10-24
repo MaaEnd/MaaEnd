@@ -69,6 +69,7 @@ type runtimeLocationPlan struct {
 	ExcludedOutOfStock []string
 	ReserveSatisfied   []goods.LocationPlanItem
 	ExcludedByUser     []string
+	ExcludedByPrice    []string
 }
 
 func printRuntimeLocationPlan(ctx *maa.Context, location string) error {
@@ -89,6 +90,7 @@ func printRuntimeLocationPlan(ctx *maa.Context, location string) error {
 		ExcludedOutOfStock: goodsPlan.ExcludedOutOfStock,
 		ReserveSatisfied:   goodsPlan.ReserveSatisfied,
 		ExcludedByUser:     goodsPlan.ExcludedByUser,
+		ExcludedByPrice:    goodsPlan.ExcludedByPrice,
 	}
 	maafocus.Print(ctx, runtimeLocationPlanMessage(plan))
 	return nil
@@ -123,6 +125,7 @@ func runtimeLocationPlanMessage(plan runtimeLocationPlan) string {
 	excludedOutOfStock := runtimePlanTextOrNone(strings.Join(plan.ExcludedOutOfStock, i18n.Separator()))
 	reserveSatisfied := runtimePlanTextOrNone(strings.Join(reserveSatisfiedNames, i18n.Separator()))
 	excludedByUser := runtimePlanTextOrNone(strings.Join(plan.ExcludedByUser, i18n.Separator()))
+	excludedByPrice := runtimePlanTextOrNone(strings.Join(plan.ExcludedByPrice, i18n.Separator()))
 	reservePlan := i18n.T("outposttrading.runtime.plan.no_reserve")
 	if len(reserveDescriptions) > 0 {
 		reservePlan = strings.Join(reserveDescriptions, i18n.Separator())
@@ -136,6 +139,7 @@ func runtimeLocationPlanMessage(plan runtimeLocationPlan) string {
 		excludedOutOfStock,
 		reserveSatisfied,
 		excludedByUser,
+		excludedByPrice,
 		reservePlan,
 	)
 }

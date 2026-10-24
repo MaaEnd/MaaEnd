@@ -66,14 +66,11 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup Python
-        uses: astral-sh/setup-uv@v7
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v10.3.0
         with:
-          python-version: "3.12"
           enable-cache: true
-
-      - name: Install test dependencies
-        run: uv sync --locked --no-default-groups --group pipeline --group images
+          cache-python: true
 
       # 与 install.yml 相同：以 MaaFramework 最新 release 为准，SDK、Python 绑定与 MaaUtils 均对齐到该版本。
       - name: Resolve MaaFramework version
@@ -89,13 +86,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
-        run: python3 tools/check_maautils_sync.py --maafw-ref "$MAAFW_VERSION"
-
-      # 覆盖锁文件中的版本；后续步骤均使用 --no-sync，不会被还原。
-      - name: Install matching Python binding
-        env:
-          MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
-        run: uv pip install "maafw==${MAAFW_VERSION#v}"
+        run: uv run tools/check_maautils_sync.py --maafw-ref "$MAAFW_VERSION"
 
       - name: Download MaaFramework SDK
         uses: robinraju/release-downloader@v1
@@ -124,7 +115,7 @@ jobs:
         if: steps.maadeps.outputs.cache-hit != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: uv run --no-sync python tools/maadeps-download.py x64-linux
+        run: uv run tools/maadeps-download.py x64-linux
 
       - name: Restore ccache
         uses: actions/cache/restore@v5
@@ -152,12 +143,16 @@ jobs:
           ln -s ../assets/resource install/resource
 
       - name: Run location tests
-        run: uv run --no-sync python -u tests/MapLocateAssertLocation/map_locate.py
+        env:
+          MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
+        run: uv run --with "maafw==${MAAFW_VERSION#v}" python -u tests/MapLocateAssertLocation/map_locate.py
 
       # 与定位测试解耦：定位失败时仍执行规划连通性检查。
       - name: Run navmesh connectivity tests
         if: ${{ !cancelled() }}
-        run: uv run --no-sync python -u tests/MapNavmeshConnectivity/navmesh_connectivity.py
+        env:
+          MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
+        run: uv run --with "maafw==${MAAFW_VERSION#v}" python -u tests/MapNavmeshConnectivity/navmesh_connectivity.py
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v6

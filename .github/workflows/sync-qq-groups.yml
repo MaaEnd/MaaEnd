@@ -20,9 +20,14 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           show-progress: false
 
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-python: true
+
       - name: Sync QQ group references
         run: |
-          python3 .github/scripts/sync_qq_groups.py
+          uv run .github/scripts/sync_qq_groups.py
 
       - name: Commit and push
         uses: actions-js/push@master

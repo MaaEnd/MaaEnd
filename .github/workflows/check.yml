@@ -44,13 +44,10 @@ jobs:
           node-version: 22
           cache: "pnpm"
 
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: true
+          cache-python: true
 
       - name: Run maa-checker
         run: |
@@ -58,4 +55,4 @@ jobs:
           pnpm run check
 
       - name: Validate JSON Schema
-        run: uv run --frozen --only-group schema tools/validate_schema.py --resource-dirs assets/resource --exclude-dirs assets/resource/gamedata assets/resource/image assets/resource/model --task-dirs assets/tasks
+        run: uv run tools/validate_schema.py --resource-dirs assets/resource --exclude-dirs assets/resource/gamedata assets/resource/image assets/resource/model --task-dirs assets/tasks

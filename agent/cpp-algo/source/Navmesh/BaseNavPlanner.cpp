@@ -21,7 +21,7 @@ namespace
 constexpr double kBridgeMaxHeightDelta = 3.0;
 constexpr uint32_t kSmallBridgeComponentMaxTriangles = 512;
 constexpr double kSmallBridgeMaxGap = 4.0;
-constexpr double kRoutePullSampleStep = 0.5; // 拉直判据沿捷径采样的步长(像素),与 Python ROUTE_PULL_SAMPLE_STEP 对齐
+constexpr double kRoutePullSampleStep = 0.5; // 拉直判据沿捷径采样的步长 px
 
 struct DisjointSet
 {
@@ -53,12 +53,9 @@ struct DisjointSet
 };
 
 constexpr uint32_t kInvalidTriangle = std::numeric_limits<uint32_t>::max();
-constexpr double kIndexBinSize = 4.0; // 空间分箱的格边长(px),与 Python basenav_lib INDEX_BIN_SIZE 对齐。
+constexpr double kIndexBinSize = 4.0;          // 空间分箱的格边长 px
 
-// tier 细分后三角形极小,8px 每桶堆 ~200 个 → 每次 pointOnMesh 候选遍历是后处理热点;4px 每桶 ~12 个,查询 ~4x 快
-// (空间索引仅加速查询、不改判定结果)。建索引略增但 C++ 编译版快,可忽略。
-
-constexpr double kSegmentWalkSnapRadius = 1.0; // 点查询(pointOnMesh/groundHeightNearIndexed)取候选三角形的邻域半径(px)
+constexpr double kSegmentWalkSnapRadius = 1.0; // 点查询取候选三角的邻域半径 px
 
 }
 
@@ -73,14 +70,13 @@ BaseNavPlanner::BaseNavPlanner(const BaseNavPack& pack)
             triangle_zones_[index] = zone.zone_id;
         }
     }
-    // 两段各写各的成员(连通分量与邻接表 / 空间桶), 读的只有 pack_ 与刚填好的分区表,
-    // 谁都看不见另一段的产物, 于是并起来跑与顺着跑逐位相同。
+    // 两段只写各自的成员且不读对方产物, 所以可以并行
     if (NavWorkerCount(static_cast<int64_t>(pack_.triangles().size())) <= 1) {
         buildIndex();
         buildSpatialIndex();
         return;
     }
-    // jthread: buildIndex 抛出时(分配失败是唯一的来路)另一个还在跑, 析构自己接回来。
+    // buildIndex 抛出时 jthread 析构会自动 join
     std::jthread bins([this] { buildSpatialIndex(); });
     buildIndex();
     bins.join();
@@ -90,9 +86,7 @@ void BaseNavPlanner::buildIndex()
 {
     buildNaturalComponents();
 
-    // 位图按每条边一比特存下通行判据, 换掉填充趟的整串重算: 两趟之间只做了前缀和与 resize,
-    // 谓词读的分区表、自然连通分量与三角几何一个字都没写, 第二趟必然复现第一趟的答案。
-    // 按字切块并行, 相邻块碰不到同一个 uint64_t, 于是位图与线程数无关。
+    // 按 uint64_t 字切块并行, 相邻块不共用一个字
     const auto& links = pack_.links();
     const size_t word_count = links.size() / 64 + 1;
     std::vector<uint64_t> passed(word_count, 0);
@@ -114,7 +108,6 @@ void BaseNavPlanner::buildIndex()
             }
         });
 
-    // 过筛的链接按落点分两处: 目标是自带邻居的置槽位比特, 其余进桥接表; 置位与排序都不依赖遍历顺序。
     const auto& triangles = pack_.triangles();
     for (size_t index = 0; index < links.size(); ++index) {
         if (((passed[index >> 6] >> (index & 63)) & 1) == 0) {
@@ -187,7 +180,6 @@ void BaseNavPlanner::buildSpatialIndex()
 {
     const auto& triangles = pack_.triangles();
 
-    // 三趟同一套遍历: 量各区格包围盒 → 数每格三角数 → 按三角升序回填。三角按区连续, 区槽缓存着查。
     struct BinRect
     {
         int32_t x0, x1, y0, y1;
@@ -204,7 +196,6 @@ void BaseNavPlanner::buildSpatialIndex()
                  static_cast<int32_t>(std::floor(top / kIndexBinSize)),
                  static_cast<int32_t>(std::floor(bottom / kIndexBinSize)) };
     };
-    // 区号 → 区槽。区外三角形(区号 0)不入索引, 与 Python _build_index 一致。
     bin_grids_.clear();
     std::vector<int32_t> zone_slot(size_t { 1 } << 16, -1);
     for (const BaseNavZone& zone : pack_.zones()) {
@@ -216,8 +207,7 @@ void BaseNavPlanner::buildSpatialIndex()
     const size_t nslots = bin_grids_.size();
     const int64_t n = static_cast<int64_t>(triangles.size());
     const size_t workers = NavWorkerCount(n);
-    // 三趟按三角分块并行: 量各区格包围盒 → 每块数每格三角数 → 每块往自己那段区间回填。
-    // 块序即三角序, 块内也按三角序, 于是格内三角升序, 与线程数无关。
+    // 块序即三角序, 所以格内三角升序且与线程数无关
     const auto for_each_tri = [&](auto&& fn) {
         ParallelChunks(n, workers, [&](size_t w, int64_t begin, int64_t end) {
             for (int64_t t = begin; t < end; ++t) {
@@ -255,7 +245,7 @@ void BaseNavPlanner::buildSpatialIndex()
         }
         BinGrid& grid = bin_grids_[slot];
         if (b.x0 > b.x1) {
-            continue; // 该区没有入索引的三角
+            continue;
         }
         grid.bx0 = b.x0;
         grid.by0 = b.y0;
@@ -266,7 +256,7 @@ void BaseNavPlanner::buildSpatialIndex()
     const auto cell = [](const BinGrid& grid, int32_t bin_x, int32_t bin_y) -> size_t {
         return static_cast<size_t>(bin_x - grid.bx0) * static_cast<size_t>(grid.ny) + static_cast<size_t>(bin_y - grid.by0);
     };
-    // counts[w][slot][c]: 第 w 块落进格 c 的三角数; 前缀后原地变成第 w 块在格 c 的写入游标。
+    // counts[w][slot][c] 先是第 w 块落进格 c 的三角数, 前缀和后变成写入游标
     std::vector<std::vector<std::vector<uint32_t>>> counts(workers, std::vector<std::vector<uint32_t>>(nslots));
     for (size_t w = 0; w < workers; ++w) {
         for (size_t slot = 0; slot < nslots; ++slot) {
@@ -374,12 +364,12 @@ std::optional<double> BaseNavPlanner::groundHeightNearIndexed(
             out_triangle = triangle_index;
         }
         else if (!reference) {
-            if (height < *best) { // 无参考(直线起点):取最低瓦片,即路面而非恰好重叠其上的墙体
+            if (height < *best) {
                 best = height;
                 out_triangle = triangle_index;
             }
         }
-        else if (std::abs(height - *reference) < std::abs(*best - *reference)) { // 取与上一采样高度最接近者,保持脚下地面连续
+        else if (std::abs(height - *reference) < std::abs(*best - *reference)) {
             best = height;
             out_triangle = triangle_index;
         }
@@ -396,23 +386,21 @@ bool BaseNavPlanner::segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a
     const double length = std::hypot(b.x - a.x, b.y - a.y);
     const int samples = std::max(1, static_cast<int>(length / kRoutePullSampleStep));
     std::optional<double> previous = seed_height;
-    // 缓存上一采样点命中的三角形:相邻采样多落在同一三角形内,命中则复用其高度,省去 candidateTriangles
-    // 扫描,且结果与完整扫描等价。
     uint32_t cached = kInvalidTriangle;
     for (int index = 0; index <= samples; ++index) {
         const double t = static_cast<double>(index) / samples;
         const WorldPoint point { .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t };
         if (previous && cached != kInvalidTriangle) {
             if (detail::PointInTriangle(point, trianglePoints(cached))) {
-                continue; // 命中缓存:高度等于 previous、三角形未变,直接进入下一采样点
+                continue;
             }
         }
         const std::optional<double> height = groundHeightNearIndexed(zone_id, point, previous, cached);
         if (!height) {
-            return false; // 采样点离开网格,判定捷径不可走
+            return false;
         }
         if (previous && std::abs(*height - *previous) > kBridgeMaxHeightDelta) {
-            return false; // 地面高度突跳(踩入墙体或跌落台面),为结构性拐角,捷径不可走
+            return false;
         }
         previous = height;
     }
@@ -457,30 +445,19 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
         return std::nullopt;
     }
 
-    // 仅取邻近格内的候选三角形,替代对整区的线性扫描;经下方相同的剔除后结果与线性扫描一致。
     const double query_radius = std::max(0.0, radius);
     std::vector<uint32_t> candidates = candidateTriangles(zone_id, point, query_radius);
     if (candidates.empty() && query_radius < kIndexBinSize) {
-        // 半径不足一格时邻域可能为空,放宽到整格再取候选(命中仍受 radius 距离剔除约束)。
+        // 放宽只为取候选, 命中仍受 radius 剔除
         candidates = candidateTriangles(zone_id, point, kIndexBinSize);
     }
 
-    // A (u,v) can stack a tiny disconnected fragment (baked wall-top / ledge, never the real walkable floor)
-    // right over the dominant surface. Snapping onto it strands the endpoint in a micro-component and A* then
-    // false-reports Unreachable. Demote such a fragment so a non-island candidate always wins — the same
-    // size cutoff the bridge logic treats as a stitchable island. Only re-ranks when both compete; the common
-    // single-surface (u,v) is untouched.
+    // 小碎片常摞在真实路面上方, 吸上去会让 A* 误报不可达, 所以排在后面
     const auto is_small_island = [&](uint32_t triangle_index) {
         return natural_component_sizes_[natural_component_ids_[triangle_index]] <= kSmallBridgeComponentMaxTriangles;
     };
 
     if (floor_y > kBaseNavFloorYValidMin) {
-        // Floor-aware path: a click in a multi-floor base projects onto several STACKED triangles
-        // (other floors / walls overlap this (u,v)). Rank so an in-band surface (|height-floor_y| <=
-        // kBaseNavFloorBand) always beats an off-band one, then by snap distance, then by height
-        // proximity to floor_y. The band is a PREFERENCE — if nothing lands in-band we still return the
-        // nearest surface (never nullopt), so floor_y only re-ranks onto the right floor, never gates it
-        // out. The zone + bbox culls match the floor-blind path below, so both see the same candidates.
         std::optional<std::tuple<int, int, double, double>> best_key;
         std::optional<BaseNavSnapResult> best_floor;
         for (const uint32_t triangle_index : candidates) {
@@ -517,9 +494,6 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
         return best_floor;
     }
 
-    // Floor-blind path: rank by (non-island first, then snap distance, then highest surface, then smallest
-    // index). Containing surfaces (distance 0) still win; it only diverges to skip a micro-component when a
-    // real surface competes, and to pick the top layer when several floors stack on the same (u,v).
     std::optional<std::tuple<int, double, double, uint32_t>> best_key;
     std::optional<BaseNavSnapResult> best;
     for (const uint32_t triangle_index : candidates) {
@@ -543,10 +517,7 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
                 continue;
             }
         }
-        // 距离打平只会发生在同一 (u,v) 上摞着好几层地面时(都含点 ⇒ 都是 0)。此时按高度降序:
-        // 底图像素是俯视图上的一点,那点看得见的就是最上面那层。原来的「取最小三角号」在这里
-        // 是任意的 —— 重烘一次三角顺序一换,起点就可能吸到桥下/水下那层,与终点分属两个分量,
-        // A* 直接报不连通。非打平的候选不受影响,distance 仍排在高度前面。
+        // 同一 (u,v) 摞着几层时距离都为 0, 取最上层, 俯视底图看见的就是它
         const std::tuple<int, double, double, uint32_t> key { is_small_island(triangle_index) ? 1 : 0,
                                                               distance,
                                                               -triangleHeight(triangle_index),
@@ -575,9 +546,7 @@ bool BaseNavPlanner::isRouteSegmentDrivable(
     if (half_width <= 0.0 || length <= std::numeric_limits<double>::epsilon()) {
         return true;
     }
-    // Walk both flanks of the same leg. They are pulled in by one half-width at each end so the test never
-    // asks about the ground beside the anchors themselves — those sit wherever the route already put them,
-    // frequently hard against a wall, and would veto every shortcut in a corridor.
+    // 两侧边线两端各内缩一个半宽, 端点常贴墙, 不内缩会否掉走廊里所有捷径
     const double ux = dx / length;
     const double uy = dy / length;
     const double inset = std::min(half_width, length * 0.5);
@@ -609,7 +578,6 @@ std::array<WorldPoint, 3> BaseNavPlanner::trianglePoints(uint32_t triangle_index
     };
 }
 
-// 按需从三个顶点算, 不留 553 万条 double 的表(44 MB); 表达式与原来逐位相同。
 double BaseNavPlanner::triangleHeight(uint32_t triangle_index) const
 {
     const auto& triangle = pack_.triangles()[triangle_index];

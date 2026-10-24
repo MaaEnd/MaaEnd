@@ -94,7 +94,7 @@ corepack enable pnpm
 ### 2.5 uv + Python
 
 - 按 [uv 官方安装指南](https://docs.astral.sh/uv/getting-started/installation/)安装 uv
-- uv 会按项目的 `pyproject.toml` 自动准备 Python 3.10+ 和脚本依赖，无需手动创建虚拟环境或执行 `pip install`
+- uv 会按项目的 `pyproject.toml` 自动准备 Python 3.14+ 和脚本依赖，无需手动创建虚拟环境或执行 `pip install`
 
 ### 2.6 Go（必装）
 
