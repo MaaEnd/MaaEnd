@@ -195,13 +195,16 @@ def main() -> int:
             }
         )
 
+    rendered = json.dumps(out_locations, ensure_ascii=False, indent=4) + "\n"
+    previous = args.output.read_text(encoding="utf-8") if args.output.is_file() else None
+    if previous == rendered:
+        # 内容一个字节都没变：整份产物跳过写入，同步时间也保持原值 —— 免得每次跑生成器都刷新一遍日期。
+        print(f"{args.output} 未变化，跳过写入（matcher_config 的 data_version 保持原值）")
+        return 0
+
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    with args.output.open("w", encoding="utf-8") as f:
-        json.dump(out_locations, f, ensure_ascii=False, indent=4)
-        f.write("\n")
-
+    args.output.write_text(rendered, encoding="utf-8")
     _update_data_version(root / DEFAULT_MATCHER_CONFIG, _sync_time())
-
     print(f"Wrote {len(out_locations)} locations to {args.output}")
     return 0
 

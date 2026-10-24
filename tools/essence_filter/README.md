@@ -49,8 +49,9 @@ uv run tools/essence_filter/extract_skill_pools.py
 
 从 `energy_point_gems.json` 解析地点词条并映射到 `skill_pools.json`，生成 `locations.json`
 （每个地点带 `level_id`，即源数据里的 `levelId`，运行时按它认地区）。
-生成成功后把本轮同步时间（UTC，形如 `2026-10-08 08:40:17 UTC`）写进 `matcher_config.json` 的 `data_version`，
-给用户看这份数据是哪天同步的。
+`locations.json` 内容有变化时，把本轮同步时间（UTC，形如 `2026-10-08 08:40:17 UTC`）写进
+`matcher_config.json` 的 `data_version`，给用户看这份数据是哪天同步的；内容没变就跳过写入，
+`data_version` 保持原值。
 
 ### 用法
 
