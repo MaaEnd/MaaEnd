@@ -1,6 +1,7 @@
 # Development Manual - DeliveryJobs
 
-`DeliveryJobs` (task name "Delivery Jobs") traverses all depot nodes according to the regions and depot nodes configured by the user, packing cargo for delivery jobs, accepting the jobs, and transferring them; optionally it hands the cargo to [AutoDelivery](../components/auto-delivery.md) for fully automatic delivery.
+`DeliveryJobs` (task name "Delivery Jobs") traverses all depot nodes according to the regions and depot nodes configured by the user, packing cargo for delivery jobs, accepting the jobs, and transferring them; optionally it hands the cargo to [AutoDelivery](../components/auto-delivery.md) for fully automatic delivery.  
+This document was updated on October 19, 2026.
 
 Three structural conventions of this task:
 
@@ -15,7 +16,7 @@ Go Service only provides `DeliveryJobsResolveOngoingDepotAction` (`agent/go-serv
 - **Entry**: the `DeliveryJobs` task in `assets/tasks/DeliveryJobs.json` → Pipeline entry `DeliveryJobsMain`, group `regional_development`. The task name and all option names are persisted configuration keys; renaming them invalidates users' existing configurations.
 - **Two-level configuration**: first switch regions on or off (Valley IV / Wuling), then choose a handling mode for each depot node (one of six). The handling mode decides which flow that depot node takes.
 - **The unit of traversal is the depot node**: every candidate of the region loop carries `[JumpBack]`, so when a sub-chain finishes, control returns to the loop node, which then tries the next candidate. "Automatically moving on to the next depot node after finishing one" is therefore implemented by loop re-entry, and no depot node needs to declare its own successor.
-- **The same depot node may be visited twice in one run**: after packing and accepting, the flow only returns to the depot node; the actual transfer is triggered by the `查看任务` (Check Mission) entry in the next round of the loop (for the second path, see [Two Transfer Paths](#two-transfer-paths)).
+- **The same depot node may still be visited twice in one run**: the transfer inside the packing flow is done on the spot by Quick Transfer (Accept and Transfer), or handed to fully automatic delivery; when the next round of the loop hits the `查看任务` (Check Mission) entry, it still transfers normally accepted jobs that already exist in the depot node and have not been transferred yet (see [Three Transfer Paths](#three-transfer-paths)).
 
 ## Flow Overview
 
@@ -35,7 +36,7 @@ flowchart TD
     RAuto --> Loop
     RTask --> RLoop(["DeliveryJobs{Region}Loop\nSubTask: enter this region's depot node scene\nsets DeliveryJobsGoToDepot / DeliveryJobsReturnToDepotNode / DeliveryJobsAfterAutoDelivery"])
     RLoop -->|"[JumpBack] × each depot node in this region"| EJob{{"DeliveryJobsEnter{Depot}DeliveryJob\nRecognizes 查看任务 (Check Mission)\nsets DeliveryJobsReturnToDepotNode = InLocalDepotNode"}}
-    RLoop -->|"[JumpBack] × each depot node in this region"| ECargo{{"DeliveryJobsEnter{Depot}Cargo\nRecognizes 查看报价 (Check Bid) / 货物装箱 (Pack Goods)\nsets 5 anchors"}}
+    RLoop -->|"[JumpBack] × each depot node in this region"| ECargo{{"DeliveryJobsEnter{Depot}Cargo\nRecognizes 查看报价 (Check Bid) / 货物装箱 (Pack Goods)\nsets 4 anchors"}}
     RLoop --> Next(["DeliveryJobsLoop\nNext region"])
     RLoop --> Menu
 ```
@@ -57,25 +58,30 @@ flowchart TD
     FillNext --> Bid{"DeliveryJobsInCargoRedistributionBid\n调度申请 (Redistribution Bid) screen\nuses DeliveryJobsRedistributionBidAction"}
     Bid -->|Cargo awaiting delivery detected| Ong["DeliveryJobsOngoingDelivery\nLeftover job, see 'Leftover Delivery Jobs'"]
     Bid -->|"[Anchor]DeliveryJobsRedistributionBidAction"| Mode{"Handling mode of this depot node"}
-    Mode -->|Accept and Transfer / Fully Automatic Delivery / Accept Job Only| RB["DeliveryJobsRedistributionBidNextStep\nClicks Confirm to accept the job"]
+    Mode -->|Accept and Transfer| QT["DeliveryJobsQuickTransfer\n快速转交 (Quick Transfer) on the Redistribution Bid screen"]
+    Mode -->|Fully Automatic Delivery / Accept Job Only| RB["DeliveryJobsRedistributionBidNextStep\nClicks Confirm to accept the job"]
     Mode -->|Handle by Bid| Decide["DeliveryJobsDecide{Depot}Quote, see 'Handle by Bid'"]
     Mode -->|Pack Cargo Only| Close["DeliveryJobsCloseRedistributionBid\nCloses the Redistribution Bid screen → InLocalDepotNode"]
-    RB -->|"Stops on a prompt page ([Anchor]AfterAcceptJob)"| Quick["DeliveryJobsDeliverQuickly / DeliveryJobsClickScreenToContinue\nDismisses prompts such as 尽快送达 (Deliver Quickly)"]
+    QT --> QTC["DeliveryJobsQuickTransferConfirm\nConfirms 快速转交 (Quick Transfer)"]
+    QTC --> QTR["DeliveryJobsQuickTransferReward\nCloses the 获得奖励 (Rewards) screen"]
+    QTR --> QTB["DeliveryJobsQuickTransferBackToLocalDepotNode\nClicks back to the 本地仓储节点 (Local Depot Node) tab"]
+    QTB --> Local["InLocalDepotNode\nBack to the local depot node (does not pass through GoToDepot)"]
+    RB -->|"Stops on a prompt page"| Quick["DeliveryJobsDeliverQuickly / DeliveryJobsClickScreenToContinue\nDismisses prompts such as 尽快送达 (Deliver Quickly)"]
     RB --> Back["DeliveryJobsBackToDepot\nWaits until back in the overworld (InWorld)"]
     Quick --> Back
     Back -->|"[Anchor]DeliveryJobsGoToDepot"| Land{"Where to go after accepting (differs by mode)"}
-    Land -->|Accept and Transfer / Accept Job Only| LandScene["This depot node's scene\n'Accept and Transfer': entry A transfers after loop re-entry; 'Accept Job Only': no transfer"]
+    Land -->|Accept Job Only| LandScene["This depot node's scene"]
     Land -->|Fully Automatic Delivery| LandAuto["DeliveryJobsAutoDelivery{Depot}, see 'Fully Automatic Delivery'"]
-    Land -->|Handle by Bid| LandRT["DeliveryJobsReturnAndTransfer{Depot} or DeliveryJobsAutoDelivery{Depot}\nDecided by the bid branch, see 'Handle by Bid'"]
+    Land -->|Handle by Bid| LandRT["DeliveryJobsAutoDelivery{Depot} / this depot node's scene\nDecided by the bid branch, see 'Handle by Bid'"]
 ```
 
 ## Depot Node Handling Modes
 
 Each depot node has one `select`, defaulting to "Accept and Transfer". The six modes are implemented by overriding the node properties of that depot node (`deliveryEnabled` / `cargoEnabled` are the `enabled` of `DeliveryJobsEnter{Depot}DeliveryJob` / `DeliveryJobsEnter{Depot}Cargo`):
 
-| Handling mode | Entries enabled | Packing recognition text | Redistribution Bid screen action | After accepting |
+| Handling mode | Entries enabled | Packing recognition text | Redistribution Bid screen action | Where the flow goes next |
 | --- | --- | --- | --- | --- |
-| Accept and Transfer | Both enabled | `查看报价` (Check Bid) / `货物装箱` (Pack Goods) | `DeliveryJobsRedistributionBidNextStep` | `DeliveryJobsDeliverQuickly` → back to the depot node |
+| Accept and Transfer | Both enabled | `查看报价` (Check Bid) / `货物装箱` (Pack Goods) | `DeliveryJobsQuickTransfer` | Quick Transfer confirm → close the rewards screen → back to the local depot node (`InLocalDepotNode`) |
 | Fully Automatic Delivery | Both enabled | `查看报价` (Check Bid) / `货物装箱` (Pack Goods) | `DeliveryJobsRedistributionBidNextStep` | `DeliveryJobsAutoDelivery{Depot}` |
 | Handle by Bid | Cargo entry only | `查看报价` (Check Bid) / `货物装箱` (Pack Goods) | `DeliveryJobsDecide{Depot}Quote` | Decided by the bid branch |
 | Accept Job Only | Cargo entry only | `查看报价` (Check Bid) / `货物装箱` (Pack Goods) | `DeliveryJobsRedistributionBidNextStep` | Back to the depot node, no transfer |
@@ -84,24 +90,26 @@ Each depot node has one `select`, defaulting to "Accept and Transfer". The six m
 
 A few points that are easy to misread:
 
-- **The transfer of "Accept and Transfer" is not part of the packing flow.** After packing and accepting, the flow only returns to the depot node; the actual transfer is triggered when the next round of the region loop hits entry A (which recognizes `查看任务` (Check Mission)), so the same depot node may be visited twice in one run.
+- **"Accept and Transfer" transfers on the spot inside the packing flow.** On the Redistribution Bid screen it goes through `DeliveryJobsQuickTransfer` (the white `快速转交` (Quick Transfer) button) → confirm → close the rewards screen → click back to the local depot node. It no longer clicks "Confirm to accept the job" and no longer passes through the post-accept prompt page.
+- **Entry A is still the second transfer path.** Under "Accept and Transfer", normally accepted jobs that already exist in the depot node and have not been transferred yet (for example, left over from a previous run) are transferred by `DeliveryJobsClickTransferJob` → `DeliveryJobsConfirmTaskTransfer` when the region loop re-enters and hits entry A (`查看任务` (Check Mission)); so the same depot node may still be visited twice in one run.
 - **"Accept Job Only" and "Pack Cargo Only" achieve "no transfer" by disabling entry A**, not by a check in the flow; so under these two modes, delivery jobs the depot node already has are never transferred; both modes still reach the Redistribution Bid screen, though, so a seized job in hand is still always delivered, see [Leftover Delivery Jobs](#leftover-delivery-jobs).
 - **The packing recognition of "Pack Cargo Only" accepts only `货物装箱` (Pack Goods)**, not `查看报价` (Check Bid): the entry shows `查看报价` when the cargo box is already full, and shows `货物装箱` only when it is not full.
 - **"Do Not Process" does not override the leftover-job dispatch node**; it takes the template default `DeliveryJobsSkipOngoingDelivery` (see [Leftover Delivery Jobs](#leftover-delivery-jobs)).
 - **The handling mode also decides where leftover jobs go**: `deliveryEnabled` / `cargoEnabled` only toggle the entries; the leftover-job action of the same select is written separately by the generator into `DeliveryJobsOngoingDeliveryFor{Depot}.next` (see [Leftover Delivery Jobs](#leftover-delivery-jobs)).
 
-### Two Transfer Paths
+### Three Transfer Paths
 
-Within the same depot node, there are two independent paths for "handing over the job in the box"; when troubleshooting, do not watch only one of them:
+Within the same depot node, there are three independent paths for "handing over the job in the box"; when troubleshooting, do not watch only one of them:
 
 | # | Trigger | Nodes passed through | When this path is taken |
 | --- | --- | --- | --- |
-| 1 | After loop re-entry, entry A `查看任务` (Check Mission) is hit | `DeliveryJobsClickTransferJob` → `DeliveryJobsConfirmTaskTransfer` | Under "Accept and Transfer", when entry A is enabled and the depot node still has `max_hit` quota left ("Fully Automatic Delivery" re-points entry A's `next` to delivery) |
-| 2 | The Redistribution Bid screen detects cargo already awaiting delivery | `DeliveryJobsOngoingDelivery` → `DeliveryJobsEnsureOngoingDeliveryMission` → `DeliveryJobsWaitOngoingMissionDetail`: **first decide whether this job can be transferred** (`转交运送委托` (Transfer Delivery Job) in the details = a normally accepted job; absent = a seized job). Only a transferable job goes through `DeliveryJobsOngoingDeliveryFor{Depot}` according to the mode of the depot node it belongs to ("Accept and Transfer" → `DeliveryJobsTransferOngoingJob`; "Fully Automatic Delivery" and "Handle by Bid" → `DeliveryJobsAutoDelivery{DepotId}`; any other mode → `DeliveryJobsSkipOngoingDelivery`); a seized job always goes through `DeliveryJobsTransferUnavailable` → `DeliveryJobsDeliverOngoingByAutoDelivery` to be delivered | When the job in hand has not been handed over yet and the flow enters this depot node's packing / Redistribution Bid flow again |
+| 1 | Clicking `快速转交` (Quick Transfer) on the Redistribution Bid screen | `DeliveryJobsQuickTransfer` → `DeliveryJobsQuickTransferConfirm` → `DeliveryJobsQuickTransferReward` → `DeliveryJobsQuickTransferBackToLocalDepotNode` | The default path of "Accept and Transfer" (choosing "Accept and Transfer" for either bid action also takes it), which transfers directly inside this packing flow |
+| 2 | After loop re-entry, entry A `查看任务` (Check Mission) is hit | `DeliveryJobsClickTransferJob` → `DeliveryJobsConfirmTaskTransfer` | Normally accepted jobs already in the depot node that have not been transferred yet; under "Accept and Transfer", when entry A is enabled and the depot node still has `max_hit` quota left ("Fully Automatic Delivery" re-points entry A's `next` to delivery) |
+| 3 | The Redistribution Bid screen detects cargo already awaiting delivery | `DeliveryJobsOngoingDelivery` → `DeliveryJobsEnsureOngoingDeliveryMission` → `DeliveryJobsWaitOngoingMissionDetail`: **first decide whether this job can be transferred** (`转交运送委托` (Transfer Delivery Job) in the details = a normally accepted job; absent = a seized job). Only a transferable job goes through `DeliveryJobsOngoingDeliveryFor{Depot}` according to the mode of the depot node it belongs to ("Accept and Transfer" → `DeliveryJobsTransferOngoingJob`; "Fully Automatic Delivery" and "Handle by Bid" → `DeliveryJobsAutoDelivery{DepotId}`; any other mode → `DeliveryJobsSkipOngoingDelivery`); a seized job always goes through `DeliveryJobsTransferUnavailable` → `DeliveryJobsDeliverOngoingByAutoDelivery` to be delivered | When the job in hand has not been handed over yet and the flow enters this depot node's packing / Redistribution Bid flow again |
 
 ### `DeliveryJobsEnter{Depot}PriceDeliveryJob`
 
-It has exactly the same recognition, anchor, and `next` as `DeliveryJobsEnter{Depot}DeliveryJob`, and both carry `max_hit: 1`. Under "Handle by Bid", entry A is `enabled: false` while this node stays enabled; when that mode's bid action is "Accept and Transfer", `DeliveryJobsReturnAndTransfer{Depot}` points to it.
+It has exactly the same recognition, anchor, and `next` as `DeliveryJobsEnter{Depot}DeliveryJob`, and both carry `max_hit: 1`. Under "Handle by Bid", entry A is `enabled: false` while this node stays enabled; when that mode's bid action is "Accept and Transfer", the normal path transfers on the spot via `DeliveryJobsQuickTransfer`, and only when Quick Transfer falls back to `DeliveryJobsBackToDepot` does `DeliveryJobsGoToDepot` point to `DeliveryJobsReturnAndTransfer{Depot}` and call this node to complete the transfer.
 
 ## Handle by Bid
 
@@ -109,7 +117,7 @@ After "Handle by Bid" is selected, three extra options appear for that depot nod
 
 | Option | Type | Default | Purpose |
 | --- | --- | --- | --- |
-| Bid Processing Threshold | input | 119000 | Integer value compared with the currently selected bid, validated against `^\d+$` |
+| Bid Processing Threshold | input | 119000 (Valley IV) / 194000 (Wuling) | Integer value compared with the currently selected bid, validated against `^\d+$` |
 | At or Above the Threshold | select | Accept and Transfer | Which action runs when bid ≥ threshold |
 | Below the Threshold | select | Accept Job Only | Which action runs when bid < threshold |
 
@@ -123,17 +131,20 @@ flowchart TD
     Decide --> Fail["DeliveryJobsBidPriceRecognitionFailed\nBid not recognized: stops on the bid page and notifies the user, does not accept"]
     AtLeast --> QA{"Bid action\n(option overrides next and GoToDepot)"}
     Below --> QA
-    QA -->|Accept and Transfer / Fully Automatic Delivery / Accept Job Only| RB["DeliveryJobsRedistributionBidNextStep\nClicks Confirm to accept the job"]
+    QA -->|Accept and Transfer| QT["DeliveryJobsQuickTransfer\nTransfers directly on the Redistribution Bid screen"]
+    QA -->|Fully Automatic Delivery / Accept Job Only| RB["DeliveryJobsRedistributionBidNextStep\nClicks Confirm to accept the job"]
     QA -->|Do Not Process| Close["DeliveryJobsCloseRedistributionBid → InLocalDepotNode"]
+    QT --> Local["InLocalDepotNode\nBack to the local depot node"]
     RB --> Back["DeliveryJobsBackToDepot"]
-    Back -->|"[Anchor]DeliveryJobsGoToDepot"| Land["ReturnAndTransfer{Depot} / AutoDelivery{Depot} / this depot node's scene"]
+    Back -->|"[Anchor]DeliveryJobsGoToDepot"| Land["AutoDelivery{Depot} / this depot node's scene"]
 ```
 
 Implementation notes:
 
 - The threshold is injected into `ExpressionRecognition.expression` with `pipeline_type: string`; the actual comparisons are `{DeliveryJobsSelectedBidPrice}>={threshold}` and `{DeliveryJobsSelectedBidPrice}<{threshold}`. **`pipeline_type` must stay `string`**: setting it to `int` tries to convert the whole expression into an integer, which ends up as `null`.
 - Each of the two actions is one of four, and the values are **not shared** with the depot node handling modes: `Accept and Transfer` / `Fully Automatic Delivery` / `Accept Job Only` / `Do Not Process`; there are no "Handle by Bid" or "Pack Cargo Only" values.
-- **"How to accept" is expressed by the node's `next`; "where to go after accepting" is expressed only by `DeliveryJobsGoToDepot`.** The three "accept" actions share the same `DeliveryJobsRedistributionBidNextStep` and differ only in the anchor value: `DeliveryJobsReturnAndTransfer{Depot}` (return to the depot node and transfer), `DeliveryJobsAutoDelivery{Depot}` (hand over to fully automatic delivery), or this depot node's scene (just go back).
+- **"What to do" is expressed by the node's `next`; "where to go after accepting" is expressed only by `DeliveryJobsGoToDepot`.** "Fully Automatic Delivery" and "Accept Job Only" share the same `DeliveryJobsRedistributionBidNextStep` and differ only in the anchor value (`DeliveryJobsAutoDelivery{Depot}` or this depot node's scene); "Accept and Transfer" points `next` directly at `DeliveryJobsQuickTransfer`, the normal path no longer passes through `DeliveryJobsBackToDepot`, and `DeliveryJobsGoToDepot` takes effect only when Quick Transfer falls back after confirmation, with the value `DeliveryJobsReturnAndTransfer{Depot}`.
+- **"Accept and Transfer" does not click "Confirm to accept the job"**; Quick Transfer itself completes the transfer, so the normal path also does not consume the `max_hit` quota of `DeliveryJobsEnter{Depot}PriceDeliveryJob`.
 - These overrides are written by the options directly into the `next` and `anchor.DeliveryJobsGoToDepot` of `DeliveryJobs{Depot}QuoteAtLeastMinimum` / `DeliveryJobs{Depot}QuoteBelowMinimum`. "Do Not Process" points `next` at `DeliveryJobsCloseRedistributionBid`; the flow then does not pass through `DeliveryJobsBackToDepot`, and `DeliveryJobsGoToDepot` plays no part.
 - `pipeline_override` **replaces** both the `anchor` object and the `next` array **as a whole**, so an override must give the complete field, not just the entry you want to change.
 - When bid OCR fails (`DeliveryJobsBidPriceRecognitionFailed`), the task runs `StopTask` right away and stays on the bid page; it neither guesses nor accepts automatically.
@@ -242,7 +253,7 @@ flowchart TD
 
 ## Anchor Overview
 
-The shared nodes of DeliveryJobs do not know which depot node they are serving, so all context is passed through anchors. Eight are currently in use, and every declaration and read site is inside the Pipeline, the only exception being `DeliveryJobsSelectPriorityItems` (its reader is in an option of `assets/tasks/DeliveryJobs.json`):
+The shared nodes of DeliveryJobs do not know which depot node they are serving, so all context is passed through anchors. Seven are currently in use, and every declaration and read site is inside the Pipeline, the only exception being `DeliveryJobsSelectPriorityItems` (its reader is in an option of `assets/tasks/DeliveryJobs.json`):
 
 | Anchor | Declared by | Consumed by | Screen when read |
 | --- | --- | --- | --- |
@@ -250,12 +261,11 @@ The shared nodes of DeliveryJobs do not know which depot node they are serving, 
 | `DeliveryJobsGoToDepot` | `DeliveryJobs{Region}Loop`, `DeliveryJobsEnter{Depot}Cargo`, `DeliveryJobs{Depot}QuoteAtLeastMinimum/BelowMinimum` | `DeliveryJobsBackToDepot` | Overworld |
 | `DeliveryJobsSelectPriorityItems` | `DeliveryJobsEnter{Depot}Cargo` | `DeliveryJobsSelectTypeOfGoodsToPackNextStep` (in a task option) | Pack Goods screen |
 | `DeliveryJobsRedistributionBidAction` | `DeliveryJobsEnter{Depot}Cargo` | `DeliveryJobsInCargoRedistributionBid` | Redistribution Bid screen |
-| `DeliveryJobsAfterAcceptJob` | `DeliveryJobsEnter{Depot}Cargo` | `DeliveryJobsRedistributionBidNextStep` | Redistribution Bid screen (after clicking Confirm to accept) |
 | `DeliveryJobsCurrentPriorityItem` | `DeliveryJobsStartFill{Region}Priority{1..4}` | `DeliveryJobsSelectPriorityItemLoop` | Packing item list |
 | `DeliveryJobsNextPriority` | `DeliveryJobsStartFill{Region}Priority{1..4}` | `DeliveryJobsRecheckCargoFilledAfterSettle`, `DeliveryJobsItemListAtBottom` | Packing item list |
 | `DeliveryJobsAfterAutoDelivery` | `DeliveryJobs{Region}Loop`, `DeliveryJobsAutoDelivery{Depot}` | `DeliveryJobsDeliverByAutoDelivery`, `DeliveryJobsDeliverOngoingByAutoDelivery` | Screen after the delivery ends |
 
-For every anchor in the table except `DeliveryJobsReturnToDepotNode`, the reader is a shared node used across depot nodes or across regions, and the value changes with the declarer: `DeliveryJobsSelectPriorityItems` takes the local region's priority entry, `DeliveryJobsRedistributionBidAction` and `DeliveryJobsAfterAcceptJob` change with the depot node's handling mode, and `DeliveryJobsGoToDepot` changes with where the flow goes after accepting.
+For every anchor in the table except `DeliveryJobsReturnToDepotNode`, the reader is a shared node used across depot nodes or across regions, and the value changes with the declarer: `DeliveryJobsSelectPriorityItems` takes the local region's priority entry, `DeliveryJobsRedistributionBidAction` changes with the depot node's handling mode, and `DeliveryJobsGoToDepot` changes with where the flow goes after accepting. The `DeliveryJobsQuickTransfer*` series uses no anchors and moves through the screens directly to `InLocalDepotNode`.
 
 ### `DeliveryJobsReturnToDepotNode`: Landing Point at the Local Region's Depot Node
 
@@ -285,7 +295,7 @@ A general question for troubleshooting similar problems: **does this node's land
 | --- | --- | --- | --- |
 | Valley IV / Wuling | switch | On | Enables or disables the region; turning it off sets `enabled: false` on that region's node |
 | `{depot node}` | select | Accept and Transfer | Handling mode of that depot node (one of six) |
-| Bid Processing Threshold | input | 119000 | Appears only with "Handle by Bid" |
+| Bid Processing Threshold | input | 119000 (Valley IV) / 194000 (Wuling) | Appears only with "Handle by Bid" |
 | At or Above the Threshold / Below the Threshold | select | Accept and Transfer / Accept Job Only | Appears only with "Handle by Bid" |
 | Fill Specific Goods | switch | Off | When enabled, expands 4 priority slots per region |
 | `{region} · Priority 1..4` | select | Sandleaf Powder / Not specified | Appears only when "Fill Specific Goods" is enabled |
@@ -303,9 +313,9 @@ The old global "Accept Jobs Only" and "Pack Cargo Only" switches have been repla
 
 ## Known Limitations
 
-- **Under "Handle by Bid", each depot node transfers at most once per run through `DeliveryJobsEnter{Depot}PriceDeliveryJob`.** The node carries `max_hit: 1` and is called only by `DeliveryJobsReturnAndTransfer{Depot}`; when the bid qualifies and the action is "Accept and Transfer", this node completes the transfer. If the transfer does not happen this time (the bid action is "Accept Job Only", or that quota has already been used up in this run), the job becomes a leftover job and, the next time `有待运送的货物` (cargo awaiting delivery) is recognized, is handed to `DeliveryJobsAutoDelivery{Depot}` to be delivered, so it does not occupy the Redistribution Bid screen for long — but the cost is that the job really gets delivered, and since "Fully Automatic Delivery" is only available on depot nodes with an assigned destination, depot nodes without a destination still take the skip path. This item is inferred from the node configuration and has not yet been confirmed on a real device.
-- The text list of `DeliveryJobsCheck{Depot}Cargo.expected` exists twice, once in `depot-template.jsonc` and once in `ALL_CARGO_EXPECTED` / `PACK_CARGO_EXPECTED` of `task-template.mjs`: "Fully Automatic Delivery" does not override it, so that mode runs with the template copy, while the other modes that enable the cargo entry override it through the option, so **when you change one, sync the other**.
-- The default bid threshold `119000` likewise exists twice, in the template expression and in the option `default`.
+- **Under "Handle by Bid", the Quick Transfer fallback path of "Accept and Transfer" can complete at most one extra transfer per depot node per run.** `DeliveryJobsQuickTransfer` normally transfers directly on the Redistribution Bid screen; if, after confirmation, only the overworld comes back and the `获得奖励` (Rewards) screen is not recognized, `DeliveryJobsQuickTransferConfirm` falls back to `DeliveryJobsBackToDepot`, and then `DeliveryJobsGoToDepot` points to `DeliveryJobsReturnAndTransfer{Depot}` → `DeliveryJobsEnter{Depot}PriceDeliveryJob` to finish the transfer on the Missions screen (that node carries `max_hit: 1`, so it succeeds only once per run). If the transfer does not happen this time (for example, the bid action is "Accept Job Only"), the job becomes a leftover job and, the next time `有待运送的货物` (cargo awaiting delivery) is recognized, is handled according to the owning depot node's mode — under "Handle by Bid" it is handed to `DeliveryJobsAutoDelivery{Depot}` and delivered, so it does not occupy the Redistribution Bid screen for long; depot nodes without an assigned destination still take the skip path. This item is inferred from the node configuration and has not yet been confirmed on a real device.
+- The OCR text of `DeliveryJobsCheck{Depot}Cargo.expected` has a single source: `ALL_CARGO_EXPECTED` in `constants.mjs`, injected into the node default by the depot data; only "Pack Cargo Only" overrides it with `PACK_CARGO_EXPECTED` from the same file, and all other modes use the node default. To change the text, edit `constants.mjs` and regenerate.
+- The default bid threshold is defined per region in `DEFAULT_QUOTE_THRESHOLD_BY_REGION` of `constants.mjs` (119000 for Valley IV, 194000 for Wuling, falling back to 119000 for unconfigured regions); both the Pipeline expressions and the option `default` take it from there.
 
 ## Generator and Maintenance
 

@@ -59,6 +59,11 @@ node tools/pipeline-generate/run-all.mjs DeliveryJobs
 
 地区与仓储节点按数据源 gameId 排序，装箱物品按「分类 → 中文名 → ID」排序，保证不同环境下生成结果一致。`data.test.mjs` 与 `sync-locales.test.mjs` 断言生成产物与模型的一致性。
 
+`constants.mjs` 存放跨模板共用的定义，避免 Pipeline 模板与任务模板各写一份：
+
+- `ALL_CARGO_EXPECTED` / `PACK_CARGO_EXPECTED`：货物界面的 OCR 文本，前者由 `depot-data.mjs` 注入成节点默认值，后者只给「仅装箱货物」覆盖用；
+- `DEFAULT_QUOTE_THRESHOLD_BY_REGION` / `DEFAULT_QUOTE_THRESHOLD_FALLBACK`：按地区给的报价默认阈值（四号谷地 119000、武陵 194000；未配置地区回退 119000），同时注入 Pipeline 表达式与任务选项的 `default`。
+
 ## 任务选项的生成
 
 `task-template.mjs` 的 `buildTaskOptions()` 按模型展开整棵选项树：
@@ -76,26 +81,28 @@ DeliveryJobsAutoDeliveryPreferZipline                  switch  覆盖 AutoDelive
 DeliveryJobsOngoingDeliveryFallback                    switch  覆盖 DeliveryJobsDeliverByAutoDelivery.on_error
 ```
 
+节点 ID 与 option key 分别由模板里的 `pipelineNode` / `optionKey` 两个助手集中拼接，改节点名或选项名时优先改这两个助手，不要在展开逻辑里手写字符串。
+
 仓储节点的六个 case 分两类生成，覆盖内容全部落在少数几个参数上：
 
 | case | 生成函数 | 覆盖内容 |
 | ---------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `Transfer` | `buildModeOverride` | 两个入口启用；`cargoExpected=ALL_CARGO_EXPECTED`；`bidAction=DeliveryJobsRedistributionBidNextStep`；`ongoingDeliveryAction=DeliveryJobsTransferOngoingJob` |
+| `Transfer` | `buildModeOverride` | 两个入口启用；`bidAction=DeliveryJobsQuickTransfer`；`ongoingDeliveryAction=DeliveryJobsTransferOngoingJob` |
 | `AutoDelivery` | `buildAutoDeliveryOverride` | 两个入口启用；`DeliveryJobsEnter{DepotId}DeliveryJob.next` 改指 `DeliveryJobsWait{DepotId}DeliveryMissionDetail`（等任务详情界面稳定后再转 `DeliveryJobsAutoDelivery{DepotId}`）；cargo anchor 的 `DeliveryJobsGoToDepot` 改指该节点；分派节点 `next` 改指该节点 |
 | `ByQuote` | `buildModeOverride` | 只启用货物入口；`bidAction=DeliveryJobsDecide{DepotId}Quote`；`ongoingDeliveryAction=DeliveryJobsAutoDelivery{DepotId}`（无归属终点时退回 `DeliveryJobsSkipOngoingDelivery`） |
 | `AcceptJobOnly` | `buildModeOverride` | 只启用货物入口；`bidAction=DeliveryJobsRedistributionBidNextStep`；`ongoingDeliveryAction=DeliveryJobsSkipOngoingDelivery` |
 | `PackCargoOnly` | `buildModeOverride` | 只启用货物入口；`cargoExpected=PACK_CARGO_EXPECTED`（不含「查看报价」）；`bidAction=DeliveryJobsCloseRedistributionBid`；`ongoingDeliveryAction=DeliveryJobsSkipOngoingDelivery` |
 | `Disabled` | `buildModeOverride` | 两个入口 `enabled: false`，不覆盖其余节点 |
 
-`buildModeOverride()` 的 `deliveryEnabled` / `cargoEnabled` 落到 `DeliveryJobsEnter{DepotId}DeliveryJob` / `DeliveryJobsEnter{DepotId}Cargo` 的 `enabled`；`cargoEnabled` 为真时还会覆盖 `DeliveryJobsCheck{DepotId}Cargo.expected` 与分派节点 `DeliveryJobsOngoingDeliveryFor{DepotId}.next`（只给 `next`，不改这个节点的锚点声明）。
+`buildModeOverride()` 的 `deliveryEnabled` / `cargoEnabled` 落到 `DeliveryJobsEnter{DepotId}DeliveryJob` / `DeliveryJobsEnter{DepotId}Cargo` 的 `enabled`；`cargoEnabled` 为真时覆盖货物入口的 `anchor` 与分派节点 `DeliveryJobsOngoingDeliveryFor{DepotId}.next`（只给 `next`，不改这个节点的锚点声明）。只有当方式需要与节点默认值不同的识别文本时才传 `cargoExpected`（目前只有「仅装箱货物」），其余方式沿用 depot 模板注入的默认值。
 
 > [!IMPORTANT]
 >
-> **`pipeline_override` 对 `DeliveryJobsEnter{DepotId}Cargo` 的 `anchor` 提供的是整个对象**（`buildCargoAnchor()` 的返回值），模板中该节点的 `anchor` 会被整体替换；`DeliveryJobsCheck{DepotId}Cargo.expected` 同理。改模板的 anchor 键或货物识别文本时，必须同步改 `buildCargoAnchor()` / `cargoExpected`，否则改动会被静默覆盖。
+> **`pipeline_override` 对 `DeliveryJobsEnter{DepotId}Cargo` 的 `anchor` 提供的是整个对象**（`buildCargoAnchor()` 的返回值），模板中该节点的 `anchor` 会被整体替换；需要改 anchor 键时同步改 `buildCargoAnchor()`。货物识别文本只有 `constants.mjs` 一个来源：模板默认值与「仅装箱货物」的覆盖都从那里取，不要在 `depot-template.jsonc` 或任务模板里另写一份。
 
 没有送货终点的仓储节点不生成 `AutoDelivery` case：`model.mjs` 用 `delivery_destinations.json` 的 `destinations[].depot_id` 归并终点，`AutoDeliverySupported` 为假的仓储节点在仓储节点模式与两个报价分支里都不出现「全自动送货」。终点坐标与路线的生成属于 AutoDelivery 生成器，见 [AutoDelivery README](../AutoDelivery/README.md)。
 
-`buildQuoteThresholdOption()` 把阈值注入 `ExpressionRecognition.expression`（`{DeliveryJobsSelectedBidPrice}>={阈值}` 与 `{DeliveryJobsSelectedBidPrice}<{阈值}`）。输入的 `pipeline_type` **必须保持 `"string"`**：输入值会被插入表达式字符串，设为 `int` 会把整个表达式当整数解析，最终得到 `null`。
+`buildQuoteThresholdOption()` 把阈值注入 `ExpressionRecognition.expression`（`{DeliveryJobsSelectedBidPrice}>={阈值}` 与 `{DeliveryJobsSelectedBidPrice}<{阈值}`），`default` 按仓储节点所属地区取自 `constants.mjs` 的 `DEFAULT_QUOTE_THRESHOLD_BY_REGION`（四号谷地 119000、武陵 194000，未配置地区回退 119000；模板表达式也由同一个函数注入）。输入的 `pipeline_type` **必须保持 `"string"`**：输入值会被插入表达式字符串，设为 `int` 会把整个表达式当整数解析，最终得到 `null`。
 
 ## 数据约束与生成期断言
 
