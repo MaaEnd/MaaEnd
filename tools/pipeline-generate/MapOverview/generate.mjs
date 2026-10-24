@@ -24,9 +24,12 @@ export function successName(region, map) {
 }
 
 function validateClicks(clicks) {
-    if (!clicks || typeof clicks !== "object" || Array.isArray(clicks) || Object.keys(clicks).length === 0) {
+    if (!clicks || typeof clicks !== "object" || Array.isArray(clicks)) {
         throw new Error("[MapOverview] 点击数据为空或不是地区字典");
     }
+    // 顶层发布元数据不参与地区校验，也不写入点击缓存。
+    clicks = Object.fromEntries(Object.entries(clicks).filter(([key]) => key !== "version" && key !== "sha256"));
+    if (Object.keys(clicks).length === 0) throw new Error("[MapOverview] 点击数据为空或不是地区字典");
     for (const [
         region,
         data,
@@ -66,7 +69,7 @@ function validateClicks(clicks) {
 }
 
 export function extractClicks(source) {
-    validateClicks(source);
+    source = validateClicks(source);
     const clicks = {};
     for (const [
         region,
@@ -85,7 +88,7 @@ export function extractClicks(source) {
 }
 
 export function buildPipeline(clicks, levels) {
-    validateClicks(clicks);
+    clicks = validateClicks(clicks);
     const nodes = {};
     const successes = {};
     for (const [

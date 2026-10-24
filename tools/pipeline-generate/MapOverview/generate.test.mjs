@@ -9,6 +9,8 @@ import {buildPipeline, collectReferences, extractClicks, nodeName, successName, 
 
 function sourceFixture() {
     return {
+        version: "1.6.4+11262943-8",
+        sha256: "fcf2e154faccd6343de2278f0c253c61e7414931bfc31ae525c73f43b1c59250",
         region01: {
             name: "四号谷地",
             area: {
@@ -41,7 +43,7 @@ function sourceFixture() {
 
 const levels = {map01_lv001: {names: {zh_cn: "枢纽区"}}, map01_lv002: {names: {zh_cn: "谷地通道"}}};
 
-test("按地区 name/area 和地图 click 提取缓存，不保留 polygon", () => {
+test("按地区 name/area 和地图 click 提取缓存，忽略 version、sha256 和 polygon", () => {
     const source = sourceFixture();
     assert.deepEqual(extractClicks(source), {
         region01: {
@@ -70,6 +72,7 @@ test("拒绝非法点击点和缺失地区结构", () => {
         null,
         [],
         {},
+        {version: "1.6.4", sha256: "hash"},
         {invalid: source.region01},
     ]) {
         assert.throws(() => extractClicks(invalid), /地区/);
@@ -130,7 +133,7 @@ test("拒绝非法点击点和缺失地区结构", () => {
 });
 
 test("点击和占位描述包含地区及地图名，按地区和地图 key 命名并引用 Success", () => {
-    const generated = buildPipeline(extractClicks(sourceFixture()), levels);
+    const generated = buildPipeline(sourceFixture(), levels);
     const name = nodeName("region01", "map01_lv001");
     const next = successName("region01", "map01_lv001");
     assert.equal(name, "__ScenePrivateMapOverview_region01_EnterMap_map01_lv001");
