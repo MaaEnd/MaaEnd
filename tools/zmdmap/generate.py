@@ -209,7 +209,11 @@ def generate_datasets(
     multiple=True,
     help="只处理列出的数据集（可重复给；缺省全部）",
 )
-@click.option("--sync/--no-sync", default=False, help="生成前先同步兄弟仓库（只做快进合并）")
+@click.option(
+    "--sync/--no-sync",
+    default=False,
+    help="生成前先同步兄弟仓库（表 / JsonData / Lua / 解包资源，只做快进合并；资源仓库很大）",
+)
 @click.option(
     "--version",
     "data_version_option",

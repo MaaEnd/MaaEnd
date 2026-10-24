@@ -103,7 +103,10 @@ def sync_repo(name: str, repo: Path, *, dry_run: bool) -> RepoOutcome:
 
 
 def sync_workspace(workspace: Path, *, dry_run: bool) -> tuple[list[RepoOutcome], bool]:
-    """同步 workspace 下的兄弟仓库。
+    """同步 workspace 下的兄弟仓库：两个数据仓库 + 解包出的 Lua 与资源。
+
+    顺序见 :data:`~tools.zmdmap.utils.config.WORKSPACE_REPO_NAMES`。没 clone、工作区有改动、分离头指针、
+    没配上游的都只跳过，不算失败；资源仓库 20 GB 以上，这一步会连它的 LFS 内容一起更新，慢是正常的。
 
     返回 ``(各仓库结果, 是否有失败)``。
     """

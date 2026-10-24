@@ -52,8 +52,9 @@ MaaEnd 的几个任务要读游戏里的物品名、商店货架、采集点、�
    顺手写一份 `manifest.json`，说明这次发的是哪几份、每份的内容指纹 —— 就是 `fetch` 第 1 步看的那份。
 4. **入库。** 和 `fetch` 第 5 步完全一样。
 
-`--raw-only` 只做前 3 步（发布上游要的就是这一份）；`--sync` 会先把兄弟仓库快进到最新（只快进，不会 stash
-或者覆盖本地改动）；`--dry-run` 打印完计划就退出。
+`--raw-only` 只做前 3 步（发布上游要的就是这一份）；`--sync` 会先把四个兄弟仓库快进到最新——`BeyondTableCfg`、
+`BeyondMemoryPack`，以及 `region3d` 要读的 `BeyondLua`、`BeyondImage`（只快进，不会 stash 或者覆盖本地改动；
+资源仓库 20 GB 以上，这一步会连它的 LFS 内容一起更新，慢是正常的）；`--dry-run` 打印完计划就退出。
 
 ## 数据文件长什么样
 

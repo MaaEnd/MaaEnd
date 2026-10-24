@@ -41,8 +41,11 @@ JSON_DATA_DIR_ENV = "ZMDMAP_JSON_DATA_DIR"
 LUA_DIR_ENV = "ZMDMAP_LUA_DIR"
 ASSETS_DIR_ENV = "ZMDMAP_ASSETS_DIR"
 
-# 兄弟仓库目录名与各自的输入子路径。
-WORKSPACE_REPO_NAMES = ("BeyondMemoryPack", "BeyondTableCfg")
+# 兄弟仓库目录名与各自的输入子路径。``--sync`` 按这个顺序快进：数据仓库在前，解包输入在后
+# （资源仓库 20 GB 以上，放最后，前面几个要是失败也能先看到）。
+WORKSPACE_REPO_NAMES = ("BeyondMemoryPack", "BeyondTableCfg", "BeyondLua", "BeyondImage")
+# 「这批数据是哪一版」只看数据仓库：精简数据的本体来自它们，Lua 与解包资源跟着同一批更新。
+DATA_REPO_NAMES = ("BeyondMemoryPack", "BeyondTableCfg")
 TABLE_CFG_SUBPATH = ("BeyondTableCfg", "TableCfg")
 JSON_DATA_SUBPATH = ("BeyondMemoryPack", "JsonData")
 # 只有 region3d 数据集读这两样：解包出的 Lua 脚本与 Unity 资源根。
