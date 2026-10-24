@@ -49,29 +49,21 @@ struct FlowState
 {
     std::chrono::steady_clock::time_point navigate_started_at {};
     std::chrono::steady_clock::time_point last_auto_sprint_time {};
-    // Entry stamp of the previous navigate tick, so the tick log can report the real loop period. Stamped on
-    // every entry including the ones that bail out early, and only ever reported from the steering tick, so a
-    // large gap means the ticks in between returned early rather than that this one ran long.
+    // 每个导航拍都记, 提前返回的拍也记
     std::chrono::steady_clock::time_point last_tick_started_at {};
-    // Counts navigate ticks. Lets staleness be judged in control opportunities rather than wall clock, which
-    // is what keeps the rule meaning the same thing on a fast machine and on one with slow frame capture.
     uint64_t tick_seq = 0;
-    // Consecutive steering ticks that held forward, issued no turn, and saw the fix stay put. The forward hold
-    // is edge-triggered, so a dropped keydown looks exactly like this and never repairs itself.
+    // 按住前进、没转向、位置也没变的连续拍数
     int32_t motionless_hold_ticks = 0;
-    // Consecutive re-sends of that hold that moved the agent nowhere. Cleared by any motion, any turn, or a
-    // recovery escape, so it only ever counts a hold that is provably not the thing holding it up.
+    // 补按前进之后仍然没动的次数
     int32_t futile_forward_reasserts = 0;
     NaviPosition last_steer_position {};
     bool has_last_steer_position = false;
-    // Recent intervals between steering ticks: how long a sent turn waits before a tick can see it land. The
-    // entry gap above cannot stand in for it, since a tick that follows an early-return one is short however
-    // slow the loop is.
+    // 相邻两个转向拍之间的间隔
     std::vector<int64_t> steer_periods_ms;
     std::chrono::steady_clock::time_point last_steer_tick_at {};
-    // Vertex of the last bend braked for, so each bend is braked for once and a stop short of it is not repeated.
+    // 上一个刹过车的弯道顶点, 每个弯只刹一次
     std::optional<navmesh::WorldPoint> braked_corner;
-    // That bend is still the next one ahead: walk the rest of the way in (UpdateWalkMode).
+    // 刹过车的那个弯还在前面
     bool corner_walk = false;
 };
 
@@ -99,7 +91,7 @@ struct SemanticState
     bool portal_transit_keep_moving_until_fix = false;
     bool portal_transit_needs_reacquire = false;
     std::chrono::steady_clock::time_point portal_transit_started {};
-    // 这一次上索是行进预筛叫停的, 人可能还差几步。此时认不出提示只说明预筛看错了, 不该丢链
+    // 这次上索由行进预筛叫停, 认不出提示时只说明预筛看错了
     bool zipline_prompt_probe = false;
     // 坐升降索: 按下交互的时刻、这段要坐多久、坐完后连续取位成功了几次
     std::chrono::steady_clock::time_point rope_ride_started {};
@@ -139,6 +131,15 @@ struct DynamicRecoveryState
         anchor_index = std::numeric_limits<size_t>::max();
         active = false;
     }
+
+    void Restart(const NaviPosition& position, const std::chrono::steady_clock::time_point& now, size_t anchor)
+    {
+        Reset();
+        active = true;
+        anchor_pos = position;
+        started_at = now;
+        anchor_index = anchor;
+    }
 };
 
 // FIND 的进度。按点计: 推进点位或重开导航就清
@@ -152,7 +153,7 @@ struct FindState
     int32_t search_sign = 1;
     // 上次看到目标时框中心在中线哪一侧 (+1 右 / -1 左 / 0 没见过), 搜索第一步朝这边转
     int32_t last_seen_side = 0;
-    // 停车判据的模板预筛 (从 find_stop 节点读出), 空 = 判据读不成模板, 探测时直接跑权威识别
+    // 停车判据的模板预筛, 为空时探测直接跑识别
     std::optional<PromptScanProfile> stop_probe;
 
     void Reset()
@@ -173,15 +174,11 @@ struct TriggerState
     void Reset() { last_probe_at = {}; }
 };
 
-// Recovery ladder position (device removal -> jump -> navmesh detour -> physical unstick), keyed on the
-// corridor anchor the agent is stuck against. Top-level so a dynamic replan, which renumbers the path and
-// clears the DynamicRecoveryState episode, cannot rewind it; cleared only by a genuine escape, a waypoint
-// advance or a new navigation.
+// 卡死恢复走到了第几级, 按走廊锚点记; 动态重规划不清它
 struct RecoveryEscalationState
 {
     size_t anchor_index = std::numeric_limits<size_t>::max();
-    // Device removals tried here. Deliberately not read by the escalation gate below: the device step runs
-    // ahead of the jump rather than in place of it, so it can never postpone the detour.
+    // 升级判定不看这个计数, 挪设备不会推迟绕行
     int device_attempt_count = 0;
     int jump_attempt_count = 0;
     int detour_attempt_count = 0;
@@ -193,13 +190,19 @@ struct RecoveryEscalationState
         jump_attempt_count = 0;
         detour_attempt_count = 0;
     }
+
+    void Retarget(size_t anchor)
+    {
+        Reset();
+        anchor_index = anchor;
+    }
 };
 
 struct LocalizationLossState
 {
     std::chrono::steady_clock::time_point started_at {};
     std::chrono::steady_clock::time_point last_unstick_at {};
-    // Last accepted fix before the loss; a failed capture only clears `valid`, so it still holds coordinates.
+    // 取位失败只会清 valid, 坐标还是最后一次的
     NaviPosition last_fix {};
     bool saw_black_screen = false;
 
@@ -212,16 +215,14 @@ struct LocalizationLossState
     }
 };
 
-// River-fall recovery latch: a black-screen loss = fell in water + force-teleport to shore facing the water.
-// Armed on both re-acquire paths, consumed in TickNavigate. See navigator-river-fall-teleport-gap.
+// 丢定位以黑屏收尾时挂上: 人落水后被拉回了岸边
 struct RiverFallRecoveryState
 {
     NaviPosition anchor_pos {};
-    // Facing read AFTER the settle, not at arm time (minimap arrow = toward water); the about-face turns 180 off it.
+    // 站定之后读到的朝向, 转身按它转 180°
     double water_heading = 0.0;
     bool pending = false;
-    // Stood still long enough for the arrow to be trustworthy again / the 180 has gone out. Both one-shot: the turn
-    // must not be recomputed from a half-turned arrow, only committed by walking.
+    // 都只做一次, 免得拿转到一半的箭头重算转身
     bool settled = false;
     bool turned = false;
 
@@ -233,11 +234,17 @@ struct RiverFallRecoveryState
         settled = false;
         turned = false;
     }
+
+    void Arm(const NaviPosition& position, double heading)
+    {
+        Reset();
+        pending = true;
+        anchor_pos = position;
+        water_heading = heading;
+    }
 };
 
-// Physical lateral-bypass escalation. Deliberately persists across recovery.Reset() so consecutive bypasses
-// at the same stuck spot grow the step and alternate sides; cleared only on genuine progress (waypoint
-// advance / new navigation) or once the agent has moved away from `origin`.
+// recovery.Reset() 不清它, 同一处反复脱困时方向会轮换
 struct LateralBypassState
 {
     NaviPosition origin {};
@@ -250,13 +257,16 @@ struct LateralBypassState
         count = 0;
         active = false;
     }
+
+    void BeginAt(const NaviPosition& position)
+    {
+        active = true;
+        origin = position;
+        count = 0;
+    }
 };
 
-// Previous-tick heading, used to estimate the agent's own turn rate for the implausible-rate glitch check. Only the
-// physical heading is tracked here; the rate is gated at the call site on the elapsed gap and on plausibility,
-// so a stale entry after a recovery / relocation pause simply yields a zero rate that tick rather than a spike.
-// The cmd_* fields are diagnostic only: they hold the last turn actually sent to the controller so a later tick
-// can report how much heading the turn really produced. Nothing steers off them.
+// cmd_* 只用于诊断
 struct SteeringRateState
 {
     double prev_heading_deg = 0.0;
@@ -267,16 +277,13 @@ struct SteeringRateState
     double cmd_delta_deg = 0.0;
     bool has_cmd = false;
     std::chrono::steady_clock::time_point cmd_at {};
-    // Which way a near-about-face turn was committed to, held until it is well under way. Zero means free.
+    // 接近掉头时锁定的转向方向, 转出一段后才放开; 0 表示没锁
     int turn_latch_sign = 0;
-    // Degrees already sent that the heading has not shown yet, and the heading they are counted from. A turn
-    // takes a few ticks to finish while the controller re-decides every tick, so without this running total the
-    // same error is commanded over and over before any of it lands.
+    // 已发出但朝向还没体现的转角, 从 pending_ref_heading_deg 算起
     double pending_turn_deg = 0.0;
     double pending_ref_heading_deg = 0.0;
 
-    // Sends still inside their own lifetime, kept when the transport can swallow a send. Each direction of the total
-    // above is bounded by its own sends; netting the two would cancel a fresh reversal.
+    // 还在存活期内的转向指令; 左右两个方向各自限住上面的总量
     struct InFlightTurn
     {
         double delta_deg = 0.0;
@@ -302,15 +309,12 @@ struct SteeringRateState
     }
 };
 
-// Off-route wedge watchdog clock. Fed straight-line distance to the current waypoint and only run while the agent
-// is off the route corridor, so it grows only during a genuine no-progress wedge that the corridor-fed stall
-// clocks miss. Drives a replan, then a fail-fast.
+// 只在离开走廊时计时, 补上走廊停滞计时漏掉的卡死
 struct OffRouteWedgeState
 {
     std::chrono::steady_clock::time_point since {};
     std::chrono::steady_clock::time_point last_replan_at {};
-    // First blind tick (localization loss, river-fall recovery) since the watchdog last ran. Those ticks return before
-    // the watchdog and cannot move route progress, so the next watchdog tick shifts `since` past the whole gap.
+    // 看门狗上次运行后的第一个盲拍, 下次运行时把 since 往后挪过这一段
     std::chrono::steady_clock::time_point blind_since {};
     double best_distance = std::numeric_limits<double>::max();
     bool active = false;
@@ -322,7 +326,7 @@ struct OffRouteWedgeState
         }
     }
 
-    // Returns the blind milliseconds taken off the clock, zero when there was no pause.
+    // 返回扣掉的盲区毫秒数, 没暂停过返回 0
     int64_t ResumeAt(const std::chrono::steady_clock::time_point& now)
     {
         if (blind_since == std::chrono::steady_clock::time_point {}) {
@@ -346,16 +350,13 @@ struct OffRouteWedgeState
         active = false;
     }
 
-    // best_distance belongs to one corridor; after a swap the next tick re-takes it while the timer keeps running.
+    // 换了走廊后 best_distance 下一拍重取, 计时照走
     void InvalidateBaseline() { best_distance = std::numeric_limits<double>::max(); }
 
     bool HasBaseline() const { return best_distance != std::numeric_limits<double>::max(); }
 };
 
-// Dwell watchdog. A latched world-coordinate disc and the time spent inside it. Every other stall clock is
-// keyed on route bookkeeping — a waypoint index, a corridor anchor, a recovery episode — so anything that
-// renumbers the path zeroes it; this one answers only to where the agent physically is. Time is credited
-// between consecutive usable fixes, so blind stretches are skipped rather than counted or treated as progress.
+// 在一个固定的世界坐标圆里待了多久, 只在相邻两次有效取位之间累计
 struct DwellWatchdogState
 {
     double center_x = 0.0;
@@ -376,14 +377,7 @@ struct DwellWatchdogState
     }
 };
 
-// Cross-tier escape. The agent fell onto a wrong FLOORED tier (one the route never planned for); we plan ONE
-// navmesh corridor from that tier fix back to a reachable authored waypoint and follow it, tolerating the
-// open-air shaft's tier<->base oscillation as a live guard rather than re-planning on every flip. Everything is
-// gated on `active`: when false the navigator and the real-loss handling are byte-for-byte unchanged.
-// `anchor_zone` is the tier we fell into; it defines the same-geometry span we tolerate flipping within. `goal_*`
-// is the base-pixel rejoin waypoint (arrival exits the mode). A continuously-stuck escape is bounded at the call
-// site by the hard-progress stall clock (no field needed here); a recover<->re-lose thrash is bounded by the
-// top-level re-acquire streak below.
+// 掉到错的楼层后沿一条规划好的走廊回到作者路线; anchor_zone 是掉进去的那层
 struct CrossTierEscapeState
 {
     bool active = false;
@@ -397,6 +391,12 @@ struct CrossTierEscapeState
         anchor_zone.clear();
         goal_x = 0.0;
         goal_y = 0.0;
+    }
+
+    void Engage(const std::string& zone)
+    {
+        active = true;
+        anchor_zone = zone;
     }
 };
 
@@ -414,21 +414,26 @@ struct ProgressIdentityState
     }
 };
 
-// 走向上索点这一路上重规划了几次。上索点是必到的语义点, 重规划总是瞄回它, 所以架子够不着时
-// 会一路重规划到楔死超时把整趟导航掐掉。身份记的是 canonical 下标而不是路径下标: 重规划本身
-// 就会改路径下标, 挂在它上面的计数永远攒不满。
+// 走向上索点途中的重规划次数; 身份记 canonical 下标, 因为重规划会改路径下标
 struct ZiplineApproachState
 {
     size_t anchor_index = std::numeric_limits<size_t>::max();
     int32_t replans = 0;
-    // 到点按过一次没认出来。原地再按还是同一个答案, 所以改瞄下一个站位并收紧判定圈, 让人挪一下再认
+    // 到点按过一次没认出, 改瞄下一个站位并收紧判定圈
     bool press_missed = false;
     // 正在试计划里的第几个站位, 连同这个进度算的是哪根架子
     size_t spot_index = 0;
     ZiplineNodeRef spot_tower;
 
-    // 游标只对 spot_tower 那根架子有效: 同一根架子上只往后走, 换了架子从头试。一趟里后面那条链
-    // 要是接着用上一根的进度, 新架子头一次失败就会被判成上不去
+    void Retarget(size_t anchor)
+    {
+        anchor_index = anchor;
+        replans = 0;
+        press_missed = false;
+        spot_index = 0;
+    }
+
+    // 游标只对 spot_tower 那根架子有效, 换了架子从头试
     size_t MountSpotCursor(const ZiplineNodeRef& mount)
     {
         if (!spot_tower.SameTower(mount)) {
@@ -449,12 +454,11 @@ struct ZiplineApproachState
     }
 };
 
-// 到点认过一次没认出提示的交互点。周围别的可交互物占着焦点时原地再认还是同一个答案, 所以收紧判定圈接着往点上走。
-// 身份同样记 canonical 下标
+// 到点认空过一次的交互点, 身份记 canonical 下标
 struct InteractApproachState
 {
     std::optional<size_t> prompt_missed_node;
-    // 收紧的判定圈从认空这一刻起算。停滞钟会被零点几的抖动和恢复重规划清零, 被挡在点外时等不到放宽
+    // 收紧的判定圈从认空这一刻起算
     std::chrono::steady_clock::time_point missed_at {};
 
     bool PromptMissedAt(const std::optional<size_t>& node) const { return node.has_value() && prompt_missed_node == node; }
@@ -462,8 +466,7 @@ struct InteractApproachState
     void Reset() { prompt_missed_node.reset(); }
 };
 
-// 退索恢复必须重新取得位置所有权。滑行中的快速位移和小地图遮挡可能让最后一帧落在远处的相似
-// 纹理上；ResetTracking 之后用贴近 navmesh 的连续新定位重新确认，再允许状态机规划接回剩余路线。
+// 退索后要连续几次稳定的新定位重新确认位置, 才接回剩余路线
 struct ZiplineRecoveryState
 {
     std::chrono::steady_clock::time_point started_at {};
@@ -500,33 +503,26 @@ struct NavigationRuntimeState
     LateralBypassState bypass;
     SteeringRateState steering_rate;
     OffRouteWedgeState offroute;
-    // 置于顶层且不进任何一个 Reset: 它要盖住的正是「重规划/换锚点把时钟清零」这件事, 跟着它们清就永远攒不满。
-    // 换区和走出盘由它自己按世界坐标清, 换了整趟导航由 BeginNavigation 清
+    // 不进任何 Reset, 只在走出盘或换区时自清, 或由 BeginNavigation 清
     DwellWatchdogState dwell;
     CrossTierEscapeState cross_tier_escape;
-    // FIND 的进度。按点计: 推进点位或重开导航就清, 步数预算与开始时刻都只属于当前这个 FIND 点
+    // 推进点位或重开导航就清
     FindState find;
     // 只由 BeginNavigation 清, 推进点位不重置识别节拍
     TriggerState trigger;
-    // 顶层且不进任何一个 Reset: 它数的正是重规划本身, 跟着重规划清零就永远数不满。换了上索点
-    // 由它自己按身份清, 换了整趟导航由 BeginNavigation 清
+    // 不进任何 Reset, 换了上索点按身份自清, 或由 BeginNavigation 清
     ZiplineApproachState zipline_approach;
     InteractApproachState interact_approach;
     ZiplineRecoveryState zipline_recovery;
-    // 正在滑的这一跳和这趟导航每一跳的账本。账本跨越丢链和重规划, 只由 BeginNavigation 清
+    // 账本跨越丢链和重规划, 只由 BeginNavigation 清
     ZiplineRideMachine zipline_ride;
-    // 置于顶层且不参与任何 Reset: 禁区按世界坐标记录障碍, 生命周期为整趟导航, 仅由 BeginNavigation 清空。
-    // 若随重规划一并清零, 下一次规划会再次穿过刚判定出障碍的位置。
+    // 整趟导航有效, 只由 BeginNavigation 清
     std::vector<VirtualNoGoDisc> virtual_no_go;
-    // Consecutive global re-acquires (the navigation_state_machine "recovered via global re-acquire" path) since
-    // the last genuine waypoint advance. Top-level on purpose: the loss/escape/overlay Resets that fire all through
-    // a wrong-tier thrash storm never clear it — only real forward progress does — so it is the one storm-proof
-    // fast-fail signal. Reset in OnWaypointAdvance / BeginNavigation only.
+    // 上次真正推进路点以来的全局重定位次数, 只由 OnWaypointAdvance 和 BeginNavigation 清
     int global_reacquire_streak = 0;
     bool dynamic_replan_requested = false;
     bool nav_run_dirty = true;
-    // 起步前是否先把镜头对回角色朝向。只由站定去干别的事的停车点置位(见 ArmCameraAlign), 刹车、卡住
-    // 重发与脱困路径都不置; 留到下一个 navigate 拍才消费, 因此不进任何 Reset。
+    // 只由 ArmCameraAlign 置位, 下一个 navigate 拍消费, 不进任何 Reset
     bool camera_align_pending = false;
     ProgressIdentityState progress_identity;
 
