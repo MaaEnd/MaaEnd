@@ -66,39 +66,22 @@ function validateClicks(clicks) {
 }
 
 export function extractClicks(source) {
-    if (source._meta?.screen_size !== undefined && JSON.stringify(source._meta.screen_size) !== "[1280,720]") {
-        throw new Error("[MapOverview] 数据源必须使用 1280×720 基准");
-    }
+    validateClicks(source);
     const clicks = {};
     for (const [
         region,
         data,
     ] of Object.entries(source)) {
-        if (!/^region\d+$/.test(region)) continue;
-        if (
-            !data ||
-            typeof data !== "object" ||
-            !data.area ||
-            typeof data.area !== "object" ||
-            Array.isArray(data.area)
-        ) {
-            throw new Error(`[MapOverview] ${region} 缺少 area 地图字典`);
-        }
         clicks[region] = {name: data.name, area: {}};
         for (const [
             map,
             entry,
         ] of Object.entries(data.area)) {
-            if (entry?.status !== undefined && entry.status !== "ok") {
-                throw new Error(`[MapOverview] ${region}/${map} 状态异常: ${entry.status}`);
-            }
-            // 只缓存名称和点击点，polygon 及来源元数据均不保留。
-            const point = {click: entry?.click};
-            if (typeof entry?.name === "string" && entry.name.trim()) point.name = entry.name.trim();
-            clicks[region].area[map] = point;
+            // 只缓存地区名称和点击点，不保留 polygon。
+            clicks[region].area[map] = {click: entry.click};
         }
     }
-    return validateClicks(clicks);
+    return clicks;
 }
 
 export function buildPipeline(clicks, levels) {
@@ -114,9 +97,8 @@ export function buildPipeline(clicks, levels) {
             entry,
         ] of Object.entries(data.area).sort()) {
             const regionName = data.name.trim();
-            // 未提供地图名时，复用现有同步名称表；地区名始终取远端并随缓存更新。
-            const remoteName = entry.name;
-            const mapName = (typeof remoteName === "string" && remoteName.trim()) || levels[map]?.names?.zh_cn || map;
+            // 地图名复用现有同步名称表；地区名取远端并随缓存更新。
+            const mapName = levels[map]?.names?.zh_cn || map;
             nodes[nodeName(region, map)] = {
                 desc: `在${regionName}总览界面，点击进入${mapName}地图`,
                 recognition: "DirectHit",

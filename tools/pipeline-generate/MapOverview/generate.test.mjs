@@ -41,15 +41,8 @@ function sourceFixture() {
 
 const levels = {map01_lv001: {names: {zh_cn: "枢纽区"}}, map01_lv002: {names: {zh_cn: "谷地通道"}}};
 
-test("按地区 name/area 和地图 click 提取缓存，不保留 polygon 或元数据", () => {
+test("按地区 name/area 和地图 click 提取缓存，不保留 polygon", () => {
     const source = sourceFixture();
-    source._meta = {
-        screen_size: [
-            1280,
-            720,
-        ],
-    };
-    source.region01.area.map01_lv001.status = "ok";
     assert.deepEqual(extractClicks(source), {
         region01: {
             name: "四号谷地",
@@ -69,28 +62,18 @@ test("按地区 name/area 和地图 click 提取缓存，不保留 polygon 或�
             },
         },
     });
-    // 元数据可选，地区与地图字段完整时即可生成。
-    assert.deepEqual(extractClicks(sourceFixture()), extractClicks(source));
 });
 
-test("拒绝错误分辨率、异常状态、非法点击点和缺失地区结构", () => {
+test("拒绝非法点击点和缺失地区结构", () => {
     const source = sourceFixture();
-    assert.throws(
-        () =>
-            extractClicks({
-                ...source,
-                _meta: {
-                    screen_size: [
-                        1920,
-                        1080,
-                    ],
-                },
-            }),
-        /1280/,
-    );
-    source.region01.area.map01_lv001.status = "failed";
-    assert.throws(() => extractClicks(source), /状态异常/);
-    delete source.region01.area.map01_lv001.status;
+    for (const invalid of [
+        null,
+        [],
+        {},
+        {invalid: source.region01},
+    ]) {
+        assert.throws(() => extractClicks(invalid), /地区/);
+    }
     for (const point of [
         undefined,
         [
@@ -172,7 +155,7 @@ test("点击和占位描述包含地区及地图名，按地区和地图 key 命
     });
 });
 
-test("新地区无需登记，可选远端地图名随缓存保留，缺失地图名回退名称表或 key", () => {
+test("新地区无需登记，地图名使用名称表或 key", () => {
     const source = {
         region03: {
             name: "新地区",
@@ -182,14 +165,12 @@ test("新地区无需登记，可选远端地图名随缓存保留，缺失地�
                         1,
                         2,
                     ],
-                    name: "远端新名称",
                 },
                 map03_lv002: {
                     click: [
                         3,
                         4,
                     ],
-                    name: " ",
                 },
                 map03_lv003: {
                     click: [
@@ -207,7 +188,7 @@ test("新地区无需登记，可选远端地图名随缓存保留，缺失地�
     });
     assert.equal(
         generated.clicks[nodeName("region03", "map03_lv001")].desc,
-        "在新地区总览界面，点击进入远端新名称地图",
+        "在新地区总览界面，点击进入名称表名称地图",
     );
     assert.equal(generated.clicks[nodeName("region03", "map03_lv002")].desc, "在新地区总览界面，点击进入同步名称地图");
     assert.equal(
