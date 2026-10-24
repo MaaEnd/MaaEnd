@@ -85,6 +85,10 @@ Implemented in `ReceptionRoom.json`. When clues overflow, enter the gifting proc
 
 The attempt limit modifies the `max_hit` of the gifting loop; the inventory threshold modifies the quantity OCR regex.
 
+Both entry points (`ClueSend.MaxClueSend` and `CreditShoppingClueSend.MaxClueSendWhenInsufficient`) write the same `ReceptionRoomSendCluesSendMain.max_hit`, and their accepted range is `0`–`20` (matching the per-clue stock limit of 20). `0` means never send.
+
+Note that `max_hit` counts gifting-loop iterations, including rounds where none of the seven clue types meets the threshold, so it is not equal to the number of clues actually sent.
+
 ### Growth Chamber Options
 
 Implemented in `GrowthChamber.json` + `pipeline_override` of `DijiangRewards.json`.
