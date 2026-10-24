@@ -1,0 +1,366 @@
+{
+    "version": "1.6.4+11262943-8",
+    "sha256": "523d0e54a0de1419683159c15098a792160e63e166f8eb38579d229e9c9b9145",
+    "items": {
+        "item_agmelee_1_sp_2_slimeml_1_1": {
+            "name": "爆辣焗烤源石虫",
+            "names": {
+                "CN": "爆辣焗烤源石虫",
+                "EN": "Superhot Slug Gratin"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_agmelee_1_sp_2_slimeml_1_1",
+            "rarity": "3"
+        },
+        "item_agrange_1_erhound_1_sp_1_1": {
+            "name": "雅各布的遗产",
+            "names": {
+                "CN": "雅各布的遗产",
+                "EN": "Jakub's Legacy"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_agrange_1_erhound_1_sp_1_1",
+            "rarity": "4"
+        },
+        "item_agrange_1_lbshamman_bottled_1": {
+            "name": "简易镇痛药膏",
+            "names": {
+                "CN": "简易镇痛药膏",
+                "EN": "Simple Pain Relief Salve"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_agrange_1_lbshamman_bottled_1",
+            "rarity": "3"
+        },
+        "item_agrange_1_moss_2_lbmob_1_1": {
+            "name": "手工怪味酸糖",
+            "names": {
+                "CN": "手工怪味酸糖",
+                "EN": "Handmade Weirdrop"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_agrange_1_moss_2_lbmob_1_1",
+            "rarity": "2"
+        },
+        "item_bottled_insec2_1": {
+            "name": "附术瓶",
+            "names": {
+                "CN": "附术瓶",
+                "EN": "Kunst Vial"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_bottled_insec2_1",
+            "rarity": "3"
+        },
+        "item_bottled_insec2_2": {
+            "name": "附术铁瓶",
+            "names": {
+                "CN": "附术铁瓶",
+                "EN": "Kunst Tube"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_bottled_insec2_2",
+            "rarity": "4"
+        },
+        "item_bottled_moss_1_2_1": {
+            "name": "意乱药剂",
+            "names": {
+                "CN": "意乱药剂",
+                "EN": "Perplexing Medication"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_bottled_moss_1_2_1",
+            "rarity": "4"
+        },
+        "item_corp3_animal_1": {
+            "name": "清炖兽排参须汤",
+            "names": {
+                "CN": "清炖兽排参须汤",
+                "EN": "Ginseng Meat Stew"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_corp3_animal_1",
+            "rarity": "5"
+        },
+        "item_corp3_grass1_1": {
+            "name": "正本补元汤剂",
+            "names": {
+                "CN": "正本补元汤剂",
+                "EN": "Fortifying Infusion"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_corp3_grass1_1",
+            "rarity": "4"
+        },
+        "item_corp4_animal_1": {
+            "name": "武陵炒饭",
+            "names": {
+                "CN": "武陵炒饭",
+                "EN": "Wuling Fried Rice"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_corp4_animal_1",
+            "rarity": "5"
+        },
+        "item_erhound_1_agmelee_1_moss_1_1": {
+            "name": "雾火之花",
+            "names": {
+                "CN": "雾火之花",
+                "EN": "Hazefyre Blossom"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_erhound_1_agmelee_1_moss_1_1",
+            "rarity": "3"
+        },
+        "item_ethillu_1_wgslime_1_wgthorns_1_1": {
+            "name": "回响秘剂",
+            "names": {
+                "CN": "回响秘剂",
+                "EN": "Echoing Remedy"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_ethillu_1_wgslime_1_wgthorns_1_1",
+            "rarity": "3"
+        },
+        "item_firebat_1_agrange_1_1": {
+            "name": "可食用巢雕",
+            "names": {
+                "CN": "可食用巢雕",
+                "EN": "Edible Denstack"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_firebat_1_agrange_1_1",
+            "rarity": "3"
+        },
+        "item_hsfly_1_slimeml_1_hsmob_1_1": {
+            "name": "清炖息壤球",
+            "names": {
+                "CN": "清炖息壤球",
+                "EN": "Simmered Xiranite Ball"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_hsfly_1_slimeml_1_hsmob_1_1",
+            "rarity": "4"
+        },
+        "item_hshog_1_hsmob_1_slimeml_1_1": {
+            "name": "武陵乱炒",
+            "names": {
+                "CN": "武陵乱炒",
+                "EN": "Wuling Flame-Boyance"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_hshog_1_hsmob_1_slimeml_1_1",
+            "rarity": "4"
+        },
+        "item_hsmob_1_dog_1_1": {
+            "name": "竹笋炒肉",
+            "names": {
+                "CN": "竹笋炒肉",
+                "EN": "Bamboo Sprouts and Meat"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_hsmob_1_dog_1_1",
+            "rarity": "3"
+        },
+        "item_inkkirin_1_hscrane_1_1": {
+            "name": "酥麻炸虫蛹",
+            "names": {
+                "CN": "酥麻炸虫蛹",
+                "EN": "Numbing Crispy Pupae"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inkkirin_1_hscrane_1",
+            "rarity": "4"
+        },
+        "item_inn_drink_1": {
+            "name": "大碗碎茶",
+            "names": {
+                "CN": "大碗碎茶",
+                "EN": "Bowl of Tea"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_1",
+            "rarity": "2"
+        },
+        "item_inn_drink_10": {
+            "name": "瓶装霞莓饮",
+            "names": {
+                "CN": "瓶装霞莓饮",
+                "EN": "Bottled Duskberry Juice"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_10",
+            "rarity": "5"
+        },
+        "item_inn_drink_2": {
+            "name": "瓶装兽奶",
+            "names": {
+                "CN": "瓶装兽奶",
+                "EN": "Bottled Milk"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_2",
+            "rarity": "2"
+        },
+        "item_inn_drink_3": {
+            "name": "玉米汁",
+            "names": {
+                "CN": "玉米汁",
+                "EN": "Corn Juice"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_3",
+            "rarity": "3"
+        },
+        "item_inn_drink_4": {
+            "name": "瓶装脆蔗汁",
+            "names": {
+                "CN": "瓶装脆蔗汁",
+                "EN": "Bottled Canejuice"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_4",
+            "rarity": "3"
+        },
+        "item_inn_drink_5": {
+            "name": "梨花香茶",
+            "names": {
+                "CN": "梨花香茶",
+                "EN": "Pear Blossom Tea"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_5",
+            "rarity": "4"
+        },
+        "item_inn_drink_6": {
+            "name": "游人酒",
+            "names": {
+                "CN": "游人酒",
+                "EN": "Seeker's Kohl"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_6",
+            "rarity": "4"
+        },
+        "item_inn_drink_7": {
+            "name": "瓶装优质兽奶",
+            "names": {
+                "CN": "瓶装优质兽奶",
+                "EN": "Bottled Milk [A]"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_7",
+            "rarity": "4"
+        },
+        "item_inn_drink_8": {
+            "name": "陈酿葡萄露",
+            "names": {
+                "CN": "陈酿葡萄露",
+                "EN": "Vintage Grapedew"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_8",
+            "rarity": "5"
+        },
+        "item_inn_drink_9": {
+            "name": "潮前龙井",
+            "names": {
+                "CN": "潮前龙井",
+                "EN": "Pre-Tide Lungjing"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_9",
+            "rarity": "5"
+        },
+        "item_jzmonk_1_hsmob_1_1": {
+            "name": "陈皮拌笋",
+            "names": {
+                "CN": "陈皮拌笋",
+                "EN": "Rind-Flavored Sprouts"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_jzmonk_1_hsmob_1_1",
+            "rarity": "4"
+        },
+        "item_klbuds_1_hsfly_1_1": {
+            "name": "洗灾秘剂",
+            "names": {
+                "CN": "洗灾秘剂",
+                "EN": "Ruin-Purger Remedy"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_klbuds_1_hsfly_1_1",
+            "rarity": "4"
+        },
+        "item_klcreatures_1_wgthorns_1_1": {
+            "name": "蓄石秘剂",
+            "names": {
+                "CN": "蓄石秘剂",
+                "EN": "Stonehold Remedy"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_klcreatures_1_wgthorns_1_1",
+            "rarity": "4"
+        },
+        "item_lbmob_1_dog_1_moss_1_1": {
+            "name": "塞什卡风肉排",
+            "names": {
+                "CN": "塞什卡风肉排",
+                "EN": "Seš'qa Style Fillet"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_lbmob_1_dog_1_moss_1_1",
+            "rarity": "2"
+        },
+        "item_lbshield_1_slimeml_1_dog_1_1": {
+            "name": "约翰老爹汉堡",
+            "names": {
+                "CN": "约翰老爹汉堡",
+                "EN": "Old Man John's Burger"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_lbshield_1_slimeml_1_dog_1_1",
+            "rarity": "3"
+        },
+        "item_mimicw_1_moss_1_moss_2_1": {
+            "name": "开工日肉汤",
+            "names": {
+                "CN": "开工日肉汤",
+                "EN": "Sod-Turning Meat Soup"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_mimicw_1_moss_1_moss_2_1",
+            "rarity": "3"
+        },
+        "item_wgshoal_1_grass_1_grass_2_1": {
+            "name": "小糖画",
+            "names": {
+                "CN": "小糖画",
+                "EN": "Mini Sugar Painting"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_wgshoal_1_grass_1_grass_2_1",
+            "rarity": "3"
+        },
+        "item_wgslime_1_wgthorns_1_1": {
+            "name": "神秘气泡饮料",
+            "names": {
+                "CN": "神秘气泡饮料",
+                "EN": "Mystery Soda"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_wgslime_1_wgthorns_1_1",
+            "rarity": "3"
+        },
+        "item_wgthorns_1_hshog_1_hsmob_1_1": {
+            "name": "油爆“双脆”",
+            "names": {
+                "CN": "油爆“双脆”",
+                "EN": "Pan-Fried Double Crisp"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_wgthorns_1_hshog_1_hsmob_1_1",
+            "rarity": "4"
+        }
+    }
+}

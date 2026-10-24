@@ -1,0 +1,194 @@
+{
+    "ProtocolSpaceBattleConsumableStockWulingFindItem": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    30,
+                    160,
+                    710,
+                    370
+                ]
+            }
+        }
+    },
+    "ProtocolSpaceBattleConsumableStockValleyIVFindItem": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    30,
+                    160,
+                    710,
+                    370
+                ]
+            }
+        }
+    },
+    "ProtocolSpaceBattleConsumableUseFindItem": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    800,
+                    178,
+                    430,
+                    344
+                ]
+            }
+        }
+    },
+    "ProtocolSpaceBattleConsumableUseQuantity": {
+        "roi_offset": [
+            0,
+            58,
+            0,
+            -58
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseMark": {
+        "roi": [
+            767,
+            0,
+            513,
+            523
+        ],
+        "template": "ProtocolSpace/ItemIntroMarkADB.png",
+        "threshold": 0.65
+    },
+    "ProtocolSpaceBattleConsumableUseText": {
+        "roi_offset": [
+            -178,
+            525,
+            90,
+            5
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseOperator1": {
+        "target": [
+            612,
+            327
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseOperator2": {
+        "target": [
+            728,
+            327
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseOperator3": {
+        "target": [
+            849,
+            327
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseOperator4": {
+        "target": [
+            965,
+            327
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseConfirmButton": {
+        "any_of": [
+            "ProtocolSpaceBattleConsumableUseConfirmButtonNormal"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseConfirmButtonNormal": {
+        "roi": [
+            861,
+            428,
+            288,
+            139
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseCancelButton": {
+        "any_of": [
+            "ProtocolSpaceBattleConsumableUseCancelButtonNormal"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseCancelButtonNormal": {
+        "roi": [
+            582,
+            432,
+            289,
+            139
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockWulingTransferItem": {
+        "desc": "触点 4 按住仓库中的物品一秒",
+        "action": "TouchDown",
+        "target": "ProtocolSpaceBattleConsumableStockWulingFindItem",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "contact": 4,
+        "auto_up": true,
+        "post_delay": 1000,
+        "next": [
+            "ProtocolSpaceBattleConsumableStockTransferMenuClick"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockValleyIVTransferItem": {
+        "desc": "触点 4 按住仓库中的物品一秒",
+        "action": "TouchDown",
+        "target": "ProtocolSpaceBattleConsumableStockValleyIVFindItem",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "contact": 4,
+        "auto_up": true,
+        "post_delay": 1000,
+        "next": [
+            "ProtocolSpaceBattleConsumableStockTransferMenuClick"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockTransferMenuClick": {
+        "desc": "按住物品时反复点击转移到背包图标，直到图标消失",
+        "recognition": "TemplateMatch",
+        "roi": [
+            937,
+            128,
+            309,
+            212
+        ],
+        "template": "ProtocolSpace/TransferToBackpack.png",
+        "threshold": 0.8,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "ProtocolSpaceBattleConsumableStockTransferMenuClick",
+            "repeat_count": 5,
+            "interval_ms": 500
+        },
+        "timeout": 3000,
+        "rate_limit": 250,
+        "next": [
+            "ProtocolSpaceBattleConsumableStockTransferTouchUp"
+        ],
+        "on_error": [
+            "ProtocolSpaceBattleConsumableStockTransferTouchUpOnError"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockTransferTouchUp": {
+        "desc": "转移菜单图标消失后松开物品触点",
+        "recognition": "DirectHit",
+        "action": "TouchUp",
+        "contact": 4,
+        "next": [
+            "ProtocolSpaceBattleConsumableStockFinish"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockTransferTouchUpOnError": {
+        "desc": "转移操作失败时释放物品触点",
+        "recognition": "DirectHit",
+        "action": "TouchUp",
+        "contact": 4,
+        "next": [
+            "ProtocolSpaceBattleConsumableStockFinish"
+        ]
+    }
+}

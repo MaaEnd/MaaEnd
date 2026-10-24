@@ -38,6 +38,7 @@
                 "OutpostTradingOperatorScanOutcome",
                 "OutpostTradingPriorityItem",
                 "OutpostTradingSelectBestOperator",
+                "ProtocolSpaceConsumableQuantityRecognition",
                 "PuzzleRecognition",
                 "ReceptionRoomExchangeCountdownWithinThresholdRecognition",
                 "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
@@ -246,6 +247,34 @@
                 "properties": {
                     "custom_recognition_param": {
                         "$ref": "./components/ims.schema.json#/$defs/ItemQuantitySatisfiedParam"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "ProtocolSpaceConsumableQuantityRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [ "quantity_node", "operator_nodes", "match_when_sufficient" ],
+                        "properties": {
+                            "quantity_node": { "type": "string", "minLength": 1 },
+                            "operator_nodes": {
+                                "type": "array",
+                                "minItems": 4,
+                                "maxItems": 4,
+                                "items": { "type": "string", "minLength": 1 }
+                            },
+                            "match_when_sufficient": { "type": "boolean" }
+                        }
                     }
                 }
             }

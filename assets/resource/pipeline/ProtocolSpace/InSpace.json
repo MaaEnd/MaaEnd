@@ -428,6 +428,19 @@
         ]
     },
     "ProtocolSpaceTouchStartTouch": {
+        "desc": "判断出现触碰提示，准备进入战斗前流程",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "ProtocolSpaceTouchStartPrompt"
+        ],
+        "box_index": 1,
+        "next": [
+            "ProtocolSpaceBattleConsumableUseStart",
+            "ProtocolSpaceTouchStartTouchAction"
+        ]
+    },
+    "ProtocolSpaceTouchStartTouchAction": {
         "desc": "判断出现触碰提示，开始触碰",
         "recognition": "And",
         "all_of": [

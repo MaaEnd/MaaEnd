@@ -1,0 +1,134 @@
+{
+    "ItemTransferRepoTopReached": {
+        "roi": [
+            743,
+            161,
+            5,
+            370
+        ]
+    },
+    "ItemTransferRepoBottomReached": {
+        "roi": [
+            743,
+            161,
+            5,
+            370
+        ]
+    },
+    "ItemTransferBagTopReached": {
+        "roi": [
+            1245,
+            168,
+            5,
+            352
+        ]
+    },
+    "ItemTransferBagBottomReached": {
+        "roi": [
+            1245,
+            168,
+            5,
+            352
+        ]
+    },
+    "ItemTransferScrollUpwardRepo": {
+        "action": "Swipe",
+        "target": [
+            400,
+            340
+        ],
+        "begin": [
+            385,
+            220
+        ],
+        "end": [
+            385,
+            480
+        ],
+        "end_hold": 200,
+        "duration": 500,
+        "post_wait_freezes": {
+            "target": [
+                30,
+                160,
+                710,
+                370
+            ]
+        }
+    },
+    "ItemTransferScrollDownwardRepo": {
+        "action": "Swipe",
+        "target": [
+            400,
+            340
+        ],
+        "begin": [
+            385,
+            480
+        ],
+        "end": [
+            385,
+            220
+        ],
+        "end_hold": 200,
+        "duration": 500,
+        "post_wait_freezes": {
+            "target": [
+                30,
+                160,
+                710,
+                370
+            ]
+        }
+    },
+    "ItemTransferScrollUpwardBag": {
+        "action": "Swipe",
+        "target": [
+            1000,
+            340
+        ],
+        "begin": [
+            1015,
+            220
+        ],
+        "end": [
+            1015,
+            480
+        ],
+        "end_hold": 200,
+        "duration": 500,
+        "post_wait_freezes": {
+            "target": [
+                800,
+                178,
+                430,
+                344
+            ]
+        }
+    },
+    "ItemTransferScrollDownwardBag": {
+        "action": "Swipe",
+        "target": [
+            1000,
+            340
+        ],
+        "begin": [
+            1015,
+            480
+        ],
+        "end": [
+            1015,
+            220
+        ],
+        "end_hold": 200,
+        "duration": 500,
+        "post_wait_freezes": {
+            "target": [
+                800,
+                178,
+                430,
+                344
+            ]
+        }
+    }
+}

@@ -1,0 +1,660 @@
+{
+    "ProtocolSpaceBattleConsumableHasItem": {
+        "desc": "任务选项是否选择了可用消耗品",
+        "enabled": false,
+        "recognition": "DirectHit"
+    },
+    "ProtocolSpaceBattleConsumableHasSelectedOperators": {
+        "desc": "是否至少选择一个干员",
+        "recognition": "Or",
+        "any_of": [
+            "ProtocolSpaceBattleConsumableUseOperator1",
+            "ProtocolSpaceBattleConsumableUseOperator2",
+            "ProtocolSpaceBattleConsumableUseOperator3",
+            "ProtocolSpaceBattleConsumableUseOperator4"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockStart": {
+        "desc": "战斗任务开始前准备所选消耗品",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceBattleConsumableHasItem",
+            "ProtocolSpaceBattleConsumableHasSelectedOperators"
+        ],
+        "next": [
+            "ProtocolSpaceBattleConsumableStockWulingEnter"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockWulingEnter": {
+        "desc": "进入武陵可用道具仓库",
+        "recognition": "DirectHit",
+        "next": [
+            "ProtocolSpaceBattleConsumableStockWulingDepotReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotWulingUsable"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockWulingDepotReady": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotWulingUsable"
+        ],
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset",
+            "ItemTransferCurrentRepoFind": "ProtocolSpaceBattleConsumableStockWulingFindItem",
+            "ItemTransferCurrentRepoNotFound": "ProtocolSpaceBattleConsumableStockWulingNotFound",
+            "ItemTransferCurrentRepoTransfer": "ProtocolSpaceBattleConsumableStockWulingTransferItem",
+            "ItemTransferAfterRepoTransfer": "ProtocolSpaceBattleConsumableStockFinish"
+        },
+        "next": [
+            "ItemTransferRepoSearchCurrentPage"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockWulingFindItem": {
+        "desc": "在帝江号仓库当前页查找已选消耗品",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_recheck_filters": [
+                        "Normal:Usable"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    154,
+                    202,
+                    585,
+                    291
+                ]
+            }
+        },
+        "next": [
+            "[Anchor]ItemTransferCurrentRepoTransfer"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockWulingTransferItem": {
+        "desc": "按住 Shift 准备将所选消耗品转入背包",
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 16,
+        "next": [
+            "ProtocolSpaceBattleConsumableStockWulingTransferClick"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockWulingTransferClick": {
+        "desc": "按住 Shift 点击所选消耗品",
+        "action": "Click",
+        "target": "ProtocolSpaceBattleConsumableStockWulingFindItem",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "next": [
+            "ProtocolSpaceBattleConsumableStockWulingTransferKeyUp"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockWulingTransferKeyUp": {
+        "desc": "释放 Shift，完成消耗品转入背包",
+        "action": "KeyUp",
+        "key": 16,
+        "next": [
+            "[Anchor]ItemTransferAfterRepoTransfer"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockWulingNotFound": {
+        "desc": "武陵可用道具仓库未找到所选消耗品",
+        "recognition": "DirectHit",
+        "next": [
+            "ProtocolSpaceBattleConsumableStockValleyIVEnter"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockValleyIVEnter": {
+        "desc": "进入四号谷地可用道具仓库",
+        "recognition": "DirectHit",
+        "next": [
+            "ProtocolSpaceBattleConsumableStockValleyIVDepotReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotValleyIVUsable"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockValleyIVDepotReady": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotValleyIVUsable"
+        ],
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset",
+            "ItemTransferCurrentRepoFind": "ProtocolSpaceBattleConsumableStockValleyIVFindItem",
+            "ItemTransferCurrentRepoNotFound": "ProtocolSpaceBattleConsumableStockValleyIVNotFound",
+            "ItemTransferCurrentRepoTransfer": "ProtocolSpaceBattleConsumableStockValleyIVTransferItem",
+            "ItemTransferAfterRepoTransfer": "ProtocolSpaceBattleConsumableStockFinish"
+        },
+        "next": [
+            "ItemTransferRepoSearchCurrentPage"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockValleyIVFindItem": {
+        "desc": "在帝江号仓库当前页查找已选消耗品",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_recheck_filters": [
+                        "Normal:Usable"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    154,
+                    202,
+                    585,
+                    291
+                ]
+            }
+        },
+        "next": [
+            "[Anchor]ItemTransferCurrentRepoTransfer"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockValleyIVTransferItem": {
+        "desc": "按住 Shift 准备将所选消耗品转入背包",
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 16,
+        "next": [
+            "ProtocolSpaceBattleConsumableStockValleyIVTransferClick"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockValleyIVTransferClick": {
+        "desc": "按住 Shift 点击所选消耗品",
+        "action": "Click",
+        "target": "ProtocolSpaceBattleConsumableStockValleyIVFindItem",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "next": [
+            "ProtocolSpaceBattleConsumableStockValleyIVTransferKeyUp"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockValleyIVTransferKeyUp": {
+        "desc": "释放 Shift，完成消耗品转入背包",
+        "action": "KeyUp",
+        "key": 16,
+        "next": [
+            "[Anchor]ItemTransferAfterRepoTransfer"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableStockValleyIVNotFound": {
+        "desc": "武陵和四号谷地均未找到所选消耗品",
+        "recognition": "DirectHit",
+        "next": [
+            "ProtocolSpaceBattleConsumableStockFinish"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.usable_item_not_found"
+        }
+    },
+    "ProtocolSpaceBattleConsumableStockFinish": {
+        "desc": "关闭仓库并继续协议空间任务",
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click"
+    },
+    "ProtocolSpaceBattleConsumableUseStart": {
+        "desc": "战斗开始前检查并使用所选消耗品",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "ProtocolSpaceBattleConsumableHasItem",
+            "ProtocolSpaceBattleConsumableHasSelectedOperators"
+        ],
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "ProtocolSpaceBattleConsumableUseOperator1",
+                "ProtocolSpaceBattleConsumableUseOperator2",
+                "ProtocolSpaceBattleConsumableUseOperator3",
+                "ProtocolSpaceBattleConsumableUseOperator4",
+                "ItemTransferScrollUpwardBag",
+                "ItemTransferScrollDownwardBag"
+            ]
+        },
+        "next": [
+            "ProtocolSpaceBattleConsumableUseBackpackAlreadyOpen",
+            "ProtocolSpaceBattleConsumableUseOpenBagMenu"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseBackpackAlreadyOpen": {
+        "desc": "背包已打开，直接查找消耗品",
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "next": [
+            "ProtocolSpaceBattleConsumableUseBagReady"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseOpenBagMenu": {
+        "desc": "Alt 点击背包菜单图标，直到菜单图标消失",
+        "recognition": "Or",
+        "any_of": [
+            "ProtocolSpaceBattleConsumableUseOpenBagMenuIcon1",
+            "ProtocolSpaceBattleConsumableUseOpenBagMenuIcon2",
+            "ProtocolSpaceBattleConsumableUseOpenBagMenuIcon3"
+        ],
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "ProtocolSpaceBattleConsumableUseOpenBagMenuIcon"
+        },
+        "next": [
+            "ProtocolSpaceBattleConsumableUseBagReady"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseOpenBagMenuIcon": {
+        "recognition": "Or",
+        "any_of": [
+            "ProtocolSpaceBattleConsumableUseOpenBagMenuIcon1",
+            "ProtocolSpaceBattleConsumableUseOpenBagMenuIcon2",
+            "ProtocolSpaceBattleConsumableUseOpenBagMenuIcon3"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseOpenBagMenuIcon1": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            -600,
+            0,
+            600,
+            100
+        ],
+        "template": "SceneManager/WordMenuBackpack.png",
+        "green_mask": true,
+        "threshold": 0.8
+    },
+    "ProtocolSpaceBattleConsumableUseOpenBagMenuIcon2": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            -600,
+            0,
+            600,
+            100
+        ],
+        "template": "SceneManager/WordMenuBackpack2.png",
+        "green_mask": true,
+        "threshold": 0.8
+    },
+    "ProtocolSpaceBattleConsumableUseOpenBagMenuIcon3": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            -600,
+            0,
+            600,
+            100
+        ],
+        "template": "SceneManager/Backpack.png",
+        "green_mask": true,
+        "threshold": 0.8
+    },
+    "ProtocolSpaceBattleConsumableUseBagReady": {
+        "desc": "确认背包已打开",
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset",
+            "ItemTransferCurrentBagFind": "ProtocolSpaceBattleConsumableUseFindItem",
+            "ItemTransferCurrentBagNotFound": "ProtocolSpaceBattleConsumableUseItemNotFound",
+            "ItemTransferCurrentBagTransfer": "ProtocolSpaceBattleConsumableUseCheckQuantity",
+            "ItemTransferAfterBagTransfer": "ProtocolSpaceBattleConsumableUseSelectItem"
+        },
+        "next": [
+            "ItemTransferBagSearchCurrentPage"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseFindItem": {
+        "desc": "遍历背包查找所选消耗品",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_recheck_filters": [
+                        "Normal:Usable"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    739,
+                    202,
+                    398,
+                    291
+                ]
+            }
+        },
+        "next": [
+            "[Anchor]ItemTransferCurrentBagTransfer"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseCheckQuantity": {
+        "desc": "比较消耗品数量与已选择干员数量",
+        "recognition": "DirectHit",
+        "next": [
+            "ProtocolSpaceBattleConsumableUseQuantityEnough",
+            "ProtocolSpaceBattleConsumableUseQuantityInsufficient"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseQuantity": {
+        "desc": "读取背包内所选消耗品的数量",
+        "recognition": "OCR",
+        "roi": "ProtocolSpaceBattleConsumableUseFindItem",
+        "roi_offset": [
+            0,
+            46,
+            0,
+            -46
+        ],
+        "expected": [
+            "^\\d+$"
+        ],
+        "only_rec": true
+    },
+    "ProtocolSpaceBattleConsumableUseQuantityEnough": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ProtocolSpaceConsumableQuantityRecognition",
+                "custom_recognition_param": {
+                    "quantity_node": "ProtocolSpaceBattleConsumableUseQuantity",
+                    "operator_nodes": [
+                        "ProtocolSpaceBattleConsumableUseOperator1",
+                        "ProtocolSpaceBattleConsumableUseOperator2",
+                        "ProtocolSpaceBattleConsumableUseOperator3",
+                        "ProtocolSpaceBattleConsumableUseOperator4"
+                    ],
+                    "match_when_sufficient": true
+                }
+            }
+        },
+        "next": [
+            "ProtocolSpaceBattleConsumableUseSelectItem"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseQuantityInsufficient": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ProtocolSpaceConsumableQuantityRecognition",
+                "custom_recognition_param": {
+                    "quantity_node": "ProtocolSpaceBattleConsumableUseQuantity",
+                    "operator_nodes": [
+                        "ProtocolSpaceBattleConsumableUseOperator1",
+                        "ProtocolSpaceBattleConsumableUseOperator2",
+                        "ProtocolSpaceBattleConsumableUseOperator3",
+                        "ProtocolSpaceBattleConsumableUseOperator4"
+                    ],
+                    "match_when_sufficient": false
+                }
+            }
+        },
+        "next": [
+            "ProtocolSpaceBattleConsumableUseCloseBackpack"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseItemNotFound": {
+        "desc": "背包遍历完仍未找到所选消耗品",
+        "recognition": "DirectHit",
+        "next": [
+            "ProtocolSpaceBattleConsumableUseCloseBackpack"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseSelectItem": {
+        "desc": "点击已找到且数量足够的消耗品",
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "ProtocolSpaceBattleConsumableUseFindItem"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceBattleConsumableUseClickUseButton"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseMark": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            744,
+            0,
+            536,
+            496
+        ],
+        "template": "ProtocolSpace/ItemIntroMark.png",
+        "green_mask": true,
+        "method": 5,
+        "threshold": 0.8
+    },
+    "ProtocolSpaceBattleConsumableUseText": {
+        "desc": "在书签图标下方限定区域识别使用按钮",
+        "recognition": "OCR",
+        "roi": "ProtocolSpaceBattleConsumableUseMark",
+        "roi_offset": [
+            -144,
+            416,
+            111,
+            11
+        ],
+        "expected": [
+            "Usar",
+            "使用",
+            "Verwenden",
+            "Use",
+            "Utiliser",
+            "Gunakan",
+            "Usa",
+            "사용",
+            "Использовать",
+            "ใช้",
+            "Dùng"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseClickUseButton": {
+        "desc": "点击消耗品详情中的使用按钮",
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceBattleConsumableUseMark",
+            "ProtocolSpaceBattleConsumableUseText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceBattleConsumableUseOperatorDialogReady"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseOperatorDialogReady": {
+        "desc": "确认干员选择弹窗已打开",
+        "recognition": "OCR",
+        "roi": [
+            340,
+            210,
+            600,
+            80
+        ],
+        "expected": [
+            "请选择使用战术物品的干员",
+            "Select the operator to use the tactical on.",
+            "どのオペレーターに使用しますか？",
+            "전술 아이템을 사용할 오퍼레이터를 선택하세요.",
+            "請選擇使用戰術物品的幹員"
+        ],
+        "next": [
+            "ProtocolSpaceBattleConsumableUseSelectNextOperator"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseSelectNextOperator": {
+        "desc": "依次点击所选干员并确认使用",
+        "recognition": "DirectHit",
+        "next": [
+            "ProtocolSpaceBattleConsumableUseOperator1",
+            "ProtocolSpaceBattleConsumableUseOperator2",
+            "ProtocolSpaceBattleConsumableUseOperator3",
+            "ProtocolSpaceBattleConsumableUseOperator4",
+            "ProtocolSpaceBattleConsumableUseCancelButton"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseOperator1": {
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": [
+            622,
+            327
+        ],
+        "next": [
+            "ProtocolSpaceBattleConsumableUseConfirmButton",
+            "ProtocolSpaceBattleConsumableUseCancelButton"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseOperator2": {
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": [
+            717,
+            327
+        ],
+        "next": [
+            "ProtocolSpaceBattleConsumableUseConfirmButton",
+            "ProtocolSpaceBattleConsumableUseCancelButton"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseOperator3": {
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": [
+            804,
+            327
+        ],
+        "next": [
+            "ProtocolSpaceBattleConsumableUseConfirmButton",
+            "ProtocolSpaceBattleConsumableUseCancelButton"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseOperator4": {
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": [
+            897,
+            327
+        ],
+        "next": [
+            "ProtocolSpaceBattleConsumableUseConfirmButton",
+            "ProtocolSpaceBattleConsumableUseCancelButton"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseConfirmButton": {
+        "desc": "确认给当前干员使用消耗品",
+        "recognition": "Or",
+        "any_of": [
+            "ProtocolSpaceBattleConsumableUseConfirmButtonNormal",
+            "ProtocolSpaceBattleConsumableUseConfirmButtonHover"
+        ],
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceBattleConsumableUseSelectNextOperator"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseConfirmButtonNormal": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            813,
+            403,
+            230,
+            136
+        ],
+        "template": "Common/Button/YellowConfirmButtonType2.png",
+        "threshold": 0.8
+    },
+    "ProtocolSpaceBattleConsumableUseConfirmButtonHover": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            813,
+            403,
+            230,
+            136
+        ],
+        "template": "Common/Button/YellowConfirmButtonType2Hover.png",
+        "threshold": 0.8
+    },
+    "ProtocolSpaceBattleConsumableUseCancelButton": {
+        "desc": "结束逐个使用并关闭干员选择弹窗",
+        "recognition": "Or",
+        "any_of": [
+            "ProtocolSpaceBattleConsumableUseCancelButtonNormal",
+            "ProtocolSpaceBattleConsumableUseCancelButtonHover"
+        ],
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceBattleConsumableUseCloseBackpack"
+        ]
+    },
+    "ProtocolSpaceBattleConsumableUseCancelButtonNormal": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            601,
+            404,
+            230,
+            136
+        ],
+        "template": "Common/Button/CancelButtonType2.png",
+        "threshold": 0.8
+    },
+    "ProtocolSpaceBattleConsumableUseCancelButtonHover": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            601,
+            404,
+            230,
+            136
+        ],
+        "template": "Common/Button/CancelButtonType2Hover.png",
+        "threshold": 0.8
+    },
+    "ProtocolSpaceBattleConsumableUseCloseBackpack": {
+        "desc": "结束背包流程并返回战斗开始提示",
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceTouchStartTouchAction"
+        ]
+    }
+}

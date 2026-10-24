@@ -258,6 +258,20 @@ jobs:
       - name: Fetch zmdmap data
         run: uv run zmdmap fetch --only item_mini_table --only weapons
 
+      - name: Checkout BeyondTableCfg
+        uses: actions/checkout@v6
+        with:
+          repository: 555me/beyondGameData
+          path: BeyondTableCfg
+          sparse-checkout: tableCfg
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Generate ProtocolSpace usable items
+        run: |
+          version="$(jq -r '.version' tools/zmdmap/data/item_mini_table.json)"
+          uv run zmdmap generate --only usable_items --table-cfg-dir BeyondTableCfg/tableCfg --version "$version"
+
       # json5（读物品表）与 pillow（合成 UI 图标）都在默认组里，httpx 是核心依赖。
       - name: Download icon resources
         run: uv run tools/icon_recognition/download.py --workers 16
@@ -273,22 +287,26 @@ jobs:
           author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
           add-paths: |
             tools/zmdmap
+            assets/data/ProtocolSpace
+            assets/tasks/ProtocolSpace.json
             assets/data/IconRecognition
             assets/resource/image/IconRecognition
             assets/resource/image/UI/Item
             assets/locales/interface
-          commit-message: "chore(iconrecognition): sync zmdmap icon resources"
+          commit-message: "chore(zmdmap): 同步可用道具与图标资源"
           branch: chore/sync-zmdmap-icon-recognition
-          title: "chore(iconrecognition): sync zmdmap icon resources"
+          title: "chore(zmdmap): 同步可用道具与图标资源"
           body: |
-            ## Summary
+            ## 摘要
 
-            This PR automatically downloaded the latest IconRecognition icons from zmdmap and regenerated the recognition catalog, item images, and localized item names.
+            本 PR 从最新的 BeyondTableCfg TableCfg 生成协议空间主动增幅道具表，并同步任务下拉选项；同时更新 IconRecognition 图标目录、物品图片和本地化名称。
 
-            Please review the changes before merging it.
+            **生成内容：**
 
-            **Generated Artifacts:**
+            - `assets/data/ProtocolSpace/usable_items.json`
+            - `assets/tasks/ProtocolSpace.json` 中的消耗品选项
             - `assets/data/IconRecognition/recognition_items.json`
-            - `assets/resource/image/IconRecognition/`
-            - `assets/resource/image/UI/Item/`
-            - `assets/locales/interface/` item names
+            - `assets/resource/image/IconRecognition/` 与 `assets/resource/image/UI/Item/`
+            - `assets/locales/interface/` 中的物品名称
+
+            请在合并前检查生成差异。
