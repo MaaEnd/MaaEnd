@@ -24,10 +24,15 @@
             320,
             140
         ],
-        // 启动器界面文案由启动器自身下发，不进入游戏 i18n 表，与官方 GameLauncherStartGameText 同样跳过
+        // 启动器界面文案由启动器自身下发，不进入游戏 i18n 表，与官方 GameLauncherStartGameText 同样跳过。
+        // 以下为各语言实际显示文案（简中 / 繁中 / 英文 / es-MX / de-DE），拉丁语系用 (?i) 正则容忍 OCR 大小写差异。
         "expected": [
             // @i18n-skip
-            "更新游戏"
+            "更新游戏",
+            "更新遊戲",
+            "(?i)Update Game",
+            "(?i)Actualizar",
+            "(?i)Aktualisieren"
         ],
         "pre_delay": 0,
         "action": "Click",
@@ -69,8 +74,14 @@
         ],
         "expected": [
             // @i18n-skip
+            // 断点续传 / 继续更新（多语言）
             "继续更新",
-            "继续下载"
+            "继续下载",
+            "繼續更新",
+            "繼續下載",
+            "(?i)Resume",
+            "(?i)Continuar",
+            "(?i)Fortsetzen"
         ],
         "pre_delay": 0,
         "action": "Click",
@@ -107,7 +118,7 @@
         ]
     },
     "GameLauncherUpdating": {
-        "desc": "更新进行中（下载中/更新中/校验中/解压中/安装中）：本帧不点击，直接回到等待节点继续观察",
+        "desc": "更新进行中（校验中 / 下载中 / 解压中 / 安装中 / 启动中等，多语言）：本帧不点击，直接回到等待节点继续观察",
         // 命中即说明「状态已知」。回到 GameLauncherWaitStartGame 会让等待窗口重新计时，
         // 因此正常更新可以一直等下去，不受任何硬上限约束。
         "recognition": "OCR",
@@ -119,11 +130,39 @@
         ],
         "expected": [
             // @i18n-skip
+            // 简中
             "下载中",
+            "正在下载",
             "更新中",
             "校验中",
             "解压中",
-            "安装中"
+            "安装中",
+            "启动中",
+            // 繁中
+            "下載中",
+            "正在下載",
+            "校驗中",
+            "解壓縮中",
+            "安裝中",
+            "啟動中",
+            // 英文 / 西语(es-MX) / 德语(de-DE)：省略号与大小写由 OCR 决定，正则只匹配关键单词
+            "(?i)Downloading",
+            "(?i)Verifying",
+            "(?i)Extracting",
+            "(?i)Installing",
+            "(?i)Launching",
+            "(?i)Descargando",
+            "(?i)Verificando",
+            "(?i)Extrayendo",
+            "(?i)Instalando",
+            "(?i)Iniciando",
+            "(?i)Herunterladen",
+            "(?i)Wird verifiziert",
+            "(?i)Wird entpackt",
+            "(?i)Wird installiert",
+            "(?i)Starten",
+            // 德语排队态 Warte ...（其余语言未收录）
+            "(?i)Warte"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -155,10 +194,14 @@
             300,
             110
         ],
-        // 同上：弹窗标题与按钮文案均由启动器下发
+        // 弹窗标题与按钮文案均由启动器下发；以下取自启动器语言包 modal.system_prompt
         "expected": [
             // @i18n-skip
-            "系统提示"
+            "系统提示",
+            "系統提示",
+            "(?i)SYSTEM NOTIFICATION",
+            "(?i)NOTIFICACI[ÓO]N DEL SISTEMA",
+            "(?i)SYSTEMBENACHRICHTIGUNG"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -172,10 +215,15 @@
             320,
             140
         ],
-        // 同上：弹窗标题与按钮文案均由启动器下发
+        // 同上：弹窗标题与按钮文案均由启动器下发；以下取自启动器语言包 modal.confirm
         "expected": [
             // @i18n-skip
-            "确认"
+            "确认",
+            "確定",
+            "確認",
+            "(?i)Confirm",
+            "(?i)Confirmar",
+            "(?i)Best[äa]tigen"
         ],
         "pre_delay": 0,
         "post_delay": 0

@@ -178,6 +178,8 @@
             // @i18n-skip
             "开始游戏",
             "開始遊戲",
+            "(?i)Jugar",
+            "(?i)Spielen",
             "(?i)\\bPlay\\b"
         ]
     }
