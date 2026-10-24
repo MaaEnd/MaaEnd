@@ -1,0 +1,157 @@
+{
+    "AutoMissionMain": {
+        "desc": "回到任意大世界后确认追踪任务",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionInWorld"
+        ]
+    },
+    "AutoMissionInWorld": {
+        "desc": "确认已在大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionTrackingIcon",
+            "AutoMissionNoTracking"
+        ]
+    },
+    "AutoMissionTrackingIcon": {
+        "desc": "左上角追踪图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            160,
+            300,
+            100
+        ],
+        "template": [
+            "AutoMission/ImportantMissionIcon.png",
+            "AutoMission/SecondaryMissionIcon.png",
+            "AutoMission/UrgentMissionIcon.png"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionOpenJournal"
+        ]
+    },
+    "AutoMissionNoTracking": {
+        "desc": "没有追踪任务时结束",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoMission.focus.no_tracking"
+        }
+    },
+    "AutoMissionOpenJournal": {
+        "desc": "点击打开任务直到任务界面出现",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_nodes": [
+                "InMenuMission"
+            ],
+            "interval_ms": 6000
+        },
+        "target": [
+            30,
+            150
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionJournalOpen"
+        ]
+    },
+    "AutoMissionJournalOpen": {
+        "desc": "确认已打开任务界面",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0, 
+                0, 
+                300, 
+                400
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionMatchQuest",
+            "EmptyNode"
+        ]
+    },
+    "AutoMissionMatchQuest": {
+        "desc": "读取当前任务标题和步骤名称，定位子步骤后按追踪类型调用占位节点",
+        "recognition": "Custom",
+        "custom_recognition": "AutoMissionMatchQuest",
+        "action": "Custom",
+        "custom_action": "AutoMissionExecuteQuest",
+        "next": [
+            "AutoMissionTrackFinish"
+        ]
+    },
+    "AutoMissionTrackFinish": {
+        "desc": "子步骤追踪结束",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionTrackFinishOpenJournal"
+        ]
+    },
+    "AutoMissionTrackFinishOpenJournal": {
+        "desc": "点击打开任务直到任务界面出现",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_nodes": [
+                "InMenuMission"
+            ],
+            "interval_ms": 6000,
+            "repeat_count": 6 // 某些任务做完后会强制锁定视角无法操作
+        },
+        "target": [
+            30,
+            150
+        ],
+        "next": [
+            "AutoMissionJournalOpen"
+        ]
+    }
+}
