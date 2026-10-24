@@ -29,13 +29,6 @@
             "BatchAddFriendsStart"
         ]
     },
-    "BatchAddFriendsSearchFlow": {
-        "desc": "搜索流程入口",
-        "recognition": "DirectHit",
-        "next": [
-            "BatchAddFriendsTriggerSearch"
-        ]
-    },
     "BatchAddFriendsTriggerSearch": {
         "desc": "点击搜索按钮",
         "recognition": {
@@ -227,9 +220,9 @@
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    1157,
+                    1122,
                     102,
-                    122,
+                    157,
                     570
                 ],
                 "method": 6,
@@ -338,7 +331,32 @@
         "next": [
             "BatchAddFriendsSearchUidNotFound",
             "BatchAddFriendsClickAddButton",
-            "BatchAddFriendsSearchEmptyResult"
+            "BatchAddFriendsSearchEmptyResult",
+            "BatchAddFriendsSearchRequestPending"
+        ]
+    },
+    "BatchAddFriendsSearchRequestPending": {
+        "desc": "申请已发送，等待对方接受",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1072,
+                    118,
+                    138,
+                    85
+                ],
+                "expected": [
+                    "等待接受",
+                    // @i18n-skip
+                    "(?i).*Approval.*", // 原文：Waiting for Approval
+                    "承認待ち"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "next": [
+            "BatchAddFriendsUIDLoopTop"
         ]
     },
     "BatchAddFriendsSearchUidNotFound": {
@@ -401,96 +419,46 @@
             "Node.Recognition.Succeeded": "未搜索到相关玩家"
         }
     },
-    "BatchAddFriendsUIDLoopTop": {
-        "desc": "UID 列表循环入口",
+    "BatchAddFriendsUIDInit": {
+        "desc": "解析 UID 列表并重建输入队列",
+        "max_hit": 1,
         "recognition": "DirectHit",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "BatchAddFriendsUIDLoopTopAction"
+                "custom_action": "TextInputInitAction",
+                "custom_action_param": {
+                    "texts": ""
+                }
+            }
+        },
+        "anchor": {
+            "TextInputFocus": "BatchAddFriendsUIDFocusSearchBox",
+            "TextInputSubmit": "BatchAddFriendsTriggerSearch"
+        },
+        "next": [
+            "BatchAddFriendsUIDLoopTop"
+        ]
+    },
+    "BatchAddFriendsUIDLoopTop": {
+        "desc": "UID 列表循环入口：队列耗尽时结束分支",
+        "recognition": "DirectHit",
+        "next": [
+            "BatchAddFriendsUIDExhausted",
+            "BatchAddFriendsUIDFocusSearchBox",
+            "TextInputClearBox"
+        ]
+    },
+    "BatchAddFriendsUIDExhausted": {
+        "desc": "UID 输入队列耗尽",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "TextInputExhaustedRecognition"
             }
         },
         "next": [
-            "BatchAddFriendsUIDLoopCounter",
             "BatchAddFriendsUIDEnd"
-        ]
-    },
-    "BatchAddFriendsUIDLoopCounter": {
-        "desc": "UID 列表循环计数",
-        "max_hit": 20,
-        "recognition": "DirectHit",
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "BatchAddFriendsUIDClearSearchBoxTemplate",
-            "BatchAddFriendsUIDFocusSearchBoxDispatch"
-        ]
-    },
-    "BatchAddFriendsUIDClearSearchBoxTemplate": {
-        "desc": "清空搜索框",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    980,
-                    24,
-                    171,
-                    83
-                ],
-                "template": [
-                    "BatchAddFriends/UIDClearSearchBox.png"
-                ],
-                "threshold": 0.7
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "BatchAddFriendsUIDFocusSearchBoxDispatch"
-        ]
-    },
-    "BatchAddFriendsUIDFocusSearchBoxDispatch": {
-        "desc": "聚焦搜索框（UID 模式）",
-        "recognition": "DirectHit",
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "BatchAddFriendsUIDFocusSearchBoxTemplate",
-            "BatchAddFriendsUIDFocusSearchBox"
-        ]
-    },
-    "BatchAddFriendsUIDFocusSearchBoxTemplate": {
-        "desc": "聚焦搜索框（模板识别）",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    62,
-                    57,
-                    154,
-                    40
-                ],
-                "expected": [
-                    "输入名称搜索好友",
-                    "輸入名稱搜尋好友",
-                    "(?i)Search\\s*friend\\s*by\\s*name",
-                    "名前を入力して検索"
-                ],
-                "threshold": 0.7
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "BatchAddFriendsUIDEnterUID"
         ]
     },
     "BatchAddFriendsUIDFocusSearchBox": {
@@ -508,30 +476,28 @@
                     "搜索玩家名称或UID添加好友",
                     "搜尋玩家名稱或UID新增好友",
                     "(?i)Search\\s*player\\s*name\\s*or\\s*UID\\s*to\\s*find\\s*friends",
-                    "プレイヤーの名前またはUIDを入力してください"
+                    "プレイヤーの名前またはUIDを入力してください",
+                    "输入名称搜索好友",
+                    "輸入名稱搜尋好友",
+                    "(?i)Search\\s*friend\\s*by\\s*name",
+                    "名前を入力して検索"
                 ],
                 "threshold": 0.7
             }
         },
         "action": {
             "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "BatchAddFriendsUIDEnterUID"
-        ]
-    },
-    "BatchAddFriendsUIDEnterUID": {
-        "desc": "输入 UID",
-        "recognition": "DirectHit",
-        "action": {
-            "type": "Custom",
             "param": {
-                "custom_action": "BatchAddFriendsUIDEnterAction"
+                "target_offset": [
+                    30,
+                    0,
+                    0,
+                    0
+                ]
             }
         },
         "next": [
-            "BatchAddFriendsSearchFlow"
+            "TextInput"
         ]
     },
     "BatchAddFriendsUIDEnd": {
@@ -662,7 +628,7 @@
             }
         },
         "next": [
-            "BatchAddFriendsUIDLoopTop",
+            "BatchAddFriendsUIDInit",
             "BatchAddFriendsStrangersStart",
             "BatchAddFriendsUIDEnd",
             "BatchAddFriendsStrangersEnd"

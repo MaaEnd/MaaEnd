@@ -288,7 +288,7 @@
         ]
     },
     "__AutoEcoFarmFilterClosed": {
-        "desc": "确认筛选面板收起后查找当前装置",
+        "desc": "确认筛选面板收起后定位当前设施",
         "recognition": "And",
         "all_of": [
             "InMapAny"

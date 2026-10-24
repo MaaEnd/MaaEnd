@@ -44,7 +44,7 @@ constexpr char kHexDigits[] = "0123456789abcdef";
 
 std::filesystem::path salt_path()
 {
-    // 与 go-service 共用启动工作目录下的盐文件。
+    // 盐文件与 go-service 共用
     return common::OutputPath("debug/record/random_salt.txt");
 }
 

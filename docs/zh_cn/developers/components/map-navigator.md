@@ -179,7 +179,7 @@ uv run map-navigator --port 9000 --no-browser
 
 ### 适用边界
 
-`NAVMESH` 只负责移动，不推断业务语义。路线中包含交互、过图、跳台、外力传送时，需要在 `path` 中显式标注，此时应使用下节的录制方式。
+`NAVMESH` 只负责移动，不推断业务语义。路线中包含交互、过图、跳台、外力传送时，需要在 `path` 中显式标注，此时应使用下节的录制方式。升降索是唯一的例外：规划器会自己接上一开始就放下的升降索并插入交互，见 [升降索](#升降索)。
 
 ---
 
@@ -574,6 +574,17 @@ uv run map-navigator --port 9000 --no-browser
 >
 > 路径编辑器的规划预览直接调用 `MapNavigateAction` 使用的 C++ 路线展开逻辑，并读取同一份 `base.nav.gz`。预览不会在 JavaScript 中另写一套路由算法；实际执行仍受定位、地形与游戏内状况影响，外层 Pipeline 仍需做好失败兜底。
 
+### 升降索
+
+`base.fields.nav.gz` 收录了数据里两端都标为一开始就放下的升降索，每根带绳底、绳顶两个落脚点和一次乘坐的秒数（升降高度按升降速度折算，加上一秒动作）。要玩家先到顶上放下的升降索不收：账号里不一定开过，规划进去就可能走到绳底才发现用不了。
+
+升降索只往上坐，往下一律从台沿跳。规划器在两种情况下试它：
+
+- 起点和终点不在同一片连通的可走面上：台沿跳不过去，或坐升降索比跳下去的那条路更短时，用升降索那条；
+- 同一片可走面上：乘坐秒数按跑步速度折成路程，起点走到绳底、绳顶走到终点再加上这段路程，比直接走更短时才换。从绳底走到绳顶本来就比坐上去近的升降索不参与。
+
+升降索只在路线开始时的整段展开里接，行进中偏离路线后的局部重规划不接。规划结果里绳底是一个严格到达的 `INTERACT` 点，交互文字读 `MapNavigator/Interact.json` 里的 `MapNavigatorRopeUseText`；这个节点不存在或没有文字时整段展开不接升降索。按下交互后先等乘坐时间，再等定位连续稳定，然后从绳顶接着走。绳底没出现交互提示（例如这个账号里升降索被收起了）时，这根升降索在本次导航里标为不可用，从当前位置重新展开剩余路线。
+
 ---
 
 ## 采集与挖掘 `COLLECT` / `DIG`
@@ -619,7 +630,7 @@ uv run map-navigator --port 9000 --no-browser
 
 - `agent/cpp-algo/source/MapNavigator/navi_domain_types.h`：`ActionType` 枚举，`COLLECT` / `DIG` 在此声明。
 - `agent/cpp-algo/source/MapNavigator/navi_config.h`：子任务入口名、`pipeline_override`、采集后等待时间等常量。
-- `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`：到达采集点后的执行逻辑。
+- `agent/cpp-algo/source/MapNavigator/semantic/semantic_nodes.cpp`：到达采集点后的执行逻辑。
 
 ### 注意事项
 
@@ -847,11 +858,12 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 
 以下文件由 cpp-algo 维护者负责，路线作者无需修改：
 
-- `agent/cpp-algo/source/MapNavigator/async_prompt_action.h` / `.cpp`：提示驱动动作的公共实现，`COLLECT` 与异步 `INTERACT` 共用一套。
-- `agent/cpp-algo/source/MapNavigator/prompt_scan_profile.h` / `.cpp`：从 Pipeline 节点读预筛参数与交互文字表，以及那一串校验。
+- `agent/cpp-algo/source/MapNavigator/semantic/async_prompt_action.h` / `.cpp`：提示驱动动作的公共实现，`COLLECT` 与异步 `INTERACT` 共用一套。
+- `agent/cpp-algo/source/MapNavigator/sensing/prompt_scan_profile.h` / `.cpp`：从 Pipeline 节点读预筛参数，以及那一串校验。
+- `agent/cpp-algo/source/MapNavigator/sensing/pipeline_node_reader.h` / `.cpp`：读 Pipeline 节点的 ROI、识别类型与交互文字表。
 - `agent/cpp-algo/source/MapNavigator/navi_config.h`：子任务节点名、预筛节拍与兜底常量、判定值等。
 - `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`：`interact_text` / `interact_scan` / `interact_rec` 的解析与路线级默认值下发，以及开跑前把点名的 OCR 节点读成文字表。
-- `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`：到点后的兜底执行逻辑。
+- `agent/cpp-algo/source/MapNavigator/semantic/semantic_nodes.cpp`：到点后的兜底执行逻辑。
 
 ---
 
@@ -945,7 +957,7 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 | 业务自己的路线 JSON | `MapNavigateAction` 的 `path`、`FIND` 点与 `find_*` 字段 | 新增寻找点、换目标 |
 | 业务自己的识别节点 | `find_target` / `find_stop` 点名的节点 | 目标或提示的 ROI、文本变化 |
 | `assets/resource/pipeline/MapNavigator/Find.json` | 内联文本用的内置 OCR 节点 `MapNavigatorFind`；仅由导航按帧调用，从不单独派发 | 内联文本的默认 ROI |
-| `agent/cpp-algo/source/MapNavigator/find_action.cpp` | 搜索与接近的实现、退出时的记账清理 | 由 cpp-algo 维护者根据实机表现调参 |
+| `agent/cpp-algo/source/MapNavigator/semantic/find_action.cpp` | 搜索与接近的实现、退出时的记账清理 | 由 cpp-algo 维护者根据实机表现调参 |
 
 ---
 
@@ -1004,7 +1016,7 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 | ----------------------------------------------------- | -------------------------------------------- | ------------------------ |
 | 业务自己的路线 JSON | `MapNavigateAction` 的 `path`、`TRIGGER` 点与 `trigger_node` | 新增触发终点、换识别节点 |
 | 业务自己的识别节点 | `trigger_node` 点名的节点 | 命中画面的 ROI、文本变化 |
-| `agent/cpp-algo/source/MapNavigator/trigger_action.cpp` | 行进途中的识别与到点完成 | 由 cpp-algo 维护者维护 |
+| `agent/cpp-algo/source/MapNavigator/semantic/trigger_action.cpp` | 行进途中的识别与到点完成 | 由 cpp-algo 维护者维护 |
 
 ---
 
@@ -1070,7 +1082,7 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 | 文件 | 职责 | 何时需要修改 |
 | ------------------------------------------------------ | ---------------------------- | ---------------------- |
 | 业务自己的路线 JSON | `JUMP_PAD` 点与前后的接近点、落点 | 新增或调整跳板路段 |
-| `agent/cpp-algo/source/MapNavigator/jump_pad_action.cpp` | 站位、按跳、起飞与落地判定 | 由 cpp-algo 维护者维护 |
+| `agent/cpp-algo/source/MapNavigator/semantic/jump_pad_action.cpp` | 站位、按跳、起飞与落地判定 | 由 cpp-algo 维护者维护 |
 
 ---
 

@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from fastapi import HTTPException
+from navmesh_backend import rope_interact_text
 from web import serve
 
 
@@ -53,7 +54,11 @@ class WebResourceTest(unittest.TestCase):
             floor_y=[],
             custom_action_param={"zip": True, "path": []},
             zipline_account_id="account-a",
+            rope_interact_text=rope_interact_text(),
         )
+
+    def test_route_preview_reads_the_runtime_rope_text_node(self) -> None:
+        self.assertIn("^使用$", rope_interact_text())
 
 
 if __name__ == "__main__":

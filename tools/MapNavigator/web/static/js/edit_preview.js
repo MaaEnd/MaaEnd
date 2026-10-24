@@ -53,13 +53,14 @@ export function buildEditPreviewPlan(points, explicitStart = null) {
 /**
  * Normalize a successful runtime response into the overlay's route shape.
  * @param {Object} result `/api/route-preview` response
- * @returns {{points:Array, walk_segments:Array, zipline_segments:Array, diagnostics:Array, zipline:Object}}
+ * @returns {{points:Array, walk_segments:Array, zipline_segments:Array, rope_segments:Array, diagnostics:Array, zipline:Object}}
  */
 export function routePreviewData(result) {
   return {
     points: result.points || [],
     walk_segments: result.walk_segments || [],
     zipline_segments: result.zipline_segments || [],
+    rope_segments: result.rope_segments || [],
     diagnostics: result.diagnostics || [],
     zipline: result.zipline || {},
   };
@@ -74,9 +75,11 @@ export function routePreviewData(result) {
  */
 export function routePreviewStatus(route, result, subject) {
   const hops = route.zipline_segments.length;
+  const ropes = (route.rope_segments || []).length;
   const expanded = result.expanded_waypoints || route.points.length;
+  const ropeNote = ropes > 0 ? `坐 ${ropes} 次升降索，` : "";
   if (hops > 0) {
-    return [`${subject}：采用 ${hops} 跳滑索，展开为 ${expanded} 个运行时路点。`, "#10b981"];
+    return [`${subject}：采用 ${hops} 跳滑索，${ropeNote}展开为 ${expanded} 个运行时路点。`, "#10b981"];
   }
   if (route.zipline.account_unknown) {
     return [`${subject}：没有可用于规划的账号记录，已回退为步行路线。`, "#f59e0b"];
@@ -87,7 +90,7 @@ export function routePreviewStatus(route, result, subject) {
   if (route.zipline.not_chosen) {
     return [`${subject}：滑索没有显著优于步行，运行时会采用当前步行路线。`, "#10b981"];
   }
-  return [`${subject}：展开为 ${expanded} 个运行时路点。`, "#10b981"];
+  return [`${subject}：${ropeNote}展开为 ${expanded} 个运行时路点。`, "#10b981"];
 }
 
 /**
@@ -120,6 +123,9 @@ export function routePreviewForDisplay(route, failure, project, {diagnostics = [
         to: project(segment.to),
         mount_spots: Array.isArray(segment.mount_spots) ? segment.mount_spots.filter(Array.isArray).map(project) : [],
       })),
+    ropeSegments: (previewRoute.rope_segments || [])
+      .filter((segment) => Array.isArray(segment?.from) && Array.isArray(segment?.to))
+      .map((segment) => ({...segment, from: project(segment.from), to: project(segment.to)})),
     failure: failure
       ? {
           ...failure,

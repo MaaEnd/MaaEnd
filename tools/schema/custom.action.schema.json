@@ -27,9 +27,7 @@
                 "BatchAddFriendsFriendListFullAction",
                 "BatchAddFriendsStrangersFinishAction",
                 "BatchAddFriendsStrangersOnAddAction",
-                "BatchAddFriendsUIDEnterAction",
                 "BatchAddFriendsUIDFinishAction",
-                "BatchAddFriendsUIDLoopTopAction",
                 "BatchAddFriendsUIDOnAddAction",
                 "BatchAddFriendsUIDOnEmptyAction",
                 "BetterSliding",
@@ -87,6 +85,8 @@
                 "SceneManagerMenuListClickItemAction",
                 "SubTask",
                 "SyncItemData",
+                "TextInputAction",
+                "TextInputInitAction",
                 "TrialOfSwordmancy.Decide",
                 "UpdateItemQuantity",
                 "WebEvent202605Action",
@@ -148,6 +148,24 @@
                 }
             }
         },
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "TextInputInitAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": {
+						"type": "object",
+						"properties": {
+							"texts": { "type": "string" }
+						}
+					}
+				}
+			}
+		},
 		{
 			"if": {
 				"properties": {

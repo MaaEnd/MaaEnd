@@ -1,0 +1,44 @@
+{
+    "configs": {
+        "name": "云终末地拍照识别正反例",
+        "resource": "官服",
+        // 云端下移箭头覆盖和私有退出识别的反例；共用状态及公共出口分别使用三端矩阵。
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "image": "武陵_拍照模式_画面设置.png",
+            "hits": [
+                {
+                    "node": "__ScenePrivateCloudExitPhoto",
+                    "box": [
+                        1100,
+                        10,
+                        160,
+                        60
+                    ]
+                },
+                "EnvironmentMonitoringPhotoSettingsOpened"
+            ]
+        },
+        {
+            "image": "武陵_拍照模式_隐藏全部.png",
+            "hits": [
+                {
+                    "node": "__ScenePrivateCloudExitPhoto",
+                    "box": [
+                        1100,
+                        10,
+                        160,
+                        60
+                    ]
+                },
+                "EnvironmentMonitoringPhotoSettingsOpened"
+            ]
+        },
+        {
+            "image": "帝江号_物资调度_好友价格_待前往.png",
+            "hits": []
+        }
+    ]
+}

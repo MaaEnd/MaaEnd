@@ -97,11 +97,13 @@ function compareItemsByUnitPrice(priceByItemID) {
 
 const LOCATIONS = outpostTradingLocations;
 const REGION_PREFIXES = Object.keys(SETTLEMENT_REGION_MAP);
-const STOCK_MINIMUM_UNIT_PRICE_DEFAULT = 10;
+// 最低售卖单价对所有选品策略生效，默认值过滤掉单价 1 这类不值钱的货品。
+const MINIMUM_UNIT_PRICE_DEFAULT = 10;
 const TASK_OPTIONS = [
     "SellProductSchedule",
     "SellProductOperatorAutoSwitch",
     "SellProductSelectionStrategy",
+    "SellProductStockMinimumUnitPrice",
     "SellProductPriorityRules",
     "SellProductItemReserveRules",
     ...REGION_PREFIXES.map((regionPrefix) => `${regionPrefix}Sell`),
@@ -243,13 +245,11 @@ function buildSelectionStrategyCases() {
         {
             name: "Stock",
             label: "$task.OutpostTrading.SelectionStrategyStock",
-            option: ["SellProductStockMinimumUnitPrice"],
             pipeline_override: {
                 OutpostTradingConfigureSelectionStrategy: {
                     custom_action_param: {
                         operation: "configure_strategy",
                         strategy: "stock",
-                        minimum_unit_price: STOCK_MINIMUM_UNIT_PRICE_DEFAULT,
                     },
                 },
             },
@@ -409,7 +409,7 @@ export const outpostTradingTaskRows = LOCATIONS.map((loc, index) => {
         LocationId: loc.LocationId,
         OnlyPreferredSwitchCases: index === 0 ? ONLY_PREFERRED_SWITCH_CASES : [],
         OperatorRefreshModeCases: index === 0 ? OPERATOR_REFRESH_MODE_CASES : [],
-        StockMinimumUnitPriceDefault: String(STOCK_MINIMUM_UNIT_PRICE_DEFAULT),
+        MinimumUnitPriceDefault: String(MINIMUM_UNIT_PRICE_DEFAULT),
         SelectionStrategyCases: index === 0 ? SELECTION_STRATEGY_CASES : [],
         ...spreadSlotCases("PriorityItemCases", firstInRegion, (slot) =>
             buildPriorityItemCases(loc.RegionPrefix, slot),

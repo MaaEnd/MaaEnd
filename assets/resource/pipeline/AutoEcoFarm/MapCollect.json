@@ -1,7 +1,6 @@
 {
-    "__AutoEcoFarmWulingCityFarmStart": {
-        "desc": "开始处理武陵城自动农植机",
-        "max_hit": 1,
+    "__AutoEcoFarmWulingCityFarmExecute": {
+        "desc": "开始处理武陵城 - 自动农植机",
         "pre_delay": 0,
         "anchor": {
             "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindWulingCityFarm",
@@ -78,9 +77,8 @@
             "__AutoEcoFarmCollectPanel"
         ]
     },
-    "__AutoEcoFarmSisPaintingFarmStart": {
-        "desc": "开始处理祀的画自动农植机",
-        "max_hit": 1,
+    "__AutoEcoFarmSisPaintingFarmExecute": {
+        "desc": "开始处理祀的画 - 自动农植机",
         "pre_delay": 0,
         "anchor": {
             "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindSisPaintingFarm",
@@ -157,9 +155,8 @@
             "__AutoEcoFarmCollectPanel"
         ]
     },
-    "__AutoEcoFarmRanchStart": {
-        "desc": "开始处理祀的画牧场",
-        "max_hit": 1,
+    "__AutoEcoFarmRanchExecute": {
+        "desc": "开始处理祀的画 - 牧场",
         "pre_delay": 0,
         "anchor": {
             "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindRanch"
@@ -272,7 +269,7 @@
         ]
     },
     "__AutoEcoFarmEnterWulingCityMap": {
-        "desc": "打开目标装置所属子区域地图",
+        "desc": "进入武陵城子区域地图",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -291,11 +288,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "__AutoEcoFarmFilterStart"
         ]
     },
     "__AutoEcoFarmEnterSisPaintingMap": {
-        "desc": "通过公共Scene子任务进入祀的画地图",
+        "desc": "通过公共 Scene 子任务进入祀的画地图",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -311,6 +309,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "__AutoEcoFarmFilterStart"
         ]
     },
@@ -496,6 +495,69 @@
             "__AutoEcoFarmFacilityClosed"
         ]
     },
+    "AutoEcoFarmRecoverToMap": {
+        "desc": "设施子任务失败后回到地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmRecoverRewardPage",
+            "__AutoEcoFarmRecoverClosePanel",
+            "__AutoEcoFarmFacilityClosed"
+        ]
+    },
+    "__AutoEcoFarmRecoverRewardPage": {
+        "desc": "收掉残留的奖励页",
+        "recognition": "And",
+        "all_of": [
+            "SceneNoticeRewardsConfirm"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneNoticeRewardsConfirm"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmRecoverClosePanel",
+            "__AutoEcoFarmFacilityClosed"
+        ]
+    },
+    "__AutoEcoFarmRecoverClosePanel": {
+        "desc": "关闭残留的设施面板",
+        "recognition": "And",
+        "all_of": [
+            "__AutoEcoFarmFacilityPanel",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                940,
+                45,
+                320,
+                555
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFacilityClosed"
+        ]
+    },
     "__AutoEcoFarmFacilityClosed": {
         "desc": "通过公共地图界面识别确认装置面板已关闭",
         "recognition": "And",
@@ -504,9 +566,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoEcoFarmMain"
-        ]
+        "rate_limit": 0
     }
 }

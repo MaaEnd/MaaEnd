@@ -43,18 +43,17 @@ public:
     AdbInputBackend(MaaController* ctrl, std::string controller_type, std::shared_ptr<maplocator::MapLocator> locator);
 
     MaaController* GetCtrl() const override;
-    const std::string& controller_type() const override;
-    bool uses_touch_backend() const override;
-    bool is_supported() const override;
-    const std::string& unsupported_reason() const override;
-    double default_turn_units_per_degree() const override;
-    double default_pitch_units_per_degree() const override;
-    SteeringTransportProfile steering_transport_profile() const override;
-    bool supports_sprint() const override;
+    const std::string& ControllerType() const override;
+    bool UsesTouchBackend() const override;
+    bool IsSupported() const override;
+    const std::string& UnsupportedReason() const override;
+    double DefaultTurnUnitsPerDegree() const override;
+    double DefaultPitchUnitsPerDegree() const override;
+    SteeringTransportProfile SteeringProfile() const override;
 
-    bool supports_walk_toggle() const override { return true; }
+    bool SupportsWalkToggle() const override { return true; }
 
-    void SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis) override;
+    void SetMovementStateSync(MovementState state, int delay_millis) override;
     void TriggerJumpSync(int hold_millis) override;
     void TriggerInteractSync(int hold_millis) override;
     void PulseForwardSync(int hold_millis) override;
@@ -64,20 +63,15 @@ public:
 
     void ResetForwardWalkSync(int release_millis) override;
     void ClickMouseLeftSync() override;
-    void MouseRightDownSync(int delay_millis) override;
-    void MouseRightUpSync(int delay_millis) override;
     void TriggerZiplineLaunchSync() override;
     void TriggerZiplineDismountSync(int hold_millis) override;
     bool SendViewDeltaSync(int dx, int dy) override;
 
 private:
-    void ApplyMovementState(int delay_millis);
+    void ApplyMovementState(MovementState state, int delay_millis);
     bool ClickTargetSync(const AdbTapTarget& target, int hold_millis, int delay_millis);
     bool TouchDownTargetSync(const AdbTapTarget& target) const;
-    void MouseRightDownOnTargetSync(const AdbTapTarget& target, int delay_millis);
-    void MouseRightUpOnTargetSync(int contact_id, int delay_millis);
     bool WaitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const;
-    static void SleepIfNeeded(int delay_millis);
 
     MaaController* ctrl_ = nullptr;
     std::string controller_type_;
@@ -87,11 +81,6 @@ private:
     AdbCameraSwipeDriver camera_swipe_driver_;
     AdbVirtualJoystickDriver joystick_driver_;
     AdbActionButtonLayout action_buttons_ {};
-    bool forward_down_ = false;
-    bool left_down_ = false;
-    bool backward_down_ = false;
-    bool right_down_ = false;
-    bool sprint_button_down_ = false;
 };
 
 std::unique_ptr<IInputBackend>
