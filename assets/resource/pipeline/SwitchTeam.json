@@ -38,7 +38,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldValleyIVTheHub1"
+                "SceneEnterWorldValleyIVTheHubHubBasePowerPlant"
             ]
         },
         "next": [
@@ -85,7 +85,7 @@
         "roi": [
             0,
             -60,
-            500,
+            620,
             35
         ],
         "expected": [

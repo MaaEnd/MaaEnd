@@ -23,14 +23,14 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 
 这是编写 Pipeline 时最常见的判断，先按下表选择节点：
 
-| 需求                                      | 节点                                  |
+| 需求 | 节点 |
 | ----------------------------------------- | ------------------------------------- |
-| 让角色走到某个已知坐标                    | `MapNavigateAction` 的 `NAVMESH` 节点 |
-| 让角色走一条有交互、过图、机关的复杂路线  | `MapNavigateAction` 的录制 `path`     |
-| 判断角色当前是否已经站在某个区域内        | `MapLocateAssertLocation`             |
-| 只想读出当前坐标 / 朝向，自己决定后续逻辑 | `MapLocateRecognition`                |
-| 走到某点后采集 / 挖掘                     | `path` 里的 `COLLECT` / `DIG` 语义点  |
-| 目标只有识别框、没有坐标（名字牌、物件标签） | `path` 里的 `FIND` 语义点            |
+| 让角色走到某个已知坐标 | `MapNavigateAction` 的 `NAVMESH` 节点 |
+| 让角色走一条有交互、过图、机关的复杂路线 | `MapNavigateAction` 的录制 `path` |
+| 判断角色当前是否已经站在某个区域内 | `MapLocateAssertLocation` |
+| 只想读出当前坐标 / 朝向，自己决定后续逻辑 | `MapLocateRecognition` |
+| 走到某点后采集 / 挖掘 | `path` 里的 `COLLECT` / `DIG` 语义点 |
+| 目标只有识别框、没有坐标（名字牌、物件标签） | `path` 里的 `FIND` 语义点 |
 | 走着走着某个画面出现，或走到目标坐标就算到 | `path` 末尾的 `TRIGGER` 点 + `trigger_node` |
 
 **优先考虑 `NAVMESH`。** 只要目标点在不发生交互、过图或特殊机关的情况下本来就可达，填一个 `target` 坐标即可，运行时会基于三角图自动规划出可执行路径，不需要预先录制整段路线：
@@ -135,6 +135,16 @@ MapNavigator 的位置输入完全来自 MapLocator 的逐帧识别结果。**�
 ### 资源路径
 
 `.nav` 数据包通过可执行文件相对路径定位（`get_exe_dir()` + `resource/` 前缀，优先 `.gz`），与 YOLO 模型的加载方式一致。开发时若从项目根目录运行，路径问题会被工作目录掩盖——验证资源加载改动时，应从其他工作目录、以可执行文件相对布局进行测试。
+
+### 日志改动要同步日志分析工具
+
+`tools/MapNavigator` 的 `日志分析` 按固定子串匹配 cpp-algo 日志行（行头函数名、消息文本、`[key=value]` 字段）来还原实测轨迹、规划决策和滑索跳，任一处变化都会让它静默失效：拆分 `PositionProvider::Capture` 就曾让实测地面轨迹整段消失，而 `test_log_analysis.mjs` 用的是手写日志片段，不会替你发现真实日志的漂移。
+
+改动 MapNavigator / MapLocator 的日志输出（增删改日志行、调整 `VAR(...)` 字段、把日志挪进别的函数或改名）时，即使用户没有提出要求，也主动提醒用户同步：
+
+- `tools/MapNavigator/web/static/js/log_analysis.js` 的解析逻辑；
+- `tools/MapNavigator/web/test_log_analysis.mjs` 的回归用例；
+- `docs/zh_cn/developers/components/map-navigator.md`、`docs/en_us/` 对应文档和 `tools/MapNavigator/README.md` 中的日志分析描述。
 
 ### C++ 编码规范
 

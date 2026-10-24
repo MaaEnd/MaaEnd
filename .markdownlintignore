@@ -4,7 +4,10 @@ agent/go-service/vendor/
 agent/cpp-algo/MaaUtils/
 assets/resource/model/
 tests/MaaEndTestset/
+Android/MaaFwApp/
 deps/
 install/
 3rdparty/
 .claude/
+assets/locales/LICENSE_SHORT.md
+assets/locales/interface/DESCRIPTION/

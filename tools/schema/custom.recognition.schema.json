@@ -46,6 +46,7 @@
                 "ScreenshotStableRecognition",
                 "ScrollbarRecognition",
                 "ScrollbarCompleteRecognition",
+                "TextInputExhaustedRecognition",
                 "TrialOfSwordmancy.Recognize",
                 "TrialOfSwordmancy.RecognizeAband",
                 "TrialOfSwordmancy.RecognizeDeck",

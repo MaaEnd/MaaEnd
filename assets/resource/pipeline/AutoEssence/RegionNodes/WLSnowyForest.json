@@ -20,7 +20,7 @@
                 "custom_action": "SubTask",
                 "custom_action_param": {
                     "sub": [
-                        "SceneEnterWorldWulingSnowyForest2"
+                        "SceneEnterWorldWulingSnowyForestSnowpriestessCabinWest"
                     ]
                 }
             }
@@ -124,6 +124,7 @@
                             "interact_text": {
                                 "node": "__AutoEssenceRecoApproachInteractText"
                             },
+                            "interact_scan": "__AutoEssenceRecoApproachInteractScan",
                             "interact_rec": true
                         }
                     ]

@@ -1,6 +1,7 @@
 # Development Guide - Common Button Nodes Reference
 
-> **Tip**: For the buttons covered in this document (whether they contain text or not), the **text content does not affect the recognition result**. Recognition only relies on the button's background color, icon shape, and position. Buttons of the same type can be reused for the corresponding node even if the copy is different.
+> **Tip**: For the buttons covered in this document (whether they contain text or not), the **text content does not affect the recognition result**. Recognition only relies on the button's background color, icon shape, and position. The corresponding node can be reused for buttons of the same type even if the copy is different.
+>
 > **Tip**: **Nodes without ROI** perform full-screen searches and will find and click matching buttons anywhere on the screen; nodes with ROI only recognize within the specified area.
 
 ---
@@ -9,15 +10,15 @@
 
 **Description**: General confirmation button with text, white background, and **circular ring** icon.
 
-<!-- Screenshot: docs/developers/images/common-buttons/WhiteConfirmButtonType1.png (Reference Resource:Common/Button/WhiteConfirmButtonType1.png) -->
+<!-- Screenshot: docs/developers/images/common-buttons/WhiteConfirmButtonType1.png (Reference Resource: Common/Button/WhiteConfirmButtonType1.png) -->
 
 ![WhiteConfirmButtonType1](https://github.com/user-attachments/assets/556fcf7b-968c-4f06-87c9-8f16610c6b63)
 
 | Item | Description |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Recognition Method** | First locate the white button background via color matching (`WhiteButtonBackground`), then perform template matching (circular ring icon) within the background ROI, supporting normal and Hover state templates. |
-| **Search Range** | **Full-screen search**, with no fixed ROI. Buttons of this type appearing anywhere on the screen will be recognized and clicked. |
-| **Action** | Single click. |
+| **Recognition Method** | `Or`: first perform template matching (circular ring icon) directly within the common area ROI `[672, 416, 608, 304]` (720p); on a miss, fall back to an `And` combined recognition: locate the white button background via color matching (`WhiteButtonBackground`), then perform template matching (circular ring icon) within the background box expanded by `roi_offset: [-20, -20, 60, 40]`. Both steps support normal and Hover state templates. |
+| **Search Range** | **Full-screen search**: the common-area ROI is tried first, then a full-screen background color search, so buttons of this type anywhere on the screen will be recognized and clicked. |
+| **Action** | Single click, followed by an 80ms freeze wait. |
 | **Usage Condition** | Use when a confirmation button with **white background + circular ring icon** appears on the interface. If the button has a checkmark icon, use `WhiteConfirmButtonType2`. |
 
 ---
@@ -32,9 +33,9 @@
 
 | Item | Description |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Recognition Method** | Same as Type1, relying on `WhiteButtonBackground` + template matching (checkmark icon, supporting normal and Hover state templates). |
-| **Search Range** | **Full-screen search**, with no fixed ROI. Buttons of this type appearing anywhere on the screen will be recognized and clicked. |
-| **Action** | Single click. |
+| **Recognition Method** | Same as Type1: first template matching directly within the common area ROI `[672, 416, 608, 304]` (720p), then on a miss a fallback to `WhiteButtonBackground` + template matching (checkmark icon, supporting normal and Hover state templates). |
+| **Search Range** | **Full-screen search**: the common-area ROI is tried first, then a full-screen background color search, so buttons of this type anywhere on the screen will be recognized and clicked. |
+| **Action** | Single click, followed by an 80ms freeze wait. |
 | **Usage Condition** | Use when a confirmation button with **white background + checkmark icon** appears on the interface. If it has a circular ring icon, use `WhiteConfirmButtonType1`. |
 
 ---
@@ -51,7 +52,7 @@
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Recognition Method** | First locate the yellow button background via color matching (`YellowButtonBackground`), then perform template matching (circular ring icon) within the background ROI, supporting normal and Hover state templates. |
 | **Search Range** | **Full-screen search**, with no fixed ROI. Buttons of this type appearing anywhere on the screen will be recognized and clicked. |
-| **Action** | Single click. |
+| **Action** | Single click, followed by an 80ms freeze wait. |
 | **Usage Condition** | Use when a confirmation button with **yellow background + circular ring icon** appears on the interface. If the button has a checkmark icon, use `YellowConfirmButtonType2`. |
 
 ---
@@ -66,9 +67,9 @@
 
 | Item | Description |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Recognition Method** | Same as Type1, relying on `YellowButtonBackground` + template matching (checkmark icon, only normal state template is supported). |
+| **Recognition Method** | Same as Type1, relying on `YellowButtonBackground` + template matching (checkmark icon, supporting normal and Hover state templates). |
 | **Search Range** | **Full-screen search**, with no fixed ROI. Buttons of this type appearing anywhere on the screen will be recognized and clicked. |
-| **Action** | Single click. |
+| **Action** | Single click, followed by an 80ms freeze wait. |
 | **Usage Condition** | Use when a confirmation button with **yellow background + checkmark icon** appears on the interface. If it has a circular ring icon, use `YellowConfirmButtonType1`. |
 
 ---
@@ -83,9 +84,9 @@
 
 | Item | Description |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Recognition Method** | First locate the white button background via color matching (`WhiteButtonBackground`), then perform template matching (X icon) within the background ROI, supporting normal and Hover state templates. |
+| **Recognition Method** | First locate the white button background via color matching (`WhiteButtonBackground`), then perform template matching (X icon) within the background box expanded by `roi_offset: [-20, -20, 60, 40]`, trying Normal, Hover, thin-line Normal and thin-line Hover templates in order. |
 | **Search Range** | **Full-screen search**, with no fixed ROI. Buttons of this type appearing anywhere on the screen will be recognized and clicked. |
-| **Action** | Single click. |
+| **Action** | Single click, followed by an 80ms freeze wait. |
 | **Usage Condition** | Use when a cancel button with **white background + X icon** appears on the interface. Distinguish from confirmation buttons (circular ring/checkmark) to avoid accidental clicks on confirmation. |
 
 ---
@@ -100,7 +101,7 @@
 
 | Item | Description |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Recognition Method** | `And`: first locate the gray button background via color matching (`GrayButtonBackground`), then perform template matching (X icon) within the background ROI, matching normal → Hover state in short-circuit order, and finally use the background box as the click target (`box_index` selects the background box). |
+| **Recognition Method** | `And`: first locate the gray button background via color matching (`GrayButtonBackground`), then perform template matching (X icon) within the background box expanded by `roi_offset: [-20, -20, 60, 40]`, matching normal → Hover state in short-circuit order, and finally use the X icon box as the click target (`box_index: 1` selects the icon box). |
 | **Search Range** | **Full-screen search**, with no fixed ROI. Buttons of this type appearing anywhere on the screen will be recognized and clicked. |
 | **Action** | Single click, followed by an 80ms freeze wait. |
 | **Usage Condition** | Use when a cancel button with **gray background + X icon** appears on the interface. For example, the gray cancel button beside the yellow confirm button in a "Confirm?" dialog; using this node avoids accidentally clicking confirm. |
@@ -126,7 +127,7 @@
 
 ## QuickTeleportButton
 
-**Description**: Quick-teleport button, sitting to the left of the teleport button in the lower right corner of the map interface.
+**Description**: Go-to-teleport button (quick teleport), sitting to the left of the teleport button in the lower right corner of the map interface.
 
 <!-- Screenshot: tests/MaaEndTestset/Win32/Official_CN/武陵_地图_拍摄巨兽心脏_前往传送.png -->
 
@@ -134,10 +135,10 @@
 
 | Item | Description |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Recognition Method** | Same as `TeleportButton`, with button ROI `[1000, 600, 120, 120]` (720p) and threshold 0.87. |
+| **Recognition Method** | Same as `TeleportButton`, with button ROI `[1000, 600, 120, 120]` (720p) and threshold 0.87 (0.7 in the ADB resource). |
 | **Search Range** | **Restricted area** ROI `[1000, 600, 120, 120]` (720p); only effective on the map interface. |
 | **Action** | Single click. |
-| **Usage Condition** | Use when "Go to teleport" must be clicked on the map interface (it pans the map viewport to the target teleport point); usually followed by a click on `TeleportButton` to finish the teleport. |
+| **Usage Condition** | Use when the go-to-teleport button must be clicked on the map interface (it pans the map viewport to the target teleport point); usually followed by a click on `TeleportButton` to finish the teleport. |
 
 ---
 
@@ -151,9 +152,9 @@
 
 | Item | Description |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Recognition Method** | Template matching within ROI `[571, 594, 139, 126]` (720p, blue area) with a threshold of 0.9, supporting normal and Hover states. |
-| **Search Range** | **Restricted area** ROI `[571, 594, 139, 126]` (720p). It only recognizes within the blue area, and identical buttons appearing in other positions will not be clicked. |
-| **Action** | Single click. |
+| **Recognition Method** | Template matching within ROI `[540, 538, 209, 182]` (720p) with a threshold of 0.9 (0.7 in the ADB resource), supporting normal and Hover states. |
+| **Search Range** | **Restricted area** ROI `[540, 538, 209, 182]` (720p). It only recognizes within that area, and identical buttons appearing in other positions will not be clicked. |
+| **Action** | None. The node has no `action` (defaults to `DoNothing`); reference it from your own node via `And` and set `Click` there, as `SceneNoticeRewardsConfirmClick` does. |
 | **Usage Condition** | Use when a close button with **no text + checkmark icon** appears slightly below the middle in the **reward/claim result interface**. If the reward interface layout or button style is different, create a separate template or adjust the ROI. |
 
 ---
@@ -168,27 +169,10 @@
 
 | Item | Description |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Recognition Method** | Perform template matching within ROI `[882, 0, 398, 335]` (720p, blue area), supporting multiple X styles (Type1~Type4). |
-| **Search Range** | **Restricted area** ROI `[882, 0, 398, 335]` (720p). It only recognizes within the blue area, and identical buttons appearing in other positions will not be clicked. |
-| **Action** | Single click. |
-| **Usage Condition** | Use when you need to close the **current interface** and confirm that the **ESC menu will not appear**. If the ESC menu may pop up in the same scenario, you must use `CloseButtonType2`; otherwise, failure to close the ESC menu will cause the process to freeze. |
-
----
-
-## CloseButtonType2
-
-**Description**: General close/exit button, also the X in the upper right corner, but **compatible with the ESC menu** (clicks when either the X or the ESC menu is recognized, so it can close the interface or the ESC menu and avoid freezes caused by being unable to close ESC).
-
-<!-- Screenshot: docs/developers/images/common-buttons/CloseButtonType2.png -->
-
-![CloseButtonType2](https://github.com/user-attachments/assets/54f54907-4597-442e-b6b1-0760597cef9e)
-
-| Item | Description |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Recognition Method** | `Or`: Hits either `CloseButtonType1` (upper right blue area) or `ESCMenu` (exploration level text in the lower left blue area). |
-| **Search Range** | **Restricted area**, determined by the ROIs of child nodes `CloseButtonType1` and `ESCMenu`. It only recognizes within the specified areas of each child node. |
-| **Action** | Right-click (`contact: 1`), or Back key in ADB mode. |
-| **Usage Condition** | Use when you need to **unify handling of "closing the interface" and "closing the ESC menu"**. For example, clicking close may either close a pop-up or open the ESC menu; clicking again in the next frame closes the ESC menu. If the ESC menu never appears in the scenario, `CloseButtonType1` is sufficient. |
+| **Recognition Method** | `Or`: tries five upper-right X templates in order, Type1 → Type5 (`CloseButtonType1.png`–`CloseButtonType5.png`), each with its own ROI: `[1186, 1, 94, 78]` for Type1/3/5, `[1056, 42, 208, 121]` for Type2, `[1054, 0, 226, 158]` for Type4 (720p). |
+| **Search Range** | **Restricted area**: the upper right corner, as defined by the variant ROIs above; identical buttons elsewhere will not be clicked. |
+| **Action** | Single click, followed by an 80ms freeze wait. |
+| **Usage Condition** | Use when you need to close the **current interface** and confirm that the **ESC menu will not appear**. If the ESC menu may pop up in the same scenario, handle it separately (`InESCMenu` recognizes it); otherwise the process will freeze. |
 
 ---
 
@@ -203,10 +187,9 @@
 | `WhiteCancelButton` | Cancel button with white background + X icon |
 | `GrayCancelButton` | Cancel button with gray background + X icon |
 | `TeleportButton` | Teleport button in the lower right corner of the map interface |
-| `QuickTeleportButton` | Quick-teleport button to the left of it on the map interface |
+| `QuickTeleportButton` | Quick-teleport button to the left of the teleport button on the map interface |
 | `CloseRewardsButton` | Checkmark close button in the lower middle of the reward interface |
 | `CloseButtonType1` | Upper right X that only closes the interface (freezes under ESC) |
-| `CloseButtonType2` | Universal upper right X for closing the interface or ESC (use this to avoid freezes when ESC may appear) |
 
 ## Q&A
 

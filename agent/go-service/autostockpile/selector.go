@@ -143,14 +143,21 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	}
 
 	// 第一轮：正常选品
-	// 「至少购买一个」：锁定本次运行首个访问的地区，选品失败时降级为最低价商品（数量 1）
-	minBuyEnabled := attach.MinBuy && !bypassThresholdFilter
+	// 「至少购买一个」：锁定本次运行首个执行决策的地区，选品失败时降级为最低价商品（数量 1）。
+	// 判定与防溢出无关：防溢出购买也是真实购买，同样占用本地区保底资格。
+	minBuyEnabled := claimMinBuyEligibility(attach.MinBuy, region)
 	if minBuyEnabled {
 		log.Info().
 			Str("component", "autostockpile").
 			Str("region", region).
-			Str("min_buy_region", syncMinBuyRegion(region)).
+			Str("min_buy_region", getMinBuyRegion()).
 			Msg("min buy region resolved")
+	} else if attach.MinBuy {
+		log.Info().
+			Str("component", "autostockpile").
+			Str("region", region).
+			Str("min_buy_region", getMinBuyRegion()).
+			Msg("min buy skipped, another region already used the daily minimum")
 	}
 
 	selection, quantityDecision, err := computeDecision(*data, cfg, bypassThresholdFilter)
@@ -160,7 +167,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	if !selection.Selected {
 		if fallbackSelection, fallbackQuantity, ok := resolveMinBuyFallback(
-			selection, *data, region, minBuyEnabled, i18n.T("autostockpile.qty_min_buy_fallback"),
+			selection, *data, minBuyEnabled, i18n.T("autostockpile.qty_min_buy_fallback"),
 		); ok {
 			selection = fallbackSelection
 			quantityDecision = fallbackQuantity

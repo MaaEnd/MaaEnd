@@ -1,6 +1,6 @@
 # AutoStockpile Local Daily Goods-Price Records — Third-Party Read Protocol
 
-When the `AutoStockpileAllowDataUpload` option is enabled, the Go Service writes the per-round recognized goods prices to `debug/record/ElasticGoodsPrices.json` after successful goods recognition and region/server-day resolution. This path is for local file records only and does not trigger remote uploads.
+When the `AutoStockpile` task has `AutoStockpileAllowDataUpload` enabled, the Go Service writes the per-round recognized goods prices to `debug/record/ElasticGoodsPrices.json` after successful goods recognition and region/server-day resolution. This path is for local file records only and does not trigger remote uploads.
 
 This document defines the file format and path resolution rules for third-party tools (data analysis dashboards, web frontends, users) to read reliably.
 
@@ -23,7 +23,7 @@ The top-level file structure is fixed as:
             "goods": [
                 {
                     "id": "Wuling/WulingFrozenPears.Tier1",
-                    "name": "武陵冻梨",
+                    "name": "武陵冻梨货组",
                     "tier": "Wuling.Tier1",
                     "price": 1000
                 }
@@ -53,7 +53,7 @@ A corresponding JSON Schema file is provided for third-party tools to validate t
 ### `goods[]` Fields
 
 - `id: string` — Internal goods ID, format `{Region}/{BaseName}.Tier{N}`, e.g. `Wuling/WulingFrozenPears.Tier1`.
-- `name: string` — Chinese item name, e.g. "武陵冻梨".
+- `name: string` — Chinese item name, e.g. "武陵冻梨货组".
 - `tier: string` — Value tier identifier, format `{Region}.Tier{N}`, e.g. `Wuling.Tier1`.
 - `price: int` — Recognized price for this good in the current round (elastic goods unit price).
 
@@ -63,7 +63,7 @@ A corresponding JSON Schema file is provided for third-party tools to validate t
 - **Do not contain** the old `captured_at_utc` field. This field is deprecated in files with `schema_version ≥ 2`.
 - A new record with the same `server_date + region + uid` **overwrites** the old record. Different `uid` values on the same server date and region are kept independently.
 - At most **120 distinct** `server_date` values are retained. When exceeded, the earliest date and all its region records are discarded.
-- Writes use a same-directory temporary file + rename **atomic write** process. Readers can safely read `ElasticGoodsPrices.json` at any time without seeing a partially written file.
+- Writes use a same-directory temporary file + rename **atomic write** process. No matter when readers read the file, they never see a half-written file.
 - Write failures only log a warning and continue AutoStockpile; the task is not aborted.
 
 ---
@@ -80,14 +80,14 @@ The path is a fixed relative path from the MaaEnd working directory. No upward s
 
 ### Atomic Write Process
 
-1. Create a temporary file in the same directory (naming pattern `.{ElasticGoodsPrices.json}.*.tmp`)
+1. Create a temporary file in the same directory (naming pattern `.ElasticGoodsPrices.json.*.tmp`, where `*` is a random string)
 2. Write the complete JSON content
 3. `chmod` the file to `0644`
 4. `Sync` to flush to disk
 5. `Close` the file handle
-6. `os.Rename` to atomically replace the target file
+6. `os.Rename` to replace the target file (atomic for a same-directory replace on Unix; not guaranteed atomic on Windows, where the target file may briefly not exist during the replace)
 
-Readers can safely read `ElasticGoodsPrices.json` at any time and will never see a partially written file.
+No matter when readers read `ElasticGoodsPrices.json`, they never see partially written content. On Windows the file may briefly not exist while it is being replaced; if a read fails because the file is not found, retry shortly.
 
 ### Write Failure Behavior
 
@@ -99,14 +99,14 @@ Readers can safely read `ElasticGoodsPrices.json` at any time and will never see
 
 ## UID Hash Algorithm
 
-UID acquisition is handled by `CaptureUid`: when data upload is enabled, AutoStockpile calls `captureuid.Capture` inside the selector, reads `PLDK_cachedRoleId` from the registry via `gamesetting.GetCachedUID`, and caches the raw digits; the hash result is used when writing records (see the [CaptureUid reference](../../developers/components/capture-uid.md)). For third parties needing to verify or compare UIDs, the algorithm is:
+UID acquisition is handled by `CaptureUid`: when data upload is enabled, AutoStockpile first runs the `AutoStockpileGetUid` node, which calls `CaptureUid` and caches the raw digits (Win32 reads `PLDK_cachedRoleId` from the registry via `gamesetting.GetCachedUID`; other controllers OCR the UID on screen), and the selector calls `captureuid.Capture` again to take the hash when writing records (see the [CaptureUid reference](../../developers/components/capture-uid.md)). For third parties needing to verify or compare UIDs, the algorithm is:
 
-1. `CaptureUid` / `captureuid.Capture` reads `PLDK_cachedRoleId` for the current region and validates the digit count to be 8–12 before caching
+1. `CaptureUid` / `captureuid.Capture` obtains the UID digits (Win32 reads `PLDK_cachedRoleId` for the current region; other controllers use OCR) and validates the digit count to be 8–12 before caching
 2. Read the user-locally-generated random salt: on first use, a 16-byte random salt (32 hex characters) is generated and written to `debug/record/random_salt.txt`, then reused; no fixed salt is used
 3. Compute `SHA256(digit_string + salt)`
 4. Take the first 16 characters of the hex digest as the final UID
 
-When no valid UID can be read (missing registry value, region resolution failure, or digit count outside the 8–12 range), the UID is `"unknown"`.
+When no valid UID can be read (missing registry value, region resolution failure, OCR miss, or digit count outside the 8–12 range), the UID is `"unknown"`.
 
 > This hash is an **irreversible salted digest** — the original in-game UID cannot be reversed from the UID in the file. The salt is generated locally per installation: it is stable across sessions within the same installation (usable to correlate the same player), but differs between installations, so the same player's hash cannot be compared across installations.
 

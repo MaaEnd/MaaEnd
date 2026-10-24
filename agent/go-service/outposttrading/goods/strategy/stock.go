@@ -1,17 +1,15 @@
 package strategy
 
 // Stock 依次按库存、单价、稀有度和稳定输入顺序选择货品。
-type Stock struct {
-	MinimumUnitPrice int
-}
+type Stock struct{}
 
 var _ Selector = Stock{}
 
-// Select 排除低于最低单价的候选并返回最佳货品。
-func (s Stock) Select(candidates []Candidate) (Candidate, bool) {
+// Select 返回库存最多的货品。
+func (Stock) Select(candidates []Candidate) (Candidate, bool) {
 	bestIndex := -1
 	for index, candidate := range candidates {
-		if !candidate.StockKnown || candidate.UnitPrice < s.MinimumUnitPrice {
+		if !candidate.StockKnown {
 			continue
 		}
 		if bestIndex < 0 || betterStockCandidate(candidate, candidates[bestIndex]) {

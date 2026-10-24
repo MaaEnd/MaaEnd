@@ -1,7 +1,7 @@
 # 开发手册 - 赠送干员礼物维护文档
 
 本文说明 `GiftOperator` 的文件分布与两条执行路线。  
-该文档更新于 2026 年 6 月 28 日。
+该文档更新于 2026 年 10 月 18 日。
 
 ## 文件路径
 
@@ -19,18 +19,26 @@
 | `assets/resource_adb/image/GiftOperator/` | ADB 识别图片 |
 | `assets/resource_adb/pipeline/GiftOperator/` | ADB Pipeline 镜像 |
 | `tools/gift_operator/fill_gift_operator_green_box.py` | 干员头像 green_mask 格式化 |
+| `tools/pipeline-generate/GiftOperator/generate.mjs` | 从 zmdmap 数据补齐干员配置并调用头像生成 |
+| `tools/gift_operator/build_avatars.py` | 从 CharIcon 原图生成缺失的 PC / ADB 头像模板 |
 | `assets/locales/interface/*.json` | 任务、选项与干员名称文案 |
 
-## 新增干员时需改的路径
+## 新增干员的增量生成
 
-新增一名干员时，至少需同步以下 6 处（`<Name>` 为干员标识，与模板文件名、option case 名保持一致）：
+运行 `pnpm generate:GiftOperator`：先通过现有 zmdmap 下载器更新 `tools/zmdmap/data/sell_product.json`，再读取其中的 `operators`，排除男女管理员，为新增干员补齐下表中的配置与模板。`.github/workflows/sync-zmdmap.yml` 的 Pipeline 数据同步任务也执行这一命令。
+
+已有选项、节点、五语文案和模板均保留，只补缺失项；不会改名、重排或删除旧选项。现有配置就是基线，不另存干员 ID 绑定表。若整份基线文件丢失，先从 Git 恢复，再运行生成器。原始头像按需直接下载，不依赖本地图片缓存。
+
+干员名称来自 `sell_product.operators`，模板原图来自 `https://voice.fz.wiki/assets/beyond/dynamicassets/gameplay/ui/sprites/charicon/icon_<charId>.png@raw`。同一张 152×212 PNG 统一用浅灰底合成透明通道、双线性缩放和固定偏移裁剪：PC 比例 0.55、横移 −1 像素、输出 80×72；ADB 比例 0.6875、横移 −1.25 像素、输出 100×90。两端分别从原图生成，信息图标、礼物图标、右上角状态图标及边框使用固定绿色遮罩，无逐干员调参。
+
+下载、解码或源图尺寸校验失败时，生成器报错且不写入配置；需检查上游图片和裁剪参数后再运行。ADB 固定参数已在一张真实 1280×720 截图上验证：12 名完整可见干员全部正确命中，最低分 0.904，未出现错误干员命中。该图不含祀；祀的 ADB 正例及完整交互流程仍待实机验证。下表中的 `<Name>` 与现有选项命名一致，新干员默认由上游英文名派生。
 
 | # | 路径 | 说明 |
 | --- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| 1 | `assets/resource/image/GiftOperator/Operators/<Name>.png` | Win32 干员头像模板；入库前须用 `tools/gift_operator/fill_gift_operator_green_box.py` 处理 |
-| 2 | `assets/resource_adb/image/GiftOperator/Operators/<Name>.png` | ADB 干员头像模板；同上处理 |
-| 3 | `assets/tasks/GiftOperator.json` → `SelectOperator` | 新增 case，在 UI 提供可选干员，并为「只收礼物」路线提供干员信息 |
-| 4 | `assets/resource/pipeline/GiftOperator/Operator/Operator.json` | 「只收礼物」模式下各干员的 OCR 识别与白名单 |
+| 1 | `assets/resource/image/GiftOperator/Operators/<Name>.png` | PC 干员头像模板，生成时已包含 green_mask |
+| 2 | `assets/resource_adb/image/GiftOperator/Operators/<Name>.png` | ADB 干员头像模板，生成时已包含 green_mask |
+| 3 | `assets/tasks/GiftOperator.json` → `SelectOperator` | 新增 case，在 UI 提供可选干员，并为「指定干员」路线提供头像模板与名称白名单 |
+| 4 | `assets/resource/pipeline/GiftOperator/Operator/Operator.json` | 「只收礼物」模式下各干员的头像二次匹配与名称 OCR 白名单 |
 | 5 | `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json` → `GiftOperatorSelectGiftOp.next` | 在「只收礼物」选人节点的 `next` 数组追加 `GiftOperatorSelect_<Name>`，否则该干员节点不会被触发 |
 | 6 | `assets/locales/interface/*.json` → `operator.<Name>` | 各语言干员显示名称 |
 
@@ -43,12 +51,12 @@
 3. 选人（点击后须经[选中态校验](#选中态校验)确认，实现见 `GiftOperatorContact.json`）：
     - **任意**：切换为信赖度升序，连选三名干员（含满信赖）；每点一人校验序号 1 → 2 → 3，三人齐备后才确认呼唤。
     - **指定干员**：在列表中用头像模板匹配目标干员，命中后同样校验选中态再呼唤。
-4. 确认呼唤；若干员未到位，按[预设朝向与坐标移动兜底](#召唤干员后找不到对话按钮怎么办)（实现见 `GiftOperatorNavigation.json`）。
+4. 确认呼唤；若干员未到位，按[预设朝向逐步挪动兜底](#召唤干员后找不到对话按钮怎么办)（实现见 `GiftOperatorNavigation.json`）。
 5. 等待干员出现，进入对话。
 6. 对话中按优先级处理：
-    - 能赠送 → 选礼物（选中后同样走[选中态校验](#选中态校验)，实现见 `GiftOperatorGiftFlow.json`）、确认赠送、跳过对话、离开。满信赖仍可赠送。
+    - 能赠送 → 选礼物（选中后校验高亮颜色，见[选中态校验](#选中态校验)，实现见 `GiftOperatorGiftFlow.json`）、确认赠送、跳过对话、离开。满信赖仍可赠送。
     - 能收礼 → 领取礼物、跳过对话、离开。
-7. 赠送次数由「赠送数量」选项控制，默认可连送多件。
+7. 赠送件数由「赠送数量」选项控制：`GiftOperatorClickGift` 按该值重复点击礼物格后一次确认赠送，默认 1 件。
 
 ## 路线二：只收礼物
 
@@ -66,7 +74,7 @@
 
 ### 选中态校验
 
-本任务里「点一下」不等于「选中了」，联络台选干员与送礼界面选礼物共用同一套**三层串联**判断，避免空点或点偏：
+本任务里「点一下」不等于「选中了」，联络台选干员用**三层串联**判断避免空点或点偏；送礼界面选礼物目前只保留第一层（见下）：
 
 ```text
 选中高亮颜色 → 高亮区域内的文字底色 → OCR 读取关键文字
@@ -76,7 +84,7 @@
 
 实现位于 `GiftOperatorContact.json`。每次点击列表行后，用 `And` 同时满足：
 
-1. **标签高亮颜色**：识别该行选中态的 HSV 色块（青绿色标签底）。
+1. **标签高亮颜色**：识别该行选中态的 HSV 色块（黄色标签底）。
 2. **序号文字底色**：以上一步命中区域为锚，再识别序号数字所在的文字底色。
 3. **序号 OCR**：在文字区域内读取 `1` / `2` / `3`，与当前应选的第几人对应。
 
@@ -84,11 +92,11 @@
 
 #### 送礼界面选礼物
 
-实现位于 `GiftOperatorGiftFlow.json`，链路相同，仅锚点与 OCR 目标不同：
+实现位于 `GiftOperatorGiftFlow.json`，与选干员不同，数量 OCR 放在点击前：
 
-1. 先用颜色匹配在底部礼物栏定位可点击项并点击。
-2. 再校验礼物格的选中高亮颜色 + 文字底色。
-3. 最后 OCR 读取该格内的数量数字（`\d+`），确认礼物确实处于选中态，才继续点「确认赠送」。
+1. 先用颜色匹配加数量 OCR（`[1-9]\d*`）在底部礼物栏定位可点击项，并点击该数量位置。
+2. 点击后只校验礼物格的选中高亮颜色（`GiftOperatorGiftSelectedLabelColor`）。
+3. 文字颜色与 OCR（`\d+`）两层在 `GiftOperatorGiftSelected` 中已注释停用，高亮命中即继续点「确认赠送」。
 
 维护时若选中态识别漂移，优先检查这三层的颜色阈值与 OCR 区域偏移，干员与礼物两处应对照排查。
 
@@ -97,7 +105,7 @@
 收礼不能靠干员名字 OCR 直接点列表，而是**先找礼物、再认头像、最后校验名字**，逻辑分布在 `GiftOperatorContact.json` 与 `Operator/Operator.json`。
 
 1. **第一步：定位「有礼物的行」**  
-   在联络列表区域用 `Gift.png` 模板匹配礼物图标（`green_mask`）。命中后向左侧偏移点击，选中该行干员。
+   在联络列表区域用 `Gift.png` 模板匹配礼物图标（`green_mask`）。命中后向右偏移 40 px 点击，选中该行干员。
 
 2. **第二步：确认是哪位干员**  
    以礼物图标命中位置为锚点，在相邻区域二次匹配该干员头像（`Operators/<Name>.png`，同样 `green_mask`）。  
@@ -113,30 +121,36 @@
    干员到场后，同时识别「对话图标」和「干员名称 OCR」，两者都命中才发起交互。  
    这样即使列表里点中了礼物行，也能在对话前再挡一次「叫错人」的情况。
 
-头像模板必须经过 `fill_gift_operator_green_box.py` 处理（绿色描边 + 右上角遮罩），否则 `green_mask` 匹配不稳定。Win32 与 ADB 各有一套图片，需分别处理。
+生成的头像模板已经包含绿色遮罩，无需再运行 `fill_gift_operator_green_box.py`。手动截取的模板仍使用该脚本处理（绿色描边 + 右上角遮罩）；Win32 与 ADB 各有一套图片，需分别处理。
 
-当前屏找不到带礼物的干员时，列表最多滑动 2 次；仍找不到则落入「无可选干员」，在开启「接受全部礼物」时可作为整轮结束条件。
+ADB 的指定干员节点 `GiftOperatorSelectSpecifiedOp` 与收礼节点 `GiftOperatorSelectGiftOp` 均使用 `[520, 130, 690, 390]` 搜索列表，覆盖首排与左右边缘；头像仍用固定生成参数，无需因 ROI 扩大而重新裁剪模板。
+
+当前屏找不到目标干员时，列表最多滑动 4 次，每次滑动返回联络界面识别后再次查找；仍找不到则落入「无可选干员」，在开启「接受全部礼物」时可作为整轮结束条件。
 
 ### 召唤干员后：找不到对话按钮怎么办
 
 呼唤确认后，任务会先等干员出现并尝试点击对话入口。若此时画面上还看不到可交互的对话按钮，不会一直傻等，而是进入**站位修正兜底**，逻辑在 `GiftOperatorNavigation.json`。
 
-修正顺序固定为三组预设，每组各尝试一次（任务开头会清零计数，避免上轮残留）：
+兜底由 `GiftOperatorMoveAhead` 驱动：先用 `MapLocateAssertLocation` 确认角色仍在联络台附近，再按固定顺序转向，各朝向的次数是对应节点的 `max_hit`（任务开头会清零计数，避免上轮残留）：
 
-| 次序 | 朝向 | 移动目标 |
-| ---- | ------------ | -------------- |
-| 1 | 正西（270°） | (186.6, 175.0) |
-| 2 | 正北（0°） | (188.0, 175.3) |
-| 3 | 正东（90°） | (188.6, 176.2) |
+| 次序 | 节点 | 朝向 | 次数 |
+| ---- | ----------------------------- | ------------------ | ---- |
+| 1 | `GiftOperatorTurnEast` | 正东（90°） | 2 |
+| 2 | `GiftOperatorTurnNorthwest` | 西北（315°） | 1 |
+| 3 | `GiftOperatorTurnNorthByWest` | 北偏西 15°（345°） | 1 |
+| 4 | `GiftOperatorTurnWest` | 正西（270°） | 2 |
+| 5 | `GiftOperatorTurnSoutheast` | 东南（135°） | 2 |
 
-每组都是「先转向 → 再短距离移动 → 等待角色停稳」，然后重新尝试寻找对话按钮。
+每次转向是一个 `HEADING` 路径点：转到指定朝向后按一下 `W`，角色也会朝该方向挪一小步，8 步走下来是从联络台出发绕的一小圈。每挪一步都回到呼唤后的判断（`[JumpBack]`），重新寻找对话按钮，找到就进入对话、不再转向。
 
-若三组都试过仍找不到，任务报错结束并提示「寻找干员识别失败」，同时保留截图供排查。常见原因是干员刷在了预设区域外，或呼唤后站位与模板 ROI 偏差过大。
+`GiftOperatorMoveAhead` 的 `max_hit` 也设为 8，与上表次数之和相等：转向用完后它自己也不再命中，流程才会落到失败分支。文件里还留着定点移动节点 `GiftOperatorMoveLocation{1,2,3}Move`，但它们不在任何 `next` 里，当前不会执行。
+
+若 8 步都走完仍找不到，或角色已不在联络台附近，流程落入 `GiftOperatorMoveFail`：任务报错结束并提示「寻路或寻找干员失败」，同时保留截图供排查。常见原因是干员刷在了这几步覆盖的范围外，或呼唤后站位与模板 ROI 偏差过大。
 
 另外两处同类重试，用于应对干员走过来导致点击偏移：
 
-- 找到对话按钮但点完没进对话 → 原地再试一次点击。
-- 进了对话但右侧动作按钮还没出来 → 跳过按钮也会自我重试一次，再等赠送 / 收礼按钮出现。
+- 找到对话按钮但点完没进对话 → 先后退一步（只退一次），再重新识别并点击对话按钮。
+- 进了对话但右侧动作按钮还没出来 → 跳过按钮的 `next` 含自身，会重复点击，直到赠送 / 收礼按钮出现；「只收礼物」开启时 `next` 不含自身，只点一次。
 
 ### 默认模式选人的差异（对比收礼）
 

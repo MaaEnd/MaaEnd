@@ -1,4 +1,32 @@
 {
+    "AutoCollectDigFirst": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1000,
+                    550,
+                    1,
+                    1
+                ]
+            }
+        }
+    },
+    "AutoCollectDigSpace": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1130,
+                    475,
+                    1,
+                    1
+                ]
+            }
+        }
+    },
     "AutoCollectDig": {
         "recognition": "DirectHit",
         "action": {

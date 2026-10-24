@@ -5,22 +5,20 @@
 相同。连上游戏即跑首轮, 会话随后常驻, 改完按 F3 就能重跑, 不必重连。
 """
 
-from __future__ import annotations
-
 import json
 import re
 import threading
 import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
-from agent_session import AgentSession, GO_SERVICE_EXE
+import key_listener
+from agent_session import GO_SERVICE_EXE, AgentSession
 from connection_models import RecordingSessionConfig
 from connectors import build_recording_connector
 from json_import import export_assert_location_node, export_path_nodes
-import key_listener
 from runtime import INSTALL_DIR, MaaRuntime
-
 
 StatusCallback = Callable[[str, str], None]
 PhaseCallback = Callable[[str, str], None]
@@ -255,7 +253,7 @@ class NavTestService:
         else:
             try:
                 nodes = export_path_nodes(points)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 self._on_status(f"路线导出失败, 未装载: {exc}", "#ef4444")
                 return
             kind = "route"
@@ -272,7 +270,7 @@ class NavTestService:
         try:
             target = tuple(float(v) for v in (assert_target.get("target") or ()))
             node = export_assert_location_node(str(assert_target.get("zone_id") or ""), target)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             self._on_status(f"断言导出失败, 未装载: {exc}", "#ef4444")
             return None
         # 导出的是 {节点名: 节点体}, 跑的时候只要节点体。

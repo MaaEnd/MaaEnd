@@ -1,0 +1,283 @@
+{
+    "pretask": {
+        "controller": [
+            "Win32-Front"
+        ],
+        "exec": "agent/go-service",
+        "args": [
+            "--pretask",
+            "LaunchGamePC"
+        ],
+        "name": "LaunchGamePC",
+        "label": "$pretask.LaunchGamePC.label",
+        "option": [
+            "LaunchGamePCRegion",
+            "LaunchGamePCLauncherPath",
+            "LaunchGamePCGameSetting"
+        ]
+    },
+    "option": {
+        "LaunchGamePCRegion": {
+            "type": "select",
+            "label": "$option.LaunchGamePCRegion.label",
+            "cases": [
+                {
+                    "name": "CN",
+                    "label": "$option.LaunchGamePCRegion.cases.CN.label"
+                },
+                {
+                    "name": "Global",
+                    "label": "$option.LaunchGamePCRegion.cases.Global.label"
+                },
+                {
+                    "name": "Bilibili",
+                    "label": "$option.LaunchGamePCRegion.cases.Bilibili.label"
+                },
+                {
+                    "name": "TapTap",
+                    "label": "$option.LaunchGamePCRegion.cases.TapTap.label"
+                },
+                {
+                    "name": "Steam",
+                    "label": "$option.LaunchGamePCRegion.cases.Steam.label"
+                },
+                {
+                    "name": "Epic",
+                    "label": "$option.LaunchGamePCRegion.cases.Epic.label"
+                }
+            ],
+            "default_case": "CN"
+        },
+        "LaunchGamePCLauncherPath": {
+            "type": "select",
+            "label": "$option.LaunchGamePCLauncherPath.label",
+            "cases": [
+                {
+                    "name": "Auto",
+                    "label": "$option.LaunchGamePCLauncherPath.cases.Auto.label"
+                },
+                {
+                    "name": "Manual",
+                    "label": "$option.LaunchGamePCLauncherPath.cases.Manual.label",
+                    "option": [
+                        "LaunchGamePCLauncherExe"
+                    ]
+                }
+            ],
+            "default_case": "Auto"
+        },
+        "LaunchGamePCLauncherExe": {
+            "type": "input",
+            "label": "$option.LaunchGamePCLauncherExe.label",
+            "inputs": [
+                {
+                    "name": "LauncherExe",
+                    "label": "$option.LaunchGamePCLauncherExe.LauncherExe.label",
+                    "default": "",
+                    "pipeline_type": "string",
+                    "verify": "^\"?.+[\\\\/][Ll]auncher\\.exe\"?$",
+                    "pattern_msg": "$option.LaunchGamePCLauncherExe.LauncherExe.pattern_msg"
+                }
+            ]
+        },
+        "LaunchGamePCGameSetting": {
+            "type": "switch",
+            "label": "$option.LaunchGamePCGameSetting.label",
+            "description": "$option.LaunchGamePCGameSetting.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "LaunchGamePCLanguage",
+                        "LaunchGamePCDisplayType",
+                        "LaunchGamePCGraphicsQuality",
+                        "LaunchGamePCFrameRate",
+                        "LaunchGamePCAutoHDR"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "LaunchGamePCLanguage": {
+            "type": "select",
+            "label": "$option.LaunchGamePCLanguage.label",
+            "cases": [
+                {
+                    "name": "Unchanged",
+                    "label": "$option.LaunchGamePCLanguage.cases.Unchanged.label"
+                },
+                {
+                    "name": "CN",
+                    "label": "简体中文"
+                },
+                {
+                    "name": "TC",
+                    "label": "繁體中文"
+                },
+                {
+                    "name": "DE",
+                    "label": "Deutsch"
+                },
+                {
+                    "name": "EN",
+                    "label": "English"
+                },
+                {
+                    "name": "MX",
+                    "label": "Español"
+                },
+                {
+                    "name": "FR",
+                    "label": "Français"
+                },
+                {
+                    "name": "ID",
+                    "label": "Bahasa Indonesia"
+                },
+                {
+                    "name": "IT",
+                    "label": "Italiano"
+                },
+                {
+                    "name": "JP",
+                    "label": "日本語"
+                },
+                {
+                    "name": "KR",
+                    "label": "한국어"
+                },
+                {
+                    "name": "BR",
+                    "label": "Português (Brasil)"
+                },
+                {
+                    "name": "RU",
+                    "label": "Русский"
+                },
+                {
+                    "name": "TH",
+                    "label": "ภาษาไทย"
+                },
+                {
+                    "name": "VN",
+                    "label": "Tiếng Việt"
+                }
+            ],
+            "default_case": "Unchanged"
+        },
+        "LaunchGamePCDisplayType": {
+            "type": "select",
+            "label": "$option.LaunchGamePCDisplayType.label",
+            "cases": [
+                {
+                    "name": "Window",
+                    "label": "$option.LaunchGamePCDisplayType.cases.Window.label",
+                    "option": [
+                        "LaunchGamePCResolution"
+                    ]
+                },
+                {
+                    "name": "Fullscreen",
+                    "label": "$option.LaunchGamePCDisplayType.cases.Fullscreen.label",
+                    "option": [
+                        "LaunchGamePCResolution"
+                    ]
+                }
+            ],
+            "default_case": "Window"
+        },
+        "LaunchGamePCResolution": {
+            "type": "select",
+            "label": "$option.LaunchGamePCResolution.label",
+            "cases": [
+                {
+                    "name": "1280x720"
+                },
+                {
+                    "name": "1920x1080"
+                },
+                {
+                    "name": "2560x1440"
+                }
+            ],
+            "default_case": "1280x720"
+        },
+        "LaunchGamePCGraphicsQuality": {
+            "type": "select",
+            "label": "$option.LaunchGamePCGraphicsQuality.label",
+            "cases": [
+                {
+                    "name": "Unchanged",
+                    "label": "$option.LaunchGamePCGraphicsQuality.cases.Unchanged.label"
+                },
+                {
+                    "name": "VeryLow",
+                    "label": "$option.LaunchGamePCGraphicsQuality.cases.VeryLow.label"
+                },
+                {
+                    "name": "Low",
+                    "label": "$option.LaunchGamePCGraphicsQuality.cases.Low.label"
+                },
+                {
+                    "name": "Medium",
+                    "label": "$option.LaunchGamePCGraphicsQuality.cases.Medium.label"
+                },
+                {
+                    "name": "High",
+                    "label": "$option.LaunchGamePCGraphicsQuality.cases.High.label"
+                },
+                {
+                    "name": "Ultra",
+                    "label": "$option.LaunchGamePCGraphicsQuality.cases.Ultra.label"
+                }
+            ],
+            "default_case": "Unchanged"
+        },
+        "LaunchGamePCFrameRate": {
+            "type": "select",
+            "label": "$option.LaunchGamePCFrameRate.label",
+            "cases": [
+                {
+                    "name": "Unchanged",
+                    "label": "$option.LaunchGamePCFrameRate.cases.Unchanged.label"
+                },
+                {
+                    "name": "Fps30",
+                    "label": "$option.LaunchGamePCFrameRate.cases.Fps30.label"
+                },
+                {
+                    "name": "Fps60",
+                    "label": "$option.LaunchGamePCFrameRate.cases.Fps60.label"
+                },
+                {
+                    "name": "Fps120",
+                    "label": "$option.LaunchGamePCFrameRate.cases.Fps120.label"
+                }
+            ],
+            "default_case": "Unchanged"
+        },
+        "LaunchGamePCAutoHDR": {
+            "type": "select",
+            "label": "$option.LaunchGamePCAutoHDR.label",
+            "description": "$option.LaunchGamePCAutoHDR.description",
+            "cases": [
+                {
+                    "name": "Unchanged",
+                    "label": "$option.LaunchGamePCAutoHDR.cases.Unchanged.label"
+                },
+                {
+                    "name": "Disable",
+                    "label": "$option.LaunchGamePCAutoHDR.cases.Disable.label"
+                },
+                {
+                    "name": "Enable",
+                    "label": "$option.LaunchGamePCAutoHDR.cases.Enable.label"
+                }
+            ],
+            "default_case": "Unchanged"
+        }
+    }
+}

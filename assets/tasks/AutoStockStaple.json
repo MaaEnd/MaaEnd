@@ -156,7 +156,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.inputs.ReserveValleyIV.description",
                     "default": "240000",
                     "pipeline_type": "int",
-                    "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
+                    "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,8})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.inputs.ReserveValleyIV.pattern_msg"
                 }
             ],
@@ -335,7 +335,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.pattern_msg"
                 }
             ],
@@ -371,7 +371,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.inputs.ValleyFoodAndBuffLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.inputs.ValleyFoodAndBuffLimit.pattern_msg"
                 }
             ],
@@ -562,7 +562,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.inputs.ValleyDetectorCompassLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.inputs.ValleyDetectorCompassLimit.pattern_msg"
                 }
             ],
@@ -767,7 +767,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.inputs.ValleyGiftLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.inputs.ValleyGiftLimit.pattern_msg"
                 }
             ],
@@ -1140,7 +1140,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.description",
                     "default": "240000",
                     "pipeline_type": "int",
-                    "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
+                    "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,8})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.pattern_msg"
                 }
             ],
@@ -1341,6 +1341,42 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "HerbalTisane",
+                    "label": "$task.AutoStockStaple.item.item_inkbiter_1_wgshoal_1_1",
+                    "icon": "resource/image/UI/Item/item_inkbiter_1_wgshoal_1_1.png",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "item_inkbiter_1_wgshoal_1_1": [
+                                    "草本清凉饮",
+                                    "草本清涼飲",
+                                    "Herbal Tisane",
+                                    "薬草清涼飲料",
+                                    "약초 청량 음료"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "NumbingCrispyPupae",
+                    "label": "$task.AutoStockStaple.item.item_inkkirin_1_hscrane_1_1",
+                    "icon": "resource/image/UI/Item/item_inkkirin_1_hscrane_1_1.png",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "item_inkkirin_1_hscrane_1_1": [
+                                    "酥麻炸虫蛹",
+                                    "酥麻炸蟲蛹",
+                                    "Numbing Crispy Pupae",
+                                    "シビカリさなぎフライ",
+                                    "바삭한 번데기 튀김"
+                                ]
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -1355,7 +1391,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.inputs.WulingEngravingPermitLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.inputs.WulingEngravingPermitLimit.pattern_msg"
                 }
             ],
@@ -1391,7 +1427,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.inputs.WulingFoodAndBuffLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.inputs.WulingFoodAndBuffLimit.pattern_msg"
                 }
             ],
@@ -1539,6 +1575,42 @@
                             }
                         }
                     }
+                },
+                "AutoStockStapleGoodsItemInkbiter1Wgshoal11Validate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemInkbiter1Wgshoal11ExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemInkkirin1Hscrane11Validate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemInkkirin1Hscrane11ExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -1656,7 +1728,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.inputs.WulingArtificingCatalystLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.inputs.WulingArtificingCatalystLimit.pattern_msg"
                 }
             ],
@@ -1692,7 +1764,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.inputs.WulingDetectorCompassLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.inputs.WulingDetectorCompassLimit.pattern_msg"
                 }
             ],
@@ -1981,6 +2053,42 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "YuanyuanManorJigsaw",
+                    "label": "$task.AutoStockStaple.item.item_gift_jinlong_12",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_12.png",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "item_gift_jinlong_12": [
+                                    "缘缘庄拼图",
+                                    "緣緣莊拼圖",
+                                    "Yuanyuan Manor Jigsaw",
+                                    "縁縁荘のパズル",
+                                    "인연 마을 퍼즐"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "WoodenSword",
+                    "label": "$task.AutoStockStaple.item.item_gift_jinlong_13",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_13.png",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "item_gift_jinlong_13": [
+                                    "木雕剑",
+                                    "木雕劍",
+                                    "Wooden Sword",
+                                    "木彫りの剣",
+                                    "장식용 목검"
+                                ]
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -1995,7 +2103,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.inputs.WulingGiftLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "verify": "^(?:0|[1-9]\\d{0,3})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.inputs.WulingGiftLimit.pattern_msg"
                 }
             ],
@@ -2190,6 +2298,42 @@
                     }
                 },
                 "AutoStockStapleGoodsMiracleCakeExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemGiftJinlong12Validate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemGiftJinlong12ExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemGiftJinlong13Validate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemGiftJinlong13ExcludeValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {

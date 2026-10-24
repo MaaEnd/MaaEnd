@@ -7,6 +7,8 @@ import (
 	"math"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -563,7 +565,36 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		lockedBlockList = append(lockedBlockList, thisLocked)
 	}
 
-	// 6. Construct board description
+	// 6. Validate color block sums
+	totalPuzzleBlocks := 0
+	for _, p := range puzzleList {
+		totalPuzzleBlocks += len(p.Blocks)
+	}
+	totalLockedBlocks := 0
+	for _, lbs := range lockedBlockList {
+		totalLockedBlocks += len(lbs)
+	}
+	totalXProj, totalYProj := 0, 0
+	for _, pd := range projDescList {
+		for _, v := range pd.XProjList {
+			totalXProj += v
+		}
+		for _, v := range pd.YProjList {
+			totalYProj += v
+		}
+	}
+	if totalPuzzleBlocks+totalLockedBlocks != totalXProj || totalXProj != totalYProj {
+		log.Error().
+			Int("puzzleBlocks", totalPuzzleBlocks).
+			Int("lockedBlocks", totalLockedBlocks).
+			Int("xProjSum", totalXProj).
+			Int("yProjSum", totalYProj).
+			Msg("Block count consistency check failed, possible clipped or phantom puzzle blocks")
+		maafocus.Print(ctx, i18n.T("task.PuzzleSolver.focus.recognition_failed"))
+		return nil, false
+	}
+
+	// 7. Construct board description
 	boardDesc := &BoardDesc{
 		W:               boardSize[0],
 		H:               boardSize[1],
@@ -575,7 +606,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	}
 	log.Info().Interface("boardDesc", boardDesc).Msg("Puzzle board description")
 
-	// 7. Convert to JSON and return
+	// 8. Convert to JSON and return
 	detailJSON, err := json.Marshal(boardDesc)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to marshal boardDesc")

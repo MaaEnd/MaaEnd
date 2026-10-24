@@ -20,7 +20,7 @@
                 "custom_action": "SubTask",
                 "custom_action_param": {
                     "sub": [
-                        "SceneEnterWorldWulingYinglungPass2"
+                        "SceneEnterWorldWulingYinglungPassYSTFMainCamp"
                     ]
                 }
             }
@@ -96,6 +96,7 @@
                             "interact_text": {
                                 "node": "__AutoEssenceRecoApproachInteractText"
                             },
+                            "interact_scan": "__AutoEssenceRecoApproachInteractScan",
                             "interact_rec": true
                         }
                     ]

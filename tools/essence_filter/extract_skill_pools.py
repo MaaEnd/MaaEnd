@@ -4,29 +4,28 @@
 
 - 从每个武器的 skills 按位置归入 slot：idx0=slot1, idx1=slot2(若 len=3) 或 slot3(若 len=2), idx2=slot3
 - 技能名取「基名」：按 · / : / ： / [ 分割，取第一段（统一处理不同格式如 ·小、: xxx、[S] 等）
-- 五语（cn/tc/en/jp/kr）直接从 weapons_output 的 skills.CN/TC/EN/JP/KR 同位置提取，不再依赖 i18n
+- 多语言（cn/tc/en/jp/kr）直接从 weapons_output 的 skills.CN/TC/EN/JP/KR 同位置提取，不再依赖 i18n
 - 每 slot 用 set 去重；id 分配规则：若存在已有的 skill_pools 文件，已出现的 (slot, cn) 保留原 id，
   新增技能在该 slot 内分配「当前最大 id + 1」，保证同一技能 id 不随新增/删除其他技能而变化。
 """
-
-from __future__ import annotations
 
 import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
 
 import json5
+
+from tools.zmdmap import read_payload
 
 LANGS = ("CN", "TC", "EN", "JP", "KR")
 
 DEFAULT_MATCHER_CONFIG = Path("assets/data/EssenceFilter/matcher_config.json")
 
 
-def load_suffix_stopwords(config_path: Path) -> Dict[str, List[str]]:
+def load_suffix_stopwords(config_path: Path) -> dict[str, list[str]]:
     """返回 { "CN": [...], "TC": [...], ... }，从 matcher_config 读取；支持多语种对象或旧版仅 CN 数组。"""
-    default: Dict[str, List[str]] = {
+    default: dict[str, list[str]] = {
         "CN": ["提升", "提高", "强化", "增幅", "效果", "效率", "伤害", "倍率"],
         "TC": ["提升", "提高", "強化", "增幅", "效果", "效率", "傷害", "倍率"],
         "EN": [" Boost", " Up", " DMG", " Increase", " Efficiency"],
@@ -48,7 +47,7 @@ def load_suffix_stopwords(config_path: Path) -> Dict[str, List[str]]:
     return default
 
 
-def strip_suffix_stopwords(text: str, stopwords: List[str]) -> str:
+def strip_suffix_stopwords(text: str, stopwords: list[str]) -> str:
     """从末尾反复去掉停用词，如 '力量提升' -> '力量'。
 
     - 若整词就是停用词（如 '効率'）则不剥掉，避免 slot3 等基名被清空。
@@ -76,7 +75,7 @@ def strip_suffix_stopwords(text: str, stopwords: List[str]) -> str:
     return s
 
 
-def base_skill_name(raw: str, lang: str, lang_stopwords: Dict[str, List[str]]) -> str:
+def base_skill_name(raw: str, lang: str, lang_stopwords: dict[str, list[str]]) -> str:
     """取基名：按 · / ・ / : / ： / [ 分割，取第一段。例如：
     - '力量提升·小' -> '力量提升'
     - '压制·应急强化' -> '压制'
@@ -97,20 +96,20 @@ def base_skill_name(raw: str, lang: str, lang_stopwords: Dict[str, List[str]]) -
 
 
 def extract_skills_by_slot(
-    weapons_data: Dict,
-    lang_stopwords: Dict[str, List[str]],
-) -> Tuple[
-    Set[str],
-    Set[str],
-    Set[str],
-    Dict[Tuple[str, str], Dict[str, str]],
+    weapons_data: dict,
+    lang_stopwords: dict[str, list[str]],
+) -> tuple[
+    set[str],
+    set[str],
+    set[str],
+    dict[tuple[str, str], dict[str, str]],
 ]:
     """从 weapons_output 提取 slot 集合，以及 (slot_key, base_cn) -> {cn, tc, en, jp, kr} 的翻译映射。"""
-    slot1: Set[str] = set()
-    slot2: Set[str] = set()
-    slot3: Set[str] = set()
+    slot1: set[str] = set()
+    slot2: set[str] = set()
+    slot3: set[str] = set()
     # (slot_key, base_cn) -> {cn, tc, en, jp, kr}，优先保留已有条目（首次出现）
-    translations: Dict[Tuple[str, str], Dict[str, str]] = {}
+    translations: dict[tuple[str, str], dict[str, str]] = {}
 
     for _wpn_id, wpn in weapons_data.items():
         if not isinstance(wpn, dict):
@@ -145,7 +144,7 @@ def extract_skills_by_slot(
 
             key = (slot_key, base_cn)
             if key not in translations:
-                row: Dict[str, str] = {
+                row: dict[str, str] = {
                     "cn": base_cn,
                     "tc": "",
                     "en": "",
@@ -165,10 +164,10 @@ def extract_skills_by_slot(
     return slot1, slot2, slot3, translations
 
 
-def load_existing_ids(path: Path) -> Tuple[Dict[Tuple[str, str], int], Dict[str, int]]:
+def load_existing_ids(path: Path) -> tuple[dict[tuple[str, str], int], dict[str, int]]:
     """从已有 skill_pools.json 加载 (slot_key, cn) -> id，以及每 slot 的 max_id。若文件不存在或格式不对则返回空。"""
-    existing_cn_to_id: Dict[Tuple[str, str], int] = {}
-    max_id_by_slot: Dict[str, int] = {}
+    existing_cn_to_id: dict[tuple[str, str], int] = {}
+    max_id_by_slot: dict[str, int] = {}
     if not path.exists():
         return existing_cn_to_id, max_id_by_slot
     try:
@@ -196,21 +195,21 @@ def load_existing_ids(path: Path) -> Tuple[Dict[Tuple[str, str], int], Dict[str,
 
 
 def build_skill_pools(
-    slot1_set: Set[str],
-    slot2_set: Set[str],
-    slot3_set: Set[str],
-    translations: Dict[Tuple[str, str], Dict[str, str]],
-    existing_cn_to_id: Dict[Tuple[str, str], int] | None = None,
-    max_id_by_slot: Dict[str, int] | None = None,
-) -> Dict[str, List[Dict]]:
+    slot1_set: set[str],
+    slot2_set: set[str],
+    slot3_set: set[str],
+    translations: dict[tuple[str, str], dict[str, str]],
+    existing_cn_to_id: dict[tuple[str, str], int] | None = None,
+    max_id_by_slot: dict[str, int] | None = None,
+) -> dict[str, list[dict]]:
     """赋稳定 id：已有 (slot, cn) 沿用旧 id，新增技能用该 slot 的 max_id+1；最终按 id 排序输出。"""
     existing = existing_cn_to_id or {}
     max_ids = max_id_by_slot or {}
-    out: Dict[str, List[Dict]] = {}
+    out: dict[str, list[dict]] = {}
 
     for key, s in (("slot1", slot1_set), ("slot2", slot2_set), ("slot3", slot3_set)):
         next_id = (max_ids.get(key) or 0) + 1
-        entries: List[Dict] = []
+        entries: list[dict] = []
         for base_cn in sorted(s):
             t = translations.get(
                 (key, base_cn), {"cn": base_cn, "tc": "", "en": "", "jp": "", "kr": ""}
@@ -235,7 +234,7 @@ def build_skill_pools(
     return out
 
 
-def write_skill_pools(path: Path, data: Dict) -> None:
+def write_skill_pools(path: Path, data: dict) -> None:
     with path.open("w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
         f.write("\n")
@@ -243,13 +242,13 @@ def write_skill_pools(path: Path, data: Dict) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="从 weapons_output.json 提取 skill_pools（五语来自同文件）"
+        description="从 weapons_output.json 提取 skill_pools（多语言来自同文件）"
     )
     parser.add_argument(
         "--input",
         type=Path,
-        default=Path("assets/data/EssenceFilter/weapons_output.json"),
-        help="weapons_output.json 路径",
+        default=Path("tools/zmdmap/data/weapons.json"),
+        help="zmdmap 的 weapons.json 路径",
     )
     parser.add_argument(
         "--output",
@@ -273,8 +272,11 @@ def main() -> int:
         print(f"[ERROR] 输入文件不存在: {input_path}", file=sys.stderr)
         return 1
 
-    with input_path.open("r", encoding="utf-8") as f:
-        weapons_data = json.load(f)
+    try:
+        weapons_data = read_payload(input_path)
+    except ValueError as error:
+        print(f"[ERROR] {error}", file=sys.stderr)
+        return 1
 
     if not isinstance(weapons_data, dict):
         print("[ERROR] weapons_output 应为 JSON object", file=sys.stderr)

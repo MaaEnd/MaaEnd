@@ -4,34 +4,35 @@ import (
 	"fmt"
 	"image"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
-// 与 Shopping.json ADBSpecial 一致：小幅上滑，使第一排名称+折扣与第二排名称+折扣分属两次截图。
+// 货架滑动工具节点：小幅上滑，使第一排名称+折扣与第二排名称+折扣分属两次截图。
 // 见第一排完整时看不到第二排名字；见第二排完整时看不到第一排折扣——故必须分两次记录后按 slot 合并。
+// base 为 Win32（一屏可见，DoNothing），实际滑动参数与等待由 resource_adb 覆盖决定。
 const (
-	adbShelfSwipeBeginX = 640
-	adbShelfSwipeBeginY = 500
-	adbShelfSwipeEndY   = 300
-	adbShelfSwipeDurMs  = 500
-	adbShelfSwipeWaitMs = 400
+	shelfSwipeDownNode = "CreditShoppingSwipeShelfDown"
+	shelfSwipeUpNode   = "CreditShoppingSwipeShelfUp"
 )
 
+// isADBController 判断当前控制器是否走触控 + 移动端 UI（ADB / PlayCover / Android 原生）。
+// ctrl 由回调入口传入；PI_CONTROLLER 缺失时用它兜底，否则 ADB 会被误当成桌面端。
 func isADBController(ctrl *maa.Controller) bool {
-	t, err := control.ResolveControlType(ctrl)
-	return err == nil && t == control.CONTROL_TYPE_ADB
+	return pienv.IsAdbLikeControllerType(pienv.ResolveControllerKind(ctrl))
 }
 
-func swipeShelfForADB(ctx *maa.Context, ctrl *maa.Controller, beginY, endY int) bool {
-	ca, err := control.NewControlAdaptor(ctx, ctrl, 1280, 720)
-	if err != nil {
-		log.Warn().Err(err).Str("component", component).Msg("record shelf adb: swipe adaptor failed")
+// runShelfSwipe 调一次货架滑动工具节点；滑动参数与稳定等待都在 Pipeline 侧，这里不做平台判断。
+func runShelfSwipe(ctx *maa.Context, nodeName string) bool {
+	if ctx == nil {
+		log.Warn().Str("component", component).Str("node", nodeName).Msg("record shelf adb: nil context")
 		return false
 	}
-	dy := endY - beginY
-	ca.Swipe(0, adbShelfSwipeBeginX, beginY, 0, dy, adbShelfSwipeDurMs, adbShelfSwipeWaitMs)
+	if _, err := ctx.RunAction(nodeName, maa.Rect{0, 0, 0, 0}, "", nil); err != nil {
+		log.Warn().Err(err).Str("component", component).Str("node", nodeName).Msg("record shelf adb: swipe node failed")
+		return false
+	}
 	return true
 }
 
@@ -40,10 +41,10 @@ func scanShelfSlotsADB(ctx *maa.Context, ctrl *maa.Controller, first image.Image
 	slotsTop := buildSlotRecords(ctx, first, scanShelfNameHits(ctx, first), slotAssignADBTop)
 
 	// 先小幅上滑采集第二屏；defer 保证任意返回路径都会滑回第一屏，避免后续购买节点仍停留在第二屏。
-	swiped := swipeShelfForADB(ctx, ctrl, adbShelfSwipeBeginY, adbShelfSwipeEndY)
+	swiped := runShelfSwipe(ctx, shelfSwipeDownNode)
 	if swiped {
 		defer func() {
-			if !swipeShelfForADB(ctx, ctrl, adbShelfSwipeEndY, adbShelfSwipeBeginY) {
+			if !runShelfSwipe(ctx, shelfSwipeUpNode) {
 				log.Warn().Str("component", component).Msg("record shelf adb: failed to swipe back after shelf scan")
 			}
 		}()

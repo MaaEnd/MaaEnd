@@ -135,7 +135,7 @@
         "MissionId": "m1m32",
         "Name": "“栖霞驻影”",
         "Id": "EternalSunset",
-        "EnterMap": "SceneEnterWorldWulingJingyuValley2",
+        "EnterMap": "SceneEnterWorldWulingJingyuValleyTreasureGrottoNorth",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
             783.72,
@@ -179,7 +179,7 @@
         "MissionId": "m1m34",
         "Name": "充满活力的蓄水源石虫",
         "Id": "VigorousCisternOriginiumSlug",
-        "EnterMap": "SceneEnterWorldWulingJingyuValley8",
+        "EnterMap": "SceneEnterWorldWulingJingyuValleySwordQuenchingMarsh",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
             682.09,
@@ -233,7 +233,7 @@
         "MissionId": "m1m37",
         "Name": "储备站周围的生态环境",
         "Id": "EcologyNearTheFieldLogisticsDepot",
-        "EnterMap": "SceneEnterWorldWulingWulingCity6",
+        "EnterMap": "SceneEnterWorldWulingWulingCityFieldLogisticsDepotWest",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
             851.95,
@@ -413,7 +413,7 @@
         "MissionId": "m1m62",
         "Name": "垂藤",
         "Id": "HangingVines",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
+        "EnterMap": "SceneEnterWorldWulingMarkerStoneRestrictedArea",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
             556.4,
@@ -454,7 +454,7 @@
         "MissionId": "m1m64",
         "Name": "栖云生态点",
         "Id": "CloudrestEcoSite",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
+        "EnterMap": "SceneEnterWorldWulingMarkerStoneRestrictedArea",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
             598,

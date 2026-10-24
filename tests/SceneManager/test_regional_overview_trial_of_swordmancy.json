@@ -1,0 +1,38 @@
+{
+    "configs": {
+        "name": "(CloudADB-官服)武陵事务总览，测试选剑演武条目",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "name": "选剑演武已展开（今日剩余奖励演算次数 3）",
+            "image": "武陵_地区建设_事务总览_选剑演武_展开.png",
+            "hits": [
+                "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
+                "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancy",
+                "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded",
+                "__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
+            ]
+        },
+        {
+            "name": "选剑演武未激活、已收起",
+            "image": "武陵_地区建设_事务总览_选剑演武_未激活_收起.png",
+            "hits": [
+                "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
+                "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancy",
+                "__ScenePrivateMenuRegionalOverviewWulingExpandTrialOfSwordmancy"
+            ]
+        },
+        {
+            "name": "选剑演武未激活、已展开",
+            "image": "武陵_地区建设_事务总览_选剑演武_未激活_展开.png",
+            "hits": [
+                "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
+                "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancy",
+                "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded",
+                "__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
+            ]
+        }
+    ]
+}

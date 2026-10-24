@@ -1,0 +1,3198 @@
+{
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubHubBasePowerPlant": {
+        "desc": "在地图界面找锚点 (枢纽区-枢纽基地电站)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                452.4,
+                910.3
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubRockhillPassage": {
+        "desc": "在地图界面找锚点 (枢纽区-岩丘通道)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                528,
+                695.1
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubSouthernMeadows": {
+        "desc": "在地图界面找锚点 (枢纽区-南部草甸)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                612.8,
+                968.1
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubWorkerDorms": {
+        "desc": "在地图界面找锚点 (枢纽区-工人之家)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                713.2,
+                965.6
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubOriginiumByproductProcessingCenter": {
+        "desc": "在地图界面找锚点 (枢纽区-源石副产物中心)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                373.5,
+                984.6
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubHubBase": {
+        "desc": "在地图界面找锚点 (枢纽区-枢纽基地区)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                635.7,
+                900.1
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubLogisticsPlatform": {
+        "desc": "在地图界面找锚点 (枢纽区-货运平台)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                591.1,
+                660.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVValleyPassEnterWorldValleyIVValleyPassValleyFort": {
+        "desc": "在地图界面找锚点 (谷地通道-谷地要塞)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                129.6,
+                542.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVValleyPassEnterWorldValleyIVValleyPassPassageEntrance": {
+        "desc": "在地图界面找锚点 (谷地通道-通道入口)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                249.1,
+                684.4
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVValleyPassEnterWorldValleyIVValleyPassTemporaryShelter": {
+        "desc": "在地图界面找锚点 (谷地通道-临时避难所)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                161.7,
+                545.7
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldValleyIVAburreyQuarryQuarryEntrance": {
+        "desc": "在地图界面找锚点 (阿伯莉采石场-采石场入口)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                886.2,
+                1032
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldValleyIVAburreyQuarryStockpileArea": {
+        "desc": "在地图界面找锚点 (阿伯莉采石场-存料处)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                966,
+                1113.9
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldValleyIVAburreyQuarryDeepManagementPost": {
+        "desc": "在地图界面找锚点 (阿伯莉采石场-深层管理区)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                1001.6,
+                1067.2
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldValleyIVAburreyQuarryQuarrySite": {
+        "desc": "在地图界面找锚点 (阿伯莉采石场-采石作业区)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                958.7,
+                1217.7
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVOriginLodespringEnterWorldValleyIVOriginLodespringMiningAreaClinic": {
+        "desc": "在地图界面找锚点 (矿脉源区-矿区医疗站)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                1100.6,
+                457.2
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVPowerPlateauEnterWorldValleyIVPowerPlateauEvacuationZone": {
+        "desc": "在地图界面找锚点 (供能高地-疏散区)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                649.8,
+                382.1
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyEcologicalResearchStation": {
+        "desc": "在地图界面找锚点 (景玉谷-生态实验站)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                814.6,
+                2138.9
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyTreadway": {
+        "desc": "在地图界面找锚点 (景玉谷-踩道)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                972.4,
+                2197.5
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyTreasureGrottoNorth": {
+        "desc": "在地图界面找锚点 (景玉谷-聚宝窟北侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                791.8,
+                2324.5
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleySkyKingFlatsNorth": {
+        "desc": "在地图界面找锚点 (景玉谷-天王坪北侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                984.6,
+                2355.7
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyTreasureGrottoSouth": {
+        "desc": "在地图界面找锚点 (景玉谷-聚宝窟南侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                741.9,
+                2411.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleySkyKingFlatsSouth": {
+        "desc": "在地图界面找锚点 (景玉谷-天王坪南侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                963.9,
+                2425
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyBurdosnoutHill": {
+        "desc": "在地图界面找锚点 (景玉谷-驮鼻山)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                976.9,
+                2502
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyZhailingIslet": {
+        "desc": "在地图界面找锚点 (景玉谷-摘菱屿)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                753.9,
+                2595.4
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleySwordQuenchingMarsh": {
+        "desc": "在地图界面找锚点 (景玉谷-淬剑荡)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                690.2,
+                2653.9
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleySouthHill": {
+        "desc": "在地图界面找锚点 (景玉谷-南山)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                814.4,
+                2773
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyEverwaterBrook": {
+        "desc": "在地图界面找锚点 (景玉谷-水泽涧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                603.3,
+                2828.1
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityMonitoringCenter": {
+        "desc": "在地图界面找锚点 (武陵城-观测站)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                921.7,
+                1309.7
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityMarkerStoneFlats": {
+        "desc": "在地图界面找锚点 (武陵城-界石坪)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                497.4,
+                1563.7
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityMaintenanceZone": {
+        "desc": "在地图界面找锚点 (武陵城-待修缮区)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                914.3,
+                1586.6
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityFangxingAvenue": {
+        "desc": "在地图界面找锚点 (武陵城-方兴衢)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                705.1,
+                1623
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityTianshiBureauAcademy": {
+        "desc": "在地图界面找锚点 (武陵城-天师府学院)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                529.3,
+                1743.2
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityTianjingCourtyard": {
+        "desc": "在地图界面找锚点 (武陵城-天井院)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                942.7,
+                1781.2
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityFieldLogisticsDepotWest": {
+        "desc": "在地图界面找锚点 (武陵城-储备站西侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                866.1,
+                1868.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityGuhouMarsh": {
+        "desc": "在地图界面找锚点 (武陵城-孤喉泽)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                704,
+                1892
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityFieldLogisticsDepotEast": {
+        "desc": "在地图界面找锚点 (武陵城-储备站东侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                973.2,
+                1959.3
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityQijianDaisWest": {
+        "desc": "在地图界面找锚点 (武陵城-弃剑台西侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                908.3,
+                1182.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityQijianDaisEast": {
+        "desc": "在地图界面找锚点 (武陵城-弃剑台东侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1050.2,
+                1271.1
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityLingshuiWay": {
+        "desc": "在地图界面找锚点 (武陵城-陵水道)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                508.9,
+                1967.1
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityBureauOfAppliedTechnologies": {
+        "desc": "在地图界面找锚点 (武陵城-技术开发局)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                425,
+                1375.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockadeSkyholdRidge": {
+        "desc": "在地图界面找锚点 (清波寨-顶天梁)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1134.9,
+                2137.3
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockadeCausewayTrailWest": {
+        "desc": "在地图界面找锚点 (清波寨-栈桥道西侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1172.1,
+                2283.3
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockadeCausewayTrailEast": {
+        "desc": "在地图界面找锚点 (清波寨-栈桥道东侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1257.2,
+                2359.3
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockadeAncestralSpring": {
+        "desc": "在地图界面找锚点 (清波寨-祖泉)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1363.1,
+                2187.1
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockadeMainFort": {
+        "desc": "在地图界面找锚点 (清波寨-主寨)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1399,
+                2441
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneWatchtowerReservoirStation": {
+        "desc": "在地图界面找锚点 (首墩-望楼蓄水站)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                491.3,
+                2116.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneLakeIslet": {
+        "desc": "在地图界面找锚点 (首墩-湖心岛)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                412.6,
+                2232.2
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneRestrictedArea": {
+        "desc": "在地图界面找锚点 (首墩-控制区)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                591.4,
+                2243.7
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneCloudrestGrotto": {
+        "desc": "在地图界面找锚点 (首墩-栖云窟)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                504.3,
+                2582.5
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestAreaIntegratedRDArea": {
+        "desc": "在地图界面找锚点 (试验园区-综合科研区)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1291.1,
+                1757.7
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestAreaTestingZone": {
+        "desc": "在地图界面找锚点 (试验园区-测试区)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1345.6,
+                1700.9
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestAreaWaterTreatmentSector": {
+        "desc": "在地图界面找锚点 (试验园区-污水处理区)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1120.5,
+                1564.7
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestAreaMeridianGridArea": {
+        "desc": "在地图界面找锚点 (试验园区-经纬田区)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1344.7,
+                1634
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestAreaTestAreaPeripheries": {
+        "desc": "在地图界面找锚点 (试验园区-园区外围)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1300.5,
+                1517.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDaleGorgeOverhangNorth": {
+        "desc": "在地图界面找锚点 (藏剑谷-悬谷台北侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1817.7,
+                2777.3
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDaleGorgeOverhangSouth": {
+        "desc": "在地图界面找锚点 (藏剑谷-悬谷台南侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1840.4,
+                2872
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDaleDeepGorgeVault": {
+        "desc": "在地图界面找锚点 (藏剑谷-谷底秘库)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1598.4,
+                2692.7
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDaleSouthGorgeRampart": {
+        "desc": "在地图界面找锚点 (藏剑谷-南谷旧垣)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1582.3,
+                2718.1
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPassPassSideCanal": {
+        "desc": "在地图界面找锚点 (应龙关-临关渠)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                881.8,
+                874.5
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPassStonepondCliffNorth": {
+        "desc": "在地图界面找锚点 (应龙关-石涧崖北侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1112.6,
+                980.1
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPassYSTFMainCamp": {
+        "desc": "在地图界面找锚点 (应龙关-应龙主营)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1133.3,
+                798.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPassStonepondCliffSouth": {
+        "desc": "在地图界面找锚点 (应龙关-石涧崖南侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1168.1,
+                1036.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPassDevicePavilion": {
+        "desc": "在地图界面找锚点 (应龙关-置器阁)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1210.4,
+                773.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPassYSTFFilingRoom": {
+        "desc": "在地图界面找锚点 (应龙关-应龙档案室)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1212.1,
+                910.1
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneSentryBase": {
+        "desc": "在地图界面找锚点 (北部禁区-前哨基地)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1121.1,
+                598
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneWaterworksHub": {
+        "desc": "在地图界面找锚点 (北部禁区-水利枢纽)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1167.2,
+                316.2
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneDesignatedUrbanArea": {
+        "desc": "在地图界面找锚点 (北部禁区-城建区)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1202,
+                432.7
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneTanjianHall": {
+        "desc": "在地图界面找锚点 (北部禁区-谈剑堂)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1280.2,
+                325.6
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneQuelltideLeveeSouth": {
+        "desc": "在地图界面找锚点 (北部禁区-平波堤南侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1292.6,
+                611.3
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneQuelltideLeveeNorth": {
+        "desc": "在地图界面找锚点 (北部禁区-平波堤北侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1393,
+                502.5
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneXiraniteResearchLabs": {
+        "desc": "在地图界面找锚点 (北部禁区-息壤研究所)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1395,
+                320.9
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneRDCenterRooftopWest": {
+        "desc": "在地图界面找锚点 (北部禁区-研发中心顶层西侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1454.4,
+                529.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneGhostMesaTestSite": {
+        "desc": "在地图界面找锚点 (北部禁区-幽台试验场)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1545.2,
+                323.3
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneRDCenterRooftopEast": {
+        "desc": "在地图界面找锚点 (北部禁区-研发中心顶层东侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1582.9,
+                443
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneCelestialColumn": {
+        "desc": "在地图界面找锚点 (北部禁区-天柱)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1586.9,
+                380.6
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneWulingVLRUpperArea": {
+        "desc": "在地图界面找锚点 (北部禁区-武陵甚大裂隙上层)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1590.3,
+                465.3
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestSnowyTrail": {
+        "desc": "在地图界面找锚点 (雪松林-落雪山道)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1365.5,
+                987.7
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestForest": {
+        "desc": "在地图界面找锚点 (雪松林-林地)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1413,
+                993.5
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestSnowpriestessCabinWest": {
+        "desc": "在地图界面找锚点 (雪松林-雪祀木屋西侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1509.8,
+                990.6
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestRitualShrine": {
+        "desc": "在地图界面找锚点 (雪松林-仪式祭坛)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1593.1,
+                934.5
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestHoarfrostDaleWest": {
+        "desc": "在地图界面找锚点 (雪松林-雾凇山谷西侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1595.9,
+                1075.5
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestSnowpriestessCabinEast": {
+        "desc": "在地图界面找锚点 (雪松林-雪祀木屋东侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1598.5,
+                993.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestHoarfrostDaleEast": {
+        "desc": "在地图界面找锚点 (雪松林-雾凇山谷东侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1720.5,
+                995
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingPinesmokeBasin": {
+        "desc": "在地图界面找锚点 (祀的画-松烟湖)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1814.1,
+                484.1
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingYuanyuanManor": {
+        "desc": "在地图界面找锚点 (祀的画-缘缘庄)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                2201.1,
+                513
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingPearlveiledBrook": {
+        "desc": "在地图界面找锚点 (祀的画-珠帘涧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                2300.8,
+                528
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingRaintapGrottoBF": {
+        "desc": "在地图界面找锚点 (祀的画-听雨窟下层)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                2361.5,
+                527
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingPavilionOfParting": {
+        "desc": "在地图界面找锚点 (祀的画-舍得亭)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                2384.4,
+                760.3
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingRaintapGrottoNorth": {
+        "desc": "在地图界面找锚点 (祀的画-听雨窟北侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                2433.6,
+                460.2
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingInkrisePeak": {
+        "desc": "在地图界面找锚点 (祀的画-涨墨峰)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                2458.7,
+                420.2
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingXiaoheManor": {
+        "desc": "在地图界面找锚点 (祀的画-小禾庄)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                2385.6,
+                267
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingFlyingWhitePeak": {
+        "desc": "在地图界面找锚点 (祀的画-飞白峰)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                2667.1,
+                534.6
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingMeanderingHike": {
+        "desc": "在地图界面找锚点 (祀的画-盘山径)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                2321.4,
+                717.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingRaintapGrottoSouth": {
+        "desc": "在地图界面找锚点 (祀的画-听雨窟南侧)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                2395,
+                594.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

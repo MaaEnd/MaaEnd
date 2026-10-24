@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import math
 import re
 from enum import IntEnum
@@ -21,6 +19,7 @@ BASE_NAV_ZONE_IMAGE_PARTS = {
     "dung01": ("MapLocator", "Dung", "Dung01Base.png"),
     "indie_dg005": ("MapLocator", "IndieDg005", "IndieDg005Base.png"),
     "indie_dg007": ("MapLocator", "IndieDg007", "IndieDg007Base.png"),
+    "indie_dg016": ("MapLocator", "IndieDg016", "IndieDg016Base.png"),
 }
 BASE_NAV_DISPLAY_ZONE_IDS = tuple(BASE_NAV_ZONE_IMAGE_PARTS)
 
@@ -62,6 +61,7 @@ class ActionType(IntEnum):
     NAVMESH = 9
     FIND = 10
     TRIGGER = 11
+    JUMP_PAD = 12
 
 
 ACTION_COLORS: dict[int, str] = {
@@ -78,6 +78,7 @@ ACTION_COLORS: dict[int, str] = {
     ActionType.NAVMESH: "#14b8a6",
     ActionType.FIND: "#e11d48",
     ActionType.TRIGGER: "#84cc16",
+    ActionType.JUMP_PAD: "#f472b6",
 }
 
 ACTION_NAMES: dict[int, str] = {
@@ -94,6 +95,7 @@ ACTION_NAMES: dict[int, str] = {
     ActionType.NAVMESH: "Navmesh",
     ActionType.FIND: "Find",
     ActionType.TRIGGER: "Trigger",
+    ActionType.JUMP_PAD: "JumpPad",
 }
 
 ACTION_TOKENS: dict[int, str] = {
@@ -109,6 +111,7 @@ ACTION_TOKENS: dict[int, str] = {
     ActionType.NAVMESH: "NAVMESH",
     ActionType.FIND: "FIND",
     ActionType.TRIGGER: "TRIGGER",
+    ActionType.JUMP_PAD: "JUMP_PAD",
 }
 
 ACTION_NAME_LOOKUP: dict[str, int] = {
@@ -125,6 +128,7 @@ ACTION_NAME_LOOKUP: dict[str, int] = {
     "NAVMESH": int(ActionType.NAVMESH),
     "FIND": int(ActionType.FIND),
     "TRIGGER": int(ActionType.TRIGGER),
+    "JUMP_PAD": int(ActionType.JUMP_PAD),
 }
 ACTION_MENU_TYPES: tuple[ActionType, ...] = (
     ActionType.RUN,
@@ -134,6 +138,7 @@ ACTION_MENU_TYPES: tuple[ActionType, ...] = (
     ActionType.INTERACT,
     ActionType.PORTAL,
     ActionType.TRANSFER,
+    ActionType.JUMP_PAD,
     ActionType.COLLECT,
     ActionType.DIG,
     ActionType.NAVMESH,
@@ -290,7 +295,7 @@ def coerce_find_arrive(value: object) -> list[float]:
     return numbers
 
 
-def find_fields_of(point: "PathPoint") -> dict[str, object]:
+def find_fields_of(point: PathPoint) -> dict[str, object]:
     """FIND 点要带出去的字段，任何一个没写就整个不出现在导出结果里。"""
     fields: dict[str, object] = {}
     target = str(point.get("find_target", "") or "").strip()
@@ -313,7 +318,7 @@ def _apply_find_fields(point: PathPoint, normalized: PathPoint) -> None:
         normalized[key] = value  # type: ignore[literal-required]
 
 
-def trigger_node_of(point: "PathPoint") -> str:
+def trigger_node_of(point: PathPoint) -> str:
     value = point.get("trigger_node", "")
     return value.strip() if isinstance(value, str) else ""
 
@@ -492,10 +497,7 @@ def resolve_zone_image(zone_id: str, map_image_dir: Path) -> Path | None:
     if alias_path is not None and alias_path.exists():
         return alias_path
 
-    if map_image_dir.name.lower() == "maplocator":
-        map_locator_dir = map_image_dir
-    else:
-        map_locator_dir = map_image_dir / "MapLocator"
+    map_locator_dir = map_image_dir if map_image_dir.name.lower() == "maplocator" else map_image_dir / "MapLocator"
 
     level_match = re.match(r"^(\w+?)_L(\d+)_(\d+)$", normalized_zone_id)
     if level_match:

@@ -1,0 +1,56 @@
+{
+    "SeizeDeliveryJobsPressEscAfterMatch": {
+        "recognition": "And",
+        "all_of": [
+            "SeizeDeliveryJobsMapReadyToClose"
+        ],
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 4,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsAcceptAfterMapClosed"
+        ]
+    },
+    "SeizeDeliveryJobsAcceptAfterMapClosed": {
+        "desc": "确认关闭地图后已回到加载完成的委托列表",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsInJobList"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsAcceptClick"
+        ]
+    },
+    "SeizeDeliveryJobsPressEscAfterNotMatch": {
+        "recognition": "And",
+        "all_of": [
+            "SeizeDeliveryJobsMapReadyToClose"
+        ],
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 4,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsScanAfterMapClosed"
+        ]
+    },
+    "SeizeDeliveryJobsScanAfterMapClosed": {
+        "desc": "确认关闭地图后已回到加载完成的委托列表",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsInJobList"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsScanTarget"
+        ]
+    }
+}

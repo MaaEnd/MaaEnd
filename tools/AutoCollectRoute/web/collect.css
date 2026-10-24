@@ -1,0 +1,59 @@
+/* 采集路线页：骨架、卡片、工具条、状态胶囊全部沿用 style.css，这里只补采集物列表与结果框里的几处差异 */
+
+/* 采集物标记夹在底图与叠加层之间：同层级下按文档顺序，叠加层在上 */
+#marker-canvas {
+  z-index: 2;
+}
+
+/* 工具条左半边只放操作说明，字号与工具按钮一致 */
+.collect-map-hint {
+  padding: 0 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* 图例在编辑器里跟着路径编辑工作区出现，这一页常驻 */
+.collect-page .legend-panel {
+  display: flex;
+}
+
+/* 采集物一行：勾选框 + 图标 + 名称 + 徽标 + 点数，整行可点 */
+.collect-type {
+  display: flex;
+  gap: 8px;
+}
+
+.collect-type.off {
+  opacity: 0.5;
+}
+
+.collect-type-icon {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.collect-type .wp-action {
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.collect-route-names {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.collect-route-names-grid {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.collect-route-names-grid .entry {
+  height: var(--h-control-sm);
+  min-width: 0;
+}

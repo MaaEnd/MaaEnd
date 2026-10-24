@@ -1,0 +1,70 @@
+{
+    "configs": {
+        "name": "场景管理：拍照公共退出",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB",
+            "CloudADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "武陵_拍照模式_画面设置.png",
+            "hits": [
+                {
+                    "node": "__ScenePrivateAnyExit",
+                    // CloudADB 返回退出图标；Win32/ADB 的按键出口为 DirectHit，此处不验证按键动作。
+                    "box": {
+                        "CloudADB": [
+                            1100,
+                            10,
+                            160,
+                            60
+                        ],
+                        "Win32": [
+                            0,
+                            0,
+                            1280,
+                            720
+                        ],
+                        "ADB": [
+                            0,
+                            0,
+                            1280,
+                            720
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "image": "武陵_拍照模式_隐藏全部.png",
+            "hits": [
+                {
+                    "node": "__ScenePrivateAnyExit",
+                    "box": {
+                        "CloudADB": [
+                            1100,
+                            10,
+                            160,
+                            60
+                        ],
+                        "Win32": [
+                            0,
+                            0,
+                            1280,
+                            720
+                        ],
+                        "ADB": [
+                            0,
+                            0,
+                            1280,
+                            720
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

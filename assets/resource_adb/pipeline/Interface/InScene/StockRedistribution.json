@@ -1,0 +1,11 @@
+{
+    "StockRedistributionTerminalInteractScan": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            720,
+            330,
+            332,
+            312
+        ]
+    }
+}

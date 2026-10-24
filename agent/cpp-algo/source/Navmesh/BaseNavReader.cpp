@@ -38,19 +38,18 @@ constexpr size_t kTriangleSize = 36;
 constexpr size_t kLinkSize = 8;
 constexpr size_t kSectionEntrySize = 24;
 constexpr uint16_t kBaseNavRevision = 5;
-// 每个字段从哪一版开始存在,单独记。用 >= kBaseNavRevision 判会在下一次升版时
-// 把老包的该字段静默跳过。
+// 各字段的起始版本, 判字段存在与否只能用它们, 用 kBaseNavRevision 判会在升版后跳过老包字段
 constexpr uint16_t kZoneFloorYSince = 3;
 constexpr uint16_t kSectionDirSince = 4;
 constexpr uint16_t kGeometrySectionSince = 5;
 constexpr size_t kGzipReadChunkSize = 4 << 20;
-// BGEO 段:四块几何按定长块存,块内自足解码,按区加载只解用得着的块。
+// BGEO 段: 四块几何按定长块存, 块内自足解码
 constexpr char kGeometrySectionTag[5] = "BGEO";
 constexpr char kOffMeshSectionTag[5] = "BOML";
 constexpr char kSurfaceSectionTag[5] = "BSRF";
 constexpr char kGridSectionTag[5] = "BGRD";
 constexpr uint32_t kGeometrySectionVersion = 1;
-// v1 = 80 B,尾部 4 B 补零;v2 = 88 B,补零处起写入方向位与两沿三角,前 76 B 不变。
+// v1 = 80 B, 尾部 4 B 补零, v2 = 88 B, 从补零处起写方向位与两沿三角
 constexpr uint16_t kOffMeshSectionVersion = 2;
 constexpr uint16_t kOffMeshRecordSizeV1 = 80;
 constexpr uint16_t kOffMeshRecordSizeV2 = 88;
@@ -123,8 +122,7 @@ BaseNavTriangle ReadTriangleRecord(const uint8_t*& cursor)
     for (int32_t& value : triangle.neighbors) {
         value = ReadI32(cursor);
     }
-    // 分量号与尾部两个 float 重心都全仓无读者, 跳过不落盘 —— 分量号由 planner 从
-    // neighbors 自己重算。哈希仍按整条记录算, 所以按区加载时补重心的那段不能省。
+    // 跳过分量号与两个 float 重心, 哈希仍按整条 36 字节记录算
     cursor += 12;
     return triangle;
 }
@@ -266,7 +264,7 @@ int64_t UnZigzag(uint64_t value)
     return static_cast<int64_t>(value >> 1U) ^ -static_cast<int64_t>(value & 1U);
 }
 
-// 块内是若干条「varint 长度 + deflate 流」,条数由表类型定死。
+// 块内是若干条 varint 长度 + deflate 流, 条数由表类型定死
 bool SplitChunkStreams(const uint8_t* data, size_t size, size_t count, std::vector<std::vector<uint8_t>>* out)
 {
     out->assign(count, {});
@@ -283,7 +281,7 @@ bool SplitChunkStreams(const uint8_t* data, size_t size, size_t count, std::vect
     return cursor == end;
 }
 
-// 一张块目录。块定长,所以第 i 块覆盖 [i * chunk, min((i + 1) * chunk, total))。
+// 第 i 块覆盖 [i * chunk, min((i + 1) * chunk, total))
 struct GeoChunkTable
 {
     const uint8_t* directory = nullptr;
@@ -340,7 +338,7 @@ bool ParseGeometrySection(const uint8_t* data, uint64_t size, GeometrySection* o
     out->triangles.chunk = ReadU32(cursor);
     out->links.chunk = ReadU32(cursor);
     out->zone_table_size = ReadU32(cursor);
-    (void)ReadU32(cursor); // reserved
+    (void)ReadU32(cursor); // 保留字段
     GeoChunkTable* const tables[3] = { &out->vertices, &out->triangles, &out->links };
     for (GeoChunkTable* table : tables) {
         const uint64_t at = ReadU64(cursor);
@@ -354,7 +352,7 @@ bool ParseGeometrySection(const uint8_t* data, uint64_t size, GeometrySection* o
         return false;
     }
     out->zone_table = data + zone_at;
-    // 校验只看偏移本身:先加到指针上再判越界,那个指针已经算不出来了。
+    // 校验只看偏移, 先加到指针上再判越界是未定义行为
     for (const GeoChunkTable* table : tables) {
         for (uint32_t i = 0; i < table->count(); ++i) {
             uint64_t at = 0;
@@ -368,7 +366,7 @@ bool ParseGeometrySection(const uint8_t* data, uint64_t size, GeometrySection* o
     return true;
 }
 
-// 顶点是 12 字节记录做的字节平面:n × 12 的字节矩阵转置成 12 × n。
+// 顶点按字节平面存, n × 12 的字节矩阵转置成 12 × n
 bool DecodeVertexChunk(const uint8_t* data, size_t size, uint32_t count, uint8_t* out)
 {
     std::vector<std::vector<uint8_t>> stream;
@@ -383,7 +381,7 @@ bool DecodeVertexChunk(const uint8_t* data, size_t size, uint32_t count, uint8_t
     return true;
 }
 
-// 三角的重心不存,这里先留空,顶点到位后按 ((a+b)+c)/3.0f 重算。
+// 重心不存, 先留空, 顶点到位后按 ((a+b)+c)/3.0f 重算
 bool DecodeTriangleChunk(const uint8_t* data, size_t size, uint32_t count, uint32_t first, uint8_t* out)
 {
     std::vector<std::vector<uint8_t>> stream;
@@ -493,14 +491,12 @@ bool DecodeLinkChunk(const uint8_t* data, size_t size, uint32_t count, uint8_t* 
     return source_cursor == source_end && target_cursor == target_end;
 }
 
-// 第 [low, high] 块覆盖的记录数
 size_t ChunkSpanRecords(const GeoChunkTable& table, uint32_t low, uint32_t high)
 {
     return static_cast<size_t>(table.first(high)) + table.span(high) - table.first(low);
 }
 
-// 解第 [low, high] 块到 dst(调用方按 ChunkSpanRecords 开好)。块定长, 每块的输出长度只由自己的
-// span 定, 各块写各自那段 —— 与一块块接着写逐字节相同, 于是能并起来解。
+// 解第 [low, high] 块到 dst, dst 须按 ChunkSpanRecords 开好
 bool DecodeChunkSpan(
     const GeoChunkTable& table,
     const uint8_t* base,
@@ -527,7 +523,7 @@ bool DecodeChunkSpan(
     return std::find(ok.begin(), ok.end(), 0) == ok.end();
 }
 
-// 覆盖记录 [from, to) 的整块范围。from >= to 时是空范围, first 取 from。
+// 覆盖记录 [from, to) 的整块范围, from >= to 时为空且 first 取 from
 struct ChunkWindow
 {
     uint32_t low = 0;
@@ -553,8 +549,7 @@ std::optional<ChunkWindow> ChunkWindowFor(const GeoChunkTable& table, uint32_t f
     return window;
 }
 
-// 三角逐批解码的一批记录数。整包 553 万条原始记录 200 MB, 一次全解出来会和结构体表叠成
-// 加载峰值; 一批装满这个数(至少工人数个块, 解码仍并行), 转完结构体就复用暂存。
+// 三角逐批解码的每批记录数, 用来压低加载峰值内存
 constexpr size_t kTriangleBatchRecords = 1U << 20U;
 
 BaseNavLoadResult Fail(BaseNavLoadStatus status, std::string message)
@@ -565,8 +560,7 @@ BaseNavLoadResult Fail(BaseNavLoadStatus status, std::string message)
     return result;
 }
 
-// 连接块目录里带每块首条的 source。表按 source 非降,所以「下一块首条还 < source」
-// 就说明本块整块都在前面,可以跳过。
+// aux 是每块首条的 source, 表按 source 非降
 uint32_t GeoLinkChunkFor(const GeoChunkTable& table, uint32_t source)
 {
     uint32_t index = 0;
@@ -678,7 +672,6 @@ BaseNavLoadResult ReadNavFileBytes(const std::filesystem::path& path, std::vecto
 namespace
 {
 
-// 同一份主包按区载入几次时共用格图段字节。
 std::shared_ptr<const std::vector<uint8_t>> SharedSectionBytes(uint64_t file_fnv, const uint8_t* at, size_t size)
 {
     static std::mutex mutex;
@@ -709,7 +702,6 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     if (file_size < kHeaderSize) {
         return Fail(BaseNavLoadStatus::InvalidSize, "nav file is smaller than header");
     }
-    // 整份解压字节的指纹,旁包靠它认主包;按区裁剪也算整份,两种载入口径得出同一个值
     const uint64_t file_fnv = Fnv64Update(kFnvOffset, file_bytes.data(), file_bytes.size());
 
     if (std::memcmp(file_bytes.data(), "BNAV", 4) != 0) {
@@ -744,16 +736,14 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     if (version >= kSectionDirSince) {
         section_dir_offset = ReadU64(header_cursor);
         section_count = ReadU32(header_cursor);
-        (void)ReadU32(header_cursor); // reserved
+        (void)ReadU32(header_cursor); // 保留字段
         if (section_count != 0
             && !OffsetRangeValid(section_dir_offset, static_cast<uint64_t>(section_count) * kSectionEntrySize, file_size)) {
             return Fail(BaseNavLoadStatus::InvalidOffset, "nav section directory is outside file bounds");
         }
     }
 
-    // 段目录先读:v5 起四块几何连同区表都在 BGEO 段里,头里那四个偏移作废。
-    // 只有 BGRD 的字节要活过本函数(规划时才按瓦解码),其余段就地解析,段条目留空壳 ——
-    // 下游只拿 section(tag) != nullptr 认包的世代。
+    // v5 起几何与区表都在 BGEO 段里, 头里那四个偏移作废, 所以先读段目录
     std::vector<BaseNavSection> sections;
     std::vector<std::pair<const uint8_t*, size_t>> section_raw;
     sections.reserve(section_count);
@@ -839,7 +829,6 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
             value = ReadF32(zone_cursor);
         }
         if (version >= kZoneFloorYSince) {
-            // v3 起每区多一个值;更早的包留在哨兵值上。
             zone.floor_y = ReadF32(zone_cursor);
         }
         if (static_cast<size_t>(zone_end - zone_cursor) < name_size) {
@@ -869,8 +858,7 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     const uint32_t selected_triangle_end = selected_first_triangle + selected_triangle_count;
     const bool zone_scoped = selected_zone.has_value();
 
-    // 顶点与连接的记录字节和结构体逐字节同布局(小端), 直接解进结构体向量, 哈希也按向量算;
-    // 三角记录 36 字节(含分量号与重心)与 24 字节的结构体不同, 逐批解到暂存再转。
+    // 顶点与连接的记录与结构体逐字节同布局, 三角记录 36 字节与结构体不同
     static_assert(std::endian::native == std::endian::little);
     static_assert(sizeof(BaseNavVertex) == kVertexSize && sizeof(BaseNavLink) == kLinkSize);
 
@@ -882,17 +870,13 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     uint32_t first_vertex = zone_scoped ? vertex_count : 0;
     uint32_t last_vertex = 0;
 
-    // 哈希定义在四块的规范字节上(三角含重心), 与它们怎么存无关。v5 的字节要先解码才有, 所以只在
-    // 整包加载时算, 且按解码顺序流式更新: 区表 → 顶点 → 三角逐批 → 连接; 按区加载的 gzip 流本来
-    // 就有 CRC 兜底。
+    // 哈希按区表、顶点、三角、连接的顺序算在规范字节上, 三角含重心
     const bool should_verify_hash = zone_name.empty() || (!sectioned && !HasGzipSuffix(path));
     uint64_t hash = kFnvOffset;
     if (should_verify_hash) {
         hash = Fnv64Update(hash, zone_table, static_cast<size_t>(zone_table_size));
     }
 
-    // 一段 36 字节记录 [first, first + count) 与选中区的交集转成结构体; 按区加载时邻居改成区内相对
-    // 下标, 并顺手记下顶点下标范围。
     const auto convert_triangles = [&](const uint8_t* records, uint32_t first, size_t count) -> const char* {
         const uint32_t begin = std::max(first, selected_first_triangle);
         const uint32_t end = static_cast<uint32_t>(std::min<uint64_t>(static_cast<uint64_t>(first) + count, selected_triangle_end));
@@ -948,12 +932,11 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
                     })) {
                 return "nav vertex chunk is malformed";
             }
-            // 只留 [from, to): 块是整块解的, 两头多出来的不属于选中区
             vertices.erase(vertices.begin() + static_cast<std::ptrdiff_t>(to - window->first), vertices.end());
             vertices.erase(vertices.begin(), vertices.begin() + static_cast<std::ptrdiff_t>(from - window->first));
             return nullptr;
         };
-        // 整包时三角的重心要靠顶点补, 顶点先解; 按区时顶点范围要先扫三角才知道, 顶点后解。
+        // 整包时重心要靠顶点补所以顶点先解, 按区时顶点范围要扫完三角才知道所以后解
         if (!zone_scoped) {
             if (const char* error = decode_vertices(0, vertex_count)) {
                 return Fail(BaseNavLoadStatus::InvalidSize, error);
@@ -991,7 +974,7 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
                 return Fail(BaseNavLoadStatus::InvalidSize, "nav triangle chunk is malformed");
             }
             if (should_verify_hash) {
-                // 整包时选中区即全部, 这批每条都算数。重心按 ((a+b)+c)/3.0f 补回 —— 换成乘 1/3 不逐位相同。
+                // 重心须按 ((a+b)+c)/3.0f 补回, 乘 1/3 的结果不逐位相同
                 for (size_t at = 0; at < scratch.size(); at += kTriangleSize) {
                     uint8_t* const record = scratch.data() + at;
                     float u[3] = {};
@@ -1018,7 +1001,6 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         }
         std::vector<uint8_t>().swap(scratch);
 
-        // 三角为空的区(tier 只有一份仿射)不用解顶点。
         if (zone_scoped) {
             const uint32_t want_low = triangles.empty() ? 0 : first_vertex;
             const uint32_t want_high = triangles.empty() ? 0 : last_vertex + 1;
@@ -1027,7 +1009,6 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
             }
         }
 
-        // 连接表可以一条都没有,那时一块都不解,下游按 0 条连接走。
         const uint32_t link_chunks = geometry.links.count();
         const uint32_t low_chunk = zone_scoped ? GeoLinkChunkFor(geometry.links, selected_first_triangle) : 0;
         const uint32_t high_chunk = zone_scoped ? GeoLinkChunkFor(geometry.links, selected_triangle_end) : link_chunks;
@@ -1084,11 +1065,7 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         }
         selected_zone->first_triangle = 0;
         selected_zone->triangle_count = static_cast<uint32_t>(triangles.size());
-        // Keep the selected geometry zone PLUS its tier children (zones whose component_count points
-        // back at it). Tier zones are 0-triangle affine metadata, so retaining them never touches the
-        // sliced geometry / snap graph / golden-hash parity (this in-memory vector is not serialized) —
-        // it just lets a zone-scoped pack still resolve a tier zone_id to base via its OWN baked affine,
-        // mirroring the python loader which holds every zone.
+        // 除选中区外还留下它的 tier 子区, 让 tier zone_id 仍能投影到底图
         std::vector<BaseNavZone> scoped_zones;
         scoped_zones.reserve(zones.size());
         scoped_zones.push_back(*selected_zone);
@@ -1132,7 +1109,6 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         }
     }
     else {
-        // 整包 1500 万条 116 MB, 原地剔除而不是再抄一份
         size_t kept = 0;
         for (size_t index = 0; index < link_table.size(); ++index) {
             if (!invalid_link(index)) {
@@ -1150,7 +1126,7 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
             return Fail(BaseNavLoadStatus::InvalidSize, "nav off-mesh section is malformed");
         }
     }
-    // 两沿三角是整包下标,按区加载时与 LINK 同一套平移;区外锚点退回哨兵值。
+    // 两沿三角是整包下标, 按区加载时同样平移, 区外锚点退回哨兵值
     if (zone_scoped) {
         for (BaseNavOffMeshLink& link : off_mesh_links) {
             const auto rebase = [&](uint32_t& triangle) {

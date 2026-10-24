@@ -3,8 +3,10 @@ package pienv
 import (
 	"encoding/json"
 	"os"
+	"strings"
 	"sync"
 
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -227,6 +229,123 @@ func ControllerName() string {
 		return c.Name
 	}
 	return ""
+}
+
+/* ******** Controller Kind ******** */
+
+// Normalized controller kinds. Both the raw type injected by the Client
+// (PI_CONTROLLER's type, i.e. interface.json's controller.type) and the raw type
+// reported by MaaFramework (controller.GetInfo()) are normalized to these values
+// before any comparison, so callers never hand-roll case/alias handling.
+const (
+	// ControllerKindUnknown means the controller type is unknown: the PI environment is
+	// absent, or the raw type is not in the known set.
+	ControllerKindUnknown = ""
+	// ControllerKindAdb / ControllerKindPlayCover / ControllerKindNativeAndroid all use
+	// touch input with the mobile UI. Use IsAdbLikeControllerType when they share a branch.
+	ControllerKindAdb           = "adb"
+	ControllerKindPlayCover     = "playcover"
+	ControllerKindNativeAndroid = "native_android"
+	ControllerKindWin32         = "win32"
+	ControllerKindMacOS         = "macos"
+	ControllerKindLinux         = "linux"
+	ControllerKindGamepad       = "gamepad"
+)
+
+// ControllerKind returns the normalized kind of the current PI environment,
+// or ControllerKindUnknown when PI_CONTROLLER is absent or of an unknown type.
+func ControllerKind() string {
+	return NormalizeControllerKind(ControllerType())
+}
+
+// NormalizeControllerKind maps a raw controller type to its normalized kind,
+// or ControllerKindUnknown if it cannot be recognized.
+func NormalizeControllerKind(controllerType string) string {
+	switch strings.ToLower(strings.TrimSpace(controllerType)) {
+	case ControllerKindAdb:
+		return ControllerKindAdb
+	// play_cover is an accepted spelling of PlayCover in some clients.
+	case ControllerKindPlayCover, "play_cover":
+		return ControllerKindPlayCover
+	case ControllerKindNativeAndroid:
+		return ControllerKindNativeAndroid
+	case ControllerKindWin32:
+		return ControllerKindWin32
+	case ControllerKindMacOS:
+		return ControllerKindMacOS
+	case ControllerKindLinux:
+		return ControllerKindLinux
+	case ControllerKindGamepad:
+		return ControllerKindGamepad
+	default:
+		return ControllerKindUnknown
+	}
+}
+
+// IsAdbLikeControllerType reports whether the raw controller type uses touch input and
+// the mobile UI: ADB, PlayCover, and the Android native controller (MaaFwApp on phone).
+func IsAdbLikeControllerType(controllerType string) bool {
+	switch NormalizeControllerKind(controllerType) {
+	case ControllerKindAdb, ControllerKindPlayCover, ControllerKindNativeAndroid:
+		return true
+	default:
+		return false
+	}
+}
+
+// ResolveControllerKind returns the controller kind for the current callback: PI_CONTROLLER
+// first, then controller.GetInfo() as a fallback. The PI protocol lets a Client omit
+// variables it cannot provide, so callers must not assume PI_CONTROLLER exists — without the
+// fallback an ADB controller would degrade into an unknown/desktop one.
+//
+// ctrl must be the controller already obtained and passed down inside the current callback;
+// never call GetController() just to feed this function (see the coding standards on handle
+// lifetime). A nil ctrl is fine: it simply yields ControllerKindUnknown when PI_CONTROLLER is
+// unavailable too.
+func ResolveControllerKind(ctrl *maa.Controller) string {
+	if kind := ControllerKind(); kind != ControllerKindUnknown {
+		return kind
+	}
+	if ctrl == nil {
+		return ControllerKindUnknown
+	}
+	info, err := ctrl.GetInfo()
+	if err != nil {
+		return ControllerKindUnknown
+	}
+	return controllerKindFromInfo(info)
+}
+
+// controllerKindFromInfo parses MaaFramework's controller info (the JSON behind
+// controller.GetInfo()). It probes the raw string when info is not valid JSON, and returns
+// ControllerKindUnknown when neither recognizes the type. Split out from ResolveControllerKind
+// so it can be tested without a real controller.
+func controllerKindFromInfo(info string) string {
+	if info == "" {
+		return ControllerKindUnknown
+	}
+
+	var dto struct {
+		Type string `json:"type"`
+	}
+	if err := json.Unmarshal([]byte(info), &dto); err != nil {
+		// Fallback: probe the raw string when it is not valid JSON.
+		lower := strings.ToLower(info)
+		for _, candidate := range []string{
+			ControllerKindWin32,
+			ControllerKindMacOS,
+			ControllerKindLinux,
+			ControllerKindPlayCover,
+			ControllerKindNativeAndroid,
+			ControllerKindAdb,
+		} {
+			if strings.Contains(lower, candidate) {
+				return candidate
+			}
+		}
+		return ControllerKindUnknown
+	}
+	return NormalizeControllerKind(dto.Type)
 }
 
 // ResourceName returns the resource name identifier, or empty if unavailable.

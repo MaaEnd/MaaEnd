@@ -1,0 +1,32 @@
+{
+    "configs": {
+        "name": "环境监测：拍照设置与干员显示",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB",
+            "CloudADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "武陵_拍照模式_画面设置.png",
+            "hits": [
+                "EnvironmentMonitoringPhotoSettingsTab",
+                "EnvironmentMonitoringOpenPhotoSettings",
+                "EnvironmentMonitoringPhotoSettingsOpened",
+                "EnvironmentMonitoringPhotoSettingsShowAllOperators"
+            ]
+        },
+        {
+            "image": "武陵_拍照模式_隐藏全部.png",
+            "hits": [
+                "EnvironmentMonitoringPhotoSettingsTab",
+                "EnvironmentMonitoringOpenPhotoSettings",
+                "EnvironmentMonitoringPhotoSettingsOpened",
+                "EnvironmentMonitoringPhotoSettingsOperatorsHidden",
+                "EnvironmentMonitoringClosePhotoSettingsWithOperatorsHidden"
+            ]
+        }
+    ]
+}

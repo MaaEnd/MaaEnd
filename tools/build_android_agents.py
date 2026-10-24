@@ -10,8 +10,6 @@ MaaFramework .so stay in the MaaFwApp tree (setup_maa_framework.py). This script
 only uses the Android SDK zip as a *link-time* DEPS_DIR.
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import os

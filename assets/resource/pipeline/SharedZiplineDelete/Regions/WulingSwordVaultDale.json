@@ -23,7 +23,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingSwordVaultDale1"
+                "SceneEnterWorldWulingSwordVaultDaleGorgeOverhangNorth"
             ]
         },
         "post_delay": 0,

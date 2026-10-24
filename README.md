@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD033 MD041 -->
 <p align="center">
-  <img alt="LOGO" src="https://end.maafw.com/MaaEnd-Tiny-512.png" width="256" height="256" />
+  <img alt="LOGO" src="./docs/images/MaaEnd-Tiny-512.png" width="256" height="256" />
 </p>
 
 <div align="center">
@@ -59,6 +59,7 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 - 🗡️ **选剑演武**：自动完成每日选剑演武 / 刷刻章镀层，地区发展日常多一份轻松！
 - 🌿 **环境监测**：自动完成环境监测任务，打怪跑图全包揽！
 - ⚔️ **协议空间**：自动消耗理智刷取协议空间，多种奖励路线随心选，清体力绝佳帮手！
+- 🗿 **影拓丰碑**：自动挑战影拓丰碑中未通关的普通关卡，可选丰碑和队伍，失败还能按设定次数重试！
 - 🌾 **生态农场**：自动收菜、种植、浇水，还支持任务前后顺手整理背包，农场主省心不少！
 - 🧺 **自动采集**：野外资源路线自动巡回采集，叶子菌子矿石能捡的尽量都给你捡回来！
 - 🦉 **资源回收站**：自动收取武陵和四号谷地猫头鹰回收站物资，路过别忘了！
@@ -110,7 +111,7 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 来和大家一起玩耍吧！
 
-- 💬 **用户 QQ 群**: [1082597011](https://qm.qq.com/q/F4FjKxkCRy)  
+- 💬 **用户 QQ 群**: [315101779](https://qm.qq.com/q/eXVfrZsbmg)  
   使用问题、功能建议、闲聊摸鱼，欢迎来撩~
 - 👨‍💻 **开发 QQ 群**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   这是干活群，欢迎开发者加入一起造轮子！（仅限技术讨论，使用问题请去用户群哦）

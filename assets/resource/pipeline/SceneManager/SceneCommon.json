@@ -21,6 +21,42 @@
                 "custom_recognition": "ScreenshotStableRecognition"
             }
         },
+        "next": [
+            "__ScenePrivateScreenshotStableAbnormalWhite",
+            "__ScenePrivateScreenshotStableAbnormalDefault"
+        ]
+    },
+    "__ScenePrivateScreenshotStableAbnormalWhite": {
+        "desc": "画面不变且大面积为白色，通常是通过前置程序直接启动游戏导致",
+        "recognition": "ColorMatch",
+        "roi": [
+            540,
+            310,
+            200,
+            100
+        ],
+        "lower": [
+            240,
+            240,
+            240
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 18000,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "$task.SceneManager.focus.screenshot_stable_white",
+                "display": "modal"
+            }
+        }
+    },
+    "__ScenePrivateScreenshotStableAbnormalDefault": {
+        "desc": "画面不变的其他情况",
         "action": "Custom",
         "custom_action": "FalseAction",
         "focus": {
@@ -31,7 +67,7 @@
         }
     },
     "__ScenePrivateLoggedOutConfirm": {
-        "desc": "确认自动登出弹窗",
+        "desc": "确认自动登出 / 重连失败弹窗",
         "recognition": "And",
         "all_of": [
             {
@@ -42,12 +78,17 @@
                     550,
                     202
                 ],
+                // 重连失败弹窗完整原文（共 4 种）：
+                // 与服务器重连失败，无法连接服务器 / 尝试次数过多 / 间隔时间过久 / 服务器要求重新登录
+                // 與伺服器重連失敗，無法連接伺服器 / 嘗試次數過多 / 間隔時間過久 / 伺服器要求重新登入
                 "expected": [
                     // @i18n-skip
                     "自动登出",
                     "自動登出",
                     "数据即将更新",
-                    "數據即將更新"
+                    "數據即將更新",
+                    "与服务器重连失败",
+                    "與伺服器重連失敗"
                 ]
             },
             "YellowConfirmButtonType1"

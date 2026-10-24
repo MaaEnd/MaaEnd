@@ -133,21 +133,21 @@
         "SellProductStockMinimumUnitPrice": {
             "type": "input",
             "label": "$task.OutpostTrading.StockMinimumUnitPriceInput",
+            "description": "$task.OutpostTrading.StockMinimumUnitPriceDescription",
             "inputs": [
                 {
                     "name": "SellProductStockMinimumUnitPrice",
                     "label": "$task.OutpostTrading.StockMinimumUnitPrice",
-                    "default": "${StockMinimumUnitPriceDefault}",
+                    "default": "${MinimumUnitPriceDefault}",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$task.OutpostTrading.StockMinimumUnitPricePattern"
                 }
             ],
             "pipeline_override": {
-                "OutpostTradingConfigureSelectionStrategy": {
+                "OutpostTradingConfigureMinimumPrice": {
                     "custom_action_param": {
-                        "operation": "configure_strategy",
-                        "strategy": "stock",
+                        "operation": "configure_minimum_price",
                         "minimum_unit_price": "{SellProductStockMinimumUnitPrice}"
                     }
                 }

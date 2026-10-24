@@ -29,6 +29,7 @@
             "SupplyPlanInsufficient_WEAPON_EXP",
             "SupplyPlanInsufficient_HEAVY_CAST_DIE",
             "SupplyPlanInsufficient_CAST_DIE",
+            "SupplyPlanInsufficient_WARP_PLASMA_COATED_SLIDE",
             "SupplyPlanInsufficient_TRIPHASIC_NANOFLAKE",
             "SupplyPlanInsufficient_QUADRANT_FITTING_FLUID",
             "SupplyPlanInsufficient_TACHYON_SCREENING_LATTICE",
@@ -249,6 +250,100 @@
             "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.PROTODISK"
         }
     },
+    "SupplyPlanInsufficient_WARP_PLASMA_COATED_SLIDE": {
+        "desc": "跃迁浆体涂片 未达标且完成率最低则进入刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "0>1"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_WARP_PLASMA_COATED_SLIDE"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.WARP_PLASMA_COATED_SLIDE"
+        }
+    },
+    "SupplyPlanOverride_WARP_PLASMA_COATED_SLIDE": {
+        "desc": "覆盖协议空间配置后进入刷取（跃迁浆体涂片）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "危境预演",
+                                "Crisis Drills"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": [
+                                "ProtocolSpace/AdvancedProgression6.png",
+                                "ProtocolSpace/AdvancedProgression6Low.png"
+                            ]
+                        },
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression6.png"
+                        },
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceOperationExitToWorld": {
+                            "next": [
+                                "SupplyPlanDispatch"
+                            ]
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_WARP_PLASMA_COATED_SLIDE",
+                                "ProtocolSpaceRewardClaimSuccessNext"
+                            ]
+                        },
+                        "ProtocolSpaceSanityLowExitToWorld": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceEntry"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.WARP_PLASMA_COATED_SLIDE"
+        }
+    },
     "SupplyPlanInsufficient_TRIPHASIC_NANOFLAKE": {
         "desc": "三相纳米片 未达标且完成率最低则进入刷取",
         "recognition": {
@@ -293,8 +388,8 @@
                         },
                         "ProtocolSpaceOperationalManualScrollEnd": {
                             "template": [
-                                "ProtocolSpace/AdvancedProgression5.png",
-                                "ProtocolSpace/AdvancedProgression5Low.png"
+                                "ProtocolSpace/AdvancedProgression6.png",
+                                "ProtocolSpace/AdvancedProgression6Low.png"
                             ]
                         },
                         "ProtocolSpaceFindTargetRecognition": {
@@ -387,8 +482,8 @@
                         },
                         "ProtocolSpaceOperationalManualScrollEnd": {
                             "template": [
-                                "ProtocolSpace/AdvancedProgression5.png",
-                                "ProtocolSpace/AdvancedProgression5Low.png"
+                                "ProtocolSpace/AdvancedProgression6.png",
+                                "ProtocolSpace/AdvancedProgression6Low.png"
                             ]
                         },
                         "ProtocolSpaceFindTargetRecognition": {
@@ -481,8 +576,8 @@
                         },
                         "ProtocolSpaceOperationalManualScrollEnd": {
                             "template": [
-                                "ProtocolSpace/AdvancedProgression5.png",
-                                "ProtocolSpace/AdvancedProgression5Low.png"
+                                "ProtocolSpace/AdvancedProgression6.png",
+                                "ProtocolSpace/AdvancedProgression6Low.png"
                             ]
                         },
                         "ProtocolSpaceFindTargetRecognition": {
@@ -575,8 +670,8 @@
                         },
                         "ProtocolSpaceOperationalManualScrollEnd": {
                             "template": [
-                                "ProtocolSpace/AdvancedProgression5.png",
-                                "ProtocolSpace/AdvancedProgression5Low.png"
+                                "ProtocolSpace/AdvancedProgression6.png",
+                                "ProtocolSpace/AdvancedProgression6Low.png"
                             ]
                         },
                         "ProtocolSpaceFindTargetRecognition": {
@@ -669,8 +764,8 @@
                         },
                         "ProtocolSpaceOperationalManualScrollEnd": {
                             "template": [
-                                "ProtocolSpace/AdvancedProgression5.png",
-                                "ProtocolSpace/AdvancedProgression5Low.png"
+                                "ProtocolSpace/AdvancedProgression6.png",
+                                "ProtocolSpace/AdvancedProgression6Low.png"
                             ]
                         },
                         "ProtocolSpaceFindTargetRecognition": {
@@ -1338,6 +1433,28 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.PROTODISK"
+        }
+    },
+    "SupplyPlanRewardItemMet_WARP_PLASMA_COATED_SLIDE": {
+        "desc": "跃迁浆体涂片 领奖累加后检查库存：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_char_skill_specialize_6}>=0"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.WARP_PLASMA_COATED_SLIDE"
         }
     },
     "SupplyPlanRewardItemMet_TRIPHASIC_NANOFLAKE": {

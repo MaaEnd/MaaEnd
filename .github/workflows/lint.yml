@@ -1,0 +1,38 @@
+name: lint
+
+on:
+  push:
+    branches:
+      - "v2"
+    paths:
+      - "**/*.py"
+      - ".github/workflows/lint.yml"
+      - ".python-version"
+      - "pyproject.toml"
+      - "uv.lock"
+
+  pull_request:
+    branches:
+      - "**"
+    paths:
+      - "**/*.py"
+      - ".github/workflows/lint.yml"
+      - ".python-version"
+      - "pyproject.toml"
+      - "uv.lock"
+
+  workflow_dispatch:
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-python: true
+
+      - name: Run ruff
+        run: uv run ruff check .

@@ -1,47 +1,46 @@
-"""下载并整理 IconRecognition 的物品、武器、多语言和图标资源。"""
+"""整理 IconRecognition 的物品、武器数据并下载图标资源。
 
-from __future__ import annotations
+物品表与武器表都来自 zmdmap（``tools/zmdmap/data/``，由 ``uv run zmdmap fetch`` 下载或
+``uv run zmdmap generate`` 本地生成）：条目自带多语言名字，所以不再下载 ``lang_*.json`` 那几份
+i18n 包（每份约 950 KB）。图标仍然只能从站点下载。
+
+图标用线程池并发下载；单个请求的超时与重试、条件请求（``ETag``）都走
+:mod:`tools.zmdmap.utils.http`，与下载 zmdmap 数据是同一套逻辑。
+"""
 
 import argparse
+import json
+import struct
+import sys
+import time
 from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
-import hashlib
-import json
 from pathlib import Path
-import struct
-import time
 from typing import Any
-from urllib.error import HTTPError
 from urllib.parse import parse_qsl, quote, urlencode, urlsplit, urlunsplit
-from urllib.request import Request, urlopen
 
 import json5
-
+import requests
 from fixed_items import FIXED_ITEMS
-
 from text import clean_text, validate_identifier
 
+from tools.zmdmap import read_payload
+from tools.zmdmap.utils.http import download, get, metadata_path
 
-ITEM_TABLE_URL = "https://assets.fz.wiki/output_beyondmap/item_mini_table.json"
-WEAPON_TABLE_URL = "https://assets.fz.wiki/output_maaend/weapons.json"
-IMAGE_BASE_URL = "https://assets.fz.wiki/output_image/itemicon"
-BIG_IMAGE_BASE_URL = "https://assets.fz.wiki/output_image/itemiconbig"
-LANG_URL = "https://assets.fz.wiki/output_beyondmap/i18n/{locale}/lang.json"
-LOCALES = {
-    "zh-CN": "CN",
-    "zh-TW": "TC",
-    "en-US": "EN",
-    "ja-JP": "JP",
-    "ko-KR": "KR",
-}
+REPO_ROOT = Path(__file__).resolve().parents[2]
+#: zmdmap 的数据目录：物品表与武器表的来源。
+ZMDMAP_DATA_DIR = REPO_ROOT / "tools" / "zmdmap" / "data"
+ITEM_TABLE_NAME = "item_mini_table.json"
+WEAPON_TABLE_NAME = "weapons.json"
+# 图标与 zmdmap 数据一样从 voice.fz.wiki 取：同一个源站，但前置的 EdgeOne 有海外节点。
+IMAGE_BASE_URL = "https://voice.fz.wiki/output_image/itemicon"
+BIG_IMAGE_BASE_URL = "https://voice.fz.wiki/output_image/itemiconbig"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
-DEFAULT_CACHE_ROOT = Path("tools/icon_recognition/.cache/downloads")
+DEFAULT_CACHE_ROOT = REPO_ROOT / "tools" / "icon_recognition" / ".cache" / "downloads"
 DEFAULT_BLACKLIST_PATH = Path(__file__).with_name("blacklist.json")
 BIG_ICON_IDS_PATH = Path(__file__).with_name("big_icon_ids.json")
-
-
 def load_big_icon_ids(path: Path = BIG_ICON_IDS_PATH) -> set[str]:
     ids = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(ids, list) or any(not isinstance(icon_id, str) for icon_id in ids):
@@ -271,6 +270,10 @@ def _normalize_item(item_id: str, raw_source: Any) -> dict[str, Any]:
             raw_source, "emptyContainers", item_id
         ),
     }
+    # zmdmap 那份额外带名字的文本 id；去重时按它分组才与上游的哈希去重等价。
+    name_id = raw_source.get("nameId")
+    if isinstance(name_id, int) and not isinstance(name_id, bool):
+        result["nameId"] = name_id
     if _require_optional_boolean(raw_source, "regionRestricted", item_id):
         result["regionRestricted"] = True
     return result
@@ -379,10 +382,12 @@ def prepare_item_map(
         for container_id in payload["fullContainers"]
     }
 
-    duplicate_groups: dict[tuple[str, str], list[str]] = defaultdict(list)
+    duplicate_groups: dict[tuple[Any, str], list[str]] = defaultdict(list)
     for item_id, payload in filtered.items():
-        duplicate_groups[(payload["name"], payload["iconId"])].append(item_id)
-    for (name, icon_id), member_ids in duplicate_groups.items():
+        # 按名字的文本 id 分组（上游是拿名字哈希去重的，哈希即文本 id 的函数）；
+        # 没有 nameId 的旧数据退回用名字本身。
+        duplicate_groups[(payload.get("nameId", payload["name"]), payload["iconId"])].append(item_id)
+    for (_name, icon_id), member_ids in duplicate_groups.items():
         if len(member_ids) < 2:
             continue
         ordered_ids = sorted(member_ids, key=lambda item_id: (len(item_id), item_id))
@@ -400,7 +405,7 @@ def prepare_item_map(
                 {
                     "removedId": item_id,
                     "keptId": kept_id,
-                    "name": name,
+                    "name": filtered[kept_id]["name"],
                     "iconId": icon_id,
                     "reason": reason,
                 }
@@ -488,7 +493,8 @@ def merge_item_sources(
         if item_id in merged:
             raise ValueError(f"固定物品与远端物品 ID 冲突: {item_id}")
         merged[item_id] = {
-            "name": fixed["i18nKey"],
+            "name": fixed["name"],
+            "names": fixed["names"],
             "category": fixed["category"],
             "storageKind": fixed["storageKind"],
             "categoryType": fixed["categoryType"],
@@ -564,8 +570,8 @@ def relocate_rarity_changed_icons(
             continue
 
         source = candidates[0]
-        source_metadata = _metadata_path(source)
-        destination_metadata = _metadata_path(destination)
+        source_metadata = metadata_path(source)
+        destination_metadata = metadata_path(destination)
         if destination.is_file():
             # 目标已存在时保留它，避免覆盖可能经过 CI 处理的图片。
             source.unlink()
@@ -591,77 +597,14 @@ def is_valid_png(path: Path) -> bool:
         return False
 
 
-def _metadata_path(destination: Path) -> Path:
-    return destination.with_suffix(destination.suffix + ".meta.json")
-
-
-def fetch(
-    url: str,
-    destination: Path,
-    *,
-    timeout: float = 60,
-    validate_content: Callable[[bytes], Any] | None = None,
-) -> dict[str, Any]:
-    """来源地址未变化时使用条件请求；切换来源后重新下载并原子更新。"""
-
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    metadata_path = _metadata_path(destination)
-    metadata = (
-        json.loads(metadata_path.read_text(encoding="utf-8"))
-        if metadata_path.is_file()
-        else {}
-    )
-    headers = {"User-Agent": "MaaEnd-IconRecognition/1.0"}
-    if destination.is_file() and metadata.get("url") == url and (
-        validate_content is None or is_valid_png(destination)
-    ):
-        if isinstance(metadata.get("etag"), str):
-            headers["If-None-Match"] = metadata["etag"]
-        if isinstance(metadata.get("lastModified"), str):
-            headers["If-Modified-Since"] = metadata["lastModified"]
-    request = Request(url, headers=headers)
-    try:
-        with urlopen(request, timeout=timeout) as response:
-            data = response.read()
-            if validate_content is not None:
-                validate_content(data)
-            result: dict[str, Any] = {
-                "url": url,
-                "bytes": len(data),
-                "sha256": hashlib.sha256(data).hexdigest(),
-                "updatedAt": int(time.time()),
-            }
-            for source_key, output_key in (
-                ("ETag", "etag"),
-                ("Last-Modified", "lastModified"),
-            ):
-                if response.headers.get(source_key):
-                    result[output_key] = response.headers[source_key]
-    except HTTPError as error:
-        if error.code == 304 and destination.is_file():
-            return metadata
-        raise
-
-    temporary = destination.with_suffix(destination.suffix + ".part")
-    try:
-        temporary.write_bytes(data)
-        temporary.replace(destination)
-        metadata_path.write_text(
-            json.dumps(result, ensure_ascii=False, indent=4) + "\n",
-            encoding="utf-8",
-        )
-    finally:
-        temporary.unlink(missing_ok=True)
-    return result
-
-
 def _download_icon(job: DownloadJob, timeout: float) -> str:
     previous = job.destination.read_bytes() if is_valid_png(job.destination) else None
-    fetch(
+    download(
         job.url,
         job.destination,
         timeout=timeout,
-        validate_content=validate_icon_png_bytes,
+        validate=validate_icon_png_bytes,
+        reuse_existing=is_valid_png,
     )
     return "skipped" if previous == job.destination.read_bytes() else "downloaded"
 
@@ -676,6 +619,7 @@ def download_images(
     downloaded = 0
     skipped = 0
     failures: list[dict[str, Any]] = []
+    unpublished: list[dict[str, Any]] = []
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {
             executor.submit(_download_icon, job, timeout): job for job in jobs
@@ -688,23 +632,33 @@ def download_images(
                 else:
                     skipped += 1
             except Exception as error:
-                failures.append(
-                    {
-                        "iconId": job.icon_id,
-                        "rarity": job.rarity,
-                        "url": job.url,
-                        "destination": str(job.destination),
-                        "errorType": type(error).__name__,
-                        "error": str(error),
-                    }
-                )
+                row = {
+                    "iconId": job.icon_id,
+                    "rarity": job.rarity,
+                    "url": job.url,
+                    "destination": str(job.destination),
+                    "errorType": type(error).__name__,
+                    "error": str(error),
+                }
+                # 404 是站点上没有这个图标（上游的缺口），不是下载失败：重试也不会出现。
+                if (
+                    isinstance(error, requests.HTTPError)
+                    and error.response is not None
+                    and error.response.status_code == 404
+                ):
+                    unpublished.append(row)
+                else:
+                    failures.append(row)
     failures.sort(key=lambda row: (row["rarity"], row["iconId"]))
+    unpublished.sort(key=lambda row: (row["rarity"], row["iconId"]))
     return {
         "total": len(jobs),
         "downloaded": downloaded,
         "skipped": skipped,
         "failed": len(failures),
         "failures": failures,
+        "unpublished": len(unpublished),
+        "unpublishedIcons": unpublished,
     }
 
 
@@ -723,65 +677,37 @@ def _write_json(path: Path, payload: Any) -> None:
 def probe_icon_downloadable(icon_id: str, *, timeout: float) -> bool:
     validate_identifier(icon_id, field="待探测 iconId")
     url = f"{IMAGE_BASE_URL}/{quote(icon_id, safe='')}.png@raw"
-    request = Request(
-        url, headers={"User-Agent": "MaaEnd-IconRecognition/1.0"}
-    )
-    try:
-        with urlopen(request, timeout=timeout) as response:
-            return response.read(len(PNG_SIGNATURE)) == PNG_SIGNATURE
-    except HTTPError as error:
-        if error.code == 404:
-            return False
-        raise
+    response = get(url, timeout=timeout)
+    if response.status_code == 404:
+        return False
+    response.raise_for_status()
+    return response.content[: len(PNG_SIGNATURE)] == PNG_SIGNATURE
 
 
-def download_sources(
-    cache_root: str | Path,
-    *,
-    timeout: float = 60,
-    dry_run: bool = False,
-) -> dict[str, str]:
-    root = Path(cache_root)
-    timestamp_ms = time.time_ns() // 1_000_000
-    jobs = {
-        "item_mini_table.json": _timestamped_url(
-            ITEM_TABLE_URL, timestamp_ms=timestamp_ms
-        ),
-        "weapons.json": _timestamped_url(
-            WEAPON_TABLE_URL, timestamp_ms=timestamp_ms
-        ),
-    }
-    jobs.update(
-        {
-            f"lang_{locale}.json": _timestamped_url(
-                LANG_URL.format(locale=locale),
-                timestamp_ms=timestamp_ms,
-            )
-            for locale in LOCALES
-        }
-    )
-    if dry_run:
-        return jobs
-    for filename, url in jobs.items():
-        fetch(url, root / filename, timeout=timeout)
-    _write_json(root / "source_download_report.json", jobs)
-    return jobs
+def load_item_table(data_dir: str | Path = ZMDMAP_DATA_DIR) -> dict[str, Any]:
+    """zmdmap 的物品表。"""
+    return read_payload(Path(data_dir) / ITEM_TABLE_NAME)
+
+
+def load_weapon_table(data_dir: str | Path = ZMDMAP_DATA_DIR) -> dict[str, Any]:
+    """zmdmap 的武器表。"""
+    return read_payload(Path(data_dir) / WEAPON_TABLE_NAME)
 
 
 def run(
     cache_root: str | Path,
     *,
+    data_dir: str | Path = ZMDMAP_DATA_DIR,
     workers: int,
     timeout: float,
 ) -> dict[str, Any]:
     root = Path(cache_root)
-    download_sources(root, timeout=timeout)
     items, removals = prepare_item_map(
-        _load_json(root / "item_mini_table.json"),
+        load_item_table(data_dir),
         blacklist=load_item_blacklist(),
     )
     weapons = prepare_weapon_map(
-        _load_json(root / "weapons.json"),
+        load_weapon_table(data_dir),
         probe_icon=lambda icon_id: probe_icon_downloadable(
             icon_id, timeout=timeout
         ),
@@ -838,6 +764,12 @@ def main() -> int:
         type=Path,
         default=DEFAULT_CACHE_ROOT,
     )
+    parser.add_argument(
+        "--data-dir",
+        type=Path,
+        default=ZMDMAP_DATA_DIR,
+        help="zmdmap 数据目录（默认 tools/zmdmap/data）",
+    )
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--timeout", type=float, default=60)
     parser.add_argument("--dry-run", action="store_true")
@@ -845,18 +777,30 @@ def main() -> int:
     if args.dry_run:
         print(
             json.dumps(
-                download_sources(
-                    args.cache_root, timeout=args.timeout, dry_run=True
-                ),
+                {
+                    "itemTable": str(Path(args.data_dir) / ITEM_TABLE_NAME),
+                    "weaponTable": str(Path(args.data_dir) / WEAPON_TABLE_NAME),
+                    "imageBaseUrl": IMAGE_BASE_URL,
+                    "bigImageBaseUrl": BIG_IMAGE_BASE_URL,
+                },
                 ensure_ascii=False,
                 indent=4,
             )
         )
         return 0
     report = run(
-        args.cache_root, workers=args.workers, timeout=args.timeout
+        args.cache_root,
+        data_dir=args.data_dir,
+        workers=args.workers,
+        timeout=args.timeout,
     )
     print(json.dumps(report, ensure_ascii=False, indent=4))
+    if report["unpublished"]:
+        print(
+            f"[icon] {report['unpublished']} 个图标站点上没有（见 download_report.json 的"
+            f" unpublishedIcons），已跳过",
+            file=sys.stderr,
+        )
     return 1 if report["failed"] else 0
 
 

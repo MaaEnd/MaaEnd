@@ -4,8 +4,7 @@
 查询节点不看画面也不发输入, 所以控制器是个空壳, 三项延迟一并归零。
 """
 
-from __future__ import annotations
-
+import contextlib
 import json
 import tempfile
 import threading
@@ -13,9 +12,37 @@ from pathlib import Path
 from typing import Any
 
 from agent_session import AgentSession
-from runtime import load_maa_runtime
+from json_import import load_jsonc
+from runtime import RESOURCE_DIR, load_maa_runtime
 
 _NODE = "MapNavmeshQuery"
+
+NAVMESH_DIR = RESOURCE_DIR / "model" / "map" / "navmesh"
+NAVMESH_GZ = NAVMESH_DIR / "base.nav.gz"
+NAVMESH_RAW = NAVMESH_DIR / "base.nav"
+# 虚拟禁区表是本仓库的配置, 与 zipline_frames.json 同规矩放 data/MapNavigator/, 与 planner 的解析一致。
+NOGO_JSON = RESOURCE_DIR.parent / "data" / "MapNavigator" / "nogo_zones.json"
+ROPE_TEXT_PIPELINE = RESOURCE_DIR / "pipeline" / "MapNavigator" / "Interact.json"
+ROPE_TEXT_NODE = "MapNavigatorRopeUseText"
+
+
+def default_pack_path() -> Path:
+    """navmesh 包: 优先 base.nav.gz, 缺失时用未压缩的 base.nav。"""
+    return NAVMESH_GZ if NAVMESH_GZ.exists() else NAVMESH_RAW
+
+
+def rope_interact_text() -> list[str]:
+    """升降索绳底的交互文字, 与运行时读同一个节点; 读不到时返回空表, agent 就不接升降索。"""
+    try:
+        node = load_jsonc(ROPE_TEXT_PIPELINE).get(ROPE_TEXT_NODE)
+    except (OSError, ValueError):
+        return []
+    recognition = node.get("recognition") if isinstance(node, dict) else None
+    param = recognition.get("param") if isinstance(recognition, dict) else None
+    expected = param.get("expected") if isinstance(param, dict) else None
+    if not isinstance(expected, list) or not expected or not all(isinstance(text, str) and text for text in expected):
+        return []
+    return expected
 
 
 def _make_null_controller() -> Any:
@@ -108,7 +135,7 @@ class NavmeshBackend:
             if not probe.get("ok"):
                 raise RuntimeError(probe.get("error") or "navmesh 查询失败")
             geom_of = {int(z["zone_id"]): int(z["geometry_zone_id"]) for z in probe["zones"]}
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             error = str(exc)
         finally:
             with self._start_lock:
@@ -216,6 +243,30 @@ class NavmeshBackend:
         self._await_ready()
         return self._post(op, **params)
 
+    def route_preview(
+        self,
+        position: list[float],
+        position_zone: str,
+        custom_action_param: dict[str, Any],
+        *,
+        floor_y: float | None = None,
+        zipline_account_id: str = "",
+        latest_key: str | None = None,
+    ) -> dict[str, Any]:
+        """按 MapNavigateAction 运行时语义展开一条作者路线; 给 latest_key 时同 key 只跑等待中最新的那次。"""
+        params = {
+            "position": position,
+            "position_zone": position_zone,
+            # agent 侧用空数组表达"这项不填"(meojson 没有 optional)。
+            "floor_y": [] if floor_y is None else [float(floor_y)],
+            "custom_action_param": custom_action_param,
+            "zipline_account_id": zipline_account_id,
+            "rope_interact_text": rope_interact_text(),
+        }
+        if latest_key is not None:
+            return self.query_latest(latest_key, "route_preview", **params)
+        return self.query("route_preview", **params)
+
     def query_latest(self, key: str, op: str, **params: Any) -> dict[str, Any]:
         """同一 key 只执行等待队列里的最新查询；已经进入 Agent 的那次仍正常收尾。"""
         with self._latest_lock:
@@ -308,9 +359,7 @@ class NavmeshBackend:
         """后台把某区的规划网格建起来, 免得首条路线冷吃这份开销。"""
 
         def _run() -> None:
-            try:
+            with contextlib.suppress(Exception):
                 self.query("warm", zone_id=zone_id)
-            except Exception:  # noqa: BLE001 —— 预热失败不影响后续查询
-                pass
 
         threading.Thread(target=_run, name="navmesh-warm", daemon=True).start()

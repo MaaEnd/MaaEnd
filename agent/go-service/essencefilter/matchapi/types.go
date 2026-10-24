@@ -20,6 +20,7 @@ type SkillPool struct {
 // Location records optional extra pools for a stage location.
 type Location struct {
 	Name     string `json:"name"`
+	LevelID  string `json:"level_id"`
 	Slot2IDs []int  `json:"slot2_ids"`
 	Slot3IDs []int  `json:"slot3_ids"`
 }
@@ -69,6 +70,9 @@ type EssenceFilterOptions struct {
 	Rarity6Weapon bool `json:"rarity6_weapon"`
 	Rarity5Weapon bool `json:"rarity5_weapon"`
 	Rarity4Weapon bool `json:"rarity4_weapon"`
+
+	// Min total level to lock an exact match.
+	PerfectMinLevelTotal int `json:"perfect_min_level_total"`
 
 	// Future Promising extension.
 	KeepFuturePromising     bool `json:"keep_future_promising"`

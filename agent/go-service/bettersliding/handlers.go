@@ -19,11 +19,14 @@ func (a *BetterSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 
 	a.initLogger(arg.CurrentTaskName)
 
+	// 控制器类别只在 PI_CONTROLLER 不可用时才向 controller 兜底；PI 正常时不碰句柄。
+	ctrl := fallbackController(ctx)
+
 	if !isBetterSlidingActionNode(arg.CurrentTaskName) {
-		return a.runInternalPipeline(ctx, arg)
+		return a.runInternalPipeline(ctx, ctrl, arg)
 	}
 
-	if !a.loadActionParams(ctx, arg.CustomActionParam) {
+	if !a.loadActionParams(ctx, ctrl, arg.CustomActionParam) {
 		return false
 	}
 
@@ -1017,7 +1020,7 @@ func signInt(value int) int {
 	}
 }
 
-func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, ctrl *maa.Controller, arg *maa.CustomActionArg) bool {
 	if ctx == nil {
 		a.logger.Error().Msg("context is nil")
 		return false
@@ -1034,7 +1037,7 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		return false
 	}
 
-	parsed, ok := a.normalizeActionParams(ctx, raw)
+	parsed, ok := a.normalizeActionParams(ctx, ctrl, raw)
 	if !ok {
 		return false
 	}

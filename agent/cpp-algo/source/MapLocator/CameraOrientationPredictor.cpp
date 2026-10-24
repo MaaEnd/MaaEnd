@@ -118,7 +118,7 @@ std::optional<CameraOrientation> CameraOrientationPredictor::infer(
         minimapBgr = converted;
     }
 
-    // 几何、参考采样与合成、取整约定与预处理定义逐字节一致（见 CameraOrientationPreprocess.h）。
+    // 展开为极坐标条带（见 CameraOrientationPreprocess.h）。
     if (!BuildOrientationStrips(minimapBgr, asset, static_cast<float>(x), static_cast<float>(y), static_cast<float>(scale), stripScratch)) {
         LogError << "CameraOrientation: invalid preprocess input" << VAR(minimapBgr.cols) << VAR(minimapBgr.rows) << VAR(asset.cols)
                  << VAR(asset.rows) << VAR(x) << VAR(y) << VAR(scale);

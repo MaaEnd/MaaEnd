@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD033 MD041 -->
 <p align="center">
-  <img alt="LOGO" src="https://maaend.com/MaaEnd-Tiny-512.png" width="256" height="256" />
+  <img alt="LOGO" src="./docs/images/MaaEnd-Tiny-512.png" width="256" height="256" />
 </p>
 
 <div align="center">
@@ -55,6 +55,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 🗡️ **Trial of Swordmancy**: Automatically clears daily Trial of Swordmancy / coating farming for regional development routines.
 - 🌿 **Environment Monitoring**: Automatically clears environment monitoring tasks so routine combat-and-travel work can be handed off.
 - ⚔️ **Protocol Space**: Automatically spends sanity on Protocol Space runs with selectable reward routes, making stamina cleanup much easier.
+- 🗿 **Umbral Monument**: Automatically challenges uncleared normal stages of Umbral Monument, with selectable monument and team, plus configurable retries on failure.
 - 🌾 **Eco Farm**: Handles harvesting, planting, and watering, and can also tidy up your bag before and after the run.
 - 🧺 **Auto resource gathering**: Follows outdoor gathering routes automatically to collect as many field resources as possible.
 - 🦉 **Resource Recycle Station**: Automatically collects materials from owl recycle stations in Wuling and Valley IV.
@@ -106,7 +107,7 @@ Thanks to [zmdmap](https://zmdmap.com/) for providing information support to Maa
 
 Come hang out and chat with everyone:
 
-- 💬 **User QQ Group**: [1082597011](https://qm.qq.com/q/F4FjKxkCRy)  
+- 💬 **User QQ Group**: [315101779](https://qm.qq.com/q/eXVfrZsbmg)  
   For usage questions, feature requests, and casual chatting.
 - 👨‍💻 **Developer QQ Group**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   Dedicated to development discussion. (For general usage questions, please go to the user group above.)

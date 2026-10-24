@@ -1,0 +1,8 @@
+{
+    "template": "commission-adb-template.jsonc",
+    "data": "commission-data.mjs",
+    "outputDir": "../../../assets/resource_adb/pipeline/SeizeDeliveryJobs",
+    "outputFile": "SeizeDeliveryJobsCommission.json",
+    "format": true,
+    "merged": true
+}

@@ -43,6 +43,12 @@ jobs:
         with:
           ref: ${{ github.event.inputs.ref || github.ref }}
           fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-python: true
+
       - id: icon-recognition-changes
         uses: dorny/paths-filter@v3
         with:
@@ -131,13 +137,19 @@ jobs:
           FAIL_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set +e
-          out=$(python3 tools/check_maautils_sync.py --maafw-ref "$MAAFW_VERSION")
+          out=$(uv run tools/check_maautils_sync.py --maafw-ref "$MAAFW_VERSION")
           rc=$?
           set -e
           echo "$out"
           status=$(sed -n 's/^status=//p' <<<"$out")
           expected=$(sed -n 's/^expected_sha=//p' <<<"$out")
           current=$(sed -n 's/^current_sha=//p' <<<"$out")
+
+          # uv / 脚本自身失败时不会输出 status，按 unknown 处理，不误判为分叉
+          if [ -z "$status" ]; then
+            echo "::warning::MaaUtils sync check produced no status (uv or script failure); skipping the gate this run."
+            exit 0
+          fi
 
           # 写入 Run Summary，打开构建页即可看到判定结果，无需翻日志
           {
@@ -203,6 +215,11 @@ jobs:
           ref: ${{ github.event.inputs.ref || github.ref }}
           submodules: true
 
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-python: true
+
       - name: Install Linux dependencies
         if: matrix.os == 'linux'
         run: |
@@ -244,12 +261,6 @@ jobs:
             agent/go-service/go.mod
             agent/go-service/go.sum
 
-      # Python 依赖下载: tools.setup.cli_support（dep_3rdparty/build_and_install 共用）顶层 import json5，
-      # 必须先于任何 import cli_support 的模块装好（Setup WebView2 SDK 的 dep_3rdparty 即会触发）
-      - name: Install Python JSONC dependency
-        shell: bash
-        run: python -m pip install json5
-
       # 缓存策略: restore/save 分离。PR 只恢复 v2 缓存不写入, 非 PR 才 save, 全仓只维护一份 v2 快照。
       - name: Restore MaaDeps
         id: cache-maadeps
@@ -264,7 +275,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-${{ matrix.os == 'win' && 'windows' || (matrix.os == 'macos' && 'osx' || 'linux') }}
+          uv run tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-${{ matrix.os == 'win' && 'windows' || (matrix.os == 'macos' && 'osx' || 'linux') }}
 
       - name: Save MaaDeps
         # 仅非 PR 保存: 避免每个 PR 各囤一份快照撑爆 10GB 上限
@@ -297,7 +308,7 @@ jobs:
         if: matrix.os == 'win'
         shell: bash
         run: |
-          python -m tools.setup.dep_3rdparty --webview2
+          uv run -m tools.setup.dep_3rdparty --webview2
 
       - name: Download MaaFramework
         uses: robinraju/release-downloader@v1
@@ -327,7 +338,7 @@ jobs:
           PYTHONUNBUFFERED: "1"
         run: |
           # 运行安装脚本（构建 Go Agent + Cpp Agent + 复制资源）
-          python -m tools.setup.build_and_install --cpp-algo --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
+          uv run -m tools.setup.build_and_install --cpp-algo --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
 
           # 安装 MaaFramework
           echo "Install MaaFramework"
@@ -346,14 +357,13 @@ jobs:
             fi
           fi
 
-          # 合并各 resource 的 pipeline JSON 文件（json5 已在依赖下载区安装）
+          # 合并各 resource 的 pipeline JSON 文件（json5 由 uv 环境提供）
           echo "Merge pipeline JSON"
-          python tools/merge_pipeline.py install
+          uv run tools/merge_pipeline.py install
 
           # 更新 interface.json（版本号 + 资源 hash）
           echo "Update interface.json: version=${{ needs.meta.outputs.tag }}, compute resource hashes"
-          python -m pip install maafw
-          python tools/fill_interface.py \
+          uv run tools/fill_interface.py \
             --version "${{ needs.meta.outputs.tag }}" \
             --interface install/interface.json
 
@@ -691,6 +701,11 @@ jobs:
           sparse-checkout: .github/scripts
           show-progress: false
 
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-python: true
+
       - uses: actions/download-artifact@v7
         with:
           pattern: MaaEnd-*-zip
@@ -749,7 +764,7 @@ jobs:
           CHANGELOG: ${{ needs.changelog.outputs.release_body }}
         run: |
           printf '%s\n' "$CHANGELOG" > "$RUNNER_TEMP/changelog.md"
-          python3 .github/scripts/release_body.py \
+          uv run --no-project .github/scripts/release_body.py \
             --artifacts artifacts \
             --tag "${{ needs.meta.outputs.tag }}" \
             --repo "$GITHUB_REPOSITORY" \

@@ -13,15 +13,17 @@ import (
 const (
 	componentName = "PullCountCalculator"
 
-	stageInit            = "init"
-	stageRecordOriginium = "record_originium"
-	stageRecordOroberyl  = "record_oroberyl"
-	stageRecordVoucher   = "record_voucher"
-	stageFinish          = "finish"
+	stageInit              = "init"
+	stageRecordOriginium   = "record_originium"
+	stageRecordOroberyl    = "record_oroberyl"
+	stageRecordVoucher     = "record_voucher"
+	stageRecordIntroLetter = "record_intro_letter"
+	stageFinish            = "finish"
 
 	reservedOriginium   = 29
 	originiumToOroberyl = 75
 	oroberylPerPull     = 500
+	introLetterPulls    = 10
 	nextPoolShopPulls   = 5
 	nextPoolSigninPulls = 5
 )
@@ -65,8 +67,8 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return handleRecordResource(ctx, arg, true)
 	case stageRecordOroberyl:
 		return handleRecordResource(ctx, arg, false)
-	case stageRecordVoucher:
-		return handleRecordVoucher(ctx, arg)
+	case stageRecordVoucher, stageRecordIntroLetter:
+		return handleRecordVoucher(ctx, arg, stage)
 	case stageFinish:
 		return handleFinish(ctx)
 	default:

@@ -123,13 +123,21 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	tasker := ctx.GetTasker()
-	if tasker == nil || tasker.GetController() == nil {
+	if tasker == nil {
 		log.Error().
 			Str("component", componentSyncItemData).
-			Msg("tasker or controller is nil")
+			Msg("tasker is nil")
 		return false
 	}
-	img, err := tasker.GetController().CacheImage()
+	// controller 只取一次并往下传：本回调后续不再重新 GetController（见编码规范「回调里的句柄怎么用」）。
+	ctrl := tasker.GetController()
+	if ctrl == nil {
+		log.Error().
+			Str("component", componentSyncItemData).
+			Msg("controller is nil")
+		return false
+	}
+	img, err := ctrl.CacheImage()
 	if err != nil || img == nil {
 		log.Error().
 			Err(err).
@@ -171,7 +179,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		if params.Deduplicate != nil {
 			dedup = *params.Deduplicate
 		}
-		hits, err := iconqty.RecognizeQuantities(ctx, img, iconqty.Request{
+		hits, err := iconqty.RecognizeQuantities(ctx, ctrl, img, iconqty.Request{
 			GridType:    params.GridType,
 			ROI:         params.ROI,
 			ItemFilters: params.ItemFilters,

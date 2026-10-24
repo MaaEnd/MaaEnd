@@ -502,6 +502,43 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__ScenePrivateMenuRegionalDevelopmentWulingDepotNodeTutorialConfirm",
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingDepotNodeWaitTutorial"
+        ]
+    },
+    "__ScenePrivateMenuRegionalDevelopmentWulingDepotNodeTutorialConfirm": {
+        "desc": "仓储节点界面弹出功能说明（如 1.6「系统运送委托」），点击确认",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "next": [
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingDepotNodeSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingDepotNodeWaitTutorial": {
+        "desc": "进入仓储节点界面，等一会看看有没有功能说明弹窗",
+        "recognition": "And",
+        "all_of": [
+            "InLocalDepotNode",
+            "DeliveryJobsCheckLocalDepotNodeWulingCityText"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                66,
+                221,
+                166,
+                124
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 1500, // 没有提示只能硬等
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentWulingDepotNodeTutorialConfirm",
             "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingDepotNodeSuccess"
         ]
     },
@@ -576,16 +613,12 @@
         "desc": "在四号谷地地区建设界面，进入事务总览界面成功",
         "recognition": "And",
         "all_of": [
-            "InRegionalOverviewValleyIV"
+            "InRegionalOverviewValleyIV",
+            "__ScenePrivateMenuRegionalOverviewFullRegion"
         ],
         "pre_wait_freezes": {
             "time": 80,
-            "target": [
-                160,
-                69,
-                953,
-                651
-            ]
+            "target": "__ScenePrivateMenuRegionalOverviewFullRegion"
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -610,16 +643,12 @@
         "desc": "在武陵地区建设界面，进入事务总览界面成功",
         "recognition": "And",
         "all_of": [
-            "InRegionalOverviewWuling"
+            "InRegionalOverviewWuling",
+            "__ScenePrivateMenuRegionalOverviewFullRegion"
         ],
         "pre_wait_freezes": {
             "time": 80,
-            "target": [
-                160,
-                69,
-                953,
-                651
-            ]
+            "target": "__ScenePrivateMenuRegionalOverviewFullRegion"
         },
         "pre_delay": 0,
         "post_delay": 0,

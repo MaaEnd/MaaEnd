@@ -34,13 +34,51 @@ type autoFightAttach struct {
 	EndAxisTimelineCode          string   `json:"end_axis_timeline_code"`
 	SkipComboCooldown            bool     `json:"skip_combo_cooldown"`
 	PauseExitNodes               []string `json:"pause_exit_nodes"`
+	SkillMode1                   string   `json:"skill_mode_1"`
+	SkillMode2                   string   `json:"skill_mode_2"`
+	SkillMode3                   string   `json:"skill_mode_3"`
+	SkillMode4                   string   `json:"skill_mode_4"`
+}
+
+// 每名干员的战技释放方式；空值按 cycle 处理。
+const (
+	skillModeCycle = "cycle"
+	skillModeOnce  = "once"
+	skillModeNever = "never"
+)
+
+func (p *autoFightAttach) skillModes() [4]string {
+	return [4]string{p.SkillMode1, p.SkillMode2, p.SkillMode3, p.SkillMode4}
+}
+
+// pickSkillOperator 从 cycleIndex 起轮转查找下一个可释放战技的干员（1-based），
+// 跳过 never 以及已释放过的 once；返回选中的干员与下一轮的起点，找不到时 ok 为 false。
+func pickSkillOperator(modes [4]string, usedOnce *[4]bool, cycleIndex, characterCount int) (op, next int, ok bool) {
+	n := characterCount
+	if n <= 0 || n > 4 {
+		n = 4
+	}
+	for i := range n {
+		candidate := ((cycleIndex-1+i)%n + n) % n
+		switch modes[candidate] {
+		case skillModeNever:
+			continue
+		case skillModeOnce:
+			if usedOnce[candidate] {
+				continue
+			}
+			usedOnce[candidate] = true
+		}
+		return candidate + 1, candidate + 2, true
+	}
+	return 0, cycleIndex, false
 }
 
 var screenAnalyzer = NewScreenAnalyzer()
 
 func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
 	var override map[string]any
-	if !mobileFightLayout() {
+	if !screenAnalyzer.mobileLayout {
 		box, ok := screenAnalyzer.GetCharacterSelectBox()
 		if !ok {
 			return false
@@ -210,6 +248,9 @@ func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 		return nil, false
 	}
 
+	// 回调入口刷新一次控制器布局，下游的识别区域与 label 都按它取。
+	screenAnalyzer.RefreshLayout(ctx)
+
 	if !screenAnalyzer.UpdateScreenDetail(ctx, arg.Img) {
 		return nil, false
 	}
@@ -354,6 +395,9 @@ var (
 type AutoFightMainAction struct{}
 
 func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	// 回调入口刷新一次控制器布局，下游的识别区域与 label 都按它取。
+	screenAnalyzer.RefreshLayout(ctx)
+
 	raw, err := ctx.GetNodeJSON(arg.CurrentTaskName)
 	if err != nil || raw == "" {
 		log.Error().Err(err).Str("component", "AutoFight").Str("step", "get node json").Msg("get node json for custom action param")
@@ -396,6 +440,8 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	firstNoLockIteration := true
 	characterCount := -1
 	skillCycleIndex := 1
+	skillModes := params.skillModes()
+	var skillUsedOnce [4]bool
 
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchDown", maa.Rect{600, 320, 80, 80}, "", nil)
@@ -522,7 +568,6 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				firstNoLockIteration = false
 				// 5秒内没有闪避/冲刺则向前冲刺一次，防止怪跑远
 				if time.Since(lastDodgeAt) >= 5*time.Second {
-					maafocus.Print(ctx, i18n.T("autofight.approach_enemy"))
 					enqueueAction(fightAction{
 						executeAt: time.Now().Add(time.Millisecond),
 						action:    ActionMoveForward,
@@ -656,31 +701,27 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			}
 			if params.EnableSkill && energyLevel >= 1 {
 				if params.EnableBreakAccumulatingPower && screenAnalyzer.GetEnemyAccumulatingPower(true) {
-					maafocus.Print(ctx, i18n.T("autofight.enemy_accumulating_power"))
-					op := skillCycleIndex
-					if characterCount > 0 {
-						op = ((op - 1) % characterCount) + 1
+					if op, next, ok := pickSkillOperator(skillModes, &skillUsedOnce, skillCycleIndex, characterCount); ok {
+						maafocus.Print(ctx, i18n.T("autofight.enemy_accumulating_power"))
+						enqueueAction(fightAction{
+							executeAt: time.Now(),
+							action:    skillAction(op),
+						})
+						skillCycleIndex = next
 					}
-					enqueueAction(fightAction{
-						executeAt: time.Now(),
-						action:    skillAction(op),
-					})
-					skillCycleIndex++
 				} else if energyLevel > params.ReserveSkillLevel && hasEnemyTarget {
 					log.Debug().
 						Str("component", "AutoFight").
 						Int("energyLevel", energyLevel).
 						Int("reserveLevel", params.ReserveSkillLevel).
 						Msg("energy level above reserve, using skill")
-					op := skillCycleIndex
-					if characterCount > 0 {
-						op = ((op - 1) % characterCount) + 1
+					if op, next, ok := pickSkillOperator(skillModes, &skillUsedOnce, skillCycleIndex, characterCount); ok {
+						enqueueAction(fightAction{
+							executeAt: time.Now(),
+							action:    skillAction(op),
+						})
+						skillCycleIndex = next
 					}
-					enqueueAction(fightAction{
-						executeAt: time.Now(),
-						action:    skillAction(op),
-					})
-					skillCycleIndex++
 				}
 				screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
 			}
@@ -725,12 +766,15 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 							timeline.PopFrontAction()
 						}
 					case "skill":
-						if energyLevel >= 1 && hasEnemyTarget {
+						// 不消耗技力的动作（如取消架势）不检查能量，也不标记能量已用
+						if (energyLevel >= 1 || action.NoEnergyCost) && hasEnemyTarget {
 							enqueueAction(fightAction{
 								executeAt: time.Now(),
 								action:    skillAction(op),
 							})
-							screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
+							if !action.NoEnergyCost {
+								screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
+							}
 							timeline.PopFrontAction()
 						}
 					}
@@ -740,7 +784,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 
 		// ADB 断触兜底：按住中的普攻触点被模拟器层面的中断掐断后不会自行恢复，
 		// 按周期补按一次。PC 端的按住是键鼠状态，不需要也不应该重按。
-		if params.EnableAttack && mobileFightLayout() && time.Since(lastAttackReassert) >= attackReassertInterval {
+		if params.EnableAttack && screenAnalyzer.mobileLayout && time.Since(lastAttackReassert) >= attackReassertInterval {
 			lastAttackReassert = time.Now()
 			enqueueAction(fightAction{
 				executeAt: time.Now(),

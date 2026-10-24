@@ -16,6 +16,7 @@ type parsedBetterSlidingParams struct {
 	increaseButton                buttonTarget
 	decreaseButton                buttonTarget
 	centerPointOffset             [2]int
+	controllerType                string
 	clampTargetToSliderMax        bool
 	outOfRangeOverrideEnable      string
 	targetReachableOverrideEnable string
@@ -100,7 +101,7 @@ func parseBetterSlidingParam(customActionParam string) (betterSlidingParam, erro
 	return params, nil
 }
 
-func (a *BetterSlidingAction) loadActionParams(ctx *maa.Context, customActionParam string) bool {
+func (a *BetterSlidingAction) loadActionParams(ctx *maa.Context, ctrl *maa.Controller, customActionParam string) bool {
 	params, err := parseBetterSlidingParam(customActionParam)
 	if err != nil {
 		a.logger.Error().
@@ -110,25 +111,31 @@ func (a *BetterSlidingAction) loadActionParams(ctx *maa.Context, customActionPar
 		return false
 	}
 
-	parsed, ok := a.normalizeActionParams(ctx, params)
+	parsed, ok := a.normalizeActionParams(ctx, ctrl, params)
 	if !ok {
 		return false
 	}
 
 	a.applyActionParams(parsed)
-	a.logParsedActionParams()
+	a.logParsedActionParams(parsed.controllerType)
 	return true
 }
 
 func (a *BetterSlidingAction) normalizeActionParams(
 	ctx *maa.Context,
+	ctrl *maa.Controller,
 	params betterSlidingParam,
 ) (parsedBetterSlidingParams, bool) {
+	// CenterPointOffset 的默认值随控制器变化；调用方显式传入时不受影响。
+	controllerType := resolveControlType(ctrl)
+	centerPointOffsetDefault := defaultCenterPointOffset(controllerType)
+
 	parsed := parsedBetterSlidingParams{
 		targetQuantity:                params.TargetQuantity,
 		availableQuantityExplicit:     params.presence.AvailableQuantity,
 		direction:                     strings.ToLower(strings.TrimSpace(params.Direction)),
-		centerPointOffset:             defaultCenterPointOffset,
+		centerPointOffset:             centerPointOffsetDefault,
+		controllerType:                controllerType,
 		clampTargetToSliderMax:        params.ClampTargetToSliderMax,
 		outOfRangeOverrideEnable:      strings.TrimSpace(params.OutOfRangeOverrideEnable),
 		targetReachableOverrideEnable: strings.TrimSpace(params.TargetReachableOverrideEnable),
@@ -230,7 +237,10 @@ func (a *BetterSlidingAction) normalizeActionParams(
 	}
 	parsed.decreaseButton = decreaseButton
 
-	centerPointOffset, err := normalizeCenterPointOffset(params.CenterPointOffset)
+	centerPointOffset, err := normalizeCenterPointOffset(
+		params.CenterPointOffset,
+		centerPointOffsetDefault,
+	)
 	if err != nil {
 		a.logger.Error().
 			Err(err).
@@ -344,13 +354,14 @@ func (a *BetterSlidingAction) applyActionParams(params parsedBetterSlidingParams
 }
 
 // logParsedActionParams 只输出补丁的键集合与字节数级摘要，不再展开 Box / OnlyRec / Filter 明细。
-func (a *BetterSlidingAction) logParsedActionParams() {
+func (a *BetterSlidingAction) logParsedActionParams(controllerType string) {
 	parseLog := a.logger.Info().
 		Int("target_quantity", a.OriginalTargetQuantity).
 		Bool("available_quantity_explicit", a.AvailableQuantityExplicit).
 		Str("direction", a.Direction).
 		Interface("increase_button", a.IncreaseButton.logValue()).
 		Interface("decrease_button", a.DecreaseButton.logValue()).
+		Str("controller_type", controllerType).
 		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]}).
 		Bool("clamp_target_to_slider_max", a.ClampTargetToSliderMax).
 		Str("fine_tune_quantity_mode", a.FineTuneQuantity.modeLabel()).

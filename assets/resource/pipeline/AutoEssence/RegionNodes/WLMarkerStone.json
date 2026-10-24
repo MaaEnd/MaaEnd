@@ -20,7 +20,7 @@
                 "custom_action": "SubTask",
                 "custom_action_param": {
                     "sub": [
-                        "SceneEnterWorldWulingMarkerStone2"
+                        "SceneEnterWorldWulingMarkerStoneLakeIslet"
                     ]
                 }
             }
@@ -84,13 +84,14 @@
                         {
                             "action": "INTERACT",
                             "target": [
-                                319.17,
-                                2318.36
+                                318.12,
+                                2318.38
                             ],
                             "strict_arrival": true,
                             "interact_text": {
                                 "node": "__AutoEssenceRecoApproachInteractText"
                             },
+                            "interact_scan": "__AutoEssenceRecoApproachInteractScan",
                             "interact_rec": true
                         }
                     ]
