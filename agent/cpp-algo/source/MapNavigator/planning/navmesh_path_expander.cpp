@@ -28,8 +28,8 @@
 #include "../../Navmesh/RecastNavRoute.h"
 #include "../../utils.h"
 #include "../navi_config.h"
-#include "../navi_controller.h"
 #include "../navi_math.h"
+#include "../navi_param.h"
 #include "../zipline/zipline_leg_planner.h"
 #include "navmesh_path_expander.h"
 

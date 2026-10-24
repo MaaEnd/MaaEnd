@@ -16,7 +16,7 @@
 #include <MaaUtils/Logger.h>
 
 #include "../../Zipline/ZiplineStore.h"
-#include "../navi_controller.h"
+#include "../navi_param.h"
 #include "../planning/navmesh_path_expander.h"
 
 namespace mapnavigator

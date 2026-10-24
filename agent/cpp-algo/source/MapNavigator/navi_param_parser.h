@@ -4,7 +4,7 @@
 
 #include <meojson/json.hpp>
 
-#include "navi_controller.h"
+#include "navi_param.h"
 
 struct MaaContext;
 

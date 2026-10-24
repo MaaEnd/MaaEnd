@@ -10,8 +10,8 @@
 #include <MaaUtils/Logger.h>
 
 #include "../navi_config.h"
-#include "../navi_controller.h"
 #include "../navi_math.h"
+#include "../navi_param.h"
 #include "../state_machine/navigation_runtime_state.h"
 #include "navigation_session.h"
 #include "navmesh_path_expander.h"

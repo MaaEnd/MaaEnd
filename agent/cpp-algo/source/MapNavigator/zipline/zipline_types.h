@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <variant>
@@ -95,6 +96,22 @@ struct ZiplineHopRecord
 };
 
 using HopLedger = std::vector<ZiplineHopRecord>;
+
+inline bool IsZiplineRopeFailure(HopOutcome outcome)
+{
+    return outcome == HopOutcome::NoLaunch || outcome == HopOutcome::Lost || outcome == HopOutcome::WrongRope;
+}
+
+inline int32_t CountZiplineRopeFailures(const HopLedger& ledger)
+{
+    int32_t count = 0;
+    for (const ZiplineHopRecord& record : ledger) {
+        if (IsZiplineRopeFailure(record.outcome)) {
+            ++count;
+        }
+    }
+    return count;
+}
 
 enum class ZiplineStage
 {
