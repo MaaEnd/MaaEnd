@@ -79,7 +79,7 @@
                         "CreditShoppingClueSend": {
                             "MaxClueSendWhenInsufficient": "2"
                         },
-                        "CreditShoppingQuickGiveDuplicateClues": "No",
+                        "CreditShoppingQuickGiveDuplicateClues": "Yes",
                         "CreditShoppingClueStockLimit": "2",
                         "CreditShoppingPriority1": "Yes",
                         "CreditShoppingPriority1AutoGetCredits": "Yes",
