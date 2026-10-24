@@ -1,0 +1,157 @@
+{
+    // 排除完整黄色范围；原规则只排除 H=28，云端选中角标仍被当成未选中。
+    "GiftOperatorNotSelect": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        41,
+                        0,
+                        0
+                    ],
+                    [
+                        20,
+                        0,
+                        0
+                    ],
+                    [
+                        20,
+                        150,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        19,
+                        255,
+                        255
+                    ],
+                    [
+                        179,
+                        255,
+                        255
+                    ],
+                    [
+                        40,
+                        149,
+                        255
+                    ],
+                    [
+                        40,
+                        255,
+                        149
+                    ]
+                ]
+            }
+        }
+    },
+    // 只在卡片区域查找完整选中边框，排除确认联络按钮和小礼物图标。
+    "GiftOperatorCheckSelectedLabelColor": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    520,
+                    130,
+                    690,
+                    390
+                ],
+                "lower": [
+                    25,
+                    180,
+                    180
+                ],
+                "upper": [
+                    35,
+                    255,
+                    255
+                ],
+                "count": 800
+            }
+        }
+    },
+    // 序号位于选中卡片右上角，直接读角标，避免被名字和信赖度文字干扰。
+    "GiftOperatorCheckSelectedText1": {
+        "recognition": {
+            "param": {
+                "roi": "GiftOperatorCheckSelectedLabelColor",
+                "roi_offset": [
+                    75,
+                    0,
+                    -75,
+                    -120
+                ]
+            }
+        }
+    },
+    "GiftOperatorCheckSelectedText2": {
+        "recognition": {
+            "param": {
+                "roi": "GiftOperatorCheckSelectedLabelColor",
+                "roi_offset": [
+                    75,
+                    0,
+                    -75,
+                    -120
+                ]
+            }
+        }
+    },
+    "GiftOperatorCheckSelectedText3": {
+        "recognition": {
+            "param": {
+                "roi": "GiftOperatorCheckSelectedLabelColor",
+                "roi_offset": [
+                    75,
+                    0,
+                    -75,
+                    -120
+                ]
+            }
+        }
+    },
+    "GiftOperatorCheckSelected1": {
+        "recognition": {
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckSelectedLabelColor",
+                    "GiftOperatorCheckSelectedText1"
+                ]
+            }
+        }
+    },
+    "GiftOperatorCheckSelected2": {
+        "recognition": {
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckSelectedLabelColor",
+                    "GiftOperatorCheckSelectedText2"
+                ]
+            }
+        }
+    },
+    "GiftOperatorCheckSelected3": {
+        "recognition": {
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckSelectedLabelColor",
+                    "GiftOperatorCheckSelectedText3"
+                ]
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedOpSuccess": {
+        "recognition": {
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckSelectedLabelColor",
+                    "GiftOperatorCheckSelectedText1"
+                ]
+            }
+        }
+    }
+}
