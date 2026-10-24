@@ -166,6 +166,9 @@
         "next": [
             "SanityExtractorConfirmSelected"
         ],
+        "on_error": [
+            "SanityExtractorConfirmFailed"
+        ],
         "focus": {
             "Node.Action.Starting": "$task.SanityExtractor.focus.find"
         }
@@ -191,7 +194,7 @@
         ]
     },
     "SanityExtractorConfirmFailed": {
-        "desc": "点击后未能确认理智萃取器：详情栏不是模态弹窗，无需关闭，直接终止任务以暴露问题",
+        "desc": "点击后无法确认选中物品为理智萃取器（点错物品或详情栏未出现）：详情栏不是模态弹窗，无需关闭，直接终止任务以暴露问题",
         "recognition": {
             "type": "DirectHit",
             "param": {}
