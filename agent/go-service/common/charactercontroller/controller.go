@@ -6,6 +6,8 @@ import (
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 )
 
 const (
@@ -90,8 +92,35 @@ func (a *CharacterControllerRelativeMoveAction) Run(ctx *maa.Context, arg *maa.C
 		dy = arg.Box.Y() - params.Begin[1]
 	}
 
-	ctx.GetTasker().GetController().PostRelativeMove(int32(dx), int32(dy)).Wait()
+	if pienv.ResolveControllerKind(ctx.GetTasker().GetController()) == pienv.ControllerKindLinux {
+		relativeMoveViaHover(ctx, dx, dy)
+	} else {
+		ctx.GetTasker().GetController().PostRelativeMove(int32(dx), int32(dy)).Wait()
+	}
 	return true
+}
+
+// relativeMoveViaHover 用「绝对指针移动（不按任何键）」实现相对视角旋转。
+//
+// Linux（wlroots）上 PostRelativeMove 会正常返回、WlrInput 也确实发出了
+// zwlr_virtual_pointer_v1_motion，但串流页面并不会因此转动视角（实测画面行剖面位移恒为 0）；
+// 而 hover swipe（begin→end 的绝对指针移动，不按键）是有效的。
+// 因此 Linux 上退化成复用 __CharacterControllerDeltaSwipeAction（base 里就是 only_hover 的 Swipe）。
+func relativeMoveViaHover(ctx *maa.Context, dx, dy int) {
+	cx, cy := screenW/2, screenH/2
+	if absInt(cursorDX) > screenW/4 || absInt(cursorDY) > screenH/4 {
+		cursorDX, cursorDY = 0, 0
+	}
+	fromX, fromY := cx+cursorDX, cy+cursorDY
+	override := map[string]any{
+		"__CharacterControllerDeltaSwipeAction": map[string]any{
+			"begin": maa.Rect{fromX, fromY, 1, 1},
+			"end":   maa.Rect{fromX + dx, fromY + dy, 1, 1},
+		},
+	}
+	ctx.RunAction("__CharacterControllerDeltaSwipeAction", maa.Rect{0, 0, 0, 0}, "", override)
+	cursorDX += dx
+	cursorDY += dy
 }
 
 func moveAxis(ctx *maa.Context, duration int) {
