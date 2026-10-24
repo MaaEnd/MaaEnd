@@ -104,6 +104,681 @@
         "categoryType": "Gold",
         "category": "独立资源"
     },
+    "item_inn_dish_1": {
+        "name": "肉包子",
+        "names": {
+            "CN": "肉包子",
+            "TC": "肉包子",
+            "EN": "Meat Baozi",
+            "JP": "肉まん",
+            "KR": "고기찐빵"
+        },
+        "iconId": "item_inn_dish_1",
+        "rarity": 2,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_10": {
+        "name": "糯米凉糕",
+        "names": {
+            "CN": "糯米凉糕",
+            "TC": "糯米涼糕",
+            "EN": "Sticky Rice Cake",
+            "JP": "もち米リャンガオ",
+            "KR": "찹쌀떡"
+        },
+        "iconId": "item_inn_dish_10",
+        "rarity": 3,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_11": {
+        "name": "鲜奶炖蛋",
+        "names": {
+            "CN": "鲜奶炖蛋",
+            "TC": "鮮奶蒸蛋",
+            "EN": "Steamed Flan",
+            "JP": "卵のミルク蒸し",
+            "KR": "달걀푸딩"
+        },
+        "iconId": "item_inn_dish_11",
+        "rarity": 3,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_12": {
+        "name": "豌杂拌面",
+        "names": {
+            "CN": "豌杂拌面",
+            "TC": "豌雜拌麵",
+            "EN": "Pea-Topped Noodles",
+            "JP": "丸豆まぜ麺",
+            "KR": "콩 비빔면"
+        },
+        "iconId": "item_inn_dish_12",
+        "rarity": 4,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_13": {
+        "name": "手抓饭",
+        "names": {
+            "CN": "手抓饭",
+            "TC": "手抓飯",
+            "EN": "Meaty Pilaf",
+            "JP": "肉入り炊き込みご飯",
+            "KR": "필라프"
+        },
+        "iconId": "item_inn_dish_13",
+        "rarity": 4,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_14": {
+        "name": "鳞肉水饺",
+        "names": {
+            "CN": "鳞肉水饺",
+            "TC": "鱗肉水餃",
+            "EN": "Fin Dumpling",
+            "JP": "鱗獣肉の水餃子",
+            "KR": "린수 만두"
+        },
+        "iconId": "item_inn_dish_14",
+        "rarity": 4,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_15": {
+        "name": "炸薯条",
+        "names": {
+            "CN": "炸薯条",
+            "TC": "炸薯條",
+            "EN": "Tuber Fries",
+            "JP": "ひらいもフライ",
+            "KR": "감자튀김"
+        },
+        "iconId": "item_inn_dish_15",
+        "rarity": 4,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_16": {
+        "name": "酸菜鳞肉",
+        "names": {
+            "CN": "酸菜鳞肉",
+            "TC": "酸菜鱗肉",
+            "EN": "Fin & Pickled Greens",
+            "JP": "鱗獣肉の漬物煮",
+            "KR": "절임채소 린수볶음"
+        },
+        "iconId": "item_inn_dish_16",
+        "rarity": 4,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_17": {
+        "name": "烤肉串",
+        "names": {
+            "CN": "烤肉串",
+            "TC": "烤肉串",
+            "EN": "Roasted Kebab",
+            "JP": "肉の串焼き",
+            "KR": "꼬치구이"
+        },
+        "iconId": "item_inn_dish_17",
+        "rarity": 4,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_18": {
+        "name": "鳞香肉丝",
+        "names": {
+            "CN": "鳞香肉丝",
+            "TC": "鱗香肉絲",
+            "EN": "Fin-Savory Shreds",
+            "JP": "細切り肉の鱗獣風味炒め",
+            "KR": "린향육슬"
+        },
+        "iconId": "item_inn_dish_18",
+        "rarity": 4,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_19": {
+        "name": "豆沙汤圆",
+        "names": {
+            "CN": "豆沙汤圆",
+            "TC": "豆沙湯圓",
+            "EN": "Beanpaste Tangyuan",
+            "JP": "こしあんの白玉団子",
+            "KR": "팥앙금 찹쌀경단"
+        },
+        "iconId": "item_inn_dish_19",
+        "rarity": 4,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_2": {
+        "name": "手擀素面",
+        "names": {
+            "CN": "手擀素面",
+            "TC": "手擀素麵",
+            "EN": "Hand-Kneaded Noodle",
+            "JP": "手打ち麺",
+            "KR": "채소 손칼국수"
+        },
+        "iconId": "item_inn_dish_2",
+        "rarity": 2,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_20": {
+        "name": "酸莓布丁",
+        "names": {
+            "CN": "酸莓布丁",
+            "TC": "酸莓布丁",
+            "EN": "Sourberry Pudding",
+            "JP": "サワーベリープリン",
+            "KR": "새콤한 베리푸딩"
+        },
+        "iconId": "item_inn_dish_20",
+        "rarity": 4,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_21": {
+        "name": "咸酪脆饼",
+        "names": {
+            "CN": "咸酪脆饼",
+            "TC": "鹹酪脆餅",
+            "EN": "Salted Cheese Crackers",
+            "JP": "ソルトチーズクッキー",
+            "KR": "치즈 크래커"
+        },
+        "iconId": "item_inn_dish_21",
+        "rarity": 4,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_22": {
+        "name": "雪绵豆沙",
+        "names": {
+            "CN": "雪绵豆沙",
+            "TC": "雪綿豆沙",
+            "EN": "Sweetbeans on Snow",
+            "JP": "雪綿あんこ",
+            "KR": "팥앙금 머랭 튀김"
+        },
+        "iconId": "item_inn_dish_22",
+        "rarity": 4,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_23": {
+        "name": "老麻抄手",
+        "names": {
+            "CN": "老麻抄手",
+            "TC": "老麻抄手",
+            "EN": "Chaoshou & Numbing Sauce",
+            "JP": "シビ辛ワンタン",
+            "KR": "마라맛 훈툰"
+        },
+        "iconId": "item_inn_dish_23",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_24": {
+        "name": "八宝饭",
+        "names": {
+            "CN": "八宝饭",
+            "TC": "八寶飯",
+            "EN": "Eight Treasure Rice",
+            "JP": "八宝飯",
+            "KR": "팔보 찹쌀밥"
+        },
+        "iconId": "item_inn_dish_24",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_25": {
+        "name": "至臻鳞肉卷",
+        "names": {
+            "CN": "至臻鳞肉卷",
+            "TC": "至臻鱗肉捲",
+            "EN": "Roll of Fin-Supreme",
+            "JP": "プレミアム鱗獣フライロール",
+            "KR": "최고급 린수말이"
+        },
+        "iconId": "item_inn_dish_25",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_26": {
+        "name": "界龙肉卷",
+        "names": {
+            "CN": "界龙肉卷",
+            "TC": "界龍肉捲",
+            "EN": "Boundary Lung Roll",
+            "JP": "界龍ロール",
+            "KR": "계룡 고기말이"
+        },
+        "iconId": "item_inn_dish_26",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_27": {
+        "name": "果味沙拉",
+        "names": {
+            "CN": "果味沙拉",
+            "TC": "果味沙拉",
+            "EN": "Berry Fruity Toss",
+            "JP": "フルーツサラダ",
+            "KR": "과일 샐러드"
+        },
+        "iconId": "item_inn_dish_27",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_28": {
+        "name": "麻辣香锅",
+        "names": {
+            "CN": "麻辣香锅",
+            "TC": "麻辣香鍋",
+            "EN": "Mala Xiang Guo",
+            "JP": "汁なし火鍋",
+            "KR": "마라샹궈"
+        },
+        "iconId": "item_inn_dish_28",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_29": {
+        "name": "坛子肉",
+        "names": {
+            "CN": "坛子肉",
+            "TC": "罈子肉",
+            "EN": "Clay Jar Meat",
+            "JP": "壺入り角煮",
+            "KR": "뚝배기 고기 조림"
+        },
+        "iconId": "item_inn_dish_29",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_3": {
+        "name": "番茄炒蛋",
+        "names": {
+            "CN": "番茄炒蛋",
+            "TC": "番茄炒蛋",
+            "EN": "Mato & Egg",
+            "JP": "トマトと卵の炒め物",
+            "KR": "토마토 달걀볶음"
+        },
+        "iconId": "item_inn_dish_3",
+        "rarity": 2,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_30": {
+        "name": "福寿全",
+        "names": {
+            "CN": "福寿全",
+            "TC": "福壽全",
+            "EN": "Immortal Galore of Fortune",
+            "JP": "山海珍味のスープ",
+            "KR": "불도장"
+        },
+        "iconId": "item_inn_dish_30",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_31": {
+        "name": "糖醋宝鳞",
+        "names": {
+            "CN": "糖醋宝鳞",
+            "TC": "糖醋寶鱗",
+            "EN": "Sweet & Sour Fingot",
+            "JP": "あんかけ宝鱗",
+            "KR": "탕수 린수"
+        },
+        "iconId": "item_inn_dish_31",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_32": {
+        "name": "“银耳莲子”羹",
+        "names": {
+            "CN": "“银耳莲子”羹",
+            "TC": "「銀耳蓮子」羹",
+            "EN": "\"Snowshroom & Lotus\" Soup",
+            "JP": "「白きくらげ」風スープ",
+            "KR": "'흰목이버섯 연밥' 수프"
+        },
+        "iconId": "item_inn_dish_32",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_33": {
+        "name": "茄果鳞肉汤",
+        "names": {
+            "CN": "茄果鳞肉汤",
+            "TC": "茄果鱗肉湯",
+            "EN": "Fin-Mato Soup",
+            "JP": "トマベリーと鱗獣肉のスープ",
+            "KR": "토마토 린수탕"
+        },
+        "iconId": "item_inn_dish_33",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_34": {
+        "name": "酸辣汤",
+        "names": {
+            "CN": "酸辣汤",
+            "TC": "酸辣湯",
+            "EN": "Hot & Sour Soup",
+            "JP": "サンラータン",
+            "KR": "산라탕"
+        },
+        "iconId": "item_inn_dish_34",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_35": {
+        "name": "白瓜肉丸汤",
+        "names": {
+            "CN": "白瓜肉丸汤",
+            "TC": "白瓜肉丸湯",
+            "EN": "Melon & Meatball Soup",
+            "JP": "白瓜肉団子スープ",
+            "KR": "월과 고기완자탕"
+        },
+        "iconId": "item_inn_dish_35",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_36": {
+        "name": "奶油蘑菇汤",
+        "names": {
+            "CN": "奶油蘑菇汤",
+            "TC": "奶油蘑菇湯",
+            "EN": "Cream of Shroom",
+            "JP": "クリームキノコスープ",
+            "KR": "버섯 크림수프"
+        },
+        "iconId": "item_inn_dish_36",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_37": {
+        "name": "白鳞高汤",
+        "names": {
+            "CN": "白鳞高汤",
+            "TC": "白鱗高湯",
+            "EN": "White Fin Broth",
+            "JP": "白鱗獣だしスープ",
+            "KR": "맑은 린수탕"
+        },
+        "iconId": "item_inn_dish_37",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_38": {
+        "name": "莓果甜汤",
+        "names": {
+            "CN": "莓果甜汤",
+            "TC": "莓果甜湯",
+            "EN": "Berry-Sweet Sip",
+            "JP": "ベリーのデザートスープ",
+            "KR": "달콤한 베리 화채"
+        },
+        "iconId": "item_inn_dish_38",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_39": {
+        "name": "簇锦豆腐羹",
+        "names": {
+            "CN": "簇锦豆腐羹",
+            "TC": "簇錦豆腐羹",
+            "EN": "Tofu Bouquet Soup",
+            "JP": "錦花豆腐スープ",
+            "KR": "비단결 두부탕"
+        },
+        "iconId": "item_inn_dish_39",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_4": {
+        "name": "红椒土豆丝",
+        "names": {
+            "CN": "红椒土豆丝",
+            "TC": "紅椒馬鈴薯絲",
+            "EN": "Shredded Tuber & Pepper",
+            "JP": "ジャガイモの辛炒め",
+            "KR": "홍고추 감자채"
+        },
+        "iconId": "item_inn_dish_4",
+        "rarity": 2,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_40": {
+        "name": "金丝小贝",
+        "names": {
+            "CN": "金丝小贝",
+            "TC": "金絲小貝",
+            "EN": "Goldfloss Chiffon",
+            "JP": "金糸ケーキ",
+            "KR": "황금실 미니 케이크"
+        },
+        "iconId": "item_inn_dish_40",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_41": {
+        "name": "雪纱蛋黄月饼",
+        "names": {
+            "CN": "雪纱蛋黄月饼",
+            "TC": "雪紗蛋黃月餅",
+            "EN": "Snow-Veiled Mooncake",
+            "JP": "雪月の月餅",
+            "KR": "눈꽃 노른자 월병"
+        },
+        "iconId": "item_inn_dish_41",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_42": {
+        "name": "千果珍珠圆",
+        "names": {
+            "CN": "千果珍珠圆",
+            "TC": "千果珍珠圓",
+            "EN": "Pearly Fruit Punch",
+            "JP": "パールフルーツポンチ",
+            "KR": "과일 버블티"
+        },
+        "iconId": "item_inn_dish_42",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_43": {
+        "name": "红蕊奶酪蛋糕",
+        "names": {
+            "CN": "红蕊奶酪蛋糕",
+            "TC": "紅蕊乳酪蛋糕",
+            "EN": "Redbloom Cheesecake",
+            "JP": "紅花のチーズケーキ",
+            "KR": "붉은 꽃술 치즈케이크"
+        },
+        "iconId": "item_inn_dish_43",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_44": {
+        "name": "“勺里游”",
+        "names": {
+            "CN": "“勺里游”",
+            "TC": "「勺裡游」",
+            "EN": "\"Spoon Swimmer\"",
+            "JP": "「シャクナガシ」",
+            "KR": "'한입의 유람'"
+        },
+        "iconId": "item_inn_dish_44",
+        "rarity": 5,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_5": {
+        "name": "缘缘菜饭",
+        "names": {
+            "CN": "缘缘菜饭",
+            "TC": "緣緣菜飯",
+            "EN": "Yuanyuan Veggy Rice",
+            "JP": "縁縁炊き込みご飯",
+            "KR": "인연 마을 나물비빔밥"
+        },
+        "iconId": "item_inn_dish_5",
+        "rarity": 3,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_6": {
+        "name": "菌菇蒸饺",
+        "names": {
+            "CN": "菌菇蒸饺",
+            "TC": "菌菇蒸餃",
+            "EN": "Shroom Dumpling",
+            "JP": "キノコの蒸し餃子",
+            "KR": "버섯 만두"
+        },
+        "iconId": "item_inn_dish_6",
+        "rarity": 3,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_7": {
+        "name": "青菜养生粥",
+        "names": {
+            "CN": "青菜养生粥",
+            "TC": "青菜養生粥",
+            "EN": "Tonic Congee & Greens",
+            "JP": "青野菜のお粥",
+            "KR": "청경채 보양죽"
+        },
+        "iconId": "item_inn_dish_7",
+        "rarity": 3,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_8": {
+        "name": "香煎鳞肉",
+        "names": {
+            "CN": "香煎鳞肉",
+            "TC": "香煎鱗肉",
+            "EN": "Skilleted Fin",
+            "JP": "鱗獣肉の香ばし焼き",
+            "KR": "노릇한 린수 구이"
+        },
+        "iconId": "item_inn_dish_8",
+        "rarity": 3,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_dish_9": {
+        "name": "茄汁白瓜",
+        "names": {
+            "CN": "茄汁白瓜",
+            "TC": "茄汁白瓜",
+            "EN": "Melon in Sauce",
+            "JP": "白瓜のトマベリー煮",
+            "KR": "토마토 월과 조림"
+        },
+        "iconId": "item_inn_dish_9",
+        "rarity": 3,
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "category": "客栈菜品"
+    },
+    "item_inn_drink_water": {
+        "name": "直饮水",
+        "names": {
+            "CN": "直饮水",
+            "TC": "直飲水",
+            "EN": "Potable Water",
+            "JP": "飲料水",
+            "KR": "식수"
+        },
+        "iconId": "item_inn_drink_water",
+        "rarity": 1,
+        "storageKind": "Restaurant",
+        "categoryType": "Drink",
+        "category": "客栈饮品"
+    },
     "item_originium_recharge": {
         "name": "衍质源石",
         "names": {

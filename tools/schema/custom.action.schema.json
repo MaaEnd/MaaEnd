@@ -78,6 +78,7 @@
                 "PipelineOverrideAction",
                 "PostStop",
                 "PullCountCalculatorAction",
+                "RestaurantDecisionAction",
                 "PuzzleAction",
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
@@ -342,7 +343,59 @@
 				},
 				"required": [ "custom_action_param" ]
 			}
-		}
+		},
+        {
+            "if": {
+                "type": "object",
+                "required": [
+                    "custom_action"
+                ],
+                "properties": {
+                    "custom_action": {
+                        "const": "RestaurantDecisionAction"
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "required": [
+                    "custom_action_param"
+                ],
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "step"
+                        ],
+                        "properties": {
+                            "step": {
+                                "enum": [
+                                    "initialize",
+                                    "requirements",
+                                    "menu_page",
+                                    "menu_card",
+                                    "menu_confirm",
+                                    "runtime",
+                                    "dispatched"
+                                ]
+                            },
+                            "kind": {
+                                "enum": [
+                                    "dish",
+                                    "drink"
+                                ]
+                            },
+                            "max_rounds": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 1000
+                            }
+                        }
+                    }
+                }
+            }
+        }
 	],
     "if": {
         "type": "object",

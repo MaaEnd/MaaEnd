@@ -43,6 +43,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pullcount"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/restaurant"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/scenemanager"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/seizedeliveryjobs"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/aspectratio"
@@ -116,6 +117,7 @@ func registerAll() {
 	ziplineimport.Register()
 	pullcount.Register()
 	trialofswordmancy.Register()
+	restaurant.Register()
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }
