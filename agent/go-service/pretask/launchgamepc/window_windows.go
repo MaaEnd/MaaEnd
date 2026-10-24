@@ -16,6 +16,8 @@ const (
 	swpNoSize               = 0x0001
 	swpNoZOrder             = 0x0004
 	swpNoActivate           = 0x0010
+	displayDeviceActive     = 0x00000001
+	displayDeviceAttached   = 0x00000001
 )
 
 var (
@@ -24,7 +26,17 @@ var (
 	procMonitorFromPoint  = user32.NewProc("MonitorFromPoint")
 	procGetMonitorInfoW   = user32.NewProc("GetMonitorInfoW")
 	procSetWindowPos      = user32.NewProc("SetWindowPos")
+	procEnumDisplayDevW   = user32.NewProc("EnumDisplayDevicesW")
 )
+
+type displayDevice struct {
+	Cb           uint32
+	DeviceName   [32]uint16
+	DeviceString [128]uint16
+	StateFlags   uint32
+	DeviceID     [128]uint16
+	DeviceKey    [128]uint16
+}
 
 type winRect struct {
 	Left   int32
@@ -87,4 +99,34 @@ func moveLauncherToPrimaryMonitor(hWnd unsafe.Pointer) (bool, error) {
 		return false, fmt.Errorf("SetWindowPos failed: %w", err)
 	}
 	return true, nil
+}
+
+func enumDisplayDevice(parent *uint16, index uint32) (displayDevice, bool) {
+	dd := displayDevice{Cb: uint32(unsafe.Sizeof(displayDevice{}))}
+	ret, _, _ := procEnumDisplayDevW.Call(uintptr(unsafe.Pointer(parent)), uintptr(index), uintptr(unsafe.Pointer(&dd)), 0)
+	return dd, ret != 0
+}
+
+// hasActiveMonitor 判断是否有物理显示器接入。
+// 显示器断开后 Windows 仍保留桌面配置，SM_CMONITORS、EnumDisplayMonitors 都不会变为 0，
+// 只有显卡下挂的显示器设备会消失，因此逐个检查接入桌面的显卡下是否有活动的显示器。
+func hasActiveMonitor() bool {
+	for i := uint32(0); ; i++ {
+		adapter, ok := enumDisplayDevice(nil, i)
+		if !ok {
+			return false
+		}
+		if adapter.StateFlags&displayDeviceAttached == 0 {
+			continue
+		}
+		for j := uint32(0); ; j++ {
+			monitor, ok := enumDisplayDevice(&adapter.DeviceName[0], j)
+			if !ok {
+				break
+			}
+			if monitor.StateFlags&displayDeviceActive != 0 {
+				return true
+			}
+		}
+	}
 }
