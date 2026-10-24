@@ -4,8 +4,8 @@
 分类名来自 ShopGoodsTagTable，渠道各等级的供货量来自 ShopChannelDevelopmentTable。只读 TableCfg，不依赖
 其他精简数据、网站页面或人工商品名单。
 
-两道筛选：商店本身得是常驻货架（``shopRefreshType`` 是 ``None`` / 0），商品得会周期补货
-（``limitCountRefreshType`` 不是 ``None`` / 0）。奖励必须是「一件固定物品」，概率掉落或多物品奖励直接报错。
+两道筛选：商店本身得是常驻货架（``shopRefreshType`` 是 ``None`` / 0），商品得每周补货
+（``limitCountRefreshType`` 是 ``Weekly`` / 2）。奖励必须是「一件固定物品」，概率掉落或多物品奖励直接报错。
 同一物品在不同渠道档位是几条独立的商品，各记各的价格，不合并。
 
 顶层四个字典：
@@ -13,7 +13,7 @@
 - ``regions``：地区 -> 五语名字、商店组、排序，以及这个地区卖的商品 id（顺序就是货架顺序）；
 - ``categories``：商品分类 -> 五语名字与排序；
 - ``items``：物品 -> 五语名字与图标名；
-- ``goods``：商品 -> 地区、商店、分类、物品、一次给几个、价格、折扣、币种（id 与五语名）、补货方式与限购、
+- ``goods``：商品 -> 地区、商店、分类、物品、一次给几个、价格、折扣、币种 id、补货方式与限购、
   排序、解锁条件（原样照抄表里的结构）、渠道供货（第几级解锁、解锁版本、数量）。
 """
 
@@ -93,7 +93,9 @@ class StockStaple(Dataset):
                     row = _entry(goods, goods_id, f"商店 {shop_id}")
                     if row.shop_id != shop_id:
                         raise DatasetError(f"商品 {goods_id} 的 shopId 与商店目录不一致")
-                    if row.limit_count_refresh_type in ("None", 0):
+                    # 只收每周补货的商品。整数形态里 0 是 Forever（不是 None）、2 是 Weekly，只排除 None/0
+                    # 的话，名字形态下 Forever 商品会整批漏进来。
+                    if row.limit_count_refresh_type not in ("Weekly", 2):
                         continue
                     reward = _entry(rewards, row.reward_id, f"商品 {goods_id}")
                     if reward.prob_item_bundles or len(reward.item_bundles) != 1:
@@ -102,7 +104,7 @@ class StockStaple(Dataset):
                     item_id = bundle.id
                     item = _entry(items, item_id, f"奖励 {row.reward_id}")
                     tag = _entry(tags, row.goods_tag_id, f"商品 {goods_id}")
-                    currency = _entry(items, row.money_id, f"商品 {goods_id} 币种")
+                    _entry(items, row.money_id, f"商品 {goods_id} 币种")
                     values: tuple[float, float, int] = (row.price, row.cn_discount, bundle.count)
                     if any(not math.isfinite(value) for value in values):
                         raise DatasetError(f"商品 {goods_id} 的价格、折扣或奖励数量不是有效数值")
@@ -127,7 +129,6 @@ class StockStaple(Dataset):
                         "price": row.price,
                         "discount": row.cn_discount,
                         "currency_id": row.money_id,
-                        "currency_names": cls.localized_names(currency.name, table_cfg, f"币种 {row.money_id}"),
                         "refresh_type": row.limit_count_refresh_type,
                         "limit_count": row.limit_count,
                         "sort_id": row.sort_id,

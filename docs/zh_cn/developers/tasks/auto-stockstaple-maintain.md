@@ -2,7 +2,7 @@
 
 本文说明 `AutoStockStaple` 的文件分布与执行流程。  
 以 **四号谷地** 为主线；**武陵** Pipeline 结构完全对称，仅地区后缀与场景识别不同。  
-该文档更新于 2026 年 10 月 17 日。
+该文档更新于 2026 年 10 月 25 日。
 
 ## 文件路径
 
@@ -136,7 +136,7 @@ stock_staple.json → AutoStockStaple/generate.mjs
                   └ assets/locales/interface/*.json 中的任务文本
 ```
 
-只选择地区常规商店（`shopRefreshType=None/0`）中定期补货（`limitCountRefreshType` 非 `None/0`）的商品；一次性商品与弹性商店不纳入。`goods` 按售卖配置 ID 保留价格、折扣、币种、奖励数量、刷新类型、解锁条件和渠道供货记录；任务选项再按 `item_id` 去重，因此同物品的不同价格档不会丢失。
+只选择地区常规商店（`shopRefreshType=None/0`）中每周补货（`limitCountRefreshType=Weekly/2`）的商品；`Forever`（整数形态为 0）等非每周补货的商品与弹性商店不纳入。TableCfg 的枚举可能写成名字或整数，筛选两种写法都认。`goods` 按售卖配置 ID 保留价格、折扣、币种 ID、奖励数量、刷新类型、解锁条件和渠道供货记录；任务选项再按 `item_id` 去重，因此同物品的不同价格档不会丢失。
 
 现有任务、Pipeline 与语言文件作为基线。生成器从任务选项的 `resource/image/UI/Item/<item_id>.png` 路径识别已收录物品，只补上游新增项，不另外维护商品绑定表。已有商品的 key、名称、OCR 特例、ROI、节点顺序与数量策略原样保留；上游改名、分类变化或移除商品不会自动改写或删除已有配置，因此原来的勾选不会失效。
 
