@@ -419,9 +419,37 @@
             "AutoCollectLoop"
         ]
     },
+    "AutoCollectMidSweepStashCheck": {
+        "desc": "每完成 every 条采集路线后存放一次背包",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "EveryNthHit",
+                "custom_recognition_param": {
+                    "key": "AutoCollect",
+                    "every": 6
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.focus.mid_sweep_stash"
+        }
+    },
     "AutoCollectLoop": {
         "desc": "依次调度已勾选的自动采集路线，未选路线不进入库存判断",
         "next": [
+            "[JumpBack]AutoCollectMidSweepStashCheck",
             "[JumpBack]AutoCollectRoute1Dispatch",
             "[JumpBack]AutoCollectRoute2Dispatch",
             "[JumpBack]AutoCollectRoute3Dispatch",
