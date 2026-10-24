@@ -334,18 +334,17 @@ void DesktopInputBackend::EnsureHoverAnchorSync()
     MaaControllerWait(ctrl_, ctrl_id);
 }
 
-// Win32 Virtual-Key codes。Linux 控制器启用 use_win32_vk_code 后，
-// MaaFramework 会将这些码翻译为 Linux evdev 码，行为与 Win32 控制器一致。
+// Win32 虚拟键码, Linux 控制器开 use_win32_vk_code 后由 MaaFramework 转成 evdev 码
 DesktopKeyCodes MakeDesktopKeyCodes()
 {
     return DesktopKeyCodes {
-        .move_forward = 'W',  // 0x57
-        .move_left = 'A',     // 0x41
-        .move_backward = 'S', // 0x53
-        .move_right = 'D',    // 0x44
-        .interact = 'F',      // 0x46
-        .jump = 0x20,         // VK_SPACE
-        .walk_toggle = 0x11,  // VK_CONTROL — 走/跑切换
+        .move_forward = 'W',
+        .move_left = 'A',
+        .move_backward = 'S',
+        .move_right = 'D',
+        .interact = 'F',
+        .jump = 0x20,        // VK_SPACE
+        .walk_toggle = 0x11, // VK_CONTROL
     };
 }
 

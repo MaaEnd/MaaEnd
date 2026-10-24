@@ -83,11 +83,7 @@ void MotionController::ReassertForward()
         SetForwardState(true);
         return;
     }
-    // Re-send a hold the tracked state already believes is applied, because a keydown the game drops leaves
-    // the agent standing still while the controller keeps steering as if it were walking. It has to go out as
-    // a release and a fresh press: the backends skip any key whose cached state already matches the request,
-    // so plain SetMovementStateSync would be a no-op in exactly this case. Bypasses SetAction on purpose --
-    // this fires mid-stall, and clearing pending steering there would throw away good aim.
+    // 后端会跳过与缓存状态相同的按键, 须松开再按, 且绕过 SetAction 以免清掉在途转向
     action_wrapper_->ResetForwardWalkSync(kWalkResetReleaseMs);
 }
 
@@ -121,10 +117,6 @@ TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg, int64_t 
         action_wrapper_->SetMovementStateSync(false, false, false, false, 0);
     }
 
-    // Spend the batches on the angle the command asks for rather than on how long the tick was: metering a big
-    // about-face one batch per tick stretched it over ~1.7s, and the character walks the whole time, so the turn
-    // swept a 3.5m arc into whatever stood beside it. The ceiling still caps every tick, which is what keeps each
-    // one an observation point -- a 185 turn goes out as 90 + 90 + 5, never all at once.
     const double batch_cap = steering_profile_.max_batch_delta_deg;
     int64_t batches =
         std::clamp<int64_t>(static_cast<int64_t>(std::ceil(std::abs(yaw_delta_deg) / batch_cap)), 1, kSteeringMaxBatchesPerTick);
@@ -149,7 +141,6 @@ TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg, int64_t 
         result = sent;
         emit_deg += std::clamp(remaining, -batch_cap, batch_cap);
     }
-    // 一拍分几批下发要合起来算，不然差额落到「其余」头上；被拒的那批也花了时间。
     result.send_ms = send_ms_total;
     if (send_ms_total > 0) {
         latency::RecordStage(latency::Stage::Steer, send_ms_total);

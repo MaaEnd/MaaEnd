@@ -10,35 +10,34 @@
 namespace mapnavigator
 {
 
-// 阶段机看世界的唯一窗口。hint_nodes 是这一帧定位的搜索先验
+// hint_nodes 是这一帧定位优先搜索的位置
 class IZiplineObserver
 {
 public:
     virtual ~IZiplineObserver() = default;
     virtual ZiplineObservation Observe(const std::vector<ZiplineNodeRef>& hint_nodes, bool force_global_search) = 0;
-    // 判定角色在架上还是在地面。仅在上索与下索确认期间调用: 一次调用要跑识别, 开销高于一帧定位
+    // 只在上索与下索确认期间调, 每次都要跑识别, 开销比一帧定位高
     virtual MountVerdict CheckMounted() = 0;
     virtual void ResetTracking() = 0;
 };
 
-// 阶段机的手。每个动作同步发出、发完即回, 转没转到位由后面的观测说了算
+// 每个动作同步发出、发完即回, 到没到位靠后续观测
 class IZiplineActuator
 {
 public:
     virtual ~IZiplineActuator() = default;
     virtual bool ResetPitchToMaximum() = 0;
-    // 只发一个后端批次, 返回实际发出的度数; 发不出去返回空
+    // 只发一个后端批次, 返回实际发出的度数, 发不出去返回空
     virtual std::optional<double> TurnYaw(double delta_deg) = 0;
     virtual bool TurnPitch(double delta_deg) = 0;
-    // 重按上索键。识别不到架子的交互提示时不发按键, 返回值为是否识别到
+    // 识别不到交互提示时不发按键, 返回是否识别到
     virtual bool PressMount() = 0;
     virtual void FireLaunch() = 0;
     virtual void Dismount() = 0;
     virtual void Wait(int32_t ms) = 0;
 };
 
-// 落地分类: 停稳的定位落在哪个已知节点圈里。圈外时滑行发生过就是脚下有根未登记的架子,
-// 没发生过就是定位还没对上。reached 给出对应的节点, 未登记架子按定位坐标现造一个
+// reached 返回命中的节点, 圈外且滑行过时按定位坐标现造一根未登记架子
 LandingClass ClassifyLanding(
     const std::optional<NaviPosition>& fix,
     const ZiplineNodeRef& origin,
@@ -47,18 +46,13 @@ LandingClass ClassifyLanding(
     bool riding_entered,
     ZiplineNodeRef* reached);
 
-// 一跳滑索从上索按键到交还导航的阶段机。按键后先确认已上架, 再放开俯仰与左键; 此后只依据定位:
-// 起滑后连续定位失败即判定在滑行, 定位恢复并停稳即判定落地, 落点归属由分类决定。
-// 每跳的发射与结果记进账本, 规划器据此排掉滑不动/滑错的索
 class ZiplineRideMachine
 {
 public:
-    // 开一跳。人已经站在架子上(链中续跳、滑回原架)时直接瞄, 否则由调用方先按上索键再来
+    // 人不在架子上时调用方要先按上索键再调
     void Begin(const ZiplineHopPlan& plan);
     StageResult Tick(IZiplineObserver& observer, IZiplineActuator& actuator);
-    // 外部要人立刻下来(丢链、换路)。跳还开着就按 Dismounted 记账
     void Dismount(IZiplineActuator& actuator);
-    // 上索点的每个站位都走到过却一次提示都没出来, 由导航侧判定后记账
     void MarkMountUnreachable(const ZiplineHopPlan& plan);
 
     bool OnTower() const;
@@ -84,14 +78,11 @@ private:
     double FirstShotAimBiasDeg() const;
     double EscalatedAimBiasDeg(double wrong_bearing_deg) const;
 
-    // 闭环转向的共用部件: 稳定读数、记账、发一个批次。链条瞄准与离索朝向走的是同一套,
-    // 区别只在对准之后做什么
     std::optional<double> SettledHeading(const ZiplineObservation& obs);
     void ResetStableHeading();
     void NoteTurnResponse(double heading);
     std::optional<double> IssueYawTurn(IZiplineActuator& actuator, double heading, double residual, Clock::time_point now);
     int32_t TurnBudgetMs(double residual) const;
-    // 离索朝向: 初始残差定预算, 摆正或到点都回到同一条下索路径
     StageResult StartExitAim(const HopCompleted& done, Clock::time_point now);
     double ResidualToExitAim() const;
     StageResult LeaveTowerAfterAim(IZiplineActuator& actuator, Clock::time_point now);
@@ -118,17 +109,16 @@ private:
     bool hop_open_ = false;
     HopLedger ledger_;
 
-    // 本次发射从 origin_ 瞄 target_。回程时 origin_ 是滑到的那根架子, target_ 是上索架
+    // 回程时 origin_ 是滑到的那根架子, target_ 是上索架
     ZiplineNodeRef origin_;
     ZiplineNodeRef target_;
     double seed_elevation_deg_ = 0.0;
-    // 去程停点相对落点方位的偏置, 一跳内跨发射保留
+    // 相对落点方位的瞄准偏置, 一跳内跨发射保留
     double aim_bias_deg_ = 0.0;
     bool pitch_lowered_ = false;
     int pitch_tier_ = 0;
     bool returning_ = false;
     int hop_retry_count_ = 0;
-    // 上索确认: 本次站位已发出的上索按键次数, 以及地面态判定的连续成立帧数
     int mount_presses_ = 0;
     int on_ground_hits_ = 0;
     std::vector<ZiplineNodeRef> discovered_towers_;
@@ -143,20 +133,16 @@ private:
     std::optional<Clock::time_point> minimap_back_at_;
     std::optional<Clock::time_point> unknown_deadline_;
 
-    // 瞄准闭环: 一次只发一个批次, 等朝向读数跟上并稳定后再算剩余
     std::optional<double> prev_heading_;
     int stable_heading_hits_ = 0;
     bool turn_pending_ = false;
     Clock::time_point turn_sent_at_ {};
-    // 上一批发出时的朝向与指令量
     double turn_ref_heading_ = 0.0;
     double turn_cmd_deg_ = 0.0;
-    // 这次瞄准里量到的实际转角与指令之比，不小于 1
+    // 实际转角与指令之比, 不小于 1
     std::optional<double> yaw_response_ratio_;
-    // 链条瞄准的截止时间，读到头一个稳定朝向时按初始残差定下
     std::optional<int32_t> aim_budget_ms_;
 
-    // 离索朝向要朝的点与这一段按初始残差放大的预算。只有链尾那一跳带目标, 经调用方确认后才进这一段
     ZiplineMountSpot exit_aim_;
     int32_t exit_aim_budget_ms_ = 0;
 

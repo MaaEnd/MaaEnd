@@ -104,10 +104,10 @@ bool AdbCameraSwipeDriver::ExecuteSwipe(const ScreenGeometry& geometry, int swip
 
 bool AdbCameraSwipeDriver::ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const
 {
-    // 横向以中心对称起落: 被当成点击时落点离屏幕中心最近, 碰不到两侧的任务追踪和按钮
+    // 以中心对称起落, 被当成点击时也碰不到两侧的任务追踪和按钮
     const cv::Point start = ClampPoint({ geometry.center.x - swipe_dx / 2, geometry.center.y }, geometry.resolution);
     const cv::Point end = ClampPoint({ start.x + swipe_dx, geometry.center.y + swipe_dy }, geometry.resolution);
-    // 第一步越过起拖阈值, 之后的位移全额计入; 比阈值短的笔越过去再拉回终点
+    // 比起拖阈值短的笔先越过阈值再拉回终点
     const cv::Point lead = DragLeadPoint(start, end, config_.drag_start_lead, geometry.resolution);
 
     if (!PostTouchDown(start)) {

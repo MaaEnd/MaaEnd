@@ -100,7 +100,7 @@ void ObstacleDeviceRecovery::UpdateFeeding(int64_t stalled_ms, bool attempt_avai
     }
     const bool feed = stalled_ms > 0 && attempt_available;
     if (feed && !feeding_) {
-        scanner_->ConsumeDetection(); // the restart edge drops whatever the worker flagged while unattended
+        scanner_->ConsumeDetection(); // 重新开喂时丢掉停喂期间的命中
     }
     feeding_ = feed;
 }
@@ -119,12 +119,12 @@ DeviceRemovalOutcome ObstacleDeviceRecovery::TryRemove(const RouteTrackingState&
         return DeviceRemovalOutcome::NotAttempted;
     }
     if (!scanner_->ConsumeDetection()) {
-        return DeviceRemovalOutcome::NotAttempted; // nothing interactable in front of the agent, so a jump is the faster answer
+        return DeviceRemovalOutcome::NotAttempted;
     }
 
     const NaviPosition move_start = *position_;
     LogInfo << "Dynamic recovery carrying off the blocking device." << VAR(route.waypoint_distance);
-    // A click while walking lands on whatever prompt row has scrolled under it, so stand still until the move click.
+    // 边走边点会点到滚到下面的另一行提示, 移动点击前须站定
     motion_controller_->SetForwardState(false);
     const std::optional<std::vector<std::string>> handled =
         semantic_nodes::RunTaskForCompletedNodes(maa_context_, kObstacleDeviceEntry, "{}");
@@ -133,7 +133,7 @@ DeviceRemovalOutcome ObstacleDeviceRecovery::TryRemove(const RouteTrackingState&
         return DeviceRemovalOutcome::StillPinned;
     }
     if (const char* walk_out = WalkOutEntryFor(*handled); walk_out != nullptr) {
-        // The carried device lands back where it was, so walk out from under it before it is put down.
+        // 搬起的设备会放回原处, 放下前须先走出来
         motion_controller_->ReassertForward();
         if (MaaContextRunTask(maa_context_, walk_out, "{}") == MaaInvalidId) {
             LogWarn << "Blocking-device walk-out did not run." << VAR(walk_out);
@@ -143,8 +143,7 @@ DeviceRemovalOutcome ObstacleDeviceRecovery::TryRemove(const RouteTrackingState&
 
     if (!position_provider_->Capture(position_, false, session_->current_zone_id()) || position_provider_->LastCaptureWasBlackScreen()
         || !position_->valid) {
-        // A stale fix would let the jump that follows measure its displacement from an old point and report an
-        // escape that never happened, so wait for a real one instead.
+        // 旧定位会让随后的跳跃从旧点量位移, 误报已脱困
         LogWarn << "Dynamic recovery waiting for a local tracking fix after the device move.";
         utils::SleepFor(kTargetTickMs);
         return DeviceRemovalOutcome::NeedsFreshFix;

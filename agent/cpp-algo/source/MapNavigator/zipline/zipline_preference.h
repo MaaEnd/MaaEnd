@@ -7,18 +7,13 @@
 namespace mapnavigator
 {
 
-// 前端设置里的滑索三态,覆盖单条请求里写的 zip。读不到设置就返回 requested,
-// 也就是老行为:路线自己说要用才用。
+// 前端设置的三态覆盖请求里的 zip, 读不到设置时返回 requested
 bool ResolveZiplineEnabled(MaaContext* context, bool requested);
 
-// 读取 CaptureUid 写入 Resource 通用状态节点的伪匿名账号标识。节点缺失、为空或格式异常时返回空串。
-//
-// 取到标识后顺带把旧版本遗留的无账号坐标认领给当前账号（当前账号已有记录时不认领），
-// 使升级前的坐标无需重新导入即可继续使用；认领结果同时提示给用户。
+// 取不到时返回空串, 取到后顺带把不带账号字段的坐标记录认领给当前账号
 std::string ResolveZiplineAccountId(MaaContext* context);
 
-// 寻路结束时调,把滑索没用上的原因讲给用户听。两种原因各自只讲一次,直到滑索真的用上过
-// 才复位:一条任务链里几十次寻路,同一句重复几十遍就成了噪声。
+// 每种原因只提示一次, 滑索真正用上后才复位
 void NoticeZiplineOutcome(MaaContext* context);
 
 } // namespace mapnavigator

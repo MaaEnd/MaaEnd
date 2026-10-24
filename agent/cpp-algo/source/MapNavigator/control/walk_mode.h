@@ -8,24 +8,21 @@ class ActionWrapper;
 namespace mapnavigator::walkmode
 {
 
-// The game's walk toggle is a press-to-flip state that outlives a single run, so the belief is process-global
-// and the restore is a destructor.
 bool Engaged();
 
-// Sprint leaves walking on its own — adopt that instead of sending a key.
+// 冲刺会自动退出走路, 只更新记录不发键
 void NoteSprintTriggered();
 
 class Toggle
 {
 public:
     explicit Toggle(ActionWrapper* action_wrapper);
-    // Restores jogging on every exit path: success, failure, user stop, exception unwind.
     ~Toggle();
 
     Toggle(const Toggle&) = delete;
     Toggle& operator=(const Toggle&) = delete;
 
-    // Idempotent; a no-op on backends with no binding — the belief only moves with a real press.
+    // 幂等, 后端无走路键时不生效, 记录只随真实按键变化
     void Request(bool walk);
 
     bool engaged() const { return Engaged(); }

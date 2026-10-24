@@ -6,7 +6,6 @@ namespace mapnavigator
 class MotionController;
 class ActionWrapper;
 
-// Key presses performed on arrival; the arrival dispatch in semantic_nodes decides which waypoint runs which.
 class ActionExecutor
 {
 public:

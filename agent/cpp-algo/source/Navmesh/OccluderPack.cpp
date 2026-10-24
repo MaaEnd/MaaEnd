@@ -19,7 +19,7 @@
 #include "BaseNavReader.h"
 #include "NavVarint.h"
 
-// 求交要与烘焙端逐位相同,不许把乘加合成一条指令。
+// 禁止乘加融合, 求交结果须逐位可复现
 #if defined(__clang__)
 #pragma clang fp contract(off)
 #elif defined(__GNUC__)
@@ -36,18 +36,16 @@ using Vec3 = OccluderScene::Vec3;
 using Mat3 = OccluderScene::Mat3;
 using BoxNode = OccluderScene::BoxNode;
 
-// 容器与场景本体的魔数和格式版本,与烘焙端写出的一致,对不上就整份不认。
 constexpr char kContainerTag[4] = { 'O', 'C', 'L', 'S' };
 constexpr char kSceneTag[4] = { 'O', 'C', 'L', 'Z' };
 constexpr uint32_t kContainerVersion = 1;
 constexpr uint32_t kSceneVersion = 1;
-// 容器表头:魔数、版本、场景数,各 4 字节。
+// 容器表头: 魔数、版本、场景数, 各 4 字节
 constexpr size_t kContainerHeaderSize = 12;
-// 场景表头:魔数、版本、模板数、实例数、地形块数、块边长各 4 字节,位置量化步长、格宽、高度格点 a/b 各 8 字节,
-// 旋转量化分母、缩放移位各 4 字节,原点 x、z 各 8 字节。
+// 场景表头: 魔数 4 B, 版本、模板数、实例数、块数、块边长 u32, 位置步长、格宽、格点 a/b f64, 旋转分母、缩放移位 u32, 原点 x/z i64
 constexpr size_t kSceneHeaderSize = 80;
 
-// 表头之后的流,顺序与烘焙端一致。
+// 表头之后的流, 按此顺序排列
 enum StreamIndex : size_t
 {
     kTemplate,
@@ -65,35 +63,30 @@ enum StreamIndex : size_t
     kStreamCount,
 };
 
-// 线段与三角所在平面夹角正弦的平方不到这个数就当平行,不算交。取值与烘焙端的问线相同,两边逐条判得一样。
+// 线段与三角平面夹角正弦的平方低于此值视为平行
 constexpr double kParallelSin2 = 1e-24;
-// 包围盒判交时各面外扩这么多米,吸收摆放时的舍入。取值与烘焙端的问线相同。
+// 包围盒判交时各面外扩的米数
 constexpr double kBoxPad = 1e-6;
-// 三角的包围盒再外扩这么多(模板局部单位),挡住近乎贴面的线段求交时的舍入,树只用来少算,不能漏算。
-// 只要盖得住舍入,取大只多算几个三角,不改结果。
+// 三角包围盒外扩量, 模板局部单位
 constexpr double kTriangleBoxPad = 1e-3;
-// 三角超过这么多的模板才建树,一片叶子最多装这么多项。两个值只影响查询快慢,不影响结果。
 constexpr size_t kTreeMinTriangles = 8;
 constexpr uint32_t kLeafSize = 4;
-// 四元数除最大分量外的三个分量按 [-1/√2, 1/√2] 存。
+// 四元数除最大分量外的三个分量按 [-1/√2, 1/√2] 存
 constexpr double kFrac1Sqrt2 = std::numbers::sqrt2 / 2.0;
-// 建筑落地只看塔底附近一个 1 m 见方的格,这是它的半宽(米)。格按整米对齐,与建造网格同一步长。
+// 落地占地格的半宽 m, 格按整米对齐
 constexpr double kSettleHalfWidth = 0.5;
-// 薄板从名义塔底上方这么多米处起落。名义塔底是建造格的整米高度,实际地面可能高出它,从上方起落才接得住。
+// 薄板起落高度在名义塔底上方的米数
 constexpr double kSettleLift = 1.0;
-// 薄板底面比起落高度低这么多米、顶面高这么多米。薄板只用来判断起落处是否已经贴着面,
-// 厚度只在面恰好停在起落高度附近万分之一米内时起作用,远小于绳与障碍之间的余量。
+// 薄板底面低于、顶面高于起落高度的米数
 constexpr double kSettlePlateBelow = 5e-5;
 constexpr double kSettlePlateAbove = 1.5e-4;
-// 面的最高点伸到板底下这么多米以内也算贴着,吸收浮点舍入。
+// 面的最高点在板底下这么多米内也算贴着
 constexpr double kSettleTouch = 1e-5;
-// 薄板最多往下落这么多米找地,落到底还没碰上面就保留名义塔底。与 kSettleLift 一起盖住名义塔底上下各 1 m。
+// 薄板最多下落的米数
 constexpr double kSettleDrop = 2.0;
-// 落地结果离名义塔底最多这么多米。名义塔底按整米取,实际地面与它差不出这个范围。
+// 落地结果离名义塔底的最大米数
 constexpr double kSettleClamp = 1.0;
-// 三角裁进竖直柱子后最多几个顶点:三角本身 3 个,四刀每刀最多多出一个。
 constexpr size_t kClipMaxVertices = 8;
-// 台沿下落判定用的容差。
 constexpr double kBaryEps = 1e-9;
 constexpr double kFlatDet = 1e-12;
 constexpr double kColumnEdge = 1e-6;
@@ -126,7 +119,7 @@ double ReadF64(const uint8_t*& cursor)
     return std::bit_cast<double>(ReadU64(cursor));
 }
 
-// 一条流的顺序读取。读过头或变长整数不合规时 ok 置 false,此后读到的都是 0。
+// 读过头或变长整数不合规时 ok 置 false, 此后读到的都是 0
 struct Stream
 {
     const uint8_t* begin = nullptr;
@@ -178,7 +171,7 @@ struct Stream
     }
 };
 
-// 增量累加按补码回绕,坏数据不至于触发有符号溢出。
+// 按补码回绕, 坏数据不会触发有符号溢出
 int64_t WrapAdd(int64_t a, int64_t b)
 {
     return static_cast<int64_t>(static_cast<uint64_t>(a) + static_cast<uint64_t>(b));
@@ -219,7 +212,6 @@ double Det(const Mat3& m)
     return Dot(m[0], Cross(m[1], m[2]));
 }
 
-// 行列式恰为 0 或不是有限数(压扁成面、线的摆放)时没有逆。
 bool Inverse(const Mat3& m, Mat3& out)
 {
     const Mat3 c { {
@@ -239,8 +231,7 @@ bool Inverse(const Mat3& m, Mat3& out)
     return true;
 }
 
-// 量化的旋转与缩放还原成 a = R·diag(s)。code 是四元数 (x, y, z, w) 里被略去的最大分量的位置,
-// rot 是其余三个分量按原顺序,scale 是 s·scale_unit。
+// code 是四元数 (x, y, z, w) 里略去的最大分量位置, rot 是其余三个分量, scale 是 s·scale_unit
 Mat3 AffineDecode(uint8_t code, const std::array<int64_t, 3>& rot, const std::array<int64_t, 3>& scale, double rot_scale, double scale_unit)
 {
     double c[3];
@@ -274,8 +265,6 @@ Mat3 AffineDecode(uint8_t code, const std::array<int64_t, 3>& rot, const std::ar
     return a;
 }
 
-// 线段 o + s·d(s ∈ [0, 1])碰不碰得到轴对齐盒(各面外扩 kBoxPad)。盒子变大时结果只会从不碰变成碰,
-// 所以拿装得下子节点的盒子先判,不会漏掉子节点里碰得到的项。
 bool SegBox(const Vec3& o, const Vec3& d, const Vec3& lo, const Vec3& hi)
 {
     double s0 = 0.0;
@@ -301,8 +290,7 @@ bool SegBox(const Vec3& o, const Vec3& d, const Vec3& lo, const Vec3& hi)
     return true;
 }
 
-// 线段 o + s·d(s ∈ [0, 1])与三角求交(Möller–Trumbore),正反面都算,落在边、角、线段端点上也算。
-// 三角退化成线或点、线段与三角所在平面平行时不算交。d2 = |d|²。
+// Möller–Trumbore, 正反面与边角端点都算交, d2 = |d|²
 bool SegTri(const Vec3& o, const Vec3& d, double d2, const Vec3& v0, const Vec3& v1, const Vec3& v2, double& t)
 {
     const Vec3 e1 = Sub(v1, v0);
@@ -329,7 +317,6 @@ bool SegTri(const Vec3& o, const Vec3& d, double d2, const Vec3& v0, const Vec3&
     return t >= 0.0 && t <= 1.0;
 }
 
-// 三角裁到竖直的柱子 [x0, x1] × [z0, z1] 里(边界上的也留),裁剩的多边形写进 poly,返回顶点数,裁没了是 0。
 size_t ClipToRect(const Vec3 (&tri)[3], double x0, double x1, double z0, double z1, std::array<Vec3, kClipMaxVertices>& poly)
 {
     struct Cut
@@ -367,7 +354,6 @@ size_t ClipToRect(const Vec3 (&tri)[3], double x0, double x1, double z0, double 
     return count;
 }
 
-// double 向下、向上取到 float,保证 float 盒子装得下原来的盒子。
 float FloatDown(double value)
 {
     constexpr double kMax = std::numeric_limits<float>::max();
@@ -455,7 +441,6 @@ struct TreeBuild
     }
 };
 
-// 按包围盒中心沿最长轴对半分的包围盒树。每项的盒子各面先外扩 pad。
 void BuildTree(
     const std::vector<Vec3>& lo,
     const std::vector<Vec3>& hi,
@@ -481,7 +466,7 @@ void BuildTree(
     nodes.shrink_to_fit();
 }
 
-// 两个轴对齐盒碰不碰得到(第二个各面外扩 kBoxPad)。与 SegBox 一样,盒子变大时只会从不碰变成碰。
+// 只给第二个盒子外扩 kBoxPad
 bool BoxBox(const Vec3& lo, const Vec3& hi, const Vec3& other_lo, const Vec3& other_hi)
 {
     for (size_t k = 0; k < 3; ++k) {
@@ -492,7 +477,7 @@ bool BoxBox(const Vec3& lo, const Vec3& hi, const Vec3& other_lo, const Vec3& ot
     return true;
 }
 
-// 沿树找 reaches(节点盒)为真的叶子,逐项交给 visit。对半分的树深不过 32 层,栈开 64 足够。
+// 对半分的树深不过 32 层, 栈开 64 足够
 template <typename Reaches, typename Visit>
 void VisitTree(const std::vector<BoxNode>& nodes, const std::vector<uint32_t>& order, Reaches&& reaches, Visit&& visit)
 {
@@ -521,14 +506,12 @@ void VisitTree(const std::vector<BoxNode>& nodes, const std::vector<uint32_t>& o
     }
 }
 
-// 世界里的一张面。
 struct Face
 {
     Vec3 v[3];
     bool up = false;
 };
 
-// 盒子 [lo, hi] 碰得到的面。
 std::vector<Face> FacesInBox(const OccluderScene& scene, const Vec3& lo, const Vec3& hi)
 {
     std::vector<Face> faces;
@@ -617,7 +600,6 @@ std::vector<Face> FacesInBox(const OccluderScene& scene, const Vec3& lo, const V
     return faces;
 }
 
-// 三角在 (x, z) 处的高。
 std::optional<double> HeightAt(const Vec3 (&tri)[3], double x, double z)
 {
     const Vec3& a = tri[0];
@@ -636,7 +618,6 @@ std::optional<double> HeightAt(const Vec3 (&tri)[3], double x, double z)
     return l0 * a[1] + l1 * b[1] + l2 * c[1];
 }
 
-// 三角穿不穿过 a → b 上方高度 (lo, hi) 的竖直帘。
 bool CrossesCurtain(const Vec3 (&tri)[3], double ax, double az, double bx, double bz, double lo, double hi)
 {
     const double dx = bx - ax;
@@ -747,7 +728,7 @@ bool DecodeTemplates(OccluderScene& scene, uint32_t count, Stream* st)
     return true;
 }
 
-// 位置按位置步长的整数存,x、z 是相对表头原点的增量,y 原点恒为 0。
+// 位置按位置步长的整数存, x、z 相对表头原点, y 原点恒为 0
 bool DecodeInstances(
     OccluderScene& scene,
     uint32_t count,
@@ -757,7 +738,7 @@ bool DecodeInstances(
     double scale_unit,
     Stream* st)
 {
-    // 实例按模板排好,逐模板一个数
+    // 实例按模板排好, 逐模板存一个实例数
     std::vector<uint32_t> tpl_of;
     tpl_of.reserve(count);
     for (uint32_t k = 0; k < scene.templates.size(); ++k) {
@@ -852,12 +833,12 @@ bool DecodeInstances(
     return true;
 }
 
-// 块原点与实例位置同样相对表头原点存。
+// 块原点同样相对表头原点存
 bool DecodeBlocks(OccluderScene& scene, uint32_t count, double pos_q, const std::array<int64_t, 3>& origin, Stream* st)
 {
     const size_t n = scene.block_n;
     const size_t m = n - 1;
-    // 每个采样至少占高度流一个字节,先拦住撑爆内存的坏表头
+    // 每个采样至少占高度流一字节, 先拦住撑爆内存的坏表头
     if (count > 0 && static_cast<uint64_t>(n) * n > st[kHeight].size() / count) {
         return false;
     }
@@ -880,7 +861,7 @@ bool DecodeBlocks(OccluderScene& scene, uint32_t count, double pos_q, const std:
             }
             block.holes.assign(mask, mask + hole_bytes);
         }
-        // 高度是格点整数,按左、上、左上三个邻点预测存残差;每块第一个采样接着上一块的第一个
+        // 高度按左、上、左上三邻点预测存残差, 每块首个采样接上一块的首个
         std::vector<int64_t> k(n * n);
         for (size_t v = 0; v < n; ++v) {
             for (size_t u = 0; u < n; ++u) {
@@ -1004,7 +985,7 @@ std::shared_ptr<const OccluderScene> DecodeSceneBody(const uint8_t* data, size_t
     if (cursor != end) {
         return nullptr;
     }
-    // 每个模板在模板流里至少三个字节,每个实例在旋转码流里正好一个字节,每块在块流里至少三个字节
+    // 模板与块在各自流里至少 3 字节, 实例在旋转码流里正好 1 字节
     if (template_count > st[kTemplate].size() / 3 || instance_count != st[kRotationCode].size() || block_count > st[kBlock].size() / 3) {
         return nullptr;
     }
@@ -1064,7 +1045,7 @@ std::vector<OccluderHit> OccluderScene::lineHits(const OccluderPoint& start, con
             }
             return;
         }
-        // 可逆的摆放把线段换进模板局部系求交,沿线参数不变
+        // 换进模板局部系求交, 沿线参数不变
         const Vec3 la = Mul(inst.m, Sub(a, inst.t));
         const Vec3 ld = Sub(Mul(inst.m, Sub(b, inst.t)), la);
         const double d2 = Dot(ld, ld);
@@ -1113,7 +1094,6 @@ double OccluderScene::groundHeight(const OccluderPoint& base) const
     const Vec3 hi { x1, top, z1 };
     const std::vector<Face> faces = FacesInBox(*this, lo, hi);
 
-    // 每个面裁到占地格里,看它的高度范围:贴上薄板就是原地碰上了,否则薄板往下落时先碰到最高的那个朝上面
     bool touching = false;
     double landed = -std::numeric_limits<double>::infinity();
     for (const Face& face : faces) {
@@ -1135,7 +1115,6 @@ double OccluderScene::groundHeight(const OccluderPoint& base) const
             landed = std::fmax(landed, y_hi);
         }
     }
-    // 原地碰上时改从占地四个角往下看,取最高的朝上面
     if (touching) {
         landed = -std::numeric_limits<double>::infinity();
         const Vec3 d { 0.0, -kSettleDrop, 0.0 };
@@ -1188,13 +1167,11 @@ bool OccluderScene::dropBlocked(const OccluderPoint& take, const OccluderPoint& 
     if (!floor_under(at_land, land.y).has_value()) {
         return false;
     }
-    // 落点头顶有实体
     for (const Level& level : at_land) {
         if (!level.up && level.y > land.y + climb && level.y < take.y) {
             return true;
         }
     }
-    // 起跳路径有实体
     const std::optional<double> take_floor = floor_under(at_take, take.y);
     if (!take_floor.has_value()) {
         return false;
@@ -1226,7 +1203,7 @@ std::shared_ptr<const OccluderScene> DecodeOccluderScene(const uint8_t* data, si
     const uint8_t* body = nullptr;
     size_t body_size = 0;
     for (uint32_t i = 0; i < count; ++i) {
-        // 每条记录是 zone 名与本体,认场景按 zone 名,主包的仿射也是按它取的。
+        // 每条记录: u16 名长、zone 名、u32 本体长、本体
         if (static_cast<size_t>(end - cursor) < sizeof(uint16_t)) {
             return nullptr;
         }

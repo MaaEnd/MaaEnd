@@ -16,8 +16,7 @@ namespace mapnavigator
 namespace
 {
 
-// 一跳里第几次按左键该把镜头抬到多少度。俯仰读不回来, 下降索按规划仰角朝下瞄已经能发出去, 上升索
-// 的正仰角还没核过, 所以第二次反着来, 第三次干脆不动俯仰——三次里必有一次踩在对的那一侧
+// 上升索的仰角正负不确定, 所以第二次取反, 第三次不动俯仰
 double PitchTargetForAttempt(double elevation_deg, int attempt)
 {
     if (std::abs(elevation_deg) < kZiplinePitchDeadbandDeg) {
@@ -38,7 +37,7 @@ double BearingDeg(const ZiplineNodeRef& from, const ZiplineNodeRef& to)
     return NaviMath::CalcTargetRotation(from.x, from.y, to.x, to.y);
 }
 
-// 回程的俯仰种子。两端都有世界坐标才算得出仰角, 现发现的架子没有, 就平着按
+// 现发现的架子没有世界坐标, 算不出仰角就平着按
 double ElevationDeg(const ZiplineNodeRef& from, const ZiplineNodeRef& to)
 {
     if (!from.has_world || !to.has_world) {
@@ -144,9 +143,8 @@ LandingClass ClassifyLanding(
 void ZiplineRideMachine::Begin(const ZiplineHopPlan& plan)
 {
     const auto now = Clock::now();
-    // 链中续跳与滑回原架时角色已在架上, 直接进入瞄准; 其余情况调用方刚发出上索按键, 需先确认已上架
     const bool standing = OnTower();
-    // 上索点重新站过一次再回来的是同一跳, 记录接着写; 换了跳就把上一跳按下索了结
+    // 重新站过上索点再回来仍算同一跳, 记录接着写
     const bool resume = hop_open_ && plan_.mount.SameTower(plan.mount) && plan_.landing.SameTower(plan.landing);
     if (!resume) {
         if (hop_open_) {
@@ -192,7 +190,7 @@ StageResult ZiplineRideMachine::Tick(IZiplineObserver& observer, IZiplineActuato
         break;
     }
 
-    // 起滑后跟踪器仍停在上索点, 小地图隐藏帧会被跟踪出贴着上索点的假位置
+    // Fired 阶段跟踪器还停在上索点, 会把小地图隐藏帧跟出贴着上索点的假位置
     const ZiplineObservation obs = observer.Observe(KnownNodes(), stage_ == ZiplineStage::Fired);
     switch (stage_) {
     case ZiplineStage::Mounting:
@@ -220,14 +218,14 @@ void ZiplineRideMachine::Dismount(IZiplineActuator& actuator)
     if (OnTower()) {
         actuator.Dismount();
     }
-    // 发射过却被外面叫下来的, 只剩「重新站过一次还是没发出去」这一种情形: 按滑不动记, 重规划别再选它
+    // 发射过却被叫下来只可能是重站后仍没发出去, 按滑不动记
     if (hop_open_) {
         CommitRecord(record_.launches.empty() ? HopOutcome::Dismounted : HopOutcome::NoLaunch, Clock::now());
     }
     Reset();
 }
 
-// Mounting 不计入在架上: 该阶段正在判定是否已上架, 计入会退回到按键即认定
+// Mounting 不算在架上, 它正在判定是否已上架
 bool ZiplineRideMachine::OnTower() const
 {
     return parked_on_.has_value() || stage_ == ZiplineStage::OnTower || stage_ == ZiplineStage::Aiming || stage_ == ZiplineStage::Fired
@@ -309,7 +307,7 @@ void ZiplineRideMachine::CommitRecord(HopOutcome outcome, Clock::time_point now)
             << VAR(record_.wrong_rope_bearings_deg.size()) << VAR(ledger_.size());
 }
 
-// 规划器只按每条记录的两端封索, 回程索不单独记就会被重规划再派回去
+// 规划器只按每条记录的两端封索, 回程索不单独记会被重规划再派回去
 void ZiplineRideMachine::CommitFailedReturn(HopOutcome outcome, Clock::time_point now)
 {
     ZiplineHopRecord record;
@@ -323,8 +321,7 @@ void ZiplineRideMachine::CommitFailedReturn(HopOutcome outcome, Clock::time_poin
             << VAR(plan_.mount.y) << VAR(ledger_.size());
 }
 
-// 分类和落地搜索先验用的全部已知节点: 这一跳两端、同架其它索的落点、途中发现的架子、账本里的架子。
-// 起点还额外按起滑时的实际定位放一份, 架子台面比节点像素大, 站偏一点也得认出是原地
+// 起点额外按起滑时的实际定位放一份, 台面比节点大, 站偏了也要认出是原地
 std::vector<ZiplineNodeRef> ZiplineRideMachine::KnownNodes() const
 {
     std::vector<ZiplineNodeRef> known;
@@ -388,8 +385,7 @@ double ZiplineRideMachine::EscalatedAimBiasDeg(double wrong_bearing_deg) const
     return away * std::min(magnitude, AwaySideCapDeg(NeighborOffsetsDeg(), away));
 }
 
-// 上索按键发出后, 先确认已上架再放开俯仰与左键。两个判定各需连续若干帧一致才落定。位移只作否决用:
-// 角色被架子锁住时无法移动, 故能移动即判定在地面, 零位移本身是二义的
+// 被架子锁住时无法移动, 所以能移动即在地面, 零位移本身说明不了什么
 StageResult ZiplineRideMachine::TickMounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator)
 {
     const auto now = obs.at;
@@ -399,19 +395,17 @@ StageResult ZiplineRideMachine::TickMounting(const ZiplineObservation& obs, IZip
         last_fix_ = obs.fix;
     }
     const MountVerdict verdict = walking ? MountVerdict::OnGround : observer.CheckMounted();
-    // settle 之内的地面读数不予采信: 按钮尚未收起时, 角色可能正在上架过程中。故这段时间内的读数
-    // 一律不计入连续帧数, 重按所依据的若干帧全部取自窗口之后
+    // settle 内按钮可能还没收起, 地面读数不计入连续帧
     const bool settled = elapsed_ms >= kZiplineMountSettleMs;
     on_ground_hits_ = verdict == MountVerdict::OnGround && settled ? on_ground_hits_ + 1 : 0;
 
-    // 架上那几条操作引导只在人已经站上架子之后才出现, 而它逐帧能不能读出来随机位起落, 故读到一帧即认
+    // 架上操作引导只在站上架子后出现, 但逐帧时有时无, 所以读到一帧即认
     if (verdict == MountVerdict::OnTower) {
         LogInfo << "zipline/mount/confirmed" << VAR(elapsed_ms) << VAR(mount_presses_);
         EnterStage(ZiplineStage::OnTower, now);
         return {};
     }
-    // 余速未停时不重按: 带着惯性发出的交互正是这一跳落空的成因, 此时重按同样不会生效。一路都在动
-    // 说明人没被架子锁住, 窗口耗满就交回导航换站位 —— 这个相位外头没有看门狗, 等不到别人来收场
+    // 还在动时重按无效, 这个阶段外面没有看门狗, 窗口耗满必须自己交回导航
     if (walking) {
         if (elapsed_ms <= kZiplineMountWindowMs) {
             return {};
@@ -424,12 +418,10 @@ StageResult ZiplineRideMachine::TickMounting(const ZiplineObservation& obs, IZip
     if (on_ground_hits_ >= kZiplineMountOnGroundFixes) {
         return Remount(actuator, "zipline/mount/on_ground", now);
     }
-    // 两个信号都未命中在窗口内只当过渡态, 等窗口耗满再判定
     if (elapsed_ms <= kZiplineMountWindowMs) {
         return {};
     }
-    // 窗口耗满、两个信号都未命中且无位移: 按「已被架子锁住而提示漏读」处理, 先发下索键回到可判定的地面态
-    // 再重规划, 避免在位置未定的状态下继续瞄准和发射
+    // 判不清时按已上架但漏读提示处理, 先下索回到可判定的地面态再重规划
     if (verdict == MountVerdict::Unclear) {
         LogWarn << "zipline/mount/unreadable" << VAR(elapsed_ms) << VAR(mount_presses_);
         CommitRecord(HopOutcome::NotMounted, now);
@@ -438,11 +430,8 @@ StageResult ZiplineRideMachine::TickMounting(const ZiplineObservation& obs, IZip
     return Remount(actuator, "zipline/mount/window_expired", now);
 }
 
-// 判定未上架后的第一级处置是重按上索键。两道防护避免对已上架的角色重按: 地面态须由 InWorld 命中,
-// 以及识别不到架子的交互提示时不发按键。预算用尽仍未上架才交回导航, 由其调整站位后重来
 StageResult ZiplineRideMachine::Remount(IZiplineActuator& actuator, const char* reason, Clock::time_point now)
 {
-    // elapsed_ms 是这次按键到判定未上架的实际耗时, settle 与窗口两个时限按它核准
     const int64_t elapsed_ms = StageElapsedMs(now);
     if (mount_presses_ < kZiplineMountPressBudget && actuator.PressMount()) {
         ++mount_presses_;
@@ -457,7 +446,6 @@ StageResult ZiplineRideMachine::Remount(IZiplineActuator& actuator, const char* 
     return NeedsReposition {};
 }
 
-// 这根架子的站位全试过了, 一次提示都没出来。记一笔让重规划别再拿它当上索点; 当落点不受影响
 void ZiplineRideMachine::MarkMountUnreachable(const ZiplineHopPlan& plan)
 {
     const Clock::time_point now = Clock::now();
@@ -485,7 +473,6 @@ StageResult ZiplineRideMachine::TickOnTower(IZiplineActuator& actuator, Clock::t
     yaw_response_ratio_.reset();
     aim_budget_ms_.reset();
     pitch_lowered_ = false;
-    // 俯仰读不回来, 每次发射前都先拉到上限, 从这个已知位置开环往下调
     if (!actuator.ResetPitchToMaximum()) {
         return FailAim(actuator, "zipline/aim/pitch_reset_failed", now);
     }
@@ -495,8 +482,6 @@ StageResult ZiplineRideMachine::TickOnTower(IZiplineActuator& actuator, Clock::t
     return {};
 }
 
-// 闭环转向的共用部件: 一次只发一个后端批次, 等读数跟上并连续两帧一致才认这个朝向。
-// 链条瞄准与离索朝向共用它, 区别只在对准之后做什么
 std::optional<double> ZiplineRideMachine::SettledHeading(const ZiplineObservation& obs)
 {
     if (!obs.fix) {
@@ -548,7 +533,6 @@ std::optional<double> ZiplineRideMachine::IssueYawTurn(IZiplineActuator& actuato
     return issued;
 }
 
-// 站在架子上瞄准。一次只发一个后端批次, 等朝向读数跟上并连着两帧一致再算剩余角。对准后俯仰开环、左键起滑
 StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZiplineActuator& actuator)
 {
     const auto now = obs.at;
@@ -589,7 +573,7 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
         return {};
     }
 
-    // 对准了。镜头此刻在俯仰上限, 从那里开环调到这一档的目标角
+    // 镜头此刻在俯仰上限, 从那里开环调到目标角
     const double pitch_target = PitchTargetForAttempt(seed_elevation_deg_, pitch_tier_);
     if (!pitch_lowered_) {
         const double pitch_delta = pitch_target - kZiplinePitchMaximumElevationDeg;
@@ -630,8 +614,7 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
     return {};
 }
 
-// 起滑后: 滑行中小地图整个隐藏, 定位连着断掉就是滑出去了; 空响没滑走时人还站在上索架上, 小地图照常显示,
-// 过了确认时间定位还在起点就是空响
+// 滑行中小地图隐藏, 定位连断就是滑出去了; 空响时人还在上索架上, 小地图照常显示
 StageResult ZiplineRideMachine::TickFired(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator)
 {
     const auto now = obs.at;
@@ -659,7 +642,7 @@ StageResult ZiplineRideMachine::TickFired(const ZiplineObservation& obs, IZiplin
     }
     if (++miss_streak_ >= kZiplineRideLostFixes) {
         riding_entered_ = true;
-        // 落地帧离起点一整跨, 起点的旧位置留在跟踪器里会把真落点当远跳拒掉; 清掉, 落地走冷启动
+        // 跟踪器留着起点旧位置会把真落点当远跳拒掉
         observer.ResetTracking();
         LogInfo << "zipline/fired/riding" << VAR(elapsed_ms);
         EnterStage(ZiplineStage::Riding, now);
@@ -699,7 +682,6 @@ StageResult ZiplineRideMachine::TickRiding(const ZiplineObservation& obs, IZipli
     return {};
 }
 
-// 定位回来了, 连着几帧几乎不动才算停稳。一直稳不下来就是定位对不上, 交给分类当 Unknown 处理
 StageResult ZiplineRideMachine::TickLanded(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator)
 {
     const auto now = obs.at;
@@ -721,11 +703,7 @@ StageResult ZiplineRideMachine::TickLanded(const ZiplineObservation& obs, IZipli
     return {};
 }
 
-// 链尾落地后先把朝向摆到下一段的走路方向, 再按下索键。下索动作自身带出沿按键那刻朝向的一段
-// 动量: 朝向偏多少, 动量就偏多少, 其中切向的偏差(约 90 度)最不利 —— 整段动量都在横向上, 人
-// 横着离开要走的那条线; 沿走路方向的偏差(含 180 度整段反着走)只是多走或少走一段直线。
-// 定位读不到、批次发不出去、预算耗满都照常下索: 这一步只省掉下索后那次转向, 不该让一条本来
-// 走得通的路失败
+// 下索会沿按键时的朝向带出一段动量, 所以先摆朝向; 这一步失败也照常下索
 StageResult ZiplineRideMachine::TickExitAiming(const ZiplineObservation& obs, IZiplineActuator& actuator)
 {
     const auto now = obs.at;
@@ -761,7 +739,6 @@ StageResult ZiplineRideMachine::TickExitAiming(const ZiplineObservation& obs, IZ
     return LeaveTowerAfterAim(actuator, now);
 }
 
-// 目标点相对落地定位的初始残差。预算按它放大: 背对着走要十批左右, 固定预算在那种落地上不够用
 double ZiplineRideMachine::ResidualToExitAim() const
 {
     if (!last_fix_) {
@@ -789,15 +766,12 @@ StageResult ZiplineRideMachine::StartExitAim(const HopCompleted& done, Clock::ti
     return {};
 }
 
-// 这一段的收场只有一种: 把这一跳的出口交回下索流程。对准与否只进日志
 StageResult ZiplineRideMachine::LeaveTowerAfterAim(IZiplineActuator& actuator, Clock::time_point now)
 {
     StageResult exit = std::move(pending_exit_);
     return StartDismount(actuator, std::move(exit), now);
 }
 
-// 决策表。到了就交回; 滑错了先滑回来再按预算重试; 没发出去先收偏置再换一档俯仰, 档用完先重新站一次上索点,
-// 再不行这根索就是滑不动, 人留在架子上等重规划; 定位对不上给一次冷启动的机会, 超时就丢
 StageResult ZiplineRideMachine::Classify(IZiplineObserver& observer, IZiplineActuator& actuator, Clock::time_point now)
 {
     EnterStage(ZiplineStage::Classified, now);
@@ -826,13 +800,12 @@ StageResult ZiplineRideMachine::Classify(IZiplineObserver& observer, IZiplineAct
                 EnterStage(ZiplineStage::Handoff, now);
                 return Handoff(now);
             }
-            // 链尾: 下索动作带出的动量沿按键那刻的朝向, 有可朝的点就先把它摆到下一段走路方向上
             if (plan_.exit_aim) {
                 return StartExitAim(done, now);
             }
             return StartDismount(actuator, done, now);
         }
-        // 滑回上索架了: 记下滑错的方向, 还有预算就换个瞄法再来, 没有就站在架子上等换路
+        // 回程时 target_ 是上索架, 到了就是滑回来了
         const double wrong_bearing = BearingDeg(plan_.mount, origin_);
         record_.wrong_rope_bearings_deg.push_back(wrong_bearing);
         if (hop_retry_count_ < kZiplineHopRetryBudget) {
@@ -880,8 +853,7 @@ StageResult ZiplineRideMachine::Classify(IZiplineObserver& observer, IZiplineAct
             CommitFailedReturn(HopOutcome::NoLaunch, now);
             return ParkForReplan(origin_, now);
         }
-        // 人根本没滑出去, 还站在上索架上。先下来再重规划要白付一次上索, 而重规划本身就会看新路线
-        // 用不用得上脚下这根架子, 用不上时才下来
+        // 留在架上等重规划, 新路线用不上这根架子时才下来
         CommitRecord(HopOutcome::NoLaunch, now);
         return ParkForReplan(plan_.mount, now);
     }
@@ -904,8 +876,7 @@ StageResult ZiplineRideMachine::Classify(IZiplineObserver& observer, IZiplineAct
     return {};
 }
 
-// 定位稳定、且读不到架上的操作引导才算下来了: 下索键偶尔不生效, 人留在架上时定位同样稳定。
-// 久等下不来再按一次, 还下不来就是卡住了
+// 下索键偶尔不生效, 人留在架上定位也稳, 所以还要读不到架上引导才算下来
 StageResult ZiplineRideMachine::TickDismounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator)
 {
     const auto now = obs.at;
@@ -960,7 +931,6 @@ StageResult ZiplineRideMachine::ParkForReplan(const ZiplineNodeRef& tower, Clock
     return Handoff(now);
 }
 
-// 交回导航。这一跳的一切都清掉, 只留账本和「人还站在哪根架子上」
 StageResult ZiplineRideMachine::Handoff(Clock::time_point now)
 {
     LogInfo << "zipline/handoff" << VAR(StageName(stage_)) << VAR(pending_exit_.index()) << VAR(parked_on_.has_value())

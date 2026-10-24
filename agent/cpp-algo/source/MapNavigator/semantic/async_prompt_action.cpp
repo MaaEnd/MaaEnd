@@ -29,8 +29,7 @@ namespace mapnavigator
 namespace
 {
 
-// override 是合并进节点而非替换, 所以只写调用方拥有的三件事: 截断共用出口的 next(子任务到此返回), 路线给的
-// 文本, 以及 rec 模式下把按键换成 DoNothing。roi/key 一律留在 pipeline 里。
+// override 会合并进节点, 所以只写调用方拥有的字段, roi/key 留在 pipeline 里
 std::string BuildRunOverride(const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec)
 {
     json::object exit_node;
@@ -64,7 +63,6 @@ std::string BuildRunOverride(const AsyncPromptActionSpec& spec, const std::vecto
     return json::value(std::move(root)).dumps();
 }
 
-// 同一个入口, 但识别节点什么都不做: 这趟只为把模型的冷启动付掉
 std::string BuildPreWarmOverride(const AsyncPromptActionSpec& spec)
 {
     json::object do_nothing;
@@ -83,7 +81,6 @@ std::string BuildPreWarmOverride(const AsyncPromptActionSpec& spec)
     return json::value(std::move(root)).dumps();
 }
 
-// 出厂预筛: 先读本类自己的 scan 节点, 老资源里没有这个节点时回落到内置图标与识别节点自己的 ROI。
 PromptScanProfile DefaultScanProfile(
     MaaContext* context,
     const AsyncPromptActionSpec& spec,
@@ -172,7 +169,6 @@ void AsyncPromptAction::Start(const cv::Rect& fallback_roi, std::string_view con
             break;
         }
     }
-    // 疾跑抑制按 NearestDistanceSq 逐拍算, 不整条线压掉: 两个点之间照样跑
 }
 
 void AsyncPromptAction::Stop()
@@ -233,12 +229,12 @@ PromptTriggerOutcome
         return PromptTriggerOutcome::NotTriggered;
     }
 
-    // 提示图标是全局的, 路过任何可交互物都会闪, 所以只在自家语义点附近才动手, 带宽同走路模式的激活带。
+    // 提示图标是全局的, 只在自家语义点附近才停车
     const std::vector<std::string>* expected = nullptr;
     bool rec = false;
     bool in_band = false;
     if (spec_.text_from_route) {
-        // 认中就把点算走完, 所以还要求正走向的就是它: 认中别家的同名提示会静默消掉本点
+        // 认中就算本点走完, 所以只认正在走向的那个点
         const Waypoint* waypoint = CurrentWaypointOfThisKind();
         EnsureScannerFor(waypoint);
         in_band = waypoint != nullptr && waypoint_distance <= kPromptTriggerBandWu;
@@ -248,15 +244,14 @@ PromptTriggerOutcome
         }
     }
     else {
-        // 共用表那类不消费路点, 所以按离最近的同类点多远来算, 已走过的点也算: 提示常常是走过头才弹出来
+        // 共用表那类按最近同类点算距离, 已走过的也算, 提示常在走过头后才弹出
         const double nearest_sq = NearestDistanceSq();
         in_band = nearest_sq >= 0.0 && nearest_sq <= kPromptTriggerBandWu * kPromptTriggerBandWu;
     }
 
-    // 无论带内带外都读闩: 带外看到的提示当场作废, 否则跨进带内的第一拍就拿老观测开火, 而那时本点的提示还没弹。
-    // 松预筛停不死整条线: 误停认不出就不吃点, 两类都在两次停车之间照样往前挪。
+    // 带外也要读闩把旧观测作废, 否则进带第一拍会拿老观测开火
     if (!ConsumeDetection() || !in_band) {
-        return PromptTriggerOutcome::NotTriggered; // 后台没报, 这一拍零成本
+        return PromptTriggerOutcome::NotTriggered;
     }
 
     last_trigger_at_ = now;
@@ -265,7 +260,7 @@ PromptTriggerOutcome
     motion_controller->SetForwardState(false);
     utils::SleepFor(kStopWaitMs);
     if (!RunPromptSubtask(context_, spec_, expected, rec)) {
-        // 认空的间隔从认完算起: 认一次比间隔长, 旁边常驻的别家提示会让到点判定一拍都轮不到
+        // 间隔从识别结束算起, 否则常驻的别家提示会挤掉到点判定
         last_trigger_at_ = std::chrono::steady_clock::now();
         LogInfo << "Async prompt not confirmed — resuming the walk." << VAR(spec_.tag) << VAR(waypoint_distance) << VAR(node_idx);
         return PromptTriggerOutcome::Missed;
@@ -307,7 +302,7 @@ void AsyncPromptAction::EnsureScannerFor(const Waypoint* waypoint)
     BuildScanner(waypoint->interact_scan);
 }
 
-// 空串 = 用出厂预筛。节点坏了也照样记下名字: 否则每一拍都会重读一遍同一个坏节点。
+// 空串表示用默认预筛, 节点坏了也记下名字, 免得每拍重读
 void AsyncPromptAction::BuildScanner(const std::string& scan_node)
 {
     scanner_.reset();
@@ -336,7 +331,7 @@ bool AsyncPromptAction::ConsumeDetection()
     return scanner_ != nullptr && scanner_->ConsumeDetection();
 }
 
-// 一条线可带多个业务的交互点, 只认当前要走到的那个; nullptr = 这一拍不该停车
+// 只认当前要走到的那个点, nullptr 表示这一拍不该停车
 const Waypoint* AsyncPromptAction::CurrentWaypointOfThisKind() const
 {
     if (session_ == nullptr || !session_->HasCurrentWaypoint()) {

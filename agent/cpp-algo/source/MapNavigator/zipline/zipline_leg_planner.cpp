@@ -25,24 +25,18 @@ namespace mapnavigator
 namespace
 {
 
-// 这次寻路里滑索的去向，由 no_zipline 与选中分支写入。逐条腿累加而不是覆盖：
-// 只留最后一条腿的结论会把前面用上滑索的那些说没。清零、规划、取用同在寻路入口那一次
-// 调用里跑完，thread_local 就把并发请求各自的账分开了。
+// 逐条腿累加, 不能覆盖
 thread_local bool g_zipline_used = false;
 thread_local bool g_zipline_account_unknown = false;
 thread_local bool g_zipline_no_data = false;
 thread_local bool g_zipline_not_chosen = false;
 
-// 一次请求里最多额外跑几条 navmesh 规划。候选是成对的，不设上限的话，滑索密集的地图
-// 会把规划耗时抬高一个量级；触顶后只拿已经算出来的候选做决策，并在日志里说明截断。
 constexpr size_t kMaxExtraPlans = 12;
 
-// 供电结构离架子这么近才谈得上抢走交互面板, 更远的没必要给它让位。
+// 供电结构离架子比这近才会抢走交互面板
 constexpr double kMountPoleClearPx = 5.0;
-// 让开量。面板要架子是离身位最近的那台设备, 也要人还够得着架子 —— 让开量加上判定圈得留在
-// 够得着的那一圈里, 所以只让开判定圈的零头; 让多了就是把人推出去, 面板一样不出来。
+// 让开量加上判定圈仍要够得着架子, 所以只让开判定圈的零头
 constexpr double kMountStandOffsetPx = 0.75;
-// 让开后的落脚点自己也得贴着同一层的可走面才算数: 规划只验过架子周围那一圈有面。
 constexpr double kMountStandSnapRadiusPx = 2.0;
 constexpr double kMountStandSnapTolPx = 1.0;
 
@@ -53,7 +47,6 @@ struct ZiplineData
     bool ok = false;
 };
 
-// 文件不存在时返回零值，与「读得到但是空的」区分不开也没关系：两者都不该触发重载。
 std::filesystem::file_time_type FileStamp(const std::filesystem::path& path)
 {
     std::error_code ec;
@@ -61,9 +54,7 @@ std::filesystem::file_time_type FileStamp(const std::filesystem::path& path)
     return ec ? std::filesystem::file_time_type {} : stamp;
 }
 
-// 标定与滑索记录都是只读的，但导入动作会在同一次运行里改写它们，所以按 mtime 决定重不重读：
-// 用户导完立刻试路线是必然的用法，缓存住第一次的空记录会让人以为滑索没生效。
-// 交出的是快照指针，重载只换指针，调用方手里那份不会被改到。
+// 导入会在运行中改写文件, 所以按 mtime 重读; 交出的是快照, 重载只换指针
 std::shared_ptr<const ZiplineData> SharedData()
 {
     static std::mutex mutex;
@@ -96,8 +87,7 @@ double Distance(const navmesh::WorldPoint& a, const navmesh::WorldPoint& b)
     return std::hypot(b.x - a.x, b.y - a.y);
 }
 
-// 两点之间还有没有可能连通。类号集合都是有序的，扫一遍就够。任一边空着是「问不出来」
-// 而不是「不连通」，这种时候一律当作可能连通，让规划自己去判。
+// 类号集合有序, 任一边为空表示无从判断, 当作可能连通
 bool MayConnect(const std::vector<uint32_t>& a, const std::vector<uint32_t>& b)
 {
     if (a.empty() || b.empty()) {
@@ -117,7 +107,6 @@ bool MayConnect(const std::vector<uint32_t>& a, const std::vector<uint32_t>& b)
     return false;
 }
 
-// 一个供电结构的供电范围。规则按 templateId 查一次就够，别放进逐根架子的内层循环。
 struct SupplyPoint
 {
     double x = 0.0;
@@ -137,15 +126,6 @@ constexpr double grid_half_span(int size)
     return static_cast<double>((size - 1) / 2);
 }
 
-// 森空岛 saveMarks 的 pos 不是建筑中心，而是会随朝向落在不同角格上的锚点；响应又不带
-// 朝向。实测同一台 3x3 中继器原地旋转后，pos 会沿一轴跳 2 格，正好等于占地边长减一。
-// 因此单个标记无法唯一还原中心，只能把双方所有可能的中心位置都纳入判定：
-//
-//   真实中心允许的轴差 = 供电覆盖半宽 + 架子占地半宽
-//   标记到真实中心的不确定性 = 供电结构占地半宽 + 架子占地半宽
-//
-// 两项相加得到标记点允许的轴差。这里选择“任一可能朝向能重合就保留”，是为了避免把实际
-// 通电的滑索提前挡在规划图外；在森空岛提供朝向前，代价是边界上可能保留少量未通电架子。
 constexpr bool grid_areas_may_overlap(
     double delta_x,
     double delta_z,
@@ -162,13 +142,11 @@ constexpr bool grid_areas_may_overlap(
     return absolute_value(delta_x) <= reach_x && absolute_value(delta_z) <= reach_z;
 }
 
-// 7x7 中继器与 3x3 滑索的中心重合边界是 4；双方角格锚点各引入 1 格不确定性，
-// 所以标记点边界是 6。实测误判的 (5, 2) 必须保留，任一轴到 7 才能确定不重合。
 static_assert(grid_areas_may_overlap(5.0, 2.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
 static_assert(grid_areas_may_overlap(6.0, 6.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
 static_assert(!grid_areas_may_overlap(0.0, 7.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
 
-// 这根架子通不通电。只量原始世界坐标的水平 x/z；架子与供电结构的高低差不进判据。
+// 只量原始世界坐标的水平 x/z, 高低差不进判据
 bool IsPowered(const zipline::ZiplineMark& tower, const std::array<int, 2>& tower_footprint, const std::vector<SupplyPoint>& supplies)
 {
     return std::any_of(supplies.begin(), supplies.end(), [&](const SupplyPoint& supply) {
@@ -184,8 +162,7 @@ navmesh::WorldPoint ToWorld(const zipline::ZiplineNode& node)
     return navmesh::WorldPoint { .x = node.x, .y = node.y };
 }
 
-// 架子可能的塔心，原始世界坐标的 x/z。锚点落在随朝向变化的角格上，塔心在每条水平轴上可能偏出占地
-// 半宽，朝向不在记录里，所以每个角都算一个塔心。只占一格时锚点就是塔心。
+// 标记坐标落在占地的某个角格上, 每个角都算一个可能的塔心, 原始世界坐标 x/z
 std::vector<std::array<double, 2>> TowerCenters(const zipline::ZiplineNode& node, const std::array<int, 2>& footprint)
 {
     const double half_x = grid_half_span(footprint[0]);
@@ -202,7 +179,7 @@ std::vector<std::array<double, 2>> TowerCenters(const zipline::ZiplineNode& node
     return centers;
 }
 
-// 各个可能的塔心投到像素平面。偏移按格在原始世界坐标里算，再走投影：地图比例不进这里。
+// 偏移在原始世界坐标里按格算再投影, 地图比例不进这里
 std::vector<navmesh::WorldPoint>
     CenterSpots(const zipline::ZiplineFrame& frame, const zipline::ZiplineNode& tower, const std::array<int, 2>& footprint)
 {
@@ -220,8 +197,7 @@ std::vector<navmesh::WorldPoint>
     return spots;
 }
 
-// 上索认不出提示时改站哪。沿「供电结构 → 架子」把落脚点往外挪一点点, 让架子重新成为离身位
-// 最近的那台设备; 挪出去的点贴不住同一层的面, 或者旁边压根没有供电结构, 就不给这个备选。
+// 沿供电结构到架子的方向往外挪, 让架子重新成为离身位最近的设备
 std::optional<navmesh::WorldPoint> MountStandPoint(
     const NaviParam& param,
     const std::string& locator_zone,
@@ -238,7 +214,6 @@ std::optional<navmesh::WorldPoint> MountStandPoint(
             nearest = &supply;
         }
     }
-    // 正好重合时没有方向可推
     if (nearest == nullptr || nearest_distance < 1e-3) {
         return std::nullopt;
     }
@@ -255,10 +230,7 @@ std::optional<navmesh::WorldPoint> MountStandPoint(
     return stand;
 }
 
-// 上索依次走到哪。坐标记的是随朝向变化的角格锚点, 设备模型占着锚点四周哪一格未知; 互动要人面朝
-// 设备且身位与模型有交集, 走到锚点上两条都不一定成立, 所以把各个可能的中心格排成候选逐个试。
-// 取中心格而不取更深处: 行进中的提示预筛按到航点的距离开窗, 目标越往模型里推, 身位被挡住那一刻
-// 离航点越远, 越容易落在窗外。顺着进场方向的那个排前面, 少一次掉头。
+// 只取中心格, 往模型里推得越深, 被挡住那一刻离航点越远, 越容易落在预筛窗外
 std::vector<navmesh::WorldPoint> MountSpots(
     const NaviParam& param,
     const std::string& locator_zone,
@@ -271,7 +243,6 @@ std::vector<navmesh::WorldPoint> MountSpots(
     const navmesh::WorldPoint anchor = ToWorld(tower);
     const double half_x = grid_half_span(footprint[0]);
     const double half_z = grid_half_span(footprint[1]);
-    // 进场方向取最后一段走路; 起点已经站在架子跟前时这两个分量都是零, 排序退化成固定顺序
     const double toward_x = anchor.x - approach_from.x;
     const double toward_y = anchor.y - approach_from.y;
     std::vector<std::pair<double, navmesh::WorldPoint>> ranked;
@@ -288,7 +259,6 @@ std::vector<navmesh::WorldPoint> MountSpots(
         spots.push_back(entry.second);
     }
     if (spots.empty()) {
-        // 只占一格时锚点就是中心; 几个中心格全贴不住同一层的面时也只剩它
         spots.push_back(anchor);
     }
     if (const std::optional<navmesh::WorldPoint> stand = MountStandPoint(param, locator_zone, tower, supplies)) {
@@ -299,8 +269,6 @@ std::vector<navmesh::WorldPoint> MountSpots(
     return spots;
 }
 
-// 森空岛只给随朝向变化的角格锚点，双方中心在每条水平轴上都可能朝彼此靠近各自的
-// 占地半宽。高度坐标不受朝向影响，原样计入三维距离。返回平方值供配对内层循环直接比较。
 constexpr double minimum_possible_world_span_squared(
     double anchor_delta_x,
     double delta_y,
@@ -315,7 +283,7 @@ constexpr double minimum_possible_world_span_squared(
     return dx * dx + delta_y * delta_y + dz * dz;
 }
 
-// 折线自身的长度。BaseNavRouteResult::cost 是搜索代价，不是几何长度，两者不能混用。
+// BaseNavRouteResult::cost 是搜索代价, 和几何长度不能混用
 double PolylineLength(const navmesh::WorldPath& path)
 {
     double total = 0.0;
@@ -327,19 +295,12 @@ double PolylineLength(const navmesh::WorldPath& path)
 
 constexpr size_t kNoTower = std::numeric_limits<size_t>::max();
 
-// 索线中段近到这个距离还有另一根通电架子，这条直索就只算不确定边：滑行可能终止在中间那根上。
-// 距离按三维量，是架子到两端连线的垂距。三次实测终止在中间架子，拦路架垂距 12.51 / 10.23 / 14.99；
-// 另有一次中段立着垂距 4.55 的架子，人却整条滑完了。距离分不开这四例，所以这条规则只降档不删边，
-// 取值取到盖住已知被拦的 14.99 为止。只量水平会把高出索线几十米的架子也算进来：平面上离索线
-// 8.78、高出 55 m 的那根实测拦不住人。
+// 中段架子到索线的三维垂距在此以内时, 这条直索只算不确定边
 constexpr double kRopeInterceptLateralWu = 15.0;
 
-// 架子把人从脚下地面抬到绳端高度，滑到那头也保持这个高度。判索挂不挂得住只能按抬升后的两端连
-// 线量：按塔底量的是贴地那条线，几乎每根索都会被判成撞地。参与规划的滑索架与长距滑索架，绳端都
-// 在塔底上方 5.72 m；绳从梁底下几厘米钻过去的线要按这个高度才判得通。
+// 绳端在塔底上方的高度, 判索撞不撞地要按抬升后的两端连线量
 constexpr double kRopeEndHeightWu = 5.72;
 
-// 这根架子可能立在哪：每个可能的塔心，高度是记录里的塔底。
 std::vector<navmesh::OccluderPoint> TowerBases(const zipline::ZiplineNode& node, const std::array<int, 2>& footprint)
 {
     std::vector<navmesh::OccluderPoint> bases;
@@ -349,8 +310,7 @@ std::vector<navmesh::OccluderPoint> TowerBases(const zipline::ZiplineNode& node,
     return bases;
 }
 
-// 绳端在塔心正上方，从塔落地后的高度起算。记录里的塔底是建造格的整数高度，建成的塔会贴到
-// 脚下的实际地面上，两者差出几厘米就足以让贴着梁底过的绳判错。
+// 从塔落地后的地面高度起算, 记录里的塔底是整数格高, 差几厘米就会判错贴着梁底过的绳
 std::vector<navmesh::OccluderPoint> RopeEnds(const std::vector<navmesh::OccluderPoint>& bases, const std::vector<double>& grounds)
 {
     std::vector<navmesh::OccluderPoint> ends;
@@ -360,7 +320,6 @@ std::vector<navmesh::OccluderPoint> RopeEnds(const std::vector<navmesh::Occluder
     return ends;
 }
 
-// 一根候选索两端各取可能的塔心，索长够得着的那几组绳端连线。
 struct RopeCandidate
 {
     size_t a = 0;
@@ -368,9 +327,7 @@ struct RopeCandidate
     std::vector<NavmeshAirLine> lines;
 };
 
-// 候选图分两档。all 收下两端可能的塔心之间有一组连线在索长以内的边；certain 只收两件事同时成立的：
-// 中段没有拦路架、索长以内的那几组连线里有一组中途不撞实体。任一条不成立只降一档，边仍留在 all 里，
-// 所以没有哪条规则能把一根索从图里抹掉，阈值取错只改变偏好顺序。
+// certain 是 all 的子集, 要求中段无拦路架且有一组连线不撞实体, 任一条不成立只降档不删边
 struct ZipLinkGraph
 {
     std::vector<std::vector<size_t>> all;
@@ -388,9 +345,7 @@ void DropEdge(std::vector<std::vector<size_t>>& links, size_t a, size_t b)
     drop(links[b], a);
 }
 
-// from→to 的索中段拦着另一根架子时返回它到索线的垂距。拦路架需离两端各超过一个拦截半径，更贴近
-// 端点的即端点自身；它与 from 之间也要挂得上索，从 from 够不到的架子接不住滑过来的人。
-// nodes 已完成通电筛选，不承载索的架子不构成拦截。
+// 返回拦路架到索线的垂距, nodes 须已做过通电筛选
 std::optional<double> RopeIntercepted(
     const std::vector<zipline::ZiplineNode>& nodes,
     const std::vector<size_t>& node_map,
@@ -433,13 +388,6 @@ std::optional<double> RopeIntercepted(
     return std::nullopt;
 }
 
-// 哪两根架子之间挂着索，记录本身没说，这里按几何推断：同一张图上两根架子任一可能中心的
-// 三维距离不超过两者索长上限里较小的那个，就当它们之间有一条候选索，不看架子类型、也不看在哪个区。
-// 索不分上下行，所以两个方向都算。位置含糊时优先保留候选；推错后执行侧会封掉失败边并重新规划，
-// 推漏则整条连续链都无法发现。
-//
-// 中段站着另一根架子的直索降到不确定档：滑行可能终止在中间那根上，这条边的实际形态是经过它的
-// 两跳链。实测里同样的几何有滑完整条的，所以只降不删，确定边够用时自然轮不到它。
 ZipLinkGraph BuildLinks(
     const std::vector<zipline::ZiplineNode>& nodes,
     const std::vector<size_t>& node_map,
@@ -450,8 +398,6 @@ ZipLinkGraph BuildLinks(
     ZipLinkGraph graph;
     graph.all.resize(nodes.size());
     graph.certain.resize(nodes.size());
-    // 逐条记下拦路架的垂距：kRopeInterceptLateralWu 的依据只有四条实测索，实机日志里攒起来的
-    // 这个分布才是后续调它的证据。
     std::vector<double> demoted_lateral;
     for (size_t i = 0; i < nodes.size(); ++i) {
         if (span_limit[i] <= 0.0) {
@@ -463,7 +409,6 @@ ZipLinkGraph BuildLinks(
             }
             const double limit = std::min(span_limit[i], span_limit[j]);
             const double limit_squared = limit * limit;
-            // 各轴取最近那一对塔心都够不着的，逐组量也够不着，省下内层的逐组循环
             const double span_squared = minimum_possible_world_span_squared(
                 nodes[j].world_x - nodes[i].world_x,
                 nodes[j].world_y - nodes[i].world_y,
@@ -473,8 +418,7 @@ ZipLinkGraph BuildLinks(
             if (span_squared > limit_squared) {
                 continue;
             }
-            // 两端各取每个可能的塔心逐组量绳长，有一组在索长以内这根索就进候选；够得着的那几组留给遮挡体问。
-            // 绳长的高差按记录里的塔底量，与上面的下界用同一组高度。
+            // 绳长高差按记录里的塔底量, 和上面的下界用同一组高度
             std::vector<NavmeshAirLine> lines;
             const double dy = nodes[j].world_y - nodes[i].world_y;
             for (const navmesh::OccluderPoint& end_a : rope_ends[i]) {
@@ -504,8 +448,7 @@ ZipLinkGraph BuildLinks(
     return graph;
 }
 
-// 从 source 出发，沿索能到的每一根架子和到它最省的滑法。到不了的架子留 infinity。
-// 边权里每一跳都摊了一次换乘开销，链头那一次不该收，由调用方减回去。
+// 到不了的留 infinity, 边权每跳含一次换乘开销, 链头那次由调用方减回去
 void SolveZipChains(
     const std::vector<zipline::ZiplineNode>& nodes,
     const std::vector<std::vector<size_t>>& links,
@@ -528,7 +471,7 @@ void SolveZipChains(
             continue;
         }
         for (const size_t next : links[at]) {
-            // 判连通用世界距离，算代价用像素距离：后者要和 navmesh 的路径长度加在一起比较。
+            // 代价用像素距离, 要和 navmesh 路径长度相加比较
             const double hop = Distance(ToWorld(nodes[at]), ToWorld(nodes[next])) * cost.speed_ratio + cost.transfer_penalty;
             if (reached_at + hop >= (*dist)[next]) {
                 continue;
@@ -547,8 +490,7 @@ struct PlannedLeg
     NavmeshRouteDiagnostic diagnostic;
 };
 
-// 同一个滑索点会被多个候选对共用，按下标缓存，避免同一段路重复规划。
-// 缓存里存 nullopt 表示这段确实规划不出来，下次不必再试。
+// 缓存里存 nullopt 表示这段规划不出来, 下次不必再试
 class LegCache
 {
 public:
@@ -560,7 +502,7 @@ public:
     {
     }
 
-    // 返回 nullopt 表示这段不可达或预算已经用完。
+    // 预算用完时返回 nullptr
     const std::optional<PlannedLeg>* get(size_t index)
     {
         auto it = cache_.find(index);
@@ -628,7 +570,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     const std::function<bool()>& should_stop,
     bool capture_diagnostics)
 {
-    // 没写 zip 的请求在这里就走完了：不读标定、不读记录、不多跑一条规划。
     if (!param.zipline_enabled) {
         return std::nullopt;
     }
@@ -639,9 +580,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
 
     const bool walking_baseline_available = walking_path != nullptr && !walking_path->points.empty();
 
-    // 要了滑索却没用上时，说清楚是输给了步行，还是没能桥接原本不连通的两端。
-    // outcome 指向这条腿该记进哪本账：「这里没滑索可用」和「有滑索但没选中」指向的操作不同，
-    // 混成一句会把用户带偏。传 nullptr 表示这条腿不记账，理由见各调用点。
+    // outcome 是这条腿记进哪本账, nullptr 表示不记账
     const auto no_zipline = [&](const char* why, bool* outcome) -> std::optional<ZiplineRoute> {
         if (walking_baseline_available) {
             LogInfo << "ZiplineRoute: walking this leg instead." << VAR(why) << VAR(navmesh_zone);
@@ -662,20 +601,15 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
 
     const zipline::ZiplineFrame* frame = data->frames.findByZone(navmesh_zone);
     if (!frame) {
-        // 没标定的区按「本来就没滑索」处理，不记账也就不提示：叫用户去导入坐标救不了这里，
-        // 已导入的人还会被引去做一次白工。
         return no_zipline("this zone is not calibrated", nullptr);
     }
 
-    // 不通电的滑索架在游戏里走不了，规划前先按供电范围把它们挡掉。
     const bool require_power = data->frames.hasPowerSources();
 
-    // map_id 留空表示这个区还没绑定到具体哪张森空岛地图，此时已导入的标记全部纳入候选：
-    // 坐标对不上的那些接不上网格，在规划预算之内就被淘汰掉。
     std::vector<zipline::ZiplineNode> nodes;
-    // 每根架子出自哪一份记录。一份记录就是一张图，不同图的架子之间挂不上索
+    // 每根架子来自哪份记录, 不同记录的架子之间挂不上索
     std::vector<size_t> node_map;
-    // 供电结构的落点也投一份到像素平面: 通电判定用的是世界坐标, 而让位算的是人站在哪
+    // 像素平面坐标, 通电判定另用世界坐标
     std::vector<navmesh::WorldPoint> supply_points;
     size_t unpowered = 0;
     const std::vector<zipline::ZiplineMapRecord>& records = data->store.maps();
@@ -688,7 +622,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             continue;
         }
 
-        // 供电结构和滑索架在同一份记录里，先把这张图的电网收齐，再逐根架子判。
         std::vector<SupplyPoint> supplies;
         for (const auto& mark : record.marks) {
             const zipline::ZiplinePowerSource* source = data->frames.powerSource(mark.template_id);
@@ -727,22 +660,14 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         return no_zipline("no powered ziplines recorded in this zone", &g_zipline_no_data);
     }
 
-    // 有步行基线时，只有省下 min_gain 以上才算有收益：省得比一次上索的开销还少时，这点
-    // 便宜落在代价模型自身的误差里，换来的却是实打实的多一次交互。纯步行不连通时没有
-    // 可比较的基线，任何能把起终两侧可走面接起来的连续链都优先于盲走和作者路径回退。
     const zipline::ZiplineCostModel& cost = data->frames.cost();
     const double baseline_length = walking_baseline_available ? PolylineLength(*walking_path) : 0.0;
     const double gain_threshold = walking_baseline_available ? baseline_length - cost.min_gain : std::numeric_limits<double>::infinity();
-    // 走路短到白送一整段滑行都追不平上索的开销时，下面的吸附和规划都不必做了。
     if (walking_baseline_available && gain_threshold <= cost.mount_penalty) {
         return no_zipline("the walk is too short for any zipline to pay off", &g_zipline_not_chosen);
     }
 
-    // 只筛两端：上索点和下索点得让人走到跟前，链中间那些是从索上落到下一根架子上的，脚下有没有
-    // 可走面都不影响。平面距离和高度两道一起判——可走面在同一片平面坐标上能摞好几层，只比平面
-    // 距离的话，架在楼顶而脚下那层在楼底也算「够得着」，人走过去才发现头顶上什么都没有。
-    // 锚点只是占地里的一个角格，架子贴着台沿时锚点可能悬在台外、塔心却在台上，所以锚点和每个可能的
-    // 塔心都当一个站点逐个吸附，贴得住一个就算够得着。锚点排第一，锚点接得上时规划次数与只看锚点一样。
+    // 平面距离和高度都要判, 可走面会在同一平面坐标上摞好几层
     std::vector<std::array<int, 2>> footprints(nodes.size());
     std::vector<navmesh::WorldPoint> spots;
     std::vector<size_t> spot_tower;
@@ -780,16 +705,10 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         LogDebug << "ZiplineRoute: these ziplines can be ridden through but not boarded" << VAR(out_of_reach) << VAR(wrong_floor)
                  << VAR(nodes.size());
     }
-    // 一根都上不去时后面的配对必然是空的，早一步收场；原因也要说成「上不去」而不是「不划算」，
-    // 前者多半是标定或高度对不上，后者才是真的不划算。
     if (out_of_reach + wrong_floor == nodes.size()) {
         return no_zipline("not one zipline here can be walked up to", &g_zipline_not_chosen);
     }
 
-    // 脚下有面不等于走得到。一条路线只在单一连通类里搜，所以上索点得跟角色同类、下索点
-    // 得跟送货点同类；不同类的架子规划必败，却照样按直线距离排在前头，把预算烧个精光。
-    // 判据只排除已知必败的组合：类号问不出来时按可能连通处理，宁可白跑一条也不误杀。
-    // 逐个站点判，同一根架子只要有一个站点跟起点同类就能上索，有一个跟终点同类就能落地。
     std::vector<navmesh::WorldPoint> probes = spots;
     probes.push_back(start);
     probes.push_back(goal);
@@ -813,8 +732,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     if (cut_off != 0) {
         LogDebug << "ZiplineRoute: these ziplines share no walkable ground with either end" << VAR(cut_off) << VAR(nodes.size());
     }
-    // 执行侧每个站位都走到过、一次上索提示都没出来的架子, 这一趟不再当上索点。当落点照旧:
-    // 人是从索上落到架子上的, 上不去跟够不着是两件事
+    // 上不去的架子只取消上索资格, 仍可当落点
     size_t unboardable = 0;
     for (const ZiplineHopRecord& record : param.zipline_ledger) {
         if (record.outcome != HopOutcome::Unboardable) {
@@ -830,7 +748,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     if (unboardable != 0) {
         LogInfo << "ZiplineRoute: left out the towers the runtime never managed to board." << VAR(unboardable) << VAR(nodes.size());
     }
-    // 一头都接不上时后面配对必然是空的。链中间的架子仍然全留着，那些是从索上落下去的。
     const auto none_usable = [](const std::vector<std::vector<size_t>>& per_tower) {
         return std::all_of(per_tower.begin(), per_tower.end(), [](const std::vector<size_t>& v) { return v.empty(); });
     };
@@ -838,9 +755,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         return no_zipline("no zipline can be boarded from here, or none of them lands near the destination", &g_zipline_not_chosen);
     }
 
-    // 索长上限逐点查一次就够：配对是 O(n²) 的，放进内层循环等于把字符串查表也乘上 n²。
-    // 查不到的类型上限为 0，下面直接跳过——没登记过物理属性的架子不参与配对。
-    // 两个下界取各站点里离得最近的那个，规划落在哪个站点都不会比它短。
+    // 未登记的架子类型索长上限为 0, 不参与配对
     std::vector<double> span_limit(nodes.size());
     std::vector<double> lb_from_start(nodes.size(), std::numeric_limits<double>::infinity());
     std::vector<double> lb_to_goal(nodes.size(), std::numeric_limits<double>::infinity());
@@ -858,14 +773,13 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     {
         size_t mount = 0;
         size_t dismount = 0;
-        // 上索到落地这一整段，已经含上索和沿途每一次换乘。
+        // 含上索和沿途每次换乘
         double zip_cost = 0.0;
         double lower_bound = 0.0;
-        // 该链解自确定边子图。还原整条链与列举备选架子时须使用同一张图。
+        // 链解自确定边子图, 还原链和列举备选架子须用同一张图
         bool certain = false;
     };
 
-    // 一条路线用几条索由代价决定，不设跳数上限：换乘要收钱，划不来的长链自己就被淘汰了。
     std::vector<std::vector<navmesh::OccluderPoint>> tower_bases(nodes.size());
     for (size_t i = 0; i < nodes.size(); ++i) {
         tower_bases[i] = TowerBases(nodes[i], footprints[i]);
@@ -882,17 +796,13 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         DropEdge(graph.certain, a, b);
     };
 
-    // 两根架子之间隔着实体时挂不住索，这条边留在不确定档。每条边只量一次，两个方向一起定。
-    // 索长以内的那几组塔心连线逐组问：有一组不撞就进确定档，问到它就停；全撞才留在不确定档。
     {
         std::vector<std::vector<NavmeshAirLine>> groups;
         groups.reserve(graph.ropes.size());
         for (RopeCandidate& rope : graph.ropes) {
             groups.push_back(std::move(rope.lines));
         }
-        // 只判两个绳端之间那一条直线。架子本身不在这份数据里，挡不着自己的绳。
         const std::vector<std::vector<navmesh::OccluderHit>> blocks = NavmeshLineGroupBlocks(param, locator_zone, groups);
-        // 逐条记下沿绳第一处碰撞离起端多少米，取各组塔心里撞得最晚的那条：现场排查「这根索为什么被降档」只有这一行。
         std::vector<double> demoted_first_hits;
         for (size_t index = 0; index < graph.ropes.size(); ++index) {
             const RopeCandidate& rope = graph.ropes[index];
@@ -914,8 +824,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         }
     }
 
-    // 执行侧账本里滑不动、滑错、落地丢了、反复瞄不准的跳直接从连通图里拿掉。索不分上下行, 一根滑不动的索
-    // 反着大概率也滑不动, 两个方向一起封。
+    // 索不分上下行, 失败的跳两个方向一起封
     if (!param.zipline_ledger.empty()) {
         const auto near_tower = [&nodes](size_t tower, const ZiplineNodeRef& ref) {
             return std::hypot(nodes[tower].x - ref.x, nodes[tower].y - ref.y) <= kZiplineHopBanMatchWu;
@@ -957,7 +866,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     std::vector<double> certain_cost;
     std::vector<size_t> certain_prev;
     for (size_t i = 0; i < nodes.size(); ++i) {
-        // 这根架子连白送一整段滑行都够不着收益门槛，从它起头的所有链就都不必算了。
         if (board_spots[i].empty() || graph.all[i].empty() || lb_from_start[i] + cost.mount_penalty >= gain_threshold) {
             continue;
         }
@@ -968,9 +876,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             if (j == i || land_spots[j].empty()) {
                 continue;
             }
-            // 两档各记一个候选，不确定那档只在确实更便宜时才多记一条。哪档先用由下面的两趟
-            // 评估决定：确定边能到达就用确定边，即使它比不确定的直索多几跳、代价更高。多跳可达
-            // 优于一条可能不存在的索，推断错误要整段重新规划，代价高于多出的那几跳。
             const auto offer = [&](double chain, bool certain) {
                 if (!std::isfinite(chain)) {
                     return;
@@ -984,7 +889,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
                     Candidate { .mount = i, .dismount = j, .zip_cost = zip_cost, .lower_bound = lower_bound, .certain = certain });
             };
             offer(certain_cost[j], true);
-            // 全图含确定图，所以松量链只在确实更便宜时才值得多记一条。
             if (chain_cost[j] < certain_cost[j]) {
                 offer(chain_cost[j], false);
             }
@@ -992,14 +896,12 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     }
 
     if (candidates.empty()) {
-        // 摸得到、挂得上、还顺路的那一根不存在，三件事在这里合成一个结果。
         return no_zipline("no reachable pair of ziplines leads anywhere useful", &g_zipline_not_chosen);
     }
     std::sort(candidates.begin(), candidates.end(), [](const Candidate& a, const Candidate& b) { return a.lower_bound < b.lower_bound; });
 
     size_t plan_budget = kMaxExtraPlans;
 
-    // 两段腿都按站点下标缓存、按站点规划。上索点的高度是导入数据里带来的逐点真值，直接钉住终点所在的那一层。
     LegCache approach_cache(
         [&](size_t index) -> std::optional<PlannedLeg> {
             NavmeshRouteDiagnostic diagnostic;
@@ -1024,8 +926,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         },
         plan_budget);
 
-    // 下索点同理：角色是从索上落下来的，站在哪一层是已知的，不必让吸附去猜。
-    // 终点面用调用方给的那个，与纯走路方案完全一致——换走法不换目的地。
     LegCache departure_cache(
         [&](size_t index) -> std::optional<PlannedLeg> {
             NavmeshRouteDiagnostic diagnostic;
@@ -1048,7 +948,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         },
         plan_budget);
 
-    // 一根架子的站点按顺序规划，规划通一个就用它，后面的不再规划。每个站点各花一次预算，预算用完返回 nullptr。
+    // 规划通一个站点就停, 预算用完返回 nullptr
     const auto first_leg = [](LegCache& cache, const std::vector<size_t>& candidates_of_tower, size_t* used_spot) {
         const std::optional<PlannedLeg>* leg = nullptr;
         for (const size_t spot : candidates_of_tower) {
@@ -1069,8 +969,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     bool truncated = false;
     bool interrupted = false;
 
-    // 分两趟评估：先只比确定边的候选，一条都走不通才比带不确定边的。代价比较会让便宜的不确定
-    // 直索赢过确定链，单靠排序换不来确定优先，得把两档隔开比。同一趟内候选仍按下界升序。
+    // 先只比确定边候选, 都走不通才比不确定的, 混在一起比会让便宜的不确定直索赢
     const auto evaluate = [&](bool want_certain) {
         for (const auto& candidate : candidates) {
             if (candidate.certain != want_certain) {
@@ -1080,7 +979,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
                 interrupted = true;
                 break;
             }
-            // 候选按下界升序，当前下界都追不上最好成绩时，后面的更追不上。
             if (candidate.lower_bound >= best_cost) {
                 break;
             }
@@ -1095,7 +993,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
                 continue;
             }
 
-            // 上索段的真实长度到手，用它换掉欧氏下界再剪一次，省下终点段的规划。
             if ((*approach)->length + candidate.zip_cost + lb_to_goal[candidate.dismount] >= best_cost) {
                 continue;
             }
@@ -1127,8 +1024,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         }
     };
     evaluate(true);
-    // 第一趟把预算烧光也算一次失败，第二趟照样要跑：缓存里已经规划好的腿是白拿的，碰到第一个
-    // 没缓存的架子照旧记 truncated 退出，多跑这一趟不额外花预算。
     if (!best && !interrupted) {
         evaluate(false);
     }
@@ -1139,14 +1034,11 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     }
 
     if (!best) {
-        // 候选没评完就跑不出「都不划算」这个结论：预算耗尽或请求被叫停时空着手回去，
-        // 免得把没比过的那些一起判了。
         return no_zipline(
             walking_baseline_available ? "no zipline route beats walking" : "no feasible zipline bridge to target",
             truncated || interrupted ? nullptr : &g_zipline_not_chosen);
     }
 
-    // 中间经过哪几根架子到这时才还原：候选是成对枚举出来的，逐个存下整条链纯属浪费。
     const std::vector<std::vector<size_t>>& links = best_candidate->certain ? graph.certain : graph.all;
     SolveZipChains(nodes, links, cost, best_candidate->mount, &chain_cost, &chain_prev);
     std::vector<size_t> chain;
@@ -1176,7 +1068,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             best->diagnostics.push_back((*departure)->diagnostic);
         }
     }
-    // 只有链首那一根要按提示上索, 中途都是从索上落到下一根架子上的
     const navmesh::WorldPoint& approach_from =
         best->approach.points.size() >= 2 ? best->approach.points[best->approach.points.size() - 2] : start;
     best->mount_spots = MountSpots(

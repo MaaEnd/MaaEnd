@@ -46,7 +46,6 @@ std::optional<Estimate> Detector::TakeLastEstimate()
 std::optional<Verdict>
     Detector::RecordTick(uint64_t tick_seq, std::optional<double> camera_heading_deg, double issued_delta_deg, bool degraded_fix)
 {
-    // 出口记的账比这拍报的多，就是别的路径发过转向，之后的朝向变化不归这拍的指令。
     const double issued_total = issued_since_record_;
     issued_since_record_ = 0.0;
     const bool foreign_issued = std::abs(issued_total - issued_delta_deg) > config_.issued_match_tol_deg;
@@ -60,7 +59,7 @@ std::optional<Verdict>
     }
     const double heading = *camera_heading_deg;
 
-    // 中间漏掉的拍里可能发过转向。
+    // 漏掉的拍里可能发过转向
     if (pending_ && !consecutive) {
         pending_.reset();
     }
@@ -114,7 +113,6 @@ std::optional<Verdict> Detector::Evaluate(bool log_estimate)
     estimate.low = sorted[low_rank];
     estimate.high = sorted[high_rank];
     estimate.sample_count = static_cast<int>(count);
-    // 置信区间整个落在判决线外才算证据；中位数离谱说明观测本身出了问题，同样不改。
     const bool too_fast = estimate.low > config_.overshoot_ratio && estimate.ratio <= config_.max_ratio;
     const bool too_slow = estimate.high < config_.undershoot_ratio && estimate.ratio >= config_.min_ratio;
     const bool decided = !fired_ && (too_fast || too_slow);
@@ -130,7 +128,7 @@ std::optional<Verdict> Detector::Evaluate(bool log_estimate)
     verdict.ratio_percent = static_cast<int>(std::lround(estimate.ratio * 100.0));
     verdict.sample_count = estimate.sample_count;
     fired_ = true;
-    // 系数落地后从头再估一遍，日志里能看到校正后的倍率是不是回到 1。
+    // 校正后重新估计, 便于从日志看出倍率是否回到 1
     samples_.clear();
     next_log_at_ = static_cast<size_t>(config_.min_samples);
     return verdict;

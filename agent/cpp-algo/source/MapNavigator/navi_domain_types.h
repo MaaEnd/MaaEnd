@@ -17,34 +17,7 @@
 namespace mapnavigator
 {
 
-// RUN      - 纯推算目标点，到达该点时不执行任何特殊操作
-// SPRINT   - 到达该点时触发一次右键冲刺
-// JUMP     - 到达该点时按下空格
-// FIGHT    - 到达该点时刹车，左键攻击一次
-// INTERACT - 到达该点时刹车交互一次。路线给了 interact_text 则升级为异步交互：行进中检测到交互提示就停车
-//            跑一次子任务，到点时再兜底一次；没给文本就保持原语义——到点狂按F键。文字可以直接写，也可以写
-//            { "node": ... } 指一个 OCR 节点，多条路线共用一张表。interact_scan 只换预筛看什么，得配着
-//            interact_text 用。动作恒为交互键，不可换；写 interact_rec 走 rec 模式，只认提示不按键。
-// TRANSFER - 精确抵达该点后停住，等待机关/跳板/回传等把角色转移到下一段可达路径
-// JUMP_PAD - 坐标写板心：站到板心起跳，没起飞朝板心补一步再按；落地站稳后接后面的点
-// PORTAL   - 跨区过渡节点，触发后进入盲走等待区域切换
-// HEADING  - 无坐标朝向节点，执行时只调整镜头到指定角度，再按下W继续前进
-// NAVMESH  - 语义寻路节点，读取 .nav 并从当前定位位置自动规划到 target
-// ZONE     - 无坐标区域声明节点，要求后续定位稳定落在指定 zone 后再继续
-// COLLECT  - 仅作为"开启采集扫描"的路径点：经过时按普通路点直接推进，不再到点停车。
-//            采集完全由行进中的异步图标检测驱动——检测到采集物才立即停车并触发
-//            AutoCollectClickStart 子任务（OCR + AutoAltClickAction），没有采集物时不空停。
-//            （检测只受冷却限速，误报由 OCR 名称白名单挡下，最多白停一次）
-// DIG      - 触发 AutoCollectDigStart pipeline 子任务（无条件 Click target=true 两次），用于挖掘点。
-//            与 COLLECT 不同，DIG 仍是精确抵达后停车触发（挖掘是定点动作，非行进检测）
-// FIND     - 寻找并接近一个只有识别框、没有坐标的目标：拿点名节点给出的框直接对着世界走
-//            （转视角搜索 / 对准了前进 / 走过头退一步），全程不读小地图。命中 find_stop 即算到位，
-//            位置走到 find_arrive 附近同样算到位（两者都给就先到先算）。带 target 先走到锚点再找，
-//            不带就是就地开找的控制节点
-// ZIPLINE  - 滑索上索点：精确抵达后停车，把镜头转向下索点再交互上索，然后等滑行自己结束；
-//            链尾落地会先把朝向摆到下一段走路的规划点再下索。只由滑索规划生成，不手写：能不能滑
-//            取决于两端的落差与跨度，那是规划器算出来的
-// TRIGGER  - 只能做路线终点：整条路线行进中定时跑 trigger_node，不论走到哪，命中即算导航成功；走到 target 未命中也算成功
+// 路线约定: JUMP_PAD 坐标写板心, ZIPLINE 只由滑索规划生成, TRIGGER 只能做路线终点
 #define NAVI_ACTION_TYPES(X) \
     X(RUN)                   \
     X(SPRINT)                \
@@ -71,12 +44,11 @@ enum class ActionType
     MEOJSON_ENUM_RANGE(RUN, TRIGGER)
 };
 
-// 每种动作的静态策略, 一种动作一行; 到点后做什么见 semantic_nodes 的到点分发
 struct ActionTraits
 {
-    bool strict_arrival = false;     // 到点必须精确停住, 线路上的 strict_arrival 只能再加严
+    bool strict_arrival = false;     // 线路上的 strict_arrival 只能再加严
     bool settles_at_arrival = false; // 进圈后末端纠正到位才验收, 除 INTERACT 外只对线路明写 strict_arrival 的点
-    bool walk_approach = false;      // 接近段允许切走路
+    bool walk_approach = false;
     bool walk_at_startup = false;    // 起步位移还没确认也允许走路
     bool route_boundary = false;     // 全局规划分段的固有边界
     double commit_distance = 0.0;    // 判定圈下限 px, 0 = 不放宽
@@ -97,7 +69,7 @@ constexpr ActionTraits TraitsOf(ActionType action)
         return { .strict_arrival = true, .settles_at_arrival = true, .walk_approach = true };
     case ActionType::TRANSFER:
         return { .strict_arrival = true, .settles_at_arrival = true };
-    // 不走通用末端纠正: 纠正途中就可能被弹走, 站位交给跳板相位自己补
+    // 不做末端纠正, 纠正途中就可能被跳板弹走
     case ActionType::JUMP_PAD:
         return { .strict_arrival = true, .walk_approach = true };
     case ActionType::PORTAL:
@@ -118,19 +90,18 @@ constexpr ActionTraits TraitsOf(ActionType action)
             .walk_at_startup = true,
             .route_boundary = true,
         };
-    // 不设 strict_arrival：锚点只是「站这儿开始找」，收尾由视觉伺服完成
     case ActionType::FIND:
         return { .walk_approach = true, .route_boundary = true };
     case ActionType::ZIPLINE:
         return { .strict_arrival = true, .walk_approach = true };
-    // 设成边界才会被滑索规划原样保留，否则会被换成不带 trigger_node 的规划点
+    // 须设为边界, 否则滑索规划会把它换成不带 trigger_node 的点
     case ActionType::TRIGGER:
         return { .strict_arrival = true, .settles_at_arrival = true, .route_boundary = true };
     }
     return {};
 }
 
-// 一段升降索: 从绳底按交互坐上去, ride_s 秒后人站在绳顶那层 (top_height)
+// 从绳底交互坐上去, ride_s 秒后站在 top_height 那层
 struct RopeRideInfo
 {
     uint32_t uid = 0;
@@ -138,16 +109,14 @@ struct RopeRideInfo
     double top_height = 0.0;
 };
 
-// 运行期在卡死点前方生成的圆形禁区, 用于占位网格中未记录的障碍, 此后每次规划都绕开它。
-// 圆心按生成时所在定位区的坐标记录, 仅对同区规划生效。push_through 表示该禁区封闭了唯一通路,
-// 规划时不再计入, 只作为恢复流程判定此处需要物理脱困的依据。
+// 圆心是 zone_id 区内坐标, 只对同区规划生效
 struct VirtualNoGoDisc
 {
     std::string zone_id;
     double x = 0.0;
     double y = 0.0;
     double radius = 0.0;
-    bool push_through = false;
+    bool push_through = false; // 封住了唯一通路, 不参与规划, 只标记此处需物理脱困
 };
 
 struct Waypoint
@@ -157,59 +126,47 @@ struct Waypoint
     ActionType action;
     bool has_position;
     bool strict_arrival;
-    // 线路里明写的那个 strict_arrival, 原样留一份。strict_arrival 本身还被解析器、展开器、bootstrap、
-    // 滑索当精度标志置位, 读它分不出是作者写的还是引擎自己加的
+    // 线路明写的 strict_arrival 原样副本, strict_arrival 本身还会被引擎置位
     bool authored_strict_arrival;
     // 该点处的通道半宽 px, 0 = 未知(非 navmesh 规划的点)
     double corridor_clearance;
     bool heading_uses_target;
     double heading_angle;
     std::string zone_id;
-    // Optional authored coordinate frame for x/y. Native MapNavigator projects an explicitly tagged
-    // NAVMESH target, regular positioned waypoint, or target-based HEADING through this tier's baked affine
-    // onto the base-pixel execution frame. Empty keeps the legacy coordinates unchanged.
+    // x/y 所在的 tier 坐标系, 执行前投影到基础像素坐标, 空表示 x/y 已是基础坐标
     std::string target_tier;
-    // NAVMESH only: height of the overlapping deck this waypoint sits on. Pins the goal span for the leg
-    // ending here and the start span for the leg leaving it. Unset -> full span set, unchanged.
+    // 仅 NAVMESH: 本点所在重叠层的高度, 钉住进出两段的层, 未设则不限层
     std::optional<double> target_deck_y;
-    // navmesh 规划出的点专用: 规划线在这一点所在面的高, 运行中重规划用它定起点层
+    // 仅 navmesh 规划点: 规划线在此点所在面的高度
     std::optional<double> route_floor_y;
-    // 台沿下落的落点专用: 起跳点。沿起跳→落点方向越过本点才算到
+    // 台沿下落落点专用的起跳点, 沿起跳到落点方向越过本点才算到
     std::optional<std::array<double, 2>> drop_from;
-    // Authored path only: make this node a hard boundary between globally planned legs. Coordinate-bearing
-    // movement nodes are optional route/action hints by default. HEADING is an explicit control command;
-    // COLLECT and DIG are task-producing markers. Those three are intrinsic boundaries even without this flag.
+    // 仅作者路线: 强制作为全局规划分段边界
     bool route_required;
-    // INTERACT 专用: 该点的提示文字, 停车后当 OCR expected 用。留空则不做这次确认, 该点也就不算异步交互
+    // INTERACT 专用: 停车后用作 OCR expected, 留空则不算异步交互
     std::vector<std::string> interact_text;
-    // INTERACT 专用: 作者写的是 { "node": ... } 时先落在这里, 开跑前从那个 OCR 节点读出 expected 填进
-    // interact_text; 读不出来该点退回原语义
+    // 作者写 { "node": ... } 时的节点名, 开跑前读出其 expected 填进 interact_text
     std::string interact_text_node;
-    // INTERACT 专用: 行进预筛读 roi/template/threshold 的 TemplateMatch 节点, 留给提示长得不一样的业务;
-    // 留空用出厂那份
+    // 行进预筛用的 TemplateMatch 节点, 留空用默认节点
     std::string interact_scan;
-    // INTERACT 专用: rec 模式, 只认提示不按键。判定圈、行进中提示停车都照旧, 按不按、按哪个留给业务侧决定;
-    // 到点纠正后仍认不出提示判导航失败。写在路线顶层是整条路线的默认, 点上只能开不能关
+    // 只认提示不按键, 路线顶层设的是默认值, 点上只能开不能关
     bool interact_rec;
-    // FIND 专用：目标识别节点名，与 find_text 二选一
+    // 目标识别节点名, 与 find_text 二选一
     std::string find_target;
-    // FIND 专用：内联 OCR 文本表，执行时注入内置节点
+    // 内联 OCR 文本, 执行时注入内置节点
     std::vector<std::string> find_text;
-    // FIND 专用：命中它就算到位，与 find_arrive 至少给一个
+    // 命中即到位, 与 find_arrive 至少给一个
     std::string find_stop;
-    // FIND 专用：走到这个坐标附近也算到位。给了它才读定位, 判定只看 x/y 距离, 不参与转向
+    // 走到此坐标附近也算到位, 只看 x/y 距离, 不参与转向
     std::optional<std::array<double, 2>> find_arrive;
-    // TRIGGER 专用：命中即算导航成功的识别节点名，只跑识别不执行动作
+    // 命中即算导航成功, 只跑识别不执行动作
     std::string trigger_node;
-    // ZIPLINE only: 这一跳的计划(两端架子、落点仰角、备用站位)。只由滑索规划写入; 缺这个字段的
-    // ZIPLINE 点是配置写错了, 执行侧拒绝
+    // 只由滑索规划写入, 缺它的 ZIPLINE 点执行侧拒绝
     std::optional<ZiplineHopPlan> zipline_hop;
-    // 规划生成的绳底交互点专用: 按下交互后等这段升降索坐完, 再接绳顶落脚点
     std::optional<RopeRideInfo> rope_ride;
-    // 规划生成的绳顶落脚点: 坐完升降索就算到了, 不靠走过去判
+    // 绳顶落脚点, 坐完升降索即算到达
     bool rope_top = false;
-    // 展开路径专用: 这个点由原始作者 path 的哪一组(组首下标)展开而来。滑索链半路失败时按它把
-    // 进度折回作者路线重新展开; 作者原始点和运行时生成的点不带(= max)。
+    // 展开来源在作者 path 中的组首下标, 作者原点和运行时生成的点为 max
     size_t authored_group_begin = std::numeric_limits<size_t>::max();
 
     double GetLookahead() const
@@ -223,8 +180,6 @@ struct Waypoint
         return kLookaheadRadius;
     }
 
-    // 到点判定圈半径, 通道比判定圈还窄时按通道收紧, 否则角色会提前弃点直奔下一点, 抄出撞墙的弦
-    // 提示驱动的点另按 kCollectArrivalBandWu 收紧(点距比常规判定圈还小), relax_tight_band 是够不着时的退让
     double ArrivalBand(double position_quantum, bool relax_tight_band = false) const
     {
         const bool strict = RequiresStrictArrival();
@@ -242,8 +197,6 @@ struct Waypoint
 
     bool RequiresStrictArrival() const { return has_position && (strict_arrival || Traits().strict_arrival); }
 
-    // 末端纠正到位才验收的点: INTERACT 不看线路写没写 strict_arrival, 异步那种认不出提示才在到点处理里纠正;
-    // 其余只认线路明写的 strict_arrival
     bool SettlesAtArrival() const
     {
         if (!has_position || !Traits().settles_at_arrival) {
@@ -255,18 +208,15 @@ struct Waypoint
         return authored_strict_arrival;
     }
 
-    // 顺着走过去就算数的点: 走廊跟随、经过即推进都只对这种点生效
     bool IsContinuousRun() const { return has_position && action == ActionType::RUN && !RequiresStrictArrival(); }
 
-    // 路线说了停下后认什么才走异步交互。只换预筛不给文本的点走不通: 共用识别节点里的占位文本没被顶掉, 停下来
-    // 也认不出东西, 所以那种点退回原语义而不是白停一次。
+    // 只给 interact_scan 不给文本的点不算异步交互, 共用节点里的占位文本认不出东西
     bool IsAsyncInteract() const { return action == ActionType::INTERACT && !interact_text.empty(); }
 
-    // 不看有没有文本: 文本没解析出来的点会退回原语义(到点狂按F), 那正是 rec 模式要避开的
+    // 不看文本, 否则文本解析失败的点会退回到点连按交互键
     bool IsRecInteract() const { return action == ActionType::INTERACT && interact_rec; }
 
-    // 走到跟前才算数的点: 交互提示得在屏幕上待得住, 所以判定圈、疾跑抑制、切走路都按同一套来
-    // 上索点也认提示, 但只有链首那一次要认 —— 收不收得看运行时上没上索, 所以那道收紧在状态机里
+    // 上索点也认提示, 但只有链首要认, 那道收紧在状态机里
     bool StopsOnPromptDetection() const { return action == ActionType::COLLECT || IsAsyncInteract(); }
 
     bool HasPosition() const { return has_position; }

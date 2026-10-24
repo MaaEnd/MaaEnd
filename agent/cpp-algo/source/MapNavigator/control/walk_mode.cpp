@@ -9,7 +9,7 @@ namespace mapnavigator::walkmode
 
 namespace
 {
-// The game's toggle state, not a run's — hence process-global.
+// 游戏的走路切换状态跨导航保留, 所以放在进程级
 bool g_walking = false;
 }
 
@@ -30,7 +30,6 @@ void NoteSprintTriggered()
 Toggle::Toggle(ActionWrapper* action_wrapper)
     : action_wrapper_(action_wrapper)
 {
-    // Survived into a new run = the last one failed to unwind; put the game back before navigating.
     if (g_walking) {
         LogWarn << "Walk mode belief survived the previous run; restoring jogging before navigating.";
         Request(false);
@@ -48,7 +47,7 @@ void Toggle::Request(bool walk)
         return;
     }
     if (action_wrapper_ == nullptr || !action_wrapper_->SupportsWalkToggle()) {
-        return; // no binding on this backend
+        return;
     }
 
     action_wrapper_->ToggleWalkModeSync();

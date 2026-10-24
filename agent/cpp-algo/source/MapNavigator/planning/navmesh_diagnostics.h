@@ -9,8 +9,6 @@
 namespace mapnavigator
 {
 
-// One successful planner leg selected by a complete authored-route expansion. The WebUI opts into
-// collecting these records; normal navigation leaves the sink unset and does not retain the arrays.
 struct NavmeshRouteDiagnostic
 {
     struct Timing

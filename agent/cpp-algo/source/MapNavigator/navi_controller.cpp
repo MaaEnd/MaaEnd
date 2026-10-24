@@ -26,9 +26,7 @@ namespace mapnavigator
 namespace
 {
 
-// 导航期间调起的交互子任务是 pipeline, 它的 next 能被接回导航动作本身。子任务同步调起, 那会在同一条 nav
-// 线程上套第二层导航: 两层抢同一个控制器与定位器, 而且能无限套下去。这道闸把栈深封死在 1, 按 tasker 分,
-// 一个进程里跑多台设备时互不误伤。
+// 子任务 pipeline 可能重入导航动作, 按 tasker 把导航嵌套深度限制为 1
 std::mutex g_navigating_taskers_mutex;
 std::set<MaaTasker*> g_navigating_taskers;
 
@@ -70,7 +68,7 @@ NaviController::NaviController(MaaContext* ctx)
 
 bool NaviController::Navigate(const NaviParam& requested_param)
 {
-    // 先取闸再做任何事: 作者的图若无限重试这个被拒的节点, 每次都必须是零成本的。
+    // 须最先取闸, 被拒的节点可能被无限重试
     const NavigationEntryGuard entry_guard(MaaContextGetTasker(ctx_));
     if (!entry_guard.taken()) {
         LogError << "Refusing to nest navigation: this tasker is already navigating.";

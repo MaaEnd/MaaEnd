@@ -35,11 +35,11 @@ struct WorldPath
     uint16_t zone_id = 0;
     std::string zone_name;
     std::vector<WorldPoint> points;
-    // 与 points 等长的逐点通道半宽 px; 为空表示该路径不是 navmesh 规划出来的
+    // 与 points 等长的逐点通道半宽 px, 为空表示该路径不是 navmesh 规划的
     std::vector<double> clearance;
-    // 与 points 等长的逐点所在面高度; 为空表示规划器没给出
+    // 与 points 等长的逐点所在面高度, 为空表示规划器没给出
     std::vector<double> heights;
-    // 规划器给的驱动航点下标(不含起点,末位恒为 points.size()-1); 为空则由航点侧自行拉直
+    // 驱动航点下标, 不含起点, 末位恒为 points.size()-1, 为空则由航点侧自行拉直
     std::vector<size_t> waypoints;
     std::vector<size_t> segment_breaks;
     std::vector<DropLanding> drops;

@@ -95,9 +95,7 @@ struct NaviActionListInput
     }
 };
 
-// A string or an array of strings, or { "node": "SomeOcrNode" } to read the list off that node instead. Empty is
-// rejected rather than ignored: empty text matches anything on the recognition side, which is exactly the
-// press-on-any-prompt behaviour these fields exist to avoid.
+// 接受字符串、字符串数组或 { "node": ... }, 空文本会匹配任何提示, 一律拒绝
 struct NaviTextListInput
 {
     std::vector<std::string> texts_;
@@ -116,7 +114,6 @@ struct NaviTextListInput
         texts_.clear();
         node_.clear();
 
-        // 字符串和数组都被字面文字占着, 所以引用一个节点只剩对象这一种不含糊的写法。
         if (input.is_object()) {
             const json::object& object = input.as_object();
             if (!object.contains("node") || !object.at("node").is_string()) {
@@ -260,8 +257,7 @@ struct NaviWaypointObjectPresenceInput
         MEO_OPT MEO_KEY("target") target_)
 };
 
-// Read from a point and from the route root alike, as its own pass over the same object: MEO_OPT MEO_KEY spends three
-// macro arguments per key and the macro tops out at 64, so a single block holds at most 21 keys.
+// 单独一趟解析, MEO_OPT MEO_KEY 每个键占 3 个宏参数, 一块最多 21 个键
 struct NaviInteractInput
 {
     NaviTextListInput interact_text_;
@@ -312,7 +308,7 @@ bool read_interact_spec(const json::value& input, NaviInteractSpec& out_spec)
     return true;
 }
 
-// FIND 的目标来源与停止判据, 与 interact_* 同一套: 点上与路线顶层共用一次解析, 点上优先
+// 点上与路线顶层共用这份解析, 点上优先
 struct NaviFindInput
 {
     std::string find_target_;
@@ -339,15 +335,13 @@ struct NaviFindInput
 
 struct NaviFindSpec
 {
-    // 目标识别节点; find_text 写 { "node": ... } 时与 find_target 同义
+    // find_text 写 { "node": ... } 时与 find_target 同义
     std::string target_node;
-    // 内联 OCR 文本表
     std::vector<std::string> texts;
-    // 命中即算到位; 与 arrive 至少给一个
+    // 命中即算到位, 与 arrive 至少给一个
     std::string stop_node;
-    // 走到这个坐标附近也算到位
     std::optional<std::array<double, 2>> arrive;
-    // find_target 与内联文字同时写了, 直接拒绝
+    // find_target 与内联文字同时给出
     bool conflicting_source = false;
 
     bool hasTargetSource() const { return !target_node.empty() || !texts.empty(); }
@@ -355,7 +349,7 @@ struct NaviFindSpec
     bool hasSuccessStop() const { return !stop_node.empty() || arrive.has_value(); }
 };
 
-// find_arrive 只认 [x, y] 数字对; 形状不对是硬错误, 缺省才算没写
+// find_arrive 只认 [x, y] 数字对, 形状不对是硬错误
 bool read_arrive_point(const json::value& input, std::optional<std::array<double, 2>>& out_point)
 {
     if (!input.is<std::array<double, 2>>()) {
@@ -823,8 +817,6 @@ void append_expanded_waypoints(
     }
 }
 
-// Fill in the interact text on the INTERACT points of [from_index, end); empty leaves them plain INTERACT. Written
-// out or named by node are the same field, so a point that carries either one is already spoken for.
 void apply_interact_text(
     const std::vector<std::string>& interact_text,
     const std::string& interact_text_node,
@@ -844,7 +836,6 @@ void apply_interact_text(
     }
 }
 
-// Same, for the node the walking pre-filter reads its roi/template/threshold from.
 void apply_interact_scan(const std::string& interact_scan, std::vector<Waypoint>& waypoints, size_t from_index)
 {
     if (interact_scan.empty()) {
@@ -857,7 +848,7 @@ void apply_interact_scan(const std::string& interact_scan, std::vector<Waypoint>
     }
 }
 
-// Same, for rec mode. A bool cannot tell "written false" from "not written", so this only ever turns points on.
+// bool 分不出写了 false 和没写, 所以只开不关
 void apply_interact_rec(bool interact_rec, std::vector<Waypoint>& waypoints, size_t from_index)
 {
     if (!interact_rec) {
@@ -870,8 +861,6 @@ void apply_interact_rec(bool interact_rec, std::vector<Waypoint>& waypoints, siz
     }
 }
 
-// Fill FIND points in [from_index, end) that carry no target source of their own: expanded points are built
-// from the coordinate, not from the object.
 void apply_find_fields(const NaviWaypointInput& input, std::vector<Waypoint>& waypoints, size_t from_index)
 {
     if (input.find_target_.empty() && input.find_text_.empty() && input.find_stop_.empty() && !input.find_arrive_.has_value()) {
@@ -895,7 +884,6 @@ void apply_find_fields(const NaviWaypointInput& input, std::vector<Waypoint>& wa
     }
 }
 
-// 路线级默认: 只补给自己没写的 FIND 点
 void apply_find_defaults(const NaviFindSpec& route_find, std::vector<Waypoint>& waypoints, size_t from_index)
 {
     if (!route_find.hasTargetSource() && !route_find.hasSuccessStop()) {
@@ -919,7 +907,7 @@ void apply_find_defaults(const NaviFindSpec& route_find, std::vector<Waypoint>& 
     }
 }
 
-// 缺目标或缺到位判据的 FIND 点执行不了, 在解析期拒掉整条路线; 跑在默认值落位之后, 所以只有真没人写才报
+// 须在路线级默认值落位之后运行
 bool validate_find_points(const std::vector<Waypoint>& waypoints)
 {
     bool ok = true;
@@ -973,8 +961,7 @@ bool validate_trigger_points(const std::vector<Waypoint>& waypoints)
     return ok;
 }
 
-// Runs after the route-wide defaults land, so a point holding only the scan node is not flagged. The pre-filter
-// only decides when to stop; with no text there is nothing to confirm, so the point falls back to plain INTERACT.
+// 须在路线级默认值落位之后运行
 void warn_scan_without_text(const std::vector<Waypoint>& waypoints)
 {
     for (size_t index = 0; index < waypoints.size(); ++index) {
@@ -991,8 +978,6 @@ std::string resolve_waypoint_zone_id(const NaviWaypointInput& input, const std::
     return input.zone_id_.empty() ? zone_context : input.zone_id_;
 }
 
-// Only INTERACT points read these fields; elsewhere they are dropped. Not worth rejecting the route over, but the
-// missing piece is the action rather than anything the author can see in the interact fields themselves.
 void warn_unusable_interact_fields(const NaviWaypointInput& input)
 {
     if (input.interact_text_.empty() && input.interact_text_node_.empty() && input.interact_scan_.empty() && !input.interact_rec_) {
@@ -1005,7 +990,6 @@ void warn_unusable_interact_fields(const NaviWaypointInput& input)
             << VAR(input.interact_text_node_) << VAR(input.interact_scan_) << VAR(input.interact_rec_);
 }
 
-// 与 interact 那份同理: 缺的是动作本身, 说一句比丢掉好
 void warn_unusable_find_fields(const NaviWaypointInput& input)
 {
     if (input.find_target_.empty() && input.find_text_.empty() && input.find_stop_.empty()) {
@@ -1029,7 +1013,6 @@ void warn_unusable_trigger_fields(const NaviWaypointInput& input)
     LogWarn << "Waypoint carries trigger_node without a TRIGGER action; it does nothing here." << VAR(input.trigger_node_);
 }
 
-// 只有它真是 FIND 点时冲突才值得拒掉整条路线, 写在别的动作上降级成告警
 bool reject_conflicting_find_fields(const NaviWaypointInput& input)
 {
     if (!input.find_source_conflict_) {
@@ -1094,23 +1077,18 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
             return false;
         }
         Waypoint navmesh_waypoint(input.target_.at(0), input.target_.at(1), ActionType::NAVMESH);
-        // 规划出来的这一腿要按严判的判定圈和前视收尾, 跟作者写没写 strict_arrival 无关
+        // 规划腿一律按严判收尾, 与作者是否写 strict_arrival 无关
         navmesh_waypoint.strict_arrival = true;
         navmesh_waypoint.zone_id = zone_id;
-        // The tier whose coordinate frame `target` was authored in. Distinct from zone_id, which is the
-        // start/floor context and is inheritable from a preceding ZONE declaration — reusing it would
-        // double-convert legacy base-pixel targets. Empty -> target stays base-pixel (legacy), see expander.
+        // target 所在的 tier 坐标系, 与 zone_id 无关, 空表示基础像素坐标
         navmesh_waypoint.target_tier = input.target_tier_;
-        // 该坐标压着好几张可走面时, 声明落在哪一张的高度; 不填保持原样
         navmesh_waypoint.target_deck_y = input.target_deck_y_;
         navmesh_waypoint.route_required = input.required_;
         out_waypoints.push_back(std::move(navmesh_waypoint));
         return true;
     }
 
-    // 单独一个 FIND 在这里分流 (不带坐标的控制节点通用展开写不出来), 一条坐标挂多个动作时仍走通用展开
     if (primary_action == ActionType::FIND && input.actions_.size() <= 1) {
-        // 带坐标 = 先走到锚点再找; 不带坐标 = 走到该位置就地开找
         const bool has_legacy_position = input.has_x_ && input.has_y_;
         if (!input.has_target_ && !has_legacy_position) {
             Waypoint find_waypoint;
@@ -1148,7 +1126,6 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
     }
 
     const bool has_legacy_position = input.has_x_ && input.has_y_;
-    // No target_tier -> the target stays base-pixel (legacy), same as the bare-array form; see expander.
     if (has_legacy_position || input.has_target_) {
         const double target_x = input.has_target_ ? input.target_.at(0) : input.x_;
         const double target_y = input.has_target_ ? input.target_.at(1) : input.y_;
@@ -1162,11 +1139,9 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
             input.strict_arrival_,
             input.required_,
             out_waypoints);
-        // One coordinate may carry several actions and expand into several waypoints; only the INTERACT ones take these.
         apply_interact_text(input.interact_text_, input.interact_text_node_, out_waypoints, first_expanded);
         apply_interact_scan(input.interact_scan_, out_waypoints, first_expanded);
         apply_interact_rec(input.interact_rec_, out_waypoints, first_expanded);
-        // 数组形 [x, y, "FIND"] 会走到这里: 坐标有了, 找什么仍要由点上或路线顶层的 find_* 补
         apply_find_fields(input, out_waypoints, first_expanded);
         apply_trigger_node(input.trigger_node_, out_waypoints, first_expanded);
         if (!zone_id.empty()) {
@@ -1217,7 +1192,7 @@ bool TryParseNaviParam(const json::value& custom_action_param, NaviParam& out_pa
         return false;
     }
 
-    // Route-wide default, written once at the top level; a point's own value wins.
+    // 路线级默认值, 点上自己写的优先
     NaviInteractSpec route_interact;
     if (!read_interact_spec(custom_action_param, route_interact)) {
         LogError << "Failed to deserialize " << caller_name_text << " interact defaults." << VAR(custom_action_param);
@@ -1257,7 +1232,6 @@ bool TryParseNaviParam(const json::value& custom_action_param, NaviParam& out_pa
     apply_interact_rec(route_interact.rec, param.path, 0);
     warn_scan_without_text(param.path);
     apply_find_defaults(route_find, param.path, 0);
-    // 路线级冲突只有在真喂到某个 FIND 点上时才成立
     if (route_find.conflicting_source) {
         if (has_find_points(param.path)) {
             LogError << "Route sets both find_target and find_text; they are two ways to say what to look for." << VAR(caller_name_text)
@@ -1298,7 +1272,6 @@ void ResolveInteractTextNodes(MaaContext* context, NaviParam& param)
             continue;
         }
         std::vector<std::string> texts;
-        // 读不到就留空: 错误行由被调用方写, 该点退回原语义, 而不是拖垮整条路线。
         if (!TryReadNodeInteractTexts(context, waypoint.interact_text_node, &texts)) {
             continue;
         }

@@ -13,8 +13,7 @@
 namespace mapnavigator
 {
 
-// 一根滑索架。身份是 level_id + 世界坐标; 执行侧瞄准和落地分类用的是定位器像素坐标与世界高度。
-// 运行中现发现的架子没有世界坐标, 只能按像素圈认
+// 身份靠 level_id 加世界坐标, x/y 是定位器像素坐标, 现发现的架子没有世界坐标只能按像素认
 struct ZiplineNodeRef
 {
     std::string level_id;
@@ -36,32 +35,29 @@ struct ZiplineNodeRef
     }
 };
 
-// 一跳的计划, 由滑索规划写进 ZIPLINE 航点
 struct ZiplineHopPlan
 {
     ZiplineNodeRef mount;
     ZiplineNodeRef landing;
-    // 同一上索架上其它索通向的架子。两根索靠得近时游戏可能挂错一根, 落地分类靠它们认出滑到了哪
+    // 同一上索架上其它索通向的架子, 挂错索时靠它们认出落在哪
     std::vector<ZiplineNodeRef> siblings;
-    // 索的仰角, 正数往上滑。按两端世界坐标算好, 运行时不再碰单位
+    // 正数往上滑, 按两端世界坐标算好
     double planned_elevation_deg = 0.0;
-    // 上索依次要试的站位, 第一个就是航点本身的落脚点。只有链首那一跳用得上
+    // 第一个就是航点本身的落脚点, 只有链首那一跳有
     std::vector<ZiplineMountSpot> mount_spots;
-    // 落点就是下一跳的上索架: 落地不下索, 直接接着瞄
     bool chain_continues = false;
-    // 离开这跳时要朝的下一点: 只有链尾那一跳有值, 是下索段里第一个够远的规划步行点。下索动作
-    // 自身带出一段沿按键那刻朝向的动量, 所以下索前要先把它摆到下一段的走路方向上
+    // 只有链尾那一跳有值
     std::optional<ZiplineMountSpot> exit_aim;
 };
 
 enum class LandingClass
 {
     Pending,
-    AtTarget,     // 本次发射的目标节点圈内(首发/重试 = 规划落点, 回程 = 上索架)
-    AtOrigin,     // 还在本次发射的起点节点圈内, 没发出去
-    AtOther,      // 其它已知节点圈内, 滑错索了
-    AtStrayTower, // 滑行发生过且停稳, 却不在任何已知节点圈内: 脚下是一根未登记的架子
-    Unknown,      // 滑行没发生过、定位又不在起点圈内: 定位还没对上
+    AtTarget, // 首发和重试时是规划落点, 回程时是上索架
+    AtOrigin,
+    AtOther,
+    AtStrayTower, // 滑行过但不在任何已知节点圈内, 脚下是未登记的架子
+    Unknown,      // 没滑行过且不在已知圈内, 定位还没对上
 };
 
 struct ZiplineLaunch
@@ -79,9 +75,9 @@ enum class HopOutcome
 {
     Completed,
     WrongRope,   // 滑错过, 滑回后重试仍没到
-    NoLaunch,    // 在架上逐档俯仰都发射过, 索未起滑: 索被挡或未通电
-    NotMounted,  // 上索按键发出后未上架: 这根索尚未试过, 架子本身也不判死
-    Unboardable, // 每个站位都走到过, 一次提示都没出来: 这根架子上不去, 别再拿它当上索点
+    NoLaunch,    // 逐档俯仰都发射过仍未起滑, 索被挡或未通电
+    NotMounted,  // 按键后没上架, 索和架子都不判死
+    Unboardable, // 每个站位都没出提示, 不再当上索点
     Lost,        // 落地定位一直对不上
     Dismounted,  // 主动下索交给恢复
     AimFailed,   // 在架上瞄不准放弃
@@ -92,34 +88,31 @@ struct ZiplineHopRecord
     ZiplineHopPlan plan;
     std::vector<ZiplineLaunch> launches;
     HopOutcome outcome = HopOutcome::NoLaunch;
-    // 从上索架指向到过的错误落点, 重试时瞄准从这些方向让开
+    // 从上索架指向到过的错误落点的方位
     std::vector<double> wrong_rope_bearings_deg;
     std::chrono::steady_clock::time_point began_at {};
     std::chrono::steady_clock::time_point ended_at {};
 };
 
-// 一趟导航里每一跳的记录。规划器据此排掉滑不动/滑错的索, 主状态机据此决定要不要整段退回走路
 using HopLedger = std::vector<ZiplineHopRecord>;
 
-// 上索按键后须先经 Mounting 才判定在架上; 下索按键发出即判定已下架, 只等定位稳定
 enum class ZiplineStage
 {
     Idle,
-    Mounting,     // 上索按键已发出, 正在判定是否已上架
-    OnTower,      // 站在架子上, 准备这一次发射
-    Aiming,       // 闭环转 yaw, 开环俯仰, 然后左键
-    Fired,        // 已左键, 等定位断掉(滑出去了)或位置离开起点
-    Riding,       // 滑行中小地图整个隐藏, 定位不到, 只等
-    Landed,       // 定位回来了, 等停稳
-    Classified,   // 停稳的位置查决策表
-    ExitAiming,   // 链尾落地: 下索前先把朝向摆到下一段的走路方向
-    ReturnAiming, // 滑错了: 从当前架子瞄回上索架
-    Dismounting,  // 已发下索键, 等定位稳定
-    Handoff,      // 把出口事件交回导航
+    Mounting,
+    OnTower,
+    Aiming,
+    Fired,
+    Riding,
+    Landed,
+    Classified,
+    ExitAiming,
+    ReturnAiming,
+    Dismounting,
+    Handoff,
     Failed,
 };
 
-// 角色在架上还是在地面。两个信号都未命中即 Unclear: 窗口耗满之前它只表示继续等下一帧
 enum class MountVerdict
 {
     OnTower,
@@ -127,14 +120,13 @@ enum class MountVerdict
     Unclear,
 };
 
-// 一帧观测。fix 只在定位到、不是 held 且所选朝向有效时有值，朝向就是 fix 的角度。
+// fix 只在定位到、不是 held 且朝向有效时有值
 struct ZiplineObservation
 {
     std::optional<NaviPosition> fix;
     std::chrono::steady_clock::time_point at {};
 };
 
-// 阶段机交回导航的出口事件
 struct HopCompleted
 {
     NaviPosition at;
@@ -152,7 +144,7 @@ struct ReplanRequested
     std::optional<ZiplineNodeRef> on_tower;
 };
 
-// 上索点站得不对, 人已经下来了。改瞄计划里的下一个站位再上一次
+// 人已经下来了, 换下一个站位再上
 struct NeedsReposition
 {
 };

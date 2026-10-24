@@ -112,13 +112,6 @@ double CorridorArcLengthTo(const navmesh::WorldPath& path, const std::vector<dou
     return arc_prefix[projection.edge_idx] + std::hypot(projection.point.x - edge_start.x, projection.point.y - edge_start.y);
 }
 
-// Count how many upcoming continuous-RUN session waypoints the corridor has already carried the
-// agent past, scanning forward from the current index. A waypoint counts as passed when its
-// closest point on the corridor lies at or behind the agent's own corridor arc-length. The scan
-// stops at the anchor or at the first required-semantic / control node so the corridor never
-// skips a mandatory stop. This lets the serial index follow corridor progress even when the agent
-// has deviated far enough from the original waypoint line that serial cross-track tracking gives
-// up advancing it.
 size_t CountCorridorPassedRunWaypoints(
     const NavigationSession& session,
     const navmesh::WorldPath& path,
@@ -155,10 +148,7 @@ size_t CountCorridorPassedRunWaypoints(
     return count;
 }
 
-// How close to a bend the aim may start leading into it. Leading from distance d makes the agent drive the
-// chord instead of the corner, which cuts the inside of the bend by about d*sin(turn/2); where the corridor
-// is narrow that cut is the wall, so the lead is capped by what the corridor at the bend can absorb. The
-// clearance is unknown on a hand-authored line, which keeps the speed-derived budget as it was.
+// 提前 d 切弯会把内侧切掉约 d*sin(turn/2), 所以提前量按拐点处半宽封顶
 double CornerCommitDistance(const navmesh::WorldPath& path, size_t vertex, double turn_deg, double commit_distance)
 {
     if (vertex >= path.clearance.size()) {
@@ -197,13 +187,7 @@ navmesh::WorldPoint
     distance -= remaining_on_edge;
     double travelled = remaining_on_edge;
 
-    // Never aim past a turn the agent has not started yet. The aim distance is measured in ticks of travel, so
-    // on a slow loop it grows until the aim point sits well around a bend while the bend itself is still many
-    // world units away -- and the straight line the agent then drives cuts the inside of it, which is a wall.
-    // Holding the aim at the vertex where the corridor has bent too far keeps it on the stretch the agent is
-    // actually on. The hold lifts once the bend is within commit_distance, which is counted in ticks of travel
-    // so the turn always gets the same number of ticks to happen in: a fixed lead in world units would be most
-    // of a tick on a slow loop, and the agent would still be facing the old way when it reached the bend.
+    // 急弯进入 commit_distance 之前瞄点停在拐点上, 否则瞄点绕过弯后直线会切穿内侧的墙
     const navmesh::WorldPoint& edge_start = path.points[projection.edge_idx];
     const double base_heading = NaviMath::CalcTargetRotation(edge_start.x, edge_start.y, edge_end.x, edge_end.y);
     for (size_t edge = projection.edge_idx + 1; edge < num_edges; ++edge) {
@@ -232,9 +216,7 @@ navmesh::WorldPoint
     return path.points.back();
 }
 
-// The first vertex within kCornerBrakeScanM where the aim hold in LookaheadOnCorridor would wait: the corridor has
-// bent more than kNavRunLookaheadTurnBudgetDeg away from the leg the agent is on. Unlike the hold it does not lift
-// once the lead covers the vertex, so the brake can still see a bend the aim has already started into.
+// 和 LookaheadOnCorridor 的停靠不同, 拐点进了提前量范围仍会返回, 刹车才看得到瞄点已切入的弯
 std::optional<SharpCorner> NextSharpCorner(const navmesh::WorldPath& path, const CorridorProjection& projection, double commit_distance)
 {
     if (path.points.size() < 3 || projection.edge_idx + 1 >= path.points.size()) {
@@ -296,7 +278,7 @@ double UpcomingCorridorTurnDeg(const navmesh::WorldPath& path, const CorridorPro
         const double dy = segment_end.y - segment_start.y;
         const double length = std::hypot(dx, dy);
         if (length > std::numeric_limits<double>::epsilon()) {
-            // Sub-cell edges still consume the preview distance, but their heading is quantisation noise.
+            // 过短的边照样扣预览距离, 但朝向是量化噪声, 不参与转角
             if (length >= kNavRunCorridorEdgeMinM) {
                 const double heading = NaviMath::CalcTargetRotation(segment_start.x, segment_start.y, segment_end.x, segment_end.y);
                 if (!base_heading) {
@@ -320,10 +302,7 @@ int64_t ElapsedMs(std::chrono::steady_clock::time_point from, std::chrono::stead
     return std::chrono::duration_cast<std::chrono::milliseconds>(to - from).count();
 }
 
-// The authored line from the current waypoint up to and including the anchor, carrying each point's corridor
-// half-width so the follower can tell where it has no room to cut. Returns empty unless the anchor is actually
-// reached (a control node or path end first truncates the span), so the caller falls back to the navmesh
-// corridor instead of trusting a line that stops short of the anchor.
+// 线没走到锚点就返回空, 调用方据此改用 navmesh 走廊
 navmesh::WorldPath BuildAuthoredSpanPolyline(const NavigationSession& session, size_t anchor_index)
 {
     const std::vector<Waypoint>& waypoints = session.current_path();
@@ -347,15 +326,14 @@ navmesh::WorldPath BuildAuthoredSpanPolyline(const NavigationSession& session, s
     if (!reached_anchor) {
         return {};
     }
-    // An empty vector means "no widths known"; a line of nothing but unknowns must not claim zero width.
+    // clearance 为空表示宽度未知, 全是未知时不能留一串 0
     if (!any_clearance) {
         poly.clearance.clear();
     }
     return poly;
 }
 
-// 从台子边跳下: 人离起跳点还有一段距离就算到达, 这时人常常还站在台上; 只剩落点一个目标会停下来重新规划。
-// 人还在起跳点的到达范围内、没越过落点时, 把起跳点放回路线开头, 按出发时那条线走下去。
+// 起跳点判到达时人常还站在台上, 只剩落点会触发重规划, 所以把起跳点补回线头
 bool PrependDropTopWhileShort(
     navmesh::WorldPath& authored,
     const NavigationSession& session,
@@ -383,13 +361,7 @@ bool PrependDropTopWhileShort(
     return true;
 }
 
-// Cut the line back to where the agent actually stands on it, dropping what is already behind.
-// The span always begins at the session's current waypoint, but a waypoint only counts as reached once
-// the agent enters a band about a pixel wide, so a pass a pixel wide of it leaves the span starting
-// behind the agent -- and a corridor joined to the agent's own position then aims it backwards at
-// ground it has no reason to revisit. Only points the agent has gone past along the line are dropped,
-// one edge at a time, so the line can never be cut short sideways.
-// Returns false while the agent is still short of the head, where a joining segment is the right answer.
+// 返回 false 表示人还没到线头, 调用方应补一段连到线头
 bool TrimAuthoredSpanToAgent(navmesh::WorldPath& authored, const NaviPosition& position)
 {
     const auto edge_projection = [&](size_t edge) {
@@ -403,11 +375,7 @@ bool TrimAuthoredSpanToAgent(navmesh::WorldPath& authored, const NaviPosition& p
         return std::tuple { t, a.x + std::clamp(t, 0.0, 1.0) * dx, a.y + std::clamp(t, 0.0, 1.0) * dy };
     };
 
-    // Landing on an edge replaces the vertex it starts from with a point along it, so that corner stops
-    // existing. Past a right angle the outgoing edge carries the agent back the way it came, which means the
-    // perpendicular foot runs off the end of the incoming edge long before the agent has rounded anything --
-    // trim there and the follower is handed a line straight across the corner. Stop one vertex short instead.
-    // The test is the turn itself, not a tuned angle: at ninety degrees is exactly where the foot starts lying.
+    // 转角超过 90° 时垂足会提前滑出入边, 在这裁会切穿拐角, 所以停在拐点前
     const auto turns_back = [&](size_t vertex) {
         const navmesh::WorldPoint& prev = authored.points[vertex - 1];
         const navmesh::WorldPoint& curr = authored.points[vertex];
@@ -415,9 +383,7 @@ bool TrimAuthoredSpanToAgent(navmesh::WorldPath& authored, const NaviPosition& p
         return (curr.x - prev.x) * (next.x - curr.x) + (curr.y - prev.y) * (next.y - curr.y) <= 0.0;
     };
 
-    // Both tests below bound how far the agent may stand from the stretch it claims to have passed. A
-    // locator excursion reports a position hundreds of pixels away for a few seconds; without the bound
-    // it would read as "already past everything" and delete the rest of the line.
+    // 下面两处限距离是防定位短暂跳到几百像素外时把整条线当成走过删掉
     size_t head = 0;
     while (head + 2 < authored.points.size()) {
         if (turns_back(head + 1)) {
@@ -429,13 +395,7 @@ bool TrimAuthoredSpanToAgent(navmesh::WorldPath& authored, const NaviPosition& p
         }
         ++head;
     }
-    // Starting the corridor at the foot is only meaningful while the agent is within the follower's own reach of
-    // the line. A perpendicular foot slides past a corner well before the agent has rounded it, so out here the
-    // vertex is still load-bearing: drop it and the agent cuts straight across whatever the corner went around.
-    // Inside the lookahead it is already on the line and the vertex behind it is only something to aim back at.
-    // Past the end of this edge means the only reason we are still on it is the corner ahead we refused to
-    // trim through. Pinning the start to its far end would duplicate that vertex right where the follower can
-    // least afford a degenerate edge, so hand the whole line back and let the caller join to it instead.
+    // 垂足落在边端点上会和拐点重合成退化边, 所以 t 取不到 0 和 1
     const auto [t, foot_x, foot_y] = edge_projection(head);
     if (t <= 0.0 || t >= 1.0 || std::hypot(position.x - foot_x, position.y - foot_y) > kLookaheadRadius) {
         return false;
@@ -512,8 +472,7 @@ bool NavRunController::buildPlan(
         return commit_authored();
     }
 
-    // 末点是作者手写的裸坐标时仍按"直着走过去"处理: 交给 A* 会为了贴回网格绕远路。
-    // navmesh 展开出的点带 clearance 且末点 strict, 不走这条。
+    // 手写裸坐标的末点直接走直线, 交给 A* 会为贴回网格绕远路
     if (authored.points.size() == 1 && anchor.IsContinuousRun() && anchor.corridor_clearance <= 0.0
         && std::hypot(position.x - anchor.x, position.y - anchor.y) > kMeasurementDefaultPositionQuantum) {
         LogDebug << "NavRunController trailing authored point kept literal." << VAR(anchor_index) << VAR(anchor.x) << VAR(anchor.y);
@@ -522,7 +481,6 @@ bool NavRunController::buildPlan(
 
     const navmesh::WorldPoint start { .x = position.x, .y = position.y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
-    // 规划同步卡住 tick, 先松开前进键, 免得人闷头往前冲
     if (halt) {
         halt();
     }
@@ -556,10 +514,6 @@ void NavRunController::recordSpeedSample(const NaviPosition& position, std::chro
         if (step <= kMeasurementDefaultPositionQuantum) {
             return;
         }
-        // Two ways the pair stops describing one tick of travel: a jump too fast to be travel is a
-        // re-acquire landing somewhere else, and a gap this many ticks wide straddles a stall the
-        // older sample knows nothing about. Either would read as a misleading rate, so the window
-        // restarts instead of carrying the discontinuity.
         const int64_t span_ms = ElapsedMs(last.at, now);
         const double span_sec = static_cast<double>(span_ms) / 1000.0;
         if (span_sec <= 0.0 || tick_seq_ - last.tick_seq > kNavRunSpeedMaxSampleGapTicks || step > kNavRunSpeedJumpMaxPxPerSec * span_sec) {
@@ -579,8 +533,6 @@ std::optional<double> NavRunController::estimateStepPerTick() const
         return std::nullopt;
     }
     const NavRunSpeedSample& newest = speed_samples_.back();
-    // Oldest sample still at least a full window back, so the estimate spans real travel rather than
-    // one fix pair; before that much history exists the whole span is used instead of stalling.
     size_t oldest = 0;
     for (size_t i = 0; i + 1 < speed_samples_.size(); ++i) {
         if (ElapsedMs(speed_samples_[i].at, newest.at) >= kNavRunSpeedWindowMs) {
@@ -634,7 +586,6 @@ NavRunTickResult NavRunController::tick(
     const std::function<void()>& halt)
 {
     NavRunTickResult result;
-    // 规划耗时记进结果, 之后的计时都从规划结束算起
     const auto build = [&](NavRunReplanReason reason) {
         std::chrono::steady_clock::duration planning {};
         const bool built = buildPlan(param, *session, *runtime, position, anchor_index, anchor, reason, now, halt, planning);
@@ -648,8 +599,7 @@ NavRunTickResult NavRunController::tick(
         runtime->nav_run_dirty = false;
     }
 
-    // Ahead of every early return below, so the speed window keeps filling while the corridor is down
-    // and the first steered tick after it comes back already has a usable estimate.
+    // 必须在下面所有提前返回之前, 走廊不可用时测速窗口也要继续积累
     recordSpeedSample(position, now);
 
     if (!anchor.HasPosition() || !session->HasCurrentWaypoint()) {
@@ -659,10 +609,7 @@ NavRunTickResult NavRunController::tick(
         return result;
     }
 
-    // Published before any of the early returns below (plan build failed, projection lost, cursor clamped
-    // outside the window). Without it the caller falls back to the serial waypoint breadcrumb, which sits a
-    // couple of pixels away while the anchor is still tens of pixels out, and the no-progress watchdogs read
-    // that as "arrived" for as long as the corridor stays down.
+    // 必须在下面所有提前返回之前赋值, 否则看门狗会拿近处路点的距离误判已到达
     result.straight_to_anchor = std::hypot(position.x - anchor.x, position.y - anchor.y);
 
     if (plan_.valid) {
@@ -694,7 +641,6 @@ NavRunTickResult NavRunController::tick(
         return result;
     }
     plan_.cursor = projection->edge_idx;
-    // 走到台沿下落那一段, 之后的重规划不再从落点架子那层起步
     for (const navmesh::DropLanding& drop : plan_.path.drops) {
         if (plan_.cursor + 1 >= drop.index) {
             session->LeaveLandedTowerDeck();
@@ -716,8 +662,6 @@ NavRunTickResult NavRunController::tick(
         const bool budget_left = plan_.soft_replan_attempts < kNavRunSoftReplanMaxPerAnchor;
         const NavRunReplanReason reason = hard_off || soft_off ? NavRunReplanReason::OffCorridor : time_trigger;
 
-        // hard_off skips cooldown but never bypasses the budget — once exhausted,
-        // outer 3.5 s recovery handles the escalation.
         if (budget_left && (hard_off || cooldown_ready)) {
             plan_.soft_replan_attempts += 1;
             const bool built = build(reason);

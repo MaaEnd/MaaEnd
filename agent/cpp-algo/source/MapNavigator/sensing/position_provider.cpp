@@ -162,7 +162,6 @@ bool PositionProvider::captureImpl(
         return false;
     }
 
-    // An unsure camera reading is never the heading source, and on the touch backends never steered on either.
     const std::optional<double> confident_camera = locate_result.camRot && std::isfinite(locate_result.camRot->confidence)
                                                            && locate_result.camRot->confidence >= kNavigationCameraMinConfidence
                                                        ? std::optional<double>(locate_result.camRot->rot)
@@ -175,7 +174,7 @@ bool PositionProvider::captureImpl(
         return false;
     }
 
-    // 只统计整套走通的取位；全局搜索本来就比逐帧跟踪慢，算进去会把它的耗时当成机器常态。
+    // 全局搜索本就更慢, 不计入耗时统计
     if (!force_global_search) {
         latency::RecordStage(latency::Stage::Screencap, ElapsedMs(capture_started_at, screencap_done_at));
         latency::RecordStage(latency::Stage::ImagePrep, ElapsedMs(screencap_done_at, image_prep_done_at));
@@ -187,15 +186,12 @@ bool PositionProvider::captureImpl(
     out_pos->angle = *heading;
     out_pos->score = locate_result.position->score;
     out_pos->zone_id = locate_result.position->zoneId;
-    // Only the touch backends steer on the camera; the desktop backends keep passing the raw reading, as before.
     out_pos->camera_angle =
         uses_adb_minimap_roi_ ? confident_camera : (locate_result.camRot ? std::optional<double>(locate_result.camRot->rot) : std::nullopt);
     out_pos->valid = true;
     out_pos->timestamp = capture_started_at;
 
-    // Single chokepoint: every capture path (semantic nodes, the state machine, WaitForFix) funnels
-    // through here, and out_pos is always repopulated from the fresh locate result above before this
-    // runs, so the normalizer is applied exactly once per fix — double-transform is impossible.
+    // 所有取位都经过这里, 且 out_pos 刚由本次定位结果填好, 换算每次恰好一次
     if (position_normalizer_) {
         position_normalizer_(*out_pos);
     }

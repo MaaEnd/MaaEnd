@@ -31,7 +31,7 @@ namespace semantic_nodes
 namespace
 {
 
-// 内联文本注入内置节点: roi 与阈值留给 pipeline, 只换 expected
+// 只覆盖 expected, roi 与阈值留给 pipeline
 std::string BuildInlineTextOverride(const std::vector<std::string>& texts)
 {
     json::array expected;
@@ -50,7 +50,7 @@ std::string BuildInlineTextOverride(const std::vector<std::string>& texts)
     return json::value(std::move(root)).dumps();
 }
 
-// 只在调用内用, 不做拷贝: MaaImageBuffer 的像素在下一帧截图前都有效
+// 不拷贝像素, 只在 buffer 下次截图前有效
 cv::Mat FrameAsMat(const MaaImageBuffer* buffer)
 {
     return { MaaImageBufferHeight(buffer), MaaImageBufferWidth(buffer), MaaImageBufferType(buffer), MaaImageBufferGetRawData(buffer) };
@@ -61,7 +61,6 @@ int64_t ElapsedMs(std::chrono::steady_clock::time_point from, std::chrono::stead
     return std::chrono::duration_cast<std::chrono::milliseconds>(now - from).count();
 }
 
-// 到位判据之二: 走到 find_arrive 附近 (半径沿用 strict 到达的判定圈)。只有写了它才读定位, 读数只用于算距离
 bool ReachedArrivePoint(const Context& ctx, const Waypoint& waypoint)
 {
     if (!waypoint.find_arrive.has_value()) {
@@ -69,7 +68,7 @@ bool ReachedArrivePoint(const Context& ctx, const Waypoint& waypoint)
     }
     if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
         || ctx.position_provider->LastCaptureWasBlackScreen()) {
-        return false; // 读不到就这一拍不算数, 下一步再读
+        return false;
     }
 
     const double dx = ctx.position->x - waypoint.find_arrive->at(0);
@@ -79,8 +78,7 @@ bool ReachedArrivePoint(const Context& ctx, const Waypoint& waypoint)
     return distance <= kStrictArrivalLookaheadRadius;
 }
 
-// 退出时作废操舵记账、走廊、速度样本与路点进度: 这一段没读地图, 转视角是开环发的,
-// 留下的账会让下一段拿旧朝向去操舵
+// 这一段转视角是开环的, 不清掉操舵状态下一段会拿旧朝向操舵
 void LeaveFindPhase(const Context& ctx)
 {
     ctx.motion_controller->SetForwardState(false);
@@ -106,8 +104,6 @@ Result FailFind(const Context& ctx, const char* reason, const char* message)
     return result;
 }
 
-// 停车判据能读成模板就备好预筛: 走路时用它密集盯提示, 命中才跑权威识别.
-// 读不成模板 (OCR 等) 就安静退回探测时的权威识别, 只是每次探测更贵
 void ArmStopProbe(const Context& ctx, const Waypoint& waypoint, FindState& find)
 {
     find.stop_probe.reset();
@@ -121,12 +117,11 @@ void ArmStopProbe(const Context& ctx, const Waypoint& waypoint, FindState& find)
     }
     PromptScanProfile profile;
     if (!TryLoadPromptScanProfile(ctx.maa_context, waypoint.find_stop, ctx.action_wrapper->controller_type(), &profile)) {
-        return; // 读不出来的原因里面已经报过
+        return;
     }
     find.stop_probe = std::move(profile);
 }
 
-// 接手: 停车、切相位、预算从这一拍开始算
 Result BeginFind(const Context& ctx, const char* reason)
 {
     StopMotionAndCommitment(ctx);
@@ -148,7 +143,7 @@ Result BeginFind(const Context& ctx, const char* reason)
     return result;
 }
 
-// 原地转一步接着找: 第一步朝目标上次出现的那侧转, 之后保持同向, 否则正后方的目标会让镜头来回摆
+// 保持同向转, 否则正后方的目标会让镜头来回摆
 bool SearchOneStep(const Context& ctx, const FindState& find)
 {
     const int32_t sign = find.last_seen_side != 0 ? find.last_seen_side : find.search_sign;
@@ -157,24 +152,21 @@ bool SearchOneStep(const Context& ctx, const FindState& find)
     return TurnToHeadingOnce(ctx, step_deg);
 }
 
-// 框到手: 偏了就转视角, 走过了就退一步, 否则保持前进。移动连续, 修正跟着每拍的框走
 bool ApproachSighting(const Context& ctx, FindState& find, const MaaRect& box, int32_t frame_width, int32_t frame_height)
 {
     const int32_t center_x = box.x + box.width / 2;
     const int32_t center_y = box.y + box.height / 2;
-    // 记下偏在哪一侧: 目标这拍之后消失时, 搜索要先朝这边转
     find.last_seen_side = center_x >= frame_width / 2 ? 1 : -1;
     const int32_t offset_px = center_x - frame_width / 2;
-    // 判定用 1280 基准帧的像素, 角度换算用真实帧宽 (灵敏度按帧宽定义)
+    // 判定用 1280 基准帧像素, 角度换算用真实帧宽
     const int32_t offset_base =
         static_cast<int32_t>(std::lround(static_cast<double>(offset_px) * kPipelineRoiBaseWidth / static_cast<double>(frame_width)));
 
     if (std::abs(offset_base) > kFindAlignTolerancePx) {
-        // 小偏角边走边转; 偏太大先站定转正, 免得带着旧方向越走越偏
         const bool walk_through = std::abs(offset_base) <= kFindWalkWhileTurningPx;
         if (!walk_through) {
             ctx.motion_controller->SetForwardState(false);
-            // 停下也算移动指令, 紧随其后的转向会被后端的静默期吞掉, 等过去再转
+            // 停下也算移动指令, 紧接着的转向会被后端静默期吞掉
             utils::SleepFor(ctx.action_wrapper->SteeringProfile().action_quiet_period_ms);
         }
         const double degrees_per_px = kTurnDegreesPerCircle / static_cast<double>(ComputeTurn360Units(frame_width));
@@ -195,14 +187,12 @@ bool ApproachSighting(const Context& ctx, FindState& find, const MaaRect& box, i
         return true;
     }
 
-    // 对准了保持前进: 移动不停, 下一拍再按新框修正
     LogDebug << "FIND: walking toward the target." << VAR(find.steps) << VAR(offset_px);
     ctx.motion_controller->SetForwardState(true);
     return true;
 }
 
-// 走路时的停车探测: 提示窗口可能就夹在两拍之间, 只靠每拍一查容易直接走过头.
-// 有预筛先跑毫秒级的模板匹配, 命中才跑权威识别; 没有预筛就每次探测都跑权威识别
+// 提示窗口可能夹在两拍之间, 所以走路时要更密地探测停车判据
 Result ProbeStopWhileWalking(const Context& ctx, const Waypoint& waypoint, MaaController* controller)
 {
     Result result;
@@ -217,7 +207,7 @@ Result ProbeStopWhileWalking(const Context& ctx, const Waypoint& waypoint, MaaCo
     while (ctx.motion_controller->IsMovingForward() && std::chrono::steady_clock::now() < deadline) {
         ScopedImageBuffer probe;
         if (!CaptureFreshFrame(controller, probe.Get())) {
-            break; // 抓不到就收手, 下一拍再盯
+            break;
         }
         bool flagged = true;
         if (find.stop_probe.has_value()) {
@@ -228,7 +218,7 @@ Result ProbeStopWhileWalking(const Context& ctx, const Waypoint& waypoint, MaaCo
             utils::SleepFor(kFindStopProbeIntervalMs);
             continue;
         }
-        // 命中先站住: 权威确认也要时间, 走着确认会多滑出去一段
+        // 先站住再确认, 走着确认会多滑出去一段
         ctx.motion_controller->SetForwardState(false);
         utils::SleepFor(kStopWaitMs);
         NodeSighting sighting {};
@@ -240,7 +230,6 @@ Result ProbeStopWhileWalking(const Context& ctx, const Waypoint& waypoint, MaaCo
             LeaveFindPhase(ctx);
             return CompleteArrival(ctx, waypoint, ctx.session->CurrentAbsoluteNodeIndex(), "find_target_reached");
         }
-        // 预筛误报: 重新走起来, 探测继续
         LogDebug << "FIND: stop probe did not confirm; resuming the walk." << VAR(find.steps);
         ctx.motion_controller->SetForwardState(true);
         utils::SleepFor(kFindStopProbeIntervalMs);
@@ -263,7 +252,7 @@ Result ConsumeFindNodes(const Context& ctx)
     }
 
     const Waypoint& waypoint = ctx.session->CurrentWaypoint();
-    // 带坐标的点走到锚点后走 ArriveFind, 这里只接控制节点, 否则它们会被提前吃掉
+    // 带坐标的点由 ArriveFind 接手, 这里接了会被提前吃掉
     if (!waypoint.IsFindPoint() || waypoint.HasPosition()) {
         return {};
     }
@@ -277,7 +266,7 @@ Result TickFindTarget(const Context& ctx)
     result.stay_in_current_tick = true;
 
     if (ctx.maa_context == nullptr || ctx.session == nullptr || !ctx.session->HasCurrentWaypoint()) {
-        // 统一清理会解引用 session, 上下文不全时只能直接交还失败, 不走 FailFind
+        // FailFind 会解引用 session, 上下文不全时只能直接返回失败
         LogError << "FIND is running without a waypoint or a MaaContext." << VAR(ctx.maa_context == nullptr) << VAR(ctx.session == nullptr);
         result.request_failure = true;
         result.failure_reason = "find_context_missing";
@@ -287,7 +276,6 @@ Result TickFindTarget(const Context& ctx)
 
     const Waypoint& waypoint = ctx.session->CurrentWaypoint();
     if (!waypoint.IsFindPoint()) {
-        // 相位与当前点对不上: 交还控制权, 别占着别人点位的拍
         LeaveFindPhase(ctx);
         SelectPhaseForCurrentWaypoint(ctx, "find_phase_mismatch");
         return result;
@@ -310,7 +298,6 @@ Result TickFindTarget(const Context& ctx)
     MaaController* controller = ctx.action_wrapper->GetCtrl();
     ScopedImageBuffer image;
     if (controller == nullptr || !CaptureFreshFrame(controller, image.Get())) {
-        // 看不清就先站住空转这一拍, 别照着上一帧继续走; 步数预算兜住连续失败
         ctx.motion_controller->SetForwardState(false);
         LogWarn << "FIND: screencap failed, holding this step empty." << VAR(find.steps);
         utils::SleepFor(kFindStepSleepMs);
@@ -348,10 +335,9 @@ Result TickFindTarget(const Context& ctx)
         return FailFind(ctx, "find_recognition_failed", "FIND target node failed to recognize.");
     }
     if (!target_sighting.hit) {
-        // 目标看不到了先站住, 别带着上一拍的朝向继续往前冲
         ctx.motion_controller->SetForwardState(false);
         ++find.miss_streak;
-        // 刚还看着的目标漏认一两拍就原地等: 遮挡与抖动不该把镜头甩走; 从没见过目标则不给宽限, 直接搜
+        // 见过的目标漏认几拍先原地等, 从没见过则直接搜
         if (find.last_seen_side != 0 && find.miss_streak < kFindMissGraceTicks) {
             LogDebug << "FIND: target lost for a beat, holding." << VAR(find.steps) << VAR(find.miss_streak);
             utils::SleepFor(kFindStepSleepMs);
@@ -365,7 +351,7 @@ Result TickFindTarget(const Context& ctx)
     }
     find.miss_streak = 0;
 
-    // 命中却没有框 (DirectHit 之类): 框宽为零只能推出"一直往左转", 拿它当方向就错了
+    // DirectHit 之类命中没有框, 不能拿来定方向
     if (target_sighting.box.width <= 0 || target_sighting.box.height <= 0) {
         return FailFind(ctx, "find_empty_box", "FIND target node hit without a usable box.");
     }
@@ -383,7 +369,6 @@ Result TickFindTarget(const Context& ctx)
         return FailFind(ctx, "find_turn_failed", "FIND failed to issue a view turn.");
     }
 
-    // 走路时把停车判据盯密一点: 提示窗口可能就夹在两拍之间, 一拍一查容易直接走过去
     Result probe_result = ProbeStopWhileWalking(ctx, waypoint, controller);
     if (probe_result.consumed) {
         return probe_result;

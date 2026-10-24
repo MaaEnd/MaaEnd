@@ -37,7 +37,6 @@ ControllerInfo ParseControllerInfo(MaaController* controller)
         return {};
     }
 
-    // 格式不由本模块保证。解析失败按「拿不到信息」处理，与 controller 为空同路。
     const auto parsed = json::parse(raw);
     ControllerInfo info;
     if (!parsed || !info.from_json(*parsed)) {

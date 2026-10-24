@@ -17,15 +17,10 @@ enum class NaviPhase
     Bootstrap,
     Navigate,
     WaitTransfer,
-    // 滑行中。所有卡死检测、绕障、重规划、采集扫描都只在 Navigate 下开火, 所以这个阶段
-    // 天然把它们全挡在外面 —— 人挂在索上, 那些判据没有一条是成立的
+    // 卡死检测、绕障、重规划、采集扫描只在 Navigate 下运行, 各 Wait 阶段借此全部屏蔽
     WaitZipline,
-    // 找目标中。与滑索一样把卡死检测、绕障、重规划、预筛全挡在外面, 但理由不同: 这一段刻意不读小地图,
-    // 镜头角与定位朝向解耦, 记账在退出时整体作废
     WaitFind,
-    // 飞行中位置一路在跳, 与滑索一样挡住卡死检测与重规划
     WaitJumpPad,
-    // 坐升降索中: 小地图坐标不动、人在往上走, 同样挡住卡死检测与重规划
     WaitRope,
     Finished,
     Failed,
@@ -52,7 +47,6 @@ struct NavigationSession
     bool HasCurrentWaypoint() const;
     const Waypoint& CurrentWaypoint() const;
     const Waypoint& CurrentPathAt(size_t index) const;
-    // 人正走着的那段规划线在人所在处的面高; 没有时为空
     std::optional<double> WalkedFloorY(const NaviPosition& position) const;
     std::optional<size_t> CanonicalIndexAtCurrent() const;
     std::optional<size_t> CanonicalIndexAtCurrentPath(size_t index) const;
@@ -62,8 +56,7 @@ struct NavigationSession
     void AdvanceToNextWaypoint(const char* reason);
     void AdvanceToNextWaypoint(ActionType expected_action, const char* reason);
     void SkipPastWaypoint(size_t waypoint_idx, const char* reason);
-    // 只挪当前航点的落脚点，语义和后面的点都不动：到点做的事没变，只是换个位置做。
-    // 走廊仍旧指向原来那个点，差的这一点点在判定圈的量级上，交给到点前的那几步收口。
+    // 只改当前航点坐标, 动作和后续点不变, 走廊仍指向原坐标
     bool RetargetCurrentWaypoint(double x, double y, const char* reason);
 
     void ResetProgress();
@@ -72,26 +65,18 @@ struct NavigationSession
     int64_t StalledMs(const std::chrono::steady_clock::time_point& now) const;
     double best_distance_to_target() const;
 
-    // Hard no-progress watchdog. Mirrors ObserveProgress/StalledMs but is *only* cleared by a genuine route
-    // change (waypoint advance / skip / dynamic overlay) — never by ResetProgress. Dynamic-recovery escapes
-    // call ResetProgress on every small jump, so the ordinary stall clock can be reset indefinitely while the
-    // agent thrashes in place; this clock survives those resets and lets the recovery timeout actually fire.
+    // 只在航点前进、跳点或换路时清零, ResetProgress 不清, 原地打转时恢复超时才触发得了
     void ObserveHardProgress(size_t target_key, double actual_distance, const std::chrono::steady_clock::time_point& now);
     int64_t HardStalledMs(const std::chrono::steady_clock::time_point& now) const;
     void ResetHardProgress();
-    // 同步规划期间人停着等, 两只无进展表都往后挪这段时长, 规划耗时不算卡住
     void ExcludeFromStallClocks(std::chrono::steady_clock::duration paused);
 
-    // 刚滑完一跳或留在架子上等换路、人还在那根架子圈内、也没走下台沿时, 架子所在那层的高度; 其余情况为空
     std::optional<double> LandedTowerDeckY(const NaviPosition& position) const;
-    // 沿规划走到了台沿下落那一段, 落点架子那层不再是脚下的层; 航点前进时清掉
     void LeaveLandedTowerDeck();
-    // 滑索把人留在架子上等换路: 换路后航点下标归零, 推不出人站在哪根架子上, 由这里记着; 航点前进时清掉
+    // 换路后航点下标归零, 推不出人站在哪根架子上, 由这里记着
     void NoteStandingTower(const std::optional<ZiplineNodeRef>& tower);
 
     void ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos);
-    // 整条换路：旧的展开路径连同 canonical 索引一起作废，终点判定按新路线尾部重算。
-    // 滑索恢复用剩余作者路线重新展开时走这里；新路线仍以作者终点收尾，完成语义不变。
     void ReplaceRoute(std::vector<Waypoint> path, const NaviPosition& pos, const char* reason);
 
     NaviPhase phase() const;
@@ -122,7 +107,6 @@ private:
     std::chrono::steady_clock::time_point hard_last_progress_time_ {};
     bool hard_progress_initialized_ = false;
 
-    // False when out of range, so callers fall back instead of indexing past the end.
     [[nodiscard]] bool RequireCurrentWaypoint(const char* reason) const;
     [[nodiscard]] bool RequireWaypointIndex(size_t index, const char* reason) const;
     void RecordFinalArrivalEvidence(

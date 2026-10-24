@@ -22,7 +22,7 @@ constexpr size_t kHeaderSize = 48;
 constexpr size_t kSectionEntrySize = 24;
 constexpr size_t kConstSize = 144;
 
-// 采样与包围盒口径写死在 StampWalls / BakeWalls 里, 旁包按同样的值烘。
+// 须与 StampWalls 里写死的采样与包围盒取值一致
 constexpr double kWallSampleSub = 0.4;
 constexpr double kHitSampleSub = 0.2;
 constexpr double kWallBBoxPad = 4.0;
@@ -62,7 +62,7 @@ float peekF32(const uint8_t* p)
     return v;
 }
 
-// FLNK 段: 头 16 B, 区索引 zone_count × 12 B, 记录 count × 80 B。段存在时须整段合规, 不做降级。
+// FLNK 段: 头 16 B, 区索引 zone_count × 12 B, 记录 count × 80 B
 constexpr size_t kLinkHeaderSize = 16;
 constexpr size_t kLinkZoneSize = 12;
 constexpr size_t kLinkRecSize = 80;
@@ -135,7 +135,7 @@ bool parseLinks(const uint8_t* p, size_t len, std::vector<FieldsLinkRec>& recs, 
     return true;
 }
 
-// FROP 段: 头 16 B, 区索引 zone_count × 12 B, 记录 count × 64 B。段可选, 存在时须整段合规。
+// FROP 段: 头 16 B, 区索引 zone_count × 12 B, 记录 count × 64 B
 constexpr size_t kRopeHeaderSize = 16;
 constexpr size_t kRopeZoneSize = 12;
 constexpr size_t kRopeRecSize = 64;
@@ -187,7 +187,7 @@ bool parseRopes(const uint8_t* p, size_t len, std::vector<FieldsRopeRec>& recs, 
     return true;
 }
 
-// FOPN 段: 头 16 B, 区索引 zone_count × 12 B, 记录 count × 16 B, 区内按 (gy, gx, h 位模式) 升序。
+// FOPN 段: 头 16 B, 区索引 zone_count × 12 B, 记录 count × 16 B, 区内按 (gy, gx, h 位模式) 升序
 constexpr size_t kOpenHeaderSize = 16;
 constexpr size_t kOpenZoneSize = 12;
 constexpr size_t kOpenRecSize = 16;
@@ -248,7 +248,6 @@ bool parseOpens(const uint8_t* p, size_t len, std::vector<FieldsOpenRec>& recs, 
         r.flags = e[14];
         r.src = e[15];
     }
-    // 查找依赖区内升序二分; 顺序不符视为烘焙错误, 直接报错
     for (const FieldsLinkZone& z : zones) {
         if (!std::is_sorted(recs.begin() + z.first, recs.begin() + z.first + z.len, openLess)) {
             err = "旁包打通表未按格序排列";
@@ -258,7 +257,7 @@ bool parseOpens(const uint8_t* p, size_t len, std::vector<FieldsOpenRec>& recs, 
     return true;
 }
 
-// 运行期判据常数排成旁包 FCON 段的样子, 整段逐字节比对。
+// 字段顺序须与 FCON 段布局一致
 std::vector<uint8_t> expectedConst()
 {
     std::vector<uint8_t> out;
@@ -297,7 +296,6 @@ std::vector<uint8_t> expectedConst()
     return out;
 }
 
-// 变长整数与带长度前缀的 zlib 流。越界即失败, 不越界读。
 struct Reader
 {
     const uint8_t* p = nullptr;
@@ -473,7 +471,6 @@ bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main
             return false;
         }
     }
-    // 离网连接段可选: 缺失则无跳边, 存在则须合规。
     links_.clear();
     link_zones_.clear();
     if (const auto it = secs.find("FLNK"); it != secs.end()) {
@@ -481,7 +478,6 @@ bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main
             return false;
         }
     }
-    // 打通表同样可选: 缺失则不修改任何格。
     opens_.clear();
     open_zones_.clear();
     if (const auto it = secs.find("FOPN"); it != secs.end()) {
@@ -564,7 +560,7 @@ bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main
         }
         zones_.push_back(std::move(z));
     }
-    // 对着格图目录核区: 主包按区裁剪载入时格图仍是整份, 所以按名字配, 格图里的区都得有。
+    // 主包按区裁剪载入时格图仍是整份, 所以按区名配对
     for (const GridZoneDir& g : grid.zones()) {
         const FieldsZoneDir* z = nullptr;
         for (const FieldsZoneDir& c : zones_) {
@@ -709,7 +705,7 @@ bool FieldsPack::decodeTile(const FieldsTileRef& t, FieldsTile& out) const
     if (!rd.varint(n) || n != t.records) {
         return false;
     }
-    // 六条流依次: 分量号(zigzag 差分 varint)、禁步 XOR、段位、税边位、净空差(varint)、中轴位。
+    // 六条流依次: 分量号 (zigzag 差分 varint)、禁步 XOR、段位、税边位、净空差 (varint)、中轴位
     std::vector<uint8_t> s0;
     std::vector<uint8_t> s4;
     if (!rd.stream(s0) || !rd.stream(out.steps2x) || !rd.stream(out.seg) || !rd.stream(out.tax) || !rd.stream(s4) || !rd.stream(out.medial)
@@ -749,7 +745,7 @@ bool FieldsPack::loadZone(const FieldsZoneDir& z, FieldsZone& out, std::string& 
 {
     out = FieldsZone();
     out.regions.assign(static_cast<size_t>(z.global_regions) + 1, FieldsZone::Region {});
-    // 分量图: 逐类读边表, 按源分量装成 CSR。边已按 (src, dst) 升序, 所以计数装填即成。
+    // 分量图的边已按 (src, dst) 升序, 计数装填即成 CSR
     {
         Reader rd { z.scc, z.scc + z.scc_len };
         uint32_t rc = 0;
@@ -779,7 +775,7 @@ bool FieldsPack::loadZone(const FieldsZoneDir& z, FieldsZone& out, std::string& 
                 err = "旁包区 " + z.name + " 的分量图解不开";
                 return false;
             }
-            // 每条边至少 2 字节 varint, 先按流长卡住 n_edges 再分配
+            // 每条边至少 2 字节, 先按流长卡住 n_edges 再分配
             if (st.size() < 2ULL * n_edges) {
                 err = "旁包区 " + z.name + " 的分量图残缺";
                 return false;
@@ -823,7 +819,7 @@ bool FieldsPack::loadZone(const FieldsZoneDir& z, FieldsZone& out, std::string& 
             return false;
         }
     }
-    // 留墙表: 键升序差分, 逐墙的类表升序差分。
+    // 留墙表: 键升序差分, 逐墙的类表升序差分
     {
         Reader rd { z.wal, z.wal + z.wal_len };
         uint32_t nw = 0;

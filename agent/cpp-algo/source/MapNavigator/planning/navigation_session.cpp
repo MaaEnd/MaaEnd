@@ -14,7 +14,7 @@ namespace mapnavigator
 namespace
 {
 
-// Stands in for an out-of-range element; has_position is false, so callers take their no-position branch.
+// 越界时的替身, has_position 为 false, 调用方会走无坐标分支
 const Waypoint& EmptyWaypoint()
 {
     static const Waypoint empty {};
@@ -230,7 +230,6 @@ std::optional<double> NavigationSession::WalkedFloorY(const NaviPosition& positi
         return std::nullopt;
     }
     const Waypoint& to = current_path_[current_node_idx_];
-    // 只认紧挨着且带坐标的上一个点
     const Waypoint* from =
         current_node_idx_ > 0 && current_path_[current_node_idx_ - 1].HasPosition() ? &current_path_[current_node_idx_ - 1] : nullptr;
     if (from == nullptr || !from->route_floor_y) {
@@ -328,7 +327,7 @@ bool NavigationSession::RetargetCurrentWaypoint(double x, double y, const char* 
     LogInfo << "Waypoint retargeted." << VAR(reason) << VAR(current_node_idx_) << VAR(waypoint.x) << VAR(waypoint.y) << VAR(x) << VAR(y);
     waypoint.x = x;
     waypoint.y = y;
-    // 到点判据是按新落脚点重算的, 旧点上攒的最好成绩会让无进展判据以为人在倒退
+    // 旧坐标上攒的最好距离会让无进展判据误以为人在倒退
     ResetProgress();
     return true;
 }
@@ -447,7 +446,7 @@ void NavigationSession::NoteStandingTower(const std::optional<ZiplineNodeRef>& t
 
 void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos)
 {
-    // An out-of-range index would hand the insert below a reversed range, which wraps into a huge allocation.
+    // 越界下标会让下面的 insert 拿到反向区间, 绕成超大分配
     if (continue_index > original_path_.size()) {
         LogError << "Dynamic overlay continue index is out of range." << VAR(continue_index) << VAR(original_path_.size());
         continue_index = original_path_.size();

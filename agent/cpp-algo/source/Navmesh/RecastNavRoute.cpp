@@ -39,15 +39,14 @@ double triHeightOf(const PolyMesh& mesh, int32_t t)
     return (mesh.h(tri[0]) + mesh.h(tri[1]) + mesh.h(tri[2])) / 3.0;
 }
 
-// 净空截断的格数(含取整余量), 与 Clearance 的扫描半径同式。小窗档的可信余量要盖过它。
+// 净空截断的格数, 含取整余量, 须与 Clearance 的扫描半径同式
 constexpr int64_t kEdtCells = static_cast<int64_t>(kEdtCap / kCS) + 1;
 
-// 台沿下落用的角色尺寸 m。
+// 台沿下落用的角色尺寸, 米
 constexpr double kFallClimb = 0.39;
 constexpr double kFallHeight = 2.1;
 constexpr double kFallRadius = 0.41;
 
-// 三角 t 上一点 p 的高。
 double triHeightAt(const PolyMesh& mesh, int32_t t, const WorldPoint& p)
 {
     const auto& tri = mesh.T[static_cast<size_t>(t)];
@@ -63,7 +62,6 @@ double triHeightAt(const PolyMesh& mesh, int32_t t, const WorldPoint& p)
     return l0 * mesh.h(tri[0]) + l1 * mesh.h(tri[1]) + (1.0 - l0 - l1) * mesh.h(tri[2]);
 }
 
-// 一格在可走面上对应的点与高, 找不到时返回空。
 std::optional<std::pair<WorldPoint, double>> meshPointAt(const ZoneClean& zc, const WorldPoint& p, double h)
 {
     bool have = false;
@@ -74,7 +72,6 @@ std::optional<std::pair<WorldPoint, double>> meshPointAt(const ZoneClean& zc, co
             continue;
         }
         const auto& tri = zc.mesh.T[static_cast<size_t>(t)];
-        // 跳过别的层
         const double ha = zc.mesh.h(tri[0]);
         const double hb = zc.mesh.h(tri[1]);
         const double hc = zc.mesh.h(tri[2]);
@@ -103,7 +100,7 @@ std::optional<std::pair<WorldPoint, double>> meshPointAt(const ZoneClean& zc, co
     return best;
 }
 
-// 台沿下落判定的缓存, 按全局格记, 一次规划的各档窗口共用。
+// 按全局格记, 一次规划的各档窗口共用
 struct FallCache
 {
     struct PointKey
@@ -156,7 +153,6 @@ struct FallCache
     std::unordered_map<EdgeKey, bool, EdgeHash> memo;
 };
 
-// 窗口里的台沿下落交给碰撞体判。
 std::function<bool(int64_t, int64_t, float, float)> FallGate(
     std::shared_ptr<const OccluderScene> solid,
     const ZoneClean& zc,
@@ -210,26 +206,23 @@ struct WindowInfo
     double y0 = 0.0;
     int64_t nx = 0;
     int64_t ny = 0;
-    // 只留跨过 buildWindow 边界还有读者的表。层高图与挑剩的墙段都是建窗内部量, 留在结构里
-    // 就是让两张全窗口的图白白活过整个 routeWindow。
     Mask lay;
     Mask core;
-    Grid<float> dist;    // 旁包烘好的封缝净空, 禁区内清零
-    Mask medial;         // 旁包烘好的中轴
-    EdgeBits step_edges; // 旁包烘好的台阶税边
+    Grid<float> dist; // 封缝净空, 禁区内清零
+    Mask medial;
+    EdgeBits step_edges;
     StepBarrier sev;
     std::vector<WorldPoint> segA;
     std::vector<WorldPoint> segB;
     double h0 = 0.0;
-    double fall_r = 0.0; // 角色半径 px, 0 = 落点不外推
+    double fall_r = 0.0; // 角色半径 px, 为 0 时落点不外推
     SpanTable st3;
     std::vector<uint8_t> vis3;
     std::vector<uint8_t> reach3;
-    // 预烘离网连接筛到窗内的跳边: 格级两向展开给连通预判与格级搜索; span 级正反两张给 span 搜索与可达集。
     JumpEdges links_cell;
     JumpEdges links_span;
     JumpEdges links_span_rev;
-    uint32_t links_dropped = 0; // 两端均在窗内但有一端无法选出落脚 span 的条数, 表明表与格图不一致
+    uint32_t links_dropped = 0; // 两端在窗内但选不出落脚 span 的条数
 };
 
 struct RouteDiag
@@ -237,25 +230,22 @@ struct RouteDiag
     std::string err;
     std::vector<std::string> warn;
     std::vector<double> clearance;
-    std::vector<double> height;      // 逐点所在面的高度; 层预言机走不通时清空
-    std::vector<double> span_height; // 逐点取自搜索挑的那张面; 对不回父链时为空
+    std::vector<double> height;      // 逐点所在面的高度, 逐层追踪失败时清空
+    std::vector<double> span_height; // 逐点取自搜索选中的面, 对不回父链时为空
     std::vector<size_t> waypoints;
-    std::vector<DropLanding> drops;  // 台沿下落的落点
+    std::vector<DropLanding> drops;
     bool crossed_barrier = false;
-    bool hop_barrier = false;        // 端点接线的那一跳跨了禁行边
+    bool hop_barrier = false; // 端点接线的那一跳跨了禁行边
     double snap_start = 0.0;
     double snap_goal = 0.0;
 
-    // 小窗档的验收。margin > 0 时窗口只是端点附近的一块, 凡是结果可能被窗口边切过的判据
-    // (搜索碰边、吸附受可达域限制、任何退档分支) 都置 escalate 立即返回, 由调用方换大窗重算。
-    // margin = 0 是整类窗口, 所有验收关掉, 逐字走原路。
+    // margin > 0 是端点附近的小窗, 结果可能被窗口边切过时置 escalate, margin = 0 是整类窗口
     int64_t margin = 0;
-    // 封顶档: 没有更大的小窗可升, 只与窗口大小有关的验收(碰边类)关掉, 结果照采
+    // 已是最大的小窗, 碰边类验收关掉
     bool final = false;
     bool escalate = false;
     std::string escalate_why;
 
-    // 诊断埋点。只读各阶段的出口, 不参与任何判据, 摘掉它们路线逐点不变。
     RecastPlanResult::Debug::Timing timing;
     std::vector<WorldPoint> topology_cells;
     std::vector<double> topology_heights;
@@ -267,31 +257,27 @@ struct RouteDiag
     std::optional<double> gap_distance;
 };
 
-// 单调钟读数, 单位毫秒
 double nowMs()
 {
     return std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
 
-// 窗口里从预烘图解出来的记录。格号已换成窗口格号,窗外的与不属于本瓦自有矩形的
-// 都已剔除;一格只归一块瓦,所以同格的记录必然来自同一块瓦、按 (类号, 高) 排好。
+// 格号是窗口格号, 同格记录按 (类号, 高) 排好
 struct GridWindow
 {
     std::vector<GridSpanRec> rec;
-    std::vector<int32_t> head; // 逐格: 记录链表头,无记录为 -1
-    std::vector<int32_t> next; // 逐记录: 同格的下一条
-    // 旁包的列, 与 rec 逐条对位; 不带旁包解的窗口留空。建窗那一刻记录表是内存峰, 所以能并
-    // 就并: 封缝净空直接写回 rec.clr (窗口里没人再读原值), 中轴位放在 seg 的 bit7。
+    std::vector<int32_t> head; // 逐格的记录链表头, 无记录为 -1
+    std::vector<int32_t> next;
+    // 与 rec 逐条对位, 不带场数据解时为空, 封缝净空已写回 rec.clr
     std::vector<uint32_t> scc;
     std::vector<uint8_t> steps2;
-    std::vector<uint8_t> seg; // bit0/1 = 立面段, bit7 = 中轴
+    std::vector<uint8_t> seg; // bit0/1 是立面段, bit7 是中轴
     std::vector<uint8_t> tax;
 };
 
 constexpr uint8_t kGwMedialBit = 0x80U;
 
-// fp/fz 给了就连旁包的六列一起解; 定类那两小块不需要它们, 传空。
-// opn 为本区打通表: 死记录匹配时并入标志位, 净空取较大值; 建窗与定类两路共用同一结果。
+// fp/fz 为空时只解格图, opn 命中的死记录并入标志位并取较大净空
 bool loadGridWindow(
     const GridPack& gp,
     const GridZoneDir& gz,
@@ -306,9 +292,7 @@ bool loadGridWindow(
     GridWindow& out)
 {
     const std::vector<const GridTileRef*> tiles = GridTilesInRect(gz, wgx0, wgy0, wgx0 + nx - 1, wgy0 + ny - 1);
-    // 先按瓦目录里的记录数开够。窗外与非自有矩形的记录会被滤掉, 所以这是个上界。
-    // 解瓦是纯读: 每块瓦按同一个上界划一段互不相交的写区直写, 收工按瓦序压紧。
-    // 写区起点与压紧次序都只由瓦下标定, 于是 rec 的次序与线程数无关, 表也始终只有一份。记录多的瓦先解。
+    // 每块瓦按记录数上界独占一段写区, 收工按瓦序压紧, rec 次序与线程数无关
     const bool with_fields = fp != nullptr && fz != nullptr;
     const auto nt = static_cast<int64_t>(tiles.size());
     const size_t nw = NavWorkerCountForBlocks(nt);
@@ -347,7 +331,7 @@ bool loadGridWindow(
                 return;
             }
             if (with_fields) {
-                // 旁包的瓦表与格图同区同序, 记录按解出的次序逐条对位
+                // 场数据瓦表与格图同区同序, 记录逐条对位
                 const auto ti = static_cast<size_t>(t - gz.tiles.data());
                 if (ti >= fz->tiles.size() || !fp->decodeTile(fz->tiles[ti], ft) || ft.scc.size() != tile.rec.size()) {
                     ok.store(false);
@@ -368,7 +352,7 @@ bool loadGridWindow(
                 }
                 r.cell = static_cast<int32_t>(wy * nx + wx);
                 if (with_fields) {
-                    // 封缝只会让净空变小, 差值超过主包净空就是旁包烘错了, 不猜
+                    // 封缝只会让净空变小, 差值超过原净空说明数据有误
                     if (ft.clr2d[k] > r.clr) {
                         ok.store(false);
                         return;
@@ -379,7 +363,7 @@ bool loadGridWindow(
                     out.tax[at] = ft.tax[k];
                     r.clr = static_cast<uint16_t>(r.clr - ft.clr2d[k]);
                 }
-                // 打通表仅收录 core==0 的记录, 其余无需查询; 须在封缝净空之后取较大值, 否则会被重新压回 0
+                // 须在扣掉封缝净空之后取较大值, 否则会被压回 0
                 if (n_opn != 0 && (r.flags & kGridFlagCore) == 0) {
                     if (const FieldsOpenRec* o =
                             FindOpen(opn, n_opn, static_cast<int32_t>(t->gx0 + ix), static_cast<int32_t>(t->gy0 + iy), r.h)) {
@@ -429,9 +413,7 @@ bool loadGridWindow(
     return true;
 }
 
-// 起点定类: 起点格附近、起点层带内、能走的那条 span, 先按格距再按高度差挑。
-// 定位离散且带噪, 贴崖站立时常落入被墙覆盖的格(仅有 dead span); 以其为种子则可达域为空。
-// 仅在可走 span 中选取且不越出层带, 既容许半格抖动, 又不会接通缝隙或选到其他层。
+// 只在层带内的可走 span 里挑, 贴崖站立时起点格常只有被墙盖掉的 span
 int64_t pickStartRec(const GridWindow& gw, int64_t nx, int64_t ny, int64_t gcx, int64_t gcy, double h0)
 {
     const auto rad = static_cast<int64_t>(std::ceil(kSnapRadius / kCS));
@@ -464,8 +446,6 @@ int64_t pickStartRec(const GridWindow& gw, int64_t nx, int64_t ny, int64_t gcx, 
     return best;
 }
 
-// 终点声明了面时改由终点定类:终点格附近带内、能走的那条,先按格距再按高度差挑。
-// 起点那侧只在这个类里选面,所以起点二维吸附落在屋顶上也不会把线拉到别层去。
 int64_t pickDeckRec(const GridWindow& gw, int64_t nx, int64_t ny, int64_t gcx, int64_t gcy, double deck)
 {
     const auto rad = static_cast<int64_t>(std::ceil(kSnapRadius / kCS));
@@ -498,8 +478,7 @@ int64_t pickDeckRec(const GridWindow& gw, int64_t nx, int64_t ny, int64_t gcx, i
     return best;
 }
 
-// 两个点各自到最近核心格的格距 × kCS,与窗口里的 nearestCell() 同口径,只是在全区图上量。
-// 搜索半径取判据的两倍,够不着的点只报这个下界,反正它已经在闸外了。
+// 两点到最近核心格的距离 px, 搜不到时返回搜索半径作下界
 std::array<double, 2> coreAnchorPx(const GridPack& gp, const GridZoneDir& gz, const std::array<WorldPoint, 2>& pts)
 {
     const double cs = gp.cellSize();
@@ -573,7 +552,7 @@ std::array<double, 2> coreAnchorPx(const GridPack& gp, const GridZoneDir& gz, co
     return out;
 }
 
-// 一块解开的格图连同它的原点与尺寸。原点落在全局格线上, 所以窗口格号与烘焙格号一一对上。
+// 原点落在全局格线上
 struct GridPatch
 {
     GridWindow gw;
@@ -583,7 +562,6 @@ struct GridPatch
     int64_t ny = 0;
 };
 
-// 起点种子 span: 先在起点格附近按 h0 挑; 起点离网时附近无体素, 退用按楼层吸附过的起点
 int64_t seedRec(const GridPatch& ps, const WorldPoint& s, const WorldPoint& s_snap, double h0, int64_t& gx, int64_t& gy)
 {
     gx = static_cast<int64_t>((s.x - ps.x0) / kCS);
@@ -597,9 +575,7 @@ int64_t seedRec(const GridPatch& ps, const WorldPoint& s, const WorldPoint& s_sn
     return pickStartRec(ps.gw, ps.nx, ps.ny, gx, gy, h0);
 }
 
-// 确定本腿所走的类, 同时确定 span 可达域的种子(全局格号与高度)。由起点吸附半径内的可走 span 定类;
-// 终点声明了面时改由终点确定, 避免起点二维吸附落在屋顶而把路线拉到其他层。只读取两端吸附半径内的格,
-// 因此在覆盖这两处的任何一块格图上确定, 结果均相同: 先在小块上定类再按类开图, 与整区图逐位相同。
+// 终点声明了面时改由终点定类, 免得起点二维吸附落在屋顶把线拉到别层
 bool pickRegion(
     const GridPatch& ps,
     const GridPatch& pg,
@@ -643,7 +619,6 @@ bool pickRegion(
     return true;
 }
 
-// 一个类占的格范围。类是可走面的连通片, 类外的格进不了规划图, 所以按类开图与铺满整区等价。
 ZoneBoundsPx regionBounds(const GridPack& gp, const GridZoneDir& gz, uint32_t region)
 {
     ZoneBoundsPx b;
@@ -651,12 +626,9 @@ ZoneBoundsPx regionBounds(const GridPack& gp, const GridZoneDir& gz, uint32_t re
     b.y0 = std::numeric_limits<int64_t>::max();
     b.x1 = std::numeric_limits<int64_t>::min();
     b.y1 = std::numeric_limits<int64_t>::min();
-    // 先看每块瓦的类号字典。一个类只落在少数几块瓦里, 其余的整块跳过, 不用解开。
-    // 挑完再并行解剩下的, 静态分块才不会有人整块领到空活。
     std::vector<const GridTileRef*> hits;
     {
         const auto ntl = static_cast<int64_t>(gz.tiles.size());
-        // 每块只写自己那几个下标位, 收工再按下标序把中标的挑出来。
         std::vector<uint8_t> hit(static_cast<size_t>(ntl), 0);
         ParallelChunks(ntl, NavWorkerCountForBlocks(ntl), [&](size_t, int64_t lo, int64_t hi) {
             std::vector<uint32_t> rids;
@@ -676,7 +648,6 @@ ZoneBoundsPx regionBounds(const GridPack& gp, const GridZoneDir& gz, uint32_t re
             }
         }
     }
-    // 每块自己收一个包围盒, 收工再取并。取极值与次序无关, 于是与线程数无关。
     const auto nh = static_cast<int64_t>(hits.size());
     const size_t nw = NavWorkerCountForBlocks(nh);
     std::vector<ZoneBoundsPx> part(nw, b);
@@ -713,7 +684,6 @@ ZoneBoundsPx regionBounds(const GridPack& gp, const GridZoneDir& gz, uint32_t re
     return b;
 }
 
-// 起点格里离 h0 最近的本类面, 它是 span 可达域的种子。
 int64_t seedSpan(const SpanTable& st, const std::vector<uint8_t>& vis, int64_t cell, double h0)
 {
     const int64_t sj = st.j(cell);
@@ -737,8 +707,6 @@ int64_t seedSpan(const SpanTable& st, const std::vector<uint8_t>& vis, int64_t c
     return seed;
 }
 
-// 建窗。可达域、禁步重判、挑墙三样都是整类量, 全从旁包读: 小窗与整类窗口在这三样上逐位相同,
-// 窗口大小只影响场(净空、通道)与搜索范围, 那是小窗验收管的事。
 std::optional<WindowInfo> buildWindow(
     const GridPack& gp,
     const GridZoneDir& gz,
@@ -761,11 +729,10 @@ std::optional<WindowInfo> buildWindow(
 {
     const int64_t nx = static_cast<int64_t>(std::ceil((x1 - x0) / kCS));
     const int64_t ny = static_cast<int64_t>(std::ceil((y1 - y0) / kCS));
-    // 窗口原点是对齐过的,所以它落在全局格线上,窗口格与烘焙格一一对上
+    // 窗口原点已对齐到全局格线
     const int64_t wgx0 = std::llround(x0 / kCS);
     const int64_t wgy0 = std::llround(y0 / kCS);
 
-    // 区网格只有取墙一个读者, 它只认窗口矩形, 与格图无关。
     BakedWalls walls = BakeWalls(zc, x0, y0, nx, ny);
     GridPatch pw;
     pw.x0 = x0;
@@ -780,13 +747,11 @@ std::optional<WindowInfo> buildWindow(
         return std::nullopt;
     }
 
-    // 类与种子格都由调用方定好传进来, 窗口只把全局格号换成窗内格号; 窗口按类开, 种子必在窗内。
     const int64_t cell0 = (seed_gy - wgy0) * nx + (seed_gx - wgx0);
     if (seed_gx < wgx0 || seed_gx >= wgx0 + nx || seed_gy < wgy0 || seed_gy >= wgy0 + ny) {
         err = "起点种子格落在窗外";
         return std::nullopt;
     }
-    // 逐格链表已无读者; 以下按记录表顺序遍历一遍。
     gw.head = std::vector<int32_t>();
     gw.next = std::vector<int32_t>();
 
@@ -804,8 +769,6 @@ std::optional<WindowInfo> buildWindow(
     std::vector<uint8_t> stepbits(static_cast<size_t>(nx * ny), 0);
     std::vector<uint8_t> stepbits2(static_cast<size_t>(nx * ny), 0);
     std::vector<uint8_t> segbits(static_cast<size_t>(nx * ny), 0);
-    // 记录数就是 span 表的上界。让它自己长的话, 扩容那一刻新旧两份缓冲同时活着,
-    // 而这一刻正是建窗内存最高的时候。
     std::vector<int32_t> sp_cell;
     std::vector<float> sp_h;
     std::vector<uint32_t> sp_scc;
@@ -813,7 +776,7 @@ std::optional<WindowInfo> buildWindow(
     sp_h.reserve(gw.rec.size());
     sp_scc.reserve(gw.rec.size());
     info.vis3.reserve(gw.rec.size());
-    // 表里留着别的类的 span:层判据要看整列,少一层就会从楼板底下穿过去
+    // 别的类的 span 也要留, 层判据看整列, 少一层就会从楼板底下穿过去
     for (size_t ri = 0; ri < gw.rec.size(); ++ri) {
         const GridSpanRec& r = gw.rec[ri];
         const bool ghost = (r.flags & kGridFlagGhost) != 0;
@@ -827,7 +790,6 @@ std::optional<WindowInfo> buildWindow(
             if (core) {
                 info.core.v[cell] = 1;
             }
-            // r.clr 已在解瓦时换成封缝净空; 按记录序后写覆盖, 与老路 min(烘净空, 接缝净空) 的取值次序一致
             info.dist.v[cell] = GridClearance(r.clr);
             stepbits[cell] |= r.steps;
             stepbits2[cell] |= gw.steps2[ri];
@@ -835,8 +797,7 @@ std::optional<WindowInfo> buildWindow(
             if ((gw.seg[ri] & kGwMedialBit) != 0) {
                 info.medial.v[cell] = 1;
             }
-            // 台阶税边: 方向 i 正向在 bit 2i, 反向在 bit 2i+1。EdgeBits 的反向位记在对端格上,
-            // 所以不能整字节搬, 逐位 set; 窗边格的记录可能带出窗的边, 越界的丢
+            // 方向 i 正向在 bit 2i, 反向在 bit 2i+1, 反向位记在对端格上, 只能逐位 set
             if (const uint8_t tb = gw.tax[ri]; tb != 0) {
                 const int64_t cx = static_cast<int64_t>(cell) % nx;
                 const int64_t cy = static_cast<int64_t>(cell) / nx;
@@ -866,12 +827,8 @@ std::optional<WindowInfo> buildWindow(
         sp_scc.push_back(gw.scc[ri]);
         info.vis3.push_back(static_cast<uint8_t>(r.rid == region));
     }
-    // 记录表到此已经摊进上面这几张图, 后面再没人读它。建 span 表是建窗最耗内存的一步,
-    // 这份表是其中最大的一块, 不该一直占到那时。
     pw.gw = GridWindow();
 
-    // 挑墙: 这条边在本类的层上留不留, 是按整区采样烘好的整类量, 直接查表。表里没有的边
-    // 说明旁包与区网格对不上, 不猜。
     std::vector<WorldPoint> wP0;
     std::vector<WorldPoint> wP1;
     for (size_t i = 0; i < walls.p0.size(); ++i) {
@@ -887,14 +844,13 @@ std::optional<WindowInfo> buildWindow(
         }
     }
     walls = BakedWalls();
-    // 虚拟禁区盖格并把净空清零: 净空是弦判据的开关, 留着的话拐角还能从禁区上空拉直过去。
-    // 净空与中轴照旧采旁包烘好的值, 于是禁区不把这条腿推下预烘快路, 代价只有窗口内那几行格的写入。
+    // 净空也要清零, 否则拐角能从禁区上空拉直过去
     if (no_go != nullptr) {
         StampNoGo(*no_go, x0, y0, nx, ny, lh, info.core, info.lay, info.dist);
     }
     lh = Grid<float>();
 
-    // 运行期禁区不带高度; 窗口层已按起点层高筛过, 按平面距离盖格即可
+    // 运行期禁区不带高度, 窗口层已按起点层高筛过
     for (const BaseNavNoGoDisc& disc : no_go_discs) {
         const int64_t pr = static_cast<int64_t>(std::ceil(disc.radius / kCS));
         const int64_t cgx = static_cast<int64_t>(std::floor((disc.center.x - x0) / kCS));
@@ -919,10 +875,7 @@ std::optional<WindowInfo> buildWindow(
     info.sev.steps.resize(nx, ny);
     info.st3 = PackSpans(std::move(sp_cell), std::move(sp_h), &info.vis3, &sp_scc);
 
-    // 禁步面按烘出来的位还原。位序与方向表是写入方定的,方向倒序的那一位对应反向键;
-    // 只有正交两向出线段,对角步不挡视线。封堵盖掉的格不再出面,与它被移出可走层一致。
-    // 主包的位是按老口径烘的门, 旁包的重判位与立面段位是整区口径算好的答案: 门开着才读,
-    // 读到什么就是什么, 这里不再看 span。
+    // 只有正交两向出线段, 对角步不挡视线
     for (int i = 0; i < 4; ++i) {
         const int64_t dx = kGridStepDx[i];
         const int64_t dy = kGridStepDy[i];
@@ -956,15 +909,12 @@ std::optional<WindowInfo> buildWindow(
     stepbits = std::vector<uint8_t>();
     stepbits2 = std::vector<uint8_t>();
     segbits = std::vector<uint8_t>();
-    // 按定类时挑中的那张 span 的高度取, 同格内另有 dead 面时也不会被其覆盖。
     const int64_t seed3 = seedSpan(info.st3, info.vis3, cell0, seed_h);
     if (seed3 < 0) {
         err = "起点格没有与终点同类的面";
         return std::nullopt;
     }
-    // 离网连接: 本区 FLNK 中两端均可落脚且均落在窗内的收录为跳边。落脚 span 在本类可见 span 中按
-    // 高度最近选取, 高度带与烘焙侧口径一致; 任一端无法选出即整条丢弃, 单端跳边等同于虚构可达性。
-    // 代价按格计, 系数不低于一: 单价恒 ≥1 是"累计代价 ≥ 路径格长"与启发式可采纳的前提。
+    // 跳边单价不得低于 1, 否则启发式不可采纳
     {
         size_t ln = 0;
         const FieldsLinkRec* lr = fp.linksOfZone(zc.zone_id, ln);
@@ -1003,7 +953,6 @@ std::optional<WindowInfo> buildWindow(
             const int64_t cl = ly * nx + lx, ch = hy * nx + hx;
             const int64_t sl = pickSpan(cl, r.lo.h), sh = pickSpan(ch, r.hi.h);
             if (sl < 0 || sh < 0) {
-                // 其他类的连接在本类 span 中本就无法选出, 仅本类连接无法选出时才表明表与格图不一致
                 if (r.lo.rid == region && r.hi.rid == region) {
                     ++info.links_dropped;
                 }
@@ -1024,7 +973,6 @@ std::optional<WindowInfo> buildWindow(
         info.links_span.finish();
         info.links_span_rev.finish();
     }
-    // 可达域: 起点面所在分量在类的分量图上能到的分量集, 与整类洪水逐位相同, 窗口切不到它。
     {
         const std::vector<uint8_t> hit = fz.reachFrom(region, sp_scc[static_cast<size_t>(seed3)]);
         if (hit.empty()) {
@@ -1043,7 +991,7 @@ std::optional<WindowInfo> buildWindow(
             }
             info.reach3[sid] = hit[comp];
         }
-        // 分量图里没有跳边: 源在域内而对面不在的跳边, 把对面分量能到的并进来, 直到不再长。
+        // 分量图不含跳边, 沿跳边把对面分量能到的并进来直到不再增长
         for (bool grew = !info.links_span.empty(); grew;) {
             grew = false;
             for (const JumpEdges::Edge& e : info.links_span.e) {
@@ -1062,7 +1010,6 @@ std::optional<WindowInfo> buildWindow(
         }
     }
 
-    // 段表就此定型。挑剩的墙段与立面禁步段都整份进了 segA/segB, 源表留着只是同一批点的第二份。
     info.segA = std::move(wP0);
     info.segA.insert(info.segA.end(), info.sev.p0.begin(), info.sev.p0.end());
     info.segB = std::move(wP1);
@@ -1072,9 +1019,7 @@ std::optional<WindowInfo> buildWindow(
     return info;
 }
 
-// 贪心拉直:从上一个提交点出发,沿折线尽量往前够,一条直线走不通就把它停下的那个顶点收进航点。
-// 判据两条都要过 —— 网格面高度连续(带起点高度), 以及窗口挡线格图不允许这条弦跨墙。
-// 前者单独用会顺着叠层的下一层走通, 后者补的正是那一刀。
+// 只查面高度连续会顺着叠层的下一层走通, 所以还要查挡线
 void PullWaypoints(
     const std::vector<WorldPoint>& pts,
     RouteDiag& dg,
@@ -1086,13 +1031,12 @@ void PullWaypoints(
     if (!has_layer || pts.size() < 2) {
         return;
     }
-    // 一次拉直最多吞掉多少个顶点。纯成本上界:每多够一个都要把整条弦重测一遍,不封顶就是平方级。
-    // 撞到上界只是把顶点留在原地,是安全的那一侧。
+    // 一次拉直最多吞掉的顶点数, 只为限制成本
     constexpr size_t kMaxPullSpan = 64;
     const size_t anchor = pts.size() - 1;
     size_t cursor = 0;
     while (cursor + 1 < anchor) {
-        // 捷径不得比它吞掉的最窄处更窄:那个宽度是路线自己判定这段通道需要的,拉直这一层不比它更懂。
+        // 捷径不得比它吞掉的最窄处更窄
         double swallowed = std::numeric_limits<double>::infinity();
         const std::optional<double> seed = cursor < dg.height.size() ? std::optional<double>(dg.height[cursor]) : std::nullopt;
         size_t reach = cursor;
@@ -1113,7 +1057,6 @@ void PullWaypoints(
             swallowed = std::min(swallowed, reach + 1 < dg.clearance.size() ? dg.clearance[reach + 1] : 0.0);
             ++reach;
         }
-        // 连折线自己的下一条边都过不了判据时,把那个顶点原样留下仍是手上最好的答案,也保证循环往前走。
         if (reach == cursor) {
             ++reach;
         }
@@ -1126,7 +1069,6 @@ void PullWaypoints(
     dg.waypoints.push_back(anchor);
 }
 
-// 格上与 h 差不过 kQH 的 span 里离 h 最近的那张的高
 std::optional<double> spanNear(const SpanTable& st, int64_t nx, int64_t ny, int64_t gx, int64_t gy, double h)
 {
     if (gx < 0 || gy < 0 || gx >= nx || gy >= ny) {
@@ -1146,8 +1088,7 @@ std::optional<double> spanNear(const SpanTable& st, int64_t nx, int64_t ny, int6
     return best;
 }
 
-// 台沿下落的落点挪到下层上离上层可走面四个角色半径的地方: 一个是可走面让出的, 一个让人整个离开台沿,
-// 余下两个是余量。
+// 落点挪到下层离上层可走面四个角色半径处
 void PushDropLandings(
     std::vector<WorldPoint>& pts,
     std::vector<double>& hz,
@@ -1167,7 +1108,6 @@ void PushDropLandings(
     const auto span_h = [&](int64_t gx, int64_t gy, double h) {
         return spanNear(st, nx, ny, gx, gy, h);
     };
-    // 格上有没有高过 h 一个可攀爬高差、又不高过台沿 h_up 一个可攀爬高差的面
     const auto upper_at = [&](int64_t gx, int64_t gy, double h, double h_up) {
         if (gx < 0 || gy < 0 || gx >= nx || gy >= ny) {
             return false;
@@ -1184,7 +1124,6 @@ void PushDropLandings(
         }
         return false;
     };
-    // p 到这样的面多远, reach 以外记 reach
     const auto upper_dist = [&](const WorldPoint& p, double h, double h_up, double reach) {
         const auto [cx, cy] = cell_of(p);
         const auto rc = static_cast<int64_t>(std::ceil(reach / kCS));
@@ -1206,8 +1145,7 @@ void PushDropLandings(
         if (hz[i - 1] - hz[i] <= kClimb || std::hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y) <= 0.0) {
             continue;
         }
-        // 从起跳点顺着上层走, 断开处比落点高出一步以上才是台沿; 一路连着的是坡。上层铺过这一点就
-        // 顺着折线接着找, 断开处之后的点才是落点; 走回这层就不算下落。
+        // 上层断开处比落点高出一步以上才算台沿, 一路连着的是坡
         double h_up = hz[i - 1];
         bool edge = false;
         std::vector<double> still_up;
@@ -1240,9 +1178,7 @@ void PushDropLandings(
         }
         i = li;
         const WorldPoint land = pts[i];
-        // 顺着下层从原落点往外找, 离原落点最近、四个角色半径内没有上层面、又能直走到下一点的
-        // 那一格就是新落点。只找到原落点八个角色半径为止, 找不到就取其中离上层面最远的那格。
-        // 直走只看下层逐格接不接得上: 挡线与立面都是平面的, 叠层处会连下层的弦一起挡。
+        // 直走只查下层逐格连通, 平面挡线在叠层处会连下层的弦一起挡
         double h_low = hz[i];
         WorldPoint at = land;
         double at_clr = -1.0;
@@ -1295,14 +1231,13 @@ void PushDropLandings(
         const auto [ax, ay] = cell_of(at);
         pts[i] = at;
         hz[i] = h_low;
-        // 跨类下落试点时净空图已随搜索释放, 只要落点
+        // 跨类下落试点时净空图已释放
         if (!dist.v.empty()) {
             dg.clearance[i] = static_cast<double>(dist.at(ay, ax));
         }
     }
 }
 
-// 跨类台沿下落的一跳: 前段在起点那一类走到台沿, 后段从落点起在下面那一类走。
 struct DropHop
 {
     WorldPoint take;
@@ -1314,7 +1249,6 @@ struct DropHop
 // 每试一处要多规划两段, 纯成本上界
 constexpr size_t kDropHopTries = 3;
 
-// 起点可达域里往别类跳下的每一步: 本类核心面的正交邻格上, 别类有低出一个可攀爬高差以上的面。
 template <typename Fn>
 void ForEachCrossDrop(const WindowInfo& info, Fn&& fn)
 {
@@ -1347,7 +1281,7 @@ void ForEachCrossDrop(const WindowInfo& info, Fn&& fn)
     }
 }
 
-// 窗内 peer 类的可走面逐 span 记它的分量号, 其余记 0。只解跳点落脚格的包围盒。
+// 逐 span 记 peer 类可走面的分量号, 其余记 0
 std::vector<uint32_t> PeerSpans(
     const GridPack& gp,
     const GridZoneDir& gz,
@@ -1410,9 +1344,7 @@ std::vector<uint32_t> PeerSpans(
     return peer3;
 }
 
-// 候选跳点, 判据与类内下落同一套 (RiseOk 的接缝前探与碰撞体闸)。peer3 逐 span 记落脚那一类的分量号,
-// 0 = 不是那一类的可走面。同一分量只留离两端直线最近的一处: 从同一分量出发能到的地方相同。
-// 起跳处和类内的线一样离障碍留出 kClrPref: 沿台沿往两侧各还连着这么长才收, 整段不够长只收正中。
+// 同一分量只留离两端最近的一处, 起跳处沿台沿两侧须各连着 kClrPref
 std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uint32_t>& peer3, const WorldPoint& s, const WorldPoint& g)
 {
     const SpanTable& st = info.st3;
@@ -1447,7 +1379,7 @@ std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uin
         edge.emplace(cu, dirOf(dx, dy), peer3[static_cast<size_t>(k)]);
     });
     const int64_t need = static_cast<int64_t>(std::ceil(kClrPref / kCS));
-    // 沿台沿往 (sx, sy) 一侧还连着几格, 数到 need + 1 为止。下一格可前后错开一格: 斜的台沿是一级级台阶。
+    // 下一格可前后错开一格, 斜的台沿是一级级台阶
     const auto along = [&](int64_t c, int dx, int dy, int sx, int sy, uint32_t comp) {
         const int d = dirOf(dx, dy);
         int64_t x = c % nx;
@@ -1514,7 +1446,7 @@ std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uin
                       .take_h = static_cast<double>(st.sp_h[static_cast<size_t>(c.u)]),
                       .land = centre(st.sp_cell[static_cast<size_t>(c.v)]),
                       .land_h = static_cast<double>(st.sp_h[static_cast<size_t>(c.v)]) };
-        // 落点照类内台沿下落外推, 朝跳下的方向留出它找落点的范围
+        // 朝跳下方向补一个点, 给落点外推留出范围
         if (info.fall_r > 0.0) {
             const double reach = 8.0 * info.fall_r + kCS;
             std::vector<WorldPoint> pts { hop.take, hop.land, { hop.land.x + c.dx * reach, hop.land.y + c.dy * reach } };
@@ -1530,7 +1462,7 @@ std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uin
     return out;
 }
 
-// 两段接成一条, 接点事件由 mark 按后段首点下标记下, 后段自己的事件挪到拼接后的下标。
+// mark 收到的是后段首点在拼接后的下标
 RecastPlanResult
     JoinLegs(RecastPlanResult a, RecastPlanResult b, const std::function<void(RecastPlanResult&, size_t)>& mark, const char* warning)
 {
@@ -1582,7 +1514,6 @@ RecastPlanResult
     return r;
 }
 
-// 前段止于台沿, 后段起于落点, 落点记一次台沿下落。
 RecastPlanResult JoinDropHop(RecastPlanResult a, RecastPlanResult b, double land_h)
 {
     return JoinLegs(
@@ -1592,7 +1523,6 @@ RecastPlanResult JoinDropHop(RecastPlanResult a, RecastPlanResult b, double land
         "台沿下落换类");
 }
 
-// 前段止于绳底站位, 后段起于绳顶落脚点, 绳顶记一次坐升降索。
 RecastPlanResult JoinRopeHop(RecastPlanResult a, RecastPlanResult b, const FieldsRopeRec& rope)
 {
     return JoinLegs(
@@ -1612,7 +1542,7 @@ WorldPoint CellCentre(const FieldsLinkSide& s)
     return { .x = (static_cast<double>(s.gx) + 0.5) * kCS, .y = (static_cast<double>(s.gy) + 0.5) * kCS };
 }
 
-// 弦沿线的最小净空。取样与层走查同一套整数插值, 于是"弦经过哪些格"在两处判据里是同一个答案。
+// 取样须与层走查同一套整数插值, 两处判据的经过格才一致
 double SegMinClr(const Grid<float>& d, double x0, double y0, const WorldPoint& a, const WorldPoint& b)
 {
     const int64_t ax = static_cast<int64_t>((a.x - x0) / kCS);
@@ -1642,9 +1572,7 @@ bool SegCross(const WorldPoint& p, const WorldPoint& q, const WorldPoint& r, con
     return (side(r, s, p) > 0.0) != (side(r, s, q) > 0.0) && (side(p, q, r) > 0.0) != (side(p, q, s) > 0.0);
 }
 
-// 拐角抬升:把拐点朝净空更高的一侧挪不超过 lift, 两条新弦过与搜索同一道视线判据, 并要求
-// 两段的段内最小净空都不低于原值 —— 穿缝必然让段内极小值下探, 这一条接住了通道掩膜那层保护。
-// 净空严格变大才收, 落在净空极大线上的拐点因此一格不动: 那种贴墙是通道本身的宽度决定的。
+// 新弦段内最小净空不得低于原值, 防止拐点挪进窄缝
 void LiftCorners(
     std::vector<WorldPoint>& P,
     const Grid<float>& d,
@@ -1683,7 +1611,7 @@ void LiftCorners(
         }
         const double here = static_cast<double>(d.at(cy0, cx0));
         const double keep = std::min(SegMinClr(d, x0, y0, P[i - 1], P[i]), SegMinClr(d, x0, y0, P[i], P[i + 1]));
-        // 候选按净空降序, 同净空按线性格序破平 —— 顺序全序, 出线因此逐位可复现
+        // 候选按净空降序, 同净空按格序, 保证结果可复现
         std::vector<std::pair<double, int64_t>> cand;
         for (int64_t dy = -rad; dy <= rad; ++dy) {
             for (int64_t dx = -rad; dx <= rad; ++dx) {
@@ -1705,16 +1633,14 @@ void LiftCorners(
         for (const auto& c : cand) {
             const WorldPoint w { x0 + (static_cast<double>(c.second % d.nx) + 0.5) * kCS,
                                  y0 + (static_cast<double>(c.second / d.nx) + 0.5) * kCS };
-            // 挪到与邻点重合就出零长段, 跟随层从零长段上取不到方向。阈值取半格: 严格小于
-            // 任意两个不同格心的间距, 于是拦得住重合又碰不到合法的一格位移。
+            // 挪到与邻点重合会出零长段, 跟随层从零长段取不到方向
             if (std::hypot(w.x - P[i - 1].x, w.y - P[i - 1].y) < kCS * 0.5 || std::hypot(w.x - P[i + 1].x, w.y - P[i + 1].y) < kCS * 0.5) {
                 continue;
             }
             if (std::min(SegMinClr(d, x0, y0, P[i - 1], w), SegMinClr(d, x0, y0, w, P[i + 1])) < keep - 1e-9) {
                 continue;
             }
-            // 隔一段的自交:中间那一小段比位移还短时, 挪一下就把它翻了过去。父链本身是树不自交,
-            // 只有这一类新交点需要挡, 挡在这里比事后去环便宜, 也不用再引一段几何工序。
+            // 中间一段比位移还短时, 挪一下会与隔一段的弦自交
             if ((i >= 2 && SegCross(w, P[i + 1], P[i - 2], P[i - 1])) || (i + 2 < P.size() && SegCross(P[i - 1], w, P[i + 1], P[i + 2]))) {
                 continue;
             }
@@ -1738,8 +1664,7 @@ void LiftCorners(
     }
 }
 
-// goal_deck: 终点所在面的高度。不声明时终点集是该格全部 span,先够到哪张停哪张
-// start_deck: 起点脚下那层的高度。不声明时起点取格里离吸附面最近的 span
+// goal_deck 为空时终点格任一 span 都算到达, start_deck 为空时起点取离吸附面最近的 span
 std::optional<std::vector<WorldPoint>> routeWindow(
     WindowInfo& info,
     const WorldPoint& s,
@@ -1755,22 +1680,16 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const int64_t ny = info.ny;
     const double x0 = info.x0;
     const double y0 = info.y0;
-    // 全窗口的图按最后一个读者就地释放: 早就没人读的表不该陪着活到最耗内存的那一刻。释放后再
-    // 取值是越界而不是错值, 逐腿比对因此能当场抓住漏算的读者 —— lambda 的调用点才算读者。
     Mask walk(nx, ny, 0);
     for (size_t i = 0; i < walk.v.size(); ++i) {
         walk.v[i] = static_cast<uint8_t>(info.core.v[i] != 0 && info.lay.v[i] != 0);
     }
     info.lay = Mask();
-    // 边界边只用来算余量, 不用来禁步: 补洞封缝那一步已经判定这些细缝可以跨,
-    // 回头再拿同一批边禁掉跨缝的一步, 等于在每道接缝上凭空立一堵墙
-    // 封缝净空与中轴都是旁包按整类窗口烘好的, 直接采。
     Grid<float> dist = std::move(info.dist);
     info.dist = Grid<float>();
     Mask rdg = std::move(info.medial);
     info.medial = Mask();
     const double cpref = kClrPref;
-    // 通道 = 障碍按 c 膨胀后仍自由的格, 并上中轴带。
     const auto chan = [&](double cc, const Mask& band) {
         Mask w(nx, ny, 0);
         for (size_t i = 0; i < w.v.size(); ++i) {
@@ -1778,33 +1697,22 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         return w;
     };
-    // 中脊单价按净空亏欠比例上浮, 可见图一侧恒为一。这道价只在几条窄缝之间做取舍。
     const PriceField mult { .dist = &dist, .lo = kCS, .hi = cpref };
-    // 定通道那一层的单价同式, 但取值区间换成 [kClrNarrow, kClrWide]。封在 cpref 的话中轴上处处
-    // 够宽的格单价一律为一, 平行分支里最短的那条必然中标 —— 而窄缝总比宽道短, 线于是钻缝。
-    // 基准取在最宽处, 单价因此恒不低于一, 搜索拿欧氏距离当下界才成立; 基准落在窄处则它高估
-    // 剩余代价, 反复重开已定好的节点。整体抬价保持逐格相对贵贱不变, 最优路径集合照旧。
+    // 区间上端取最宽处, 单价恒不低于 1, 欧氏距离才是可采纳的下界
     const PriceField multw { .dist = &dist, .lo = kClrNarrow, .hi = kClrWide };
 
     const CellPt sc { static_cast<int64_t>((s.x - x0) / kCS), static_cast<int64_t>((s.y - y0) / kCS) };
     const CellPt gc { static_cast<int64_t>((g.x - x0) / kCS), static_cast<int64_t>((g.y - y0) / kCS) };
 
-    // 小窗验收的尺子: 端点离窗边最近的格数减去可信余量。单价恒 ≥1, 所以累计代价是走过格数的
-    // 上界; 代价小于这把尺子的搜索碰不到可信区外的格, 弹出序列与整类窗口里的逐步相同。
-    // 带启发式的搜索更紧: 弹出的格满足 g+h ≤ 终代价, 而 g ≥ 到起点格数、h = 到终点欧氏格数,
-    // 于是只在两端为焦点、和为终代价的椭圆里; limit2 取可信区外的格两距之和的下界。
+    // 单价恒 ≥1, 代价低于 limit 或 limit2 的搜索碰不到可信区外的格
     const bool tentative = dg.margin > 0;
-    // 只与窗口大小有关的验收。可达域来自旁包, 小窗就已是整类口径, 所以只有碰边类要升档;
-    // 封顶档没有更大的窗可换, 不通类按整类窗口的规则就地退档或报断。
     const bool bounded = tentative && !dg.final;
     const bool strict = bounded;
     const int64_t edge_s = std::min({ sc.x, sc.y, nx - 1 - sc.x, ny - 1 - sc.y });
     const int64_t edge_g = std::min({ gc.x, gc.y, nx - 1 - gc.x, ny - 1 - gc.y });
     const int64_t edge = std::min(edge_s, edge_g);
     const double limit = static_cast<double>(edge - dg.margin);
-    // 两距之和是凸函数且最小值在可信区里, 区外任一点连向最小点的线段穿过可信区边界, 凸性
-    // 使穿越点不比它大; 所以下界就是边界四条边上的最小值, 每条边上三分求。可信区外的格落在
-    // x ≤ margin-1 或 x ≥ nx-margin 那圈上, 矩形按这两条取; 再让一格给取整。
+    // 两距之和是凸函数, 区外下界取在可信区边界四条边上, 每条边三分求极小, 再让一格给取整
     const auto ellipseFloor = [&]() {
         const auto sum2 = [&](double x, double y) {
             return std::hypot(x - static_cast<double>(sc.x), y - static_cast<double>(sc.y))
@@ -1909,7 +1817,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         return best;
     };
-    // 高度最近的一张; 超出 kDeckBand 视为该面不在此格
+    // 超出 kDeckBand 视为该面不在此格
     const auto atDeck = [&](const std::vector<int64_t>& vs, double deck) {
         int64_t best = -1;
         double bd = 0.0;
@@ -1922,7 +1830,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         return best >= 0 && bd <= kDeckBand ? best : -1;
     };
-    // 终点声明是硬的: 收敛到单张 span, 匹配不上交空集让本级失败
+    // 终点声明是硬约束, 匹配不上返回空集让本级失败
     const auto goalsOf = [&](const std::vector<int64_t>& vs) {
         if (!goal_deck.has_value()) {
             return vs;
@@ -1930,13 +1838,11 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         const int64_t v = atDeck(vs, *goal_deck);
         return v >= 0 ? std::vector<int64_t> { v } : std::vector<int64_t> {};
     };
-    // 起点声明同样是硬的
     const auto startOf = [&](const std::vector<int64_t>& vs) {
         return start_deck.has_value() ? atDeck(vs, *start_deck) : atSeedLayer(vs);
     };
 
-    // 声明了端点面就按面吸附: 最近的可走格未必带着这张面, 吸上去 goalsOf/startOf 会落空。同距再比
-    // 高度差, 让吸附结果跟 atDeck 选的那张 span 一致。
+    // 最近的可走格未必带着声明的面, 所以按面吸附
     const auto nearDeck = [&](const std::vector<uint8_t>& use,
                               const Mask& cells,
                               const CellPt& at,
@@ -1992,11 +1898,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         return std::nullopt;
     }
 
-    // VV(c) 的端点接入。作者点位常贴着墙放, 净空低于 c 又不在中脊上, 于是根本不在通道里。
-    // 论文里起终点是单独接进图的: 这里在可走面上求端点到通道的最短接入链, 只放开这一条。接入
-    // 是退化连接而不是路线, 取最短即最小开口; 同长再取瓶颈最高的一条, 最后按格序定全序。八角
-    // 距离取整数以免浮点累加出不确定的序。搜索遍历整片可走面, 口袋与量化平台都困不住它 ——
-    // 端点贴墙因此不再把整条腿的准入等级拖下去, 降档只留给中段真正的窄缝。
+    // 端点到通道的最短接入链, 同长取瓶颈最高再按格序, 距离用整数免得浮点累加乱序
     const auto access = [&](const Mask& lim, const std::optional<CellPt>& a) -> std::optional<std::vector<int64_t>> {
         if (!a.has_value()) {
             return std::vector<int64_t> {};
@@ -2008,7 +1910,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         std::vector<int32_t> cs(n, std::numeric_limits<int32_t>::max());
         std::vector<float> bw(n, -1.0F);
-        // 父链存的是格号, 上界 kMaxCells 装得进 32 位; 比较里它会提回 64 位, 全序照旧。
+        // 格号上界 kMaxCells 装得进 32 位
         std::vector<int32_t> pv(n, -1);
         std::priority_queue<std::tuple<int32_t, float, int64_t>> pq;
         cs[s0] = 0;
@@ -2073,9 +1975,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             lim.v[static_cast<size_t>(c)] = 1;
         }
     };
-    // 跳边端点的接入链: 与路线端点同价同序, 但每端最多走 kLinkChainCells 格: 缝口距实心通道仅数格,
-    // 走不到的端点与本腿无关, 留空且不升档。一个窗口内跳边可达数百上千条, 逐端调用 access 会将整片
-    // 可走面重复泛洪数千次; 此处缓冲区只分配一次, 每端搜索完毕后按触碰表复位。
+    // 跳边每端最多走 kLinkChainCells 格, 走不到的留空且不升档
     const auto linkChains = [&](const Mask& lim, const std::vector<int64_t>& ends) -> std::vector<std::vector<int64_t>> {
         std::vector<std::vector<int64_t>> out(ends.size());
         if (ends.empty()) {
@@ -2154,7 +2054,6 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     };
 
     const EdgeBits* faces = &info.sev.steps;
-    // 跳边表为空时不传入, 两级搜索中对应分支因此不会执行
     const JumpEdges* jspan = info.links_span.empty() ? nullptr : &info.links_span;
     const JumpEdges* jcell = info.links_cell.empty() ? nullptr : &info.links_cell;
 
@@ -2162,15 +2061,13 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     {
         std::vector<CellPt> q;
         std::optional<std::vector<int64_t>> qs;
-        // 搜索交出的父链。带视线判据那一路才有, 它就是几何要走的折线本身。
+        // 只有带视线判据的搜索才填, 即几何要走的折线
         std::vector<int64_t> corn;
         Mask on3;
         std::vector<std::string> warn;
     };
 
-    // 掩膜内两端是否八连通。span 图上的解投到格上必是掩膜内的一条八连通链, 因此这是必要条件:
-    // 判否时 solve 一定失败, 通道阶梯就不必为接不通的那些档建图。取 core∧lim, 它是 solve 两次
-    // 尝试里最宽松的集合。
+    // 两端在 core∧lim 内八连通是 solve 成功的必要条件
     std::vector<uint8_t> seen(static_cast<size_t>(nx * ny), 0);
     std::vector<int64_t> stk;
     const auto linked = [&](const Mask& lim) {
@@ -2210,7 +2107,6 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                     }
                 }
             }
-            // 八邻泛洪结束后再沿跳边继续泛洪; 无跳边的腿不做额外扩展
             for (const JumpEdges::Edge& e : info.links_cell.e) {
                 if (seen[static_cast<size_t>(e.src)] != 0 && seen[static_cast<size_t>(e.dst)] == 0 && in(e.dst)) {
                     seen[static_cast<size_t>(e.dst)] = 1;
@@ -2223,16 +2119,14 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
     };
 
-    // 一次拓扑求解。硬可达口径逐字不变: 掩膜按 walk→core 退, 层不通再退格级, RiseOk、立面禁步、
-    // 目标面声明与 LayerOracle 全部原样。lim 只做减法, 无权放宽其中任何一条, 舒适选路因此造不出
-    // unreachable。
+    // lim 只能收紧可达判据, 不得放宽任何一条
     const auto solve = [&](const Mask& lim,
                            const PriceField& price,
                            const EdgeBits* banned,
                            const double* bnp,
                            bool resnap,
                            const Visibility* vis = nullptr) -> std::optional<Topo> {
-        // 接不通的掩膜不必建图。resnap 那一路会重挑吸附锚点, 判据里的两端就不再成立, 因此不查。
+        // resnap 会重挑吸附锚点, 两端不再是 linked 判的那两点
         if (!resnap && !linked(lim)) {
             if (strict) {
                 esc("掩膜内两端不连通");
@@ -2270,7 +2164,6 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             if (sd < 0 || (goal_deck.has_value() && gs.empty())) {
                 return std::nullopt;
             }
-            // 小窗里代价够到碰边线就提前升档。
             const double give_up_at = bounded ? limit2 - (dsa + dga) / kCS + 1.0 : std::numeric_limits<double>::infinity();
             return SpanAstar(
                 st3,
@@ -2292,7 +2185,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         t.on3 = w3;
         std::optional<std::vector<int64_t>> sq = run(uw, w3);
         if (!sq.has_value()) {
-            // 小窗里的任何退档都可能是被窗口切出来的假失败, 不采信。
+            // 小窗里的退档可能是窗口切出来的假失败
             if (strict) {
                 esc("walk 断开");
                 return std::nullopt;
@@ -2318,11 +2211,11 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             t.corn = std::move(corn);
             return t;
         }
-        // 格级搜索连 span 都不看, 退到这一级等于把选层交回给楼层盲的那一级
+        // 格级搜索不看 span, 声明了端点面就不能退到这一级
         if (goal_deck.has_value() || start_deck.has_value()) {
             return std::nullopt;
         }
-        // 吸附锚点是硬可达的判定, 舒适选路无权改它: 够不着就报断开, 让基线并集那一轮接手
+        // 舒适选路无权改吸附锚点, 够不着就报断开
         if (!resnap) {
             return std::nullopt;
         }
@@ -2358,9 +2251,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         return t;
     };
 
-    // 一端的可达 span 集。展开判据与 SpanAstar 逐字相同: 格掩膜、对角切角、立面禁步、RiseOk。
-    // backward 那一路走的是 v→u 这个方向 —— 禁行边与抬升判据都是有向的, 拿正向去问会把单向的
-    // 台阶说成两边都能过。
+    // 禁行边与抬升判据有向, backward 必须按 v→u 问
     const auto reachFrom = [&](const std::vector<int64_t>& seeds, const std::vector<uint8_t>& use, const Mask& ok2, bool backward) {
         std::vector<uint8_t> seen(st3.sp_h.size(), 0);
         std::vector<int64_t> frontier;
@@ -2370,7 +2261,6 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                 frontier.push_back(v);
             }
         }
-        // 跳边有向, 反向搜索读反表; 八邻泛洪结束后再沿跳边继续泛洪
         const JumpEdges& jl = backward ? info.links_span_rev : info.links_span;
         const auto viaJumps = [&] {
             for (const JumpEdges::Edge& e : jl.e) {
@@ -2433,8 +2323,6 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         return seen;
     };
-    // 断开时报缝: 两端各自泛洪, 取两片可达集之间最近的一对格。倒角距离场从终点侧铺开、起点侧
-    // 扫一遍取最小, 与逐对比较同解而只花一遍网格。判在最宽松的 core 上, 缝因此是真的缝。
     const auto reportGap = [&] {
         if (!as_.has_value() || !ag_.has_value()) {
             return;
@@ -2507,9 +2395,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         dg.gap_distance = std::hypot(a.x - b.x, a.y - b.y);
     };
 
-    // 硬约束基线: 原始硬图上的纯长度最短路。硬图可达它就一定存在, 于是舒适选路永远不会把一条
-    // 走得通的腿判成不可达。它同时是端点的回缩通道 —— 起终点天然贴墙时, 搜索沿这条按亏欠计价
-    // 的线走几格就自然汇入 VV 图, 端点附近不需要任何放宽半径。
+    // 基线只按长度计价, 硬图可达就一定有解
     const Mask all(nx, ny, 1);
     const PriceField unit {};
     const std::optional<Topo> base = solve(all, unit, nullptr, nullptr, true);
@@ -2543,32 +2429,22 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         dg.err = "不连通";
         return std::nullopt;
     }
-    // 走通了就再没人查这张逐 span 的可用表, 上面那两条出口都直接返回。
     useW = std::vector<uint8_t>();
 
-    // 台阶税边: 跨越两侧找不到任何一对高差在坡度内的面才算一次台阶, 连续缓坡不计。它是整类量,
-    // 旁包烘好了直接用。不参与硬连通性, 只在同样走得通的两条线之间偏向不必迈的那条。
     const double tax = kStepTax;
 
-    // 自由集是膨胀后仍自由的实心区并上中脊: 宽处走净空 ≥c 的实心区, 窄段走中轴弧,
-    // 缝的准入因此由中轴自己定, 不必再拿一串阈值去试。
     const EdgeBits* bn = tax > 0.0 ? &info.step_edges : nullptr;
     const double* bp = tax > 0.0 ? &tax : nullptr;
-    // 立面这笔税以普通路面的一格为单位报价, 而定通道那层把普通路面抬了价, 汇率得跟着换,
-    // 否则同一道立面在拓扑层变便宜, 花两格路就能买过去。
+    // 拓扑层把路面单价抬了 kClrWide / cpref 倍, 台阶税要同比换算
     const double taxw = tax * kClrWide / cpref;
     const double* bpw = tax > 0.0 ? &taxw : nullptr;
-    // 接入链只算一次: 目标取实心通道 chan0, 它是自由集的子集, 接到它就等于接进了自由集。
-    // 两端各自对着 chan0 算, 谁先算不影响结果。够不到 chan0 的那一端才对着自由集重算。
     Mask chan0 = chan(cpref, Mask(nx, ny, 0));
     const std::optional<std::vector<int64_t>> ac_s = access(chan0, as_);
     const std::optional<std::vector<int64_t>> ac_g = access(chan0, ag_);
     if (dg.escalate) {
         return std::nullopt;
     }
-    // 跳边两端常落在缝沿, 净空低且不在中轴上, 舒适通道不包含它们, 须与路线端点一样接入实心通道。
-    // 不能接到 limw: 缝沿处的中轴常为孤立碎片。但一个窗口内数百条跳边全部开链, 既慢数十倍又会
-    // 把通道切得支离破碎, 因此仅为硬图最短路实际经过的跳边开链; 舒适档仍不连通时才全部开链重试一次。
+    // 跳边端点须接到 chan0, 缝沿的中轴常是孤立碎片, 先只为基线经过的跳边开链
     std::vector<int64_t> lends;
     if (jspan != nullptr && base->qs.has_value()) {
         const std::vector<int64_t>& q = *base->qs;
@@ -2613,7 +2489,6 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     for (const std::vector<int64_t>& ch : linkChains(chan0, lends)) {
         openc(limw, ch);
     }
-    // 硬图未使用跳边而舒适档被通道断开: 可能是硬图经过的缝在舒适档中过窄, 改走跳边可以接通
     if (!info.links_cell.empty() && !linked(limw)) {
         lends.clear();
         for (const JumpEdges::Edge& e : info.links_cell.e) {
@@ -2650,13 +2525,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     }
     dg.timing.topology_ms = nowMs() - t_topo0;
     const double t_geo0 = nowMs();
-    // 通道定了才铺几何: 同一张中标掩膜上再解一次, 这次带视线判据, 出来的父链已经是紧绷折线。
-    // 弦只许落在 cpref 的实心区内 —— 中脊是净空极大线, 对它取直等于把线拽向墙, 那一段照旧逐格走;
-    // 实心区里单价恒为一, 弦的欧氏长度因此就是精确代价。拐角余量往上收窄这个自由集: 弦贴着障碍角
-    // 切过去时净空恰好等于这道阈值, 收一点拐角就离墙远一点, 且收后仍是单价恒一的子集, 计价不受影响。
+    // 弦只许落在实心区内, 对中脊取直会把线拽向墙
     const double solid_c = cpref + kGeoMargin;
-    // 走廊以中标的那条逐格路径为骨干张开, 半宽照它自己的净空取。按全局中轴取则会隔墙认到旁边
-    // 那条窄缝上去: 宽处的半宽被压回地板, 该收紧的地方一点没收紧。
     Mask band;
     Mask solidc(nx, ny, 0);
     {
@@ -2669,7 +2539,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             const double need = std::max(solid_c, kChordFrac * static_cast<double>(cw.v[i]));
             solidc.v[i] = static_cast<uint8_t>(static_cast<double>(dist.v[i]) >= need);
         }
-        // 走廊读的是净空场, 它只在可信区里与整类窗口相同。
+        // 净空场只在可信区内与整类窗口相同
         if (bounded) {
             const int64_t m = dg.margin;
             for (int64_t y = 0; y < ny; ++y) {
@@ -2683,13 +2553,11 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
     }
     const Blockers::OnMask onv { &solidc, x0, y0, kCS };
-    // 搜索期的视线只靠 on 掩膜兜底, 不带轮廓挡线。
     const BlockerSegments no_segs;
     const Blockers blk_vis(no_segs, onv);
     const Visibility vis(&blk_vis, &lyo, faces, bn, nx, ny, x0, y0);
     if (vv.has_value()) {
-        // 几何这一次锁在走廊里。放开的话它按恒一的单价重解一遍, 又会挑回拓扑刚花钱绕开的那条
-        // 窄分支 —— 加权白做。走廊含整条骨干, 两端锚点也在上面, 接通性因此照旧成立。
+        // 锁在走廊里, 否则按恒一单价重解会挑回拓扑绕开的窄分支
         Mask limg = limw;
         for (size_t i = 0; i < limg.v.size(); ++i) {
             limg.v[i] = static_cast<uint8_t>(limg.v[i] != 0 && band.v[i] != 0);
@@ -2701,8 +2569,6 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             return std::nullopt;
         }
         if (!tt.has_value()) {
-            // 走廊是偏好, 接通性不是。二维骨干必在走廊里, 层间接不通才会走到这里; 放开重解, 拿回
-            // 的仍是紧绷折线, 只是不再受宽度约束。
             tt = solve(limw, mult, bn, bp, false, &vis);
         }
         if (tt.has_value()) {
@@ -2719,18 +2585,15 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const std::optional<std::vector<int64_t>>& qs = win.qs;
     dg.snap_start = dsa;
     dg.snap_goal = dga;
-    // 末段是从锚点直连终点的,不走阻挡检查。终点自己就踩在可走面上却没进可达集时,
-    // 这一跳等于穿墙;终点没有面才是作者点位的容差,那种照旧直连。
+    // 末段锚点直连终点不查阻挡, 终点在可走面上却不在可达集里就是穿墙
     if (gc.x >= 0 && gc.y >= 0 && gc.x < nx && gc.y < ny) {
-        // 判据是硬可达集: on3 现在是舒适通道, 终点天然贴墙就不在里面, 拿它判等于把贴墙的
-        // 终点一律说成被禁行边隔开
+        // 须用基线的硬可达集, 舒适通道不含贴墙的终点
         dg.hop_barrier = walk.at(gc.y, gc.x) != 0 && base->on3.at(gc.y, gc.x) == 0;
     }
     std::vector<size_t> bad;
     for (size_t k = 1; k < q->size(); ++k) {
         const int64_t ca = (*q)[k - 1].y * nx + (*q)[k - 1].x;
         const int64_t cb = (*q)[k].y * nx + (*q)[k].x;
-        // 跳边一步不计为跨越立面
         if (info.sev.steps.has(ca, cb) && !info.links_cell.has(ca, cb)) {
             bad.push_back(k);
         }
@@ -2751,10 +2614,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         return out;
     };
-    // 取直与计价共用一道挡线。两处判据分家的话, 搜索挑出来的居中拐点会被取直按另一套阈值切回墙边。
-    // 它与这条腿有没有放宽无关: 放宽只为接通拓扑, 几何跟着放宽等于把钻缝从拓扑挪到几何。合不成弦
-    // 的段退回逐格路径, 那条路径走的是中轴。再并上选定路径自身放宽一格, 端点接入链与格级回退路径
-    // 因此不会被自己的挡线判掉。
+    // 取直与计价须共用一道挡线, 再把选定路径放宽一格, 免得接入链被自己的挡线判掉
     Mask tm = solidc;
     join(tm);
     for (size_t i = 0; i < tm.v.size(); ++i) {
@@ -2775,20 +2635,10 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
     }
     const Blockers::OnMask onm { &tm, x0, y0, kCS };
-    // 灰、硬两个视图的挡线几何逐字相同, 段表与桶索引共享一份, 两遍构建省成一遍。
     const BlockerSegments core_segs(loops_core, &info.segA, &info.segB);
     const Blockers blk_gray(core_segs, onm);
-    // 几何用的视线判据: 跨步禁行、立面、层判据与搜索那一个逐字相同, 只把自由区从计价用的实心区
-    // 换成这条路自己的管道。实心区那道限制是为让弦的欧氏长度等于代价, 只约束搜索; 终线取直不计价,
-    // 该由能不能走过去决定。管道只比路径宽一格, 拉直因此仍出不了这条通道。
     const Visibility vis_geo(&blk_gray, &lyo, faces, bn, nx, ny, x0, y0);
 
-    // 全局取直: 挡线用同一张选定通道掩膜, 取直因此出不了通道。不再切绿灰段, 也不再把落脚处限在
-    // 原路径两侧 —— 那两件事把几何锁死在拓扑之后, 整段本可直走也留着折线。积分守卫一并撤掉:
-    // 通道是掩膜, 直不直走该由能不能看见对端决定, 不由两条线的积分代价谁便宜决定。
-    // 几何取搜索交出的父链: 拐点是搜索自己挑的, 弦是搜索自己验过视线的。逐格路径只留给拓扑
-    // 判据读。终线仍走一道最远可见 —— Theta* 只出近紧线 —— 判据用几何那一个, 中脊带里搜索
-    // 逐格走出来的点因此还能并成弦。
     const bool by_corn = win.corn.size() >= 2;
     const std::vector<int64_t>& gsrc = by_corn ? win.corn : (qs.has_value() ? *qs : win.corn);
     std::vector<float> hs;
@@ -2837,8 +2687,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const float lyo_h = hs.empty() ? 0.0F : hs.front();
     std::vector<WorldPoint> out;
     if (by_corn && ded.size() >= 2) {
-        // 父链是树, 自身不自交, 去环无事可做; 落点已经是拐点, 抽稀与拐角外扩同理。剩下的只有
-        // 共线冗余点: a-b 与 b-c 都过视线且三点共线, a-c 必过, 删 b 是纯几何恒等。
+        // 只删共线冗余点, a-b 与 b-c 都可见且共线则 a-c 必可见
         out.push_back(ded.front());
         for (size_t i = 1; i + 1 < ded.size(); ++i) {
             const WorldPoint& a = out.back();
@@ -2859,7 +2708,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     }
     dg.assembled_points = out;
     dg.timing.assemble_ms = nowMs() - t_asm0;
-    // 中间点按顺序对回搜索父链, 取搜索给它挑的那张面; 只往前对, 叠层处不会对到另一遍上。
+    // 只往前对回父链, 叠层处才不会对到另一遍上
     if (!hs.empty() && out.size() >= 2) {
         size_t k = 0;
         dg.span_height.push_back(static_cast<double>(hs.front()));
@@ -2879,13 +2728,11 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     }
 
     const double t_lift0 = nowMs();
-    // 抬升放在取直之后: 放前面的话抬起来的拐点让两侧更容易连通, 取直一刀就把它跳过去了。
-    // 判据换成硬墙那一套 —— 通道掩膜只比路径宽一格, 拿它判等于禁止拐点离开原路径。
+    // 抬升须在取直之后, 判据用硬墙, 通道掩膜只比路径宽一格会锁死拐点
     if (lyo_p != nullptr && out.size() >= 3) {
         const Blockers blk_hard(core_segs, std::nullopt);
         const Visibility vis_hard(&blk_hard, &lyo, faces, bn, nx, ny, x0, y0);
         LiftCorners(out, dist, x0, y0, vis_hard, lyo, lyo_h, kLiftMax);
-        // 挪过的拐点换成新格上同一张面的高, 找不到就整列不给
         for (size_t i = 1; i + 1 < out.size() && dg.span_height.size() == out.size(); ++i) {
             if (out[i].x == dg.assembled_points[i].x && out[i].y == dg.assembled_points[i].y) {
                 continue;
@@ -2911,8 +2758,6 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         const int64_t cy = std::min(std::max(static_cast<int64_t>(std::floor((p.y - info.y0) / kCS)), int64_t { 0 }), ny - 1);
         dg.clearance.push_back(static_cast<double>(dist.at(cy, cx)));
     }
-    // 逐点所在面的高度:从起点那张 span 出发,沿线段链式游走,每步在游走到的候选里取与上一点最近的一张。
-    // 起点高度是唯一的外部输入,后面全由它推出来,叠层处不会串到楼下那层。
     const auto walk_heights = [&](bool fall) {
         std::vector<double> hz;
         if (lyo_p == nullptr || out.empty()) {
@@ -2940,13 +2785,12 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     };
     dg.height = walk_heights(false);
     if (info.fall_r > 0.0) {
-        // 判下落取搜索给每一点挑的面高, 放行下落的走查在叠层处会漂到楼下; 对不回父链时照旧。
+        // 优先用搜索挑的面高, 放行下落的走查在叠层处会漂到楼下
         const bool by_span = dg.span_height.size() == out.size();
         std::vector<double> hz = by_span ? dg.span_height : dg.height.empty() ? walk_heights(true) : dg.height;
         if (hz.size() == out.size()) {
             PushDropLandings(out, hz, dg, st3, dist, nx, ny, x0, y0, info.fall_r, lyo);
             if (by_span) {
-                // 挪过的落点换成下层那张面的高
                 for (size_t i = 0; i < dg.height.size(); ++i) {
                     if (hz[i] != dg.span_height[i]) {
                         dg.height[i] = hz[i];
@@ -2978,13 +2822,10 @@ RecastNavEngine::RecastNavEngine(const BaseNavPack& pack, const BaseNavPlanner& 
         grid_ = GridPack();
         return;
     }
-    // 旁包与主包同目录同名配对; 缺了或对不上就整个引擎不可用, 不退回运行期重建。
     if (!LoadSharedFieldsPack(FieldsSidecarPath(pack_.path()), pack_, grid_, fields_, grid_error_)) {
         grid_ = GridPack();
         return;
     }
-    // 没有禁区表就是没有禁区; 有而读不通就整个引擎不可用 ——
-    // 判据对不上的禁区比没有禁区更糟, 作者会以为封住的地方其实通着。
     if (!nogo_.load(nogo_table, pack_, grid_error_)) {
         grid_ = GridPack();
     }
@@ -2992,11 +2833,10 @@ RecastNavEngine::RecastNavEngine(const BaseNavPack& pack, const BaseNavPlanner& 
 
 RecastNavEngine::ZoneEntry& RecastNavEngine::zoneEntry(const std::string& name)
 {
-    // 返回的引用在下一次 zoneEntry/warm 之后失效(会淘汰), 调用方不得跨调用持有。
+    // 返回的引用在下一次 zoneEntry/warm 后可能被淘汰, 不得跨调用持有
     auto it = zones_.find(name);
     if (it == zones_.end()) {
-        // 先腾位再建: 建的过程本身还要一份临时内存, 别让新旧两个大区叠在一起。
-        // 包里没有的区只会得到一条错误串, 不占位; 淘汰时也先淘汰这种空条目。
+        // 先淘汰再建, 免得新旧两个大区同时占内存
         const BaseNavZone* zone = pack_.findZoneByName(name);
         const bool real = zone != nullptr && zone->triangle_count > 0;
         auto rank = [](const ZoneEntry& e) {
@@ -3045,7 +2885,6 @@ RecastPlanResult RecastNavEngine::plan(
     RecastPlanResult res =
         planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, goal_deck_y, start_deck_y, no_go_discs, should_stop);
     rope_off_ = nullptr;
-    // 规划完把空闲页还给系统。
 #if defined(__APPLE__)
     malloc_zone_pressure_relief(nullptr, 0);
 #elif defined(_WIN32)
@@ -3077,7 +2916,7 @@ std::optional<RecastPlanResult> RecastNavEngine::tryRopes(
         return std::nullopt;
     }
 
-    // 直线距离是两段路程的下界, 下界都不比现有线省的绳索不必规划
+    // bound 是按直线距离算的总路程下界
     struct Cand
     {
         double bound = 0.0;
@@ -3100,7 +2939,7 @@ std::optional<RecastPlanResult> RecastNavEngine::tryRopes(
             cands.push_back({ .bound = bound, .rope = &r });
         }
     }
-    // 绳顶已在终点那一类的先试, 尝试名额不被还得再跳一次的绳索占满
+    // 绳顶已在终点类的先试, 免得名额被还要再换层的绳索占满
     std::sort(cands.begin(), cands.end(), [goal_region](const Cand& p, const Cand& q) {
         return std::make_tuple(p.rope->top.rid != goal_region, p.bound, p.rope->uid_bottom)
                < std::make_tuple(q.rope->top.rid != goal_region, q.bound, q.rope->uid_bottom);
@@ -3115,7 +2954,7 @@ std::optional<RecastPlanResult> RecastNavEngine::tryRopes(
 
     roping_ = true;
     const Unrope unrope { roping_ };
-    // 从绳底走到绳顶不比坐上去远的绳索永远省不了路, 这段路程每根只量一次
+    // 走路不比坐索远的绳索省不了路, 每根只量一次
     const auto walk_of = [&](const FieldsRopeRec& rope) {
         const uint64_t key = (static_cast<uint64_t>(zone_id) << 32) | rope.uid_bottom;
         if (const auto it = rope_walk_.find(key); it != rope_walk_.end()) {
@@ -3187,7 +3026,6 @@ std::vector<std::vector<uint32_t>> RecastNavEngine::regionsNear(const std::strin
     }
     const double cs = grid_.cellSize();
     const auto rad = static_cast<int64_t>(std::ceil(kSnapRadius / cs));
-    // 一批点常挤在同几张瓦上,而解瓦不带缓存,逐点各解一遍就是这道闸的全部开销。
     std::unordered_map<const GridTileRef*, std::vector<size_t>> by_tile;
     std::vector<int64_t> pcx(points.size());
     std::vector<int64_t> pcy(points.size());
@@ -3206,7 +3044,7 @@ std::vector<std::vector<uint32_t>> RecastNavEngine::regionsNear(const std::strin
             continue;
         }
         for (const GridSpanRec& r : tile.rec) {
-            // 无高度可传播的补格两个选类器都不会挑;别的一律算进来,宁可多算不可漏。
+            // 补格两个选类器都不会挑, 其余宁可多算不可漏
             if ((r.flags & kGridFlagFill) != 0) {
                 continue;
             }
@@ -3274,10 +3112,6 @@ RecastPlanResult RecastNavEngine::planLocked(
     const std::optional<double> sdk =
         start_deck_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(start_deck_y)) : std::nullopt;
 
-    // 规划范围是这条腿走的那一类占的格。按端点包围盒开窗、失败再逐档扩大的老做法有两处死结:
-    // 绕行只要落在盒外就等不到更大的窗口, 连通的腿被判成不连通; 升档又把每次失败的代价乘上档数。
-    // 类是可走面的连通片, 类外的格进不了规划图, 所以按类开图与铺满整区拿到的是同一张图 ——
-    // 绕多远都在图里, 而不必为区里另外几千个类白铺内存。
     const auto loadPatch = [&](const WorldPoint& a, const WorldPoint& b, double pad, GridPatch& p) {
         const auto r = static_cast<int64_t>(std::ceil(pad / kCS));
         const int64_t ax = static_cast<int64_t>(std::floor(a.x / kCS));
@@ -3294,11 +3128,10 @@ RecastPlanResult RecastNavEngine::planLocked(
         const FieldsOpenRec* opn = fields_->opensOfZone(zc.zone_id, n_opn);
         return loadGridWindow(grid_, *gz, nullptr, nullptr, opn, n_opn, gx0, gy0, p.nx, p.ny, p.gw);
     };
-    // 定类只读取两端吸附半径内的格, 解开两个小块即可。
     GridPatch ps;
     GridPatch pg;
     bool patched = false;
-    // 终点声明了面时先只吸种子格里有终点那一类面的面, 一张都没有再照旧吸。
+    // 终点声明了面时起点优先吸到含终点类面的格, 没有再照旧吸
     std::function<bool(int32_t, const WorldPoint&)> seeds_in_deck_region;
     uint32_t deck_region = 0;
     if (gdk.has_value()) {
@@ -3321,7 +3154,6 @@ RecastPlanResult RecastNavEngine::planLocked(
                 if (rec < 0) {
                     return false;
                 }
-                // 填洞格不算
                 const auto cell = static_cast<size_t>(ps.gw.rec[static_cast<size_t>(rec)].cell);
                 for (int64_t i = ps.gw.head[cell]; i >= 0; i = ps.gw.next[static_cast<size_t>(i)]) {
                     const GridSpanRec& r = ps.gw.rec[static_cast<size_t>(i)];
@@ -3355,8 +3187,6 @@ RecastPlanResult RecastNavEngine::planLocked(
     const double h0 = triHeightOf(zc.mesh, ss->tri);
 
     const std::vector<NoGoPoly>* nogo = nogo_.zone(zone_name);
-    // 任一端点落在禁区里都当场判掉, 并把原因交给调用方: 吸附只会把端点挪到禁区边上就地"到达",
-    // 交出条假路线; 而滑索、盲走一类兜底压根不看可走面, 放它们接手就是径直穿过禁区。
     if (nogo != nullptr) {
         std::string hit;
         const bool in_start = NoGoContains(*nogo, start, h0, hit);
@@ -3370,13 +3200,11 @@ RecastPlanResult RecastNavEngine::planLocked(
         }
     }
 
-    // 台沿下落查碰撞体, 区没有碰撞体就照旧放行。
     const BaseNavZone* pz = pack_.findZoneByName(zone_name);
     const std::shared_ptr<const OccluderScene> solid =
         pz != nullptr ? LoadOccluderScene(OccluderSidecarPath(pack_.path()), zone_name) : nullptr;
 
-    // 端点接不上可走层的腿在全区图上就能判掉。全区核心是任何窗口内核心的超集,
-    // 量出来的锚距是窗口里那把尺子的下界,过不了这道闸的腿换多大的窗口也接不上。
+    // 全区锚距是任何窗口里锚距的下界, 过不了这道闸的腿换多大窗口也接不上
     const auto [zsa, zga] = coreAnchorPx(grid_, *gz, { start, goal });
     if (zsa > kSnapRadius || zga > kSnapRadius) {
         char buf[128];
@@ -3401,17 +3229,11 @@ RecastPlanResult RecastNavEngine::planLocked(
     ps = GridPatch {};
     pg = GridPatch {};
 
-    // 窗口分档。整类窗口是精确答案, 但它的代价与腿长无关; 先按搜索椭圆开小窗, 小窗只在证明了
-    // 答案与整类逐位相同时才采信: 场是局部算子, 可信余量盖过它们的依赖半径; 搜索单价恒 ≥1,
-    // 弹出的格都在两端为焦点、和为终代价的椭圆里, 椭圆没碰可信区边就碰不到窗外; 吸附与可达域
-    // 另与不限可达域的版本对照。任一条不成立就把允许的代价翻倍, 椭圆随之长大。
-    // 面积到上限那一档是最后一档: 与窗口大小有关的验收不再做, 结果照采; 可达域相关的差异用
-    // 整类洪水补齐; 只有"窗内不通而整类可达"才退到整类窗口。最坏耗时与内存由上限定住。
-    constexpr int64_t kTrustMargin = 64; // 可信余量(格), 须盖过净空截断 kEdtCells 与中轴邻域
+    constexpr int64_t kTrustMargin = 64; // 可信余量, 格, 须盖过净空截断 kEdtCells 与中轴邻域
     constexpr int64_t kLocalMaxCells = 3'000'000;
-    constexpr double kRatio0 = 2.0;      // 首档允许的 代价/直线 比; 语料里过半的腿一档就过
+    constexpr double kRatio0 = 2.0;      // 首档允许的代价与直线距离之比
     constexpr double kRatioStep = 2.0;
-    constexpr double kCostSlack = 200.0; // 短腿的固定余裕(格): 吸附偏移、接入链、栅格化
+    constexpr double kCostSlack = 200.0; // 短腿的固定代价余量, 格
     static_assert(kTrustMargin > kEdtCells + 8);
     const auto cellOf = [](double v) {
         return static_cast<int64_t>(std::floor(v / kCS));
@@ -3420,9 +3242,7 @@ RecastPlanResult RecastNavEngine::planLocked(
     const int64_t bx1 = std::max({ cellOf(start.x), cellOf(ss->point.x), cellOf(goal.x) });
     const int64_t by0 = std::min({ cellOf(start.y), cellOf(ss->point.y), cellOf(goal.y) });
     const int64_t by1 = std::max({ cellOf(start.y), cellOf(ss->point.y), cellOf(goal.y) });
-    // 整类窗口矩形。场都是局部算子, 依赖半径合起来不到 kFieldHalo 这一圈; 留出它, 类边缘
-    // 那几格算出来的场就与在整区图上算的逐位相同。旁包的整类量也是按这个矩形烘的。
-    // 类范围是整类量, 每区每类只扫一次瓦, 之后的腿直接查。
+    // 外扩 kFieldHalo 后类边缘的场与整区图上算的相同
     auto zbit = ze.bounds.find(region);
     if (zbit == ze.bounds.end()) {
         zbit = ze.bounds.emplace(region, regionBounds(grid_, *gz, region)).first;
@@ -3436,8 +3256,7 @@ RecastPlanResult RecastNavEngine::planLocked(
     const int64_t rgy0 = zb.y0 - kFieldHalo;
     const int64_t rnx = zb.x1 - zb.x0 + 1 + 2 * kFieldHalo;
     const int64_t rny = zb.y1 - zb.y0 + 1 + 2 * kFieldHalo;
-    // 搜索椭圆的外接矩形: 焦点取起终点, 半长轴 C/2, 半短轴 sqrt(C²-L²)/2, 按腿的方向投影到两轴;
-    // 再并上端点包围盒, 外加可信余量。直腿的椭圆是细长条, 窗口跟着细, 不再按腿长开正方形。
+    // 搜索椭圆外接矩形, 焦点为起终点, 半长轴 C/2, 半短轴 sqrt(C²-L²)/2
     const double fsx = start.x / kCS;
     const double fsy = start.y / kCS;
     const double fgx = goal.x / kCS;
@@ -3471,7 +3290,7 @@ RecastPlanResult RecastNavEngine::planLocked(
     enum class Kind
     {
         Tentative, // 小窗, 全套验收
-        Capped,    // 封顶档: 面积到上限, 窗口大小相关的验收关掉
+        Capped,    // 面积到上限, 关掉与窗口大小有关的验收
         Full       // 整类窗口, 不做验收
     };
     const Rect region_rect { rgx0, rgy0, rnx, rny };
@@ -3479,14 +3298,13 @@ RecastPlanResult RecastNavEngine::planLocked(
         const double cost = leg * kRatio0 * std::pow(kRatioStep, tier) + kCostSlack;
         Rect r = rectFor(cost);
         const bool covers = r.x0 <= rgx0 && r.y0 <= rgy0 && r.x0 + r.nx >= rgx0 + rnx && r.y0 + r.ny >= rgy0 + rny;
-        // 小类: 椭圆盖住整类, 或差不到两成, 直接走整类那一档, 精确且不比小窗贵
+        // 椭圆盖住整类或面积差不到两成时直接用整类窗口
         if (region_rect.cells() <= kLocalMaxCells && (covers || r.cells() * 5 >= region_rect.cells() * 4)) {
             return { region_rect, Kind::Full };
         }
         if (r.cells() <= kLocalMaxCells) {
             return { r, Kind::Tentative };
         }
-        // 超上限: 在 [直线, cost] 里二分出面积刚好不超的椭圆; 连直线的外接矩形都超就只能用它
         double lo = leg;
         double hi = cost;
         if (rectFor(lo).cells() > kLocalMaxCells) {
@@ -3498,11 +3316,9 @@ RecastPlanResult RecastNavEngine::planLocked(
         }
         return { rectFor(lo), Kind::Capped };
     };
-    // 可达域、禁步、留墙都从旁包读, 小窗与整类窗口在这三样上逐位相同; 小窗只剩与窗口大小
-    // 有关的验收(搜索碰边、场的可信余量), 不过就扩一档, 封顶档的答案照采, 只有窗内不通才退整类。
     std::optional<WindowInfo> info;
     const auto fall_cache = std::make_shared<FallCache>();
-    int level = 0; // 椭圆档位
+    int level = 0;
     bool last_resort = false;
     Rect cur;
     Rect prev { 0, 0, 0, 0 };
@@ -3514,7 +3330,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         }
         else {
             std::tie(cur, kind) = tierRect(level);
-            // 极短腿的椭圆一档长不出一格, 腿长为 0 时永远不长: 同一窗口不重跑, 跳到变大的那一档, 跳不动就整类
+            // 极短腿的椭圆可能一档长不出一格, 同一窗口不重跑, 跳不动就用整类窗口
             constexpr int kMaxLevel = 64;
             while (kind == Kind::Tentative && tier > 0 && cur.x0 == prev.x0 && cur.y0 == prev.y0 && cur.nx == prev.nx
                    && cur.ny == prev.ny) {
@@ -3575,7 +3391,6 @@ RecastPlanResult RecastNavEngine::planLocked(
         dg.margin = margin;
         dg.final = capped;
         auto line = routeWindow(*info, start, goal, dg, gdk, sdk, planner_, zone_id);
-        // 封顶档就是最终答案, 与整类窗口同一套出口
         if (local && !capped) {
             std::string why;
             if (dg.escalate) {
@@ -3591,14 +3406,13 @@ RecastPlanResult RecastNavEngine::planLocked(
                 continue;
             }
         }
-        // 封顶档关掉了碰边验收, 窗内走不通分不清是真不通还是绕路出了窗: 整类窗口买得起就退整类再下结论
+        // 封顶档窗内不通可能是绕路出了窗, 整类窗口放得下就退整类再判
         if (local && capped && !line.has_value() && region_rect.cells() <= kMaxCells) {
             info.reset();
             res.debug.tier_notes.push_back((dg.err.empty() ? std::string("路线失败") : dg.err) + "→整类窗口");
             last_resort = true;
             continue;
         }
-        // 窗内找得到而起点可达域够不着的绳底, 去那里的一段必然不通
         const auto ropesOutOfReach = [&] {
             std::vector<uint32_t> out;
             size_t n_rope = 0;
@@ -3623,7 +3437,6 @@ RecastPlanResult RecastNavEngine::planLocked(
             }
             return out;
         };
-        // 失败的腿才最需要诊断: 断开时的缝、窗口范围、各阶段耗时全在这里, 两条出口都得带上。
         const auto dump = [&] {
             res.debug.timing = dg.timing;
             res.debug.timing.window_ms = window_ms;
@@ -3650,8 +3463,6 @@ RecastPlanResult RecastNavEngine::planLocked(
             return res;
         }
         if (std::max(dg.snap_start, dg.snap_goal) > kSnapRadius || dg.hop_barrier) {
-            // 终点在别的类里: 试从本类台沿跳进终点那一类, 前后两段各在自己的类里规划, 只接这一跳。
-            // 走得通的腿到不了这里。
             if (!hopping_ && !dg.hop_barrier && dg.snap_start <= kSnapRadius && !gdk.has_value()) {
                 GridPatch pq;
                 const int64_t qrec = loadPatch(goal, goal, kSnapRadius, pq) ? pickStartRec(
@@ -3719,7 +3530,6 @@ RecastPlanResult RecastNavEngine::planLocked(
                         break;
                     }
                 }
-                // 试跳点途中取消的, 照取消报
                 if (!dropped && should_stop && should_stop()) {
                     res.error = "规划已取消";
                     return res;
@@ -3746,8 +3556,6 @@ RecastPlanResult RecastNavEngine::planLocked(
                     return r;
                 }
             }
-            // 两端都已过全区核心闸, 端点确实在可走面上, 差的是从起点出发的可达域够不着它。图铺满了
-            // 整区, 这就是最终结论。
             char buf[160];
             std::snprintf(
                 buf,

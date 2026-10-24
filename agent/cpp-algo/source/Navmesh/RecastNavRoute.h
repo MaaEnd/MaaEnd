@@ -23,32 +23,30 @@ struct RecastPlanResult
 {
     bool ok = false;
     std::string error;
-    // 端点落在虚拟禁区里被判掉。这是作者画的硬约束, 调用方不该再拿兜底手段去凑一条线。
+    // 端点落在虚拟禁区内, 调用方不该再兜底凑线
     bool no_go = false;
     std::vector<WorldPoint> points;
     std::vector<double> clearance; // 逐点通道半宽 px
-    std::vector<double> heights;   // 逐点所在面的高度; 没有层信息时为空
+    std::vector<double> heights;   // 逐点所在面的高度, 没有层信息时为空
     double length = 0.0;
     std::vector<std::string> warnings;
     double snap_start = 0.0; // 起/终点到可走格锚点距离 px
     double snap_goal = 0.0;
-    // 贪心拉直后的驱动航点下标(points 的下标,不含起点,末位恒为 points.size()-1)。
-    // 空 = 该腿没有层预言机,拉直交给调用方。
+    // points 的下标, 不含起点, 末位恒为 points.size()-1, 为空时由调用方拉直
     std::vector<size_t> waypoints;
     std::vector<DropLanding> drops;
     std::vector<RopeRide> ropes;
 
-    // 规划各阶段的中间产物。每个数组恰好对应一段算法的出口, 看哪一段把线拐坏了就开哪一层。
     struct Debug
     {
         struct Timing
         {
-            double window_ms = 0.0;   // 建窗
-            double topology_ms = 0.0; // 硬约束基线 + 通道拓扑
-            double geometry_ms = 0.0; // 走廊内带视线重解
-            double pull_ms = 0.0;     // 取直
-            double assemble_ms = 0.0; // 端点拼接、去重、共线去冗
-            double lift_ms = 0.0;     // 拐角抬升
+            double window_ms = 0.0;
+            double topology_ms = 0.0;
+            double geometry_ms = 0.0;
+            double pull_ms = 0.0;
+            double assemble_ms = 0.0;
+            double lift_ms = 0.0;
             double total_ms = 0.0;
         } timing;
 
@@ -57,15 +55,15 @@ struct RecastPlanResult
         int64_t nx = 0;
         int64_t ny = 0;
         double cell_size = 0.0;
-        // 采信的是第几档窗口 (0 = 端点包围盒外扩的最小一档), 以及前面各档被否掉的原因。
+        // 采用的窗口档位, 0 是端点包围盒外扩的最小一档
         int tier = 0;
         std::vector<std::string> tier_notes;
-        std::vector<WorldPoint> topology_cells;   // 拓扑那一层的逐格路径
-        std::vector<double> topology_heights;     // 与 topology_cells 同长的所在面高度
-        std::vector<WorldPoint> taut_points;      // 几何搜索交出的父链折线, 取直之前
-        std::vector<WorldPoint> pulled_points;    // 取直之后
-        std::vector<WorldPoint> assembled_points; // 拼上端点并去冗之后, 抬升之前
-        std::vector<WorldPoint> planned_points;   // 终线
+        std::vector<WorldPoint> topology_cells;
+        std::vector<double> topology_heights;
+        std::vector<WorldPoint> taut_points;
+        std::vector<WorldPoint> pulled_points;
+        std::vector<WorldPoint> assembled_points;
+        std::vector<WorldPoint> planned_points;
         std::optional<WorldPoint> gap_start;
         std::optional<WorldPoint> gap_goal;
         std::optional<double> gap_distance;
@@ -73,7 +71,7 @@ struct RecastPlanResult
     } debug;
 };
 
-// 一个类占的格范围, 单位是全局格号, 闭区间。
+// 一个类占的格范围, 单位是全局格号, 闭区间
 struct ZoneBoundsPx
 {
     int64_t x0 = 0;
@@ -87,17 +85,12 @@ struct ZoneBoundsPx
 class RecastNavEngine
 {
 public:
-    // 预烘场旁包从主包同目录按名找 (base.nav.gz → base.fields.nav.gz), 读不到或对不上主包
-    // 就没法规划 —— 运行期不再重建那些场。nogo_table 是作者圈的虚拟禁区表, 由调用方定位:
-    // 它是本仓库的配置, 不跟主包放在一起。
+    // 场数据包按名从主包同目录读取 (base.nav.gz → base.fields.nav.gz), 读不到就无法规划
     RecastNavEngine(const BaseNavPack& pack, const BaseNavPlanner& planner, const std::filesystem::path& nogo_table);
 
-    // start/goal 各带楼层高度(<= kBaseNavFloorYValidMin ⇒ floor 盲吸附);
-    // goal_deck_y = 终点所在重叠面的高度,选层用,与吸附用的 floor_y 是两件事;
-    // start_deck_y = 起点脚下那层的确切高度,给了就盖过 start_floor_y;
-    // no_go_discs = 运行期虚拟禁区, 与作者禁区同口径盖格, 但端点落在里面照常规划;
-    // should_stop = 外部取消,两档窗口之间查一次;
-    // rope_off = 这次导航判定用不了的升降索(底端 uid), 空指针表示不用升降索
+    // floor_y <= kBaseNavFloorYValidMin 时不分楼层吸附, deck_y 是选层用的重叠面高度, start_deck_y 盖过 start_floor_y
+    // no_go_discs 盖格方式同作者禁区, 但端点落在里面照常规划
+    // rope_off 是本次不可用的升降索底端 uid, 空指针表示不用升降索
     RecastPlanResult plan(
         const std::string& zone_name,
         const WorldPoint& start,
@@ -110,25 +103,22 @@ public:
         const std::function<bool()>& should_stop = {},
         const std::vector<uint32_t>* rope_off = nullptr);
 
-    // 把该区的清洗网格与预烘场提前建好,让首条路线不必冷吃这份开销。
     void warm(const std::string& zone_name);
 
-    // 逐点给出附近的全区类号。一次规划只在单一类号内找路,所以两点的类号集合不相交
-    // 时这条腿必败,不必真去规划。半径取 kSnapRadius:选类只发生在点所在格或吸附后
-    // 那一格,都不出这个圈。空集表示无从判断(无格图、未知区、点周围无体素)。
+    // 两点类号集合不相交则这条腿必败, 空集表示无法判断
     std::vector<std::vector<uint32_t>> regionsNear(const std::string& zone_name, const std::vector<WorldPoint>& points);
 
 private:
     struct ZoneEntry
     {
         std::unique_ptr<ZoneClean> zc;
-        std::unique_ptr<FieldsZone> fz;                    // 该区的分量图与留墙表, 与 zc 同进同出
-        std::string fields_error;                          // fz 为空时的原因
-        uint64_t used_at = 0;                              // zoneEntry 的调用序号, 淘汰最久没用的
-        std::unordered_map<uint32_t, ZoneBoundsPx> bounds; // 每类的格范围, 整类量, 算一次
+        std::unique_ptr<FieldsZone> fz;
+        std::string fields_error;
+        uint64_t used_at = 0; // zoneEntry 的调用序号
+        std::unordered_map<uint32_t, ZoneBoundsPx> bounds;
     };
 
-    // 每个 ZoneClean 常驻几十到两百 MB, 只留最近用过的两个(通常是一层 base 加一层 tier)
+    // 每个 ZoneClean 常驻几十到两百 MB
     static constexpr size_t kZoneCacheMax = 2;
 
     ZoneEntry& zoneEntry(const std::string& name);
@@ -148,18 +138,17 @@ private:
     std::mutex mutex_;
     std::unordered_map<std::string, ZoneEntry> zones_;
     uint64_t zone_clock_ = 0;
-    GridPack grid_; // 包里的预烘格图,没有它就没法规划
-    // 旁包里的预烘场, 同样缺不得; 同一份旁包的各引擎共用。
+    GridPack grid_;
     std::shared_ptr<const FieldsPack> fields_ = std::make_shared<const FieldsPack>();
-    NoGoTable nogo_;       // 虚拟禁区表, 缺了就是没有禁区
+    NoGoTable nogo_;
     std::string grid_error_;
     bool hopping_ = false; // 正在规划跨类下落的两段, 它们自己不再往下接
     bool roping_ = false;  // 正在规划升降索的两段, 它们自己不再接升降索
     const std::vector<uint32_t>* rope_off_ = nullptr;
-    // 每根升降索从绳底走到绳顶的路程 px, 键是 区号 << 32 | 底端 uid; 走不到记无穷
+    // 每根升降索从绳底走到绳顶的路程 px, 键是 区号 << 32 | 底端 uid, 走不到记无穷
     std::unordered_map<uint64_t, double> rope_walk_;
 
-    // 绳底、绳顶各接一段拼起来, 比 best_cost 省才换; 最多试 max_tries 根, 跳过 out_of_reach 里的绳底
+    // 只在总代价低于 best_cost 时返回
     std::optional<RecastPlanResult> tryRopes(
         const std::string& zone_name,
         uint16_t zone_id,

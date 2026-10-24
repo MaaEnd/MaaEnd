@@ -20,9 +20,7 @@ namespace mapnavigator
 
 struct NaviParam;
 
-// Final reason a complete authored-route expansion failed. The record is scoped to the calling
-// thread and reset by ExpandNavmeshWaypoints, so the WebUI query can read it immediately after a
-// false return without mixing concurrent navigation requests.
+// 按线程记录, ExpandNavmeshWaypoints 开头清空, 返回 false 后立即读取
 struct NavmeshExpansionFailure
 {
     std::string code;
@@ -41,28 +39,18 @@ struct NavmeshExpansionFailure
     std::string route_error;
 };
 
-// How far the runtime will walk with no guidance. Start recovery covers the whole off-mesh band the
-// blind walk out of the base drops us in; the goal extension exists because navmesh omits water, so a
-// target a human can reach would otherwise be reported unreachable.
+// 无引导时最多盲走多远, navmesh 不含水面, 终点要外延才够得着岸边目标
 inline constexpr double kStartRecoveryMaxBlindWalk = 32.0;
 inline constexpr double kBlindTargetMaxExtension = 30.0;
 
 std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path = {});
-// The virtual no-go table is anchored on the exe (<exe>/../data/MapNavigator/nogo_zones.json), the same rule as
-// zipline_frames.json.
+// 相对 exe 定位: <exe>/../data/MapNavigator/nogo_zones.json
 std::filesystem::path NoGoTablePath();
 std::string InitialExpectedZone(const NaviParam& param);
-// Maps a live locator fix onto the navmesh base-pixel frame using the navmesh's OWN baked tier affine
-// (the same is_tier / base = s*tier + t the python tool uses), in place. A geometry / base-matched /
-// unknown zone projects to identity, so this is a no-op there — only a tier-template-pixel fix is
-// rewritten.
+// 原地把 tier 模板像素坐标换算到 navmesh 底图像素系, 其他 zone 原样不动
 void NormalizeLivePositionToBase(const NaviParam& param, NaviPosition& pos);
 void PreloadNavmeshWaypoints(const NaviParam& param);
-// `should_stop` is polled between waypoints and between fallback probes: expansion runs before the
-// state machine exists, so it is the only place a stop request can be honored during planning.
-// `no_go` carries the virtual no-go discs this navigation has stamped so far; every leg planned here
-// treats the discs of its zone as walls. Null on the initial expansion, when none exist yet.
-// `start_deck_y` is the exact height of the deck `initial_pos` stands on (waiting on a zipline tower).
+// should_stop 在路点之间轮询, 状态机还没建好, 规划期间只有这里能响应停止
 bool ExpandNavmeshWaypoints(
     const NaviParam& param,
     const NaviPosition& initial_pos,
@@ -72,15 +60,7 @@ bool ExpandNavmeshWaypoints(
     const std::vector<VirtualNoGoDisc>* no_go = nullptr,
     std::optional<double> start_deck_y = std::nullopt);
 NavmeshExpansionFailure CurrentNavmeshExpansionFailure();
-// The goal deck pins which overlapping walkable surface the route must stop on; unset keeps the full span
-// set. `start_floor_y` overrides which floor the start snaps onto, for a caller that actually knows the
-// height it is standing at (a zipline dismount, or a mid-run replan from the route being walked); unset keeps
-// the zone's dominant floor, unchanged.
-// `no_go` is the navigation's virtual no-go discs; the ones stamped in `locator_zone` become walls.
-// `start_deck_y` is the exact height of the deck the start stands on (just landed on a zipline tower).
-// `out_start_recovery_entry`, when given, opts into the start-off-mesh recovery the authored expansion uses:
-// a start the planner cannot anchor is re-planned from the nearest mesh point within the blind-walk budget,
-// and that point comes back here for the caller to walk onto first. Never for a start or goal in a no-go zone.
+// 给了 out_start_recovery_entry 时, 起点锚不上网格就改从盲走范围内最近的网格点规划, 该点由此传回
 std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const NaviParam& param,
     const std::string& locator_zone,
@@ -93,18 +73,14 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     std::optional<double> start_deck_y = std::nullopt,
     std::optional<navmesh::WorldPoint>* out_start_recovery_entry = nullptr);
 
-// Which walkable surface `point` lands on: the planar distance to it, and its height on the same scale
-// as BaseNavRouteRequest::floor_y. Height matters as much as distance — a point directly above or below
-// a floor is a plane away from it and no distance test will say so.
+// distance 是平面距离, height 与 BaseNavRouteRequest::floor_y 同一量纲
 struct NavmeshSnap
 {
     double distance = 0.0;
     double height = 0.0;
 };
 
-// Nullopt when the zone can't resolve. The returned distance is the answer, not whether it returned:
-// snap falls back to a wider search on a small radius, so a hit can still be far outside `radius`, and
-// `floor_y` only ranks the candidates. Resolves the zone like PlanNavmeshRoute.
+// zone 解析不了时为空, 命中点可能远在 radius 之外, 要看返回的 distance
 std::optional<NavmeshSnap> NavmeshSnapAt(
     const NaviParam& param,
     const std::string& locator_zone,
@@ -112,44 +88,29 @@ std::optional<NavmeshSnap> NavmeshSnapAt(
     double radius,
     std::optional<double> floor_y = std::nullopt);
 
-// A straight line hanging in the air between two world points, in metres — the frame the occluder pack uses.
+// 单位米, 与遮挡包同一坐标系
 struct NavmeshAirLine
 {
     navmesh::OccluderPoint a;
     navmesh::OccluderPoint b;
 };
 
-// Whether the occluder pack blocks every line of each group. A group holds the alternative lines for one rope and
-// passes once any of them is clear; lines are asked in order and the rest are skipped after the first clear one.
-// Each line is intersected exactly with the mesh triangles in the occluder pack, terrain left out, with zero margin:
-// touching any face, from either side or on an edge, blocks it. A blocked group gets one hit per line, in line order, namely the
-// hit nearest to that line's start.
-// An empty result means some line is clear OR that no answer was available (zone unresolved, occluder pack missing,
-// scene absent), never "blocked", so the caller has to read it as a pass. One zone resolution and one pack decode
-// are shared by the whole batch.
+// 空结果表示有线通畅或无从判断, 调用方一律当通过, 被挡的组每条线给一个离起点最近的命中
 std::vector<std::vector<navmesh::OccluderHit>>
     NavmeshLineGroupBlocks(const NaviParam& param, const std::string& locator_zone, const std::vector<std::vector<NavmeshAirLine>>& groups);
 
-// The height each structure base settles to in the occluder pack's collision world (see OccluderScene::groundHeight),
-// in the shape of bases. Where no answer is available (zone unresolved, occluder pack missing, scene absent) a base
-// keeps its own y. Resolves the zone and shares the decoded pack like NavmeshLineGroupBlocks.
+// 结果与 bases 同形, 无从判断时保留原 y
 std::vector<std::vector<double>> NavmeshGroundHeights(
     const NaviParam& param,
     const std::string& locator_zone,
     const std::vector<std::vector<navmesh::OccluderPoint>>& bases);
 
-// The bake-time connectivity classes each point sits in. A route is searched inside one class only, so
-// two points whose sets are disjoint cannot be connected by any plan — a cheap way to drop legs that are
-// bound to fail. An empty set means "no answer" (no baked grid, unknown zone, no voxel nearby), never
-// "not connected"; callers must read it as permission to try.
+// 两点的连通类集合不相交就必然规划不通, 空集表示无从判断, 应当允许尝试
 std::vector<std::vector<uint32_t>>
     NavmeshRegionsNear(const NaviParam& param, const std::string& locator_zone, const std::vector<navmesh::WorldPoint>& points);
 float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone);
 bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b);
 
-// Resample `poly` at ~`step` world units (clamped to >=0.1) and invoke `fn` on the leading vertex and
-// every resampled point. Used by NavmeshOffMeshFraction. Caller guards poly.size() >= 2 for a
-// meaningful result.
 template <typename Fn>
 void ForEachResampledPoint(const std::vector<navmesh::WorldPoint>& poly, double step, Fn&& fn)
 {
@@ -170,9 +131,7 @@ void ForEachResampledPoint(const std::vector<navmesh::WorldPoint>& poly, double 
     }
 }
 
-// Fraction of `polyline` (resampled every ~`step` world units, vertices included) lying OFF the
-// navmesh — the signature of water the game omits. Resolves the zone like PlanNavmeshRoute. Returns
-// 0.0 when the zone can't resolve or the line is empty (fail-safe on-mesh).
+// 不在 navmesh 上的采样比例, zone 解析不了或线为空时返回 0
 double NavmeshOffMeshFraction(
     const NaviParam& param,
     const std::string& locator_zone,

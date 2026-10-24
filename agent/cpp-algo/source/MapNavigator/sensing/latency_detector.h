@@ -26,16 +26,14 @@ inline constexpr std::size_t kStageCount = 5;
 
 struct Config
 {
-    // 健康节拍约 110ms，到 350ms 就走不动了；判定要求过半超线，实际触发点比这个数高约 100ms。
     int64_t slow_tick_ms = 280;
-    // 预热和窗口按真实时间切，不按拍数：慢机每秒攒不到几拍，按拍数等于越慢越难判出来。
     int64_t warmup_ms = 2000;
     int64_t window_ms = 5000;
-    // 一窗至少要这么多拍才作数，不够就接着攒不封窗，免得稀疏的窗被几拍带偏。
+    // 拍数不够就不封窗, 接着攒
     int64_t window_min_ticks = 8;
-    // 连着这么多窗判慢才报，也就是要一直慢满 15 秒；中间有一窗正常就清零重来。
+    // 须连续这么多窗判慢, 中间一窗正常即清零
     int required_windows = 3;
-    // 单侧 99% 置信；配合下界过半的判据，等价于「有把握认定过半的拍都超时」。
+    // 单侧 99% 置信的 z 值
     double confidence_z = 2.326;
     std::size_t history_size = 512;
 };
@@ -48,13 +46,13 @@ struct Verdict
     int64_t sample_count = 0;
 };
 
-// 只对整拍耗时下结论，各阶段耗时仅用于说明时间花在哪，不参与判定。
+// 只按整拍耗时判定, 各阶段耗时只用于报告
 class Detector
 {
 public:
     explicit Detector(Config config = {});
 
-    // 每次导航开始调一次：重开预热和当前窗口，已经判过的整窗结论保留。
+    // 每次导航开始调用, 重开预热和当前窗口, 已判过的整窗保留
     void BeginRun();
     void RecordStage(Stage stage, int64_t elapsed_ms);
     std::optional<Verdict> RecordTick(uint64_t tick_seq, int64_t tick_gap_ms);
@@ -84,10 +82,9 @@ private:
     bool fired_ = false;
 };
 
-// 二项比例的 Wilson 置信下界，样本少时会自动给出保守的结果。
 double WilsonLowerBound(int64_t hits, int64_t total, double z);
 
-// 中位数（偶数个取上中位），空集返回 0。
+// 偶数个取上中位, 空集返回 0
 int64_t Median(const std::vector<int64_t>& samples);
 
 } // namespace latency

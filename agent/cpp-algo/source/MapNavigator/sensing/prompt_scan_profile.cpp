@@ -24,7 +24,7 @@ namespace mapnavigator
 namespace
 {
 
-// purpose == nullptr 时一声不出: 存在性探测本来就允许没有这个节点。
+// purpose 为 nullptr 时不打日志
 std::optional<json::object> ReadNodeObject(MaaContext* context, const std::string& node_name, const char* purpose)
 {
     if (context == nullptr || node_name.empty()) {
@@ -56,7 +56,7 @@ std::optional<json::object> ReadNodeObject(MaaContext* context, const std::strin
     return parsed->as_object();
 }
 
-// 框架回吐的节点恒为 { "recognition": { "type": ..., "param": { ... } } }, 不接受别的形状。
+// 框架回吐的节点恒为 { "recognition": { "type": ..., "param": { ... } } }
 const json::object* RecognitionParam(const json::object& node)
 {
     if (!node.contains("recognition") || !node.at("recognition").is_object()) {
@@ -177,7 +177,6 @@ bool TryReadNodeInteractTexts(MaaContext* context, const std::string& node_name,
         return false;
     }
 
-    // 停车后那次确认走的是 OCR; 指到别的识别器上是作者指错了节点, 而不是这里该去猜。
     const std::string type = ReadRecognitionType(*node);
     if (!EqualsIgnoreCase(type, "OCR")) {
         LogError << "Interact text node must recognize by OCR." << VAR(node_name) << VAR(type);
@@ -219,7 +218,7 @@ bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node,
         LogError << "Prompt scan node has no usable roi array." << VAR(scan_node);
         return false;
     }
-    // 相对上一个节点的偏移 ROI 在这里没有参照物: 预筛每帧独立跑, 只收基础帧里的绝对坐标。
+    // 只收基础帧内的绝对 ROI, 预筛每帧独立跑, 相对偏移没有参照物
     if (base_roi.x < 0 || base_roi.y < 0 || base_roi.x + base_roi.width > kPipelineRoiBaseWidth
         || base_roi.y + base_roi.height > kPipelineRoiBaseHeight) {
         LogError << "Prompt scan roi must be absolute and inside the authored base frame." << VAR(scan_node) << VAR(base_roi.x)
@@ -234,7 +233,6 @@ bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node,
         return false;
     }
 
-    // 只给一个 threshold 时所有图共用
     std::vector<double> thresholds { kPromptIconMatchThreshold };
     const json::value* threshold_value = FindRecognitionParam(*node, "threshold");
     if (threshold_value != nullptr && !ReadNumberList(*threshold_value, &thresholds)) {
@@ -270,7 +268,7 @@ bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node,
             return false;
         }
 
-        // 纯绿被排除在匹配之外, 与 pipeline 的 TemplateMatch 同判据; 全不透明时按没有掩码处理。
+        // 纯绿像素不参与匹配, 与 pipeline 的 TemplateMatch 一致
         ScanIcon icon { .threshold = thresholds.size() == 1 ? thresholds.front() : thresholds[i] };
         if (green_mask) {
             const cv::Mat color = MAA_NS::imread(*resolved, cv::IMREAD_COLOR);
@@ -290,7 +288,7 @@ bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node,
             LogError << "Prompt scan template failed to decode." << VAR(scan_node) << VAR(MAA_NS::path_to_utf8_string(*resolved));
             return false;
         }
-        // cv::matchTemplate 的硬前提。这里不放过, 后台线程每帧都会踩上去; 而 cpp-algo 不留 try/catch。
+        // cv::matchTemplate 的硬前提, 漏到后台线程会每帧触发
         if (icon.templ.cols > base_roi.width || icon.templ.rows > base_roi.height) {
             LogError << "Prompt scan template is larger than its roi." << VAR(scan_node) << VAR(relative_path) << VAR(icon.templ.cols)
                      << VAR(icon.templ.rows) << VAR(base_roi.width) << VAR(base_roi.height);

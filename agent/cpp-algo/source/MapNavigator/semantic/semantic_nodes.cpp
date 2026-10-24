@@ -233,7 +233,7 @@ Result TickTransferWaitImpl(const Context& ctx)
     return result;
 }
 
-// 坐升降索时小地图坐标几乎不动, 位移判不出坐没坐完: 先等满数据给的乘坐时长, 再要连续几次取位成功才放行
+// 坐升降索时小地图坐标几乎不动, 所以按乘坐时长等满再要求连续取位成功
 Result TickRopeRideImpl(const Context& ctx)
 {
     SemanticState& s = ctx.runtime_state->semantic;
@@ -314,7 +314,6 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
             return result;
         }
 
-        // Closed-loop: confirm the turn landed and redo a swallowed view-drag (accept within wide band).
         achieved_heading = VerifyAndCorrectHeading(ctx, target_heading, start_heading);
 
         LogInfo << "Heading-only node completed." << VAR(target_heading) << VAR(start_heading) << VAR(heading_delta)
@@ -327,7 +326,7 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         if (!ctx.session->HasCurrentWaypoint()) {
             ctx.session->NoteRouteTailConsumed(*ctx.position, "heading_route_consumed");
         }
-        // 复核失败仍按既有语义完成当前节点；后续节点等下一拍重新取位，避免使用缺失的朝向。
+        // 后续节点等下一拍重新取位, 免得用到缺失的朝向
         if (!ctx.position->valid) {
             break;
         }
@@ -338,7 +337,6 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
     return result;
 }
 
-// All waits in precise approach are cancellable, including the time spent holding forward.
 bool wait_for_strict_settle(
     std::chrono::steady_clock::duration duration,
     std::chrono::steady_clock::time_point deadline,
@@ -358,7 +356,6 @@ bool wait_for_strict_settle(
     return false;
 }
 
-// Only fresh, accepted matches and confidence-checked camera headings may drive the stopped measurements.
 bool capture_strict_goal_fix(
     const Context& ctx,
     NaviPosition* out_pos,
@@ -421,7 +418,7 @@ struct PulseResponse
     double travel = 0.0;
 };
 
-// 同一进程就是同一台机器、同一条按键链路, 量到的对应关系跨点、跨任务都成立
+// 同一进程即同一台机器与按键链路, 量到的关系跨点跨任务都成立
 std::mutex g_pulse_mutex;
 std::deque<PulseResponse> g_pulse_responses;
 
@@ -443,8 +440,7 @@ void RecordPulseResponse(double hold_ms, double travel)
 
 } // namespace
 
-// 位移随按键时长线性增长, 截距是起步和刹车的固定位移。斜率取所有样本两两斜率的中位数, 截距取残差中位数,
-// 个别被吞键、蹭墙的样本拉不动它。时长拉不开时按比例估, 偏差留给下一下纠正。
+// 按位移 = 斜率·时长 + 截距拟合, 斜率与截距都取中位数以抗离群样本
 int PlanPulseHoldMs(double residual, int max_hold_ms)
 {
     std::vector<PulseResponse> samples;
@@ -541,9 +537,7 @@ bool TurnToHeadingOnce(const Context& ctx, double heading_delta, const std::func
     return true;
 }
 
-// 起步前把镜头对到导航使用的朝向，避免按 W 时偏离控制环的反馈方向。
-// 镜头模式下两者本就相同。刻意不跟前进脉冲，只转镜头。
-// 调用方保证 ctx.position 是刚取的一帧, 且此刻人已站定。
+// 调用方须保证 ctx.position 是刚取的一帧且人已站定
 void AlignCameraToHeadingOnce(const Context& ctx)
 {
     if (!ctx.position->camera_angle.has_value()) {
@@ -564,7 +558,6 @@ void AlignCameraToHeadingOnce(const Context& ctx)
     }
     utils::SleepFor(kWaitAfterFirstTurnMs);
 
-    // 补读一帧确认观测可用；失败时由调用方转入定位恢复。
     const bool captured = ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id());
     LogInfo << "Camera aligned to navigation heading." << VAR(heading) << VAR(camera_before) << VAR(delta) << VAR(captured);
 }
@@ -586,8 +579,7 @@ bool CaptureStableHeadingUntil(const Context& ctx, double* out_heading, std::chr
 void StopMotionAndCommitment(const Context& ctx)
 {
     ctx.motion_controller->SetForwardState(false);
-    // 站定去干别的事的主入口(传送/过图/挖掘/异步交互/FIND/滑索/严格到点), 镜头可能被那件事挪走。
-    // 走 ActionExecutor 停车的 JUMP/FIGHT/普通 INTERACT 在 HandleArrival 里各自置位。
+    // 走 ActionExecutor 自行停车的 JUMP/FIGHT/普通 INTERACT 绕过这里, 须在调用处各自置位
     ctx.runtime_state->ArmCameraAlign();
 }
 
@@ -640,7 +632,7 @@ double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double
 
 bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std::function<bool()>& should_stop)
 {
-    // Even cancellation, rejected commands and exceptions must leave movement released.
+    // 取消、指令被拒与异常退出都须松开移动
     struct StopOnExit
     {
         const Context& ctx;
@@ -678,7 +670,7 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std:
         if (pulses == kStrictSettleMaxPulses) {
             return incomplete("pulse_budget_exhausted");
         }
-        // Overshoots within measurement tolerance may turn around; a larger increase is divergence.
+        // 测量容差内的过冲允许掉头, 超出即判发散
         if (previous_residual && residual > *previous_residual + kStrictSettleAcceptBandWu) {
             return incomplete("diverging");
         }
@@ -708,7 +700,7 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std:
                 || !capture_strict_goal_fix(ctx, &fix, deadline, should_stop)) {
                 return incomplete(should_stop() ? "cancelled" : "camera_feedback_unavailable");
             }
-            // Use actual feedback, never the heading the command was meant to achieve.
+            // 以实际读数为准, 不用指令预期的朝向
             residual = std::hypot(waypoint.x - fix.x, waypoint.y - fix.y);
             if (residual <= kStrictSettleAcceptBandWu) {
                 return verified();
@@ -727,7 +719,7 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std:
         const NaviPosition from = fix;
         ctx.motion_controller->SetForwardState(true);
         const auto pressed_at = std::chrono::steady_clock::now();
-        ctx.position->valid = false; // no valid stopped measurement remains once movement begins
+        ctx.position->valid = false; // 一开始移动停稳读数就作废
         const bool held = wait_for_strict_settle(std::chrono::milliseconds(hold_ms), deadline, should_stop);
         ctx.motion_controller->SetForwardState(false);
         const double held_ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - pressed_at).count();
@@ -744,7 +736,6 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std:
             RecordPulseResponse(held_ms, travel);
         }
         LogInfo << "Strict arrival pulse landed." << VAR(held_ms) << VAR(travel) << VAR(deflection) << VAR(usable);
-        // 下一轮先判这次停稳后的读数, 第三下之后也照样判
     }
 }
 
@@ -878,7 +869,6 @@ Result ConsumeInlineSemantics(const Context& ctx)
         return heading_result;
     }
 
-    // 无坐标的 FIND 在这里接手: 刹停、切相位, 剩下的每一拍交给 TickFindTarget
     Result find_result = ConsumeFindNodes(ctx);
     if (find_result.consumed) {
         return find_result;
@@ -894,7 +884,6 @@ Result ConsumeInlineSemantics(const Context& ctx)
     return result;
 }
 
-// 到点后的公共收尾: 记账、推进、按下一个点选相位
 Result CompleteArrival(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, const char* reason)
 {
     ctx.session->NoteCanonicalFinalGoalConsumed(node_idx, *ctx.position, reason);
@@ -981,8 +970,6 @@ Result ArriveDig(const Context& ctx, const Waypoint& waypoint, const std::option
 
 Result ArriveInteract(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, double actual_distance)
 {
-    // 到点兜底: 跑一次行进中那套权威识别, 没认出提示就交回导航走到点上再认一次; 还认不出时 rec 判失败,
-    // 否则当这里没东西可交互, 照样推进
     if (waypoint.IsAsyncInteract() && ctx.maa_context != nullptr) {
         StopMotionAndCommitment(ctx);
         LogInfo << "Action: INTERACT reached, running the authoritative recognition." << VAR(actual_distance)
@@ -993,7 +980,7 @@ Result ArriveInteract(const Context& ctx, const Waypoint& waypoint, const std::o
             && actual_distance > kStrictSettleAcceptBandWu) {
             approach.prompt_missed_node = node_idx;
             approach.missed_at = std::chrono::steady_clock::now();
-            // 起步按已确认算: 否则要先挪够起步距离才放行到点判定, 走路模式也开不了, 剩下这一两个单位就是小跑冲过去的
+            // 起步按已确认算, 否则要先挪够起步距离才放行到点判定
             ctx.runtime_state->route.Reset();
             ctx.runtime_state->route.startup_anchor_pos = *ctx.position;
             ctx.runtime_state->route.startup_anchor_initialized = true;
@@ -1025,12 +1012,11 @@ Result ArriveInteract(const Context& ctx, const Waypoint& waypoint, const std::o
     if (waypoint.rope_ride) {
         return { .consumed = true, .rope_unavailable = waypoint.rope_ride->uid };
     }
-    // rec 模式走到这里是文本没解析出来, 到点狂按 F 正是它要避开的
+    // rec 模式到这里说明文本没解析出来, 不能按交互键
     if (waypoint.IsRecInteract()) {
         LogInfo << "Action: INTERACT in rec mode, skipping the key press." << VAR(waypoint.interact_text_node);
     }
     else {
-        // 同 JUMP/FIGHT: Interact() 自行停车绕开了主入口, 而弹出的交互面板正是镜头会被挪走的地方。
         ctx.runtime_state->ArmCameraAlign();
         ctx.action_executor->Interact();
     }
@@ -1084,8 +1070,6 @@ Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual
         ctx.action_executor->Sprint();
         break;
     case ActionType::JUMP:
-        // JUMP/FIGHT 与下面的普通 INTERACT 都在 ActionExecutor 里自行停车, 绕开了上面那个主入口,
-        // 只能在调用处各自置位。SPRINT 不停车, 不置。
         ctx.runtime_state->ArmCameraAlign();
         ctx.action_executor->Jump();
         break;
@@ -1093,7 +1077,7 @@ Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual
         ctx.runtime_state->ArmCameraAlign();
         ctx.action_executor->Fight();
         break;
-    // 经过即推进; HEADING/ZONE 没坐标、NAVMESH 展开后换成规划点, 实际到不了这里
+    // HEADING/ZONE 没坐标, NAVMESH 展开后换成规划点, 实际到不了这里
     case ActionType::RUN:
     case ActionType::COLLECT:
     case ActionType::HEADING:

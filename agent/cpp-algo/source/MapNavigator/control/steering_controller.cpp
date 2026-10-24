@@ -16,9 +16,7 @@ constexpr double kMovingMaxCmd = 90.0;
 constexpr double kTurningMaxCmd = 70.0;
 constexpr double kKp = 1.0;
 constexpr double kHeadingRatePlausibleMaxDeg = 60.0;
-// An about-face has no shorter side, so at the antipode a degree of heading jitter flips the command a full 360
-// and the agent alternates left and right forever without crossing. Latch the direction on entry and hold it
-// until the turn is well under way; either side reaches the target, so the latched one is never the wrong one.
+// 接近掉头时朝向抖动会让指令左右翻转, 进入时锁定方向, 转到退出角以内才解锁
 constexpr double kTurnLatchEnterDeg = 150.0;
 constexpr double kTurnLatchExitDeg = 120.0;
 
@@ -49,15 +47,10 @@ SteeringCommand SteeringController::Update(
         heading_error = std::abs(heading_error) * turn_latch_sign;
     }
 
-    // Discount the turn already sent that the heading has not shown yet. The game needs several ticks to yaw a
-    // capped command while this runs every tick, so commanding the raw error each time sends it many times over,
-    // overshoots, then hunts back — the left-right weave. Clamping the discount between zero and the error keeps
-    // the remainder on the same side as the error, so this can only ever soften a command, never reverse one.
+    // 扣掉已发但朝向还没体现的转向, 夹在零与误差之间, 只会减弱指令
     const double pending = std::clamp(pending_turn_deg, std::min(0.0, heading_error), std::max(0.0, heading_error));
     const double effective_error = heading_error - pending;
 
-    // Deadband gates the P term only: it suppresses chasing sub-noise heading error on a straight. A real corner
-    // still drives a large error, so large turns are never blocked here.
     const double p_term = std::abs(effective_error) < kHeadingDeadband ? 0.0 : effective_error * kKp;
     const double max_cmd = moving_forward ? kMovingMaxCmd : kTurningMaxCmd;
     const double cmd = std::clamp(p_term, -max_cmd, max_cmd);

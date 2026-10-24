@@ -26,7 +26,6 @@ void PublishVerdict(MaaContext* context, const Verdict& verdict)
 {
     const int ratio_percent = verdict.ratio_percent;
     const int sample_count = verdict.sample_count;
-    // 倍率是实测转角占指令的比例：转过头时系数小于 1 缩小转向量，转不到位时大于 1 放大。
     const double scale = 1.0 / verdict.ratio;
     g_turn_units_scale.store(scale);
     LogInfo << "Turn sensitivity corrected." << VAR(ratio_percent) << VAR(sample_count) << VAR(scale);

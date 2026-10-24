@@ -17,7 +17,6 @@ namespace mapnavigator
 namespace
 {
 
-// Scale a base-resolution ROI (1280x720, from the pipeline) to the real frame size, clamped.
 cv::Rect ScaledRoi(const cv::Size& frame_size, const cv::Rect& base_roi)
 {
     const double sx = static_cast<double>(frame_size.width) / static_cast<double>(kPipelineRoiBaseWidth);
@@ -30,8 +29,7 @@ cv::Rect ScaledRoi(const cv::Size& frame_size, const cv::Rect& base_roi)
     return roi & cv::Rect(0, 0, frame_size.width, frame_size.height);
 }
 
-// Collapse a BGRA/BGR/gray ROI to one channel. Lives here (not utils.h) so this framework-free worker TU
-// doesn't pull in the framework headers utils.h includes.
+// 本文件不能引入 utils.h 带来的框架头文件, 所以自带一份
 cv::Mat ToGray(const cv::Mat& roi)
 {
     cv::Mat gray;
@@ -49,7 +47,7 @@ cv::Mat ToGray(const cv::Mat& roi)
     return gray;
 }
 
-// Template and ROI share base scale, so it matches at native size (no rescale). Already gray.
+// 模板与 ROI 同为基础尺度, gray 须已是灰度图
 bool MatchesTemplate(const cv::Mat& gray, const cv::Mat& templ, const cv::Mat& mask, double threshold, const std::string& tag)
 {
     if (gray.empty() || templ.empty() || gray.rows < templ.rows || gray.cols < templ.cols) {
@@ -59,8 +57,7 @@ bool MatchesTemplate(const cv::Mat& gray, const cv::Mat& templ, const cv::Mat& m
     cv::Mat result;
     cv::matchTemplate(gray, templ, result, cv::TM_CCOEFF_NORMED, mask);
 
-    // Masked normalized correlation has no divide-by-zero guard: a flat window yields inf/nan, and inf would top the
-    // score. With every cell rejected minMaxLoc hands back 0, which is below any threshold.
+    // 带掩码的归一化相关在平坦窗口上会出 inf/nan, 须先剔除非有限值
     cv::Mat finite;
     if (!mask.empty()) {
         constexpr double kFloatLimit = static_cast<double>(std::numeric_limits<float>::max());
@@ -68,13 +65,12 @@ bool MatchesTemplate(const cv::Mat& gray, const cv::Mat& templ, const cv::Mat& m
     }
     double max_val = 0.0;
     cv::minMaxLoc(result, nullptr, &max_val, nullptr, nullptr, finite);
-    if (max_val >= 0.5) { // log near matches to calibrate the threshold without flooding
+    if (max_val >= 0.5) {
         LogDebug << "RoiTemplateScanner template match." << VAR(tag) << VAR(max_val);
     }
     return max_val >= threshold;
 }
 
-// 裁剪图归一化到作者 ROI 尺寸后跑同一套匹配: worker 与一次性探测共用, 免得两边判据漂移
 bool MatchNormalized(const cv::Mat& crop, const cv::Size& base_size, const std::vector<ScanIcon>& icons, const std::string& tag)
 {
     cv::Mat normalized;
@@ -133,7 +129,7 @@ void RoiTemplateScanner::SubmitFrame(const cv::Mat& frame)
 
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        frame(roi).copyTo(pending_roi_); // deep copy: the controller reuses the frame buffer after we return
+        frame(roi).copyTo(pending_roi_); // 须深拷贝, 返回后控制器会复用这块帧缓冲
         has_pending_ = true;
     }
     cv_.notify_one();
@@ -158,7 +154,6 @@ void RoiTemplateScanner::WorkerLoop()
             has_pending_ = false;
         }
 
-        // Normalize the crop back to the authored ROI size so detection runs in one fixed pixel space.
         if (MatchNormalized(roi, base_roi_.size(), icons_, tag_)) {
             detected_.store(true);
         }

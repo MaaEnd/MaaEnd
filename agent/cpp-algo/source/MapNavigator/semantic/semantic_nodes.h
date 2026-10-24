@@ -35,17 +35,17 @@ struct Result
     bool changed_zone = false;
     const char* failure_reason = "";
     const char* failure_log_message = "";
-    // 到了绳底认不出交互提示: 这根升降索的底端 uid, 由导航换掉它重新展开
+    // 绳底认不出交互提示时填该升降索的底端 uid
     uint32_t rope_unavailable = 0;
 };
 
-// Aligns the camera to the character's facing before a start-off. No-op when the camera orientation is unavailable.
+// 读不到镜头朝向时什么都不做
 void AlignCameraToHeadingOnce(const Context& ctx);
 
 Result TickSemanticFlow(const Context& ctx, NaviPhase phase);
 Result ConsumeInlineSemantics(const Context& ctx);
 Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual_distance);
-// 绳底交互已按下、当前点已推进到绳顶落脚点: 停住等这段升降索坐完
+// 调用前绳底交互须已按下, 当前点须已推进到绳顶落脚点
 Result StartRopeRide(const Context& ctx, const RopeRideInfo& ride);
 
 } // namespace semantic_nodes

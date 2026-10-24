@@ -12,8 +12,7 @@ struct SteeringCommand
 class SteeringController
 {
 public:
-    // turn_latch_sign carries the committed direction of a near-about-face turn across ticks; see the .cpp.
-    // pending_turn_deg is the turn already sent that the heading has not shown yet; the caller keeps the tally.
+    // turn_latch_sign 由调用方跨拍保存, pending_turn_deg 是已发但朝向还没体现的转向
     static SteeringCommand
         Update(double heading_error, double heading_rate_deg, bool moving_forward, int& turn_latch_sign, double pending_turn_deg);
 };

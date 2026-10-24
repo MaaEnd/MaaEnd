@@ -23,8 +23,7 @@ inline bool EqualsIgnoreCase(std::string_view lhs, std::string_view rhs)
            });
 }
 
-// 走触控、用移动端 UI 的控制器。native_android 是 MaaFramework 的 Android 原生控制器（MaaFwApp 在手机上直接跑），
-// 画面与 ADB 连模拟器 / 手机看到的是同一套移动端界面，只是不经过 adb。
+// native_android 不经 adb, 但画面是同一套移动端界面
 inline bool IsAdbLikeControllerType(std::string_view controller_type)
 {
     constexpr std::array<std::string_view, 4> kAdbLikeControllerTypes = { "adb", "playcover", "play_cover", "native_android" };
@@ -43,8 +42,7 @@ inline bool IsLinuxControllerType(std::string_view controller_type)
     return EqualsIgnoreCase(controller_type, "linux");
 }
 
-// 框架先加载 ./resource, 再把控制器自己的 overlay 叠上去, 所以 overlay 里的同名图会胜出; 这里照同一个
-// 顺序找, 基础资源永远排最后。云游戏与本地 ADB 在控制器类型上无法区分, 所以 resource_cloud_adb 不参与。
+// 顺序与框架叠加 overlay 一致, 基础资源排最后, resource_cloud_adb 无法按控制器类型区分故不参与
 inline std::vector<std::filesystem::path> ResourceImageRoots(std::string_view controller_type)
 {
     const std::filesystem::path install_dir = std::filesystem::absolute(get_install_dir());
@@ -73,7 +71,6 @@ inline std::vector<std::filesystem::path> ResourceImageRoots(std::string_view co
     return roots;
 }
 
-// 相对路径按上面的顺序逐层找, 命中即返回。一层都没有是调用方该报的错, 这里不代它兜底。
 inline std::optional<std::filesystem::path>
     ResolveResourceImage(const std::vector<std::filesystem::path>& roots, const std::filesystem::path& relative)
 {
@@ -87,7 +84,6 @@ inline std::optional<std::filesystem::path>
     return std::nullopt;
 }
 
-// 找不到图时把整条层次写进日志, 好一眼看出是层次不对还是图真的缺
 inline std::string DescribeRoots(const std::vector<std::filesystem::path>& roots)
 {
     std::string text;

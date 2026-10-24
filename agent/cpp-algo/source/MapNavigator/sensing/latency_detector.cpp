@@ -12,7 +12,7 @@ namespace latency
 namespace
 {
 
-// 慢拍要占过半才算这一窗慢；置信下界压过这条线，才谈得上「大多数拍都超时」。
+// 慢拍占比的置信下界超过此值才算这一窗慢
 constexpr double kSlowTickMajority = 0.5;
 
 } // namespace
@@ -50,7 +50,6 @@ void Detector::BeginRun()
 {
     warmup_until_ = Clock::now() + std::chrono::milliseconds(config_.warmup_ms);
     has_prev_tick_ = false;
-    // 攒到一半的窗不跨线路续，中间隔着换图、结算这些空档；已经判过的整窗结论要留着。
     has_window_ = false;
     window_samples_ = 0;
     window_slow_ = 0;
@@ -74,7 +73,7 @@ void Detector::RecordStage(Stage stage, int64_t elapsed_ms)
 
 std::optional<Verdict> Detector::RecordTick(uint64_t tick_seq, int64_t tick_gap_ms)
 {
-    // 只收紧挨着上一拍的样本：中间跳过的拍是跳跃、攀爬、换层、丢定位，间隔里混着它们的耗时。
+    // 只收紧挨上一拍的样本, 跳过的拍间隔里混着跳跃、攀爬等耗时
     const bool consecutive = has_prev_tick_ && tick_seq == prev_tick_seq_ + 1;
     prev_tick_seq_ = tick_seq;
     has_prev_tick_ = true;
@@ -108,7 +107,7 @@ std::optional<Verdict> Detector::RecordTick(uint64_t tick_seq, int64_t tick_gap_
         ++slow_windows_;
     }
     else {
-        // 断了就从头数，采样也一起丢：提示里的中位数要正好是判定所依据的那段。
+        // 采样一起清掉, 让报告的中位数只来自判定所依据的那几窗
         slow_windows_ = 0;
         ClearHistory();
     }

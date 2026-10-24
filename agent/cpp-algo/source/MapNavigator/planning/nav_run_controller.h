@@ -29,9 +29,6 @@ enum class NavRunReplanReason
     ProgressRegression,
 };
 
-// Position fixes that actually moved, newest last. Travel rate is a property of the agent rather than of
-// any one plan, so this survives replans; only fixes past the localization quantum are kept so a held fix
-// cannot dilute the estimate, and the tick counter spans the held ones so the rate stays per tick.
 struct NavRunSpeedSample
 {
     std::chrono::steady_clock::time_point at {};
@@ -48,8 +45,7 @@ struct NavRunPlan
     NaviPosition anchor_pos {};
     navmesh::WorldPath path;
     std::vector<double> corridor_arc_prefix;
-    // `path` is the authored RUN line itself (corridor would only detour around water). Decided once
-    // per anchor span, reused across its soft replans, reset when the anchor changes.
+    // path 直接取手写 RUN 线, 未经 navmesh 规划
     bool literal = false;
     size_t cursor = 0;
     std::chrono::steady_clock::time_point planned_at {};
@@ -57,8 +53,7 @@ struct NavRunPlan
     int soft_replan_attempts = 0;
 };
 
-// A bend sharp enough to hold the aim at: corridor distance from the projection to its vertex, the turn accumulated
-// from the current leg, and how far before the vertex the aim may start leading into it.
+// distance 是投影点沿走廊到拐点的距离, turn_deg 相对当前所在那段累计
 struct SharpCorner
 {
     double distance = 0.0;
@@ -72,34 +67,25 @@ struct NavRunTickResult
     bool has_corridor_heading = false;
     double corridor_heading = 0.0;
     navmesh::WorldPoint lookahead_point {};
-    // Foot of the perpendicular on the corridor. With lookahead_point it gives the corridor direction,
-    // which is what turns the unsigned cross_track below into a side.
+    // 走廊上的垂足, cross_track 不带符号, 靠它和 lookahead_point 判左右
     navmesh::WorldPoint projection_point {};
     double cross_track = std::numeric_limits<double>::infinity();
     double remaining_to_anchor = std::numeric_limits<double>::infinity();
-    // Straight-line agent->anchor distance, available whenever a RUN anchor exists — including the ticks
-    // where the corridor is not. Finite for the whole life of an anchor, so a no-progress clock fed with
-    // it never mixes two yardsticks; remaining_to_anchor is corridor arc length and must not be mixed in.
+    // 有锚点就有值, 走廊不可用时也算, 不能和走廊弧长 remaining_to_anchor 混用
     double straight_to_anchor = std::numeric_limits<double>::infinity();
     double upcoming_turn_deg = 0.0;
-    // The first such bend within kCornerBrakeScanM, if any.
     std::optional<SharpCorner> corner;
-    // Corridor distance the agent covers per tick, once enough fixes have been seen to estimate it.
     std::optional<double> step_per_tick;
     NavRunReplanReason replanned_with = NavRunReplanReason::None;
-    // Upcoming continuous-RUN session waypoints the corridor has carried the agent past this
-    // tick. The state machine consumes these so the serial waypoint index keeps pace with
-    // corridor progress even when the agent is far off the original waypoint line.
     size_t passed_run_waypoints = 0;
-    // Time this tick spent in synchronous planning, with the forward key released. The caller moves its
-    // no-progress clocks past it.
+    // 本拍同步规划耗时, 调用方要把无进展计时顺延这么久
     std::chrono::steady_clock::duration planning {};
 };
 
 class NavRunController
 {
 public:
-    // `halt` is called right before a synchronous plan, to release the forward key while the tick blocks.
+    // halt 在同步规划前调用, 用来松开前进键
     NavRunTickResult tick(
         NavigationSession* session,
         NavigationRuntimeState* runtime,

@@ -21,7 +21,7 @@ namespace mapnavigator
 namespace
 {
 
-// 设置项把三态写进这个节点的 attach。节点只用来存值,不会被执行,也不在任何 next 里。
+// 三态存在这个节点的 attach 里, 节点只存值不执行
 constexpr const char* kPreferenceNode = "MapNavigatorZiplinePreference";
 constexpr const char* kAccountIdentityNode = "CurrentAccountIdentity";
 constexpr size_t kAccountIdLength = 16;
@@ -61,7 +61,7 @@ bool ReadPreference(MaaContext* context, bool requested)
     if (value == "never") {
         return false;
     }
-    // "auto" 与任何认不出的值都按跟随任务处理:一个读不懂的字符串不该改变寻路结果。
+    // "auto" 和认不出的值都跟随请求
     return requested;
 }
 
@@ -100,9 +100,6 @@ std::string ReadAccountIdentity(MaaContext* context)
     return account_id;
 }
 
-// 旧版本落盘的坐标不带账号字段，规划按账号筛选会把它们全部跳过。这里在寻路入口把它们认领给
-// 当前账号：升级后用户什么都没动，旧坐标仍能用。认领只在当前账号还没有任何记录时发生，
-// 详细理由见 ZiplineStore::claimLegacyRecords。
 size_t ClaimLegacyRecords(const std::string& account_id)
 {
     const std::filesystem::path path = zipline::ZiplineStore::DefaultPath();
@@ -121,7 +118,6 @@ void NoticeClaimedLegacyRecords(MaaContext* context, size_t claimed)
         return;
     }
 
-    // 认领只发生一次，不必加闩：之后同一台机器上不会再有无账号的记录可认领。
     LogInfo << "ZiplineAccount: claimed legacy zipline records for the current account" << VAR(claimed);
     common::notice::Publish(context, common::notice::Text("zipline.legacy_claimed", { static_cast<int64_t>(claimed) }));
 }
@@ -130,7 +126,6 @@ void NoticeClaimedLegacyRecords(MaaContext* context, size_t claimed)
 
 bool ResolveZiplineEnabled(MaaContext* context, bool requested)
 {
-    // 每次请求都从干净的账开始:上一次寻路留下的结论不该算到这一次头上。
     ResetZiplineOutcome();
     return ReadPreference(context, requested);
 }
@@ -150,7 +145,6 @@ std::string ResolveZiplineAccountId(MaaContext* context)
 
 void NoticeZiplineOutcome(MaaContext* context)
 {
-    // 这些闩故意跨请求存活:同一句话在一次运行里说一遍就够了,按请求重置等于每条腿都弹。
     static std::atomic_bool told_no_data { false };
     static std::atomic_bool told_not_chosen { false };
     static std::atomic_bool told_account_unknown { false };
@@ -174,10 +168,9 @@ void NoticeZiplineOutcome(MaaContext* context)
         }
         return;
     }
-    // 身份恢复后允许下一次真正丢失身份时再次提示；不必等到滑索实际被采用。
     told_account_unknown.store(false);
 
-    // 两种都撞上时先说没数据:只有它需要用户动手。
+    // 两种都有时先说没数据, 只有它需要用户动手
     if (outcome.no_data) {
         if (!told_no_data.exchange(true)) {
             LogWarn << "Zipline requested but no zipline coordinates are available here; this route walks the whole way.";

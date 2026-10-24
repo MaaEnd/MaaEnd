@@ -18,19 +18,15 @@ class RoiTemplateScanner;
 struct NavigationSession;
 struct RouteTrackingState;
 
-// Result of one removal attempt. Everything except NotAttempted has run the subtask and spent the attempt.
+// 除 NotAttempted 外都已跑过子任务并用掉这次机会
 enum class DeviceRemovalOutcome
 {
-    NotAttempted,  // nothing interactable in front of the agent
-    NeedsFreshFix, // handled, but the fix is unusable, so the tick has to end here
-    Escaped,       // handled and the agent is out
-    StillPinned,   // handled and the agent is still stuck
+    NotAttempted,
+    NeedsFreshFix, // 已处理但定位不可用, 本拍须到此结束
+    Escaped,
+    StillPinned,
 };
 
-// Carries off a device parked in the way instead of jumping over it, which is the precise fix when a device is
-// the actual blocker. A background probe watches the interact button's ROI while a stall builds; a hit runs the
-// pipeline subtask that picks the device up and drops it behind the agent. Owns the probe only — the caller
-// owns the recovery ladder this sits at the bottom of.
 class ObstacleDeviceRecovery
 {
 public:
@@ -45,20 +41,16 @@ public:
     ObstacleDeviceRecovery(const ObstacleDeviceRecovery&) = delete;
     ObstacleDeviceRecovery& operator=(const ObstacleDeviceRecovery&) = delete;
 
-    // base_roi is the pipeline node's own ROI, so the JSON stays the single source of truth. Stays off when the
-    // interact-button template is missing: a probe that cannot recognize the button must never guess instead.
+    // base_roi 取自 pipeline 节点, 交互按钮模板缺失时探测不启动
     void Start(const cv::Rect& base_roi);
     void Stop();
 
-    // Capture-chokepoint side. Ignored unless the probe is both started and currently being fed.
+    // 只有已启动且正在喂帧时才生效
     void SubmitFrame(const cv::Mat& frame);
 
-    // Feeds the probe only while a stall is building and an attempt is still available, so a route that never
-    // stalls pays nothing.
     void UpdateFeeding(int64_t stalled_ms, bool attempt_available);
 
-    // Drops any latched observation. A hit only ever describes the frame it was seen in, so the caller clears
-    // it whenever the anchor being fought changes and the old observation stops describing the way ahead.
+    // 锚点变化时调用方须清掉旧的命中
     void ForgetObservation();
 
     DeviceRemovalOutcome TryRemove(const RouteTrackingState& route, const Waypoint& waypoint, bool attempt_available);

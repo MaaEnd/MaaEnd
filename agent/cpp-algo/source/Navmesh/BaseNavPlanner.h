@@ -20,9 +20,7 @@ struct BaseNavSnapResult
     double distance = 0.0;
 };
 
-// A disc placed at runtime where the agent stalled against an obstacle the mesh does not record.
-// Cleared from the walkable set like an authored no-go zone, yet never terminal: an endpoint inside it
-// still plans.
+// 运行期在卡住处放的禁行圆, 端点落在圆内仍照常规划
 struct BaseNavNoGoDisc
 {
     WorldPoint center;
@@ -35,22 +33,16 @@ struct BaseNavRouteRequest
     WorldPoint start;
     WorldPoint goal;
     std::vector<BaseNavNoGoDisc> no_go_discs;
-    // Dominant-floor height of the floor being navigated (from the locator/tier zone). Lets snap resolve
-    // onto the right floor of a multi-floor base. kBaseNavFloorYNone (default) keeps the floor-blind path.
-    // Shared fallback for both endpoints; the per-endpoint overrides below take precedence when set.
+    // 两端共用的楼层高, 下面的逐端值设置后优先
     float floor_y = kBaseNavFloorYNone;
-    // Per-endpoint floor override. When set (> kBaseNavFloorYValidMin) the start / goal snap uses its own
-    // floor instead of the shared `floor_y` — so a cross-tier route snaps the start onto the live tier's
-    // floor and the goal onto the declared target frame's floor. Unset -> falls back to `floor_y`.
+    // 逐端楼层高, 大于 kBaseNavFloorYValidMin 时覆盖 floor_y
     float start_floor_y = kBaseNavFloorYNone;
     float goal_floor_y = kBaseNavFloorYNone;
-    // Height of the overlapping deck the goal sits on. floor_y steers the snap; this steers which span the
-    // search must stop on. Unset -> the search keeps its full span set.
+    // 终点所在叠层面的高度, 决定搜索停在哪个 span, 未设置时不限
     float goal_deck_y = kBaseNavFloorYNone;
-    // Height of the deck the start stands on, set only when it is known exactly (just landed on a zipline
-    // tower). The start snaps onto the surface nearest that height instead of the nearest surface.
+    // 起点所在面的确切高度, 设置后起点吸附到最接近该高度的面
     float start_deck_y = kBaseNavFloorYNone;
-    // 为空表示这次不用升降索; 有值时列着这次导航里判定用不了的那些(底端 uid)。
+    // 为空表示不用升降索, 有值时列出用不了的升降索底端 uid
     std::optional<std::vector<uint32_t>> rope_off;
 };
 
@@ -59,7 +51,7 @@ enum class BaseNavRouteStatus
     Success,
     ZoneNotFound,
     Unreachable,
-    // An endpoint sits inside an authored virtual no-go zone. Terminal: no fallback may route around it.
+    // 端点在人工标注的禁行区内, 不许任何兜底绕行
     NoGo,
 };
 
@@ -69,7 +61,7 @@ struct BaseNavRouteResult
     std::string error;
     WorldPath path;
     double cost = 0.0;
-    // Planner-confirmed closest boundary pair when start and goal lie on separate cleaned-grid regions.
+    // 起终点分属不同连通区时, 两区边界上的最近点对
     std::optional<WorldPoint> gap_start;
     std::optional<WorldPoint> gap_goal;
     std::optional<double> gap_distance;
@@ -82,22 +74,12 @@ class BaseNavPlanner
 public:
     explicit BaseNavPlanner(const BaseNavPack& pack);
 
-    // `floor_y` re-ranks the snap onto the correct floor of a multi-floor base: surfaces within
-    // kBaseNavFloorBand of it are preferred, off-band ones are a graceful fallback (never gated to
-    // nullopt). kBaseNavFloorYNone (the default) keeps the legacy floor-blind behavior byte-for-byte.
     std::optional<BaseNavSnapResult>
         snap(uint16_t zone_id, const WorldPoint& point, double radius, float floor_y = kBaseNavFloorYNone) const;
 
-    // Point-containment test: true when `point` lies in any triangle of `zone_id`; pure containment,
-    // no adjacency, so it does not misjudge on overlapping/fragmented meshes.
     bool pointOnMesh(uint16_t zone_id, const WorldPoint& point) const;
 
-    // Height-continuity drivability of a straight route leg: the oracle the waypoint emitter uses to
-    // decide whether a collapsed straight leg stays on walkable mesh. `half_width` gives the leg a body:
-    // both flanks must hold up too, so a line a dimensionless point could thread is rejected on behalf of
-    // a character that has width. Zero keeps the bare centre-line test.
-    // `seed_height` 是 a 点所在面的高度。缺省时首个采样点无参照,叠层处取最低面,判据会顺着楼下那层
-    // 一路走通;给出后整段采样都锚在起点这层上。
+    // half_width 为 0 只验中线, seed_height 是 a 点所在面的高度, 缺省时叠层处取最低面
     bool isRouteSegmentDrivable(
         uint16_t zone_id,
         const WorldPoint& a,
@@ -105,13 +87,13 @@ public:
         double half_width = 0.0,
         std::optional<double> seed_height = std::nullopt) const;
 
-    // RecastNav 复用: pack 链接表里有没有 source→target 这条(且过了通行判据)。
+    // 仅含通过通行判据的链接
     bool hasLink(uint32_t source, uint32_t target) const;
 
     bool isSmallIslandTriangle(uint32_t triangle_index) const;
     std::optional<std::array<WorldPoint, 2>> closestEdgeBridgePoints(uint32_t lhs, uint32_t rhs) const;
 
-    // 返回 point±radius 覆盖的格内全部三角形(可能跨格重复,不影响结果)。
+    // 返回 point±radius 覆盖的各格内的三角, 可能重复
     std::vector<uint32_t> candidateTriangles(uint16_t zone_id, const WorldPoint& point, double radius) const;
     std::array<WorldPoint, 3> trianglePoints(uint32_t triangle_index) const;
     double triangleHeight(uint32_t triangle_index) const;
@@ -121,17 +103,13 @@ public:
 private:
     const BaseNavPack& pack_;
     std::vector<uint16_t> triangle_zones_;
-    // 链接表 97% 都落在三角自带的三个邻居槽上, 按槽存一比特; 剩下的跨分量桥接单独排一张
-    // (source<<32|target) 小表。整包 1500 万条链接原先展成 CSR 要 83 MB, 这样不到 10 MB。
+    // 落在三角邻居槽上的链接按槽存一位, 其余按 (source<<32|target) 升序存进 bridge_links_
     std::vector<uint8_t> neighbor_link_bits_;
     std::vector<uint64_t> bridge_links_;
     std::vector<uint32_t> natural_component_ids_;
     std::vector<uint32_t> natural_component_sizes_;
 
-    // 空间分箱索引:(zone_id, bin_x, bin_y) → 该格覆盖的三角形下标。使 snap/pointOnMesh 从全区线性
-    // 扫描降为 O(邻近候选);剔除条件不变,结果与线性扫描完全一致。对齐 Python basenav_lib 的 bins。
-    // 存法是每区一张按包围盒铺满的格偏移表(格内三角按下标升序), 格外即空格。整包不到 50 万格,
-    // 建表不用排序也不用哈希; 原来的哈希表光节点就要几十 MB。
+    // 每区一张铺满包围盒的格偏移表, 格内三角按下标升序, 包围盒外视为空格
     struct BinGrid
     {
         uint16_t zone_id = 0;
@@ -150,13 +128,9 @@ private:
     void buildSpatialIndex();
     bool isNaturalNeighbor(uint32_t lhs, uint32_t rhs) const;
     bool isTraversableLink(uint32_t lhs, uint32_t rhs) const;
-    // point 处的地面高度:取包含 point 的候选三角形中高度与 reference 最接近者(高度连续性,跨重叠缝
-    // 选回脚下路面而非墙体)。reference 为空时取最低高度;无三角形包含时返回 nullopt。out_triangle 回传
-    // 选中三角形供 segmentHeightWalkable 缓存复用。
+    // 取包含 point 的三角中高度最接近 reference 的, reference 为空时取最低
     std::optional<double>
         groundHeightNearIndexed(uint16_t zone_id, const WorldPoint& point, std::optional<double> reference, uint32_t& out_triangle) const;
-    // 直线路段可行性判据:沿 a→b 采样,要求每点在网格内、且相邻采样的地面高度跳变不超过
-    // kBridgeMaxHeightDelta。共面重叠缝全程平坦判可走,绕墙捷径因踩墙跳变判不可走。
     bool segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b, std::optional<double> seed_height = std::nullopt)
         const;
 };
