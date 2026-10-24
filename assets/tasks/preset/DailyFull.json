@@ -318,7 +318,7 @@
                         "AutoFightSkillOperator2": "Cycle",
                         "AutoFightSkillOperator3": "Cycle",
                         "AutoFightSkillOperator4": "Cycle",
-                        "TrialOfSwordmancyRecoverBeforeBattle": "Yes"
+                        "TrialOfSwordmancyRecoverBeforeBattle": "No"
                     }
                 },
                 {
