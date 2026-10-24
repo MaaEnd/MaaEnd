@@ -135,11 +135,8 @@ def format_types() -> str:
 
 
 def suggest_type(type_name: str) -> str:
-    """给出最可能的正确类型：大小写问题优先，其次按相似度，最后列出全部类型。"""
-    lowered = type_name.lower()
-    if lowered in BASE_TYPE_NAMES:
-        return f"改成 `{lowered}`（类型须全小写）"
-    close = difflib.get_close_matches(lowered, BASE_TYPE_NAMES, n=1, cutoff=0.6)
+    """按相似度给出最可能的正确类型，都不像时列出全部类型。入参须为小写类型名。"""
+    close = difflib.get_close_matches(type_name, BASE_TYPE_NAMES, n=1, cutoff=0.6)
     if close:
         return f"是否想写 `{close[0]}`？可用的类型：{format_types()}"
     return f"可用的类型：{format_types()}"
@@ -214,9 +211,10 @@ def judge(title: str, injected: dict | None, valid_groups: set[str]) -> list[Pro
 
     type_name = match.group("type")
     desc = match.group("desc").strip()
-    needs_lowercase = type_name != type_name.lower()
-    # 没有命中任何 commit_parsers 时，git-cliff 直接用类型名当分组名
-    unknown_type = group == type_name
+    lowered = type_name.lower()
+    # commit_parsers 是前缀正则（^feat、^fix...），`feature`、`featx` 这类野类型也会命中并拿到合法分组，
+    # 所以只能按类型名单判断，不能看分组是否合法
+    known_type = type_name in BASE_TYPE_NAMES or type_name in LEGACY_TYPES
 
     if not desc:
         problems.append(Problem(ERROR, "冒号后缺少描述", "例如 `fix: 修复启动崩溃`"))
@@ -224,31 +222,17 @@ def judge(title: str, injected: dict | None, valid_groups: set[str]) -> list[Pro
         problems.append(Problem(WARNING, "冒号后建议空一格", f"`{type_name}: {desc}`"))
     if type_name in LEGACY_TYPES:
         problems.append(Problem(WARNING, f"`{type_name}` 是旧写法，建议改用 `{LEGACY_TYPES[type_name]}`"))
-    if group is None:
+    if not known_type:
+        if lowered in BASE_TYPE_NAMES or lowered in LEGACY_TYPES:
+            problems.append(Problem(ERROR, f"类型须全小写，`{type_name}` 应写作 `{lowered}`", f"改成 `{lowered}` 即可"))
+        else:
+            problems.append(Problem(ERROR, f"类型 `{type_name}` 不在允许的类型列表里", suggest_type(lowered)))
+    elif group is None:
         problems.append(
             Problem(ERROR, "无法归入任何分组，合并后这条提交会从更新日志里消失", f"可用的类型：{format_types()}")
         )
     elif group not in valid_groups:
-        if unknown_type and needs_lowercase:
-            problems.append(
-                Problem(
-                    ERROR,
-                    f"类型须全小写：`{type_name}` 不是 `cliff.toml` 认可的类型，更新日志里会多出「{type_name}」这个独立分组",
-                    f"改成 `{type_name.lower()}` 即可",
-                )
-            )
-        elif unknown_type:
-            problems.append(
-                Problem(
-                    ERROR,
-                    f"类型 `{type_name}` 不是 `cliff.toml` 认可的类型，更新日志里会多出「{type_name}」这个独立分组",
-                    suggest_type(type_name),
-                )
-            )
-        else:
-            problems.append(Problem(ERROR, f"`{type_name}` 匹配到的分组「{display_group(group)}」不在 `cliff.toml` 里"))
-    if needs_lowercase and not unknown_type:
-        problems.append(Problem(ERROR, f"类型须全小写，`{type_name}` 应写作 `{type_name.lower()}`"))
+        problems.append(Problem(ERROR, f"`{type_name}` 匹配到的分组「{display_group(group)}」不在 `cliff.toml` 里"))
     if not conventional and desc and match is not None:
         problems.append(Problem(ERROR, "git-cliff 无法把这条标题解析为约定式提交", describe_format_issue(text)))
     if skip_marker:

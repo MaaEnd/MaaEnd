@@ -104,8 +104,17 @@ class FormatTest(unittest.TestCase):
                 self.assertEqual(levels(problems), [checker.ERROR])
                 self.assertIn(expected, problems[0].hint)
 
+    def test_unknown_type_is_error_even_with_a_real_group(self):
+        """cliff.toml 用前缀正则匹配，`feature`、`featx` 这类野类型也能拿到合法分组，不能靠分组判断类型是否合法。"""
+        group = "<!-- 0 -->✨ 新功能"
+        for title in ("feature: x", "featx: x", "fixture: 修 bug", "docsx: 文档", "chores: 杂项", "perfume: 优化"):
+            with self.subTest(title=title):
+                problems = checker.judge(title, injected(group), VALID_GROUPS)
+                self.assertEqual(levels(problems), [checker.ERROR])
+                self.assertIn("不在允许的类型列表里", problems[0].message)
+
     def test_uppercase_type_is_error(self):
-        for title in ("Fix: typo", "CI: 新增检查"):
+        for title in ("Fix: typo", "CI: 新增检查", "Rft: 重构"):
             with self.subTest(title=title):
                 type_name = title.split(":")[0]
                 problems = checker.judge(title, injected(type_name), VALID_GROUPS)
@@ -228,7 +237,7 @@ class GitCliffIntegrationTest(unittest.TestCase):
         self.assertEqual(text.count("### "), 2)
 
     def test_whole_judge_pipeline(self):
-        cases = {"feat: 新增": 0, "pref: 抢委托": 1, "去掉限制": 1, 'Revert "chore: x"': 0}
+        cases = {"feat: 新增": 0, "pref: 抢委托": 1, "feature: 新增": 1, "去掉限制": 1, 'Revert "chore: x"': 0}
         for title, expected in cases.items():
             with self.subTest(title=title):
                 problems = checker.judge(title, self.run_cliff(title), VALID_GROUPS)
