@@ -1,0 +1,9 @@
+{
+    // 云端武器页的 ENDFIELD 水印可能被误当菜单；同时检查既有等级文字。
+    "InMenuList": {
+        "all_of": [
+            "CheckMenuListText",
+            "CheckMenuListText2"
+        ]
+    }
+}
