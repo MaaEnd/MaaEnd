@@ -1,0 +1,285 @@
+{
+    "BatchAddFriendsAddStrangersLoop": {
+        "desc": "陌生人添加计数并驱动扫描；命中一次代表本次添加占用一个名额，上限由任务选项注入",
+        // 计数节点，max_hit 由 Go 的 BatchAddFriendsAction 按 MaxCount 注入。
+        // 只有「添加成功」会回到本节点，因此一次命中就代表加到了一个人。
+        // 挑到人就进 PickRow，挑不到就换一批。
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
+            "BatchAddFriendsStrangersPickRow",
+            "BatchAddFriendsChangeBatch"
+        ]
+    },
+    "BatchAddFriendsStrangersScan": {
+        "desc": "拒绝/换批后的再扫描调度：不经过计数节点，因此不消耗添加名额",
+        // 不计数的调度节点：被拒绝或换一批之后从这里重新开始扫描。
+        // 与 AddStrangersLoop 的唯一区别是它不在计数回路上，因此不消耗名额。
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
+            "BatchAddFriendsStrangersPickRow",
+            "BatchAddFriendsChangeBatch"
+        ]
+    },
+    "BatchAddFriendsStrangersOnAdd": {
+        "desc": "陌生人添加进度",
+        // Go 侧记录进度（BatchAddFriendsStrangersOnAddAction）后回到计数节点，形成添加回路。
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsStrangersOnAddAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchAddFriendsAddStrangersLoop",
+            "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsStrangersAddButtonColumn": {
+        "desc": "陌生人列表按钮列：命中项即「可添加」的行，order_by 保证取最上面那行",
+        // 已申请过的行按钮会变成「等待接受」，不匹配 expected，天然被排除。
+        // 本节点只负责定位行，不点击；点击点由 PickRow 识别器换算成头像坐标。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                // 高度覆盖到最底一行：收窄 ROI 会漏掉第 5 个人。
+                "roi": [
+                    1145,
+                    145,
+                    135,
+                    470
+                ],
+                "expected": [
+                    // 已核对游戏内文本
+                    "添加好友",
+                    "新增好友",
+                    "(?i)Add\\s*Friend",
+                    "フレンド追加",
+                    "친구\\s*추가"
+                ],
+                "order_by": "Vertical"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "BatchAddFriendsStrangersPickRow": {
+        "desc": "挑选最上面一个「未被拒绝」的可添加行，点击其头像展开菜单",
+        // 识别器内部会：跑按钮列 OCR → 跳过黑名单里的行 → 返回该行头像的点击框。
+        // 黑名单按「按钮框 y」记录（列表不滚动，位置稳定），换一批时清空。
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "BatchAddFriendsStrangersPickRowRecognition"
+            }
+        },
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchAddFriendsStrangersMenuViewProfile"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersRecordReject"
+        ]
+    },
+    "BatchAddFriendsStrangersResetMenuProbe": {
+        "desc": "开局清理：判断列表页是否残留二级菜单",
+        // 任务开始时列表可能残留上一次留下的头像菜单。此时点头像只会关闭菜单，
+        // 后续点击与识别全部错位。这里只做一次判断，不点击。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    2,
+                    50,
+                    434,
+                    639
+                ],
+                "expected": [
+                    // 已核对游戏内文本
+                    "查看个人名片",
+                    "查看個人名片",
+                    "(?i)View\\s*Profile",
+                    "個人情報",
+                    "개인\\s*명함\\s*보기"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchAddFriendsStrangersResetMenuOpen"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersStart"
+        ]
+    },
+    "BatchAddFriendsStrangersResetMenuOpen": {
+        "desc": "点残留菜单里的「查看个人名片」，进入名片页",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    2,
+                    50,
+                    434,
+                    639
+                ],
+                "expected": [
+                    "查看个人名片",
+                    "查看個人名片",
+                    "(?i)View\\s*Profile",
+                    "個人情報",
+                    "개인\\s*명함\\s*보기"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                93,
+                262,
+                486,
+                430
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
+            "BatchAddFriendsStrangersResetMenuClose"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersScan"
+        ]
+    },
+    "BatchAddFriendsStrangersResetMenuClose": {
+        "desc": "清理残留菜单时打开的名片：直接关掉，不做任何判定",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddFriendsStrangersProfilePage",
+                    "BatchAddFriendsStrangersProfileCloseButton"
+                ],
+                "box_index": 1
+            }
+        },
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
+            "BatchAddFriendsStrangersStart"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersScan"
+        ]
+    },
+    "BatchAddFriendsStrangersRecordReject": {
+        "desc": "把刚才这一行记入拒绝黑名单",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsStrangersRecordRejectAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchAddFriendsStrangersScan"
+        ]
+    },
+    "BatchAddFriendsChangeBatch": {
+        "desc": "屏幕上没有可添加的人时，点「换一批」刷新列表",
+        // 换一批而不是滚动列表：滚动容易在列表底缘点到裁切区域而卡死，
+        // 换批也更接近正常操作。
+        // ROI 放宽到整条底部栏：不同窗口尺寸下该按钮的横向位置会有几十像素浮动。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    640,
+                    270,
+                    60
+                ],
+                "expected": [
+                    // 已核对游戏内文本
+                    "换一批",
+                    "換一批",
+                    "(?i)Refresh\\s*List",
+                    "リスト更新",
+                    "친구\\s*추천"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 800,
+        "next": [
+            "BatchAddFriendsStrangersClearRejects"
+        ]
+    },
+    "BatchAddFriendsStrangersClearRejects": {
+        "desc": "换一批之后清空拒绝黑名单",
+        // 黑名单按「按钮框 y」记录，换一批后行位置全部改变，旧记录必须作废，
+        // 否则会误跳过刷新后出现在同一位置的新玩家。
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsStrangersClearRejectsAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
+            "BatchAddFriendsStrangersScan"
+        ]
+    }
+}
