@@ -1,19 +1,9 @@
 {
     "YellowButtonBackground": {
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "lower": [
-                    28,
-                    100,
-                    100
-                ],
-                "upper": [
-                    31,
-                    255,
-                    255
-                ]
-            }
-        }
+        "upper": [
+            31,
+            255,
+            255
+        ]
     }
 }

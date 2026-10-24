@@ -1,6 +1,5 @@
 {
     "InMenuList": {
-        "recognition": "And",
         "all_of": [
             "CheckMenuListText",
             "CheckMenuListText2",
