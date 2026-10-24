@@ -25,13 +25,14 @@ uv run zmdmap generate --only region3d \
   只认新包导出（嵌套 GameObject 的 JSON）：旧 RAW 导出（`$tree` / `$objects`）不再支持，遇到会报错，重新解包即可。
 
 新地区不需维护清单；跟随当版表、Lua 和资源引用发现。缺失、重名或不支持的结构会报错。
-`generate(provider, discover_registry(provider))` 直接返回上述简单字典。
+`Region3d.build` 的顺序是：`discover_registry(provider)` 发现地区 → 核对资源齐不齐 →
+`generate(provider, registry, GenerationOptions())` 返回上述字典；哪一步出错都折成数据集错误，不返回半份。
 
 目录里的分工：`__init__.py` 是数据集入口（`Region3d.build`），`provider.py` 负责读当版输入，
-`discovery.py` 发现地区清单，`lua.py` 从 Lua 源码里读字面量，`layout.py` / `geometry.py` /
-`projection.py` 算变换与投影，`screen.py` 裁剪并选点击点，`unity.py` 解析 prefab / 动画 JSON，
-`binary_rules.py` 是固定运行规则，`options.py` 是生成设置，`errors.py` 是三种错误类型（读输入 /
-看结构 / 算结果）。
+`discovery.py` 发现地区清单（`registry.py` 存发现出来的地区与它们的资源引用），`generator.py` 逐地区
+算像素，`lua.py` 从 Lua 源码里读字面量，`layout.py` / `geometry.py` / `projection.py` 算变换与投影，
+`screen.py` 裁剪并选点击点，`unity.py` 解析 prefab / 动画 JSON，`binary_rules.py` 是固定运行规则，
+`options.py` 是生成设置，`errors.py` 是三种错误类型（读输入 / 看结构 / 算结果）。
 
 客户端的固定数值与运行公式集中在 `binary_rules.py`：标准分辨率与缩放系数、画布缩放、面板初始化、
 样式状态筛选。输出尺寸、面板状态和点击安全距离在 `options.py`，属于生成器设置而不是客户端规则。

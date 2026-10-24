@@ -3,9 +3,10 @@
 **路径**：输入默认取与 MaaEnd 仓库**平级**的兄弟仓库，可用 CLI 参数或环境变量覆盖。三档优先级由 click
 的 ``envvar`` 与 ``default`` 保证：命令行 > 环境变量 > 默认。``--workspace`` 是放兄弟仓库的那个目录，既
 决定同步哪些仓库，也决定输入目录的默认位置；显式给了 ``--table-cfg-dir`` / ``--json-data-dir``（或对应
-环境变量）时以显式值为准。除 TableCfg / JsonData 外，``region3d`` 数据集还要两样解包输入：Lua 脚本
-（``BeyondLua/LuaScripts``）与 Unity 资源根（``BeyondImage/assets``），同样可用 ``--lua-dir`` /
-``--assets-dir`` 或环境变量覆盖；只生成别的数据集时不必提供它们。产物落在 zmdmap 自己的数据树里：生成或
+环境变量）时以显式值为准。每份数据集读哪些目录由它 ``build`` 的参数决定：全都读 TableCfg，读关卡数据的
+那几份还要 JsonData，``region3d`` 还要两样解包输入——Lua 脚本（``BeyondLua/LuaScripts``）与 Unity 资源根
+（``BeyondImage/assets``），同样可用 ``--lua-dir`` / ``--assets-dir`` 或环境变量覆盖。产物落在 zmdmap
+自己的数据树里：生成或
 下载出来的**原始形态**（只带世界坐标）先进不入库的 ``tools/zmdmap/data/raw/``，再由入库步骤进入库的
 ``tools/zmdmap/data/``——带坐标的由 :mod:`tools.zmdmap.utils.project` 按 BaseNav 的 zone 表换成底图像素。
 

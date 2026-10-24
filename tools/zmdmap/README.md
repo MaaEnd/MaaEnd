@@ -11,7 +11,7 @@ MaaEnd 的几个任务要读游戏里的物品名、商店货架、采集点、�
 上游发布好的数据 ──────fetch───────┘
 ```
 
-- `uv run zmdmap generate`：从本地的游戏数据生成（需要 TableCfg / JsonData 两个目录；只有 `region3d` 数据集还要 Lua 脚本与解包资源）。
+- `uv run zmdmap generate`：从本地的游戏数据生成（每份数据都读 TableCfg；`collect_points` / `delivery_destinations` / `teleport_anchors` 还要 JsonData，`region3d` 还要 Lua 脚本与解包资源）。
 - `uv run zmdmap fetch`：从上游下载已经发布好的数据（数据 CI 用 `generate` 生成并发布的就是它）。
 
 `python -m tools.zmdmap` 和 `uv run zmdmap` 等价。
@@ -37,10 +37,12 @@ MaaEnd 的几个任务要读游戏里的物品名、商店货架、采集点、�
 
 ## 一次 `generate` 到底做了什么
 
-1. **确认输入。** TableCfg（表格）和 JsonData（关卡地图、交互模板）默认取 MaaEnd 旁边同级的兄弟仓库
-   `BeyondTableCfg` / `BeyondMemoryPack`，也可以用 `--table-cfg-dir` / `--json-data-dir` 指到别处。
-   `region3d` 数据集还要解包出的 Lua 脚本与 Unity 资源，默认取 `BeyondLua/LuaScripts` /
-   `BeyondImage/assets`，同样可以用 `--lua-dir` / `--assets-dir` 指到别处；只生成别的数据集时不需要它们。
+1. **确认输入。** TableCfg（表格）默认取 MaaEnd 旁边同级的兄弟仓库 `BeyondTableCfg`，也可以用
+   `--table-cfg-dir` 指到别处；要读关卡地图与交互模板的那三份（`collect_points` /
+   `delivery_destinations` / `teleport_anchors`）还要 JsonData，默认取 `BeyondMemoryPack/JsonData`，
+   用 `--json-data-dir` 覆盖。`region3d` 还要解包出的 Lua 脚本与 Unity 资源，默认取
+   `BeyondLua/LuaScripts` / `BeyondImage/assets`，用 `--lua-dir` / `--assets-dir` 覆盖。
+   用不到的输入既不检查也不索要：缺什么、怎么补，都由这次选中的数据集声明决定。
 2. **定版本。** 每份数据最前面写的 `version` 必须是完整的「客户端版本 + 数据构建号」，比如
    `1.6.4+11262943-8`；凑不齐就直接报错，不生成版本不全的数据。发布端从版本接口拿到这两个号，用 `--version`
    显式传进来；本地不给 `--version` 时，客户端版本看兄弟仓库的提交标题（`Client:` 那段），构建号优先看

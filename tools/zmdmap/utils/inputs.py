@@ -2,7 +2,7 @@
 
 数据集不拼文件系统路径，也不自己读 JSON：要表就从 :class:`TableCfg` 取，要关卡/交互数据从
 :class:`JsonData` 取，要 Lua 或解包资源从 :class:`LuaScripts` / :class:`Assets` 取。默认实现直接读本地
-解包目录（路径由命令行给出），测试可以换成同接口的假对象，不碰磁盘。
+解包目录（路径由命令行给出）；要换来源就给个同接口的对象，不必自己碰磁盘。
 
 ``Dataset.build`` 在参数上声明自己要哪几份（``table_cfg: TableCfg`` 之类），``generate`` 按签名注入；
 规则见 :mod:`tools.zmdmap.utils.injection`，没声明的服务不会传进来。

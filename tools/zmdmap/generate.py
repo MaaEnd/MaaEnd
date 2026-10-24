@@ -1,4 +1,7 @@
-"""``zmdmap generate``：从本地 TableCfg / JsonData 生成精简数据，再入库。
+"""``zmdmap generate``：从本地游戏数据生成精简数据，再入库。
+
+每份数据集读哪些目录（TableCfg / JsonData / LuaScripts / 解包资源）由它 ``build`` 的参数决定，
+用不到的不检查也不索要。
 
 各份数据一律先出原始形态（只带游戏世界坐标）进 ``--out-dir``，再入库到 ``--data-dir``：需要投影的按
 BaseNav 的 zone 表补上底图像素，不需要投影的原样复制；``--raw-only`` 时只出原始形态。
