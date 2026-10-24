@@ -18,11 +18,11 @@ namespace cloud
 {
 namespace
 {
+#ifdef _WIN32
 using BridgeMessage = std::function<bool(uint32_t, intptr_t, intptr_t)>;
 
 BridgeMessage GetBridge(MaaController* controller)
 {
-#ifdef _WIN32
     ScopedStringBuffer buffer;
     if (!controller || !buffer.Get() || !MaaControllerGetInfo(controller, buffer.Get())) {
         return {};
@@ -57,11 +57,8 @@ BridgeMessage GetBridge(MaaController* controller)
                    &result)
                && result == 1;
     };
-#else
-    (void)controller;
-    return {};
-#endif
 }
+#endif
 
 bool Int32(const json::value& value, int32_t& output)
 {
