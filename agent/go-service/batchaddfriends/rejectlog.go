@@ -57,6 +57,7 @@ type RejectLogRecognition struct{}
 var _ maa.CustomRecognitionRunner = &RejectLogRecognition{}
 
 // Run implements maa.CustomRecognitionRunner.
+// 输出本次判定不达标的原因，以及名片上实际读到的数值。
 func (r *RejectLogRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if ctx == nil || arg == nil || arg.Img == nil {
 		return nil, false

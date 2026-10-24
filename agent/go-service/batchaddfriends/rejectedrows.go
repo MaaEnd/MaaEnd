@@ -14,8 +14,8 @@ import (
 // 本文件维护「已拒绝行」的黑名单，并据此挑选下一个可添加的行。
 //
 // 黑名单的用途：名片页判定不达标时，该行按钮仍然是「添加好友」，下一轮扫描还会
-// 挑到同一个人，导致反复打开同一张名片。列表不滚动，行的纵向位置在两次「换一批」
-// 之间保持不变，因此用「按钮框的 y 坐标」作为行的标识，换一批时清空。
+// 挑到同一个人，导致反复打开同一张名片。同一批列表里行的先后顺序稳定，因此用
+// 「本批内从上往下的序号」标识行，换一批时清空。
 const (
 	componentPickRow      = "BatchAddFriendsStrangersPickRowRecognition"
 	componentRecordReject = "BatchAddFriendsStrangersRecordRejectAction"
@@ -37,19 +37,18 @@ const (
 	// 框越大落点越漂；1×1 等价于精确点。
 	pickRowAvatarSize = 1
 
-	// 行身份用「本批列表内从上往下的序号」，不用像素坐标。
-	// 同一批列表里行序稳定，而按钮框 y 会随渲染与测量轻微抖动，
-	// 用 y 加容差匹配会在容差边缘把邻居行误判成同一行，导致挑行顺序错乱。
-
 	// 连续空批上限。
 	// 「换一批」回路不经过任何计数节点，推荐列表翻到底后会一直空转，
 	// 连续这么多次换批都没挑到人就直接结束。
 	maxConsecutiveEmptyBatches = 3
 )
 
+// rejectedRows 是「本批已拒绝的行」，行身份用从上往下的序号而不是像素坐标：
+// 同一批列表里行序稳定，而按钮框 y 会随渲染与测量轻微抖动，
+// 用 y 加容差匹配会在容差边缘把邻居行误判成同一行，导致挑行顺序错乱。
 var rejectedRows = struct {
 	mu      sync.Mutex
-	indexes []int // 已拒绝行的序号（本批列表按 y 从上到下）
+	indexes []int // 已拒绝行的序号
 	last    int   // 最近一次挑中的行序号
 	hasLast bool  // last 是否有效，序号 0 也是合法行
 }{}
@@ -65,6 +64,7 @@ type PickStrangerRowRecognition struct{}
 var _ maa.CustomRecognitionRunner = &PickStrangerRowRecognition{}
 
 // Run implements maa.CustomRecognitionRunner.
+// 按从上往下的顺序找第一个未被拒绝的行，返回该行头像的点击框。
 func (r *PickStrangerRowRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if ctx == nil || arg == nil || arg.Img == nil {
 		return nil, false
@@ -113,6 +113,7 @@ type RecordRejectAction struct{}
 var _ maa.CustomActionRunner = &RecordRejectAction{}
 
 // Run implements maa.CustomActionRunner.
+// 把最近一次挑中的行记入黑名单，并累加尝试次数。
 func (a *RecordRejectAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	rejectedRows.mu.Lock()
 	defer rejectedRows.mu.Unlock()
@@ -135,12 +136,13 @@ func (a *RecordRejectAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 	return true
 }
 
-// ClearRejectsAction 清空黑名单（换一批后行位置全部改变，旧记录作废）。
+// ClearRejectsAction 清空黑名单：换一批后列表内容全部更换，旧序号作废。
 type ClearRejectsAction struct{}
 
 var _ maa.CustomActionRunner = &ClearRejectsAction{}
 
 // Run implements maa.CustomActionRunner.
+// 清空黑名单；连续空批达到上限时结束陌生人模式。
 func (a *ClearRejectsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	rejectedRows.mu.Lock()
 	defer rejectedRows.mu.Unlock()

@@ -234,6 +234,7 @@ func readAttach(ctx *maa.Context) (current string, total int) {
 	return w.Attach.Current, w.Attach.Total
 }
 
+// BatchAddFriendsStrangersOnAddAction 记一次陌生人添加成功，输出进度，并检查尝试次数上限。
 func (a *BatchAddFriendsStrangersOnAddAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	state.strangersProcessed++
 	state.strangersAttempts++
@@ -263,6 +264,7 @@ func endIfAttemptsExceeded(ctx *maa.Context, node string) {
 	})
 }
 
+// BatchAddFriendsStrangersFinishAction 输出陌生人模式结束日志，并重置任务状态。
 func (a *BatchAddFriendsStrangersFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Int("maxCount", state.strangersMaxCount).Msg("[BatchAddFriends]陌生人模式结束")
 	if state.mode == "strangers" {
@@ -271,6 +273,7 @@ func (a *BatchAddFriendsStrangersFinishAction) Run(ctx *maa.Context, arg *maa.Cu
 	return true
 }
 
+// BatchAddFriendsFriendListFullAction 好友列表已满时的收尾：提示后按当前模式结束任务。
 func (a *BatchAddFriendsFriendListFullAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Warn().Msg("[BatchAddFriends]好友列表已满，提前结束")
 	maafocus.Print(ctx, i18n.T("batchaddfriends.friend_list_full"))

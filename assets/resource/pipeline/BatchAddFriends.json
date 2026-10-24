@@ -772,8 +772,8 @@
         ]
     },
     "BatchAddFriendsStrangersProfileFallbackClose": {
-        "desc": "名片已打开但「权限等级」图标没认出来时的兜底：确认在名片页后关掉",
-        // ProfileReady 失败可能只是图标没匹配上，名片其实已经打开了。
+        "desc": "名片已打开但识别目标失败的兜底：确认在名片页后关掉",
+        // ProfileReady 或读取节点的前置识别失败，可能只是图标没匹配上，名片其实已经打开了。
         // 这时直接回 Scan 会把名片留在屏幕上，后续点击全部错位。
         // 用「申请好友」按钮作为第二个名片页锚点（列表页没有这个按钮），
         // 关掉后再记一次拒绝，避免下一轮又挑到同一行。
@@ -826,11 +826,12 @@
         "post_delay": 0,
         "next": [
             "BatchAddFriendsStrangersProfileValleyIVIcon",
-            "BatchAddFriendsStrangersProfileValleyIVLevel",
             "BatchAddFriendsStrangersProfileWulingIcon",
-            "BatchAddFriendsStrangersProfileWulingLevel",
             "BatchAddFriendsStrangersProfileAuthorityGate",
             "BatchAddFriendsStrangersProfileRejectLogAuthority"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersProfileFallbackClose"
         ]
     },
     "BatchAddFriendsStrangersProfileValleyIVIcon": {
