@@ -1,0 +1,314 @@
+{
+    "TrialOfSwordmancyTrialTrigger": {
+        "roi": [
+            720,
+            370,
+            60,
+            60
+        ]
+    },
+    "TrialOfSwordmancyChallengeBackground": {
+        "roi": [
+            340,
+            160,
+            600,
+            90
+        ]
+    },
+    "TrialOfSwordmancyFightFinishButton": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1"
+                ]
+            }
+        }
+    },
+    "TrialOfSwordmancyViewPositionButton": {
+        "roi_offset": [
+            961,
+            108,
+            -21,
+            -19
+        ],
+        // 触屏 Click 前识别普通态；显式覆盖，避免继承桌面的反色 Hover 模板。
+        "template": "SceneManager/RegionalOverview/ViewPositionButton.png"
+    },
+    "TrialOfSwordmancyDrawCardButton": {
+        // 入场时骰子图标会旋转，识别完整按钮文字；文字框也用于既有点击流程定位。
+        "recognition": "OCR",
+        "roi": [
+            1120,
+            480,
+            120,
+            45
+        ],
+        "expected": [
+            "抽取铭牌"
+        ]
+    },
+    "TrialOfSwordmancyInRewardMode": {
+        "roi": [
+            170,
+            480,
+            100,
+            60
+        ]
+    },
+    "TrialOfSwordmancyRemainCalcText": {
+        "roi": [
+            520,
+            60,
+            260,
+            34
+        ]
+    },
+    "TrialOfSwordmancyRemainDoubleText": {
+        "roi": [
+            520,
+            598,
+            130,
+            40
+        ]
+    },
+    "TrialOfSwordmancyDoubleRewardButton": {
+        "recognition": "ColorMatch",
+        "roi": [
+            795,
+            606,
+            56,
+            24
+        ],
+        "lower": [
+            225,
+            225,
+            225
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 700
+    },
+    "TrialOfSwordmancyIsDoubled": {
+        // 每次抽牌后都会重读本局状态；第三张牌后开关锁定变灰，但已开启的翻倍仍有效。
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    // 左侧亮白滑块：正常开启。
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": [
+                            740,
+                            606,
+                            56,
+                            24
+                        ],
+                        "lower": [
+                            225,
+                            225,
+                            225
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            255
+                        ],
+                        "count": 700
+                    },
+                    // 左侧灰色滑块：锁定后仍开启；同时确认演算界面，排除弹窗等画面。
+                    {
+                        "recognition": "And",
+                        "all_of": [
+                            "TrialOfSwordmancyInTrialMenu",
+                            {
+                                "recognition": "ColorMatch",
+                                "roi": [
+                                    740,
+                                    606,
+                                    56,
+                                    24
+                                ],
+                                "method": 6,
+                                "lower": [110],
+                                "upper": [210],
+                                "count": 700
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "TrialOfSwordmancyAbandonButton": {
+        "roi": [
+            40,
+            590,
+            80,
+            60
+        ]
+    },
+    "TrialOfSwordmancyStartTrialButton": {
+        "roi": [
+            900,
+            590,
+            45,
+            58
+        ]
+    },
+    "TrialOfSwordmancyAbandonPopupText": {
+        "roi": [
+            200,
+            325,
+            880,
+            58
+        ]
+    },
+    "TrialOfSwordmancyAbandonPopupExhausted": {
+        "roi": [
+            240,
+            335,
+            630,
+            35
+        ]
+    },
+    "TrialOfSwordmancyBattlePts0": {
+        "roi": [
+            137,
+            445,
+            101,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts1": {
+        "roi": [
+            215,
+            445,
+            106,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts2": {
+        "roi": [
+            296,
+            445,
+            103,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts3": {
+        "roi": [
+            374,
+            445,
+            102,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts4": {
+        "roi": [
+            452,
+            445,
+            107,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts5": {
+        "roi": [
+            533,
+            445,
+            103,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts6": {
+        "roi": [
+            611,
+            445,
+            100,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts7": {
+        "roi": [
+            689,
+            445,
+            100,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts8": {
+        "roi": [
+            767,
+            445,
+            102,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts9": {
+        "roi": [
+            847,
+            445,
+            105,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts10": {
+        "roi": [
+            926,
+            445,
+            105,
+            60
+        ]
+    },
+    "TrialOfSwordmancyDeck": {
+        "roi": [
+            1195,
+            140,
+            60,
+            290
+        ]
+    },
+    "TrialOfSwordmancyDeckCount1": {
+        "roi": [
+            1200,
+            144,
+            44,
+            40
+        ]
+    },
+    "TrialOfSwordmancyDeckCount2": {
+        "roi": [
+            1200,
+            205,
+            44,
+            40
+        ]
+    },
+    "TrialOfSwordmancyDeckCount3": {
+        "roi": [
+            1200,
+            267,
+            44,
+            40
+        ]
+    },
+    "TrialOfSwordmancyDeckCount4": {
+        "roi": [
+            1200,
+            329,
+            44,
+            40
+        ]
+    },
+    "TrialOfSwordmancyDeckCount5": {
+        "roi": [
+            1200,
+            390,
+            44,
+            40
+        ]
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "configs": {
+        "name": "(CloudADB-官服)选剑演武，奖励模式白零和黑零",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "name": "零战力点白色零值",
+            "image": "武陵_选剑演武_演算_奖励模式_未抽取铭牌.png",
+            "hits": [
+                "TrialOfSwordmancyInRewardMode"
+            ]
+        },
+        {
+            "name": "非零战力点黑色零值",
+            "image": "武陵_选剑演武_演算_奖励翻倍_关.png",
+            "hits": [
+                "TrialOfSwordmancyInRewardMode"
+            ]
+        },
+        {
+            "name": "自由演算不属于奖励模式",
+            "image": "武陵_选剑演武_演算_自由模式_未抽取铭牌.png",
+            "hits": []
+        }
+    ]
+}

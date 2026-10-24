@@ -1,0 +1,47 @@
+{
+    "configs": {
+        "name": "(CloudADB-官服)选剑演武，翻倍开启及锁定状态",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "name": "翻倍关闭时可以开启",
+            "image": "武陵_选剑演武_演算_奖励翻倍_关.png",
+            "hits": [
+                "TrialOfSwordmancyDoubleRewardButton"
+            ]
+        },
+        {
+            "name": "翻倍正常开启",
+            "image": "武陵_选剑演武_演算_奖励翻倍_开.png",
+            "hits": [
+                "TrialOfSwordmancyIsDoubled"
+            ]
+        },
+        {
+            "name": "第三张牌后锁定仍为开启",
+            "image": "武陵_选剑演武_演算_奖励翻倍_锁定开启.png",
+            "hits": [
+                "TrialOfSwordmancyIsDoubled"
+            ]
+        },
+        {
+            "name": "锁定关闭不能误报为开启",
+            "image": "武陵_选剑演武_演算_奖励翻倍_锁定关闭.png",
+            "hits": []
+        },
+        {
+            "name": "溢出横幅遮住文字后仍能识别锁定开启",
+            "image": "武陵_选剑演武_演算_奖励翻倍_溢出锁定开启.png",
+            "hits": [
+                "TrialOfSwordmancyIsDoubled"
+            ]
+        },
+        {
+            "name": "弹窗遮挡时不能误认翻倍状态",
+            "image": "武陵_选剑演武_演算_放弃确认_放弃次数耗尽_翻倍锁定关闭.png",
+            "hits": []
+        }
+    ]
+}
