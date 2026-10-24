@@ -216,6 +216,7 @@
         "tasks/GearAssembly.json",
         "tasks/Weapon.json",
         "tasks/BatchUseDetector.json",
+        "tasks/SanityExtractor.json",
         "tasks/EssenceFilter.json",
         "tasks/DecomposeWeaponEssence.json",
         // group: open_world
