@@ -1,0 +1,14 @@
+{
+    "CreditShoppingApplyPriorityItems": {
+        "desc": "按任务勾选把各档物品节点覆盖为 IconRecognition item_ids（Custom：CreditShoppingApplyPriorityItemsAction）",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "CreditShoppingApplyPriorityItemsAction",
+        "custom_action_param": {},
+        "next": [
+            "CreditShoppingInShop",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
+        ]
+    }
+}

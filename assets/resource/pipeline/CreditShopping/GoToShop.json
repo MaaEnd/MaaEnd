@@ -2,9 +2,7 @@
     "CreditShoppingMain": {
         "desc": "信用点购物主入口",
         "next": [
-            "CreditShoppingInShop",
-            "CreditShoppingCheckShopPage",
-            "[JumpBack]SceneEnterMenuShop"
+            "CreditShoppingApplyPriorityItems"
         ]
     },
     "CreditShoppingCheckShopPage": {
