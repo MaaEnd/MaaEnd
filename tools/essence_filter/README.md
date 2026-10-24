@@ -86,5 +86,6 @@ uv run tools/essence_filter/build_autoessence_tasks.py
 
 - 目标模式只收录 5、6 星武器，按稀有度从高到低、武器 ID 升序排列，6 星作为默认勾选。
 - 武器图标写成 `resource/image/UI/Item/<武器 ID>.png`。这个路径对应已发布的 UI 图标，不使用站点 `weapons.json` 里的 `icon_path`。缺少对应 PNG 时生成失败。
-- 地区模式按 `locations.json` 的顺序生成地区列表、每个地区的附加/技能词条，以及随机模式的地区多选。地区 `level_id` 到节点 key 的对照在 `agent/go-service/autoessence/locations.go` 的 `locationLevelToKey`，key 到 interface 文案（`$global.region.*`）的对照在同文件的 `locationLabelKeys`。新地区要先把这两张表补上、五语言文案补齐，并补上 `RegionNodes` 下的节点，再运行生成器（缺哪一项就报哪一项）。
+- 地区模式按 `locations.json` 的顺序生成地区列表、每个地区的附加/技能词条，以及随机模式的地区多选。地区 `level_id` 到节点 key 的对照在 `agent/go-service/autoessence/locations.go` 的 `locationLevelToKey`，key 到 interface 文案（`$global.region.*`）的对照在同文件的 `locationLabelKeys`。新地区要先把这两张表补上、五语言文案补齐，并运行 `pnpm generate:AutoEssence` 生成 `RegionNodes` 下的节点（见 [`tools/pipeline-generate/AutoEssence`](../pipeline-generate/AutoEssence/README.md)），再运行生成器（缺哪一项就报哪一项）。
+- 地区列表同时同步到 `CommonNodes/AutoEssence.json` 的两处：设锚点节点的 `sub` 列表，以及 `AutoEssenceDispatcher` 每轮清零各地区传送节点命中次数的 `nodes` 列表（按区域 key 排序）。
 - 武器显示名 `★稀有度 名称` 会同步到各语言的 interface locale。词条显示名仍使用已有的 `option.AutoEssenceSkill.*`，缺文案时生成失败。

@@ -11,7 +11,7 @@ MaaEnd 的几个任务要读游戏里的物品名、商店货架、采集点、�
 上游发布好的数据 ──────fetch───────┘
 ```
 
-- `uv run zmdmap generate`：从本地的游戏数据生成（每份数据都读 TableCfg；`collect_points` / `delivery_destinations` / `teleport_anchors` 还要 JsonData，`region3d` 还要 Lua 脚本与解包资源）。
+- `uv run zmdmap generate`：从本地的游戏数据生成（每份数据都读 TableCfg；`collect_points` / `delivery_destinations` / `energy_points` / `teleport_anchors` 还要 JsonData，`region3d` 还要 Lua 脚本与解包资源）。
 - `uv run zmdmap fetch`：从上游下载已经发布好的数据（数据 CI 用 `generate` 生成并发布的就是它）。
 
 `python -m tools.zmdmap` 和 `uv run zmdmap` 等价。
@@ -38,8 +38,8 @@ MaaEnd 的几个任务要读游戏里的物品名、商店货架、采集点、�
 ## 一次 `generate` 到底做了什么
 
 1. **确认输入。** TableCfg（表格）默认取 MaaEnd 旁边同级的兄弟仓库 `BeyondTableCfg`，也可以用
-   `--table-cfg-dir` 指到别处；要读关卡地图与交互模板的那三份（`collect_points` /
-   `delivery_destinations` / `teleport_anchors`）还要 JsonData，默认取 `BeyondMemoryPack/JsonData`，
+   `--table-cfg-dir` 指到别处；要读关卡地图与交互模板的那四份（`collect_points` /
+   `delivery_destinations` / `energy_points` / `teleport_anchors`）还要 JsonData，默认取 `BeyondMemoryPack/JsonData`，
    用 `--json-data-dir` 覆盖。`region3d` 还要解包出的 Lua 脚本与 Unity 资源，默认取
    `BeyondLua/LuaScripts` / `BeyondImage/assets`，用 `--lua-dir` / `--assets-dir` 覆盖。
    用不到的输入既不检查也不索要：缺什么、怎么补，都由这次选中的数据集声明决定。
@@ -141,12 +141,13 @@ uv run zmdmap generate --only region3d \
 | `errors.py` | `LocalDataError`：本地数据缺失或形状不对 |
 | `shapes.py` | 少数「必须原样保留未知字段」的地方用的收窄助手 |
 
-## 有哪 12 份数据
+## 有哪 13 份数据
 
 | 数据 | 内容 | 入库方式 |
 | --- | --- | --- |
 | `collect_points.json` | 可拾取 / 可打碎的采集物 | 投影 |
 | `delivery_destinations.json` | 送货目的地：收货 NPC、回收站、仓储节点 | 投影 |
+| `energy_points.json` | 基质刷取路线的激发点 | 投影 |
 | `teleport_anchors.json` | 营地（传送锚点） | 投影 |
 | `delivery_jobs.json` | 运送委托：地区、仓储节点、能装的物品 | 复制 |
 | `energy_point_gems.json` | 基质筛选的能量淤积点 | 复制 |
