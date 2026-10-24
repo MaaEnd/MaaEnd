@@ -86,5 +86,5 @@ uv run tools/essence_filter/build_autoessence_tasks.py
 
 - 目标模式只收录 5、6 星武器，按稀有度从高到低、武器 ID 升序排列，6 星作为默认勾选。
 - 武器图标写成 `resource/image/UI/Item/<武器 ID>.png`。这个路径对应已发布的 UI 图标，不使用站点 `weapons.json` 里的 `icon_path`。缺少对应 PNG 时生成失败。
-- 地区模式按 `locations.json` 的顺序生成地区列表、每个地区的附加/技能词条，以及随机模式的地区多选。地区 `level_id` 到节点 key 的对照在 `agent/go-service/autoessence/locations.go` 的 `locationLevelToKey`，key 到 interface 文案（`$global.region.*`）的对照在同文件的 `locationLabelKeys`。新地区要先把这两张表补上、五语言文案补齐，并补上 `RegionNodes` 下的节点，再运行生成器（缺哪一项就报哪一项）。
+- 地区模式按 `locations.json` 的顺序生成地区列表、每个地区的附加/技能词条，以及随机模式的地区多选。地区 `level_id` 到节点 key 的对照在 `assets/data/EssenceFilter/location_keys.json`，Go 侧目标模式读的也是这一份；界面文案取 `$global.region.<key 去掉 VF/WL 前缀>`。新地区要在这份对照里登记、补齐五语言文案，并补上 `RegionNodes` 下的节点。已登记的地区缺文案或节点时生成失败（缺哪一项就报哪一项）；还没登记的地区会提示后跳过，与运行时一致（数据可能先于路线）。
 - 武器显示名 `★稀有度 名称` 会同步到各语言的 interface locale。词条显示名仍使用已有的 `option.AutoEssenceSkill.*`，缺文案时生成失败。

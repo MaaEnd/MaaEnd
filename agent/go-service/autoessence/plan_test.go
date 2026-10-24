@@ -19,8 +19,17 @@ func testDataDir(t *testing.T) string {
 	return filepath.Join(root, "assets", "data", "EssenceFilter")
 }
 
+func loadTestLocationKeys(t *testing.T) {
+	t.Helper()
+	locationLevelToKey = nil
+	if err := loadLocationKeys(testDataDir(t)); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestSelectBestPlanCoversMissing(t *testing.T) {
 	t.Cleanup(Reset)
+	loadTestLocationKeys(t)
 	engine, err := matchapi.NewEngineFromDirWithLocale(testDataDir(t), "CN")
 	if err != nil {
 		t.Fatal(err)
@@ -67,6 +76,7 @@ func TestSelectBestPlanCoversMissing(t *testing.T) {
 }
 
 func TestLocationKeysCoverLocations(t *testing.T) {
+	loadTestLocationKeys(t)
 	engine, err := matchapi.NewEngineFromDirWithLocale(testDataDir(t), "CN")
 	if err != nil {
 		t.Fatal(err)
@@ -74,7 +84,7 @@ func TestLocationKeysCoverLocations(t *testing.T) {
 	if len(engine.Locations()) == 0 {
 		t.Fatal("expected locations")
 	}
-	// 数据可能先于路线：新地区在 locations.go / RegionNodes 补上之前没有 key，运行时会跳过它。
+	// 数据可能先于路线：新地区在 location_keys.json / RegionNodes 补上之前没有 key，运行时会跳过它。
 	// 这里只要求已知地区都还能解析出来。
 	routable := 0
 	for _, loc := range engine.Locations() {
@@ -303,11 +313,24 @@ func TestFinishNextItemsChainsLootReportThenOnComplete(t *testing.T) {
 }
 
 func TestLocationKeyByLevel(t *testing.T) {
+	loadTestLocationKeys(t)
 	key, ok := LocationKeyByLevel("map01_lv001")
 	if !ok || key != "VFTheHub" {
 		t.Fatalf("got %q %v", key, ok)
 	}
 	if _, ok := LocationKeyByLevel("不存在"); ok {
 		t.Fatal("expected miss")
+	}
+}
+
+func TestRegionLabelKey(t *testing.T) {
+	key, ok := RegionLabelKey("WLNorthWulingExclusionZone")
+	if !ok || key != "global.region.NorthWulingExclusionZone" {
+		t.Fatalf("got %q %v", key, ok)
+	}
+	for _, bad := range []string{"", "VF", "TheHub"} {
+		if _, ok := RegionLabelKey(bad); ok {
+			t.Fatalf("expected miss for %q", bad)
+		}
 	}
 }

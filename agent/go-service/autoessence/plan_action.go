@@ -97,6 +97,10 @@ func (a *TargetPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		log.Error().Err(err).Str("component", componentPlan).Msg("failed to load skill expected names")
 		return false
 	}
+	if err := loadLocationKeys(essenceFilterData); err != nil {
+		log.Error().Err(err).Str("component", componentPlan).Msg("failed to load location keys")
+		return false
+	}
 
 	engine, err := matchapi.NewEngineFromDir(essenceFilterData)
 	if err != nil {

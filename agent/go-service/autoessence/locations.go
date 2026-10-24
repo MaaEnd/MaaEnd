@@ -1,51 +1,53 @@
 package autoessence
 
-// locationLevelToKey maps locations.json level_id to AutoEssence RegionNodes keys.
+import (
+	"fmt"
+	"path/filepath"
+	"strings"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
+)
+
+// locationKeysFile is the table from locations.json level_id to AutoEssence RegionNodes keys. It sits
+// next to locations.json and is the only copy of the table: tools/essence_filter/build_autoessence_tasks.py
+// reads the same file to generate the region options.
 //
 // 用 level_id（WorldEnergyPointTable 的 levelId）而不是显示名：levelId 与地区一一对应，不会随中文文案
 // 或翻译改动而变化；显示名只在报错信息里用。
-var locationLevelToKey = map[string]string{
-	"map01_lv001": "VFTheHub",
-	"map01_lv005": "VFOriginiumSciencePark",
-	"map01_lv006": "VFOriginLodespring",
-	"map01_lv007": "VFPowerPlateau",
-	"map02_lv002": "WLWulingCity",
-	"map02_lv003": "WLQingboStockade",
-	"map02_lv004": "WLMarkerStone",
-	"map02_lv005": "WLTestArea",
-	"map02_lv006": "WLSwordVaultDale",
-	"map02_lv007": "WLYinglungPass",
-	"map02_lv008": "WLNorthWulingExclusionZone",
-	"map02_lv009": "WLSnowyForest",
+const locationKeysFile = "location_keys.json"
+
+var locationLevelToKey map[string]string // level_id -> RegionNodes key, filled by loadLocationKeys
+
+func loadLocationKeys(dataDir string) error {
+	if locationLevelToKey != nil {
+		return nil
+	}
+	var keys map[string]string
+	if err := resource.ReadJsonResource(filepath.Join(dataDir, locationKeysFile), &keys); err != nil {
+		return err
+	}
+	if len(keys) == 0 {
+		return fmt.Errorf("%s has no location keys", locationKeysFile)
+	}
+	locationLevelToKey = keys
+	return nil
 }
 
 // LocationKeyByLevel returns the pipeline location key for a locations.json level_id.
 func LocationKeyByLevel(levelID string) (string, bool) {
 	key, ok := locationLevelToKey[levelID]
-	return key, ok
+	return key, ok && key != ""
 }
 
-// locationLabelKeys maps AutoEssence RegionNodes keys to the interface region-name
-// i18n keys used by task options ($global.region.*).
-var locationLabelKeys = map[string]string{
-	"VFTheHub":                   "global.region.TheHub",
-	"VFOriginiumSciencePark":     "global.region.OriginiumSciencePark",
-	"VFOriginLodespring":         "global.region.OriginLodespring",
-	"VFPowerPlateau":             "global.region.PowerPlateau",
-	"WLWulingCity":               "global.region.WulingCity",
-	"WLQingboStockade":           "global.region.QingboStockade",
-	"WLMarkerStone":              "global.region.MarkerStone",
-	"WLTestArea":                 "global.region.TestArea",
-	"WLSwordVaultDale":           "global.region.SwordVaultDale",
-	"WLYinglungPass":             "global.region.YinglungPass",
-	"WLNorthWulingExclusionZone": "global.region.NorthWulingExclusionZone",
-	"WLSnowyForest":              "global.region.SnowyForest",
-}
-
-// RegionLabelKey returns the interface i18n key of a location's region name.
+// RegionLabelKey returns the interface i18n key of a location's region name ($global.region.*):
+// the RegionNodes key without its map prefix (VF / WL), the same rule the option generator uses.
 func RegionLabelKey(locationKey string) (string, bool) {
-	key, ok := locationLabelKeys[locationKey]
-	return key, ok
+	for _, prefix := range []string{"VF", "WL"} {
+		if name, ok := strings.CutPrefix(locationKey, prefix); ok && name != "" {
+			return "global.region." + name, true
+		}
+	}
+	return "", false
 }
 
 // SetAnchorNode returns GotoTriggerPointSetAnchor_<key>.

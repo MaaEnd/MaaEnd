@@ -3,7 +3,7 @@
 
 武器来自 weapons_output.json：只收录 5、6 星，6 星作为默认勾选。
 图标路径按物品 ID 写成 resource/image/UI/Item/<id>.png，不使用站点 JSON 里的 icon_path。
-地区来自 locations.json，level_id 到节点 key 的对照读取 locations.go。
+地区来自 locations.json，level_id 到节点 key 的对照读取 location_keys.json（Go 侧目标模式读的也是它）。
 """
 
 import argparse
@@ -28,7 +28,7 @@ PIPELINE_PATH = (
 )
 REGION_NODE_DIR = REPO_ROOT / "assets" / "resource" / "pipeline" / "AutoEssence" / "RegionNodes"
 UI_ITEM_DIR = REPO_ROOT / "assets" / "resource" / "image" / "UI" / "Item"
-LOCATION_KEYS_GO = REPO_ROOT / "agent" / "go-service" / "autoessence" / "locations.go"
+LOCATION_KEYS = DATA_DIR / "location_keys.json"
 LOCALE_DIR = REPO_ROOT / "assets" / "locales" / "interface"
 
 # 界面展示顺序，与 AutoEssenceMenu 的目标模式选项一致。
@@ -72,7 +72,6 @@ OCR_TEXT_OVERRIDE = {
     },
 }
 
-LOCATION_KEY_RE = re.compile(r'"((?:[^"\\]|\\.)*)"\s*:\s*"([A-Za-z0-9]+)"')
 ANCHOR_BLOCK_RE = re.compile(
     r'(?P<indent>[ \t]*)"GotoTriggerPointSetAnchor_[A-Za-z0-9]+",?\n'
     r'(?:[ \t]*"GotoTriggerPointSetAnchor_[A-Za-z0-9]+",?\n)*'
@@ -84,14 +83,13 @@ IMPORT_BLOCK_RE = re.compile(
 )
 
 
-def parse_location_keys(source: str) -> dict[str, str]:
-    start = source.find("locationLevelToKey")
-    if start < 0:
-        raise ValueError("locations.go 里没有 locationLevelToKey")
-    body = source[start : source.find("}", start)]
-    keys = dict(LOCATION_KEY_RE.findall(body))
-    if not keys:
-        raise ValueError("locationLevelToKey 为空")
+def load_location_keys(path: Path) -> dict[str, str]:
+    keys = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(keys, dict) or not keys:
+        raise ValueError(f"{path.name} 应为非空的 level_id -> 地区 key 对照")
+    for level_id, key in keys.items():
+        if not isinstance(key, str) or not key:
+            raise ValueError(f"{path.name} 里 {level_id} 的地区 key 为空")
     return keys
 
 
@@ -337,10 +335,13 @@ def resolve_locations(
         level_id = location.get("level_id")
         key = location_keys.get(level_id)
         if not key:
-            raise ValueError(
-                f"locations.json 的 {name!r}（level_id {level_id!r}）没有地区 key。"
-                "请先在 locations.go 的 locationLevelToKey 和 RegionNodes 中补上该地区"
+            # 数据可能先于路线：还没登记的地区先跳过，与运行时一致；登记并补上 RegionNodes 后才生成选项。
+            print(
+                f"跳过 locations.json 的 {name!r}（level_id {level_id!r}）："
+                "location_keys.json 里还没有这个地区，补上 key 和 RegionNodes 后再生成",
+                file=sys.stderr,
             )
+            continue
         if key in seen:
             raise ValueError(f"地区 key 重复: {key}")
         seen.add(key)
@@ -495,13 +496,13 @@ def main() -> int:
     parser.add_argument("--weapons", type=Path, default=ZMDMAP_DATA_DIR / "weapons.json")
     parser.add_argument("--locations", type=Path, default=DATA_DIR / "locations.json")
     parser.add_argument("--skill-pools", type=Path, default=DATA_DIR / "skill_pools.json")
-    parser.add_argument("--location-keys", type=Path, default=LOCATION_KEYS_GO)
+    parser.add_argument("--location-keys", type=Path, default=LOCATION_KEYS)
     args = parser.parse_args()
 
     weapons = read_payload(args.weapons)
     locations = json.loads(args.locations.read_text(encoding="utf-8"))
     pools = json.loads(args.skill_pools.read_text(encoding="utf-8"))
-    location_keys = parse_location_keys(args.location_keys.read_text(encoding="utf-8"))
+    location_keys = load_location_keys(args.location_keys)
     zh_cn = json.loads((LOCALE_DIR / "zh_cn.json").read_text(encoding="utf-8"))
 
     resolved = resolve_locations(locations, location_keys, set(zh_cn))

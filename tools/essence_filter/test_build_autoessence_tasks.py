@@ -1,16 +1,19 @@
 """Tests for tools/essence_filter/build_autoessence_tasks.py."""
 
+import io
 import json
 import sys
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from build_autoessence_tasks import (
+    LOCATION_KEYS,
     OCR_ROI,
+    load_location_keys,
     ocr_expected,
-    parse_location_keys,
     resolve_locations,
     select_weapons,
     strip_choose_location,
@@ -22,20 +25,10 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class LocationKeyTest(unittest.TestCase):
-    def test_parse_go_map(self):
-        source = '''
-var locationLevelToKey = map[string]string{
-	"map01_lv001": "VFTheHub",
-	"map02_lv009": "WLSnowyForest",
-}
-'''
-        self.assertEqual(
-            parse_location_keys(source),
-            {
-                "map01_lv001": "VFTheHub",
-                "map02_lv009": "WLSnowyForest",
-            },
-        )
+    def test_loads_shared_json(self):
+        keys = load_location_keys(LOCATION_KEYS)
+        self.assertEqual(keys["map01_lv001"], "VFTheHub")
+        self.assertEqual(keys["map02_lv009"], "WLSnowyForest")
 
     def test_resolves_by_level_id(self):
         resolved = resolve_locations(
@@ -45,16 +38,19 @@ var locationLevelToKey = map[string]string{
         )
         self.assertEqual([key for key, _ in resolved], ["VFTheHub"])
 
-    def test_missing_key_reports_level_id(self):
-        with self.assertRaises(ValueError) as ctx:
-            resolve_locations(
-                [{"name": "重度能量淤积点·祀的画", "level_id": "map02_lv010"}],
+    def test_unregistered_location_is_skipped(self):
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            resolved = resolve_locations(
+                [
+                    {"name": "重度能量淤积点·枢纽区", "level_id": "map01_lv001"},
+                    {"name": "重度能量淤积点·祀的画", "level_id": "map02_lv010"},
+                ],
                 {"map01_lv001": "VFTheHub"},
-                set(),
+                {"global.region.TheHub"},
             )
-        message = str(ctx.exception)
-        self.assertIn("map02_lv010", message)
-        self.assertIn("locationLevelToKey", message)
+        self.assertEqual([key for key, _ in resolved], ["VFTheHub"])
+        self.assertIn("map02_lv010", stderr.getvalue())
 
 
 class OcrExpectedTest(unittest.TestCase):
