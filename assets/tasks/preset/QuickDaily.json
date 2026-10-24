@@ -64,7 +64,7 @@
                         "GrowthChamberStage": "Yes",
                         "SendCluesDirect": "No",
                         "ClueSend": {
-                            "MaxClueSend": "3"
+                            "MaxClueSend": "2"
                         },
                         "QuickGiveDuplicateClues": "No",
                         "CustomSendClues": "No"
@@ -77,10 +77,10 @@
                             "ReserveCreditThreshold": "300"
                         },
                         "CreditShoppingClueSend": {
-                            "MaxClueSendWhenInsufficient": "2"
+                            "MaxClueSendWhenInsufficient": "3"
                         },
                         "CreditShoppingQuickGiveDuplicateClues": "Yes",
-                        "CreditShoppingClueStockLimit": "2",
+                        "CreditShoppingClueStockLimit": "1",
                         "CreditShoppingPriority1": "Yes",
                         "CreditShoppingPriority1AutoGetCredits": "Yes",
                         "CreditShoppingPriority1UnconditionalPurchase": "Yes",
