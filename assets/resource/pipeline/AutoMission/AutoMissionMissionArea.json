@@ -63,6 +63,36 @@
         "post_delay": 1500, // 走进区域后等一会再继续，部分任务会进入剧情动画
         "next": [
             "AutoMissionMissionAreaActionExitToWorld",
+            "AutoMissionMissionAreaActionTakePhoto",
+            "[JumpBack]AutoFight",
+            "AutoMissionMissionAreaActionBackInWorld"
+        ]
+    },
+    "AutoMissionMissionAreaActionTakePhoto": {
+        "desc": "这一步要拍照，复用环境监测的进拍照和拍照流程，拍完经锚点回到本流程；默认关闭，由 Go 按数据打开",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "AutoMissionMissionAreaActionPhotoDone"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhotoDirectly"
+        ]
+    },
+    "AutoMissionMissionAreaActionPhotoDone": {
+        "desc": "拍照完成，关闭照片预览回到大世界",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "AutoMissionMissionAreaActionExitToWorld",
             "AutoMissionMissionAreaActionBackInWorld"
         ]
     },

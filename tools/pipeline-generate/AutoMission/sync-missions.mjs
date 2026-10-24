@@ -347,7 +347,21 @@ function collectNameOverrides(dataMap, overrides) {
     }
 }
 
+// 关卡脚本主动开始的对话：走进触发区就会播放，不需要找 NPC 交互。
+function collectStartedDialogs(dataMap, dialogs) {
+    for (const node of dataMap?.actionList ?? []) {
+        if (shortType(node?.$type) !== "StartDialogAction") {
+            continue;
+        }
+        const dialogId = node._dialogId?.constValue;
+        if (typeof dialogId === "string" && dialogId) {
+            dialogs.add(dialogId);
+        }
+    }
+}
+
 const proxyNameOverrides = new Map();
+const scriptStartedDialogs = new Set();
 if (existsSync(levelScriptDir)) {
     for (const sceneId of readdirSync(levelScriptDir)) {
         const dir = resolve(levelScriptDir, sceneId);
@@ -357,6 +371,7 @@ if (existsSync(levelScriptDir)) {
             }
             const dataMap = readJson(resolve(dir, name)).actionMap?.dataMap;
             collectNameOverrides(dataMap, proxyNameOverrides);
+            collectStartedDialogs(dataMap, scriptStartedDialogs);
         }
     }
 }
@@ -447,6 +462,41 @@ function convertNpcProxy(track) {
     return result;
 }
 
+// 对话 -> 挂着这段对话的 NPC 代理。
+const proxiesByDialog = new Map();
+for (const proxyId of new Set([...Object.keys(proxyDialogData), ...dialogsByProxy.keys()])) {
+    for (const dialogId of proxyDialogs(proxyId)) {
+        if (!proxiesByDialog.has(dialogId)) {
+            proxiesByDialog.set(dialogId, new Set());
+        }
+        proxiesByDialog.get(dialogId).add(proxyId);
+    }
+}
+
+// 坐标追踪的完成条件是和某个 NPC 对话、且这段对话不由关卡脚本开始时，带上这个 NPC 的名字。
+// 能对应到多个名字不同的 NPC 时不写，避免找错人。
+function convertPos(track, condition) {
+    const result = {type: "PosTrackingInfo", ...placement(track.sceneId, track.trackingPos)};
+    const dialogId = condition?._dialogId?.constValue;
+    if (shortType(condition?.$type) !== "CheckTalkOptionFinish" || !dialogId || scriptStartedDialogs.has(dialogId)) {
+        return result;
+    }
+    const named = [...(proxiesByDialog.get(dialogId) ?? [])]
+        .sort()
+        .map((proxyId) => ({proxyId, npcName: npcNameOf(proxyId, proxyDialogs(proxyId))}))
+        .filter((entry) => entry.npcName);
+    if (named.length === 0 || new Set(named.map((entry) => entry.npcName.key)).size !== 1) {
+        return result;
+    }
+    const {proxyId, npcName} = named[0];
+    result.npcName = npcName;
+    const npcNameOverrides = npcNameOverridesOf(proxyId, npcName);
+    if (npcNameOverrides.length > 0) {
+        result.npcNameOverrides = npcNameOverrides;
+    }
+    return result;
+}
+
 function convertEntity(track) {
     const entity = resolveEntity(track);
     const components = entityComponents(entity?.entityDataIdKey);
@@ -465,7 +515,7 @@ function convertEntity(track) {
     return result;
 }
 
-function convertTrack(track) {
+function convertTrack(track, condition) {
     const type = shortType(track?.$type);
     switch (type) {
         case "SnsTrackingInfo":
@@ -475,7 +525,7 @@ function convertTrack(track) {
             return phaseId ? {type, phase_id: phaseId} : {type};
         }
         case "PosTrackingInfo":
-            return {type, ...placement(track.sceneId, track.trackingPos)};
+            return convertPos(track, condition);
         case "MissionAreaTrackingInfo":
             return {type, ...placement(track.sceneId, missionArea(track.sceneId, track.missionAreaId)?.shape?.position)};
         case "NpcProxyTrackingInfo":
@@ -487,8 +537,13 @@ function convertTrack(track) {
     }
 }
 
-function convertTracks(tracks) {
-    return (tracks ?? []).map((track) => convertTrack(track)).filter(Boolean);
+// 完成条件是拍照识别时，给追踪带上 snapshot，各类型走到位置后进拍照。
+function convertTracks(tracks, condition) {
+    const snapshot = shortType(condition?.$type) === "CheckSnapshotIdentifySuccess";
+    return (tracks ?? [])
+        .map((track) => convertTrack(track, condition))
+        .filter(Boolean)
+        .map((track) => (snapshot ? {...track, snapshot: true} : track));
 }
 
 function convertCondition(condition) {
@@ -512,9 +567,9 @@ function convertObjective(objective) {
         result.useMultipleDescription = true;
         result.multipleDescription = (objective.multipleDescription ?? []).map((item) => objectiveText(item?.key));
     }
-    result.trackingInfoList = convertTracks(objective?.trackingInfoList);
+    result.trackingInfoList = convertTracks(objective?.trackingInfoList, objective?.condition);
     result.multiDescTrackingInfoList = (objective?.multiDescTrackingInfoList ?? []).map((block) => ({
-        actualList: convertTracks(block?.actualList),
+        actualList: convertTracks(block?.actualList, objective?.condition),
     }));
     result.condition = convertCondition(objective?.condition);
     return result;

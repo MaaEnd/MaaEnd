@@ -29,6 +29,8 @@ type trackData struct {
 	EntityDataIDKey string `json:"entityDataIdKey,omitempty"`
 	// InteractTexts 是实体追踪的交互选项文字，可能有多个。
 	InteractTexts []missionText `json:"interactTexts,omitempty"`
+	// Snapshot 表示这一步的完成条件是拍照识别，走到位置后要进拍照模式。
+	Snapshot bool `json:"snapshot,omitempty"`
 }
 
 type trackingBlock struct {

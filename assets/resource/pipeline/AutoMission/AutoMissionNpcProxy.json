@@ -64,6 +64,8 @@
         "next": [
             "AutoMissionNpcProxyActionInteract",
             "AutoMissionNpcProxyActionExitToWorld",
+            "AutoMissionNpcProxyActionTakePhoto",
+            "[JumpBack]AutoFight",
             "AutoMissionNpcProxyActionMove"
         ]
     },
@@ -82,6 +84,34 @@
             "wait_node": "AutoMissionNpcProxyActionInteractRecognition"
         },
         "post_delay": 1000, // 等待界面跳转
+        "next": [
+            "AutoMissionNpcProxyActionExitToWorld",
+            "AutoMissionNpcProxyActionBackInWorld"
+        ]
+    },
+    "AutoMissionNpcProxyActionTakePhoto": {
+        "desc": "这一步要拍照，复用环境监测的进拍照和拍照流程，拍完经锚点回到本流程；默认关闭，由 Go 按数据打开",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "AutoMissionNpcProxyActionPhotoDone"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhotoDirectly"
+        ]
+    },
+    "AutoMissionNpcProxyActionPhotoDone": {
+        "desc": "拍照完成，关闭照片预览回到大世界",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "AutoMissionNpcProxyActionExitToWorld",
             "AutoMissionNpcProxyActionBackInWorld"

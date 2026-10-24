@@ -110,6 +110,21 @@
             "物流负责人"
         ]
     },
+    "AutoMissionPosActionInteractRecognition": {
+        "desc": "交互提示区域里的 NPC 名称，文本待注入",
+        "recognition": "OCR",
+        "roi": [
+            755,
+            330,
+            297,
+            312
+        ],
+        "expected": [
+            // NPC 名称待注入，占位为永不匹配的正则
+            // @i18n-skip
+            "(?!)"
+        ]
+    },
     "AutoMissionEntityActionInteractRecognition": {
         "desc": "交互提示区域里的实体交互文字，文本待注入",
         "recognition": "OCR",

@@ -12,10 +12,18 @@ const (
 	npcProxyNode         = "AutoMissionNpcProxy"
 	npcProxyInWorldNode  = "AutoMissionNpcProxyInWorld"
 	npcProxyInteractNode = "AutoMissionNpcProxyActionInteractRecognition"
+	npcProxyPhotoNode    = "AutoMissionNpcProxyActionTakePhoto"
 	npcProxyStoryNode    = "InStory"
 
 	missionAreaNode        = "AutoMissionMissionArea"
 	missionAreaInWorldNode = "AutoMissionMissionAreaInWorld"
+	missionAreaPhotoNode   = "AutoMissionMissionAreaActionTakePhoto"
+
+	posNode         = "AutoMissionPos"
+	posInWorldNode  = "AutoMissionPosInWorld"
+	posInteractNode = "AutoMissionPosActionInteractRecognition"
+	posMoveNode     = "AutoMissionPosActionMove"
+	posPhotoNode    = "AutoMissionPosActionTakePhoto"
 
 	entityNode         = "AutoMissionEntity"
 	entityInWorldNode  = "AutoMissionEntityInWorld"
@@ -29,7 +37,7 @@ var _ maa.CustomActionRunner = &ExecuteQuestAction{}
 var trackingNodes = map[string]string{
 	"MissionAreaTrackingInfo": missionAreaNode,
 	"NpcProxyTrackingInfo":    npcProxyNode,
-	"PosTrackingInfo":         "AutoMissionPos",
+	"PosTrackingInfo":         posNode,
 	"EntityTrackingInfo":      entityNode,
 	"JumpToUITrackingInfo":    "AutoMissionJumpToUI",
 	"SnsTrackingInfo":         "AutoMissionSns",
@@ -101,6 +109,9 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 			npcProxyInteractNode: map[string]any{
 				"expected": npcNames,
 			},
+			npcProxyPhotoNode: map[string]any{
+				"enabled": track.Snapshot,
+			},
 			npcProxyInWorldNode: map[string]any{
 				"custom_action_param": map[string]any{
 					"heading_source": "camera",
@@ -141,7 +152,66 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 			Float64("y", *track.Y).
 			Msg("mission area navigate target")
 		taskDetail, err = ctx.RunTask(node, map[string]any{
+			missionAreaPhotoNode: map[string]any{
+				"enabled": track.Snapshot,
+			},
 			missionAreaInWorldNode: map[string]any{
+				"custom_action_param": map[string]any{
+					"heading_source": "camera",
+					"path": []any{
+						map[string]any{
+							"action":  "ZONE",
+							"zone_id": track.ZoneID,
+						},
+						map[string]any{
+							"action": "NAVMESH",
+							"target": []float64{*track.X, *track.Y},
+						},
+						map[string]any{
+							"action":       "TRIGGER",
+							"target":       []float64{*track.X, *track.Y},
+							"trigger_node": npcProxyStoryNode,
+						},
+					},
+				},
+			},
+		})
+	case posNode:
+		// 坐标点一般走到就会推进；数据带了 NPC 名字时，走到后再找这个 NPC 交互。
+		npcNames := npcNameVariants(track)
+		if track.ZoneID == "" || track.X == nil || track.Y == nil {
+			log.Warn().
+				Str("component", executeComponent).
+				Str("zone_id", track.ZoneID).
+				Bool("has_x", track.X != nil).
+				Bool("has_y", track.Y != nil).
+				Msg("pos track missing zone or position")
+			return false
+		}
+		// 没有人名：注入永不匹配的正则并关掉按追踪图标找人，只走到坐标，不做交互。
+		moveEnabled := len(npcNames) > 0
+		if !moveEnabled {
+			npcNames = []string{"(?!)"}
+		}
+		log.Info().
+			Str("component", executeComponent).
+			Str("node", posInWorldNode).
+			Str("zone_id", track.ZoneID).
+			Float64("x", *track.X).
+			Float64("y", *track.Y).
+			Strs("npc_names", npcNames).
+			Msg("pos navigate target")
+		taskDetail, err = ctx.RunTask(node, map[string]any{
+			posInteractNode: map[string]any{
+				"expected": npcNames,
+			},
+			posMoveNode: map[string]any{
+				"enabled": moveEnabled,
+			},
+			posPhotoNode: map[string]any{
+				"enabled": track.Snapshot,
+			},
+			posInWorldNode: map[string]any{
 				"custom_action_param": map[string]any{
 					"heading_source": "camera",
 					"path": []any{

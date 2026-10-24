@@ -9,6 +9,9 @@
             ],
             "group": [
                 "open_world"
+            ],
+            "option": [
+                "AutoFightSettingFull"
             ]
         }
     ],
