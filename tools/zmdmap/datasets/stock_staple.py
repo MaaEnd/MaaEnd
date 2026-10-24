@@ -18,11 +18,11 @@
 """
 
 import math
-from pathlib import Path
 from typing import Any
 
 import msgspec
 
+from ..utils.inputs import TableCfg
 from ..utils.tables import (
     DomainRow,
     ItemRow,
@@ -32,7 +32,6 @@ from ..utils.tables import (
     ShopGoodsTagRow,
     ShopGroupRow,
     ShopRow,
-    load_table,
 )
 from .base import Dataset, DatasetError
 
@@ -47,15 +46,15 @@ class StockStaple(Dataset):
     """常规地区商店的可补货商品（不含一次性商品和弹性需求物资）。"""
 
     @classmethod
-    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
-        domains = load_table(table_cfg_dir, "DomainDataTable", DomainRow)
-        groups = load_table(table_cfg_dir, "ShopGroupTable", ShopGroupRow)
-        shops = load_table(table_cfg_dir, "ShopTable", ShopRow)
-        goods = load_table(table_cfg_dir, "ShopGoodsTable", ShopGoodsRow)
-        rewards = load_table(table_cfg_dir, "RewardTable", RewardRow)
-        items = load_table(table_cfg_dir, "ItemTable", ItemRow)
-        tags = load_table(table_cfg_dir, "ShopGoodsTagTable", ShopGoodsTagRow)
-        channels = load_table(table_cfg_dir, "ShopChannelDevelopmentTable", ShopChannelRow)
+    def build(cls, table_cfg: TableCfg) -> dict[str, Any]:
+        domains = table_cfg.table("DomainDataTable", DomainRow)
+        groups = table_cfg.table("ShopGroupTable", ShopGroupRow)
+        shops = table_cfg.table("ShopTable", ShopRow)
+        goods = table_cfg.table("ShopGoodsTable", ShopGoodsRow)
+        rewards = table_cfg.table("RewardTable", RewardRow)
+        items = table_cfg.table("ItemTable", ItemRow)
+        tags = table_cfg.table("ShopGoodsTagTable", ShopGoodsTagRow)
+        channels = table_cfg.table("ShopChannelDevelopmentTable", ShopChannelRow)
 
         supplies: dict[str, list[dict[str, Any]]] = {}
         for channel_id, channel in sorted(channels.items()):
@@ -63,13 +62,15 @@ class StockStaple(Dataset):
                 if len(row.new_goods_list) != len(row.new_goods_num):
                     raise DatasetError(f"渠道 {channel_id}/{level} 商品与数量不对应")
                 for goods_id, count in zip(row.new_goods_list, row.new_goods_num, strict=True):
-                    supplies.setdefault(goods_id, []).append({
-                        "channel_id": channel_id,
-                        "level": int(level),
-                        "count": count,
-                        "version_start": row.version_start,
-                        "time_id": row.time_id,
-                    })
+                    supplies.setdefault(goods_id, []).append(
+                        {
+                            "channel_id": channel_id,
+                            "level": int(level),
+                            "count": count,
+                            "version_start": row.version_start,
+                            "time_id": row.time_id,
+                        }
+                    )
 
         output: dict[str, dict[str, Any]] = {
             "regions": {},
@@ -110,13 +111,11 @@ class StockStaple(Dataset):
                     if goods_id in output["goods"]:
                         raise DatasetError(f"商品 {goods_id} 被多个地区重复引用")
                     output["categories"][row.goods_tag_id] = {
-                        "names": cls.localized_names(
-                            tag.tag_name, table_cfg_dir, f"分类 {row.goods_tag_id}"
-                        ),
+                        "names": cls.localized_names(tag.tag_name, table_cfg, f"分类 {row.goods_tag_id}"),
                         "sort_id": tag.sort_id,
                     }
                     output["items"][item_id] = {
-                        "names": cls.localized_names(item.name, table_cfg_dir, f"物品 {item_id}"),
+                        "names": cls.localized_names(item.name, table_cfg, f"物品 {item_id}"),
                         "icon_id": item.icon_id,
                     }
                     output["goods"][goods_id] = {
@@ -128,9 +127,7 @@ class StockStaple(Dataset):
                         "price": row.price,
                         "discount": row.cn_discount,
                         "currency_id": row.money_id,
-                        "currency_names": cls.localized_names(
-                            currency.name, table_cfg_dir, f"币种 {row.money_id}"
-                        ),
+                        "currency_names": cls.localized_names(currency.name, table_cfg, f"币种 {row.money_id}"),
                         "refresh_type": row.limit_count_refresh_type,
                         "limit_count": row.limit_count,
                         "sort_id": row.sort_id,
@@ -140,9 +137,7 @@ class StockStaple(Dataset):
                     region_goods.append(goods_id)
             if region_goods:
                 output["regions"][region_id] = {
-                    "names": cls.localized_names(
-                        domain.domain_name, table_cfg_dir, f"地区 {region_id}"
-                    ),
+                    "names": cls.localized_names(domain.domain_name, table_cfg, f"地区 {region_id}"),
                     "shop_group_id": group_id,
                     "sort_id": domain.sort_id,
                     "goods_ids": region_goods,

@@ -62,7 +62,7 @@ pnpm generate:SceneTeleport
 
 ## 本地生成脚本
 
-`datasets/`（一份数据一个模块）与下载/入库统一放在 [`tools/zmdmap`](../zmdmap/README.md)，入口是 `uv run zmdmap`（子命令 `generate` / `fetch`）。生成只读本地兄弟仓库：各数据集的 `Dataset.build` 通过 `utils/game_data.py` 读 `BeyondTableCfg/TableCfg` 与 `BeyondMemoryPack/JsonData`（记录取值、关卡索引也在那里）；路径与语言表这类静态配置在 `utils/config.py`，其余共用件在 `utils/`。
+`datasets/`（一份数据一个模块或文件夹）与下载/入库统一放在 [`tools/zmdmap`](../zmdmap/README.md)，入口是 `uv run zmdmap`（子命令 `generate` / `fetch`）。生成只读本地兄弟仓库：各数据集的 `Dataset.build` 在参数上声明要读的输入，`generate` 按签名注入 `BeyondTableCfg/TableCfg` 与 `BeyondMemoryPack/JsonData`（`table_cfg` / `json_data`，记录取值与关卡索引都在服务里）；`region3d` 还声明 `lua` / `assets`，对应 `BeyondLua/LuaScripts` 与 `BeyondImage/assets`。路径与语言表这类静态配置在 `utils/config.py`，其余共用件在 `utils/`。
 
 默认按当前 MaaEnd 仓库的兄弟目录解析输入，因此各仓库位于同一 `Endfield` 目录时无需传路径：
 

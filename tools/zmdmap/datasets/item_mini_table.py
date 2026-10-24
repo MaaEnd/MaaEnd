@@ -19,10 +19,10 @@
 - ``regionRestricted``：仅当物品由「只在某些地区存在」的工厂建筑产出时才写 ``true``。
 """
 
-from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import ref_text, text_id_of, texts_of
+from ..utils.game_data import text_id_of
+from ..utils.inputs import TableCfg
 from ..utils.log import logger
 from ..utils.tables import (
     FactoryBuildingItemReverseRow,
@@ -32,7 +32,6 @@ from ..utils.tables import (
     ItemShowingTypeRow,
     LiquidRow,
     ValuableDepotRow,
-    load_table,
 )
 from .base import Dataset
 
@@ -47,16 +46,14 @@ class ItemMiniTable(Dataset):
     """图标识别的物品表，带多语言名字（``item_mini_table.json``）。"""
 
     @classmethod
-    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, dict[str, Any]]:
+    def build(cls, table_cfg: TableCfg) -> dict[str, dict[str, Any]]:
         """背包物品与它们所在的页签、图标、稀有度、排序与五语名字。"""
-        items = load_table(table_cfg_dir, "ItemTable", ItemRow)
-        showing_types = load_table(table_cfg_dir, "ItemShowingTypeTable", ItemShowingTypeRow)
-        depots = load_table(table_cfg_dir, "ValuableDepot", ValuableDepotRow)
+        items = table_cfg.table("ItemTable", ItemRow)
+        showing_types = table_cfg.table("ItemShowingTypeTable", ItemShowingTypeRow)
+        depots = table_cfg.table("ValuableDepot", ValuableDepotRow)
 
         # 背包页签（showingType -> 中文名）。
-        showing_type_names = {
-            row.type: ref_text(table_cfg_dir, row.name) for row in showing_types.values()
-        }
+        showing_type_names = {row.type: table_cfg.ref_text(row.name) for row in showing_types.values()}
         showing_type_names = {key: name for key, name in showing_type_names.items() if name}
 
         # 仓库页签：除了重新收进来的两个，其余（武器/装备/任务物品…）一律不收。
@@ -66,11 +63,11 @@ class ItemMiniTable(Dataset):
             if depot.is_hidden:
                 continue
             non_hidden_depot_types.add(depot.type)
-            depot_names[depot.type] = ref_text(table_cfg_dir, depot.name) or depot.type
+            depot_names[depot.type] = table_cfg.ref_text(depot.name) or depot.type
         excluded_depot_types = non_hidden_depot_types - _REINCLUDED_DEPOT_TYPES
 
-        fluid_type_by_item, fluid_by_full_container, fluid_containers = _fluid_maps(table_cfg_dir)
-        region_restricted_items = _region_restricted_items(table_cfg_dir)
+        fluid_type_by_item, fluid_by_full_container, fluid_containers = _fluid_maps(table_cfg)
+        region_restricted_items = _region_restricted_items(table_cfg)
 
         output: dict[str, dict[str, Any]] = {}
         for item_id, item in items.items():
@@ -92,9 +89,9 @@ class ItemMiniTable(Dataset):
             from_depot = valuable_tab in _REINCLUDED_DEPOT_TYPES
             containers = fluid_containers.get(item_id)
             output[item_id] = {
-                "name": ref_text(table_cfg_dir, name_ref),
+                "name": table_cfg.ref_text(name_ref),
                 "nameId": text_id_of(name_ref),
-                "names": texts_of(table_cfg_dir, text_id_of(name_ref)),
+                "names": table_cfg.texts(text_id_of(name_ref)),
                 "category": category,
                 "storageKind": "ValuableDepot" if from_depot else "Normal",
                 "categoryType": valuable_tab if from_depot else item.showing_type,
@@ -116,20 +113,18 @@ class ItemMiniTable(Dataset):
 
 
 def _fluid_maps(
-    table_cfg_dir: Path,
+    table_cfg: TableCfg,
 ) -> tuple[dict[str, str], dict[str, str], dict[str, dict[str, list[str]]]]:
     """气体的罐与液体的瓶：物品 -> 流体种类 / 满容器 -> 里面的流体 / 流体 -> 容器名单。"""
     fluid_type_by_item: dict[str, str] = {}
     fluid_by_full_container: dict[str, str] = {}
     fluid_containers: dict[str, dict[str, list[str]]] = {}
 
-    gases = load_table(table_cfg_dir, "GasTable", GasRow)
-    liquids = load_table(table_cfg_dir, "LiquidTable", LiquidRow)
+    gases = table_cfg.table("GasTable", GasRow)
+    liquids = table_cfg.table("LiquidTable", LiquidRow)
     families: tuple[tuple[str, dict[str, tuple[list[str], list[str]]]], ...] = (
         ("gas", {key: (row.full_gas_jar_items, row.empty_gas_jar_items) for key, row in gases.items()}),
-        ("liquid", {
-            key: (row.full_bottle_items, row.empty_bottle_items) for key, row in liquids.items()
-        }),
+        ("liquid", {key: (row.full_bottle_items, row.empty_bottle_items) for key, row in liquids.items()}),
     )
     for fluid_type, table in families:
         for fluid_id, (full, empty) in table.items():
@@ -143,15 +138,11 @@ def _fluid_maps(
     return fluid_type_by_item, fluid_by_full_container, fluid_containers
 
 
-def _region_restricted_items(table_cfg_dir: Path) -> set[str]:
+def _region_restricted_items(table_cfg: TableCfg) -> set[str]:
     """只在某些地区存在的工厂建筑所产出的物品（``recommendDomains`` 非空）。"""
-    buildings = load_table(table_cfg_dir, "FactoryBuildingTable", FactoryBuildingRow)
-    restricted_buildings = {
-        building_id
-        for building_id, building in buildings.items()
-        if building.recommend_domains
-    }
-    reverse = load_table(table_cfg_dir, "FactoryBuildingItemReverseTable", FactoryBuildingItemReverseRow)
+    buildings = table_cfg.table("FactoryBuildingTable", FactoryBuildingRow)
+    restricted_buildings = {building_id for building_id, building in buildings.items() if building.recommend_domains}
+    reverse = table_cfg.table("FactoryBuildingItemReverseTable", FactoryBuildingItemReverseRow)
 
     item_ids: set[str] = set()
     for building_id, row in reverse.items():

@@ -14,17 +14,15 @@
 挂在 ``gems`` 下；消费端用 :func:`tools.zmdmap.read_payload` 读，不必自己跳过元数据。
 """
 
-from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import ref_text
+from ..utils.inputs import TableCfg
 from ..utils.log import logger
 from ..utils.tables import (
     GameMechanicRow,
     GemRow,
     WorldEnergyPointGroupRow,
     WorldEnergyPointRow,
-    load_table,
 )
 from .base import Dataset, DatasetError
 
@@ -33,12 +31,12 @@ class EnergyPointGems(Dataset):
     """EssenceFilter 用的能量淤积点（``energy_point_gems.json``）。"""
 
     @classmethod
-    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
+    def build(cls, table_cfg: TableCfg) -> dict[str, Any]:
         """能量淤积点：名字、体力消耗与两组词条名（中文）。"""
-        points = load_table(table_cfg_dir, "WorldEnergyPointTable", WorldEnergyPointRow)
-        groups = load_table(table_cfg_dir, "WorldEnergyPointGroupTable", WorldEnergyPointGroupRow)
-        mechanics = load_table(table_cfg_dir, "GameMechanicTable", GameMechanicRow)
-        gems = load_table(table_cfg_dir, "GemTable", GemRow)
+        points = table_cfg.table("WorldEnergyPointTable", WorldEnergyPointRow)
+        groups = table_cfg.table("WorldEnergyPointGroupTable", WorldEnergyPointGroupRow)
+        mechanics = table_cfg.table("GameMechanicTable", GameMechanicRow)
+        gems = table_cfg.table("GemTable", GemRow)
 
         rows: list[dict[str, Any]] = []
         for point_id in sorted(points):
@@ -50,11 +48,11 @@ class EnergyPointGems(Dataset):
             mechanic = mechanics.get(mechanics_id)
             rows.append(
                 {
-                    "pointName": ref_text(table_cfg_dir, point.game_name) or mechanics_id,
+                    "pointName": table_cfg.ref_text(point.game_name) or mechanics_id,
                     "levelId": point.level_id,
                     "costStamina": point.cost_stamina or (mechanic.cost_stamina if mechanic else None),
-                    "secAttrTermNames": _term_names(table_cfg_dir, gems, group.sec_attr_term_ids),
-                    "skillTermNames": _term_names(table_cfg_dir, gems, group.skill_term_ids),
+                    "secAttrTermNames": _term_names(table_cfg, gems, group.sec_attr_term_ids),
+                    "skillTermNames": _term_names(table_cfg, gems, group.skill_term_ids),
                 }
             )
 
@@ -62,11 +60,11 @@ class EnergyPointGems(Dataset):
         return {"gems": rows}
 
 
-def _term_names(table_cfg_dir: Path, gems: dict[str, GemRow], term_ids: list[str]) -> list[str]:
+def _term_names(table_cfg: TableCfg, gems: dict[str, GemRow], term_ids: list[str]) -> list[str]:
     """词条 id -> 中文名；查不到就留 id 本身。"""
     names: list[str] = []
     for term_id in term_ids:
         gem = gems.get(term_id)
-        name = ref_text(table_cfg_dir, gem.tag_name if gem else None)
+        name = table_cfg.ref_text(gem.tag_name if gem else None)
         names.append(name or term_id)
     return names
