@@ -82,8 +82,14 @@
                         "FastCollect": "Yes",
                         "FastCollectClue": "No",
                         "FastCollectProduction": "Yes",
-                        "RecoveryEmotionStage": "No",
-                        "RecoveryEmotionCabins": [],
+                        "RecoveryEmotionStage": "Yes",
+                        "RecoveryEmotionCabins": [
+                            "ControlNexus",
+                            "ReceptionRoom",
+                            "ManufacturingI",
+                            "ManufacturingII",
+                            "GrowthChamberI"
+                        ],
                         "ReceptionRoomStage": "Yes",
                         "ManufacturingStage": "Yes",
                         "GrowthChamberStage": "Yes"
