@@ -4,8 +4,8 @@
 分类名来自 ShopGoodsTagTable，渠道各等级的供货量来自 ShopChannelDevelopmentTable。只读 TableCfg，不依赖
 其他精简数据、网站页面或人工商品名单。
 
-两道筛选：商店本身得是常驻货架（``shopRefreshType`` 是 ``None`` / 0），商品得会周期补货
-（``limitCountRefreshType`` 不是 ``None`` / 0）。奖励必须是「一件固定物品」，概率掉落或多物品奖励直接报错。
+两道筛选：商店本身得是常驻货架（``shopRefreshType`` 是 ``None`` / 0），商品得每周补货
+（``limitCountRefreshType`` 是 ``Weekly`` / 2）。奖励必须是「一件固定物品」，概率掉落或多物品奖励直接报错。
 同一物品在不同渠道档位是几条独立的商品，各记各的价格，不合并。
 
 顶层四个字典：
@@ -93,7 +93,8 @@ class StockStaple(Dataset):
                     row = _entry(goods, goods_id, f"商店 {shop_id}")
                     if row.shop_id != shop_id:
                         raise DatasetError(f"商品 {goods_id} 的 shopId 与商店目录不一致")
-                    if row.limit_count_refresh_type in ("None", 0):
+                    # Forever 是永久限购；稳定需求只收每周补货的商品，兼容数字枚举 Weekly=2。
+                    if row.limit_count_refresh_type not in ("Weekly", 2):
                         continue
                     reward = _entry(rewards, row.reward_id, f"商品 {goods_id}")
                     if reward.prob_item_bundles or len(reward.item_bundles) != 1:

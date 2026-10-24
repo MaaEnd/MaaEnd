@@ -1,5 +1,6 @@
 {
-    "sha256": "38b1a5f3ffe17207d4c677769b3337d4f6b46af44b5a9681842e6f4566f68ba2",
+    "version": "1.6.4+11262943-8",
+    "sha256": "11f2ea9ec254a85029f933d817429bb3a4ce1b7b0a93698330e96925cb471890",
     "regions": {
         "domain_1": {
             "names": {
@@ -575,7 +576,7 @@
             "item_id": "item_erhound_1_agmelee_1_moss_1_1",
             "count": 1,
             "price": 120000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -584,7 +585,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -605,7 +606,7 @@
             "item_id": "item_lbmob_1_lbshamman_1_sp_1_1",
             "count": 1,
             "price": 120000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -614,7 +615,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -635,7 +636,7 @@
             "item_id": "item_bottled_insec2_2",
             "count": 1,
             "price": 200000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -644,7 +645,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -665,7 +666,7 @@
             "item_id": "item_agfly_1_agmelee_1_moss_2_1",
             "count": 1,
             "price": 120000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -674,7 +675,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -695,7 +696,7 @@
             "item_id": "item_agrange_1_erhound_1_sp_1_1",
             "count": 1,
             "price": 200000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -704,7 +705,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -725,7 +726,7 @@
             "item_id": "item_slimeml_1_erhound_1_agfly_1_1",
             "count": 1,
             "price": 200000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -734,7 +735,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -755,7 +756,7 @@
             "item_id": "item_gem_stable_energy_point_tundra",
             "count": 1,
             "price": 800000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -764,7 +765,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 50,
             "unlock_conditions": [],
@@ -801,7 +802,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 50,
             "unlock_conditions": [],
@@ -838,7 +839,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 60,
             "unlock_conditions": [],
@@ -868,7 +869,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 60,
             "unlock_conditions": [],
@@ -889,7 +890,7 @@
             "item_id": "item_tundra_detector_trchest_3",
             "count": 1,
             "price": 100000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -898,7 +899,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 60,
             "unlock_conditions": [],
@@ -926,7 +927,7 @@
             "item_id": "item_tundra_detector_coin_3",
             "count": 1,
             "price": 100000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -935,7 +936,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 60,
             "unlock_conditions": [],
@@ -963,7 +964,7 @@
             "item_id": "item_gift_tundra_1",
             "count": 1,
             "price": 30000,
-            "discount": 0.2,
+            "discount": 0.20000000298023224,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -972,7 +973,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -993,7 +994,7 @@
             "item_id": "item_gift_tundra_2",
             "count": 1,
             "price": 30000,
-            "discount": 0.2,
+            "discount": 0.20000000298023224,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -1002,7 +1003,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1023,7 +1024,7 @@
             "item_id": "item_gift_tundra_3",
             "count": 1,
             "price": 30000,
-            "discount": 0.2,
+            "discount": 0.20000000298023224,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -1032,7 +1033,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1053,7 +1054,7 @@
             "item_id": "item_gift_tundra_4",
             "count": 1,
             "price": 30000,
-            "discount": 0.2,
+            "discount": 0.20000000298023224,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -1062,7 +1063,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1083,7 +1084,7 @@
             "item_id": "item_gift_tundra_5",
             "count": 1,
             "price": 30000,
-            "discount": 0.2,
+            "discount": 0.20000000298023224,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -1092,7 +1093,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1113,7 +1114,7 @@
             "item_id": "item_gift_tundra_6",
             "count": 1,
             "price": 30000,
-            "discount": 0.2,
+            "discount": 0.20000000298023224,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -1122,7 +1123,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1143,7 +1144,7 @@
             "item_id": "item_gift_tundra_7",
             "count": 1,
             "price": 30000,
-            "discount": 0.2,
+            "discount": 0.20000000298023224,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -1152,7 +1153,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1173,7 +1174,7 @@
             "item_id": "item_gift_tundra_1",
             "count": 1,
             "price": 30000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -1182,7 +1183,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1203,7 +1204,7 @@
             "item_id": "item_gift_tundra_2",
             "count": 1,
             "price": 30000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -1212,7 +1213,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1233,7 +1234,7 @@
             "item_id": "item_gift_tundra_3",
             "count": 1,
             "price": 30000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -1242,7 +1243,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1263,7 +1264,7 @@
             "item_id": "item_gift_tundra_4",
             "count": 1,
             "price": 30000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -1272,7 +1273,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1293,7 +1294,7 @@
             "item_id": "item_gift_tundra_5",
             "count": 1,
             "price": 30000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -1302,7 +1303,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1323,7 +1324,7 @@
             "item_id": "item_gift_tundra_6",
             "count": 1,
             "price": 30000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -1332,7 +1333,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1353,7 +1354,7 @@
             "item_id": "item_gift_tundra_7",
             "count": 1,
             "price": 30000,
-            "discount": 1,
+            "discount": 1.0,
             "currency_id": "item_domain_tundra_coupon",
             "currency_names": {
                 "zh_cn": "谷地调度券",
@@ -1362,7 +1363,7 @@
                 "ja_jp": "谷地取引券",
                 "ko_kr": "협곡 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1383,7 +1384,7 @@
             "item_id": "item_gift_jinlong_1",
             "count": 1,
             "price": 90000,
-            "discount": 0.05,
+            "discount": 0.05000000074505806,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1392,7 +1393,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1413,7 +1414,7 @@
             "item_id": "item_gift_jinlong_2",
             "count": 1,
             "price": 90000,
-            "discount": 0.05,
+            "discount": 0.05000000074505806,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1422,7 +1423,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1443,7 +1444,7 @@
             "item_id": "item_wuling_detector_trchest_3",
             "count": 1,
             "price": 300000,
-            "discount": 0.05,
+            "discount": 0.05000000074505806,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1452,7 +1453,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 60,
             "unlock_conditions": [],
@@ -1473,7 +1474,7 @@
             "item_id": "item_wuling_detector_coin_3",
             "count": 1,
             "price": 300000,
-            "discount": 0.05,
+            "discount": 0.05000000074505806,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1482,7 +1483,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 60,
             "unlock_conditions": [],
@@ -1503,7 +1504,7 @@
             "item_id": "item_corp3_grass1_1",
             "count": 1,
             "price": 300000,
-            "discount": 0.1,
+            "discount": 0.10000000149011612,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1512,7 +1513,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -1533,7 +1534,7 @@
             "item_id": "item_corp4_grass2_1",
             "count": 1,
             "price": 300000,
-            "discount": 0.1,
+            "discount": 0.10000000149011612,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1542,7 +1543,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -1563,7 +1564,7 @@
             "item_id": "item_gem_stable_energy_point_wuling",
             "count": 1,
             "price": 2400000,
-            "discount": 0.05,
+            "discount": 0.05000000074505806,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1572,7 +1573,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 50,
             "unlock_conditions": [],
@@ -1593,7 +1594,7 @@
             "item_id": "item_equip_enhance_wuling",
             "count": 1,
             "price": 1200000,
-            "discount": 0.05,
+            "discount": 0.05000000074505806,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1602,7 +1603,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 50,
             "unlock_conditions": [],
@@ -1623,7 +1624,7 @@
             "item_id": "item_gem_stable_energy_point_wuling",
             "count": 1,
             "price": 2400000,
-            "discount": 0.1,
+            "discount": 0.10000000149011612,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1632,7 +1633,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 50,
             "unlock_conditions": [],
@@ -1653,7 +1654,7 @@
             "item_id": "item_equip_enhance_wuling",
             "count": 1,
             "price": 1200000,
-            "discount": 0.1,
+            "discount": 0.10000000149011612,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1662,7 +1663,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 50,
             "unlock_conditions": [],
@@ -1683,7 +1684,7 @@
             "item_id": "item_gift_jinlong_1",
             "count": 1,
             "price": 90000,
-            "discount": 0.1,
+            "discount": 0.10000000149011612,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1692,7 +1693,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1713,7 +1714,7 @@
             "item_id": "item_gift_jinlong_2",
             "count": 1,
             "price": 90000,
-            "discount": 0.1,
+            "discount": 0.10000000149011612,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1722,7 +1723,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1743,7 +1744,7 @@
             "item_id": "item_wuling_detector_trchest_3",
             "count": 1,
             "price": 300000,
-            "discount": 0.1,
+            "discount": 0.10000000149011612,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1752,7 +1753,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 60,
             "unlock_conditions": [],
@@ -1773,7 +1774,7 @@
             "item_id": "item_wuling_detector_coin_3",
             "count": 1,
             "price": 300000,
-            "discount": 0.1,
+            "discount": 0.10000000149011612,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1782,7 +1783,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 60,
             "unlock_conditions": [],
@@ -1803,7 +1804,7 @@
             "item_id": "item_hscrane_1_hsmob_1_grass_1_1",
             "count": 1,
             "price": 300000,
-            "discount": 0.15,
+            "discount": 0.15000000596046448,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1812,7 +1813,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -1833,7 +1834,7 @@
             "item_id": "item_gift_jinlong_3",
             "count": 1,
             "price": 90000,
-            "discount": 0.15,
+            "discount": 0.15000000596046448,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1842,7 +1843,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1863,7 +1864,7 @@
             "item_id": "item_gift_jinlong_4",
             "count": 1,
             "price": 90000,
-            "discount": 0.15,
+            "discount": 0.15000000596046448,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1872,7 +1873,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1893,7 +1894,7 @@
             "item_id": "item_equip_enhance_wuling",
             "count": 1,
             "price": 1200000,
-            "discount": 0.15,
+            "discount": 0.15000000596046448,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1902,7 +1903,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 50,
             "unlock_conditions": [],
@@ -1923,7 +1924,7 @@
             "item_id": "item_ethillu_1_wgslime_1_wgthorns_1_1",
             "count": 1,
             "price": 300000,
-            "discount": 0.2,
+            "discount": 0.20000000298023224,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1932,7 +1933,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -1953,7 +1954,7 @@
             "item_id": "item_gift_jinlong_5",
             "count": 1,
             "price": 90000,
-            "discount": 0.2,
+            "discount": 0.20000000298023224,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -1962,7 +1963,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -1992,7 +1993,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 50,
             "unlock_conditions": [],
@@ -2013,7 +2014,7 @@
             "item_id": "item_jzmonk_1_hsmob_1_1",
             "count": 1,
             "price": 300000,
-            "discount": 0.3,
+            "discount": 0.30000001192092896,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -2022,7 +2023,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -2043,7 +2044,7 @@
             "item_id": "item_gift_jinlong_6",
             "count": 1,
             "price": 90000,
-            "discount": 0.3,
+            "discount": 0.30000001192092896,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -2052,7 +2053,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -2073,7 +2074,7 @@
             "item_id": "item_gift_jinlong_7",
             "count": 1,
             "price": 90000,
-            "discount": 0.3,
+            "discount": 0.30000001192092896,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -2082,7 +2083,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -2103,7 +2104,7 @@
             "item_id": "item_equip_enhance_wuling",
             "count": 1,
             "price": 1200000,
-            "discount": 0.35,
+            "discount": 0.3499999940395355,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -2112,7 +2113,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 50,
             "unlock_conditions": [],
@@ -2142,7 +2143,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -2163,7 +2164,7 @@
             "item_id": "item_gift_jinlong_10",
             "count": 1,
             "price": 90000,
-            "discount": 0.4,
+            "discount": 0.4000000059604645,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -2172,7 +2173,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -2193,7 +2194,7 @@
             "item_id": "item_gift_jinlong_11",
             "count": 1,
             "price": 90000,
-            "discount": 0.4,
+            "discount": 0.4000000059604645,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -2202,7 +2203,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -2223,7 +2224,7 @@
             "item_id": "item_gift_jinlong_8",
             "count": 1,
             "price": 90000,
-            "discount": 0.4,
+            "discount": 0.4000000059604645,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -2232,7 +2233,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -2253,7 +2254,7 @@
             "item_id": "item_gift_jinlong_9",
             "count": 1,
             "price": 90000,
-            "discount": 0.4,
+            "discount": 0.4000000059604645,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -2262,7 +2263,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -2292,7 +2293,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 60,
             "unlock_conditions": [],
@@ -2313,7 +2314,7 @@
             "item_id": "item_klcreatures_1_wgthorns_1_1",
             "count": 1,
             "price": 300000,
-            "discount": 0.4,
+            "discount": 0.4000000059604645,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -2322,7 +2323,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -2343,7 +2344,7 @@
             "item_id": "item_klbuds_1_hsfly_1_1",
             "count": 1,
             "price": 300000,
-            "discount": 0.4,
+            "discount": 0.4000000059604645,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -2352,7 +2353,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -2382,7 +2383,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 50,
             "unlock_conditions": [],
@@ -2412,7 +2413,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 60,
             "unlock_conditions": [],
@@ -2442,7 +2443,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -2472,7 +2473,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 100,
             "unlock_conditions": [],
@@ -2493,7 +2494,7 @@
             "item_id": "item_gift_jinlong_12",
             "count": 1,
             "price": 90000,
-            "discount": 0.4,
+            "discount": 0.4000000059604645,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -2502,7 +2503,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
@@ -2523,7 +2524,7 @@
             "item_id": "item_gift_jinlong_13",
             "count": 1,
             "price": 90000,
-            "discount": 0.4,
+            "discount": 0.4000000059604645,
             "currency_id": "item_domain_jinlong_coupon",
             "currency_names": {
                 "zh_cn": "武陵调度券",
@@ -2532,7 +2533,7 @@
                 "ja_jp": "武陵取引券",
                 "ko_kr": "무릉 관리권"
             },
-            "refresh_type": 2,
+            "refresh_type": "Weekly",
             "limit_count": 0,
             "sort_id": 70,
             "unlock_conditions": [],
