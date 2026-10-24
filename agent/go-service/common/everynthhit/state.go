@@ -16,9 +16,9 @@ var states = struct {
 }
 
 // Advance reports whether this call is the every-th hit of key. The call right
-// after a hit or a reset is not counted, because the loop re-enters the
-// recognition once without a completed route in between. every <= 0 never
-// counts and never hits.
+// after a hit is not counted, because the loop re-enters the recognition once
+// without a completed route in between. every <= 0 never counts and never
+// hits.
 func Advance(key string, every int) bool {
 	if every <= 0 {
 		return false
@@ -41,15 +41,6 @@ func Advance(key string, every int) bool {
 	return true
 }
 
-// Reset clears the counter of key and leaves the next call uncounted, so the
-// first loop scan after a task start is not treated as a completed route.
-func Reset(key string) {
-	states.Lock()
-	delete(states.counts, key)
-	states.skips[key] = struct{}{}
-	states.Unlock()
-}
-
 // ResetAll clears every counter together with its pending uncounted call.
 func ResetAll() {
 	states.Lock()
@@ -61,8 +52,7 @@ func ResetAll() {
 var _ maa.TaskerEventSink = &stateResetSink{}
 
 // stateResetSink clears every counter once a task ends, so counters left over
-// by a stopped task never affect the next run. It is a fallback only: callers
-// are expected to reset the keys they use.
+// by a stopped task never affect the next run.
 type stateResetSink struct{}
 
 // OnTaskerTask implements maa.TaskerEventSink.
