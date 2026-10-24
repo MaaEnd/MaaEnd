@@ -61,7 +61,8 @@
                     "description": "$option.CreditShoppingClueSend.MaxClueSend.description",
                     "default": "1",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$"
+                    "verify": "^(?:0|[1-9]|1\\d|20)$",
+                    "pattern_msg": "$option.CreditShoppingClueSend.MaxClueSend.pattern_msg"
                 }
             ],
             "pipeline_override": {
