@@ -469,6 +469,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersPickRow",
             "BatchAddFriendsChangeBatch"
         ]
@@ -482,6 +483,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersPickRow",
             "BatchAddFriendsChangeBatch"
         ]
@@ -635,6 +637,7 @@
             "BatchAddFriendsStrangersScan"
         ],
         "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersResetMenuClose"
         ]
     },
@@ -662,6 +665,7 @@
             "BatchAddFriendsStrangersScan"
         ],
         "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersStart"
         ]
     },
@@ -701,6 +705,7 @@
             "BatchAddFriendsStrangersScan"
         ],
         "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersProfileCardOpened"
         ]
     },
@@ -723,7 +728,7 @@
             "type": "DoNothing",
             "param": {}
         },
-        // 确认名片已打开后，等左下角信息区域稳定再读等级。
+        // 名片是淡入的：等左上信息区稳定后再读等级，避免读到空白。
         "post_wait_freezes": {
             "time": 150,
             "target": [
@@ -739,6 +744,7 @@
             "BatchAddFriendsStrangersProfileFallbackClose"
         ],
         "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersProfileAuthorityLevel"
         ]
     },
@@ -782,7 +788,7 @@
             "param": {
                 "all_of": [
                     "BatchAddFriendsStrangersProfileAddFriend",
-                    "BatchAddFriendsStrangersProfileMoreButton",
+                    "ProfilePageMoreButton",
                     "BatchAddFriendsStrangersProfileCloseButton"
                 ],
                 "box_index": 2
@@ -1100,6 +1106,7 @@
         "pre_wait_freezes": 100,
         "post_delay": 0,
         "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersProfileQualify"
         ]
     },
@@ -1148,6 +1155,7 @@
         "pre_wait_freezes": 100,
         "post_delay": 0,
         "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersRecordReject"
         ]
     },
@@ -1207,28 +1215,10 @@
             "BatchAddFriendsStrangersProfileClose"
         ],
         "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsFriendListFullToast",
             "BatchAddFriendsStrangersApplySentToast"
         ]
-    },
-    "BatchAddFriendsStrangersProfileMoreButton": {
-        "desc": "名片头像下方的「…」按钮：指定 ROI 内仅个人名片页面独有，用作「在名片页」的判据",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    59,
-                    90,
-                    545,
-                    451
-                ],
-                "template": "Common/Button/moreButton.png",
-                "green_mask": true
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
     },
     "BatchAddFriendsStrangersProfilePage": {
         "desc": "在名片页：权限等级图标或「…」按钮任一命中即可",
@@ -1239,7 +1229,7 @@
             "param": {
                 "any_of": [
                     "BatchAddFriendsStrangersProfileReady",
-                    "BatchAddFriendsStrangersProfileMoreButton"
+                    "ProfilePageMoreButton"
                 ]
             }
         },
@@ -1251,7 +1241,7 @@
         "desc": "名片页/列表页右上角的 X 按钮",
         // 复用仓库通用素材 Common/Button/CloseButtonType5.png。
         // 两页的 X 完全相同、位置也一样，所以它不能单独当判据，
-        // 只负责给出点击位置；是否在名片页由 ProfileReady / ProfileMoreButton 把关。
+        // 只负责给出点击位置；是否在名片页由 ProfileReady / ProfilePageMoreButton 把关。
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1322,6 +1312,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersOnAdd",
             "BatchAddFriendsStrangersEnd"
         ]
@@ -1372,6 +1363,7 @@
             }
         },
         "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersScan"
         ],
         "rate_limit": 0,

@@ -13,7 +13,8 @@
             "image": "好友_添加好友_头像菜单.png",
             "hits": [
                 "BatchAddFriendsStrangersMenuViewProfile",
-                "BatchAddFriendsStrangersResetMenu",
+                "BatchAddFriendsStrangersResetMenuProbe",
+                "BatchAddFriendsStrangersResetMenuOpen",
                 "BatchAddFriendsStrangersAddButtonColumn",
                 "BatchAddFriendsChangeBatch"
             ]
