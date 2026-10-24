@@ -42,6 +42,8 @@
                 "CaptureUid",
                 "ClearHitCount",
                 "CloseGameAction",
+                "CloseCloudWeb",
+                "CloudRelativeMove",
                 "CreditShoppingScanItemAction",
                 "DeliveryJobsResolveOngoingDepotAction",
                 "ERROR",
@@ -98,6 +100,83 @@
         }
     },
     "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {
+                        "const": "CloudRelativeMove"
+                    }
+                },
+                "required": [
+                    "custom_action"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "dx": {
+                                "type": "integer",
+                                "minimum": -2147483648,
+                                "maximum": 2147483647
+                            },
+                            "dy": {
+                                "type": "integer",
+                                "minimum": -2147483648,
+                                "maximum": 2147483647
+                            },
+                            "begin": {
+                                "type": "array",
+                                "items": {
+                                    "type": "integer",
+                                    "minimum": -2147483648,
+                                    "maximum": 2147483647
+                                },
+                                "minItems": 2,
+                                "maxItems": 2
+                            }
+                        },
+                        "oneOf": [
+                            {
+                                "required": [
+                                    "dx",
+                                    "dy"
+                                ],
+                                "not": {
+                                    "required": [
+                                        "begin"
+                                    ]
+                                }
+                            },
+                            {
+                                "required": [
+                                    "begin"
+                                ],
+                                "not": {
+                                    "anyOf": [
+                                        {
+                                            "required": [
+                                                "dx"
+                                            ]
+                                        },
+                                        {
+                                            "required": [
+                                                "dy"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "custom_action_param"
+                ]
+            }
+        },
         {
             "if": {
                 "properties": {

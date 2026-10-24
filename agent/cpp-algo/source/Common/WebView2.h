@@ -78,6 +78,9 @@ public:
     // 仅在 Open() 之前调用有效；之后调用会被忽略。
     void SetContextMenuEnabled(bool enabled);
 
+    // 在 Open 前配置此宿主的浏览器参数；空字符串沿用 Runtime 默认值。
+    void SetAdditionalBrowserArguments(std::wstring arguments);
+
     // 以下三个接口可在 Open() 成功之后由任意线程调用：调用被投递到 UI 线程执行，
     // 回调也在 UI 线程上触发，因此回调里不要做阻塞等待。控件未就绪时以失败立即回调。
 
@@ -98,13 +101,25 @@ protected:
     void onUiThreadShutdown() override;
     std::optional<LRESULT> onMessage(UINT msg, WPARAM wparam, LPARAM lparam) override;
 
+    // 派生宿主可在首次导航前异步安装页面策略；仅在 UI 线程调用。
+    virtual void onBeforeNavigate(std::function<void(bool)> on_done) { on_done(true); }
+
+    // 仅需要键盘接管的派生宿主启用，其他调用方保持原焦点行为。
+    virtual bool focusWebContentOnActivation() const { return false; }
+
+    virtual void resizeToClientRect();
+
+    ICoreWebView2* GetWebView() const noexcept { return webview_.Get(); }
+
+    ICoreWebView2Controller* GetController() const noexcept { return controller_.Get(); }
+
 private:
     void initializeWebView();
     void onEnvironmentCreated(HRESULT result, ICoreWebView2Environment* env);
     void onControllerCreated(HRESULT result, ICoreWebView2Controller* controller);
     void clearSiteData(std::function<void(bool ok)> on_done);
+    void prepareNavigation();
     void navigateInitialUrl();
-    void resizeToClientRect();
 
     // 通知等在 Open() 上的业务线程：WebView2 初始化已完成（成功或失败）。幂等。
     void signalInitDone(bool ok);
@@ -134,6 +149,7 @@ private:
     // 配置字段：仅在 Open() 之前由业务线程写入，UI 线程在 onControllerCreated 中读取一次。
     std::string initial_url_;
     std::string user_agent_;
+    std::wstring browser_arguments_;
     bool clear_web_data_ = false;
     bool touch_emulation_ = false;
     bool context_menu_enabled_ = true;

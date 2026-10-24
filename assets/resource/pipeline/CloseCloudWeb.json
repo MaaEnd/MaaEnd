@@ -1,0 +1,7 @@
+{
+    "CloseCloudWeb": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "CloseCloudWeb"
+    }
+}

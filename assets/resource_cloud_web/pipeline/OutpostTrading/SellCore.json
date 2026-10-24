@@ -1,0 +1,18 @@
+{
+    "OutpostTradingSell": {
+        "target_offset": [
+            -60,
+            0,
+            0,
+            0
+        ]
+    },
+    "OutpostTradingSellThenLoop": {
+        "target_offset": [
+            -60,
+            0,
+            0,
+            0
+        ]
+    }
+}

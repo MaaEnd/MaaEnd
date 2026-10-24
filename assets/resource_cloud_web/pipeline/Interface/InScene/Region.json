@@ -1,0 +1,10 @@
+{
+    "InMenuList": {
+        "recognition": "And",
+        "all_of": [
+            "CheckMenuListText",
+            "CheckMenuListText2",
+            "__ScenePrivateMenuListLoadingEnterWorld"
+        ]
+    }
+}

@@ -382,6 +382,11 @@ jobs:
         shell: bash
         run: ccache -sv || true
 
+      - name: Run cloud controller policy tests
+        if: matrix.os == 'win' && matrix.arch == 'x86_64'
+        shell: bash
+        run: ctest --test-dir agent/cpp-algo/build -C RelWithDebInfo -L '^cloud-policy$' --no-tests=error --output-on-failure
+
       - name: Run IconRecognition quick tests
         if: matrix.os == 'win' && matrix.arch == 'x86_64' && (needs.meta.outputs.is_release == 'true' || needs.meta.outputs.icon_recognition_changed == 'true')
         shell: powershell
@@ -407,7 +412,9 @@ jobs:
           name: cpp-algo-${{ matrix.os }}-${{ matrix.arch }}
           path: |
             install/agent/cpp-algo*
+            install/agent/cloud-webview*
             install/agent/WebView2Loader.dll
+            install/agent/MaaUtils.dll
           retention-days: 90
 
   package_linux_tarball:

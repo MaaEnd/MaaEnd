@@ -17,7 +17,8 @@
                 "MacOS-Background",
                 "MacOS-Front",
                 "PlayCover",
-                "Win32-Front"
+                "Win32-Front",
+                "Win32-CloudWeb"
             ],
             "option": [
                 "DailyEmailRewards",

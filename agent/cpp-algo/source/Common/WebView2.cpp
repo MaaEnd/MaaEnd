@@ -8,6 +8,7 @@
 
 #include <objbase.h>
 
+#include <WebView2EnvironmentOptions.h>
 #include <wrl.h>
 
 #include <MaaUtils/Logger.h>
@@ -110,6 +111,15 @@ std::filesystem::path redirect_user_data_folder()
 } // namespace
 
 WebView2::WebView2() = default;
+
+void WebView2::SetAdditionalBrowserArguments(std::wstring arguments)
+{
+    if (isOpened()) {
+        LogWarn << "WebView2::SetAdditionalBrowserArguments: ignored, must be called before Open()";
+        return;
+    }
+    browser_arguments_ = std::move(arguments);
+}
 
 WebView2::~WebView2()
 {
@@ -218,6 +228,14 @@ void WebView2::onUiThreadShutdown()
 
 std::optional<LRESULT> WebView2::onMessage(UINT msg, WPARAM, LPARAM)
 {
+    if (msg == WM_SETFOCUS && controller_ && focusWebContentOnActivation() && GetForegroundWindow() == GetHwnd()) {
+        // 宿主重新获得焦点时，键盘输入也必须回到网页；仅激活外层 HWND 不会自动恢复子控件焦点。
+        const HRESULT hr = controller_->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
+        if (FAILED(hr)) {
+            LogWarn << "WebView2: MoveFocus failed" << VAR(hr);
+        }
+        return 0;
+    }
     if (msg == WM_SIZE && controller_) {
         resizeToClientRect();
     }
@@ -245,10 +263,16 @@ void WebView2::initializeWebView()
     using Microsoft::WRL::Callback;
     using EnvHandler = ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler;
 
+    auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
+    if (!options || FAILED(options->put_AdditionalBrowserArguments(browser_arguments_.c_str()))) {
+        signalInitDone(false);
+        return;
+    }
+
     HRESULT hr = CreateCoreWebView2EnvironmentWithOptions(
-        nullptr,   // browserExecutableFolder：使用系统已安装的 WebView2 Runtime
-        udf_param, // userDataFolder：和环境变量保持一致，双保险
-        nullptr,   // environmentOptions
+        nullptr,       // browserExecutableFolder：使用系统已安装的 WebView2 Runtime
+        udf_param,     // userDataFolder：和环境变量保持一致，双保险
+        options.Get(), // 显式传递参数，兼容启动时已缓存环境变量的 Loader。
         Callback<EnvHandler>([this](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
             // 该回调在 UI 线程上被触发（创建时所在的 STA 线程）。
             onEnvironmentCreated(result, env);
@@ -372,12 +396,24 @@ void WebView2::onControllerCreated(HRESULT result, ICoreWebView2Controller* cont
                 signalInitDone(false);
                 return;
             }
-            navigateInitialUrl();
+            prepareNavigation();
         });
         return;
     }
 
-    navigateInitialUrl();
+    prepareNavigation();
+}
+
+void WebView2::prepareNavigation()
+{
+    onBeforeNavigate([this](bool ok) {
+        if (!ok) {
+            LogError << "WebView2: pre-navigation setup failed";
+            signalInitDone(false);
+            return;
+        }
+        navigateInitialUrl();
+    });
 }
 
 void WebView2::clearSiteData(std::function<void(bool ok)> on_done)
@@ -457,14 +493,23 @@ void WebView2::signalInitDone(bool ok)
 
 void WebView2::resizeToClientRect()
 {
-    if (!controller_) {
+    if (!controller_ || IsIconic(GetHwnd())) {
+        // 最小化时不能把 WebView 视口压成零尺寸：即使开启焦点仿真，
+        // 零尺寸渲染仍会使 CDP mouseMoved 回调退化到约 1 秒一次。
+        // 保留最后一次有效视口，恢复窗口后再按实际客户区更新。
         return;
     }
 
     // 留出基类的 chrome 边距：顶部 caption + 四周 resize 边框；这部分由基类 WM_NCHITTEST
     // 原生处理拖拽 / 缩放。基类在 onPaint 里把 chrome 涂成深色，配合 WS_CLIPCHILDREN 自然分割。
     RECT rc = getContentRect();
-    controller_->put_Bounds(rc);
+    if (rc.right <= rc.left || rc.bottom <= rc.top) {
+        return;
+    }
+    const HRESULT hr = controller_->put_Bounds(rc);
+    if (FAILED(hr)) {
+        LogWarn << "WebView2: resize failed" << VAR(hr);
+    }
 }
 
 bool WebView2::postToUiThread(std::function<void()> fn)

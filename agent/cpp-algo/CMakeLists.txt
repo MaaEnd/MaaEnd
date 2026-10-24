@@ -7,6 +7,10 @@ if(APPLE)
 endif()
 
 option(MAAEND_BUILD_ICON_RECOGNITION_TESTS "Build IconRecognition tests" OFF)
+option(MAAEND_BUILD_CLOUD_WEBVIEW_TESTS "Build cloud startup and input policy tests" OFF)
+if(MAAEND_BUILD_CLOUD_WEBVIEW_TESTS)
+    enable_testing()
+endif()
 
 include(MaaUtils/MaaUtils.cmake)
 
@@ -42,3 +46,11 @@ find_package(MaaAgentServer REQUIRED)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/WebView2.cmake)
 
 add_subdirectory(source)
+
+if(MAAEND_BUILD_CLOUD_WEBVIEW_TESTS)
+    add_subdirectory(cloud-webview/tests)
+endif()
+
+if(WIN32)
+    add_subdirectory(cloud-webview)
+endif()

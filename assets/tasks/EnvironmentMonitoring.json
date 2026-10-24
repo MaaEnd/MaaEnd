@@ -15,7 +15,8 @@
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
                 "PlayCover",
-                "Win32-Front"
+                "Win32-Front",
+                "Win32-CloudWeb"
             ]
         }
     ]

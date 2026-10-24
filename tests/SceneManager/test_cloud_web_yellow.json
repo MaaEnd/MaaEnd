@@ -1,0 +1,28 @@
+{
+    "configs": {
+        "name": "云视频黄色按钮识别",
+        "resource": "官服",
+        "controller": "Win32-CloudWeb"
+    },
+    "cases": [
+        {
+            "image": "云终末地_好友拜访确认.png",
+            "hits": [
+                "YellowButtonBackground",
+                "YellowConfirmButtonType1"
+            ]
+        },
+        {
+            "image": "云终末地_据点交易.png",
+            "hits": ["YellowButtonBackground"]
+        },
+        {
+            "image": "云终末地_好友拜访确认_遮挡黄色按钮.png",
+            "hits": []
+        },
+        {
+            "image": "云终末地_大世界.png",
+            "hits": []
+        }
+    ]
+}

@@ -681,6 +681,9 @@ def build_cpp_algo(
             f"-DENABLE_CCACHE={enable_ccache}",
         ]
 
+        if ci_mode and resolved_os == "win" and resolved_arch == "x86_64":
+            configure_cmd.append("-DMAAEND_BUILD_CLOUD_WEBVIEW_TESTS=ON")
+
         # MSVC + ccache: /Zi 不可缓存, 改用 /Z7 (Embedded)
         if resolved_os == "win" and enable_ccache == "ON":
             configure_cmd.append(

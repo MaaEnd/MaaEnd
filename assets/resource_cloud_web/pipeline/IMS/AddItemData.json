@@ -1,0 +1,16 @@
+{
+    "IMSA3MouseMoveReset": {
+        "desc": "云网页：将游戏指针移到视频下边缘，避开官网左上角悬浮菜单及奖励图标",
+        "action": {
+            "type": "TouchMove",
+            "param": {
+                "target": [
+                    640,
+                    719,
+                    1,
+                    1
+                ]
+            }
+        }
+    }
+}

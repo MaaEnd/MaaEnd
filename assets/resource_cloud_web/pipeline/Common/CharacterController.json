@@ -1,0 +1,19 @@
+{
+    "__CharacterControllerDeltaSwipeAction": {
+        "action": "Custom",
+        "custom_action": "CloudRelativeMove",
+        "custom_action_param": {"dx": 0, "dy": 0}
+    },
+    "__CharacterControllerDeltaClickCenterAction": {
+        "action": "DoNothing"
+    },
+    "__CharacterControllerDeltaAltKeyDownAction": {
+        "action": "DoNothing"
+    },
+    "__CharacterControllerDeltaAltKeyUpAction": {
+        "action": "DoNothing"
+    },
+    "MapNavigatorZiplinePitchReset": {
+        "custom_action": "CloudRelativeMove"
+    }
+}

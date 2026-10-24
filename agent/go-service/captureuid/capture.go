@@ -41,7 +41,7 @@ var (
 )
 
 // Capture 捕获玩家 UID，并按 outputType 返回格式化结果。
-// Win32 控制器仅从注册表读取；其他控制器使用原有的 OCR 流程。
+// 本地 Win32 控制器从注册表读取；云网页与其他控制器使用 OCR。
 func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScreen, allowUnknown bool, outputType OutputType) (string, error) {
 	if useCache {
 		if uid := GetCachedUID(outputType); uid != "" {
@@ -55,7 +55,7 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 	if typ == "" {
 		return captureErr(allowUnknown, "cannot determine controller type")
 	}
-	if typ != pienv.ControllerKindWin32 {
+	if typ != pienv.ControllerKindWin32 || pienv.ControllerName() == "Win32-CloudWeb" {
 		return captureByOCR(ctx, ctrl, stayOnCurrentScreen, allowUnknown, outputType)
 	}
 
@@ -88,8 +88,13 @@ func captureByOCR(ctx *maa.Context, ctrl *maa.Controller, stayOnCurrentScreen, a
 	if err != nil || img == nil {
 		return captureErr(allowUnknown, "screenshot failed: %w", err)
 	}
+	roi := maa.Rect{60, 690, 155, 25}
+	if pienv.ControllerName() == "Win32-CloudWeb" {
+		// The desktop stream places the complete UID at the left video edge.
+		roi = maa.Rect{0, 690, 220, 30}
+	}
 	param := maa.OCRParam{
-		ROI:      maa.NewTargetRect(maa.Rect{60, 690, 155, 25}),
+		ROI:      maa.NewTargetRect(roi),
 		Expected: []string{".*"},
 		OnlyRec:  true,
 		OrderBy:  maa.OCROrderByLength,
