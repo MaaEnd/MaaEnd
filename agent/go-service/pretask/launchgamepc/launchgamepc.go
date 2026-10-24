@@ -501,8 +501,7 @@ func runLauncherPipeline(hWnd unsafe.Pointer) bool {
 }
 
 func runPipeline(hWnd unsafe.Pointer) error {
-	// 鼠标用 Seize（SendInput 真实输入），DP 显示器息屏后点击可唤醒显示器；PostMessage 不算用户输入，无法唤醒
-	ctrl, err := maa.NewWin32Controller(hWnd, win32.ScreencapPrintWindow, win32.InputSeize, win32.InputPostMessage)
+	ctrl, err := maa.NewWin32Controller(hWnd, win32.ScreencapPrintWindow, win32.InputSendMessage, win32.InputSendMessage)
 	if err != nil {
 		return err
 	}
