@@ -72,6 +72,15 @@ func (a *OperatorPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 	}
 	limits := make(map[string]string, len(routes))
 	for _, r := range routes {
+		if r.Manual {
+			limit, err := manualLimit(ctx, r)
+			if err != nil {
+				log.Error().Err(err).Str("component", component).Str("route", r.Key).Msg("failed to keep the manual limit")
+				return false
+			}
+			limits[r.Key] = limit
+			continue
+		}
 		limits[r.Key] = strconv.FormatInt(totals[r.Key], 10)
 	}
 	patch := map[string]any{}
@@ -88,6 +97,40 @@ func (a *OperatorPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 	maafocus.Print(ctx, text)
 	log.Info().Str("component", component).Strs("operators", selected).Interface("limits", totals).Str("summary", text).Msg("operator growth totals applied to target inventory")
 	return true
+}
+
+// manualLimit reads the user's SupplyPlanLimits value for r from its
+// SupplyPlanRewardItemMet node, whose expression ends with ">=<limit>".
+func manualLimit(ctx *maa.Context, r route) (string, error) {
+	raw, err := ctx.GetNodeJSON("SupplyPlanRewardItemMet_" + r.Key)
+	if err != nil {
+		return "", err
+	}
+	var node struct {
+		Recognition struct {
+			Param struct {
+				Custom struct {
+					Expression string `json:"expression"`
+				} `json:"custom_recognition_param"`
+			} `json:"param"`
+		} `json:"recognition"`
+	}
+	if err := json.Unmarshal([]byte(raw), &node); err != nil {
+		return "", err
+	}
+	return limitFromMet(r, node.Recognition.Param.Custom.Expression)
+}
+
+// limitFromMet extracts the limit from "<quantity>>=<limit>".
+func limitFromMet(r route, expr string) (string, error) {
+	limit, ok := strings.CutPrefix(expr, r.quantity()+">=")
+	if !ok {
+		return "", fmt.Errorf("unexpected expression %q", expr)
+	}
+	if n, err := strconv.ParseInt(limit, 10, 64); err != nil || n < 0 || n > maxLimit {
+		return "", fmt.Errorf("invalid manual limit %q", limit)
+	}
+	return limit, nil
 }
 
 // selectedOperators reads checkbox cases, each writing {"<Operator>": true} into attach.

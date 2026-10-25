@@ -194,7 +194,7 @@
     "supplyplan.operator_plan_row": "%s：総量 %d / 所持 %d / 不足 %d",
     "supplyplan.red_check_failed": "%s：赤字の読み取りに失敗したため、未育成からの総量で計算します",
     "supplyplan.red_check_reading": "赤字チェック：%s の育成総覧を読み取り中",
-    "supplyplan.red_check_result": "%s：赤字のルート %d 件、その他のルートは周回しません（経験値を除く）",
+    "supplyplan.red_check_result": "%s：赤字のルート %d 件、その他のルートは周回しません",
     "tasker.aspect_ratio_warning.controller_label": "現在のコントローラー：",
     "tasker.aspect_ratio_warning.current_resolution": "現在の解像度：",
     "tasker.aspect_ratio_warning.desc": "💡 解像度を調整してから再実行してください。",

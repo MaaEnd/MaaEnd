@@ -195,7 +195,7 @@
     "supplyplan.operator_plan_row": "%s: total %d / owned %d / missing %d",
     "supplyplan.red_check_failed": "%s: red-label check failed; using fresh-to-max totals",
     "supplyplan.red_check_reading": "Red-label check: reading Cultivation Overview of %s",
-    "supplyplan.red_check_result": "%s: %d routes still red; other routes skipped (EXP excepted)",
+    "supplyplan.red_check_result": "%s: %d routes still red; other routes skipped",
     "tasker.aspect_ratio_warning.controller_label": "Current controller:",
     "tasker.aspect_ratio_warning.current_resolution": "Current resolution:",
     "tasker.aspect_ratio_warning.desc": "💡 Adjust the resolution and run the task again.",

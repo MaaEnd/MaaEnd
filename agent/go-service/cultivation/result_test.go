@@ -113,11 +113,11 @@ func TestCachedDayMismatchInFile(t *testing.T) {
 func TestCheckedIsPerTaskCopyAndKeepsLatestTaskOnly(t *testing.T) {
 	useTempCache(t)
 	now := time.Now()
-	SetTarget(1, "Si")
-	if name, ok := target(1); !ok || name != "Si" {
-		t.Fatalf("target: %q %v", name, ok)
+	SetTarget(1, "Si", "祀")
+	if name, display, ok := target(1); !ok || name != "Si" || display != "祀" {
+		t.Fatalf("target: %q %q %v", name, display, ok)
 	}
-	if _, ok := target(2); ok {
+	if _, _, ok := target(2); ok {
 		t.Fatal("target leaked to another task")
 	}
 	Record(1, "Si", Red{Routes: []string{"T_CREDS"}, Day: GameDay(now)})
@@ -131,7 +131,19 @@ func TestCheckedIsPerTaskCopyAndKeepsLatestTaskOnly(t *testing.T) {
 	if len(Checked(1)) != 0 || len(Checked(2)) != 1 {
 		t.Fatalf("older task retained: %v %v", Checked(1), Checked(2))
 	}
-	if _, ok := target(1); ok {
+	if _, _, ok := target(1); ok {
 		t.Fatal("older task target retained")
+	}
+}
+
+func TestReuseDoesNotRewriteCache(t *testing.T) {
+	path := useTempCache(t)
+	now := time.Now()
+	Reuse(3, "Si", Red{Routes: []string{"PROTOPRISM"}, Day: GameDay(now)})
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		t.Fatalf("Reuse wrote the cache file: %v", err)
+	}
+	if got := Checked(3); len(got) != 1 || got["Si"].Routes[0] != "PROTOPRISM" {
+		t.Fatalf("Reuse did not record the task result: %+v", got)
 	}
 }

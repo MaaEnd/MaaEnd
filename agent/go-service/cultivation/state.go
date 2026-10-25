@@ -41,8 +41,13 @@ func listTop(previous, current image.Image) (string, error) {
 	if previous == nil {
 		return "again", nil
 	}
-	if _, _, seen := core.Scrollbar(previous); seen && !bar {
+	_, _, seen := core.Scrollbar(previous)
+	if seen && !bar {
 		return "", errors.New("scrollbar disappeared while finding top")
+	}
+	if !seen && !bar && core.StationaryAboveToast(previous, current) {
+		// No scrollbar and nothing moved above the toast strip: a one-screen list.
+		return "done", nil
 	}
 	if core.Stationary(previous, current) {
 		if !bar {
@@ -65,10 +70,14 @@ func listBottom(previous, current image.Image, observed bool) (string, error) {
 	if _, end, bar := core.Scrollbar(previous); bar && end >= 652 {
 		return "done", nil
 	}
-	if _, _, seen := core.Scrollbar(previous); seen {
-		if _, _, bar := core.Scrollbar(current); !bar {
-			return "", errors.New("scrollbar disappeared while finding bottom")
-		}
+	_, _, seen := core.Scrollbar(previous)
+	_, _, bar := core.Scrollbar(current)
+	if seen && !bar {
+		return "", errors.New("scrollbar disappeared while finding bottom")
+	}
+	if !seen && !bar && core.StationaryAboveToast(previous, current) {
+		// A one-screen list; see listTop.
+		return "done", nil
 	}
 	if core.Stationary(previous, current) {
 		if _, end, bar := core.Scrollbar(current); bar && end < 652 {

@@ -7,18 +7,28 @@ import (
 
 // Stationary compares only the material list, excluding account/connection text.
 func Stationary(a, b image.Image) bool {
+	return stationaryIn(a, b, image.Rect(425, 250, 1238, 665))
+}
+
+// StationaryAboveToast compares the list without its bottom strip, where the cloud
+// client shows transient toasts (for example an unstable-network notice).
+func StationaryAboveToast(a, b image.Image) bool {
+	return stationaryIn(a, b, image.Rect(425, 250, 1238, 620))
+}
+
+func stationaryIn(a, b image.Image, area image.Rectangle) bool {
 	if a == nil || b == nil || a.Bounds() != b.Bounds() {
 		return false
 	}
 	var diff float64
-	for y := 250; y < 665; y++ {
-		for x := 425; x < 1238; x++ {
+	for y := area.Min.Y; y < area.Max.Y; y++ {
+		for x := area.Min.X; x < area.Max.X; x++ {
 			ar, ag, ab, _ := a.At(x, y).RGBA()
 			br, bg, bb, _ := b.At(x, y).RGBA()
 			diff += math.Abs(float64(ar)-float64(br)) + math.Abs(float64(ag)-float64(bg)) + math.Abs(float64(ab)-float64(bb))
 		}
 	}
-	return diff/(257*3*415*813) < .8
+	return diff/(257*3*float64(area.Dx()*area.Dy())) < .8
 }
 
 // Scrollbar returns the longest bright thumb in the measured right edge.

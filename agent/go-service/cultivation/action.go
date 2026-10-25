@@ -62,12 +62,16 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	defer scanMu.Unlock()
 	if p.Step == "operator_missing" || p.Step == "expectation_missing" {
 		scan = nil
-		if name, ok := target(arg.TaskID); ok {
+		if name, _, ok := target(arg.TaskID); ok {
 			Record(arg.TaskID, name, Red{Failed: true, Day: GameDay(time.Now())})
 		} else {
 			log.Warn().Str("component", "Cultivation").Str("step", p.Step).Msg("no scan target set; nothing recorded")
 		}
-		maafocus.Print(ctx, i18n.T("cultivation."+p.Step))
+		key := "cultivation.operator_missing"
+		if p.Step == "expectation_missing" {
+			key = "cultivation.expectation_missing"
+		}
+		maafocus.Print(ctx, i18n.T(key))
 		return true
 	}
 	if p.Step == "end" {
@@ -77,7 +81,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if p.Step == "begin" {
 		// A new run always discards unfinished observations from any prior task.
 		scan = nil
-		name, ok := target(arg.TaskID)
+		name, display, ok := target(arg.TaskID)
 		if !ok {
 			return fail(ctx, errors.New("no scan target set for this task"))
 		}
@@ -103,6 +107,13 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		h, err := header(ctx, img)
 		if err != nil {
 			return fail(ctx, err)
+		}
+		if display != "" && h.Operator != display {
+			// Never cache another operator's labels under this Name.
+			Record(arg.TaskID, name, Red{Failed: true, Day: GameDay(time.Now())})
+			scan = &session{TaskID: arg.TaskID, Name: name, Decision: "skip"}
+			log.Warn().Str("component", "Cultivation").Str("operator", name).Str("header", h.Operator).Msg("overview shows another operator; skipped")
+			return true
 		}
 		scan = &session{TaskID: arg.TaskID, Header: h, Name: name, Missing: map[string]core.Material{}}
 		return true

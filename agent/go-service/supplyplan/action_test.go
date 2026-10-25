@@ -126,24 +126,47 @@ func TestOwnedUsesUpstreamExperienceWeights(t *testing.T) {
 	}
 }
 
-func TestApplyRedChecksKeepsRedRoutesAndExperience(t *testing.T) {
+func TestApplyRedChecksKeepsOnlyRedRoutes(t *testing.T) {
 	targets := map[string]map[string]int64{
 		"Si":        {"PROTOPRISM": 461, "TACHYON_SCREENING_LATTICE": 116, "COMBAT_RECORD_EXP": 747110},
 		"Laevatain": {"PROTOPRISM": 461, "PROTOSET": 60},
 		"Rossi":     {"PROTOPRISM": 461},
+		"Ember":     {"PROTOPRISM": 461, "COMBAT_RECORD_EXP": 747110},
 	}
 	checks := map[string]cultivation.Red{
 		"Si":        {Routes: []string{"TACHYON_SCREENING_LATTICE"}},
 		"Laevatain": {Failed: true},
+		"Ember":     {Routes: []string{"PROTOPRISM"}, Unrecognized: 1},
 	}
 	got := applyRedChecks(targets, checks)
-	if len(got["Si"]) != 2 || got["Si"]["TACHYON_SCREENING_LATTICE"] != 116 || got["Si"]["COMBAT_RECORD_EXP"] != 747110 {
-		t.Fatalf("Si should keep its red route and experience only: %v", got["Si"])
+	if len(got["Si"]) != 1 || got["Si"]["TACHYON_SCREENING_LATTICE"] != 116 {
+		t.Fatalf("Si should keep only its red route, experience included: %v", got["Si"])
 	}
-	if len(got["Laevatain"]) != 2 || len(got["Rossi"]) != 1 {
-		t.Fatalf("failed or unread operators must keep full totals: %v", got)
+	if len(got["Laevatain"]) != 2 || len(got["Rossi"]) != 1 || len(got["Ember"]) != 2 {
+		t.Fatalf("failed, unread or partly unrecognized operators must keep full totals: %v", got)
 	}
 	if len(targets["Si"]) != 3 {
 		t.Fatal("generated targets were modified in place")
+	}
+}
+
+func TestLimitFromMetKeepsManualWeaponLimit(t *testing.T) {
+	var weapon route
+	for _, r := range routes {
+		if r.Key == "WEAPON_EXP" {
+			weapon = r
+		}
+	}
+	if !weapon.Manual {
+		t.Fatal("weapon routes must keep manual limits")
+	}
+	expr := expressions(map[string]string{"WEAPON_EXP": "5000000"})["SupplyPlanRewardItemMet_WEAPON_EXP"]
+	if got, err := limitFromMet(weapon, expr); err != nil || got != "5000000" {
+		t.Fatalf("limit %q %v", got, err)
+	}
+	for _, bad := range []string{"{item_gold}>=1", weapon.quantity() + ">=-1", weapon.quantity() + ">={SupplyPlanLimit_WEAPON_EXP}"} {
+		if _, err := limitFromMet(weapon, bad); err == nil {
+			t.Fatalf("accepted %q", bad)
+		}
 	}
 }

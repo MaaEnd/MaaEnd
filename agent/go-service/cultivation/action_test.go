@@ -249,3 +249,21 @@ func TestLaevatainSkillScrollUsesDistinctMaterialContent(t *testing.T) {
 		t.Fatalf("visible upward movement rejected: %q %v", got, err)
 	}
 }
+
+// A short list has no scrollbar; a cloud toast appearing on one frame must not be
+// mistaken for movement (seen on a maxed operator's level tab).
+func TestShortListIgnoresTransientOverlay(t *testing.T) {
+	prev := image.NewRGBA(image.Rect(0, 0, 1280, 720))
+	cur := image.NewRGBA(image.Rect(0, 0, 1280, 720))
+	for y := 631; y < 680; y++ {
+		for x := 420; x < 760; x++ {
+			prev.Set(x, y, color.RGBA{30, 30, 30, 255})
+		}
+	}
+	if got, err := listBottom(prev, cur, true); err != nil || got != "done" {
+		t.Fatalf("bottom: %q %v", got, err)
+	}
+	if got, err := listTop(prev, cur); err != nil || got != "done" {
+		t.Fatalf("top: %q %v", got, err)
+	}
+}

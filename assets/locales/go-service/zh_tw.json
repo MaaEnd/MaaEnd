@@ -194,7 +194,7 @@
     "supplyplan.operator_plan_row": "%s：總量 %d / 庫存 %d / 還差 %d",
     "supplyplan.red_check_failed": "%s：紅字讀取失敗，按從零養滿計算",
     "supplyplan.red_check_reading": "紅字校正：讀取 %s 的培養總覽",
-    "supplyplan.red_check_result": "%s：紅字 %d 條路線，其餘路線不刷（經驗除外）",
+    "supplyplan.red_check_result": "%s：紅字 %d 條路線，其餘路線不刷",
     "tasker.aspect_ratio_warning.controller_label": "目前控制器：",
     "tasker.aspect_ratio_warning.current_resolution": "目前解析度：",
     "tasker.aspect_ratio_warning.desc": "💡 請調整解析度後重新執行任務。",

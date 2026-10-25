@@ -195,7 +195,7 @@
     "supplyplan.operator_plan_row": "%s：总量 %d / 库存 %d / 还差 %d",
     "supplyplan.red_check_failed": "%s：红字读取失败，按从零养满计算",
     "supplyplan.red_check_reading": "红字校正：读取 %s 的培养总览",
-    "supplyplan.red_check_result": "%s：红字 %d 条路线，其余路线不刷（经验除外）",
+    "supplyplan.red_check_result": "%s：红字 %d 条路线，其余路线不刷",
     "tasker.aspect_ratio_warning.controller_label": "当前控制器：",
     "tasker.aspect_ratio_warning.current_resolution": "当前分辨率：",
     "tasker.aspect_ratio_warning.desc": "💡 请调整分辨率后重新运行任务。",

@@ -37,6 +37,7 @@ type taskResults struct {
 	id      int64
 	active  bool
 	target  string
+	display string
 	results map[string]Red
 }
 
@@ -58,21 +59,23 @@ func taskFor(taskID int64) *taskResults {
 	return &current
 }
 
-// SetTarget records the operator Name this task scans next.
-func SetTarget(taskID int64, name string) {
+// SetTarget records the operator Name this task scans next and the name its
+// overview header must show (display); an empty display skips that check.
+func SetTarget(taskID int64, name, display string) {
 	resultMu.Lock()
 	defer resultMu.Unlock()
-	taskFor(taskID).target = name
+	t := taskFor(taskID)
+	t.target, t.display = name, display
 }
 
-// target returns the operator Name set for taskID, if any.
-func target(taskID int64) (string, bool) {
+// target returns the operator Name and expected header name set for taskID, if any.
+func target(taskID int64) (string, string, bool) {
 	resultMu.Lock()
 	defer resultMu.Unlock()
 	if !current.active || current.id != taskID || current.target == "" {
-		return "", false
+		return "", "", false
 	}
-	return current.target, true
+	return current.target, current.display, true
 }
 
 // Record stores r as this task's result for name. A reading that did not
@@ -90,6 +93,14 @@ func Record(taskID int64, name string, r Red) {
 	if err := writeCache(cache); err != nil {
 		log.Warn().Err(err).Str("component", "Cultivation").Msg("failed to write red-label cache")
 	}
+}
+
+// Reuse stores an already cached reading as this task's result without rewriting the cache.
+func Reuse(taskID int64, name string, r Red) {
+	r.Routes = slices.Clone(r.Routes)
+	resultMu.Lock()
+	defer resultMu.Unlock()
+	taskFor(taskID).results[name] = r
 }
 
 // Checked returns a copy of every result recorded for this task.

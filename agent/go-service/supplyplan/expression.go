@@ -12,31 +12,33 @@ type term struct {
 }
 
 // route mirrors one SupplyPlanLimits input of the ProtocolSpace target-inventory mode.
+// Manual routes are outside the growth data (weapons) and keep the user's input.
 type route struct {
-	Key   string
-	Label string
-	Terms []term
+	Key    string
+	Label  string
+	Terms  []term
+	Manual bool
 }
 
 // routes follows the input order of option SupplyPlanLimits in assets/tasks/ProtocolSpace.json.
 // The dispatch expressions compare routes in this order, so it must not be re-sorted.
 var routes = []route{
-	{"T_CREDS", "option.SupplyPlanLimits.inputs.T_CREDS.label", []term{{"item_gold", 1}}},
-	{"PROTOHEDRON", "option.SupplyPlanLimits.inputs.PROTOHEDRON.label", []term{{"item_char_skill_level_7_12", 1}}},
-	{"PROTOPRISM", "option.SupplyPlanLimits.inputs.PROTOPRISM.label", []term{{"item_char_skill_level_1_6", 1}}},
-	{"COGNITIVE_CARRIER_EXP", "option.SupplyPlanLimits.inputs.COGNITIVE_CARRIER_EXP.label", []term{{"item_expcard_stage2_high", 10000}, {"item_expcard_stage2_low", 1000}}},
-	{"COMBAT_RECORD_EXP", "option.SupplyPlanLimits.inputs.COMBAT_RECORD_EXP.label", []term{{"item_expcard_stage1_high", 10000}, {"item_expcard_stage1_mid", 1000}, {"item_expcard_stage1_low", 200}}},
-	{"PROTOSET", "option.SupplyPlanLimits.inputs.PROTOSET.label", []term{{"item_char_break_stage_3_4", 1}}},
-	{"PROTODISK", "option.SupplyPlanLimits.inputs.PROTODISK.label", []term{{"item_char_break_stage_1_2", 1}}},
-	{"WEAPON_EXP", "option.SupplyPlanLimits.inputs.WEAPON_EXP.label", []term{{"item_weapon_expcard_high", 10000}, {"item_weapon_expcard_mid", 1000}, {"item_weapon_expcard_low", 200}}},
-	{"HEAVY_CAST_DIE", "option.SupplyPlanLimits.inputs.HEAVY_CAST_DIE.label", []term{{"item_weapon_break_high", 1}}},
-	{"CAST_DIE", "option.SupplyPlanLimits.inputs.CAST_DIE.label", []term{{"item_weapon_break_low", 1}}},
-	{"WARP_PLASMA_COATED_SLIDE", "option.SupplyPlanLimits.inputs.WARP_PLASMA_COATED_SLIDE.label", []term{{"item_char_skill_specialize_6", 1}}},
-	{"TRIPHASIC_NANOFLAKE", "option.SupplyPlanLimits.inputs.TRIPHASIC_NANOFLAKE.label", []term{{"item_char_skill_specialize_5", 1}}},
-	{"QUADRANT_FITTING_FLUID", "option.SupplyPlanLimits.inputs.QUADRANT_FITTING_FLUID.label", []term{{"item_char_skill_specialize_4", 1}}},
-	{"TACHYON_SCREENING_LATTICE", "option.SupplyPlanLimits.inputs.TACHYON_SCREENING_LATTICE.label", []term{{"item_char_skill_specialize_3", 1}}},
-	{"D96_STEEL_SAMPLE_4", "option.SupplyPlanLimits.inputs.D96_STEEL_SAMPLE_4.label", []term{{"item_char_skill_specialize_2", 1}}},
-	{"METADIASTIMA_PHOTOEMISSION_TUBE", "option.SupplyPlanLimits.inputs.METADIASTIMA_PHOTOEMISSION_TUBE.label", []term{{"item_char_skill_specialize_1", 1}}},
+	{"T_CREDS", "option.SupplyPlanLimits.inputs.T_CREDS.label", []term{{"item_gold", 1}}, false},
+	{"PROTOHEDRON", "option.SupplyPlanLimits.inputs.PROTOHEDRON.label", []term{{"item_char_skill_level_7_12", 1}}, false},
+	{"PROTOPRISM", "option.SupplyPlanLimits.inputs.PROTOPRISM.label", []term{{"item_char_skill_level_1_6", 1}}, false},
+	{"COGNITIVE_CARRIER_EXP", "option.SupplyPlanLimits.inputs.COGNITIVE_CARRIER_EXP.label", []term{{"item_expcard_stage2_high", 10000}, {"item_expcard_stage2_low", 1000}}, false},
+	{"COMBAT_RECORD_EXP", "option.SupplyPlanLimits.inputs.COMBAT_RECORD_EXP.label", []term{{"item_expcard_stage1_high", 10000}, {"item_expcard_stage1_mid", 1000}, {"item_expcard_stage1_low", 200}}, false},
+	{"PROTOSET", "option.SupplyPlanLimits.inputs.PROTOSET.label", []term{{"item_char_break_stage_3_4", 1}}, false},
+	{"PROTODISK", "option.SupplyPlanLimits.inputs.PROTODISK.label", []term{{"item_char_break_stage_1_2", 1}}, false},
+	{"WEAPON_EXP", "option.SupplyPlanLimits.inputs.WEAPON_EXP.label", []term{{"item_weapon_expcard_high", 10000}, {"item_weapon_expcard_mid", 1000}, {"item_weapon_expcard_low", 200}}, true},
+	{"HEAVY_CAST_DIE", "option.SupplyPlanLimits.inputs.HEAVY_CAST_DIE.label", []term{{"item_weapon_break_high", 1}}, true},
+	{"CAST_DIE", "option.SupplyPlanLimits.inputs.CAST_DIE.label", []term{{"item_weapon_break_low", 1}}, true},
+	{"WARP_PLASMA_COATED_SLIDE", "option.SupplyPlanLimits.inputs.WARP_PLASMA_COATED_SLIDE.label", []term{{"item_char_skill_specialize_6", 1}}, false},
+	{"TRIPHASIC_NANOFLAKE", "option.SupplyPlanLimits.inputs.TRIPHASIC_NANOFLAKE.label", []term{{"item_char_skill_specialize_5", 1}}, false},
+	{"QUADRANT_FITTING_FLUID", "option.SupplyPlanLimits.inputs.QUADRANT_FITTING_FLUID.label", []term{{"item_char_skill_specialize_4", 1}}, false},
+	{"TACHYON_SCREENING_LATTICE", "option.SupplyPlanLimits.inputs.TACHYON_SCREENING_LATTICE.label", []term{{"item_char_skill_specialize_3", 1}}, false},
+	{"D96_STEEL_SAMPLE_4", "option.SupplyPlanLimits.inputs.D96_STEEL_SAMPLE_4.label", []term{{"item_char_skill_specialize_2", 1}}, false},
+	{"METADIASTIMA_PHOTOEMISSION_TUBE", "option.SupplyPlanLimits.inputs.METADIASTIMA_PHOTOEMISSION_TUBE.label", []term{{"item_char_skill_specialize_1", 1}}, false},
 }
 
 // quantity renders a route's inventory amount as an ItemQuantitySatisfied expression.

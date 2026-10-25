@@ -86,7 +86,7 @@ func (a *RedCheckNextAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 			continue
 		}
 		if red, ok := cultivation.Cached(name, now); ok {
-			cultivation.Record(arg.TaskID, name, red)
+			cultivation.Reuse(arg.TaskID, name, red)
 			continue
 		}
 		who, ok := param.Operators[name]
@@ -95,7 +95,7 @@ func (a *RedCheckNextAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 			cultivation.Record(arg.TaskID, name, cultivation.Red{Failed: true, Day: cultivation.GameDay(now)})
 			continue
 		}
-		cultivation.SetTarget(arg.TaskID, name)
+		cultivation.SetTarget(arg.TaskID, name, who.Name)
 		if err := ctx.OverridePipeline(readerPatch(who)); err != nil {
 			log.Error().Err(err).Str("component", redCheckComponent).Str("operator", name).Msg("failed to target cultivation reader")
 			return false
@@ -142,23 +142,20 @@ func readerPatch(who identity) map[string]any {
 	}
 }
 
-// experienceRoutes are never filtered: merged experience-card labels are not reliably
-// identified, so a missing red reading there cannot prove the operator has enough.
-var experienceRoutes = map[string]bool{"COGNITIVE_CARRIER_EXP": true, "COMBAT_RECORD_EXP": true}
-
 // applyRedChecks keeps, for each successfully read operator, only routes still shown in red.
-// Operators without a reading (disabled, failed or no portrait) keep their full totals.
+// Operators without a reading (disabled, failed, no portrait) or with any red label whose
+// icon was not identified (merged experience cards, for example) keep their full totals.
 func applyRedChecks(targets map[string]map[string]int64, checks map[string]cultivation.Red) map[string]map[string]int64 {
 	out := make(map[string]map[string]int64, len(targets))
 	for name, routesOf := range targets {
 		red, ok := checks[name]
-		if !ok || red.Failed {
+		if !ok || red.Failed || red.Unrecognized > 0 {
 			out[name] = routesOf
 			continue
 		}
 		kept := map[string]int64{}
 		for key, n := range routesOf {
-			if experienceRoutes[key] || slices.Contains(red.Routes, key) {
+			if slices.Contains(red.Routes, key) {
 				kept[key] = n
 			}
 		}
