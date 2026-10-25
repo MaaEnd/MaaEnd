@@ -87,7 +87,7 @@ const T& first_non_empty(const T& first, const Rest&... rest)
     }
 }
 
-// 参数按 (键, 字段) 成对给出, 取第一个写了键的字段, 调用前须已过 MEO 解析以排除 null
+// 调用前须已过 MEO 解析以排除 null
 template <typename T, typename... Rest>
 std::optional<T> first_present(const json::value& input, const char* key, const T& value, const Rest&... rest)
 {
@@ -181,7 +181,7 @@ struct NaviTextListInput
 
 using NaviWaypointArrayItem = std::variant<double, NaviActionListInput, bool, std::string>;
 
-// 每个别名都要通过类型校验, 取哪个由调用方按优先级决定
+// 每个别名都要通过类型校验
 struct NaviWaypointObjectInput
 {
     NaviActionListInput action_;
@@ -532,7 +532,6 @@ std::optional<std::array<double, 2>> authored_position(const NaviWaypointInput& 
     return std::nullopt;
 }
 
-// 同时写了 RUN 和别的动作时 RUN 不单独展开
 void append_expanded_waypoints(
     const NaviWaypointInput& input,
     const std::array<double, 2>& position,
@@ -812,7 +811,6 @@ bool append_find(
     return true;
 }
 
-// 没坐标但写了朝向时退化成只转向的点
 bool append_positioned(
     const NaviWaypointInput& input,
     const std::string& zone_id,
@@ -906,7 +904,6 @@ bool read_route_header(
     return true;
 }
 
-// 写了 path 按多点解析, 否则顶层对象本身就是一个点
 bool append_route_waypoints(
     const json::value& custom_action_param,
     const NaviParamInput& input,

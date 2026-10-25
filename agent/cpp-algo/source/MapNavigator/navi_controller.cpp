@@ -61,7 +61,7 @@ private:
     bool taken_ = false;
 };
 
-// 首次展开失败就跳过已走过的前缀重试, 返回跳过的作者点数
+// 返回跳过的作者点数
 std::optional<size_t>
     ExpandRoute(const NaviParam& param, const NaviPosition& pos, const std::function<bool()>& is_stopping, std::vector<Waypoint>& out_path)
 {
