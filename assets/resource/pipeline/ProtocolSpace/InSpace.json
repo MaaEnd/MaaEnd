@@ -503,7 +503,7 @@
         "custom_action": "CharacterMoveToTargetAction",
         "custom_action_param": {
             "align_threshold": 120,
-            "far_target_width": 130
+            "far_target_width": 0
         },
         "post_delay": 600,
         "focus": {
