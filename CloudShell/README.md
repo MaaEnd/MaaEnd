@@ -22,6 +22,8 @@ cmake --build --preset Release
 
 WebView2 SDK 按固定版本与 SHA256 自动下载到构建目录，下载会读取 `HTTPS_PROXY` 等代理环境变量；离线时可以用 `-DWEBVIEW2_SDK_DIR=<已解压的 NuGet 包>` 指定。产物位于 `build/bin/RelWithDebInfo/cloud-shell.exe`。
 
+不想本地编译时，可以在 Windows 上运行 `uv run setup-workspace`，让脚本从 CI artifact 自动下载预编译好的 `install/cloud-shell/cloud-shell.exe`；也可以用 CI 页面上的 `cloud-shell-win-<arch>` artifact 手动下载。
+
 ## 运行
 
 ```bash

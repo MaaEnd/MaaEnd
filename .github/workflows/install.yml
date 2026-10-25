@@ -421,6 +421,15 @@ jobs:
             install/agent/WebView2Loader.dll
           retention-days: 90
 
+      # 云游戏外壳只有 Windows 会构建（其他平台的 install/cloud-shell 不存在），
+      # 单独出一个 artifact，供 setup-workspace 只取这一个 exe，不必下整个安装包
+      - uses: actions/upload-artifact@v6
+        if: matrix.os == 'win'
+        with:
+          name: cloud-shell-${{ matrix.os }}-${{ matrix.arch }}
+          path: install/cloud-shell
+          retention-days: 90
+
   package_linux_tarball:
     needs: [meta, build_and_install]
     runs-on: ubuntu-latest
