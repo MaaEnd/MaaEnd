@@ -66,8 +66,23 @@
             "region": "ValleyIV"
         },
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellSession",
+        "custom_action_param": {
+            "operation": "begin",
+            "region": "ValleyIV"
+        },
+        "anchor": {
+            "AutoSellItemLoop": "AutoSellRecordLoop",
+            "AutoSellItemDetail": "AutoSellRecordDetail",
+            "AutoSellOwnRegionEntry": "AutoSellEnterOwnValleyIV",
+            "AutoSellTicketOverflow": "AutoSellTicketValleyIVOverflow"
+        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoSellRecordLoop"
+        ]
     },
     "AutoSellScanWulingMain": {
         "desc": "扫描武陵拥有物资",
@@ -145,8 +160,23 @@
             "region": "Wuling"
         },
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellSession",
+        "custom_action_param": {
+            "operation": "begin",
+            "region": "Wuling"
+        },
+        "anchor": {
+            "AutoSellItemLoop": "AutoSellRecordLoop",
+            "AutoSellItemDetail": "AutoSellRecordDetail",
+            "AutoSellOwnRegionEntry": "AutoSellEnterOwnWuling",
+            "AutoSellTicketOverflow": "AutoSellTicketWulingOverflow"
+        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoSellRecordLoop"
+        ]
     },
     "AutoSellScanRegionNull": {
         "desc": "当前区域物资为空",

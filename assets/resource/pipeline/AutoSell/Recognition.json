@@ -302,5 +302,62 @@
             "(?i)^Owned\\s*[1-9]\\d*$",
             "^総在庫\\s*[1-9]\\d*$"
         ]
+    },
+    "AutoSellOwnPriceRecognition": {
+        "desc": "读取点击本家物资卡片后详情中的本家价格",
+        "recognition": "OCR",
+        "roi": [
+            1014,
+            240,
+            56,
+            24
+        ],
+        "expected": [
+            "^\\d+$"
+        ],
+        "only_rec": true
+    },
+    "AutoSellOwnListRecognition": {
+        "desc": "确认已返回本家地区建设的弹性物资列表",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    60
+                ],
+                "expected": [
+                    "四号谷地",
+                    "四號谷地",
+                    "Valley IV",
+                    "4번 협곡",
+                    "武陵",
+                    "Wuling",
+                    "무릉"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    850,
+                    180
+                ],
+                "template": "AutoSell/TabSwitchElasticGoodsActive.png",
+                "threshold": 0.9
+            }
+        ]
+    },
+    "AutoSellItemListRecognition": {
+        "desc": "确认已返回本家或好友物资列表",
+        "recognition": "Or",
+        "any_of": [
+            "AutoSellOwnListRecognition",
+            "InFriendsStockRedistribution"
+        ]
     }
 }
