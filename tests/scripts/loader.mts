@@ -1,5 +1,6 @@
 import { TestCases } from '@nekosu/maa-tools'
 import path from 'node:path'
+import { access } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
 type MatrixValue = string | string[]
@@ -120,6 +121,7 @@ export async function fetchCases(): Promise<TestCases[]> {
   const controllerMap: Record<string, string> = {
     Win32: 'Win32',
     'Win32-Front': 'Win32',
+    'Win32-CloudWeb': 'Win32',
     ADB: 'ADB',
     CloudADB: 'CloudADB',
     // 'PlayCover': '',
@@ -192,6 +194,15 @@ export async function fetchCases(): Promise<TestCases[]> {
 
           if (invalidMatrix) {
             break
+          }
+
+          if (controller === 'Win32-CloudWeb') {
+            const imagePath = path.join(testsRoot, 'MaaEndTestset', controllerPath, resourcePath, testCase.image)
+            try {
+              await access(imagePath)
+            } catch {
+              throw new Error(`Missing required cloud regression image: ${imagePath}`)
+            }
           }
 
           normalizedCases.push({

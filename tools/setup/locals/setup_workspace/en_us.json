@@ -71,6 +71,7 @@
     "inf_delete_old_file": "[INF] Attempting to delete old file: {path}",
     "err_cannot_delete_mxu": "[!] Cannot delete {name}, please ensure the program has exited completely.",
     "err_unknown_error_delete_file": "[ERR] Unknown error occurred while deleting file: {error}",
+    "err_runtime_rollback": "[!] Could not restore {path}. Previous files are preserved in {backup}: {error}",
     "err_user_declined_replace": "[!] User declined to replace file: {path}",
     "inf_extract_install_mxu": "[INF] Extracting and installing MXU...",
     "inf_updated_file": "[INF] Updated: {name}",

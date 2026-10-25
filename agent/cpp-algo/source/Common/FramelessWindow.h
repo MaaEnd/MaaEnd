@@ -51,6 +51,12 @@ public:
     // 非正值会被忽略；过小的尺寸会在窗口创建时由 WM_GETMINMAXINFO 钳到最小限制。
     void SetSize(int width, int height);
 
+    // 使用系统标题栏，内容占满客户区。默认 false，仅在 Open() 前生效。
+    void SetSystemTitleBar(bool enabled);
+
+    // 控制首次显示是否激活窗口；后台宿主设为 false，用户仍可正常点击/Alt+Tab 激活。
+    void SetActivateOnShow(bool enabled);
+
     // 设置窗口是否出现在任务栏中。仅在 Open() 之前调用有效；之后调用会被忽略。
     // 实现方式：true 时使用 WS_EX_APPWINDOW，false 时使用 WS_EX_TOOLWINDOW。
     // 注意 WS_EX_TOOLWINDOW 同时会让窗口从 Alt+Tab 列表里消失（这是 Win32 工具窗的标准语义）。
@@ -76,10 +82,10 @@ public:
     bool IsOpened() const noexcept { return opened_.load(std::memory_order_acquire); }
 
 protected:
-    HWND GetHwnd() const noexcept { return hwnd_; }
+    HWND GetHwnd() const noexcept { return hwnd_.load(); }
 
     // 派生类的 SetXxx 接口可以用这个守卫做同样的「Open 前才生效」检查。
-    bool isOpened() const noexcept { return opened_.load(std::memory_order_acquire); }
+    bool isOpened() const noexcept { return started_.load(std::memory_order_acquire); }
 
     // 返回去掉 chrome 边距（顶部 caption + 四周 resize 边框）之后留给派生类内容的客户区矩形。
     // 派生类必须把自己的子控件放在这个矩形内：留出 chrome 让基类的 WM_NCHITTEST 接收边/顶部
@@ -118,23 +124,28 @@ private:
     LRESULT hitTestClientPoint(int client_x, int client_y) const noexcept;
 
 private:
-    HWND hwnd_ = nullptr;
+    std::atomic<HWND> hwnd_ { nullptr };
 
     std::thread ui_thread_;
+    std::atomic<DWORD> ui_thread_id_ { 0 };
+    std::mutex close_mutex_;
 
     std::mutex create_mutex_;
     std::condition_variable create_cv_;
     bool create_done_ = false;
     bool create_ok_ = false;
 
-    // 一旦 Open() 被调用就置为 true 且永不回退；之后所有 SetXxx 都会被忽略。
-    // 用 atomic 是为了允许 SetXxx 与 Open() 来自不同线程时仍能安全读取。
+    // 当前窗口存活状态：窗口创建成功时置真，关闭时恢复为假，供业务线程轮询。
     std::atomic<bool> opened_ { false };
+    // Open() 启动后保持为真，防止重复启动及在窗口生命周期中修改初始化配置。
+    std::atomic<bool> started_ { false };
 
     // 配置字段：仅在 Open() 之前由业务线程写入；UI 线程在窗口创建后读取一次。
     // 因为 std::thread 的启动会同步业务线程到新线程的初始可见性，所以无需额外同步。
     bool top_most_ = false;
     bool show_in_taskbar_ = true;
+    bool system_title_bar_ = false;
+    bool activate_on_show_ = true;
     bool exclude_from_capture_ = false;
     double opacity_ = 1.0;
     int initial_width_ = kDefaultWidthPx;
@@ -164,6 +175,8 @@ public:
 
     void SetTopMost(bool top_most);
     void SetSize(int width, int height);
+    void SetSystemTitleBar(bool enabled);
+    void SetActivateOnShow(bool enabled);
     void SetShowInTaskbar(bool show);
     void SetOpacity(double opacity);
     void SetExcludeFromCapture(bool exclude);
@@ -183,6 +196,8 @@ private:
 
     bool top_most_ = false;
     bool show_in_taskbar_ = true;
+    bool system_title_bar_ = false;
+    bool activate_on_show_ = true;
     bool exclude_from_capture_ = false;
     double opacity_ = 1.0;
     int initial_width_ = 960;

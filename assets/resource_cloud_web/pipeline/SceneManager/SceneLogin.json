@@ -1,0 +1,97 @@
+{
+    "__ScenePrivateLogin": {
+        "recognition": {
+            "type": "And",
+            "param": {"all_of": ["__ScenePrivateLoginContinue"]}
+        },
+        "next": [
+            "[JumpBack]__ScenePrivateCloudWebReconnect",
+            "__ScenePrivateLoginMaintenance",
+            "[JumpBack]__ScenePrivateCloseErrorDialog",
+            "[JumpBack]__ScenePrivateCloseLoginAnnouncement",
+            "__ScenePrivateLoginContinue",
+            "__ScenePrivateLogin"
+        ]
+    },
+    "__ScenePrivateLoginContinue": {
+        "next": [
+            "[JumpBack]__ScenePrivateCloudWebReconnect",
+            "__ScenePrivateLoginMaintenance",
+            "[JumpBack]__ScenePrivateCloseErrorDialog",
+            "__ScenePrivateLoginContinueDisappeared",
+            "__ScenePrivateLoginContinue"
+        ]
+    },
+    "__ScenePrivateLoginContinueDisappeared": {
+        "next": [
+            "[JumpBack]__ScenePrivateCloudWebReconnect",
+            "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]__ScenePrivateLoginMonthlyPassConfirm",
+            "[JumpBack]__ScenePrivateLoginPristineMonthlyPassConfirm",
+            "[JumpBack]__ScenePrivateLoginCompanionGiftConfirm",
+            "__ScenePrivateLoginSuccess",
+            "[JumpBack]__ScenePrivateLoginCloseDialog"
+        ]
+    },
+    "__ScenePrivateCloudWebConnectionTimeout": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    100,
+                    1280,
+                    520
+                ],
+                "expected": ["连接服务器超时"]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateCloudWebRetryConnectionButton": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    100,
+                    1280,
+                    520
+                ],
+                "expected": ["重试连接"]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateCloudWebReconnect": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__ScenePrivateCloudWebConnectionTimeout",
+                    "__ScenePrivateCloudWebRetryConnectionButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {"type": "Click"},
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["__ScenePrivateCloudWebConnectionRestored"]
+    },
+    "__ScenePrivateCloudWebConnectionRestored": {
+        "recognition": {
+            "type": "And",
+            "param": {"all_of": ["__ScenePrivateCloudWebConnectionTimeout"]}
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

@@ -36,3 +36,6 @@ jobs:
 
       - name: Run ruff
         run: uv run ruff check .
+
+      - name: Test C++ Agent artifact installation
+        run: uv run python -m unittest tools.setup.test_setup_workspace

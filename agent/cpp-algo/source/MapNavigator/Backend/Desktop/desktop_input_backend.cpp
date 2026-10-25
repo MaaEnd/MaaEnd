@@ -93,6 +93,14 @@ DesktopInputBackend::DesktopInputBackend(
         return;
     }
 
+    cloud_view_input_ = cloud::CreateViewInput(ctrl_);
+    if (cloud_view_input_) {
+        default_turn_units_per_degree_ = cloud::kDefaultTurnUnitsPerDegree;
+        LogInfo << "Cloud default turn scale selected." << VAR(default_turn_units_per_degree_);
+        LogInfo << "Cloud view input selected; desktop input management is unnecessary.";
+        return;
+    }
+
     if (IsMouseLockFollowSupported(ctrl_)) {
         mouse_lock_follow_enabled_ = TrySetMouseLockFollow(ctrl_, true);
         LogInfo << backend_name_ << " backend mouse lock follow." << VAR(controller_type_) << VAR(mouse_lock_follow_enabled_);
@@ -252,6 +260,10 @@ bool DesktopInputBackend::SendViewDeltaSync(int dx, int dy)
 
     if (ctrl_ == nullptr) {
         return false;
+    }
+
+    if (cloud_view_input_) {
+        return cloud_view_input_(dx, dy);
     }
 
     LogInfo << "SendRelativeMoveNative" << VAR(dx) << VAR(dy);

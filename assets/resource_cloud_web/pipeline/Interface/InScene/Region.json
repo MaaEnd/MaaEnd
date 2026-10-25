@@ -1,0 +1,9 @@
+{
+    "InMenuList": {
+        "all_of": [
+            "CheckMenuListText",
+            "CheckMenuListText2",
+            "__ScenePrivateMenuListLoadingEnterWorld"
+        ]
+    }
+}

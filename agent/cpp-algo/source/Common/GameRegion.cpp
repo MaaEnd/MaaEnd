@@ -4,6 +4,7 @@
 #include <array>
 #include <cctype>
 #include <cstdint>
+#include <cstdlib>
 #include <filesystem>
 #include <iterator>
 #include <memory>
@@ -18,6 +19,7 @@
 #include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
+#include <meojson/json.hpp>
 
 #ifdef _WIN32
 #include <MaaUtils/SafeWindows.hpp>
@@ -247,6 +249,18 @@ Region DetectGameRegion()
 
 Region DetectGameRegion(MaaController* controller)
 {
+#ifdef _WIN32
+    // This controller hosts only the official CN cloud site. It has no local
+    // Endfield.exe whose SDK DLLs could identify the region.
+    char* pi_controller = nullptr;
+    size_t pi_controller_size = 0;
+    const int result = _dupenv_s(&pi_controller, &pi_controller_size, "PI_CONTROLLER");
+    const std::unique_ptr<char, decltype(&std::free)> controller_env(pi_controller, &std::free);
+    const auto parsed = json::parse(result == 0 && controller_env ? controller_env.get() : "");
+    if (parsed && parsed->is_object() && parsed->get("name", std::string {}) == "Win32-CloudWeb") {
+        return Region::CN;
+    }
+#endif
     const std::string controller_type = mapnavigator::DetectControllerType(controller);
 #ifdef __APPLE__
     if (mapnavigator::IsPlayCoverControllerType(controller_type)) {
