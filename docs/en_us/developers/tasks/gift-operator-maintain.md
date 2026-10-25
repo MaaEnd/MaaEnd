@@ -1,7 +1,7 @@
 # Development Manual - Gift to Operator Maintenance Documentation
 
 This document explains the file distribution and two execution routes of `GiftOperator`.  
-This documentation was last updated on October 18, 2026.
+This documentation was last updated on October 25, 2026.
 
 ## File Paths
 
@@ -89,6 +89,8 @@ Implementation is in `GiftOperatorContact.json`. After clicking a list row, use 
 3. **Sequence Number OCR**: Read `1` / `2` / `3` in the text area, corresponding to the current operator to be selected.
 
 The "Any" route gradually confirms that the first, second, and third operators are all queued; the "Specific Operator" and receive gift routes verify sequence number `1` is correct after clicking the target, then click confirm call.
+
+CloudADB overrides selection recognition in `assets/resource_cloud_adb/pipeline/GiftOperator/GiftOperatorContact.json`: it first matches a complete yellow border within the card area, then uses that border as the anchor for reading `1` / `2` / `3` in the upper-right corner, without relying on the narrow RGB text-background range. For the "Any" route, click positions still come from the unselected-state check and trust-value OCR. Each click must pass its corresponding sequence-number check; the same yellow-color check cannot stand in for three different counts. Sorting, calling, and gift-giving retain their existing flow.
 
 #### Gift Interface Gift Selection
 
