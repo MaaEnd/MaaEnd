@@ -1,4 +1,29 @@
 {
+    // 移动端点击既有「生产助力」文字，不再从数量图标推算点击位置。
+    "RecoveryEmotionMain": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangControlNexus",
+                    "NeedAssistColor",
+                    "AssistText"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
     "RecoveryEmotionOperator1": {
         "recognition": {
             "param": {
