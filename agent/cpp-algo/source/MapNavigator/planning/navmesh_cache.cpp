@@ -41,12 +41,12 @@ constexpr std::array<BaseNavZoneAlias, 7> kBaseNavZoneAliases { {
     { "indie_dg016", { "indie_dg016", "IndieDg016" } },
 } };
 
-bool StartsWith(std::string_view text, std::string_view prefix)
+bool starts_with(std::string_view text, std::string_view prefix)
 {
     return text.size() >= prefix.size() && text.substr(0, prefix.size()) == prefix;
 }
 
-std::optional<std::filesystem::path> FindExistingFromParents(const std::filesystem::path& relative_path)
+std::optional<std::filesystem::path> find_existing_from_parents(const std::filesystem::path& relative_path)
 {
     std::error_code ec;
     std::filesystem::path current = std::filesystem::current_path(ec);
@@ -68,12 +68,12 @@ std::optional<std::filesystem::path> FindExistingFromParents(const std::filesyst
     return std::nullopt;
 }
 
-std::string BuildNavmeshCacheKey(const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
+std::string build_navmesh_cache_key(const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
 {
     return MAA_NS::path_to_utf8_string(std::filesystem::absolute(navmesh_path).lexically_normal()) + "#" + navmesh_zone;
 }
 
-std::shared_ptr<CachedNavmesh> LoadNavmeshPack(const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
+std::shared_ptr<CachedNavmesh> load_navmesh_pack(const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
 {
     const auto load_result = navmesh::LoadBaseNavPack(navmesh_path, navmesh_zone);
     if (!load_result.ok()) {
@@ -89,7 +89,7 @@ using NavmeshTask = std::packaged_task<std::shared_ptr<CachedNavmesh>()>;
 struct NavmeshTaskQueue
 {
     NavmeshTaskQueue()
-        : worker([this] { Run(); })
+        : worker([this] { run(); })
     {
     }
 
@@ -108,7 +108,7 @@ struct NavmeshTaskQueue
     NavmeshTaskQueue(const NavmeshTaskQueue&) = delete;
     NavmeshTaskQueue& operator=(const NavmeshTaskQueue&) = delete;
 
-    void Run()
+    void run()
     {
         while (true) {
             NavmeshTask task;
@@ -132,22 +132,22 @@ struct NavmeshTaskQueue
     bool stopping = false;
 };
 
-std::unordered_map<std::string, NavmeshFuture>& NavmeshFutureCache()
+std::unordered_map<std::string, NavmeshFuture>& navmesh_future_cache()
 {
     static std::unordered_map<std::string, NavmeshFuture> cache;
     return cache;
 }
 
-std::mutex& NavmeshFutureCacheMutex()
+std::mutex& navmesh_future_cache_mutex()
 {
     static std::mutex mutex;
     return mutex;
 }
 
-void RemoveCachedNavmeshFutureByKey(const std::string& cache_key)
+void remove_cached_navmesh_future_by_key(const std::string& cache_key)
 {
-    const std::lock_guard lock(NavmeshFutureCacheMutex());
-    NavmeshFutureCache().erase(cache_key);
+    const std::lock_guard lock(navmesh_future_cache_mutex());
+    navmesh_future_cache().erase(cache_key);
 }
 
 class NavmeshCacheExceptionGuard
@@ -162,14 +162,14 @@ public:
     ~NavmeshCacheExceptionGuard()
     {
         if (active_ && std::uncaught_exceptions() > uncaught_exceptions_) {
-            RemoveCachedNavmeshFutureByKey(cache_key_);
+            remove_cached_navmesh_future_by_key(cache_key_);
         }
     }
 
     NavmeshCacheExceptionGuard(const NavmeshCacheExceptionGuard&) = delete;
     NavmeshCacheExceptionGuard& operator=(const NavmeshCacheExceptionGuard&) = delete;
 
-    void Dismiss() { active_ = false; }
+    void dismiss() { active_ = false; }
 
 private:
     std::string cache_key_;
@@ -177,19 +177,19 @@ private:
     bool active_ = true;
 };
 
-NavmeshTaskQueue& GetNavmeshTaskQueue()
+NavmeshTaskQueue& get_navmesh_task_queue()
 {
     static NavmeshTaskQueue queue;
     return queue;
 }
 
-NavmeshFuture EnqueueNavmeshLoad(std::filesystem::path navmesh_path, std::string navmesh_zone)
+NavmeshFuture enqueue_navmesh_load(std::filesystem::path navmesh_path, std::string navmesh_zone)
 {
     NavmeshTask task([navmesh_path = std::move(navmesh_path), navmesh_zone = std::move(navmesh_zone)] {
-        return LoadNavmeshPack(navmesh_path, navmesh_zone);
+        return load_navmesh_pack(navmesh_path, navmesh_zone);
     });
     NavmeshFuture future = task.get_future().share();
-    auto& queue = GetNavmeshTaskQueue();
+    auto& queue = get_navmesh_task_queue();
     {
         const std::lock_guard lock(queue.mutex);
         queue.tasks.push_back(std::move(task));
@@ -198,15 +198,16 @@ NavmeshFuture EnqueueNavmeshLoad(std::filesystem::path navmesh_path, std::string
     return future;
 }
 
-NavmeshFuture GetCachedFutureByKey(const std::string& cache_key, const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
+NavmeshFuture
+    get_cached_future_by_key(const std::string& cache_key, const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
 {
-    const std::lock_guard lock(NavmeshFutureCacheMutex());
-    auto& cache = NavmeshFutureCache();
+    const std::lock_guard lock(navmesh_future_cache_mutex());
+    auto& cache = navmesh_future_cache();
     if (auto iter = cache.find(cache_key); iter != cache.end()) {
         return iter->second;
     }
 
-    auto future = EnqueueNavmeshLoad(navmesh_path, navmesh_zone);
+    auto future = enqueue_navmesh_load(navmesh_path, navmesh_zone);
     cache.emplace(cache_key, future);
     return future;
 }
@@ -229,7 +230,7 @@ std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path)
         if (std::filesystem::exists(anchored, ec) && !ec) {
             return anchored;
         }
-        if (auto found = FindExistingFromParents(configured); found.has_value()) {
+        if (auto found = find_existing_from_parents(configured); found.has_value()) {
             return *found;
         }
         return anchored;
@@ -243,7 +244,7 @@ std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path)
     }
 
     for (const char* relative_path : { kDefaultCompressedNavmeshRelativePath, kDefaultNavmeshRelativePath }) {
-        if (auto found = FindExistingFromParents(relative_path); found.has_value()) {
+        if (auto found = find_existing_from_parents(relative_path); found.has_value()) {
             return *found;
         }
     }
@@ -271,7 +272,7 @@ std::string InferBaseNavZone(const std::string& locator_zone, const std::string&
     }
     for (const BaseNavZoneAlias& alias : kBaseNavZoneAliases) {
         if (std::any_of(alias.prefixes.begin(), alias.prefixes.end(), [&source](std::string_view prefix) {
-                return StartsWith(source, prefix);
+                return starts_with(source, prefix);
             })) {
             return std::string(alias.zone_id);
         }
@@ -281,20 +282,20 @@ std::string InferBaseNavZone(const std::string& locator_zone, const std::string&
 
 void PreloadNavmesh(const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
 {
-    (void)GetCachedFutureByKey(BuildNavmeshCacheKey(navmesh_path, navmesh_zone), navmesh_path, navmesh_zone);
+    (void)get_cached_future_by_key(build_navmesh_cache_key(navmesh_path, navmesh_zone), navmesh_path, navmesh_zone);
 }
 
 std::shared_ptr<CachedNavmesh> LoadCachedNavmesh(const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
 {
-    const std::string cache_key = BuildNavmeshCacheKey(navmesh_path, navmesh_zone);
+    const std::string cache_key = build_navmesh_cache_key(navmesh_path, navmesh_zone);
     NavmeshCacheExceptionGuard exception_guard(cache_key);
-    auto navmesh = GetCachedFutureByKey(cache_key, navmesh_path, navmesh_zone).get();
+    auto navmesh = get_cached_future_by_key(cache_key, navmesh_path, navmesh_zone).get();
     if (!navmesh) {
-        RemoveCachedNavmeshFutureByKey(cache_key);
-        exception_guard.Dismiss();
+        remove_cached_navmesh_future_by_key(cache_key);
+        exception_guard.dismiss();
         return nullptr;
     }
-    exception_guard.Dismiss();
+    exception_guard.dismiss();
     return navmesh;
 }
 

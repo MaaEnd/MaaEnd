@@ -27,7 +27,7 @@ struct RouteTrackerState
     bool startup_anchor_initialized = false;
     bool startup_motion_confirmed = false;
 
-    void ResetTracking()
+    void resetTracking()
     {
         passed_waypoint_idx = std::numeric_limits<size_t>::max();
         passed_waypoint_latched = false;
@@ -36,15 +36,15 @@ struct RouteTrackerState
         last_segment_to_idx = std::numeric_limits<size_t>::max();
     }
 
-    void Reset()
+    void reset()
     {
-        ResetTracking();
+        resetTracking();
         startup_anchor_pos = {};
         startup_anchor_initialized = false;
         startup_motion_confirmed = false;
     }
 
-    void ConfirmStartupAt(const NaviPosition& position)
+    void confirmStartupAt(const NaviPosition& position)
     {
         startup_anchor_pos = position;
         startup_anchor_initialized = true;
@@ -126,7 +126,7 @@ struct SemanticState
     // 这次上索由行进预筛叫停, 认不出提示时只说明预筛看错了
     bool zipline_prompt_probe = false;
 
-    void ResetTransient() { *this = {}; }
+    void resetTransient() { *this = {}; }
 };
 
 struct DynamicRecoveryState
@@ -137,7 +137,7 @@ struct DynamicRecoveryState
     size_t anchor_index = std::numeric_limits<size_t>::max();
     bool active = false;
 
-    void Reset()
+    void reset()
     {
         anchor_pos = {};
         started_at = {};
@@ -146,9 +146,9 @@ struct DynamicRecoveryState
         active = false;
     }
 
-    void Restart(const NaviPosition& position, const std::chrono::steady_clock::time_point& now, size_t anchor)
+    void restart(const NaviPosition& position, const std::chrono::steady_clock::time_point& now, size_t anchor)
     {
-        Reset();
+        reset();
         active = true;
         anchor_pos = position;
         started_at = now;
@@ -168,7 +168,7 @@ struct FindState
     // 停车判据的模板预筛, 为空时探测直接跑识别
     std::optional<PromptScanProfile> stop_probe;
 
-    void Reset()
+    void reset()
     {
         started_at = {};
         steps = 0;
@@ -182,7 +182,7 @@ struct TriggerState
 {
     std::chrono::steady_clock::time_point last_probe_at {};
 
-    void Reset() { last_probe_at = {}; }
+    void reset() { last_probe_at = {}; }
 };
 
 // 卡死恢复走到了第几级, 按走廊锚点记; 动态重规划不清它
@@ -194,7 +194,7 @@ struct RecoveryEscalationState
     int jump_attempt_count = 0;
     int detour_attempt_count = 0;
 
-    void Reset()
+    void reset()
     {
         anchor_index = std::numeric_limits<size_t>::max();
         device_attempt_count = 0;
@@ -202,9 +202,9 @@ struct RecoveryEscalationState
         detour_attempt_count = 0;
     }
 
-    void Retarget(size_t anchor)
+    void retarget(size_t anchor)
     {
-        Reset();
+        reset();
         anchor_index = anchor;
     }
 };
@@ -217,7 +217,7 @@ struct LocalizationLossState
     NaviPosition last_fix {};
     bool saw_black_screen = false;
 
-    void Reset()
+    void reset()
     {
         started_at = {};
         last_unstick_at = {};
@@ -237,7 +237,7 @@ struct RiverFallRecoveryState
     bool settled = false;
     bool turned = false;
 
-    void Reset()
+    void reset()
     {
         anchor_pos = {};
         water_heading = 0.0;
@@ -246,30 +246,30 @@ struct RiverFallRecoveryState
         turned = false;
     }
 
-    void Arm(const NaviPosition& position, double heading)
+    void arm(const NaviPosition& position, double heading)
     {
-        Reset();
+        reset();
         pending = true;
         anchor_pos = position;
         water_heading = heading;
     }
 };
 
-// recovery.Reset() 不清它, 同一处反复脱困时方向会轮换
+// recovery.reset() 不清它, 同一处反复脱困时方向会轮换
 struct LateralBypassState
 {
     NaviPosition origin {};
     int count = 0;
     bool active = false;
 
-    void Reset()
+    void reset()
     {
         origin = {};
         count = 0;
         active = false;
     }
 
-    void BeginAt(const NaviPosition& position)
+    void beginAt(const NaviPosition& position)
     {
         active = true;
         origin = position;
@@ -303,7 +303,7 @@ struct SteeringRateState
 
     std::deque<InFlightTurn> in_flight;
 
-    void Reset()
+    void reset()
     {
         prev_heading_deg = 0.0;
         has_prev = false;
@@ -330,7 +330,7 @@ struct OffRouteWedgeState
     double best_distance = std::numeric_limits<double>::max();
     bool active = false;
 
-    void PauseAt(const std::chrono::steady_clock::time_point& now)
+    void pauseAt(const std::chrono::steady_clock::time_point& now)
     {
         if (active && blind_since == std::chrono::steady_clock::time_point {}) {
             blind_since = now;
@@ -338,7 +338,7 @@ struct OffRouteWedgeState
     }
 
     // 返回扣掉的盲区毫秒数, 没暂停过返回 0
-    int64_t ResumeAt(const std::chrono::steady_clock::time_point& now)
+    int64_t resumeAt(const std::chrono::steady_clock::time_point& now)
     {
         if (blind_since == std::chrono::steady_clock::time_point {}) {
             return 0;
@@ -352,7 +352,7 @@ struct OffRouteWedgeState
         return std::chrono::duration_cast<std::chrono::milliseconds>(blind).count();
     }
 
-    void Reset()
+    void reset()
     {
         since = {};
         last_replan_at = {};
@@ -362,9 +362,9 @@ struct OffRouteWedgeState
     }
 
     // 换了走廊后 best_distance 下一拍重取, 计时照走
-    void InvalidateBaseline() { best_distance = std::numeric_limits<double>::max(); }
+    void invalidateBaseline() { best_distance = std::numeric_limits<double>::max(); }
 
-    bool HasBaseline() const { return best_distance != std::numeric_limits<double>::max(); }
+    bool hasBaseline() const { return best_distance != std::numeric_limits<double>::max(); }
 };
 
 // 在一个固定的世界坐标圆里待了多久, 只在相邻两次有效取位之间累计
@@ -377,7 +377,7 @@ struct DwellWatchdogState
     int64_t dwell_ms = 0;
     std::chrono::steady_clock::time_point last_usable {};
 
-    void Reset()
+    void reset()
     {
         center_x = 0.0;
         center_y = 0.0;
@@ -396,7 +396,7 @@ struct CrossTierEscapeState
     double goal_x = 0.0;
     double goal_y = 0.0;
 
-    void Reset()
+    void reset()
     {
         active = false;
         anchor_zone.clear();
@@ -404,7 +404,7 @@ struct CrossTierEscapeState
         goal_y = 0.0;
     }
 
-    void Engage(const std::string& zone)
+    void engage(const std::string& zone)
     {
         active = true;
         anchor_zone = zone;
@@ -418,7 +418,7 @@ struct ProgressIdentityState
     bool from_anchor = false;
     size_t source_reset_idx = std::numeric_limits<size_t>::max();
 
-    void Reset()
+    void reset()
     {
         from_anchor = false;
         source_reset_idx = std::numeric_limits<size_t>::max();
@@ -436,7 +436,7 @@ struct ZiplineApproachState
     size_t spot_index = 0;
     ZiplineNodeRef spot_tower;
 
-    void Retarget(size_t anchor)
+    void retarget(size_t anchor)
     {
         anchor_index = anchor;
         replans = 0;
@@ -445,9 +445,9 @@ struct ZiplineApproachState
     }
 
     // 游标只对 spot_tower 那根架子有效, 换了架子从头试
-    size_t MountSpotCursor(const ZiplineNodeRef& mount)
+    size_t mountSpotCursor(const ZiplineNodeRef& mount)
     {
-        if (!spot_tower.SameTower(mount)) {
+        if (!spot_tower.sameTower(mount)) {
             spot_tower = mount;
             spot_index = 0;
             press_missed = false;
@@ -455,7 +455,7 @@ struct ZiplineApproachState
         return spot_index;
     }
 
-    void Reset()
+    void reset()
     {
         anchor_index = std::numeric_limits<size_t>::max();
         replans = 0;
@@ -472,9 +472,9 @@ struct InteractApproachState
     // 收紧的判定圈从认空这一刻起算
     std::chrono::steady_clock::time_point missed_at {};
 
-    bool PromptMissedAt(const std::optional<size_t>& node) const { return node.has_value() && prompt_missed_node == node; }
+    bool promptMissedAt(const std::optional<size_t>& node) const { return node.has_value() && prompt_missed_node == node; }
 
-    void Reset() { prompt_missed_node.reset(); }
+    void reset() { prompt_missed_node.reset(); }
 };
 
 // 退索后要连续几次稳定的新定位重新确认位置, 才接回剩余路线
@@ -485,7 +485,7 @@ struct ZiplineRecoveryState
     int32_t stable_hits = 0;
     bool pending = false;
 
-    void Begin(const std::chrono::steady_clock::time_point& now)
+    void begin(const std::chrono::steady_clock::time_point& now)
     {
         started_at = now;
         stable_pos = {};
@@ -493,7 +493,7 @@ struct ZiplineRecoveryState
         pending = true;
     }
 
-    void Reset()
+    void reset()
     {
         started_at = {};
         stable_pos = {};
@@ -514,64 +514,64 @@ struct NavigationRuntimeState
     LateralBypassState bypass;
     SteeringRateState steering_rate;
     OffRouteWedgeState offroute;
-    // 不进任何 Reset, 只在走出盘或换区时自清, 或由 BeginNavigation 清
+    // 不进任何 reset, 只在走出盘或换区时自清, 或由 beginNavigation 清
     DwellWatchdogState dwell;
     CrossTierEscapeState cross_tier_escape;
     // 推进点位或重开导航就清
     FindState find;
-    // 只由 BeginNavigation 清, 推进点位不重置识别节拍
+    // 只由 beginNavigation 清, 推进点位不重置识别节拍
     TriggerState trigger;
-    // 不进任何 Reset, 换了上索点按身份自清, 或由 BeginNavigation 清
+    // 不进任何 reset, 换了上索点按身份自清, 或由 beginNavigation 清
     ZiplineApproachState zipline_approach;
     InteractApproachState interact_approach;
     ZiplineRecoveryState zipline_recovery;
-    // 账本跨越丢链和重规划, 只由 BeginNavigation 清
+    // 账本跨越丢链和重规划, 只由 beginNavigation 清
     ZiplineRideMachine zipline_ride;
-    // 整趟导航有效, 只由 BeginNavigation 清
+    // 整趟导航有效, 只由 beginNavigation 清
     std::vector<VirtualNoGoDisc> virtual_no_go;
-    // 上次真正推进路点以来的全局重定位次数, 只由 OnWaypointAdvance 和 BeginNavigation 清
+    // 上次真正推进路点以来的全局重定位次数, 只由 onWaypointAdvance 和 beginNavigation 清
     int global_reacquire_streak = 0;
     bool dynamic_replan_requested = false;
     bool nav_run_dirty = true;
-    // 只由 ArmCameraAlign 置位, 下一个 navigate 拍消费, 不进任何 Reset
+    // 只由 armCameraAlign 置位, 下一个 navigate 拍消费, 不进任何 reset
     bool camera_align_pending = false;
     ProgressIdentityState progress_identity;
 
-    void ArmCameraAlign() { camera_align_pending = true; }
+    void armCameraAlign() { camera_align_pending = true; }
 
-    void ResetNavigationAssistState()
+    void resetNavigationAssistState()
     {
-        route.ResetTracking();
-        recovery.Reset();
-        recovery_escalation.Reset();
-        steering_rate.Reset();
-        offroute.Reset();
-        zipline_recovery.Reset();
+        route.resetTracking();
+        recovery.reset();
+        recovery_escalation.reset();
+        steering_rate.reset();
+        offroute.reset();
+        zipline_recovery.reset();
         dynamic_replan_requested = false;
         nav_run_dirty = true;
     }
 
-    void BeginNavigation(const std::chrono::steady_clock::time_point& now)
+    void beginNavigation(const std::chrono::steady_clock::time_point& now)
     {
-        route.Reset();
-        semantic.ResetTransient();
-        recovery.Reset();
-        recovery_escalation.Reset();
-        localization_loss.Reset();
-        river_fall.Reset();
-        bypass.Reset();
-        steering_rate.Reset();
-        offroute.Reset();
-        dwell.Reset();
-        cross_tier_escape.Reset();
-        zipline_approach.Reset();
-        interact_approach.Reset();
-        zipline_recovery.Reset();
-        find.Reset();
-        trigger.Reset();
-        zipline_ride.ResetNavigation();
+        route.reset();
+        semantic.resetTransient();
+        recovery.reset();
+        recovery_escalation.reset();
+        localization_loss.reset();
+        river_fall.reset();
+        bypass.reset();
+        steering_rate.reset();
+        offroute.reset();
+        dwell.reset();
+        cross_tier_escape.reset();
+        zipline_approach.reset();
+        interact_approach.reset();
+        zipline_recovery.reset();
+        find.reset();
+        trigger.reset();
+        zipline_ride.resetNavigation();
         virtual_no_go.clear();
-        progress_identity.Reset();
+        progress_identity.reset();
         global_reacquire_streak = 0;
         dynamic_replan_requested = false;
         nav_run_dirty = true;
@@ -585,16 +585,16 @@ struct NavigationRuntimeState
         flow.corner_walk = false;
     }
 
-    void OnWaypointAdvance()
+    void onWaypointAdvance()
     {
-        route.ResetTracking();
-        recovery.Reset();
-        recovery_escalation.Reset();
-        river_fall.Reset();
-        bypass.Reset();
-        offroute.Reset();
-        zipline_recovery.Reset();
-        find.Reset();
+        route.resetTracking();
+        recovery.reset();
+        recovery_escalation.reset();
+        river_fall.reset();
+        bypass.reset();
+        offroute.reset();
+        zipline_recovery.reset();
+        find.reset();
         global_reacquire_streak = 0;
         dynamic_replan_requested = false;
         nav_run_dirty = true;
@@ -602,7 +602,7 @@ struct NavigationRuntimeState
     }
 
     // 人站在滑索架上。这时移动指令会被架子吃掉, 上索提示也不用再认
-    bool IsZiplineMounted() const { return zipline_ride.OnTower(); }
+    bool isZiplineMounted() const { return zipline_ride.onTower(); }
 };
 
 } // namespace mapnavigator

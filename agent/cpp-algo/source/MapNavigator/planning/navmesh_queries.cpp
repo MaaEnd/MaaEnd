@@ -16,9 +16,9 @@ namespace mapnavigator
 namespace
 {
 
-navmesh::WorldPoint OffsetPoint(const NaviPosition& position, double heading, double distance)
+navmesh::WorldPoint offset_point(const NaviPosition& position, double heading, double distance)
 {
-    const double radians = NaviMath::NormalizeHeading(heading) * kPi / 180.0;
+    const double radians = NaviMath::normalizeHeading(heading) * kPi / 180.0;
     return { .x = position.x + std::sin(radians) * distance, .y = position.y - std::cos(radians) * distance };
 }
 
@@ -223,12 +223,12 @@ std::optional<navmesh::WorldPoint>
     const int rot = ((attempt_index % kFanCount) + kFanCount) % kFanCount;
 
     for (int i = 0; i < kFanCount; ++i) {
-        const double bearing = NaviMath::NormalizeHeading(stuck_heading + kFan[(i + rot) % kFanCount]);
+        const double bearing = NaviMath::normalizeHeading(stuck_heading + kFan[(i + rot) % kFanCount]);
         double run = 0.0;
         double longest = 0.0;
         double solid_start = -1.0; // 末尾连续在网格上那段的起始距离, -1 表示没有
         for (double d = kUnstickSampleStepM; d <= kUnstickMaxDistanceM + 1e-9; d += kUnstickSampleStepM) {
-            if (on_mesh(OffsetPoint(position, bearing, d))) {
+            if (on_mesh(offset_point(position, bearing, d))) {
                 if (solid_start < 0.0) {
                     solid_start = d;
                 }
@@ -245,7 +245,7 @@ std::optional<navmesh::WorldPoint>
             if (out_distance != nullptr) {
                 *out_distance = dist;
             }
-            return OffsetPoint(position, bearing, dist);
+            return offset_point(position, bearing, dist);
         }
     }
     return std::nullopt;

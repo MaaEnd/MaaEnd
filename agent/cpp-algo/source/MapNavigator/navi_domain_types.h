@@ -169,22 +169,22 @@ struct Waypoint
     // 展开来源在作者 path 中的组首下标, 作者原点和运行时生成的点为 max
     size_t authored_group_begin = std::numeric_limits<size_t>::max();
 
-    double GetLookahead() const
+    double getLookahead() const
     {
         if (!has_position) {
             return 0.0;
         }
-        if (RequiresStrictArrival()) {
+        if (requiresStrictArrival()) {
             return kStrictArrivalLookaheadRadius;
         }
         return kLookaheadRadius;
     }
 
-    double ArrivalBand(double position_quantum, bool relax_tight_band = false) const
+    double arrivalBand(double position_quantum, bool relax_tight_band = false) const
     {
-        const bool strict = RequiresStrictArrival();
-        double band = strict ? GetLookahead() + position_quantum : GetLookahead() + kWaypointArrivalSlack + position_quantum;
-        if (StopsOnPromptDetection() && !relax_tight_band) {
+        const bool strict = requiresStrictArrival();
+        double band = strict ? getLookahead() + position_quantum : getLookahead() + kWaypointArrivalSlack + position_quantum;
+        if (stopsOnPromptDetection() && !relax_tight_band) {
             band = std::min(band, kCollectArrivalBandWu);
         }
         if (strict || corridor_clearance <= 0.0) {
@@ -193,47 +193,47 @@ struct Waypoint
         return std::min(band, std::max(corridor_clearance, kMinArrivalBand));
     }
 
-    ActionTraits Traits() const { return TraitsOf(action); }
+    ActionTraits traits() const { return TraitsOf(action); }
 
-    bool RequiresStrictArrival() const { return has_position && (strict_arrival || Traits().strict_arrival); }
+    bool requiresStrictArrival() const { return has_position && (strict_arrival || traits().strict_arrival); }
 
-    bool SettlesAtArrival() const
+    bool settlesAtArrival() const
     {
-        if (!has_position || !Traits().settles_at_arrival) {
+        if (!has_position || !traits().settles_at_arrival) {
             return false;
         }
         if (action == ActionType::INTERACT) {
-            return !IsAsyncInteract();
+            return !isAsyncInteract();
         }
         return authored_strict_arrival;
     }
 
-    bool IsContinuousRun() const { return has_position && action == ActionType::RUN && !RequiresStrictArrival(); }
+    bool isContinuousRun() const { return has_position && action == ActionType::RUN && !requiresStrictArrival(); }
 
     // 只给 interact_scan 不给文本的点不算异步交互, 共用节点里的占位文本认不出东西
-    bool IsAsyncInteract() const { return action == ActionType::INTERACT && !interact_text.empty(); }
+    bool isAsyncInteract() const { return action == ActionType::INTERACT && !interact_text.empty(); }
 
     // 不看文本, 否则文本解析失败的点会退回到点连按交互键
-    bool IsRecInteract() const { return action == ActionType::INTERACT && interact_rec; }
+    bool isRecInteract() const { return action == ActionType::INTERACT && interact_rec; }
 
     // 上索点也认提示, 但只有链首要认, 那道收紧在状态机里
-    bool StopsOnPromptDetection() const { return action == ActionType::COLLECT || IsAsyncInteract(); }
+    bool stopsOnPromptDetection() const { return action == ActionType::COLLECT || isAsyncInteract(); }
 
-    bool HasPosition() const { return has_position; }
+    bool hasPosition() const { return has_position; }
 
-    bool IsHeadingOnly() const { return action == ActionType::HEADING; }
+    bool isHeadingOnly() const { return action == ActionType::HEADING; }
 
-    bool IsFindPoint() const { return action == ActionType::FIND; }
+    bool isFindPoint() const { return action == ActionType::FIND; }
 
-    bool IsTriggerPoint() const { return action == ActionType::TRIGGER; }
+    bool isTriggerPoint() const { return action == ActionType::TRIGGER; }
 
-    bool IsIntrinsicRouteBoundary() const { return Traits().route_boundary; }
+    bool isIntrinsicRouteBoundary() const { return traits().route_boundary; }
 
-    bool ClosesGlobalRouteGroup() const { return route_required || IsIntrinsicRouteBoundary(); }
+    bool closesGlobalRouteGroup() const { return route_required || isIntrinsicRouteBoundary(); }
 
-    bool IsZoneDeclaration() const { return action == ActionType::ZONE; }
+    bool isZoneDeclaration() const { return action == ActionType::ZONE; }
 
-    bool IsControlNode() const { return !has_position; }
+    bool isControlNode() const { return !has_position; }
 
     Waypoint()
         : x(0.0)
@@ -267,7 +267,7 @@ struct Waypoint
     {
     }
 
-    static Waypoint Heading(double angle)
+    static Waypoint heading(double angle)
     {
         Waypoint waypoint;
         waypoint.action = ActionType::HEADING;
@@ -278,7 +278,7 @@ struct Waypoint
         return waypoint;
     }
 
-    static Waypoint HeadingToTarget(double target_x, double target_y)
+    static Waypoint headingToTarget(double target_x, double target_y)
     {
         Waypoint waypoint;
         waypoint.x = target_x;
@@ -291,7 +291,7 @@ struct Waypoint
         return waypoint;
     }
 
-    static Waypoint Zone(std::string zone)
+    static Waypoint zone(std::string zone)
     {
         Waypoint waypoint;
         waypoint.action = ActionType::ZONE;

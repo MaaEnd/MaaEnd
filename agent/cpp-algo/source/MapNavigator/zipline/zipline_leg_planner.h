@@ -42,7 +42,7 @@ struct ZiplineRoute
     std::vector<NavmeshRouteDiagnostic> diagnostics;
 };
 
-// SameTower 靠世界坐标认架子, 漏一个分量就退化成按像素认, 所以两侧共用这份映射
+// sameTower 靠世界坐标认架子, 漏一个分量就退化成按像素认, 所以两侧共用这份映射
 ZiplineNodeRef ToNodeRef(const zipline::ZiplineNode& node);
 
 // walking_path 为空表示步行不可达, goal_deck_y 须与步行方案一致, 两个区名不可互换

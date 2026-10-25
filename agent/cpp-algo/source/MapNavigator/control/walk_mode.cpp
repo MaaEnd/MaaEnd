@@ -32,25 +32,25 @@ Toggle::Toggle(ActionWrapper* action_wrapper)
 {
     if (g_walking) {
         LogWarn << "Walk mode belief survived the previous run; restoring jogging before navigating.";
-        Request(false);
+        request(false);
     }
 }
 
 Toggle::~Toggle()
 {
-    Request(false);
+    request(false);
 }
 
-void Toggle::Request(bool walk)
+void Toggle::request(bool walk)
 {
     if (walk == g_walking) {
         return;
     }
-    if (action_wrapper_ == nullptr || !action_wrapper_->SupportsWalkToggle()) {
+    if (action_wrapper_ == nullptr || !action_wrapper_->supportsWalkToggle()) {
         return;
     }
 
-    action_wrapper_->ToggleWalkModeSync();
+    action_wrapper_->toggleWalkModeSync();
     g_walking = walk;
     LogInfo << (walk ? "Walk mode engaged (game walking speed)." : "Walk mode released (back to jogging).");
 }

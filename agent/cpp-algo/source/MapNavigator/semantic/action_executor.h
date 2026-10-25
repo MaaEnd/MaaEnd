@@ -11,10 +11,10 @@ class ActionExecutor
 public:
     ActionExecutor(ActionWrapper* action_wrapper, MotionController* motion_controller);
 
-    void Sprint();
-    void Jump();
-    void Interact();
-    void Fight();
+    void sprint();
+    void jump();
+    void interact();
+    void fight();
 
 private:
     ActionWrapper* action_wrapper_;

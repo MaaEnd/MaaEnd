@@ -63,7 +63,7 @@ private:
 
 // 返回跳过的作者点数
 std::optional<size_t>
-    ExpandRoute(const NaviParam& param, const NaviPosition& pos, const std::function<bool()>& is_stopping, std::vector<Waypoint>& out_path)
+    expand_route(const NaviParam& param, const NaviPosition& pos, const std::function<bool()>& is_stopping, std::vector<Waypoint>& out_path)
 {
     if (ExpandNavmeshWaypoints(param, pos, is_stopping, out_path)) {
         return 0;
@@ -83,7 +83,7 @@ std::optional<size_t>
 }
 
 // 展开时记的组首是相对跳过前缀后的路线, 补回跳过的点数
-void OffsetAuthoredGroups(std::vector<Waypoint>& path, size_t resume_index)
+void offset_authored_groups(std::vector<Waypoint>& path, size_t resume_index)
 {
     for (Waypoint& waypoint : path) {
         if (waypoint.authored_group_begin != std::numeric_limits<size_t>::max()) {
@@ -99,7 +99,7 @@ NaviController::NaviController(MaaContext* ctx)
 {
 }
 
-bool NaviController::Navigate(const NaviParam& requested_param)
+bool NaviController::navigate(const NaviParam& requested_param)
 {
     // 须最先取闸, 被拒的节点可能被无限重试
     const NavigationEntryGuard entry_guard(MaaContextGetTasker(ctx_));
@@ -111,16 +111,16 @@ bool NaviController::Navigate(const NaviParam& requested_param)
     NaviParam param = requested_param;
 
     ActionWrapper action_wrapper(ctx_);
-    PositionProvider position_provider(action_wrapper.GetCtrl(), maplocator::getOrInitLocator(), param.heading_source);
-    position_provider.ResetTracking();
+    PositionProvider position_provider(action_wrapper.getCtrl(), maplocator::getOrInitLocator(), param.heading_source);
+    position_provider.resetTracking();
     if (param.normalize_position_via_navmesh) {
-        position_provider.SetPositionNormalizer([&param](NaviPosition& pos) { NormalizeLivePositionToBase(param, pos); });
+        position_provider.setPositionNormalizer([&param](NaviPosition& pos) { NormalizeLivePositionToBase(param, pos); });
     }
-    const char* controller_type = action_wrapper.controller_type();
-    const bool uses_touch_backend = action_wrapper.uses_touch_backend();
+    const char* controller_type = action_wrapper.controllerType();
+    const bool uses_touch_backend = action_wrapper.usesTouchBackend();
     LogInfo << "MapNavigator controller initialized." << VAR(controller_type) << VAR(uses_touch_backend);
-    if (!action_wrapper.is_supported()) {
-        const char* unsupported_reason = action_wrapper.unsupported_reason();
+    if (!action_wrapper.isSupported()) {
+        const char* unsupported_reason = action_wrapper.unsupportedReason();
         LogError << "MapNavigator controller backend is unsupported." << VAR(controller_type) << VAR(unsupported_reason);
         return false;
     }
@@ -140,7 +140,7 @@ bool NaviController::Navigate(const NaviParam& requested_param)
 
     NaviPosition pos;
     const std::string initial_expected_zone = InitialExpectedZone(param);
-    if (!position_provider.WaitForFix(&pos, initial_expected_zone, kLocatorWaitMaxRetries, kLocatorWaitIntervalMs, is_stopping)
+    if (!position_provider.waitForFix(&pos, initial_expected_zone, kLocatorWaitMaxRetries, kLocatorWaitIntervalMs, is_stopping)
         || is_stopping()) {
         return false;
     }
@@ -150,7 +150,7 @@ bool NaviController::Navigate(const NaviParam& requested_param)
     LogInfo << "Initial Pos fixed:" << VAR(position_x) << VAR(position_y);
 
     std::vector<Waypoint> expanded_path;
-    const std::optional<size_t> resume_index = ExpandRoute(param, pos, is_stopping, expanded_path);
+    const std::optional<size_t> resume_index = expand_route(param, pos, is_stopping, expanded_path);
     if (!resume_index) {
         return false;
     }
@@ -161,10 +161,10 @@ bool NaviController::Navigate(const NaviParam& requested_param)
     NaviParam expanded_param = param;
     expanded_param.path = std::move(expanded_path);
     expanded_param.authored_path = std::move(param.path);
-    OffsetAuthoredGroups(expanded_param.path, *resume_index);
+    offset_authored_groups(expanded_param.path, *resume_index);
 
     NavigationSession session(expanded_param.path, pos);
-    session.UpdatePhase(NaviPhase::Bootstrap, "initial_fix");
+    session.updatePhase(NaviPhase::Bootstrap, "initial_fix");
 
     MotionController motion_controller(&action_wrapper, param.enable_local_driver);
     ActionExecutor action_executor(&action_wrapper, &motion_controller);
@@ -179,7 +179,7 @@ bool NaviController::Navigate(const NaviParam& requested_param)
         is_stopping,
         ctx_);
 
-    return state_machine.Run();
+    return state_machine.run();
 }
 
 } // namespace mapnavigator

@@ -39,7 +39,7 @@ class AdbCameraSwipeDriver
 public:
     AdbCameraSwipeDriver(MaaController* controller, AdbCameraSwipeDriverConfig config = {});
 
-    bool SwipeByPixels(int dx, int dy) const;
+    bool swipeByPixels(int dx, int dy) const;
 
 private:
     struct ScreenGeometry
@@ -50,13 +50,13 @@ private:
         int down_limit = 0;
     };
 
-    std::optional<ScreenGeometry> GetScreenGeometry() const;
-    bool ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
-    bool PostTouchDown(const cv::Point& point) const;
-    bool PostTouchMove(const cv::Point& point) const;
-    bool PostTouchUp() const;
-    bool EnsureControllerActionPosted(MaaCtrlId ctrl_id, const char* action_name) const;
-    bool WaitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const;
+    std::optional<ScreenGeometry> getScreenGeometry() const;
+    bool executeStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
+    bool postTouchDown(const cv::Point& point) const;
+    bool postTouchMove(const cv::Point& point) const;
+    bool postTouchUp() const;
+    bool ensureControllerActionPosted(MaaCtrlId ctrl_id, const char* action_name) const;
+    bool waitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const;
 
     MaaController* controller_ = nullptr;
     AdbCameraSwipeDriverConfig config_;

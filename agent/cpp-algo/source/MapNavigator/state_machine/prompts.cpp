@@ -23,20 +23,20 @@
 namespace mapnavigator
 {
 
-TickStep NavigationStateMachine::HandlePrompts(const NavigateTick& tick)
+TickStep NavigationStateMachine::handlePrompts(const NavigateTick& tick)
 {
     const Waypoint& waypoint = tick.waypoint;
     const RouteMeasurement& route = tick.route;
-    if (TryRunPromptSubtaskWhileWalking(route)) {
+    if (tryRunPromptSubtaskWhileWalking(route)) {
         return TickStep::EndTick;
     }
 
-    if (TryZiplineMountPrompt(waypoint, route)) {
+    if (tryZiplineMountPrompt(waypoint, route)) {
         runtime_state_.semantic.zipline_prompt_probe = true;
-        const semantic_nodes::Result prompt_result = semantic_nodes::HandleArrival(SemanticContext(), waypoint, route.waypoint_distance);
+        const semantic_nodes::Result prompt_result = semantic_nodes::HandleArrival(semanticContext(), waypoint, route.waypoint_distance);
         runtime_state_.semantic.zipline_prompt_probe = false;
         if (prompt_result.request_failure) {
-            return EndTickWith(FailNavigation(
+            return EndTickWith(failNavigation(
                 prompt_result.failure_reason,
                 prompt_result.failure_log_message,
                 route.waypoint_distance,
@@ -48,12 +48,12 @@ TickStep NavigationStateMachine::HandlePrompts(const NavigateTick& tick)
         }
     }
 
-    if (waypoint.action == ActionType::ZIPLINE && !runtime_state_.IsZiplineMounted() && waypoint.zipline_hop) {
-        const size_t cursor = runtime_state_.zipline_approach.MountSpotCursor(waypoint.zipline_hop->mount);
+    if (waypoint.action == ActionType::ZIPLINE && !runtime_state_.isZiplineMounted() && waypoint.zipline_hop) {
+        const size_t cursor = runtime_state_.zipline_approach.mountSpotCursor(waypoint.zipline_hop->mount);
         if (cursor + 1 < waypoint.zipline_hop->mount_spots.size() && route.waypoint_distance <= kZiplineWalkEnterBandWu
-            && session_->HardStalledMs(tick.now) >= kZiplineMountSpotStallMs) {
+            && session_->hardStalledMs(tick.now) >= kZiplineMountSpotStallMs) {
             const semantic_nodes::Result advanced =
-                semantic_nodes::AdvanceMountSpot(SemanticContext(), waypoint, "zipline_mount_spot_stalled");
+                semantic_nodes::AdvanceMountSpot(semanticContext(), waypoint, "zipline_mount_spot_stalled");
             if (advanced.consumed) {
                 return TickStep::EndTick;
             }
@@ -62,47 +62,47 @@ TickStep NavigationStateMachine::HandlePrompts(const NavigateTick& tick)
     return TickStep::Next;
 }
 
-std::array<AsyncPromptAction*, 2> NavigationStateMachine::PromptActions()
+std::array<AsyncPromptAction*, 2> NavigationStateMachine::promptActions()
 {
     return { &collect_prompt_, &interact_prompt_ };
 }
 
-void NavigationStateMachine::StartScanners()
+void NavigationStateMachine::startScanners()
 {
-    StartPromptScanners();
-    StartDeviceProbe();
+    startPromptScanners();
+    startDeviceProbe();
 
     if (position_provider_ == nullptr) {
         return;
     }
-    position_provider_->SetFrameObserver([this](const cv::Mat& frame) {
-        collect_prompt_.SubmitFrame(frame);
-        interact_prompt_.SubmitFrame(frame);
-        device_recovery_.SubmitFrame(frame);
+    position_provider_->setFrameObserver([this](const cv::Mat& frame) {
+        collect_prompt_.submitFrame(frame);
+        interact_prompt_.submitFrame(frame);
+        device_recovery_.submitFrame(frame);
         if (zipline_mount_scanner_ != nullptr) {
-            zipline_mount_scanner_->SubmitFrame(frame);
+            zipline_mount_scanner_->submitFrame(frame);
         }
     });
 }
 
-void NavigationStateMachine::StopScanners()
+void NavigationStateMachine::stopScanners()
 {
     if (position_provider_ != nullptr) {
-        position_provider_->SetFrameObserver(nullptr);
+        position_provider_->setFrameObserver(nullptr);
     }
     if (motion_controller_ != nullptr) {
-        motion_controller_->SetSprintSuppressed(false);
+        motion_controller_->setSprintSuppressed(false);
     }
-    collect_prompt_.Stop();
-    interact_prompt_.Stop();
-    device_recovery_.Stop();
+    collect_prompt_.stop();
+    interact_prompt_.stop();
+    device_recovery_.stop();
     zipline_mount_scanner_.reset();
 }
 
-void NavigationStateMachine::StartPromptScanners()
+void NavigationStateMachine::startPromptScanners()
 {
-    for (AsyncPromptAction* prompt : PromptActions()) {
-        if (prompt->started() || !prompt->RouteHasPoint()) {
+    for (AsyncPromptAction* prompt : promptActions()) {
+        if (prompt->started() || !prompt->routeHasPoint()) {
             continue;
         }
 
@@ -112,40 +112,40 @@ void NavigationStateMachine::StartPromptScanners()
                     << VAR(prompt->spec().recognition_node);
             continue;
         }
-        prompt->Start(base_roi, action_wrapper_->controller_type());
+        prompt->start(base_roi, action_wrapper_->controllerType());
     }
 }
 
-void NavigationStateMachine::StartDeviceProbe()
+void NavigationStateMachine::startDeviceProbe()
 {
     cv::Rect base_roi;
     if (!TryReadNodeRoi(maa_context_, kObstacleDeviceProbeNode, &base_roi)) {
         LogWarn << "Blocking-device probe not started: could not read its ROI from the pipeline." << VAR(kObstacleDeviceProbeNode);
         return;
     }
-    device_recovery_.Start(base_roi);
+    device_recovery_.start(base_roi);
 }
 
-void NavigationStateMachine::PreWarmPromptRecognition()
+void NavigationStateMachine::preWarmPromptRecognition()
 {
-    for (AsyncPromptAction* prompt : PromptActions()) {
-        prompt->PreWarmRecognition();
+    for (AsyncPromptAction* prompt : promptActions()) {
+        prompt->preWarmRecognition();
     }
 }
 
 // 判定圈外的检测结果也要读掉, 免得进圈那一拍拿着旧结果触发
-bool NavigationStateMachine::TryZiplineMountPrompt(const Waypoint& waypoint, const RouteMeasurement& route)
+bool NavigationStateMachine::tryZiplineMountPrompt(const Waypoint& waypoint, const RouteMeasurement& route)
 {
     if (waypoint.action != ActionType::ZIPLINE) {
         zipline_mount_scanner_.reset();
         return false;
     }
-    if (runtime_state_.IsZiplineMounted()) {
+    if (runtime_state_.isZiplineMounted()) {
         return false;
     }
     if (zipline_mount_scanner_ == nullptr && maa_context_ != nullptr) {
         PromptScanProfile profile;
-        if (!TryLoadPromptScanProfile(maa_context_, kZiplineMountScanNode, action_wrapper_->controller_type(), &profile)) {
+        if (!TryLoadPromptScanProfile(maa_context_, kZiplineMountScanNode, action_wrapper_->controllerType(), &profile)) {
             LogWarn << "Zipline mount pre-filter not started; the chain stops on arrival instead." << VAR(kZiplineMountScanNode);
             return false;
         }
@@ -156,26 +156,26 @@ bool NavigationStateMachine::TryZiplineMountPrompt(const Waypoint& waypoint, con
     if (zipline_mount_scanner_ == nullptr) {
         return false;
     }
-    const bool flagged = zipline_mount_scanner_->ConsumeDetection();
+    const bool flagged = zipline_mount_scanner_->consumeDetection();
     return flagged && route.startup_motion_confirmed && route.waypoint_distance <= kPromptTriggerBandWu;
 }
 
-NavigationStateMachine::PromptDistance NavigationStateMachine::NearestPromptDistance() const
+NavigationStateMachine::PromptDistance NavigationStateMachine::nearestPromptDistance() const
 {
     PromptDistance nearest;
     for (const AsyncPromptAction* prompt : { &collect_prompt_, &interact_prompt_ }) {
-        const double distance_sq = prompt->NearestDistanceSq();
+        const double distance_sq = prompt->nearestDistanceSq();
         if (distance_sq >= 0.0 && (nearest.distance_sq < 0.0 || distance_sq < nearest.distance_sq)) {
             nearest.distance_sq = distance_sq;
             nearest.is_zipline = false;
         }
     }
-    const std::vector<Waypoint>& path = session_->current_path();
-    for (size_t index = session_->current_node_idx(); index < path.size(); ++index) {
+    const std::vector<Waypoint>& path = session_->currentPath();
+    for (size_t index = session_->currentNodeIdx(); index < path.size(); ++index) {
         const Waypoint& waypoint = path[index];
         const bool is_zipline = waypoint.action == ActionType::ZIPLINE;
-        if (!waypoint.HasPosition() || (waypoint.action != ActionType::DIG && !is_zipline)
-            || (is_zipline && runtime_state_.IsZiplineMounted())) {
+        if (!waypoint.hasPosition() || (waypoint.action != ActionType::DIG && !is_zipline)
+            || (is_zipline && runtime_state_.isZiplineMounted())) {
             continue;
         }
         const double dx = waypoint.x - position_->x;
@@ -192,38 +192,38 @@ NavigationStateMachine::PromptDistance NavigationStateMachine::NearestPromptDist
     return nearest;
 }
 
-void NavigationStateMachine::UpdatePromptSprintSuppression()
+void NavigationStateMachine::updatePromptSprintSuppression()
 {
     if (motion_controller_ == nullptr) {
         return;
     }
 
-    const double nearest_sq = NearestPromptDistance().distance_sq;
+    const double nearest_sq = nearestPromptDistance().distance_sq;
     const bool approaching_prompt = nearest_sq >= 0.0 && nearest_sq <= kCollectSprintSuppressBandWu * kCollectSprintSuppressBandWu;
-    motion_controller_->SetSprintSuppressed(approaching_prompt);
+    motion_controller_->setSprintSuppressed(approaching_prompt);
 }
 
-bool NavigationStateMachine::TryRunPromptSubtaskWhileWalking(const RouteMeasurement& route)
+bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurement& route)
 {
     if (!route.startup_motion_confirmed) {
         return false;
     }
 
-    const std::array<AsyncPromptAction*, 2> prompts = PromptActions();
+    const std::array<AsyncPromptAction*, 2> prompts = promptActions();
     for (size_t index = 0; index < prompts.size(); ++index) {
         const PromptTriggerOutcome outcome =
-            prompts[index]->TryTriggerWhileWalking(motion_controller_, route.waypoint_distance, session_->current_node_idx());
+            prompts[index]->tryTriggerWhileWalking(motion_controller_, route.waypoint_distance, session_->currentNodeIdx());
         if (outcome == PromptTriggerOutcome::NotTriggered) {
             continue;
         }
         // 屏幕上一次只弹一个提示, 清掉另一类的检测结果, 免得为同一个提示停两次车
         for (size_t other = 0; other < prompts.size(); ++other) {
             if (other != index) {
-                prompts[other]->ForgetDetection();
+                prompts[other]->forgetDetection();
             }
         }
-        if (outcome == PromptTriggerOutcome::Recognized && prompts[index]->spec().CompletesWaypointOnTrigger()) {
-            CompleteWaypointAfterPromptTrigger();
+        if (outcome == PromptTriggerOutcome::Recognized && prompts[index]->spec().completesWaypointOnTrigger()) {
+            completeWaypointAfterPromptTrigger();
         }
         return true;
     }
@@ -231,39 +231,39 @@ bool NavigationStateMachine::TryRunPromptSubtaskWhileWalking(const RouteMeasurem
 }
 
 // 交互一开角色就不动、小地图也没了, 所以提示命中即算走完
-void NavigationStateMachine::CompleteWaypointAfterPromptTrigger()
+void NavigationStateMachine::completeWaypointAfterPromptTrigger()
 {
-    if (!session_->HasCurrentWaypoint()) {
+    if (!session_->hasCurrentWaypoint()) {
         return;
     }
 
-    const ActionType action = session_->CurrentWaypoint().action;
-    const std::optional<RopeRideInfo> rope_ride = session_->CurrentWaypoint().rope_ride;
-    const std::optional<size_t> consumed_absolute_node_idx = session_->CurrentAbsoluteNodeIndex();
-    session_->NoteCanonicalFinalGoalConsumed(consumed_absolute_node_idx, *position_, "async_prompt_completed");
-    session_->AdvanceToNextWaypoint(action, "async_prompt_completed");
-    runtime_state_.OnWaypointAdvance();
-    if (!session_->HasCurrentWaypoint()) {
-        session_->NoteRouteTailConsumed(*position_, "route_tail_consumed");
+    const ActionType action = session_->currentWaypoint().action;
+    const std::optional<RopeRideInfo> rope_ride = session_->currentWaypoint().rope_ride;
+    const std::optional<size_t> consumed_absolute_node_idx = session_->currentAbsoluteNodeIndex();
+    session_->noteCanonicalFinalGoalConsumed(consumed_absolute_node_idx, *position_, "async_prompt_completed");
+    session_->advanceToNextWaypoint(action, "async_prompt_completed");
+    runtime_state_.onWaypointAdvance();
+    if (!session_->hasCurrentWaypoint()) {
+        session_->noteRouteTailConsumed(*position_, "route_tail_consumed");
         return;
     }
     if (rope_ride) {
-        semantic_nodes::StartRopeRide(SemanticContext(), *rope_ride);
+        semantic_nodes::StartRopeRide(semanticContext(), *rope_ride);
         return;
     }
-    SelectPhaseForCurrentWaypoint("async_prompt_completed");
+    selectPhaseForCurrentWaypoint("async_prompt_completed");
 }
 
 // 走完最后一个点的那一拍扫描器就停了, 所以收尾单独再检测一次
-void NavigationStateMachine::TryRunPromptSubtaskAtRouteTail()
+void NavigationStateMachine::tryRunPromptSubtaskAtRouteTail()
 {
     if (maa_context_ == nullptr || should_stop_() || session_->phase() != NaviPhase::Finished) {
         return;
     }
 
     AsyncPromptAction* tail_prompt = nullptr;
-    for (AsyncPromptAction* prompt : PromptActions()) {
-        if (prompt->started() && !prompt->spec().CompletesWaypointOnTrigger() && prompt->RouteEndsWithPoint()) {
+    for (AsyncPromptAction* prompt : promptActions()) {
+        if (prompt->started() && !prompt->spec().completesWaypointOnTrigger() && prompt->routeEndsWithPoint()) {
             tail_prompt = prompt;
             break;
         }
@@ -272,11 +272,11 @@ void NavigationStateMachine::TryRunPromptSubtaskAtRouteTail()
         return;
     }
 
-    StopMotion();
+    stopMotion();
     SleepFor(kStopWaitMs); // 先站定, 还在滑行就动手容易白按一次
     const auto started_at = std::chrono::steady_clock::now();
     while (!should_stop_()) {
-        if (tail_prompt->TryTriggerAtRouteTail()) {
+        if (tail_prompt->tryTriggerAtRouteTail()) {
             return;
         }
 
@@ -287,7 +287,7 @@ void NavigationStateMachine::TryRunPromptSubtaskAtRouteTail()
             return;
         }
 
-        CaptureCurrentPosition(false); // 只为把新画面喂给检测器
+        captureCurrentPosition(false); // 只为把新画面喂给检测器
         SleepFor(kTargetTickMs);
     }
 }

@@ -738,7 +738,7 @@ bool append_zone(const std::string& zone_id, std::vector<Waypoint>& out_waypoint
     if (zone_id.empty()) {
         return false;
     }
-    out_waypoints.push_back(Waypoint::Zone(zone_id));
+    out_waypoints.push_back(Waypoint::zone(zone_id));
     zone_context = zone_id;
     return true;
 }
@@ -746,7 +746,7 @@ bool append_zone(const std::string& zone_id, std::vector<Waypoint>& out_waypoint
 bool append_heading(const NaviWaypointInput& input, const std::string& zone_id, std::vector<Waypoint>& out_waypoints)
 {
     if (input.target_) {
-        Waypoint heading_waypoint = Waypoint::HeadingToTarget(input.target_->at(0), input.target_->at(1));
+        Waypoint heading_waypoint = Waypoint::headingToTarget(input.target_->at(0), input.target_->at(1));
         heading_waypoint.zone_id = zone_id;
         heading_waypoint.target_tier = input.target_tier_;
         heading_waypoint.route_required = input.required_;
@@ -756,7 +756,7 @@ bool append_heading(const NaviWaypointInput& input, const std::string& zone_id, 
     if (!input.angle_) {
         return false;
     }
-    Waypoint heading_waypoint = Waypoint::Heading(*input.angle_);
+    Waypoint heading_waypoint = Waypoint::heading(*input.angle_);
     heading_waypoint.zone_id = zone_id;
     heading_waypoint.route_required = input.required_;
     out_waypoints.push_back(std::move(heading_waypoint));
@@ -829,7 +829,7 @@ bool append_positioned(
     if (!input.angle_) {
         return false;
     }
-    Waypoint heading_waypoint = Waypoint::Heading(*input.angle_);
+    Waypoint heading_waypoint = Waypoint::heading(*input.angle_);
     heading_waypoint.zone_id = zone_id;
     out_waypoints.push_back(std::move(heading_waypoint));
     return true;

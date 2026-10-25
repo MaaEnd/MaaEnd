@@ -34,12 +34,12 @@ struct StrictSettleBudget
     std::chrono::steady_clock::time_point deadline;
     const std::function<bool()>& should_stop;
 
-    bool Exhausted(std::chrono::steady_clock::duration reserve = {}) const
+    bool exhausted(std::chrono::steady_clock::duration reserve = {}) const
     {
         return should_stop() || std::chrono::steady_clock::now() + reserve >= deadline;
     }
 
-    bool Sleep(std::chrono::steady_clock::duration duration) const
+    bool sleep(std::chrono::steady_clock::duration duration) const
     {
         const auto until = std::chrono::steady_clock::now() + duration;
         if (until > deadline) {
@@ -56,22 +56,22 @@ struct StrictSettleBudget
         return false;
     }
 
-    const char* CancelledOr(const char* reason) const { return should_stop() ? "cancelled" : reason; }
+    const char* cancelledOr(const char* reason) const { return should_stop() ? "cancelled" : reason; }
 };
 
-bool CaptureStrictGoalFix(const Context& ctx, const StrictSettleBudget& budget, NaviPosition* out_pos)
+bool capture_strict_goal_fix(const Context& ctx, const StrictSettleBudget& budget, NaviPosition* out_pos)
 {
     for (int frame = 0; frame < kStrictSettleFixMaxFrames; ++frame) {
-        if (budget.Exhausted()) {
+        if (budget.exhausted()) {
             break;
         }
-        if (frame > 0 && !budget.Sleep(std::chrono::milliseconds(kStrictSettleFixIntervalMs))) {
+        if (frame > 0 && !budget.sleep(std::chrono::milliseconds(kStrictSettleFixIntervalMs))) {
             break;
         }
-        if (!ctx.position_provider->CaptureForStrictGoal(out_pos, ctx.session->current_zone_id())) {
+        if (!ctx.position_provider->captureForStrictGoal(out_pos, ctx.session->currentZoneId())) {
             continue;
         }
-        if (budget.Exhausted()) {
+        if (budget.exhausted()) {
             break;
         }
         *ctx.position = *out_pos;
@@ -81,13 +81,13 @@ bool CaptureStrictGoalFix(const Context& ctx, const StrictSettleBudget& budget, 
     return false;
 }
 
-bool CaptureStillFix(const Context& ctx, const StrictSettleBudget& budget, NaviPosition* out_pos)
+bool capture_still_fix(const Context& ctx, const StrictSettleBudget& budget, NaviPosition* out_pos)
 {
     std::optional<NaviPosition> first;
     int still_reads = 0;
     for (;;) {
         NaviPosition fix {};
-        if (!CaptureStrictGoalFix(ctx, budget, &fix)) {
+        if (!capture_strict_goal_fix(ctx, budget, &fix)) {
             return false;
         }
         if (first && std::hypot(fix.x - first->x, fix.y - first->y) <= kStrictSettleStillWu) {
@@ -101,13 +101,13 @@ bool CaptureStillFix(const Context& ctx, const StrictSettleBudget& budget, NaviP
             *out_pos = fix;
             return true;
         }
-        if (!budget.Sleep(std::chrono::milliseconds(kStrictSettleFixIntervalMs))) {
+        if (!budget.sleep(std::chrono::milliseconds(kStrictSettleFixIntervalMs))) {
             return false;
         }
     }
 }
 
-double MedianOf(std::vector<double> values)
+double median_of(std::vector<double> values)
 {
     const auto mid = values.begin() + static_cast<std::ptrdiff_t>(values.size() / 2);
     std::nth_element(values.begin(), mid, values.end());
@@ -118,7 +118,7 @@ double MedianOf(std::vector<double> values)
 class PulseResponseModel
 {
 public:
-    void Record(double hold_ms, double travel)
+    void record(double hold_ms, double travel)
     {
         const std::lock_guard<std::mutex> guard(mutex_);
         responses_.push_back({ .hold_ms = hold_ms, .travel = travel });
@@ -128,7 +128,7 @@ public:
     }
 
     // 按位移 = 斜率·时长 + 截距拟合, 斜率与截距都取中位数以抗离群样本
-    int PlanHoldMs(double residual, int max_hold_ms) const
+    int planHoldMs(double residual, int max_hold_ms) const
     {
         std::vector<PulseResponse> samples;
         {
@@ -150,20 +150,20 @@ public:
         }
 
         double hold_ms = 0.0;
-        const double slope = slopes.empty() ? 0.0 : MedianOf(slopes);
+        const double slope = slopes.empty() ? 0.0 : median_of(slopes);
         if (slope > 0.0) {
             std::vector<double> intercepts;
             for (const PulseResponse& sample : samples) {
                 intercepts.push_back(sample.travel - slope * sample.hold_ms);
             }
-            hold_ms = (residual - MedianOf(intercepts)) / slope;
+            hold_ms = (residual - median_of(intercepts)) / slope;
         }
         else {
             std::vector<double> rates;
             for (const PulseResponse& sample : samples) {
                 rates.push_back(sample.travel / sample.hold_ms);
             }
-            hold_ms = residual / MedianOf(rates);
+            hold_ms = residual / median_of(rates);
         }
         return std::clamp(static_cast<int>(std::lround(hold_ms)), kStrictSettleMinHoldMs, max_hold_ms);
     }
@@ -192,104 +192,104 @@ struct StrictSettle
     double bearing = 0.0;
     int pulses = 0;
 
-    bool Run()
+    bool run()
     {
-        if (!CaptureStillFix(ctx, budget, &fix)) {
-            return Incomplete(budget.CancelledOr("no_settled_fix"));
+        if (!capture_still_fix(ctx, budget, &fix)) {
+            return incomplete(budget.cancelledOr("no_settled_fix"));
         }
 
         std::optional<double> previous_residual;
         for (;;) {
             residual = std::hypot(waypoint.x - fix.x, waypoint.y - fix.y);
             if (residual <= kStrictSettleAcceptBandWu) {
-                return Verified();
+                return verified();
             }
             if (pulses == kStrictSettleMaxPulses) {
-                return Incomplete("pulse_budget_exhausted");
+                return incomplete("pulse_budget_exhausted");
             }
             // 测量容差内的过冲允许掉头, 超出即判发散
             if (previous_residual && residual > *previous_residual + kStrictSettleAcceptBandWu) {
-                return Incomplete("diverging");
+                return incomplete("diverging");
             }
-            if (!ctx.action_wrapper->SupportsWalkToggle()) {
-                return Incomplete("walking_unavailable");
+            if (!ctx.action_wrapper->supportsWalkToggle()) {
+                return incomplete("walking_unavailable");
             }
-            if (const std::optional<bool> verdict = AlignTowardGoal()) {
+            if (const std::optional<bool> verdict = alignTowardGoal()) {
                 return *verdict;
             }
             previous_residual = residual;
-            if (const std::optional<bool> verdict = PulseAndMeasure()) {
+            if (const std::optional<bool> verdict = pulseAndMeasure()) {
                 return *verdict;
             }
         }
     }
 
-    std::optional<bool> AlignTowardGoal()
+    std::optional<bool> alignTowardGoal()
     {
         for (int turns = 0;; ++turns) {
-            bearing = NaviMath::CalcTargetRotation(fix.x, fix.y, waypoint.x, waypoint.y);
-            const double heading_delta = NaviMath::CalcDeltaRotation(*fix.camera_angle, bearing);
+            bearing = NaviMath::calcTargetRotation(fix.x, fix.y, waypoint.x, waypoint.y);
+            const double heading_delta = NaviMath::calcDeltaRotation(*fix.camera_angle, bearing);
             if (std::abs(heading_delta) <= kStrictSettleHeadingToleranceDeg) {
                 return std::nullopt;
             }
             if (turns == kStrictSettleMaxHeadingTurns) {
-                return Incomplete("camera_not_aligned");
+                return incomplete("camera_not_aligned");
             }
             LogInfo << "Strict arrival aligning while stopped." << VAR(bearing) << VAR(heading_delta) << VAR(turns);
-            if (budget.Exhausted() || !TurnToHeadingOnce(ctx, heading_delta, [this]() { return budget.Exhausted(); })) {
-                return Incomplete(budget.CancelledOr("view_turn_failed_or_budget_exhausted"));
+            if (budget.exhausted() || !TurnToHeadingOnce(ctx, heading_delta, [this]() { return budget.exhausted(); })) {
+                return incomplete(budget.cancelledOr("view_turn_failed_or_budget_exhausted"));
             }
-            if (!budget.Sleep(std::chrono::milliseconds(kWaitAfterFirstTurnMs)) || !CaptureStrictGoalFix(ctx, budget, &fix)) {
-                return Incomplete(budget.CancelledOr("camera_feedback_unavailable"));
+            if (!budget.sleep(std::chrono::milliseconds(kWaitAfterFirstTurnMs)) || !capture_strict_goal_fix(ctx, budget, &fix)) {
+                return incomplete(budget.cancelledOr("camera_feedback_unavailable"));
             }
             // 以实际读数为准, 不用指令预期的朝向
             residual = std::hypot(waypoint.x - fix.x, waypoint.y - fix.y);
             if (residual <= kStrictSettleAcceptBandWu) {
-                return Verified();
+                return verified();
             }
         }
     }
 
-    std::optional<bool> PulseAndMeasure()
+    std::optional<bool> pulseAndMeasure()
     {
-        const int hold_ms = g_pulse_model.PlanHoldMs(residual, input.max_hold_ms);
+        const int hold_ms = g_pulse_model.planHoldMs(residual, input.max_hold_ms);
         const auto settle_reserve =
             std::chrono::milliseconds(hold_ms + input.slide_ms + kStrictSettleStillReads * kStrictSettleFixIntervalMs);
-        if (budget.Exhausted(settle_reserve)) {
-            return Incomplete(budget.CancelledOr("budget_exhausted"));
+        if (budget.exhausted(settle_reserve)) {
+            return incomplete(budget.cancelledOr("budget_exhausted"));
         }
         LogInfo << "Strict arrival forward pulse." << VAR(residual) << VAR(hold_ms) << VAR(pulses);
         ++pulses;
         const NaviPosition from = fix;
-        ctx.motion_controller->SetForwardState(true);
+        ctx.motion_controller->setForwardState(true);
         const auto pressed_at = std::chrono::steady_clock::now();
         ctx.position->valid = false; // 一开始移动停稳读数就作废
-        const bool held = budget.Sleep(std::chrono::milliseconds(hold_ms));
-        ctx.motion_controller->SetForwardState(false);
+        const bool held = budget.sleep(std::chrono::milliseconds(hold_ms));
+        ctx.motion_controller->setForwardState(false);
         const double held_ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - pressed_at).count();
-        if (!held || !CaptureStillFix(ctx, budget, &fix)) {
-            return Incomplete(budget.CancelledOr("budget_exhausted"));
+        if (!held || !capture_still_fix(ctx, budget, &fix)) {
+            return incomplete(budget.cancelledOr("budget_exhausted"));
         }
 
         // 挪得太少或偏得太多的这一下是被地形挡了, 不代表按键时长和位移的关系
         const double travel = std::hypot(fix.x - from.x, fix.y - from.y);
         const double deflection =
-            std::abs(NaviMath::CalcDeltaRotation(bearing, NaviMath::CalcTargetRotation(from.x, from.y, fix.x, fix.y)));
+            std::abs(NaviMath::calcDeltaRotation(bearing, NaviMath::calcTargetRotation(from.x, from.y, fix.x, fix.y)));
         const bool usable = travel >= kStrictSettleStillWu && deflection <= kStrictSettlePulseDirectionToleranceDeg;
         if (usable) {
-            g_pulse_model.Record(held_ms, travel);
+            g_pulse_model.record(held_ms, travel);
         }
         LogInfo << "Strict arrival pulse landed." << VAR(held_ms) << VAR(travel) << VAR(deflection) << VAR(usable);
         return std::nullopt;
     }
 
-    bool Incomplete(const char* reason) const
+    bool incomplete(const char* reason) const
     {
         LogWarn << "Strict arrival not verified." << VAR(reason) << VAR(residual) << VAR(pulses);
         return false;
     }
 
-    bool Verified() const
+    bool verified() const
     {
         LogInfo << "Strict arrival verified after settling." << VAR(residual) << VAR(pulses) << VAR(ctx.position->x)
                 << VAR(ctx.position->y);
@@ -301,7 +301,7 @@ struct StrictSettle
 
 int PlanPulseHoldMs(double residual, int max_hold_ms)
 {
-    return g_pulse_model.PlanHoldMs(residual, max_hold_ms);
+    return g_pulse_model.planHoldMs(residual, max_hold_ms);
 }
 
 bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std::function<bool()>& should_stop)
@@ -320,9 +320,9 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std:
         .waypoint = waypoint,
         .budget = { .deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(kStrictSettleBudgetMs),
                     .should_stop = should_stop },
-        .input = ctx.action_wrapper->uses_touch_backend() ? kStrictSettleTouchProfile : kStrictSettleKeyboardProfile,
+        .input = ctx.action_wrapper->usesTouchBackend() ? kStrictSettleTouchProfile : kStrictSettleKeyboardProfile,
     };
-    return settle.Run();
+    return settle.run();
 }
 
 } // namespace semantic_nodes

@@ -30,7 +30,7 @@ namespace
 {
 
 // override 会合并进节点, 所以只写调用方拥有的字段, roi/key 留在 pipeline 里
-std::string BuildRunOverride(const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec)
+std::string build_run_override(const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec)
 {
     json::object exit_node;
     exit_node["next"] = json::array {};
@@ -52,7 +52,7 @@ std::string BuildRunOverride(const AsyncPromptActionSpec& spec, const std::vecto
     return json::value(std::move(root)).dumps();
 }
 
-std::string BuildPreWarmOverride(const AsyncPromptActionSpec& spec)
+std::string build_pre_warm_override(const AsyncPromptActionSpec& spec)
 {
     json::object do_nothing;
     do_nothing["type"] = "DoNothing";
@@ -70,7 +70,7 @@ std::string BuildPreWarmOverride(const AsyncPromptActionSpec& spec)
     return json::value(std::move(root)).dumps();
 }
 
-PromptScanProfile DefaultScanProfile(
+PromptScanProfile default_scan_profile(
     MaaContext* context,
     const AsyncPromptActionSpec& spec,
     const cv::Rect& fallback_roi,
@@ -104,7 +104,7 @@ bool RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, co
         return false;
     }
 
-    const std::string pipeline_override = BuildRunOverride(spec, expected, rec);
+    const std::string pipeline_override = build_run_override(spec, expected, rec);
     const std::optional<bool> recognized = RunTaskAndCheckNode(context, spec.entry_node, spec.recognition_node, pipeline_override);
     if (!recognized) {
         LogWarn << "Prompt subtask produced no result." << VAR(spec.tag) << VAR(spec.entry_node);
@@ -128,71 +128,71 @@ AsyncPromptAction::AsyncPromptAction(
 
 AsyncPromptAction::~AsyncPromptAction() = default;
 
-bool AsyncPromptAction::RouteHasPoint() const
+bool AsyncPromptAction::routeHasPoint() const
 {
     if (session_ == nullptr) {
         return false;
     }
-    const std::vector<Waypoint>& path = session_->original_path();
-    return std::any_of(path.begin(), path.end(), [this](const Waypoint& waypoint) { return spec_.Matches(waypoint); });
+    const std::vector<Waypoint>& path = session_->originalPath();
+    return std::any_of(path.begin(), path.end(), [this](const Waypoint& waypoint) { return spec_.matches(waypoint); });
 }
 
-bool AsyncPromptAction::RouteEndsWithPoint() const
+bool AsyncPromptAction::routeEndsWithPoint() const
 {
-    return TailWaypointOfThisKind() != nullptr;
+    return tailWaypointOfThisKind() != nullptr;
 }
 
-void AsyncPromptAction::Start(const cv::Rect& fallback_roi, std::string_view controller_type)
+void AsyncPromptAction::start(const cv::Rect& fallback_roi, std::string_view controller_type)
 {
-    if (started_ || !RouteHasPoint()) {
+    if (started_ || !routeHasPoint()) {
         return;
     }
     fallback_roi_ = fallback_roi;
     controller_type_ = controller_type;
     started_ = true;
 
-    for (const Waypoint& waypoint : session_->original_path()) {
-        if (spec_.Matches(waypoint)) {
-            BuildScanner(waypoint.interact_scan);
+    for (const Waypoint& waypoint : session_->originalPath()) {
+        if (spec_.matches(waypoint)) {
+            buildScanner(waypoint.interact_scan);
             break;
         }
     }
 }
 
-void AsyncPromptAction::Stop()
+void AsyncPromptAction::stop()
 {
     scanner_.reset();
     scan_node_.clear();
     started_ = false;
 }
 
-void AsyncPromptAction::SubmitFrame(const cv::Mat& frame)
+void AsyncPromptAction::submitFrame(const cv::Mat& frame)
 {
     if (scanner_ != nullptr) {
-        scanner_->SubmitFrame(frame);
+        scanner_->submitFrame(frame);
     }
 }
 
-void AsyncPromptAction::PreWarmRecognition()
+void AsyncPromptAction::preWarmRecognition()
 {
-    if (context_ == nullptr || !RouteHasPoint()) {
+    if (context_ == nullptr || !routeHasPoint()) {
         return;
     }
 
     LogInfo << "Pre-warming the prompt recognition model while the agent is stopped." << VAR(spec_.tag);
-    const std::string pipeline_override = BuildPreWarmOverride(spec_);
+    const std::string pipeline_override = build_pre_warm_override(spec_);
     MaaContextRunTask(context_, spec_.entry_node, pipeline_override.c_str());
 }
 
-double AsyncPromptAction::NearestDistanceSq() const
+double AsyncPromptAction::nearestDistanceSq() const
 {
     if (!started_ || session_ == nullptr || position_ == nullptr || !position_->valid) {
         return -1.0;
     }
 
     double nearest_sq = -1.0;
-    for (const Waypoint& waypoint : session_->current_path()) {
-        if (!spec_.Matches(waypoint)) {
+    for (const Waypoint& waypoint : session_->currentPath()) {
+        if (!spec_.matches(waypoint)) {
             continue;
         }
         const double dx = waypoint.x - position_->x;
@@ -206,7 +206,7 @@ double AsyncPromptAction::NearestDistanceSq() const
 }
 
 PromptTriggerOutcome
-    AsyncPromptAction::TryTriggerWhileWalking(MotionController* motion_controller, double waypoint_distance, size_t node_idx)
+    AsyncPromptAction::tryTriggerWhileWalking(MotionController* motion_controller, double waypoint_distance, size_t node_idx)
 {
     if (context_ == nullptr || !started_ || motion_controller == nullptr) {
         return PromptTriggerOutcome::NotTriggered;
@@ -223,8 +223,8 @@ PromptTriggerOutcome
     bool in_band = false;
     if (spec_.text_from_route) {
         // 认中就算本点走完, 所以只认正在走向的那个点
-        const Waypoint* waypoint = CurrentWaypointOfThisKind();
-        EnsureScannerFor(waypoint);
+        const Waypoint* waypoint = currentWaypointOfThisKind();
+        ensureScannerFor(waypoint);
         in_band = waypoint != nullptr && waypoint_distance <= kPromptTriggerBandWu;
         if (in_band) {
             expected = &waypoint->interact_text;
@@ -233,19 +233,19 @@ PromptTriggerOutcome
     }
     else {
         // 共用表那类按最近同类点算距离, 已走过的也算, 提示常在走过头后才弹出
-        const double nearest_sq = NearestDistanceSq();
+        const double nearest_sq = nearestDistanceSq();
         in_band = nearest_sq >= 0.0 && nearest_sq <= kPromptTriggerBandWu * kPromptTriggerBandWu;
     }
 
     // 带外也要读闩把旧观测作废, 否则进带第一拍会拿老观测开火
-    if (!ConsumeDetection() || !in_band) {
+    if (!consumeDetection() || !in_band) {
         return PromptTriggerOutcome::NotTriggered;
     }
 
     last_trigger_at_ = now;
     LogInfo << "Async prompt flagged — stopping for authoritative recognition." << VAR(spec_.tag) << VAR(waypoint_distance) << VAR(node_idx)
             << VAR(rec);
-    motion_controller->SetForwardState(false);
+    motion_controller->setForwardState(false);
     SleepFor(kStopWaitMs);
     if (!RunPromptSubtask(context_, spec_, expected, rec)) {
         // 间隔从识别结束算起, 否则常驻的别家提示会挤掉到点判定
@@ -256,18 +256,18 @@ PromptTriggerOutcome
     return PromptTriggerOutcome::Recognized;
 }
 
-bool AsyncPromptAction::TryTriggerAtRouteTail()
+bool AsyncPromptAction::tryTriggerAtRouteTail()
 {
     if (context_ == nullptr || !started_) {
         return false;
     }
 
-    const Waypoint* waypoint = TailWaypointOfThisKind();
+    const Waypoint* waypoint = tailWaypointOfThisKind();
     if (spec_.text_from_route && waypoint == nullptr) {
         return false;
     }
-    EnsureScannerFor(waypoint);
-    if (!ConsumeDetection()) {
+    ensureScannerFor(waypoint);
+    if (!consumeDetection()) {
         return false;
     }
 
@@ -277,28 +277,28 @@ bool AsyncPromptAction::TryTriggerAtRouteTail()
     return true;
 }
 
-void AsyncPromptAction::ForgetDetection()
+void AsyncPromptAction::forgetDetection()
 {
-    ConsumeDetection();
+    consumeDetection();
 }
 
-void AsyncPromptAction::EnsureScannerFor(const Waypoint* waypoint)
+void AsyncPromptAction::ensureScannerFor(const Waypoint* waypoint)
 {
     if (waypoint == nullptr || waypoint->interact_scan == scan_node_) {
         return;
     }
-    BuildScanner(waypoint->interact_scan);
+    buildScanner(waypoint->interact_scan);
 }
 
 // 空串表示用默认预筛, 节点坏了也记下名字, 免得每拍重读
-void AsyncPromptAction::BuildScanner(const std::string& scan_node)
+void AsyncPromptAction::buildScanner(const std::string& scan_node)
 {
     scanner_.reset();
     scan_node_ = scan_node;
 
     PromptScanProfile profile;
     if (scan_node.empty()) {
-        profile = DefaultScanProfile(context_, spec_, fallback_roi_, controller_type_);
+        profile = default_scan_profile(context_, spec_, fallback_roi_, controller_type_);
     }
     else if (!TryLoadPromptScanProfile(context_, scan_node, controller_type_, &profile)) {
         LogError << "Points naming this scan node get no pre-filter; they stop on arrival instead." << VAR(spec_.tag) << VAR(scan_node);
@@ -314,34 +314,34 @@ void AsyncPromptAction::BuildScanner(const std::string& scan_node)
     scanner_ = std::make_unique<RoiTemplateScanner>(spec_.tag, profile.base_roi, std::move(profile.icons));
 }
 
-bool AsyncPromptAction::ConsumeDetection()
+bool AsyncPromptAction::consumeDetection()
 {
-    return scanner_ != nullptr && scanner_->ConsumeDetection();
+    return scanner_ != nullptr && scanner_->consumeDetection();
 }
 
 // 只认当前要走到的那个点, nullptr 表示这一拍不该停车
-const Waypoint* AsyncPromptAction::CurrentWaypointOfThisKind() const
+const Waypoint* AsyncPromptAction::currentWaypointOfThisKind() const
 {
-    if (session_ == nullptr || !session_->HasCurrentWaypoint()) {
+    if (session_ == nullptr || !session_->hasCurrentWaypoint()) {
         return nullptr;
     }
 
-    const Waypoint& waypoint = session_->CurrentWaypoint();
-    return spec_.Matches(waypoint) ? &waypoint : nullptr;
+    const Waypoint& waypoint = session_->currentWaypoint();
+    return spec_.matches(waypoint) ? &waypoint : nullptr;
 }
 
-const Waypoint* AsyncPromptAction::TailWaypointOfThisKind() const
+const Waypoint* AsyncPromptAction::tailWaypointOfThisKind() const
 {
     if (session_ == nullptr) {
         return nullptr;
     }
 
-    const std::vector<Waypoint>& path = session_->original_path();
+    const std::vector<Waypoint>& path = session_->originalPath();
     for (auto it = path.rbegin(); it != path.rend(); ++it) {
-        if (!it->HasPosition()) {
+        if (!it->hasPosition()) {
             continue;
         }
-        return spec_.Matches(*it) ? &*it : nullptr;
+        return spec_.matches(*it) ? &*it : nullptr;
     }
     return nullptr;
 }

@@ -20,7 +20,7 @@ constexpr int32_t kDesktopHoverTouchContactId = 0;
 constexpr int32_t kDesktopPrimaryTouchContactId = 1;
 constexpr int32_t kDesktopDefaultTouchPressure = 0;
 
-bool IsMouseLockFollowSupported(MaaController* ctrl)
+bool is_mouse_lock_follow_supported(MaaController* ctrl)
 {
 #ifdef _WIN32
     MaaWin32InputMethod method = MaaWin32InputMethod_None;
@@ -31,12 +31,12 @@ bool IsMouseLockFollowSupported(MaaController* ctrl)
 #endif
 }
 
-bool TrySetMouseLockFollow(MaaController* ctrl, bool enabled)
+bool try_set_mouse_lock_follow(MaaController* ctrl, bool enabled)
 {
     return ctrl != nullptr && MaaControllerSetOption(ctrl, MaaCtrlOption_MouseLockFollow, &enabled, sizeof(enabled));
 }
 
-bool TrySetBackgroundManagedKeys(MaaController* ctrl, const std::vector<int32_t>& keycodes)
+bool try_set_background_managed_keys(MaaController* ctrl, const std::vector<int32_t>& keycodes)
 {
     return ctrl != nullptr
            && MaaControllerSetOption(
@@ -52,7 +52,7 @@ struct ViewUnitsPerDegree
     double pitch = 0.0;
 };
 
-ViewUnitsPerDegree ComputeViewUnitsPerDegree(MaaController* ctrl, const std::string& backend_name)
+ViewUnitsPerDegree compute_view_units_per_degree(MaaController* ctrl, const std::string& backend_name)
 {
     int32_t screen_width = 0;
     int32_t screen_height = 0;
@@ -84,7 +84,7 @@ DesktopInputBackend::DesktopInputBackend(
     , hover_x_(kDesktopDefaultHoverAnchorX)
     , hover_y_(kDesktopDefaultHoverAnchorY)
 {
-    const ViewUnitsPerDegree view_scale = ComputeViewUnitsPerDegree(ctrl, backend_name_);
+    const ViewUnitsPerDegree view_scale = compute_view_units_per_degree(ctrl, backend_name_);
     default_turn_units_per_degree_ = view_scale.yaw;
     default_pitch_units_per_degree_ = view_scale.pitch;
 
@@ -93,8 +93,8 @@ DesktopInputBackend::DesktopInputBackend(
         return;
     }
 
-    if (IsMouseLockFollowSupported(ctrl_)) {
-        mouse_lock_follow_enabled_ = TrySetMouseLockFollow(ctrl_, true);
+    if (is_mouse_lock_follow_supported(ctrl_)) {
+        mouse_lock_follow_enabled_ = try_set_mouse_lock_follow(ctrl_, true);
         LogInfo << backend_name_ << " backend mouse lock follow." << VAR(controller_type_) << VAR(mouse_lock_follow_enabled_);
     }
     else {
@@ -105,56 +105,56 @@ DesktopInputBackend::DesktopInputBackend(
         key_codes_.move_forward, key_codes_.move_left, key_codes_.move_backward, key_codes_.move_right,
         key_codes_.interact,     key_codes_.jump,      key_codes_.walk_toggle,
     };
-    background_managed_keys_enabled_ = TrySetBackgroundManagedKeys(ctrl_, managed_keys);
+    background_managed_keys_enabled_ = try_set_background_managed_keys(ctrl_, managed_keys);
     LogInfo << backend_name_ << " backend background managed keys." << VAR(controller_type_) << VAR(background_managed_keys_enabled_);
 }
 
 DesktopInputBackend::~DesktopInputBackend()
 {
-    if (mouse_lock_follow_enabled_ && !TrySetMouseLockFollow(ctrl_, false)) {
+    if (mouse_lock_follow_enabled_ && !try_set_mouse_lock_follow(ctrl_, false)) {
         LogWarn << backend_name_ << " backend: failed to disable mouse lock follow." << VAR(controller_type_);
     }
-    if (background_managed_keys_enabled_ && !TrySetBackgroundManagedKeys(ctrl_, {})) {
+    if (background_managed_keys_enabled_ && !try_set_background_managed_keys(ctrl_, {})) {
         LogWarn << backend_name_ << " backend: failed to clear background managed keys." << VAR(controller_type_);
     }
 }
 
-MaaController* DesktopInputBackend::GetCtrl() const
+MaaController* DesktopInputBackend::getCtrl() const
 {
     return ctrl_;
 }
 
-const std::string& DesktopInputBackend::ControllerType() const
+const std::string& DesktopInputBackend::controllerType() const
 {
     return controller_type_;
 }
 
-bool DesktopInputBackend::UsesTouchBackend() const
+bool DesktopInputBackend::usesTouchBackend() const
 {
     return false;
 }
 
-bool DesktopInputBackend::IsSupported() const
+bool DesktopInputBackend::isSupported() const
 {
     return ctrl_ != nullptr;
 }
 
-const std::string& DesktopInputBackend::UnsupportedReason() const
+const std::string& DesktopInputBackend::unsupportedReason() const
 {
     return unsupported_reason_;
 }
 
-double DesktopInputBackend::DefaultTurnUnitsPerDegree() const
+double DesktopInputBackend::defaultTurnUnitsPerDegree() const
 {
     return default_turn_units_per_degree_;
 }
 
-double DesktopInputBackend::DefaultPitchUnitsPerDegree() const
+double DesktopInputBackend::defaultPitchUnitsPerDegree() const
 {
     return default_pitch_units_per_degree_;
 }
 
-SteeringTransportProfile DesktopInputBackend::SteeringProfile() const
+SteeringTransportProfile DesktopInputBackend::steeringProfile() const
 {
     return SteeringTransportProfile {
         .supports_concurrent_move_and_look = true,
@@ -165,86 +165,86 @@ SteeringTransportProfile DesktopInputBackend::SteeringProfile() const
     };
 }
 
-void DesktopInputBackend::SetMovementStateSync(MovementState state, int delay_millis)
+void DesktopInputBackend::setMovementStateSync(MovementState state, int delay_millis)
 {
-    ApplyMovementKeyState(key_codes_.move_forward, state.forward);
-    ApplyMovementKeyState(key_codes_.move_left, state.left);
-    ApplyMovementKeyState(key_codes_.move_backward, state.backward);
-    ApplyMovementKeyState(key_codes_.move_right, state.right);
+    applyMovementKeyState(key_codes_.move_forward, state.forward);
+    applyMovementKeyState(key_codes_.move_left, state.left);
+    applyMovementKeyState(key_codes_.move_backward, state.backward);
+    applyMovementKeyState(key_codes_.move_right, state.right);
     SleepFor(delay_millis);
 }
 
-void DesktopInputBackend::TriggerJumpSync(int hold_millis)
+void DesktopInputBackend::triggerJumpSync(int hold_millis)
 {
-    ClickKeySync(key_codes_.jump, hold_millis);
+    clickKeySync(key_codes_.jump, hold_millis);
 }
 
-void DesktopInputBackend::TriggerInteractSync(int hold_millis)
+void DesktopInputBackend::triggerInteractSync(int hold_millis)
 {
-    ClickKeySync(key_codes_.interact, hold_millis);
+    clickKeySync(key_codes_.interact, hold_millis);
 }
 
-void DesktopInputBackend::PulseForwardSync(int hold_millis)
+void DesktopInputBackend::pulseForwardSync(int hold_millis)
 {
-    PostKeyDownSync(key_codes_.move_forward, 0);
+    postKeyDownSync(key_codes_.move_forward, 0);
     SleepFor(hold_millis);
-    PostKeyUpSync(key_codes_.move_forward, 0);
+    postKeyUpSync(key_codes_.move_forward, 0);
 }
 
-void DesktopInputBackend::TriggerSprintSync()
+void DesktopInputBackend::triggerSprintSync()
 {
-    MouseRightDownSync(0);
+    mouseRightDownSync(0);
     SleepFor(kActionSprintPressMs);
-    MouseRightUpSync(0);
+    mouseRightUpSync(0);
 }
 
-void DesktopInputBackend::ToggleWalkModeSync()
+void DesktopInputBackend::toggleWalkModeSync()
 {
-    ClickKeySync(key_codes_.walk_toggle, kActionWalkTogglePressMs);
+    clickKeySync(key_codes_.walk_toggle, kActionWalkTogglePressMs);
 }
 
-void DesktopInputBackend::ResetForwardWalkSync(int release_millis)
+void DesktopInputBackend::resetForwardWalkSync(int release_millis)
 {
-    PostKeyUpSync(key_codes_.move_forward, 0);
+    postKeyUpSync(key_codes_.move_forward, 0);
     SleepFor(release_millis);
-    PostKeyDownSync(key_codes_.move_forward, 0);
+    postKeyDownSync(key_codes_.move_forward, 0);
 }
 
-void DesktopInputBackend::ClickMouseLeftSync()
+void DesktopInputBackend::clickMouseLeftSync()
 {
-    EnsureHoverAnchorSync();
+    ensureHoverAnchorSync();
     const MaaCtrlId ctrl_id = MaaControllerPostClick(ctrl_, hover_x_, hover_y_);
     MaaControllerWait(ctrl_, ctrl_id);
 }
 
-void DesktopInputBackend::TriggerZiplineLaunchSync()
+void DesktopInputBackend::triggerZiplineLaunchSync()
 {
-    ClickMouseLeftSync();
+    clickMouseLeftSync();
 }
 
-void DesktopInputBackend::TriggerZiplineDismountSync(int hold_millis)
+void DesktopInputBackend::triggerZiplineDismountSync(int hold_millis)
 {
-    MouseRightDownSync(hold_millis);
-    MouseRightUpSync(0);
+    mouseRightDownSync(hold_millis);
+    mouseRightUpSync(0);
 }
 
-void DesktopInputBackend::MouseRightDownSync(int delay_millis)
+void DesktopInputBackend::mouseRightDownSync(int delay_millis)
 {
-    EnsureHoverAnchorSync();
+    ensureHoverAnchorSync();
     const MaaCtrlId ctrl_id =
         MaaControllerPostTouchDown(ctrl_, kDesktopPrimaryTouchContactId, hover_x_, hover_y_, kDesktopDefaultTouchPressure);
     MaaControllerWait(ctrl_, ctrl_id);
     SleepFor(delay_millis);
 }
 
-void DesktopInputBackend::MouseRightUpSync(int delay_millis)
+void DesktopInputBackend::mouseRightUpSync(int delay_millis)
 {
     const MaaCtrlId ctrl_id = MaaControllerPostTouchUp(ctrl_, kDesktopPrimaryTouchContactId);
     MaaControllerWait(ctrl_, ctrl_id);
     SleepFor(delay_millis);
 }
 
-bool DesktopInputBackend::SendViewDeltaSync(int dx, int dy)
+bool DesktopInputBackend::sendViewDeltaSync(int dx, int dy)
 {
     if (dx == 0 && dy == 0) {
         return true;
@@ -263,9 +263,9 @@ bool DesktopInputBackend::SendViewDeltaSync(int dx, int dy)
     return MaaControllerWait(ctrl_, ctrl_id) == MaaStatus_Succeeded;
 }
 
-void DesktopInputBackend::PostKeyDownSync(int key_code, int delay_millis)
+void DesktopInputBackend::postKeyDownSync(int key_code, int delay_millis)
 {
-    if (bool* movement_state = FindMovementKeyState(key_code)) {
+    if (bool* movement_state = findMovementKeyState(key_code)) {
         *movement_state = true;
     }
 
@@ -274,9 +274,9 @@ void DesktopInputBackend::PostKeyDownSync(int key_code, int delay_millis)
     SleepFor(delay_millis);
 }
 
-void DesktopInputBackend::PostKeyUpSync(int key_code, int delay_millis)
+void DesktopInputBackend::postKeyUpSync(int key_code, int delay_millis)
 {
-    if (bool* movement_state = FindMovementKeyState(key_code)) {
+    if (bool* movement_state = findMovementKeyState(key_code)) {
         *movement_state = false;
     }
 
@@ -285,28 +285,28 @@ void DesktopInputBackend::PostKeyUpSync(int key_code, int delay_millis)
     SleepFor(delay_millis);
 }
 
-void DesktopInputBackend::ClickKeySync(int key_code, int hold_millis)
+void DesktopInputBackend::clickKeySync(int key_code, int hold_millis)
 {
-    PostKeyDownSync(key_code, 0);
+    postKeyDownSync(key_code, 0);
     SleepFor(hold_millis);
-    PostKeyUpSync(key_code, 0);
+    postKeyUpSync(key_code, 0);
 }
 
-void DesktopInputBackend::ApplyMovementKeyState(int key_code, bool pressed)
+void DesktopInputBackend::applyMovementKeyState(int key_code, bool pressed)
 {
-    bool* current_state = FindMovementKeyState(key_code);
+    bool* current_state = findMovementKeyState(key_code);
     if (current_state == nullptr || *current_state == pressed) {
         return;
     }
 
     if (pressed) {
-        PostKeyDownSync(key_code, 0);
+        postKeyDownSync(key_code, 0);
         return;
     }
-    PostKeyUpSync(key_code, 0);
+    postKeyUpSync(key_code, 0);
 }
 
-bool* DesktopInputBackend::FindMovementKeyState(int key_code)
+bool* DesktopInputBackend::findMovementKeyState(int key_code)
 {
     if (key_code == key_codes_.move_forward) {
         return &forward_down_;
@@ -323,7 +323,7 @@ bool* DesktopInputBackend::FindMovementKeyState(int key_code)
     return nullptr;
 }
 
-void DesktopInputBackend::EnsureHoverAnchorSync()
+void DesktopInputBackend::ensureHoverAnchorSync()
 {
     if (hover_inited_) {
         return;

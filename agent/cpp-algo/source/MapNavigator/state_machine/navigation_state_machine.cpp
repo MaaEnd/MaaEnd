@@ -53,10 +53,10 @@ NavigationStateMachine::NavigationStateMachine(
 NavigationStateMachine::~NavigationStateMachine()
 {
     // 帧回调里持有 this, 析构前必须先拆掉
-    StopScanners();
+    stopScanners();
 }
 
-semantic_nodes::Context NavigationStateMachine::SemanticContext()
+semantic_nodes::Context NavigationStateMachine::semanticContext()
 {
     return {
         .action_wrapper = action_wrapper_,
@@ -70,58 +70,58 @@ semantic_nodes::Context NavigationStateMachine::SemanticContext()
     };
 }
 
-bool NavigationStateMachine::Run()
+bool NavigationStateMachine::run()
 {
     latency::BeginRun();
 
-    if (!Bootstrap()) {
-        StopMotion();
+    if (!bootstrap()) {
+        stopMotion();
         sensitivity::EndRun(maa_context_);
         return false;
     }
 
-    PreWarmPromptRecognition();
+    preWarmPromptRecognition();
 
-    StartScanners();
+    startScanners();
 
     while (!should_stop_() && session_->phase() != NaviPhase::Finished && session_->phase() != NaviPhase::Failed) {
-        if (!TickPhase(session_->phase())) {
-            StopScanners();
-            StopMotion();
+        if (!tickPhase(session_->phase())) {
+            stopScanners();
+            stopMotion();
             sensitivity::EndRun(maa_context_);
             return false;
         }
     }
 
     if (!should_stop_() && session_->phase() != NaviPhase::Failed) {
-        session_->HasSatisfiedFinalSuccess(*position_, "navigation_complete");
+        session_->hasSatisfiedFinalSuccess(*position_, "navigation_complete");
     }
 
-    TryRunPromptSubtaskAtRouteTail();
+    tryRunPromptSubtaskAtRouteTail();
 
-    StopScanners();
-    StopMotion();
+    stopScanners();
+    stopMotion();
 
     const bool succeeded = !should_stop_() && session_->success();
     sensitivity::EndRun(maa_context_);
     return succeeded;
 }
 
-bool NavigationStateMachine::TickPhase(NaviPhase phase)
+bool NavigationStateMachine::tickPhase(NaviPhase phase)
 {
     if (!last_tick_phase_ || *last_tick_phase_ != phase) {
         last_tick_phase_ = phase;
-        action_wrapper_->NoteHeadingDisturbed();
+        action_wrapper_->noteHeadingDisturbed();
     }
     // 放在所有提前返回之前, 否则可能一直停在走路模式
-    UpdateWalkMode(phase);
+    updateWalkMode(phase);
 
     switch (phase) {
     case NaviPhase::Bootstrap:
-        SelectPhaseForCurrentWaypoint("bootstrap_dispatch");
+        selectPhaseForCurrentWaypoint("bootstrap_dispatch");
         return true;
     case NaviPhase::Navigate:
-        return TickNavigate();
+        return tickNavigate();
     case NaviPhase::WaitTransfer:
     case NaviPhase::WaitZipline:
     case NaviPhase::WaitFind:
@@ -129,10 +129,10 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
     case NaviPhase::WaitRope: {
         runtime_state_.flow.motionless_hold_ticks = 0;
         runtime_state_.flow.futile_forward_reasserts = 0;
-        device_recovery_.ForgetObservation();
-        const semantic_nodes::Result semantic_result = semantic_nodes::TickWaitPhase(SemanticContext(), phase);
+        device_recovery_.forgetObservation();
+        const semantic_nodes::Result semantic_result = semantic_nodes::TickWaitPhase(semanticContext(), phase);
         if (semantic_result.request_failure) {
-            return FailNavigation(semantic_result.failure_reason, semantic_result.failure_log_message, 0.0, 0.0, 0);
+            return failNavigation(semantic_result.failure_reason, semantic_result.failure_log_message, 0.0, 0.0, 0);
         }
         return true;
     }
@@ -144,30 +144,30 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
     return false;
 }
 
-bool NavigationStateMachine::TickNavigate()
+bool NavigationStateMachine::tickNavigate()
 {
-    NavigateTick tick = BeginNavigateTick();
+    NavigateTick tick = beginNavigateTick();
     const TickStep step = FirstToClaim(
-        [&] { return RunSemanticFlow(); },
-        [&] { return CaptureNavigateFix(tick); },
-        [&] { return CheckDwellWatchdog(); },
-        [&] { return RunInlineSemantics(); },
-        [&] { return IdleWhileNotWalking(); },
-        [&] { TrackRoute(tick); },
-        [&] { return CheckRouteProgress(tick); },
-        [&] { tick.waypoint = session_->CurrentWaypoint(); },
-        [&] { return HandlePrompts(tick); },
-        [&] { tick.arrival_distance = ResolveArrivalDistance(tick); },
-        [&] { return HandleWaypointArrival(tick); },
-        [&] { return RunRiverFallRecovery(tick); },
-        [&] { return CheckOffRouteWedge(tick); },
-        [&] { return RunObstacleRecovery(tick); },
-        [&] { tick.heading_error = SteerAlongCorridor(tick); },
-        [&] { return FinishNavigateTick(tick); });
+        [&] { return runSemanticFlow(); },
+        [&] { return captureNavigateFix(tick); },
+        [&] { return checkDwellWatchdog(); },
+        [&] { return runInlineSemantics(); },
+        [&] { return idleWhileNotWalking(); },
+        [&] { trackRoute(tick); },
+        [&] { return checkRouteProgress(tick); },
+        [&] { tick.waypoint = session_->currentWaypoint(); },
+        [&] { return handlePrompts(tick); },
+        [&] { tick.arrival_distance = resolveArrivalDistance(tick); },
+        [&] { return handleWaypointArrival(tick); },
+        [&] { return runRiverFallRecovery(tick); },
+        [&] { return checkOffRouteWedge(tick); },
+        [&] { return runObstacleRecovery(tick); },
+        [&] { tick.heading_error = steerAlongCorridor(tick); },
+        [&] { return finishNavigateTick(tick); });
     return step != TickStep::Abort;
 }
 
-NavigationStateMachine::NavigateTick NavigationStateMachine::BeginNavigateTick()
+NavigationStateMachine::NavigateTick NavigationStateMachine::beginNavigateTick()
 {
     NavigateTick tick;
     tick.started_at = std::chrono::steady_clock::now();
@@ -180,19 +180,19 @@ NavigationStateMachine::NavigateTick NavigationStateMachine::BeginNavigateTick()
     return tick;
 }
 
-TickStep NavigationStateMachine::RunSemanticFlow()
+TickStep NavigationStateMachine::runSemanticFlow()
 {
-    if (!session_->HasCurrentWaypoint()) {
-        session_->NoteRouteTailConsumed(*position_, "route_tail_consumed");
+    if (!session_->hasCurrentWaypoint()) {
+        session_->noteRouteTailConsumed(*position_, "route_tail_consumed");
         return TickStep::EndTick;
     }
-    return ConcludeSemanticStep(semantic_nodes::TickPortalTransit(SemanticContext()));
+    return concludeSemanticStep(semantic_nodes::TickPortalTransit(semanticContext()));
 }
 
-TickStep NavigationStateMachine::ConcludeSemanticStep(const semantic_nodes::Result& result)
+TickStep NavigationStateMachine::concludeSemanticStep(const semantic_nodes::Result& result)
 {
     if (result.request_failure) {
-        return EndTickWith(FailNavigation(result.failure_reason, result.failure_log_message, 0.0, 0.0, 0));
+        return EndTickWith(failNavigation(result.failure_reason, result.failure_log_message, 0.0, 0.0, 0));
     }
     // 必须在下面的重规划分支之前, 那里会提前返回
     if (result.stay_in_current_tick) {
@@ -200,7 +200,7 @@ TickStep NavigationStateMachine::ConcludeSemanticStep(const semantic_nodes::Resu
     }
     if (runtime_state_.dynamic_replan_requested) {
         return EndTickWith(
-            runtime_state_.zipline_recovery.pending ? HandleZiplineRecoveryReplan() : HandleDynamicReplanRequest("dynamic_replan"));
+            runtime_state_.zipline_recovery.pending ? handleZiplineRecoveryReplan() : handleDynamicReplanRequest("dynamic_replan"));
     }
     if (result.stay_in_current_tick) {
         return TickStep::EndTick;
@@ -208,31 +208,31 @@ TickStep NavigationStateMachine::ConcludeSemanticStep(const semantic_nodes::Resu
     return TickStep::Next;
 }
 
-TickStep NavigationStateMachine::RunInlineSemantics()
+TickStep NavigationStateMachine::runInlineSemantics()
 {
     // 先对齐镜头, 后面的 HEADING 转身才从对齐后的朝向算起
     if (runtime_state_.camera_align_pending) {
         runtime_state_.camera_align_pending = false;
-        semantic_nodes::AlignCameraToHeadingOnce(SemanticContext());
+        semantic_nodes::AlignCameraToHeadingOnce(semanticContext());
         if (!position_->valid) {
-            return EndTickWith(HandleLocalizationLoss());
+            return EndTickWith(handleLocalizationLoss());
         }
     }
-    EndCrossTierEscapeAtRejoin();
-    if (const TickStep step = ConcludeSemanticStep(semantic_nodes::ConsumeInlineSemantics(SemanticContext())); step != TickStep::Next) {
+    endCrossTierEscapeAtRejoin();
+    if (const TickStep step = concludeSemanticStep(semantic_nodes::ConsumeInlineSemantics(semanticContext())); step != TickStep::Next) {
         return step;
     }
     if (!position_->valid) {
-        return EndTickWith(HandleLocalizationLoss());
+        return EndTickWith(handleLocalizationLoss());
     }
-    if (!session_->HasCurrentWaypoint()) {
-        session_->NoteRouteTailConsumed(*position_, "route_tail_consumed");
+    if (!session_->hasCurrentWaypoint()) {
+        session_->noteRouteTailConsumed(*position_, "route_tail_consumed");
         return TickStep::EndTick;
     }
     return TickStep::Next;
 }
 
-TickStep NavigationStateMachine::IdleWhileNotWalking()
+TickStep NavigationStateMachine::idleWhileNotWalking()
 {
     if (runtime_state_.semantic.portal.active() || session_->phase() != NaviPhase::Navigate) {
         SleepFor(kTargetTickMs);
@@ -241,18 +241,18 @@ TickStep NavigationStateMachine::IdleWhileNotWalking()
     return TickStep::Next;
 }
 
-TickStep NavigationStateMachine::FinishNavigateTick(const NavigateTick& tick)
+TickStep NavigationStateMachine::finishNavigateTick(const NavigateTick& tick)
 {
     // 必须在冲刺判定之前
-    UpdatePromptSprintSuppression();
-    UpdateAutoSprint(tick);
+    updatePromptSprintSuppression();
+    updateAutoSprint(tick);
 
     if (param_.arrival_timeout > 0 && tick.stalled_ms > param_.arrival_timeout) {
-        return EndTickWith(FailNavigation(
+        return EndTickWith(failNavigation(
             "no_progress_timeout",
             "No progress timeout reached and navigation was terminated.",
             tick.route.progress_distance,
-            NaviMath::NormalizeAngle(tick.route.route_heading - tick.fix.current_heading),
+            NaviMath::normalizeAngle(tick.route.route_heading - tick.fix.current_heading),
             tick.stalled_ms));
     }
 
@@ -260,40 +260,40 @@ TickStep NavigationStateMachine::FinishNavigateTick(const NavigateTick& tick)
     return TickStep::EndTick;
 }
 
-void NavigationStateMachine::SelectPhaseForCurrentWaypoint(const char* reason)
+void NavigationStateMachine::selectPhaseForCurrentWaypoint(const char* reason)
 {
-    semantic_nodes::SelectPhaseForCurrentWaypoint(SemanticContext(), reason);
+    semantic_nodes::SelectPhaseForCurrentWaypoint(semanticContext(), reason);
 }
 
-bool NavigationStateMachine::ResumeAfterEscape(const char* reason)
+bool NavigationStateMachine::resumeAfterEscape(const char* reason)
 {
     runtime_state_.flow.futile_forward_reasserts = 0;
     runtime_state_.flow.motionless_hold_ticks = 0;
-    runtime_state_.recovery.Reset();
-    runtime_state_.recovery_escalation.Reset();
-    runtime_state_.route.ResetTracking();
+    runtime_state_.recovery.reset();
+    runtime_state_.recovery_escalation.reset();
+    runtime_state_.route.resetTracking();
     runtime_state_.dynamic_replan_requested = false;
     runtime_state_.nav_run_dirty = true;
-    session_->ResetProgress();
-    SelectPhaseForCurrentWaypoint(reason);
+    session_->resetProgress();
+    selectPhaseForCurrentWaypoint(reason);
     return true;
 }
 
-void NavigationStateMachine::StopMotion()
+void NavigationStateMachine::stopMotion()
 {
-    motion_controller_->SetForwardState(false);
+    motion_controller_->setForwardState(false);
 }
 
-bool NavigationStateMachine::FailNavigation(
+bool NavigationStateMachine::failNavigation(
     const char* reason,
     const char* log_message,
     double current_distance,
     double yaw_error,
     int64_t stalled_ms)
 {
-    StopMotion();
-    runtime_state_.ResetNavigationAssistState();
-    session_->UpdatePhase(NaviPhase::Failed, reason);
+    stopMotion();
+    runtime_state_.resetNavigationAssistState();
+    session_->updatePhase(NaviPhase::Failed, reason);
     LogError << log_message << VAR(current_distance) << VAR(yaw_error) << VAR(stalled_ms);
     return true;
 }

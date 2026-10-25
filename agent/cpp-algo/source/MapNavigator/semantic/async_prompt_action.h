@@ -30,12 +30,12 @@ struct AsyncPromptActionSpec
     const char* default_scan_node; // 本类默认预筛的 TemplateMatch 节点, nullptr 表示用内置预筛
     bool text_from_route;          // 为假时节点自带共用文本表
 
-    bool Matches(const Waypoint& waypoint) const
+    bool matches(const Waypoint& waypoint) const
     {
-        return waypoint.action == action && waypoint.HasPosition() && (!text_from_route || !waypoint.interact_text.empty());
+        return waypoint.action == action && waypoint.hasPosition() && (!text_from_route || !waypoint.interact_text.empty());
     }
 
-    bool CompletesWaypointOnTrigger() const { return text_from_route; }
+    bool completesWaypointOnTrigger() const { return text_from_route; }
 };
 
 inline constexpr AsyncPromptActionSpec kCollectPromptSpec {
@@ -81,35 +81,35 @@ public:
 
     bool started() const { return started_; }
 
-    bool RouteHasPoint() const;
-    bool RouteEndsWithPoint() const;
+    bool routeHasPoint() const;
+    bool routeEndsWithPoint() const;
 
     // fallback_roi 是识别节点自己的 ROI, 只有内置预筛用它
-    void Start(const cv::Rect& fallback_roi, std::string_view controller_type);
-    void Stop();
-    void SubmitFrame(const cv::Mat& frame);
+    void start(const cv::Rect& fallback_roi, std::string_view controller_type);
+    void stop();
+    void submitFrame(const cv::Mat& frame);
 
     // 只在角色停下时调用, 付掉识别模型的冷启动
-    void PreWarmRecognition();
+    void preWarmRecognition();
 
     // 未启动、未定位或没有剩余同类点时返回 -1
-    double NearestDistanceSq() const;
+    double nearestDistanceSq() const;
 
     // 非 NotTriggered 表示本拍已用掉, 只有 Recognized 才让路线命名的点算走完
-    PromptTriggerOutcome TryTriggerWhileWalking(MotionController* motion_controller, double waypoint_distance, size_t node_idx);
+    PromptTriggerOutcome tryTriggerWhileWalking(MotionController* motion_controller, double waypoint_distance, size_t node_idx);
     // 不节流, 调用方须在路线末尾站定后调用
-    bool TryTriggerAtRouteTail();
+    bool tryTriggerAtRouteTail();
 
-    void ForgetDetection();
+    void forgetDetection();
 
 private:
-    const Waypoint* CurrentWaypointOfThisKind() const;
-    const Waypoint* TailWaypointOfThisKind() const;
+    const Waypoint* currentWaypointOfThisKind() const;
+    const Waypoint* tailWaypointOfThisKind() const;
 
     // 扫描节点变了才重建, 重建会一并丢掉旧闩
-    void EnsureScannerFor(const Waypoint* waypoint);
-    void BuildScanner(const std::string& scan_node);
-    bool ConsumeDetection();
+    void ensureScannerFor(const Waypoint* waypoint);
+    void buildScanner(const std::string& scan_node);
+    bool consumeDetection();
 
     AsyncPromptActionSpec spec_;
     MaaContext* context_;

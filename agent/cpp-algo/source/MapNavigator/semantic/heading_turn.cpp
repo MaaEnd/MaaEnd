@@ -25,7 +25,7 @@ bool TurnToHeadingOnce(const Context& ctx, double heading_delta, const std::func
         return true;
     }
 
-    const SteeringTransportProfile profile = ctx.action_wrapper->SteeringProfile();
+    const SteeringTransportProfile profile = ctx.action_wrapper->steeringProfile();
     const int step_count = static_cast<int>(std::ceil(std::abs(heading_delta) / profile.max_batch_delta_deg));
     const double step_deg = heading_delta / step_count;
     const int step_interval_ms = std::max<int>(kHeadingTurnStepIntervalMs, profile.min_send_interval_ms);
@@ -34,11 +34,11 @@ bool TurnToHeadingOnce(const Context& ctx, double heading_delta, const std::func
         if (should_stop && should_stop()) {
             return false;
         }
-        int units = static_cast<int>(std::lround(step_deg * ctx.action_wrapper->DefaultTurnUnitsPerDegree()));
+        int units = static_cast<int>(std::lround(step_deg * ctx.action_wrapper->defaultTurnUnitsPerDegree()));
         if (units == 0) {
             units = step_deg > 0.0 ? 1 : -1;
         }
-        if (!ctx.action_wrapper->SendViewDeltaSync(units, 0)) {
+        if (!ctx.action_wrapper->sendViewDeltaSync(units, 0)) {
             return false;
         }
         if (step + 1 < step_count) {
@@ -58,7 +58,7 @@ void AlignCameraToHeadingOnce(const Context& ctx)
 
     const double heading = ctx.position->angle;
     const double camera_before = *ctx.position->camera_angle;
-    const double delta = NaviMath::CalcDeltaRotation(camera_before, heading);
+    const double delta = NaviMath::calcDeltaRotation(camera_before, heading);
     if (std::abs(delta) < kCameraAlignMinDegrees) {
         LogInfo << "Camera already aligned." << VAR(heading) << VAR(camera_before) << VAR(delta);
         return;
@@ -69,7 +69,7 @@ void AlignCameraToHeadingOnce(const Context& ctx)
     }
     SleepFor(kWaitAfterFirstTurnMs);
 
-    const bool captured = ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id());
+    const bool captured = ctx.position_provider->capture(ctx.position, false, ctx.session->currentZoneId());
     LogInfo << "Camera aligned to navigation heading." << VAR(heading) << VAR(camera_before) << VAR(delta) << VAR(captured);
 }
 
@@ -80,12 +80,12 @@ bool CaptureStableHeading(const Context& ctx, double* out_heading)
         if (frame > 0) {
             SleepFor(kHeadingStableReadIntervalMs);
         }
-        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())) {
+        if (!ctx.position_provider->capture(ctx.position, false, ctx.session->currentZoneId())) {
             previous.reset();
             continue;
         }
-        const double current = NaviMath::NormalizeAngle(ctx.position->angle);
-        if (previous && std::abs(NaviMath::NormalizeAngle(current - *previous)) <= kHeadingStableReadToleranceDeg) {
+        const double current = NaviMath::normalizeAngle(ctx.position->angle);
+        if (previous && std::abs(NaviMath::normalizeAngle(current - *previous)) <= kHeadingStableReadToleranceDeg) {
             *out_heading = current;
             return true;
         }
@@ -100,8 +100,8 @@ bool CommitHeadingTurn(const Context& ctx, double heading_delta)
         return false;
     }
     SleepFor(kWaitAfterFirstTurnMs);
-    ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
-    ctx.motion_controller->SetForwardState(false);
+    ctx.action_wrapper->pulseForwardSync(kPostHeadingForwardPulseMs);
+    ctx.motion_controller->setForwardState(false);
     SleepFor(kWaitAfterFirstTurnMs);
     return true;
 }
@@ -116,7 +116,7 @@ double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double
             return achieved;
         }
         achieved = stable_heading;
-        const double residual = NaviMath::NormalizeAngle(target_heading - achieved);
+        const double residual = NaviMath::normalizeAngle(target_heading - achieved);
         if (std::abs(residual) <= kHeadingAcceptToleranceDeg) {
             return achieved;
         }
@@ -135,11 +135,11 @@ double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double
 Result ConsumeHeadingNodes(const Context& ctx)
 {
     bool consumed = false;
-    while (ctx.session->HasCurrentWaypoint() && ctx.session->CurrentWaypoint().IsHeadingOnly()) {
-        const Waypoint heading_node = ctx.session->CurrentWaypoint();
+    while (ctx.session->hasCurrentWaypoint() && ctx.session->currentWaypoint().isHeadingOnly()) {
+        const Waypoint heading_node = ctx.session->currentWaypoint();
         double target_heading = 0.0;
         if (heading_node.heading_uses_target) {
-            target_heading = NaviMath::CalcTargetRotation(ctx.position->x, ctx.position->y, heading_node.x, heading_node.y);
+            target_heading = NaviMath::calcTargetRotation(ctx.position->x, ctx.position->y, heading_node.x, heading_node.y);
         }
         else {
             target_heading = std::fmod(heading_node.heading_angle, 360.0);
@@ -148,16 +148,16 @@ Result ConsumeHeadingNodes(const Context& ctx)
             }
         }
 
-        const double start_heading = NaviMath::NormalizeAngle(ctx.position->angle);
-        const double heading_delta = NaviMath::NormalizeAngle(target_heading - start_heading);
+        const double start_heading = NaviMath::normalizeAngle(ctx.position->angle);
+        const double heading_delta = NaviMath::normalizeAngle(target_heading - start_heading);
 
-        ctx.motion_controller->SetForwardState(false);
+        ctx.motion_controller->setForwardState(false);
         SleepFor(kStopWaitMs);
 
         if (std::abs(heading_delta) <= 1.0) {
             LogInfo << "Heading-only node already aligned." << VAR(target_heading) << VAR(start_heading);
-            ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
-            ctx.motion_controller->SetForwardState(false);
+            ctx.action_wrapper->pulseForwardSync(kPostHeadingForwardPulseMs);
+            ctx.motion_controller->setForwardState(false);
         }
         else if (!CommitHeadingTurn(ctx, heading_delta)) {
             return Failure("heading_turn_failed", "HEADING node failed to issue view turn.");
@@ -166,13 +166,13 @@ Result ConsumeHeadingNodes(const Context& ctx)
         const double achieved_heading = VerifyAndCorrectHeading(ctx, target_heading, start_heading);
         LogInfo << "Heading-only node completed." << VAR(target_heading) << VAR(start_heading) << VAR(heading_delta)
                 << VAR(achieved_heading);
-        ctx.session->AdvanceToNextWaypoint(ActionType::HEADING, "heading_consumed");
-        ctx.session->ResetProgress();
-        ctx.runtime_state->OnWaypointAdvance();
+        ctx.session->advanceToNextWaypoint(ActionType::HEADING, "heading_consumed");
+        ctx.session->resetProgress();
+        ctx.runtime_state->onWaypointAdvance();
         consumed = true;
 
-        if (!ctx.session->HasCurrentWaypoint()) {
-            ctx.session->NoteRouteTailConsumed(*ctx.position, "heading_route_consumed");
+        if (!ctx.session->hasCurrentWaypoint()) {
+            ctx.session->noteRouteTailConsumed(*ctx.position, "heading_route_consumed");
         }
         // 后续节点等下一拍重新取位, 免得用到缺失的朝向
         if (!ctx.position->valid) {

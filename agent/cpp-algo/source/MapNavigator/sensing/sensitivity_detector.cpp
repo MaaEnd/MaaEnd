@@ -24,19 +24,19 @@ Detector::Detector(Config config)
 {
 }
 
-void Detector::BeginRun()
+void Detector::beginRun()
 {
     has_prev_tick_ = false;
     pending_.reset();
     issued_since_record_ = 0.0;
 }
 
-void Detector::NoteIssued(double delta_deg)
+void Detector::noteIssued(double delta_deg)
 {
     issued_since_record_ += delta_deg;
 }
 
-std::optional<Estimate> Detector::TakeLastEstimate()
+std::optional<Estimate> Detector::takeLastEstimate()
 {
     std::optional<Estimate> out;
     out.swap(last_estimate_);
@@ -44,7 +44,7 @@ std::optional<Estimate> Detector::TakeLastEstimate()
 }
 
 std::optional<Verdict>
-    Detector::RecordTick(uint64_t tick_seq, std::optional<double> camera_heading_deg, double issued_delta_deg, bool degraded_fix)
+    Detector::recordTick(uint64_t tick_seq, std::optional<double> camera_heading_deg, double issued_delta_deg, bool degraded_fix)
 {
     const double issued_total = issued_since_record_;
     issued_since_record_ = 0.0;
@@ -86,16 +86,16 @@ std::optional<Verdict>
     if (log_due) {
         next_log_at_ *= 2;
     }
-    return Evaluate(log_due);
+    return evaluate(log_due);
 }
 
-std::optional<Verdict> Detector::EndRun()
+std::optional<Verdict> Detector::endRun()
 {
     pending_.reset();
-    return Evaluate(true);
+    return evaluate(true);
 }
 
-std::optional<Verdict> Detector::Evaluate(bool log_estimate)
+std::optional<Verdict> Detector::evaluate(bool log_estimate)
 {
     const size_t count = samples_.size();
     if (count < static_cast<size_t>(config_.min_samples)) {

@@ -27,7 +27,7 @@ struct LocalActionTraits
     bool moves_forward = false;
 };
 
-LocalActionTraits LocalActionTraitsOf(LocalDriverAction action)
+LocalActionTraits local_action_traits_of(LocalDriverAction action)
 {
     switch (action) {
     case LocalDriverAction::Forward:
@@ -47,61 +47,61 @@ MotionController::MotionController(ActionWrapper* action_wrapper, bool enable_lo
     , enable_local_driver_(enable_local_driver)
 {
     if (action_wrapper_ != nullptr) {
-        steering_profile_ = action_wrapper_->SteeringProfile();
+        steering_profile_ = action_wrapper_->steeringProfile();
     }
 }
 
-void MotionController::Stop()
+void MotionController::stop()
 {
-    HoldPosition();
+    holdPosition();
 }
 
-void MotionController::SetForwardState(bool forward)
+void MotionController::setForwardState(bool forward)
 {
     if (!forward) {
-        HoldPosition();
+        holdPosition();
         return;
     }
 
     if (enable_local_driver_) {
-        SetAction(LocalDriverAction::Forward, !is_moving_forward_);
+        setAction(LocalDriverAction::Forward, !is_moving_forward_);
         return;
     }
 
     if (!is_moving_forward_) {
-        action_wrapper_->SetMovementStateSync({ .forward = true }, 0);
+        action_wrapper_->setMovementStateSync({ .forward = true }, 0);
     }
     is_moving_ = true;
     is_moving_forward_ = true;
 }
 
-void MotionController::ReassertForward()
+void MotionController::reassertForward()
 {
     if (!is_moving_forward_) {
-        SetForwardState(true);
+        setForwardState(true);
         return;
     }
-    // 后端会跳过与缓存状态相同的按键, 须松开再按, 且绕过 SetAction 以免清掉在途转向
-    action_wrapper_->ResetForwardWalkSync(kWalkResetReleaseMs);
+    // 后端会跳过与缓存状态相同的按键, 须松开再按, 且绕过 setAction 以免清掉在途转向
+    action_wrapper_->resetForwardWalkSync(kWalkResetReleaseMs);
 }
 
-TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg, int64_t tick_gap_ms)
+TurnCommandResult MotionController::applySteering(double yaw_delta_deg, int64_t tick_gap_ms)
 {
     if (std::abs(yaw_delta_deg) <= std::numeric_limits<double>::epsilon()) {
         return { .issued = true };
     }
 
     const auto now = std::chrono::steady_clock::now();
-    if (!SteeringGateOpen(yaw_delta_deg, now)) {
+    if (!steeringGateOpen(yaw_delta_deg, now)) {
         return {};
     }
 
-    const bool should_pause_motion = !steering_profile_.supports_concurrent_move_and_look && IsMoving();
+    const bool should_pause_motion = !steering_profile_.supports_concurrent_move_and_look && isMoving();
     if (should_pause_motion) {
-        action_wrapper_->SetMovementStateSync({}, 0);
+        action_wrapper_->setMovementStateSync({}, 0);
     }
 
-    const TurnCommandResult result = EmitBatches(yaw_delta_deg, PlanBatchCount(yaw_delta_deg, tick_gap_ms));
+    const TurnCommandResult result = emitBatches(yaw_delta_deg, planBatchCount(yaw_delta_deg, tick_gap_ms));
     if (result.send_ms > 0) {
         latency::RecordStage(latency::Stage::Steer, result.send_ms);
     }
@@ -116,41 +116,41 @@ TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg, int64_t 
     return result;
 }
 
-bool MotionController::SupportsSprint() const
+bool MotionController::supportsSprint() const
 {
-    return action_wrapper_ != nullptr && action_wrapper_->SupportsSprint();
+    return action_wrapper_ != nullptr && action_wrapper_->supportsSprint();
 }
 
-void MotionController::SetSprintSuppressed(bool suppressed)
+void MotionController::setSprintSuppressed(bool suppressed)
 {
     if (suppressed && !sprint_suppressed_ && sprint_active_ && is_moving_forward_ && action_wrapper_ != nullptr) {
-        action_wrapper_->ResetForwardWalkSync(kSprintCancelReleaseMs);
+        action_wrapper_->resetForwardWalkSync(kSprintCancelReleaseMs);
         sprint_active_ = false;
         LogInfo << "Sprint cancelled near collect point (dropped to walking speed).";
     }
     sprint_suppressed_ = suppressed;
 }
 
-bool MotionController::TriggerSprint()
+bool MotionController::triggerSprint()
 {
     if (sprint_suppressed_) {
         return false;
     }
-    if (!SupportsSprint()) {
+    if (!supportsSprint()) {
         return false;
     }
 
-    ArmSteeringQuietPeriod();
-    action_wrapper_->TriggerSprintSync();
+    armSteeringQuietPeriod();
+    action_wrapper_->triggerSprintSync();
     walkmode::NoteSprintTriggered();
     sprint_active_ = true;
     LogInfo << "Sprint state armed.";
     return true;
 }
 
-void MotionController::HoldPosition()
+void MotionController::holdPosition()
 {
-    action_wrapper_->SetMovementStateSync({}, 0);
+    action_wrapper_->setMovementStateSync({}, 0);
     has_applied_action_ = false;
     is_moving_ = false;
     is_moving_forward_ = false;
@@ -158,20 +158,20 @@ void MotionController::HoldPosition()
     steering_quiet_until_ = {};
 }
 
-void MotionController::SetAction(LocalDriverAction action, bool force)
+void MotionController::setAction(LocalDriverAction action, bool force)
 {
-    const LocalActionTraits traits = LocalActionTraitsOf(action);
+    const LocalActionTraits traits = local_action_traits_of(action);
     if (!force && has_applied_action_ && applied_action_ == action) {
         is_moving_ = traits.translates;
         is_moving_forward_ = traits.moves_forward;
         return;
     }
 
-    ArmSteeringQuietPeriod();
+    armSteeringQuietPeriod();
 
-    action_wrapper_->SetMovementStateSync(traits.movement, 0);
+    action_wrapper_->setMovementStateSync(traits.movement, 0);
     if (traits.jumps) {
-        action_wrapper_->TriggerJumpSync(kActionJumpHoldMs);
+        action_wrapper_->triggerJumpSync(kActionJumpHoldMs);
     }
 
     applied_action_ = action;
@@ -181,17 +181,17 @@ void MotionController::SetAction(LocalDriverAction action, bool force)
     sprint_active_ = false;
 }
 
-bool MotionController::IsMoving() const
+bool MotionController::isMoving() const
 {
     return is_moving_;
 }
 
-bool MotionController::IsMovingForward() const
+bool MotionController::isMovingForward() const
 {
     return is_moving_forward_;
 }
 
-bool MotionController::SteeringGateOpen(double yaw_delta_deg, std::chrono::steady_clock::time_point now) const
+bool MotionController::steeringGateOpen(double yaw_delta_deg, std::chrono::steady_clock::time_point now) const
 {
     if (steering_quiet_until_.time_since_epoch().count() > 0 && now < steering_quiet_until_) {
         return false;
@@ -201,7 +201,7 @@ bool MotionController::SteeringGateOpen(double yaw_delta_deg, std::chrono::stead
     return std::abs(yaw_delta_deg) >= steering_profile_.min_emit_delta_deg && elapsed_ms >= steering_profile_.min_send_interval_ms;
 }
 
-int64_t MotionController::PlanBatchCount(double yaw_delta_deg, int64_t tick_gap_ms) const
+int64_t MotionController::planBatchCount(double yaw_delta_deg, int64_t tick_gap_ms) const
 {
     int64_t batches = std::clamp<int64_t>(
         static_cast<int64_t>(std::ceil(std::abs(yaw_delta_deg) / steering_profile_.max_batch_delta_deg)),
@@ -213,7 +213,7 @@ int64_t MotionController::PlanBatchCount(double yaw_delta_deg, int64_t tick_gap_
     return batches;
 }
 
-TurnCommandResult MotionController::EmitBatches(double yaw_delta_deg, int64_t batches)
+TurnCommandResult MotionController::emitBatches(double yaw_delta_deg, int64_t batches)
 {
     const double batch_cap = steering_profile_.max_batch_delta_deg;
     const double tick_cap = batch_cap * static_cast<double>(batches);
@@ -228,7 +228,7 @@ TurnCommandResult MotionController::EmitBatches(double yaw_delta_deg, int64_t ba
             break;
         }
         const double step_deg = std::clamp(remaining, -batch_cap, batch_cap);
-        const TurnCommandResult sent = SendViewDelta(step_deg);
+        const TurnCommandResult sent = sendViewDelta(step_deg);
         send_ms_total += sent.send_ms;
         if (!sent.issued) {
             break;
@@ -243,7 +243,7 @@ TurnCommandResult MotionController::EmitBatches(double yaw_delta_deg, int64_t ba
     return result;
 }
 
-TurnCommandResult MotionController::SendViewDelta(double delta_degrees)
+TurnCommandResult MotionController::sendViewDelta(double delta_degrees)
 {
     TurnCommandResult result;
     if (std::abs(delta_degrees) <= std::numeric_limits<double>::epsilon()) {
@@ -251,12 +251,12 @@ TurnCommandResult MotionController::SendViewDelta(double delta_degrees)
         return result;
     }
 
-    int units = static_cast<int>(std::lround(delta_degrees * action_wrapper_->DefaultTurnUnitsPerDegree()));
+    int units = static_cast<int>(std::lround(delta_degrees * action_wrapper_->defaultTurnUnitsPerDegree()));
     if (units == 0) {
         units = delta_degrees > 0.0 ? 1 : -1;
     }
     const auto send_started_at = std::chrono::steady_clock::now();
-    const bool sent = action_wrapper_->SendViewDeltaSync(units, 0);
+    const bool sent = action_wrapper_->sendViewDeltaSync(units, 0);
     const int64_t send_ms = ElapsedMs(send_started_at);
     result.send_ms = send_ms;
     if (!sent) {
@@ -270,7 +270,7 @@ TurnCommandResult MotionController::SendViewDelta(double delta_degrees)
     return result;
 }
 
-void MotionController::ArmSteeringQuietPeriod()
+void MotionController::armSteeringQuietPeriod()
 {
     if (steering_profile_.action_quiet_period_ms <= 0) {
         return;

@@ -9,6 +9,7 @@
 #include "../control/action_wrapper.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
+#include "../navi_log.h"
 #include "../navi_math.h"
 #include "../navi_time.h"
 #include "../sensing/maa_task.h"
@@ -27,9 +28,9 @@ namespace
 
 constexpr const char* kTriggerPipelineOverride = "{}";
 
-Result FailTrigger(const Context& ctx, const char* reason, const char* log_message)
+Result fail_trigger(const Context& ctx, const char* reason, const char* log_message)
 {
-    ctx.motion_controller->SetForwardState(false);
+    ctx.motion_controller->setForwardState(false);
     return {
         .consumed = true,
         .stay_in_current_tick = true,
@@ -43,7 +44,7 @@ Result FailTrigger(const Context& ctx, const char* reason, const char* log_messa
 
 bool IsTriggerPending(const NavigationSession& session)
 {
-    return session.HasCurrentWaypoint() && session.current_path().back().IsTriggerPoint();
+    return session.hasCurrentWaypoint() && session.currentPath().back().isTriggerPoint();
 }
 
 Result ProbeTriggerWhileNavigating(const Context& ctx)
@@ -60,30 +61,31 @@ Result ProbeTriggerWhileNavigating(const Context& ctx)
     trigger.last_probe_at = now;
 
     // 定位这一拍刚截过图, 缓存即当前画面
-    MaaController* controller = ctx.action_wrapper->GetCtrl();
+    MaaController* controller = ctx.action_wrapper->getCtrl();
     ScopedImageBuffer image;
     if (controller == nullptr || !MaaControllerCachedImage(controller, image.Get()) || MaaImageBufferIsEmpty(image.Get())) {
         return {};
     }
 
-    const size_t trigger_idx = ctx.session->current_path().size() - 1;
-    const Waypoint& waypoint = ctx.session->CurrentPathAt(trigger_idx);
+    const size_t trigger_idx = ctx.session->currentPath().size() - 1;
+    const Waypoint& waypoint = ctx.session->currentPathAt(trigger_idx);
     NodeSighting sighting {};
     if (!RunRecognitionNode(ctx.maa_context, waypoint.trigger_node, kTriggerPipelineOverride, image.Get(), &sighting)) {
-        return FailTrigger(ctx, "trigger_recognition_failed", "TRIGGER node failed to recognize.");
+        return fail_trigger(ctx, "trigger_recognition_failed", "TRIGGER node failed to recognize.");
     }
     if (!sighting.hit) {
         return {};
     }
 
     const double remaining = std::hypot(waypoint.x - ctx.position->x, waypoint.y - ctx.position->y);
-    LogInfo << "TRIGGER: node hit on the way, navigation complete." << VAR(waypoint.trigger_node) << VAR(ctx.session->current_node_idx())
-            << VAR(trigger_idx) << VAR(ctx.position->valid) << VAR(remaining);
-    ctx.motion_controller->SetForwardState(false);
-    ctx.session->NoteCanonicalFinalGoalConsumed(ctx.session->CanonicalIndexAtCurrentPath(trigger_idx), *ctx.position, "trigger_hit");
-    ctx.session->SkipPastWaypoint(trigger_idx, "trigger_hit");
-    ctx.runtime_state->OnWaypointAdvance();
-    ctx.session->NoteRouteTailConsumed(*ctx.position, "route_tail_consumed");
+    LogInfo << "TRIGGER: node hit on the way, navigation complete." << VAR(waypoint.trigger_node)
+            << VAR_AS(ctx.session->current_node_idx(), ctx.session->currentNodeIdx()) << VAR(trigger_idx) << VAR(ctx.position->valid)
+            << VAR(remaining);
+    ctx.motion_controller->setForwardState(false);
+    ctx.session->noteCanonicalFinalGoalConsumed(ctx.session->canonicalIndexAtCurrentPath(trigger_idx), *ctx.position, "trigger_hit");
+    ctx.session->skipPastWaypoint(trigger_idx, "trigger_hit");
+    ctx.runtime_state->onWaypointAdvance();
+    ctx.session->noteRouteTailConsumed(*ctx.position, "route_tail_consumed");
     return Handled();
 }
 
@@ -91,7 +93,7 @@ Result ArriveTrigger(const Context& ctx, const Waypoint& waypoint, double actual
 {
     StopMotionAndCommitment(ctx);
     LogInfo << "Action: TRIGGER reached the point, navigation complete." << VAR(actual_distance) << VAR(waypoint.trigger_node);
-    return CompleteArrival(ctx, waypoint, ctx.session->CurrentAbsoluteNodeIndex(), "trigger_arrived");
+    return CompleteArrival(ctx, waypoint, ctx.session->currentAbsoluteNodeIndex(), "trigger_arrived");
 }
 
 } // namespace semantic_nodes

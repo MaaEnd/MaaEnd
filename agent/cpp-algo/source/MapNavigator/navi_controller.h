@@ -13,7 +13,7 @@ public:
     explicit NaviController(MaaContext* ctx);
     ~NaviController() = default;
 
-    bool Navigate(const NaviParam& requested_param);
+    bool navigate(const NaviParam& requested_param);
 
 private:
     MaaContext* ctx_;

@@ -23,29 +23,29 @@ namespace semantic_nodes
 namespace
 {
 
-size_t FindFutureZoneDeclaration(const Context& ctx, const std::string& zone_id)
+size_t find_future_zone_declaration(const Context& ctx, const std::string& zone_id)
 {
-    const std::vector<Waypoint>& path = ctx.session->current_path();
-    for (size_t index = ctx.session->current_node_idx(); index < path.size(); ++index) {
+    const std::vector<Waypoint>& path = ctx.session->currentPath();
+    for (size_t index = ctx.session->currentNodeIdx(); index < path.size(); ++index) {
         const Waypoint& waypoint = path[index];
-        if (waypoint.IsZoneDeclaration() && !waypoint.zone_id.empty() && waypoint.zone_id == zone_id) {
+        if (waypoint.isZoneDeclaration() && !waypoint.zone_id.empty() && waypoint.zone_id == zone_id) {
             return index;
         }
     }
     return std::numeric_limits<size_t>::max();
 }
 
-Result FinalizePortalTransitZone(const Context& ctx, const std::string& zone_id, size_t matched_zone_index)
+Result finalize_portal_transit_zone(const Context& ctx, const std::string& zone_id, size_t matched_zone_index)
 {
-    if (matched_zone_index > ctx.session->current_node_idx()) {
-        ctx.session->SkipPastWaypoint(matched_zone_index - 1, "portal_zone_fast_forward");
+    if (matched_zone_index > ctx.session->currentNodeIdx()) {
+        ctx.session->skipPastWaypoint(matched_zone_index - 1, "portal_zone_fast_forward");
     }
-    ctx.session->UpdateCurrentZone(zone_id);
-    ctx.session->ResetProgress();
-    ctx.runtime_state->OnWaypointAdvance();
+    ctx.session->updateCurrentZone(zone_id);
+    ctx.session->resetProgress();
+    ctx.runtime_state->onWaypointAdvance();
     ConsumeMatchedZoneNodes(ctx);
     StopMotionAndCommitment(ctx);
-    ctx.position_provider->ResetTracking();
+    ctx.position_provider->resetTracking();
     ctx.runtime_state->semantic.portal.phase = PortalTransitPhase::Reacquire;
     LogInfo << "Portal transit accepted zone transition." << VAR(zone_id) << VAR(matched_zone_index);
     return Handled();
@@ -65,8 +65,8 @@ Result TickPortalTransit(const Context& ctx)
     }
 
     if (portal.phase == PortalTransitPhase::Reacquire) {
-        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
-            || ctx.position->zone_id != ctx.session->current_zone_id()) {
+        if (!ctx.position_provider->capture(ctx.position, false, ctx.session->currentZoneId())
+            || ctx.position->zone_id != ctx.session->currentZoneId()) {
             return WaitNextFix(kZoneConfirmRetryIntervalMs);
         }
         portal = {};
@@ -75,43 +75,43 @@ Result TickPortalTransit(const Context& ctx)
         return Handled();
     }
 
-    ctx.motion_controller->SetForwardState(true);
+    ctx.motion_controller->setForwardState(true);
 
     NaviPosition candidate;
-    if (!ctx.position_provider->Capture(&candidate, true, {})) {
+    if (!ctx.position_provider->capture(&candidate, true, {})) {
         return WaitNextFix(kZoneConfirmRetryIntervalMs);
     }
 
     *ctx.position = candidate;
-    if (candidate.zone_id.empty() || candidate.zone_id == ctx.session->current_zone_id()) {
+    if (candidate.zone_id.empty() || candidate.zone_id == ctx.session->currentZoneId()) {
         return WaitNextFix(kZoneConfirmRetryIntervalMs);
     }
 
-    const size_t matched_zone_index = FindFutureZoneDeclaration(ctx, candidate.zone_id);
+    const size_t matched_zone_index = find_future_zone_declaration(ctx, candidate.zone_id);
     if (matched_zone_index == std::numeric_limits<size_t>::max()) {
         StopMotionAndCommitment(ctx);
         return WaitNextFix(kZoneConfirmRetryIntervalMs);
     }
-    return FinalizePortalTransitZone(ctx, candidate.zone_id, matched_zone_index);
+    return finalize_portal_transit_zone(ctx, candidate.zone_id, matched_zone_index);
 }
 
 Result TickTransferWait(const Context& ctx)
 {
     TransferWaitState& transfer = ctx.runtime_state->semantic.transfer;
-    if (!ctx.session->HasCurrentWaypoint()) {
+    if (!ctx.session->hasCurrentWaypoint()) {
         transfer = {};
-        ctx.session->NoteRouteTailConsumed(*ctx.position, "route_tail_consumed");
+        ctx.session->noteRouteTailConsumed(*ctx.position, "route_tail_consumed");
         return Handled();
     }
 
-    ctx.motion_controller->SetForwardState(false);
+    ctx.motion_controller->setForwardState(false);
 
     const auto now = std::chrono::steady_clock::now();
     if (IsUnset(transfer.started)) {
         transfer.started = now;
     }
 
-    if (!ctx.position_provider->Capture(ctx.position, false, {})) {
+    if (!ctx.position_provider->capture(ctx.position, false, {})) {
         if (ElapsedMs(transfer.started, now) > kRelocationWaitTimeoutMs) {
             return Failure("transfer_wait_timeout", "TRANSFER wait timed out before capture stabilized.");
         }
@@ -141,7 +141,7 @@ Result TickTransferWait(const Context& ctx)
 Result TickRopeRide(const Context& ctx)
 {
     RopeRideState& rope = ctx.runtime_state->semantic.rope;
-    ctx.motion_controller->SetForwardState(false);
+    ctx.motion_controller->setForwardState(false);
     const int64_t waited_ms = ElapsedMs(rope.started);
     if (waited_ms < rope.ride_ms) {
         return WaitNextFix(kRelocationRetryIntervalMs);
@@ -149,7 +149,7 @@ Result TickRopeRide(const Context& ctx)
     if (waited_ms > rope.ride_ms + kRelocationWaitTimeoutMs) {
         return Failure("rope_ride_timeout", "Rope ride finished but the position never stabilized.");
     }
-    if (!ctx.position_provider->Capture(ctx.position, false, {})) {
+    if (!ctx.position_provider->capture(ctx.position, false, {})) {
         rope.stable_reads = 0;
         return WaitNextFix(kRelocationRetryIntervalMs);
     }
@@ -159,10 +159,10 @@ Result TickRopeRide(const Context& ctx)
 
     LogInfo << "Rope ride finished." << VAR(waited_ms) << VAR(ctx.position->x) << VAR(ctx.position->y) << VAR(ctx.position->zone_id);
     rope = {};
-    if (ctx.session->HasCurrentWaypoint() && ctx.session->CurrentWaypoint().rope_top) {
-        ctx.session->UpdateCurrentZone(ctx.position->zone_id);
-        const Waypoint& top = ctx.session->CurrentWaypoint();
-        return CompleteArrival(ctx, top, ctx.session->CurrentAbsoluteNodeIndex(), "rope_ride_completed");
+    if (ctx.session->hasCurrentWaypoint() && ctx.session->currentWaypoint().rope_top) {
+        ctx.session->updateCurrentZone(ctx.position->zone_id);
+        const Waypoint& top = ctx.session->currentWaypoint();
+        return CompleteArrival(ctx, top, ctx.session->currentAbsoluteNodeIndex(), "rope_ride_completed");
     }
     return ResumeAfterRelocation(ctx, "rope_ride_completed");
 }

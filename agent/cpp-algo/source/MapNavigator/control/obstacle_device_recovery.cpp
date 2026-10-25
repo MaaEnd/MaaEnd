@@ -27,7 +27,7 @@ namespace mapnavigator
 namespace
 {
 
-const char* WalkOutEntryFor(const std::vector<std::string>& handled)
+const char* walk_out_entry_for(const std::vector<std::string>& handled)
 {
     for (const std::string& node : handled) {
         if (node == kObstacleDeviceMoveNode) {
@@ -58,7 +58,7 @@ ObstacleDeviceRecovery::ObstacleDeviceRecovery(
 
 ObstacleDeviceRecovery::~ObstacleDeviceRecovery() = default;
 
-void ObstacleDeviceRecovery::Start(const cv::Rect& base_roi)
+void ObstacleDeviceRecovery::start(const cv::Rect& base_roi)
 {
     if (scanner_ != nullptr) {
         return;
@@ -79,68 +79,68 @@ void ObstacleDeviceRecovery::Start(const cv::Rect& base_roi)
     LogInfo << "Blocking-device probe started." << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width) << VAR(base_roi.height);
 }
 
-void ObstacleDeviceRecovery::Stop()
+void ObstacleDeviceRecovery::stop()
 {
     scanner_.reset();
     feeding_ = false;
 }
 
-void ObstacleDeviceRecovery::SubmitFrame(const cv::Mat& frame)
+void ObstacleDeviceRecovery::submitFrame(const cv::Mat& frame)
 {
     if (scanner_ == nullptr || !feeding_) {
         return;
     }
-    scanner_->SubmitFrame(frame);
+    scanner_->submitFrame(frame);
 }
 
-void ObstacleDeviceRecovery::UpdateFeeding(int64_t stalled_ms, bool attempt_available)
+void ObstacleDeviceRecovery::updateFeeding(int64_t stalled_ms, bool attempt_available)
 {
     if (scanner_ == nullptr) {
         return;
     }
     const bool feed = stalled_ms > 0 && attempt_available;
     if (feed && !feeding_) {
-        scanner_->ConsumeDetection(); // 重新开喂时丢掉停喂期间的命中
+        scanner_->consumeDetection(); // 重新开喂时丢掉停喂期间的命中
     }
     feeding_ = feed;
 }
 
-void ObstacleDeviceRecovery::ForgetObservation()
+void ObstacleDeviceRecovery::forgetObservation()
 {
     if (scanner_ != nullptr) {
-        scanner_->ConsumeDetection();
+        scanner_->consumeDetection();
     }
     feeding_ = false;
 }
 
-DeviceRemovalOutcome ObstacleDeviceRecovery::TryRemove(const RouteMeasurement& route, const Waypoint& waypoint, bool attempt_available)
+DeviceRemovalOutcome ObstacleDeviceRecovery::tryRemove(const RouteMeasurement& route, const Waypoint& waypoint, bool attempt_available)
 {
     if (maa_context_ == nullptr || scanner_ == nullptr || !attempt_available) {
         return DeviceRemovalOutcome::NotAttempted;
     }
-    if (!scanner_->ConsumeDetection()) {
+    if (!scanner_->consumeDetection()) {
         return DeviceRemovalOutcome::NotAttempted;
     }
 
     const NaviPosition move_start = *position_;
     LogInfo << "Dynamic recovery carrying off the blocking device." << VAR(route.waypoint_distance);
     // 边走边点会点到滚到下面的另一行提示, 移动点击前须站定
-    motion_controller_->SetForwardState(false);
+    motion_controller_->setForwardState(false);
     const std::optional<std::vector<std::string>> handled = RunTaskForCompletedNodes(maa_context_, kObstacleDeviceEntry, "{}");
     if (!handled) {
         LogWarn << "Blocking-device subtask result unavailable.";
         return DeviceRemovalOutcome::StillPinned;
     }
-    if (const char* walk_out = WalkOutEntryFor(*handled); walk_out != nullptr) {
+    if (const char* walk_out = walk_out_entry_for(*handled); walk_out != nullptr) {
         // 搬起的设备会放回原处, 放下前须先走出来
-        motion_controller_->ReassertForward();
+        motion_controller_->reassertForward();
         if (MaaContextRunTask(maa_context_, walk_out, "{}") == MaaInvalidId) {
             LogWarn << "Blocking-device walk-out did not run." << VAR(walk_out);
             return DeviceRemovalOutcome::StillPinned;
         }
     }
 
-    if (!position_provider_->Capture(position_, false, session_->current_zone_id()) || position_provider_->LastCaptureWasBlackScreen()
+    if (!position_provider_->capture(position_, false, session_->currentZoneId()) || position_provider_->lastCaptureWasBlackScreen()
         || !position_->valid) {
         // 旧定位会让随后的跳跃从旧点量位移, 误报已脱困
         LogWarn << "Dynamic recovery waiting for a local tracking fix after the device move.";

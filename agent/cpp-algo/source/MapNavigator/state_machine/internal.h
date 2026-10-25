@@ -35,7 +35,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
     const char* reason);
 double EffectiveRouteHeading(const NavRunTickResult& nav_run_result, const RouteMeasurement& route);
 
-// Abort 让 Run 立即以失败收场
+// Abort 让 run 立即以失败收场
 enum class TickStep
 {
     Next,

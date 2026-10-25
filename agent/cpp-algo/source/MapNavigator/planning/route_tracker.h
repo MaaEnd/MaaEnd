@@ -26,7 +26,7 @@ struct RouteMeasurement
 class RouteTracker
 {
 public:
-    static RouteMeasurement Update(NavigationSession* session, RouteTrackerState* state, const NaviPosition& position);
+    static RouteMeasurement update(NavigationSession* session, RouteTrackerState* state, const NaviPosition& position);
 };
 
 } // namespace mapnavigator

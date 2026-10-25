@@ -19,33 +19,33 @@ public:
 
     // 位置与所配朝向都可用才返回 true
     // camera_heading_prior 以北为 0 度, 只能传上次识别到且此后没发过转向的镜头朝向
-    bool Capture(
+    bool capture(
         NaviPosition* out_pos,
         bool force_global_search,
         const std::string& expected_zone_id,
         const std::vector<maplocator::SearchHint>& search_hints = {},
         std::optional<double> camera_heading_prior = std::nullopt);
     // 停车测量用, 取未平滑的定位和过了置信度检查的镜头朝向
-    bool CaptureForStrictGoal(NaviPosition* out_pos, const std::string& expected_zone_id);
-    bool WaitForFix(
+    bool captureForStrictGoal(NaviPosition* out_pos, const std::string& expected_zone_id);
+    bool waitForFix(
         NaviPosition* out_pos,
         const std::string& expected_zone_id,
         int max_retries,
         int retry_interval_ms,
         const std::function<bool()>& should_stop);
-    void ResetTracking();
-    bool LastCaptureWasBlackScreen() const;
+    void resetTracking();
+    bool lastCaptureWasBlackScreen() const;
 
     // 每次成功取位后调用一次, 把坐标换算到统一坐标系
-    void SetPositionNormalizer(std::function<void(NaviPosition&)> normalizer);
+    void setPositionNormalizer(std::function<void(NaviPosition&)> normalizer);
 
     // 定位前对每帧整图回调, 定位失败也会调, 跑在导航线程上须很轻
-    void SetFrameObserver(std::function<void(const cv::Mat&)> observer);
+    void setFrameObserver(std::function<void(const cv::Mat&)> observer);
 
 private:
-    bool CaptureWith(NaviPosition* out_pos, maplocator::LocateOptions options, HeadingSource heading_source);
-    bool WaitForScreencap() const;
-    void FillPosition(
+    bool captureWith(NaviPosition* out_pos, maplocator::LocateOptions options, HeadingSource heading_source);
+    bool waitForScreencap() const;
+    void fillPosition(
         NaviPosition* out_pos,
         const maplocator::LocateResult& locate_result,
         double heading,
