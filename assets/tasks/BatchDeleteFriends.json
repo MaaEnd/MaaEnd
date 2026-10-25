@@ -9,6 +9,7 @@
                 "dijiang_ship"
             ],
             "controller": [
+                "CloudWeb",
                 "Win32-Front"
             ],
             "option": [
