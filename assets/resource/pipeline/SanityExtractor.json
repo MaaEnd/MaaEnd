@@ -49,10 +49,7 @@
         "next": [
             "SanityExtractorInValuablesTab",
             "[JumpBack]SceneEnterMenuValuablesValuableTab"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.SanityExtractor.focus.start"
-        }
+        ]
     },
     "SanityExtractorInValuablesTab": {
         "desc": "已在珍贵物品页，进入轮次闸门",
@@ -168,10 +165,7 @@
         ],
         "on_error": [
             "SanityExtractorConfirmFailed"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.SanityExtractor.focus.find"
-        }
+        ]
     },
     "SanityExtractorConfirmSelected": {
         "desc": "确认详情栏显示的是理智萃取器；点击已发生，这里失败说明选中的不是萃取器，属异常而非未找到",
@@ -243,10 +237,7 @@
         "rate_limit": 0,
         "next": [
             "SanityExtractorFindLoop"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.SanityExtractor.focus.scroll"
-        }
+        ]
     },
     "__SanityExtractorSelectedItem": {
         "desc": "详情栏右上角显示的是理智萃取器图标时，确认选中正确物品",
@@ -287,10 +278,7 @@
         "rate_limit": 0,
         "next": [
             "SanityExtractorInInjectPanel"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.SanityExtractor.focus.use"
-        }
+        ]
     },
     "SanityExtractorInInjectPanel": {
         "desc": "确认已进入注入萃取器界面：中央药剂图案命中",
@@ -312,10 +300,7 @@
         "on_error": [
             // 注入面板内两个子项都识别失败：尝试退出面板
             "SanityExtractorInjectRecognitionFailed"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.SanityExtractor.focus.inject_panel"
-        }
+        ]
     },
     "__SanityExtractorInjectPanelMark": {
         "desc": "注入界面中央的理智精粹药剂图案，用于确认当前处于注入萃取器界面",
@@ -371,10 +356,7 @@
         "rate_limit": 0,
         "next": [
             "SanityExtractorRewardDialog"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.SanityExtractor.focus.inject"
-        }
+        ]
     },
     "SanityExtractorRewardDialog": {
         "desc": "注入成功后的「已获得理智精粹药剂」奖励弹窗：底部对勾是奖励界面独有元素，用它判定并点击关闭",
@@ -393,10 +375,7 @@
         "rate_limit": 0,
         "next": [
             "SanityExtractorAfterReward"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.SanityExtractor.focus.reward"
-        }
+        ]
     },
     "SanityExtractorAfterReward": {
         "desc": "关闭奖励弹窗后回到贵重品库；次数未用完才继续下一轮查找",
@@ -538,10 +517,7 @@
         "rate_limit": 0,
         "next": [
             "SanityExtractorClosedToValuables"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.SanityExtractor.focus.close_panel"
-        }
+        ]
     },
     "SanityExtractorClosedToValuables": {
         "desc": "确认已回到珍贵物品页",
