@@ -63,8 +63,10 @@
         "post_delay": 1500, // 走到目的地后等一会再继续，部分任务会进入剧情动画
         "next": [
             "AutoMissionEntityActionInteract",
+            "AutoMissionEntityActionExitToWorld",
             "[JumpBack]AutoFight",
-            "AutoMissionEntityActionMove"
+            "AutoMissionEntityActionMove",
+            "AutoMissionEntityActionBackInWorld"
         ]
     },
     "AutoMissionEntityActionInteract": {
