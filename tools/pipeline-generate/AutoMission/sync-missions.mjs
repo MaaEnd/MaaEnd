@@ -11,10 +11,16 @@ const levelDataDir = resolve(jsonRoot, "LevelData");
 const levelScriptDir = resolve(jsonRoot, "LevelScriptData");
 const outputPath = resolve(repoRoot, "assets/data/AutoMission/missions.json");
 
-// 与 BaseNav zone 表一致：u = sx * x + tx，v = -sy * z + ty。
+// 世界坐标换算到 MapLocator 底图坐标：u = s * x + tx，v = -s * z + ty。
+// 参数由 UILevelMapLoadConfig 中各关卡 worldRect 的并集和底图尺寸算出。
 const MAP_PLANES = {
-    map01: {zone: "ValleyIV_Base", sx: 0.703125, tx: 720, sy: 0.703125, ty: 630},
-    map02: {zone: "Wuling_Base", sx: 0.75, tx: 1536, sy: 0.75, ty: 1344},
+    map01: {zone: "ValleyIV_Base", s: 0.703125, tx: 720, ty: 630},
+    map02: {zone: "Wuling_Base", s: 0.75, tx: 1536, ty: 1344},
+    base01: {zone: "OMVBase01", s: 0.75, tx: 192, ty: 192},
+    dung01_wrdg001: {zone: "Dung01Base", s: 0.75, tx: 384, ty: 480},
+    indie_dg005: {zone: "IndieDg005Base", s: 0.75, tx: 1344, ty: -96},
+    indie_dg007: {zone: "IndieDg007Base", s: 0.75, tx: 384, ty: 384},
+    indie_dg016: {zone: "IndieDg016Base", s: 0.75, tx: 288, ty: 288},
 };
 
 // 交互物模板里的通用组件，不能区分交互物种类。
@@ -315,17 +321,23 @@ function interactTextsOf(entity) {
     return [...new Set(interactTextKeys(entity))].map((key) => namedText(key)).filter(Boolean);
 }
 
-// 世界坐标换算到 MapLocator 底图坐标；只有四号谷地和武陵大地图有底图。
+// 先按完整场景名查，再按场景前缀查；没有底图的副本两者都查不到。
+function mapPlane(sceneId) {
+    const scene = String(sceneId ?? "");
+    return MAP_PLANES[scene] ?? MAP_PLANES[scene.split("_")[0]];
+}
+
+// 世界坐标换算到 MapLocator 底图坐标；只有 MAP_PLANES 里的地图有底图。
 function placement(sceneId, position) {
-    const plane = MAP_PLANES[String(sceneId ?? "").split("_")[0]];
+    const plane = mapPlane(sceneId);
     if (!plane || !position || typeof position.x !== "number" || typeof position.z !== "number") {
         return {};
     }
     const round = (value) => Math.round(value * 1000) / 1000;
     return {
         zone_id: plane.zone,
-        x: round(plane.sx * position.x + plane.tx),
-        y: round(-plane.sy * position.z + plane.ty),
+        x: round(plane.s * position.x + plane.tx),
+        y: round(-plane.s * position.z + plane.ty),
     };
 }
 
@@ -556,7 +568,36 @@ function convertCondition(condition) {
     if (type === "CheckTalkOptionFinish" && dialogId) {
         result.dialog_id = dialogId;
     }
+    const enemies = conditionEnemies(type, condition);
+    if (enemies.length > 0) {
+        result.enemies = enemies;
+    }
     return result;
+}
+
+// 击杀条件里的怪物坐标，顺序同原始列表；找不到或没有底图的怪不写。
+function conditionEnemies(type, condition) {
+    const sceneId = condition?._sceneId?.constValue;
+    if (!sceneId || (type !== "CheckScriptMonsterKilled" && type !== "CheckMonsterKilled")) {
+        return [];
+    }
+    const num = levelNum(sceneId);
+    let entities = [];
+    if (type === "CheckScriptMonsterKilled") {
+        const scriptId = condition._scriptId?.constValue?.scriptId;
+        if (scriptId != null && num != null) {
+            const globalId = scriptId >= 1e8 ? scriptId : num * 1e8 + scriptId;
+            entities = (condition._slotIds?.constValue ?? []).map((slotId) => scriptEntity(sceneId, globalId, slotId));
+        }
+    } else if (type === "CheckMonsterKilled" && num != null) {
+        entities = (condition._enemyIds?.constValue ?? [])
+            .filter((enemy) => !enemy?.useSlotId)
+            .map((enemy) => {
+                const logicId = enemy?.logicId;
+                return levelEntities(sceneId).get(logicId >= 1e8 ? logicId : num * 1e8 + logicId);
+            });
+    }
+    return entities.map((entity) => placement(sceneId, entity?.position)).filter((pos) => pos.zone_id);
 }
 
 function convertObjective(objective) {

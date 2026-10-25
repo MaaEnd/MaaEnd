@@ -33,6 +33,19 @@ type trackData struct {
 	Snapshot bool `json:"snapshot,omitempty"`
 }
 
+// enemyData 是击杀条件里一只怪的底图坐标。
+type enemyData struct {
+	ZoneID string  `json:"zone_id"`
+	X      float64 `json:"x"`
+	Y      float64 `json:"y"`
+}
+
+// conditionData 是子步骤的完成条件；击杀条件带上怪物坐标，顺序同原始列表。
+type conditionData struct {
+	Type    string      `json:"type,omitempty"`
+	Enemies []enemyData `json:"enemies,omitempty"`
+}
+
 type trackingBlock struct {
 	ActualList []trackData `json:"actualList"`
 }
@@ -43,6 +56,7 @@ type objectiveData struct {
 	MultipleDescription       []missionText   `json:"multipleDescription"`
 	TrackingInfoList          []trackData     `json:"trackingInfoList"`
 	MultiDescTrackingInfoList []trackingBlock `json:"multiDescTrackingInfoList"`
+	Condition                 conditionData   `json:"condition"`
 }
 
 type questData struct {
@@ -68,10 +82,11 @@ type textEntry struct {
 // DescIndex 为 -1 表示普通目标；多说明目标则是 multipleDescription 的下标。
 // Order 是所属子步骤在前置链上的深度，同名步骤按它排列候选。
 type objectiveEntry struct {
-	QuestID   string      `json:"quest_id"`
-	DescIndex int         `json:"desc_index"`
-	Order     int         `json:"-"`
-	Tracks    []trackData `json:"-"`
+	QuestID   string        `json:"quest_id"`
+	DescIndex int           `json:"desc_index"`
+	Order     int           `json:"-"`
+	Tracks    []trackData   `json:"-"`
+	Condition conditionData `json:"-"`
 	variants  []string
 }
 
@@ -225,6 +240,7 @@ func objectiveEntries(questID string, objective objectiveData) []objectiveEntry 
 			QuestID:   questID,
 			DescIndex: -1,
 			Tracks:    objective.TrackingInfoList,
+			Condition: objective.Condition,
 			variants:  variants,
 		}}
 	}
@@ -243,6 +259,7 @@ func objectiveEntries(questID string, objective objectiveData) []objectiveEntry 
 			QuestID:   questID,
 			DescIndex: i,
 			Tracks:    tracks,
+			Condition: objective.Condition,
 			variants:  variants,
 		})
 	}

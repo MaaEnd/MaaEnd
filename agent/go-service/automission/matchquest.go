@@ -26,7 +26,8 @@ type MatchQuestRecognition struct{}
 var _ maa.CustomRecognitionRunner = &MatchQuestRecognition{}
 
 type matchDetail struct {
-	Track trackData `json:"track"`
+	Track     trackData     `json:"track"`
+	Condition conditionData `json:"condition"`
 }
 
 func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
@@ -154,7 +155,8 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	hit := candidates[pick].hit
 
 	payload, err := json.Marshal(matchDetail{
-		Track: candidates[pick].track,
+		Track:     candidates[pick].track,
+		Condition: candidates[pick].hit.Condition,
 	})
 	if err != nil {
 		log.Error().Err(err).Str("component", componentName).Msg("marshal detail failed")

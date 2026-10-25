@@ -117,10 +117,6 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 					"heading_source": "camera",
 					"path": []any{
 						map[string]any{
-							"action":  "ZONE",
-							"zone_id": track.ZoneID,
-						},
-						map[string]any{
 							"action": "NAVMESH",
 							"target": []float64{*track.X, *track.Y},
 						},
@@ -135,7 +131,8 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		})
 	case missionAreaNode:
 		// 任务区域只要走进去就会推进，寻路到区域中心即可，不做交互。
-		if track.ZoneID == "" || track.X == nil || track.Y == nil {
+		target, ok := navigateTarget(track, detail.Condition)
+		if !ok {
 			log.Warn().
 				Str("component", executeComponent).
 				Str("zone_id", track.ZoneID).
@@ -147,9 +144,10 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		log.Info().
 			Str("component", executeComponent).
 			Str("node", missionAreaInWorldNode).
-			Str("zone_id", track.ZoneID).
-			Float64("x", *track.X).
-			Float64("y", *track.Y).
+			Str("source", target.source).
+			Str("zone_id", target.zoneID).
+			Float64("x", target.x).
+			Float64("y", target.y).
 			Msg("mission area navigate target")
 		taskDetail, err = ctx.RunTask(node, map[string]any{
 			missionAreaPhotoNode: map[string]any{
@@ -160,16 +158,12 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 					"heading_source": "camera",
 					"path": []any{
 						map[string]any{
-							"action":  "ZONE",
-							"zone_id": track.ZoneID,
-						},
-						map[string]any{
 							"action": "NAVMESH",
-							"target": []float64{*track.X, *track.Y},
+							"target": []float64{target.x, target.y},
 						},
 						map[string]any{
 							"action":       "TRIGGER",
-							"target":       []float64{*track.X, *track.Y},
+							"target":       []float64{target.x, target.y},
 							"trigger_node": npcProxyStoryNode,
 						},
 					},
@@ -178,8 +172,11 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		})
 	case posNode:
 		// 坐标点一般走到就会推进；数据带了 NPC 名字时，走到后再找这个 NPC 交互。
+		// 暂不支持：完成条件要求分散在追踪点周围的多个物品都交互一遍，
+		// 如 sm2l4m5_q#7「拿取奚墨需要的文件」要在 4 个关卡脚本里各拿一份文件，只走到追踪点不会推进。
 		npcNames := npcNameVariants(track)
-		if track.ZoneID == "" || track.X == nil || track.Y == nil {
+		target, ok := navigateTarget(track, detail.Condition)
+		if !ok {
 			log.Warn().
 				Str("component", executeComponent).
 				Str("zone_id", track.ZoneID).
@@ -196,9 +193,10 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		log.Info().
 			Str("component", executeComponent).
 			Str("node", posInWorldNode).
-			Str("zone_id", track.ZoneID).
-			Float64("x", *track.X).
-			Float64("y", *track.Y).
+			Str("source", target.source).
+			Str("zone_id", target.zoneID).
+			Float64("x", target.x).
+			Float64("y", target.y).
 			Strs("npc_names", npcNames).
 			Msg("pos navigate target")
 		taskDetail, err = ctx.RunTask(node, map[string]any{
@@ -216,16 +214,12 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 					"heading_source": "camera",
 					"path": []any{
 						map[string]any{
-							"action":  "ZONE",
-							"zone_id": track.ZoneID,
-						},
-						map[string]any{
 							"action": "NAVMESH",
-							"target": []float64{*track.X, *track.Y},
+							"target": []float64{target.x, target.y},
 						},
 						map[string]any{
 							"action":       "TRIGGER",
-							"target":       []float64{*track.X, *track.Y},
+							"target":       []float64{target.x, target.y},
 							"trigger_node": npcProxyStoryNode,
 						},
 					},
@@ -266,10 +260,6 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 					"heading_source": "camera",
 					"path": []any{
 						map[string]any{
-							"action":  "ZONE",
-							"zone_id": track.ZoneID,
-						},
-						map[string]any{
 							"action": "NAVMESH",
 							"target": []float64{*track.X, *track.Y},
 						},
@@ -295,6 +285,26 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		return false
 	}
 	return true
+}
+
+// navTarget 是寻路目标和它的来源，来源为 enemy 或 track。
+type navTarget struct {
+	source string
+	zoneID string
+	x, y   float64
+}
+
+// navigateTarget 选寻路目标：击杀条件有怪物坐标时去第一只怪，否则去追踪点。
+// 追踪点可能在挡路的怪后面，直接寻路过去会被空气墙挡住。
+func navigateTarget(track trackData, condition conditionData) (navTarget, bool) {
+	if len(condition.Enemies) > 0 {
+		enemy := condition.Enemies[0]
+		return navTarget{source: "enemy", zoneID: enemy.ZoneID, x: enemy.X, y: enemy.Y}, true
+	}
+	if track.ZoneID == "" || track.X == nil || track.Y == nil {
+		return navTarget{}, false
+	}
+	return navTarget{source: "track", zoneID: track.ZoneID, x: *track.X, y: *track.Y}, true
 }
 
 // customDetail 取绑定已经从 best.detail 拆出的自定义识别结果。
