@@ -14,6 +14,7 @@
 #include "../navi_math.h"
 #include "../navi_time.h"
 #include "../planning/navmesh_path_expander.h"
+#include "../planning/navmesh_queries.h"
 #include "../semantic/semantic_nodes.h"
 #include "../zipline/zipline_action.h"
 #include "internal.h"
@@ -61,13 +62,15 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
         return PlanNavmeshRoute(
             param_,
             position_->zone_id,
-            start,
-            goal,
-            anchor.target_deck_y,
-            session_->WalkedFloorY(*position_),
+            {
+                .start = start,
+                .start_floor_y = session_->WalkedFloorY(*position_),
+                .start_deck_y = session_->LandedTowerDeckY(*position_),
+                .goal = goal,
+                .goal_deck_y = anchor.target_deck_y,
+            },
             nullptr,
             &runtime_state_.virtual_no_go,
-            session_->LandedTowerDeckY(*position_),
             &start_recovery_entry);
     });
     if (!route) {
@@ -84,9 +87,7 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
             position_->zone_id,
             *route,
             generated_prefix,
-            /*include_goal=*/false,
-            emit_interior_corners,
-            /*strict_segment_breaks=*/false)) {
+            { .include_goal = false, .emit_interior_corners = emit_interior_corners, .strict_segment_breaks = false })) {
         LogWarn << "Dynamic navmesh overlay skipped: generated path is unusable." << VAR(reason) << VAR(continue_index)
                 << VAR(route->path.points.size());
         return false;

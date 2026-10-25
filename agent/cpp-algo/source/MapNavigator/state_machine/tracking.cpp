@@ -22,7 +22,7 @@ namespace mapnavigator
 namespace
 {
 
-std::optional<DynamicAnchor> ResolveNavRunAnchor(NavigationSession* session, const NaviPosition& position, const RouteTrackingState& route)
+std::optional<DynamicAnchor> ResolveNavRunAnchor(NavigationSession* session, const NaviPosition& position, const RouteMeasurement& route)
 {
     if (!route.valid || !session->HasCurrentWaypoint()) {
         return std::nullopt;
@@ -50,7 +50,7 @@ bool ShortOfDrop(const Waypoint& waypoint, const NaviPosition& position)
 
 } // namespace
 
-double EffectiveRouteHeading(const NavRunTickResult& nav_run_result, const RouteTrackingState& route)
+double EffectiveRouteHeading(const NavRunTickResult& nav_run_result, const RouteMeasurement& route)
 {
     return nav_run_result.has_corridor_heading ? nav_run_result.corridor_heading : route.route_heading;
 }
@@ -129,7 +129,7 @@ void NavigationStateMachine::ConsumeCorridorPassedWaypoints(NavigateTick& tick)
 
 TickStep NavigationStateMachine::CheckRouteProgress(NavigateTick& tick)
 {
-    const RouteTrackingState& route = tick.route;
+    const RouteMeasurement& route = tick.route;
     const NavRunTickResult& nav_run_result = tick.nav_run_result;
     tick.effective_progress = ObserveNavigationProgress(route, nav_run_result.straight_to_anchor, tick.nav_run_anchor_index, tick.now);
     // 用硬进度时钟判, 脱困自己重铺路线不会重置它
@@ -171,7 +171,7 @@ TickStep NavigationStateMachine::CheckRouteProgress(NavigateTick& tick)
 }
 
 double NavigationStateMachine::ObserveNavigationProgress(
-    const RouteTrackingState& route,
+    const RouteMeasurement& route,
     double straight_to_anchor,
     const std::optional<size_t>& anchor_index,
     const std::chrono::steady_clock::time_point& now)
@@ -201,7 +201,7 @@ double NavigationStateMachine::ObserveNavigationProgress(
 double NavigationStateMachine::ResolveArrivalDistance(const NavigateTick& tick)
 {
     const Waypoint& waypoint = tick.waypoint;
-    const RouteTrackingState& route = tick.route;
+    const RouteMeasurement& route = tick.route;
     double arrival_distance = std::max(route.arrival_band, waypoint.Traits().commit_distance);
     if (waypoint.StopsOnPromptDetection() && session_->HardStalledMs(tick.now) > kCollectArrivalRelaxMs) {
         const double relaxed = waypoint.ArrivalBand(kMeasurementDefaultPositionQuantum, /*relax_tight_band=*/true);
@@ -227,7 +227,7 @@ double NavigationStateMachine::ResolveArrivalDistance(const NavigateTick& tick)
 
 TickStep NavigationStateMachine::HandleWaypointArrival(NavigateTick& tick)
 {
-    const RouteTrackingState& route = tick.route;
+    const RouteMeasurement& route = tick.route;
     const double arrival_distance = tick.arrival_distance;
     const bool reached = route.waypoint_distance <= arrival_distance && !ShortOfDrop(tick.waypoint, *position_);
     if (!reached) {
@@ -251,7 +251,7 @@ TickStep NavigationStateMachine::HandleWaypointArrival(NavigateTick& tick)
 
 TickStep NavigationStateMachine::SettleAtArrival(const NavigateTick& tick)
 {
-    const RouteTrackingState& route = tick.route;
+    const RouteMeasurement& route = tick.route;
     const Waypoint& waypoint = tick.waypoint;
     if (!waypoint.SettlesAtArrival()) {
         return TickStep::Next;
@@ -285,7 +285,7 @@ TickStep NavigationStateMachine::SettleAtArrival(const NavigateTick& tick)
 // 普通走廊点到了就接着用这帧转向, 需要额外动作的点单独占一拍
 TickStep NavigationStateMachine::PassArrivedWaypoints(NavigateTick& tick)
 {
-    RouteTrackingState& route = tick.route;
+    RouteMeasurement& route = tick.route;
     Waypoint& waypoint = tick.waypoint;
     double& arrival_distance = tick.arrival_distance;
     do {

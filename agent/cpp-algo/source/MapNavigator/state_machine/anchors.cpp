@@ -110,13 +110,13 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
         const auto route = PlanNavmeshRoute(
             param,
             position.zone_id,
-            start,
-            goal,
-            waypoint.target_deck_y,
-            walked_floor_y,
-            nullptr,
-            nullptr,
-            session->LandedTowerDeckY(position));
+            {
+                .start = start,
+                .start_floor_y = walked_floor_y,
+                .start_deck_y = session->LandedTowerDeckY(position),
+                .goal = goal,
+                .goal_deck_y = waypoint.target_deck_y,
+            });
         if (route) {
             anchor_cost = route->cost;
             anchor = { *canonical_index, waypoint };

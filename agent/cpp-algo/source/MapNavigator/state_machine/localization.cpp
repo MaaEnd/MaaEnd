@@ -11,7 +11,7 @@
 #include "../navi_config.h"
 #include "../navi_math.h"
 #include "../navi_time.h"
-#include "../planning/navmesh_path_expander.h"
+#include "../planning/navmesh_queries.h"
 #include "../semantic/semantic_nodes.h"
 #include "../semantic/trigger_action.h"
 #include "../sensing/position_provider.h"
@@ -252,7 +252,7 @@ TickStep NavigationStateMachine::RunRiverFallRecovery(const NavigateTick& tick)
     if (!runtime_state_.river_fall.pending) {
         return TickStep::Next;
     }
-    const RouteTrackingState& route = tick.route;
+    const RouteMeasurement& route = tick.route;
     runtime_state_.offroute.PauseAt(tick.now);
     if (session_->HardStalledMs(tick.now) > kRiverFallRecoveryTimeoutMs) {
         return EndTickWith(FailNavigation(

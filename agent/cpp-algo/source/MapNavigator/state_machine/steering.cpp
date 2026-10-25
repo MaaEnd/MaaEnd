@@ -19,7 +19,7 @@ namespace mapnavigator
 
 double NavigationStateMachine::SteerAlongCorridor(const NavigateTick& tick)
 {
-    const RouteTrackingState& route = tick.route;
+    const RouteMeasurement& route = tick.route;
     const NavRunTickResult& nav_run_result = tick.nav_run_result;
     const Waypoint& waypoint = tick.waypoint;
     const TickFix& fix = tick.fix;
@@ -84,7 +84,7 @@ double NavigationStateMachine::SteerAlongCorridor(const NavigateTick& tick)
 
 void NavigationStateMachine::UpdateAutoSprint(const NavigateTick& tick)
 {
-    const RouteTrackingState& route = tick.route;
+    const RouteMeasurement& route = tick.route;
     const NavRunTickResult& nav_run_result = tick.nav_run_result;
     const bool heading_aligned_for_sprint = std::abs(tick.heading_error) < kAutoSprintMaxHeadingErrorDeg;
     const bool corridor_turn_calm =

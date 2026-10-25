@@ -113,7 +113,7 @@ void ObstacleDeviceRecovery::ForgetObservation()
     feeding_ = false;
 }
 
-DeviceRemovalOutcome ObstacleDeviceRecovery::TryRemove(const RouteTrackingState& route, const Waypoint& waypoint, bool attempt_available)
+DeviceRemovalOutcome ObstacleDeviceRecovery::TryRemove(const RouteMeasurement& route, const Waypoint& waypoint, bool attempt_available)
 {
     if (maa_context_ == nullptr || scanner_ == nullptr || !attempt_available) {
         return DeviceRemovalOutcome::NotAttempted;

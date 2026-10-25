@@ -18,6 +18,7 @@
 #include "../../Zipline/ZiplineStore.h"
 #include "../navi_param.h"
 #include "../planning/navmesh_path_expander.h"
+#include "../planning/navmesh_queries.h"
 
 namespace mapnavigator
 {
@@ -908,13 +909,14 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             auto route = PlanNavmeshRoute(
                 param,
                 locator_zone,
-                start,
-                spots[index],
-                nodes[spot_tower[index]].height,
-                start_floor_y,
-                capture_diagnostics ? &diagnostic : nullptr,
-                nullptr,
-                start_deck_y);
+                {
+                    .start = start,
+                    .start_floor_y = start_floor_y,
+                    .start_deck_y = start_deck_y,
+                    .goal = spots[index],
+                    .goal_deck_y = nodes[spot_tower[index]].height,
+                },
+                capture_diagnostics ? &diagnostic : nullptr);
             if (!route || !route->ok()) {
                 return std::nullopt;
             }
@@ -932,10 +934,12 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             auto route = PlanNavmeshRoute(
                 param,
                 locator_zone,
-                spots[index],
-                goal,
-                goal_deck_y,
-                nodes[spot_tower[index]].height,
+                {
+                    .start = spots[index],
+                    .start_floor_y = nodes[spot_tower[index]].height,
+                    .goal = goal,
+                    .goal_deck_y = goal_deck_y,
+                },
                 capture_diagnostics ? &diagnostic : nullptr);
             if (!route || !route->ok()) {
                 return std::nullopt;

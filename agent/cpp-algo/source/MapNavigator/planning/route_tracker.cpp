@@ -34,6 +34,13 @@ double PositionQuantum()
 }
 
 constexpr double kStartupMotionConfirmDistance = 0.8;
+// 投影值按段长归一化, 0 在段起点, 1 在段终点
+constexpr double kLatchMinProjection = 0.40;
+constexpr double kProjectionGrowingMin = 0.55;
+constexpr double kProjectionGrowingSlack = 0.05;
+constexpr double kAdvanceMinProjection = 0.90;
+constexpr double kEnteredNextSegmentProjection = 1.05;
+constexpr double kPassedTurnBackYawDeg = 110.0;
 
 bool IsSameZoneSegment(const Waypoint& lhs, const Waypoint& rhs)
 {
@@ -50,20 +57,31 @@ size_t FindNextPositionNode(const std::vector<Waypoint>& path, size_t waypoint_i
     return std::numeric_limits<size_t>::max();
 }
 
-std::optional<SegmentProjection>
-    ProjectOntoSerialRouteSegment(const std::vector<Waypoint>& path, size_t from_idx, const NaviPosition& position)
+// 下一个有坐标的点与 from_idx 同在一段连续 RUN 上时返回它的下标
+std::optional<size_t> NextSerialSegmentEnd(const std::vector<Waypoint>& path, size_t from_idx)
 {
     const size_t to_idx = FindNextPositionNode(path, from_idx);
     if (to_idx == std::numeric_limits<size_t>::max()) {
         return std::nullopt;
     }
-
     const Waypoint& from = path[from_idx];
     const Waypoint& to = path[to_idx];
     if (!from.IsContinuousRun() || !to.IsContinuousRun() || !IsSameZoneSegment(from, to)) {
         return std::nullopt;
     }
+    return to_idx;
+}
 
+std::optional<SegmentProjection>
+    ProjectOntoSerialRouteSegment(const std::vector<Waypoint>& path, size_t from_idx, const NaviPosition& position)
+{
+    const std::optional<size_t> to_idx = NextSerialSegmentEnd(path, from_idx);
+    if (!to_idx) {
+        return std::nullopt;
+    }
+
+    const Waypoint& from = path[from_idx];
+    const Waypoint& to = path[*to_idx];
     const double segment_x = to.x - from.x;
     const double segment_y = to.y - from.y;
     const double segment_len_sq = segment_x * segment_x + segment_y * segment_y;
@@ -73,7 +91,7 @@ std::optional<SegmentProjection>
 
     SegmentProjection projection;
     projection.from_idx = from_idx;
-    projection.to_idx = to_idx;
+    projection.to_idx = *to_idx;
     projection.segment_length = std::sqrt(segment_len_sq);
     projection.raw_projection = ((position.x - from.x) * segment_x + (position.y - from.y) * segment_y) / segment_len_sq;
     projection.clamped_projection = std::clamp(projection.raw_projection, 0.0, 1.0);
@@ -87,23 +105,22 @@ std::optional<SegmentProjection>
     return projection;
 }
 
-bool TryAdvancePassedRunWaypoints(
+void AdvancePassedRunWaypoints(
     NavigationSession* session,
     RouteTrackerState* state,
     bool startup_motion_confirmed,
     const NaviPosition& position)
 {
     if (session == nullptr || state == nullptr) {
-        return false;
+        return;
     }
     if (!startup_motion_confirmed) {
         LogDebug << "Passed advance blocked before startup movement confirmed." << VAR(session->current_node_idx()) << VAR(position.x)
                  << VAR(position.y) << VAR(position.zone_id);
-        return false;
+        return;
     }
 
     const double position_quantum = PositionQuantum();
-    bool advanced = false;
     while (session->HasCurrentWaypoint()) {
         const size_t current_idx = session->current_node_idx();
         const std::optional<SegmentProjection> segment = ProjectOntoSerialRouteSegment(session->current_path(), current_idx, position);
@@ -126,13 +143,14 @@ bool TryAdvancePassedRunWaypoints(
         const Waypoint& next_waypoint = session->CurrentPathAt(segment->to_idx);
         const double next_arrival_band = next_waypoint.ArrivalBand(position_quantum);
         const bool near_next_waypoint = segment->next_distance <= next_arrival_band;
-        const bool projection_growing =
-            state->best_projection_on_segment >= 0.55 && segment->clamped_projection + 0.05 >= state->best_projection_on_segment;
+        const bool entered_next_segment = segment->raw_projection >= kEnteredNextSegmentProjection;
+        const bool projection_growing = state->best_projection_on_segment >= kProjectionGrowingMin
+                                        && segment->clamped_projection + kProjectionGrowingSlack >= state->best_projection_on_segment;
         const bool route_fact_passed =
-            segment->next_distance + position_quantum < segment->current_distance || segment->turn_back_yaw >= 110.0;
-        const bool hard_pass_evidence = route_fact_passed || segment->raw_projection >= 1.05 || near_next_waypoint;
+            segment->next_distance + position_quantum < segment->current_distance || segment->turn_back_yaw >= kPassedTurnBackYawDeg;
+        const bool hard_pass_evidence = route_fact_passed || entered_next_segment || near_next_waypoint;
         const bool should_latch =
-            !state->passed_waypoint_latched && segment->raw_projection >= 0.40
+            !state->passed_waypoint_latched && segment->raw_projection >= kLatchMinProjection
             && (((segment->cross_track_distance <= kSerialRouteDeviationThreshold) && hard_pass_evidence)
                 || ((segment->cross_track_distance <= kSerialRouteDeviationFailThreshold) && projection_growing && hard_pass_evidence));
         if (should_latch) {
@@ -148,23 +166,20 @@ bool TryAdvancePassedRunWaypoints(
             break;
         }
 
-        const bool entered_next_segment = segment->raw_projection >= 1.05;
-        if (segment->clamped_projection < 0.90 && !near_next_waypoint && !entered_next_segment) {
+        if (segment->clamped_projection < kAdvanceMinProjection && !near_next_waypoint && !entered_next_segment) {
             break;
         }
 
         state->ResetTracking();
         session->AdvanceToNextWaypoint(ActionType::RUN, "passed_waypoint_advance");
-        advanced = true;
     }
-    return advanced;
 }
 
 } // namespace
 
-RouteTrackingState RouteTracker::Update(NavigationSession* session, RouteTrackerState* state, const NaviPosition& position)
+RouteMeasurement RouteTracker::Update(NavigationSession* session, RouteTrackerState* state, const NaviPosition& position)
 {
-    RouteTrackingState tracking;
+    RouteMeasurement tracking;
     if (session == nullptr || state == nullptr || !session->HasCurrentWaypoint()) {
         return tracking;
     }
@@ -189,7 +204,7 @@ RouteTrackingState RouteTracker::Update(NavigationSession* session, RouteTracker
     }
 
     tracking.startup_motion_confirmed = state->startup_motion_confirmed;
-    TryAdvancePassedRunWaypoints(session, state, tracking.startup_motion_confirmed, position);
+    AdvancePassedRunWaypoints(session, state, tracking.startup_motion_confirmed, position);
     if (!session->HasCurrentWaypoint()) {
         return tracking;
     }
@@ -204,18 +219,14 @@ RouteTrackingState RouteTracker::Update(NavigationSession* session, RouteTracker
     tracking.waypoint_distance = std::hypot(waypoint.x - position.x, waypoint.y - position.y);
     tracking.progress_distance = tracking.waypoint_distance;
     tracking.waypoint_heading = NaviMath::CalcTargetRotation(position.x, position.y, waypoint.x, waypoint.y);
-
+    tracking.route_heading = tracking.waypoint_heading;
     if (!waypoint.IsContinuousRun()) {
-        tracking.route_heading = tracking.waypoint_heading;
-        tracking.on_route = false;
         return tracking;
     }
 
-    const std::optional<SegmentProjection> segment =
-        ProjectOntoSerialRouteSegment(session->current_path(), session->current_node_idx(), position);
+    const std::vector<Waypoint>& path = session->current_path();
+    const std::optional<SegmentProjection> segment = ProjectOntoSerialRouteSegment(path, session->current_node_idx(), position);
     if (!segment.has_value()) {
-        tracking.route_heading = tracking.waypoint_heading;
-        tracking.on_route = false;
         return tracking;
     }
 
@@ -228,24 +239,15 @@ RouteTrackingState RouteTracker::Update(NavigationSession* session, RouteTracker
     const double projection_anchor = std::clamp(std::max(segment->clamped_projection, projection_memory), 0.0, 1.0);
     tracking.projection_anchor = projection_anchor;
 
-    tracking.route_heading = tracking.waypoint_heading;
-
     double remaining_distance = (1.0 - projection_anchor) * segment->segment_length;
     size_t cursor = segment->to_idx;
-    while (cursor < session->current_path().size()) {
-        const size_t next_idx = FindNextPositionNode(session->current_path(), cursor);
-        if (next_idx == std::numeric_limits<size_t>::max()) {
+    while (cursor < path.size()) {
+        const std::optional<size_t> next_idx = NextSerialSegmentEnd(path, cursor);
+        if (!next_idx) {
             break;
         }
-
-        const Waypoint& from = session->CurrentPathAt(cursor);
-        const Waypoint& to = session->CurrentPathAt(next_idx);
-        if (!from.IsContinuousRun() || !to.IsContinuousRun() || !IsSameZoneSegment(from, to)) {
-            break;
-        }
-
-        remaining_distance += std::hypot(to.x - from.x, to.y - from.y);
-        cursor = next_idx;
+        remaining_distance += std::hypot(path[*next_idx].x - path[cursor].x, path[*next_idx].y - path[cursor].y);
+        cursor = *next_idx;
     }
     tracking.along_track_remaining = remaining_distance;
 

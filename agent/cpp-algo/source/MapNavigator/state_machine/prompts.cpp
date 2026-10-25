@@ -26,7 +26,7 @@ namespace mapnavigator
 TickStep NavigationStateMachine::HandlePrompts(const NavigateTick& tick)
 {
     const Waypoint& waypoint = tick.waypoint;
-    const RouteTrackingState& route = tick.route;
+    const RouteMeasurement& route = tick.route;
     if (TryRunPromptSubtaskWhileWalking(route)) {
         return TickStep::EndTick;
     }
@@ -134,7 +134,7 @@ void NavigationStateMachine::PreWarmPromptRecognition()
 }
 
 // 判定圈外的检测结果也要读掉, 免得进圈那一拍拿着旧结果触发
-bool NavigationStateMachine::TryZiplineMountPrompt(const Waypoint& waypoint, const RouteTrackingState& route)
+bool NavigationStateMachine::TryZiplineMountPrompt(const Waypoint& waypoint, const RouteMeasurement& route)
 {
     if (waypoint.action != ActionType::ZIPLINE) {
         zipline_mount_scanner_.reset();
@@ -203,7 +203,7 @@ void NavigationStateMachine::UpdatePromptSprintSuppression()
     motion_controller_->SetSprintSuppressed(approaching_prompt);
 }
 
-bool NavigationStateMachine::TryRunPromptSubtaskWhileWalking(const RouteTrackingState& route)
+bool NavigationStateMachine::TryRunPromptSubtaskWhileWalking(const RouteMeasurement& route)
 {
     if (!route.startup_motion_confirmed) {
         return false;

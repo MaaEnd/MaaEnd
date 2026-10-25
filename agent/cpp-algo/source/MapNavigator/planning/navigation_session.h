@@ -26,6 +26,20 @@ enum class NaviPhase
     Failed,
 };
 
+struct ProgressClock
+{
+    size_t target_key = std::numeric_limits<size_t>::max();
+    double best_distance = std::numeric_limits<double>::max();
+    std::chrono::steady_clock::time_point last_progress_time {};
+    bool initialized = false;
+
+    void Observe(size_t key, double actual_distance, std::chrono::steady_clock::time_point now);
+    int64_t StalledMs(std::chrono::steady_clock::time_point now) const;
+    void Pause(std::chrono::steady_clock::duration paused);
+
+    void Reset() { *this = {}; }
+};
+
 struct NavigationSession
 {
     explicit NavigationSession(const std::vector<Waypoint>& path, const NaviPosition& initial_pos);
@@ -97,24 +111,15 @@ private:
     bool left_landed_deck_ = false;
     std::optional<ZiplineNodeRef> standing_tower_;
 
-    size_t progress_waypoint_idx_ = std::numeric_limits<size_t>::max();
-    double best_distance_to_target_ = std::numeric_limits<double>::max();
-    std::chrono::steady_clock::time_point last_progress_time_ {};
-    bool progress_initialized_ = false;
-
-    size_t hard_progress_target_key_ = std::numeric_limits<size_t>::max();
-    double hard_best_distance_ = std::numeric_limits<double>::max();
-    std::chrono::steady_clock::time_point hard_last_progress_time_ {};
-    bool hard_progress_initialized_ = false;
+    ProgressClock progress_;
+    ProgressClock hard_progress_;
 
     [[nodiscard]] bool RequireCurrentWaypoint(const char* reason) const;
     [[nodiscard]] bool RequireWaypointIndex(size_t index, const char* reason) const;
-    void RecordFinalArrivalEvidence(
-        const NaviPosition& position,
-        bool verified_at_tail_consumption,
-        size_t evidence_index,
-        const char* reason);
-    void CommitSuccessfulCompletion(const NaviPosition& position, const char* reason);
+    std::optional<size_t> CanonicalIndexOf(size_t index) const;
+    void LeaveCurrentWaypoint(size_t next_index);
+    void RecordFinalArrivalEvidence(const NaviPosition& position, bool verified_at_tail_consumption, const char* reason);
+    void CommitSuccessfulCompletion(const char* reason);
     double FinalGoalAcceptanceBand() const;
 };
 

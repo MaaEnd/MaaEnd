@@ -17,6 +17,7 @@
 #include "navi_controller.h"
 #include "planning/navigation_session.h"
 #include "planning/navmesh_path_expander.h"
+#include "planning/navmesh_queries.h"
 #include "semantic/action_executor.h"
 #include "sensing/position_provider.h"
 #include "state_machine/navigation_state_machine.h"

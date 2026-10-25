@@ -16,7 +16,7 @@ class MotionController;
 class PositionProvider;
 class RoiTemplateScanner;
 struct NavigationSession;
-struct RouteTrackingState;
+struct RouteMeasurement;
 
 // 除 NotAttempted 外都已跑过子任务并用掉这次机会
 enum class DeviceRemovalOutcome
@@ -53,7 +53,7 @@ public:
     // 锚点变化时调用方须清掉旧的命中
     void ForgetObservation();
 
-    DeviceRemovalOutcome TryRemove(const RouteTrackingState& route, const Waypoint& waypoint, bool attempt_available);
+    DeviceRemovalOutcome TryRemove(const RouteMeasurement& route, const Waypoint& waypoint, bool attempt_available);
 
 private:
     MaaContext* maa_context_;

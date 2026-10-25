@@ -12,7 +12,7 @@
 #include "../navi_config.h"
 #include "../navi_math.h"
 #include "../navi_time.h"
-#include "../planning/navmesh_path_expander.h"
+#include "../planning/navmesh_queries.h"
 #include "../semantic/semantic_nodes.h"
 #include "../sensing/position_provider.h"
 #include "../zipline/zipline_action.h"
@@ -37,7 +37,7 @@ bool InsidePushThroughDisc(const std::vector<VirtualNoGoDisc>& discs, const Navi
 // cross_track 不是有限值说明投影没算出来, 这时不启动看门狗
 TickStep NavigationStateMachine::CheckOffRouteWedge(const NavigateTick& tick)
 {
-    const RouteTrackingState& route = tick.route;
+    const RouteMeasurement& route = tick.route;
     const bool watched = session_->phase() == NaviPhase::Navigate && tick.waypoint.IsContinuousRun() && !route.on_route
                          && std::isfinite(route.cross_track) && !runtime_state_.cross_tier_escape.active;
     if (!watched) {
@@ -83,7 +83,7 @@ TickStep NavigationStateMachine::CheckOffRouteWedge(const NavigateTick& tick)
 TickStep NavigationStateMachine::RunObstacleRecovery(const NavigateTick& tick)
 {
     const Waypoint& waypoint = tick.waypoint;
-    const RouteTrackingState& route = tick.route;
+    const RouteMeasurement& route = tick.route;
     const bool forward_hold_futile = runtime_state_.flow.futile_forward_reasserts >= kForwardHoldFutileReassertsBeforeRecovery;
     const bool pinned_without_own_fallback = forward_hold_futile && tick.stalled_ms >= kObstacleRecoveryMinTriggerMs
                                              && !waypoint.StopsOnPromptDetection() && waypoint.action != ActionType::ZIPLINE;
@@ -141,7 +141,7 @@ TickStep NavigationStateMachine::RunObstacleRecovery(const NavigateTick& tick)
 bool NavigationStateMachine::ClimbRecoveryLadder(const NavigateTick& tick, bool far_or_strict)
 {
     const Waypoint& waypoint = tick.waypoint;
-    const RouteTrackingState& route = tick.route;
+    const RouteMeasurement& route = tick.route;
     RecoveryEscalationState& escalation = runtime_state_.recovery_escalation;
     const DeviceRemovalOutcome device_outcome =
         device_recovery_.TryRemove(route, waypoint, escalation.device_attempt_count < kRecoveryDeviceAttempts && far_or_strict);
@@ -182,7 +182,7 @@ bool NavigationStateMachine::ClimbRecoveryLadder(const NavigateTick& tick, bool 
 
 bool NavigationStateMachine::EscalatePastJump(const NavigateTick& tick)
 {
-    const RouteTrackingState& route = tick.route;
+    const RouteMeasurement& route = tick.route;
     DynamicRecoveryState& recovery = runtime_state_.recovery;
     RecoveryEscalationState& escalation = runtime_state_.recovery_escalation;
     const std::optional<DynamicAnchor> post_jump_anchor = ResolveCurrentAnchor(session_, *position_);

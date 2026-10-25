@@ -25,7 +25,7 @@ class ActionWrapper;
 class MotionController;
 class PositionProvider;
 class RoiTemplateScanner;
-struct RouteTrackingState;
+struct RouteMeasurement;
 struct TickFix;
 enum class TickStep;
 
@@ -100,7 +100,7 @@ private:
     void ConsumeCorridorPassedWaypoints(NavigateTick& tick);
     TickStep CheckRouteProgress(NavigateTick& tick);
     double ObserveNavigationProgress(
-        const RouteTrackingState& route,
+        const RouteMeasurement& route,
         double straight_to_anchor,
         const std::optional<size_t>& anchor_index,
         const std::chrono::steady_clock::time_point& now);
@@ -147,11 +147,11 @@ private:
     void StartPromptScanners();
     void StartDeviceProbe();
     void PreWarmPromptRecognition();
-    bool TryZiplineMountPrompt(const Waypoint& waypoint, const RouteTrackingState& route);
+    bool TryZiplineMountPrompt(const Waypoint& waypoint, const RouteMeasurement& route);
     // 路线上没有需要减速接近的点时 distance_sq 为 -1
     PromptDistance NearestPromptDistance() const;
     void UpdatePromptSprintSuppression();
-    bool TryRunPromptSubtaskWhileWalking(const RouteTrackingState& route);
+    bool TryRunPromptSubtaskWhileWalking(const RouteMeasurement& route);
     void CompleteWaypointAfterPromptTrigger();
     void TryRunPromptSubtaskAtRouteTail();
 

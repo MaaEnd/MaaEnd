@@ -6,6 +6,8 @@
 #include <MaaUtils/Logger.h>
 
 #include "../navi_config.h"
+#include "../navi_log.h"
+#include "../navi_time.h"
 #include "navigation_session.h"
 
 namespace mapnavigator
@@ -58,6 +60,38 @@ const char* NaviPhaseName(NaviPhase phase)
 
 } // namespace
 
+void ProgressClock::Observe(size_t key, double actual_distance, std::chrono::steady_clock::time_point now)
+{
+    const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
+    if (!initialized || target_key != key) {
+        target_key = key;
+        best_distance = actual_distance;
+        last_progress_time = now;
+        initialized = true;
+        return;
+    }
+
+    if (actual_distance < best_distance - progress_epsilon) {
+        best_distance = actual_distance;
+        last_progress_time = now;
+    }
+}
+
+int64_t ProgressClock::StalledMs(std::chrono::steady_clock::time_point now) const
+{
+    if (!initialized || IsUnset(last_progress_time)) {
+        return 0;
+    }
+    return ElapsedMs(last_progress_time, now);
+}
+
+void ProgressClock::Pause(std::chrono::steady_clock::duration paused)
+{
+    if (initialized && !IsUnset(last_progress_time)) {
+        last_progress_time += paused;
+    }
+}
+
 NavigationSession::NavigationSession(const std::vector<Waypoint>& path, const NaviPosition& initial_pos)
     : original_path_(path)
     , current_path_(path)
@@ -88,10 +122,7 @@ size_t NavigationSession::current_node_idx() const
 
 std::optional<size_t> NavigationSession::CurrentAbsoluteNodeIndex() const
 {
-    if (current_node_idx_ < generated_prefix_size_) {
-        return std::nullopt;
-    }
-    return path_origin_index_ + current_node_idx_ - generated_prefix_size_;
+    return CanonicalIndexOf(current_node_idx_);
 }
 
 bool NavigationSession::HasCanonicalFinalGoal() const
@@ -139,17 +170,13 @@ bool NavigationSession::HasSatisfiedFinalSuccess(const NaviPosition& position, c
         return false;
     }
     if (!final_arrival_evidence_) {
-        RecordFinalArrivalEvidence(position, route_tail_consumed_, canonical_final_goal_index_, reason);
+        RecordFinalArrivalEvidence(position, route_tail_consumed_, reason);
     }
-    CommitSuccessfulCompletion(position, reason);
+    CommitSuccessfulCompletion(reason);
     return true;
 }
 
-void NavigationSession::RecordFinalArrivalEvidence(
-    const NaviPosition& position,
-    bool verified_at_tail_consumption,
-    size_t evidence_index,
-    const char* reason)
+void NavigationSession::RecordFinalArrivalEvidence(const NaviPosition& position, bool verified_at_tail_consumption, const char* reason)
 {
     if (final_arrival_evidence_) {
         return;
@@ -157,13 +184,12 @@ void NavigationSession::RecordFinalArrivalEvidence(
     final_arrival_evidence_ = true;
     const double distance_to_final_goal =
         HasCanonicalFinalGoal() ? std::hypot(CanonicalFinalGoal().x - position.x, CanonicalFinalGoal().y - position.y) : 0.0;
-    LogInfo << "Final arrival evidence recorded." << VAR(reason) << VAR(verified_at_tail_consumption) << VAR(evidence_index)
-            << VAR(distance_to_final_goal);
+    LogInfo << "Final arrival evidence recorded." << VAR(reason) << VAR(verified_at_tail_consumption)
+            << VAR_AS(evidence_index, canonical_final_goal_index_) << VAR(distance_to_final_goal);
 }
 
-void NavigationSession::CommitSuccessfulCompletion(const NaviPosition& position, const char* reason)
+void NavigationSession::CommitSuccessfulCompletion(const char* reason)
 {
-    (void)position;
     success_ = true;
     UpdatePhase(NaviPhase::Finished, reason);
 }
@@ -176,21 +202,21 @@ void NavigationSession::NoteCanonicalFinalGoalConsumed(
     if (!HasCanonicalFinalGoal() || !consumed_absolute_index || *consumed_absolute_index != canonical_final_goal_index_) {
         return;
     }
-    RecordFinalArrivalEvidence(position, false, canonical_final_goal_index_, reason);
+    RecordFinalArrivalEvidence(position, false, reason);
 }
 
 void NavigationSession::NoteRouteTailConsumed(const NaviPosition& position, const char* reason)
 {
     route_tail_consumed_ = true;
     if (!HasCanonicalFinalGoal()) {
-        CommitSuccessfulCompletion(position, reason);
+        CommitSuccessfulCompletion(reason);
         return;
     }
     if (HasReachedCanonicalFinalGoal(position)) {
-        RecordFinalArrivalEvidence(position, true, canonical_final_goal_index_, "route_tail_consumed_in_final_goal_band");
+        RecordFinalArrivalEvidence(position, true, "route_tail_consumed_in_final_goal_band");
     }
     if (final_arrival_evidence_) {
-        CommitSuccessfulCompletion(position, reason);
+        CommitSuccessfulCompletion(reason);
         return;
     }
     LogError << "Route tail consumed without final success evidence." << VAR(position.x) << VAR(position.y) << VAR(position.angle)
@@ -264,6 +290,11 @@ std::optional<size_t> NavigationSession::CanonicalIndexAtCurrentPath(size_t inde
     if (!RequireWaypointIndex(index, "CanonicalIndexAtCurrentPath")) {
         return std::nullopt;
     }
+    return CanonicalIndexOf(index);
+}
+
+std::optional<size_t> NavigationSession::CanonicalIndexOf(size_t index) const
+{
     if (index < generated_prefix_size_) {
         return std::nullopt;
     }
@@ -285,11 +316,7 @@ void NavigationSession::AdvanceToNextWaypoint(const char* reason)
     if (!RequireCurrentWaypoint(reason)) {
         return;
     }
-    ++current_node_idx_;
-    left_landed_deck_ = false;
-    standing_tower_.reset();
-    ResetProgress();
-    ResetHardProgress();
+    LeaveCurrentWaypoint(current_node_idx_ + 1);
 }
 
 void NavigationSession::AdvanceToNextWaypoint(ActionType expected_action, const char* reason)
@@ -308,7 +335,12 @@ void NavigationSession::SkipPastWaypoint(size_t waypoint_idx, const char* reason
         return;
     }
     assert(waypoint_idx >= current_node_idx_ && "SkipPastWaypoint cannot move backward.");
-    current_node_idx_ = waypoint_idx + 1;
+    LeaveCurrentWaypoint(waypoint_idx + 1);
+}
+
+void NavigationSession::LeaveCurrentWaypoint(size_t next_index)
+{
+    current_node_idx_ = next_index;
     left_landed_deck_ = false;
     standing_tower_.reset();
     ResetProgress();
@@ -334,73 +366,37 @@ bool NavigationSession::RetargetCurrentWaypoint(double x, double y, const char* 
 
 void NavigationSession::ResetProgress()
 {
-    progress_waypoint_idx_ = std::numeric_limits<size_t>::max();
-    best_distance_to_target_ = std::numeric_limits<double>::max();
-    last_progress_time_ = {};
-    progress_initialized_ = false;
+    progress_.Reset();
 }
 
 void NavigationSession::ObserveProgress(size_t waypoint_idx, double actual_distance, const std::chrono::steady_clock::time_point& now)
 {
-    const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
-    if (!progress_initialized_ || progress_waypoint_idx_ != waypoint_idx) {
-        progress_waypoint_idx_ = waypoint_idx;
-        best_distance_to_target_ = actual_distance;
-        last_progress_time_ = now;
-        progress_initialized_ = true;
-        return;
-    }
-
-    if (actual_distance < best_distance_to_target_ - progress_epsilon) {
-        best_distance_to_target_ = actual_distance;
-        last_progress_time_ = now;
-    }
+    progress_.Observe(waypoint_idx, actual_distance, now);
 }
 
 int64_t NavigationSession::StalledMs(const std::chrono::steady_clock::time_point& now) const
 {
-    if (!progress_initialized_ || last_progress_time_.time_since_epoch().count() == 0) {
-        return 0;
-    }
-    return std::chrono::duration_cast<std::chrono::milliseconds>(now - last_progress_time_).count();
+    return progress_.StalledMs(now);
 }
 
 double NavigationSession::best_distance_to_target() const
 {
-    return best_distance_to_target_;
+    return progress_.best_distance;
 }
 
 void NavigationSession::ObserveHardProgress(size_t target_key, double actual_distance, const std::chrono::steady_clock::time_point& now)
 {
-    const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
-    if (!hard_progress_initialized_ || hard_progress_target_key_ != target_key) {
-        hard_progress_target_key_ = target_key;
-        hard_best_distance_ = actual_distance;
-        hard_last_progress_time_ = now;
-        hard_progress_initialized_ = true;
-        return;
-    }
-
-    if (actual_distance < hard_best_distance_ - progress_epsilon) {
-        hard_best_distance_ = actual_distance;
-        hard_last_progress_time_ = now;
-    }
+    hard_progress_.Observe(target_key, actual_distance, now);
 }
 
 int64_t NavigationSession::HardStalledMs(const std::chrono::steady_clock::time_point& now) const
 {
-    if (!hard_progress_initialized_ || hard_last_progress_time_.time_since_epoch().count() == 0) {
-        return 0;
-    }
-    return std::chrono::duration_cast<std::chrono::milliseconds>(now - hard_last_progress_time_).count();
+    return hard_progress_.StalledMs(now);
 }
 
 void NavigationSession::ResetHardProgress()
 {
-    hard_progress_target_key_ = std::numeric_limits<size_t>::max();
-    hard_best_distance_ = std::numeric_limits<double>::max();
-    hard_last_progress_time_ = {};
-    hard_progress_initialized_ = false;
+    hard_progress_.Reset();
 }
 
 void NavigationSession::ExcludeFromStallClocks(std::chrono::steady_clock::duration paused)
@@ -408,12 +404,8 @@ void NavigationSession::ExcludeFromStallClocks(std::chrono::steady_clock::durati
     if (paused <= std::chrono::steady_clock::duration::zero()) {
         return;
     }
-    if (progress_initialized_ && last_progress_time_.time_since_epoch().count() != 0) {
-        last_progress_time_ += paused;
-    }
-    if (hard_progress_initialized_ && hard_last_progress_time_.time_since_epoch().count() != 0) {
-        hard_last_progress_time_ += paused;
-    }
+    progress_.Pause(paused);
+    hard_progress_.Pause(paused);
 }
 
 std::optional<double> NavigationSession::LandedTowerDeckY(const NaviPosition& position) const
