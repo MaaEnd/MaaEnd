@@ -19,19 +19,19 @@ namespace
 std::mutex g_mutex;
 Detector g_detector;
 
-int64_t StageMs(const Verdict& verdict, Stage stage)
+int64_t stage_ms(const Verdict& verdict, Stage stage)
 {
     return verdict.stage_median_ms[static_cast<std::size_t>(stage)];
 }
 
-void Emit(MaaContext* context, const Verdict& verdict)
+void emit(MaaContext* context, const Verdict& verdict)
 {
     const int64_t tick_median_ms = verdict.tick_median_ms;
-    const int64_t screencap_ms = StageMs(verdict, Stage::Screencap);
-    const int64_t image_prep_ms = StageMs(verdict, Stage::ImagePrep);
-    const int64_t locate_ms = StageMs(verdict, Stage::Locate);
-    const int64_t steer_ms = StageMs(verdict, Stage::Steer);
-    const int64_t other_ms = StageMs(verdict, Stage::Other);
+    const int64_t screencap_ms = stage_ms(verdict, Stage::Screencap);
+    const int64_t image_prep_ms = stage_ms(verdict, Stage::ImagePrep);
+    const int64_t locate_ms = stage_ms(verdict, Stage::Locate);
+    const int64_t steer_ms = stage_ms(verdict, Stage::Steer);
+    const int64_t other_ms = stage_ms(verdict, Stage::Other);
     const int slow_percent = verdict.slow_percent;
     const int64_t sample_count = verdict.sample_count;
     LogInfo << "Navigation tick latency looks abnormal." << VAR(tick_median_ms) << VAR(screencap_ms) << VAR(image_prep_ms) << VAR(locate_ms)
@@ -47,13 +47,13 @@ void Emit(MaaContext* context, const Verdict& verdict)
 void BeginRun()
 {
     const std::lock_guard<std::mutex> guard(g_mutex);
-    g_detector.BeginRun();
+    g_detector.beginRun();
 }
 
 void RecordStage(Stage stage, int64_t elapsed_ms)
 {
     const std::lock_guard<std::mutex> guard(g_mutex);
-    g_detector.RecordStage(stage, elapsed_ms);
+    g_detector.recordStage(stage, elapsed_ms);
 }
 
 void RecordTick(MaaContext* context, uint64_t tick_seq, int64_t tick_gap_ms)
@@ -61,10 +61,10 @@ void RecordTick(MaaContext* context, uint64_t tick_seq, int64_t tick_gap_ms)
     std::optional<Verdict> verdict;
     {
         const std::lock_guard<std::mutex> guard(g_mutex);
-        verdict = g_detector.RecordTick(tick_seq, tick_gap_ms);
+        verdict = g_detector.recordTick(tick_seq, tick_gap_ms);
     }
     if (verdict) {
-        Emit(context, *verdict);
+        emit(context, *verdict);
     }
 }
 

@@ -9,16 +9,15 @@
 namespace mapnavigator
 {
 
-ActionExecutor::ActionExecutor(ActionWrapper* action_wrapper, MotionController* motion_controller, bool enable_local_driver)
+ActionExecutor::ActionExecutor(ActionWrapper* action_wrapper, MotionController* motion_controller)
     : action_wrapper_(action_wrapper)
     , motion_controller_(motion_controller)
 {
-    (void)enable_local_driver;
 }
 
-void ActionExecutor::Sprint()
+void ActionExecutor::sprint()
 {
-    if (motion_controller_->TriggerSprint()) {
+    if (motion_controller_->triggerSprint()) {
         LogInfo << "Action: SPRINT triggered.";
     }
     else {
@@ -26,27 +25,27 @@ void ActionExecutor::Sprint()
     }
 }
 
-void ActionExecutor::Jump()
+void ActionExecutor::jump()
 {
-    motion_controller_->SetForwardState(false);
-    action_wrapper_->TriggerJumpSync(kActionJumpHoldMs);
+    motion_controller_->setForwardState(false);
+    action_wrapper_->triggerJumpSync(kActionJumpHoldMs);
     LogInfo << "Action: JUMP triggered.";
     SleepFor(kActionJumpSettleMs);
 }
 
-void ActionExecutor::Interact()
+void ActionExecutor::interact()
 {
-    motion_controller_->SetForwardState(false);
+    motion_controller_->setForwardState(false);
     for (int i = 0; i < kActionInteractAttempts; ++i) {
-        action_wrapper_->TriggerInteractSync(kActionInteractHoldMs);
+        action_wrapper_->triggerInteractSync(kActionInteractHoldMs);
     }
     LogInfo << "Action: INTERACT completed.";
 }
 
-void ActionExecutor::Fight()
+void ActionExecutor::fight()
 {
-    motion_controller_->SetForwardState(false);
-    action_wrapper_->ClickMouseLeftSync();
+    motion_controller_->setForwardState(false);
+    action_wrapper_->clickMouseLeftSync();
     LogInfo << "Action: FIGHT triggered.";
 }
 

@@ -2,7 +2,7 @@
 
 This document explains the file distribution and execution flow of `AutoStockStaple`.  
 It takes **Valley IV** as the main line; the **Wuling** Pipeline structure is completely symmetrical, differing only in the regional suffix and scene recognition.  
-This document was updated on October 17, 2026.
+This document was updated on October 25, 2026.
 
 ## File Paths
 
@@ -136,7 +136,7 @@ stock_staple.json → AutoStockStaple/generate.mjs
                   └ task text in assets/locales/interface/*.json
 ```
 
-Only recurring goods (`limitCountRefreshType` other than `None/0`) in regular regional shops (`shopRefreshType=None/0`) are selected; one-time goods and fluctuating shops are excluded. `goods` preserves prices, discounts, currencies, reward quantities, refresh types, unlock conditions, and channel supply records by goods ID. Task options are then deduplicated by `item_id`, preserving different price tiers of the same item.
+Only weekly-restocked goods (`limitCountRefreshType=Weekly/2`) in regular regional shops (`shopRefreshType=None/0`) are selected; goods that are not restocked weekly, such as `Forever` (0 in integer form), and fluctuating shops are excluded. TableCfg enums may be written as names or integers, and the filter accepts both. `goods` preserves prices, discounts, currency IDs, reward quantities, refresh types, unlock conditions, and channel supply records by goods ID. Task options are then deduplicated by `item_id`, preserving different price tiers of the same item.
 
 Existing task, Pipeline, and locale files form the baseline. The generator identifies registered items from their task option's `resource/image/UI/Item/<item_id>.png` path and adds only new upstream items, without a separate binding table. Existing keys, names, OCR adjustments, ROIs, node order, and quantity policies stay unchanged. Upstream renames, category changes, and removals do not automatically rewrite or delete existing configurations, so saved selections remain valid.
 

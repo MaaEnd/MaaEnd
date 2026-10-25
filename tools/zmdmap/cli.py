@@ -1,6 +1,7 @@
 """``uv run zmdmap`` 的入口：把两个子命令挂上。
 
-- ``generate``：从本地 TableCfg / JsonData 生成精简数据，再入库（:mod:`tools.zmdmap.generate`）；
+- ``generate``：从本地游戏数据生成精简数据，再入库（:mod:`tools.zmdmap.generate`）；各数据集要哪些输入
+  由它 ``build`` 的参数决定；
 - ``fetch``：从 zmdmap 下载已发布的原始数据，再入库（:mod:`tools.zmdmap.fetch`）。
 
 两个子命令各自的流程在自己的文件里，选项也各写各的；入库（投影 / 原样复制）共用一个

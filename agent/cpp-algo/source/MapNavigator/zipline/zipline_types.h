@@ -26,7 +26,7 @@ struct ZiplineNodeRef
     double y = 0.0;
     double height = 0.0;
 
-    bool SameTower(const ZiplineNodeRef& other) const
+    bool sameTower(const ZiplineNodeRef& other) const
     {
         if (has_world && other.has_world) {
             return level_id == other.level_id

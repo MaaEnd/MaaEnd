@@ -696,7 +696,9 @@
                     "name": "MaxClueSend",
                     "label": "$option.ClueSend.MaxClueSend.label",
                     "default": "3",
-                    "pipeline_type": "int"
+                    "pipeline_type": "int",
+                    "verify": "^(?:0|[1-9]|1\\d|20)$",
+                    "pattern_msg": "$option.ClueSend.MaxClueSend.pattern_msg"
                 }
             ],
             "pipeline_override": {

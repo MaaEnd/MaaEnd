@@ -18,15 +18,15 @@ namespace mapnavigator
 struct NaviParam;
 struct NavigationSession;
 struct NavigationRuntimeState;
-struct RouteTrackingState;
+struct RouteMeasurement;
 
+// 数值按整数写进日志, 已有编号不能改
 enum class NavRunReplanReason
 {
-    None,
-    AnchorChanged,
-    ZoneChanged,
-    OffCorridor,
-    ProgressRegression,
+    None = 0,
+    AnchorChanged = 1,
+    OffCorridor = 3,
+    ProgressRegression = 4,
 };
 
 struct NavRunSpeedSample
@@ -42,13 +42,9 @@ struct NavRunPlan
     bool valid = false;
     std::string zone_id;
     size_t anchor_index = std::numeric_limits<size_t>::max();
-    NaviPosition anchor_pos {};
     navmesh::WorldPath path;
     std::vector<double> corridor_arc_prefix;
-    // path 直接取手写 RUN 线, 未经 navmesh 规划
-    bool literal = false;
     size_t cursor = 0;
-    std::chrono::steady_clock::time_point planned_at {};
     std::chrono::steady_clock::time_point last_soft_replan_at {};
     int soft_replan_attempts = 0;
 };
@@ -90,7 +86,7 @@ public:
         NavigationSession* session,
         NavigationRuntimeState* runtime,
         const NaviPosition& position,
-        const RouteTrackingState& route,
+        const RouteMeasurement& route,
         const NaviParam& param,
         size_t anchor_index,
         const Waypoint& anchor,
@@ -99,24 +95,31 @@ public:
 
     void invalidate();
 
-    const NavRunPlan& plan() const { return plan_; }
-
 private:
-    bool buildPlan(
-        const NaviParam& param,
-        const NavigationSession& session,
-        const NavigationRuntimeState& runtime,
-        const NaviPosition& position,
-        size_t anchor_index,
-        const Waypoint& anchor,
-        NavRunReplanReason reason,
-        std::chrono::steady_clock::time_point now,
-        const std::function<void()>& halt,
-        std::chrono::steady_clock::duration& planning);
+    struct TickInput
+    {
+        NavigationSession& session;
+        const NavigationRuntimeState& runtime;
+        const NaviPosition& position;
+        const RouteMeasurement& route;
+        const NaviParam& param;
+        size_t anchor_index = 0;
+        const Waypoint& anchor;
+        const std::function<void()>& halt;
+    };
 
-    NavRunReplanReason detectReplanTrigger(const RouteTrackingState& route, std::chrono::steady_clock::time_point now) const;
+    // 同步规划的耗时计入 result.planning, 并把 now 顺延同样的时长
+    bool buildPlan(const TickInput& input, NavRunReplanReason reason, std::chrono::steady_clock::time_point& now, NavRunTickResult& result);
+    bool ensurePlan(const TickInput& input, std::chrono::steady_clock::time_point& now, NavRunTickResult& result);
+    // 重建成功时返回触发原因, 否则返回 None
+    NavRunReplanReason
+        softReplanIfDue(const TickInput& input, double cross_track, std::chrono::steady_clock::time_point& now, NavRunTickResult& result);
+    void trackProgress(double remaining, std::chrono::steady_clock::time_point now);
+    void restartProgressWatch(std::chrono::steady_clock::time_point now);
 
-    double chooseLookaheadDistance(const RouteTrackingState& route, std::optional<double> step) const;
+    NavRunReplanReason detectReplanTrigger(const RouteMeasurement& route, std::chrono::steady_clock::time_point now) const;
+
+    double chooseLookaheadDistance(const RouteMeasurement& route, std::optional<double> step) const;
     double chooseTurnCommitDistance(double lookahead_distance, std::optional<double> step) const;
 
     void recordSpeedSample(const NaviPosition& position, std::chrono::steady_clock::time_point now);

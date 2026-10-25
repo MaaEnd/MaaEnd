@@ -2,7 +2,7 @@
 
 This document explains the file distribution and execution flow of `DijiangRewards`.  
 The core design is "Control Nexus dispatching + sub-stage jump-back": each sub-stage is independent, and options only modify stage entry points or branches without altering the main flow skeleton.  
-This document was updated on October 17, 2026.
+This document was updated on October 25, 2026.
 
 ## File Paths
 
@@ -84,6 +84,10 @@ Implemented in `ReceptionRoom.json`. When clues overflow, enter the gifting proc
 | `QuickGiveDuplicateClues=Yes` | Prefer the one-click "Give Away All Duplicates" action after entering the Send Clues screen |
 
 The attempt limit modifies the `max_hit` of the gifting loop; the inventory threshold modifies the quantity OCR regex.
+
+Both entry points (`ClueSend.MaxClueSend` and `CreditShoppingClueSend.MaxClueSendWhenInsufficient`) write the same `ReceptionRoomSendCluesSendMain.max_hit`, and their accepted range is `0`–`20` (matching the per-clue stock limit of 20). `0` means never send.
+
+Note that `max_hit` counts gifting-loop iterations, including rounds where none of the seven clue types meets the threshold, so it is not equal to the number of clues actually sent.
 
 ### Growth Chamber Options
 

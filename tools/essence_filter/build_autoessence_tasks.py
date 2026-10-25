@@ -73,10 +73,19 @@ OCR_TEXT_OVERRIDE = {
 }
 
 LOCATION_KEY_RE = re.compile(r'"((?:[^"\\]|\\.)*)"\s*:\s*"([A-Za-z0-9]+)"')
-ANCHOR_BLOCK_RE = re.compile(
-    r'(?P<indent>[ \t]*)"GotoTriggerPointSetAnchor_[A-Za-z0-9]+",?\n'
-    r'(?:[ \t]*"GotoTriggerPointSetAnchor_[A-Za-z0-9]+",?\n)*'
-)
+ANCHOR_NODE_PREFIX = "GotoTriggerPointSetAnchor_"
+TELEPORT_NODE_PREFIX = "GotoTriggerPointMaybeTeleport_"
+
+
+def _node_block_re(prefix: str) -> re.Pattern[str]:
+    return re.compile(
+        rf'(?P<indent>[ \t]*)"{prefix}[A-Za-z0-9]+",?\n'
+        rf'(?:[ \t]*"{prefix}[A-Za-z0-9]+",?\n)*'
+    )
+
+
+ANCHOR_BLOCK_RE = _node_block_re(ANCHOR_NODE_PREFIX)
+TELEPORT_BLOCK_RE = _node_block_re(TELEPORT_NODE_PREFIX)
 IMPORT_BLOCK_RE = re.compile(
     r'(?P<indent>[ \t]*)"tasks/AutoEssence/AutoEssence\.json",\n'
     r'(?:[ \t]*"tasks/AutoEssence/Location/[A-Za-z0-9]+\.json",\n)*'
@@ -413,15 +422,24 @@ def strip_choose_location(text: str) -> str:
     return text[:line_start] + rest
 
 
-def sync_anchor_list(text: str, keys: list[str]) -> str:
-    matches = list(ANCHOR_BLOCK_RE.finditer(text))
+def _sync_node_list(text: str, pattern: re.Pattern[str], prefix: str, keys: list[str], label: str) -> str:
+    matches = list(pattern.finditer(text))
     if len(matches) != 1:
-        raise ValueError(f"淤积点 sub 列表应只有 1 处，实际 {len(matches)}")
+        raise ValueError(f"{label}应只有 1 处，实际 {len(matches)}")
     indent = matches[0].group("indent")
-    lines = [f'{indent}"GotoTriggerPointSetAnchor_{key}"' for key in keys]
+    lines = [f'{indent}"{prefix}{key}"' for key in keys]
     block = ",\n".join(lines) + "\n"
     match = matches[0]
     return text[: match.start()] + block + text[match.end() :]
+
+
+def sync_anchor_list(text: str, keys: list[str]) -> str:
+    return _sync_node_list(text, ANCHOR_BLOCK_RE, ANCHOR_NODE_PREFIX, keys, "淤积点 sub 列表")
+
+
+def sync_teleport_reset_list(text: str, keys: list[str]) -> str:
+    """AutoEssenceDispatcher 每轮清零各地区传送节点的命中次数，列表须覆盖全部地区。"""
+    return _sync_node_list(text, TELEPORT_BLOCK_RE, TELEPORT_NODE_PREFIX, sorted(keys), "传送节点清零列表")
 
 
 def sync_interface_imports(text: str, keys: list[str]) -> str:
@@ -544,7 +562,8 @@ def main() -> int:
         written.append(INTERFACE_PATH)
 
     pipeline_text, pipeline_newline = _normalize(PIPELINE_PATH.read_text(encoding="utf-8"))
-    if _replace_file(PIPELINE_PATH, sync_anchor_list(pipeline_text, keys), pipeline_newline):
+    pipeline_text = sync_teleport_reset_list(sync_anchor_list(pipeline_text, keys), keys)
+    if _replace_file(PIPELINE_PATH, pipeline_text, pipeline_newline):
         written.append(PIPELINE_PATH)
 
     for locale_name in sync_weapon_locales(weapons):

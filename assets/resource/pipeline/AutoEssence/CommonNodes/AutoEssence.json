@@ -73,7 +73,8 @@
                         "GotoTriggerPointSetAnchor_WLSwordVaultDale",
                         "GotoTriggerPointSetAnchor_WLYinglungPass",
                         "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone",
-                        "GotoTriggerPointSetAnchor_WLSnowyForest"
+                        "GotoTriggerPointSetAnchor_WLSnowyForest",
+                        "GotoTriggerPointSetAnchor_WLSisPainting"
                     ],
                     "continue": false,
                     "strict": true,
@@ -210,6 +211,7 @@
                         "GotoTriggerPointMaybeTeleport_WLMarkerStone",
                         "GotoTriggerPointMaybeTeleport_WLNorthWulingExclusionZone",
                         "GotoTriggerPointMaybeTeleport_WLQingboStockade",
+                        "GotoTriggerPointMaybeTeleport_WLSisPainting",
                         "GotoTriggerPointMaybeTeleport_WLSnowyForest",
                         "GotoTriggerPointMaybeTeleport_WLSwordVaultDale",
                         "GotoTriggerPointMaybeTeleport_WLTestArea",

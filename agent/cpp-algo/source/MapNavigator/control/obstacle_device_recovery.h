@@ -16,7 +16,7 @@ class MotionController;
 class PositionProvider;
 class RoiTemplateScanner;
 struct NavigationSession;
-struct RouteTrackingState;
+struct RouteMeasurement;
 
 // 除 NotAttempted 外都已跑过子任务并用掉这次机会
 enum class DeviceRemovalOutcome
@@ -42,18 +42,18 @@ public:
     ObstacleDeviceRecovery& operator=(const ObstacleDeviceRecovery&) = delete;
 
     // base_roi 取自 pipeline 节点, 交互按钮模板缺失时探测不启动
-    void Start(const cv::Rect& base_roi);
-    void Stop();
+    void start(const cv::Rect& base_roi);
+    void stop();
 
     // 只有已启动且正在喂帧时才生效
-    void SubmitFrame(const cv::Mat& frame);
+    void submitFrame(const cv::Mat& frame);
 
-    void UpdateFeeding(int64_t stalled_ms, bool attempt_available);
+    void updateFeeding(int64_t stalled_ms, bool attempt_available);
 
     // 锚点变化时调用方须清掉旧的命中
-    void ForgetObservation();
+    void forgetObservation();
 
-    DeviceRemovalOutcome TryRemove(const RouteTrackingState& route, const Waypoint& waypoint, bool attempt_available);
+    DeviceRemovalOutcome tryRemove(const RouteMeasurement& route, const Waypoint& waypoint, bool attempt_available);
 
 private:
     MaaContext* maa_context_;

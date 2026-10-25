@@ -14,118 +14,118 @@ ActionWrapper::ActionWrapper(MaaContext* context)
 
 ActionWrapper::~ActionWrapper() = default;
 
-MaaController* ActionWrapper::GetCtrl() const
+MaaController* ActionWrapper::getCtrl() const
 {
-    return backend_->GetCtrl();
+    return backend_->getCtrl();
 }
 
-const char* ActionWrapper::controller_type() const
+const char* ActionWrapper::controllerType() const
 {
-    return backend_->ControllerType().c_str();
+    return backend_->controllerType().c_str();
 }
 
-bool ActionWrapper::uses_touch_backend() const
+bool ActionWrapper::usesTouchBackend() const
 {
-    return backend_->UsesTouchBackend();
+    return backend_->usesTouchBackend();
 }
 
-bool ActionWrapper::is_supported() const
+bool ActionWrapper::isSupported() const
 {
-    return backend_->IsSupported();
+    return backend_->isSupported();
 }
 
-const char* ActionWrapper::unsupported_reason() const
+const char* ActionWrapper::unsupportedReason() const
 {
-    return backend_->UnsupportedReason().c_str();
+    return backend_->unsupportedReason().c_str();
 }
 
-double ActionWrapper::DefaultTurnUnitsPerDegree() const
+double ActionWrapper::defaultTurnUnitsPerDegree() const
 {
     // 灵敏度校正系数只在这里和下面的俯仰处乘
-    return backend_->DefaultTurnUnitsPerDegree() * sensitivity::TurnUnitsScale();
+    return backend_->defaultTurnUnitsPerDegree() * sensitivity::TurnUnitsScale();
 }
 
-double ActionWrapper::DefaultPitchUnitsPerDegree() const
+double ActionWrapper::defaultPitchUnitsPerDegree() const
 {
     // 游戏视角灵敏度两轴共用, 偏航测出的倍率俯仰照乘
-    return backend_->DefaultPitchUnitsPerDegree() * sensitivity::TurnUnitsScale();
+    return backend_->defaultPitchUnitsPerDegree() * sensitivity::TurnUnitsScale();
 }
 
-SteeringTransportProfile ActionWrapper::SteeringProfile() const
+SteeringTransportProfile ActionWrapper::steeringProfile() const
 {
-    return backend_->SteeringProfile();
+    return backend_->steeringProfile();
 }
 
-bool ActionWrapper::SupportsSprint() const
+bool ActionWrapper::supportsSprint() const
 {
-    return backend_->SupportsSprint();
+    return backend_->supportsSprint();
 }
 
-bool ActionWrapper::SupportsWalkToggle() const
+bool ActionWrapper::supportsWalkToggle() const
 {
-    return backend_->SupportsWalkToggle();
+    return backend_->supportsWalkToggle();
 }
 
-void ActionWrapper::SetMovementStateSync(MovementState state, int delay_millis)
+void ActionWrapper::setMovementStateSync(MovementState state, int delay_millis)
 {
-    backend_->SetMovementStateSync(state, delay_millis);
+    backend_->setMovementStateSync(state, delay_millis);
 }
 
-void ActionWrapper::TriggerJumpSync(int hold_millis)
+void ActionWrapper::triggerJumpSync(int hold_millis)
 {
-    backend_->TriggerJumpSync(hold_millis);
+    backend_->triggerJumpSync(hold_millis);
 }
 
-void ActionWrapper::TriggerInteractSync(int hold_millis)
+void ActionWrapper::triggerInteractSync(int hold_millis)
 {
-    backend_->TriggerInteractSync(hold_millis);
+    backend_->triggerInteractSync(hold_millis);
 }
 
-void ActionWrapper::PulseForwardSync(int hold_millis)
+void ActionWrapper::pulseForwardSync(int hold_millis)
 {
-    backend_->PulseForwardSync(hold_millis);
+    backend_->pulseForwardSync(hold_millis);
 }
 
-void ActionWrapper::TriggerSprintSync()
+void ActionWrapper::triggerSprintSync()
 {
-    backend_->TriggerSprintSync();
+    backend_->triggerSprintSync();
 }
 
-void ActionWrapper::ToggleWalkModeSync()
+void ActionWrapper::toggleWalkModeSync()
 {
-    backend_->ToggleWalkModeSync();
+    backend_->toggleWalkModeSync();
 }
 
-void ActionWrapper::ResetForwardWalkSync(int release_millis)
+void ActionWrapper::resetForwardWalkSync(int release_millis)
 {
-    backend_->ResetForwardWalkSync(release_millis);
+    backend_->resetForwardWalkSync(release_millis);
 }
 
-void ActionWrapper::ClickMouseLeftSync()
+void ActionWrapper::clickMouseLeftSync()
 {
-    backend_->ClickMouseLeftSync();
+    backend_->clickMouseLeftSync();
 }
 
-void ActionWrapper::TriggerZiplineLaunchSync()
+void ActionWrapper::triggerZiplineLaunchSync()
 {
-    backend_->TriggerZiplineLaunchSync();
+    backend_->triggerZiplineLaunchSync();
 }
 
-void ActionWrapper::TriggerZiplineDismountSync(int hold_millis)
+void ActionWrapper::triggerZiplineDismountSync(int hold_millis)
 {
-    backend_->TriggerZiplineDismountSync(hold_millis);
+    backend_->triggerZiplineDismountSync(hold_millis);
 }
 
-bool ActionWrapper::SendViewDeltaSync(int dx, int dy)
+bool ActionWrapper::sendViewDeltaSync(int dx, int dy)
 {
-    const bool sent = backend_->SendViewDeltaSync(dx, dy);
-    const double units_per_degree = DefaultTurnUnitsPerDegree();
+    const bool sent = backend_->sendViewDeltaSync(dx, dy);
+    const double units_per_degree = defaultTurnUnitsPerDegree();
     if (sent && dx != 0 && units_per_degree > 0.0) {
         sensitivity::NoteTurnIssued(static_cast<double>(dx) / units_per_degree);
     }
     // 送失败的拖拽也可能已动了视角, 照样记一次
     if (dx != 0) {
-        NoteHeadingDisturbed();
+        noteHeadingDisturbed();
     }
     return sent;
 }

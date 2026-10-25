@@ -22,7 +22,7 @@ constexpr double kTurnLatchExitDeg = 120.0;
 
 } // namespace
 
-SteeringCommand SteeringController::Update(
+SteeringCommand SteeringController::update(
     double heading_error,
     double heading_rate_deg,
     bool moving_forward,

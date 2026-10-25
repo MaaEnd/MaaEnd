@@ -1,8 +1,8 @@
 {
-    "VisitFriendsEnterShipPriorityRemark": {
-        "desc": "白名单链路：点击进船按钮进入好友船（target 取自 PriorityRemark 的飞船框）",
+    "VisitFriendsEnterShipPriority": {
+        "desc": "白名单链路：点击进船按钮进入好友船（target 取自 Priority 的飞船框）",
         "action": "Click",
-        "target": "VisitFriendsMenuScanTargetFriendOpenPriorityRemark",
+        "target": "VisitFriendsMenuScanTargetFriendOpenPriority",
         "target_offset": [
             5,
             5,

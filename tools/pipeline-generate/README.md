@@ -7,7 +7,8 @@ MaaEnd 使用由 zmdmap 数据 CI 生成并发布的精简游戏数据，落在 
 - `environment_monitoring.json`：监测终端、观察点与各语言名称；
 - `sell_product.json`：据点、可售物品、据点特性与匹配干员；
 - `teleport_anchors.json`：营地（地图传送锚点）的底图像素 `u` / `v`、传送 ID，以及所在区域与关卡的各语言名称；
-- `collect_points.json`：可交互采集物的底图像素 `u` / `v` 与世界高度 `y`，以及按采集物类别列出的产物、采集方式、图标、各语言名称与产物的类型、展示分类、稀有度。
+- `collect_points.json`：可交互采集物的底图像素 `u` / `v` 与世界高度 `y`，以及按采集物类别列出的产物、采集方式、图标、各语言名称与产物的类型、展示分类、稀有度；
+- `energy_points.json`：基质刷取各地区激发点的底图像素 `u` / `v` 与世界高度 `y`。
 
 这些文件都是按任务需要裁剪出的游戏数据，不是完整的上游数据快照：除了最前面的两个元数据字段（`version`：这份数据来自哪一版游戏数据；`sha256`：这份数据**原始形态**（只带世界坐标的那一份）的内容指纹，入库投影后照抄、不重算），不放别的来源元数据，字段说明也不放进 JSON（字段含义见 [`tools/zmdmap`](../zmdmap/README.md) 与各数据集模块）。
 
@@ -50,6 +51,7 @@ pnpm generate:EnvironmentMonitoring
 pnpm generate:OutpostTrading
 pnpm generate:SeizeDeliveryJobs
 pnpm generate:SceneTeleport
+pnpm generate:AutoEssence
 ```
 
 ## 投影
@@ -62,7 +64,7 @@ pnpm generate:SceneTeleport
 
 ## 本地生成脚本
 
-`datasets/`（一份数据一个模块）与下载/入库统一放在 [`tools/zmdmap`](../zmdmap/README.md)，入口是 `uv run zmdmap`（子命令 `generate` / `fetch`）。生成只读本地兄弟仓库：各数据集的 `Dataset.build` 通过 `utils/game_data.py` 读 `BeyondTableCfg/TableCfg` 与 `BeyondMemoryPack/JsonData`（记录取值、关卡索引也在那里）；路径与语言表这类静态配置在 `utils/config.py`，其余共用件在 `utils/`。
+`datasets/`（一份数据一个模块或文件夹）与下载/入库统一放在 [`tools/zmdmap`](../zmdmap/README.md)，入口是 `uv run zmdmap`（子命令 `generate` / `fetch`）。生成只读本地兄弟仓库：各数据集的 `Dataset.build` 在参数上声明要读的输入，`generate` 按签名注入 `BeyondTableCfg/TableCfg` 与 `BeyondMemoryPack/JsonData`（`table_cfg` / `json_data`，记录取值与关卡索引都在服务里）；`region3d` 还声明 `lua` / `assets`，对应 `BeyondLua/LuaScripts` 与 `BeyondImage/assets`。路径与语言表这类静态配置在 `utils/config.py`，其余共用件在 `utils/`。
 
 默认按当前 MaaEnd 仓库的兄弟目录解析输入，因此各仓库位于同一 `Endfield` 目录时无需传路径：
 

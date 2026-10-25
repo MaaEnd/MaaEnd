@@ -2486,18 +2486,29 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     if (dg.escalate) {
         return std::nullopt;
     }
-    for (const std::vector<int64_t>& ch : linkChains(chan0, lends)) {
-        openc(limw, ch);
-    }
+    // 接不到宽处的端点(窄路上的跳边)退一步接到中轴
+    const Mask medial = limw;
+    const auto chainOpen = [&](const std::vector<int64_t>& ends) {
+        const std::vector<std::vector<int64_t>> wide = linkChains(chan0, ends);
+        std::vector<int64_t> miss;
+        for (size_t i = 0; i < ends.size(); ++i) {
+            if (wide[i].empty() && chan0.v[static_cast<size_t>(ends[i])] == 0) {
+                miss.push_back(ends[i]);
+            }
+            openc(limw, wide[i]);
+        }
+        for (const std::vector<int64_t>& ch : linkChains(medial, miss)) {
+            openc(limw, ch);
+        }
+    };
+    chainOpen(lends);
     if (!info.links_cell.empty() && !linked(limw)) {
         lends.clear();
         for (const JumpEdges::Edge& e : info.links_cell.e) {
             lends.push_back(e.src);
             lends.push_back(e.dst);
         }
-        for (const std::vector<int64_t>& ch : linkChains(chan0, lends)) {
-            openc(limw, ch);
-        }
+        chainOpen(lends);
     }
     chan0 = Mask();
     std::optional<Topo> vv = solve(limw, multw, bn, bpw, false);

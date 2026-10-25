@@ -33,13 +33,13 @@ public:
     RoiTemplateScanner& operator=(const RoiTemplateScanner&) = delete;
 
     // 不阻塞, 后台线程忙时新帧覆盖待处理帧
-    void SubmitFrame(const cv::Mat& frame);
+    void submitFrame(const cv::Mat& frame);
 
     // 每次检测只返回一次 true, 读即清除
-    bool ConsumeDetection();
+    bool consumeDetection();
 
 private:
-    void WorkerLoop();
+    void workerLoop();
 
     std::string tag_;
     cv::Rect base_roi_;

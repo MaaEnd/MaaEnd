@@ -20,7 +20,7 @@ from pathlib import Path
 
 import msgspec
 
-from .config import WORKSPACE_REPO_NAMES
+from .config import DATA_REPO_NAMES, WORKSPACE_REPO_NAMES
 from .log import logger
 from .workspace import git
 
@@ -202,13 +202,16 @@ def data_version_from_path(*paths: Path) -> str | None:
 def data_version(workspace: Path) -> str | None:
     """工作区下兄弟仓库的游戏数据版本（``1.6.3+11010254-4``），读不到返回 ``None``。
 
-    每个仓库都先看**数据**里的构建号、再退回提交标题（见 :func:`repo_data_version`），几个仓库
-    **取最新的那一份**（:func:`version_order`）—— 两个仓库通常一起解包，落后的一方不该把版本标签拉回去。
-    数据文件里的 ``version`` 字段就是这个值：给 ``zmdmap generate`` 用，免得每份数据各写各的版本，
-    也免得另外维护一份「当前是哪一版」的记录。
+    只看数据仓库（:data:`~tools.zmdmap.utils.config.DATA_REPO_NAMES`）：每个都先看**数据**里的构建号、
+    再退回提交标题（见 :func:`repo_data_version`），几个仓库**取最新的那一份**（:func:`version_order`）
+    —— 它们通常一起解包，落后的一方不该把版本标签拉回去。数据文件里的 ``version`` 字段就是这个值：
+    给 ``zmdmap generate`` 用，免得每份数据各写各的版本，也免得另外维护一份「当前是哪一版」的记录。
+
+    解包的 Lua / 资源仓库不参与定版本（它们不产出数据本体），但版本对不上时会给一句提示：region3d
+    读的是它们，落后一版就会拿旧常量与旧 prefab 算坐标。
     """
     found: list[tuple[str, str]] = []
-    for name in WORKSPACE_REPO_NAMES:
+    for name in DATA_REPO_NAMES:
         version = repo_data_version(workspace / name)
         if version:
             found.append((name, version))
@@ -221,5 +224,13 @@ def data_version(workspace: Path) -> str | None:
             f"兄弟仓库数据版本不一致：{detail}；取最新的 {newest[1]}（{newest[0]}）。"
             "两侧停在不同批次时可以先跑 uv run zmdmap generate --sync"
         )
+    for name in WORKSPACE_REPO_NAMES:
+        if name in DATA_REPO_NAMES:
+            continue
+        version = repo_data_version(workspace / name)
+        if version and version != newest[1]:
+            logger.warning(
+                f"{name} 的数据版本是 {version}，与这批数据的 {newest[1]} 不一致："
+                "region3d 读的是它，对不上会让坐标和常量错位，先跑 uv run zmdmap generate --sync 对齐"
+            )
     return newest[1]
-

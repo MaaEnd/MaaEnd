@@ -11,7 +11,7 @@ MaaEnd 的几个任务要读游戏里的物品名、商店货架、采集点、�
 上游发布好的数据 ──────fetch───────┘
 ```
 
-- `uv run zmdmap generate`：从本地的游戏数据生成（需要 TableCfg / JsonData 两个目录）。
+- `uv run zmdmap generate`：从本地的游戏数据生成（每份数据都读 TableCfg；`collect_points` / `delivery_destinations` / `energy_points` / `teleport_anchors` 还要 JsonData，`region3d` 还要 Lua 脚本与解包资源）。
 - `uv run zmdmap fetch`：从上游下载已经发布好的数据（数据 CI 用 `generate` 生成并发布的就是它）。
 
 `python -m tools.zmdmap` 和 `uv run zmdmap` 等价。
@@ -37,19 +37,24 @@ MaaEnd 的几个任务要读游戏里的物品名、商店货架、采集点、�
 
 ## 一次 `generate` 到底做了什么
 
-1. **确认输入。** TableCfg（表格）和 JsonData（关卡地图、交互模板）默认取 MaaEnd 旁边同级的兄弟仓库
-   `BeyondTableCfg` / `BeyondMemoryPack`，也可以用 `--table-cfg-dir` / `--json-data-dir` 指到别处。
+1. **确认输入。** TableCfg（表格）默认取 MaaEnd 旁边同级的兄弟仓库 `BeyondTableCfg`，也可以用
+   `--table-cfg-dir` 指到别处；要读关卡地图与交互模板的那四份（`collect_points` /
+   `delivery_destinations` / `energy_points` / `teleport_anchors`）还要 JsonData，默认取 `BeyondMemoryPack/JsonData`，
+   用 `--json-data-dir` 覆盖。`region3d` 还要解包出的 Lua 脚本与 Unity 资源，默认取
+   `BeyondLua/LuaScripts` / `BeyondImage/assets`，用 `--lua-dir` / `--assets-dir` 覆盖。
+   用不到的输入既不检查也不索要：缺什么、怎么补，都由这次选中的数据集声明决定。
 2. **定版本。** 每份数据最前面写的 `version` 必须是完整的「客户端版本 + 数据构建号」，比如
    `1.6.4+11262943-8`；凑不齐就直接报错，不生成版本不全的数据。发布端从版本接口拿到这两个号，用 `--version`
    显式传进来；本地不给 `--version` 时，客户端版本看兄弟仓库的提交标题（`Client:` 那段），构建号优先看
    `.beyond/ledger`（revert 提交也骗不过它），没有 ledger 就看提交标题的 `Data:`。数据目录路径里的
    `initial_…_main_…` 只有构建号，单独用不了。
-3. **生成原始形态。** 11 份数据各自从表格里取数，结果写进 `data/raw/`（只有世界坐标），同时算好 `sha256`。
+3. **生成原始形态。** 12 份数据各自从输入里取数，结果写进 `data/raw/`，同时算好 `sha256`。
    顺手写一份 `manifest.json`，说明这次发的是哪几份、每份的内容指纹 —— 就是 `fetch` 第 1 步看的那份。
 4. **入库。** 和 `fetch` 第 5 步完全一样。
 
-`--raw-only` 只做前 3 步（发布上游要的就是这一份）；`--sync` 会先把兄弟仓库快进到最新（只快进，不会 stash
-或者覆盖本地改动）；`--dry-run` 打印完计划就退出。
+`--raw-only` 只做前 3 步（发布上游要的就是这一份）；`--sync` 会先把四个兄弟仓库快进到最新——`BeyondTableCfg`、
+`BeyondMemoryPack`，以及 `region3d` 要读的 `BeyondLua`、`BeyondImage`（只快进，不会 stash 或者覆盖本地改动；
+资源仓库 20 GB 以上，这一步会连它的 LFS 内容一起更新，慢是正常的）；`--dry-run` 打印完计划就退出。
 
 ## 数据文件长什么样
 
@@ -99,6 +104,8 @@ uv run zmdmap generate                             # 从本地游戏数据生成
 uv run zmdmap generate --raw-only                  # 只出原始形态（发布用的那一份）
 uv run zmdmap generate --version 1.6.4+11262943-8  # 手动指定版本
 uv run zmdmap generate --list                      # 列出有哪些数据、各自怎么入库
+uv run zmdmap generate --only region3d \
+  --lua-dir ../BeyondLua/LuaScripts --assets-dir ../BeyondImage/assets  # 只要地区总览
 ```
 
 两个子命令都支持 `--only`（可重复给）、`--dry-run`、`--force` 和 `--nav`。
@@ -111,7 +118,8 @@ uv run zmdmap generate --list                      # 列出有哪些数据、各
 | `generate.py` | `generate` 子命令：生成原始形态、写版本与清单，再入库 |
 | `fetch.py` | `fetch` 子命令：读清单、下载、核对内容，再入库 |
 | `materialize.py` | 入库：带坐标的投影，其余原样复制 |
-| `datasets/` | 11 份数据，一个模块一份；`base.py` 是它们的基类 |
+| `datasets/` | 12 份数据，一个模块或一个文件夹一份；`base.py` 是它们的基类 |
+| `datasets/region3d/` | 地区总览：模块多，收进同一个文件夹；说明见里面的 `README.md` |
 | `utils/` | 共用件，见下表 |
 | `data/raw/` | 原始形态，本地缓存（不进 git），删掉不影响判断 |
 | `data/` | 入库后的数据，任务读的就是这里，进 git |
@@ -133,33 +141,43 @@ uv run zmdmap generate --list                      # 列出有哪些数据、各
 | `errors.py` | `LocalDataError`：本地数据缺失或形状不对 |
 | `shapes.py` | 少数「必须原样保留未知字段」的地方用的收窄助手 |
 
-## 有哪 11 份数据
+## 有哪 13 份数据
 
 | 数据 | 内容 | 入库方式 |
 | --- | --- | --- |
 | `collect_points.json` | 可拾取 / 可打碎的采集物 | 投影 |
 | `delivery_destinations.json` | 送货目的地：收货 NPC、回收站、仓储节点 | 投影 |
+| `energy_points.json` | 基质刷取路线的激发点 | 投影 |
 | `teleport_anchors.json` | 营地（传送锚点） | 投影 |
 | `delivery_jobs.json` | 运送委托：地区、仓储节点、能装的物品 | 复制 |
 | `energy_point_gems.json` | 基质筛选的能量淤积点 | 复制 |
 | `environment_monitoring.json` | 环境监测的终端与观察点 | 复制 |
 | `item_mini_table.json` | 背包物品 → 图标、分类、五语名字 | 复制 |
 | `operator_growth.json` | 干员培养到目标状态要的素材 | 复制 |
+| `region3d.json` | 地区总览：每个子区域的 720p 多边形与点击点（另需 Lua / 解包资源） | 复制 |
 | `sell_product.json` | 据点售卖物品与匹配干员 | 复制 |
 | `stock_staple.json` | 地区商店会周期补货的物资 | 复制 |
 | `weapons.json` | 武器（含还没上线的前瞻武器） | 复制 |
 
-`uv run zmdmap generate --list` 打印每个数据集的名字、产物文件名和入库方式。
+`uv run zmdmap generate --list` 打印每个数据集的名字、产物文件名和入库方式（要额外输入的会注明）。
+
+`region3d` 的生成时机、输入和产物形状见 [`datasets/region3d/README.md`](datasets/region3d/README.md)。
 
 ## 想加一份新数据
 
-1. 在 `datasets/` 下新建一个模块，名字就是数据名（也决定产物文件名）。
-2. 在里面定义 `Dataset` 的子类，实现 `build(table_cfg_dir, json_data_dir)` —— 只用得到一个目录的也照这个签名写。
-3. 需要投影就把 `needs_projection` 设成真，并用 `projection_containers` 列出条目数组在数据里的键；只读
-   TableCfg 的话不用动 `requires_json_data`（默认就是「不读 JsonData」）。
+1. 在 `datasets/` 下新建一个模块，名字就是数据名（也决定产物文件名，如 `datasets/foo.py` → `foo.json`）。
+   一份数据要拆成好几个模块时改建成文件夹（如 `datasets/region3d/`），文件夹名就是数据名。
+2. 在里面定义 `Dataset` 的子类，实现 `@classmethod build`：参数写要用的输入服务，`generate` 按签名注入。
+   写类型注解（`table_cfg: TableCfg`、`json_data: JsonData`、`lua: LuaScripts`、`assets: Assets`）或直接
+   用同名参数都行，参数名可以和类型不同（`tables: TableCfg` 也认）；只声明自己要的，没写的不会被传进来。
+   读表、查文本、读资源都由这些对象负责，数据集里不拼文件系统路径（要换来源就给个同接口的对象）。
+   文件夹数据集把子类写在 `__init__.py` 里。
+3. 需要投影就把 `needs_projection` 设成真，并用 `projection_containers` 列出条目数组在数据里的键。
+   读不读 JsonData / Lua / 解包资源由 `build` 的参数决定：声明了 `json_data` 就会检查 JsonData 目录，
+   声明了 `lua` / `assets` 才会检查那两个目录，不用另写开关。
 
-`datasets/__init__.py` 会自己扫到这个模块，没有需要手工维护的登记表。多语言名字、关卡索引这些各家都要的
-手法写在基类上（`localized_names` / `level_index`），不用各抄一份。
+`datasets/__init__.py` 会自己扫到这个模块或文件夹，没有需要手工维护的登记表；`build` 的参数写错了会在
+扫包时报出来。多语言名字在基类上（`localized_names`），关卡索引在 `json_data.level_index()`，不用各抄一份。
 
 ## 出问题的时候
 
@@ -168,6 +186,9 @@ uv run zmdmap generate --list                      # 列出有哪些数据、各
 | 提示 | 怎么处理 |
 | --- | --- |
 | `缺少 TableCfg 目录` / `缺少 JsonData 目录` | 用 `--table-cfg-dir` / `--json-data-dir`（或环境变量）指到游戏数据解包后的目录 |
+| `缺少 LuaScripts 目录` / `缺少解包资源目录` | 只有 `region3d` 要它们；用 `--lua-dir` / `--assets-dir`（或环境变量）指到解包结果 |
+| `build 参数 'xxx' 没有对应的输入服务` | 数据集自己写错了：改注解（`TableCfg` / `JsonData` / `LuaScripts` / `Assets`）或改成同名参数 |
+| `旧 RAW 导出格式不再支持` | `region3d` 只认新包导出（嵌套 GameObject 的 JSON），把 `assets/` 重新解包成新格式 |
 | `上游还没有发布 xxx.json，跳过` | 那一份上游还没发，本地可以先 `uv run zmdmap generate --only xxx` 生成 |
 | `清单（…）里没有这一份，本地也没有` | 上游这批没发它，等发完再 fetch；本地也可以先 `uv run zmdmap generate --only xxx` |
 | `与清单不符` | 上游发布的那份和清单写的不一致（地址由指纹决定，所以不是缓存问题）；确认内容没问题后可以加 `--force` 照收，或者等上游重新发布 |

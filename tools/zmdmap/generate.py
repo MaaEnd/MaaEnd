@@ -1,4 +1,7 @@
-"""``zmdmap generate``：从本地 TableCfg / JsonData 生成精简数据，再入库。
+"""``zmdmap generate``：从本地游戏数据生成精简数据，再入库。
+
+每份数据集读哪些目录（TableCfg / JsonData / LuaScripts / 解包资源）由它 ``build`` 的参数决定，
+用不到的不检查也不索要。
 
 各份数据一律先出原始形态（只带游戏世界坐标）进 ``--out-dir``，再入库到 ``--data-dir``：需要投影的按
 BaseNav 的 zone 表补上底图像素，不需要投影的原样复制；``--raw-only`` 时只出原始形态。
@@ -21,14 +24,18 @@ import click
 from .datasets import DATASET_NAMES, DATASETS, Dataset, files_of, select_datasets
 from .materialize import copy_plain, report_data_changes, run_projection
 from .utils.config import (
+    ASSETS_DIR_ENV,
     DEFAULT_OUT_DIR,
     DEFAULT_WORKSPACE,
     JSON_DATA_DIR_ENV,
+    LUA_DIR_ENV,
     MANIFEST_FILE,
     TABLE_CFG_DIR_ENV,
     WORKSPACE_ENV,
     ZMDMAP_DATA_DIR,
+    assets_dir_in,
     json_data_dir_in,
+    lua_dir_in,
     table_cfg_dir_in,
 )
 from .utils.datafile import (
@@ -38,6 +45,8 @@ from .utils.datafile import (
     with_metadata,
     write_json,
 )
+from .utils.injection import SERVICE_OPTIONS, Injection, InjectionError, parse_injection
+from .utils.inputs import Assets, JsonData, LuaScripts, TableCfg
 from .utils.log import logger
 from .utils.version import (
     data_version,
@@ -71,9 +80,7 @@ def parameter_source(ctx: click.Context, name: str) -> str:
 
 def check_input_dir(label: str, path: Path, option: str, env_name: str) -> None:
     if not path.is_dir():
-        raise click.ClickException(
-            f"缺少{label}目录：{path}（用 {option} 或环境变量 {env_name} 指定）"
-        )
+        raise click.ClickException(f"缺少{label}目录：{path}（用 {option} 或环境变量 {env_name} 指定）")
 
 
 def write_manifest(out_dir: Path, file_names: Sequence[str], version: str | None) -> Path | None:
@@ -102,18 +109,25 @@ def write_manifest(out_dir: Path, file_names: Sequence[str], version: str | None
     return path
 
 
+def dataset_injection(dataset: type[Dataset]) -> Injection:
+    """解析一份数据的 ``build`` 签名；参数写错了按输入错误报出来，不抛栈。"""
+    try:
+        return parse_injection(dataset.build)
+    except InjectionError as error:
+        raise click.ClickException(f"[{dataset.name}] {error}") from error
+
+
 def generate_datasets(
     datasets: Sequence[type[Dataset]],
-    table_cfg_dir: Path,
-    json_data_dir: Path,
+    services: dict[str, Any],
     out_dir: Path,
-    data_dir: Path,
     *,
     version: str,
     force: bool,
 ) -> int:
     """跑 ``build`` 并把原始形态落到 ``out_dir``；返回成功生成的份数。
 
+    ``build`` 要哪些服务由它的参数决定（见 :func:`dataset_injection`），这里按参数名把服务传进去。
     每份数据都在最前面写上元数据：``version`` 是调用方定好的完整标签（``1.6.3+11010254-4``，客户端版本与
     构建号都在，调用前已校验）；``sha256`` 是这份数据原始形态的内容指纹，按这次生成的本体重算 —— 只有这里
     算它，入库与 ``fetch`` 都照抄。
@@ -121,8 +135,9 @@ def generate_datasets(
     written = 0
     for dataset in datasets:
         output_path = out_dir / dataset.file_name
+        kwargs = dataset_injection(dataset).kwargs(services)
         try:
-            data = dataset.build(table_cfg_dir, json_data_dir)
+            data = dataset.build(**kwargs)
         except (OSError, ValueError) as error:
             raise click.ClickException(f"[{dataset.name}] {error}") from error
         data = with_metadata(data, version)
@@ -161,6 +176,20 @@ def generate_datasets(
     help="BeyondMemoryPack 的 JsonData 目录（默认：<workspace>/BeyondMemoryPack/JsonData）",
 )
 @click.option(
+    "--lua-dir",
+    type=click.Path(path_type=Path, file_okay=False),
+    envvar=LUA_DIR_ENV,
+    default=None,
+    help="解包出的 LuaScripts 目录（默认：<workspace>/BeyondLua/LuaScripts；只有 region3d 数据集会读）",
+)
+@click.option(
+    "--assets-dir",
+    type=click.Path(path_type=Path, file_okay=False),
+    envvar=ASSETS_DIR_ENV,
+    default=None,
+    help="解包出的 Unity 资源根，里面是 assets/ 那棵树（默认：<workspace>/BeyondImage/assets；只有 region3d 会读）",
+)
+@click.option(
     "--out-dir",
     type=click.Path(path_type=Path, file_okay=False),
     default=DEFAULT_OUT_DIR,
@@ -180,7 +209,11 @@ def generate_datasets(
     multiple=True,
     help="只处理列出的数据集（可重复给；缺省全部）",
 )
-@click.option("--sync/--no-sync", default=False, help="生成前先同步兄弟仓库（只做快进合并）")
+@click.option(
+    "--sync/--no-sync",
+    default=False,
+    help="生成前先同步兄弟仓库（表 / JsonData / Lua / 解包资源，只做快进合并；资源仓库很大）",
+)
 @click.option(
     "--version",
     "data_version_option",
@@ -206,6 +239,8 @@ def generate_command(
     workspace: Path | None,
     table_cfg_dir: Path | None,
     json_data_dir: Path | None,
+    lua_dir: Path | None,
+    assets_dir: Path | None,
     out_dir: Path,
     data_dir: Path,
     only: tuple[str, ...],
@@ -221,22 +256,39 @@ def generate_command(
     if list_datasets:
         for dataset in DATASETS:
             how = "投影" if dataset.needs_projection else "复制"
-            logger.info(f"{dataset.name}\t{dataset.file_name}\t{how}")
+            injection = dataset_injection(dataset)
+            extra = "".join(
+                f"，另需 {SERVICE_OPTIONS[service]}" for service in injection.services if service != "table_cfg"
+            )
+            logger.info(f"{dataset.name}\t{dataset.file_name}\t{how}{extra}")
         return
 
     # click 的 envvar 已经把环境变量填进参数值了，这里只补最后的默认值。
     workspace = (workspace or DEFAULT_WORKSPACE).expanduser().resolve()
     table_cfg_dir = (table_cfg_dir or table_cfg_dir_in(workspace)).expanduser().resolve()
     json_data_dir = (json_data_dir or json_data_dir_in(workspace)).expanduser().resolve()
+    lua_dir = (lua_dir or lua_dir_in(workspace)).expanduser().resolve()
+    assets_dir = (assets_dir or assets_dir_in(workspace)).expanduser().resolve()
     out_dir = out_dir.expanduser().resolve()
     data_dir = data_dir.expanduser().resolve()
     datasets = select_datasets(only)
+    injections = {dataset: dataset_injection(dataset) for dataset in datasets}
+    needed = {service for injection in injections.values() for service in injection.services}
     pipeline_files = files_of(datasets, projected=True)
     plain_files = files_of(datasets, projected=False)
+    needs_json_data = "json_data" in needed
+    needs_lua = "lua" in needed
+    needs_assets = "assets" in needed
 
     logger.info(f"工作区（兄弟仓库）：{workspace}（{parameter_source(ctx, 'workspace')}）")
     logger.info(f"TableCfg：{table_cfg_dir}（{parameter_source(ctx, 'table_cfg_dir')}）")
-    logger.info(f"JsonData：{json_data_dir}（{parameter_source(ctx, 'json_data_dir')}）")
+    # 下面三样只有声明了对应参数的数据集才读；没选中它们时不打出来，免得让人以为每次生成都得挂着几十 GB 的解包资源。
+    if needs_json_data:
+        logger.info(f"JsonData：{json_data_dir}（{parameter_source(ctx, 'json_data_dir')}）")
+    if needs_lua:
+        logger.info(f"LuaScripts：{lua_dir}（{parameter_source(ctx, 'lua_dir')}）")
+    if needs_assets:
+        logger.info(f"解包资源：{assets_dir}（{parameter_source(ctx, 'assets_dir')}）")
     logger.info(f"数据集：{len(datasets)} 个（{'、'.join(d.name for d in datasets)}）")
 
     # 版本优先命令行；否则从兄弟仓库读（数据里的构建号 > 提交标题），工作区里没有兄弟仓库时退回
@@ -270,8 +322,12 @@ def generate_command(
             logger.info(f"[{mark}] {outcome.name:<20} {outcome.detail}")
 
     problems = preflight(
-        table_cfg_dir, json_data_dir, check_navmesh=not raw_only and bool(pipeline_files),
-        check_json_data=any(dataset.requires_json_data for dataset in datasets),
+        table_cfg_dir,
+        json_data_dir,
+        lua_dir=lua_dir if needs_lua else None,
+        assets_dir=assets_dir if needs_assets else None,
+        check_navmesh=not raw_only and bool(pipeline_files),
+        check_json_data=needs_json_data,
     )
     if problems:
         logger.section("预检提示")
@@ -292,8 +348,12 @@ def generate_command(
         return
 
     check_input_dir("TableCfg", table_cfg_dir, "--table-cfg-dir", TABLE_CFG_DIR_ENV)
-    if any(dataset.requires_json_data for dataset in datasets):
+    if needs_json_data:
         check_input_dir("JsonData", json_data_dir, "--json-data-dir", JSON_DATA_DIR_ENV)
+    if needs_lua:
+        check_input_dir("LuaScripts", lua_dir, "--lua-dir", LUA_DIR_ENV)
+    if needs_assets:
+        check_input_dir("解包资源", assets_dir, "--assets-dir", ASSETS_DIR_ENV)
 
     logger.section("生成（原始形态）")
     started = time.monotonic()
@@ -302,16 +362,17 @@ def generate_command(
     try:
         written = generate_datasets(
             datasets,
-            table_cfg_dir,
-            json_data_dir,
+            {
+                "table_cfg": TableCfg(table_cfg_dir),
+                "json_data": JsonData(json_data_dir),
+                "lua": LuaScripts(lua_dir),
+                "assets": Assets(assets_dir),
+            },
             out_dir,
-            data_dir,
             version=version,
             force=force,
         )
-        manifest_path = write_manifest(
-            out_dir, [dataset.file_name for dataset in datasets], version
-        )
+        manifest_path = write_manifest(out_dir, [dataset.file_name for dataset in datasets], version)
         if manifest_path is not None:
             logger.info(f"{MANIFEST_FILE} -> {manifest_path}")
     except click.ClickException as error:
@@ -346,9 +407,7 @@ def generate_command(
         logger.info("同步：未执行（--no-sync）")
     if generated_ok:
         unchanged = len(datasets) - written
-        logger.info(
-            f"生成：正常（{generate_seconds:.1f}s，重写 {written} 份、未变化 {unchanged} 份）"
-        )
+        logger.info(f"生成：正常（{generate_seconds:.1f}s，重写 {written} 份、未变化 {unchanged} 份）")
     else:
         logger.info(f"生成：失败（{generate_seconds:.1f}s）")
     if materialized_ok is None:
