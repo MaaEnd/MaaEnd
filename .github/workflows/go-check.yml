@@ -8,6 +8,9 @@ on:
       - ".github/workflows/go-check.yml"
       - "agent/go-service/**"
       - "assets/data/EssenceFilter/**"
+      # TestLocationKeysFile 还检查 AutoEssence 的 RegionNodes 节点和界面里的地区文案
+      - "assets/resource/pipeline/AutoEssence/**"
+      - "assets/locales/interface/**"
   pull_request:
     branches:
       - "v2"
@@ -15,6 +18,9 @@ on:
       - ".github/workflows/go-check.yml"
       - "agent/go-service/**"
       - "assets/data/EssenceFilter/**"
+      # TestLocationKeysFile 还检查 AutoEssence 的 RegionNodes 节点和界面里的地区文案
+      - "assets/resource/pipeline/AutoEssence/**"
+      - "assets/locales/interface/**"
   workflow_dispatch:
 
 permissions:

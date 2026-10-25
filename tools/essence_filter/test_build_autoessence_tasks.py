@@ -2,11 +2,13 @@
 
 import io
 import json
+import os
 import sys
 import tempfile
 import unittest
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -38,7 +40,7 @@ class LocationKeyTest(unittest.TestCase):
         self.assertEqual(keys["map02_lv009"], "WLSnowyForest")
 
     def test_accepts_jsonc_like_go(self):
-        keys = self.load_text('﻿{\n    // 祀的画路线未完成\n    "map01_lv001": "VFTheHub",\n}\n')
+        keys = self.load_text('\ufeff{\n    // 祀的画路线未完成\n    "map01_lv001": "VFTheHub",\n}\n')
         self.assertEqual(keys, {"map01_lv001": "VFTheHub"})
 
     def test_rejects_duplicate_level_id(self):
@@ -50,19 +52,39 @@ class LocationKeyTest(unittest.TestCase):
             with self.subTest(key=key), self.assertRaisesRegex(ValueError, "map02_lv010"):
                 self.load_text(json.dumps({"map02_lv010": key}))
 
+    def resolve_with_unregistered(self, env: dict[str, str]) -> tuple[list[str], str, str]:
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with mock.patch.dict(os.environ, env):
+            for name in ("GITHUB_ACTIONS", "GITHUB_STEP_SUMMARY"):
+                if name not in env:
+                    os.environ.pop(name, None)
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                resolved = resolve_locations(
+                    [
+                        {"name": "重度能量淤积点·祀的画", "level_id": "map02_lv010"},
+                        {"name": "重度能量淤积点·枢纽区", "level_id": "map01_lv001"},
+                    ],
+                    {"map01_lv001": "VFTheHub"},
+                    {"global.region.TheHub"},
+                )
+        return [key for key, _ in resolved], stdout.getvalue(), stderr.getvalue()
+
     def test_unregistered_location_is_skipped(self):
-        stderr = io.StringIO()
-        with redirect_stderr(stderr):
-            resolved = resolve_locations(
-                [
-                    {"name": "重度能量淤积点·祀的画", "level_id": "map02_lv010"},
-                    {"name": "重度能量淤积点·枢纽区", "level_id": "map01_lv001"},
-                ],
-                {"map01_lv001": "VFTheHub"},
-                {"global.region.TheHub"},
+        keys, stdout, stderr = self.resolve_with_unregistered({})
+        self.assertEqual(keys, ["VFTheHub"])
+        self.assertIn("map02_lv010", stderr)
+        self.assertNotIn("::warning", stdout)
+
+    def test_skip_is_reported_in_github_actions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            summary = Path(tmp) / "summary.md"
+            keys, stdout, _ = self.resolve_with_unregistered(
+                {"GITHUB_ACTIONS": "true", "GITHUB_STEP_SUMMARY": str(summary)}
             )
-        self.assertEqual([key for key, _ in resolved], ["VFTheHub"])
-        self.assertIn("map02_lv010", stderr.getvalue())
+            report = summary.read_text(encoding="utf-8")
+        self.assertEqual(keys, ["VFTheHub"])
+        self.assertRegex(stdout, r"(?m)^::warning title=[^:]+::.*map02_lv010")
+        self.assertIn("| 重度能量淤积点·祀的画 | `map02_lv010` |", report)
 
     def test_registered_level_missing_from_data_fails(self):
         # 上游把枢纽区改成别的 level_id：要报错，不能当成新地区跳过（跳过会删掉 VFTheHub 的选项）。

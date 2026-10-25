@@ -8,6 +8,7 @@
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -343,6 +344,7 @@ def resolve_locations(
     if stale:
         raise ValueError("location_keys.json 里已登记的 level_id 在 locations.json 里找不到: " + ", ".join(stale))
     resolved: list[tuple[str, dict[str, Any]]] = []
+    skipped: list[tuple[Any, Any]] = []
     seen: set[str] = set()
     for location in locations:
         name = location.get("name")
@@ -350,11 +352,7 @@ def resolve_locations(
         key = location_keys.get(level_id)
         if not key:
             # 数据可能先于路线：还没登记的地区先跳过，与运行时一致；登记并补上 RegionNodes 后才生成选项。
-            print(
-                f"跳过 locations.json 的 {name!r}（level_id {level_id!r}）："
-                "location_keys.json 里还没有这个地区，补上 key 和 RegionNodes 后再生成",
-                file=sys.stderr,
-            )
+            skipped.append((name, level_id))
             continue
         if key in seen:
             raise ValueError(f"地区 key 重复: {key}")
@@ -366,9 +364,36 @@ def resolve_locations(
         if not node.is_file():
             raise ValueError(f"缺少地区节点 {node.relative_to(REPO_ROOT)}")
         resolved.append((key, location))
+    report_skipped(skipped)
     if not resolved:
         raise ValueError("locations.json 没有可用地区")
     return resolved
+
+
+def report_skipped(skipped: list[tuple[Any, Any]]) -> None:
+    """报告跳过的地区：本地只打到 stderr；在 GitHub Actions 里另出警告注解并写进运行摘要，
+    同步任务照常成功时也有人看得到。"""
+    if not skipped:
+        return
+    for name, level_id in skipped:
+        message = (
+            f"跳过 locations.json 的 {name!r}（level_id {level_id!r}）："
+            "location_keys.json 里还没有这个地区，补上 key 和 RegionNodes 后再生成"
+        )
+        print(message, file=sys.stderr)
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            escaped = message.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+            print(f"::warning title=AutoEssence 跳过未登记的地区::{escaped}")
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_path:
+        rows = "".join(f"| {name} | `{level_id}` |\n" for name, level_id in skipped)
+        with Path(summary_path).open("a", encoding="utf-8") as summary:
+            summary.write(
+                "### AutoEssence 跳过的地区\n\n"
+                "这些地区还没在 `assets/data/EssenceFilter/location_keys.json` 登记，本次没有生成它们的选项；"
+                "补上 key 和 `RegionNodes` 后再生成。\n\n"
+                "| 地区 | level_id |\n| --- | --- |\n" + rows + "\n"
+            )
 
 
 def skill_labels(locations: list[dict[str, Any]], slot1: list[dict[str, Any]]) -> set[str]:

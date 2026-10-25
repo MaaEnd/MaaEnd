@@ -86,5 +86,5 @@ uv run tools/essence_filter/build_autoessence_tasks.py
 
 - 目标模式只收录 5、6 星武器，按稀有度从高到低、武器 ID 升序排列，6 星作为默认勾选。
 - 武器图标写成 `resource/image/UI/Item/<武器 ID>.png`。这个路径对应已发布的 UI 图标，不使用站点 `weapons.json` 里的 `icon_path`。缺少对应 PNG 时生成失败。
-- 地区模式按 `locations.json` 的顺序生成地区列表、每个地区的附加/技能词条，以及随机模式的地区多选。地区 `level_id` 到节点 key 的对照在 `assets/data/EssenceFilter/location_keys.json`（JSONC），Go 侧目标模式读的也是这一份，运行中的 MaaEnd 要重启才会读到改动。key 只能是 `VF` / `WL` 开头的字母数字，界面文案取 `$global.region.<key 去掉 VF/WL 前缀>`。新地区要在这份对照里登记、补齐五语言文案，并补上 `RegionNodes/<key>.json`（含 `GotoTriggerPointSetAnchor_<key>`）；这几项由 go-check 里的 `TestLocationKeysFile` 检查。已登记的 `level_id` 在 `locations.json` 里找不到（上游改了编号或登记写错）时生成失败；还没登记的地区会提示后跳过，与运行时一致（数据可能先于路线）。
+- 地区模式按 `locations.json` 的顺序生成地区列表、每个地区的附加/技能词条，以及随机模式的地区多选。地区 `level_id` 到节点 key 的对照在 `assets/data/EssenceFilter/location_keys.json`（JSONC），Go 侧目标模式读的也是这一份，运行中的 MaaEnd 要重启才会读到改动。key 只能是 `VF` / `WL` 开头的字母数字，界面文案取 `$global.region.<key 去掉 VF/WL 前缀>`。新地区要在这份对照里登记、补齐五语言文案，并补上 `RegionNodes/<key>.json`（含 `GotoTriggerPointSetAnchor_<key>`）；这几项由 go-check 里的 `TestLocationKeysFile` 检查，改对照、AutoEssence Pipeline 或界面文案的 PR 都会跑。已登记的 `level_id` 在 `locations.json` 里找不到（上游改了编号或登记写错）时生成失败；还没登记的地区会提示后跳过，与运行时一致（数据可能先于路线），在 GitHub Actions 里还会出警告注解并列进运行摘要。
 - 武器显示名 `★稀有度 名称` 会同步到各语言的 interface locale。词条显示名仍使用已有的 `option.AutoEssenceSkill.*`，缺文案时生成失败。
