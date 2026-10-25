@@ -1833,6 +1833,7 @@
     "option.SupplyPlanLimits.label": "育成素材目標",
     "option.SupplyPlanLimits.pattern_msg": "0 から 3000000000 までの整数を入力してください",
     "option.SupplyPlanOperators.label": "オペレーター別に目標を計画（チェックすると下の数値を上書き）",
+    "option.SupplyPlanRedCheck.label": "毎日の赤字チェック（育成総覧を読み取り、クラウド版のみ）",
     "option.SwitchTeamTeamChoose.label": "チーム選択",
     "option.TaskSchedule.label": "実行周期(ゲーム時間)",
     "option.TaskScheduleFriday.label": "金曜に実行",

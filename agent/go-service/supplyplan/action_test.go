@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/cultivation"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/jsonclean"
 )
 
@@ -64,15 +65,17 @@ func TestExpressionsMatchSupplyPlanLimits(t *testing.T) {
 
 // Every generated operator must only use routes the planner can override.
 func TestGeneratedTargetsUseKnownRoutes(t *testing.T) {
-	var pipeline map[string]struct {
-		Action struct {
-			Param struct {
-				Custom planParam `json:"custom_action_param"`
-			} `json:"param"`
-		} `json:"action"`
+	var pipeline struct {
+		Plan struct {
+			Action struct {
+				Param struct {
+					Custom planParam `json:"custom_action_param"`
+				} `json:"param"`
+			} `json:"action"`
+		} `json:"SupplyPlanOperatorPlan"`
 	}
 	readJSONC(t, "../../../assets/resource/pipeline/SupplyPlan/SupplyPlanOperator.json", &pipeline)
-	targets := pipeline["SupplyPlanOperatorPlan"].Action.Param.Custom.Targets
+	targets := pipeline.Plan.Action.Param.Custom.Targets
 	if len(targets) == 0 {
 		t.Fatal("no generated operator targets")
 	}
@@ -120,5 +123,27 @@ func TestOwnedUsesUpstreamExperienceWeights(t *testing.T) {
 		if r.Key == "COMBAT_RECORD_EXP" && r.owned(items) != 2*10000+3*1000+5*200 {
 			t.Fatalf("owned %d", r.owned(items))
 		}
+	}
+}
+
+func TestApplyRedChecksKeepsRedRoutesAndExperience(t *testing.T) {
+	targets := map[string]map[string]int64{
+		"Si":        {"PROTOPRISM": 461, "TACHYON_SCREENING_LATTICE": 116, "COMBAT_RECORD_EXP": 747110},
+		"Laevatain": {"PROTOPRISM": 461, "PROTOSET": 60},
+		"Rossi":     {"PROTOPRISM": 461},
+	}
+	checks := map[string]cultivation.Red{
+		"Si":        {Routes: []string{"TACHYON_SCREENING_LATTICE"}},
+		"Laevatain": {Failed: true},
+	}
+	got := applyRedChecks(targets, checks)
+	if len(got["Si"]) != 2 || got["Si"]["TACHYON_SCREENING_LATTICE"] != 116 || got["Si"]["COMBAT_RECORD_EXP"] != 747110 {
+		t.Fatalf("Si should keep its red route and experience only: %v", got["Si"])
+	}
+	if len(got["Laevatain"]) != 2 || len(got["Rossi"]) != 1 {
+		t.Fatalf("failed or unread operators must keep full totals: %v", got)
+	}
+	if len(targets["Si"]) != 3 {
+		t.Fatal("generated targets were modified in place")
 	}
 }

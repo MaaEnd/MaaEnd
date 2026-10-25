@@ -413,5 +413,236 @@
         "next": [
             "SupplyPlanDispatch"
         ]
+    },
+    "SupplyPlanRedCheckNext": {
+        "desc": "每日红字校正：逐个读取勾选干员培养总览的红字（每个游戏日一次），读完后同步库存并规划",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SupplyPlanRedCheckNext",
+                "custom_action_param": {
+                    "operators": {
+                        "Akekuri": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0019_karin.png"
+                            ],
+                            "name": "秋栗"
+                        },
+                        "Alesh": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0024_deepfin.png"
+                            ],
+                            "name": "阿列什"
+                        },
+                        "Antal": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0023_antal.png"
+                            ],
+                            "name": "安塔尔"
+                        },
+                        "Arcane": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0032_lizhiyan.png"
+                            ],
+                            "name": "诀"
+                        },
+                        "Arclight": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0007_ikut.png"
+                            ],
+                            "name": "弧光"
+                        },
+                        "Ardelia": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0025_ardelia.png"
+                            ],
+                            "name": "艾尔黛拉"
+                        },
+                        "Avywenna": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0012_avywen.png"
+                            ],
+                            "name": "艾维文娜"
+                        },
+                        "Camille": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0033_camille.png"
+                            ],
+                            "name": "卡缪"
+                        },
+                        "Catcher": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0020_meurs.png"
+                            ],
+                            "name": "卡契尔"
+                        },
+                        "ChenQianyu": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0005_chen.png"
+                            ],
+                            "name": "陈千语"
+                        },
+                        "DaPan": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0018_dapan.png"
+                            ],
+                            "name": "大潘"
+                        },
+                        "Ember": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0009_azrila.png"
+                            ],
+                            "name": "余烬"
+                        },
+                        "Endministrator": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0002_endminm.png",
+                                "Cultivation/Operators/chr_0003_endminf.png"
+                            ],
+                            "name": "管理员"
+                        },
+                        "Estella": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0021_whiten.png"
+                            ],
+                            "name": "埃特拉"
+                        },
+                        "Fluorite": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0022_bounda.png"
+                            ],
+                            "name": "萤石"
+                        },
+                        "Gilberta": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0013_aglina.png"
+                            ],
+                            "name": "洁尔佩塔"
+                        },
+                        "Laevatain": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0016_laevat.png"
+                            ],
+                            "name": "莱万汀"
+                        },
+                        "LastRite": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0026_lastrite.png"
+                            ],
+                            "name": "别礼"
+                        },
+                        "Lifeng": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0015_lifeng.png"
+                            ],
+                            "name": "黎风"
+                        },
+                        "Liino": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0035_liino.png"
+                            ],
+                            "name": "梨诺"
+                        },
+                        "MiFu": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0031_mifu.png"
+                            ],
+                            "name": "弭弗"
+                        },
+                        "Perlica": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0004_pelica.png"
+                            ],
+                            "name": "佩丽卡"
+                        },
+                        "Pogranichnik": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0029_pograni.png"
+                            ],
+                            "name": "骏卫"
+                        },
+                        "Purrchena": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0038_purrche.png"
+                            ],
+                            "name": "噗切娜"
+                        },
+                        "Rossi": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0028_wulfa.png"
+                            ],
+                            "name": "洛茜"
+                        },
+                        "Si": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0036_jsspsi.png"
+                            ],
+                            "name": "祀"
+                        },
+                        "Snowshine": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0014_aurora.png"
+                            ],
+                            "name": "昼雪"
+                        },
+                        "Tangtang": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0027_tangtang.png"
+                            ],
+                            "name": "汤汤"
+                        },
+                        "Typhoeus": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0034_typhoea.png"
+                            ],
+                            "name": "提弗洛斯"
+                        },
+                        "Wulfgard": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0006_wolfgd.png"
+                            ],
+                            "name": "狼卫"
+                        },
+                        "Xaihi": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0011_seraph.png"
+                            ],
+                            "name": "赛希"
+                        },
+                        "Yvonne": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0017_yvonne.png"
+                            ],
+                            "name": "伊冯"
+                        },
+                        "ZhuangFangyi": {
+                            "templates": [
+                                "Cultivation/Operators/chr_0030_zhuangfy.png"
+                            ],
+                            "name": "庄方宜"
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRedCheckRoute"
+        ]
+    },
+    "SupplyPlanRedCheckRoute": {
+        "desc": "每日红字校正的分支：SupplyPlanRedCheckNext 改写 next，进入培养总览读取或继续同步库存",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SyncItemData",
+            "SupplyPlanOperatorPlan"
+        ]
     }
 }

@@ -5,6 +5,7 @@
     "properties": {
         "custom_action": {
             "enum": [
+                "CultivationAction",
                 "325",
                 "AccountSwitchWindowAction",
                 "AddItemData",
@@ -85,6 +86,7 @@
                 "SceneManagerMenuListClickItemAction",
                 "SubTask",
                 "SupplyPlanOperatorPlan",
+                "SupplyPlanRedCheckNext",
                 "SyncItemData",
                 "TextInputAction",
                 "TextInputInitAction",
@@ -99,6 +101,28 @@
         }
     },
     "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {
+                        "const": "CultivationAction"
+                    }
+                },
+                "required": [
+                    "custom_action"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "$ref": "./components/cultivation.schema.json#/$defs/Action"
+                    }
+                },
+                "required": [
+                    "custom_action_param"
+                ]
+            }
+        },
         {
             "if": {
                 "properties": {
@@ -216,6 +240,39 @@
 							}
 						},
 						"required": [ "targets" ],
+						"additionalProperties": false
+					}
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "SupplyPlanRedCheckNext" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": {
+						"type": "object",
+						"description": "Generated cultivation-overview identities per operator for the daily red-label check.",
+						"properties": {
+							"operators": {
+								"type": "object",
+								"additionalProperties": {
+									"type": "object",
+									"properties": {
+										"templates": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+										"name": { "type": "string", "minLength": 1 }
+									},
+									"required": [ "templates", "name" ],
+									"additionalProperties": false
+								}
+							}
+						},
+						"required": [ "operators" ],
 						"additionalProperties": false
 					}
 				},

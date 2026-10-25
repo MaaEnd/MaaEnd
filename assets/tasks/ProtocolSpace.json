@@ -252,6 +252,7 @@
                     "option": [
                         "ProtocolSpaceObtainModeClaim",
                         "SupplyPlanOperators",
+                        "SupplyPlanRedCheck",
                         "SupplyPlanLimits"
                     ],
                     "pipeline_override": {
@@ -1622,6 +1623,29 @@
                     }
                 }
             ]
+        },
+        "SupplyPlanRedCheck": {
+            "type": "switch",
+            "controller": [
+                "CloudADB"
+            ],
+            "label": "$option.SupplyPlanRedCheck.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SupplyPlanMain": {
+                            "next": [
+                                "SupplyPlanRedCheckNext"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
         },
         // 单项上限 3000000000：任意两项取满时乘积仍小于 int64，完成率交叉相乘不会回绕。
         "SupplyPlanLimits": {

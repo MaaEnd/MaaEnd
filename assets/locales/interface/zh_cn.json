@@ -1833,6 +1833,7 @@
     "option.SupplyPlanLimits.label": "培养道具目标",
     "option.SupplyPlanLimits.pattern_msg": "请输入 0 到 3000000000 的整数",
     "option.SupplyPlanOperators.label": "按干员规划目标（勾选后覆盖下方数值）",
+    "option.SupplyPlanRedCheck.label": "每日红字校正（读取培养总览，仅云游戏）",
     "option.SwitchTeamTeamChoose.label": "选择队伍",
     "option.TaskSchedule.label": "执行周期(游戏时间)",
     "option.TaskScheduleFriday.label": "周五",

@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/cultivation"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/ims"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -57,7 +58,9 @@ func (a *OperatorPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		return false
 	}
 	selected := selectedOperators(node.Attach)
-	totals, err := sumTargets(param.Targets, selected)
+	// Readings exist only when the optional daily red-label check ran in this task.
+	checks := cultivation.Checked(arg.TaskID)
+	totals, err := sumTargets(applyRedChecks(param.Targets, checks), selected)
 	if err != nil {
 		log.Error().Err(err).Str("component", component).Strs("operators", selected).Msg("invalid operator targets")
 		maafocus.Print(ctx, i18n.T("supplyplan.operator_plan_failed"))
@@ -81,7 +84,7 @@ func (a *OperatorPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		log.Error().Err(err).Str("component", component).Msg("failed to override supply plan limits")
 		return false
 	}
-	text := summary(selected, totals, ims.ItemsSnapshot())
+	text := summary(selected, totals, ims.ItemsSnapshot(), checks)
 	maafocus.Print(ctx, text)
 	log.Info().Str("component", component).Strs("operators", selected).Interface("limits", totals).Str("summary", text).Msg("operator growth totals applied to target inventory")
 	return true
@@ -129,12 +132,22 @@ func sumTargets(targets map[string]map[string]int64, selected []string) (map[str
 var labelImage = regexp.MustCompile(`!\[[^\]]*\]\([^)]*\)`)
 
 // summary lists total, owned and remaining amount for every planned route.
-func summary(selected []string, totals map[string]int64, items map[string]int) string {
+func summary(selected []string, totals map[string]int64, items map[string]int, checks map[string]cultivation.Red) string {
 	names := make([]string, len(selected))
 	for i, name := range selected {
 		names[i] = i18n.T("operator." + name)
 	}
 	lines := []string{i18n.T("supplyplan.operator_plan", strings.Join(names, i18n.Separator()))}
+	for i, name := range selected {
+		red, ok := checks[name]
+		switch {
+		case !ok:
+		case red.Failed:
+			lines = append(lines, i18n.T("supplyplan.red_check_failed", names[i]))
+		default:
+			lines = append(lines, i18n.T("supplyplan.red_check_result", names[i], len(red.Routes)))
+		}
+	}
 	for _, r := range routes {
 		total := totals[r.Key]
 		if total == 0 {

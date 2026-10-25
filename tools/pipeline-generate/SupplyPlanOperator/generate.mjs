@@ -1,4 +1,4 @@
-import {readFileSync, writeFileSync} from "node:fs";
+import {existsSync, readFileSync, writeFileSync} from "node:fs";
 import {resolve} from "node:path";
 
 import {applyEdits, modify} from "jsonc-parser";
@@ -114,6 +114,7 @@ if (!data.operators || !data.level_up) {
 const zhCn = readJsonc(resolve(repoRoot, "assets/locales/interface/zh_cn.json"));
 
 const targets = {};
+const identities = {};
 for (const [
     id,
     operator,
@@ -125,6 +126,12 @@ for (const [
         throw new Error(`[SupplyPlanOperator] ${id} 缺少 locale key operator.${name}`);
     }
     const totals = growthTotals(id, operator, data.level_up);
+    // 每日红字校正用培养总览头像定位干员；没有头像的干员不校正，按从零养满计算。
+    const template = `Cultivation/Operators/${id}.png`;
+    if (existsSync(resolve(repoRoot, "assets/resource_adb/image", template))) {
+        identities[name] ??= {templates: [], name: operator.names.zh_cn};
+        identities[name].templates.push(template);
+    }
     if (ADMIN_IDS.includes(id)) {
         if (name !== "Endministrator") throw new Error(`[SupplyPlanOperator] ${id} 的名称不是 Endministrator: ${name}`);
         if (Object.hasOwn(targets, name)) {
@@ -171,6 +178,42 @@ const nodeText = await formatJson(nodePath, {
         post_delay: 0,
         rate_limit: 0,
         next: ["SupplyPlanDispatch"],
+    },
+    SupplyPlanRedCheckNext: {
+        desc: "每日红字校正：逐个读取勾选干员培养总览的红字（每个游戏日一次），读完后同步库存并规划",
+        recognition: "DirectHit",
+        pre_delay: 0,
+        action: {
+            type: "Custom",
+            param: {
+                custom_action: "SupplyPlanRedCheckNext",
+                custom_action_param: {
+                    operators: Object.fromEntries(
+                        Object.keys(identities)
+                            .sort()
+                            .map((name) => [
+                                name,
+                                identities[name],
+                            ]),
+                    ),
+                },
+            },
+        },
+        post_delay: 0,
+        rate_limit: 0,
+        next: ["SupplyPlanRedCheckRoute"],
+    },
+    SupplyPlanRedCheckRoute: {
+        desc: "每日红字校正的分支：SupplyPlanRedCheckNext 改写 next，进入培养总览读取或继续同步库存",
+        recognition: "DirectHit",
+        pre_delay: 0,
+        action: "DoNothing",
+        post_delay: 0,
+        rate_limit: 0,
+        next: [
+            "[JumpBack]SyncItemData",
+            "SupplyPlanOperatorPlan",
+        ],
     },
 });
 
@@ -250,6 +293,51 @@ if (Object.hasOwn(value.option, "SupplyPlanOperators")) {
         {
             getInsertionIndex: () => keys.indexOf("SupplyPlanLimits"),
         },
+    );
+}
+// 每日红字校正开关：放在 SupplyPlanOperators 之后，Yes 时覆盖勾选项写入的 SupplyPlanMain.next。
+const latestOptions = value.option.ProtocolSpaceMode.cases[caseIndex].option;
+if (!latestOptions.includes("SupplyPlanRedCheck")) {
+    const at = latestOptions.indexOf("SupplyPlanOperators") + 1;
+    edit(
+        [
+            "option",
+            "ProtocolSpaceMode",
+            "cases",
+            caseIndex,
+            "option",
+        ],
+        [
+            ...latestOptions.slice(0, at),
+            "SupplyPlanRedCheck",
+            ...latestOptions.slice(at),
+        ],
+    );
+}
+const redCheckOption = {
+    type: "switch",
+    label: "$option.SupplyPlanRedCheck.label",
+    controller: ["CloudADB"],
+    cases: [
+        {
+            name: "Yes",
+            pipeline_override: {SupplyPlanMain: {next: ["SupplyPlanRedCheckNext"]}},
+        },
+        {name: "No"},
+    ],
+    default_case: "No",
+};
+{
+    const keys = Object.keys(value.option);
+    edit(
+        [
+            "option",
+            "SupplyPlanRedCheck",
+        ],
+        redCheckOption,
+        Object.hasOwn(value.option, "SupplyPlanRedCheck")
+            ? {}
+            : {getInsertionIndex: () => keys.indexOf("SupplyPlanLimits")},
     );
 }
 const taskText = await formatJson(taskPath, text);
