@@ -1,11 +1,6 @@
 {
     "BatchUseDetectorFind${LocationId}Item": {
-        "next": [
-            "BatchUseDetectorFind${Detector}",
-            "BatchUseDetectorFind${Compass}",
-            "[JumpBack]BatchUseDetectorSwipeNextPage",
-            "BatchUseDetectorFindNoItem"
-        ]
+        "next": "${ItemNextAdb}"
     },
     "BatchUseDetectorFind${Detector}": {
         "roi": [

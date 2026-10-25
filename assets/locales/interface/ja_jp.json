@@ -2207,6 +2207,7 @@
     "task.BatchUseDetector.label": "🧭探知器をまとめて",
     "task.BatchUseDetector.option.Category.Compass": "コンパス",
     "task.BatchUseDetector.option.Category.Detector": "探知器",
+    "task.BatchUseDetector.option.Category.WulingTalositeProbe": "武陵タロサイト探査機",
     "task.BatchUseDetector.option.Category.label": "探知器カテゴリ",
     "task.BatchUseDetector.option.Region.label": "地域",
     "task.BatchUseDetector.option.Times.input.error": "0より大きい整数を入力してください。",

@@ -2207,6 +2207,7 @@
     "task.BatchUseDetector.label": "🧭Batch Detector",
     "task.BatchUseDetector.option.Category.Compass": "Compass",
     "task.BatchUseDetector.option.Category.Detector": "Detector",
+    "task.BatchUseDetector.option.Category.WulingTalositeProbe": "Wuling Talosite Probe",
     "task.BatchUseDetector.option.Category.label": "Detector Category",
     "task.BatchUseDetector.option.Region.label": "Region",
     "task.BatchUseDetector.option.Times.input.error": "Please enter an integer greater than 0.",

@@ -2207,6 +2207,7 @@
     "task.BatchUseDetector.label": "🧭나침반 일괄",
     "task.BatchUseDetector.option.Category.Compass": "나침반",
     "task.BatchUseDetector.option.Category.Detector": "탐지기",
+    "task.BatchUseDetector.option.Category.WulingTalositeProbe": "무릉 탈로사이트 탐침기",
     "task.BatchUseDetector.option.Category.label": "탐지기 종류",
     "task.BatchUseDetector.option.Region.label": "지역",
     "task.BatchUseDetector.option.Times.input.error": "0보다 큰 정수를 입력하세요.",

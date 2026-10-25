@@ -1,0 +1,18 @@
+{
+    "BatchUseDetectorFind${ItemId}": {
+        "roi": [
+            100,
+            85,
+            790,
+            535
+        ]
+    },
+    "BatchUseDetectorConfirm${ItemId}Name": {
+        "roi": [
+            905,
+            76,
+            165,
+            40
+        ]
+    }
+}

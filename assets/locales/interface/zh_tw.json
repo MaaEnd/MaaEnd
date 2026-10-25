@@ -2207,6 +2207,7 @@
     "task.BatchUseDetector.label": "🧭批量探测器",
     "task.BatchUseDetector.option.Category.Compass": "羅盤",
     "task.BatchUseDetector.option.Category.Detector": "探物器",
+    "task.BatchUseDetector.option.Category.WulingTalositeProbe": "武陵塔晶探針",
     "task.BatchUseDetector.option.Category.label": "探測器類別",
     "task.BatchUseDetector.option.Region.label": "地區",
     "task.BatchUseDetector.option.Times.input.error": "請輸入大於0的整數。",
