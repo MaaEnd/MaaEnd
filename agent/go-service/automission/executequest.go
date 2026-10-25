@@ -31,6 +31,26 @@ const (
 	entityTriggerNode  = "AutoMissionEntityTrigger"
 )
 
+// posFallbackInteractTexts 是坐标点没写 NPC 名字时兜底识别的交互文字（简繁）。
+// 这类步骤的完成条件常在服务器判断，数据里看不出要交互什么，但交互物一般就在追踪点旁边。
+// 只收点错也没副作用的文字；使用、提交物品、进入之类可能消耗道具或切换玩法的不收。
+var posFallbackInteractTexts = []string{
+	"查看",
+	"修复",
+	"修復",
+	"调查",
+	"調查",
+	"打开",
+	"打開",
+	"采集",
+	"採集",
+	"触碰",
+	"觸碰",
+	"推开",
+	"推開",
+	"拿取文件",
+}
+
 var _ maa.CustomActionRunner = &ExecuteQuestAction{}
 
 // trackingNodes 把追踪类型对应到 Pipeline 节点。
@@ -185,10 +205,10 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 				Msg("pos track missing zone or position")
 			return false
 		}
-		// 没有人名：注入永不匹配的正则并关掉按追踪图标找人，只走到坐标，不做交互。
+		// 没有人名：识别兜底交互文字，并关掉按追踪图标找人，免得附近没有交互物时一直走到超时。
 		moveEnabled := len(npcNames) > 0
 		if !moveEnabled {
-			npcNames = []string{"(?!)"}
+			npcNames = posFallbackInteractTexts
 		}
 		log.Info().
 			Str("component", executeComponent).
