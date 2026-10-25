@@ -2551,7 +2551,7 @@
     "task.ResourceRecycleStation.focus.ValleyIVStart": "Collecting Valley IV Resource Recycle Station",
     "task.ResourceRecycleStation.focus.WulingStart": "Collecting Wuling Resource Recycle Station",
     "task.ResourceRecycleStation.label": "🦉Resource Recycle Station",
-    "task.SanityExtractor.description": "Use Sanity Extractors in the Valuables vault to store sanity as Sanity Essence potions",
+    "task.SanityExtractor.description": "Use Sanity Extractors in the Valuables vault to store sanity as Sanity Essence",
     "task.SanityExtractor.focus.confirm_failed": "Clicked, but unable to confirm the selected item is a Sanity Extractor; stopping the task",
     "task.SanityExtractor.focus.inject_failed": "Extraction screen recognition failed, attempting to close the panel",
     "task.SanityExtractor.focus.no_item": "No Sanity Extractor found",
