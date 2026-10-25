@@ -108,12 +108,27 @@ type launchGamePCOptions struct {
 		LauncherExe string `json:"LauncherExe"`
 	} `json:"LaunchGamePCLauncherExe"`
 	GameSetting     string `json:"LaunchGamePCGameSetting"`
+	UpdateCheck     string `json:"LaunchGamePCUpdateCheck"`
 	Language        string `json:"LaunchGamePCLanguage"`
 	DisplayType     string `json:"LaunchGamePCDisplayType"`
 	Resolution      string `json:"LaunchGamePCResolution"`
 	GraphicsQuality string `json:"LaunchGamePCGraphicsQuality"`
 	FrameRate       string `json:"LaunchGamePCFrameRate"`
 	AutoHDR         string `json:"LaunchGamePCAutoHDR"`
+}
+
+// launcherStateCheckNode 是 GameLauncherPreDownload.json 里的启动器状态检测入口节点
+// （更新游戏 / 预下载圆钮）。关闭开关时把它置为 enabled:false，
+// GameLauncherSelectEndfield 的 next 会自然落到官方 GameLauncherEndfieldSelected，行为与官方流程一致。
+const launcherStateCheckNode = "GameLauncherStateCheck"
+
+// pipelineOverride 按「启动前进行预下载/更新游戏」开关生成 pipeline 覆盖。
+// 只有显式选择 No 才跳过检测；缺省（如手工调用 pretask 不传该选项）保持开启。
+func pipelineOverride(opts launchGamePCOptions) string {
+	if opts.UpdateCheck == "No" {
+		return `{"` + launcherStateCheckNode + `":{"enabled":false}}`
+	}
+	return "{}"
 }
 
 // Run 对应 assets/tasks/pretasks/LaunchGamePC.json 的 pretask 入口。
@@ -200,7 +215,7 @@ func Run(args []string) bool {
 		return false
 	}
 
-	if info.windowRegex != nil && !runLauncher(info.windowRegex) {
+	if info.windowRegex != nil && !runLauncher(info.windowRegex, pipelineOverride(opts)) {
 		return false
 	}
 
@@ -222,7 +237,7 @@ func Run(args []string) bool {
 }
 
 // runLauncher 等待启动器窗口出现后执行启动器 pipeline。
-func runLauncher(windowRegex *regexp.Regexp) bool {
+func runLauncher(windowRegex *regexp.Regexp, pipelineOverride string) bool {
 	log.Info().
 		Str("component", component).
 		Str("title", windowRegex.String()).
@@ -263,7 +278,7 @@ func runLauncher(windowRegex *regexp.Regexp) bool {
 		Str("component", component).
 		Str("entry", pipelineEntry).
 		Msg("running launcher pipeline")
-	return runLauncherPipeline(hWnd)
+	return runLauncherPipeline(hWnd, pipelineOverride)
 }
 
 // startLauncherFromInstallDir 按任务设置或注册表找到安装目录并运行 Launcher.exe。
@@ -486,8 +501,9 @@ func waitGame(timeout time.Duration) bool {
 	return true
 }
 
-func runLauncherPipeline(hWnd unsafe.Pointer) bool {
-	if err := runPipeline(hWnd); err != nil {
+// runLauncherPipeline 在已找到的启动器窗口上执行 GameLauncher pipeline，失败时记录日志。
+func runLauncherPipeline(hWnd unsafe.Pointer, pipelineOverride string) bool {
+	if err := runPipeline(hWnd, pipelineOverride); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", component).
@@ -500,7 +516,8 @@ func runLauncherPipeline(hWnd unsafe.Pointer) bool {
 	return true
 }
 
-func runPipeline(hWnd unsafe.Pointer) error {
+// runPipeline 连接启动器窗口、加载资源并提交 pipeline 任务；pipelineOverride 用于按开关禁用检测入口。
+func runPipeline(hWnd unsafe.Pointer, pipelineOverride string) error {
 	ctrl, err := maa.NewWin32Controller(hWnd, win32.ScreencapPrintWindow, win32.InputSendMessage, win32.InputSendMessage)
 	if err != nil {
 		return err
@@ -532,7 +549,7 @@ func runPipeline(hWnd unsafe.Pointer) error {
 		return err
 	}
 
-	if !tasker.PostTask(pipelineEntry).Wait().Success() {
+	if !tasker.PostTask(pipelineEntry, pipelineOverride).Wait().Success() {
 		return fmt.Errorf("pipeline %s failed", pipelineEntry)
 	}
 	return nil

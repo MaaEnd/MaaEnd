@@ -1,0 +1,341 @@
+{
+    // 鹰角启动器状态检测：在 GameLauncherSelectEndfield 之后、GameLauncherClickStartGame 之前分流。
+    "GameLauncherStateCheck": {
+        "desc": "已选中终末地：先判断是否需要更新、是否存在预下载，再走官方启动流程",
+        // 与官方 GameLauncherMain 一致：显式清掉全局默认的 200ms pre_delay / post_delay
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "GameLauncherUpdateGame",
+            "GameLauncherUpdateResume",
+            "GameLauncherUpdating",
+            "GameLauncherPreDownloadIdle",
+            "GameLauncherClickStartGame"
+        ]
+    },
+    "GameLauncherUpdateGame": {
+        "desc": "右下角按钮为「更新游戏」→ 点击；点完约 2 秒既没弹窗也没变状态，就重头再来，最多 5 次",
+        // 整任务内最多命中 5 次（= 最多点 5 次）；用尽后本节点不再参与识别，任务随之失败退出。
+        "max_hit": 5,
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        // 启动器界面文案由启动器自身下发，不进入游戏 i18n 表，与官方 GameLauncherStartGameText 同样跳过。
+        // 以下为各语言实际显示文案（简中 / 繁中 / 英文 / es-MX / de-DE），拉丁语系用 (?i) 正则容忍 OCR 大小写差异。
+        "expected": [
+            // @i18n-skip
+            "更新游戏",
+            "更新遊戲",
+            "(?i)Update Game",
+            "(?i)Actualizar",
+            "(?i)Aktualisieren"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        // 点击会触发弹窗/按钮态切换动画：按规范等右下角这块区域连续 200ms 没明显变化后再识别 next，
+        // 而不是用固定延迟去赌动画时长。
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -320,
+                -140,
+                320,
+                140
+            ],
+            "timeout": 1200
+        },
+        "post_delay": 0,
+        // 点完先看弹窗；没弹窗再看右下角是否已进入进行中态或已变成「开始游戏」。
+        // 三者都没出现 → 右下角仍是「更新游戏」未点击态 → on_error 重头再来（受 max_hit: 5 限制）。
+        "timeout": 1500,
+        "next": [
+            "GameLauncherConfirmDialog",
+            "GameLauncherUpdating",
+            "GameLauncherClickStartGame"
+        ],
+        "on_error": [
+            "GameLauncherRetry"
+        ]
+    },
+    "GameLauncherUpdateResume": {
+        "desc": "右下角按钮为「继续更新 / 继续下载」→ 点击；按流程跳过弹窗检测，直接进入右下角状态检测",
+        // 与「更新游戏」同样最多点 5 次。
+        "max_hit": 5,
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // @i18n-skip
+            // 断点续传 / 继续更新（多语言）
+            "继续更新",
+            "继续下载",
+            "繼續更新",
+            "繼續下載",
+            "(?i)Resume",
+            "(?i)Continuar",
+            "(?i)Fortsetzen"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        // 同样等右下角按钮区域画面稳定后再识别 next。
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -320,
+                -140,
+                320,
+                140
+            ],
+            "timeout": 1200
+        },
+        "post_delay": 0,
+        // 继续更新类点击不检测弹窗，只看右下角是否已进入进行中态或已变成「开始游戏」；
+        // 都没变化 → on_error 回到入口重新识别（受 max_hit: 5 限制）。
+        "timeout": 1500,
+        "next": [
+            "GameLauncherUpdating",
+            "GameLauncherClickStartGame"
+        ],
+        "on_error": [
+            "GameLauncherStateCheck"
+        ]
+    },
+    "GameLauncherRetry": {
+        "desc": "点击未生效时的重头再来中转节点：先兜住可能迟到的确认弹窗，否则回到入口重新识别",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "GameLauncherConfirmDialog",
+            "GameLauncherStateCheck"
+        ]
+    },
+    "GameLauncherUpdating": {
+        "desc": "更新进行中（校验中 / 下载中 / 解压中 / 安装中 / 启动中等，多语言）：本帧不点击，直接回到等待节点继续观察",
+        // 命中即说明「状态已知」。回到 GameLauncherWaitStartGame 会让等待窗口重新计时，
+        // 因此正常更新可以一直等下去，不受任何硬上限约束。
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // @i18n-skip
+            // 简中
+            "下载中",
+            "正在下载",
+            "更新中",
+            "校验中",
+            "解压中",
+            "安装中",
+            "启动中",
+            // 繁中
+            "下載中",
+            "正在下載",
+            "校驗中",
+            "解壓縮中",
+            "安裝中",
+            "啟動中",
+            // 英文 / 西语(es-MX) / 德语(de-DE)：省略号与大小写由 OCR 决定，正则只匹配关键单词
+            "(?i)Downloading",
+            "(?i)Verifying",
+            "(?i)Extracting",
+            "(?i)Installing",
+            "(?i)Launching",
+            "(?i)Descargando",
+            "(?i)Verificando",
+            "(?i)Extrayendo",
+            "(?i)Instalando",
+            "(?i)Iniciando",
+            "(?i)Herunterladen",
+            "(?i)Wird verifiziert",
+            "(?i)Wird entpackt",
+            "(?i)Wird installiert",
+            "(?i)Starten",
+            // 德语排队态 Warte ...（其余语言未收录）
+            "(?i)Warte"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "GameLauncherWaitStartGame"
+        ]
+    },
+    "GameLauncherConfirmDialog": {
+        "desc": "「系统提示」弹窗上的「确认」按钮（更新与预下载共用同一弹窗布局）",
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherConfirmDialogTitle",
+            "GameLauncherConfirmDialogConfirm"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "GameLauncherConfirmDialogClosed"
+        ]
+    },
+    "GameLauncherConfirmDialogTitle": {
+        "desc": "弹窗标题「系统提示」",
+        "recognition": "OCR",
+        "roi": [
+            -780,
+            -520,
+            300,
+            110
+        ],
+        // 弹窗标题与按钮文案均由启动器下发；以下取自启动器语言包 modal.system_prompt
+        "expected": [
+            // @i18n-skip
+            "系统提示",
+            "系統提示",
+            "(?i)SYSTEM NOTIFICATION",
+            "(?i)NOTIFICACI[ÓO]N DEL SISTEMA",
+            "(?i)SYSTEMBENACHRICHTIGUNG"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "GameLauncherConfirmDialogConfirm": {
+        "desc": "弹窗右下角的白底「确认」",
+        "recognition": "OCR",
+        "roi": [
+            -660,
+            -330,
+            320,
+            140
+        ],
+        // 同上：弹窗标题与按钮文案均由启动器下发；以下取自启动器语言包 modal.confirm
+        "expected": [
+            // @i18n-skip
+            "确认",
+            "確定",
+            "確認",
+            "(?i)Confirm",
+            "(?i)Confirmar",
+            "(?i)Best[äa]tigen"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "GameLauncherConfirmDialogClosed": {
+        "desc": "确认弹窗已关闭（标题与「确认」都没再出现）→ 才进入等待「开始游戏」",
+        // 识别 → 点击 → 再识别：对「标题 Or 确认」取反，两个都不在了才算弹窗真的关闭，
+        // 避免其中一个识别失败时误判。
+        "recognition": "Or",
+        "any_of": [
+            "GameLauncherConfirmDialogTitle",
+            "GameLauncherConfirmDialogConfirm"
+        ],
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "GameLauncherWaitStartGame"
+        ]
+    },
+    "GameLauncherWaitStartGame": {
+        "desc": "等待更新结束：每帧重新识别右下角按钮；识别出已知状态就继续等，只有连续识别不出已知状态才失败",
+        "pre_delay": 0,
+        "post_delay": 0,
+        // 本文件 timeout 之一：12 秒 ≈ 连续 5 帧（1s 轮询 + 每帧若干次 OCR，其中约 2s/帧）。
+        // 命中任一已知状态都会重新进入本节点，等待窗口随之重置，所以正常更新没有硬上限；
+        // 连续 5 帧识别不出任何已知状态（更新卡死、界面异常等）等价于「重试识别五次仍失败」，
+        // 此时让 next 列表超时失败，pretask 随之返回失败并记日志
+        //（客户端对预任务失败只提示警告，不会中止用户任务）。
+        "timeout": 12000,
+        // 每帧一次识别的节奏（毫秒）
+        "rate_limit": 1000,
+        // 这里只挂「已知状态 → 继续观察」与「开始游戏 → 收尾」两类。
+        // 「确认」弹窗由 GameLauncherConfirmDialogClosed 确认关闭后才进来，本节点不再回头点它。
+        "next": [
+            "GameLauncherUpdateGame",
+            "GameLauncherUpdateResume",
+            "GameLauncherUpdating",
+            "GameLauncherClickStartGame"
+        ]
+    },
+    "GameLauncherPreDownloadRing": {
+        "desc": "预下载圆钮的黄色实心圆（启动器主题色）",
+        "recognition": "ColorMatch",
+        "roi": [
+            -410,
+            -140,
+            100,
+            110
+        ],
+        "lower": [
+            240,
+            240,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            60
+        ],
+        "connected": true,
+        "count": 1500,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "GameLauncherPreDownloadIdleIcon": {
+        "desc": "圆钮内的「云+下箭头」图标：仅未开始下载时出现（已暂停/已完成/出错为其他图标）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -410,
+            -140,
+            100,
+            110
+        ],
+        "template": "GameLauncher/PreDownloadIdle.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "GameLauncherPreDownloadIdle": {
+        "desc": "存在预下载圆钮且图标与「云+下箭头」模板一致 → 点击触发预下载（点击后不做结果验证）",
+        // 只做点击前的静态对比：图标与模板一致才点；不一致（已暂停/已完成/出错等）直接不命中，
+        // 流程自然落回更新检测与「开始游戏」。
+        "max_hit": 5,
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherPreDownloadRing",
+            "GameLauncherPreDownloadIdleIcon"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        // 点击后圆钮图标会切换到下载中态：等这块区域画面稳定后再识别 next。
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -410,
+                -140,
+                100,
+                110
+            ],
+            "timeout": 1200
+        },
+        "post_delay": 0,
+        // 点完只看是否出现确认弹窗；没弹窗 → on_error 重头再来（先兜弹窗，再回入口重新识别），
+        // 受 max_hit: 5 限制。
+        "timeout": 1500,
+        "next": [
+            "GameLauncherConfirmDialog"
+        ],
+        "on_error": [
+            "GameLauncherRetry"
+        ]
+    }
+}
