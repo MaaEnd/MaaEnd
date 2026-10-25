@@ -899,7 +899,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     if (candidates.empty()) {
         return no_zipline("no reachable pair of ziplines leads anywhere useful", &g_zipline_not_chosen);
     }
-    std::sort(candidates.begin(), candidates.end(), [](const Candidate& a, const Candidate& b) { return a.lower_bound < b.lower_bound; });
+    std::stable_sort(candidates.begin(), candidates.end(), [](const Candidate& a, const Candidate& b) { return a.lower_bound < b.lower_bound; });
 
     size_t plan_budget = kMaxExtraPlans;
 
