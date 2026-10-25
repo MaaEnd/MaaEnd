@@ -323,10 +323,10 @@
             }
         }
     },
-    "ClueOne": {
-        "desc": "[会客室·线索] 一号线索的 OCR 识别",
+    "ClueNumColor": {
+        "desc": "[会客室·线索] 线索序号的灰色/黑色底色",
         "recognition": {
-            "type": "OCR",
+            "type": "ColorMatch",
             "param": {
                 "roi": [
                     37,
@@ -334,97 +334,243 @@
                     54,
                     491
                 ],
-                "expected": "1"
+                "method": 4,
+                "lower": [
+                    [
+                        148,
+                        152,
+                        153
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        176,
+                        180,
+                        181
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "connected": true,
+                "count": 100
+            }
+        }
+    },
+    "ClueOneText": {
+        "desc": "[会客室·线索] 一号线索序号的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": "1",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueOne": {
+        "desc": "[会客室·线索] 一号线索的 OCR 识别",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueOneText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ClueTwoText": {
+        "desc": "[会客室·线索] 二号线索序号的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": "2",
+                "only_rec": true
             }
         }
     },
     "ClueTwo": {
         "desc": "[会客室·线索] 二号线索的 OCR 识别",
         "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueTwoText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ClueThreeText": {
+        "desc": "[会客室·线索] 三号线索序号的 OCR 识别",
+        "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    37,
-                    127,
-                    54,
-                    491
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
                 ],
-                "expected": "2"
+                "expected": "3",
+                "only_rec": true
             }
         }
     },
     "ClueThree": {
         "desc": "[会客室·线索] 三号线索的 OCR 识别",
         "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueThreeText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ClueFourText": {
+        "desc": "[会客室·线索] 四号线索序号的 OCR 识别",
+        "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    37,
-                    127,
-                    54,
-                    491
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
                 ],
-                "expected": "3"
+                "expected": "4",
+                "only_rec": true
             }
         }
     },
     "ClueFour": {
         "desc": "[会客室·线索] 四号线索的 OCR 识别",
         "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueFourText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ClueFiveText": {
+        "desc": "[会客室·线索] 五号线索序号的 OCR 识别",
+        "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    37,
-                    127,
-                    54,
-                    491
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
                 ],
-                "expected": "4"
+                "expected": "5",
+                "only_rec": true
             }
         }
     },
     "ClueFive": {
         "desc": "[会客室·线索] 五号线索的 OCR 识别",
         "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueFiveText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ClueSixText": {
+        "desc": "[会客室·线索] 六号线索序号的 OCR 识别",
+        "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    37,
-                    127,
-                    54,
-                    491
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
                 ],
-                "expected": "5"
+                "expected": "6",
+                "only_rec": true
             }
         }
     },
     "ClueSix": {
         "desc": "[会客室·线索] 六号线索的 OCR 识别",
         "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueSixText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ClueSevenText": {
+        "desc": "[会客室·线索] 七号线索序号的 OCR 识别",
+        "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    37,
-                    127,
-                    54,
-                    491
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
                 ],
-                "expected": "6"
+                "expected": "7",
+                "only_rec": true
             }
         }
     },
     "ClueSeven": {
         "desc": "[会客室·线索] 七号线索的 OCR 识别",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    37,
-                    127,
-                    54,
-                    491
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueSevenText"
                 ],
-                "expected": "7"
+                "box_index": 1
             }
         }
     },
@@ -435,12 +581,13 @@
             "param": {
                 "roi": "ClueOne",
                 "roi_offset": [
-                    281,
-                    37,
-                    -13,
-                    -30
+                    258,
+                    20,
+                    16,
+                    -10
                 ],
-                "expected": "^[1-9]\\d*$"
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
             }
         }
     },
@@ -451,12 +598,13 @@
             "param": {
                 "roi": "ClueTwo",
                 "roi_offset": [
-                    281,
-                    37,
-                    -13,
-                    -30
+                    258,
+                    20,
+                    16,
+                    -10
                 ],
-                "expected": "^[1-9]\\d*$"
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
             }
         }
     },
@@ -467,12 +615,13 @@
             "param": {
                 "roi": "ClueThree",
                 "roi_offset": [
-                    281,
-                    37,
-                    -13,
-                    -30
+                    258,
+                    20,
+                    16,
+                    -10
                 ],
-                "expected": "^[1-9]\\d*$"
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
             }
         }
     },
@@ -483,12 +632,13 @@
             "param": {
                 "roi": "ClueFour",
                 "roi_offset": [
-                    281,
-                    37,
-                    -13,
-                    -30
+                    258,
+                    20,
+                    16,
+                    -10
                 ],
-                "expected": "^[1-9]\\d*$"
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
             }
         }
     },
@@ -499,12 +649,13 @@
             "param": {
                 "roi": "ClueFive",
                 "roi_offset": [
-                    281,
-                    37,
-                    -13,
-                    -30
+                    258,
+                    20,
+                    16,
+                    -10
                 ],
-                "expected": "^[1-9]\\d*$"
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
             }
         }
     },
@@ -515,12 +666,13 @@
             "param": {
                 "roi": "ClueSix",
                 "roi_offset": [
-                    281,
-                    37,
-                    -13,
-                    -30
+                    258,
+                    20,
+                    16,
+                    -10
                 ],
-                "expected": "^[1-9]\\d*$"
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
             }
         }
     },
@@ -531,12 +683,13 @@
             "param": {
                 "roi": "ClueSeven",
                 "roi_offset": [
-                    281,
-                    37,
-                    -13,
-                    -30
+                    258,
+                    20,
+                    16,
+                    -10
                 ],
-                "expected": "^[1-9]\\d*$"
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
             }
         }
     },
