@@ -403,7 +403,8 @@
         "action": "Custom",
         "custom_action": "CharacterMoveToTargetNotFoundAction",
         "custom_action_param": {
-            "delta": 45
+            "delta": 45,
+            "leave_task": "ProtocolSpaceLeaveSpace"
         },
         "post_delay": 0,
         "focus": {
@@ -520,7 +521,8 @@
         "action": "Custom",
         "custom_action": "CharacterMoveToTargetNotFoundAction",
         "custom_action_param": {
-            "delta": 90
+            "delta": 90,
+            "leave_task": "ProtocolSpaceLeaveSpace"
         },
         "post_delay": 0,
         "focus": {
@@ -1156,5 +1158,49 @@
         ],
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "ProtocolSpaceLeaveSpace": {
+        "desc": "兜底：点击撤离离开协议空间（找不到光点时避免把角色留在空间里、连带后续任务失败）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [0, 0, 150, 150],
+                "template": "ProtocolSpace/RetreatSpace.png"
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000
+        },
+        "next": ["ProtocolSpaceLeaveDialog"]
+    },
+    "ProtocolSpaceLeaveDialog": {
+        "desc": "确认出现「是否退出当前协议空间？」弹窗",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [450, 300, 400, 60],
+                "expected": [".*是否退出.*协议空间.*", ".*Exit.*Protocol.*Space.*"]
+            }
+        },
+        "action": "DoNothing",
+        "post_delay": 200,
+        "next": ["ProtocolSpaceLeaveConfirm"]
+    },
+    "ProtocolSpaceLeaveConfirm": {
+        "desc": "点击「确认」退出协议空间",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [650, 455, 270, 70],
+                "expected": ["确认", "確認", "(?i)Confirm"]
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 500,
+            "timeout": 8000
+        }
     }
 }
