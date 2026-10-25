@@ -1832,6 +1832,7 @@
     "option.SupplyPlanLimits.inputs.WEAPON_EXP.label": "![](resource/image/UI/Item/item_weapon_expcard_high.png) Weapon EXP",
     "option.SupplyPlanLimits.label": "Training Material Targets",
     "option.SupplyPlanLimits.pattern_msg": "Enter an integer from 0 to 3000000000",
+    "option.SupplyPlanOperators.label": "Plan targets by operator (overrides the values below when checked)",
     "option.SwitchTeamTeamChoose.label": "Select Team",
     "option.TaskSchedule.label": "Execution cycle (game time)",
     "option.TaskScheduleFriday.label": "Friday",

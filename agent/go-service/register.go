@@ -46,6 +46,7 @@ import (
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/scenemanager"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/seizedeliveryjobs"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/supplyplan"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/aspectratio"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/cursormove"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/hdrcheck"
@@ -110,6 +111,7 @@ func registerAll() {
 	autostockstaple.Register()
 	autostockpile.Register()
 	ims.Register()
+	supplyplan.Register()
 	intelarchive.Register()
 	itemtransfer.Register()
 	outposttrading.Register()

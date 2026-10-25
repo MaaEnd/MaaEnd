@@ -251,6 +251,7 @@
                     "label": "$option.ProtocolSpaceMode.case.TargetInventory.label",
                     "option": [
                         "ProtocolSpaceObtainModeClaim",
+                        "SupplyPlanOperators",
                         "SupplyPlanLimits"
                     ],
                     "pipeline_override": {
@@ -1049,6 +1050,573 @@
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
                                 "A"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "SupplyPlanOperators": {
+            "type": "checkbox",
+            "label": "$option.SupplyPlanOperators.label",
+            "cases": [
+                {
+                    "name": "Akekuri",
+                    "label": "$operator.Akekuri",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Akekuri": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Alesh",
+                    "label": "$operator.Alesh",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Alesh": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Antal",
+                    "label": "$operator.Antal",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Antal": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arcane",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Arcane": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arclight",
+                    "label": "$operator.Arclight",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Arclight": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Ardelia",
+                    "label": "$operator.Ardelia",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Ardelia": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Avywenna",
+                    "label": "$operator.Avywenna",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Avywenna": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Camille",
+                    "label": "$operator.Camille",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Camille": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Catcher",
+                    "label": "$operator.Catcher",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Catcher": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ChenQianyu",
+                    "label": "$operator.ChenQianyu",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "ChenQianyu": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DaPan",
+                    "label": "$operator.DaPan",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "DaPan": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Ember",
+                    "label": "$operator.Ember",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Ember": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Endministrator",
+                    "label": "$operator.Endministrator",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Endministrator": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Estella",
+                    "label": "$operator.Estella",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Estella": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Fluorite",
+                    "label": "$operator.Fluorite",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Fluorite": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Gilberta",
+                    "label": "$operator.Gilberta",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Gilberta": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Laevatain",
+                    "label": "$operator.Laevatain",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Laevatain": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "LastRite",
+                    "label": "$operator.LastRite",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "LastRite": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Lifeng",
+                    "label": "$operator.Lifeng",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Lifeng": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Liino",
+                    "label": "$operator.Liino",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Liino": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "MiFu": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Perlica",
+                    "label": "$operator.Perlica",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Perlica": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Pogranichnik",
+                    "label": "$operator.Pogranichnik",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Pogranichnik": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Purrchena",
+                    "label": "$operator.Purrchena",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Purrchena": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Rossi",
+                    "label": "$operator.Rossi",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Rossi": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Si",
+                    "label": "$operator.Si",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Si": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Snowshine",
+                    "label": "$operator.Snowshine",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Snowshine": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Tangtang",
+                    "label": "$operator.Tangtang",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Tangtang": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Typhoeus",
+                    "label": "$operator.Typhoeus",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Typhoeus": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Wulfgard",
+                    "label": "$operator.Wulfgard",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Wulfgard": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Xaihi",
+                    "label": "$operator.Xaihi",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Xaihi": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Yvonne",
+                    "label": "$operator.Yvonne",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "Yvonne": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "label": "$operator.ZhuangFangyi",
+                    "pipeline_override": {
+                        "SupplyPlanOperatorPlan": {
+                            "attach": {
+                                "ZhuangFangyi": true
+                            }
+                        },
+                        "SupplyPlanMain": {
+                            "next": [
+                                "[JumpBack]SyncItemData",
+                                "SupplyPlanOperatorPlan"
                             ]
                         }
                     }

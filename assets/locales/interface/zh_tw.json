@@ -1832,6 +1832,7 @@
     "option.SupplyPlanLimits.inputs.WEAPON_EXP.label": "![](resource/image/UI/Item/item_weapon_expcard_high.png) 武器經驗",
     "option.SupplyPlanLimits.label": "培養道具目標",
     "option.SupplyPlanLimits.pattern_msg": "請輸入 0 到 3000000000 的整數",
+    "option.SupplyPlanOperators.label": "按幹員規劃目標（勾選後覆蓋下方數值）",
     "option.SwitchTeamTeamChoose.label": "選擇隊伍",
     "option.TaskSchedule.label": "執行週期(遊戲時間)",
     "option.TaskScheduleFriday.label": "週五",

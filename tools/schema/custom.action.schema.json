@@ -84,6 +84,7 @@
                 "RepeatUntilNotFoundAction",
                 "SceneManagerMenuListClickItemAction",
                 "SubTask",
+                "SupplyPlanOperatorPlan",
                 "SyncItemData",
                 "TextInputAction",
                 "TextInputInitAction",
@@ -189,6 +190,34 @@
 			"then": {
 				"properties": {
 					"custom_action_param": { "$ref": "./components/ims.schema.json#/$defs/AddItemDataParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "SupplyPlanOperatorPlan" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": {
+						"type": "object",
+						"description": "Generated fresh-to-max growth totals per operator, keyed by SupplyPlanLimits route.",
+						"properties": {
+							"targets": {
+								"type": "object",
+								"additionalProperties": {
+									"type": "object",
+									"additionalProperties": { "type": "integer", "minimum": 0, "maximum": 3000000000 }
+								}
+							}
+						},
+						"required": [ "targets" ],
+						"additionalProperties": false
+					}
 				},
 				"required": [ "custom_action_param" ]
 			}

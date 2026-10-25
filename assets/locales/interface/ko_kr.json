@@ -1832,6 +1832,7 @@
     "option.SupplyPlanLimits.inputs.WEAPON_EXP.label": "![](resource/image/UI/Item/item_weapon_expcard_high.png) 무기 경험",
     "option.SupplyPlanLimits.label": "육성 재료 목표",
     "option.SupplyPlanLimits.pattern_msg": "0 이상 3000000000 이하의 정수를 입력하세요",
+    "option.SupplyPlanOperators.label": "오퍼레이터별 목표 계획 (선택하면 아래 수치를 덮어씀)",
     "option.SwitchTeamTeamChoose.label": "팀 선택",
     "option.TaskSchedule.label": "실행 주기(게임 시간)",
     "option.TaskScheduleFriday.label": "금요일에 실행",

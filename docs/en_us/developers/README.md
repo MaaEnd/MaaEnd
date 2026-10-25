@@ -106,6 +106,7 @@ Only required when maintaining the corresponding task.
 | [EnvironmentMonitoring](./tasks/environment-monitoring-maintain.md) | Observation point route data, `pipeline-generate` automatic generation and new point integration process |
 | [OutpostTrading](./tasks/outpost-trading-maintain.md) | Main flow, zmdmap compact game data sync, automatic operators, and dynamic selling-loop maintenance |
 | [SeizeDeliveryJobs](./tasks/seize-delivery-jobs-maintain.md) | Data-driven endpoint generation, landmark-name maintenance, fallback text, and locale synchronization |
+| [SupplyPlanOperator](./tasks/supply-plan-operator-maintain.md) | Operator growth data generation, checkbox-to-Go-action data flow, and "fully grown from scratch" rules and limitations |
 | [GiftOperator](./tasks/gift-operator-maintain.md) | Navigation pathfinding, contact operator selection, gift giving/receiving branches, and operator extension maintenance |
 | [DeliveryJobs](./tasks/delivery-jobs-maintain.md) | Depot node handling modes, anchor landing rules, bid branches, and cargo packing priority maintenance |
 
