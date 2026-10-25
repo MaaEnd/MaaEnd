@@ -245,6 +245,7 @@
         "tasks/AutoEssence/Location/WLYinglungPass.json",
         "tasks/AutoEssence/Location/WLNorthWulingExclusionZone.json",
         "tasks/AutoEssence/Location/WLSnowyForest.json",
+        "tasks/AutoEssence/Location/WLSisPainting.json",
         "tasks/AutoEssence/Target/Target.json",
         "tasks/ProtocolSpace.json",
         // group: dijiang_ship

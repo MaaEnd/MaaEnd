@@ -2,7 +2,7 @@
 
 本文说明 `DijiangRewards` 的文件分布与执行流程。  
 设计核心是「总控中枢分发 + 子阶段回跳」：各子阶段彼此独立，选项只改阶段入口或分支，不动主流程骨架。  
-该文档更新于 2026 年 10 月 17 日。
+该文档更新于 2026 年 10 月 25 日。
 
 ## 文件路径
 
@@ -84,6 +84,10 @@
 | `QuickGiveDuplicateClues=Yes` | 进入赠予界面后优先一键赠送重复线索 |
 
 次数限制改赠予循环的 `max_hit`；库存阈值改数量 OCR 正则。
+
+两种赠送入口（`ClueSend.MaxClueSend` 与 `CreditShoppingClueSend.MaxClueSendWhenInsufficient`）写的是同一个 `ReceptionRoomSendCluesSendMain.max_hit`，可选范围统一为 `0`–`20`（上限与单种线索库存上限 20 对齐），`0` 表示不赠送。
+
+注意 `max_hit` 计的是「进入赠予循环的轮数」，其中包含 7 种线索都未达阈值而空转的轮次，因此它不等于实际送出的线索条数。
 
 ### 培养舱选项
 

@@ -57,6 +57,7 @@ jobs:
           pnpm generate:AutoStockStaple
           pnpm generate:GiftOperator
           pnpm generate:SceneTeleport
+          pnpm generate:AutoEssence
 
       - name: Get version info
         id: version
@@ -92,6 +93,7 @@ jobs:
             - AutoStockStaple
             - GiftOperator
             - SceneTeleport
+            - AutoEssence
 
             **Version Information:**
             - Version: ${{ steps.version.outputs.version }}

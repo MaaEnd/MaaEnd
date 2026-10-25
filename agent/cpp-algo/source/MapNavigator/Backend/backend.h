@@ -31,35 +31,35 @@ class IInputBackend
 public:
     virtual ~IInputBackend() = default;
 
-    virtual MaaController* GetCtrl() const = 0;
-    virtual const std::string& ControllerType() const = 0;
-    virtual bool UsesTouchBackend() const = 0;
-    virtual bool IsSupported() const = 0;
-    virtual const std::string& UnsupportedReason() const = 0;
-    virtual double DefaultTurnUnitsPerDegree() const = 0;
+    virtual MaaController* getCtrl() const = 0;
+    virtual const std::string& controllerType() const = 0;
+    virtual bool usesTouchBackend() const = 0;
+    virtual bool isSupported() const = 0;
+    virtual const std::string& unsupportedReason() const = 0;
+    virtual double defaultTurnUnitsPerDegree() const = 0;
 
-    virtual double DefaultPitchUnitsPerDegree() const { return DefaultTurnUnitsPerDegree(); }
+    virtual double defaultPitchUnitsPerDegree() const { return defaultTurnUnitsPerDegree(); }
 
-    virtual SteeringTransportProfile SteeringProfile() const = 0;
+    virtual SteeringTransportProfile steeringProfile() const = 0;
 
-    virtual bool SupportsSprint() const { return true; }
+    virtual bool supportsSprint() const { return true; }
 
     // 返回 false 时走路请求不生效, 保持跑步速度
-    virtual bool SupportsWalkToggle() const { return false; }
+    virtual bool supportsWalkToggle() const { return false; }
 
-    virtual void SetMovementStateSync(MovementState state, int delay_millis) = 0;
-    virtual void TriggerJumpSync(int hold_millis) = 0;
-    virtual void TriggerInteractSync(int hold_millis) = 0;
-    virtual void PulseForwardSync(int hold_millis) = 0;
-    virtual void TriggerSprintSync() = 0;
+    virtual void setMovementStateSync(MovementState state, int delay_millis) = 0;
+    virtual void triggerJumpSync(int hold_millis) = 0;
+    virtual void triggerInteractSync(int hold_millis) = 0;
+    virtual void pulseForwardSync(int hold_millis) = 0;
+    virtual void triggerSprintSync() = 0;
 
-    virtual void ToggleWalkModeSync() {}
+    virtual void toggleWalkModeSync() {}
 
-    virtual void ResetForwardWalkSync(int release_millis) = 0;
-    virtual void ClickMouseLeftSync() = 0;
-    virtual void TriggerZiplineLaunchSync() = 0;
-    virtual void TriggerZiplineDismountSync(int hold_millis) = 0;
-    virtual bool SendViewDeltaSync(int dx, int dy) = 0;
+    virtual void resetForwardWalkSync(int release_millis) = 0;
+    virtual void clickMouseLeftSync() = 0;
+    virtual void triggerZiplineLaunchSync() = 0;
+    virtual void triggerZiplineDismountSync(int hold_millis) = 0;
+    virtual bool sendViewDeltaSync(int dx, int dy) = 0;
 };
 
 std::unique_ptr<IInputBackend> CreateInputBackend(MaaController* ctrl);

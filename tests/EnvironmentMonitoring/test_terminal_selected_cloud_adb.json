@@ -1,0 +1,21 @@
+{
+    "configs": {
+        "name": "云终末地环境监测终端选中态",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "image": "武陵_环境监测终端_城郊已选中.png",
+            "hits": ["EnvironmentMonitoringInOutskirtsMonitoringTerminal"]
+        },
+        {
+            "image": "武陵_环境监测终端_首墩已选中.png",
+            "hits": ["EnvironmentMonitoringInMarkerStoneMonitoringTerminal"]
+        },
+        {
+            "image": "武陵_大世界_菜单关闭.png",
+            "hits": []
+        }
+    ]
+}

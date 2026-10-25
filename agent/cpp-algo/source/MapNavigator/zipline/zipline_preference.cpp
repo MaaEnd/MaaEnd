@@ -26,7 +26,7 @@ constexpr const char* kPreferenceNode = "MapNavigatorZiplinePreference";
 constexpr const char* kAccountIdentityNode = "CurrentAccountIdentity";
 constexpr size_t kAccountIdLength = 16;
 
-bool ReadPreference(MaaContext* context, bool requested)
+bool read_preference(MaaContext* context, bool requested)
 {
     if (context == nullptr) {
         return requested;
@@ -65,7 +65,7 @@ bool ReadPreference(MaaContext* context, bool requested)
     return requested;
 }
 
-std::string ReadAccountIdentity(MaaContext* context)
+std::string read_account_identity(MaaContext* context)
 {
     if (context == nullptr) {
         return {};
@@ -100,7 +100,7 @@ std::string ReadAccountIdentity(MaaContext* context)
     return account_id;
 }
 
-size_t ClaimLegacyRecords(const std::string& account_id)
+size_t claim_legacy_records(const std::string& account_id)
 {
     const std::filesystem::path path = zipline::ZiplineStore::DefaultPath();
 
@@ -112,7 +112,7 @@ size_t ClaimLegacyRecords(const std::string& account_id)
     return store.claimLegacyRecords(account_id, path);
 }
 
-void NoticeClaimedLegacyRecords(MaaContext* context, size_t claimed)
+void notice_claimed_legacy_records(MaaContext* context, size_t claimed)
 {
     if (context == nullptr || claimed == 0) {
         return;
@@ -127,19 +127,19 @@ void NoticeClaimedLegacyRecords(MaaContext* context, size_t claimed)
 bool ResolveZiplineEnabled(MaaContext* context, bool requested)
 {
     ResetZiplineOutcome();
-    return ReadPreference(context, requested);
+    return read_preference(context, requested);
 }
 
 std::string ResolveZiplineAccountId(MaaContext* context)
 {
-    const std::string account_id = ReadAccountIdentity(context);
+    const std::string account_id = read_account_identity(context);
     if (account_id.empty()) {
         LogWarn << "ZiplineAccount: current game account is unavailable; zipline records will not be used";
         return account_id;
     }
 
     LogInfo << "ZiplineAccount: current game account selected" << VAR(account_id);
-    NoticeClaimedLegacyRecords(context, ClaimLegacyRecords(account_id));
+    notice_claimed_legacy_records(context, claim_legacy_records(account_id));
     return account_id;
 }
 

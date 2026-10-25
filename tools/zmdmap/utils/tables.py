@@ -761,7 +761,8 @@ class ShopGoodsRow(msgspec.Struct, frozen=True, rename="camel"):
     """``ShopGoodsTable`` 的一行。
 
     ``limit_count_refresh_type`` / ``shop_refresh_type`` 这类枚举在有的版本里是字符串、有的是整数，
-    所以两边都收；判断时按``("None", 0)`` 这类写法比较。
+    所以两边都收；判断时把名字和整数一起列上（如 ``("Weekly", 2)``）。整数是枚举序号，0 不一定是
+    ``None``：``limit_count_refresh_type`` 的 0 就是 ``Forever``。
     """
 
     shop_id: str = ""
@@ -778,7 +779,7 @@ class ShopGoodsRow(msgspec.Struct, frozen=True, rename="camel"):
     cn_discount: int | float = 1
     """国服折扣率，1 表示原价"""
     limit_count_refresh_type: str | int = 0
-    """限购的刷新方式，如 Forever / Daily / Weekly / ByTimeId"""
+    """限购的刷新方式，如 Forever / Daily / Weekly / ByTimeId；整数形态里 0 是 Forever、2 是 Weekly"""
     limit_count: int = 0
     """限购数量"""
     sort_id: int = 0

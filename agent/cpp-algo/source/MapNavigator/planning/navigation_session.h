@@ -26,61 +26,75 @@ enum class NaviPhase
     Failed,
 };
 
+struct ProgressClock
+{
+    size_t target_key = std::numeric_limits<size_t>::max();
+    double best_distance = std::numeric_limits<double>::max();
+    std::chrono::steady_clock::time_point last_progress_time {};
+    bool initialized = false;
+
+    void observe(size_t key, double actual_distance, std::chrono::steady_clock::time_point now);
+    int64_t stalledMs(std::chrono::steady_clock::time_point now) const;
+    void pause(std::chrono::steady_clock::duration paused);
+
+    void reset() { *this = {}; }
+};
+
 struct NavigationSession
 {
     explicit NavigationSession(const std::vector<Waypoint>& path, const NaviPosition& initial_pos);
 
-    const std::vector<Waypoint>& original_path() const;
-    const std::vector<Waypoint>& current_path() const;
-    size_t path_origin_index() const;
-    size_t current_node_idx() const;
-    std::optional<size_t> CurrentAbsoluteNodeIndex() const;
+    const std::vector<Waypoint>& originalPath() const;
+    const std::vector<Waypoint>& currentPath() const;
+    size_t pathOriginIndex() const;
+    size_t currentNodeIdx() const;
+    std::optional<size_t> currentAbsoluteNodeIndex() const;
 
-    bool HasCanonicalFinalGoal() const;
-    const Waypoint& CanonicalFinalGoal() const;
-    bool HasReachedCanonicalFinalGoal(const NaviPosition& position) const;
-    bool HasSatisfiedFinalSuccess(const NaviPosition& position, const char* reason);
-    void NoteCanonicalFinalGoalConsumed(std::optional<size_t> consumed_absolute_index, const NaviPosition& position, const char* reason);
-    void NoteRouteTailConsumed(const NaviPosition& position, const char* reason);
+    bool hasCanonicalFinalGoal() const;
+    const Waypoint& canonicalFinalGoal() const;
+    bool hasReachedCanonicalFinalGoal(const NaviPosition& position) const;
+    bool hasSatisfiedFinalSuccess(const NaviPosition& position, const char* reason);
+    void noteCanonicalFinalGoalConsumed(std::optional<size_t> consumed_absolute_index, const NaviPosition& position, const char* reason);
+    void noteRouteTailConsumed(const NaviPosition& position, const char* reason);
 
     bool success() const;
-    bool HasCurrentWaypoint() const;
-    const Waypoint& CurrentWaypoint() const;
-    const Waypoint& CurrentPathAt(size_t index) const;
-    std::optional<double> WalkedFloorY(const NaviPosition& position) const;
-    std::optional<size_t> CanonicalIndexAtCurrent() const;
-    std::optional<size_t> CanonicalIndexAtCurrentPath(size_t index) const;
+    bool hasCurrentWaypoint() const;
+    const Waypoint& currentWaypoint() const;
+    const Waypoint& currentPathAt(size_t index) const;
+    std::optional<double> walkedFloorY(const NaviPosition& position) const;
+    std::optional<size_t> canonicalIndexAtCurrent() const;
+    std::optional<size_t> canonicalIndexAtCurrentPath(size_t index) const;
 
-    const std::string& current_zone_id() const;
-    void UpdateCurrentZone(const std::string& zone_id);
-    void AdvanceToNextWaypoint(const char* reason);
-    void AdvanceToNextWaypoint(ActionType expected_action, const char* reason);
-    void SkipPastWaypoint(size_t waypoint_idx, const char* reason);
+    const std::string& currentZoneId() const;
+    void updateCurrentZone(const std::string& zone_id);
+    void advanceToNextWaypoint(const char* reason);
+    void advanceToNextWaypoint(ActionType expected_action, const char* reason);
+    void skipPastWaypoint(size_t waypoint_idx, const char* reason);
     // 只改当前航点坐标, 动作和后续点不变, 走廊仍指向原坐标
-    bool RetargetCurrentWaypoint(double x, double y, const char* reason);
+    bool retargetCurrentWaypoint(double x, double y, const char* reason);
 
-    void ResetProgress();
-    void ObserveProgress(size_t waypoint_idx, double actual_distance, const std::chrono::steady_clock::time_point& now);
+    void resetProgress();
+    void observeProgress(size_t waypoint_idx, double actual_distance, const std::chrono::steady_clock::time_point& now);
 
-    int64_t StalledMs(const std::chrono::steady_clock::time_point& now) const;
-    double best_distance_to_target() const;
+    int64_t stalledMs(const std::chrono::steady_clock::time_point& now) const;
+    double bestDistanceToTarget() const;
 
-    // 只在航点前进、跳点或换路时清零, ResetProgress 不清, 原地打转时恢复超时才触发得了
-    void ObserveHardProgress(size_t target_key, double actual_distance, const std::chrono::steady_clock::time_point& now);
-    int64_t HardStalledMs(const std::chrono::steady_clock::time_point& now) const;
-    void ResetHardProgress();
-    void ExcludeFromStallClocks(std::chrono::steady_clock::duration paused);
+    // 只在航点前进、跳点或换路时清零, resetProgress 不清, 原地打转时恢复超时才触发得了
+    void observeHardProgress(size_t target_key, double actual_distance, const std::chrono::steady_clock::time_point& now);
+    int64_t hardStalledMs(const std::chrono::steady_clock::time_point& now) const;
+    void resetHardProgress();
+    void excludeFromStallClocks(std::chrono::steady_clock::duration paused);
 
-    std::optional<double> LandedTowerDeckY(const NaviPosition& position) const;
-    void LeaveLandedTowerDeck();
+    std::optional<double> landedTowerDeckY(const NaviPosition& position) const;
+    void leaveLandedTowerDeck();
     // 换路后航点下标归零, 推不出人站在哪根架子上, 由这里记着
-    void NoteStandingTower(const std::optional<ZiplineNodeRef>& tower);
+    void noteStandingTower(const std::optional<ZiplineNodeRef>& tower);
 
-    void ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos);
-    void ReplaceRoute(std::vector<Waypoint> path, const NaviPosition& pos, const char* reason);
+    void applyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos);
+    void replaceRoute(std::vector<Waypoint> path, const NaviPosition& pos, const char* reason);
 
     NaviPhase phase() const;
-    void UpdatePhase(NaviPhase next_phase, const char* reason);
+    void updatePhase(NaviPhase next_phase, const char* reason);
 
 private:
     std::vector<Waypoint> original_path_;
@@ -97,25 +111,16 @@ private:
     bool left_landed_deck_ = false;
     std::optional<ZiplineNodeRef> standing_tower_;
 
-    size_t progress_waypoint_idx_ = std::numeric_limits<size_t>::max();
-    double best_distance_to_target_ = std::numeric_limits<double>::max();
-    std::chrono::steady_clock::time_point last_progress_time_ {};
-    bool progress_initialized_ = false;
+    ProgressClock progress_;
+    ProgressClock hard_progress_;
 
-    size_t hard_progress_target_key_ = std::numeric_limits<size_t>::max();
-    double hard_best_distance_ = std::numeric_limits<double>::max();
-    std::chrono::steady_clock::time_point hard_last_progress_time_ {};
-    bool hard_progress_initialized_ = false;
-
-    [[nodiscard]] bool RequireCurrentWaypoint(const char* reason) const;
-    [[nodiscard]] bool RequireWaypointIndex(size_t index, const char* reason) const;
-    void RecordFinalArrivalEvidence(
-        const NaviPosition& position,
-        bool verified_at_tail_consumption,
-        size_t evidence_index,
-        const char* reason);
-    void CommitSuccessfulCompletion(const NaviPosition& position, const char* reason);
-    double FinalGoalAcceptanceBand() const;
+    [[nodiscard]] bool requireCurrentWaypoint(const char* reason) const;
+    [[nodiscard]] bool requireWaypointIndex(size_t index, const char* reason) const;
+    std::optional<size_t> canonicalIndexOf(size_t index) const;
+    void leaveCurrentWaypoint(size_t next_index);
+    void recordFinalArrivalEvidence(const NaviPosition& position, bool verified_at_tail_consumption, const char* reason);
+    void commitSuccessfulCompletion(const char* reason);
+    double finalGoalAcceptanceBand() const;
 };
 
 } // namespace mapnavigator

@@ -30,7 +30,7 @@ struct BootstrapContinueCandidate
     const char* reason = "";
 };
 
-std::optional<BootstrapContinueCandidate> FindProjectedContinueCandidate(const std::vector<Waypoint>& path, const NaviPosition& position)
+std::optional<BootstrapContinueCandidate> find_projected_continue_candidate(const std::vector<Waypoint>& path, const NaviPosition& position)
 {
     std::optional<BootstrapContinueCandidate> best_candidate;
     for (size_t index = 0; index + 1 < path.size(); ++index) {
@@ -87,7 +87,7 @@ std::optional<BootstrapContinueCandidate> FindProjectedContinueCandidate(const s
     return best_candidate;
 }
 
-std::vector<BootstrapWaypointCandidate> CollectReachableWaypoints(const std::vector<Waypoint>& path, const NaviPosition& position)
+std::vector<BootstrapWaypointCandidate> collect_reachable_waypoints(const std::vector<Waypoint>& path, const NaviPosition& position)
 {
     std::vector<BootstrapWaypointCandidate> candidates;
     for (size_t index = 0; index < path.size(); ++index) {
@@ -106,17 +106,17 @@ std::vector<BootstrapWaypointCandidate> CollectReachableWaypoints(const std::vec
     return candidates;
 }
 
-size_t RewindToEarliestNearby(const std::vector<Waypoint>& path, const NaviPosition& position, size_t index)
+size_t rewind_to_earliest_nearby(const std::vector<Waypoint>& path, const NaviPosition& position, size_t index)
 {
     const Waypoint& anchor = path[index];
-    if (!anchor.HasPosition()) {
+    if (!anchor.hasPosition()) {
         return index;
     }
 
     size_t rewound = index;
     while (rewound > 0) {
         const Waypoint& previous = path[rewound - 1];
-        if (!previous.HasPosition() || !IsZoneCompatible(previous, position.zone_id)) {
+        if (!previous.hasPosition() || !IsZoneCompatible(previous, position.zone_id)) {
             break;
         }
         if (std::hypot(previous.x - anchor.x, previous.y - anchor.y) > kBootstrapOwnershipMaxDistance) {
@@ -126,20 +126,21 @@ size_t RewindToEarliestNearby(const std::vector<Waypoint>& path, const NaviPosit
     }
 
     const auto rewound_begin = path.begin() + static_cast<std::ptrdiff_t>(rewound);
-    if (std::none_of(path.begin(), rewound_begin, [](const Waypoint& waypoint) { return waypoint.HasPosition(); })) {
+    if (std::none_of(path.begin(), rewound_begin, [](const Waypoint& waypoint) { return waypoint.hasPosition(); })) {
         return 0;
     }
     return rewound;
 }
 
-std::optional<BootstrapContinueCandidate> ResolveBootstrapContinueCandidate(const std::vector<Waypoint>& path, const NaviPosition& position)
+std::optional<BootstrapContinueCandidate>
+    resolve_bootstrap_continue_candidate(const std::vector<Waypoint>& path, const NaviPosition& position)
 {
-    const std::optional<BootstrapContinueCandidate> projected = FindProjectedContinueCandidate(path, position);
+    const std::optional<BootstrapContinueCandidate> projected = find_projected_continue_candidate(path, position);
     if (projected.has_value()) {
         return projected;
     }
 
-    const std::vector<BootstrapWaypointCandidate> reachable = CollectReachableWaypoints(path, position);
+    const std::vector<BootstrapWaypointCandidate> reachable = collect_reachable_waypoints(path, position);
     if (reachable.empty()) {
         return std::nullopt;
     }
@@ -180,17 +181,17 @@ std::optional<BootstrapContinueCandidate> ResolveBootstrapContinueCandidate(cons
     }
 
     return BootstrapContinueCandidate {
-        .continue_index = RewindToEarliestNearby(path, position, nearest->index),
+        .continue_index = rewind_to_earliest_nearby(path, position, nearest->index),
         .route_distance = nearest->distance,
         .reason = "rewound_to_earliest",
     };
 }
 
-std::optional<DynamicAnchor> ResolveBootstrapAnchor(const NaviParam& param, NavigationSession* session, const NaviPosition& position)
+std::optional<DynamicAnchor> resolve_bootstrap_anchor(const NaviParam& param, NavigationSession* session, const NaviPosition& position)
 {
     size_t start_index = 0;
     const std::optional<BootstrapContinueCandidate> continue_candidate =
-        ResolveBootstrapContinueCandidate(session->original_path(), position);
+        resolve_bootstrap_continue_candidate(session->originalPath(), position);
     if (continue_candidate.has_value()) {
         start_index = continue_candidate->continue_index;
         LogInfo << "Bootstrap dynamic anchor scan adjusted." << VAR(continue_candidate->reason) << VAR(start_index)
@@ -206,7 +207,7 @@ std::optional<DynamicAnchor> ResolveBootstrapAnchor(const NaviParam& param, Navi
 
 std::optional<size_t> ResolveRouteResumeIndex(const std::vector<Waypoint>& path, const NaviPosition& position)
 {
-    const std::optional<BootstrapContinueCandidate> candidate = ResolveBootstrapContinueCandidate(path, position);
+    const std::optional<BootstrapContinueCandidate> candidate = resolve_bootstrap_continue_candidate(path, position);
     if (!candidate || candidate->continue_index == 0 || candidate->continue_index >= path.size()) {
         return std::nullopt;
     }
@@ -215,39 +216,39 @@ std::optional<size_t> ResolveRouteResumeIndex(const std::vector<Waypoint>& path,
     return candidate->continue_index;
 }
 
-bool NavigationStateMachine::Bootstrap()
+bool NavigationStateMachine::bootstrap()
 {
-    runtime_state_.BeginNavigation(std::chrono::steady_clock::now());
+    runtime_state_.beginNavigation(std::chrono::steady_clock::now());
     sensitivity::BeginRun();
 
     std::optional<DynamicAnchor> anchor;
     if (param_.enable_bootstrap_navmesh) {
-        anchor = ResolveBootstrapAnchor(param_, session_, *position_);
+        anchor = resolve_bootstrap_anchor(param_, session_, *position_);
     }
     else {
         LogInfo << "Bootstrap navmesh planning disabled by route param." << VAR(position_->x) << VAR(position_->y)
                 << VAR(position_->zone_id);
     }
-    if (anchor && TryApplyDynamicOverlayToAnchor("bootstrap_navmesh_overlay", anchor->first, anchor->second, false)) {
-        SelectPhaseForCurrentWaypoint("bootstrap_navmesh_overlay");
+    if (anchor && tryApplyDynamicOverlayToAnchor("bootstrap_navmesh_overlay", anchor->first, anchor->second, false)) {
+        selectPhaseForCurrentWaypoint("bootstrap_navmesh_overlay");
         return true;
     }
 
     const std::optional<BootstrapContinueCandidate> continue_candidate =
-        ResolveBootstrapContinueCandidate(session_->original_path(), *position_);
+        resolve_bootstrap_continue_candidate(session_->originalPath(), *position_);
     if (continue_candidate && continue_candidate->continue_index > 0
-        && continue_candidate->continue_index < session_->original_path().size()) {
-        session_->ApplyDynamicOverlay({}, continue_candidate->continue_index, *position_);
-        runtime_state_.route.Reset();
+        && continue_candidate->continue_index < session_->originalPath().size()) {
+        session_->applyDynamicOverlay({}, continue_candidate->continue_index, *position_);
+        runtime_state_.route.reset();
         runtime_state_.nav_run_dirty = true;
         LogInfo << "Bootstrap serial route continue after navmesh overlay unavailable." << VAR(continue_candidate->continue_index)
                 << VAR(continue_candidate->route_distance) << VAR(position_->x) << VAR(position_->y) << VAR(position_->zone_id);
-        SelectPhaseForCurrentWaypoint("bootstrap_serial_continue");
+        selectPhaseForCurrentWaypoint("bootstrap_serial_continue");
         return true;
     }
 
     LogWarn << "Bootstrap ownership fallback to route head." << VAR(position_->x) << VAR(position_->y) << VAR(position_->zone_id);
-    SelectPhaseForCurrentWaypoint("bootstrap_ready");
+    selectPhaseForCurrentWaypoint("bootstrap_ready");
     return true;
 }
 

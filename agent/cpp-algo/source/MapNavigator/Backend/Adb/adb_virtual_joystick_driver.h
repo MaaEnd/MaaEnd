@@ -32,10 +32,10 @@ public:
     explicit AdbVirtualJoystickDriver(MaaController* controller, AdbVirtualJoystickDriverConfig config = {});
     ~AdbVirtualJoystickDriver();
 
-    bool SetMovementState(MovementState state, int delay_millis);
-    bool PulseForward(int hold_millis);
-    bool Release(int delay_millis);
-    bool SetWalking(bool walking);
+    bool setMovementState(MovementState state, int delay_millis);
+    bool pulseForward(int hold_millis);
+    bool release(int delay_millis);
+    bool setWalking(bool walking);
 
     bool walking() const { return walking_; }
 
@@ -47,16 +47,16 @@ private:
         cv::Size frame_size {};
     };
 
-    std::optional<ControlGeometry> AcquireControlGeometry();
-    bool BeginDirectionalDrag(cv::Point direction);
-    bool UpdateDirectionalDrag(cv::Point direction);
-    void ClearContact();
-    bool PostTouchDown(const cv::Point& point) const;
-    bool PostTouchMove(const cv::Point& point) const;
-    bool PostTouchUp() const;
-    cv::Point ComputeTargetPoint(cv::Point direction) const;
-    int ComputeDragRadius() const;
-    static cv::Point ClampPoint(cv::Point point, const cv::Size& bounds);
+    std::optional<ControlGeometry> acquireControlGeometry();
+    bool beginDirectionalDrag(cv::Point direction);
+    bool updateDirectionalDrag(cv::Point direction);
+    void clearContact();
+    bool postTouchDown(const cv::Point& point) const;
+    bool postTouchMove(const cv::Point& point) const;
+    bool postTouchUp() const;
+    cv::Point computeTargetPoint(cv::Point direction) const;
+    int computeDragRadius() const;
+    static cv::Point clampPoint(cv::Point point, const cv::Size& bounds);
 
     MaaController* controller_ = nullptr;
     AdbVirtualJoystickDriverConfig config_;

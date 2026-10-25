@@ -15,10 +15,10 @@ class IZiplineObserver
 {
 public:
     virtual ~IZiplineObserver() = default;
-    virtual ZiplineObservation Observe(const std::vector<ZiplineNodeRef>& hint_nodes, bool force_global_search) = 0;
+    virtual ZiplineObservation observe(const std::vector<ZiplineNodeRef>& hint_nodes, bool force_global_search) = 0;
     // 只在上索与下索确认期间调, 每次都要跑识别, 开销比一帧定位高
-    virtual MountVerdict CheckMounted() = 0;
-    virtual void ResetTracking() = 0;
+    virtual MountVerdict checkMounted() = 0;
+    virtual void resetTracking() = 0;
 };
 
 // 每个动作同步发出、发完即回, 到没到位靠后续观测
@@ -26,15 +26,15 @@ class IZiplineActuator
 {
 public:
     virtual ~IZiplineActuator() = default;
-    virtual bool ResetPitchToMaximum() = 0;
+    virtual bool resetPitchToMaximum() = 0;
     // 只发一个后端批次, 返回实际发出的度数, 发不出去返回空
-    virtual std::optional<double> TurnYaw(double delta_deg) = 0;
-    virtual bool TurnPitch(double delta_deg) = 0;
+    virtual std::optional<double> turnYaw(double delta_deg) = 0;
+    virtual bool turnPitch(double delta_deg) = 0;
     // 识别不到交互提示时不发按键, 返回是否识别到
-    virtual bool PressMount() = 0;
-    virtual void FireLaunch() = 0;
-    virtual void Dismount() = 0;
-    virtual void Wait(int32_t ms) = 0;
+    virtual bool pressMount() = 0;
+    virtual void fireLaunch() = 0;
+    virtual void dismount() = 0;
+    virtual void wait(int32_t ms) = 0;
 };
 
 // reached 返回命中的节点, 圈外且滑行过时按定位坐标现造一根未登记架子
@@ -50,57 +50,57 @@ class ZiplineRideMachine
 {
 public:
     // 人不在架子上时调用方要先按上索键再调
-    void Begin(const ZiplineHopPlan& plan);
-    StageResult Tick(IZiplineObserver& observer, IZiplineActuator& actuator);
-    void Dismount(IZiplineActuator& actuator);
-    void MarkMountUnreachable(const ZiplineHopPlan& plan);
+    void begin(const ZiplineHopPlan& plan);
+    StageResult tick(IZiplineObserver& observer, IZiplineActuator& actuator);
+    void dismount(IZiplineActuator& actuator);
+    void markMountUnreachable(const ZiplineHopPlan& plan);
 
-    bool OnTower() const;
-    std::optional<ZiplineNodeRef> TowerUnderfoot() const;
+    bool onTower() const;
+    std::optional<ZiplineNodeRef> towerUnderfoot() const;
 
     ZiplineStage stage() const { return stage_; }
 
     const HopLedger& ledger() const { return ledger_; }
 
     // 清掉这一跳, 账本留着
-    void Reset();
-    void ResetNavigation();
+    void reset();
+    void resetNavigation();
 
 private:
     using Clock = std::chrono::steady_clock;
 
-    void EnterStage(ZiplineStage stage, Clock::time_point now);
-    int64_t StageElapsedMs(Clock::time_point now) const;
-    void CommitRecord(HopOutcome outcome, Clock::time_point now);
-    void CommitFailedReturn(HopOutcome outcome, Clock::time_point now);
-    std::vector<ZiplineNodeRef> KnownNodes() const;
-    std::vector<double> NeighborOffsetsDeg() const;
-    double FirstShotAimBiasDeg() const;
-    double EscalatedAimBiasDeg(double wrong_bearing_deg) const;
+    void enterStage(ZiplineStage stage, Clock::time_point now);
+    int64_t stageElapsedMs(Clock::time_point now) const;
+    void commitRecord(HopOutcome outcome, Clock::time_point now);
+    void commitFailedReturn(HopOutcome outcome, Clock::time_point now);
+    std::vector<ZiplineNodeRef> knownNodes() const;
+    std::vector<double> neighborOffsetsDeg() const;
+    double firstShotAimBiasDeg() const;
+    double escalatedAimBiasDeg(double wrong_bearing_deg) const;
 
-    std::optional<double> SettledHeading(const ZiplineObservation& obs);
-    void ResetStableHeading();
-    void NoteTurnResponse(double heading);
-    std::optional<double> IssueYawTurn(IZiplineActuator& actuator, double heading, double residual, Clock::time_point now);
-    int32_t TurnBudgetMs(double residual) const;
-    StageResult StartExitAim(const HopCompleted& done, Clock::time_point now);
-    double ResidualToExitAim() const;
-    StageResult LeaveTowerAfterAim(IZiplineActuator& actuator, Clock::time_point now);
+    std::optional<double> settledHeading(const ZiplineObservation& obs);
+    void resetStableHeading();
+    void noteTurnResponse(double heading);
+    std::optional<double> issueYawTurn(IZiplineActuator& actuator, double heading, double residual, Clock::time_point now);
+    int32_t turnBudgetMs(double residual) const;
+    StageResult startExitAim(const HopCompleted& done, Clock::time_point now);
+    double residualToExitAim() const;
+    StageResult leaveTowerAfterAim(IZiplineActuator& actuator, Clock::time_point now);
 
-    StageResult TickMounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
-    StageResult Remount(IZiplineActuator& actuator, const char* reason, Clock::time_point now);
-    StageResult TickOnTower(IZiplineActuator& actuator, Clock::time_point now);
-    StageResult TickAiming(const ZiplineObservation& obs, IZiplineActuator& actuator);
-    StageResult TickFired(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
-    StageResult TickRiding(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
-    StageResult TickLanded(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
-    StageResult TickExitAiming(const ZiplineObservation& obs, IZiplineActuator& actuator);
-    StageResult Classify(IZiplineObserver& observer, IZiplineActuator& actuator, Clock::time_point now);
-    StageResult TickDismounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
-    StageResult FailAim(IZiplineActuator& actuator, const char* reason, Clock::time_point now);
-    StageResult StartDismount(IZiplineActuator& actuator, StageResult exit, Clock::time_point now);
-    StageResult ParkForReplan(const ZiplineNodeRef& tower, Clock::time_point now);
-    StageResult Handoff(Clock::time_point now);
+    StageResult tickMounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
+    StageResult remount(IZiplineActuator& actuator, const char* reason, Clock::time_point now);
+    StageResult tickOnTower(IZiplineActuator& actuator, Clock::time_point now);
+    StageResult tickAiming(const ZiplineObservation& obs, IZiplineActuator& actuator);
+    StageResult tickFired(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
+    StageResult tickRiding(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
+    StageResult tickLanded(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
+    StageResult tickExitAiming(const ZiplineObservation& obs, IZiplineActuator& actuator);
+    StageResult classify(IZiplineObserver& observer, IZiplineActuator& actuator, Clock::time_point now);
+    StageResult tickDismounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
+    StageResult failAim(IZiplineActuator& actuator, const char* reason, Clock::time_point now);
+    StageResult startDismount(IZiplineActuator& actuator, StageResult exit, Clock::time_point now);
+    StageResult parkForReplan(const ZiplineNodeRef& tower, Clock::time_point now);
+    StageResult handoff(Clock::time_point now);
 
     ZiplineStage stage_ = ZiplineStage::Idle;
     Clock::time_point stage_entered_at_ {};

@@ -18,6 +18,7 @@
 #include "../../Zipline/ZiplineStore.h"
 #include "../navi_param.h"
 #include "../planning/navmesh_path_expander.h"
+#include "../planning/navmesh_queries.h"
 
 namespace mapnavigator
 {
@@ -47,7 +48,7 @@ struct ZiplineData
     bool ok = false;
 };
 
-std::filesystem::file_time_type FileStamp(const std::filesystem::path& path)
+std::filesystem::file_time_type file_stamp(const std::filesystem::path& path)
 {
     std::error_code ec;
     const auto stamp = std::filesystem::last_write_time(path, ec);
@@ -55,7 +56,7 @@ std::filesystem::file_time_type FileStamp(const std::filesystem::path& path)
 }
 
 // 导入会在运行中改写文件, 所以按 mtime 重读; 交出的是快照, 重载只换指针
-std::shared_ptr<const ZiplineData> SharedData()
+std::shared_ptr<const ZiplineData> shared_data()
 {
     static std::mutex mutex;
     static std::shared_ptr<const ZiplineData> cached;
@@ -64,8 +65,8 @@ std::shared_ptr<const ZiplineData> SharedData()
 
     const std::filesystem::path frames_path = zipline::ZiplineFrames::DefaultPath();
     const std::filesystem::path store_path = zipline::ZiplineStore::DefaultPath();
-    const auto frames_now = FileStamp(frames_path);
-    const auto store_now = FileStamp(store_path);
+    const auto frames_now = file_stamp(frames_path);
+    const auto store_now = file_stamp(store_path);
 
     std::lock_guard<std::mutex> lock(mutex);
     if (cached && frames_now == frames_stamp && store_now == store_stamp) {
@@ -82,13 +83,13 @@ std::shared_ptr<const ZiplineData> SharedData()
     return cached;
 }
 
-double Distance(const navmesh::WorldPoint& a, const navmesh::WorldPoint& b)
+double planar_distance(const navmesh::WorldPoint& a, const navmesh::WorldPoint& b)
 {
     return std::hypot(b.x - a.x, b.y - a.y);
 }
 
 // 类号集合有序, 任一边为空表示无从判断, 当作可能连通
-bool MayConnect(const std::vector<uint32_t>& a, const std::vector<uint32_t>& b)
+bool may_connect(const std::vector<uint32_t>& a, const std::vector<uint32_t>& b)
 {
     if (a.empty() || b.empty()) {
         return true;
@@ -147,7 +148,7 @@ static_assert(grid_areas_may_overlap(6.0, 6.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
 static_assert(!grid_areas_may_overlap(0.0, 7.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
 
 // 只量原始世界坐标的水平 x/z, 高低差不进判据
-bool IsPowered(const zipline::ZiplineMark& tower, const std::array<int, 2>& tower_footprint, const std::vector<SupplyPoint>& supplies)
+bool is_powered(const zipline::ZiplineMark& tower, const std::array<int, 2>& tower_footprint, const std::vector<SupplyPoint>& supplies)
 {
     return std::any_of(supplies.begin(), supplies.end(), [&](const SupplyPoint& supply) {
         if (supply.coverage_size[0] > 0 && supply.coverage_size[1] > 0) {
@@ -157,13 +158,13 @@ bool IsPowered(const zipline::ZiplineMark& tower, const std::array<int, 2>& towe
     });
 }
 
-navmesh::WorldPoint ToWorld(const zipline::ZiplineNode& node)
+navmesh::WorldPoint to_world(const zipline::ZiplineNode& node)
 {
     return navmesh::WorldPoint { .x = node.x, .y = node.y };
 }
 
 // 标记坐标落在占地的某个角格上, 每个角都算一个可能的塔心, 原始世界坐标 x/z
-std::vector<std::array<double, 2>> TowerCenters(const zipline::ZiplineNode& node, const std::array<int, 2>& footprint)
+std::vector<std::array<double, 2>> tower_centers(const zipline::ZiplineNode& node, const std::array<int, 2>& footprint)
 {
     const double half_x = grid_half_span(footprint[0]);
     const double half_z = grid_half_span(footprint[1]);
@@ -181,10 +182,10 @@ std::vector<std::array<double, 2>> TowerCenters(const zipline::ZiplineNode& node
 
 // 偏移在原始世界坐标里按格算再投影, 地图比例不进这里
 std::vector<navmesh::WorldPoint>
-    CenterSpots(const zipline::ZiplineFrame& frame, const zipline::ZiplineNode& tower, const std::array<int, 2>& footprint)
+    center_spots(const zipline::ZiplineFrame& frame, const zipline::ZiplineNode& tower, const std::array<int, 2>& footprint)
 {
     std::vector<navmesh::WorldPoint> spots;
-    for (const auto& [x, z] : TowerCenters(tower, footprint)) {
+    for (const auto& [x, z] : tower_centers(tower, footprint)) {
         const zipline::ZiplineMark shifted {
             .template_id = tower.template_id,
             .level_id = tower.level_id,
@@ -192,23 +193,23 @@ std::vector<navmesh::WorldPoint>
             .y = tower.world_y,
             .z = z,
         };
-        spots.push_back(ToWorld(frame.project(shifted)));
+        spots.push_back(to_world(frame.project(shifted)));
     }
     return spots;
 }
 
 // 沿供电结构到架子的方向往外挪, 让架子重新成为离身位最近的设备
-std::optional<navmesh::WorldPoint> MountStandPoint(
+std::optional<navmesh::WorldPoint> mount_stand_point(
     const NaviParam& param,
     const std::string& locator_zone,
     const zipline::ZiplineNode& tower,
     const std::vector<navmesh::WorldPoint>& supplies)
 {
-    const navmesh::WorldPoint here = ToWorld(tower);
+    const navmesh::WorldPoint here = to_world(tower);
     const navmesh::WorldPoint* nearest = nullptr;
     double nearest_distance = kMountPoleClearPx;
     for (const navmesh::WorldPoint& supply : supplies) {
-        const double distance = Distance(here, supply);
+        const double distance = planar_distance(here, supply);
         if (distance < nearest_distance) {
             nearest_distance = distance;
             nearest = &supply;
@@ -231,7 +232,7 @@ std::optional<navmesh::WorldPoint> MountStandPoint(
 }
 
 // 只取中心格, 往模型里推得越深, 被挡住那一刻离航点越远, 越容易落在预筛窗外
-std::vector<navmesh::WorldPoint> MountSpots(
+std::vector<navmesh::WorldPoint> mount_spots(
     const NaviParam& param,
     const std::string& locator_zone,
     const zipline::ZiplineFrame& frame,
@@ -240,13 +241,13 @@ std::vector<navmesh::WorldPoint> MountSpots(
     const navmesh::WorldPoint& approach_from,
     const std::vector<navmesh::WorldPoint>& supplies)
 {
-    const navmesh::WorldPoint anchor = ToWorld(tower);
+    const navmesh::WorldPoint anchor = to_world(tower);
     const double half_x = grid_half_span(footprint[0]);
     const double half_z = grid_half_span(footprint[1]);
     const double toward_x = anchor.x - approach_from.x;
     const double toward_y = anchor.y - approach_from.y;
     std::vector<std::pair<double, navmesh::WorldPoint>> ranked;
-    for (const navmesh::WorldPoint& spot : CenterSpots(frame, tower, footprint)) {
+    for (const navmesh::WorldPoint& spot : center_spots(frame, tower, footprint)) {
         const auto snap = NavmeshSnapAt(param, locator_zone, spot, kMountStandSnapRadiusPx, tower.height);
         if (!snap || snap->distance > kMountStandSnapTolPx || std::abs(snap->height - tower.height) > navmesh::kBaseNavFloorBand) {
             continue;
@@ -261,7 +262,7 @@ std::vector<navmesh::WorldPoint> MountSpots(
     if (spots.empty()) {
         spots.push_back(anchor);
     }
-    if (const std::optional<navmesh::WorldPoint> stand = MountStandPoint(param, locator_zone, tower, supplies)) {
+    if (const std::optional<navmesh::WorldPoint> stand = mount_stand_point(param, locator_zone, tower, supplies)) {
         spots.push_back(*stand);
     }
     LogDebug << "ZiplineRoute: stand points to try at the mount tower" << VAR(spots.size()) << VAR(anchor.x) << VAR(anchor.y) << VAR(half_x)
@@ -284,11 +285,11 @@ constexpr double minimum_possible_world_span_squared(
 }
 
 // BaseNavRouteResult::cost 是搜索代价, 和几何长度不能混用
-double PolylineLength(const navmesh::WorldPath& path)
+double polyline_length(const navmesh::WorldPath& path)
 {
     double total = 0.0;
     for (size_t i = 0; i + 1 < path.points.size(); ++i) {
-        total += Distance(path.points[i], path.points[i + 1]);
+        total += planar_distance(path.points[i], path.points[i + 1]);
     }
     return total;
 }
@@ -301,17 +302,17 @@ constexpr double kRopeInterceptLateralWu = 15.0;
 // 绳端在塔底上方的高度, 判索撞不撞地要按抬升后的两端连线量
 constexpr double kRopeEndHeightWu = 5.72;
 
-std::vector<navmesh::OccluderPoint> TowerBases(const zipline::ZiplineNode& node, const std::array<int, 2>& footprint)
+std::vector<navmesh::OccluderPoint> tower_base_points(const zipline::ZiplineNode& node, const std::array<int, 2>& footprint)
 {
     std::vector<navmesh::OccluderPoint> bases;
-    for (const auto& [x, z] : TowerCenters(node, footprint)) {
+    for (const auto& [x, z] : tower_centers(node, footprint)) {
         bases.push_back(navmesh::OccluderPoint { .x = x, .y = node.world_y, .z = z });
     }
     return bases;
 }
 
 // 从塔落地后的地面高度起算, 记录里的塔底是整数格高, 差几厘米就会判错贴着梁底过的绳
-std::vector<navmesh::OccluderPoint> RopeEnds(const std::vector<navmesh::OccluderPoint>& bases, const std::vector<double>& grounds)
+std::vector<navmesh::OccluderPoint> rope_end_points(const std::vector<navmesh::OccluderPoint>& bases, const std::vector<double>& grounds)
 {
     std::vector<navmesh::OccluderPoint> ends;
     for (size_t k = 0; k < bases.size(); ++k) {
@@ -336,7 +337,7 @@ struct ZipLinkGraph
     std::vector<RopeCandidate> ropes;
 };
 
-void DropEdge(std::vector<std::vector<size_t>>& links, size_t a, size_t b)
+void drop_edge(std::vector<std::vector<size_t>>& links, size_t a, size_t b)
 {
     const auto drop = [](std::vector<size_t>& outgoing, size_t target) {
         outgoing.erase(std::remove(outgoing.begin(), outgoing.end(), target), outgoing.end());
@@ -346,7 +347,7 @@ void DropEdge(std::vector<std::vector<size_t>>& links, size_t a, size_t b)
 }
 
 // 返回拦路架到索线的垂距, nodes 须已做过通电筛选
-std::optional<double> RopeIntercepted(
+std::optional<double> rope_intercepted(
     const std::vector<zipline::ZiplineNode>& nodes,
     const std::vector<size_t>& node_map,
     size_t from,
@@ -388,7 +389,7 @@ std::optional<double> RopeIntercepted(
     return std::nullopt;
 }
 
-ZipLinkGraph BuildLinks(
+ZipLinkGraph build_links(
     const std::vector<zipline::ZiplineNode>& nodes,
     const std::vector<size_t>& node_map,
     const std::vector<double>& span_limit,
@@ -435,7 +436,7 @@ ZipLinkGraph BuildLinks(
             }
             graph.all[i].push_back(j);
             graph.all[j].push_back(i);
-            if (const std::optional<double> lateral = RopeIntercepted(nodes, node_map, i, j, span_limit, footprints)) {
+            if (const std::optional<double> lateral = rope_intercepted(nodes, node_map, i, j, span_limit, footprints)) {
                 demoted_lateral.push_back(*lateral);
                 continue;
             }
@@ -449,7 +450,7 @@ ZipLinkGraph BuildLinks(
 }
 
 // 到不了的留 infinity, 边权每跳含一次换乘开销, 链头那次由调用方减回去
-void SolveZipChains(
+void solve_zip_chains(
     const std::vector<zipline::ZiplineNode>& nodes,
     const std::vector<std::vector<size_t>>& links,
     const zipline::ZiplineCostModel& cost,
@@ -472,7 +473,7 @@ void SolveZipChains(
         }
         for (const size_t next : links[at]) {
             // 代价用像素距离, 要和 navmesh 路径长度相加比较
-            const double hop = Distance(ToWorld(nodes[at]), ToWorld(nodes[next])) * cost.speed_ratio + cost.transfer_penalty;
+            const double hop = planar_distance(to_world(nodes[at]), to_world(nodes[next])) * cost.speed_ratio + cost.transfer_penalty;
             if (reached_at + hop >= (*dist)[next]) {
                 continue;
             }
@@ -594,7 +595,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         return std::nullopt;
     };
 
-    const std::shared_ptr<const ZiplineData> data = SharedData();
+    const std::shared_ptr<const ZiplineData> data = shared_data();
     if (!data->ok || data->frames.empty()) {
         return no_zipline("no zipline calibration on disk", &g_zipline_no_data);
     }
@@ -633,7 +634,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
                     .footprint = source->footprint,
                     .coverage_size = source->coverage_size,
                 });
-                supply_points.push_back(ToWorld(frame->project(mark)));
+                supply_points.push_back(to_world(frame->project(mark)));
             }
         }
         if (require_power && supplies.empty()) {
@@ -644,7 +645,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             if (!frame->accepts(mark)) {
                 continue;
             }
-            if (require_power && !IsPowered(mark, data->frames.footprint(mark.template_id), supplies)) {
+            if (require_power && !is_powered(mark, data->frames.footprint(mark.template_id), supplies)) {
                 ++unpowered;
                 continue;
             }
@@ -661,7 +662,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     }
 
     const zipline::ZiplineCostModel& cost = data->frames.cost();
-    const double baseline_length = walking_baseline_available ? PolylineLength(*walking_path) : 0.0;
+    const double baseline_length = walking_baseline_available ? polyline_length(*walking_path) : 0.0;
     const double gain_threshold = walking_baseline_available ? baseline_length - cost.min_gain : std::numeric_limits<double>::infinity();
     if (walking_baseline_available && gain_threshold <= cost.mount_penalty) {
         return no_zipline("the walk is too short for any zipline to pay off", &g_zipline_not_chosen);
@@ -676,9 +677,9 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     size_t wrong_floor = 0;
     for (size_t i = 0; i < nodes.size(); ++i) {
         footprints[i] = data->frames.footprint(nodes[i].template_id);
-        const navmesh::WorldPoint anchor = ToWorld(nodes[i]);
+        const navmesh::WorldPoint anchor = to_world(nodes[i]);
         std::vector<navmesh::WorldPoint> tries { anchor };
-        for (const navmesh::WorldPoint& center : CenterSpots(*frame, nodes[i], footprints[i])) {
+        for (const navmesh::WorldPoint& center : center_spots(*frame, nodes[i], footprints[i])) {
             if (center.x != anchor.x || center.y != anchor.y) {
                 tries.push_back(center);
             }
@@ -718,10 +719,10 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     size_t cut_off = 0;
     for (size_t i = 0; i < nodes.size(); ++i) {
         for (const size_t spot : tower_spots[i]) {
-            if (MayConnect(regions[spot], regions[spots.size()])) {
+            if (may_connect(regions[spot], regions[spots.size()])) {
                 board_spots[i].push_back(spot);
             }
-            if (MayConnect(regions[spot], regions[spots.size() + 1])) {
+            if (may_connect(regions[spot], regions[spots.size() + 1])) {
                 land_spots[i].push_back(spot);
             }
         }
@@ -739,7 +740,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             continue;
         }
         for (size_t i = 0; i < nodes.size(); ++i) {
-            if (!board_spots[i].empty() && ToNodeRef(nodes[i]).SameTower(record.plan.mount)) {
+            if (!board_spots[i].empty() && ToNodeRef(nodes[i]).sameTower(record.plan.mount)) {
                 board_spots[i].clear();
                 ++unboardable;
             }
@@ -762,10 +763,10 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     for (size_t i = 0; i < nodes.size(); ++i) {
         span_limit[i] = data->frames.maxSpan(nodes[i].template_id);
         for (const size_t spot : board_spots[i]) {
-            lb_from_start[i] = std::min(lb_from_start[i], Distance(start, spots[spot]));
+            lb_from_start[i] = std::min(lb_from_start[i], planar_distance(start, spots[spot]));
         }
         for (const size_t spot : land_spots[i]) {
-            lb_to_goal[i] = std::min(lb_to_goal[i], Distance(spots[spot], goal));
+            lb_to_goal[i] = std::min(lb_to_goal[i], planar_distance(spots[spot], goal));
         }
     }
 
@@ -782,18 +783,18 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
 
     std::vector<std::vector<navmesh::OccluderPoint>> tower_bases(nodes.size());
     for (size_t i = 0; i < nodes.size(); ++i) {
-        tower_bases[i] = TowerBases(nodes[i], footprints[i]);
+        tower_bases[i] = tower_base_points(nodes[i], footprints[i]);
     }
     const std::vector<std::vector<double>> grounds = NavmeshGroundHeights(param, locator_zone, tower_bases);
     std::vector<std::vector<navmesh::OccluderPoint>> rope_ends(nodes.size());
     for (size_t i = 0; i < nodes.size(); ++i) {
-        rope_ends[i] = RopeEnds(tower_bases[i], grounds[i]);
+        rope_ends[i] = rope_end_points(tower_bases[i], grounds[i]);
     }
-    ZipLinkGraph graph = BuildLinks(nodes, node_map, span_limit, footprints, rope_ends);
+    ZipLinkGraph graph = build_links(nodes, node_map, span_limit, footprints, rope_ends);
 
     const auto drop_from_graph = [&graph](size_t a, size_t b) {
-        DropEdge(graph.all, a, b);
-        DropEdge(graph.certain, a, b);
+        drop_edge(graph.all, a, b);
+        drop_edge(graph.certain, a, b);
     };
 
     {
@@ -870,8 +871,8 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             continue;
         }
 
-        SolveZipChains(nodes, graph.certain, cost, i, &certain_cost, &certain_prev);
-        SolveZipChains(nodes, graph.all, cost, i, &chain_cost, &chain_prev);
+        solve_zip_chains(nodes, graph.certain, cost, i, &certain_cost, &certain_prev);
+        solve_zip_chains(nodes, graph.all, cost, i, &chain_cost, &chain_prev);
         for (size_t j = 0; j < nodes.size(); ++j) {
             if (j == i || land_spots[j].empty()) {
                 continue;
@@ -898,7 +899,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     if (candidates.empty()) {
         return no_zipline("no reachable pair of ziplines leads anywhere useful", &g_zipline_not_chosen);
     }
-    std::sort(candidates.begin(), candidates.end(), [](const Candidate& a, const Candidate& b) { return a.lower_bound < b.lower_bound; });
+    std::stable_sort(candidates.begin(), candidates.end(), [](const Candidate& a, const Candidate& b) { return a.lower_bound < b.lower_bound; });
 
     size_t plan_budget = kMaxExtraPlans;
 
@@ -908,19 +909,20 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             auto route = PlanNavmeshRoute(
                 param,
                 locator_zone,
-                start,
-                spots[index],
-                nodes[spot_tower[index]].height,
-                start_floor_y,
-                capture_diagnostics ? &diagnostic : nullptr,
-                nullptr,
-                start_deck_y);
+                {
+                    .start = start,
+                    .start_floor_y = start_floor_y,
+                    .start_deck_y = start_deck_y,
+                    .goal = spots[index],
+                    .goal_deck_y = nodes[spot_tower[index]].height,
+                },
+                capture_diagnostics ? &diagnostic : nullptr);
             if (!route || !route->ok()) {
                 return std::nullopt;
             }
             return PlannedLeg {
                 .path = route->path,
-                .length = PolylineLength(route->path),
+                .length = polyline_length(route->path),
                 .diagnostic = std::move(diagnostic),
             };
         },
@@ -932,17 +934,19 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             auto route = PlanNavmeshRoute(
                 param,
                 locator_zone,
-                spots[index],
-                goal,
-                goal_deck_y,
-                nodes[spot_tower[index]].height,
+                {
+                    .start = spots[index],
+                    .start_floor_y = nodes[spot_tower[index]].height,
+                    .goal = goal,
+                    .goal_deck_y = goal_deck_y,
+                },
                 capture_diagnostics ? &diagnostic : nullptr);
             if (!route || !route->ok()) {
                 return std::nullopt;
             }
             return PlannedLeg {
                 .path = route->path,
-                .length = PolylineLength(route->path),
+                .length = polyline_length(route->path),
                 .diagnostic = std::move(diagnostic),
             };
         },
@@ -1040,7 +1044,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     }
 
     const std::vector<std::vector<size_t>>& links = best_candidate->certain ? graph.certain : graph.all;
-    SolveZipChains(nodes, links, cost, best_candidate->mount, &chain_cost, &chain_prev);
+    solve_zip_chains(nodes, links, cost, best_candidate->mount, &chain_cost, &chain_prev);
     std::vector<size_t> chain;
     for (size_t at = best_candidate->dismount; at != kNoTower; at = chain_prev[at]) {
         chain.push_back(at);
@@ -1070,7 +1074,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     }
     const navmesh::WorldPoint& approach_from =
         best->approach.points.size() >= 2 ? best->approach.points[best->approach.points.size() - 2] : start;
-    best->mount_spots = MountSpots(
+    best->mount_spots = mount_spots(
         param,
         locator_zone,
         *frame,
