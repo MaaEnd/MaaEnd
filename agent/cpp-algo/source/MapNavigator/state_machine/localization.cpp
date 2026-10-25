@@ -297,7 +297,8 @@ bool NavigationStateMachine::planCrossTierEscapeCorridorFromHere(const char* rea
 {
     const std::vector<Waypoint>& path = session_->currentPath();
     for (size_t index = session_->currentNodeIdx(); index < path.size(); ++index) {
-        const Waypoint& candidate = session_->currentPathAt(index);
+        // 必须拷贝, 叠加成功会重建 current_path_
+        const Waypoint candidate = session_->currentPathAt(index);
         if (!candidate.hasPosition()) {
             continue;
         }
