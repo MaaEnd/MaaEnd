@@ -1,8 +1,5 @@
 import assert from "node:assert/strict";
-import {spawnSync} from "node:child_process";
-import {readFileSync} from "node:fs";
 import {test} from "node:test";
-import {fileURLToPath} from "node:url";
 
 import {parseJsonc} from "../jsonc.mjs";
 import {buildPipeline, collectReferences, extractClicks, nodeName, successName, updatePipeline} from "./generate.mjs";
@@ -43,7 +40,7 @@ function sourceFixture() {
 
 const levels = {map01_lv001: {names: {zh_cn: "枢纽区"}}, map01_lv002: {names: {zh_cn: "谷地通道"}}};
 
-test("按地区 name/area 和地图 click 提取缓存，忽略 version、sha256 和 polygon", () => {
+test("按地区 name/area 和地图 click 提取数据，忽略 version、sha256 和 polygon", () => {
     const source = sourceFixture();
     assert.deepEqual(extractClicks(source), {
         region01: {
@@ -65,7 +62,6 @@ test("按地区 name/area 和地图 click 提取缓存，忽略 version、sha256
         },
     });
 });
-
 test("拒绝非法点击点和缺失地区结构", () => {
     const source = sourceFixture();
     for (const invalid of [
@@ -330,44 +326,4 @@ test("本文件手写流程仍有引用时拒绝删除，解除引用后正常�
         updated[successName("region01", "map01_lv001")],
         complete.successes[successName("region01", "map01_lv001")],
     );
-});
-
-test("下载数据遗漏仍被地区入口引用的地图时，主程序在写缓存和 Pipeline 前失败", () => {
-    const cachePath = new URL("./clicks.json", import.meta.url);
-    const pipelinePath = new URL(
-        "../../../assets/resource/pipeline/SceneManager/SceneMapOverview.json",
-        import.meta.url,
-    );
-    const beforeCache = readFileSync(cachePath);
-    const beforePipeline = readFileSync(pipelinePath);
-    const source = JSON.parse(beforeCache.toString("utf8"));
-    delete source.region01.area.map01_lv001;
-    const generator = new URL("./generate.mjs", import.meta.url);
-    // 拦截写入，即使未来发生回归，这个测试也不会覆盖开发者的真实缓存和 Pipeline。
-    const script = `
-        import fs from "node:fs";
-        import {syncBuiltinESMExports} from "node:module";
-        fs.writeFileSync = () => { throw new Error("测试禁止写文件"); };
-        syncBuiltinESMExports();
-        globalThis.fetch = async () => ({ok: true, json: async () => (${JSON.stringify(source)})});
-        process.argv[1] = ${JSON.stringify(fileURLToPath(generator))};
-        await import(${JSON.stringify(generator.href)});
-    `;
-    const result = spawnSync(
-        process.execPath,
-        [
-            "--input-type=module",
-            "-e",
-            script,
-        ],
-        {encoding: "utf8", timeout: 30000},
-    );
-    assert.equal(result.error, undefined);
-    assert.equal(result.status, 1);
-    assert.match(result.stderr, /拒绝删除仍被流程引用/);
-    assert.ok(result.stderr.includes(nodeName("region01", "map01_lv001")));
-    assert.match(result.stderr, /SceneValleyIV\.json/);
-    assert.doesNotMatch(result.stderr, /测试禁止写文件/);
-    assert.deepEqual(readFileSync(cachePath), beforeCache);
-    assert.deepEqual(readFileSync(pipelinePath), beforePipeline);
 });

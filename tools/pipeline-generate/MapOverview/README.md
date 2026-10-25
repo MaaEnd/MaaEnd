@@ -1,19 +1,21 @@
 # 地图总览点击节点
 
-从 [region3d_data.json](https://voice.fz.wiki/output_maaend/region3d_data.json) 下载各地区的总览点击坐标，生成 `assets/resource/pipeline/SceneManager/SceneMapOverview.json`。
+使用统一的 zmdmap 数据源获取各地区的总览点击坐标，生成 `assets/resource/pipeline/SceneManager/SceneMapOverview.json`。
 
 ```shell
 pnpm generate:MapOverview
-node tools/pipeline-generate/MapOverview/generate.mjs --no-download
+pnpm fetch:zmdmap --only region3d --only teleport_anchors
+node tools/pipeline-generate/MapOverview/generate.mjs
 node --test tools/pipeline-generate/MapOverview/generate.test.mjs
 ```
 
-默认下载并生成，请求附带缓存刷新参数以获取最新发布内容；`--no-download` 使用已入库的 `clicks.json` 离线生成。
+`pnpm generate:MapOverview` 会先由 zmdmap 下载并校验 `region3d`，再运行生成器。单独运行生成器时使用已有的
+`tools/zmdmap/data/region3d.json`，不会自行请求远端或维护副本。
 
 ## 数据和命名
 
 - 数据结构为 `region01: {name: "四号谷地", area: {map01_lv001: {polygon: [...], click: [455, 478]}}}`。生成器读取地区 `name` 和 `area` 内各地图的 `click`，不保留 `polygon`。
-- `clicks.json` 保留地区的 `name`、`area` 以及地图的 `click`，不维护手写地区映射。
+- `tools/zmdmap/data/region3d.json` 是唯一数据来源，文件头的 `version`、`sha256` 由 zmdmap 管理；生成器只读取地区的 `name`、`area` 以及地图的 `click`。
 - 地区名称和非空 `area` 必须存在，坐标必须是 1280×720 基准下的两个整数。不满足时直接报错。
 - 总览入口节点按 `__ScenePrivateMapOverview_地区key_EnterMap_地图key` 命名，例如 `__ScenePrivateMapOverview_region01_EnterMap_map01_lv001`，保留“从该地区总览进入目标地图”的语义。
 - 点击节点的 `next` 自动指向 `__ScenePrivateMapAnyEnterMap_地区key_地图key_Success`，表示已从任意地图界面进入目标地图，无需逐张地图登记。

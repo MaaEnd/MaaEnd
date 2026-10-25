@@ -54,7 +54,7 @@ pnpm generate:SceneTeleport
 pnpm generate:AutoEssence
 ```
 
-地图总览点击坐标使用独立发布的数据源，运行 `pnpm generate:MapOverview` 下载坐标并生成选择底图的点击节点；离线重生成及既有流程出口的维护方式见 [MapOverview](./MapOverview/README.md)。
+地图总览点击坐标由 zmdmap 统一管理，运行 `pnpm generate:MapOverview` 下载数据并生成选择底图的点击节点；已有流程出口的维护方式见 [MapOverview](./MapOverview/README.md)。
 
 ## 投影
 

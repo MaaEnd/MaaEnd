@@ -8,9 +8,7 @@ import {format, resolveConfig} from "prettier";
 import {parseJsonc, readJsonc} from "../jsonc.mjs";
 import {dataDir, repoRoot} from "../utils/paths.mjs";
 
-const sourceUrl = "https://voice.fz.wiki/output_maaend/region3d_data.json";
-const directory = fileURLToPath(new URL(".", import.meta.url));
-const clicksPath = resolve(directory, "clicks.json");
+const region3dPath = resolve(dataDir, "region3d.json");
 const outputPath = resolve(repoRoot, "assets/resource/pipeline/SceneManager/SceneMapOverview.json");
 const nodePrefix = "__ScenePrivateMapOverview";
 const placeholderHint = "待实现地图成功确认，实现后启用";
@@ -241,31 +239,17 @@ async function writeText(path, source) {
     if (text !== original) writeFileSync(path, text, "utf8");
 }
 
-async function writeJson(path, value) {
-    await writeText(path, `${JSON.stringify(value, null, 4)}\n`);
-}
-
 async function main() {
     const args = process.argv.slice(2);
-    if (args.some((arg) => arg !== "--no-download")) {
-        throw new Error("用法: node tools/pipeline-generate/MapOverview/generate.mjs [--no-download]");
+    if (args.length > 0) {
+        throw new Error("用法: node tools/pipeline-generate/MapOverview/generate.mjs");
     }
-    let clicks;
-    if (args.includes("--no-download")) {
-        clicks = readJsonc(clicksPath);
-    } else {
-        // 发布地址由 CDN 缓存，使用独立请求地址获取最新发布内容。
-        const url = new URL(sourceUrl);
-        url.searchParams.set("refresh", Date.now().toString());
-        const response = await fetch(url, {signal: AbortSignal.timeout(60000), cache: "no-store"});
-        if (!response.ok) throw new Error(`[MapOverview] 下载失败: HTTP ${response.status}`);
-        clicks = extractClicks(await response.json());
-    }
+    // 下载、版本和指纹校验由统一的 zmdmap fetch 命令负责，这里只读取入库后的地区总览数据。
+    const clicks = extractClicks(readJsonc(region3dPath));
     const {levels} = readJsonc(resolve(dataDir, "teleport_anchors.json"));
     const nodes = buildPipeline(clicks, levels);
     const external = collectExternalNodes();
     const output = updatePipeline(readOutput(), nodes, external.names, external.references);
-    await writeJson(clicksPath, clicks);
     await writeText(outputPath, output);
     console.log(`[MapOverview] 已生成 ${Object.keys(nodes.clicks).length} 个点击节点：${outputPath}`);
 }
