@@ -2,6 +2,7 @@ import {existsSync, readFileSync, writeFileSync} from "node:fs";
 import {dirname, resolve} from "node:path";
 import {pathToFileURL} from "node:url";
 import {parseJsonc} from "../../jsonc.mjs";
+import {sortLocaleKeys} from "../../utils/locales.mjs";
 import {
     buildGeneratedIdIndex,
     collectMonitoringMissions,
@@ -94,8 +95,10 @@ function syncRouteLocaleCatalogs(missions, idByMissionId) {
             Object.assign(syncedMessages, failureMessages);
         }
         validateRouteLocaleCatalog(syncedMessages, failureMessages, missions.length, routeKeyPrefix, fileLocale);
-        if (JSON.stringify(syncedMessages) !== JSON.stringify(messages)) {
-            const syncedText = `${JSON.stringify(syncedMessages, null, 4)}\n`;
+        // 键按字母序写回（与 prettier 的 maafw-sort 对 locale 文件的要求一致）。
+        const sortedMessages = sortLocaleKeys(syncedMessages);
+        if (JSON.stringify(sortedMessages) !== JSON.stringify(messages)) {
+            const syncedText = `${JSON.stringify(sortedMessages, null, 4)}\n`;
             writeFileSync(localePath, syncedText, "utf8");
             console.log(`[EnvironmentMonitoring] 已同步 ${fileLocale}.json 的路线失败提示。`);
         }
