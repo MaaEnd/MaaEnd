@@ -299,6 +299,9 @@ constexpr size_t kNoTower = std::numeric_limits<size_t>::max();
 // 中段架子到索线的三维垂距在此以内时, 这条直索只算不确定边
 constexpr double kRopeInterceptLateralWu = 15.0;
 
+// 中段架子与索线的竖直落差超过此值时不算拦路
+constexpr double kRopeInterceptDropWu = 11.5;
+
 // 绳端在塔底上方的高度, 判索撞不撞地要按抬升后的两端连线量
 constexpr double kRopeEndHeightWu = 5.72;
 
@@ -362,6 +365,7 @@ std::optional<double> rope_intercepted(
     if (span <= 2.0 * kRopeInterceptLateralWu) {
         return std::nullopt;
     }
+    const double planar_squared = dx * dx + dz * dz;
     for (size_t k = 0; k < nodes.size(); ++k) {
         if (k == from || k == to || node_map[k] != node_map[from]) {
             continue;
@@ -379,6 +383,12 @@ std::optional<double> rope_intercepted(
         const double lateral = std::hypot(lateral_x, lateral_y, lateral_z);
         if (lateral > kRopeInterceptLateralWu) {
             continue;
+        }
+        if (planar_squared > 0.0) {
+            const double drop = offset_y - dy * (offset_x * dx + offset_z * dz) / planar_squared;
+            if (std::abs(drop) > kRopeInterceptDropWu) {
+                continue;
+            }
         }
         const double limit = std::min(span_limit[from], span_limit[k]);
         if (minimum_possible_world_span_squared(offset_x, offset_y, offset_z, footprints[from], footprints[k]) > limit * limit) {
