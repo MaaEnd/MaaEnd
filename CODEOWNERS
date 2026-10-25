@@ -123,7 +123,6 @@
 /agent/cpp-algo/source/MapLocator/                                @Lemon-miaow
 /agent/cpp-algo/source/MapNavigator/                              @Lemon-miaow
 /agent/cpp-algo/source/Navmesh/                                   @Lemon-miaow
-/agent/cpp-algo/source/MapNavmesh/                                @Lemon-miaow
 /agent/cpp-algo/source/Zipline/                                   @Lemon-miaow
 /assets/resource*/pipeline/MapNavigator/                          @Lemon-miaow
 /assets/resource*/image/MapNavigator/                             @Lemon-miaow

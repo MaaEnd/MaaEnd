@@ -20,17 +20,17 @@
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
 
-#include "../MapNavigator/navi_param_parser.h"
-#include "../MapNavigator/planning/navmesh_cache.h"
-#include "../MapNavigator/planning/navmesh_path_expander.h"
-#include "../MapNavigator/planning/navmesh_queries.h"
-#include "../MapNavigator/zipline/zipline_leg_planner.h"
 #include "../Navmesh/BaseNavGeometry.h"
 #include "../Navmesh/BaseNavPlanner.h"
 #include "../Navmesh/BaseNavReader.h"
 #include "../Navmesh/RecastNavGrid.h"
 #include "../Navmesh/RecastNavRoute.h"
 #include "../Zipline/ZiplineStore.h"
+#include "navi_param_parser.h"
+#include "planning/navmesh_cache.h"
+#include "planning/navmesh_path_expander.h"
+#include "planning/navmesh_queries.h"
+#include "zipline/zipline_leg_planner.h"
 
 #ifndef MAA_TRUE
 #define MAA_TRUE 1
