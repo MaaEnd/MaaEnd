@@ -413,6 +413,7 @@
     },
     "ProtocolSpaceTouchStartMoveToTarget": {
         "desc": "向目标移动",
+        "max_hit": 25, // 光点一直可见却走不到时会无限「转正视角 + 前进」，25 步仍未到达就交给未找到分支
         "recognition": "And",
         "all_of": [
             "InProtocolSpace",
