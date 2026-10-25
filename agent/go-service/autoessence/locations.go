@@ -29,6 +29,11 @@ func loadLocationKeys(dataDir string) error {
 	if len(keys) == 0 {
 		return fmt.Errorf("%s has no location keys", locationKeysFile)
 	}
+	for levelID, key := range keys {
+		if key == "" {
+			return fmt.Errorf("%s: empty location key for %s", locationKeysFile, levelID)
+		}
+	}
 	locationLevelToKey = keys
 	return nil
 }
@@ -36,7 +41,7 @@ func loadLocationKeys(dataDir string) error {
 // LocationKeyByLevel returns the pipeline location key for a locations.json level_id.
 func LocationKeyByLevel(levelID string) (string, bool) {
 	key, ok := locationLevelToKey[levelID]
-	return key, ok && key != ""
+	return key, ok
 }
 
 // RegionLabelKey returns the interface i18n key of a location's region name ($global.region.*):

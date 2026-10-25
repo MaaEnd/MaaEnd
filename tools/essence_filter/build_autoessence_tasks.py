@@ -13,6 +13,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import json5
+
 from tools.zmdmap import read_payload
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -72,6 +74,8 @@ OCR_TEXT_OVERRIDE = {
     },
 }
 
+# 地区 key 会拼进文件名、节点名和下面两条正则，只能是 VF / WL 开头的字母数字。
+LOCATION_KEY_RE = re.compile(r"(?:VF|WL)[A-Za-z0-9]+")
 ANCHOR_BLOCK_RE = re.compile(
     r'(?P<indent>[ \t]*)"GotoTriggerPointSetAnchor_[A-Za-z0-9]+",?\n'
     r'(?:[ \t]*"GotoTriggerPointSetAnchor_[A-Za-z0-9]+",?\n)*'
@@ -84,12 +88,16 @@ IMPORT_BLOCK_RE = re.compile(
 
 
 def load_location_keys(path: Path) -> dict[str, str]:
-    keys = json.loads(path.read_text(encoding="utf-8"))
+    # 人工维护的 JSONC：允许注释、尾逗号和 BOM（与 Go 侧一致），重复的 level_id 直接报错。
+    try:
+        keys = json5.loads(path.read_text(encoding="utf-8-sig"), allow_duplicate_keys=False)
+    except ValueError as error:
+        raise ValueError(f"{path.name}: {error}") from error
     if not isinstance(keys, dict) or not keys:
         raise ValueError(f"{path.name} 应为非空的 level_id -> 地区 key 对照")
     for level_id, key in keys.items():
-        if not isinstance(key, str) or not key:
-            raise ValueError(f"{path.name} 里 {level_id} 的地区 key 为空")
+        if not isinstance(key, str) or not LOCATION_KEY_RE.fullmatch(key):
+            raise ValueError(f"{path.name} 里 {level_id} 的地区 key {key!r} 不合法，应为 VF / WL 开头的字母数字")
     return keys
 
 
@@ -328,6 +336,12 @@ def resolve_locations(
     location_keys: dict[str, str],
     locale_keys: set[str],
 ) -> list[tuple[str, dict[str, Any]]]:
+    # 已登记的 level_id 对不上数据，多半是上游改了编号或登记时写错。不能当成新地区跳过：
+    # 跳过会把这个地区已生成的选项和节点一起删掉。
+    level_ids = {location.get("level_id") for location in locations}
+    stale = sorted(level_id for level_id in location_keys if level_id not in level_ids)
+    if stale:
+        raise ValueError("location_keys.json 里已登记的 level_id 在 locations.json 里找不到: " + ", ".join(stale))
     resolved: list[tuple[str, dict[str, Any]]] = []
     seen: set[str] = set()
     for location in locations:

@@ -85,15 +85,15 @@ func TestLocationKeysCoverLocations(t *testing.T) {
 		t.Fatal("expected locations")
 	}
 	// 数据可能先于路线：新地区在 location_keys.json / RegionNodes 补上之前没有 key，运行时会跳过它。
-	// 这里只要求已知地区都还能解析出来。
-	routable := 0
+	// 反过来，已登记的地区都得在 locations.json 里找得到：上游改了 level_id 或登记时写错会在这里报出来。
+	present := make(map[string]bool, len(engine.Locations()))
 	for _, loc := range engine.Locations() {
-		if _, ok := LocationKeyByLevel(loc.LevelID); ok {
-			routable++
-		}
+		present[loc.LevelID] = true
 	}
-	if routable < 12 {
-		t.Fatalf("expected at least 12 routable locations, got %d", routable)
+	for levelID, key := range locationLevelToKey {
+		if !present[levelID] {
+			t.Errorf("registered %s (%s) is missing from locations.json", levelID, key)
+		}
 	}
 }
 

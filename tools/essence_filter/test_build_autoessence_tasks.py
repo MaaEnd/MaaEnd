@@ -3,6 +3,7 @@
 import io
 import json
 import sys
+import tempfile
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
@@ -25,32 +26,52 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class LocationKeyTest(unittest.TestCase):
+    def load_text(self, text: str) -> dict[str, str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "location_keys.json"
+            path.write_text(text, encoding="utf-8")
+            return load_location_keys(path)
+
     def test_loads_shared_json(self):
         keys = load_location_keys(LOCATION_KEYS)
         self.assertEqual(keys["map01_lv001"], "VFTheHub")
         self.assertEqual(keys["map02_lv009"], "WLSnowyForest")
 
-    def test_resolves_by_level_id(self):
-        resolved = resolve_locations(
-            [{"name": "重度能量淤积点·枢纽区", "level_id": "map01_lv001"}],
-            {"map01_lv001": "VFTheHub"},
-            {"global.region.TheHub"},
-        )
-        self.assertEqual([key for key, _ in resolved], ["VFTheHub"])
+    def test_accepts_jsonc_like_go(self):
+        keys = self.load_text('﻿{\n    // 祀的画路线未完成\n    "map01_lv001": "VFTheHub",\n}\n')
+        self.assertEqual(keys, {"map01_lv001": "VFTheHub"})
+
+    def test_rejects_duplicate_level_id(self):
+        with self.assertRaisesRegex(ValueError, "location_keys.json"):
+            self.load_text('{"map02_lv009": "WLSnowyForest", "map02_lv009": "WLSisPainting"}')
+
+    def test_rejects_key_unusable_in_names(self):
+        for key in ("WLSi_Painting", "TheHub", "VF", ""):
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError, "map02_lv010"):
+                self.load_text(json.dumps({"map02_lv010": key}))
 
     def test_unregistered_location_is_skipped(self):
         stderr = io.StringIO()
         with redirect_stderr(stderr):
             resolved = resolve_locations(
                 [
-                    {"name": "重度能量淤积点·枢纽区", "level_id": "map01_lv001"},
                     {"name": "重度能量淤积点·祀的画", "level_id": "map02_lv010"},
+                    {"name": "重度能量淤积点·枢纽区", "level_id": "map01_lv001"},
                 ],
                 {"map01_lv001": "VFTheHub"},
                 {"global.region.TheHub"},
             )
         self.assertEqual([key for key, _ in resolved], ["VFTheHub"])
         self.assertIn("map02_lv010", stderr.getvalue())
+
+    def test_registered_level_missing_from_data_fails(self):
+        # 上游把枢纽区改成别的 level_id：要报错，不能当成新地区跳过（跳过会删掉 VFTheHub 的选项）。
+        with self.assertRaisesRegex(ValueError, "map01_lv001"):
+            resolve_locations(
+                [{"name": "重度能量淤积点·枢纽区", "level_id": "map01_lv011"}],
+                {"map01_lv001": "VFTheHub"},
+                {"global.region.TheHub"},
+            )
 
 
 class OcrExpectedTest(unittest.TestCase):

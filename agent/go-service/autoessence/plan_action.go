@@ -48,7 +48,7 @@ func rememberPlanLocation(plan *FarmPlan) {
 }
 
 // regionLabel 取地区名的界面文案（$global.region.*）。
-// 没配到映射、或文案缺失（i18n.T 会原样返回 key）时退回刷取点全名，保证提示不丢内容。
+// key 不是 VF/WL 形式、或文案缺失（i18n.T 会原样返回 key）时退回刷取点全名，保证提示不丢内容。
 func regionLabel(locationKey, fallback string) string {
 	labelKey, ok := RegionLabelKey(locationKey)
 	if !ok {
