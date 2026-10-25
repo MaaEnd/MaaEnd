@@ -160,7 +160,8 @@ Result ConsumeHeadingNodes(const Context& ctx)
             ctx.motion_controller->setForwardState(false);
         }
         else if (!CommitHeadingTurn(ctx, heading_delta)) {
-            return Failure("heading_turn_failed", "HEADING node failed to issue view turn.");
+            // 不推进, 下一拍重试
+            return {};
         }
 
         const double achieved_heading = VerifyAndCorrectHeading(ctx, target_heading, start_heading);
