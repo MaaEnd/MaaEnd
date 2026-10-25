@@ -19,6 +19,7 @@ from pathlib import Path
 
 import json5
 from PIL import Image
+
 from tools.zmdmap.utils.http import get, new_client
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
