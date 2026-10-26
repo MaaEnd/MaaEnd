@@ -33,7 +33,8 @@ This document was updated on October 26, 2026.
     - Whether remaining stock bills are [below the retention threshold](#stock-bill-retention-threshold) → stop scanning this region.
     - Whether a [buyable target item is recognized](#item-recognition-chain-and-discount-groups) → click to enter the purchase popup; discount groups are tried in order within the same round.
     - Whether it is sold out → stop scanning this region.
-    - Otherwise, swipe down the list to continue searching (max 25 swipes per region).
+    - Whether the [list has reached its end](#5-sold-out-and-swiping) → stop scanning this region.
+    - Otherwise, swipe down the list to continue searching (max 25 swipes per region as a fallback only).
 5. Handle the purchase popup according to the [three-branch quantity control](#quantity-control-three-branches): exit due to insufficient stock bills / purchase if under the limit / exclude if the limit is reached.
 6. End after all enabled regions are completed.
 
@@ -243,7 +244,10 @@ After all three match, click the item card (`target_offset: [-45, 85, -30, 0]`),
 ### 5. Sold-Out and Swiping
 
 - `SoldOut`: OCR recognizes text like "Sold Out / 已售罄" on the left; once matched, it stops swiping.
-- `AutoStockSwipeValleyIV`: Swipes down within the Valley IV page, `post_wait_freezes` waits for the list area to stabilize before entering the next round of recognition.
+- `AutoStockListComplete{Region}`: the **end-of-list recognizer**, placed before the swipe node. On its first run it captures the still frame inside `roi` as a runtime template; afterwards it compares every round: an unchanged frame (similarity ≥ `threshold`, set to 0.95 here) means the list has hit the bottom, and a hit ends the region scan; a changed frame means the template is recaptured and scrolling continues.
+    - `roi` covers the item card grid (`[65, 200, 1075, 360]` at the 720p baseline); adjust it when the card layout or the resolution baseline changes, otherwise the recognizer may never hit.
+    - `attach.ready` is the recognizer's runtime state (template `ListCompleteRecognition/AutoStockListComplete{Region}.png`); every task run uses a fresh Context, so no template leaks between runs.
+- `AutoStockSwipe{Region}`: swipes down within the regional page, `post_wait_freezes` waits for the list area to stabilize before entering the next round of recognition. `max_hit: 25` only acts as a fallback when the end-of-list recognizer never hits; once exhausted, `AutoStockNoMoreTarget{Region}` ends the region.
 
 ## Quantity Control (Purchase Popup)
 
@@ -355,6 +359,7 @@ If a third region for staple goods purchase is added in the future, a set of nod
     - `AutoStockInStaple{Region}` scan loop (keep the `next` order, including `AutoStockNoMoreTarget{Region}`, which ends the region once swipes run out; the group judgment entries become one `[JumpBack]AutoStockBuyItem{Region}Task{Group}` per group).
     - `AutoStockTargetCompare{Region}` / `AutoStockTargetCanNotBuy{Region}`.
     - One `AutoStockBuyItem{Region}Task{Group}` per discount group (replace the group discount node names).
+    - `AutoStockListComplete{Region}` (end-of-list recognizer, adjust its `roi` to the regional list position).
     - `AutoStockSwipe{Region}`.
 2. Add `[JumpBack]AutoStockStaple{Region}` sub-task and SceneManager jump in `Main.json`.
 3. Add scene OCR in `StockStaple.json` or the regional InScene file.
@@ -369,6 +374,7 @@ The existing Wuling implementation is a mirror of Valley IV; you can directly di
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | Target item not recognized in list | The per-group `expected` regexes printed by `AttachToExpectedRegexAction` in `go-service.log`; whether anchor `AutoStockInStapleItem` matched |
 | Only one category is never bought | Whether that category switch is on; whether the tier selected in `AutoStockMinDiscount{Region}{Group}` covers the actual discount in that group's discount node `expected` |
+| Scanning stops before the list ends | Whether `AutoStockListComplete{Region}`'s `roi` covers the card grid and its `threshold` is too low; the `score` logged by `ListCompleteRecognition` in `go-service.log` |
 | Item recognized but not purchased | Whether quantity control went to `Exclude` or `StockBillInsufficient`; `AutoStockStapleQuantityControl{Item}Buy/Exclude` in `maafw*.log` |
 | Purchase quantity is incorrect | `threshold/current_count/target` in `AutoStockStapleQuantityControlAction` log; BetterSliding ROI |
 | Scanning stops even though stock bills seem sufficient | `AutoStockTargetCompareValleyIV` expression and user input `{ReserveValleyIV}` |

@@ -21,6 +21,7 @@
             "[JumpBack]AutoStockBuyItemValleyIVTaskIndustrial",
             "[JumpBack]AutoStockBuyItemValleyIVTaskCultural",
             "SoldOut",
+            "AutoStockListCompleteValleyIV",
             "[JumpBack]AutoStockSwipeValleyIV",
             "AutoStockNoMoreTargetValleyIV"
         ]
@@ -217,6 +218,34 @@
             "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
         }
     },
+    // 列表到底识别器：首次执行把 roi 内画面截成运行时模板，之后每轮比较静止画面；
+    // 画面与上一轮相同说明已经滑到底，命中即结束本地区扫描，不再用固定滑动次数猜到底。
+    // 模板名 ListCompleteRecognition/AutoStockListCompleteValleyIV.png；attach.ready 是识别器的运行期状态，
+    // 每次任务都用新的 Context，因此不会沿用上一次任务的模板。
+    "AutoStockListCompleteValleyIV": {
+        "desc": "比较列表静止画面，确认四号谷地物资列表已经到底",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "custom_recognition_param": {
+                    "threshold": 0.95
+                },
+                "roi": [
+                    65,
+                    200,
+                    1075,
+                    360
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "attach": {
+            "ready": false
+        }
+    },
     "AutoStockSwipeValleyIV": {
         "desc": "向下滑动寻找商品，直到找到商品或到达底部",
         "max_hit": 25,
@@ -261,7 +290,7 @@
         }
     },
     "AutoStockNoMoreTargetValleyIV": {
-        "desc": "滑动次数用完仍在物资调度页：列表已到底且没有符合条件的商品，结束当前区域",
+        "desc": "滑动次数用尽仍在物资调度页：列表到底识别器未确认到底，结束本地区（兜底）",
         "recognition": {
             "type": "And",
             "param": {
