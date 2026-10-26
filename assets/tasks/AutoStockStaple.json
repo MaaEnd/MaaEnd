@@ -371,7 +371,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.inputs.ValleyFoodAndBuffLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^(?:0|[1-9]\\d{0,3})$",
+                    "verify": "^(?:0|[1-9]\\d{0,5})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.inputs.ValleyFoodAndBuffLimit.pattern_msg"
                 }
             ],
@@ -1427,7 +1427,7 @@
                     "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.inputs.WulingFoodAndBuffLimit.description",
                     "default": "20",
                     "pipeline_type": "int",
-                    "verify": "^(?:0|[1-9]\\d{0,3})$",
+                    "verify": "^(?:0|[1-9]\\d{0,5})$",
                     "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.inputs.WulingFoodAndBuffLimit.pattern_msg"
                 }
             ],
