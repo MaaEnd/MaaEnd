@@ -1,27 +1,33 @@
 {
     "AutoMissionPos": {
-        "desc": "从任意界面回到大世界",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneAnyEnterWorld"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
+        "desc": "子流程入口：在任务界面先关闭，在大世界直接按 V",
+        "next": [
+            "AutoMissionPosCloseJournal",
+            "AutoMissionPosTrackCurrentMission"
+        ]
+    },
+    "AutoMissionPosCloseJournal": {
+        "desc": "在任务界面，点击右上角关闭按钮回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
         "next": [
             "AutoMissionPosTrackCurrentMission"
         ]
     },
     "AutoMissionPosTrackCurrentMission": {
-        "desc": "按追踪当前任务键",
-        "pre_delay": 0,
+        "desc": "在大世界按追踪当前任务键",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
         "action": "ClickKey",
         "key": 86, // V
         "post_delay": 1500, // 等一会看会不会跳出地图追踪
-        "rate_limit": 0,
         "next": [
             "AutoMissionPosQuickTeleportSelect",
             "AutoMissionPosInWorld"

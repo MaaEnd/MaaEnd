@@ -29,6 +29,7 @@ const (
 	entityInWorldNode  = "AutoMissionEntityInWorld"
 	entityInteractNode = "AutoMissionEntityActionInteractRecognition"
 	entityTriggerNode  = "AutoMissionEntityTrigger"
+	entityCameraNode   = "AutoMissionEntityActionOpenCamera"
 )
 
 // fallbackInteractTexts 是坐标点没写 NPC 名字、实体没写交互文字时兜底识别的交互文字（简繁）。
@@ -316,6 +317,9 @@ func runTrack(ctx *maa.Context, track trackData, condition conditionData) bool {
 		taskDetail, err = ctx.RunTask(node, map[string]any{
 			entityInteractNode: map[string]any{
 				"expected": interactTexts,
+			},
+			entityCameraNode: map[string]any{
+				"enabled": track.Snapshot,
 			},
 			entityInWorldNode: map[string]any{
 				"custom_action_param": map[string]any{
