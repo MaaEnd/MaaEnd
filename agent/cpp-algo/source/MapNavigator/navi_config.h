@@ -408,7 +408,7 @@ constexpr int32_t kActionWalkTogglePressMs = 30;
 
 constexpr const char* kObstacleDeviceEntry = "MapNavigatorObstacleDevice";
 constexpr const char* kObstacleDeviceProbeNode = "__MapNavigatorObstacleDevice_InteractPre";
-constexpr const char* kObstacleDeviceTemplateRelativePath = "resource/image/MapNavigator/ObstacleDevice/InteractButton.png";
+constexpr const char* kObstacleDeviceTemplateRelativePath = "MapNavigator/ObstacleDevice/InteractButton.png";
 constexpr double kObstacleDeviceMatchThreshold = 0.65;
 constexpr const char* kObstacleDeviceMoveNode = "__MapNavigatorObstacleDevice_MoveDevice";
 constexpr const char* kObstacleAicCoreMoveNode = "__MapNavigatorObstacleDevice_MoveAICCore";

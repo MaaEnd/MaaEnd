@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <string_view>
 
 #include <opencv2/core.hpp>
 
@@ -42,7 +43,7 @@ public:
     ObstacleDeviceRecovery& operator=(const ObstacleDeviceRecovery&) = delete;
 
     // base_roi 取自 pipeline 节点, 交互按钮模板缺失时探测不启动
-    void start(const cv::Rect& base_roi);
+    void start(const cv::Rect& base_roi, std::string_view controller_type);
     void stop();
 
     // 只有已启动且正在喂帧时才生效
