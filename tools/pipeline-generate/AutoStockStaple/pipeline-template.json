@@ -67,7 +67,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemName${Group}": {
                             "attach": {
                                 "${ItemId}": false
                             }

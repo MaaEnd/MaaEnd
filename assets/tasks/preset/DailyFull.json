@@ -52,7 +52,11 @@
                             "WulingArtificingCatalystLimit": "100"
                         },
                         "AutoStockBuyCulturalGoodsWuling": "No",
-                        "AutoStockMinDiscountWuling": "-90%"
+                        "AutoStockMinDiscountWulingDaily": "-90%",
+                        "AutoStockMinDiscountWulingIndustrial": "-90%",
+                        "AutoStockMinDiscountWulingCultural": "-90%",
+                        "AutoStockMinDiscountWulingEngravingPermit": "-90%",
+                        "AutoStockMinDiscountWulingArtificingCatalyst": "-90%"
                     }
                 },
                 {
