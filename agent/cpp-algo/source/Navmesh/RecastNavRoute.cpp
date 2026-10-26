@@ -1881,8 +1881,20 @@ std::optional<std::vector<WorldPoint>> routeWindow(
 
     const auto snap0 = nearDeck(useW, cw3, sc, start_deck);
     const auto snap1 = nearDeck(useW, cw3, gc, goal_deck);
+    const auto hasDeckSpan = [&](const CellPt& c, double deck) {
+        const int64_t j = info.st3.j(c.y * nx + c.x);
+        if (j < 0) {
+            return false;
+        }
+        for (int64_t v = st3.cstart(j), end = v + st3.ccnt(j); v < end; ++v) {
+            if (std::fabs(static_cast<double>(st3.sp_h[static_cast<size_t>(v)]) - deck) <= kDeckBand) {
+                return true;
+            }
+        }
+        return false;
+    };
     const bool goal_off_deck =
-        goal_deck.has_value() && gc.x >= 0 && gc.y >= 0 && gc.x < nx && gc.y < ny && atDeck(pick(gc, useW), *goal_deck) < 0;
+        goal_deck.has_value() && gc.x >= 0 && gc.y >= 0 && gc.x < nx && gc.y < ny && !hasDeckSpan(gc, *goal_deck);
     if (!snap0.first.has_value()) {
         dg.err = start_deck.has_value() ? "起点附近没有未封堵的声明面" : "walk 掩膜为空";
         return std::nullopt;
