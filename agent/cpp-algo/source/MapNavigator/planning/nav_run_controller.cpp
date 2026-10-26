@@ -33,6 +33,7 @@ struct CorridorProjection
     double cross_track = std::numeric_limits<double>::infinity();
     bool before_window = false;
     bool after_window = false;
+    bool capped = false;
 };
 
 bool can_use_nav_run_steering(const Waypoint& waypoint)
@@ -78,6 +79,7 @@ std::optional<CorridorProjection> project_onto_corridor(
                 .cross_track = cross,
                 .before_window = edge == start_edge && raw_t < 0.0,
                 .after_window = edge + 1 == num_edges && raw_t > 1.0,
+                .capped = reach < 1.0 && raw_t > reach,
             };
         }
     }
@@ -694,7 +696,7 @@ NavRunTickResult NavRunController::tick(
         const double moved = std::hypot(position.x - plan_.projected_from.x, position.y - plan_.projected_from.y);
         const double max_arc = plan_.projected_arc + moved + kNavRunProjectionAdvanceSlackM;
         auto projected = project_onto_corridor(plan_.path, plan_.corridor_arc_prefix, plan_.cursor, position, max_arc);
-        if (projected) {
+        if (projected && !projected->capped) {
             plan_.projected_arc = corridor_arc_length_to(plan_.path, plan_.corridor_arc_prefix, *projected);
             plan_.projected_from = { .x = position.x, .y = position.y };
         }
@@ -748,7 +750,7 @@ NavRunTickResult NavRunController::tick(
     result.step_per_tick = step;
     result.corner = next_sharp_corner(plan_.path, *projection, turn_commit_distance);
 
-    const double character_arc = plan_.projected_arc;
+    const double character_arc = corridor_arc_length_to(plan_.path, plan_.corridor_arc_prefix, *projection);
     const size_t corridor_passed =
         count_corridor_passed_run_waypoints(*session, plan_.path, plan_.corridor_arc_prefix, anchor_index, character_arc);
     const bool clamped_without_passage =
