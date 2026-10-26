@@ -256,10 +256,6 @@
             "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
         }
     },
-    // 列表到底识别器：首次执行把 roi 内画面截成运行时模板，之后每轮比较静止画面；
-    // 画面与上一轮相同说明已经滑到底，命中即结束本地区扫描，不再用固定滑动次数猜到底。
-    // 模板名 ListCompleteRecognition/AutoStockListCompleteWuling.png；attach.ready 是识别器的运行期状态，
-    // 每次任务都用新的 Context，因此不会沿用上一次任务的模板。
     "AutoStockListCompleteWuling": {
         "desc": "比较列表静止画面，确认武陵物资列表已经到底",
         "recognition": {
