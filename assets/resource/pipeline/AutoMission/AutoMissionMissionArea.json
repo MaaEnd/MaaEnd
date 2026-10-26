@@ -106,7 +106,7 @@
             90
         ],
         "template": "RealTimeTask/AutoSkipEsc.png",
-        "pre_delay": 0,
+        "pre_delay": 1000, // 刚进剧情时跳过按钮点了不生效，等一会再点
         "action": "Custom",
         "custom_action": "AutoSwipeClickAction",
         "post_delay": 0,
