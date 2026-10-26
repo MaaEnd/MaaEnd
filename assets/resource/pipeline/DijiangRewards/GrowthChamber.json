@@ -630,8 +630,53 @@
         "action": {
             "type": "Click"
         },
+        // 2026-10-26：点完关闭后等弹窗收场动画结束，否则紧接着的 GrowBack 会在
+        // 过渡画面上把「返回箭头」误配到别处（实测第二次提取时 match 到 y=74 的
+        // 非按钮元素，白点 11s 整任务失败）。
+        "post_wait_freezes": {
+            "time": 300,
+            "timeout": 3000
+        },
         "next": [
+            "GrowthChamberExtractDialogCancel",
             "GrowthChamberGrowBack"
+        ]
+    },
+    "GrowthChamberExtractDialogCancel": {
+        "desc": "[培养舱·基核] 提取弹窗仍停在「取消/确认提取」（确认未生效/无可提取目标）→ 点取消回培养界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": "OCR",
+                        "param": {
+                            "roi": [
+                                590,
+                                540,
+                                320,
+                                75
+                            ],
+                            "expected": [
+                                ".{0,4}取消.{0,4}",
+                                "(?i).{0,4}Cancel.{0,4}"
+                            ]
+                        }
+                    }
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "next": [
+            "GrowthChamberGrowViewIn"
         ]
     },
     "GrowthChamberGrowBack": {
@@ -682,6 +727,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "GrowthChamberExtractDialogCancel",
             "GrowthChamberGrowBack"
         ]
     },

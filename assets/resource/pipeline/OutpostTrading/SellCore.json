@@ -61,8 +61,34 @@
             "[Anchor]OutpostTradingZeroMoneyHandler",
             "OutpostTradingZeroProductAfterChangeStillEmpty",
             "OutpostTradingNeedSelectGoodsTryChangeGoods",
+            "OutpostTradingNoSellableQuantity",
             "[Anchor]OutpostTradingBetterSliding"
         ]
+    },
+    "OutpostTradingNoSellableQuantity": {
+        "desc": "本次交易份数为 0（仓库无可交易货物）→ 结束本据点售卖，别点空交易白等 20s",
+        "recognition": "OCR",
+        "roi": [
+            940,
+            490,
+            340,
+            120
+        ],
+        "expected": [
+            "本次交易份数\\s*0",
+            "本次交易份數\\s*0",
+            "(?i)Trade\\s*Quantity\\s*0",
+            "取引数\\s*0"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingSellLoopEnd"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.OutpostTrading.nothing_to_trade"
+        }
     },
     "OutpostTradingZeroProductColorMatch": {
         "desc": "识别红色文字判断是否有货",
@@ -244,7 +270,8 @@
         "rate_limit": 0,
         "next": [
             "OutpostTradingAidQuotaExceededStop",
-            "OutpostTradingSellCheck"
+            "OutpostTradingSellCheck",
+            "OutpostTradingNoSellableQuantity"
         ]
     },
     "OutpostTradingCheckAidQuotaExceededDialogText": {
