@@ -169,7 +169,7 @@
     "pullcount.resource.originium": "연질 원석의 오로베릴 환산값",
     "pullcount.resource.oroberyl": "오로베릴",
     "pullcount.resource_read_success": "%s 읽기 성공: %d",
-    "pullcount.result": "자원 환산: %d회\n오로베릴: %d = %d회\n연질 원석의 오로베릴 환산값: %d (원석 %d개분 = 오로베릴 %d 보류, 사용 가능 %d = %d회)\n다음 버전으로 이월 가능한 권: %d회\n다음 버전 상점: %d회\n다음 버전 출석: %d회\n현재 풀 사용 가능: %d회\n다음 버전 풀 합계: %d회",
+    "pullcount.result": "자원 환산: %d회\n오로베릴: %d = %d회\n연질 원석 전량 교환 시 오로베릴: %d (원석 %d개분에 해당하는 오로베릴 %d 상당은 보류하여 횟수 계산에서 제외; 남은 교환 가능 오로베릴 %d = %d회)\n다음 버전으로 이월 가능한 권: %d회\n헤드헌팅 정보서(다음 버전 전용): %d회\n다음 버전 상점: %d회\n다음 버전 출석: %d회\n현재 풀 사용 가능: %d회\n다음 버전 풀 합계: %d회",
     "resource.loading_failed_reinstall_hint": "resource 폴더를 삭제한 뒤 덮어쓰기 재설치를 시도해 보세요.",
     "schedule.skip_today": "현재 게임 시간은 %s, 실행 주기에 따라 작업을 건너뜁니다",
     "schedule.weekday_friday": "금요일",

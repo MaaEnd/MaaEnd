@@ -170,7 +170,7 @@
     "pullcount.resource.originium": "Essence Originium converted to Oroberyl",
     "pullcount.resource.oroberyl": "Oroberyl",
     "pullcount.resource_read_success": "%s read successfully: %d",
-    "pullcount.result": "Resource conversion: %d pulls\nOroberyl: %d = %d pulls\nEssence Originium converted to Oroberyl: %d (reserve %d Originium = %d Oroberyl, usable %d = %d pulls)\nCarry-over vouchers: %d pulls\nNext-version shop: %d pulls\nNext-version sign-in: %d pulls\nCurrent pool available: %d pulls\nNext-version pool total: %d pulls",
+    "pullcount.result": "Resource conversion: %d pulls\nOroberyl: %d = %d pulls\nOroberyl if all Essence Originium were converted: %d (reserve %d Originium, equivalent to %d Oroberyl excluded from pulls; remaining convertible Oroberyl: %d = %d pulls)\nCarry-over vouchers: %d pulls\nHeadhunting Dossier (next version only): %d pulls\nNext-version shop: %d pulls\nNext-version sign-in: %d pulls\nCurrent pool available: %d pulls\nNext-version pool total: %d pulls",
     "resource.loading_failed_reinstall_hint": "Try deleting the resource folder and reinstalling by overwriting the installation.",
     "schedule.skip_today": "Current game time is %s, skipping the task per execution schedule",
     "schedule.weekday_friday": "Friday",

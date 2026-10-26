@@ -196,15 +196,15 @@
         ]
     },
     "PullCountCalculatorCarryToNextVoucherQuantityTextArea": {
-        "desc": "在特许寻访凭证的数量带内用低饱和暗像素定位数字区域",
+        "desc": "在特许寻访凭证的数量带内定位暗色数字，排除格子左右边界并保留抗锯齿笔画",
         "recognition": {
             "type": "ColorMatch",
             "param": {
                 "roi": "PullCountCalculatorFindCarryToNextVoucher",
                 "roi_offset": [
-                    -7,
+                    0,
                     78,
-                    14,
+                    0,
                     -64
                 ],
                 "method": 40,
@@ -215,7 +215,7 @@
                 ],
                 "upper": [
                     179,
-                    5,
+                    64,
                     105
                 ],
                 "count": 1

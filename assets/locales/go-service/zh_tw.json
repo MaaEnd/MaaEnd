@@ -169,7 +169,7 @@
     "pullcount.resource.originium": "衍質源石換算嵌晶玉",
     "pullcount.resource.oroberyl": "嵌晶玉",
     "pullcount.resource_read_success": "%s讀取成功：%d",
-    "pullcount.result": "資源折算：%d 抽\n嵌晶玉：%d = %d 抽\n衍質源石換算嵌晶玉：%d（保留源石 %d 個 = 嵌晶玉 %d，可用 %d = %d 抽）\n可留到下版本的券：%d 抽\n下版本商店：%d 抽\n下版本簽到：%d 抽\n目前池可用：%d 抽\n下版本池子總計：%d 抽",
+    "pullcount.result": "資源折算：%d 抽\n嵌晶玉：%d = %d 抽\n衍質源石全部兌換可得嵌晶玉：%d（預留源石 %d 個，等值嵌晶玉 %d，不計入抽數；剩餘可兌換嵌晶玉 %d = %d 抽）\n可留到下版本的券：%d 抽\n尋訪情報書（僅限下版本）：%d 抽\n下版本商店：%d 抽\n下版本簽到：%d 抽\n目前池可用：%d 抽\n下版本池子總計：%d 抽",
     "resource.loading_failed_reinstall_hint": "請嘗試刪除 resource 資料夾並重新覆蓋安裝。",
     "schedule.skip_today": "現在遊戲時間是%s，根據執行週期跳過任務",
     "schedule.weekday_friday": "週五",

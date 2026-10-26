@@ -169,7 +169,7 @@
     "pullcount.resource.originium": "衍質源石を嵌晶玉へ換算した値",
     "pullcount.resource.oroberyl": "嵌晶玉",
     "pullcount.resource_read_success": "%sの読み取り成功：%d",
-    "pullcount.result": "リソース換算：%d 回\n嵌晶玉：%d = %d 回\n衍質源石を嵌晶玉へ換算した値：%d（源石 %d 個分 = 嵌晶玉 %d を保留、有効 %d = %d 回）\n次バージョンへ持ち越せる券：%d 回\n次バージョン商店：%d 回\n次バージョンログイン：%d 回\n現行プールで使用可能：%d 回\n次バージョンプール合計：%d 回",
+    "pullcount.result": "リソース換算：%d 回\n嵌晶玉：%d = %d 回\n衍質源石の全量換算：嵌晶玉 %d（源石 %d 個分、嵌晶玉 %d 相当を保留し回数計算から除外。残りの交換可能分：嵌晶玉 %d = %d 回）\n次バージョンへ持ち越せる券：%d 回\nスカウト情報ファイル（次バージョンのみ）：%d 回\n次バージョン商店：%d 回\n次バージョンログイン：%d 回\n現行プールで使用可能：%d 回\n次バージョンプール合計：%d 回",
     "resource.loading_failed_reinstall_hint": "resource フォルダを削除し、上書き再インストールをお試しください。",
     "schedule.skip_today": "現在のゲーム時間は%s、実行周期に従いタスクをスキップします",
     "schedule.weekday_friday": "金曜日",

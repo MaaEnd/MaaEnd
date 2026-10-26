@@ -28,6 +28,7 @@ type runSession struct {
 
 type voucherSummary struct {
 	CarryToNextPulls int
+	IntroLetterPulls int
 }
 
 // --- Resource And Finish Stages --- //
@@ -129,13 +130,14 @@ func handleRecordVoucher(ctx *maa.Context, arg *maa.CustomActionArg, stage strin
 		}
 	}
 
-	added := recordCarryToNextVoucher(session, stage+":"+voucherKey(arg), pulls)
+	added := recordVoucher(session, stage, voucherKey(arg), pulls)
 	log.Info().
 		Str("component", componentName).
 		Str("stage", stage).
 		Bool("added", added).
 		Int("pulls", pulls).
 		Int("carry_to_next_pulls", session.Vouchers.CarryToNextPulls).
+		Int("intro_letter_pulls", session.Vouchers.IntroLetterPulls).
 		Msg("warehouse voucher recorded")
 	return true
 }
@@ -149,12 +151,17 @@ func voucherKey(arg *maa.CustomActionArg) string {
 	return fmt.Sprintf("%d:%d:%d:%d", box.X(), box.Y(), box.Width(), box.Height())
 }
 
-// recordCarryToNextVoucher adds the confirmed pull count unless the hit was already counted.
-func recordCarryToNextVoucher(session *runSession, key string, pulls int) bool {
+// recordVoucher classifies confirmed pulls unless this stage and position were already counted.
+func recordVoucher(session *runSession, stage, key string, pulls int) bool {
+	key = stage + ":" + key
 	if _, exists := session.VoucherHits[key]; exists {
 		return false
 	}
 	session.VoucherHits[key] = struct{}{}
-	session.Vouchers.CarryToNextPulls += pulls
+	if stage == stageRecordIntroLetter {
+		session.Vouchers.IntroLetterPulls += pulls
+	} else {
+		session.Vouchers.CarryToNextPulls += pulls
+	}
 	return true
 }
