@@ -22,8 +22,7 @@
             "[JumpBack]AutoStockBuyItemValleyIVTaskCultural",
             "SoldOut",
             "AutoStockListCompleteValleyIV",
-            "[JumpBack]AutoStockSwipeValleyIV",
-            "AutoStockNoMoreTargetValleyIV"
+            "[JumpBack]AutoStockSwipeValleyIV"
         ]
     },
     "AutoStockTargetCompareValleyIV": {
@@ -247,8 +246,7 @@
         }
     },
     "AutoStockSwipeValleyIV": {
-        "desc": "向下滑动寻找商品，直到找到商品或到达底部",
-        "max_hit": 25,
+        "desc": "向下滑动寻找商品；不设次数上限，何时停止由售罄与列表到底识别器决定",
         "recognition": {
             "type": "And",
             "param": {
@@ -288,20 +286,5 @@
                 176
             ]
         }
-    },
-    "AutoStockNoMoreTargetValleyIV": {
-        "desc": "滑动次数用尽仍在物资调度页：列表到底识别器未确认到底，结束本地区（兜底）",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InValleyIVText",
-                    "InStapleColor"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
     }
 }
