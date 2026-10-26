@@ -708,7 +708,9 @@ NavRunTickResult NavRunController::tick(
         invalidate();
         return result;
     }
-    plan_.cursor = projection->edge_idx;
+    if (!projection->capped) {
+        plan_.cursor = projection->edge_idx;
+    }
     for (const navmesh::DropLanding& drop : plan_.path.drops) {
         if (plan_.cursor + 1 >= drop.index) {
             session->leaveLandedTowerDeck();
@@ -754,12 +756,12 @@ NavRunTickResult NavRunController::tick(
     const size_t corridor_passed =
         count_corridor_passed_run_waypoints(*session, plan_.path, plan_.corridor_arc_prefix, anchor_index, character_arc);
     const bool clamped_without_passage =
-        projection->before_window || (projection->after_window && projection->cross_track > kNavRunCrossTrackWarnM);
+        projection->before_window || projection->capped || (projection->after_window && projection->cross_track > kNavRunCrossTrackWarnM);
     if (clamped_without_passage) {
         if (corridor_passed > 0) {
             LogDebug << "Corridor passed advance suppressed; corridor projection clamped outside the window." << VAR(corridor_passed)
                      << VAR_AS(session->current_node_idx(), session->currentNodeIdx()) << VAR(projection->before_window)
-                     << VAR(projection->after_window) << VAR(projection->cross_track);
+                     << VAR(projection->after_window) << VAR(projection->capped) << VAR(projection->cross_track);
         }
     }
     else if (route.startup_motion_confirmed) {
