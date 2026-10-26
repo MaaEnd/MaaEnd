@@ -1,0 +1,6 @@
+// configure_file 生成的是 UTF-8，源码路径含中文时 rc.exe 默认按 ANSI 代码页读会找不到文件
+#pragma code_page(65001)
+
+#include "ResourceIds.h"
+
+IDR_SCRIPT_CLOUD_POLICY RCDATA "@CLOUD_SHELL_SCRIPTS_DIR@/cloud_policy.js"

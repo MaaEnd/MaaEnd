@@ -9,6 +9,7 @@
                 "open_world"
             ],
             "controller": [
+                "CloudWeb",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",

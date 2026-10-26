@@ -38,6 +38,22 @@
             }
         },
         {
+            "name": "CloudWeb",
+            "label": "$controller.CloudWeb.label",
+            "description": "$controller.CloudWeb.description",
+            "type": "Win32",
+            "attach_resource_path": [
+                "./resource_cloud_web"
+            ],
+            "win32": {
+                "class_regex": "^MaaEnd\\.CloudShell$",
+                "window_regex": "^MaaEnd CloudShell",
+                "screencap": "PrintWindow",
+                "mouse": "PostMessage",
+                "keyboard": "PostMessage"
+            }
+        },
+        {
             "name": "ADB",
             "label": "$controller.ADB.label",
             "description": "$controller.ADB.description",
@@ -203,6 +219,7 @@
     "import": [
         // pretask
         "tasks/pretasks/LaunchGamePC.json",
+        "tasks/pretasks/LaunchCloudWeb.json",
         // group: regional_development
         "tasks/OutpostTrading.json",
         "tasks/SeizeDeliveryJobs.json",

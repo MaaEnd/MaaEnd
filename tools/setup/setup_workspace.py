@@ -155,6 +155,9 @@ CPP_ALGO_DIST_NAME: str = "cpp-algo.exe" if OS_KEYWORD == "win" else "cpp-algo"
 CPP_ALGO_COMPANION_FILES: tuple[str, ...] = (
     ("WebView2Loader.dll",) if OS_KEYWORD == "win" else ()
 )
+# 云游戏外壳只支持 Windows，产物是 install/cloud-shell/ 下的单个 exe
+CLOUD_SHELL_DIR_NAME: str = "cloud-shell"
+CLOUD_SHELL_DIST_NAME: str = "cloud-shell.exe"
 ARCH_VARIANT_HINTS: dict[str, tuple[str, ...]] = {
     "x86_64": ("x86_64", "amd64", "x64"),
     "aarch64": ("aarch64", "arm64"),
@@ -1099,7 +1102,17 @@ def _sort_runs_by_recency(runs: list[dict]) -> list[dict]:
     return sorted(runs, key=_key, reverse=True)
 
 
-def _find_cpp_algo_artifact_in_runs(
+def cpp_algo_artifact_name() -> str:
+    """返回 install.yml 为 cpp-algo 上传的 artifact 名。"""
+    return f"cpp-algo-{OS_KEYWORD}-{ARCH_KEYWORD}"
+
+
+def cloud_shell_artifact_name() -> str:
+    """返回 install.yml 为云游戏外壳上传的 artifact 名（仅 Windows 构建）。"""
+    return f"cloud-shell-{OS_KEYWORD}-{ARCH_KEYWORD}"
+
+
+def _find_ci_artifact_in_runs(
     auth_headers: dict[str, str],
     runs: list[dict],
     artifact_name: str,
@@ -1241,16 +1254,16 @@ def _commit_pull_requests(
         return []
 
 
-def _search_cpp_algo_runs(
+def _search_ci_artifact_runs(
     auth_headers: dict[str, str],
     runs_url: str,
     artifact_name: str,
 ) -> tuple[str | None, str | None, str | None]:
-    """Query *runs_url* and return its newest matching cpp-algo artifact."""
+    """Query *runs_url* and return its newest matching artifact."""
     runs = _fetch_workflow_runs(auth_headers, runs_url)
     if not runs:
         return None, None, None
-    return _find_cpp_algo_artifact_in_runs(auth_headers, runs, artifact_name)
+    return _find_ci_artifact_in_runs(auth_headers, runs, artifact_name)
 
 
 def _branch_commit_shas(
@@ -1273,14 +1286,14 @@ def _branch_commit_shas(
     return [c["sha"] for c in data if isinstance(c, dict) and c.get("sha")]
 
 
-def _search_cpp_algo_by_commit(
+def _search_ci_artifact_by_commit(
     auth_headers: dict[str, str],
     branch: str,
     tip: str,
     artifact_name: str,
     max_commits: int = 30,
 ) -> tuple[str | None, str | None, str | None] | None:
-    """Return the newest cpp-algo build on *branch*, walking back from *tip*.
+    """Return the newest matching build on *branch*, walking back from *tip*.
 
     Listing runs by branch can return a wholly stale page whose newest entry is
     months old, and sorting cannot repair that, so commits are asked about one
@@ -1306,19 +1319,23 @@ def _search_cpp_algo_by_commit(
         # build; probing on would report that failure as "not found".
         if runs is None:
             return None
-        result = _find_cpp_algo_artifact_in_runs(auth_headers, runs, artifact_name)
+        result = _find_ci_artifact_in_runs(auth_headers, runs, artifact_name)
         if result[0] is not None:
             return result
     return None, None, None
 
 
-def _find_cpp_algo_in_ci(
+def _find_ci_artifact(
     auth_headers: dict[str, str] | None,
     pr_number: int | None = None,
     run_id: int | None = None,
     branch: str | None = None,
+    artifact_name: str | None = None,
 ) -> tuple[str | None, str | None, str | None]:
-    """Find a cpp-algo CI artifact from a successful install.yml workflow run.
+    """Find a CI artifact from a successful install.yml workflow run.
+
+    *artifact_name* defaults to the cpp-algo artifact; passing another name
+    looks for that artifact instead (e.g. the CloudShell one).
 
     *run_id* and *pr_number* are explicit requests. Otherwise the current
     checkout is used: ``v2`` takes its newest push build, while any other
@@ -1331,7 +1348,7 @@ def _find_cpp_algo_in_ci(
         print(Console.info(t("inf_ci_artifact_no_token")))
         return None, None, None
 
-    artifact_name = f"cpp-algo-{OS_KEYWORD}-{ARCH_KEYWORD}"
+    artifact_name = artifact_name or cpp_algo_artifact_name()
 
     # --- run_id branch: fetch a specific workflow run directly ---
     if run_id is not None:
@@ -1450,7 +1467,7 @@ def _find_cpp_algo_in_ci(
 
             sha_runs = data.get("workflow_runs", [])
             if sha_runs:
-                result = _find_cpp_algo_artifact_in_runs(
+                result = _find_ci_artifact_in_runs(
                     auth_headers, sha_runs, artifact_name,
                 )
                 if result[0] is not None:
@@ -1466,7 +1483,7 @@ def _find_cpp_algo_in_ci(
                 "status": "success",
                 "per_page": "30",
             }, quote_via=quote)
-            result = _search_cpp_algo_runs(
+            result = _search_ci_artifact_runs(
                 auth_headers,
                 f"https://api.github.com/repos/{MAAEND_REPO}/actions/workflows/"
                 f"install.yml/runs?{ref_query}",
@@ -1484,14 +1501,14 @@ def _find_cpp_algo_in_ci(
     print(Console.info(t("inf_ci_artifact_search_branch", name=artifact_name, branch=branch)))
 
     def _search_runs(runs_url: str) -> tuple[str | None, str | None, str | None]:
-        return _search_cpp_algo_runs(auth_headers, runs_url, artifact_name)
+        return _search_ci_artifact_runs(auth_headers, runs_url, artifact_name)
 
     # v2 is only push-triggered, and without the event filter forks that also
     # happen to have a branch named ``v2`` would leak their PR runs in here.
     if branch == MAIN_BRANCH:
         tip = _remote_branch_tip(branch)
         if tip:
-            walked = _search_cpp_algo_by_commit(
+            walked = _search_ci_artifact_by_commit(
                 auth_headers, branch, tip, artifact_name,
             )
             if walked is not None:
@@ -1545,10 +1562,12 @@ def _find_cpp_algo_in_ci(
                 return result
 
     # Announce the downgrade: silently using v2's agent is how users get misled.
-    print(Console.warn(t("wrn_ci_artifact_branch_fallback", branch=branch)))
+    print(Console.warn(t("wrn_ci_artifact_branch_fallback", branch=branch, name=artifact_name)))
+    if artifact_name == cpp_algo_artifact_name():
+        print(Console.info(t("inf_ci_artifact_branch_fallback_hint")))
     main_tip = _remote_branch_tip(MAIN_BRANCH)
     if main_tip:
-        walked = _search_cpp_algo_by_commit(
+        walked = _search_ci_artifact_by_commit(
             auth_headers, MAIN_BRANCH, main_tip, artifact_name,
         )
         # Same rule as the v2 path above: once the commit list was read, a
@@ -1568,6 +1587,50 @@ def _find_cpp_algo_in_ci(
     print(Console.info(t("inf_ci_artifact_no_runs", branch=branch)))
     print(Console.info(t("inf_ci_artifact_not_found")))
     return None, None, None
+
+
+def _download_ci_artifact(
+    download_url: str,
+    auth_headers: dict[str, str],
+    dest_path: Path,
+) -> bool:
+    """把 GitHub artifact 下载到 *dest_path*，返回是否下载成功。
+
+    GitHub 的 artifact 接口会 302 跳到 Azure Blob 存储，而 urllib 的默认处理器
+    在跨域重定向时会丢掉 Authorization 头（导致 401）。这里先用 http.client
+    （不自动跟随重定向）取到跳转地址，再从自带 SAS 签名、无需鉴权的存储地址下载。
+    """
+    storage_url: str | None = None
+    try:
+        parsed = urlparse(download_url)
+        conn = http.client.HTTPSConnection(parsed.hostname, timeout=TIMEOUT)
+        try:
+            path = parsed.path
+            if parsed.query:
+                path += "?" + parsed.query
+            request_headers = {"User-Agent": "MaaEnd-setup"}
+            request_headers.update(auth_headers)
+            conn.request("GET", path, headers=request_headers)
+            with conn.getresponse() as api_resp:
+                if 300 <= api_resp.status < 400:
+                    storage_url = api_resp.getheader("Location")
+                else:
+                    body = api_resp.read(512).decode("utf-8", errors="replace")
+                    print(Console.warn(
+                        t("wrn_ci_artifact_unexpected_status",
+                          status=api_resp.status,
+                          reason=api_resp.reason,
+                          body=body)
+                    ))
+        finally:
+            conn.close()
+    except Exception:
+        # 具体原因由调用方按“下载失败”统一提示，这里不重复打印。
+        return False
+
+    if storage_url is None:
+        return False
+    return download_file(storage_url, dest_path, resume=False)
 
 
 def install_cpp_algo(
@@ -1596,7 +1659,7 @@ def install_cpp_algo(
     local_digest = local_versions.get("cpp_algo_sha256")
 
     explicit_selection = pr_number is not None or run_id is not None
-    ci_url, ci_version, ci_digest = _find_cpp_algo_in_ci(
+    ci_url, ci_version, ci_digest = _find_ci_artifact(
         auth_headers, pr_number=pr_number, run_id=run_id,
     )
 
@@ -1604,7 +1667,7 @@ def install_cpp_algo(
     # back to the current checkout's branch before trying a release.
     if ci_url is None and explicit_selection:
         print(Console.warn(t("wrn_ci_artifact_pr_run_not_found_fallback")))
-        ci_url, ci_version, ci_digest = _find_cpp_algo_in_ci(auth_headers)
+        ci_url, ci_version, ci_digest = _find_ci_artifact(auth_headers)
 
     if ci_url:
         # Fast path: the remote artifact is byte-identical (same GitHub digest)
@@ -1634,51 +1697,12 @@ def install_cpp_algo(
             return True, local_version, False
 
         cache_dir = ensure_cache_dir()
-        ci_download_path = (
-            cache_dir / f"cpp-algo-{OS_KEYWORD}-{ARCH_KEYWORD}.zip"
+        ci_download_path = cache_dir / f"{cpp_algo_artifact_name()}.zip"
+        ci_downloaded = (
+            _download_ci_artifact(ci_url, auth_headers, ci_download_path)
+            if auth_headers is not None
+            else False
         )
-        ci_downloaded = False
-
-        if auth_headers is not None:
-            # GitHub artifact API returns a 302 redirect to Azure blob storage.
-            # urllib's default redirect handler strips Authorization on cross-origin
-            # redirects, causing a 401.  Resolve the redirect with http.client
-            # (which does not auto-follow redirects) and then download from the
-            # storage URL with auth headers intact.
-            storage_url: str | None = None
-            try:
-                parsed = urlparse(ci_url)
-                conn = http.client.HTTPSConnection(
-                    parsed.hostname, timeout=TIMEOUT,
-                )
-                try:
-                    path = parsed.path
-                    if parsed.query:
-                        path += "?" + parsed.query
-                    request_headers = {"User-Agent": "MaaEnd-setup"}
-                    request_headers.update(auth_headers)
-                    conn.request("GET", path, headers=request_headers)
-                    with conn.getresponse() as api_resp:
-                        if 300 <= api_resp.status < 400:
-                            storage_url = api_resp.getheader("Location")
-                        else:
-                            body = api_resp.read(512).decode("utf-8", errors="replace")
-                            print(Console.warn(
-                                t("wrn_ci_artifact_unexpected_status",
-                                  status=api_resp.status,
-                                  reason=api_resp.reason,
-                                  body=body)
-                            ))
-                finally:
-                    conn.close()
-
-                if storage_url is not None:
-                    # The storage URL is SAS-signed — no extra auth needed.
-                    ci_downloaded = download_file(
-                        storage_url, ci_download_path, resume=False,
-                    )
-            except Exception:
-                pass  # warning is printed by the elif below
 
         if ci_downloaded:
             with tempfile.TemporaryDirectory() as tmp_dir:
@@ -1824,6 +1848,125 @@ def install_cpp_algo(
             return False, local_version, False
 
 
+def find_cloud_shell_binary(search_root: Path) -> Path | None:
+    """在解压后的 artifact 里找 cloud-shell.exe，优先本机架构目录下的那个。"""
+    candidates = [path for path in search_root.rglob(CLOUD_SHELL_DIST_NAME) if path.is_file()]
+    if not candidates:
+        return None
+
+    def _arch_rank(path: Path) -> int:
+        joined_path = "/".join(part.lower() for part in path.parts)
+        preferred_hints = set(ARCH_VARIANT_HINTS.get(ARCH_KEYWORD, ()))
+        all_hints = {hint for hints in ARCH_VARIANT_HINTS.values() for hint in hints}
+        if any(hint in joined_path for hint in preferred_hints):
+            return 0
+        if any(hint in joined_path for hint in (all_hints - preferred_hints)):
+            return 2
+        return 1
+
+    candidates.sort(key=lambda path: (_arch_rank(path), len(path.parts)))
+    return candidates[0]
+
+
+def copy_cloud_shell(src_binary: Path, install_root: Path) -> None:
+    """把 cloud-shell.exe 及其同目录下的文件装进 install/cloud-shell/。
+
+    整个目录一起复制而不是只拷 exe：以后外壳若带出依赖 DLL 或数据文件，
+    这里不用跟着改。
+    """
+    target_dir = install_root / CLOUD_SHELL_DIR_NAME
+    target_dir.mkdir(parents=True, exist_ok=True)
+    for item in sorted(src_binary.parent.iterdir()):
+        if not item.is_file():
+            continue
+        target_path = target_dir / item.name
+        _replace_file_with_retry(item, target_path)
+        print(Console.ok(t("inf_updated_file", name=f"{CLOUD_SHELL_DIR_NAME}/{target_path.name}")))
+
+
+def install_cloud_shell(
+    install_root: Path,
+    skip_if_exist: bool = True,
+    update_mode: bool = False,
+    local_version: str | None = None,
+) -> tuple[bool, str | None, bool]:
+    """从 CI artifact 安装云游戏外壳 CloudShell（仅 Windows）。
+
+    外壳只在 install.yml 的 Windows 矩阵构建，并单独上传为 cloud-shell-win-<arch>，
+    这里只取那一个小 artifact，不从 Release 回退——外壳随整包发布，为了一个 exe
+    去下整个安装包不划算。取不到时只告警跳过：外壳只服务「云·终末地网页版」控制器，
+    缺它不影响其它任务，不该让整个 setup-workspace 失败。
+    """
+    if OS_KEYWORD != "win":
+        print(Console.info(t("inf_cloud_shell_windows_only")))
+        return True, local_version, False
+
+    real_install_root = install_root.resolve()
+    shell_path = real_install_root / CLOUD_SHELL_DIR_NAME / CLOUD_SHELL_DIST_NAME
+
+    if skip_if_exist and shell_path.exists():
+        print(Console.ok(t("inf_cloud_shell_installed_skip")))
+        return True, local_version, False
+
+    auth_headers = _github_auth_headers()
+    local_versions = read_versions_file(install_root / VERSION_FILE_NAME)
+    local_digest = local_versions.get("cloud_shell_sha256")
+
+    ci_url, ci_version, ci_digest = _find_ci_artifact(
+        auth_headers, artifact_name=cloud_shell_artifact_name(),
+    )
+    if not ci_url:
+        print(Console.warn(t("wrn_cloud_shell_no_artifact")))
+        return True, local_version, False
+
+    if (
+        update_mode
+        and shell_path.exists()
+        and ci_digest is not None
+        and local_digest
+        and ci_digest == local_digest
+    ):
+        print(Console.ok(t("inf_cloud_shell_digest_match", sha=ci_digest[:16])))
+        return True, local_version, False
+
+    ci_download_path = ensure_cache_dir() / f"{cloud_shell_artifact_name()}.zip"
+    if auth_headers is None or not _download_ci_artifact(
+        ci_url, auth_headers, ci_download_path,
+    ):
+        print(Console.warn(t("wrn_cloud_shell_download_failed")))
+        cleanup_cache_file(ci_download_path)
+        return True, local_version, False
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        extract_root = Path(tmp_dir) / "extracted"
+        extract_root.mkdir(parents=True, exist_ok=True)
+        try:
+            shutil.unpack_archive(str(ci_download_path), extract_root)
+            shell_src = find_cloud_shell_binary(extract_root)
+            if not shell_src:
+                print(Console.warn(t("wrn_cloud_shell_no_binary")))
+                cleanup_cache_file(ci_download_path)
+                return True, local_version, False
+            copy_cloud_shell(shell_src, real_install_root)
+        except PermissionError:
+            # 用户选择不重试，本轮就当没装；外壳是可选项，不中断 setup。
+            cleanup_cache_file(ci_download_path)
+            return True, local_version, False
+        except Exception as e:
+            print(Console.warn(t("wrn_ci_artifact_extract_failed", error=e)))
+            cleanup_cache_file(ci_download_path)
+            return True, local_version, False
+
+    cleanup_cache_file(ci_download_path)
+    version_to_write = ci_version or local_version
+    print(Console.ok(t("inf_cloud_shell_install_complete")))
+    _update_versions(install_root, {
+        "cloud_shell": version_to_write,
+        "cloud_shell_sha256": ci_digest,
+    })
+    return True, version_to_write, True
+
+
 def _is_cn_locale() -> bool:
     """检测当前系统语言是否为简体中文"""
     import locale as _locale
@@ -1916,6 +2059,14 @@ def main() -> None:
     if not cpp_algo_ok:
         print(Console.err(t("fatal_cpp_algo_failed")))
         sys.exit(1)
+
+    # 云游戏外壳可选：取不到 CI 产物只告警，不中断 setup
+    install_cloud_shell(
+        install_dir,
+        skip_if_exist=not args.update,
+        update_mode=args.update,
+        local_version=local_versions.get("cloud_shell"),
+    )
 
     print(Console.ok(t("header_setup_complete")))
     print(Console.info(t("inf_workspace_ready", mxu_path=install_dir / MXU_DIST_NAME)))

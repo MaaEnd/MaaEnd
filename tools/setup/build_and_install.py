@@ -805,6 +805,73 @@ def build_cpp_algo(
     return True
 
 
+def build_cloud_shell(
+    root_dir: Path,
+    install_dir: Path,
+    target_os: str | None = None,
+    target_arch: str | None = None,
+) -> bool:
+    """构建云游戏外壳 CloudShell 并安装到 install/cloud-shell（仅 Windows）"""
+    system = platform.system().lower()
+    resolved_os = target_os or {"windows": "win", "darwin": "macos"}.get(system, "linux")
+    if resolved_os != "win":
+        print(f"  {Console.warn(t('warning'))} {t('cloud_shell_windows_only')}")
+        return True
+
+    machine = platform.machine().lower()
+    resolved_arch = target_arch or ("aarch64" if machine in ("aarch64", "arm64") else "x86_64")
+    arm64 = resolved_arch == "aarch64"
+
+    if not check_cmake_environment():
+        return False
+    if not setup_windows_msvc_env(resolved_arch):
+        print(f"  {Console.err(t('error'))} {t('cloud_shell_msvc_env_failed')}")
+        return False
+
+    cloud_shell_dir = root_dir / "CloudShell"
+    build_dir = cloud_shell_dir / ("build-arm64" if arm64 else "build")
+    configure_cmd = ["cmake", "--preset", "NinjaMulti Win32 ARM64" if arm64 else "NinjaMulti Win32"]
+    # 交叉编译时同 cpp-algo 一样显式使用宿主 x64 的 rc.exe
+    if os.environ.get("MAAEND_RC_COMPILER"):
+        rc_path = os.environ["MAAEND_RC_COMPILER"].replace("\\", "/")
+        configure_cmd.append(f"-DCMAKE_RC_COMPILER={rc_path}")
+
+    steps = [
+        (configure_cmd, "cmake_configure_failed"),
+        (["cmake", "--build", "--preset", "Release ARM64" if arm64 else "Release"], "cmake_build_failed"),
+        (
+            [
+                "cmake",
+                "--install",
+                str(build_dir),
+                "--prefix",
+                str(install_dir / "cloud-shell"),
+                "--config",
+                "RelWithDebInfo",
+            ],
+            "cmake_install_failed",
+        ),
+    ]
+    for cmd, failed_key in steps:
+        print(f"  {t('build_command')}: {' '.join(cmd)}")
+        result = subprocess.run(
+            cmd,
+            cwd=cloud_shell_dir,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        if result.returncode != 0:
+            print(f"  {Console.err(t('error'))} {t(failed_key)}:")
+            print(result.stdout)
+            print(result.stderr)
+            return False
+
+    print(f"  {Console.ok('->')} {install_dir / 'cloud-shell'}")
+    return True
+
+
 def main() -> None:
     init_local()
 
@@ -814,6 +881,7 @@ def main() -> None:
     parser.add_argument("--arch", dest="target_arch", help=t("arg_arch"))
     parser.add_argument("--version", help=t("arg_version"))
     parser.add_argument("--cpp-algo", action="store_true", help=t("arg_cpp_algo"))
+    parser.add_argument("--cloud-shell", action="store_true", help=t("arg_cloud_shell"))
     args = parser.parse_args()
 
     use_copy = args.ci
@@ -877,7 +945,18 @@ def main() -> None:
     else:
         print(Console.step(t("step_skip_cpp")))
 
-    # 4. 链接/复制项目根目录文件并创建 maafw 目录
+    # 4. 构建云游戏外壳 CloudShell（仅在指定 --cloud-shell 时，非 Windows 会跳过）
+    if args.cloud_shell:
+        print(Console.step(t("step_build_cloud_shell")))
+        t_step4_start = time.monotonic()
+        if not build_cloud_shell(root_dir, install_dir, args.target_os, args.target_arch):
+            print(f"  {Console.err(t('error'))} {t('build_cloud_shell_failed')}")
+            sys.exit(1)
+        _timing("step4 cloud shell", t_step4_start)
+    else:
+        print(Console.step(t("step_skip_cloud_shell")))
+
+    # 5. 链接/复制项目根目录文件并创建 maafw 目录
     print(Console.step(t("step_prepare_files")))
     for filename in ["README.md", "LICENSE"]:
         src = root_dir / filename
