@@ -496,7 +496,7 @@ struct GeneratedWaypointWriter
     void appendInteriorCorners(size_t loop_end)
     {
         for (size_t index = 1; index < loop_end; ++index) {
-            emitPoint(index, false);
+            emitPoint(index, index + 1 == path.points.size());
         }
     }
 
