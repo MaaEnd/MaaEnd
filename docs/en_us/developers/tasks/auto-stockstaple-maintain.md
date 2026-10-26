@@ -125,7 +125,7 @@ Matched when `limit <= current_held_quantity`:
 2. Re-merge the regex whitelists of all groups.
 3. Close the popup, do not purchase, and continue scanning other items.
 
-> **Example**: Valley Engraving Permit limit is 50, current held is 48; Branch 2 will calculate buying 2 more. If 50 are already held, Branch 3 triggers direct removal, and this item will not be clicked again this round.
+> **Example**: Valley Engraving Permit limit is 200, current held is 198; Branch 2 will calculate buying 2 more. If 200 are already held, Branch 3 triggers direct removal, and this item will not be clicked again this round.
 
 ### Runtime Override Summary
 
@@ -218,7 +218,7 @@ Each group has its own discount threshold controlled by `AutoStockMinDiscount{Re
 - **Numeric tiers** (`-95%` … `-50%`): Rewrite the `expected` of that group's discount node to that tier and deeper discounts (e.g. `-90%` → `-99`, `-95`, `-90`); the OCR must match one of them.
 - **Any**: Replaces that group's discount OCR node entirely by `ColorMatch` (full-range threshold `[0,0,0]`–`[255,255,255]` with `count` defaulting to 1, so any non-empty ROI passes and the presence of a discount color block does not affect the result) — equivalent to buying all selected items of that group without checking the discount.
 
-Tiers list only the discounts that actually occur for staple goods (`-95/-90/-85/-80/-75/-70/-65/-60/-50`), defaulting to `-50%`. Items without a discount badge produce no OCR text and never match any numeric tier; select "Any" to buy them.
+Tiers list only the discounts that actually occur for staple goods (`-95/-90/-85/-80/-75/-70/-65/-60/-50`); the default tier comes from each group select's `default_case` (currently every Valley IV group is `-50%`; in Wuling the engraving permit and cultural goods default to `-95%`, industrial goods to `-75%`, the artificing catalyst to `-90%`, and daily goods to `-50%`). Items without a discount badge produce no OCR text and never match any numeric tier; select "Any" to buy them.
 
 ### 4. Judgment of "Affordability"
 
