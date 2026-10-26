@@ -1,6 +1,7 @@
-import {existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync} from "node:fs";
+import {existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync} from "node:fs";
 import {dirname, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
+import {gzipSync} from "node:zlib";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(currentDir, "../../..");
@@ -9,7 +10,11 @@ const jsonRoot = resolve(endfieldDataRoot, "Json");
 const missionDir = resolve(jsonRoot, "MissionRuntimeAsset");
 const levelDataDir = resolve(jsonRoot, "LevelData");
 const levelScriptDir = resolve(jsonRoot, "LevelScriptData");
-const outputPath = resolve(repoRoot, "assets/data/AutoMission/missions.json");
+// 运行时读压缩后的单行 JSON；加 --pretty 时另在脚本旁输出一份带缩进的 JSON 供本地对比，不提交。
+const outputPath = resolve(repoRoot, "assets/data/AutoMission/missions.json.gz");
+const legacyOutputPath = resolve(repoRoot, "assets/data/AutoMission/missions.json");
+const prettyOutputPath = resolve(currentDir, "missions.pretty.json");
+const pretty = process.argv.includes("--pretty");
 
 // 世界坐标换算到 MapLocator 底图坐标：u = s * x + tx，v = -s * z + ty。
 // 参数由 UILevelMapLoadConfig 中各关卡 worldRect 的并集和底图尺寸算出。
@@ -675,5 +680,10 @@ for (const missionId of Object.keys(missions).sort()) {
 }
 
 mkdirSync(dirname(outputPath), {recursive: true});
-writeFileSync(outputPath, `${JSON.stringify(ordered, null, 4)}\n`, "utf8");
+writeFileSync(outputPath, gzipSync(JSON.stringify(ordered), {level: 9}));
+rmSync(legacyOutputPath, {force: true});
 console.log(`[AutoMission] 已生成 ${outputPath}（${Object.keys(ordered).length} 个任务）`);
+if (pretty) {
+    writeFileSync(prettyOutputPath, `${JSON.stringify(ordered, null, 4)}\n`, "utf8");
+    console.log(`[AutoMission] 已生成 ${prettyOutputPath}`);
+}

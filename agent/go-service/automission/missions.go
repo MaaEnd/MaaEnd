@@ -1,6 +1,9 @@
 package automission
 
 import (
+	"bytes"
+	"compress/gzip"
+	"encoding/json"
 	"strings"
 	"sync"
 
@@ -8,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const missionsPath = "data/AutoMission/missions.json"
+const missionsPath = "data/AutoMission/missions.json.gz"
 
 type missionText struct {
 	ZhCN string `json:"zh_cn"`
@@ -111,7 +114,7 @@ var (
 	indexErr  error
 )
 
-// getMissionIndex 首次调用时读取 missions.json 并建立标题、步骤名称索引，之后直接返回缓存。
+// getMissionIndex 首次调用时读取 missions.json.gz 并建立标题、步骤名称索引，之后直接返回缓存。
 func getMissionIndex() (*missionIndex, error) {
 	indexOnce.Do(func() {
 		index, indexErr = buildMissionIndex()
@@ -133,8 +136,8 @@ func getMissionIndex() (*missionIndex, error) {
 }
 
 func buildMissionIndex() (*missionIndex, error) {
-	var missions map[string]missionData
-	if err := resource.ReadJsonResource(missionsPath, &missions); err != nil {
+	missions, err := readMissions()
+	if err != nil {
 		return nil, err
 	}
 
@@ -308,4 +311,22 @@ func variantsOf(t missionText) []string {
 	default:
 		return []string{cn, tw}
 	}
+}
+
+// readMissions 读取 gzip 压缩的任务数据并解析。
+func readMissions() (map[string]missionData, error) {
+	content, err := resource.ReadResource(missionsPath)
+	if err != nil {
+		return nil, err
+	}
+	reader, err := gzip.NewReader(bytes.NewReader(content))
+	if err != nil {
+		return nil, err
+	}
+	defer reader.Close()
+	var missions map[string]missionData
+	if err := json.NewDecoder(reader).Decode(&missions); err != nil {
+		return nil, err
+	}
+	return missions, nil
 }
