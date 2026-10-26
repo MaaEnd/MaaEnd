@@ -66,7 +66,7 @@ var trackingNodes = map[string]string{
 	"SnsTrackingInfo":         "AutoMissionSns",
 }
 
-// ExecuteQuestAction 读取识别结果里的唯一追踪，按类型调用对应占位节点。
+// ExecuteQuestAction 读取识别结果里选中的子步骤，按顺序对每个追踪调用对应类型的节点。
 type ExecuteQuestAction struct{}
 
 func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -88,7 +88,52 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 			Msg("unmarshal recognition detail failed")
 		return false
 	}
-	track := detail.Track
+
+	// 某个点失败不中断，继续走剩下的点；是否推进交给外层回任务界面判断。
+	// 已经做过的点（如聊过的 NPC、收走的实体）再走一遍会失败或什么都不发生，不影响后面的点。
+	tracks := targetTracks(detail.Tracks, detail.Condition)
+	tasker := ctx.GetTasker()
+	succeeded := 0
+	for i, track := range tracks {
+		if tasker != nil && tasker.Stopping() {
+			log.Info().Str("component", executeComponent).Msg("tasker stopping")
+			return false
+		}
+		ok := runTrack(ctx, track, detail.Condition)
+		log.Info().
+			Str("component", executeComponent).
+			Str("type", track.Type).
+			Int("track_index", i).
+			Int("track_count", len(tracks)).
+			Bool("success", ok).
+			Msg("quest track done")
+		if ok {
+			succeeded++
+		}
+	}
+	return succeeded > 0
+}
+
+// targetTracks 返回这一步要依次走的目标点。
+// 到达条件带了区域时只走这个区域，走进去就算完成，不再走追踪点；否则走全部追踪点。
+func targetTracks(tracks []trackData, condition conditionData) []trackData {
+	area := condition.Area
+	if area == nil {
+		return tracks
+	}
+	x, y := area.X, area.Y
+	return []trackData{
+		{
+			Type:   "MissionAreaTrackingInfo",
+			ZoneID: area.ZoneID,
+			X:      &x,
+			Y:      &y,
+		},
+	}
+}
+
+// runTrack 按追踪类型调用对应节点，返回节点是否执行成功；未知类型直接算成功。
+func runTrack(ctx *maa.Context, track trackData, condition conditionData) bool {
 	node, known := trackingNodes[track.Type]
 	event := log.Info().
 		Str("component", executeComponent).
@@ -139,10 +184,7 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 				"custom_action_param": map[string]any{
 					"heading_source": "camera",
 					"path": []any{
-						map[string]any{
-							"action": "NAVMESH",
-							"target": []float64{*track.X, *track.Y},
-						},
+						navmeshStep(*track.X, *track.Y, track.Height),
 						map[string]any{
 							"action":       "TRIGGER",
 							"target":       []float64{*track.X, *track.Y},
@@ -154,7 +196,7 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		})
 	case missionAreaNode:
 		// 任务区域只要走进去就会推进，寻路到区域中心即可，不做交互。
-		target, ok := navigateTarget(track, detail.Condition)
+		target, ok := navigateTarget(track, condition)
 		if !ok {
 			log.Warn().
 				Str("component", executeComponent).
@@ -198,7 +240,7 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		// 暂不支持：完成条件要求分散在追踪点周围的多个物品都交互一遍，
 		// 如 sm2l4m5_q#7「拿取奚墨需要的文件」要在 4 个关卡脚本里各拿一份文件，只走到追踪点不会推进。
 		npcNames := npcNameVariants(track)
-		target, ok := navigateTarget(track, detail.Condition)
+		target, ok := navigateTarget(track, condition)
 		if !ok {
 			log.Warn().
 				Str("component", executeComponent).
@@ -236,10 +278,7 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 				"custom_action_param": map[string]any{
 					"heading_source": "camera",
 					"path": []any{
-						map[string]any{
-							"action": "NAVMESH",
-							"target": []float64{target.x, target.y},
-						},
+						navmeshStep(target.x, target.y, target.height),
 						map[string]any{
 							"action":       "TRIGGER",
 							"target":       []float64{target.x, target.y},
@@ -315,6 +354,20 @@ type navTarget struct {
 	source string
 	zoneID string
 	x, y   float64
+	height *float64
+}
+
+// navmeshStep 生成寻路到目标的 NAVMESH 路点；有高度时钉住目标所在的那层可走面，
+// 到不了这层会直接失败，不会对着断崖反复盲走。
+func navmeshStep(x, y float64, height *float64) map[string]any {
+	step := map[string]any{
+		"action": "NAVMESH",
+		"target": []float64{x, y},
+	}
+	if height != nil {
+		step["target_deck_y"] = *height
+	}
+	return step
 }
 
 // navigateTarget 选寻路目标：击杀条件有怪物坐标时去第一只怪，否则去追踪点。
@@ -327,7 +380,7 @@ func navigateTarget(track trackData, condition conditionData) (navTarget, bool) 
 	if track.ZoneID == "" || track.X == nil || track.Y == nil {
 		return navTarget{}, false
 	}
-	return navTarget{source: "track", zoneID: track.ZoneID, x: *track.X, y: *track.Y}, true
+	return navTarget{source: "track", zoneID: track.ZoneID, x: *track.X, y: *track.Y, height: track.Height}, true
 }
 
 // customDetail 取绑定已经从 best.detail 拆出的自定义识别结果。

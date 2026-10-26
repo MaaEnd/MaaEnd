@@ -16,10 +16,12 @@ type missionText struct {
 }
 
 type trackData struct {
-	Type       string      `json:"type"`
-	ZoneID     string      `json:"zone_id,omitempty"`
-	X          *float64    `json:"x,omitempty"`
-	Y          *float64    `json:"y,omitempty"`
+	Type   string   `json:"type"`
+	ZoneID string   `json:"zone_id,omitempty"`
+	X      *float64 `json:"x,omitempty"`
+	Y      *float64 `json:"y,omitempty"`
+	// Height 是世界高度，只有坐标贴地的坐标点、NPC 追踪才有，寻路时钉住目标所在的那层可走面。
+	Height     *float64    `json:"height,omitempty"`
 	PhaseID    string      `json:"phase_id,omitempty"`
 	Components []string    `json:"components,omitempty"`
 	NpcName    missionText `json:"npcName,omitempty"`
@@ -33,17 +35,19 @@ type trackData struct {
 	Snapshot bool `json:"snapshot,omitempty"`
 }
 
-// enemyData 是击杀条件里一只怪的底图坐标。
-type enemyData struct {
+// mapPoint 是完成条件里的一个底图坐标，如一只怪或一个区域中心。
+type mapPoint struct {
 	ZoneID string  `json:"zone_id"`
 	X      float64 `json:"x"`
 	Y      float64 `json:"y"`
 }
 
-// conditionData 是子步骤的完成条件；击杀条件带上怪物坐标，顺序同原始列表。
+// conditionData 是子步骤的完成条件。
+// 击杀条件带上怪物坐标，顺序同原始列表；到达条件带上目标区域中心。
 type conditionData struct {
-	Type    string      `json:"type,omitempty"`
-	Enemies []enemyData `json:"enemies,omitempty"`
+	Type    string     `json:"type,omitempty"`
+	Enemies []mapPoint `json:"enemies,omitempty"`
+	Area    *mapPoint  `json:"area,omitempty"`
 }
 
 type trackingBlock struct {

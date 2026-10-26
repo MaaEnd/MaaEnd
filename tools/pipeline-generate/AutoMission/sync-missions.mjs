@@ -341,6 +341,15 @@ function placement(sceneId, position) {
     };
 }
 
+// 坐标贴地的追踪带上世界高度，寻路时用来钉住目标所在的那层可走面；没有底图时不写。
+function groundPlacement(sceneId, position) {
+    const result = placement(sceneId, position);
+    if (result.zone_id && typeof position.y === "number") {
+        result.height = Math.round(position.y * 1000) / 1000;
+    }
+    return result;
+}
+
 // 关卡脚本运行时给代理改的名字，同一代理在不同进度可能显示不同名字。
 function collectNameOverrides(dataMap, overrides) {
     for (const node of dataMap?.actionList ?? []) {
@@ -459,7 +468,7 @@ function convertNpcProxy(track) {
     const interactText = interactTextOf(proxyId, dialogs);
     const result = {
         type: "NpcProxyTrackingInfo",
-        ...placement(row?.levelId || track.sceneId, row?.position),
+        ...groundPlacement(row?.levelId || track.sceneId, row?.position),
     };
     if (npcName) {
         result.npcName = npcName;
@@ -488,7 +497,7 @@ for (const proxyId of new Set([...Object.keys(proxyDialogData), ...dialogsByProx
 // 坐标追踪的完成条件是和某个 NPC 对话、且这段对话不由关卡脚本开始时，带上这个 NPC 的名字。
 // 能对应到多个名字不同的 NPC 时不写，避免找错人。
 function convertPos(track, condition) {
-    const result = {type: "PosTrackingInfo", ...placement(track.sceneId, track.trackingPos)};
+    const result = {type: "PosTrackingInfo", ...groundPlacement(track.sceneId, track.trackingPos)};
     const dialogId = condition?._dialogId?.constValue;
     if (shortType(condition?.$type) !== "CheckTalkOptionFinish" || !dialogId || scriptStartedDialogs.has(dialogId)) {
         return result;
@@ -572,7 +581,21 @@ function convertCondition(condition) {
     if (enemies.length > 0) {
         result.enemies = enemies;
     }
+    const area = conditionArea(type, condition);
+    if (area.zone_id) {
+        result.area = area;
+    }
     return result;
+}
+
+// 到达条件的区域中心坐标；找不到区域或没有底图时为空。
+function conditionArea(type, condition) {
+    const sceneId = condition?._mapId?.constValue;
+    const areaId = condition?._areaId?.constValue;
+    if (type !== "ReachDestination" || !sceneId || !areaId) {
+        return {};
+    }
+    return placement(sceneId, missionArea(sceneId, areaId)?.shape?.position);
 }
 
 // 击杀条件里的怪物坐标，顺序同原始列表；找不到或没有底图的怪不写。

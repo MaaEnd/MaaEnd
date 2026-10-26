@@ -26,7 +26,7 @@ type MatchQuestRecognition struct{}
 var _ maa.CustomRecognitionRunner = &MatchQuestRecognition{}
 
 type matchDetail struct {
-	Track     trackData     `json:"track"`
+	Tracks    []trackData   `json:"tracks"`
 	Condition conditionData `json:"condition"`
 }
 
@@ -113,18 +113,11 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
-	// SnsTrackingInfo 没有坐标，执行的都是同一个流程（重新追踪后进 Baker 推进会话），只留第一个。
-	var candidates []trackCandidate
-	hasSns := false
+	// 候选是有追踪或有到达区域的子步骤，一个子步骤的全部目标点由执行动作依次走完。
+	var candidates []objectiveEntry
 	for _, hit := range hits {
-		for _, track := range hit.Tracks {
-			if track.Type == "SnsTrackingInfo" {
-				if hasSns {
-					continue
-				}
-				hasSns = true
-			}
-			candidates = append(candidates, trackCandidate{hit: hit, track: track})
+		if len(hit.Tracks) > 0 || hit.Condition.Area != nil {
+			candidates = append(candidates, hit)
 		}
 	}
 	objectiveIDs := objectiveIDsOf(hits)
@@ -139,7 +132,7 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
-	// 每次执行到这里时依次选择下一个候选追踪点
+	// 每次执行到这里时依次选择下一个候选子步骤
 	pick, ok := nextTrackIndex(arg.TaskID, missionID+"|"+strings.Join(objectiveIDs, ","), len(candidates))
 	if !ok {
 		log.Info().
@@ -147,16 +140,16 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 			Str("mission_id", missionID).
 			Strs("objective_ids", objectiveIDs).
 			Str("description", description).
-			Int("track_count", len(candidates)).
-			Msg("all tracking points tried without progress")
+			Int("candidate_count", len(candidates)).
+			Msg("all candidate objectives tried without progress")
 		maafocus.Print(ctx, i18n.T("automission.unsupported_description", description))
 		return nil, false
 	}
-	hit := candidates[pick].hit
+	hit := candidates[pick]
 
 	payload, err := json.Marshal(matchDetail{
-		Track:     candidates[pick].track,
-		Condition: candidates[pick].hit.Condition,
+		Tracks:    uniqueSnsTracks(hit.Tracks),
+		Condition: hit.Condition,
 	})
 	if err != nil {
 		log.Error().Err(err).Str("component", componentName).Msg("marshal detail failed")
@@ -168,8 +161,9 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		Str("mission_id", missionID).
 		Str("quest_id", hit.QuestID).
 		Int("desc_index", hit.DescIndex).
-		Int("track_index", pick).
-		Int("track_count", len(candidates)).
+		Int("candidate_index", pick).
+		Int("candidate_count", len(candidates)).
+		Int("track_count", len(hit.Tracks)).
 		Str("title", title).
 		Str("description", description).
 		Msg("mission matched")
@@ -337,10 +331,21 @@ func lookupObjective(text string, quests *missionQuests) ([]objectiveEntry, bool
 	return candidates, true
 }
 
-// trackCandidate 是一个候选追踪点及其所属的子步骤。
-type trackCandidate struct {
-	hit   objectiveEntry
-	track trackData
+// uniqueSnsTracks 去掉重复的 SnsTrackingInfo，只留第一个。
+// 它没有坐标，执行的都是同一个流程（重新追踪后进 Baker 推进会话），跑一次就够。
+func uniqueSnsTracks(tracks []trackData) []trackData {
+	result := make([]trackData, 0, len(tracks))
+	hasSns := false
+	for _, track := range tracks {
+		if track.Type == "SnsTrackingInfo" {
+			if hasSns {
+				continue
+			}
+			hasSns = true
+		}
+		result = append(result, track)
+	}
+	return result
 }
 
 // objectiveIDsOf 返回每条步骤名称的标识，用于拼轮换 key 和打日志。
@@ -357,8 +362,8 @@ func objectiveIDsOf(entries []objectiveEntry) []string {
 	return ids
 }
 
-// trackRotation 记录当前步骤已经试到第几个候选追踪点。
-// 描述没变说明上一个点没推进，下一轮换下一个；换了任务运行或步骤就从头开始。
+// trackRotation 记录当前步骤已经试到第几个候选子步骤。
+// 描述没变说明上一个子步骤没推进，下一轮换下一个；换了任务运行或步骤就从头开始。
 var trackRotation struct {
 	taskID int64
 	key    string
