@@ -226,6 +226,8 @@ constexpr double kNavRunSpeedJumpMaxPxPerSec = 40.0;
 constexpr double kNavRunUpcomingTurnLookaheadM = 8.0;
 constexpr double kNavRunCrossTrackWarnM = 2.2;
 constexpr double kNavRunCrossTrackFailM = 4.0;
+// 单拍走廊投影沿线推进超出实际位移的上限
+constexpr double kNavRunProjectionAdvanceSlackM = 6.5;
 constexpr double kNavRunProgressReplanMinCrossTrackM = 1.25;
 constexpr int32_t kNavRunSoftReplanCooldownMs = 1200;
 constexpr int32_t kNavRunSoftReplanMaxPerAnchor = 3;

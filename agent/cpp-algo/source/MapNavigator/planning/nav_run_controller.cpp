@@ -40,7 +40,12 @@ bool can_use_nav_run_steering(const Waypoint& waypoint)
     return waypoint.hasPosition() && waypoint.action == ActionType::RUN;
 }
 
-std::optional<CorridorProjection> project_onto_corridor(const navmesh::WorldPath& path, size_t start_edge, const NaviPosition& position)
+std::optional<CorridorProjection> project_onto_corridor(
+    const navmesh::WorldPath& path,
+    const std::vector<double>& arc_prefix,
+    size_t start_edge,
+    const NaviPosition& position,
+    double max_arc = std::numeric_limits<double>::infinity())
 {
     if (path.points.size() < 2) {
         return std::nullopt;
@@ -50,7 +55,7 @@ std::optional<CorridorProjection> project_onto_corridor(const navmesh::WorldPath
         start_edge = num_edges - 1;
     }
     std::optional<CorridorProjection> best;
-    for (size_t edge = start_edge; edge < num_edges; ++edge) {
+    for (size_t edge = start_edge; edge < num_edges && arc_prefix[edge] <= max_arc; ++edge) {
         const navmesh::WorldPoint& a = path.points[edge];
         const navmesh::WorldPoint& b = path.points[edge + 1];
         const double dx = b.x - a.x;
@@ -60,7 +65,8 @@ std::optional<CorridorProjection> project_onto_corridor(const navmesh::WorldPath
             continue;
         }
         const double raw_t = ((position.x - a.x) * dx + (position.y - a.y) * dy) / len_sq;
-        const double t = std::clamp(raw_t, 0.0, 1.0);
+        const double reach = std::min((max_arc - arc_prefix[edge]) / std::sqrt(len_sq), 1.0);
+        const double t = std::clamp(raw_t, 0.0, reach);
         const double px = a.x + t * dx;
         const double py = a.y + t * dy;
         const double cross = std::hypot(position.x - px, position.y - py);
@@ -138,7 +144,7 @@ size_t count_corridor_passed_run_waypoints(
             break;
         }
         const NaviPosition waypoint_pos { .x = waypoint.x, .y = waypoint.y };
-        const std::optional<CorridorProjection> waypoint_projection = project_onto_corridor(path, 0, waypoint_pos);
+        const std::optional<CorridorProjection> waypoint_projection = project_onto_corridor(path, arc_prefix, 0, waypoint_pos);
         if (!waypoint_projection) {
             break;
         }
@@ -439,6 +445,8 @@ bool NavRunController::buildPlan(
         plan_.path = std::move(path);
         plan_.corridor_arc_prefix = build_corridor_arc_prefix(plan_.path);
         plan_.cursor = 0;
+        plan_.projected_arc = 0.0;
+        plan_.projected_from = { .x = position.x, .y = position.y };
     };
 
     navmesh::WorldPath authored = build_authored_span_polyline(session, anchor_index);
@@ -682,7 +690,18 @@ NavRunTickResult NavRunController::tick(
         return result;
     }
 
-    auto projection = project_onto_corridor(plan_.path, plan_.cursor, position);
+    const auto project_agent = [&] {
+        const double moved = std::hypot(position.x - plan_.projected_from.x, position.y - plan_.projected_from.y);
+        const double max_arc = plan_.projected_arc + moved + kNavRunProjectionAdvanceSlackM;
+        auto projected = project_onto_corridor(plan_.path, plan_.corridor_arc_prefix, plan_.cursor, position, max_arc);
+        if (projected) {
+            plan_.projected_arc = corridor_arc_length_to(plan_.path, plan_.corridor_arc_prefix, *projected);
+            plan_.projected_from = { .x = position.x, .y = position.y };
+        }
+        return projected;
+    };
+
+    auto projection = project_agent();
     if (!projection) {
         invalidate();
         return result;
@@ -697,7 +716,7 @@ NavRunTickResult NavRunController::tick(
 
     const NavRunReplanReason reason = softReplanIfDue(input, projection->cross_track, now, result);
     if (reason != NavRunReplanReason::None) {
-        projection = project_onto_corridor(plan_.path, plan_.cursor, position);
+        projection = project_agent();
         if (!projection) {
             invalidate();
             return result;
@@ -729,7 +748,7 @@ NavRunTickResult NavRunController::tick(
     result.step_per_tick = step;
     result.corner = next_sharp_corner(plan_.path, *projection, turn_commit_distance);
 
-    const double character_arc = corridor_arc_length_to(plan_.path, plan_.corridor_arc_prefix, *projection);
+    const double character_arc = plan_.projected_arc;
     const size_t corridor_passed =
         count_corridor_passed_run_waypoints(*session, plan_.path, plan_.corridor_arc_prefix, anchor_index, character_arc);
     const bool clamped_without_passage =
