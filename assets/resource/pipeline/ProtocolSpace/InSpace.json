@@ -477,10 +477,32 @@
             "ProtocolSpaceTouchExitTouch",
             "ProtocolSpaceOperationFailed",
             "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]ProtocolSpaceWaitLoadingExit",
             "[JumpBack]AutoFight",
             "[JumpBack]ProtocolSpaceTouchExitMoveToTarget",
             "[JumpBack]ProtocolSpaceTouchExitNotFound",
             "ProtocolSpaceOperationExitToWorld"
+        ]
+    },
+    "ProtocolSpaceWaitLoadingExit": {
+        "desc": "等待「战斗结束自动退回大世界」的加载页（该变体 logo 是通用模板的 1.25 倍，SceneWaitLoadingExit 认不到）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "ProtocolSpace/LoadingIconBig.png"
+                ]
+            }
+        },
+        "next": [
+            "ProtocolSpaceWaitLoadingExit",
+            "__ScenePrivateNextTrue"
         ]
     },
     "ProtocolSpaceTouchExitMoveToTarget": {
