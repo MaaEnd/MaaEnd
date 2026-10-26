@@ -476,9 +476,11 @@
         "next": [
             "ProtocolSpaceTouchExitTouch",
             "ProtocolSpaceOperationFailed",
+            "[JumpBack]SceneWaitLoadingExit",
             "[JumpBack]AutoFight",
             "[JumpBack]ProtocolSpaceTouchExitMoveToTarget",
-            "[JumpBack]ProtocolSpaceTouchExitNotFound"
+            "[JumpBack]ProtocolSpaceTouchExitNotFound",
+            "ProtocolSpaceOperationExitToWorld"
         ]
     },
     "ProtocolSpaceTouchExitMoveToTarget": {
