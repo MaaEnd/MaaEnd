@@ -65,25 +65,35 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 
 	// 在标题索引中查找匹配的任务，返回唯一符合条件的任务ID
 	missionID, ok := lookupByPrefix(title, idx.titles)
+
+	// 本次运行做的是开头那个大任务，标题换了说明它已经做完，结束任务。
+	// 换上来的任务可能查不到或同名多个，所以查不到时也比一下标题文字。
+	if currentMission.taskID == arg.TaskID {
+		changed := missionID != currentMission.missionID
+		if !ok {
+			changed = comparableText(title) != comparableText(currentMission.title)
+		}
+		if changed {
+			log.Info().
+				Str("component", componentName).
+				Str("finished_mission_id", currentMission.missionID).
+				Str("mission_id", missionID).
+				Str("title", title).
+				Msg("mission changed, previous mission finished")
+			maafocus.Print(ctx, i18n.T("automission.mission_finished", currentMission.title))
+			return nil, false
+		}
+	}
+
 	if !ok {
 		maafocus.Print(ctx, i18n.T("automission.unknown_mission", title))
 		return nil, false
 	}
 
-	// 本次运行做的是开头那个大任务，标题换了说明它已经做完，结束任务。
 	if currentMission.taskID != arg.TaskID {
 		currentMission.taskID = arg.TaskID
 		currentMission.missionID = missionID
 		currentMission.title = title
-	} else if currentMission.missionID != missionID {
-		log.Info().
-			Str("component", componentName).
-			Str("finished_mission_id", currentMission.missionID).
-			Str("mission_id", missionID).
-			Str("title", title).
-			Msg("mission changed, previous mission finished")
-		maafocus.Print(ctx, i18n.T("automission.mission_finished", currentMission.title))
-		return nil, false
 	}
 
 	// 主线任务异常情况较多，暂不支持
