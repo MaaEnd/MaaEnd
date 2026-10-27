@@ -24,6 +24,20 @@ type focusItemRow struct {
 	IconSrc  string
 }
 
+// filterSyncedReportItems selects A2 UI entries without changing recognized or cached quantities.
+func filterSyncedReportItems(items map[string]int, itemIDs []string) map[string]int {
+	if len(itemIDs) == 0 {
+		return items
+	}
+	report := make(map[string]int, len(itemIDs))
+	for _, itemID := range itemIDs {
+		if quantity, ok := items[itemID]; ok {
+			report[itemID] = quantity
+		}
+	}
+	return report
+}
+
 // reportSyncedItems prints one HTML Focus summary for A2 hits (sorted by name).
 func reportSyncedItems(ctx *maa.Context, items map[string]int) int {
 	return reportItemFocusSummary(ctx, "ims.sync_item_summary", items)

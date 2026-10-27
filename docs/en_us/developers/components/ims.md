@@ -55,7 +55,7 @@ Do not skip the entry because “the cache should still be fine”, and do not r
 
 ### Parameters (IconRecognition IDs)
 
-Cache keys and recognition IDs all use [`IconRecognition`](./icon-recognition.md) catalog top-level keys (for example `item_char_break_stage_1_2`). IMS does **not** keep an item allowlist: whatever is scanned on screen is cached/announced.
+Cache keys and recognition IDs all use [`IconRecognition`](./icon-recognition.md) catalog top-level keys (for example `item_char_break_stage_1_2`). IMS does **not** keep a cache item allowlist: every scanned item is cached; `report_item_ids` can filter the UI summary separately.
 
 | Field | Meaning |
 | --- | --- |
@@ -68,6 +68,7 @@ Cache keys and recognition IDs all use [`IconRecognition`](./icon-recognition.md
 | `page_dedup` | Distinguishes the first page from continuation pages together with `merge_mode`; see below |
 | `transaction_mode` | Optional TaskID-scoped staging: `begin` starts and scans, `continue` scans into the same stage, and `commit` skips recognition and publishes the completed stage. Omit for immediate persistence |
 | `notify_ui` | Whether to announce hits; defaults to `true`. After each scan, emit one icon HTML summary; scan stages summarize per page, while `commit` summarizes final deduplicated quantities for items hit by the transaction |
+| `report_item_ids` | Optional item IDs to include in the report; omit or pass an empty list to announce all hits. Filters only this call's UI summary, preserving recognition, inventory cache, and persistence; transaction `commit` uses that call's list |
 
 Provide `grid_type` (IconRecognition scan) and/or `items`. Shop-only OCR entries may pass only `items` (e.g. `item_originium_recharge` / `item_diamond`). Keys in `items` always join the `merge_mode: replace` + `page_dedup=false` region rebuild (miss removes the ID).
 
