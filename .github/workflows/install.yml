@@ -538,6 +538,28 @@ jobs:
           if [[ -f "$APP_NAME/Contents/MacOS/agent/cpp-algo" ]]; then
             chmod +x "$APP_NAME/Contents/MacOS/agent/cpp-algo"
           fi
+          # Finder can decompose filenames when copying an app bundle. Normalize before signing.
+          python3 - "$APP_NAME" <<'PYTHON'
+          import os
+          import sys
+          import unicodedata
+          import uuid
+          from pathlib import Path
+
+          for directory, dirs, files in os.walk(sys.argv[1], topdown=False):
+              for name in dirs + files:
+                  normalized = unicodedata.normalize("NFD", name)
+                  if name == normalized:
+                      continue
+                  source = Path(directory) / name
+                  target = Path(directory) / normalized
+                  temporary = source.with_name(".maaend-nfd-" + uuid.uuid4().hex)
+                  source.rename(temporary)
+                  if target.exists() or target.is_symlink():
+                      temporary.rename(source)
+                      raise RuntimeError(f"Unicode filename collision: {source}")
+                  temporary.rename(target)
+          PYTHON
           codesign --force --deep --sign - "$APP_NAME"
 
           create-dmg \
@@ -553,13 +575,24 @@ jobs:
             "MaaEnd.dmg" \
             "$APP_NAME"
 
-      - name: Verify app signature in DMG
+      - name: Verify app signature in DMG and after Finder copy
         shell: bash
         run: |
           mount_point="$(mktemp -d "$RUNNER_TEMP/maaend-dmg-check.XXXXXX")"
           hdiutil attach -readonly -nobrowse -mountpoint "$mount_point" MaaEnd.dmg
           trap 'hdiutil detach "$mount_point"' EXIT
           codesign --verify --deep --strict --verbose=2 "$mount_point/MaaEnd.app"
+          copy_path="$(mktemp -d "$RUNNER_TEMP/maaend-install-check.XXXXXX")"
+          osascript - "$mount_point/MaaEnd.app" "$copy_path" <<'APPLESCRIPT'
+          on run argv
+              with timeout of 300 seconds
+                  tell application "Finder"
+                      duplicate (POSIX file (item 1 of argv) as alias) to (POSIX file (item 2 of argv) as alias)
+                  end tell
+              end timeout
+          end run
+          APPLESCRIPT
+          codesign --verify --deep --strict --verbose=2 "$copy_path/MaaEnd.app"
 
       - uses: actions/upload-artifact@v6
         with:
