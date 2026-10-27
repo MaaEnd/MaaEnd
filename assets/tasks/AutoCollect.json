@@ -22,7 +22,8 @@
                 "AutoCollectValleyIV",
                 "AutoCollectWuling",
                 "AutoCollectMode",
-                "AutoCollectStashBackpackSubTask"
+                "AutoCollectStashBackpackSubTask",
+                "AutoCollectMidSweepStash"
             ]
         }
     ],
@@ -144,6 +145,58 @@
                 }
             ],
             "default_case": "Yes"
+        },
+        "AutoCollectMidSweepStash": {
+            "type": "switch",
+            "label": "$task.AutoCollect.option.AutoCollectMidSweepStash.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoCollectMidSweepStashEvery"
+                    ],
+                    "pipeline_override": {
+                        "AutoCollectMidSweepStashCheck": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoCollectMidSweepStashCheck": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
+        "AutoCollectMidSweepStashEvery": {
+            "type": "input",
+            "label": "$task.AutoCollect.option.AutoCollectMidSweepStashEvery.label",
+            "inputs": [
+                {
+                    "name": "AutoCollectMidSweepStashEvery",
+                    "label": "$task.AutoCollect.option.AutoCollectMidSweepStashEvery.label",
+                    "default": "6",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9]\\d*$",
+                    "pattern_msg": "$task.AutoCollect.option.AutoCollectMidSweepStashEvery.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoCollectMidSweepStashCheck": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "key": "AutoCollect",
+                                "every": "{AutoCollectMidSweepStashEvery}"
+                            }
+                        }
+                    }
+                }
+            }
         },
         "AutoCollectMode": {
             "type": "select",
