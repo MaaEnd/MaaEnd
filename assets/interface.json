@@ -268,7 +268,7 @@
         "tasks/CreditShopping.json",
         "tasks/AccountSwitch.json",
         "tasks/LaunchGameLinux.json",
-        "tasks/DevTest.json", // mxu测试用
+        // "tasks/DevTest.json", // mxu测试用
         // "tasks/AdbAutoFightTest.json", // 🧪战斗测试，暂不上架
         // "tasks/WebEvent202605.json", // 该活动已关闭
         "tasks/AndroidOpenGame.json",
