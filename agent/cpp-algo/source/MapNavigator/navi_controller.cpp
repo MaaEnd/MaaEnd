@@ -166,7 +166,7 @@ bool NaviController::navigate(const NaviParam& requested_param)
     NavigationSession session(expanded_param.path, pos);
     session.updatePhase(NaviPhase::Bootstrap, "initial_fix");
 
-    MotionController motion_controller(&action_wrapper, param.enable_local_driver);
+    MotionController motion_controller(&action_wrapper, param.enable_local_driver, param.enable_sprint);
     ActionExecutor action_executor(&action_wrapper, &motion_controller);
     NavigationStateMachine state_machine(
         expanded_param,
