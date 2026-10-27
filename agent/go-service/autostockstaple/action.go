@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/boolexpr"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -234,7 +235,9 @@ func parseValidatorExpression(expression string) (int, string, error) {
 		return 0, "", fmt.Errorf("expression %q does not contain integer threshold", expression)
 	}
 
-	threshold, err := strconv.Atoi(intToken)
+	// The threshold comes from a user-supplied option that is no longer capped,
+	// so a value beyond int range saturates instead of failing the whole action.
+	threshold, err := boolexpr.ParseIntLiteral(intToken)
 	if err != nil {
 		return 0, "", fmt.Errorf("parse threshold: %w", err)
 	}
