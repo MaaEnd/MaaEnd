@@ -278,6 +278,12 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 - `custom_recognition_param`：任意 JSON 值，由框架序列化后传给实现侧。
 - 返回 `true` 表示命中；返回 `false` 表示未命中。
 
+### ColorFreezeRecognition
+
+C++ 实现的颜色分布稳定识别器：原生 `ColorMatch` 命中后，要求 ROI 内满足颜色范围的分布连续稳定达到 `time` 才命中。可选相似度阈值 `threshold` 默认为 `0.98`，范围 `(0, 1]`，值越大越严格，`1` 要求严格一致。颜色位置交换不会影响判定，最终颜色不必预先固定。
+
+参数、相似度语义和调用格式见 [ColorFreezeRecognition 说明](../../../agent/cpp-algo/source/ColorFreeze/README.md)。
+
 ### ExpressionRecognition
 
 `ExpressionRecognition` 实现位于 `agent/go-service/common/expressionrecognition`，用于计算由数字识别节点组成的布尔表达式。底层复用 `pkg/recogtarget`（And 解包）、`pkg/ocrnum`（OCR→整数）、`pkg/boolexpr`（占位符与求值），详见 [Go Service `pkg/` 公共包](./go-service-pkg.md)。
