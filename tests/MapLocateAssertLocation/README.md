@@ -4,7 +4,7 @@
 
 `MapLocateAssertLocation` 由 C++ Agent 提供，`maa-tools test` 不启动 Agent，无法覆盖这类节点，因此本测试使用独立的 Python 执行器，不依赖 `maa-tools`、`loader.mts` 或普通测试 Schema。
 
-当前纳入范围为自动采集已注册路线（Route1–17、CommonRoute1–8）中的定位节点，范围由 `collect_nodes` 决定。
+当前纳入范围为自动采集各地区路线（`assets/resource/pipeline/AutoCollect/<地区>/`）中的定位节点，范围由 `collect_nodes` 决定。
 
 ## 工作方式
 
@@ -27,7 +27,7 @@
     "cases": [
         {
             "image": "自动采集_路线1_定位点.png",
-            "hits": ["AutoCollectRoute1AssertLocation"]
+            "hits": ["AutoCollectWulingBlightedJadeleaf1AssertLocation"]
         }
     ]
 }

@@ -1,43 +1,43 @@
 {
-    "AutoCollectRoute6Start": {
+    "AutoCollectWulingFalseAggela1Start": {
         "enabled": false,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldValleyIVTheHubRockhillPassage"
+                "SceneEnterWorldWulingWulingCityMaintenanceZone"
             ]
         },
         "next": [
-            "AutoCollectRoute6AssertLocation"
+            "AutoCollectWulingFalseAggela1AssertLocation"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute6.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingFalseAggela1.label"
         }
     },
-    "AutoCollectRoute6End": {
+    "AutoCollectWulingFalseAggela1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute6AssertLocation": {
+    "AutoCollectWulingFalseAggela1AssertLocation": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "zone_id": "ValleyIV_Base",
+            "zone_id": "Wuling_Base",
             "target": [
-                520,
-                687,
+                910,
+                1583,
                 20,
                 20
             ]
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute6Goto"
+            "AutoCollectWulingFalseAggela1Goto"
         ]
     },
-    "AutoCollectRoute6Goto": {
+    "AutoCollectWulingFalseAggela1Goto": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -47,53 +47,53 @@
                     "path": [
                         {
                             "action": "ZONE",
-                            "zone_id": "ValleyIV_Base"
+                            "zone_id": "Wuling_Base"
                         },
                         {
                             "action": "NAVMESH",
                             "target": [
-                                585,
-                                723
+                                818.71,
+                                1519.42
                             ]
                         },
                         [
-                            586.35,
-                            724.55,
+                            810.31,
+                            1514.48,
                             "COLLECT"
                         ],
                         [
-                            579.45,
-                            734.5,
+                            809.5,
+                            1518.7,
                             "COLLECT"
                         ],
                         [
-                            576.08,
-                            734.24,
+                            810.92,
+                            1520.33,
                             "COLLECT"
                         ],
                         [
-                            574.23,
-                            735.14,
+                            811.28,
+                            1524.88,
                             "COLLECT"
                         ],
                         [
-                            567.5,
-                            736.56,
+                            812.51,
+                            1525.93,
                             "COLLECT"
                         ],
                         [
-                            564.36,
-                            732.49,
+                            810.49,
+                            1525.04,
                             "COLLECT"
                         ],
                         [
-                            569.05,
-                            731.19,
+                            805.75,
+                            1524.73,
                             "COLLECT"
                         ],
                         [
-                            568.18,
-                            727.65,
+                            804.2,
+                            1520.87,
                             "COLLECT"
                         ]
                     ]
@@ -101,7 +101,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute6End"
+            "AutoCollectWulingFalseAggela1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

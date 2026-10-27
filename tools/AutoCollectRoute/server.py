@@ -7,7 +7,7 @@
   GET  /api/catalog           -> 采集物类型、点位、底图与传送点
   POST /api/preview           -> 选中的采集物 -> 采集顺序、路径与路线文件预览
   GET  /api/progress          -> 当前这次生成已发出的规划查询数
-  POST /api/apply             -> 同上, 并写入路线文件与 AutoCollect 任务注册
+  POST /api/apply             -> 同上, 并写入路线文件、登记路线后重新生成任务注册
   POST /api/route-preview     -> 按 MapNavigateAction 运行时语义展开生成的路线
   GET  /basemap/{path}        -> assets/resource/image/ 下的底图与图标
 """
@@ -112,23 +112,17 @@ def walk_length() -> route_builder.WalkFn:
 
 
 # --- 采集路线 -------------------------------------------------------------------------
-def _route_request(payload: dict[str, Any]) -> tuple[str, list[str], str, dict[str, str]]:
+def _route_request(payload: dict[str, Any]) -> tuple[str, list[str], str]:
     ids = payload.get("ids", [])
-    names = payload.get("names") or {}
-    if not isinstance(ids, list) or not isinstance(names, dict):
-        raise HTTPException(status_code=400, detail="ids 需为数组, names 需为对象")
-    return (
-        str(payload.get("map", "")),
-        [str(item) for item in ids],
-        str(payload.get("kind", "rare")),
-        {str(key): str(value) for key, value in names.items()},
-    )
+    if not isinstance(ids, list):
+        raise HTTPException(status_code=400, detail="ids 需为数组")
+    return str(payload.get("map", "")), [str(item) for item in ids], str(payload.get("kind", "rare"))
 
 
 async def _run(task: Callable[[], dict[str, Any]]) -> dict[str, Any]:
     try:
         return await run_in_threadpool(task)
-    except route_builder.RouteError as exc:
+    except (route_builder.RouteError, route_builder.registry.RegistryError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
@@ -139,9 +133,9 @@ async def api_catalog() -> dict[str, Any]:
 
 @app.post("/api/preview")
 async def api_preview(payload: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
-    map_id, ids, kind, names = _route_request(payload)
+    map_id, ids, kind = _route_request(payload)
     _progress["queries"] = 0
-    return await _run(lambda: route_builder.preview(route_builder.Library(), map_id, ids, kind, names, walk_length()))
+    return await _run(lambda: route_builder.preview(route_builder.Library(), map_id, ids, kind, walk_length()))
 
 
 @app.get("/api/progress")
@@ -151,8 +145,8 @@ async def api_progress() -> dict[str, int]:
 
 @app.post("/api/apply")
 async def api_apply(payload: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
-    map_id, ids, kind, names = _route_request(payload)
-    return await _run(lambda: route_builder.apply(route_builder.Library(), map_id, ids, kind, names, walk_length()))
+    map_id, ids, kind = _route_request(payload)
+    return await _run(lambda: route_builder.apply(route_builder.Library(), map_id, ids, kind, walk_length()))
 
 
 # --- 与 MapNavigator 前端同约定的底图与路线展开 -----------------------------------------

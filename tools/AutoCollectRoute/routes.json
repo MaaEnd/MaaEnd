@@ -1,0 +1,200 @@
+{
+    "default_limits": {
+        "item_plant_crylplant_1_1": 48,
+        "item_plant_crylplant_1_2": 64,
+        "item_plant_crylplant_1_3": 64,
+        "item_plant_crylplant_2_1": 252,
+        "item_plant_crylplant_2_2": 252,
+        "item_plant_crylplant_2_3": 252,
+        "item_plant_mushroom_1_1": 12,
+        "item_plant_mushroom_1_2": 20,
+        "item_plant_mushroom_1_3": 20,
+        "item_plant_mushroom_2_1": 32,
+        "item_plant_mushroom_2_2": 32,
+        "item_plant_mushroom_2_3": 32,
+        "item_plant_spcstone_1_1": 12,
+        "item_plant_spcstone_1_2": 20,
+        "item_plant_spcstone_1_3": 20,
+        "item_plant_spcstone_2_1": 32,
+        "item_plant_spcstone_2_2": 32,
+        "item_plant_spcstone_2_3": 32
+    },
+    "routes": [
+        {
+            "id": "ValleyIVChrysodendra1",
+            "region": "ValleyIV",
+            "items": [
+                "item_plant_crylplant_1_2"
+            ]
+        },
+        {
+            "id": "ValleyIVKalkonyx1",
+            "region": "ValleyIV",
+            "items": [
+                "item_plant_spcstone_1_1"
+            ]
+        },
+        {
+            "id": "ValleyIVPinkBolete1",
+            "region": "ValleyIV",
+            "items": [
+                "item_plant_mushroom_1_1"
+            ]
+        },
+        {
+            "id": "ValleyIVAuronyx1",
+            "region": "ValleyIV",
+            "items": [
+                "item_plant_spcstone_1_2"
+            ]
+        },
+        {
+            "id": "ValleyIVKalkodendra1",
+            "region": "ValleyIV",
+            "items": [
+                "item_plant_crylplant_1_1"
+            ]
+        },
+        {
+            "id": "ValleyIVFirebuckle1",
+            "region": "ValleyIV",
+            "items": [
+                "item_plant_moss_spc_1"
+            ]
+        },
+        {
+            "id": "ValleyIVUmbraline1",
+            "region": "ValleyIV",
+            "items": [
+                "item_plant_moss_spc_2"
+            ]
+        },
+        {
+            "id": "WulingBlightedJadeleaf1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_crylplant_2_1"
+            ]
+        },
+        {
+            "id": "WulingFalseAggela1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_crylplant_2_2"
+            ]
+        },
+        {
+            "id": "WulingVitrodendra1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_crylplant_1_3"
+            ]
+        },
+        {
+            "id": "WulingBloodcapWulingstone1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_mushroom_2_1",
+                "item_plant_spcstone_2_2"
+            ]
+        },
+        {
+            "id": "WulingCosmagaric1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_mushroom_2_2"
+            ]
+        },
+        {
+            "id": "WulingIgneosite1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_spcstone_2_1"
+            ]
+        },
+        {
+            "id": "WulingRubyBolete1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_mushroom_1_3"
+            ]
+        },
+        {
+            "id": "WulingUmbronyx1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_spcstone_1_3"
+            ]
+        },
+        {
+            "id": "WulingRedBolete1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_mushroom_1_2"
+            ]
+        },
+        {
+            "id": "WulingCrimsonSpearleaf1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_crylplant_2_3"
+            ]
+        },
+        {
+            "id": "WulingProtocolith1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_spcstone_2_3"
+            ]
+        },
+        {
+            "id": "WulingTalosCap1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_mushroom_2_3"
+            ]
+        },
+        {
+            "id": "WulingScorchbug1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_tundra_insect_2"
+            ]
+        },
+        {
+            "id": "WulingGlowbug1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_tundra_insect_1"
+            ]
+        },
+        {
+            "id": "WulingFluffedJincao1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_grass_spc_1"
+            ]
+        },
+        {
+            "id": "WulingRedjadeGinseng1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_sp_3"
+            ]
+        },
+        {
+            "id": "WulingThornyYazhen1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_grass_spc_2"
+            ]
+        },
+        {
+            "id": "WulingAmberRice1",
+            "region": "Wuling",
+            "items": [
+                "item_plant_sp_4"
+            ]
+        }
+    ]
+}

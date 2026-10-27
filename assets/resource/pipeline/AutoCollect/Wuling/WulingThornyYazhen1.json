@@ -1,51 +1,51 @@
 {
-    "AutoCollectCommonRoute4Start": {
-        "desc": "萤壳虫采集线，6个点",
+    "AutoCollectWulingThornyYazhen1Start": {
+        "desc": "荆刺芽针采集线，6个点共12个",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectCommonRoute4"
+            "AutoCollectWulingThornyYazhen1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute4.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingThornyYazhen1.label"
         }
     },
-    "AutoCollectCommonRoute4End": {
+    "AutoCollectWulingThornyYazhen1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectCommonRoute4": {
+    "AutoCollectWulingThornyYazhen1": {
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValleyBurdosnoutHill"
+                "SceneEnterWorldWulingMarkerStoneWatchtowerReservoirStation"
             ]
         },
         "next": [
-            "AutoCollectCommonRoute4AssertLocation1"
+            "AutoCollectWulingThornyYazhen1AssertLocation1"
         ]
     },
-    "AutoCollectCommonRoute4AssertLocation1": {
+    "AutoCollectWulingThornyYazhen1AssertLocation1": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                970,
-                2498,
+                482,
+                2109,
                 20,
                 20
             ]
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectCommonRoute4Goto"
+            "AutoCollectWulingThornyYazhen1Goto"
         ]
     },
-    "AutoCollectCommonRoute4Goto": {
+    "AutoCollectWulingThornyYazhen1Goto": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -60,69 +60,68 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                956.74,
-                                2535.91
-                            ],
-                            "zone_id": "Wuling_Base"
+                                408.71,
+                                2122.16
+                            ]
                         },
                         [
-                            962.66,
-                            2544.25,
+                            408.71,
+                            2122.16,
                             "COLLECT"
                         ],
                         [
-                            962.66,
-                            2544.25,
+                            408.71,
+                            2122.16,
                             "COLLECT"
                         ],
                         [
-                            954.19,
-                            2541.69,
+                            410.29,
+                            2125.11,
                             "COLLECT"
                         ],
                         [
-                            954.19,
-                            2541.69,
+                            410.29,
+                            2125.11,
                             "COLLECT"
                         ],
                         [
-                            957.74,
-                            2540.31,
+                            406.35,
+                            2126.2,
                             "COLLECT"
                         ],
                         [
-                            957.74,
-                            2540.31,
+                            406.35,
+                            2126.2,
                             "COLLECT"
                         ],
                         [
-                            962.76,
-                            2528.19,
+                            412.16,
+                            2131.02,
                             "COLLECT"
                         ],
                         [
-                            962.76,
-                            2528.19,
+                            412.16,
+                            2131.02,
                             "COLLECT"
                         ],
                         [
-                            952.81,
-                            2535.68,
+                            407.34,
+                            2127.87,
                             "COLLECT"
                         ],
                         [
-                            952.81,
-                            2535.68,
+                            407.34,
+                            2127.87,
                             "COLLECT"
                         ],
                         [
-                            960.3,
-                            2532.13,
+                            413.14,
+                            2134.28,
                             "COLLECT"
                         ],
                         [
-                            960.3,
-                            2532.13,
+                            413.14,
+                            2134.28,
                             "COLLECT"
                         ]
                     ]
@@ -130,7 +129,7 @@
             }
         },
         "next": [
-            "AutoCollectCommonRoute4End"
+            "AutoCollectWulingThornyYazhen1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

@@ -1,5 +1,5 @@
 {
-    "AutoCollectRoute13Start": {
+    "AutoCollectValleyIVAuronyx1Start": {
         "desc": "中黯石",
         "enabled": false,
         "action": "Custom",
@@ -10,17 +10,17 @@
             ]
         },
         "next": [
-            "AutoCollectRoute13AssertLocation1"
+            "AutoCollectValleyIVAuronyx1AssertLocation1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute13.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVAuronyx1.label"
         }
     },
-    "AutoCollectRoute13End": {
+    "AutoCollectValleyIVAuronyx1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute13AssertLocation1": {
+    "AutoCollectValleyIVAuronyx1AssertLocation1": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -35,10 +35,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute13Goto1"
+            "AutoCollectValleyIVAuronyx1Goto1"
         ]
     },
-    "AutoCollectRoute13Goto1": {
+    "AutoCollectValleyIVAuronyx1Goto1": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -69,7 +69,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute13AssertLocation2"
+            "AutoCollectValleyIVAuronyx1AssertLocation2"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -80,7 +80,7 @@
             }
         }
     },
-    "AutoCollectRoute13AssertLocation2": {
+    "AutoCollectValleyIVAuronyx1AssertLocation2": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -95,10 +95,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute13Goto2"
+            "AutoCollectValleyIVAuronyx1Goto2"
         ]
     },
-    "AutoCollectRoute13Goto2": {
+    "AutoCollectValleyIVAuronyx1Goto2": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -179,7 +179,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute13Wait10sec"
+            "AutoCollectValleyIVAuronyx1Wait10sec"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -190,12 +190,12 @@
             }
         }
     },
-    "AutoCollectRoute13Wait10sec": {
+    "AutoCollectValleyIVAuronyx1Wait10sec": {
         "desc": "等待10s完成收集",
         "pre_delay": 0,
         "post_delay": 10000,
         "next": [
-            "AutoCollectRoute13End"
+            "AutoCollectValleyIVAuronyx1End"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "等待10s完成收集"

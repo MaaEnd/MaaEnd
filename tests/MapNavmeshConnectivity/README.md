@@ -15,7 +15,7 @@
     },
     "cases": [
         {
-            "name": "AutoCollectRoute1AssertLocation",
+            "name": "AutoCollectWulingBlightedJadeleaf1AssertLocation",
             "zone_id": "Wuling_Base",
             "start": [951, 1788],
             "goal": [933, 1706]

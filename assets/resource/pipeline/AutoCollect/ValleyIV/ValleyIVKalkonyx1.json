@@ -1,5 +1,5 @@
 {
-    "AutoCollectRoute5Start": {
+    "AutoCollectValleyIVKalkonyx1Start": {
         "enabled": false,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -9,17 +9,17 @@
             ]
         },
         "next": [
-            "AutoCollectRoute5AssertLocation"
+            "AutoCollectValleyIVKalkonyx1AssertLocation"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute5.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVKalkonyx1.label"
         }
     },
-    "AutoCollectRoute5End": {
+    "AutoCollectValleyIVKalkonyx1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute5AssertLocation": {
+    "AutoCollectValleyIVKalkonyx1AssertLocation": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -34,10 +34,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute5Goto"
+            "AutoCollectValleyIVKalkonyx1Goto"
         ]
     },
-    "AutoCollectRoute5Goto": {
+    "AutoCollectValleyIVKalkonyx1Goto": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -91,7 +91,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute5Wait10sec"
+            "AutoCollectValleyIVKalkonyx1Wait10sec"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -102,12 +102,12 @@
             }
         }
     },
-    "AutoCollectRoute5Wait10sec": {
+    "AutoCollectValleyIVKalkonyx1Wait10sec": {
         "desc": "等待10s完成收集",
         "pre_delay": 0,
         "post_delay": 10000,
         "next": [
-            "AutoCollectRoute5End"
+            "AutoCollectValleyIVKalkonyx1End"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "等待10s完成收集"

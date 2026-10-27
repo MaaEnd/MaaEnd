@@ -1,21 +1,7 @@
 {
-    "AutoCollectCommonRoute6Start": {
-        "desc": "琼叶参采集线，4个坐标，5个物品",
+    "AutoCollectWulingRedBolete1Start": {
+        "desc": "中红柱状菌",
         "enabled": false,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "AutoCollectCommonRoute6"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute6.label"
-        }
-    },
-    "AutoCollectCommonRoute6End": {
-        "pre_delay": 0,
-        "post_delay": 0
-    },
-    "AutoCollectCommonRoute6": {
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -24,28 +10,35 @@
             ]
         },
         "next": [
-            "AutoCollectCommonRoute6AssertLocation1"
-        ]
+            "AutoCollectWulingRedBolete1AssertLocation1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingRedBolete1.label"
+        }
     },
-    "AutoCollectCommonRoute6AssertLocation1": {
+    "AutoCollectWulingRedBolete1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingRedBolete1AssertLocation1": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                589,
-                2231,
+                588,
+                2232,
                 20,
                 20
             ]
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectCommonRoute6Goto1"
+            "AutoCollectWulingRedBolete1Goto1"
         ]
     },
-    "AutoCollectCommonRoute6Goto1": {
+    "AutoCollectWulingRedBolete1Goto1": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -60,37 +53,8 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                636.26,
-                                2293.87
-                            ]
-                        },
-                        {
-                            "action": "NAVMESH",
-                            "target": [
-                                636.05,
-                                2332.92
-                            ]
-                        },
-                        {
-                            "action": "NAVMESH",
-                            "target": [
-                                590.98,
-                                2346.76
-                            ]
-                        },
-                        [
-                            554.7,
-                            2347.1
-                        ],
-                        [
-                            541.68,
-                            2352.06
-                        ],
-                        {
-                            "action": "NAVMESH",
-                            "target": [
-                                455.19,
-                                2388.06
+                                624.05,
+                                2263.63
                             ]
                         }
                     ]
@@ -98,7 +62,7 @@
             }
         },
         "next": [
-            "AutoCollectCommonRoute6AssertLocation2"
+            "AutoCollectWulingRedBolete1AssertLocation2"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -109,25 +73,25 @@
             }
         }
     },
-    "AutoCollectCommonRoute6AssertLocation2": {
+    "AutoCollectWulingRedBolete1AssertLocation2": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                445,
-                2379,
+                616,
+                2255,
                 20,
                 20
             ]
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectCommonRoute6Goto2"
+            "AutoCollectWulingRedBolete1Goto2"
         ]
     },
-    "AutoCollectCommonRoute6Goto2": {
+    "AutoCollectWulingRedBolete1Goto2": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -140,56 +104,53 @@
                             "zone_id": "Wuling_Base"
                         },
                         [
-                            454.1,
-                            2388.75,
+                            623.07,
+                            2268.9,
                             "COLLECT"
                         ],
                         [
-                            454.1,
-                            2388.75,
+                            621.41,
+                            2270.87,
                             "COLLECT"
                         ],
                         [
-                            454.1,
-                            2389.93,
+                            619.57,
+                            2271.94,
                             "COLLECT"
                         ],
                         [
-                            454.1,
-                            2389.93,
-                            "COLLECT"
-                        ],
-                        {
-                            "action": "NAVMESH",
-                            "target": [
-                                467.08,
-                                2400.82
-                            ],
-                            "zone_id": "Wuling_Base"
-                        },
-                        [
-                            464.94,
-                            2397.12,
+                            618.1,
+                            2270.98,
                             "COLLECT"
                         ],
                         [
-                            464.94,
-                            2397.12,
+                            618.34,
+                            2272,
                             "COLLECT"
                         ],
                         [
-                            464.94,
-                            2397.12,
+                            617.51,
+                            2272.66,
                             "COLLECT"
                         ],
                         [
-                            464.34,
-                            2397.52,
+                            616.05,
+                            2270.72,
                             "COLLECT"
                         ],
                         [
-                            464.34,
-                            2397.52,
+                            616.01,
+                            2269.36,
+                            "COLLECT"
+                        ],
+                        [
+                            614.34,
+                            2269.44,
+                            "COLLECT"
+                        ],
+                        [
+                            613.03,
+                            2267.91,
                             "COLLECT"
                         ]
                     ]
@@ -197,7 +158,7 @@
             }
         },
         "next": [
-            "AutoCollectCommonRoute6End"
+            "AutoCollectWulingRedBolete1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

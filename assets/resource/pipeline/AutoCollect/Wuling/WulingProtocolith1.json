@@ -1,5 +1,5 @@
 {
-    "AutoCollectRoute16Start": {
+    "AutoCollectWulingProtocolith1Start": {
         "enabled": false,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -9,17 +9,17 @@
             ]
         },
         "next": [
-            "AutoCollectRoute16AssertLocation"
+            "AutoCollectWulingProtocolith1AssertLocation"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute16.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingProtocolith1.label"
         }
     },
-    "AutoCollectRoute16End": {
+    "AutoCollectWulingProtocolith1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute16AssertLocation": {
+    "AutoCollectWulingProtocolith1AssertLocation": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -34,10 +34,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute16GotoInteract"
+            "AutoCollectWulingProtocolith1GotoInteract"
         ]
     },
-    "AutoCollectRoute16GotoInteract": {
+    "AutoCollectWulingProtocolith1GotoInteract": {
         "desc": "前往滑索并上索",
         "action": {
             "type": "Custom",
@@ -73,7 +73,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute16Goto"
+            "AutoCollectWulingProtocolith1Goto"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -84,7 +84,7 @@
             }
         }
     },
-    "AutoCollectRoute16Goto": {
+    "AutoCollectWulingProtocolith1Goto": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -189,7 +189,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute16Wait10sec"
+            "AutoCollectWulingProtocolith1Wait10sec"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -200,12 +200,12 @@
             }
         }
     },
-    "AutoCollectRoute16Wait10sec": {
+    "AutoCollectWulingProtocolith1Wait10sec": {
         "desc": "等待10s完成收集",
         "pre_delay": 0,
         "post_delay": 10000,
         "next": [
-            "AutoCollectRoute16End"
+            "AutoCollectWulingProtocolith1End"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "等待10s完成收集"

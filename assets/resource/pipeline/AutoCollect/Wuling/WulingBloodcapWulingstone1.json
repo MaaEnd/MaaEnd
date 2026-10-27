@@ -1,5 +1,5 @@
 {
-    "AutoCollectRoute7Start": {
+    "AutoCollectWulingBloodcapWulingstone1Start": {
         "desc": "本路线包含两个收集点，血菌和武陵石",
         "enabled": false,
         "action": "Custom",
@@ -10,17 +10,17 @@
             ]
         },
         "next": [
-            "AutoCollectRoute7AssertLocation1"
+            "AutoCollectWulingBloodcapWulingstone1AssertLocation1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute7.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingBloodcapWulingstone1.label"
         }
     },
-    "AutoCollectRoute7End": {
+    "AutoCollectWulingBloodcapWulingstone1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute7AssertLocation1": {
+    "AutoCollectWulingBloodcapWulingstone1AssertLocation1": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -35,10 +35,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute7Goto1"
+            "AutoCollectWulingBloodcapWulingstone1Goto1"
         ]
     },
-    "AutoCollectRoute7Goto1": {
+    "AutoCollectWulingBloodcapWulingstone1Goto1": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -62,7 +62,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute7AssertLocation2"
+            "AutoCollectWulingBloodcapWulingstone1AssertLocation2"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -73,7 +73,7 @@
             }
         }
     },
-    "AutoCollectRoute7AssertLocation2": {
+    "AutoCollectWulingBloodcapWulingstone1AssertLocation2": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -88,10 +88,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute7Goto2"
+            "AutoCollectWulingBloodcapWulingstone1Goto2"
         ]
     },
-    "AutoCollectRoute7Goto2": {
+    "AutoCollectWulingBloodcapWulingstone1Goto2": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -153,7 +153,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute7AssertLocation4"
+            "AutoCollectWulingBloodcapWulingstone1AssertLocation4"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -164,7 +164,7 @@
             }
         }
     },
-    "AutoCollectRoute7AssertLocation4": {
+    "AutoCollectWulingBloodcapWulingstone1AssertLocation4": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -179,25 +179,25 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute7GotoFindLine4Sub"
+            "AutoCollectWulingBloodcapWulingstone1GotoFindLine4Sub"
         ]
     },
-    "AutoCollectRoute7GotoFindLine4Sub": {
+    "AutoCollectWulingBloodcapWulingstone1GotoFindLine4Sub": {
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "AutoCollectRoute7GotoFindLine4",
-                "AutoCollectRoute7FindButtonUsing"
+                "AutoCollectWulingBloodcapWulingstone1GotoFindLine4",
+                "AutoCollectWulingBloodcapWulingstone1FindButtonUsing"
             ],
             "continue": true,
             "strict": false
         },
         "next": [
-            "AutoCollectRoute7Goto3"
+            "AutoCollectWulingBloodcapWulingstone1Goto3"
         ]
     },
-    "AutoCollectRoute7GotoFindLine4": {
+    "AutoCollectWulingBloodcapWulingstone1GotoFindLine4": {
         "desc": "从血菌出发前往升降索",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -232,7 +232,7 @@
             }
         }
     },
-    "AutoCollectRoute7FindButtonUsing": {
+    "AutoCollectWulingBloodcapWulingstone1FindButtonUsing": {
         "desc": "点击使用按钮",
         "recognition": {
             "type": "OCR",
@@ -261,7 +261,7 @@
             "Node.Recognition.Succeeded": "使用升降索"
         }
     },
-    "AutoCollectRoute7Goto3": {
+    "AutoCollectWulingBloodcapWulingstone1Goto3": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -285,7 +285,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute7AssertLocation5"
+            "AutoCollectWulingBloodcapWulingstone1AssertLocation5"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -296,7 +296,7 @@
             }
         }
     },
-    "AutoCollectRoute7AssertLocation5": {
+    "AutoCollectWulingBloodcapWulingstone1AssertLocation5": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -311,10 +311,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute7Goto4"
+            "AutoCollectWulingBloodcapWulingstone1Goto4"
         ]
     },
-    "AutoCollectRoute7Goto4": {
+    "AutoCollectWulingBloodcapWulingstone1Goto4": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -338,7 +338,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute7AssertLocation7"
+            "AutoCollectWulingBloodcapWulingstone1AssertLocation7"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -349,7 +349,7 @@
             }
         }
     },
-    "AutoCollectRoute7AssertLocation7": {
+    "AutoCollectWulingBloodcapWulingstone1AssertLocation7": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -364,10 +364,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute7Goto5"
+            "AutoCollectWulingBloodcapWulingstone1Goto5"
         ]
     },
-    "AutoCollectRoute7Goto5": {
+    "AutoCollectWulingBloodcapWulingstone1Goto5": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -420,7 +420,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute7Wait10sec"
+            "AutoCollectWulingBloodcapWulingstone1Wait10sec"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -431,12 +431,12 @@
             }
         }
     },
-    "AutoCollectRoute7Wait10sec": {
+    "AutoCollectWulingBloodcapWulingstone1Wait10sec": {
         "desc": "等待10s完成收集",
         "pre_delay": 0,
         "post_delay": 10000,
         "next": [
-            "AutoCollectRoute7End"
+            "AutoCollectWulingBloodcapWulingstone1End"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "等待10s完成收集"

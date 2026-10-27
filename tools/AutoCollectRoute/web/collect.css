@@ -39,21 +39,3 @@
   color: var(--text-primary);
   font-size: 12px;
 }
-
-.collect-route-names {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.collect-route-names-grid {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 6px 8px;
-}
-
-.collect-route-names-grid .entry {
-  height: var(--h-control-sm);
-  min-width: 0;
-}

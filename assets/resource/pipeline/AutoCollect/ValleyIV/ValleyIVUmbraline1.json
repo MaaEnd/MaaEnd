@@ -1,51 +1,52 @@
 {
-    "AutoCollectCommonRoute5Start": {
-        "desc": "蓬茸锦草采集线，4个点",
+    "AutoCollectValleyIVUmbraline1Start": {
+        "desc": "黯银柑实采集线，3个点",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectCommonRoute5"
+            "AutoCollectValleyIVUmbraline1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute5.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVUmbraline1.label"
         }
     },
-    "AutoCollectCommonRoute5End": {
+    "AutoCollectValleyIVUmbraline1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectCommonRoute5": {
+    "AutoCollectValleyIVUmbraline1": {
+        "desc": "6个黯银柑实",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStoneWatchtowerReservoirStation"
+                "SceneEnterWorldValleyIVTheHubHubBasePowerPlant"
             ]
         },
         "next": [
-            "AutoCollectCommonRoute5AssertLocation1"
+            "AutoCollectValleyIVUmbraline1AssertLocation1"
         ]
     },
-    "AutoCollectCommonRoute5AssertLocation1": {
+    "AutoCollectValleyIVUmbraline1AssertLocation1": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "zone_id": "Wuling_Base",
+            "zone_id": "ValleyIV_Base",
             "target": [
-                482,
-                2109,
+                436,
+                901,
                 20,
                 20
             ]
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectCommonRoute5Goto"
+            "AutoCollectValleyIVUmbraline1Goto1"
         ]
     },
-    "AutoCollectCommonRoute5Goto": {
+    "AutoCollectValleyIVUmbraline1Goto1": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -55,53 +56,53 @@
                     "path": [
                         {
                             "action": "ZONE",
-                            "zone_id": "Wuling_Base"
+                            "zone_id": "ValleyIV_Base"
                         },
                         {
                             "action": "NAVMESH",
                             "target": [
-                                411.37,
-                                2132.9
+                                357.84,
+                                949.37
+                            ],
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        [
+                            365.68,
+                            949.88,
+                            "COLLECT"
+                        ],
+                        [
+                            367.82,
+                            947.32,
+                            "COLLECT"
+                        ],
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                367.75,
+                                905.72
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                354.46,
+                                890.58
                             ]
                         },
                         [
-                            411.37,
-                            2132.9,
+                            351.78,
+                            897.23,
                             "COLLECT"
                         ],
                         [
-                            411.37,
-                            2132.9,
+                            351.78,
+                            897.23,
                             "COLLECT"
                         ],
                         [
-                            408.02,
-                            2130.24,
-                            "COLLECT"
-                        ],
-                        [
-                            408.02,
-                            2130.24,
-                            "COLLECT"
-                        ],
-                        [
-                            407.93,
-                            2129.35,
-                            "COLLECT"
-                        ],
-                        [
-                            407.93,
-                            2129.35,
-                            "COLLECT"
-                        ],
-                        [
-                            406.74,
-                            2127.18,
-                            "COLLECT"
-                        ],
-                        [
-                            406.74,
-                            2127.18,
+                            351.78,
+                            897.23,
                             "COLLECT"
                         ]
                     ]
@@ -109,7 +110,7 @@
             }
         },
         "next": [
-            "AutoCollectCommonRoute5End"
+            "AutoCollectValleyIVUmbraline1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

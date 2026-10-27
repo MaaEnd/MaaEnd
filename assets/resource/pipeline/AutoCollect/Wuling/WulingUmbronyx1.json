@@ -1,44 +1,44 @@
 {
-    "AutoCollectRoute14Start": {
-        "desc": "晶化多齿叶",
+    "AutoCollectWulingUmbronyx1Start": {
+        "desc": "重黯石",
         "enabled": false,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldValleyIVTheHubSouthernMeadows"
+                "SceneEnterWorldWulingJingyuValleyTreasureGrottoSouth"
             ]
         },
         "next": [
-            "AutoCollectRoute14AssertLocation1"
+            "AutoCollectWulingUmbronyx1AssertLocation1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute14.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingUmbronyx1.label"
         }
     },
-    "AutoCollectRoute14End": {
+    "AutoCollectWulingUmbronyx1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute14AssertLocation1": {
+    "AutoCollectWulingUmbronyx1AssertLocation1": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "zone_id": "ValleyIV_Base",
+            "zone_id": "Wuling_Base",
             "target": [
-                601,
-                961,
+                728,
+                2402,
                 20,
                 20
             ]
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute14Goto1"
+            "AutoCollectWulingUmbronyx1Goto1"
         ]
     },
-    "AutoCollectRoute14Goto1": {
+    "AutoCollectWulingUmbronyx1Goto1": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -48,13 +48,13 @@
                     "path": [
                         {
                             "action": "ZONE",
-                            "zone_id": "ValleyIV_Base"
+                            "zone_id": "Wuling_Base"
                         },
                         {
                             "action": "NAVMESH",
                             "target": [
-                                593.63,
-                                979.66
+                                701.34,
+                                2317.76
                             ]
                         }
                     ]
@@ -62,7 +62,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute14AssertLocation2"
+            "AutoCollectWulingUmbronyx1AssertLocation2"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -73,25 +73,25 @@
             }
         }
     },
-    "AutoCollectRoute14AssertLocation2": {
+    "AutoCollectWulingUmbronyx1AssertLocation2": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "zone_id": "ValleyIV_Base",
+            "zone_id": "Wuling_Base",
             "target": [
-                583,
-                970,
+                692,
+                2310,
                 20,
                 20
             ]
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute14Goto2"
+            "AutoCollectWulingUmbronyx1Goto2"
         ]
     },
-    "AutoCollectRoute14Goto2": {
+    "AutoCollectWulingUmbronyx1Goto2": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -101,64 +101,50 @@
                     "path": [
                         {
                             "action": "ZONE",
-                            "zone_id": "ValleyIV_Base"
+                            "zone_id": "Wuling_Base"
                         },
                         [
-                            602.17,
-                            995.17,
-                            "COLLECT"
+                            701.24,
+                            2320.12,
+                            "DIG",
+                            true
                         ],
                         [
-                            602.89,
-                            996.7,
-                            "COLLECT"
+                            700.06,
+                            2320.22,
+                            "DIG",
+                            true
                         ],
                         [
-                            607.68,
-                            998.37,
-                            "COLLECT"
+                            697.6,
+                            2321.4,
+                            "DIG",
+                            true
                         ],
                         [
-                            609,
-                            995.46,
-                            "COLLECT"
+                            700.06,
+                            2322.59,
+                            "DIG",
+                            true
                         ],
                         [
-                            609.78,
-                            994.35,
-                            "COLLECT"
+                            702.52,
+                            2323.87,
+                            "DIG",
+                            true
                         ],
                         [
-                            610.41,
-                            993.38,
-                            "COLLECT"
-                        ],
-                        [
-                            606.74,
-                            991.32,
-                            "COLLECT"
-                        ],
-                        [
-                            605.75,
-                            990.58,
-                            "COLLECT"
-                        ],
-                        [
-                            605.84,
-                            990.08,
-                            "COLLECT"
-                        ],
-                        [
-                            605.12,
-                            990.06,
-                            "COLLECT"
+                            698.78,
+                            2322.59,
+                            "DIG",
+                            true
                         ]
                     ]
                 }
             }
         },
         "next": [
-            "AutoCollectRoute14End"
+            "AutoCollectWulingUmbronyx1Wait10sec"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -167,6 +153,17 @@
             "Node.Action.Failed": {
                 "trace": true
             }
+        }
+    },
+    "AutoCollectWulingUmbronyx1Wait10sec": {
+        "desc": "等待10s完成收集",
+        "pre_delay": 0,
+        "post_delay": 10000,
+        "next": [
+            "AutoCollectWulingUmbronyx1End"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "等待10s完成收集"
         }
     }
 }

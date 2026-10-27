@@ -1,5 +1,5 @@
 {
-    "AutoCollectRoute10Start": {
+    "AutoCollectWulingRubyBolete1Start": {
         "desc": "共两个重红柱状菌采集点",
         "enabled": false,
         "action": "Custom",
@@ -10,17 +10,17 @@
             ]
         },
         "next": [
-            "AutoCollectRoute10AssertLocation1"
+            "AutoCollectWulingRubyBolete1AssertLocation1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute10.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingRubyBolete1.label"
         }
     },
-    "AutoCollectRoute10End": {
+    "AutoCollectWulingRubyBolete1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute10AssertLocation1": {
+    "AutoCollectWulingRubyBolete1AssertLocation1": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -35,10 +35,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute10Goto1"
+            "AutoCollectWulingRubyBolete1Goto1"
         ]
     },
-    "AutoCollectRoute10Goto1": {
+    "AutoCollectWulingRubyBolete1Goto1": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -62,7 +62,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute10AssertLocation2"
+            "AutoCollectWulingRubyBolete1AssertLocation2"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -73,7 +73,7 @@
             }
         }
     },
-    "AutoCollectRoute10AssertLocation2": {
+    "AutoCollectWulingRubyBolete1AssertLocation2": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -88,10 +88,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute10Goto2"
+            "AutoCollectWulingRubyBolete1Goto2"
         ]
     },
-    "AutoCollectRoute10Goto2": {
+    "AutoCollectWulingRubyBolete1Goto2": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -176,7 +176,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute10AssertLocation3"
+            "AutoCollectWulingRubyBolete1AssertLocation3"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -187,7 +187,7 @@
             }
         }
     },
-    "AutoCollectRoute10AssertLocation3": {
+    "AutoCollectWulingRubyBolete1AssertLocation3": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -202,10 +202,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute10Goto3"
+            "AutoCollectWulingRubyBolete1Goto3"
         ]
     },
-    "AutoCollectRoute10Goto3": {
+    "AutoCollectWulingRubyBolete1Goto3": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -262,7 +262,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute10End"
+            "AutoCollectWulingRubyBolete1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

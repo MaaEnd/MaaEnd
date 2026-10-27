@@ -59,7 +59,6 @@ const ANCHOR_COLOR = "#22d3ee";
 const MONO = '"Consolas", "SFMono-Regular", ui-monospace, monospace';
 // 左键默认框选；按住 Alt 时左键临时用来平移
 const TOOL_CURSORS = {pan: "grab", select: "crosshair"};
-const LOCALE_LABELS = {zh_cn: "简中", zh_tw: "繁中", en_us: "English", ja_jp: "日本語", ko_kr: "한국어"};
 const KIND_NAMES = {rare: "稀有", common: "常规"};
 const MAP_ICON =
   '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"></path><path d="M9 4v14M15 6v14"></path></svg>';
@@ -910,7 +909,6 @@ class CollectApp {
     this.expandToken += 1;
     this.previewToken += 1;
     this.renderResult();
-    this.renderNames();
     this.paint();
   }
 
@@ -941,7 +939,7 @@ class CollectApp {
           .reduce((sum, point, i) => sum + Math.hypot(point[0] - points[i][0], point[1] - points[i][1]), 0),
       );
       this.expandState = "done";
-      setStatus(...routePreviewStatus(this.expanded, response, `${result.case} 已按运行时展开`));
+      setStatus(...routePreviewStatus(this.expanded, response, `${result.id} 已按运行时展开`));
     } catch (err) {
       if (token !== this.expandToken) return;
       this.expandState = "failed";
@@ -951,18 +949,9 @@ class CollectApp {
     this.paint();
   }
 
-  /**
-   * @param {boolean} withNames send the edited route names
-   * @returns {{map:string, ids:string[], kind:string, names?:Object<string,string>}}
-   */
-  request(withNames) {
-    const req = {map: this.mapId, ids: [...this.selected], kind: this.kind};
-    if (withNames) {
-      req.names = Object.fromEntries(
-        [...$("route-names").querySelectorAll("input")].map((input) => [input.dataset.locale, input.value.trim()]),
-      );
-    }
-    return req;
+  /** @returns {{map:string, ids:string[], kind:string}} */
+  request() {
+    return {map: this.mapId, ids: [...this.selected], kind: this.kind};
   }
 
   async preview() {
@@ -982,7 +971,7 @@ class CollectApp {
       }
     }, PROGRESS_POLL_MS);
     try {
-      const result = await previewRoute(this.request(false));
+      const result = await previewRoute(this.request());
       sorting = false;
       if (token !== this.previewToken) return;
       this.setResult(result);
@@ -1011,7 +1000,7 @@ class CollectApp {
     const result = this.result;
     $("route-box").hidden = !result;
     if (!result) return;
-    $("route-title").textContent = `路线预览 · ${result.case}`;
+    $("route-title").textContent = `路线预览 · ${result.id}`;
 
     const collects = result.path.filter((step) => Array.isArray(step));
     const digs = collects.filter((step) => step[2] === "DIG").length;
@@ -1022,7 +1011,6 @@ class CollectApp {
       failed: "展开失败，详见状态栏",
     }[this.expandState];
     const facts = [
-      ["名称", result.texts.zh_cn.label],
       ["文件", result.route_file],
       ["起点传送", result.anchor.name ? `${result.anchor.name} · ${result.anchor.entry}` : result.anchor.entry],
       ["采集点", `${collects.length} 个${digs ? `（挖掘 ${digs}）` : ""}`],
@@ -1042,26 +1030,6 @@ class CollectApp {
     );
   }
 
-  /** Route name inputs, rebuilt only for a new route so edits survive the runtime expansion. */
-  renderNames() {
-    const result = this.result;
-    if (!result) return;
-    $("route-names").replaceChildren(
-      ...Object.entries(LOCALE_LABELS).flatMap(([locale, label]) => {
-        const name = document.createElement("label");
-        name.className = "sidebar-label";
-        name.textContent = label;
-        name.htmlFor = `route-name-${locale}`;
-        const input = document.createElement("input");
-        input.id = `route-name-${locale}`;
-        input.className = "entry";
-        input.dataset.locale = locale;
-        input.value = result.names[locale];
-        return [name, input];
-      }),
-    );
-  }
-
   /**
    * @param {string|undefined} text
    * @param {string} what
@@ -1074,8 +1042,7 @@ class CollectApp {
 
   openApplyDialog() {
     if (!this.result || this.applying) return;
-    const label = this.request(true).names.zh_cn || this.result.names.zh_cn;
-    $("apply-dialog-hint").textContent = `将新增 ${this.result.case}（${label}），并改动以下文件：`;
+    $("apply-dialog-hint").textContent = `将新增 ${this.result.id}，并改动以下文件：`;
     $("apply-dialog-files").replaceChildren(
       ...this.result.files.flatMap((file, index) => {
         const dt = document.createElement("dt");
@@ -1096,8 +1063,8 @@ class CollectApp {
     $("apply-dialog-ok").disabled = true;
     $("apply-dialog").hidden = true;
     try {
-      const written = await applyRoute(this.request(true));
-      setStatus(`已写入 ${written.case}：${written.written.length} 个文件。`, COLOR_OK);
+      const written = await applyRoute(this.request());
+      setStatus(`已写入 ${written.id}：${written.written.length} 个文件。`, COLOR_OK);
       this.setResult(null);
     } catch (err) {
       setStatus(`写入失败：${err.message}`, COLOR_ERROR);

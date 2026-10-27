@@ -1,21 +1,21 @@
 {
-    "AutoCollectCommonRoute1Start": {
+    "AutoCollectValleyIVFirebuckle1Start": {
         "desc": "映火荞花采集线，5个点",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectCommonRoute1"
+            "AutoCollectValleyIVFirebuckle1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute1.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVFirebuckle1.label"
         }
     },
-    "AutoCollectCommonRoute1End": {
+    "AutoCollectValleyIVFirebuckle1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectCommonRoute1": {
+    "AutoCollectValleyIVFirebuckle1": {
         "desc": "10个映火荞花",
         "action": "Custom",
         "custom_action": "SubTask",
@@ -25,10 +25,10 @@
             ]
         },
         "next": [
-            "AutoCollectCommonRoute1AssertLocation1"
+            "AutoCollectValleyIVFirebuckle1AssertLocation1"
         ]
     },
-    "AutoCollectCommonRoute1AssertLocation1": {
+    "AutoCollectValleyIVFirebuckle1AssertLocation1": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -43,10 +43,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectCommonRoute1Goto"
+            "AutoCollectValleyIVFirebuckle1Goto"
         ]
     },
-    "AutoCollectCommonRoute1Goto": {
+    "AutoCollectValleyIVFirebuckle1Goto": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -153,7 +153,7 @@
             }
         },
         "next": [
-            "AutoCollectCommonRoute1End"
+            "AutoCollectValleyIVFirebuckle1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

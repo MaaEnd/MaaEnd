@@ -1,5 +1,5 @@
 {
-    "AutoCollectRoute17Start": {
+    "AutoCollectWulingTalosCap1Start": {
         "enabled": false,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -9,17 +9,17 @@
             ]
         },
         "next": [
-            "AutoCollectRoute17AssertLocation"
+            "AutoCollectWulingTalosCap1AssertLocation"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute17.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingTalosCap1.label"
         }
     },
-    "AutoCollectRoute17End": {
+    "AutoCollectWulingTalosCap1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute17AssertLocation": {
+    "AutoCollectWulingTalosCap1AssertLocation": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -34,10 +34,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute17Goto"
+            "AutoCollectWulingTalosCap1Goto"
         ]
     },
-    "AutoCollectRoute17Goto": {
+    "AutoCollectWulingTalosCap1Goto": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -114,7 +114,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute17End"
+            "AutoCollectWulingTalosCap1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

@@ -1,5 +1,5 @@
 {
-    "AutoCollectRoute8Start": {
+    "AutoCollectWulingCosmagaric1Start": {
         "enabled": false,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -9,17 +9,17 @@
             ]
         },
         "next": [
-            "AutoCollectRoute8AssertLocation1"
+            "AutoCollectWulingCosmagaric1AssertLocation1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute8.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCosmagaric1.label"
         }
     },
-    "AutoCollectRoute8End": {
+    "AutoCollectWulingCosmagaric1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute8AssertLocation1": {
+    "AutoCollectWulingCosmagaric1AssertLocation1": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -34,10 +34,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute8Goto1"
+            "AutoCollectWulingCosmagaric1Goto1"
         ]
     },
-    "AutoCollectRoute8Goto1": {
+    "AutoCollectWulingCosmagaric1Goto1": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -61,7 +61,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute8AssertLocation2"
+            "AutoCollectWulingCosmagaric1AssertLocation2"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -72,7 +72,7 @@
             }
         }
     },
-    "AutoCollectRoute8AssertLocation2": {
+    "AutoCollectWulingCosmagaric1AssertLocation2": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -87,10 +87,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute8Goto2"
+            "AutoCollectWulingCosmagaric1Goto2"
         ]
     },
-    "AutoCollectRoute8Goto2": {
+    "AutoCollectWulingCosmagaric1Goto2": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -147,7 +147,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute8End"
+            "AutoCollectWulingCosmagaric1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

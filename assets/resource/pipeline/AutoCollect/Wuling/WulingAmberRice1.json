@@ -1,52 +1,52 @@
 {
-    "AutoCollectCommonRoute7Start": {
-        "desc": "荆刺芽针采集线，6个点共12个",
+    "AutoCollectWulingAmberRice1Start": {
+        "desc": "金石稻采集线，12个",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectCommonRoute7"
+            "AutoCollectWulingAmberRice1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute7.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingAmberRice1.label"
         }
     },
-    "AutoCollectCommonRoute7End": {
+    "AutoCollectWulingAmberRice1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectCommonRoute7": {
+    "AutoCollectWulingAmberRice1": {
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStoneWatchtowerReservoirStation"
+                "SceneEnterWorldWulingTestAreaIntegratedRDArea"
             ]
         },
         "next": [
-            "AutoCollectCommonRoute7AssertLocation1"
+            "AutoCollectWulingAmberRice1AssertLocation1"
         ]
     },
-    "AutoCollectCommonRoute7AssertLocation1": {
+    "AutoCollectWulingAmberRice1AssertLocation1": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                482,
-                2109,
+                1283,
+                1743,
                 20,
                 20
             ]
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectCommonRoute7Goto"
+            "AutoCollectWulingAmberRice1Goto"
         ]
     },
-    "AutoCollectCommonRoute7Goto": {
-        "desc": "前往采集点",
+    "AutoCollectWulingAmberRice1Goto": {
+        "desc": "前往金石稻采集点",
         "action": {
             "type": "Custom",
             "param": {
@@ -60,68 +60,69 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                408.71,
-                                2122.16
-                            ]
+                                1336.21,
+                                1763.47
+                            ],
+                            "zone_id": "Wuling_Base"
                         },
                         [
-                            408.71,
-                            2122.16,
+                            1339.35,
+                            1764.14,
                             "COLLECT"
                         ],
                         [
-                            408.71,
-                            2122.16,
+                            1339.35,
+                            1764.14,
                             "COLLECT"
                         ],
                         [
-                            410.29,
-                            2125.11,
+                            1339.35,
+                            1764.14,
                             "COLLECT"
                         ],
                         [
-                            410.29,
-                            2125.11,
+                            1339.35,
+                            1764.14,
                             "COLLECT"
                         ],
                         [
-                            406.35,
-                            2126.2,
+                            1339.35,
+                            1761.67,
                             "COLLECT"
                         ],
                         [
-                            406.35,
-                            2126.2,
+                            1339.35,
+                            1761.67,
                             "COLLECT"
                         ],
                         [
-                            412.16,
-                            2131.02,
+                            1337.68,
+                            1761.38,
                             "COLLECT"
                         ],
                         [
-                            412.16,
-                            2131.02,
+                            1337.68,
+                            1761.38,
                             "COLLECT"
                         ],
                         [
-                            407.34,
-                            2127.87,
+                            1333.74,
+                            1764.73,
                             "COLLECT"
                         ],
                         [
-                            407.34,
-                            2127.87,
+                            1333.74,
+                            1764.73,
                             "COLLECT"
                         ],
                         [
-                            413.14,
-                            2134.28,
+                            1336.89,
+                            1762.95,
                             "COLLECT"
                         ],
                         [
-                            413.14,
-                            2134.28,
+                            1336.89,
+                            1762.95,
                             "COLLECT"
                         ]
                     ]
@@ -129,7 +130,7 @@
             }
         },
         "next": [
-            "AutoCollectCommonRoute7End"
+            "AutoCollectWulingAmberRice1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

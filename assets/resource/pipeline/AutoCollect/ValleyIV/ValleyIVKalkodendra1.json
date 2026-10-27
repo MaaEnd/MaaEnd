@@ -1,44 +1,44 @@
 {
-    "AutoCollectRoute11Start": {
-        "desc": "重黯石",
+    "AutoCollectValleyIVKalkodendra1Start": {
+        "desc": "晶化多齿叶",
         "enabled": false,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValleyTreasureGrottoSouth"
+                "SceneEnterWorldValleyIVTheHubSouthernMeadows"
             ]
         },
         "next": [
-            "AutoCollectRoute11AssertLocation1"
+            "AutoCollectValleyIVKalkodendra1AssertLocation1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute11.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVKalkodendra1.label"
         }
     },
-    "AutoCollectRoute11End": {
+    "AutoCollectValleyIVKalkodendra1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute11AssertLocation1": {
+    "AutoCollectValleyIVKalkodendra1AssertLocation1": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "zone_id": "Wuling_Base",
+            "zone_id": "ValleyIV_Base",
             "target": [
-                728,
-                2402,
+                601,
+                961,
                 20,
                 20
             ]
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute11Goto1"
+            "AutoCollectValleyIVKalkodendra1Goto1"
         ]
     },
-    "AutoCollectRoute11Goto1": {
+    "AutoCollectValleyIVKalkodendra1Goto1": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -48,13 +48,13 @@
                     "path": [
                         {
                             "action": "ZONE",
-                            "zone_id": "Wuling_Base"
+                            "zone_id": "ValleyIV_Base"
                         },
                         {
                             "action": "NAVMESH",
                             "target": [
-                                701.34,
-                                2317.76
+                                593.63,
+                                979.66
                             ]
                         }
                     ]
@@ -62,7 +62,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute11AssertLocation2"
+            "AutoCollectValleyIVKalkodendra1AssertLocation2"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -73,25 +73,25 @@
             }
         }
     },
-    "AutoCollectRoute11AssertLocation2": {
+    "AutoCollectValleyIVKalkodendra1AssertLocation2": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "zone_id": "Wuling_Base",
+            "zone_id": "ValleyIV_Base",
             "target": [
-                692,
-                2310,
+                583,
+                970,
                 20,
                 20
             ]
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute11Goto2"
+            "AutoCollectValleyIVKalkodendra1Goto2"
         ]
     },
-    "AutoCollectRoute11Goto2": {
+    "AutoCollectValleyIVKalkodendra1Goto2": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -101,50 +101,64 @@
                     "path": [
                         {
                             "action": "ZONE",
-                            "zone_id": "Wuling_Base"
+                            "zone_id": "ValleyIV_Base"
                         },
                         [
-                            701.24,
-                            2320.12,
-                            "DIG",
-                            true
+                            602.17,
+                            995.17,
+                            "COLLECT"
                         ],
                         [
-                            700.06,
-                            2320.22,
-                            "DIG",
-                            true
+                            602.89,
+                            996.7,
+                            "COLLECT"
                         ],
                         [
-                            697.6,
-                            2321.4,
-                            "DIG",
-                            true
+                            607.68,
+                            998.37,
+                            "COLLECT"
                         ],
                         [
-                            700.06,
-                            2322.59,
-                            "DIG",
-                            true
+                            609,
+                            995.46,
+                            "COLLECT"
                         ],
                         [
-                            702.52,
-                            2323.87,
-                            "DIG",
-                            true
+                            609.78,
+                            994.35,
+                            "COLLECT"
                         ],
                         [
-                            698.78,
-                            2322.59,
-                            "DIG",
-                            true
+                            610.41,
+                            993.38,
+                            "COLLECT"
+                        ],
+                        [
+                            606.74,
+                            991.32,
+                            "COLLECT"
+                        ],
+                        [
+                            605.75,
+                            990.58,
+                            "COLLECT"
+                        ],
+                        [
+                            605.84,
+                            990.08,
+                            "COLLECT"
+                        ],
+                        [
+                            605.12,
+                            990.06,
+                            "COLLECT"
                         ]
                     ]
                 }
             }
         },
         "next": [
-            "AutoCollectRoute11Wait10sec"
+            "AutoCollectValleyIVKalkodendra1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -153,17 +167,6 @@
             "Node.Action.Failed": {
                 "trace": true
             }
-        }
-    },
-    "AutoCollectRoute11Wait10sec": {
-        "desc": "等待10s完成收集",
-        "pre_delay": 0,
-        "post_delay": 10000,
-        "next": [
-            "AutoCollectRoute11End"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "等待10s完成收集"
         }
     }
 }

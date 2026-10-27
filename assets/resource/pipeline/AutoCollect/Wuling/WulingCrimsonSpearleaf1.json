@@ -1,43 +1,43 @@
 {
-    "AutoCollectRoute4Start": {
+    "AutoCollectWulingCrimsonSpearleaf1Start": {
         "enabled": false,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldValleyIVPowerPlateauEvacuationZone"
+                "SceneEnterWorldWulingNorthWulingExclusionZoneSentryBase"
             ]
         },
         "next": [
-            "AutoCollectRoute4AssertLocation"
+            "AutoCollectWulingCrimsonSpearleaf1AssertLocation"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute4.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCrimsonSpearleaf1.label"
         }
     },
-    "AutoCollectRoute4End": {
+    "AutoCollectWulingCrimsonSpearleaf1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute4AssertLocation": {
+    "AutoCollectWulingCrimsonSpearleaf1AssertLocation": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "zone_id": "ValleyIV_Base",
+            "zone_id": "Wuling_Base",
             "target": [
-                642,
-                367,
+                1108.96,
+                588.59,
                 20,
                 20
             ]
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute4Goto"
+            "AutoCollectWulingCrimsonSpearleaf1Goto"
         ]
     },
-    "AutoCollectRoute4Goto": {
+    "AutoCollectWulingCrimsonSpearleaf1Goto": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -47,53 +47,62 @@
                     "path": [
                         {
                             "action": "ZONE",
-                            "zone_id": "ValleyIV_Base"
+                            "zone_id": "Wuling_Base"
                         },
                         {
                             "action": "NAVMESH",
                             "target": [
-                                728.68,
-                                366.75
+                                1096.46,
+                                575.99
                             ]
                         },
                         [
-                            714.55,
-                            378.19,
+                            1093.98,
+                            575.03,
                             "COLLECT"
                         ],
                         [
-                            714.25,
-                            380.64,
+                            1092.13,
+                            571.98,
                             "COLLECT"
                         ],
                         [
-                            712.15,
-                            381.69,
+                            1090.87,
+                            570.08,
                             "COLLECT"
                         ],
                         [
-                            710.11,
-                            383.43,
+                            1088.75,
+                            569.67,
                             "COLLECT"
                         ],
                         [
-                            708.91,
-                            379.86,
+                            1087.22,
+                            570.2
+                        ],
+                        [
+                            1084.29,
+                            572.24,
                             "COLLECT"
                         ],
                         [
-                            707.37,
-                            377.78,
+                            1085.65,
+                            575.95,
                             "COLLECT"
                         ],
                         [
-                            708.95,
-                            375.31,
+                            1088.5,
+                            577.26,
                             "COLLECT"
                         ],
                         [
-                            712.72,
-                            372.98,
+                            1090.45,
+                            576.13,
+                            "COLLECT"
+                        ],
+                        [
+                            1093.98,
+                            575.03,
                             "COLLECT"
                         ]
                     ]
@@ -101,7 +110,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute4End"
+            "AutoCollectWulingCrimsonSpearleaf1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

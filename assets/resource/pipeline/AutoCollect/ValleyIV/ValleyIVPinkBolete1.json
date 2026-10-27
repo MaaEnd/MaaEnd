@@ -1,43 +1,43 @@
 {
-    "AutoCollectRoute1Start": {
+    "AutoCollectValleyIVPinkBolete1Start": {
         "enabled": false,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingWulingCityTianjingCourtyard"
+                "SceneEnterWorldValleyIVTheHubRockhillPassage"
             ]
         },
         "next": [
-            "AutoCollectRoute1AssertLocation"
+            "AutoCollectValleyIVPinkBolete1AssertLocation"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVPinkBolete1.label"
         }
     },
-    "AutoCollectRoute1End": {
+    "AutoCollectValleyIVPinkBolete1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute1AssertLocation": {
+    "AutoCollectValleyIVPinkBolete1AssertLocation": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "zone_id": "Wuling_Base",
+            "zone_id": "ValleyIV_Base",
             "target": [
-                941,
-                1778,
+                520,
+                687,
                 20,
                 20
             ]
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute1Goto"
+            "AutoCollectValleyIVPinkBolete1Goto"
         ]
     },
-    "AutoCollectRoute1Goto": {
+    "AutoCollectValleyIVPinkBolete1Goto": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -47,58 +47,53 @@
                     "path": [
                         {
                             "action": "ZONE",
-                            "zone_id": "Wuling_Base"
+                            "zone_id": "ValleyIV_Base"
                         },
                         {
                             "action": "NAVMESH",
                             "target": [
-                                933,
-                                1706
+                                585,
+                                723
                             ]
                         },
                         [
-                            930.94,
-                            1708.2,
+                            586.35,
+                            724.55,
                             "COLLECT"
                         ],
                         [
-                            933.06,
-                            1705.76,
+                            579.45,
+                            734.5,
                             "COLLECT"
                         ],
                         [
-                            934.35,
-                            1704.16,
+                            576.08,
+                            734.24,
                             "COLLECT"
                         ],
                         [
-                            934.24,
-                            1701.93,
+                            574.23,
+                            735.14,
                             "COLLECT"
                         ],
                         [
-                            929.94,
-                            1698.25,
+                            567.5,
+                            736.56,
                             "COLLECT"
                         ],
                         [
-                            927.13,
-                            1700.67,
+                            564.36,
+                            732.49,
                             "COLLECT"
                         ],
                         [
-                            926.96,
-                            1703.02,
+                            569.05,
+                            731.19,
                             "COLLECT"
                         ],
                         [
-                            929.01,
-                            1705.42,
-                            "COLLECT"
-                        ],
-                        [
-                            930.7,
-                            1708.19,
+                            568.18,
+                            727.65,
                             "COLLECT"
                         ]
                     ]
@@ -106,7 +101,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute1End"
+            "AutoCollectValleyIVPinkBolete1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

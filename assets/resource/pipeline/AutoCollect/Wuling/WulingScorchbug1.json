@@ -1,21 +1,21 @@
 {
-    "AutoCollectCommonRoute3Start": {
+    "AutoCollectWulingScorchbug1Start": {
         "desc": "灼壳虫采集线，6个点",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectCommonRoute3"
+            "AutoCollectWulingScorchbug1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute3.label"
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingScorchbug1.label"
         }
     },
-    "AutoCollectCommonRoute3End": {
+    "AutoCollectWulingScorchbug1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectCommonRoute3": {
+    "AutoCollectWulingScorchbug1": {
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -24,10 +24,10 @@
             ]
         },
         "next": [
-            "AutoCollectCommonRoute3AssertLocation1"
+            "AutoCollectWulingScorchbug1AssertLocation1"
         ]
     },
-    "AutoCollectCommonRoute3AssertLocation1": {
+    "AutoCollectWulingScorchbug1AssertLocation1": {
         "desc": "传送到采集点",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -42,10 +42,10 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectCommonRoute3Goto"
+            "AutoCollectWulingScorchbug1Goto"
         ]
     },
-    "AutoCollectCommonRoute3Goto": {
+    "AutoCollectWulingScorchbug1Goto": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
@@ -214,7 +214,7 @@
             }
         },
         "next": [
-            "AutoCollectCommonRoute3End"
+            "AutoCollectWulingScorchbug1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {
