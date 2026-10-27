@@ -97,6 +97,7 @@
                 "TextInputAction",
                 "TextInputInitAction",
                 "TrialOfSwordmancy.Decide",
+                "TrialOfSwordmancy.Solve",
                 "UpdateItemQuantity",
                 "VisitFriendsBtwSellSettleAction",
                 "VisitFriendsBtwSellSlidingAction",
@@ -615,6 +616,34 @@
                         }
                     }
                 }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "TrialOfSwordmancy.Solve"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "overflowMode": {
+                                "type": "string",
+                                "enum": [
+                                    "OverflowNone",
+                                    "OverflowOnce",
+                                    "OverflowTwice"
+                                ],
+                                "default": "OverflowTwice"
+                            }
+                        },
+                        "required": ["overflowMode"]
+                    }
+                },
+                "required": ["custom_action_param"]
             }
         },
         {

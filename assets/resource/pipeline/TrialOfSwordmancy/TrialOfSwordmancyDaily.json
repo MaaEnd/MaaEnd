@@ -49,13 +49,18 @@
         ]
     },
     // ===========================================================================
-    // 唯一一处完整牌库识别
+    // 唯一一处完整牌库识别，随后求解本轮 MDP
     // ===========================================================================
     "TrialOfSwordmancyDailyRecognizeDeck": {
-        "desc": "识别完整牌库",
+        "desc": "识别牌库并求解",
         "recognition": "Custom",
         "custom_recognition": "TrialOfSwordmancy.RecognizeDeck",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "TrialOfSwordmancy.Solve",
+        "custom_action_param": {
+            "overflowMode": "OverflowTwice"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -176,9 +181,6 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "TrialOfSwordmancy.Decide",
-        "custom_action_param": {
-            "overflowMode": "OverflowTwice"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         // next 由 go 运行时 override，按决策分派到：

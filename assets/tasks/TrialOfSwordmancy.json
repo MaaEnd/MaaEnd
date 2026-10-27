@@ -96,7 +96,7 @@
                     "name": "None",
                     "label": "$option.TrialOfSwordmancyOverflow.cases.None.label",
                     "pipeline_override": {
-                        "TrialOfSwordmancyDecide": {
+                        "TrialOfSwordmancyDailyRecognizeDeck": {
                             "custom_action_param": {
                                 "overflowMode": "OverflowNone"
                             }
@@ -110,7 +110,7 @@
                         "TrialOfSwordmancyStopOnOverflow"
                     ],
                     "pipeline_override": {
-                        "TrialOfSwordmancyDecide": {
+                        "TrialOfSwordmancyDailyRecognizeDeck": {
                             "custom_action_param": {
                                 "overflowMode": "OverflowOnce"
                             }
