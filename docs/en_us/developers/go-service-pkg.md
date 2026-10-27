@@ -140,7 +140,7 @@ Turns an "expression string with placeholders" into an integer / boolean express
 | Logical | `&&` `\|\|` `!` |
 | Grouping | `(...)` |
 
-Literals outside the platform's `int` range are clamped to `IntMax` / `IntMin` and a warning is logged; evaluation continues instead of failing outright (the same overflow policy as `ocrnum`).
+Integer literals and arithmetic intermediates (`+` `-` `*`, unary minus, and `IntMin / -1`, the only overflowing quotient) outside the platform's `int` range are clamped in the direction of the overflow to `IntMax` / `IntMin` and recorded only as a debug-level log line (`next` scans re-evaluate the same expression every heartbeat, so a warning would flood the log); evaluation continues instead of wrapping or failing (the same clamping policy as `ocrnum`).
 
 ### Recommended usage
 

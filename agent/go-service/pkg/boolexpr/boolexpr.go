@@ -1,5 +1,10 @@
 // Package boolexpr evaluates boolean expressions over integers.
 // Used by ExpressionRecognition (OCR node placeholders) and IMS R1 (cached item IDs).
+//
+// Overflow policy: literals and every arithmetic result saturate at IntMax/IntMin
+// (positive overflow → IntMax, negative overflow → IntMin) and are recorded at
+// debug level only, matching ocrnum's clamping policy. Evaluation never wraps and
+// never fails on overflow.
 package boolexpr
 
 import (
@@ -90,6 +95,14 @@ func evaluateAST(expr ast.Expr) (any, error) {
 	case *ast.ParenExpr:
 		return evaluateAST(node.X)
 	case *ast.UnaryExpr:
+		// Fold the sign into an integer literal so a negative literal clamps in
+		// the negative direction: -9223372036854775808 must become IntMin, not
+		// -(clamped 9223372036854775808) = -IntMax.
+		if node.Op == token.SUB {
+			if literal, ok := node.X.(*ast.BasicLit); ok && literal.Kind == token.INT {
+				return ParseIntLiteral("-" + literal.Value)
+			}
+		}
 		value, err := evaluateAST(node.X)
 		if err != nil {
 			return nil, err
@@ -106,7 +119,7 @@ func evaluateAST(expr ast.Expr) (any, error) {
 			if !ok {
 				return nil, fmt.Errorf("operator - expects int, got %T", value)
 			}
-			return -intValue, nil
+			return subInt(node.Op, 0, intValue), nil
 		case token.NOT:
 			boolValue, ok := value.(bool)
 			if !ok {
@@ -141,16 +154,16 @@ func evaluateBinary(left any, right any, op token.Token) (any, error) {
 		}
 		switch op {
 		case token.ADD:
-			return leftInt + rightInt, nil
+			return addInt(op, leftInt, rightInt), nil
 		case token.SUB:
-			return leftInt - rightInt, nil
+			return subInt(op, leftInt, rightInt), nil
 		case token.MUL:
-			return leftInt * rightInt, nil
+			return mulInt(op, leftInt, rightInt), nil
 		case token.QUO:
 			if rightInt == 0 {
 				return nil, fmt.Errorf("division by zero")
 			}
-			return leftInt / rightInt, nil
+			return quoInt(op, leftInt, rightInt), nil
 		case token.REM:
 			if rightInt == 0 {
 				return nil, fmt.Errorf("division by zero")
@@ -202,6 +215,75 @@ func evaluateBinary(left any, right any, op token.Token) (any, error) {
 	return nil, fmt.Errorf("unsupported binary operator %s", op.String())
 }
 
+// addInt returns left+right, saturating at IntMax/IntMin instead of wrapping.
+func addInt(op token.Token, left, right int) int {
+	switch {
+	case right > 0 && left > IntMax-right:
+		return clampOverflow(op, left, right, IntMax)
+	case right < 0 && left < IntMin-right:
+		return clampOverflow(op, left, right, IntMin)
+	}
+	return left + right
+}
+
+// subInt returns left-right, saturating at IntMax/IntMin instead of wrapping.
+// Unary minus is evaluated as subInt(op, 0, value).
+func subInt(op token.Token, left, right int) int {
+	switch {
+	case right < 0 && left > IntMax+right:
+		return clampOverflow(op, left, right, IntMax)
+	case right > 0 && left < IntMin+right:
+		return clampOverflow(op, left, right, IntMin)
+	}
+	return left - right
+}
+
+// mulInt returns left*right, saturating at IntMax/IntMin instead of wrapping.
+func mulInt(op token.Token, left, right int) int {
+	switch {
+	case left > 0 && right > 0:
+		if left > IntMax/right {
+			return clampOverflow(op, left, right, IntMax)
+		}
+	case left > 0 && right < 0:
+		if right < IntMin/left {
+			return clampOverflow(op, left, right, IntMin)
+		}
+	case left < 0 && right > 0:
+		if left < IntMin/right {
+			return clampOverflow(op, left, right, IntMin)
+		}
+	case left < 0 && right < 0:
+		if left < IntMax/right {
+			return clampOverflow(op, left, right, IntMax)
+		}
+	}
+	return left * right
+}
+
+// quoInt returns left/right; IntMin / -1 is the only overflowing quotient.
+func quoInt(op token.Token, left, right int) int {
+	if left == IntMin && right == -1 {
+		return clampOverflow(op, left, right, IntMax)
+	}
+	return left / right
+}
+
+// clampOverflow records the overflow at debug level and returns the saturated
+// result of left op right. Overflow is expected on dispatch-style next scans:
+// the same expression is re-evaluated every heartbeat, so warning on it would
+// flood the log.
+func clampOverflow(op token.Token, left, right int, clamped int) int {
+	log.Debug().
+		Str("component", "boolexpr").
+		Str("operator", op.String()).
+		Int("left", left).
+		Int("right", right).
+		Int("clamped_value", clamped).
+		Msg("expression arithmetic overflowed int range, clamped to int bound")
+	return clamped
+}
+
 func requireInts(left any, right any, op token.Token) (int, int, error) {
 	leftInt, ok := left.(int)
 	if !ok {
@@ -239,7 +321,7 @@ func ParseIntLiteral(raw string) (int, error) {
 		if strings.HasPrefix(strings.TrimSpace(raw), "-") {
 			clamped = IntMin
 		}
-		log.Warn().
+		log.Debug().
 			Str("component", "boolexpr").
 			Str("literal", raw).
 			Int("clamped_value", clamped).

@@ -330,7 +330,7 @@ Important Notes:
 - The expression result must be a boolean value; otherwise, recognition fails.
 - Referenced nodes should currently return a parseable OCR numerical result; otherwise, expression evaluation fails.
 - For `And` nodes, the sub-recognition result finally selected via `box_index` currently needs to contain a parseable OCR numerical result.
-- Integer literals in expressions, and values converted from OCR, if they exceed the range representable by the platform's `int`, are automatically clamped to the `int` maximum or minimum (positive overflow takes the maximum, negative overflow takes the minimum), and a warning log is output; expression evaluation continues rather than failing immediately.
+- Integer literals in expressions, arithmetic intermediates (`+` `-` `*`, unary minus, and `IntMin / -1`), and values converted from OCR, if they exceed the range representable by the platform's `int`, are automatically clamped to the `int` maximum or minimum (positive overflow takes the maximum, negative overflow takes the minimum) and recorded only at debug level, with no warning output; expression evaluation continues rather than wrapping or failing immediately.
 - This recognizer is only responsible for expression evaluation, not for the business semantics itself; the business side should organize nodes and thresholds within the Pipeline.
 - For the same kind of boolean expression over **IMS cached item quantities**, use IMS R1 `ItemQuantitySatisfied` (`{ITEM_ID}` placeholders; see [IMS docs](./components/ims.md#r1-itemquantitysatisfied)). Do not pass item IDs to this recognizer.
 

@@ -231,6 +231,8 @@ More examples:
 
 The expression result must be boolean.
 
+Expressions share one integer overflow policy with IMS cached quantities: integer literals and arithmetic intermediates outside the platform's `int` range are clamped in the direction of the overflow to the maximum or minimum and recorded only at debug level; nothing wraps and evaluation does not fail because of it. See [Go Service `pkg/` Shared Packages](../go-service-pkg.md) for details.
+
 UI Focus announce runs only when `notify_ui` is `true` (resolved expression; identical lines throttled ~10s). Keep the default off for dispatch-style `next` scans to avoid spam.
 
 ### Announce only (`report_only`)
