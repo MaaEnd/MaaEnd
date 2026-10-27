@@ -72,6 +72,25 @@
             "AutoMissionMissionAreaActionTakePhoto",
             "AutoMissionMissionAreaActionScan",
             "[JumpBack]AutoFight",
+            "AutoMissionMissionAreaSecondInWorld",
+            "AutoMissionMissionAreaActionBackInWorld"
+        ]
+    },
+    "AutoMissionMissionAreaSecondInWorld": {
+        "desc": "走完区域中心后寻路到区域里推进任务的关卡脚本触发区；区域里有这种触发区才有，默认关闭，由 Go 按数据打开并覆盖坐标",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "post_delay": 1500, // 走进触发区后等一会再继续，部分任务会进入剧情动画
+        "next": [
+            "AutoMissionMissionAreaActionExitToWorld",
+            "AutoMissionMissionAreaActionTakePhoto",
+            "AutoMissionMissionAreaActionScan",
+            "[JumpBack]AutoFight",
             "AutoMissionMissionAreaActionBackInWorld"
         ]
     },

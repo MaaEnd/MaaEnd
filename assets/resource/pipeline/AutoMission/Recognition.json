@@ -140,6 +140,23 @@
             "接水"
         ]
     },
+    "AutoMissionEntityActionPuzzleRecognition": {
+        "desc": "交互提示区域里会进电路拼图的选项：上锁交互物的解锁、可修复设备的修复",
+        "recognition": "OCR",
+        "roi": [
+            755,
+            330,
+            297,
+            312
+        ],
+        "expected": [
+            // @i18n-skip
+            "解锁",
+            "解鎖",
+            "修复",
+            "修復"
+        ]
+    },
     "AutoMissionEntityTrigger": {
         "desc": "走向实体途中进入剧情或出现目标交互提示即停下",
         "recognition": "Or",

@@ -456,9 +456,68 @@ function collectPatrolEnds(dataMap, sceneId, patrolEnds) {
     }
 }
 
+// 动作节点的后继：_nextID 以及分支节点里各条分支的 id。
+function nextActionIds(node) {
+    const ids = [];
+    for (const [key, value] of Object.entries(node ?? {})) {
+        if (!/next/i.test(key)) {
+            continue;
+        }
+        if (typeof value === "number") {
+            ids.push(value);
+        } else if (Array.isArray(value)) {
+            for (const item of value) {
+                if (typeof item === "number") {
+                    ids.push(item);
+                } else if (item && typeof item === "object") {
+                    ids.push(...Object.values(item).filter((id) => typeof id === "number"));
+                }
+            }
+        }
+    }
+    return ids.filter((id) => id >= 0);
+}
+
+// 关卡脚本里玩家走进去就推进任务的触发区：走进触发区后的动作链里有 CallServer。
+// 记下所在关卡、脚本 id 和触发区中心的世界坐标。
+function collectProgressTriggers(script, sceneId, scriptId, triggers) {
+    const dataMap = script?.actionMap?.dataMap;
+    const nodes = new Map();
+    for (const node of [...(dataMap?.headerList ?? []), ...(dataMap?.actionList ?? [])]) {
+        nodes.set(node?._ID, node);
+    }
+    for (const header of dataMap?.headerList ?? []) {
+        if (shortType(header?.$type) !== "OnLeaderEnterTriggerVolume") {
+            continue;
+        }
+        const slot = header._triggerSlotIdFilter?.constValue;
+        const position = script.triggerVolumes?.[String(slot)]?.shapeList?.[0]?.position;
+        if (!position) {
+            continue;
+        }
+        const visited = new Set();
+        const pending = [header._ID];
+        let callsServer = false;
+        while (pending.length > 0 && !callsServer) {
+            const id = pending.pop();
+            if (visited.has(id)) {
+                continue;
+            }
+            visited.add(id);
+            const node = nodes.get(id);
+            callsServer = shortType(node?.$type) === "CallServer";
+            pending.push(...nextActionIds(node));
+        }
+        if (callsServer) {
+            triggers.push({sceneId, scriptId, position});
+        }
+    }
+}
+
 const proxyNameOverrides = new Map();
 const scriptStartedDialogs = new Set();
 const proxyPatrolEnds = new Map();
+const progressTriggers = [];
 if (existsSync(levelScriptDir)) {
     for (const sceneId of readdirSync(levelScriptDir)) {
         const dir = resolve(levelScriptDir, sceneId);
@@ -466,12 +525,54 @@ if (existsSync(levelScriptDir)) {
             if (!name.endsWith(".json")) {
                 continue;
             }
-            const dataMap = readJson(resolve(dir, name)).actionMap?.dataMap;
+            const script = readJson(resolve(dir, name));
+            const dataMap = script.actionMap?.dataMap;
             collectNameOverrides(dataMap, proxyNameOverrides);
             collectStartedDialogs(dataMap, scriptStartedDialogs);
             collectPatrolEnds(dataMap, sceneId, proxyPatrolEnds);
+            collectProgressTriggers(script, sceneId, Number(name.slice(0, -".json".length)), progressTriggers);
         }
     }
+}
+
+// 区域里离中心再近就没必要单独去的触发区距离，世界单位米；走到区域中心时基本已经顺路进去了。
+const AREA_TRIGGER_MIN_OFFSET = 5;
+
+// 任务区域里推进任务的触发区：同一任务（脚本 id 在区域的 subDataParentId 段内）、在区域范围内、
+// 动作链里有 CallServer。只有一个且离中心够远时才返回，多个时分不清是哪一步的，不返回。
+function areaTriggerPoint(sceneId, area) {
+    const center = area?.shape?.position;
+    const parent = area?.subDataParentId;
+    if (!center || !parent) {
+        return {};
+    }
+    const radius = area.shape.radius || Math.max(area.shape.size?.x ?? 0, area.shape.size?.z ?? 0) / 2;
+    const inside = progressTriggers.filter(
+        (trigger) =>
+            trigger.sceneId === sceneId &&
+            trigger.scriptId >= parent &&
+            trigger.scriptId < parent + 10000 &&
+            Math.hypot(trigger.position.x - center.x, trigger.position.z - center.z) <= radius,
+    );
+    if (inside.length !== 1) {
+        return {};
+    }
+    const position = inside[0].position;
+    if (Math.hypot(position.x - center.x, position.z - center.z) < AREA_TRIGGER_MIN_OFFSET) {
+        return {};
+    }
+    return placement(sceneId, position);
+}
+
+// 任务区域追踪：区域中心，以及区域里推进任务的触发区（有的话），走完中心再去触发区。
+function convertMissionArea(track) {
+    const area = missionArea(track.sceneId, track.missionAreaId);
+    const result = {type: "MissionAreaTrackingInfo", ...placement(track.sceneId, area?.shape?.position)};
+    const triggerPoint = areaTriggerPoint(track.sceneId, area);
+    if (triggerPoint.zone_id) {
+        result.trigger_point = triggerPoint;
+    }
+    return result;
 }
 
 function proxyOwnDialogs(proxyId) {
@@ -663,7 +764,7 @@ function convertTrack(track, condition, context) {
         case "PosTrackingInfo":
             return convertPos(track, condition);
         case "MissionAreaTrackingInfo":
-            return {type, ...placement(track.sceneId, missionArea(track.sceneId, track.missionAreaId)?.shape?.position)};
+            return convertMissionArea(track);
         case "NpcProxyTrackingInfo":
             return convertNpcProxy(track, context);
         case "EntityTrackingInfo":

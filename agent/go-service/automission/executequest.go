@@ -21,6 +21,7 @@ const (
 
 	missionAreaNode        = "AutoMissionMissionArea"
 	missionAreaInWorldNode = "AutoMissionMissionAreaInWorld"
+	missionAreaSecondNode  = "AutoMissionMissionAreaSecondInWorld"
 	missionAreaPhotoNode   = "AutoMissionMissionAreaActionTakePhoto"
 	missionAreaScanNode    = "AutoMissionMissionAreaActionScan"
 
@@ -229,14 +230,24 @@ func runTrack(ctx *maa.Context, track trackData, condition conditionData) bool {
 				Msg("mission area track missing zone or position")
 			return false
 		}
-		log.Info().
+		event := log.Info().
 			Str("component", executeComponent).
 			Str("node", missionAreaInWorldNode).
 			Str("source", target.source).
 			Str("zone_id", target.zoneID).
 			Float64("x", target.x).
-			Float64("y", target.y).
-			Msg("mission area navigate target")
+			Float64("y", target.y)
+		if track.TriggerPoint != nil {
+			event = event.Interface("trigger_point", track.TriggerPoint)
+		}
+		event.Msg("mission area navigate target")
+		// 区域里有推进任务的触发区时，走完区域中心再去触发区；每次都显式写 enabled。
+		secondOverride := map[string]any{
+			"enabled": track.TriggerPoint != nil,
+		}
+		if track.TriggerPoint != nil {
+			secondOverride["custom_action_param"] = missionAreaNavigateParam(track.TriggerPoint.X, track.TriggerPoint.Y)
+		}
 		taskDetail, err = ctx.RunTask(node, map[string]any{
 			missionAreaPhotoNode: map[string]any{
 				"enabled": track.Snapshot,
@@ -245,21 +256,9 @@ func runTrack(ctx *maa.Context, track trackData, condition conditionData) bool {
 				"enabled": track.Scan,
 			},
 			missionAreaInWorldNode: map[string]any{
-				"custom_action_param": map[string]any{
-					"heading_source": "camera",
-					"path": []any{
-						map[string]any{
-							"action": "NAVMESH",
-							"target": []float64{target.x, target.y},
-						},
-						map[string]any{
-							"action":       "TRIGGER",
-							"target":       []float64{target.x, target.y},
-							"trigger_node": npcProxyStoryNode,
-						},
-					},
-				},
+				"custom_action_param": missionAreaNavigateParam(target.x, target.y),
 			},
+			missionAreaSecondNode: secondOverride,
 		})
 	case posNode:
 		// 坐标点一般走到就会推进；数据带了 NPC 名字时，走到后再找这个 NPC 交互。
@@ -429,6 +428,24 @@ func npcProxyNavigateParam(point groundPoint) map[string]any {
 			map[string]any{
 				"action":       "TRIGGER",
 				"target":       []float64{point.X, point.Y},
+				"trigger_node": npcProxyStoryNode,
+			},
+		},
+	}
+}
+
+// missionAreaNavigateParam 生成任务区域寻路到一个点的参数，到达或进入剧情即停。
+func missionAreaNavigateParam(x, y float64) map[string]any {
+	return map[string]any{
+		"heading_source": "camera",
+		"path": []any{
+			map[string]any{
+				"action": "NAVMESH",
+				"target": []float64{x, y},
+			},
+			map[string]any{
+				"action":       "TRIGGER",
+				"target":       []float64{x, y},
 				"trigger_node": npcProxyStoryNode,
 			},
 		},

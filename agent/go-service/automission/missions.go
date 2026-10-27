@@ -38,6 +38,8 @@ type trackData struct {
 	Snapshot bool `json:"snapshot,omitempty"`
 	// Scan 表示这一步要用扫描，走到位置后打开扫描。
 	Scan bool `json:"scan,omitempty"`
+	// TriggerPoint 是任务区域里推进任务的关卡脚本触发区，走完区域中心后再去。
+	TriggerPoint *mapPoint `json:"trigger_point,omitempty"`
 	// Points 是被关卡脚本领着走过的 NPC 可能在的位置（初始位置和各巡逻终点），按这一步最可能的顺序排好。
 	Points []groundPoint `json:"points,omitempty"`
 }

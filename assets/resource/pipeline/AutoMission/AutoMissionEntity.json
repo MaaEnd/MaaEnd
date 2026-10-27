@@ -68,6 +68,7 @@
         "custom_action": "MapNavigateAction",
         "post_delay": 1500, // 走到目的地后等一会再继续，部分任务会进入剧情动画
         "next": [
+            "AutoMissionEntityActionPuzzle",
             "AutoMissionEntityActionInteract",
             "AutoMissionEntityActionExitToWorld",
             "AutoMissionEntityActionOpenCamera",
@@ -109,6 +110,25 @@
         "next": [
             "AutoMissionEntityActionExitToWorld",
             "AutoMissionEntityActionBackInWorld"
+        ]
+    },
+    "AutoMissionEntityActionPuzzle": {
+        "desc": "走到实体旁边了，出现解锁、修复这类会进电路拼图的选项，点击后接拼图解谜",
+        "recognition": "And",
+        "all_of": [
+            "InWorld",
+            "AutoMissionEntityActionPuzzleRecognition"
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "AutoMissionEntityActionPuzzleRecognition"
+        },
+        "post_delay": 5000, // 点击后拼图界面要过一会才弹出，之前没有可识别的过渡画面
+        "next": [
+            "AutoMissionEntityActionRepair"
         ]
     },
     "AutoMissionEntityActionInteract": {
@@ -162,7 +182,7 @@
         ]
     },
     "AutoMissionEntityActionRepair": {
-        "desc": "修复机器人进入电路拼图，调用拼图解谜",
+        "desc": "解锁或修复后进入电路拼图，调用拼图解谜",
         "recognition": "And",
         "all_of": [
             "PuzzleSolverOnScenePrepare"
@@ -244,6 +264,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoMissionEntityActionPuzzle",
             "AutoMissionEntityActionInteract"
         ]
     }
