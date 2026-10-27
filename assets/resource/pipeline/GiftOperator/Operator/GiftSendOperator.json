@@ -1,0 +1,1106 @@
+{
+    "GiftOperatorSendAllMain": {
+        "desc": "依次调用每名干员的单人赠礼流程；max_hit 只记录本次名单进度，不在单人入口清零",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "enabled": false,
+        "next": [
+            "[JumpBack]GiftSendOperatorSelect_Perlica",
+            "[JumpBack]GiftSendOperatorSelect_Yvonne",
+            "[JumpBack]GiftSendOperatorSelect_Ardelia",
+            "[JumpBack]GiftSendOperatorSelect_Gilberta",
+            "[JumpBack]GiftSendOperatorSelect_ChenQianyu",
+            "[JumpBack]GiftSendOperatorSelect_Wulfgard",
+            "[JumpBack]GiftSendOperatorSelect_Antal",
+            "[JumpBack]GiftSendOperatorSelect_Xaihi",
+            "[JumpBack]GiftSendOperatorSelect_Lifeng",
+            "[JumpBack]GiftSendOperatorSelect_Catcher",
+            "[JumpBack]GiftSendOperatorSelect_Arclight",
+            "[JumpBack]GiftSendOperatorSelect_Avywenna",
+            "[JumpBack]GiftSendOperatorSelect_Laevatain",
+            "[JumpBack]GiftSendOperatorSelect_Alesh",
+            "[JumpBack]GiftSendOperatorSelect_Pogranichnik",
+            "[JumpBack]GiftSendOperatorSelect_LastRite",
+            "[JumpBack]GiftSendOperatorSelect_Ember",
+            "[JumpBack]GiftSendOperatorSelect_Snowshine",
+            "[JumpBack]GiftSendOperatorSelect_DaPan",
+            "[JumpBack]GiftSendOperatorSelect_Fluorite",
+            "[JumpBack]GiftSendOperatorSelect_Akekuri",
+            "[JumpBack]GiftSendOperatorSelect_Estella",
+            "[JumpBack]GiftSendOperatorSelect_Rossi",
+            "[JumpBack]GiftSendOperatorSelect_Tangtang",
+            "[JumpBack]GiftSendOperatorSelect_ZhuangFangyi",
+            "[JumpBack]GiftSendOperatorSelect_MiFu",
+            "[JumpBack]GiftSendOperatorSelect_Camille",
+            "[JumpBack]GiftSendOperatorSelect_Arcane",
+            "[JumpBack]GiftSendOperatorSelect_Liino",
+            "[JumpBack]GiftSendOperatorSelect_Typhoeus",
+            "[JumpBack]GiftSendOperatorSelect_Purrchena",
+            "[JumpBack]GiftSendOperatorSelect_Si",
+            "GiftSendOperatorFinished"
+        ]
+    },
+    "GiftSendOperatorSelect_Perlica": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "佩丽卡",
+                                "佩麗卡",
+                                "Perlica",
+                                "ペリカ",
+                                "펠리카"
+                            ]
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Perlica.png"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Yvonne": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Yvonne.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Ardelia": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Ardelia.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Gilberta": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Gilberta.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "洁尔佩塔",
+                                "潔爾佩塔",
+                                "Gilberta",
+                                "ギルベルタ",
+                                "질베르타"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_ChenQianyu": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/ChenQianyu.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Wulfgard": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Wulfgard.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Antal": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Antal.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "安塔尔",
+                                "安塔爾",
+                                "Antal",
+                                "アンタル",
+                                "안탈"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Xaihi": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Xaihi.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "赛希",
+                                "賽希",
+                                "Xaihi",
+                                "ザイヒ",
+                                "자이히"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Lifeng": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Lifeng.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Catcher": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Catcher.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "卡契尔",
+                                "卡契爾",
+                                "Catcher",
+                                "キャッチャー",
+                                "카치르"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Arclight": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Arclight.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "弧光",
+                                "弧光",
+                                "Arclight",
+                                "アークライト",
+                                "아크라이트"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Avywenna": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Avywenna.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "艾维文娜",
+                                "艾維文娜",
+                                "Avywenna",
+                                "アイビーエナ",
+                                "아비웨나"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Laevatain": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Laevatain.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Alesh": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Alesh.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "阿列什",
+                                "阿列什",
+                                "Alesh",
+                                "アレッシュ",
+                                "알레쉬"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Pogranichnik": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Pogranichnik.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "骏卫",
+                                "駿衛",
+                                "Pogranichnik",
+                                "ポグラニチニク",
+                                "포그라니치니크"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_LastRite": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/LastRite.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Ember": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Ember.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "余烬",
+                                "餘燼",
+                                "Ember",
+                                "エンバー",
+                                "엠버"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Snowshine": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Snowshine.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "昼雪",
+                                "晝雪",
+                                "Snowshine",
+                                "スノーシャイン",
+                                "스노우샤인"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_DaPan": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/DaPan.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "大潘",
+                                "大潘",
+                                "Da Pan",
+                                "ダパン",
+                                "판"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Fluorite": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Fluorite.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Akekuri": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Akekuri.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "秋栗",
+                                "秋栗",
+                                "Akekuri",
+                                "アケクリ",
+                                "아케쿠리"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Estella": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Estella.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "埃特拉",
+                                "埃特拉",
+                                "Estella",
+                                "エステーラ",
+                                "에스텔라"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Rossi": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Rossi.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Tangtang": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Tangtang.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_ZhuangFangyi": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/ZhuangFangyi.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_MiFu": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/MiFu.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Camille": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Camille.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Arcane": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Arcane.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Liino": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Liino.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "梨诺",
+                                "梨諾",
+                                "Liino",
+                                "リーノ",
+                                "리노"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Typhoeus": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Typhoeus.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "提弗洛斯",
+                                "提弗洛斯",
+                                "Typhoeus",
+                                "ティフォロス",
+                                "티프로스"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Purrchena": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Purrchena.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "噗切娜",
+                                "噗切娜",
+                                "Purrchena",
+                                "プチエナ",
+                                "푸치나"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorSelect_Si": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Si.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "祀",
+                                "祀",
+                                "Si",
+                                "スー",
+                                "사"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftSendOperatorFinished": {
+        "desc": "名单中的节点均已执行一次，正常结束，避免全部 max_hit 后等待超时",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
