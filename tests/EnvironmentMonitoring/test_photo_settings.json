@@ -27,6 +27,14 @@
                 "EnvironmentMonitoringPhotoSettingsOperatorsHidden",
                 "EnvironmentMonitoringClosePhotoSettingsWithOperatorsHidden"
             ]
+        },
+        {
+            "name": "拍照模式初始界面：画面设置未打开",
+            "image": "武陵_拍照模式.png",
+            "hits": [
+                "EnvironmentMonitoringPhotoSettingsTab",
+                "EnvironmentMonitoringOpenPhotoSettings"
+            ]
         }
     ]
 }
