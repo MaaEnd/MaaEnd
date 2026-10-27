@@ -240,6 +240,7 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "heading_source": "camera",
+            "enable_sprint": false, // 找 NPC 时不冲刺，冲刺停不住，容易冲过 NPC 或错过交互提示
             "path": [
                 {
                     "action": "FIND",

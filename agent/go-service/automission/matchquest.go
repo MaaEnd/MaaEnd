@@ -70,6 +70,22 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
+	// 本次运行做的是开头那个大任务，标题换了说明它已经做完，结束任务。
+	if currentMission.taskID != arg.TaskID {
+		currentMission.taskID = arg.TaskID
+		currentMission.missionID = missionID
+		currentMission.title = title
+	} else if currentMission.missionID != missionID {
+		log.Info().
+			Str("component", componentName).
+			Str("finished_mission_id", currentMission.missionID).
+			Str("mission_id", missionID).
+			Str("title", title).
+			Msg("mission changed, previous mission finished")
+		maafocus.Print(ctx, i18n.T("automission.mission_finished", currentMission.title))
+		return nil, false
+	}
+
 	// 主线任务异常情况较多，暂不支持
 	if importance, known := idx.importance[missionID]; known && importance == 0 {
 		log.Info().
@@ -360,6 +376,13 @@ func objectiveIDsOf(entries []objectiveEntry) []string {
 		}
 	}
 	return ids
+}
+
+// currentMission 记录本次任务运行开头识别到的大任务。
+var currentMission struct {
+	taskID    int64
+	missionID string
+	title     string
 }
 
 // trackRotation 记录当前步骤已经试到第几个候选子步骤。

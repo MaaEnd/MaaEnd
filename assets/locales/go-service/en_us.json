@@ -35,6 +35,7 @@
     "autofight.wait_battle_start_found": "Battle started",
     "autofight.wait_battle_start_timeout": "Timed out waiting for battle to start, continuing combat",
     "automission.current": "Current mission %s\nCurrent objective %s",
+    "automission.mission_finished": "Mission %s completed",
     "automission.unknown_mission": "Unknown mission %s",
     "automission.unsupported_critical": "Critical missions are not supported yet",
     "automission.unsupported_description": "%s is not supported yet. Finish the current step manually and retry.",

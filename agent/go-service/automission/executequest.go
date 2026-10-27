@@ -149,6 +149,7 @@ func targetTracks(tracks []trackData, condition conditionData) []trackData {
 			ZoneID: area.ZoneID,
 			X:      &x,
 			Y:      &y,
+			Height: area.Height,
 			Scan:   scan,
 		},
 	}
@@ -246,7 +247,7 @@ func runTrack(ctx *maa.Context, track trackData, condition conditionData) bool {
 			"enabled": track.TriggerPoint != nil,
 		}
 		if track.TriggerPoint != nil {
-			secondOverride["custom_action_param"] = missionAreaNavigateParam(track.TriggerPoint.X, track.TriggerPoint.Y)
+			secondOverride["custom_action_param"] = missionAreaNavigateParam(track.TriggerPoint.X, track.TriggerPoint.Y, track.TriggerPoint.Height)
 		}
 		taskDetail, err = ctx.RunTask(node, map[string]any{
 			missionAreaPhotoNode: map[string]any{
@@ -256,7 +257,7 @@ func runTrack(ctx *maa.Context, track trackData, condition conditionData) bool {
 				"enabled": track.Scan,
 			},
 			missionAreaInWorldNode: map[string]any{
-				"custom_action_param": missionAreaNavigateParam(target.x, target.y),
+				"custom_action_param": missionAreaNavigateParam(target.x, target.y, target.height),
 			},
 			missionAreaSecondNode: secondOverride,
 		})
@@ -420,9 +421,11 @@ func npcProxyTargets(track trackData) []groundPoint {
 }
 
 // npcProxyNavigateParam 生成 NPC 追踪寻路到一个点的参数，到达或进入剧情即停。
+// 不冲刺：冲刺停不住，容易冲过 NPC 或错过交互提示。
 func npcProxyNavigateParam(point groundPoint) map[string]any {
 	return map[string]any{
 		"heading_source": "camera",
+		"enable_sprint":  false,
 		"path": []any{
 			navmeshStep(point.X, point.Y, point.Height),
 			map[string]any{
@@ -435,14 +438,12 @@ func npcProxyNavigateParam(point groundPoint) map[string]any {
 }
 
 // missionAreaNavigateParam 生成任务区域寻路到一个点的参数，到达或进入剧情即停。
-func missionAreaNavigateParam(x, y float64) map[string]any {
+// 有高度时钉住那一层，区域可能在楼上，只按平面坐标会停在楼下。
+func missionAreaNavigateParam(x, y float64, height *float64) map[string]any {
 	return map[string]any{
 		"heading_source": "camera",
 		"path": []any{
-			map[string]any{
-				"action": "NAVMESH",
-				"target": []float64{x, y},
-			},
+			navmeshStep(x, y, height),
 			map[string]any{
 				"action":       "TRIGGER",
 				"target":       []float64{x, y},

@@ -53,10 +53,12 @@ type groundPoint struct {
 }
 
 // mapPoint 是完成条件里的一个底图坐标，如一只怪或一个区域中心。
+// Height 是世界高度，区域和触发区才有，寻路时钉住目标所在的那层可走面。
 type mapPoint struct {
-	ZoneID string  `json:"zone_id"`
-	X      float64 `json:"x"`
-	Y      float64 `json:"y"`
+	ZoneID string   `json:"zone_id"`
+	X      float64  `json:"x"`
+	Y      float64  `json:"y"`
+	Height *float64 `json:"height,omitempty"`
 }
 
 // conditionData 是子步骤的完成条件。

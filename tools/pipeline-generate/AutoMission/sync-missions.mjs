@@ -368,7 +368,7 @@ function placement(sceneId, position) {
     };
 }
 
-// 坐标贴地的追踪带上世界高度，寻路时用来钉住目标所在的那层可走面；没有底图时不写。
+// 坐标点、NPC、任务区域等带上世界高度，寻路时用来钉住目标所在的那层可走面；没有底图时不写。
 function groundPlacement(sceneId, position) {
     const result = placement(sceneId, position);
     if (result.zone_id && typeof position.y === "number") {
@@ -561,13 +561,13 @@ function areaTriggerPoint(sceneId, area) {
     if (Math.hypot(position.x - center.x, position.z - center.z) < AREA_TRIGGER_MIN_OFFSET) {
         return {};
     }
-    return placement(sceneId, position);
+    return groundPlacement(sceneId, position);
 }
 
 // 任务区域追踪：区域中心，以及区域里推进任务的触发区（有的话），走完中心再去触发区。
 function convertMissionArea(track) {
     const area = missionArea(track.sceneId, track.missionAreaId);
-    const result = {type: "MissionAreaTrackingInfo", ...placement(track.sceneId, area?.shape?.position)};
+    const result = {type: "MissionAreaTrackingInfo", ...groundPlacement(track.sceneId, area?.shape?.position)};
     const triggerPoint = areaTriggerPoint(track.sceneId, area);
     if (triggerPoint.zone_id) {
         result.trigger_point = triggerPoint;
@@ -822,7 +822,7 @@ function conditionArea(type, condition) {
     if (type !== "ReachDestination" || !sceneId || !areaId) {
         return {};
     }
-    return placement(sceneId, missionArea(sceneId, areaId)?.shape?.position);
+    return groundPlacement(sceneId, missionArea(sceneId, areaId)?.shape?.position);
 }
 
 // 击杀条件里的怪物坐标，顺序同原始列表；找不到或没有底图的怪不写。
