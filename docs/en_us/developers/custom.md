@@ -278,6 +278,12 @@ Recognition nodes are used to execute custom recognition. A common format is as 
 - `custom_recognition_param`: An arbitrary JSON value, serialized by the framework and passed to the implementation side.
 - Returns `true` to indicate a match; returns `false` to indicate no match.
 
+### ColorFreezeRecognition
+
+This C++ recognizer requires native `ColorMatch` to match and the distribution of colors within the configured ranges in the ROI to remain stable for `time`. The optional similarity `threshold` defaults to `0.98` and accepts `(0, 1]`; higher values are stricter, and `1` requires exact agreement. Swapping pixel positions does not affect the result, and the final color need not be known in advance.
+
+See [ColorFreezeRecognition (Chinese)](../../../agent/cpp-algo/source/ColorFreeze/README.md) for parameters, similarity semantics, and invocation format.
+
 ### ExpressionRecognition
 
 The `ExpressionRecognition` implementation is located in `agent/go-service/common/expressionrecognition`. It is used to evaluate boolean expressions composed of numerical recognition nodes. Under the hood it reuses `pkg/recogtarget` (And unwrapping), `pkg/ocrnum` (OCR → integer), and `pkg/boolexpr` (placeholders and evaluation); see [Go Service `pkg/` Shared Packages](./go-service-pkg.md) for details.

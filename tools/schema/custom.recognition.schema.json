@@ -13,6 +13,7 @@
                 "AutoSellPriceCompareRecognition",
                 "AutoSellScanItemRecognition",
                 "AutoStockpile.Recognition",
+                "ColorFreezeRecognition",
                 "EssenceFilterAfterBattleNthRecognition",
                 "EssenceGridAdvanceRecognition",
                 "EssenceGridPendingRecognition",
@@ -58,6 +59,20 @@
         }
     },
     "allOf": [
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "ColorFreezeRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": { "$ref": "./components/color_freeze.schema.json" }
+                }
+            }
+        },
         {
             "if": {
                 "type": "object",
