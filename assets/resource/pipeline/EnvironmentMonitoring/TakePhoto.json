@@ -208,8 +208,18 @@
             255
         ],
         "connected": true,
-        "count": 120,
+        "count": 90,
         "pre_delay": 0,
+        // 展开面板有动画，动画中间帧同样会命中颜色判据，等右侧下拉列静止后再判定
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                190,
+                62,
+                175,
+                130
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
