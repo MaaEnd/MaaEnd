@@ -2,14 +2,14 @@
 
 This document explains the file distribution and execution flow of `AutoStockStaple`.  
 It takes **Valley IV** as the main line; the **Wuling** Pipeline structure is completely symmetrical, differing only in the regional suffix and scene recognition.  
-This document was updated on October 25, 2026.
+This document was updated on October 26, 2026.
 
 ## File Paths
 
 | Path | Purpose |
 | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | `assets/interface.json` | Task mounting (`regional_development` group) |
-| `assets/tasks/AutoStockStaple.json` | Task entry point, region switches, item selection, upper limits, and discount options |
+| `assets/tasks/AutoStockStaple.json` | Task entry point, region switches, item selection, upper limits, and per-group discount options |
 | `assets/resource/pipeline/AutoStockStaple/Main.json` | Execution cycle, entry initialization, regional sub-task dispatch |
 | `assets/resource/pipeline/AutoStockStaple/ValleyIV.json` | Valley IV list scan loop |
 | `assets/resource/pipeline/AutoStockStaple/Wuling.json` | Wuling list scan loop |
@@ -27,13 +27,14 @@ This document was updated on October 25, 2026.
 ## Execution Flow
 
 1. Check if today is within the [execution cycle](#execution-cycle); if not, end directly.
-2. Read the user-selected purchase items, [merge them into a product name OCR whitelist](#attach-and-whitelist-initialization) (implementation in `Main.json` + `attachregex/action.go`).
+2. Read the user-selected purchase items, [merge them into per-group product name OCR whitelists](#attach-and-whitelist-initialization) (implementation in `Main.json` + `attachregex/action.go`).
 3. Sequentially enter enabled regions (Valley IV / Wuling) based on options, and jump to the staple goods interface for that region.
 4. Loop scan on the list page, judging sequentially each round:
     - Whether remaining stock bills are [below the retention threshold](#stock-bill-retention-threshold) → stop scanning this region.
-    - Whether a [buyable target item is recognized](#item-recognition-chain) → click to enter the purchase popup.
+    - Whether a [buyable target item is recognized](#item-recognition-chain-and-discount-groups) → click to enter the purchase popup; discount groups are tried in order within the same round.
     - Whether it is sold out → stop scanning this region.
-    - Otherwise, swipe down the list to continue searching (max 25 swipes per region).
+    - Whether the [list has reached its end](#5-sold-out-and-swiping) → stop scanning this region.
+    - Otherwise, swipe down the list to continue searching. Swiping has **no attempt cap**; only the sold-out and end-of-list recognizers stop it.
 5. Handle the purchase popup according to the [three-branch quantity control](#quantity-control-three-branches): exit due to insufficient stock bills / purchase if under the limit / exclude if the limit is reached.
 6. End after all enabled regions are completed.
 
@@ -49,12 +50,12 @@ Implemented in `Main.json`. The days of the week selected by the user are writte
 
 This task does not rely on runtime concatenation of user input strings, but rather:
 
-1. User selects items in the interface (after the category switch is on, the item checkboxes are nested under it) → `assets/tasks/AutoStockStaple.json` writes the multilingual item names into `attach.{slug}`.
-2. The task entry executes `AttachToExpectedRegexAction`, reads all attach keywords, and merges them into a `^(alias1|alias2|...)$` regex, which overrides the item name OCR node on the list page.
+1. User selects items in the interface (after the category switch is on, the item checkboxes are nested under it) → `assets/tasks/AutoStockStaple.json` writes the multilingual item names into the item name node of the **discount group the item belongs to**: `AutoStockInStapleItemName{Group}.attach.{slug}`.
+2. The task entry executes `AttachToExpectedRegexAction` with `targets` listing every group item name node. For each node it reads that node's attach keywords and merges them into a `^(alias1|alias2|...)$` regex written back to the same node.
 3. Keys where `attach` is `false` are excluded and no longer enter the whitelist.
 
 The Exclude branch (when an item has reached its target or is removed due to insufficient stock bills) also triggers re-initialization, ensuring subsequent list scans do not click on excluded items.  
-The exclusion action uses `PipelineOverrideAction` to set the corresponding `attach.{slug}` to `false`.
+The exclusion action uses `PipelineOverrideAction` to set `attach.{slug}` to `false` in the item's discount group.
 
 ### Stock Bill Retention Threshold
 
@@ -65,20 +66,36 @@ If "retention threshold > current remaining stock bills", it indicates there are
 
 The list scan phase does **not** judge whether the unit price is affordable; affordability is handled within the purchase popup.
 
-### Item Recognition Chain
+### Item Recognition Chain and Discount Groups
 
-Implemented in `General/Item.json` (which also holds the per-region discount nodes `AutoStockInStapleItemDiscounts{Region}`) + `AutoStockBuyItem{Region}Task` in the regional JSON. The approach is similar to the [Credit Store](./credit-shopping-maintain.md): **first find the anchor, then offset to recognize subsequent fields**, but the anchor is the **remaining refresh time frame** in the top-left corner of the item card (ColorMatch over three colors: cyan / yellow / red), not the credit icon.
+Implemented in `General/Item.json` (item name and discount nodes) + `AutoStockBuyItem{Region}Task{Group}` in the regional JSON. The approach is similar to the [Credit Store](./credit-shopping-maintain.md): **first find the anchor, then offset to recognize subsequent fields**, but the anchor is the **remaining refresh time frame** in the top-left corner of the item card (ColorMatch over three colors: cyan / yellow / red), not the credit icon.
 
 ```text
-Remaining Time Anchor -> Item Name (Color + OCR Whitelist) -> Discount (OCR matches the selected tier's discount values)
+Remaining Time Anchor -> Item Name (Color + group OCR whitelist) -> Discount (OCR matches this group's selected tier)
 ```
 
+Discounts are configured per group, and the groups are the same as the [quantity limit groups](#quantity-control-purchase-popup):
+
+| Group `{Group}` | Covered items | Item name node | Discount node |
+| --- | --- | --- | --- |
+| `Daily` | Household goods except the engraving permit | `AutoStockInStapleItemNameDaily` | `AutoStockInStapleItemDiscounts{Region}Daily` |
+| `Industrial` | Industrial goods except the artificing catalyst | `AutoStockInStapleItemNameIndustrial` | `AutoStockInStapleItemDiscounts{Region}Industrial` |
+| `Cultural` | Cultural goods | `AutoStockInStapleItemNameCultural` | `AutoStockInStapleItemDiscounts{Region}Cultural` |
+| `EngravingPermit` | Engraving permit (`item_gem_stable_energy_point_*`) | `AutoStockInStapleItemNameEngravingPermit` | `AutoStockInStapleItemDiscounts{Region}EngravingPermit` |
+| `ArtificingCatalyst` | Artificing catalyst (`item_equip_enhance_*`) | `AutoStockInStapleItemNameArtificingCatalyst` | `AutoStockInStapleItemDiscounts{Region}ArtificingCatalyst` |
+
+`{Region}` is `ValleyIV` or `Wuling`. Only Wuling sells the artificing catalyst, so `AutoStockInStapleItemDiscountsValleyIVArtificingCatalyst` does not exist.
+
 1. **Anchor**: Locates the time region of each item card in the list, serving as the basis for subsequent offsets.
-2. **Item Name**: Anchor -> Name label color -> Name text color -> OCR; only matches items selected by the user in the whitelist.
-3. **Discount**: Offsets from the name region to the discount position; the OCR `expected` lists only the selected tier and deeper discounts (e.g. `-99` / `-95` / `-90` for the `-90%` tier, `order_by: Expected`); a reading that lost its minus sign does not match — a missed purchase instead of a wrong one.
-4. **Discount Tier**: The numeric tiers of `AutoStockMinDiscount{Region}` rewrite that OCR node's `expected` directly; there is no separate comparison node. Items without a discount badge produce no OCR text and never match, so they are never bought unless the "Any" tier is selected.
+2. **Item Name**: Anchor -> Name label color -> Name text color -> that group's item name OCR; only items written into that group's whitelist match. `AutoStockInStapleItemName{Group}_Expected` combines the three steps into "this group has a buyable item".
+3. **Discount**: Offsets from that group's item name region to the discount position; the OCR `expected` lists only that group's selected tier and deeper discounts (e.g. `-99` / `-95` / `-90` for the `-90%` tier, `order_by: Expected`); a reading that lost its minus sign does not match — a missed purchase instead of a wrong one.
+4. **Discount Tier**: The numeric tiers of `AutoStockMinDiscount{Region}{Group}` rewrite that group's discount node `expected` directly; there is no separate comparison node. Items without a discount badge produce no OCR text and never match, so they are never bought unless the "Any" tier is selected.
+5. **Purchase Task**: `AutoStockBuyItem{Region}Task{Group}` = anchor + `AutoStockInStapleItemName{Group}_Expected` + that group's discount node (`box_index: 2`). The regional scan loop tries `EngravingPermit` -> `ArtificingCatalyst` -> `Daily` -> `Industrial` -> `Cultural` in order and buys on the first hit; groups are disjoint, so the order only decides which of several buyable cards is clicked first.
 
 Only when the anchor, item name, and discount all match is the item clicked, entering quantity control.
+
+> [!NOTE]
+> The group only decides **which discount tier applies**; it does not affect quantity limits: the engraving permit uses the engraving permit limit, the artificing catalyst uses the artificing catalyst limit, and the rest follow their category limit. See [Adding a New Item](#adding-a-new-item).
 
 ### Quantity Control Three-Branches
 
@@ -89,8 +106,8 @@ After the popup opens, it attempts the dedicated branch for each item sequential
 
 When the bottom red `调度券不足` (insufficient stock bills) prompt is identified in the popup:
 
-1. Exclude the item from the attach whitelist.
-2. Re-merge the regex whitelist.
+1. Exclude the item from the attach whitelist of its group.
+2. Re-merge the regex whitelists of all groups.
 3. Close the popup, return to the list—avoid repeatedly clicking unaffordable items.
 
 #### Branch 2: Held Quantity Below Limit, Execute Purchase
@@ -105,19 +122,19 @@ Read the OCR of the current held quantity in the top-right corner of the popup, 
 
 Matched when `limit <= current_held_quantity`:
 
-1. Exclude the item from the attach whitelist.
-2. Re-merge the regex whitelist.
+1. Exclude the item from the attach whitelist of its group.
+2. Re-merge the regex whitelists of all groups.
 3. Close the popup, do not purchase, and continue scanning other items.
 
-> **Example**: Valley Engraving Permit limit is 50, current held is 48; Branch 2 will calculate buying 2 more. If 50 are already held, Branch 3 triggers direct removal, and this item will not be clicked again this round.
+> **Example**: Valley Engraving Permit limit is 200, current held is 198; Branch 2 will calculate buying 2 more. If 200 are already held, Branch 3 triggers direct removal, and this item will not be clicked again this round.
 
 ### Runtime Override Summary
 
 | Timing | Action | Purpose |
 | -------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
-| Task Entry | `AttachToExpectedRegexAction` | Merge attach → item name OCR regex |
-| Task Entry | Option `pipeline_override` (category switch / discount tier select) | When a category is off, its overrides are not collected; a numeric tier rewrites the discount OCR `expected`, and the "Any" tier replaces the discount recognition node with an always-matching `ColorMatch` |
-| After Item Exclusion | `PipelineOverrideAction` + then `AttachToExpectedRegexAction` | Remove attach key and refresh whitelist |
+| Task Entry | `AttachToExpectedRegexAction` | Merge attach per group → that group's item name OCR regex |
+| Task Entry | Option `pipeline_override` (category switch / group discount select) | When a category is off, its overrides are not collected; a group's numeric tier rewrites that group's discount OCR `expected`, and the "Any" tier replaces that group's discount recognition node with an always-matching `ColorMatch` |
+| After Item Exclusion | `PipelineOverrideAction` + then `AttachToExpectedRegexAction` | Remove the attach key from its group and refresh all group whitelists |
 | Before Confirming Purchase | `AutoStockStapleQuantityControlAction` | Calculate difference and override BetterSliding target quantity |
 
 ## Data Source and Incremental Updates
@@ -167,9 +184,9 @@ Copy a set corresponding to Valley IV (Wuling is already an existing mirror):
 
 ```text
 Anchor AutoStockInStapleItem
-  -> Item Name AutoStockInStapleItemName_Expected
-  -> Discount AutoStockInStapleItemDiscountsValleyIV
-  -> Click and Enter Quantity Control
+  -> Group Item Name AutoStockInStapleItemName{Group}_Expected (one per group)
+  -> Group Discount AutoStockInStapleItemDiscounts{Region}{Group}
+  -> Click and Enter Quantity Control (AutoStockBuyItem{Region}Task{Group})
 ```
 
 ### 1. Anchor: Remaining Refresh Time Frame
@@ -182,10 +199,10 @@ Offset sequentially based on the anchor:
 
 1. `AutoStockInStapleItemNameLabelColor`: Name label background color.
 2. `AutoStockInStapleItemNameTextColor`: Name text color.
-3. `AutoStockInStapleItemName`: OCR recognizes the item name, `expected` written during runtime initialization.
-4. `AutoStockInStapleItemName_Expected`: `And` combination of the above three, `box_index: 2` takes the box from the item name OCR.
+3. `AutoStockInStapleItemName{Group}`: OCR recognizes the item name, `expected` written during runtime initialization; every discount group has one such node.
+4. `AutoStockInStapleItemName{Group}_Expected`: `And` combination of the above three, `box_index: 2` takes the box from the item name OCR.
 
-Item names selected by the user are written into multilingual aliases via `AutoStockInStapleItemName.attach.{slug}`; at task start, `AttachToExpectedRegexAction` merges them into:
+Item names selected by the user are written into multilingual aliases via `AutoStockInStapleItemName{Group}.attach.{slug}` of their discount group; at task start, `AttachToExpectedRegexAction` merges each group node into:
 
 ```text
 ^(alias1|alias2|...)$
@@ -195,14 +212,14 @@ Unselected items do not enter the whitelist; OCR will not match them.
 
 ### 3. Offset Recognition of Discount
 
-`AutoStockInStapleItemDiscountsValleyIV` uses the box of `AutoStockInStapleItemName` as the basis, with `roi_offset` offset to the discount area. By default its OCR `expected` lists every discount value from `-99` to `-50` (`order_by: Expected`).
+`AutoStockInStapleItemDiscounts{Region}{Group}` uses the box of that group's `AutoStockInStapleItemName{Group}` as the basis, with `roi_offset` offset to the discount area. By default its OCR `expected` lists every discount value from `-99` to `-50` (`order_by: Expected`).
 
-The discount threshold is controlled by `AutoStockMinDiscountValleyIV` (select), which shares the `option.DiscountValue.*` locale key family with the Credit Store:
+Each group has its own discount threshold controlled by `AutoStockMinDiscount{Region}{Group}` (select), which shares the `option.DiscountValue.*` locale key family with the Credit Store:
 
-- **Numeric tiers** (`-95%` … `-50%`): Rewrite the `expected` of `AutoStockInStapleItemDiscountsValleyIV` to that tier and deeper discounts (e.g. `-90%` → `-99`, `-95`, `-90`); the OCR must match one of them.
-- **Any**: Replaces the discount OCR node entirely by `ColorMatch` (full-range threshold `[0,0,0]`–`[255,255,255]` with `count` defaulting to 1, so any non-empty ROI passes and the presence of a discount color block does not affect the result) — equivalent to buying all selected items without checking the discount.
+- **Numeric tiers** (`-95%` … `-50%`): Rewrite the `expected` of that group's discount node to that tier and deeper discounts (e.g. `-90%` → `-99`, `-95`, `-90`); the OCR must match one of them.
+- **Any**: Replaces that group's discount OCR node entirely by `ColorMatch` (full-range threshold `[0,0,0]`–`[255,255,255]` with `count` defaulting to 1, so any non-empty ROI passes and the presence of a discount color block does not affect the result) — equivalent to buying all selected items of that group without checking the discount.
 
-Tiers list only the discounts that actually occur for staple goods (`-95/-90/-85/-80/-75/-70/-65/-50`), defaulting to `-50%`. Items without a discount badge produce no OCR text and never match any numeric tier; select "Any" to buy them.
+Tiers list only the discounts that actually occur for staple goods (`-95/-90/-85/-80/-75/-70/-65/-60/-50`); the default tier comes from each group select's `default_case` (currently every Valley IV group is `-50%`; in Wuling the engraving permit and cultural goods default to `-95%`, industrial goods to `-75%`, the artificing catalyst to `-90%`, and daily goods to `-50%`). Items without a discount badge produce no OCR text and never match any numeric tier; select "Any" to buy them.
 
 ### 4. Judgment of "Affordability"
 
@@ -213,21 +230,24 @@ Unlike the Credit Store, the staple goods list scan **does not** have a separate
 | Before List Scan | `AutoStockTargetCanNotBuyValleyIV`: Whether remaining stock bills are still above the retention threshold |
 | Within Purchase Popup | `AutoStockStapleGoodsStockBillInsufficientValidate`: Recognizes the bottom red `调度券不足` (insufficient stock bills) prompt |
 
-Therefore, the `And` conditions for `AutoStockBuyItemValleyIVTask` are:
+Therefore, the `And` conditions for `AutoStockBuyItemValleyIVTask{Group}` are:
 
 - `AutoStockInStapleItem`
-- `AutoStockInStapleItemName_Expected`
-- `AutoStockInStapleItemDiscountsValleyIV` (discount OCR; `box_index: 2` points to this node)
+- `AutoStockInStapleItemName{Group}_Expected`
+- `AutoStockInStapleItemDiscountsValleyIV{Group}` (that group's discount OCR; `box_index: 2` points to this node)
 
 After all three match, click the item card (`target_offset: [-45, 85, -30, 0]`), and `next` enters `AutoStockStapleQuantityControl`.
 
 > [!IMPORTANT]
-> `AutoStockBuyItemValleyIVTask` only means "a candidate item was recognized and entered purchase judgment," **it does not** mean the purchase is completed. Whether an order is actually placed depends on if the quantity control branch reaches `AutoStockStapleQuantityControlConfirmBuy`.
+> `AutoStockBuyItemValleyIVTask{Group}` only means "a candidate item was recognized and entered purchase judgment," **it does not** mean the purchase is completed. Whether an order is actually placed depends on if the quantity control branch reaches `AutoStockStapleQuantityControlConfirmBuy`.
 
 ### 5. Sold-Out and Swiping
 
 - `SoldOut`: OCR recognizes text like "Sold Out / 已售罄" on the left; once matched, it stops swiping.
-- `AutoStockSwipeValleyIV`: Swipes down within the Valley IV page, `post_wait_freezes` waits for the list area to stabilize before entering the next round of recognition.
+- `AutoStockListComplete{Region}`: the **end-of-list recognizer**, placed before the swipe node. On its first run it captures the still frame inside `roi` as a runtime template; afterwards it compares every round: an unchanged frame (similarity ≥ `threshold`, set to 0.95 here) means the list has hit the bottom, and a hit ends the region scan; a changed frame means the template is recaptured and scrolling continues.
+    - `roi` covers the item card grid (`[65, 200, 1075, 360]` at the 720p baseline); adjust it when the card layout or the resolution baseline changes, otherwise the recognizer may never hit.
+    - `attach.ready` is the recognizer's runtime state (template `ListCompleteRecognition/AutoStockListComplete{Region}.png`); every task run uses a fresh Context, so no template leaks between runs.
+- `AutoStockSwipe{Region}`: swipes down within the regional page, `post_wait_freezes` waits for the list area to stabilize before entering the next round of recognition. Swiping has **no `max_hit`**: the loop only ends through `SoldOut` or `AutoStockListComplete{Region}`, so if neither hits it keeps swiping — the end-of-list recognizer `roi` / `threshold` must fit the regional list, otherwise that region scrolls forever (the `score` shows up in the `ListCompleteRecognition` lines of `go-service.log`).
 
 ## Quantity Control (Purchase Popup)
 
@@ -300,8 +320,8 @@ After the purchase quantity adjustment is complete, `next` enters `AutoStockStap
 
 Flow:
 
-1. `{Item}RemoveFilter`: Calls `PipelineOverrideAction`, setting the item's attach key to `false`, effectively removing it from the whitelist.
-2. `AutoStockStapleQuantityControlResetRecognitionParams`: Executes `AttachToExpectedRegexAction` again, **regenerating** the `AutoStockInStapleItemName.expected` regex based on the latest attach state.
+1. `{Item}RemoveFilter`: Calls `PipelineOverrideAction`, setting the item's attach key in its discount group to `false`, effectively removing it from that group's whitelist.
+2. `AutoStockStapleQuantityControlResetRecognitionParams`: Executes `AttachToExpectedRegexAction` again (`targets` covers every group), **regenerating** each group's `AutoStockInStapleItemName{Group}.expected` regex based on the latest attach state.
 3. Close the purchase popup, return to the list to continue scanning other items.
 
 The Exclude branch **does not** purchase; it only removes "reached target" items from the current scan objectives.
@@ -312,9 +332,9 @@ This task involves several types of runtime overrides; do not confuse them durin
 
 | Action | Trigger Location | Purpose |
 | -------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Option `pipeline_override` (declared in `interface.json`) | Task option collection (MXU render stage) | When a category is off, its overrides are not collected; a numeric tier rewrites the discount OCR `expected`, and the "Any" tier replaces the discount recognition node with `ColorMatch` |
-| `AttachToExpectedRegexAction` | `AutoStockStapleMain` entry; Exclude → Reset node | Merge attach keywords → OCR whitelist regex |
-| `PipelineOverrideAction` | Each item's `{Item}RemoveFilter` | Set specified attach key to `false`, excluding the item |
+| Option `pipeline_override` (declared in `interface.json`) | Task option collection (MXU render stage) | When a category is off, its overrides are not collected; a group's numeric tier rewrites that group's discount OCR `expected`, and the "Any" tier replaces that group's discount recognition node with `ColorMatch` |
+| `AttachToExpectedRegexAction` | `AutoStockStapleMain` entry; Exclude → Reset node | Merge attach keywords per group → that group's OCR whitelist regex |
+| `PipelineOverrideAction` | Each item's `{Item}RemoveFilter` | Set the specified attach key to `false` in its group, excluding the item |
 | `AutoStockStapleQuantityControlAction` | Each item's `{Item}Buy` | Calculate difference and override BetterSliding's `TargetQuantity` / `enabled` |
 
 `attach` semantics (see `attachregex/action.go`):
@@ -327,7 +347,7 @@ This task involves several types of runtime overrides; do not confuse them durin
 
 After upstream tables add a product, republish `stock_staple.json` and run `pnpm generate:AutoStockStaple`. Product cases, name OCR, quantity comparison nodes, three purchase branches, and localized messages are generated together. Do not manually add product names, binding tables, or legacy aliases.
 
-Existing quantity grouping remains task policy: the engraving-permit ID family in household goods uses the engraving-permit limit, while other household goods use the food/buff limit; the equipment-enhancement material ID family in industrial goods uses the artificing-catalyst limit, while the rest use the detector limit; cultural goods use the gift limit. New categories or regions requiring navigation fail explicitly until their task options and flows are adapted. If screenshots show that a product needs an OCR adjustment, edit its node directly; incremental updates preserve these adjustments.
+Existing quantity grouping remains task policy: the engraving-permit ID family in household goods uses the engraving-permit limit, while other household goods use the food/buff limit; the equipment-enhancement material ID family in industrial goods uses the artificing-catalyst limit, while the rest use the detector limit; cultural goods use the gift limit. Discount groups follow the same split (the engraving permit and the artificing catalyst each form their own group, the rest follow their category), so new items automatically fall under the right group's discount control and no new discount option is needed. New categories or regions requiring navigation fail explicitly until their task options and flows are adapted. If screenshots show that a product needs an OCR adjustment, edit its node directly; incremental updates preserve these adjustments.
 
 Maintain existing flows in their task and Pipeline files. The per-item template only defines future additions and does not overwrite existing nodes.
 
@@ -336,14 +356,15 @@ Maintain existing flows in their task and Pipeline files. The per-item template 
 If a third region for staple goods purchase is added in the future, a set of nodes can be copied corresponding to Valley IV:
 
 1. Create `assets/resource/pipeline/AutoStockStaple/{Region}.json`:
-    - `AutoStockInStaple{Region}` scan loop (keep the five-entry `next` structure, including `AutoStockNoMoreTarget{Region}`, which ends the region once swipes run out).
+    - `AutoStockInStaple{Region}` scan loop (keep the `next` order; the exits are this region's sold-out node and `AutoStockListComplete{Region}`, and the group judgment entries become one `[JumpBack]AutoStockBuyItem{Region}Task{Group}` per group).
     - `AutoStockTargetCompare{Region}` / `AutoStockTargetCanNotBuy{Region}`.
-    - `AutoStockBuyItem{Region}Task` (replace discount node names).
+    - One `AutoStockBuyItem{Region}Task{Group}` per discount group (replace the group discount node names).
+    - `AutoStockListComplete{Region}` (end-of-list recognizer, adjust its `roi` to the regional list position).
     - `AutoStockSwipe{Region}`.
 2. Add `[JumpBack]AutoStockStaple{Region}` sub-task and SceneManager jump in `Main.json`.
 3. Add scene OCR in `StockStaple.json` or the regional InScene file.
-4. Add `AutoStockInStapleItemDiscounts{Region}` in `Item.json` (even with the same layout, since `AutoStockMinDiscount{Region}` overrides this node per region), and add its `roi_offset` to the `resource_adb` `Item.json`.
-5. Add regional switches and empty item option groups in `assets/tasks/AutoStockStaple.json`, connect the region ID to its navigation suffix in the generator, and run the incremental update.
+4. Add `AutoStockInStapleItemDiscounts{Region}{Group}` for every group in `Item.json` (`Daily` / `Industrial` / `Cultural` / `EngravingPermit`, plus `ArtificingCatalyst` when the region sells the artificing catalyst; even with the same layout each group needs its own node, since `AutoStockMinDiscount{Region}{Group}` overrides it), and add its `roi_offset` to the `resource_adb` `Item.json`.
+5. Add regional switches, empty item option groups, and the per-group discount options (nested under the matching category switch) in `assets/tasks/AutoStockStaple.json`, connect the region ID to its navigation suffix in the generator, and run the incremental update.
 
 The existing Wuling implementation is a mirror of Valley IV; you can directly diff `ValleyIV.json` and `Wuling.json` to see the differences.
 
@@ -351,7 +372,10 @@ The existing Wuling implementation is a mirror of Valley IV; you can directly di
 
 | Symptom | Priority Check |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Target item not recognized in list | `AttachToExpectedRegexAction`'s `expected` regex in `go-service.log`; whether anchor `AutoStockInStapleItem` matched |
+| Target item not recognized in list | The per-group `expected` regexes printed by `AttachToExpectedRegexAction` in `go-service.log`; whether anchor `AutoStockInStapleItem` matched |
+| Only one category is never bought | Whether that category switch is on; whether the tier selected in `AutoStockMinDiscount{Region}{Group}` covers the actual discount in that group's discount node `expected` |
+| Scanning stops before the list ends | Whether `AutoStockListComplete{Region}`'s `roi` covers the card grid and its `threshold` is too low; the `score` logged by `ListCompleteRecognition` in `go-service.log` |
+| Keeps swiping without ending | Whether `AutoStockListComplete{Region}` hits; the `score` in the `ListCompleteRecognition` lines of `go-service.log`, whether its `roi` covers the card grid, and whether its `threshold` is too high |
 | Item recognized but not purchased | Whether quantity control went to `Exclude` or `StockBillInsufficient`; `AutoStockStapleQuantityControl{Item}Buy/Exclude` in `maafw*.log` |
 | Purchase quantity is incorrect | `threshold/current_count/target` in `AutoStockStapleQuantityControlAction` log; BetterSliding ROI |
 | Scanning stops even though stock bills seem sufficient | `AutoStockTargetCompareValleyIV` expression and user input `{ReserveValleyIV}` |

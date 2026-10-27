@@ -3,6 +3,7 @@ import {dirname, resolve} from "node:path";
 import {fileURLToPath, pathToFileURL} from "node:url";
 
 import {parseJsonc, readJsonc} from "../jsonc.mjs";
+import {sortLocaleKeys} from "../utils/locales.mjs";
 import {outpostTradingLocaleEntries, outpostTradingLocations} from "./model.mjs";
 import {outpostTradingItemLocaleEntries} from "./selection-data.mjs";
 
@@ -224,12 +225,14 @@ export function syncOutpostTradingLocaleCatalogs() {
         );
         validateLocaleCatalog(itemResult.messages, fileLocale);
 
-        // 仅在解析后的内容或键顺序变化时写回，避免无变化运行删除 JSONC 注释。
-        if (JSON.stringify(itemResult.messages) !== JSON.stringify(originalMessages)) {
-            const syncedText = `${JSON.stringify(itemResult.messages, null, 4)}\n`;
+        // 键按字母序写回（与 prettier 的 maafw-sort 对 locale 文件的要求一致），
+        // 内容或顺序有变化才写，避免无变化运行产生 diff。
+        const syncedMessages = sortLocaleKeys(itemResult.messages);
+        if (JSON.stringify(syncedMessages) !== JSON.stringify(originalMessages)) {
+            const syncedText = `${JSON.stringify(syncedMessages, null, 4)}\n`;
             writeFileSync(localePath, syncedText, "utf8");
             console.log(
-                `[OutpostTrading] 已为 ${fileLocale}.json 按据点顺序重排，更新 ${stationResult.updated} 个据点名，清理 ${stationResult.removed} 个旧据点键，补齐 ${stationResult.inserted} 个据点键、${operatorResult.inserted} 个干员键和 ${itemResult.inserted} 个物品键。`,
+                `[OutpostTrading] 已为 ${fileLocale}.json 同步据点顺序，更新 ${stationResult.updated} 个据点名，清理 ${stationResult.removed} 个旧据点键，补齐 ${stationResult.inserted} 个据点键、${operatorResult.inserted} 个干员键和 ${itemResult.inserted} 个物品键。`,
             );
         }
     }

@@ -100,7 +100,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameEngravingPermit": {
                             "attach": {
                                 "valley_engraving_permit": false
                             }
@@ -246,7 +246,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "kunst_tube": false
                             }
@@ -365,7 +365,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "jakubs_legacy": false
                             }
@@ -484,7 +484,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "pulled_slug_meat": false
                             }
@@ -603,7 +603,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "hazefyre_blossom": false
                             }
@@ -722,7 +722,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "cartilage_tack": false
                             }
@@ -841,7 +841,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "cosmo_melto_jelly": false
                             }
@@ -960,7 +960,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameIndustrial": {
                             "attach": {
                                 "keen_valley_detector": false
                             }
@@ -1079,7 +1079,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameIndustrial": {
                             "attach": {
                                 "keen_valley_compass": false
                             }
@@ -1198,7 +1198,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "breeze_of_kjersch": false
                             }
@@ -1317,7 +1317,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "tidestone_specimen": false
                             }
@@ -1436,7 +1436,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "simonch_shawl": false
                             }
@@ -1555,7 +1555,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "frontiers_watch": false
                             }
@@ -1674,7 +1674,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "aurylene_camera": false
                             }
@@ -1793,7 +1793,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "cosmic_gate_puzzle": false
                             }
@@ -1912,7 +1912,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "surfing_festival_ticket": false
                             }
@@ -2031,7 +2031,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameEngravingPermit": {
                             "attach": {
                                 "wuling_engraving_permit": false
                             }
@@ -2150,7 +2150,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "fortifying_infusion": false
                             }
@@ -2269,7 +2269,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "garden_fried_rice": false
                             }
@@ -2388,7 +2388,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "master_pans_egg_pudding": false
                             }
@@ -2507,7 +2507,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "echoing_remedy": false
                             }
@@ -2626,7 +2626,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "rind_flavored_sprouts": false
                             }
@@ -2745,7 +2745,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameArtificingCatalyst": {
                             "attach": {
                                 "wuling_artificing_catalyst": false
                             }
@@ -2864,7 +2864,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameIndustrial": {
                             "attach": {
                                 "keen_wuling_detector": false
                             }
@@ -2983,7 +2983,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameIndustrial": {
                             "attach": {
                                 "keen_wuling_compass": false
                             }
@@ -3102,7 +3102,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "eureka_teabox": false
                             }
@@ -3221,7 +3221,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "yinglung_dumbbells": false
                             }
@@ -3340,7 +3340,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "woven_aggelos": false
                             }
@@ -3459,7 +3459,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "scrimshaw_of_the_pack": false
                             }
@@ -3578,7 +3578,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "fin_n_chips": false
                             }
@@ -3697,7 +3697,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "bizarro_cupcake": false
                             }
@@ -3816,7 +3816,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "chubby_lung_fangxing_memorabilia": false
                             }
@@ -3935,7 +3935,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "stonehold_remedy": false
                             }
@@ -4054,7 +4054,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "ruin_purger_remedy": false
                             }
@@ -4173,7 +4173,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameIndustrial": {
                             "attach": {
                                 "wuling_talosite_probe": false
                             }
@@ -4292,7 +4292,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "fowlbeast_paper_kite": false
                             }
@@ -4411,7 +4411,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "swinging_gentleman_classical_album": false
                             }
@@ -4530,7 +4530,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "sear_toasted_liver": false
                             }
@@ -4649,7 +4649,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "myrkwood_berry_preserve": false
                             }
@@ -4768,7 +4768,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "miracle_cake": false
                             }
@@ -4934,7 +4934,13 @@
             "param": {
                 "custom_action": "AttachToExpectedRegexAction",
                 "custom_action_param": {
-                    "target": "AutoStockInStapleItemName"
+                    "targets": [
+                        "AutoStockInStapleItemNameEngravingPermit",
+                        "AutoStockInStapleItemNameArtificingCatalyst",
+                        "AutoStockInStapleItemNameDaily",
+                        "AutoStockInStapleItemNameIndustrial",
+                        "AutoStockInStapleItemNameCultural"
+                    ]
                 }
             }
         },
@@ -5012,7 +5018,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "item_inkbiter_1_wgshoal_1_1": false
                             }
@@ -5131,7 +5137,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "item_inkkirin_1_hscrane_1_1": false
                             }
@@ -5250,7 +5256,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "item_gift_jinlong_12": false
                             }
@@ -5369,7 +5375,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "item_gift_jinlong_13": false
                             }

@@ -17,16 +17,5 @@
                 ]
             }
         }
-    },
-    "__ScenePrivateLoginCloseDialog": {
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    1,
-                    1
-                ]
-            }
-        }
     }
 }

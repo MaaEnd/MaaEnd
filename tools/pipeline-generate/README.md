@@ -54,6 +54,8 @@ pnpm generate:SceneTeleport
 pnpm generate:AutoEssence
 ```
 
+地图总览点击坐标由 zmdmap 统一管理，运行 `pnpm generate:MapOverview` 下载数据并生成选择底图的点击节点；已有流程出口的维护方式见 [MapOverview](./MapOverview/README.md)。
+
 ## 投影
 
 `tools/zmdmap/utils/project.py` 做的事就是换算：把条目里的 `x` / `z` 按原位置换成 `u = sx*x + tx`、`v = -sy*z + ty`（`y` 是世界高度，不参与换算、原样保留），加上 `maps` 块（本次用到的底图及其 zone 参数），并把不需要投影的数据原样带到入库目录。

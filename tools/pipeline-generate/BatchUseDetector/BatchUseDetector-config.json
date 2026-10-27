@@ -1,6 +1,6 @@
 {
     "template": "template.json",
-    "data": "data.json",
+    "data": "region-data.mjs",
     "outputDir": "../../../assets/resource/pipeline/BatchUseDetector",
     "outputPattern": "${LocationId}.json",
     "format": true,

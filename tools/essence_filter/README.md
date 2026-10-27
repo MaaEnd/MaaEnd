@@ -47,10 +47,7 @@ uv run tools/essence_filter/extract_skill_pools.py
 
 ## build_locations.py
 
-从 `energy_point_gems.json` 解析地点词条并映射到 `skill_pools.json`，生成 `locations.json`
-（每个地点带 `level_id`，即源数据里的 `levelId`，运行时按它认地区）。
-通过 `--data-version` 接收本轮数据版本（CI 传 `tools/zmdmap/data/energy_point_gems.json` 里 `version` 字段的值），在生成成功后
-更新数据日期；未提供时保留原日期。
+从 `energy_point_gems.json` 解析地点词条并映射到 `skill_pools.json`，生成 `locations.json`（每个地点带 `level_id`，即源数据里的 `levelId`，运行时按它认地区）。写回默认位置且内容有变化时，把本轮同步时间（UTC，形如 `2026-10-08 08:40:17 UTC`）写进 `matcher_config.json` 的 `data_version`，给用户看这份数据是哪天同步的；内容没变就跳过写入，`data_version` 保持原值；用 `--output` 输出到别处时不动仓库里的 `matcher_config.json`。
 
 ### 用法
 
@@ -66,7 +63,6 @@ uv run tools/essence_filter/build_locations.py
 | `--skill-pools` | `assets/data/EssenceFilter/skill_pools.json` | 当前技能池 |
 | `--output` / `-o` | `assets/data/EssenceFilter/locations.json` | 输出 locations |
 | `--debug` | 关闭 | 打印未匹配项以便排查 |
-| `--data-version` | 不更新 | 本轮数据版本，取 `energy_point_gems.json` 的 `version`（如 `1.6.3+11010254-4`） |
 
 ### 解析规则
 

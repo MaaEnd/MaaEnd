@@ -17,9 +17,8 @@
 #include "../sensing/maa_task.h"
 #include "../sensing/position_provider.h"
 #include "../sensing/roi_template_scanner.h"
+#include "controller_type_utils.h"
 #include "motion_controller.h"
-
-#include "../../utils.h"
 
 namespace mapnavigator
 {
@@ -58,17 +57,20 @@ ObstacleDeviceRecovery::ObstacleDeviceRecovery(
 
 ObstacleDeviceRecovery::~ObstacleDeviceRecovery() = default;
 
-void ObstacleDeviceRecovery::start(const cv::Rect& base_roi)
+void ObstacleDeviceRecovery::start(const cv::Rect& base_roi, std::string_view controller_type)
 {
     if (scanner_ != nullptr) {
         return;
     }
 
-    const std::filesystem::path template_path = std::filesystem::absolute(get_install_dir() / kObstacleDeviceTemplateRelativePath);
-    const cv::Mat button_template = MAA_NS::imread(template_path, cv::IMREAD_GRAYSCALE);
+    const std::vector<std::filesystem::path> roots = ResourceImageRoots(controller_type);
+    cv::Mat button_template;
+    if (const std::optional<std::filesystem::path> template_path = ResolveResourceImage(roots, kObstacleDeviceTemplateRelativePath)) {
+        button_template = MAA_NS::imread(*template_path, cv::IMREAD_GRAYSCALE);
+    }
     if (button_template.empty()) {
-        LogWarn << "Blocking-device probe not started: interact button template not loaded."
-                << VAR(MAA_NS::path_to_utf8_string(template_path));
+        LogWarn << "Blocking-device probe not started: interact button template not loaded." << VAR(kObstacleDeviceTemplateRelativePath)
+                << VAR(DescribeRoots(roots));
         return;
     }
 

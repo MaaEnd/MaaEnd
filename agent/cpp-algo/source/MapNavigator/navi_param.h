@@ -19,6 +19,8 @@ struct NaviParam
     double navmesh_snap_radius = 5.0;
     int64_t arrival_timeout = 60000;
     double sprint_threshold = 16.0;
+    // 关掉则整次导航不冲刺, 路线里的 SPRINT 点也跳过
+    bool enable_sprint = true;
     bool enable_local_driver = true;
     // 起步 A* 开关, 关掉则起步直接照录制点走
     bool enable_bootstrap_navmesh = true;

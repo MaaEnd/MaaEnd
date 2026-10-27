@@ -129,6 +129,18 @@
                     }
                 },
                 {
+                    "name": "wpn_sword_0021_ink",
+                    "label": "$weapon.wpn_sword_0021_ink",
+                    "icon": "resource/image/UI/Item/wpn_sword_0021_ink.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0021_ink": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "wpn_sword_0022",
                     "label": "$weapon.wpn_sword_0022",
                     "icon": "resource/image/UI/Item/wpn_sword_0022.png",
@@ -271,6 +283,7 @@
                 "wpn_sword_0016",
                 "wpn_sword_0017",
                 "wpn_sword_0021",
+                "wpn_sword_0021_ink",
                 "wpn_sword_0022",
                 "wpn_sword_0024",
                 "wpn_sword_0025",

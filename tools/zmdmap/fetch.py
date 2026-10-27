@@ -21,7 +21,9 @@
 本地已是最新时跳过下载：逐份拿本地文件里自称的 ``sha256`` 跟清单比，一样的跳过，不一样的才下。清单本身
 每次都带时间戳取 —— 它只有几百字节，却决定了整批判断，被远端缓存住就会拿旧索引判断。无论下载与否都会跑
 一次入库。上游还没发布的数据只提示、不当失败：本地可以用 ``uv run zmdmap generate --only <名字>`` 生成。
-``--dry-run`` 走到「这一批会下哪几份」为止就停：清单照读、照比对，但不下载、不写文件。
+清单里的 ``version`` 是判断本地新旧的依据，必须有：没写就报错退出，不退回「只比指纹」。本地那份的 ``version``
+比清单新时也不下 —— 上游这份是旧的，下回来只会把新内容换回旧内容，要覆盖得用 ``--force``。
+``--dry-run`` 走到「这一批会下哪几份」为止就停：清单照读、照样分类，但不下载、不写文件。
 
 发布的都是**原始形态**（只带游戏世界坐标），一律先落不入库的 ``data/raw/``，再由
 :mod:`tools.zmdmap.materialize` 材料化进入库的 ``data/``：需要投影的补上底图像素，不需要投影的原样复制。
@@ -49,11 +51,13 @@ from .utils.datafile import (
     payload_hash,
     payload_of,
     read_hash,
+    read_version,
     version_of,
 )
 from .utils.http import get
 from .utils.log import logger
 from .utils.shapes import is_object
+from .utils.version import version_order
 
 
 class DownloadError(ValueError):
@@ -73,7 +77,8 @@ class Manifest(msgspec.Struct):
     """上游发布的清单：这批数据是哪一版，以及每份原始形态的内容指纹。"""
 
     version: str | None = None
-    """这批数据的版本标签；上游没写就没有"""
+    """这批数据的版本标签，如 ``1.6.4+11262943-8``；:func:`manifest_plan` 拿它跟本地那份的 ``version`` 比
+    新旧。清单必须写它，没写的清单 :func:`download` 直接报错，不下 —— 判断不了本地是不是更新。"""
     files: dict[str, str] = msgspec.field(default_factory=dict[str, str])
     """文件名 -> 原始形态的内容指纹"""
 
@@ -110,32 +115,48 @@ def read_manifest() -> Manifest:
 
 def manifest_plan(
     target_dir: Path, file_names: Sequence[str], manifest: Manifest
-) -> tuple[list[str], list[str], list[str]]:
-    """按清单把这几份分成三类：要重下的、清单里没有但本地有的、清单里没有且本地也没有的。
+) -> tuple[list[str], list[str], list[str], list[str]]:
+    """按清单把这批数据分成四类，顺序同返回值：
 
-    比的是 ``target_dir`` 里同名文件**自称的** ``sha256`` 与清单里记的指纹
-    （:func:`tools.zmdmap.utils.datafile.read_hash`）—— 只读字段、不读本体。与文件里写的 ``version``
-    无关：上游只换了版本号、内容没变时不必重下，本地那份也一个字都不会改。
+    - **要下载的**：本地没有这个文件，或者本地自称的 ``sha256`` 与清单记的指纹不同。调用方下载后入库。
+    - **清单里没有但本地有的**：这批没发它（``generate --only`` 只发点名的几份），保持本地原样 —— 下回来的是
+      哪一批说不清，也没有指纹可核对（只能信文件自称的那个）。调用方提示一句即可。
+    - **清单里没有且本地也没有的**：同样不下载。需要投影的由调用方直接报错（缺这份没法继续），只需复制的
+      提示一句跳过。
+    - **本地比清单新的**：本地自称的 ``version`` 比清单的 ``version`` 新
+      （:func:`tools.zmdmap.utils.version.version_order`），说明上游这份是旧的 —— 发布端回滚过，或者本地已经
+      按当前代码生成过、上游还没重新发布。保持本地原样，要覆盖得用 ``--force``。
 
-    清单列的是「这一批发了哪几份」（``generate --only`` 就只列那几份），所以清单里没有的那份不是「过期」、
-    是「这批没它」：本地有就保持原样，本地也没有就不下 —— 清单没授权发这一份，下回来的是哪一批说不清，
-    而且没有指纹可核对（只能信文件自称的那个），不如让调用方按「上游还没发」处理。
+    判断只读 ``target_dir`` 里同名文件自称的 ``version`` 与 ``sha256``
+    （:func:`tools.zmdmap.utils.datafile.read_version`、:func:`tools.zmdmap.utils.datafile.read_hash`），
+    不读本体。先看版本：本地更新就不下；版本相同或更旧时看指纹：不同才下。所以同一个版本号下重新发布过、
+    内容变了照样重下，只换了版本号、内容没变则不会重下。
 
-    ``target_dir`` 是「本地这份数据」所在的地方：入库模式下就是入库目录（``data/``，它在仓库里，新克隆
-    下来也有），``--raw-only`` 下是原始形态目录自己（那正是它的产物）。原始形态目录是 ``.gitignore`` 的
-    本地缓存，空着不代表本地数据旧，所以默认不拿它当参照。
+    指纹与清单一致的那几份四类都不进：本地就是这一批，不用动。
+
+    清单的 ``version`` 是必填项：:func:`download` 会先确认它存在，所以这里不必再判空 —— 缺版本时根本走不到
+    这一步（判断不了新旧，不盲下）。
+
+    ``target_dir`` 是本地这份数据所在的地方：入库模式下是 ``data/``（在仓库里，新克隆下来也有），
+    ``--raw-only`` 下是原始形态目录自己（那正是它的产物）。原始形态目录是 ``.gitignore`` 的本地缓存，
+    空着不代表本地数据旧，所以默认不拿它当参照。
     """
     todo: list[str] = []
     unlisted: list[str] = []
     absent: list[str] = []
+    newer: list[str] = []
     for file_name in file_names:
         local = read_hash(target_dir / file_name)
         expected = manifest.files.get(file_name)
-        if expected is None:  # 清单里没有这一份：这批没发它，本地有就留着、没有就算了
+        if expected is None:  # 这批没发它：本地有就原样留着，没有也不下
             (unlisted if local is not None else absent).append(file_name)
-        elif local != expected:  # 本地没有，或者指纹对不上：要下
+            continue
+        local_version = read_version(target_dir / file_name)
+        if local_version and manifest.version and version_order(local_version) > version_order(manifest.version):
+            newer.append(file_name)  # 上游这份是旧的：不拿它覆盖本地更新的数据
+        elif local != expected:  # 指纹对不上，或者本地根本没有这一份：要下
             todo.append(file_name)
-    return todo, unlisted, absent
+    return todo, unlisted, absent, newer
 
 
 def _data_url(file_name: str, token: str) -> str:
@@ -296,17 +317,25 @@ def download(
 ) -> list[str]:
     """按需把这几份数据下载到 ``raw_dir``；返回这次**真的下过**的文件名（也就是还要入库的那几份）。
 
-    本地是不是最新以发布清单为准：逐份拿 ``target_dir`` 里同名文件**自称的** ``sha256`` 跟清单比，一样的跳过
-    下载，不一样的才下 —— 不必问任何接口，也认得「同一个版本号下重新发布过」；``version`` 不参与比较。
+    下不下由 :func:`manifest_plan` 分类决定，不必额外请求任何接口：
+
+    - 清单没写 ``version``：直接抛 :class:`ManifestError`，不下 —— 没有版本就判断不了本地这份比上游新还是
+      旧，按指纹硬下可能把本地的新内容换成旧内容；
+    - 清单里没有这一份：保持本地原样；本地也没有的，需要投影的直接报错、只需复制的提示一句跳过；
+    - 本地版本比清单新：保持本地原样，提示一句可以用 ``--force`` 覆盖；
+    - 本地指纹与清单不同：下载；
+    - 本地指纹与清单一致：跳过。
+
+    所以本地已经是最新时，这里只读一次清单就结束，不下载、不写任何文件。
 
     清单是必需的前提：取不到就直接抛 :class:`ManifestError`，不会退化成「不比对就整批下」。没有清单既不知道
-    该下哪几份，也不知道本地是不是已经最新，硬下只会把本地数据换成对不上批次的内容。清单里没有的文件也不
-    下：那是「这批没发它」，本地有就保持原样；本地也没有的，需要投影的直接报错、只需复制的提示一句跳过。
+    该下哪几份，也不知道本地是不是已经最新，硬下只会把本地数据换成对不上批次的内容。
 
-    ``force`` 是不比对、直接重下这几份，并且请求 URL 上的 ``t`` 用时间戳而不是清单指纹 —— 「怀疑远端说辞」
-    时的唯一手段（这个 CDN 只看 URL，请求头说了不算）。CI 上没有额外开关：本地与 CI 跑的是同一套判断。
+    ``force`` 是不看版本与指纹、直接重下这几份，并且请求 URL 上的 ``t`` 用时间戳而不是清单指纹 ——
+    「怀疑远端说辞」时的唯一手段（这个 CDN 只看 URL，请求头说了不算）。CI 上没有额外开关：本地与 CI 跑的是
+    同一套判断。
 
-    ``dry_run`` 只把「这一批会下哪几份」算出来（照样读清单、照样比对），不下文件也不写盘。
+    ``dry_run`` 只把「这一批会下哪几份」算出来（照样读清单、照样分类），不下文件也不写盘。
     """
     todo = [*projected_files, *plain_files]
     token = str(int(time.time() * 1000)) if force else None
@@ -316,8 +345,13 @@ def download(
     if force:
         logger.info("强制下载（--force），不比对本地内容（版本与指纹仍按清单）")
     else:
-        todo, unlisted, absent = manifest_plan(target_dir, todo, manifest)
-        label = f"清单 v{version}" if version else "清单（没写版本）"
+        if not version:
+            raise ManifestError(
+                f"{MANIFEST_FILE} 里没有 version：判断不了本地这份比上游新还是旧，不下。"
+                "等上游按发布流程重新生成清单；确认要覆盖本地就加 --force 重下"
+            )
+        todo, unlisted, absent, newer = manifest_plan(target_dir, todo, manifest)
+        label = f"清单 v{version}"
         if unlisted:
             logger.warning(f"这几份不在{label}里，保持本地原样：{'、'.join(unlisted)}")
         if absent:
@@ -330,11 +364,13 @@ def download(
                 )
             for file_name in absent:
                 logger.warning(f"{file_name}：{label}里没有它、本地也没有，跳过（上游还没发这一份）")
+        if newer:
+            logger.warning(f"本地版本比{label}新，保持本地原样（要覆盖用 --force 重下）：{'、'.join(newer)}")
         if todo:
             logger.info(f"{label}：{len(todo)} 份内容有变化")
         else:
-            if absent or unlisted:
-                logger.info(f"{label}：没有要下载的（清单里没有的那几份按上面的提示处理）")
+            if absent or unlisted or newer:
+                logger.info(f"{label}：没有要下载的（其余几份按上面的提示处理）")
             else:
                 logger.info(f"本地内容与{label}一致，跳过下载")
             return []

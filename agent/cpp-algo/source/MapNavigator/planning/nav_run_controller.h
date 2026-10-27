@@ -45,6 +45,8 @@ struct NavRunPlan
     navmesh::WorldPath path;
     std::vector<double> corridor_arc_prefix;
     size_t cursor = 0;
+    double projected_arc = 0.0;
+    navmesh::WorldPoint projected_from {};
     std::chrono::steady_clock::time_point last_soft_replan_at {};
     int soft_replan_attempts = 0;
 };

@@ -1,0 +1,278 @@
+{
+    "__ScenePrivateMapOverview_region01_EnterMap_map01_lv001": {
+        "desc": "在四号谷地总览界面，点击进入枢纽区地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    455,
+                    478
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region01_map01_lv001_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region01_EnterMap_map01_lv002": {
+        "desc": "在四号谷地总览界面，点击进入谷地通道地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    295,
+                    261
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region01_map01_lv002_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region01_EnterMap_map01_lv003": {
+        "desc": "在四号谷地总览界面，点击进入阿伯莉采石场地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    750,
+                    631
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region01_map01_lv003_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region01_EnterMap_map01_lv005": {
+        "desc": "在四号谷地总览界面，点击进入源石研究园地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    837,
+                    380
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region01_map01_lv005_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region01_EnterMap_map01_lv006": {
+        "desc": "在四号谷地总览界面，点击进入矿脉源区地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    785,
+                    203
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region01_map01_lv006_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region01_EnterMap_map01_lv007": {
+        "desc": "在四号谷地总览界面，点击进入供能高地地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    541,
+                    151
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region01_map01_lv007_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region02_EnterMap_indie_dg016": {
+        "desc": "在武陵总览界面，点击进入遂明地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    878,
+                    529
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_indie_dg016_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region02_EnterMap_map02_lv001": {
+        "desc": "在武陵总览界面，点击进入景玉谷地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    462,
+                    491
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv001_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region02_EnterMap_map02_lv002": {
+        "desc": "在武陵总览界面，点击进入武陵城地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    546,
+                    302
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv002_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region02_EnterMap_map02_lv003": {
+        "desc": "在武陵总览界面，点击进入清波寨地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    603,
+                    478
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv003_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region02_EnterMap_map02_lv004": {
+        "desc": "在武陵总览界面，点击进入首墩地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    394,
+                    415
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv004_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region02_EnterMap_map02_lv005": {
+        "desc": "在武陵总览界面，点击进入试验园区地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    675,
+                    333
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv005_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region02_EnterMap_map02_lv006": {
+        "desc": "在武陵总览界面，点击进入藏剑谷地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    616,
+                    633
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv006_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region02_EnterMap_map02_lv007": {
+        "desc": "在武陵总览界面，点击进入应龙关地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    724,
+                    222
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv007_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region02_EnterMap_map02_lv008": {
+        "desc": "在武陵总览界面，点击进入北部禁区地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    851,
+                    131
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv008_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region02_EnterMap_map02_lv009": {
+        "desc": "在武陵总览界面，点击进入雪松林地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    857,
+                    282
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv009_Success"
+        ]
+    },
+    "__ScenePrivateMapOverview_region02_EnterMap_map02_lv010": {
+        "desc": "在武陵总览界面，点击进入祀的画地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1072,
+                    187
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv010_Success"
+        ]
+    },
+    "__ScenePrivateMapAnyEnterMap_region02_indie_dg016_Success": {
+        "desc": "在地图界面，成功进入武陵-遂明地图；待实现地图成功确认，实现后启用",
+        "enabled": false
+    }
+}

@@ -493,17 +493,10 @@ struct GeneratedWaypointWriter
         markRope(index);
     }
 
-    void appendInteriorCorners(size_t loop_end, bool include_goal)
+    void appendInteriorCorners(size_t loop_end)
     {
-        const size_t total = path.points.size();
         for (size_t index = 1; index < loop_end; ++index) {
-            emitPoint(index, false);
-        }
-        if (include_goal && total >= 2) {
-            const navmesh::WorldPoint& goal = path.points[total - 1];
-            out_path.emplace_back(goal.x, goal.y, ActionType::RUN);
-            out_path.back().strict_arrival = true;
-            out_path.back().route_floor_y = heightAt(total - 1);
+            emitPoint(index, index + 1 == path.points.size());
         }
     }
 
@@ -585,7 +578,7 @@ bool append_generated_waypoints(
     const size_t total = world_path.points.size();
     const size_t loop_end = options.include_goal ? total : total - 1;
     if (options.emit_interior_corners) {
-        writer.appendInteriorCorners(loop_end, options.include_goal);
+        writer.appendInteriorCorners(loop_end);
         return true;
     }
 

@@ -2508,5 +2508,8 @@
     "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue004": "4f3fc92fe0f57b4da5b3c8aed1f92f5d47aaf356a7da6825b0cd20a6a9b292a7",
     "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue003": "578e13e7c53ffb28add2182bef2b71c78d4c8e0298c10e48621f4391d9e73bdd",
     "resource/image/UmbralMonument/StageUncleared": "7ca35e5d81aca0ffc2eda99164f829de7405c8dda9eee5c38dae84a0d59132f9",
-    "resource/image/VisitFriends/QuickNextClueExchangeAvailable": "368cdca6e78a3a2d81e98431ba72ca7a21bbe91211d2910d9f3b822005b464c4"
+    "resource/image/VisitFriends/QuickNextClueExchangeAvailable": "368cdca6e78a3a2d81e98431ba72ca7a21bbe91211d2910d9f3b822005b464c4",
+    "resource/image/BatchUseDetector/WulingTalositeProbe": "5ac1f896013aa10ec85a3a28de350be63c8db13611c30388143a31ab0bf6870c",
+    "resource/image/SanityExtractor/sanityExtractorsRightUI": "6bb3b521884a02baaad7df86139ea722fca5c0497a1b83ee368d74b3c3680776",
+    "resource/image/SanityExtractor/extractorUISanityEssence": "90558f80ebab6959250a81ed1d7d31b450cbdb5817e7ed1020e4c86856f91fd8"
 }

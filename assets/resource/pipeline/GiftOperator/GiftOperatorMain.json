@@ -28,8 +28,8 @@
         "next": [
             "GiftOperatorClickContact", // 理论上这样写可以优化掉后面很多兜底逻辑，但是写不动了，就先当是已经到地方了就别再寻路的意思吧
             // "GiftOperatorInDijiang1",
-            "GiftOperatorInDijiang0",
-            "[JumpBack]GiftOperatorGoToDijiang"
+            // "GiftOperatorInDijiang0",
+            "GiftOperatorGoToDijiang"
         ]
     },
     "GiftOperatorInDijiang0": {
@@ -57,10 +57,17 @@
         "desc": "前往帝江号舰桥大世界",
         "max_hit": 5,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldDijiang0"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SceneEnterWorldDijiang0"
+            "GiftOperatorInDijiang0"
         ]
     },
     "GiftOperatorInDijiang1": {

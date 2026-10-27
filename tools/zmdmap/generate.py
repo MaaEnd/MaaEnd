@@ -83,7 +83,7 @@ def check_input_dir(label: str, path: Path, option: str, env_name: str) -> None:
         raise click.ClickException(f"缺少{label}目录：{path}（用 {option} 或环境变量 {env_name} 指定）")
 
 
-def write_manifest(out_dir: Path, file_names: Sequence[str], version: str | None) -> Path | None:
+def write_manifest(out_dir: Path, file_names: Sequence[str], version: str) -> Path | None:
     """把发布清单写进 ``out_dir``：版本 + 这一批每份原始形态的本体指纹（按目录里那份文件重算）；内容没变时返回 ``None``。
 
     清单是发布端与 ``fetch`` 之间的约定：``fetch`` 拿本地文件里自称的 ``sha256``（:func:`read_hash`）跟它比，
@@ -91,16 +91,18 @@ def write_manifest(out_dir: Path, file_names: Sequence[str], version: str | None
     ``out_dir`` 里其余的（上一次生成或 ``fetch`` 下载留下的旧文件）不算这一批，``fetch`` 会保持本地原样。指纹
     按目录里那份文件的内容重算，不照抄文件自称的值 —— 清单要说的是「发布的这批字节是什么」，这一批里内容没变、
     这次没重写的也照它现在的内容算。清单本身不入库，只跟着原始形态一起发布。
+
+    ``version`` 必须有：``fetch`` 拿它跟本地那份的 ``version`` 比新旧，缺了清单就没法用（那边会直接报错）。
+    :func:`generate_command` 已经把版本凑齐并校验过，这里再挡一次，避免有人绕开它写出没版本的清单。
     """
+    if not version:
+        raise ValueError("清单必须写版本：fetch 靠它判断本地那份比上游新还是旧")
     files = {
         file_name: digest
         for file_name in sorted(file_names)
         if (digest := read_payload_hash(out_dir / file_name)) is not None
     }
-    manifest: dict[str, Any] = {}
-    if version:
-        manifest[VERSION_KEY] = version
-    manifest["files"] = files
+    manifest: dict[str, Any] = {VERSION_KEY: version, "files": files}
 
     path = out_dir / MANIFEST_FILE
     if is_unchanged(path, manifest):

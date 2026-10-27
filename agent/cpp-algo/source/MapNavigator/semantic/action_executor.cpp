@@ -21,7 +21,7 @@ void ActionExecutor::sprint()
         LogInfo << "Action: SPRINT triggered.";
     }
     else {
-        LogInfo << "Action: SPRINT skipped because backend does not support sprint.";
+        LogInfo << "Action: SPRINT skipped.";
     }
 }
 

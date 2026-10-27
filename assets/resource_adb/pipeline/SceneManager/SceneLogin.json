@@ -1,9 +1,15 @@
 {
+    // 触控没有 ESC/BACK：点左上角空白处关掉登录后的待领取弹窗。
+    // 该节点无 recognition（DirectHit 恒命中），点 (1,1) 即点在弹窗外的遮罩上，不会误触弹窗内容；
+    // 写法与 resource_cloud_adb 相同，云端已实机验证。
     "__ScenePrivateLoginCloseDialog": {
         "action": {
-            "type": "ClickKey",
+            "type": "Click",
             "param": {
-                "key": 4 // ESC
+                "target": [
+                    1,
+                    1
+                ]
             }
         }
     }
