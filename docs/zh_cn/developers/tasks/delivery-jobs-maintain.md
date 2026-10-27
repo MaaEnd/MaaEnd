@@ -15,7 +15,7 @@ Go Service 只提供 `DeliveryJobsResolveOngoingDepotAction`（`agent/go-service
 - **入口**：`assets/tasks/DeliveryJobs.json` 的 `DeliveryJobs` 任务 → Pipeline 入口 `DeliveryJobsMain`，分组 `regional_development`。任务名与全部 option 名是配置持久化键，改名会让用户已有配置失效。
 - **两级配置**：先开关地区（四号谷地 / 武陵），再逐个仓储节点选处理方式（六选一）。处理方式决定该仓储节点走哪条流程。
 - **遍历粒度是仓储节点**：地区循环的每个候选都带 `[JumpBack]`，子链跑完回到循环节点再试下一个候选。所以「处理完一个仓储节点自动继续下一个」是循环重入实现的，不需要每个仓储节点自己声明后继。
-- **同一个仓储节点在一次任务里可能被访问两次**：仓储节点未满 3 级时装箱只能接取、转交推迟到循环下一轮的「查看任务」入口（三条路径见[三条转交路径](#三条转交路径)）。
+- **同一个仓储节点在一次任务里可能被访问两次**：仓储节点未满 3 级时装箱只能接取、转交推迟到之后的「查看任务」入口（三条路径见[三条转交路径](#三条转交路径)）。
 
 ## 流程总览
 
@@ -105,7 +105,7 @@ flowchart TD
 
 > [!NOTE]
 >
-> **路径 1 只在仓储节点满 3 级时存在，未满 3 级自动退回路径 2。** 白底「快速转交」是 3 级仓储节点才解锁的按钮，未满 3 级时调度申请界面只有黄底「开始运送」。所以「接取并转交」先进 `DeliveryJobsDecideQuickTransfer`：它用 `And(YellowConfirmButtonType1, DeliveryJobsInCargoRedistributionBid)` 确认底部按钮行已经渲染（黄底「开始运送」任何等级都有，用它当「按钮行已就位」的信号），再对按钮行做 `pre_wait_freezes` 等画面稳定，稳定后先试 `DeliveryJobsQuickTransfer`（只认白底快速转交），命中就走路径 1，否则回退 `DeliveryJobsRedistributionBidNextStep` 按老流程接取。**不要在按钮渲染完成前就判「没有快速转交」**，那会把本该快速转交的委托误走接取。
+> **路径 1 只在仓储节点满 3 级时存在，未满 3 级自动回退接取。** 白底「快速转交」是 3 级仓储节点才解锁的按钮，未满 3 级时调度申请界面只有黄底「开始运送」。所以「接取并转交」先进 `DeliveryJobsDecideQuickTransfer`：它用 `And(YellowConfirmButtonType1, DeliveryJobsInCargoRedistributionBid)` 确认底部按钮行已经渲染（黄底「开始运送」任何等级都有，用它当「按钮行已就位」的信号），再对按钮行做 `pre_wait_freezes` 等画面稳定，稳定后先试 `DeliveryJobsQuickTransfer`（只认白底快速转交），命中就走路径 1，否则回退 `DeliveryJobsRedistributionBidNextStep` 按老流程接取。回退接取后由哪条路转交随配置不同：仓储节点处理方式是「接取并转交」时由地区循环下一轮命中入口 A 转交（路径 2）；「按报价处理」的报价动作是「接取并转交」时由 `DeliveryJobsReturnAndTransfer{Depot}` 进入 [`DeliveryJobsEnter{Depot}PriceDeliveryJob`](#deliveryjobsenterdepotpricedeliveryjob) 转交，不经过入口 A（该方式下入口 A 停用）。**不要在按钮渲染完成前就判「没有快速转交」**，那会把本该快速转交的委托误走接取。
 
 ### `DeliveryJobsEnter{Depot}PriceDeliveryJob`
 
