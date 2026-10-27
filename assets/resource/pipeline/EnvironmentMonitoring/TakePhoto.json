@@ -199,16 +199,16 @@
         "method": 40,
         "lower": [
             28,
-            198,
+            190,
             240
         ],
         "upper": [
-            31,
+            33,
             255,
             255
         ],
         "connected": true,
-        "count": 50,
+        "count": 120,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
