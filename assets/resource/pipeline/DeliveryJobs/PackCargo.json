@@ -3,7 +3,9 @@
     // 选择装箱货物类型->下一步->装满货物->下一步->货物竞价->调度申请->(见下)
     // 每次单击下一步前都需要确认页面稳定，否则会因为按钮错位导致单击失败
     // 调度申请界面按本仓储节点的处理方式分两条路：
-    // ・「接取并转交」走 DeliveryJobsQuickTransfer：快速转交->确认->获得奖励->我转交的委托->点回本地仓储节点；
+    // ・「接取并转交」先走 DeliveryJobsDecideQuickTransfer：等底部按钮稳定后看有没有白底「快速转交」，
+    //   有（仓储节点 3 级起）走 DeliveryJobsQuickTransfer：快速转交->确认->获得奖励->我转交的委托->点回本地仓储节点；
+    //   没有（仓储节点未满 3 级）回退到下面的接取流程，与其它模式走同一条路；
     // ・「仅接取委托」「全自动送货」「按报价处理」走 DeliveryJobsRedistributionBidNextStep：
     //   确认接取任务->尽快送达单击屏幕->回到大世界->由 anchor 决定接取后去向。
     "DeliveryJobsPackCargo": {
@@ -462,11 +464,40 @@
         "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
-        // 只有「仅接取委托」「全自动送货」「按报价处理」走这里；
-        // 「接取并转交」改走 DeliveryJobsQuickTransfer，不再接取任务，因此不必再读 DeliveryJobsAfterAcceptJob。
+        // 「仅接取委托」「全自动送货」「按报价处理」必定走这里；
+        // 「接取并转交」在仓储节点未满 3 级时也会落到这里，因此不必再读 DeliveryJobsAfterAcceptJob。
         "next": [
             "DeliveryJobsDeliverQuickly",
             "DeliveryJobsBackToDepot"
+        ]
+    },
+    // 仓储节点满 3 级后，调度申请界面才会把白底「快速转交」与黄底「开始运送」并排给出；
+    // 未满 3 级只有黄底「开始运送」，这时必须回退老流程：先接取，再由后续的残留委托检测转交。
+    // 按钮出现前界面还在渲染，此刻就判会把「快速转交」当成不存在而误走接取，所以先等底部按钮区稳定再判。
+    "DeliveryJobsDecideQuickTransfer": {
+        "desc": "调度申请界面等底部按钮稳定后判断是否走「快速转交」：有白底快速转交就快速转交，没有就接取",
+        "recognition": "And",
+        "all_of": [
+            // 「开始运送」任何等级都有，用它确认底部按钮已经渲染出来，避免在按钮出现前就下判断
+            "YellowConfirmButtonType1",
+            "DeliveryJobsInCargoRedistributionBid"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            // 白底「快速转交」与黄底「开始运送」所在的一整行按钮区；ADB 的位置更靠左下，见 resource_adb 的覆盖
+            "target": [
+                820,
+                632,
+                450,
+                62
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsQuickTransfer",
+            "DeliveryJobsRedistributionBidNextStep"
         ]
     },
     // 调度申请界面上的「快速转交」把本次委托立刻转交出去，是「接取并转交」专用的捷径：
