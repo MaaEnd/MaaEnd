@@ -2,6 +2,7 @@ package automission
 
 import (
 	"encoding/json"
+	"math"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -11,25 +12,31 @@ const (
 	executeComponent     = "AutoMissionExecuteQuest"
 	npcProxyNode         = "AutoMissionNpcProxy"
 	npcProxyInWorldNode  = "AutoMissionNpcProxyInWorld"
+	npcProxySecondNode   = "AutoMissionNpcProxySecondInWorld"
+	npcProxyThirdNode    = "AutoMissionNpcProxyThirdInWorld"
 	npcProxyInteractNode = "AutoMissionNpcProxyActionInteractRecognition"
 	npcProxyPhotoNode    = "AutoMissionNpcProxyActionTakePhoto"
+	npcProxyScanNode     = "AutoMissionNpcProxyActionScan"
 	npcProxyStoryNode    = "InStory"
 
 	missionAreaNode        = "AutoMissionMissionArea"
 	missionAreaInWorldNode = "AutoMissionMissionAreaInWorld"
 	missionAreaPhotoNode   = "AutoMissionMissionAreaActionTakePhoto"
+	missionAreaScanNode    = "AutoMissionMissionAreaActionScan"
 
 	posNode         = "AutoMissionPos"
 	posInWorldNode  = "AutoMissionPosInWorld"
 	posInteractNode = "AutoMissionPosActionInteractRecognition"
 	posMoveNode     = "AutoMissionPosActionMove"
 	posPhotoNode    = "AutoMissionPosActionTakePhoto"
+	posScanNode     = "AutoMissionPosActionScan"
 
 	entityNode         = "AutoMissionEntity"
 	entityInWorldNode  = "AutoMissionEntityInWorld"
 	entityInteractNode = "AutoMissionEntityActionInteractRecognition"
 	entityTriggerNode  = "AutoMissionEntityTrigger"
 	entityCameraNode   = "AutoMissionEntityActionOpenCamera"
+	entityScanNode     = "AutoMissionEntityActionScan"
 )
 
 // fallbackInteractTexts 是坐标点没写 NPC 名字、实体没写交互文字时兜底识别的交互文字（简繁）。
@@ -53,6 +60,13 @@ var fallbackInteractTexts = []string{
 	"拿取文件",
 	"抚摸",
 	"撫摸",
+}
+
+// npcProxyNavigateNodes 是 NPC 追踪依次寻路的节点，前一个点没找到人才进下一个。
+var npcProxyNavigateNodes = []string{
+	npcProxyInWorldNode,
+	npcProxySecondNode,
+	npcProxyThirdNode,
 }
 
 var _ maa.CustomActionRunner = &ExecuteQuestAction{}
@@ -123,12 +137,18 @@ func targetTracks(tracks []trackData, condition conditionData) []trackData {
 		return tracks
 	}
 	x, y := area.X, area.Y
+	// 扫描是这一步的要求，换成区域后照样要扫。
+	scan := false
+	for _, track := range tracks {
+		scan = scan || track.Scan
+	}
 	return []trackData{
 		{
 			Type:   "MissionAreaTrackingInfo",
 			ZoneID: area.ZoneID,
 			X:      &x,
 			Y:      &y,
+			Scan:   scan,
 		},
 	}
 }
@@ -166,35 +186,37 @@ func runTrack(ctx *maa.Context, track trackData, condition conditionData) bool {
 			// 没有人名：注入永不匹配的正则，只走到坐标，不做交互。
 			npcNames = []string{"(?!)"}
 		}
+		targets := npcProxyTargets(track)
 		log.Info().
 			Str("component", executeComponent).
-			Str("node", npcProxyInWorldNode).
-			Str("zone_id", track.ZoneID).
-			Float64("x", *track.X).
-			Float64("y", *track.Y).
+			Str("zone_id", targets[0].ZoneID).
+			Interface("targets", targets).
+			Int("point_count", len(track.Points)).
 			Strs("npc_names", npcNames).
 			Msg("npc proxy navigate target")
-		taskDetail, err = ctx.RunTask(node, map[string]any{
+		override := map[string]any{
 			npcProxyInteractNode: map[string]any{
 				"expected": npcNames,
 			},
 			npcProxyPhotoNode: map[string]any{
 				"enabled": track.Snapshot,
 			},
-			npcProxyInWorldNode: map[string]any{
-				"custom_action_param": map[string]any{
-					"heading_source": "camera",
-					"path": []any{
-						navmeshStep(*track.X, *track.Y, track.Height),
-						map[string]any{
-							"action":       "TRIGGER",
-							"target":       []float64{*track.X, *track.Y},
-							"trigger_node": npcProxyStoryNode,
-						},
-					},
-				},
+			npcProxyScanNode: map[string]any{
+				"enabled": track.Scan,
 			},
-		})
+		}
+		// 第一个寻路节点总是开着；后面的节点有点才打开，每次都显式写 enabled。
+		for i, navNode := range npcProxyNavigateNodes {
+			nodeOverride := map[string]any{}
+			if i > 0 {
+				nodeOverride["enabled"] = i < len(targets)
+			}
+			if i < len(targets) {
+				nodeOverride["custom_action_param"] = npcProxyNavigateParam(targets[i])
+			}
+			override[navNode] = nodeOverride
+		}
+		taskDetail, err = ctx.RunTask(node, override)
 	case missionAreaNode:
 		// 任务区域只要走进去就会推进，寻路到区域中心即可，不做交互。
 		target, ok := navigateTarget(track, condition)
@@ -218,6 +240,9 @@ func runTrack(ctx *maa.Context, track trackData, condition conditionData) bool {
 		taskDetail, err = ctx.RunTask(node, map[string]any{
 			missionAreaPhotoNode: map[string]any{
 				"enabled": track.Snapshot,
+			},
+			missionAreaScanNode: map[string]any{
+				"enabled": track.Scan,
 			},
 			missionAreaInWorldNode: map[string]any{
 				"custom_action_param": map[string]any{
@@ -275,6 +300,9 @@ func runTrack(ctx *maa.Context, track trackData, condition conditionData) bool {
 			posPhotoNode: map[string]any{
 				"enabled": track.Snapshot,
 			},
+			posScanNode: map[string]any{
+				"enabled": track.Scan,
+			},
 			posInWorldNode: map[string]any{
 				"custom_action_param": map[string]any{
 					"heading_source": "camera",
@@ -321,6 +349,9 @@ func runTrack(ctx *maa.Context, track trackData, condition conditionData) bool {
 			entityCameraNode: map[string]any{
 				"enabled": track.Snapshot,
 			},
+			entityScanNode: map[string]any{
+				"enabled": track.Scan,
+			},
 			entityInWorldNode: map[string]any{
 				"custom_action_param": map[string]any{
 					"heading_source": "camera",
@@ -359,6 +390,49 @@ type navTarget struct {
 	zoneID string
 	x, y   float64
 	height *float64
+}
+
+// npcPointMinDistance 是后面的点离前面已选点的最小底图距离；再近的话寻路到前面的点时就已经到了。
+const npcPointMinDistance = 3.0
+
+// npcProxyTargets 按顺序选 NPC 追踪的寻路点，最多 len(npcProxyNavigateNodes) 个，前一个点没找到人时再去下一个。
+// 没有 points 时只有初始位置；有 points 时依次取，跳过离已选点太近的点。
+func npcProxyTargets(track trackData) []groundPoint {
+	if len(track.Points) == 0 {
+		return []groundPoint{{ZoneID: track.ZoneID, X: *track.X, Y: *track.Y, Height: track.Height}}
+	}
+	targets := make([]groundPoint, 0, len(npcProxyNavigateNodes))
+	for _, point := range track.Points {
+		if len(targets) == len(npcProxyNavigateNodes) {
+			break
+		}
+		near := false
+		for _, target := range targets {
+			if point.ZoneID == target.ZoneID && math.Hypot(point.X-target.X, point.Y-target.Y) <= npcPointMinDistance {
+				near = true
+				break
+			}
+		}
+		if !near {
+			targets = append(targets, point)
+		}
+	}
+	return targets
+}
+
+// npcProxyNavigateParam 生成 NPC 追踪寻路到一个点的参数，到达或进入剧情即停。
+func npcProxyNavigateParam(point groundPoint) map[string]any {
+	return map[string]any{
+		"heading_source": "camera",
+		"path": []any{
+			navmeshStep(point.X, point.Y, point.Height),
+			map[string]any{
+				"action":       "TRIGGER",
+				"target":       []float64{point.X, point.Y},
+				"trigger_node": npcProxyStoryNode,
+			},
+		},
+	}
 }
 
 // navmeshStep 生成寻路到目标的 NAVMESH 路点；有高度时钉住目标所在的那层可走面，

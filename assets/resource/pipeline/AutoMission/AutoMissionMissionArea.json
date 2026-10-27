@@ -70,6 +70,7 @@
         "next": [
             "AutoMissionMissionAreaActionExitToWorld",
             "AutoMissionMissionAreaActionTakePhoto",
+            "AutoMissionMissionAreaActionScan",
             "[JumpBack]AutoFight",
             "AutoMissionMissionAreaActionBackInWorld"
         ]
@@ -88,6 +89,26 @@
             "EnvironmentMonitoringTakePhotoDirectly"
         ]
     },
+    "AutoMissionMissionAreaActionScan": {
+        "desc": "这一步要用扫描，走到位置后打开扫描，打开即完成；默认关闭，由 Go 按数据打开",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoMissionOpenScan"
+            ]
+        },
+        "post_delay": 3000, // 扫描后剧情要过一会才开始，之前没有可识别的过渡画面
+        "next": [
+            "AutoMissionMissionAreaActionExitToWorld",
+            "AutoMissionMissionAreaActionBackInWorld"
+        ]
+    },
     "AutoMissionMissionAreaActionPhotoDone": {
         "desc": "拍照完成，关闭照片预览回到大世界",
         "action": "Custom",
@@ -97,6 +118,7 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 3000, // 拍照结束后剧情要过一会才开始，之前没有可识别的过渡画面
         "next": [
             "AutoMissionMissionAreaActionExitToWorld",
             "AutoMissionMissionAreaActionBackInWorld"

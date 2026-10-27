@@ -164,5 +164,18 @@
             "AutoMission/SecondaryMissionIcon.png",
             "AutoMission/UrgentMissionIcon.png"
         ]
+    },
+    "AutoMissionTrackDistanceNear": {
+        "desc": "左上角任务追踪的距离小于 10 m；任务描述换行时距离会下移，roi 留高一些",
+        "recognition": "OCR",
+        "roi": [
+            40,
+            230,
+            120,
+            60
+        ],
+        "expected": [
+            "^\\d\\s*m$"
+        ]
     }
 }

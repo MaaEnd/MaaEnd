@@ -1,4 +1,4 @@
-import {existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync} from "node:fs";
+import {existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync} from "node:fs";
 import {dirname, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
 import {gzipSync} from "node:zlib";
@@ -179,11 +179,14 @@ function entityValues(collection) {
 }
 
 const levelEntityCache = new Map();
+// 关卡里被锁住的交互物：全局 id -> 锁列表，与实体一起读。
+const levelLockCache = new Map();
 function levelEntities(sceneId) {
     if (levelEntityCache.has(sceneId)) {
         return levelEntityCache.get(sceneId);
     }
     const entities = new Map();
+    const locks = new Map();
     const dir = resolve(levelDataDir, sceneId);
     if (existsSync(dir)) {
         for (const name of readdirSync(dir)) {
@@ -198,10 +201,27 @@ function levelEntities(sceneId) {
                     }
                 }
             }
+            for (const lockData of entityValues(data.interactiveLockData)) {
+                if (lockData?.logicIdGlobal != null) {
+                    locks.set(lockData.logicIdGlobal, entityValues(lockData.locks));
+                }
+            }
         }
     }
     levelEntityCache.set(sceneId, entities);
+    levelLockCache.set(sceneId, locks);
     return entities;
+}
+
+// 交互物上锁时显示的解锁选项文字，如「解锁」；没上锁时为空。
+function lockOptionKeys(sceneId, logicIdGlobal) {
+    if (logicIdGlobal == null) {
+        return [];
+    }
+    levelEntities(sceneId);
+    return (levelLockCache.get(sceneId)?.get(logicIdGlobal) ?? [])
+        .map((lock) => lock?.optionUnlock?.key)
+        .filter(Boolean);
 }
 
 function scriptEntity(sceneId, scriptIdGlobal, slotId) {
@@ -246,9 +266,9 @@ function resolveEntity(track) {
     // 简要信息只有模板和坐标，交互文字等实例属性要从关卡数据里取完整实体。
     const entity = levelEntities(track.sceneId).get(globalId);
     if (brief) {
-        return {...entity, entityDataIdKey: brief.detailId, position: brief.position};
+        return {...entity, entityDataIdKey: brief.detailId, position: brief.position, logicIdGlobal: globalId};
     }
-    return entity ?? null;
+    return entity ? {...entity, logicIdGlobal: globalId} : null;
 }
 
 const templateCache = new Map();
@@ -322,8 +342,10 @@ function interactTextKeys(entity) {
     return MANUAL_INTERACT_TEXTS[entity?.entityDataIdKey] ?? [];
 }
 
-function interactTextsOf(entity) {
-    return [...new Set(interactTextKeys(entity))].map((key) => namedText(key)).filter(Boolean);
+// 交互物上锁时游戏只显示解锁选项，解锁后才出现原来的选项，所以解锁选项排在最前，原来的选项保留在后面。
+function interactTextsOf(entity, sceneId) {
+    const keys = [...lockOptionKeys(sceneId, entity?.logicIdGlobal), ...interactTextKeys(entity)];
+    return [...new Set(keys)].map((key) => namedText(key)).filter(Boolean);
 }
 
 // 先按完整场景名查，再按场景前缀查；没有底图的副本两者都查不到。
@@ -386,8 +408,57 @@ function collectStartedDialogs(dataMap, dialogs) {
     }
 }
 
+// 各关卡的 NPC 巡逻路线，键为 `关卡:patrolId`，同一个 patrolId 在不同关卡是不同路线。
+const npcPatrols = new Map();
+if (existsSync(levelDataDir)) {
+    for (const sceneId of readdirSync(levelDataDir)) {
+        const dir = resolve(levelDataDir, sceneId);
+        if (!statSync(dir).isDirectory()) {
+            continue;
+        }
+        for (const name of readdirSync(dir)) {
+            if (!name.endsWith(".json")) {
+                continue;
+            }
+            for (const patrol of readJson(resolve(dir, name)).npcPatrol ?? []) {
+                if (typeof patrol?.patrolId === "number" && Array.isArray(patrol.points) && patrol.points.length > 0) {
+                    npcPatrols.set(`${sceneId}:${patrol.patrolId}`, patrol);
+                }
+            }
+        }
+    }
+}
+
+// 关卡脚本让 NPC 走的巡逻路线的终点：走完一遍就停在那里等玩家，按脚本所在关卡换算成底图坐标。
+// 只收常量路线；循环巡逻（loop 不为 0）的终点不是停下的位置，不收。
+function collectPatrolEnds(dataMap, sceneId, patrolEnds) {
+    for (const node of dataMap?.actionList ?? []) {
+        if (shortType(node?.$type) !== "NpcProxyPatrolStart") {
+            continue;
+        }
+        const proxyId = node._targetProxy?.constValue;
+        const patrolId = node._patrolId?.paramSource === 0 ? node._patrolId.constValue : null;
+        if (typeof proxyId !== "string" || !proxyId || typeof patrolId !== "number") {
+            continue;
+        }
+        const patrol = npcPatrols.get(`${sceneId}:${patrolId}`);
+        if (!patrol || patrol.loop) {
+            continue;
+        }
+        const point = groundPlacement(sceneId, patrol.points.at(-1)?.position);
+        if (!point.zone_id) {
+            continue;
+        }
+        if (!patrolEnds.has(proxyId)) {
+            patrolEnds.set(proxyId, []);
+        }
+        patrolEnds.get(proxyId).push(point);
+    }
+}
+
 const proxyNameOverrides = new Map();
 const scriptStartedDialogs = new Set();
+const proxyPatrolEnds = new Map();
 if (existsSync(levelScriptDir)) {
     for (const sceneId of readdirSync(levelScriptDir)) {
         const dir = resolve(levelScriptDir, sceneId);
@@ -398,6 +469,7 @@ if (existsSync(levelScriptDir)) {
             const dataMap = readJson(resolve(dir, name)).actionMap?.dataMap;
             collectNameOverrides(dataMap, proxyNameOverrides);
             collectStartedDialogs(dataMap, scriptStartedDialogs);
+            collectPatrolEnds(dataMap, sceneId, proxyPatrolEnds);
         }
     }
 }
@@ -465,16 +537,54 @@ function interactTextOf(proxyId, dialogs) {
     return null;
 }
 
-function convertNpcProxy(track) {
+function pointDistance(a, b) {
+    return a.zone_id === b.zone_id ? Math.hypot(a.x - b.x, a.y - b.y) : Infinity;
+}
+
+// NPC 可能在的位置，按这一步最可能的顺序排：关卡脚本让 NPC 走巡逻路线都发生在交互之后，
+// 任务前面的步骤追踪过这个 NPC 时巡逻终点在前，否则初始位置在前；多个终点按离下一步追踪点由近到远。
+// 没被脚本领着走过的 NPC 返回空，只用初始位置。离得很近的点不在这里去掉，交给运行时按寻路精度筛。
+function npcProxyPoints(proxyId, origin, context) {
+    const patrolEnds = proxyPatrolEnds.get(proxyId) ?? [];
+    if (patrolEnds.length === 0 || !origin.zone_id) {
+        return [];
+    }
+    const next = context?.next;
+    const sorted = next
+        ? patrolEnds
+              .map((point, index) => ({point, index, distance: pointDistance(point, next)}))
+              .sort((a, b) => a.distance - b.distance || a.index - b.index)
+              .map((item) => item.point)
+        : patrolEnds;
+    const ordered = context?.seenProxies?.has(proxyId) ? [...sorted, origin] : [origin, ...sorted];
+    const seen = new Set();
+    const points = ordered.filter((point) => {
+        const key = `${point.zone_id},${point.x},${point.y},${point.height}`;
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
+    // 终点都和初始位置重合时只剩一个点，和不写一样。
+    return points.length > 1 ? points : [];
+}
+
+function convertNpcProxy(track, context) {
     const proxyId = track.npcProxyId ?? "";
     const row = proxyById.get(proxyId);
     const dialogs = proxyDialogs(proxyId);
     const npcName = npcNameOf(proxyId, dialogs);
     const interactText = interactTextOf(proxyId, dialogs);
+    const origin = groundPlacement(row?.levelId || track.sceneId, row?.position);
     const result = {
         type: "NpcProxyTrackingInfo",
-        ...groundPlacement(row?.levelId || track.sceneId, row?.position),
+        ...origin,
     };
+    const points = npcProxyPoints(proxyId, origin, context);
+    if (points.length > 0) {
+        result.points = points;
+    }
     if (npcName) {
         result.npcName = npcName;
     }
@@ -534,14 +644,14 @@ function convertEntity(track) {
         result.components = components;
     }
     Object.assign(result, placement(track.sceneId, entity?.position));
-    const interactTexts = interactTextsOf(entity);
+    const interactTexts = interactTextsOf(entity, track.sceneId);
     if (interactTexts.length > 0) {
         result.interactTexts = interactTexts;
     }
     return result;
 }
 
-function convertTrack(track, condition) {
+function convertTrack(track, condition, context) {
     const type = shortType(track?.$type);
     switch (type) {
         case "SnsTrackingInfo":
@@ -555,7 +665,7 @@ function convertTrack(track, condition) {
         case "MissionAreaTrackingInfo":
             return {type, ...placement(track.sceneId, missionArea(track.sceneId, track.missionAreaId)?.shape?.position)};
         case "NpcProxyTrackingInfo":
-            return convertNpcProxy(track);
+            return convertNpcProxy(track, context);
         case "EntityTrackingInfo":
             return convertEntity(track);
         default:
@@ -563,13 +673,24 @@ function convertTrack(track, condition) {
     }
 }
 
-// 完成条件是拍照识别时，给追踪带上 snapshot，各类型走到位置后进拍照。
-function convertTracks(tracks, condition) {
+// 这一步要不要用扫描：完成条件就是扫描，或说明里写了要扫描。
+// 扫描的判定多数写在关卡脚本或服务器里，数据里只有说明能稳定看出来；多开一次扫描没有副作用。
+function needsScan(objective) {
+    if (shortType(objective?.condition?.$type) === "CheckScanInteractive") {
+        return true;
+    }
+    const description = objectiveText(objective?.description?.key);
+    return /[扫掃]描/.test(`${description.zh_cn}${description.zh_tw}`);
+}
+
+// 完成条件是拍照识别时，给追踪带上 snapshot，各类型走到位置后进拍照；要扫描时带上 scan，走到位置后打开扫描。
+function convertTracks(tracks, condition, context, scan = false) {
     const snapshot = shortType(condition?.$type) === "CheckSnapshotIdentifySuccess";
     return (tracks ?? [])
-        .map((track) => convertTrack(track, condition))
+        .map((track) => convertTrack(track, condition, context))
         .filter(Boolean)
-        .map((track) => (snapshot ? {...track, snapshot: true} : track));
+        .map((track) => (snapshot ? {...track, snapshot: true} : track))
+        .map((track) => (scan ? {...track, scan: true} : track));
 }
 
 function convertCondition(condition) {
@@ -628,7 +749,7 @@ function conditionEnemies(type, condition) {
     return entities.map((entity) => placement(sceneId, entity?.position)).filter((pos) => pos.zone_id);
 }
 
-function convertObjective(objective) {
+function convertObjective(objective, context) {
     const result = {
         description: objectiveText(objective?.description?.key),
     };
@@ -636,21 +757,85 @@ function convertObjective(objective) {
         result.useMultipleDescription = true;
         result.multipleDescription = (objective.multipleDescription ?? []).map((item) => objectiveText(item?.key));
     }
-    result.trackingInfoList = convertTracks(objective?.trackingInfoList, objective?.condition);
+    const scan = needsScan(objective);
+    result.trackingInfoList = convertTracks(objective?.trackingInfoList, objective?.condition, context, scan);
     result.multiDescTrackingInfoList = (objective?.multiDescTrackingInfoList ?? []).map((block) => ({
-        actualList: convertTracks(block?.actualList, objective?.condition),
+        actualList: convertTracks(block?.actualList, objective?.condition, context, scan),
     }));
     result.condition = convertCondition(objective?.condition);
     return result;
 }
 
-function convertQuest(quest) {
+function convertQuest(quest, context) {
     return {
         questId: quest.questId ?? "",
         prevQuestIdList: Array.isArray(quest.prevQuestIdList) ? quest.prevQuestIdList : [],
         flowIndex: quest.flowIndex ?? 0,
-        objectiveList: (quest.objectiveList ?? []).map((objective) => convertObjective(objective)),
+        objectiveList: (quest.objectiveList ?? []).map((objective) => convertObjective(objective, context)),
     };
+}
+
+function questTracks(quest) {
+    return (quest?.objectiveList ?? []).flatMap((objective) => [
+        ...(objective?.trackingInfoList ?? []),
+        ...(objective?.multiDescTrackingInfoList ?? []).flatMap((block) => block?.actualList ?? []),
+    ]);
+}
+
+// 每一步的上下文：前面的步骤（沿 prevQuestIdList 追溯）追踪过的 NPC，以及下一步第一个有坐标的追踪点。
+function questContexts(mission) {
+    const quests = mission.questDic ?? {};
+    const mainPath = Array.isArray(mission.mainPathQuests) ? mission.mainPathQuests : [];
+    const proxiesOf = (quest) => questTracks(quest).map((track) => track?.npcProxyId).filter(Boolean);
+
+    const ancestorCache = new Map();
+    const ancestorProxies = (questId, visiting = new Set()) => {
+        if (ancestorCache.has(questId)) {
+            return ancestorCache.get(questId);
+        }
+        const result = new Set();
+        if (visiting.has(questId)) {
+            return result;
+        }
+        visiting.add(questId);
+        for (const prevId of quests[questId]?.prevQuestIdList ?? []) {
+            for (const proxyId of proxiesOf(quests[prevId])) {
+                result.add(proxyId);
+            }
+            for (const proxyId of ancestorProxies(prevId, visiting)) {
+                result.add(proxyId);
+            }
+        }
+        ancestorCache.set(questId, result);
+        return result;
+    };
+
+    const pathIndex = (questId) => {
+        const index = mainPath.indexOf(questId);
+        return index < 0 ? Infinity : index;
+    };
+    const nextPoint = (questId) => {
+        const nextIds = Object.keys(quests)
+            .filter((id) => (quests[id]?.prevQuestIdList ?? []).includes(questId))
+            .sort((a, b) => pathIndex(a) - pathIndex(b));
+        for (const id of nextIds) {
+            for (const objective of quests[id]?.objectiveList ?? []) {
+                const point = convertTracks(objective?.trackingInfoList, objective?.condition).find(
+                    (track) => track.zone_id && typeof track.x === "number",
+                );
+                if (point) {
+                    return point;
+                }
+            }
+        }
+        return null;
+    };
+
+    const contexts = new Map();
+    for (const questId of Object.keys(quests)) {
+        contexts.set(questId, {seenProxies: ancestorProxies(questId), next: nextPoint(questId)});
+    }
+    return contexts;
 }
 
 const missions = {};
@@ -660,9 +845,10 @@ for (const name of readdirSync(missionDir)) {
     }
     const mission = readJson(resolve(missionDir, name));
     const missionId = mission.missionId ?? name.slice(0, -".json".length);
+    const contexts = questContexts(mission);
     const questDic = {};
     for (const [questId, quest] of Object.entries(mission.questDic ?? {})) {
-        questDic[questId] = convertQuest(quest);
+        questDic[questId] = convertQuest(quest, contexts.get(questId));
     }
     missions[missionId] = {
         missionId,

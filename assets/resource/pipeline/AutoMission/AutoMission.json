@@ -153,5 +153,80 @@
         "next": [
             "AutoMissionJournalOpen"
         ]
+    },
+    "AutoMissionOpenScan": {
+        "desc": "打开扫描：右侧当前工具已是扫描时直接按 R，否则长按 R 从轮盘里选",
+        "next": [
+            "AutoMissionOpenScanClick",
+            "AutoMissionOpenScanLongPress"
+        ]
+    },
+    "AutoMissionScanModeButton": {
+        "desc": "大世界右侧当前工具为扫描的图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1118,
+            207,
+            158,
+            212
+        ],
+        "template": "AutoMission/ScanModeButton.png",
+        "threshold": 0.8
+    },
+    "AutoMissionOpenScanClick": {
+        "desc": "当前工具已是扫描，直接按 R 打开，扫描打开即完成",
+        "recognition": "And",
+        "all_of": [
+            "AutoMissionScanModeButton",
+            "InWorld"
+        ],
+        "action": "ClickKey",
+        "key": 82 // R
+    },
+    "AutoMissionOpenScanLongPress": {
+        "desc": "长按 R 打开选择工具轮盘，用于选扫描",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 82, // R
+        "next": [
+            "AutoMissionOpenScanInSelectTool"
+        ]
+    },
+    "AutoMissionOpenScanInSelectTool": {
+        "desc": "已在选择工具轮盘中",
+        "recognition": "And",
+        "all_of": [
+            "InSelectTool"
+        ],
+        "pre_wait_freezes": 80,
+        "next": [
+            "AutoMissionOpenScanChooseScan"
+        ]
+    },
+    "AutoMissionOpenScanChooseScan": {
+        "desc": "在轮盘上点击扫描",
+        "recognition": "TemplateMatch",
+        "roi": [
+            404,
+            117,
+            463,
+            464
+        ],
+        "template": "AutoMission/ScanMode.png",
+        "threshold": 0.8,
+        "order_by": "Score",
+        "action": "Click",
+        "next": [
+            "AutoMissionOpenScanKeyUp"
+        ]
+    },
+    "AutoMissionOpenScanKeyUp": {
+        "desc": "松开 R，扫描打开即完成",
+        "action": "KeyUp",
+        "key": 82 // R
     }
 }

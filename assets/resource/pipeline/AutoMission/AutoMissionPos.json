@@ -71,6 +71,7 @@
             "AutoMissionPosActionInteract",
             "AutoMissionPosActionExitToWorld",
             "AutoMissionPosActionTakePhoto",
+            "AutoMissionPosActionScan",
             "[JumpBack]AutoFight",
             "AutoMissionPosActionMove",
             "AutoMissionPosActionBackInWorld"
@@ -90,7 +91,7 @@
             "custom_action": "AutoAltClickAction",
             "wait_node": "AutoMissionPosActionInteractRecognition"
         },
-        "post_delay": 1000, // 等待界面跳转
+        "post_delay": 3000, // 交互后拍照、拼图、剧情、小游戏等界面要过一会才弹出，之前没有可识别的过渡画面
         "next": [
             "AutoMissionPosActionExitToWorld",
             "AutoMissionPosActionBackInWorld"
@@ -110,6 +111,26 @@
             "EnvironmentMonitoringTakePhotoDirectly"
         ]
     },
+    "AutoMissionPosActionScan": {
+        "desc": "这一步要用扫描，走到位置后打开扫描，打开即完成；默认关闭，由 Go 按数据打开",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoMissionOpenScan"
+            ]
+        },
+        "post_delay": 3000, // 扫描后剧情要过一会才开始，之前没有可识别的过渡画面
+        "next": [
+            "AutoMissionPosActionExitToWorld",
+            "AutoMissionPosActionBackInWorld"
+        ]
+    },
     "AutoMissionPosActionPhotoDone": {
         "desc": "拍照完成，关闭照片预览回到大世界",
         "action": "Custom",
@@ -119,6 +140,7 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 3000, // 拍照结束后剧情要过一会才开始，之前没有可识别的过渡画面
         "next": [
             "AutoMissionPosActionExitToWorld",
             "AutoMissionPosActionBackInWorld"
@@ -165,10 +187,11 @@
         ]
     },
     "AutoMissionPosActionMove": {
-        "desc": "按屏幕上的任务追踪图标走近，直到出现 NPC 交互提示；没有 NPC 名字时由 Go 关闭",
+        "desc": "追踪距离小于 10 m 时，按屏幕上的任务追踪图标走近，直到出现 NPC 交互提示；远了不进，免得隔着障碍追远处或下一步的目标；没有 NPC 名字时由 Go 关闭",
         "recognition": "And",
         "all_of": [
-            "AutoMissionWorldTrackRecognition"
+            "AutoMissionWorldTrackRecognition",
+            "AutoMissionTrackDistanceNear"
         ],
         "pre_delay": 0,
         "action": "Custom",

@@ -36,6 +36,18 @@ type trackData struct {
 	InteractTexts []missionText `json:"interactTexts,omitempty"`
 	// Snapshot 表示这一步的完成条件是拍照识别，走到位置后要进拍照模式。
 	Snapshot bool `json:"snapshot,omitempty"`
+	// Scan 表示这一步要用扫描，走到位置后打开扫描。
+	Scan bool `json:"scan,omitempty"`
+	// Points 是被关卡脚本领着走过的 NPC 可能在的位置（初始位置和各巡逻终点），按这一步最可能的顺序排好。
+	Points []groundPoint `json:"points,omitempty"`
+}
+
+// groundPoint 是一个贴地的底图坐标，带世界高度。
+type groundPoint struct {
+	ZoneID string   `json:"zone_id"`
+	X      float64  `json:"x"`
+	Y      float64  `json:"y"`
+	Height *float64 `json:"height,omitempty"`
 }
 
 // mapPoint 是完成条件里的一个底图坐标，如一只怪或一个区域中心。
