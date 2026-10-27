@@ -1968,7 +1968,7 @@
     "task.AutoEssence.focus.location_changed": "🔁Target location changed: %s → %s",
     "task.AutoEssence.label": "🎱Essence Farm",
     "task.AutoMission.focus.no_tracking": "No mission is being tracked. Track a mission and retry.",
-    "task.AutoMission.label": "📋 Auto Mission",
+    "task.AutoMission.label": "📋 Auto Mission (Beta)",
     "task.AutoSell.label": "💰Sell elastic supplies",
     "task.AutoStockStaple.description": "Purchase staple demand supplies, buying only weekly-refreshed items.",
     "task.AutoStockStaple.focus.quantity_control.better_sliding_failed": "Failed to set purchase quantity, canceling purchase",
