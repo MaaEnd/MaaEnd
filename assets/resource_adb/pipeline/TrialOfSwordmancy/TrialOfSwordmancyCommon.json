@@ -39,10 +39,10 @@
         // 移动端文字会挤占骰子图标的显示空间
         "recognition": "OCR",
         "roi": [
-            1067,
+            1069,
             454,
-            181,
-            82
+            178,
+            79
         ],
         "expected": [
             "抽取铭牌",
@@ -62,18 +62,18 @@
     },
     "TrialOfSwordmancyRemainCalcText": {
         "roi": [
-            520,
-            60,
-            260,
-            34
+            400,
+            65,
+            480,
+            24
         ]
     },
     "TrialOfSwordmancyRemainDoubleText": {
         "roi": [
-            520,
-            598,
-            130,
-            40
+            400,
+            591,
+            235,
+            53
         ]
     },
     "TrialOfSwordmancyDoubleRewardButton": {
@@ -106,22 +106,6 @@
             590,
             45,
             58
-        ]
-    },
-    "TrialOfSwordmancyAbandonPopupText": {
-        "roi": [
-            200,
-            325,
-            880,
-            58
-        ]
-    },
-    "TrialOfSwordmancyAbandonPopupExhausted": {
-        "roi": [
-            240,
-            335,
-            630,
-            35
         ]
     },
     "TrialOfSwordmancyBattlePts0": {
