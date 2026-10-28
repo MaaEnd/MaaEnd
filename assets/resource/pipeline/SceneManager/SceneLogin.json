@@ -26,7 +26,9 @@
     },
     "__ScenePrivateLoginContinue": {
         "desc": "等待登录界面 点击任意位置继续",
-        "max_hit": 10,
+        "max_hit": 60,
+        "post_delay": 500, //adb点击后画面不会变化，等到网络连接建立后文字才会消失，需要更多命中次数和硬延迟防止次数流失过快
+        "pre_delay": 0,
         "recognition": {
             "type": "OCR",
             "param": {
