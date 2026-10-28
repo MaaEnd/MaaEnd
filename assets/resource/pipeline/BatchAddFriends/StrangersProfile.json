@@ -64,8 +64,7 @@
             "type": "DoNothing",
             "param": {}
         },
-        // 名片是淡入的：等整张名片稳定后再读等级，避免读到空白。
-        // 取名片主体区域，覆盖名字、等级、地区建设概况与右侧面板。
+        // 等名片主体区域稳定后再执行后续识别。
         "post_wait_freezes": {
             "time": 150,
             "target": [
@@ -79,7 +78,8 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]HighLatencyLoadingOverlayWait",
-            "BatchAddFriendsStrangersProfileAuthorityLevel"
+            "BatchAddFriendsStrangersProfileQualified",
+            "BatchAddFriendsStrangersProfileReject"
         ],
         "on_error": [
             "BatchAddFriendsStrangersProfileFallbackClose"
@@ -153,13 +153,7 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BatchAddFriendsStrangersProfileValleyIVIcon"
-        ],
-        "on_error": [
-            "BatchAddFriendsStrangersProfileFallbackClose"
-        ]
+        "rate_limit": 0
     },
     "BatchAddFriendsStrangersProfileValleyIVIcon": {
         "desc": "定位「地区建设概况 · 四号谷地」的图标",
@@ -175,20 +169,7 @@
                 ],
                 "template": "BatchAddFriends/valleyIV.png"
             }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BatchAddFriendsStrangersProfileValleyIVLevel"
-        ],
-        "on_error": [
-            "BatchAddFriendsStrangersProfileReject"
-        ]
+        }
     },
     "BatchAddFriendsStrangersProfileValleyIVLevel": {
         "desc": "读「四号谷地」的地区等级数值",
@@ -212,18 +193,11 @@
                     ".*\\d+.*"
                 ]
             }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BatchAddFriendsStrangersProfileWulingIcon",
-            "BatchAddFriendsStrangersProfileQualified",
-            "BatchAddFriendsStrangersProfileReject"
-        ]
+        }
     },
     "BatchAddFriendsStrangersProfileWulingIcon": {
         "desc": "定位「地区建设概况 · 武陵」的图标",
+        // 同时作为武陵数据的存在性判据：图标不命中时 And 判定失败。
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -235,20 +209,7 @@
                 ],
                 "template": "BatchAddFriends/wuling.png"
             }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BatchAddFriendsStrangersProfileWulingLevel"
-        ],
-        "on_error": [
-            "BatchAddFriendsStrangersProfileReject"
-        ]
+        }
     },
     "BatchAddFriendsStrangersProfileWulingLevel": {
         "desc": "读「武陵」的地区等级数值",
@@ -272,21 +233,13 @@
                     ".*\\d+.*"
                 ]
             }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BatchAddFriendsStrangersProfileQualified",
-            "BatchAddFriendsStrangersProfileReject"
-        ]
+        }
     },
     "BatchAddFriendsStrangersProfileQualified": {
         "desc": "名片信息满足全部筛选条件：And 在同一帧里判定所有条件",
-        // 条件之间是「与」关系，且都在同一张名片页上：
-        // 用 And 一次判定，任意一项不命中就落到候选列表里的兜底 ProfileReject。
-        // 各条件节点的 recognition 由任务选项注入：
-        //   开关打开 → 表达式 / 模板匹配；开关关闭 → DirectHit（恒通过）。
+        // 每个条件自己负责「是否存在该地区数据」：
+        // 地区未解锁时由该条件内部的图标成员判定失败，不影响其它条件。
+        // 开关关闭的条件节点由任务选项覆盖成 DirectHit。
         "recognition": {
             "type": "And",
             "param": {
@@ -311,18 +264,24 @@
         "recognition": "DirectHit"
     },
     "BatchAddFriendsStrangersProfileValleyGate": {
-        "desc": "四号谷地建设等级区间条件（表达式由选项注入）",
+        "desc": "四号谷地条件：开关打开时覆盖成 And[谷地图标, 谷地区间表达式]",
+        "recognition": "DirectHit"
+    },
+    "BatchAddFriendsStrangersProfileValleyRangeExpr": {
+        "desc": "四号谷地等级区间表达式（由「谷地等级限制」输入项注入）",
         "recognition": "DirectHit"
     },
     "BatchAddFriendsStrangersProfileWulingGate": {
-        "desc": "武陵建设等级区间条件（表达式由选项注入）",
+        "desc": "武陵条件：开关打开时覆盖成 And[武陵图标, 武陵区间表达式]",
+        "recognition": "DirectHit"
+    },
+    "BatchAddFriendsStrangersProfileWulingRangeExpr": {
+        "desc": "武陵等级区间表达式（由「武陵等级限制」输入项注入）",
         "recognition": "DirectHit"
     },
     "BatchAddFriendsStrangersProfileWarEcho": {
         "desc": "「战争回响增辉」标识检查：开关未开启时直接通过",
-        // 默认 DirectHit = 恒通过。任务选项「战争回响增辉」打开时，
-        // 由 switch 的 pipeline_override 把本节点的 recognition 换成 TemplateMatch，
-        // 于是「没有该标识」就会让 And 判定整体不命中，落到候选列表的兜底。
+        // 默认 DirectHit；开关打开时由任务选项覆盖成 TemplateMatch。
         "recognition": "DirectHit"
     },
     "BatchAddFriendsStrangersProfileReject": {

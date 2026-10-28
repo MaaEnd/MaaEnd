@@ -95,12 +95,7 @@
                     ]
                 },
                 {
-                    "name": "No",
-                    "pipeline_override": {
-                        "BatchAddFriendsStrangersProfileAuthorityLevel": {
-                            "recognition": "DirectHit"
-                        }
-                    }
+                    "name": "No"
                 }
             ],
             "default_case": "Yes"
@@ -149,15 +144,7 @@
                     ]
                 },
                 {
-                    "name": "No",
-                    "pipeline_override": {
-                        "BatchAddFriendsStrangersProfileValleyIVIcon": {
-                            "recognition": "DirectHit"
-                        },
-                        "BatchAddFriendsStrangersProfileValleyIVLevel": {
-                            "recognition": "DirectHit"
-                        }
-                    }
+                    "name": "No"
                 }
             ],
             "default_case": "Yes"
@@ -184,6 +171,17 @@
             "pipeline_override": {
                 "BatchAddFriendsStrangersProfileValleyGate": {
                     "recognition": {
+                        "type": "And",
+                        "param": {
+                            "all_of": [
+                                "BatchAddFriendsStrangersProfileValleyIVIcon",
+                                "BatchAddFriendsStrangersProfileValleyRangeExpr"
+                            ]
+                        }
+                    }
+                },
+                "BatchAddFriendsStrangersProfileValleyRangeExpr": {
+                    "recognition": {
                         "type": "Custom",
                         "param": {
                             "custom_recognition": "ExpressionRecognition",
@@ -206,15 +204,7 @@
                     ]
                 },
                 {
-                    "name": "No",
-                    "pipeline_override": {
-                        "BatchAddFriendsStrangersProfileWulingIcon": {
-                            "recognition": "DirectHit"
-                        },
-                        "BatchAddFriendsStrangersProfileWulingLevel": {
-                            "recognition": "DirectHit"
-                        }
-                    }
+                    "name": "No"
                 }
             ],
             "default_case": "Yes"
@@ -240,6 +230,17 @@
             ],
             "pipeline_override": {
                 "BatchAddFriendsStrangersProfileWulingGate": {
+                    "recognition": {
+                        "type": "And",
+                        "param": {
+                            "all_of": [
+                                "BatchAddFriendsStrangersProfileWulingIcon",
+                                "BatchAddFriendsStrangersProfileWulingRangeExpr"
+                            ]
+                        }
+                    }
+                },
+                "BatchAddFriendsStrangersProfileWulingRangeExpr": {
                     "recognition": {
                         "type": "Custom",
                         "param": {
