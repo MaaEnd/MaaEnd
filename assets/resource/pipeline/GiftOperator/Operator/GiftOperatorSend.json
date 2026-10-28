@@ -50,6 +50,11 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/Perlica.png"
+                            ]
+                        },
                         "GiftOperatorName": {
                             "expected": [
                                 "佩丽卡",
@@ -57,11 +62,6 @@
                                 "Perlica",
                                 "ペリカ",
                                 "펠리카"
-                            ]
-                        },
-                        "GiftOperatorSelectSpecifiedOp": {
-                            "template": [
-                                "GiftOperator/Operators/Perlica.png"
                             ]
                         }
                     }
@@ -1194,7 +1194,7 @@
         }
     },
     "GiftOperatorSendPrepare": {
-        "desc": "每名干员开始查找前清空返回帝江号的命中计数，使 max_hit=5 按干员独立生效，保留外层名单进度",
+        "desc": "每名干员开始查找前清空返回帝江号、联络台操作及赠送已满重试的命中计数，使次数限制按干员独立生效，保留外层名单进度",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -1202,7 +1202,9 @@
                 "custom_action": "ClearHitCount",
                 "custom_action_param": {
                     "nodes": [
-                        "GiftOperatorGoToDijiang"
+                        "GiftOperatorGoToDijiang",
+                        "GiftOperatorClickContact_reply",
+                        "GiftOperatorGiftFullRetry"
                     ]
                 }
             }
