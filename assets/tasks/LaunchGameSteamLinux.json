@@ -1,0 +1,17 @@
+{
+    "task": [
+        {
+            "name": "LaunchGameSteamLinux",
+            "label": "$task.LaunchGameSteamLinux.label",
+            "entry": "GameLauncherSteamLaunch",
+            "description": "$task.LaunchGameSteamLinux.description",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-Wlroots"
+            ]
+        }
+    ]
+}

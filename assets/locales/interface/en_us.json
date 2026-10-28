@@ -2481,6 +2481,8 @@
     "task.Keymap.focus.interact_failed": "Interaction failed. Please confirm  Game-Settings-Controls  matches  MaaEnd-Settings-Task Settings-Key Binding Settings.",
     "task.LaunchGameLinux.description": "Only clicks the Start Game button inside the Hypergryph Launcher window. Starting the Hypergryph Launcher itself should be done by a pretask or your own script.",
     "task.LaunchGameLinux.label": "Launch Game (Linux)",
+    "task.LaunchGameSteamLinux.description": "Starts Endfield through Steam (Steam version) and waits for the login screen. The Steam client must already be running inside the session the game uses (Gamescope or a nested wlroots compositor); otherwise the game window opens on whatever desktop Steam runs on.",
+    "task.LaunchGameSteamLinux.label": "Launch Game (Linux · Steam)",
     "task.LevelUpOperator.label": "📈Level Up Operator",
     "task.OpenGame.focus.start_app_failed": "Failed to launch the app",
     "task.OpenGame.focus.start_up_game_failed": "Failed to start the game",

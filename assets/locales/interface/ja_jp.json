@@ -2481,6 +2481,8 @@
     "task.Keymap.focus.interact_failed": "インタラクトに失敗しました。 ゲーム-設定-操作 と MaaEnd-設定-タスク設定-キー割り当て設定 が一致しているか確認してください。",
     "task.LaunchGameLinux.description": "ハイパーグリフランチャー画面内の「ゲーム開始」ボタンをクリックするだけです。ハイパーグリフランチャー自体の起動は、前置プログラムまたは独自のスクリプトで行ってください。",
     "task.LaunchGameLinux.label": "ゲーム起動（Linux）",
+    "task.LaunchGameSteamLinux.description": "Steam 経由で終末地（Steam 版）を起動し、ログイン画面まで待機します。Steam クライアントは、ゲームが使うセッション（Gamescope またはネストした wlroots コンポジター）内であらかじめ起動しておく必要があります。そうでない場合、ゲームウィンドウは Steam が動作しているデスクトップに開きます。",
+    "task.LaunchGameSteamLinux.label": "ゲーム起動（Linux · Steam）",
     "task.LevelUpOperator.label": "📈オペレーターのレベルアップ",
     "task.OpenGame.focus.start_app_failed": "アプリの起動に失敗しました",
     "task.OpenGame.focus.start_up_game_failed": "ゲームの起動に失敗しました",
