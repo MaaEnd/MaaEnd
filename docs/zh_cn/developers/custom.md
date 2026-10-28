@@ -280,9 +280,9 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 
 ### ColorFreezeRecognition
 
-C++ 实现的颜色分布稳定识别器：原生 `ColorMatch` 命中后，要求 ROI 内满足颜色范围的分布连续稳定达到 `time` 才命中。可选相似度阈值 `threshold` 默认为 `0.98`，范围 `(0, 1]`，值越大越严格，`1` 要求严格一致。颜色位置交换不会影响判定，最终颜色不必预先固定。
+C++ 实现的颜色分布稳定识别器：原生 `ColorMatch` 命中后，要求 ROI 内满足颜色范围的分布连续稳定达到 `time` 才命中。`color_threshold` 控制各通道允许的变化幅度，范围 `[0, 1]`；`distribution_threshold` 控制可匹配计数的最低比例，范围 `(0, 1]`。两者默认均为 `0.98`，越大越严格。普通通道按差值 / 255 归一化，HSV／HLS 色相按最短环形距离 / 半圈归一化；完整颜色一一配对，每份计数只用一次。原 `threshold` 已改名为 `distribution_threshold`。颜色位置交换不会影响判定，最终颜色不必预先固定。
 
-参数、相似度语义和调用格式见 [ColorFreezeRecognition 说明](../../../agent/cpp-algo/source/ColorFreeze/README.md)。
+实现通过合法配对下界与数量／通道投影／颜色包围盒上界提前判定，必要时才构造完整联合匹配，不改变判稳结果。命中详情中的 `similarity_lower`、`similarity_upper` 表示匹配比例的上下界。参数、相似度语义和调用格式见 [ColorFreezeRecognition 说明](../../../agent/cpp-algo/source/ColorFreeze/README.md)。
 
 ### ExpressionRecognition
 

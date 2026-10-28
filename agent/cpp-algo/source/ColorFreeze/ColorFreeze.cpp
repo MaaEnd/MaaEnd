@@ -17,11 +17,6 @@ namespace
 
 // OpenCV 的标量颜色范围最多支持四通道，每个通道占八位以无损构造联合颜色键。
 constexpr std::size_t kMaxChannels = 4;
-// 一个 CV_8U 通道的位宽；最多四通道恰好装入 uint32_t，不丢失颜色组合信息。
-constexpr int kChannelBits = 8;
-// 初始最多为 256 种颜色预留容量，可覆盖完整的 8 位灰度；多通道颜色按需增长。
-// 同时受实际命中数限制，避免为稀疏范围或大面积单色一开始就分配整幅 ROI 大小的表。
-constexpr std::size_t kInitialColorCapacity = 256;
 
 // 外部与其他识别器一样只注册原生回调；默认状态及其生命周期监听由模块内部按需创建。
 Recognition* get_recognition()
@@ -78,38 +73,6 @@ cv::Scalar to_scalar(const std::vector<int>& values)
     return scalar;
 }
 
-// 比较单组颜色范围的分布。只关心每种颜色出现多少次，不对应两帧中的像素位置。
-// 例如颜色整体从灰度 220 变成 221，联合颜色桶也全部改变，距离仍为 1。
-double distance(const Distribution& baseline, const Distribution& current)
-{
-    const auto total = std::max(baseline.count, current.count);
-    if (total == 0) {
-        // 两帧在这一范围都没有命中像素，视为没有变化，同时避免归一化除零。
-        // 这不直接产生识别命中：回调还必须通过原生 ColorMatch 的数量等门槛。
-        return 0;
-    }
-
-    // 设重合数量 I = sum(min(Hb[c], Hc[c]))，则原距离公式中的分子等于 2 * (total - I)。
-    // 因此 D = (total - I) / total，无需再遍历另一侧补算新增颜色，仍同时衡量改色和数量变化。
-    // 按较小一侧遍历，每个颜色只查找一次；未命中的颜色对重合数量贡献为零。
-    const auto* smaller = &baseline.colors;
-    const auto* larger = &current.colors;
-    if (smaller->size() > larger->size()) {
-        std::swap(smaller, larger);
-    }
-    std::size_t overlap = 0;
-    for (const auto& [color, count] : *smaller) {
-        const auto it = larger->find(color);
-        if (it != larger->end()) {
-            overlap += std::min(count, it->second);
-        }
-    }
-    // 先在整数域求未重合数量，再除以 total，保留原 D 的求值含义，避免先求相似度再相减的额外舍入。
-    // 用较大的命中数归一化，而非 ROI 面积，避免大 ROI 中的小目标被背景稀释。
-    // 等量像素中有 2% 改色时 D=0.02；同色数量从 100 增至 200 时 D=0.5。
-    return static_cast<double>(total - overlap) / static_cast<double>(total);
-}
-
 } // namespace
 
 std::optional<Parameters> ParseParameters(const std::string& text)
@@ -125,8 +88,8 @@ std::optional<Parameters> ParseParameters(const std::string& text)
     // roi / roi_offset 属于外层 Custom 参数，应由框架解析，不在这里重复接收。
     for (const auto& [key, value] : object) {
         std::ignore = value;
-        if (key != "time" && key != "threshold" && key != "method" && key != "lower" && key != "upper" && key != "count"
-            && key != "connected" && key != "order_by" && key != "index") {
+        if (key != "time" && key != "color_threshold" && key != "distribution_threshold" && key != "method" && key != "lower"
+            && key != "upper" && key != "count" && key != "connected" && key != "order_by" && key != "index") {
             LogError << "unknown ColorFreezeRecognition parameter" << VAR(key);
             return std::nullopt;
         }
@@ -140,17 +103,26 @@ std::optional<Parameters> ParseParameters(const std::string& text)
         return std::nullopt;
     }
     parameters.time = std::chrono::milliseconds(*time);
-    if (object.contains("threshold")) {
-        // 保留缺省值 0.98，但显式配置必须合法；0 会允许完全不同的分布，故不接受。
-        const auto threshold = parsed->find<double>("threshold");
-        if (!threshold || !std::isfinite(*threshold) || *threshold <= 0 || *threshold > 1) {
-            LogError << "ColorFreezeRecognition threshold must be in (0, 1]";
+    if (object.contains("color_threshold")) {
+        // 幅度阈值允许为零，此时不限制颜色差；原生范围、数量门槛及分布匹配比例仍然生效。
+        const auto threshold = parsed->find<double>("color_threshold");
+        if (!threshold || !std::isfinite(*threshold) || *threshold < 0 || *threshold > 1) {
+            LogError << "ColorFreezeRecognition color_threshold must be in [0, 1]";
             return std::nullopt;
         }
-        parameters.threshold = *threshold;
+        parameters.color_threshold = *threshold;
+    }
+    if (object.contains("distribution_threshold")) {
+        // 分布阈值不接受零，避免允许完全没有匹配计数的两帧继续累计稳定时间。
+        const auto threshold = parsed->find<double>("distribution_threshold");
+        if (!threshold || !std::isfinite(*threshold) || *threshold <= 0 || *threshold > 1) {
+            LogError << "ColorFreezeRecognition distribution_threshold must be in (0, 1]";
+            return std::nullopt;
+        }
+        parameters.distribution_threshold = *threshold;
     }
     if (object.contains("method")) {
-        // 此处先保证是整数代码；具体转换是否合法、输出几通道由 BuildDistributions 验证。
+        // 此处先保证是整数代码；具体转换是否合法、输出几通道由 PrepareSample 验证。
         const auto method = parsed->find<int>("method");
         if (!method) {
             LogError << "ColorFreezeRecognition method must be an integer OpenCV color conversion code";
@@ -184,99 +156,57 @@ std::optional<Parameters> ParseParameters(const std::string& text)
 
     // 其余字段交给原生 ColorMatch 校验及执行；显式固定 method 使统计和匹配使用同一转换。
     object.erase("time");
-    object.erase("threshold");
+    object.erase("color_threshold");
+    object.erase("distribution_threshold");
     (*parsed)["method"] = parameters.method;
     parameters.native = std::move(*parsed);
     return parameters;
 }
 
-std::optional<std::vector<Distribution>> BuildDistributions(const cv::Mat& roi_image, const Parameters& parameters)
+std::optional<FrameSample> PrepareSample(const cv::Mat& roi_image, const Parameters& parameters)
 {
     if (roi_image.empty()) {
         LogError << "ColorFreezeRecognition ROI image is empty";
         return std::nullopt;
     }
-    cv::Mat converted;
-    // 整个 ROI 只转换一次，各颜色范围共享结果，保证同一帧使用一致的颜色空间。
-    cv::cvtColor(roi_image, converted, parameters.method);
-    if (converted.depth() != CV_8U || converted.channels() > static_cast<int>(kMaxChannels)) {
-        // 颜色键按每通道八位打包，不能将浮点或更高位深的输出截断后继续比较。
+    FrameSample sample;
+    // 转换结果拥有独立缓冲区，可安全作为基准跨回调保存，不持有框架借用句柄。
+    cv::cvtColor(roi_image, sample.colors, parameters.method);
+    if (sample.colors.depth() != CV_8U || sample.colors.channels() > static_cast<int>(kMaxChannels)) {
         LogError << "ColorFreezeRecognition color conversion must produce 8-bit colors with at most four channels";
         return std::nullopt;
     }
-
-    std::vector<Distribution> distributions;
     for (const auto& range : parameters.ranges) {
-        if (range.lower.size() != static_cast<std::size_t>(converted.channels())) {
-            // 防止用 RGB 的三通道边界解释灰度 / BGRA 等输出，造成统计与用户意图不同。
+        if (range.lower.size() != static_cast<std::size_t>(sample.colors.channels())) {
             LogError << "ColorFreezeRecognition color bounds channel count does not match method";
             return std::nullopt;
         }
-        cv::Mat mask;
-        // 与原生 ColorMatch 使用相同转换及上下界；范围外的颜色变化不参与稳定比较。
-        cv::inRange(converted, to_scalar(range.lower), to_scalar(range.upper), mask);
-        Distribution distribution;
-        // 使用掩码的非零数作为命中总数，同时限制预分配；颜色键仍在下面完整逐像素统计。
-        // 初始容量只给一个有界提示，不按命中像素总数假定每个像素都具有不同颜色。
-        distribution.count = static_cast<std::size_t>(cv::countNonZero(mask));
-        distribution.colors.reserve(std::min(distribution.count, kInitialColorCapacity));
-        // 按行获取指针，不假设裁出的 ROI 内存连续；mask 与 converted 共用行列坐标。
-        for (int y = 0; y < converted.rows; ++y) {
-            const auto* pixels = converted.ptr<std::uint8_t>(y);
-            const auto* selected = mask.ptr<std::uint8_t>(y);
-            for (int x = 0; x < converted.cols; ++x) {
-                if (selected[x] == 0) {
-                    continue;
-                }
-                std::uint32_t color = 0;
-                // 无损打包完整颜色，不按像素位置比较，也不以各通道均值或命中数代替分布。
-                for (int channel = 0; channel < converted.channels(); ++channel) {
-                    color = (color << kChannelBits) | pixels[x * converted.channels() + channel];
-                }
-                ++distribution.colors[color];
-            }
-        }
-        // 即使这一组没有命中也保留空分布，确保前后两帧的范围索引始终对应。
-        distributions.push_back(std::move(distribution));
+        RangeSample selected;
+        cv::inRange(sample.colors, to_scalar(range.lower), to_scalar(range.upper), selected.mask);
+        selected.count = static_cast<std::size_t>(cv::countNonZero(selected.mask));
+        sample.ranges.push_back(std::move(selected));
     }
-    return distributions;
+    return sample;
 }
 
-double DistributionDistance(const std::vector<Distribution>& baseline, const std::vector<Distribution>& current)
+Observation StableWindow::observe(FrameSample current, const Parameters& parameters, Clock::time_point now)
 {
-    if (baseline.size() != current.size()) {
-        // 范围数量改变后没有逐组比较的前提，以最大距离要求观察窗口重新建立。
-        return 1;
-    }
-    double maximum = 0;
-    // 取最不稳定的一组，确保每组范围都通过阈值；大范围不能掩盖小范围的变化。
-    for (std::size_t i = 0; i < baseline.size(); ++i) {
-        maximum = std::max(maximum, distance(baseline[i], current[i]));
-    }
-    return maximum;
-}
-
-Observation
-    StableWindow::observe(std::vector<Distribution> current, std::chrono::milliseconds time, double threshold, Clock::time_point now)
-{
-    // 相似度为 1 - D；所有范围的最低相似度必须 >= threshold，等于阈值时允许继续计时。
-    const double similarity = since_ ? 1 - DistributionDistance(baseline_, current) : 1;
-    if (!since_ || similarity < threshold || now < *since_) {
-        // 首帧只建基准；变化超限或时间倒退时从当前帧重新开始，不能沿用旧的稳定时长。
+    // 比较器仅在下界足以通过、或上界足以排除时结束，不用近似分数猜测是否稳定。
+    const auto similarity = since_ ? CompareSamples(*baseline_, current, parameters) : SimilarityBounds { 1, 1 };
+    if (!since_ || similarity.lower < parameters.distribution_threshold || now < *since_) {
+        // 首帧、确定超限或时间倒退时重新建立固定基准，缓存和计时一起替换。
         baseline_ = std::move(current);
         since_ = now;
     }
     const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - *since_);
-    // similarity 保留本次与旧基准的比较结果，重置后不改写成 1，便于日志定位变化原因。
-    // 刚重置时 elapsed=0；time 已保证为正，因此当前帧只能建基准，不能立即通过。
-    return { elapsed >= time, elapsed, similarity };
+    return { elapsed >= parameters.time, elapsed, similarity };
 }
 
-void Recognition::reset(MaaTaskId task_id, const std::string& node_name)
+void Recognition::reset(const StateKey& key)
 {
     // 与 Run / OnEvent 共用同一把锁；即使当前节点尚未建立窗口，erase 也可安全调用。
     const std::lock_guard lock(mutex_);
-    states_.erase({ task_id, node_name });
+    states_.erase(key);
 }
 
 MaaBool MAA_CALL Recognition::Run(
@@ -299,11 +229,12 @@ MaaBool MAA_CALL Recognition::Run(
         LogError << "ColorFreezeRecognition missing node name";
         return false;
     }
+    std::optional<StateKey> state_key;
     // 可预期的校验和框架调用失败直接返回；所有错误都必须清理本节点窗口，不能延续旧计时。
     // 统一处理日志与清理，避免新增早退路径时遗漏状态失效。
     const auto fail = [&](const char* reason) -> MaaBool {
-        if (recognition != nullptr) {
-            recognition->reset(task_id, node_name);
+        if (recognition != nullptr && state_key) {
+            recognition->reset(*state_key);
         }
         LogError << "ColorFreezeRecognition failed" << VAR(task_id) << VAR(node_name) << VAR(reason);
         return false;
@@ -314,6 +245,22 @@ MaaBool MAA_CALL Recognition::Run(
             if (recognition == nullptr) {
                 return false;
             }
+        }
+        {
+            const std::lock_guard lock(recognition->mutex_);
+            // 必须在运行内部 ColorMatch 前确定身份；它会产生一组嵌套识别事件，暂时改变调用栈。
+            // 默认实例首次按需接入时可能错过本轮 Starting，独立命名节点以自身名称作为安全回退。
+            std::vector<std::string> path { node_name };
+            std::size_t occurrence = 0;
+            const auto scopes = recognition->scopes_.find(task_id);
+            if (scopes != recognition->scopes_.end() && !scopes->second.empty()) {
+                path.clear();
+                for (const auto& scope : scopes->second) {
+                    path.push_back(scope.name);
+                }
+                occurrence = scopes->second.back().occurrences[node_name]++;
+            }
+            state_key.emplace(task_id, std::move(path), node_name, occurrence);
         }
         if (context == nullptr || image == nullptr || roi == nullptr || custom_recognition_param == nullptr) {
             return fail("missing context, image, ROI or parameters");
@@ -328,15 +275,15 @@ MaaBool MAA_CALL Recognition::Run(
         }
         auto parsed_parameters = ParseParameters(custom_recognition_param);
         if (!parsed_parameters) {
-            recognition->reset(task_id, node_name);
+            recognition->reset(*state_key);
             return false;
         }
         auto& parameters = *parsed_parameters;
         // 先在本回调的异常边界内验证转换及通道数，避免非法 OpenCV 参数进入原生匹配。
-        auto distributions = BuildDistributions(pixels(region), parameters);
-        if (!distributions) {
+        auto sample = PrepareSample(pixels(region), parameters);
+        if (!sample) {
             // 解析和统计函数已记录失败原因，此处仅使旧窗口失效，避免重复打印同一错误。
-            recognition->reset(task_id, node_name);
+            recognition->reset(*state_key);
             return false;
         }
         // 传给 ColorMatch 的仍是完整截图，只用已解析 ROI 限定区域，避免二次裁图或重复偏移。
@@ -358,7 +305,7 @@ MaaBool MAA_CALL Recognition::Run(
         }
         if (!hit) {
             // 稳定窗口要求每个采样点都通过原生匹配，短暂丢失也必须重新累计完整时间。
-            recognition->reset(task_id, node_name);
+            recognition->reset(*state_key);
             return false;
         }
 
@@ -376,16 +323,17 @@ MaaBool MAA_CALL Recognition::Run(
                 .dumps();
         Observation observation;
         {
-            // 图像处理与原生识别都在锁外完成；锁只保护窗口读写，避免框架事件回调等待计算。
+            // 颜色转换和原生识别在锁外完成；窗口比较及按需缓存与生命周期清理共用锁，保持基准一致。
             const std::lock_guard lock(recognition->mutex_);
-            auto& state = recognition->states_[{ task_id, node_name }];
+            auto& state = recognition->states_[*state_key];
             if (state.signature != signature) {
                 // 用空窗口整体替换旧状态，基准和计时必须一起失效，不能只更新签名。
                 state = State { signature, {} };
             }
-            observation = state.window.observe(std::move(*distributions), parameters.time, parameters.threshold, sample_time);
+            observation = state.window.observe(std::move(*sample), parameters, sample_time);
         }
-        LogDebug << "ColorFreezeRecognition" << VAR(task_id) << VAR(node_name) << VAR(observation.similarity) << VAR(parameters.threshold)
+        LogDebug << "ColorFreezeRecognition" << VAR(task_id) << VAR(node_name) << VAR(observation.similarity.lower)
+                 << VAR(observation.similarity.upper) << VAR(parameters.color_threshold) << VAR(parameters.distribution_threshold)
                  << VAR(observation.elapsed.count()) << VAR(observation.stable);
         if (!observation.stable) {
             // 不在回调中等待或主动截图；让 Pipeline 的下一轮识别提供新样本。
@@ -397,8 +345,10 @@ MaaBool MAA_CALL Recognition::Run(
                 json::value {
                     { "stable", true },
                     { "elapsed", observation.elapsed.count() },
-                    { "similarity", observation.similarity },
-                    { "threshold", parameters.threshold },
+                    { "similarity_lower", observation.similarity.lower },
+                    { "similarity_upper", observation.similarity.upper },
+                    { "color_threshold", parameters.color_threshold },
+                    { "distribution_threshold", parameters.distribution_threshold },
                     { "color_match_reco_id", reco_id },
                 }
                     .dumps();
@@ -425,10 +375,14 @@ void MAA_CALL Recognition::OnEvent(void* handle, const char* message, const char
         return;
     }
     const std::string_view event(message);
-    // 识别开始 / 结束事件不会清理，否则每次采样都会丢失上一帧，窗口永远无法累计。
-    // 只关注任务边界和动作开始：进入动作后，已有稳定结果不应被后续流程再次使用。
-    if (event != MaaMsg_Tasker_Task_Starting && event != MaaMsg_Tasker_Task_Succeeded && event != MaaMsg_Tasker_Task_Failed
-        && event != MaaMsg_Node_Action_Starting) {
+    const bool task_boundary =
+        event == MaaMsg_Tasker_Task_Starting || event == MaaMsg_Tasker_Task_Succeeded || event == MaaMsg_Tasker_Task_Failed;
+    const bool pipeline_boundary = event == MaaMsg_Node_PipelineNode_Starting || event == MaaMsg_Node_PipelineNode_Succeeded
+                                   || event == MaaMsg_Node_PipelineNode_Failed;
+    const bool recognition_start = event == MaaMsg_Node_Recognition_Starting;
+    const bool recognition_end = event == MaaMsg_Node_Recognition_Succeeded || event == MaaMsg_Node_Recognition_Failed;
+    // PipelineNode 包围整轮截图重试，Recognition 则每帧触发；不能在每帧边界清空稳定窗口。
+    if (!task_boundary && !pipeline_boundary && !recognition_start && !recognition_end && event != MaaMsg_Node_Action_Starting) {
         return;
     }
     try {
@@ -440,10 +394,10 @@ void MAA_CALL Recognition::OnEvent(void* handle, const char* message, const char
             }
         }
         const auto detail = json::parse(details_json);
-        // Tasker 事件从载荷取任务 ID；Context 动作事件优先使用所属 Context 的 ID。
+        // Tasker 事件从载荷取任务 ID；所有 Context 事件都使用所属 Context 的 ID。
         auto task_id = detail ? detail->find<MaaTaskId>("task_id") : std::nullopt;
-        if (event == MaaMsg_Node_Action_Starting && handle != nullptr) {
-            // RunAction 的子任务 ID 可与识别回调所属的 Context ID 不同，按 Context 清理才会命中对应窗口。
+        if (!task_boundary && handle != nullptr) {
+            // RunTask / RunRecognition / RunAction 的载荷可能是子任务 ID，识别回调使用的却是根 Context ID。
             const auto context_task_id = MaaContextGetTaskId(static_cast<MaaContext*>(handle));
             if (context_task_id != MaaInvalidId) {
                 task_id = context_task_id;
@@ -455,9 +409,34 @@ void MAA_CALL Recognition::OnEvent(void* handle, const char* message, const char
             return;
         }
         const std::lock_guard lock(recognition->mutex_);
-        // 动作意味着流程已离开本轮观察；清理整个所属任务，避免后续重入节点复用已满的计时。
-        // 任务开始/结束也清理同一份纯数据状态，不在事件之外保留 handle。
-        std::erase_if(recognition->states_, [&](const auto& entry) { return entry.first.first == *task_id; });
+        if (recognition_start || recognition_end) {
+            const auto reco_id = detail ? detail->find<MaaRecoId>("reco_id") : std::nullopt;
+            const auto name = detail ? detail->find<std::string>("name") : std::nullopt;
+            if (!reco_id || !name) {
+                LogWarn << "ColorFreezeRecognition event missing recognition identity" << VAR(message);
+                return;
+            }
+            if (recognition_start) {
+                recognition->scopes_[*task_id].push_back({ *reco_id, *name, {} });
+            }
+            else if (auto scopes = recognition->scopes_.find(*task_id); scopes != recognition->scopes_.end()) {
+                // ID 配对恢复外层范围；不能简单清空，否则内部 ColorMatch 返回后会丢掉外层的子识别序号。
+                auto& stack = scopes->second;
+                const auto found = std::ranges::find(stack, *reco_id, &RecognitionScope::reco_id);
+                if (found != stack.end()) {
+                    stack.erase(found, stack.end());
+                }
+                if (stack.empty()) {
+                    recognition->scopes_.erase(scopes);
+                }
+            }
+            return;
+        }
+        // Pipeline 等待超时也没有动作，但本轮观察已经结束；开始/结束两端均清理，防止无动作重入。
+        std::erase_if(recognition->states_, [&](const auto& entry) { return std::get<0>(entry.first) == *task_id; });
+        if (task_boundary) {
+            recognition->scopes_.erase(*task_id);
+        }
     }
     catch (const std::exception& error) {
         // 事件接收器同样不能把异常传回 C API；载荷异常保留错误日志供排查。

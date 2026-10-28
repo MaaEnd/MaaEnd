@@ -1,14 +1,15 @@
 #pragma once
 
+#include <array>
 #include <chrono>
 #include <cstdint>
 #include <map>
 #include <mutex>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <vector>
 
-#include <boost/unordered/unordered_flat_map.hpp>
 #include <meojson/json.hpp>
 
 #include <MaaFramework/MaaAPI.h>
@@ -21,9 +22,10 @@ namespace colorfreeze
 // 再检查各颜色范围的联合分布是否相对固定基准保持稳定，持续达到 time 才命中。
 // 不要求预先知道动画最终颜色，也不要求同一种颜色停留在相同像素位置。
 
-// 沿用原生 WaitFreezes / 项目 ListComplete 的 threshold 命名；值越大，稳定判定越严格。
-// 默认要求至少 98% 的颜色分布重合；1 表示完整联合颜色及命中数量必须完全一致。
-inline constexpr double kDefaultThreshold = 0.98;
+// 颜色幅度按各通道最大有效距离归一化；默认允许 2% 偏差，1 要求颜色值严格一致。
+inline constexpr double kDefaultColorThreshold = 0.98;
+// 默认要求至少 98% 的命中计数能匹配；1 不允许任何计数未匹配，仍受颜色幅度阈值约束。
+inline constexpr double kDefaultDistributionThreshold = 0.98;
 
 struct ColorRange
 {
@@ -41,36 +43,102 @@ struct Parameters
     std::vector<ColorRange> ranges;
     // 必须连续通过稳定检查的时长，单位毫秒；解析时要求大于零，禁止首帧直接通过。
     std::chrono::milliseconds time {};
-    // 每组分布都必须达到此相似度，范围 (0, 1]；等于阈值时仍视为稳定。
-    double threshold = kDefaultThreshold;
-    // 仅保存传给原生 ColorMatch 的参数，不包含本识别器的 time / threshold。
+    // 每个通道的颜色值相似度都必须达到此值，范围 [0, 1]；HSV/HLS 色相使用环形距离。
+    double color_threshold = kDefaultColorThreshold;
+    // 每组分布都必须达到此匹配比例，范围 (0, 1]；等于阈值时仍视为稳定。
+    double distribution_threshold = kDefaultDistributionThreshold;
+    // 仅保存传给原生 ColorMatch 的参数，不包含本识别器的 time 与两个稳定阈值。
     json::value native;
 };
 
-// 解析 ColorMatch 参数及 time / threshold；无效配置记录错误并返回 nullopt。
+// 解析 ColorMatch 参数及 time / color_threshold / distribution_threshold；无效配置记录错误并返回 nullopt。
 // 此处检查包装层需要的类型和范围形状，原生匹配字段仍由 ColorMatch 校验并执行。
 std::optional<Parameters> ParseParameters(const std::string& text);
+
+struct ColorBin
+{
+    std::uint32_t key;
+    // 颜色值本身只有 8 位；紧凑保存可降低全屏排序和匹配时的缓存带宽，计算差值时再提升为 int。
+    std::array<std::uint8_t, 4> color;
+    std::size_t count;
+};
 
 struct Distribution
 {
     // 使用完整的联合颜色值，不分箱、不记录像素位置；最多四个 8 位通道。
     // 各通道共同组成键，避免通道各自的直方图相同、实际颜色组合却不同的误判。
-    // 扁平哈希将条目放在连续存储中，减少颜色丰富时的逐节点分配及比较时的离散访存。
-    // 容器重哈希会使引用失效，因此只保存颜色值和计数，不跨插入操作保留条目地址。
-    boost::unordered_flat_map<std::uint32_t, std::size_t> colors;
+    // 按完整颜色键递增保存计数；紧凑键基数排序后合并，不需要哈希表或重复排序。
+    // 分布建成后保持不可变，固定基准在后续帧中直接复用。
+    std::vector<ColorBin> colors;
     // 同时保留命中总数，防止只比较归一化颜色比例而忽略目标面积变化。
     std::size_t count = 0;
 };
 
-// 对每个颜色范围分别统计整个 ROI 内的命中分布，与 connected / index 的筛选无关。
-// 输入是本轮截图裁出的 ROI；每个输出元素与 Parameters::ranges 的同位置范围对应。
-// 结果只拥有颜色计数，不持有输入图像，能够安全保留到后续回调中比较。
-// 空图像、位深或通道不匹配时记录错误并返回 nullopt；OpenCV 异常由回调边界统一捕获。
-std::optional<std::vector<Distribution>> BuildDistributions(const cv::Mat& roi_image, const Parameters& parameters);
+struct ColorTolerance
+{
+    int linear = 0;
+    int hue = 0;
+    int hue_period = 0;
+};
 
-// 返回颜色质量及命中数量的最大变化比例，范围 [0, 1]。
-// 0 表示所有范围的颜色计数完全相同，1 表示至少一组完全不同；范围组数不同也返回 1。
-double DistributionDistance(const std::vector<Distribution>& baseline, const std::vector<Distribution>& current);
+// 所有快速路径和联合匹配共享同一整数容差，保证浮点边界和 HSV/HLS 环绕语义一致。
+ColorTolerance GetColorTolerance(const Parameters& parameters);
+
+// 保留先算未匹配比例、再求相似度的求值顺序，避免阈值边界因浮点舍入改变。
+inline double CountSimilarity(std::size_t matched, std::size_t total)
+{
+    return total == 0 ? 1 : 1 - static_cast<double>(total - matched) / static_cast<double>(total);
+}
+
+struct SimilarityBounds
+{
+    // 真正的最大匹配相似度一定落在闭区间内；仅以可证明的下界通过、可证明的上界排除。
+    double lower = 0;
+    double upper = 1;
+};
+
+// 统计仍只针对范围内的像素；一维投影只用于给出联合匹配的上界，不能据此认定多通道稳定。
+using ChannelHistograms = std::array<std::array<std::size_t, 256>, 4>;
+
+struct RangeSample
+{
+    cv::Mat mask;
+    std::size_t count = 0;
+    std::optional<ChannelHistograms> channels;
+    std::optional<Distribution> distribution;
+};
+
+struct FrameSample
+{
+    // cvtColor 创建的自有缓冲区，不借用框架截图；所有范围共享同一转换结果。
+    // 先保留颜色图和范围掩码，只有快速证明不足时才生成直方图及匹配索引。
+    cv::Mat colors;
+    std::vector<RangeSample> ranges;
+};
+
+// 仅转换颜色、建立范围掩码和命中数；非法输入返回 nullopt，库异常由 C 回调边界捕获。
+std::optional<FrameSample> PrepareSample(const cv::Mat& roi_image, const Parameters& parameters);
+
+// 按需统计完整联合颜色，并缓存在该样本中；每个范围仍独立覆盖整个 ROI。
+const Distribution& BuildDistribution(FrameSample& sample, std::size_t range);
+
+// 仅构造一份合法配对，不求最大值；适合为位置见证剩下的少量计数补充通过下界。
+// 未达到 required 不表示失败，调用方仍需使用完整分布给出最终判定。
+std::size_t FindCompatiblePairs(
+    const Distribution& baseline,
+    const Distribution& current,
+    const Parameters& parameters,
+    std::size_t channels,
+    std::size_t required);
+
+// 联合匹配达到 distribution_threshold 即可结束；每份计数只用一次，必要时沿反向边重新分配。
+// 返回的区间一定足以确定是否达标，无需为日志继续计算精确最大匹配比例。
+SimilarityBounds
+    CompareDistributions(const Distribution& baseline, const Distribution& current, const Parameters& parameters, std::size_t channels);
+
+// 先按命中数、合法位置配对及通道投影给出上下界，仍不确定时才进入联合颜色匹配。
+// 位置配对只提供下界，不足时不判失败，因此颜色位置交换仍遵循分布语义。
+SimilarityBounds CompareSamples(FrameSample& baseline, FrameSample& current, const Parameters& parameters);
 
 struct Observation
 {
@@ -78,8 +146,8 @@ struct Observation
     bool stable = false;
     // 本轮稳定窗口已累计的毫秒数；首次观测或本次触发重置时为零。
     std::chrono::milliseconds elapsed {};
-    // 当前帧相对本次比较基准的相似度；发生重置时仍保留触发重置的观测值。
-    double similarity = 1;
+    // 当前帧相对本次比较基准的相似度上下界；重置后仍保留触发重置的观测值。
+    SimilarityBounds similarity { 1, 1 };
 };
 
 // 窗口内固定首帧为基准，只有相似度低于阈值才换基准并重新计时。
@@ -90,13 +158,13 @@ public:
     // 采用单调时钟，不受系统时间校准影响；now 由调用方传入以便测试精确覆盖边界。
     using Clock = std::chrono::steady_clock;
 
-    // 消费一份当前分布；只有建立或替换基准时才移动到成员中，其余帧保持原基准不变。
+    // 消费一份当前样本；只有建立或替换基准时才移动到成员中，其余帧保持原基准不变。
     // elapsed 表示采样点之间的持续时间；无法据此判断未采样时刻是否曾发生变化。
-    Observation observe(std::vector<Distribution> current, std::chrono::milliseconds time, double threshold, Clock::time_point now);
+    Observation observe(FrameSample current, const Parameters& parameters, Clock::time_point now);
 
 private:
-    // 当前窗口最初观测到的各范围分布，窗口有效期间不会随每一帧推进。
-    std::vector<Distribution> baseline_;
+    // 当前窗口最初的颜色图及按需统计缓存；窗口内不推进基准，重置时一起替换。
+    std::optional<FrameSample> baseline_;
     // 未赋值表示尚未收到有效样本，避免把默认时间点误当作已经开始计时。
     std::optional<Clock::time_point> since_;
 };
@@ -121,12 +189,24 @@ public:
             MaaRect* out_box,
             MaaStringBuffer* out_detail);
 
-    // 任务开始/结束或流程进入动作时清理窗口，避免再次进入同一节点时继承旧计时。
-    // 同时接收 Tasker 和 Context 事件，只在动作事件中将 handle 解释为 MaaContext。
+    // 任务、Pipeline 观察阶段的边界或动作开始时清理窗口，避免超时重入时继承旧计时。
+    // 识别事件只维护调用范围，不清理窗口；Context 事件的 handle 仅在本次回调中借用。
     // trans_arg 为 nullptr 时使用内部默认状态，否则只清理传入的 Recognition 实例。
     static void MAA_CALL OnEvent(void* handle, const char* message, const char* details_json, void* trans_arg);
 
 private:
+    // 同一任务中，外层识别路径、子识别名称及同名调用的序号共同标识观察者。
+    // And / Or 的匿名 Custom 都叫 "Custom"，不能只靠名称，也不能把可变配置当成身份。
+    using StateKey = std::tuple<MaaTaskId, std::vector<std::string>, std::string, std::size_t>;
+
+    struct RecognitionScope
+    {
+        MaaRecoId reco_id;
+        std::string name;
+        // 每轮外层识别重新计数；同一 And 内两个匿名子识别各有窗口，不会交替重置彼此。
+        std::map<std::string, std::size_t> occurrences;
+    };
+
     struct State
     {
         // 参数、解析后的 ROI 或截图规格改变后，旧基准与计时不再适用。
@@ -134,12 +214,13 @@ private:
         StableWindow window;
     };
 
-    // 参数错误或原生未命中仅失效当前节点，不影响同一任务里其他节点的观察。
-    void reset(MaaTaskId task_id, const std::string& node_name);
+    // 参数错误或原生未命中仅失效当前观察者，不影响同名的其他子识别。
+    void reset(const StateKey& key);
 
     std::mutex mutex_;
-    // 不同任务和节点独立观察；互斥保护识别回调与生命周期事件对窗口的并发访问。
-    std::map<std::pair<MaaTaskId, std::string>, State> states_;
+    // 互斥保护窗口和识别调用栈；只保存名称、ID 和序号，不跨回调保存 Context 句柄。
+    std::map<StateKey, State> states_;
+    std::map<MaaTaskId, std::vector<RecognitionScope>> scopes_;
 };
 
 } // namespace colorfreeze
