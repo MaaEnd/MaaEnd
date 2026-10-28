@@ -58,6 +58,62 @@
             }
         }
     },
+    "AutoMissionEntityTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
+    "AutoMissionMissionAreaTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
+    "AutoMissionNpcProxyTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
+    "AutoMissionOpenScanClick": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "AutoMissionOpenScanKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "AutoMissionOpenScanLongPress": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "AutoMissionPosTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
     "AutoPickFalls": {
         "action": {
             "type": "ClickKey",

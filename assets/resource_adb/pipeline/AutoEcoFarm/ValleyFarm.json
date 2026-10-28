@@ -1,0 +1,73 @@
+{
+    "__AutoEcoFarmValleyFarmNavigate": {
+        "post_wait_freezes": {
+            "target": [
+                710,
+                320,
+                310,
+                260
+            ]
+        }
+    },
+    "__AutoEcoFarmValleyFarmFertilizerReady": {
+        "roi": [
+            710,
+            320,
+            310,
+            260
+        ]
+    },
+    "__AutoEcoFarmValleyFarmWorkButton": {
+        "roi": [
+            710,
+            320,
+            310,
+            260
+        ]
+    },
+    "__AutoEcoFarmValleyFarmWork": {
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "target": [
+                710,
+                320,
+                310,
+                260
+            ]
+        }
+    },
+    "__AutoEcoFarmValleyFarmCloseEquipment": {
+        "roi": [
+            1205,
+            60,
+            60,
+            55
+        ],
+        "post_wait_freezes": {
+            "target": [
+                710,
+                320,
+                310,
+                260
+            ]
+        }
+    },
+    "__AutoEcoFarmValleyFarmCloseFertilizer": {
+        "roi": [
+            1175,
+            85,
+            60,
+            55
+        ],
+        "post_wait_freezes": {
+            "target": [
+                710,
+                320,
+                310,
+                260
+            ]
+        }
+    }
+}

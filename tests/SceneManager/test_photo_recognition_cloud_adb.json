@@ -2,7 +2,7 @@
     "configs": {
         "name": "云终末地拍照识别正反例",
         "resource": "官服",
-        // 云端下移箭头覆盖和私有退出识别的反例；共用状态及公共出口分别使用三端矩阵。
+        // 云端拍照设置 ColorMatch 与私有退出识别的正反例；共用状态及公共出口分别使用三端矩阵。
         "controller": "CloudADB"
     },
     "cases": [
@@ -10,7 +10,7 @@
             "image": "武陵_拍照模式_画面设置.png",
             "hits": [
                 {
-                    "node": "__ScenePrivateCloudExitPhoto",
+                    "node": "__ScenePrivateExitPhoto",
                     "box": [
                         1100,
                         10,
@@ -25,7 +25,7 @@
             "image": "武陵_拍照模式_隐藏全部.png",
             "hits": [
                 {
-                    "node": "__ScenePrivateCloudExitPhoto",
+                    "node": "__ScenePrivateExitPhoto",
                     "box": [
                         1100,
                         10,

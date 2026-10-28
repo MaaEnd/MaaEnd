@@ -42,7 +42,7 @@ inline bool IsLinuxControllerType(std::string_view controller_type)
     return EqualsIgnoreCase(controller_type, "linux");
 }
 
-// 顺序与框架叠加 overlay 一致, 基础资源排最后, resource_cloud_adb 无法按控制器类型区分故不参与
+// 顺序与框架叠加 overlay 一致, 基础资源排最后, resource_cloud 无法按控制器类型区分故不参与
 inline std::vector<std::filesystem::path> ResourceImageRoots(std::string_view controller_type)
 {
     const std::filesystem::path install_dir = std::filesystem::absolute(get_install_dir());

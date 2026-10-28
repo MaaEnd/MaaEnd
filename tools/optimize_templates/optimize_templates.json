@@ -2317,7 +2317,6 @@
     "resource/image/IconRecognition/6/wpn_sword_0025": "02977121c4647b855a16201e9a286129ab98d146cda8c9af0dbc1aefa3cdeb20",
     "resource/image/IconRecognition/6/wpn_sword_0024": "5ff5cd636a0583a891cdc30154a5a99bd28a7ab82bfc10956c2ad84febaf2062",
     "resource/image/IconRecognition/6/wpn_claym_0019": "2d1f7589278220d3ce27d0a6087a65c085baec1653c49ec379c72a8a4b0a2db5",
-    "resource/image/EnvironmentMonitoring/ArrowUp": "228e9dd0ab1183ece812e70ea31de4921ccd89751fcec8713c3acf8c548cb238",
     "resource/image/AutoSell/StockRedistributionButton": "91229222882e74ff39c35f25c32fcde8b5bc8cdf160ae0b02425d1cd40b46ce0",
     "resource/image/ClaimDijiangRewards/RecoveryEmotionScrollbarTop": "64c2903f2489b739c8c82c52d395f3ff0da4753589f46766cb31d25c6760ea04",
     "resource/image/PullCountCalculator/IntroLetter.Template": "9e5209a2a0ca9b6f8e43d6b2633f71c1c9f51fb101956de2e58c32b9b712b998",
@@ -2511,5 +2510,7 @@
     "resource/image/VisitFriends/QuickNextClueExchangeAvailable": "368cdca6e78a3a2d81e98431ba72ca7a21bbe91211d2910d9f3b822005b464c4",
     "resource/image/BatchUseDetector/WulingTalositeProbe": "5ac1f896013aa10ec85a3a28de350be63c8db13611c30388143a31ab0bf6870c",
     "resource/image/SanityExtractor/sanityExtractorsRightUI": "6bb3b521884a02baaad7df86139ea722fca5c0497a1b83ee368d74b3c3680776",
-    "resource/image/SanityExtractor/extractorUISanityEssence": "90558f80ebab6959250a81ed1d7d31b450cbdb5817e7ed1020e4c86856f91fd8"
+    "resource/image/SanityExtractor/extractorUISanityEssence": "90558f80ebab6959250a81ed1d7d31b450cbdb5817e7ed1020e4c86856f91fd8",
+    "resource/image/AutoEcoFarm/AutoecofarmWhitecloseblackgrouund": "14b9459451f4b4410a1f75aed750c15e4f51e924862a61d15e7e67c65495e419",
+    "resource/image/AutoEcoFarm/AutoecofarmBlackcloseWhitegrouund": "36df158b476c53071720cba9d61f608c9dd8ea18ba8f915749561dcf8c834765"
 }

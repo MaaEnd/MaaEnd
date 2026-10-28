@@ -98,7 +98,7 @@
         ]
     },
     "CraftingCloseProductPopup": {
-        "desc": "制作成功确认",
+        "desc": "制作成功确认，奖励界面交给 SceneAnyEnterWorld 记录后关闭",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -111,9 +111,6 @@
                 "template": "Common/Button/CloseRewardButton.png",
                 "threshold": 0.9
             }
-        },
-        "action": {
-            "type": "Click"
         },
         "next": [
             "CraftingCreationFinish",

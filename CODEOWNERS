@@ -21,7 +21,7 @@
 # 环境监测（EnvironmentMonitoring）                                     @he0119
 # ---------------------------------------------------------------------------
 # `/assets/resource*/` 里的 `*` 只匹配资源包名这一段（不跨 `/`），一条规则同时覆盖
-# resource、resource_adb、resource_cloud_adb、resource_playcover，新增控制器资源包不必再改本文件。
+# resource、resource_adb、resource_cloud、resource_playcover，新增控制器资源包不必再改本文件。
 /assets/resource*/pipeline/EnvironmentMonitoring/                 @he0119
 /assets/resource*/pipeline/EnvironmentMonitoring.json             @he0119
 /assets/tasks/EnvironmentMonitoring.json                          @he0119

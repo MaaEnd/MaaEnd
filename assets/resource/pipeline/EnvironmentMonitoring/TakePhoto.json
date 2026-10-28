@@ -189,17 +189,37 @@
     },
     "EnvironmentMonitoringPhotoSettingsOpened": {
         "desc": "拍照目标未达成，画面设置已打开",
-        "recognition": "TemplateMatch",
+        "recognition": "ColorMatch",
         "roi": [
-            0,
-            350,
-            400,
-            250
+            12,
+            33,
+            101,
+            45
         ],
-        "template": "EnvironmentMonitoring/ArrowUp.png",
-        "threshold": 0.8,
-        "order_by": "Score",
+        "method": 40,
+        "lower": [
+            28,
+            190,
+            240
+        ],
+        "upper": [
+            33,
+            255,
+            255
+        ],
+        "connected": true,
+        "count": 90,
         "pre_delay": 0,
+        // 展开面板有动画，动画中间帧同样会命中颜色判据，等右侧下拉列静止后再判定
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                199,
+                69,
+                120,
+                25
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

@@ -6,6 +6,7 @@
         "custom_recognition": {
             "enum": [
                 "AutoFightEntryRecognition",
+                "AutoMissionMatchQuest",
                 "AeroSalvageBalloonStateRecognition",
                 "AeroSalvageGridRecognition",
                 "AeroSalvageInitialStateRecognition",

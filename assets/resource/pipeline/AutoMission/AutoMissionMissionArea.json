@@ -1,0 +1,186 @@
+{
+    "AutoMissionMissionArea": {
+        "desc": "子流程入口：在任务界面先关闭，在大世界直接按 V",
+        "next": [
+            "AutoMissionMissionAreaCloseJournal",
+            "AutoMissionMissionAreaTrackCurrentMission"
+        ]
+    },
+    "AutoMissionMissionAreaCloseJournal": {
+        "desc": "在任务界面，点击右上角关闭按钮回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoMissionMissionAreaTrackCurrentMission"
+        ]
+    },
+    "AutoMissionMissionAreaTrackCurrentMission": {
+        "desc": "在大世界按追踪当前任务键",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "ClickKey",
+        "key": 86, // V
+        "post_delay": 1500, // 等一会看会不会跳出地图追踪
+        "next": [
+            "AutoMissionMissionAreaQuickTeleportSelect",
+            "AutoMissionMissionAreaInWorld"
+        ]
+    },
+    "AutoMissionMissionAreaQuickTeleportSelect": {
+        "desc": "不在当前地图点击前往传送",
+        "recognition": "And",
+        "all_of": [
+            "QuickTeleportButton"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoMissionMissionAreaTeleport"
+        ]
+    },
+    "AutoMissionMissionAreaTeleport": {
+        "desc": "点击传送",
+        "recognition": "And",
+        "all_of": [
+            "TeleportButton"
+        ],
+        "action": "Click",
+        "next": [
+            "AutoMissionMissionAreaInWorld",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "AutoMissionMissionAreaInWorld": {
+        "desc": "已返回大世界，按覆盖的区域和坐标寻路到任务区域中心",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "post_delay": 1500, // 走进区域后等一会再继续，部分任务会进入剧情动画
+        "next": [
+            "AutoMissionMissionAreaActionExitToWorld",
+            "AutoMissionMissionAreaActionTakePhoto",
+            "AutoMissionMissionAreaActionScan",
+            "[JumpBack]AutoFight",
+            "AutoMissionMissionAreaSecondInWorld",
+            "AutoMissionMissionAreaActionBackInWorld"
+        ]
+    },
+    "AutoMissionMissionAreaSecondInWorld": {
+        "desc": "走完区域中心后寻路到区域里推进任务的关卡脚本触发区；区域里有这种触发区才有，默认关闭，由 Go 按数据打开并覆盖坐标",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "post_delay": 1500, // 走进触发区后等一会再继续，部分任务会进入剧情动画
+        "next": [
+            "AutoMissionMissionAreaActionExitToWorld",
+            "AutoMissionMissionAreaActionTakePhoto",
+            "AutoMissionMissionAreaActionScan",
+            "[JumpBack]AutoFight",
+            "AutoMissionMissionAreaActionBackInWorld"
+        ]
+    },
+    "AutoMissionMissionAreaActionTakePhoto": {
+        "desc": "这一步要拍照，复用环境监测的进拍照和拍照流程，拍完经锚点回到本流程；默认关闭，由 Go 按数据打开",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "AutoMissionMissionAreaActionPhotoDone"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhotoDirectly"
+        ]
+    },
+    "AutoMissionMissionAreaActionScan": {
+        "desc": "这一步要用扫描，走到位置后打开扫描，打开即完成；默认关闭，由 Go 按数据打开",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoMissionOpenScan"
+            ]
+        },
+        "post_delay": 3000, // 扫描后剧情要过一会才开始，之前没有可识别的过渡画面
+        "next": [
+            "AutoMissionMissionAreaActionExitToWorld",
+            "AutoMissionMissionAreaActionBackInWorld"
+        ]
+    },
+    "AutoMissionMissionAreaActionPhotoDone": {
+        "desc": "拍照完成，关闭照片预览回到大世界",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 3000, // 拍照结束后剧情要过一会才开始，之前没有可识别的过渡画面
+        "next": [
+            "AutoMissionMissionAreaActionExitToWorld",
+            "AutoMissionMissionAreaActionBackInWorld"
+        ]
+    },
+    "AutoMissionMissionAreaActionExitToWorld": {
+        "desc": "剧情中识别到跳过按钮后，从画面中心悬停移过去并点击",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1140,
+            0,
+            120,
+            90
+        ],
+        "template": "RealTimeTask/AutoSkipEsc.png",
+        "pre_delay": 1000, // 刚进剧情时跳过按钮点了不生效，等一会再点
+        "action": "Custom",
+        "custom_action": "AutoSwipeClickAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionMissionAreaActionExitToWorldConfirm"
+        ]
+    },
+    "AutoMissionMissionAreaActionExitToWorldConfirm": {
+        "desc": "确认跳过剧情",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_delay": 1000, // 等待画面过度
+        "next": [
+            "AutoMissionMissionAreaActionBackInWorld",
+            "AutoMissionMissionAreaActionExitToWorld"
+        ]
+    },
+    "AutoMissionMissionAreaActionBackInWorld": {
+        "desc": "已回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ]
+    }
+}

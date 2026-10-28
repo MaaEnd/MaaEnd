@@ -18,6 +18,7 @@
                 "Win32-Front"
             ],
             "option": [
+                "CollectValleyFarm",
                 "CollectWulingCityFarm",
                 "CollectSisPaintingFarm",
                 "CollectRanch"
@@ -25,6 +26,30 @@
         }
     ],
     "option": {
+        "CollectValleyFarm": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.CollectValleyFarm.label",
+            "description": "$task.AutoEcoFarm.option.CollectValleyFarm.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoEcoFarmValleyFarmJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoEcoFarmValleyFarmJob": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
         "CollectWulingCityFarm": {
             "type": "switch",
             "label": "$task.AutoEcoFarm.option.CollectWulingCityFarm.label",
