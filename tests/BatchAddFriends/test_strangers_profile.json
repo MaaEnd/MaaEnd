@@ -20,6 +20,8 @@
                 "BatchAddFriendsStrangersProfileCloseButton",
                 "ProfilePageMoreButton",
                 "BatchAddFriendsStrangersProfilePage",
+                "BatchAddFriendsStrangersProfileCardOpened",
+                "BatchAddFriendsStrangersProfileQualified",
                 "BatchAddFriendsStrangersProfileFallbackClose",
                 "BatchAddFriendsStrangersApplySentToast"
             ]
