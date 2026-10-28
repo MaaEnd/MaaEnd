@@ -1959,6 +1959,7 @@
     "task.AutoEcoFarm.failed.SisPaintingFarm": "<span style=\"color: red; font-weight: bold;\">Si's Painting - Farming Machine collection process incomplete</span>",
     "task.AutoEcoFarm.failed.ValleyFarm": "<span style=\"color: red; font-weight: bold;\">Valley IV - Eco-Farm tending process incomplete</span>",
     "task.AutoEcoFarm.failed.WulingCityFarm": "<span style=\"color: red; font-weight: bold;\">Wuling City - Farming Machine collection process incomplete</span>",
+    "task.AutoEcoFarm.focus.store_cooldown": "Waiting for farming machine collection",
     "task.AutoEcoFarm.label": "🌾Eco-Farm",
     "task.AutoEcoFarm.option.CollectRanch.label": "Si's Painting - Ranch",
     "task.AutoEcoFarm.option.CollectSisPaintingFarm.label": "Si's Painting - Farming Machine",

@@ -1959,6 +1959,7 @@
     "task.AutoEcoFarm.failed.SisPaintingFarm": "<span style=\"color: red; font-weight: bold;\">スーの絵 - 自動栽培設備の回収処理が完了していません</span>",
     "task.AutoEcoFarm.failed.ValleyFarm": "<span style=\"color: red; font-weight: bold;\">四号谷地 - 栽培場の作業処理が完了していません</span>",
     "task.AutoEcoFarm.failed.WulingCityFarm": "<span style=\"color: red; font-weight: bold;\">武陵城 - 自動栽培設備の回収処理が完了していません</span>",
+    "task.AutoEcoFarm.focus.store_cooldown": "自動栽培設備の収穫を待機中",
     "task.AutoEcoFarm.label": "🌾生態農場",
     "task.AutoEcoFarm.option.CollectRanch.label": "スーの絵 - 牧場",
     "task.AutoEcoFarm.option.CollectSisPaintingFarm.label": "スーの絵 - 自動栽培設備",

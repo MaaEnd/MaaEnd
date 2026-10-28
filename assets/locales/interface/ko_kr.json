@@ -1959,6 +1959,7 @@
     "task.AutoEcoFarm.failed.SisPaintingFarm": "<span style=\"color: red; font-weight: bold;\">사의 그림 - 자동 재배 설비 수확 절차가 완료되지 않았습니다</span>",
     "task.AutoEcoFarm.failed.ValleyFarm": "<span style=\"color: red; font-weight: bold;\">4번 협곡 - 생태 재배 구역 작업 절차가 완료되지 않았습니다</span>",
     "task.AutoEcoFarm.failed.WulingCityFarm": "<span style=\"color: red; font-weight: bold;\">무릉성 - 자동 재배 설비 수확 절차가 완료되지 않았습니다</span>",
+    "task.AutoEcoFarm.focus.store_cooldown": "자동 재배 설비 수확 대기 중",
     "task.AutoEcoFarm.label": "🌾생태 농장",
     "task.AutoEcoFarm.option.CollectRanch.label": "사의 그림 - 목장",
     "task.AutoEcoFarm.option.CollectSisPaintingFarm.label": "사의 그림 - 자동 재배 설비",
