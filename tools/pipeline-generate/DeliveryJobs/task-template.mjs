@@ -86,8 +86,9 @@ function buildDepotOption(depot) {
                     deliveryEnabled: true,
                     cargoEnabled: true,
                     cargoExpected: ALL_CARGO_EXPECTED,
-                    // 「接取并转交」用调度申请界面的「快速转交」把委托立刻交出去，不再走接取任务后的转交流程
-                    bidAction: "DeliveryJobsQuickTransfer",
+                    // 「接取并转交」先到调度申请界面的判断节点：那里等底部按钮稳定后再看有没有「快速转交」，
+                    // 有就立刻把委托交出去，仓储节点未满 3 级（没有白底「快速转交」）时回退成接取任务
+                    bidAction: "DeliveryJobsDecideQuickTransfer",
                     ongoingDeliveryAction: "DeliveryJobsTransferOngoingJob",
                 }),
             },
@@ -210,7 +211,7 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
     const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
     // 是否接取由 next 表达，接取后的去向只由 DeliveryJobsGoToDepot 表达；
     // 「不处理」直接关闭调度申请界面，不经过 DeliveryJobsBackToDepot。
-    // 只有「接取并转交」能用「快速转交」，其余动作仍走接取任务的节点。
+    // 「接取并转交」先进判断节点 DeliveryJobsDecideQuickTransfer，由它决定立刻「快速转交」还是回退接取。
     const acceptThen = (goToDepot, bidAction = "DeliveryJobsRedistributionBidNextStep") => ({
         [comparisonNode]: {
             next: [
@@ -229,7 +230,7 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
             {
                 name: "Transfer",
                 label: "$task.DeliveryJobs.QuoteAction.Transfer",
-                pipeline_override: acceptThen(`DeliveryJobsReturnAndTransfer${depot.Id}`, "DeliveryJobsQuickTransfer"),
+                pipeline_override: acceptThen(`DeliveryJobsReturnAndTransfer${depot.Id}`, "DeliveryJobsDecideQuickTransfer"),
             },
             ...(depot.AutoDeliverySupported
                 ? [

@@ -42,9 +42,10 @@ LocalActionTraits local_action_traits_of(LocalDriverAction action)
 
 } // namespace
 
-MotionController::MotionController(ActionWrapper* action_wrapper, bool enable_local_driver)
+MotionController::MotionController(ActionWrapper* action_wrapper, bool enable_local_driver, bool enable_sprint)
     : action_wrapper_(action_wrapper)
     , enable_local_driver_(enable_local_driver)
+    , enable_sprint_(enable_sprint)
 {
     if (action_wrapper_ != nullptr) {
         steering_profile_ = action_wrapper_->steeringProfile();
@@ -118,7 +119,7 @@ TurnCommandResult MotionController::applySteering(double yaw_delta_deg, int64_t 
 
 bool MotionController::supportsSprint() const
 {
-    return action_wrapper_ != nullptr && action_wrapper_->supportsSprint();
+    return enable_sprint_ && action_wrapper_ != nullptr && action_wrapper_->supportsSprint();
 }
 
 void MotionController::setSprintSuppressed(bool suppressed)

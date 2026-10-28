@@ -123,7 +123,7 @@ void NavigationStateMachine::startDeviceProbe()
         LogWarn << "Blocking-device probe not started: could not read its ROI from the pipeline." << VAR(kObstacleDeviceProbeNode);
         return;
     }
-    device_recovery_.start(base_roi);
+    device_recovery_.start(base_roi, action_wrapper_->controllerType());
 }
 
 void NavigationStateMachine::preWarmPromptRecognition()

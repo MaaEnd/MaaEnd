@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iterator>
 #include <limits>
 #include <utility>
 
@@ -63,6 +64,19 @@ double away_side_cap_deg(const std::vector<double>& neighbor_offsets_deg, double
 double distance_wu(const NaviPosition& a, const NaviPosition& b)
 {
     return std::hypot(a.x - b.x, a.y - b.y);
+}
+
+std::optional<ZiplineNodeRef> previous_wrong_tower(const std::vector<ZiplineLaunch>& launches)
+{
+    if (launches.size() < 2) {
+        return std::nullopt;
+    }
+    for (auto it = std::next(launches.rbegin()); it != launches.rend(); ++it) {
+        if (it->result == LandingClass::AtOther || it->result == LandingClass::AtStrayTower) {
+            return it->reached;
+        }
+    }
+    return std::nullopt;
 }
 
 const char* stage_name(ZiplineStage stage)
@@ -824,6 +838,17 @@ StageResult ZiplineRideMachine::classify(IZiplineObserver& observer, IZiplineAct
         if (!returning_) {
             if (landing == LandingClass::AtStrayTower) {
                 discovered_towers_.push_back(reached);
+            }
+            const std::optional<ZiplineNodeRef> previous = previous_wrong_tower(record_.launches);
+            if (previous && previous->sameTower(reached)) {
+                hop_retry_count_ = kZiplineHopRetryBudget;
+                LogInfo << "zipline/aim/same_wrong_tower" << VAR(reached.x) << VAR(reached.y) << VAR(record_.launches.size());
+            }
+            if (hop_retry_count_ >= kZiplineHopRetryBudget) {
+                record_.wrong_rope_bearings_deg.push_back(bearing_deg(plan_.mount, reached));
+                LogInfo << "zipline/aim/park_on_wrong_tower" << VAR(reached.x) << VAR(reached.y) << VAR(hop_retry_count_);
+                commitRecord(HopOutcome::WrongRope, now);
+                return parkForReplan(reached, now);
             }
             origin_ = reached;
             returning_ = true;

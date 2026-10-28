@@ -56,6 +56,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 🌿 **Environment Monitoring**: Automatically clears environment monitoring tasks so routine combat-and-travel work can be handed off.
 - ⚔️ **Protocol Space**: Automatically spends sanity on Protocol Space runs with selectable reward routes, making stamina cleanup much easier.
 - 🗿 **Umbral Monument**: Automatically challenges uncleared normal stages of Umbral Monument, with selectable monument and team, plus configurable retries on failure.
+- 💾 **Extract Sanity**: Automatically extracts Sanity Essence, a blessing for Monthly Pass hoarders!
 - 🌾 **Eco Farm**: Handles harvesting, planting, and watering, and can also tidy up your bag before and after the run.
 - 🧺 **Auto resource gathering**: Follows outdoor gathering routes automatically to collect as many field resources as possible.
 - 🦉 **Resource Recycle Station**: Automatically collects materials from owl recycle stations in Wuling and Valley IV.

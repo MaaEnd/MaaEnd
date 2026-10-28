@@ -459,6 +459,7 @@ struct NaviParamInput
     std::vector<NaviWaypointInput> path_;
     int64_t arrival_timeout_ = 60000;
     double sprint_threshold_ = 16.0;
+    bool enable_sprint_ = true;
     bool enable_local_driver_ = true;
     bool enable_bootstrap_navmesh_ = true;
     std::string navmesh_file_;
@@ -481,6 +482,7 @@ struct NaviParamInput
         MEO_OPT MEO_KEY("arrival_timeout") arrival_timeout_,
         MEO_OPT MEO_KEY("heading_source") heading_source_,
         MEO_OPT MEO_KEY("sprint_threshold") sprint_threshold_,
+        MEO_OPT MEO_KEY("enable_sprint") enable_sprint_,
         MEO_OPT MEO_KEY("enable_local_driver") enable_local_driver_,
         MEO_OPT MEO_KEY("zip") zip_,
         MEO_OPT MEO_KEY("enable_bootstrap_navmesh") enable_bootstrap_navmesh_,
@@ -505,6 +507,7 @@ NaviParam build_navi_param(const json::value& custom_action_param, const NaviPar
     param.heading_source = input.heading_source_ == "camera" ? HeadingSource::Camera : HeadingSource::Character;
     param.arrival_timeout = input.arrival_timeout_;
     param.sprint_threshold = input.sprint_threshold_;
+    param.enable_sprint = input.enable_sprint_;
     param.enable_local_driver = input.enable_local_driver_;
     param.zipline_enabled = input.zip_;
     param.enable_bootstrap_navmesh = input.enable_bootstrap_navmesh_;

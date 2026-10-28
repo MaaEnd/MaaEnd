@@ -455,6 +455,7 @@ The interface is an Action based on MAA `Custom`: `MapNavigateAction`.
 | `heading_source` | `"character"` | Heading source for navigation and zipline pylon aiming throughout the call: `"character"` uses the character heading, `"camera"` uses the camera heading; neither falls back to the other |
 | `arrival_timeout` | `60000` | Maximum time allowed to reach a single point, in milliseconds; exceeding it counts as failure |
 | `sprint_threshold` | `16.0` | Threshold for automatic sprinting, based on **the length of the continuously runnable segment ahead** rather than the straight-line distance to the current point |
+| `enable_sprint` | `true` | Whether sprinting is allowed. Set it to `false` to disable sprinting for the entire navigation: automatic sprint never fires, and `SPRINT` points in the route are skipped |
 | `interact_text` | Empty | Route-wide default for the interact prompt text, see [Async Interaction](#async-interaction-interact) |
 | `interact_scan` | Empty | Route-wide default for the walking pre-filter node, see [Replacing the Icon Pre-filter](#replacing-the-icon-pre-filter) |
 | `interact_rec` | `false` | Whether the route's `INTERACT` points recognize the prompt without pressing anything, see [Recognize Only, Never Press](#recognize-only-never-press-rec-mode) |

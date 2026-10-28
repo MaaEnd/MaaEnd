@@ -167,233 +167,83 @@
                         "AutoCollectTargetInventory"
                     ],
                     "pipeline_override": {
-                        "AutoCollectInventoryResetSnapshot": {
+                        "AutoCollectInventory": {
                             "enabled": true
                         },
                         "AutoCollectRoute1Sub": {
                             "enabled": false
                         },
-                        "AutoCollectRoute1SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute1SubSkipped": {
-                            "enabled": true
-                        },
                         "AutoCollectRoute2Sub": {
                             "enabled": false
-                        },
-                        "AutoCollectRoute2SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute2SubSkipped": {
-                            "enabled": true
                         },
                         "AutoCollectRoute3Sub": {
                             "enabled": false
                         },
-                        "AutoCollectRoute3SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute3SubSkipped": {
-                            "enabled": true
-                        },
                         "AutoCollectRoute4Sub": {
                             "enabled": false
-                        },
-                        "AutoCollectRoute4SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute4SubSkipped": {
-                            "enabled": true
                         },
                         "AutoCollectRoute5Sub": {
                             "enabled": false
                         },
-                        "AutoCollectRoute5SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute5SubSkipped": {
-                            "enabled": true
-                        },
                         "AutoCollectRoute6Sub": {
                             "enabled": false
-                        },
-                        "AutoCollectRoute6SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute6SubSkipped": {
-                            "enabled": true
                         },
                         "AutoCollectRoute7Sub": {
                             "enabled": false
                         },
-                        "AutoCollectRoute7SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute7SubSkipped": {
-                            "enabled": true
-                        },
                         "AutoCollectRoute8Sub": {
                             "enabled": false
-                        },
-                        "AutoCollectRoute8SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute8SubSkipped": {
-                            "enabled": true
                         },
                         "AutoCollectRoute9Sub": {
                             "enabled": false
                         },
-                        "AutoCollectRoute9SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute9SubSkipped": {
-                            "enabled": true
-                        },
                         "AutoCollectRoute10Sub": {
                             "enabled": false
-                        },
-                        "AutoCollectRoute10SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute10SubSkipped": {
-                            "enabled": true
                         },
                         "AutoCollectRoute11Sub": {
                             "enabled": false
                         },
-                        "AutoCollectRoute11SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute11SubSkipped": {
-                            "enabled": true
-                        },
                         "AutoCollectRoute12Sub": {
                             "enabled": false
-                        },
-                        "AutoCollectRoute12SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute12SubSkipped": {
-                            "enabled": true
                         },
                         "AutoCollectRoute13Sub": {
                             "enabled": false
                         },
-                        "AutoCollectRoute13SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute13SubSkipped": {
-                            "enabled": true
-                        },
                         "AutoCollectRoute14Sub": {
                             "enabled": false
-                        },
-                        "AutoCollectRoute14SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute14SubSkipped": {
-                            "enabled": true
                         },
                         "AutoCollectRoute15Sub": {
                             "enabled": false
                         },
-                        "AutoCollectRoute15SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute15SubSkipped": {
-                            "enabled": true
-                        },
                         "AutoCollectRoute16Sub": {
                             "enabled": false
-                        },
-                        "AutoCollectRoute16SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute16SubSkipped": {
-                            "enabled": true
                         },
                         "AutoCollectRoute17Sub": {
                             "enabled": false
                         },
-                        "AutoCollectRoute17SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute17SubSkipped": {
-                            "enabled": true
-                        },
                         "AutoCollectCommonRoute1Sub": {
                             "enabled": false
-                        },
-                        "AutoCollectCommonRoute1SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute1SubSkipped": {
-                            "enabled": true
                         },
                         "AutoCollectCommonRoute2Sub": {
                             "enabled": false
                         },
-                        "AutoCollectCommonRoute2SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute2SubSkipped": {
-                            "enabled": true
-                        },
                         "AutoCollectCommonRoute3Sub": {
                             "enabled": false
-                        },
-                        "AutoCollectCommonRoute3SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute3SubSkipped": {
-                            "enabled": true
                         },
                         "AutoCollectCommonRoute4Sub": {
                             "enabled": false
                         },
-                        "AutoCollectCommonRoute4SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute4SubSkipped": {
-                            "enabled": true
-                        },
                         "AutoCollectCommonRoute5Sub": {
                             "enabled": false
-                        },
-                        "AutoCollectCommonRoute5SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute5SubSkipped": {
-                            "enabled": true
                         },
                         "AutoCollectCommonRoute6Sub": {
                             "enabled": false
                         },
-                        "AutoCollectCommonRoute6SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute6SubSkipped": {
-                            "enabled": true
-                        },
                         "AutoCollectCommonRoute7Sub": {
                             "enabled": false
                         },
-                        "AutoCollectCommonRoute7SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute7SubSkipped": {
-                            "enabled": true
-                        },
                         "AutoCollectCommonRoute8Sub": {
                             "enabled": false
-                        },
-                        "AutoCollectCommonRoute8SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute8SubSkipped": {
-                            "enabled": true
                         }
                     }
                 }
@@ -1103,6 +953,12 @@
                         },
                         "AutoCollectRoute4Start": {
                             "enabled": true
+                        },
+                        "AutoCollectRoute4SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute4SubSkipped": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1114,6 +970,12 @@
                             "enabled": true
                         },
                         "AutoCollectRoute5Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute5SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute5SubSkipped": {
                             "enabled": true
                         }
                     }
@@ -1127,6 +989,12 @@
                         },
                         "AutoCollectRoute6Start": {
                             "enabled": true
+                        },
+                        "AutoCollectRoute6SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute6SubSkipped": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1139,6 +1007,12 @@
                         },
                         "AutoCollectRoute13Start": {
                             "enabled": true
+                        },
+                        "AutoCollectRoute13SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute13SubSkipped": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1150,6 +1024,12 @@
                             "enabled": true
                         },
                         "AutoCollectRoute14Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute14SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute14SubSkipped": {
                             "enabled": true
                         }
                     }
@@ -1176,6 +1056,12 @@
                         },
                         "AutoCollectCommonRoute1Start": {
                             "enabled": true
+                        },
+                        "AutoCollectCommonRoute1SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute1SubSkipped": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1187,6 +1073,12 @@
                             "enabled": true
                         },
                         "AutoCollectCommonRoute2Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute2SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute2SubSkipped": {
                             "enabled": true
                         }
                     }
@@ -1227,6 +1119,12 @@
                         },
                         "AutoCollectRoute1Start": {
                             "enabled": true
+                        },
+                        "AutoCollectRoute1SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute1SubSkipped": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1238,6 +1136,12 @@
                             "enabled": true
                         },
                         "AutoCollectRoute2Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute2SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute2SubSkipped": {
                             "enabled": true
                         }
                     }
@@ -1251,6 +1155,12 @@
                         },
                         "AutoCollectRoute3Start": {
                             "enabled": true
+                        },
+                        "AutoCollectRoute3SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute3SubSkipped": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1262,6 +1172,12 @@
                             "enabled": true
                         },
                         "AutoCollectRoute7Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute7SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute7SubSkipped": {
                             "enabled": true
                         }
                     }
@@ -1275,6 +1191,12 @@
                         },
                         "AutoCollectRoute8Start": {
                             "enabled": true
+                        },
+                        "AutoCollectRoute8SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute8SubSkipped": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1286,6 +1208,12 @@
                             "enabled": true
                         },
                         "AutoCollectRoute9Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute9SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute9SubSkipped": {
                             "enabled": true
                         }
                     }
@@ -1299,6 +1227,12 @@
                         },
                         "AutoCollectRoute10Start": {
                             "enabled": true
+                        },
+                        "AutoCollectRoute10SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute10SubSkipped": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1310,6 +1244,12 @@
                             "enabled": true
                         },
                         "AutoCollectRoute11Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute11SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute11SubSkipped": {
                             "enabled": true
                         }
                     }
@@ -1323,6 +1263,12 @@
                         },
                         "AutoCollectRoute12Start": {
                             "enabled": true
+                        },
+                        "AutoCollectRoute12SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute12SubSkipped": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1334,6 +1280,12 @@
                             "enabled": true
                         },
                         "AutoCollectRoute15Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute15SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute15SubSkipped": {
                             "enabled": true
                         }
                     }
@@ -1347,6 +1299,12 @@
                         },
                         "AutoCollectRoute16Start": {
                             "enabled": true
+                        },
+                        "AutoCollectRoute16SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute16SubSkipped": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1358,6 +1316,12 @@
                             "enabled": true
                         },
                         "AutoCollectRoute17Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute17SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute17SubSkipped": {
                             "enabled": true
                         }
                     }
@@ -1391,6 +1355,12 @@
                         },
                         "AutoCollectCommonRoute3Start": {
                             "enabled": true
+                        },
+                        "AutoCollectCommonRoute3SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute3SubSkipped": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1402,6 +1372,12 @@
                             "enabled": true
                         },
                         "AutoCollectCommonRoute4Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute4SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute4SubSkipped": {
                             "enabled": true
                         }
                     }
@@ -1415,6 +1391,12 @@
                         },
                         "AutoCollectCommonRoute5Start": {
                             "enabled": true
+                        },
+                        "AutoCollectCommonRoute5SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute5SubSkipped": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1426,6 +1408,12 @@
                             "enabled": true
                         },
                         "AutoCollectCommonRoute6Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute6SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute6SubSkipped": {
                             "enabled": true
                         }
                     }
@@ -1439,6 +1427,12 @@
                         },
                         "AutoCollectCommonRoute7Start": {
                             "enabled": true
+                        },
+                        "AutoCollectCommonRoute7SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute7SubSkipped": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1450,6 +1444,12 @@
                             "enabled": true
                         },
                         "AutoCollectCommonRoute8Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute8SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute8SubSkipped": {
                             "enabled": true
                         }
                     }

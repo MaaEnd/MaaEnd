@@ -6,7 +6,7 @@
 1) 扫描目录：
    - assets/resource/pipeline
    - assets/resource_adb/pipeline
-   - assets/resource_cloud_adb/pipeline
+   - assets/resource_cloud/pipeline
 2) OCR 节点判定：
    - recognition == "OCR"
    - 或 recognition.type == "OCR"
@@ -45,7 +45,7 @@ from pathlib import Path
 PIPELINE_DIRS = [
     Path("assets/resource/pipeline"),
     Path("assets/resource_adb/pipeline"),
-    Path("assets/resource_cloud_adb/pipeline"),
+    Path("assets/resource_cloud/pipeline"),
 ]
 
 I18N_FILE_NAMES = {

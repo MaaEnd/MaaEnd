@@ -2,24 +2,108 @@
     // 触控资源不再依赖按键：PlayCover 没有任何按键能力（ClickKey / KeyDown / KeyUp /
     // InputText 均被 libMaaPlayCoverControlUnit 拒绝，日志为 "not supported on PlayCover"），
     // 而 ADB 的 BACK（key=4）在部分设备/虚拟屏上会被系统吞掉。
-    // 这里用「右上角关闭按钮 + 大世界手表」的纯触摸点击替代 ESC/BACK：
+    // 这里用「右上角关闭按钮 + 大世界手表 + 各类返回入口」的纯触摸点击替代 ESC/BACK：
     //   - CloseButtonType1：右上角两种 X（普通面板 X + 圆形菜单 X，已聚合 5 种变体）
     //   - ProtosyncMenuButton：大世界右上角「手表」（协议同步器），大世界叠加态下的兜底返回入口
+    //   - __ScenePrivateExitPhoto：拍照模式右上角退出图标（该界面既无 X 也无返回键）
+    //   - BackButton：面板右上角白色圆形「←」返回
+    //   - __ScenePrivateBackPill：售卖弹性物资的好友价格页右上角「← 返回」胶囊
+    //   - __ScenePrivateClickToContinue：底部「点击屏幕继续」结算弹窗（既无 X 也无返回键）
     // 仅复用上述节点的识别框；它们各自的 action / next（含 Alt+点击链）不会被执行。
-    // 认不到时不做固定坐标兜底，交给上层 next 自然恢复（与 resource_cloud_adb 一致）。
+    // 认不到时不做固定坐标兜底，交给上层 next 自然恢复。
     "__ScenePrivateAnyExit": {
-        "desc": "触屏退出场景：识别右上角 X 或大世界手表并点击（无 ESC/BACK 可用）",
+        "desc": "触屏退出场景：识别右上角 X、手表或各返回入口并点击（无 ESC/BACK 可用）",
         "recognition": {
             "type": "Or",
             "param": {
                 "any_of": [
+                    "__ScenePrivateExitPhoto",
                     "CloseButtonType1",
-                    "ProtosyncMenuButton"
+                    "ProtosyncMenuButton",
+                    "BackButton",
+                    "__ScenePrivateBackPill",
+                    "__ScenePrivateClickToContinue"
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                // CloseButton 系列最大模板为 Type3 的 31x31；点击其下半部分，避免点到偏上区域
+                "target_offset": [
+                    0,
+                    16,
+                    0,
+                    -16
+                ]
+            }
+        },
+        "post_delay": 0
+    },
+    "__ScenePrivateExitPhoto": {
+        "desc": "拍照模式右上角退出图标（拍照界面没有 X，只能点它）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ShutterButton",
+                    {
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            1100,
+                            10,
+                            160,
+                            60
+                        ],
+                        "template": "SceneManager/ExitPhoto.png",
+                        "threshold": 0.85
+                    }
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    // 面板右上角「← 返回」胶囊：本地 ADB 原先靠 BACK 键退出，触屏化后只能点它
+    // 复用 AutoSell 的安卓模板，只取识别框，点击由 __ScenePrivateAnyExit 负责
+    "__ScenePrivateBackPill": {
+        "desc": "面板右上角「← 返回」胶囊按钮（好友价格页等）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    900,
+                    0,
+                    380,
+                    187
+                ],
+                "template": [
+                    "AutoSell/FriendsPricesBack.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    // 底部「点击屏幕继续」的结算弹窗（如转交委托开始运送后的「获得调度券」）：画面上没有 X 和返回键，只能点它
+    "__ScenePrivateClickToContinue": {
+        "desc": "底部「点击屏幕继续」提示",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    440,
+                    630,
+                    400,
+                    90
+                ],
+                "expected": [
+                    "点击屏幕继续",
+                    "按任意處繼續",
+                    "(?i)Click\\s*to\\s*continue",
+                    "クリックして続行",
+                    "화면을 눌러 계속하기"
+                ]
+            }
         }
     }
 }

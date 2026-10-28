@@ -455,6 +455,7 @@ uv run map-navigator --port 9000 --no-browser
 | `heading_source` | `"character"` | 整次调用的导航与滑索架瞄准朝向来源：`"character"` 使用角色朝向，`"camera"` 使用镜头朝向；不会相互回退 |
 | `arrival_timeout` | `60000` | 单个点允许的最长到达时间，超时判定失败，单位毫秒 |
 | `sprint_threshold` | `16.0` | 自动冲刺的判定阈值，依据**前方连续可跑段的长度**而非当前点的直线距离 |
+| `enable_sprint` | `true` | 是否允许冲刺。填 `false` 则整次导航从头到尾都不冲刺：自动冲刺不触发，路线里的 `SPRINT` 点也直接跳过 |
 | `interact_text` | 空 | 整条路线的交互提示文字默认值，见[异步交互](#异步交互-interact) |
 | `interact_scan` | 空 | 整条路线的行进预筛节点默认值，见[换掉图标预筛](#换掉图标预筛) |
 | `interact_rec` | `false` | 整条路线的 `INTERACT` 点是否只认提示不按键，见[只认提示不按键](#只认提示不按键rec-模式) |

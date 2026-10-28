@@ -86,6 +86,20 @@ function expectedNames(names) {
     ];
 }
 
+// 数量上限家族同时决定折扣分组：刻写券、精锻助剂各自成组，其余按类目分组。
+const discountGroups = {
+    EngravingPermit: "EngravingPermit",
+    ArtificingCatalyst: "ArtificingCatalyst",
+    FoodAndBuff: "Daily",
+    DetectorCompass: "Industrial",
+    Gift: "Cultural",
+};
+const attachNodePrefix = "AutoStockInStapleItemName";
+
+function attachNode(group) {
+    return `${attachNodePrefix}${group}`;
+}
+
 function limitOption(region, category, itemId) {
     const shortRegion = region === "ValleyIV" ? "Valley" : region;
     let suffix;
@@ -100,7 +114,13 @@ function limitOption(region, category, itemId) {
     return {
         option: `AutoStockBuy${categories[category]}${region}${suffix}Limit`,
         input: `${shortRegion}${suffix}Limit`,
+        group: discountGroups[suffix],
     };
+}
+
+function existingAttachNode(entry) {
+    const override = entry.pipeline_override ?? {};
+    return Object.keys(override).find((key) => key.startsWith(attachNodePrefix));
 }
 
 function buildAdditions(data, task, pipelines, translations) {
@@ -188,8 +208,13 @@ function buildAdditions(data, task, pipelines, translations) {
     ] of ordered) {
         const names = namesOf(data.items[itemId], itemId);
         const previous = existing.get(itemId);
+        const previousAttachNode = previous ? existingAttachNode(previous) : undefined;
+        const region = regions[goods.region_id];
+        const category = goods.category_id;
+        const limits = limitOption(region, category, itemId);
+        const group = limits.group;
         // 已有手写配置原样保留。生成项也只补缺失节点，不改已存在的配置。
-        if (previous && !Object.hasOwn(previous.pipeline_override.AutoStockInStapleItemName.attach, itemId)) continue;
+        if (previous && !Object.hasOwn(previous.pipeline_override[previousAttachNode]?.attach ?? {}, itemId)) continue;
         const suffix = nodeId(itemId);
         const name = previous?.name ?? caseName(names);
         if (!name || (!previous && usedCaseNames.has(name)))
@@ -197,8 +222,6 @@ function buildAdditions(data, task, pipelines, translations) {
         usedCaseNames.add(name);
         if (usedNodeIds.has(suffix)) throw new Error(`Node ID collision: ${suffix}`);
         usedNodeIds.add(suffix);
-        const region = regions[goods.region_id];
-        const category = goods.category_id;
         const option = task.option[`AutoStockBuy${categories[category]}${region}Items`];
         if (!option) throw new Error(`Missing shop option for ${region}/${category}`);
         if (!previous) {
@@ -207,14 +230,15 @@ function buildAdditions(data, task, pipelines, translations) {
                 label: `$${namePrefix}${itemId}`,
                 icon: `resource/image/UI/Item/${itemId}.png`,
                 pipeline_override: {
-                    AutoStockInStapleItemName: {attach: {[itemId]: locales.map((locale) => names[locale])}},
+                    [attachNode(group)]: {attach: {[itemId]: locales.map((locale) => names[locale])}},
                 },
             });
             added++;
         }
-        const limits = limitOption(region, category, itemId);
         const limit = task.option[limits.option];
         if (!limit) throw new Error(`Missing quantity policy: ${limits.option}`);
+        const discount = task.option[`AutoStockMinDiscount${region}${group}`];
+        if (!discount) throw new Error(`Missing discount option: AutoStockMinDiscount${region}${group}`);
         for (const [
             ending,
             comparison,
@@ -238,7 +262,7 @@ function buildAdditions(data, task, pipelines, translations) {
                 },
             };
         }
-        const nodes = substitute(template, {NodeId: suffix, ItemId: itemId, Name: names.zh_cn});
+        const nodes = substitute(template, {NodeId: suffix, ItemId: itemId, Name: names.zh_cn, Group: group});
         const recognition = nodes[`AutoStockStapleGoods${suffix}`].recognition.param;
         recognition.expected = expectedNames(names);
         for (const [

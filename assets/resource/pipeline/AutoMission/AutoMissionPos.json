@@ -1,0 +1,215 @@
+{
+    "AutoMissionPos": {
+        "desc": "子流程入口：在任务界面先关闭，在大世界直接按 V",
+        "next": [
+            "AutoMissionPosCloseJournal",
+            "AutoMissionPosTrackCurrentMission"
+        ]
+    },
+    "AutoMissionPosCloseJournal": {
+        "desc": "在任务界面，点击右上角关闭按钮回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoMissionPosTrackCurrentMission"
+        ]
+    },
+    "AutoMissionPosTrackCurrentMission": {
+        "desc": "在大世界按追踪当前任务键",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "ClickKey",
+        "key": 86, // V
+        "post_delay": 1500, // 等一会看会不会跳出地图追踪
+        "next": [
+            "AutoMissionPosQuickTeleportSelect",
+            "AutoMissionPosInWorld"
+        ]
+    },
+    "AutoMissionPosQuickTeleportSelect": {
+        "desc": "不在当前地图点击前往传送",
+        "recognition": "And",
+        "all_of": [
+            "QuickTeleportButton"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoMissionPosTeleport"
+        ]
+    },
+    "AutoMissionPosTeleport": {
+        "desc": "点击传送",
+        "recognition": "And",
+        "all_of": [
+            "TeleportButton"
+        ],
+        "action": "Click",
+        "next": [
+            "AutoMissionPosInWorld",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "AutoMissionPosInWorld": {
+        "desc": "已返回大世界，按覆盖的区域和坐标寻路到追踪坐标，进入剧情界面即结束",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "post_delay": 1500, // 走到坐标后等一会再继续，部分任务会进入剧情动画
+        "next": [
+            "AutoMissionPosActionInteract",
+            "AutoMissionPosActionExitToWorld",
+            "AutoMissionPosActionTakePhoto",
+            "AutoMissionPosActionScan",
+            "[JumpBack]AutoFight",
+            "AutoMissionPosActionMove",
+            "AutoMissionPosActionBackInWorld"
+        ]
+    },
+    "AutoMissionPosActionInteract": {
+        "desc": "走到NPC旁边了，出现目标交互名称，可以点击",
+        "recognition": "And",
+        "all_of": [
+            "InWorld",
+            "AutoMissionPosActionInteractRecognition"
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "AutoMissionPosActionInteractRecognition"
+        },
+        "post_delay": 3000, // 交互后拍照、拼图、剧情、小游戏等界面要过一会才弹出，之前没有可识别的过渡画面
+        "next": [
+            "AutoMissionPosActionExitToWorld",
+            "AutoMissionPosActionBackInWorld"
+        ]
+    },
+    "AutoMissionPosActionTakePhoto": {
+        "desc": "这一步要拍照，复用环境监测的进拍照和拍照流程，拍完经锚点回到本流程；默认关闭，由 Go 按数据打开",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "AutoMissionPosActionPhotoDone"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhotoDirectly"
+        ]
+    },
+    "AutoMissionPosActionScan": {
+        "desc": "这一步要用扫描，走到位置后打开扫描，打开即完成；默认关闭，由 Go 按数据打开",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoMissionOpenScan"
+            ]
+        },
+        "post_delay": 3000, // 扫描后剧情要过一会才开始，之前没有可识别的过渡画面
+        "next": [
+            "AutoMissionPosActionExitToWorld",
+            "AutoMissionPosActionBackInWorld"
+        ]
+    },
+    "AutoMissionPosActionPhotoDone": {
+        "desc": "拍照完成，关闭照片预览回到大世界",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 3000, // 拍照结束后剧情要过一会才开始，之前没有可识别的过渡画面
+        "next": [
+            "AutoMissionPosActionExitToWorld",
+            "AutoMissionPosActionBackInWorld"
+        ]
+    },
+    "AutoMissionPosActionExitToWorld": {
+        "desc": "剧情中识别到跳过按钮后，从画面中心悬停移过去并点击",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1140,
+            0,
+            120,
+            90
+        ],
+        "template": "RealTimeTask/AutoSkipEsc.png",
+        "pre_delay": 1000, // 刚进剧情时跳过按钮点了不生效，等一会再点
+        "action": "Custom",
+        "custom_action": "AutoSwipeClickAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionPosActionExitToWorldConfirm"
+        ]
+    },
+    "AutoMissionPosActionExitToWorldConfirm": {
+        "desc": "确认跳过剧情",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_delay": 1000, // 等待画面过度
+        "next": [
+            "AutoMissionPosActionBackInWorld",
+            "AutoMissionPosActionExitToWorld"
+        ]
+    },
+    "AutoMissionPosActionBackInWorld": {
+        "desc": "已回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ]
+    },
+    "AutoMissionPosActionMove": {
+        "desc": "追踪距离小于 10 m 时，按屏幕上的任务追踪图标走近，直到出现 NPC 交互提示；远了不进，免得隔着障碍追远处或下一步的目标；没有 NPC 名字时由 Go 关闭",
+        "recognition": "And",
+        "all_of": [
+            "AutoMissionWorldTrackRecognition",
+            "AutoMissionTrackDistanceNear"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "FIND",
+                    "find_target": "AutoMissionWorldTrackRecognition",
+                    "find_stop": "AutoMissionPosActionInteractRecognition"
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionPosActionInteract"
+        ]
+    }
+}

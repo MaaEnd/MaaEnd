@@ -13,7 +13,7 @@ class ActionWrapper;
 class MotionController
 {
 public:
-    MotionController(ActionWrapper* action_wrapper, bool enable_local_driver);
+    MotionController(ActionWrapper* action_wrapper, bool enable_local_driver, bool enable_sprint);
 
     void stop();
     void setForwardState(bool forward);
@@ -41,6 +41,7 @@ private:
 
     ActionWrapper* action_wrapper_;
     bool enable_local_driver_;
+    bool enable_sprint_;
     SteeringTransportProfile steering_profile_ {};
     std::chrono::steady_clock::time_point last_steering_sent_at_ {};
     std::chrono::steady_clock::time_point steering_quiet_until_ {};

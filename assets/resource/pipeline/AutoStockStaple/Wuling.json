@@ -16,10 +16,14 @@
         "rate_limit": 0,
         "next": [
             "AutoStockTargetCanNotBuyWuling",
-            "[JumpBack]AutoStockBuyItemWulingTask",
+            "[JumpBack]AutoStockBuyItemWulingTaskEngravingPermit",
+            "[JumpBack]AutoStockBuyItemWulingTaskArtificingCatalyst",
+            "[JumpBack]AutoStockBuyItemWulingTaskDaily",
+            "[JumpBack]AutoStockBuyItemWulingTaskIndustrial",
+            "[JumpBack]AutoStockBuyItemWulingTaskCultural",
             "SoldOut",
-            "[JumpBack]AutoStockSwipeWuling",
-            "AutoStockNoMoreTargetWuling"
+            "AutoStockListCompleteWuling",
+            "[JumpBack]AutoStockSwipeWuling"
         ]
     },
     "AutoStockTargetCompareWuling": {
@@ -46,15 +50,16 @@
             }
         }
     },
-    "AutoStockBuyItemWulingTask": {
-        "desc": "识别商品，并进入购买流程",
+    // 每个折扣分组对应一条购买任务：命中该分组的商品名白名单 + 该分组折扣档位后才点击商品。
+    "AutoStockBuyItemWulingTaskEngravingPermit": {
+        "desc": "识别武陵刻写券，并进入购买流程",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "AutoStockInStapleItem",
-                    "AutoStockInStapleItemName_Expected",
-                    "AutoStockInStapleItemDiscountsWuling"
+                    "AutoStockInStapleItemNameEngravingPermit_Expected",
+                    "AutoStockInStapleItemDiscountsWulingEngravingPermit"
                 ],
                 "box_index": 2
             }
@@ -87,9 +92,196 @@
             "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
         }
     },
+    "AutoStockBuyItemWulingTaskArtificingCatalyst": {
+        "desc": "识别武陵精锻助剂，并进入购买流程",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItem",
+                    "AutoStockInStapleItemNameArtificingCatalyst_Expected",
+                    "AutoStockInStapleItemDiscountsWulingArtificingCatalyst"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockStapleQuantityControl"
+                    ]
+                },
+                "target_offset": [
+                    -45,
+                    85,
+                    -30,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControl"
+        ],
+        "focus": {
+            "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
+        }
+    },
+    "AutoStockBuyItemWulingTaskDaily": {
+        "desc": "识别武陵日用消耗类商品，并进入购买流程",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItem",
+                    "AutoStockInStapleItemNameDaily_Expected",
+                    "AutoStockInStapleItemDiscountsWulingDaily"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockStapleQuantityControl"
+                    ]
+                },
+                "target_offset": [
+                    -45,
+                    85,
+                    -30,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControl"
+        ],
+        "focus": {
+            "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
+        }
+    },
+    "AutoStockBuyItemWulingTaskIndustrial": {
+        "desc": "识别武陵工业货品类商品，并进入购买流程",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItem",
+                    "AutoStockInStapleItemNameIndustrial_Expected",
+                    "AutoStockInStapleItemDiscountsWulingIndustrial"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockStapleQuantityControl"
+                    ]
+                },
+                "target_offset": [
+                    -45,
+                    85,
+                    -30,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControl"
+        ],
+        "focus": {
+            "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
+        }
+    },
+    "AutoStockBuyItemWulingTaskCultural": {
+        "desc": "识别武陵人文物产类商品，并进入购买流程",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItem",
+                    "AutoStockInStapleItemNameCultural_Expected",
+                    "AutoStockInStapleItemDiscountsWulingCultural"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockStapleQuantityControl"
+                    ]
+                },
+                "target_offset": [
+                    -45,
+                    85,
+                    -30,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControl"
+        ],
+        "focus": {
+            "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
+        }
+    },
+    "AutoStockListCompleteWuling": {
+        "desc": "比较列表静止画面，确认武陵物资列表已经到底",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "custom_recognition_param": {
+                    "threshold": 0.95
+                },
+                "roi": [
+                    65,
+                    200,
+                    1075,
+                    360
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "attach": {
+            "ready": false
+        }
+    },
     "AutoStockSwipeWuling": {
-        "desc": "向下滑动寻找商品，直到找到商品或到达底部",
-        "max_hit": 25,
+        "desc": "向下滑动寻找商品；不设次数上限，何时停止由售罄与列表到底识别器决定",
         "recognition": {
             "type": "And",
             "param": {
@@ -129,20 +321,5 @@
                 176
             ]
         }
-    },
-    "AutoStockNoMoreTargetWuling": {
-        "desc": "滑动次数用完仍在物资调度页：列表已到底且没有符合条件的商品，结束当前区域",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InWulingText",
-                    "InStapleColor"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
     }
 }
