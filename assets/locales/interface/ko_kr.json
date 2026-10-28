@@ -2382,6 +2382,7 @@
     "task.GiftOperator.focus.move_retry": "⚠️ 경로 탐색 또는 오퍼레이터 인식 실패, 재시도하는 중...",
     "task.GiftOperator.label": "🎁오퍼레이터 선물",
     "task.GiftOperator.select.any_three": "임의",
+    "task.GiftOperator.select.all": "모든 오퍼레이터",
     "task.ImportBluePrints.description": "청사진을 일괄로 가져옵니다(스마트 파싱 지원).",
     "task.ImportBluePrints.label": "📐 청사진 일괄 가져오기",
     "task.IntelArchive.description": "아카이브 보유 현황을 기록하고, https://opendfieldmap.org/intel/ 로 가져와 빠진 항목을 채울 수 있습니다.",

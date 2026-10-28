@@ -2382,6 +2382,7 @@
     "task.GiftOperator.focus.move_retry": "⚠️ 尋路或尋找幹員失敗，嘗試重試...",
     "task.GiftOperator.label": "🎁贈送幹員禮物",
     "task.GiftOperator.select.any_three": "任意",
+    "task.GiftOperator.select.all": "全部幹員",
     "task.ImportBluePrints.description": "一鍵批量導入藍圖，支援智慧解析",
     "task.ImportBluePrints.label": "📐一鍵導入藍圖",
     "task.IntelArchive.description": "統計並記錄檔案庫已有檔案，可一鍵匯入 https://opendfieldmap.org/intel/ 查缺補漏",

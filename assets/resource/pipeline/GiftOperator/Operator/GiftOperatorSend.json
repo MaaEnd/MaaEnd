@@ -1,10 +1,10 @@
 {
     "GiftOperatorSendAllMain": {
         "desc": "依次调用每名干员的单人赠礼流程；max_hit 只记录本次名单进度，不在单人入口清零",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "enabled": false,
         "next": [
             "[JumpBack]GiftSendOperatorSelect_Perlica",
             "[JumpBack]GiftSendOperatorSelect_Yvonne",
@@ -71,8 +71,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
-        ]
+            "GiftSendOperatorPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Perlica"
+        }
     },
     "GiftSendOperatorSelect_Yvonne": {
         "max_hit": 1,
@@ -104,7 +107,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Ardelia": {
@@ -137,7 +140,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Gilberta": {
@@ -170,7 +173,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_ChenQianyu": {
@@ -203,7 +206,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Wulfgard": {
@@ -236,7 +239,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Antal": {
@@ -269,7 +272,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Xaihi": {
@@ -302,7 +305,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Lifeng": {
@@ -335,7 +338,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Catcher": {
@@ -368,7 +371,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Arclight": {
@@ -401,7 +404,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Avywenna": {
@@ -434,7 +437,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Laevatain": {
@@ -467,7 +470,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Alesh": {
@@ -500,7 +503,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Pogranichnik": {
@@ -533,7 +536,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_LastRite": {
@@ -566,7 +569,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Ember": {
@@ -599,7 +602,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Snowshine": {
@@ -632,7 +635,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_DaPan": {
@@ -665,7 +668,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Fluorite": {
@@ -698,7 +701,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Akekuri": {
@@ -731,7 +734,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Estella": {
@@ -764,7 +767,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Rossi": {
@@ -797,7 +800,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Tangtang": {
@@ -830,7 +833,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_ZhuangFangyi": {
@@ -863,7 +866,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_MiFu": {
@@ -896,7 +899,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Camille": {
@@ -929,7 +932,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Arcane": {
@@ -962,7 +965,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Liino": {
@@ -995,7 +998,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Typhoeus": {
@@ -1028,7 +1031,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Purrchena": {
@@ -1061,7 +1064,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftSendOperatorPrepare"
         ]
     },
     "GiftSendOperatorSelect_Si": {
@@ -1088,6 +1091,26 @@
                             ]
                         }
                     }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftSendOperatorPrepare"
+        ]
+    },
+    "GiftSendOperatorPrepare": {
+        "desc": "每名干员开始查找前清空返回帝江号的命中计数，使 max_hit=5 按干员独立生效，保留外层名单进度",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "GiftOperatorGoToDijiang"
+                    ]
                 }
             }
         },

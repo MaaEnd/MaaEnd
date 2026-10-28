@@ -2382,6 +2382,7 @@
     "task.GiftOperator.focus.move_retry": "⚠️ 経路探索またはオペレーターの認識に失敗しました。再試行します...",
     "task.GiftOperator.label": "🎁オペレーターにプレゼント",
     "task.GiftOperator.select.any_three": "任意",
+    "task.GiftOperator.select.all": "全オペレーター",
     "task.ImportBluePrints.description": "設計図を一括でインポートします（スマート解析対応）。",
     "task.ImportBluePrints.label": "📐 設計図を一括インポート",
     "task.IntelArchive.description": "アーカイブの所持状況を記録し、https://opendfieldmap.org/intel/ に取り込んで不足分を補えます。",
