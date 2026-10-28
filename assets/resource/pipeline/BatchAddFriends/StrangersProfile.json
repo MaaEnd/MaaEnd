@@ -98,20 +98,7 @@
                 ],
                 "template": "BatchAddFriends/authorityLevel.png"
             }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BatchAddFriendsStrangersProfileAuthorityLevel"
-        ],
-        "on_error": [
-            "BatchAddFriendsStrangersProfileFallbackClose"
-        ]
+        }
     },
     "BatchAddFriendsStrangersProfileFallbackClose": {
         "desc": "名片已打开但识别目标失败的兜底：确认在名片页后关掉",
@@ -167,10 +154,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "BatchAddFriendsStrangersProfileValleyIVIcon",
-            "BatchAddFriendsStrangersProfileWulingIcon",
-            "BatchAddFriendsStrangersProfileAuthorityGate",
-            "BatchAddFriendsStrangersProfileRejectLogAuthority"
+            "BatchAddFriendsStrangersProfileValleyIVIcon"
         ],
         "on_error": [
             "BatchAddFriendsStrangersProfileFallbackClose"
@@ -233,8 +217,8 @@
         "rate_limit": 0,
         "next": [
             "BatchAddFriendsStrangersProfileWulingIcon",
-            "BatchAddFriendsStrangersProfileAuthorityGate",
-            "BatchAddFriendsStrangersProfileRejectLogAuthority"
+            "BatchAddFriendsStrangersProfileQualified",
+            "BatchAddFriendsStrangersProfileReject"
         ]
     },
     "BatchAddFriendsStrangersProfileWulingIcon": {
@@ -292,187 +276,56 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "BatchAddFriendsStrangersProfileAuthorityGate",
-            "BatchAddFriendsStrangersProfileRejectLogAuthority"
+            "BatchAddFriendsStrangersProfileQualified",
+            "BatchAddFriendsStrangersProfileReject"
         ]
     },
-    "BatchAddFriendsStrangersProfileQualify": {
-        "desc": "全部门槛通过：去点「申请好友」",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing",
-            "param": {}
+    "BatchAddFriendsStrangersProfileQualified": {
+        "desc": "名片信息满足全部筛选条件：And 在同一帧里判定所有条件",
+        // 条件之间是「与」关系，且都在同一张名片页上：
+        // 用 And 一次判定，任意一项不命中就落到候选列表里的兜底 ProfileReject。
+        // 各条件节点的 recognition 由任务选项注入：
+        //   开关打开 → 表达式 / 模板匹配；开关关闭 → DirectHit（恒通过）。
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddFriendsStrangersProfileAuthorityGate",
+                    "BatchAddFriendsStrangersProfileValleyGate",
+                    "BatchAddFriendsStrangersProfileWulingGate",
+                    "BatchAddFriendsStrangersProfileWarEcho"
+                ]
+            }
         },
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
             "BatchAddFriendsStrangersProfileAddFriend"
         ]
     },
     "BatchAddFriendsStrangersProfileAuthorityGate": {
-        "desc": "权限等级区间闸门（表达式由「权限等级限制」选项注入）",
-        // 兜底必须是「权限等级」自己的日志：本闸门不命中才轮到它。
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BatchAddFriendsStrangersProfileValleyGate",
-            "BatchAddFriendsStrangersProfileRejectLogValley"
-        ]
+        "desc": "权限等级区间条件（表达式由「权限等级限制」选项注入）",
+        "recognition": "DirectHit"
     },
     "BatchAddFriendsStrangersProfileValleyGate": {
-        "desc": "四号谷地建设等级区间闸门",
-        // 四号谷地不命中 → 走四号谷地自己的日志。
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BatchAddFriendsStrangersProfileWulingGate",
-            "BatchAddFriendsStrangersProfileRejectLogWuling"
-        ]
+        "desc": "四号谷地建设等级区间条件（表达式由选项注入）",
+        "recognition": "DirectHit"
     },
     "BatchAddFriendsStrangersProfileWulingGate": {
-        "desc": "武陵建设等级区间闸门",
-        // 武陵不命中 → 走武陵自己的日志；通过则去点申请好友。
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BatchAddFriendsStrangersProfileWarEcho",
-            "BatchAddFriendsStrangersProfileRejectLogWarEcho"
-        ]
-    },
-    "BatchAddFriendsStrangersProfileRejectLogAuthority": {
-        "desc": "「batchaddfriends.level.authority」不达标时输出诊断并跳过该玩家",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "BatchAddFriendsStrangersRejectLogRecognition",
-                "custom_recognition_param": {
-                    "failed": "batchaddfriends.level.authority",
-                    "echo": false
-                }
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BatchAddFriendsStrangersProfileReject"
-        ]
-    },
-    "BatchAddFriendsStrangersProfileRejectLogValley": {
-        "desc": "「batchaddfriends.level.valleyIV」不达标时输出诊断并跳过该玩家",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "BatchAddFriendsStrangersRejectLogRecognition",
-                "custom_recognition_param": {
-                    "failed": "batchaddfriends.level.valleyIV",
-                    "echo": false
-                }
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BatchAddFriendsStrangersProfileReject"
-        ]
-    },
-    "BatchAddFriendsStrangersProfileRejectLogWuling": {
-        "desc": "「batchaddfriends.level.wuling」不达标时输出诊断并跳过该玩家",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "BatchAddFriendsStrangersRejectLogRecognition",
-                "custom_recognition_param": {
-                    "failed": "batchaddfriends.level.wuling",
-                    "echo": false
-                }
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BatchAddFriendsStrangersProfileReject"
-        ]
+        "desc": "武陵建设等级区间条件（表达式由选项注入）",
+        "recognition": "DirectHit"
     },
     "BatchAddFriendsStrangersProfileWarEcho": {
         "desc": "「战争回响增辉」标识检查：开关未开启时直接通过",
         // 默认 DirectHit = 恒通过。任务选项「战争回响增辉」打开时，
         // 由 switch 的 pipeline_override 把本节点的 recognition 换成 TemplateMatch，
-        // 于是「没有该标识」就会落到下面的失败分支。
-        "recognition": "DirectHit",
-        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
-        // 过渡动画未结束时动作容易落空或点在旧位置。
-        "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]HighLatencyLoadingOverlayWait",
-            "BatchAddFriendsStrangersProfileQualify"
-        ]
-    },
-    "BatchAddFriendsStrangersProfileRejectLogWarEcho": {
-        "desc": "「战争回响增辉」不满足时输出诊断并跳过该玩家",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "BatchAddFriendsStrangersRejectLogRecognition",
-                "custom_recognition_param": {
-                    "failed": "batchaddfriends.level.warEcho",
-                    "echo": true
-                }
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BatchAddFriendsStrangersProfileReject"
-        ]
+        // 于是「没有该标识」就会让 And 判定整体不命中，落到候选列表的兜底。
+        "recognition": "DirectHit"
     },
     "BatchAddFriendsStrangersProfileReject": {
-        "desc": "权限等级不达标：关闭名片并拉黑这一行",
+        "desc": "不满足筛选条件：关闭名片并拉黑这一行",
         // 与 ProfileClose 相同的守卫：权限等级图标在（确认在名片页）+ X 模板命中。
         "recognition": {
             "type": "And",

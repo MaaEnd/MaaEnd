@@ -95,7 +95,12 @@
                     ]
                 },
                 {
-                    "name": "No"
+                    "name": "No",
+                    "pipeline_override": {
+                        "BatchAddFriendsStrangersProfileAuthorityLevel": {
+                            "recognition": "DirectHit"
+                        }
+                    }
                 }
             ],
             "default_case": "Yes"
@@ -144,7 +149,15 @@
                     ]
                 },
                 {
-                    "name": "No"
+                    "name": "No",
+                    "pipeline_override": {
+                        "BatchAddFriendsStrangersProfileValleyIVIcon": {
+                            "recognition": "DirectHit"
+                        },
+                        "BatchAddFriendsStrangersProfileValleyIVLevel": {
+                            "recognition": "DirectHit"
+                        }
+                    }
                 }
             ],
             "default_case": "Yes"
@@ -193,7 +206,15 @@
                     ]
                 },
                 {
-                    "name": "No"
+                    "name": "No",
+                    "pipeline_override": {
+                        "BatchAddFriendsStrangersProfileWulingIcon": {
+                            "recognition": "DirectHit"
+                        },
+                        "BatchAddFriendsStrangersProfileWulingLevel": {
+                            "recognition": "DirectHit"
+                        }
+                    }
                 }
             ],
             "default_case": "Yes"
@@ -250,36 +271,6 @@
                                     ],
                                     "template": "BatchAddFriends/echoesOfWarLustrous.png",
                                     "threshold": 0.7
-                                }
-                            }
-                        },
-                        "BatchAddFriendsStrangersProfileRejectLogAuthority": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "failed": "batchaddfriends.level.authority",
-                                        "echo": true
-                                    }
-                                }
-                            }
-                        },
-                        "BatchAddFriendsStrangersProfileRejectLogValley": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "failed": "batchaddfriends.level.valleyIV",
-                                        "echo": true
-                                    }
-                                }
-                            }
-                        },
-                        "BatchAddFriendsStrangersProfileRejectLogWuling": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "failed": "batchaddfriends.level.wuling",
-                                        "echo": true
-                                    }
                                 }
                             }
                         }

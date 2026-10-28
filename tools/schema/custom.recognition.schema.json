@@ -13,7 +13,6 @@
                 "AutoSellScanItemRecognition",
                 "AutoStockpile.Recognition",
                 "BatchAddFriendsStrangersPickRowRecognition",
-                "BatchAddFriendsStrangersRejectLogRecognition",
                 "EssenceFilterAfterBattleNthRecognition",
                 "EssenceGridAdvanceRecognition",
                 "EssenceGridPendingRecognition",
@@ -538,26 +537,6 @@
                 "required": [ "custom_recognition_param" ],
                 "properties": {
                     "custom_recognition_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/PriorityItemRecognitionParam" }
-                }
-            }
-        },
-        {
-            "if": {
-                "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "BatchAddFriendsStrangersRejectLogRecognition" } }
-            },
-            "then": {
-                "type": "object",
-                "properties": {
-                    "custom_recognition_param": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "properties": {
-                            "failed": { "type": "string", "minLength": 1 },
-                            "echo": { "type": "boolean" }
-                        }
-                    }
                 }
             }
         }
