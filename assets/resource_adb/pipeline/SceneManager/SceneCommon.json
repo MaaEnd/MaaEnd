@@ -38,8 +38,7 @@
                     -16
                 ]
             }
-        },
-        "post_delay": 0
+        }
     },
     "__ScenePrivateExitPhoto": {
         "desc": "拍照模式右上角退出图标（拍照界面没有 X，只能点它）",
