@@ -6,42 +6,42 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]GiftSendOperatorSelect_Perlica",
-            "[JumpBack]GiftSendOperatorSelect_Yvonne",
-            "[JumpBack]GiftSendOperatorSelect_Ardelia",
-            "[JumpBack]GiftSendOperatorSelect_Gilberta",
-            "[JumpBack]GiftSendOperatorSelect_ChenQianyu",
-            "[JumpBack]GiftSendOperatorSelect_Wulfgard",
-            "[JumpBack]GiftSendOperatorSelect_Antal",
-            "[JumpBack]GiftSendOperatorSelect_Xaihi",
-            "[JumpBack]GiftSendOperatorSelect_Lifeng",
-            "[JumpBack]GiftSendOperatorSelect_Catcher",
-            "[JumpBack]GiftSendOperatorSelect_Arclight",
-            "[JumpBack]GiftSendOperatorSelect_Avywenna",
-            "[JumpBack]GiftSendOperatorSelect_Laevatain",
-            "[JumpBack]GiftSendOperatorSelect_Alesh",
-            "[JumpBack]GiftSendOperatorSelect_Pogranichnik",
-            "[JumpBack]GiftSendOperatorSelect_LastRite",
-            "[JumpBack]GiftSendOperatorSelect_Ember",
-            "[JumpBack]GiftSendOperatorSelect_Snowshine",
-            "[JumpBack]GiftSendOperatorSelect_DaPan",
-            "[JumpBack]GiftSendOperatorSelect_Fluorite",
-            "[JumpBack]GiftSendOperatorSelect_Akekuri",
-            "[JumpBack]GiftSendOperatorSelect_Estella",
-            "[JumpBack]GiftSendOperatorSelect_Rossi",
-            "[JumpBack]GiftSendOperatorSelect_Tangtang",
-            "[JumpBack]GiftSendOperatorSelect_ZhuangFangyi",
-            "[JumpBack]GiftSendOperatorSelect_MiFu",
-            "[JumpBack]GiftSendOperatorSelect_Camille",
-            "[JumpBack]GiftSendOperatorSelect_Arcane",
-            "[JumpBack]GiftSendOperatorSelect_Liino",
-            "[JumpBack]GiftSendOperatorSelect_Typhoeus",
-            "[JumpBack]GiftSendOperatorSelect_Purrchena",
-            "[JumpBack]GiftSendOperatorSelect_Si",
-            "GiftSendOperatorFinished"
+            "[JumpBack]GiftOperatorSendSelect_Perlica",
+            "[JumpBack]GiftOperatorSendSelect_Yvonne",
+            "[JumpBack]GiftOperatorSendSelect_Ardelia",
+            "[JumpBack]GiftOperatorSendSelect_Gilberta",
+            "[JumpBack]GiftOperatorSendSelect_ChenQianyu",
+            "[JumpBack]GiftOperatorSendSelect_Wulfgard",
+            "[JumpBack]GiftOperatorSendSelect_Antal",
+            "[JumpBack]GiftOperatorSendSelect_Xaihi",
+            "[JumpBack]GiftOperatorSendSelect_Lifeng",
+            "[JumpBack]GiftOperatorSendSelect_Catcher",
+            "[JumpBack]GiftOperatorSendSelect_Arclight",
+            "[JumpBack]GiftOperatorSendSelect_Avywenna",
+            "[JumpBack]GiftOperatorSendSelect_Laevatain",
+            "[JumpBack]GiftOperatorSendSelect_Alesh",
+            "[JumpBack]GiftOperatorSendSelect_Pogranichnik",
+            "[JumpBack]GiftOperatorSendSelect_LastRite",
+            "[JumpBack]GiftOperatorSendSelect_Ember",
+            "[JumpBack]GiftOperatorSendSelect_Snowshine",
+            "[JumpBack]GiftOperatorSendSelect_DaPan",
+            "[JumpBack]GiftOperatorSendSelect_Fluorite",
+            "[JumpBack]GiftOperatorSendSelect_Akekuri",
+            "[JumpBack]GiftOperatorSendSelect_Estella",
+            "[JumpBack]GiftOperatorSendSelect_Rossi",
+            "[JumpBack]GiftOperatorSendSelect_Tangtang",
+            "[JumpBack]GiftOperatorSendSelect_ZhuangFangyi",
+            "[JumpBack]GiftOperatorSendSelect_MiFu",
+            "[JumpBack]GiftOperatorSendSelect_Camille",
+            "[JumpBack]GiftOperatorSendSelect_Arcane",
+            "[JumpBack]GiftOperatorSendSelect_Liino",
+            "[JumpBack]GiftOperatorSendSelect_Typhoeus",
+            "[JumpBack]GiftOperatorSendSelect_Purrchena",
+            "[JumpBack]GiftOperatorSendSelect_Si",
+            "GiftOperatorSendFinished"
         ]
     },
-    "GiftSendOperatorSelect_Perlica": {
+    "GiftOperatorSendSelect_Perlica": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -71,13 +71,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
+            "GiftOperatorSendPrepare"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Perlica"
         }
     },
-    "GiftSendOperatorSelect_Yvonne": {
+    "GiftOperatorSendSelect_Yvonne": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -107,10 +107,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Yvonne"
+        }
     },
-    "GiftSendOperatorSelect_Ardelia": {
+    "GiftOperatorSendSelect_Ardelia": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -140,10 +143,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Ardelia"
+        }
     },
-    "GiftSendOperatorSelect_Gilberta": {
+    "GiftOperatorSendSelect_Gilberta": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -173,10 +179,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Gilberta"
+        }
     },
-    "GiftSendOperatorSelect_ChenQianyu": {
+    "GiftOperatorSendSelect_ChenQianyu": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -206,10 +215,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.ChenQianyu"
+        }
     },
-    "GiftSendOperatorSelect_Wulfgard": {
+    "GiftOperatorSendSelect_Wulfgard": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -239,10 +251,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Wulfgard"
+        }
     },
-    "GiftSendOperatorSelect_Antal": {
+    "GiftOperatorSendSelect_Antal": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -272,10 +287,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Antal"
+        }
     },
-    "GiftSendOperatorSelect_Xaihi": {
+    "GiftOperatorSendSelect_Xaihi": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -305,10 +323,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Xaihi"
+        }
     },
-    "GiftSendOperatorSelect_Lifeng": {
+    "GiftOperatorSendSelect_Lifeng": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -338,10 +359,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Lifeng"
+        }
     },
-    "GiftSendOperatorSelect_Catcher": {
+    "GiftOperatorSendSelect_Catcher": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -371,10 +395,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Catcher"
+        }
     },
-    "GiftSendOperatorSelect_Arclight": {
+    "GiftOperatorSendSelect_Arclight": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -404,10 +431,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Arclight"
+        }
     },
-    "GiftSendOperatorSelect_Avywenna": {
+    "GiftOperatorSendSelect_Avywenna": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -437,10 +467,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Avywenna"
+        }
     },
-    "GiftSendOperatorSelect_Laevatain": {
+    "GiftOperatorSendSelect_Laevatain": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -470,10 +503,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Laevatain"
+        }
     },
-    "GiftSendOperatorSelect_Alesh": {
+    "GiftOperatorSendSelect_Alesh": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -503,10 +539,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Alesh"
+        }
     },
-    "GiftSendOperatorSelect_Pogranichnik": {
+    "GiftOperatorSendSelect_Pogranichnik": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -536,10 +575,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Pogranichnik"
+        }
     },
-    "GiftSendOperatorSelect_LastRite": {
+    "GiftOperatorSendSelect_LastRite": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -569,10 +611,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.LastRite"
+        }
     },
-    "GiftSendOperatorSelect_Ember": {
+    "GiftOperatorSendSelect_Ember": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -602,10 +647,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Ember"
+        }
     },
-    "GiftSendOperatorSelect_Snowshine": {
+    "GiftOperatorSendSelect_Snowshine": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -635,10 +683,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Snowshine"
+        }
     },
-    "GiftSendOperatorSelect_DaPan": {
+    "GiftOperatorSendSelect_DaPan": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -668,10 +719,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.DaPan"
+        }
     },
-    "GiftSendOperatorSelect_Fluorite": {
+    "GiftOperatorSendSelect_Fluorite": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -701,10 +755,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Fluorite"
+        }
     },
-    "GiftSendOperatorSelect_Akekuri": {
+    "GiftOperatorSendSelect_Akekuri": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -734,10 +791,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Akekuri"
+        }
     },
-    "GiftSendOperatorSelect_Estella": {
+    "GiftOperatorSendSelect_Estella": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -767,10 +827,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Estella"
+        }
     },
-    "GiftSendOperatorSelect_Rossi": {
+    "GiftOperatorSendSelect_Rossi": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -800,10 +863,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Rossi"
+        }
     },
-    "GiftSendOperatorSelect_Tangtang": {
+    "GiftOperatorSendSelect_Tangtang": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -833,10 +899,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Tangtang"
+        }
     },
-    "GiftSendOperatorSelect_ZhuangFangyi": {
+    "GiftOperatorSendSelect_ZhuangFangyi": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -866,10 +935,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.ZhuangFangyi"
+        }
     },
-    "GiftSendOperatorSelect_MiFu": {
+    "GiftOperatorSendSelect_MiFu": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -899,10 +971,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.MiFu"
+        }
     },
-    "GiftSendOperatorSelect_Camille": {
+    "GiftOperatorSendSelect_Camille": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -932,10 +1007,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Camille"
+        }
     },
-    "GiftSendOperatorSelect_Arcane": {
+    "GiftOperatorSendSelect_Arcane": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -965,10 +1043,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Arcane"
+        }
     },
-    "GiftSendOperatorSelect_Liino": {
+    "GiftOperatorSendSelect_Liino": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -998,10 +1079,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Liino"
+        }
     },
-    "GiftSendOperatorSelect_Typhoeus": {
+    "GiftOperatorSendSelect_Typhoeus": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -1031,10 +1115,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Typhoeus"
+        }
     },
-    "GiftSendOperatorSelect_Purrchena": {
+    "GiftOperatorSendSelect_Purrchena": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -1064,10 +1151,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Purrchena"
+        }
     },
-    "GiftSendOperatorSelect_Si": {
+    "GiftOperatorSendSelect_Si": {
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -1097,10 +1187,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftSendOperatorPrepare"
-        ]
+            "GiftOperatorSendPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.Si"
+        }
     },
-    "GiftSendOperatorPrepare": {
+    "GiftOperatorSendPrepare": {
         "desc": "每名干员开始查找前清空返回帝江号的命中计数，使 max_hit=5 按干员独立生效，保留外层名单进度",
         "pre_delay": 0,
         "action": {
@@ -1120,7 +1213,7 @@
             "GiftOperatorEntry"
         ]
     },
-    "GiftSendOperatorFinished": {
+    "GiftOperatorSendFinished": {
         "desc": "名单中的节点均已执行一次，正常结束，避免全部 max_hit 后等待超时",
         "pre_delay": 0,
         "post_delay": 0,
