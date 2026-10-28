@@ -405,7 +405,7 @@ def update_task(task: dict[str, Any], groups: list[Group], default_limits: dict[
             "name": limit_input(item),
             "label": f"$option.AutoCollectTargetInventory.inputs.{item.id}.label",
             "default": str(default_limits.get(item.id, KIND_DEFAULT_LIMITS[item.kind])),
-            "pipeline_type": "string",
+            "pipeline_type": "int",
             "verify": "^\\d+$",
             "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg",
         }
