@@ -98,7 +98,7 @@
                     "name": "No"
                 }
             ],
-            "default_case": "Yes"
+            "default_case": "No"
         },
         "BatchAddFriendsStrangers": {
             "type": "input",
@@ -147,7 +147,7 @@
                     "name": "No"
                 }
             ],
-            "default_case": "Yes"
+            "default_case": "No"
         },
         "BatchAddFriendsValleyIVLevel": {
             "type": "input",
@@ -207,7 +207,7 @@
                     "name": "No"
                 }
             ],
-            "default_case": "Yes"
+            "default_case": "No"
         },
         "BatchAddFriendsWulingLevel": {
             "type": "input",
