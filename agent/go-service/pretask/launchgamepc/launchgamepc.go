@@ -34,12 +34,14 @@ const (
 	gameProcessName = "Endfield.exe"
 	launcherExeName = "Launcher.exe"
 
+	wakeEntry     = "GameLauncherWakeMain"
 	pipelineEntry = "GameLauncherMain"
 
 	// 开机自启动时负载高、游戏首次启动较慢，与 MXU 前置程序等待窗口的时长保持一致
 	launcherWindowTimeout = 300 * time.Second
 	gameWindowTimeout     = 300 * time.Second
-	pollInterval          = 5 * time.Second
+	// 与 MXU 前置程序等待窗口的轮询间隔一致
+	pollInterval = 1 * time.Second
 	// 与 MXU 前置程序 preActionConnectDelaySec 的默认值一致，窗口出现后先等待初始化再连接
 	// 启动器过早连接会出现异常画面 https://github.com/MaaEnd/MaaEnd/issues/6585
 	launcherWindowSettleWait = 5 * time.Second
@@ -259,10 +261,6 @@ func runLauncher(windowRegex *regexp.Regexp) bool {
 			Msg("launcher window moved to primary monitor")
 	}
 
-	log.Info().
-		Str("component", component).
-		Str("entry", pipelineEntry).
-		Msg("running launcher pipeline")
 	return runLauncherPipeline(hWnd)
 }
 
@@ -500,17 +498,10 @@ func runLauncherPipeline(hWnd unsafe.Pointer) bool {
 	return true
 }
 
+// runPipeline 分两个阶段执行启动器 pipeline：
+// 第一阶段与游戏的 Win32-Front 一致，用前台截图 + Seize（SendInput 真实输入），息屏时点击可唤醒显示器，直到识别到左侧终末地图标；
+// 第二阶段改用 PrintWindow + SendMessage，直接把点击发给启动器窗口，避免唤醒后真实输入被锁屏等前台界面拦截。
 func runPipeline(hWnd unsafe.Pointer) error {
-	// 鼠标用 Seize（SendInput 真实输入），显示器息屏后点击可唤醒显示器；PostMessage 不算用户输入，无法唤醒
-	ctrl, err := maa.NewWin32Controller(hWnd, win32.ScreencapPrintWindow, win32.InputSeize, win32.InputPostMessage)
-	if err != nil {
-		return err
-	}
-	defer ctrl.Destroy()
-	if !ctrl.PostConnect().Wait().Success() {
-		return fmt.Errorf("failed to connect launcher window")
-	}
-
 	res, err := maa.NewResource()
 	if err != nil {
 		return err
@@ -519,6 +510,27 @@ func runPipeline(hWnd unsafe.Pointer) error {
 	resourceDir := fsutil.OutputPath("resource")
 	if !res.PostBundle(resourceDir).Wait().Success() {
 		return fmt.Errorf("failed to load resource: %s", resourceDir)
+	}
+
+	if err := runPipelinePhase(hWnd, res, win32.ScreencapScreenDC, win32.InputSeize, wakeEntry); err != nil {
+		return err
+	}
+	return runPipelinePhase(hWnd, res, win32.ScreencapPrintWindow, win32.InputSendMessage, pipelineEntry)
+}
+
+func runPipelinePhase(hWnd unsafe.Pointer, res *maa.Resource, screencap win32.ScreencapMethod, input win32.InputMethod, entry string) error {
+	log.Info().
+		Str("component", component).
+		Str("entry", entry).
+		Msg("running launcher pipeline")
+
+	ctrl, err := maa.NewWin32Controller(hWnd, screencap, input, input)
+	if err != nil {
+		return err
+	}
+	defer ctrl.Destroy()
+	if !ctrl.PostConnect().Wait().Success() {
+		return fmt.Errorf("failed to connect launcher window")
 	}
 
 	tasker, err := maa.NewTasker()
@@ -533,8 +545,8 @@ func runPipeline(hWnd unsafe.Pointer) error {
 		return err
 	}
 
-	if !tasker.PostTask(pipelineEntry).Wait().Success() {
-		return fmt.Errorf("pipeline %s failed", pipelineEntry)
+	if !tasker.PostTask(entry).Wait().Success() {
+		return fmt.Errorf("pipeline %s failed", entry)
 	}
 	return nil
 }
