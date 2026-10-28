@@ -280,9 +280,9 @@ Recognition nodes are used to execute custom recognition. A common format is as 
 
 ### ColorFreezeRecognition
 
-This C++ recognizer requires native `ColorMatch` to match and the distribution of colors within the configured ranges in the ROI to remain stable for `time`. The optional similarity `threshold` defaults to `0.98` and accepts `(0, 1]`; higher values are stricter, and `1` requires exact agreement. Swapping pixel positions does not affect the result, and the final color need not be known in advance.
+This C++ recognizer requires native `ColorMatch` to match and the distribution of colors within the configured ranges in the ROI to remain stable for `time`. `color_threshold` controls the allowed change in each channel, accepting `[0, 1]`; `distribution_threshold` controls the minimum proportion of counts that can be matched, accepting `(0, 1]`. Both default to `0.98`, with higher values being stricter. Ordinary channel differences are normalized by 255; HSV/HLS hue uses the shortest circular distance normalized by half a turn. Complete colors are paired, with each count used only once. The former `threshold` has been renamed to `distribution_threshold`. Swapping pixel positions does not affect the result, and the final color need not be known in advance.
 
-See [ColorFreezeRecognition (Chinese)](../../../agent/cpp-algo/source/ColorFreeze/README.md) for parameters, similarity semantics, and invocation format.
+The implementation decides early using lower bounds from valid pairings and upper bounds from counts, channel projections, and color bounding boxes, constructing the full joint matching only when needed, without changing the stability decision. The result fields `similarity_lower` and `similarity_upper` report bounds on the matched proportion. See [ColorFreezeRecognition (Chinese)](../../../agent/cpp-algo/source/ColorFreeze/README.md) for parameters, similarity semantics, and invocation format.
 
 ### ExpressionRecognition
 
