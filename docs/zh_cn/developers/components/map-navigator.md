@@ -646,7 +646,7 @@ uv run map-navigator --port 9000 --no-browser
 
 ### 新增采集路线
 
-1. 在 `assets/resource/pipeline/AutoCollect/<地区>/` 下新建 `<路线 id>.json`，参照现有路线编写 `Start` → `AssertLocation` → `Goto` → `End` 四节点骨架，节点名以 `AutoCollect<路线 id>` 开头。路线 id 由地区、采集物英文名与该采集物下的序号组成，如武陵星门菌的第二条路线是 `WulingCosmagaric2`。
+1. 在 `assets/resource/pipeline/AutoCollect/<地区>/` 下新建 `<路线 id>.json`，参照现有路线编写 `Start` → `AssertLocation` → `Goto` → `End` 四节点骨架，节点名以 `AutoCollect<路线 id>` 开头。路线 id 由地区、各采集物的 PascalCase 英文名与序号依次拼接而成，多种采集物按 `routes.json` 中 `items` 的登记顺序全部拼上，序号在同一前缀下递增：武陵星门菌的第二条路线是 `WulingCosmagaric2`，同时采血菌与武陵石的路线是 `WulingBloodcapWulingstone1`。
 2. 使用工具录制路径，将采集目标点动作改为 `COLLECT` 或 `DIG`，复制 `path` 并粘贴到 `Goto` 节点的 `custom_action_param.path`。
 3. 在 `tools/AutoCollectRoute/routes.json` 登记路线的 `id`、`region` 与 `items`，再运行 `uv run autocollect-route generate`，生成调度节点、任务选项与五种语言的文案。
 4. 无需修改 `AutoCollectClick.json`、`AutoCollectDig.json` 及任何 cpp-algo 源文件。

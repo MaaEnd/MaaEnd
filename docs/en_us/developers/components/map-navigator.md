@@ -646,7 +646,7 @@ The following files are maintained by cpp-algo developers; path authors do not n
 
 ### Adding a Collection Route
 
-1. Create `<route id>.json` under `assets/resource/pipeline/AutoCollect/<region>/`, referencing existing routes to write the basic skeleton of four nodes: `Start` → `AssertLocation` → `Goto` → `End`, with node names starting with `AutoCollect<route id>`. The route id consists of the region, the English name of the collectible, and a sequence number within that collectible; for example, the second Cosmagaric route in Wuling is `WulingCosmagaric2`.
+1. Create `<route id>.json` under `assets/resource/pipeline/AutoCollect/<region>/`, referencing existing routes to write the basic skeleton of four nodes: `Start` → `AssertLocation` → `Goto` → `End`, with node names starting with `AutoCollect<route id>`. The route id concatenates the region, the PascalCase English names of all its collectibles in the order of `items` in `routes.json`, and a sequence number that increments within the same prefix: the second Cosmagaric route in Wuling is `WulingCosmagaric2`, and a route collecting both Bloodcap and Wulingstone is `WulingBloodcapWulingstone1`.
 2. Record the path with the tool, change the action of the collection target points to `COLLECT` or `DIG`, copy the `path`, and paste it into the `custom_action_param.path` of the `Goto` node.
 3. Register the route's `id`, `region`, and `items` in `tools/AutoCollectRoute/routes.json`, then run `uv run autocollect-route generate` to generate the dispatch nodes, task options, and texts in all five languages.
 4. No changes are needed to `AutoCollectClick.json`, `AutoCollectDig.json`, or any cpp-algo source files.

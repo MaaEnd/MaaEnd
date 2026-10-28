@@ -65,7 +65,7 @@ uv run autocollect-route
 | `assets/tasks/AutoCollect.json` | 各地区的产物选项、目标库存输入与门控表达式 |
 | `assets/locales/interface/*.json` | 五种语言的产物名、路线名、失败与跳过提示 |
 
-路线 id 由地区、产物英文名与该产物下的序号组成，例如武陵已有 `WulingCosmagaric1` 时，再生成一条星门菌路线得到 `WulingCosmagaric2`。
+路线 id 由地区、各产物的 PascalCase 英文名与序号依次拼接而成，多种产物按 `items` 的登记顺序全部拼上，序号在同一前缀下递增。例如武陵已有 `WulingCosmagaric1` 时，再生成一条星门菌路线得到 `WulingCosmagaric2`；同时采血菌与武陵石的路线是 `WulingBloodcapWulingstone1`。
 
 生成的路线需经实机运行确认。
 

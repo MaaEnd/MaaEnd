@@ -1880,7 +1880,7 @@
     "task.AndroidOpenGame.description": "Launch the game on Android. Please open the emulator manually first.",
     "task.AndroidOpenGame.label": "🎮 Launch Game (Android)",
     "task.AutoCollect.description": "Automatically collect wild resources (the game must stay in the foreground; do not move the mouse).\nNote: if crops have not fully grown, they may grow randomly, which can lead to incomplete collection.\nDue to recognition accuracy limits, even when fully grown some may not be collected.",
-    "task.AutoCollect.focus.inventory_fallback": "Depot inventory sync failed; target inventory was ignored and selected items will continue",
+    "task.AutoCollect.focus.inventory_fallback": "Depot inventory sync failed; target inventory was ignored and all selected items will still be collected",
     "task.AutoCollect.focus.inventory_ready": "Depot inventory synced; filtering collectibles by target inventory",
     "task.AutoCollect.item.item_plant_crylplant_1_1.skipped": "Kalkodendra — target inventory reached, skipped this run",
     "task.AutoCollect.item.item_plant_crylplant_1_2.skipped": "Chrysodendra — target inventory reached, skipped this run",
