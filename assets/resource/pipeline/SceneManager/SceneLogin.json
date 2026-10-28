@@ -7,9 +7,9 @@
             "param": {
                 "roi": [
                     0,
-                    -100,
-                    100,
-                    100
+                    -150,
+                    150,
+                    150
                 ],
                 "template": [
                     "SceneManager/LoginExit.png"
