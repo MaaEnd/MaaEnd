@@ -1823,7 +1823,7 @@
     "option.SortOrder.label": "Sort Order",
     "option.StageTaskSetting.description": "Enable to control the mood recovery, Reception Room, Manufacturing, and Growth Chamber stages individually.",
     "option.StageTaskSetting.label": "Stage Task Settings",
-    "option.StashBackpackArea.cases.Auto.label": "Auto",
+    "option.StashBackpackArea.cases.None.label": "Keep Current Area",
     "option.StashBackpackArea.label": "Stash Area",
     "option.StashBackpackQuick.label": "Quick stash",
     "option.StashBackpackType.label": "Stash method",

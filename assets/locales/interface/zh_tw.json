@@ -1823,7 +1823,7 @@
     "option.SortOrder.label": "排序順序",
     "option.StageTaskSetting.description": "開啟後可分別控制恢復心情、會客室、製造艙、培養艙這幾個階段任務的開關。",
     "option.StageTaskSetting.label": "階段任務設定",
-    "option.StashBackpackArea.cases.Auto.label": "自動",
+    "option.StashBackpackArea.cases.None.label": "不改變區域",
     "option.StashBackpackArea.label": "存放區域",
     "option.StashBackpackQuick.label": "一鍵存放",
     "option.StashBackpackType.label": "存放方式",

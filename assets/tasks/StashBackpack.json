@@ -81,8 +81,8 @@
             "label": "$option.StashBackpackArea.label",
             "cases": [
                 {
-                    "name": "Auto",
-                    "label": "$option.StashBackpackArea.cases.Auto.label",
+                    "name": "None",
+                    "label": "$option.StashBackpackArea.cases.None.label",
                     "pipeline_override": {}
                 },
                 {
@@ -91,8 +91,8 @@
                     "pipeline_override": {
                         "StashBackpackMain": {
                             "next": [
-                                "[JumpBack]SceneEnterMenuBackpackWithDepotValleyIV",
-                                "StashBackpackEnterSuccess"
+                                "StashBackpackEnterSuccess",
+                                "[JumpBack]SceneEnterMenuBackpackWithDepotValleyIV"
                             ]
                         }
                     }
@@ -103,14 +103,14 @@
                     "pipeline_override": {
                         "StashBackpackMain": {
                             "next": [
-                                "[JumpBack]SceneEnterMenuBackpackWithDepotWuling",
-                                "StashBackpackEnterSuccess"
+                                "StashBackpackEnterSuccess",
+                                "[JumpBack]SceneEnterMenuBackpackWithDepotWuling"
                             ]
                         }
                     }
                 }
             ],
-            "default_case": "Auto"
+            "default_case": "None"
         }
     }
 }
