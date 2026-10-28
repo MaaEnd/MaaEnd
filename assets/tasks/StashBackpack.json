@@ -16,7 +16,8 @@
                 "Win32-Front"
             ],
             "option": [
-                "StashBackpackType"
+                "StashBackpackType",
+                "StashBackpackArea"
             ]
         }
     ],
@@ -74,6 +75,42 @@
                 "StashBackpackQuick",
                 "StashBackpackUsableItemsLimited"
             ]
+        },
+        "StashBackpackArea": {
+            "type": "select",
+            "label": "$option.StashBackpackArea.label",
+            "cases": [
+                {
+                    "name": "Auto",
+                    "label": "$option.StashBackpackArea.cases.Auto.label",
+                    "pipeline_override": {}
+                },
+                {
+                    "name": "ValleyIV",
+                    "label": "$global.region.ValleyIV",
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "next": [
+                                "[JumpBack]SceneEnterMenuBackpackWithDepotValleyIV",
+                                "StashBackpackEnterSuccess"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Wuling",
+                    "label": "$global.region.Wuling",
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "next": [
+                                "[JumpBack]SceneEnterMenuBackpackWithDepotWuling",
+                                "StashBackpackEnterSuccess"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "Auto"
         }
     }
 }

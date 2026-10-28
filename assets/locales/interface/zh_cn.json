@@ -1823,6 +1823,8 @@
     "option.SortOrder.label": "排序顺序",
     "option.StageTaskSetting.description": "开启后可单独控制回复心情、会客室、制造舱、培养舱这几个阶段任务的开关。",
     "option.StageTaskSetting.label": "阶段任务设置",
+    "option.StashBackpackArea.cases.Auto.label": "自动",
+    "option.StashBackpackArea.label": "存放区域",
     "option.StashBackpackQuick.label": "一键存放",
     "option.StashBackpackType.label": "存放方式",
     "option.StashBackpackUsableItemsLimited.label": "存放≤4个可用道具",

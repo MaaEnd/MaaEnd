@@ -1823,6 +1823,8 @@
     "option.SortOrder.label": "ソート順序",
     "option.StageTaskSetting.description": "有効にすると、気分回復、応接室、製造室、培養室の各段階を個別に切り替えられます。",
     "option.StageTaskSetting.label": "段階タスク設定",
+    "option.StashBackpackArea.cases.Auto.label": "自動",
+    "option.StashBackpackArea.label": "収納エリア",
     "option.StashBackpackQuick.label": "ワンタップ収納",
     "option.StashBackpackType.label": "収納方式",
     "option.StashBackpackUsableItemsLimited.label": "4個以下の使用可能アイテムを収納",
