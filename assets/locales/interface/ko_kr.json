@@ -1444,7 +1444,7 @@
     "option.ClueSendCustomizeCheckbox.description": "체크하면 해당 종류 단서가 선물 대상이 됩니다. 체크를 해제하면 해당 종류는 모두 보관합니다.",
     "option.ClueSendCustomizeCheckbox.label": "단서 전송",
     "option.ClueSetting.description": "접견실 단서 선물 규칙 스위치입니다. 비활성화 시 기본 규칙(단서 종류별 2개 보관=재고 3개 이상일 때 선물, 1회 실행당 최대 3라운드 선물, 7종류 모두 선물)을 사용합니다. 활성화하면 선물 횟수, 종류별 보유 상한, 선물할 종류, 직접 선물, 중복 단서 빠른 증정을 각각 설정할 수 있습니다. 단서 수집·수령·배치에는 영향을 주지 않으며, 단서 교환 시작 여부는 '단서 교환 시작'에서 따로 설정합니다.",
-    "option.ClueSetting.label": "단서 설정",
+    "option.ClueSetting.label": "단서 선물 설정",
     "option.ClueStockLimit.cases.0.label": "0(보관 안 함)",
     "option.ClueStockLimit.cases.1.label": "1",
     "option.ClueStockLimit.cases.2.label": "2",

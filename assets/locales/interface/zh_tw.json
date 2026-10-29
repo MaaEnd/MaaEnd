@@ -1444,7 +1444,7 @@
     "option.ClueSendCustomizeCheckbox.description": "勾選後該種線索參與贈送；取消勾選則此種線索全部保留。",
     "option.ClueSendCustomizeCheckbox.label": "贈送線索",
     "option.ClueSetting.description": "會客室線索贈送規則的開關。關閉時使用預設規則：每種線索保留 2 張（庫存 ≥ 3 才贈送）、單次最多進入 3 輪贈送、依全部 7 種線索贈送。開啟後可分別調整贈送次數、單種線索庫存上限、贈送種類、入室直接贈予與快速贈予重複線索。收集、接收與放置線索不受本開關影響；是否開始線索交流由「開啟線索交流」單獨控制。",
-    "option.ClueSetting.label": "線索設定",
+    "option.ClueSetting.label": "線索贈送設定",
     "option.ClueStockLimit.cases.0.label": "0（不保留）",
     "option.ClueStockLimit.cases.1.label": "1",
     "option.ClueStockLimit.cases.2.label": "2",

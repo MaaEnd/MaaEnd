@@ -1444,7 +1444,7 @@
     "option.ClueSendCustomizeCheckbox.description": "チェックするとこの種類の手がかりが贈呈対象になります。チェックを外すとこの種類はすべて保持されます。",
     "option.ClueSendCustomizeCheckbox.label": "手がかりを贈呈",
     "option.ClueSetting.description": "応接室の手がかり贈呈ルールのスイッチです。無効時は既定ルール（各手がかりを 2 個保持＝在庫 3 個以上で贈呈、1 回の実行で最大 3 ラウンド贈呈、7 種類すべてを贈呈）を使用します。有効にすると贈呈回数・種類ごとの在庫上限・贈呈する種類・直接贈呈・重複分の一括譲渡を個別に設定できます。手がかりの収集・受取・配置には影響しません。手がかり交換を開始するかは「手がかり交換を開始」で別途設定します。",
-    "option.ClueSetting.label": "手掛かり設定",
+    "option.ClueSetting.label": "手掛かり贈呈設定",
     "option.ClueStockLimit.cases.0.label": "0（保持しない）",
     "option.ClueStockLimit.cases.1.label": "1",
     "option.ClueStockLimit.cases.2.label": "2",

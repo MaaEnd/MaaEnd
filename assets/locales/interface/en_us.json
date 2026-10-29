@@ -1444,7 +1444,7 @@
     "option.ClueSendCustomizeCheckbox.description": "When checked this clue type takes part in sending; when unchecked the whole type is kept.",
     "option.ClueSendCustomizeCheckbox.label": "Send Clue",
     "option.ClueSetting.description": "Switch for the Reception Room clue sending rules. Disabled uses the defaults: keep 2 of each clue type (send only when stock is 3 or more), enter at most 3 send rounds, send every one of the 7 clue types. Enabled lets you adjust the send count, per-clue stock limit, clue type selection, direct sending and quick duplicate gifting. Collecting, receiving and placing clues are not affected; whether to start clue exchange is controlled separately by Start Clue Exchange.",
-    "option.ClueSetting.label": "Clue Settings",
+    "option.ClueSetting.label": "Clue Sending Settings",
     "option.ClueStockLimit.cases.0.label": "0 (keep none)",
     "option.ClueStockLimit.cases.1.label": "1",
     "option.ClueStockLimit.cases.2.label": "2",

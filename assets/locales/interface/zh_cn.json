@@ -1444,7 +1444,7 @@
     "option.ClueSendCustomizeCheckbox.description": "勾选后该种线索参与赠送；取消勾选则这种线索全部保留。",
     "option.ClueSendCustomizeCheckbox.label": "赠送线索",
     "option.ClueSetting.description": "会客室线索赠送规则的开关。关闭时使用默认规则：每种线索保留 2 张（库存 ≥ 3 才赠送）、单次最多进入 3 轮赠送、按全部 7 种线索赠送。开启后可分别调整赠送次数、单种线索库存上限、赠送种类、入室直接赠予和快速赠予重复线索。收集、接收和放置线索不受本开关影响；是否开始线索交流由「开启线索交流」单独控制。",
-    "option.ClueSetting.label": "线索设置",
+    "option.ClueSetting.label": "线索赠送设置",
     "option.ClueStockLimit.cases.0.label": "0（不保留）",
     "option.ClueStockLimit.cases.1.label": "1",
     "option.ClueStockLimit.cases.2.label": "2",
