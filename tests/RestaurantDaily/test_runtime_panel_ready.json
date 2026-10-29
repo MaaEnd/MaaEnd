@@ -2,8 +2,7 @@
     "configs": {
         "name": "缘缘庄经营面板就绪识别",
         "resource": "官服",
-        "controller": "Win32",
-        "imageRoot": "RestaurantDaily"
+        "controller": "Win32"
     },
     "cases": [
         {
