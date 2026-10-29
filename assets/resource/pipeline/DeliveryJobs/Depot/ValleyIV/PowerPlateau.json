@@ -205,7 +205,7 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPrice}>=119000"
+            "expression": "{DeliveryJobsSelectedBidPrice}>=369000"
         },
         "pre_delay": 0,
         "anchor": {
@@ -222,7 +222,7 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPrice}<119000"
+            "expression": "{DeliveryJobsSelectedBidPrice}<369000"
         },
         "pre_delay": 0,
         "anchor": {

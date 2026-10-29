@@ -246,7 +246,7 @@ function buildQuoteThresholdOption(depot) {
                 // 阈值会被插值进表达式字符串；用 "int" 会把整条表达式当整数解析，必须用 "string"。
                 pipeline_type: "string",
                 verify: "^\\d+$",
-                // 默认值按地区取（constants.mjs），修改后重新生成即可。
+                // 默认值由节点基础报价计算（constants.mjs），修改后重新生成即可。
                 default: String(defaultQuoteThreshold(depot)),
                 pattern_msg: "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg",
             },

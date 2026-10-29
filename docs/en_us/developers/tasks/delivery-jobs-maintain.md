@@ -1,7 +1,7 @@
 # Development Manual - DeliveryJobs
 
 `DeliveryJobs` (task name "Delivery Jobs") traverses all depot nodes according to the regions and depot nodes configured by the user, packing cargo for delivery jobs, accepting the jobs, and transferring them; optionally it hands the cargo to [AutoDelivery](../components/auto-delivery.md) for fully automatic delivery.  
-This document was updated on October 28, 2026.
+This document was updated on October 29, 2026.
 
 Three structural conventions of this task:
 
@@ -123,7 +123,7 @@ After "Handle by Bid" is selected, three extra options appear for that depot nod
 
 | Option | Type | Default | Purpose |
 | --- | --- | --- | --- |
-| Bid Processing Threshold | input | 119000 (Valley IV) / 194000 (Wuling) | Integer value compared with the currently selected bid, validated against `^\d+$` |
+| Bid Processing Threshold | input | Per depot node; see [Default Bid Thresholds](#default-bid-thresholds) | Integer value compared with the currently selected bid, validated against `^\d+$` |
 | At or Above the Threshold | select | Accept and Transfer | Which action runs when bid ≥ threshold |
 | Below the Threshold | select | Accept Job Only | Which action runs when bid < threshold |
 
@@ -157,6 +157,28 @@ Implementation notes:
 - `pipeline_override` **replaces** both the `anchor` object and the `next` array **as a whole**, so an override must give the complete field, not just the entry you want to change.
 - When bid OCR fails (`DeliveryJobsBidPriceRecognitionFailed`), the task runs `StopTask` right away and stays on the bid page; it neither guesses nor accepts automatically.
 - **Leftover jobs skip the bid check**: `DeliveryJobsOngoingDeliveryFor{Depot}.next` is overridden to `DeliveryJobsAutoDelivery{Depot}` (`DeliveryJobsSkipOngoingDelivery` for depot nodes without an assigned destination); for the reasons and consequences, see [Leftover Delivery Jobs](#leftover-delivery-jobs).
+
+### Default Bid Thresholds
+
+Base quotes are calculated by zmdmap's `datasets/delivery_jobs.py` from `DomainDepotLevelTable`, `DomainDepotPackValueTable`, `DomainDepotDeliverItemTypeTable`, and `DomainDataTable`: for each depot node, enumerate the goods type and cargo box size combinations actually allowed at each level, calculate `floor(maxLimit * priceFactor * domainDepotOfferPriceRatio)` for each combination, and take the maximum. This excludes buyer random multipliers and the remaining-payment ratio after transfer.
+
+The result is written as a positive integer to `depots[id].max_base_quote` in `delivery_jobs.json`. The generator's `model.mjs` checks every depot node in `validateData()` to require a positive safe integer, then `buildDepot()` exposes it as `MaxBaseQuote`; a missing or invalid value fails before locale files are written in that run or `prepare.mjs` cleans the artifact directories, without using a fallback price.
+
+The generator retains the common buyer multiplier `1.1` and the screen's rounding unit `1000`, deriving the default with `defaultQuoteThreshold(depot) = floor(depot.MaxBaseQuote * 1.1 / 1000) * 1000`. The two Pipeline threshold expressions and the task option's `input.default` continue to share this function, without a hand-written per-depot price table.
+
+The table below shows the current generated results for game version `1.6.4+11262943-8`. In this version, each depot node's maximum base quote happens to correspond to a **level 4 depot node and a large cargo box filled with industrial goods**; the calculation does not hard-code a level or combination, so new levels or depot nodes are recalculated automatically from their allowed combinations.
+
+| Depot node | MaaEnd identifier | Maximum base quote (Stock Bills) | Default threshold (Stock Bills) |
+| --- | --- | --- | --- |
+| Originium Science Park | `OriginiumSciencePark` | 192000 | 211000 |
+| Origin Lodespring | `OriginLodespring` | 312000 | 343000 |
+| Power Plateau | `PowerPlateau` | 336000 | 369000 |
+| Wuling City | `WulingCity` | 129600 | 142000 |
+| Test Area | `TestArea` | 172800 | 190000 |
+
+The common buyer multiplier `1.1` comes from the [community Wiki's Depot Node page](https://endfield.wiki.gg/wiki/Depot_Node), rather than a buyer multiplier directly provided by the original game tables; that page also lists rare `1.5`× bids. Rare `1.5`× bids still exceed the default minimums above, so they do not need to be the default minimum.
+
+The threshold compares the **buyer's bid on the shipping side**; the displayed 159000 is the remaining payment after transfer and does not participate in the shipping-side threshold calculation.
 
 ## Leftover Delivery Jobs
 
@@ -303,7 +325,7 @@ A general question for troubleshooting similar problems: **does this node's land
 | --- | --- | --- | --- |
 | Valley IV / Wuling | switch | On | Enables or disables the region; turning it off sets `enabled: false` on that region's node |
 | `{depot node}` | select | Accept and Transfer | Handling mode of that depot node (one of six) |
-| Bid Processing Threshold | input | 119000 (Valley IV) / 194000 (Wuling) | Appears only with "Handle by Bid" |
+| Bid Processing Threshold | input | Per depot node; see [Default Bid Thresholds](#default-bid-thresholds) | Appears only with "Handle by Bid" |
 | At or Above the Threshold / Below the Threshold | select | Accept and Transfer / Accept Job Only | Appears only with "Handle by Bid" |
 | Fill Specific Goods | switch | Off | When enabled, expands 4 priority slots per region |
 | `{region} · Priority 1..4` | select | Sandleaf Powder / Not specified | Appears only when "Fill Specific Goods" is enabled |
@@ -323,7 +345,7 @@ The old global "Accept Jobs Only" and "Pack Cargo Only" switches have been repla
 
 - **Under "Handle by Bid", the path through `DeliveryJobsEnter{Depot}PriceDeliveryJob` after the accept fallback can be hit at most once per depot node per run.** When no Quick Transfer button exists (depot node below level 3) and the bid action is "Accept and Transfer", `DeliveryJobsDecideQuickTransfer` falls back to `DeliveryJobsRedistributionBidNextStep` to accept, then transfers through `DeliveryJobsBackToDepot` → `DeliveryJobsReturnAndTransfer{Depot}` → `DeliveryJobsEnter{Depot}PriceDeliveryJob`; that final entry carries `max_hit: 1`. When the Quick Transfer button exists, the flow does not enter that node or consume its quota. Accepted jobs not transferred through that entry are handled according to the owning depot node's mode the next time `有待运送的货物` (cargo awaiting delivery) is recognized: under "Handle by Bid", they are handed to `DeliveryJobsAutoDelivery{Depot}` and delivered; depot nodes without an assigned destination still take the skip path. This item is inferred from the node configuration and has not yet been confirmed on a real device.
 - The OCR text of `DeliveryJobsCheck{Depot}Cargo.expected` has a single source: `ALL_CARGO_EXPECTED` in `constants.mjs`, injected into the node default by the depot data; only "Pack Cargo Only" overrides it with `PACK_CARGO_EXPECTED` from the same file, and all other modes use the node default. To change the text, edit `constants.mjs` and regenerate.
-- The default bid threshold is defined per region in `DEFAULT_QUOTE_THRESHOLD_BY_REGION` of `constants.mjs` (119000 for Valley IV, 194000 for Wuling, falling back to 119000 for unconfigured regions); both the Pipeline expressions and the option `default` take it from there.
+- Default bid thresholds flow from `depots[id].max_base_quote` in `delivery_jobs.json`, through `MaxBaseQuote` in `model.mjs`, into `defaultQuoteThreshold(depot)`; the two Pipeline threshold expressions and the task option's `input.default` share its result. If a quote field is missing or is not a positive safe integer, the generator fails before locale files are written in that run or artifact directories are cleaned; see [Default Bid Thresholds](#default-bid-thresholds) for the values and their basis.
 
 ## Generator and Maintenance
 

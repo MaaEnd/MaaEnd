@@ -1,7 +1,7 @@
 # 开发手册 - DeliveryJobs 转交委托
 
 `DeliveryJobs`（任务名「转交委托」）按用户配置的地区与仓储节点遍历全部仓储节点，完成送货委托的装箱、接取与转交，可选把货物交给 [AutoDelivery](../components/auto-delivery.md) 全自动送掉。  
-该文档更新于 2026 年 10 月 28 日。
+该文档更新于 2026 年 10 月 29 日。
 
 本任务的三条结构性约定：
 
@@ -123,7 +123,7 @@ flowchart TD
 
 | 选项 | 类型 | 默认 | 作用 |
 | ---------------------------------------- | ------ | -------------- | ------------------------------------------------------ |
-| 报价处理阈值 | input | 119000（四号谷地）/ 194000（武陵） | 与当前选中报价比较的整数值，校验 `^\d+$` |
+| 报价处理阈值 | input | 按仓储节点，见[默认报价阈值](#默认报价阈值) | 与当前选中报价比较的整数值，校验 `^\d+$` |
 | 达到或高于阈值时 | select | 接取并转交 | 报价 ≥ 阈值时执行哪个动作 |
 | 低于阈值时 | select | 仅接取委托 | 报价 < 阈值时执行哪个动作 |
 
@@ -157,6 +157,28 @@ flowchart TD
 - `pipeline_override` 对 `anchor` 对象和数组 `next` 都是**整体替换**，覆盖时必须给全该字段，不要只写想改的那一项。
 - 报价 OCR 失败（`DeliveryJobsBidPriceRecognitionFailed`）直接 `StopTask` 并停在报价页，不猜、不自动接取。
 - **残留委托不走报价判断**：`DeliveryJobsOngoingDeliveryFor{Depot}.next` 被覆盖为 `DeliveryJobsAutoDelivery{Depot}`（无归属终点的仓储节点为 `DeliveryJobsSkipOngoingDelivery`），理由与影响见[残留送货任务](#残留送货任务)。
+
+### 默认报价阈值
+
+基础报价由 zmdmap 的 `datasets/delivery_jobs.py` 读取 `DomainDepotLevelTable`、`DomainDepotPackValueTable`、`DomainDepotDeliverItemTypeTable` 与 `DomainDataTable` 计算：逐个仓储节点枚举每一级实际允许的货物类型与货箱大小组合，对各组合计算 `floor(maxLimit * priceFactor * domainDepotOfferPriceRatio)`，再取最大值。它不含买家随机倍率或转交后的尾款比例。
+
+计算结果写入 `delivery_jobs.json` 的 `depots[id].max_base_quote`，为正整数。生成器的 `model.mjs` 在 `validateData()` 中逐个检查该字段必须是正安全整数，`buildDepot()` 再将其暴露为 `MaxBaseQuote`；缺失或非法时，在本次 locale 写入和 `prepare.mjs` 清理产物目录之前报错，不使用兜底价格。
+
+生成器保留常见买家倍率 `1.1` 和界面截千单位 `1000`，通过 `defaultQuoteThreshold(depot) = floor(depot.MaxBaseQuote * 1.1 / 1000) * 1000` 得到默认阈值。Pipeline 的两条阈值表达式与任务选项的 `input.default` 继续共用这个函数，不再维护逐节点的手写价格表。
+
+下表是游戏版本 `1.6.4+11262943-8` 的当前生成结果。该版本各节点的最大基础报价恰好对应 **4 级仓储节点、装满工业品的大型货箱**；计算不写死等级或组合，未来新增等级或仓储节点时按实际允许的组合自动重算。
+
+| 仓储节点 | MaaEnd 标识 | 最大基础报价（调度券） | 默认阈值（调度券） |
+| --- | --- | --- | --- |
+| 源石研究园 | `OriginiumSciencePark` | 192000 | 211000 |
+| 矿脉源区 | `OriginLodespring` | 312000 | 343000 |
+| 供能高地 | `PowerPlateau` | 336000 | 369000 |
+| 武陵城 | `WulingCity` | 129600 | 142000 |
+| 试验园区 | `TestArea` | 172800 | 190000 |
+
+常见买家倍率 `1.1` 的依据是[社区 Wiki 的 Depot Node 页面](https://endfield.wiki.gg/wiki/Depot_Node)，并非原始游戏表直接给出的买家倍率；该页面还列出罕见的 `1.5` 倍报价。`1.5` 倍罕见报价仍高于上述默认下限，无需以其为默认下限。
+
+阈值比较的是**发货侧买家报价**；15.9 万是转交后的尾款显示，不参与发货侧阈值计算。
 
 ## 残留送货任务
 
@@ -303,7 +325,7 @@ DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全�
 | ------------------------------------------------ | ------ | -------------- | ------------------------------------------------ |
 | 四号谷地 / 武陵 | switch | 开 | 启停地区；关闭即 `enabled: false` 该地区节点 |
 | `{仓储节点}` | select | 接取并转交 | 该仓储节点的处理方式（六选一） |
-| 报价处理阈值 | input | 119000（四号谷地）/ 194000（武陵） | 仅「按报价处理」时出现 |
+| 报价处理阈值 | input | 按仓储节点，见[默认报价阈值](#默认报价阈值) | 仅「按报价处理」时出现 |
 | 达到或高于阈值时 / 低于阈值时 | select | 接取并转交 / 仅接取委托 | 仅「按报价处理」时出现 |
 | 填入指定货物 | switch | 关 | 启用后展开每地区 4 个优先级槽位 |
 | `{地区} · 优先级 1..4` | select | 砂叶粉末 / 不指定 | 仅启用「填入指定货物」时出现 |
@@ -323,7 +345,7 @@ DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全�
 
 - **「按报价处理」下，回退接取后经 `DeliveryJobsEnter{Depot}PriceDeliveryJob` 转交的路径，每个仓储节点每次运行最多命中一次。** 没有快速转交按钮（仓储节点未满 3 级）且报价动作选「接取并转交」时，`DeliveryJobsDecideQuickTransfer` 回退 `DeliveryJobsRedistributionBidNextStep` 接取，再经 `DeliveryJobsBackToDepot` → `DeliveryJobsReturnAndTransfer{Depot}` → `DeliveryJobsEnter{Depot}PriceDeliveryJob` 转交；最后这个入口带 `max_hit: 1`。有快速转交按钮时不经过该入口，也不消耗它的名额。未在该入口转交的已接委托，后续再次识别到「有待运送的货物」时按归属仓储节点的处理方式处理：「按报价处理」下交给 `DeliveryJobsAutoDelivery{Depot}` 送完；无归属终点的仓储节点仍走跳过。本条由节点配置推得，尚未实机确认。
 - `DeliveryJobsCheck{Depot}Cargo.expected` 的识别文本只有一个来源：`constants.mjs` 的 `ALL_CARGO_EXPECTED`，由 depot 模板经数据注入成节点默认值；只有「仅装箱货物」用同文件的 `PACK_CARGO_EXPECTED` 覆盖，其余处理方式沿用节点默认。改文本只改 `constants.mjs` 并重新生成。
-- 报价阈值默认值按地区在 `constants.mjs` 的 `DEFAULT_QUOTE_THRESHOLD_BY_REGION` 定义（四号谷地 119000、武陵 194000，未配置地区回退 119000），Pipeline 表达式与 option `default` 都由它注入。
+- 报价阈值默认值由 `delivery_jobs.json` 的 `depots[id].max_base_quote` 经 `model.mjs` 的 `MaxBaseQuote` 传给 `defaultQuoteThreshold(depot)`，Pipeline 的两条阈值表达式与任务选项的 `input.default` 共用其计算结果。报价字段缺失或不是正安全整数时，生成器在本次 locale 写入和产物目录清理之前报错；取值与依据见[默认报价阈值](#默认报价阈值)。
 
 ## 生成器与维护
 

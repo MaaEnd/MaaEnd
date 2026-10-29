@@ -217,7 +217,7 @@
                     "name": "DeliveryJobsQuoteThresholdOriginiumScienceParkValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
-                    "default": "119000",
+                    "default": "211000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
@@ -518,7 +518,7 @@
                     "name": "DeliveryJobsQuoteThresholdOriginLodespringValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
-                    "default": "119000",
+                    "default": "343000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
@@ -819,7 +819,7 @@
                     "name": "DeliveryJobsQuoteThresholdPowerPlateauValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
-                    "default": "119000",
+                    "default": "369000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
@@ -1147,7 +1147,7 @@
                     "name": "DeliveryJobsQuoteThresholdWulingCityValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
-                    "default": "194000",
+                    "default": "142000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
@@ -1448,7 +1448,7 @@
                     "name": "DeliveryJobsQuoteThresholdTestAreaValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
-                    "default": "194000",
+                    "default": "190000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"

@@ -58,6 +58,21 @@ function buildLocalizedExpected(names, label) {
 function validateData() {
     assertRecord(deliveryJobsData.regions, "delivery_jobs.json regions");
     assertRecord(deliveryJobsData.depots, "delivery_jobs.json depots");
+    if (Object.keys(deliveryJobsData.depots).length === 0) {
+        throw new Error("[DeliveryJobs] delivery_jobs.json 没有仓储节点");
+    }
+    for (const [
+        gameId,
+        value,
+    ] of Object.entries(deliveryJobsData.depots)) {
+        const depot = assertRecord(value, `仓储节点 ${gameId}`);
+        if (!Number.isSafeInteger(depot.max_base_quote) || depot.max_base_quote <= 0) {
+            throw new Error(
+                `[DeliveryJobs] 仓储节点 ${gameId} 缺少有效的 max_base_quote（需要正整数）；` +
+                    "请更新 zmdmap 数据，或运行 uv run zmdmap generate --only delivery_jobs。",
+            );
+        }
+    }
     assertRecord(deliveryJobsData.items, "delivery_jobs.json items");
     assertRecord(deliveryDestinationsData, "delivery_destinations.json");
     if (!Array.isArray(deliveryDestinationsData.destinations)) {
@@ -176,6 +191,7 @@ function buildDepot(regionGameId, regionId, depotGameId) {
     return {
         Id: id,
         GameId: depotGameId,
+        MaxBaseQuote: depot.max_base_quote,
         Name: depot.names.zh_cn,
         Names: depot.names,
         Expected: buildLocalizedExpected(depot.names, `仓储节点 ${depotGameId}`),

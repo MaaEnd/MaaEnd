@@ -26,14 +26,11 @@ export const ALL_CARGO_EXPECTED = [
 ];
 
 // 「按报价处理」的默认阈值（调度券），同时用于 Pipeline 表达式与任务选项的默认值。
-// 各地区的报价量级不同，目前四号谷地约 11.9 万、武陵约 19.4 万；新地区未配置时回退到 FALLBACK。
-export const DEFAULT_QUOTE_THRESHOLD_BY_REGION = {
-    ValleyIV: 119000,
-    Wuling: 194000,
-};
-export const DEFAULT_QUOTE_THRESHOLD_FALLBACK = 119000;
+// 节点最高基础报价由 zmdmap 的 max_base_quote 提供；这里只选择常见买家倍率并按界面精度截位。
+const COMMON_QUOTE_MULTIPLIER = 1.1;
+const QUOTE_DISPLAY_UNIT = 1000;
 
-/** 取某个仓储节点的默认报价阈值：按所属地区取；未配置地区回退到全局兜底。 */
+/** 取节点的常见高档报价，并按界面显示精度向下截到千位。 */
 export function defaultQuoteThreshold(depot) {
-    return DEFAULT_QUOTE_THRESHOLD_BY_REGION[depot.RegionId] ?? DEFAULT_QUOTE_THRESHOLD_FALLBACK;
+    return Math.floor((depot.MaxBaseQuote * COMMON_QUOTE_MULTIPLIER) / QUOTE_DISPLAY_UNIT) * QUOTE_DISPLAY_UNIT;
 }
