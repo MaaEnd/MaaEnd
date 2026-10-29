@@ -24,6 +24,14 @@ MaaFramework 提供了丰富的[开发工具](https://github.com/MaaXYZ/MaaFrame
 - 实现前核对 MaaFramework、Agent 与 MXU 的职责边界，确认编码器及跨平台依赖。
 - 验证视频可播放、时间顺序正确、缓存有界，以及正常结束、主动停止和多任务场景。
 
+### 当前接入边界
+
+MaaFramework 的 [`PipelineTask::save_on_error`](https://github.com/MaaXYZ/MaaFramework/blob/main/source/MaaFramework/Task/PipelineTask.cpp) 保存错误瞬间的缓存截图，[`VisionBase`](https://github.com/MaaXYZ/MaaFramework/blob/main/source/MaaFramework/Vision/VisionBase.cpp) 负责生成带识别标注的 `vision` 图片。关闭 `save_draw` 时不一定存在 `vision` 文件，因此不能仅依赖转换磁盘图片实现回放。
+
+推荐在框架层复用已有画面，维护最近约 30 秒的有界缓存，并沿原错误截图路径保存视频。正常的候选识别未命中不应触发导出，原有错误截图仍须保留。首版优先核验 OpenCV 内置 MJPEG/AVI，避免假定用户安装了 FFmpeg；H.264/MP4 需要单独确认编码器和发行依赖。
+
+MXU 当前的[日志导出实现](https://github.com/MistEO/MXU/blob/5e923e83b30a102fb78da35c30ee2e1559aea682/src-tauri/src/commands/file_ops.rs#L658-L665) 会过滤视频文件，完整功能需要配套更新导出规则。只修改 MaaEnd 的 Agent 时，识别回调无法覆盖全部框架截图，应明确限定为本地识别周期回放。
+
 ## 交流
 
 开发 QQ 群: [1072587329](https://qm.qq.com/q/EyirQpBiW4) （干活群，欢迎加入一起开发，但不受理用户问题）

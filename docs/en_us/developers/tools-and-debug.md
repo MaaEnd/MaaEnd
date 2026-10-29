@@ -24,6 +24,14 @@ The planned feature saves approximately the last 30 seconds of task frames when 
 - Verify the responsibilities of MaaFramework, the Agent, and MXU, including encoders and cross-platform dependencies, before implementation.
 - Validate playback, chronological order, bounded caching, normal completion, user stops, and multiple tasks.
 
+### Current integration boundaries
+
+MaaFramework's [`PipelineTask::save_on_error`](https://github.com/MaaXYZ/MaaFramework/blob/main/source/MaaFramework/Task/PipelineTask.cpp) saves the cached screenshot at the point of failure, while [`VisionBase`](https://github.com/MaaXYZ/MaaFramework/blob/main/source/MaaFramework/Vision/VisionBase.cpp) produces annotated `vision` images. When `save_draw` is disabled, `vision` files may not exist, so replay cannot rely solely on converting images on disk.
+
+The recommended approach reuses existing frames in the framework, maintains a bounded cache of approximately 30 seconds, and saves video alongside the existing error screenshot. Ordinary recognition misses must not trigger export, and existing error screenshots must be retained. First verify OpenCV's built-in MJPEG/AVI support rather than assuming users have FFmpeg installed; H.264/MP4 requires separate verification of encoders and distribution dependencies.
+
+MXU's current [log export implementation](https://github.com/MistEO/MXU/blob/5e923e83b30a102fb78da35c30ee2e1559aea682/src-tauri/src/commands/file_ops.rs#L658-L665) filters out video files, so the complete feature also requires updated export rules. An implementation limited to MaaEnd's Agent cannot observe all framework screenshots through recognition callbacks and must be described as local recognition-cycle replay.
+
 ## Community
 
 Development QQ Group: [1072587329](https://qm.qq.com/q/EyirQpBiW4) (A working group, welcome to join and develop together, but user issues are not handled here)
