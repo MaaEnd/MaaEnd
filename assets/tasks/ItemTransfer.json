@@ -316,7 +316,11 @@
                     "icon": "resource/image/UI/Item/item_corp_whitegourd_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -358,7 +362,11 @@
                     "icon": "resource/image/UI/Item/item_corp_tomato_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -400,7 +408,11 @@
                     "icon": "resource/image/UI/Item/item_corp_sugarcane_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -442,7 +454,11 @@
                     "icon": "resource/image/UI/Item/item_corp_strawberry_seed_2.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -484,7 +500,11 @@
                     "icon": "resource/image/UI/Item/item_corp_strawberry_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -526,7 +546,11 @@
                     "icon": "resource/image/UI/Item/item_corp_potato_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -568,7 +592,11 @@
                     "icon": "resource/image/UI/Item/item_corp_mushroom_seed_2.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -610,7 +638,11 @@
                     "icon": "resource/image/UI/Item/item_corp_mushroom_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -652,7 +684,11 @@
                     "icon": "resource/image/UI/Item/item_corp_canolaflower_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -694,7 +730,11 @@
                     "icon": "resource/image/UI/Item/item_corp_cabbage_seed_2.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -736,7 +776,11 @@
                     "icon": "resource/image/UI/Item/item_corp_cabbage_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -778,7 +822,11 @@
                     "icon": "resource/image/UI/Item/item_corp_bean_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -1878,7 +1926,11 @@
                     "icon": "resource/image/UI/Item/item_corp_strawberry_2.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -1920,7 +1972,11 @@
                     "icon": "resource/image/UI/Item/item_corp_mushroom_2.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -1962,7 +2018,11 @@
                     "icon": "resource/image/UI/Item/item_corp_cabbage_2.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -2004,7 +2064,11 @@
                     "icon": "resource/image/UI/Item/item_corp_canolaflower_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -2046,7 +2110,11 @@
                     "icon": "resource/image/UI/Item/item_corp_whitegourd_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -2088,7 +2156,11 @@
                     "icon": "resource/image/UI/Item/item_corp_strawberry_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -2130,7 +2202,11 @@
                     "icon": "resource/image/UI/Item/item_corp_mushroom_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -2172,7 +2248,11 @@
                     "icon": "resource/image/UI/Item/item_corp_bean_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -2214,7 +2294,11 @@
                     "icon": "resource/image/UI/Item/item_corp_sugarcane_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -2256,7 +2340,11 @@
                     "icon": "resource/image/UI/Item/item_corp_cabbage_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -2298,7 +2386,11 @@
                     "icon": "resource/image/UI/Item/item_corp_tomato_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -2340,7 +2432,11 @@
                     "icon": "resource/image/UI/Item/item_corp_potato_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -2382,7 +2478,11 @@
                     "icon": "resource/image/UI/Item/item_byproduct_potato_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -2424,7 +2524,11 @@
                     "icon": "resource/image/UI/Item/item_byproduct_bean_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -8768,7 +8872,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_fishmeat_2.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -8810,7 +8918,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_fishmeat_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -8852,7 +8964,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_egg_2.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -8894,7 +9010,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_egg_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -8936,7 +9056,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_milk_2.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -8978,7 +9102,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_milk_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -9020,7 +9148,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_meat_2.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -9062,7 +9194,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_meat_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -9104,7 +9240,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_fodder_2.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -9146,7 +9286,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_fodder_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -9188,7 +9332,11 @@
                     "icon": "resource/image/UI/Item/item_muck_inn_4.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -9230,7 +9378,11 @@
                     "icon": "resource/image/UI/Item/item_muck_inn_3.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -9272,7 +9424,11 @@
                     "icon": "resource/image/UI/Item/item_muck_inn_2.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -9314,7 +9470,11 @@
                     "icon": "resource/image/UI/Item/item_muck_inn_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -9356,7 +9516,11 @@
                     "icon": "resource/image/UI/Item/item_byproduct_potato_moss_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -9398,7 +9562,11 @@
                     "icon": "resource/image/UI/Item/item_byproduct_bean_moss_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -10636,7 +10804,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_10.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -10678,7 +10850,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_9.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -10720,7 +10896,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_8.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -10762,7 +10942,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_7.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -10804,7 +10988,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_6.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -10846,7 +11034,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_5.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -10888,7 +11080,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_4.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -10930,7 +11126,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_3.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -10972,7 +11172,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_2.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -11014,7 +11218,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -11286,7 +11494,11 @@
                     "icon": "resource/image/UI/Item/item_inkkirin_1_hscrane_1_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -11328,7 +11540,11 @@
                     "icon": "resource/image/UI/Item/item_inkbiter_1_wgshoal_1_1.png",
                     "pipeline_override": {
                         "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindForwardItemInRepo": {
                             "recognition": {
@@ -14551,7 +14767,11 @@
                     "icon": "resource/image/UI/Item/item_corp_whitegourd_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -14593,7 +14813,11 @@
                     "icon": "resource/image/UI/Item/item_corp_tomato_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -14635,7 +14859,11 @@
                     "icon": "resource/image/UI/Item/item_corp_sugarcane_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -14677,7 +14905,11 @@
                     "icon": "resource/image/UI/Item/item_corp_strawberry_seed_2.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -14719,7 +14951,11 @@
                     "icon": "resource/image/UI/Item/item_corp_strawberry_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -14761,7 +14997,11 @@
                     "icon": "resource/image/UI/Item/item_corp_potato_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -14803,7 +15043,11 @@
                     "icon": "resource/image/UI/Item/item_corp_mushroom_seed_2.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -14845,7 +15089,11 @@
                     "icon": "resource/image/UI/Item/item_corp_mushroom_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -14887,7 +15135,11 @@
                     "icon": "resource/image/UI/Item/item_corp_canolaflower_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -14929,7 +15181,11 @@
                     "icon": "resource/image/UI/Item/item_corp_cabbage_seed_2.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -14971,7 +15227,11 @@
                     "icon": "resource/image/UI/Item/item_corp_cabbage_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -15013,7 +15273,11 @@
                     "icon": "resource/image/UI/Item/item_corp_bean_seed_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16113,7 +16377,11 @@
                     "icon": "resource/image/UI/Item/item_corp_strawberry_2.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16155,7 +16423,11 @@
                     "icon": "resource/image/UI/Item/item_corp_mushroom_2.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16197,7 +16469,11 @@
                     "icon": "resource/image/UI/Item/item_corp_cabbage_2.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16239,7 +16515,11 @@
                     "icon": "resource/image/UI/Item/item_corp_canolaflower_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16281,7 +16561,11 @@
                     "icon": "resource/image/UI/Item/item_corp_whitegourd_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16323,7 +16607,11 @@
                     "icon": "resource/image/UI/Item/item_corp_strawberry_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16365,7 +16653,11 @@
                     "icon": "resource/image/UI/Item/item_corp_mushroom_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16407,7 +16699,11 @@
                     "icon": "resource/image/UI/Item/item_corp_bean_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16449,7 +16745,11 @@
                     "icon": "resource/image/UI/Item/item_corp_sugarcane_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16491,7 +16791,11 @@
                     "icon": "resource/image/UI/Item/item_corp_cabbage_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16533,7 +16837,11 @@
                     "icon": "resource/image/UI/Item/item_corp_tomato_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16575,7 +16883,11 @@
                     "icon": "resource/image/UI/Item/item_corp_potato_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16617,7 +16929,11 @@
                     "icon": "resource/image/UI/Item/item_byproduct_potato_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -16659,7 +16975,11 @@
                     "icon": "resource/image/UI/Item/item_byproduct_bean_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Plant.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotPlant"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23003,7 +23323,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_fishmeat_2.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23045,7 +23369,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_fishmeat_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23087,7 +23415,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_egg_2.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23129,7 +23461,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_egg_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23171,7 +23507,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_milk_2.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23213,7 +23553,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_milk_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23255,7 +23599,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_meat_2.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23297,7 +23645,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_meat_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23339,7 +23691,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_fodder_2.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23381,7 +23737,11 @@
                     "icon": "resource/image/UI/Item/item_ranch_fodder_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23423,7 +23783,11 @@
                     "icon": "resource/image/UI/Item/item_muck_inn_4.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23465,7 +23829,11 @@
                     "icon": "resource/image/UI/Item/item_muck_inn_3.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23507,7 +23875,11 @@
                     "icon": "resource/image/UI/Item/item_muck_inn_2.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23549,7 +23921,11 @@
                     "icon": "resource/image/UI/Item/item_muck_inn_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23591,7 +23967,11 @@
                     "icon": "resource/image/UI/Item/item_byproduct_potato_moss_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -23633,7 +24013,11 @@
                     "icon": "resource/image/UI/Item/item_byproduct_bean_moss_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotProduct"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -24871,7 +25255,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_10.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -24913,7 +25301,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_9.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -24955,7 +25347,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_8.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -24997,7 +25393,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_7.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -25039,7 +25439,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_6.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -25081,7 +25485,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_5.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -25123,7 +25531,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_4.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -25165,7 +25577,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_3.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -25207,7 +25623,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_2.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -25249,7 +25669,11 @@
                     "icon": "resource/image/UI/Item/item_inn_drink_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -25521,7 +25945,11 @@
                     "icon": "resource/image/UI/Item/item_inkkirin_1_hscrane_1_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
@@ -25563,7 +25991,11 @@
                     "icon": "resource/image/UI/Item/item_inkbiter_1_wgshoal_1_1.png",
                     "pipeline_override": {
                         "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Usable.png"
+                            "custom_action_param": {
+                                "sub": [
+                                    "SceneEnterMenuBackpackWithDepotUsable"
+                                ]
+                            }
                         },
                         "ItemTransferFindReturnItemInRepo": {
                             "recognition": {
