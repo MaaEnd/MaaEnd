@@ -11,6 +11,7 @@
         },
         "post_delay": 0,
         "next": [
+            "GiftOperatorSendAllMain",
             "GiftOperatorEntry"
         ]
     },
@@ -131,6 +132,8 @@
         "custom_action": "ClearHitCount",
         "custom_action_param": {
             "nodes": [
+                "GiftOperatorGoToDijiang",
+                "GiftOperatorClickContact_reply",
                 "GiftOperatorMoveAhead",
                 "GiftOperatorMoveBackward",
                 "GiftOperatorMoveResetBackward",

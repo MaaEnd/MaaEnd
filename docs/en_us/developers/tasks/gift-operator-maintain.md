@@ -1,7 +1,7 @@
 # Development Manual - Gift to Operator Maintenance Documentation
 
 This document explains the file distribution and two execution routes of `GiftOperator`.  
-This documentation was last updated on October 18, 2026.
+This documentation was last updated on October 29, 2026.
 
 ## File Paths
 
@@ -15,6 +15,7 @@ This documentation was last updated on October 18, 2026.
 | `assets/resource/pipeline/GiftOperator/GiftOperatorGiftFlow.json` | Gift giving / receiving during dialogue |
 | `assets/resource/pipeline/GiftOperator/GiftOperatorBagFull.json` | Bag full handling |
 | `assets/resource/pipeline/GiftOperator/Operator/Operator.json` | Operator identification for "Only Receive Gifts" mode |
+| `assets/resource/pipeline/GiftOperator/Operator/GiftOperatorSend.json` | Gift roster and individual entry points for all operators mode |
 | `assets/resource/image/GiftOperator/` | Win32 recognition images |
 | `assets/resource_adb/image/GiftOperator/` | ADB recognition images |
 | `assets/resource_adb/pipeline/GiftOperator/` | ADB Pipeline mirror |
@@ -41,6 +42,13 @@ Download, decoding, or source dimension failures stop generation before configur
 | 4 | `assets/resource/pipeline/GiftOperator/Operator/Operator.json` | Avatar re-matching and name OCR whitelist for each operator in "Only Receive Gifts" mode |
 | 5 | `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json` → `GiftOperatorSelectGiftOp.next` | Append `GiftOperatorSelect_<Name>` to the `next` array at the "Only Receive Gifts" operator selection node; otherwise, the operator node will not be triggered |
 | 6 | `assets/locales/interface/*.json` → `operator.<Name>` | Operator display name for each language |
+| 7 | `assets/resource/pipeline/GiftOperator/Operator/GiftOperatorSend.json` | Add missing individual gift nodes and roster references for all operators mode |
+
+### Incrementally Update the Gift Roster for All Operators
+
+`pnpm generate:GiftOperator` incrementally maintains `GiftOperatorSend.json` in the same generation flow. It reuses the avatar path and name whitelist from the matched task option, adds only missing `GiftOperatorSendSelect_<Name>` nodes, and inserts each missing `[JumpBack]` reference at the beginning of `GiftOperatorSendAllMain.next`.
+
+Existing operator nodes, the relative order of roster references, and `focus` are preserved; new gift nodes use the task option's `label` as the `Node.Action.Starting` hint to display the operator name. When adding a missing reference, the generator reads the existing `next`, prepends the new reference, and writes back the entire array, so comments inside that array are not preserved. `GiftOperatorSendAllMain` and `GiftOperatorSendFinished` remain manually maintained baseline nodes and must be restored from Git if missing. New individual nodes enter `GiftOperatorEntry` directly, which calls `GiftOperatorClearHitCount` to reset the hit counts in one place.
 
 ## Route 1: Default (Give + Receive)
 

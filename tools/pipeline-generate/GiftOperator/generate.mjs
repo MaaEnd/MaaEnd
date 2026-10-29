@@ -46,6 +46,7 @@ if (!data.operators || Object.keys(data.operators).length === 0) {
 }
 const task = openDocument("assets/tasks/GiftOperator.json");
 const nodes = openDocument("assets/resource/pipeline/GiftOperator/Operator/Operator.json");
+const send = openDocument("assets/resource/pipeline/GiftOperator/Operator/GiftOperatorSend.json");
 const contact = openDocument("assets/resource/pipeline/GiftOperator/GiftOperatorContact.json");
 const messages = Object.fromEntries(
     locales.map((locale) => [
@@ -79,6 +80,7 @@ for (const [
     const matches = task.value.option.SelectOperator.cases.filter(
         (item) =>
             item.name !== "Any" &&
+            item.name !== "ALL" &&
             item.pipeline_override.GiftOperatorName.expected.some((name) => knownNames.has(name)),
     );
     if (matches.length > 1) throw new Error(`[GiftOperator] ${id} 对应多个现有选项`);
@@ -169,6 +171,46 @@ for (const [
                 -1,
             ],
             nodeName,
+        );
+    }
+    const sendNodeName = `GiftOperatorSendSelect_${name}`;
+    if (!Object.hasOwn(send.value, sendNodeName)) {
+        insert(send, [sendNodeName], {
+            max_hit: 1,
+            pre_delay: 0,
+            action: {
+                type: "Custom",
+                param: {
+                    custom_action: "PipelineOverrideAction",
+                    custom_action_param: {
+                        patch: {
+                            GiftOperatorSelectSpecifiedOp: {template},
+                            GiftOperatorName: entry.pipeline_override.GiftOperatorName,
+                        },
+                    },
+                },
+            },
+            post_delay: 0,
+            rate_limit: 0,
+            next: ["GiftOperatorEntry"],
+            focus: {
+                "Node.Action.Starting": entry.label,
+            },
+        });
+    }
+    const sendReference = `[JumpBack]${sendNodeName}`;
+    const sendNext = send.value.GiftOperatorSendAllMain.next;
+    if (!sendNext.includes(sendReference)) {
+        insert(
+            send,
+            [
+                "GiftOperatorSendAllMain",
+                "next",
+            ],
+            [
+                sendReference,
+                ...sendNext,
+            ],
         );
     }
     const label = entry.label.slice(1);

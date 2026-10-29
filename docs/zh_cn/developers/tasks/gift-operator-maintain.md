@@ -1,7 +1,7 @@
 # 开发手册 - 赠送干员礼物维护文档
 
 本文说明 `GiftOperator` 的文件分布与两条执行路线。  
-该文档更新于 2026 年 10 月 18 日。
+该文档更新于 2026 年 10 月 29 日。
 
 ## 文件路径
 
@@ -15,6 +15,7 @@
 | `assets/resource/pipeline/GiftOperator/GiftOperatorGiftFlow.json` | 对话中的送礼 / 收礼 |
 | `assets/resource/pipeline/GiftOperator/GiftOperatorBagFull.json` | 背包已满处理 |
 | `assets/resource/pipeline/GiftOperator/Operator/Operator.json` | 只收礼物模式的干员识别 |
+| `assets/resource/pipeline/GiftOperator/Operator/GiftOperatorSend.json` | 全部干员模式的送礼名单与单人入口 |
 | `assets/resource/image/GiftOperator/` | Win32 识别图片 |
 | `assets/resource_adb/image/GiftOperator/` | ADB 识别图片 |
 | `assets/resource_adb/pipeline/GiftOperator/` | ADB Pipeline 镜像 |
@@ -41,6 +42,13 @@
 | 4 | `assets/resource/pipeline/GiftOperator/Operator/Operator.json` | 「只收礼物」模式下各干员的头像二次匹配与名称 OCR 白名单 |
 | 5 | `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json` → `GiftOperatorSelectGiftOp.next` | 在「只收礼物」选人节点的 `next` 数组追加 `GiftOperatorSelect_<Name>`，否则该干员节点不会被触发 |
 | 6 | `assets/locales/interface/*.json` → `operator.<Name>` | 各语言干员显示名称 |
+| 7 | `assets/resource/pipeline/GiftOperator/Operator/GiftOperatorSend.json` | 补齐全部干员模式的单人送礼节点与名单引用 |
+
+### 增量补齐全部干员送礼名单
+
+`pnpm generate:GiftOperator` 在同一生成流程中增量维护 `GiftOperatorSend.json`：沿用匹配到的任务选项中的头像路径与名称白名单，只添加缺失的 `GiftOperatorSendSelect_<Name>` 节点，并将缺失的 `[JumpBack]` 引用逐个插入 `GiftOperatorSendAllMain.next` 的首位。
+
+已有干员节点、名单引用的相对顺序和 `focus` 均保留；新增送礼节点使用任务选项的 `label` 作为 `Node.Action.Starting` 提示，显示干员名称。补齐引用时读取现有 `next`，将新引用放在首位后写回整个数组，因此该数组内部的注释不会保留。`GiftOperatorSendAllMain` 和 `GiftOperatorSendFinished` 作为人工维护的基线保留，缺失时需先从 Git 恢复。新增单人节点直接进入 `GiftOperatorEntry`，由其调用 `GiftOperatorClearHitCount` 统一清空命中计数。
 
 ## 路线一：默认（送礼 + 收礼）
 

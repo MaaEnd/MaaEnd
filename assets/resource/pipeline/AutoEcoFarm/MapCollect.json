@@ -463,8 +463,30 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__AutoEcoFarmCollectPanel"
+            "__AutoEcoFarmStoreCooldown"
         ]
+    },
+    "__AutoEcoFarmStoreCooldown": {
+        "desc": "存仓奖励关闭后等待 5 秒",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "autoEcoFarmInterruptibleSleep",
+                "custom_action_param": {
+                    "durationMs": 5000,
+                    "reportIntervalMs": 1000
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmCollectPanel"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoEcoFarm.focus.store_cooldown"
+        }
     },
     "__AutoEcoFarmFinishFacility": {
         "desc": "关闭当前装置面板",

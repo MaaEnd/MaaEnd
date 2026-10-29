@@ -2,7 +2,7 @@
 
 This document explains the file distribution and execution flow of `DijiangRewards`.  
 The core design is "Control Nexus dispatching + sub-stage jump-back": each sub-stage is independent, and options only modify stage entry points or branches without altering the main flow skeleton.  
-This document was updated on October 25, 2026.
+This document was updated on October 29, 2026.
 
 ## File Paths
 
@@ -55,7 +55,7 @@ The available assist points determine whether one or two operators are selected.
 Upon entering the Reception Room, attempt in order: handle exchange completion popup → collect clues → receive clues → place/replace clues → (optional) start clue exchange → exit.
 
 When clue inventory is full, follow the [clue gifting](#clue-gifting) branch, which is not an independent top-level stage.  
-Whether to actively "start clue exchange" is controlled by `AutoStartExchange`, disabled by default, reserved for credit store linkage.
+Whether to actively "start clue exchange" is controlled by the task-level `AutoStartExchange` option, enabled by default and independent of `ClueSetting`.
 
 CustomizeClueSending, disabled by default, allows the user to choose which clues to send, the ones not choosen are kept. The gifting logic follows the old implementation of `ReceptionRoomSendCluesClickSend`
 
@@ -135,9 +135,9 @@ DijiangRewards
 │   ├── ReceptionRoomStage
 │   ├── ManufacturingStage
 │   └── GrowthChamberStage
-├── ClueSetting                # Expands SendCluesDirect / ClueSend / ClueStockLimit (direct send / send excess / stock limit)
-│   ├── AutoStartExchange          # Whether the Reception Room actively starts clue exchange
-│   │   └── WaitExchangeBeforeStart  # Wait when all clues are placed; Yes expands WaitExchangeBeforeStartThreshold
+├── AutoStartExchange          # Whether the Reception Room actively starts clue exchange; on by default
+│   └── WaitExchangeBeforeStart  # Wait when all clues are placed; Yes expands WaitExchangeBeforeStartThreshold
+├── ClueSetting                # Expands the sending rules (direct send / send excess / stock limit / clue types)
 │   ├── SendCluesDirect
 │   ├── ClueSend        # Max clue send limit
 │   ├── ClueStockLimit  # Max clue keep limit
