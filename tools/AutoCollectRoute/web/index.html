@@ -70,11 +70,34 @@
           <canvas id="overlay-canvas"></canvas>
 
           <div class="map-bar">
-            <!-- 框选是主操作，平移不占左键，不设工具切换 -->
-            <div class="map-tools" role="note" aria-label="操作说明">
+            <!-- 框选是主操作，平移不占左键，不设工具切换；按键提示随当前可取消的内容变化 -->
+            <div class="map-tools" role="group" aria-label="地图工具">
               <span class="collect-map-hint">
                 左键拖动框选（Shift 追加，Ctrl / ⌘ 减选）· 单击切换单个采集物 · 右键或中键拖动、按住空格或 Alt 拖动平移
               </span>
+              <span id="key-hint" class="collect-map-hint collect-key-hint" hidden></span>
+              <div class="tool-divider"></div>
+              <button
+                id="btn-clear-view"
+                class="btn btn-tool"
+                type="button"
+                title="收起路线预览、关闭已打开的路线并清空选择"
+                disabled>
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="M4 15.5 12.5 7l5 5L9 20.5H6.5Z"></path>
+                  <path d="M10 20.5h10"></path>
+                  <path d="m9 10.5 5 5"></path>
+                </svg>
+                <span>清空显示</span>
+              </button>
             </div>
 
             <div class="map-view-controls" role="group" aria-label="视图控制">

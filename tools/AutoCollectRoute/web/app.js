@@ -277,6 +277,7 @@ class CollectApp {
     $("btn-zoom-in").addEventListener("click", () => this.zoomBy(ZOOM_IN_FACTOR));
     $("btn-zoom-out").addEventListener("click", () => this.zoomBy(ZOOM_OUT_FACTOR));
     $("btn-fit-view").addEventListener("click", () => this.fitView());
+    $("btn-clear-view").addEventListener("click", () => this.clearView());
 
     $("type-search").addEventListener("input", () => this.renderTypeList());
     $("types-all").addEventListener("click", () => {
@@ -769,18 +770,7 @@ class CollectApp {
     }
     if (isFormField(e.target)) return;
     if (e.key === "Escape") {
-      if (this.box.active) {
-        this.box.cancel();
-        this.paint();
-      } else if (this.result) {
-        this.setResult(null);
-      } else if (this.opened) {
-        this.closeRoute();
-        setStatus("已关闭路线。", COLOR_OK);
-      } else if (this.selected.size) {
-        this.updateSelection(new Set());
-        setStatus("已取消当前选择。", COLOR_OK);
-      }
+      this.escapeStep()?.run();
       e.preventDefault();
       return;
     }
@@ -815,6 +805,62 @@ class CollectApp {
       this.zoomBy(ZOOM_OUT_FACTOR);
       e.preventDefault();
     }
+  }
+
+  /**
+   * What Esc cancels next: the open box, then the preview, then the opened route, then the selection.
+   * @returns {?{label:string, run:() => void}}
+   */
+  escapeStep() {
+    if (this.box.active) {
+      return {
+        label: "取消框选",
+        run: () => {
+          this.box.cancel();
+          this.paint();
+        },
+      };
+    }
+    if (this.result) return {label: "收起预览", run: () => this.setResult(null)};
+    if (this.opened) {
+      return {
+        label: "关闭路线",
+        run: () => {
+          this.closeRoute();
+          setStatus("已关闭路线。", COLOR_OK);
+        },
+      };
+    }
+    if (this.selected.size) {
+      return {
+        label: "取消选择",
+        run: () => {
+          this.updateSelection(new Set());
+          setStatus("已取消当前选择。", COLOR_OK);
+        },
+      };
+    }
+    return null;
+  }
+
+  /** Back to a blank map: drop the preview, close the opened route and clear the selection. */
+  clearView() {
+    this.box.cancel();
+    if (this.opened) this.closeRoute();
+    else this.updateSelection(new Set());
+    setStatus("已清空地图显示。", COLOR_OK);
+  }
+
+  /** The toolbar spells out what Esc and Delete would do right now. */
+  renderKeyHints() {
+    const escape = this.escapeStep()?.label;
+    const hints = escape ? [`Esc ${escape}`] : [];
+    if (this.selected.size && escape !== "取消选择") hints.push("Delete 清空选择");
+    const text = hints.join(" · ");
+    const hint = $("key-hint");
+    if (hint.textContent !== text) hint.textContent = text;
+    hint.hidden = !text;
+    $("btn-clear-view").disabled = !this.result && !this.opened && !this.selected.size;
   }
 
   /** @param {boolean} redo */
@@ -869,6 +915,7 @@ class CollectApp {
 
   paint() {
     this.renderer.requestRender(this.camera);
+    this.renderKeyHints();
     this.drawMarkers();
     // 路线、运行时展开与选框都按路径编辑器的画法出图；底图就是 base，展开结果无需换坐标系
     this.overlay.render(this.camera, {
