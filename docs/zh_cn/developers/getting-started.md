@@ -476,20 +476,26 @@ git push origin feat/auto-sell-items
     uv run tools/maadeps-download.py
     ```
 
-4. 编译 go-service、配置路径。
+4. 准备 cpp-algo 的构建环境。默认配置会启动 go-service 和 cpp-algo，手动配置也需要准备这两个 Agent。
+
+    安装 CMake 3.28+、Ninja 和当前平台的 C++ 工具链。Windows 需安装 Visual Studio / Build Tools 的「使用 C++ 的桌面开发」工作负载（含 MSVC 和 Windows SDK），并下载 WebView2 SDK：
 
     ```bash
-    uv run build-and-install
+    uv run python -m tools.setup.dep_3rdparty --webview2
     ```
 
-    > 如需同时编译 cpp-algo，请加上 `--cpp-algo` 参数：
-    >
-    > ```bash
-    > uv run build-and-install --cpp-algo
-    > ```
+    该命令将 SDK 安装到 `agent/cpp-algo/3rdparty/webview2/`。非 Windows 平台无需 WebView2 SDK。
 
-5. 将步骤 2 中解压的 `deps/bin` 内容复制到 `install/maafw/`。
+5. 编译并安装 go-service 和 cpp-algo，同时配置资源路径。
 
-6. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/`。
+    ```bash
+    uv run build-and-install --cpp-algo
+    ```
+
+    构建后确认 `install/agent/` 中存在 `go-service` 和 `cpp-algo`（Windows 下带 `.exe` 后缀）。Windows 下该目录还需包含配套的 `WebView2Loader.dll`，构建安装步骤会一并部署。
+
+6. 将步骤 2 中解压的 `deps/bin` 内容复制到 `install/maafw/`。
+
+7. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/`。
 
 </details>
