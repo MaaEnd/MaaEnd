@@ -39,3 +39,23 @@
   color: var(--text-primary);
   font-size: 12px;
 }
+
+/* 已有路线列表只占侧栏的一部分高度，采集物列表仍是主滚动区 */
+.collect-routes .waypoint-list {
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 30vh;
+}
+
+.collect-routes .wp-empty {
+  min-height: 40px;
+}
+
+.collect-warnings {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--accent-yellow);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}

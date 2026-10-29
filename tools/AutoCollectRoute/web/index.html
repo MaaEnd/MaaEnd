@@ -32,10 +32,19 @@
               </div>
             </section>
 
+            <!-- 当前地图、当前类别已登记的路线：单击打开，改选采集点后可重新生成 -->
+            <section class="sidebar-section collect-routes">
+              <div class="waypoint-list-header">
+                <span>已有路线</span>
+                <span id="route-count" class="waypoint-list-hint"></span>
+              </div>
+              <div id="route-list" class="waypoint-list"></div>
+            </section>
+
             <section class="sidebar-section panel-main">
               <div class="waypoint-list-header">
                 <span>采集物</span>
-                <span class="waypoint-list-hint">勾选显示 · 右侧为本图点数</span>
+                <span class="waypoint-list-hint">勾选显示 · 右侧为已有路线覆盖/本图点数</span>
               </div>
               <div id="type-list" class="waypoint-list"></div>
             </section>
@@ -125,11 +134,14 @@
                   <button id="route-clear" class="btn btn-secondary btn-sm" type="button">清除</button>
                 </div>
                 <dl id="route-facts" class="log-point-detail"></dl>
-                <div class="io-row io-row-2">
+                <div id="route-copy" class="io-row io-row-2">
                   <button id="copy-route" class="btn btn-secondary btn-sm" type="button">复制路线文件</button>
                   <button id="copy-path" class="btn btn-secondary btn-sm" type="button">复制 path</button>
                 </div>
                 <button id="route-apply" class="btn btn-primary btn-block" type="button">写入任务</button>
+                <button id="route-remove" class="btn btn-danger-outline btn-block" type="button" hidden>
+                  删除路线
+                </button>
               </div>
             </div>
           </div>
@@ -146,12 +158,13 @@
         </div>
       </div>
     </div>
-    <!-- 写入前确认：要改动的文件逐个列出来 -->
+    <!-- 写入或删除前确认：要改动的文件逐个列出来，下面是会丢失的内容 -->
     <div id="apply-dialog" class="modal" role="dialog" aria-labelledby="apply-dialog-title" hidden>
       <div class="modal-panel">
         <h2 id="apply-dialog-title" class="modal-title">写入任务</h2>
         <p id="apply-dialog-hint" class="modal-hint"></p>
         <dl id="apply-dialog-files" class="log-point-detail"></dl>
+        <ul id="apply-dialog-warnings" class="collect-warnings" hidden></ul>
         <div class="modal-actions">
           <button id="apply-dialog-cancel" class="btn btn-secondary" type="button">取消</button>
           <button id="apply-dialog-ok" class="btn btn-primary" type="button">写入</button>

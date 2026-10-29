@@ -38,6 +38,13 @@ HAND_WRITTEN_KEYS = (
     "option.AutoCollectTargetInventory.pattern_msg",
 )
 GENERATED_TASK_KEYS = ("task.AutoCollect.item.", "task.AutoCollect.route.")
+REFERENCE_GLOBS = (
+    "assets/tasks/**/*.json",
+    "assets/resource*/pipeline/**/*.json",
+    "tests/*/*.json",
+    "tests/*/*/*.json",
+)
+NODE_NAME = re.compile(r"AutoCollect[A-Za-z0-9_]+")
 
 KIND_LABELS = {
     "rare": {
@@ -215,10 +222,38 @@ def next_route_id(region: str, item_ids: list[str]) -> str:
     return f"{stem}{max(taken, default=0) + 1}"
 
 
+def route_entry(route_id: str) -> dict[str, Any]:
+    entry = next((entry for entry in read_jsonc(REGISTRY_PATH)["routes"] if entry["id"] == route_id), None)
+    if entry is None:
+        raise RegistryError(f"路线登记表中没有 {route_id}")
+    return entry
+
+
 def add_route(route_id: str, region: str, item_ids: list[str]) -> None:
     registry = read_jsonc(REGISTRY_PATH)
     registry["routes"].append({"id": route_id, "region": region, "items": item_ids})
     write_json(REGISTRY_PATH, registry)
+
+
+def replace_route(old_id: str, entry: dict[str, Any] | None) -> None:
+    """在原位置换掉一条登记，entry 为 None 时删去。"""
+    registry = read_jsonc(REGISTRY_PATH)
+    index = next(index for index, item in enumerate(registry["routes"]) if item["id"] == old_id)
+    registry["routes"][index : index + 1] = [] if entry is None else [entry]
+    write_json(REGISTRY_PATH, registry)
+
+
+def node_references() -> dict[str, list[str]]:
+    """生成的文件与路线文件以外，引用了 AutoCollect 节点的文件，按节点名索引。"""
+    owned = {*GENERATED_FILES, *ROUTE_DIR.glob("*/*.json")}
+    found: dict[str, list[str]] = {}
+    for pattern in REFERENCE_GLOBS:
+        for path in sorted(PROJECT_ROOT.glob(pattern)):
+            if path in owned:
+                continue
+            for name in set(NODE_NAME.findall(path.read_text(encoding="utf-8"))):
+                found.setdefault(name, []).append(path.relative_to(PROJECT_ROOT).as_posix())
+    return found
 
 
 def build_groups(routes: list[Route]) -> list[Group]:
