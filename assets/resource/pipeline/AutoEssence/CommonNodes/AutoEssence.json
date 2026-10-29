@@ -1107,10 +1107,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoEssenceClickObtainButton",
-            "AutoEssenceClickDiscardButton",
-            "[JumpBack]AutoEssenceInObtain",
-            "[Anchor]AutoEssenceMoveToTriggerPoint" // 未识别到领取时纯寻路回交互位，再由 Interact 处理
+            // 挑战结束后走一次寻路再交互，避免战斗完毕刚好落在交互极限范围上出问题
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Recognition.Starting": "🔍检查挑战是否结束",
