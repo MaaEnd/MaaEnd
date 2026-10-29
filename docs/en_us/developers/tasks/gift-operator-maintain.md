@@ -1,7 +1,7 @@
 # Development Manual - Gift to Operator Maintenance Documentation
 
 This document explains the file distribution and two execution routes of `GiftOperator`.  
-This documentation was last updated on October 28, 2026.
+This documentation was last updated on October 29, 2026.
 
 ## File Paths
 
@@ -48,7 +48,7 @@ Download, decoding, or source dimension failures stop generation before configur
 
 `pnpm generate:GiftOperator` incrementally maintains `GiftOperatorSend.json` in the same generation flow. It reuses the avatar path and name whitelist from the matched task option, adds only missing `GiftOperatorSendSelect_<Name>` nodes, and inserts each missing `[JumpBack]` reference at the beginning of `GiftOperatorSendAllMain.next`.
 
-Existing operator nodes, the relative order of roster references, and `focus` are preserved; new gift nodes use the task option's `label` as the `Node.Action.Starting` hint to display the operator name. When adding a missing reference, the generator reads the existing `next`, prepends the new reference, and writes back the entire array, so comments inside that array are not preserved. `GiftOperatorSendAllMain`, `GiftOperatorSendPrepare`, and `GiftOperatorSendFinished` remain manually maintained baseline nodes and must be restored from Git if missing. New individual nodes reuse `GiftOperatorSendPrepare` before entering `GiftOperatorEntry`.
+Existing operator nodes, the relative order of roster references, and `focus` are preserved; new gift nodes use the task option's `label` as the `Node.Action.Starting` hint to display the operator name. When adding a missing reference, the generator reads the existing `next`, prepends the new reference, and writes back the entire array, so comments inside that array are not preserved. `GiftOperatorSendAllMain` and `GiftOperatorSendFinished` remain manually maintained baseline nodes and must be restored from Git if missing. New individual nodes enter `GiftOperatorEntry` directly, which calls `GiftOperatorClearHitCount` to reset the hit counts in one place.
 
 ## Route 1: Default (Give + Receive)
 

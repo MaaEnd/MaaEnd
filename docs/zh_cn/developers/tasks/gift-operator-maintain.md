@@ -1,7 +1,7 @@
 # 开发手册 - 赠送干员礼物维护文档
 
 本文说明 `GiftOperator` 的文件分布与两条执行路线。  
-该文档更新于 2026 年 10 月 28 日。
+该文档更新于 2026 年 10 月 29 日。
 
 ## 文件路径
 
@@ -48,7 +48,7 @@
 
 `pnpm generate:GiftOperator` 在同一生成流程中增量维护 `GiftOperatorSend.json`：沿用匹配到的任务选项中的头像路径与名称白名单，只添加缺失的 `GiftOperatorSendSelect_<Name>` 节点，并将缺失的 `[JumpBack]` 引用逐个插入 `GiftOperatorSendAllMain.next` 的首位。
 
-已有干员节点、名单引用的相对顺序和 `focus` 均保留；新增送礼节点使用任务选项的 `label` 作为 `Node.Action.Starting` 提示，显示干员名称。补齐引用时读取现有 `next`，将新引用放在首位后写回整个数组，因此该数组内部的注释不会保留。`GiftOperatorSendAllMain`、`GiftOperatorSendPrepare` 和 `GiftOperatorSendFinished` 作为人工维护的基线保留，缺失时需先从 Git 恢复。新增单人节点复用 `GiftOperatorSendPrepare`，再进入 `GiftOperatorEntry`。
+已有干员节点、名单引用的相对顺序和 `focus` 均保留；新增送礼节点使用任务选项的 `label` 作为 `Node.Action.Starting` 提示，显示干员名称。补齐引用时读取现有 `next`，将新引用放在首位后写回整个数组，因此该数组内部的注释不会保留。`GiftOperatorSendAllMain` 和 `GiftOperatorSendFinished` 作为人工维护的基线保留，缺失时需先从 Git 恢复。新增单人节点直接进入 `GiftOperatorEntry`，由其调用 `GiftOperatorClearHitCount` 统一清空命中计数。
 
 ## 路线一：默认（送礼 + 收礼）
 

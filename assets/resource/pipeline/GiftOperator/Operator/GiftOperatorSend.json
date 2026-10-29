@@ -71,7 +71,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Perlica"
@@ -107,7 +107,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Yvonne"
@@ -143,7 +143,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Ardelia"
@@ -179,7 +179,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Gilberta"
@@ -215,7 +215,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.ChenQianyu"
@@ -251,7 +251,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Wulfgard"
@@ -287,7 +287,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Antal"
@@ -323,7 +323,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Xaihi"
@@ -359,7 +359,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Lifeng"
@@ -395,7 +395,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Catcher"
@@ -431,7 +431,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Arclight"
@@ -467,7 +467,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Avywenna"
@@ -503,7 +503,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Laevatain"
@@ -539,7 +539,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Alesh"
@@ -575,7 +575,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Pogranichnik"
@@ -611,7 +611,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.LastRite"
@@ -647,7 +647,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Ember"
@@ -683,7 +683,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Snowshine"
@@ -719,7 +719,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.DaPan"
@@ -755,7 +755,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Fluorite"
@@ -791,7 +791,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Akekuri"
@@ -827,7 +827,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Estella"
@@ -863,7 +863,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Rossi"
@@ -899,7 +899,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Tangtang"
@@ -935,7 +935,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.ZhuangFangyi"
@@ -971,7 +971,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.MiFu"
@@ -1007,7 +1007,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Camille"
@@ -1043,7 +1043,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Arcane"
@@ -1079,7 +1079,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Liino"
@@ -1115,7 +1115,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Typhoeus"
@@ -1151,7 +1151,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Purrchena"
@@ -1187,33 +1187,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorSendPrepare"
+            "GiftOperatorEntry"
         ],
         "focus": {
             "Node.Action.Starting": "$operator.Si"
         }
-    },
-    "GiftOperatorSendPrepare": {
-        "desc": "每名干员开始查找前清空返回帝江号、联络台操作及赠送已满重试的命中计数，使次数限制按干员独立生效，保留外层名单进度",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "ClearHitCount",
-                "custom_action_param": {
-                    "nodes": [
-                        "GiftOperatorGoToDijiang",
-                        "GiftOperatorClickContact_reply",
-                        "GiftOperatorGiftFullRetry"
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GiftOperatorEntry"
-        ]
     },
     "GiftOperatorSendFinished": {
         "desc": "名单中的节点均已执行一次，正常结束，避免全部 max_hit 后等待超时",

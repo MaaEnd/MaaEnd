@@ -192,7 +192,7 @@ for (const [
             },
             post_delay: 0,
             rate_limit: 0,
-            next: ["GiftOperatorSendPrepare"],
+            next: ["GiftOperatorEntry"],
             focus: {
                 "Node.Action.Starting": entry.label,
             },

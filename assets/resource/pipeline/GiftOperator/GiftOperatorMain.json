@@ -132,6 +132,9 @@
         "custom_action": "ClearHitCount",
         "custom_action_param": {
             "nodes": [
+                "GiftOperatorGoToDijiang",
+                "GiftOperatorClickContact_reply",
+                "GiftOperatorGiftFullRetry",
                 "GiftOperatorMoveAhead",
                 "GiftOperatorMoveBackward",
                 "GiftOperatorMoveResetBackward",
