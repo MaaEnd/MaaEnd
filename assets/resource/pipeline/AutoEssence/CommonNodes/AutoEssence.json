@@ -713,7 +713,7 @@
                     450,
                     480
                 ],
-                "duration": 600
+                "duration": 300
             }
         },
         "post_wait_freezes": {
@@ -878,8 +878,7 @@
         "rate_limit": 0,
         "next": [
             "AutoEssenceSelectEngraveBonusCondition",
-            "AutoEssenceScrollEngraveBonusList",
-            "AutoEssenceSelectEngraveBonusNotFound"
+            "AutoEssenceScrollEngraveBonusList"
         ]
     },
     "AutoEssenceScrollEngraveBonusList": {
@@ -901,7 +900,7 @@
                     450,
                     620
                 ],
-                "duration": 600
+                "duration": 300
             }
         },
         "post_wait_freezes": {
@@ -918,23 +917,6 @@
         "next": [
             "AutoEssenceSelectEngraveBonus"
         ]
-    },
-    "AutoEssenceSelectEngraveBonusNotFound": {
-        "desc": "反向滚动后仍没看到目标附加/技能属性，跳过该词条继续后续流程",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {}
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoEssenceConfirmEngraveSelection"
-        ],
-        "focus": {
-            "Node.Action.Starting": "⚠️没找到目标附加/技能属性词条，跳过该词条"
-        }
     },
     "AutoEssenceConfirmEngraveSelection": {
         "desc": "识别并点击确认选择按钮",
