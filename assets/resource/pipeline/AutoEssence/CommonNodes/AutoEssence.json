@@ -563,7 +563,18 @@
             "param": {}
         },
         "pre_delay": 0,
-        "action": "DoNothing",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "AutoEssenceScrollGrayAttributeOption",
+                        "AutoEssenceScrollEngraveBonusList"
+                    ]
+                }
+            }
+        },
         "post_wait_freezes": {
             "time": 500,
             "target": [
@@ -646,6 +657,7 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoEssenceClickGrayAttributeOption",
+            "[JumpBack]AutoEssenceScrollGrayAttributeOption",
             "AutoEssenceNoGrayAttributeOption"
         ]
     },
@@ -680,6 +692,40 @@
             "type": "Click"
         },
         "post_delay": 500,
+        "rate_limit": 0
+    },
+    "AutoEssenceScrollGrayAttributeOption": {
+        "desc": "当前页没有可取消的灰色词条时向下滚动一页（每次进入词条选择最多 1 次，滚动后不恢复）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    450,
+                    620
+                ],
+                "end": [
+                    450,
+                    480
+                ],
+                "duration": 600
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                43,
+                350,
+                820,
+                310
+            ]
+        },
+        "post_delay": 0,
         "rate_limit": 0
     },
     "AutoEssenceNoGrayAttributeOption": {
@@ -784,7 +830,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoEssenceSelectEngraveBonusCondition"
+            "AutoEssenceSelectEngraveBonus"
         ]
     },
     "AutoEssenceSelectEngraveBonusCondition": {
@@ -819,6 +865,76 @@
         "next": [
             "AutoEssenceConfirmEngraveSelection"
         ]
+    },
+    "AutoEssenceSelectEngraveBonus": {
+        "desc": "选择附加/技能属性：当前页没有目标词条时反向滚动再找一次",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceSelectEngraveBonusCondition",
+            "AutoEssenceScrollEngraveBonusList",
+            "AutoEssenceSelectEngraveBonusNotFound"
+        ]
+    },
+    "AutoEssenceScrollEngraveBonusList": {
+        "desc": "附加/技能属性当前页没有目标词条时反向滚动一页（每次进入词条选择最多 1 次）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    450,
+                    480
+                ],
+                "end": [
+                    450,
+                    620
+                ],
+                "duration": 600
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                43,
+                350,
+                820,
+                310
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceSelectEngraveBonus"
+        ]
+    },
+    "AutoEssenceSelectEngraveBonusNotFound": {
+        "desc": "反向滚动后仍没看到目标附加/技能属性，跳过该词条继续后续流程",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceConfirmEngraveSelection"
+        ],
+        "focus": {
+            "Node.Action.Starting": "⚠️没找到目标附加/技能属性词条，跳过该词条"
+        }
     },
     "AutoEssenceConfirmEngraveSelection": {
         "desc": "识别并点击确认选择按钮",
