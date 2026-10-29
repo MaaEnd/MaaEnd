@@ -294,13 +294,14 @@ def main():
     # 加载并创建 pipeline validator
     pipeline_schema_path = schema_dir / "pipeline.schema.json"
     pipeline_schema = load_jsonc(pipeline_schema_path)
-    # 主 Schema 由上游同步，在此补齐省略 action.type 时的 Custom 参数校验，基础与覆盖资源共用。
-    pipeline_schema["$defs"]["ActionPropertyFieldsV2"]["properties"]["param"]["allOf"].append(
-        {
-            "if": {"required": ["custom_action"]},
-            "then": {"$ref": "#/$defs/CustomActionSchema"},
+    # 主 Schema 由上游同步，在此补齐省略类型时的 Custom 参数校验，基础与覆盖资源共用。
+    for kind, custom_field in (("Action", "custom_action"), ("Recognition", "custom_recognition")):
+        condition = {
+            "if": {"required": [custom_field]},
+            "then": {"$ref": f"#/$defs/Custom{kind}Schema"},
         }
-    )
+        pipeline_schema["$defs"][f"{kind}PropertyFieldsV1"]["allOf"].append(condition)
+        pipeline_schema["$defs"][f"{kind}PropertyFieldsV2"]["properties"]["param"]["allOf"].append(condition)
     pipeline_schema_uri = pipeline_schema_path.as_uri()
     pipeline_schema.setdefault("$id", pipeline_schema_uri)
     schema_store[pipeline_schema_uri] = pipeline_schema
