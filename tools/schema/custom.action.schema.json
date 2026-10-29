@@ -391,7 +391,6 @@
                             "step": {
                                 "enum": [
                                     "initialize",
-                                    "requirements",
                                     "menu_page",
                                     "menu_card",
                                     "menu_confirm",
@@ -403,6 +402,13 @@
                                 "enum": [
                                     "dish",
                                     "drink"
+                                ]
+                            },
+                            "category": {
+                                "enum": [
+                                    "staple",
+                                    "vegetable",
+                                    "dessert"
                                 ]
                             },
                             "max_rounds": {

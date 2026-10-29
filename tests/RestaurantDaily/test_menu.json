@@ -10,7 +10,6 @@
             "image": "缘缘庄_菜单_菜品页及要求.png",
             "hits": [
                 "RestaurantMenuScreenReady",
-                "RestaurantMenuRequirementOCR",
                 "RestaurantMenuFilterIcon",
                 "RestaurantMenuStartBusinessWarning",
                 "RestaurantMenuStartBusiness"
@@ -21,7 +20,6 @@
             "image": "缘缘庄_菜单_饮品页及可开始经营.png",
             "hits": [
                 "RestaurantMenuScreenReady",
-                "RestaurantMenuRequirementOCR",
                 "RestaurantMenuStartBusiness"
             ]
         },
@@ -51,6 +49,21 @@
             "name": "主题设置不是菜单页",
             "image": "缘缘庄_主题设定_缘缘本色.png",
             "hits": []
+        },
+        {
+            "name": "主题设定的席间小酌不是菜单页",
+            "image": "缘缘庄_主题设定_席间小酌.png",
+            "hits": []
+        },
+        {
+            "name": "筛选列表需要滚动",
+            "image": "缘缘庄_菜单_筛选列表需滚动.png",
+            "hits": [
+                "RestaurantMenuScreenReady",
+                "RestaurantMenuStartBusinessWarning",
+                "RestaurantMenuStartBusiness",
+                "RestaurantMenuFilterConfirm"
+            ]
         }
     ]
 }

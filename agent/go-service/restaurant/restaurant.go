@@ -3,10 +3,7 @@ package restaurant
 import (
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"slices"
-	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
@@ -24,6 +21,7 @@ var _ maa.CustomActionRunner = &DecisionAction{}
 type decisionParam struct {
 	Step      string `json:"step"`
 	Kind      string `json:"kind"`
+	Category  string `json:"category"`
 	MaxRounds int    `json:"max_rounds"`
 }
 
@@ -33,14 +31,14 @@ type session struct {
 }
 
 type menuState struct {
-	MinimumDishes int        `json:"minimum_dishes"`
-	MinimumDrinks int        `json:"minimum_drinks"`
-	Dishes        []string   `json:"dishes"`
-	Drinks        []string   `json:"drinks"`
-	Kind          string     `json:"kind"`
-	Cards         []maa.Rect `json:"cards"`
-	Index         int        `json:"index"`
-	PendingID     string     `json:"pending_id"`
+	Dishes       []string   `json:"dishes"`
+	Drinks       []string   `json:"drinks"`
+	Kind         string     `json:"kind"`
+	Category     string     `json:"category"`
+	PageSelected int        `json:"page_selected"`
+	Cards        []maa.Rect `json:"cards"`
+	Index        int        `json:"index"`
+	PendingID    string     `json:"pending_id"`
 }
 
 type runtimeState struct {
@@ -50,23 +48,15 @@ type runtimeState struct {
 }
 
 type tableOrder struct {
-	Items   []string `json:"items,omitempty"`
-	Ignored bool     `json:"ignored,omitempty"`
+	Items []string `json:"items,omitempty"`
 }
 
 var (
-	menuRoutes                  = []string{"RestaurantMenuDishesComplete", "RestaurantMenuDrinksComplete", "RestaurantMenuClickCard", "RestaurantMenuReadCard"}
-	runtimeRoutes               = []string{"RestaurantRuntimeSwitchKitchen1", "RestaurantRuntimeSwitchKitchen2", "RestaurantRuntimeSwitchKitchen3", "RestaurantRuntimeNextKitchen", "RestaurantRuntimeClickDish1", "RestaurantRuntimeClickDish2", "RestaurantRuntimeClickDish3", "RestaurantRuntimeClickDish4", "RestaurantRuntimeClickDish5", "RestaurantRuntimeClickDish6", "RestaurantRuntimeIdle"}
-	restaurantData              menuCatalog
-	restaurantDataOnce          sync.Once
-	restaurantDataErr           error
-	menuSizeRequirementPatterns = []*regexp.Regexp{
-		regexp.MustCompile(`(\d+)道菜品和(\d+)种饮品`),
-		regexp.MustCompile(`Atleast(\d+)dish\(es\)and(\d+)drink\(s\)`),
-		regexp.MustCompile(`料理：(\d+)品以上、飲み物：(\d+)種類以上`),
-		regexp.MustCompile(`최소(\d+)개의요리와최소(\d+)종의음료가필요합니다\.`),
-		regexp.MustCompile(`(\d+)道菜品和(\d+)種飲品`),
-	}
+	menuRoutes         = []string{"RestaurantMenuStapleComplete", "RestaurantMenuVegetableComplete", "RestaurantMenuDishesComplete", "RestaurantMenuDrinksComplete", "RestaurantMenuClickCard", "RestaurantMenuReadCard"}
+	runtimeRoutes      = []string{"RestaurantRuntimeSwitchKitchen1", "RestaurantRuntimeSwitchKitchen2", "RestaurantRuntimeSwitchKitchen3", "RestaurantRuntimeNextKitchen", "RestaurantRuntimeClickDish1", "RestaurantRuntimeClickDish2", "RestaurantRuntimeClickDish3", "RestaurantRuntimeClickDish4", "RestaurantRuntimeClickDish5", "RestaurantRuntimeClickDish6", "RestaurantRuntimeIdle"}
+	restaurantData     menuCatalog
+	restaurantDataOnce sync.Once
+	restaurantDataErr  error
 )
 
 // Run applies one decision to the current task's attach state and preset routes.
@@ -103,10 +93,8 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			break
 		}
 		patch["RestaurantRoundGate"] = map[string]any{"max_hit": param.MaxRounds}
-	case "requirements":
-		err = prepareMenu(state, readText(observed, "RestaurantMenuRequirementOCR"))
 	case "menu_page":
-		err = readMenuPage(state, param.Kind, patch)
+		err = readMenuPage(state, param.Kind, param.Category, patch)
 	case "menu_card":
 		err = chooseMenuCard(state, observed, patch)
 	case "menu_confirm":
@@ -114,6 +102,7 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			return false
 		}
 		rememberMenuItem(&state.Menu, state.Menu.PendingID)
+		state.Menu.PageSelected++
 		state.Menu.PendingID = ""
 		state.Menu.Index++
 		err = nextMenuCard(state, patch)
@@ -181,43 +170,6 @@ func (o observations) hit(name string) bool {
 	return result != nil && result.Box[2] > 0 && result.Box[3] > 0
 }
 
-type ocrText struct {
-	Text string
-	Box  maa.Rect
-}
-
-func readOCR(observed observations, name string) []ocrText {
-	detail := observed[name]
-	if detail == nil || detail.Results == nil {
-		return nil
-	}
-	var texts []ocrText
-	seen := make(map[string]bool)
-	for _, result := range detail.Results.Filtered {
-		if result == nil {
-			continue
-		}
-		value, ok := result.AsOCR()
-		if !ok || value == nil || strings.TrimSpace(value.Text) == "" {
-			continue
-		}
-		key := fmt.Sprintf("%s:%v", value.Text, value.Box)
-		if !seen[key] {
-			texts = append(texts, ocrText{Text: strings.TrimSpace(value.Text), Box: value.Box})
-			seen[key] = true
-		}
-	}
-	return texts
-}
-
-func readText(observed observations, name string) string {
-	var text strings.Builder
-	for _, value := range readOCR(observed, name) {
-		text.WriteString(value.Text)
-	}
-	return text.String()
-}
-
 func readIcon(observed observations, name string) (string, error) {
 	result := observed[name]
 	if result == nil {
@@ -251,40 +203,15 @@ func iconCandidates(patch map[string]any, name string, ids []string) {
 	)}
 }
 
-// Menu decisions preserve UI order; Pipeline selects and confirms each card.
-func prepareMenu(state *session, text string) error {
-	text = strings.Join(strings.Fields(text), "")
-	for _, pattern := range menuSizeRequirementPatterns {
-		sizes := pattern.FindStringSubmatch(text)
-		if len(sizes) != 3 {
-			continue
-		}
-		dishes, err := strconv.Atoi(sizes[1])
-		if err != nil {
-			return fmt.Errorf("invalid menu quantities %q", text)
-		}
-		drinks, err := strconv.Atoi(sizes[2])
-		if err != nil {
-			return fmt.Errorf("invalid menu quantities %q", text)
-		}
-		if dishes <= 0 || dishes > 6 {
-			return fmt.Errorf("invalid menu quantities %q", text)
-		}
-		state.Menu = menuState{MinimumDishes: dishes, MinimumDrinks: drinks}
-		return nil
-	}
-	return fmt.Errorf("could not read menu quantities from %q", text)
-}
-
-func readMenuPage(state *session, kind string, patch map[string]any) error {
-	if (kind != "dish" && kind != "drink") || state.Menu.PendingID != "" {
+// Menu decisions preserve the selected category and UI order; Pipeline selects each card.
+func readMenuPage(state *session, kind, category string, patch map[string]any) error {
+	validDishCategory := slices.Contains([]string{"staple", "vegetable", "dessert"}, category)
+	if (kind != "dish" && kind != "drink") || (kind == "dish" && !validDishCategory) || (kind == "drink" && category != "") || state.Menu.PendingID != "" {
 		return fmt.Errorf("invalid menu page state")
 	}
-	cards := make([]maa.Rect, 0, 8)
-	for _, y := range []int{134, 239, 344, 450} {
-		cards = append(cards, maa.Rect{552, y, 307, 93}, maa.Rect{870, y, 307, 93})
-	}
-	state.Menu.Kind, state.Menu.Cards, state.Menu.Index = kind, cards, 0
+	cards := []maa.Rect{{552, 134, 307, 93}, {870, 134, 307, 93}, {552, 239, 307, 93}}
+	state.Menu.Kind, state.Menu.Category, state.Menu.PageSelected = kind, category, 0
+	state.Menu.Cards, state.Menu.Index = cards, 0
 	return nextMenuCard(state, patch)
 }
 
@@ -312,6 +239,7 @@ func chooseMenuCard(state *session, observed observations, patch map[string]any)
 	}
 	if observed.hit("RestaurantMenuCardSelected") {
 		rememberMenuItem(menu, id)
+		menu.PageSelected++
 		menu.Index++
 		return nextMenuCard(state, patch)
 	}
@@ -326,9 +254,9 @@ func chooseMenuCard(state *session, observed observations, patch map[string]any)
 
 func nextMenuCard(state *session, patch map[string]any) error {
 	menu := &state.Menu
-	selected, required := len(menu.Dishes), menu.MinimumDishes
+	selected, required := menu.PageSelected, 2
 	if menu.Kind == "drink" {
-		selected, required = len(menu.Drinks), menu.MinimumDrinks
+		selected, required = len(menu.Drinks), 3
 	}
 	if selected >= required {
 		if menu.Kind == "drink" {
@@ -344,12 +272,19 @@ func nextMenuCard(state *session, patch map[string]any) error {
 				}
 			}
 			menu.Cards = nil
+		} else {
+			complete := map[string]string{
+				"staple":    "RestaurantMenuStapleComplete",
+				"vegetable": "RestaurantMenuVegetableComplete",
+				"dessert":   "RestaurantMenuDishesComplete",
+			}[menu.Category]
+			if complete == "" {
+				return fmt.Errorf("invalid dish category %q", menu.Category)
+			}
+			route(patch, menuRoutes, complete)
+			return nil
 		}
-		name := "RestaurantMenuDishesComplete"
-		if menu.Kind == "drink" {
-			name = "RestaurantMenuDrinksComplete"
-		}
-		route(patch, menuRoutes, name)
+		route(patch, menuRoutes, "RestaurantMenuDrinksComplete")
 		return nil
 	}
 	if menu.Index >= len(menu.Cards) {
@@ -404,17 +339,14 @@ func chooseKitchen(observed observations) (kitchen int, full bool) {
 	return kitchen, minimum == 3
 }
 
-// Filed tables run only Dining OCR; ignored gourmands run no recognition.
+// Filed tables run only Dining OCR; unfiled tables scan for one- or two-point orders.
 func setTableObservation(patch map[string]any, table int, order tableOrder) {
 	prefix := fmt.Sprintf("RestaurantTable%d", table)
 	nodes := []string{"RestaurantObservationEmpty"}
-	if !order.Ignored {
-		if len(order.Items) > 0 {
-			nodes = []string{prefix + "Dining", "RestaurantObservationEmpty"}
-		} else {
-			nodes = []string{prefix + "Gourmand", prefix + "SingleOrder", prefix + "DoubleOrder"}
-			nodes = append(nodes, "RestaurantObservationEmpty")
-		}
+	if len(order.Items) > 0 {
+		nodes = []string{prefix + "Dining", "RestaurantObservationEmpty"}
+	} else {
+		nodes = []string{prefix + "SingleOrder", prefix + "DoubleOrder", "RestaurantObservationEmpty"}
 	}
 	patch[prefix+"Observation"] = map[string]any{"any_of": nodes}
 }
@@ -444,9 +376,6 @@ func readTableOrder(observed observations, table int) ([]string, error) {
 func observeTables(current *runtimeState, observed observations, patch map[string]any) error {
 	for index := range current.Tables {
 		order := &current.Tables[index]
-		if order.Ignored {
-			continue
-		}
 		table := index + 1
 		prefix := fmt.Sprintf("RestaurantTable%d", table)
 		if len(order.Items) > 0 {
@@ -460,12 +389,6 @@ func observeTables(current *runtimeState, observed observations, patch map[strin
 				*order = tableOrder{}
 				setTableObservation(patch, table, *order)
 			}
-			continue
-		}
-		if observed.hit(prefix + "Gourmand") {
-			*order = tableOrder{Ignored: true}
-			setTableObservation(patch, table, *order)
-			log.Debug().Int("table", table).Msg("gourmand table ignored for the rest of this run")
 			continue
 		}
 		items, err := readTableOrder(observed, table)

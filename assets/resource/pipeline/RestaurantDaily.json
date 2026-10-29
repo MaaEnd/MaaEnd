@@ -49,7 +49,8 @@
         "custom_action": "ClearHitCount",
         "custom_action_param": {
             "nodes": [
-                "RestaurantThemeListUnchangedOnce"
+                "RestaurantThemeListUnchangedOnce",
+                "RestaurantCounterPromptApproach"
             ],
             "strict": true
         },
@@ -75,6 +76,22 @@
                     "attach": {
                         "ready": false
                     }
+                },
+                "RestaurantThemeListAtBottom": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "RestaurantMenuFilterScrollAtBottom": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "RestaurantMenuStapleComplete": {
+                    "enabled": false
+                },
+                "RestaurantMenuVegetableComplete": {
+                    "enabled": false
                 },
                 "RestaurantMenuDishesComplete": {
                     "enabled": false
@@ -150,6 +167,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "RestaurantThemeSelected",
             "RestaurantThemeListScan"
         ]
     },
@@ -269,7 +287,28 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantOpenCounter"
+            "RestaurantOpenCounter",
+            "RestaurantCounterPromptApproach"
+        ]
+    },
+    // 每次前进前先检查柜台提示；最多短按前进 5 次。
+    "RestaurantCounterPromptApproach": {
+        "max_hit": 5,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "__CharacterControllerAxisLongPressForwardAction"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantOpenCounter",
+            "RestaurantCounterPromptApproach",
+            "FailedNode"
         ]
     },
     "RestaurantOpenCounter": {
@@ -292,6 +331,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "RestaurantThemeSelected",
             "RestaurantThemeListScan"
         ]
     },
@@ -366,7 +406,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantSelectDailyTheme"
+            "RestaurantThemeListSearch"
         ]
     },
     "RestaurantThemeListChangedReset": {
@@ -436,54 +476,112 @@
             "RestaurantThemeListCheckUnchangedTwice"
         ]
     },
-    "RestaurantSelectDailyTheme": {
+    "RestaurantThemeListSearch": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantThemeFindTopic",
+            "RestaurantThemeListAtBottom",
+            "RestaurantThemeScrollDown"
+        ]
+    },
+    "RestaurantThemeFindTopic": {
         "recognition": "OCR",
         "roi": [
-            158,
-            130,
-            231,
-            30
+            64,
+            89,
+            444,
+            554
         ],
         "expected": [
-            "缘缘本色",
-            "Yuanyuan Style",
-            "縁縁の本質",
-            "인연 마을 스타일",
-            "緣緣本色"
+            "席间小酌",
+            "Drinking Social",
+            "宴に一献",
+            "반주 한 잔",
+            "席間小酌"
         ],
         "pre_delay": 0,
-        "action": "Click",
-        "target": true,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_nodes": [
+                "RestaurantThemeSelected"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantThemeSelected"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantThemeListAtBottom": {
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
+        },
+        "roi": [
+            70,
+            120,
+            430,
+            590
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FailedNode"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "RestaurantThemeScrollDown": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Scroll",
+        "target": [
+            285,
+            350
+        ],
+        "dy": -180,
         "post_wait_freezes": {
-            "time": 350,
+            "time": 400,
             "target": [
-                525,
-                95,
-                650,
-                300
+                70,
+                120,
+                430,
+                590
             ],
             "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantOpenDailyTheme"
+            "RestaurantThemeListSearch"
         ]
     },
-    "RestaurantOpenDailyTheme": {
+    "RestaurantThemeSelected": {
         "recognition": "OCR",
         "roi": [
-            525,
-            95,
-            180,
-            35
+            512,
+            79,
+            132,
+            62
         ],
         "expected": [
-            "缘缘本色",
-            "Yuanyuan Style",
-            "縁縁の本質",
-            "인연 마을 스타일",
-            "緣緣本色"
+            "席间小酌",
+            "Drinking Social",
+            "宴に一献",
+            "반주 한 잔",
+            "席間小酌"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -1280,7 +1378,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantPlanMenu"
+            "RestaurantMenuSelectDishTab"
         ]
     },
     "RestaurantMenuSelectDishTab": {
@@ -1335,16 +1433,27 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantMenuFilterCookableQuantity"
+            "RestaurantMenuFilterSearch"
+        ]
+    },
+    "RestaurantMenuFilterSearch": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantMenuFilterCookableQuantity",
+            "RestaurantMenuFilterScrollAtBottom",
+            "RestaurantMenuFilterScrollDown"
         ]
     },
     "RestaurantMenuFilterCookableQuantity": {
         "recognition": "OCR",
         "roi": [
-            219,
-            377,
-            302,
-            66
+            193,
+            182,
+            315,
+            350
         ],
         "expected": [
             "可烹饪数量",
@@ -1359,6 +1468,53 @@
         "rate_limit": 0,
         "next": [
             "RestaurantMenuFilterConfirm"
+        ]
+    },
+    "RestaurantMenuFilterScrollAtBottom": {
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
+        },
+        "roi": [
+            193,
+            182,
+            315,
+            350
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FailedNode"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "RestaurantMenuFilterScrollDown": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Scroll",
+        "target": [
+            633,
+            394
+        ],
+        "dy": -180,
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                193,
+                182,
+                315,
+                350
+            ],
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantMenuFilterSearch"
         ]
     },
     "RestaurantMenuFilterConfirm": {
@@ -1391,21 +1547,191 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantMenuSelectDishLoop"
+            "RestaurantMenuSelectStapleTab"
         ]
     },
-    "RestaurantMenuSelectDishLoop": {
+    "RestaurantMenuSelectStapleTab": {
+        "recognition": "OCR",
+        "roi": [
+            640,
+            67,
+            99,
+            66
+        ],
+        "expected": [
+            "主食",
+            "Entree",
+            "메인"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_nodes": [
+                "RestaurantMenuStapleTabSelected"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantMenuSelectStapleLoop"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantMenuSelectStapleLoop": {
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RestaurantDecisionAction",
         "custom_action_param": {
             "step": "menu_page",
-            "kind": "dish"
+            "kind": "dish",
+            "category": "staple"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "RestaurantMenuStapleComplete",
+            "RestaurantMenuVegetableComplete",
+            "RestaurantMenuDishesComplete",
+            "RestaurantMenuDrinksComplete",
+            "RestaurantMenuClickCard",
+            "RestaurantMenuReadCard"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantMenuStapleComplete": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantMenuSelectVegetableTab"
+        ]
+    },
+    "RestaurantMenuSelectVegetableTab": {
+        "recognition": "OCR",
+        "roi": [
+            737,
+            67,
+            100,
+            67
+        ],
+        "expected": [
+            "菜肴",
+            "Side",
+            "副食",
+            "사이드",
+            "菜餚"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_nodes": [
+                "RestaurantMenuVegetableTabSelected"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantMenuSelectVegetableLoop"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantMenuSelectVegetableLoop": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RestaurantDecisionAction",
+        "custom_action_param": {
+            "step": "menu_page",
+            "kind": "dish",
+            "category": "vegetable"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantMenuStapleComplete",
+            "RestaurantMenuVegetableComplete",
+            "RestaurantMenuDishesComplete",
+            "RestaurantMenuDrinksComplete",
+            "RestaurantMenuClickCard",
+            "RestaurantMenuReadCard"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantMenuVegetableComplete": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantMenuSelectDessertTab"
+        ]
+    },
+    "RestaurantMenuSelectDessertTab": {
+        "recognition": "OCR",
+        "roi": [
+            830,
+            67,
+            100,
+            67
+        ],
+        "expected": [
+            "甜品",
+            "Dessert",
+            "デザート",
+            "디저트"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_nodes": [
+                "RestaurantMenuDessertTabSelected"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantMenuSelectDessertLoop"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantMenuSelectDessertLoop": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RestaurantDecisionAction",
+        "custom_action_param": {
+            "step": "menu_page",
+            "kind": "dish",
+            "category": "dessert"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantMenuStapleComplete",
+            "RestaurantMenuVegetableComplete",
             "RestaurantMenuDishesComplete",
             "RestaurantMenuDrinksComplete",
             "RestaurantMenuClickCard",
@@ -1464,6 +1790,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "RestaurantMenuStapleComplete",
+            "RestaurantMenuVegetableComplete",
             "RestaurantMenuDishesComplete",
             "RestaurantMenuDrinksComplete",
             "RestaurantMenuClickCard",
@@ -1718,26 +2046,6 @@
             "StopNode"
         ]
     },
-    "RestaurantPlanMenu": {
-        "recognition": "And",
-        "all_of": [
-            "RestaurantMenuRequirementOCR"
-        ],
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "RestaurantDecisionAction",
-        "custom_action_param": {
-            "step": "requirements"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantMenuSelectDishTab"
-        ],
-        "on_error": [
-            "FailedNode"
-        ]
-    },
     "RestaurantMenuDishesComplete": {
         "enabled": false,
         "recognition": "DirectHit",
@@ -1774,6 +2082,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "RestaurantMenuStapleComplete",
+            "RestaurantMenuVegetableComplete",
             "RestaurantMenuDishesComplete",
             "RestaurantMenuDrinksComplete",
             "RestaurantMenuClickCard",
@@ -1831,6 +2141,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "RestaurantMenuStapleComplete",
+            "RestaurantMenuVegetableComplete",
             "RestaurantMenuDishesComplete",
             "RestaurantMenuDrinksComplete",
             "RestaurantMenuClickCard",

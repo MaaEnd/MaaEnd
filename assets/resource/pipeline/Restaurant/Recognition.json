@@ -8,22 +8,65 @@
             "state": null
         }
     },
-    "RestaurantMenuRequirementOCR": {
-        "desc": "日常经营菜单要求中的菜品与饮品数量",
-        "recognition": "OCR",
+    "RestaurantMenuStapleTabSelected": {
+        "recognition": "ColorMatch",
         "roi": [
-            121,
-            171,
-            367,
-            58
+            681,
+            114,
+            14,
+            8
         ],
-        "expected": [
-            "至少需要\\d+道菜品和\\d+种饮品",
-            "At\\s*least\\s*\\d+\\s*dish\\(es\\)\\s*and\\s*\\d+\\s*drink\\(s\\)",
-            "料理：\\d+品以上、飲み物：\\d+種類以上",
-            "최소\\d+개의요리와최소\\d+종의음료가필요합니다\\.",
-            "\\d+道菜品和\\d+種飲品"
-        ]
+        "lower": [
+            180,
+            140,
+            40
+        ],
+        "upper": [
+            240,
+            220,
+            120
+        ],
+        "count": 30
+    },
+    "RestaurantMenuVegetableTabSelected": {
+        "recognition": "ColorMatch",
+        "roi": [
+            777,
+            114,
+            14,
+            8
+        ],
+        "lower": [
+            180,
+            140,
+            40
+        ],
+        "upper": [
+            240,
+            220,
+            120
+        ],
+        "count": 30
+    },
+    "RestaurantMenuDessertTabSelected": {
+        "recognition": "ColorMatch",
+        "roi": [
+            873,
+            114,
+            14,
+            8
+        ],
+        "lower": [
+            180,
+            140,
+            40
+        ],
+        "upper": [
+            240,
+            220,
+            120
+        ],
+        "count": 30
     },
     "RestaurantMenuCardAnchor": {
         "recognition": {
@@ -1018,7 +1061,6 @@
     "RestaurantTable1Observation": {
         "recognition": "Or",
         "any_of": [
-            "RestaurantTable1Gourmand",
             "RestaurantTable1SingleOrder",
             "RestaurantTable1DoubleOrder",
             "RestaurantObservationEmpty"
@@ -1345,7 +1387,6 @@
     "RestaurantTable2Observation": {
         "recognition": "Or",
         "any_of": [
-            "RestaurantTable2Gourmand",
             "RestaurantTable2SingleOrder",
             "RestaurantTable2DoubleOrder",
             "RestaurantObservationEmpty"
@@ -1672,7 +1713,6 @@
     "RestaurantTable3Observation": {
         "recognition": "Or",
         "any_of": [
-            "RestaurantTable3Gourmand",
             "RestaurantTable3SingleOrder",
             "RestaurantTable3DoubleOrder",
             "RestaurantObservationEmpty"
@@ -1999,7 +2039,6 @@
     "RestaurantTable4Observation": {
         "recognition": "Or",
         "any_of": [
-            "RestaurantTable4Gourmand",
             "RestaurantTable4SingleOrder",
             "RestaurantTable4DoubleOrder",
             "RestaurantObservationEmpty"
@@ -2326,7 +2365,6 @@
     "RestaurantTable5Observation": {
         "recognition": "Or",
         "any_of": [
-            "RestaurantTable5Gourmand",
             "RestaurantTable5SingleOrder",
             "RestaurantTable5DoubleOrder",
             "RestaurantObservationEmpty"
@@ -2653,7 +2691,6 @@
     "RestaurantTable6Observation": {
         "recognition": "Or",
         "any_of": [
-            "RestaurantTable6Gourmand",
             "RestaurantTable6SingleOrder",
             "RestaurantTable6DoubleOrder",
             "RestaurantObservationEmpty"
@@ -2871,96 +2908,6 @@
                     "RestaurantObservationEmpty"
                 ]
             }
-        ]
-    },
-    "RestaurantTable1Gourmand": {
-        "recognition": "OCR",
-        "roi": [
-            188,
-            68,
-            94,
-            26
-        ],
-        "expected": [
-            "老饕",
-            "Gourmand",
-            "食通",
-            "미식가"
-        ]
-    },
-    "RestaurantTable2Gourmand": {
-        "recognition": "OCR",
-        "roi": [
-            282,
-            68,
-            94,
-            26
-        ],
-        "expected": [
-            "老饕",
-            "Gourmand",
-            "食通",
-            "미식가"
-        ]
-    },
-    "RestaurantTable3Gourmand": {
-        "recognition": "OCR",
-        "roi": [
-            377,
-            68,
-            94,
-            26
-        ],
-        "expected": [
-            "老饕",
-            "Gourmand",
-            "食通",
-            "미식가"
-        ]
-    },
-    "RestaurantTable4Gourmand": {
-        "recognition": "OCR",
-        "roi": [
-            471,
-            68,
-            94,
-            26
-        ],
-        "expected": [
-            "老饕",
-            "Gourmand",
-            "食通",
-            "미식가"
-        ]
-    },
-    "RestaurantTable5Gourmand": {
-        "recognition": "OCR",
-        "roi": [
-            566,
-            68,
-            94,
-            26
-        ],
-        "expected": [
-            "老饕",
-            "Gourmand",
-            "食通",
-            "미식가"
-        ]
-    },
-    "RestaurantTable6Gourmand": {
-        "recognition": "OCR",
-        "roi": [
-            660,
-            68,
-            94,
-            26
-        ],
-        "expected": [
-            "老饕",
-            "Gourmand",
-            "食通",
-            "미식가"
         ]
     }
 }

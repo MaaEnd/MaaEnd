@@ -1,0 +1,35 @@
+{
+    "configs": {
+        "name": "缘缘庄菜单分类标签高亮识别",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "name": "主食标签已选中",
+            "image": "缘缘庄_菜单_主食页_选中.png",
+            "hits": [
+                "RestaurantMenuStapleTabSelected"
+            ]
+        },
+        {
+            "name": "菜肴标签已选中",
+            "image": "缘缘庄_菜单_菜肴页_选中.png",
+            "hits": [
+                "RestaurantMenuVegetableTabSelected"
+            ]
+        },
+        {
+            "name": "甜品标签已选中",
+            "image": "缘缘庄_菜单_甜品页_选中.png",
+            "hits": [
+                "RestaurantMenuDessertTabSelected"
+            ]
+        },
+        {
+            "name": "全部菜品页无分类标签选中",
+            "image": "缘缘庄_菜单_全部菜品页_分类标签未选中.png",
+            "hits": []
+        }
+    ]
+}
