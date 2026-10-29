@@ -113,6 +113,59 @@
         "next": [
             "GiftOperatorReceiveDialog",
             "GiftOperatorBagFull"
+        ],
+        "on_error": [
+            "GiftOperatorReceiveErrorBackInWorld",
+            "GiftOperatorReceiveErrorLeave"
+        ]
+    },
+    "GiftOperatorReceiveErrorLeave": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorLeave"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorReceiveErrorBackInWorld",
+            "GiftOperatorReceiveErrorDialog"
+        ]
+    },
+    "GiftOperatorReceiveErrorDialog": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorGiftDialog"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorReceiveErrorBackInWorld"
+        ]
+    },
+    "GiftOperatorReceiveErrorBackInWorld": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FailedNode"
         ]
     },
     "GiftOperatorClickGift": {

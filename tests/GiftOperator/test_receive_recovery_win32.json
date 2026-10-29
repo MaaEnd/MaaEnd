@@ -1,0 +1,30 @@
+{
+    "configs": {
+        "name": "收礼失败后退出对话",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "image": "帝江号_大潘_收礼失败对话.png",
+            "hits": [
+                "GiftOperatorBranchReceive",
+                {
+                    "node": "GiftOperatorReceiveErrorLeave",
+                    "box": [
+                        1020,
+                        533,
+                        61,
+                        18
+                    ]
+                }
+            ]
+        },
+        {
+            "image": "帝江号_大世界.png",
+            "hits": [
+                "GiftOperatorReceiveErrorBackInWorld"
+            ]
+        }
+    ]
+}
