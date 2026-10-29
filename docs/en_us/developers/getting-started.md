@@ -43,8 +43,8 @@ pnpm install
 | (No parameters) | First-time initialization, skips already installed components |
 | `--update` | Force update all installed dependencies to the latest version |
 | `--clean-cache` | Clean the download cache directory |
-| `--cpp-algo-pr <N>` | Download cpp-algo from the latest successful CI run of a specified PR (for quick testing of unmerged PR changes) |
-| `--cpp-algo-run <ID>` | Download cpp-algo from a specified workflow run ID |
+| `--cpp-algo-pr <N>` | Download `cpp-algo` from the latest successful CI run of a specified PR (for quick testing of unmerged PR changes) |
+| `--cpp-algo-run <ID>` | Download `cpp-algo` from a specified workflow run ID |
 
 > `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive; choose one. Both are explicit instructions and are used as given.
 >
@@ -476,7 +476,7 @@ Congratulations, you've completed your first task!
     uv run tools/maadeps-download.py
     ```
 
-4. Prepare the cpp-algo build environment. The default configuration starts both go-service and cpp-algo, so manual setup also requires both Agents.
+4. Prepare the `cpp-algo` build environment. The default configuration starts both `go-service` and `cpp-algo`, so manual setup also requires both Agents.
 
     Install CMake 3.28+, Ninja, and the C++ toolchain for your platform. On Windows, install the "Desktop development with C++" workload in Visual Studio / Build Tools (including MSVC and the Windows SDK), then download the WebView2 SDK:
 
@@ -486,7 +486,7 @@ Congratulations, you've completed your first task!
 
     This command installs the SDK into `agent/cpp-algo/3rdparty/webview2/`. The WebView2 SDK is not required on other platforms.
 
-5. Build and install go-service and cpp-algo, and configure resource paths.
+5. Build and install `go-service` and `cpp-algo`, and configure resource paths.
 
     ```bash
     uv run build-and-install --cpp-algo
