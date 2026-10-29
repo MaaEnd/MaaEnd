@@ -1,0 +1,204 @@
+{
+    "AutoCollectValleyIVAuronyx1Start": {
+        "desc": "中黯石",
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVOriginLodespringMiningAreaClinic"
+            ]
+        },
+        "next": [
+            "AutoCollectValleyIVAuronyx1AssertLocation1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVAuronyx1.label"
+        }
+    },
+    "AutoCollectValleyIVAuronyx1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectValleyIVAuronyx1AssertLocation1": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                1092,
+                443,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectValleyIVAuronyx1Goto1"
+        ]
+    },
+    "AutoCollectValleyIVAuronyx1Goto1": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1007.91,
+                                362.95
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                994.89,
+                                367.66
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectValleyIVAuronyx1AssertLocation2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectValleyIVAuronyx1AssertLocation2": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                985,
+                358,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectValleyIVAuronyx1Goto2"
+        ]
+    },
+    "AutoCollectValleyIVAuronyx1Goto2": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        [
+                            987.78,
+                            387.14
+                        ],
+                        [
+                            985.66,
+                            390.74
+                        ],
+                        [
+                            979.85,
+                            392.95,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            985.66,
+                            390.74
+                        ],
+                        [
+                            975.32,
+                            389.45,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            981.05,
+                            391.85
+                        ],
+                        [
+                            985.66,
+                            386.12,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            981.05,
+                            391.85
+                        ],
+                        [
+                            985.66,
+                            384.92,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            981.05,
+                            391.85
+                        ],
+                        [
+                            984.46,
+                            384.92,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            981.05,
+                            391.85
+                        ],
+                        [
+                            982.15,
+                            387.23,
+                            "DIG",
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectValleyIVAuronyx1Wait10sec"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectValleyIVAuronyx1Wait10sec": {
+        "desc": "等待10s完成收集",
+        "pre_delay": 0,
+        "post_delay": 10000,
+        "next": [
+            "AutoCollectValleyIVAuronyx1End"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "等待10s完成收集"
+        }
+    }
+}

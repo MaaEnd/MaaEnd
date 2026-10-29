@@ -18,6 +18,7 @@ The repository currently uses this structure:
 tests/
 |- MaaEndTestset/
 |  |- Win32/Official_CN/*.png
+|  |- Win32/Official_CN/<image subdirectory>/*.png
 |  |- ADB/Official_CN/*.png
 |  `- CloudADB/Official_CN/*.png
 |- Common/Button/test_close_button.json
@@ -28,7 +29,8 @@ tests/
 - Test definition files can be placed anywhere under `tests/`, but the filename must match `test_*.json`.
 - Test screenshots live under `tests/MaaEndTestset/`.
 - The `image` field must contain the full screenshot file name, including its extension, for example `xxx.png`.
-- The real screenshot path is resolved by `tests/scripts/loader.mts` (under the `test.casesCwd` root in `maatools.config.mts`); in practice it points under `tests/MaaEndTestset/<controller>/<resource>/` and matches the concrete screenshot file from `image`.
+- `configs.imageRoot` is optional and selects an image subdirectory under the resource directory. If omitted, images are read directly from the resource directory.
+- The real screenshot path is resolved by `tests/scripts/loader.mts` (under the `test.casesCwd` root in `maatools.config.mts`); in practice it points under `tests/MaaEndTestset/<controller>/<resource>/` or the subdirectory selected by `imageRoot`, and matches the concrete screenshot file from `image`.
 
 With the current config:
 
@@ -37,6 +39,7 @@ With the current config:
 - `controller = "CloudADB"` maps to `tests/MaaEndTestset/CloudADB/`.
 - `controller = ["Win32", "ADB"]` runs the same cases once under each controller directory.
 - `resource = "官服"` maps to `tests/MaaEndTestset/*/Official_CN/`.
+- When `configs.imageRoot = "RestaurantDaily"`, images are read from `tests/MaaEndTestset/*/Official_CN/RestaurantDaily/`.
 - If either `controller` or `resource` is an array, tests are expanded as a Cartesian product.
 
 If you add a new resource server or controller enum, besides adding the test files, also update the mapping (`resourceMap` / `controllerMap`) in `tests/scripts/loader.mts`.
@@ -76,6 +79,7 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
 - `name`: optional test group name; recommended because it makes CLI output easier to read.
 - `resource`: resource server name. It can be either a single string or an array of strings. The current repo uses `官服`.
 - `controller`: controller type. It can be either a single string or an array of strings. The current repo uses `Win32`, `ADB`, and `CloudADB`.
+- `imageRoot`: optional image subdirectory under the resource directory, such as `RestaurantDaily`.
 
 When `controller` or `resource` is an array, `tests/scripts/loader.mts` expands the file into multiple test groups using the Cartesian product of controller and resource values.
 

@@ -1,0 +1,38 @@
+{
+    "UseConsumableUseMark": {
+        "roi": [
+            608,
+            182,
+            669,
+            534
+        ],
+        "template": "UseConsumable/StockMarkADB.png",
+        "green_mask": false,
+        "method": 5,
+        "threshold": 0.85
+    },
+    "UseConsumableUseText": {
+        "roi_offset": [
+            153,
+            57,
+            90,
+            18
+        ]
+    },
+    "UseConsumableUseConfirmButtonNormal": {
+        "roi": [
+            861,
+            428,
+            288,
+            139
+        ]
+    },
+    "UseConsumableUseCancelButtonNormal": {
+        "roi": [
+            582,
+            432,
+            289,
+            139
+        ]
+    }
+}

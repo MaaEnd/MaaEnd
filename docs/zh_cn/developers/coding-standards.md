@@ -272,7 +272,7 @@ uv run build-and-install --cpp-algo
 
 读仓库 JSON 的代码同样要按 JSONC 解析：Go 用 `pkg/jsonclean`（或 `resource.ReadJsonResource`），C++ 用 `Common/JsoncFile.h` 的 `OpenJsoncFile`，Node 用 `tools/pipeline-generate/jsonc.mjs`，Python 用 `json5`。
 
-例外是 `assets/locales/**`：`tools/i18n/sync_auto_collect_locales.py`、`tools/essence_filter/build_autoessence_tasks.py` 和 `tools/AutoCollectRoute/route_builder.py` 用严格的 `json` 读它，加注释会直接解析失败；其余写回 locale 的脚本重新序列化时也会把注释清掉。由外部工具严格解析的文件（`tools/schema/**`、`package.json` 等）同理保持严格 JSON。
+例外是 `assets/locales/**`：`tools/essence_filter/build_autoessence_tasks.py` 和 `tools/AutoCollectRoute/registry.py` 用严格的 `json` 读它，加注释会直接解析失败；其余写回 locale 的脚本重新序列化时也会把注释清掉。由外部工具严格解析的文件（`tools/schema/**`、`package.json` 等）同理保持严格 JSON。
 
 ## OCR 与 i18n
 

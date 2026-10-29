@@ -73,6 +73,13 @@ class ItemRow(msgspec.Struct, frozen=True, rename="camel"):
     """次级排序，sortId1 相同时再比它"""
 
 
+class InnItemRow(msgspec.Struct, frozen=True, rename="camel"):
+    """``InnDishTable`` / ``InnDrinkTable`` 的一行：客栈菜品与饮品。"""
+
+    id: str = ""
+    """对应 ItemTable 的物品 id"""
+
+
 class ItemShowingTypeRow(msgspec.Struct, frozen=True, rename="camel"):
     """``ItemShowingTypeTable`` 的一行：背包页签。"""
 

@@ -1,0 +1,70 @@
+{
+    "configs": {
+        "name": "缘缘庄厨房队列圆点识别",
+        "resource": "官服",
+        "controller": "Win32",
+        "imageRoot": "RestaurantDaily"
+    },
+    "cases": [
+        {
+            "name": "三个厨房空队列",
+            "image": "缘缘庄_经营中_厨房队列无菜.png",
+            "hits": [
+                "RestaurantKitchen1Dot1Grey",
+                "RestaurantKitchen1Dot2Grey",
+                "RestaurantKitchen1Dot3Grey",
+                "RestaurantKitchen2Dot1Grey",
+                "RestaurantKitchen2Dot2Grey",
+                "RestaurantKitchen2Dot3Grey",
+                "RestaurantKitchen3Dot1Grey",
+                "RestaurantKitchen3Dot2Grey",
+                "RestaurantKitchen3Dot3Grey"
+            ]
+        },
+        {
+            "name": "三个厨房队列全满",
+            "image": "缘缘庄_经营中_厨房队列已满.png",
+            "hits": [
+                "RestaurantKitchen1Dot1Green",
+                "RestaurantKitchen1Dot2Green",
+                "RestaurantKitchen1Dot3Green",
+                "RestaurantKitchen2Dot1Green",
+                "RestaurantKitchen2Dot2Green",
+                "RestaurantKitchen2Dot3Green",
+                "RestaurantKitchen3Dot1Green",
+                "RestaurantKitchen3Dot2Green",
+                "RestaurantKitchen3Dot3Green"
+            ]
+        },
+        {
+            "name": "仅厨房二队列全满",
+            "image": "缘缘庄_经营中_厨房队列分布.png",
+            "hits": [
+                "RestaurantKitchen1Dot1Grey",
+                "RestaurantKitchen1Dot2Grey",
+                "RestaurantKitchen1Dot3Grey",
+                "RestaurantKitchen2Dot1Green",
+                "RestaurantKitchen2Dot2Green",
+                "RestaurantKitchen2Dot3Green",
+                "RestaurantKitchen3Dot1Grey",
+                "RestaurantKitchen3Dot2Grey",
+                "RestaurantKitchen3Dot3Grey"
+            ]
+        },
+        {
+            "name": "厨房队列为一、二、三道菜",
+            "image": "缘缘庄_经营中_厨房队列数量不一.png",
+            "hits": [
+                "RestaurantKitchen1Dot1Grey",
+                "RestaurantKitchen1Dot2Grey",
+                "RestaurantKitchen1Dot3Green",
+                "RestaurantKitchen2Dot1Grey",
+                "RestaurantKitchen2Dot2Green",
+                "RestaurantKitchen2Dot3Green",
+                "RestaurantKitchen3Dot1Green",
+                "RestaurantKitchen3Dot2Green",
+                "RestaurantKitchen3Dot3Green"
+            ]
+        }
+    ]
+}

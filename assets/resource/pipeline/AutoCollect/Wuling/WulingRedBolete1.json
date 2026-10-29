@@ -1,0 +1,172 @@
+{
+    "AutoCollectWulingRedBolete1Start": {
+        "desc": "中红柱状菌",
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStoneRestrictedArea"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingRedBolete1AssertLocation1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingRedBolete1.label"
+        }
+    },
+    "AutoCollectWulingRedBolete1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingRedBolete1AssertLocation1": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                588,
+                2232,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingRedBolete1Goto1"
+        ]
+    },
+    "AutoCollectWulingRedBolete1Goto1": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                624.05,
+                                2263.63
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingRedBolete1AssertLocation2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectWulingRedBolete1AssertLocation2": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                616,
+                2255,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingRedBolete1Goto2"
+        ]
+    },
+    "AutoCollectWulingRedBolete1Goto2": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            623.07,
+                            2268.9,
+                            "COLLECT"
+                        ],
+                        [
+                            621.41,
+                            2270.87,
+                            "COLLECT"
+                        ],
+                        [
+                            619.57,
+                            2271.94,
+                            "COLLECT"
+                        ],
+                        [
+                            618.1,
+                            2270.98,
+                            "COLLECT"
+                        ],
+                        [
+                            618.34,
+                            2272,
+                            "COLLECT"
+                        ],
+                        [
+                            617.51,
+                            2272.66,
+                            "COLLECT"
+                        ],
+                        [
+                            616.05,
+                            2270.72,
+                            "COLLECT"
+                        ],
+                        [
+                            616.01,
+                            2269.36,
+                            "COLLECT"
+                        ],
+                        [
+                            614.34,
+                            2269.44,
+                            "COLLECT"
+                        ],
+                        [
+                            613.03,
+                            2267.91,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingRedBolete1End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

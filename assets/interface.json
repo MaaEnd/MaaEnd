@@ -259,6 +259,7 @@
         "tasks/PullCountCalculator.json",
         "tasks/BakerEntry.json",
         "tasks/ReadAllWiki.json",
+        "tasks/RestaurantDaily.json",
         "tasks/IntelArchive.json",
         "tasks/DailyRewards.json",
         "tasks/LevelUpOperator.json",

@@ -17,6 +17,7 @@
         "fetch:zmdmap": "uv run --no-default-groups zmdmap fetch",
         "generate:MacOS": "node tools/pipeline-generate/macos-keymap.mjs",
         "generate:BatchUseDetector": "node tools/pipeline-generate/run-all.mjs BatchUseDetector",
+        "generate:UseConsumable": "node tools/pipeline-generate/UseConsumable/sync-locales.mjs && node tools/pipeline-generate/run-all.mjs UseConsumable",
         "generate:AutoStockStaple": "pnpm fetch:zmdmap --only stock_staple && node tools/pipeline-generate/AutoStockStaple/generate.mjs",
         "generate:AutoDelivery": "pnpm fetch:zmdmap --only delivery_destinations && node tools/pipeline-generate/AutoDelivery/sync-routes.mjs && node tools/pipeline-generate/AutoDelivery/sync-catalog.mjs && node tools/pipeline-generate/run-all.mjs AutoDelivery",
         "generate:DeliveryJobs": "pnpm generate:AutoDelivery && pnpm fetch:zmdmap --only delivery_jobs && node tools/pipeline-generate/DeliveryJobs/sync-locales.mjs && node tools/pipeline-generate/DeliveryJobs/prepare.mjs && node tools/pipeline-generate/run-all.mjs DeliveryJobs",
@@ -26,7 +27,8 @@
         "generate:SeizeDeliveryJobs": "pnpm fetch:zmdmap --only delivery_destinations && node tools/pipeline-generate/run-all.mjs SeizeDeliveryJobs",
         "generate:SceneTeleport": "pnpm fetch:zmdmap --only teleport_anchors && node tools/pipeline-generate/SceneTeleport/sync-anchors.mjs && node tools/pipeline-generate/run-all.mjs SceneTeleport",
         "generate:AutoEssence": "pnpm fetch:zmdmap --only energy_points --only teleport_anchors && node tools/pipeline-generate/AutoEssence/sync-routes.mjs && node tools/pipeline-generate/run-all.mjs AutoEssence",
-        "generate:MapOverview": "pnpm fetch:zmdmap --only region3d --only teleport_anchors && node tools/pipeline-generate/MapOverview/generate.mjs"
+        "generate:MapOverview": "pnpm fetch:zmdmap --only region3d --only teleport_anchors && node tools/pipeline-generate/MapOverview/generate.mjs",
+        "generate:AutoCollect": "uv run autocollect-route generate"
     },
     "devDependencies": {
         "@joebao/maa-pipeline-generate": "^1.3.0",

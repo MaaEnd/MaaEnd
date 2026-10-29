@@ -1,0 +1,104 @@
+{
+    "UseConsumableUseTeleportStart": {
+        "desc": "传送前确认玩家处于大世界",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableUseTeleportWorldReady",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "UseConsumableUseTeleportWorldReady": {
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "UseConsumableUseTeleportToRegion"
+        ]
+    },
+    "UseConsumableUseTeleportToRegion": {
+        "desc": "传送到任务选定地区",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHubHubBase"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "next": [
+            "UseConsumableUseTeleportWorldReadyAgain"
+        ]
+    },
+    "UseConsumableUseTeleportWorldReadyAgain": {
+        "desc": "传送后确认玩家仍处于大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "UseConsumableUseStart",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "UseConsumableUseStart": {
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "UseConsumableUseBackpackAlreadyOpen",
+            "UseConsumableUseOpenBagMenu"
+        ]
+    },
+    "UseConsumableUseBackpackAlreadyOpen": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "next": [
+            "UseConsumableUseBagReady"
+        ]
+    },
+    "UseConsumableUseOpenBagMenu": {
+        "recognition": "Or",
+        "any_of": [
+            "UseConsumableUseOpenBagMenuIcon1",
+            "UseConsumableUseOpenBagMenuIcon2",
+            "UseConsumableUseOpenBagMenuIcon3"
+        ],
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "UseConsumableUseOpenBagMenuIcon"
+        },
+        "next": [
+            "UseConsumableUseBagReady"
+        ]
+    },
+    "UseConsumableUseBagReady": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "next": [
+            "UseConsumableUseStartSlot1",
+            "UseConsumableUseSkipSlot1"
+        ]
+    },
+    "UseConsumableUseCloseBackpack": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UseConsumableFailureCollectorFinish"
+        ]
+    }
+}

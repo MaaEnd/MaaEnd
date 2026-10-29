@@ -1,6 +1,6 @@
 # AutoCollect 采集路线生成器
 
-在地图上框选采集物，生成一条 AutoCollect 路线及其全部任务注册。从项目根目录运行：
+在地图上框选采集物，生成一条 AutoCollect 路线并登记到任务中。从项目根目录运行：
 
 ```powershell
 uv run autocollect-route
@@ -10,7 +10,7 @@ uv run autocollect-route
 
 采集物与传送点数据读取 `tools/zmdmap/data/collect_points.json` 与 `teleport_anchors.json`，传送入口名读取 `tools/pipeline-generate/SceneTeleport/anchors.json`。采集物的类型表（名称、图标、采集动作、产物分类）与点位高度由 zmdmap 的 `collect_points` 数据集生成，本地数据缺少这些字段时执行 `uv run zmdmap generate --only collect_points` 重新生成。排序与路线展开依赖 navmesh 包 `assets/resource/model/map/navmesh/base.nav.gz`。
 
-地图前端与寻路查询复用 [MapNavigator](../MapNavigator/README.md)：地图交互、工具条、状态栏以及路线与运行时展开的绘制均与路径编辑器一致，navmesh 查询使用同一个后端模块。本工具仅包含采集业务：`route_builder.py` 负责排序并生成路线与注册，`server.py` 提供接口，`web/` 为页面。
+地图前端与寻路查询复用 [MapNavigator](../MapNavigator/README.md)：地图交互、工具条、状态栏以及路线与运行时展开的绘制均与路径编辑器一致，navmesh 查询使用同一个后端模块。本工具仅包含采集业务：`route_builder.py` 负责排序并生成路线，`registry.py` 按路线登记表生成任务注册，`server.py` 提供接口，`web/` 为页面。
 
 ## 使用
 
@@ -18,7 +18,7 @@ uv run autocollect-route
 2. 列表按产物列出当前地图该类采集物（图标、挖掘标记、已选数量、本图点数）。复选框控制该类是否显示，搜索框按各语言名称筛选；隐藏某类时同时取消其已选点。
 3. 在地图上框选采集物。缩小时采集物显示为按类别着色的圆点，放大后显示为带图标的圆形标记，已选标记外圈为琥珀色；悬停时状态栏显示名称与坐标。
 4. 点击 `生成稀有路线` 或 `生成常规路线`。采集顺序按步行距离确定，详见下文；排序期间状态栏显示已规划的段数。同一批点再次生成时复用已计算的距离。
-5. 右上角列出路线编号、起点传送点、采集点数、运行时寻路段数与产物，可修改五种语言的路线名（默认由产物名拼接）。生成后自动按运行时语义展开整条路线，粉色线即 `MapNavigateAction` 实际行走的路径，并给出运行时路点数与步行总长。
+5. 右上角列出路线 id、路线文件、起点传送点、采集点数、运行时寻路段数与产物。生成后自动按运行时语义展开整条路线，粉色线即 `MapNavigateAction` 实际行走的路径，并给出运行时路点数与步行总长。
 6. `复制路线文件` / `复制 path` 仅复制内容；`写入任务` 先列出将新建与修改的文件，确认后写入。
 
 地图操作：
@@ -55,13 +55,33 @@ uv run autocollect-route
 2. 与上一点相距超过 15 px（含高度折算）的采集点。现有手写路线中采集点之间直走的段最长 13.1 px，更远的段均依赖录制路点或 `NAVMESH`；
 3. 与上一点之间需要绕行（步行长度明显长于直线）的采集点，对 12–15 px 之间的段实测判断。
 
-`写入任务` 会改动以下文件，编号接续同类最后一条路线：
+`写入任务` 新建路线文件，在路线登记表中追加该路线，再按登记表重新生成任务注册：
 
 | 文件 | 内容 |
 | --- | --- |
-| `assets/resource/pipeline/AutoCollect/AutoCollect<Case>.json` | 新路线文件 |
-| `assets/resource/pipeline/AutoCollect.json` | `Dispatch` / `Sub` / `SubSkipped` / `SubGated` / `Failed` 节点与 `AutoCollectLoop.next` |
-| `assets/tasks/AutoCollect.json` | 稀有或常规路线选项、库存上限输入与门控表达式 |
-| `assets/locales/interface/*.json` | 五种语言的路线名、失败与跳过提示，以及新产物的库存输入名 |
+| `assets/resource/pipeline/AutoCollect/<地区>/<路线 id>.json` | 新路线文件 |
+| `tools/AutoCollectRoute/routes.json` | 路线登记表，追加一条 |
+| `assets/resource/pipeline/AutoCollect/Dispatch.json` | 目标库存预判、调度循环、各产物的调度节点、各路线的执行与失败提示节点 |
+| `assets/tasks/AutoCollect.json` | 各地区的产物选项、目标库存输入与门控表达式 |
+| `assets/locales/interface/*.json` | 五种语言的产物名、路线名、失败与跳过提示 |
+
+路线 id 由地区、各产物的 PascalCase 英文名与序号依次拼接而成，多种产物按 `items` 的登记顺序全部拼上，序号在同一前缀下递增。例如武陵已有 `WulingCosmagaric1` 时，再生成一条星门菌路线得到 `WulingCosmagaric2`；同时采血菌与武陵石的路线是 `WulingBloodcapWulingstone1`。
 
 生成的路线需经实机运行确认。
+
+## 路线登记表
+
+任务的产物选项、调度节点与文案均由 `routes.json` 生成，生成的文件不要手改。手写或修改登记表后执行：
+
+```powershell
+uv run autocollect-route generate
+```
+
+| 字段 | 说明 |
+| --- | --- |
+| `routes[].id` | 路线 id，与路线文件名、节点前缀 `AutoCollect<id>` 一致 |
+| `routes[].region` | 地区，`ValleyIV` 或 `Wuling`，决定路线文件所在目录和所属的地区选项 |
+| `routes[].items` | 路线覆盖的产物 id；覆盖多种产物时，勾选其中任一种都会执行，一轮只执行一次 |
+| `default_limits` | 产物的默认目标库存；未列出的稀有产物取 32，常规产物取 0（始终运行） |
+
+任务界面按产物勾选，同一产物名下有多条路线时依次执行。目标库存模式下，每种产物在开跑前按仓库库存判断一次，未达目标就执行其名下全部路线。

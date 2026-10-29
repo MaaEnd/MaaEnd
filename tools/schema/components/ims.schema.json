@@ -209,6 +209,16 @@
                     "description": "When true (default), print one HTML Focus summary with icons after the scan finishes (ims.sync_item_summary). Transaction begin/continue summaries cover the current page; commit summarizes items hit by the whole transaction. Set false for silent scans (e.g. scene-jump side-cache).",
                     "type": "boolean",
                     "default": true
+                },
+                "report_item_ids": {
+                    "title": "Report Item IDs",
+                    "description": "Optional item IDs to include in this call's UI summary. Recognition and cached quantities are unchanged. Omit or pass an empty list to announce every hit; transaction commit applies its own list to the final summary.",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
                 }
             }
         }

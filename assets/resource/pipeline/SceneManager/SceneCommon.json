@@ -11,7 +11,7 @@
                 "key": 27 // ESC
             }
         },
-        "post_delay": 3000
+        "post_delay": 3000 // 等待 3 秒再继续，手表动画展开需要几秒钟时间，防止错过识别信息
     },
     "__ScenePrivateScreenshotStableAbnormal": {
         "desc": "连续画面不变时判定环境识别异常强制失败,部分用户vulcan全屏游戏时，所有截图api截取到的画面都是不动的",

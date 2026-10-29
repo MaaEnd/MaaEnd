@@ -1,0 +1,359 @@
+{
+    "UseConsumablePrecheckStart": {
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumablePrecheckBackpackAlreadyOpen",
+            "UseConsumablePrecheckOpenBagMenu"
+        ]
+    },
+    "UseConsumablePrecheckBackpackAlreadyOpen": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "next": [
+            "UseConsumablePrecheckStartScan"
+        ]
+    },
+    "UseConsumablePrecheckOpenBagMenu": {
+        "recognition": "Or",
+        "any_of": [
+            "UseConsumableUseOpenBagMenuIcon1",
+            "UseConsumableUseOpenBagMenuIcon2",
+            "UseConsumableUseOpenBagMenuIcon3"
+        ],
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "UseConsumableUseOpenBagMenuIcon"
+        },
+        "next": [
+            "UseConsumablePrecheckStartScan"
+        ]
+    },
+    "UseConsumablePrecheckBagReady": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "UseConsumablePrecheckStartSlot1",
+            "UseConsumablePrecheckStartSlot2",
+            "UseConsumablePrecheckStartSlot3",
+            "UseConsumablePrecheckStartSlot4",
+            "ItemTransferBagBottomReached",
+            "[JumpBack]ItemTransferScrollDownwardBag",
+            "ItemTransferStop"
+        ]
+    },
+    "UseConsumablePrecheckStartSlot1": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "UseConsumableFindItemSlot1"
+        ],
+        "next": [
+            "UseConsumablePrecheckFoundSlot1"
+        ]
+    },
+    "UseConsumableFindItemSlot1": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_recheck_filters": [
+                        "Normal:Usable"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    739,
+                    202,
+                    398,
+                    291
+                ]
+            }
+        },
+        "next": [
+            "[Anchor]ItemTransferCurrentBagTransfer"
+        ]
+    },
+    "UseConsumablePrecheckFoundSlot1": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedStockSlot1": {
+                    "enabled": false
+                },
+                "UseConsumableStockFindItemSlot1": {
+                    "enabled": false
+                },
+                "UseConsumablePrecheckStartSlot1": {
+                    "enabled": false
+                }
+            }
+        },
+        "next": [
+            "UseConsumablePrecheckBagReady"
+        ]
+    },
+    "UseConsumablePrecheckStartSlot2": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "UseConsumableFindItemSlot2"
+        ],
+        "next": [
+            "UseConsumablePrecheckFoundSlot2"
+        ]
+    },
+    "UseConsumableFindItemSlot2": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_recheck_filters": [
+                        "Normal:Usable"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    739,
+                    202,
+                    398,
+                    291
+                ]
+            }
+        },
+        "next": [
+            "[Anchor]ItemTransferCurrentBagTransfer"
+        ]
+    },
+    "UseConsumablePrecheckFoundSlot2": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedStockSlot2": {
+                    "enabled": false
+                },
+                "UseConsumableStockFindItemSlot2": {
+                    "enabled": false
+                },
+                "UseConsumablePrecheckStartSlot2": {
+                    "enabled": false
+                }
+            }
+        },
+        "next": [
+            "UseConsumablePrecheckBagReady"
+        ]
+    },
+    "UseConsumablePrecheckStartSlot3": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "UseConsumableFindItemSlot3"
+        ],
+        "next": [
+            "UseConsumablePrecheckFoundSlot3"
+        ]
+    },
+    "UseConsumableFindItemSlot3": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_recheck_filters": [
+                        "Normal:Usable"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    739,
+                    202,
+                    398,
+                    291
+                ]
+            }
+        },
+        "next": [
+            "[Anchor]ItemTransferCurrentBagTransfer"
+        ]
+    },
+    "UseConsumablePrecheckFoundSlot3": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedStockSlot3": {
+                    "enabled": false
+                },
+                "UseConsumableStockFindItemSlot3": {
+                    "enabled": false
+                },
+                "UseConsumablePrecheckStartSlot3": {
+                    "enabled": false
+                }
+            }
+        },
+        "next": [
+            "UseConsumablePrecheckBagReady"
+        ]
+    },
+    "UseConsumablePrecheckStartSlot4": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "UseConsumableFindItemSlot4"
+        ],
+        "next": [
+            "UseConsumablePrecheckFoundSlot4"
+        ]
+    },
+    "UseConsumableFindItemSlot4": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_recheck_filters": [
+                        "Normal:Usable"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    739,
+                    202,
+                    398,
+                    291
+                ]
+            }
+        },
+        "next": [
+            "[Anchor]ItemTransferCurrentBagTransfer"
+        ]
+    },
+    "UseConsumablePrecheckFoundSlot4": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedStockSlot4": {
+                    "enabled": false
+                },
+                "UseConsumableStockFindItemSlot4": {
+                    "enabled": false
+                },
+                "UseConsumablePrecheckStartSlot4": {
+                    "enabled": false
+                }
+            }
+        },
+        "next": [
+            "UseConsumablePrecheckBagReady"
+        ]
+    },
+    "UseConsumablePrecheckFinish": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "UseConsumablePrecheckBagReady": {
+                    "enabled": false
+                },
+                "ItemTransferBagTopReached": {
+                    "next": [
+                        "ItemTransferBagScanFromTop"
+                    ]
+                },
+                "ItemTransferBagBottomReached": {
+                    "next": [
+                        "[Anchor]ItemTransferCurrentBagNotFound"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "UseConsumableNeedStockSlot1",
+            "UseConsumableNeedStockSlot2",
+            "UseConsumableNeedStockSlot3",
+            "UseConsumableNeedStockSlot4",
+            "UseConsumablePrecheckCloseBackpackToUse"
+        ]
+    },
+    "UseConsumablePrecheckCloseBackpackToStock": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UseConsumableStockWulingEnter"
+        ]
+    },
+    "UseConsumablePrecheckCloseBackpackToUse": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UseConsumableUseTeleportStart"
+        ]
+    },
+    "UseConsumablePrecheckStartScan": {
+        "desc": "重置背包滚动状态，从顶部开始一次完整扫描",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "UseConsumablePrecheckBagReady": {
+                    "enabled": true
+                },
+                "ItemTransferBagTopReached": {
+                    "next": [
+                        "UseConsumablePrecheckBagReady"
+                    ]
+                },
+                "ItemTransferBagBottomReached": {
+                    "next": [
+                        "UseConsumablePrecheckFinish"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "ItemTransferResetBagScanBoundaries"
+        ]
+    }
+}

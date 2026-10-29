@@ -1,0 +1,50 @@
+{
+    "UseConsumableFindItemSlot1": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    800,
+                    178,
+                    430,
+                    344
+                ]
+            }
+        }
+    },
+    "UseConsumableFindItemSlot2": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    800,
+                    178,
+                    430,
+                    344
+                ]
+            }
+        }
+    },
+    "UseConsumableFindItemSlot3": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    800,
+                    178,
+                    430,
+                    344
+                ]
+            }
+        }
+    },
+    "UseConsumableFindItemSlot4": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    800,
+                    178,
+                    430,
+                    344
+                ]
+            }
+        }
+    }
+}

@@ -272,7 +272,7 @@ Resource JSON is always treated as JSONC, so `//`, `/* */` comments and trailing
 
 Code that reads repository JSON must parse JSONC too: `pkg/jsonclean` (or `resource.ReadJsonResource`) in Go, `OpenJsoncFile` from `Common/JsoncFile.h` in C++, `tools/pipeline-generate/jsonc.mjs` in Node, and `json5` in Python.
 
-The exception is `assets/locales/**`: `tools/i18n/sync_auto_collect_locales.py`, `tools/essence_filter/build_autoessence_tasks.py` and `tools/AutoCollectRoute/route_builder.py` read those files with strict `json`, so a comment makes them fail to parse; the other scripts that rewrite locales also drop comments when they re-serialize. Files parsed strictly by external tools (`tools/schema/**`, `package.json`, and so on) likewise stay strict JSON.
+The exception is `assets/locales/**`: `tools/essence_filter/build_autoessence_tasks.py` and `tools/AutoCollectRoute/registry.py` read those files with strict `json`, so a comment makes them fail to parse; the other scripts that rewrite locales also drop comments when they re-serialize. Files parsed strictly by external tools (`tools/schema/**`, `package.json`, and so on) likewise stay strict JSON.
 
 ## OCR and i18n
 

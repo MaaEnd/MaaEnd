@@ -1,0 +1,57 @@
+{
+    "configs": {
+        "name": "缘缘庄菜单界面识别",
+        "resource": "官服",
+        "controller": "Win32",
+        "imageRoot": "RestaurantDaily"
+    },
+    "cases": [
+        {
+            "name": "菜单要求及菜品页",
+            "image": "缘缘庄_菜单_菜品页及要求.png",
+            "hits": [
+                "RestaurantMenuScreenReady",
+                "RestaurantMenuRequirementOCR",
+                "RestaurantMenuFilterIcon",
+                "RestaurantMenuStartBusinessWarning",
+                "RestaurantMenuStartBusiness"
+            ]
+        },
+        {
+            "name": "饮品页及可开始经营",
+            "image": "缘缘庄_菜单_饮品页及可开始经营.png",
+            "hits": [
+                "RestaurantMenuScreenReady",
+                "RestaurantMenuRequirementOCR",
+                "RestaurantMenuStartBusiness"
+            ]
+        },
+        {
+            "name": "筛选窗口",
+            "image": "缘缘庄_菜单_筛选窗口.png",
+            "hits": [
+                "RestaurantMenuScreenReady",
+                "RestaurantMenuStartBusinessWarning",
+                "RestaurantMenuStartBusiness",
+                "RestaurantMenuFilterCookableQuantity",
+                "RestaurantMenuFilterConfirm"
+            ]
+        },
+        {
+            "name": "已选可烹饪数量",
+            "image": "缘缘庄_菜单_可烹饪数量筛选已选.png",
+            "hits": [
+                "RestaurantMenuScreenReady",
+                "RestaurantMenuStartBusinessWarning",
+                "RestaurantMenuStartBusiness",
+                "RestaurantMenuFilterCookableQuantity",
+                "RestaurantMenuFilterConfirm"
+            ]
+        },
+        {
+            "name": "主题设置不是菜单页",
+            "image": "缘缘庄_主题设定_缘缘本色.png",
+            "hits": []
+        }
+    ]
+}

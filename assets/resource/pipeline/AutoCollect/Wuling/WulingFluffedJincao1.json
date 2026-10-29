@@ -1,0 +1,123 @@
+{
+    "AutoCollectWulingFluffedJincao1Start": {
+        "desc": "蓬茸锦草采集线，4个点",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectWulingFluffedJincao1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingFluffedJincao1.label"
+        }
+    },
+    "AutoCollectWulingFluffedJincao1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingFluffedJincao1": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStoneWatchtowerReservoirStation"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingFluffedJincao1AssertLocation1"
+        ]
+    },
+    "AutoCollectWulingFluffedJincao1AssertLocation1": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                482,
+                2109,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingFluffedJincao1Goto"
+        ]
+    },
+    "AutoCollectWulingFluffedJincao1Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                411.37,
+                                2132.9
+                            ]
+                        },
+                        [
+                            411.37,
+                            2132.9,
+                            "COLLECT"
+                        ],
+                        [
+                            411.37,
+                            2132.9,
+                            "COLLECT"
+                        ],
+                        [
+                            408.02,
+                            2130.24,
+                            "COLLECT"
+                        ],
+                        [
+                            408.02,
+                            2130.24,
+                            "COLLECT"
+                        ],
+                        [
+                            407.93,
+                            2129.35,
+                            "COLLECT"
+                        ],
+                        [
+                            407.93,
+                            2129.35,
+                            "COLLECT"
+                        ],
+                        [
+                            406.74,
+                            2127.18,
+                            "COLLECT"
+                        ],
+                        [
+                            406.74,
+                            2127.18,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingFluffedJincao1End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

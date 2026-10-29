@@ -1,0 +1,172 @@
+{
+    "AutoCollectValleyIVKalkodendra1Start": {
+        "desc": "晶化多齿叶",
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHubSouthernMeadows"
+            ]
+        },
+        "next": [
+            "AutoCollectValleyIVKalkodendra1AssertLocation1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVKalkodendra1.label"
+        }
+    },
+    "AutoCollectValleyIVKalkodendra1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectValleyIVKalkodendra1AssertLocation1": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                601,
+                961,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectValleyIVKalkodendra1Goto1"
+        ]
+    },
+    "AutoCollectValleyIVKalkodendra1Goto1": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                593.63,
+                                979.66
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectValleyIVKalkodendra1AssertLocation2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectValleyIVKalkodendra1AssertLocation2": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                583,
+                970,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectValleyIVKalkodendra1Goto2"
+        ]
+    },
+    "AutoCollectValleyIVKalkodendra1Goto2": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        [
+                            602.17,
+                            995.17,
+                            "COLLECT"
+                        ],
+                        [
+                            602.89,
+                            996.7,
+                            "COLLECT"
+                        ],
+                        [
+                            607.68,
+                            998.37,
+                            "COLLECT"
+                        ],
+                        [
+                            609,
+                            995.46,
+                            "COLLECT"
+                        ],
+                        [
+                            609.78,
+                            994.35,
+                            "COLLECT"
+                        ],
+                        [
+                            610.41,
+                            993.38,
+                            "COLLECT"
+                        ],
+                        [
+                            606.74,
+                            991.32,
+                            "COLLECT"
+                        ],
+                        [
+                            605.75,
+                            990.58,
+                            "COLLECT"
+                        ],
+                        [
+                            605.84,
+                            990.08,
+                            "COLLECT"
+                        ],
+                        [
+                            605.12,
+                            990.06,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectValleyIVKalkodendra1End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

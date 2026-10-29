@@ -1,0 +1,115 @@
+{
+    "AutoCollectValleyIVChrysodendra1Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVPowerPlateauEvacuationZone"
+            ]
+        },
+        "next": [
+            "AutoCollectValleyIVChrysodendra1AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVChrysodendra1.label"
+        }
+    },
+    "AutoCollectValleyIVChrysodendra1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectValleyIVChrysodendra1AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                642,
+                367,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectValleyIVChrysodendra1Goto"
+        ]
+    },
+    "AutoCollectValleyIVChrysodendra1Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                728.68,
+                                366.75
+                            ]
+                        },
+                        [
+                            714.55,
+                            378.19,
+                            "COLLECT"
+                        ],
+                        [
+                            714.25,
+                            380.64,
+                            "COLLECT"
+                        ],
+                        [
+                            712.15,
+                            381.69,
+                            "COLLECT"
+                        ],
+                        [
+                            710.11,
+                            383.43,
+                            "COLLECT"
+                        ],
+                        [
+                            708.91,
+                            379.86,
+                            "COLLECT"
+                        ],
+                        [
+                            707.37,
+                            377.78,
+                            "COLLECT"
+                        ],
+                        [
+                            708.95,
+                            375.31,
+                            "COLLECT"
+                        ],
+                        [
+                            712.72,
+                            372.98,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectValleyIVChrysodendra1End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

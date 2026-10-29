@@ -1,0 +1,2966 @@
+{
+    "RestaurantObservationEmpty": {
+        "recognition": "DirectHit"
+    },
+    "RestaurantState": {
+        "recognition": "DirectHit",
+        "attach": {
+            "state": null
+        }
+    },
+    "RestaurantMenuRequirementOCR": {
+        "desc": "日常经营菜单要求中的菜品与饮品数量",
+        "recognition": "OCR",
+        "roi": [
+            121,
+            171,
+            367,
+            58
+        ],
+        "expected": [
+            "至少需要\\d+道菜品和\\d+种饮品",
+            "At\\s*least\\s*\\d+\\s*dish\\(es\\)\\s*and\\s*\\d+\\s*drink\\(s\\)",
+            "料理：\\d+品以上、飲み物：\\d+種類以上",
+            "최소\\d+개의요리와최소\\d+종의음료가필요합니다\\.",
+            "\\d+道菜品和\\d+種飲品"
+        ]
+    },
+    "RestaurantMenuCardAnchor": {
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    552,
+                    134,
+                    307,
+                    93
+                ]
+            }
+        }
+    },
+    "RestaurantMenuCardIcon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": "RestaurantMenuCardAnchor",
+        "roi_offset": [
+            34,
+            14,
+            -243,
+            -29
+        ]
+    },
+    "RestaurantMenuPendingIcon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": "RestaurantMenuCardAnchor",
+        "roi_offset": [
+            34,
+            14,
+            -243,
+            -29
+        ]
+    },
+    "RestaurantMenuSelectedCircle": {
+        "recognition": "ColorMatch",
+        "roi": "RestaurantMenuCardAnchor",
+        "roi_offset": [
+            287,
+            -3,
+            -278,
+            -64
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            119
+        ],
+        "connected": true,
+        "count": 80
+    },
+    "RestaurantMenuSelectedBar": {
+        "recognition": "ColorMatch",
+        "roi": "RestaurantMenuSelectedCircle",
+        "roi_offset": [
+            5,
+            6,
+            -10,
+            -12
+        ],
+        "method": 6,
+        "lower": [
+            180
+        ],
+        "upper": [
+            255
+        ],
+        "count": 4
+    },
+    "RestaurantMenuCardSelected": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantMenuSelectedCircle",
+            "RestaurantMenuSelectedBar"
+        ]
+    },
+    "RestaurantMenuCardFacts": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantMenuCardAnchor",
+            "RestaurantMenuCardIcon",
+            {
+                "recognition": "Or",
+                "any_of": [
+                    "RestaurantMenuCardSelected",
+                    "RestaurantObservationEmpty"
+                ]
+            }
+        ]
+    },
+    "RestaurantKitchen1Selected": {
+        "recognition": "ColorMatch",
+        "roi": [
+            180,
+            150,
+            85,
+            25
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            89
+        ],
+        "count": 744
+    },
+    "RestaurantKitchen1Dot1Green": {
+        "recognition": "ColorMatch",
+        "roi": [
+            355,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            45,
+            90,
+            141
+        ],
+        "upper": [
+            95,
+            255,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen1Dot1Grey": {
+        "recognition": "ColorMatch",
+        "roi": [
+            355,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            101
+        ],
+        "upper": [
+            179,
+            60,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen1Dot2Green": {
+        "recognition": "ColorMatch",
+        "roi": [
+            364,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            45,
+            90,
+            141
+        ],
+        "upper": [
+            95,
+            255,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen1Dot2Grey": {
+        "recognition": "ColorMatch",
+        "roi": [
+            364,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            101
+        ],
+        "upper": [
+            179,
+            60,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen1Dot3Green": {
+        "recognition": "ColorMatch",
+        "roi": [
+            373,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            45,
+            90,
+            141
+        ],
+        "upper": [
+            95,
+            255,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen1Dot3Grey": {
+        "recognition": "ColorMatch",
+        "roi": [
+            373,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            101
+        ],
+        "upper": [
+            179,
+            60,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen1Count0": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchen1Dot1Grey",
+            "RestaurantKitchen1Dot2Grey",
+            "RestaurantKitchen1Dot3Grey"
+        ]
+    },
+    "RestaurantKitchen1Count1": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchen1Dot1Grey",
+            "RestaurantKitchen1Dot2Grey",
+            "RestaurantKitchen1Dot3Green"
+        ]
+    },
+    "RestaurantKitchen1Count2": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchen1Dot1Grey",
+            "RestaurantKitchen1Dot2Green",
+            "RestaurantKitchen1Dot3Green"
+        ]
+    },
+    "RestaurantKitchen1Count3": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchen1Dot1Green",
+            "RestaurantKitchen1Dot2Green",
+            "RestaurantKitchen1Dot3Green"
+        ]
+    },
+    "RestaurantKitchen1QueueCount": {
+        "recognition": "Or",
+        "any_of": [
+            "RestaurantKitchen1Count0",
+            "RestaurantKitchen1Count1",
+            "RestaurantKitchen1Count2",
+            "RestaurantKitchen1Count3"
+        ]
+    },
+    "RestaurantKitchen2Selected": {
+        "recognition": "ColorMatch",
+        "roi": [
+            392,
+            150,
+            85,
+            25
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            89
+        ],
+        "count": 744
+    },
+    "RestaurantKitchen2Dot1Green": {
+        "recognition": "ColorMatch",
+        "roi": [
+            575,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            45,
+            90,
+            141
+        ],
+        "upper": [
+            95,
+            255,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen2Dot1Grey": {
+        "recognition": "ColorMatch",
+        "roi": [
+            575,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            101
+        ],
+        "upper": [
+            179,
+            60,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen2Dot2Green": {
+        "recognition": "ColorMatch",
+        "roi": [
+            584,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            45,
+            90,
+            141
+        ],
+        "upper": [
+            95,
+            255,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen2Dot2Grey": {
+        "recognition": "ColorMatch",
+        "roi": [
+            584,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            101
+        ],
+        "upper": [
+            179,
+            60,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen2Dot3Green": {
+        "recognition": "ColorMatch",
+        "roi": [
+            593,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            45,
+            90,
+            141
+        ],
+        "upper": [
+            95,
+            255,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen2Dot3Grey": {
+        "recognition": "ColorMatch",
+        "roi": [
+            593,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            101
+        ],
+        "upper": [
+            179,
+            60,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen2Count0": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchen2Dot1Grey",
+            "RestaurantKitchen2Dot2Grey",
+            "RestaurantKitchen2Dot3Grey"
+        ]
+    },
+    "RestaurantKitchen2Count1": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchen2Dot1Grey",
+            "RestaurantKitchen2Dot2Grey",
+            "RestaurantKitchen2Dot3Green"
+        ]
+    },
+    "RestaurantKitchen2Count2": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchen2Dot1Grey",
+            "RestaurantKitchen2Dot2Green",
+            "RestaurantKitchen2Dot3Green"
+        ]
+    },
+    "RestaurantKitchen2Count3": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchen2Dot1Green",
+            "RestaurantKitchen2Dot2Green",
+            "RestaurantKitchen2Dot3Green"
+        ]
+    },
+    "RestaurantKitchen2QueueCount": {
+        "recognition": "Or",
+        "any_of": [
+            "RestaurantKitchen2Count0",
+            "RestaurantKitchen2Count1",
+            "RestaurantKitchen2Count2",
+            "RestaurantKitchen2Count3"
+        ]
+    },
+    "RestaurantKitchen3Selected": {
+        "recognition": "ColorMatch",
+        "roi": [
+            611,
+            150,
+            85,
+            25
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            89
+        ],
+        "count": 744
+    },
+    "RestaurantKitchen3Dot1Green": {
+        "recognition": "ColorMatch",
+        "roi": [
+            797,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            45,
+            90,
+            141
+        ],
+        "upper": [
+            95,
+            255,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen3Dot1Grey": {
+        "recognition": "ColorMatch",
+        "roi": [
+            797,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            101
+        ],
+        "upper": [
+            179,
+            60,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen3Dot2Green": {
+        "recognition": "ColorMatch",
+        "roi": [
+            806,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            45,
+            90,
+            141
+        ],
+        "upper": [
+            95,
+            255,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen3Dot2Grey": {
+        "recognition": "ColorMatch",
+        "roi": [
+            806,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            101
+        ],
+        "upper": [
+            179,
+            60,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen3Dot3Green": {
+        "recognition": "ColorMatch",
+        "roi": [
+            815,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            45,
+            90,
+            141
+        ],
+        "upper": [
+            95,
+            255,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen3Dot3Grey": {
+        "recognition": "ColorMatch",
+        "roi": [
+            815,
+            181,
+            3,
+            3
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            101
+        ],
+        "upper": [
+            179,
+            60,
+            255
+        ],
+        "count": 5
+    },
+    "RestaurantKitchen3Count0": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchen3Dot1Grey",
+            "RestaurantKitchen3Dot2Grey",
+            "RestaurantKitchen3Dot3Grey"
+        ]
+    },
+    "RestaurantKitchen3Count1": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchen3Dot1Grey",
+            "RestaurantKitchen3Dot2Grey",
+            "RestaurantKitchen3Dot3Green"
+        ]
+    },
+    "RestaurantKitchen3Count2": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchen3Dot1Grey",
+            "RestaurantKitchen3Dot2Green",
+            "RestaurantKitchen3Dot3Green"
+        ]
+    },
+    "RestaurantKitchen3Count3": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchen3Dot1Green",
+            "RestaurantKitchen3Dot2Green",
+            "RestaurantKitchen3Dot3Green"
+        ]
+    },
+    "RestaurantKitchen3QueueCount": {
+        "recognition": "Or",
+        "any_of": [
+            "RestaurantKitchen3Count0",
+            "RestaurantKitchen3Count1",
+            "RestaurantKitchen3Count2",
+            "RestaurantKitchen3Count3"
+        ]
+    },
+    "RestaurantRuntimeSelectedKitchen": {
+        "recognition": "Or",
+        "any_of": [
+            "RestaurantKitchen1Selected",
+            "RestaurantKitchen2Selected",
+            "RestaurantKitchen3Selected"
+        ]
+    },
+    "RestaurantRuntimeTargetKitchen": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchen1Selected"
+        ]
+    },
+    "RestaurantTable1LeftWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            189,
+            43,
+            3,
+            38
+        ],
+        "method": 4,
+        "lower": [
+            211,
+            211,
+            211
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 103
+    },
+    "RestaurantTable1RightWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            272,
+            43,
+            3,
+            20
+        ],
+        "method": 4,
+        "lower": [
+            211,
+            211,
+            211
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 54
+    },
+    "RestaurantTable1Ordinary": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable1LeftWhite",
+            "RestaurantTable1RightWhite"
+        ]
+    },
+    "RestaurantTable1SeparatorNotWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            228,
+            36,
+            11,
+            1
+        ],
+        "method": 4,
+        "lower": [
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                0,
+                0
+            ]
+        ],
+        "upper": [
+            [
+                210,
+                255,
+                255
+            ],
+            [
+                255,
+                210,
+                255
+            ],
+            [
+                255,
+                255,
+                210
+            ]
+        ],
+        "count": 6
+    },
+    "RestaurantTable1SingleBorders": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    221,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    211,
+                    211,
+                    211
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 35
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    240,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    211,
+                    211,
+                    211
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 35
+            }
+        ]
+    },
+    "RestaurantTable1DoubleBorders": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    221,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        255
+                    ],
+                    [
+                        255,
+                        210,
+                        255
+                    ],
+                    [
+                        255,
+                        255,
+                        210
+                    ]
+                ],
+                "count": 4
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    240,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        255
+                    ],
+                    [
+                        255,
+                        210,
+                        255
+                    ],
+                    [
+                        255,
+                        255,
+                        210
+                    ]
+                ],
+                "count": 4
+            }
+        ]
+    },
+    "RestaurantTable1SinglePoint1Icon": {
+        "desc": "桌位图标统一按 34px 标定；single_roi 的 ROI 边长同时决定模板缩放",
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            217,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable1SingleOrder": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable1Ordinary",
+            "RestaurantTable1SeparatorNotWhite",
+            "RestaurantTable1SingleBorders",
+            "RestaurantTable1SinglePoint1Icon"
+        ]
+    },
+    "RestaurantTable1DoublePoint1Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            196,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable1DoublePoint2Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            239,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable1DoubleOrder": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable1Ordinary",
+            "RestaurantTable1SeparatorNotWhite",
+            "RestaurantTable1DoubleBorders",
+            "RestaurantTable1DoublePoint1Icon",
+            "RestaurantTable1DoublePoint2Icon"
+        ]
+    },
+    "RestaurantTable1Dining": {
+        "recognition": "OCR",
+        "roi": [
+            188,
+            68,
+            94,
+            26
+        ],
+        "expected": [
+            "用餐中",
+            "Dining",
+            "食事中",
+            "식사 중"
+        ]
+    },
+    "RestaurantTable1Observation": {
+        "recognition": "Or",
+        "any_of": [
+            "RestaurantTable1Gourmand",
+            "RestaurantTable1SingleOrder",
+            "RestaurantTable1DoubleOrder",
+            "RestaurantObservationEmpty"
+        ]
+    },
+    "RestaurantTable2LeftWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            283,
+            43,
+            3,
+            38
+        ],
+        "method": 4,
+        "lower": [
+            211,
+            211,
+            211
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 103
+    },
+    "RestaurantTable2RightWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            366,
+            43,
+            3,
+            20
+        ],
+        "method": 4,
+        "lower": [
+            211,
+            211,
+            211
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 54
+    },
+    "RestaurantTable2Ordinary": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable2LeftWhite",
+            "RestaurantTable2RightWhite"
+        ]
+    },
+    "RestaurantTable2SeparatorNotWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            322,
+            36,
+            11,
+            1
+        ],
+        "method": 4,
+        "lower": [
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                0,
+                0
+            ]
+        ],
+        "upper": [
+            [
+                210,
+                255,
+                255
+            ],
+            [
+                255,
+                210,
+                255
+            ],
+            [
+                255,
+                255,
+                210
+            ]
+        ],
+        "count": 6
+    },
+    "RestaurantTable2SingleBorders": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    315,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    211,
+                    211,
+                    211
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 35
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    334,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    211,
+                    211,
+                    211
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 35
+            }
+        ]
+    },
+    "RestaurantTable2DoubleBorders": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    315,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        255
+                    ],
+                    [
+                        255,
+                        210,
+                        255
+                    ],
+                    [
+                        255,
+                        255,
+                        210
+                    ]
+                ],
+                "count": 4
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    334,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        255
+                    ],
+                    [
+                        255,
+                        210,
+                        255
+                    ],
+                    [
+                        255,
+                        255,
+                        210
+                    ]
+                ],
+                "count": 4
+            }
+        ]
+    },
+    "RestaurantTable2SinglePoint1Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            311,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable2SingleOrder": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable2Ordinary",
+            "RestaurantTable2SeparatorNotWhite",
+            "RestaurantTable2SingleBorders",
+            "RestaurantTable2SinglePoint1Icon"
+        ]
+    },
+    "RestaurantTable2DoublePoint1Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            290,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable2DoublePoint2Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            333,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable2DoubleOrder": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable2Ordinary",
+            "RestaurantTable2SeparatorNotWhite",
+            "RestaurantTable2DoubleBorders",
+            "RestaurantTable2DoublePoint1Icon",
+            "RestaurantTable2DoublePoint2Icon"
+        ]
+    },
+    "RestaurantTable2Dining": {
+        "recognition": "OCR",
+        "roi": [
+            282,
+            68,
+            94,
+            26
+        ],
+        "expected": [
+            "用餐中",
+            "Dining",
+            "食事中",
+            "식사 중"
+        ]
+    },
+    "RestaurantTable2Observation": {
+        "recognition": "Or",
+        "any_of": [
+            "RestaurantTable2Gourmand",
+            "RestaurantTable2SingleOrder",
+            "RestaurantTable2DoubleOrder",
+            "RestaurantObservationEmpty"
+        ]
+    },
+    "RestaurantTable3LeftWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            378,
+            43,
+            3,
+            38
+        ],
+        "method": 4,
+        "lower": [
+            211,
+            211,
+            211
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 103
+    },
+    "RestaurantTable3RightWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            461,
+            43,
+            3,
+            20
+        ],
+        "method": 4,
+        "lower": [
+            211,
+            211,
+            211
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 54
+    },
+    "RestaurantTable3Ordinary": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable3LeftWhite",
+            "RestaurantTable3RightWhite"
+        ]
+    },
+    "RestaurantTable3SeparatorNotWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            417,
+            36,
+            11,
+            1
+        ],
+        "method": 4,
+        "lower": [
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                0,
+                0
+            ]
+        ],
+        "upper": [
+            [
+                210,
+                255,
+                255
+            ],
+            [
+                255,
+                210,
+                255
+            ],
+            [
+                255,
+                255,
+                210
+            ]
+        ],
+        "count": 6
+    },
+    "RestaurantTable3SingleBorders": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    410,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    211,
+                    211,
+                    211
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 35
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    429,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    211,
+                    211,
+                    211
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 35
+            }
+        ]
+    },
+    "RestaurantTable3DoubleBorders": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    410,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        255
+                    ],
+                    [
+                        255,
+                        210,
+                        255
+                    ],
+                    [
+                        255,
+                        255,
+                        210
+                    ]
+                ],
+                "count": 4
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    429,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        255
+                    ],
+                    [
+                        255,
+                        210,
+                        255
+                    ],
+                    [
+                        255,
+                        255,
+                        210
+                    ]
+                ],
+                "count": 4
+            }
+        ]
+    },
+    "RestaurantTable3SinglePoint1Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            406,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable3SingleOrder": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable3Ordinary",
+            "RestaurantTable3SeparatorNotWhite",
+            "RestaurantTable3SingleBorders",
+            "RestaurantTable3SinglePoint1Icon"
+        ]
+    },
+    "RestaurantTable3DoublePoint1Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            385,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable3DoublePoint2Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            428,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable3DoubleOrder": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable3Ordinary",
+            "RestaurantTable3SeparatorNotWhite",
+            "RestaurantTable3DoubleBorders",
+            "RestaurantTable3DoublePoint1Icon",
+            "RestaurantTable3DoublePoint2Icon"
+        ]
+    },
+    "RestaurantTable3Dining": {
+        "recognition": "OCR",
+        "roi": [
+            377,
+            68,
+            94,
+            26
+        ],
+        "expected": [
+            "用餐中",
+            "Dining",
+            "食事中",
+            "식사 중"
+        ]
+    },
+    "RestaurantTable3Observation": {
+        "recognition": "Or",
+        "any_of": [
+            "RestaurantTable3Gourmand",
+            "RestaurantTable3SingleOrder",
+            "RestaurantTable3DoubleOrder",
+            "RestaurantObservationEmpty"
+        ]
+    },
+    "RestaurantTable4LeftWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            472,
+            43,
+            3,
+            38
+        ],
+        "method": 4,
+        "lower": [
+            211,
+            211,
+            211
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 103
+    },
+    "RestaurantTable4RightWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            555,
+            43,
+            3,
+            20
+        ],
+        "method": 4,
+        "lower": [
+            211,
+            211,
+            211
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 54
+    },
+    "RestaurantTable4Ordinary": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable4LeftWhite",
+            "RestaurantTable4RightWhite"
+        ]
+    },
+    "RestaurantTable4SeparatorNotWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            511,
+            36,
+            11,
+            1
+        ],
+        "method": 4,
+        "lower": [
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                0,
+                0
+            ]
+        ],
+        "upper": [
+            [
+                210,
+                255,
+                255
+            ],
+            [
+                255,
+                210,
+                255
+            ],
+            [
+                255,
+                255,
+                210
+            ]
+        ],
+        "count": 6
+    },
+    "RestaurantTable4SingleBorders": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    504,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    211,
+                    211,
+                    211
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 35
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    523,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    211,
+                    211,
+                    211
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 35
+            }
+        ]
+    },
+    "RestaurantTable4DoubleBorders": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    504,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        255
+                    ],
+                    [
+                        255,
+                        210,
+                        255
+                    ],
+                    [
+                        255,
+                        255,
+                        210
+                    ]
+                ],
+                "count": 4
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    523,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        255
+                    ],
+                    [
+                        255,
+                        210,
+                        255
+                    ],
+                    [
+                        255,
+                        255,
+                        210
+                    ]
+                ],
+                "count": 4
+            }
+        ]
+    },
+    "RestaurantTable4SinglePoint1Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            500,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable4SingleOrder": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable4Ordinary",
+            "RestaurantTable4SeparatorNotWhite",
+            "RestaurantTable4SingleBorders",
+            "RestaurantTable4SinglePoint1Icon"
+        ]
+    },
+    "RestaurantTable4DoublePoint1Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            479,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable4DoublePoint2Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            522,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable4DoubleOrder": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable4Ordinary",
+            "RestaurantTable4SeparatorNotWhite",
+            "RestaurantTable4DoubleBorders",
+            "RestaurantTable4DoublePoint1Icon",
+            "RestaurantTable4DoublePoint2Icon"
+        ]
+    },
+    "RestaurantTable4Dining": {
+        "recognition": "OCR",
+        "roi": [
+            471,
+            68,
+            94,
+            26
+        ],
+        "expected": [
+            "用餐中",
+            "Dining",
+            "食事中",
+            "식사 중"
+        ]
+    },
+    "RestaurantTable4Observation": {
+        "recognition": "Or",
+        "any_of": [
+            "RestaurantTable4Gourmand",
+            "RestaurantTable4SingleOrder",
+            "RestaurantTable4DoubleOrder",
+            "RestaurantObservationEmpty"
+        ]
+    },
+    "RestaurantTable5LeftWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            567,
+            43,
+            3,
+            38
+        ],
+        "method": 4,
+        "lower": [
+            211,
+            211,
+            211
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 103
+    },
+    "RestaurantTable5RightWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            650,
+            43,
+            3,
+            20
+        ],
+        "method": 4,
+        "lower": [
+            211,
+            211,
+            211
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 54
+    },
+    "RestaurantTable5Ordinary": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable5LeftWhite",
+            "RestaurantTable5RightWhite"
+        ]
+    },
+    "RestaurantTable5SeparatorNotWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            606,
+            36,
+            11,
+            1
+        ],
+        "method": 4,
+        "lower": [
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                0,
+                0
+            ]
+        ],
+        "upper": [
+            [
+                210,
+                255,
+                255
+            ],
+            [
+                255,
+                210,
+                255
+            ],
+            [
+                255,
+                255,
+                210
+            ]
+        ],
+        "count": 6
+    },
+    "RestaurantTable5SingleBorders": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    599,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    211,
+                    211,
+                    211
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 35
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    618,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    211,
+                    211,
+                    211
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 35
+            }
+        ]
+    },
+    "RestaurantTable5DoubleBorders": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    599,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        255
+                    ],
+                    [
+                        255,
+                        210,
+                        255
+                    ],
+                    [
+                        255,
+                        255,
+                        210
+                    ]
+                ],
+                "count": 4
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    618,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        255
+                    ],
+                    [
+                        255,
+                        210,
+                        255
+                    ],
+                    [
+                        255,
+                        255,
+                        210
+                    ]
+                ],
+                "count": 4
+            }
+        ]
+    },
+    "RestaurantTable5SinglePoint1Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            595,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable5SingleOrder": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable5Ordinary",
+            "RestaurantTable5SeparatorNotWhite",
+            "RestaurantTable5SingleBorders",
+            "RestaurantTable5SinglePoint1Icon"
+        ]
+    },
+    "RestaurantTable5DoublePoint1Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            574,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable5DoublePoint2Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            617,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable5DoubleOrder": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable5Ordinary",
+            "RestaurantTable5SeparatorNotWhite",
+            "RestaurantTable5DoubleBorders",
+            "RestaurantTable5DoublePoint1Icon",
+            "RestaurantTable5DoublePoint2Icon"
+        ]
+    },
+    "RestaurantTable5Dining": {
+        "recognition": "OCR",
+        "roi": [
+            566,
+            68,
+            94,
+            26
+        ],
+        "expected": [
+            "用餐中",
+            "Dining",
+            "食事中",
+            "식사 중"
+        ]
+    },
+    "RestaurantTable5Observation": {
+        "recognition": "Or",
+        "any_of": [
+            "RestaurantTable5Gourmand",
+            "RestaurantTable5SingleOrder",
+            "RestaurantTable5DoubleOrder",
+            "RestaurantObservationEmpty"
+        ]
+    },
+    "RestaurantTable6LeftWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            661,
+            43,
+            3,
+            38
+        ],
+        "method": 4,
+        "lower": [
+            211,
+            211,
+            211
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 103
+    },
+    "RestaurantTable6RightWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            744,
+            43,
+            3,
+            20
+        ],
+        "method": 4,
+        "lower": [
+            211,
+            211,
+            211
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 54
+    },
+    "RestaurantTable6Ordinary": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable6LeftWhite",
+            "RestaurantTable6RightWhite"
+        ]
+    },
+    "RestaurantTable6SeparatorNotWhite": {
+        "recognition": "ColorMatch",
+        "roi": [
+            700,
+            36,
+            11,
+            1
+        ],
+        "method": 4,
+        "lower": [
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                0,
+                0
+            ]
+        ],
+        "upper": [
+            [
+                210,
+                255,
+                255
+            ],
+            [
+                255,
+                210,
+                255
+            ],
+            [
+                255,
+                255,
+                210
+            ]
+        ],
+        "count": 6
+    },
+    "RestaurantTable6SingleBorders": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    693,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    211,
+                    211,
+                    211
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 35
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    712,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    211,
+                    211,
+                    211
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 35
+            }
+        ]
+    },
+    "RestaurantTable6DoubleBorders": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    693,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        255
+                    ],
+                    [
+                        255,
+                        210,
+                        255
+                    ],
+                    [
+                        255,
+                        255,
+                        210
+                    ]
+                ],
+                "count": 4
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    712,
+                    32,
+                    6,
+                    6
+                ],
+                "method": 4,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        255
+                    ],
+                    [
+                        255,
+                        210,
+                        255
+                    ],
+                    [
+                        255,
+                        255,
+                        210
+                    ]
+                ],
+                "count": 4
+            }
+        ]
+    },
+    "RestaurantTable6SinglePoint1Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            689,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable6SingleOrder": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable6Ordinary",
+            "RestaurantTable6SeparatorNotWhite",
+            "RestaurantTable6SingleBorders",
+            "RestaurantTable6SinglePoint1Icon"
+        ]
+    },
+    "RestaurantTable6DoublePoint1Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            668,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable6DoublePoint2Icon": {
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "single_roi",
+            "item_filters": [
+                "Restaurant:*"
+            ]
+        },
+        "roi": [
+            711,
+            43,
+            34,
+            34
+        ]
+    },
+    "RestaurantTable6DoubleOrder": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantTable6Ordinary",
+            "RestaurantTable6SeparatorNotWhite",
+            "RestaurantTable6DoubleBorders",
+            "RestaurantTable6DoublePoint1Icon",
+            "RestaurantTable6DoublePoint2Icon"
+        ]
+    },
+    "RestaurantTable6Dining": {
+        "recognition": "OCR",
+        "roi": [
+            660,
+            68,
+            94,
+            26
+        ],
+        "expected": [
+            "用餐中",
+            "Dining",
+            "食事中",
+            "식사 중"
+        ]
+    },
+    "RestaurantTable6Observation": {
+        "recognition": "Or",
+        "any_of": [
+            "RestaurantTable6Gourmand",
+            "RestaurantTable6SingleOrder",
+            "RestaurantTable6DoubleOrder",
+            "RestaurantObservationEmpty"
+        ]
+    },
+    "RestaurantRecipe1RestockMarker": {
+        "recognition": "ColorMatch",
+        "roi": [
+            491,
+            246,
+            24,
+            23
+        ],
+        "method": 40,
+        "lower": [
+            15,
+            50,
+            166
+        ],
+        "upper": [
+            40,
+            255,
+            255
+        ],
+        "count": 20
+    },
+    "RestaurantRecipe2RestockMarker": {
+        "recognition": "ColorMatch",
+        "roi": [
+            800,
+            246,
+            24,
+            23
+        ],
+        "method": 40,
+        "lower": [
+            15,
+            50,
+            166
+        ],
+        "upper": [
+            40,
+            255,
+            255
+        ],
+        "count": 20
+    },
+    "RestaurantRecipe3RestockMarker": {
+        "recognition": "ColorMatch",
+        "roi": [
+            491,
+            341,
+            24,
+            23
+        ],
+        "method": 40,
+        "lower": [
+            15,
+            50,
+            166
+        ],
+        "upper": [
+            40,
+            255,
+            255
+        ],
+        "count": 20
+    },
+    "RestaurantRecipe4RestockMarker": {
+        "recognition": "ColorMatch",
+        "roi": [
+            800,
+            341,
+            24,
+            23
+        ],
+        "method": 40,
+        "lower": [
+            15,
+            50,
+            166
+        ],
+        "upper": [
+            40,
+            255,
+            255
+        ],
+        "count": 20
+    },
+    "RestaurantRecipe5RestockMarker": {
+        "recognition": "ColorMatch",
+        "roi": [
+            491,
+            431,
+            24,
+            23
+        ],
+        "method": 40,
+        "lower": [
+            15,
+            50,
+            166
+        ],
+        "upper": [
+            40,
+            255,
+            255
+        ],
+        "count": 20
+    },
+    "RestaurantRecipe6RestockMarker": {
+        "recognition": "ColorMatch",
+        "roi": [
+            800,
+            431,
+            24,
+            23
+        ],
+        "method": 40,
+        "lower": [
+            15,
+            50,
+            166
+        ],
+        "upper": [
+            40,
+            255,
+            255
+        ],
+        "count": 20
+    },
+    "RestaurantRuntimeFullFrame": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchenPanelReady",
+            "RestaurantRuntimeQueueCounts",
+            "RestaurantTable1Observation",
+            "RestaurantTable2Observation",
+            "RestaurantTable3Observation",
+            "RestaurantTable4Observation",
+            "RestaurantTable5Observation",
+            "RestaurantTable6Observation",
+            {
+                "recognition": "Or",
+                "any_of": [
+                    "RestaurantRecipe1RestockMarker",
+                    "RestaurantObservationEmpty"
+                ]
+            },
+            {
+                "recognition": "Or",
+                "any_of": [
+                    "RestaurantRecipe2RestockMarker",
+                    "RestaurantObservationEmpty"
+                ]
+            },
+            {
+                "recognition": "Or",
+                "any_of": [
+                    "RestaurantRecipe3RestockMarker",
+                    "RestaurantObservationEmpty"
+                ]
+            },
+            {
+                "recognition": "Or",
+                "any_of": [
+                    "RestaurantRecipe4RestockMarker",
+                    "RestaurantObservationEmpty"
+                ]
+            },
+            {
+                "recognition": "Or",
+                "any_of": [
+                    "RestaurantRecipe5RestockMarker",
+                    "RestaurantObservationEmpty"
+                ]
+            },
+            {
+                "recognition": "Or",
+                "any_of": [
+                    "RestaurantRecipe6RestockMarker",
+                    "RestaurantObservationEmpty"
+                ]
+            }
+        ]
+    },
+    "RestaurantRuntimeQueueCounts": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "Or",
+                "any_of": [
+                    "RestaurantKitchen1QueueCount",
+                    "RestaurantObservationEmpty"
+                ]
+            },
+            {
+                "recognition": "Or",
+                "any_of": [
+                    "RestaurantKitchen2QueueCount",
+                    "RestaurantObservationEmpty"
+                ]
+            },
+            {
+                "recognition": "Or",
+                "any_of": [
+                    "RestaurantKitchen3QueueCount",
+                    "RestaurantObservationEmpty"
+                ]
+            },
+            {
+                "recognition": "Or",
+                "any_of": [
+                    "RestaurantRuntimeSelectedKitchen",
+                    "RestaurantObservationEmpty"
+                ]
+            }
+        ]
+    },
+    "RestaurantTable1Gourmand": {
+        "recognition": "OCR",
+        "roi": [
+            188,
+            68,
+            94,
+            26
+        ],
+        "expected": [
+            "老饕",
+            "Gourmand",
+            "食通",
+            "미식가"
+        ]
+    },
+    "RestaurantTable2Gourmand": {
+        "recognition": "OCR",
+        "roi": [
+            282,
+            68,
+            94,
+            26
+        ],
+        "expected": [
+            "老饕",
+            "Gourmand",
+            "食通",
+            "미식가"
+        ]
+    },
+    "RestaurantTable3Gourmand": {
+        "recognition": "OCR",
+        "roi": [
+            377,
+            68,
+            94,
+            26
+        ],
+        "expected": [
+            "老饕",
+            "Gourmand",
+            "食通",
+            "미식가"
+        ]
+    },
+    "RestaurantTable4Gourmand": {
+        "recognition": "OCR",
+        "roi": [
+            471,
+            68,
+            94,
+            26
+        ],
+        "expected": [
+            "老饕",
+            "Gourmand",
+            "食通",
+            "미식가"
+        ]
+    },
+    "RestaurantTable5Gourmand": {
+        "recognition": "OCR",
+        "roi": [
+            566,
+            68,
+            94,
+            26
+        ],
+        "expected": [
+            "老饕",
+            "Gourmand",
+            "食通",
+            "미식가"
+        ]
+    },
+    "RestaurantTable6Gourmand": {
+        "recognition": "OCR",
+        "roi": [
+            660,
+            68,
+            94,
+            26
+        ],
+        "expected": [
+            "老饕",
+            "Gourmand",
+            "食通",
+            "미식가"
+        ]
+    }
+}

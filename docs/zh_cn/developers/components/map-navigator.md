@@ -615,15 +615,18 @@ uv run map-navigator --port 9000 --no-browser
 ### 相关文件
 
 | 文件 | 职责 | 何时需要修改 |
-| ------------------------------------------------------------- | --------------------------------------------------------------- | ---------------------------- |
-| `assets/resource/pipeline/AutoCollect/AutoCollectRoute*.json` | 路线定义，包含 `MapNavigateAction` 节点和采集坐标 | 新增路线、调坐标、增减采集点 |
+| --- | --- | --- |
+| `assets/resource/pipeline/AutoCollect/<地区>/<路线 id>.json` | 路线定义，包含 `MapNavigateAction` 节点和采集坐标 | 新增路线、调坐标、增减采集点 |
+| `tools/AutoCollectRoute/routes.json` | 路线登记表：每条路线的地区与覆盖的采集物，以及稀有采集物的默认目标库存 | 新增路线、调整默认目标库存 |
+| `assets/resource/pipeline/AutoCollect/Dispatch.json` | 目标库存预判与按采集物调度路线，由登记表生成 | 不手改，改登记表后重新生成 |
+| `assets/resource/pipeline/AutoCollect/AutoCollectInventory.json` | 目标库存模式的仓库同步、同步失败兜底 | 调整库存同步流程 |
 | `assets/resource/pipeline/AutoCollect/AutoCollectClick.json` | `COLLECT` 触发的 OCR 与点击子任务，入口 `AutoCollectClickStart` | 增删 OCR 识别的采集物名称 |
 | `assets/resource/pipeline/AutoCollect/AutoCollectDig.json` | `DIG` 触发的挖掘子任务，入口 `AutoCollectDigStart` | 挖掘交互逻辑变化 |
-| `assets/resource/pipeline/AutoCollect.json` | 路线遍历、失败收集、任务前后存放背包 | 新增路线入口或调整总流程 |
+| `assets/resource/pipeline/AutoCollect.json` | 定时、失败收集、任务前后存放背包 | 调整总流程 |
 
-**绝大多数情况下只需修改 `AutoCollectRoute*.json`。**
+**绝大多数情况下只需修改路线文件和登记表。**
 
-整体流程：`AutoCollectLoop` 依次调用各路线的包装节点，包装节点通过通用的 `FailureCollectorRunTask` 执行已启用的路线；路线内任意节点失败时，包装 Action 记录该路线的 `{Route}Failed` 节点并返回成功，使 Pipeline 继续下一条。所有路线与后置背包整理结束后，`AutoCollectFinish` 按失败顺序调用这些节点，输出 `$option.*.label` 本地化文案，并使自动采集任务返回失败。
+整体流程：目标库存模式下，仓库同步完成后先由 `AutoCollectInventoryPreflight` 逐个判断已勾选的采集物，已达目标的直接停用其调度节点。随后 `AutoCollectLoop` 依次进入仍启用的采集物调度节点，依次执行名下路线的 `__AutoCollect<路线 id>Run` 节点；同一条路线覆盖多种采集物时，一轮只执行一次。`Run` 节点通过通用的 `FailureCollectorRunTask` 执行路线；路线内任意节点失败时，Action 记录该路线的 `__AutoCollect<路线 id>Failed` 节点并返回成功，使 Pipeline 继续下一条。所有路线与后置背包整理结束后，`AutoCollectFinish` 按失败顺序调用这些节点，输出 `$task.AutoCollect.route.*.failed` 本地化文案，并使自动采集任务返回失败。
 
 ### 无需修改的部分
 
@@ -643,9 +646,9 @@ uv run map-navigator --port 9000 --no-browser
 
 ### 新增采集路线
 
-1. 在 `assets/resource/pipeline/AutoCollect/` 下新建 `AutoCollectRouteN.json`，参照现有路线编写 `Start` → `AssertLocation` → `Goto` → `End` 四节点骨架。
+1. 在 `assets/resource/pipeline/AutoCollect/<地区>/` 下新建 `<路线 id>.json`，参照现有路线编写 `Start` → `AssertLocation` → `Goto` → `End` 四节点骨架，节点名以 `AutoCollect<路线 id>` 开头。路线 id 由地区、各采集物的 PascalCase 英文名与序号依次拼接而成，多种采集物按 `routes.json` 中 `items` 的登记顺序全部拼上，序号在同一前缀下递增：武陵星门菌的第二条路线是 `WulingCosmagaric2`，同时采血菌与武陵石的路线是 `WulingBloodcapWulingstone1`。
 2. 使用工具录制路径，将采集目标点动作改为 `COLLECT` 或 `DIG`，复制 `path` 并粘贴到 `Goto` 节点的 `custom_action_param.path`。
-3. 在 `interface.json` / 任务入口 JSON 中注册新路线入口。
+3. 在 `tools/AutoCollectRoute/routes.json` 登记路线的 `id`、`region` 与 `items`，再运行 `uv run autocollect-route generate`，生成调度节点、任务选项与五种语言的文案。
 4. 无需修改 `AutoCollectClick.json`、`AutoCollectDig.json` 及任何 cpp-algo 源文件。
 
 ---

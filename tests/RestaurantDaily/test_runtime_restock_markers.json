@@ -1,0 +1,39 @@
+{
+    "configs": {
+        "name": "缘缘庄补充标记识别",
+        "resource": "官服",
+        "controller": "Win32",
+        "imageRoot": "RestaurantDaily"
+    },
+    "cases": [
+        {
+            "name": "菜位一补充标记",
+            "image": "缘缘庄_经营中_桌位订单.png",
+            "hits": [
+                "RestaurantRecipe1RestockMarker"
+            ]
+        },
+        {
+            "name": "菜位二和三补充标记",
+            "image": "缘缘庄_经营中_二三号菜位补充标记.png",
+            "hits": [
+                "RestaurantRecipe2RestockMarker",
+                "RestaurantRecipe3RestockMarker"
+            ]
+        },
+        {
+            "name": "菜位四补充标记",
+            "image": "缘缘庄_经营中_补充标记.png",
+            "hits": [
+                "RestaurantRecipe4RestockMarker"
+            ]
+        },
+        {
+            "name": "菜位五补充标记",
+            "image": "缘缘庄_经营中_五号菜位补充标记.png",
+            "hits": [
+                "RestaurantRecipe5RestockMarker"
+            ]
+        }
+    ]
+}

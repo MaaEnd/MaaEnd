@@ -615,15 +615,18 @@ Compared with the old `anchor` chain-splitting form, this approach needs no re-e
 ### Related Files
 
 | File | Responsibility | When Changes Are Needed |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| `assets/resource/pipeline/AutoCollect/AutoCollectRoute*.json` | Path definitions, containing `MapNavigateAction` nodes and collection coordinates | Add new routes, adjust coordinates, add/remove collection points |
+| --- | --- | --- |
+| `assets/resource/pipeline/AutoCollect/<region>/<route id>.json` | Path definitions, containing `MapNavigateAction` nodes and collection coordinates | Add new routes, adjust coordinates, add/remove collection points |
+| `tools/AutoCollectRoute/routes.json` | Route registry: the region and collectibles of each route, plus the default target inventory of rare collectibles | Add new routes, adjust default target inventory |
+| `assets/resource/pipeline/AutoCollect/Dispatch.json` | Target inventory pre-check and per-collectible route dispatch, generated from the registry | Never edit by hand; regenerate after changing the registry |
+| `assets/resource/pipeline/AutoCollect/AutoCollectInventory.json` | Depot sync for the target inventory mode and the fallback when the sync fails | Adjust the inventory sync flow |
 | `assets/resource/pipeline/AutoCollect/AutoCollectClick.json` | OCR and click subtask triggered by `COLLECT`, entry point is `AutoCollectClickStart` | Add or delete OCR-recognized collection object names |
 | `assets/resource/pipeline/AutoCollect/AutoCollectDig.json` | Digging subtask triggered by `DIG`, entry point is `AutoCollectDigStart` | When digging interaction logic changes |
-| `assets/resource/pipeline/AutoCollect.json` | Route iteration, failure collection, and backpack storage before/after the task | Add route entries or adjust the overall flow |
+| `assets/resource/pipeline/AutoCollect.json` | Schedule, failure collection, and backpack storage before/after the task | Adjust the overall flow |
 
-**In most cases, path authors only need to modify `AutoCollectRoute*.json`.**
+**In most cases, path authors only need to modify route files and the registry.**
 
-The overall Auto Collect flow uses `AutoCollectLoop` to invoke route wrapper nodes in order. Each wrapper uses the generic `FailureCollectorRunTask` to execute an enabled route; if any node inside the route fails, the wrapper Action records that route's `{Route}Failed` Pipeline node and returns success so Pipeline continues with the next route. After all routes and the final backpack storage step finish, `AutoCollectFinish` calls those nodes in failure order to output the localized `$option.*.label`, then makes the Auto Collect task return failure.
+In the target inventory mode, once the depot sync finishes, `AutoCollectInventoryPreflight` checks each selected collectible first and disables the dispatch node of every collectible that has reached its target. `AutoCollectLoop` then enters the dispatch nodes that are still enabled in order, and each runs the `__AutoCollect<route id>Run` nodes of its routes in order; a route covering several collectibles runs only once per pass. The `Run` node uses the generic `FailureCollectorRunTask` to execute the route; if any node inside the route fails, the Action records that route's `__AutoCollect<route id>Failed` Pipeline node and returns success so Pipeline continues with the next route. After all routes and the final backpack storage step finish, `AutoCollectFinish` calls those nodes in failure order to output the localized `$task.AutoCollect.route.*.failed`, then makes the Auto Collect task return failure.
 
 ### Parts Path Authors Do Not Need to Touch
 
@@ -643,9 +646,9 @@ The following files are maintained by cpp-algo developers; path authors do not n
 
 ### Adding a Collection Route
 
-1. Create a new `AutoCollectRouteN.json` under `assets/resource/pipeline/AutoCollect/`, referencing existing routes to write the basic skeleton of four nodes: `Start` → `AssertLocation` → `Goto` → `End`.
+1. Create `<route id>.json` under `assets/resource/pipeline/AutoCollect/<region>/`, referencing existing routes to write the basic skeleton of four nodes: `Start` → `AssertLocation` → `Goto` → `End`, with node names starting with `AutoCollect<route id>`. The route id concatenates the region, the PascalCase English names of all its collectibles in the order of `items` in `routes.json`, and a sequence number that increments within the same prefix: the second Cosmagaric route in Wuling is `WulingCosmagaric2`, and a route collecting both Bloodcap and Wulingstone is `WulingBloodcapWulingstone1`.
 2. Record the path with the tool, change the action of the collection target points to `COLLECT` or `DIG`, copy the `path`, and paste it into the `custom_action_param.path` of the `Goto` node.
-3. Register the new route entry in `interface.json` / the task entry JSON.
+3. Register the route's `id`, `region`, and `items` in `tools/AutoCollectRoute/routes.json`, then run `uv run autocollect-route generate` to generate the dispatch nodes, task options, and texts in all five languages.
 4. No changes are needed to `AutoCollectClick.json`, `AutoCollectDig.json`, or any cpp-algo source files.
 
 ---

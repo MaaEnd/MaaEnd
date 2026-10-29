@@ -298,6 +298,14 @@
             }
         }
     },
+    "RestaurantRuntimeNextKitchen": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 14
+            }
+        }
+    },
     "SeizeDeliveryJobsPressEscAfterMatch": {
         "action": {
             "type": "ClickKey",
@@ -331,6 +339,70 @@
         }
     },
     "StashBackpackUsableItemsLimitedQuickMoveKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot1": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot2": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot3": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot4": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot1": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot2": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot3": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot4": {
         "action": {
             "type": "KeyUp",
             "param": {

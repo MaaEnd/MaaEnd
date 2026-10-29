@@ -1,0 +1,38 @@
+{
+    "configs": {
+        "name": "缘缘庄经营结束与结算识别",
+        "resource": "官服",
+        "controller": "Win32",
+        "imageRoot": "RestaurantDaily"
+    },
+    "cases": [
+        {
+            "name": "经营结束提示",
+            "image": "缘缘庄_结算_经营结束提示.png",
+            "hits": [
+                "RestaurantGameEnded"
+            ]
+        },
+        {
+            "name": "结算继续按钮",
+            "image": "缘缘庄_结算_继续按钮.png",
+            "hits": [
+                "RestaurantSettlementContinue"
+            ]
+        },
+        {
+            "name": "结算完成按钮",
+            "image": "缘缘庄_结算_完成按钮.png",
+            "hits": [
+                "RestaurantSettlementComplete"
+            ]
+        },
+        {
+            "name": "结算后返回大世界",
+            "image": "缘缘庄_结算后返回大世界.png",
+            "hits": [
+                "RestaurantReturnedWorld"
+            ]
+        }
+    ]
+}

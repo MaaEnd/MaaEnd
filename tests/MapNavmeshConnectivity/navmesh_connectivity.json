@@ -4,7 +4,7 @@
     },
     "cases": [
         {
-            "name": "AutoCollectCommonRoute1AssertLocation1",
+            "name": "AutoCollectValleyIVFirebuckle1AssertLocation1",
             "zone_id": "ValleyIV_Base",
             "start": [
                 446,
@@ -16,7 +16,7 @@
             ]
         },
         {
-            "name": "AutoCollectCommonRoute2AssertLocation1",
+            "name": "AutoCollectValleyIVUmbraline1AssertLocation1",
             "zone_id": "ValleyIV_Base",
             "start": [
                 446,
@@ -28,7 +28,7 @@
             ]
         },
         {
-            "name": "AutoCollectCommonRoute3AssertLocation1",
+            "name": "AutoCollectWulingScorchbug1AssertLocation1",
             "zone_id": "Wuling_L4_328",
             "start": [
                 259,
@@ -41,7 +41,7 @@
             "goal_tier": "Wuling_L4_328"
         },
         {
-            "name": "AutoCollectCommonRoute4AssertLocation1",
+            "name": "AutoCollectWulingGlowbug1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
                 980,
@@ -53,7 +53,7 @@
             ]
         },
         {
-            "name": "AutoCollectCommonRoute5AssertLocation1",
+            "name": "AutoCollectWulingFluffedJincao1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
                 492,
@@ -65,7 +65,7 @@
             ]
         },
         {
-            "name": "AutoCollectCommonRoute6AssertLocation1",
+            "name": "AutoCollectWulingRedjadeGinseng1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
                 599,
@@ -77,7 +77,7 @@
             ]
         },
         {
-            "name": "AutoCollectCommonRoute6AssertLocation2",
+            "name": "AutoCollectWulingRedjadeGinseng1AssertLocation2",
             "zone_id": "Wuling_Base",
             "start": [
                 455,
@@ -89,7 +89,7 @@
             ]
         },
         {
-            "name": "AutoCollectCommonRoute7AssertLocation1",
+            "name": "AutoCollectWulingThornyYazhen1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
                 492,
@@ -101,7 +101,7 @@
             ]
         },
         {
-            "name": "AutoCollectCommonRoute8AssertLocation1",
+            "name": "AutoCollectWulingAmberRice1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
                 1293,
@@ -113,7 +113,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute1AssertLocation",
+            "name": "AutoCollectWulingBlightedJadeleaf1AssertLocation",
             "zone_id": "Wuling_Base",
             "start": [
                 951,
@@ -125,7 +125,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute10AssertLocation1",
+            "name": "AutoCollectWulingRubyBolete1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
                 975,
@@ -137,7 +137,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute10AssertLocation2",
+            "name": "AutoCollectWulingRubyBolete1AssertLocation2",
             "zone_id": "Wuling_Base",
             "start": [
                 933,
@@ -149,7 +149,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute11AssertLocation1",
+            "name": "AutoCollectWulingUmbronyx1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
                 738,
@@ -161,7 +161,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute12AssertLocation1",
+            "name": "AutoCollectWulingRedBolete1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
                 598,
@@ -173,7 +173,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute13AssertLocation1",
+            "name": "AutoCollectValleyIVAuronyx1AssertLocation1",
             "zone_id": "ValleyIV_Base",
             "start": [
                 1102,
@@ -185,7 +185,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute14AssertLocation1",
+            "name": "AutoCollectValleyIVKalkodendra1AssertLocation1",
             "zone_id": "ValleyIV_Base",
             "start": [
                 446,
@@ -197,7 +197,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute15AssertLocation",
+            "name": "AutoCollectWulingCrimsonSpearleaf1AssertLocation",
             "zone_id": "Wuling_Base",
             "start": [
                 1118.96,
@@ -209,7 +209,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute16AssertLocation",
+            "name": "AutoCollectWulingProtocolith1AssertLocation",
             "zone_id": "Wuling_L8_382",
             "start": [
                 142.84,
@@ -221,7 +221,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute17AssertLocation",
+            "name": "AutoCollectWulingTalosCap1AssertLocation",
             "zone_id": "Wuling_Base",
             "start": [
                 1716.07,
@@ -234,7 +234,7 @@
             "goal_deck_y": 126.37
         },
         {
-            "name": "AutoCollectRoute2AssertLocation",
+            "name": "AutoCollectWulingFalseAggela1AssertLocation",
             "zone_id": "Wuling_Base",
             "start": [
                 920,
@@ -246,7 +246,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute3AssertLocation",
+            "name": "AutoCollectWulingVitrodendra1AssertLocation",
             "zone_id": "Wuling_Base",
             "start": [
                 716,
@@ -258,7 +258,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute4AssertLocation",
+            "name": "AutoCollectValleyIVChrysodendra1AssertLocation",
             "zone_id": "ValleyIV_Base",
             "start": [
                 652,
@@ -270,7 +270,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute5AssertLocation",
+            "name": "AutoCollectValleyIVKalkonyx1AssertLocation",
             "zone_id": "ValleyIV_Base",
             "start": [
                 530,
@@ -282,7 +282,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute6AssertLocation",
+            "name": "AutoCollectValleyIVPinkBolete1AssertLocation",
             "zone_id": "ValleyIV_Base",
             "start": [
                 530,
@@ -294,7 +294,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute7AssertLocation1",
+            "name": "AutoCollectWulingBloodcapWulingstone1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
                 497,
@@ -306,7 +306,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute7AssertLocation4",
+            "name": "AutoCollectWulingBloodcapWulingstone1AssertLocation4",
             "zone_id": "Wuling_Base",
             "start": [
                 555,
@@ -318,7 +318,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute7AssertLocation5",
+            "name": "AutoCollectWulingBloodcapWulingstone1AssertLocation5",
             "zone_id": "Wuling_Base",
             "start": [
                 578,
@@ -330,7 +330,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute8AssertLocation1",
+            "name": "AutoCollectWulingCosmagaric1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
                 707,
@@ -342,7 +342,7 @@
             ]
         },
         {
-            "name": "AutoCollectRoute9AssertLocation1",
+            "name": "AutoCollectWulingIgneosite1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
                 707,

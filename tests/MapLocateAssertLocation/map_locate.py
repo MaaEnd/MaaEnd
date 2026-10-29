@@ -15,12 +15,12 @@ from PIL import Image
 
 
 def collect_nodes(root: Path) -> dict:
-    """列出 Route1–17、CommonRoute1–8 的定位节点，排除未注册的 Route999。"""
+    """列出各地区采集路线的定位节点。"""
     nodes = {}
-    for file in sorted((root / "assets/resource/pipeline/AutoCollect").glob("*.json")):
+    for file in sorted((root / "assets/resource/pipeline/AutoCollect").glob("*/*.json")):
         for name, node in json5.loads(file.read_text(encoding="utf-8")).items():
             if (
-                re.fullmatch(r"AutoCollect(?:CommonRoute[1-8]|Route(?:[1-9]|1[0-7]))AssertLocation\d*", name)
+                re.fullmatch(r"AutoCollect\w+AssertLocation\d*", name)
                 and node.get("custom_recognition") == "MapLocateAssertLocation"
             ):
                 nodes[name] = node["custom_recognition_param"]
