@@ -10,7 +10,7 @@
             "hits": [
                 "GiftOperatorBranchReceive",
                 {
-                    "node": "GiftOperatorReceiveErrorLeave",
+                    "node": "__ScenePrivateWorldDialogLeave",
                     "box": [
                         1020,
                         533,
@@ -23,13 +23,13 @@
         {
             "image": "帝江号_大世界.png",
             "hits": [
-                "GiftOperatorReceiveErrorBackInWorld"
+                "__ScenePrivateAnyEnterWorldSuccess"
             ]
         },
         {
             "image": "帝江号_安塔尔_收礼后告别.png",
             "hits": [
-                "GiftOperatorReceiveErrorDialog"
+                "__ScenePrivateWorldStorySkip"
             ]
         }
     ]

@@ -115,53 +115,22 @@
             "GiftOperatorBagFull"
         ],
         "on_error": [
-            "GiftOperatorReceiveErrorBackInWorld",
-            "GiftOperatorReceiveErrorLeave"
+            "GiftOperatorReceiveError"
         ]
     },
-    "GiftOperatorReceiveErrorLeave": {
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "GiftOperatorLeave"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "next": [
-            "GiftOperatorReceiveErrorBackInWorld",
-            "GiftOperatorReceiveErrorDialog"
-        ]
-    },
-    "GiftOperatorReceiveErrorDialog": {
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "GiftOperatorGiftDialog"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "next": [
-            "GiftOperatorReceiveErrorBackInWorld"
-        ]
-    },
-    "GiftOperatorReceiveErrorBackInWorld": {
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InDijiangWorld"
-                ]
-            }
-        },
+    "GiftOperatorReceiveError": {
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneAnyEnterWorld"
+                    ]
+                }
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
