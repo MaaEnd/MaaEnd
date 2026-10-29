@@ -21,6 +21,7 @@
             ],
             "option": [
                 "StageTaskSetting",
+                "AutoStartExchange",
                 "ClueSetting",
                 "SelectToGrow"
             ]
@@ -446,7 +447,6 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "AutoStartExchange",
                         "SendCluesDirect",
                         "ClueSend",
                         "ClueStockLimit",
