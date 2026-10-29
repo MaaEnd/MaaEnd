@@ -25,6 +25,12 @@
             "hits": [
                 "GiftOperatorReceiveErrorBackInWorld"
             ]
+        },
+        {
+            "image": "帝江号_安塔尔_收礼后告别.png",
+            "hits": [
+                "GiftOperatorReceiveErrorDialog"
+            ]
         }
     ]
 }
