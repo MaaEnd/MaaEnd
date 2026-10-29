@@ -134,7 +134,6 @@
             "nodes": [
                 "GiftOperatorGoToDijiang",
                 "GiftOperatorClickContact_reply",
-                "GiftOperatorGiftFullRetry",
                 "GiftOperatorMoveAhead",
                 "GiftOperatorMoveBackward",
                 "GiftOperatorMoveResetBackward",
