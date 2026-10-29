@@ -294,12 +294,19 @@ def main():
     # 加载并创建 pipeline validator
     pipeline_schema_path = schema_dir / "pipeline.schema.json"
     pipeline_schema = load_jsonc(pipeline_schema_path)
+    # 主 Schema 由上游同步，在此补齐省略 action.type 时的 Custom 参数校验，基础与覆盖资源共用。
+    pipeline_schema["$defs"]["ActionPropertyFieldsV2"]["properties"]["param"]["allOf"].append(
+        {
+            "if": {"required": ["custom_action"]},
+            "then": {"$ref": "#/$defs/CustomActionSchema"},
+        }
+    )
     pipeline_schema_uri = pipeline_schema_path.as_uri()
+    pipeline_schema.setdefault("$id", pipeline_schema_uri)
     schema_store[pipeline_schema_uri] = pipeline_schema
 
     pipeline_validator = create_validator(pipeline_schema, schema_store)
     overlay_schema = create_overlay_schema(pipeline_schema)
-    overlay_schema.setdefault("$id", pipeline_schema_uri)
     overlay_schema_store = {**schema_store, pipeline_schema_uri: overlay_schema}
     overlay_validator = create_validator(overlay_schema, overlay_schema_store)
 
