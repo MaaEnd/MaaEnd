@@ -171,7 +171,7 @@ class RouteReader:
             notes.append(f"{len(visits) - len(matched)} 个采集点对不上采集物点位")
         extra = [name for name, node in document.items() if isinstance(node, dict) and name not in known]
         if extra:
-            notes.append(f"另有 {len(extra)} 个手写节点")
+            notes.append(f"另有 {len(extra)} 个其他节点")
         return {"anchor": anchor, "segments": segments, "point_ids": point_ids, "notes": notes}
 
 

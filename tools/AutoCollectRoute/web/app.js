@@ -550,7 +550,7 @@ class CollectApp {
       name.textContent = route.name;
       row.append(...route.items.map((item) => this.iconElement(item.icon)), name);
       if (route.error) row.append(rowTag("读取失败", "wp-strict", route.error));
-      else if (route.notes.length) row.append(rowTag("手写", "wp-tier", route.notes.join("；")));
+      else if (route.notes.length) row.append(rowTag("特殊结构", "wp-tier", route.notes.join("；")));
       row.append(rowTag(`${route.point_ids.length} 点`, "wp-coord"));
       return row;
     });
@@ -1329,7 +1329,7 @@ class CollectApp {
       ["运行时展开", this.expansionText()],
       ["产物", route.items.map((item) => item.names.zh_cn).join("、")],
     ];
-    if (route.notes.length) facts.push(["手写结构", route.notes.join("；")]);
+    if (route.notes.length) facts.push(["特殊结构", route.notes.join("；")]);
     return facts;
   }
 
@@ -1368,7 +1368,7 @@ class CollectApp {
           ? `将用新生成的路线覆盖 ${result.id}：`
           : `采集物有变，将用 ${result.id} 替换 ${result.replace}，并改动以下文件：`;
       files = result.files;
-      if (route.notes.length) warnings.push(`原路线的手写结构不会保留：${route.notes.join("；")}。`);
+      if (route.notes.length) warnings.push(`原路线的特殊结构不会保留：${route.notes.join("；")}。`);
     }
     for (const {file, nodes} of action === "remove" ? route.references : result.references) {
       warnings.push(`${file} 引用了 ${nodes.join("、")}，需同步修改。`);
