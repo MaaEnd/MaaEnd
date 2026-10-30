@@ -476,6 +476,8 @@ void TestRecognizerPreloadsEveryRequestedTemplateSize()
 int main()
 {
     try {
+        // 生产入口以 CWD 作为安装根；运行时目录按安装根布局生成（agent/ 与 data/、resource/ 同级）。
+        std::filesystem::current_path(MAA_NS::path(ICON_RECOGNITION_TEST_RUNTIME));
         TestAttachOverridesSupportedArrays();
         TestAttachPreservesDefaultArrays();
         TestAttachDoesNotModifyUnrelatedData();
