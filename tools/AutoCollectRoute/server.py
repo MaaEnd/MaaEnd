@@ -5,10 +5,12 @@
 
 接口:
   GET  /api/catalog           -> 采集物类型、点位、底图与传送点
-  POST /api/preview           -> 选中的采集物 -> 采集顺序、路径与路线文件预览
+  GET  /api/routes            -> 已登记的路线: 各段路点、起点传送与路线采集的点
+  POST /api/preview           -> 选中的采集物 -> 采集顺序、路径与路线文件预览; 给 replace 时用来替换该路线
   GET  /api/progress          -> 当前这次生成已发出的规划查询数
   POST /api/apply             -> 同上, 并写入路线文件、登记路线后重新生成任务注册
-  POST /api/route-preview     -> 按 MapNavigateAction 运行时语义展开生成的路线
+  POST /api/remove            -> 删除一条已登记的路线, 并重新生成任务注册
+  POST /api/route-preview     -> 按 MapNavigateAction 运行时语义展开路线
   GET  /basemap/{path}        -> assets/resource/image/ 下的底图与图标
 """
 
@@ -28,6 +30,7 @@ for _path in (MAPNAV_DIR, TOOL_DIR):
         sys.path.insert(0, str(_path))
 
 import route_builder  # noqa: E402
+import route_reader  # noqa: E402
 from fastapi import Body, FastAPI, HTTPException  # noqa: E402
 from fastapi.concurrency import run_in_threadpool  # noqa: E402
 from fastapi.responses import FileResponse, Response  # noqa: E402
@@ -111,12 +114,30 @@ def walk_length() -> route_builder.WalkFn:
     return walk
 
 
+# 分层区域 -> navmesh 包里的 [sx, tx, sy, ty]，底图坐标 = s·分层坐标 + t
+_tier_transforms: dict[str, list[float]] = {}
+
+
+def tier_to_base(zone_id: str, x: float, y: float) -> tuple[float, float]:
+    if not _tier_transforms:
+        try:
+            zones = navmesh_backend.query("zones").get("zones", [])
+        except RuntimeError as exc:
+            raise route_builder.RouteError(f"navmesh 尚未就绪，无法换算分层坐标: {exc}") from exc
+        _tier_transforms.update({zone["name"]: zone["transform"] for zone in zones if zone["is_tier"]})
+    if zone_id not in _tier_transforms:
+        raise route_builder.RouteError(f"navmesh 包中没有区域 {zone_id}")
+    sx, tx, sy, ty = _tier_transforms[zone_id]
+    return sx * x + tx, sy * y + ty
+
+
 # --- 采集路线 -------------------------------------------------------------------------
-def _route_request(payload: dict[str, Any]) -> tuple[str, list[str], str]:
+def _route_request(payload: dict[str, Any]) -> tuple[str, list[str], str, str | None]:
     ids = payload.get("ids", [])
     if not isinstance(ids, list):
         raise HTTPException(status_code=400, detail="ids 需为数组")
-    return str(payload.get("map", "")), [str(item) for item in ids], str(payload.get("kind", "rare"))
+    replace = str(payload.get("replace") or "") or None
+    return str(payload.get("map", "")), [str(item) for item in ids], str(payload.get("kind", "rare")), replace
 
 
 async def _run(task: Callable[[], dict[str, Any]]) -> dict[str, Any]:
@@ -131,11 +152,18 @@ async def api_catalog() -> dict[str, Any]:
     return await _run(lambda: route_builder.Library().catalog())
 
 
+@app.get("/api/routes")
+async def api_routes() -> dict[str, Any]:
+    return await _run(lambda: route_reader.registered_routes(route_builder.Library(), tier_to_base))
+
+
 @app.post("/api/preview")
 async def api_preview(payload: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
-    map_id, ids, kind = _route_request(payload)
+    map_id, ids, kind, replace = _route_request(payload)
     _progress["queries"] = 0
-    return await _run(lambda: route_builder.preview(route_builder.Library(), map_id, ids, kind, walk_length()))
+    return await _run(
+        lambda: route_builder.preview(route_builder.Library(), map_id, ids, kind, walk_length(), replace)
+    )
 
 
 @app.get("/api/progress")
@@ -145,8 +173,16 @@ async def api_progress() -> dict[str, int]:
 
 @app.post("/api/apply")
 async def api_apply(payload: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
-    map_id, ids, kind = _route_request(payload)
-    return await _run(lambda: route_builder.apply(route_builder.Library(), map_id, ids, kind, walk_length()))
+    map_id, ids, kind, replace = _route_request(payload)
+    return await _run(
+        lambda: route_builder.apply(route_builder.Library(), map_id, ids, kind, walk_length(), replace)
+    )
+
+
+@app.post("/api/remove")
+async def api_remove(payload: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
+    route_id = str(payload.get("id", ""))
+    return await _run(lambda: route_builder.remove(route_id))
 
 
 # --- 与 MapNavigator 前端同约定的底图与路线展开 -----------------------------------------

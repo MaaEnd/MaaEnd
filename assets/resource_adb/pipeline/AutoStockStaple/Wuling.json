@@ -1,0 +1,19 @@
+{
+    "AutoStockSwipeWuling": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    240,
+                    500
+                ],
+                "end": [
+                    240,
+                    400
+                ],
+                "end_hold": 200,
+                "duration": 100
+            }
+        }
+    }
+}

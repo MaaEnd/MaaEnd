@@ -29,7 +29,8 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "StashBackpackType"
+                        "StashBackpackType",
+                        "StashBackpackArea"
                     ],
                     "pipeline_override": {
                         "StashBackpackMain": {

@@ -2,7 +2,7 @@
 
 本文说明 `DijiangRewards` 的文件分布与执行流程。  
 设计核心是「总控中枢分发 + 子阶段回跳」：各子阶段彼此独立，选项只改阶段入口或分支，不动主流程骨架。  
-该文档更新于 2026 年 10 月 25 日。
+该文档更新于 2026 年 10 月 29 日。
 
 ## 文件路径
 
@@ -55,7 +55,7 @@
 进入会客室后依次尝试：处理交流结束弹窗 → 收集线索 → 接收线索 → 放置/替换线索 →（可选）开始线索交流 → 退出。
 
 线索库存满时走[线索赠予](#线索赠予)分支，不是独立顶层阶段。  
-是否主动「开始线索交流」由 `AutoStartExchange` 控制，默认关闭，留给信用点商店联动。
+是否主动「开始线索交流」由任务级选项 `AutoStartExchange` 控制，默认开启，与 `ClueSetting` 无关。
 
 自定义赠送线索，默认关闭，允许用户选择哪些线索应进行赠送，未被选中的线索将会进行保留。赠送逻辑沿用 `ReceptionRoomSendCluesClickSend` 的逻辑。
 
@@ -135,9 +135,9 @@ DijiangRewards
 │   ├── ReceptionRoomStage
 │   ├── ManufacturingStage
 │   └── GrowthChamberStage
-├── ClueSetting                # 展开 SendCluesDirect / ClueSend / ClueStockLimit（直接赠予 / 溢出后赠送 / 库存上限）
-│   ├── AutoStartExchange          # 会客室是否主动开线索交流
-│   │   └── WaitExchangeBeforeStart  # 线索齐全时等待当前交流结束；开启后展开 WaitExchangeBeforeStartThreshold
+├── AutoStartExchange          # 会客室是否主动开线索交流，默认开启
+│   └── WaitExchangeBeforeStart  # 线索齐全时等待当前交流结束；开启后展开 WaitExchangeBeforeStartThreshold
+├── ClueSetting                # 展开赠送规则（直接赠予 / 溢出后赠送 / 库存上限 / 赠送种类）
 │   ├── SendCluesDirect
 │   ├── ClueSend        # 线索最多赠送的数量
 │   ├── ClueStockLimit  # 线索最多保留的数量

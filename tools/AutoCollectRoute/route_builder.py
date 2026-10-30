@@ -4,6 +4,7 @@ import json
 import math
 import threading
 from collections.abc import Callable, Iterable
+from pathlib import Path
 from typing import Any
 
 import registry
@@ -406,27 +407,62 @@ def route_document(route_id: str, plan: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def relative(path: Path) -> str:
+    return path.relative_to(PROJECT_ROOT).as_posix()
+
+
+def references(nodes: Iterable[str], index: dict[str, list[str]] | None = None) -> list[dict[str, Any]]:
+    """引用了这些节点的文件，及各自引用到的节点。"""
+    index = registry.node_references() if index is None else index
+    files: dict[str, list[str]] = {}
+    for node in sorted(nodes):
+        for file in index.get(node, []):
+            files.setdefault(file, []).append(node)
+    return [{"file": file, "nodes": nodes} for file, nodes in files.items()]
+
+
 def preview(
     library: Library,
     map_id: str,
     point_ids: list[str],
     kind: str,
     walk: WalkFn = straight_walk,
+    replace: str | None = None,
 ) -> dict[str, Any]:
+    """replace 给出已登记的路线时，生成结果用来替换它：采集物不变就沿用原 id，否则按新的采集物重新命名。"""
     if kind not in KIND_NAMES:
         raise RouteError(f"未知的路线类别 {kind}")
     plan = library.plan(map_id, point_ids, walk, kind)
     item_ids = [item["item"] for item in plan["items"]]
-    route_id = registry.next_route_id(plan["region"], item_ids)
+    old = registry.route_entry(replace) if replace else None
+    if old is not None and old["region"] != plan["region"]:
+        raise RouteError(f"{replace} 不在当前地图上")
+    if old is not None and set(old["items"]) == set(item_ids):
+        route_id = replace
+    else:
+        route_id = registry.next_route_id(plan["region"], item_ids)
     route_path = registry.route_file(plan["region"], route_id)
-    files = [route_path, registry.REGISTRY_PATH, *registry.GENERATED_FILES]
+    document = route_document(route_id, plan)
+
+    files = [(route_path, "覆盖" if route_id == replace else "新建")]
+    removed: list[dict[str, Any]] = []
+    if old is not None:
+        old_path = registry.route_file(old["region"], replace)
+        removed = references(set(read_jsonc(old_path)) - set(document))
+        if route_id != replace:
+            files.append((old_path, "删除"))
+    if route_id != replace:
+        files += [(path, "修改") for path in (registry.REGISTRY_PATH, *registry.GENERATED_FILES)]
     return {
         **plan,
         "kind": kind,
         "id": route_id,
-        "route_file": str(route_path.relative_to(PROJECT_ROOT)),
-        "files": [str(path.relative_to(PROJECT_ROOT)) for path in files],
-        "route_text": json.dumps(route_document(route_id, plan), ensure_ascii=False, indent=4),
+        "replace": replace,
+        "item_ids": item_ids,
+        "route_file": relative(route_path),
+        "files": [{"path": relative(path), "action": action} for path, action in files],
+        "references": removed,
+        "route_text": json.dumps(document, ensure_ascii=False, indent=4),
         "path_text": json.dumps(plan["path"], ensure_ascii=False, indent=4),
     }
 
@@ -437,16 +473,35 @@ def apply(
     point_ids: list[str],
     kind: str,
     walk: WalkFn = straight_walk,
+    replace: str | None = None,
 ) -> dict[str, Any]:
     with APPLY_LOCK:
-        result = preview(library, map_id, point_ids, kind, walk)
+        result = preview(library, map_id, point_ids, kind, walk, replace)
+        route_id = result["id"]
         route_path = PROJECT_ROOT / result["route_file"]
-        if route_path.exists():
+        if route_id != replace and route_path.exists():
             raise RouteError(f"{route_path.name} 已存在")
 
         registry.validate()
         route_path.parent.mkdir(parents=True, exist_ok=True)
         route_path.write_text(result["route_text"] + "\n", encoding="utf-8")
-        registry.add_route(result["id"], result["region"], [item["item"] for item in result["items"]])
-        registry.generate()
-    return {**result, "written": result["files"]}
+        if route_id != replace:
+            if replace is None:
+                registry.add_route(route_id, result["region"], result["item_ids"])
+            else:
+                entry = {"id": route_id, "region": result["region"], "items": result["item_ids"]}
+                registry.replace_route(replace, entry)
+                registry.route_file(result["region"], replace).unlink()
+            registry.generate()
+    return {**result, "written": [file["path"] for file in result["files"]]}
+
+
+def remove(route_id: str) -> dict[str, Any]:
+    with APPLY_LOCK:
+        entry = registry.route_entry(route_id)
+        registry.validate()
+        registry.replace_route(route_id, None)
+        route_path = registry.route_file(entry["region"], route_id)
+        route_path.unlink()
+        written = [route_path, registry.REGISTRY_PATH, *registry.generate()]
+    return {"id": route_id, "written": [relative(path) for path in written]}

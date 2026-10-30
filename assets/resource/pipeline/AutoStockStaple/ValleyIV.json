@@ -257,20 +257,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    240,
+                    1200,
                     500
                 ],
                 "end": [
-                    [
-                        240,
-                        400
-                    ],
-                    [
-                        360,
-                        400
-                    ]
+                    1200,
+                    400
                 ],
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 100
             }
         },
         "post_wait_freezes": {
