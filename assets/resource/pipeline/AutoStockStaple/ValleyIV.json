@@ -21,8 +21,8 @@
             "[JumpBack]AutoStockBuyItemValleyIVTaskIndustrial",
             "[JumpBack]AutoStockBuyItemValleyIVTaskCultural",
             "SoldOut",
-            "AutoStockListCompleteValleyIV",
-            "[JumpBack]AutoStockSwipeValleyIV"
+            "[JumpBack]AutoStockSwipeValleyIV",
+            "AutoStockNoMoreTargetValleyIV"
         ]
     },
     "AutoStockTargetCompareValleyIV": {
@@ -217,32 +217,9 @@
             "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
         }
     },
-    "AutoStockListCompleteValleyIV": {
-        "desc": "比较列表静止画面，确认四号谷地物资列表已经到底",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ListCompleteRecognition",
-                "custom_recognition_param": {
-                    "threshold": 0.95
-                },
-                "roi": [
-                    65,
-                    200,
-                    1075,
-                    360
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "attach": {
-            "ready": false
-        }
-    },
     "AutoStockSwipeValleyIV": {
-        "desc": "向下滑动寻找商品；不设次数上限，何时停止由售罄与列表到底识别器决定",
+        "desc": "向下滑动寻找商品，直到找到商品或到达底部",
+        "max_hit": 25,
         "recognition": {
             "type": "And",
             "param": {
@@ -257,15 +234,20 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    1200,
+                    240,
                     500
                 ],
                 "end": [
-                    1200,
-                    400
+                    [
+                        240,
+                        400
+                    ],
+                    [
+                        360,
+                        400
+                    ]
                 ],
-                "end_hold": 200,
-                "duration": 100
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -277,5 +259,20 @@
                 176
             ]
         }
+    },
+    "AutoStockNoMoreTargetValleyIV": {
+        "desc": "滑动次数用完仍在物资调度页：列表已到底且没有符合条件的商品，结束当前区域",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InValleyIVText",
+                    "InStapleColor"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
