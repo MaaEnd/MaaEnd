@@ -215,6 +215,8 @@ def create_overlay_schema(pipeline_schema):
     for name, definition in schema["$defs"].items():
         if name in ("And", "Or", "Shell"):
             definition.pop("required", None)
+        if name in ("CustomAction", "CustomRecognition"):
+            continue
         alternatives = definition.get("anyOf")
         if alternatives and all(set(option) == {"required"} for option in alternatives):
             definition.pop("anyOf")
