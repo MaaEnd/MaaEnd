@@ -191,11 +191,7 @@ StageResult ZiplineRideMachine::tick(IZiplineObserver& observer, IZiplineActuato
     switch (stage_) {
     case ZiplineStage::OnTower:
         return tickOnTower(actuator, now);
-    case ZiplineStage::Handoff:
-    case ZiplineStage::Failed:
-        return handoff(now);
     case ZiplineStage::Idle:
-    case ZiplineStage::Classified:
         return {};
     default:
         break;
@@ -661,7 +657,6 @@ StageResult ZiplineRideMachine::tickFired(const ZiplineObservation& obs, IZiplin
         return {};
     }
     if (elapsed_ms > kZiplineRideTimeoutMs) {
-        last_fix_.reset();
         return classify(observer, actuator, now);
     }
     return {};
@@ -688,7 +683,6 @@ StageResult ZiplineRideMachine::tickRiding(const ZiplineObservation& obs, IZipli
     }
     if (stageElapsedMs(now) > kZiplineRideTimeoutMs) {
         LogWarn << "zipline/riding/timeout" << VAR(kZiplineRideTimeoutMs);
-        last_fix_.reset();
         return classify(observer, actuator, now);
     }
     return {};
@@ -821,17 +815,13 @@ StageResult ZiplineRideMachine::classify(IZiplineObserver& observer, IZiplineAct
         // 回程时 target_ 是上索架, 到了就是滑回来了
         const double wrong_bearing = bearing_deg(plan_.mount, origin_);
         record_.wrong_rope_bearings_deg.push_back(wrong_bearing);
-        if (hop_retry_count_ < kZiplineHopRetryBudget) {
-            ++hop_retry_count_;
-            returning_ = false;
-            pitch_tier_ = 0;
-            aim_bias_deg_ = escalatedAimBiasDeg(wrong_bearing);
-            LogInfo << "zipline/aim/bias_escalated" << VAR(wrong_bearing) << VAR(aim_bias_deg_) << VAR(hop_retry_count_);
-            enterStage(ZiplineStage::OnTower, now);
-            return {};
-        }
-        commitRecord(HopOutcome::WrongRope, now);
-        return parkForReplan(plan_.mount, now);
+        ++hop_retry_count_;
+        returning_ = false;
+        pitch_tier_ = 0;
+        aim_bias_deg_ = escalatedAimBiasDeg(wrong_bearing);
+        LogInfo << "zipline/aim/bias_escalated" << VAR(wrong_bearing) << VAR(aim_bias_deg_) << VAR(hop_retry_count_);
+        enterStage(ZiplineStage::OnTower, now);
+        return {};
     }
     case LandingClass::AtOther:
     case LandingClass::AtStrayTower: {
