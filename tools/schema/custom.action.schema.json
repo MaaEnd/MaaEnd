@@ -19,7 +19,7 @@
                 "AutoDeliveryResolveDestinationAction",
                 "AutoEssenceLoadInventoryAction",
                 "AutoEssenceTargetPlanAction",
-                "AutoSellItemExecuteItemTaskAction",
+                "AutoSellSession",
                 "AutoStockStapleQuantityControlAction",
                 "AutoStockpile.ReconcileDecision",
                 "AutoStockpile.SelectItem",
@@ -419,6 +419,28 @@
                         }
                     }
                 }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {
+                        "const": "AutoSellSession"
+                    }
+                },
+                "required": [
+                    "custom_action"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "$ref": "./components/autosell.schema.json#/$defs/session"
+                    }
+                },
+                "required": [
+                    "custom_action_param"
+                ]
             }
         }
 	],

@@ -1,0 +1,403 @@
+{
+    "AutoSellEnterOwnValleyIV": {
+        "desc": "通过场景接口回到本家目标地区的物资调度",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellEnterOwnRelay"
+        ]
+    },
+    "AutoSellEnterOwnWuling": {
+        "desc": "通过场景接口回到本家目标地区的物资调度",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellEnterOwnRelay"
+        ]
+    },
+    "AutoSellEnterOwnRelay": {
+        "desc": "切换弹性物资页并确认本家列表",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab",
+            "AutoSellOwnRegionReady"
+        ]
+    },
+    "AutoSellOwnRegionReady": {
+        "desc": "确认已进入本家弹性物资列表",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellOwnListRecognition"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]AutoSellItemLoop"
+        ]
+    },
+    "AutoSellRecordLoop": {
+        "desc": "第一轮：逐件选择物资，耗尽后结束本地区记录",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellSelectRecordItem",
+            "AutoSellItemsExhausted"
+        ]
+    },
+    "AutoSellFriendsLoop": {
+        "desc": "第二轮：逐件查好友价格，调度券超过上限时结束本地区",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsUnavailable",
+            "[Anchor]AutoSellTicketOverflow",
+            "AutoSellSelectFriendsItem",
+            "AutoSellItemsExhausted"
+        ]
+    },
+    "AutoSellFriendsUnavailable": {
+        "desc": "本次任务已明确识别无好友，正常结束当前地区好友出售",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellOwnLoop": {
+        "desc": "第三轮：只处理尚未售出的物资",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]AutoSellTicketOverflow",
+            "AutoSellSelectOwnItem",
+            "AutoSellItemsExhausted"
+        ]
+    },
+    "AutoSellSelectRecordItem": {
+        "desc": "选择下一件需要记录本家价格的物资",
+        "recognition": "Custom",
+        "custom_recognition": "AutoSellSelectItemRecognition",
+        "custom_recognition_param": {
+            "result": "record"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
+        ]
+    },
+    "AutoSellSelectFriendsItem": {
+        "desc": "选择下一件物资，注入阈值和本家价格后由 Pipeline 处理好友",
+        "recognition": "Custom",
+        "custom_recognition": "AutoSellSelectItemRecognition",
+        "custom_recognition_param": {
+            "result": "sell"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemOpenPrepare"
+        ]
+    },
+    "AutoSellSelectOwnItem": {
+        "desc": "选择第二轮未售出的物资，重新读取本家价格",
+        "recognition": "Custom",
+        "custom_recognition": "AutoSellSelectItemRecognition",
+        "custom_recognition_param": {
+            "result": "sell"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
+        ]
+    },
+    "AutoSellItemsExhausted": {
+        "desc": "当前地区本轮已遍历完毕",
+        "recognition": "Custom",
+        "custom_recognition": "AutoSellSelectItemRecognition",
+        "custom_recognition_param": {
+            "result": "exhausted"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellRecordDetail": {
+        "desc": "第一轮：确认物资详情打开后，只读取本家价格",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellRecordOwnPrice",
+            "AutoSellRecordOwnPriceMissing"
+        ]
+    },
+    "AutoSellRecordOwnPrice": {
+        "desc": "保存本家价格",
+        "recognition": "OCR",
+        "roi": [
+            1014,
+            240,
+            56,
+            24
+        ],
+        "expected": [
+            "^\\d+$"
+        ],
+        "only_rec": true,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellSession",
+        "custom_action_param": {
+            "operation": "save_own_price"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellCloseItem"
+        ]
+    },
+    "AutoSellRecordOwnPriceMissing": {
+        "desc": "本家价格 OCR 未命中时保存为零，供第二轮比较",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellSession",
+        "custom_action_param": {
+            "operation": "save_own_price"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellCloseItem"
+        ]
+    },
+    "AutoSellOwnDetail": {
+        "desc": "第三轮：确认本家物资详情后判断当前价格",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellItemEmpty",
+            "AutoSellOwnPricesExpected",
+            "AutoSellCloseItem"
+        ]
+    },
+    "AutoSellOwnPricesExpected": {
+        "desc": "第三轮：本家当前价格达到物资阈值才出售",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{AutoSellOwnPriceRecognition} >= 5000",
+            "focus_matched_resolved_expression": true,
+            "focus_unmatched_resolved_expression": true
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess"
+        ]
+    },
+    "AutoSellItemEmpty": {
+        "desc": "当前物资已无库存，关闭详情并处理下一件",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellSellGoodsEmpty"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellCloseItem"
+        ]
+    },
+    "AutoSellCloseItem": {
+        "desc": "关闭当前物资详情，再确认返回列表",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellItemClosed"
+        ]
+    },
+    "AutoSellItemClosed": {
+        "desc": "确认返回物资列表后，提交本轮已处理商品并继续循环",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellItemListRecognition"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellSession",
+        "custom_action_param": {
+            "operation": "advance"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]AutoSellItemLoop"
+        ]
+    },
+    "AutoSellFriendsHomePriceExpected": {
+        "desc": "好友最高价格同时不低于本家，继续判断当前好友是否可直接出售",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{AutoSellFriendsPriceRecognition} >= 0",
+            "focus_matched_resolved_expression": true,
+            "focus_unmatched_resolved_expression": true
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuy",
+            "AutoSellCurrentPriceUnExpected"
+        ]
+    },
+    "AutoSellFriendsHomePriceLogOnly": {
+        "desc": "阈值不匹配时仍显示好友价格与本家价格的独立比较结果",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{AutoSellFriendsPriceRecognition} >= 0",
+            "focus_matched_resolved_expression": true,
+            "focus_unmatched_resolved_expression": true
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesBackToSellGoods"
+        ]
+    },
+    "AutoSellCurrentHomePriceExpected": {
+        "desc": "当前好友价格同时达到阈值和本家价格，可以直接出售",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{AutoSellFriendsPriceCurrentRecognition} >= 0",
+            "focus_matched_resolved_expression": true,
+            "focus_unmatched_resolved_expression": true
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyBackToSellGoods"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前拜访好友是最高价，可以售卖"
+        }
+    },
+    "AutoSellCurrentPriceUnExpected": {
+        "desc": "当前好友价格低于阈值时，补充本家价格比较日志后拜访最高价好友",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellCurrentHomePriceLogOnly",
+            "AutoSellFriendsPricesExpectedGoTo"
+        ]
+    },
+    "AutoSellCurrentHomePriceLogOnly": {
+        "desc": "记录当前好友价格与本家价格的比较结果，再拜访已满足条件的最高价好友",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{AutoSellFriendsPriceCurrentRecognition} >= 0",
+            "focus_matched_resolved_expression": true,
+            "focus_unmatched_resolved_expression": true
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedGoTo"
+        ]
+    },
+    "AutoSellConfirmSale": {
+        "desc": "确认出售全部物资，等待奖励界面确认成交",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType2"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SceneNoticeRewardsConfirmNextAnchor": "AutoSellSaleConfirmed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SceneNoticeRewardsConfirmWithAnchor"
+        ]
+    },
+    "AutoSellSaleConfirmed": {
+        "desc": "奖励界面确认成交后登记已售，第三轮排除该商品",
+        "recognition": "Or",
+        "any_of": [
+            "InFriendsStockRedistributionSellGoods",
+            "AutoSellItemListRecognition"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellSession",
+        "custom_action_param": {
+            "operation": "sold"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellCloseItem",
+            "AutoSellItemClosed"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "售卖成功"
+        }
+    }
+}

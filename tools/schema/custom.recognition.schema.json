@@ -10,8 +10,8 @@
                 "AeroSalvageBalloonStateRecognition",
                 "AeroSalvageGridRecognition",
                 "AeroSalvageInitialStateRecognition",
-                "AutoSellPriceCompareRecognition",
                 "AutoSellScanItemRecognition",
+                "AutoSellSelectItemRecognition",
                 "AutoStockpile.Recognition",
                 "EssenceFilterAfterBattleNthRecognition",
                 "EssenceGridAdvanceRecognition",
@@ -538,6 +538,28 @@
                 "properties": {
                     "custom_recognition_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/PriorityItemRecognitionParam" }
                 }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_recognition": {
+                        "const": "AutoSellSelectItemRecognition"
+                    }
+                },
+                "required": [
+                    "custom_recognition"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_recognition_param": {
+                        "$ref": "./components/autosell.schema.json#/$defs/selection"
+                    }
+                },
+                "required": [
+                    "custom_recognition_param"
+                ]
             }
         }
     ]

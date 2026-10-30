@@ -1,0 +1,73 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+        "session": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "operation"
+            ],
+            "properties": {
+                "operation": {
+                    "enum": [
+                        "reset",
+                        "begin",
+                        "save_own_price",
+                        "advance",
+                        "sold"
+                    ]
+                },
+                "region": {
+                    "enum": [
+                        "ValleyIV",
+                        "Wuling"
+                    ]
+                },
+                "moderate_price": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "large_price": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "massive_price": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "operation": {
+                                "const": "begin"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "region"
+                        ]
+                    }
+                }
+            ]
+        },
+        "selection": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "result"
+            ],
+            "properties": {
+                "result": {
+                    "enum": [
+                        "record",
+                        "sell",
+                        "exhausted"
+                    ]
+                }
+            }
+        }
+    }
+}

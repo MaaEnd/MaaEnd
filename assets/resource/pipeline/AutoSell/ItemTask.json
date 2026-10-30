@@ -238,7 +238,7 @@
         "box_index": 5,
         "pre_delay": 0,
         "action": "Click",
-        // item左右20个像素无法点击
+        // item 左右 20 个像素无法点击
         "target_offset": [
             30,
             -50,
@@ -248,7 +248,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellSellGoodsOpenSuccess"
+            "[Anchor]AutoSellItemDetail"
         ]
     },
     "AutoSellStockRedistributionItemOpenInRegionalDevelopment": {
@@ -265,7 +265,7 @@
         "box_index": 5,
         "pre_delay": 0,
         "action": "Click",
-        // item左右20个像素无法点击
+        // item 左右 20 个像素无法点击
         "target_offset": [
             30,
             -50,
@@ -275,7 +275,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellSellGoodsOpenSuccess"
+            "[Anchor]AutoSellItemDetail"
         ]
     },
     "AutoSellSellGoodsOpenSuccess": {
@@ -289,7 +289,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellSellGoodsEmpty",
+            "AutoSellItemEmpty",
             "AutoSellFriendsPricesOpen"
         ]
     },
@@ -353,7 +353,42 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoSellFriendsPricesNoFriends",
             "AutoSellFriendsPricesOpenSuccess"
+        ]
+    },
+    "AutoSellFriendsPricesNoFriends": {
+        "desc": "明确识别无好友空状态，本次任务跳过好友出售并保留物资供第三轮处理",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionFriendsPrices",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    649,
+                    405,
+                    177,
+                    26
+                ],
+                "expected": [
+                    "当前未添加好友"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "AutoSellFriendsUnavailable": {
+                    "enabled": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesBackToSellGoods"
         ]
     },
     "AutoSellFriendsPricesOpenSuccess": {
@@ -405,8 +440,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellFriendsPricesExpectedBuy",
-            "AutoSellFriendsPricesExpectedGoTo"
+            "AutoSellFriendsHomePriceExpected",
+            "AutoSellFriendsPricesBackToSellGoods"
         ]
     },
     "AutoSellFriendsPricesUnExpected": {
@@ -415,6 +450,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoSellFriendsHomePriceLogOnly",
             "AutoSellFriendsPricesBackToSellGoods"
         ]
     },
@@ -428,7 +464,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellFriendsPricesBackToView0"
+            "AutoSellCloseItem"
         ]
     },
     "AutoSellFriendsPricesBackToView0": {
@@ -450,17 +486,17 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{AutoSellFriendsPriceCurrentRecognition} >= 5000 "
+            "expression": "{AutoSellFriendsPriceCurrentRecognition} >= 5000",
+            "focus_matched_resolved_expression": true,
+            "focus_unmatched_resolved_expression": true
         },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellFriendsPricesExpectedBuyBackToSellGoods"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "当前拜访好友是最高价，可以售卖"
-        }
+            "AutoSellCurrentHomePriceExpected",
+            "AutoSellFriendsPricesExpectedGoTo"
+        ]
     },
     "AutoSellFriendsPricesExpectedBuyBackToSellGoods": {
         "desc": "从好友价格界面返回到物资调度界面",
@@ -506,7 +542,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellFriendsPricesExpectedBuyClick"
+            "AutoSellConfirmSale"
         ]
     },
     "AutoSellFriendsPricesExpectedNeedSlide": {
@@ -592,7 +628,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellFriendsPricesExpectedBuyClick"
+            "AutoSellConfirmSale"
         ]
     },
     "AutoSellFriendsPricesExpectedBuyClick": {
