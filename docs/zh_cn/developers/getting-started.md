@@ -476,7 +476,7 @@ git push origin feat/auto-sell-items
     uv run tools/maadeps-download.py
     ```
 
-4. 准备 `cpp-algo` 的构建环境。默认配置会启动 `go-service` 和 `cpp-algo`，手动配置也需要准备这两个 Agent。
+4. 准备 `cpp-algo` 的构建环境。项目的 `assets/interface.json` 会启动 `go-service` 和 `cpp-algo`；`build-and-install` 默认只构建 `go-service`，因此下面使用 `--cpp-algo` 同时构建这两个 Agent。
 
     安装 CMake 3.28+、Ninja 和当前平台的 C++ 工具链。Windows 需安装 Visual Studio / Build Tools 的「使用 C++ 的桌面开发」工作负载（含 MSVC 和 Windows SDK），并下载 WebView2 SDK：
 

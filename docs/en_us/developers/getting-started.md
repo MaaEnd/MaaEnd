@@ -476,7 +476,7 @@ Congratulations, you've completed your first task!
     uv run tools/maadeps-download.py
     ```
 
-4. Prepare the `cpp-algo` build environment. The default configuration starts both `go-service` and `cpp-algo`, so manual setup also requires both Agents.
+4. Prepare the `cpp-algo` build environment. The project's `assets/interface.json` starts both `go-service` and `cpp-algo`; `build-and-install` builds only `go-service` by default, so the command below uses `--cpp-algo` to build both Agents.
 
     Install CMake 3.28+, Ninja, and the C++ toolchain for your platform. On Windows, install the "Desktop development with C++" workload in Visual Studio / Build Tools (including MSVC and the Windows SDK), then download the WebView2 SDK:
 
