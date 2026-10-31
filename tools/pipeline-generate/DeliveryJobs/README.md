@@ -2,9 +2,11 @@
 
 使用 `MAA-pipeline-generate` 从地区、仓储节点与可装箱物品模型生成转交委托的 Pipeline 和任务配置。
 
+该文档更新于 2026 年 10 月 29 日。
+
 本文只覆盖生成侧。任务的流程结构、六种仓储节点处理方式的语义、anchor 规则与各选项的作用，见[转交委托任务维护文档](../../../docs/zh_cn/developers/tasks/delivery-jobs-maintain.md)。
 
-`tools/zmdmap/data/delivery_jobs.json` 是 zmdmap 数据 CI 从 TableCfg 裁剪并发布的精简游戏数据，MaaEnd 通过 `uv run zmdmap fetch`（即 `pnpm fetch:zmdmap`）下载。文件包含全部仓储节点及其可装箱物品；统一的数据流与来源边界见[生成数据总览](../README.md)。
+`tools/zmdmap/data/delivery_jobs.json` 是 zmdmap 数据 CI 从 TableCfg 裁剪并发布的精简游戏数据，MaaEnd 通过 `uv run zmdmap fetch`（即 `pnpm fetch:zmdmap`）下载。文件包含全部仓储节点、可装箱物品与各节点的最大基础报价 `max_base_quote`；统一的数据流与来源边界见[生成数据总览](../README.md)。
 
 ## 运行方式
 
@@ -25,6 +27,14 @@ node tools/pipeline-generate/DeliveryJobs/prepare.mjs
 node tools/pipeline-generate/run-all.mjs DeliveryJobs
 ```
 
+需要为同一游戏版本补出基础报价时，先从对应版本的本地游戏表重新生成 zmdmap 数据，再执行上面的三步；完整版本保持真实游戏版本，不为新增字段另编版本号：
+
+```bash
+uv run --no-default-groups zmdmap generate --only delivery_jobs --no-sync --version 1.6.4+11262943-8
+```
+
+该命令会重算数据本体及其 `sha256`，原始形态写入本地缓存 `data/raw/`，再原样复制到入库目录 `data/`。发布端尚未更新时直接使用本地生成结果，不执行含 `fetch` 的完整命令；字段定义见[数据集注释](../../zmdmap/datasets/delivery_jobs.py)，本地生成约定见 [zmdmap README](../../zmdmap/README.md#本地生成与远端同步的约定)。
+
 生成内容：
 
 - `assets/resource/pipeline/DeliveryJobs.json`：通用任务入口与地区调度；
@@ -34,9 +44,11 @@ node tools/pipeline-generate/run-all.mjs DeliveryJobs
 - `assets/resource_adb/pipeline/DeliveryJobs/PriorityItems.json`：同名节点的 ADB 坐标变体；
 - `assets/tasks/DeliveryJobs.json`：地区、仓储节点处理方式和装箱物品选项。
 
+`sync-locales.mjs` 与 `prepare.mjs` 都先导入 `model.mjs` 校验数据。任一仓储节点的 `max_base_quote` 缺失或不是正安全整数时会指出该字段并报错，在本次 locale 写入和产物目录清理之前停止；应先补齐对应游戏版本的 zmdmap 报价数据，再重跑生成。
+
 `sync-locales.mjs` 在生成前运行：地区、仓储节点及物品的五语言名称分别来自 `delivery_jobs.json`，物品是否生成则由 `recognition_items.json` 决定。它只补齐缺失或空白的 `global.region.*` / `iconRecognition.name.*` / `task.DeliveryJobs.WhatToFill*`，已有的人工消歧文案会保留；同时按 `^task\.DeliveryJobs\.WhatToFill[A-Za-z0-9]+Priority\d+$` 清理数据源里已不存在的装箱优先级键。同步结束后会再校验一遍全部键，仍缺失即报错。
 
-`prepare.mjs` 在生成前删除 `assets/resource/pipeline/DeliveryJobs/` 下的 `Depot/` 与 `Region/` 两个目录，模板里删掉的仓储节点或地区不会留下孤儿文件；其余产物由生成器整体覆盖写入。
+`prepare.mjs` 在模型校验通过后、生成前删除 `assets/resource/pipeline/DeliveryJobs/` 下的 `Depot/` 与 `Region/` 两个目录，模板里删掉的仓储节点或地区不会留下孤儿文件；其余产物由生成器整体覆盖写入。
 
 ## 生成器结构
 
@@ -54,10 +66,35 @@ node tools/pipeline-generate/run-all.mjs DeliveryJobs
 `model.mjs` 是唯一的数据模型：读取 `delivery_jobs.json`、`delivery_destinations.json` 与 `assets/data/IconRecognition/recognition_items.json`，在导入时完成全部校验与断言，并导出三个消费入口：
 
 - `deliveryJobRegions`：地区（`Id` / `RegionScene` / `DepotScene` / `Depots` / `FillItems` / `DefaultFillItem`）；
-- `deliveryJobDepots`：仓储节点（`Id` / `GameId` / `RegionId` / `Expected` / `AutoDeliverySupported` / `DepotScene`）；
+- `deliveryJobDepots`：仓储节点（`Id` / `GameId` / `RegionId` / `Expected` / `MaxBaseQuote` / `AutoDeliverySupported` / `DepotScene`）；
 - `deliveryJobLocaleEntries`：待同步的多语言条目，供 `sync-locales.mjs` 使用。
 
-地区与仓储节点按数据源 gameId 排序，装箱物品按「分类 → 中文名 → ID」排序，保证不同环境下生成结果一致。`data.test.mjs` 与 `sync-locales.test.mjs` 断言生成产物与模型的一致性。
+地区与仓储节点按数据源 gameId 排序，装箱物品按「分类 → 中文名 → ID」排序，保证不同环境下生成结果一致。生成后核对各节点基础报价与默认阈值的对应关系。
+
+`constants.mjs` 存放跨模板共用的定义，避免 Pipeline 模板与任务模板各写一份：
+
+- `ALL_CARGO_EXPECTED` / `PACK_CARGO_EXPECTED`：货物界面的 OCR 文本，前者由 `depot-data.mjs` 注入成节点默认值，后者只给「仅装箱货物」覆盖用；
+- 默认报价计算：报价相关常量只保留常见买家倍率 `1.1` 和界面截千单位 `1000`，`defaultQuoteThreshold(depot)` 根据 `depot.MaxBaseQuote` 计算默认阈值。Pipeline 的两条阈值表达式与任务选项的 `input.default` 共用这个函数，取值和依据见[默认报价阈值](#默认报价阈值)。
+
+### 默认报价阈值
+
+zmdmap 的 `datasets/delivery_jobs.py` 读取 `DomainDepotLevelTable`、`DomainDepotPackValueTable`、`DomainDepotDeliverItemTypeTable` 与 `DomainDataTable`，逐个仓储节点枚举每一级实际允许的货物类型与货箱大小组合，对各组合计算 `floor(maxLimit * priceFactor * domainDepotOfferPriceRatio)` 后取最大值，写入 `depots[id].max_base_quote`。该字段是正整数，不含买家随机倍率和转交后的尾款比例。
+
+`model.mjs` 的 `validateData()` 逐个校验 `max_base_quote`，`buildDepot()` 将它暴露为 `MaxBaseQuote`；生成器只保留买家档位选择与界面取整，统一计算 `defaultQuoteThreshold(depot) = floor(depot.MaxBaseQuote * 1.1 / 1000) * 1000`。不再维护逐节点的手写价格表，报价缺失或非法时直接报错，不使用兜底价格。
+
+下表是游戏版本 `1.6.4+11262943-8` 的当前生成结果。该版本各节点的最大基础报价恰好对应 **4 级仓储节点、装满工业品的大型货箱**；计算不写死等级或组合，未来新增等级或仓储节点时按实际允许的组合自动重算。
+
+| 仓储节点 | MaaEnd 标识 | 最大基础报价（调度券） | 默认阈值（调度券） |
+| --- | --- | --- | --- |
+| 源石研究园 | `OriginiumSciencePark` | 192000 | 211000 |
+| 矿脉源区 | `OriginLodespring` | 312000 | 343000 |
+| 供能高地 | `PowerPlateau` | 336000 | 369000 |
+| 武陵城 | `WulingCity` | 129600 | 142000 |
+| 试验园区 | `TestArea` | 172800 | 190000 |
+
+常见买家倍率 `1.1` 的依据是[社区 Wiki 的 Depot Node 页面](https://endfield.wiki.gg/wiki/Depot_Node)，并非原始游戏表直接给出的买家倍率；该页面还列出罕见的 `1.5` 倍报价。`1.5` 倍罕见报价仍高于上述默认下限，无需以其为默认下限。
+
+阈值比较的是**发货侧买家报价**；15.9 万是转交后的尾款显示，不参与发货侧阈值计算。
 
 ## 任务选项的生成
 
@@ -76,32 +113,37 @@ DeliveryJobsAutoDeliveryPreferZipline                  switch  覆盖 AutoDelive
 DeliveryJobsOngoingDeliveryFallback                    switch  覆盖 DeliveryJobsDeliverByAutoDelivery.on_error
 ```
 
+节点 ID 与 option key 分别由模板里的 `pipelineNode` / `optionKey` 两个助手集中拼接，改节点名或选项名时优先改这两个助手，不要在展开逻辑里手写字符串。
+
 仓储节点的六个 case 分两类生成，覆盖内容全部落在少数几个参数上：
 
 | case | 生成函数 | 覆盖内容 |
 | ---------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `Transfer` | `buildModeOverride` | 两个入口启用；`cargoExpected=ALL_CARGO_EXPECTED`；`bidAction=DeliveryJobsDecideQuickTransfer`（界面有白底「快速转交」才快速转交，仓储节点未满 3 级时回退 `DeliveryJobsRedistributionBidNextStep`）；`ongoingDeliveryAction=DeliveryJobsTransferOngoingJob` |
+| `Transfer` | `buildModeOverride` | 两个入口启用；货物识别沿用 `ALL_CARGO_EXPECTED` 节点默认值；`bidAction=DeliveryJobsDecideQuickTransfer`（等底部按钮稳定后，有白底「快速转交」才快速转交；仓储节点未满 3 级时回退 `DeliveryJobsRedistributionBidNextStep`）；`ongoingDeliveryAction=DeliveryJobsTransferOngoingJob` |
 | `AutoDelivery` | `buildAutoDeliveryOverride` | 两个入口启用；`DeliveryJobsEnter{DepotId}DeliveryJob.next` 改指 `DeliveryJobsWait{DepotId}DeliveryMissionDetail`（等任务详情界面稳定后再转 `DeliveryJobsAutoDelivery{DepotId}`）；cargo anchor 的 `DeliveryJobsGoToDepot` 改指该节点；分派节点 `next` 改指该节点 |
 | `ByQuote` | `buildModeOverride` | 只启用货物入口；`bidAction=DeliveryJobsDecide{DepotId}Quote`；`ongoingDeliveryAction=DeliveryJobsAutoDelivery{DepotId}`（无归属终点时退回 `DeliveryJobsSkipOngoingDelivery`） |
 | `AcceptJobOnly` | `buildModeOverride` | 只启用货物入口；`bidAction=DeliveryJobsRedistributionBidNextStep`；`ongoingDeliveryAction=DeliveryJobsSkipOngoingDelivery` |
 | `PackCargoOnly` | `buildModeOverride` | 只启用货物入口；`cargoExpected=PACK_CARGO_EXPECTED`（不含「查看报价」）；`bidAction=DeliveryJobsCloseRedistributionBid`；`ongoingDeliveryAction=DeliveryJobsSkipOngoingDelivery` |
 | `Disabled` | `buildModeOverride` | 两个入口 `enabled: false`，不覆盖其余节点 |
 
-`buildModeOverride()` 的 `deliveryEnabled` / `cargoEnabled` 落到 `DeliveryJobsEnter{DepotId}DeliveryJob` / `DeliveryJobsEnter{DepotId}Cargo` 的 `enabled`；`cargoEnabled` 为真时还会覆盖 `DeliveryJobsCheck{DepotId}Cargo.expected` 与分派节点 `DeliveryJobsOngoingDeliveryFor{DepotId}.next`（只给 `next`，不改这个节点的锚点声明）。
+`buildModeOverride()` 的 `deliveryEnabled` / `cargoEnabled` 落到 `DeliveryJobsEnter{DepotId}DeliveryJob` / `DeliveryJobsEnter{DepotId}Cargo` 的 `enabled`；`cargoEnabled` 为真时覆盖货物入口的 `anchor` 与分派节点 `DeliveryJobsOngoingDeliveryFor{DepotId}.next`（只给 `next`，不改这个节点的锚点声明）。只有当方式需要与节点默认值不同的识别文本时才传 `cargoExpected`（目前只有「仅装箱货物」），其余方式沿用 depot 模板注入的默认值。
 
 > [!IMPORTANT]
 >
-> **`pipeline_override` 对 `DeliveryJobsEnter{DepotId}Cargo` 的 `anchor` 提供的是整个对象**（`buildCargoAnchor()` 的返回值），模板中该节点的 `anchor` 会被整体替换；`DeliveryJobsCheck{DepotId}Cargo.expected` 同理。改模板的 anchor 键或货物识别文本时，必须同步改 `buildCargoAnchor()` / `cargoExpected`，否则改动会被静默覆盖。
+> **`pipeline_override` 对 `DeliveryJobsEnter{DepotId}Cargo` 的 `anchor` 提供的是整个对象**（`buildCargoAnchor()` 的返回值），模板中该节点的 `anchor` 会被整体替换；需要改 anchor 键时同步改 `buildCargoAnchor()`。货物识别文本只有 `constants.mjs` 一个来源：模板默认值与「仅装箱货物」的覆盖都从那里取，不要在 `depot-template.jsonc` 或任务模板里另写一份。
 
 没有送货终点的仓储节点不生成 `AutoDelivery` case：`model.mjs` 用 `delivery_destinations.json` 的 `destinations[].depot_id` 归并终点，`AutoDeliverySupported` 为假的仓储节点在仓储节点模式与两个报价分支里都不出现「全自动送货」。终点坐标与路线的生成属于 AutoDelivery 生成器，见 [AutoDelivery README](../AutoDelivery/README.md)。
 
-`buildQuoteThresholdOption()` 把阈值注入 `ExpressionRecognition.expression`（`{DeliveryJobsSelectedBidPrice}>={阈值}` 与 `{DeliveryJobsSelectedBidPrice}<{阈值}`）。输入的 `pipeline_type` **必须保持 `"string"`**：输入值会被插入表达式字符串，设为 `int` 会把整个表达式当整数解析，最终得到 `null`。
+报价动作选「接取并转交」时，`buildQuoteActionOption()` 也把 `next` 指向 `DeliveryJobsDecideQuickTransfer`，并保留 `DeliveryJobsGoToDepot=DeliveryJobsReturnAndTransfer{DepotId}`。没有快速转交按钮时，各方式共用 `DeliveryJobsRedistributionBidNextStep` → 接取提示 → `DeliveryJobsBackToDepot`，随后由 `DeliveryJobsGoToDepot` 决定去向：仓储节点方式「接取并转交」先回本仓储节点，由地区循环重入命中入口 A 转交；报价动作「接取并转交」经 `DeliveryJobsReturnAndTransfer{DepotId}` → `DeliveryJobsEnter{DepotId}PriceDeliveryJob` 转交（「按报价处理」停用了入口 A）。有快速转交按钮时，确认后只走奖励与回本地仓储节点的流程，不经过接取链。
+
+`buildQuoteThresholdOption()` 把阈值注入 `ExpressionRecognition.expression`（`{DeliveryJobsSelectedBidPrice}>={阈值}` 与 `{DeliveryJobsSelectedBidPrice}<{阈值}`），`input.default` 与 Pipeline 的这两条阈值表达式共用 `constants.mjs` 的 `defaultQuoteThreshold(depot)`：按 `floor(depot.MaxBaseQuote * 1.1 / 1000) * 1000` 计算，五个节点的默认值见[默认报价阈值](#默认报价阈值)。输入的 `pipeline_type` **必须保持 `"string"`**：输入值会被插入表达式字符串，设为 `int` 会把整个表达式当整数解析，最终得到 `null`。
 
 ## 数据约束与生成期断言
 
 `model.mjs` 在导入时完成以下校验，任一不满足即中断生成：
 
 - **五语言名称完整**：地区、仓储节点、物品的 `zh_cn` / `zh_tw` / `en_us` / `ja_jp` / `ko_kr` 缺一即报错。识别用的 `expected` 由 `buildLocalizedExpected()` 生成：`en_us` 转成带 `(?i)` 前缀、词间空格放宽为 `\s*` 的弹性正则，其余语言原样。
+- **基础报价完整有效**：每个 `depots[id].max_base_quote` 都必须是正安全整数，缺失、零、负数、小数、非数字或超出安全整数范围都会报错；校验在本次 locale 写入和 `prepare.mjs` 删除生成目录之前完成。`buildDepot()` 只把通过校验的值传为 `MaxBaseQuote`。
 - **区域名恒等**：`delivery_destinations.json` 的 `destinations[].area` 必须与所属仓储节点 `depots[].names` 在五种语言下逐字一致（`assertDepotAreaNames()`）。Go 侧 `DeliveryJobsResolveOngoingDepotAction` 用区域 ID 直接拼出分派节点名，这条恒等关系是跨语言免映射表的前提。
 - **MaaEnd 标识可生成**：`Id` 由英文名移除非字母数字字符得到，必须匹配 `^[A-Za-z][A-Za-z0-9]*$`；地区 ID、仓储节点 ID，以及两者的合集都不得重复。
 - **归属一致**：仓储节点的 `region_id` 必须等于它被挂到的地区；地区至少要有一个仓储节点。
@@ -113,6 +155,7 @@ DeliveryJobsOngoingDeliveryFallback                    switch  覆盖 DeliveryJo
    数据源英文名移除空格和标点后生成，场景节点名按
    `SceneEnterMenuRegionalDevelopment{Id}[DepotNode]` 约定生成。
    AutoDelivery 数据 CI 必须同时生成对应游戏仓储 ID 的坐标与终点，否则配置动作会安全失败。
+   基础报价随 zmdmap 数据按允许的等级与装箱组合自动计算，无需登记新的手写默认阈值；新节点缺少有效报价时会在生成前报错。
 2. 新地区上线时，在 `assets/resource/pipeline/Interface/SceneRegionalDevelopment.json` 中补充对应的场景节点；
    `global.region.*` 与 `iconRecognition.name.*` 缺失翻译由 `sync-locales.mjs` 根据数据源自动补齐。
 3. 装箱物品选项无需手工登记：精简数据依据 `FactoryItemTable.deliverItemTypeList` 与
