@@ -13,7 +13,8 @@ from .path_utils import remove_directory_or_link
 LOCALS_DIR = Path(__file__).parent / "locals" / "build_and_install"
 
 
-_local_t = lambda key, **kwargs: key.format(**kwargs) if kwargs else key
+def _local_t(key, **kwargs):
+    return key.format(**kwargs) if kwargs else key
 
 
 def init_local() -> None:
@@ -83,10 +84,12 @@ def create_directory_link(src: Path, dst: Path) -> bool:
     dst.parent.mkdir(parents=True, exist_ok=True)
 
     if platform.system() == "Windows":
+        # cmd /u 固定以 UTF-16LE 输出，避免依赖控制台代码页或 Python 的默认编码。
         result = subprocess.run(
-            ["cmd", "/c", "mklink", "/J", str(dst), str(src)],
+            ["cmd", "/u", "/c", "mklink", "/J", str(dst), str(src)],
             capture_output=True,
             text=True,
+            encoding="utf-16-le",
         )
         if result.returncode != 0:
             print(
@@ -107,16 +110,19 @@ def create_file_link(src: Path, dst: Path) -> bool:
     dst.parent.mkdir(parents=True, exist_ok=True)
 
     if platform.system() == "Windows":
+        # 硬链接与符号链接都使用 cmd /u，统一按 UTF-16LE 读取输出。
         result = subprocess.run(
-            ["cmd", "/c", "mklink", "/H", str(dst), str(src)],
+            ["cmd", "/u", "/c", "mklink", "/H", str(dst), str(src)],
             capture_output=True,
             text=True,
+            encoding="utf-16-le",
         )
         if result.returncode != 0:
             result = subprocess.run(
-                ["cmd", "/c", "mklink", str(dst), str(src)],
+                ["cmd", "/u", "/c", "mklink", str(dst), str(src)],
                 capture_output=True,
                 text=True,
+                encoding="utf-16-le",
             )
             if result.returncode != 0:
                 print(
@@ -346,7 +352,7 @@ def build_go_agent(
 
 def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
     """初始化 MSVC 环境 (vswhere + vcvarsall), 供 Ninja + cl.exe 使用。失败返回 False。"""
-    sys_root = os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")
+    sys_root = os.environ.get("PROGRAMFILES(X86)", r"C:\Program Files (x86)")
     vswhere = Path(sys_root) / "Microsoft Visual Studio" / "Installer" / "vswhere.exe"
     if not vswhere.exists():
         # 兼容 VS 安装到非标准位置：尝试从 vswhere 注册表路径查找
@@ -450,7 +456,7 @@ def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
 
     rc_exe_path = None
     for probe_root in [
-        Path(os.environ.get("WindowsSdkDir", "")) / "bin",
+        Path(os.environ.get("WINDOWSSDKDIR", "")) / "bin",
         Path(r"C:\Program Files (x86)\Windows Kits\10\bin"),
     ]:
         if not probe_root.exists():
@@ -605,17 +611,19 @@ def build_cpp_algo(
         configure_preset_candidates = ["NinjaMulti"]
 
     # Windows 走 Ninja 时，需要先初始化 MSVC 开发环境（cl.exe/INCLUDE/LIB）
-    if resolved_os == "win":
-        if configure_preset_candidates[0].startswith("NinjaMulti Win32"):
-            if not setup_windows_msvc_env(resolved_arch):
-                print(
-                    f"  {Console.warn(t('warning'))} {t('msvc_env_fail_fallback')}"
-                )
-                # 回退到 VS generator（CMake 可自动定位 VS，无需环境变量）
-                if resolved_arch == "aarch64":
-                    configure_preset_candidates = ["MSVC 2026 ARM", "MSVC 2022 ARM"]
-                else:
-                    configure_preset_candidates = ["MSVC 2026", "MSVC 2022"]
+    if (
+        resolved_os == "win"
+        and configure_preset_candidates[0].startswith("NinjaMulti Win32")
+        and not setup_windows_msvc_env(resolved_arch)
+    ):
+        print(
+            f"  {Console.warn(t('warning'))} {t('msvc_env_fail_fallback')}"
+        )
+        # 回退到 VS generator（CMake 可自动定位 VS，无需环境变量）
+        if resolved_arch == "aarch64":
+            configure_preset_candidates = ["MSVC 2026 ARM", "MSVC 2022 ARM"]
+        else:
+            configure_preset_candidates = ["MSVC 2026", "MSVC 2022"]
 
     # 构建 MAADEPS_TRIPLET: maa-{x64|arm64}-{windows|linux|osx}
     arch_part = "x64" if resolved_arch == "x86_64" else "arm64"
@@ -834,9 +842,8 @@ def main() -> None:
         if item.is_dir():
             if link_or_copy_dir(item, dst):
                 print(f"  {Console.ok('->')} {dst}")
-        elif item.is_file():
-            if link_or_copy_file(item, dst):
-                print(f"  {Console.ok('->')} {dst}")
+        elif item.is_file() and link_or_copy_file(item, dst):
+            print(f"  {Console.ok('->')} {dst}")
 
     docs_img_dir = root_dir / "docs" / "img"
     if docs_img_dir.is_dir():
@@ -875,9 +882,8 @@ def main() -> None:
     for filename in ["README.md", "LICENSE"]:
         src = root_dir / filename
         dst = install_dir / filename
-        if src.exists():
-            if link_or_copy_file(src, dst):
-                print(f"  {Console.ok('->')} {dst}")
+        if src.exists() and link_or_copy_file(src, dst):
+            print(f"  {Console.ok('->')} {dst}")
 
     maafw_dir = install_dir / "maafw"
     maafw_dir.mkdir(parents=True, exist_ok=True)

@@ -156,12 +156,12 @@
             "查看報價",
             "(?i)Check\\s*Bid",
             "希望価格確認",
+            "입찰 보기",
             "货物装箱",
             "貨物裝箱",
             "(?i)Pack\\s*Goods",
             "パッキング",
-            "화물 포장",
-            "입찰 보기"
+            "화물 포장"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -206,7 +206,7 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPrice}>=119000"
+            "expression": "{DeliveryJobsSelectedBidPrice}>=190000"
         },
         "pre_delay": 0,
         "anchor": {
@@ -223,7 +223,7 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPrice}<119000"
+            "expression": "{DeliveryJobsSelectedBidPrice}<190000"
         },
         "pre_delay": 0,
         "anchor": {

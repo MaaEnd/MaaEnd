@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
+import argparse
 import json
 import sys
 import tempfile
-import argparse
 from pathlib import Path
+
 from jsonschema import Draft7Validator, Draft202012Validator
-from jsonschema.exceptions import ValidationError
 
 try:
+    # 仅用于探测 referencing.retrieval 是否安装，不直接使用。
+    import referencing.retrieval  # noqa: F401
     from referencing import Registry, Resource
-    from referencing.jsonschema import DRAFT202012, DRAFT7
-    import referencing.retrieval
+    from referencing.jsonschema import DRAFT7, DRAFT202012
 
     HAS_REFERENCING = True
 except ImportError:
@@ -72,7 +73,7 @@ def strip_jsonc_comments(text):
 
 def load_jsonc(file_path):
     """加载 JSONC 文件"""
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         content = f.read()
 
     # 移除注释
@@ -117,7 +118,7 @@ def find_line_number(file_path, json_path):
         return None
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             lines = f.readlines()
 
         # 只查找第一层（顶层对象）
@@ -132,7 +133,7 @@ def find_line_number(file_path, json_path):
             if pattern.search(line):
                 return i + 1  # 行号从1开始
 
-    except:
+    except Exception:
         pass
 
     return None
@@ -147,7 +148,7 @@ def validate_file(file_path, validator):
         if errors:
             print(f"\n❌ Validation failed for {file_path}:")
             print(f"   Found {len(errors)} error(s):")
-            for idx, error in enumerate(errors[:10], 1):
+            for _idx, error in enumerate(errors[:10], 1):
                 path = "/" + "/".join(str(p) for p in error.path) if error.path else "/"
                 # print(f"   {idx}. {path}: {error.message}")
 

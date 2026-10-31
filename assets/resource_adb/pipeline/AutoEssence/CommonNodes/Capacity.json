@@ -1,0 +1,21 @@
+{
+    // base 按一次 ESC 回主菜单；ADB/PlayCover 没有可用按键（key=27 在 ADB 上是 Android CAMERA 键），
+    // 改为在「确认已在武器基质页」的前提下点击右上角关闭/返回按钮。
+    // 只复用 CloseButtonType1 / BackButton 的识别框，它们各自的 action / next 不会被执行。
+    "AutoEssenceCapacityCloseValuables": {
+        "desc": "武器基质页点右上角关闭/返回按钮，回到主菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoEssenceCapacityOnWeaponTab",
+                    "CloseButtonType1"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    }
+}

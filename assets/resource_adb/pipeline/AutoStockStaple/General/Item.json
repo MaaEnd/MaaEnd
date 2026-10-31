@@ -7,7 +7,7 @@
             30
         ]
     },
-    "AutoStockInStapleItemDiscountsWuling": {
+    "AutoStockInStapleItemDiscountsValleyIVDaily": {
         "roi_offset": [
             43,
             -237,
@@ -15,7 +15,63 @@
             42
         ]
     },
-    "AutoStockInStapleItemDiscountsValleyIV": {
+    "AutoStockInStapleItemDiscountsValleyIVIndustrial": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsValleyIVCultural": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsValleyIVEngravingPermit": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsWulingDaily": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsWulingIndustrial": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsWulingCultural": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsWulingEngravingPermit": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsWulingArtificingCatalyst": {
         "roi_offset": [
             43,
             -237,

@@ -3,6 +3,7 @@ import {dirname, resolve} from "node:path";
 import {fileURLToPath, pathToFileURL} from "node:url";
 
 import {parseJsonc} from "../jsonc.mjs";
+import {sortLocaleKeys} from "../utils/locales.mjs";
 import {deliveryJobLocaleEntries} from "./model.mjs";
 
 const INTERFACE_LOCALES = [
@@ -125,7 +126,7 @@ export function syncDeliveryJobsLocaleCatalogs() {
 
         const changed = regionResult.filled + priorityCleanupResult.removed + priorityResult.filled + itemResult.filled;
         if (changed > 0) {
-            const syncedText = `${JSON.stringify(itemResult.messages, null, 4)}\n`;
+            const syncedText = `${JSON.stringify(sortLocaleKeys(itemResult.messages), null, 4)}\n`;
             writeFileSync(localePath, syncedText, "utf8");
             console.log(
                 `[DeliveryJobs] 已为 ${fileLocale}.json 补齐 ${regionResult.filled} 个地区/仓储节点键、补齐 ${priorityResult.filled} 个并清理 ${priorityCleanupResult.removed} 个装箱优先级键，以及补齐 ${itemResult.filled} 个物品键。`,

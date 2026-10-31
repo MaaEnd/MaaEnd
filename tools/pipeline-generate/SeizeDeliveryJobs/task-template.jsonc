@@ -10,9 +10,12 @@
                 "regional_development"
             ],
             "controller": [
+                "ADB",
+                "CloudADB",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
+                "PlayCover",
                 "Win32-Front"
             ],
             // 任务入口门控自己判定身上是否已有送货委托；只有组件确认「委托列表已滑到底」

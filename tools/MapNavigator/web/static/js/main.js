@@ -22,10 +22,25 @@ import {Camera} from "./camera.js";
 import {Renderer} from "./gl/renderer.js";
 import {Overlay} from "./gl/overlay.js";
 import {formatHeading, transformHeading} from "./heading.js";
-import {buildEditPreviewPlan} from "./edit_preview.js";
+import {buildEditPreviewPlan, routePreviewData, routePreviewForDisplay, routePreviewStatus} from "./edit_preview.js";
 import {advanceQuickRouteTest, buildQuickRouteTestRequest} from "./quick_route_test.js";
 import {applyAssertRectDrag, assertRectCursor, hitTestAssertRect, normalizeAssertRect} from "./assert_rect.js";
 import {EscapeAction, resolveEscapeAction} from "./escape_action.js";
+import {
+  BoxSelection,
+  LEFT_PANEL_FIT_OFFSET,
+  PanGesture,
+  ZOOM_IN_FACTOR,
+  ZOOM_OUT_FACTOR,
+  bindTemporaryPan,
+  canvasPoint,
+  isFormField,
+  isZoomInKey,
+  isZoomOutKey,
+  movedExceeded,
+  observeSize,
+  wheelZoomFactor,
+} from "./map_view.js";
 import {NavmeshField} from "./navmesh_field.js";
 import {
   addPoly,
@@ -62,6 +77,7 @@ import {
 } from "./model.js";
 import {compactNumber, roundHalfEven} from "./rounding.js";
 import {initFeedback, setStatus} from "./ui/toast.js";
+import {copyText} from "./ui/clipboard.js";
 import {nextWheelSelectIndex} from "./ui/select.js";
 import {ConnectionPanel} from "./ui/connection.js";
 import {RecordingController} from "./ui/recording.js";
@@ -87,14 +103,11 @@ import {
   RecordingSocket,
 } from "./rpc.js";
 
-const DRAG_ACTIVATION_DISTANCE = 4; // px (tk RouteEditorApp.DRAG_ACTIVATION_DISTANCE)
 // Pick radii (canvas px) for a selected no-go polygon: its vertex handles, then its edges.
 const NOGO_HANDLE_RADIUS = 7;
 const NOGO_EDGE_RADIUS = 6;
 const NAVMESH_PROBE_SNAP_RADIUS = 5.0;
 const LOAD_POLL_MS = 400;
-// CSS px the floating left column covers (gap + card + gap); fit-view centers in the rest.
-const LEFT_PANEL_FIT_OFFSET = 324;
 // World px kept around locate markers when framing them.
 const LOCATE_HINT_FIT_PADDING = 200;
 // 后端展开一条片段是秒级的, 连续编辑要先攒够静默再发一次。
@@ -128,18 +141,14 @@ class MapNavigatorApp {
     /** @type {string} current canvas tool (see {@link MapNavigatorApp#_setActiveTool}). */
     this.activeTool = "add";
     this.isDragging = false;
-    this.isPanCandidate = false;
-    this.isPanning = false;
-    this.isBoxSelecting = false;
+    this.pan = new PanGesture(this.camera, this.els.overlayCanvas);
+    /** Canvas-px selection box. */
+    this.box = new BoxSelection();
     this.isAssertSelecting = false;
     this.isEditPreviewStartDragCandidate = false;
     this.isEditPreviewStartDragging = false;
     this.pointerDownX = 0;
     this.pointerDownY = 0;
-    this.dragStartX = 0;
-    this.dragStartY = 0;
-    this.boxStartX = 0;
-    this.boxStartY = 0;
     this.assertStartWorldX = 0;
     this.assertStartWorldY = 0;
 
@@ -158,8 +167,6 @@ class MapNavigatorApp {
     this._assertDragStarted = false;
     /** @type {?{x:number,y:number,rot:?number,label:string}} assert locate hint in base px. */
     this.assertLocateHint = null;
-    /** @type {?{x0:number,y0:number,x1:number,y1:number}} canvas-px selection box. */
-    this.selectionRect = null;
     /** @type {?{globalIndex:number, decks:Array<{height:number, band:number[], thin:boolean}>}} */
     this.editDeckProbe = null;
     /** @type {?number} 正在预览的那一层高度。 */
@@ -1194,55 +1201,27 @@ class MapNavigatorApp {
 
     document.addEventListener("keydown", (ev) => this._onKeyDown(ev));
 
-    // Holding Alt temporarily swaps to the mode's pan tool; keyup restores the tool.
-    this._altSavedTool = null;
-    window.addEventListener("keydown", (e) => {
-      const target = e.target;
-      if (
-        target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "SELECT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable)
-      ) {
-        return;
-      }
-      if (e.key === "Alt" && !this._altSavedTool) {
-        e.preventDefault();
-        this._altSavedTool = this.activeTool;
-        if (this.state.mode === Mode.EDIT) {
-          this._setActiveTool("pan");
-        } else if (this.state.mode === Mode.ASSERT) {
-          this._setActiveTool("assert-pan");
-        } else if (this.state.mode === Mode.LOG) {
-          this._setActiveTool("log-pan");
-        } else if (this.state.mode === Mode.NOGO) {
-          this._setActiveTool("nogo-pan");
-        }
-      }
-    });
-
     window.addEventListener("keyup", (e) => {
       if (this.threeView?.setMovementKey(e.code, false, {ctrlKey: e.ctrlKey})) {
         e.preventDefault();
       }
-      if (e.key === "Alt" && this._altSavedTool) {
-        e.preventDefault();
-        const saved = this._altSavedTool;
-        this._altSavedTool = null;
-        this._setActiveTool(saved);
-      }
+    });
+    this._altPan = bindTemporaryPan({
+      current: () => this.activeTool,
+      panTool: () =>
+        ({
+          [Mode.EDIT]: "pan",
+          [Mode.ASSERT]: "assert-pan",
+          [Mode.LOG]: "log-pan",
+          [Mode.NOGO]: "nogo-pan",
+        })[this.state.mode] || null,
+      setTool: (tool) => this._setActiveTool(tool),
     });
   }
 
   /** Track canvas-wrap size changes (ResizeObserver, window resize fallback). @returns {void} */
   _observeResize() {
-    if (typeof ResizeObserver === "function") {
-      const ro = new ResizeObserver(() => this._resize());
-      ro.observe(this.els.canvasWrap);
-    } else {
-      window.addEventListener("resize", () => this._resize());
-    }
+    observeSize(this.els.canvasWrap, () => this._resize());
   }
 
   /** Resize both canvases to the wrap's CSS size at the device pixel ratio. @returns {void} */
@@ -1453,7 +1432,7 @@ class MapNavigatorApp {
       quickRouteTest: displayQuickRouteTest,
       assertTarget: mode === Mode.ASSERT ? this._assertTargetForDisplay() : null,
       assertSelected: mode === Mode.ASSERT && this.assertRectSelected,
-      selectionRect: this.selectionRect,
+      selectionRect: this.box.rect,
       livePath: displayLivePath,
       mapZiplines: displayMapZiplines,
       pointInspection: this._pointInspectionForDisplay(),
@@ -1476,36 +1455,10 @@ class MapNavigatorApp {
   /** Runtime preview projected from base px into the current EDIT segment's display frame. */
   _editPreviewForDisplay(route = this.editRoute, failure = this.editRouteFailure) {
     if ((!route && !failure) || !this.field) return null;
-    const project = (point) => this._baseToDisplay(point[0], point[1]);
-    const previewRoute = route || {};
-    return {
-      previewPoints: (previewRoute.points || []).map(project),
-      segmentBreaks: [],
-      hasRoute: !!route,
-      waypoints: [],
-      blindWalks: [],
-      diagnostics: this._diagnosticsForDisplay(previewRoute.diagnostics || []),
+    return routePreviewForDisplay(route, failure, (point) => this._baseToDisplay(point[0], point[1]), {
+      diagnostics: this._diagnosticsForDisplay((route || {}).diagnostics || []),
       debugOptions: this.navDebug,
-      showPlannedPath: this.navDebug.planned,
-      walkSegments: (previewRoute.walk_segments || []).map((segment) => segment.map(project)),
-      ziplineSegments: (previewRoute.zipline_segments || [])
-        .filter((segment) => Array.isArray(segment?.from) && Array.isArray(segment?.to))
-        .map((segment) => ({
-          ...segment,
-          from: project(segment.from),
-          to: project(segment.to),
-          mount_spots: Array.isArray(segment.mount_spots) ? segment.mount_spots.filter(Array.isArray).map(project) : [],
-        })),
-      failure: failure
-        ? {
-            ...failure,
-            segment_start: failure.segment_start ? project(failure.segment_start) : null,
-            segment_goal: failure.segment_goal ? project(failure.segment_goal) : null,
-            gap_start: failure.gap_start ? project(failure.gap_start) : null,
-            gap_goal: failure.gap_goal ? project(failure.gap_goal) : null,
-          }
-        : null,
-    };
+    });
   }
 
   /** The current segment's manual preview start projected from base px into the display frame. */
@@ -2537,7 +2490,7 @@ class MapNavigatorApp {
 
   /** Show a hand when the current tool can act on the hovered point. */
   _updatePointHoverCursor(canvasX, canvasY) {
-    if (this.isPanning) return;
+    if (this.pan.active) return;
     const canvas = this.els.overlayCanvas;
     if (this.state.mode === Mode.LOG && this.activeTool === "log-inspect") {
       const hit = this._hitBasePoint(this._logInspectionCandidates(), canvasX, canvasY);
@@ -2656,16 +2609,15 @@ class MapNavigatorApp {
   _clearEditSelection({cancelTool = false} = {}) {
     const wasSettingStart = this.activeTool === "edit-start";
     const hadTransientGesture =
-      this.isBoxSelecting || this.isEditPreviewStartDragCandidate || this.isEditPreviewStartDragging;
+      this.box.active || this.isEditPreviewStartDragCandidate || this.isEditPreviewStartDragging;
     const hadSelection = this.state.selectedIndices.size > 0 || this.editPreviewStartSelected;
     if (!hadSelection && !hadTransientGesture && !(cancelTool && wasSettingStart)) return false;
 
     this.state.clearSelection();
     this.editPreviewStartSelected = false;
-    this.isBoxSelecting = false;
+    this.box.cancel();
     this.isEditPreviewStartDragCandidate = false;
     this.isEditPreviewStartDragging = false;
-    this.selectionRect = null;
     if (cancelTool && wasSettingStart) {
       const returnTool = this._editPreviewStartReturnTool || "add";
       this._editPreviewStartReturnTool = null;
@@ -2681,7 +2633,7 @@ class MapNavigatorApp {
     return (
       this.state.selectedIndices.size > 0 ||
       this.editPreviewStartSelected ||
-      this.isBoxSelecting ||
+      this.box.active ||
       this.isEditPreviewStartDragCandidate ||
       this.isEditPreviewStartDragging ||
       this.activeTool === "edit-start"
@@ -2840,7 +2792,7 @@ class MapNavigatorApp {
     const visible =
       this.activeTool === "zipline-measure" ||
       ((this.activeTool === "pan" || this.activeTool === "assert-pan" || this.activeTool === "log-pan") &&
-        this._altSavedTool === "zipline-measure");
+        this._altPan?.savedTool === "zipline-measure");
     e.ziplineDistanceBox.hidden = !visible;
     e.btnZiplineDistanceClear.disabled = measurement.towers.length === 0;
     this._syncContextPanel();
@@ -3651,9 +3603,8 @@ class MapNavigatorApp {
     this._assertDragStarted = false;
     this.isAssertSelecting = true;
     this.isDragging = false;
-    this.isPanCandidate = false;
-    this.isPanning = false;
-    this.isBoxSelecting = false;
+    this.pan.cancel();
+    this.box.cancel();
     this.pointerDownX = canvasX;
     this.pointerDownY = canvasY;
     [this.assertStartWorldX, this.assertStartWorldY] = this.camera.canvasToWorld(canvasX, canvasY);
@@ -4175,8 +4126,7 @@ class MapNavigatorApp {
    * @returns {[number, number]} pointer position in canvas CSS px
    */
   _evtXY(e) {
-    const rect = this.els.overlayCanvas.getBoundingClientRect();
-    return [e.clientX - rect.left, e.clientY - rect.top];
+    return canvasPoint(e, this.els.overlayCanvas);
   }
 
   /**
@@ -4184,7 +4134,7 @@ class MapNavigatorApp {
    * @returns {boolean} true once the pointer moved past the drag-activation threshold
    */
   _movedExceeded(sx, sy, cx, cy) {
-    return Math.abs(cx - sx) > DRAG_ACTIVATION_DISTANCE || Math.abs(cy - sy) > DRAG_ACTIVATION_DISTANCE;
+    return movedExceeded(sx, sy, cx, cy);
   }
 
   /** @returns {(wx: number, wy: number) => [number, number]} bound world→canvas transform */
@@ -4208,10 +4158,7 @@ class MapNavigatorApp {
     if (e.button === 1 || e.button === 2) {
       e.preventDefault();
       const [x, y] = this._evtXY(e);
-      this.isPanning = true;
-      this.dragStartX = x;
-      this.dragStartY = y;
-      this.els.overlayCanvas.style.cursor = "grabbing";
+      this.pan.start(x, y);
       return;
     }
     if (e.button !== 0) return;
@@ -4222,36 +4169,25 @@ class MapNavigatorApp {
       ((this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) && this.activeTool === "zipline-measure");
     if (sharedReadOnlyTool) {
       this.isDragging = false;
-      this.isPanCandidate = true;
-      this.isPanning = false;
-      this.isBoxSelecting = false;
+      this.pan.arm(x, y);
+      this.box.cancel();
       this._resetAssertGesture({restore: true});
-      this.pointerDownX = x;
-      this.pointerDownY = y;
       return;
     }
 
     if (this.activeTool === "pan" || this.activeTool === "assert-pan" || this.activeTool === "nogo-pan") {
-      this.isPanning = true;
-      this.dragStartX = x;
-      this.dragStartY = y;
-      this.els.overlayCanvas.style.cursor = "grabbing";
+      this.pan.start(x, y);
       return;
     }
 
     if (this.state.mode === Mode.NOGO) {
       this.isDragging = false;
-      this.isPanning = false;
-      this.isBoxSelecting = false;
+      this.pan.cancel();
+      this.box.cancel();
       // A press on the selected polygon drags it; elsewhere a press that moves pans the
       // map and one that stays put becomes a click on pointer-up.
-      if (this.activeTool === "nogo-draw" && this._beginNoGoGesture(x, y)) {
-        this.isPanCandidate = false;
-        return;
-      }
-      this.isPanCandidate = true;
-      this.pointerDownX = x;
-      this.pointerDownY = y;
+      if (this.activeTool === "nogo-draw" && this._beginNoGoGesture(x, y)) return;
+      this.pan.arm(x, y);
       return;
     }
 
@@ -4271,11 +4207,10 @@ class MapNavigatorApp {
       if (this._hitEditPreviewStart(x, y)) {
         this.isEditPreviewStartDragCandidate = true;
         this.isEditPreviewStartDragging = false;
-        this.isPanCandidate = false;
-        this.isPanning = false;
+        this.pan.cancel();
         this.isDragging = false;
         this.isDragCandidate = false;
-        this.isBoxSelecting = false;
+        this.box.cancel();
         this.editPreviewStartSelected = true;
         this.pointerDownX = x;
         this.pointerDownY = y;
@@ -4289,32 +4224,25 @@ class MapNavigatorApp {
       const hitIdx = this._editViewDetached() ? null : this.state.hitTest(this._worldToCanvasFn(), x, y);
       if (hitIdx === null) {
         if (isSelectTool || e.ctrlKey || e.metaKey) {
-          this.isBoxSelecting = true;
-          this.boxStartX = x;
-          this.boxStartY = y;
-          this.isPanning = false;
+          this.box.start(x, y);
+          this.pan.cancel();
           this.isDragging = false;
           this.isDragCandidate = false;
         } else {
           // insert happens on pointer-up, and only if the drag threshold was never exceeded
-          this.isPanCandidate = true;
-          this.isPanning = false;
+          this.pan.arm(x, y);
           this.isDragging = false;
           this.isDragCandidate = false;
-          this.pointerDownX = x;
-          this.pointerDownY = y;
         }
       } else if (e.ctrlKey || e.metaKey || e.shiftKey) {
         // A modifier click on a point edits the selection like a list row does; nothing drags.
-        this.isPanCandidate = false;
-        this.isPanning = false;
+        this.pan.cancel();
         this.isDragging = false;
         this.isDragCandidate = false;
         this._clickSelectLocal(hitIdx, e);
         this._paint();
       } else {
-        this.isPanCandidate = false;
-        this.isPanning = false;
+        this.pan.cancel();
         this.isDragging = false;
         this.isDragCandidate = true;
         this.dragHitIdx = hitIdx;
@@ -4326,12 +4254,9 @@ class MapNavigatorApp {
 
     if (this.state.mode === Mode.EDIT && (this.activeTool === "edit-start" || this.activeTool === "route-test")) {
       this.isDragging = false;
-      this.isPanCandidate = true;
-      this.isPanning = false;
-      this.isBoxSelecting = false;
+      this.pan.arm(x, y);
+      this.box.cancel();
       this._resetAssertGesture({restore: true});
-      this.pointerDownX = x;
-      this.pointerDownY = y;
     }
   }
 
@@ -4354,7 +4279,7 @@ class MapNavigatorApp {
         this._updateNoGoGesture(x, y);
         return;
       }
-      if (this.activeTool === "nogo-draw" && !this.isPanning && !this.isPanCandidate && !this.noGoDraft.length) {
+      if (this.activeTool === "nogo-draw" && !this.pan.active && !this.pan.armed && !this.noGoDraft.length) {
         const hit = this._noGoHitSelected(x, y);
         this.els.overlayCanvas.style.cursor = hit ? (hit.kind === "inside" ? "move" : "pointer") : "crosshair";
       }
@@ -4362,30 +4287,23 @@ class MapNavigatorApp {
 
     if (
       (this.state.mode === Mode.LOG || this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) &&
-      !this.isPanning &&
-      !this.isPanCandidate &&
+      !this.pan.active &&
+      !this.pan.armed &&
       !this.isDragging &&
       !this.isDragCandidate &&
-      !this.isBoxSelecting &&
+      !this.box.active &&
       !this.isAssertSelecting
     ) {
       this._updatePointHoverCursor(x, y);
     }
 
-    if (this.isPanning) {
-      this.camera.panBy(x - this.dragStartX, y - this.dragStartY);
-      this.dragStartX = x;
-      this.dragStartY = y;
+    if (this.pan.active) {
+      this.pan.move(x, y);
       this._paint();
       return;
     }
-    if (this.isPanCandidate) {
-      if (!this._movedExceeded(this.pointerDownX, this.pointerDownY, x, y)) return;
-      this.isPanCandidate = false;
-      this.isPanning = true;
-      this.dragStartX = x;
-      this.dragStartY = y;
-      this.els.overlayCanvas.style.cursor = "grabbing";
+    if (this.pan.armed) {
+      this.pan.move(x, y);
       return;
     }
     if (this.state.mode === Mode.ASSERT) {
@@ -4409,8 +4327,8 @@ class MapNavigatorApp {
       return;
     }
 
-    if (this.isBoxSelecting) {
-      this.selectionRect = {x0: this.boxStartX, y0: this.boxStartY, x1: x, y1: y};
+    if (this.box.active) {
+      this.box.move(x, y);
       this._paint();
       return;
     }
@@ -4441,8 +4359,8 @@ class MapNavigatorApp {
   _onPointerUp(e) {
     const [x, y] = this._evtXY(e);
 
-    if (this.isPanning) {
-      this.isPanning = false;
+    if (this.pan.active) {
+      this.pan.cancel();
       this._setActiveTool(this.activeTool);
       if (this.state.mode === Mode.LOG || this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) {
         this._updatePointHoverCursor(x, y);
@@ -4453,24 +4371,24 @@ class MapNavigatorApp {
 
     if (this.state.mode === Mode.NOGO) {
       if (this._noGoGesture) this._endNoGoGesture();
-      else if (this.isPanCandidate) {
-        this.isPanCandidate = false;
+      else if (this.pan.armed) {
+        this.pan.cancel();
         if (this.activeTool === "nogo-draw") this._onNoGoClick(x, y);
       }
       return;
     }
 
     if ((this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) && this.activeTool === "zipline-measure") {
-      if (this.isPanCandidate) {
-        this.isPanCandidate = false;
+      if (this.pan.armed) {
+        this.pan.cancel();
         this._handleZiplineMeasureClick(x, y);
       }
       return;
     }
 
     if (this.state.mode === Mode.LOG) {
-      if (this.isPanCandidate) {
-        this.isPanCandidate = false;
+      if (this.pan.armed) {
+        this.pan.cancel();
         if (this.activeTool === "zipline-measure") this._handleZiplineMeasureClick(x, y);
         else if (this.activeTool === "log-inspect") this._handleLogInspectClick(x, y);
       }
@@ -4543,8 +4461,9 @@ class MapNavigatorApp {
       return;
     }
 
-    if (this.isBoxSelecting) {
-      if (Math.abs(x - this.boxStartX) <= 4 && Math.abs(y - this.boxStartY) <= 4) {
+    const box = this.box.finish(x, y);
+    if (box) {
+      if (box.click) {
         const hitIdx = this.state.hitTest(this._worldToCanvasFn(), x, y);
         if (hitIdx !== null) {
           const selected = new Set(this.state.selectedIndices);
@@ -4556,8 +4475,6 @@ class MapNavigatorApp {
             this._renderPointInspection();
           }
         } else if (this._handleMapZiplineInspectClick(x, y)) {
-          this.selectionRect = null;
-          this.isBoxSelecting = false;
           return;
         } else {
           this.state.clearSelection();
@@ -4569,18 +4486,16 @@ class MapNavigatorApp {
       } else {
         const indices = this._editViewDetached()
           ? []
-          : this.state.collectIndicesInRect(this._worldToCanvasFn(), this.boxStartX, this.boxStartY, x, y);
+          : this.state.collectIndicesInRect(this._worldToCanvasFn(), box.x0, box.y0, x, y);
         this.state.setSelection(indices);
       }
       this._syncActionControls();
-      this.selectionRect = null;
-      this.isBoxSelecting = false;
       this._paint();
       return;
     }
 
-    if (this.isPanCandidate) {
-      this.isPanCandidate = false;
+    if (this.pan.armed) {
+      this.pan.cancel();
       // Endpoints and new points must be authored on the route's own map.
       const authoring =
         this.activeTool === "add" || this.activeTool === "edit-start" || this.activeTool === "route-test";
@@ -4723,10 +4638,7 @@ class MapNavigatorApp {
   _onWheel(e) {
     e.preventDefault();
     const [x, y] = this._evtXY(e);
-    const deltaScale =
-      e.deltaMode === WheelEvent.DOM_DELTA_LINE ? 16 : e.deltaMode === WheelEvent.DOM_DELTA_PAGE ? this._cssH : 1;
-    const factor = Math.max(0.5, Math.min(2.0, Math.exp(-e.deltaY * deltaScale * 0.0015)));
-    this.camera.zoomAt(x, y, factor);
+    this.camera.zoomAt(x, y, wheelZoomFactor(e, this._cssH));
     this._paint();
   }
 
@@ -4964,36 +4876,6 @@ class MapNavigatorApp {
     void this._calculateQuickRouteTest();
   }
 
-  /** Normalize a successful runtime response into the overlay's route shape. */
-  _routePreviewData(result) {
-    return {
-      points: result.points || [],
-      walk_segments: result.walk_segments || [],
-      zipline_segments: result.zipline_segments || [],
-      diagnostics: result.diagnostics || [],
-      zipline: result.zipline || {},
-    };
-  }
-
-  /** User-facing summary shared by authored and quick route previews. */
-  _routePreviewStatus(route, result, subject) {
-    const hops = route.zipline_segments.length;
-    const expanded = result.expanded_waypoints || route.points.length;
-    if (hops > 0) {
-      return [`${subject}：采用 ${hops} 跳滑索，展开为 ${expanded} 个运行时路点。`, "#10b981"];
-    }
-    if (route.zipline.account_unknown) {
-      return [`${subject}：没有可用于规划的账号记录，已回退为步行路线。`, "#f59e0b"];
-    }
-    if (route.zipline.no_data) {
-      return [`${subject}：当前区域没有可用的滑索记录，已回退为步行路线。`, "#f59e0b"];
-    }
-    if (route.zipline.not_chosen) {
-      return [`${subject}：滑索没有显著优于步行，运行时会采用当前步行路线。`, "#10b981"];
-    }
-    return [`${subject}：展开为 ${expanded} 个运行时路点。`, "#10b981"];
-  }
-
   /** Focus a runtime-confirmed route gap, or repaint when no precise gap exists. */
   _showRoutePreviewFailure(failure) {
     if (failure?.gap_start && failure?.gap_goal) {
@@ -5035,10 +4917,10 @@ class MapNavigatorApp {
         throw new Error(result?.error || "路线展开失败");
       }
 
-      this.quickRouteTestRoute = this._routePreviewData(result);
+      this.quickRouteTestRoute = routePreviewData(result);
       this._syncThreeOverlays();
       this._syncEditPlanControls();
-      setStatus(...this._routePreviewStatus(this.quickRouteTestRoute, result, "快速测试完成"));
+      setStatus(...routePreviewStatus(this.quickRouteTestRoute, result, "快速测试完成"));
       this._paint();
     } catch (err) {
       if (token !== this._quickRouteTestToken) return;
@@ -5095,10 +4977,10 @@ class MapNavigatorApp {
         throw new Error(result?.error || "路线展开失败");
       }
 
-      this.editRoute = this._routePreviewData(result);
+      this.editRoute = routePreviewData(result);
       this._syncThreeOverlays();
       this._syncEditPlanControls();
-      setStatus(...this._routePreviewStatus(this.editRoute, result, "当前片段已规划"));
+      setStatus(...routePreviewStatus(this.editRoute, result, "当前片段已规划"));
       this._paint();
     } catch (err) {
       if (token !== this._editRouteToken) return;
@@ -6160,28 +6042,7 @@ class MapNavigatorApp {
 
   /** Copy `text` to the OS clipboard (async clipboard API + hidden-textarea fallback). */
   async _copyText(text) {
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text);
-        return true;
-      }
-    } catch {
-      // fall through to the legacy path
-    }
-    try {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-      const ok = document.execCommand("copy");
-      document.body.removeChild(textarea);
-      return ok;
-    } catch {
-      return false;
-    }
+    return copyText(text);
   }
 
   // ==================================================================================
@@ -6205,16 +6066,7 @@ class MapNavigatorApp {
       e.preventDefault();
       return;
     }
-    const target = e.target;
-    if (
-      target &&
-      (target.tagName === "INPUT" ||
-        target.tagName === "SELECT" ||
-        target.tagName === "TEXTAREA" ||
-        target.isContentEditable)
-    ) {
-      return;
-    }
+    if (isFormField(e.target)) return;
     if (this._is3DView()) {
       const floorChoice =
         /^[1-9]$/.test(e.key) && !this.els.threeFloorPrompt.hidden
@@ -6226,10 +6078,10 @@ class MapNavigatorApp {
       } else if (e.key === "Escape" && this.threeView?.clearSelection()) {
         setStatus("已清除 3D 点位选择。", "#10b981");
         e.preventDefault();
-      } else if (e.key === "+" || e.key === "=" || e.code === "NumpadAdd") {
+      } else if (isZoomInKey(e)) {
         this._zoomIn();
         e.preventDefault();
-      } else if (e.key === "-" || e.key === "_" || e.code === "NumpadSubtract") {
+      } else if (isZoomOutKey(e)) {
         this._zoomOut();
         e.preventDefault();
       } else if (!e.metaKey && !e.altKey && this.threeView?.setMovementKey(e.code, true, {ctrlKey: e.ctrlKey})) {
@@ -6281,12 +6133,12 @@ class MapNavigatorApp {
       e.preventDefault();
       return;
     }
-    if (e.key === "+" || e.key === "=" || e.code === "NumpadAdd") {
+    if (isZoomInKey(e)) {
       this._zoomIn();
       e.preventDefault();
       return;
     }
-    if (e.key === "-" || e.key === "_" || e.code === "NumpadSubtract") {
+    if (isZoomOutKey(e)) {
       this._zoomOut();
       e.preventDefault();
       return;
@@ -6360,7 +6212,8 @@ class MapNavigatorApp {
     if (e.ziplineDistanceBox) {
       const showMeasurement =
         tool === "zipline-measure" ||
-        ((tool === "pan" || tool === "assert-pan" || tool === "log-pan") && this._altSavedTool === "zipline-measure");
+        ((tool === "pan" || tool === "assert-pan" || tool === "log-pan") &&
+          this._altPan?.savedTool === "zipline-measure");
       e.ziplineDistanceBox.hidden = !showMeasurement;
       this._syncContextPanel();
     }
@@ -6455,20 +6308,20 @@ class MapNavigatorApp {
   /** Zoom in around the canvas center (button / `+` key). @returns {void} */
   _zoomIn() {
     if (this._is3DView()) {
-      if (this.threeView) this.threeView.zoomBy(1.25);
+      if (this.threeView) this.threeView.zoomBy(ZOOM_IN_FACTOR);
       return;
     }
-    this.camera.zoomAt(this._cssW / 2, this._cssH / 2, 1.25);
+    this.camera.zoomAt(this._cssW / 2, this._cssH / 2, ZOOM_IN_FACTOR);
     this._paint();
   }
 
   /** Zoom out around the canvas center (button / `-` key). @returns {void} */
   _zoomOut() {
     if (this._is3DView()) {
-      if (this.threeView) this.threeView.zoomBy(0.8);
+      if (this.threeView) this.threeView.zoomBy(ZOOM_OUT_FACTOR);
       return;
     }
-    this.camera.zoomAt(this._cssW / 2, this._cssH / 2, 0.8);
+    this.camera.zoomAt(this._cssW / 2, this._cssH / 2, ZOOM_OUT_FACTOR);
     this._paint();
   }
 

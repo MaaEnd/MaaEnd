@@ -6,8 +6,9 @@ MaaEnd 使用由 zmdmap 数据 CI 生成并发布的精简游戏数据，落在 
 - `delivery_destinations.json`：仓储和送货终点的多语言文本、底图像素 `u` / `v`、世界高度 `y` 与归属关系；
 - `environment_monitoring.json`：监测终端、观察点与各语言名称；
 - `sell_product.json`：据点、可售物品、据点特性与匹配干员；
-- `teleport_anchors.json`：营地（地图传送锚点）的底图像素 `u` / `v` 与传送 ID；
-- `collect_points.json`：可交互采集物的底图像素 `u` / `v`。
+- `teleport_anchors.json`：营地（地图传送锚点）的底图像素 `u` / `v`、传送 ID，以及所在区域与关卡的各语言名称；
+- `collect_points.json`：可交互采集物的底图像素 `u` / `v` 与世界高度 `y`，以及按采集物类别列出的产物、采集方式、图标、各语言名称与产物的类型、展示分类、稀有度；
+- `energy_points.json`：基质刷取各地区激发点的底图像素 `u` / `v` 与世界高度 `y`。
 
 这些文件都是按任务需要裁剪出的游戏数据，不是完整的上游数据快照：除了最前面的两个元数据字段（`version`：这份数据来自哪一版游戏数据；`sha256`：这份数据**原始形态**（只带世界坐标的那一份）的内容指纹，入库投影后照抄、不重算），不放别的来源元数据，字段说明也不放进 JSON（字段含义见 [`tools/zmdmap`](../zmdmap/README.md) 与各数据集模块）。
 
@@ -29,7 +30,7 @@ zmdmap 发布精简游戏数据（只有世界坐标）
                          tools/zmdmap/data/*.json
 ```
 
-`uv run zmdmap fetch`（也就是 `pnpm fetch:zmdmap`）按上游的发布清单 `manifest.json` 逐份判断要不要重新下载（清单给出这批数据是哪一版、每份原始形态的内容指纹，以及这一批都发了哪几份：指纹一致就跳过，本地没有或指纹对不上的才下；清单里没有的那几份不在这批里，本地有就保持原样；清单还没发布时不做比对、直接下载），本地与 CI 同一套判断；**下了的才重新投影入库**，本地已是最新时连投影都不跑：
+`uv run zmdmap fetch`（也就是 `pnpm fetch:zmdmap`）按上游的发布清单 `manifest.json` 逐份判断要不要重新下载（清单给出这批数据是哪一版、每份原始形态的内容指纹，以及这一批都发了哪几份：指纹一致就跳过，本地没有或指纹对不上的才下；清单里没有的那几份不在这批里，本地有就保持原样；清单取不到就直接报错，不会不比对就整批下），本地与 CI 同一套判断；**下了的才重新投影入库**，本地已是最新时连投影都不跑：
 
 ```shell
 pnpm fetch:zmdmap                                # 下载（必要时）+ 投影到 tools/zmdmap/data/*.json
@@ -49,7 +50,11 @@ pnpm generate:DeliveryJobs
 pnpm generate:EnvironmentMonitoring
 pnpm generate:OutpostTrading
 pnpm generate:SeizeDeliveryJobs
+pnpm generate:SceneTeleport
+pnpm generate:AutoEssence
 ```
+
+地图总览点击坐标由 zmdmap 统一管理，运行 `pnpm generate:MapOverview` 下载数据并生成选择底图的点击节点；已有流程出口的维护方式见 [MapOverview](./MapOverview/README.md)。
 
 ## 投影
 
@@ -61,7 +66,7 @@ pnpm generate:SeizeDeliveryJobs
 
 ## 本地生成脚本
 
-`datasets/`（一份数据一个模块）与下载/入库统一放在 [`tools/zmdmap`](../zmdmap/README.md)，入口是 `uv run zmdmap`（子命令 `generate` / `fetch`）。生成只读本地兄弟仓库：各数据集的 `Dataset.build` 通过 `utils/game_data.py` 读 `BeyondTableCfg/TableCfg` 与 `BeyondMemoryPack/JsonData`（记录取值、关卡索引也在那里）；路径与语言表这类静态配置在 `utils/config.py`，其余共用件在 `utils/`。
+`datasets/`（一份数据一个模块或文件夹）与下载/入库统一放在 [`tools/zmdmap`](../zmdmap/README.md)，入口是 `uv run zmdmap`（子命令 `generate` / `fetch`）。生成只读本地兄弟仓库：各数据集的 `Dataset.build` 在参数上声明要读的输入，`generate` 按签名注入 `BeyondTableCfg/TableCfg` 与 `BeyondMemoryPack/JsonData`（`table_cfg` / `json_data`，记录取值与关卡索引都在服务里）；`region3d` 还声明 `lua` / `assets`，对应 `BeyondLua/LuaScripts` 与 `BeyondImage/assets`。路径与语言表这类静态配置在 `utils/config.py`，其余共用件在 `utils/`。
 
 默认按当前 MaaEnd 仓库的兄弟目录解析输入，因此各仓库位于同一 `Endfield` 目录时无需传路径：
 

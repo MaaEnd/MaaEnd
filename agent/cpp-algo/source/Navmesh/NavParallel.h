@@ -10,8 +10,8 @@
 namespace navmesh
 {
 
-inline constexpr unsigned kNavWorkerLimit = 4;      // 这几个环是访存绑死的, 线程再多也量不出加速
-inline constexpr int64_t kNavSerialFloor = 1 << 16; // 元素数低于此值, 起线程比算还贵
+inline constexpr unsigned kNavWorkerLimit = 4;
+inline constexpr int64_t kNavSerialFloor = 1 << 16; // 元素数低于此值走单线程
 
 inline std::atomic<unsigned>& NavWorkerOverride()
 {
@@ -19,8 +19,7 @@ inline std::atomic<unsigned>& NavWorkerOverride()
     return value;
 }
 
-// 只改用几个线程, 不改算什么: 切块按下标静态划分, 每块写自己那段, 1 线程与 N 线程输出逐位相同。
-// 台架靠它把同一份代码跑成两种线程数来验这一点, 生产不调, 走硬件并发。
+// 仅供测试改线程数, 生产代码不调用
 inline void SetNavWorkerLimit(unsigned limit)
 {
     NavWorkerOverride().store(limit);
@@ -36,8 +35,7 @@ inline size_t NavWorkerCount(int64_t n)
     return static_cast<size_t>(avail);
 }
 
-// 一个元素就是一整块瓦这种循环, 元素数只有几百, 拿它比 kNavSerialFloor 会一路退回单线程。
-// 这里只按块数封顶。
+// 用于每个元素是一整块瓦的循环, 不受 kNavSerialFloor 限制
 inline size_t NavWorkerCountForBlocks(int64_t n)
 {
     const unsigned forced = NavWorkerOverride().load();
@@ -48,9 +46,7 @@ inline size_t NavWorkerCountForBlocks(int64_t n)
     return static_cast<size_t>(std::min<int64_t>(n, avail));
 }
 
-// fn(w, begin, end) 跑第 w 块 [begin, end)。调用线程自己领第 0 块, 因此只多起 workers-1 个。
-// 池子用 jthread: 调用线程这块抛出时(分配失败是唯一的来路), 析构自己把工人接回来。裸 thread
-// 在那条路上还是 joinable, 析构即 terminate, 连崩溃点都留不下。
+// fn(w, begin, end) 跑第 w 块, 调用线程跑第 0 块, 用 jthread 是为了抛出时自动 join
 template <class F>
 void ParallelChunks(int64_t n, size_t workers, F&& fn)
 {
@@ -75,7 +71,7 @@ void ParallelChunks(int64_t n, size_t workers, F&& fn)
     }
 }
 
-// 过滤环的合流: 每块只往自己那个桶里推, 收工按块序接起来。桶序即下标序, 于是与线程数无关。
+// 按块序拼接各桶, 结果与线程数无关
 template <class T>
 void ConcatBins(const std::vector<std::vector<T>>& bins, std::vector<T>& out)
 {

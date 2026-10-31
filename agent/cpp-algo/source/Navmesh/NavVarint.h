@@ -5,8 +5,7 @@
 namespace navmesh
 {
 
-// Reads one unsigned LEB128 value and advances cursor. Returns false when the input ends or the value exceeds 64 bits.
-// The main pack, the fields sidecar and the occluder pack share this reader for their delta streams.
+// 无符号 LEB128, 输入耗尽或超过 64 位时返回 false
 inline bool GetVarint(const uint8_t*& cursor, const uint8_t* end, uint64_t& out)
 {
     out = 0;
@@ -23,7 +22,6 @@ inline bool GetVarint(const uint8_t*& cursor, const uint8_t* end, uint64_t& out)
     return false;
 }
 
-// Maps a zigzag-encoded value back to its signed form.
 inline int64_t UnZigzag(uint64_t value)
 {
     return static_cast<int64_t>(value >> 1U) ^ -static_cast<int64_t>(value & 1U);

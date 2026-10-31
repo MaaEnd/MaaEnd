@@ -1,11 +1,12 @@
 import json
-import json5
 import locale
 import os
 import platform
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
+
+import json5
 
 
 class Ansi:
@@ -64,19 +65,19 @@ def _enable_windows_virtual_terminal() -> bool:
 
 def supports_color() -> bool:
     """
-    Return True if ANSI color output should be used on the current stdout.  
+    Return True if ANSI color output should be used on the current stdout.
 
-    This helper centralizes the logic for deciding whether to emit ANSI escape  
-    sequences. It respects common environment variables and platform-specific  
-    behavior:  
+    This helper centralizes the logic for deciding whether to emit ANSI escape
+    sequences. It respects common environment variables and platform-specific
+    behavior:
 
-    * `NO_COLOR` (if set) unconditionally disables color output.  
-    * `FORCE_COLOR` (if set) unconditionally enables color output.  
-    * Color is only enabled when `sys.stdout` is a TTY (interactive terminal).  
-    * On Windows, virtual terminal processing must be available or successfully  
-      enabled via `_enable_windows_virtual_terminal()`.  
-    * On non-Windows platforms, `TERM` must be set to a non-empty value other  
-      than `"dumb"` for color to be considered supported.  
+    * `NO_COLOR` (if set) unconditionally disables color output.
+    * `FORCE_COLOR` (if set) unconditionally enables color output.
+    * Color is only enabled when `sys.stdout` is a TTY (interactive terminal).
+    * On Windows, virtual terminal processing must be available or successfully
+      enabled via `_enable_windows_virtual_terminal()`.
+    * On non-Windows platforms, `TERM` must be set to a non-empty value other
+      than `"dumb"` for color to be considered supported.
     """
     if os.environ.get("NO_COLOR") is not None:
         return False
@@ -91,56 +92,56 @@ def supports_color() -> bool:
 
 class Console:
     """
-    Helper for producing optionally colorized console text using ANSI escape codes.  
+    Helper for producing optionally colorized console text using ANSI escape codes.
 
-    The console can be configured to enable or disable color output. When disabled,  
-    all helpers return the original text without any ANSI sequences.  
-    """ 
+    The console can be configured to enable or disable color output. When disabled,
+    all helpers return the original text without any ANSI sequences.
+    """
     enabled = supports_color()
 
     @classmethod
-    def colorize(cls, text: str, color: str) -> str:  
-        """Wrap ``text`` in the given ANSI ``color`` code if color output is enabled.  
+    def colorize(cls, text: str, color: str) -> str:
+        """Wrap ``text`` in the given ANSI ``color`` code if color output is enabled.
 
-        Args:  
-            text: The text to be colorized.  
-            color: The ANSI color escape sequence to prefix the text with.  
+        Args:
+            text: The text to be colorized.
+            color: The ANSI color escape sequence to prefix the text with.
 
-        Returns:  
-            The colorized text when colors are enabled; otherwise the original text.  
-        """  
-        if not cls.enabled:  
-            return text  
-        return f"{color}{text}{Ansi.RESET}"  
-
-    @classmethod
-    def hdr(cls, text: str) -> str:  
-        """Return a header-style string, typically used for section titles."""  
-        return cls.colorize(text, Ansi.MAGENTA)  
+        Returns:
+            The colorized text when colors are enabled; otherwise the original text.
+        """
+        if not cls.enabled:
+            return text
+        return f"{color}{text}{Ansi.RESET}"
 
     @classmethod
-    def step(cls, text: str) -> str:  
-        """Return a step label string, e.g. for multi-step CLI workflows."""  
-        return cls.colorize(text, Ansi.MAGENTA)  
+    def hdr(cls, text: str) -> str:
+        """Return a header-style string, typically used for section titles."""
+        return cls.colorize(text, Ansi.MAGENTA)
 
     @classmethod
-    def ok(cls, text: str) -> str:  
-        """Return a success-style string."""  
-        return cls.colorize(text, Ansi.GREEN)  
+    def step(cls, text: str) -> str:
+        """Return a step label string, e.g. for multi-step CLI workflows."""
+        return cls.colorize(text, Ansi.MAGENTA)
 
     @classmethod
-    def warn(cls, text: str) -> str:  
-        """Return a warning-style string."""  
-        return cls.colorize(text, Ansi.YELLOW)  
+    def ok(cls, text: str) -> str:
+        """Return a success-style string."""
+        return cls.colorize(text, Ansi.GREEN)
 
     @classmethod
-    def err(cls, text: str) -> str:  
-        """Return an error-style string."""  
-        return cls.colorize(text, Ansi.RED)  
+    def warn(cls, text: str) -> str:
+        """Return a warning-style string."""
+        return cls.colorize(text, Ansi.YELLOW)
 
     @classmethod
-    def info(cls, text: str) -> str:  
-        """Return an informational-style string."""  
+    def err(cls, text: str) -> str:
+        """Return an error-style string."""
+        return cls.colorize(text, Ansi.RED)
+
+    @classmethod
+    def info(cls, text: str) -> str:
+        """Return an informational-style string."""
         return cls.colorize(text, Ansi.CYAN)
 
 
@@ -192,7 +193,7 @@ def init_localization(
     load_error_path: str | None = None
 
     try:
-        with open(locale_file, "r", encoding="utf-8-sig") as f:
+        with open(locale_file, encoding="utf-8-sig") as f:
             data = json5.load(f)
         if isinstance(data, dict):
             lang_res = {str(k): str(v) for k, v in data.items()}

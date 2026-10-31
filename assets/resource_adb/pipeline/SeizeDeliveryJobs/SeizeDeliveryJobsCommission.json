@@ -1,0 +1,34 @@
+{
+    "__SeizeDeliveryJobsRecoFilterValleyIV": {
+        "roi": [
+            40,
+            480,
+            240,
+            155
+        ]
+    },
+    "SeizeDeliveryJobsJobListIsValleyIVFilter": {
+        "roi": [
+            40,
+            638,
+            240,
+            45
+        ]
+    },
+    "__SeizeDeliveryJobsRecoFilterWuling": {
+        "roi": [
+            40,
+            480,
+            240,
+            155
+        ]
+    },
+    "SeizeDeliveryJobsJobListIsWulingFilter": {
+        "roi": [
+            40,
+            638,
+            240,
+            45
+        ]
+    }
+}

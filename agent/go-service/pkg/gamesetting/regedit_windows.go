@@ -5,6 +5,7 @@ package gamesetting
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -23,216 +24,220 @@ const (
 	autoHDRDisabledValue      = "2096"
 	autoHDREnabledValue       = "2097"
 	autoHDRGlobalEnabledValue = "1"
+	autoHDRUserOverrideFlag   = 0x1000
+	autoHDREnabledFlag        = 0x1
 )
 
 var registryPath = registryPathCN
 
 var ErrUnsupported = errors.New("gamesetting: only supported on windows")
 
+// Unity PlayerPrefs 值名为「键名_h + djb2-xor(键名)」，哈希只取决于键名，各机器一致，故直接写死完整值名。
+// 游戏未保存过的设置不会出现在注册表中，按完整值名写入即可新建。
 const (
-	valuePrefixScreenmanagerFullscreenMode         = `Screenmanager Fullscreen mode_h`
-	valuePrefixScreenmanagerResolutionHeight       = `Screenmanager Resolution Height_h`
-	valuePrefixScreenmanagerResolutionWidth        = `Screenmanager Resolution Width_h`
-	valuePrefixScreenmanagerResolutionWindowHeight = `Screenmanager Resolution Window Height_h`
-	valuePrefixScreenmanagerResolutionWindowWidth  = `Screenmanager Resolution Window Width_h`
-	valuePrefixScreenmanagerWindowPositionX        = `Screenmanager Window Position X_h`
-	valuePrefixScreenmanagerWindowPositionY        = `Screenmanager Window Position Y_h`
-	valuePrefixLanguageTextChange                  = `language_text_change_h`
-	valuePrefixVideoCustomQuality                  = `video_custom_quality_h`
-	valuePrefixVideoFrameRate8                     = `video_frame_rate_8_h`
-	valuePrefixVideoFullScreen                     = `video_full_screen_h`
-	valuePrefixVideoQualityAnisoLevel1             = `video_quality_anisoLevel_1_h`
-	valuePrefixVideoQualityContactShadow           = `video_quality_contactshadow_h`
-	valuePrefixVideoQualityDLSSMode1               = `video_quality_dlss_mode_1_h`
-	valuePrefixVideoQualityMain                    = `video_quality_main_h`
-	valuePrefixVideoQualityReflex                  = `video_quality_reflex_h`
-	valuePrefixVideoQualitySharpness               = `video_quality_sharpness_h`
-	valuePrefixVideoQualityUpscaler                = `video_quality_upscaler_h`
-	valuePrefixVideoResolution                     = `video_resolution_h`
-	valuePrefixVideoResolutionHeight               = `video_resolution_height_h`
-	valuePrefixVideoResolutionWidth                = `video_resolution_width_h`
-	valuePrefixVideoTextureQuality1                = `video_texture_quality_1_h`
+	valueNameScreenmanagerFullscreenMode         = `Screenmanager Fullscreen mode_h3630240806`
+	valueNameScreenmanagerResolutionHeight       = `Screenmanager Resolution Height_h2627697771`
+	valueNameScreenmanagerResolutionWidth        = `Screenmanager Resolution Width_h182942802`
+	valueNameScreenmanagerResolutionWindowHeight = `Screenmanager Resolution Window Height_h1684712807`
+	valueNameScreenmanagerResolutionWindowWidth  = `Screenmanager Resolution Window Width_h2524650974`
+	valueNameScreenmanagerWindowPositionX        = `Screenmanager Window Position X_h4088080503`
+	valueNameScreenmanagerWindowPositionY        = `Screenmanager Window Position Y_h4088080502`
+	valueNameLanguageTextChange                  = `language_text_change_h1448997164`
+	valueNameVideoCustomQuality                  = `video_custom_quality_h2367254986`
+	valueNameVideoFrameRate8                     = `video_frame_rate_8_h697513772`
+	valueNameVideoFullScreen                     = `video_full_screen_h1998742411`
+	valueNameVideoQualityAnisoLevel1             = `video_quality_anisoLevel_1_h3121203451`
+	valueNameVideoQualityContactShadow           = `video_quality_contactshadow_h2467683423`
+	valueNameVideoQualityDLSSMode1               = `video_quality_dlss_mode_1_h833809667`
+	valueNameVideoQualityMain                    = `video_quality_main_h2648490162`
+	valueNameVideoQualityReflex                  = `video_quality_reflex_h2003858649`
+	valueNameVideoQualitySharpness               = `video_quality_sharpness_h269037322`
+	valueNameVideoQualityUpscaler                = `video_quality_upscaler_h1386130102`
+	valueNameVideoResolution                     = `video_resolution_h1805082501`
+	valueNameVideoResolutionHeight               = `video_resolution_height_h2517654917`
+	valueNameVideoResolutionWidth                = `video_resolution_width_h583690364`
+	valueNameVideoTextureQuality1                = `video_texture_quality_1_h3061223496`
 	// PLDK_cachedRoleId 是游戏角色 UID；不要与 u8sdk_cached_uid 混淆。
 	valuePrefixPLDKCachedRoleId = `PLDK_cachedRoleId`
 )
 
 func GetScreenmanagerFullscreenMode() (uint32, error) {
-	return getDWord(valuePrefixScreenmanagerFullscreenMode)
+	return getDWord(valueNameScreenmanagerFullscreenMode)
 }
 
 func SetScreenmanagerFullscreenMode(value uint32) error {
-	return setDWord(valuePrefixScreenmanagerFullscreenMode, value)
+	return setDWord(valueNameScreenmanagerFullscreenMode, value)
 }
 
 func GetScreenmanagerResolutionHeight() (uint32, error) {
-	return getDWord(valuePrefixScreenmanagerResolutionHeight)
+	return getDWord(valueNameScreenmanagerResolutionHeight)
 }
 
 func SetScreenmanagerResolutionHeight(value uint32) error {
-	return setDWord(valuePrefixScreenmanagerResolutionHeight, value)
+	return setDWord(valueNameScreenmanagerResolutionHeight, value)
 }
 
 func GetScreenmanagerResolutionWidth() (uint32, error) {
-	return getDWord(valuePrefixScreenmanagerResolutionWidth)
+	return getDWord(valueNameScreenmanagerResolutionWidth)
 }
 
 func SetScreenmanagerResolutionWidth(value uint32) error {
-	return setDWord(valuePrefixScreenmanagerResolutionWidth, value)
+	return setDWord(valueNameScreenmanagerResolutionWidth, value)
 }
 
 func GetScreenmanagerResolutionWindowHeight() (uint32, error) {
-	return getDWord(valuePrefixScreenmanagerResolutionWindowHeight)
+	return getDWord(valueNameScreenmanagerResolutionWindowHeight)
 }
 
 func SetScreenmanagerResolutionWindowHeight(value uint32) error {
-	return setDWord(valuePrefixScreenmanagerResolutionWindowHeight, value)
+	return setDWord(valueNameScreenmanagerResolutionWindowHeight, value)
 }
 
 func GetScreenmanagerResolutionWindowWidth() (uint32, error) {
-	return getDWord(valuePrefixScreenmanagerResolutionWindowWidth)
+	return getDWord(valueNameScreenmanagerResolutionWindowWidth)
 }
 
 func SetScreenmanagerResolutionWindowWidth(value uint32) error {
-	return setDWord(valuePrefixScreenmanagerResolutionWindowWidth, value)
+	return setDWord(valueNameScreenmanagerResolutionWindowWidth, value)
 }
 
 func GetScreenmanagerWindowPositionX() (uint32, error) {
-	return getDWord(valuePrefixScreenmanagerWindowPositionX)
+	return getDWord(valueNameScreenmanagerWindowPositionX)
 }
 
 func SetScreenmanagerWindowPositionX(value uint32) error {
-	return setDWord(valuePrefixScreenmanagerWindowPositionX, value)
+	return setDWord(valueNameScreenmanagerWindowPositionX, value)
 }
 
 func GetScreenmanagerWindowPositionY() (uint32, error) {
-	return getDWord(valuePrefixScreenmanagerWindowPositionY)
+	return getDWord(valueNameScreenmanagerWindowPositionY)
 }
 
 func SetScreenmanagerWindowPositionY(value uint32) error {
-	return setDWord(valuePrefixScreenmanagerWindowPositionY, value)
+	return setDWord(valueNameScreenmanagerWindowPositionY, value)
 }
 
 // GetLanguageTextChange reads Endfield's text language.
 func GetLanguageTextChange() (uint32, error) {
-	return getDWord(valuePrefixLanguageTextChange)
+	return getDWord(valueNameLanguageTextChange)
 }
 
 // SetLanguageTextChange writes Endfield's text language.
 // 语音语言存放在独立的注册表项，不受此项影响。
 func SetLanguageTextChange(value uint32) error {
-	return setDWord(valuePrefixLanguageTextChange, value)
+	return setDWord(valueNameLanguageTextChange, value)
 }
 
 func GetVideoCustomQuality() (uint32, error) {
-	return getDWord(valuePrefixVideoCustomQuality)
+	return getDWord(valueNameVideoCustomQuality)
 }
 
 func SetVideoCustomQuality(value uint32) error {
-	return setDWord(valuePrefixVideoCustomQuality, value)
+	return setDWord(valueNameVideoCustomQuality, value)
 }
 
 func GetVideoFrameRate8() (uint32, error) {
-	return getDWord(valuePrefixVideoFrameRate8)
+	return getDWord(valueNameVideoFrameRate8)
 }
 
 func SetVideoFrameRate8(value uint32) error {
-	return setDWord(valuePrefixVideoFrameRate8, value)
+	return setDWord(valueNameVideoFrameRate8, value)
 }
 
 func GetVideoFullScreen() (uint32, error) {
-	return getDWord(valuePrefixVideoFullScreen)
+	return getDWord(valueNameVideoFullScreen)
 }
 
 func SetVideoFullScreen(value uint32) error {
-	return setDWord(valuePrefixVideoFullScreen, value)
+	return setDWord(valueNameVideoFullScreen, value)
 }
 
 func GetVideoQualityAnisoLevel1() (uint32, error) {
-	return getDWord(valuePrefixVideoQualityAnisoLevel1)
+	return getDWord(valueNameVideoQualityAnisoLevel1)
 }
 
 func SetVideoQualityAnisoLevel1(value uint32) error {
-	return setDWord(valuePrefixVideoQualityAnisoLevel1, value)
+	return setDWord(valueNameVideoQualityAnisoLevel1, value)
 }
 
 func GetVideoQualityContactShadow() (uint32, error) {
-	return getDWord(valuePrefixVideoQualityContactShadow)
+	return getDWord(valueNameVideoQualityContactShadow)
 }
 
 func SetVideoQualityContactShadow(value uint32) error {
-	return setDWord(valuePrefixVideoQualityContactShadow, value)
+	return setDWord(valueNameVideoQualityContactShadow, value)
 }
 
 func GetVideoQualityDLSSMode1() (uint32, error) {
-	return getDWord(valuePrefixVideoQualityDLSSMode1)
+	return getDWord(valueNameVideoQualityDLSSMode1)
 }
 
 func SetVideoQualityDLSSMode1(value uint32) error {
-	return setDWord(valuePrefixVideoQualityDLSSMode1, value)
+	return setDWord(valueNameVideoQualityDLSSMode1, value)
 }
 
 func GetVideoQualityMain() (uint32, error) {
-	return getDWord(valuePrefixVideoQualityMain)
+	return getDWord(valueNameVideoQualityMain)
 }
 
 func SetVideoQualityMain(value uint32) error {
-	return setDWord(valuePrefixVideoQualityMain, value)
+	return setDWord(valueNameVideoQualityMain, value)
 }
 
 func GetVideoQualityReflex() (uint32, error) {
-	return getDWord(valuePrefixVideoQualityReflex)
+	return getDWord(valueNameVideoQualityReflex)
 }
 
 func SetVideoQualityReflex(value uint32) error {
-	return setDWord(valuePrefixVideoQualityReflex, value)
+	return setDWord(valueNameVideoQualityReflex, value)
 }
 
 func GetVideoQualitySharpness() (uint32, error) {
-	return getDWord(valuePrefixVideoQualitySharpness)
+	return getDWord(valueNameVideoQualitySharpness)
 }
 
 func SetVideoQualitySharpness(value uint32) error {
-	return setDWord(valuePrefixVideoQualitySharpness, value)
+	return setDWord(valueNameVideoQualitySharpness, value)
 }
 
 func GetVideoQualityUpscaler() (uint32, error) {
-	return getDWord(valuePrefixVideoQualityUpscaler)
+	return getDWord(valueNameVideoQualityUpscaler)
 }
 
 func SetVideoQualityUpscaler(value uint32) error {
-	return setDWord(valuePrefixVideoQualityUpscaler, value)
+	return setDWord(valueNameVideoQualityUpscaler, value)
 }
 
 func GetVideoResolution() (uint32, error) {
-	return getDWord(valuePrefixVideoResolution)
+	return getDWord(valueNameVideoResolution)
 }
 
 func SetVideoResolution(value uint32) error {
-	return setDWord(valuePrefixVideoResolution, value)
+	return setDWord(valueNameVideoResolution, value)
 }
 
 func GetVideoResolutionHeight() (uint32, error) {
-	return getDWord(valuePrefixVideoResolutionHeight)
+	return getDWord(valueNameVideoResolutionHeight)
 }
 
 func SetVideoResolutionHeight(value uint32) error {
-	return setDWord(valuePrefixVideoResolutionHeight, value)
+	return setDWord(valueNameVideoResolutionHeight, value)
 }
 
 func GetVideoResolutionWidth() (uint32, error) {
-	return getDWord(valuePrefixVideoResolutionWidth)
+	return getDWord(valueNameVideoResolutionWidth)
 }
 
 func SetVideoResolutionWidth(value uint32) error {
-	return setDWord(valuePrefixVideoResolutionWidth, value)
+	return setDWord(valueNameVideoResolutionWidth, value)
 }
 
 func GetVideoTextureQuality1() (uint32, error) {
-	return getDWord(valuePrefixVideoTextureQuality1)
+	return getDWord(valueNameVideoTextureQuality1)
 }
 
 func SetVideoTextureQuality1(value uint32) error {
-	return setDWord(valuePrefixVideoTextureQuality1, value)
+	return setDWord(valueNameVideoTextureQuality1, value)
 }
 
 // GetCachedUID 读取 Unity PlayerPrefs 中的 PLDK_cachedRoleId（游戏角色 UID）。
@@ -281,17 +286,12 @@ func GetCachedUID() (string, error) {
 	return uid, nil
 }
 
-func getDWord(prefix string) (uint32, error) {
+func getDWord(name string) (uint32, error) {
 	k, err := registry.OpenKey(registry.CURRENT_USER, registryPath, registry.QUERY_VALUE)
 	if err != nil {
 		return 0, fmt.Errorf("gamesetting: open %q failed: %w", registryPath, err)
 	}
 	defer k.Close()
-
-	name, err := findValueNameByPrefix(k, prefix)
-	if err != nil {
-		return 0, err
-	}
 
 	val, _, err := k.GetIntegerValue(name)
 	if err != nil {
@@ -300,26 +300,17 @@ func getDWord(prefix string) (uint32, error) {
 	return uint32(val), nil
 }
 
-func setDWord(prefix string, value uint32) error {
+func setDWord(name string, value uint32) error {
 	k, err := registry.OpenKey(registry.CURRENT_USER, registryPath, registry.QUERY_VALUE|registry.SET_VALUE)
 	if err != nil {
 		return fmt.Errorf("gamesetting: open %q failed: %w", registryPath, err)
 	}
 	defer k.Close()
 
-	name, err := findValueNameByPrefix(k, prefix)
-	if err != nil {
-		return err
-	}
-
 	if err := k.SetDWordValue(name, value); err != nil {
 		return fmt.Errorf("gamesetting: write value %q failed: %w", name, err)
 	}
 	return nil
-}
-
-func findValueNameByPrefix(k registry.Key, prefix string) (string, error) {
-	return findValueNameByPrefixUnder(k, registryPath, prefix)
 }
 
 func findValueNameByPrefixUnder(k registry.Key, path, prefix string) (string, error) {
@@ -527,7 +518,8 @@ func parseResolution(resolution string) (uint32, uint32, error) {
 }
 
 // IsAutoHDREnabled 判断终末地是否会实际开启自动 HDR。
-// 按应用 *Endfield.exe 的 AutoHDREnable 优先；未显式配置时回退到 DirectXUserGlobalSettings。
+// 按应用 *Endfield.exe 的 AutoHDREnable 带用户覆盖位时以按应用为准；
+// 否则跟随 DirectXUserGlobalSettings（按应用覆盖全局，见 DirectX 博客「Navigating the redesigned Graphics settings page」）。
 func IsAutoHDREnabled() (bool, error) {
 	k, err := registry.OpenKey(registry.CURRENT_USER, userGpuPreferencesPath, registry.QUERY_VALUE)
 	if err != nil {
@@ -544,10 +536,11 @@ func IsAutoHDREnabled() (bool, error) {
 	}
 
 	var (
-		globalValue string
-		hasGlobal   bool
-		perAppSeen  bool
-		perAppOn    bool
+		globalRaw      string
+		globalValue    string
+		perAppSeen     bool
+		perAppOverride bool
+		perAppOn       bool
 	)
 
 	for _, name := range names {
@@ -571,30 +564,53 @@ func IsAutoHDREnabled() (bool, error) {
 		}
 
 		if isGlobal {
-			if v, ok := parseAutoHDRValue(raw); ok {
-				globalValue = v
-				hasGlobal = true
-			}
+			globalRaw = raw
+			globalValue, _ = parseAutoHDRValue(raw)
 			continue
 		}
 
-		v, ok := parseAutoHDRValue(raw)
-		if !ok {
+		v, _ := parseAutoHDRValue(raw)
+		log.Debug().
+			Str("component", "gamesetting").
+			Str("exe_path", name).
+			Str("raw", raw).
+			Str("auto_hdr", v).
+			Msg("found Endfield.exe in UserGpuPreferences")
+		if v == "" {
 			continue
 		}
 		perAppSeen = true
-		if isAutoHDREnabledValue(v, true) {
-			perAppOn = true
+		override, on := parsePerAppAutoHDRFlags(v)
+		if override {
+			perAppOverride = true
+			if on {
+				perAppOn = true
+			}
 		}
 	}
 
-	if perAppSeen {
-		return perAppOn, nil
+	var (
+		result bool
+		reason string
+	)
+	if perAppOverride {
+		result = perAppOn
+		reason = "per_app_override"
+	} else {
+		result = globalValue == autoHDRGlobalEnabledValue
+		reason = "follow_global"
 	}
-	if hasGlobal {
-		return isAutoHDREnabledValue(globalValue, false), nil
-	}
-	return false, nil
+	log.Debug().
+		Str("component", "gamesetting").
+		Str("global_raw", globalRaw).
+		Str("global_value", globalValue).
+		Bool("per_app_seen", perAppSeen).
+		Bool("per_app_override", perAppOverride).
+		Bool("per_app_on", perAppOn).
+		Bool("result", result).
+		Str("reason", reason).
+		Msg("Endfield Auto HDR registry check")
+	return result, nil
 }
 
 // ApplyAutoHDR 按 mode 写入按应用自动 HDR：Unchanged 不改；Disable=2096；Enable=2097。
@@ -701,17 +717,15 @@ func parseAutoHDRValue(raw string) (string, bool) {
 	return "", false
 }
 
-// isAutoHDREnabledValue 判断 AutoHDREnable 取值是否表示开启。
-// perApp=true 时兼容按应用取值（2097/1/4147）；false 时仅全局 1 为开启。
-func isAutoHDREnabledValue(value string, perApp bool) bool {
-	switch strings.TrimSpace(value) {
-	case autoHDRGlobalEnabledValue:
-		return true
-	case autoHDREnabledValue, "4147":
-		return perApp
-	default:
-		return false
+// parsePerAppAutoHDRFlags 解析按应用 AutoHDREnable 位标志：
+// 0x1000 表示用户在该应用上手动设置过（覆盖全局），0x1 表示开启。
+// 如 2097(0x0831) 跟随全局，6193(0x1831) 手动开启；无法解析时视为跟随全局。
+func parsePerAppAutoHDRFlags(value string) (override, on bool) {
+	n, err := strconv.ParseUint(strings.TrimSpace(value), 10, 32)
+	if err != nil {
+		return false, false
 	}
+	return n&autoHDRUserOverrideFlag != 0, n&autoHDREnabledFlag != 0
 }
 
 const launcherUninstallPath = `SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\`
@@ -738,9 +752,53 @@ func FindLauncherInstallDir(uninstallKey string) (string, error) {
 		}
 		dir, _, err := k.GetStringValue("InstallLocation")
 		k.Close()
-		if err == nil && dir != "" {
-			return dir, nil
+		if err != nil || dir == "" {
+			continue
 		}
+		// 启动器被移动或删除后卸载项可能残留，确认 Launcher.exe 仍存在
+		if _, err := os.Stat(filepath.Join(dir, "Launcher.exe")); err != nil {
+			log.Warn().
+				Err(err).
+				Str("uninstall_key", uninstallKey).
+				Str("install_location", dir).
+				Msg("launcher not found in uninstall InstallLocation")
+			continue
+		}
+		return dir, nil
 	}
 	return "", fmt.Errorf("uninstall key %s not found", uninstallKey)
+}
+
+// FindLauncherInstallDirByProtocol 读取启动器注册的 URL 协议（HKCR\<protocolKey>\shell\open\command）
+// 中的 Launcher.exe 路径。TapTap 版不写 Uninstall 卸载项，只能由此找到。
+func FindLauncherInstallDirByProtocol(protocolKey string) (string, error) {
+	k, err := registry.OpenKey(registry.CLASSES_ROOT, protocolKey+`\shell\open\command`, registry.QUERY_VALUE)
+	if err != nil {
+		return "", fmt.Errorf("protocol key %s not found: %w", protocolKey, err)
+	}
+	defer k.Close()
+
+	command, _, err := k.GetStringValue("")
+	if err != nil {
+		return "", fmt.Errorf("protocol key %s has no command: %w", protocolKey, err)
+	}
+
+	// 形如 "D:\...\Launcher.exe" "%1"，取第一个引号内的路径
+	exePath := strings.TrimSpace(command)
+	if strings.HasPrefix(exePath, `"`) {
+		exePath = exePath[1:]
+		if i := strings.Index(exePath, `"`); i >= 0 {
+			exePath = exePath[:i]
+		}
+	} else if i := strings.Index(exePath, " "); i >= 0 {
+		exePath = exePath[:i]
+	}
+	if !strings.EqualFold(filepath.Base(exePath), "Launcher.exe") {
+		return "", fmt.Errorf("protocol key %s command is not Launcher.exe: %s", protocolKey, command)
+	}
+	// 卸载后协议键可能残留，确认文件仍存在
+	if _, err := os.Stat(exePath); err != nil {
+		return "", fmt.Errorf("protocol key %s points to missing launcher: %w", protocolKey, err)
+	}
+	return filepath.Dir(exePath), nil
 }

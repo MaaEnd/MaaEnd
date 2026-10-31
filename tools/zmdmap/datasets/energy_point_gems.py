@@ -14,43 +14,45 @@
 挂在 ``gems`` 下；消费端用 :func:`tools.zmdmap.read_payload` 读，不必自己跳过元数据。
 """
 
-from __future__ import annotations
-
-from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import Record, as_text, logger, read_table_cfg, ref_text
-from .base import Dataset
+from ..utils.inputs import TableCfg
+from ..utils.log import logger
+from ..utils.tables import (
+    GameMechanicRow,
+    GemRow,
+    WorldEnergyPointGroupRow,
+    WorldEnergyPointRow,
+)
+from .base import Dataset, DatasetError
 
 
 class EnergyPointGems(Dataset):
     """EssenceFilter 用的能量淤积点（``energy_point_gems.json``）。"""
 
     @classmethod
-    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
+    def build(cls, table_cfg: TableCfg) -> dict[str, Any]:
         """能量淤积点：名字、体力消耗与两组词条名（中文）。"""
-        points = read_table_cfg(table_cfg_dir, "WorldEnergyPointTable")
-        groups = read_table_cfg(table_cfg_dir, "WorldEnergyPointGroupTable")
-        mechanics = read_table_cfg(table_cfg_dir, "GameMechanicTable")
-        gems = read_table_cfg(table_cfg_dir, "GemTable")
+        points = table_cfg.table("WorldEnergyPointTable", WorldEnergyPointRow)
+        groups = table_cfg.table("WorldEnergyPointGroupTable", WorldEnergyPointGroupRow)
+        mechanics = table_cfg.table("GameMechanicTable", GameMechanicRow)
+        gems = table_cfg.table("GemTable", GemRow)
 
         rows: list[dict[str, Any]] = []
         for point_id in sorted(points):
             point = points[point_id]
-            group_id = as_text(point.get("gameGroupId"))
-            group = groups.get(group_id)
+            group = groups.get(point.game_group_id)
             if group is None:
-                raise ValueError(f"能量淤积点 {point_id} 引用了未知分组 {group_id!r}")
-            mechanics_id = as_text(point.get("gameMechanicsId")) or point_id
+                raise DatasetError(f"能量淤积点 {point_id} 引用了未知分组 {point.game_group_id!r}")
+            mechanics_id = point.game_mechanics_id or point_id
             mechanic = mechanics.get(mechanics_id)
             rows.append(
                 {
-                    "pointName": ref_text(table_cfg_dir, point.get("gameName")) or mechanics_id,
-                    "levelId": as_text(point.get("levelId")),
-                    "costStamina": point.get("costStamina")
-                    or (mechanic.get("costStamina") if mechanic else None),
-                    "secAttrTermNames": _term_names(table_cfg_dir, gems, group.get("secAttrTermIds")),
-                    "skillTermNames": _term_names(table_cfg_dir, gems, group.get("skillTermIds")),
+                    "pointName": table_cfg.ref_text(point.game_name) or mechanics_id,
+                    "levelId": point.level_id,
+                    "costStamina": point.cost_stamina or (mechanic.cost_stamina if mechanic else None),
+                    "secAttrTermNames": _term_names(table_cfg, gems, group.sec_attr_term_ids),
+                    "skillTermNames": _term_names(table_cfg, gems, group.skill_term_ids),
                 }
             )
 
@@ -58,11 +60,11 @@ class EnergyPointGems(Dataset):
         return {"gems": rows}
 
 
-def _term_names(table_cfg_dir: Path, gems: Record, term_ids: Any) -> list[str]:
+def _term_names(table_cfg: TableCfg, gems: dict[str, GemRow], term_ids: list[str]) -> list[str]:
     """词条 id -> 中文名；查不到就留 id 本身。"""
     names: list[str] = []
-    for term_id in term_ids or []:
+    for term_id in term_ids:
         gem = gems.get(term_id)
-        name = ref_text(table_cfg_dir, gem.get("tagName") if gem else None)
+        name = table_cfg.ref_text(gem.tag_name if gem else None)
         names.append(name or term_id)
     return names

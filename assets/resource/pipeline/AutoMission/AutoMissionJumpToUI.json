@@ -1,0 +1,14 @@
+{
+    "AutoMissionJumpToUI": {
+        "desc": "界面跳转追踪占位",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Failed": "<span style=\"color: red; font-weight: bold;\">{name}</span>"
+        }
+    }
+}

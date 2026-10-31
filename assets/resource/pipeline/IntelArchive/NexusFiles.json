@@ -180,14 +180,15 @@
         "pre_delay": 0,
         "action": "Swipe",
         "begin": [
-            760,
+            317,
             520
         ],
         "end": [
-            760,
+            317,
             200
         ],
         "end_hold": 600,
+        "duration": 1000,
         "post_wait_freezes": {
             "time": 200,
             "target": [

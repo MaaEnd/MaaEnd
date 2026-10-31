@@ -18,12 +18,9 @@ namespace zipline
 namespace
 {
 
-// 非图像的模块数据统一放 data/<模块>/。标定的消费者是 MapNavigator 的寻路规划，
-// 归在它名下；resource/model 是另一个仓库的子模块，本仓库的配置不能落进去。
 constexpr const char* kFramesRelativePath = "data/MapNavigator/zipline_frames.json";
 
-// 网格供电要用唯一中心格描述覆盖范围，也要用占地半宽界定角格锚点到中心的偏移。
-// 偶数尺寸没有唯一中心格，会产生半格歧义，因此这部分模型只接受两个正奇数。
+// 偶数尺寸没有唯一中心格, 只接受正奇数
 bool parse_odd_grid_size(const json::object& obj, const char* key, std::array<int, 2>& out)
 {
     if (!obj.contains(key) || !obj.at(key).is_array()) {
@@ -107,7 +104,7 @@ bool ZiplineFrames::load(const std::filesystem::path& path)
         const auto& cost = root.at("cost").as_object();
         cost_.speed_ratio = cost.get("speed_ratio", cost_.speed_ratio);
         cost_.mount_penalty = cost.get("mount_penalty", cost_.mount_penalty);
-        // 换乘开销是链上每一跳的边权，取负会让最短链求解本身失去意义，先夹住再用。
+        // 换乘开销是最短链的边权, 不能为负
         cost_.transfer_penalty = std::max(0.0, cost.get("transfer_penalty", cost_.transfer_penalty));
         cost_.min_gain = std::max(0.0, cost.get("min_gain", cost_.min_gain));
         cost_.reach_radius = std::max(0.0, cost.get("reach_radius", cost_.reach_radius));
@@ -128,7 +125,6 @@ bool ZiplineFrames::load(const std::filesystem::path& path)
                 LogWarn << "ZiplineFrames: type with an invalid odd-grid footprint, skipped" << VAR(type.name);
                 continue;
             }
-            // 缺 template_id 就无从对号，跨度非正等于这类索一条都配不出来，两者都没有留着的意义。
             if (type.template_id.empty() || type.max_span <= 0.0) {
                 LogWarn << "ZiplineFrames: type without a usable template_id/max_span, skipped" << VAR(type.name);
                 continue;
@@ -159,12 +155,10 @@ bool ZiplineFrames::load(const std::filesystem::path& path)
                     LogWarn << "ZiplineFrames: power source with an invalid odd-grid coverage_size, skipped" << VAR(source.name);
                     continue;
                 }
-                // 两种形状同时出现时无法判断配置作者想用哪一套边界，响亮丢弃，避免静默放宽供电范围。
                 if (source.radius > 0.0 && has_coverage_size) {
                     LogWarn << "ZiplineFrames: power source mixes radius and coverage_size, skipped" << VAR(source.name);
                     continue;
                 }
-                // 缺 template_id 就无从对号；圆半径和网格覆盖都没给则供不了电。
                 if (source.template_id.empty() || (source.radius <= 0.0 && !has_coverage_size)) {
                     LogWarn << "ZiplineFrames: power source without a usable template_id/range, skipped" << VAR(source.name);
                     continue;
@@ -196,7 +190,7 @@ bool ZiplineFrames::load(const std::filesystem::path& path)
             continue;
         }
 
-        // 缺 plane 就等于没标定过平面，直接丢掉这条：默认的单位仿射会让滑索落在错误的位置上。
+        // 默认的单位仿射会把滑索放错位置, 缺 plane 就丢掉
         if (!obj.contains("plane") || !obj.at("plane").is_array() || obj.at("plane").as_array().size() != frame.plane.size()) {
             LogWarn << "ZiplineFrames: frame without a 6-term plane affine, skipped" << VAR(frame.zone_name);
             continue;

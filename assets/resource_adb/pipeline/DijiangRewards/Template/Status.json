@@ -14,5 +14,69 @@
             29,
             0
         ]
+    },
+    "ClueNumColor": {
+        "roi": [
+            49,
+            162,
+            57,
+            449
+        ]
+    },
+    "ClueOneCount": {
+        "roi_offset": [
+            311,
+            22,
+            18,
+            -12
+        ]
+    },
+    "ClueTwoCount": {
+        "roi_offset": [
+            311,
+            22,
+            18,
+            -12
+        ]
+    },
+    "ClueThreeCount": {
+        "roi_offset": [
+            311,
+            22,
+            18,
+            -12
+        ]
+    },
+    "ClueFourCount": {
+        "roi_offset": [
+            311,
+            22,
+            18,
+            -12
+        ]
+    },
+    "ClueFiveCount": {
+        "roi_offset": [
+            311,
+            22,
+            18,
+            -12
+        ]
+    },
+    "ClueSixCount": {
+        "roi_offset": [
+            311,
+            22,
+            18,
+            -12
+        ]
+    },
+    "ClueSevenCount": {
+        "roi_offset": [
+            311,
+            22,
+            18,
+            -12
+        ]
     }
 }

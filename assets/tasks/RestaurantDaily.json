@@ -1,0 +1,46 @@
+{
+    "task": [
+        {
+            "name": "RestaurantDaily",
+            "label": "$task.RestaurantDaily.label",
+            "entry": "RestaurantInitialize",
+            "description": "$task.RestaurantDaily.description",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "Win32-Front",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots"
+            ],
+            "option": [
+                "RestaurantMaxRounds"
+            ]
+        }
+    ],
+    "option": {
+        "RestaurantMaxRounds": {
+            "type": "input",
+            "label": "$task.RestaurantDaily.option.MaxRounds.label",
+            "inputs": [
+                {
+                    "name": "MaxRounds",
+                    "label": "$task.RestaurantDaily.option.MaxRounds.pattern_msg",
+                    "default": "5",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[1-9][0-9]{0,2}|1000)$",
+                    "pattern_msg": "$task.RestaurantDaily.option.MaxRounds.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "RestaurantInitialize": {
+                    "custom_action_param": {
+                        "step": "initialize",
+                        "max_rounds": "{MaxRounds}"
+                    }
+                }
+            }
+        }
+    }
+}

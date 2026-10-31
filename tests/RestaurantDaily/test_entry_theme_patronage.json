@@ -1,0 +1,44 @@
+{
+    "configs": {
+        "name": "缘缘庄入口、主题与客源识别",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "name": "大世界柜台交互点",
+            "image": "缘缘庄_大世界_客栈柜台交互.png",
+            "hits": [
+                "RestaurantOpenCounter"
+            ]
+        },
+        {
+            "name": "主题设定及客源充足",
+            "image": "缘缘庄_主题设定_缘缘本色.png",
+            "hits": [
+                "RestaurantThemeSettings",
+                "RestaurantPatronageOCR",
+                "RestaurantThemeFindTopic"
+            ]
+        },
+        {
+            "name": "主题设定及客源不足",
+            "image": "缘缘庄_主题设定_客源不足.png",
+            "hits": [
+                "RestaurantThemeSettings",
+                "RestaurantPatronageOCR",
+                "RestaurantThemeFindTopic"
+            ]
+        },
+        {
+            "name": "席间小酌已选中",
+            "image": "缘缘庄_主题设定_席间小酌.png",
+            "hits": [
+                "RestaurantThemeFindTopic",
+                "RestaurantThemeSettings",
+                "RestaurantPatronageOCR",
+                "RestaurantThemeSelected"
+            ]
+        }
+    ]
+}

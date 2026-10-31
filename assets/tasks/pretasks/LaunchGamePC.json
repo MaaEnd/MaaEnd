@@ -32,6 +32,18 @@
                 {
                     "name": "Bilibili",
                     "label": "$option.LaunchGamePCRegion.cases.Bilibili.label"
+                },
+                {
+                    "name": "TapTap",
+                    "label": "$option.LaunchGamePCRegion.cases.TapTap.label"
+                },
+                {
+                    "name": "Steam",
+                    "label": "$option.LaunchGamePCRegion.cases.Steam.label"
+                },
+                {
+                    "name": "Epic",
+                    "label": "$option.LaunchGamePCRegion.cases.Epic.label"
                 }
             ],
             "default_case": "CN"
@@ -71,6 +83,7 @@
         "LaunchGamePCGameSetting": {
             "type": "switch",
             "label": "$option.LaunchGamePCGameSetting.label",
+            "description": "$option.LaunchGamePCGameSetting.description",
             "cases": [
                 {
                     "name": "Yes",

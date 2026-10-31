@@ -9,43 +9,32 @@
                 "open_world"
             ],
             "controller": [
+                "ADB",
+                "CloudADB",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
+                "PlayCover",
                 "Win32-Front"
             ],
             "option": [
-                "SelectFarm",
-                "StashBackpackSubTask"
+                "CollectValleyFarm",
+                "CollectWulingCityFarm",
+                "CollectSisPaintingFarm",
+                "CollectRanch"
             ]
         }
     ],
     "option": {
-        "SelectFarm": {
+        "CollectValleyFarm": {
             "type": "switch",
-            "label": "$task.AutoEcoFarm.option.SelectFarm.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "GotoValleyIV",
-                        "GotoWulin"
-                    ]
-                },
-                {
-                    "name": "No"
-                }
-            ],
-            "default_case": "Yes"
-        },
-        "GotoValleyIV": {
-            "type": "switch",
-            "label": "$task.AutoEcoFarm.option.GotoValleyIV.label",
+            "label": "$task.AutoEcoFarm.option.CollectValleyFarm.label",
+            "description": "$task.AutoEcoFarm.option.CollectValleyFarm.description",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "_AutoEcoFarmInitStartValleyIV": {
+                        "AutoEcoFarmValleyFarmJob": {
                             "enabled": true
                         }
                     }
@@ -53,7 +42,30 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "_AutoEcoFarmInitStartValleyIV": {
+                        "AutoEcoFarmValleyFarmJob": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
+        "CollectWulingCityFarm": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.CollectWulingCityFarm.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoEcoFarmWulingCityFarmJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoEcoFarmWulingCityFarmJob": {
                             "enabled": false
                         }
                     }
@@ -61,14 +73,14 @@
             ],
             "default_case": "Yes"
         },
-        "GotoWulin": {
+        "CollectSisPaintingFarm": {
             "type": "switch",
-            "label": "$task.AutoEcoFarm.option.GotoWulin.label",
+            "label": "$task.AutoEcoFarm.option.CollectSisPaintingFarm.label",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "_AutoEcoFarmInitStartWulin": {
+                        "AutoEcoFarmSisPaintingFarmJob": {
                             "enabled": true
                         }
                     }
@@ -76,7 +88,30 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "_AutoEcoFarmInitStartWulin": {
+                        "AutoEcoFarmSisPaintingFarmJob": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "CollectRanch": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.CollectRanch.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoEcoFarmRanchJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoEcoFarmRanchJob": {
                             "enabled": false
                         }
                     }

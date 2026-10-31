@@ -1,6 +1,7 @@
 # 开发手册 - OutpostTrading 据点交易
 
-`OutpostTrading` 按用户配置的地区/据点自动完成据点交易。任务遵循「Pipeline 管流程，Go 管算法」：Pipeline（`assets/resource/pipeline/OutpostTrading*.json`）负责界面识别与点击；Go Service（`agent/go-service/outposttrading/`）负责选品策略、保留规则、干员规划与缓存。
+`OutpostTrading` 按用户配置的地区/据点自动完成据点交易。任务遵循「Pipeline 管流程，Go 管算法」：Pipeline（`assets/resource/pipeline/OutpostTrading*.json`）负责界面识别与点击；Go Service（`agent/go-service/outposttrading/`）负责选品策略、保留规则、干员规划与缓存。  
+该文档更新于 2026 年 10 月 23 日。
 
 ## 要点速览
 
@@ -15,11 +16,12 @@
 OutpostTradingSchedule ──命中星期──> OutpostTradingMain
   └─ OutpostTradingEnterRegionalDevelopment   SceneManager 进地区建设
   └─ OutpostTradingCaptureUid                 捕获哈希 UID（隔离账号缓存）
-  └─ OutpostTradingPrepareSession             SubTask 顺序执行 4 段初始化（先重置后配置）：
+  └─ OutpostTradingPrepareSession             SubTask 顺序执行 5 段初始化（先重置后配置）：
   │    ├─ InitializeReserveSession → RegisterReserveRule1..6   重置并注册保留规则（空槽位 no-op）
   │    ├─ InitializeOperatorSession → RegisterLocation × 6     重置干员会话并注册启用据点
   │    ├─ ConfigurePrioritySession                             优先售卖总开关/严格模式
-  │    └─ ConfigureSelectionStrategy                           选品策略（稀有度/单价/库存）
+  │    ├─ ConfigureSelectionStrategy                           选品策略（稀有度/单价/库存）
+  │    └─ ConfigureMinimumPrice                                最低售卖单价（对所有策略生效）
   └─ OutpostTradingLoop                       按新地区优先遍历：武陵 → 四号谷地 → OutpostTradingTaskEnd
 
 每个地区（OutpostTrading{Region} → OutpostTrading{Region}Sell）
@@ -52,7 +54,7 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 
 > [!IMPORTANT]
 >
-> `InitializeReserveSession` 必须排在两个 `Configure*` 之前：其 `reset` 会连带重置整个优先售卖会话（总开关、严格模式、选品策略），顺序颠倒会吞掉配置。`InitializeOperatorSession` 与货品会话完全独立，位置可自由调整。
+> `InitializeReserveSession` 必须排在三个 `Configure*` 之前：其 `reset` 会连带重置整个优先售卖会话（总开关、严格模式、选品策略、最低单价），顺序颠倒会吞掉配置。`InitializeOperatorSession` 与货品会话完全独立，位置可自由调整。
 
 ## 自动售卖规则（Go `goods/`）
 
@@ -62,7 +64,9 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 | ------------------ | ------------------------------------- | ------------------------------------ |
 | 稀有度优先（默认） | 稀有度降序 → 单价降序 → 来源稳定序 | 允许选底部只露名称、库存未知的货品 |
 | 单价优先 | 单价降序 → 稀有度降序 → 稳定序 | 同上 |
-| 库存优先 | 仓储数量降序 → 单价 → 稀有度 → 稳定序 | 要求库存已识别，且不低于用户最低单价 |
+| 库存优先 | 仓储数量降序 → 单价 → 稀有度 → 稳定序 | 要求库存已识别 |
+
+最低售卖单价（任务选项 `SellProductStockMinimumUnitPrice`，默认 10）对**所有**策略生效：单价低于门槛的货品不会被选择，运行时计划里单独列为「低于最低单价排除」。优先货品是用户明确指定的，不受这条限制。
 
 ### 选品识别（`OutpostTradingPriorityItem` 自定义识别器）
 
@@ -134,7 +138,7 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 ## 运行期提示
 
 - 复用干员快照时输出该账号 `updated_at` 的本地时间。
-- 进据点后输出：售卖/售后干员目标、货品计划（静态策略列出顺序、库存策略提示扫描后决定）、缺货/已达保留量/永不售卖的排除项与适用保留规则。
+- 进据点后输出：售卖/售后干员目标、货品计划（静态策略列出顺序、库存策略提示扫描后决定）、缺货/已达保留量/永不售卖/低于最低单价的排除项与适用保留规则。
 - 之后输出干员沿用/切换结果、交易完成、缺货、保留达成、冲突重规划、扫描失败等动态状态。
 - 文本均跟随客户端语言：Pipeline `focus` 用 interface i18n，Go 输出用 go-service i18n。
 

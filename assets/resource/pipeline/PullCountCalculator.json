@@ -210,7 +210,8 @@
                 "expected": [
                     "\\d"
                 ],
-                "only_rec": true
+                "only_rec": true,
+                "color_filter": "PullCountCalculatorVoucherQuantityColorFilter"
             }
         },
         "action": "Custom",
@@ -223,6 +224,25 @@
             "PullCountCalculatorFindIntroLetter",
             "PullCountCalculatorPageDone"
         ]
+    },
+    "PullCountCalculatorVoucherQuantityColorFilter": {
+        "desc": "提取数量文字的黑色和深灰色像素，供数量 OCR 二值化使用",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 4,
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    100,
+                    100,
+                    100
+                ]
+            }
+        }
     },
     "PullCountCalculatorFindIntroLetter": {
         "desc": "查找寻访情报书图标，命中后按一份统计",

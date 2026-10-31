@@ -4,11 +4,9 @@
 serve.py 与提权会话子进程 session_worker.py 共用本模块。
 """
 
-from __future__ import annotations
-
 import subprocess
 import sys
-from typing import Callable
+from collections.abc import Callable
 
 
 def copy_to_clipboard(text: str, log: Callable[[str], None] | None = None) -> bool:
@@ -18,7 +16,7 @@ def copy_to_clipboard(text: str, log: Callable[[str], None] | None = None) -> bo
 
         pyperclip.copy(text)
         return True
-    except Exception:  # noqa: BLE001
+    except Exception:
         pass
     try:
         if sys.platform == "darwin":
@@ -30,7 +28,7 @@ def copy_to_clipboard(text: str, log: Callable[[str], None] | None = None) -> bo
             return True
         subprocess.run(["xclip", "-selection", "clipboard"], input=text.encode("utf-8"), check=True)
         return True
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         if log is not None:
             log(f"剪贴板写入失败: {exc}")
         return False

@@ -327,6 +327,7 @@
                 {
                     "name": "Yes",
                     "option": [
+                        "PerfectMinLevelTotal",
                         "KeepFuturePromising",
                         "KeepSlot3Level3Practical",
                         "DiscardUnmatched",
@@ -338,6 +339,26 @@
                 }
             ],
             "default_case": "No"
+        },
+        "PerfectMinLevelTotal": {
+            "type": "input",
+            "label": "$option.PerfectMinLevelTotal.label",
+            "inputs": [
+                {
+                    "name": "PerfectMinLevelTotal",
+                    "label": "$option.PerfectMinLevelTotal.inputs.PerfectMinLevelTotal.label",
+                    "default": "3",
+                    "pipeline_type": "int",
+                    "verify": "^[3-9]$|^1[0-5]$"
+                }
+            ],
+            "pipeline_override": {
+                "EssenceFilterInit": {
+                    "attach": {
+                        "perfect_min_level_total": "{PerfectMinLevelTotal}"
+                    }
+                }
+            }
         },
         "KeepFuturePromising": {
             "type": "switch",

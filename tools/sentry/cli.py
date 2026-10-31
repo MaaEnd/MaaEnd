@@ -1,13 +1,10 @@
 """统一运行 MaaEnd Sentry 分析报告。"""
 
-from __future__ import annotations
-
 import argparse
 import sys
 from collections.abc import Callable, Sequence
 
 from . import auto_delivery_report, environment_monitoring_report
-
 
 ReportMain = Callable[[Sequence[str] | None, str | None], int]
 

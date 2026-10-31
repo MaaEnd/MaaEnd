@@ -12,8 +12,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0
       '@nekosu/maa-tools':
-        specifier: 1.1.2
-        version: 1.1.2
+        specifier: 1.2.0
+        version: 1.2.0
       '@nekosu/prettier-plugin-maafw-sort':
         specifier: 1.1.0
         version: 1.1.0
@@ -91,20 +91,20 @@ packages:
   '@nekosu/maa-locale@1.0.2':
     resolution: {integrity: sha512-h09IQIN6iKt3OmwiCD7O36QOkmfL8lFO4nAAj+cXOuQfXYbWv4kLDzApzfURhGezjpm4+9gPaksYY9xK9LLkOA==}
 
-  '@nekosu/maa-locale@1.1.0':
-    resolution: {integrity: sha512-bVfUFO47H9Ja1F3ufGf4eTB8fWuo+4uWFvTVZpusVeGvAjo60+5jSTKsxxiv7W7Lj0//tU8gyNxR08m65b72QA==}
+  '@nekosu/maa-locale@1.2.0':
+    resolution: {integrity: sha512-fzuC4yeOhQAMJVMEC0SN6SePDvmtiKrsNIUubHrYfVJc9FHi/VooQy7Mx3y14+T7fX3thIo7cF3O1/2oV/yzKQ==}
 
   '@nekosu/maa-pipeline-manager@1.0.10':
     resolution: {integrity: sha512-uGTEtO9nKgQfm1sJxYv6kFO8tl62TXxWqhFh42TrSTICy+tLqmBzmJrhHR584kEeRuFw5AfAGXUsammZZbcVDw==}
 
-  '@nekosu/maa-pipeline-manager@1.0.14':
-    resolution: {integrity: sha512-tJmjik7ObIlQj9LgHP7WoAyKYLa3NmyFn9KQXxFu8MjHP3ln1EmYHyMC8Cq3GflGDNKabPO148v1jkHE4Pg5Qg==}
+  '@nekosu/maa-pipeline-manager@1.1.0':
+    resolution: {integrity: sha512-JCB7gaHBnl2Iet5F9hb/ATiAukkyPIfSzlNmvc5O5j55qBZAxH6lqyK3rU0Etg/XMQVtCVnhGMFhPPxqrYAYXQ==}
 
   '@nekosu/maa-tasker@1.0.0':
     resolution: {integrity: sha512-p5SaBJGvAMr5J2uk6imoiK7eIF7yA67HndWyfxddAHHdoyliai2dkHqBhTmDDuRmmAJ/ly4INg5Hnx8CI7Po3A==}
 
-  '@nekosu/maa-tools@1.1.2':
-    resolution: {integrity: sha512-foNLUwcx3+8fqT54/p6PzwqdgzhURZOdo41An0S4sC/PMnjsOFpoBGrlM4WU7UEQ2mdFerAx4JDfyvKEpyE7Nw==}
+  '@nekosu/maa-tools@1.2.0':
+    resolution: {integrity: sha512-dMEcVDdBs9xov8Sp/vpbg6r1O/iLHX4YzM5dVjLvlOE/YJKa/gY2FHhONrZCTg3Vcq/BbzFOINCMrZazqX2tqQ==}
     hasBin: true
 
   '@nekosu/maa-version-manager@1.1.0':
@@ -887,7 +887,7 @@ snapshots:
 
   '@nekosu/maa-locale@1.0.2': {}
 
-  '@nekosu/maa-locale@1.1.0': {}
+  '@nekosu/maa-locale@1.2.0': {}
 
   '@nekosu/maa-pipeline-manager@1.0.10':
     dependencies:
@@ -896,9 +896,9 @@ snapshots:
       chokidar: 5.0.0
       jsonc-parser: 3.3.1
 
-  '@nekosu/maa-pipeline-manager@1.0.14':
+  '@nekosu/maa-pipeline-manager@1.1.0':
     dependencies:
-      '@nekosu/maa-locale': 1.1.0
+      '@nekosu/maa-locale': 1.2.0
       '@nekosu/maa-tasker': 1.0.0
       chokidar: 5.0.0
       jsonc-parser: 3.3.1
@@ -907,11 +907,11 @@ snapshots:
     dependencies:
       '@nekosu/simple-parser': 1.0.0
 
-  '@nekosu/maa-tools@1.1.2':
+  '@nekosu/maa-tools@1.2.0':
     dependencies:
       '@actions/core': 3.0.0
-      '@nekosu/maa-locale': 1.1.0
-      '@nekosu/maa-pipeline-manager': 1.0.14
+      '@nekosu/maa-locale': 1.2.0
+      '@nekosu/maa-pipeline-manager': 1.1.0
       '@nekosu/maa-version-manager': 1.1.0
       chalk: 5.6.2
       jiti: 2.6.1

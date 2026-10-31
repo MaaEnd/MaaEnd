@@ -53,15 +53,6 @@
             ]
         },
         {
-            "image": "武陵_拍照模式_画面设置.png",
-            "hits": [
-                "EnvironmentMonitoringPhotoSettingsTab",
-                "EnvironmentMonitoringOpenPhotoSettings",
-                "EnvironmentMonitoringPhotoSettingsOpened",
-                "EnvironmentMonitoringPhotoSettingsShowAllOperators"
-            ]
-        },
-        {
             "image": "武陵_拍照模式_显示干员选项.png",
             "hits": [
                 "EnvironmentMonitoringPhotoSettingsTab",
@@ -69,16 +60,6 @@
                 "EnvironmentMonitoringPhotoSettingsOpened",
                 "EnvironmentMonitoringPhotoSettingsShowAllOperators",
                 "EnvironmentMonitoringPhotoSettingsHideAllOperators"
-            ]
-        },
-        {
-            "image": "武陵_拍照模式_隐藏全部.png",
-            "hits": [
-                "EnvironmentMonitoringPhotoSettingsTab",
-                "EnvironmentMonitoringOpenPhotoSettings",
-                "EnvironmentMonitoringPhotoSettingsOpened",
-                "EnvironmentMonitoringPhotoSettingsOperatorsHidden",
-                "EnvironmentMonitoringClosePhotoSettingsWithOperatorsHidden"
             ]
         }
     ]

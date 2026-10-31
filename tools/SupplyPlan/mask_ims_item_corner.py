@@ -8,7 +8,6 @@
 ADB 等更大模板可用 --scale-from 指向 Win32 模板目录，
 按「同名参考图尺寸比」放大绿幕矩形。
 """
-from __future__ import annotations
 
 from argparse import ArgumentParser
 from pathlib import Path

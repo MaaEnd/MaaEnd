@@ -63,5 +63,18 @@
                 "threshold": 0.75
             }
         }
+    },
+    "MapNavigatorRopeUseText": {
+        "desc": "升降索绳底「使用」选项的文字表，寻路只读 expected，节点本身不派发",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "^使用$", // 简中、繁中、日文
+                    "(?i)^Interact$", // 英文
+                    "^사용$" // 韩文
+                ]
+            }
+        }
     }
 }

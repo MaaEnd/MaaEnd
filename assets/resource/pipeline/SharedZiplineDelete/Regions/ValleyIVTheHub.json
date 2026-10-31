@@ -26,7 +26,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldValleyIVTheHub1"
+                "SceneEnterWorldValleyIVTheHubHubBasePowerPlant"
             ]
         },
         "post_delay": 0,

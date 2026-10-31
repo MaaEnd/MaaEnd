@@ -18,6 +18,12 @@
             "prompt": "把 downloads 里的 new-shot.png 加成一个 MaaEnd 节点识别测试，预期框大概在按钮附近。",
             "expected_output": "平台、目标测试主题、节点名和精确 box 都不足以安全推断；先检查 MaaEnd 本地上下文，仍无法确定时只追问会影响落盘位置和测试语义的必要信息，不猜测 box，也不把未脱敏原图复制进 tests/MaaEndTestset。",
             "files": []
+        },
+        {
+            "id": 4,
+            "prompt": "把 C:\\Screenshots\\云端编队.png 加到 MaaEnd 的云终末地测试集里，图片名用 编队_云_确认.png，预期命中编队确认节点。原图左下角有 UID。",
+            "expected_output": "用 detect_screenshot_platform.py 判定原图来自 CloudADB（左下状态行没有延迟指示、UID 从 x≈18 起），生成 tests/MaaEndTestset/CloudADB/Official_CN/编队_云_确认.png，测试文件里 controller 写 CloudADB，目视复核 UID 已被完整遮住后运行 pnpm check 与 pnpm test。",
+            "files": []
         }
     ]
 }

@@ -1,0 +1,8 @@
+{
+    "template": "endpoint-candidates-adb-template.jsonc",
+    "data": "endpoint-candidates-data.mjs",
+    "outputDir": "../../../assets/resource_adb/pipeline/SeizeDeliveryJobs",
+    "outputFile": "SeizeDeliveryJobsEndpointCandidates.json",
+    "format": true,
+    "merged": true
+}

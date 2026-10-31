@@ -148,7 +148,6 @@ bool ZiplineStore::save(const std::filesystem::path& path) const
     root["updated_at"] = CurrentTimestamp();
     root["maps"] = std::move(maps);
 
-    // 先写临时文件再原子改名：导入中途崩掉不会把已有记录截成半截。
     std::filesystem::path tmp = path;
     tmp += ".tmp";
     {
@@ -206,9 +205,6 @@ size_t ZiplineStore::claimLegacyRecords(const std::string& account_id, const std
         return 0;
     }
 
-    // 这个账号名下已经有记录时一条都不认领：认领是给「升级后还没导过任何坐标」的人兜底的，
-    // 名下已经有账号级数据说明新旧两套坐标可能同时存在，此时把旧数据算进当前账号，一旦用户
-    // 换号就会静默用错坐标。
     const bool has_account_records =
         std::any_of(maps_.begin(), maps_.end(), [&](const ZiplineMapRecord& record) { return record.account_id == account_id; });
     if (has_account_records) {
@@ -229,7 +225,6 @@ size_t ZiplineStore::claimLegacyRecords(const std::string& account_id, const std
     }
 
     if (!save(path)) {
-        // 认领没落盘就等于这次运行仍按账号级数据规划，行为没有变坏，只是下次还要再认领一遍。
         LogError << "ZiplineStore: claim legacy records for the current account, but saving failed" << VAR(path) << VAR(claimed);
         return 0;
     }

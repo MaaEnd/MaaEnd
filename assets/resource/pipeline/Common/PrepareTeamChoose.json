@@ -1,0 +1,139 @@
+{
+    // OCR 检测阶段会漏掉「01」等短数字，固定 roi 到队伍格并用 only_rec 跳过检测直接识别
+    "PrepareTeamSlot01": {
+        "desc": "出战准备界面底部队伍条的 01 号格",
+        "recognition": "OCR",
+        "roi": [
+            64,
+            664,
+            74,
+            20
+        ],
+        "expected": [
+            "01"
+        ],
+        "only_rec": true
+    },
+    "PrepareTeamSlot02": {
+        "desc": "出战准备界面底部队伍条的 02 号格",
+        "recognition": "OCR",
+        "roi": [
+            140,
+            664,
+            74,
+            20
+        ],
+        "expected": [
+            "02"
+        ],
+        "only_rec": true
+    },
+    "PrepareTeamSlot03": {
+        "desc": "出战准备界面底部队伍条的 03 号格",
+        "recognition": "OCR",
+        "roi": [
+            216,
+            664,
+            74,
+            20
+        ],
+        "expected": [
+            "03"
+        ],
+        "only_rec": true
+    },
+    "PrepareTeamSlot04": {
+        "desc": "出战准备界面底部队伍条的 04 号格",
+        "recognition": "OCR",
+        "roi": [
+            292,
+            664,
+            74,
+            20
+        ],
+        "expected": [
+            "04"
+        ],
+        "only_rec": true
+    },
+    "PrepareTeamSlot05": {
+        "desc": "出战准备界面底部队伍条的 05 号格",
+        "recognition": "OCR",
+        "roi": [
+            368,
+            664,
+            74,
+            20
+        ],
+        "expected": [
+            "05"
+        ],
+        "only_rec": true
+    },
+    "PrepareTeamSlot06": {
+        "desc": "出战准备界面底部队伍条的 06 号格",
+        "recognition": "OCR",
+        "roi": [
+            444,
+            664,
+            74,
+            20
+        ],
+        "expected": [
+            "06"
+        ],
+        "only_rec": true
+    },
+    "PrepareTeamSlot07": {
+        "desc": "出战准备界面底部队伍条的 07 号格",
+        "recognition": "OCR",
+        "roi": [
+            520,
+            664,
+            74,
+            20
+        ],
+        "expected": [
+            "07"
+        ],
+        "only_rec": true
+    },
+    "PrepareTeamChooseText": {
+        "desc": "目标队伍格，all_of 由选项覆盖为对应的 PrepareTeamSlotXX",
+        "recognition": "And",
+        "all_of": [
+            "PrepareTeamSlot01"
+        ]
+    },
+    "PrepareTeamChoose": {
+        "desc": "出战准备界面选择队伍：目标队伍格为未选中的深色时点击",
+        "recognition": "And",
+        "all_of": [
+            "PrepareTeamChooseText",
+            {
+                "recognition": "ColorMatch",
+                "roi": "PrepareTeamChooseText",
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    45,
+                    45,
+                    45
+                ],
+                "connected": true,
+                "count": 200
+            }
+        ],
+        "action": "Click",
+        // 识别框是整个队伍格，往里收，避免点到格子边缘
+        "target_offset": [
+            15,
+            4,
+            -30,
+            -8
+        ]
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "${Entry}": {
+        "desc": "${EntryDesc}",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "${Node}"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "${PickAnchor}",
+            "[JumpBack]${EnterMap}"
+        ]
+    }
+}

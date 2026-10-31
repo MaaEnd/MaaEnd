@@ -5,8 +5,8 @@ import {filterProjectNodes, normalizeAssertTarget, readClipboardText} from "./st
 
 const routes = [
   {
-    resource_path: "assets/resource/pipeline/AutoCollect/AutoCollectRoute7.json",
-    node_name: "AutoCollectRoute7GotoFindLine4",
+    resource_path: "assets/resource/pipeline/AutoCollect/Wuling/WulingBloodcapWulingstone1.json",
+    node_name: "AutoCollectWulingBloodcapWulingstone1GotoFindLine4",
     desc: "自动采集净化玉参考路线",
     kind: "path",
     zone_ids: ["Wuling_Base"],
@@ -19,8 +19,8 @@ const routes = [
     zone_ids: ["Wuling_Base"],
   },
   {
-    resource_path: "assets/resource/pipeline/AutoCollect/AutoCollectRoute7.json",
-    node_name: "AutoCollectRoute7AssertLocation",
+    resource_path: "assets/resource/pipeline/AutoCollect/Wuling/WulingBloodcapWulingstone1.json",
+    node_name: "AutoCollectWulingBloodcapWulingstone1AssertLocation",
     desc: "武陵断言位置",
     kind: "assert",
     zone_id: "Wuling_Base",

@@ -91,7 +91,8 @@
                 "OutpostTradingInitializeReserveSession",
                 "OutpostTradingInitializeOperatorSession",
                 "OutpostTradingConfigurePrioritySession",
-                "OutpostTradingConfigureSelectionStrategy"
+                "OutpostTradingConfigureSelectionStrategy",
+                "OutpostTradingConfigureMinimumPrice"
             ]
         },
         "post_delay": 0,
@@ -109,6 +110,19 @@
         "custom_action_param": {
             "operation": "configure_strategy",
             "strategy": "rarity"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingConfigureMinimumPrice": {
+        "desc": "配置最低售卖单价（对所有选品策略生效）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "configure_minimum_price",
+            "minimum_unit_price": 0
         },
         "post_delay": 0,
         "rate_limit": 0

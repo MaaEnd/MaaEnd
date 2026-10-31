@@ -1,0 +1,14 @@
+{
+    // 云端礼物格底部黄条的饱和度和亮度只有 247 左右，达不到 250。
+    "GiftOperatorClickGiftColor": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    20,
+                    240,
+                    240
+                ]
+            }
+        }
+    }
+}

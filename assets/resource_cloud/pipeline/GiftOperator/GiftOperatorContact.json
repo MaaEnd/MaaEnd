@@ -1,0 +1,70 @@
+{
+    // 云端画面压缩后，已选角标的色相分布在 25~35，不只是 28。
+    "GiftOperatorNotSelect": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    [
+                        36,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        179,
+                        255,
+                        255
+                    ],
+                    [
+                        24,
+                        255,
+                        255
+                    ]
+                ]
+            }
+        }
+    },
+    // 云端边框达不到满饱和度；限定在卡片区域避开底部黄色确认按钮，count 排除礼物图标等零散黄色。
+    "GiftOperatorCheckSelectedLabelColor": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    520,
+                    130,
+                    690,
+                    390
+                ],
+                "lower": [
+                    25,
+                    180,
+                    180
+                ],
+                "upper": [
+                    35,
+                    255,
+                    255
+                ],
+                "count": 800
+            }
+        }
+    },
+    // 上面匹配到的是整张卡的边框，序号只在右上角找。
+    "GiftOperatorCheckSelectedTextColor": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    75,
+                    0,
+                    -75,
+                    -120
+                ]
+            }
+        }
+    }
+}

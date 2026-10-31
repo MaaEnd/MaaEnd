@@ -5,6 +5,7 @@
 # Isolate binary files in case the auto-detection algorithm fails and
 # marks them as text files (which could brick them).
 *.{png,jpg,jpeg,gif,webp,woff,woff2} binary
+*.gz binary
 
 # Treat all json as jsonc
 **/*.json linguist-language=jsonc

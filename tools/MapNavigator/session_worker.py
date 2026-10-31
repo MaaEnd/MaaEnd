@@ -9,8 +9,6 @@
     <- 前端指令, 原样交给服务分发
 """
 
-from __future__ import annotations
-
 import sys
 from pathlib import Path
 
@@ -21,7 +19,6 @@ if str(_TOOL_DIR) not in sys.path:
     sys.path.insert(0, str(_TOOL_DIR))
 
 from worker_runner import worker_main  # noqa: E402
-
 
 if __name__ == "__main__":
     sys.exit(worker_main())

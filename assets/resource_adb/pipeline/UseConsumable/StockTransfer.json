@@ -1,0 +1,250 @@
+{
+    "UseConsumableStockFindItemSlot1": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    30,
+                    160,
+                    710,
+                    370
+                ]
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot1": {
+        "desc": "触点 4 按住仓库中的物品一秒",
+        "action": "TouchDown",
+        "target": "UseConsumableStockFindItemSlot1",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "contact": 4,
+        "auto_up": true,
+        "post_delay": 1000,
+        "next": [
+            "UseConsumableStockTransferMenuClickSlot1"
+        ]
+    },
+    "UseConsumableStockTransferMenuClickSlot1": {
+        "desc": "按住物品时反复点击转移到背包图标，直到图标消失",
+        "recognition": "TemplateMatch",
+        "roi": [
+            937,
+            128,
+            309,
+            212
+        ],
+        "template": "UseConsumable/TransferToBackpack.png",
+        "threshold": 0.8,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "UseConsumableStockTransferMenuClickSlot1",
+            "repeat_count": 5,
+            "interval_ms": 500
+        },
+        "rate_limit": 250,
+        "next": [
+            "UseConsumableStockTransferTouchUpSlot1"
+        ]
+    },
+    "UseConsumableStockTransferTouchUpSlot1": {
+        "desc": "转移菜单图标消失后松开物品触点",
+        "recognition": "DirectHit",
+        "action": "TouchUp",
+        "contact": 4,
+        "next": [
+            "UseConsumableStockTransferCompleteSlot1"
+        ]
+    },
+    "UseConsumableStockFindItemSlot2": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    30,
+                    160,
+                    710,
+                    370
+                ]
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot2": {
+        "desc": "触点 4 按住仓库中的物品一秒",
+        "action": "TouchDown",
+        "target": "UseConsumableStockFindItemSlot2",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "contact": 4,
+        "auto_up": true,
+        "post_delay": 1000,
+        "next": [
+            "UseConsumableStockTransferMenuClickSlot2"
+        ]
+    },
+    "UseConsumableStockTransferMenuClickSlot2": {
+        "desc": "按住物品时反复点击转移到背包图标，直到图标消失",
+        "recognition": "TemplateMatch",
+        "roi": [
+            937,
+            128,
+            309,
+            212
+        ],
+        "template": "UseConsumable/TransferToBackpack.png",
+        "threshold": 0.8,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "UseConsumableStockTransferMenuClickSlot2",
+            "repeat_count": 5,
+            "interval_ms": 500
+        },
+        "rate_limit": 250,
+        "next": [
+            "UseConsumableStockTransferTouchUpSlot2"
+        ]
+    },
+    "UseConsumableStockTransferTouchUpSlot2": {
+        "desc": "转移菜单图标消失后松开物品触点",
+        "recognition": "DirectHit",
+        "action": "TouchUp",
+        "contact": 4,
+        "next": [
+            "UseConsumableStockTransferCompleteSlot2"
+        ]
+    },
+    "UseConsumableStockFindItemSlot3": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    30,
+                    160,
+                    710,
+                    370
+                ]
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot3": {
+        "desc": "触点 4 按住仓库中的物品一秒",
+        "action": "TouchDown",
+        "target": "UseConsumableStockFindItemSlot3",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "contact": 4,
+        "auto_up": true,
+        "post_delay": 1000,
+        "next": [
+            "UseConsumableStockTransferMenuClickSlot3"
+        ]
+    },
+    "UseConsumableStockTransferMenuClickSlot3": {
+        "desc": "按住物品时反复点击转移到背包图标，直到图标消失",
+        "recognition": "TemplateMatch",
+        "roi": [
+            937,
+            128,
+            309,
+            212
+        ],
+        "template": "UseConsumable/TransferToBackpack.png",
+        "threshold": 0.8,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "UseConsumableStockTransferMenuClickSlot3",
+            "repeat_count": 5,
+            "interval_ms": 500
+        },
+        "rate_limit": 250,
+        "next": [
+            "UseConsumableStockTransferTouchUpSlot3"
+        ]
+    },
+    "UseConsumableStockTransferTouchUpSlot3": {
+        "desc": "转移菜单图标消失后松开物品触点",
+        "recognition": "DirectHit",
+        "action": "TouchUp",
+        "contact": 4,
+        "next": [
+            "UseConsumableStockTransferCompleteSlot3"
+        ]
+    },
+    "UseConsumableStockFindItemSlot4": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    30,
+                    160,
+                    710,
+                    370
+                ]
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot4": {
+        "desc": "触点 4 按住仓库中的物品一秒",
+        "action": "TouchDown",
+        "target": "UseConsumableStockFindItemSlot4",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "contact": 4,
+        "auto_up": true,
+        "post_delay": 1000,
+        "next": [
+            "UseConsumableStockTransferMenuClickSlot4"
+        ]
+    },
+    "UseConsumableStockTransferMenuClickSlot4": {
+        "desc": "按住物品时反复点击转移到背包图标，直到图标消失",
+        "recognition": "TemplateMatch",
+        "roi": [
+            937,
+            128,
+            309,
+            212
+        ],
+        "template": "UseConsumable/TransferToBackpack.png",
+        "threshold": 0.8,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "UseConsumableStockTransferMenuClickSlot4",
+            "repeat_count": 5,
+            "interval_ms": 500
+        },
+        "rate_limit": 250,
+        "next": [
+            "UseConsumableStockTransferTouchUpSlot4"
+        ]
+    },
+    "UseConsumableStockTransferTouchUpSlot4": {
+        "desc": "转移菜单图标消失后松开物品触点",
+        "recognition": "DirectHit",
+        "action": "TouchUp",
+        "contact": 4,
+        "next": [
+            "UseConsumableStockTransferCompleteSlot4"
+        ]
+    }
+}

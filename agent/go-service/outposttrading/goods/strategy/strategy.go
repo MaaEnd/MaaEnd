@@ -14,11 +14,6 @@ const (
 	KindStock Kind = "stock"
 )
 
-// Config 包含各选品策略可使用的配置。
-type Config struct {
-	MinimumUnitPrice int
-}
-
 // Candidate 表示已经通过公共过滤、等待策略选择的第一页货品。
 // 输入顺序仅用于业务字段完全相同时的稳定兜底。
 type Candidate struct {

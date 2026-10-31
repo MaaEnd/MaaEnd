@@ -2,7 +2,6 @@ package batchaddfriends
 
 import (
 	"encoding/json"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -28,21 +27,19 @@ var (
 	state batchAddState
 )
 
-type BatchAddFriendsAction struct{}
-type BatchAddFriendsUIDLoopTopAction struct{}
-type BatchAddFriendsUIDEnterAction struct{}
-type BatchAddFriendsUIDOnAddAction struct{}
-type BatchAddFriendsUIDOnEmptyAction struct{}
-type BatchAddFriendsUIDFinishAction struct{}
-type BatchAddFriendsStrangersOnAddAction struct{}
-type BatchAddFriendsStrangersFinishAction struct{}
-type BatchAddFriendsFriendListFullAction struct{}
+type (
+	BatchAddFriendsAction                struct{}
+	BatchAddFriendsUIDOnAddAction        struct{}
+	BatchAddFriendsUIDOnEmptyAction      struct{}
+	BatchAddFriendsUIDFinishAction       struct{}
+	BatchAddFriendsStrangersOnAddAction  struct{}
+	BatchAddFriendsStrangersFinishAction struct{}
+	BatchAddFriendsFriendListFullAction  struct{}
+)
 
 // Compile-time interface checks
 var (
 	_ maa.CustomActionRunner = &BatchAddFriendsAction{}
-	_ maa.CustomActionRunner = &BatchAddFriendsUIDLoopTopAction{}
-	_ maa.CustomActionRunner = &BatchAddFriendsUIDEnterAction{}
 	_ maa.CustomActionRunner = &BatchAddFriendsUIDOnAddAction{}
 	_ maa.CustomActionRunner = &BatchAddFriendsUIDOnEmptyAction{}
 	_ maa.CustomActionRunner = &BatchAddFriendsUIDFinishAction{}
@@ -55,14 +52,12 @@ type batchAddState struct {
 	mode string
 
 	// UID 列表模式
-	uidQueue         []string
-	uidTotal         int
 	uidProcessed     int
 	uidSuccess       int
 	uidFail          int
 	uidFailStreak    int
 	uidMaxFailStreak int
-	uidCurrent       string
+	uidMaxCount      int
 
 	// 添加陌生人模式
 	strangersProcessed int
@@ -81,7 +76,7 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		return false
 	}
 	maxCount := parseMaxCount(params.MaxCount, cfg.DefaultMaxCount)
-	uids := splitUIDs(params.UidList)
+	uidList := strings.TrimSpace(params.UidList)
 
 	controller := ctx.GetTasker().GetController()
 	if controller == nil {
@@ -89,27 +84,18 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		return false
 	}
 
-	if len(uids) > 0 {
-		if maxCount > 0 && len(uids) > maxCount {
-			uids = uids[:maxCount]
-		}
+	if len(uidList) > 0 {
 		state = batchAddState{
 			mode:             "uid",
-			uidQueue:         uids,
-			uidTotal:         len(uids),
 			uidMaxFailStreak: cfg.MaxFailStreak,
+			uidMaxCount:      maxCount,
 		}
-		_ = ctx.OverridePipeline(map[string]any{
-			"BatchAddFriendsUIDLoopCounter": map[string]any{
-				"max_hit": len(state.uidQueue),
-			},
-		})
 		// 立即跳转到 UID 分支。
 		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
-			{Name: "BatchAddFriendsUIDLoopTop"},
+			{Name: "BatchAddFriendsUIDInit"},
 		})
 		log.Info().
-			Int("total", state.uidTotal).
+			Int("maxCount", maxCount).
 			Int("maxFailStreak", state.uidMaxFailStreak).
 			Msg("[BatchAddFriends]UID 列表模式开始")
 		return true
@@ -133,61 +119,27 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	return true
 }
 
-// BatchAddFriendsUIDLoopTopAction 是 UID 分支入口：根据队列是否为空决定继续或结束分支。
-func (a *BatchAddFriendsUIDLoopTopAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	// UID 队列为空则结束 UID 分支。
-	if len(state.uidQueue) == 0 {
-		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
-			{Name: "BatchAddFriendsUIDEnd"},
-		})
-		return true
-	}
-	// 否则继续处理下一个 UID。
-	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
-		{Name: "BatchAddFriendsUIDLoopCounter"},
-	})
-	return true
-}
-
-func (a *BatchAddFriendsUIDEnterAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	if len(state.uidQueue) == 0 {
-		ctx.GetTasker().PostStop()
-		return true
-	}
-	controller := ctx.GetTasker().GetController()
-	if controller == nil {
-		log.Error().Msg("[BatchAddFriends]无法获取控制器")
-		return false
-	}
-
-	uid := state.uidQueue[0]
-	state.uidQueue = state.uidQueue[1:]
-	state.uidCurrent = uid
-	controller.PostInputText(uid).Wait()
-	log.Debug().
-		Int("index", state.uidProcessed+1).
-		Int("total", state.uidTotal).
-		Int("remaining", len(state.uidQueue)).
-		Str("uid", uid).
-		Msg("[BatchAddFriends]开始处理 UID")
-	return true
-}
-
 func (a *BatchAddFriendsUIDOnAddAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	state.uidProcessed++
 	state.uidSuccess++
 	state.uidFailStreak = 0
+	uid, total := readAttach(ctx)
 	log.Info().
 		Int("processed", state.uidProcessed).
-		Int("total", state.uidTotal).
+		Int("total", total).
 		Int("success", state.uidSuccess).
 		Int("fail", state.uidFail).
-		Str("uid", state.uidCurrent).
+		Str("uid", uid).
 		Msg("[BatchAddFriends]已点击添加好友")
 	maafocus.Print(
 		ctx,
-		i18n.T("batchaddfriends.uid_sent", state.uidCurrent, state.uidSuccess, state.uidTotal),
+		i18n.T("batchaddfriends.uid_sent", uid, state.uidSuccess, total),
 	)
+	if state.uidProcessed >= state.uidMaxCount {
+		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+			{Name: "BatchAddFriendsUIDEnd"},
+		})
+	}
 	return true
 }
 
@@ -195,13 +147,14 @@ func (a *BatchAddFriendsUIDOnEmptyAction) Run(ctx *maa.Context, arg *maa.CustomA
 	state.uidProcessed++
 	state.uidFail++
 	state.uidFailStreak++
+	uid, total := readAttach(ctx)
 	log.Warn().
 		Int("processed", state.uidProcessed).
-		Int("total", state.uidTotal).
+		Int("total", total).
 		Int("success", state.uidSuccess).
 		Int("fail", state.uidFail).
 		Int("failStreak", state.uidFailStreak).
-		Str("uid", state.uidCurrent).
+		Str("uid", uid).
 		Msg("[BatchAddFriends]未搜索到相关玩家")
 	if state.uidMaxFailStreak > 0 && state.uidFailStreak >= state.uidMaxFailStreak {
 		log.Error().
@@ -210,13 +163,20 @@ func (a *BatchAddFriendsUIDOnEmptyAction) Run(ctx *maa.Context, arg *maa.CustomA
 		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "BatchAddFriendsUIDEnd"},
 		})
+		return true
+	}
+	if state.uidProcessed >= state.uidMaxCount {
+		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+			{Name: "BatchAddFriendsUIDEnd"},
+		})
 	}
 	return true
 }
 
 func (a *BatchAddFriendsUIDFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	_, total := readAttach(ctx)
 	log.Info().
-		Int("total", state.uidTotal).
+		Int("total", total).
 		Int("processed", state.uidProcessed).
 		Int("success", state.uidSuccess).
 		Int("fail", state.uidFail).
@@ -225,6 +185,24 @@ func (a *BatchAddFriendsUIDFinishAction) Run(ctx *maa.Context, arg *maa.CustomAc
 		state = batchAddState{}
 	}
 	return true
+}
+
+func readAttach(ctx *maa.Context) (current string, total int) {
+	var w struct {
+		Attach struct {
+			Current string `json:"current"`
+			Total   int    `json:"total"`
+		} `json:"attach"`
+	}
+	raw, err := ctx.GetNodeJSON("TextInput")
+	if err == nil {
+		err = json.Unmarshal([]byte(raw), &w)
+	}
+	if err != nil {
+		log.Error().Err(err).Msg("[BatchAddFriends]读取输入进度失败")
+		return "", 0
+	}
+	return w.Attach.Current, w.Attach.Total
 }
 
 func (a *BatchAddFriendsStrangersOnAddAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -276,17 +254,4 @@ func parseMaxCount(v interface{}, def int) int {
 		}
 	}
 	return def
-}
-
-func splitUIDs(raw string) []string {
-	// 按空白字符与中文顿号"、"拆分 UID。
-	re := regexp.MustCompile(`[、\s]+`)
-	parts := re.Split(strings.TrimSpace(raw), -1)
-	uids := make([]string, 0, len(parts))
-	for _, p := range parts {
-		if s := strings.TrimSpace(p); s != "" {
-			uids = append(uids, s)
-		}
-	}
-	return uids
 }

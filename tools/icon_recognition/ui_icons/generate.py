@@ -1,7 +1,5 @@
 """根据已发布 IconRecognition catalog 和图片生成 UI 图标。"""
 
-from __future__ import annotations
-
 import argparse
 import json
 import re
@@ -11,7 +9,6 @@ from typing import Any
 
 import json5
 from PIL import Image, ImageColor
-
 
 TARGET_SIZE = 32
 ITEM_BOX_SIZE = (30, 28)
@@ -194,7 +191,7 @@ def _validate_item_id(item_id: str) -> str:
 
 def _tint_by_alpha(mask_image: Image.Image, color: str) -> Image.Image:
     mask = mask_image.convert("RGBA")
-    result = Image.new("RGBA", mask.size, ImageColor.getrgb(color) + (255,))
+    result = Image.new("RGBA", mask.size, (*ImageColor.getrgb(color), 255))
     result.putalpha(mask.getchannel("A"))
     return result
 

@@ -1,0 +1,46 @@
+{
+    // ADB：避开相邻设施的重叠触发区，将点击落点移至武陵城农植机图标左下角。
+    "__AutoEcoFarmFindWulingCityFarm": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -8,
+                    8,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    // ADB：避开相邻设施的重叠触发区，将点击落点移至牧场图标底部黄条右侧。
+    "__AutoEcoFarmFindRanch": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    14,
+                    11,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "__AutoEcoFarmFarmTerminalPanel": {
+        "roi": [
+            865,
+            62,
+            40,
+            40
+        ]
+    },
+    "__AutoEcoFarmRanchPanel": {
+        "roi": [
+            865,
+            62,
+            40,
+            40
+        ]
+    }
+}

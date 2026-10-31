@@ -20,15 +20,12 @@ struct AdbCameraSwipeDriverConfig
     int origin_y_numerator = 1;
     int origin_y_denominator = 2;
     int origin_y_offset = -96;
-    // 中心对称起落, 单笔过长时按下点落进左侧摇杆区, 那一笔不转镜头
+    // 单笔过长时按下点会落进左侧摇杆区, 那一笔不转镜头
     int max_stroke_dx = 270;
 
-    int turn_swipe_duration_ms = kAdbTouchTurnProfile.swipe_duration_ms;
-
-    // 游戏逐帧采样触点, 与按下或抬起同帧的位移会整步丢失; 两端停留要盖过负载高时的一帧
+    // 与按下或抬起同帧的位移会整步丢失, 两端停留须盖过一帧
     int touch_down_hold_ms = 100;
-    // 手指离按下点不超过起拖阈值时游戏不认拖动, 阈值内的位移整段作废, 丢多少随帧率和步长变;
-    // 第一步直接移出阈值 (PlayCover 上约 10px), 余量留给阈值换算到参考坐标更大的设备
+    // 离按下点不超过起拖阈值的位移游戏不认, 第一步直接移出这么远
     int drag_start_lead = 32;
     int move_steps = 6;
     int move_step_delay_ms = 10;
@@ -42,7 +39,7 @@ class AdbCameraSwipeDriver
 public:
     AdbCameraSwipeDriver(MaaController* controller, AdbCameraSwipeDriverConfig config = {});
 
-    bool SwipeByPixels(int dx, int dy) const;
+    bool swipeByPixels(int dx, int dy) const;
 
 private:
     struct ScreenGeometry
@@ -53,15 +50,13 @@ private:
         int down_limit = 0;
     };
 
-    std::optional<ScreenGeometry> GetScreenGeometry() const;
-    bool ExecuteSwipe(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
-    bool ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
-    bool PostTouchDown(const cv::Point& point) const;
-    bool PostTouchMove(const cv::Point& point) const;
-    bool PostTouchUp() const;
-    bool EnsureControllerActionPosted(MaaCtrlId ctrl_id, const char* action_name) const;
-    bool WaitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const;
-    static void SleepIfNeeded(int delay_millis);
+    std::optional<ScreenGeometry> getScreenGeometry() const;
+    bool executeStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
+    bool postTouchDown(const cv::Point& point) const;
+    bool postTouchMove(const cv::Point& point) const;
+    bool postTouchUp() const;
+    bool ensureControllerActionPosted(MaaCtrlId ctrl_id, const char* action_name) const;
+    bool waitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const;
 
     MaaController* controller_ = nullptr;
     AdbCameraSwipeDriverConfig config_;

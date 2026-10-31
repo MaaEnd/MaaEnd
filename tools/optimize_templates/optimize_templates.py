@@ -142,7 +142,7 @@ def update_png_with_oxipng(file_path: str, perfect_pngs: dict, quiet: bool):
         oxipng_cmd_base.append("-q")
 
     # First pass
-    subprocess.run(oxipng_cmd_base + [file_path], check=True)
+    subprocess.run([*oxipng_cmd_base, file_path], check=True)
     # Second pass
     subprocess.run(
         ["oxipng", "-o", "2", "-s"] + (["-q"] if quiet else []) + [file_path],
@@ -206,7 +206,7 @@ if __name__ == "__main__":
     optimized_png_paths = []
 
     if os.path.exists(perfect_pngs_path):
-        with open(perfect_pngs_path, "r") as f:
+        with open(perfect_pngs_path) as f:
             perfect_pngs = json.load(f)
 
     if len(paths) == 0:

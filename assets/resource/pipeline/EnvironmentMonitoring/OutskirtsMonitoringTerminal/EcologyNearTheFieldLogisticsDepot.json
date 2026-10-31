@@ -371,7 +371,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingWulingCity6"
+                "SceneEnterWorldWulingWulingCityFieldLogisticsDepotWest"
             ]
         },
         "post_delay": 0,

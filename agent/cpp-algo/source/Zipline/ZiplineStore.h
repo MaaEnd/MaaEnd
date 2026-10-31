@@ -8,54 +8,43 @@
 namespace zipline
 {
 
-// 一条滑索的落点，字段沿用森空岛接口的原义：x/z 张成水平面，y 是高度。
-// 与 navmesh 的 WorldPoint 不是同一个坐标系，换算见 ZiplineFrames。
+// 原始世界坐标, x/z 张成水平面, y 是高度, 换算见 ZiplineFrames
 struct ZiplineMark
 {
     std::string template_id;
-    // 森空岛的区域编号。同一张图各区共用一套世界坐标，配对不看它。
     std::string level_id;
     double x = 0.0;
     double y = 0.0;
     double z = 0.0;
 };
 
-// 一张森空岛地图上抓到的全部滑索。map_id 是森空岛的地图编号，与 navmesh 的 zone_name
-// 是两套互不相干的编号，对应关系由 ZiplineFrames 给出。
+// map_id 与 navmesh 的 zone_name 无关, 对应关系由 ZiplineFrames 给出
 struct ZiplineMapRecord
 {
-    // 与 CaptureUid 相同盐和算法生成的伪匿名账号标识。空值表示旧版本遗留记录：导入时无从
-    // 判断它属于谁，所以不归任何账号；寻路时由 claimLegacyRecords 认领给当前账号。
+    // 由 HashUidForAccount 生成, 为空表示待 claimLegacyRecords 认领的无主记录
     std::string account_id;
     std::string map_id;
     std::string fetched_at;
     std::vector<ZiplineMark> marks;
 };
 
-// debug/record/Ziplines.json 的读写。
 class ZiplineStore
 {
 public:
-    // 锚在启动时的工作目录，不随后续工作目录变化而漂移。
+    // 锚在启动时的工作目录, 不随后续工作目录变化
     static std::filesystem::path DefaultPath();
 
-    // 文件不存在按空库处理并返回 true，只有内容坏掉才返回 false：首次导入不该被当成故障。
+    // 文件不存在视为空库并返回 true, 只有内容坏掉才返回 false
     bool load(const std::filesystem::path& path);
     bool save(const std::filesystem::path& path) const;
 
-    // 按 (account_id, map_id) 整张替换，不做逐条合并。拆掉的滑索必须随之消失，否则会在图里
-    // 留下一条走不通的边——那比缺这条滑索更糟，规划会反复选中它再失败。
+    // 按 (account_id, map_id) 整张替换, 拆掉的滑索必须随之消失
     void replaceMap(ZiplineMapRecord record);
 
-    // 把旧版本遗留（无 account_id）的记录认领给当前账号，并就地落盘。返回认领条数。
-    //
-    // 旧版本落盘时不带账号字段，这些坐标本来就在用；不认领就等于升级后用户什么都没动，
-    // 滑索却静默失效，只能重新导入一遍。认领只在这个账号名下一条记录都没有时进行：名下
-    // 已经有账号级数据，就不该再掺进来源不明的旧数据，否则换号会静默用错坐标。
+    // 只在该账号名下没有任何记录时认领无主记录并落盘, 返回认领条数
     size_t claimLegacyRecords(const std::string& account_id, const std::filesystem::path& path);
 
-    // 离线 MapNavigator 预览没有游戏上下文，使用最近一次导入的账号保持预览可用；运行时绝不调用
-    // 这个兜底，而是只认 CaptureUid 发布的当前游戏账号。
+    // 仅供离线预览兜底, 运行时只认 CaptureUid 发布的当前游戏账号
     std::string latestAccountId() const;
 
     const std::vector<ZiplineMapRecord>& maps() const { return maps_; }
@@ -64,7 +53,7 @@ private:
     std::vector<ZiplineMapRecord> maps_;
 };
 
-// 当前 UTC 时刻的 ISO8601 串，落盘时间戳用。
+// 当前 UTC 时刻的 ISO8601 串
 std::string CurrentTimestamp();
 
 } // namespace zipline

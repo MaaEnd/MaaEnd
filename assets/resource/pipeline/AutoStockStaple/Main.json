@@ -38,9 +38,15 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AttachToExpectedRegexAction", //初始化正则表达式
+                "custom_action": "AttachToExpectedRegexAction", //初始化各折扣分组的商品名白名单正则
                 "custom_action_param": {
-                    "target": "AutoStockInStapleItemName"
+                    "targets": [
+                        "AutoStockInStapleItemNameDaily",
+                        "AutoStockInStapleItemNameIndustrial",
+                        "AutoStockInStapleItemNameCultural",
+                        "AutoStockInStapleItemNameEngravingPermit",
+                        "AutoStockInStapleItemNameArtificingCatalyst"
+                    ]
                 }
             }
         },

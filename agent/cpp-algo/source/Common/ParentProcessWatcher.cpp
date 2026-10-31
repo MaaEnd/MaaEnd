@@ -65,7 +65,8 @@ void RunWatcherLoop(HANDLE parent_handle, DWORD parent_pid)
         if (wait_result == WAIT_OBJECT_0) {
             LogWarn << "Parent process exited; shutting down cpp-algo." << VAR(parent_pid);
             CloseHandle(parent_handle);
-            std::exit(0);
+            // 不用 std::exit：卸载 MaaAgentServer 时会析构其单例，msg_thread_ 仍可 join 会直接 terminate。
+            _exit(0);
         }
         if (wait_result == WAIT_FAILED) {
             LogWarn << "WaitForSingleObject failed on parent handle." << VAR(parent_pid) << VAR(GetLastError());
@@ -81,7 +82,7 @@ void RunWatcherLoop(pid_t parent_pid)
     while (true) {
         if (kill(parent_pid, 0) != 0 && errno == ESRCH) {
             LogWarn << "Parent process exited; shutting down cpp-algo." << VAR(parent_pid);
-            std::exit(0);
+            _exit(0);
         }
         std::this_thread::sleep_for(kPollInterval);
     }

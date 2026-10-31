@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import math
 import re
 from enum import IntEnum
@@ -297,7 +295,7 @@ def coerce_find_arrive(value: object) -> list[float]:
     return numbers
 
 
-def find_fields_of(point: "PathPoint") -> dict[str, object]:
+def find_fields_of(point: PathPoint) -> dict[str, object]:
     """FIND 点要带出去的字段，任何一个没写就整个不出现在导出结果里。"""
     fields: dict[str, object] = {}
     target = str(point.get("find_target", "") or "").strip()
@@ -320,7 +318,7 @@ def _apply_find_fields(point: PathPoint, normalized: PathPoint) -> None:
         normalized[key] = value  # type: ignore[literal-required]
 
 
-def trigger_node_of(point: "PathPoint") -> str:
+def trigger_node_of(point: PathPoint) -> str:
     value = point.get("trigger_node", "")
     return value.strip() if isinstance(value, str) else ""
 
@@ -499,10 +497,7 @@ def resolve_zone_image(zone_id: str, map_image_dir: Path) -> Path | None:
     if alias_path is not None and alias_path.exists():
         return alias_path
 
-    if map_image_dir.name.lower() == "maplocator":
-        map_locator_dir = map_image_dir
-    else:
-        map_locator_dir = map_image_dir / "MapLocator"
+    map_locator_dir = map_image_dir if map_image_dir.name.lower() == "maplocator" else map_image_dir / "MapLocator"
 
     level_match = re.match(r"^(\w+?)_L(\d+)_(\d+)$", normalized_zone_id)
     if level_match:

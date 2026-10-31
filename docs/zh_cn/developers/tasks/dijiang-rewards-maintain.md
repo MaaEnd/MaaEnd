@@ -2,7 +2,7 @@
 
 本文说明 `DijiangRewards` 的文件分布与执行流程。  
 设计核心是「总控中枢分发 + 子阶段回跳」：各子阶段彼此独立，选项只改阶段入口或分支，不动主流程骨架。  
-该文档更新于 2026 年 10 月 14 日。
+该文档更新于 2026 年 10 月 29 日。
 
 ## 文件路径
 
@@ -42,7 +42,7 @@
 ### 一键收取
 
 实现位于 `FastCollect.json`，在总控中枢直接点击「产物」「线索」快捷收取，无需进入对应舱室。  
-由 `StageTaskSetting` → `FastCollect` 开关控制，默认关闭。
+由 `StageTaskSetting` → `FastCollect` 开关控制，默认关闭。开启后可在 `FastCollect` 中分别选择 `FastCollectClue` 和 `FastCollectProduction` 对应线索和产物，默认全选，全部取消时跳过一键收取。
 
 ### 恢复心情
 
@@ -55,7 +55,9 @@
 进入会客室后依次尝试：处理交流结束弹窗 → 收集线索 → 接收线索 → 放置/替换线索 →（可选）开始线索交流 → 退出。
 
 线索库存满时走[线索赠予](#线索赠予)分支，不是独立顶层阶段。  
-是否主动「开始线索交流」由 `AutoStartExchange` 控制，默认关闭，留给信用点商店联动。
+是否主动「开始线索交流」由任务级选项 `AutoStartExchange` 控制，默认开启，与 `ClueSetting` 无关。
+
+自定义赠送线索，默认关闭，允许用户选择哪些线索应进行赠送，未被选中的线索将会进行保留。赠送逻辑沿用 `ReceptionRoomSendCluesClickSend` 的逻辑。
 
 ### 制造舱
 
@@ -82,6 +84,10 @@
 | `QuickGiveDuplicateClues=Yes` | 进入赠予界面后优先一键赠送重复线索 |
 
 次数限制改赠予循环的 `max_hit`；库存阈值改数量 OCR 正则。
+
+两种赠送入口（`ClueSend.MaxClueSend` 与 `CreditShoppingClueSend.MaxClueSendWhenInsufficient`）写的是同一个 `ReceptionRoomSendCluesSendMain.max_hit`，可选范围统一为 `0`–`20`（上限与单种线索库存上限 20 对齐），`0` 表示不赠送。
+
+注意 `max_hit` 计的是「进入赠予循环的轮数」，其中包含 7 种线索都未达阈值而空转的轮次，因此它不等于实际送出的线索条数。
 
 ### 培养舱选项
 
@@ -120,17 +126,31 @@
 
 ```text
 DijiangRewards
-├── AutoStartExchange          # 会客室是否主动开线索交流
-│   └── WaitExchangeBeforeStart  # 线索齐全时等待当前交流结束；开启后展开 WaitExchangeBeforeStartThreshold
 ├── StageTaskSetting           # 展开阶段细分开关
 │   ├── FastCollect            # 一键收取
+│   │   └── FastCollectClue         # 决定是否收取线索的子选项
+│   │   └── FastCollectProduction   # 决定是否收取产物的子选项
 │   ├── RecoveryEmotionStage
 │   │   └── RecoveryEmotionCabins  # 指定舱室，默认全选五个
 │   ├── ReceptionRoomStage
 │   ├── ManufacturingStage
 │   └── GrowthChamberStage
-├── ClueSetting                # 展开 SendCluesDirect / ClueSend / ClueStockLimit（直接赠予 / 溢出后赠送 / 库存上限）
-├── QuickGiveDuplicateClues    # 快速赠予重复线索，默认关
+├── AutoStartExchange          # 会客室是否主动开线索交流，默认开启
+│   └── WaitExchangeBeforeStart  # 线索齐全时等待当前交流结束；开启后展开 WaitExchangeBeforeStartThreshold
+├── ClueSetting                # 展开赠送规则（直接赠予 / 溢出后赠送 / 库存上限 / 赠送种类）
+│   ├── SendCluesDirect
+│   ├── ClueSend        # 线索最多赠送的数量
+│   ├── ClueStockLimit  # 线索最多保留的数量
+│   ├── QuickGiveDuplicateClues # 快速赠予重复线索，默认关
+│   ├── CustomSendClues
+│   │   └── Checkbox
+│   │       ├── ClueOne
+│   │       ├── ClueTwo
+│   │       ├── ClueThree
+│   │       ├── ClueFour
+│   │       ├── ClueFive
+│   │       ├── ClueSix
+│   │       └── ClueSeven
 └── SelectToGrow               # 培养舱主模式
     ├── DoNothing
     ├── GrowAgain

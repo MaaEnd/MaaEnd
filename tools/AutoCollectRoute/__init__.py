@@ -1,0 +1,1 @@
+"""AutoCollect collect-route builder."""

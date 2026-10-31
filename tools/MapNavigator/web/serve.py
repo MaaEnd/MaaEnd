@@ -41,8 +41,6 @@
   /                           -> 静态站点 web/static/ (StaticFiles, html=True)
 """
 
-from __future__ import annotations
-
 import asyncio
 import json
 import math
@@ -54,11 +52,11 @@ import sys
 import threading
 import time
 import traceback
-import webbrowser
-from contextlib import asynccontextmanager
+from collections.abc import Callable, Sequence
+from contextlib import asynccontextmanager, suppress
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Callable, Sequence
+from typing import Any
 
 # --- 让被复用的父目录模块 (bare-name import) 可被解析 --------------------------------
 # 这些模块 (navmesh_backend / model / runtime / recording_service / ...) 位于
@@ -78,17 +76,24 @@ from connectors import (  # noqa: E402
     list_gamescope_instances,
     resolve_adb_path,
 )
+from fastapi import Body, FastAPI, HTTPException, WebSocket, WebSocketDisconnect  # noqa: E402
+from fastapi.concurrency import run_in_threadpool  # noqa: E402
+from fastapi.responses import FileResponse, JSONResponse, Response  # noqa: E402
+from fastapi.staticfiles import StaticFiles  # noqa: E402
+from local_server import NoStoreMiddleware, preferred_port, serve_local  # noqa: E402
 from model import normalize_zone_id, resolve_zone_image  # noqa: E402
-from navmesh_backend import NavmeshBackend  # noqa: E402
+from navmesh_backend import NOGO_JSON, NavmeshBackend, default_pack_path  # noqa: E402
+from pydantic import BaseModel  # noqa: E402
 from recording_service import parse_live_position  # noqa: E402
-from session_modes import MODES, SessionMode  # noqa: E402
 from runtime import (  # noqa: E402
     INSTALL_DIR,
     MAP_IMAGE_DIR,
     RESOURCE_DIR,
     configure_runtime_env,
     load_maa_runtime,
+    map_image_file,
 )
+from session_modes import MODES, SessionMode  # noqa: E402
 from settings_store import (  # noqa: E402
     CONNECTION_KINDS,
     MapNavigatorSettings,
@@ -97,26 +102,12 @@ from settings_store import (  # noqa: E402
     supported_connection_kinds,
 )
 
-from fastapi import Body, FastAPI, HTTPException, WebSocket, WebSocketDisconnect  # noqa: E402
-from fastapi.concurrency import run_in_threadpool  # noqa: E402
-from fastapi.responses import FileResponse, JSONResponse, Response  # noqa: E402
-from fastapi.staticfiles import StaticFiles  # noqa: E402
-from pydantic import BaseModel  # noqa: E402
-from starlette.datastructures import MutableHeaders  # noqa: E402
-
-
 # --- 常量 -----------------------------------------------------------------------------
-NAVMESH_DIR = RESOURCE_DIR / "model" / "map" / "navmesh"
-NAVMESH_GZ = NAVMESH_DIR / "base.nav.gz"
-NAVMESH_RAW = NAVMESH_DIR / "base.nav"
 ZIPLINE_FRAMES = RESOURCE_DIR.parent / "data" / "MapNavigator" / "zipline_frames.json"
 ZIPLINE_RECORDS = INSTALL_DIR / "debug" / "record" / "Ziplines.json"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
-# 只绑 127.0.0.1 —— 后端会 spawn 进程 / 连 ADB / 载 maafw, 绝不暴露到局域网。
-LISTEN_HOST = "127.0.0.1"
 DEFAULT_PORT = 8770
-PORT_SCAN_LIMIT = 20  # 首选端口被占用时, 顺延试探的端口个数
 
 _LOG_PREFIX = "[Backend]"
 
@@ -125,9 +116,7 @@ def _log(message: str) -> None:
     print(f"{_LOG_PREFIX} {message}", file=sys.stderr, flush=True)
 
 
-navmesh_backend = NavmeshBackend(NAVMESH_GZ if NAVMESH_GZ.exists() else NAVMESH_RAW)
-# 虚拟禁区表是本仓库的配置, 与 zipline_frames.json 同规矩放 data/MapNavigator/, 与 planner 的解析一致。
-NOGO_JSON = ZIPLINE_FRAMES.with_name("nogo_zones.json")
+navmesh_backend = NavmeshBackend(default_pack_path())
 # 禁区表的写与删串行: 两次保存共用同一个临时文件名, 不串行会互相替换半成品。
 _nogo_write_lock = threading.Lock()
 
@@ -145,7 +134,7 @@ def get_runtime() -> Any:
         if not _runtime_loaded:
             try:
                 _runtime_cache = load_maa_runtime()
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 _log(f"load_maa_runtime 失败: {exc}")
                 _runtime_cache = None
             _runtime_loaded = True
@@ -202,7 +191,7 @@ class ElevatedWorkerBridge:
             try:
                 line = await asyncio.wait_for(reader.readline(), timeout=WORKER_CONNECT_TIMEOUT_SECONDS)
                 hello = json.loads(line.decode("utf-8"))
-            except Exception:  # noqa: BLE001
+            except Exception:
                 writer.close()
                 return
             token = hello.get("token") if isinstance(hello, dict) else None
@@ -230,7 +219,7 @@ class ElevatedWorkerBridge:
             self._reader, self._writer = await asyncio.wait_for(
                 self._connected, timeout=WORKER_CONNECT_TIMEOUT_SECONDS
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return (
                 f"提权子进程 {WORKER_CONNECT_TIMEOUT_SECONDS:.0f}s 内没有回连 "
                 "(可能被安全软件拦截, 或 maafw 依赖加载失败)。"
@@ -248,7 +237,7 @@ class ElevatedWorkerBridge:
         if not self._elevate:
             try:
                 subprocess.Popen([sys.executable, *argv], cwd=str(_PARENT_DIR))
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 return f"拉起子进程失败: {exc}"
             return None
         try:
@@ -265,7 +254,7 @@ class ElevatedWorkerBridge:
                     0,
                 )
             )
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             return f"拉起提权子进程失败: {exc}"
         if ret == SE_ERR_ACCESSDENIED:
             return "已取消提权。"
@@ -277,10 +266,8 @@ class ElevatedWorkerBridge:
         if self._writer is None:
             return
         self._writer.write((json.dumps(payload, ensure_ascii=False) + "\n").encode("utf-8"))
-        try:
+        with suppress(Exception):
             await self._writer.drain()
-        except Exception:  # noqa: BLE001
-            pass
 
     async def messages(self):
         """逐条产出子进程消息; socket EOF 时结束。"""
@@ -289,7 +276,7 @@ class ElevatedWorkerBridge:
         while True:
             try:
                 line = await self._reader.readline()
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 # 连接被重置等: 必须留痕, 否则和正常 EOF 长得一样, 没法查。
                 _log(f"读取录制子进程失败: {exc!r}")
                 return
@@ -305,16 +292,12 @@ class ElevatedWorkerBridge:
     async def close(self) -> None:
         # 关 socket 即让子进程自杀 —— 本进程完整性级别更低, kill 不掉它。
         if self._writer is not None:
-            try:
+            with suppress(Exception):
                 self._writer.close()
-            except Exception:  # noqa: BLE001
-                pass
         if self._server is not None:
             self._server.close()
-            try:
+            with suppress(Exception):
                 await self._server.wait_closed()
-            except Exception:  # noqa: BLE001
-                pass
 
 
 # --- FastAPI app ----------------------------------------------------------------------
@@ -331,35 +314,6 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="MapNavigator Web Backend", lifespan=lifespan)
-
-
-class NoStoreMiddleware:
-    """给所有 HTTP 响应打 Cache-Control: no-store。
-
-    这是给别的开发者用的工具, 底图/数据包/前端 JS 都可能被就地替换。浏览器默认对没有
-    Cache-Control 的 FileResponse 走启发式缓存, 会拿旧底图旧代码却毫无提示 —— 非本模块
-    开发者根本察觉不到。localhost 每次重取代价为零, 宁可不缓存也不让任何人踩到隐形旧图。
-
-    纯 ASGI 实现: 只在 http.response.start 时补一个响应头, 不缓冲 FileResponse 响应体
-    (BaseHTTPMiddleware 会缓冲, 破坏大文件与 range), 也不碰 websocket。
-    """
-
-    def __init__(self, app: Any) -> None:
-        self.app = app
-
-    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
-        if scope["type"] != "http":
-            await self.app(scope, receive, send)
-            return
-
-        async def send_no_store(message: Any) -> None:
-            if message["type"] == "http.response.start":
-                MutableHeaders(scope=message)["Cache-Control"] = "no-store"
-            await send(message)
-
-        await self.app(scope, receive, send_no_store)
-
-
 app.add_middleware(NoStoreMiddleware)
 
 
@@ -394,7 +348,7 @@ async def api_zones() -> Any:
             if image is not None:
                 try:
                     image_path = image.resolve().relative_to(MAP_IMAGE_DIR.resolve()).as_posix()
-                except Exception:  # noqa: BLE001
+                except Exception:
                     image_path = None
             # 底图是这边的事 (assets 目录布局), 其余字段原样透传 agent
             zones_out.append({**zone, "has_image": image is not None, "image_path": image_path})
@@ -411,7 +365,7 @@ async def api_mesh(zone_id: int) -> Response:
     try:
         data = await run_in_threadpool(navmesh_backend.mesh_bytes, zone_id)
     except RuntimeError as exc:
-        raise HTTPException(status_code=503, detail=str(exc))
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     if data is None:
         raise HTTPException(status_code=404, detail="该区无三角面 (tier 叠加区或未知区)")
     navmesh_backend.warm(zone_id)
@@ -481,14 +435,13 @@ async def api_route_preview(req: RoutePreviewRequest) -> dict[str, Any]:
 
     def _compute() -> dict[str, Any]:
         try:
-            return navmesh_backend.query_latest(
-                "route-preview",
-                "route_preview",
-                position=req.position,
-                position_zone=req.position_zone,
-                floor_y=_slot(req.floor_y),
-                custom_action_param=req.custom_action_param,
+            return navmesh_backend.route_preview(
+                req.position,
+                req.position_zone,
+                req.custom_action_param,
+                floor_y=req.floor_y,
                 zipline_account_id=req.zipline_account_id,
+                latest_key="route-preview",
             )
         except RuntimeError as exc:
             return {"ok": False, "error": f"navmesh 尚未就绪: {exc}"}
@@ -575,7 +528,7 @@ async def api_put_nogo(payload: dict[str, Any] = Body(default_factory=dict)) -> 
     try:
         # 冷启要等在途查询让出 _query_lock, 一条规划就是好几秒, 别拿事件循环去等。
         await run_in_threadpool(navmesh_backend.restart)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         reload_error = str(exc)
         _log(f"navmesh 重载失败: {exc}")
     return {
@@ -589,14 +542,12 @@ async def api_put_nogo(payload: dict[str, Any] = Body(default_factory=dict)) -> 
 
 @app.get("/basemap/{path:path}")
 async def api_basemap(path: str) -> FileResponse:
-    root = MAP_IMAGE_DIR.resolve()
-    target = (root / path).resolve()
-    # 防 .. 穿越 / 符号链接逃逸: 目标必须在 image 根目录之内。
-    if target != root and not target.is_relative_to(root):
-        raise HTTPException(status_code=403, detail="非法路径")
-    if not target.is_file():
-        raise HTTPException(status_code=404, detail="未找到底图")
-    return FileResponse(target)
+    try:
+        return FileResponse(map_image_file(path))
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="非法路径") from None
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="未找到底图") from None
 
 
 @app.get("/basemap-by-zone")
@@ -698,7 +649,7 @@ async def api_put_settings(payload: dict[str, Any] = Body(default_factory=dict))
     )
     try:
         settings_store.save(updated)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return JSONResponse(status_code=500, content={"error": f"保存设置失败: {exc}"})
     return asdict(updated)
 
@@ -723,7 +674,7 @@ async def api_connection_check(payload: dict[str, Any] = Body(default_factory=di
             win32_title = payload.get("win32_window_title", current.win32_window_title)
             try:
                 hwnd = find_game_window(win32_title)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 return {"connected": False, "message": f"窗口查找异常: {exc}"}
             if hwnd != 0:
                 return {"connected": True, "message": f"Win32 窗口已找到 (hWnd: {hwnd})"}
@@ -740,14 +691,12 @@ async def api_connection_check(payload: dict[str, Any] = Body(default_factory=di
                     return {"connected": False, "message": "未指定 ADB 设备序列号/IP"}
                 if ":" in address:
                     # 网络设备可能未连接; 先尝试 adb connect (失败不致命, 枚举兜底)。
-                    try:
+                    with suppress(Exception):
                         subprocess.run([resolved_adb, "connect", address], capture_output=True, timeout=2.0)
-                    except Exception:  # noqa: BLE001
-                        pass
                 matched = next(
                     (d for d in list_adb_devices(adb_path) if d.serial == address or d.address == address), None
                 )
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 return {"connected": False, "message": f"ADB 检测异常: {exc}"}
             if matched is None:
                 return {"connected": False, "message": f"未找到设备: {address}"}
@@ -766,7 +715,7 @@ async def api_connection_check(payload: dict[str, Any] = Body(default_factory=di
                 port = int(port_str) if port_str else 1717
                 with socket.create_connection((host, port), timeout=1.0):
                     pass
-            except Exception:  # noqa: BLE001
+            except Exception:
                 return {"connected": False, "message": f"连接服务失败 (端口未监听): {address}"}
             runtime = get_runtime()
             if runtime is None or getattr(runtime, "PlayCoverController", None) is None:
@@ -817,7 +766,7 @@ async def api_adb_devices(adb_path: str = "") -> dict[str, Any]:
 
     try:
         return await run_in_threadpool(_list)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return {"devices": [], "error": str(exc)}
 
 
@@ -886,7 +835,6 @@ async def api_load_project_node(payload: dict[str, Any] = Body(default_factory=d
 # 仅把 tk 的模态对话框换成前端对话框; 所有判定仍在 Python 内, 与 tk 工具一致。
 def _dominant_zone_of(points: list) -> str:
     """片段主导 zone (app_tk._dominant_zone)。"""
-    from model import normalize_zone_id
 
     counts: dict[str, int] = {}
     for point in points:
@@ -912,7 +860,6 @@ def _segment_summary(points: list, start: int, end: int) -> str:
 
 def _unresolved_zone_ids(points: list) -> list[str]:
     """无法映射到底图的 zone (app_tk._validate_zone_assignments)。"""
-    from model import normalize_zone_id
 
     zone_ids = sorted(
         {normalize_zone_id(p.get("zone", "")) for p in points if normalize_zone_id(p.get("zone", ""))}
@@ -951,10 +898,10 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
             # 先按路线导入, 失败再退回 Assert
             try:
                 route = load_points_from_json_file(tmp)
-            except Exception as route_exc:  # noqa: BLE001 —— tk import_json 捕获全部异常再试 Assert
+            except Exception as route_exc:
                 try:
                     location = load_assert_location_from_json_file(tmp)
-                except Exception:  # noqa: BLE001 —— Assert 也失败 -> 回原始路线错误 (tk 行为)
+                except Exception:
                     return {"ok": False, "error": str(route_exc)}
                 if resolve_zone_image(location.zone_id, MAP_IMAGE_DIR) is None:
                     return {"ok": False, "error": f"Assert zone 无法映射到底图：{location.zone_id}"}
@@ -1012,10 +959,8 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
                 "zip_enabled": route.zip_enabled,
             }
         finally:
-            try:
+            with suppress(OSError):
                 tmp.unlink()
-            except OSError:
-                pass
 
     return await run_in_threadpool(_run)
 
@@ -1090,7 +1035,7 @@ async def api_export_assert(payload: dict[str, Any] = Body(default_factory=dict)
     try:
         return await run_in_threadpool(_run)
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -1113,7 +1058,7 @@ def _hotkey_worker_mode() -> str:
     try:
         # macOS 的输入监控提示也靠这一调用, 别按平台短路掉。
         privileged = key_listener.ensure_privileges()
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         _log(f"ensure_privileges 异常(按已有权限处理): {exc}")
         return "inline"
     if sys.platform != "win32":
@@ -1151,7 +1096,7 @@ async def _relay_elevated_worker(
                 msg = await websocket.receive_json()
                 if isinstance(msg, dict) and msg.get("type"):
                     await bridge.send(msg)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return "disconnected"
 
     worker_task = asyncio.create_task(pump_worker())
@@ -1164,10 +1109,9 @@ async def _relay_elevated_worker(
             task.cancel()
         for task in done:
             task.exception()  # 取一下, 免得变成 "exception never retrieved"
-        if worker_task in done and worker_task.exception() is None:
-            if worker_task.result() == "eof":
-                # 子进程没给结果就断了 (崩溃/被安全软件杀), 前端得复位。
-                await websocket.send_json({"type": "error", "message": eof_message})
+        if worker_task in done and worker_task.exception() is None and worker_task.result() == "eof":
+            # 子进程没给结果就断了 (崩溃/被安全软件杀), 前端得复位。
+            await websocket.send_json({"type": "error", "message": eof_message})
     finally:
         worker_task.cancel()
         client_task.cancel()
@@ -1207,20 +1151,16 @@ async def _try_worker_session(
         )
         return True, None
     finally:
-        try:
+        with suppress(Exception):
             await bridge.close()  # 关 socket = 子进程自杀 (提权后 kill 不掉它)
-        except Exception:  # noqa: BLE001
-            pass
 
 
 def _ws_pusher(websocket: WebSocket, loop: asyncio.AbstractEventLoop) -> Callable[[dict[str, Any]], None]:
     """给工作线程/热键线程用的发送口: 把回调 marshal 回事件循环。ws 关闭时静默失败。"""
 
     def push(payload: dict[str, Any]) -> None:
-        try:
+        with suppress(Exception):
             asyncio.run_coroutine_threadsafe(websocket.send_json(payload), loop)
-        except Exception:  # noqa: BLE001
-            pass
 
     return push
 
@@ -1241,16 +1181,12 @@ async def _close_game_session(websocket: WebSocket, service: Any, acquired: bool
     可能撞上还没死透的上一个 Agent。
     """
     if service is not None:
-        try:
+        with suppress(Exception):
             await run_in_threadpool(service.stop)
-        except Exception:  # noqa: BLE001
-            pass
     if acquired:
         _game_session_lock.release()
-    try:
+    with suppress(Exception):
         await websocket.close()
-    except Exception:  # noqa: BLE001
-        pass
 
 
 async def _ws_session(websocket: WebSocket, mode: SessionMode) -> None:
@@ -1329,7 +1265,7 @@ async def _ws_session(websocket: WebSocket, mode: SessionMode) -> None:
                     # 录制的 stop() 只清标志, 还得等它把带路点的 finished 发出来才算完。
                     service.stop()
                     return
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
             loop.call_soon_threadsafe(closed_event.set)
 
@@ -1340,12 +1276,10 @@ async def _ws_session(websocket: WebSocket, mode: SessionMode) -> None:
             client_task.cancel()
     except WebSocketDisconnect:
         pass
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         _log(f"{mode.label} WS 异常: {exc}")
-        try:
+        with suppress(Exception):
             await websocket.send_json({"type": "error", "message": str(exc)})
-        except Exception:  # noqa: BLE001
-            pass
     finally:
         await _close_game_session(websocket, service, acquired)
 
@@ -1451,130 +1385,12 @@ async def api_locate_once(payload: dict[str, Any] = Body(default_factory=dict)) 
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 
 
-# --- 启动: 端口选取 / 浏览器 -----------------------------------------------------------
-# 端口的唯一 owner 是本文件: 由本文件 bind、由本文件宣告 URL。main.py 只是 runpy 壳,
-# 不自行猜端口 —— 否则端口顺延后浏览器会开到错误的地址。
-
-
-def _preferred_port() -> int:
-    """首选端口: MAPNAV_PORT 覆盖 (非法值回退默认)。占用时仍会顺延, 见 bind_listen_socket。"""
-    env_port = os.environ.get("MAPNAV_PORT")
-    if not env_port:
-        return DEFAULT_PORT
-    try:
-        port = int(env_port)
-    except ValueError:
-        _log(f"MAPNAV_PORT 非法 ({env_port!r}), 回退 {DEFAULT_PORT}")
-        return DEFAULT_PORT
-    if not 1 <= port <= 65535:
-        _log(f"MAPNAV_PORT 越界 ({port}), 回退 {DEFAULT_PORT}")
-        return DEFAULT_PORT
-    return port
-
-
-def _new_listen_socket() -> socket.socket:
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    if os.name != "nt":
-        # POSIX: 允许复用 TIME_WAIT 残留 (快速重启不必换端口); bind 仍会拒绝正在监听的端口,
-        # 所以冲突检测不受影响。Windows 语义相反 —— SO_REUSEADDR 允许抢占别人已绑的端口,
-        # 会让下面的占用探测失效 (两个服务同绑一个口), 故 Windows 一律不设。
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    return sock
-
-
-def bind_listen_socket(host: str, preferred_port: int) -> tuple[socket.socket, int]:
-    """绑定一个可用端口, 返回 (已绑定的 socket, 实际端口)。
-
-    从 preferred_port 起顺延试 PORT_SCAN_LIMIT 个端口; 全被占用则退到端口 0 (内核分配),
-    使工具在任何情况下都能起来, 而不是像 uvicorn.run 那样直接 EADDRINUSE 退出。
-
-    返回的 socket 直接交给 uvicorn (`Server.run(sockets=[sock])`), 因此「探测到的端口」
-    与「实际服务的端口」是同一个 socket —— 不存在「探测完到真正 bind 之间被别人抢走」的竞态。
-    """
-    last_error: OSError | None = None
-    for offset in range(PORT_SCAN_LIMIT):
-        port = preferred_port + offset
-        if port > 65535:
-            break
-        sock = _new_listen_socket()
-        try:
-            sock.bind((host, port))
-        except OSError as exc:
-            sock.close()
-            last_error = exc
-            continue
-        if offset:
-            _log(f"端口 {preferred_port} 已被占用, 顺延到 {port}")
-        return sock, port
-
-    sock = _new_listen_socket()
-    try:
-        sock.bind((host, 0))
-    except OSError as exc:
-        sock.close()
-        raise RuntimeError(f"无法绑定任何端口 (最后错误: {last_error or exc})") from exc
-    port = sock.getsockname()[1]
-    _log(f"端口 {preferred_port} 起连续 {PORT_SCAN_LIMIT} 个均被占用, 改用系统分配的 {port}")
-    return sock, port
-
-
-def open_browser_when_ready(host: str, port: int, timeout: float = 30.0) -> None:
-    """等服务真正开始 accept 再开浏览器 (取代固定 sleep: 慢机器上不会开出「无法连接」页)。"""
-    url = f"http://{host}:{port}/"
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        try:
-            with socket.create_connection((host, port), timeout=0.5):
-                break
-        except OSError:
-            time.sleep(0.2)
-    else:
-        _log(f"等待服务就绪超时 ({timeout:.0f}s), 仍尝试打开 {url}")
-    webbrowser.open(url)
-
-
 if __name__ == "__main__":
-    import uvicorn
-    import logging
-
-    class EndpointFilter(logging.Filter):
-        def filter(self, record: logging.LogRecord) -> bool:
-            msg = record.getMessage()
-            if "GET /api/load-status" in msg or "GET /favicon.ico" in msg:
-                return False
-
-            status_code = None
-            if record.args and len(record.args) >= 5:
-                try:
-                    status_code = int(record.args[4])
-                except (ValueError, TypeError, IndexError):
-                    pass
-
-            if status_code is not None:
-                if 200 <= status_code < 400:
-                    return False
-            else:
-                for ok_code in (" 200 ", " 204 ", " 304 ", " 200 OK", " 304 Not Modified"):
-                    if ok_code in msg:
-                        return False
-
-            return True
-
-    logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
-
-    listen_socket, listen_port = bind_listen_socket(LISTEN_HOST, _preferred_port())
-    _log(f"服务地址: http://{LISTEN_HOST}:{listen_port}/")
-
-    if not os.environ.get("MAPNAV_NO_BROWSER"):
-        threading.Thread(
-            target=open_browser_when_ready,
-            args=(LISTEN_HOST, listen_port),
-            daemon=True,
-        ).start()
-
-    # 交出已绑定的 socket (而非让 uvicorn 自己 bind), 端口即为上面宣告给浏览器的那个。
-    try:
-        uvicorn.Server(uvicorn.Config(app, host=LISTEN_HOST, port=listen_port)).run(sockets=[listen_socket])
-    except KeyboardInterrupt:
-        # Python 3.14 的 asyncio.run 会在 Uvicorn 完成 shutdown 后重新抛出 KeyboardInterrupt。
-        pass
+    # 端口由 local_server 选取并宣告; main.py 只是 runpy 壳, 不自行猜端口。
+    serve_local(
+        app,
+        port=preferred_port("MAPNAV_PORT", DEFAULT_PORT, _log),
+        log=_log,
+        open_browser=not os.environ.get("MAPNAV_NO_BROWSER"),
+        silent_requests=("GET /api/load-status", "GET /favicon.ico"),
+    )

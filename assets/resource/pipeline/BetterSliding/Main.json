@@ -66,7 +66,7 @@
     },
     "BetterSlidingPreciseClick": {
         "desc": "x, y精确点击",
-        "pre_delay": 0,
+        "pre_delay": 200,
         "action": "Click",
         "target": [
             0,

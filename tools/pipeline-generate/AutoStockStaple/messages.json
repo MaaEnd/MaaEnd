@@ -1,0 +1,27 @@
+{
+    "zh_cn": {
+        "buy": "购买 ${Name}",
+        "reached": "${Name}数量达标",
+        "stock_bill_insufficient": "调度券不足，跳过购买 ${Name}"
+    },
+    "zh_tw": {
+        "buy": "購買 ${Name}",
+        "reached": "${Name}數量達標",
+        "stock_bill_insufficient": "調度券不足，跳過購買 ${Name}"
+    },
+    "en_us": {
+        "buy": "Buy ${Name}",
+        "reached": "${Name} quota met",
+        "stock_bill_insufficient": "Insufficient dispatch vouchers, skipping ${Name}"
+    },
+    "ja_jp": {
+        "buy": "購入 ${Name}",
+        "reached": "${Name} 数量達成",
+        "stock_bill_insufficient": "調達券不足、${Name}の購入をスキップ"
+    },
+    "ko_kr": {
+        "buy": "구매 ${Name}",
+        "reached": "${Name} 수량 달성",
+        "stock_bill_insufficient": "조달권 부족, ${Name} 구매 건너뜀"
+    }
+}

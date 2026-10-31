@@ -53,6 +53,32 @@
                     }
                 },
                 {
+                    "name": "ALL",
+                    "label": "$task.GiftOperator.select.all",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true
+                        },
+                        "GiftOperatorSendAllMain": {
+                            "enabled": true
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                ".*"
+                            ]
+                        }
+                    }
+                },
+                {
                     "name": "Perlica",
                     "label": "$operator.Perlica",
                     "pipeline_override": {
@@ -978,6 +1004,36 @@
                                 "Purrchena",
                                 "プチエナ",
                                 "푸치나"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Si",
+                    "label": "$operator.Si",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Si.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "祀",
+                                "祀",
+                                "Si",
+                                "スー",
+                                "사"
                             ]
                         }
                     }

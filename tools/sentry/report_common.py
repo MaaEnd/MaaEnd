@@ -1,7 +1,5 @@
 """Sentry 报告脚本共用的查询和终端输出工具。"""
 
-from __future__ import annotations
-
 import json
 import os
 import re
@@ -9,10 +7,10 @@ import shutil
 import subprocess
 import sys
 import unicodedata
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Any, Sequence, TextIO
+from typing import Any, TextIO
 from urllib.parse import quote
-
 
 EXPLORE_LIMIT = 1_000
 DEFAULT_SENTRY_TIMEOUT_SECONDS = 120.0

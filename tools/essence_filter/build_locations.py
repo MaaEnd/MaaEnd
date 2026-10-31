@@ -8,14 +8,13 @@
 - 输出：每个 location 含 name、level_id、slot2_ids/slot3_ids（当前 skill_pools 的 id）、slot2/slot3（完整条目）。
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import sys
 import unicodedata
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import json5
 
@@ -40,7 +39,7 @@ _TC_TO_SC = str.maketrans("強藝", "强艺")
 # slot2 基名歧义：
 # - strip 提升 会得到「源石技艺」，对应 pool 的「源石技艺强度」
 # - strip 效率提升 会得到「终结技」，对应 pool 的「终结技充能」
-SLOT2_STEM_ALIAS: Dict[str, str] = {
+SLOT2_STEM_ALIAS: dict[str, str] = {
     "源石技艺": "源石技艺强度",
     "终结技": "终结技充能",
 }
@@ -67,17 +66,26 @@ def _slot2_chinese_stem(chinese: str) -> str:
     return _norm_key(s)
 
 
-def _update_data_version(config_path: Path, data_version: str) -> None:
-    """在生成成功后写入本轮源数据的 Last-Modified 时间。"""
+def _sync_time() -> str:
+    """本轮同步的时间（UTC，形如 ``2026-10-08 08:40:17 UTC``）。
+
+    ``matcher_config.json`` 的 ``data_version`` 用时间而不是游戏版本号：它给用户看的是「这份数据是哪天同步的」，
+    游戏版本号本身在 ``tools/zmdmap/data/`` 的各份数据里，不用在这里重复。
+    """
+    return datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+
+def _update_data_version(config_path: Path, synced_at: str) -> None:
+    """在生成成功后写入本轮同步时间。"""
     if not config_path.exists():
         return
     with config_path.open("r", encoding="utf-8-sig") as f:
         data = json5.load(f)
     if not isinstance(data, dict):
         return
-    if data.get("data_version") == data_version:
+    if data.get("data_version") == synced_at:
         return  # 无变化不重写，避免用 json.dump 抹掉手写注释
-    data["data_version"] = data_version
+    data["data_version"] = synced_at
     with config_path.open("w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
         f.write("\n")
@@ -94,10 +102,6 @@ def main() -> int:
     parser.add_argument("--skill-pools", type=Path, default=root / DEFAULT_SKILL_POOLS)
     parser.add_argument("-o", "--output", type=Path, default=root / DEFAULT_OUTPUT)
     parser.add_argument("--debug", action="store_true", help="打印映射与未匹配的键")
-    parser.add_argument(
-        "--data-version",
-        help="本轮同步得到的 Last-Modified（UTC）；未提供或为空时保留原数据日期",
-    )
     args = parser.parse_args()
 
     with args.energy_points.open("r", encoding="utf-8") as f:
@@ -116,7 +120,7 @@ def main() -> int:
     pool2_by_cn = {_norm_key(e.get("cn") or ""): e for e in pool_slot2}
     pool3_by_cn = {_norm_key(e.get("cn") or ""): e for e in pool_slot3}
 
-    out_locations: List[Dict[str, Any]] = []
+    out_locations: list[dict[str, Any]] = []
     seen_names: set[str] = set()
 
     for loc in energy_points:
@@ -141,10 +145,10 @@ def main() -> int:
                 f"location {name!r}: secAttrTermNames 或 skillTermNames 不是数组"
             )
 
-        slot2_entries: List[Dict[str, Any]] = []
-        slot3_entries: List[Dict[str, Any]] = []
+        slot2_entries: list[dict[str, Any]] = []
+        slot3_entries: list[dict[str, Any]] = []
 
-        missing_slot2: List[str] = []
+        missing_slot2: list[str] = []
         for raw in sec_terms:
             if not isinstance(raw, str):
                 continue
@@ -156,7 +160,7 @@ def main() -> int:
                 continue
             slot2_entries.append(matched)
 
-        missing_slot3: List[str] = []
+        missing_slot3: list[str] = []
         for raw in skill_terms:
             if not isinstance(raw, str):
                 continue
@@ -191,14 +195,20 @@ def main() -> int:
             }
         )
 
+    rendered = json.dumps(out_locations, ensure_ascii=False, indent=4) + "\n"
+    previous = args.output.read_text(encoding="utf-8") if args.output.is_file() else None
+    is_default_output = args.output.resolve() == (root / DEFAULT_OUTPUT).resolve()
+    if previous == rendered:
+        # 内容一个字节都没变：整份产物跳过写入，同步时间也保持原值 —— 免得每次跑生成器都刷新一遍日期。
+        print(f"{args.output} 未变化，跳过写入")
+        return 0
+
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    with args.output.open("w", encoding="utf-8") as f:
-        json.dump(out_locations, f, ensure_ascii=False, indent=4)
-        f.write("\n")
-
-    if args.data_version:
-        _update_data_version(root / DEFAULT_MATCHER_CONFIG, args.data_version)
-
+    args.output.write_text(rendered, encoding="utf-8")
+    # 只有写回仓库里那份 locations.json 才刷新同步时间：用 -o 输出到别处（临时对比、试跑）时，
+    # 仓库里的 matcher_config.json 不该跟着变。
+    if is_default_output:
+        _update_data_version(root / DEFAULT_MATCHER_CONFIG, _sync_time())
     print(f"Wrote {len(out_locations)} locations to {args.output}")
     return 0
 

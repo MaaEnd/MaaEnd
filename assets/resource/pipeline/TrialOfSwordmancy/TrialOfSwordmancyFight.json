@@ -36,7 +36,6 @@
         "custom_action": "RepeatUntilFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "interval_ms": 1500,
             "wait_nodes": [
                 "TrialOfSwordmancyPrepareTeam"
             ]

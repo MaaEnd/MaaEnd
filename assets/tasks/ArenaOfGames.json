@@ -1,0 +1,92 @@
+{
+    "task": [
+        {
+            "name": "ArenaOfGames",
+            "label": "$task.ArenaOfGames.label",
+            "entry": "ArenaOfGamesMain",
+            "description": "$task.ArenaOfGames.description",
+            "group": [
+                "regional_development"
+            ],
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
+            ],
+            "option": [
+                "ArenaOfGamesTarget"
+            ]
+        }
+    ],
+    "option": {
+        "ArenaOfGamesTarget": {
+            "type": "checkbox",
+            "label": "$option.ArenaOfGamesTarget.label",
+            "cases": [
+                {
+                    "name": "HandOfToday",
+                    "label": "$option.ArenaOfGamesTarget.cases.HandOfToday.label",
+                    "pipeline_override": {
+                        "ArenaOfGamesDecide": {
+                            "attach": {
+                                "hand_of_today": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Flush",
+                    "label": "$option.ArenaOfGamesTarget.cases.Flush.label",
+                    "pipeline_override": {
+                        "ArenaOfGamesDecide": {
+                            "attach": {
+                                "flush": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "FullHouse",
+                    "label": "$option.ArenaOfGamesTarget.cases.FullHouse.label",
+                    "pipeline_override": {
+                        "ArenaOfGamesDecide": {
+                            "attach": {
+                                "full_house": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "FourOfAKind",
+                    "label": "$option.ArenaOfGamesTarget.cases.FourOfAKind.label",
+                    "pipeline_override": {
+                        "ArenaOfGamesDecide": {
+                            "attach": {
+                                "four_of_a_kind": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "StraightFlush",
+                    "label": "$option.ArenaOfGamesTarget.cases.StraightFlush.label",
+                    "pipeline_override": {
+                        "ArenaOfGamesDecide": {
+                            "attach": {
+                                "straight_flush": true
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": [
+                "HandOfToday",
+                "Flush",
+                "FullHouse",
+                "FourOfAKind"
+            ],
+            "min_count": 1
+        }
+    }
+}

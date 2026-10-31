@@ -1,0 +1,269 @@
+{
+    "AutoMissionMain": {
+        "desc": "回到任意大世界后确认追踪任务",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionInWorld"
+        ]
+    },
+    "AutoMissionInWorld": {
+        "desc": "确认已在大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionTrackingIcon",
+            "AutoMissionNoTracking"
+        ]
+    },
+    "AutoMissionTrackingIcon": {
+        "desc": "左上角追踪图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            160,
+            300,
+            100
+        ],
+        "template": [
+            "AutoMission/ImportantMissionIcon.png",
+            "AutoMission/SecondaryMissionIcon.png",
+            "AutoMission/UrgentMissionIcon.png"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionOpenJournal"
+        ]
+    },
+    "AutoMissionNoTracking": {
+        "desc": "没有追踪任务时结束",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoMission.focus.no_tracking"
+        }
+    },
+    "AutoMissionOpenJournal": {
+        "desc": "点击打开任务直到任务界面出现",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_nodes": [
+                "InMenuMission"
+            ],
+            "interval_ms": 6000
+        },
+        "target": [
+            30,
+            150
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionJournalOpen"
+        ]
+    },
+    "AutoMissionJournalOpen": {
+        "desc": "确认已打开任务界面",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                300,
+                400
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionMatchQuest",
+            "EmptyNode"
+        ]
+    },
+    "AutoMissionMatchQuest": {
+        "desc": "读取当前任务标题和步骤名称，定位子步骤后按追踪类型调用占位节点",
+        "recognition": "Custom",
+        "custom_recognition": "AutoMissionMatchQuest",
+        "action": "Custom",
+        "custom_action": "AutoMissionExecuteQuest",
+        "next": [
+            "AutoMissionTrackFinish"
+        ]
+    },
+    "AutoMissionTrackFinish": {
+        "desc": "子步骤追踪结束",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionTrackFinishExitToWorld",
+            "AutoMissionTrackFinishOpenJournal"
+        ]
+    },
+    "AutoMissionTrackFinishOpenJournal": {
+        "desc": "在大世界时点击打开任务直到任务界面出现；剧情中不点，由上一个节点先跳过剧情",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_nodes": [
+                "InMenuMission"
+            ],
+            "interval_ms": 6000,
+            "repeat_count": 6 // 某些任务做完后会强制锁定视角无法操作
+        },
+        "target": [
+            30,
+            150
+        ],
+        "next": [
+            "AutoMissionJournalOpen"
+        ]
+    },
+    "AutoMissionTrackFinishExitToWorld": {
+        "desc": "收尾时进了剧情，识别到跳过按钮后，从画面中心悬停移过去并点击",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1140,
+            0,
+            120,
+            90
+        ],
+        "template": "RealTimeTask/AutoSkipEsc.png",
+        "pre_delay": 1000, // 刚进剧情时跳过按钮点了不生效，等一会再点
+        "action": "Custom",
+        "custom_action": "AutoSwipeClickAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionTrackFinishExitToWorldConfirm"
+        ]
+    },
+    "AutoMissionTrackFinishExitToWorldConfirm": {
+        "desc": "确认跳过剧情，回到大世界后再打开任务界面",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_delay": 1000, // 等待画面过度
+        "next": [
+            "AutoMissionTrackFinishExitToWorld",
+            "AutoMissionTrackFinish"
+        ]
+    },
+    "AutoMissionOpenScan": {
+        "desc": "打开扫描：右侧当前工具已是扫描时直接按 R，否则长按 R 从轮盘里选",
+        "next": [
+            "AutoMissionOpenScanClick",
+            "AutoMissionOpenScanLongPress"
+        ]
+    },
+    "AutoMissionScanModeButton": {
+        "desc": "大世界右侧当前工具为扫描的图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1118,
+            207,
+            158,
+            212
+        ],
+        "template": "AutoMission/ScanModeButton.png",
+        "threshold": 0.8
+    },
+    "AutoMissionOpenScanClick": {
+        "desc": "当前工具已是扫描，直接按 R 打开，扫描打开即完成",
+        "recognition": "And",
+        "all_of": [
+            "AutoMissionScanModeButton",
+            "InWorld"
+        ],
+        "action": "ClickKey",
+        "key": 82 // R
+    },
+    "AutoMissionOpenScanLongPress": {
+        "desc": "长按 R 打开选择工具轮盘，用于选扫描",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 82, // R
+        "next": [
+            "AutoMissionOpenScanInSelectTool"
+        ]
+    },
+    "AutoMissionOpenScanInSelectTool": {
+        "desc": "已在选择工具轮盘中",
+        "recognition": "And",
+        "all_of": [
+            "InSelectTool"
+        ],
+        "pre_wait_freezes": 80,
+        "next": [
+            "AutoMissionOpenScanChooseScan"
+        ]
+    },
+    "AutoMissionOpenScanChooseScan": {
+        "desc": "在轮盘上点击扫描",
+        "recognition": "TemplateMatch",
+        "roi": [
+            404,
+            117,
+            463,
+            464
+        ],
+        "template": "AutoMission/ScanMode.png",
+        "threshold": 0.8,
+        "order_by": "Score",
+        "action": "Click",
+        "next": [
+            "AutoMissionOpenScanKeyUp"
+        ]
+    },
+    "AutoMissionOpenScanKeyUp": {
+        "desc": "松开 R，扫描打开即完成",
+        "action": "KeyUp",
+        "key": 82 // R
+    }
+}

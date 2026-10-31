@@ -1,0 +1,2022 @@
+{
+    "AutoCollectLoop": {
+        "desc": "依次调度已勾选的采集物，未勾选的不进入库存判断",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectValleyIVChrysodendraDispatch",
+            "[JumpBack]__AutoCollectValleyIVKalkonyxDispatch",
+            "[JumpBack]__AutoCollectValleyIVPinkBoleteDispatch",
+            "[JumpBack]__AutoCollectValleyIVAuronyxDispatch",
+            "[JumpBack]__AutoCollectValleyIVKalkodendraDispatch",
+            "[JumpBack]__AutoCollectValleyIVFirebuckleDispatch",
+            "[JumpBack]__AutoCollectValleyIVUmbralineDispatch",
+            "[JumpBack]__AutoCollectWulingBlightedJadeleafDispatch",
+            "[JumpBack]__AutoCollectWulingFalseAggelaDispatch",
+            "[JumpBack]__AutoCollectWulingVitrodendraDispatch",
+            "[JumpBack]__AutoCollectWulingBloodcapDispatch",
+            "[JumpBack]__AutoCollectWulingWulingstoneDispatch",
+            "[JumpBack]__AutoCollectWulingCosmagaricDispatch",
+            "[JumpBack]__AutoCollectWulingIgneositeDispatch",
+            "[JumpBack]__AutoCollectWulingRubyBoleteDispatch",
+            "[JumpBack]__AutoCollectWulingUmbronyxDispatch",
+            "[JumpBack]__AutoCollectWulingRedBoleteDispatch",
+            "[JumpBack]__AutoCollectWulingCrimsonSpearleafDispatch",
+            "[JumpBack]__AutoCollectWulingProtocolithDispatch",
+            "[JumpBack]__AutoCollectWulingTalosCapDispatch",
+            "[JumpBack]__AutoCollectWulingScorchbugDispatch",
+            "[JumpBack]__AutoCollectWulingGlowbugDispatch",
+            "[JumpBack]__AutoCollectWulingFluffedJincaoDispatch",
+            "[JumpBack]__AutoCollectWulingRedjadeGinsengDispatch",
+            "[JumpBack]__AutoCollectWulingThornyYazhenDispatch",
+            "[JumpBack]__AutoCollectWulingAmberRiceDispatch",
+            "AutoCollectAfterStashBackpack"
+        ]
+    },
+    "AutoCollectInventoryPreflight": {
+        "desc": "库存同步后、调度循环前，逐个停用已达目标库存的采集物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectValleyIVChrysodendraSkipped",
+            "[JumpBack]__AutoCollectValleyIVKalkonyxSkipped",
+            "[JumpBack]__AutoCollectValleyIVPinkBoleteSkipped",
+            "[JumpBack]__AutoCollectValleyIVAuronyxSkipped",
+            "[JumpBack]__AutoCollectValleyIVKalkodendraSkipped",
+            "[JumpBack]__AutoCollectValleyIVFirebuckleSkipped",
+            "[JumpBack]__AutoCollectValleyIVUmbralineSkipped",
+            "[JumpBack]__AutoCollectWulingBlightedJadeleafSkipped",
+            "[JumpBack]__AutoCollectWulingFalseAggelaSkipped",
+            "[JumpBack]__AutoCollectWulingVitrodendraSkipped",
+            "[JumpBack]__AutoCollectWulingBloodcapSkipped",
+            "[JumpBack]__AutoCollectWulingWulingstoneSkipped",
+            "[JumpBack]__AutoCollectWulingCosmagaricSkipped",
+            "[JumpBack]__AutoCollectWulingIgneositeSkipped",
+            "[JumpBack]__AutoCollectWulingRubyBoleteSkipped",
+            "[JumpBack]__AutoCollectWulingUmbronyxSkipped",
+            "[JumpBack]__AutoCollectWulingRedBoleteSkipped",
+            "[JumpBack]__AutoCollectWulingCrimsonSpearleafSkipped",
+            "[JumpBack]__AutoCollectWulingProtocolithSkipped",
+            "[JumpBack]__AutoCollectWulingTalosCapSkipped",
+            "[JumpBack]__AutoCollectWulingScorchbugSkipped",
+            "[JumpBack]__AutoCollectWulingGlowbugSkipped",
+            "[JumpBack]__AutoCollectWulingFluffedJincaoSkipped",
+            "[JumpBack]__AutoCollectWulingRedjadeGinsengSkipped",
+            "[JumpBack]__AutoCollectWulingThornyYazhenSkipped",
+            "[JumpBack]__AutoCollectWulingAmberRiceSkipped",
+            "AutoCollectInventoryReleaseSnapshot"
+        ]
+    },
+    "__AutoCollectValleyIVChrysodendraDispatch": {
+        "desc": "纯晶多齿叶调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectValleyIVChrysodendra1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectValleyIVChrysodendraSkipped": {
+        "desc": "纯晶多齿叶目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_crylplant_1_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectValleyIVChrysodendraDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_crylplant_1_2.skipped"
+        }
+    },
+    "__AutoCollectValleyIVKalkonyxDispatch": {
+        "desc": "轻黯石调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectValleyIVKalkonyx1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectValleyIVKalkonyxSkipped": {
+        "desc": "轻黯石目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_spcstone_1_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectValleyIVKalkonyxDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_spcstone_1_1.skipped"
+        }
+    },
+    "__AutoCollectValleyIVPinkBoleteDispatch": {
+        "desc": "轻红柱状菌调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectValleyIVPinkBolete1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectValleyIVPinkBoleteSkipped": {
+        "desc": "轻红柱状菌目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_mushroom_1_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectValleyIVPinkBoleteDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_mushroom_1_1.skipped"
+        }
+    },
+    "__AutoCollectValleyIVAuronyxDispatch": {
+        "desc": "中黯石调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectValleyIVAuronyx1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectValleyIVAuronyxSkipped": {
+        "desc": "中黯石目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_spcstone_1_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectValleyIVAuronyxDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_spcstone_1_2.skipped"
+        }
+    },
+    "__AutoCollectValleyIVKalkodendraDispatch": {
+        "desc": "晶化多齿叶调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectValleyIVKalkodendra1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectValleyIVKalkodendraSkipped": {
+        "desc": "晶化多齿叶目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_crylplant_1_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectValleyIVKalkodendraDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_crylplant_1_1.skipped"
+        }
+    },
+    "__AutoCollectValleyIVFirebuckleDispatch": {
+        "desc": "映火荞花调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectValleyIVFirebuckle1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectValleyIVFirebuckleSkipped": {
+        "desc": "映火荞花目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_moss_spc_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectValleyIVFirebuckleDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_moss_spc_1.skipped"
+        }
+    },
+    "__AutoCollectValleyIVUmbralineDispatch": {
+        "desc": "黯银柑实调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectValleyIVUmbraline1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectValleyIVUmbralineSkipped": {
+        "desc": "黯银柑实目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_moss_spc_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectValleyIVUmbralineDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_moss_spc_2.skipped"
+        }
+    },
+    "__AutoCollectWulingBlightedJadeleafDispatch": {
+        "desc": "受蚀玉化叶调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingBlightedJadeleaf1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingBlightedJadeleafSkipped": {
+        "desc": "受蚀玉化叶目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_crylplant_2_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingBlightedJadeleafDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_crylplant_2_1.skipped"
+        }
+    },
+    "__AutoCollectWulingFalseAggelaDispatch": {
+        "desc": "岩天使叶调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingFalseAggela1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingFalseAggelaSkipped": {
+        "desc": "岩天使叶目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_crylplant_2_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingFalseAggelaDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_crylplant_2_2.skipped"
+        }
+    },
+    "__AutoCollectWulingVitrodendraDispatch": {
+        "desc": "至晶多齿叶调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingVitrodendra1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingVitrodendraSkipped": {
+        "desc": "至晶多齿叶目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_crylplant_1_3}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingVitrodendraDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_crylplant_1_3.skipped"
+        }
+    },
+    "__AutoCollectWulingBloodcapDispatch": {
+        "desc": "血菌调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingBloodcapWulingstone1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingBloodcapSkipped": {
+        "desc": "血菌目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_mushroom_2_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingBloodcapDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_mushroom_2_1.skipped"
+        }
+    },
+    "__AutoCollectWulingWulingstoneDispatch": {
+        "desc": "武陵石调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingBloodcapWulingstone1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingWulingstoneSkipped": {
+        "desc": "武陵石目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_spcstone_2_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingWulingstoneDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_spcstone_2_2.skipped"
+        }
+    },
+    "__AutoCollectWulingCosmagaricDispatch": {
+        "desc": "星门菌调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingCosmagaric1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingCosmagaricSkipped": {
+        "desc": "星门菌目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_mushroom_2_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingCosmagaricDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_mushroom_2_2.skipped"
+        }
+    },
+    "__AutoCollectWulingIgneositeDispatch": {
+        "desc": "燎石调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingIgneosite1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingIgneositeSkipped": {
+        "desc": "燎石目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_spcstone_2_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingIgneositeDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_spcstone_2_1.skipped"
+        }
+    },
+    "__AutoCollectWulingRubyBoleteDispatch": {
+        "desc": "重红柱状菌调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingRubyBolete1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingRubyBoleteSkipped": {
+        "desc": "重红柱状菌目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_mushroom_1_3}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingRubyBoleteDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_mushroom_1_3.skipped"
+        }
+    },
+    "__AutoCollectWulingUmbronyxDispatch": {
+        "desc": "重黯石调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingUmbronyx1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingUmbronyxSkipped": {
+        "desc": "重黯石目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_spcstone_1_3}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingUmbronyxDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_spcstone_1_3.skipped"
+        }
+    },
+    "__AutoCollectWulingRedBoleteDispatch": {
+        "desc": "中红柱状菌调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingRedBolete1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingRedBoleteSkipped": {
+        "desc": "中红柱状菌目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_mushroom_1_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingRedBoleteDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_mushroom_1_2.skipped"
+        }
+    },
+    "__AutoCollectWulingCrimsonSpearleafDispatch": {
+        "desc": "红矛叶调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingCrimsonSpearleaf1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingCrimsonSpearleafSkipped": {
+        "desc": "红矛叶目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_crylplant_2_3}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingCrimsonSpearleafDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_crylplant_2_3.skipped"
+        }
+    },
+    "__AutoCollectWulingProtocolithDispatch": {
+        "desc": "协议纹石调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingProtocolith1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingProtocolithSkipped": {
+        "desc": "协议纹石目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_spcstone_2_3}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingProtocolithDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_spcstone_2_3.skipped"
+        }
+    },
+    "__AutoCollectWulingTalosCapDispatch": {
+        "desc": "塔罗斯菌调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingTalosCap1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingTalosCapSkipped": {
+        "desc": "塔罗斯菌目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_mushroom_2_3}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingTalosCapDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_mushroom_2_3.skipped"
+        }
+    },
+    "__AutoCollectWulingScorchbugDispatch": {
+        "desc": "灼壳虫调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingScorchbug1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingScorchbugSkipped": {
+        "desc": "灼壳虫目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_tundra_insect_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingScorchbugDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_tundra_insect_2.skipped"
+        }
+    },
+    "__AutoCollectWulingGlowbugDispatch": {
+        "desc": "萤壳虫调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingGlowbug1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingGlowbugSkipped": {
+        "desc": "萤壳虫目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_tundra_insect_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingGlowbugDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_tundra_insect_1.skipped"
+        }
+    },
+    "__AutoCollectWulingFluffedJincaoDispatch": {
+        "desc": "蓬茸锦草调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingFluffedJincao1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingFluffedJincaoSkipped": {
+        "desc": "蓬茸锦草目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_grass_spc_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingFluffedJincaoDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_grass_spc_1.skipped"
+        }
+    },
+    "__AutoCollectWulingRedjadeGinsengDispatch": {
+        "desc": "琼叶参调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingRedjadeGinseng1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingRedjadeGinsengSkipped": {
+        "desc": "琼叶参目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_sp_3}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingRedjadeGinsengDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_sp_3.skipped"
+        }
+    },
+    "__AutoCollectWulingThornyYazhenDispatch": {
+        "desc": "荆刺芽针调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingThornyYazhen1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingThornyYazhenSkipped": {
+        "desc": "荆刺芽针目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_grass_spc_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingThornyYazhenDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_grass_spc_2.skipped"
+        }
+    },
+    "__AutoCollectWulingAmberRiceDispatch": {
+        "desc": "金石稻调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingAmberRice1Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingAmberRiceSkipped": {
+        "desc": "金石稻目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_sp_4}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingAmberRiceDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_sp_4.skipped"
+        }
+    },
+    "__AutoCollectValleyIVChrysodendra1Run": {
+        "desc": "执行路线 纯晶多齿叶，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectValleyIVChrysodendra1Start",
+                    "failure_task": "__AutoCollectValleyIVChrysodendra1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectValleyIVChrysodendra1Failed": {
+        "desc": "路线 纯晶多齿叶 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVChrysodendra1.failed"
+        }
+    },
+    "__AutoCollectValleyIVKalkonyx1Run": {
+        "desc": "执行路线 轻黯石，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectValleyIVKalkonyx1Start",
+                    "failure_task": "__AutoCollectValleyIVKalkonyx1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectValleyIVKalkonyx1Failed": {
+        "desc": "路线 轻黯石 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVKalkonyx1.failed"
+        }
+    },
+    "__AutoCollectValleyIVPinkBolete1Run": {
+        "desc": "执行路线 轻红柱状菌，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectValleyIVPinkBolete1Start",
+                    "failure_task": "__AutoCollectValleyIVPinkBolete1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectValleyIVPinkBolete1Failed": {
+        "desc": "路线 轻红柱状菌 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVPinkBolete1.failed"
+        }
+    },
+    "__AutoCollectValleyIVAuronyx1Run": {
+        "desc": "执行路线 中黯石，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectValleyIVAuronyx1Start",
+                    "failure_task": "__AutoCollectValleyIVAuronyx1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectValleyIVAuronyx1Failed": {
+        "desc": "路线 中黯石 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVAuronyx1.failed"
+        }
+    },
+    "__AutoCollectValleyIVKalkodendra1Run": {
+        "desc": "执行路线 晶化多齿叶，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectValleyIVKalkodendra1Start",
+                    "failure_task": "__AutoCollectValleyIVKalkodendra1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectValleyIVKalkodendra1Failed": {
+        "desc": "路线 晶化多齿叶 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVKalkodendra1.failed"
+        }
+    },
+    "__AutoCollectValleyIVFirebuckle1Run": {
+        "desc": "执行路线 映火荞花，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectValleyIVFirebuckle1Start",
+                    "failure_task": "__AutoCollectValleyIVFirebuckle1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectValleyIVFirebuckle1Failed": {
+        "desc": "路线 映火荞花 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVFirebuckle1.failed"
+        }
+    },
+    "__AutoCollectValleyIVUmbraline1Run": {
+        "desc": "执行路线 黯银柑实，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectValleyIVUmbraline1Start",
+                    "failure_task": "__AutoCollectValleyIVUmbraline1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectValleyIVUmbraline1Failed": {
+        "desc": "路线 黯银柑实 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVUmbraline1.failed"
+        }
+    },
+    "__AutoCollectWulingBlightedJadeleaf1Run": {
+        "desc": "执行路线 受蚀玉化叶，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingBlightedJadeleaf1Start",
+                    "failure_task": "__AutoCollectWulingBlightedJadeleaf1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingBlightedJadeleaf1Failed": {
+        "desc": "路线 受蚀玉化叶 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingBlightedJadeleaf1.failed"
+        }
+    },
+    "__AutoCollectWulingFalseAggela1Run": {
+        "desc": "执行路线 岩天使叶，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingFalseAggela1Start",
+                    "failure_task": "__AutoCollectWulingFalseAggela1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingFalseAggela1Failed": {
+        "desc": "路线 岩天使叶 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingFalseAggela1.failed"
+        }
+    },
+    "__AutoCollectWulingVitrodendra1Run": {
+        "desc": "执行路线 至晶多齿叶，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingVitrodendra1Start",
+                    "failure_task": "__AutoCollectWulingVitrodendra1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingVitrodendra1Failed": {
+        "desc": "路线 至晶多齿叶 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingVitrodendra1.failed"
+        }
+    },
+    "__AutoCollectWulingBloodcapWulingstone1Run": {
+        "desc": "执行路线 血菌、武陵石，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingBloodcapWulingstone1Start",
+                    "failure_task": "__AutoCollectWulingBloodcapWulingstone1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingBloodcapWulingstone1Failed": {
+        "desc": "路线 血菌、武陵石 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingBloodcapWulingstone1.failed"
+        }
+    },
+    "__AutoCollectWulingCosmagaric1Run": {
+        "desc": "执行路线 星门菌，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingCosmagaric1Start",
+                    "failure_task": "__AutoCollectWulingCosmagaric1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingCosmagaric1Failed": {
+        "desc": "路线 星门菌 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCosmagaric1.failed"
+        }
+    },
+    "__AutoCollectWulingIgneosite1Run": {
+        "desc": "执行路线 燎石，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingIgneosite1Start",
+                    "failure_task": "__AutoCollectWulingIgneosite1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingIgneosite1Failed": {
+        "desc": "路线 燎石 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingIgneosite1.failed"
+        }
+    },
+    "__AutoCollectWulingRubyBolete1Run": {
+        "desc": "执行路线 重红柱状菌，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingRubyBolete1Start",
+                    "failure_task": "__AutoCollectWulingRubyBolete1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingRubyBolete1Failed": {
+        "desc": "路线 重红柱状菌 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingRubyBolete1.failed"
+        }
+    },
+    "__AutoCollectWulingUmbronyx1Run": {
+        "desc": "执行路线 重黯石，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingUmbronyx1Start",
+                    "failure_task": "__AutoCollectWulingUmbronyx1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingUmbronyx1Failed": {
+        "desc": "路线 重黯石 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingUmbronyx1.failed"
+        }
+    },
+    "__AutoCollectWulingRedBolete1Run": {
+        "desc": "执行路线 中红柱状菌，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingRedBolete1Start",
+                    "failure_task": "__AutoCollectWulingRedBolete1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingRedBolete1Failed": {
+        "desc": "路线 中红柱状菌 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingRedBolete1.failed"
+        }
+    },
+    "__AutoCollectWulingCrimsonSpearleaf1Run": {
+        "desc": "执行路线 红矛叶，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingCrimsonSpearleaf1Start",
+                    "failure_task": "__AutoCollectWulingCrimsonSpearleaf1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingCrimsonSpearleaf1Failed": {
+        "desc": "路线 红矛叶 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCrimsonSpearleaf1.failed"
+        }
+    },
+    "__AutoCollectWulingProtocolith1Run": {
+        "desc": "执行路线 协议纹石，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingProtocolith1Start",
+                    "failure_task": "__AutoCollectWulingProtocolith1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingProtocolith1Failed": {
+        "desc": "路线 协议纹石 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingProtocolith1.failed"
+        }
+    },
+    "__AutoCollectWulingTalosCap1Run": {
+        "desc": "执行路线 塔罗斯菌，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingTalosCap1Start",
+                    "failure_task": "__AutoCollectWulingTalosCap1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingTalosCap1Failed": {
+        "desc": "路线 塔罗斯菌 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingTalosCap1.failed"
+        }
+    },
+    "__AutoCollectWulingScorchbug1Run": {
+        "desc": "执行路线 灼壳虫，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingScorchbug1Start",
+                    "failure_task": "__AutoCollectWulingScorchbug1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingScorchbug1Failed": {
+        "desc": "路线 灼壳虫 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingScorchbug1.failed"
+        }
+    },
+    "__AutoCollectWulingGlowbug1Run": {
+        "desc": "执行路线 萤壳虫，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingGlowbug1Start",
+                    "failure_task": "__AutoCollectWulingGlowbug1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingGlowbug1Failed": {
+        "desc": "路线 萤壳虫 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingGlowbug1.failed"
+        }
+    },
+    "__AutoCollectWulingFluffedJincao1Run": {
+        "desc": "执行路线 蓬茸锦草，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingFluffedJincao1Start",
+                    "failure_task": "__AutoCollectWulingFluffedJincao1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingFluffedJincao1Failed": {
+        "desc": "路线 蓬茸锦草 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingFluffedJincao1.failed"
+        }
+    },
+    "__AutoCollectWulingRedjadeGinseng1Run": {
+        "desc": "执行路线 琼叶参，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingRedjadeGinseng1Start",
+                    "failure_task": "__AutoCollectWulingRedjadeGinseng1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingRedjadeGinseng1Failed": {
+        "desc": "路线 琼叶参 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingRedjadeGinseng1.failed"
+        }
+    },
+    "__AutoCollectWulingThornyYazhen1Run": {
+        "desc": "执行路线 荆刺芽针，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingThornyYazhen1Start",
+                    "failure_task": "__AutoCollectWulingThornyYazhen1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingThornyYazhen1Failed": {
+        "desc": "路线 荆刺芽针 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingThornyYazhen1.failed"
+        }
+    },
+    "__AutoCollectWulingAmberRice1Run": {
+        "desc": "执行路线 金石稻，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingAmberRice1Start",
+                    "failure_task": "__AutoCollectWulingAmberRice1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingAmberRice1Failed": {
+        "desc": "路线 金石稻 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingAmberRice1.failed"
+        }
+    }
+}

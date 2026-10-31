@@ -1,11 +1,12 @@
 import argparse
+import contextlib
 import http.client
 import json
 import os
+import platform
 import shutil
 import subprocess
 import sys
-import platform
 import tempfile
 import time
 import traceback
@@ -18,7 +19,6 @@ from urllib.parse import quote, urlencode, urlparse
 from . import dep_3rdparty
 from .cli_support import Console, init_localization
 from .path_utils import is_directory_link, remove_directory_or_link
-
 
 PROJECT_BASE: Path = Path(__file__).resolve().parents[2]
 MFW_REPO: str = "MaaXYZ/MaaFramework"
@@ -39,10 +39,12 @@ def create_directory_link(src: Path, dst: Path) -> bool:
     dst.parent.mkdir(parents=True, exist_ok=True)
 
     if platform.system() == "Windows":
+        # cmd /u 固定以 UTF-16LE 输出，避免依赖控制台代码页或 Python 的默认编码。
         result = subprocess.run(
-            ["cmd", "/c", "mklink", "/J", str(dst), str(src)],
+            ["cmd", "/u", "/c", "mklink", "/J", str(dst), str(src)],
             capture_output=True,
             text=True,
+            encoding="utf-16-le",
         )
         if result.returncode != 0:
             print(Console.err(t("err_create_junction_failed", stderr=result.stderr)))
@@ -52,10 +54,56 @@ def create_directory_link(src: Path, dst: Path) -> bool:
 
     return True
 
+def ensure_directory_link(
+    src: Path,
+    dst: Path,
+    *,
+    skip_if_src_missing: bool = False,
+    skip_if_dst_not_link: bool = False,
+) -> bool:
+    """确保 dst 是指向 src 的目录链接，已正确指向时不重复创建。
+
+    参数：
+        src: 链接指向的源目录。
+        dst: 要创建或检查的链接路径。
+        skip_if_src_missing: src 不存在或不是目录时，是否提示并跳过。
+            默认 False,此时返回失败。
+        skip_if_dst_not_link: dst 已存在且不是目录链接时，是否保留原路径并跳过。
+            默认 False,此时删除原路径后创建链接；普通目录会连同内容一起删除。
+            dst 不存在时仍会创建链接。此跳过判断优先于源目录检查。
+    """
+    try:
+        if skip_if_dst_not_link and dst.exists() and not is_directory_link(dst):
+            print(Console.warn(t("wrn_directory_link_skip_existing_path", path=dst)))
+            return True
+        if not src.is_dir():
+            print(Console.warn(t("wrn_directory_link_source_missing", link=dst, target=src)))
+            return skip_if_src_missing
+        if is_directory_link(dst) and dst.resolve() == src.resolve():
+            print(Console.ok(t("inf_directory_link_exists", link=dst, target=src)))
+            return True
+        if dst.exists() or is_directory_link(dst):
+            def _delete_dst():
+                print(Console.info(t("inf_delete_old_dir", path=dst)))
+                remove_directory_or_link(dst)
+
+            if not _retry_on_permission(_delete_dst, error_key="err_directory_link_delete_failed", path=dst):
+                return False
+        print(Console.info(t("inf_creating_link", link=dst, target=src)))
+        if create_directory_link(src, dst):
+            print(Console.ok(t("inf_directory_link_created", link=dst, target=src)))
+            return True
+    except OSError as e:
+        print(Console.err(t("err_directory_link_os_error", link=dst, target=src, error=e)))
+    print(Console.err(t("err_directory_link_failed", link=dst, target=src)))
+    return False
+
+
 LOCALS_DIR = Path(__file__).parent / "locals" / "setup_workspace"
 
 
-_local_t = lambda key, **kwargs: key.format(**kwargs) if kwargs else key
+def _local_t(key, **kwargs):
+    return key.format(**kwargs) if kwargs else key
 
 
 def init_local() -> None:
@@ -148,6 +196,7 @@ def configure_token() -> None:
     """配置 GitHub Token，输出检测结果"""
     token = get_github_token()
     if token:
+        os.environ["GH_TOKEN"] = token
         print(Console.ok(t("inf_github_token_configured")))
     else:
         print(Console.warn(t("wrn_github_token_not_configured")))
@@ -272,8 +321,8 @@ def get_latest_release_url(
         for tag in tags:
             assert isinstance(tag, dict)
             if (
-                not prerelease
-                and tag.get("prerelease", False)
+                (not prerelease
+                and tag.get("prerelease", False))
                 or tag.get("draft", False)
             ):
                 continue
@@ -299,7 +348,7 @@ def read_versions_file(path: Path) -> dict[str, str]:
     if not path.exists():
         return {}
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
         versions = data.get("versions", {})
         if isinstance(versions, dict):
@@ -389,7 +438,7 @@ def parse_semver(version: str) -> tuple[list[int], list[str]]:
         v = v.split("+", 1)[0]
 
     # Split core and prerelease.
-    core_part, pre_part = (v.split("-", 1) + [""])[:2] if "-" in v else (v, "")
+    core_part, pre_part = ([*v.split("-", 1), ""])[:2] if "-" in v else (v, "")
 
     def parse_core_number(part: str) -> int:
         num = ""
@@ -420,10 +469,10 @@ def compare_semver(a: str | None, b: str | None) -> int:
     max_len = max(len(left_core), len(right_core))
     left_core += [0] * (max_len - len(left_core))
     right_core += [0] * (max_len - len(right_core))
-    for l, r in zip(left_core, right_core):
-        if l > r:
+    for left_item, right_item in zip(left_core, right_core, strict=False):
+        if left_item > right_item:
             return 1
-        if l < r:
+        if left_item < right_item:
             return -1
 
     # Core equal: version without prerelease has higher precedence.
@@ -438,12 +487,12 @@ def compare_semver(a: str | None, b: str | None) -> int:
     def is_numeric_identifier(s: str) -> bool:
         return s.isdigit()
 
-    for l, r in zip(left_pre, right_pre):
-        l_num = is_numeric_identifier(l)
-        r_num = is_numeric_identifier(r)
+    for left_item, right_item in zip(left_pre, right_pre, strict=False):
+        l_num = is_numeric_identifier(left_item)
+        r_num = is_numeric_identifier(right_item)
 
         if l_num and r_num:
-            li, ri = int(l), int(r)
+            li, ri = int(left_item), int(right_item)
             if li > ri:
                 return 1
             if li < ri:
@@ -456,9 +505,9 @@ def compare_semver(a: str | None, b: str | None) -> int:
             return 1
 
         # both non-numeric: ASCII lexical compare
-        if l > r:
+        if left_item > right_item:
             return 1
-        if l < r:
+        if left_item < right_item:
             return -1
 
     # All shared identifiers equal: shorter prerelease has lower precedence.
@@ -553,17 +602,21 @@ def download_file(
 
         url_meta = Path(str(dest_path) + ".url")
 
-        if resume and dest_path.exists() and dest_path.stat().st_size > 0:
-            if url_meta.exists():
-                try:
-                    cached_url = url_meta.read_text(encoding="utf-8").strip()
-                except OSError:
-                    cached_url = ""
-                if cached_url and cached_url != url:
-                    print(Console.warn(t("wrn_cache_url_mismatch")))
-                    cleanup_cache_file(dest_path)
-                    if dest_path.exists():
-                        resume = False
+        if (
+            resume
+            and dest_path.exists()
+            and dest_path.stat().st_size > 0
+            and url_meta.exists()
+        ):
+            try:
+                cached_url = url_meta.read_text(encoding="utf-8").strip()
+            except OSError:
+                cached_url = ""
+            if cached_url and cached_url != url:
+                print(Console.warn(t("wrn_cache_url_mismatch")))
+                cleanup_cache_file(dest_path)
+                if dest_path.exists():
+                    resume = False
 
         existing_size = 0
         if resume and dest_path.exists():
@@ -650,10 +703,8 @@ def download_file(
                         cached_progress_str = progress_str
         print()
         print(Console.ok(t("inf_download_complete", path=dest_path)))
-        try:
+        with contextlib.suppress(OSError):
             url_meta.write_text(url, encoding="utf-8")
-        except OSError:
-            pass
         return True
     except urllib.error.HTTPError as e:
         print(Console.err(t("err_network_error_with_code", reason=e.reason, code=e.code)))
@@ -674,6 +725,8 @@ def install_maafw(
     real_install_root = install_root.resolve()
     maafw_dest = real_install_root / "maafw"
     maafw_deps = PROJECT_BASE / "deps"
+    maafw_agentbinary_src = maafw_deps / "share" / "MaaAgentBinary"
+    maafw_agentbinary_dest = maafw_deps / "bin" / "MaaAgentBinary"
     maafw_installed = maafw_deps.exists() and any(maafw_deps.iterdir())
 
     if skip_if_exist and maafw_installed:
@@ -694,6 +747,9 @@ def install_maafw(
         and remote_version
         and compare_semver(local_version, remote_version) >= 0
     ):
+        # 将 share/MaaAgentBinary 链接到 deps/bin；为避免MaaFramework 未来可能补上该目录，先保守处理，不是软链接时跳过。
+        if not ensure_directory_link(maafw_agentbinary_src, maafw_agentbinary_dest, skip_if_src_missing=True, skip_if_dst_not_link=True):
+            return False, local_version, False
         print(Console.ok(t("inf_maafw_latest_version", version=local_version)))
         return True, local_version, False
 
@@ -751,6 +807,10 @@ def install_maafw(
             if not _retry_on_permission(_copy_sdk, error_key="err_cannot_access_deps", path=maafw_deps):
                 return False, local_version, False
             print(Console.ok(t("inf_sdk_copied", dest=maafw_deps)))
+
+            # 将 share/MaaAgentBinary 链接到 deps/bin；为避免MaaFramework 未来可能补上该目录，先保守处理，不是软链接时跳过。
+            if not ensure_directory_link(maafw_agentbinary_src, maafw_agentbinary_dest, skip_if_src_missing=True, skip_if_dst_not_link=True):
+                return False, local_version, False
 
             if not maafw_dest_is_link:
                 # 创建 install/maafw -> deps/bin 的目录链接

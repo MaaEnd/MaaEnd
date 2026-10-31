@@ -1,0 +1,26 @@
+{
+    "task": [
+        {
+            "name": "LevelUpOperator",
+            "label": "$task.LevelUpOperator.label",
+            "entry": "OperatorLevelUpStart",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "ADB",
+                "CloudADB",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "MacOS-Background",
+                "MacOS-Front",
+                "PlayCover",
+                "Win32-Front"
+            ],
+            "option": [
+                "LevelUpOperatorMaxLevelThreshold"
+            ]
+        }
+    ]
+}

@@ -3,6 +3,7 @@
         "next": [
             "BatchUseDetectorFindWulingDetector",
             "BatchUseDetectorFindWulingCompass",
+            "BatchUseDetectorFindWulingTalositeProbe",
             "[JumpBack]BatchUseDetectorSwipeNextPage",
             "BatchUseDetectorFindNoItem"
         ]
