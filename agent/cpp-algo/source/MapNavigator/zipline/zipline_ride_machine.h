@@ -55,9 +55,8 @@ public:
 
     // 保留转向响应比
     void restart();
-    bool turnInFlight(Clock::time_point now) const;
-    std::optional<double> settledHeading(const ZiplineObservation& obs);
-    void finishTurn(double heading);
+    // 转向生效且朝向读稳后才返回朝向, 同时结束在途转向
+    std::optional<double> poll(const ZiplineObservation& obs, Clock::time_point now);
     std::optional<double> issueTurn(IZiplineActuator& actuator, double heading, double residual, Clock::time_point now);
 
     double responseRatio() const { return yaw_response_ratio_.value_or(1.0); }
@@ -67,6 +66,7 @@ public:
     int stableHits() const { return stable_heading_hits_; }
 
 private:
+    std::optional<double> settledHeading(const ZiplineObservation& obs);
     void noteTurnResponse(double heading);
 
     std::optional<double> prev_heading_;

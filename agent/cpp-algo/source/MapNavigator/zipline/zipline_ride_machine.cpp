@@ -154,9 +154,32 @@ void YawAimLoop::restart()
     turn_sent_at_ = {};
 }
 
-bool YawAimLoop::turnInFlight(Clock::time_point now) const
+std::optional<double> YawAimLoop::poll(const ZiplineObservation& obs, Clock::time_point now)
 {
-    return turn_pending_ && ElapsedMs(turn_sent_at_, now) < kWaitAfterFirstTurnMs;
+    if (turn_pending_ && ElapsedMs(turn_sent_at_, now) < kWaitAfterFirstTurnMs) {
+        return std::nullopt;
+    }
+    const std::optional<double> heading = settledHeading(obs);
+    if (heading) {
+        noteTurnResponse(*heading);
+        turn_pending_ = false;
+    }
+    return heading;
+}
+
+std::optional<double> YawAimLoop::issueTurn(IZiplineActuator& actuator, double heading, double residual, Clock::time_point now)
+{
+    const std::optional<double> issued = actuator.turnYaw(residual / yaw_response_ratio_.value_or(1.0));
+    if (!issued) {
+        return std::nullopt;
+    }
+    turn_ref_heading_ = heading;
+    turn_cmd_deg_ = *issued;
+    turn_sent_at_ = now;
+    turn_pending_ = true;
+    stable_heading_hits_ = 0;
+    prev_heading_.reset();
+    return issued;
 }
 
 std::optional<double> YawAimLoop::settledHeading(const ZiplineObservation& obs)
@@ -173,27 +196,6 @@ std::optional<double> YawAimLoop::settledHeading(const ZiplineObservation& obs)
         return std::nullopt;
     }
     return heading;
-}
-
-void YawAimLoop::finishTurn(double heading)
-{
-    noteTurnResponse(heading);
-    turn_pending_ = false;
-}
-
-std::optional<double> YawAimLoop::issueTurn(IZiplineActuator& actuator, double heading, double residual, Clock::time_point now)
-{
-    const std::optional<double> issued = actuator.turnYaw(residual / yaw_response_ratio_.value_or(1.0));
-    if (!issued) {
-        return std::nullopt;
-    }
-    turn_ref_heading_ = heading;
-    turn_cmd_deg_ = *issued;
-    turn_sent_at_ = now;
-    turn_pending_ = true;
-    stable_heading_hits_ = 0;
-    prev_heading_.reset();
-    return issued;
 }
 
 void YawAimLoop::noteTurnResponse(double heading)
@@ -545,15 +547,11 @@ StageResult ZiplineRideMachine::tickAiming(const ZiplineObservation& obs, IZipli
                 << VAR_AS(stable_heading_hits_, aim_.stableHits()) << VAR(budget_ms);
         return failAim(actuator, "zipline/aim/timeout", now);
     }
-    if (aim_.turnInFlight(now)) {
-        return {};
-    }
-    const std::optional<double> settled = aim_.settledHeading(obs);
+    const std::optional<double> settled = aim_.poll(obs, now);
     if (!settled) {
         return {};
     }
     const double heading = *settled;
-    aim_.finishTurn(heading);
 
     const double bias = returning_ ? 0.0 : aim_bias_deg_;
     const bool sweep_pending = bias != 0.0 && !pitch_lowered_;
@@ -708,15 +706,11 @@ StageResult ZiplineRideMachine::tickExitAiming(const ZiplineObservation& obs, IZ
                 << VAR_AS(turn_pending_, aim_.turnPending()) << VAR_AS(stable_heading_hits_, aim_.stableHits());
         return leaveTowerAfterAim(actuator, now);
     }
-    if (aim_.turnInFlight(now)) {
-        return {};
-    }
-    const std::optional<double> settled = aim_.settledHeading(obs);
+    const std::optional<double> settled = aim_.poll(obs, now);
     if (!settled) {
         return {};
     }
     const double heading = *settled;
-    aim_.finishTurn(heading);
 
     const double target_heading = NaviMath::calcTargetRotation(obs.fix->x, obs.fix->y, exit_aim_.x, exit_aim_.y);
     const double residual = NaviMath::normalizeAngle(target_heading - heading);
