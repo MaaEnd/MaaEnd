@@ -159,7 +159,8 @@
         "desc": "开始处理祀的画 - 牧场",
         "pre_delay": 0,
         "anchor": {
-            "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindRanch"
+            "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindRanch",
+            "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreRanch"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -181,6 +182,43 @@
                         425.5
                     ]
                 }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -500,
+                350,
+                400,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmRanchPanelReady",
+            "__AutoEcoFarmChooseRanch"
+        ]
+    },
+    "__AutoEcoFarmChooseRanch": {
+        "desc": "地图标记重叠时，在候选列表中选择牧场",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -500,
+                    350,
+                    400,
+                    300
+                ],
+                "template": [
+                    "AutoEcoFarm/RanchPanel.png"
+                ],
+                "threshold": 0.85
             }
         },
         "pre_delay": 0,
