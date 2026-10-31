@@ -29,7 +29,7 @@ func (w *levelFilterWriter) WriteLevel(level zerolog.Level, p []byte) (n int, er
 }
 
 func initLogger() (*os.File, error) {
-	debugDir := fsutil.OutputPath("debug")
+	debugDir := fsutil.UserDataPath("debug")
 	if err := os.MkdirAll(debugDir, 0755); err != nil {
 		return nil, err
 	}

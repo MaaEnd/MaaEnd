@@ -9,7 +9,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 )
 
-// 预刻写方案 HTML 落盘相对路径（go-service 工作目录下，每次覆盖）
+// 预刻写方案 HTML 落盘相对路径（用户数据目录下，每次覆盖）
 const planRecommendHTMLPath = "./EssencePlan.html"
 
 // wrapPlanRecommendHTML wraps the MXU plan_recommend fragment in a minimal HTML5 document for opening in a browser.

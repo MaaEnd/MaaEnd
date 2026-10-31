@@ -65,7 +65,7 @@ func currentOutpostTradingCacheUID() string {
 
 // defaultOutpostTradingCachePath 返回运行记录目录中的统一缓存文件路径。
 func defaultOutpostTradingCachePath() string {
-	return fsutil.OutputPath("debug", "record", outpostTradingCacheFileName)
+	return fsutil.UserDataPath("debug", "record", outpostTradingCacheFileName)
 }
 
 // readOutpostTradingCache 读取并规范化缓存。

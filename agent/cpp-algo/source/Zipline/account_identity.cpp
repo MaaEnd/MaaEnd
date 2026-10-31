@@ -27,7 +27,7 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "../Common/output_paths.h"
+#include "../Common/paths.h"
 
 namespace zipline
 {
@@ -45,7 +45,7 @@ constexpr char kHexDigits[] = "0123456789abcdef";
 std::filesystem::path salt_path()
 {
     // 盐文件与 go-service 共用
-    return common::OutputPath("debug/record/random_salt.txt");
+    return common::UserDataPath("debug/record/random_salt.txt");
 }
 
 std::string trim(std::string value)

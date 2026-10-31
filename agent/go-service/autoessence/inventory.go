@@ -81,7 +81,7 @@ func Loaded() bool {
 // Missing file yields an empty loaded inventory. Per-group counts sum all levels.
 func LoadFile(path string) error {
 	if path == "" {
-		path = fsutil.OutputPath(inventoryFilePath)
+		path = fsutil.UserDataPath(inventoryFilePath)
 	}
 	raw, err := os.ReadFile(path)
 	if err != nil {

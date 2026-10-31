@@ -19,7 +19,7 @@ const (
 var resolveShelfSnapshotPathFunc = defaultShelfSnapshotPath
 
 func defaultShelfSnapshotPath() string {
-	return fsutil.OutputPath("debug", "record", shelfSnapshotFileName)
+	return fsutil.UserDataPath("debug", "record", shelfSnapshotFileName)
 }
 
 type snapshotFile struct {

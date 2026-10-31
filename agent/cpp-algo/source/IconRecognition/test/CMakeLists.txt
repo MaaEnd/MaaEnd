@@ -70,6 +70,11 @@ target_link_libraries(
         MaaFramework::MaaFramework
 )
 set(ICON_RECOGNITION_TEST_RUNTIME "${CMAKE_CURRENT_BINARY_DIR}/runtime")
+target_compile_definitions(
+    icon-recognition-custom-tests
+    PRIVATE
+        ICON_RECOGNITION_TEST_RUNTIME="${ICON_RECOGNITION_TEST_RUNTIME}"
+)
 set_target_properties(
     icon-recognition-custom-tests
     PROPERTIES

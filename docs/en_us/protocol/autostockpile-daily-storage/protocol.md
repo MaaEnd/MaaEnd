@@ -76,7 +76,7 @@ A corresponding JSON Schema file is provided for third-party tools to validate t
 debug/record/ElasticGoodsPrices.json
 ```
 
-The path is a fixed relative path from the MaaEnd working directory. No upward search or environment variable resolution is performed. The directory is created via `MkdirAll` if it does not exist.
+The path is rooted at the user data directory given by `PI_USER_DATA_DIR` (the install root when the variable is absent) and is resolved by `fsutil.UserDataPath`; no upward search is performed. The directory is created via `MkdirAll` if it does not exist.
 
 ### Atomic Write Process
 

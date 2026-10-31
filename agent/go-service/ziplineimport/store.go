@@ -41,21 +41,9 @@ type recordFile struct {
 	Maps      []ziplineMapRecord `json:"maps"`
 }
 
-// exeDir 返回当前可执行文件所在目录（与 cpp 的 get_exe_dir 一致，作为资源锚点）。
-func exeDir() string {
-	exe, err := os.Executable()
-	if err == nil && exe != "" {
-		return filepath.Dir(exe)
-	}
-	if wd, err := os.Getwd(); err == nil {
-		return wd
-	}
-	return "."
-}
-
-// defaultRecordPath anchors the record under the startup working directory.
+// defaultRecordPath anchors the record under the shared user data directory.
 func defaultRecordPath() string {
-	return fsutil.OutputPath("debug", "record", "Ziplines.json")
+	return fsutil.UserDataPath("debug", "record", "Ziplines.json")
 }
 
 // load 读取现有记录。文件不存在或为空返回空库且无错误；内容坏掉才返回错误（此时拒绝覆盖，

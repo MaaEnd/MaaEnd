@@ -16,6 +16,8 @@
 #else
 #include <unistd.h>
 #endif
+
+#include "../Common/paths.h"
 #include "../utils.h"
 
 #include "MapLocateAction.h"
@@ -101,13 +103,6 @@ struct MapLocateAssertLocationOutput
         MEO_OPT latencyMs,
         MEO_OPT target)
 };
-
-fs::path getInstallDir()
-{
-    // Shared single-source resolution (see source/utils.h). Kept as a thin alias so MapLocator and
-    // MapNavigator anchor resources identically.
-    return get_install_dir();
-}
 
 // 参数由 pipeline 提供，字段类型不由本模块保证。解析失败退回默认值，与不传参数同路。
 template <typename T>
@@ -332,10 +327,9 @@ bool TryLocateOnMinimap(MaaContext* context, const MaaImageBuffer* image, const 
 std::shared_ptr<MapLocator> getOrInitLocator()
 {
     static std::shared_ptr<MapLocator> locator = []() {
-        fs::path installDir = getInstallDir();
-        fs::path mapRoot = installDir / "resource" / "image" / "MapLocator";
-        fs::path yoloModel = installDir / "resource" / "model" / "map" / "cls.onnx";
-        fs::path cameraOrientationDir = installDir / "resource" / "model" / "map" / "cameraorientation";
+        fs::path mapRoot = common::InstallPath("resource/image/MapLocator");
+        fs::path yoloModel = common::InstallPath("resource/model/map/cls.onnx");
+        fs::path cameraOrientationDir = common::InstallPath("resource/model/map/cameraorientation");
         fs::path cameraOrientationRefModel = cameraOrientationDir / "polar_with_ref.onnx";
 
         std::string mapRootStr = MAA_NS::path_to_utf8_string(fs::absolute(mapRoot));

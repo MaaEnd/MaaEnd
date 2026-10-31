@@ -14,7 +14,7 @@ namespace mapnavigator
 struct NaviParam;
 
 std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path = {});
-// 相对 exe 定位: <exe>/../data/MapNavigator/nogo_zones.json
+// 相对安装根目录定位: <install root>/data/MapNavigator/nogo_zones.json
 std::filesystem::path NoGoTablePath();
 
 struct CachedNavmesh

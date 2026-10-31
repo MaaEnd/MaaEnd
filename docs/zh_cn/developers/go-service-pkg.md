@@ -20,8 +20,8 @@
 | [`ocrnum`](#ocrnumocr-数值解析) | OCR 文本 → `int`（支持 `1.38万` / `13.8K` 等） | `ExpressionRecognition`、`iconqty` |
 | [`jsonclean`](#jsoncleanjsonc-清洗) | 去掉注释 / 尾逗号 / BOM，变成严格 JSON | `resource`、`i18n`、各类配置加载 |
 | [`pienv`](#pienvproject-interface-环境) | 读取 `PI_*` 环境变量（语言、控制器、资源） | `i18n`、`iconqty`、启动期逻辑 |
-| [`resource`](#resource资源文件定位与读取) | 按相对路径找 `resource/` / `assets/` 下文件 | 商品目录、据点数据等 JSON 配置 |
-| [`fsutil`](#fsutil输出路径与原子写文件) | 持久化输出的路径基准；临时文件 + rename，避免半截写入 | 日志 / debug / 持久化缓存 |
+| [`resource`](#resource资源文件定位与读取) | 按相对路径找安装根目录下的文件 | 商品目录、据点数据等 JSON 配置 |
+| [`fsutil`](#fsutil路径基准与原子写文件) | 安装根与用户数据两个路径基准；临时文件 + rename，避免半截写入 | 日志 / debug / 持久化缓存 |
 | [`levenshtein`](#levenshtein编辑距离) | rune 级编辑距离 | OCR / 名称模糊匹配 |
 | [`iconrecognition`](#iconrecognition--iconqty) | IconRecognition 参数与 detail 的公共结构 | IMS（经 `iconqty`）、据点交易商品识别 |
 | [`iconqty`](#iconrecognition--iconqty) | 扫格 + 格内数量 OCR | IMS A2 / A3 |
@@ -217,7 +217,7 @@ json.Unmarshal(jsonclean.Clean(raw), &out)
 
 路径：`pkg/pienv/`
 
-启动时 Client 会注入 `PI_*`（见 Project Interface v2.5）。`Init()` / `Get()` 解析为单例：
+启动时 Client 会注入 `PI_*`（见 Project Interface v2.11）。`Init()` / `Get()` 解析为单例：
 
 - `ClientLanguage()` → 交给 `i18n`
 - `ControllerType()` / `ControllerName()` → 区分 Win32 / Adb 等
@@ -225,7 +225,7 @@ json.Unmarshal(jsonclean.Clean(raw), &out)
 - `ResolveControllerKind(ctrl)` → 归一化类别的兜底版：PI_CONTROLLER 缺失或类型未知时改用 `controller.GetInfo()` 判定。PI 协议允许 Client 省略不可用的变量，所以**不能假定 PI_CONTROLLER 一定存在**
 - `ResourceName()`、版本号等
 
-不要自己再 `os.Getenv("PI_...")` 散落解析。
+不要自己再 `os.Getenv("PI_...")` 散落解析。`fsutil` 为了在日志初始化前确定输出目录，仅在包初始化时读取 `pienv.EnvUserDataDir`，不触发 `pienv` 的日志输出。
 
 判断控制器类型优先用 `ControllerType()`，比较时走 `ControllerKind()` / `NormalizeControllerKind()`（不要各自 `ToLower` 拼字符串）。需要兼容「Client 省略 `PI_CONTROLLER`」时用 `ResolveControllerKind(ctrl)`——`ctrl` 必须是本回调里已经取得并向下传递的那个，不要为了判断类型再 `GetController()`：同一回调里每多取一次 controller，之前拿到的那个就会失效（见[编码规范 · 回调里的句柄怎么用](./coding-standards.md#回调里的句柄怎么用)）。ADB、PlayCover（含别名 `play_cover`）与 Android 原生共用「触控 + 移动端 UI」分支时，用 `IsAdbLikeControllerType()` 判断。
 
@@ -234,28 +234,40 @@ json.Unmarshal(jsonclean.Clean(raw), &out)
 路径：`pkg/resource/`
 
 - `FindResource` / `ReadResource` / `ReadJsonResource`（内部已 `jsonclean`）
-- 查找顺序：绝对 / 相对路径 → resource sink 基路径 → cwd 及上级的 `resource/`、`assets/`
+- 解析规则只有一条：绝对路径直通，相对路径拼到安装根目录。没有多基准、向上查找或兜底
+- `BasePath()` 返回 MaaFramework 实际加载的 bundle 路径，仅供日志与诊断，不参与查找
 
 读商品表、据点数据等时用本包，不要写死 `install/...` 绝对路径。
 
-### `fsutil`：输出路径与原子写文件
+### `fsutil`：路径基准与原子写文件
 
 路径：`pkg/fsutil/`
 
-**输出路径**：日志、调试截图、`debug/record/` 下的记录、导出文件等持久化输出，统一以**进程启动时的工作目录**为根，不依赖调用时的工作目录，也不依赖可执行文件位置。
+项目路径只有两个基准，彼此独立：
+
+| 基准 | 由什么决定 | 放什么 |
+| --- | --- | --- |
+| **安装根目录** | 进程启动时的工作目录（宿主以安装根作为 agent 的 CWD） | 随包发布的只读内容：`resource/`、`data/`、`locales/`、`maafw/` |
+| **用户数据目录** | `PI_USER_DATA_DIR`，未注入时即安装根目录 | 可写状态：`config/`、`debug/`、导出的文件 |
+
+`PI_USER_DATA_DIR` 必须是绝对路径，不要求包含项目资源；「未注入时等于安装根」就是协议的默认便携布局。
 
 | 函数 | 用途 |
-| ----------------------- | ---------------------------------------------------------------- |
-| `StartupDir()` | 返回启动时捕获的工作目录及捕获错误；`main` 启动期检查一次，失败即退出 |
-| `OutputPath(parts...)` | 把相对路径拼到启动工作目录下，返回绝对路径 |
+| --- | --- |
+| `InstallDir()` | 返回启动时捕获的安装根目录及捕获错误；`main` 启动期检查一次，失败即退出 |
+| `InstallPath(parts...)` | 把相对路径拼到安装根目录下，返回绝对路径 |
+| `UserDataDir()` | 返回用户数据目录及解析错误；`main` 在初始化日志前检查，非法相对路径会终止启动 |
+| `UserDataPath(parts...)` | 把相对路径拼到用户数据目录下，返回绝对路径 |
 
 ```go
-path := fsutil.OutputPath("debug", "record", "IMS.json")
+record := fsutil.UserDataPath("debug", "record", "IMS.json")
+resource := fsutil.InstallPath("resource")
 ```
 
-- 写文件、以及读回自己写出的文件，都走 `OutputPath`，保证读写同一位置；不要再写 `filepath.Join("debug", ...)` 这类相对路径。
-- 只用于**输出**。读取随包发布的 `resource/`、`data/`、`locales/` 用上面的 `resource` 包，临时文件用系统临时目录。
-- cpp-algo 侧对应 `common::OutputPath`（`source/Common/output_paths.h`），两边共用的文件（如 `debug/record/random_salt.txt`、`Ziplines.json`）靠同一基准对齐。
+- 写文件、以及读回自己写出的文件，都走 `UserDataPath`，保证读写同一位置；不要再写 `filepath.Join("debug", ...)` 这类相对路径。
+- 读随包发布的 `data/`、`locales/` 优先用上面的 `resource` 包，其余用 `InstallPath`；临时文件用系统临时目录。
+- cpp-algo 侧一一对应：`common::InstallPath` / `common::UserDataPath`（`source/Common/paths.h`），共用文件（如 `debug/record/random_salt.txt`、`Ziplines.json`）因此天然对齐。
+- MaaFW 动态库默认从安装根目录的 `maafw/` 加载，宿主可用 `MAAFW_BINARY_PATH` 覆盖。
 
 **原子写**：`WriteFileAtomic(path, content, perm)`：同目录临时文件写完再 rename。适合 debug 落盘、可覆盖的缓存；**不保证掉电持久性**（不做目录 fsync）。
 
@@ -313,7 +325,8 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 | 读带注释的 JSON 配置 | `jsonclean`（或经 `resource.ReadJsonResource`） |
 | 区分 Adb / Win32 | `pienv.ResolveControllerKind(ctrl)` + `IsAdbLikeControllerType()` |
 | 扫背包格子并读数量 | `iconrecognition` + `iconqty` |
-| 决定日志 / 记录 / 导出文件写到哪 | `fsutil.OutputPath` |
+| 读随包发布的 `data/`、`locales/` | `resource.ReadResource` / `fsutil.InstallPath` |
+| 决定日志 / 记录 / 导出文件写到哪 | `fsutil.UserDataPath` |
 | 写文件不留半截内容 | `fsutil.WriteFileAtomic` |
 
 ## 相关文档

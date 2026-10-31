@@ -21,8 +21,12 @@ func main() {
 	}
 	debug.SetPanicOnFault(true)
 
-	if _, err := fsutil.StartupDir(); err != nil {
-		log.Fatal().Err(err).Msg("Failed to capture startup working directory")
+	if _, err := fsutil.InstallDir(); err != nil {
+		log.Fatal().Err(err).Msg("Failed to resolve install directory")
+	}
+
+	if _, err := fsutil.UserDataDir(); err != nil {
+		log.Fatal().Err(err).Msg("Failed to resolve user data directory")
 	}
 
 	logFile, err := initLogger()
@@ -32,6 +36,13 @@ func main() {
 			Msg("Failed to initialize logger")
 	}
 	defer logFile.Close()
+
+	installDir, _ := fsutil.InstallDir()
+	userDataDir, _ := fsutil.UserDataDir()
+	log.Info().
+		Str("install_dir", installDir).
+		Str("user_data_dir", userDataDir).
+		Msg("path roots resolved")
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -83,8 +94,4 @@ func main() {
 	default:
 		runAgent(os.Args[1])
 	}
-}
-
-func getCwd() string {
-	return fsutil.OutputPath()
 }
