@@ -751,16 +751,18 @@ bool try_append_zipline_leg(
     const navmesh::WorldPath* walking_path = walking == nullptr ? nullptr : &walking->path;
     auto route = PlanZiplineRoute(
         ctx.param,
-        state.current_zone,
-        state.navmesh_zone,
-        state.route_start,
-        target.point,
-        walking_path,
-        target.deck_y,
-        state.route_start_floor_y,
-        state.route_start_deck_y,
-        ctx.should_stop,
-        ctx.diagnostics != nullptr);
+        {
+            .locator_zone = state.current_zone,
+            .navmesh_zone = state.navmesh_zone,
+            .start = state.route_start,
+            .goal = target.point,
+            .walking_path = walking_path,
+            .goal_deck_y = target.deck_y,
+            .start_floor_y = state.route_start_floor_y,
+            .start_deck_y = state.route_start_deck_y,
+            .should_stop = ctx.should_stop,
+            .capture_diagnostics = ctx.diagnostics != nullptr,
+        });
     if (!route || route->approach.points.empty() || route->departure.points.empty() || route->towers.size() < 2) {
         return false;
     }

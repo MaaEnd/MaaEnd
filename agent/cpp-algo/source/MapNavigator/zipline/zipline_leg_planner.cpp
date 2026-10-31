@@ -596,19 +596,19 @@ ZiplineOutcome CurrentZiplineOutcome()
     return g_outcome;
 }
 
-std::optional<ZiplineRoute> PlanZiplineRoute(
-    const NaviParam& param,
-    const std::string& locator_zone,
-    const std::string& navmesh_zone,
-    const navmesh::WorldPoint& start,
-    const navmesh::WorldPoint& goal,
-    const navmesh::WorldPath* walking_path,
-    std::optional<double> goal_deck_y,
-    std::optional<double> start_floor_y,
-    std::optional<double> start_deck_y,
-    const std::function<bool()>& should_stop,
-    bool capture_diagnostics)
+std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const ZiplineLegRequest& request)
 {
+    const std::string& locator_zone = request.locator_zone;
+    const std::string& navmesh_zone = request.navmesh_zone;
+    const navmesh::WorldPoint& start = request.start;
+    const navmesh::WorldPoint& goal = request.goal;
+    const navmesh::WorldPath* walking_path = request.walking_path;
+    const std::optional<double>& goal_deck_y = request.goal_deck_y;
+    const std::optional<double>& start_floor_y = request.start_floor_y;
+    const std::optional<double>& start_deck_y = request.start_deck_y;
+    const std::function<bool()>& should_stop = request.should_stop;
+    const bool capture_diagnostics = request.capture_diagnostics;
+
     if (!param.zipline_enabled) {
         return std::nullopt;
     }
