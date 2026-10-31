@@ -2,6 +2,7 @@ package restaurant
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"slices"
 	"sync"
@@ -175,17 +176,24 @@ func readIcon(observed observations, name string) (string, error) {
 	if result == nil {
 		return "", fmt.Errorf("missing icon observation %s", name)
 	}
-	parsed, _, err := iconrecognition.ParseRecognitionDetail(result)
+	parsed, err := iconrecognition.NewRecognitionDetail(result)
 	if err != nil {
 		return "", err
 	}
-	if parsed.Error != nil && parsed.Error.Code != iconrecognition.ErrorCodeNoMatch {
-		return "", fmt.Errorf("%s: %s", name, parsed.Error.Message)
-	}
-	if !parsed.Matched || len(parsed.Matches) == 0 {
+	matches, matchErr := parsed.All().Matches()
+	var detailErr *iconrecognition.DetailError
+	errors.As(matchErr, &detailErr)
+	// no_match 表示识别正常完成但没有候选达到阈值，调用方按「当前界面没有该图标」处理。
+	if detailErr != nil && detailErr.Code == iconrecognition.ErrorCodeNoMatch {
 		return "", nil
 	}
-	return parsed.Matches[0].ItemID, nil
+	if matchErr != nil {
+		return "", fmt.Errorf("%s: %w", name, matchErr)
+	}
+	if len(matches) == 0 {
+		return "", nil
+	}
+	return matches[0].ItemID, nil
 }
 
 func route(patch map[string]any, routes []string, selected string) {
