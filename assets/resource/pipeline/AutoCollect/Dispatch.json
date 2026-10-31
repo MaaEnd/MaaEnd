@@ -31,6 +31,7 @@
             "[JumpBack]__AutoCollectWulingRedjadeGinsengDispatch",
             "[JumpBack]__AutoCollectWulingThornyYazhenDispatch",
             "[JumpBack]__AutoCollectWulingAmberRiceDispatch",
+            "[JumpBack]__AutoCollectWulingFarmerCrateDispatch",
             "AutoCollectAfterStashBackpack"
         ]
     },
@@ -68,6 +69,7 @@
             "[JumpBack]__AutoCollectWulingRedjadeGinsengSkipped",
             "[JumpBack]__AutoCollectWulingThornyYazhenSkipped",
             "[JumpBack]__AutoCollectWulingAmberRiceSkipped",
+            "[JumpBack]__AutoCollectWulingFarmerCrateSkipped",
             "AutoCollectInventoryReleaseSnapshot"
         ]
     },
@@ -1319,6 +1321,56 @@
             "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_plant_sp_4.skipped"
         }
     },
+    "__AutoCollectWulingFarmerCrateDispatch": {
+        "desc": "种植食材箱调度入口：勾选后启用，依次执行名下路线",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__AutoCollectWulingFarmerCrate1Run",
+            "[JumpBack]__AutoCollectWulingFarmerCrate2Run",
+            "[JumpBack]__AutoCollectWulingFarmerCrate3Run",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingFarmerCrateSkipped": {
+        "desc": "种植食材箱目标库存预判：已达标时停用调度入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_corp_potato_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingFarmerCrateDispatch": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.item.item_corp_potato_1.skipped"
+        }
+    },
     "__AutoCollectValleyIVChrysodendra1Run": {
         "desc": "执行路线 纯晶多齿叶，同一轮只执行一次，失败计入汇总",
         "max_hit": 1,
@@ -2017,6 +2069,90 @@
         "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingAmberRice1.failed"
+        }
+    },
+    "__AutoCollectWulingFarmerCrate1Run": {
+        "desc": "执行路线 种植食材箱（路线1），同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingFarmerCrate1Start",
+                    "failure_task": "__AutoCollectWulingFarmerCrate1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingFarmerCrate1Failed": {
+        "desc": "路线 种植食材箱（路线1） 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingFarmerCrate1.failed"
+        }
+    },
+    "__AutoCollectWulingFarmerCrate2Run": {
+        "desc": "执行路线 种植食材箱（路线2），同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingFarmerCrate2Start",
+                    "failure_task": "__AutoCollectWulingFarmerCrate2Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingFarmerCrate2Failed": {
+        "desc": "路线 种植食材箱（路线2） 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingFarmerCrate2.failed"
+        }
+    },
+    "__AutoCollectWulingFarmerCrate3Run": {
+        "desc": "执行路线 种植食材箱（路线3），同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingFarmerCrate3Start",
+                    "failure_task": "__AutoCollectWulingFarmerCrate3Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingFarmerCrate3Failed": {
+        "desc": "路线 种植食材箱（路线3） 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingFarmerCrate3.failed"
         }
     }
 }

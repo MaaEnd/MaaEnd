@@ -382,6 +382,14 @@
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_item_corp_potato_1",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_corp_potato_1.label",
+                    "default": "0",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 }
             ],
             "pipeline_override": {
@@ -615,6 +623,15 @@
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{AutoCollectLimit_item_plant_sp_4}>0 && {item_plant_sp_4}>={AutoCollectLimit_item_plant_sp_4}"
+                            }
+                        }
+                    }
+                },
+                "__AutoCollectWulingFarmerCrateSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_item_corp_potato_1}>0 && {item_corp_potato_1}>={AutoCollectLimit_item_corp_potato_1}"
                             }
                         }
                     }
@@ -1118,6 +1135,28 @@
                             "enabled": true
                         }
                     }
+                },
+                {
+                    "name": "item_corp_potato_1",
+                    "label": "$option.AutoCollectItem.item_corp_potato_1.label",
+                    "icon": "resource/image/UI/Item/item_corp_potato_1.png",
+                    "pipeline_override": {
+                        "__AutoCollectWulingFarmerCrateDispatch": {
+                            "enabled": true
+                        },
+                        "__AutoCollectWulingFarmerCrateSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectWulingFarmerCrate1Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectWulingFarmerCrate2Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectWulingFarmerCrate3Start": {
+                            "enabled": true
+                        }
+                    }
                 }
             ],
             "default_case": [
@@ -1126,7 +1165,8 @@
                 "item_plant_grass_spc_1",
                 "item_plant_sp_3",
                 "item_plant_grass_spc_2",
-                "item_plant_sp_4"
+                "item_plant_sp_4",
+                "item_corp_potato_1"
             ]
         }
     }
