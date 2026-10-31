@@ -1,0 +1,18 @@
+{
+  "task": [
+    {
+      "name": "WebStartGame",
+      "label": "$task.WebStartGame.label",
+      "entry": "WebStartGameEntry",
+      "description": "$task.WebStartGame.description",
+      "group": [
+        "open_world"
+      ],
+      "controller": [
+        "Linux-Wlroots",
+        "Linux-ScreenCast",
+        "Linux-Gamescope"
+      ]
+    }
+  ]
+}

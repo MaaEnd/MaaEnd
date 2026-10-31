@@ -1,0 +1,11 @@
+# web/ 下的脚本是部署 / 运维脚本（由 systemd / 手动执行），不是库代码。
+# 相对仓库根 pyproject.toml 只放宽两条与运行时无关的规则，其余规则照常生效：
+#
+#   UP031  printf 风格格式化：这里绝大多数是 `log('... %s' % (a, b))` 形式的日志行，
+#          改成 f-string 纯属噪音，且这些行会随诊断需要频繁改动。
+#   SIM115 文件句柄不放在 with 里：agent 日志句柄要交给 subprocess.Popen 长期持有，
+#          用 with 会在 Popen 返回后立刻关闭。
+extend = "../pyproject.toml"
+
+[lint]
+ignore = ["UP031", "SIM115"]
