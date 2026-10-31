@@ -74,6 +74,7 @@
                     "name": "LauncherExe",
                     "label": "$option.LaunchGamePCLauncherExe.LauncherExe.label",
                     "default": "",
+                    "input_type": "file",
                     "pipeline_type": "string",
                     "verify": "^\"?.+[\\\\/][Ll]auncher\\.exe\"?$",
                     "pattern_msg": "$option.LaunchGamePCLauncherExe.LauncherExe.pattern_msg"
