@@ -1,0 +1,36 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "ColorFreezeRecognition Parameters",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [ "lower", "upper", "time" ],
+    "properties": {
+        "method": { "$ref": "../pipeline.schema.json#/$defs/ColorMatch/properties/method" },
+        "lower": { "$ref": "../pipeline.schema.json#/$defs/ColorMatch/properties/lower" },
+        "upper": { "$ref": "../pipeline.schema.json#/$defs/ColorMatch/properties/upper" },
+        "count": { "$ref": "../pipeline.schema.json#/$defs/ColorMatch/properties/count" },
+        "connected": { "$ref": "../pipeline.schema.json#/$defs/ColorMatch/properties/connected" },
+        "order_by": { "$ref": "../pipeline.schema.json#/$defs/ColorMatch/properties/order_by" },
+        "index": { "$ref": "../pipeline.schema.json#/$defs/ColorMatch/properties/index" },
+        "time": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "description": "颜色分布需连续保持稳定的时间，单位毫秒；首帧仅建立基准。"
+        },
+        "color_threshold": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.98,
+            "description": "颜色幅度相似度阈值，范围 [0, 1]，默认 0.98。每个通道都需达到阈值；普通 8 位通道按差值 / 255 归一化，HSV/HLS 色相按最短环形距离 / 半圈归一化。1 要求颜色值相同，0 不限制颜色差。"
+        },
+        "distribution_threshold": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1,
+            "default": 0.98,
+            "description": "颜色分布匹配比例阈值，范围 (0, 1]，默认 0.98。相似度为幅度容差内可一一配对的计数 / 两帧较大命中数；1 不允许任何计数未匹配。每组范围分别比较，任意一组低于阈值即重置计时。原 threshold 已改名为本字段。"
+        }
+    }
+}
