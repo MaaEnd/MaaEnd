@@ -1,0 +1,7 @@
+{
+    "CloudWebStartGame": {
+        "desc": "基座占位：真实启动状态机在 resource_cloud_web 附件中覆盖；非 CloudWeb 控制器不提供该任务",
+        "recognition": "DirectHit",
+        "action": "DoNothing"
+    }
+}

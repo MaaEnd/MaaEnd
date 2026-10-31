@@ -54,6 +54,11 @@ pnpm install
 > - **其他分支**：依次尝试「当前提交 → 当前分支名 → 由当前提交反查 PR → `v2`」。本地分支名常与远程不同（如 `pr-4945` 实为 `feat/android-agent-ci`），因此以提交为准。
 > - 回退到 `v2` 产物时会打印告警——那意味着你拿到的是 `v2` 的 agent，而不是本分支的构建；需要本分支产物时用 `--cpp-algo-run <ID>` 明确指定。
 
+> [!NOTE]
+> 云游戏外壳 CloudShell 是「云·终末地」网页版的 Windows 套壳程序，只有 Windows 构建。Windows 上 `setup-workspace` 会自动从 CI 的 `cloud-shell-win-<arch>` artifact 下载预编译的 `cloud-shell.exe` 到 `install/cloud-shell/`：已安装则跳过，`--update` 时按 artifact 的 sha256 摘要判断要不要重下，非 Windows 平台打印一行提示后跳过。
+>
+> 找不到 CI 产物时（例如没有配置 `GITHUB_TOKEN`，或这次提交没有触发 CI）只打印告警并继续，不中断 `setup-workspace`；CloudShell 是可选项，缺了它不影响其他步骤。要本地编译（例如改了 CloudShell 代码）时用 `uv run build-and-install --cloud-shell`。
+
 ### 编辑器（推荐）
 
 推荐使用 [Visual Studio Code](https://code.visualstudio.com/)（VS Code）作为本项目的日常开发 IDE。完成上方克隆与初始化后，用 VS Code **打开仓库根目录**（需包含 `.vscode/extensions.json`），并安装工作区**推荐扩展（Workspace Recommendations）**，以便与团队环境一致（例如 Black、Prettier、**Maa Pipeline Support**、Markdownlint、Go、LLDB 等，完整列表见仓库内 `.vscode/extensions.json`）。

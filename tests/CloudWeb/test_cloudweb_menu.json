@@ -1,0 +1,32 @@
+{
+    "configs": {
+        "name": "CloudWeb 菜单与传送",
+        "resource": ["官服"],
+        "controller": ["CloudWeb"]
+    },
+    "cases": [
+        {
+            "name": "菜单列表右侧面板",
+            "image": "菜单列表_右侧面板.png",
+            "hits": ["InMenuList"]
+        },
+        {
+            "name": "地图右下传送按钮（文字 OCR）",
+            "image": "地图_右下传送按钮.png",
+            "hits": [
+                "__TeleportButtonText",
+                "TeleportButton"
+            ]
+        },
+        {
+            "name": "地图前往传送（不得命中传送按钮）",
+            "image": "地图_前往传送.png",
+            "hits": ["QuickTeleportButton"]
+        },
+        {
+            "name": "地图底部地区总览",
+            "image": "地图_底部地区总览.png",
+            "hits": ["CloudWebMapEnterOverview"]
+        }
+    ]
+}

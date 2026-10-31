@@ -8,6 +8,7 @@
                 "backpack"
             ],
             "controller": [
+                "CloudWeb",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",

@@ -7,6 +7,7 @@
    - assets/resource/pipeline
    - assets/resource_adb/pipeline
    - assets/resource_cloud/pipeline
+   - assets/resource_cloud_web/pipeline（CloudWeb 覆盖层）
 2) OCR 节点判定：
    - recognition == "OCR"
    - 或 recognition.type == "OCR"
@@ -46,6 +47,7 @@ PIPELINE_DIRS = [
     Path("assets/resource/pipeline"),
     Path("assets/resource_adb/pipeline"),
     Path("assets/resource_cloud/pipeline"),
+    Path("assets/resource_cloud_web/pipeline"),
 ]
 
 I18N_FILE_NAMES = {

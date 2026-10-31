@@ -1,0 +1,62 @@
+{
+    "ProtocolSpaceNormalPrepareChooseRewardClose": {
+        "desc": "CloudWeb：奖励选择/奖励预览弹窗的关闭按钮是细线 X，基座 CloseButtonType4 模板与 ROI 均不匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            1085,
+            118,
+            40,
+            140
+        ],
+        "lower": [
+            200,
+            200,
+            200
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "connected": true,
+        "count": 30,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceEnterSpacePrepare"
+        ]
+    },
+    "ProtocolSpaceEnterSpace": {
+        "desc": "CloudWeb：进入协议空间按钮的白色确认框模板在云画面分数不足，改按白色按钮底 + 文字识别",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    1100,
+                    635,
+                    180,
+                    55
+                ],
+                "lower": [
+                    200,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 1000
+            },
+            // 引用基座已定义的进入按钮文字节点，避免重复维护同一组标签
+            "ProtocolSpaceEnterSpaceText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceEnterSpaceSelectClaimReward",
+            "ProtocolSpaceEnterSpaceSelectNoClaimReward"
+        ]
+    }
+}

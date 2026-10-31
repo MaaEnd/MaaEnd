@@ -146,6 +146,9 @@
             "pretask": [
                 {
                     "name": "LaunchGamePC"
+                },
+                {
+                    "name": "LaunchCloudWeb"
                 }
             ]
         }

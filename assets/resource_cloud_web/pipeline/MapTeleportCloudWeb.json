@@ -1,0 +1,61 @@
+{
+    // 云游戏画面右下角的网络延迟指示（信号格 + 毫秒文本）会间歇性遮挡传送按钮，
+    // 模板匹配分数跌破 0.9，因此改用按钮文字 OCR，并显式用 box_index 取文字框。
+    // 基座 QuickTeleportButton / TeleportButton 的模板框在云流画面下不稳定，
+    // 这里统一改用本文件的 OCR 组合节点，不改基座。
+    "__TeleportButtonText": {
+        "desc": "CloudWeb：传送按钮文字（ROI 对齐基座按钮框，排除本地地图的“前往传送”）",
+        "recognition": "OCR",
+        // 文字行 ROI 对齐基座 __TeleportButton 的按钮框 [1160,600,120,120]：
+        // 44px 只够约两个汉字，放不下 Teleport（约 88px），英文界面会整段漏识别。
+        "roi": [
+            1160,
+            646,
+            120,
+            32
+        ],
+        "expected": [
+            "传送",
+            "傳送",
+            "(?i)Teleport",
+            "転送"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__TeleportButton": {
+        "desc": "CloudWeb：传送按钮（OCR 文字，返回文字框）",
+        "recognition": "And",
+        "all_of": [
+            "__TeleportButtonText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "QuickTeleportButton": {
+        "desc": "CloudWeb：前往传送按钮（取文字 OCR 框作为点击目标）",
+        "recognition": "And",
+        "all_of": [
+            "__TeleportMapAny",
+            "__QuickTeleportButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "TeleportButton": {
+        "desc": "CloudWeb：传送按钮（取文字 OCR 框作为点击目标）",
+        "recognition": "And",
+        "all_of": [
+            "__TeleportMapAny",
+            "__TeleportButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

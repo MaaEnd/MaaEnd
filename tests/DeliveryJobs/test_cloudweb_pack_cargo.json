@@ -1,0 +1,21 @@
+{
+    "configs": {
+        "name": "CloudWeb 调度申请转交委托",
+        "resource": ["官服"],
+        "controller": ["CloudWeb"]
+    },
+    "cases": [
+        {
+            "name": "调度申请：识别开始运送/快速转交",
+            "image": "云终末地_地区建设_仓储节点_调度申请_快速转交.png",
+            "hits": [
+                "__CloudWebDeliveryJobsYellowButton",
+                "__CloudWebDeliveryJobsWhiteButton",
+                "DeliveryJobsInCargoRedistributionBid",
+                "DeliveryJobsDecideQuickTransfer",
+                "DeliveryJobsQuickTransfer",
+                "DeliveryJobsRedistributionBidNextStep"
+            ]
+        }
+    ]
+}

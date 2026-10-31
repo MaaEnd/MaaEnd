@@ -1,0 +1,39 @@
+{
+    "configs": {
+        "name": "CloudWeb 启动流程",
+        "resource": ["官服"],
+        "controller": ["CloudWeb"]
+    },
+    "cases": [
+        {
+            "name": "SDK 快速登录弹窗",
+            "image": "登录_快速登录弹窗.png",
+            "hits": ["CloudWebLoginClick"]
+        },
+        {
+            "name": "标题界面点击继续",
+            "image": "标题_点击任意位置继续.png",
+            "hits": ["CloudWebTitleClick"]
+        },
+        {
+            "name": "落地页（开始游戏按钮）",
+            "image": "落地页_开始游戏.png",
+            "hits": ["CloudWebStartButtonClick"]
+        },
+        {
+            "name": "启动等待（游戏启动中，不得命中开始游戏）",
+            "image": "启动_游戏启动中.png",
+            "hits": ["CloudWebStartingWait"]
+        },
+        {
+            "name": "已进入大世界",
+            "image": "大世界_站立.png",
+            "hits": ["CloudWebWorldReady"]
+        },
+        {
+            "name": "大世界（技能特效；登录/标题/排队不命中）",
+            "image": "大世界_技能特效.png",
+            "hits": ["CloudWebWorldReady"]
+        }
+    ]
+}

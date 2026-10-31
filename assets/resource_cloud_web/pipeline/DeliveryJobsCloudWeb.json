@@ -1,0 +1,167 @@
+{
+    // CloudWeb：调度申请界面的黄底「开始运送」/白底「快速转交」图标在云画面下
+    // 模板分数不足（0.69–0.75，低于 CloudWeb 的 0.85 阈值），但按钮底色稳定可辨。
+    // 这里只覆盖转交委托的按钮门控，改用底色 + 调度申请标题；不动基座阈值，
+    // 也不影响 Win32/ADB。
+    "__CloudWebDeliveryJobsYellowButton": {
+        "desc": "CloudWeb：调度申请底部黄底开始运送按钮（底色识别）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1040,
+                    636,
+                    220,
+                    52
+                ],
+                "method": 40,
+                "lower": [
+                    28,
+                    100,
+                    100
+                ],
+                "upper": [
+                    29,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 1200
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__CloudWebDeliveryJobsWhiteButton": {
+        "desc": "CloudWeb：调度申请底部白底快速转交按钮（底色识别）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    830,
+                    636,
+                    210,
+                    52
+                ],
+                "lower": [
+                    [
+                        255,
+                        253,
+                        253
+                    ],
+                    [
+                        238,
+                        236,
+                        236
+                    ],
+                    [
+                        153,
+                        152,
+                        152
+                    ]
+                ],
+                "upper": [
+                    [
+                        255,
+                        253,
+                        253
+                    ],
+                    [
+                        239,
+                        237,
+                        237
+                    ],
+                    [
+                        167,
+                        165,
+                        165
+                    ]
+                ],
+                "connected": true,
+                "count": 800
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsRedistributionBidNextStep": {
+        "recognition": "And",
+        "all_of": [
+            "__CloudWebDeliveryJobsYellowButton",
+            "DeliveryJobsInCargoRedistributionBid"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsDeliverQuickly",
+            "DeliveryJobsBackToDepot"
+        ]
+    },
+    "DeliveryJobsDecideQuickTransfer": {
+        "recognition": "And",
+        "all_of": [
+            "__CloudWebDeliveryJobsYellowButton",
+            "DeliveryJobsInCargoRedistributionBid"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                820,
+                632,
+                450,
+                62
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsQuickTransfer",
+            "DeliveryJobsRedistributionBidNextStep"
+        ]
+    },
+    "DeliveryJobsQuickTransfer": {
+        "recognition": "And",
+        "all_of": [
+            "__CloudWebDeliveryJobsWhiteButton",
+            "DeliveryJobsInCargoRedistributionBid"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsQuickTransferConfirm"
+        ]
+    },
+    "DeliveryJobsQuickTransferReward": {
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckRewardHeader"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "DeliveryJobsCheckRewardHeader",
+            "repeat_count": 10,
+            "interval_ms": 500
+        },
+        "target": [
+            622,
+            610,
+            36,
+            36
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsQuickTransferBackToLocalDepotNode"
+        ]
+    }
+}
