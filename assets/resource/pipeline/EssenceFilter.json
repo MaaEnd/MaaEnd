@@ -57,7 +57,33 @@
         "post_wait_freezes": 400,
         "post_delay": 0,
         "next": [
-            "EssenceFilterSwitchTab"
+            "EssenceFilterSwitchTab",
+            "EssenceFilterSwitchTabChoose"
+        ]
+    },
+    "EssenceFilterSwitchTabChoose": {
+        "desc": "点击武器库后基质子页签仍为选中态时，直接点击确认进入",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    350,
+                    0,
+                    500,
+                    80
+                ],
+                "template": "EssenceFilter/EssenceTabChoose.png",
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 400,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterCheckInInventory"
         ]
     },
     "EssenceFilterSwitchTab": {
