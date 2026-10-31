@@ -18,7 +18,16 @@
                 ]
             }
         },
-        "pre_wait_freezes": 200,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"
@@ -41,7 +50,16 @@
                 ]
             }
         },
-        "pre_wait_freezes": 100,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -122,7 +140,16 @@
                 "box_index": 1
             }
         },
-        "pre_wait_freezes": 200,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"
@@ -171,13 +198,14 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
                 0,
                 0,
-                300,
-                100
-            ]
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -211,7 +239,16 @@
                 "box_index": 2
             }
         },
-        "pre_wait_freezes": 200,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"
@@ -246,11 +283,12 @@
         "pre_wait_freezes": {
             "time": 200,
             "target": [
-                -300,
                 0,
-                300,
-                150
-            ]
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -272,18 +310,27 @@
                 "box_index": 1
             }
         },
-        "pre_wait_freezes": 200,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 150,
+            "time": 200,
             "target": [
-                1073,
                 0,
-                117,
-                56
+                0,
+                0,
+                0
             ],
             "timeout": 2000
         },
@@ -450,14 +497,14 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
-                880,
-                120,
-                380,
-                520
+                0,
+                0,
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -525,12 +572,12 @@
         "post_wait_freezes": {
             "time": 500,
             "target": [
-                746,
-                170,
-                499,
-                500
+                0,
+                0,
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -580,12 +627,12 @@
         "post_wait_freezes": {
             "time": 500,
             "target": [
-                746,
-                170,
-                499,
-                500
+                0,
+                0,
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -635,12 +682,12 @@
         "post_wait_freezes": {
             "time": 500,
             "target": [
-                746,
-                170,
-                499,
-                500
+                0,
+                0,
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -690,12 +737,12 @@
         "post_wait_freezes": {
             "time": 500,
             "target": [
-                746,
-                170,
-                499,
-                500
+                0,
+                0,
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -745,12 +792,12 @@
         "post_wait_freezes": {
             "time": 500,
             "target": [
-                746,
-                170,
-                499,
-                500
+                0,
+                0,
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -800,12 +847,12 @@
         "post_wait_freezes": {
             "time": 500,
             "target": [
-                746,
-                170,
-                499,
-                500
+                0,
+                0,
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -855,12 +902,12 @@
         "post_wait_freezes": {
             "time": 500,
             "target": [
-                746,
-                170,
-                499,
-                500
+                0,
+                0,
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -904,14 +951,14 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
-                880,
-                120,
-                380,
-                520
+                0,
+                0,
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -937,14 +984,14 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
-                880,
-                120,
-                380,
-                520
+                0,
+                0,
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1080,14 +1127,14 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
                 0,
                 0,
-                300,
-                100
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1106,7 +1153,16 @@
             }
         },
         "pre_delay": 0,
-        "post_wait_freezes": 200,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1131,21 +1187,30 @@
                 ]
             }
         },
-        "pre_wait_freezes": 200,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
+        },
         "pre_delay": 600,
         // 界面切换（打开/关闭/退出）后游戏约 750ms 内忽略点击（转场输入锁定窗口，实测见 #6586）；加 600ms 使实际点击间隔 ≥1.1s
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
                 0,
                 0,
-                300,
-                100
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1221,11 +1286,12 @@
         "pre_wait_freezes": {
             "time": 200,
             "target": [
-                -300,
                 0,
-                300,
-                150
-            ]
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -1277,12 +1343,12 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 150,
+            "time": 200,
             "target": [
-                1073,
                 0,
-                117,
-                56
+                0,
+                0,
+                0
             ],
             "timeout": 2000
         },
@@ -1301,12 +1367,12 @@
         ],
         "box_index": 1,
         "pre_wait_freezes": {
-            "time": 150,
+            "time": 200,
             "target": [
-                1073,
                 0,
-                117,
-                56
+                0,
+                0,
+                0
             ],
             "timeout": 2000
         },
@@ -1317,12 +1383,12 @@
         "post_wait_freezes": {
             "time": 200,
             "target": [
-                1162,
-                193,
-                118,
-                303
+                0,
+                0,
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1420,11 +1486,12 @@
         "post_wait_freezes": {
             "time": 1000,
             "target": [
-                1128,
                 0,
-                83,
-                42
-            ]
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "rate_limit": 0,
         "next": [
@@ -1450,11 +1517,12 @@
         "post_wait_freezes": {
             "time": 1000,
             "target": [
-                1128,
                 0,
-                83,
-                42
-            ]
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "rate_limit": 0,
         "next": [
@@ -1480,11 +1548,12 @@
         "post_wait_freezes": {
             "time": 1000,
             "target": [
-                1128,
                 0,
-                83,
-                42
-            ]
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "rate_limit": 0,
         "next": [
@@ -1510,11 +1579,12 @@
         "post_wait_freezes": {
             "time": 1000,
             "target": [
-                1128,
                 0,
-                83,
-                42
-            ]
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "rate_limit": 0,
         "next": [
@@ -1540,11 +1610,12 @@
         "post_wait_freezes": {
             "time": 1000,
             "target": [
-                1128,
                 0,
-                83,
-                42
-            ]
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "rate_limit": 0,
         "next": [
@@ -1570,11 +1641,12 @@
         "post_wait_freezes": {
             "time": 1000,
             "target": [
-                1128,
                 0,
-                83,
-                42
-            ]
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "rate_limit": 0,
         "next": [
@@ -1600,11 +1672,12 @@
         "post_wait_freezes": {
             "time": 1000,
             "target": [
-                1128,
                 0,
-                83,
-                42
-            ]
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "rate_limit": 0,
         "next": [
@@ -1628,11 +1701,12 @@
         "post_wait_freezes": {
             "time": 500,
             "target": [
-                1065,
                 0,
-                179,
-                41
-            ]
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "next": [
             "SceneNoticeRewardsConfirm"
@@ -1729,7 +1803,16 @@
                 ]
             }
         },
-        "pre_wait_freezes": 200,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"
@@ -1762,13 +1845,14 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
-                -300,
                 0,
-                300,
-                150
-            ]
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "pre_delay": 0,
         "action": {
@@ -1800,13 +1884,14 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
-                -300,
                 0,
-                300,
-                150
-            ]
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "pre_delay": 0,
         "action": {
@@ -1840,11 +1925,12 @@
         "pre_wait_freezes": {
             "time": 1000,
             "target": [
-                -450,
-                -300,
-                450,
-                300
-            ]
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -1938,13 +2024,13 @@
         "pre_wait_freezes": {
             "time": 300,
             "target": [
-                528,
-                299,
-                222,
-                131
+                0,
+                0,
+                0,
+                0
             ],
-            "threshold": 0.97,
-            "timeout": 1500
+            "timeout": 2000,
+            "threshold": 0.97
         },
         "pre_delay": 0,
         "action": {
@@ -1979,10 +2065,10 @@
         "post_wait_freezes": {
             "time": 400,
             "target": [
-                500,
                 0,
-                280,
-                200
+                0,
+                0,
+                0
             ],
             "timeout": 2000
         },
@@ -2005,7 +2091,16 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2019,12 +2114,12 @@
             "CloseButtonType1"
         ],
         "pre_wait_freezes": {
-            "time": 150,
+            "time": 200,
             "target": [
-                1073,
                 0,
-                117,
-                56
+                0,
+                0,
+                0
             ],
             "timeout": 2000
         },
@@ -2080,7 +2175,16 @@
                 ]
             }
         },
-        "pre_wait_freezes": 100,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -2197,14 +2301,14 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 80,
+            "time": 200,
             "target": [
                 0,
                 0,
                 0,
                 0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "pre_delay": 0,
         "action": {
@@ -2214,14 +2318,14 @@
             }
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
-                859,
-                189,
-                388,
-                119
+                0,
+                0,
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -2237,7 +2341,16 @@
             "CloseButtonType1"
         ],
         "box_index": 1,
-        "pre_wait_freezes": 100,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"

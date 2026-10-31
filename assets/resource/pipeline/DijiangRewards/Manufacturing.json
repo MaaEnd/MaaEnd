@@ -12,8 +12,14 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 100,
-            "timeout": 1000
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "pre_delay": 600,
         // 界面切换（打开/关闭/退出）后游戏约 750ms 内忽略点击（转场输入锁定窗口，实测见 #6586）；加 600ms 使实际点击间隔 ≥1.1s
@@ -25,10 +31,10 @@
             "target": [
                 0,
                 0,
-                375,
-                578
+                0,
+                0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -49,8 +55,14 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 100,
-            "timeout": 1000
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -90,8 +102,14 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 150,
-            "timeout": 1000
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -112,22 +130,28 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 80,
+            "time": 200,
             "target": [
                 0,
                 0,
                 0,
                 0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
-            "timeout": 1000
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -148,7 +172,13 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 150,
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
             "timeout": 2000
         },
         "post_delay": 0,
@@ -171,13 +201,13 @@
         "pre_wait_freezes": {
             "time": 300,
             "target": [
-                528,
-                299,
-                222,
-                131
+                0,
+                0,
+                0,
+                0
             ],
-            "threshold": 0.97,
-            "timeout": 1500
+            "timeout": 2000,
+            "threshold": 0.97
         },
         "pre_delay": 0,
         "action": {
@@ -209,8 +239,14 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
-            "timeout": 1000
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -229,8 +265,14 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 100,
-            "timeout": 1000
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "pre_delay": 0,
         "action": {
@@ -276,8 +318,14 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 100,
-            "timeout": 1000
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "pre_delay": 0,
         "action": {
@@ -362,8 +410,14 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 100,
-            "timeout": 1000
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "pre_delay": 0,
         "action": {
@@ -386,22 +440,28 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 80,
+            "time": 200,
             "target": [
                 0,
                 0,
                 0,
                 0
             ],
-            "timeout": 1000
+            "timeout": 2000
         },
         "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
-            "timeout": 1000
+            "time": 200,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0
