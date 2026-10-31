@@ -2,7 +2,7 @@
 
 This document describes the file distribution and execution flow of `CreditShopping`.  
 Purchase conditions are not independent switches but an entire screening chain from `Item/` to `Flow/`; maintenance requires understanding this chain.  
-This document was updated on October 15, 2026.
+This document was updated on October 17, 2026.
 
 ## File Paths
 
@@ -13,7 +13,7 @@ CreditShopping/
 │   ├── Scan.json          # Shelf scan gate + snapshot (triggers buy decision loop)
 │   ├── BuyAction.json     # 3-tier purchase / blacklist / prudent refresh / nothing to buy
 │   ├── BuyItem.json       # Purchase confirm / failure / force-buy price reserve check
-│   └── Special.json       # ADB swipe / shelf swipe utility nodes / unable to buy on refresh / refresh item
+│   └── Special.json       # unable to buy on refresh / refresh item
 ├── Credit/                # Credit management
 │   ├── Reserve.json       # Reserve threshold detection + current credit OCR
 │   ├── AutoGetCredits.json# Auto credit replenishment (jump to base when unaffordable)
@@ -57,14 +57,6 @@ Other related files:
 ### Claiming Credits
 
 Implemented in `Credit/ClaimCredit.json`. After entering the credit exchange, first attempt to claim pending credits; if none are available, proceed directly to scanning without blocking the main flow.
-
-### Shelf Snapshot and Two-Screen Merge
-
-On ADB, one screen cannot show both rows: when the first row's names and discounts are fully visible, the second row's names are not, and once the second row is fully visible, the first row's discounts are not. So `RecordShelfSnapshotsAction` (`CreditShoppingScanItemAction` in `Flow/Scan.json`) takes two screenshots on ADB and then merges them by slot. The snapshot is only written to `CreditShoppingShelfSnapshots.json` for analysis and does not drive purchases; with "Keep shelf records" off, the node becomes `DoNothing`.
-
-The swipes do not operate the controller directly; instead, `ctx.RunAction` calls two utility nodes: `CreditShoppingSwipeShelfDown` between the two screenshots, and `CreditShoppingSwipeShelfUp` after the second one to swipe back to the first screen. The base resource defines both as `DoNothing` for Win32 (one screen shows everything), and `resource_adb` overrides them with the actual swipe parameters and stability wait. Platform differences therefore stay in the resource bundles: the Go side does not swipe directly and only uses `isADBController` to choose the one-screen or two-screen path.
-
-Win32 takes the `slotAssignPC` single-screen path and does not go through these two nodes.
 
 ### attach and Whitelist Initialization
 

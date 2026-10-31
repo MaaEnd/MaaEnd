@@ -112,7 +112,7 @@ captureuid.ClearCache()
 | 使用方 | 文件 | 方式 | 用途 |
 | ---------------------- | ------------------------------------------------------------------------------------ | ------------------------- | ------------------------ |
 | AutoStockpile selector | `agent/go-service/autostockpile/selector.go` | Go API（`Capture`） | 上传物价时关联伪匿名身份 |
-| CreditShopping | `agent/go-service/creditshopping/action_record.go` | Go API（`Capture`） | 记录货架快照时关联 UID |
+| CreditShopping | `agent/go-service/creditshopping/record_action.go` | Go API（`Capture`） | 记录货架快照时关联 UID |
 | OutpostTrading | `assets/resource/pipeline/OutpostTrading.json`（`OutpostTradingCaptureUid` 节点）、`agent/go-service/outposttrading/operator/cache.go` | Pipeline（`CaptureUid`）+ Go API（`GetCachedUID`） | 按账号隔离干员缓存 |
 | AccountSwitch | `assets/resource/pipeline/AccountSwitch.json`（`__AccountSwitchClearUidCache` 节点） | Pipeline（`clear_cache`） | 切换账号后清空缓存 |
 | SceneImageCheck | `assets/resource/pipeline/SceneManager/SceneImageCheck.json`（`__SceneImageCaptureUid`） | Pipeline（空参 `CaptureUid`） | 场景画面检查时发布 `CurrentAccountIdentity` |

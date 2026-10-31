@@ -1,0 +1,25 @@
+{
+    "CreditShoppingPriority2Item": {
+        "desc": "优先购买2物品。item_ids 由 CreditShoppingApplyPriorityItems 写入",
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "credit_trade",
+            "item_ids": [
+                "item_gold"
+            ],
+            "order_by": "natural",
+            "deduplicate": true
+        },
+        "roi": [
+            70,
+            95,
+            1140,
+            415
+        ],
+        "index": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
