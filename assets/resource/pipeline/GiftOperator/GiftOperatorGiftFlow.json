@@ -115,25 +115,6 @@
             "GiftOperatorBagFull"
         ]
     },
-    "GiftOperatorReceiveError": {
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "SceneAnyEnterWorld"
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "FailedNode"
-        ]
-    },
     "GiftOperatorClickGift": {
         "desc": "选择礼物",
         "recognition": {
