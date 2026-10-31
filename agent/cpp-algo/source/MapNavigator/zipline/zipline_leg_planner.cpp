@@ -195,6 +195,19 @@ std::vector<navmesh::WorldPoint>
     return spots;
 }
 
+bool snaps_onto_tower_floor(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const navmesh::WorldPoint& point,
+    const zipline::ZiplineNode& tower)
+{
+    const auto snap = NavmeshSnapAt(param, locator_zone, point, kMountStandSnapRadiusPx, tower.height);
+    if (!snap || snap->distance > kMountStandSnapTolPx || std::abs(snap->height - tower.height) > navmesh::kBaseNavFloorBand) {
+        return false;
+    }
+    return true;
+}
+
 // 沿供电结构到架子的方向往外挪, 让架子重新成为离身位最近的设备
 std::optional<navmesh::WorldPoint> mount_stand_point(
     const NaviParam& param,
@@ -219,8 +232,7 @@ std::optional<navmesh::WorldPoint> mount_stand_point(
         .x = here.x + (here.x - nearest->x) / nearest_distance * kMountStandOffsetPx,
         .y = here.y + (here.y - nearest->y) / nearest_distance * kMountStandOffsetPx,
     };
-    const auto snap = NavmeshSnapAt(param, locator_zone, stand, kMountStandSnapRadiusPx, tower.height);
-    if (!snap || snap->distance > kMountStandSnapTolPx || std::abs(snap->height - tower.height) > navmesh::kBaseNavFloorBand) {
+    if (!snaps_onto_tower_floor(param, locator_zone, stand, tower)) {
         return std::nullopt;
     }
     LogDebug << "ZiplineRoute: keeping a spot clear of the power structure next to the mount tower" << VAR(tower.x) << VAR(tower.y)
@@ -245,8 +257,7 @@ std::vector<navmesh::WorldPoint> mount_spots(
     const double toward_y = anchor.y - approach_from.y;
     std::vector<std::pair<double, navmesh::WorldPoint>> ranked;
     for (const navmesh::WorldPoint& spot : center_spots(frame, tower, footprint)) {
-        const auto snap = NavmeshSnapAt(param, locator_zone, spot, kMountStandSnapRadiusPx, tower.height);
-        if (!snap || snap->distance > kMountStandSnapTolPx || std::abs(snap->height - tower.height) > navmesh::kBaseNavFloorBand) {
+        if (!snaps_onto_tower_floor(param, locator_zone, spot, tower)) {
             continue;
         }
         ranked.emplace_back((spot.x - anchor.x) * toward_x + (spot.y - anchor.y) * toward_y, spot);
@@ -497,6 +508,18 @@ struct PlannedLeg
     double length = 0.0;
     NavmeshRouteDiagnostic diagnostic;
 };
+
+std::optional<PlannedLeg> to_planned_leg(const std::optional<navmesh::BaseNavRouteResult>& route, NavmeshRouteDiagnostic diagnostic)
+{
+    if (!route || !route->ok()) {
+        return std::nullopt;
+    }
+    return PlannedLeg {
+        .path = route->path,
+        .length = polyline_length(route->path),
+        .diagnostic = std::move(diagnostic),
+    };
+}
 
 enum class LegLookup
 {
@@ -936,14 +959,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
                     .goal_deck_y = nodes[spot_tower[index]].height,
                 },
                 capture_diagnostics ? &diagnostic : nullptr);
-            if (!route || !route->ok()) {
-                return std::nullopt;
-            }
-            return PlannedLeg {
-                .path = route->path,
-                .length = polyline_length(route->path),
-                .diagnostic = std::move(diagnostic),
-            };
+            return to_planned_leg(route, std::move(diagnostic));
         },
         plan_budget);
 
@@ -960,14 +976,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
                     .goal_deck_y = goal_deck_y,
                 },
                 capture_diagnostics ? &diagnostic : nullptr);
-            if (!route || !route->ok()) {
-                return std::nullopt;
-            }
-            return PlannedLeg {
-                .path = route->path,
-                .length = polyline_length(route->path),
-                .diagnostic = std::move(diagnostic),
-            };
+            return to_planned_leg(route, std::move(diagnostic));
         },
         plan_budget);
 
