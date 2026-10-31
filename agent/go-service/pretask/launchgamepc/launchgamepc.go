@@ -244,6 +244,13 @@ func runLauncher(windowRegex *regexp.Regexp) bool {
 		Str("title", windowRegex.String()).
 		Msg("launcher window found")
 
+	// 在静置等待前还原，还原后的重绘落在静置时间内；最小化窗口的坐标不在任何显示器上，也需先还原再判断是否移到主屏
+	if restoreLauncherWindow(hWnd) {
+		log.Info().
+			Str("component", component).
+			Msg("launcher window was minimized, restored")
+	}
+
 	log.Info().
 		Str("component", component).
 		Dur("wait", launcherWindowSettleWait).

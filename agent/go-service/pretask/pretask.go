@@ -4,11 +4,13 @@ import (
 	"os"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/launchgamepc"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/launchgameplaycover"
 	"github.com/rs/zerolog/log"
 )
 
 func init() {
 	Register("LaunchGamePC", launchgamepc.Run)
+	Register("LaunchGamePlayCover", launchgameplaycover.Run)
 }
 
 // Handler 是 pretask 的执行函数：成功返回 true，失败返回 false。

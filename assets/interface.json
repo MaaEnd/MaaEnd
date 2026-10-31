@@ -203,6 +203,7 @@
     "import": [
         // pretask
         "tasks/pretasks/LaunchGamePC.json",
+        "tasks/pretasks/LaunchGamePlayCover.json",
         // group: regional_development
         "tasks/OutpostTrading.json",
         "tasks/SeizeDeliveryJobs.json",
@@ -266,6 +267,7 @@
         "tasks/ClaimSimulationRewards.json",
         "tasks/TrialOfSwordmancy.json",
         "tasks/UmbralMonument.json",
+        "tasks/ArenaOfGames.json",
         "tasks/CreditShopping.json",
         "tasks/AccountSwitch.json",
         "tasks/LaunchGameLinux.json",
@@ -275,6 +277,7 @@
         "tasks/AndroidOpenGame.json",
         "tasks/CloseGame.json",
         "tasks/CloseGamePC.json",
+        "tasks/CloseGamePlayCover.json",
         // group: realtime
         "tasks/RealTimeTask.json",
         // group: backpack

@@ -1,6 +1,6 @@
 {
     "version": "1.6.4+11262943-8",
-    "sha256": "1a16f73ec344e5c65f872c2acf775139c5ad4f732f79bf87200e0f9cb8d5b742",
+    "sha256": "f98a430a2c1e6451e974efcde72004970557dd1676888e59ec6147dd9c3d3787",
     "regions": {
         "domain_1": {
             "names": {
@@ -31,6 +31,7 @@
                 "ja_jp": "源石研究パーク",
                 "ko_kr": "오리지늄 연구 구역"
             },
+            "max_base_quote": 192000,
             "fillable_items": [
                 "item_agfly_1_agmelee_1_moss_2_1",
                 "item_agmelee_1_moss_1_lbmob_1_1",
@@ -303,6 +304,7 @@
                 "ja_jp": "鉱山エリア",
                 "ko_kr": "광맥 구역"
             },
+            "max_base_quote": 312000,
             "fillable_items": [
                 "item_agfly_1_agmelee_1_moss_2_1",
                 "item_agmelee_1_moss_1_lbmob_1_1",
@@ -575,6 +577,7 @@
                 "ja_jp": "エネルギー高地",
                 "ko_kr": "에너지 공급 고지"
             },
+            "max_base_quote": 336000,
             "fillable_items": [
                 "item_agfly_1_agmelee_1_moss_2_1",
                 "item_agmelee_1_moss_1_lbmob_1_1",
@@ -847,6 +850,7 @@
                 "ja_jp": "武陵城",
                 "ko_kr": "무릉성"
             },
+            "max_base_quote": 129600,
             "fillable_items": [
                 "item_agfly_1_agmelee_1_moss_2_1",
                 "item_agmelee_1_moss_1_lbmob_1_1",
@@ -1119,6 +1123,7 @@
                 "ja_jp": "実験区域",
                 "ko_kr": "실험 구역"
             },
+            "max_base_quote": 172800,
             "fillable_items": [
                 "item_agfly_1_agmelee_1_moss_2_1",
                 "item_agmelee_1_moss_1_lbmob_1_1",
