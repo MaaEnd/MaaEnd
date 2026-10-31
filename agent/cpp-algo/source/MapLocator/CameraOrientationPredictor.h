@@ -5,18 +5,24 @@
 #include <mutex>
 #include <optional>
 #include <string>
+#include <vector>
 
+#ifndef MAAEND_WITH_NCNN
 #include <onnxruntime/onnxruntime_cxx_api.h>
+#endif
 
 #include <MaaUtils/NoWarningCV.hpp>
 
 #include "CameraOrientationPreprocess.h"
 #include "MapTypes.h"
+#ifdef MAAEND_WITH_NCNN
+#include "NcnnModel.h"
+#endif
 
 namespace maplocator
 {
 
-// 摄像机朝向推理：预处理 + 交付工件 map/cameraorientation/polar_with_ref.onnx。
+// 摄像机朝向推理：预处理 + map/cameraorientation/polar_with_ref（Android ncnn，桌面 onnx）。
 //
 // 预处理（极坐标几何、参考采样与条带域合成）由 BuildOrientationStrips 执行：
 // 输入观测 ROI + zone 底图资产 + 定位 (x, y, scale)，输出观测条带与参考条带。
@@ -53,7 +59,14 @@ public:
         std::optional<double> camera_heading_prior = std::nullopt);
 
     // 参考配对分类器可用才允许推理。
-    bool isLoaded() const { return refSession != nullptr; }
+    bool isLoaded() const
+    {
+#ifdef MAAEND_WITH_NCNN
+        return ncnn_model_ != nullptr;
+#else
+        return refSession != nullptr;
+#endif
+    }
 
 private:
     std::optional<CameraOrientation> infer(
@@ -64,18 +77,26 @@ private:
         double scale,
         const std::string& zoneId,
         std::optional<double> camera_heading_prior);
+#ifndef MAAEND_WITH_NCNN
     bool loadSession(
         const std::string& modelPath,
         const char* tag,
         const Ort::SessionOptions& options,
         std::unique_ptr<Ort::Session>* out_session);
+#endif
 
     std::optional<CameraOrientation> decodePmf(const float* pmf, size_t count, std::optional<double> camera_heading_prior) const;
 
+#ifdef MAAEND_WITH_NCNN
+    std::unique_ptr<NcnnModel> ncnn_model_;
+    std::vector<float> chw_scratch_;    // ncnn：7 通道 float CHW 输入
+    std::vector<float> output_scratch_; // ncnn：pmf
+#else
     std::unique_ptr<Ort::Env> ortEnv;
     std::unique_ptr<Ort::Session> refSession;
+#endif
 
-    // Ort::Session::Run 线程安全，但预测共用的条带与拼接 scratch 不是；防多帧 locate 并发。
+    // 预测共用条带与拼接 scratch；防多帧 locate 并发。
     std::mutex predictMutex;
     OrientationStrips stripScratch;
     cv::Mat refInputScratch; // 7 通道 NHWC 拼接输入
