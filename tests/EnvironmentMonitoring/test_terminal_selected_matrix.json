@@ -1,0 +1,24 @@
+{
+    "configs": {
+        "name": "环境监测终端通用选中态矩阵",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB",
+            "CloudADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "武陵_环境监测终端_城郊已选中.png",
+            "hits": [
+                "EnvironmentMonitoringInMonitoringTerminal",
+                "EnvironmentMonitoringInOutskirtsMonitoringTerminal"
+            ]
+        },
+        {
+            "image": "帝江号_大世界.png",
+            "hits": []
+        }
+    ]
+}

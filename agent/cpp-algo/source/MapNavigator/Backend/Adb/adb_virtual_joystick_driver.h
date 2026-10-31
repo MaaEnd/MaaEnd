@@ -1,17 +1,12 @@
 #pragma once
 
-#include <memory>
 #include <optional>
 
 #include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/NoWarningCV.hpp>
 
-namespace maplocator
-{
-
-class MapLocator;
-
-} // namespace maplocator
+#include "../../navi_config.h"
+#include "../backend.h"
 
 namespace mapnavigator::backend::adb
 {
@@ -20,7 +15,7 @@ struct AdbVirtualJoystickDriverConfig
 {
     cv::Point control_origin { 198, 552 };
     cv::Rect control_roi { 89, 443, 219, 219 };
-    cv::Size frame_size { 1280, 720 };
+    cv::Size frame_size { kWorkWidth, kWorkHeight };
     int contact_id = 8;
     int drag_radius = 72;
     double walk_drag_ratio = 0.25;
@@ -34,33 +29,17 @@ struct AdbVirtualJoystickDriverConfig
 class AdbVirtualJoystickDriver
 {
 public:
-    AdbVirtualJoystickDriver(
-        MaaController* controller,
-        std::shared_ptr<maplocator::MapLocator> locator,
-        AdbVirtualJoystickDriverConfig config = {});
+    explicit AdbVirtualJoystickDriver(MaaController* controller, AdbVirtualJoystickDriverConfig config = {});
     ~AdbVirtualJoystickDriver();
 
-    bool SetMovementState(bool forward, bool left, bool backward, bool right, int delay_millis);
-    bool PulseForward(int hold_millis);
-    bool Release(int delay_millis);
-    bool SetWalking(bool walking);
+    bool setMovementState(MovementState state, int delay_millis);
+    bool pulseForward(int hold_millis);
+    bool release(int delay_millis);
+    bool setWalking(bool walking);
 
     bool walking() const { return walking_; }
 
 private:
-    enum class Direction
-    {
-        kNone,
-        kForward,
-        kForwardLeft,
-        kLeft,
-        kBackwardLeft,
-        kBackward,
-        kBackwardRight,
-        kRight,
-        kForwardRight,
-    };
-
     struct ControlGeometry
     {
         cv::Point control_origin {};
@@ -68,22 +47,21 @@ private:
         cv::Size frame_size {};
     };
 
-    Direction ResolveDirection(bool forward, bool left, bool backward, bool right) const;
-    std::optional<ControlGeometry> AcquireControlGeometry();
-    bool BeginDirectionalDrag(Direction direction);
-    bool UpdateDirectionalDrag(Direction direction);
-    bool PostTouchDown(const cv::Point& point) const;
-    bool PostTouchMove(const cv::Point& point) const;
-    bool PostTouchUp() const;
-    cv::Point ComputeTargetPoint(Direction direction) const;
-    cv::Point DirectionVector(Direction direction) const;
-    int ComputeDragRadius() const;
-    static cv::Point ClampPoint(cv::Point point, const cv::Size& bounds);
-    static void SleepIfNeeded(int delay_millis);
+    std::optional<ControlGeometry> acquireControlGeometry();
+    bool beginDirectionalDrag(cv::Point direction);
+    bool updateDirectionalDrag(cv::Point direction);
+    void clearContact();
+    bool postTouchDown(const cv::Point& point) const;
+    bool postTouchMove(const cv::Point& point) const;
+    bool postTouchUp() const;
+    cv::Point computeTargetPoint(cv::Point direction) const;
+    int computeDragRadius() const;
+    static cv::Point clampPoint(cv::Point point, const cv::Size& bounds);
 
     MaaController* controller_ = nullptr;
     AdbVirtualJoystickDriverConfig config_;
-    Direction active_direction_ = Direction::kNone;
+    // 推杆方向, x 向右为正, y 向后为正, 分量只取 -1/0/1, 零向量表示没推
+    cv::Point active_direction_ {};
     bool touch_active_ = false;
     bool walking_ = false;
     std::optional<ControlGeometry> active_geometry_;

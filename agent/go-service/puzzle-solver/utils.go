@@ -33,7 +33,8 @@ func matchTemplateAll(ctx *maa.Context, img image.Image, template string, roi []
 			"threshold":   0.667,
 			"roi":         roi,
 			"order_by":    "score",
-			"method":      5, // TM_CCOEFF_NORMED
+			"method":      5,    // TM_CCOEFF_NORMED
+			"green_mask":  true, // ignore pure green template pixels, e.g. the interior of projection bars
 		},
 	}
 
@@ -199,7 +200,9 @@ func getPixelHSV(img image.Image, x, y int, targetHue int, targetHueAllowance in
 	return h, s, v
 }
 
-// getSVGBImage returns a new image where the R, G, B channels are replaced by 0, Saturation, Value.
+// getSVGBImage returns a new image where the R, G, B channels are replaced by 0, Saturation*Value, Value.
+// Saturation*Value (chroma) is used instead of Saturation, because near-black pixels can still be highly saturated
+// (e.g. the dark red background of some boards), which would break the projection figure template matching.
 func getSVGBImage(img image.Image) image.Image {
 	bounds := img.Bounds()
 	newImg := image.NewRGBA(bounds)
@@ -211,7 +214,7 @@ func getSVGBImage(img image.Image) image.Image {
 
 			_, s, v := rgbToHSV(fr, fg, fb)
 
-			newImg.SetRGBA(x, y, color.RGBA{0, uint8(s * 255), uint8(v * 255), 255})
+			newImg.SetRGBA(x, y, color.RGBA{0, uint8(s * v * 255), uint8(v * 255), 255})
 		}
 	}
 	return newImg

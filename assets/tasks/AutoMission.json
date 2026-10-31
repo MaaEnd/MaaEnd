@@ -1,0 +1,19 @@
+{
+    "task": [
+        {
+            "name": "AutoMission",
+            "label": "$task.AutoMission.label",
+            "entry": "AutoMissionMain",
+            "group": [
+                "open_world"
+            ],
+            "controller": [
+                "Win32-Front"
+            ],
+            "option": [
+                "AutoFightSettingFull"
+            ]
+        }
+    ],
+    "option": {}
+}

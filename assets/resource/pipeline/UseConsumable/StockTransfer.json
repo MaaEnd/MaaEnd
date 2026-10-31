@@ -1,0 +1,338 @@
+{
+    "UseConsumableStockFindItemSlot1": {
+        "enabled": true,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_recheck_filters": [
+                        "Normal:Usable"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    154,
+                    202,
+                    585,
+                    291
+                ]
+            }
+        },
+        "next": [
+            "UseConsumableStockTransferBeginSlot1"
+        ]
+    },
+    "UseConsumableStockTransferBeginSlot1": {
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 16,
+        "next": [
+            "UseConsumableStockTransferClickSlot1"
+        ]
+    },
+    "UseConsumableStockTransferClickSlot1": {
+        "action": "Click",
+        "target": "UseConsumableStockFindItemSlot1",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "next": [
+            "UseConsumableStockTransferReleaseSlot1"
+        ]
+    },
+    "UseConsumableStockTransferReleaseSlot1": {
+        "action": "KeyUp",
+        "key": 16,
+        "next": [
+            "UseConsumableStockTransferMoveMouseAwaySlot1"
+        ]
+    },
+    "UseConsumableStockFindItemSlot2": {
+        "enabled": true,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_recheck_filters": [
+                        "Normal:Usable"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    154,
+                    202,
+                    585,
+                    291
+                ]
+            }
+        },
+        "next": [
+            "UseConsumableStockTransferBeginSlot2"
+        ]
+    },
+    "UseConsumableStockTransferBeginSlot2": {
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 16,
+        "next": [
+            "UseConsumableStockTransferClickSlot2"
+        ]
+    },
+    "UseConsumableStockTransferClickSlot2": {
+        "action": "Click",
+        "target": "UseConsumableStockFindItemSlot2",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "next": [
+            "UseConsumableStockTransferReleaseSlot2"
+        ]
+    },
+    "UseConsumableStockTransferReleaseSlot2": {
+        "action": "KeyUp",
+        "key": 16,
+        "next": [
+            "UseConsumableStockTransferMoveMouseAwaySlot2"
+        ]
+    },
+    "UseConsumableStockFindItemSlot3": {
+        "enabled": true,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_recheck_filters": [
+                        "Normal:Usable"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    154,
+                    202,
+                    585,
+                    291
+                ]
+            }
+        },
+        "next": [
+            "UseConsumableStockTransferBeginSlot3"
+        ]
+    },
+    "UseConsumableStockTransferBeginSlot3": {
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 16,
+        "next": [
+            "UseConsumableStockTransferClickSlot3"
+        ]
+    },
+    "UseConsumableStockTransferClickSlot3": {
+        "action": "Click",
+        "target": "UseConsumableStockFindItemSlot3",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "next": [
+            "UseConsumableStockTransferReleaseSlot3"
+        ]
+    },
+    "UseConsumableStockTransferReleaseSlot3": {
+        "action": "KeyUp",
+        "key": 16,
+        "next": [
+            "UseConsumableStockTransferMoveMouseAwaySlot3"
+        ]
+    },
+    "UseConsumableStockFindItemSlot4": {
+        "enabled": true,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_recheck_filters": [
+                        "Normal:Usable"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    154,
+                    202,
+                    585,
+                    291
+                ]
+            }
+        },
+        "next": [
+            "UseConsumableStockTransferBeginSlot4"
+        ]
+    },
+    "UseConsumableStockTransferBeginSlot4": {
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 16,
+        "next": [
+            "UseConsumableStockTransferClickSlot4"
+        ]
+    },
+    "UseConsumableStockTransferClickSlot4": {
+        "action": "Click",
+        "target": "UseConsumableStockFindItemSlot4",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "next": [
+            "UseConsumableStockTransferReleaseSlot4"
+        ]
+    },
+    "UseConsumableStockTransferReleaseSlot4": {
+        "action": "KeyUp",
+        "key": 16,
+        "next": [
+            "UseConsumableStockTransferMoveMouseAwaySlot4"
+        ]
+    },
+    "UseConsumableStockTransferCompleteSlot1": {
+        "desc": "结束该槽当前仓库搜索，继续扫描下一项",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableStockFindItemSlot1": {
+                    "enabled": false
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockFindItemsPage"
+        ]
+    },
+    "UseConsumableStockTransferCompleteSlot2": {
+        "desc": "结束该槽当前仓库搜索，继续扫描下一项",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableStockFindItemSlot2": {
+                    "enabled": false
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockFindItemsPage"
+        ]
+    },
+    "UseConsumableStockTransferCompleteSlot3": {
+        "desc": "结束该槽当前仓库搜索，继续扫描下一项",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableStockFindItemSlot3": {
+                    "enabled": false
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockFindItemsPage"
+        ]
+    },
+    "UseConsumableStockTransferCompleteSlot4": {
+        "desc": "结束该槽当前仓库搜索，继续扫描下一项",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableStockFindItemSlot4": {
+                    "enabled": false
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockFindItemsPage"
+        ]
+    },
+    "UseConsumableStockTransferMoveMouseAwaySlot1": {
+        "recognition": "DirectHit",
+        "pre_delay": 200,
+        "action": "TouchMove",
+        "target": [
+            10,
+            10,
+            1,
+            1
+        ],
+        "post_delay": 200,
+        "next": [
+            "UseConsumableStockTransferCompleteSlot1"
+        ]
+    },
+    "UseConsumableStockTransferMoveMouseAwaySlot2": {
+        "recognition": "DirectHit",
+        "pre_delay": 200,
+        "action": "TouchMove",
+        "target": [
+            10,
+            10,
+            1,
+            1
+        ],
+        "post_delay": 200,
+        "next": [
+            "UseConsumableStockTransferCompleteSlot2"
+        ]
+    },
+    "UseConsumableStockTransferMoveMouseAwaySlot3": {
+        "recognition": "DirectHit",
+        "pre_delay": 200,
+        "action": "TouchMove",
+        "target": [
+            10,
+            10,
+            1,
+            1
+        ],
+        "post_delay": 200,
+        "next": [
+            "UseConsumableStockTransferCompleteSlot3"
+        ]
+    },
+    "UseConsumableStockTransferMoveMouseAwaySlot4": {
+        "recognition": "DirectHit",
+        "pre_delay": 200,
+        "action": "TouchMove",
+        "target": [
+            10,
+            10,
+            1,
+            1
+        ],
+        "post_delay": 200,
+        "next": [
+            "UseConsumableStockTransferCompleteSlot4"
+        ]
+    }
+}

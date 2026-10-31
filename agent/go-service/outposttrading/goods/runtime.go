@@ -23,6 +23,7 @@ type LocationPlan struct {
 	ExcludedOutOfStock []string
 	ReserveSatisfied   []LocationPlanItem
 	ExcludedByUser     []string
+	ExcludedByPrice    []string
 }
 
 // BuildLocationPlan 构建当前据点计划中的货品部分。
@@ -32,13 +33,15 @@ func BuildLocationPlan(location string) (LocationPlan, error) {
 		return LocationPlan{}, fmt.Errorf("load item priorities: %w", err)
 	}
 	policy := priorityPolicySnapshot()
-	groups := orderLocationPlanGroups(groupsByLocation[location], policy.Strategy, policy.StrategyConfig)
+	groups := orderLocationPlanGroups(groupsByLocation[location], policy.Strategy)
 	groups = prioritizeItemGroups(groups, policy.Preferred, policy.OnlyPreferred)
-	items, excludedOutOfStock, reserveSatisfied, excludedByUser := buildRuntimeLocationPlanItems(
+	items, excludedOutOfStock, reserveSatisfied, excludedByUser, excludedByPrice := buildRuntimeLocationPlanItems(
 		groups,
 		reserveRulesSnapshot(),
 		priorityOutOfStockSnapshot(),
 		reserveSatisfiedItemsSnapshot(),
+		policy.Preferred,
+		policy.MinimumUnitPrice,
 	)
 	return LocationPlan{
 		Strategy:           policy.Strategy,
@@ -46,6 +49,7 @@ func BuildLocationPlan(location string) (LocationPlan, error) {
 		ExcludedOutOfStock: excludedOutOfStock,
 		ReserveSatisfied:   reserveSatisfied,
 		ExcludedByUser:     excludedByUser,
+		ExcludedByPrice:    excludedByPrice,
 	}, nil
 }
 
@@ -54,7 +58,6 @@ func BuildLocationPlan(location string) (LocationPlan, error) {
 func orderLocationPlanGroups(
 	groups []itemPriorityGroup,
 	kind sellstrategy.Kind,
-	config sellstrategy.Config,
 ) []itemPriorityGroup {
 	groupsByID := make(map[string]itemPriorityGroup, len(groups))
 	candidates := make([]sellstrategy.Candidate, 0, len(groups))
@@ -66,7 +69,7 @@ func orderLocationPlanGroups(
 			UnitPrice: group.UnitPrice,
 		})
 	}
-	selector, valid := sellstrategy.New(kind, config)
+	selector, valid := sellstrategy.New(kind)
 	orderer, static := selector.(sellstrategy.Orderer)
 	if !valid || !static {
 		orderer = sellstrategy.Rarity{}
@@ -84,11 +87,18 @@ func buildRuntimeLocationPlanItems(
 	reserveRules map[string]int,
 	outOfStock map[string]struct{},
 	reserveSatisfied map[string]struct{},
-) ([]LocationPlanItem, []string, []LocationPlanItem, []string) {
+	preferred []string,
+	minimumUnitPrice int,
+) ([]LocationPlanItem, []string, []LocationPlanItem, []string, []string) {
 	items := make([]LocationPlanItem, 0, len(groups))
 	excludedOutOfStock := make([]string, 0, len(outOfStock))
 	satisfiedItems := make([]LocationPlanItem, 0, len(reserveSatisfied))
 	excludedByUser := make([]string, 0)
+	excludedByPrice := make([]string, 0)
+	preferredItems := make(map[string]struct{}, len(preferred))
+	for _, itemID := range preferred {
+		preferredItems[itemID] = struct{}{}
+	}
 	for _, group := range groups {
 		itemName := selectiondata.ItemName(group.ItemID)
 		if reserveRules[group.ItemID] == reserveBlacklistQuantity {
@@ -97,6 +107,11 @@ func buildRuntimeLocationPlanItems(
 		}
 		if _, unavailable := outOfStock[group.ItemID]; unavailable {
 			excludedOutOfStock = append(excludedOutOfStock, itemName)
+			continue
+		}
+		if _, pinned := preferredItems[group.ItemID]; !pinned &&
+			minimumUnitPrice > 0 && group.UnitPrice < minimumUnitPrice {
+			excludedByPrice = append(excludedByPrice, itemName)
 			continue
 		}
 		if _, satisfied := reserveSatisfied[group.ItemID]; satisfied {
@@ -111,23 +126,31 @@ func buildRuntimeLocationPlanItems(
 			ReserveQuantity: reserveRules[group.ItemID],
 		})
 	}
-	return items, excludedOutOfStock, satisfiedItems, excludedByUser
+	return items, excludedOutOfStock, satisfiedItems, excludedByUser, excludedByPrice
 }
 
 func printRuntimeOnlyPreferredEnabled(ctx *maa.Context) {
 	maafocus.Print(ctx, runtimeOnlyPreferredEnabledMessage())
 }
 
-func printRuntimeStockPriorityEnabled(ctx *maa.Context, minimumPrice int) {
-	maafocus.Print(ctx, runtimeStockPriorityEnabledMessage(minimumPrice))
+func printRuntimeStockPriorityEnabled(ctx *maa.Context) {
+	maafocus.Print(ctx, runtimeStockPriorityEnabledMessage())
+}
+
+func printRuntimeMinimumUnitPriceEnabled(ctx *maa.Context, minimumPrice int) {
+	maafocus.Print(ctx, runtimeMinimumUnitPriceEnabledMessage(minimumPrice))
 }
 
 func runtimeOnlyPreferredEnabledMessage() string {
 	return i18n.T("outposttrading.runtime.only_preferred_enabled")
 }
 
-func runtimeStockPriorityEnabledMessage(minimumPrice int) string {
-	return i18n.T("outposttrading.runtime.stock_priority_enabled", minimumPrice)
+func runtimeStockPriorityEnabledMessage() string {
+	return i18n.T("outposttrading.runtime.stock_priority_enabled")
+}
+
+func runtimeMinimumUnitPriceEnabledMessage(minimumPrice int) string {
+	return i18n.T("outposttrading.runtime.minimum_unit_price_enabled", minimumPrice)
 }
 
 func printRuntimeItemSwitched(ctx *maa.Context, location string, itemID string) {

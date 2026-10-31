@@ -1,19 +1,16 @@
-from __future__ import annotations
-
 import json
 import math
 import threading
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
+import key_listener
 from agent_session import AgentSession
 from connection_models import RecordingSessionConfig
 from connectors import build_recording_connector
-import key_listener
 from model import ActionType, PathPoint, PathRecorder, normalize_zone_id
-from runtime import MaaRuntime, RESOURCE_DIR
-
+from runtime import RESOURCE_DIR, MaaRuntime
 
 StatusCallback = Callable[[str, str], None]
 FinishedCallback = Callable[[list[PathPoint]], None]
@@ -223,7 +220,6 @@ class RecordingService:
             return
         self._recorder.add_waypoint(pos.x, pos.y, int(ActionType.RUN), pos.zone, strict=True)
         coord_text = f"[{_compact_number(pos.x)}, {_compact_number(pos.y)}]"
-        status_text = f"📌 已在当前位置强制打点: {coord_text}  (zone: {pos.zone})"
         self._emit_locator_detail(f"Hotkey [X]: force waypoint -> {coord_text} zone={pos.zone}")
         if self._on_force_waypoint:
             self._on_force_waypoint(pos.x, pos.y, pos.zone)

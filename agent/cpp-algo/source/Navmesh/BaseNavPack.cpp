@@ -95,14 +95,13 @@ std::optional<BaseNavBaseProjection> BaseNavPack::projectToBase(const std::strin
         return std::nullopt;
     }
     if (!IsTierZone(*zone)) {
-        // Geometry zone: python's geometry_zone_id() returns self and applies no affine.
         return BaseNavBaseProjection { zone, x, y, false };
     }
     const BaseNavZone* parent = findZone(static_cast<uint16_t>(zone->component_count));
     if (parent == nullptr) {
         return std::nullopt;
     }
-    // base = s * tier + t, with transform = {sx, tx, sy, ty}.
+    // base = s * tier + t, transform = {sx, tx, sy, ty}
     const std::array<float, 4>& t = zone->transform;
     return BaseNavBaseProjection {
         parent,
@@ -150,7 +149,7 @@ const char* ToString(BaseNavLoadStatus status)
 
 void BaseNavPack::releaseLinks()
 {
-    // swap 空容器才还得掉容量: `= {}` 会挑上 initializer_list 赋值, 只把 size 清零。
+    // swap 空容器才能释放容量, = {} 只清 size
     std::vector<BaseNavLink>().swap(links_);
 }
 

@@ -294,6 +294,29 @@ export const PointEditing = {
   },
 
   /**
+   * Local indices (into `zoneIndices`) whose points fall inside the canvas rect
+   * `[x0,y0]`–`[x1,y1]` (corners in any order). Port of tk `_collect_indices_in_rect`.
+   * @param {Array<Object>} points
+   * @param {number[]} zoneIndices
+   * @param {(wx:number, wy:number)=>[number,number]} worldToCanvas
+   * @param {number} x0 @param {number} y0 @param {number} x1 @param {number} y1
+   * @returns {number[]}
+   */
+  indicesInRect(points, zoneIndices, worldToCanvas, x0, y0, x1, y1) {
+    const left = Math.min(x0, x1);
+    const right = Math.max(x0, x1);
+    const top = Math.min(y0, y1);
+    const bottom = Math.max(y0, y1);
+    const selected = [];
+    for (let localIdx = 0; localIdx < zoneIndices.length; localIdx += 1) {
+      const point = points[zoneIndices[localIdx]];
+      const [cx, cy] = worldToCanvas(point.x, point.y);
+      if (left <= cx && cx <= right && top <= cy && cy <= bottom) selected.push(localIdx);
+    }
+    return selected;
+  },
+
+  /**
    * Insert a point into the current zone at the best segment position (mirrors
    * `insert_point`: nearest segment; append past the last segment when projection > 0.85).
    * Mutates `points`.
@@ -528,24 +551,13 @@ export class AppState {
 
   /**
    * Local indices of the current segment whose points fall inside the canvas rect
-   * `[x0,y0]`–`[x1,y1]` (corners in any order). Port of tk `_collect_indices_in_rect`.
+   * `[x0,y0]`–`[x1,y1]` (corners in any order). See {@link PointEditing.indicesInRect}.
    * @param {(wx:number, wy:number)=>[number,number]} worldToCanvas
    * @param {number} x0 @param {number} y0 @param {number} x1 @param {number} y1
    * @returns {number[]}
    */
   collectIndicesInRect(worldToCanvas, x0, y0, x1, y1) {
-    const left = Math.min(x0, x1);
-    const right = Math.max(x0, x1);
-    const top = Math.min(y0, y1);
-    const bottom = Math.max(y0, y1);
-    const zoneIndices = this.zonePointGlobalIndices();
-    const selected = [];
-    for (let localIdx = 0; localIdx < zoneIndices.length; localIdx += 1) {
-      const point = this.points[zoneIndices[localIdx]];
-      const [cx, cy] = worldToCanvas(point.x, point.y);
-      if (left <= cx && cx <= right && top <= cy && cy <= bottom) selected.push(localIdx);
-    }
-    return selected;
+    return PointEditing.indicesInRect(this.points, this.zonePointGlobalIndices(), worldToCanvas, x0, y0, x1, y1);
   }
 
   /** @returns {?Object} the primary selected point, or null. */

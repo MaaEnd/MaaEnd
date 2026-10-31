@@ -24,7 +24,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingTestArea1"
+                "SceneEnterWorldWulingTestAreaIntegratedRDArea"
             ]
         },
         "post_delay": 0,

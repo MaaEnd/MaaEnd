@@ -1,0 +1,474 @@
+{
+    "version": "1.6.4+11343132-9",
+    "sha256": "32e17b74a77b0fc9ef2530b98b314909e738196ba58fa71c236a9f6ee6f808ae",
+    "items": {
+        "item_agmelee_1_sp_2_slimeml_1_1": {
+            "name": "爆辣焗烤源石虫",
+            "names": {
+                "CN": "爆辣焗烤源石虫",
+                "TC": "爆辣焗烤源石蟲",
+                "EN": "Superhot Slug Gratin",
+                "JP": "オリジムシの激辛オーブン焼き",
+                "KR": "매운 원석충 구이"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_agmelee_1_sp_2_slimeml_1_1",
+            "rarity": 3
+        },
+        "item_agrange_1_erhound_1_sp_1_1": {
+            "name": "雅各布的遗产",
+            "names": {
+                "CN": "雅各布的遗产",
+                "TC": "雅各布的遺產",
+                "EN": "Jakub's Legacy",
+                "JP": "ヤコブの遺産",
+                "KR": "제이컵의 유산"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_agrange_1_erhound_1_sp_1_1",
+            "rarity": 4
+        },
+        "item_agrange_1_lbshamman_bottled_1": {
+            "name": "简易镇痛药膏",
+            "names": {
+                "CN": "简易镇痛药膏",
+                "TC": "簡易鎮痛藥膏",
+                "EN": "Simple Pain Relief Salve",
+                "JP": "即席鎮痛軟膏",
+                "KR": "간편 진통 연고"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_agrange_1_lbshamman_bottled_1",
+            "rarity": 3
+        },
+        "item_agrange_1_moss_2_lbmob_1_1": {
+            "name": "手工怪味酸糖",
+            "names": {
+                "CN": "手工怪味酸糖",
+                "TC": "手工怪味酸糖",
+                "EN": "Handmade Weirdrop",
+                "JP": "手作りの酸っぱい飴",
+                "KR": "이상한 수제 사탕"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_agrange_1_moss_2_lbmob_1_1",
+            "rarity": 2
+        },
+        "item_bottled_insec2_1": {
+            "name": "附术瓶",
+            "names": {
+                "CN": "附术瓶",
+                "TC": "附術瓶",
+                "EN": "Kunst Vial",
+                "JP": "付術瓶",
+                "KR": "아츠가 부여된 병"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_bottled_insec2_1",
+            "rarity": 3
+        },
+        "item_bottled_insec2_2": {
+            "name": "附术铁瓶",
+            "names": {
+                "CN": "附术铁瓶",
+                "TC": "附術鐵瓶",
+                "EN": "Kunst Tube",
+                "JP": "付術鉄瓶",
+                "KR": "아츠가 부여된 금속 병"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_bottled_insec2_2",
+            "rarity": 4
+        },
+        "item_bottled_moss_1_2_1": {
+            "name": "意乱药剂",
+            "names": {
+                "CN": "意乱药剂",
+                "TC": "意亂藥劑",
+                "EN": "Perplexing Medication",
+                "JP": "混乱の薬",
+                "KR": "혼란의 약제"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_bottled_moss_1_2_1",
+            "rarity": 4
+        },
+        "item_corp3_animal_1": {
+            "name": "清炖兽排参须汤",
+            "names": {
+                "CN": "清炖兽排参须汤",
+                "TC": "清燉獸排蔘鬚湯",
+                "EN": "Ginseng Meat Stew",
+                "JP": "獣肉と玉葉人参のスープ",
+                "KR": "푹 삶은 갈비 미삼탕"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_corp3_animal_1",
+            "rarity": 5
+        },
+        "item_corp3_grass1_1": {
+            "name": "正本补元汤剂",
+            "names": {
+                "CN": "正本补元汤剂",
+                "TC": "正本補元湯劑",
+                "EN": "Fortifying Infusion",
+                "JP": "滋養強壮の煎じ薬",
+                "KR": "원기 회복 탕약"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_corp3_grass1_1",
+            "rarity": 4
+        },
+        "item_corp4_animal_1": {
+            "name": "武陵炒饭",
+            "names": {
+                "CN": "武陵炒饭",
+                "TC": "武陵炒飯",
+                "EN": "Wuling Fried Rice",
+                "JP": "武陵チャーハン",
+                "KR": "무릉 볶음밥"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_corp4_animal_1",
+            "rarity": 5
+        },
+        "item_erhound_1_agmelee_1_moss_1_1": {
+            "name": "雾火之花",
+            "names": {
+                "CN": "雾火之花",
+                "TC": "霧火之花",
+                "EN": "Hazefyre Blossom",
+                "JP": "霧火の花",
+                "KR": "안갯불에 물든 꽃"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_erhound_1_agmelee_1_moss_1_1",
+            "rarity": 3
+        },
+        "item_ethillu_1_wgslime_1_wgthorns_1_1": {
+            "name": "回响秘剂",
+            "names": {
+                "CN": "回响秘剂",
+                "TC": "迴響秘劑",
+                "EN": "Echoing Remedy",
+                "JP": "回響の秘薬",
+                "KR": "메아리의 비약"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_ethillu_1_wgslime_1_wgthorns_1_1",
+            "rarity": 3
+        },
+        "item_firebat_1_agrange_1_1": {
+            "name": "可食用巢雕",
+            "names": {
+                "CN": "可食用巢雕",
+                "TC": "可食用巢雕",
+                "EN": "Edible Denstack",
+                "JP": "巣彫風味ソース",
+                "KR": "식용 지옥의 용광로"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_firebat_1_agrange_1_1",
+            "rarity": 3
+        },
+        "item_hsfly_1_slimeml_1_hsmob_1_1": {
+            "name": "清炖息壤球",
+            "names": {
+                "CN": "清炖息壤球",
+                "TC": "清燉息壤球",
+                "EN": "Simmered Xiranite Ball",
+                "JP": "息壌肉団子スープ",
+                "KR": "삶은 식양 완자"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_hsfly_1_slimeml_1_hsmob_1_1",
+            "rarity": 4
+        },
+        "item_hshog_1_hsmob_1_slimeml_1_1": {
+            "name": "武陵乱炒",
+            "names": {
+                "CN": "武陵乱炒",
+                "TC": "武陵亂炒",
+                "EN": "Wuling Flame-Boyance",
+                "JP": "武陵炒め",
+                "KR": "무릉 볶음"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_hshog_1_hsmob_1_slimeml_1_1",
+            "rarity": 4
+        },
+        "item_hsmob_1_dog_1_1": {
+            "name": "竹笋炒肉",
+            "names": {
+                "CN": "竹笋炒肉",
+                "TC": "竹筍炒肉",
+                "EN": "Bamboo Sprouts and Meat",
+                "JP": "筍と肉の炒め物",
+                "KR": "죽순 고기볶음"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_hsmob_1_dog_1_1",
+            "rarity": 3
+        },
+        "item_inkkirin_1_hscrane_1_1": {
+            "name": "酥麻炸虫蛹",
+            "names": {
+                "CN": "酥麻炸虫蛹",
+                "TC": "酥麻炸蟲蛹",
+                "EN": "Numbing Crispy Pupae",
+                "JP": "シビカリさなぎフライ",
+                "KR": "바삭한 번데기 튀김"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inkkirin_1_hscrane_1",
+            "rarity": 4
+        },
+        "item_inn_drink_1": {
+            "name": "大碗碎茶",
+            "names": {
+                "CN": "大碗碎茶",
+                "TC": "大碗碎茶",
+                "EN": "Bowl of Tea",
+                "JP": "どんぶり碎茶",
+                "KR": "말차"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_1",
+            "rarity": 2
+        },
+        "item_inn_drink_10": {
+            "name": "瓶装霞莓饮",
+            "names": {
+                "CN": "瓶装霞莓饮",
+                "TC": "瓶裝霞莓飲",
+                "EN": "Bottled Duskberry Juice",
+                "JP": "瓶入りダスクベリーネクター",
+                "KR": "병에 담긴 노을베리"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_10",
+            "rarity": 5
+        },
+        "item_inn_drink_2": {
+            "name": "瓶装兽奶",
+            "names": {
+                "CN": "瓶装兽奶",
+                "TC": "瓶裝獸奶",
+                "EN": "Bottled Milk",
+                "JP": "瓶入り獣乳",
+                "KR": "병에 담긴 우유"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_2",
+            "rarity": 2
+        },
+        "item_inn_drink_3": {
+            "name": "玉米汁",
+            "names": {
+                "CN": "玉米汁",
+                "TC": "玉米汁",
+                "EN": "Corn Juice",
+                "JP": "コーンジュース",
+                "KR": "옥수수즙"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_3",
+            "rarity": 3
+        },
+        "item_inn_drink_4": {
+            "name": "瓶装脆蔗汁",
+            "names": {
+                "CN": "瓶装脆蔗汁",
+                "TC": "瓶裝脆蔗汁",
+                "EN": "Bottled Canejuice",
+                "JP": "瓶入りシャキキビジュース",
+                "KR": "병에 담긴 사탕수수즙"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_4",
+            "rarity": 3
+        },
+        "item_inn_drink_5": {
+            "name": "梨花香茶",
+            "names": {
+                "CN": "梨花香茶",
+                "TC": "梨花香茶",
+                "EN": "Pear Blossom Tea",
+                "JP": "梨花茶",
+                "KR": "배꽃 향차"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_5",
+            "rarity": 4
+        },
+        "item_inn_drink_6": {
+            "name": "游人酒",
+            "names": {
+                "CN": "游人酒",
+                "TC": "遊人酒",
+                "EN": "Seeker's Kohl",
+                "JP": "吟遊酒",
+                "KR": "방랑주"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_6",
+            "rarity": 4
+        },
+        "item_inn_drink_7": {
+            "name": "瓶装优质兽奶",
+            "names": {
+                "CN": "瓶装优质兽奶",
+                "TC": "瓶裝優質獸奶",
+                "EN": "Bottled Milk [A]",
+                "JP": "瓶入り高品質獣乳",
+                "KR": "병에 담긴 고급 우유"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_7",
+            "rarity": 4
+        },
+        "item_inn_drink_8": {
+            "name": "陈酿葡萄露",
+            "names": {
+                "CN": "陈酿葡萄露",
+                "TC": "陳釀葡萄露",
+                "EN": "Vintage Grapedew",
+                "JP": "熟成ぶどうの雫",
+                "KR": "숙성 포도 음료"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_8",
+            "rarity": 5
+        },
+        "item_inn_drink_9": {
+            "name": "潮前龙井",
+            "names": {
+                "CN": "潮前龙井",
+                "TC": "潮前龍井",
+                "EN": "Pre-Tide Lungjing",
+                "JP": "潮前ロンジン茶",
+                "KR": "조전용정"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_inn_drink_9",
+            "rarity": 5
+        },
+        "item_jzmonk_1_hsmob_1_1": {
+            "name": "陈皮拌笋",
+            "names": {
+                "CN": "陈皮拌笋",
+                "TC": "陳皮拌筍",
+                "EN": "Rind-Flavored Sprouts",
+                "JP": "陳皮と筍の和え物",
+                "KR": "진피 죽순 무침"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_jzmonk_1_hsmob_1_1",
+            "rarity": 4
+        },
+        "item_klbuds_1_hsfly_1_1": {
+            "name": "洗灾秘剂",
+            "names": {
+                "CN": "洗灾秘剂",
+                "TC": "洗災秘劑",
+                "EN": "Ruin-Purger Remedy",
+                "JP": "厄除の秘薬",
+                "KR": "재앙 정화의 비약"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_klbuds_1_hsfly_1_1",
+            "rarity": 4
+        },
+        "item_klcreatures_1_wgthorns_1_1": {
+            "name": "蓄石秘剂",
+            "names": {
+                "CN": "蓄石秘剂",
+                "TC": "蓄石秘劑",
+                "EN": "Stonehold Remedy",
+                "JP": "蓄石の秘薬",
+                "KR": "축석의 비약"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_klcreatures_1_wgthorns_1_1",
+            "rarity": 4
+        },
+        "item_lbmob_1_dog_1_moss_1_1": {
+            "name": "塞什卡风肉排",
+            "names": {
+                "CN": "塞什卡风肉排",
+                "TC": "塞什卡風肉排",
+                "EN": "Seš'qa Style Fillet",
+                "JP": "セシュカ風ステーキ",
+                "KR": "세쉬카풍 스테이크"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_lbmob_1_dog_1_moss_1_1",
+            "rarity": 2
+        },
+        "item_lbshield_1_slimeml_1_dog_1_1": {
+            "name": "约翰老爹汉堡",
+            "names": {
+                "CN": "约翰老爹汉堡",
+                "TC": "約翰老爹漢堡",
+                "EN": "Old Man John's Burger",
+                "JP": "ダディ・ジョンズバーガー",
+                "KR": "빠빠존스 햄버거"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_lbshield_1_slimeml_1_dog_1_1",
+            "rarity": 3
+        },
+        "item_mimicw_1_moss_1_moss_2_1": {
+            "name": "开工日肉汤",
+            "names": {
+                "CN": "开工日肉汤",
+                "TC": "開工日肉湯",
+                "EN": "Sod-Turning Meat Soup",
+                "JP": "着工日の肉スープ",
+                "KR": "개업일 고깃국"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_mimicw_1_moss_1_moss_2_1",
+            "rarity": 3
+        },
+        "item_wgshoal_1_grass_1_grass_2_1": {
+            "name": "小糖画",
+            "names": {
+                "CN": "小糖画",
+                "TC": "小糖畫",
+                "EN": "Mini Sugar Painting",
+                "JP": "飴細工",
+                "KR": "작은 설탕 그림"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_wgshoal_1_grass_1_grass_2_1",
+            "rarity": 3
+        },
+        "item_wgslime_1_wgthorns_1_1": {
+            "name": "神秘气泡饮料",
+            "names": {
+                "CN": "神秘气泡饮料",
+                "TC": "神秘氣泡飲料",
+                "EN": "Mystery Soda",
+                "JP": "不思議な炭酸飲料",
+                "KR": "신비한 탄산음료"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_wgslime_1_wgthorns_1_1",
+            "rarity": 3
+        },
+        "item_wgthorns_1_hshog_1_hsmob_1_1": {
+            "name": "油爆“双脆”",
+            "names": {
+                "CN": "油爆“双脆”",
+                "TC": "油爆「雙脆」",
+                "EN": "Pan-Fried Double Crisp",
+                "JP": "レバーとガツの強火炒め",
+                "KR": "기름 폭발 볶음"
+            },
+            "category": "ActiveBuff",
+            "iconId": "item_wgthorns_1_hshog_1_hsmob_1_1",
+            "rarity": 4
+        }
+    }
+}

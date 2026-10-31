@@ -29,14 +29,6 @@ namespace
 // 重入多半是转储过程自己又炸了，安静退出好过写出半截文件。
 std::atomic_flag g_dumping;
 
-// 只在转储写完之后调用：它会分配内存，而 bad_alloc 正是可能的死因之一。
-void LogTerminating(const char* source)
-{
-    // 有无待决异常足以分辨 abort 和未接住的抛出，异常内容本身在转储里。
-    const bool uncaught_exception = std::current_exception() != nullptr;
-    LogError << "Process terminating." << VAR(source) << VAR(uncaught_exception);
-}
-
 #ifdef _WIN32
 
 // 崩溃退出码，外部据此认出这是非正常退出。
@@ -89,14 +81,7 @@ void WriteDump(EXCEPTION_POINTERS* exception_pointers)
 
     // 带上被间接引用的内存，栈上的对象才能在调试器里展开。
     const MINIDUMP_TYPE type = static_cast<MINIDUMP_TYPE>(MiniDumpWithIndirectlyReferencedMemory | MiniDumpScanMemory);
-    const BOOL ok = MiniDumpWriteDump(
-        GetCurrentProcess(),
-        GetCurrentProcessId(),
-        file,
-        type,
-        exception_pointers != nullptr ? &info : nullptr,
-        nullptr,
-        nullptr);
+    const BOOL ok = MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), file, type, &info, nullptr, nullptr);
     const DWORD dump_error = ok ? 0 : GetLastError();
 
     CloseHandle(file);
@@ -122,22 +107,39 @@ LONG WINAPI OnUnhandledException(EXCEPTION_POINTERS* exception_pointers)
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
-// 写完直接 _exit：再往下走会重新进入 terminate，二次终止只会丢掉刚写的现场。
-[[noreturn]] void OnTerminate()
+// 照 Crashpad 的做法：没有现成的异常现场时手工抓下当前现场，伪造一条异常记录交给转储。
+// 不传现场时 dbghelp 自己取的当前线程上下文不可靠，调试器展不开栈。
+// 抓到的现场指向本函数的栈帧，所以不能内联，且要在本函数里写完转储。
+__declspec(noinline) void WriteDumpWithCurrentContext(DWORD exception_code)
 {
-    if (!g_dumping.test_and_set()) {
-        WriteDump(nullptr);
-        LogTerminating("terminate");
-    }
-    _exit(kCrashExitCode);
+    CONTEXT context {};
+    RtlCaptureContext(&context);
+
+    EXCEPTION_RECORD record {};
+    record.ExceptionCode = exception_code;
+    record.ExceptionFlags = EXCEPTION_NONCONTINUABLE;
+#if defined(_M_ARM64)
+    record.ExceptionAddress = reinterpret_cast<PVOID>(context.Pc);
+#else
+    record.ExceptionAddress = reinterpret_cast<PVOID>(context.Rip);
+#endif
+
+    EXCEPTION_POINTERS exception_pointers { &record, &context };
+    WriteDump(&exception_pointers);
 }
 
-// abort 常见于父进程退出后 std::exit 的收尾，没有独立崩溃栈，不写转储。
+// 不用 set_terminate：它只对安装它的线程生效。任何线程未接住的异常、noexcept 违约都会走默认 terminate
+// 再 abort 到这里，此时抛出点的栈帧还没回卷，抓下的现场能一路展开到 throw。
+// 与 Crashpad 不同，只在有待决异常时写转储：没有待决异常的 abort 多是收尾时的直接 terminate，没有排查价值。
 // 直接 _exit：信号处理函数返回后 CRT 会再次 abort。
 [[noreturn]] void OnAbortSignal(int)
 {
     if (!g_dumping.test_and_set()) {
-        LogError << "Process aborted.";
+        const bool uncaught_exception = std::current_exception() != nullptr;
+        if (uncaught_exception) {
+            WriteDumpWithCurrentContext(STATUS_FATAL_APP_EXIT);
+        }
+        LogError << "Process aborted." << VAR(uncaught_exception);
     }
     _exit(kCrashExitCode);
 }
@@ -146,7 +148,7 @@ LONG WINAPI OnUnhandledException(EXCEPTION_POINTERS* exception_pointers)
 void OnInvalidParameter(const wchar_t*, const wchar_t*, const wchar_t*, unsigned int, uintptr_t)
 {
     if (!g_dumping.test_and_set()) {
-        WriteDump(nullptr);
+        WriteDumpWithCurrentContext(STATUS_INVALID_CRUNTIME_PARAMETER);
         LogError << "Process terminating on invalid CRT parameter.";
     }
     _exit(kCrashExitCode);
@@ -157,7 +159,9 @@ void OnInvalidParameter(const wchar_t*, const wchar_t*, const wchar_t*, unsigned
 [[noreturn]] void OnTerminate()
 {
     if (!g_dumping.test_and_set()) {
-        LogTerminating("terminate");
+        // 有无待决异常足以分辨 abort 和未接住的抛出。
+        const bool uncaught_exception = std::current_exception() != nullptr;
+        LogError << "Process terminating." << VAR(uncaught_exception);
     }
     std::abort();
 }
@@ -191,7 +195,6 @@ void InstallCrashHandler(const std::filesystem::path& dump_dir)
     g_dump_dir[prefix.size()] = L'\0';
 
     SetUnhandledExceptionFilter(OnUnhandledException);
-    std::set_terminate(OnTerminate);
     std::signal(SIGABRT, OnAbortSignal);
     _set_invalid_parameter_handler(OnInvalidParameter);
 #else

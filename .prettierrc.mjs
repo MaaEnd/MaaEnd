@@ -61,6 +61,7 @@ export default {
         {
             files: [
                 "tools/MapNavigator/web/**/*.{html,css,js,mjs}",
+                "tools/AutoCollectRoute/web/**/*.{html,css,js}",
             ],
             options: {
                 tabWidth: 2,

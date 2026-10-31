@@ -6,69 +6,50 @@
             "description": "$preset.QuickDaily.description",
             "task": [
                 {
-                    "name": "VisitFriends",
-                    "option": {
-                        "ProductionAssistControl": [
-                            "ProductionAssistControlNexus",
-                            "ProductionAssistMFGCabin",
-                            "ProductionAssistGrowthChamber"
-                        ]
-                    }
+                    "name": "VisitFriends"
                 },
                 {
                     "name": "DijiangRewards",
                     "option": {
-                        "AutoStartExchange": "Yes",
-                        "StageTaskSetting": "No",
-                        "ClueStockLimit": "2"
+                        "StageTaskSetting": "Yes",
+                        "ClueSetting": "Yes",
+                        "FastCollectClue": "No",
+                        "ClueSend": {
+                            "MaxClueSend": "2"
+                        }
                     }
                 },
                 {
                     "name": "CreditShoppingN2",
                     "option": {
-                        "CreditShoppingForce": "Refresh",
-                        "CreditShoppingReserve": {
-                            "ReserveCreditThreshold": "300"
+                        "CreditShoppingClueSend": {
+                            "MaxClueSendWhenInsufficient": "3"
                         },
-                        "CreditShoppingPriority1": "Yes",
-                        "CreditShoppingPriority1Items": [
-                            "ArsenalTicket",
-                            "Oroberyl"
-                        ],
-                        "CreditShoppingPriority1DiscountValue": "Any",
-                        "CreditShoppingPriority2": "Yes",
-                        "CreditShoppingPriority2Items": [
-                            "ArsenalTicket",
-                            "Oroberyl",
-                            "TCreds",
-                            "ElementaryCognitiveCarrier",
-                            "ElementaryCombatRecord",
-                            "IntermediateCombatRecord",
-                            "ArmsInspector",
-                            "ArmsINSPKit",
-                            "CastDie",
-                            "HeavyCastDie",
-                            "Protodisk",
-                            "Protoset",
-                            "Protoprism",
-                            "Protohedron"
-                        ],
-                        "CreditShoppingPriority2DiscountValue": "-75%",
-                        "CreditShoppingPriority3": "No"
+                        "CreditShoppingQuickGiveDuplicateClues": "Yes",
+                        "CreditShoppingClueStockLimit": "1",
+                        "CreditShoppingPriority2UnconditionalPurchase": "Yes",
+                        "CreditShoppingPriority2DiscountValue": "-95%",
+                        "PrudentRefresh": "Yes",
+                        "CreditShoppingRefreshCheckPrice": "No",
+                        "CreditShoppingKeepShelfRecord": "No"
                     }
                 },
                 {
                     "name": "SellProduct"
                 },
                 {
+                    "name": "DeliveryJobs"
+                },
+                {
                     "name": "DailyRewards",
                     "option": {
-                        "DailyEmailRewards": "Yes",
-                        "DailyEventRewards": "Yes",
-                        "DailyTaskRewards": "Yes",
-                        "DailyClaimDeliveryJobsRewards": "Yes",
-                        "DailyProtocolPassRewards": "Yes"
+                        "DailyTaskAssemble": "Yes",
+                        "DailyTaskLevelUpOperator": "Yes",
+                        "GearAssemblyType": "NonsetGear"
                     }
+                },
+                {
+                    "name": "CloseGamePC"
                 }
             ],
             "pretask": [

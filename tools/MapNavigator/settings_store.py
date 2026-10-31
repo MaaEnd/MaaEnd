@@ -1,12 +1,9 @@
-from __future__ import annotations
-
 import json
 import sys
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 from connection_models import ConnectionKind
-
 
 SETTINGS_DIR = Path.home() / ".maaend"
 SETTINGS_PATH = SETTINGS_DIR / "mapnavigator.json"

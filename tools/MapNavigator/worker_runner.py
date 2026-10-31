@@ -4,9 +4,8 @@
 session_modes.MODES。提权本身由 serve.py 的 ElevatedWorkerBridge 负责, 子进程侧不碰。
 """
 
-from __future__ import annotations
-
 import argparse
+import contextlib
 import json
 import socket
 import sys
@@ -72,10 +71,8 @@ class Channel:
         """
         with self._send_lock:
             self._closed = True
-            try:
+            with contextlib.suppress(OSError):
                 self._sock.shutdown(socket.SHUT_WR)
-            except OSError:
-                pass
 
     def drain(self, linger: float) -> None:
         """半关闭后等对端读完回关。只在没有 reader 线程占着读端时调。"""
@@ -88,10 +85,8 @@ class Channel:
 
     def close(self) -> None:
         self._closed = True
-        try:
+        with contextlib.suppress(OSError):
             self._sock.close()
-        except OSError:
-            pass
 
 
 class ChannelStream:
@@ -154,7 +149,7 @@ def run_worker(host: str, port: int, token: str, *, mode: SessionMode) -> int:
             channel.send({"type": "error", "message": f"协议错误: 期待 start, 收到 {first.get('type')!r}"})
             return 1
 
-        from runtime import configure_runtime_env, load_maa_runtime  # noqa: PLC0415
+        from runtime import configure_runtime_env, load_maa_runtime
 
         # 提权进程拿到的是全新环境块, 父进程 lifespan 里设的变量不会继承过来。
         configure_runtime_env()
@@ -185,10 +180,8 @@ def run_worker(host: str, port: int, token: str, *, mode: SessionMode) -> int:
                     if not service.apply_client_message(msg):
                         break
             finally:
-                try:
+                with contextlib.suppress(Exception):
                     service.stop()
-                except Exception:  # noqa: BLE001
-                    pass
                 if parent_gone or mode.stop_is_blocking:
                     stopped.set()  # 已经没人收终结消息, 或服务已经收完尾
                 elif not stopped.wait(STOP_GRACE_SECONDS):
@@ -201,11 +194,11 @@ def run_worker(host: str, port: int, token: str, *, mode: SessionMode) -> int:
         reader.start()
         stopped.wait()
         return 0
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         try:
             channel.send({"type": "error", "message": f"{label}子进程异常: {exc}"})
             log(channel, traceback.format_exc())
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         return 1
     finally:

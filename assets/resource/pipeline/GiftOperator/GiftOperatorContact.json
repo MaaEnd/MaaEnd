@@ -33,7 +33,7 @@
             "GiftOperatorSelectOp1",
             "GiftOperatorSelectSpecifiedOp",
             "GiftOperatorSelectGiftOp",
-            "[JumpBack]GiftOperatorSwipe", //滑动两次后会关闭
+            "[JumpBack]GiftOperatorSwipe", //滑动四次后会关闭
             "GiftOperatorNoOperatorCanSelect" //落入无可选干员界面
         ]
     },
@@ -59,7 +59,7 @@
     },
     "GiftOperatorSwipe": {
         "desc": "滑动尝试找到干员",
-        "max_hit": 2,
+        "max_hit": 4,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -159,7 +159,8 @@
             "GiftOperatorSelect_Wulfgard",
             "GiftOperatorSelect_Xaihi",
             "GiftOperatorSelect_Yvonne",
-            "GiftOperatorSelect_ZhuangFangyi"
+            "GiftOperatorSelect_ZhuangFangyi",
+            "GiftOperatorSelect_Si"
         ]
     },
     "GiftOperatorSelectSpecifiedOp": {

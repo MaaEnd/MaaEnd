@@ -1107,6 +1107,7 @@ export class Overlay {
    *     see {@link Overlay#_drawBlindWalks}
    *   @param {number[][][]} [astar.walkSegments] runtime-expanded walking polylines
    *   @param {Array<{from:number[],to:number[]}>} [astar.ziplineSegments] selected zipline hops
+   *   @param {Array<{from:number[],to:number[]}>} [astar.ropeSegments] rope lifts ridden upwards
    * @returns {void}
    */
   _drawAstarPreview(camera, astar) {
@@ -1145,6 +1146,8 @@ export class Overlay {
     }
 
     this._drawZiplineSegments(camera, ziplineSegments);
+
+    this._drawRopeSegments(camera, astar.ropeSegments || []);
 
     this._drawBlindWalks(camera, astar.blindWalks || []);
 
@@ -1249,6 +1252,36 @@ export class Overlay {
       ctx.moveTo(arrowX + Math.cos(angle) * arrowSize, arrowY + Math.sin(angle) * arrowSize);
       ctx.lineTo(arrowX + Math.cos(angle + 2.5) * arrowSize, arrowY + Math.sin(angle + 2.5) * arrowSize);
       ctx.lineTo(arrowX + Math.cos(angle - 2.5) * arrowSize, arrowY + Math.sin(angle - 2.5) * arrowSize);
+      ctx.closePath();
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  /**
+   * Amber badge with an upward arrow at each rope bottom; the top sits within a pixel of it.
+   * @param {Camera} camera
+   * @param {Array<{from:number[],to:number[]}>} segments
+   * @returns {void}
+   */
+  _drawRopeSegments(camera, segments) {
+    const ctx = this.ctx;
+    ctx.save();
+    for (const segment of segments) {
+      if (!segment.from) continue;
+      const [x, y] = camera.worldToCanvas(segment.from[0], segment.from[1]);
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI * 2);
+      ctx.fillStyle = "#f59e0b";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.6)";
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y - 5);
+      ctx.lineTo(x + 4, y + 3);
+      ctx.lineTo(x - 4, y + 3);
       ctx.closePath();
       ctx.fillStyle = "#ffffff";
       ctx.fill();

@@ -23,6 +23,7 @@
                 "SellProductSchedule",
                 "SellProductOperatorAutoSwitch",
                 "SellProductSelectionStrategy",
+                "SellProductStockMinimumUnitPrice",
                 "SellProductPriorityRules",
                 "SellProductItemReserveRules",
                 "ValleyIVSell",
@@ -182,15 +183,11 @@
                 {
                     "name": "Stock",
                     "label": "$task.OutpostTrading.SelectionStrategyStock",
-                    "option": [
-                        "SellProductStockMinimumUnitPrice"
-                    ],
                     "pipeline_override": {
                         "OutpostTradingConfigureSelectionStrategy": {
                             "custom_action_param": {
                                 "operation": "configure_strategy",
-                                "strategy": "stock",
-                                "minimum_unit_price": 10
+                                "strategy": "stock"
                             }
                         }
                     }
@@ -201,6 +198,7 @@
         "SellProductStockMinimumUnitPrice": {
             "type": "input",
             "label": "$task.OutpostTrading.StockMinimumUnitPriceInput",
+            "description": "$task.OutpostTrading.StockMinimumUnitPriceDescription",
             "inputs": [
                 {
                     "name": "SellProductStockMinimumUnitPrice",
@@ -212,10 +210,9 @@
                 }
             ],
             "pipeline_override": {
-                "OutpostTradingConfigureSelectionStrategy": {
+                "OutpostTradingConfigureMinimumPrice": {
                     "custom_action_param": {
-                        "operation": "configure_strategy",
-                        "strategy": "stock",
+                        "operation": "configure_minimum_price",
                         "minimum_unit_price": "{SellProductStockMinimumUnitPrice}"
                     }
                 }

@@ -1,0 +1,271 @@
+{
+    "__AutoEcoFarmValleyFarmExecute": {
+        "desc": "传送到四号谷地生态种植区附近",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterWorldValleyIVOriginiumScienceParkMountainPathSlope"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmValleyFarmNavigate"
+        ]
+    },
+    "__AutoEcoFarmValleyFarmNavigate": {
+        "desc": "前往谷地生态种植区的操作位置",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1330,
+                                847
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                806,
+                340,
+                266,
+                266
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmValleyFarmFertilizerReady",
+            "[JumpBack]__AutoEcoFarmValleyFarmCloseEquipment",
+            "[JumpBack]__AutoEcoFarmValleyFarmCloseFertilizer",
+            "__AutoEcoFarmValleyFarmWork",
+            "__AutoEcoFarmValleyFarmSearch"
+        ]
+    },
+    "__AutoEcoFarmValleyFarmSearch": {
+        "desc": "未识别到育苗、浇水或收获时，小范围环绕搜索；找到即停止移动",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CharacterSearchAction",
+                "custom_action_param": {
+                    "wait_nodes": [
+                        "__AutoEcoFarmValleyFarmFertilizerReady",
+                        "__AutoEcoFarmValleyFarmWorkButton"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmValleyFarmFertilizerReady",
+            "__AutoEcoFarmValleyFarmWork"
+        ]
+    },
+    "__AutoEcoFarmValleyFarmFertilizerReady": {
+        "desc": "识别到使用肥料，视为工作已完成并结束谷地种植区子任务",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    806,
+                    340,
+                    266,
+                    266
+                ],
+                "expected": [
+                    "使用肥料",
+                    "(?i)Fertilize",
+                    "肥料を使う"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoEcoFarmValleyFarmWorkButton": {
+        "desc": "识别育苗、浇水或收获操作",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    806,
+                    340,
+                    266,
+                    266
+                ],
+                "expected": [
+                    "育苗",
+                    "(?i)Germinate",
+                    "栽培",
+                    "浇水",
+                    "澆水",
+                    "(?i)Water",
+                    "水やり",
+                    "收获",
+                    "收穫",
+                    "(?i)Harvest",
+                    "収穫"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoEcoFarmValleyFarmWork": {
+        "desc": "识别工作按钮并交互，随后原地等待队友完成工作",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__AutoEcoFarmValleyFarmWorkButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                806,
+                340,
+                266,
+                266
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmValleyFarmFertilizerReady",
+            "__AutoEcoFarmValleyFarmWaitForTeammate"
+        ]
+    },
+    "__AutoEcoFarmValleyFarmWaitForTeammate": {
+        "desc": "原地等待队友完成工作，倒计时两分钟",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "autoEcoFarmInterruptibleSleep",
+                "custom_action_param": {
+                    "durationMs": 120000
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmValleyFarmWorkLoop"
+        ]
+    },
+    "__AutoEcoFarmValleyFarmWorkLoop": {
+        "desc": "原地检查弹窗和工作按钮，有可操作项则继续工作，否则结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmValleyFarmFertilizerReady",
+            "[JumpBack]__AutoEcoFarmValleyFarmCloseEquipment",
+            "[JumpBack]__AutoEcoFarmValleyFarmCloseFertilizer",
+            "__AutoEcoFarmValleyFarmWork",
+            "__AutoEcoFarmValleyFarmFinish"
+        ]
+    },
+    "__AutoEcoFarmValleyFarmCloseEquipment": {
+        "desc": "关闭设备弹窗",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1081,
+                    107,
+                    68,
+                    63
+                ],
+                "template": "AutoEcoFarm/AutoecofarmBlackcloseWhitegrouund.png",
+                "threshold": 0.7,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                806,
+                340,
+                266,
+                266
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoEcoFarmValleyFarmCloseFertilizer": {
+        "desc": "关闭肥料弹窗",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1074,
+                    147,
+                    37,
+                    31
+                ],
+                "template": "AutoEcoFarm/AutoecofarmWhitecloseblackgrouund.png",
+                "threshold": 0.7,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                806,
+                340,
+                266,
+                266
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoEcoFarmValleyFarmFinish": {
+        "desc": "当前没有可操作的育苗、浇水或收获按钮，结束谷地种植区子任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

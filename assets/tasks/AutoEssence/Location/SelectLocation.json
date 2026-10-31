@@ -160,6 +160,19 @@
                             "enabled": true
                         }
                     }
+                },
+                {
+                    "name": "WLSisPainting",
+                    "label": "$global.region.SisPainting",
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSecondary_WLSisPainting"
+                    ],
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLSisPainting": {
+                            "enabled": true
+                        }
+                    }
                 }
             ],
             "default_case": "VFTheHub"

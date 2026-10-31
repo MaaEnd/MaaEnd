@@ -24,7 +24,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldValleyIVOriginLodespring3"
+                "SceneEnterWorldValleyIVOriginLodespringMiningAreaClinic"
             ]
         },
         "post_delay": 0,

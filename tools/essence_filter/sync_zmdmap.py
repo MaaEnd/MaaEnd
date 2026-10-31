@@ -9,8 +9,6 @@
   运行时从资源目录读 ``assets/data/EssenceFilter/weapons_output.json``，所以这里把它复制过去。
 """
 
-from __future__ import annotations
-
 import json
 from pathlib import Path
 from typing import Any

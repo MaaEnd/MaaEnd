@@ -38,5 +38,15 @@
             "../SeizeDeliveryJobs/DeliveryPoint.png"
         ],
         "threshold": 0.8
+    },
+    "FarmTerminal": {
+        "templates": [
+            "../AutoEcoFarm/FarmTerminal.png"
+        ]
+    },
+    "Ranch": {
+        "templates": [
+            "../AutoEcoFarm/Ranch.png"
+        ]
     }
 }

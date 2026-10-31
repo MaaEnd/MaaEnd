@@ -4,9 +4,11 @@
 
 #include <MaaUtils/Logger.h>
 
+#include "navi_config.h"
 #include "navi_controller.h"
 #include "navi_param_parser.h"
-#include "zipline_preference.h"
+#include "sensing/pipeline_node_reader.h"
+#include "zipline/zipline_preference.h"
 
 namespace mapnavigator
 {
@@ -44,19 +46,19 @@ MaaBool MAA_CALL MapNavigateActionRun(
         return kMaaTrue;
     }
 
-    // 文字表指了节点的交互点在这里解析: pipeline 已经问得到, 而且还没开始走。
     ResolveInteractTextNodes(context, param);
+    // 读不出就留空, 本次不用升降索
+    TryReadNodeInteractTexts(context, kRopeInteractTextNode, &param.rope_interact_text);
     param.zipline_enabled = ResolveZiplineEnabled(context, param.zipline_enabled);
     if (param.zipline_enabled) {
         param.zipline_account_id = ResolveZiplineAccountId(context);
     }
 
-    // Planning runs on the navmesh base mesh, so normalize live fixes onto the navmesh base-pixel
-    // frame using the navmesh's own baked tier affine.
+    // 规划在 navmesh 基础层上进行, 实时定位要先换算到基础像素坐标
     param.normalize_position_via_navmesh = true;
 
     NaviController controller(context);
-    const bool arrived = controller.Navigate(param);
+    const bool arrived = controller.navigate(param);
     NoticeZiplineOutcome(context);
     return arrived ? kMaaTrue : kMaaFalse;
 }

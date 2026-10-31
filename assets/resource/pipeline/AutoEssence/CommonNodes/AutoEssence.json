@@ -73,7 +73,8 @@
                         "GotoTriggerPointSetAnchor_WLSwordVaultDale",
                         "GotoTriggerPointSetAnchor_WLYinglungPass",
                         "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone",
-                        "GotoTriggerPointSetAnchor_WLSnowyForest"
+                        "GotoTriggerPointSetAnchor_WLSnowyForest",
+                        "GotoTriggerPointSetAnchor_WLSisPainting"
                     ],
                     "continue": false,
                     "strict": true,
@@ -131,7 +132,9 @@
         },
         "post_delay": 0,
         "next": [
-            "AutoEssenceTargetRunInventoryFilter"
+            // 盘点只做一次：该节点 max_hit=1，[JumpBack] 回跳后重扫 next 时会被跳过，落到加载仓储
+            "[JumpBack]AutoEssenceTargetRunInventoryFilter",
+            "AutoEssenceTargetLoadInventory"
         ],
         "on_error": [
             "AutoEssenceTargetPrepareFailed"
@@ -141,24 +144,12 @@
         }
     },
     "AutoEssenceTargetRunInventoryFilter": {
-        "desc": "目标模式：SubTask 跑 EssenceFilterMain（库存导出）",
+        "desc": "目标模式：内联执行 EssenceFilterMain（库存导出）；max_hit=1 保证 [JumpBack] 回跳后不再重跑",
+        "max_hit": 1,
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "EssenceFilterMain"
-                    ],
-                    "continue": false,
-                    "strict": true
-                }
-            }
-        },
         "post_delay": 0,
         "next": [
-            "AutoEssenceTargetLoadInventory"
+            "EssenceFilterMain"
         ],
         "on_error": [
             "AutoEssenceTargetPrepareFailed"
@@ -220,6 +211,7 @@
                         "GotoTriggerPointMaybeTeleport_WLMarkerStone",
                         "GotoTriggerPointMaybeTeleport_WLNorthWulingExclusionZone",
                         "GotoTriggerPointMaybeTeleport_WLQingboStockade",
+                        "GotoTriggerPointMaybeTeleport_WLSisPainting",
                         "GotoTriggerPointMaybeTeleport_WLSnowyForest",
                         "GotoTriggerPointMaybeTeleport_WLSwordVaultDale",
                         "GotoTriggerPointMaybeTeleport_WLTestArea",
@@ -571,7 +563,27 @@
             "param": {}
         },
         "pre_delay": 0,
-        "action": "DoNothing",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "AutoEssenceScrollGrayAttributeOption",
+                        "AutoEssenceScrollEngraveBonusList"
+                    ]
+                }
+            }
+        },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                1083,
+                514,
+                197,
+                93
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -645,6 +657,7 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoEssenceClickGrayAttributeOption",
+            "[JumpBack]AutoEssenceScrollGrayAttributeOption",
             "AutoEssenceNoGrayAttributeOption"
         ]
     },
@@ -679,6 +692,40 @@
             "type": "Click"
         },
         "post_delay": 500,
+        "rate_limit": 0
+    },
+    "AutoEssenceScrollGrayAttributeOption": {
+        "desc": "当前页没有可取消的灰色词条时向下滚动一页（每次进入词条选择最多 1 次，滚动后不恢复）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    450,
+                    620
+                ],
+                "end": [
+                    450,
+                    480
+                ],
+                "duration": 300
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                43,
+                350,
+                820,
+                310
+            ]
+        },
+        "post_delay": 0,
         "rate_limit": 0
     },
     "AutoEssenceNoGrayAttributeOption": {
@@ -783,7 +830,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoEssenceSelectEngraveBonusCondition"
+            "AutoEssenceSelectEngraveBonus"
         ]
     },
     "AutoEssenceSelectEngraveBonusCondition": {
@@ -817,6 +864,58 @@
         "rate_limit": 0,
         "next": [
             "AutoEssenceConfirmEngraveSelection"
+        ]
+    },
+    "AutoEssenceSelectEngraveBonus": {
+        "desc": "选择附加/技能属性：当前页没有目标词条时反向滚动再找一次",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceSelectEngraveBonusCondition",
+            "AutoEssenceScrollEngraveBonusList"
+        ]
+    },
+    "AutoEssenceScrollEngraveBonusList": {
+        "desc": "附加/技能属性当前页没有目标词条时反向滚动一页（每次进入词条选择最多 1 次）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    450,
+                    480
+                ],
+                "end": [
+                    450,
+                    620
+                ],
+                "duration": 300
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                43,
+                350,
+                820,
+                310
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceSelectEngraveBonus"
         ]
     },
     "AutoEssenceConfirmEngraveSelection": {
@@ -1106,10 +1205,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoEssenceClickObtainButton",
-            "AutoEssenceClickDiscardButton",
-            "[JumpBack]AutoEssenceInObtain",
-            "[Anchor]AutoEssenceMoveToTriggerPoint" // 未识别到领取时纯寻路回交互位，再由 Interact 处理
+            // 挑战结束后走一次寻路再交互，避免战斗完毕刚好落在交互极限范围上出问题
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Recognition.Starting": "🔍检查挑战是否结束",

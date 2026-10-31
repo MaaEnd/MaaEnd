@@ -9,11 +9,13 @@
                 "AccountSwitchWindowAction",
                 "AddItemData",
                 "AeroSalvageConfigureSwipeAction",
+                "ArenaOfGames.Decide",
                 "AttachToExpectedRegexAction",
                 "AutoAltClickAction",
                 "AutoAltSwipeAction",
                 "AutoCtrlClickAction",
                 "AutoFightMainAction",
+                "AutoMissionExecuteQuest",
                 "AutoDeliveryResolveDepotAction",
                 "AutoDeliveryResolveDestinationAction",
                 "AutoEssenceLoadInventoryAction",
@@ -27,9 +29,7 @@
                 "BatchAddFriendsFriendListFullAction",
                 "BatchAddFriendsStrangersFinishAction",
                 "BatchAddFriendsStrangersOnAddAction",
-                "BatchAddFriendsUIDEnterAction",
                 "BatchAddFriendsUIDFinishAction",
-                "BatchAddFriendsUIDLoopTopAction",
                 "BatchAddFriendsUIDOnAddAction",
                 "BatchAddFriendsUIDOnEmptyAction",
                 "BetterSliding",
@@ -78,6 +78,7 @@
                 "PipelineOverrideAction",
                 "PostStop",
                 "PullCountCalculatorAction",
+                "RestaurantDecisionAction",
                 "PuzzleAction",
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
@@ -87,6 +88,8 @@
                 "SceneManagerMenuListClickItemAction",
                 "SubTask",
                 "SyncItemData",
+                "TextInputAction",
+                "TextInputInitAction",
                 "TrialOfSwordmancy.Decide",
                 "UpdateItemQuantity",
                 "WebEvent202605Action",
@@ -148,6 +151,24 @@
                 }
             }
         },
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "TextInputInitAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": {
+						"type": "object",
+						"properties": {
+							"texts": { "type": "string" }
+						}
+					}
+				}
+			}
+		},
 		{
 			"if": {
 				"properties": {
@@ -342,7 +363,65 @@
 				},
 				"required": [ "custom_action_param" ]
 			}
-		}
+		},
+        {
+            "if": {
+                "type": "object",
+                "required": [
+                    "custom_action"
+                ],
+                "properties": {
+                    "custom_action": {
+                        "const": "RestaurantDecisionAction"
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "required": [
+                    "custom_action_param"
+                ],
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "step"
+                        ],
+                        "properties": {
+                            "step": {
+                                "enum": [
+                                    "initialize",
+                                    "menu_page",
+                                    "menu_card",
+                                    "menu_confirm",
+                                    "runtime",
+                                    "dispatched"
+                                ]
+                            },
+                            "kind": {
+                                "enum": [
+                                    "dish",
+                                    "drink"
+                                ]
+                            },
+                            "category": {
+                                "enum": [
+                                    "staple",
+                                    "vegetable",
+                                    "dessert"
+                                ]
+                            },
+                            "max_rounds": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 1000
+                            }
+                        }
+                    }
+                }
+            }
+        }
 	],
     "if": {
         "type": "object",

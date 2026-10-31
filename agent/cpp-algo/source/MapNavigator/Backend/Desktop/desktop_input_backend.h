@@ -25,41 +25,38 @@ public:
     DesktopInputBackend(MaaController* ctrl, std::string controller_type, std::string backend_name, DesktopKeyCodes key_codes);
     ~DesktopInputBackend() override;
 
-    MaaController* GetCtrl() const override;
-    const std::string& controller_type() const override;
-    bool uses_touch_backend() const override;
-    bool is_supported() const override;
-    const std::string& unsupported_reason() const override;
-    double default_turn_units_per_degree() const override;
-    double default_pitch_units_per_degree() const override;
-    SteeringTransportProfile steering_transport_profile() const override;
+    MaaController* getCtrl() const override;
+    const std::string& controllerType() const override;
+    bool usesTouchBackend() const override;
+    bool isSupported() const override;
+    const std::string& unsupportedReason() const override;
+    double defaultTurnUnitsPerDegree() const override;
+    double defaultPitchUnitsPerDegree() const override;
+    SteeringTransportProfile steeringProfile() const override;
 
-    bool supports_sprint() const override { return true; }
+    bool supportsWalkToggle() const override { return true; }
 
-    bool supports_walk_toggle() const override { return true; }
-
-    void SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis) override;
-    void TriggerJumpSync(int hold_millis) override;
-    void TriggerInteractSync(int hold_millis) override;
-    void PulseForwardSync(int hold_millis) override;
-    void TriggerSprintSync() override;
-    void ToggleWalkModeSync() override;
-    void ResetForwardWalkSync(int release_millis) override;
-    void ClickMouseLeftSync() override;
-    void MouseRightDownSync(int delay_millis) override;
-    void MouseRightUpSync(int delay_millis) override;
-    virtual bool SendViewDeltaSync(int dx, int dy) override;
-
-protected:
-    static void SleepIfNeeded(int delay_millis);
+    void setMovementStateSync(MovementState state, int delay_millis) override;
+    void triggerJumpSync(int hold_millis) override;
+    void triggerInteractSync(int hold_millis) override;
+    void pulseForwardSync(int hold_millis) override;
+    void triggerSprintSync() override;
+    void toggleWalkModeSync() override;
+    void resetForwardWalkSync(int release_millis) override;
+    void clickMouseLeftSync() override;
+    void triggerZiplineLaunchSync() override;
+    void triggerZiplineDismountSync(int hold_millis) override;
+    bool sendViewDeltaSync(int dx, int dy) override;
 
 private:
-    void EnsureHoverAnchorSync();
-    void PostKeyDownSync(int key_code, int delay_millis);
-    void PostKeyUpSync(int key_code, int delay_millis);
-    void ClickKeySync(int key_code, int hold_millis);
-    void ApplyMovementKeyState(int key_code, bool pressed);
-    bool* FindMovementKeyState(int key_code);
+    void ensureHoverAnchorSync();
+    void mouseRightDownSync(int delay_millis);
+    void mouseRightUpSync(int delay_millis);
+    void postKeyDownSync(int key_code, int delay_millis);
+    void postKeyUpSync(int key_code, int delay_millis);
+    void clickKeySync(int key_code, int hold_millis);
+    void applyMovementKeyState(int key_code, bool pressed);
+    bool* findMovementKeyState(int key_code);
 
     MaaController* ctrl_ = nullptr;
     std::string controller_type_;

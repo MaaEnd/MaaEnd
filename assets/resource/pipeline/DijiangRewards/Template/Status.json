@@ -322,5 +322,387 @@
                 "order_by": "Vertical"
             }
         }
+    },
+    "ClueNumColor": {
+        "desc": "[会客室·线索] 线索序号的灰色/黑色底色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    37,
+                    127,
+                    54,
+                    491
+                ],
+                "method": 4,
+                "lower": [
+                    [
+                        148,
+                        152,
+                        153
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        176,
+                        180,
+                        181
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "connected": true,
+                "count": 100
+            }
+        }
+    },
+    "ClueOneText": {
+        "desc": "[会客室·线索] 一号线索序号的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": "1",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueOne": {
+        "desc": "[会客室·线索] 一号线索的 OCR 识别",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueOneText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ClueTwoText": {
+        "desc": "[会客室·线索] 二号线索序号的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": "2",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueTwo": {
+        "desc": "[会客室·线索] 二号线索的 OCR 识别",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueTwoText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ClueThreeText": {
+        "desc": "[会客室·线索] 三号线索序号的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": "3",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueThree": {
+        "desc": "[会客室·线索] 三号线索的 OCR 识别",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueThreeText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ClueFourText": {
+        "desc": "[会客室·线索] 四号线索序号的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": "4",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueFour": {
+        "desc": "[会客室·线索] 四号线索的 OCR 识别",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueFourText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ClueFiveText": {
+        "desc": "[会客室·线索] 五号线索序号的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": "5",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueFive": {
+        "desc": "[会客室·线索] 五号线索的 OCR 识别",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueFiveText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ClueSixText": {
+        "desc": "[会客室·线索] 六号线索序号的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": "6",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueSix": {
+        "desc": "[会客室·线索] 六号线索的 OCR 识别",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueSixText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ClueSevenText": {
+        "desc": "[会客室·线索] 七号线索序号的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueNumColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": "7",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueSeven": {
+        "desc": "[会客室·线索] 七号线索的 OCR 识别",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueNumColor",
+                    "ClueSevenText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ClueOneCount": {
+        "desc": "[会客室·线索] 一号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueOne",
+                "roi_offset": [
+                    258,
+                    20,
+                    16,
+                    -10
+                ],
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueTwoCount": {
+        "desc": "[会客室·线索] 二号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueTwo",
+                "roi_offset": [
+                    258,
+                    20,
+                    16,
+                    -10
+                ],
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueThreeCount": {
+        "desc": "[会客室·线索] 三号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueThree",
+                "roi_offset": [
+                    258,
+                    20,
+                    16,
+                    -10
+                ],
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueFourCount": {
+        "desc": "[会客室·线索] 四号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueFour",
+                "roi_offset": [
+                    258,
+                    20,
+                    16,
+                    -10
+                ],
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueFiveCount": {
+        "desc": "[会客室·线索] 五号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueFive",
+                "roi_offset": [
+                    258,
+                    20,
+                    16,
+                    -10
+                ],
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueSixCount": {
+        "desc": "[会客室·线索] 六号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueSix",
+                "roi_offset": [
+                    258,
+                    20,
+                    16,
+                    -10
+                ],
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
+            }
+        }
+    },
+    "ClueSevenCount": {
+        "desc": "[会客室·线索] 七号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueSeven",
+                "roi_offset": [
+                    258,
+                    20,
+                    16,
+                    -10
+                ],
+                "expected": "^[1-9]\\d*$",
+                "only_rec": true
+            }
+        }
+    },
+    "HasClueOne": {
+        "desc": "[会客室·线索] 是否有一号线索库存",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueOne",
+                    "ClueOneCount"
+                ]
+            }
+        }
     }
 }

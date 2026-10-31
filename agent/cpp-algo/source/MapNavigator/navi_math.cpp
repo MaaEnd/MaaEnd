@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <cmath>
 
 #include "navi_math.h"
@@ -6,7 +5,7 @@
 namespace mapnavigator
 {
 
-double NaviMath::CalcTargetRotation(double from_x, double from_y, double to_x, double to_y)
+double NaviMath::calcTargetRotation(double from_x, double from_y, double to_x, double to_y)
 {
     const double dx = to_x - from_x;
     const double dy = to_y - from_y;
@@ -17,12 +16,12 @@ double NaviMath::CalcTargetRotation(double from_x, double from_y, double to_x, d
     return std::fmod(std::round(angle_deg), 360.0);
 }
 
-double NaviMath::CalcDeltaRotation(double current, double target)
+double NaviMath::calcDeltaRotation(double current, double target)
 {
-    return NormalizeAngle(target - current);
+    return normalizeAngle(target - current);
 }
 
-double NaviMath::NormalizeAngle(double angle)
+double NaviMath::normalizeAngle(double angle)
 {
     while (angle > 180.0) {
         angle -= 360.0;
@@ -33,20 +32,13 @@ double NaviMath::NormalizeAngle(double angle)
     return angle;
 }
 
-double NaviMath::NormalizeHeading(double angle)
+double NaviMath::normalizeHeading(double angle)
 {
     angle = std::fmod(angle, 360.0);
     if (angle < 0.0) {
         angle += 360.0;
     }
     return angle;
-}
-
-double NaviMath::BlendAngle(double from, double to, double weight)
-{
-    const double clamped_weight = std::clamp(weight, 0.0, 1.0);
-    const double delta = NormalizeAngle(to - from);
-    return NormalizeHeading(from + delta * clamped_weight);
 }
 
 } // namespace mapnavigator

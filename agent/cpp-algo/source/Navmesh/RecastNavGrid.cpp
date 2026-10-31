@@ -37,7 +37,6 @@ const Nb8 kNb8[8] = {
     { -1, -1, std::sqrt(2.0) },
 };
 
-// t[k] = k/(steps-1),末点强制 1.0(np.linspace 语义)
 int64_t sampleSteps(double len, double sub)
 {
     return std::max<int64_t>(static_cast<int64_t>(std::ceil(len / (kCS * sub))), 1) + 1;
@@ -48,7 +47,6 @@ int64_t occFind(const SpanTable& st, int64_t cid)
     return st.j(cid);
 }
 
-// cid 沿 (dx,dy) 走 s 格处是否有落在 h±tol 的 span。s 可为负,即朝反方向探。
 bool levelAt(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, int64_t s, float h, double tol)
 {
     const int64_t ax = cid % nx + dx * s;
@@ -70,8 +68,6 @@ bool levelAt(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t d
     return false;
 }
 
-// cid 沿 (dx,dy) 走 s 格那一列是否是被栅格化的立面: 面摞起来够得上一堵墙, 且不止两张。
-// 恰好两张是地面上方顶着一层盖 —— 柱廊、桥下、挑檐都是这个形状, 中间隔的是层高不是墙。
 bool rasterFace(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, int64_t s)
 {
     const int64_t ax = cid % nx + dx * s;
@@ -85,31 +81,24 @@ bool rasterFace(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_
 
 }
 
-// 抬升超出可迈台阶高时的补充放行。往前几格就回到出发高度 = 落脚处只是路面上一处窄凸起;
-// 身后几格就有目标高度 = 出发处只是路面上一处浅坑。台阶与立面的落差会一直延续下去,
-// 前后都够不着,所以这里放行不了它们。
 bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, float h0, float h1)
 {
     const double dh = static_cast<double>(h1) - static_cast<double>(h0);
     if (dh < -kDrop) {
         return false;
     }
-    // 落差超过可攀爬高差时前探几格: 出发那层又回来, 说明脚下只是一道窄到不足一格的空档,
-    // 两侧本是同一片路面, 跟随层跟不了掉进去再走出来的线。出发层一直不回来的才是台沿。
+    // 出发那层几格内又回来说明脚下只是一道缝, 不许掉进去
     if (dh < -kClimb) {
         for (int64_t s = 1; s <= kSeamCells; ++s) {
             if (levelAt(st, nx, ny, cid, dx, dy, s, h0, kClimb)) {
                 return false;
             }
         }
-        // 台沿下落交给调用方判。
         if (st.fall && !st.fall(cid, cid + dy * nx + dx, h0, h1)) {
             return false;
         }
     }
-    // 坡度口径以内两条支路结论一样: 立面按坡度放行, 平地按 UpAllow 放行而 UpAllow 恒不小于
-    // 坡度口径。于是这一档不必去问是不是立面 —— 绝大多数边是平的, 省下的正是那两次叠层扫描。
-    // 格步至少一维非零 ⇒ 模长不小于 1 ⇒ 一格坡高是坡度口径的下界, 先用它筛掉平边。
+    // 坡度口径内立面与平地结论相同, 所以可以先于立面判据放行
     if (dh <= kSlope * kCS) {
         return true;
     }
@@ -117,13 +106,10 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
     if (dh <= kSlope * w * kCS) {
         return true;
     }
-    // 被栅格化的立面上只按坡度放行, 可迈台阶高与凸起/浅坑这些路面口径一概不给, 否则从旁边
-    // 迈上立面、顺着叠层逐格爬升、再迈回地面, 整堵墙就被爬上去了。坡度口径与不认台阶时是
-    // 同一个值, 所以这里放行的永远是原有的子集。
+    // 立面上只按坡度放行, 否则能顺着叠层逐格爬上整堵墙
     if (rasterFace(st, nx, ny, cid, dx, dy, 0) || rasterFace(st, nx, ny, cid, dx, dy, 1)) {
         return false;
     }
-    // 走到这里坡度口径已经不放行, UpAllow 取的那两项里就只剩可迈台阶高。
     if (dh <= kStepUp) {
         return true;
     }
@@ -131,16 +117,13 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
         return false;
     }
     for (int64_t s = 2; s <= kBumpCells; ++s) {
-        // 往前几格回到出发高度而没有目标高度: 落脚处是路面上一处窄凸起。两个高度都在说明
-        // 那里是上下两层叠着, 立面被栅格化成一列叠层时正是如此, 于是不算凸起 —— 少了这一条,
-        // 台阶侧面与地面就被连起来, 直线会从楼梯旁边爬上去而不是从台阶口走上去。
+        // 前方回到出发高度而无目标高度即窄凸起, 两个高度都在是叠层, 不算凸起
         if (levelAt(st, nx, ny, cid, dx, dy, s, h0, kStepUp) && !levelAt(st, nx, ny, cid, dx, dy, s, h1, kStepUp)) {
             return true;
         }
     }
     for (int64_t s = 1; s <= kDipCells; ++s) {
-        // 身后有目标高度而没有出发高度: 出发处是路面上一处浅坑。两个高度都在说明身后是上下
-        // 两层叠着, 一级级往上的台阶正是如此; 挡住这一类, 才不会顺着台阶把立面爬上去。
+        // 身后有目标高度而无出发高度即浅坑, 两个高度都在是叠层, 不算浅坑
         if (levelAt(st, nx, ny, cid, dx, dy, -s, h1, kStepUp) && !levelAt(st, nx, ny, cid, dx, dy, -s, h0, kStepUp)) {
             return true;
         }
@@ -153,14 +136,12 @@ namespace
 
 static_assert(kClimb <= kDrop);
 
-// RiseOk 的快路: 平缓的边直接放行。
 inline bool riseOkFast(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, float h0, float h1)
 {
     const double dh = static_cast<double>(h1) - static_cast<double>(h0);
     return (dh >= -kClimb && dh <= kSlope * kCS) || RiseOk(st, nx, ny, cid, dx, dy, h0, h1);
 }
 
-// 四叉最小堆, 按 (f, u) 出堆。
 class MinHeap4
 {
 public:
@@ -249,7 +230,7 @@ RasterCells Rasterize(
     kept.reserve(T.size());
     for (int64_t ti = 0; ti < static_cast<int64_t>(T.size()); ++ti) {
         if (walkable != nullptr && (*walkable)[static_cast<size_t>(ti)] == 0) {
-            continue; // 掩码外的三角不进体素:水面、禁区不再铺出可走格
+            continue;
         }
         const WorldPoint A = P(T[ti][0]);
         const WorldPoint B = P(T[ti][1]);
@@ -372,9 +353,7 @@ SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector
     if (n_span == 0) {
         return st;
     }
-    // 主键 cell 是格号, 两级计数排序: 先按高 16 位分桶, 再逐桶按低 16 位装, 两级都保持原次序
-    // ⇒ 与按 cell 稳定排序同序; 副键 h 在同格内插入排序, 严格大于才挪位同样保序。
-    // 逐格的桶起点表在整区上要几千万格(几十 MB), 两级计数只要 65537 个计数和一个最大桶大小的临时表。
+    // 两级计数排序加同格插入排序, 结果须与按 (cell, h) 稳定排序同序
     const size_t n = static_cast<size_t>(n_span);
     const int32_t c_max = *std::max_element(cell.begin(), cell.end());
     const size_t n_hi = (static_cast<size_t>(c_max) >> 16U) + 1;
@@ -416,8 +395,7 @@ SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector
             std::copy(tmp.begin(), tmp.begin() + static_cast<std::ptrdiff_t>(e - b), ord.begin() + static_cast<std::ptrdiff_t>(b));
         }
     }
-    // 逐列搬、搬完一列就放一列, 入参与出参不整份同时在。格号列先搬, 同格段就能顺序扫出来;
-    // 同格内按高插入排序只动 ord, 格号列不受影响。(按环原地搬是串行随机访存, 实测每段慢 0.4 s。)
+    // 每搬完一列即释放对应入参, 压低峰值内存
     st.sp_cell.resize(n);
     for (size_t i = 0; i < n; ++i) {
         st.sp_cell[i] = cell[static_cast<size_t>(ord[i])];
@@ -460,7 +438,6 @@ SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector
         aux->swap(ao);
     }
     ord = std::vector<int32_t>();
-    // 先数一遍占用格再一次分配。边数边 push 会按二的幂扩容, 逐格数组在满窗口上要白占近一倍。
     int64_t n_occ = 0;
     for (int64_t i = 0; i < n_span; ++i) {
         if (i == 0 || st.sp_cell[static_cast<size_t>(i)] != st.sp_cell[static_cast<size_t>(i - 1)]) {
@@ -487,7 +464,7 @@ SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector
     }
     st.face.assign(static_cast<size_t>(n_occ), 0);
     for (int64_t ci = 0; ci < n_occ; ++ci) {
-        // 同一格的 span 已按高排好, 首末就是这一列的最低最高。
+        // 首末即该列最低最高, 恰好两张是地面加顶盖, 不算立面
         const int64_t b = st.cstart(ci);
         const int64_t c = st.ccnt(ci);
         const double lo = st.sp_h[static_cast<size_t>(b)];
@@ -614,7 +591,6 @@ std::vector<int32_t> LabelRegions(const SpanTable& st, int64_t nx)
         }
         return a;
     };
-    // Flood 的邻接是对称的,所以只朝 +x/+y 合并一遍就够
     const int64_t dirs[2][2] = { { 1, 0 }, { 0, 1 } };
     for (int64_t ci = 0, cn = st.nOcc(); ci < cn; ++ci) {
         const int64_t cid = st.occ(ci);
@@ -674,8 +650,6 @@ std::vector<uint8_t> SpanReach(int64_t seed, const SpanTable& st, const std::vec
                 }
                 const int64_t b = st.cstart(j), n = st.ccnt(j);
                 for (int64_t slot = 0; slot < n; ++slot) {
-                    // 先问候选走没走过。垂直可达判据没有副作用, 挪到这一问之后逐位同答,
-                    // 而广度优先里绝大多数邻接探到的是已访问的 span。
                     const int64_t cand = b + slot;
                     if (ok[static_cast<size_t>(cand)] == 0 || vis[static_cast<size_t>(cand)]) {
                         continue;
@@ -815,7 +789,7 @@ std::vector<uint8_t> WallsAtLayer(
 std::vector<int64_t> Comps4(const Mask& mask)
 {
     const int64_t ny = mask.ny, nx = mask.nx, NC = nx * ny;
-    // 并查集按最小根合并 == comps4 标签传播的不动点(标签 = 分量最小格 id)
+    // 按最小根合并, 标签即分量内最小格号
     std::vector<int64_t> par(static_cast<size_t>(NC));
     std::iota(par.begin(), par.end(), 0);
     const auto find = [&](int64_t x) {
@@ -991,7 +965,6 @@ std::optional<std::vector<CellPt>> CostAstar(
                 }
                 pen = *bnp;
             }
-            // numpy 弱标量语义:步价在 f32 里算,再升 f64 与 d0/pen 相加
             const float step = static_cast<float>(d.w * 0.5) * (m0 + mult.at(b, a));
             const double nd = d0 + static_cast<double>(step) + pen;
             if (nd < dist.at(b, a) - 1e-12) {
@@ -1001,7 +974,6 @@ std::optional<std::vector<CellPt>> CostAstar(
             }
         }
         if (hj) {
-            // 跳边: 仅检查对端格是否在掩膜内, 不计单价与禁行边
             const int64_t cu = y * nx + x;
             auto [ji, jn] = jumps->from(cu);
             for (; ji < jn; ++ji) {
@@ -1044,7 +1016,7 @@ bool Visibility::crossesStep(const WorldPoint& p, const WorldPoint& q) const
     if (!hs && !hf) {
         return false;
     }
-    // 取样与层走查同一套整数插值, 于是"弦经过哪些格"这件事在两处判据里是同一个答案
+    // 须与 LayerOracle::walk 用同一套整数插值取格
     const int64_t ax = static_cast<int64_t>((p.x - x0_) / kCS);
     const int64_t ay = static_cast<int64_t>((p.y - y0_) / kCS);
     const int64_t bx = static_cast<int64_t>((q.x - x0_) / kCS);
@@ -1104,11 +1076,10 @@ std::optional<std::vector<int64_t>> SpanAstar(
         return std::nullopt;
     }
     const bool hj = jumps != nullptr && !jumps->empty();
-    // u 是否经跳边到达: 弦与视线均按地面计算, 跳边不参与
     const auto byJump = [&](int64_t p, int64_t u) {
         return hj && p >= 0 && jumps->has(p, u);
     };
-    // 从台沿跳下来的那一步: 台沿本身挡视线, 弦判据必然不过, 所以与跳边同样豁免
+    // 台沿下落那一步视线必然被台沿挡住, 与跳边同样豁免
     const auto byFall = [&](int64_t p, int64_t u) {
         return p >= 0
                && static_cast<double>(st.sp_h[static_cast<size_t>(p)]) - static_cast<double>(st.sp_h[static_cast<size_t>(u)]) > kClimb;
@@ -1117,14 +1088,12 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const int64_t gc = st.sp_cell[static_cast<size_t>(gset.front())];
     const int64_t gxx = gc % nx, gyy = gc / nx;
     std::vector<double> dist(st.sp_h.size(), std::numeric_limits<double>::infinity());
-    // 存的是 span 下标, 一个区的 span 数远在 int32 之内, 窄一半省下的是每次规划的瞬时峰值。
     std::vector<int32_t> prev(st.sp_h.size(), -1);
     dist[static_cast<size_t>(s)] = 0.0;
     MinHeap4 pq;
     pq.push(0.0, s);
     int64_t hit = -1;
-    // Lazy Theta* 的 SetVertex: 祖父直连验不过时, 从已展开的邻格里挑最便宜的那个当父亲。
-    // 视线全失效则整条路逐格退化成 A*, 所以弦无权把一条走得通的腿变成走不通。
+    // Lazy Theta* 的 SetVertex, 祖父直连验不过时从已关闭的邻格里挑最便宜的当父亲
     std::vector<uint8_t> closed;
     if (vis != nullptr) {
         closed.assign(st.sp_h.size(), 0);
@@ -1150,7 +1119,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
             if (j < 0) {
                 continue;
             }
-            // 与扩展同口径: 禁步位只管不是纯下落的那些 span 对
+            // 与扩展同口径, 禁步位不管纯下落的 span 对
             const bool faceblk = forbidden != nullptr && forbidden->hasStep(cw, cu, -d.dx, -d.dy, nx);
             double pen = 0.0;
             if (banned != nullptr && banned->hasStep(cw, cu, -d.dx, -d.dy, nx)) {
@@ -1218,7 +1187,6 @@ std::optional<std::vector<int64_t>> SpanAstar(
         }
         const float hu = st.sp_h[static_cast<size_t>(u)];
         const float m0 = mult.v(static_cast<size_t>(cu));
-        // 父节点确定后不再变化, 是否经跳边到达在每次弹出时只查询一次; 放入邻格循环会使二分次数增至八倍
         const int64_t pu = vis != nullptr ? prev[static_cast<size_t>(u)] : -1;
         const bool pj = byJump(pu, u) || byFall(pu, u);
         for (const auto& d : kNb8) {
@@ -1237,8 +1205,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
             if (j < 0) {
                 continue;
             }
-            // 禁步位不分方向, 而纯下落的 span 对不该受它管 —— 跳下台沿不需要台阶,
-            // 所以放到逐 span 循环里按落差方向再定。
+            // 禁步位不分方向, 纯下落的 span 对不受它管, 留到逐 span 循环里再定
             const bool faceblk = forbidden != nullptr && forbidden->hasStep(cu, cv, d.dx, d.dy, nx);
             double pen = 0.0;
             if (banned != nullptr && banned->hasStep(cu, cv, d.dx, d.dy, nx)) {
@@ -1249,9 +1216,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
             }
             const float step = static_cast<float>(d.w * 0.5) * (m0 + mult.v(static_cast<size_t>(cv)));
             const double nd = d0 + static_cast<double>(step) + pen;
-            // Theta* 松弛: 先按祖父直连计价, 视线留到弹出时验。弦按欧氏长度计价, 只有单价恒为一
-            // 的实心区里这笔账才精确; 中脊带单价随净空抬到七倍, 放弦进去等于免掉那笔税, 搜索会
-            // 转头挑窄道。两端都在实心区才许走弦, 整段是否落在实心区由弹出时的视线判据兜底。
+            // 弦按欧氏长度计价, 只在单价为一的实心区才精确, 所以两端都在实心区才许走弦
             int64_t np = u;
             double ndp = nd;
             if (pu >= 0 && !pj && mult.v(static_cast<size_t>(cv)) <= 1.0F) {
@@ -1271,7 +1236,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 if (ok[static_cast<size_t>(v)] == 0) {
                     continue;
                 }
-                // 已关闭的 span 不再松弛: 弹出时它会因已关闭被跳过, 改写后的弦就验不到视线
+                // 已关闭的 span 不许松弛, 否则改写后的弦验不到视线
                 if (vis != nullptr && closed[static_cast<size_t>(v)] != 0) {
                     continue;
                 }
@@ -1283,7 +1248,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 if (!riseOkFast(st, nx, ny, cu, d.dx, d.dy, hu, hv)) {
                     continue;
                 }
-                // 下落是单向边, 弦会从台沿上方穿空而过, 所以不接祖父
+                // 下落不接祖父, 弦会从台沿上方穿空而过
                 const int64_t pv = fall ? u : np;
                 const double dv = fall ? nd : ndp;
                 if (dv < dist[static_cast<size_t>(v)] - 1e-12) {
@@ -1294,7 +1259,6 @@ std::optional<std::vector<int64_t>> SpanAstar(
             }
         }
         if (hj) {
-            // 跳边: 对端 span 可用且对端格在掩膜内即可松弛, 父指针直接指向 u
             auto [ji, jn] = jumps->from(u);
             for (; ji < jn; ++ji) {
                 const JumpEdges::Edge& je = jumps->e[ji];
@@ -1332,12 +1296,10 @@ std::optional<std::vector<int64_t>> SpanAstar(
     if (vis == nullptr) {
         return out;
     }
-    // 父链是拐点序列, 下游按逐格路径读, 因此把每条弦铺回格上再交出去。中间格的 span 按弦两端
-    // 线性插值取最近高度 —— 视线判据已经验过整条弦的高度链, 这里只是给链上的落点具名。
+    // 父链是拐点序列, 下游按逐格读, 所以把每条弦铺回格上
     const std::vector<int64_t> corn = out;
     out.assign(1, corn.front());
     for (size_t i = 1; i < corn.size(); ++i) {
-        // 跳边两端之间没有地面, 不铺设中间格
         if (byJump(corn[i - 1], corn[i])) {
             out.push_back(corn[i]);
             continue;
@@ -1392,8 +1354,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
 namespace
 {
 
-// 最近源点两遍扫描: 每格从已定好的邻格里接过离自己最近的那个源点。前一遍铺左上半个邻域,
-// 后一遍反向铺右下半个, 两遍合起来每格的八个方向都问过。没有源点的格留 -1。
+// 两遍扫描求每格的最近源点, 没有源点的格留 -1
 void NearestSource(const std::vector<uint8_t>& src, int64_t nx, int64_t ny, std::vector<int32_t>& fx, std::vector<int32_t>& fy)
 {
     const int64_t n = nx * ny;
@@ -1466,9 +1427,7 @@ void NearestSource(const std::vector<uint8_t>& src, int64_t nx, int64_t ny, std:
 
 } // namespace
 
-// λ 中轴: 一格与某个邻格的最近障碍点相隔 λ 以上, 这一格就在中轴上。地形边界从来不是标准
-// 几何体, 按净空取局部最大会把每一道锯齿都读成中轴; 而毛刺两侧的最近障碍点本来就挨着,
-// 隔不开 λ, 两堵墙之间的格最近点则分列两侧, 至少隔着整个走廊宽。
+// 一格与某个邻格的最近障碍点相隔 λ 以上即在中轴上
 Mask MedialAxis(const Grid<float>& dist, double lam)
 {
     const int64_t ny = dist.ny;
@@ -1514,10 +1473,7 @@ Mask MedialAxis(const Grid<float>& dist, double lam)
     return out;
 }
 
-// 走廊半宽: 每格取最近那个种子格的净空, 也就是它所在这条走廊有多宽。弦的容许净空照它按比例
-// 定 —— 取全局常数两头都顾不上, 收紧会把窄段的弦整段否掉逐格走成锯齿, 放开则宽处一路贴角切。
-// band 是走廊本身: 种子每格张一个半径等于自身净空的球, 并起来即是。球与最近的障碍相切, 并集
-// 因此越不过任何一堵墙 —— 隔壁那条平行道进不来, 半宽也就不会认到墙那边的窄缝上去。
+// 每格取最近种子格的净空作走廊半宽, band 是各种子按自身净空张开的圆盘之并
 Grid<float> CorridorWidth(const Grid<float>& dist, const Mask& seed, Mask* band)
 {
     const int64_t ny = dist.ny;
@@ -1553,7 +1509,7 @@ Grid<float> CorridorWidth(const Grid<float>& dist, const Mask& seed, Mask* band)
 namespace
 {
 
-// 边界侧序(dx,dy,角a,角b):自由区在行进方向左侧
+// 边界侧序 (dx,dy,角a,角b), 自由区在行进方向左侧
 const int64_t kSides[4][6] = {
     { 1, 0, 1, 0, 1, 1 },
     { 0, 1, 1, 1, 0, 1 },
@@ -1567,8 +1523,7 @@ std::vector<std::vector<WorldPoint>> TraceContours(const Mask& mask)
 {
     const int64_t ny = mask.ny, nx = mask.nx;
     const int64_t W = nx + 1;
-    // 每个格角一字节: 低四位记这四个侧上有没有出边, 高四位记走过没有。给定角与侧, 出边的落点唯一
-    // (角号之差就是 kStep), 侧号本身即出边, 邻接表与走过集都不必再散列。
+    // 每个格角一字节, 低四位是四个侧的出边, 高四位是已走过标记
     const int64_t kStep[4] = { W, -1, -W, 1 };
     std::vector<uint8_t> bits(static_cast<size_t>(W * (ny + 1)), 0);
     std::vector<int64_t> order;
@@ -1618,7 +1573,7 @@ std::vector<std::vector<WorldPoint>> TraceContours(const Mask& mask)
                     }
                 }
                 else {
-                    // 岔口优先右转,与 A* 禁切角一致
+                    // 岔口优先右转, 与 A* 禁切角一致
                     const int64_t d0 = v % W - u % W, d1 = v / W - u / W;
                     int best = 10;
                     for (int s = 0; s < 4; ++s) {
@@ -1771,8 +1726,6 @@ void BlockerSegments::buildIndex() const
     bnx_ = static_cast<int64_t>((mxx + kBkt - bx0_) / kBkt) + 1;
     bny_ = static_cast<int64_t>((mxy + kBkt - by0_) / kBkt) + 1;
     bstart_.assign(static_cast<size_t>(bnx_ * bny_ + 1), 0);
-    // 段按包围盒入桶, 盒放量 kBktPad 盖住相交判据留给两端的那点余量。挡线都是轮廓折线段,
-    // 盒里的桶数与段长同阶, 数一趟填一趟就够。
     const auto span = [&](size_t i, int64_t* g) {
         const WorldPoint l = lo(i), h = hi(i);
         g[0] = static_cast<int64_t>((l.x - kBktPad - bx0_) / kBkt);
@@ -1812,8 +1765,7 @@ bool Blockers::blocked(const WorldPoint& p, const WorldPoint& q) const
     const double lox = std::min(p.x, q.x) - eps, hix = std::max(p.x, q.x) + eps;
     const double loy = std::min(p.y, q.y) - eps, hiy = std::max(p.y, q.y) + eps;
     const double rx = q.x - p.x, ry = q.y - p.y;
-    // 弦上取样间隔半个桶, 每点连同八邻一起取: 弦上任何一点离某个取样点不超过半个桶, 于是它
-    // 所在的桶必在某个取样点的三乘三邻域里, 待测集因此不漏。
+    // 取样间隔半桶并取三乘三邻域, 弦经过的桶才不会漏
     const BlockerSegments& sg = *segs_;
     if (!sg.built_) {
         sg.buildIndex();
@@ -1831,8 +1783,6 @@ bool Blockers::blocked(const WorldPoint& p, const WorldPoint& q) const
         for (int64_t gy = std::max<int64_t>(sy0 - 1, 0); gy <= std::min(sy0 + 1, sg.bny_ - 1); ++gy) {
             for (int64_t gx = std::max<int64_t>(sx0 - 1, 0); gx <= std::min(sx0 + 1, sg.bnx_ - 1); ++gx) {
                 const size_t bk = static_cast<size_t>(gy * sg.bnx_ + gx);
-                // 取样间隔半桶而邻域取三乘三, 同一个桶要被相邻取样点各扫一遍; 桶也挂世代戳,
-                // 二次访问时桶里每段都已标过, 本来就一段都不产, 整桶跳过待测集不变。
                 if (sg.bseen_[bk] == sg.epoch_) {
                     continue;
                 }
@@ -1856,8 +1806,7 @@ bool Blockers::blocked(const WorldPoint& p, const WorldPoint& q) const
                     const double ux = sg.a_[i].x - p.x, uy = sg.a_[i].y - p.y;
                     const double tt = (ux * sy - uy * sx) / den;
                     const double w = (ux * ry - uy * rx) / den;
-                    // 挡线一侧取闭区间: 挡线段是格边, 精确 45° 的弦每次都正好交在端点上, 开区间会让它
-                    // 从每道轴对齐挡线的顶点缝里溜过去。弦一侧仍开区间, 端点搭在挡线上是贴墙走不算穿墙。
+                    // 挡线一侧闭区间防 45° 弦从顶点缝溜过, 弦一侧开区间让端点贴墙不算穿墙
                     if (tt > eps && tt < 1 - eps && w > -eps && w < 1 + eps) {
                         return true;
                     }
@@ -1932,7 +1881,7 @@ std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint
         }
         nxt.clear();
         const double up = UpAllow(std::hypot(static_cast<double>(cells[i].x - pc.x), static_cast<double>(cells[i].y - pc.y))) + kQH;
-        // 与 RiseOk 同一条: 往前几格出发那层又回来, 脚下只是路面上一道缝, 不算台沿
+        // 与 RiseOk 同口径, 出发那层几格内又回来即路面上一道缝
         const int64_t sx = (cells[i].x > pc.x) - (cells[i].x < pc.x);
         const int64_t sy = (cells[i].y > pc.y) - (cells[i].y < pc.y);
         const auto seam = [&](float c) {
@@ -1968,7 +1917,6 @@ std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint
             if (!fall) {
                 return std::nullopt;
             }
-            // 缝: 出发那层留着跨过去。离网连接或头顶的面接不上: 这格的面全收进来, 原来的也留着
             nxt = cur;
             if (!over_seam) {
                 nxt.insert(nxt.end(), nb.begin(), nb.end());
@@ -1996,9 +1944,6 @@ std::vector<WorldPoint> StringPull(
     const std::vector<float>* hs,
     const Visibility* vis)
 {
-    // 一趟就到不动点。第二趟从锚点 c 出发时, 候选是链上 c 之后第二个起的点, 而链严格递增,
-    // 它们全落在第一趟从 c 往下扫时已经判死的那段下标里, 于是原地找回同一个 j, 输出与输入
-    // 相同。谓词只看两个端点(挡线索引的世代戳只管去重, 不进返回值), 故这个复现是必然的。
     std::vector<WorldPoint> out { pts[0] };
     size_t i = 0;
     while (i < pts.size() - 1) {

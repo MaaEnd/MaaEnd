@@ -61,7 +61,11 @@
             "AutoStockStapleQuantityControlFowlbeastPaperKite",
             "AutoStockStapleQuantityControlSwingingGentlemanClassicalAlbum",
             "AutoStockStapleQuantityControlMyrkwoodBerryPreserve",
-            "AutoStockStapleQuantityControlMiracleCake"
+            "AutoStockStapleQuantityControlMiracleCake",
+            "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11",
+            "AutoStockStapleQuantityControlItemInkkirin1Hscrane11",
+            "AutoStockStapleQuantityControlItemGiftJinlong12",
+            "AutoStockStapleQuantityControlItemGiftJinlong13"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
@@ -96,7 +100,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameEngravingPermit": {
                             "attach": {
                                 "valley_engraving_permit": false
                             }
@@ -242,7 +246,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "kunst_tube": false
                             }
@@ -361,7 +365,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "jakubs_legacy": false
                             }
@@ -480,7 +484,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "pulled_slug_meat": false
                             }
@@ -599,7 +603,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "hazefyre_blossom": false
                             }
@@ -718,7 +722,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "cartilage_tack": false
                             }
@@ -837,7 +841,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "cosmo_melto_jelly": false
                             }
@@ -956,7 +960,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameIndustrial": {
                             "attach": {
                                 "keen_valley_detector": false
                             }
@@ -1075,7 +1079,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameIndustrial": {
                             "attach": {
                                 "keen_valley_compass": false
                             }
@@ -1194,7 +1198,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "breeze_of_kjersch": false
                             }
@@ -1313,7 +1317,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "tidestone_specimen": false
                             }
@@ -1432,7 +1436,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "simonch_shawl": false
                             }
@@ -1551,7 +1555,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "frontiers_watch": false
                             }
@@ -1670,7 +1674,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "aurylene_camera": false
                             }
@@ -1789,7 +1793,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "cosmic_gate_puzzle": false
                             }
@@ -1908,7 +1912,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "surfing_festival_ticket": false
                             }
@@ -2027,7 +2031,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameEngravingPermit": {
                             "attach": {
                                 "wuling_engraving_permit": false
                             }
@@ -2146,7 +2150,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "fortifying_infusion": false
                             }
@@ -2265,7 +2269,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "garden_fried_rice": false
                             }
@@ -2384,7 +2388,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "master_pans_egg_pudding": false
                             }
@@ -2503,7 +2507,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "echoing_remedy": false
                             }
@@ -2622,7 +2626,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "rind_flavored_sprouts": false
                             }
@@ -2741,7 +2745,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameArtificingCatalyst": {
                             "attach": {
                                 "wuling_artificing_catalyst": false
                             }
@@ -2860,7 +2864,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameIndustrial": {
                             "attach": {
                                 "keen_wuling_detector": false
                             }
@@ -2979,7 +2983,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameIndustrial": {
                             "attach": {
                                 "keen_wuling_compass": false
                             }
@@ -3098,7 +3102,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "eureka_teabox": false
                             }
@@ -3217,7 +3221,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "yinglung_dumbbells": false
                             }
@@ -3336,7 +3340,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "woven_aggelos": false
                             }
@@ -3455,7 +3459,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "scrimshaw_of_the_pack": false
                             }
@@ -3574,7 +3578,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "fin_n_chips": false
                             }
@@ -3693,7 +3697,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "bizarro_cupcake": false
                             }
@@ -3812,7 +3816,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "chubby_lung_fangxing_memorabilia": false
                             }
@@ -3931,7 +3935,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "stonehold_remedy": false
                             }
@@ -4050,7 +4054,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "ruin_purger_remedy": false
                             }
@@ -4169,7 +4173,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameIndustrial": {
                             "attach": {
                                 "wuling_talosite_probe": false
                             }
@@ -4288,7 +4292,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "fowlbeast_paper_kite": false
                             }
@@ -4407,7 +4411,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "swinging_gentleman_classical_album": false
                             }
@@ -4526,7 +4530,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameDaily": {
                             "attach": {
                                 "sear_toasted_liver": false
                             }
@@ -4645,7 +4649,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "myrkwood_berry_preserve": false
                             }
@@ -4764,7 +4768,7 @@
                 "custom_action": "PipelineOverrideAction",
                 "custom_action_param": {
                     "patch": {
-                        "AutoStockInStapleItemName": {
+                        "AutoStockInStapleItemNameCultural": {
                             "attach": {
                                 "miracle_cake": false
                             }
@@ -4930,7 +4934,13 @@
             "param": {
                 "custom_action": "AttachToExpectedRegexAction",
                 "custom_action_param": {
-                    "target": "AutoStockInStapleItemName"
+                    "targets": [
+                        "AutoStockInStapleItemNameEngravingPermit",
+                        "AutoStockInStapleItemNameArtificingCatalyst",
+                        "AutoStockInStapleItemNameDaily",
+                        "AutoStockInStapleItemNameIndustrial",
+                        "AutoStockInStapleItemNameCultural"
+                    ]
                 }
             }
         },
@@ -4978,5 +4988,481 @@
             "type": "Click"
         },
         "post_delay": 0
+    },
+    "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11": {
+        "desc": "草本清凉饮的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkbiter1Wgshoal11"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11StockBillInsufficient",
+            "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11Buy",
+            "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11Exclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11RemoveFilter": {
+        "desc": "草本清凉饮移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemNameDaily": {
+                            "attach": {
+                                "item_inkbiter_1_wgshoal_1_1": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11Buy": {
+        "desc": "草本清凉饮低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkbiter1Wgshoal11",
+                    "AutoStockStapleGoodsItemInkbiter1Wgshoal11Validate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "item_inkbiter_1_wgshoal_1_1"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.item_inkbiter_1_wgshoal_1_1"
+        }
+    },
+    "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11Exclude": {
+        "desc": "草本清凉饮达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkbiter1Wgshoal11",
+                    "AutoStockStapleGoodsItemInkbiter1Wgshoal11ExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemInkbiter1Wgshoal11RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.item_inkbiter_1_wgshoal_1_1"
+        }
+    },
+    "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11StockBillInsufficient": {
+        "desc": "草本清凉饮调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkbiter1Wgshoal11",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemInkbiter1Wgshoal11RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.item_inkbiter_1_wgshoal_1_1"
+        }
+    },
+    "AutoStockStapleQuantityControlItemInkkirin1Hscrane11": {
+        "desc": "酥麻炸虫蛹的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkkirin1Hscrane11"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlItemInkkirin1Hscrane11StockBillInsufficient",
+            "AutoStockStapleQuantityControlItemInkkirin1Hscrane11Buy",
+            "AutoStockStapleQuantityControlItemInkkirin1Hscrane11Exclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemInkkirin1Hscrane11RemoveFilter": {
+        "desc": "酥麻炸虫蛹移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemNameDaily": {
+                            "attach": {
+                                "item_inkkirin_1_hscrane_1_1": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemInkkirin1Hscrane11Buy": {
+        "desc": "酥麻炸虫蛹低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkkirin1Hscrane11",
+                    "AutoStockStapleGoodsItemInkkirin1Hscrane11Validate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "item_inkkirin_1_hscrane_1_1"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.item_inkkirin_1_hscrane_1_1"
+        }
+    },
+    "AutoStockStapleQuantityControlItemInkkirin1Hscrane11Exclude": {
+        "desc": "酥麻炸虫蛹达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkkirin1Hscrane11",
+                    "AutoStockStapleGoodsItemInkkirin1Hscrane11ExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemInkkirin1Hscrane11RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.item_inkkirin_1_hscrane_1_1"
+        }
+    },
+    "AutoStockStapleQuantityControlItemInkkirin1Hscrane11StockBillInsufficient": {
+        "desc": "酥麻炸虫蛹调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkkirin1Hscrane11",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemInkkirin1Hscrane11RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.item_inkkirin_1_hscrane_1_1"
+        }
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong12": {
+        "desc": "缘缘庄拼图的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong12"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlItemGiftJinlong12StockBillInsufficient",
+            "AutoStockStapleQuantityControlItemGiftJinlong12Buy",
+            "AutoStockStapleQuantityControlItemGiftJinlong12Exclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong12RemoveFilter": {
+        "desc": "缘缘庄拼图移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemNameCultural": {
+                            "attach": {
+                                "item_gift_jinlong_12": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong12Buy": {
+        "desc": "缘缘庄拼图低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong12",
+                    "AutoStockStapleGoodsItemGiftJinlong12Validate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "item_gift_jinlong_12"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.item_gift_jinlong_12"
+        }
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong12Exclude": {
+        "desc": "缘缘庄拼图达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong12",
+                    "AutoStockStapleGoodsItemGiftJinlong12ExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemGiftJinlong12RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.item_gift_jinlong_12"
+        }
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong12StockBillInsufficient": {
+        "desc": "缘缘庄拼图调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong12",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemGiftJinlong12RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.item_gift_jinlong_12"
+        }
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong13": {
+        "desc": "木雕剑的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong13"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlItemGiftJinlong13StockBillInsufficient",
+            "AutoStockStapleQuantityControlItemGiftJinlong13Buy",
+            "AutoStockStapleQuantityControlItemGiftJinlong13Exclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong13RemoveFilter": {
+        "desc": "木雕剑移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemNameCultural": {
+                            "attach": {
+                                "item_gift_jinlong_13": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong13Buy": {
+        "desc": "木雕剑低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong13",
+                    "AutoStockStapleGoodsItemGiftJinlong13Validate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "item_gift_jinlong_13"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.item_gift_jinlong_13"
+        }
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong13Exclude": {
+        "desc": "木雕剑达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong13",
+                    "AutoStockStapleGoodsItemGiftJinlong13ExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemGiftJinlong13RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.item_gift_jinlong_13"
+        }
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong13StockBillInsufficient": {
+        "desc": "木雕剑调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong13",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemGiftJinlong13RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.item_gift_jinlong_13"
+        }
     }
 }

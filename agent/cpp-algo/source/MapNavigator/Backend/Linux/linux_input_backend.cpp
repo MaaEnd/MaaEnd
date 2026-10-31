@@ -3,6 +3,7 @@
 #include <MaaUtils/Logger.h>
 
 #include "../../navi_config.h"
+#include "../../navi_time.h"
 #include "../Desktop/desktop_input_backend.h"
 #include "linux_input_backend.h"
 
@@ -22,7 +23,7 @@ public:
     {
     }
 
-    SteeringTransportProfile steering_transport_profile() const override
+    SteeringTransportProfile steeringProfile() const override
     {
         return SteeringTransportProfile {
             .supports_concurrent_move_and_look = true,
@@ -33,11 +34,11 @@ public:
         };
     }
 
-    void TriggerSprintSync() override
+    void triggerSprintSync() override
     {
-        MaaControllerWait(GetCtrl(), MaaControllerPostKeyDown(GetCtrl(), kVkShift));
-        SleepIfNeeded(kActionSprintPressMs);
-        MaaControllerWait(GetCtrl(), MaaControllerPostKeyUp(GetCtrl(), kVkShift));
+        MaaControllerWait(getCtrl(), MaaControllerPostKeyDown(getCtrl(), kVkShift));
+        SleepFor(kActionSprintPressMs);
+        MaaControllerWait(getCtrl(), MaaControllerPostKeyUp(getCtrl(), kVkShift));
     }
 };
 

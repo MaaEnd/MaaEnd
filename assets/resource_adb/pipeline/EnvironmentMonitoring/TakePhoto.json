@@ -73,5 +73,16 @@
         "next": [
             "FailedNode"
         ]
+    },
+    "EnvironmentMonitoringPhotoSettingsOpened": {
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                250,
+                88,
+                147,
+                27
+            ]
+        }
     }
 }

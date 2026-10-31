@@ -54,7 +54,7 @@ func selectGoodsTarget(
 		recognized = append(recognized, itemID)
 	}
 	sort.Strings(recognized)
-	selector, ok := sellstrategy.New(policy.Strategy, policy.StrategyConfig)
+	selector, ok := sellstrategy.New(policy.Strategy)
 	if !ok {
 		return "", recognized
 	}
@@ -64,6 +64,7 @@ func selectGoodsTarget(
 				selector,
 				[]sellstrategy.Candidate{observation},
 				policy.Preferred,
+				policy.MinimumUnitPrice,
 			); selectable {
 				return pending, recognized
 			}
@@ -92,7 +93,7 @@ func selectGoodsTarget(
 		candidates = append(candidates, observation)
 	}
 
-	selected, ok := selectGoodsCandidate(selector, candidates, policy.Preferred)
+	selected, ok := selectGoodsCandidate(selector, candidates, policy.Preferred, policy.MinimumUnitPrice)
 	if !ok {
 		return "", recognized
 	}
@@ -103,12 +104,14 @@ func stockCandidateAvailable(candidate sellstrategy.Candidate) bool {
 	return !candidate.StockKnown || candidate.Stock > 0
 }
 
-// selectGoodsCandidate 先按用户配置顺序选择可用优先货品，不应用选品策略；
-// 没有可用优先货品时再由策略从全部公共候选中选择。
+// selectGoodsCandidate 先按用户配置顺序选择可用优先货品，不应用最低单价和选品策略；
+// 没有可用优先货品时，再由策略从单价不低于 minimumUnitPrice 的候选里选择。
+// 优先货品是用户明确指定的，单价再低也照卖。
 func selectGoodsCandidate(
 	selector sellstrategy.Selector,
 	candidates []sellstrategy.Candidate,
 	preferred []string,
+	minimumUnitPrice int,
 ) (sellstrategy.Candidate, bool) {
 	candidatesByID := make(map[string]sellstrategy.Candidate, len(candidates))
 	for _, candidate := range candidates {
@@ -121,7 +124,25 @@ func selectGoodsCandidate(
 		}
 		return candidate, true
 	}
-	return selector.Select(candidates)
+	return selector.Select(aboveMinimumUnitPrice(candidates, minimumUnitPrice))
+}
+
+// aboveMinimumUnitPrice 去掉单价低于 minimumUnitPrice 的候选；minimumUnitPrice 不大于 0 时不过滤。
+func aboveMinimumUnitPrice(
+	candidates []sellstrategy.Candidate,
+	minimumUnitPrice int,
+) []sellstrategy.Candidate {
+	if minimumUnitPrice <= 0 {
+		return candidates
+	}
+	filtered := make([]sellstrategy.Candidate, 0, len(candidates))
+	for _, candidate := range candidates {
+		if candidate.UnitPrice < minimumUnitPrice {
+			continue
+		}
+		filtered = append(filtered, candidate)
+	}
+	return filtered
 }
 
 func buildStockObservations(

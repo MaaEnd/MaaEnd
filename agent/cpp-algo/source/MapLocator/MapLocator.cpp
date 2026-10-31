@@ -2116,6 +2116,8 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     if (farJump || zoneChanged) {
         stablePosition.reset();
         motionTracker->clearVelocity();
+        // 先 markLost 让 update 跳过速度 EMA，重播种的跳变不计入速度
+        motionTracker->markLost(1);
         if (farJump) {
             LogInfo << "Global Search: high-conf reseed." << VAR(jumpDist) << VAR(globalResult->score);
         }

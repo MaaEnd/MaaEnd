@@ -14,6 +14,7 @@ It shares its template matching core and its base map images with [MapLocator](.
     - [Icon table](#icon-table)
     - [Wiring up teleport points](#wiring-up-teleport-points)
     - [How recognition works](#how-recognition-works)
+        - [Fog masking](#fog-masking)
         - [Block voting](#block-voting)
 
 WorldMap is a recognition layer. It only resolves a coordinate into a screen position on an already open map. Opening the map and switching layers are the job of the [SceneManager](../scene-manager.md) universal jump; the confirmation dialog afterwards is handled by the Pipeline. The zoom it sets itself, see below.
@@ -46,7 +47,7 @@ Optional (`custom_recognition_param`):
 | `icon` | none | An icon name from the [icon table](#icon-table). Omit it to only solve the coordinate, confirming no icon at all |
 | `state` | `"unlocked"` | Which unlock state counts as a hit. Requires an icon carrying `gold_ratio` in the table, since nothing else tells the two states apart |
 | `max_attempts` | `4` | Recognition attempts. Panning the map is not charged against it |
-| `vote_grid` | `3` | When matching the whole window at once cannot solve the viewport, solve again with [block voting](#block-voting) at this grid size. Set to `1` to turn the fallback off |
+| `vote_grid` | `3` | When neither the whole window nor [fog masking](#fog-masking) can solve the viewport, solve again with [block voting](#block-voting) at this grid size. Set to `1` to turn the fallback off |
 
 Thresholds, templates and calibrated scales never appear in the node: they belong to the icon and live in the icon table. A new kind of icon is one table entry, not a fistful of node parameters.
 
@@ -226,13 +227,15 @@ Four entries exist today:
 
 ## Wiring up teleport points
 
-Teleport nodes live in `assets/resource/pipeline/SceneManager/SceneTeleport<Zone>.json` and fill the `__ScenePrivateMapTeleportPickAnchor` slot; entry nodes live in `Interface/Scene<Zone>.json`, bind that slot and route through `__ScenePrivateMap<SubArea>EnterWorldAnchorWithPick`, which switches the map to its main layer, uses `all_of` to confirm that this really is that sub-area's map screen, and gives the zoom a head start on the way.
+Regular teleport anchors are generated from the camp data by `pnpm generate:SceneTeleport`: the `MapFind` nodes go to `assets/resource/pipeline/SceneManager/SceneTeleportAnchor.json` and the entry nodes to `Interface/SceneTeleportAnchor.json`. Coordinates and descs come from the camp data; sub-areas and entry names are registered in `anchors.json` under [`tools/pipeline-generate/SceneTeleport`](../../../../tools/pipeline-generate/SceneTeleport/README.md). Other icons such as base teleports are still hand-written in `SceneManager/SceneTeleport<Zone>.json` and `Interface/Scene<Zone>.json`, wired the same way.
+
+Teleport nodes fill the `__ScenePrivateMapTeleportPickAnchor` slot; entry nodes bind that slot and route through `__ScenePrivateMap<SubArea>EnterWorldAnchorWithPick`, which switches the map to its main layer, uses `all_of` to confirm that this really is that sub-area's map screen, and gives the zoom a head start on the way.
 
 The `[JumpBack]__ScenePrivateMapZoomOut` in `...EnterWorldAnchorWithPick` is a head start, not a requirement: `MapFind` calls `SceneMapZoomOutWithoutReco` on its own. When wiring up a new sub-area, copy an existing `...EnterWorldAnchorWithPick`; leaving it out costs nothing in recognition.
 
 The sub-area check lives on `...EnterWorldAnchorWithPick`; the `MapFind` node no longer repeats it — the `recognition` slot went to `MapFind`, and solving the viewport is itself the stronger test of "are we on this map at all".
 
-After adding points, two things are worth re-checking: every `MapFind` node is bound by exactly one entry node, and its `at` lies inside that zone's base map.
+After hand-writing points, two things are worth re-checking: every `MapFind` node is bound by exactly one entry node, and its `at` lies inside that zone's base map.
 
 Binding the wrong entry matters most, because the entry decides which sub-area the map gets switched to. Get it wrong and the viewport still solves (both sub-areas are on the same base map); the target simply lands far off screen, and the node pans all the way to the map edge before failing — nothing is misclicked, but a dozen seconds are burnt.
 
@@ -261,13 +264,32 @@ The unlock check runs on its own track. Locked and unlocked icons differ only in
 >
 > Once `icon` is given, icon confirmation is the sole basis for acting. A solved viewport is **not** enough to click on — however accurate the transform, it only says "if an icon is there, it should be at this position", not that one is. Missing an icon costs a retry; hitting the wrong one costs a click on another teleport point or on bare terrain, and the two are not equivalent. Without `icon` the node hands back a coordinate and makes no promise about it; wiring that to `Click` is clicking blind, so know what you are doing.
 
+### Fog masking
+
+The fog over unexplored ground is a solid patch of grey-white, brighter than the terrain. Once it enters the search window, normalised correlation takes it for the strongest signal in the frame, the solve is dragged onto the wrong scale and its delta turns negative. When the fog covers a lot of the window, the polluted blocks stop being a minority in block voting too, and that path cannot recover the frame either.
+
+So once the whole window has been rejected, the node first looks for fog across the full frame. Four tests:
+
+1. Near grey: the largest channel minus the smallest is at most 14.
+2. Bright: grey level at least 100.
+3. Smooth at large scale: low gradient energy, which is what separates fog from white and grey buildings.
+4. In patches: at least 1200 pixels.
+
+Holes left in a patch by icons and labels are filled, then the patch is grown by 9 pixels to cover the fog's soft edge.
+
+When fog covers at least 3% of the search window and at least half of the window is left, the fog is masked out and the viewport is solved again from the remaining pixels, under the same thresholds. Block voting runs only if that fails too.
+
+The mask only removes pixels. What is left still has to match uniquely under the same mask to pass, so the wrong base map is rejected all the same. With too few pixels left, a wrong position's score gets inflated, which is why the at-least-half floor is necessary. This path runs only after the whole window has been rejected, so a frame the whole window solves never reaches it, and a misjudged fog patch cannot affect such frames.
+
+Fog detection only covers the bright kind; dark, translucent haze is not detected. `viewport_fog` in the recognition detail is the share of the window masked out when the fog retry produced the solve, and 0 on every other path.
+
 ### Block voting
 
 The viewport solve treats the whole search window as one template by default, and normalised correlation gives a single number for the whole window. When something covers part of it locally — the fog over unexplored ground, for instance — that one-tenth of the area drags the whole frame's score down, and the correct rung falls below the threshold with it.
 
 Rather than give up there, the window is split into `vote_grid` × `vote_grid` blocks matched separately; each block's score surface is shifted back by that block's offset inside the window so they all agree on one window origin, then combined by a per-pixel median before taking the maximum. An occluded block is only a minority vote and gets outvoted by the rest — and this path never has to know what the occlusion looks like, so fog, weather, overlays and map markers all go through it alike.
 
-It only runs after the whole-window attempt has already been rejected; a frame that solves normally never reaches it. The cost is one extra pass of matching, on a frame that was already going to pay for another pan and capture. Block side length has a floor, since a block too small carries no positioning information; a rung with fewer than four voting blocks is discarded entirely and left to the other scale rungs.
+It only runs after both the whole window and fog masking have been rejected; a frame either of them solves never reaches it. The cost is one extra pass of matching, on a frame that was already going to pay for another pan and capture. Block side length has a floor, since a block too small carries no positioning information; a rung with fewer than four voting blocks is discarded entirely and left to the other scale rungs.
 
 The position block voting reports is integer-pixel, with no sub-pixel extrapolation — a median surface is not a correlation surface, so extrapolating on it has no basis. The maximum is taken over the base map, so rounding costs under half a base-map pixel; that is one term of the total error, and whatever the match itself is off by comes on top of it. What ultimately bounds the position is icon confirmation, whose window is 10 base pixels.
 

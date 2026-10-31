@@ -179,7 +179,7 @@ A declaration applies to its own waypoint only: **it pins which deck that leg st
 
 ### Applicability
 
-`NAVMESH` only handles movement and does not infer business semantics. When the route contains interactions, map transitions, jump platforms, or external teleports, they must be annotated explicitly in `path`; in that case, use the recording method in the next section.
+`NAVMESH` only handles movement and does not infer business semantics. When the route contains interactions, map transitions, jump platforms, or external teleports, they must be annotated explicitly in `path`; in that case, use the recording method in the next section. Rope lifts are the one exception: the planner hooks up rope lifts that start out lowered and inserts the interaction itself, see [Rope lifts](#rope-lifts).
 
 ---
 
@@ -455,6 +455,7 @@ The interface is an Action based on MAA `Custom`: `MapNavigateAction`.
 | `heading_source` | `"character"` | Heading source for navigation and zipline pylon aiming throughout the call: `"character"` uses the character heading, `"camera"` uses the camera heading; neither falls back to the other |
 | `arrival_timeout` | `60000` | Maximum time allowed to reach a single point, in milliseconds; exceeding it counts as failure |
 | `sprint_threshold` | `16.0` | Threshold for automatic sprinting, based on **the length of the continuously runnable segment ahead** rather than the straight-line distance to the current point |
+| `enable_sprint` | `true` | Whether sprinting is allowed. Set it to `false` to disable sprinting for the entire navigation: automatic sprint never fires, and `SPRINT` points in the route are skipped |
 | `interact_text` | Empty | Route-wide default for the interact prompt text, see [Async Interaction](#async-interaction-interact) |
 | `interact_scan` | Empty | Route-wide default for the walking pre-filter node, see [Replacing the Icon Pre-filter](#replacing-the-icon-pre-filter) |
 | `interact_rec` | `false` | Whether the route's `INTERACT` points recognize the prompt without pressing anything, see [Recognize Only, Never Press](#recognize-only-never-press-rec-mode) |
@@ -574,6 +575,17 @@ Floor snapping is worth calling out separately: on multi-floor maps, triangle fa
 >
 > The path editor's planning preview directly calls the C++ route expansion logic used by `MapNavigateAction` and reads the same `base.nav.gz`. The preview does not implement a separate routing algorithm in JavaScript; actual execution is still affected by localization, terrain, and in-game conditions, so the outer Pipeline still needs failure fallback.
 
+### Rope lifts
+
+`base.fields.nav.gz` contains the rope lifts whose two ends are both marked in the data as lowered from the start. Each one carries a bottom and a top foothold plus the seconds one ride takes (the rise divided by the lift speed, plus one second of animation). Rope lifts the player has to lower from the top first are left out: an account may never have opened them, and planning through one could mean finding out only at the bottom that it cannot be used.
+
+Rope lifts are only ridden upwards; going down always jumps off a ledge. The planner tries them in two situations:
+
+- The start and the end are on walkable surfaces that are not connected: when no ledge jump gets there, or the rope route is shorter than the route with the jump, the rope route is used;
+- The start and the end are on the same connected surface: the ride time is converted into a distance at running speed, and the rope route is taken only when walking from the start to the bottom, riding, and walking from the top to the end is shorter than walking directly. A rope whose top is closer on foot from its bottom than the ride itself is never considered.
+
+Rope lifts are hooked up only by the full expansion at the start of a route; local re-planning after drifting off the route mid-run does not use them. In the planned route the rope bottom becomes a strictly reached `INTERACT` point whose text comes from `MapNavigatorRopeUseText` in `MapNavigator/Interact.json`; when that node is missing or has no text, the full expansion uses no rope lifts. After the interaction is pressed, the navigator waits for the ride time, then for consecutive stable localizations, and continues from the top. When no interaction prompt shows up at the bottom (for example because this account has the rope raised), that rope is marked unusable for the rest of this navigation and the remaining route is expanded again from the current position.
+
 ---
 
 ## Collecting and Digging `COLLECT` / `DIG`
@@ -603,15 +615,18 @@ Compared with the old `anchor` chain-splitting form, this approach needs no re-e
 ### Related Files
 
 | File | Responsibility | When Changes Are Needed |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| `assets/resource/pipeline/AutoCollect/AutoCollectRoute*.json` | Path definitions, containing `MapNavigateAction` nodes and collection coordinates | Add new routes, adjust coordinates, add/remove collection points |
+| --- | --- | --- |
+| `assets/resource/pipeline/AutoCollect/<region>/<route id>.json` | Path definitions, containing `MapNavigateAction` nodes and collection coordinates | Add new routes, adjust coordinates, add/remove collection points |
+| `tools/AutoCollectRoute/routes.json` | Route registry: the region and collectibles of each route, plus the default target inventory of rare collectibles | Add new routes, adjust default target inventory |
+| `assets/resource/pipeline/AutoCollect/Dispatch.json` | Target inventory pre-check and per-collectible route dispatch, generated from the registry | Never edit by hand; regenerate after changing the registry |
+| `assets/resource/pipeline/AutoCollect/AutoCollectInventory.json` | Depot sync for the target inventory mode and the fallback when the sync fails | Adjust the inventory sync flow |
 | `assets/resource/pipeline/AutoCollect/AutoCollectClick.json` | OCR and click subtask triggered by `COLLECT`, entry point is `AutoCollectClickStart` | Add or delete OCR-recognized collection object names |
 | `assets/resource/pipeline/AutoCollect/AutoCollectDig.json` | Digging subtask triggered by `DIG`, entry point is `AutoCollectDigStart` | When digging interaction logic changes |
-| `assets/resource/pipeline/AutoCollect.json` | Route iteration, failure collection, and backpack storage before/after the task | Add route entries or adjust the overall flow |
+| `assets/resource/pipeline/AutoCollect.json` | Schedule, failure collection, and backpack storage before/after the task | Adjust the overall flow |
 
-**In most cases, path authors only need to modify `AutoCollectRoute*.json`.**
+**In most cases, path authors only need to modify route files and the registry.**
 
-The overall Auto Collect flow uses `AutoCollectLoop` to invoke route wrapper nodes in order. Each wrapper uses the generic `FailureCollectorRunTask` to execute an enabled route; if any node inside the route fails, the wrapper Action records that route's `{Route}Failed` Pipeline node and returns success so Pipeline continues with the next route. After all routes and the final backpack storage step finish, `AutoCollectFinish` calls those nodes in failure order to output the localized `$option.*.label`, then makes the Auto Collect task return failure.
+In the target inventory mode, once the depot sync finishes, `AutoCollectInventoryPreflight` checks each selected collectible first and disables the dispatch node of every collectible that has reached its target. `AutoCollectLoop` then enters the dispatch nodes that are still enabled in order, and each runs the `__AutoCollect<route id>Run` nodes of its routes in order; a route covering several collectibles runs only once per pass. The `Run` node uses the generic `FailureCollectorRunTask` to execute the route; if any node inside the route fails, the Action records that route's `__AutoCollect<route id>Failed` Pipeline node and returns success so Pipeline continues with the next route. After all routes and the final backpack storage step finish, `AutoCollectFinish` calls those nodes in failure order to output the localized `$task.AutoCollect.route.*.failed`, then makes the Auto Collect task return failure.
 
 ### Parts Path Authors Do Not Need to Touch
 
@@ -619,7 +634,7 @@ The following files are maintained by cpp-algo developers; path authors do not n
 
 - `agent/cpp-algo/source/MapNavigator/navi_domain_types.h`: `ActionType` enum, `COLLECT`/`DIG` declared here.
 - `agent/cpp-algo/source/MapNavigator/navi_config.h`: Subtask entry names, `pipeline_override`, wait time after collection, and other constants.
-- `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`: Execution logic after arriving at the collection point.
+- `agent/cpp-algo/source/MapNavigator/semantic/semantic_nodes.cpp`: Execution logic after arriving at the collection point.
 
 ### Notes
 
@@ -631,9 +646,9 @@ The following files are maintained by cpp-algo developers; path authors do not n
 
 ### Adding a Collection Route
 
-1. Create a new `AutoCollectRouteN.json` under `assets/resource/pipeline/AutoCollect/`, referencing existing routes to write the basic skeleton of four nodes: `Start` → `AssertLocation` → `Goto` → `End`.
+1. Create `<route id>.json` under `assets/resource/pipeline/AutoCollect/<region>/`, referencing existing routes to write the basic skeleton of four nodes: `Start` → `AssertLocation` → `Goto` → `End`, with node names starting with `AutoCollect<route id>`. The route id concatenates the region, the PascalCase English names of all its collectibles in the order of `items` in `routes.json`, and a sequence number that increments within the same prefix: the second Cosmagaric route in Wuling is `WulingCosmagaric2`, and a route collecting both Bloodcap and Wulingstone is `WulingBloodcapWulingstone1`.
 2. Record the path with the tool, change the action of the collection target points to `COLLECT` or `DIG`, copy the `path`, and paste it into the `custom_action_param.path` of the `Goto` node.
-3. Register the new route entry in `interface.json` / the task entry JSON.
+3. Register the route's `id`, `region`, and `items` in `tools/AutoCollectRoute/routes.json`, then run `uv run autocollect-route generate` to generate the dispatch nodes, task options, and texts in all five languages.
 4. No changes are needed to `AutoCollectClick.json`, `AutoCollectDig.json`, or any cpp-algo source files.
 
 ---
@@ -847,11 +862,12 @@ The `MapNavigatorInteract` node ships with a placeholder text that can never mat
 
 The following files are maintained by cpp-algo developers; path authors do not need to modify them:
 
-- `agent/cpp-algo/source/MapNavigator/async_prompt_action.h` / `.cpp`: the shared implementation of prompt-driven actions, used by both `COLLECT` and async `INTERACT`.
-- `agent/cpp-algo/source/MapNavigator/prompt_scan_profile.h` / `.cpp`: reading the pre-filter parameters and the interact text table out of a Pipeline node, and the validation chain around it.
+- `agent/cpp-algo/source/MapNavigator/semantic/async_prompt_action.h` / `.cpp`: the shared implementation of prompt-driven actions, used by both `COLLECT` and async `INTERACT`.
+- `agent/cpp-algo/source/MapNavigator/sensing/prompt_scan_profile.h` / `.cpp`: reading the pre-filter parameters out of a Pipeline node, and the validation chain around it.
+- `agent/cpp-algo/source/MapNavigator/sensing/pipeline_node_reader.h` / `.cpp`: reading a Pipeline node's ROI, recognition type and interact text table.
 - `agent/cpp-algo/source/MapNavigator/navi_config.h`: subtask node names, pre-filter cadence and last-resort constants, arrival values and others.
 - `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`: parsing of `interact_text` / `interact_scan` / `interact_rec` and propagation of the route-wide defaults, plus reading a named OCR node into a text table before the run starts.
-- `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`: the fallback execution logic upon arrival.
+- `agent/cpp-algo/source/MapNavigator/semantic/semantic_nodes.cpp`: the fallback execution logic upon arrival.
 
 ---
 
@@ -945,7 +961,7 @@ Control node (search starts as soon as the point is reached):
 | The business's own route JSON | The `MapNavigateAction` `path`, the `FIND` point and its `find_*` fields | Add a search point, change the target |
 | The business's own recognition nodes | The nodes named by `find_target` / `find_stop` | The ROI or the text of the target or prompt changes |
 | `assets/resource/pipeline/MapNavigator/Find.json` | The built-in OCR node `MapNavigatorFind` used for inline text; called per frame by the navigator and never dispatched on its own | The default ROI for inline text |
-| `agent/cpp-algo/source/MapNavigator/find_action.cpp` | The search and approach implementation and the bookkeeping it clears on the way out | Maintained by cpp-algo developers, tuned against a live client |
+| `agent/cpp-algo/source/MapNavigator/semantic/find_action.cpp` | The search and approach implementation and the bookkeeping it clears on the way out | Maintained by cpp-algo developers, tuned against a live client |
 
 ---
 
@@ -1004,7 +1020,7 @@ The hit screen often covers the minimap. The navigator loses its position then, 
 | ----------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------- |
 | The business's own route JSON | The `MapNavigateAction` `path`, the `TRIGGER` point and its `trigger_node` | Add a trigger end point, change the node |
 | The business's own recognition nodes | The node named by `trigger_node` | The ROI or the text of the hit screen changes |
-| `agent/cpp-algo/source/MapNavigator/trigger_action.cpp` | Recognition on the way and completion on arrival | Maintained by cpp-algo developers |
+| `agent/cpp-algo/source/MapNavigator/semantic/trigger_action.cpp` | Recognition on the way and completion on arrival | Maintained by cpp-algo developers |
 
 ---
 
@@ -1070,7 +1086,7 @@ There are two kinds of jump pads: ones that launch the character as soon as it s
 | File | Responsibility | When Changes Are Needed |
 | ------------------------------------------------------ | -------------------------------------------- | --------------------------------- |
 | The business's own route JSON | The `JUMP_PAD` point, its approach point and landing point | Add or adjust a jump pad segment |
-| `agent/cpp-algo/source/MapNavigator/jump_pad_action.cpp` | Standing, jumping, launch and landing detection | Maintained by cpp-algo developers |
+| `agent/cpp-algo/source/MapNavigator/semantic/jump_pad_action.cpp` | Standing, jumping, launch and landing detection | Maintained by cpp-algo developers |
 
 ---
 

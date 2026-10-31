@@ -58,6 +58,62 @@
             }
         }
     },
+    "AutoMissionEntityTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
+    "AutoMissionMissionAreaTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
+    "AutoMissionNpcProxyTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
+    "AutoMissionOpenScanClick": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "AutoMissionOpenScanKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "AutoMissionOpenScanLongPress": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "AutoMissionPosTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
     "AutoPickFalls": {
         "action": {
             "type": "ClickKey",
@@ -242,6 +298,14 @@
             }
         }
     },
+    "RestaurantRuntimeNextKitchen": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 14
+            }
+        }
+    },
     "SeizeDeliveryJobsPressEscAfterMatch": {
         "action": {
             "type": "ClickKey",
@@ -282,223 +346,75 @@
             }
         }
     },
-    "VisitFriendsPressStockRedistribution": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 3
-            }
-        }
-    },
-    "_AutoEcoFarmAltDown": {
+    "UseConsumableStockTransferBeginSlot1": {
         "action": {
             "type": "KeyDown",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "_AutoEcoFarmAltUp": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "_AutoEcoFarmCancelMove": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 13
-            }
-        }
-    },
-    "_AutoEcoFarmChangeToExplore1": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "_AutoEcoFarmChangeToExplore3": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "_AutoEcoFarmEnterCameraModeFallback": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 15
-            }
-        }
-    },
-    "_AutoEcoFarmEnterCameraModeFallbackRelease": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 15
-            }
-        }
-    },
-    "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 15
-            }
-        }
-    },
-    "_AutoEcoFarmExitTargetManager": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 53
-            }
-        }
-    },
-    "_AutoEcoFarmIsMrarking": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 53
-            }
-        }
-    },
-    "_AutoEcoFarmJump": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 13
-            }
-        }
-    },
-    "_AutoEcoFarmJump2": {
-        "action": {
-            "type": "LongPressKey",
-            "param": {
-                "duration": 500,
-                "key": 49
-            }
-        }
-    },
-    "_AutoEcoFarmJump3": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 13
-            }
-        }
-    },
-    "_AutoEcoFarmJumpNotWork": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 13
-            }
-        }
-    },
-    "_AutoEcoFarmJumpNotWork2": {
-        "action": {
-            "type": "LongPressKey",
-            "param": {
-                "duration": 500,
-                "key": 49
-            }
-        }
-    },
-    "_AutoEcoFarmJumpNotWork3": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 13
-            }
-        }
-    },
-    "_AutoEcoFarmLastJump": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 13
-            }
-        }
-    },
-    "_AutoEcoFarmLastJump2": {
-        "action": {
-            "type": "LongPressKey",
-            "param": {
-                "duration": 500,
-                "key": 49
-            }
-        }
-    },
-    "_AutoEcoFarmLastJump3": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 13
-            }
-        }
-    },
-    "_AutoEcoFarmMoveToTargetErr1": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 13
-            }
-        }
-    },
-    "_AutoEcoFarmMoveToTargetErr2": {
-        "action": {
-            "type": "ClickKey",
             "param": {
                 "key": 56
             }
         }
     },
-    "_AutoEcoFarmSwipeToGround2": {
+    "UseConsumableStockTransferBeginSlot2": {
         "action": {
             "type": "KeyDown",
             "param": {
-                "key": 58
+                "key": 56
             }
         }
     },
-    "_AutoEcoFarmSwipeToGround4": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "_AutoEcoFarmTurnAround1": {
-        "action": {
-            "type": "LongPressKey",
-            "param": {
-                "duration": 100,
-                "key": 1
-            }
-        }
-    },
-    "_AutoEcoFarmWork1": {
+    "UseConsumableStockTransferBeginSlot3": {
         "action": {
             "type": "KeyDown",
             "param": {
-                "key": 58
+                "key": 56
             }
         }
     },
-    "_AutoEcoFarmWork3": {
+    "UseConsumableStockTransferBeginSlot4": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot1": {
         "action": {
             "type": "KeyUp",
             "param": {
-                "key": 58
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot2": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot3": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot4": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "VisitFriendsPressStockRedistribution": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 3
             }
         }
     },

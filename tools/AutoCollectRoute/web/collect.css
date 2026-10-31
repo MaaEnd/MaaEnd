@@ -1,0 +1,74 @@
+/* 采集路线页：骨架、卡片、工具条、状态胶囊全部沿用 style.css，这里只补采集物列表与结果框里的几处差异 */
+
+/* 采集物标记夹在底图与叠加层之间：同层级下按文档顺序，叠加层在上 */
+#marker-canvas {
+  z-index: 2;
+}
+
+/* 工具条里的操作说明，字号与工具按钮一致；窄屏时只截断固定说明，按键提示和按钮保持完整 */
+.collect-map-hint {
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collect-key-hint,
+.collect-page .map-tools .btn-tool {
+  flex: 0 0 auto;
+}
+
+.collect-key-hint {
+  padding-left: 0;
+  color: var(--accent-yellow);
+}
+
+/* 图例在编辑器里跟着路径编辑工作区出现，这一页常驻 */
+.collect-page .legend-panel {
+  display: flex;
+}
+
+/* 采集物一行：勾选框 + 图标 + 名称 + 徽标 + 点数，整行可点 */
+.collect-type {
+  display: flex;
+  gap: 8px;
+}
+
+.collect-type.off {
+  opacity: 0.5;
+}
+
+.collect-type-icon {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.collect-type .wp-action {
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+/* 已有路线列表只占侧栏的一部分高度，采集物列表仍是主滚动区 */
+.collect-routes .waypoint-list {
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 30vh;
+}
+
+.collect-routes .wp-empty {
+  min-height: 40px;
+}
+
+.collect-warnings {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--accent-yellow);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}

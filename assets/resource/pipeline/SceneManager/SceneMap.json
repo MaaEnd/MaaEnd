@@ -319,6 +319,7 @@
                 "threshold": 0.9
             }
         },
+        "pre_wait_freezes": 300,
         "pre_delay": 0,
         "post_delay": 0
     },

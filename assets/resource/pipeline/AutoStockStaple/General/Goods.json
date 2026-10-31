@@ -944,5 +944,89 @@
                 ]
             }
         }
+    },
+    "AutoStockStapleGoodsItemInkbiter1Wgshoal11": {
+        "desc": "草本清凉饮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "草本清凉饮",
+                    "草本清涼飲",
+                    "(?i)Herbal\\s*Tisane",
+                    "薬草清涼飲料",
+                    "약초 청량 음료"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemInkkirin1Hscrane11": {
+        "desc": "酥麻炸虫蛹",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "酥麻炸虫蛹",
+                    "酥麻炸蟲蛹",
+                    "(?i)Numbing\\s*Crispy\\s*Pupae",
+                    "シビカリさなぎフライ",
+                    "바삭한 번데기 튀김"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemGiftJinlong12": {
+        "desc": "缘缘庄拼图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "缘缘庄拼图",
+                    "緣緣莊拼圖",
+                    "(?i)Yuanyuan\\s*Manor\\s*Jigsaw",
+                    "縁縁荘のパズル",
+                    "인연 마을 퍼즐"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemGiftJinlong13": {
+        "desc": "木雕剑",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "木雕剑",
+                    "木雕劍",
+                    "(?i)Wooden\\s*Sword",
+                    "木彫りの剣",
+                    "장식용 목검"
+                ]
+            }
+        }
     }
 }

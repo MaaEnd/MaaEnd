@@ -1,0 +1,153 @@
+{
+    "configs": {
+        "name": "云终末地干员联络选择与序号",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "image": "帝江号_干员联络_未选中.png",
+            "hits": [
+                {
+                    "node": "GiftOperatorSelectOp1",
+                    "box": [
+                        530,
+                        240,
+                        110,
+                        50
+                    ]
+                }
+            ]
+        },
+        {
+            "image": "帝江号_干员联络_已选一人.png",
+            "hits": [
+                "GiftOperatorCheckSelected1",
+                {
+                    "node": "GiftOperatorSelectOp1",
+                    "box": [
+                        640,
+                        240,
+                        110,
+                        50
+                    ]
+                },
+                "GiftOperatorSelectSpecifiedOpSuccess"
+            ]
+        },
+        {
+            "image": "帝江号_干员联络_已选二人.png",
+            "hits": [
+                "GiftOperatorCheckSelected1",
+                "GiftOperatorCheckSelected2",
+                {
+                    "node": "GiftOperatorSelectOp1",
+                    "box": [
+                        750,
+                        240,
+                        110,
+                        50
+                    ]
+                },
+                "GiftOperatorSelectSpecifiedOpSuccess"
+            ]
+        },
+        {
+            "image": "帝江号_赠送礼物_卡契尔_未选择.png",
+            "hits": []
+        },
+        {
+            "image": "简易制作_奖励弹窗已关闭.png",
+            "hits": []
+        },
+        {
+            "image": "武陵_大世界_菜单关闭.png",
+            "hits": []
+        },
+        {
+            "image": "帝江号_干员联络_未选中_默认排序.png",
+            "hits": [
+                {
+                    "node": "GiftOperatorSelectOp1",
+                    "box": [
+                        530,
+                        240,
+                        110,
+                        50
+                    ]
+                }
+            ]
+        },
+        {
+            "image": "帝江号_干员联络_已选一人_默认排序.png",
+            "hits": [
+                "GiftOperatorCheckSelected1",
+                {
+                    "node": "GiftOperatorSelectOp1",
+                    "box": [
+                        644,
+                        240,
+                        110,
+                        50
+                    ]
+                },
+                "GiftOperatorSelectSpecifiedOpSuccess"
+            ]
+        },
+        {
+            "image": "帝江号_干员联络_已选二人_默认排序.png",
+            "hits": [
+                "GiftOperatorCheckSelected1",
+                "GiftOperatorCheckSelected2",
+                {
+                    "node": "GiftOperatorSelectOp1",
+                    "box": [
+                        758,
+                        240,
+                        110,
+                        50
+                    ]
+                },
+                "GiftOperatorSelectSpecifiedOpSuccess"
+            ]
+        },
+        {
+            "image": "帝江号_干员联络_已选三人_默认排序.png",
+            "hits": [
+                "GiftOperatorCheckSelected1",
+                "GiftOperatorCheckSelected2",
+                "GiftOperatorCheckSelected3",
+                {
+                    "node": "GiftOperatorSelectOp1",
+                    "box": [
+                        872,
+                        240,
+                        110,
+                        50
+                    ]
+                },
+                "GiftOperatorSelectSpecifiedOpSuccess"
+            ]
+        },
+        {
+            "image": "帝江号_干员联络_已选一人_第二排.png",
+            "hits": [
+                "GiftOperatorCheckSelected1",
+                {
+                    "node": "GiftOperatorSelectOp1",
+                    "box": [
+                        530,
+                        240,
+                        110,
+                        50
+                    ]
+                },
+                "GiftOperatorSelectSpecifiedOpSuccess"
+            ]
+        },
+        {
+            "image": "帝江号_赠送礼物_秋栗_未选择.png",
+            "hits": []
+        }
+    ]
+}

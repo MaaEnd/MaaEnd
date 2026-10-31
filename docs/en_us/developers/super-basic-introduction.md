@@ -94,7 +94,7 @@ corepack enable pnpm
 ### 2.5 uv + Python
 
 - Install uv by following the [official installation guide](https://docs.astral.sh/uv/getting-started/installation/)
-- uv prepares Python 3.10+ and script dependencies from the project's `pyproject.toml`; you do not need to create a virtual environment or run `pip install` manually
+- uv prepares Python 3.14+ and script dependencies from the project's `pyproject.toml`; you do not need to create a virtual environment or run `pip install` manually
 
 ### 2.6 Go (Required)
 

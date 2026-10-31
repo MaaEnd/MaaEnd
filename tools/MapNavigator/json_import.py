@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import json
 import math
 import re
@@ -24,7 +22,6 @@ from model import (
     trigger_node_of,
     try_parse_action_type,
 )
-
 
 ZONE_HINT_KEYS = ("map_name", "mapName", "zone", "zone_id", "zoneId")
 ACTION_KEYS = ("action", "action_type", "actionType", "type")

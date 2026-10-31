@@ -1,7 +1,5 @@
 """从下载缓存一次生成 IconRecognition catalog 与各语言名称。"""
 
-from __future__ import annotations
-
 import argparse
 import json
 import shutil
@@ -10,11 +8,8 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from PIL import Image
-
 from catalog import build_catalog, write_catalog
 from download import (
-    ZMDMAP_DATA_DIR,
     apply_item_blacklist,
     load_big_icon_ids,
     rarity_directories,
@@ -29,6 +24,7 @@ from localization import (
     load_json_object,
     update_interface_locale,
 )
+from PIL import Image
 from text import validate_identifier
 from ui_icons.generate import generate_ui_icons
 

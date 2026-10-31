@@ -1,7 +1,5 @@
 """把手动识别报告合并进完整 expected.csv 基线。"""
 
-from __future__ import annotations
-
 import argparse
 import csv
 import json
@@ -9,7 +7,6 @@ import re
 from collections import Counter
 from pathlib import Path
 from typing import Any
-
 
 LOCAL_SUFFIX = re.compile(r"\.local\d+(?=\.png$)", re.IGNORECASE)
 NATURAL_SORT_PART = re.compile(r"(\d+)")

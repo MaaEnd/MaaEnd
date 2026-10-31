@@ -1132,7 +1132,8 @@
             }
         },
         "pre_wait_freezes": 200,
-        "pre_delay": 0,
+        "pre_delay": 600,
+        // 界面切换（打开/关闭/退出）后游戏约 750ms 内忽略点击（转场输入锁定窗口，实测见 #6586）；加 600ms 使实际点击间隔 ≥1.1s
         "action": {
             "type": "Click"
         },
@@ -1366,17 +1367,50 @@
         "timeout": 5000,
         "rate_limit": 0
     },
-    "ReceptionRoomSendCluesSelectClues": {
-        "desc": "[会客室·线索] 在赠予界面选择自有库存数量 3–20 的线索并点击，以便发送",
+    "ReceptionRoomSendCluesSendMain": {
+        "desc": "[会客室·线索] 赠送主节点：1-7 任一有可送线索时命中，统一消耗最大赠送次数",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    11,
+                    6,
+                    360,
+                    51
+                ],
+                "expected": [
+                    "赠予自有线索",
+                    "贈予自有線索",
+                    "(?i)Send\\s*Local\\s*Clues",
+                    "譲り渡す"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendClueOne",
+            "ReceptionRoomSendClueTwo",
+            "ReceptionRoomSendClueThree",
+            "ReceptionRoomSendClueFour",
+            "ReceptionRoomSendClueFive",
+            "ReceptionRoomSendClueSix",
+            "ReceptionRoomSendClueSeven",
+            "[JumpBack]ReceptionRoomSendCluesSwipe",
+            "ReceptionRoomSendExit"
+        ]
+    },
+    "ReceptionRoomSendClueOne": {
+        "desc": "[会客室·线索] 自定义赠送：匹配一号线索",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ClueItem",
-                    "ClueItemCountColor",
-                    "ClueItemCount"
+                    "ClueOne",
+                    "ClueOneCount"
                 ],
-                "box_index": 2
+                "box_index": 0
             }
         },
         "pre_delay": 0,
@@ -1392,8 +1426,186 @@
                 42
             ]
         },
-        "post_delay": 0,
-        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
+    },
+    "ReceptionRoomSendClueTwo": {
+        "desc": "[会客室·线索] 自定义赠送：匹配二号线索",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueTwo",
+                    "ClueTwoCount"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                1128,
+                0,
+                83,
+                42
+            ]
+        },
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
+    },
+    "ReceptionRoomSendClueThree": {
+        "desc": "[会客室·线索] 自定义赠送：匹配三号线索",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueThree",
+                    "ClueThreeCount"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                1128,
+                0,
+                83,
+                42
+            ]
+        },
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
+    },
+    "ReceptionRoomSendClueFour": {
+        "desc": "[会客室·线索] 自定义赠送：匹配四号线索",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueFour",
+                    "ClueFourCount"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                1128,
+                0,
+                83,
+                42
+            ]
+        },
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
+    },
+    "ReceptionRoomSendClueFive": {
+        "desc": "[会客室·线索] 自定义赠送：匹配五号线索",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueFive",
+                    "ClueFiveCount"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                1128,
+                0,
+                83,
+                42
+            ]
+        },
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
+    },
+    "ReceptionRoomSendClueSix": {
+        "desc": "[会客室·线索] 自定义赠送：匹配六号线索",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueSix",
+                    "ClueSixCount"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                1128,
+                0,
+                83,
+                42
+            ]
+        },
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
+    },
+    "ReceptionRoomSendClueSeven": {
+        "desc": "[会客室·线索] 自定义赠送：匹配七号线索",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueSeven",
+                    "ClueSevenCount"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                1128,
+                0,
+                83,
+                42
+            ]
+        },
         "rate_limit": 0,
         "next": [
             "ReceptionRoomSendCluesClickSend"
@@ -1639,9 +1851,9 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]ReceptionRoomSendCluesQuickGiveDuplicates",
-            "[JumpBack]ReceptionRoomSendCluesSelectClues",
-            "[JumpBack]ReceptionRoomSendCluesSwipe",
-            "ReceptionRoomSendExit"
+            "[JumpBack]ReceptionRoomSendCluesSendMain",
+            "ReceptionRoomSendExit",
+            "InReceptionRoom"
         ]
     },
     "ReceptionRoomSendCluesQuickGiveDuplicates": {

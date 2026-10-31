@@ -1,8 +1,5 @@
-from __future__ import annotations
-
 from dataclasses import dataclass, field
 from typing import Any, Literal
-
 
 ConnectionKind = Literal["win32", "adb", "playcover", "linux"]
 

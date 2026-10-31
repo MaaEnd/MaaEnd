@@ -37,14 +37,11 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           show-progress: false
 
-      - name: Setup python
-        uses: actions/setup-python@v6
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v10.3.0
         with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          pip install -r tools/optimize_templates/requirements.txt
+          enable-cache: true
+          cache-python: true
 
       - name: Setup oxipng
         uses: baptiste0928/cargo-install@v3
@@ -53,7 +50,7 @@ jobs:
 
       - name: Optimize png images
         run: |
-          python3 tools/optimize_templates/optimize_templates.py
+          uv run tools/optimize_templates/optimize_templates.py
 
       - name: Commit and push changes
         uses: actions-js/push@master

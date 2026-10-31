@@ -19,7 +19,7 @@ constexpr size_t kGridTileEntrySize = 48;
 constexpr size_t kGridZoneMinSize = 28;
 constexpr size_t kInflateChunk = 1U << 16U;
 
-// 定长小端字段。越界就停在原地并记下失败,调用方查一次即可。
+// 定长小端字段, 越界后 ok 置假, 调用方最后查一次即可
 struct Cursor
 {
     const uint8_t* p = nullptr;
@@ -57,7 +57,6 @@ struct Cursor
     bool f64(double& out) { return read(out); }
 };
 
-// 瓦载荷不带原长,所以按块解到流末尾。
 bool Inflate(const uint8_t* data, size_t len, std::vector<uint8_t>& out)
 {
     out.clear();
@@ -84,7 +83,7 @@ bool Inflate(const uint8_t* data, size_t len, std::vector<uint8_t>& out)
     return true;
 }
 
-// 变长整数,低 7 位一组小端在前。走过头就报错,不越界读。
+// 变长整数, 低 7 位一组, 小端在前
 bool GetVarint(const uint8_t*& p, const uint8_t* end, uint64_t& out)
 {
     out = 0;
@@ -137,7 +136,7 @@ bool DecodeGridTile(const uint8_t* data, size_t len, GridTile& out)
         return false;
     }
 
-    // 六列各自长度前缀,顺序与写入端一致:格、高、类号、标志、断口、净空。
+    // 六列各带长度前缀, 依次为格、高、类号、标志、断口、净空
     const uint8_t* col[6] = {};
     const uint8_t* col_end[6] = {};
     for (int i = 0; i < 6; ++i) {
@@ -197,7 +196,7 @@ bool DecodeGridTile(const uint8_t* data, size_t len, GridTile& out)
     return true;
 }
 
-// 头部与 DecodeGridTileV3 逐字段相同, 差别只在后面: 前两条流读掉长度就跳过, 第三条才解开。
+// 头部须与 DecodeGridTileV3 逐字段相同
 bool DecodeGridTileRegionsV3(const uint8_t* data, size_t len, std::vector<uint32_t>& out)
 {
     out.clear();
@@ -284,7 +283,7 @@ bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out
     std::memcpy(&hmin, p, sizeof(float));
     p += sizeof(float);
 
-    // 类号字典的长度就是本瓦的类号数,不另存。
+    // 类号字典的长度即本瓦类号数, 不另存
     uint64_t regions = 0;
     uint64_t ncell = 0;
     uint64_t kmax = 0;
@@ -312,13 +311,12 @@ bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out
     if (p != end) {
         return false;
     }
-    // 每条记录给每条残差流至少一个字节,每个格给格号流与层数流各至少一个,类号同理。
-    // 流已经解开了,流长就是这几个计数的现成上界:先卡住,再按计数开数组。
+    // 每条记录在对应流里至少占一字节, 所以流长是各计数的上界
     if (n > stream[3].size() || ncell > stream[0].size() || ncell > stream[1].size() || regions > stream[2].size()) {
         return false;
     }
 
-    // 格号、每格层数,以及该格首条记录在 rec 里的下标。
+    // base 是该格首条记录在 rec 里的下标
     std::vector<int64_t> cell(static_cast<size_t>(ncell));
     std::vector<uint64_t> depth(static_cast<size_t>(ncell));
     std::vector<size_t> base(static_cast<size_t>(ncell));
@@ -364,14 +362,12 @@ bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out
         }
     }
 
-    // 每层的活格表按格号升序建一次,五个字段共用。逐字段逐层扫全格的话,扫到的
-    // 格次是记录数的好几倍,而记录本身只有 n 条。列号同理,除法只做 ncell 次。
+    // 每层活格按格号升序排, 五个字段共用
     std::vector<uint32_t> layer_cell(static_cast<size_t>(n));
     std::vector<size_t> layer_at(static_cast<size_t>(kmax) + 1, 0);
     for (size_t i = 0; i < static_cast<size_t>(ncell); ++i) {
         layer_at[static_cast<size_t>(depth[i])] += 1;
     }
-    // 直方图先倒着累成「第 L 层有多少活格」,再正着累成起点。
     for (size_t d = static_cast<size_t>(kmax), live = 0; d >= 1; --d) {
         live += layer_at[d];
         layer_at[d] = live;
@@ -388,7 +384,7 @@ bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out
         }
     }
 
-    // 高度与类号下标先落在临时列里:高度要等标志位解出来才知道是不是 fill 的占位 0。
+    // 高度要等标志位解出后才知道是否为 fill 占位, 所以先落临时列
     std::vector<int64_t> height_q(static_cast<size_t>(n), 0);
     std::vector<int64_t> region_index(static_cast<size_t>(n), 0);
     std::vector<int64_t> above(static_cast<size_t>(ncell), 0);
@@ -503,18 +499,17 @@ bool GridPack::parse(const uint8_t* data, size_t len, std::string& err)
         return false;
     }
     version_ = version;
-    // 格边长是判据常数,包和运行端对不上就整包不认:两边的格心不重合,烘出来的一切都错位。
     if (std::abs(cell_size_ - kCS) > 1e-12) {
         err = "GRID cell size does not match the runtime grid";
         return false;
     }
 
-    // 一个区目录项最少 28 字节(名长、名字、两个原点、类号数、瓦数),照它先卡一遍数量。
+    // 区目录项最少 28 字节: 名长、名字、两个原点、类号数、瓦数
     if (static_cast<size_t>(cur.end - cur.p) < static_cast<size_t>(zone_count) * kGridZoneMinSize) {
         err = "GRID zone directory is truncated";
         return false;
     }
-    // 瓦的两边由段头的瓦边长与围裙定死(格心比格边多一格),后面按 nx 开的数组照它开。
+    // 瓦边格数上限由段头的瓦边长与围裙定死
     const int64_t max_side = static_cast<int64_t>((tile_px_ + 2.0 * apron_px_) / cell_size_) + 2;
     zones_.resize(zone_count);
     for (uint32_t i = 0; i < zone_count; ++i) {
@@ -577,7 +572,7 @@ bool GridPack::decodeTile(const GridTileRef& t, GridTile& out) const
         return true;
     }
     if (version_ == kGridSectionVersion) {
-        // v3 的载荷是逐流压的,整块不再套一层 deflate。
+        // v3 载荷逐流压缩, 整块没有外层 deflate
         return DecodeGridTileV3(base_ + t.offset, t.len, t.nx, out) && out.rec.size() == t.records;
     }
     std::vector<uint8_t> raw;
@@ -599,7 +594,6 @@ bool GridPack::tileRegions(const GridTileRef& t, std::vector<uint32_t>& out) con
     if (version_ == kGridSectionVersion) {
         return DecodeGridTileRegionsV3(base_ + t.offset, t.len, out);
     }
-    // v2 的载荷没有独立的字典流,只能整块解开再收。
     GridTile tile;
     if (!decodeTile(t, tile)) {
         return false;

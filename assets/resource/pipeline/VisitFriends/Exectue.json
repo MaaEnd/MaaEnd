@@ -1,8 +1,8 @@
 {
-    "VisitFriendsEnterShipPriorityRemark": {
-        "desc": "白名单链路：点击进船按钮进入好友船（target 取自 PriorityRemark 的飞船框）",
+    "VisitFriendsEnterShipPriority": {
+        "desc": "白名单链路：点击进船按钮进入好友船（target 取自 Priority 的飞船框）",
         "action": "Click",
-        "target": "VisitFriendsMenuScanTargetFriendOpenPriorityRemark",
+        "target": "VisitFriendsMenuScanTargetFriendOpenPriority",
         "target_offset": [
             5,
             5,
@@ -65,8 +65,25 @@
             ]
         },
         "next": [
+            "[JumpBack]VisitFriendsQuickVisitNextEnable",
             "VisitFriendsEnterShipConfirm"
         ]
+    },
+    "VisitFriendsQuickVisitNextEnable": {
+        "desc": "普通链路首次进船时开启快速拜访下一位",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsQuickVisitNext": {
+                    "enabled": true
+                }
+            }
+        },
+        "post_delay": 0
     },
     "VisitFriendsEnterShipConfirm": {
         "desc": "识别进入好友船的确认",
@@ -691,7 +708,44 @@
         "action": "Click",
         "next": [
             "VisitFriendsShipEnterStockRedistribution",
+            "VisitFriendsQuickVisitNext",
             "VisitFriendsWorldShipExitToMenuFriends"
+        ]
+    },
+    "VisitFriendsQuickVisitNext": {
+        "desc": "识别快速拜访下一位提示并点击；未选任何助力时需同时命中线索交流图标",
+        "enabled": false,
+        "max_hit": 10,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    -400,
+                    70,
+                    400,
+                    90
+                ],
+                "expected": [
+                    "快速拜访下位",
+                    "快速拜訪下一位",
+                    "Visit.*Next",
+                    "快速訪問.*次へ"
+                ]
+            },
+            "VisitFriendsQuickVisitNextClue"
+        ],
+        "box_index": 0,
+        "pre_wait_freezes": 100,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "VisitFriendsEnterShipSuccess"
+        },
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "VisitFriendsEnterShipSuccess"
         ]
     },
     "VisitFriendsShipEnterStockRedistribution": {

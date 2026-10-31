@@ -1,0 +1,68 @@
+{
+    "regions": [
+        {
+            "level": "map01_lv001",
+            "name": "枢纽区",
+            "manual": true
+        },
+        {
+            "level": "map01_lv005",
+            "name": "源石研究园",
+            "manual": true
+        },
+        {
+            "level": "map01_lv006",
+            "name": "矿脉源区",
+            "manual": true
+        },
+        {
+            "level": "map01_lv007",
+            "name": "供能高地",
+            "manual": true
+        },
+        {
+            "level": "map02_lv002",
+            "name": "武陵城",
+            "manual": true
+        },
+        {
+            "level": "map02_lv003",
+            "name": "清波寨",
+            "manual": true
+        },
+        {
+            "level": "map02_lv004",
+            "name": "首墩",
+            "manual": true
+        },
+        {
+            "level": "map02_lv005",
+            "name": "试验园区",
+            "manual": true
+        },
+        {
+            "level": "map02_lv006",
+            "name": "藏剑谷",
+            "manual": true
+        },
+        {
+            "level": "map02_lv007",
+            "name": "应龙关",
+            "manual": true
+        },
+        {
+            "level": "map02_lv008",
+            "name": "北部禁区",
+            "manual": true
+        },
+        {
+            "level": "map02_lv009",
+            "name": "雪松林",
+            "manual": true
+        },
+        {
+            "level": "map02_lv010",
+            "name": "祀的画"
+        }
+    ]
+}

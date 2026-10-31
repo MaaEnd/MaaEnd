@@ -4,14 +4,10 @@
         "recognition": "And",
         "all_of": [
             "InRegionalOverview",
+            "__ScenePrivateMenuRegionalOverviewUpperIconRegion",
             {
                 "recognition": "TemplateMatch",
-                "roi": [
-                    186,
-                    69,
-                    45,
-                    404
-                ],
+                "roi": "__ScenePrivateMenuRegionalOverviewUpperIconRegion",
                 "template": [
                     "SceneManager/RegionalOverview/RecyclingStationInactive.png",
                     "SceneManager/RegionalOverview/RecyclingStationValleyIV.png",
@@ -20,7 +16,7 @@
                 "threshold": 0.85
             }
         ],
-        "box_index": 1,
+        "box_index": 2,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
@@ -30,14 +26,10 @@
         "recognition": "And",
         "all_of": [
             "InRegionalOverviewWuling",
+            "__ScenePrivateMenuRegionalOverviewUpperIconRegion",
             {
                 "recognition": "TemplateMatch",
-                "roi": [
-                    186,
-                    69,
-                    45,
-                    404
-                ],
+                "roi": "__ScenePrivateMenuRegionalOverviewUpperIconRegion",
                 "template": [
                     "SceneManager/RegionalOverview/TrialOfSwordmancyInactive.png",
                     "SceneManager/RegionalOverview/TrialOfSwordmancyWuling.png"
@@ -45,7 +37,7 @@
                 "threshold": 0.85
             }
         ],
-        "box_index": 1,
+        "box_index": 2,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
@@ -57,7 +49,8 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterMenuRegionalOverviewValleyIV"
+                "SceneEnterMenuRegionalOverviewValleyIV",
+                "__ScenePrivateMenuRegionalOverviewAnyResetListComplete"
             ]
         },
         "post_delay": 0,
@@ -65,7 +58,9 @@
         "next": [
             "__ScenePrivateMenuRegionalOverviewAnyRecyclingStationExpanded",
             "__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation",
-            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny",
+            "__ScenePrivateMenuRegionalOverviewAnyListComplete",
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyListScroll"
         ]
     },
     "SceneEnterMenuRegionalOverviewWulingRecyclingStation": {
@@ -75,7 +70,8 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterMenuRegionalOverviewWuling"
+                "SceneEnterMenuRegionalOverviewWuling",
+                "__ScenePrivateMenuRegionalOverviewAnyResetListComplete"
             ]
         },
         "post_delay": 0,
@@ -83,7 +79,9 @@
         "next": [
             "__ScenePrivateMenuRegionalOverviewAnyRecyclingStationExpanded",
             "__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation",
-            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny",
+            "__ScenePrivateMenuRegionalOverviewAnyListComplete",
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyListScroll"
         ]
     },
     "SceneEnterMenuRegionalOverviewWulingTrialOfSwordmancy": {
@@ -93,7 +91,8 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterMenuRegionalOverviewWuling"
+                "SceneEnterMenuRegionalOverviewWuling",
+                "__ScenePrivateMenuRegionalOverviewAnyResetListComplete"
             ]
         },
         "post_delay": 0,
@@ -101,7 +100,9 @@
         "next": [
             "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded",
             "__ScenePrivateMenuRegionalOverviewWulingExpandTrialOfSwordmancy",
-            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny",
+            "__ScenePrivateMenuRegionalOverviewAnyListComplete",
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyListScroll"
         ]
     }
 }

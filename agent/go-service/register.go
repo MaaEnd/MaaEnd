@@ -3,10 +3,12 @@ package main
 import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/accountswitch"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aerosalvage"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/arenaofgames"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autodelivery"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoessence"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/automission"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autosell"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockpile"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockstaple"
@@ -32,6 +34,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/repeataction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/textinput"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/deliveryjobs"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dijiangrewards"
@@ -43,6 +46,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pullcount"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/restaurant"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/scenemanager"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/seizedeliveryjobs"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/aspectratio"
@@ -79,6 +83,7 @@ func registerAll() {
 	listcomplete.Register()
 	expendable.Register()
 	attachregex.Register()
+	textinput.Register()
 	autoalt.Register()
 	camerascan.Register()
 	charactercontroller.Register()
@@ -90,6 +95,7 @@ func registerAll() {
 	// Business Custom
 	accountswitch.Register()
 	aerosalvage.Register()
+	arenaofgames.Register()
 	captureuid.Register()
 	autosell.Register()
 	blueprintimport.Register()
@@ -103,6 +109,7 @@ func registerAll() {
 	autodelivery.Register()
 	deliveryjobs.Register()
 	autofight.Register()
+	automission.Register()
 	scenemanager.Register()
 	seizedeliveryjobs.Register()
 	autostockstaple.Register()
@@ -116,6 +123,7 @@ func registerAll() {
 	ziplineimport.Register()
 	pullcount.Register()
 	trialofswordmancy.Register()
+	restaurant.Register()
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }

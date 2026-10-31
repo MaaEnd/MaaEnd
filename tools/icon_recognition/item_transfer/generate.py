@@ -7,7 +7,6 @@ from pathlib import Path
 
 import json5
 
-
 CATEGORY_TYPE_ORDER = (
     "Ore",
     "Plant",

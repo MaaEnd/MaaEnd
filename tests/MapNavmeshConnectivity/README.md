@@ -15,7 +15,7 @@
     },
     "cases": [
         {
-            "name": "AutoCollectRoute1AssertLocation",
+            "name": "AutoCollectWulingBlightedJadeleaf1AssertLocation",
             "zone_id": "Wuling_Base",
             "start": [951, 1788],
             "goal": [933, 1706]
@@ -54,9 +54,9 @@
 ## 运行
 
 ```powershell
-uv sync --locked
+uv sync
 uv run build-and-install --cpp-algo
-uv run python tests/MapNavmeshConnectivity/navmesh_connectivity.py
+uv run tests/MapNavmeshConnectivity/navmesh_connectivity.py
 ```
 
 运行前确认 `install/agent/cpp-algo` 由当前源码构建，`install/maafw` 与 Agent 版本匹配，`install/resource/model/map/navmesh/` 下存在 `base.nav.gz`（或 `base.nav`）。

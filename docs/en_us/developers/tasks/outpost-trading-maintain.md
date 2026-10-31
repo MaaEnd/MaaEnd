@@ -1,6 +1,7 @@
 # Developer Manual - OutpostTrading
 
-`OutpostTrading` automatically sells products at the regions/outposts selected by the user. The task follows "Pipeline owns flow, Go owns algorithms": Pipeline (`assets/resource/pipeline/OutpostTrading*.json`) handles screen recognition and clicking; the Go service (`agent/go-service/outposttrading/`) owns selection strategy, reserve rules, operator planning, and caching.
+`OutpostTrading` automatically sells products at the regions/outposts selected by the user. The task follows "Pipeline owns flow, Go owns algorithms": Pipeline (`assets/resource/pipeline/OutpostTrading*.json`) handles screen recognition and clicking; the Go service (`agent/go-service/outposttrading/`) owns selection strategy, reserve rules, operator planning, and caching.  
+This document was updated on October 23, 2026.
 
 ## At a Glance
 
@@ -15,11 +16,12 @@
 OutpostTradingSchedule ──weekday hit──> OutpostTradingMain
   └─ OutpostTradingEnterRegionalDevelopment   SceneManager: enter Regional Development
   └─ OutpostTradingCaptureUid                 capture hashed UID (account-scoped cache)
-  └─ OutpostTradingPrepareSession             SubTask running 4 init stages in order (reset before configure):
+  └─ OutpostTradingPrepareSession             SubTask running 5 init stages in order (reset before configure):
   │    ├─ InitializeReserveSession → RegisterReserveRule1..6   reset and register reserve rules (empty slots no-op)
   │    ├─ InitializeOperatorSession → RegisterLocation × 6     reset operator session and register enabled outposts
   │    ├─ ConfigurePrioritySession                             priority master switch / strict mode
-  │    └─ ConfigureSelectionStrategy                           selection strategy (rarity/price/stock)
+  │    ├─ ConfigureSelectionStrategy                           selection strategy (rarity/price/stock)
+  │    └─ ConfigureMinimumPrice                                minimum unit price (applies to every strategy)
   └─ OutpostTradingLoop                       newest region first: Wuling → Valley IV → OutpostTradingTaskEnd
 
 Per region (OutpostTrading{Region} → OutpostTrading{Region}Sell)
@@ -52,7 +54,7 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 
 > [!IMPORTANT]
 >
-> `InitializeReserveSession` must run before the two `Configure*` stages: its `reset` also resets the whole priority-selection session (master switch, strict mode, selection strategy), so reversing the order would swallow the configuration. `InitializeOperatorSession` is fully independent of the goods session and may sit anywhere.
+> `InitializeReserveSession` must run before the three `Configure*` stages: its `reset` also resets the whole priority-selection session (master switch, strict mode, selection strategy, minimum unit price), so reversing the order would swallow the configuration. `InitializeOperatorSession` is fully independent of the goods session and may sit anywhere.
 
 ## Selling Rules (Go `goods/`)
 
@@ -62,7 +64,9 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 | ---------------- | ----------------------------------------------------- | ----------------------------------------------------------- |
 | Rarity Priority (default) | rarity desc → unit price desc → stable source order | may pick bottom half-visible items with unknown stock |
 | Unit Price Priority | unit price desc → rarity desc → stable order | same as above |
-| Stock Priority | local stock desc → unit price → rarity → stable order | requires recognized stock and a unit price no lower than the user's minimum |
+| Stock Priority | local stock desc → unit price → rarity → stable order | requires recognized stock |
+
+The minimum unit price (task option `SellProductStockMinimumUnitPrice`, default 10) applies to **every** strategy: goods priced below it are never selected and are listed separately as "excluded below minimum unit price" in the runtime plan. Preferred goods are explicitly pinned by the user and are exempt.
 
 ### Selection Recognition (`OutpostTradingPriorityItem` custom recognizer)
 
@@ -134,7 +138,7 @@ Selling operator not found, or a pre-/post-sell list scan failure (including the
 ## Runtime Output
 
 - When reusing an operator snapshot, prints the account's `updated_at` in local time.
-- On outpost entry, prints: selling/restore operator targets, the goods plan (static strategies list their order; stock strategy notes it decides after scanning), items excluded due to out-of-stock/reserve/never-sell, and applicable reserve rules.
+- On outpost entry, prints: selling/restore operator targets, the goods plan (static strategies list their order; stock strategy notes it decides after scanning), items excluded due to out-of-stock/reserve/never-sell/below minimum price, and applicable reserve rules.
 - Afterwards prints actual keep/switch results, completed trades, out-of-stock events, reserve milestones, conflict re-plans, scan failures, and other dynamic states.
 - All text follows the client language: Pipeline `focus` uses interface i18n; Go output uses go-service i18n.
 

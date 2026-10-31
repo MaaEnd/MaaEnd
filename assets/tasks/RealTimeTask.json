@@ -592,7 +592,11 @@
                 {
                     "name": "No",
                     "option": [
-                        "AutoFightReserveSkillLevel"
+                        "AutoFightReserveSkillLevel",
+                        "AutoFightSkillOperator1",
+                        "AutoFightSkillOperator2",
+                        "AutoFightSkillOperator3",
+                        "AutoFightSkillOperator4"
                     ]
                 }
             ],
@@ -676,7 +680,11 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "AutoFightReserveSkillLevel"
+                        "AutoFightReserveSkillLevel",
+                        "AutoFightSkillOperator1",
+                        "AutoFightSkillOperator2",
+                        "AutoFightSkillOperator3",
+                        "AutoFightSkillOperator4"
                     ],
                     "pipeline_override": {
                         "AutoFight": {
@@ -768,6 +776,166 @@
                 }
             ],
             "default_case": "Yes"
+        },
+        "AutoFightSkillOperator1": {
+            "type": "select",
+            "label": "$option.AutoFightSkillOperator1.label",
+            "cases": [
+                {
+                    "name": "Cycle",
+                    "label": "$option.AutoFightSkillOperator1.case.Cycle.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skill_mode_1": "cycle"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Once",
+                    "label": "$option.AutoFightSkillOperator1.case.Once.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skill_mode_1": "once"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Never",
+                    "label": "$option.AutoFightSkillOperator1.case.Never.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skill_mode_1": "never"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Cycle"
+        },
+        "AutoFightSkillOperator2": {
+            "type": "select",
+            "label": "$option.AutoFightSkillOperator2.label",
+            "cases": [
+                {
+                    "name": "Cycle",
+                    "label": "$option.AutoFightSkillOperator2.case.Cycle.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skill_mode_2": "cycle"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Once",
+                    "label": "$option.AutoFightSkillOperator2.case.Once.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skill_mode_2": "once"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Never",
+                    "label": "$option.AutoFightSkillOperator2.case.Never.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skill_mode_2": "never"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Cycle"
+        },
+        "AutoFightSkillOperator3": {
+            "type": "select",
+            "label": "$option.AutoFightSkillOperator3.label",
+            "cases": [
+                {
+                    "name": "Cycle",
+                    "label": "$option.AutoFightSkillOperator3.case.Cycle.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skill_mode_3": "cycle"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Once",
+                    "label": "$option.AutoFightSkillOperator3.case.Once.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skill_mode_3": "once"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Never",
+                    "label": "$option.AutoFightSkillOperator3.case.Never.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skill_mode_3": "never"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Cycle"
+        },
+        "AutoFightSkillOperator4": {
+            "type": "select",
+            "label": "$option.AutoFightSkillOperator4.label",
+            "cases": [
+                {
+                    "name": "Cycle",
+                    "label": "$option.AutoFightSkillOperator4.case.Cycle.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skill_mode_4": "cycle"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Once",
+                    "label": "$option.AutoFightSkillOperator4.case.Once.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skill_mode_4": "once"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Never",
+                    "label": "$option.AutoFightSkillOperator4.case.Never.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skill_mode_4": "never"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Cycle"
         },
         "AutoFightEndSkill": {
             "type": "switch",

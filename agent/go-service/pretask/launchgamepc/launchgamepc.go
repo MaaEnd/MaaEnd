@@ -2,6 +2,7 @@ package launchgamepc
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -26,15 +27,25 @@ const (
 	regionCN       = "CN"
 	regionGlobal   = "Global"
 	regionBilibili = "Bilibili"
+	regionTapTap   = "TapTap"
+	regionSteam    = "Steam"
+	regionEpic     = "Epic"
 
 	gameProcessName = "Endfield.exe"
 	launcherExeName = "Launcher.exe"
 
+	wakeEntry     = "GameLauncherWakeMain"
 	pipelineEntry = "GameLauncherMain"
 
-	launcherWindowTimeout = 60 * time.Second
-	gameWindowTimeout     = 120 * time.Second
-	pollInterval          = 5 * time.Second
+	// 开机自启动时负载高、游戏首次启动较慢，与 MXU 前置程序等待窗口的时长保持一致
+	launcherWindowTimeout = 300 * time.Second
+	gameWindowTimeout     = 300 * time.Second
+	// 与 MXU 前置程序等待窗口的轮询间隔一致
+	pollInterval = 1 * time.Second
+	// 与 MXU 前置程序 preActionConnectDelaySec 的默认值一致，窗口出现后先等待初始化再连接
+	// 启动器过早连接会出现异常画面 https://github.com/MaaEnd/MaaEnd/issues/6585
+	launcherWindowSettleWait = 5 * time.Second
+	gameWindowSettleWait     = 5 * time.Second
 )
 
 // 与 interface.json 中 Win32-Front 的窗口匹配规则保持一致，供 MXU 后续连接。
@@ -45,16 +56,51 @@ var (
 )
 
 // launcherInfo 描述各区服启动器：uninstallKey 为注册表 Uninstall 下的键名，
-// windowTitle 为启动器主窗口标题（三个区服各不相同）。
+// protocolKey 为启动器注册的 URL 协议键名，作为卸载项缺失时的备选；
+// launchURL 非空时不查找安装目录，改为打开该链接拉起启动器或游戏（TapTap 版直接运行 Launcher.exe 会提示需要重启应用）；
+// windowRegex 匹配启动器主窗口标题（B 服与 TapTap 版相同），为 nil 表示没有启动器（Steam 版直接拉起游戏）；
+// settingRegion 为游戏设置所在的注册表区服：B 服、TapTap 与国服共用 Hypergryph 路径，Steam、Epic 与国际服共用 Gryphline 路径。
 type launcherInfo struct {
-	uninstallKey string
-	windowTitle  string
+	uninstallKey  string
+	protocolKey   string
+	launchURL     string
+	windowRegex   *regexp.Regexp
+	settingRegion string
 }
 
 var launchers = map[string]launcherInfo{
-	regionCN:       {uninstallKey: "33a0a6296a20400d503c59ac0fd6341e", windowTitle: "鹰角启动器"},
-	regionGlobal:   {uninstallKey: "d9f71f86325c5b9733268efda40413c8", windowTitle: "GRYPHLINK"},
-	regionBilibili: {uninstallKey: "d957df99efbdf610162fd47c00ceaba7", windowTitle: "明日方舟：终末地"},
+	regionCN: {
+		uninstallKey:  "33a0a6296a20400d503c59ac0fd6341e",
+		protocolKey:   "hypergryphlauncher-abYeZZ16BPluCFyT",
+		windowRegex:   regexp.MustCompile(`^鹰角启动器$`),
+		settingRegion: regionCN,
+	},
+	regionGlobal: {
+		uninstallKey:  "d9f71f86325c5b9733268efda40413c8",
+		protocolKey:   "gryphlinklauncher-TiaytKBUIEdoEwRT",
+		windowRegex:   regexp.MustCompile(`^GRYPHLINK$`),
+		settingRegion: regionGlobal,
+	},
+	regionBilibili: {
+		uninstallKey:  "d957df99efbdf610162fd47c00ceaba7",
+		protocolKey:   "hypergryphlauncher-RhAij5MdwvTWpQ8N",
+		windowRegex:   regexp.MustCompile(`^明日方舟：终末地$`),
+		settingRegion: regionCN,
+	},
+	regionTapTap: {
+		launchURL:     "taptap://taptap.com/app?app_id=232326&auto_launch=true",
+		windowRegex:   regexp.MustCompile(`^明日方舟：终末地$`),
+		settingRegion: regionCN,
+	},
+	regionSteam: {
+		launchURL:     "steam://rungameid/4732690",
+		settingRegion: regionGlobal,
+	},
+	regionEpic: {
+		launchURL:     "com.epicgames.launcher://apps/14d53b5d3fcb4526a69d59f35c9dd28f%3A6838c695288a4fcea4486285edebcfdf%3Abcd55b0d87c245dd867f5b1bd496f1df?action=launch&silent=true",
+		windowRegex:   regexp.MustCompile(`^Arknights: Endfield$`),
+		settingRegion: regionGlobal,
+	},
 }
 
 type launchGamePCOptions struct {
@@ -72,14 +118,6 @@ type launchGamePCOptions struct {
 	AutoHDR         string `json:"LaunchGamePCAutoHDR"`
 }
 
-// settingRegion 把启动器区服映射为游戏设置的注册表区服：B 服与国服共用 Hypergryph 路径。
-func settingRegion(region string) string {
-	if region == regionGlobal {
-		return regionGlobal
-	}
-	return regionCN
-}
-
 // Run 对应 assets/tasks/pretasks/LaunchGamePC.json 的 pretask 入口。
 // 启动器界面流程由 pipeline GameLauncher 负责，这里只处理进程、窗口与 MaaFramework 初始化。
 func Run(args []string) bool {
@@ -94,7 +132,7 @@ func Run(args []string) bool {
 		return false
 	}
 
-	if isProcessRunning(gameProcessName, "") {
+	if isProcessRunning(gameProcessName) {
 		log.Info().
 			Str("component", component).
 			Msg("game is already running, skip launching")
@@ -114,7 +152,7 @@ func Run(args []string) bool {
 			AutoHDR:         opts.AutoHDR,
 		}
 		// 设置写入失败不影响启动
-		err := gamesetting.ApplyAll(settingRegion(opts.Region), settings)
+		err := gamesetting.ApplyAll(info.settingRegion, settings)
 		if err != nil {
 			log.Error().
 				Err(err).
@@ -129,6 +167,114 @@ func Run(args []string) bool {
 		log.Info().
 			Str("component", component).
 			Msg("game setting is disabled, skip applying")
+	}
+
+	// 查找启动器窗口依赖 MaaFramework，需在启动启动器之前初始化
+	if err := initMaa(); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", component).
+			Msg("failed to initialize MAA framework")
+		return false
+	}
+	defer maa.Release()
+	log.Info().
+		Str("component", component).
+		Msg("MAA framework initialized")
+
+	// 无显示器时/部分DP显示器关闭后，系统判断显示器断开，启动器窗口不绘制，所有截图方案均不可用
+	if !hasActiveMonitor() {
+		log.Warn().
+			Str("component", component).
+			Msg("未检测到显示器，可能无法识别启动器画面 / No monitor detected, the launcher screen may not be recognized")
+	}
+
+	if info.launchURL != "" {
+		if err := openLaunchURL(info.launchURL); err != nil {
+			log.Error().
+				Err(err).
+				Str("component", component).
+				Str("url", info.launchURL).
+				Msg("failed to open launch url")
+			return false
+		}
+	} else if !startLauncherFromInstallDir(opts, info) {
+		return false
+	}
+
+	if info.windowRegex != nil && !runLauncher(info.windowRegex) {
+		return false
+	}
+
+	log.Info().
+		Str("component", component).
+		Dur("timeout", gameWindowTimeout).
+		Msg("waiting for game window")
+	if !waitGame(gameWindowTimeout) {
+		log.Error().
+			Str("component", component).
+			Msg("game window not found after launching")
+		return false
+	}
+
+	log.Info().
+		Str("component", component).
+		Msg("game launched")
+	return true
+}
+
+// runLauncher 等待启动器窗口出现后执行启动器 pipeline。
+func runLauncher(windowRegex *regexp.Regexp) bool {
+	log.Info().
+		Str("component", component).
+		Str("title", windowRegex.String()).
+		Dur("timeout", launcherWindowTimeout).
+		Msg("waiting for launcher window")
+	// 此处避免使用进程名判断，避免游戏启动期间触发 ACE。
+	hWnd, ok := waitWindow(launcherClassRegex, windowRegex, launcherWindowTimeout)
+	if !ok {
+		log.Error().
+			Str("component", component).
+			Str("title", windowRegex.String()).
+			Msg("launcher window not found")
+		return false
+	}
+	log.Info().
+		Str("component", component).
+		Str("title", windowRegex.String()).
+		Msg("launcher window found")
+
+	log.Info().
+		Str("component", component).
+		Dur("wait", launcherWindowSettleWait).
+		Msg("waiting before connecting launcher window")
+	time.Sleep(launcherWindowSettleWait)
+
+	if moved, err := moveLauncherToPrimaryMonitor(hWnd); err != nil {
+		log.Warn().
+			Err(err).
+			Str("component", component).
+			Msg("failed to move launcher window to primary monitor")
+	} else if moved {
+		log.Info().
+			Str("component", component).
+			Msg("launcher window moved to primary monitor")
+	}
+
+	return runLauncherPipeline(hWnd)
+}
+
+// startLauncherFromInstallDir 按任务设置或注册表找到安装目录并运行 Launcher.exe。
+// 启动器窗口已存在时直接复用，不再运行 Launcher.exe，避免启动器窗口进入异常状态。
+func startLauncherFromInstallDir(opts launchGamePCOptions, info launcherInfo) bool {
+	if info.windowRegex != nil {
+		if _, ok := findWindow(launcherClassRegex, info.windowRegex); ok {
+			log.Info().
+				Str("component", component).
+				Str("title", info.windowRegex.String()).
+				Msg("launcher window already exists, reuse it")
+			return true
+		}
 	}
 
 	var installDir string
@@ -148,13 +294,12 @@ func Run(args []string) bool {
 		}
 		installDir = filepath.Dir(launcherPath)
 	} else {
-		dir, err := gamesetting.FindLauncherInstallDir(info.uninstallKey)
+		dir, err := findLauncherInstallDir(info)
 		if err != nil {
 			log.Error().
 				Err(err).
 				Str("component", component).
 				Str("region", opts.Region).
-				Str("uninstall_key", info.uninstallKey).
 				Msg("无法找到启动器，请在任务设置中手动填写路径")
 			return false
 		}
@@ -166,7 +311,7 @@ func Run(args []string) bool {
 		Str("install_dir", installDir).
 		Msg("launcher install directory found")
 
-	// 启动器最小化到托盘时进程仍在但窗口不可见，因此无论进程是否存在都执行一次以唤出窗口。
+	// 启动器最小化到托盘时进程仍在但窗口不可见，需要再执行一次 Launcher.exe 唤出窗口。
 	if err := startLauncher(installDir); err != nil {
 		log.Error().
 			Err(err).
@@ -175,62 +320,25 @@ func Run(args []string) bool {
 			Msg("failed to start launcher")
 		return false
 	}
-
-	if err := initMaa(); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", component).
-			Msg("failed to initialize MAA framework")
-		return false
-	}
-	defer maa.Release()
-	log.Info().
-		Str("component", component).
-		Msg("MAA framework initialized")
-
-	log.Info().
-		Str("component", component).
-		Str("title", info.windowTitle).
-		Dur("timeout", launcherWindowTimeout).
-		Msg("waiting for launcher window")
-	titleRegex := regexp.MustCompile("^" + regexp.QuoteMeta(info.windowTitle) + "$")
-	// 此处避免使用进程名判断，避免游戏启动期间触发 ACE。
-	hWnd, ok := waitWindow(launcherClassRegex, titleRegex, launcherWindowTimeout)
-	if !ok {
-		log.Error().
-			Str("component", component).
-			Str("title", info.windowTitle).
-			Msg("launcher window not found")
-		return false
-	}
-	log.Info().
-		Str("component", component).
-		Str("title", info.windowTitle).
-		Msg("launcher window found")
-
-	log.Info().
-		Str("component", component).
-		Str("entry", pipelineEntry).
-		Msg("running launcher pipeline")
-	if !runLauncherPipeline(hWnd) {
-		return false
-	}
-
-	log.Info().
-		Str("component", component).
-		Dur("timeout", gameWindowTimeout).
-		Msg("waiting for game window")
-	if !waitGame(gameWindowTimeout) {
-		log.Error().
-			Str("component", component).
-			Msg("game window not found after launching")
-		return false
-	}
-
-	log.Info().
-		Str("component", component).
-		Msg("game launched")
 	return true
+}
+
+// findLauncherInstallDir 先查 Uninstall 卸载项，找不到再查 URL 协议键。
+func findLauncherInstallDir(info launcherInfo) (string, error) {
+	var errs []error
+	if info.uninstallKey != "" {
+		dir, err := gamesetting.FindLauncherInstallDir(info.uninstallKey)
+		if err == nil {
+			return dir, nil
+		}
+		errs = append(errs, err)
+	}
+	dir, err := gamesetting.FindLauncherInstallDirByProtocol(info.protocolKey)
+	if err == nil {
+		return dir, nil
+	}
+	errs = append(errs, err)
+	return "", errors.Join(errs...)
 }
 
 func parseOptions(args []string) launchGamePCOptions {
@@ -261,8 +369,8 @@ func parseOptions(args []string) launchGamePCOptions {
 	return opts
 }
 
-// isProcessRunning 按进程名查找；dirPrefix 非空时还要求可执行文件位于该目录下，用于区分不同区服的启动器。
-func isProcessRunning(name, dirPrefix string) bool {
+// isProcessRunning 按进程名查找。
+func isProcessRunning(name string) bool {
 	procs, err := process.Processes()
 	if err != nil {
 		log.Warn().
@@ -272,17 +380,9 @@ func isProcessRunning(name, dirPrefix string) bool {
 		return false
 	}
 
-	prefix := strings.ToLower(filepath.Clean(dirPrefix)) + string(filepath.Separator)
 	for _, p := range procs {
 		procName, err := p.Name()
-		if err != nil || !strings.EqualFold(procName, name) {
-			continue
-		}
-		if dirPrefix == "" {
-			return true
-		}
-		exe, err := p.Exe()
-		if err == nil && strings.HasPrefix(strings.ToLower(filepath.Clean(exe)), prefix) {
+		if err == nil && strings.EqualFold(procName, name) {
 			return true
 		}
 	}
@@ -304,6 +404,19 @@ func startLauncher(installDir string) error {
 		Str("component", component).
 		Str("path", exePath).
 		Msg("launcher started")
+	return cmd.Process.Release()
+}
+
+// openLaunchURL 交给系统的协议处理程序打开链接；不经过 cmd，避免 & 被解析。
+func openLaunchURL(url string) error {
+	cmd := exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	log.Info().
+		Str("component", component).
+		Str("url", url).
+		Msg("launch url opened")
 	return cmd.Process.Release()
 }
 
@@ -362,6 +475,11 @@ func waitGame(timeout time.Duration) bool {
 	}
 	log.Info().
 		Str("component", component).
+		Dur("wait", gameWindowSettleWait).
+		Msg("game window found, waiting before connecting")
+	time.Sleep(gameWindowSettleWait)
+	log.Info().
+		Str("component", component).
 		Msg("game window is ready")
 	return true
 }
@@ -380,16 +498,10 @@ func runLauncherPipeline(hWnd unsafe.Pointer) bool {
 	return true
 }
 
+// runPipeline 分两个阶段执行启动器 pipeline：
+// 第一阶段与游戏的 Win32-Front 一致，用前台截图 + Seize（SendInput 真实输入），息屏时点击可唤醒显示器，直到识别到左侧终末地图标；
+// 第二阶段改用 PrintWindow + SendMessage，直接把点击发给启动器窗口，避免唤醒后真实输入被锁屏等前台界面拦截。
 func runPipeline(hWnd unsafe.Pointer) error {
-	ctrl, err := maa.NewWin32Controller(hWnd, win32.ScreencapPrintWindow, win32.InputPostMessage, win32.InputPostMessage)
-	if err != nil {
-		return err
-	}
-	defer ctrl.Destroy()
-	if !ctrl.PostConnect().Wait().Success() {
-		return fmt.Errorf("failed to connect launcher window")
-	}
-
 	res, err := maa.NewResource()
 	if err != nil {
 		return err
@@ -398,6 +510,27 @@ func runPipeline(hWnd unsafe.Pointer) error {
 	resourceDir := fsutil.OutputPath("resource")
 	if !res.PostBundle(resourceDir).Wait().Success() {
 		return fmt.Errorf("failed to load resource: %s", resourceDir)
+	}
+
+	if err := runPipelinePhase(hWnd, res, win32.ScreencapScreenDC, win32.InputSeize, wakeEntry); err != nil {
+		return err
+	}
+	return runPipelinePhase(hWnd, res, win32.ScreencapPrintWindow, win32.InputSendMessage, pipelineEntry)
+}
+
+func runPipelinePhase(hWnd unsafe.Pointer, res *maa.Resource, screencap win32.ScreencapMethod, input win32.InputMethod, entry string) error {
+	log.Info().
+		Str("component", component).
+		Str("entry", entry).
+		Msg("running launcher pipeline")
+
+	ctrl, err := maa.NewWin32Controller(hWnd, screencap, input, input)
+	if err != nil {
+		return err
+	}
+	defer ctrl.Destroy()
+	if !ctrl.PostConnect().Wait().Success() {
+		return fmt.Errorf("failed to connect launcher window")
 	}
 
 	tasker, err := maa.NewTasker()
@@ -412,8 +545,8 @@ func runPipeline(hWnd unsafe.Pointer) error {
 		return err
 	}
 
-	if !tasker.PostTask(pipelineEntry).Wait().Success() {
-		return fmt.Errorf("pipeline %s failed", pipelineEntry)
+	if !tasker.PostTask(entry).Wait().Success() {
+		return fmt.Errorf("pipeline %s failed", entry)
 	}
 	return nil
 }

@@ -1,0 +1,211 @@
+{
+    "AutoCollectWulingRedjadeGinseng1Start": {
+        "desc": "琼叶参采集线，4个坐标，5个物品",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectWulingRedjadeGinseng1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingRedjadeGinseng1.label"
+        }
+    },
+    "AutoCollectWulingRedjadeGinseng1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingRedjadeGinseng1": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStoneRestrictedArea"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingRedjadeGinseng1AssertLocation1"
+        ]
+    },
+    "AutoCollectWulingRedjadeGinseng1AssertLocation1": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                589,
+                2231,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingRedjadeGinseng1Goto1"
+        ]
+    },
+    "AutoCollectWulingRedjadeGinseng1Goto1": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                636.26,
+                                2293.87
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                636.05,
+                                2332.92
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                590.98,
+                                2346.76
+                            ]
+                        },
+                        [
+                            554.7,
+                            2347.1
+                        ],
+                        [
+                            541.68,
+                            2352.06
+                        ],
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                455.19,
+                                2388.06
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingRedjadeGinseng1AssertLocation2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectWulingRedjadeGinseng1AssertLocation2": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                445,
+                2379,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingRedjadeGinseng1Goto2"
+        ]
+    },
+    "AutoCollectWulingRedjadeGinseng1Goto2": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            454.1,
+                            2388.75,
+                            "COLLECT"
+                        ],
+                        [
+                            454.1,
+                            2388.75,
+                            "COLLECT"
+                        ],
+                        [
+                            454.1,
+                            2389.93,
+                            "COLLECT"
+                        ],
+                        [
+                            454.1,
+                            2389.93,
+                            "COLLECT"
+                        ],
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                467.08,
+                                2400.82
+                            ],
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            464.94,
+                            2397.12,
+                            "COLLECT"
+                        ],
+                        [
+                            464.94,
+                            2397.12,
+                            "COLLECT"
+                        ],
+                        [
+                            464.94,
+                            2397.12,
+                            "COLLECT"
+                        ],
+                        [
+                            464.34,
+                            2397.52,
+                            "COLLECT"
+                        ],
+                        [
+                            464.34,
+                            2397.52,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingRedjadeGinseng1End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

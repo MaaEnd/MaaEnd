@@ -12,8 +12,6 @@
 环境变量: GITHUB_TOKEN 或 GH_TOKEN (需 actions: write)。
 """
 
-from __future__ import annotations
-
 import argparse
 import calendar
 import json
@@ -63,7 +61,7 @@ def _headers(extra: dict | None = None) -> dict:
     return h
 
 
-def request_json(url: str) -> "dict | list":
+def request_json(url: str) -> dict | list:
     # 5 次指数退避重试 (5xx/429/网络瞬态)
     import random
     import time as _time

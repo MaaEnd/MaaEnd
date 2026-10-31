@@ -379,9 +379,6 @@ class ItemTransferGeneratorTest(unittest.TestCase):
                 [
                     uv,
                     "run",
-                    "--frozen",
-                    "--only-group",
-                    "schema",
                     "tools/validate_schema.py",
                     "--resource-dirs",
                     str(resource_dir),

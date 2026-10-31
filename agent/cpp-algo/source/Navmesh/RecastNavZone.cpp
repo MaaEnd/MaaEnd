@@ -61,7 +61,7 @@ PolyMesh::PolyMesh(const BaseNavVertex* vb_in, int64_t nv_in, std::vector<std::a
 PolyMesh::PolyMesh(std::vector<BaseNavVertex> own, std::vector<std::array<int32_t, 3>> t, std::vector<uint8_t>* dup)
     : PolyMesh(own.data(), static_cast<int64_t>(own.size()), std::move(t), dup)
 {
-    vown = std::move(own); // 堆块随 move 原样搬走, verts() 之后改走 vown
+    vown = std::move(own); // 堆块随 move 原样搬走
 }
 
 void PolyMesh::foldNb()
@@ -77,7 +77,6 @@ void PolyMesh::foldNb()
     std::vector<std::array<int32_t, 3>>().swap(NB);
 }
 
-// 重 key 取稳定序首槽
 void PolyMesh::buildNb(std::vector<uint8_t>* dup)
 {
     const int64_t m = static_cast<int64_t>(T.size());
@@ -88,8 +87,7 @@ void PolyMesh::buildNb(std::vector<uint8_t>* dup)
     if (m == 0) {
         return;
     }
-    // 有向边按起点分桶: 每个顶点平均只挂六条边, 找反向边扫本桶即可。桶内按槽号递增填,
-    // 所以首个命中就是稳定序里的首槽, 与把三倍三角数的边整体排一遍再取首个逐位相同。
+    // 桶内按槽号递增填, 重边时首个命中即稳定序首槽
     const int64_t n = nv;
     std::vector<int32_t> at(static_cast<size_t>(n) + 1, 0);
     for (const auto& tri : T) {
@@ -100,7 +98,6 @@ void PolyMesh::buildNb(std::vector<uint8_t>* dup)
     for (int64_t i = 0; i < n; ++i) {
         at[static_cast<size_t>(i) + 1] += at[static_cast<size_t>(i)];
     }
-    // 桶里只存槽号, 边的终点从 T 现算: 少一张三倍三角数的 int32 表(最大区 47 MB)。
     std::vector<int32_t> slot(static_cast<size_t>(3 * m));
     {
         std::vector<int32_t> wr = at;
@@ -128,7 +125,7 @@ void PolyMesh::buildNb(std::vector<uint8_t>* dup)
                 if (dup == nullptr) {
                     continue;
                 }
-                // 本槽的有向边 a→b 在 a 桶里还有别的槽也是 a→b, 即重边。每个线程只写自己的槽。
+                // 每个线程只写自己的槽
                 const auto self = static_cast<int32_t>(i * 3 + k);
                 for (int32_t p = at[static_cast<size_t>(a)]; p < at[static_cast<size_t>(a) + 1]; ++p) {
                     if (slot[static_cast<size_t>(p)] != self && dst(slot[static_cast<size_t>(p)]) == b) {
@@ -240,16 +237,10 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
     hi = lo + zone->triangle_count;
     const auto& ptris = pack.triangles();
     const auto& pverts = pack.vertices();
-    // 坐标是不是导出侧精确焊过的,认 BGEO 段 —— 那是这一代包才有的几何段,带它的包
-    // 顶点身份已经定死,再按 0.05 网格 round 一遍并二次焊接只会挪动坐标。BSRF 只是
-    // 可选的取证段,拿它当几何判据的话,一个纯可走包(不带 BSRF)会被误判成老包。
+    // 带 BGEO 段的包顶点已精确焊接, 再取整焊接只会挪动坐标
     const bool source_exact = pack.section("BGEO") != nullptr || (!pack.surfaces().empty() && pack.surfaces().size() == ptris.size());
     const bool has_source_surfaces = !pack.surfaces().empty() && pack.surfaces().size() == ptris.size();
 
-    // 源语义:BSRF 里那 32 位 flags 说了算,掩码没命中的三角不是可走面。就地打标,不压缩、
-    // 不重排 —— 下面六处消费点各自跳过它们(邻接、分量、hop、吸附、墙判据、体素化),
-    // 几何本身照旧留在包和网格里。没有 surface 表的包全部可走:纯可走包里「在包里」
-    // 本身就是可走的意思,旧包则行为与历史逐字节相同。
     const int64_t m_all = hi - lo;
     walkable.assign(static_cast<size_t>(m_all), 1);
     int64_t n_masked = 0;
@@ -267,7 +258,6 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
         return;
     }
 
-    // 带源 surface 表的新包保留导出坐标与顶点身份；旧包继续走历史焊接规则。
     uint32_t vmin = UINT32_MAX;
     uint32_t vmax = 0;
     for (int64_t i = lo; i < hi; ++i) {
@@ -277,9 +267,6 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
         }
     }
     const int64_t nv = static_cast<int64_t>(vmax) - vmin + 1;
-    // 源精确包: 顶点就是包里那段 float, 三角只换成区内局部顶点号, 不复制、不焊接。
-    // 旧包: 取整到 0.05 后按 (x,y) 同柱、高差 ≤ kWeldDh 焊接; 取整值以 float 存, 与历史
-    // 的 double 差在 1e-6 px 量级, 远小于取整步长本身。
     std::vector<BaseNavVertex> CV;
     std::vector<int32_t> MAP;
     int64_t n_weld = 0;
@@ -345,7 +332,6 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
     }
     std::vector<int32_t>().swap(MAP);
 
-    // 同一条有向边出现两次以上的槽, 与邻接一趟分桶顺带标出
     std::vector<uint8_t> dup;
     mesh = source_exact ? PolyMesh(pverts.data() + vmin, nv, std::move(CT2), &dup) : PolyMesh(std::move(CV), std::move(CT2), &dup);
     const auto& T = mesh.T;
@@ -391,8 +377,6 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
         NB[static_cast<size_t>(slot / 3)][slot % 3] = -1;
     }
 
-    // NB 掩码:焊接邻接必须在 pack link 表有背书,无背书的缝一律割掉。
-    // 背书直接问规划器: 小号一端有没有指向大号那端的链接, 不必把整区链接再抄成一份分桶表。
     const auto endorsed = [&](int32_t a, int32_t b) {
         return planner.hasLink(static_cast<uint32_t>(lo + a), static_cast<uint32_t>(lo + b));
     };
@@ -409,8 +393,6 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
                 if (j < 0) {
                     continue;
                 }
-                // 掩码外的三角一条缝都不接:它跟谁都断,自己落成孤立分量。割在并查集之前,
-                // 分量因此天然把水体、禁区与可走面分开。
                 if (walkable[static_cast<size_t>(i)] == 0 || walkable[static_cast<size_t>(j)] == 0) {
                     bins[w].push_back(slot);
                     ++masked[w];
@@ -465,13 +447,11 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
             }
         }
     }
-    // 邻接到此用完, 压成边界位。分量号(par)只用来算孤岛位, 算完随作用域释放。
     mesh.foldNb();
     for (int64_t i = 0; i < m; ++i) {
         par[static_cast<size_t>(i)] = find(static_cast<int32_t>(i));
     }
 
-    // 岛 = 天然分量(pack n 字段)不超过阈值的三角占多数的 comp
     std::vector<int32_t> n_tot(static_cast<size_t>(m), 0);
     std::vector<int32_t> n_isl(static_cast<size_t>(m), 0);
     for (int64_t i = 0; i < m; ++i) {
@@ -519,7 +499,7 @@ std::optional<ZoneClean::SnapHit> ZoneClean::snap(
         SnapHit best;
         for (const int32_t t : mesh.trisNear(p, rr)) {
             if (walkable[static_cast<size_t>(t)] == 0) {
-                continue; // 掩码外的面不接受吸附;这一关两轮半径都要过
+                continue;
             }
             const auto& tri = mesh.T[static_cast<size_t>(t)];
             const auto [sp, dist] = closestOnTri(p, { mesh.v(tri[0]), mesh.v(tri[1]), mesh.v(tri[2]) });
@@ -527,9 +507,7 @@ std::optional<ZoneClean::SnapHit> ZoneClean::snap(
                 continue;
             }
             const double isl = island[static_cast<size_t>(t)] != 0 ? 1.0 : 0.0;
-            // dist 打平只发生在同一 (u,v) 上摞着好几层地面(都含点 ⇒ 都是 0), 由层级破平:
-            // 声明了起点层就按它挑, 否则取高的那层 —— 可达是单向的, 高层能往下掉、低层爬不
-            // 上去, 取高猜错只多绕一段, 取低猜错当场报不连通。
+            // 未给楼层时多层同距取最高层, 高层能往下掉, 低层爬不上去
             std::array<double, 4> k;
             if (!floor_y.has_value()) {
                 k = { dist, -triHeight(mesh, t), isl, static_cast<double>(t) };

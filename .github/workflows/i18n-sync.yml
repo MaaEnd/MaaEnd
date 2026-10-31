@@ -39,10 +39,11 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v10.3.0
         with:
-          python-version: "3.12"
+          enable-cache: true
+          cache-python: true
 
       - name: Prepare fixed sync branch
         env:
@@ -60,7 +61,7 @@ jobs:
 
       - name: Run OCR expected sync (write mode)
         run: |
-          python tools/i18n/sync_ocr_expected.py --write --i18n-dir "$RUNNER_TEMP/EndFieldTranslationReferrer/i18n"
+          uv run tools/i18n/sync_ocr_expected.py --write --i18n-dir "$RUNNER_TEMP/EndFieldTranslationReferrer/i18n"
 
       - name: Check changes
         id: changes

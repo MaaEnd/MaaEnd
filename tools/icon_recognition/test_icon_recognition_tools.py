@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import json
 import struct
 import tempfile
@@ -10,22 +8,23 @@ from catalog import build_catalog, write_catalog
 from download import (
     BIG_IMAGE_BASE_URL,
     DEFAULT_CACHE_ROOT,
-    DownloadJob,
     IMAGE_BASE_URL,
     ITEM_TABLE_NAME,
     WEAPON_TABLE_NAME,
     ZMDMAP_DATA_DIR,
+    DownloadJob,
     apply_item_blacklist,
     build_download_jobs,
     load_big_icon_ids,
     load_item_table,
     load_weapon_table,
-    validate_icon_png_bytes,
     merge_item_sources,
     prepare_item_map,
     prepare_weapon_map,
     relocate_rarity_changed_icons,
+    validate_icon_png_bytes,
 )
+from expected import merge_expected_results
 from fixed_items import FIXED_ITEMS, load_fixed_items
 from localization import (
     LOCALE_MAP,
@@ -36,10 +35,9 @@ from publish import (
     default_publish_paths,
     publish,
     publish_fixed_items,
-    sync_published_images,
     sync_published_big_images,
+    sync_published_images,
 )
-from expected import merge_expected_results
 from text import clean_text, validate_identifier
 from ui_icons.generate import select_items
 
@@ -189,9 +187,11 @@ class IconRecognitionToolsTest(unittest.TestCase):
             ),
         )
         for message, config in invalid_configs:
-            with self.subTest(message=message):
-                with self.assertRaisesRegex(ValueError, message):
-                    select_items({}, config)
+            with (
+                self.subTest(message=message),
+                self.assertRaisesRegex(ValueError, message),
+            ):
+                select_items({}, config)
 
     def test_relocate_rarity_changed_icon_preserves_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -244,7 +244,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            for locale, (language, _) in LOCALE_MAP.items():
+            for locale, (_language, _) in LOCALE_MAP.items():
                 locale_path = paths.locale_root / f"{locale}.json"
                 locale_path.parent.mkdir(parents=True, exist_ok=True)
                 locale_path.write_text(

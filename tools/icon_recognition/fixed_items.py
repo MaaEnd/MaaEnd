@@ -1,12 +1,9 @@
 """加载上游物品表未收录的固定物品。"""
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Any
 
 import json5
-
 
 FIXED_ITEMS_PATH = Path(__file__).with_name("fixed_items.json")
 #: 固定物品必须自带的多语言名字（key 与物品表 ``names`` 一致）。

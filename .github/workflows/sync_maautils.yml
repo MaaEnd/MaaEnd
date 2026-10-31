@@ -57,6 +57,11 @@ jobs:
       - name: Check Out Repository
         uses: actions/checkout@v6
 
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-python: true
+
       # 只初始化需要移动指针的 submodule，避免拉取体积较大的测试集等
       - name: Init MaaUtils submodule
         run: git submodule update --init agent/cpp-algo/MaaUtils
@@ -67,13 +72,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set +e
-          out=$(python3 tools/check_maautils_sync.py --resolve-latest)
+          out=$(uv run tools/check_maautils_sync.py --resolve-latest)
           rc=$?
           set -e
           echo "$out"
           status=$(sed -n 's/^status=//p' <<<"$out")
           maafw_ref=$(sed -n 's/^maafw_ref=//p' <<<"$out")
           expected_sha=$(sed -n 's/^expected_sha=//p' <<<"$out")
+          # uv / 脚本自身失败时不会输出 status，按 unknown 处理，不误判为需要修复
+          if [ -z "$status" ]; then
+            echo "::warning::MaaUtils sync check produced no status (uv or script failure); skipping this run."
+            exit 0
+          fi
+
           echo "status=$status" >> "$GITHUB_OUTPUT"
           echo "maafw_ref=$maafw_ref" >> "$GITHUB_OUTPUT"
           echo "expected_sha=$expected_sha" >> "$GITHUB_OUTPUT"

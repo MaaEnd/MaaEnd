@@ -1,0 +1,605 @@
+{
+    "SanityExtractorSchedule": {
+        "desc": "萃取理智计划任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SanityExtractorScheduleEnabled",
+            "SanityExtractorScheduleEnd"
+        ]
+    },
+    "SanityExtractorScheduleEnabled": {
+        "desc": "萃取理智计划任务命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SanityExtractorMain"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "SanityExtractorScheduleEnd": {
+        "desc": "萃取理智计划任务跳过",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "SanityExtractorMain": {
+        "desc": "萃取理智入口：进入贵重品库珍贵物品页",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorInValuablesTab",
+            "[JumpBack]SceneEnterMenuValuablesValuableTab"
+        ]
+    },
+    "SanityExtractorInValuablesTab": {
+        "desc": "已在珍贵物品页，进入轮次闸门",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorRoundGate",
+            "SanityExtractorTimesExhausted"
+        ]
+    },
+    "SanityExtractorRoundGate": {
+        "desc": "轮次闸门：每命中一次代表开始一轮萃取（查找→注入→领奖），达到设定次数后被跳过",
+        "max_hit": 10,
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorFindLoop"
+        ]
+    },
+    "SanityExtractorFindLoop": {
+        "desc": "查找循环：命中萃取器则选中；列表到底则结束；否则向下翻页重试",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorFindExtractor",
+            "SanityExtractorScrollFinish",
+            "[JumpBack]SanityExtractorScrollDown"
+        ]
+    },
+    "SanityExtractorScrollFinish": {
+        "desc": "列表已到底：ListComplete 命中后结束查找",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "roi": [
+                    313,
+                    362,
+                    542,
+                    348
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorNoExtractor"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "SanityExtractorFindExtractor": {
+        "desc": "在当前可见网格中定位理智萃取器并选中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "valuables",
+                    "item_ids": [
+                        "item_ap_feed_in"
+                    ],
+                    "item_recheck_filters": [
+                        "ValuableDepot:CommercialItem"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    24,
+                    76,
+                    950,
+                    520
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                24,
+                76,
+                950,
+                520
+            ]
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorConfirmSelected"
+        ],
+        "on_error": [
+            "SanityExtractorConfirmFailed"
+        ]
+    },
+    "SanityExtractorConfirmSelected": {
+        "desc": "确认详情栏显示的是理智萃取器；点击已发生，这里失败说明选中的不是萃取器，属异常而非未找到",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__SanityExtractorSelectedItem"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorUse"
+        ],
+        "on_error": [
+            "SanityExtractorConfirmFailed"
+        ]
+    },
+    "SanityExtractorConfirmFailed": {
+        "desc": "点击后无法确认选中物品为理智萃取器（点错物品或详情栏未出现）：详情栏不是模态弹窗，无需关闭，直接终止任务以暴露问题",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FailedNode"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.SanityExtractor.focus.confirm_failed"
+        }
+    },
+    "SanityExtractorScrollDown": {
+        "desc": "列表未到底时向下滚动，滑动后等画面稳定再回查找循环；滑不动时画面不变会被 ListComplete 判为到底，循环自终止",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    500,
+                    560
+                ],
+                "end": [
+                    500,
+                    260
+                ],
+                "end_hold": 300
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                24,
+                76,
+                950,
+                520
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorFindLoop"
+        ]
+    },
+    "__SanityExtractorSelectedItem": {
+        "desc": "详情栏右上角显示的是理智萃取器图标时，确认选中正确物品",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    971,
+                    50,
+                    306,
+                    342
+                ],
+                "template": [
+                    "SanityExtractor/sanityExtractorsRightUI.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SanityExtractorUse": {
+        "desc": "点击右下角白色圆环「使用」按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1"
+                ]
+            }
+        },
+        "pre_wait_freezes": 100,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorInInjectPanel"
+        ]
+    },
+    "SanityExtractorInInjectPanel": {
+        "desc": "确认已进入注入萃取器界面：中央药剂图案命中",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__SanityExtractorInjectPanelMark"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorNotEnoughSanity",
+            "SanityExtractorInject"
+        ],
+        "on_error": [
+            // 注入面板内两个子项都识别失败：尝试退出面板
+            "SanityExtractorInjectRecognitionFailed"
+        ]
+    },
+    "__SanityExtractorInjectPanelMark": {
+        "desc": "注入界面中央的理智精粹药剂图案，用于确认当前处于注入萃取器界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    278,
+                    35,
+                    855,
+                    650
+                ],
+                "template": [
+                    "SanityExtractor/extractorUISanityEssence.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SanityExtractorTimesExhausted": {
+        "desc": "注入次数已用完，结束任务",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorFinished"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SanityExtractor.focus.times_done"
+        }
+    },
+    "SanityExtractorInject": {
+        "desc": "点击注入界面右下角的黄色注入按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1"
+                ]
+            }
+        },
+        "pre_wait_freezes": 100,
+        "action": {
+            "type": "Click"
+        },
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorRewardDialog"
+        ]
+    },
+    "SanityExtractorRewardDialog": {
+        "desc": "注入成功后的「已获得理智精粹药剂」奖励弹窗：底部对勾是奖励界面独有元素，用它判定并点击关闭",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "pre_wait_freezes": 200,
+        "action": {
+            "type": "Click"
+        },
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorAfterReward"
+        ]
+    },
+    "SanityExtractorAfterReward": {
+        "desc": "关闭奖励弹窗后回到贵重品库；次数未用完才继续下一轮查找",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorRoundGate",
+            "SanityExtractorTimesExhausted"
+        ]
+    },
+    "SanityExtractorNotEnoughSanityText": {
+        "desc": "理智不足判定：读取注入界面右上角的当前理智数值，低于萃取一次所需（120）即视为不足",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{__SanityExtractorInjectPanelSanity}<120",
+                    "box_node": "__SanityExtractorInjectPanelSanity",
+                    "focus_matched_resolved_expression": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__SanityExtractorInjectPanelSanity": {
+        "desc": "注入界面右上角的理智数值；图标模板、OCR 偏移与 CommonSanityText 一致，仅把图标 ROI 收敛到本界面位置",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "mind_icon",
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            844,
+                            77,
+                            316,
+                            120
+                        ],
+                        "template": [
+                            "SceneManager/MapMind.png"
+                        ]
+                    },
+                    {
+                        "recognition": "OCR",
+                        "roi": "mind_icon",
+                        "roi_offset": [
+                            30,
+                            -5,
+                            60,
+                            10
+                        ],
+                        // 完整原文形如 "126/360"，OCR 只取其中数字部分
+                        "expected": [
+                            // @i18n-skip
+                            "\\d+"
+                        ]
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SanityExtractorNotEnoughSanity": {
+        "desc": "注入界面理智不足：优先按顶部理智数值判断，数值识别失败时兜底检测禁用按钮上的「理智不足」文案",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "SanityExtractorNotEnoughSanityText",
+                    "__SanityExtractorNotEnoughSanityButtonText"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorCloseInjectPanel"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SanityExtractor.focus.sanity_low"
+        }
+    },
+    "__SanityExtractorNotEnoughSanityButtonText": {
+        "desc": "理智不足时注入按钮置灰并显示「理智不足」文案",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    863,
+                    521,
+                    280,
+                    115
+                ],
+                "expected": [
+                    // 繁中「理智不足」与简中同形，CN 条目已覆盖
+                    "理智不足",
+                    "Insufficient Sanity",
+                    "理性が足りません",
+                    "이성 부족"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SanityExtractorCloseInjectPanel": {
+        "desc": "理智不足收工前点击右上角叉关闭注入萃取器界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorClosedToValuables"
+        ]
+    },
+    "SanityExtractorClosedToValuables": {
+        "desc": "确认已回到珍贵物品页",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorFinished"
+        ]
+    },
+    "SanityExtractorInjectRecognitionFailed": {
+        "desc": "注入面板两个子识别都失败：先尝试关闭面板，再走失败节点",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorInjectRecognitionFailedToValuables"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.SanityExtractor.focus.inject_failed"
+        }
+    },
+    "SanityExtractorInjectRecognitionFailedToValuables": {
+        "desc": "确认失败路径已回到珍贵物品页",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FailedNode"
+        ]
+    },
+    "SanityExtractorNoExtractor": {
+        "desc": "没有找到理智萃取器，结束任务",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SanityExtractorFinished"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.SanityExtractor.focus.no_item"
+        }
+    },
+    "SanityExtractorFinished": {
+        "desc": "萃取任务结束",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
