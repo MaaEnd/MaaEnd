@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/ocrnum"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -52,7 +53,7 @@ type tableOrder struct {
 }
 
 var (
-	menuRoutes         = []string{"RestaurantMenuStapleComplete", "RestaurantMenuVegetableComplete", "RestaurantMenuDishesComplete", "RestaurantMenuDrinksComplete", "RestaurantMenuClickCard", "RestaurantMenuReadCard"}
+	menuRoutes         = []string{"RestaurantMenuStapleComplete", "RestaurantMenuVegetableComplete", "RestaurantMenuDishesComplete", "RestaurantMenuDrinksComplete", "RestaurantMenuClickCard", "RestaurantMenuReadCard", "RestaurantMenuInsufficient"}
 	runtimeRoutes      = []string{"RestaurantRuntimeSwitchKitchen1", "RestaurantRuntimeSwitchKitchen2", "RestaurantRuntimeSwitchKitchen3", "RestaurantRuntimeNextKitchen", "RestaurantRuntimeClickDish1", "RestaurantRuntimeClickDish2", "RestaurantRuntimeClickDish3", "RestaurantRuntimeClickDish4", "RestaurantRuntimeClickDish5", "RestaurantRuntimeClickDish6", "RestaurantRuntimeIdle"}
 	restaurantData     menuCatalog
 	restaurantDataOnce sync.Once
@@ -209,7 +210,10 @@ func readMenuPage(state *session, kind, category string, patch map[string]any) e
 	if (kind != "dish" && kind != "drink") || (kind == "dish" && !validDishCategory) || (kind == "drink" && category != "") || state.Menu.PendingID != "" {
 		return fmt.Errorf("invalid menu page state")
 	}
-	cards := []maa.Rect{{552, 134, 307, 93}, {870, 134, 307, 93}, {552, 239, 307, 93}}
+	cards := make([]maa.Rect, 0, 8)
+	for _, y := range []int{134, 239, 344, 450} {
+		cards = append(cards, maa.Rect{552, y, 307, 93}, maa.Rect{870, y, 307, 93})
+	}
 	state.Menu.Kind, state.Menu.Category, state.Menu.PageSelected = kind, category, 0
 	state.Menu.Cards, state.Menu.Index = cards, 0
 	return nextMenuCard(state, patch)
@@ -246,10 +250,40 @@ func chooseMenuCard(state *session, observed observations, patch map[string]any)
 	if slices.Contains(menu.Dishes, id) || slices.Contains(menu.Drinks, id) {
 		return fmt.Errorf("verified menu selection %q disappeared", id)
 	}
+	quantity, err := readMenuCardQuantity(observed)
+	if err != nil || quantity < 10 {
+		if err != nil {
+			log.Debug().Err(err).Str("item_id", id).Int("card", menu.Index+1).Msg("skipping menu card with unreadable quantity")
+		}
+		menu.Index++
+		return nextMenuCard(state, patch)
+	}
 	menu.PendingID = id
 	iconCandidates(patch, "RestaurantMenuPendingIcon", []string{id})
 	route(patch, menuRoutes, "RestaurantMenuClickCard")
 	return nil
+}
+
+func readMenuCardQuantity(observed observations) (int, error) {
+	detail := observed["RestaurantMenuCardQuantity"]
+	if detail == nil || detail.Results == nil {
+		return 0, fmt.Errorf("missing menu card quantity OCR")
+	}
+	for _, results := range [][]*maa.RecognitionResult{{detail.Results.Best}, detail.Results.Filtered, detail.Results.All} {
+		for _, result := range results {
+			if result == nil {
+				continue
+			}
+			text, ok := result.AsOCR()
+			if ok && text != nil && text.Text != "" {
+				quantity, err := ocrnum.Parse(text.Text)
+				if err == nil {
+					return quantity, nil
+				}
+			}
+		}
+	}
+	return 0, fmt.Errorf("menu card quantity OCR has no usable number")
 }
 
 func nextMenuCard(state *session, patch map[string]any) error {
@@ -288,7 +322,8 @@ func nextMenuCard(state *session, patch map[string]any) error {
 		return nil
 	}
 	if menu.Index >= len(menu.Cards) {
-		return fmt.Errorf("not enough available %s menu cards on the current page: selected %d, required %d", menu.Kind, selected, required)
+		route(patch, menuRoutes, "RestaurantMenuInsufficient")
+		return nil
 	}
 	data, err := loadRestaurantData()
 	if err != nil {
@@ -301,6 +336,10 @@ func nextMenuCard(state *session, patch map[string]any) error {
 		ids = data.Drinks
 	}
 	iconCandidates(patch, "RestaurantMenuCardIcon", ids)
+	card := menu.Cards[menu.Index]
+	patch["RestaurantMenuCardQuantity"] = map[string]any{
+		"roi": []int{card[0] + 4, card[1] + 66, card[2] - 184, card[3] - 72},
+	}
 	patch["RestaurantMenuCardAnchor"] = map[string]any{
 		"recognition": map[string]any{
 			"type":  "DirectHit",

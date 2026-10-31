@@ -2682,6 +2682,7 @@
     "task.ResourceRecycleStation.focus.WulingStart": "开始收取武陵资源回收站",
     "task.ResourceRecycleStation.label": "🦉资源回收站",
     "task.RestaurantDaily.description": "用于清理每日客源，刷烟火钱。自动配置厨房和菜单，并根据桌位订单与补充标记挂机点菜。**需客栈等级达到四级且三个厨房全解锁。**",
+    "task.RestaurantDaily.focus.menu_items_insufficient": "菜品不足",
     "task.RestaurantDaily.focus.menu_requirements_unmet": "菜单未满足要求",
     "task.RestaurantDaily.label": "🍽️缘缘庄经营",
     "task.RestaurantDaily.option.BuyShopDiscountedItems.label": "购买堂头小铺折扣品",

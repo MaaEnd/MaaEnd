@@ -1876,7 +1876,6 @@
             "wait_nodes": [
                 "RestaurantGameEnded",
                 "RestaurantKitchenPanelReady",
-                "RestaurantStartBusinessConfirm",
                 "RestaurantBusinessStarted"
             ],
             "repeat_count": 10,
@@ -1887,41 +1886,7 @@
         "next": [
             "RestaurantGameEnded",
             "RestaurantKitchenPanelReady",
-            "RestaurantStartBusinessConfirm",
             "RestaurantBusinessStarted"
-        ],
-        "on_error": [
-            "FailedNode"
-        ]
-    },
-    "RestaurantStartBusinessConfirm": {
-        "recognition": "OCR",
-        "roi": [
-            647,
-            442,
-            211,
-            43
-        ],
-        "expected": [
-            "确认",
-            "Confirm",
-            "確定",
-            "확인"
-        ],
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "RepeatUntilNotFoundAction",
-        "custom_action_param": {
-            "action": "Click",
-            "wait_node": "RestaurantStartBusinessConfirm",
-            "repeat_count": 3
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantGameEnded",
-            "RestaurantKitchenPanelReady",
-            "RestaurantWaitForBusinessState"
         ],
         "on_error": [
             "FailedNode"
@@ -2187,7 +2152,8 @@
             "RestaurantMenuDishesComplete",
             "RestaurantMenuDrinksComplete",
             "RestaurantMenuClickCard",
-            "RestaurantMenuReadCard"
+            "RestaurantMenuReadCard",
+            "RestaurantMenuInsufficient"
         ],
         "on_error": [
             "FailedNode"
@@ -2246,11 +2212,25 @@
             "RestaurantMenuDishesComplete",
             "RestaurantMenuDrinksComplete",
             "RestaurantMenuClickCard",
-            "RestaurantMenuReadCard"
+            "RestaurantMenuReadCard",
+            "RestaurantMenuInsufficient"
         ],
         "on_error": [
             "FailedNode"
         ]
+    },
+    "RestaurantMenuInsufficient": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FailedNode"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.menu_items_insufficient"
+        }
     },
     "RestaurantRuntimeObserve": {
         "recognition": "And",

@@ -98,6 +98,20 @@
             -29
         ]
     },
+    "RestaurantMenuCardQuantity": {
+        "recognition": "OCR",
+        "roi": [
+            556,
+            200,
+            123,
+            21
+        ],
+        "expected": [
+            "\\d+"
+        ],
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
     "RestaurantMenuPendingIcon": {
         "recognition": "Custom",
         "custom_recognition": "IconRecognition",
@@ -168,6 +182,13 @@
                 "recognition": "Or",
                 "any_of": [
                     "RestaurantMenuCardSelected",
+                    "RestaurantObservationEmpty"
+                ]
+            },
+            {
+                "recognition": "Or",
+                "any_of": [
+                    "RestaurantMenuCardQuantity",
                     "RestaurantObservationEmpty"
                 ]
             }

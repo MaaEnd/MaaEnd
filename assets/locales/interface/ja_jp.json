@@ -2682,6 +2682,7 @@
     "task.ResourceRecycleStation.focus.WulingStart": "武陵の資源回収ステーションを収集中",
     "task.ResourceRecycleStation.label": "🦉資源回収ステーション",
     "task.RestaurantDaily.description": "毎日の来客枠を消費して活気銭を稼ぐためのタスクです。厨房とメニューを自動設定し、テーブルの注文と補充マークに応じて厨房に追加する料理を選択します。**宿屋レベル4以上かつ3つすべての厨房の解放が必要です。**",
+    "task.RestaurantDaily.focus.menu_items_insufficient": "メニュー品目が不足しています",
     "task.RestaurantDaily.focus.menu_requirements_unmet": "メニューの条件を満たしていません",
     "task.RestaurantDaily.label": "🍽️宿屋・縁縁荘の営業",
     "task.RestaurantDaily.option.BuyShopDiscountedItems.label": "給仕頭の八百屋で割引商品を購入",

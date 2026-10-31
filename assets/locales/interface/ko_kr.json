@@ -2682,6 +2682,7 @@
     "task.ResourceRecycleStation.focus.WulingStart": "무릉 자원 재활용 스테이션 수집 중",
     "task.ResourceRecycleStation.label": "🦉자원 재활용 스테이션",
     "task.RestaurantDaily.description": "매일 손님 유입을 소모해 연화전을 파밍하는 작업입니다. 주방과 메뉴를 자동으로 설정하고, 테이블 주문과 보충 표시를 기준으로 주방에 넣을 요리를 선택합니다. **객잔 레벨 4 이상이며 주방 3곳을 모두 해금해야 합니다.**",
+    "task.RestaurantDaily.focus.menu_items_insufficient": "메뉴 항목이 부족합니다",
     "task.RestaurantDaily.focus.menu_requirements_unmet": "메뉴 요구 사항을 충족하지 않습니다",
     "task.RestaurantDaily.label": "🍽️인연 마을 객잔 운영",
     "task.RestaurantDaily.option.BuyShopDiscountedItems.label": "열일 상점 할인 상품 구매",

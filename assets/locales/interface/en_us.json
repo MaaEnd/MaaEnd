@@ -2682,6 +2682,7 @@
     "task.ResourceRecycleStation.focus.WulingStart": "Collecting Wuling Resource Recycle Station",
     "task.ResourceRecycleStation.label": "🦉Resource Recycle Station",
     "task.RestaurantDaily.description": "Use this task to clear your daily patron supply and farm Spirit Money. It automatically configures the kitchens and menu, then selects dishes to queue based on table orders and restock markers. **Requires Inn Level 4 and all three kitchens unlocked.**",
+    "task.RestaurantDaily.focus.menu_items_insufficient": "Not enough menu items",
     "task.RestaurantDaily.focus.menu_requirements_unmet": "Menu requirements are not met",
     "task.RestaurantDaily.label": "🍽️Yuanyuan Manor Innkeeping",
     "task.RestaurantDaily.option.BuyShopDiscountedItems.label": "Purchase discounted items from the Pantry Shop",
