@@ -218,30 +218,6 @@
             }
         }
     },
-    "ItemTransferClickEscDestination": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 53
-            }
-        }
-    },
-    "ItemTransferClickEscOrigin": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 53
-            }
-        }
-    },
-    "ItemTransferClickEscOriginReturn": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 53
-            }
-        }
-    },
     "MapNavigatorInteract": {
         "action": {
             "type": "ClickKey",
@@ -709,6 +685,78 @@
     "__CharacterControllerShiftClickAction": {
         "action": {
             "type": "ClickKey",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "__InventoryTransferAllBeginAction": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 59
+            }
+        }
+    },
+    "__InventoryTransferAllEndAction": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 59
+            }
+        }
+    },
+    "__InventoryTransferAllErrorEndAction": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 59
+            }
+        }
+    },
+    "__InventoryTransferHalfBeginAction": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 58
+            }
+        }
+    },
+    "__InventoryTransferHalfEndAction": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 58
+            }
+        }
+    },
+    "__InventoryTransferHalfErrorEndAction": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 58
+            }
+        }
+    },
+    "__InventoryTransferStackBeginAction": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "__InventoryTransferStackEndAction": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "__InventoryTransferStackErrorEndAction": {
+        "action": {
+            "type": "KeyUp",
             "param": {
                 "key": 56
             }
