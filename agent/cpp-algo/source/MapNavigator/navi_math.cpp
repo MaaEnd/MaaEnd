@@ -41,4 +41,14 @@ double NaviMath::normalizeHeading(double angle)
     return angle;
 }
 
+// 仰角只能用世界坐标算, 平面 x/y 按地图比例缩放过, 和高度不同尺
+double NaviMath::calcElevation(const ZiplineNodeRef& from, const ZiplineNodeRef& to)
+{
+    if (!from.has_world || !to.has_world) {
+        return 0.0;
+    }
+    const double run = std::hypot(to.world_x - from.world_x, to.world_z - from.world_z);
+    return std::atan2(to.world_y - from.world_y, run) * 180.0 / kPi;
+}
+
 } // namespace mapnavigator

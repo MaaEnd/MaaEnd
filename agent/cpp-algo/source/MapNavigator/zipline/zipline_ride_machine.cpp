@@ -40,16 +40,6 @@ double bearing_deg(const ZiplineNodeRef& from, const ZiplineNodeRef& to)
     return NaviMath::calcTargetRotation(from.x, from.y, to.x, to.y);
 }
 
-// 现发现的架子没有世界坐标, 算不出仰角就平着按
-double elevation_deg(const ZiplineNodeRef& from, const ZiplineNodeRef& to)
-{
-    if (!from.has_world || !to.has_world) {
-        return 0.0;
-    }
-    const double run = std::hypot(to.world_x - from.world_x, to.world_z - from.world_z);
-    return std::atan2(to.world_y - from.world_y, run) * 180.0 / kPi;
-}
-
 double away_side_cap_deg(const std::vector<double>& neighbor_offsets_deg, double away)
 {
     double cap = std::numeric_limits<double>::infinity();
@@ -470,7 +460,7 @@ StageResult ZiplineRideMachine::tickOnTower(IZiplineActuator& actuator, Clock::t
 {
     if (returning_) {
         target_ = plan_.mount;
-        seed_elevation_deg_ = elevation_deg(origin_, target_);
+        seed_elevation_deg_ = NaviMath::calcElevation(origin_, target_);
     }
     else {
         origin_ = plan_.mount;

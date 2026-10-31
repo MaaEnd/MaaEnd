@@ -780,16 +780,11 @@ bool try_append_zipline_leg(
         out_path.emplace_back(hop == 0 ? mount_spot.x : from.x, hop == 0 ? mount_spot.y : from.y, ActionType::ZIPLINE);
         out_path.back().strict_arrival = true;
         out_path.back().target_deck_y = from.height;
-        // 仰角只能用世界坐标算, 平面 x/y 按地图比例缩放过, 和高度不同尺
-        const double span_x = to.world_x - from.world_x;
-        const double span_z = to.world_z - from.world_z;
-        const double rise = to.world_y - from.world_y;
-        const double elevation_deg = std::atan2(rise, std::hypot(span_x, span_z)) * 180.0 / kPi;
 
         ZiplineHopPlan hop_plan;
         hop_plan.mount = from_ref;
         hop_plan.landing = to_ref;
-        hop_plan.planned_elevation_deg = elevation_deg;
+        hop_plan.planned_elevation_deg = NaviMath::calcElevation(from_ref, to_ref);
         if (hop == 0) {
             for (const navmesh::WorldPoint& spot : route->mount_spots) {
                 hop_plan.mount_spots.push_back(ZiplineMountSpot { .x = spot.x, .y = spot.y });
