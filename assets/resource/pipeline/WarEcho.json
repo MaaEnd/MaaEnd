@@ -1,0 +1,618 @@
+{
+    "WarEchoEntry": {
+        "desc": "战争回响任务入口，强制重新进入战争回响首页",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuOperationalManualWarEcho"
+            ]
+        },
+        "next": [
+            "WarEchoSelectFirstBoss"
+        ]
+    },
+    "WarEchoSelectFirstBoss": {
+        "desc": "在战争回响首页，点击第一个 Boss 的名字进入详情",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManualWarEcho",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    490,
+                    1280,
+                    60
+                ],
+                "order_by": "Horizontal"
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "WarEchoSelectCruel"
+        ]
+    },
+    "WarEchoDetailIn": {
+        "desc": "在战争回响 Boss 详情界面：左上角当前星数",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            90,
+            320,
+            55
+        ],
+        "expected": [
+            "当前星数",
+            "當前星數"
+        ]
+    },
+    "WarEchoSelectCruel": {
+        "desc": "在详情界面残酷行未选中时点击残酷行：选中状态的对勾有动画，先把选中移到残酷，普通、困难两行的对勾才是静态的；残酷未解锁时也能选中",
+        "recognition": "And",
+        "all_of": [
+            "WarEchoDetailIn",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    40,
+                    272,
+                    270,
+                    60
+                ],
+                "expected": [
+                    "残酷",
+                    "殘酷"
+                ]
+            }
+        ],
+        "box_index": 1,
+        // 等残酷行文字停止滑入；不等整个难度列表，已通关且选中的行对勾有动画
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                100,
+                280,
+                110,
+                40
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "WarEchoCruelSelected"
+        ]
+    },
+    "WarEchoCruelSelected": {
+        "desc": "残酷行已选中：行左侧出现青色竖条",
+        "recognition": "And",
+        "all_of": [
+            "WarEchoDetailIn",
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    18,
+                    278,
+                    16,
+                    52
+                ],
+                "lower": [
+                    0,
+                    200,
+                    200
+                ],
+                "upper": [
+                    80,
+                    255,
+                    255
+                ],
+                "count": 400
+            }
+        ],
+        // 等普通、困难两行从选中状态退回静止，此时两行对勾都是静态的
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                145,
+                320,
+                125
+            ]
+        },
+        "next": [
+            "WarEchoNormalUncleared",
+            "WarEchoHardUncleared",
+            "WarEchoNextBoss1",
+            "WarEchoNextBoss2",
+            "WarEchoAllCleared"
+        ]
+    },
+    "WarEchoNormalCleared": {
+        "desc": "普通行右侧有已通关对勾（仅在该行未选中时可靠）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            200,
+            150,
+            100,
+            55
+        ],
+        "template": "WarEcho/StageCleared.png",
+        "threshold": 0.8
+    },
+    "WarEchoHardCleared": {
+        "desc": "困难行右侧有已通关对勾（仅在该行未选中时可靠）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            200,
+            215,
+            100,
+            55
+        ],
+        "template": "WarEcho/StageCleared.png",
+        "threshold": 0.8
+    },
+    "WarEchoNormalUncleared": {
+        "desc": "普通行没有对勾（未通关），点击选中普通",
+        "recognition": "And",
+        "all_of": [
+            "WarEchoNormalCleared"
+        ],
+        "inverse": true,
+        "action": "Click",
+        "target": [
+            40,
+            155,
+            250,
+            45
+        ],
+        "next": [
+            "WarEchoChallenge"
+        ]
+    },
+    "WarEchoHardUncleared": {
+        "desc": "普通已通关、困难行没有对勾（未通关），点击选中困难",
+        "recognition": "And",
+        "all_of": [
+            "WarEchoHardCleared"
+        ],
+        "inverse": true,
+        "action": "Click",
+        "target": [
+            40,
+            218,
+            250,
+            45
+        ],
+        "next": [
+            "WarEchoChallenge"
+        ]
+    },
+    "WarEchoTab1Selected": {
+        "desc": "顶部第 1 个 Boss 标签为选中的白底",
+        "recognition": "ColorMatch",
+        "roi": [
+            36,
+            8,
+            160,
+            42
+        ],
+        "lower": [
+            170,
+            170,
+            170
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 2500
+    },
+    "WarEchoTab2Selected": {
+        "desc": "顶部第 2 个 Boss 标签为选中的白底",
+        "recognition": "ColorMatch",
+        "roi": [
+            176,
+            8,
+            160,
+            42
+        ],
+        "lower": [
+            170,
+            170,
+            170
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 2500
+    },
+    "WarEchoTab3Selected": {
+        "desc": "顶部第 3 个 Boss 标签为选中的白底",
+        "recognition": "ColorMatch",
+        "roi": [
+            318,
+            8,
+            160,
+            42
+        ],
+        "lower": [
+            170,
+            170,
+            170
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 2500
+    },
+    "WarEchoNextBoss1": {
+        "desc": "当前 Boss 普通、困难都已通关，且在第 1 个标签：点击第 2 个标签",
+        "recognition": "And",
+        "all_of": [
+            "WarEchoTab1Selected"
+        ],
+        "action": "Click",
+        "target": [
+            190,
+            15,
+            130,
+            28
+        ],
+        "next": [
+            "WarEchoCruelSelected",
+            "WarEchoSelectCruel"
+        ]
+    },
+    "WarEchoNextBoss2": {
+        "desc": "当前 Boss 普通、困难都已通关，且在第 2 个标签：点击第 3 个标签",
+        "recognition": "And",
+        "all_of": [
+            "WarEchoTab2Selected"
+        ],
+        "action": "Click",
+        "target": [
+            332,
+            15,
+            130,
+            28
+        ],
+        "next": [
+            "WarEchoCruelSelected",
+            "WarEchoSelectCruel"
+        ]
+    },
+    "WarEchoAllCleared": {
+        "desc": "第 3 个 Boss 的普通、困难也都已通关，结束任务",
+        "recognition": "And",
+        "all_of": [
+            "WarEchoTab3Selected"
+        ]
+    },
+    "WarEchoChallenge": {
+        "desc": "已选中普通或困难（青色竖条在这两行），点击开始挑战；残酷选中时也可能有开始挑战按钮，必须排除",
+        "recognition": "And",
+        "all_of": [
+            "WarEchoDetailIn",
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    18,
+                    150,
+                    16,
+                    116
+                ],
+                "lower": [
+                    0,
+                    200,
+                    200
+                ],
+                "upper": [
+                    80,
+                    255,
+                    255
+                ],
+                "count": 400
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    960,
+                    625,
+                    320,
+                    80
+                ],
+                "expected": [
+                    "开始挑战",
+                    "開始挑戰"
+                ]
+            }
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "WarEchoPrepareIn"
+        ]
+    },
+    "WarEchoPrepareIn": {
+        "desc": "在编队准备界面：左上角队伍图标；每次进入编队（即开始新的难度）清零失败重试计数",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "template": "ProtocolSpace/TeamChooseIcon.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 300,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "WarEchoFightFailedRetry"
+            ]
+        },
+        "next": [
+            "[JumpBack]PrepareTeamChoose",
+            "WarEchoConfirm"
+        ]
+    },
+    "WarEchoConfirm": {
+        "desc": "在编队准备界面，点击开始挑战进入战斗",
+        "recognition": "And",
+        "all_of": [
+            "WarEchoPrepareIn",
+            "YellowConfirmButtonType2"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 300,
+        "action": "Click",
+        "next": [
+            "WarEchoStageStart"
+        ]
+    },
+    "WarEchoStageStart": {
+        "desc": "进入关卡后（新开一关或失败重试都会经过）：清零向光点移动的步数，等待加载，关闭机制特性弹窗，已开战则进入战斗，关卡目标为触摸光点则先走触摸路径",
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "WarEchoTouchMove"
+            ]
+        },
+        "next": [
+            "[JumpBack]WarEchoMechanismPopupClose",
+            "WarEchoFightStart",
+            "WarEchoTouchMove",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "WarEchoMechanismPopupClose": {
+        "desc": "部分设备在关卡开始时会弹出「机制特性」提示，点击右上角 X 关闭；识别复用协议空间的同名弹窗节点，关闭后回到 WarEchoStageStart 继续判断",
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceMechanismPopupClose"
+        ],
+        "action": "Click",
+        "post_delay": 400 // 等待提示关闭，大世界界面无法使用wait_freeze
+    },
+    "WarEchoFightStart": {
+        "desc": "左侧出现重开按钮，说明战斗已开始",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            200,
+            160,
+            200
+        ],
+        "template": "ProtocolSpace/SpaceResart.png",
+        "green_mask": true,
+        "next": [
+            "WarEchoFighting"
+        ]
+    },
+    "WarEchoFighting": {
+        "desc": "战斗开始后：自动战斗，直到出现胜利或失败结算界面",
+        "next": [
+            "WarEchoFightSuccess",
+            "WarEchoFightFailed",
+            "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]AutoFight"
+        ]
+    },
+    "WarEchoTouchObjective": {
+        "desc": "左侧关卡目标为触摸光点，需要先触碰光点才会开始战斗",
+        "recognition": "OCR",
+        "roi": [
+            50,
+            200,
+            240,
+            35
+        ],
+        "expected": [
+            "触摸光点",
+            "觸摸光點",
+            "(?i)Touch\\s*the\\s*light",
+            "光に触れる",
+            "빛나는 점과 접촉하기"
+        ]
+    },
+    "WarEchoTouchStart": {
+        "desc": "出现触碰提示，触碰光点开始战斗",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "ProtocolSpaceTouchStartPrompt"
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "ProtocolSpaceTouchStartPrompt"
+        },
+        "next": [
+            "WarEchoFightStart"
+        ]
+    },
+    "WarEchoTouchMove": {
+        "desc": "关卡目标为触摸光点，向前移动一步；存在视角锁定，锁定过程中没有什么特征可以识别，因此最多前进 12 步（max_hit，在 WarEchoStageStart 清零），之后改为识别光点并向其移动",
+        "max_hit": 12,
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "WarEchoTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1
+        },
+        "post_delay": 800, // 等待移动结束，大世界界面无法使用wait_freeze
+        "next": [
+            "WarEchoTouchStart",
+            "WarEchoTouchMove",
+            "[JumpBack]WarEchoTouchMoveToTarget",
+            "[JumpBack]WarEchoTouchNotFound"
+        ]
+    },
+    "WarEchoTouchMoveToTarget": {
+        "desc": "向前移动后仍未出现触碰提示，识别光点并向其移动",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            {
+                "recognition": "NeuralNetworkDetect",
+                "roi": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "expected": 1,
+                "model": "ProtocolSpace/best.onnx"
+            }
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "CharacterMoveToTargetAction",
+        "custom_action_param": {
+            "align_threshold": 120
+        },
+        "post_delay": 600
+    },
+    "WarEchoTouchNotFound": {
+        "desc": "光点未找到，向右旋转",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            "WarEchoTouchObjective"
+        ],
+        "action": "Custom",
+        "custom_action": "CharacterMoveToTargetNotFoundAction",
+        "custom_action_param": {
+            "delta": 45
+        }
+    },
+    "WarEchoFightFinished": {
+        "desc": "战斗结算界面（胜利或失败），供 AutoFight 的 pause_exit_nodes 使用",
+        "recognition": "Or",
+        "any_of": [
+            "WarEchoFightSuccessText",
+            "CheckOperationFailedText"
+        ]
+    },
+    "WarEchoFightSuccessText": {
+        "desc": "战斗胜利结算界面左侧的挑战成功",
+        "recognition": "OCR",
+        "roi": [
+            40,
+            150,
+            400,
+            110
+        ],
+        "expected": [
+            "挑战成功",
+            "挑戰成功"
+        ]
+    },
+    "WarEchoFightSuccess": {
+        "desc": "战斗胜利，点击右下角完成回到 Boss 详情界面，继续找下一个未通关的难度",
+        "recognition": "And",
+        "all_of": [
+            "WarEchoFightSuccessText",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    1080,
+                    615,
+                    200,
+                    75
+                ],
+                "expected": [
+                    "完成"
+                ]
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 300,
+        "action": "Click",
+        "next": [
+            "WarEchoCruelSelected",
+            "WarEchoSelectCruel",
+            "WarEchoSelectFirstBoss",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "WarEchoFightFailed": {
+        "desc": "战斗失败结算界面",
+        "recognition": "And",
+        "all_of": [
+            "CheckOperationFailedText"
+        ],
+        "pre_wait_freezes": 300,
+        "next": [
+            "WarEchoFightFailedRetry",
+            "WarEchoFightFailedLeave"
+        ]
+    },
+    "WarEchoFightFailedRetry": {
+        "desc": "战斗失败，点击重新挑战；max_hit 由选项覆盖为每关重试次数（在 WarEchoPrepareIn 清零），不覆盖即不限次数",
+        "recognition": "And",
+        "all_of": [
+            "CheckOperationFailedText",
+            "WhiteConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "WarEchoStageStart"
+        ]
+    },
+    "WarEchoFightFailedLeave": {
+        "desc": "重试次数用完，点击离开并回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "CheckOperationFailedText",
+            "WhiteCancelButton"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "WarEchoExitToWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "WarEchoExitToWorld": {
+        "desc": "已回到大世界，结束任务",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ]
+    }
+}
