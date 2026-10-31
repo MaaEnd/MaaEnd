@@ -1,0 +1,94 @@
+{
+    "AutoCollectWulingFarmerCrate3Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingSisPaintingRaintapGrottoSouth"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingFarmerCrate3AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingFarmerCrate3.label"
+        }
+    },
+    "AutoCollectWulingFarmerCrate3End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingFarmerCrate3AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                2384.96,
+                584.83,
+                20.0,
+                20.0
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingFarmerCrate3Goto"
+        ]
+    },
+    "AutoCollectWulingFarmerCrate3Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                2539.96,
+                                562.45
+                            ],
+                            "target_deck_y": 438.27
+                        },
+                        [
+                            2539.96,
+                            562.45,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2543.9,
+                            561.96,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2544.51,
+                            558.72,
+                            "COLLECT",
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingFarmerCrate3End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}
