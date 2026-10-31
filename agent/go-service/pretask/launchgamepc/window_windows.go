@@ -18,6 +18,7 @@ const (
 	swpNoActivate           = 0x0010
 	displayDeviceActive     = 0x00000001
 	displayDeviceAttached   = 0x00000001
+	swRestore               = 9
 )
 
 var (
@@ -27,6 +28,8 @@ var (
 	procGetMonitorInfoW   = user32.NewProc("GetMonitorInfoW")
 	procSetWindowPos      = user32.NewProc("SetWindowPos")
 	procEnumDisplayDevW   = user32.NewProc("EnumDisplayDevicesW")
+	procIsIconic          = user32.NewProc("IsIconic")
+	procShowWindow        = user32.NewProc("ShowWindow")
 )
 
 type displayDevice struct {
@@ -99,6 +102,17 @@ func moveLauncherToPrimaryMonitor(hWnd unsafe.Pointer) (bool, error) {
 		return false, fmt.Errorf("SetWindowPos failed: %w", err)
 	}
 	return true, nil
+}
+
+// restoreLauncherWindow 还原最小化到任务栏的启动器窗口。
+// 最小化窗口客户区为 0x0，ScreenDC 无法截图，MaaFramework 的前台化也不会还原最小化窗口。
+func restoreLauncherWindow(hWnd unsafe.Pointer) bool {
+	if iconic, _, _ := procIsIconic.Call(uintptr(hWnd)); iconic == 0 {
+		return false
+	}
+	// ShowWindow 返回值表示调用前窗口是否可见，不代表成功与否
+	procShowWindow.Call(uintptr(hWnd), swRestore)
+	return true
 }
 
 func enumDisplayDevice(parent *uint16, index uint32) (displayDevice, bool) {

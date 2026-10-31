@@ -1,0 +1,1080 @@
+{
+    "RestaurantShopAfterRounds": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopApproach"
+        ]
+    },
+    "RestaurantShopApproach": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_L10_468"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        137.48,
+                        138.67
+                    ],
+                    "target_tier": "Wuling_L10_468",
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        136.14,
+                        133.75
+                    ],
+                    "target_tier": "Wuling_L10_468",
+                    "strict": true,
+                    "required": true
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitOpenGoods"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopWaitOpenGoods": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "DoNothing",
+            "wait_nodes": [
+                "RestaurantShopOpenGoods"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopOpenGoods"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopOpenGoods": {
+        "recognition": "OCR",
+        "roi": [
+            946,
+            352,
+            252,
+            71
+        ],
+        "expected": [
+            "看看货物",
+            "看看貨物",
+            "Check the goods",
+            "品物を見る",
+            "물품을 확인하기."
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopOpenGoods",
+            "repeat_count": 3
+        },
+        "target": true,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopEnsurePriorityStorage"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopEnsurePriorityStorage": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "DoNothing",
+            "wait_nodes": [
+                "RestaurantShopPriorityStorageChecked",
+                "RestaurantShopPriorityStorageUnchecked"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopPriorityStorageChecked",
+            "RestaurantShopPriorityStorageUnchecked"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopPriorityStorageChecked": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            43,
+            631,
+            233,
+            63
+        ],
+        "template": "Restaurant/Shop/StoreInRegionChecked.png",
+        "threshold": 0.85,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopScan"
+        ]
+    },
+    "RestaurantShopPriorityStorageUnchecked": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            43,
+            631,
+            233,
+            63
+        ],
+        "template": "Restaurant/Shop/StoreInRegionUnchecked.png",
+        "threshold": 0.85,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_nodes": [
+                "RestaurantShopPriorityStorageChecked"
+            ],
+            "repeat_count": 3
+        },
+        "target": true,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopScan"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopScan": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot1Discount",
+            "RestaurantShopSlot2Discount",
+            "RestaurantShopSlot3Discount",
+            "RestaurantShopSlot4Discount",
+            "RestaurantShopSlot5Discount",
+            "RestaurantShopSlot6Discount",
+            "RestaurantShopSlot7Discount",
+            "RestaurantShopSlot8Discount",
+            "RestaurantShopSlot9Discount",
+            "RestaurantShopSlot10Discount",
+            "RestaurantShopSlot11Discount",
+            "RestaurantShopSlot12Discount",
+            "RestaurantShopSlot13Discount",
+            "RestaurantShopSlot14Discount",
+            "RestaurantShopRefreshAvailable",
+            "StopNode"
+        ]
+    },
+    "RestaurantShopSlot1Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    193,
+                    139,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    101,
+                    139,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            175,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot2Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    345,
+                    139,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    253,
+                    139,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            327,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot3Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    496,
+                    139,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    404,
+                    139,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            478,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot4Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    648,
+                    139,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    556,
+                    139,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            630,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot5Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    801,
+                    139,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    709,
+                    139,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            783,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot6Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    953,
+                    139,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    861,
+                    139,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            935,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot7Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    1105,
+                    139,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    1013,
+                    139,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            1087,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot8Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    193,
+                    358,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    101,
+                    358,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            175,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot9Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    345,
+                    358,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    253,
+                    358,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            327,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot10Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    496,
+                    358,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    404,
+                    358,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            478,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot11Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    648,
+                    358,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    556,
+                    358,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            630,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot12Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    801,
+                    358,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    709,
+                    358,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            783,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot13Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    953,
+                    358,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    861,
+                    358,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            935,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot14Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    1105,
+                    358,
+                    54,
+                    30
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    1013,
+                    358,
+                    78,
+                    32
+                ],
+                // OCR full-text example: 库存5
+                // @i18n-skip
+                "expected": [
+                    "^\\D*[1-9]\\d*$"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            1087,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopPurchaseModalReady": {
+        "recognition": "And",
+        "all_of": [
+            "YellowButtonBackground"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlideQuantityMax",
+            "RestaurantShopConfirmPurchase"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlideQuantityMax": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            520,
+            510,
+            180,
+            36
+        ],
+        "template": "BetterSliding/SwipeButton.png",
+        "green_mask": true,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "Direction": "right"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopConfirmPurchase"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopConfirmPurchase": {
+        "recognition": "And",
+        "all_of": [
+            "YellowButtonBackground"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseSuccess"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopPurchaseSuccess": {
+        "recognition": "And",
+        "all_of": [
+            "CloseRewardsButton",
+            "CloseRewardsButtonColor"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopPurchaseSuccess",
+            "repeat_count": 3
+        },
+        "target": true,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopScan"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopRefreshAvailable": {
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            891,
+            626,
+            354,
+            71
+        ],
+        "expected": [
+            "刷新商品",
+            "更新商品",
+            "Refresh",
+            "商品更新",
+            "상품 새로고침"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopRefreshAvailable",
+            "repeat_count": 3
+        },
+        "target": true,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitRefreshConfirm"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopRefreshConfirm": {
+        "recognition": "OCR",
+        "roi": [
+            647,
+            442,
+            211,
+            43
+        ],
+        "expected": [
+            "确认",
+            "確定",
+            "Confirm",
+            "확인"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopRefreshConfirm",
+            "repeat_count": 3
+        },
+        "target": true,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopScan"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopWaitPurchaseModal": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "DoNothing",
+            "wait_nodes": [
+                "RestaurantShopPurchaseModalReady"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopPurchaseModalReady"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopWaitPurchaseSuccess": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "DoNothing",
+            "wait_nodes": [
+                "RestaurantShopPurchaseSuccess"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopPurchaseSuccess"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopWaitRefreshConfirm": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "DoNothing",
+            "wait_nodes": [
+                "RestaurantShopRefreshConfirm"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopRefreshConfirm"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    }
+}

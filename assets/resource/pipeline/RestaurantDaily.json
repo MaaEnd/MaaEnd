@@ -1833,7 +1833,7 @@
         "next": [
             "RestaurantGameEnded",
             "RestaurantKitchenPanelReady",
-            "RestaurantOpenKitchenPanel"
+            "RestaurantWaitForBusinessState"
         ],
         "on_error": [
             "FailedNode"
@@ -1849,14 +1849,112 @@
             105
         ],
         "template": "Restaurant/EmphaticMark.png",
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "DoNothing",
+            "wait_node": "RestaurantMenuStartBusinessWarning",
+            "repeat_count": 3
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.menu_requirements_unmet"
+        },
         "next": [
-            "RestaurantMenuStartBusinessWarning",
             "RestaurantMenuStartBusiness"
+        ],
+        "on_error": [
+            "FailedNode"
         ]
     },
-    // 720p 固定派单按钮坐标；重复点击由 wait_nodes 确认面板就绪或游戏结束。
-    "RestaurantOpenKitchenPanel": {
+    "RestaurantWaitForBusinessState": {
         "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "DoNothing",
+            "wait_nodes": [
+                "RestaurantGameEnded",
+                "RestaurantKitchenPanelReady",
+                "RestaurantStartBusinessConfirm",
+                "RestaurantBusinessStarted"
+            ],
+            "repeat_count": 10,
+            "interval_ms": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantGameEnded",
+            "RestaurantKitchenPanelReady",
+            "RestaurantStartBusinessConfirm",
+            "RestaurantBusinessStarted"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantStartBusinessConfirm": {
+        "recognition": "OCR",
+        "roi": [
+            647,
+            442,
+            211,
+            43
+        ],
+        "expected": [
+            "确认",
+            "Confirm",
+            "確定",
+            "확인"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantStartBusinessConfirm",
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantGameEnded",
+            "RestaurantKitchenPanelReady",
+            "RestaurantWaitForBusinessState"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantBusinessStarted": {
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            177,
+            70
+        ],
+        "expected": [
+            "结束经营",
+            "End Session",
+            "営業終了",
+            "운영 종료하기",
+            "結束經營"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantOpenKitchenPanel"
+        ]
+    },
+    // 720p 固定派单按钮坐标；最多点击 10 次（默认间隔 3 秒），覆盖约 30 秒加载动画。
+    "RestaurantOpenKitchenPanel": {
+        "recognition": "And",
+        "all_of": [
+            "RestaurantBusinessStarted"
+        ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilFoundAction",
@@ -1865,7 +1963,8 @@
             "wait_nodes": [
                 "RestaurantKitchenPanelReady",
                 "RestaurantGameEnded"
-            ]
+            ],
+            "repeat_count": 10
         },
         "target": [
             867,
@@ -1888,7 +1987,7 @@
             "RestaurantKitchenPanelReady"
         ],
         "on_error": [
-            "RestaurantOpenKitchenPanel"
+            "FailedNode"
         ]
     },
     "RestaurantKitchenPanelReady": {
@@ -2043,6 +2142,7 @@
         "rate_limit": 0,
         "next": [
             "RestaurantRoundGate",
+            "RestaurantShopAfterRounds",
             "StopNode"
         ]
     },
