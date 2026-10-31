@@ -20,5 +20,19 @@
         "desc": "退出鹰角启动器",
         "action": "Custom",
         "custom_action": "ExitGameLauncherAction"
+    },
+    "GameLauncherSteamLaunch": {
+        "desc": "通过 Steam 启动终末地（Steam 版），之后等待登录界面",
+        "action": "Command",
+        "exec": "steam",
+        "args": [
+            "-applaunch",
+            "4732690"
+        ],
+        "detach": true,
+        "next": [
+            "GameLauncherInGame",
+            "[JumpBack]SceneWaitBlackScreenLoadingExit"
+        ]
     }
 }

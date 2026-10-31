@@ -2494,6 +2494,8 @@
     "task.Keymap.focus.interact_failed": "상호작용에 실패했습니다. 게임-설정-조작 과 MaaEnd-설정-작업 설정-키 바인딩 설정 이 일치하는지 확인해 주세요.",
     "task.LaunchGameLinux.description": "하이퍼그리프 런처 화면 안의 게임 시작 버튼을 클릭하는 역할만 담당합니다. 하이퍼그리프 런처 자체의 실행은 사전 프로그램 또는 직접 구성한 스크립트로 처리해야 합니다.",
     "task.LaunchGameLinux.label": "게임 실행 (Linux)",
+    "task.LaunchGameSteamLinux.description": "Steam을 통해 Endfield(Steam 버전)를 실행하고 로그인 화면이 나올 때까지 기다립니다. Steam 클라이언트는 게임이 사용하는 세션(Gamescope 또는 중첩된 wlroots 컴포지터) 안에서 미리 실행 중이어야 합니다. 그렇지 않으면 게임 창이 Steam이 실행 중인 데스크톱에 열립니다.",
+    "task.LaunchGameSteamLinux.label": "게임 실행 (Linux · Steam)",
     "task.LevelUpOperator.label": "📈오퍼레이터 레벨 업",
     "task.OpenGame.focus.start_app_failed": "앱 실행에 실패했습니다",
     "task.OpenGame.focus.start_up_game_failed": "게임 시작에 실패했습니다",

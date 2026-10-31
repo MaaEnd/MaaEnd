@@ -2494,6 +2494,8 @@
     "task.Keymap.focus.interact_failed": "互動失敗，請確認 遊戲-設定-按鍵 與 MaaEnd-設定-任務設定-按鍵綁定設定 保持一致",
     "task.LaunchGameLinux.description": "只負責點擊鷹角網路啟動器介面內的開始遊戲按鈕。啟動鷹角網路啟動器的工作應使用前置程式，或自行編排腳本完成。",
     "task.LaunchGameLinux.label": "啟動遊戲（Linux）",
+    "task.LaunchGameSteamLinux.description": "透過 Steam 啟動終末地（Steam 版），並等待進入登入介面。Steam 用戶端需已在遊戲所用的工作階段（Gamescope 或巢狀的 wlroots 合成器）中執行，否則遊戲視窗會出現在 Steam 所在的桌面上。",
+    "task.LaunchGameSteamLinux.label": "啟動遊戲（Linux · Steam）",
     "task.LevelUpOperator.label": "📈幹員升級",
     "task.OpenGame.focus.start_app_failed": "應用程式啟動失敗",
     "task.OpenGame.focus.start_up_game_failed": "啟動遊戲失敗",
