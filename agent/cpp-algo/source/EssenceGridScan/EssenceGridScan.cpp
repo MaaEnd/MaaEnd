@@ -29,6 +29,8 @@ namespace
 constexpr const char* kClickNextNode = "EssenceGridClickPending";
 constexpr const char* kSwipeNextNode = "EssenceGridSwipeNext";
 constexpr const char* kFinishNode = "EssenceFilterFinish";
+// 连续无进展（未派发格子且扫描无新格子/被拒）的 advance 次数达到该值即收尾筛选，避免短列表卡死到节点超时
+constexpr int kMaxStalledAdvances = 3;
 
 struct EssenceTemplateConfig
 {
@@ -108,6 +110,7 @@ struct EssenceGridState
     std::vector<EssenceCell> current_page_cells_;
     std::vector<EssenceCell> current_page_queue_;
     std::size_t current_page_queue_index_ = 0;
+    int stalled_advances_ = 0;
     bool scan_required_ = true;
     cv::Mat thumb_discard_template_;
     std::vector<cv::Mat> thumb_lock_templates_;
@@ -250,6 +253,7 @@ void reset_session_for_new_task(EssenceGridState& state, MaaTaskId task_id)
     state.current_page_cells_.clear();
     state.current_page_queue_.clear();
     state.current_page_queue_index_ = 0;
+    state.stalled_advances_ = 0;
     state.scan_required_ = true;
     state.tracker_.reset();
     state.task_id_ = task_id;
@@ -508,6 +512,7 @@ void write_advance_detail(
     detail["issued_cells"] = static_cast<int>(state.issued_cells_);
     detail["queue_remaining"] = remaining_queue_cells;
     detail["scan_required"] = state.scan_required_;
+    detail["stalled_advances"] = state.stalled_advances_;
     detail["filter_flawless_essence"] = config.flawless_essence_;
     detail["filter_pure_essence"] = config.pure_essence_;
     detail["skip_thumb_lock"] = config.skip_thumb_lock_;
@@ -656,6 +661,18 @@ std::optional<EssenceCell> select_next_queued_cell(EssenceGridState& state)
     return std::nullopt;
 }
 
+const char* route_after_queue_drained(EssenceGridState& state, const gridtracker::Result& result)
+{
+    if (result.status == gridtracker::Status::Repeated) {
+        return kFinishNode;
+    }
+    if (++state.stalled_advances_ >= kMaxStalledAdvances) {
+        LogWarn << "EssenceGridScan finish filter on stalled advances" << VAR(state.stalled_advances_) << VAR(result.message);
+        return kFinishNode;
+    }
+    return kSwipeNextNode;
+}
+
 } // namespace
 
 EssenceGrid::EssenceGrid()
@@ -711,7 +728,7 @@ MaaBool EssenceGrid::advance(
         if (!selected && !state.scan_required_) {
             state.pending_cell_.reset();
             state.scan_required_ = true;
-            next_node = result.status == gridtracker::Status::Repeated ? kFinishNode : kSwipeNextNode;
+            next_node = route_after_queue_drained(state, result);
         }
         else if (!selected) {
             scanned_image = to_mat(image);
@@ -720,25 +737,35 @@ MaaBool EssenceGrid::advance(
             if (!result.accepted()) {
                 state.scan_required_ = true;
                 state.pending_cell_.reset();
-                write_advance_detail(out_detail, state, result, std::nullopt, config);
-                LogWarn << "EssenceGridScan scan miss" << VAR(result.message) << VAR(result.reason) << VAR(result.alignment.row_offset)
-                        << VAR(result.alignment.support_rows) << VAR(result.alignment.match_ratio);
-                return 0;
+                if (++state.stalled_advances_ < kMaxStalledAdvances) {
+                    write_advance_detail(out_detail, state, result, std::nullopt, config);
+                    LogWarn << "EssenceGridScan scan miss" << VAR(result.message) << VAR(result.reason) << VAR(result.alignment.row_offset)
+                            << VAR(result.alignment.support_rows) << VAR(result.alignment.match_ratio) << VAR(state.tracker_.colWidth());
+                    return 0;
+                }
+                LogWarn << "EssenceGridScan finish filter on stalled scans" << VAR(state.stalled_advances_) << VAR(result.message)
+                        << VAR(result.reason) << VAR(state.tracker_.colWidth());
+                next_node = kFinishNode;
             }
-
-            state.scan_required_ = false;
-            rebuild_current_page_queue(state, scanned_image, result, config);
-            selected = select_next_queued_cell(state);
-            if (!selected) {
-                state.pending_cell_.reset();
-                state.scan_required_ = true;
-                next_node = result.status == gridtracker::Status::Repeated ? kFinishNode : kSwipeNextNode;
+            else {
+                state.scan_required_ = false;
+                if (!result.new_cells.empty()) {
+                    state.stalled_advances_ = 0;
+                }
+                rebuild_current_page_queue(state, scanned_image, result, config);
+                selected = select_next_queued_cell(state);
+                if (!selected) {
+                    state.pending_cell_.reset();
+                    state.scan_required_ = true;
+                    next_node = route_after_queue_drained(state, result);
+                }
             }
         }
 
         if (selected) {
             state.pending_cell_ = selected;
             ++state.issued_cells_;
+            state.stalled_advances_ = 0;
             next_node = kClickNextNode;
             if (out_box != nullptr) {
                 const cv::Rect& box = selected->grid_.screen_rect;
