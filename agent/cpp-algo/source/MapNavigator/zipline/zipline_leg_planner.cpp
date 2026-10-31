@@ -349,7 +349,7 @@ void drop_edge(std::vector<std::vector<size_t>>& links, size_t a, size_t b)
 // 返回拦路架到索线的垂距, nodes 须已做过通电筛选
 std::optional<double> rope_intercepted(
     const std::vector<zipline::ZiplineNode>& nodes,
-    const std::vector<size_t>& node_map,
+    const std::vector<size_t>& node_record,
     size_t from,
     size_t to,
     const std::vector<double>& span_limit,
@@ -364,7 +364,7 @@ std::optional<double> rope_intercepted(
     }
     const double planar_squared = dx * dx + dz * dz;
     for (size_t k = 0; k < nodes.size(); ++k) {
-        if (k == from || k == to || node_map[k] != node_map[from]) {
+        if (k == from || k == to || node_record[k] != node_record[from]) {
             continue;
         }
         const double offset_x = nodes[k].world_x - nodes[from].world_x;
@@ -398,7 +398,7 @@ std::optional<double> rope_intercepted(
 
 ZipLinkGraph build_links(
     const std::vector<zipline::ZiplineNode>& nodes,
-    const std::vector<size_t>& node_map,
+    const std::vector<size_t>& node_record,
     const std::vector<double>& span_limit,
     const std::vector<std::array<int, 2>>& footprints,
     const std::vector<std::vector<navmesh::OccluderPoint>>& rope_ends)
@@ -412,7 +412,7 @@ ZipLinkGraph build_links(
             continue;
         }
         for (size_t j = i + 1; j < nodes.size(); ++j) {
-            if (node_map[i] != node_map[j] || span_limit[j] <= 0.0) {
+            if (node_record[i] != node_record[j] || span_limit[j] <= 0.0) {
                 continue;
             }
             const double limit = std::min(span_limit[i], span_limit[j]);
@@ -443,7 +443,7 @@ ZipLinkGraph build_links(
             }
             graph.all[i].push_back(j);
             graph.all[j].push_back(i);
-            if (const std::optional<double> lateral = rope_intercepted(nodes, node_map, i, j, span_limit, footprints)) {
+            if (const std::optional<double> lateral = rope_intercepted(nodes, node_record, i, j, span_limit, footprints)) {
                 demoted_lateral.push_back(*lateral);
                 continue;
             }
@@ -498,36 +498,52 @@ struct PlannedLeg
     NavmeshRouteDiagnostic diagnostic;
 };
 
+enum class LegLookup
+{
+    Planned,
+    Unplannable,
+    OutOfBudget,
+};
+
+// 接近段和离开段两个缓存共用
+struct LegBudget
+{
+    size_t remaining = kMaxExtraPlans;
+};
+
 // 缓存里存 nullopt 表示这段规划不出来, 下次不必再试
 class LegCache
 {
 public:
     using Planner = std::function<std::optional<PlannedLeg>(size_t)>;
 
-    LegCache(Planner planner, size_t& budget)
+    LegCache(Planner planner, LegBudget& budget)
         : planner_(std::move(planner))
         , budget_(budget)
     {
     }
 
-    // 预算用完时返回 nullptr
-    const std::optional<PlannedLeg>* get(size_t index)
+    // 返回 Planned 时 *leg 指向缓存里的结果
+    LegLookup get(size_t index, const PlannedLeg** leg)
     {
         auto it = cache_.find(index);
-        if (it != cache_.end()) {
-            return &it->second;
+        if (it == cache_.end()) {
+            if (budget_.remaining == 0) {
+                return LegLookup::OutOfBudget;
+            }
+            --budget_.remaining;
+            it = cache_.emplace(index, planner_(index)).first;
         }
-        if (budget_ == 0) {
-            return nullptr;
+        if (!it->second) {
+            return LegLookup::Unplannable;
         }
-        --budget_;
-        auto [inserted, ok] = cache_.emplace(index, planner_(index));
-        return &inserted->second;
+        *leg = &*it->second;
+        return LegLookup::Planned;
     }
 
 private:
     Planner planner_;
-    size_t& budget_;
+    LegBudget& budget_;
     std::unordered_map<size_t, std::optional<PlannedLeg>> cache_;
 };
 
@@ -608,7 +624,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
 
     std::vector<zipline::ZiplineNode> nodes;
     // 每根架子来自哪份记录, 不同记录的架子之间挂不上索
-    std::vector<size_t> node_map;
+    std::vector<size_t> node_record;
     // 像素平面坐标, 通电判定另用世界坐标
     std::vector<navmesh::WorldPoint> supply_points;
     size_t unpowered = 0;
@@ -649,7 +665,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
                 continue;
             }
             nodes.push_back(frame->project(mark));
-            node_map.push_back(record_index);
+            node_record.push_back(record_index);
         }
     }
     if (unpowered != 0) {
@@ -713,15 +729,17 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     probes.push_back(start);
     probes.push_back(goal);
     const std::vector<std::vector<uint32_t>> regions = NavmeshRegionsNear(param, locator_zone, probes);
+    const std::vector<uint32_t>& start_regions = regions[spots.size()];
+    const std::vector<uint32_t>& goal_regions = regions[spots.size() + 1];
     std::vector<std::vector<size_t>> board_spots(nodes.size());
     std::vector<std::vector<size_t>> land_spots(nodes.size());
     size_t cut_off = 0;
     for (size_t i = 0; i < nodes.size(); ++i) {
         for (const size_t spot : tower_spots[i]) {
-            if (may_connect(regions[spot], regions[spots.size()])) {
+            if (may_connect(regions[spot], start_regions)) {
                 board_spots[i].push_back(spot);
             }
-            if (may_connect(regions[spot], regions[spots.size() + 1])) {
+            if (may_connect(regions[spot], goal_regions)) {
                 land_spots[i].push_back(spot);
             }
         }
@@ -734,12 +752,12 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     }
     // 上不去的架子只取消上索资格, 仍可当落点
     size_t unboardable = 0;
-    for (const ZiplineHopRecord& record : param.zipline_ledger) {
-        if (record.outcome != HopOutcome::Unboardable) {
+    for (const ZiplineHopRecord& entry : param.zipline_ledger) {
+        if (entry.outcome != HopOutcome::Unboardable) {
             continue;
         }
         for (size_t i = 0; i < nodes.size(); ++i) {
-            if (!board_spots[i].empty() && ToNodeRef(nodes[i]).sameTower(record.plan.mount)) {
+            if (!board_spots[i].empty() && ToNodeRef(nodes[i]).sameTower(entry.plan.mount)) {
                 board_spots[i].clear();
                 ++unboardable;
             }
@@ -789,7 +807,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     for (size_t i = 0; i < nodes.size(); ++i) {
         rope_ends[i] = rope_end_points(tower_bases[i], grounds[i]);
     }
-    ZipLinkGraph graph = build_links(nodes, node_map, span_limit, footprints, rope_ends);
+    ZipLinkGraph graph = build_links(nodes, node_record, span_limit, footprints, rope_ends);
 
     const auto drop_from_graph = [&graph](size_t a, size_t b) {
         drop_edge(graph.all, a, b);
@@ -836,13 +854,13 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
                     continue;
                 }
                 int32_t aim_failures = 0;
-                for (const ZiplineHopRecord& record : param.zipline_ledger) {
-                    const bool rope_failure = IsZiplineRopeFailure(record.outcome);
-                    if (!rope_failure && record.outcome != HopOutcome::AimFailed) {
+                for (const ZiplineHopRecord& entry : param.zipline_ledger) {
+                    const bool rope_failure = IsZiplineRopeFailure(entry.outcome);
+                    if (!rope_failure && entry.outcome != HopOutcome::AimFailed) {
                         continue;
                     }
-                    const ZiplineNodeRef& from = record.plan.mount;
-                    const ZiplineNodeRef& to = record.plan.landing;
+                    const ZiplineNodeRef& from = entry.plan.mount;
+                    const ZiplineNodeRef& to = entry.plan.landing;
                     if (!((near_tower(i, from) && near_tower(j, to)) || (near_tower(i, to) && near_tower(j, from)))) {
                         continue;
                     }
@@ -902,7 +920,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         return a.lower_bound < b.lower_bound;
     });
 
-    size_t plan_budget = kMaxExtraPlans;
+    LegBudget plan_budget;
 
     LegCache approach_cache(
         [&](size_t index) -> std::optional<PlannedLeg> {
@@ -953,17 +971,17 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         },
         plan_budget);
 
-    // 规划通一个站点就停, 预算用完返回 nullptr
-    const auto first_leg = [](LegCache& cache, const std::vector<size_t>& candidates_of_tower, size_t* used_spot) {
-        const std::optional<PlannedLeg>* leg = nullptr;
+    // 规划通一个站点或预算用完就停
+    const auto first_leg = [](LegCache& cache, const std::vector<size_t>& candidates_of_tower, size_t* used_spot, const PlannedLeg** leg) {
+        LegLookup lookup = LegLookup::OutOfBudget;
         for (const size_t spot : candidates_of_tower) {
-            leg = cache.get(spot);
+            lookup = cache.get(spot, leg);
             *used_spot = spot;
-            if (leg == nullptr || leg->has_value()) {
+            if (lookup != LegLookup::Unplannable) {
                 break;
             }
         }
-        return leg;
+        return lookup;
     };
 
     double best_cost = gain_threshold;
@@ -989,30 +1007,32 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             }
 
             size_t approach_spot = 0;
-            const std::optional<PlannedLeg>* approach = first_leg(approach_cache, board_spots[candidate.mount], &approach_spot);
-            if (!approach) {
+            const PlannedLeg* approach = nullptr;
+            const LegLookup approach_lookup = first_leg(approach_cache, board_spots[candidate.mount], &approach_spot, &approach);
+            if (approach_lookup == LegLookup::OutOfBudget) {
                 truncated = true;
                 break;
             }
-            if (!approach->has_value()) {
+            if (approach_lookup == LegLookup::Unplannable) {
                 continue;
             }
 
-            if ((*approach)->length + candidate.zip_cost + lb_to_goal[candidate.dismount] >= best_cost) {
+            if (approach->length + candidate.zip_cost + lb_to_goal[candidate.dismount] >= best_cost) {
                 continue;
             }
 
             size_t departure_spot = 0;
-            const std::optional<PlannedLeg>* departure = first_leg(departure_cache, land_spots[candidate.dismount], &departure_spot);
-            if (!departure) {
+            const PlannedLeg* departure = nullptr;
+            const LegLookup departure_lookup = first_leg(departure_cache, land_spots[candidate.dismount], &departure_spot, &departure);
+            if (departure_lookup == LegLookup::OutOfBudget) {
                 truncated = true;
                 break;
             }
-            if (!departure->has_value()) {
+            if (departure_lookup == LegLookup::Unplannable) {
                 continue;
             }
 
-            const double total = (*approach)->length + candidate.zip_cost + (*departure)->length;
+            const double total = approach->length + candidate.zip_cost + departure->length;
             if (total >= best_cost) {
                 continue;
             }
@@ -1022,8 +1042,8 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             best_approach_spot = approach_spot;
             best_departure_spot = departure_spot;
             best = ZiplineRoute {
-                .approach = (*approach)->path,
-                .departure = (*departure)->path,
+                .approach = approach->path,
+                .departure = departure->path,
                 .cost = total,
             };
         }
@@ -1064,13 +1084,15 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         }
     }
     if (capture_diagnostics) {
-        const std::optional<PlannedLeg>* approach = approach_cache.get(best_approach_spot);
-        const std::optional<PlannedLeg>* departure = departure_cache.get(best_departure_spot);
-        if (approach != nullptr && approach->has_value()) {
-            best->diagnostics.push_back((*approach)->diagnostic);
+        const PlannedLeg* approach = nullptr;
+        const PlannedLeg* departure = nullptr;
+        const LegLookup approach_lookup = approach_cache.get(best_approach_spot, &approach);
+        const LegLookup departure_lookup = departure_cache.get(best_departure_spot, &departure);
+        if (approach_lookup == LegLookup::Planned) {
+            best->diagnostics.push_back(approach->diagnostic);
         }
-        if (departure != nullptr && departure->has_value()) {
-            best->diagnostics.push_back((*departure)->diagnostic);
+        if (departure_lookup == LegLookup::Planned) {
+            best->diagnostics.push_back(departure->diagnostic);
         }
     }
     const navmesh::WorldPoint& approach_from =
