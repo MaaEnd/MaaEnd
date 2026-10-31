@@ -1,0 +1,495 @@
+{
+    "BatchAddFriendsStrangersMenuViewProfile": {
+        "desc": "头像菜单里点「查看个人名片」",
+        // 菜单是弹在头像附近的上下文菜单，位置随点击点浮动，故 ROI 取宽一些。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                // 菜单跟随被点击的行弹出，纵向位置不固定，因此 ROI 覆盖左侧整片区域。
+                // 文案「查看个人名片」足够独特，放宽 ROI 不会误匹配。
+                "roi": [
+                    2,
+                    50,
+                    434,
+                    639
+                ],
+                "expected": [
+                    // 已核对游戏内文本
+                    "查看个人名片",
+                    "查看個人名片",
+                    "(?i)View\\s*Profile",
+                    "個人情報",
+                    "개인\\s*명함\\s*보기"
+                ]
+            }
+        },
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
+            "BatchAddFriendsStrangersProfileCardOpened"
+        ],
+        // 名片已打开但「申请好友」按钮没认到时，ProfileCardOpened 不会命中。
+        // 直接回 Scan 会把名片留在屏幕上、后续点击错位，所以先尝试关掉名片；
+        // 名片没打开时 ProfileReject 不会命中，自然落到 Scan。
+        "on_error": [
+            "BatchAddFriendsStrangersProfileReject",
+            "BatchAddFriendsStrangersScan"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileCardOpened": {
+        "desc": "名片已打开：申请好友按钮与权限等级 LOGO 同时存在",
+        // 只用权限等级图标判断容易在淡入过程中误命中，
+        // 两个名片独有元素同时命中才认为名片确实打开了。
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddFriendsStrangersProfileAddFriend",
+                    "BatchAddFriendsStrangersProfileReady"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        // 等名片主体区域稳定后再执行后续识别。
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                39,
+                52,
+                601,
+                633
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
+            "BatchAddFriendsStrangersProfileQualified",
+            "BatchAddFriendsStrangersProfileReject"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersProfileFallbackClose"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileReady": {
+        "desc": "名片页已打开：以「权限等级」图标为标志",
+        // 图标只在名片页出现、形状固定
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    150,
+                    280,
+                    120,
+                    60
+                ],
+                "template": "BatchAddFriends/authorityLevel.png"
+            }
+        }
+    },
+    "BatchAddFriendsStrangersProfileFallbackClose": {
+        "desc": "名片已打开但识别目标失败的兜底：确认在名片页后关掉",
+        // ProfileReady 或读取节点的前置识别失败，可能只是图标没匹配上，名片其实已经打开了。
+        // 这时直接回 Scan 会把名片留在屏幕上，后续点击全部错位。
+        // 用「申请好友」按钮作为第二个名片页锚点（列表页没有这个按钮），
+        // 关掉后再记一次拒绝，避免下一轮又挑到同一行。
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddFriendsStrangersProfileAddFriend",
+                    "ProfilePageMoreButton",
+                    "BatchAddFriendsStrangersProfileCloseButton"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchAddFriendsStrangersRecordReject"
+        ],
+        "on_error": [
+            "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileAuthorityLevel": {
+        "desc": "读名片页「权限等级」的数值",
+        // ROI 覆盖图标右侧的数值区，内容是纯数字，与语言无关。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    335,
+                    304,
+                    34,
+                    22
+                ],
+                "expected": [
+                    // "60"
+                    // @i18n-skip
+                    "^\\d{1,2}$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "BatchAddFriendsStrangersProfileValleyIVIcon": {
+        "desc": "定位「地区建设概况 · 四号谷地」的图标",
+        // 用图标定位而不是写死坐标：版本更新挪位置时，数值 ROI 会跟着图标走。
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    100,
+                    500,
+                    400,
+                    120
+                ],
+                "template": "BatchAddFriends/valleyIV.png"
+            }
+        }
+    },
+    "BatchAddFriendsStrangersProfileValleyIVLevel": {
+        "desc": "读「四号谷地」的地区等级数值",
+        // ROI 挂在图标节点上：图标 [186,553,41,26] 加上偏移后覆盖 [275,534,41,36]，
+        // 该范围完整包住数字区 [279,540,33,24]。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "BatchAddFriendsStrangersProfileValleyIVIcon",
+                "roi_offset": [
+                    89,
+                    -19,
+                    41,
+                    36
+                ],
+                "expected": [
+                    // 等级由 OCR 实时读取，不预设任何具体数值。
+                    // 文本可能带「LV.」「等级」等前后缀，因此只要求含数字，
+                    // 再由 ocrnum 解析出数值。
+                    // @i18n-skip
+                    ".*\\d+.*"
+                ]
+            }
+        }
+    },
+    "BatchAddFriendsStrangersProfileWulingIcon": {
+        "desc": "定位「地区建设概况 · 武陵」的图标",
+        // 同时作为武陵数据的存在性判据：图标不命中时 And 判定失败。
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    100,
+                    500,
+                    400,
+                    120
+                ],
+                "template": "BatchAddFriends/wuling.png"
+            }
+        }
+    },
+    "BatchAddFriendsStrangersProfileWulingLevel": {
+        "desc": "读「武陵」的地区等级数值",
+        // ROI 挂在图标节点上：图标 [322,553,34,27] 加上偏移后覆盖 [408,534,45,38]，
+        // 该范围完整包住数字区 [412,540,37,26]。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "BatchAddFriendsStrangersProfileWulingIcon",
+                "roi_offset": [
+                    86,
+                    -19,
+                    45,
+                    38
+                ],
+                "expected": [
+                    // 等级由 OCR 实时读取，不预设任何具体数值。
+                    // 文本可能带「LV.」「等级」等前后缀，因此只要求含数字，
+                    // 再由 ocrnum 解析出数值。
+                    // @i18n-skip
+                    ".*\\d+.*"
+                ]
+            }
+        }
+    },
+    "BatchAddFriendsStrangersProfileQualified": {
+        "desc": "名片信息满足全部筛选条件：And 在同一帧里判定所有条件",
+        // 每个条件自己负责「是否存在该地区数据」：
+        // 地区未解锁时由该条件内部的图标成员判定失败，不影响其它条件。
+        // 开关关闭的条件节点由任务选项覆盖成 DirectHit。
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddFriendsStrangersProfileAuthorityGate",
+                    "BatchAddFriendsStrangersProfileValleyGate",
+                    "BatchAddFriendsStrangersProfileWulingGate",
+                    "BatchAddFriendsStrangersProfileWarEcho"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
+            "BatchAddFriendsStrangersProfileAddFriend"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileAuthorityGate": {
+        "desc": "权限等级区间条件（表达式由「权限等级限制」选项注入）",
+        "recognition": "DirectHit"
+    },
+    "BatchAddFriendsStrangersProfileValleyGate": {
+        "desc": "四号谷地条件：开关打开时覆盖成 And[谷地图标, 谷地区间表达式]",
+        "recognition": "DirectHit"
+    },
+    "BatchAddFriendsStrangersProfileValleyRangeExpr": {
+        "desc": "四号谷地等级区间表达式（由「谷地等级限制」输入项注入）",
+        "recognition": "DirectHit"
+    },
+    "BatchAddFriendsStrangersProfileWulingGate": {
+        "desc": "武陵条件：开关打开时覆盖成 And[武陵图标, 武陵区间表达式]",
+        "recognition": "DirectHit"
+    },
+    "BatchAddFriendsStrangersProfileWulingRangeExpr": {
+        "desc": "武陵等级区间表达式（由「武陵等级限制」输入项注入）",
+        "recognition": "DirectHit"
+    },
+    "BatchAddFriendsStrangersProfileWarEcho": {
+        "desc": "「战争回响增辉」标识检查：开关未开启时直接通过",
+        // 默认 DirectHit；开关打开时由任务选项覆盖成 TemplateMatch。
+        "recognition": "DirectHit"
+    },
+    "BatchAddFriendsStrangersProfileReject": {
+        "desc": "不满足筛选条件：关闭名片并拉黑这一行",
+        // 与 ProfileClose 相同的守卫：权限等级图标在（确认在名片页）+ X 模板命中。
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddFriendsStrangersProfilePage",
+                    "BatchAddFriendsStrangersProfileCloseButton"
+                ],
+                "box_index": 1
+            }
+        },
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
+            "BatchAddFriendsStrangersRecordReject"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileAddFriend": {
+        "desc": "点名片页右下角「申请好友」",
+        // 直接 OCR 按钮文字：命中的框就是按钮本身，点击默认取框中心，
+        // 不需要任何偏移量，也不怕名片页整体布局漂移。
+        // 名片页是否已打开由上游 ProfileReady（头像下方的「…」按钮）保证。
+        // 「好友列表已满」与「已发送好友申请」都是点击后才弹出的提示，
+        // 立刻判定会先命中 ProfileClose 而当成添加成功。这里靠 next 反复判定
+        // 捕捉这两个提示，都等不到才由 on_error 走保底的成功路径。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    860,
+                    600,
+                    320,
+                    80
+                ],
+                "expected": [
+                    // 已核对游戏内文本
+                    // 名片页与列表页的按钮文案不同，不能混用其它任务的翻译。
+                    "申请好友",
+                    "申請好友",
+                    "(?i)Add\\s*Friend",
+                    "フレンド申請",
+                    "친구\\s*신청"
+                ]
+            }
+        },
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
+            "BatchAddFriendsFriendListFullToast",
+            "BatchAddFriendsStrangersApplySentToast"
+        ],
+        // 两个提示都没认到：点击可能落空，也可能申请已发出但提示没识别出来。
+        // 两种情况都无法确认，所以不做成功计数，只关名片并把这一行记入黑名单，
+        // 既避免重复挑同一行，也不给用户假的成功提示。
+        "on_error": [
+            "BatchAddFriendsStrangersProfileCloseUncounted"
+        ]
+    },
+    "BatchAddFriendsStrangersProfilePage": {
+        "desc": "在名片页：权限等级图标或「…」按钮任一命中即可",
+        // 两个都是名片独有，任一命中则说明当前在名片页
+        // 拆成 Or 节点，方便各处 And 守卫复用
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "BatchAddFriendsStrangersProfileReady",
+                    "ProfilePageMoreButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "BatchAddFriendsStrangersProfileCloseButton": {
+        "desc": "名片页/列表页右上角的 X 按钮",
+        // 复用仓库通用素材 Common/Button/CloseButtonType5.png。
+        // 两页的 X 完全相同、位置也一样，所以它不能单独当判据，
+        // 只负责给出点击位置；是否在名片页由 ProfileReady / ProfilePageMoreButton 把关。
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1180,
+                    0,
+                    100,
+                    60
+                ],
+                "template": "Common/Button/CloseButtonType5.png"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "BatchAddFriendsStrangersApplySentToast": {
+        "desc": "点「申请好友」后弹出的「已发送好友申请」提示",
+        // 与「好友列表已满」同一个位置、互斥出现。
+        // 每轮按 next 顺序判定，都没命中就重新截图再判，直到命中或超时。
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    481,
+                    108,
+                    304,
+                    29
+                ],
+                "expected": [
+                    "已发送好友申请",
+                    "已傳送好友申請",
+                    "(?i)Friend\\s*request\\s*sent",
+                    "申請しました",
+                    "친구\\s*추가를\\s*신청했습니다"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchAddFriendsStrangersProfileClose"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileClose": {
+        "desc": "添加成功后关闭名片：权限等级图标与「…」按钮确认在名片页，X 提供点击位置",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddFriendsStrangersProfilePage",
+                    "BatchAddFriendsStrangersProfileCloseButton"
+                ],
+                "box_index": 1
+            }
+        },
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
+            "BatchAddFriendsStrangersOnAdd",
+            "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsStrangersProfileCloseUncounted": {
+        "desc": "申请结果未知时关闭名片：不计成功，只把这一行记入黑名单",
+        // 命中条件与 ProfileClose 相同，区别只在 next：
+        // 不经过 OnAdd（不增加添加成功计数），直接记拒绝并回扫。
+        // 若这一行其实已发送成功，列表里按钮会变成「等待接受」，AddButtonColumn 不会再挑它；
+        // 若点击确实落空，这一行被拉黑后也不会在本次批次里反复重试。
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddFriendsStrangersProfilePage",
+                    "BatchAddFriendsStrangersProfileCloseButton"
+                ],
+                "box_index": 1
+            }
+        },
+        // 等画面稳定再执行本节点的动作：这一组节点点的是刚出现的元素，
+        // 过渡动画未结束时动作容易落空或点在旧位置。
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]HighLatencyLoadingOverlayWait",
+            "BatchAddFriendsStrangersRecordReject"
+        ]
+    }
+}
