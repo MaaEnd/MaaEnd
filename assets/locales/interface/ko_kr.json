@@ -2069,6 +2069,7 @@
     "task.AutoEssence.focus.essence_filter_after_battle_start": "기질을 인식했습니다. 유효한 기질 필터링 및 잠금을 시작합니다.",
     "task.AutoEssence.focus.location_changed": "🔁목표 지점 변경: %s → %s",
     "task.AutoEssence.label": "🎱기질 파밍",
+    "task.AutoMission.description": "추적 중인 임무를 자동으로 완료합니다",
     "task.AutoMission.focus.no_tracking": "추적 중인 임무가 없습니다. 임무를 추적한 뒤 다시 시도하세요.",
     "task.AutoMission.label": "📋임무 자동 수행(Beta)",
     "task.AutoSell.label": "💰탄력 물자 판매",

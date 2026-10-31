@@ -2069,6 +2069,7 @@
     "task.AutoEssence.focus.essence_filter_after_battle_start": "識別到基質，開始篩選並鎖定有用的",
     "task.AutoEssence.focus.location_changed": "🔁目標地點變更：%s → %s",
     "task.AutoEssence.label": "🎱基質刷取",
+    "task.AutoMission.description": "自動完成目前追蹤的任務",
     "task.AutoMission.focus.no_tracking": "目前沒有追蹤任務，請追蹤一個任務後重試",
     "task.AutoMission.label": "📋自動做任務（Beta）",
     "task.AutoSell.label": "💰售賣彈性物資",

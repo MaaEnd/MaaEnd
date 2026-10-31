@@ -2069,6 +2069,7 @@
     "task.AutoEssence.focus.essence_filter_after_battle_start": "识别到基质，开始筛选并锁定有用的",
     "task.AutoEssence.focus.location_changed": "🔁目标地点变更：%s → %s",
     "task.AutoEssence.label": "🎱基质刷取",
+    "task.AutoMission.description": "自动完成当前追踪任务",
     "task.AutoMission.focus.no_tracking": "当前没有追踪任务，请追踪一个任务后重试",
     "task.AutoMission.label": "📋自动做任务（Beta）",
     "task.AutoSell.label": "💰售卖弹性物资",

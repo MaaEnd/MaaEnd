@@ -40,7 +40,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 
 ## ✨ Features
 
-- 🎁 **One-click preset scenes**: Daily Full, Quick Daily, Realtime Assist, and Essence Farming are all bundled as ready-to-use presets, so common setups are only one-click away. ✨
+- 🎁 **One-click preset scenes**: Full Daily Routine, Quick Daily, Real-time Assist, and Standalone Tasks are all bundled as ready-to-use presets, so common setups are only one-click away. ✨
 - 🎮 **Real-time early-game assistant**: The helper keeps watching the screen and fills in key actions on demand, so you can stay focused on exploration and progression. ✨
     - **Auto story**: Skip dialogue, choose branches intelligently, and speed through story scenes when needed.
     - **Interaction handling**: Auto click tutorial guides, flip manuals, tap to continue, and close archive/voice panels without the usual frantic clicking.
@@ -53,18 +53,23 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 💎 **Essence filtering**: Smart essence recognition with automatic lock/discard behavior based on weapon rarity, essence type, and extra rules. ✨
 - 🎱 **Essence farming**: Automatically challenges heavy silt points, supports repeated runs, reward claiming, and post-battle essence filtering in one flow.
 - 🗡️ **Trial of Swordmancy**: Automatically clears daily Trial of Swordmancy / coating farming for regional development routines.
+- 🀄 **Arena of Games**: Draws cards automatically on the card draw screen, restarts once no target hand is reachable, and stops as soon as one is made.
 - 🌿 **Environment Monitoring**: Automatically clears environment monitoring tasks so routine combat-and-travel work can be handed off.
-- ⚔️ **Protocol Space**: Automatically spends sanity on Protocol Space runs with selectable reward routes, making stamina cleanup much easier.
+- ⚔️ **Protocol Space**: Automatically spends sanity on Protocol Space runs with selectable reward routes, and can use limited-time potions when sanity runs out, making stamina cleanup much easier.
 - 🗿 **Umbral Monument**: Automatically challenges uncleared normal stages of Umbral Monument, with selectable monument and team, plus configurable retries on failure.
+- 🥀 **War Echo**: Automatically challenges uncleared Normal and Hard difficulties of War Echo, skipping cleared ones, with configurable retries on failure.
 - 💾 **Extract Sanity**: Automatically extracts Sanity Essence, a blessing for Monthly Pass hoarders!
 - 🌾 **Eco Farm**: Handles harvesting, planting, and watering, and can also tidy up your bag before and after the run.
 - 🧺 **Auto resource gathering**: Follows outdoor gathering routes automatically to collect as many field resources as possible.
+- 📋 **Auto Mission**: Automatically advances the currently tracked mission and skips cutscenes along the way.
 - 🦉 **Resource Recycle Station**: Automatically collects materials from owl recycle stations in Wuling and Valley IV.
 - 🧭 **Batch Detector**: Batch-use Compass / Detector in a chosen region to speed up treasure hunting.
 - 🎈 **Aerial Salvage**: Automatically deploys balloons and keeps them balanced so the mini-game can run hands-free.
 - 🚡 **Zipline import**: Import the current account's zipline coordinates from the official map for auto navigation (import once, stays valid long-term).
+- ✂️ **Delete shared ziplines**: Clears shared ziplines sub-area by sub-area in Valley IV and/or Wuling.
 - 🔄 **Switch Team**: One-click party switching in the open world, handy for exploration and farming routes.
 - 🎁 **Operator gift delivery**: Automatically heads to the contact desk, gives a gift to an operator, and collects the return gift if available.
+- 📈 **Level Up Operator**: Levels up upgradable operators in order, with a configurable max level.
 - 🔫 **Armory upgrades & production**: Weapon upgrades, gear crafting, simple crafting, and batch simple crafting all help cut down repetitive progression work. 💪
 - 💰 **Auto trading/reselling**: Combines stockpiling, staple-goods buying, and flexible-demand selling so you can watch margins and manage vouchers more easily. 💸
 - 🛒 **Outpost Trading**: Automatically exchanges products at each outpost into vouchers so you can skip the repetitive clicks.
@@ -75,6 +80,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 🎒 **Stash Backpack**: One-click backpack tidy-and-stash, useful before/after other tasks.
 - 📐 **Blueprint porter**: Batch import blueprints, intelligently parse share codes or messy text, and get building plans in place with far less manual work.
 - 🎁 **Base tasks**: Collect base outputs, restock, and manage clue collection/placement/gifting in one go.
+- 🍽️ **Yuanyuan Manor Innkeeping**: Configures kitchens and menus, then queues dishes based on table orders to clear daily patrons and farm Spirit Money (requires Inn Level 4 and all three kitchens unlocked).
 - 🤝 **Visit friends**: Automatically visits friends and handles production assistance plus intel exchange as part of the routine.
 - 👥 **Batch friend requests**: Send friend requests in bulk, either to specific UIDs or to strangers, without entering them one by one.
 - 🗑️ **Batch delete friends**: Clean long-inactive friends by last-login time, while skipping friends with remarks.
@@ -83,7 +89,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 🧮 **Pull count calculator**: Reads headhunt resources and warehouse vouchers to estimate pulls for the current / next pool.
 - 🔑 **Auto account switch**: Log out and switch to a specified account automatically (phone on CN, email on Global).
 - 📅 **Daily automation**: Daily rewards, Simulation Space rewards, encyclopedia red dots, production manual rewards, and more can all be cleaned up in one sweep. ✅
-- 💊 **Emergency sanity medication**: One-click emergency sanity medication use saves you a step. 💊
+- 💊 **Use Consumable**: Choose a consumable and automatically give it to the selected operators. 💊
 - 💻 **Multi-platform support**: Supports PC (`Win32`), Android (`ADB`), Linux, macOS, and more, so MaaEnd can tag along wherever you play. 🐟
 
 ## 🛠️ Developer Guide
