@@ -195,12 +195,15 @@ func route(patch map[string]any, routes []string, selected string) {
 	}
 }
 
-func iconCandidates(patch map[string]any, name string, ids []string) {
+func iconCandidates(patch map[string]any, name string, ids []string, options ...iconrecognition.Option) {
 	filters := iconrecognition.StorageFilter()
-	patch[name] = map[string]any{"custom_recognition_param": iconrecognition.NewParams(
+	options = append([]iconrecognition.Option{
 		iconrecognition.WithGridType(iconrecognition.GridTypeSingleROI),
 		iconrecognition.WithItemFilters(filters.Restaurant.Any, filters.Normal.Usable),
 		iconrecognition.WithItemIDs(ids...),
+	}, options...)
+	patch[name] = map[string]any{"custom_recognition_param": iconrecognition.NewParams(
+		options...,
 	)}
 }
 
@@ -335,7 +338,7 @@ func nextMenuCard(state *session, patch map[string]any) error {
 	} else {
 		ids = data.Drinks
 	}
-	iconCandidates(patch, "RestaurantMenuCardIcon", ids)
+	iconCandidates(patch, "RestaurantMenuCardIcon", ids, iconrecognition.WithThreshold(0.75))
 	card := menu.Cards[menu.Index]
 	patch["RestaurantMenuCardQuantity"] = map[string]any{
 		"roi": []int{card[0] + 4, card[1] + 66, card[2] - 184, card[3] - 72},
