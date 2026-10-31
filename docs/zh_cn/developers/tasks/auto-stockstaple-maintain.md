@@ -2,7 +2,7 @@
 
 本文说明 `AutoStockStaple` 的文件分布与执行流程。  
 以 **四号谷地** 为主线；**武陵** Pipeline 结构完全对称，仅地区后缀与场景识别不同。  
-该文档更新于 2026 年 10 月 26 日。
+该文档更新于 2026 年 10 月 30 日。
 
 ## 文件路径
 
@@ -33,8 +33,7 @@
     - 剩余调度券是否[低于保留阈值](#调度券保留阈值) → 停止本地区扫描。
     - 是否[识别到可买目标商品](#商品识别链与折扣分组) → 点击进入购买弹窗；同一轮按折扣分组顺序依次判定。
     - 是否已售罄 → 停止本地区扫描。
-    - 列表是否[已经到底](#5-售罄与滑动) → 停止本地区扫描。
-    - 否则向下滑动列表继续找。滑动**不设次数上限**，何时停止只看售罄与列表到底识别器。
+    - 否则向下滑动列表继续找，单地区最多滑 25 次（`AutoStockSwipe{Region}.max_hit`）；次数用完仍在物资调度页即视为列表已到底。
 5. 购买弹窗内按[数量控制三分支](#数量控制三分支)处理：券不足退出 / 未达上限则购买 / 已达上限则排除。
 6. 所有启用地区完成后结束。
 
@@ -244,10 +243,10 @@ node tools/pipeline-generate/AutoStockStaple/generate.mjs
 ### 5. 售罄与滑动
 
 - `SoldOut`：OCR 识别左侧“已售罄 / Sold Out”等文案，命中后不再滑动。
-- `AutoStockListComplete{Region}`：**列表到底识别器**，排在滑动节点之前。首次执行把 `roi` 内的静止画面截成运行时模板，之后每轮比较：画面与上一轮相同（相似度 ≥ `threshold`，本任务配 0.95）说明已经滑到底，命中即结束本地区扫描；画面有变化则重新截图并继续下滑。
-    - `roi` 取物资卡片网格（`[65, 200, 1075, 360]`，720p 基准点）；改卡片布局或分辨率基准时要同步调整，否则识别器可能一直不命中。
-    - `attach.ready` 是识别器的运行期状态（模板 `ListCompleteRecognition/AutoStockListComplete{Region}.png`）；每次任务使用新的 Context，不会沿用上一次任务的模板。
-- `AutoStockSwipe{Region}`：在地区页内向下滑动，`post_wait_freezes` 等待列表区域稳定后再进入下一轮识别。滑动**不设 `max_hit`**：循环只由 `SoldOut` 与 `AutoStockListComplete{Region}` 结束，两者都不命中就会一直往下滑，所以到底识别器的 `roi` / `threshold` 必须适配本地区列表，否则本地区会一直滑下去（可在 `go-service.log` 的 `ListCompleteRecognition` 日志里看到 `score`）。
+- `AutoStockSwipe{Region}`：在地区页内向下滑动，`post_wait_freezes` 等待列表区域稳定后再进入下一轮识别。`max_hit` 为 `25`，即单个地区最多滑 25 次；`max_hit` 在同一任务内累计，购买往返不消耗次数。
+    - 循环只有两个结束信号：`SoldOut` 命中，或 25 次滑完后由 `AutoStockNoMoreTarget{Region}` 接住（它排在滑动节点之后，只在滑动节点被 `max_hit` 跳过时才命中），按「列表已到底且没有符合条件的商品」结束本地区扫描。
+    - 所以 `max_hit` 与 `AutoStockNoMoreTarget{Region}` 要成对保留：这是「滑完仍没有结果」的唯一出口，缺了它就该地区反复空转；列表比 25 屏还长时才需要调大 `max_hit`。
+    - 曾短暂改用 `ListCompleteRecognition`（比较相邻两帧判断到底）替代这个次数上限：滑动本身没生效时前后两帧同样静止，会被误判成「已到底」而漏扫整片列表，因此回退为次数上限。
 
 ## 数量控制（购买弹窗）
 
@@ -356,11 +355,10 @@ Exclude 分支 **不会** 购买，仅把“已达标”的物品从本轮扫描
 若将来增加第三个地区的稳定物资购买，可对照四号谷地复制一套节点：
 
 1. 新建 `assets/resource/pipeline/AutoStockStaple/{Region}.json`：
-    - `AutoStockInStaple{Region}` 扫描循环（`next` 顺序不变，出口是本地区售罄与 `AutoStockListComplete{Region}`；分组判定项变成多条 `[JumpBack]AutoStockBuyItem{Region}Task{Group}`）。
+    - `AutoStockInStaple{Region}` 扫描循环（`next` 顺序不变，末尾固定为 `[JumpBack]AutoStockSwipe{Region}` + 滑动次数用完后的 `AutoStockNoMoreTarget{Region}`；分组判定项变成多条 `[JumpBack]AutoStockBuyItem{Region}Task{Group}`）。
     - `AutoStockTargetCompare{Region}` / `AutoStockTargetCanNotBuy{Region}`。
     - 每个折扣分组一条 `AutoStockBuyItem{Region}Task{Group}`（替换分组折扣节点名）。
-    - `AutoStockListComplete{Region}`（列表到底识别器，`roi` 按本地区列表位置调整）。
-    - `AutoStockSwipe{Region}`。
+    - `AutoStockSwipe{Region}`（`max_hit` 按列表长度给，参考四号谷地的 25）与兜底出口 `AutoStockNoMoreTarget{Region}`。
 2. 在 `Main.json` 增加 `[JumpBack]AutoStockStaple{Region}` 子任务与 SceneManager 跳转。
 3. 在 `StockStaple.json` 或地区 InScene 文件中补充场景 OCR。
 4. 在 `Item.json` 为每个分组增加 `AutoStockInStapleItemDiscounts{Region}{Group}`（`Daily` / `Industrial` / `Cultural` / `EngravingPermit`，有精锻助剂商品时再加 `ArtificingCatalyst`；布局相同也要单独建，`AutoStockMinDiscount{Region}{Group}` 按分组改写该节点），并在 `resource_adb` 的 `Item.json` 补它的 `roi_offset`。
@@ -374,8 +372,8 @@ Exclude 分支 **不会** 购买，仅把“已达标”的物品从本轮扫描
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | 列表中识别不到目标商品 | `go-service.log` 中 `AttachToExpectedRegexAction` 打印的各分组 `expected` 正则；锚点 `AutoStockInStapleItem` 是否命中 |
 | 只有某一类物资不买 | 该类目 switch 是否开启；`AutoStockMinDiscount{Region}{Group}` 所选档位与该分组折扣节点 `expected` 是否覆盖实际折扣 |
-| 列表没到底就停止扫描 | `AutoStockListComplete{Region}` 的 `roi` 是否覆盖卡片网格、`threshold` 是否偏低；`go-service.log` 中 `ListCompleteRecognition` 的 `score` |
-| 一直滑动不结束 | `AutoStockListComplete{Region}` 是否命中；`go-service.log` 中 `ListCompleteRecognition` 的 `score`、`roi` 是否覆盖卡片网格、`threshold` 是否偏高 |
+| 列表没到底就停止扫描 | `AutoStockSwipe{Region}.max_hit` 是否太小（列表长、单次行程小）；`AutoStockNoMoreTarget{Region}` 是否被提前命中 |
+| 一直滑动不结束 | `AutoStockSwipe{Region}.max_hit` 是否被删掉或改得过大；`AutoStockNoMoreTarget{Region}` 是否存在且排在滑动节点之后 |
 | 识别到商品但未购买 | 数量控制是否走 `Exclude` 或 `StockBillInsufficient`；`maafw*.log` 中 `AutoStockStapleQuantityControl{Item}Buy/Exclude` |
 | 购买数量不对 | `AutoStockStapleQuantityControlAction` 日志中的 `threshold/current_count/target`；BetterSliding ROI |
 | 调度券明明够却停止扫描 | `AutoStockTargetCompareValleyIV` 表达式与用户输入的 `{ReserveValleyIV}` |
