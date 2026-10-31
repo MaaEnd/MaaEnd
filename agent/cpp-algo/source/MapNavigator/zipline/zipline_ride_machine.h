@@ -153,10 +153,16 @@ private:
     StageResult tickLanded(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult tickExitAiming(const ZiplineObservation& obs, IZiplineActuator& actuator);
     StageResult classify(IZiplineObserver& observer, IZiplineActuator& actuator, Clock::time_point now);
+    void stampLaunch(LandingClass landing, const ZiplineNodeRef& reached);
+    StageResult onAtTarget(IZiplineActuator& actuator, Clock::time_point now);
+    StageResult onWrongTower(LandingClass landing, const ZiplineNodeRef& reached, Clock::time_point now);
+    StageResult onBackAtOrigin(Clock::time_point now);
+    StageResult onUnknown(IZiplineObserver& observer, IZiplineActuator& actuator, Clock::time_point now);
     StageResult tickDismounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult failAim(IZiplineActuator& actuator, const char* reason, Clock::time_point now);
     StageResult startDismount(IZiplineActuator& actuator, StageResult exit, Clock::time_point now);
     StageResult parkForReplan(const ZiplineNodeRef& tower, Clock::time_point now);
+    StageResult parkAndHandoff(const ZiplineNodeRef& tower, StageResult exit, Clock::time_point now);
     StageResult handoff(Clock::time_point now);
 
     ZiplineStage stage_ = ZiplineStage::Idle;

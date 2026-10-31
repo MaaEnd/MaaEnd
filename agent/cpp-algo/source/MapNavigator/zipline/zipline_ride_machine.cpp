@@ -761,110 +761,129 @@ StageResult ZiplineRideMachine::classify(IZiplineObserver& observer, IZiplineAct
     enterStage(ZiplineStage::Classified, now);
     ZiplineNodeRef reached;
     const LandingClass landing = ClassifyLanding(last_fix_, origin_, target_, knownNodes(), landing_.riding_entered, &reached);
-    if (!record_.launches.empty()) {
-        ZiplineLaunch& launch = record_.launches.back();
-        launch.result = landing;
-        launch.stopped_at = last_fix_;
-        if (landing != LandingClass::Unknown) {
-            launch.reached = reached;
-        }
-    }
+    stampLaunch(landing, reached);
     LogInfo << "zipline/classified" << VAR(static_cast<int>(landing)) << VAR(returning_) << VAR_AS(riding_entered_, landing_.riding_entered)
             << VAR(pitch_tier_) << VAR(hop_retry_count_) << VAR(last_fix_ ? last_fix_->x : 0.0) << VAR(last_fix_ ? last_fix_->y : 0.0)
             << VAR(reached.x) << VAR(reached.y);
 
     switch (landing) {
-    case LandingClass::AtTarget: {
-        if (!returning_) {
-            commitRecord(HopOutcome::Completed, now);
-            const HopCompleted done { .at = *last_fix_, .still_on_tower = plan_.chain_continues };
-            if (plan_.chain_continues) {
-                parked_on_ = plan_.landing;
-                pending_exit_ = done;
-                enterStage(ZiplineStage::Handoff, now);
-                return handoff(now);
-            }
-            if (plan_.exit_aim) {
-                return startExitAim(done, now);
-            }
-            return startDismount(actuator, done, now);
-        }
-        // 回程时 target_ 是上索架, 到了就是滑回来了
-        const double wrong_bearing = bearing_deg(plan_.mount, origin_);
-        record_.wrong_rope_bearings_deg.push_back(wrong_bearing);
-        ++hop_retry_count_;
-        returning_ = false;
-        pitch_tier_ = 0;
-        aim_bias_deg_ = escalatedAimBiasDeg(wrong_bearing);
-        LogInfo << "zipline/aim/bias_escalated" << VAR(wrong_bearing) << VAR(aim_bias_deg_) << VAR(hop_retry_count_);
-        enterStage(ZiplineStage::OnTower, now);
-        return {};
-    }
+    case LandingClass::AtTarget:
+        return onAtTarget(actuator, now);
     case LandingClass::AtOther:
-    case LandingClass::AtStrayTower: {
-        if (!returning_) {
-            if (landing == LandingClass::AtStrayTower) {
-                discovered_towers_.push_back(reached);
-            }
-            const std::optional<ZiplineNodeRef> previous = previous_wrong_tower(record_.launches);
-            if (previous && previous->sameTower(reached)) {
-                hop_retry_count_ = kZiplineHopRetryBudget;
-                LogInfo << "zipline/aim/same_wrong_tower" << VAR(reached.x) << VAR(reached.y) << VAR(record_.launches.size());
-            }
-            if (hop_retry_count_ >= kZiplineHopRetryBudget) {
-                record_.wrong_rope_bearings_deg.push_back(bearing_deg(plan_.mount, reached));
-                LogInfo << "zipline/aim/park_on_wrong_tower" << VAR(reached.x) << VAR(reached.y) << VAR(hop_retry_count_);
-                commitRecord(HopOutcome::WrongRope, now);
-                return parkForReplan(reached, now);
-            }
-            origin_ = reached;
-            returning_ = true;
-            pitch_tier_ = 0;
-            enterStage(ZiplineStage::OnTower, now);
-            return {};
-        }
-        commitRecord(HopOutcome::WrongRope, now);
-        commitFailedReturn(HopOutcome::WrongRope, now);
-        return parkForReplan(reached, now);
-    }
-    case LandingClass::AtOrigin: {
-        if (!returning_ && std::abs(aim_bias_deg_) / 2.0 >= kZiplineAimBiasMinDeg) {
-            aim_bias_deg_ /= 2.0;
-            LogInfo << "zipline/aim/bias_retracted" << VAR(aim_bias_deg_) << VAR(pitch_tier_);
-            enterStage(ZiplineStage::OnTower, now);
-            return {};
-        }
-        if (pitch_tier_ + 1 < kZiplineLaunchAttempts) {
-            ++pitch_tier_;
-            enterStage(ZiplineStage::OnTower, now);
-            return {};
-        }
-        if (returning_) {
-            commitRecord(HopOutcome::WrongRope, now);
-            commitFailedReturn(HopOutcome::NoLaunch, now);
-            return parkForReplan(origin_, now);
-        }
-        // 留在架上等重规划, 新路线用不上这根架子时才下来
-        commitRecord(HopOutcome::NoLaunch, now);
-        return parkForReplan(plan_.mount, now);
-    }
-    case LandingClass::Unknown: {
-        if (!landing_.unknown_deadline) {
-            landing_.unknown_deadline = now + std::chrono::milliseconds(kZiplineUnknownTimeoutMs);
-            observer.resetTracking();
-        }
-        if (now < *landing_.unknown_deadline) {
-            landing_.settle_hits = 0;
-            enterStage(ZiplineStage::Landed, now);
-            return {};
-        }
-        commitRecord(HopOutcome::Lost, now);
-        return startDismount(actuator, ChainAbandoned { "zipline/landing/lost" }, now);
-    }
+    case LandingClass::AtStrayTower:
+        return onWrongTower(landing, reached, now);
+    case LandingClass::AtOrigin:
+        return onBackAtOrigin(now);
+    case LandingClass::Unknown:
+        return onUnknown(observer, actuator, now);
     case LandingClass::Pending:
         break;
     }
     return {};
+}
+
+void ZiplineRideMachine::stampLaunch(LandingClass landing, const ZiplineNodeRef& reached)
+{
+    if (record_.launches.empty()) {
+        return;
+    }
+    ZiplineLaunch& launch = record_.launches.back();
+    launch.result = landing;
+    launch.stopped_at = last_fix_;
+    if (landing != LandingClass::Unknown) {
+        launch.reached = reached;
+    }
+}
+
+StageResult ZiplineRideMachine::onAtTarget(IZiplineActuator& actuator, Clock::time_point now)
+{
+    if (!returning_) {
+        commitRecord(HopOutcome::Completed, now);
+        const HopCompleted done { .at = *last_fix_, .still_on_tower = plan_.chain_continues };
+        if (plan_.chain_continues) {
+            return parkAndHandoff(plan_.landing, done, now);
+        }
+        if (plan_.exit_aim) {
+            return startExitAim(done, now);
+        }
+        return startDismount(actuator, done, now);
+    }
+    // 回程时 target_ 是上索架, 到了就是滑回来了
+    const double wrong_bearing = bearing_deg(plan_.mount, origin_);
+    record_.wrong_rope_bearings_deg.push_back(wrong_bearing);
+    ++hop_retry_count_;
+    returning_ = false;
+    pitch_tier_ = 0;
+    aim_bias_deg_ = escalatedAimBiasDeg(wrong_bearing);
+    LogInfo << "zipline/aim/bias_escalated" << VAR(wrong_bearing) << VAR(aim_bias_deg_) << VAR(hop_retry_count_);
+    enterStage(ZiplineStage::OnTower, now);
+    return {};
+}
+
+StageResult ZiplineRideMachine::onWrongTower(LandingClass landing, const ZiplineNodeRef& reached, Clock::time_point now)
+{
+    if (!returning_) {
+        if (landing == LandingClass::AtStrayTower) {
+            discovered_towers_.push_back(reached);
+        }
+        const std::optional<ZiplineNodeRef> previous = previous_wrong_tower(record_.launches);
+        if (previous && previous->sameTower(reached)) {
+            hop_retry_count_ = kZiplineHopRetryBudget;
+            LogInfo << "zipline/aim/same_wrong_tower" << VAR(reached.x) << VAR(reached.y) << VAR(record_.launches.size());
+        }
+        if (hop_retry_count_ >= kZiplineHopRetryBudget) {
+            record_.wrong_rope_bearings_deg.push_back(bearing_deg(plan_.mount, reached));
+            LogInfo << "zipline/aim/park_on_wrong_tower" << VAR(reached.x) << VAR(reached.y) << VAR(hop_retry_count_);
+            commitRecord(HopOutcome::WrongRope, now);
+            return parkForReplan(reached, now);
+        }
+        origin_ = reached;
+        returning_ = true;
+        pitch_tier_ = 0;
+        enterStage(ZiplineStage::OnTower, now);
+        return {};
+    }
+    commitRecord(HopOutcome::WrongRope, now);
+    commitFailedReturn(HopOutcome::WrongRope, now);
+    return parkForReplan(reached, now);
+}
+
+StageResult ZiplineRideMachine::onBackAtOrigin(Clock::time_point now)
+{
+    if (!returning_ && std::abs(aim_bias_deg_) / 2.0 >= kZiplineAimBiasMinDeg) {
+        aim_bias_deg_ /= 2.0;
+        LogInfo << "zipline/aim/bias_retracted" << VAR(aim_bias_deg_) << VAR(pitch_tier_);
+        enterStage(ZiplineStage::OnTower, now);
+        return {};
+    }
+    if (pitch_tier_ + 1 < kZiplineLaunchAttempts) {
+        ++pitch_tier_;
+        enterStage(ZiplineStage::OnTower, now);
+        return {};
+    }
+    if (returning_) {
+        commitRecord(HopOutcome::WrongRope, now);
+        commitFailedReturn(HopOutcome::NoLaunch, now);
+        return parkForReplan(origin_, now);
+    }
+    // 留在架上等重规划, 新路线用不上这根架子时才下来
+    commitRecord(HopOutcome::NoLaunch, now);
+    return parkForReplan(plan_.mount, now);
+}
+
+StageResult ZiplineRideMachine::onUnknown(IZiplineObserver& observer, IZiplineActuator& actuator, Clock::time_point now)
+{
+    if (!landing_.unknown_deadline) {
+        landing_.unknown_deadline = now + std::chrono::milliseconds(kZiplineUnknownTimeoutMs);
+        observer.resetTracking();
+    }
+    if (now < *landing_.unknown_deadline) {
+        landing_.settle_hits = 0;
+        enterStage(ZiplineStage::Landed, now);
+        return {};
+    }
+    commitRecord(HopOutcome::Lost, now);
+    return startDismount(actuator, ChainAbandoned { "zipline/landing/lost" }, now);
 }
 
 // 下索键偶尔不生效, 人留在架上定位也稳, 所以还要读不到架上引导才算下来
@@ -915,8 +934,13 @@ StageResult ZiplineRideMachine::startDismount(IZiplineActuator& actuator, StageR
 
 StageResult ZiplineRideMachine::parkForReplan(const ZiplineNodeRef& tower, Clock::time_point now)
 {
+    return parkAndHandoff(tower, ReplanRequested { .still_on_tower = true, .on_tower = tower }, now);
+}
+
+StageResult ZiplineRideMachine::parkAndHandoff(const ZiplineNodeRef& tower, StageResult exit, Clock::time_point now)
+{
     parked_on_ = tower;
-    pending_exit_ = ReplanRequested { .still_on_tower = true, .on_tower = tower };
+    pending_exit_ = std::move(exit);
     enterStage(ZiplineStage::Handoff, now);
     return handoff(now);
 }
