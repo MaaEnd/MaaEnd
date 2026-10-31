@@ -198,11 +198,14 @@ func (p recognitionParam) matches(detail handDetail) bool {
 
 // targetAttach 是 ArenaOfGamesDecide 节点 attach 的结构，由界面勾选的选项写入。
 type targetAttach struct {
-	HandOfToday   bool `json:"hand_of_today"`
-	StraightFlush bool `json:"straight_flush"`
-	FourOfAKind   bool `json:"four_of_a_kind"`
-	Flush         bool `json:"flush"`
-	FullHouse     bool `json:"full_house"`
+	Mode          string `json:"mode"`
+	Regex         string `json:"regex"`
+	Unordered     bool   `json:"unordered"`
+	HandOfToday   bool   `json:"hand_of_today"`
+	StraightFlush bool   `json:"straight_flush"`
+	FourOfAKind   bool   `json:"four_of_a_kind"`
+	Flush         bool   `json:"flush"`
+	FullHouse     bool   `json:"full_house"`
 }
 
 func parseTargetAttach(raw string) (targetAttach, error) {
@@ -212,7 +215,21 @@ func parseTargetAttach(raw string) (targetAttach, error) {
 	if err := json.Unmarshal([]byte(raw), &node); err != nil {
 		return targetAttach{}, fmt.Errorf("parse %s attach: %w", targetNode, err)
 	}
+	if node.Attach.Mode == "" {
+		node.Attach.Mode = "preset"
+	}
+	if node.Attach.Mode != "preset" && node.Attach.Mode != "regex" {
+		return targetAttach{}, fmt.Errorf("unknown target mode %q", node.Attach.Mode)
+	}
 	return node.Attach, nil
+}
+
+func readTargetAttach(src interface{ GetNodeJSON(string) (string, error) }) (targetAttach, error) {
+	raw, err := src.GetNodeJSON(targetNode)
+	if err != nil {
+		return targetAttach{}, fmt.Errorf("read %s: %w", targetNode, err)
+	}
+	return parseTargetAttach(raw)
 }
 
 func (a targetAttach) categories() map[category]bool {
@@ -235,14 +252,15 @@ func (a targetAttach) categories() map[category]bool {
 // resolveTargets 读取勾选的目标牌型，勾选「今日好运」时再并入当日牌型。
 // 当日牌型读取失败时降级：仍有勾选的静态目标则告警沿用；一个目标都不剩才报错。
 func resolveTargets(src recognitionSource, img image.Image) (map[category]bool, error) {
-	raw, err := src.GetNodeJSON(targetNode)
-	if err != nil {
-		return nil, fmt.Errorf("read %s: %w", targetNode, err)
-	}
-	attach, err := parseTargetAttach(raw)
+	attach, err := readTargetAttach(src)
 	if err != nil {
 		return nil, err
 	}
+	return resolvePresetTargets(src, img, attach)
+}
+
+// resolvePresetTargets 仅解析内置牌型；正则模式在决策入口分流，不调用今日好运 OCR。
+func resolvePresetTargets(src recognitionSource, img image.Image, attach targetAttach) (map[category]bool, error) {
 	targets := attach.categories()
 	if attach.HandOfToday {
 		daily, err := resolveDailyHand(src, img)

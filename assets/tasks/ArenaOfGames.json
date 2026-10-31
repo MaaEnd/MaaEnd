@@ -15,11 +15,94 @@
                 "Win32-Front"
             ],
             "option": [
-                "ArenaOfGamesTarget"
+                "ArenaOfGamesMode"
             ]
         }
     ],
     "option": {
+        "ArenaOfGamesMode": {
+            "type": "select",
+            "label": "$option.ArenaOfGamesMode.label",
+            "cases": [
+                {
+                    "name": "Preset",
+                    "label": "$option.ArenaOfGamesMode.cases.Preset.label",
+                    "option": [
+                        "ArenaOfGamesTarget"
+                    ],
+                    "pipeline_override": {
+                        "ArenaOfGamesDecide": {
+                            "attach": {
+                                "mode": "preset"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Regex",
+                    "label": "$option.ArenaOfGamesMode.cases.Regex.label",
+                    "option": [
+                        "ArenaOfGamesRegex",
+                        "ArenaOfGamesRegexUnordered"
+                    ],
+                    "pipeline_override": {
+                        "ArenaOfGamesDecide": {
+                            "attach": {
+                                "mode": "regex"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Preset"
+        },
+        "ArenaOfGamesRegex": {
+            "type": "input",
+            "label": "$option.ArenaOfGamesRegex.label",
+            "description": "$option.ArenaOfGamesRegex.description",
+            "inputs": [
+                {
+                    "name": "Pattern",
+                    "label": "$option.ArenaOfGamesRegex.Pattern.label",
+                    "default": "",
+                    "pipeline_type": "string"
+                }
+            ],
+            "pipeline_override": {
+                "ArenaOfGamesDecide": {
+                    "attach": {
+                        "regex": "{Pattern}"
+                    }
+                }
+            }
+        },
+        "ArenaOfGamesRegexUnordered": {
+            "type": "switch",
+            "label": "$option.ArenaOfGamesRegexUnordered.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ArenaOfGamesDecide": {
+                            "attach": {
+                                "unordered": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ArenaOfGamesDecide": {
+                            "attach": {
+                                "unordered": false
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
         "ArenaOfGamesTarget": {
             "type": "checkbox",
             "label": "$option.ArenaOfGamesTarget.label",

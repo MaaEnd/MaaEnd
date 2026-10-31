@@ -20,7 +20,7 @@
         ]
     },
     "ArenaOfGamesDecide": {
-        "desc": "单次识别手牌，按勾选目标牌型三态路由：凑成即结束（早停）、无法凑出转放弃、否则按手牌数转 DrawCard1-5；next 由 Decide 动态覆盖",
+        "desc": "单次识别手牌，按预设牌型或自定义正则三态路由：命中即结束（早停）、无法命中转放弃、否则按手牌数转 DrawCard1-5；next 由 Decide 动态覆盖",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -38,6 +38,9 @@
         "rate_limit": 0,
         "next": [],
         "attach": {
+            "mode": "preset",
+            "regex": "",
+            "unordered": false,
             "hand_of_today": false,
             "flush": false,
             "full_house": false,
@@ -306,7 +309,7 @@
         ]
     },
     "ArenaOfGamesStop": {
-        "desc": "当前手牌已凑成任一勾选的目标牌型，保留手牌并结束（早停）",
+        "desc": "当前手牌已命中预设牌型或自定义正则，保留手牌并结束（早停）",
         "recognition": {
             "type": "DirectHit"
         },
