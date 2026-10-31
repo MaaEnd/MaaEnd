@@ -8,6 +8,7 @@
 #include "navi_controller.h"
 #include "navi_param_parser.h"
 #include "sensing/pipeline_node_reader.h"
+#include "zipline/zipline_leg_planner.h"
 #include "zipline/zipline_preference.h"
 
 namespace mapnavigator
@@ -49,6 +50,7 @@ MaaBool MAA_CALL MapNavigateActionRun(
     ResolveInteractTextNodes(context, param);
     // 读不出就留空, 本次不用升降索
     TryReadNodeInteractTexts(context, kRopeInteractTextNode, &param.rope_interact_text);
+    ResetZiplineOutcome();
     param.zipline_enabled = ResolveZiplineEnabled(context, param.zipline_enabled);
     if (param.zipline_enabled) {
         param.zipline_account_id = ResolveZiplineAccountId(context);

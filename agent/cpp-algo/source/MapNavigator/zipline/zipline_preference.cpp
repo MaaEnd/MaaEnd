@@ -126,7 +126,6 @@ void notice_claimed_legacy_records(MaaContext* context, size_t claimed)
 
 bool ResolveZiplineEnabled(MaaContext* context, bool requested)
 {
-    ResetZiplineOutcome();
     return read_preference(context, requested);
 }
 
