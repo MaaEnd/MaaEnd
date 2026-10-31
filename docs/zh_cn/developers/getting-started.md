@@ -397,7 +397,7 @@ Pipeline 跑通后，补齐配套：
 
 ### UI 图片资源路径
 
-客户端 UI 可以显示 `assets/resource/` 目录中的图片。`icon` 字段直接填写图片路径；在 `label`、`description` 等支持 Markdown 的字段中，可以使用 Markdown 图片语法插入图片：
+客户端 UI 可以显示 `assets/resource/` 目录中的图片。`icon` 字段直接填写图片路径；在 `description` 等支持 Markdown 的字段中，可以使用 Markdown 图片语法插入图片。`label` 按纯文本显示，不要在其中写 Markdown，需要配图标时使用 `option` 或 `case` 的 `icon` 字段（`input` 的输入项没有图标字段）：
 
 ```json
 {
