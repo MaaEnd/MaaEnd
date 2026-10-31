@@ -1053,6 +1053,23 @@ public:
             if (request.deduplicate && !recheck_enabled) {
                 DeduplicateMatches(result.matches);
             }
+            if (request.order_by == ResultOrder::Natural) {
+                std::ranges::stable_sort(result.matches, [](const ItemMatch& left, const ItemMatch& right) {
+                    return std::tuple(
+                               left.row.value_or(left.cell_box.y),
+                               left.column.value_or(left.cell_box.x),
+                               left.cell_box.y,
+                               left.cell_box.x)
+                           < std::tuple(
+                               right.row.value_or(right.cell_box.y),
+                               right.column.value_or(right.cell_box.x),
+                               right.cell_box.y,
+                               right.cell_box.x);
+                });
+            }
+            if (request.reverse) {
+                std::ranges::reverse(result.matches);
+            }
             if (performance) {
                 performance->result_sort_ms += ElapsedMilliseconds(sort_started);
             }

@@ -88,6 +88,18 @@ std::string ReadString(const json::object& object, const char* key, std::string 
     return object.at(key).as_string();
 }
 
+std::optional<ResultOrder> ReadResultOrder(const json::object& object)
+{
+    const std::string order = ReadString(object, "order_by", "score");
+    if (order == "score") {
+        return ResultOrder::Score;
+    }
+    if (order == "natural") {
+        return ResultOrder::Natural;
+    }
+    return std::nullopt;
+}
+
 IconRecognizer& GetRecognizer()
 {
     static std::once_flag flag;
@@ -129,6 +141,23 @@ void WriteDetail(MaaStringBuffer* buffer, const RecognitionResult& result)
         return;
     }
     const std::string text = json::value(result).dumps();
+    MaaStringBufferSet(buffer, text.c_str());
+}
+
+void WriteMultiResultDetail(MaaStringBuffer* buffer, const RecognitionResult& result)
+{
+    if (buffer == nullptr) {
+        return;
+    }
+
+    json::array filtered;
+    for (const auto& match : result.matches) {
+        filtered.emplace_back(json::object {
+            { "box", RectToJson(match.cell_box) },
+            { "detail", match.to_json() },
+        });
+    }
+    const std::string text = json::value(json::object { { "$filtered", std::move(filtered) } }).dumps();
     MaaStringBufferSet(buffer, text.c_str());
 }
 
@@ -190,7 +219,7 @@ MaaBool MAA_CALL IconRecognitionRun(
     const MaaImageBuffer* image,
     const MaaRect* roi,
     [[maybe_unused]] void* trans_arg,
-    MaaRect* out_box,
+    [[maybe_unused]] MaaRect* out_box,
     MaaStringBuffer* out_detail)
 {
     std::optional<GridType> parsed_grid_type;
@@ -267,22 +296,30 @@ MaaBool MAA_CALL IconRecognitionRun(
         request.subpixel_threshold = ReadDouble(object, "subpixel_threshold", request.subpixel_threshold);
         request.deduplicate = ReadBool(object, "deduplicate", request.deduplicate);
         request.recognize_region_unavailable = ReadBool(object, "recognize_region_unavailable", request.recognize_region_unavailable);
+        const auto order = ReadResultOrder(object);
+        if (!order) {
+            RecognitionResult result;
+            result.grid_type = request.grid_type;
+            result.roi = request.roi;
+            result.error_code = "invalid_argument";
+            result.message = "IconRecognition order_by must be score or natural";
+            WriteDetail(out_detail, result);
+            LogError << result.message;
+            return MAA_FALSE;
+        }
+        request.order_by = *order;
+        request.reverse = ReadBool(object, "reverse", request.reverse);
         request.debug = debug;
         SaveVisionCaptureBestEffort(context, image);
         RecognitionResult result = GetRecognizer().recognize(to_mat(image), request);
         if (debug) {
             SaveDebugCaptureBestEffort(to_mat(image), result, task_id);
         }
-        WriteDetail(out_detail, result);
         if (!result.matched || result.matches.empty()) {
+            WriteDetail(out_detail, result);
             return MAA_FALSE;
         }
-        if (out_box != nullptr) {
-            *out_box = MaaRect { result.matches.front().cell_box.x,
-                                 result.matches.front().cell_box.y,
-                                 result.matches.front().cell_box.width,
-                                 result.matches.front().cell_box.height };
-        }
+        WriteMultiResultDetail(out_detail, result);
         return MAA_TRUE;
     }
     catch (const std::invalid_argument& e) {

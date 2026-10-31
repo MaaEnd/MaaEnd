@@ -143,6 +143,8 @@ The component does not infer, move, or expand the request ROI from the selected 
 | `threshold` | number | No | `0.85` | Minimum final match score, enforced uniformly for every grid type |
 | `subpixel_threshold` | number | No | `0.60` | Tries finer position offsets when the base score reaches this value but remains below `threshold` |
 | `deduplicate` | boolean | No | `false` | Keeps only the highest-scoring cell for each `item_id` |
+| `order_by` | string | No | `"score"` | `score` sorts by descending score; `natural` sorts rows top to bottom and each row left to right |
+| `reverse` | boolean | No | `false` | Reverses the final result order without changing recognition, rechecks, or deduplication |
 | `debug` | boolean | No | `false` | Grid and cell diagnostics are collected when recognition reaches the result-assembly stage; early `invalid_image`, `invalid_argument`, `grid_detection_failed`, or `exception` returns may lack them. `debug` controls performance timing and Custom debug-file writing |
 
 - **`threshold` and `subpixel_threshold`**: Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When a base score is below `subpixel_threshold`, the component considers that candidate clearly unreliable, skips the finer position search, and does not add it to `matches`. Scores between the two thresholds are refined. A result is returned only when its final score reaches `threshold` and it passes the low-texture check. Shipment quantity bars and Valuables Vault portrait regions are excluded from the template-matching mask, but they do not bypass the uniform threshold. Check the ROI, frame stability, and candidate filters before adjusting thresholds.
@@ -231,7 +233,7 @@ Wildcard forms include `Normal:*`, `ValuableDepot:*`, and `Isolate:*`. The wildc
 
 ## Results and the Pipeline hit box
 
-`RecognitionResult` and Custom detail use the same structure:
+Direct C++ calls and debug output use `RecognitionResult`:
 
 | Field | Type | Description |
 | ---------------- | ------- | --------------------------------------------------------------------------------- |
@@ -239,10 +241,10 @@ Wildcard forms include `Normal:*`, `ValuableDepot:*`, and `Isolate:*`. The wildc
 | `matched` | boolean | Whether at least one item reached the threshold and passed the screen rule checks |
 | `grid_type` | string | Requested grid type. It may be absent when parsing fails before the type is known |
 | `roi` | integer[4] | Request ROI as `[x,y,width,height]` |
-| `matches` | array | Items actually returned to the caller, ordered by score and position |
+| `matches` | array | Accepted results ordered by `order_by` and `reverse` |
 | `error` | object | Present on a miss (`no_match`) or a failure, with a stable `code` and a readable `message` |
 
-Fields in `matches[]`:
+Fields in `matches[]` (also the `detail` of each Custom result):
 
 | Field | Type | Description |
 | -------------------------------- | ------- | ----------------------------------------------------------- |
@@ -258,9 +260,26 @@ Fields in `matches[]`:
 | `region_unavailable` | boolean | Whether the item is unavailable in the current region; emitted only when `true` and omitted for normal matches |
 | `row` / `column` | integer | Row and column for real grids; absent for `single_roi` |
 
-Results are sorted by descending `score`, then by `cell_box.y`, `cell_box.x`, and `item_id`. With `deduplicate=true`, only the first sorted result for each `item_id` remains.
+By default, results are sorted by descending `score`, then by `cell_box.y`, `cell_box.x`, and `item_id`. `order_by: "natural"` uses row-by-row reading order; `reverse: true` reverses the final list. Output ordering runs after rechecking and deduplication, so `deduplicate=true` always keeps the highest-scoring match for each `item_id`.
 
-Custom returns `MAA_TRUE` when `matches` is non-empty. The Pipeline recognition box `out_box` equals `matches[0].cell_box`. When `matches` is empty, Custom returns `MAA_FALSE`. MaaFramework wraps callback detail in `all/filtered/best`: the complete component payload for a hit is in `best.detail`; on a miss, `best` is `null` and the component payload remains in `all[0].detail`.
+A Custom multi-result call requires a MaaFramework build supporting this protocol (MaaFramework PR #1535). On success the callback returns a standard multi-result payload:
+
+```jsonc
+{
+    "$filtered": [
+        {
+            "box": [154, 202, 88, 88],
+            "detail": {
+                "item_id": "item_copper_ore",
+                "cell_box": [154, 202, 88, 88]
+                // remaining item fields as in the table above
+            }
+        }
+    ]
+}
+```
+
+Each entry's `box` is that item's `cell_box`, and `detail` contains only that item. MaaFramework places the entries into `all` and `filtered`, then selects `best` by the node's native `index` (default `0`; negative values count from the end) for the Pipeline to consume; `out_box` is no longer filled on success. With no items the callback returns `MAA_FALSE`, diagnostics remain in `all[0].detail`, and `best` is `null`.
 
 ### `error.code`
 
@@ -448,17 +467,24 @@ detail, err := ctx.RunRecognitionDirect(
     img,
 )
 
-parsed, _, err := iconrecognition.ParseRecognitionDetail(detail)
 if err != nil {
     return
 }
-for _, match := range parsed.Matches {
+parsed, err := iconrecognition.NewRecognitionDetail(detail)
+if err != nil {
+    return
+}
+matches, err := parsed.All().Matches()
+if err != nil {
+    return
+}
+for _, match := range matches {
     _ = match.CellBox
     _ = match.RegionUnavailable
 }
 ```
 
-`iconrecognition.ParseRecognitionDetail` selects the Custom payload from Maa results: it uses `Results.Best` on a hit and `Results.All[0]` on a miss, so callers do not need to merge or deduplicate result buckets. When a `CustomRecognitionResult.Detail` string is already available, parse it directly with `iconrecognition.ParseDetail`.
+`NewRecognitionDetail` only wraps the framework result, without converting details. `All()`, `Filter()`, and `Best()` select the full, filtered, and selected result collections; `Best()` is empty on a miss. Call `Matches()` explicitly to decode items and handle errors. `Base()` returns the original framework result. The old aggregate `matches` payload is no longer supported.
 
 ## C++ API
 
