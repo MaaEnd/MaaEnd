@@ -18,6 +18,7 @@
             "[JumpBack]__ScenePrivateWorldSpaceExit",
             "[JumpBack]__ScenePrivateWorldStorySkip",
             "[JumpBack]__ScenePrivateLoggedOutConfirm",
+            "[JumpBack]__ScenePrivateExpiredPotionConfirm",
             "[JumpBack]SceneWaitLoadingExit",
             "[JumpBack]__ScenePrivateScreenshotStableAbnormal",
             "[JumpBack]__ScenePrivateAnyExit"

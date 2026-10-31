@@ -97,6 +97,28 @@
         "pre_wait_freezes": 100,
         "action": "Click"
     },
+    "__ScenePrivateExpiredPotionConfirm": {
+        "desc": "确认到期理智药剂已自动使用弹窗",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    350,
+                    250,
+                    550,
+                    202
+                ],
+                "expected": [
+                    "以下到期理智药剂已自动使用"
+                ]
+            },
+            "YellowConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click"
+    },
     "__ScenePrivateNoticeRewardsUpgrade": {
         "desc": "检测到升级",
         "recognition": "OCR",
