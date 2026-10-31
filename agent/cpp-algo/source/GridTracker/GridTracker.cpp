@@ -95,8 +95,12 @@ Alignment align(const recogrid::GridFrame& previous, const recogrid::GridFrame& 
         }
     }
 
-    best.reliable =
+    const bool enough_rows =
         best.support_rows >= std::max(1, options.min_overlap_rows) && best.match_ratio >= std::clamp(options.min_match_ratio, 0.0, 1.0);
+    // 单行网格没有第二行佐证，但两帧格子内容高度一致时同样视为可靠对齐，否则短列表永远无法确认结尾
+    const bool single_row_confident =
+        best.support_rows > 0 && best.compared_cells >= 2 && best.match_ratio >= std::clamp(options.repeat_match_ratio, 0.0, 1.0);
+    best.reliable = enough_rows || single_row_confident;
     return best;
 }
 
@@ -148,9 +152,37 @@ Result GridTracker::observe(const recogrid::GridFrame& frame, const Options& opt
         result.reason = "grid_missing";
     }
     else if (previous_frame_.cols > 0 && frame.cols != previous_frame_.cols) {
-        consecutive_complete_repeats_ = 0;
-        result.message = "Grid column count changed";
-        result.reason = "shape_changed";
+        // 列数变化不再粘滞拒绝：内容一致按同页抖动继续结尾确认，否则以新帧重新初始化基准
+        result.alignment = align(previous_frame_, frame, options);
+        const bool same_page = result.alignment.reliable && result.alignment.row_offset == 0
+                               && result.alignment.match_ratio >= std::clamp(options.repeat_match_ratio, 0.0, 1.0);
+        if (same_page) {
+            previous_frame_ = frame;
+            ++consecutive_complete_repeats_;
+            if (consecutive_complete_repeats_ < kRequiredConsecutiveCompleteRepeats) {
+                result.status = Status::ConfirmingEnd;
+                result.message = "Grid shape changed but content stays the same";
+            }
+            else {
+                result.status = Status::Repeated;
+                result.message = "Grid frame repeatedly confirmed";
+            }
+        }
+        else {
+            consecutive_complete_repeats_ = 0;
+            previous_frame_ = frame;
+            row_height_ = frame.row_height;
+            col_width_ = frame.col_width;
+            result.status = Status::Initial;
+            result.message = "Grid shape changed and tracking reinitialized";
+            result.visible_cells = place_cells(frame, viewport_start_row_);
+            for (const Cell& cell : result.visible_cells) {
+                const auto [iter, inserted] = cells_.insert_or_assign({ cell.row, cell.col }, cell);
+                if (inserted) {
+                    result.new_cells.push_back(iter->second);
+                }
+            }
+        }
     }
     else if (previous_frame_.cols == 0) {
         consecutive_complete_repeats_ = 0;
