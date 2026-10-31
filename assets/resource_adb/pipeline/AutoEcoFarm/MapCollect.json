@@ -11,6 +11,26 @@
                     0
                 ]
             }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -320,
+                400,
+                300,
+                250
+            ]
+        }
+    },
+    "__AutoEcoFarmFindSisPaintingFarm": {
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -320,
+                400,
+                300,
+                250
+            ]
         }
     },
     // ADB：避开相邻设施的重叠触发区，将点击落点移至牧场图标底部黄条右侧。
@@ -25,6 +45,15 @@
                     0
                 ]
             }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -320,
+                400,
+                300,
+                250
+            ]
         }
     },
     "__AutoEcoFarmFarmTerminalPanel": {
@@ -41,6 +70,22 @@
             62,
             40,
             40
+        ]
+    },
+    "__AutoEcoFarmChooseFarmTerminal": {
+        "roi": [
+            -320,
+            400,
+            300,
+            250
+        ]
+    },
+    "__AutoEcoFarmChooseRanch": {
+        "roi": [
+            -320,
+            400,
+            300,
+            250
         ]
     }
 }
