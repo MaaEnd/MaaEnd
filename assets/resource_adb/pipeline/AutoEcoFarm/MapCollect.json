@@ -73,19 +73,37 @@
         ]
     },
     "__AutoEcoFarmChooseFarmTerminal": {
-        "roi": [
-            -320,
-            400,
-            300,
-            250
-        ]
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -320,
+                    400,
+                    300,
+                    250
+                ],
+                "template": [
+                    "AutoEcoFarm/FarmTerminalPanel.png"
+                ],
+                "threshold": 0.85
+            }
+        }
     },
     "__AutoEcoFarmChooseRanch": {
-        "roi": [
-            -320,
-            400,
-            300,
-            250
-        ]
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -320,
+                    400,
+                    300,
+                    250
+                ],
+                "template": [
+                    "AutoEcoFarm/RanchPanel.png"
+                ],
+                "threshold": 0.85
+            }
+        }
     }
 }
