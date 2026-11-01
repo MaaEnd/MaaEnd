@@ -44,13 +44,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitOpenGoods"
+            "RestaurantShopWaitDialogueSkip"
         ],
         "on_error": [
             "FailedNode"
         ]
     },
-    "RestaurantShopWaitOpenGoods": {
+    "RestaurantShopWaitDialogueSkip": {
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -58,10 +58,65 @@
         "custom_action_param": {
             "action": "DoNothing",
             "wait_nodes": [
-                "RestaurantShopOpenGoods"
+                "RestaurantShopDialogueSkipAll"
             ],
             "repeat_count": 3
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopDialogueSkipAll"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopDialogueSkipAll": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            1140,
+            0,
+            120,
+            90
+        ],
+        "template": "RealTimeTask/AutoSkipEsc.png",
+        "threshold": 0.7,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopDialogueSkipAllConfirm"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopDialogueSkipAllConfirm": {
+        "recognition": "OCR",
+        "roi": [
+            647,
+            442,
+            211,
+            43
+        ],
+        "expected": [
+            "确认",
+            "確認",
+            "確定",
+            "Confirm",
+            "확인"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopDialogueSkipAllConfirm",
+            "repeat_count": 3
+        },
+        "target": true,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
