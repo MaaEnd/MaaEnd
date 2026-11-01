@@ -175,7 +175,7 @@
             "param": {
                 "custom_action": "autoEcoFarmInterruptibleSleep",
                 "custom_action_param": {
-                    "durationMs": 120000
+                    "durationSec": 120
                 }
             }
         },
