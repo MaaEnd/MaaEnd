@@ -1,15 +1,62 @@
 {
     "RestaurantShopAfterRounds": {
+        "desc": "进入堂头小铺购物流程。",
         "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopApproach"
+            "RestaurantShopApproach",
+            "RestaurantShopApproachAfterBusiness"
         ]
     },
     "RestaurantShopApproach": {
+        "desc": "导航到堂头小铺交互区域。",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        137.48,
+                        138.67
+                    ],
+                    "target_tier": "Wuling_L10_468",
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        136.14,
+                        133.75
+                    ],
+                    "target_tier": "Wuling_L10_468",
+                    "strict": true,
+                    "required": true
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitDialogueSkip"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopApproachAfterBusiness": {
+        "desc": "从缘缘庄经营区域导航到堂头小铺交互区域。",
+        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -51,6 +98,7 @@
         ]
     },
     "RestaurantShopWaitDialogueSkip": {
+        "desc": "等待对话跳过按钮出现。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -72,6 +120,7 @@
         ]
     },
     "RestaurantShopDialogueSkipAll": {
+        "desc": "点击跳过对话。",
         "recognition": "TemplateMatch",
         "roi": [
             1140,
@@ -82,18 +131,32 @@
         "template": "RealTimeTask/AutoSkipEsc.png",
         "threshold": 0.7,
         "pre_delay": 0,
-        "action": "Click",
-        "post_wait_freezes": 100,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopDialogueSkipAll",
+            "repeat_count": 3
+        },
+        // AutoSkipEsc.png 为 23x20；将点击目标框收缩到匹配框中心像素。
+        "target_offset": [
+            11,
+            10,
+            -22,
+            -19
+        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopDialogueSkipAllConfirm"
+            "RestaurantShopDialogueSkipAllConfirm",
+            "RestaurantShopOpenGoods"
         ],
         "on_error": [
             "FailedNode"
         ]
     },
     "RestaurantShopDialogueSkipAllConfirm": {
+        "desc": "点击确认跳过并等待确认提示消失。",
         "recognition": "OCR",
         "roi": [
             647,
@@ -127,6 +190,7 @@
         ]
     },
     "RestaurantShopOpenGoods": {
+        "desc": "点击“看看货物”进入商品界面。",
         "recognition": "OCR",
         "roi": [
             946,
@@ -160,6 +224,7 @@
         ]
     },
     "RestaurantShopEnsurePriorityStorage": {
+        "desc": "检查“优先存入地区仓库”是否勾选并分流。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -183,6 +248,7 @@
         ]
     },
     "RestaurantShopPriorityStorageChecked": {
+        "desc": "识别该选项已勾选。",
         "recognition": "TemplateMatch",
         "roi": [
             43,
@@ -200,6 +266,7 @@
         ]
     },
     "RestaurantShopPriorityStorageUnchecked": {
+        "desc": "点击该选项直到勾选。",
         "recognition": "TemplateMatch",
         "roi": [
             43,
@@ -230,6 +297,7 @@
         ]
     },
     "RestaurantShopScan": {
+        "desc": "依次检查当前页面 14 个商品位、刷新入口或结束条件。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
@@ -912,6 +980,7 @@
         ]
     },
     "RestaurantShopPurchaseModalReady": {
+        "desc": "确认购买弹窗已出现，并选择滑块或直接确认的路径。",
         "recognition": "And",
         "all_of": [
             "YellowButtonBackground"
@@ -928,6 +997,7 @@
         ]
     },
     "RestaurantShopSlideQuantityMax": {
+        "desc": "若数量滑块出现，将购买数量滑到最大。",
         "recognition": "TemplateMatch",
         "roi": [
             520,
@@ -953,6 +1023,7 @@
         ]
     },
     "RestaurantShopConfirmPurchase": {
+        "desc": "点击确认购买。",
         "recognition": "And",
         "all_of": [
             "YellowButtonBackground"
@@ -978,6 +1049,7 @@
         ]
     },
     "RestaurantShopPurchaseSuccess": {
+        "desc": "等待购买成功提示消失，然后回到商品扫描。",
         "recognition": "And",
         "all_of": [
             "CloseRewardsButton",
@@ -1004,6 +1076,7 @@
         ]
     },
     "RestaurantShopRefreshAvailable": {
+        "desc": "检查并点击刷新商品入口。",
         "enabled": false,
         "recognition": "OCR",
         "roi": [
@@ -1038,6 +1111,7 @@
         ]
     },
     "RestaurantShopRefreshConfirm": {
+        "desc": "确认刷新商品。",
         "recognition": "OCR",
         "roi": [
             647,
@@ -1070,6 +1144,7 @@
         ]
     },
     "RestaurantShopWaitPurchaseModal": {
+        "desc": "等待购买弹窗出现。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -1091,6 +1166,7 @@
         ]
     },
     "RestaurantShopWaitPurchaseSuccess": {
+        "desc": "等待购买成功状态出现。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -1112,6 +1188,7 @@
         ]
     },
     "RestaurantShopWaitRefreshConfirm": {
+        "desc": "等待刷新确认弹窗出现。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",

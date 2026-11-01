@@ -89,11 +89,19 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	observed := indexObservations(arg.RecognitionDetail)
 	switch param.Step {
 	case "initialize":
-		if param.MaxRounds < 1 || param.MaxRounds > 20 {
-			err = fmt.Errorf("maximum restaurant rounds must be between 1 and 20")
+		if param.MaxRounds < 0 || param.MaxRounds > 20 {
+			err = fmt.Errorf("maximum restaurant runs must be between 0 and 20")
 			break
 		}
-		patch["RestaurantRoundGate"] = map[string]any{"max_hit": param.MaxRounds}
+		skipBusiness := param.MaxRounds == 0
+		patch["RestaurantRoundGate"] = map[string]any{
+			"enabled": !skipBusiness,
+			"max_hit": param.MaxRounds,
+		}
+		patch["RestaurantSkipBusiness"] = map[string]any{"enabled": skipBusiness}
+		patch["RestaurantSkipBusinessAtManor"] = map[string]any{"enabled": skipBusiness}
+		patch["RestaurantShopApproach"] = map[string]any{"enabled": skipBusiness}
+		patch["RestaurantShopApproachAfterBusiness"] = map[string]any{"enabled": !skipBusiness}
 	case "menu_page":
 		err = readMenuPage(state, param.Kind, param.Category, patch)
 	case "menu_card":
