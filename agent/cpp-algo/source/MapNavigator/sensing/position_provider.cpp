@@ -117,6 +117,7 @@ bool PositionProvider::captureWith(NaviPosition* out_pos, maplocator::LocateOpti
 
     out_pos->valid = false;
     last_capture_was_black_screen_ = false;
+    last_capture_minimap_absent_ = false;
     const auto capture_started_at = std::chrono::steady_clock::now();
 
     if (!waitForScreencap()) {
@@ -147,6 +148,7 @@ bool PositionProvider::captureWith(NaviPosition* out_pos, maplocator::LocateOpti
     const auto locate_result = locator_->locate(minimap, options);
     const auto locate_done_at = std::chrono::steady_clock::now();
     log_locate_result(locate_result);
+    last_capture_minimap_absent_ = locate_result.minimap_absent;
     if (locate_result.status != maplocator::LocateStatus::Success || !locate_result.position) {
         return false;
     }
@@ -240,11 +242,17 @@ void PositionProvider::resetTracking()
 {
     locator_->resetTrackingState();
     last_capture_was_black_screen_ = false;
+    last_capture_minimap_absent_ = false;
 }
 
 bool PositionProvider::lastCaptureWasBlackScreen() const
 {
     return last_capture_was_black_screen_;
+}
+
+bool PositionProvider::lastCaptureMinimapAbsent() const
+{
+    return last_capture_minimap_absent_;
 }
 
 } // namespace mapnavigator

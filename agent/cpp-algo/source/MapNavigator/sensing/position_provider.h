@@ -35,6 +35,7 @@ public:
         const std::function<bool()>& should_stop);
     void resetTracking();
     bool lastCaptureWasBlackScreen() const;
+    bool lastCaptureMinimapAbsent() const;
 
     // 每次成功取位后调用一次, 把坐标换算到统一坐标系
     void setPositionNormalizer(std::function<void(NaviPosition&)> normalizer);
@@ -60,6 +61,7 @@ private:
     // 移动端界面, 小地图位置和镜头朝向的取法都与桌面端不同
     bool adb_like_controller_ = false;
     bool last_capture_was_black_screen_ = false;
+    bool last_capture_minimap_absent_ = false;
 };
 
 } // namespace mapnavigator

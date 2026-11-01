@@ -96,6 +96,7 @@ struct LocateResult
     std::string debugMessage;  // 用于向 Pipeline 输出日志
     std::optional<CameraOrientation> camRot;
     std::optional<double> rot; // 当前帧角色朝向，不依赖位置是否识别成功。
+    bool minimap_absent = false; // YOLO 判定画面里没有小地图
 };
 
 enum class GlobalSearchMode
