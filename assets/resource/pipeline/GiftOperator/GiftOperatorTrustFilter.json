@@ -395,9 +395,6 @@
             }
         },
         "pre_delay": 0,
-        "anchor": {
-            "GiftOperatorTrustAfterRestore": "GiftOperatorTrustCloseContact"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -467,9 +464,6 @@
             }
         },
         "pre_delay": 0,
-        "anchor": {
-            "GiftOperatorTrustAfterRestore": ""
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -479,7 +473,7 @@
             "GiftOperatorTrustRestoreOpen"
         ]
     },
-    // 取消信赖筛选会保留已选名单；恢复后再次校验本轮人数，再确认召唤。
+    // 取消信赖筛选会保留已选名单；恢复后识别当前选中序号，再确认召唤。
     "GiftOperatorTrustRestoreOpen": {
         "recognition": {
             "type": "And",
@@ -608,7 +602,7 @@
             "GiftOperatorTrustRestored"
         ]
     },
-    // 清理后只进入本轮已验证的序号复核，或明确零候选时的关闭出口。
+    // 清理后优先识别较大的选中序号，未命中时关闭联络界面。
     "GiftOperatorTrustRestored": {
         "recognition": {
             "type": "And",
@@ -623,7 +617,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]GiftOperatorTrustAfterRestore"
+            "GiftOperatorTrustVerifySelected3",
+            "GiftOperatorTrustVerifySelected2",
+            "GiftOperatorTrustVerifySelected1",
+            "GiftOperatorTrustCloseContact"
         ]
     },
     "GiftOperatorTrustVerifySelected1": {

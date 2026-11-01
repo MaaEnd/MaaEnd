@@ -84,15 +84,9 @@
                             "max_hit": 1
                         },
                         "GiftOperatorCheckSelected1": {
-                            "anchor": {
-                                "GiftOperatorTrustAfterRestore": "GiftOperatorTrustVerifySelected1"
-                            },
                             "next": []
                         },
                         "GiftOperatorCheckSelected2": {
-                            "anchor": {
-                                "GiftOperatorTrustAfterRestore": "GiftOperatorTrustVerifySelected2"
-                            },
                             "next": []
                         },
                         "GiftOperatorTrustIcon": {
@@ -113,9 +107,6 @@
                             ]
                         },
                         "GiftOperatorCheckSelected3": {
-                            "anchor": {
-                                "GiftOperatorTrustAfterRestore": "GiftOperatorTrustVerifySelected3"
-                            },
                             "next": []
                         }
                     }
