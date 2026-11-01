@@ -1417,6 +1417,7 @@
     "option.ClientVersion.label": "クライアントバージョン",
     "option.ClientVersionCloudLocked.description": "クラウド終末地(ADB) コントローラーではクラウド終末地クライアントに固定され、変更できません。",
     "option.ClientVersionCloudLocked.label": "クライアントバージョン",
+    "option.CloseGameController.cases.Desktop.label": "PC / Linux（自動）",
     "option.CloseGameController.label": "コントローラー",
     "option.CloseGamePCApplyGameSetting.label": "終了後にゲーム設定を適用",
     "option.CloseGamePCAutoHDR.label": "自動 HDR",

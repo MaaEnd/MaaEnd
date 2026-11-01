@@ -1417,6 +1417,7 @@
     "option.ClientVersion.label": "Client Version",
     "option.ClientVersionCloudLocked.description": "Locked to Cloud Endfield when using the Cloud Endfield (ADB) controller; cannot be changed.",
     "option.ClientVersionCloudLocked.label": "Client Version",
+    "option.CloseGameController.cases.Desktop.label": "PC / Linux (automatic)",
     "option.CloseGameController.label": "Controller",
     "option.CloseGamePCApplyGameSetting.label": "Apply game settings after close",
     "option.CloseGamePCAutoHDR.label": "Auto HDR",

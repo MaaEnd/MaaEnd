@@ -1417,6 +1417,7 @@
     "option.ClientVersion.label": "客戶端版本",
     "option.ClientVersionCloudLocked.description": "雲終末地(ADB) 控制器下鎖定為雲終末地客戶端，不可更改",
     "option.ClientVersionCloudLocked.label": "客戶端版本",
+    "option.CloseGameController.cases.Desktop.label": "PC / Linux（自動）",
     "option.CloseGameController.label": "控制器",
     "option.CloseGamePCApplyGameSetting.label": "關閉後設定遊戲",
     "option.CloseGamePCAutoHDR.label": "自動 HDR",

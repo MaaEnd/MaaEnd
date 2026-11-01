@@ -512,6 +512,55 @@
                 }
             ],
             "default_case": "Unchanged"
+        },
+        "CloseGameDesktopCloseLauncher": {
+            "type": "switch",
+            "label": "$option.CloseGamePCCloseLauncher.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGamePC"
+                            ]
+                        },
+                        "CloseGamePC": {
+                            "attach": {
+                                "CloseLauncher": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGamePC"
+                            ]
+                        },
+                        "CloseGamePC": {
+                            "attach": {
+                                "CloseLauncher": false
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "No",
+            "controller": [
+                "Win32-Front",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots"
+            ]
         }
     }
 }

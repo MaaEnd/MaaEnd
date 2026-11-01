@@ -38,7 +38,7 @@
                 {
                     "name": "ADB",
                     "option": [
-                        "CloseGameAndroidClientVersion"
+                        "ClientVersion"
                     ]
                 },
                 {
@@ -70,107 +70,17 @@
                     "option": [
                         "CloseGameLinuxWlrootsCloseLauncher"
                     ]
+                },
+                {
+                    "name": "Desktop",
+                    "label": "$option.CloseGameController.cases.Desktop.label",
+                    "option": [
+                        "CloseGameDesktopCloseLauncher",
+                        "CloseGamePCApplyGameSetting"
+                    ]
                 }
             ],
             "default_case": "Win32-Front"
-        },
-        "CloseGameAndroidClientVersion": {
-            "type": "select",
-            "controller": [
-                "ADB"
-            ],
-            "label": "$option.ClientVersion.label",
-            "cases": [
-                {
-                    "name": "CN",
-                    "label": "$option.ClientVersion.cases.CN.label",
-                    "pipeline_override": {
-                        "CloseGameEntry": {
-                            "action": {
-                                "type": "DoNothing"
-                            },
-                            "next": [
-                                "CloseGame"
-                            ]
-                        },
-                        "CloseGame": {
-                            "action": {
-                                "type": "StopApp",
-                                "param": {
-                                    "package": "com.hypergryph.endfield"
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "Bilibili",
-                    "label": "$option.ClientVersion.cases.Bilibili.label",
-                    "pipeline_override": {
-                        "CloseGameEntry": {
-                            "action": {
-                                "type": "DoNothing"
-                            },
-                            "next": [
-                                "CloseGame"
-                            ]
-                        },
-                        "CloseGame": {
-                            "action": {
-                                "type": "StopApp",
-                                "param": {
-                                    "package": "com.hypergryph.endfield.bilibili"
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "Global",
-                    "label": "$option.ClientVersion.cases.Global.label",
-                    "pipeline_override": {
-                        "CloseGameEntry": {
-                            "action": {
-                                "type": "DoNothing"
-                            },
-                            "next": [
-                                "CloseGame"
-                            ]
-                        },
-                        "CloseGame": {
-                            "action": {
-                                "type": "StopApp",
-                                "param": {
-                                    "package": "com.gryphline.endfield.gp"
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "VN",
-                    "label": "$option.ClientVersion.cases.VN.label",
-                    "pipeline_override": {
-                        "CloseGameEntry": {
-                            "action": {
-                                "type": "DoNothing"
-                            },
-                            "next": [
-                                "CloseGame"
-                            ]
-                        },
-                        "CloseGame": {
-                            "action": {
-                                "type": "StopApp",
-                                "param": {
-                                    "package": "com.gryphline.endfield.gp.vn"
-                                }
-                            }
-                        }
-                    }
-                }
-            ],
-            "default_case": "CN"
         },
         "CloseGameCloudClientVersion": {
             "type": "select",

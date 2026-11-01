@@ -49,7 +49,10 @@
                     }
                 },
                 {
-                    "name": "CloseGame"
+                    "name": "CloseGame",
+                    "option": {
+                        "CloseGameController": "Desktop"
+                    }
                 }
             ],
             "pretask": [

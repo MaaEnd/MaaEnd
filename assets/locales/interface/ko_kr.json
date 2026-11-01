@@ -1417,6 +1417,7 @@
     "option.ClientVersion.label": "클라이언트 버전",
     "option.ClientVersionCloudLocked.description": "클라우드 종말지(ADB) 컨트롤러에서는 클라우드 종말지 클라이언트로 고정되며 변경할 수 없습니다.",
     "option.ClientVersionCloudLocked.label": "클라이언트 버전",
+    "option.CloseGameController.cases.Desktop.label": "PC / Linux (자동)",
     "option.CloseGameController.label": "컨트롤러",
     "option.CloseGamePCApplyGameSetting.label": "종료 후 게임 설정 적용",
     "option.CloseGamePCAutoHDR.label": "자동 HDR",
