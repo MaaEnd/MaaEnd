@@ -9,7 +9,12 @@
         max-width: 400px;
     ">
     <style>
-        div:has(.dijiangrewards-wait-exchange-countdown):has(~ div .dijiangrewards-wait-exchange-countdown) {
+        *:has(.dijiangrewards-wait-exchange-countdown):has(~ * .dijiangrewards-wait-exchange-countdown) {
+            display: none !important;
+        }
+        /* MXU 在每条日志后渲染一条分隔线（空 div + aria-hidden），
+           隐藏紧跟在过期条目之后、下一条即更新倒计时的分隔线 */
+        div[aria-hidden="true"]:not(:has(*)):has(+ div .dijiangrewards-wait-exchange-countdown) {
             display: none !important;
         }
     </style>

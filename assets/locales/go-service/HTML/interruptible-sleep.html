@@ -9,10 +9,15 @@
         max-width: 400px;
     ">
     <style>
-        div:has(.autoecofarm-interruptible-sleep):has(~ div .autoecofarm-interruptible-sleep) {
+        *:has(.autoecofarm-interruptible-sleep):has(~ * .autoecofarm-interruptible-sleep),
+        *:has(.autoecofarm-interruptible-sleep):has(~ * .autoecofarm-interruptible-sleep-done) {
             display: none !important;
         }
-        div:has(.autoecofarm-interruptible-sleep):has(~ div .autoecofarm-interruptible-sleep-done) {
+        /* MXU 在每条日志后渲染一条分隔线（空 div + aria-hidden），
+           隐藏紧跟在过期条目之后、下一条即更新倒计时/完成卡的分隔线 */
+        div[aria-hidden="true"]:not(:has(*)):has(
+                + div :is(.autoecofarm-interruptible-sleep, .autoecofarm-interruptible-sleep-done)
+            ) {
             display: none !important;
         }
     </style>
