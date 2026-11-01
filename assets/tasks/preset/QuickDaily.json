@@ -49,7 +49,7 @@
                     }
                 },
                 {
-                    "name": "CloseGamePC"
+                    "name": "CloseGame"
                 }
             ],
             "pretask": [

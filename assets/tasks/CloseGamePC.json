@@ -1,25 +1,4 @@
 {
-    "task": [
-        {
-            "name": "CloseGamePC",
-            "label": "$task.CloseGamePC.label",
-            "entry": "CloseGamePC",
-            "description": "$task.CloseGamePC.description",
-            "group": [
-                "other_menu"
-            ],
-            "controller": [
-                "Win32-Front",
-                "Linux-Gamescope",
-                "Linux-ScreenCast",
-                "Linux-Wlroots"
-            ],
-            "option": [
-                "CloseGamePCCloseLauncher",
-                "CloseGamePCApplyGameSetting"
-            ]
-        }
-    ],
     "option": {
         "CloseGamePCCloseLauncher": {
             "type": "switch",
@@ -28,6 +7,14 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGamePC"
+                            ]
+                        },
                         "CloseGamePC": {
                             "attach": {
                                 "CloseLauncher": true
@@ -38,6 +25,14 @@
                 {
                     "name": "No",
                     "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGamePC"
+                            ]
+                        },
                         "CloseGamePC": {
                             "attach": {
                                 "CloseLauncher": false
@@ -46,7 +41,10 @@
                     }
                 }
             ],
-            "default_case": "No"
+            "default_case": "No",
+            "controller": [
+                "Win32-Front"
+            ]
         },
         "CloseGamePCApplyGameSetting": {
             "type": "switch",

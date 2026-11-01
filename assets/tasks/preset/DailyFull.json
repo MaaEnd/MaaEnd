@@ -140,7 +140,7 @@
                     "name": "DailyRewards"
                 },
                 {
-                    "name": "CloseGamePC"
+                    "name": "CloseGame"
                 }
             ],
             "pretask": [
