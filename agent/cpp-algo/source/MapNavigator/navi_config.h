@@ -424,6 +424,7 @@ constexpr int32_t kDigPostSleepMs = 80;
 constexpr const char* kSceneRecoveryEntryNode = "SceneAnyEnterWorld";
 // 剧情与 NPC 对话不交给场景管理
 constexpr const char* kSceneRecoveryStoryNode = "__ScenePrivateWorldStorySkip";
+constexpr const char* kSceneRecoveryDialogNode = "__ScenePrivateWorldDialogLeave";
 // 静止的弹窗会被它判成截图卡死
 constexpr const char* kSceneRecoveryStableCheckNode = "__ScenePrivateScreenshotStableAbnormal";
 constexpr const char* kSceneRecoveryEscNode = "__ScenePrivateAnyExit";

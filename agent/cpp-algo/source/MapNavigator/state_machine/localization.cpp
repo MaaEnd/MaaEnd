@@ -32,16 +32,21 @@ namespace mapnavigator
 namespace
 {
 
-// 读不到画面也当作有剧情, 宁可不接
-bool story_dialog_on_screen(MaaContext* context, MaaController* controller)
+// 读不到画面也当作有对话, 宁可不接
+bool dialog_on_screen(MaaContext* context, MaaController* controller)
 {
     ScopedImageBuffer image;
     if (context == nullptr || controller == nullptr || !MaaControllerCachedImage(controller, image.Get())
         || MaaImageBufferIsEmpty(image.Get())) {
         return true;
     }
-    NodeSighting story {};
-    return !RunRecognitionNode(context, kSceneRecoveryStoryNode, "{}", image.Get(), &story) || story.hit;
+    for (const char* node : { kSceneRecoveryStoryNode, kSceneRecoveryDialogNode }) {
+        NodeSighting sighting {};
+        if (!RunRecognitionNode(context, node, "{}", image.Get(), &sighting) || sighting.hit) {
+            return true;
+        }
+    }
+    return false;
 }
 
 std::string scene_recovery_override(MaaSize esc_used)
@@ -49,6 +54,7 @@ std::string scene_recovery_override(MaaSize esc_used)
     const json::object nodes {
         { kSceneRecoveryEntryNode, json::object { { "timeout", kSceneRecoveryEntryTimeoutMs } } },
         { kSceneRecoveryStoryNode, json::object { { "enabled", false } } },
+        { kSceneRecoveryDialogNode, json::object { { "enabled", false } } },
         { kSceneRecoveryStableCheckNode, json::object { { "enabled", false } } },
         { kSceneRecoveryEscNode, json::object { { "max_hit", esc_used + kSceneRecoveryEscBudget } } },
     };
@@ -230,8 +236,8 @@ bool NavigationStateMachine::sceneRecoveryAllowed()
         LogInfo << "Scene recovery declined." << VAR(attempted) << VAR(foreign_ui) << VAR(own_ui);
         return false;
     }
-    if (story_dialog_on_screen(maa_context_, action_wrapper_->getCtrl())) {
-        LogInfo << "Scene recovery declined: story dialog on screen.";
+    if (dialog_on_screen(maa_context_, action_wrapper_->getCtrl())) {
+        LogInfo << "Scene recovery declined: dialog on screen.";
         return false;
     }
     return true;
