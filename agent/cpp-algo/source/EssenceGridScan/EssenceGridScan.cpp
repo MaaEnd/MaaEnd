@@ -29,7 +29,8 @@ namespace
 constexpr const char* kClickNextNode = "EssenceGridClickPending";
 constexpr const char* kSwipeNextNode = "EssenceGridSwipeNext";
 constexpr const char* kFinishNode = "EssenceFilterFinish";
-// 连续无进展（未派发格子且扫描无新格子/被拒）的 advance 次数达到该值即收尾筛选，避免短列表卡死到节点超时
+// 连续路由翻页且期间未派发格子、扫描也无新格子的 advance 次数达到该值即收尾筛选（扫描均成功，
+// 全部可见格子已处理且翻页无新内容，属明确的列表结尾依据），避免短列表卡死到节点超时
 constexpr int kMaxStalledAdvances = 3;
 
 struct EssenceTemplateConfig
@@ -735,17 +736,13 @@ MaaBool EssenceGrid::advance(
             result = scan_grid(state, scanned_image, recognition, tracking);
             state.last_scan_result_ = result;
             if (!result.accepted()) {
+                // 被拒扫描说明屏幕内容未知，不据此收尾，保留失败结果交由超时/错误流程处理
                 state.scan_required_ = true;
                 state.pending_cell_.reset();
-                if (++state.stalled_advances_ < kMaxStalledAdvances) {
-                    write_advance_detail(out_detail, state, result, std::nullopt, config);
-                    LogWarn << "EssenceGridScan scan miss" << VAR(result.message) << VAR(result.reason) << VAR(result.alignment.row_offset)
-                            << VAR(result.alignment.support_rows) << VAR(result.alignment.match_ratio) << VAR(state.tracker_.colWidth());
-                    return 0;
-                }
-                LogWarn << "EssenceGridScan finish filter on stalled scans" << VAR(state.stalled_advances_) << VAR(result.message)
-                        << VAR(result.reason) << VAR(state.tracker_.colWidth());
-                next_node = kFinishNode;
+                write_advance_detail(out_detail, state, result, std::nullopt, config);
+                LogWarn << "EssenceGridScan scan miss" << VAR(result.message) << VAR(result.reason) << VAR(result.alignment.row_offset)
+                        << VAR(result.alignment.support_rows) << VAR(result.alignment.match_ratio) << VAR(state.tracker_.colWidth());
+                return 0;
             }
             else {
                 state.scan_required_ = false;

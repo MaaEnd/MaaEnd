@@ -152,9 +152,22 @@ Result GridTracker::observe(const recogrid::GridFrame& frame, const Options& opt
         result.reason = "grid_missing";
     }
     else if (previous_frame_.cols > 0 && frame.cols != previous_frame_.cols) {
-        // 列数变化不再粘滞拒绝：内容一致按同页抖动继续结尾确认，否则以新帧重新初始化基准
+        // 列数变化不再粘滞拒绝：先登记当前帧格子，存在未跟踪的新格子时不能确认同页（新列可能有未处理基质），
+        // 内容一致且无新格子按同页抖动继续结尾确认，否则以新帧重新初始化基准
         result.alignment = align(previous_frame_, frame, options);
-        const bool same_page = result.alignment.reliable && result.alignment.row_offset == 0
+        if (result.alignment.reliable && result.alignment.row_offset > 0) {
+            viewport_start_row_ += result.alignment.row_offset;
+            result.viewport_start_row = viewport_start_row_;
+        }
+        result.visible_cells = place_cells(frame, viewport_start_row_);
+        std::vector<Cell> untracked_cells;
+        for (const Cell& cell : result.visible_cells) {
+            const auto [iter, inserted] = cells_.insert_or_assign({ cell.row, cell.col }, cell);
+            if (inserted) {
+                untracked_cells.push_back(iter->second);
+            }
+        }
+        const bool same_page = untracked_cells.empty() && result.alignment.reliable && result.alignment.row_offset == 0
                                && result.alignment.match_ratio >= std::clamp(options.repeat_match_ratio, 0.0, 1.0);
         if (same_page) {
             previous_frame_ = frame;
@@ -175,13 +188,7 @@ Result GridTracker::observe(const recogrid::GridFrame& frame, const Options& opt
             col_width_ = frame.col_width;
             result.status = Status::Initial;
             result.message = "Grid shape changed and tracking reinitialized";
-            result.visible_cells = place_cells(frame, viewport_start_row_);
-            for (const Cell& cell : result.visible_cells) {
-                const auto [iter, inserted] = cells_.insert_or_assign({ cell.row, cell.col }, cell);
-                if (inserted) {
-                    result.new_cells.push_back(iter->second);
-                }
-            }
+            result.new_cells = std::move(untracked_cells);
         }
     }
     else if (previous_frame_.cols == 0) {
