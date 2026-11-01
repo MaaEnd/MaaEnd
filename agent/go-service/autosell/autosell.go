@@ -15,6 +15,9 @@ import (
 
 var (
 	regionItemMap = make(map[string][]string)
+
+	// 好友价格识别节点：由 ExpressionRecognition 求值时经嵌套识别子任务运行。
+	priceRecognitionNode = "AutoSellFriendsPriceRecognition"
 )
 
 type AutoSellScanItemRecognition struct{}
@@ -175,6 +178,15 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			},
 		}
 
+		// 记录子任务前最新价格识别节点 ID：嵌套识别子任务不入父任务节点列表，
+		// 只能事后按名字取全局最新节点，须对比 ID 确认本次子任务确实更新过。
+		prevPriceNodeID := int64(-1)
+		if tasker := ctx.GetTasker(); tasker != nil {
+			if nd, err := tasker.GetLatestNode(priceRecognitionNode); err == nil && nd != nil {
+				prevPriceNodeID = nd.ID
+			}
+		}
+
 		detail, err := ctx.RunTask("AutoSellStockRedistributionItemOpenPrepare", override)
 		if detail == nil || err != nil {
 			log.Error().Err(err).Str("component", "autosell").Str("step", "execute_sell").Str("item_name", name).Msg("run prepare task")
@@ -186,7 +198,7 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			break
 		}
 
-		sold, price, priceOK := inspectItemTaskResult(ctx, detail)
+		sold, price, priceOK := inspectItemTaskResult(ctx, detail, prevPriceNodeID)
 		if sold {
 			soldCount++
 			continue
@@ -240,27 +252,31 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 }
 
 // inspectItemTaskResult 判断一件物资的售卖子任务结果：
-// sold 表示流程走到了「点击售卖」节点（已成交）；
-// price/priceOK 取好友价格识别节点最后一次 OCR 读数（判定时的好友最高价），
-// 用于未成交时向用户解释跳过原因。
-func inspectItemTaskResult(ctx *maa.Context, detail *maa.TaskDetail) (sold bool, price int, priceOK bool) {
-	var lastPriceDetail *maa.RecognitionDetail
+// sold 表示流程走到了「点击售卖」节点（已成交，属于父任务 pipeline 节点，可从节点列表直接确认）；
+// price/priceOK 取好友价格识别节点的 OCR 读数（判定时的好友最高价），
+// 用于未成交时向用户解释跳过原因。该节点由表达式求值经嵌套识别子任务运行，
+// 不入父任务节点列表，只能经 GetLatestNode 按名字取全局最新节点；
+// prevPriceNodeID 为子任务开始前的最新节点 ID，若未变化说明本次子任务没有跑过价格识别。
+func inspectItemTaskResult(ctx *maa.Context, detail *maa.TaskDetail, prevPriceNodeID int64) (sold bool, price int, priceOK bool) {
 	for _, ref := range detail.Nodes {
 		nd, err := ref.GetDetail()
 		if err != nil {
 			continue
 		}
-		switch nd.Name {
-		case "AutoSellFriendsPricesExpectedBuyClick":
-			sold = true
-		case "AutoSellFriendsPriceRecognition":
-			lastPriceDetail = nd.Recognition
+		if nd.Name == "AutoSellFriendsPricesExpectedBuyClick" {
+			return true, 0, false
 		}
 	}
-	if sold || lastPriceDetail == nil {
-		return sold, 0, false
+
+	tasker := ctx.GetTasker()
+	if tasker == nil {
+		return false, 0, false
 	}
-	selected, err := recogtarget.SelectDetail(ctx, "AutoSellFriendsPriceRecognition", lastPriceDetail)
+	nd, err := tasker.GetLatestNode(priceRecognitionNode)
+	if err != nil || nd == nil || nd.ID == prevPriceNodeID || nd.Recognition == nil {
+		return false, 0, false
+	}
+	selected, err := recogtarget.SelectDetail(ctx, priceRecognitionNode, nd.Recognition)
 	if err != nil {
 		return false, 0, false
 	}
