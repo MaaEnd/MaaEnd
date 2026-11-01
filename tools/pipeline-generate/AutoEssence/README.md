@@ -16,7 +16,7 @@ pnpm generate:AutoEssence
 | --- | --- |
 | `GotoTriggerPointSetAnchor_<key>` | 由 Go 侧启用，设置 `AutoEssenceMoveToTriggerPoint` 与 `AutoEssenceMoveToTriggerPointMaybeTeleport` 两个锚点 |
 | `GotoTriggerPointMaybeTeleport_<key>` | 传送到起点营地后前往激发点，连续命中上限 3 次，计数在 `AutoEssenceDispatcher` 清零 |
-| `GotoTriggerPointMove_<key>` | 从当前位置前往激发点并交互，失败时转去传送重走 |
+| `GotoTriggerPointMove_<key>` | 从当前位置前往激发点并交互，失败时先滚动交互列表找按钮，仍失败再转去传送重走 |
 
 前往激发点的路线：
 

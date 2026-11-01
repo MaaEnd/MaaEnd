@@ -98,7 +98,7 @@ func runWheelScroll(ctx *maa.Context, arg *maa.CustomActionArg, p *autoScrollPar
 			param["target_offset"] = p.TargetOffset
 		}
 
-		_, err := ctx.RunAction(wheelScrollEntry, arg.Box, "", map[string]any{
+		detail, err := ctx.RunAction(wheelScrollEntry, arg.Box, "", map[string]any{
 			wheelScrollEntry: map[string]any{
 				"pre_delay":  0,
 				"post_delay": 0,
@@ -118,6 +118,17 @@ func runWheelScroll(ctx *maa.Context, arg *maa.CustomActionArg, p *autoScrollPar
 				Int("step", i).
 				Int("steps", steps).
 				Msg("failed to run wheel scroll")
+			return false
+		}
+		if detail == nil || !detail.Success {
+			log.Error().
+				Str("component", componentName).
+				Interface("box", arg.Box).
+				Interface("scroll_param", param).
+				Int("step", i).
+				Int("steps", steps).
+				Bool("detail_present", detail != nil).
+				Msg("wheel scroll action was not successful")
 			return false
 		}
 
@@ -187,7 +198,7 @@ func runSwipeFallback(ctx *maa.Context, arg *maa.CustomActionArg, p *autoScrollP
 		actionParam["custom_action_param"] = swipeParam
 	}
 
-	_, err := ctx.RunAction(swipeFallbackEntry, arg.Box, "", map[string]any{
+	detail, err := ctx.RunAction(swipeFallbackEntry, arg.Box, "", map[string]any{
 		swipeFallbackEntry: map[string]any{
 			"pre_delay":  0,
 			"post_delay": 0,
@@ -206,6 +217,16 @@ func runSwipeFallback(ctx *maa.Context, arg *maa.CustomActionArg, p *autoScrollP
 			Interface("box", arg.Box).
 			Interface("swipe_param", swipeParam).
 			Msg("failed to run swipe fallback")
+		return false
+	}
+	if detail == nil || !detail.Success {
+		log.Error().
+			Str("component", componentName).
+			Str("legacy_action", legacySwipeAction).
+			Interface("box", arg.Box).
+			Interface("swipe_param", swipeParam).
+			Bool("detail_present", detail != nil).
+			Msg("swipe fallback action was not successful")
 		return false
 	}
 
