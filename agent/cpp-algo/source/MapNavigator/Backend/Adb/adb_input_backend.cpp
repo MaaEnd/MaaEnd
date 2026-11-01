@@ -32,42 +32,42 @@ AdbInputBackend::AdbInputBackend(MaaController* ctrl, std::string controller_typ
             << VAR(kAdbTouchTurnProfile.post_swipe_settle_ms);
 }
 
-MaaController* AdbInputBackend::GetCtrl() const
+MaaController* AdbInputBackend::getCtrl() const
 {
     return ctrl_;
 }
 
-const std::string& AdbInputBackend::ControllerType() const
+const std::string& AdbInputBackend::controllerType() const
 {
     return controller_type_;
 }
 
-bool AdbInputBackend::UsesTouchBackend() const
+bool AdbInputBackend::usesTouchBackend() const
 {
     return true;
 }
 
-bool AdbInputBackend::IsSupported() const
+bool AdbInputBackend::isSupported() const
 {
     return ctrl_ != nullptr && has_locator_;
 }
 
-const std::string& AdbInputBackend::UnsupportedReason() const
+const std::string& AdbInputBackend::unsupportedReason() const
 {
     return unsupported_reason_;
 }
 
-double AdbInputBackend::DefaultTurnUnitsPerDegree() const
+double AdbInputBackend::defaultTurnUnitsPerDegree() const
 {
     return default_turn_units_per_degree_;
 }
 
-double AdbInputBackend::DefaultPitchUnitsPerDegree() const
+double AdbInputBackend::defaultPitchUnitsPerDegree() const
 {
     return kAdbTouchTurnProfile.default_pitch_units_per_degree;
 }
 
-SteeringTransportProfile AdbInputBackend::SteeringProfile() const
+SteeringTransportProfile AdbInputBackend::steeringProfile() const
 {
     return SteeringTransportProfile {
         .supports_concurrent_move_and_look = true,
@@ -79,14 +79,14 @@ SteeringTransportProfile AdbInputBackend::SteeringProfile() const
     };
 }
 
-void AdbInputBackend::SetMovementStateSync(MovementState state, int delay_millis)
+void AdbInputBackend::setMovementStateSync(MovementState state, int delay_millis)
 {
-    ApplyMovementState(state, delay_millis);
+    applyMovementState(state, delay_millis);
 }
 
-void AdbInputBackend::TriggerJumpSync(int hold_millis)
+void AdbInputBackend::triggerJumpSync(int hold_millis)
 {
-    if (!ClickTargetSync(
+    if (!clickTargetSync(
             action_buttons_.jump_button,
             std::max(hold_millis, action_buttons_.default_hold_ms),
             action_buttons_.post_action_delay_ms)) {
@@ -94,9 +94,9 @@ void AdbInputBackend::TriggerJumpSync(int hold_millis)
     }
 }
 
-void AdbInputBackend::TriggerInteractSync(int hold_millis)
+void AdbInputBackend::triggerInteractSync(int hold_millis)
 {
-    if (!ClickTargetSync(
+    if (!clickTargetSync(
             action_buttons_.interact_button,
             std::max(hold_millis, action_buttons_.default_hold_ms),
             action_buttons_.post_action_delay_ms)) {
@@ -104,57 +104,57 @@ void AdbInputBackend::TriggerInteractSync(int hold_millis)
     }
 }
 
-void AdbInputBackend::PulseForwardSync(int hold_millis)
+void AdbInputBackend::pulseForwardSync(int hold_millis)
 {
-    const bool pulsed = joystick_driver_.PulseForward(hold_millis);
+    const bool pulsed = joystick_driver_.pulseForward(hold_millis);
     if (!pulsed) {
         LogWarn << "AdbInputBackend: failed to pulse forward." << VAR(hold_millis);
     }
 }
 
-void AdbInputBackend::TriggerSprintSync()
+void AdbInputBackend::triggerSprintSync()
 {
-    if (!ClickTargetSync(action_buttons_.sprint_button, action_buttons_.default_hold_ms, action_buttons_.post_action_delay_ms)) {
+    if (!clickTargetSync(action_buttons_.sprint_button, action_buttons_.default_hold_ms, action_buttons_.post_action_delay_ms)) {
         LogWarn << "AdbInputBackend: failed to trigger sprint.";
     }
     // 冲刺会退出走路, 摇杆推回满行程
-    joystick_driver_.SetWalking(false);
+    joystick_driver_.setWalking(false);
 }
 
-void AdbInputBackend::ResetForwardWalkSync(int release_millis)
+void AdbInputBackend::resetForwardWalkSync(int release_millis)
 {
-    joystick_driver_.Release(release_millis);
-    ApplyMovementState({ .forward = true }, 0);
+    joystick_driver_.release(release_millis);
+    applyMovementState({ .forward = true }, 0);
 }
 
-void AdbInputBackend::ClickMouseLeftSync()
+void AdbInputBackend::clickMouseLeftSync()
 {
-    if (!ClickTargetSync(action_buttons_.attack_button, action_buttons_.default_hold_ms, action_buttons_.post_action_delay_ms)) {
+    if (!clickTargetSync(action_buttons_.attack_button, action_buttons_.default_hold_ms, action_buttons_.post_action_delay_ms)) {
         LogWarn << "AdbInputBackend: failed to click attack button.";
     }
 }
 
-void AdbInputBackend::TriggerZiplineLaunchSync()
+void AdbInputBackend::triggerZiplineLaunchSync()
 {
-    if (!ClickTargetSync(action_buttons_.zipline_launch_button, action_buttons_.default_hold_ms, action_buttons_.post_action_delay_ms)) {
+    if (!clickTargetSync(action_buttons_.zipline_launch_button, action_buttons_.default_hold_ms, action_buttons_.post_action_delay_ms)) {
         LogWarn << "AdbInputBackend: failed to click zipline launch button.";
     }
 }
 
-void AdbInputBackend::TriggerZiplineDismountSync(int hold_millis)
+void AdbInputBackend::triggerZiplineDismountSync(int hold_millis)
 {
-    if (!ClickTargetSync(action_buttons_.zipline_dismount_button, hold_millis, action_buttons_.post_action_delay_ms)) {
+    if (!clickTargetSync(action_buttons_.zipline_dismount_button, hold_millis, action_buttons_.post_action_delay_ms)) {
         LogWarn << "AdbInputBackend: failed to click zipline dismount button.";
     }
 }
 
-bool AdbInputBackend::SendViewDeltaSync(int dx, int dy)
+bool AdbInputBackend::sendViewDeltaSync(int dx, int dy)
 {
     if (ctrl_ == nullptr || (dx == 0 && dy == 0)) {
         return ctrl_ != nullptr;
     }
 
-    const bool applied = camera_swipe_driver_.SwipeByPixels(dx, dy);
+    const bool applied = camera_swipe_driver_.swipeByPixels(dx, dy);
     if (!applied) {
         LogWarn << "AdbInputBackend: failed to apply camera swipe." << VAR(dx) << VAR(dy);
         return false;
@@ -162,25 +162,25 @@ bool AdbInputBackend::SendViewDeltaSync(int dx, int dy)
     return true;
 }
 
-void AdbInputBackend::ApplyMovementState(MovementState state, int delay_millis)
+void AdbInputBackend::applyMovementState(MovementState state, int delay_millis)
 {
-    const bool applied = joystick_driver_.SetMovementState(state, delay_millis);
+    const bool applied = joystick_driver_.setMovementState(state, delay_millis);
     if (!applied) {
         LogWarn << "AdbInputBackend: failed to apply movement state." << VAR_AS(forward_down_, state.forward)
                 << VAR_AS(left_down_, state.left) << VAR_AS(backward_down_, state.backward) << VAR_AS(right_down_, state.right);
     }
 }
 
-bool AdbInputBackend::ClickTargetSync(const AdbTapTarget& target, int hold_millis, int delay_millis)
+bool AdbInputBackend::clickTargetSync(const AdbTapTarget& target, int hold_millis, int delay_millis)
 {
-    if (!TouchDownTargetSync(target)) {
+    if (!touchDownTargetSync(target)) {
         return false;
     }
 
     SleepFor(hold_millis);
 
     const MaaCtrlId up_id = MaaControllerPostTouchUp(ctrl_, target.contact_id);
-    if (!WaitForControllerAction(up_id, "touch_up")) {
+    if (!waitForControllerAction(up_id, "touch_up")) {
         return false;
     }
 
@@ -188,23 +188,23 @@ bool AdbInputBackend::ClickTargetSync(const AdbTapTarget& target, int hold_milli
     return true;
 }
 
-bool AdbInputBackend::TouchDownTargetSync(const AdbTapTarget& target) const
+bool AdbInputBackend::touchDownTargetSync(const AdbTapTarget& target) const
 {
     const cv::Point point(std::clamp(target.point.x, 0, kWorkWidth - 1), std::clamp(target.point.y, 0, kWorkHeight - 1));
     const MaaCtrlId move_id = MaaControllerPostTouchMove(ctrl_, target.contact_id, point.x, point.y, 0);
-    if (!WaitForControllerAction(move_id, "touch_move")) {
+    if (!waitForControllerAction(move_id, "touch_move")) {
         return false;
     }
 
     const MaaCtrlId down_id = MaaControllerPostTouchDown(ctrl_, target.contact_id, point.x, point.y, 0);
-    if (!WaitForControllerAction(down_id, "touch_down")) {
+    if (!waitForControllerAction(down_id, "touch_down")) {
         return false;
     }
 
     return true;
 }
 
-bool AdbInputBackend::WaitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const
+bool AdbInputBackend::waitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const
 {
     if (ctrl_id == MaaInvalidId) {
         LogWarn << "AdbInputBackend: failed to post controller action." << VAR(action_name);

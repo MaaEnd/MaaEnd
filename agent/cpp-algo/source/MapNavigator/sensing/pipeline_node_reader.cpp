@@ -18,7 +18,7 @@ namespace
 {
 
 // 框架回吐的节点恒为 { "recognition": { "type": ..., "param": { ... } } }
-const json::object* RecognitionOf(const json::object& node)
+const json::object* recognition_of(const json::object& node)
 {
     if (!node.contains("recognition") || !node.at("recognition").is_object()) {
         return nullptr;
@@ -26,9 +26,9 @@ const json::object* RecognitionOf(const json::object& node)
     return &node.at("recognition").as_object();
 }
 
-const json::object* RecognitionParam(const json::object& node)
+const json::object* recognition_param(const json::object& node)
 {
-    const json::object* reco = RecognitionOf(node);
+    const json::object* reco = recognition_of(node);
     if (reco == nullptr || !reco->contains("param") || !reco->at("param").is_object()) {
         return nullptr;
     }
@@ -70,13 +70,13 @@ std::optional<json::object> ReadNodeObject(MaaContext* context, const std::strin
 
 const json::value* FindRecognitionParam(const json::object& node, const char* key)
 {
-    const json::object* param = RecognitionParam(node);
+    const json::object* param = recognition_param(node);
     return param != nullptr && param->contains(key) ? &param->at(key) : nullptr;
 }
 
 std::string ReadRecognitionType(const json::object& node)
 {
-    const json::object* reco = RecognitionOf(node);
+    const json::object* reco = recognition_of(node);
     return reco != nullptr && reco->contains("type") && reco->at("type").is_string() ? reco->at("type").as_string() : std::string {};
 }
 

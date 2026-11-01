@@ -86,8 +86,10 @@
             }
         }
     },
-    "AutoStockInStapleItemName": {
-        "desc": "识别商品名称",
+    // 折扣分组：每个分组自带 attach 白名单与折扣档位，勾选商品时把别名写入所属分组的商品名 OCR 节点，
+    // 折扣节点再按该分组的档位筛选，因此日用/工业/特产与刻写券/精锻助剂可以分别设置折扣。
+    "AutoStockInStapleItemNameDaily": {
+        "desc": "识别日用消耗组商品名称",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -104,26 +106,154 @@
             }
         }
     },
-    "AutoStockInStapleItemName_Expected": {
-        "desc": "标签色 + 文字色 + 商品名 OCR 组合命中",
+    "AutoStockInStapleItemNameIndustrial": {
+        "desc": "识别工业货品组商品名称",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [],
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "AutoStockInStapleItemNameCultural": {
+        "desc": "识别人文物产组商品名称",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [],
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "AutoStockInStapleItemNameEngravingPermit": {
+        "desc": "识别刻写券组商品名称",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [],
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "AutoStockInStapleItemNameArtificingCatalyst": {
+        "desc": "识别精锻助剂组商品名称",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [],
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "AutoStockInStapleItemNameDaily_Expected": {
+        "desc": "标签色 + 文字色 + 商品名 OCR 组合命中（日用消耗组）",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "AutoStockInStapleItemNameLabelColor",
                     "AutoStockInStapleItemNameTextColor",
-                    "AutoStockInStapleItemName"
+                    "AutoStockInStapleItemNameDaily"
                 ],
                 "box_index": 2
             }
         }
     },
-    "AutoStockInStapleItemDiscountsWuling": {
-        "desc": "识别商品折扣信息框，武陵",
+    "AutoStockInStapleItemNameIndustrial_Expected": {
+        "desc": "标签色 + 文字色 + 商品名 OCR 组合命中（工业货品组）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItemNameLabelColor",
+                    "AutoStockInStapleItemNameTextColor",
+                    "AutoStockInStapleItemNameIndustrial"
+                ],
+                "box_index": 2
+            }
+        }
+    },
+    "AutoStockInStapleItemNameCultural_Expected": {
+        "desc": "标签色 + 文字色 + 商品名 OCR 组合命中（人文物产组）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItemNameLabelColor",
+                    "AutoStockInStapleItemNameTextColor",
+                    "AutoStockInStapleItemNameCultural"
+                ],
+                "box_index": 2
+            }
+        }
+    },
+    "AutoStockInStapleItemNameEngravingPermit_Expected": {
+        "desc": "标签色 + 文字色 + 商品名 OCR 组合命中（刻写券组）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItemNameLabelColor",
+                    "AutoStockInStapleItemNameTextColor",
+                    "AutoStockInStapleItemNameEngravingPermit"
+                ],
+                "box_index": 2
+            }
+        }
+    },
+    "AutoStockInStapleItemNameArtificingCatalyst_Expected": {
+        "desc": "标签色 + 文字色 + 商品名 OCR 组合命中（精锻助剂组）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItemNameLabelColor",
+                    "AutoStockInStapleItemNameTextColor",
+                    "AutoStockInStapleItemNameArtificingCatalyst"
+                ],
+                "box_index": 2
+            }
+        }
+    },
+    "AutoStockInStapleItemDiscountsValleyIVDaily": {
+        "desc": "识别商品折扣信息框，四号谷地日用消耗组",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "AutoStockInStapleItemName",
+                "roi": "AutoStockInStapleItemNameDaily",
                 "roi_offset": [
                     41,
                     -178,
@@ -147,12 +277,215 @@
             }
         }
     },
-    "AutoStockInStapleItemDiscountsValleyIV": {
-        "desc": "识别商品折扣信息框，四号谷地",
+    "AutoStockInStapleItemDiscountsValleyIVIndustrial": {
+        "desc": "识别商品折扣信息框，四号谷地工业货品组",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "AutoStockInStapleItemName",
+                "roi": "AutoStockInStapleItemNameIndustrial",
+                "roi_offset": [
+                    41,
+                    -178,
+                    52,
+                    34
+                ],
+                "expected": [
+                    "-99",
+                    "-95",
+                    "-90",
+                    "-85",
+                    "-80",
+                    "-75",
+                    "-70",
+                    "-65",
+                    "-60",
+                    "-55",
+                    "-50"
+                ],
+                "order_by": "Expected"
+            }
+        }
+    },
+    "AutoStockInStapleItemDiscountsValleyIVCultural": {
+        "desc": "识别商品折扣信息框，四号谷地人文物产组",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameCultural",
+                "roi_offset": [
+                    41,
+                    -178,
+                    52,
+                    34
+                ],
+                "expected": [
+                    "-99",
+                    "-95",
+                    "-90",
+                    "-85",
+                    "-80",
+                    "-75",
+                    "-70",
+                    "-65",
+                    "-60",
+                    "-55",
+                    "-50"
+                ],
+                "order_by": "Expected"
+            }
+        }
+    },
+    "AutoStockInStapleItemDiscountsValleyIVEngravingPermit": {
+        "desc": "识别商品折扣信息框，四号谷地刻写券组",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameEngravingPermit",
+                "roi_offset": [
+                    41,
+                    -178,
+                    52,
+                    34
+                ],
+                "expected": [
+                    "-99",
+                    "-95",
+                    "-90",
+                    "-85",
+                    "-80",
+                    "-75",
+                    "-70",
+                    "-65",
+                    "-60",
+                    "-55",
+                    "-50"
+                ],
+                "order_by": "Expected"
+            }
+        }
+    },
+    "AutoStockInStapleItemDiscountsWulingDaily": {
+        "desc": "识别商品折扣信息框，武陵日用消耗组",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameDaily",
+                "roi_offset": [
+                    41,
+                    -178,
+                    52,
+                    34
+                ],
+                "expected": [
+                    "-99",
+                    "-95",
+                    "-90",
+                    "-85",
+                    "-80",
+                    "-75",
+                    "-70",
+                    "-65",
+                    "-60",
+                    "-55",
+                    "-50"
+                ],
+                "order_by": "Expected"
+            }
+        }
+    },
+    "AutoStockInStapleItemDiscountsWulingIndustrial": {
+        "desc": "识别商品折扣信息框，武陵工业货品组",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameIndustrial",
+                "roi_offset": [
+                    41,
+                    -178,
+                    52,
+                    34
+                ],
+                "expected": [
+                    "-99",
+                    "-95",
+                    "-90",
+                    "-85",
+                    "-80",
+                    "-75",
+                    "-70",
+                    "-65",
+                    "-60",
+                    "-55",
+                    "-50"
+                ],
+                "order_by": "Expected"
+            }
+        }
+    },
+    "AutoStockInStapleItemDiscountsWulingCultural": {
+        "desc": "识别商品折扣信息框，武陵人文物产组",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameCultural",
+                "roi_offset": [
+                    41,
+                    -178,
+                    52,
+                    34
+                ],
+                "expected": [
+                    "-99",
+                    "-95",
+                    "-90",
+                    "-85",
+                    "-80",
+                    "-75",
+                    "-70",
+                    "-65",
+                    "-60",
+                    "-55",
+                    "-50"
+                ],
+                "order_by": "Expected"
+            }
+        }
+    },
+    "AutoStockInStapleItemDiscountsWulingEngravingPermit": {
+        "desc": "识别商品折扣信息框，武陵刻写券组",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameEngravingPermit",
+                "roi_offset": [
+                    41,
+                    -178,
+                    52,
+                    34
+                ],
+                "expected": [
+                    "-99",
+                    "-95",
+                    "-90",
+                    "-85",
+                    "-80",
+                    "-75",
+                    "-70",
+                    "-65",
+                    "-60",
+                    "-55",
+                    "-50"
+                ],
+                "order_by": "Expected"
+            }
+        }
+    },
+    "AutoStockInStapleItemDiscountsWulingArtificingCatalyst": {
+        "desc": "识别商品折扣信息框，武陵精锻助剂组",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameArtificingCatalyst",
                 "roi_offset": [
                     41,
                     -178,

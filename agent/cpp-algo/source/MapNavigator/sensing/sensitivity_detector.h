@@ -55,15 +55,15 @@ public:
     explicit Detector(Config config = {});
 
     // 每次导航开始调用, 未完成的样本作废, 已攒样本保留
-    void BeginRun();
+    void beginRun();
     // 所有路径发出的偏航度数都要报
-    void NoteIssued(double delta_deg);
+    void noteIssued(double delta_deg);
     // camera_heading_deg 是本拍决策前读到的镜头朝向, 没读到传空
     std::optional<Verdict>
-        RecordTick(uint64_t tick_seq, std::optional<double> camera_heading_deg, double issued_delta_deg, bool degraded_fix);
-    std::optional<Verdict> EndRun();
+        recordTick(uint64_t tick_seq, std::optional<double> camera_heading_deg, double issued_delta_deg, bool degraded_fix);
+    std::optional<Verdict> endRun();
 
-    std::optional<Estimate> TakeLastEstimate();
+    std::optional<Estimate> takeLastEstimate();
 
 private:
     struct PendingTurn
@@ -73,7 +73,7 @@ private:
         int quiet_ticks = 0;
     };
 
-    std::optional<Verdict> Evaluate(bool log_estimate);
+    std::optional<Verdict> evaluate(bool log_estimate);
 
     Config config_;
 

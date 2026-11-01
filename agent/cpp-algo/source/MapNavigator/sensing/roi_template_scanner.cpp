@@ -17,7 +17,7 @@ namespace mapnavigator
 namespace
 {
 
-cv::Rect ScaledRoi(const cv::Size& frame_size, const cv::Rect& base_roi)
+cv::Rect scaled_roi(const cv::Size& frame_size, const cv::Rect& base_roi)
 {
     const double sx = static_cast<double>(frame_size.width) / static_cast<double>(kPipelineRoiBaseWidth);
     const double sy = static_cast<double>(frame_size.height) / static_cast<double>(kPipelineRoiBaseHeight);
@@ -30,7 +30,7 @@ cv::Rect ScaledRoi(const cv::Size& frame_size, const cv::Rect& base_roi)
 }
 
 // 本文件不能引入 utils.h 带来的框架头文件, 所以自带一份
-cv::Mat ToGray(const cv::Mat& roi)
+cv::Mat to_gray(const cv::Mat& roi)
 {
     cv::Mat gray;
     switch (roi.channels()) {
@@ -48,7 +48,7 @@ cv::Mat ToGray(const cv::Mat& roi)
 }
 
 // 模板与 ROI 同为基础尺度, gray 须已是灰度图
-bool MatchesTemplate(const cv::Mat& gray, const cv::Mat& templ, const cv::Mat& mask, double threshold, const std::string& tag)
+bool matches_template(const cv::Mat& gray, const cv::Mat& templ, const cv::Mat& mask, double threshold, const std::string& tag)
 {
     if (gray.empty() || templ.empty() || gray.rows < templ.rows || gray.cols < templ.cols) {
         return false;
@@ -71,7 +71,7 @@ bool MatchesTemplate(const cv::Mat& gray, const cv::Mat& templ, const cv::Mat& m
     return max_val >= threshold;
 }
 
-bool MatchNormalized(const cv::Mat& crop, const cv::Size& base_size, const std::vector<ScanIcon>& icons, const std::string& tag)
+bool match_normalized(const cv::Mat& crop, const cv::Size& base_size, const std::vector<ScanIcon>& icons, const std::string& tag)
 {
     cv::Mat normalized;
     if (crop.size() == base_size) {
@@ -80,9 +80,9 @@ bool MatchNormalized(const cv::Mat& crop, const cv::Size& base_size, const std::
     else {
         cv::resize(crop, normalized, base_size, 0, 0, cv::INTER_AREA);
     }
-    const cv::Mat gray = ToGray(normalized);
+    const cv::Mat gray = to_gray(normalized);
     return std::ranges::any_of(icons, [&](const ScanIcon& icon) {
-        return MatchesTemplate(gray, icon.templ, icon.mask, icon.threshold, tag);
+        return matches_template(gray, icon.templ, icon.mask, icon.threshold, tag);
     });
 }
 
@@ -93,11 +93,11 @@ bool MatchTemplateOnFrame(const cv::Mat& frame, const cv::Rect& base_roi, const 
     if (frame.empty() || icons.empty()) {
         return false;
     }
-    const cv::Rect roi = ScaledRoi(frame.size(), base_roi);
+    const cv::Rect roi = scaled_roi(frame.size(), base_roi);
     if (roi.width <= 0 || roi.height <= 0) {
         return false;
     }
-    return MatchNormalized(frame(roi), base_roi.size(), icons, std::string(tag));
+    return match_normalized(frame(roi), base_roi.size(), icons, std::string(tag));
 }
 
 RoiTemplateScanner::RoiTemplateScanner(std::string tag, const cv::Rect& base_roi, std::vector<ScanIcon> icons)
@@ -105,7 +105,7 @@ RoiTemplateScanner::RoiTemplateScanner(std::string tag, const cv::Rect& base_roi
     , base_roi_(base_roi)
     , icons_(std::move(icons))
 {
-    worker_ = std::thread(&RoiTemplateScanner::WorkerLoop, this);
+    worker_ = std::thread(&RoiTemplateScanner::workerLoop, this);
 }
 
 RoiTemplateScanner::~RoiTemplateScanner()
@@ -117,12 +117,12 @@ RoiTemplateScanner::~RoiTemplateScanner()
     }
 }
 
-void RoiTemplateScanner::SubmitFrame(const cv::Mat& frame)
+void RoiTemplateScanner::submitFrame(const cv::Mat& frame)
 {
     if (frame.empty()) {
         return;
     }
-    const cv::Rect roi = ScaledRoi(frame.size(), base_roi_);
+    const cv::Rect roi = scaled_roi(frame.size(), base_roi_);
     if (roi.width <= 0 || roi.height <= 0) {
         return;
     }
@@ -135,12 +135,12 @@ void RoiTemplateScanner::SubmitFrame(const cv::Mat& frame)
     cv_.notify_one();
 }
 
-bool RoiTemplateScanner::ConsumeDetection()
+bool RoiTemplateScanner::consumeDetection()
 {
     return detected_.exchange(false);
 }
 
-void RoiTemplateScanner::WorkerLoop()
+void RoiTemplateScanner::workerLoop()
 {
     for (;;) {
         cv::Mat roi;
@@ -154,7 +154,7 @@ void RoiTemplateScanner::WorkerLoop()
             has_pending_ = false;
         }
 
-        if (MatchNormalized(roi, base_roi_.size(), icons_, tag_)) {
+        if (match_normalized(roi, base_roi_.size(), icons_, tag_)) {
             detected_.store(true);
         }
     }

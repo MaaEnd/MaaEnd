@@ -1,0 +1,463 @@
+{
+    "UseConsumableUseStartSlot1": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset",
+            "ItemTransferCurrentBagFind": "UseConsumableFindItemSlot1",
+            "ItemTransferCurrentBagNotFound": "UseConsumableUseNotFoundSlot1",
+            "ItemTransferCurrentBagTransfer": "UseConsumableUseSelectItemSlot1"
+        },
+        "next": [
+            "ItemTransferBagSearchCurrentPage"
+        ]
+    },
+    "UseConsumableUseSkipSlot1": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "UseConsumableSlot1Disabled"
+        ],
+        "next": [
+            "UseConsumableUseStartSlot2",
+            "UseConsumableUseSkipSlot2"
+        ]
+    },
+    "UseConsumableUseNotFoundSlot1": {
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableUseStartSlot2",
+            "UseConsumableUseSkipSlot2"
+        ]
+    },
+    "UseConsumableUseSelectItemSlot1": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "UseConsumableFindItemSlot1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UseConsumableUseClickUseButtonSlot1"
+        ]
+    },
+    "UseConsumableUseClickUseButtonSlot1": {
+        "recognition": "And",
+        "all_of": [
+            "UseConsumableUseMark",
+            "UseConsumableUseText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UseConsumableUseOperatorDialogReadySlot1"
+        ]
+    },
+    "UseConsumableUseOperatorDialogReadySlot1": {
+        "recognition": "OCR",
+        "roi": [
+            340,
+            210,
+            600,
+            80
+        ],
+        "expected": [
+            "请选择使用战术物品的干员",
+            "Select the operator to use the tactical on.",
+            "どのオペレーターに使用しますか？",
+            "전술 아이템을 사용할 오퍼레이터를 선택하세요.",
+            "請選擇使用戰術物品的幹員"
+        ],
+        "next": [
+            "UseConsumableUseOperator1"
+        ]
+    },
+    "UseConsumableUseOperator1": {
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": [
+            622,
+            327
+        ],
+        "next": [
+            "UseConsumableUseConfirmButtonSlot1"
+        ]
+    },
+    "UseConsumableUseConfirmButtonSlot1": {
+        "recognition": "Or",
+        "any_of": [
+            "UseConsumableUseConfirmButtonNormal",
+            "UseConsumableUseConfirmButtonHover"
+        ],
+        "action": "Click",
+        "next": [
+            "UseConsumableUseCancelButtonSlot1"
+        ]
+    },
+    "UseConsumableUseCancelButtonSlot1": {
+        "recognition": "Or",
+        "any_of": [
+            "UseConsumableUseCancelButtonNormal",
+            "UseConsumableUseCancelButtonHover"
+        ],
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "UseConsumableUseCancelButtonSlot1"
+        },
+        "next": [
+            "UseConsumableUseStartSlot2",
+            "UseConsumableUseSkipSlot2"
+        ]
+    },
+    "UseConsumableUseStartSlot2": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset",
+            "ItemTransferCurrentBagFind": "UseConsumableFindItemSlot2",
+            "ItemTransferCurrentBagNotFound": "UseConsumableUseNotFoundSlot2",
+            "ItemTransferCurrentBagTransfer": "UseConsumableUseSelectItemSlot2"
+        },
+        "next": [
+            "ItemTransferBagSearchCurrentPage"
+        ]
+    },
+    "UseConsumableUseSkipSlot2": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "UseConsumableSlot2Disabled"
+        ],
+        "next": [
+            "UseConsumableUseStartSlot3",
+            "UseConsumableUseSkipSlot3"
+        ]
+    },
+    "UseConsumableUseNotFoundSlot2": {
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableUseStartSlot3",
+            "UseConsumableUseSkipSlot3"
+        ]
+    },
+    "UseConsumableUseSelectItemSlot2": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "UseConsumableFindItemSlot2"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UseConsumableUseClickUseButtonSlot2"
+        ]
+    },
+    "UseConsumableUseClickUseButtonSlot2": {
+        "recognition": "And",
+        "all_of": [
+            "UseConsumableUseMark",
+            "UseConsumableUseText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UseConsumableUseOperatorDialogReadySlot2"
+        ]
+    },
+    "UseConsumableUseOperatorDialogReadySlot2": {
+        "recognition": "OCR",
+        "roi": [
+            340,
+            210,
+            600,
+            80
+        ],
+        "expected": [
+            "请选择使用战术物品的干员",
+            "Select the operator to use the tactical on.",
+            "どのオペレーターに使用しますか？",
+            "전술 아이템을 사용할 오퍼레이터를 선택하세요.",
+            "請選擇使用戰術物品的幹員"
+        ],
+        "next": [
+            "UseConsumableUseOperator2"
+        ]
+    },
+    "UseConsumableUseOperator2": {
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": [
+            717,
+            327
+        ],
+        "next": [
+            "UseConsumableUseConfirmButtonSlot2"
+        ]
+    },
+    "UseConsumableUseConfirmButtonSlot2": {
+        "recognition": "Or",
+        "any_of": [
+            "UseConsumableUseConfirmButtonNormal",
+            "UseConsumableUseConfirmButtonHover"
+        ],
+        "action": "Click",
+        "next": [
+            "UseConsumableUseCancelButtonSlot2"
+        ]
+    },
+    "UseConsumableUseCancelButtonSlot2": {
+        "recognition": "Or",
+        "any_of": [
+            "UseConsumableUseCancelButtonNormal",
+            "UseConsumableUseCancelButtonHover"
+        ],
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "UseConsumableUseCancelButtonSlot2"
+        },
+        "next": [
+            "UseConsumableUseStartSlot3",
+            "UseConsumableUseSkipSlot3"
+        ]
+    },
+    "UseConsumableUseStartSlot3": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset",
+            "ItemTransferCurrentBagFind": "UseConsumableFindItemSlot3",
+            "ItemTransferCurrentBagNotFound": "UseConsumableUseNotFoundSlot3",
+            "ItemTransferCurrentBagTransfer": "UseConsumableUseSelectItemSlot3"
+        },
+        "next": [
+            "ItemTransferBagSearchCurrentPage"
+        ]
+    },
+    "UseConsumableUseSkipSlot3": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "UseConsumableSlot3Disabled"
+        ],
+        "next": [
+            "UseConsumableUseStartSlot4",
+            "UseConsumableUseSkipSlot4"
+        ]
+    },
+    "UseConsumableUseNotFoundSlot3": {
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableUseStartSlot4",
+            "UseConsumableUseSkipSlot4"
+        ]
+    },
+    "UseConsumableUseSelectItemSlot3": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "UseConsumableFindItemSlot3"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UseConsumableUseClickUseButtonSlot3"
+        ]
+    },
+    "UseConsumableUseClickUseButtonSlot3": {
+        "recognition": "And",
+        "all_of": [
+            "UseConsumableUseMark",
+            "UseConsumableUseText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UseConsumableUseOperatorDialogReadySlot3"
+        ]
+    },
+    "UseConsumableUseOperatorDialogReadySlot3": {
+        "recognition": "OCR",
+        "roi": [
+            340,
+            210,
+            600,
+            80
+        ],
+        "expected": [
+            "请选择使用战术物品的干员",
+            "Select the operator to use the tactical on.",
+            "どのオペレーターに使用しますか？",
+            "전술 아이템을 사용할 오퍼레이터를 선택하세요.",
+            "請選擇使用戰術物品的幹員"
+        ],
+        "next": [
+            "UseConsumableUseOperator3"
+        ]
+    },
+    "UseConsumableUseOperator3": {
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": [
+            804,
+            327
+        ],
+        "next": [
+            "UseConsumableUseConfirmButtonSlot3"
+        ]
+    },
+    "UseConsumableUseConfirmButtonSlot3": {
+        "recognition": "Or",
+        "any_of": [
+            "UseConsumableUseConfirmButtonNormal",
+            "UseConsumableUseConfirmButtonHover"
+        ],
+        "action": "Click",
+        "next": [
+            "UseConsumableUseCancelButtonSlot3"
+        ]
+    },
+    "UseConsumableUseCancelButtonSlot3": {
+        "recognition": "Or",
+        "any_of": [
+            "UseConsumableUseCancelButtonNormal",
+            "UseConsumableUseCancelButtonHover"
+        ],
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "UseConsumableUseCancelButtonSlot3"
+        },
+        "next": [
+            "UseConsumableUseStartSlot4",
+            "UseConsumableUseSkipSlot4"
+        ]
+    },
+    "UseConsumableUseStartSlot4": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset",
+            "ItemTransferCurrentBagFind": "UseConsumableFindItemSlot4",
+            "ItemTransferCurrentBagNotFound": "UseConsumableUseNotFoundSlot4",
+            "ItemTransferCurrentBagTransfer": "UseConsumableUseSelectItemSlot4"
+        },
+        "next": [
+            "ItemTransferBagSearchCurrentPage"
+        ]
+    },
+    "UseConsumableUseSkipSlot4": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "UseConsumableSlot4Disabled"
+        ],
+        "next": [
+            "UseConsumableUseCloseBackpack"
+        ]
+    },
+    "UseConsumableUseNotFoundSlot4": {
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableUseCloseBackpack"
+        ]
+    },
+    "UseConsumableUseSelectItemSlot4": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "UseConsumableFindItemSlot4"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UseConsumableUseClickUseButtonSlot4"
+        ]
+    },
+    "UseConsumableUseClickUseButtonSlot4": {
+        "recognition": "And",
+        "all_of": [
+            "UseConsumableUseMark",
+            "UseConsumableUseText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UseConsumableUseOperatorDialogReadySlot4"
+        ]
+    },
+    "UseConsumableUseOperatorDialogReadySlot4": {
+        "recognition": "OCR",
+        "roi": [
+            340,
+            210,
+            600,
+            80
+        ],
+        "expected": [
+            "请选择使用战术物品的干员",
+            "Select the operator to use the tactical on.",
+            "どのオペレーターに使用しますか？",
+            "전술 아이템을 사용할 오퍼레이터를 선택하세요.",
+            "請選擇使用戰術物品的幹員"
+        ],
+        "next": [
+            "UseConsumableUseOperator4"
+        ]
+    },
+    "UseConsumableUseOperator4": {
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": [
+            897,
+            327
+        ],
+        "next": [
+            "UseConsumableUseConfirmButtonSlot4"
+        ]
+    },
+    "UseConsumableUseConfirmButtonSlot4": {
+        "recognition": "Or",
+        "any_of": [
+            "UseConsumableUseConfirmButtonNormal",
+            "UseConsumableUseConfirmButtonHover"
+        ],
+        "action": "Click",
+        "next": [
+            "UseConsumableUseCancelButtonSlot4"
+        ]
+    },
+    "UseConsumableUseCancelButtonSlot4": {
+        "recognition": "Or",
+        "any_of": [
+            "UseConsumableUseCancelButtonNormal",
+            "UseConsumableUseCancelButtonHover"
+        ],
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "UseConsumableUseCancelButtonSlot4"
+        },
+        "next": [
+            "UseConsumableUseCloseBackpack"
+        ]
+    }
+}

@@ -57,6 +57,7 @@ jobs:
           pnpm generate:AutoStockStaple
           pnpm generate:GiftOperator
           pnpm generate:SceneTeleport
+          pnpm generate:AutoEssence
 
       - name: Get version info
         id: version
@@ -92,6 +93,7 @@ jobs:
             - AutoStockStaple
             - GiftOperator
             - SceneTeleport
+            - AutoEssence
 
             **Version Information:**
             - Version: ${{ steps.version.outputs.version }}
@@ -203,7 +205,7 @@ jobs:
         run: |
           uv run python -u tools/essence_filter/sync_zmdmap.py
           uv run python -u tools/essence_filter/extract_skill_pools.py
-          uv run python -u tools/essence_filter/build_locations.py --data-version "$(jq -r '.version // "unknown"' tools/zmdmap/data/energy_point_gems.json)"
+          uv run python -u tools/essence_filter/build_locations.py
           uv run python -u tools/essence_filter/build_autoessence_tasks.py
 
       - name: Create Pull Request

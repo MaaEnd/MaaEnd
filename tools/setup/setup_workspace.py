@@ -196,6 +196,7 @@ def configure_token() -> None:
     """配置 GitHub Token，输出检测结果"""
     token = get_github_token()
     if token:
+        os.environ["GH_TOKEN"] = token
         print(Console.ok(t("inf_github_token_configured")))
     else:
         print(Console.warn(t("wrn_github_token_not_configured")))

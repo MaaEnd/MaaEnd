@@ -21,7 +21,7 @@ struct ControllerInfo
     MEO_JSONIZATION(MEO_OPT type, MEO_OPT mouse_method)
 };
 
-ControllerInfo ParseControllerInfo(MaaController* controller)
+ControllerInfo parse_controller_info(MaaController* controller)
 {
     if (controller == nullptr) {
         return {};
@@ -51,7 +51,7 @@ ControllerInfo ParseControllerInfo(MaaController* controller)
 
 std::string DetectControllerType(MaaController* controller)
 {
-    const auto info = ParseControllerInfo(controller);
+    const auto info = parse_controller_info(controller);
     return info.type;
 }
 
@@ -61,7 +61,7 @@ bool TryGetWin32MouseInputMethod(MaaController* controller, MaaWin32InputMethod*
         return false;
     }
 
-    const auto info = ParseControllerInfo(controller);
+    const auto info = parse_controller_info(controller);
     if (!info.mouse_method.has_value()) {
         return false;
     }

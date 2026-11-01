@@ -1,0 +1,18 @@
+{
+    "CloseGamePlayCover": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.hypergryph.endfield"
+            }
+        },
+        "post_wait_freezes": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    }
+}

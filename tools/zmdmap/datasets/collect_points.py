@@ -15,10 +15,10 @@
 MaaEnd 侧的入库步骤（``tools/zmdmap/utils/project.py``）完成，所以这里不做任何底图筛选。
 """
 
-from pathlib import Path
 from typing import Any
 
 from ..utils.game_data import level_of, map_of_level, read_xyz
+from ..utils.inputs import JsonData, TableCfg
 from ..utils.log import logger
 from ..utils.tables import (
     ComponentProperty,
@@ -26,9 +26,6 @@ from ..utils.tables import (
     ItemRow,
     RewardRow,
     WorldEntityRegistry,
-    load_config,
-    load_interactive_data,
-    load_table,
 )
 from .base import Dataset, DatasetError
 
@@ -62,18 +59,15 @@ class CollectPoints(Dataset):
     """AutoCollect 采集路线的采集物（``collect_points.json``）。"""
 
     needs_projection = True
-    requires_json_data = True
     projection_containers = ("points",)
 
     @classmethod
-    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
+    def build(cls, table_cfg: TableCfg, json_data: JsonData) -> dict[str, Any]:
         """全部可交互采集物都收，按实体 ID 数值升序。"""
-        brief_infos = load_config(
-            json_data_dir, "WorldEntityRegistry", WorldEntityRegistry
-        ).world_entity_brief_infos
+        brief_infos = json_data.config("WorldEntityRegistry", WorldEntityRegistry).world_entity_brief_infos
         if not brief_infos:
             raise DatasetError("WorldEntityRegistry 缺少 worldEntityBriefInfos")
-        levels = cls.level_index(json_data_dir)
+        levels = json_data.level_index()
 
         points: list[dict[str, Any]] = []
         for entity_id in sorted(brief_infos, key=lambda key: (len(key), key)):
@@ -99,28 +93,24 @@ class CollectPoints(Dataset):
         if not points:
             raise DatasetError("WorldEntityRegistry 里一个可交互采集物都没有")
 
-        types = cls.build_types(table_cfg_dir, json_data_dir, {point["detail_id"] for point in points})
+        types = cls.build_types(table_cfg, json_data, {point["detail_id"] for point in points})
         logger.info(f"Built maaend collect_points: {len(points)} points, {len(types)} pickable types")
         return {"types": types, "points": points}
 
     @classmethod
-    def build_types(
-        cls, table_cfg_dir: Path, json_data_dir: Path, detail_ids: set[str]
-    ) -> dict[str, Any]:
-        interactive_dir = json_data_dir / "Interactive" / "InteractiveData"
+    def build_types(cls, table_cfg: TableCfg, json_data: JsonData, detail_ids: set[str]) -> dict[str, Any]:
         doodad_ids: dict[str, str] = {}
-        for path in sorted(interactive_dir.glob(f"data_{DOODAD_PREFIX}*.json")):
-            template = load_interactive_data(path)
+        for template in json_data.interactive_templates(DOODAD_PREFIX):
             for template_id, variant in template.template_variant.items():
                 doodad_id = template_doodad_id(variant.diff_properties)
                 if doodad_id:
                     doodad_ids[template_id] = doodad_id
         if not doodad_ids:
-            raise DatasetError(f"{interactive_dir} 里没有找到采集物的 doodad_id")
+            raise DatasetError("JsonData 的 InteractiveData 里没有找到采集物的 doodad_id")
 
-        doodad_table = load_table(table_cfg_dir, "DoodadGeneralTable", DoodadRow)
-        reward_table = load_table(table_cfg_dir, "RewardTable", RewardRow)
-        item_table = load_table(table_cfg_dir, "ItemTable", ItemRow)
+        doodad_table = table_cfg.table("DoodadGeneralTable", DoodadRow)
+        reward_table = table_cfg.table("RewardTable", RewardRow)
+        item_table = table_cfg.table("ItemTable", ItemRow)
 
         types: dict[str, Any] = {}
         for detail_id in sorted(detail_ids):
@@ -134,14 +124,10 @@ class CollectPoints(Dataset):
 
             label = f"采集物 {detail_id}"
             item_label = f"物品 {item_id}"
-            item_names = cls.plain_names(
-                cls.localized_names(item.name, table_cfg_dir, item_label), item_label
-            )
+            item_names = cls.plain_names(cls.localized_names(item.name, table_cfg, item_label), item_label)
             names = item_names
             if doodad.label.id:
-                names = cls.plain_names(
-                    cls.localized_names(doodad.label, table_cfg_dir, label), label
-                )
+                names = cls.plain_names(cls.localized_names(doodad.label, table_cfg, label), label)
             types[detail_id] = {
                 "names": names,
                 "action": "COLLECT" if doodad.is_pickable else "DIG",

@@ -53,6 +53,32 @@
                     }
                 },
                 {
+                    "name": "ALL",
+                    "label": "$task.GiftOperator.select.all",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true
+                        },
+                        "GiftOperatorSendAllMain": {
+                            "enabled": true
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                ".*"
+                            ]
+                        }
+                    }
+                },
+                {
                     "name": "Perlica",
                     "label": "$operator.Perlica",
                     "pipeline_override": {

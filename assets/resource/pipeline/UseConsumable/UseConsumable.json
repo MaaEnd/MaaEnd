@@ -1,0 +1,140 @@
+{
+    "UseConsumableNeedValleyIV": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableStockValleyIVEnter"
+        ]
+    },
+    "UseConsumableNeedStockSlot1": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumablePrecheckCloseBackpackToStock"
+        ]
+    },
+    "UseConsumableNeedValleyIVSlot1": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableStockValleyIVMarkMissingSlot1"
+        ]
+    },
+    "UseConsumableSlot1Enabled": {
+        "enabled": true,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTaskHasSelectedSlot"
+        ]
+    },
+    "UseConsumableSlot1Disabled": {
+        "enabled": false,
+        "recognition": "DirectHit"
+    },
+    "UseConsumableNeedStockSlot2": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumablePrecheckCloseBackpackToStock"
+        ]
+    },
+    "UseConsumableNeedValleyIVSlot2": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableStockValleyIVMarkMissingSlot2"
+        ]
+    },
+    "UseConsumableSlot2Enabled": {
+        "enabled": true,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTaskHasSelectedSlot"
+        ]
+    },
+    "UseConsumableSlot2Disabled": {
+        "enabled": false,
+        "recognition": "DirectHit"
+    },
+    "UseConsumableNeedStockSlot3": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumablePrecheckCloseBackpackToStock"
+        ]
+    },
+    "UseConsumableNeedValleyIVSlot3": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableStockValleyIVMarkMissingSlot3"
+        ]
+    },
+    "UseConsumableSlot3Enabled": {
+        "enabled": true,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTaskHasSelectedSlot"
+        ]
+    },
+    "UseConsumableSlot3Disabled": {
+        "enabled": false,
+        "recognition": "DirectHit"
+    },
+    "UseConsumableNeedStockSlot4": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumablePrecheckCloseBackpackToStock"
+        ]
+    },
+    "UseConsumableNeedValleyIVSlot4": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableStockValleyIVMarkMissingSlot4"
+        ]
+    },
+    "UseConsumableSlot4Enabled": {
+        "enabled": true,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTaskHasSelectedSlot"
+        ]
+    },
+    "UseConsumableSlot4Disabled": {
+        "enabled": false,
+        "recognition": "DirectHit"
+    },
+    "UseConsumableTaskStart": {
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableSlot1Enabled",
+            "UseConsumableSlot2Enabled",
+            "UseConsumableSlot3Enabled",
+            "UseConsumableSlot4Enabled",
+            "UseConsumableTaskNoSelectedSlot"
+        ]
+    },
+    "UseConsumableTaskHasSelectedSlot": {
+        "desc": "至少选择了一个使用槽位，开始消耗品流程",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableInitialWorldReady",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "UseConsumableTaskNoSelectedSlot": {
+        "desc": "没有选择使用槽位，跳过消耗品流程",
+        "recognition": "DirectHit"
+    },
+    "UseConsumableInitialWorldReady": {
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "UseConsumablePrecheckStart"
+        ]
+    }
+}

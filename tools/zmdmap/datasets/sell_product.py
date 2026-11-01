@@ -1,10 +1,10 @@
 """据点交易（``sell_product.json``）：据点、可售物品、据点特性与匹配干员，都取自 TableCfg。"""
 
-from pathlib import Path
 from typing import Any
 
+from ..utils.inputs import TableCfg
 from ..utils.log import logger
-from ..utils.tables import CharacterRow, CharacterTagRow, ItemRow, SettlementRow, SettlementTagRow, load_table
+from ..utils.tables import CharacterRow, CharacterTagRow, ItemRow, SettlementRow, SettlementTagRow
 from .base import Dataset, DatasetError
 
 
@@ -12,17 +12,17 @@ class SellProduct(Dataset):
     """据点、可售物品、据点特性与匹配干员（``sell_product.json``）。"""
 
     @classmethod
-    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
+    def build(cls, table_cfg: TableCfg) -> dict[str, Any]:
         """据点、各级繁荣度能卖的物品、据点特性，以及按标签匹配上的干员。
 
         干员的标签来自 ``CharacterTagTable``，据点特性按 ``wantTagIdGroup`` 去匹配；能卖什么由
         ``SettlementBasicDataTable`` 的各级 ``settlementTradeItemMap`` 给出，并排掉限定活动的物品。
         """
-        settlement_table = load_table(table_cfg_dir, "SettlementBasicDataTable", SettlementRow)
-        settlement_tag_table = load_table(table_cfg_dir, "SettlementTagTable", SettlementTagRow)
-        character_table = load_table(table_cfg_dir, "CharacterTable", CharacterRow)
-        character_tag_table = load_table(table_cfg_dir, "CharacterTagTable", CharacterTagRow)
-        item_table = load_table(table_cfg_dir, "ItemTable", ItemRow)
+        settlement_table = table_cfg.table("SettlementBasicDataTable", SettlementRow)
+        settlement_tag_table = table_cfg.table("SettlementTagTable", SettlementTagRow)
+        character_table = table_cfg.table("CharacterTable", CharacterRow)
+        character_tag_table = table_cfg.table("CharacterTagTable", CharacterTagRow)
+        item_table = table_cfg.table("ItemTable", ItemRow)
 
         # ── 干员 ─────────────────────────────────────────────────────
         operator_tags: list[dict[str, Any]] = []
@@ -37,9 +37,7 @@ class SellProduct(Dataset):
                 {
                     "id": operator_id,
                     "tags": [tag for tag in tags if tag],
-                    "names": cls.localized_names(
-                        character.name, table_cfg_dir, f"干员 {operator_id}"
-                    ),
+                    "names": cls.localized_names(character.name, table_cfg, f"干员 {operator_id}"),
                 }
             )
 
@@ -60,18 +58,14 @@ class SellProduct(Dataset):
 
             settlement_level_map = settlement.settlement_level_map
             prosperity_levels: list[dict[str, Any]] = []
-            for level, level_value in sorted(
-                settlement_level_map.items(), key=lambda entry: int(entry[0])
-            ):
+            for level, level_value in sorted(settlement_level_map.items(), key=lambda entry: int(entry[0])):
                 trade_item_map = level_value.settlement_trade_item_map
                 trade_items: list[dict[str, Any]] = []
                 for trade_key, trade_value in trade_item_map.items():
                     # itemId 优先取 value 字段，缺失时 fallback 到 map key。
                     item_id = trade_value.item_id or trade_key
                     if item_id not in item_table:
-                        raise DatasetError(
-                            f"据点 {settlement_id} 引用了 ItemTable 中不存在的物品 {item_id}"
-                        )
+                        raise DatasetError(f"据点 {settlement_id} 引用了 ItemTable 中不存在的物品 {item_id}")
                     used_item_ids.add(item_id)
                     trade_items.append(
                         {
@@ -98,9 +92,7 @@ class SellProduct(Dataset):
                     {
                         "bonus_types": _bonus_types(tag_entry),
                         "operator_ids": [
-                            operator["id"]
-                            for operator in operator_tags
-                            if bool(set(operator["tags"]) & required_tags)
+                            operator["id"] for operator in operator_tags if bool(set(operator["tags"]) & required_tags)
                         ],
                     }
                 )
@@ -108,9 +100,7 @@ class SellProduct(Dataset):
             settlements[settlement_id] = {
                 "id": settlement_id,
                 "region_id": settlement.domain_id,
-                "names": cls.localized_names(
-                    settlement.settlement_name, table_cfg_dir, f"据点 {settlement_id}"
-                ),
+                "names": cls.localized_names(settlement.settlement_name, table_cfg, f"据点 {settlement_id}"),
                 "prosperity_levels": prosperity_levels,
                 "features": features,
             }
@@ -121,7 +111,7 @@ class SellProduct(Dataset):
             entry = item_table[item_id]
             items[item_id] = {
                 "id": item_id,
-                "names": cls.localized_names(entry.name, table_cfg_dir, f"售卖物品 {item_id}"),
+                "names": cls.localized_names(entry.name, table_cfg, f"售卖物品 {item_id}"),
                 "rarity": entry.rarity,
             }
 

@@ -19,7 +19,7 @@
 #include "IconRecognition/IconRecognitionRecognition.h"
 #include "MapLocator/MapLocateAction.h"
 #include "MapNavigator/MapNavigator.h"
-#include "MapNavmesh/MapNavmeshQuery.h"
+#include "MapNavigator/MapNavmeshQuery.h"
 #include "RealTimeTask/RealTimeTaskAction.h"
 #include "Test/test.h"
 #include "WorldMap/WorldMapFind.h"

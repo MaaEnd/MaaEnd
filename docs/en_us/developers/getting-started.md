@@ -43,8 +43,8 @@ pnpm install
 | (No parameters) | First-time initialization, skips already installed components |
 | `--update` | Force update all installed dependencies to the latest version |
 | `--clean-cache` | Clean the download cache directory |
-| `--cpp-algo-pr <N>` | Download cpp-algo from the latest successful CI run of a specified PR (for quick testing of unmerged PR changes) |
-| `--cpp-algo-run <ID>` | Download cpp-algo from a specified workflow run ID |
+| `--cpp-algo-pr <N>` | Download `cpp-algo` from the latest successful CI run of a specified PR (for quick testing of unmerged PR changes) |
+| `--cpp-algo-run <ID>` | Download `cpp-algo` from a specified workflow run ID |
 
 > `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive; choose one. Both are explicit instructions and are used as given.
 >
@@ -476,20 +476,26 @@ Congratulations, you've completed your first task!
     uv run tools/maadeps-download.py
     ```
 
-4. Compile go-service and configure paths.
+4. Prepare the `cpp-algo` build environment. The project's `assets/interface.json` starts both `go-service` and `cpp-algo`; `build-and-install` builds only `go-service` by default, so the command below uses `--cpp-algo` to build both Agents.
+
+    Install CMake 3.28+, Ninja, and the C++ toolchain for your platform. On Windows, install the "Desktop development with C++" workload in Visual Studio / Build Tools (including MSVC and the Windows SDK), then download the WebView2 SDK:
 
     ```bash
-    uv run build-and-install
+    uv run python -m tools.setup.dep_3rdparty --webview2
     ```
 
-    > If you also need to compile cpp-algo, add the `--cpp-algo` parameter:
-    >
-    > ```bash
-    > uv run build-and-install --cpp-algo
-    > ```
+    This command installs the SDK into `agent/cpp-algo/3rdparty/webview2/`. The WebView2 SDK is not required on other platforms.
 
-5. Copy the contents of `deps/bin` extracted in Step 2 to `install/maafw/`.
+5. Build and install `go-service` and `cpp-algo`, and configure resource paths.
 
-6. Download [MXU](https://github.com/MistEO/MXU/releases) and extract it to `install/`.
+    ```bash
+    uv run build-and-install --cpp-algo
+    ```
+
+    After building, confirm that `install/agent/` contains `go-service` and `cpp-algo` (with the `.exe` suffix on Windows). On Windows, this directory must also contain the matching `WebView2Loader.dll`, which the build and installation step deploys alongside the executable.
+
+6. Copy the contents of `deps/bin` extracted in Step 2 to `install/maafw/`.
+
+7. Download [MXU](https://github.com/MistEO/MXU/releases) and extract it to `install/`.
 
 </details>

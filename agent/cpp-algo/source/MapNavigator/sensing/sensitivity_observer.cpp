@@ -22,7 +22,7 @@ std::mutex g_mutex;
 Detector g_detector;
 std::atomic<double> g_turn_units_scale { 1.0 };
 
-void PublishVerdict(MaaContext* context, const Verdict& verdict)
+void publish_verdict(MaaContext* context, const Verdict& verdict)
 {
     const int ratio_percent = verdict.ratio_percent;
     const int sample_count = verdict.sample_count;
@@ -33,7 +33,7 @@ void PublishVerdict(MaaContext* context, const Verdict& verdict)
     common::notice::Publish(context, common::notice::Text("navigation.sensitivity_corrected", { ratio_percent, sample_count }));
 }
 
-void LogEstimate(const std::optional<Estimate>& estimate)
+void log_estimate(const std::optional<Estimate>& estimate)
 {
     if (!estimate) {
         return;
@@ -54,13 +54,13 @@ void BeginRun()
         LogInfo << "Turn sensitivity scale in effect." << VAR(scale);
     }
     const std::lock_guard<std::mutex> guard(g_mutex);
-    g_detector.BeginRun();
+    g_detector.beginRun();
 }
 
 void NoteTurnIssued(double delta_deg)
 {
     const std::lock_guard<std::mutex> guard(g_mutex);
-    g_detector.NoteIssued(delta_deg);
+    g_detector.noteIssued(delta_deg);
 }
 
 double TurnUnitsScale()
@@ -79,13 +79,13 @@ void RecordTick(
     std::optional<Estimate> estimate;
     {
         const std::lock_guard<std::mutex> guard(g_mutex);
-        verdict = g_detector.RecordTick(tick_seq, camera_heading_deg, issued_delta_deg, degraded_fix);
-        estimate = g_detector.TakeLastEstimate();
+        verdict = g_detector.recordTick(tick_seq, camera_heading_deg, issued_delta_deg, degraded_fix);
+        estimate = g_detector.takeLastEstimate();
     }
 
-    LogEstimate(estimate);
+    log_estimate(estimate);
     if (verdict) {
-        PublishVerdict(context, *verdict);
+        publish_verdict(context, *verdict);
     }
 }
 
@@ -95,13 +95,13 @@ void EndRun(MaaContext* context)
     std::optional<Estimate> estimate;
     {
         const std::lock_guard<std::mutex> guard(g_mutex);
-        verdict = g_detector.EndRun();
-        estimate = g_detector.TakeLastEstimate();
+        verdict = g_detector.endRun();
+        estimate = g_detector.takeLastEstimate();
     }
 
-    LogEstimate(estimate);
+    log_estimate(estimate);
     if (verdict) {
-        PublishVerdict(context, *verdict);
+        publish_verdict(context, *verdict);
     }
 }
 

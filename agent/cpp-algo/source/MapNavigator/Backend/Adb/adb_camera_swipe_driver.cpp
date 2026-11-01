@@ -13,7 +13,7 @@ namespace mapnavigator::backend::adb
 namespace
 {
 
-cv::Point ClampPoint(const cv::Point& point, const cv::Size& resolution)
+cv::Point clamp_point(const cv::Point& point, const cv::Size& resolution)
 {
     return {
         std::clamp(point.x, 0, std::max(0, resolution.width - 1)),
@@ -21,14 +21,14 @@ cv::Point ClampPoint(const cv::Point& point, const cv::Size& resolution)
     };
 }
 
-cv::Point DragLeadPoint(const cv::Point& start, const cv::Point& end, int lead, const cv::Size& resolution)
+cv::Point drag_lead_point(const cv::Point& start, const cv::Point& end, int lead, const cv::Size& resolution)
 {
     const double length = std::hypot(static_cast<double>(end.x - start.x), static_cast<double>(end.y - start.y));
     if (length <= 0.0) {
         return end;
     }
     const double scale = static_cast<double>(lead) / length;
-    return ClampPoint(
+    return clamp_point(
         { start.x + static_cast<int>(std::lround((end.x - start.x) * scale)),
           start.y + static_cast<int>(std::lround((end.y - start.y) * scale)) },
         resolution);
@@ -42,13 +42,13 @@ AdbCameraSwipeDriver::AdbCameraSwipeDriver(MaaController* controller, AdbCameraS
 {
 }
 
-bool AdbCameraSwipeDriver::SwipeByPixels(int dx, int dy) const
+bool AdbCameraSwipeDriver::swipeByPixels(int dx, int dy) const
 {
     if (controller_ == nullptr || (dx == 0 && dy == 0)) {
         return dx == 0 && dy == 0;
     }
 
-    const std::optional<ScreenGeometry> geometry = GetScreenGeometry();
+    const std::optional<ScreenGeometry> geometry = getScreenGeometry();
     if (!geometry.has_value()) {
         return false;
     }
@@ -59,7 +59,7 @@ bool AdbCameraSwipeDriver::SwipeByPixels(int dx, int dy) const
     do {
         const int swipe_dx = std::clamp(remaining_dx, -stroke_dx_limit, stroke_dx_limit);
         const int swipe_dy = std::clamp(remaining_dy, -geometry->up_limit, geometry->down_limit);
-        if (!ExecuteStableDrag(*geometry, swipe_dx, swipe_dy)) {
+        if (!executeStableDrag(*geometry, swipe_dx, swipe_dy)) {
             return false;
         }
         remaining_dx -= swipe_dx;
@@ -69,7 +69,7 @@ bool AdbCameraSwipeDriver::SwipeByPixels(int dx, int dy) const
     return true;
 }
 
-std::optional<AdbCameraSwipeDriver::ScreenGeometry> AdbCameraSwipeDriver::GetScreenGeometry() const
+std::optional<AdbCameraSwipeDriver::ScreenGeometry> AdbCameraSwipeDriver::getScreenGeometry() const
 {
     if (controller_ == nullptr) {
         return std::nullopt;
@@ -90,15 +90,15 @@ std::optional<AdbCameraSwipeDriver::ScreenGeometry> AdbCameraSwipeDriver::GetScr
     return geometry;
 }
 
-bool AdbCameraSwipeDriver::ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const
+bool AdbCameraSwipeDriver::executeStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const
 {
     // 以中心对称起落, 被当成点击时也碰不到两侧的任务追踪和按钮
-    const cv::Point start = ClampPoint({ geometry.center.x - swipe_dx / 2, geometry.center.y }, geometry.resolution);
-    const cv::Point end = ClampPoint({ start.x + swipe_dx, geometry.center.y + swipe_dy }, geometry.resolution);
+    const cv::Point start = clamp_point({ geometry.center.x - swipe_dx / 2, geometry.center.y }, geometry.resolution);
+    const cv::Point end = clamp_point({ start.x + swipe_dx, geometry.center.y + swipe_dy }, geometry.resolution);
     // 比起拖阈值短的笔先越过阈值再拉回终点
-    const cv::Point lead = DragLeadPoint(start, end, config_.drag_start_lead, geometry.resolution);
+    const cv::Point lead = drag_lead_point(start, end, config_.drag_start_lead, geometry.resolution);
 
-    if (!PostTouchDown(start)) {
+    if (!postTouchDown(start)) {
         return false;
     }
 
@@ -110,8 +110,8 @@ bool AdbCameraSwipeDriver::ExecuteStableDrag(const ScreenGeometry& geometry, int
         const int next_x = static_cast<int>(std::lround(lead.x + static_cast<double>(end.x - lead.x) * ratio));
         const int next_y = static_cast<int>(std::lround(lead.y + static_cast<double>(end.y - lead.y) * ratio));
 
-        if (!PostTouchMove({ next_x, next_y })) {
-            const bool ignored = PostTouchUp();
+        if (!postTouchMove({ next_x, next_y })) {
+            const bool ignored = postTouchUp();
             (void)ignored;
             return false;
         }
@@ -123,7 +123,7 @@ bool AdbCameraSwipeDriver::ExecuteStableDrag(const ScreenGeometry& geometry, int
 
     SleepFor(config_.end_hold_ms);
 
-    if (!PostTouchUp()) {
+    if (!postTouchUp()) {
         return false;
     }
 
@@ -131,37 +131,37 @@ bool AdbCameraSwipeDriver::ExecuteStableDrag(const ScreenGeometry& geometry, int
     return true;
 }
 
-bool AdbCameraSwipeDriver::PostTouchDown(const cv::Point& point) const
+bool AdbCameraSwipeDriver::postTouchDown(const cv::Point& point) const
 {
     if (controller_ == nullptr) {
         return false;
     }
 
     const MaaCtrlId ctrl_id = MaaControllerPostTouchDown(controller_, config_.contact_id, point.x, point.y, config_.pressure);
-    return WaitForControllerAction(ctrl_id, "touch_down");
+    return waitForControllerAction(ctrl_id, "touch_down");
 }
 
-bool AdbCameraSwipeDriver::PostTouchMove(const cv::Point& point) const
+bool AdbCameraSwipeDriver::postTouchMove(const cv::Point& point) const
 {
     if (controller_ == nullptr) {
         return false;
     }
 
     const MaaCtrlId ctrl_id = MaaControllerPostTouchMove(controller_, config_.contact_id, point.x, point.y, config_.pressure);
-    return WaitForControllerAction(ctrl_id, "touch_move");
+    return waitForControllerAction(ctrl_id, "touch_move");
 }
 
-bool AdbCameraSwipeDriver::PostTouchUp() const
+bool AdbCameraSwipeDriver::postTouchUp() const
 {
     if (controller_ == nullptr) {
         return false;
     }
 
     const MaaCtrlId ctrl_id = MaaControllerPostTouchUp(controller_, config_.contact_id);
-    return WaitForControllerAction(ctrl_id, "touch_up");
+    return waitForControllerAction(ctrl_id, "touch_up");
 }
 
-bool AdbCameraSwipeDriver::EnsureControllerActionPosted(MaaCtrlId ctrl_id, const char* action_name) const
+bool AdbCameraSwipeDriver::ensureControllerActionPosted(MaaCtrlId ctrl_id, const char* action_name) const
 {
     if (ctrl_id != MaaInvalidId) {
         return true;
@@ -171,9 +171,9 @@ bool AdbCameraSwipeDriver::EnsureControllerActionPosted(MaaCtrlId ctrl_id, const
     return false;
 }
 
-bool AdbCameraSwipeDriver::WaitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const
+bool AdbCameraSwipeDriver::waitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const
 {
-    if (!EnsureControllerActionPosted(ctrl_id, action_name)) {
+    if (!ensureControllerActionPosted(ctrl_id, action_name)) {
         return false;
     }
 

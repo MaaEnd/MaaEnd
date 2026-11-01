@@ -1,12 +1,15 @@
 {
+    // 触控关地图：识别框取自 SeizeDeliveryJobsMapReadyToClose（box_index=1 即右上角 X），
+    // 直接点击该 X，不再按 ESC/BACK —— base 的 ESC(27) 在 ADB 上是 Android CAMERA 键，PlayCover 更是直接拒绝按键。
     "SeizeDeliveryJobsPressEscAfterMatch": {
         "recognition": "And",
         "all_of": [
             "SeizeDeliveryJobsMapReadyToClose"
         ],
         "pre_delay": 0,
-        "action": "ClickKey",
-        "key": 4,
+        "action": {
+            "type": "Click"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -32,8 +35,9 @@
             "SeizeDeliveryJobsMapReadyToClose"
         ],
         "pre_delay": 0,
-        "action": "ClickKey",
-        "key": 4,
+        "action": {
+            "type": "Click"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

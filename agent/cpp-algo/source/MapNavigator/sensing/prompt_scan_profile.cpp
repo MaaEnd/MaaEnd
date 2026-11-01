@@ -23,7 +23,7 @@ namespace mapnavigator
 namespace
 {
 
-bool ReadScanThresholds(
+bool read_scan_thresholds(
     const json::object& node,
     const std::string& scan_node,
     const std::vector<std::string>& relative_paths,
@@ -48,7 +48,7 @@ bool ReadScanThresholds(
     return true;
 }
 
-bool LoadScanIcon(
+bool load_scan_icon(
     const std::string& scan_node,
     const std::string& relative_path,
     const std::filesystem::path& resolved,
@@ -125,7 +125,7 @@ bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node,
     }
 
     std::vector<double> thresholds;
-    if (!ReadScanThresholds(*node, scan_node, relative_paths, &thresholds)) {
+    if (!read_scan_thresholds(*node, scan_node, relative_paths, &thresholds)) {
         return false;
     }
 
@@ -149,7 +149,7 @@ bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node,
         }
         ScanIcon icon;
         const double threshold = thresholds.size() == 1 ? thresholds.front() : thresholds[i];
-        if (!LoadScanIcon(scan_node, relative_path, *resolved, threshold, green_mask, base_roi, &icon)) {
+        if (!load_scan_icon(scan_node, relative_path, *resolved, threshold, green_mask, base_roi, &icon)) {
             return false;
         }
         resolved_paths.push_back(MAA_NS::path_to_utf8_string(*resolved));

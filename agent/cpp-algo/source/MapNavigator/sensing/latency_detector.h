@@ -53,18 +53,18 @@ public:
     explicit Detector(Config config = {});
 
     // 每次导航开始调用, 重开预热和当前窗口, 已判过的整窗保留
-    void BeginRun();
-    void RecordStage(Stage stage, int64_t elapsed_ms);
-    std::optional<Verdict> RecordTick(uint64_t tick_seq, int64_t tick_gap_ms);
+    void beginRun();
+    void recordStage(Stage stage, int64_t elapsed_ms);
+    std::optional<Verdict> recordTick(uint64_t tick_seq, int64_t tick_gap_ms);
 
     bool fired() const { return fired_; }
 
 private:
     using Clock = std::chrono::steady_clock;
 
-    void Push(std::vector<int64_t>& history, int64_t value) const;
-    void ClearHistory();
-    Verdict BuildVerdict() const;
+    void push(std::vector<int64_t>& history, int64_t value) const;
+    void clearHistory();
+    Verdict buildVerdict() const;
 
     Config config_;
     std::vector<int64_t> tick_history_;

@@ -255,23 +255,32 @@ func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 		return nil, false
 	}
 
-	if screenAnalyzer.GetEnergyLevel(false) < 0 {
-		return nil, false
+	// 间隔很久才识别一次时（如寻路到怪旁边后识别一次），历史里的旧非战斗画面会在多帧投票里
+	// 压过当前的战斗画面。最新一帧已有能量条却没判进战斗时，补截至多 2 帧，让投票按最新的画面来。
+	var ctrl *maa.Controller
+	for extra := 0; ; extra++ {
+		if screenAnalyzer.GetEnergyLevel(false) >= 0 &&
+			len(screenAnalyzer.GetCharacterComboFull()) > 0 &&
+			!screenAnalyzer.GetCharacterLevel() {
+			return &maa.CustomRecognitionResult{
+				Box:    arg.Roi,
+				Detail: `{"custom": "fake result"}`,
+			}, true
+		}
+		if extra == 2 ||
+			!screenAnalyzer.hasLabelInFrames(LabelEnergyLevelFull, 1, false) &&
+				!screenAnalyzer.hasLabelInFrames(LabelEnergyLevelEmpty, 1, false) {
+			return nil, false
+		}
+		if ctrl == nil {
+			ctrl = ctx.GetTasker().GetController()
+		}
+		ctrl.PostScreencap().Wait()
+		img, err := ctrl.CacheImage()
+		if err != nil || img == nil || !screenAnalyzer.UpdateScreenDetail(ctx, img) {
+			return nil, false
+		}
 	}
-
-	comboFull := screenAnalyzer.GetCharacterComboFull()
-	if len(comboFull) == 0 {
-		return nil, false
-	}
-
-	if screenAnalyzer.GetCharacterLevel() {
-		return nil, false
-	}
-
-	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
-		Detail: `{"custom": "fake result"}`,
-	}, true
 }
 
 // saveExitImage 将当前画面保存到 debug/autofight_exit 目录，用于排查退出时的画面。

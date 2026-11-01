@@ -496,3 +496,6 @@ Android/agent-dist/
 # 本地生成，再由 fetch 的投影步骤换算成入库的 data/*.json
 # 不入库：它只是本地缓存，判断要不要重新下载看的是入库的 data/*.json，删掉它不影响判断
 tools/zmdmap/data/raw/
+
+# AutoMission 本地对比用的展开数据
+tools/pipeline-generate/AutoMission/missions.pretty.json

@@ -3,19 +3,8 @@ import {readFileSync, writeFileSync} from "node:fs";
 import {applyEdits, modify} from "jsonc-parser";
 
 import {parseJsonc} from "../jsonc.mjs";
+import {sortLocaleKeys} from "../utils/locales.mjs";
 import {candidatesRows, commissionSourceOrder, endpointEntries} from "./endpoint-filter-data.mjs";
-
-// 区域 / 地区级 case 的键序与 task-data.mjs 生成的 task 选项同源，避免文案键序和选项顺序各自漂移。
-const commissionSourceKeyOrder = new Map([
-    [
-        "task.SeizeDeliveryJobsCommissionSource.label",
-        0,
-    ],
-    ...commissionSourceOrder.map(({CaseId}, index) => [
-        `task.SeizeDeliveryJobsCommissionSource.cases.${CaseId}.label`,
-        index + 1,
-    ]),
-]);
 
 const LOCALE_TEXTS = {
     zh_cn: {points: (area) => `${area}送货点`, matched: (name) => `命中送货终点：${name}`},
@@ -25,51 +14,8 @@ const LOCALE_TEXTS = {
     ko_kr: {points: (area) => `${area} 배송지`, matched: (name) => `배송 목적지 확인: ${name}`},
 };
 
-// 将自动生成的文案移回已有同类键旁；送货点按区域归组，保留各组首次出现的顺序。
-// keyOrder 里的键（目前是委托来源的各 case）按数据源顺序排列，未登记的键保持原文件顺序。
-function groupGeneratedLocaleKeys(content, keyOrder) {
-    for (const prefix of [
-        "task.SeizeDeliveryJobsCommissionSource.",
-        "task.SeizeDeliveryJobs.focus.endpoint",
-        "task.SeizeDeliveryJobsDeliveryPoint",
-    ]) {
-        const messages = parseJsonc(content);
-        const keys = Object.keys(messages);
-        const groups = new Map();
-        for (const key of keys.filter((key) => key.startsWith(prefix))) {
-            const group = key.split(".")[1];
-            if (!groups.has(group)) groups.set(group, []);
-            groups.get(group).push(key);
-        }
-        for (const list of groups.values()) {
-            list.sort(
-                (left, right) =>
-                    (keyOrder.get(left) ?? Number.MAX_SAFE_INTEGER) - (keyOrder.get(right) ?? Number.MAX_SAFE_INTEGER),
-            );
-        }
-        const orderedKeys = [...groups.values()].flat();
-        if (orderedKeys.length === 0) continue;
-        const firstIndex = keys.indexOf(orderedKeys[0]);
-        if (orderedKeys.every((key, index) => keys[firstIndex + index] === key)) continue;
-
-        const formattingOptions = {insertSpaces: true, tabSize: 4, eol: "\n"};
-        for (const key of orderedKeys) {
-            content = applyEdits(content, modify(content, [key], undefined, {formattingOptions}));
-        }
-        let insertionIndex = firstIndex;
-        for (const key of orderedKeys) {
-            content = applyEdits(
-                content,
-                modify(content, [key], messages[key], {
-                    formattingOptions,
-                    getInsertionIndex: () => insertionIndex,
-                }),
-            );
-            insertionIndex += 1;
-        }
-    }
-    return content;
-}
+// 自动生成的文案按字母序与既有键一起写回；键序由 prettier 的 maafw-sort（locale 文件按字母序）
+// 决定，生成器不必再自己按业务分组挪位置。
 
 export function syncSeizeDeliveryJobsLocales() {
     for (const [
@@ -116,9 +62,10 @@ export function syncSeizeDeliveryJobsLocales() {
                 }),
             );
         }
-        content = groupGeneratedLocaleKeys(content, commissionSourceKeyOrder);
-        if (content !== original) {
-            writeFileSync(path, content, "utf8");
+        // 键按字母序写回（与 prettier 的 maafw-sort 对 locale 文件的要求一致）。
+        const synced = `${JSON.stringify(sortLocaleKeys(parseJsonc(content, String(path))), null, 4)}\n`;
+        if (synced !== original) {
+            writeFileSync(path, synced, "utf8");
             console.log(`[SeizeDeliveryJobs] 已同步 ${locale} 区域及终点文案`);
         }
     }

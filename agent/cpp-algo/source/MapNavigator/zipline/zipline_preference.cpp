@@ -3,16 +3,14 @@
 #include <algorithm>
 #include <atomic>
 #include <cctype>
-#include <cstring>
 #include <string>
 
-#include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
 #include "../../Common/notice.h"
 #include "../../Zipline/ZiplineStore.h"
-#include "../../utils.h"
+#include "../sensing/pipeline_node_reader.h"
 #include "zipline_leg_planner.h"
 
 namespace mapnavigator
@@ -26,34 +24,13 @@ constexpr const char* kPreferenceNode = "MapNavigatorZiplinePreference";
 constexpr const char* kAccountIdentityNode = "CurrentAccountIdentity";
 constexpr size_t kAccountIdLength = 16;
 
-bool ReadPreference(MaaContext* context, bool requested)
+bool read_preference(MaaContext* context, bool requested)
 {
-    if (context == nullptr) {
+    const auto node = ReadNodeObject(context, kPreferenceNode, "ZiplinePreference");
+    if (!node || !node->contains("attach") || !node->at("attach").is_object()) {
         return requested;
     }
-
-    ScopedStringBuffer buffer;
-    if (buffer.Get() == nullptr || !MaaContextGetNodeData(context, kPreferenceNode, buffer.Get())) {
-        LogWarn << "ZiplinePreference: node unavailable, keep what the request asked for" << VAR(kPreferenceNode) << VAR(requested);
-        return requested;
-    }
-
-    const char* raw = MaaStringBufferGet(buffer.Get());
-    if (raw == nullptr || std::strlen(raw) == 0) {
-        return requested;
-    }
-
-    const auto parsed = json::parse(raw);
-    if (!parsed || !parsed->is_object()) {
-        LogWarn << "ZiplinePreference: node data is not a json object" << VAR(kPreferenceNode);
-        return requested;
-    }
-
-    const auto& obj = parsed->as_object();
-    if (!obj.contains("attach") || !obj.at("attach").is_object()) {
-        return requested;
-    }
-    const std::string value = obj.at("attach").as_object().get("zipline", std::string {});
+    const std::string value = node->at("attach").as_object().get("zipline", std::string {});
 
     if (value == "always") {
         return true;
@@ -65,32 +42,13 @@ bool ReadPreference(MaaContext* context, bool requested)
     return requested;
 }
 
-std::string ReadAccountIdentity(MaaContext* context)
+std::string read_account_identity(MaaContext* context)
 {
-    if (context == nullptr) {
+    const auto node = ReadNodeObject(context, kAccountIdentityNode, "ZiplineAccount");
+    if (!node || !node->contains("attach") || !node->at("attach").is_object()) {
         return {};
     }
-
-    ScopedStringBuffer buffer;
-    if (buffer.Get() == nullptr || !MaaContextGetNodeData(context, kAccountIdentityNode, buffer.Get())) {
-        LogWarn << "ZiplineAccount: identity node unavailable" << VAR(kAccountIdentityNode);
-        return {};
-    }
-    const char* raw = MaaStringBufferGet(buffer.Get());
-    if (raw == nullptr || std::strlen(raw) == 0) {
-        return {};
-    }
-
-    const auto parsed = json::parse(raw);
-    if (!parsed || !parsed->is_object()) {
-        LogWarn << "ZiplineAccount: identity node data is not a json object" << VAR(kAccountIdentityNode);
-        return {};
-    }
-    const auto& obj = parsed->as_object();
-    if (!obj.contains("attach") || !obj.at("attach").is_object()) {
-        return {};
-    }
-    const std::string account_id = obj.at("attach").as_object().get("account_id", std::string {});
+    const std::string account_id = node->at("attach").as_object().get("account_id", std::string {});
     const bool valid = account_id.size() == kAccountIdLength
                        && std::all_of(account_id.begin(), account_id.end(), [](unsigned char ch) { return std::isxdigit(ch) != 0; });
     if (!account_id.empty() && !valid) {
@@ -100,7 +58,7 @@ std::string ReadAccountIdentity(MaaContext* context)
     return account_id;
 }
 
-size_t ClaimLegacyRecords(const std::string& account_id)
+size_t claim_legacy_records(const std::string& account_id)
 {
     const std::filesystem::path path = zipline::ZiplineStore::DefaultPath();
 
@@ -112,7 +70,7 @@ size_t ClaimLegacyRecords(const std::string& account_id)
     return store.claimLegacyRecords(account_id, path);
 }
 
-void NoticeClaimedLegacyRecords(MaaContext* context, size_t claimed)
+void notice_claimed_legacy_records(MaaContext* context, size_t claimed)
 {
     if (context == nullptr || claimed == 0) {
         return;
@@ -126,20 +84,19 @@ void NoticeClaimedLegacyRecords(MaaContext* context, size_t claimed)
 
 bool ResolveZiplineEnabled(MaaContext* context, bool requested)
 {
-    ResetZiplineOutcome();
-    return ReadPreference(context, requested);
+    return read_preference(context, requested);
 }
 
 std::string ResolveZiplineAccountId(MaaContext* context)
 {
-    const std::string account_id = ReadAccountIdentity(context);
+    const std::string account_id = read_account_identity(context);
     if (account_id.empty()) {
         LogWarn << "ZiplineAccount: current game account is unavailable; zipline records will not be used";
         return account_id;
     }
 
     LogInfo << "ZiplineAccount: current game account selected" << VAR(account_id);
-    NoticeClaimedLegacyRecords(context, ClaimLegacyRecords(account_id));
+    notice_claimed_legacy_records(context, claim_legacy_records(account_id));
     return account_id;
 }
 

@@ -84,6 +84,33 @@ export function englishNames(levelAnchors) {
 
 const round1 = (value) => Math.round(value * 10) / 10;
 
+function levelPrefix(levelConfig) {
+    return `${levelConfig.region}${levelConfig.sub_region}`;
+}
+
+/** 某个已登记营地的入口节点名，其它任务按它传送到这个营地。 */
+export function entryNode(levelConfig, name) {
+    return `SceneEnterWorld${levelPrefix(levelConfig)}${name}`;
+}
+
+/** 全部已登记营地（含仍由手写节点处理的 manual）及其入口节点，供需要选起点营地的生成器使用。 */
+export function registeredAnchors() {
+    const data = readTeleportAnchors();
+    const config = readAnchorsConfig();
+    const anchorsById = new Map(data.anchors.map((anchor) => [anchor.id, anchor]));
+    const registered = [];
+    for (const [levelId, levelConfig] of Object.entries(config.levels)) {
+        for (const [name, id] of Object.entries({...levelConfig.anchors, ...levelConfig.manual})) {
+            const anchor = anchorsById.get(id);
+            if (!anchor) {
+                throw new Error(`[SceneTeleport] 营地 ${id}（${levelId}）已不在数据里，请从 anchors.json 移除并处理引用它的节点`);
+            }
+            registered.push({...anchor, entry: entryNode(levelConfig, name)});
+        }
+    }
+    return registered;
+}
+
 export function buildTeleportAnchors() {
     const data = readTeleportAnchors();
     const config = readAnchorsConfig();
@@ -99,7 +126,7 @@ export function buildTeleportAnchors() {
         }
         const areaNames = disambiguatedNames(levelAnchors, (anchor) => anchor.area_names.zh_cn, ZH_DIRECTIONS);
         const levelName = data.levels[levelId].names.zh_cn;
-        const prefix = `${levelConfig.region}${levelConfig.sub_region}`;
+        const prefix = levelPrefix(levelConfig);
 
         for (const [name, id] of Object.entries(levelConfig.anchors)) {
             const anchor = anchorsById.get(id);
@@ -109,7 +136,7 @@ export function buildTeleportAnchors() {
             const areaName = areaNames.get(id);
             entries.push({
                 Node: `__ScenePrivateMap${prefix}EnterWorld${prefix}${name}`,
-                Entry: `SceneEnterWorld${prefix}${name}`,
+                Entry: entryNode(levelConfig, name),
                 EnterMap: `SceneEnterMap${prefix}`,
                 PickAnchor: `__ScenePrivateMap${prefix}EnterWorldAnchorWithPick`,
                 Zone: region.zone,

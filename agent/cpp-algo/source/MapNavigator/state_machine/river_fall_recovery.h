@@ -23,7 +23,7 @@ public:
         MotionController* motion_controller,
         const NaviPosition* position);
 
-    Step Advance(double current_heading);
+    Step advance(double current_heading);
 
 private:
     RiverFallRecoveryState& state_;

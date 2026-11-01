@@ -42,21 +42,24 @@ struct ZiplineRoute
     std::vector<NavmeshRouteDiagnostic> diagnostics;
 };
 
-// SameTower 靠世界坐标认架子, 漏一个分量就退化成按像素认, 所以两侧共用这份映射
+// sameTower 靠世界坐标认架子, 漏一个分量就退化成按像素认, 所以两侧共用这份映射
 ZiplineNodeRef ToNodeRef(const zipline::ZiplineNode& node);
 
 // walking_path 为空表示步行不可达, goal_deck_y 须与步行方案一致, 两个区名不可互换
-std::optional<ZiplineRoute> PlanZiplineRoute(
-    const NaviParam& param,
-    const std::string& locator_zone,
-    const std::string& navmesh_zone,
-    const navmesh::WorldPoint& start,
-    const navmesh::WorldPoint& goal,
-    const navmesh::WorldPath* walking_path,
-    std::optional<double> goal_deck_y,
-    std::optional<double> start_floor_y,
-    std::optional<double> start_deck_y,
-    const std::function<bool()>& should_stop,
-    bool capture_diagnostics = false);
+struct ZiplineLegRequest
+{
+    std::string locator_zone;
+    std::string navmesh_zone;
+    navmesh::WorldPoint start;
+    navmesh::WorldPoint goal;
+    const navmesh::WorldPath* walking_path = nullptr;
+    std::optional<double> goal_deck_y;
+    std::optional<double> start_floor_y;
+    std::optional<double> start_deck_y;
+    std::function<bool()> should_stop;
+    bool capture_diagnostics = false;
+};
+
+std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const ZiplineLegRequest& request);
 
 } // namespace mapnavigator

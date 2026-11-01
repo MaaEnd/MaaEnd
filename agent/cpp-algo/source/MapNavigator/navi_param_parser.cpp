@@ -87,7 +87,7 @@ const T& first_non_empty(const T& first, const Rest&... rest)
     }
 }
 
-// 参数按 (键, 字段) 成对给出, 取第一个写了键的字段, 调用前须已过 MEO 解析以排除 null
+// 调用前须已过 MEO 解析以排除 null
 template <typename T, typename... Rest>
 std::optional<T> first_present(const json::value& input, const char* key, const T& value, const Rest&... rest)
 {
@@ -181,7 +181,7 @@ struct NaviTextListInput
 
 using NaviWaypointArrayItem = std::variant<double, NaviActionListInput, bool, std::string>;
 
-// 每个别名都要通过类型校验, 取哪个由调用方按优先级决定
+// 每个别名都要通过类型校验
 struct NaviWaypointObjectInput
 {
     NaviActionListInput action_;
@@ -459,6 +459,7 @@ struct NaviParamInput
     std::vector<NaviWaypointInput> path_;
     int64_t arrival_timeout_ = 60000;
     double sprint_threshold_ = 16.0;
+    bool enable_sprint_ = true;
     bool enable_local_driver_ = true;
     bool enable_bootstrap_navmesh_ = true;
     std::string navmesh_file_;
@@ -481,6 +482,7 @@ struct NaviParamInput
         MEO_OPT MEO_KEY("arrival_timeout") arrival_timeout_,
         MEO_OPT MEO_KEY("heading_source") heading_source_,
         MEO_OPT MEO_KEY("sprint_threshold") sprint_threshold_,
+        MEO_OPT MEO_KEY("enable_sprint") enable_sprint_,
         MEO_OPT MEO_KEY("enable_local_driver") enable_local_driver_,
         MEO_OPT MEO_KEY("zip") zip_,
         MEO_OPT MEO_KEY("enable_bootstrap_navmesh") enable_bootstrap_navmesh_,
@@ -505,6 +507,7 @@ NaviParam build_navi_param(const json::value& custom_action_param, const NaviPar
     param.heading_source = input.heading_source_ == "camera" ? HeadingSource::Camera : HeadingSource::Character;
     param.arrival_timeout = input.arrival_timeout_;
     param.sprint_threshold = input.sprint_threshold_;
+    param.enable_sprint = input.enable_sprint_;
     param.enable_local_driver = input.enable_local_driver_;
     param.zipline_enabled = input.zip_;
     param.enable_bootstrap_navmesh = input.enable_bootstrap_navmesh_;
@@ -532,7 +535,6 @@ std::optional<std::array<double, 2>> authored_position(const NaviWaypointInput& 
     return std::nullopt;
 }
 
-// 同时写了 RUN 和别的动作时 RUN 不单独展开
 void append_expanded_waypoints(
     const NaviWaypointInput& input,
     const std::array<double, 2>& position,
@@ -739,7 +741,7 @@ bool append_zone(const std::string& zone_id, std::vector<Waypoint>& out_waypoint
     if (zone_id.empty()) {
         return false;
     }
-    out_waypoints.push_back(Waypoint::Zone(zone_id));
+    out_waypoints.push_back(Waypoint::zone(zone_id));
     zone_context = zone_id;
     return true;
 }
@@ -747,7 +749,7 @@ bool append_zone(const std::string& zone_id, std::vector<Waypoint>& out_waypoint
 bool append_heading(const NaviWaypointInput& input, const std::string& zone_id, std::vector<Waypoint>& out_waypoints)
 {
     if (input.target_) {
-        Waypoint heading_waypoint = Waypoint::HeadingToTarget(input.target_->at(0), input.target_->at(1));
+        Waypoint heading_waypoint = Waypoint::headingToTarget(input.target_->at(0), input.target_->at(1));
         heading_waypoint.zone_id = zone_id;
         heading_waypoint.target_tier = input.target_tier_;
         heading_waypoint.route_required = input.required_;
@@ -757,7 +759,7 @@ bool append_heading(const NaviWaypointInput& input, const std::string& zone_id, 
     if (!input.angle_) {
         return false;
     }
-    Waypoint heading_waypoint = Waypoint::Heading(*input.angle_);
+    Waypoint heading_waypoint = Waypoint::heading(*input.angle_);
     heading_waypoint.zone_id = zone_id;
     heading_waypoint.route_required = input.required_;
     out_waypoints.push_back(std::move(heading_waypoint));
@@ -812,7 +814,6 @@ bool append_find(
     return true;
 }
 
-// 没坐标但写了朝向时退化成只转向的点
 bool append_positioned(
     const NaviWaypointInput& input,
     const std::string& zone_id,
@@ -831,7 +832,7 @@ bool append_positioned(
     if (!input.angle_) {
         return false;
     }
-    Waypoint heading_waypoint = Waypoint::Heading(*input.angle_);
+    Waypoint heading_waypoint = Waypoint::heading(*input.angle_);
     heading_waypoint.zone_id = zone_id;
     out_waypoints.push_back(std::move(heading_waypoint));
     return true;
@@ -906,7 +907,6 @@ bool read_route_header(
     return true;
 }
 
-// 写了 path 按多点解析, 否则顶层对象本身就是一个点
 bool append_route_waypoints(
     const json::value& custom_action_param,
     const NaviParamInput& input,

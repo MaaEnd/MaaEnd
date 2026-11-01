@@ -1,9 +1,34 @@
 {
+    "GameLauncherWakeMain": {
+        "desc": "Windows 第一阶段（前台截图+前台输入）：息屏时点击唤醒显示器，直到看到左侧终末地图标",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "GameLauncherEndfieldIconVisible",
+            "GameLauncherBlackScreenClick"
+        ]
+    },
+    "GameLauncherEndfieldIconVisible": {
+        "desc": "左侧终末地图标可见，唤醒阶段结束",
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            60,
+            100,
+            600
+        ],
+        "template": "GameLauncher/EndfieldIcon.png",
+        "green_mask": true,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "GameLauncherMain": {
-        "desc": "在鹰角启动器中启动终末地",
+        "desc": "在鹰角启动器中启动终末地；Windows 第二阶段（后台截图+后台输入）",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "GameLauncherSelectEndfield",
-            "GameLauncherBlackScreenClick"
+            "[JumpBack]GameLauncherBlackScreenClick"
         ]
     },
     "GameLauncherBlackScreenClick": {
@@ -29,7 +54,7 @@
         // 显示器从息屏唤醒需要 1~3 秒，期间画面一直是黑屏不变，无法用 post_wait_freezes 等待
         "post_delay": 2000,
         "next": [
-            "GameLauncherSelectEndfield",
+            "GameLauncherEndfieldIconVisible",
             "GameLauncherBlackScreenClick"
         ]
     },

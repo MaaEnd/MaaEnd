@@ -23,7 +23,7 @@ public:
     {
     }
 
-    SteeringTransportProfile SteeringProfile() const override
+    SteeringTransportProfile steeringProfile() const override
     {
         return SteeringTransportProfile {
             .supports_concurrent_move_and_look = true,
@@ -34,11 +34,11 @@ public:
         };
     }
 
-    void TriggerSprintSync() override
+    void triggerSprintSync() override
     {
-        MaaControllerWait(GetCtrl(), MaaControllerPostKeyDown(GetCtrl(), kVkShift));
+        MaaControllerWait(getCtrl(), MaaControllerPostKeyDown(getCtrl(), kVkShift));
         SleepFor(kActionSprintPressMs);
-        MaaControllerWait(GetCtrl(), MaaControllerPostKeyUp(GetCtrl(), kVkShift));
+        MaaControllerWait(getCtrl(), MaaControllerPostKeyUp(getCtrl(), kVkShift));
     }
 };
 

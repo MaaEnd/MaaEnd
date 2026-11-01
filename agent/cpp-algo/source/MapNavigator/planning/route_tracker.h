@@ -8,7 +8,7 @@
 namespace mapnavigator
 {
 
-struct RouteTrackingState
+struct RouteMeasurement
 {
     bool valid = false;
     bool on_route = false;
@@ -26,7 +26,7 @@ struct RouteTrackingState
 class RouteTracker
 {
 public:
-    static RouteTrackingState Update(NavigationSession* session, RouteTrackerState* state, const NaviPosition& position);
+    static RouteMeasurement update(NavigationSession* session, RouteTrackerState* state, const NaviPosition& position);
 };
 
 } // namespace mapnavigator

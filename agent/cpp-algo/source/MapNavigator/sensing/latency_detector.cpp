@@ -46,7 +46,7 @@ Detector::Detector(Config config)
 {
 }
 
-void Detector::BeginRun()
+void Detector::beginRun()
 {
     warmup_until_ = Clock::now() + std::chrono::milliseconds(config_.warmup_ms);
     has_prev_tick_ = false;
@@ -55,7 +55,7 @@ void Detector::BeginRun()
     window_slow_ = 0;
 }
 
-void Detector::Push(std::vector<int64_t>& history, int64_t value) const
+void Detector::push(std::vector<int64_t>& history, int64_t value) const
 {
     history.push_back(value);
     if (history.size() > config_.history_size) {
@@ -63,15 +63,15 @@ void Detector::Push(std::vector<int64_t>& history, int64_t value) const
     }
 }
 
-void Detector::RecordStage(Stage stage, int64_t elapsed_ms)
+void Detector::recordStage(Stage stage, int64_t elapsed_ms)
 {
     if (fired_ || elapsed_ms < 0) {
         return;
     }
-    Push(stage_history_[static_cast<std::size_t>(stage)], elapsed_ms);
+    push(stage_history_[static_cast<std::size_t>(stage)], elapsed_ms);
 }
 
-std::optional<Verdict> Detector::RecordTick(uint64_t tick_seq, int64_t tick_gap_ms)
+std::optional<Verdict> Detector::recordTick(uint64_t tick_seq, int64_t tick_gap_ms)
 {
     // 只收紧挨上一拍的样本, 跳过的拍间隔里混着跳跃、攀爬等耗时
     const bool consecutive = has_prev_tick_ && tick_seq == prev_tick_seq_ + 1;
@@ -90,7 +90,7 @@ std::optional<Verdict> Detector::RecordTick(uint64_t tick_seq, int64_t tick_gap_
         has_window_ = true;
     }
 
-    Push(tick_history_, tick_gap_ms);
+    push(tick_history_, tick_gap_ms);
     ++total_samples_;
     ++window_samples_;
     if (tick_gap_ms > config_.slow_tick_ms) {
@@ -109,7 +109,7 @@ std::optional<Verdict> Detector::RecordTick(uint64_t tick_seq, int64_t tick_gap_
     else {
         // 采样一起清掉, 让报告的中位数只来自判定所依据的那几窗
         slow_windows_ = 0;
-        ClearHistory();
+        clearHistory();
     }
     window_samples_ = 0;
     window_slow_ = 0;
@@ -119,10 +119,10 @@ std::optional<Verdict> Detector::RecordTick(uint64_t tick_seq, int64_t tick_gap_
     }
 
     fired_ = true;
-    return BuildVerdict();
+    return buildVerdict();
 }
 
-void Detector::ClearHistory()
+void Detector::clearHistory()
 {
     tick_history_.clear();
     for (auto& history : stage_history_) {
@@ -131,7 +131,7 @@ void Detector::ClearHistory()
     total_samples_ = 0;
 }
 
-Verdict Detector::BuildVerdict() const
+Verdict Detector::buildVerdict() const
 {
     Verdict verdict;
     verdict.tick_median_ms = Median(tick_history_);

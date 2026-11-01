@@ -17,7 +17,7 @@ namespace mapnavigator
 namespace
 {
 
-bool IsBlackScreen(const cv::Mat& image)
+bool is_black_screen(const cv::Mat& image)
 {
     if (image.empty()) {
         return false;
@@ -47,7 +47,7 @@ bool IsBlackScreen(const cv::Mat& image)
     return mean_luma[0] <= 12.0 && stddev_luma[0] <= 10.0 && dark_ratio >= 0.98;
 }
 
-void LogLocateResult(const maplocator::LocateResult& locate_result)
+void log_locate_result(const maplocator::LocateResult& locate_result)
 {
     const int status = static_cast<int>(locate_result.status);
     if (locate_result.position) {
@@ -63,7 +63,7 @@ void LogLocateResult(const maplocator::LocateResult& locate_result)
     }
 }
 
-std::optional<double> ConfidentCamera(const maplocator::LocateResult& locate_result)
+std::optional<double> confident_camera_heading(const maplocator::LocateResult& locate_result)
 {
     return locate_result.camRot && std::isfinite(locate_result.camRot->confidence)
                    && locate_result.camRot->confidence >= kNavigationCameraMinConfidence
@@ -81,12 +81,12 @@ PositionProvider::PositionProvider(MaaController* controller, std::shared_ptr<ma
 {
 }
 
-void PositionProvider::SetFrameObserver(std::function<void(const cv::Mat&)> observer)
+void PositionProvider::setFrameObserver(std::function<void(const cv::Mat&)> observer)
 {
     frame_observer_ = std::move(observer);
 }
 
-bool PositionProvider::Capture(
+bool PositionProvider::capture(
     NaviPosition* out_pos,
     bool force_global_search,
     const std::string& expected_zone_id,
@@ -98,18 +98,18 @@ bool PositionProvider::Capture(
     options.expected_zone_id = expected_zone_id;
     options.search_hints = search_hints;
     options.camera_heading_prior = camera_heading_prior;
-    return CaptureWith(out_pos, std::move(options), heading_source_);
+    return captureWith(out_pos, std::move(options), heading_source_);
 }
 
-bool PositionProvider::CaptureForStrictGoal(NaviPosition* out_pos, const std::string& expected_zone_id)
+bool PositionProvider::captureForStrictGoal(NaviPosition* out_pos, const std::string& expected_zone_id)
 {
     maplocator::LocateOptions options;
     options.precise_position = true;
     options.expected_zone_id = expected_zone_id;
-    return CaptureWith(out_pos, std::move(options), HeadingSource::Camera);
+    return captureWith(out_pos, std::move(options), HeadingSource::Camera);
 }
 
-bool PositionProvider::CaptureWith(NaviPosition* out_pos, maplocator::LocateOptions options, HeadingSource heading_source)
+bool PositionProvider::captureWith(NaviPosition* out_pos, maplocator::LocateOptions options, HeadingSource heading_source)
 {
     if (out_pos == nullptr) {
         return false;
@@ -119,7 +119,7 @@ bool PositionProvider::CaptureWith(NaviPosition* out_pos, maplocator::LocateOpti
     last_capture_was_black_screen_ = false;
     const auto capture_started_at = std::chrono::steady_clock::now();
 
-    if (!WaitForScreencap()) {
+    if (!waitForScreencap()) {
         return false;
     }
     ScopedImageBuffer buffer;
@@ -130,7 +130,7 @@ bool PositionProvider::CaptureWith(NaviPosition* out_pos, maplocator::LocateOpti
     const auto screencap_done_at = std::chrono::steady_clock::now();
 
     cv::Mat image = to_mat(buffer.Get());
-    last_capture_was_black_screen_ = IsBlackScreen(image);
+    last_capture_was_black_screen_ = is_black_screen(image);
     if (options.precise_position && last_capture_was_black_screen_) {
         return false;
     }
@@ -146,7 +146,7 @@ bool PositionProvider::CaptureWith(NaviPosition* out_pos, maplocator::LocateOpti
     options.reject_occluded_frames = heading_source != HeadingSource::Camera;
     const auto locate_result = locator_->locate(minimap, options);
     const auto locate_done_at = std::chrono::steady_clock::now();
-    LogLocateResult(locate_result);
+    log_locate_result(locate_result);
     if (locate_result.status != maplocator::LocateStatus::Success || !locate_result.position) {
         return false;
     }
@@ -157,7 +157,7 @@ bool PositionProvider::CaptureWith(NaviPosition* out_pos, maplocator::LocateOpti
         return false;
     }
 
-    const std::optional<double> confident_camera = ConfidentCamera(locate_result);
+    const std::optional<double> confident_camera = confident_camera_heading(locate_result);
     const std::optional<double> heading = heading_source == HeadingSource::Camera ? confident_camera : locate_result.rot;
     if (!heading || !std::isfinite(*heading) || *heading < 0.0 || *heading >= 360.0) {
         return false;
@@ -170,7 +170,7 @@ bool PositionProvider::CaptureWith(NaviPosition* out_pos, maplocator::LocateOpti
         latency::RecordStage(latency::Stage::Locate, ElapsedMs(image_prep_done_at, locate_done_at));
     }
 
-    FillPosition(out_pos, locate_result, *heading, confident_camera, capture_started_at);
+    fillPosition(out_pos, locate_result, *heading, confident_camera, capture_started_at);
 
     // 所有取位都经过这里, 且 out_pos 刚由本次定位结果填好, 换算每次恰好一次
     if (position_normalizer_) {
@@ -179,7 +179,7 @@ bool PositionProvider::CaptureWith(NaviPosition* out_pos, maplocator::LocateOpti
     return true;
 }
 
-bool PositionProvider::WaitForScreencap() const
+bool PositionProvider::waitForScreencap() const
 {
     const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller_);
     if (screencap_id == MaaInvalidId) {
@@ -194,7 +194,7 @@ bool PositionProvider::WaitForScreencap() const
     return true;
 }
 
-void PositionProvider::FillPosition(
+void PositionProvider::fillPosition(
     NaviPosition* out_pos,
     const maplocator::LocateResult& locate_result,
     double heading,
@@ -212,12 +212,12 @@ void PositionProvider::FillPosition(
     out_pos->timestamp = captured_at;
 }
 
-void PositionProvider::SetPositionNormalizer(std::function<void(NaviPosition&)> normalizer)
+void PositionProvider::setPositionNormalizer(std::function<void(NaviPosition&)> normalizer)
 {
     position_normalizer_ = std::move(normalizer);
 }
 
-bool PositionProvider::WaitForFix(
+bool PositionProvider::waitForFix(
     NaviPosition* out_pos,
     const std::string& expected_zone_id,
     int max_retries,
@@ -228,7 +228,7 @@ bool PositionProvider::WaitForFix(
         if (should_stop()) {
             return false;
         }
-        if (Capture(out_pos, !expected_zone_id.empty(), expected_zone_id)) {
+        if (capture(out_pos, !expected_zone_id.empty(), expected_zone_id)) {
             return true;
         }
         SleepFor(retry_interval_ms);
@@ -236,13 +236,13 @@ bool PositionProvider::WaitForFix(
     return false;
 }
 
-void PositionProvider::ResetTracking()
+void PositionProvider::resetTracking()
 {
     locator_->resetTrackingState();
     last_capture_was_black_screen_ = false;
 }
 
-bool PositionProvider::LastCaptureWasBlackScreen() const
+bool PositionProvider::lastCaptureWasBlackScreen() const
 {
     return last_capture_was_black_screen_;
 }

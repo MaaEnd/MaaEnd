@@ -33,11 +33,42 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoEcoFarmValleyFarmJob",
             "[JumpBack]AutoEcoFarmWulingCityFarmJob",
             "[JumpBack]AutoEcoFarmSisPaintingFarmJob",
             "[JumpBack]AutoEcoFarmRanchJob",
             "AutoEcoFarmFinish"
         ]
+    },
+    "AutoEcoFarmValleyFarmJob": {
+        "desc": "四号谷地 - 生态种植区子任务",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoEcoFarm",
+                    "task": "__AutoEcoFarmValleyFarmExecute",
+                    "failure_task": "AutoEcoFarmValleyFarmFailed",
+                    "recovery_task": "SceneAnyEnterWorld"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoEcoFarmValleyFarmFailed": {
+        "desc": "四号谷地生态种植区流程未完成",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoEcoFarm.failed.ValleyFarm"
+        }
     },
     "AutoEcoFarmWulingCityFarmJob": {
         "desc": "武陵城 - 自动农植机子任务",

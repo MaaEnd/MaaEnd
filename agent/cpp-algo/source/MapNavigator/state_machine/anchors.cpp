@@ -19,34 +19,34 @@ bool ZonesDiffer(const std::string& a, const std::string& b)
 
 bool IsZoneCompatible(const Waypoint& waypoint, const std::string& current_zone_id)
 {
-    return waypoint.HasPosition() && !ZonesDiffer(waypoint.zone_id, current_zone_id);
+    return waypoint.hasPosition() && !ZonesDiffer(waypoint.zone_id, current_zone_id);
 }
 
 bool IsRequiredSemanticAnchor(const Waypoint& waypoint)
 {
-    if (!waypoint.HasPosition()) {
-        return waypoint.IsHeadingOnly() || waypoint.IsZoneDeclaration();
+    if (!waypoint.hasPosition()) {
+        return waypoint.isHeadingOnly() || waypoint.isZoneDeclaration();
     }
-    return !waypoint.IsContinuousRun();
+    return !waypoint.isContinuousRun();
 }
 
 std::optional<DynamicAnchor> ResolveCurrentAnchorFrom(NavigationSession* session, const NaviPosition& position, size_t start_index)
 {
     std::optional<DynamicAnchor> fallback;
-    const size_t path_size = session->current_path().size();
+    const size_t path_size = session->currentPath().size();
     for (size_t index = std::min(start_index, path_size); index < path_size; ++index) {
-        const Waypoint& waypoint = session->CurrentPathAt(index);
-        const std::optional<size_t> canonical_index = session->CanonicalIndexAtCurrentPath(index);
+        const Waypoint& waypoint = session->currentPathAt(index);
+        const std::optional<size_t> canonical_index = session->canonicalIndexAtCurrentPath(index);
         if (!canonical_index) {
             continue;
         }
-        if (waypoint.IsZoneDeclaration()) {
+        if (waypoint.isZoneDeclaration()) {
             if (ZonesDiffer(waypoint.zone_id, position.zone_id)) {
                 return fallback;
             }
             continue;
         }
-        if (!waypoint.HasPosition()) {
+        if (!waypoint.hasPosition()) {
             if (IsRequiredSemanticAnchor(waypoint)) {
                 return fallback;
             }
@@ -66,7 +66,7 @@ std::optional<DynamicAnchor> ResolveCurrentAnchorFrom(NavigationSession* session
 
 std::optional<DynamicAnchor> ResolveCurrentAnchor(NavigationSession* session, const NaviPosition& position)
 {
-    return ResolveCurrentAnchorFrom(session, position, session->current_node_idx());
+    return ResolveCurrentAnchorFrom(session, position, session->currentNodeIdx());
 }
 
 std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
@@ -76,25 +76,25 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
     size_t start_index,
     const char* reason)
 {
-    const size_t path_size = session->current_path().size();
-    const std::optional<double> walked_floor_y = session->WalkedFloorY(position);
+    const size_t path_size = session->currentPath().size();
+    const std::optional<double> walked_floor_y = session->walkedFloorY(position);
     std::optional<DynamicAnchor> anchor;
     double anchor_cost = std::numeric_limits<double>::infinity();
     int plan_attempts = 0;
 
     for (size_t index = std::min(start_index, path_size); index < path_size; ++index) {
-        const Waypoint& waypoint = session->CurrentPathAt(index);
-        const std::optional<size_t> canonical_index = session->CanonicalIndexAtCurrentPath(index);
+        const Waypoint& waypoint = session->currentPathAt(index);
+        const std::optional<size_t> canonical_index = session->canonicalIndexAtCurrentPath(index);
         if (!canonical_index) {
             continue;
         }
-        if (waypoint.IsZoneDeclaration()) {
+        if (waypoint.isZoneDeclaration()) {
             if (ZonesDiffer(waypoint.zone_id, position.zone_id)) {
                 break;
             }
             continue;
         }
-        if (!waypoint.HasPosition()) {
+        if (!waypoint.hasPosition()) {
             if (IsRequiredSemanticAnchor(waypoint)) {
                 break;
             }
@@ -110,13 +110,13 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
         const auto route = PlanNavmeshRoute(
             param,
             position.zone_id,
-            start,
-            goal,
-            waypoint.target_deck_y,
-            walked_floor_y,
-            nullptr,
-            nullptr,
-            session->LandedTowerDeckY(position));
+            {
+                .start = start,
+                .start_floor_y = walked_floor_y,
+                .start_deck_y = session->landedTowerDeckY(position),
+                .goal = goal,
+                .goal_deck_y = waypoint.target_deck_y,
+            });
         if (route) {
             anchor_cost = route->cost;
             anchor = { *canonical_index, waypoint };

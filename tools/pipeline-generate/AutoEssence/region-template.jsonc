@@ -1,0 +1,60 @@
+{
+    "GotoTriggerPointSetAnchor_${Key}": {
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_${Key}",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_${Key}"
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：${Name}"
+        }
+    },
+    "GotoTriggerPointMaybeTeleport_${Key}": {
+        "desc": "强制传送到最近锚点后前往激发点",
+        "max_hit": 3, // 连续传送重走的上限，计数在 AutoEssenceDispatcher 清零
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "${Entry}"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GotoTriggerPointMove_${Key}"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
+    "GotoTriggerPointMove_${Key}": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": "${ActionParam}"
+            }
+        },
+        "post_delay": 1500,
+        "next": [
+            "AutoEssenceDispatcher"
+        ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

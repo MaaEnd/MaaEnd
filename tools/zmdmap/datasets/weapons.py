@@ -13,11 +13,11 @@
 字段：消费端没有读它们。
 """
 
-from pathlib import Path
 from typing import Any
 
 from ..utils.config import UPSTREAM_LOCALES
-from ..utils.game_data import ref_texts, text_id_of, texts_of
+from ..utils.game_data import text_id_of
+from ..utils.inputs import TableCfg
 from ..utils.log import logger
 from ..utils.tables import (
     ForesightWeaponRow,
@@ -25,7 +25,6 @@ from ..utils.tables import (
     SkillPatchRow,
     TextRef,
     WeaponBasicRow,
-    load_table,
 )
 from .base import Dataset
 
@@ -34,12 +33,12 @@ class Weapons(Dataset):
     """EssenceFilter 与 IconRecognition 共用的武器表（``weapons.json``）。"""
 
     @classmethod
-    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, dict[str, Any]]:
+    def build(cls, table_cfg: TableCfg) -> dict[str, dict[str, Any]]:
         """武器：稀有度、类型、图标 id 与五语名字/技能名（含还没上线的前瞻武器）。"""
-        weapons = load_table(table_cfg_dir, "WeaponBasicTable", WeaponBasicRow)
-        items = load_table(table_cfg_dir, "ItemTable", ItemRow)
-        patches = load_table(table_cfg_dir, "SkillPatchTable", SkillPatchRow)
-        foresight = load_table(table_cfg_dir, "ForesightWeaponTable", ForesightWeaponRow)
+        weapons = table_cfg.table("WeaponBasicTable", WeaponBasicRow)
+        items = table_cfg.table("ItemTable", ItemRow)
+        patches = table_cfg.table("SkillPatchTable", SkillPatchRow)
+        foresight = table_cfg.table("ForesightWeaponTable", ForesightWeaponRow)
 
         skill_name_ids = _skill_name_ids(patches)
         output: dict[str, dict[str, Any]] = {}
@@ -48,7 +47,7 @@ class Weapons(Dataset):
         for weapon_id, weapon in weapons.items():
             item = items.get(weapon_id)
             output[weapon_id] = _weapon_entry(
-                table_cfg_dir,
+                table_cfg,
                 weapon_id=weapon_id,
                 icon_id=item.icon_id if item else "",
                 name_ref=item.name if item else weapon.eng_name,
@@ -62,12 +61,12 @@ class Weapons(Dataset):
         for row_key, row in foresight.items():
             # ``weaponId`` 才是真 id，行 key 不可靠（有的 dump 整表按数字排序 id 做 key）。
             weapon_id = row.weapon_id or row_key
-            if _already_released(table_cfg_dir, weapon_id, row.name, output, released):
+            if _already_released(table_cfg, weapon_id, row.name, output, released):
                 logger.warning(f"前瞻武器 {row_key}（{weapon_id}）已经发布过，跳过")
                 continue
             skill_ids = list(row.sk_ids)
             output[weapon_id] = _weapon_entry(
-                table_cfg_dir,
+                table_cfg,
                 weapon_id=weapon_id,
                 # 前瞻武器还没有 ItemTable 行，自家 iconId 就是图标键。
                 icon_id=row.icon_id or weapon_id,
@@ -76,7 +75,7 @@ class Weapons(Dataset):
                 rarity=row.rarity,
                 skill_ids=skill_ids,
                 skill_name_ids=skill_name_ids,
-                row_skill_names=_row_skill_names(table_cfg_dir, skill_ids, row.sk_names),
+                row_skill_names=_row_skill_names(table_cfg, skill_ids, row.sk_names),
             )
             logger.info(f"前瞻武器 {weapon_id} 入库")
 
@@ -85,7 +84,7 @@ class Weapons(Dataset):
 
 
 def _already_released(
-    table_cfg_dir: Path,
+    table_cfg: TableCfg,
     weapon_id: str,
     name_ref: TextRef | None,
     output: dict[str, dict[str, Any]],
@@ -99,7 +98,7 @@ def _already_released(
     if weapon_id in released:
         return True
 
-    known = {suffix: text for suffix, text in ref_texts(table_cfg_dir, name_ref).items() if text}
+    known = {suffix: text for suffix, text in table_cfg.ref_texts(name_ref).items() if text}
     if not known:
         return False
     for other_id in released:
@@ -123,21 +122,21 @@ def _skill_name_ids(patches: dict[str, SkillPatchRow]) -> dict[str, int]:
 
 
 def _row_skill_names(
-    table_cfg_dir: Path,
+    table_cfg: TableCfg,
     skill_ids: list[str],
     skill_refs: list[TextRef],
 ) -> dict[str, dict[str, str]]:
     """前瞻武器自带的 ``skNames``：它的专属技能还没进 ``SkillPatchTable``。"""
     result: dict[str, dict[str, str]] = {}
     for skill_id, ref in zip(skill_ids, skill_refs, strict=False):
-        texts = ref_texts(table_cfg_dir, ref)
+        texts = table_cfg.ref_texts(ref)
         if any(texts.values()):
             result[skill_id] = texts
     return result
 
 
 def _weapon_entry(
-    table_cfg_dir: Path,
+    table_cfg: TableCfg,
     *,
     weapon_id: str,
     icon_id: str,
@@ -155,7 +154,7 @@ def _weapon_entry(
         names = overrides.get(skill_id)
         if names is None:
             text_id = skill_name_ids.get(skill_id)
-            names = texts_of(table_cfg_dir, text_id) if text_id else {}
+            names = table_cfg.texts(text_id) if text_id else {}
         for suffix in skills:
             skills[suffix].append(names.get(suffix) or skill_id)
     return {
@@ -163,6 +162,6 @@ def _weapon_entry(
         "icon_id": icon_id or None,
         "rarity": rarity,
         "weapon_type": weapon_type,
-        "names": ref_texts(table_cfg_dir, name_ref),
+        "names": table_cfg.ref_texts(name_ref),
         "skills": skills,
     }

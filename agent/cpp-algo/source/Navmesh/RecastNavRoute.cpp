@@ -1881,6 +1881,19 @@ std::optional<std::vector<WorldPoint>> routeWindow(
 
     const auto snap0 = nearDeck(useW, cw3, sc, start_deck);
     const auto snap1 = nearDeck(useW, cw3, gc, goal_deck);
+    const auto hasDeckSpan = [&](const CellPt& c, double deck) {
+        const int64_t j = info.st3.j(c.y * nx + c.x);
+        if (j < 0) {
+            return false;
+        }
+        for (int64_t v = st3.cstart(j), end = v + st3.ccnt(j); v < end; ++v) {
+            if (std::fabs(static_cast<double>(st3.sp_h[static_cast<size_t>(v)]) - deck) <= kDeckBand) {
+                return true;
+            }
+        }
+        return false;
+    };
+    const bool goal_off_deck = goal_deck.has_value() && gc.x >= 0 && gc.y >= 0 && gc.x < nx && gc.y < ny && !hasDeckSpan(gc, *goal_deck);
     if (!snap0.first.has_value()) {
         dg.err = start_deck.has_value() ? "起点附近没有未封堵的声明面" : "walk 掩膜为空";
         return std::nullopt;
@@ -2486,18 +2499,29 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     if (dg.escalate) {
         return std::nullopt;
     }
-    for (const std::vector<int64_t>& ch : linkChains(chan0, lends)) {
-        openc(limw, ch);
-    }
+    // 接不到宽处的端点(窄路上的跳边)退一步接到中轴
+    const Mask medial = limw;
+    const auto chainOpen = [&](const std::vector<int64_t>& ends) {
+        const std::vector<std::vector<int64_t>> wide = linkChains(chan0, ends);
+        std::vector<int64_t> miss;
+        for (size_t i = 0; i < ends.size(); ++i) {
+            if (wide[i].empty() && chan0.v[static_cast<size_t>(ends[i])] == 0) {
+                miss.push_back(ends[i]);
+            }
+            openc(limw, wide[i]);
+        }
+        for (const std::vector<int64_t>& ch : linkChains(medial, miss)) {
+            openc(limw, ch);
+        }
+    };
+    chainOpen(lends);
     if (!info.links_cell.empty() && !linked(limw)) {
         lends.clear();
         for (const JumpEdges::Edge& e : info.links_cell.e) {
             lends.push_back(e.src);
             lends.push_back(e.dst);
         }
-        for (const std::vector<int64_t>& ch : linkChains(chan0, lends)) {
-            openc(limw, ch);
-        }
+        chainOpen(lends);
     }
     chan0 = Mask();
     std::optional<Topo> vv = solve(limw, multw, bn, bpw, false);
@@ -2588,7 +2612,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     // 末段锚点直连终点不查阻挡, 终点在可走面上却不在可达集里就是穿墙
     if (gc.x >= 0 && gc.y >= 0 && gc.x < nx && gc.y < ny) {
         // 须用基线的硬可达集, 舒适通道不含贴墙的终点
-        dg.hop_barrier = walk.at(gc.y, gc.x) != 0 && base->on3.at(gc.y, gc.x) == 0;
+        dg.hop_barrier = !goal_off_deck && walk.at(gc.y, gc.x) != 0 && base->on3.at(gc.y, gc.x) == 0;
     }
     std::vector<size_t> bad;
     for (size_t k = 1; k < q->size(); ++k) {

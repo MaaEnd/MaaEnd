@@ -33,9 +33,9 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
     const NaviPosition& position,
     size_t start_index,
     const char* reason);
-double EffectiveRouteHeading(const NavRunTickResult& nav_run_result, const RouteTrackingState& route);
+double EffectiveRouteHeading(const NavRunTickResult& nav_run_result, const RouteMeasurement& route);
 
-// Abort 让 Run 立即以失败收场
+// Abort 让 run 立即以失败收场
 enum class TickStep
 {
     Next,
@@ -85,7 +85,7 @@ struct NavigationStateMachine::NavigateTick
     int64_t capture_ms = 0;
     std::chrono::steady_clock::time_point now {};
     TickFix fix;
-    RouteTrackingState route {};
+    RouteMeasurement route {};
     NavRunTickResult nav_run_result {};
     std::optional<size_t> nav_run_anchor_index;
     double effective_progress = 0.0;

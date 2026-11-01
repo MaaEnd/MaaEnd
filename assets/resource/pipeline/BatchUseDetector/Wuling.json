@@ -8,6 +8,7 @@
         "next": [
             "BatchUseDetectorFindWulingDetector",
             "BatchUseDetectorFindWulingCompass",
+            "BatchUseDetectorFindWulingTalositeProbe",
             "BatchUseDetectorFindNoItem"
         ]
     },

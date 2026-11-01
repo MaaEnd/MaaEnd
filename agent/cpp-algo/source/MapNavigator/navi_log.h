@@ -2,6 +2,6 @@
 
 #include <MaaUtils/Logger.h>
 
-// 日志键取 name, 值取 value, 与 VAR 一样经一层转发展开 name 里的宏, 输出与 VAR(name) 逐字节相同
+// 输出与 VAR(name) 逐字节相同, 包括 name 里宏的展开
 #define VAR_AS(name, value) MAA_LOG_NS::separator::none << VAR_AS_RAW(name, value) << MAA_LOG_NS::separator::space
 #define VAR_AS_RAW(name, value) "[" #name "=" << (value) << "] "

@@ -25,7 +25,6 @@ inline int64_t ElapsedMs(std::chrono::steady_clock::time_point since)
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - since).count();
 }
 
-// 默认构造的时间点表示还没记过
 inline bool IsUnset(std::chrono::steady_clock::time_point time)
 {
     return time.time_since_epoch().count() == 0;

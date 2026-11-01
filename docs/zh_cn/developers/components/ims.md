@@ -55,7 +55,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 ### 参数（IconRecognition ID）
 
-缓存键与识别 ID 统一使用 [`IconRecognition`](./icon-recognition.md) catalog 顶层 key（如 `item_char_break_stage_1_2`）。IMS **不**维护物品白名单：屏上扫到什么就缓存/播报什么。
+缓存键与识别 ID 统一使用 [`IconRecognition`](./icon-recognition.md) catalog 顶层 key（如 `item_char_break_stage_1_2`）。IMS **不**维护缓存物品白名单：屏上扫到什么就缓存什么；UI 汇总可通过 `report_item_ids` 单独选择播报物品。
 
 | 字段 | 说明 |
 | --- | --- |
@@ -68,6 +68,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 | `page_dedup` | 配合 `merge_mode` 区分首页面与后续页面，见下表 |
 | `transaction_mode` | 可选的 TaskID 级暂存：`begin` 开始并扫描、`continue` 继续扫描、`commit` 不识别画面而只提交完整 staging；省略时保持扫描后立即落盘 |
 | `notify_ui` | 是否播报命中物品；默认 `true`。扫描结束后输出一条带图标的 HTML 汇总；事务扫描阶段按页汇总，`commit` 则汇总本事务实际命中物品的最终去重数量 |
+| `report_item_ids` | 可选的播报物品 ID 列表；省略或空列表保持全部播报。仅过滤本次调用的 UI 汇总，不影响识别、库存缓存或落盘；事务 `commit` 使用该次调用的列表 |
 
 提供 `grid_type`（IconRecognition 扫库）与 `items` 至少其一。采购中心等可只传 `items`（如 `item_originium_recharge` / `item_diamond`）。`items` 里的键在 `merge_mode: replace` 且 `page_dedup=false` 时一律参与地区重建（未命中则从缓存删除）。
 

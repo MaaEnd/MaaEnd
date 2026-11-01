@@ -541,6 +541,7 @@ jobs:
           codesign --force --deep --sign - "$APP_NAME"
 
           create-dmg \
+            --filesystem APFS \
             --volname "MaaEnd Installer" \
             --volicon "maaend.icns" \
             --window-pos 200 120 \
@@ -551,6 +552,14 @@ jobs:
             --app-drop-link 600 185 \
             "MaaEnd.dmg" \
             "$APP_NAME"
+
+      - name: Verify app signature in DMG
+        shell: bash
+        run: |
+          mount_point="$(mktemp -d "$RUNNER_TEMP/maaend-dmg-check.XXXXXX")"
+          hdiutil attach -readonly -nobrowse -mountpoint "$mount_point" MaaEnd.dmg
+          trap 'hdiutil detach "$mount_point"' EXIT
+          codesign --verify --deep --strict --verbose=2 "$mount_point/MaaEnd.app"
 
       - uses: actions/upload-artifact@v6
         with:

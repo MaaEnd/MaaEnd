@@ -10,10 +10,10 @@
 （``tools/zmdmap/utils/project.py``）完成，所以这里不做任何底图筛选，全部营地主都收。
 """
 
-from pathlib import Path
 from typing import Any
 
 from ..utils.game_data import level_of, map_of_level
+from ..utils.inputs import JsonData, TableCfg
 from ..utils.log import logger
 from ..utils.tables import (
     LevelDescRow,
@@ -21,9 +21,6 @@ from ..utils.tables import (
     LevelMark,
     LevelMarkBasic,
     TextRef,
-    load_config,
-    load_level,
-    load_table,
 )
 from .base import Dataset, DatasetError
 
@@ -41,9 +38,7 @@ def area_text_key(level_map: LevelMap, basic: LevelMarkBasic, x: float, z: float
     labels = [element for element in level_map.static_elements.values() if element.type == PLACE_LABEL_TYPE]
     if not labels:
         return ""
-    nearest = min(
-        labels, key=lambda element: (element.position.x - x) ** 2 + (element.position.z - z) ** 2
-    )
+    nearest = min(labels, key=lambda element: (element.position.x - x) ** 2 + (element.position.z - z) ** 2)
     # 任务推进后标签会换字，取最后一段
     return nearest.text_phases[-1].text_id if nearest.text_phases else nearest.text_id
 
@@ -52,21 +47,20 @@ class TeleportAnchors(Dataset):
     """营地（地图上的传送锚点）（``teleport_anchors.json``）。"""
 
     needs_projection = True
-    requires_json_data = True
     projection_containers = ("anchors",)
 
     @classmethod
-    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
+    def build(cls, table_cfg: TableCfg, json_data: JsonData) -> dict[str, Any]:
         """营地（传送锚点）：坐标、所属关卡与底图、区域与关卡的名称。
 
         只认 ``templateId`` 是 ``mark_sp_campfire`` 的标记，按 ``markInstId`` 的数值升序。区域名优先取
         地下层名（``LevelMapLoadConfig`` 的 ``tierNames`` 对上标记的 ``tierMap``），没有就取同关卡地图上
         离它最近的地名标签，两者都没有时为空。
         """
-        level_map_mark = load_config(json_data_dir, "LevelMapMark", dict[str, list[LevelMark]])
-        levels = cls.level_index(json_data_dir)
-        text_keys = load_table(table_cfg_dir, "TextTable", TextRef)
-        level_desc = load_table(table_cfg_dir, "LevelDescTable", LevelDescRow)
+        level_map_mark = json_data.config("LevelMapMark", dict[str, list[LevelMark]])
+        levels = json_data.level_index()
+        text_keys = table_cfg.table("TextTable", TextRef)
+        level_desc = table_cfg.table("LevelDescTable", LevelDescRow)
 
         anchors: list[dict[str, Any]] = []
         for group_key in sorted(level_map_mark):
@@ -90,13 +84,13 @@ class TeleportAnchors(Dataset):
                     teleport_id = ""
 
                 area_names: dict[str, str] = {}
-                area_key = area_text_key(load_level(json_data_dir, level_id, LevelMap), basic, x, z)
+                area_key = area_text_key(json_data.level(level_id, LevelMap), basic, x, z)
                 if area_key:
                     if area_key not in text_keys:
                         raise DatasetError(f"{label} 的区域名 {area_key} 不在 TextTable 里")
                     area_label = f"{label} 的区域名"
                     area_names = cls.plain_names(
-                        cls.localized_names(text_keys[area_key], table_cfg_dir, area_label),
+                        cls.localized_names(text_keys[area_key], table_cfg, area_label),
                         area_label,
                     )
 
@@ -123,9 +117,7 @@ class TeleportAnchors(Dataset):
                 raise DatasetError(f"关卡 {level_id} 不在 LevelDescTable 里")
             level_label = f"关卡 {level_id}"
             level_names[level_id] = {
-                "names": cls.plain_names(
-                    cls.localized_names(entry.show_name, table_cfg_dir, level_label), level_label
-                )
+                "names": cls.plain_names(cls.localized_names(entry.show_name, table_cfg, level_label), level_label)
             }
 
         logger.info(f"Built maaend teleport_anchors: {len(anchors)} anchors")

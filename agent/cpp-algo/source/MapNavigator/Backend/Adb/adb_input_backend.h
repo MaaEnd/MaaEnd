@@ -42,36 +42,36 @@ class AdbInputBackend final : public IInputBackend
 public:
     AdbInputBackend(MaaController* ctrl, std::string controller_type, std::shared_ptr<maplocator::MapLocator> locator);
 
-    MaaController* GetCtrl() const override;
-    const std::string& ControllerType() const override;
-    bool UsesTouchBackend() const override;
-    bool IsSupported() const override;
-    const std::string& UnsupportedReason() const override;
-    double DefaultTurnUnitsPerDegree() const override;
-    double DefaultPitchUnitsPerDegree() const override;
-    SteeringTransportProfile SteeringProfile() const override;
+    MaaController* getCtrl() const override;
+    const std::string& controllerType() const override;
+    bool usesTouchBackend() const override;
+    bool isSupported() const override;
+    const std::string& unsupportedReason() const override;
+    double defaultTurnUnitsPerDegree() const override;
+    double defaultPitchUnitsPerDegree() const override;
+    SteeringTransportProfile steeringProfile() const override;
 
-    bool SupportsWalkToggle() const override { return true; }
+    bool supportsWalkToggle() const override { return true; }
 
-    void SetMovementStateSync(MovementState state, int delay_millis) override;
-    void TriggerJumpSync(int hold_millis) override;
-    void TriggerInteractSync(int hold_millis) override;
-    void PulseForwardSync(int hold_millis) override;
-    void TriggerSprintSync() override;
+    void setMovementStateSync(MovementState state, int delay_millis) override;
+    void triggerJumpSync(int hold_millis) override;
+    void triggerInteractSync(int hold_millis) override;
+    void pulseForwardSync(int hold_millis) override;
+    void triggerSprintSync() override;
 
-    void ToggleWalkModeSync() override { joystick_driver_.SetWalking(!joystick_driver_.walking()); }
+    void toggleWalkModeSync() override { joystick_driver_.setWalking(!joystick_driver_.walking()); }
 
-    void ResetForwardWalkSync(int release_millis) override;
-    void ClickMouseLeftSync() override;
-    void TriggerZiplineLaunchSync() override;
-    void TriggerZiplineDismountSync(int hold_millis) override;
-    bool SendViewDeltaSync(int dx, int dy) override;
+    void resetForwardWalkSync(int release_millis) override;
+    void clickMouseLeftSync() override;
+    void triggerZiplineLaunchSync() override;
+    void triggerZiplineDismountSync(int hold_millis) override;
+    bool sendViewDeltaSync(int dx, int dy) override;
 
 private:
-    void ApplyMovementState(MovementState state, int delay_millis);
-    bool ClickTargetSync(const AdbTapTarget& target, int hold_millis, int delay_millis);
-    bool TouchDownTargetSync(const AdbTapTarget& target) const;
-    bool WaitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const;
+    void applyMovementState(MovementState state, int delay_millis);
+    bool clickTargetSync(const AdbTapTarget& target, int hold_millis, int delay_millis);
+    bool touchDownTargetSync(const AdbTapTarget& target) const;
+    bool waitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const;
 
     MaaController* ctrl_ = nullptr;
     std::string controller_type_;

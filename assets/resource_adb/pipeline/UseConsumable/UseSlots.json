@@ -1,0 +1,66 @@
+{
+    "UseConsumableUseOperator1": {
+        "target": [
+            612,
+            327
+        ]
+    },
+    "UseConsumableUseConfirmButtonSlot1": {
+        "any_of": [
+            "UseConsumableUseConfirmButtonNormal"
+        ]
+    },
+    "UseConsumableUseCancelButtonSlot1": {
+        "any_of": [
+            "UseConsumableUseCancelButtonNormal"
+        ]
+    },
+    "UseConsumableUseOperator2": {
+        "target": [
+            728,
+            327
+        ]
+    },
+    "UseConsumableUseConfirmButtonSlot2": {
+        "any_of": [
+            "UseConsumableUseConfirmButtonNormal"
+        ]
+    },
+    "UseConsumableUseCancelButtonSlot2": {
+        "any_of": [
+            "UseConsumableUseCancelButtonNormal"
+        ]
+    },
+    "UseConsumableUseOperator3": {
+        "target": [
+            849,
+            327
+        ]
+    },
+    "UseConsumableUseConfirmButtonSlot3": {
+        "any_of": [
+            "UseConsumableUseConfirmButtonNormal"
+        ]
+    },
+    "UseConsumableUseCancelButtonSlot3": {
+        "any_of": [
+            "UseConsumableUseCancelButtonNormal"
+        ]
+    },
+    "UseConsumableUseOperator4": {
+        "target": [
+            965,
+            327
+        ]
+    },
+    "UseConsumableUseConfirmButtonSlot4": {
+        "any_of": [
+            "UseConsumableUseConfirmButtonNormal"
+        ]
+    },
+    "UseConsumableUseCancelButtonSlot4": {
+        "any_of": [
+            "UseConsumableUseCancelButtonNormal"
+        ]
+    }
+}

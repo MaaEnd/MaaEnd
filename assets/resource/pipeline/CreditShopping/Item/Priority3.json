@@ -6,9 +6,9 @@
             "param": {
                 "roi": "CanAfford",
                 "roi_offset": [
-                    -100,
+                    -110,
                     31,
-                    118,
+                    128,
                     25
                 ],
                 "method": 6,
@@ -70,9 +70,9 @@
             "param": {
                 "roi": "CanNotAfford",
                 "roi_offset": [
-                    -100,
+                    -110,
                     31,
-                    118,
+                    128,
                     25
                 ],
                 "method": 6,

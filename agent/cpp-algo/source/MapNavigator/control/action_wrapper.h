@@ -19,35 +19,35 @@ public:
     explicit ActionWrapper(MaaContext* context);
     ~ActionWrapper();
 
-    MaaController* GetCtrl() const;
-    const char* controller_type() const;
-    bool uses_touch_backend() const;
-    bool is_supported() const;
-    const char* unsupported_reason() const;
-    double DefaultTurnUnitsPerDegree() const;
-    double DefaultPitchUnitsPerDegree() const;
-    SteeringTransportProfile SteeringProfile() const;
-    bool SupportsSprint() const;
-    bool SupportsWalkToggle() const;
+    MaaController* getCtrl() const;
+    const char* controllerType() const;
+    bool usesTouchBackend() const;
+    bool isSupported() const;
+    const char* unsupportedReason() const;
+    double defaultTurnUnitsPerDegree() const;
+    double defaultPitchUnitsPerDegree() const;
+    SteeringTransportProfile steeringProfile() const;
+    bool supportsSprint() const;
+    bool supportsWalkToggle() const;
 
-    void SetMovementStateSync(MovementState state, int delay_millis);
-    void TriggerJumpSync(int hold_millis);
-    void TriggerInteractSync(int hold_millis);
-    void PulseForwardSync(int hold_millis);
-    void TriggerSprintSync();
-    void ToggleWalkModeSync();
-    void ResetForwardWalkSync(int release_millis);
-    void ClickMouseLeftSync();
+    void setMovementStateSync(MovementState state, int delay_millis);
+    void triggerJumpSync(int hold_millis);
+    void triggerInteractSync(int hold_millis);
+    void pulseForwardSync(int hold_millis);
+    void triggerSprintSync();
+    void toggleWalkModeSync();
+    void resetForwardWalkSync(int release_millis);
+    void clickMouseLeftSync();
 
-    void TriggerZiplineLaunchSync();
-    void TriggerZiplineDismountSync(int hold_millis);
+    void triggerZiplineLaunchSync();
+    void triggerZiplineDismountSync(int hold_millis);
 
-    bool SendViewDeltaSync(int dx, int dy);
+    bool sendViewDeltaSync(int dx, int dy);
 
     // 每次可能动过镜头就加一, 取位时记下的值仍等于当前值, 那次的镜头朝向才可当参考
-    uint64_t heading_epoch() const { return heading_epoch_; }
+    uint64_t headingEpoch() const { return heading_epoch_; }
 
-    void NoteHeadingDisturbed() { ++heading_epoch_; }
+    void noteHeadingDisturbed() { ++heading_epoch_; }
 
 private:
     std::unique_ptr<IInputBackend> backend_;

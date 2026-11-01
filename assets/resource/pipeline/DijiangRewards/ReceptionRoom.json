@@ -1398,7 +1398,7 @@
             "ReceptionRoomSendClueSix",
             "ReceptionRoomSendClueSeven",
             "[JumpBack]ReceptionRoomSendCluesSwipe",
-            "EmptyNode"
+            "ReceptionRoomSendExit"
         ]
     },
     "ReceptionRoomSendClueOne": {
@@ -1852,7 +1852,8 @@
         "next": [
             "[JumpBack]ReceptionRoomSendCluesQuickGiveDuplicates",
             "[JumpBack]ReceptionRoomSendCluesSendMain",
-            "ReceptionRoomSendExit"
+            "ReceptionRoomSendExit",
+            "InReceptionRoom"
         ]
     },
     "ReceptionRoomSendCluesQuickGiveDuplicates": {

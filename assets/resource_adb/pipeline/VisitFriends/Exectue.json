@@ -1,0 +1,14 @@
+{
+    // 触屏没有交互键 F：改为点击识别到的交互提示本身（roi 与 expected 沿用主资源）。
+    // 与 AutoSellPressStockRedistribution 的 ADB 覆盖同款：ADB 下 AutoAltClickAction 的
+    // Alt 按下/抬起是空动作，只执行一次触摸点击。
+    "VisitFriendsPressStockRedistribution": {
+        "desc": "点击物资调度终端的交互提示",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        }
+    }
+}

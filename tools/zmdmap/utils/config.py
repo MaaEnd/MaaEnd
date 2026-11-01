@@ -1,10 +1,13 @@
 """``tools/zmdmap`` 的静态配置：文件树与路径、语言 key 的映射、发布渠道的地址。
 
-**路径**：输入（TableCfg / JsonData）默认取与 MaaEnd 仓库**平级**的兄弟仓库，可用 CLI 参数或环境变量
-覆盖。三档优先级由 click 的 ``envvar`` 与 ``default`` 保证：命令行 > 环境变量 > 默认。``--workspace``
-是放兄弟仓库的那个目录，既决定同步哪些仓库，也决定输入目录的默认位置；显式给了 ``--table-cfg-dir`` /
-``--json-data-dir``（或对应环境变量）时以显式值为准。产物落在 zmdmap 自己的数据树里：生成或下载出来的
-**原始形态**（只带世界坐标）先进不入库的 ``tools/zmdmap/data/raw/``，再由入库步骤进入库的
+**路径**：输入默认取与 MaaEnd 仓库**平级**的兄弟仓库，可用 CLI 参数或环境变量覆盖。三档优先级由 click
+的 ``envvar`` 与 ``default`` 保证：命令行 > 环境变量 > 默认。``--workspace`` 是放兄弟仓库的那个目录，既
+决定同步哪些仓库，也决定输入目录的默认位置；显式给了 ``--table-cfg-dir`` / ``--json-data-dir``（或对应
+环境变量）时以显式值为准。每份数据集读哪些目录由它 ``build`` 的参数决定：全都读 TableCfg，读关卡数据的
+那几份还要 JsonData，``region3d`` 还要两样解包输入——Lua 脚本（``BeyondLua/LuaScripts``）与 Unity 资源根
+（``BeyondImage/assets``），同样可用 ``--lua-dir`` / ``--assets-dir`` 或环境变量覆盖。产物落在 zmdmap
+自己的数据树里：生成或
+下载出来的**原始形态**（只带世界坐标）先进不入库的 ``tools/zmdmap/data/raw/``，再由入库步骤进入库的
 ``tools/zmdmap/data/``——带坐标的由 :mod:`tools.zmdmap.utils.project` 按 BaseNav 的 zone 表换成底图像素。
 
 **语言**是这里最容易写歪的一处：同一批语言，在几处地方用不同写法 ——
@@ -35,11 +38,19 @@ DEFAULT_WORKSPACE = REPO_ROOT.parent
 WORKSPACE_ENV = "ZMDMAP_WORKSPACE"
 TABLE_CFG_DIR_ENV = "ZMDMAP_TABLE_CFG_DIR"
 JSON_DATA_DIR_ENV = "ZMDMAP_JSON_DATA_DIR"
+LUA_DIR_ENV = "ZMDMAP_LUA_DIR"
+ASSETS_DIR_ENV = "ZMDMAP_ASSETS_DIR"
 
-# 兄弟仓库目录名与各自的输入子路径。
-WORKSPACE_REPO_NAMES = ("BeyondMemoryPack", "BeyondTableCfg")
+# 兄弟仓库目录名与各自的输入子路径。``--sync`` 按这个顺序快进：数据仓库在前，解包输入在后
+# （资源仓库 20 GB 以上，放最后，前面几个要是失败也能先看到）。
+WORKSPACE_REPO_NAMES = ("BeyondMemoryPack", "BeyondTableCfg", "BeyondLua", "BeyondImage")
+# 「这批数据是哪一版」只看数据仓库：精简数据的本体来自它们，Lua 与解包资源跟着同一批更新。
+DATA_REPO_NAMES = ("BeyondMemoryPack", "BeyondTableCfg")
 TABLE_CFG_SUBPATH = ("BeyondTableCfg", "TableCfg")
 JSON_DATA_SUBPATH = ("BeyondMemoryPack", "JsonData")
+# 只有 region3d 数据集读这两样：解包出的 Lua 脚本与 Unity 资源根。
+LUA_SUBPATH = ("BeyondLua", "LuaScripts")
+ASSETS_SUBPATH = ("BeyondImage", "assets")
 
 # zmdmap 自己的数据树：``data/raw/`` 放原样产物（下载的或本地生成的，不入库），
 # ``data/`` 放可以直接用的数据（投影后的，以及不需要投影的）。
@@ -100,3 +111,13 @@ def table_cfg_dir_in(workspace: Path) -> Path:
 def json_data_dir_in(workspace: Path) -> Path:
     """``<workspace>/BeyondMemoryPack/JsonData``。"""
     return workspace.joinpath(*JSON_DATA_SUBPATH)
+
+
+def lua_dir_in(workspace: Path) -> Path:
+    """``<workspace>/BeyondLua/LuaScripts``（只有 region3d 数据集用）。"""
+    return workspace.joinpath(*LUA_SUBPATH)
+
+
+def assets_dir_in(workspace: Path) -> Path:
+    """``<workspace>/BeyondImage/assets``（只有 region3d 数据集用）。"""
+    return workspace.joinpath(*ASSETS_SUBPATH)

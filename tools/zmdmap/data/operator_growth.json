@@ -1,6 +1,6 @@
 {
-    "version": "1.6.3",
-    "sha256": "5ea68fb62ceeaf9c347e8ee87f934a6bacf04605c72c47787c8fbd89657f7f54",
+    "version": "1.6.4+11262943-8",
+    "sha256": "483c4ef09ec11b8b36a1413557a15279068a982bc154d5a5a16ca82feebded7f",
     "level_up": {
         "1": {
             "exp": 20,
@@ -369,9 +369,9 @@
                 "ko_kr": "관리자"
             },
             "rarity": 6,
-            "profession": 0,
+            "profession": "GUARD",
             "char_type": "Physical",
-            "weapon_type": 1,
+            "weapon_type": "Sword",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -915,9 +915,9 @@
                 "ko_kr": "관리자"
             },
             "rarity": 6,
-            "profession": 0,
+            "profession": "GUARD",
             "char_type": "Physical",
-            "weapon_type": 1,
+            "weapon_type": "Sword",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -1461,9 +1461,9 @@
                 "ko_kr": "펠리카"
             },
             "rarity": 5,
-            "profession": 5,
+            "profession": "CASTER",
             "char_type": "Pulse",
-            "weapon_type": 2,
+            "weapon_type": "Wand",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -2031,9 +2031,9 @@
                 "ko_kr": "진천우"
             },
             "rarity": 5,
-            "profession": 0,
+            "profession": "GUARD",
             "char_type": "Physical",
-            "weapon_type": 1,
+            "weapon_type": "Sword",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -2609,9 +2609,9 @@
                 "ko_kr": "울프가드"
             },
             "rarity": 5,
-            "profession": 5,
+            "profession": "CASTER",
             "char_type": "Fire",
-            "weapon_type": 6,
+            "weapon_type": "Pistol",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -3187,9 +3187,9 @@
                 "ko_kr": "아크라이트"
             },
             "rarity": 5,
-            "profession": 7,
+            "profession": "VANGUARD",
             "char_type": "Pulse",
-            "weapon_type": 1,
+            "weapon_type": "Sword",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -3765,9 +3765,9 @@
                 "ko_kr": "엠버"
             },
             "rarity": 6,
-            "profession": 2,
+            "profession": "DEFENDER",
             "char_type": "Fire",
-            "weapon_type": 3,
+            "weapon_type": "Claymores",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -4343,9 +4343,9 @@
                 "ko_kr": "자이히"
             },
             "rarity": 5,
-            "profession": 4,
+            "profession": "SUPPORTER",
             "char_type": "Cryst",
-            "weapon_type": 2,
+            "weapon_type": "Wand",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -4913,9 +4913,9 @@
                 "ko_kr": "아비웨나"
             },
             "rarity": 5,
-            "profession": 8,
+            "profession": "ASSAULT",
             "char_type": "Pulse",
-            "weapon_type": 5,
+            "weapon_type": "Lance",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -5491,9 +5491,9 @@
                 "ko_kr": "질베르타"
             },
             "rarity": 6,
-            "profession": 4,
+            "profession": "SUPPORTER",
             "char_type": "Natural",
-            "weapon_type": 2,
+            "weapon_type": "Wand",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -6069,9 +6069,9 @@
                 "ko_kr": "스노우샤인"
             },
             "rarity": 5,
-            "profession": 2,
+            "profession": "DEFENDER",
             "char_type": "Cryst",
-            "weapon_type": 3,
+            "weapon_type": "Claymores",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -6647,9 +6647,9 @@
                 "ko_kr": "여풍"
             },
             "rarity": 6,
-            "profession": 0,
+            "profession": "GUARD",
             "char_type": "Physical",
-            "weapon_type": 5,
+            "weapon_type": "Lance",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -7225,9 +7225,9 @@
                 "ko_kr": "레바테인"
             },
             "rarity": 6,
-            "profession": 8,
+            "profession": "ASSAULT",
             "char_type": "Fire",
-            "weapon_type": 1,
+            "weapon_type": "Sword",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -7808,9 +7808,9 @@
                 "ko_kr": "이본"
             },
             "rarity": 6,
-            "profession": 8,
+            "profession": "ASSAULT",
             "char_type": "Cryst",
-            "weapon_type": 6,
+            "weapon_type": "Pistol",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -8386,9 +8386,9 @@
                 "ko_kr": "판"
             },
             "rarity": 5,
-            "profession": 8,
+            "profession": "ASSAULT",
             "char_type": "Physical",
-            "weapon_type": 3,
+            "weapon_type": "Claymores",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -8964,9 +8964,9 @@
                 "ko_kr": "아케쿠리"
             },
             "rarity": 4,
-            "profession": 7,
+            "profession": "VANGUARD",
             "char_type": "Fire",
-            "weapon_type": 1,
+            "weapon_type": "Sword",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -9534,9 +9534,9 @@
                 "ko_kr": "카치르"
             },
             "rarity": 4,
-            "profession": 2,
+            "profession": "DEFENDER",
             "char_type": "Physical",
-            "weapon_type": 3,
+            "weapon_type": "Claymores",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -10112,9 +10112,9 @@
                 "ko_kr": "에스텔라"
             },
             "rarity": 4,
-            "profession": 0,
+            "profession": "GUARD",
             "char_type": "Cryst",
-            "weapon_type": 5,
+            "weapon_type": "Lance",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -10690,9 +10690,9 @@
                 "ko_kr": "플루라이트"
             },
             "rarity": 4,
-            "profession": 5,
+            "profession": "CASTER",
             "char_type": "Natural",
-            "weapon_type": 6,
+            "weapon_type": "Pistol",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -11268,9 +11268,9 @@
                 "ko_kr": "안탈"
             },
             "rarity": 4,
-            "profession": 4,
+            "profession": "SUPPORTER",
             "char_type": "Pulse",
-            "weapon_type": 2,
+            "weapon_type": "Wand",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -11846,9 +11846,9 @@
                 "ko_kr": "알레쉬"
             },
             "rarity": 5,
-            "profession": 7,
+            "profession": "VANGUARD",
             "char_type": "Cryst",
-            "weapon_type": 1,
+            "weapon_type": "Sword",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -12424,9 +12424,9 @@
                 "ko_kr": "아델리아"
             },
             "rarity": 6,
-            "profession": 4,
+            "profession": "SUPPORTER",
             "char_type": "Natural",
-            "weapon_type": 2,
+            "weapon_type": "Wand",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -12999,9 +12999,9 @@
                 "ko_kr": "라스트 라이트"
             },
             "rarity": 6,
-            "profession": 8,
+            "profession": "ASSAULT",
             "char_type": "Cryst",
-            "weapon_type": 3,
+            "weapon_type": "Claymores",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -13577,9 +13577,9 @@
                 "ko_kr": "탕탕"
             },
             "rarity": 6,
-            "profession": 5,
+            "profession": "CASTER",
             "char_type": "Cryst",
-            "weapon_type": 6,
+            "weapon_type": "Pistol",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -14155,9 +14155,9 @@
                 "ko_kr": "로시"
             },
             "rarity": 6,
-            "profession": 0,
+            "profession": "GUARD",
             "char_type": "Physical",
-            "weapon_type": 1,
+            "weapon_type": "Sword",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -14733,9 +14733,9 @@
                 "ko_kr": "포그라니치니크"
             },
             "rarity": 6,
-            "profession": 7,
+            "profession": "VANGUARD",
             "char_type": "Physical",
-            "weapon_type": 1,
+            "weapon_type": "Sword",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -15311,9 +15311,9 @@
                 "ko_kr": "장방이"
             },
             "rarity": 6,
-            "profession": 8,
+            "profession": "ASSAULT",
             "char_type": "Pulse",
-            "weapon_type": 2,
+            "weapon_type": "Wand",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -15889,9 +15889,9 @@
                 "ko_kr": "미브"
             },
             "rarity": 6,
-            "profession": 0,
+            "profession": "GUARD",
             "char_type": "Physical",
-            "weapon_type": 3,
+            "weapon_type": "Claymores",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -16467,9 +16467,9 @@
                 "ko_kr": "결"
             },
             "rarity": 6,
-            "profession": 5,
+            "profession": "CASTER",
             "char_type": "Natural",
-            "weapon_type": 2,
+            "weapon_type": "Wand",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -17042,9 +17042,9 @@
                 "ko_kr": "카뮤"
             },
             "rarity": 6,
-            "profession": 7,
+            "profession": "VANGUARD",
             "char_type": "Fire",
-            "weapon_type": 5,
+            "weapon_type": "Lance",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -17620,9 +17620,9 @@
                 "ko_kr": "티프로스"
             },
             "rarity": 6,
-            "profession": 8,
+            "profession": "ASSAULT",
             "char_type": "Natural",
-            "weapon_type": 2,
+            "weapon_type": "Wand",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -18203,9 +18203,9 @@
                 "ko_kr": "리노"
             },
             "rarity": 6,
-            "profession": 4,
+            "profession": "SUPPORTER",
             "char_type": "Pulse",
-            "weapon_type": 5,
+            "weapon_type": "Lance",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -18781,9 +18781,9 @@
                 "ko_kr": "사"
             },
             "rarity": 6,
-            "profession": 4,
+            "profession": "SUPPORTER",
             "char_type": "Cryst",
-            "weapon_type": 3,
+            "weapon_type": "Claymores",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -19359,9 +19359,9 @@
                 "ko_kr": "푸치나"
             },
             "rarity": 5,
-            "profession": 2,
+            "profession": "DEFENDER",
             "char_type": "Physical",
-            "weapon_type": 1,
+            "weapon_type": "Sword",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",
@@ -19937,9 +19937,9 @@
                 "ko_kr": "관리자"
             },
             "rarity": 6,
-            "profession": 0,
+            "profession": "GUARD",
             "char_type": "Physical",
-            "weapon_type": 1,
+            "weapon_type": "Sword",
             "break_nodes": [
                 {
                     "node_id": "charBreak20",

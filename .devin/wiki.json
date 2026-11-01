@@ -21,7 +21,7 @@
             "author": "maintainer"
         },
         {
-            "content": "项目支持的平台：主要支持 PC（Windows 桌面控制器）和安卓端（ADB 控制器），并逐步覆盖 Linux、macOS（含 PlayCover）等，另有 CloudADB 控制器（assets/interface.json 中注册为 name: CloudADB）通过 ADB 连接《云·终末地》官方云游戏客户端（测试版）。各平台的差异化适配资源位于 assets/resource_adb/、assets/resource_cloud_adb/、assets/resource_linux/、assets/resource_macos/、assets/resource_playcover/ 等目录，与 PC 端的 assets/resource/ 平行存在；控制器适配抽象位于 agent/go-service/pkg/control/。",
+            "content": "项目支持的平台：主要支持 PC（Windows 桌面控制器）和安卓端（ADB 控制器），并逐步覆盖 Linux、macOS（含 PlayCover）等，另有 CloudADB 控制器（assets/interface.json 中注册为 name: CloudADB）通过 ADB 连接《云·终末地》官方云游戏客户端（测试版）。各平台的差异化适配资源位于 assets/resource_adb/、assets/resource_cloud/、assets/resource_linux/、assets/resource_macos/、assets/resource_playcover/ 等目录，与 PC 端的 assets/resource/ 平行存在；控制器适配抽象位于 agent/go-service/pkg/control/。",
             "author": "maintainer"
         },
         {
@@ -183,7 +183,7 @@
         },
         {
             "title": "多端适配",
-            "purpose": "说明多端适配方案：PC（Windows 桌面）、安卓（ADB）及其它平台（Linux、macOS/PlayCover）的差异化资源目录（assets/resource_adb/、assets/resource_linux/、assets/resource_macos/、assets/resource_playcover/），以及 CloudADB 控制器（assets/interface.json 注册为 name: CloudADB）对接《云·终末地》官方云游戏客户端的 assets/resource_cloud_adb/ 适配资源；控制器适配抽象位于 agent/go-service/pkg/control/ 的 adaptor_desktop/adb/linux/macos。"
+            "purpose": "说明多端适配方案：PC（Windows 桌面）、安卓（ADB）及其它平台（Linux、macOS/PlayCover）的差异化资源目录（assets/resource_adb/、assets/resource_linux/、assets/resource_macos/、assets/resource_playcover/），以及 CloudADB 控制器（assets/interface.json 注册为 name: CloudADB）对接《云·终末地》官方云游戏客户端的 assets/resource_cloud/ 适配资源；控制器适配抽象位于 agent/go-service/pkg/control/ 的 adaptor_desktop/adb/linux/macos。"
         },
         {
             "title": "国际化与本地化",

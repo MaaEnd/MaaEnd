@@ -1,0 +1,360 @@
+{
+    "UseConsumableStockWulingEnter": {
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableStockWulingDepotReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotWulingUsable"
+        ]
+    },
+    "UseConsumableStockWulingDepotReady": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotWulingUsable"
+        ],
+        "next": [
+            "UseConsumableStockWulingScanStart"
+        ]
+    },
+    "UseConsumableStockValleyIVEnter": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotWulingUsable"
+        ],
+        "next": [
+            "UseConsumableStockValleyIVDepotReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotValleyIVUsable"
+        ]
+    },
+    "UseConsumableStockValleyIVDepotReady": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotValleyIVUsable"
+        ],
+        "next": [
+            "UseConsumableStockValleyIVScanStart"
+        ]
+    },
+    "UseConsumableStockFinish": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "UseConsumableUseTeleportStart"
+        ]
+    },
+    "UseConsumableStockWulingScanStart": {
+        "desc": "开始一次武陵仓库扫描",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "ItemTransferRepoTopReached": {
+                    "next": [
+                        "UseConsumableStockFindItemsPage"
+                    ]
+                },
+                "ItemTransferRepoBottomReached": {
+                    "next": [
+                        "UseConsumableStockWulingVerifyBagStart"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "ItemTransferResetRepoScanBoundaries"
+        ]
+    },
+    "UseConsumableStockFindItemsPage": {
+        "desc": "在当前仓库页同时检查所有仍缺少的消耗品",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableStockFindItemSlot1",
+            "UseConsumableStockFindItemSlot2",
+            "UseConsumableStockFindItemSlot3",
+            "UseConsumableStockFindItemSlot4",
+            "ItemTransferRepoBottomReached",
+            "[JumpBack]ItemTransferScrollDownwardRepo",
+            "ItemTransferStop"
+        ]
+    },
+    "UseConsumableStockWulingMarkMissingSlot1": {
+        "desc": "武陵仓库未找到该槽位物品，标记为待查四号谷地",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedStockSlot1": {
+                    "enabled": false
+                },
+                "UseConsumableNeedValleyIVSlot1": {
+                    "enabled": true
+                },
+                "UseConsumableNeedValleyIV": {
+                    "enabled": true
+                },
+                "UseConsumableStockFindItemSlot1": {
+                    "enabled": true
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockWulingResolveMissing"
+        ]
+    },
+    "UseConsumableStockWulingMarkMissingSlot2": {
+        "desc": "武陵仓库未找到该槽位物品，标记为待查四号谷地",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedStockSlot2": {
+                    "enabled": false
+                },
+                "UseConsumableNeedValleyIVSlot2": {
+                    "enabled": true
+                },
+                "UseConsumableNeedValleyIV": {
+                    "enabled": true
+                },
+                "UseConsumableStockFindItemSlot2": {
+                    "enabled": true
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockWulingResolveMissing"
+        ]
+    },
+    "UseConsumableStockWulingMarkMissingSlot3": {
+        "desc": "武陵仓库未找到该槽位物品，标记为待查四号谷地",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedStockSlot3": {
+                    "enabled": false
+                },
+                "UseConsumableNeedValleyIVSlot3": {
+                    "enabled": true
+                },
+                "UseConsumableNeedValleyIV": {
+                    "enabled": true
+                },
+                "UseConsumableStockFindItemSlot3": {
+                    "enabled": true
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockWulingResolveMissing"
+        ]
+    },
+    "UseConsumableStockWulingMarkMissingSlot4": {
+        "desc": "武陵仓库未找到该槽位物品，标记为待查四号谷地",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedStockSlot4": {
+                    "enabled": false
+                },
+                "UseConsumableNeedValleyIVSlot4": {
+                    "enabled": true
+                },
+                "UseConsumableNeedValleyIV": {
+                    "enabled": true
+                },
+                "UseConsumableStockFindItemSlot4": {
+                    "enabled": true
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockWulingResolveMissing"
+        ]
+    },
+    "UseConsumableStockValleyIVScanStart": {
+        "desc": "只扫描武陵仓库未找到项目的四号谷地仓库",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "ItemTransferRepoTopReached": {
+                    "next": [
+                        "UseConsumableStockFindItemsPage"
+                    ]
+                },
+                "ItemTransferRepoBottomReached": {
+                    "next": [
+                        "UseConsumableStockValleyIVVerifyBagStart"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "ItemTransferResetRepoScanBoundaries"
+        ]
+    },
+    "UseConsumableStockValleyIVMarkMissingSlot1": {
+        "desc": "四号谷地仓库未找到该槽位物品，跳过该槽位并记录任务失败",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedValleyIVSlot1": {
+                    "enabled": false
+                },
+                "UseConsumableUseStartSlot1": {
+                    "enabled": false
+                },
+                "UseConsumableSlot1Disabled": {
+                    "enabled": true
+                }
+            }
+        },
+        "next": [
+            "UseConsumableRecordMissingSlot1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.UseConsumable.focus.usable_item_not_found"
+        }
+    },
+    "UseConsumableStockValleyIVMarkMissingSlot2": {
+        "desc": "四号谷地仓库未找到该槽位物品，跳过该槽位并记录任务失败",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedValleyIVSlot2": {
+                    "enabled": false
+                },
+                "UseConsumableUseStartSlot2": {
+                    "enabled": false
+                },
+                "UseConsumableSlot2Disabled": {
+                    "enabled": true
+                }
+            }
+        },
+        "next": [
+            "UseConsumableRecordMissingSlot2"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.UseConsumable.focus.usable_item_not_found"
+        }
+    },
+    "UseConsumableStockValleyIVMarkMissingSlot3": {
+        "desc": "四号谷地仓库未找到该槽位物品，跳过该槽位并记录任务失败",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedValleyIVSlot3": {
+                    "enabled": false
+                },
+                "UseConsumableUseStartSlot3": {
+                    "enabled": false
+                },
+                "UseConsumableSlot3Disabled": {
+                    "enabled": true
+                }
+            }
+        },
+        "next": [
+            "UseConsumableRecordMissingSlot3"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.UseConsumable.focus.usable_item_not_found"
+        }
+    },
+    "UseConsumableStockValleyIVMarkMissingSlot4": {
+        "desc": "四号谷地仓库未找到该槽位物品，跳过该槽位并记录任务失败",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedValleyIVSlot4": {
+                    "enabled": false
+                },
+                "UseConsumableUseStartSlot4": {
+                    "enabled": false
+                },
+                "UseConsumableSlot4Disabled": {
+                    "enabled": true
+                }
+            }
+        },
+        "next": [
+            "UseConsumableRecordMissingSlot4"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.UseConsumable.focus.usable_item_not_found"
+        }
+    },
+    "UseConsumableStockWulingResolveMissing": {
+        "desc": "武陵背包确认完成，汇总仍缺少的消耗品",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "UseConsumableNeedStockSlot1": {
+                    "next": [
+                        "UseConsumableStockWulingMarkMissingSlot1"
+                    ]
+                },
+                "UseConsumableNeedStockSlot2": {
+                    "next": [
+                        "UseConsumableStockWulingMarkMissingSlot2"
+                    ]
+                },
+                "UseConsumableNeedStockSlot3": {
+                    "next": [
+                        "UseConsumableStockWulingMarkMissingSlot3"
+                    ]
+                },
+                "UseConsumableNeedStockSlot4": {
+                    "next": [
+                        "UseConsumableStockWulingMarkMissingSlot4"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "UseConsumableNeedStockSlot1",
+            "UseConsumableNeedStockSlot2",
+            "UseConsumableNeedStockSlot3",
+            "UseConsumableNeedStockSlot4",
+            "UseConsumableNeedValleyIV",
+            "UseConsumableStockFinish"
+        ]
+    },
+    "UseConsumableStockValleyIVResolveMissing": {
+        "desc": "四号谷地背包确认完成，汇总仍缺少的消耗品",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableNeedValleyIVSlot1",
+            "UseConsumableNeedValleyIVSlot2",
+            "UseConsumableNeedValleyIVSlot3",
+            "UseConsumableNeedValleyIVSlot4",
+            "UseConsumableStockFinish"
+        ]
+    }
+}

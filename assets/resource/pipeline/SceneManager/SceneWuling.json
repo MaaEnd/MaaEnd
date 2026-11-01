@@ -6,7 +6,7 @@
             "InMapAny"
         ],
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv001_Success",
             "__ScenePrivateMapOverviewEnterMapWulingJingyuValley",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -18,7 +18,7 @@
             "InMapAny"
         ],
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingWulingCitySuccess",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv002_Success",
             "__ScenePrivateMapOverviewEnterMapWulingWulingCity",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -30,7 +30,7 @@
             "InMapAny"
         ],
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingQingboStockadeSuccess",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv003_Success",
             "__ScenePrivateMapOverviewEnterMapWulingQingboStockade",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -42,7 +42,7 @@
             "InMapAny"
         ],
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingMarkerStoneSuccess",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv004_Success",
             "__ScenePrivateMapOverviewEnterMapWulingMarkerStone",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -54,7 +54,7 @@
             "InMapAny"
         ],
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingTestAreaSuccess",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv005_Success",
             "__ScenePrivateMapOverviewEnterMapWulingTestArea",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
@@ -66,12 +66,12 @@
             "InMapAny"
         ],
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingSwordVaultDaleSuccess",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv006_Success",
             "__ScenePrivateMapOverviewEnterMapWulingSwordVaultDale",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv001_Success": {
         "desc": "在地图界面，成功进入武陵-景玉谷地图",
         "recognition": "And",
         "all_of": [
@@ -81,7 +81,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__ScenePrivateMapAnyEnterMapWulingWulingCitySuccess": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv002_Success": {
         "desc": "在地图界面，成功进入武陵-武陵城地图",
         "recognition": "And",
         "all_of": [
@@ -91,7 +91,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__ScenePrivateMapAnyEnterMapWulingQingboStockadeSuccess": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv003_Success": {
         "desc": "在地图界面，成功进入武陵-清波寨地图",
         "recognition": "And",
         "all_of": [
@@ -101,7 +101,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__ScenePrivateMapAnyEnterMapWulingMarkerStoneSuccess": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv004_Success": {
         "desc": "在地图界面，成功进入武陵-首墩地图",
         "recognition": "And",
         "all_of": [
@@ -111,7 +111,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__ScenePrivateMapAnyEnterMapWulingTestAreaSuccess": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv005_Success": {
         "desc": "在地图界面，成功进入武陵-试验园区地图",
         "recognition": "And",
         "all_of": [
@@ -121,7 +121,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__ScenePrivateMapAnyEnterMapWulingSwordVaultDaleSuccess": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv006_Success": {
         "desc": "在地图界面，成功进入武陵-藏剑谷地图",
         "recognition": "And",
         "all_of": [
@@ -174,7 +174,30 @@
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
             "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingJingyuValley",
-            "__ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv001"
+        ]
+    },
+    "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingJingyuValley": {
+        "desc": "在武陵总览界面，识别并进入武陵-景玉谷地图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "expected": [
+                    "景玉谷",
+                    "Jingyu Valley",
+                    "경옥 골짜기"
+                ]
+            }
+        },
+        "action": "Click",
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv001_Success"
         ]
     },
     "__ScenePrivateMapOverviewEnterMapWulingWulingCity": {
@@ -198,7 +221,30 @@
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
             "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingWulingCity",
-            "__ScenePrivateMapOverviewWulingEnterMapWulingWulingCity"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv002"
+        ]
+    },
+    "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingWulingCity": {
+        "desc": "在武陵总览界面，识别并进入武陵-武陵城地图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "expected": [
+                    "武陵城",
+                    "Wuling City",
+                    "무릉성"
+                ]
+            }
+        },
+        "action": "Click",
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv002_Success"
         ]
     },
     "__ScenePrivateMapOverviewEnterMapWulingQingboStockade": {
@@ -222,149 +268,7 @@
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
             "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingQingboStockade",
-            "__ScenePrivateMapOverviewWulingEnterMapWulingQingboStockade"
-        ]
-    },
-    "__ScenePrivateMapOverviewEnterMapWulingMarkerStone": {
-        "desc": "在地图总览界面，进入武陵-首墩地图",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -450,
-                    -150,
-                    350,
-                    150
-                ],
-                "template": [
-                    "SceneManager/MapOverviewWulingChoose.png",
-                    "SceneManager/MapOverviewWulingNotChoose.png"
-                ],
-                "threshold": 0.9
-            }
-        },
-        "next": [
-            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingMarkerStone",
-            "__ScenePrivateMapOverviewWulingEnterMapWulingMarkerStone"
-        ]
-    },
-    "__ScenePrivateMapOverviewEnterMapWulingTestArea": {
-        "desc": "在地图总览界面，进入武陵-试验园区地图",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -450,
-                    -150,
-                    350,
-                    150
-                ],
-                "template": [
-                    "SceneManager/MapOverviewWulingChoose.png",
-                    "SceneManager/MapOverviewWulingNotChoose.png"
-                ],
-                "threshold": 0.9
-            }
-        },
-        "next": [
-            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            // "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingTestArea", // OCR识别位置点击是雪松林，且识别效果很差
-            "__ScenePrivateMapOverviewWulingEnterMapWulingTestArea"
-        ]
-    },
-    "__ScenePrivateMapOverviewEnterMapWulingSwordVaultDale": {
-        "desc": "在地图总览界面，进入武陵-藏剑谷地图",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -450,
-                    -150,
-                    350,
-                    150
-                ],
-                "template": [
-                    "SceneManager/MapOverviewWulingChoose.png",
-                    "SceneManager/MapOverviewWulingNotChoose.png"
-                ],
-                "threshold": 0.9
-            }
-        },
-        "next": [
-            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingSwordVaultDale",
-            "__ScenePrivateMapOverviewWulingEnterMapWulingSwordVaultDale"
-        ]
-    },
-    "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingJingyuValley": {
-        "desc": "在武陵总览界面，识别并进入武陵-景玉谷地图",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    1280,
-                    720
-                ],
-                "expected": [
-                    "景玉谷",
-                    "Jingyu Valley",
-                    "경옥 골짜기"
-                ]
-            }
-        },
-        "action": "Click",
-        "next": [
-            "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess"
-        ]
-    },
-    "__ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley": {
-        "desc": "在武陵总览界面，直接点击进入武陵-景玉谷地图",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": [
-            475,
-            475
-        ],
-        "next": [
-            "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess"
-        ]
-    },
-    "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingWulingCity": {
-        "desc": "在武陵总览界面，识别并进入武陵-武陵城地图",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    1280,
-                    720
-                ],
-                "expected": [
-                    "武陵城",
-                    "Wuling City",
-                    "무릉성"
-                ]
-            }
-        },
-        "action": "Click",
-        "next": [
-            "__ScenePrivateMapAnyEnterMapWulingWulingCitySuccess"
-        ]
-    },
-    "__ScenePrivateMapOverviewWulingEnterMapWulingWulingCity": {
-        "desc": "在武陵总览界面，直接点击进入武陵-武陵城地图",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": [
-            536,
-            270
-        ],
-        "next": [
-            "__ScenePrivateMapAnyEnterMapWulingWulingCitySuccess"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv003"
         ]
     },
     "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingQingboStockade": {
@@ -388,19 +292,31 @@
         },
         "action": "Click",
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingQingboStockadeSuccess"
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv003_Success"
         ]
     },
-    "__ScenePrivateMapOverviewWulingEnterMapWulingQingboStockade": {
-        "desc": "在武陵总览界面，直接点击进入武陵-清波寨地图",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": [
-            613,
-            476
-        ],
+    "__ScenePrivateMapOverviewEnterMapWulingMarkerStone": {
+        "desc": "在地图总览界面，进入武陵-首墩地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -450,
+                    -150,
+                    350,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapOverviewWulingChoose.png",
+                    "SceneManager/MapOverviewWulingNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        },
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingQingboStockadeSuccess"
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
+            "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingMarkerStone",
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv004"
         ]
     },
     "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingMarkerStone": {
@@ -424,19 +340,31 @@
         },
         "action": "Click",
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingMarkerStoneSuccess"
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv004_Success"
         ]
     },
-    "__ScenePrivateMapOverviewWulingEnterMapWulingMarkerStone": {
-        "desc": "在武陵总览界面，直接点击进入武陵-首墩地图",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": [
-            410,
-            407
-        ],
+    "__ScenePrivateMapOverviewEnterMapWulingTestArea": {
+        "desc": "在地图总览界面，进入武陵-试验园区地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -450,
+                    -150,
+                    350,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapOverviewWulingChoose.png",
+                    "SceneManager/MapOverviewWulingNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        },
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingMarkerStoneSuccess"
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
+            // "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingTestArea", // OCR识别位置点击是雪松林，且识别效果很差
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv005"
         ]
     },
     "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingTestArea": {
@@ -461,19 +389,31 @@
         },
         "action": "Click",
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingTestAreaSuccess"
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv005_Success"
         ]
     },
-    "__ScenePrivateMapOverviewWulingEnterMapWulingTestArea": {
-        "desc": "在武陵总览界面，直接点击进入武陵-试验园区地图",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": [
-            640,
-            347
-        ],
+    "__ScenePrivateMapOverviewEnterMapWulingSwordVaultDale": {
+        "desc": "在地图总览界面，进入武陵-藏剑谷地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -450,
+                    -150,
+                    350,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapOverviewWulingChoose.png",
+                    "SceneManager/MapOverviewWulingNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        },
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingTestAreaSuccess"
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
+            "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingSwordVaultDale",
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv006"
         ]
     },
     "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingSwordVaultDale": {
@@ -498,19 +438,7 @@
         },
         "action": "Click",
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingSwordVaultDaleSuccess"
-        ]
-    },
-    "__ScenePrivateMapOverviewWulingEnterMapWulingSwordVaultDale": {
-        "desc": "在武陵总览界面，直接点击进入武陵-藏剑谷地图",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": [
-            630,
-            650
-        ],
-        "next": [
-            "__ScenePrivateMapAnyEnterMapWulingSwordVaultDaleSuccess"
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv006_Success"
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldAnchor": {
@@ -670,12 +598,12 @@
             "InMapAny"
         ],
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingYinglungPassSuccess",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv007_Success",
             "__ScenePrivateMapOverviewEnterMapWulingYinglungPass",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "__ScenePrivateMapAnyEnterMapWulingYinglungPassSuccess": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv007_Success": {
         "desc": "在地图界面，成功进入武陵-应龙关地图",
         "recognition": "And",
         "all_of": [
@@ -706,7 +634,7 @@
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
             // "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingYinglungPass", // OCR识别位置点击是雪松林，且识别效果很差
-            "__ScenePrivateMapOverviewWulingEnterMapWulingYinglungPass"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv007"
         ]
     },
     "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingYinglungPass": {
@@ -731,19 +659,7 @@
         },
         "action": "Click",
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingYinglungPassSuccess"
-        ]
-    },
-    "__ScenePrivateMapOverviewWulingEnterMapWulingYinglungPass": {
-        "desc": "在武陵总览界面，直接点击进入武陵-应龙关地图",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": [
-            700,
-            180
-        ],
-        "next": [
-            "__ScenePrivateMapAnyEnterMapWulingYinglungPassSuccess"
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv007_Success"
         ]
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldAnchorWithPick": {
@@ -768,12 +684,12 @@
             "InMapAny"
         ],
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingNorthWulingExclusionZoneSuccess",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv008_Success",
             "__ScenePrivateMapOverviewEnterMapWulingNorthWulingExclusionZone",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "__ScenePrivateMapAnyEnterMapWulingNorthWulingExclusionZoneSuccess": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv008_Success": {
         "desc": "在地图界面，成功进入武陵-北部禁区地图",
         "recognition": "And",
         "all_of": [
@@ -804,7 +720,7 @@
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
             "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingNorthWulingExclusionZone",
-            "__ScenePrivateMapOverviewWulingEnterMapWulingNorthWulingExclusionZone"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv008"
         ]
     },
     "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingNorthWulingExclusionZone": {
@@ -835,19 +751,7 @@
             0
         ],
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingNorthWulingExclusionZoneSuccess"
-        ]
-    },
-    "__ScenePrivateMapOverviewWulingEnterMapWulingNorthWulingExclusionZone": {
-        "desc": "在武陵总览界面，直接点击进入武陵-北部禁区地图",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": [
-            829,
-            107
-        ],
-        "next": [
-            "__ScenePrivateMapAnyEnterMapWulingNorthWulingExclusionZoneSuccess"
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv008_Success"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick": {
@@ -872,12 +776,12 @@
             "InMapAny"
         ],
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingSnowyForestSuccess",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv009_Success",
             "__ScenePrivateMapOverviewEnterMapWulingSnowyForest",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "__ScenePrivateMapAnyEnterMapWulingSnowyForestSuccess": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv009_Success": {
         "desc": "在地图界面，成功进入武陵-雪松林地图",
         "recognition": "And",
         "all_of": [
@@ -908,7 +812,7 @@
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
             "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingSnowyForest",
-            "__ScenePrivateMapOverviewWulingEnterMapWulingSnowyForest"
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv009"
         ]
     },
     "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingSnowyForest": {
@@ -931,19 +835,7 @@
         },
         "action": "Click",
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingSnowyForestSuccess"
-        ]
-    },
-    "__ScenePrivateMapOverviewWulingEnterMapWulingSnowyForest": {
-        "desc": "在武陵总览界面，直接点击进入武陵-雪松林地图",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": [
-            865,
-            276
-        ],
-        "next": [
-            "__ScenePrivateMapAnyEnterMapWulingSnowyForestSuccess"
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv009_Success"
         ]
     },
     "__ScenePrivateMapWulingSnowyForestEnterWorldAnchorWithPick": {
@@ -968,12 +860,12 @@
             "InMapAny"
         ],
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingSisPaintingSuccess",
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv010_Success",
             "__ScenePrivateMapOverviewEnterMapWulingSisPainting",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "__ScenePrivateMapAnyEnterMapWulingSisPaintingSuccess": {
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv010_Success": {
         "desc": "在地图界面，成功进入武陵-祀的画地图",
         "recognition": "And",
         "all_of": [
@@ -1003,7 +895,8 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingSisPainting"
+            "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingSisPainting",
+            "__ScenePrivateMapOverview_region02_EnterMap_map02_lv010"
         ]
     },
     "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingSisPainting": {
@@ -1038,7 +931,7 @@
             }
         },
         "next": [
-            "__ScenePrivateMapAnyEnterMapWulingSisPaintingSuccess"
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv010_Success"
         ]
     },
     "__ScenePrivateMapWulingSisPaintingEnterWorldAnchorWithPick": {
