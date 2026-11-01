@@ -19,6 +19,7 @@
                 "AutoDeliveryResolveDestinationAction",
                 "AutoEssenceLoadInventoryAction",
                 "AutoEssenceTargetPlanAction",
+                "AutoScrollAction",
                 "AutoSellItemExecuteItemTaskAction",
                 "AutoStockStapleQuantityControlAction",
                 "AutoStockpile.ReconcileDecision",
@@ -363,6 +364,31 @@
 				"required": [ "custom_action_param" ]
 			}
 		},
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_action" ],
+                "properties": {
+                    "custom_action": { "const": "AutoScrollAction" }
+                }
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "dx": { "type": "integer" },
+                            "dy": { "type": "integer" },
+                            "target_offset": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "integer" } },
+                            "begin_offset": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "integer" } },
+                            "end_offset": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "integer" } }
+                        }
+                    }
+                }
+            }
+        },
         {
             "if": {
                 "type": "object",

@@ -115,6 +115,29 @@
             }
         }
     },
+    "__AutoEssenceRecoEssenceObtainListTitle": {
+        "desc": "寻找交互列表标题「重度能量淤积点」（仅识别），供滚动列表类节点判断交互列表是否展开",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    738,
+                    335,
+                    445,
+                    300
+                ],
+                "expected": [
+                    // @i18n-skip
+                    // 重度能量淤积点 / 重度能量淤積點 / Severe Energy Alluvium / 重度超域活性点 / 고위 에너지 응집점
+                    "重度|能量|淤积点",
+                    "重度|能量|淤積點",
+                    "Severe|Energy|Alluvium",
+                    "重度|超域|活性点",
+                    "고위|에너지|응집점"
+                ]
+            }
+        }
+    },
     "__AutoEssenceRecoEssenceDiscardText": {
         "desc": "寻找放弃领取奖励的文字（仅识别）",
         "recognition": {
