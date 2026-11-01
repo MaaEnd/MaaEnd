@@ -421,6 +421,33 @@
                     }
                 }
             }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": { "const": "autoEcoFarmInterruptibleSleep" }
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "durationSec": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "reportIntervalMs": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        },
+                        "required": ["durationSec"],
+                        "additionalProperties": false
+                    }
+                }
+            }
         }
 	],
     "if": {
