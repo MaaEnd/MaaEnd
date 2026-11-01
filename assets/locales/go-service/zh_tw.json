@@ -5,7 +5,7 @@
     "autodelivery.focus.destination_resolved": "🚛 已識別送貨目標：%s",
     "autodelivery.focus.destination_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">送貨目標 %s 只能透過滑索抵達</span>，目前未啟用滑索，無法步行送達；請在任務選項中開啟「送貨時優先使用滑索」後重試",
     "autoecofarm.crossed_center": "偵測到拉過頭，自動降低拉近比例",
-    "autoecofarm.interruptible_sleep_done.completed": "等待完成",
+    "autoecofarm.interruptible_sleep_done.completed": "完成等待",
     "autoecofarm.interruptible_sleep_stopped.message": "用戶手動終止",
     "autoecofarm.invalid_params": "非法參數",
     "autoecofarm.no_results": "未識別到結果",
