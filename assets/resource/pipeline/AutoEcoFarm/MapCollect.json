@@ -2,17 +2,6 @@
     "__AutoEcoFarmWulingCityFarmExecute": {
         "desc": "开始处理武陵城 - 自动农植机",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "SceneEnterWorldWulingWulingCityCore"
-                    ]
-                }
-            }
-        },
         "anchor": {
             "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindWulingCityFarm",
             "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreWulingCityFarm"
@@ -91,17 +80,6 @@
     "__AutoEcoFarmSisPaintingFarmExecute": {
         "desc": "开始处理祀的画 - 自动农植机",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "SceneEnterWorldWulingWulingCityCore"
-                    ]
-                }
-            }
-        },
         "anchor": {
             "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindSisPaintingFarm",
             "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreSisPaintingFarm"
