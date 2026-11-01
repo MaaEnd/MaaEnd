@@ -18,6 +18,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/attachregex"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/autoalt"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/autoscroll"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/camerascan"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/clearhitcount"
@@ -85,6 +86,7 @@ func registerAll() {
 	attachregex.Register()
 	textinput.Register()
 	autoalt.Register()
+	autoscroll.Register()
 	camerascan.Register()
 	charactercontroller.Register()
 	falseaction.Register()

@@ -102,6 +102,7 @@
             "AutoEssenceDispatcher"
         ],
         "on_error": [
+            "AutoEssenceScrollObtainListToBottom",
             "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
         ],
         "focus": {
