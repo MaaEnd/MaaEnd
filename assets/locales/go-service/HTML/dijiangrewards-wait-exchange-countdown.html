@@ -13,8 +13,10 @@
             display: none !important;
         }
         /* MXU 在每条日志后渲染一条分隔线（空 div + aria-hidden），
-           隐藏紧跟在过期条目之后、下一条即更新倒计时的分隔线 */
-        div[aria-hidden="true"]:not(:has(*)):has(+ div .dijiangrewards-wait-exchange-countdown) {
+           以「过期条目 + 其后紧邻分隔线」为锚点隐藏，普通日志后的分隔线不受影响，
+           倒计时与下次更新之间插入普通日志时也能正确隐藏 */
+        div:has(.dijiangrewards-wait-exchange-countdown):has(~ * .dijiangrewards-wait-exchange-countdown)
+            + div[aria-hidden="true"]:not(:has(*)) {
             display: none !important;
         }
     </style>
