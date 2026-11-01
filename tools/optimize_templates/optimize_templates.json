@@ -2587,5 +2587,8 @@
     "resource/image/ArenaOfGames/Character5": "06e11785ce40a480e4b46212959023ac1aab846351709e1b02005f5aff660de2",
     "resource/image/ArenaOfGames/Dot1": "e83a2f8a1a3f7a9dd298de2ecae11588a1ec52a4f4f695ad96403acc92633df9",
     "resource/image/ArenaOfGames/Character3": "bbf94c9b1e1ff913ffe35483dc3e5a265b05c6323c3688b643b49b8eb127a08c",
-    "resource/image/ArenaOfGames/Dot3": "1a82bda26de4dbb83b669fed2e94e9d1523cf8420fc919c24a21312056876dc1"
+    "resource/image/ArenaOfGames/Dot3": "1a82bda26de4dbb83b669fed2e94e9d1523cf8420fc919c24a21312056876dc1",
+    "resource/image/Restaurant/Shop/StoreInRegionUnchecked": "b25ea0f60f0ac17868d7847b9a4ad4dbe536cf8d820b21cc5db7153155380706",
+    "resource/image/Restaurant/Shop/StoreInRegionChecked": "56b3f22f86b58708d693ba4b0f691f1f1e91c45463ba65f2a0dab68093435486",
+    "resource/image/WarEcho/StageCleared": "24dec7ef7cce42fbb8dbae07859a99de2c8e39576bdee4d9c4439a56eaba8b59"
 }

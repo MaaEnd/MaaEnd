@@ -1,0 +1,34 @@
+{
+    "configs": {
+        "name": "缘缘庄开始经营状态识别",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "name": "开始经营后的确认弹窗",
+            "image": "缘缘庄_经营中_开始经营确认弹窗.png",
+            "hits": [
+                "RestaurantStartBusinessConfirm"
+            ]
+        },
+        {
+            "name": "经营画面允许打开派单面板",
+            "image": "缘缘庄_经营中_派单面板关闭.png",
+            "hits": [
+                "RestaurantBusinessStarted",
+                "RestaurantOpenKitchenPanel"
+            ]
+        },
+        {
+            "name": "派单面板打开后隐藏结束经营提示",
+            "image": "缘缘庄_经营中_桌位与厨房状态.png",
+            "hits": []
+        },
+        {
+            "name": "菜单画面不命中经营状态",
+            "image": "缘缘庄_菜单_饮品页及可开始经营.png",
+            "hits": []
+        }
+    ]
+}

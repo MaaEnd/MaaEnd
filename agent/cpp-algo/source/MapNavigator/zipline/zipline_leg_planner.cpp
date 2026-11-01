@@ -1135,7 +1135,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
     const bool walking_baseline_available = request.walking_path != nullptr && !request.walking_path->points.empty();
 
     // outcome 是这条腿记进哪本账, nullptr 表示不记账
-    const auto no_zipline = [&](const char* why, bool ZiplineOutcome::* outcome) -> std::optional<ZiplineRoute> {
+    const auto no_zipline = [&](const char* why, bool ZiplineOutcome::*outcome) -> std::optional<ZiplineRoute> {
         if (walking_baseline_available) {
             LogInfo << "ZiplineRoute: walking this leg instead." << VAR(why) << VAR_AS(navmesh_zone, request.navmesh_zone);
         }

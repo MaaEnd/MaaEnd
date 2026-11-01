@@ -88,8 +88,8 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	observed := indexObservations(arg.RecognitionDetail)
 	switch param.Step {
 	case "initialize":
-		if param.MaxRounds < 1 || param.MaxRounds > 1000 {
-			err = fmt.Errorf("maximum restaurant rounds must be between 1 and 1000")
+		if param.MaxRounds < 1 || param.MaxRounds > 20 {
+			err = fmt.Errorf("maximum restaurant rounds must be between 1 and 20")
 			break
 		}
 		patch["RestaurantRoundGate"] = map[string]any{"max_hit": param.MaxRounds}
