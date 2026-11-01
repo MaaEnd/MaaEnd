@@ -430,6 +430,7 @@
                 "required": ["custom_action"]
             },
             "then": {
+                "required": ["custom_action_param"],
                 "properties": {
                     "custom_action_param": {
                         "type": "object",
