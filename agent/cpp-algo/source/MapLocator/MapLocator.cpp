@@ -1984,6 +1984,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         return LocateResult {
             .status = LocateStatus::TrackingLost,
             .debugMessage = kColdStartCollectingMessage,
+            .minimap_absent = true,
         };
     }
 
