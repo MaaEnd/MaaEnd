@@ -7,6 +7,8 @@ import (
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/ocrnum"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -107,6 +109,7 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 	}
 
 	hasError := false
+	soldCount, skippedCount, unknownCount := 0, 0, 0
 	for _, name := range names {
 		// 翻译有缘再写
 		targetPrice := 9999
@@ -130,6 +133,7 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 				Str("item_name", name).
 				Msg("unknown item, default price")
 			maafocus.Print(ctx, i18n.T("autosell.check_item_price_unknown", name))
+			unknownCount++
 			continue
 		}
 
@@ -154,9 +158,11 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			},
 			"AutoSellFriendsPricesExpected": map[string]any{
 				"custom_recognition_param": map[string]any{
-					"expression":                          "{AutoSellFriendsPriceRecognition} >= " + strconv.Itoa(targetPrice),
-					"focus_matched_resolved_expression":   true,
-					"focus_unmatched_resolved_expression": true,
+					"expression":                        "{AutoSellFriendsPriceRecognition} >= " + strconv.Itoa(targetPrice),
+					"focus_matched_resolved_expression": true,
+					// 未达标时由 autosell 输出带物资名与价格的明确跳过文案，
+					// 关闭通用「不匹配」提示，避免被误读为故障。
+					"focus_unmatched_resolved_expression": false,
 				},
 			},
 			"AutoSellFriendsPricesExpectedBuy": map[string]any{
@@ -179,12 +185,90 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			hasError = true
 			break
 		}
+
+		sold, price, priceOK := inspectItemTaskResult(ctx, detail)
+		if sold {
+			soldCount++
+			continue
+		}
+		skippedCount++
+		if priceOK {
+			maafocus.Print(ctx, i18n.T("autosell.item_skipped_low_price", name, price, targetPrice))
+			log.Info().
+				Str("component", "autosell").
+				Str("step", "execute_sell").
+				Str("item_name", name).
+				Int("best_price", price).
+				Int("target_price", targetPrice).
+				Msg("item skipped, price below minimum")
+		} else {
+			maafocus.Print(ctx, i18n.T("autosell.item_skipped_low_price_unknown", name, targetPrice))
+			log.Info().
+				Str("component", "autosell").
+				Str("step", "execute_sell").
+				Str("item_name", name).
+				Int("target_price", targetPrice).
+				Msg("item skipped, price below minimum (no price reading)")
+		}
 	}
 	if hasError {
 		return false
 	}
 
+	if len(names) > 0 {
+		regionName := i18n.T("autosell.region_wuling")
+		if param.Region == "ValleyIV" {
+			regionName = i18n.T("autosell.region_valley_iv")
+		}
+		if unknownCount > 0 {
+			maafocus.Print(ctx, i18n.T("autosell.finish_summary_unknown", regionName, len(names), soldCount, skippedCount, unknownCount))
+		} else {
+			maafocus.Print(ctx, i18n.T("autosell.finish_summary", regionName, len(names), soldCount, skippedCount))
+		}
+		log.Info().
+			Str("component", "autosell").
+			Str("step", "execute_sell").
+			Str("region", param.Region).
+			Int("total", len(names)).
+			Int("sold", soldCount).
+			Int("skipped", skippedCount).
+			Int("unknown", unknownCount).
+			Msg("region sell summary")
+	}
+
 	return true
+}
+
+// inspectItemTaskResult 判断一件物资的售卖子任务结果：
+// sold 表示流程走到了「点击售卖」节点（已成交）；
+// price/priceOK 取好友价格识别节点最后一次 OCR 读数（判定时的好友最高价），
+// 用于未成交时向用户解释跳过原因。
+func inspectItemTaskResult(ctx *maa.Context, detail *maa.TaskDetail) (sold bool, price int, priceOK bool) {
+	var lastPriceDetail *maa.RecognitionDetail
+	for _, ref := range detail.Nodes {
+		nd, err := ref.GetDetail()
+		if err != nil {
+			continue
+		}
+		switch nd.Name {
+		case "AutoSellFriendsPricesExpectedBuyClick":
+			sold = true
+		case "AutoSellFriendsPriceRecognition":
+			lastPriceDetail = nd.Recognition
+		}
+	}
+	if sold || lastPriceDetail == nil {
+		return sold, 0, false
+	}
+	selected, err := recogtarget.SelectDetail(ctx, "AutoSellFriendsPriceRecognition", lastPriceDetail)
+	if err != nil {
+		return false, 0, false
+	}
+	value, err := ocrnum.Extract(selected)
+	if err != nil {
+		return false, 0, false
+	}
+	return false, value, true
 }
 
 // firstContainedKeyword 按 subs 顺序返回首个被 s 包含的关键词，无匹配则返回空串。
