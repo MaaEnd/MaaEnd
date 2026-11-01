@@ -4,7 +4,6 @@
         "recognition": "DirectHit"
     },
     "RestaurantState": {
-        "desc": "餐厅流程状态的识别/挂载入口。",
         "recognition": "DirectHit",
         "attach": {
             "state": null
@@ -139,7 +138,6 @@
         ]
     },
     "RestaurantMenuSelectedCircle": {
-        "desc": "识别卡片已选中状态的圆形标记。",
         "recognition": "ColorMatch",
         "roi": "RestaurantMenuCardAnchor",
         "roi_offset": [
@@ -159,7 +157,6 @@
         "count": 80
     },
     "RestaurantMenuSelectedBar": {
-        "desc": "识别卡片已选中状态的横条标记。",
         "recognition": "ColorMatch",
         "roi": "RestaurantMenuSelectedCircle",
         "roi_offset": [
@@ -2732,7 +2729,6 @@
         ]
     },
     "RestaurantRecipe1RestockMarker": {
-        "desc": "识别第 1 个菜品位置的补充标记。",
         "recognition": "ColorMatch",
         "roi": [
             491,
@@ -2754,7 +2750,6 @@
         "count": 20
     },
     "RestaurantRecipe2RestockMarker": {
-        "desc": "识别第 2 个菜品位置的补充标记。",
         "recognition": "ColorMatch",
         "roi": [
             800,
@@ -2776,7 +2771,6 @@
         "count": 20
     },
     "RestaurantRecipe3RestockMarker": {
-        "desc": "识别第 3 个菜品位置的补充标记。",
         "recognition": "ColorMatch",
         "roi": [
             491,
@@ -2798,7 +2792,6 @@
         "count": 20
     },
     "RestaurantRecipe4RestockMarker": {
-        "desc": "识别第 4 个菜品位置的补充标记。",
         "recognition": "ColorMatch",
         "roi": [
             800,
@@ -2820,7 +2813,6 @@
         "count": 20
     },
     "RestaurantRecipe5RestockMarker": {
-        "desc": "识别第 5 个菜品位置的补充标记。",
         "recognition": "ColorMatch",
         "roi": [
             491,
@@ -2842,7 +2834,6 @@
         "count": 20
     },
     "RestaurantRecipe6RestockMarker": {
-        "desc": "识别第 6 个菜品位置的补充标记。",
         "recognition": "ColorMatch",
         "roi": [
             800,
@@ -2864,7 +2855,6 @@
         "count": 20
     },
     "RestaurantRuntimeFullFrame": {
-        "desc": "组合检查经营面板的完整画面状态。",
         "recognition": "And",
         "all_of": [
             "RestaurantKitchenPanelReady",

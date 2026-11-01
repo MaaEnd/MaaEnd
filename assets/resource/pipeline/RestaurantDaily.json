@@ -343,7 +343,6 @@
         ]
     },
     "RestaurantOpenCounter": {
-        "desc": "找到“开始经营”图标后重复点击，进入主题设定。",
         "recognition": "TemplateMatch",
         "roi": [
             833,
@@ -389,7 +388,6 @@
         ]
     },
     "RestaurantThemeListUnchanged": {
-        "desc": "判断主题列表是否发生变化。",
         "recognition": "Custom",
         "custom_recognition": "ListCompleteRecognition",
         "custom_recognition_param": {
@@ -409,7 +407,6 @@
         }
     },
     "RestaurantThemeListUnchangedOnce": {
-        "desc": "组合列表状态，记录一次未变化并进入下一次检查。",
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
@@ -423,7 +420,6 @@
         ]
     },
     "RestaurantThemeListCheckUnchangedTwice": {
-        "desc": "发起第二次列表变化检查。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
@@ -434,7 +430,6 @@
         ]
     },
     "RestaurantThemeListUnchangedTwice": {
-        "desc": "确认列表连续两次未变化后开始搜索主题。",
         "recognition": "And",
         "all_of": [
             "RestaurantThemeListUnchanged"
@@ -2498,7 +2493,6 @@
         "rate_limit": 0
     },
     "RestaurantRuntimeClickDish1": {
-        "desc": "点击面板中的第 1 个菜品位置。",
         "enabled": false,
         "recognition": "And",
         "all_of": [
@@ -2518,7 +2512,6 @@
         ]
     },
     "RestaurantRuntimeClickDish2": {
-        "desc": "点击面板中的第 2 个菜品位置。",
         "enabled": false,
         "recognition": "And",
         "all_of": [
@@ -2538,7 +2531,6 @@
         ]
     },
     "RestaurantRuntimeClickDish3": {
-        "desc": "点击面板中的第 3 个菜品位置。",
         "enabled": false,
         "recognition": "And",
         "all_of": [
@@ -2558,7 +2550,6 @@
         ]
     },
     "RestaurantRuntimeClickDish4": {
-        "desc": "点击面板中的第 4 个菜品位置。",
         "enabled": false,
         "recognition": "And",
         "all_of": [
@@ -2578,7 +2569,6 @@
         ]
     },
     "RestaurantRuntimeClickDish5": {
-        "desc": "点击面板中的第 5 个菜品位置。",
         "enabled": false,
         "recognition": "And",
         "all_of": [
@@ -2598,7 +2588,6 @@
         ]
     },
     "RestaurantRuntimeClickDish6": {
-        "desc": "点击面板中的第 6 个菜品位置。",
         "enabled": false,
         "recognition": "And",
         "all_of": [

@@ -106,14 +106,16 @@
         "custom_action_param": {
             "action": "DoNothing",
             "wait_nodes": [
-                "RestaurantShopDialogueSkipAll"
+                "RestaurantShopDialogueSkipAll",
+                "RestaurantShopOpenGoods"
             ],
             "repeat_count": 3
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopDialogueSkipAll"
+            "RestaurantShopDialogueSkipAll",
+            "RestaurantShopOpenGoods"
         ],
         "on_error": [
             "FailedNode"
@@ -138,13 +140,6 @@
             "wait_node": "RestaurantShopDialogueSkipAll",
             "repeat_count": 3
         },
-        // AutoSkipEsc.png 为 23x20；将点击目标框收缩到匹配框中心像素。
-        "target_offset": [
-            11,
-            10,
-            -22,
-            -19
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -248,7 +243,6 @@
         ]
     },
     "RestaurantShopPriorityStorageChecked": {
-        "desc": "识别该选项已勾选。",
         "recognition": "TemplateMatch",
         "roi": [
             43,
@@ -266,7 +260,6 @@
         ]
     },
     "RestaurantShopPriorityStorageUnchecked": {
-        "desc": "点击该选项直到勾选。",
         "recognition": "TemplateMatch",
         "roi": [
             43,
@@ -980,7 +973,6 @@
         ]
     },
     "RestaurantShopPurchaseModalReady": {
-        "desc": "确认购买弹窗已出现，并选择滑块或直接确认的路径。",
         "recognition": "And",
         "all_of": [
             "YellowButtonBackground"
@@ -997,7 +989,6 @@
         ]
     },
     "RestaurantShopSlideQuantityMax": {
-        "desc": "若数量滑块出现，将购买数量滑到最大。",
         "recognition": "TemplateMatch",
         "roi": [
             520,
@@ -1023,7 +1014,6 @@
         ]
     },
     "RestaurantShopConfirmPurchase": {
-        "desc": "点击确认购买。",
         "recognition": "And",
         "all_of": [
             "YellowButtonBackground"
@@ -1049,7 +1039,6 @@
         ]
     },
     "RestaurantShopPurchaseSuccess": {
-        "desc": "等待购买成功提示消失，然后回到商品扫描。",
         "recognition": "And",
         "all_of": [
             "CloseRewardsButton",
@@ -1111,7 +1100,6 @@
         ]
     },
     "RestaurantShopRefreshConfirm": {
-        "desc": "确认刷新商品。",
         "recognition": "OCR",
         "roi": [
             647,
@@ -1144,7 +1132,6 @@
         ]
     },
     "RestaurantShopWaitPurchaseModal": {
-        "desc": "等待购买弹窗出现。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -1166,7 +1153,6 @@
         ]
     },
     "RestaurantShopWaitPurchaseSuccess": {
-        "desc": "等待购买成功状态出现。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -1188,7 +1174,6 @@
         ]
     },
     "RestaurantShopWaitRefreshConfirm": {
-        "desc": "等待刷新确认弹窗出现。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
