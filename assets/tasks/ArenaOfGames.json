@@ -6,7 +6,7 @@
             "entry": "ArenaOfGamesMain",
             "description": "$task.ArenaOfGames.description",
             "group": [
-                "regional_development"
+                "other_menu"
             ],
             "controller": [
                 "Linux-Gamescope",

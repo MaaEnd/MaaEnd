@@ -174,6 +174,14 @@ private:
     const Context& ctx_;
 };
 
+size_t skip_continuous_run(const std::vector<Waypoint>& path, size_t index)
+{
+    while (index < path.size() && path[index].isContinuousRun()) {
+        ++index;
+    }
+    return index;
+}
+
 Result drop_chain_and_recover(const Context& ctx, const char* reason, const char* detail, bool stay_on_tower)
 {
     Result result;
@@ -183,10 +191,7 @@ Result drop_chain_and_recover(const Context& ctx, const char* reason, const char
     }
 
     const std::vector<Waypoint>& path = ctx.session->currentPath();
-    size_t hop = ctx.session->currentNodeIdx();
-    while (hop < path.size() && path[hop].isContinuousRun()) {
-        ++hop;
-    }
+    const size_t hop = skip_continuous_run(path, ctx.session->currentNodeIdx());
     // 整条链一起丢, 留一跳重规划就会把人送回刚失败的索
     size_t dropped = 0;
     while (hop + dropped < path.size() && path[hop + dropped].action == ActionType::ZIPLINE) {
@@ -258,19 +263,23 @@ Result finish_hop(const Context& ctx, const HopCompleted& done)
 // 面板只给离身位最近的设备, 原地重按还是同一个答案, 所以换下一个站位
 Result AdvanceMountSpot(const Context& ctx, const Waypoint& waypoint, const char* reason)
 {
+    constexpr const char* kGiveUpReason = "zipline_prompt_missing";
+    constexpr const char* kGiveUpDetail = "no mount prompt from any stand point at this tower";
+    if (!waypoint.zipline_hop) {
+        return AbandonZipline(ctx, kGiveUpReason, kGiveUpDetail);
+    }
+    const ZiplineHopPlan& plan = *waypoint.zipline_hop;
     ZiplineApproachState& approach = ctx.runtime_state->zipline_approach;
-    const size_t spot_count = waypoint.zipline_hop ? waypoint.zipline_hop->mount_spots.size() : 0;
-    const size_t cursor = waypoint.zipline_hop ? approach.mountSpotCursor(waypoint.zipline_hop->mount) : 0;
+    const size_t spot_count = plan.mount_spots.size();
+    const size_t cursor = approach.mountSpotCursor(plan.mount);
     if (cursor + 1 >= spot_count) {
-        if (waypoint.zipline_hop) {
-            ctx.runtime_state->zipline_ride.markMountUnreachable(*waypoint.zipline_hop);
-        }
-        return AbandonZipline(ctx, "zipline_prompt_missing", "no mount prompt from any stand point at this tower");
+        ctx.runtime_state->zipline_ride.markMountUnreachable(plan);
+        return AbandonZipline(ctx, kGiveUpReason, kGiveUpDetail);
     }
 
     approach.spot_index = cursor + 1;
     approach.press_missed = true;
-    const ZiplineMountSpot& spot = waypoint.zipline_hop->mount_spots[approach.spot_index];
+    const ZiplineMountSpot& spot = plan.mount_spots[approach.spot_index];
     const bool retargeted = ctx.session->retargetCurrentWaypoint(spot.x, spot.y, reason);
     // 硬时钟不归零的话, 下一拍就会把剩下的站位一口气烧光
     ctx.session->resetHardProgress();
@@ -295,10 +304,7 @@ bool SkipToHopUnderfoot(const Context& ctx, const char* reason)
     }
     const std::vector<Waypoint>& path = ctx.session->currentPath();
     const size_t current = ctx.session->currentNodeIdx();
-    size_t hop = current;
-    while (hop < path.size() && path[hop].isContinuousRun()) {
-        ++hop;
-    }
+    const size_t hop = skip_continuous_run(path, current);
     if (hop >= path.size() || path[hop].action != ActionType::ZIPLINE || !path[hop].zipline_hop
         || !path[hop].zipline_hop->mount.sameTower(*underfoot)) {
         return false;

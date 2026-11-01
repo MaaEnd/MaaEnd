@@ -15,7 +15,8 @@
                 "Linux-Wlroots"
             ],
             "option": [
-                "RestaurantMaxRounds"
+                "RestaurantMaxRounds",
+                "RestaurantBuyShopDiscountedItems"
             ]
         }
     ],
@@ -29,7 +30,7 @@
                     "label": "$task.RestaurantDaily.option.MaxRounds.pattern_msg",
                     "default": "5",
                     "pipeline_type": "int",
-                    "verify": "^(?:[1-9][0-9]{0,2}|1000)$",
+                    "verify": "^(?:[1-9]|1[0-9]|20)$",
                     "pattern_msg": "$task.RestaurantDaily.option.MaxRounds.pattern_msg"
                 }
             ],
@@ -41,6 +42,55 @@
                     }
                 }
             }
+        },
+        "RestaurantBuyShopDiscountedItems": {
+            "type": "switch",
+            "label": "$task.RestaurantDaily.option.BuyShopDiscountedItems.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "RestaurantUseDailyRefresh"
+                    ],
+                    "pipeline_override": {
+                        "RestaurantShopAfterRounds": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RestaurantShopAfterRounds": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
+        "RestaurantUseDailyRefresh": {
+            "type": "switch",
+            "label": "$task.RestaurantDaily.option.UseDailyRefresh.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RestaurantShopRefreshAvailable": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RestaurantShopRefreshAvailable": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
         }
     }
 }

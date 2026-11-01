@@ -5,11 +5,13 @@ import (
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/launchcloudweb"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/launchgamepc"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/launchgameplaycover"
 	"github.com/rs/zerolog/log"
 )
 
 func init() {
 	Register("LaunchGamePC", launchgamepc.Run)
+	Register("LaunchGamePlayCover", launchgameplaycover.Run)
 	Register("LaunchCloudWeb", launchcloudweb.Run)
 }
 
