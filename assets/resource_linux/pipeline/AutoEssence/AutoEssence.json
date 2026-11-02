@@ -1,0 +1,9 @@
+{
+    // Linux 滚轮行为尚未实机验证，禁用 Win32 滚动优化，沿用原有寻路/传送回退
+    "AutoEssenceInObtain": {
+        "enabled": false
+    },
+    "AutoEssenceScrollObtainListToBottom": {
+        "enabled": false
+    }
+}

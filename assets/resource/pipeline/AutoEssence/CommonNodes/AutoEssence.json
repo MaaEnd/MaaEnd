@@ -1216,24 +1216,33 @@
     "AutoEssenceInObtain": {
         "desc": "滚动交互列表，使被掉落物挤出可视区的激发/领取按钮回到可视区（游戏用滚轮翻列表，不认鼠标拖拽）",
         "recognition": {
-            "type": "Or",
+            "type": "OCR",
             "param": {
-                "any_of": [
-                    "__AutoEssenceRecoEssenceObtainListTitle"
+                "roi": [
+                    738,
+                    335,
+                    445,
+                    300
+                ],
+                "expected": [
+                    "重度|能量|淤积点", // 重度能量淤积点
+                    "重度|能量|淤積點", // 重度能量淤積點
+                    "Severe|Energy|Alluvium", // Severe Energy Alluvium
+                    "重度|超域|活性点", // 重度超域活性点
+                    "고위|에너지|응집점"
                 ]
             }
         },
         "action": {
-            "type": "Custom",
+            "type": "Scroll",
             "param": {
-                "custom_action": "AutoScrollAction",
-                "custom_action_param": {
-                    // 仅 Win PC 用滚轮下翻；其它端无法实机验证，动作留空不滚动（此处仅优化 Win PC）
-                    "dx": 0,
-                    "dy": -240
-                }
+                // 每次只滚一格，由 repeat 逐格发送，避免单帧大位移只消费一格
+                "dx": 0,
+                "dy": -120
             }
         },
+        "repeat": 2,
+        "repeat_delay": 30,
         "post_wait_freezes": {
             "time": 150,
             "target": [
@@ -1244,34 +1253,34 @@
             ],
             "timeout": 2000
         },
+        "on_error": [
+            // 滚轮执行失败：直接传送重走，避免回跳后反复识别同一标题
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
+        ],
         "focus": {
             "Node.Action.Starting": "🖱️滚动交互列表"
         }
     },
     "AutoEssenceScrollObtainListToBottom": {
-        // 不写 recognition（默认 DirectHit）：显式写 {"type": "DirectHit"} 时识别框是 [0,0,0,0]，
-        // 传给 AutoScrollAction 后内置 Scroll 会因目标矩形为空而失败；省略时框是整屏 [0,0,1280,720]。
-        // 同理不依赖标题 OCR：按钮被挤出时列表停在顶部只剩掉落行，标题在可视区外，OCR 触发不了。
+        // 不依赖标题 OCR：按钮被挤出时列表停在顶部只剩掉落行，标题在可视区外，OCR 触发不了。
         "desc": "寻路到点后激发/领取按钮行被掉落行挤出可视区（寻路 interact_rec 认不出按钮行会失败）时，先滚轮滚到底找按钮，找不到才传送重走",
         "action": {
-            "type": "Custom",
+            "type": "Scroll",
             "param": {
-                "custom_action": "AutoScrollAction",
-                "custom_action_param": {
-                    // 滚轮一口气往下滚 20 格（dy 负=向下，120 的整数倍），列表到底后多余的滚动无效果
-                    "dx": 0,
-                    "dy": -2400,
-                    // 滚动点=（整屏框 + 偏移）矩形内的近中心点。取 [820,480,160,80] 这一块：
-                    // 落在交互列表行区域（约 812~1010 × 405~620）里，且四元组都为正、不会越界
-                    "target_offset": [
-                        820,
-                        480,
-                        -1120,
-                        -640
-                    ]
-                }
+                // 滚动点固定在交互列表行区域（约 812~1010 × 405~620），不依赖 DirectHit 的识别框
+                "target": [
+                    820,
+                    480,
+                    160,
+                    80
+                ],
+                // 每次只滚一格，由 repeat 逐格发送 20 次；列表到底后多余的滚动无效果
+                "dx": 0,
+                "dy": -120
             }
         },
+        "repeat": 20,
+        "repeat_delay": 30,
         "post_wait_freezes": {
             "time": 150,
             "target": [
@@ -1286,6 +1295,10 @@
             // 滚到底后按钮行通常回到可视区，走正常分发点击；本次是来领取的，领取优先于激发；仍没有按钮才传送重走
             "AutoEssenceClickObtainButton",
             "AutoEssenceClickTriggerButton",
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
+        ],
+        "on_error": [
+            // 滚轮执行失败：直接传送重走
             "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
         ]
     },

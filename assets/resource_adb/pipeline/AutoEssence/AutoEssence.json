@@ -187,5 +187,12 @@
                 ]
             }
         }
+    },
+    // 触屏端没有滚轮输入，禁用 Win32 滚动优化，沿用原有寻路/传送回退
+    "AutoEssenceInObtain": {
+        "enabled": false
+    },
+    "AutoEssenceScrollObtainListToBottom": {
+        "enabled": false
     }
 }
