@@ -2243,20 +2243,9 @@
     "RestaurantMenuClickCard": {
         "desc": "点击 Go 选定的菜单卡片。",
         "enabled": false,
-        "recognition": "And",
-        "all_of": [
-            "RestaurantMenuCardAnchor",
-            "RestaurantMenuPendingIcon"
-        ],
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Click",
-        "target": "RestaurantMenuCardAnchor",
-        "target_offset": [
-            230,
-            46,
-            -306,
-            -92
-        ],
         "post_wait_freezes": {
             "time": 350,
             "target": [
@@ -2270,22 +2259,22 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantMenuConfirmCard"
+            "RestaurantMenuAdvanceCard"
         ]
     },
-    "RestaurantMenuConfirmCard": {
-        "desc": "确认卡片已选中并推进选菜决策。",
+    "RestaurantMenuAdvanceCard": {
+        "desc": "识别卡片已选中后提交选择并推进索引。",
+        "enabled": false,
         "recognition": "And",
         "all_of": [
             "RestaurantMenuCardAnchor",
-            "RestaurantMenuPendingIcon",
-            "RestaurantMenuCardSelected"
+            "RestaurantMenuSelectedCircle"
         ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RestaurantDecisionAction",
         "custom_action_param": {
-            "step": "menu_confirm"
+            "step": "menu_advance"
         },
         "post_delay": 0,
         "rate_limit": 0,
