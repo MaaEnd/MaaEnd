@@ -195,6 +195,27 @@
             "items": [
                 "item_plant_sp_4"
             ]
+        },
+        {
+            "id": "WulingFarmerCrate1",
+            "region": "Wuling",
+            "items": [
+                "item_corp_potato_1"
+            ]
+        },
+        {
+            "id": "WulingFarmerCrate2",
+            "region": "Wuling",
+            "items": [
+                "item_corp_potato_1"
+            ]
+        },
+        {
+            "id": "WulingFarmerCrate3",
+            "region": "Wuling",
+            "items": [
+                "item_corp_potato_1"
+            ]
         }
     ]
 }

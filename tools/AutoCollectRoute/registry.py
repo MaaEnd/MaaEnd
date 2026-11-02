@@ -177,7 +177,7 @@ def join_names(locale: str, names: list[str]) -> str:
 def load_items() -> dict[str, Item]:
     return {
         info["item"]: Item(
-            info["item"], to_pascal(info["item_names"]["en_us"]), info["icon"], route_kind(info), info["item_names"]
+            info["item"], to_pascal(info["names"]["en_us"]), info["icon"], route_kind(info), info["names"]
         )
         for info in read_json(COLLECT_POINTS_PATH)["types"].values()
     }

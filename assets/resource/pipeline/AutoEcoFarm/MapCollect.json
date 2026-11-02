@@ -158,6 +158,17 @@
     "__AutoEcoFarmRanchExecute": {
         "desc": "开始处理祀的画 - 牧场",
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterWorldWulingWulingCityCore"
+                    ]
+                }
+            }
+        },
         "anchor": {
             "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindRanch",
             "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreRanch"
@@ -512,8 +523,7 @@
             "param": {
                 "custom_action": "autoEcoFarmInterruptibleSleep",
                 "custom_action_param": {
-                    "durationMs": 5000,
-                    "reportIntervalMs": 1000
+                    "durationSec": 5
                 }
             }
         },

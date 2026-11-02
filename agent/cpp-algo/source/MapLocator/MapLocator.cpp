@@ -1388,8 +1388,12 @@ std::optional<AsyncYoloHandle> MapLocator::Impl::refreshAsyncYoloState(const cv:
         const bool isReady = asyncYoloState->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
         if (isReady && !asyncYoloState->zoneGuardApplied) {
             const YoloCoarseResult predicted = asyncYoloState->future.get();
-            if (predicted.valid && !predicted.is_none && !predicted.zone_id.empty() && !currentZoneId.empty()
-                && predicted.zone_id != currentZoneId) {
+            if (predicted.valid && predicted.is_none) {
+                LogInfo << "Async YOLO sees no minimap; dropping tracking.";
+                motionTracker->forceLost();
+                stablePosition.reset();
+            }
+            else if (predicted.valid && !predicted.zone_id.empty() && !currentZoneId.empty() && predicted.zone_id != currentZoneId) {
                 LogInfo << "Async YOLO detected zone change: " << currentZoneId << " -> " << predicted.zone_id;
                 motionTracker->forceLost();
                 stablePosition.reset();
@@ -1981,9 +1985,13 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     std::string targetZoneId = expectedZoneId;
     const YoloCoarseResult coarse = predictCurrentFrameCoarse();
     if (coarse.valid && coarse.is_none) {
+        // 不停跟的话下一帧跟踪会在遮挡画面上挑个近处的假峰接着跟
+        motionTracker->forceLost();
+        stablePosition.reset();
         return LocateResult {
             .status = LocateStatus::TrackingLost,
             .debugMessage = kColdStartCollectingMessage,
+            .minimap_absent = true,
         };
     }
 

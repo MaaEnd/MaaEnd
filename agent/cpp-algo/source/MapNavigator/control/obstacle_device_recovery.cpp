@@ -128,6 +128,7 @@ DeviceRemovalOutcome ObstacleDeviceRecovery::tryRemove(const RouteMeasurement& r
     LogInfo << "Dynamic recovery carrying off the blocking device." << VAR(route.waypoint_distance);
     // 边走边点会点到滚到下面的另一行提示, 移动点击前须站定
     motion_controller_->setForwardState(false);
+    session_->noteInteraction();
     const std::optional<std::vector<std::string>> handled = RunTaskForCompletedNodes(maa_context_, kObstacleDeviceEntry, "{}");
     if (!handled) {
         LogWarn << "Blocking-device subtask result unavailable.";
