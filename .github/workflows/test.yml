@@ -10,6 +10,8 @@ on:
       - "assets/**"
       - "tests/**"
       - "agent/cpp-algo/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
   pull_request:
     branches:
       - "v2"
@@ -19,6 +21,8 @@ on:
       - "assets/**"
       - "tests/**"
       - "agent/cpp-algo/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
   workflow_dispatch:
 
 permissions:

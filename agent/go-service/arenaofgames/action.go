@@ -16,11 +16,13 @@ import (
 var _ maa.CustomActionRunner = &DecideAction{}
 
 // DecideAction 消费 ArenaOfGames.CheckHand 识别产出的手牌明细（识别每步只跑一次，本动作不重复读牌），
-// 对照勾选目标算出三态并用 OverrideNext 路由：凑成即结束（早停）、无法凑出转放弃链、否则转抽牌。
+// 对照内置牌型或独立正则目标算出三态并用 OverrideNext 路由：凑成即结束（早停）、无法凑出转放弃链、否则转抽牌。
 // 抽牌锚点（确认第几张牌完整可读）是按手牌数预定义的静态节点
 // ArenaOfGamesDrawCard1-5 / ArenaOfGamesDrawCardSuccess1-5，路由即可，无需 OverridePipeline。
 // 流程仍归 pipeline：点击与等动画由执行节点（DrawCard / Abandon 链）完成，Go 只做判定与路由。
-type DecideAction struct{}
+type DecideAction struct {
+	patterns regexMatcherCache
+}
 
 // 路由与执行节点名（定义在 ArenaOfGames.json / ArenaOfGamesCommon.json）。
 const (
@@ -49,33 +51,44 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		log.Error().Str("component", component).Msg("decide action got no hand detail")
 		return false
 	}
-	// 句柄生命周期：本回调内 Tasker / Controller 只取一次并往下传。
-	tasker := ctx.GetTasker()
-	if tasker == nil {
-		log.Error().Str("component", component).Msg("decide action got no tasker")
-		return false
-	}
-	ctrl := tasker.GetController()
-	if ctrl == nil {
-		log.Error().Str("component", component).Msg("decide action got no controller")
-		return false
-	}
-	img := cachedImage(ctrl)
-	if img == nil {
-		log.Error().Str("component", component).Msg("decide action got no cached image")
-		return false
-	}
-	targets, err := resolveTargets(ctx, img)
+	goal, err := resolveGoal(ctx, &a.patterns)
 	if err != nil {
-		// 决策动作把原先分散在三态识别节点、由框架逐心跳兜底的目标解析集中成了
-		// 一次性调用，瞬时 OCR 失败若不重试会直接终止任务，故在此换新截图补回容错。
-		targets, err = retryResolveTargets(ctx, tasker, ctrl)
+		log.Error().Err(err).Str("component", component).Msg("invalid target configuration")
+		return false
+	}
+	var targets map[category]bool
+	if goal.regex == nil {
+		// 句柄生命周期：本回调内 Tasker / Controller 只取一次并往下传。
+		tasker := ctx.GetTasker()
+		if tasker == nil {
+			log.Error().Str("component", component).Msg("decide action got no tasker")
+			return false
+		}
+		ctrl := tasker.GetController()
+		if ctrl == nil {
+			log.Error().Str("component", component).Msg("decide action got no controller")
+			return false
+		}
+		img := cachedImage(ctrl)
+		if img == nil {
+			log.Error().Str("component", component).Msg("decide action got no cached image")
+			return false
+		}
+		targets, err = resolvePresetTargets(ctx, img, goal.attach)
+		if err != nil {
+			// 只为内置模式保留今日好运瞬时 OCR 失败的原有容错。
+			targets, err = retryResolveTargets(ctx, tasker, ctrl, goal.attach)
+		}
 	}
 	if err != nil {
 		log.Warn().Err(err).Str("component", component).Msg("target hands could not be resolved")
 		return false
 	}
-	status := evaluateHand(handCounts(detail), detail.Count, targets)
+	status, err := goal.evaluate(detail, targets)
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Msg("target hand could not be evaluated")
+		return false
+	}
 
 	next, err := decideNext(status, detail.Count)
 	if err != nil {
@@ -89,6 +102,7 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().
 		Str("component", component).
 		Int("count", detail.Count).
+		Str("mode", goal.attach.Mode).
 		Str("category", detail.Category).
 		Str("status", status).
 		Str("next", next).
@@ -98,7 +112,7 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 // retryResolveTargets 等待一个心跳间隔后截新帧重试目标解析，共尝试 decideRetryAttempts 次；
 // 返回最后一次错误，tasker 停止时立即放弃。
-func retryResolveTargets(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller) (map[category]bool, error) {
+func retryResolveTargets(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, attach targetAttach) (map[category]bool, error) {
 	err := fmt.Errorf("targets unresolved")
 	for range decideRetryAttempts {
 		if tasker.Stopping() {
@@ -111,7 +125,7 @@ func retryResolveTargets(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Control
 			err = fmt.Errorf("screencap while retrying targets: %w", imgErr)
 			continue
 		}
-		targets, resolveErr := resolveTargets(ctx, img)
+		targets, resolveErr := resolvePresetTargets(ctx, img, attach)
 		if resolveErr == nil {
 			return targets, nil
 		}

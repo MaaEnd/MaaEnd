@@ -394,7 +394,7 @@
                                     "initialize",
                                     "menu_page",
                                     "menu_card",
-                                    "menu_confirm",
+                                    "menu_advance",
                                     "runtime",
                                     "dispatched"
                                 ]
@@ -418,6 +418,34 @@
                                 "maximum": 1000
                             }
                         }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": { "const": "autoEcoFarmInterruptibleSleep" }
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "required": ["custom_action_param"],
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "durationSec": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "reportIntervalMs": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        },
+                        "required": ["durationSec"],
+                        "additionalProperties": false
                     }
                 }
             }

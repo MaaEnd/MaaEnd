@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/ocrnum"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -38,7 +39,7 @@ type menuState struct {
 	PageSelected int        `json:"page_selected"`
 	Cards        []maa.Rect `json:"cards"`
 	Index        int        `json:"index"`
-	PendingID    string     `json:"pending_id"`
+	ClickingID   string     `json:"clicking_id,omitempty"`
 }
 
 type runtimeState struct {
@@ -52,7 +53,7 @@ type tableOrder struct {
 }
 
 var (
-	menuRoutes         = []string{"RestaurantMenuStapleComplete", "RestaurantMenuVegetableComplete", "RestaurantMenuDishesComplete", "RestaurantMenuDrinksComplete", "RestaurantMenuClickCard", "RestaurantMenuReadCard"}
+	menuRoutes         = []string{"RestaurantMenuStapleComplete", "RestaurantMenuVegetableComplete", "RestaurantMenuDishesComplete", "RestaurantMenuDrinksComplete", "RestaurantMenuClickCard", "RestaurantMenuAdvanceCard", "RestaurantMenuReadCard", "RestaurantMenuInsufficient"}
 	runtimeRoutes      = []string{"RestaurantRuntimeSwitchKitchen1", "RestaurantRuntimeSwitchKitchen2", "RestaurantRuntimeSwitchKitchen3", "RestaurantRuntimeNextKitchen", "RestaurantRuntimeClickDish1", "RestaurantRuntimeClickDish2", "RestaurantRuntimeClickDish3", "RestaurantRuntimeClickDish4", "RestaurantRuntimeClickDish5", "RestaurantRuntimeClickDish6", "RestaurantRuntimeIdle"}
 	restaurantData     menuCatalog
 	restaurantDataOnce sync.Once
@@ -88,22 +89,30 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	observed := indexObservations(arg.RecognitionDetail)
 	switch param.Step {
 	case "initialize":
-		if param.MaxRounds < 1 || param.MaxRounds > 1000 {
-			err = fmt.Errorf("maximum restaurant rounds must be between 1 and 1000")
+		if param.MaxRounds < 0 || param.MaxRounds > 20 {
+			err = fmt.Errorf("maximum restaurant runs must be between 0 and 20")
 			break
 		}
-		patch["RestaurantRoundGate"] = map[string]any{"max_hit": param.MaxRounds}
+		skipBusiness := param.MaxRounds == 0
+		patch["RestaurantRoundGate"] = map[string]any{
+			"enabled": !skipBusiness,
+			"max_hit": param.MaxRounds,
+		}
+		patch["RestaurantSkipBusiness"] = map[string]any{"enabled": skipBusiness}
+		patch["RestaurantSkipBusinessAtManor"] = map[string]any{"enabled": skipBusiness}
+		patch["RestaurantShopApproach"] = map[string]any{"enabled": skipBusiness}
+		patch["RestaurantShopApproachAfterBusiness"] = map[string]any{"enabled": !skipBusiness}
 	case "menu_page":
 		err = readMenuPage(state, param.Kind, param.Category, patch)
 	case "menu_card":
 		err = chooseMenuCard(state, observed, patch)
-	case "menu_confirm":
-		if state.Menu.PendingID == "" {
+	case "menu_advance":
+		if state.Menu.ClickingID == "" || !observed.hit("RestaurantMenuSelectedCircle") {
 			return false
 		}
-		rememberMenuItem(&state.Menu, state.Menu.PendingID)
+		rememberMenuItem(&state.Menu, state.Menu.ClickingID)
+		state.Menu.ClickingID = ""
 		state.Menu.PageSelected++
-		state.Menu.PendingID = ""
 		state.Menu.Index++
 		err = nextMenuCard(state, patch)
 	case "runtime":
@@ -194,22 +203,28 @@ func route(patch map[string]any, routes []string, selected string) {
 	}
 }
 
-func iconCandidates(patch map[string]any, name string, ids []string) {
+func iconCandidates(patch map[string]any, name string, ids []string, options ...iconrecognition.Option) {
 	filters := iconrecognition.StorageFilter()
-	patch[name] = map[string]any{"custom_recognition_param": iconrecognition.NewParams(
+	options = append([]iconrecognition.Option{
 		iconrecognition.WithGridType(iconrecognition.GridTypeSingleROI),
 		iconrecognition.WithItemFilters(filters.Restaurant.Any, filters.Normal.Usable),
 		iconrecognition.WithItemIDs(ids...),
+	}, options...)
+	patch[name] = map[string]any{"custom_recognition_param": iconrecognition.NewParams(
+		options...,
 	)}
 }
 
 // Menu decisions preserve the selected category and UI order; Pipeline selects each card.
 func readMenuPage(state *session, kind, category string, patch map[string]any) error {
 	validDishCategory := slices.Contains([]string{"staple", "vegetable", "dessert"}, category)
-	if (kind != "dish" && kind != "drink") || (kind == "dish" && !validDishCategory) || (kind == "drink" && category != "") || state.Menu.PendingID != "" {
+	if (kind != "dish" && kind != "drink") || (kind == "dish" && !validDishCategory) || (kind == "drink" && category != "") || state.Menu.ClickingID != "" {
 		return fmt.Errorf("invalid menu page state")
 	}
-	cards := []maa.Rect{{552, 134, 307, 93}, {870, 134, 307, 93}, {552, 239, 307, 93}}
+	cards := make([]maa.Rect, 0, 8)
+	for _, y := range []int{134, 239, 344, 450} {
+		cards = append(cards, maa.Rect{552, y, 307, 93}, maa.Rect{870, y, 307, 93})
+	}
 	state.Menu.Kind, state.Menu.Category, state.Menu.PageSelected = kind, category, 0
 	state.Menu.Cards, state.Menu.Index = cards, 0
 	return nextMenuCard(state, patch)
@@ -227,7 +242,7 @@ func rememberMenuItem(menu *menuState, id string) {
 
 func chooseMenuCard(state *session, observed observations, patch map[string]any) error {
 	menu := &state.Menu
-	if menu.Index < 0 || menu.Index >= len(menu.Cards) || menu.PendingID != "" {
+	if menu.Index < 0 || menu.Index >= len(menu.Cards) || menu.ClickingID != "" {
 		return fmt.Errorf("menu candidate state is missing")
 	}
 	id, err := readIcon(observed, "RestaurantMenuCardIcon")
@@ -237,19 +252,48 @@ func chooseMenuCard(state *session, observed observations, patch map[string]any)
 	if id == "" {
 		return fmt.Errorf("menu card icon is unrecognized")
 	}
-	if observed.hit("RestaurantMenuCardSelected") {
-		rememberMenuItem(menu, id)
-		menu.PageSelected++
-		menu.Index++
-		return nextMenuCard(state, patch)
-	}
 	if slices.Contains(menu.Dishes, id) || slices.Contains(menu.Drinks, id) {
 		return fmt.Errorf("verified menu selection %q disappeared", id)
 	}
-	menu.PendingID = id
-	iconCandidates(patch, "RestaurantMenuPendingIcon", []string{id})
+	quantity, err := readMenuCardQuantity(observed)
+	if err != nil || quantity < 10 {
+		if err != nil {
+			log.Debug().Err(err).Str("item_id", id).Int("card", menu.Index+1).Msg("skipping menu card with unreadable quantity")
+		}
+		menu.Index++
+		return nextMenuCard(state, patch)
+	}
+	card := menu.Cards[menu.Index]
+	menu.ClickingID = id
 	route(patch, menuRoutes, "RestaurantMenuClickCard")
+	patch["RestaurantMenuAdvanceCard"] = map[string]any{"enabled": true}
+	patch["RestaurantMenuClickCard"] = map[string]any{
+		"enabled": true,
+		"target":  []int{card[0] + 230, card[1] + 46},
+	}
 	return nil
+}
+
+func readMenuCardQuantity(observed observations) (int, error) {
+	detail := observed["RestaurantMenuCardQuantity"]
+	if detail == nil || detail.Results == nil {
+		return 0, fmt.Errorf("missing menu card quantity OCR")
+	}
+	for _, results := range [][]*maa.RecognitionResult{{detail.Results.Best}, detail.Results.Filtered, detail.Results.All} {
+		for _, result := range results {
+			if result == nil {
+				continue
+			}
+			text, ok := result.AsOCR()
+			if ok && text != nil && text.Text != "" {
+				quantity, err := ocrnum.Parse(text.Text)
+				if err == nil {
+					return quantity, nil
+				}
+			}
+		}
+	}
+	return 0, fmt.Errorf("menu card quantity OCR has no usable number")
 }
 
 func nextMenuCard(state *session, patch map[string]any) error {
@@ -288,7 +332,8 @@ func nextMenuCard(state *session, patch map[string]any) error {
 		return nil
 	}
 	if menu.Index >= len(menu.Cards) {
-		return fmt.Errorf("not enough available %s menu cards on the current page: selected %d, required %d", menu.Kind, selected, required)
+		route(patch, menuRoutes, "RestaurantMenuInsufficient")
+		return nil
 	}
 	data, err := loadRestaurantData()
 	if err != nil {
@@ -300,7 +345,11 @@ func nextMenuCard(state *session, patch map[string]any) error {
 	} else {
 		ids = data.Drinks
 	}
-	iconCandidates(patch, "RestaurantMenuCardIcon", ids)
+	iconCandidates(patch, "RestaurantMenuCardIcon", ids, iconrecognition.WithThreshold(0.75))
+	card := menu.Cards[menu.Index]
+	patch["RestaurantMenuCardQuantity"] = map[string]any{
+		"roi": []int{card[0] + 4, card[1] + 66, card[2] - 184, card[3] - 72},
+	}
 	patch["RestaurantMenuCardAnchor"] = map[string]any{
 		"recognition": map[string]any{
 			"type":  "DirectHit",

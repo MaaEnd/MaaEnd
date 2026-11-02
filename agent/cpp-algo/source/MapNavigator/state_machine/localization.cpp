@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+#include <meojson/json.hpp>
+
+#include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
 
 #include "../control/action_wrapper.h"
@@ -15,13 +18,50 @@
 #include "../planning/navmesh_queries.h"
 #include "../semantic/semantic_nodes.h"
 #include "../semantic/trigger_action.h"
+#include "../sensing/maa_task.h"
 #include "../sensing/position_provider.h"
 #include "../zipline/zipline_action.h"
 #include "internal.h"
 #include "river_fall_recovery.h"
 
+#include "../../utils.h"
+
 namespace mapnavigator
 {
+
+namespace
+{
+
+// 读不到画面也当作有对话, 宁可不接
+bool dialog_on_screen(MaaContext* context, MaaController* controller)
+{
+    ScopedImageBuffer image;
+    if (context == nullptr || controller == nullptr || !MaaControllerCachedImage(controller, image.Get())
+        || MaaImageBufferIsEmpty(image.Get())) {
+        return true;
+    }
+    for (const char* node : { kSceneRecoveryStoryNode, kSceneRecoveryDialogNode }) {
+        NodeSighting sighting {};
+        if (!RunRecognitionNode(context, node, "{}", image.Get(), &sighting) || sighting.hit) {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::string scene_recovery_override(MaaSize esc_used)
+{
+    const json::object nodes {
+        { kSceneRecoveryEntryNode, json::object { { "timeout", kSceneRecoveryEntryTimeoutMs } } },
+        { kSceneRecoveryStoryNode, json::object { { "enabled", false } } },
+        { kSceneRecoveryDialogNode, json::object { { "enabled", false } } },
+        { kSceneRecoveryStableCheckNode, json::object { { "enabled", false } } },
+        { kSceneRecoveryEscNode, json::object { { "max_hit", esc_used + kSceneRecoveryEscBudget } } },
+    };
+    return json::value(nodes).dumps();
+}
+
+} // namespace
 
 bool NavigationStateMachine::captureCurrentPosition(bool force_global_search)
 {
@@ -145,6 +185,9 @@ bool NavigationStateMachine::handleLocalizationLoss()
 
     const auto loss_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - loss.started_at);
     if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossTimeoutMs)) {
+        if (sceneRecoveryAllowed() && runSceneRecovery()) {
+            return resumeAfterGlobalReacquire(session_->currentZoneId(), loss_elapsed);
+        }
         return failNavigation(
             "localization_lost_timeout",
             "Localization lost beyond timeout (re-acquire failed; likely shoved off-route into another zone); terminating navigation.",
@@ -180,6 +223,44 @@ bool NavigationStateMachine::handleLocalizationLoss()
 
     SleepFor(kLocatorRetryIntervalMs);
     return true;
+}
+
+bool NavigationStateMachine::sceneRecoveryAllowed()
+{
+    const LocalizationLossState& loss = runtime_state_.localization_loss;
+    const bool attempted = runtime_state_.scene_recovery_attempted;
+    const bool foreign_ui = position_provider_->lastCaptureMinimapAbsent() && !loss.saw_black_screen;
+    const bool own_ui = semantic_nodes::IsTriggerPending(*session_)
+                        || ElapsedMs(session_->lastInteractionAt(), loss.started_at) < kSceneRecoveryInteractionQuietMs;
+    if (attempted || !foreign_ui || own_ui) {
+        LogInfo << "Scene recovery declined." << VAR(attempted) << VAR(foreign_ui) << VAR(own_ui);
+        return false;
+    }
+    if (dialog_on_screen(maa_context_, action_wrapper_->getCtrl())) {
+        LogInfo << "Scene recovery declined: dialog on screen.";
+        return false;
+    }
+    return true;
+}
+
+bool NavigationStateMachine::runSceneRecovery()
+{
+    runtime_state_.scene_recovery_attempted = true;
+    MaaSize esc_used = 0;
+    if (!MaaContextGetHitCount(maa_context_, kSceneRecoveryEscNode, &esc_used)) {
+        LogWarn << "Scene recovery skipped: hit count unavailable.";
+        return false;
+    }
+    const std::optional<std::vector<std::string>> handled =
+        RunTaskForCompletedNodes(maa_context_, kSceneRecoveryEntryNode, scene_recovery_override(esc_used));
+    const bool restored =
+        position_provider_->waitForFix(position_, std::string(), kSceneRecoveryFixAttempts, kRelocationRetryIntervalMs, should_stop_);
+    LogInfo << "Scene recovery finished." << VAR(restored) << VAR(handled) << VAR(esc_used);
+    if (restored) {
+        // 被界面盖住和清界面的这段时间人走不了, 不算停滞
+        session_->excludeFromStallClocks(std::chrono::steady_clock::now() - runtime_state_.localization_loss.started_at);
+    }
+    return restored;
 }
 
 bool NavigationStateMachine::resumeAfterGlobalReacquire(const std::string& prior_zone, std::chrono::milliseconds loss_elapsed)

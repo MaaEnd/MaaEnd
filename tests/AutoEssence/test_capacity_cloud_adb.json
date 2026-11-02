@@ -1,0 +1,133 @@
+{
+    "configs": {
+        "name": "云终末地分解武器基质页面",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "name": "武器页，切到武器基质标签",
+            "image": "贵重品库_武器_基质标签未选.png",
+            "hits": [
+                {
+                    "node": "AutoEssenceCapacitySwitchToWeaponTab",
+                    "box": [
+                        0,
+                        150,
+                        90,
+                        100
+                    ]
+                },
+                "AutoEssenceCapacityClickRecycle"
+            ]
+        },
+        {
+            "name": "武器基质页",
+            "image": "贵重品库_武器基质.png",
+            "hits": [
+                {
+                    "node": "AutoEssenceCapacityOnWeaponTab",
+                    "box": [
+                        0,
+                        150,
+                        90,
+                        100
+                    ]
+                },
+                {
+                    "node": "AutoEssenceCapacityClickRecycle",
+                    "box": [
+                        460,
+                        618,
+                        60,
+                        60
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "回收页，尚未选择",
+            "image": "贵重品库_武器基质_回收.png",
+            "hits": [
+                "AutoEssenceCapacityOnWeaponTab",
+                "AutoEssenceCapacityDecomposePrompt",
+                "AutoEssenceCapacitySaveClosed",
+                "AutoEssenceCapacityClickQuickPut",
+                "AutoEssenceCapacitySelectedCountOCR",
+                "AutoEssenceCapacityClickExit"
+            ]
+        },
+        {
+            "name": "快捷放入筛选弹窗",
+            "image": "贵重品库_武器基质_回收_筛选.png",
+            "hits": [
+                "AutoEssenceCapacityClickQuickPut",
+                "AutoEssenceCapacitySelectedCountOCR",
+                "AutoEssenceCapacityFilterOpen",
+                {
+                    "node": "AutoEssenceCapacityClickSave",
+                    "box": [
+                        940,
+                        560,
+                        280,
+                        75
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "快捷放入筛选弹窗，已勾选稳定基质",
+            "image": "贵重品库_武器基质_回收_筛选_稳定基质.png",
+            "hits": [
+                "AutoEssenceCapacityClickQuickPut",
+                "AutoEssenceCapacitySelectedCountOCR",
+                "AutoEssenceCapacityFilterOpen",
+                {
+                    "node": "AutoEssenceCapacityFilterResult",
+                    "box": [
+                        50,
+                        560,
+                        240,
+                        75
+                    ]
+                },
+                "AutoEssenceCapacityClickSave"
+            ]
+        },
+        {
+            "name": "回收页，已选择 200",
+            "image": "贵重品库_武器基质_回收_已选择.png",
+            "hits": [
+                "AutoEssenceCapacityOnWeaponTab",
+                "AutoEssenceCapacityDecomposePrompt",
+                "AutoEssenceCapacitySaveClosed",
+                "AutoEssenceCapacityClickQuickPut",
+                "AutoEssenceCapacitySelectedCountOCR",
+                "AutoEssenceCapacityClickDecompose",
+                "AutoEssenceCapacityClickExit"
+            ]
+        },
+        {
+            "name": "分解确认弹窗",
+            "image": "贵重品库_武器基质_分解确认.png",
+            "hits": [
+                "AutoEssenceCapacityDecomposePrompt",
+                "AutoEssenceCapacitySaveClosed",
+                "AutoEssenceCapacityClickQuickPut",
+                "AutoEssenceCapacitySelectedCountOCR",
+                "AutoEssenceCapacityClickDecompose",
+                "AutoEssenceCapacityClickExit",
+                "AutoEssenceCapacityConfirmPrompt",
+                {
+                    "node": "AutoEssenceCapacityClickConfirm",
+                    "box": [
+                        780,
+                        490,
+                        120,
+                        60
+                    ]
+                }
+            ]
+        }
+    ]
+}

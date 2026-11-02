@@ -82,6 +82,7 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 | 菜单 | `SceneEnterMenuSettingOthers` | 进入设置-其他（仅 PC） |
 | 菜单 | `SceneEnterMenuHeadhunt` | 进入干员寻访界面 |
 | 菜单 | `SceneEnterMenuOperationalManualUmbralMonument` | 进入行动手册-影拓丰碑 |
+| 菜单 | `SceneEnterMenuOperationalManualWarEcho` | 进入行动手册-战争回响 |
 | 辅助 | `SceneDialogConfirm` | 点击对话框确认按钮 |
 | 辅助 | `SceneDialogCancel` | 点击对话框取消按钮 |
 | 辅助 | `SceneNoticeRewardsConfirm` | 点击奖励界面确认按钮 |
