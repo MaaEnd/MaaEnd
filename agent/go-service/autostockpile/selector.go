@@ -198,20 +198,25 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	if isSecondPageOnlyID(*data, selection.ProductID) {
+	// 选中商品不在首屏时，先把它下滑到可见位置，再交给 AutoStockpileSelectedGoodsClick 做模板点击。
+	if swipeCount := swipeCountToRevealID(*data, selection.ProductID); swipeCount > 0 {
 		log.Info().
 			Str("component", "autostockpile").
 			Str("product_id", selection.ProductID).
 			Str("product_name", selection.ProductName).
-			Msg("selected goods only on second page, swipe shelf down before click")
-		if swipeErr := swipeShelfDown(ctx); swipeErr != nil {
-			log.Error().
-				Err(swipeErr).
-				Str("component", "autostockpile").
-				Str("product_id", selection.ProductID).
-				Str("step", "shelf_swipe_down_before_click").
-				Msg("failed to reveal second-page-only goods before click")
-			return false
+			Int("swipe_count", swipeCount).
+			Msg("selected goods is not on the first page, swipe shelf down before click")
+		for i := 0; i < swipeCount && i < len(shelfSwipeDownNodes); i++ {
+			if swipeErr := runShelfSwipe(ctx, shelfSwipeDownNodes[i]); swipeErr != nil {
+				log.Error().
+					Err(swipeErr).
+					Str("component", "autostockpile").
+					Str("product_id", selection.ProductID).
+					Str("node", shelfSwipeDownNodes[i]).
+					Str("step", "shelf_swipe_down_before_click").
+					Msg("failed to reveal selected goods before click")
+				return false
+			}
 		}
 	}
 

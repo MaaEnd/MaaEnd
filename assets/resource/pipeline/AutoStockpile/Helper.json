@@ -133,6 +133,31 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "AutoStockpileFindMarketTitle": {
+        "desc": "定位「市场」标题，作为货架滚动位置的锚点",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    20,
+                    150,
+                    260,
+                    550
+                ],
+                "expected": [
+                    "市场",
+                    "市場",
+                    "Market",
+                    "マーケット",
+                    "시장",
+                    "마켓"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "AutoStockpileGetStockBill": {
         "desc": "获取调度券数量",
         "recognition": {
@@ -180,6 +205,19 @@
     },
     "AutoStockpileSwipeShelfDown": {
         "desc": "货架向下滑动一页（Win32 一屏可见，无需滑动）",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileSwipeShelfToBottom": {
+        "desc": "货架滑到底（Win32 一屏可见，无需滑动）",
         "recognition": {
             "type": "DirectHit",
             "param": {}

@@ -36,17 +36,18 @@ var (
 func copyRecognitionData(src RecognitionData) RecognitionData {
 	dst := src
 	dst.Goods = append([]GoodsItem(nil), src.Goods...)
-	dst.SecondPageOnlyIDs = append([]string(nil), src.SecondPageOnlyIDs...)
+	if src.SwipeCountToReveal != nil {
+		dst.SwipeCountToReveal = make(map[string]int, len(src.SwipeCountToReveal))
+		for id, count := range src.SwipeCountToReveal {
+			dst.SwipeCountToReveal[id] = count
+		}
+	}
 	return dst
 }
 
-func isSecondPageOnlyID(data RecognitionData, productID string) bool {
-	for _, id := range data.SecondPageOnlyIDs {
-		if id == productID {
-			return true
-		}
-	}
-	return false
+// swipeCountToRevealID 返回点击该商品前需要下滑的次数，首屏可见时为 0。
+func swipeCountToRevealID(data RecognitionData, productID string) int {
+	return data.SwipeCountToReveal[productID]
 }
 
 // getDecisionState returns nil if no state has been set; otherwise returns a deep copy.

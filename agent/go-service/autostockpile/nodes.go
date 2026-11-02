@@ -16,10 +16,12 @@ const (
 	skipNodeName                   = "AutoStockpileSkip"
 	attachNodeName                 = "AutoStockpileAttach"
 	findMarketMarkNodeName         = "AutoStockpileFindMarketMark"
+	findMarketTitleNodeName        = "AutoStockpileFindMarketTitle"
 	overflowQuotaNodeName          = "AutoStockpileGetQuota"
 	overflowQuotaAdditionNodeName  = "AutoStockpileGetQuotaAddition"
 	locateGoodsNodeName            = "AutoStockpileLocateGoods"
 	goodsPriceNodeName             = "AutoStockpileGetGoods"
 	swipeShelfDownNodeName         = "AutoStockpileSwipeShelfDown"
+	swipeShelfToBottomNodeName     = "AutoStockpileSwipeShelfToBottom"
 	swipeShelfUpNodeName           = "AutoStockpileSwipeShelfUp"
 )
