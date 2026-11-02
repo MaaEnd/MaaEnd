@@ -39,6 +39,7 @@ type menuState struct {
 	PageSelected int        `json:"page_selected"`
 	Cards        []maa.Rect `json:"cards"`
 	Index        int        `json:"index"`
+	ClickingID   string     `json:"clicking_id,omitempty"`
 }
 
 type runtimeState struct {
@@ -52,7 +53,7 @@ type tableOrder struct {
 }
 
 var (
-	menuRoutes         = []string{"RestaurantMenuStapleComplete", "RestaurantMenuVegetableComplete", "RestaurantMenuDishesComplete", "RestaurantMenuDrinksComplete", "RestaurantMenuClickCard", "RestaurantMenuReadCard", "RestaurantMenuInsufficient"}
+	menuRoutes         = []string{"RestaurantMenuStapleComplete", "RestaurantMenuVegetableComplete", "RestaurantMenuDishesComplete", "RestaurantMenuDrinksComplete", "RestaurantMenuClickCard", "RestaurantMenuAdvanceCard", "RestaurantMenuReadCard", "RestaurantMenuInsufficient"}
 	runtimeRoutes      = []string{"RestaurantRuntimeSwitchKitchen1", "RestaurantRuntimeSwitchKitchen2", "RestaurantRuntimeSwitchKitchen3", "RestaurantRuntimeNextKitchen", "RestaurantRuntimeClickDish1", "RestaurantRuntimeClickDish2", "RestaurantRuntimeClickDish3", "RestaurantRuntimeClickDish4", "RestaurantRuntimeClickDish5", "RestaurantRuntimeClickDish6", "RestaurantRuntimeIdle"}
 	restaurantData     menuCatalog
 	restaurantDataOnce sync.Once
@@ -106,6 +107,11 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	case "menu_card":
 		err = chooseMenuCard(state, observed, patch)
 	case "menu_advance":
+		if state.Menu.ClickingID == "" || !observed.hit("RestaurantMenuSelectedCircle") {
+			return false
+		}
+		rememberMenuItem(&state.Menu, state.Menu.ClickingID)
+		state.Menu.ClickingID = ""
 		state.Menu.PageSelected++
 		state.Menu.Index++
 		err = nextMenuCard(state, patch)
@@ -212,7 +218,7 @@ func iconCandidates(patch map[string]any, name string, ids []string, options ...
 // Menu decisions preserve the selected category and UI order; Pipeline selects each card.
 func readMenuPage(state *session, kind, category string, patch map[string]any) error {
 	validDishCategory := slices.Contains([]string{"staple", "vegetable", "dessert"}, category)
-	if (kind != "dish" && kind != "drink") || (kind == "dish" && !validDishCategory) || (kind == "drink" && category != "") {
+	if (kind != "dish" && kind != "drink") || (kind == "dish" && !validDishCategory) || (kind == "drink" && category != "") || state.Menu.ClickingID != "" {
 		return fmt.Errorf("invalid menu page state")
 	}
 	cards := make([]maa.Rect, 0, 8)
@@ -236,7 +242,7 @@ func rememberMenuItem(menu *menuState, id string) {
 
 func chooseMenuCard(state *session, observed observations, patch map[string]any) error {
 	menu := &state.Menu
-	if menu.Index < 0 || menu.Index >= len(menu.Cards) {
+	if menu.Index < 0 || menu.Index >= len(menu.Cards) || menu.ClickingID != "" {
 		return fmt.Errorf("menu candidate state is missing")
 	}
 	id, err := readIcon(observed, "RestaurantMenuCardIcon")
@@ -245,12 +251,6 @@ func chooseMenuCard(state *session, observed observations, patch map[string]any)
 	}
 	if id == "" {
 		return fmt.Errorf("menu card icon is unrecognized")
-	}
-	if observed.hit("RestaurantMenuCardSelected") {
-		rememberMenuItem(menu, id)
-		menu.PageSelected++
-		menu.Index++
-		return nextMenuCard(state, patch)
 	}
 	if slices.Contains(menu.Dishes, id) || slices.Contains(menu.Drinks, id) {
 		return fmt.Errorf("verified menu selection %q disappeared", id)
@@ -264,8 +264,9 @@ func chooseMenuCard(state *session, observed observations, patch map[string]any)
 		return nextMenuCard(state, patch)
 	}
 	card := menu.Cards[menu.Index]
-	rememberMenuItem(menu, id)
+	menu.ClickingID = id
 	route(patch, menuRoutes, "RestaurantMenuClickCard")
+	patch["RestaurantMenuAdvanceCard"] = map[string]any{"enabled": true}
 	patch["RestaurantMenuClickCard"] = map[string]any{
 		"enabled": true,
 		"target":  []int{card[0] + 230, card[1] + 46},

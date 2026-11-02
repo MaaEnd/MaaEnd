@@ -138,45 +138,12 @@
         "connected": true,
         "count": 80
     },
-    "RestaurantMenuSelectedBar": {
-        "recognition": "ColorMatch",
-        "roi": "RestaurantMenuSelectedCircle",
-        "roi_offset": [
-            5,
-            6,
-            -10,
-            -12
-        ],
-        "method": 6,
-        "lower": [
-            180
-        ],
-        "upper": [
-            255
-        ],
-        "count": 4
-    },
-    "RestaurantMenuCardSelected": {
-        "desc": "组合判断当前卡片是否已选中。",
-        "recognition": "And",
-        "all_of": [
-            "RestaurantMenuSelectedCircle",
-            "RestaurantMenuSelectedBar"
-        ]
-    },
     "RestaurantMenuCardFacts": {
         "desc": "组合当前卡片的识别信息。",
         "recognition": "And",
         "all_of": [
             "RestaurantMenuCardAnchor",
             "RestaurantMenuCardIcon",
-            {
-                "recognition": "Or",
-                "any_of": [
-                    "RestaurantMenuCardSelected",
-                    "RestaurantObservationEmpty"
-                ]
-            },
             {
                 "recognition": "Or",
                 "any_of": [

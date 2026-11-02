@@ -2263,8 +2263,13 @@
         ]
     },
     "RestaurantMenuAdvanceCard": {
-        "desc": "点击菜单卡片后推进索引并准备下一张卡片。",
-        "recognition": "DirectHit",
+        "desc": "识别卡片已选中后提交选择并推进索引。",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "RestaurantMenuCardAnchor",
+            "RestaurantMenuSelectedCircle"
+        ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RestaurantDecisionAction",
