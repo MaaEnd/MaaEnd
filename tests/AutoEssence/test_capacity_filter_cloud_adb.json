@@ -26,6 +26,17 @@
                 "AutoEssenceCapacityUnlockedOff",
                 "AutoEssenceCapacityDiscardedOff"
             ]
+        },
+        {
+            "name": "品质全部勾选",
+            "image": "贵重品库_武器基质_回收_筛选_品质全选.png",
+            "hits": [
+                "AutoEssenceCapacityStableOn",
+                "AutoEssenceCapacityPureOn",
+                "AutoEssenceCapacityHighOn",
+                "AutoEssenceCapacityUnlockedOff",
+                "AutoEssenceCapacityDiscardedOff"
+            ]
         }
     ]
 }
