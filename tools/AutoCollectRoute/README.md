@@ -66,7 +66,7 @@ uv run autocollect-route
 
 ## 生成结果
 
-路线文件与现有路线同构：`Start` 进入传送点、`AssertLocation` 断言到达、`Goto` 执行 `MapNavigateAction`。`path` 以 `ZONE` 开头，采集点写作 `[u, v, "COLLECT" | "DIG", true]`。以下采集点前插入一个带 `target_deck_y` 的 `NAVMESH`，由运行时规划前往，其余采集点直线前往：
+路线文件与现有路线同构：`Start` 进入传送点、`AssertLocation` 断言到达、`Goto` 执行 `MapNavigateAction`。`path` 以 `ZONE` 开头，采集点写作 `[u, v, "COLLECT" | "DIG", true]`。含 `DIG` 路点的路线在 `Goto` 之后追加 `Wait10sec` 节点，等挖掘掉落入包后再结束；纯 `COLLECT` 路线不追加。以下采集点前插入一个带 `target_deck_y` 的 `NAVMESH`，由运行时规划前往，其余采集点直线前往：
 
 1. 首个采集点；
 2. 与上一点相距超过 15 px（含高度折算）的采集点。现有手写路线中采集点之间直走的段最长 13.1 px，更远的段均依赖录制路点或 `NAVMESH`；

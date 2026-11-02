@@ -24,7 +24,7 @@ argument-hint: 新建路线时提供地区（`ValleyIV` 或 `Wuling`）、采集
 - 定位节点使用 `MapLocateAssertLocation`
 - 导航节点固定为单个 `AutoCollect<路线 id>Goto`
 - `MapNavigateAction` 的采集点通过同一条 `path` 中的动作点控制
-- 最终 `next` 直接指向 `AutoCollect<路线 id>End`
+- 最终 `next` 指向 `AutoCollect<路线 id>End`；`path` 含 `DIG` 时先指向 `AutoCollect<路线 id>Wait10sec`，再由它指向 `End`
 
 在地图上框选采集物自动生成路线时，优先让用户使用 `uv run autocollect-route`（见 `tools/AutoCollectRoute/README.md`），它会一次完成路线文件、登记与生成。
 
@@ -106,6 +106,7 @@ argument-hint: 新建路线时提供地区（`ValleyIV` 或 `Wuling`）、采集
 - `AutoCollect<路线 id>AssertLocation`
 - `AutoCollect<路线 id>Goto`
 - `AutoCollect<路线 id>End`
+- `AutoCollect<路线 id>Wait10sec`（`path` 含 `DIG` 时）
 
 用户要求拆成 `GotoFind1/2/3...` 或使用 `anchor` 串联多段节点时，不属于本 skill 范围，先澄清。
 
@@ -128,6 +129,26 @@ argument-hint: 新建路线时提供地区（`ValleyIV` 或 `Wuling`）、采集
 
 用户已经给出 `"COLLECT"` 或 `"DIG"` 时沿用原值。多个采集点都保留在同一个 `path` 里，不要拆成 `GotoFindN`，也不要使用旧的 `anchor + AutoCollectClickStart` / `AutoCollectDigStart` 链式写法。
 
+### 5. 挖掘类路线末尾补等待节点
+
+`path` 里含 `DIG` 采集点的路线，挖出的掉落物要等约 10 秒才入包，必须在 `Goto` 之后补一个等待节点，否则路线结束时会漏收：
+
+```json
+"AutoCollect<路线 id>Wait10sec": {
+    "desc": "等待10s完成收集",
+    "pre_delay": 0,
+    "post_delay": 10000,
+    "next": [
+        "AutoCollect<路线 id>End"
+    ],
+    "focus": {
+        "Node.Recognition.Succeeded": "等待10s完成收集"
+    }
+}
+```
+
+此时 `Goto` 的 `next` 指向 `AutoCollect<路线 id>Wait10sec`。纯 `COLLECT` 路线不补这个节点；这里的“挖掘类路线”指 `path` 中含任意 `DIG` 采集点的路线，`COLLECT` / `DIG` 混合的路线同样要补。
+
 ## 标准实施步骤
 
 ### 第一步：确定路线 id
@@ -143,9 +164,12 @@ argument-hint: 新建路线时提供地区（`ValleyIV` 或 `Wuling`）、采集
     "AutoCollect<路线 id>Start": { ... },
     "AutoCollect<路线 id>End": { ... },
     "AutoCollect<路线 id>AssertLocation": { ... },
-    "AutoCollect<路线 id>Goto": { ... }
+    "AutoCollect<路线 id>Goto": { ... },
+    "AutoCollect<路线 id>Wait10sec": { ... }
 }
 ```
+
+`Wait10sec` 只在挖掘类路线中出现，写法见规则 5。
 
 `Start` 节点：
 
@@ -169,7 +193,7 @@ argument-hint: 新建路线时提供地区（`ValleyIV` 或 `Wuling`）、采集
 - `desc` 写 `前往采集点`
 - `action.type` 为 `"Custom"`，`action.param.custom_action` 为 `"MapNavigateAction"`
 - `path` 第一项是 `{"action": "ZONE", "zone_id": "..."}`，之后是完整单段路线，采集点用 `"COLLECT"` / `"DIG"`
-- `next` 指向 `AutoCollect<路线 id>End`
+- `next`：`path` 不含 `DIG` 时指向 `AutoCollect<路线 id>End`；含 `DIG` 时指向 `AutoCollect<路线 id>Wait10sec`（见规则 5）
 - 不写 `anchor`，不拆分导航节点
 
 结构以 `ValleyIVPinkBolete1.json` 为准。
@@ -207,12 +231,13 @@ uv run autocollect-route generate
 - [ ] 若首个点仅用于断言，则没有混入 `path`
 - [ ] 路线只有一个 `Goto`，没有 `GotoFindN` 或 `anchor`
 - [ ] `path` 中没有残留布尔 `true` 作为采集标记
+- [ ] `path` 含 `DIG` 的路线已补 `Wait10sec` 节点，`Goto.next` 指向它
 - [ ] `routes.json` 已登记，`uv run autocollect-route generate` 运行成功
 - [ ] `desc` / focus 文案使用中文
 
 ## 验证建议
 
-1. 检查路线执行顺序：传送 -> 位置断言 -> 单段导航/采集 -> 结束
+1. 检查路线执行顺序：传送 -> 位置断言 -> 单段导航/采集 ->（挖掘类）等待 10 秒 -> 结束
 2. 检查生成后的 `assets/tasks/AutoCollect.json` 中，对应地区的采集物选项里出现了该采集物，勾选它会启用 `AutoCollect<路线 id>Start`
 3. 检查 `Dispatch.json` 中该采集物的调度节点 `next` 含 `[JumpBack]__AutoCollect<路线 id>Run`
 4. 新路线需经实机运行确认
@@ -233,6 +258,7 @@ uv run autocollect-route generate
 - 路线 id 由地区、采集物英文名与序号组成
 - 使用 `MapLocateAssertLocation` 校验断言点换算得到的 `[x-10, y-10, 20, 20]`
 - 将用户输入的 `[x, y, true]` 按采集类型转换为 `"COLLECT"` 或 `"DIG"`
+- `path` 含 `DIG` 的路线在 `Goto` 之后补 `Wait10sec`，等掉落物入包后再结束
 
 ## 校验
 
