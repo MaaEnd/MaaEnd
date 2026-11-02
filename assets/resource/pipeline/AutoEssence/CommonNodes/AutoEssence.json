@@ -1228,21 +1228,9 @@
             "param": {
                 "custom_action": "AutoScrollAction",
                 "custom_action_param": {
-                    // PC 用滚轮下翻；其它端回退 AutoAltSwipeAction，偏移保持历史滑动语义
+                    // 仅 Win PC 用滚轮下翻；其它端无法实机验证，动作留空不滚动（此处仅优化 Win PC）
                     "dx": 0,
-                    "dy": -240,
-                    "begin_offset": [
-                        0,
-                        30,
-                        0,
-                        -10
-                    ],
-                    "end_offset": [
-                        0,
-                        -120,
-                        0,
-                        0
-                    ]
+                    "dy": -240
                 }
             }
         },
@@ -1280,19 +1268,6 @@
                         480,
                         -1120,
                         -640
-                    ],
-                    // 非 PC 端回退 AutoAltSwipeAction 的滑动偏移（相对整屏），在列表区域长距离下滑
-                    "begin_offset": [
-                        0,
-                        30,
-                        0,
-                        -10
-                    ],
-                    "end_offset": [
-                        0,
-                        -320,
-                        0,
-                        0
                     ]
                 }
             }

@@ -382,9 +382,7 @@
                         "properties": {
                             "dx": { "type": "integer" },
                             "dy": { "type": "integer" },
-                            "target_offset": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "integer" } },
-                            "begin_offset": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "integer" } },
-                            "end_offset": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "integer" } }
+                            "target_offset": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "integer" } }
                         }
                     }
                 }

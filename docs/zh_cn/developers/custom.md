@@ -250,13 +250,11 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 - 多端行为：
     - **PC（Win32）**：使用原生 `Scroll` 滚轮滚动（`dx` / `dy`，`dy` 为负表示向下滚动，建议 120 的整数倍）。超过一格（120）的位移会**按格拆成多次滚轮事件逐格发送**，相邻事件间隔约 30 毫秒——游戏引擎通常每帧只消费一格，一次性给 `dy: -2400` 实际只会滚一格。
-    - **其它端（ADB / PlayCover / Linux / MacOS 等）**：回退执行 `AutoAltSwipeAction`（原滑动实现，本动作不修改它），保证多端兼容。
+    - **其它端（ADB / PlayCover / Linux / MacOS 等）**：由于无法对相关设备端进行实机测试，此处留空——动作直接返回成功且不做任何滚动，由 Pipeline 的 `next` 继续原有流程（例如直接传送重走）。目前仅对 Win PC 做优化。
 - 参数：
     - `dx?: int`：水平滚轮量，PC 端生效，默认 0；绝对值超过 120 时按格拆分。
     - `dy?: int`：垂直滚轮量，PC 端生效，负值向下滚动；绝对值超过 120 时按格拆分。
     - `target_offset?: [int, int, int, int]`：可选。滚动点相对识别框的偏移 `[dx, dy, dw, dh]`。
-    - `begin_offset?: [int, int, int, int]`：非 PC 端回退滑动的起点偏移，语义同 `AutoAltSwipeAction`。
-    - `end_offset?: [int, int, int, int]`：非 PC 端回退滑动的终点偏移，语义同 `AutoAltSwipeAction`。
 
 滚动点默认由 Pipeline 节点的 `box` 决定。
 
@@ -599,7 +597,7 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 | 在指定位置 Alt + 点击 | `AutoAltClickAction` |
 | 在指定位置 Ctrl + 点击 | `AutoCtrlClickAction` |
 | Alt + 滑动 | `AutoAltSwipeAction` |
-| 滚轮/滑动滚动列表（PC 滚轮，其它端回退滑动） | `AutoScrollAction` |
+| 滚轮滚动列表（仅 PC，其它端留空不滚动） | `AutoScrollAction` |
 | 从画面中心悬停到识别框后再点击 | `AutoSwipeClickAction` |
 
 所有 Custom 的 Go 代码实现在 `agent/go-service/` 下，Pipeline 作者不需要关心，照文档参数写 JSON 就行。

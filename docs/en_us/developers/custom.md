@@ -250,13 +250,11 @@ The `AutoScrollAction` implementation is located in `agent/go-service/common/aut
 
 - Multi-platform behavior:
     - **PC (Win32)**: uses the native `Scroll` mouse wheel (`dx` / `dy`; negative `dy` scrolls down; prefer multiples of 120). Any amount larger than one notch (120) is **split into one wheel event per notch**, spaced about 30 ms apart — game engines usually consume a single notch per frame, so `dy: -2400` would otherwise scroll only one notch.
-    - **Other platforms (ADB / PlayCover / Linux / MacOS, etc.)**: falls back to `AutoAltSwipeAction` (the original swipe implementation, which this action does not modify), keeping multi-platform compatibility.
+    - **Other platforms (ADB / PlayCover / Linux / MacOS, etc.)**: left empty because the relevant device platforms cannot be tested in practice. The action returns success without scrolling anything, and the Pipeline's `next` continues the original flow (for example, going straight to teleport). Only Win PC is optimized for now.
 - Parameters:
     - `dx?: int`: horizontal wheel amount, effective on PC, default 0; split per notch when its absolute value exceeds 120.
     - `dy?: int`: vertical wheel amount, effective on PC; negative scrolls down; split per notch when its absolute value exceeds 120.
     - `target_offset?: [int, int, int, int]`: optional. Offset `[dx, dy, dw, dh]` of the scroll point relative to the recognition box.
-    - `begin_offset?: [int, int, int, int]`: start offset of the non-PC swipe fallback, same semantics as `AutoAltSwipeAction`.
-    - `end_offset?: [int, int, int, int]`: end offset of the non-PC swipe fallback, same semantics as `AutoAltSwipeAction`.
 
 The scroll point defaults to the Pipeline node's `box`.
 
@@ -599,7 +597,7 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Alt + Click at specified position | `AutoAltClickAction` |
 | Ctrl + Click at specified position | `AutoCtrlClickAction` |
 | Alt + Swipe | `AutoAltSwipeAction` |
-| Scroll a list (mouse wheel on PC, swipe fallback elsewhere) | `AutoScrollAction` |
+| Scroll a list with the mouse wheel (PC only; left empty elsewhere) | `AutoScrollAction` |
 | Hover from the screen center to the recognition box, then click | `AutoSwipeClickAction` |
 
 All Custom Go code implementations are located under `agent/go-service/`. Pipeline authors do not need to concern themselves with this; just write the JSON according to the documentation parameters.

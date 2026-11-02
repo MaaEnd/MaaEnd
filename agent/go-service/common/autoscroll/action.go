@@ -18,16 +18,14 @@ const (
 	// wheelEventInterval 是相邻滚轮事件的间隔，避免多格被合并进同一帧。
 	wheelEventInterval = 30 * time.Millisecond
 	// 临时管道节点仅通过 override 注入，无需在资源文件中预定义。
-	wheelScrollEntry   = "__AutoScrollWheelScrollAction"
-	swipeFallbackEntry = "__AutoScrollSwipeFallbackAction"
-	// 非 PC 端回退时复用的原有滑动动作（本包不修改其实现）。
-	legacySwipeAction = "AutoAltSwipeAction"
+	wheelScrollEntry = "__AutoScrollWheelScrollAction"
 )
 
 // autoScrollParam 描述一次列表滚动。
 //
-// PC（Win32）端使用 dx/dy 滚轮滚动；ADB / PlayCover / Linux / MacOS 等端
-// 回退到 legacySwipeAction（原 Alt+滑动 / 触屏滑动），保证多端兼容。
+// 仅对 Win PC（Win32）实现滚轮滚动。ADB / PlayCover / Linux / MacOS 等端
+// 由于无法进行实机测试，此处留空：动作直接返回成功且不做任何滚动，
+// 由 Pipeline 的 next 继续原有流程（例如直接传送重走）。
 // 本动作只负责滚动列表，不识别、不点击任何按钮。
 type autoScrollParam struct {
 	// Dx / Dy：滚轮滚动量，仅 PC 端生效。Dy 为负表示向下滚动，建议 120 的整数倍。
@@ -35,13 +33,9 @@ type autoScrollParam struct {
 	Dy int `json:"dy,omitempty"`
 	// TargetOffset：滚动点相对识别框的偏移 [dx, dy, dw, dh]，可选。
 	TargetOffset []int `json:"target_offset,omitempty"`
-	// BeginOffset / EndOffset：非 PC 端回退到 legacySwipeAction 时的滑动偏移，
-	// 语义与 AutoAltSwipeAction 的 custom_action_param 一致，相对识别框叠加。
-	BeginOffset []int `json:"begin_offset,omitempty"`
-	EndOffset   []int `json:"end_offset,omitempty"`
 }
 
-// AutoScrollAction 在 PC 端用滚轮滚动列表，其它端回退为原有滑动。
+// AutoScrollAction 在 PC 端用滚轮滚动列表；其它端不做任何操作。
 type AutoScrollAction struct{}
 
 // Compile-time interface check
@@ -68,13 +62,18 @@ func (a *AutoScrollAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	if useWheelScroll() {
 		return runWheelScroll(ctx, arg, &p)
 	}
-	return runSwipeFallback(ctx, arg, &p)
+	// 非 Win PC 端（ADB / PlayCover / Linux / MacOS 等）无法实机验证滚动参数，
+	// 此处留空：不滚动、直接返回成功，由 Pipeline 的 next 继续原有流程。
+	log.Debug().
+		Str("component", componentName).
+		Str("controller_kind", pienv.ControllerKind()).
+		Msg("skip scroll: only Win PC is supported")
+	return true
 }
 
 // useWheelScroll 判断当前控制器是否走 PC 滚轮。
-// 仅 Win32 原生 Scroll 可用；其它端（ADB/PlayCover/Linux/MacOS 等）一律回退滑动。
+// 仅 Win32 原生 Scroll 可用；其它端不做任何滚动操作。
 // 按编码规范：判断控制器类型只用 pienv，不为取类型去 GetController() / GetInfo()。
-// PI_CONTROLLER 缺失（kind=Unknown）时走滑动回退，保持历史多端行为。
 func useWheelScroll() bool {
 	return pienv.ControllerKind() == pienv.ControllerKindWin32
 }
@@ -179,62 +178,4 @@ func absInt(v int) int {
 		return -v
 	}
 	return v
-}
-
-func runSwipeFallback(ctx *maa.Context, arg *maa.CustomActionArg, p *autoScrollParam) bool {
-	// 与历史行为一致：AutoAltSwipeAction 默认以识别框为起终点，再叠加 begin/end 偏移。
-	swipeParam := map[string]any{}
-	if len(p.BeginOffset) == 4 {
-		swipeParam["begin_offset"] = p.BeginOffset
-	}
-	if len(p.EndOffset) == 4 {
-		swipeParam["end_offset"] = p.EndOffset
-	}
-
-	actionParam := map[string]any{
-		"custom_action": legacySwipeAction,
-	}
-	if len(swipeParam) > 0 {
-		actionParam["custom_action_param"] = swipeParam
-	}
-
-	detail, err := ctx.RunAction(swipeFallbackEntry, arg.Box, "", map[string]any{
-		swipeFallbackEntry: map[string]any{
-			"pre_delay":  0,
-			"post_delay": 0,
-			"rate_limit": 0,
-			"action": map[string]any{
-				"type":  "Custom",
-				"param": actionParam,
-			},
-		},
-	})
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("component", componentName).
-			Str("legacy_action", legacySwipeAction).
-			Interface("box", arg.Box).
-			Interface("swipe_param", swipeParam).
-			Msg("failed to run swipe fallback")
-		return false
-	}
-	if detail == nil || !detail.Success {
-		log.Error().
-			Str("component", componentName).
-			Str("legacy_action", legacySwipeAction).
-			Interface("box", arg.Box).
-			Interface("swipe_param", swipeParam).
-			Bool("detail_present", detail != nil).
-			Msg("swipe fallback action was not successful")
-		return false
-	}
-
-	log.Debug().
-		Str("component", componentName).
-		Str("legacy_action", legacySwipeAction).
-		Interface("box", arg.Box).
-		Interface("swipe_param", swipeParam).
-		Msg("swipe fallback done")
-	return true
 }
