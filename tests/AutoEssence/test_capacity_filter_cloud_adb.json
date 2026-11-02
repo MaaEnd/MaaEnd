@@ -1,0 +1,31 @@
+{
+    "configs": {
+        "name": "云终末地分解武器基质快捷放入筛选勾选状态",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "name": "全部未勾选",
+            "image": "贵重品库_武器基质_回收_筛选.png",
+            "hits": [
+                "AutoEssenceCapacityStableOff",
+                "AutoEssenceCapacityPureOff",
+                "AutoEssenceCapacityHighOff",
+                "AutoEssenceCapacityUnlockedOff",
+                "AutoEssenceCapacityDiscardedOff"
+            ]
+        },
+        {
+            "name": "仅勾选稳定基质",
+            "image": "贵重品库_武器基质_回收_筛选_稳定基质.png",
+            "hits": [
+                "AutoEssenceCapacityStableOn",
+                "AutoEssenceCapacityPureOff",
+                "AutoEssenceCapacityHighOff",
+                "AutoEssenceCapacityUnlockedOff",
+                "AutoEssenceCapacityDiscardedOff"
+            ]
+        }
+    ]
+}
