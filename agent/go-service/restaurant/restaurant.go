@@ -105,6 +105,10 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		err = readMenuPage(state, param.Kind, param.Category, patch)
 	case "menu_card":
 		err = chooseMenuCard(state, observed, patch)
+	case "menu_advance":
+		state.Menu.PageSelected++
+		state.Menu.Index++
+		err = nextMenuCard(state, patch)
 	case "runtime":
 		err = decideRuntime(state, observed, patch)
 	case "dispatched":
@@ -261,11 +265,7 @@ func chooseMenuCard(state *session, observed observations, patch map[string]any)
 	}
 	card := menu.Cards[menu.Index]
 	rememberMenuItem(menu, id)
-	menu.PageSelected++
-	menu.Index++
-	if err := nextMenuCard(state, patch); err != nil {
-		return err
-	}
+	route(patch, menuRoutes, "RestaurantMenuClickCard")
 	patch["RestaurantMenuClickCard"] = map[string]any{
 		"enabled": true,
 		"target":  []int{card[0] + 230, card[1] + 46},

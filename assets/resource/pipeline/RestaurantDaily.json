@@ -2259,12 +2259,31 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "RestaurantMenuAdvanceCard"
+        ]
+    },
+    "RestaurantMenuAdvanceCard": {
+        "desc": "点击菜单卡片后推进索引并准备下一张卡片。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RestaurantDecisionAction",
+        "custom_action_param": {
+            "step": "menu_advance"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "RestaurantMenuStapleComplete",
             "RestaurantMenuVegetableComplete",
             "RestaurantMenuDishesComplete",
             "RestaurantMenuDrinksComplete",
+            "RestaurantMenuClickCard",
             "RestaurantMenuReadCard",
             "RestaurantMenuInsufficient"
+        ],
+        "on_error": [
+            "FailedNode"
         ]
     },
     "RestaurantMenuInsufficient": {
