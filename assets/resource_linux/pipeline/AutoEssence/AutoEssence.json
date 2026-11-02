@@ -1,8 +1,32 @@
 {
-    // Linux 滚轮行为尚未实机验证，禁用 Win32 滚动优化，沿用原有寻路/传送回退
+    // Linux 没有滚轮输入，沿用原有的滑动交互列表（AutoAltSwipeAction 在此平台只执行普通 Swipe）
     "AutoEssenceInObtain": {
-        "enabled": false
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltSwipeAction",
+                "custom_action_param": {
+                    "begin_offset": [
+                        0,
+                        30,
+                        0,
+                        -10
+                    ],
+                    "end_offset": [
+                        0,
+                        -120,
+                        0,
+                        0
+                    ]
+                }
+            }
+        },
+        "repeat": 1,
+        "focus": {
+            "Node.Action.Starting": "🖐️滑动交互列表"
+        }
     },
+    // Win32 专用的「滚到底找按钮」优化在此平台没有等价操作，禁用后走原有传送回退
     "AutoEssenceScrollObtainListToBottom": {
         "enabled": false
     }
