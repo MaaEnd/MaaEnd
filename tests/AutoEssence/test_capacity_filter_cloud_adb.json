@@ -37,6 +37,17 @@
                 "AutoEssenceCapacityUnlockedOff",
                 "AutoEssenceCapacityDiscardedOff"
             ]
+        },
+        {
+            "name": "锁定状态全部勾选",
+            "image": "贵重品库_武器基质_回收_筛选_锁定状态全选.png",
+            "hits": [
+                "AutoEssenceCapacityStableOff",
+                "AutoEssenceCapacityPureOff",
+                "AutoEssenceCapacityHighOff",
+                "AutoEssenceCapacityUnlockedOn",
+                "AutoEssenceCapacityDiscardedOn"
+            ]
         }
     ]
 }
