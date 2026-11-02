@@ -57,6 +57,7 @@
                 "EssenceFilterFinishAction",
                 "EssenceFilterInitAction",
                 "EssenceFilterSkillDecisionAction",
+                "EveryNthHitReset",
                 "ExitGameLauncherAction",
                 "FailureCollectorFinish",
                 "FailureCollectorReset",
@@ -315,6 +316,27 @@
                 "required": [
                     "custom_action_param"
                 ]
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": ["custom_action"],
+                "properties": {"custom_action": {"const": "EveryNthHitReset"}}
+            },
+            "then": {
+                "type": "object",
+                "required": ["custom_action_param"],
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["key"],
+                        "properties": {
+                            "key": {"type": "string", "minLength": 1}
+                        }
+                    }
+                }
             }
         },
         {
