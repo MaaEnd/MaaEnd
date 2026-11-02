@@ -2245,8 +2245,7 @@
         "enabled": false,
         "recognition": "And",
         "all_of": [
-            "RestaurantMenuCardAnchor",
-            "RestaurantMenuPendingIcon"
+            "RestaurantMenuCardAnchor"
         ],
         "pre_delay": 0,
         "action": "Click",
@@ -2278,7 +2277,6 @@
         "recognition": "And",
         "all_of": [
             "RestaurantMenuCardAnchor",
-            "RestaurantMenuPendingIcon",
             "RestaurantMenuCardSelected"
         ],
         "pre_delay": 0,

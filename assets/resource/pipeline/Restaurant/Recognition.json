@@ -119,24 +119,6 @@
         "only_rec": true,
         "order_by": "Vertical"
     },
-    "RestaurantMenuPendingIcon": {
-        "desc": "识别菜单卡片上的待选/提示图标。",
-        "recognition": "Custom",
-        "custom_recognition": "IconRecognition",
-        "custom_recognition_param": {
-            "grid_type": "single_roi",
-            "item_filters": [
-                "Restaurant:*"
-            ]
-        },
-        "roi": "RestaurantMenuCardAnchor",
-        "roi_offset": [
-            34,
-            14,
-            -243,
-            -29
-        ]
-    },
     "RestaurantMenuSelectedCircle": {
         "recognition": "ColorMatch",
         "roi": "RestaurantMenuCardAnchor",

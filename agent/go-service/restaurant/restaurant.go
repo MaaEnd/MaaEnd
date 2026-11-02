@@ -270,7 +270,6 @@ func chooseMenuCard(state *session, observed observations, patch map[string]any)
 		return nextMenuCard(state, patch)
 	}
 	menu.PendingID = id
-	iconCandidates(patch, "RestaurantMenuPendingIcon", []string{id})
 	route(patch, menuRoutes, "RestaurantMenuClickCard")
 	return nil
 }
