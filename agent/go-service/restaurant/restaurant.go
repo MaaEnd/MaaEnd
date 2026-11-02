@@ -39,7 +39,6 @@ type menuState struct {
 	PageSelected int        `json:"page_selected"`
 	Cards        []maa.Rect `json:"cards"`
 	Index        int        `json:"index"`
-	PendingID    string     `json:"pending_id"`
 }
 
 type runtimeState struct {
@@ -106,15 +105,6 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		err = readMenuPage(state, param.Kind, param.Category, patch)
 	case "menu_card":
 		err = chooseMenuCard(state, observed, patch)
-	case "menu_confirm":
-		if state.Menu.PendingID == "" {
-			return false
-		}
-		rememberMenuItem(&state.Menu, state.Menu.PendingID)
-		state.Menu.PageSelected++
-		state.Menu.PendingID = ""
-		state.Menu.Index++
-		err = nextMenuCard(state, patch)
 	case "runtime":
 		err = decideRuntime(state, observed, patch)
 	case "dispatched":
@@ -218,7 +208,7 @@ func iconCandidates(patch map[string]any, name string, ids []string, options ...
 // Menu decisions preserve the selected category and UI order; Pipeline selects each card.
 func readMenuPage(state *session, kind, category string, patch map[string]any) error {
 	validDishCategory := slices.Contains([]string{"staple", "vegetable", "dessert"}, category)
-	if (kind != "dish" && kind != "drink") || (kind == "dish" && !validDishCategory) || (kind == "drink" && category != "") || state.Menu.PendingID != "" {
+	if (kind != "dish" && kind != "drink") || (kind == "dish" && !validDishCategory) || (kind == "drink" && category != "") {
 		return fmt.Errorf("invalid menu page state")
 	}
 	cards := make([]maa.Rect, 0, 8)
@@ -242,7 +232,7 @@ func rememberMenuItem(menu *menuState, id string) {
 
 func chooseMenuCard(state *session, observed observations, patch map[string]any) error {
 	menu := &state.Menu
-	if menu.Index < 0 || menu.Index >= len(menu.Cards) || menu.PendingID != "" {
+	if menu.Index < 0 || menu.Index >= len(menu.Cards) {
 		return fmt.Errorf("menu candidate state is missing")
 	}
 	id, err := readIcon(observed, "RestaurantMenuCardIcon")
@@ -269,8 +259,17 @@ func chooseMenuCard(state *session, observed observations, patch map[string]any)
 		menu.Index++
 		return nextMenuCard(state, patch)
 	}
-	menu.PendingID = id
-	route(patch, menuRoutes, "RestaurantMenuClickCard")
+	card := menu.Cards[menu.Index]
+	rememberMenuItem(menu, id)
+	menu.PageSelected++
+	menu.Index++
+	if err := nextMenuCard(state, patch); err != nil {
+		return err
+	}
+	patch["RestaurantMenuClickCard"] = map[string]any{
+		"enabled": true,
+		"target":  []int{card[0] + 230, card[1] + 46},
+	}
 	return nil
 }
 

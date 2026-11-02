@@ -2243,19 +2243,9 @@
     "RestaurantMenuClickCard": {
         "desc": "点击 Go 选定的菜单卡片。",
         "enabled": false,
-        "recognition": "And",
-        "all_of": [
-            "RestaurantMenuCardAnchor"
-        ],
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Click",
-        "target": "RestaurantMenuCardAnchor",
-        "target_offset": [
-            230,
-            46,
-            -306,
-            -92
-        ],
         "post_wait_freezes": {
             "time": 350,
             "target": [
@@ -2269,35 +2259,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantMenuConfirmCard"
-        ]
-    },
-    "RestaurantMenuConfirmCard": {
-        "desc": "确认卡片已选中并推进选菜决策。",
-        "recognition": "And",
-        "all_of": [
-            "RestaurantMenuCardAnchor",
-            "RestaurantMenuCardSelected"
-        ],
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "RestaurantDecisionAction",
-        "custom_action_param": {
-            "step": "menu_confirm"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "RestaurantMenuStapleComplete",
             "RestaurantMenuVegetableComplete",
             "RestaurantMenuDishesComplete",
             "RestaurantMenuDrinksComplete",
-            "RestaurantMenuClickCard",
             "RestaurantMenuReadCard",
             "RestaurantMenuInsufficient"
-        ],
-        "on_error": [
-            "FailedNode"
         ]
     },
     "RestaurantMenuInsufficient": {
