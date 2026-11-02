@@ -321,11 +321,13 @@ void NavigationSession::advanceToNextWaypoint(const char* reason)
 
 void NavigationSession::advanceToNextWaypoint(ActionType expected_action, const char* reason)
 {
-    (void)expected_action;
     if (!requireCurrentWaypoint(reason)) {
         return;
     }
     assert(current_path_[current_node_idx_].action == expected_action && "Unexpected action while advancing waypoint.");
+    if (MayOpenUi(expected_action)) {
+        noteInteraction();
+    }
     advanceToNextWaypoint(reason);
 }
 
@@ -335,7 +337,19 @@ void NavigationSession::skipPastWaypoint(size_t waypoint_idx, const char* reason
         return;
     }
     assert(waypoint_idx >= current_node_idx_ && "SkipPastWaypoint cannot move backward.");
+    // 跳点只发生在传送、滑索和 TRIGGER 命中之后
+    noteInteraction();
     leaveCurrentWaypoint(waypoint_idx + 1);
+}
+
+std::chrono::steady_clock::time_point NavigationSession::lastInteractionAt() const
+{
+    return last_interaction_at_;
+}
+
+void NavigationSession::noteInteraction()
+{
+    last_interaction_at_ = std::chrono::steady_clock::now();
 }
 
 void NavigationSession::leaveCurrentWaypoint(size_t next_index)

@@ -27,10 +27,10 @@
             "inputs": [
                 {
                     "name": "MaxRounds",
-                    "label": "$task.RestaurantDaily.option.MaxRounds.pattern_msg",
+                    "label": "$task.RestaurantDaily.option.MaxRounds.input_label",
                     "default": "5",
                     "pipeline_type": "int",
-                    "verify": "^(?:[1-9]|1[0-9]|20)$",
+                    "verify": "^(?:0|[1-9]|1[0-9]|20)$",
                     "pattern_msg": "$task.RestaurantDaily.option.MaxRounds.pattern_msg"
                 }
             ],

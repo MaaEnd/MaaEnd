@@ -10,6 +10,7 @@
             "image": "缘缘庄_菜单_菜品页及要求.png",
             "hits": [
                 "RestaurantMenuScreenReady",
+                "RestaurantMenuCardQuantity",
                 "RestaurantMenuFilterIcon",
                 "RestaurantMenuStartBusinessWarning",
                 "RestaurantMenuStartBusiness"
@@ -20,6 +21,7 @@
             "image": "缘缘庄_菜单_饮品页及可开始经营.png",
             "hits": [
                 "RestaurantMenuScreenReady",
+                "RestaurantMenuCardQuantity",
                 "RestaurantMenuStartBusiness"
             ]
         },

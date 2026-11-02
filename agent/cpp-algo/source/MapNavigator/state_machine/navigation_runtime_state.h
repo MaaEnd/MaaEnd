@@ -510,6 +510,8 @@ struct NavigationRuntimeState
     DynamicRecoveryState recovery;
     RecoveryEscalationState recovery_escalation;
     LocalizationLossState localization_loss;
+    // 每次导航只交给场景管理一次
+    bool scene_recovery_attempted = false;
     RiverFallRecoveryState river_fall;
     LateralBypassState bypass;
     SteeringRateState steering_rate;
@@ -558,6 +560,7 @@ struct NavigationRuntimeState
         recovery.reset();
         recovery_escalation.reset();
         localization_loss.reset();
+        scene_recovery_attempted = false;
         river_fall.reset();
         bypass.reset();
         steering_rate.reset();

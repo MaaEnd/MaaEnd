@@ -222,7 +222,12 @@ bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurem
                 prompts[other]->forgetDetection();
             }
         }
-        if (outcome == PromptTriggerOutcome::Recognized && prompts[index]->spec().completesWaypointOnTrigger()) {
+        if (outcome != PromptTriggerOutcome::Recognized) {
+            return true;
+        }
+        // 采集提示认中后不走完路点, 交互时刻须在这里记
+        session_->noteInteraction();
+        if (prompts[index]->spec().completesWaypointOnTrigger()) {
             completeWaypointAfterPromptTrigger();
         }
         return true;

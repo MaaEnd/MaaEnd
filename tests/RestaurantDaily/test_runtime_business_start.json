@@ -6,13 +6,6 @@
     },
     "cases": [
         {
-            "name": "开始经营后的确认弹窗",
-            "image": "缘缘庄_经营中_开始经营确认弹窗.png",
-            "hits": [
-                "RestaurantStartBusinessConfirm"
-            ]
-        },
-        {
             "name": "经营画面允许打开派单面板",
             "image": "缘缘庄_经营中_派单面板关闭.png",
             "hits": [

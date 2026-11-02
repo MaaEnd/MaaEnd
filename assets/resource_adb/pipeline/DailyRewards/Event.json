@@ -2,12 +2,12 @@
     "DailyEventGoToFinishByRedDot": {
         "recognition": {
             "param": {
-                // 注意避免x轴<0越界
+                // 只框本格左侧：文字框左移 40 覆盖箭头，宽度收到 60，高度收到 20
                 "roi_offset": [
-                    -50,
-                    -50,
-                    20,
-                    100
+                    -40,
+                    7,
+                    -25,
+                    -5
                 ]
             }
         }
@@ -15,12 +15,12 @@
     "DailyEventGoToFinishByNew": {
         "recognition": {
             "param": {
-                // 注意避免x轴<0越界
+                // 同红点支路
                 "roi_offset": [
-                    -50,
-                    -50,
-                    20,
-                    100
+                    -40,
+                    7,
+                    -25,
+                    -5
                 ]
             }
         }
