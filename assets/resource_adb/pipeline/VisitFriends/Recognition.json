@@ -61,18 +61,6 @@
             0
         ]
     },
-    "VisitFriendsRecognitionItemNamePriorityByEnterButton": {
-        "recognition": {
-            "param": {
-                "roi_offset": [
-                    -10,
-                    -80,
-                    244,
-                    69
-                ]
-            }
-        }
-    },
     "VisitFriendsRecognitionItemEnterButtonByNamePriority": {
         "roi_offset": [
             802,
