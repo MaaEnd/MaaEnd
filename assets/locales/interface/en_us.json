@@ -2092,6 +2092,7 @@
     "task.AutoEssence.focus.essence_filter_after_battle_start": "Essence detected. Start filtering and locking useful ones.",
     "task.AutoEssence.focus.location_changed": "🔁Target location changed: %s → %s",
     "task.AutoEssence.label": "🎱Essence Farm",
+    "task.AutoEssence.option.AutoEssenceStashBackpackSubTask.label": "Stash backpack before and after task",
     "task.AutoMission.description": "Automatically completes the currently tracked mission",
     "task.AutoMission.focus.no_tracking": "No mission is being tracked. Track a mission and retry.",
     "task.AutoMission.label": "📋 Auto Mission (Beta)",

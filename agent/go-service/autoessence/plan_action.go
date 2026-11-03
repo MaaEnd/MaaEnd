@@ -15,7 +15,7 @@ import (
 const (
 	componentPlan          = "AutoEssenceTargetPlan"
 	essenceFilterData      = "data/EssenceFilter"
-	nodeOnComplete         = "AutoEssenceOnComplete"
+	nodeAfterStashBackpack = "AutoEssenceAfterStashBackpack"
 	nodeDispatcher         = "AutoEssenceDispatcher"
 	nodeLootReportJumpBack = "[JumpBack]AutoEssenceAfterBattleRunEndLootReport"
 	// nodeForceTeleportOnce 是「整次任务只传送一次」的守卫节点：max_hit=1，计数只在顶层任务开始时归零。
@@ -207,12 +207,13 @@ func overrideNext(ctx *maa.Context, current, next string) bool {
 	return true
 }
 
-// finishNextItems runs enabled AfterBattle loot report (JumpBack) then OnComplete,
-// matching Target-mode OnSuccess chaining so EssenceFilterFinishAction still fires.
+// finishNextItems runs enabled AfterBattle loot report (JumpBack) then the post-task
+// stash-backpack node (whose next is OnComplete), matching Target-mode OnSuccess chaining
+// so EssenceFilterFinishAction still fires and the backpack is stored before ending.
 func finishNextItems() []maa.NextItem {
 	return []maa.NextItem{
 		{Name: nodeLootReportJumpBack},
-		{Name: nodeOnComplete},
+		{Name: nodeAfterStashBackpack},
 	}
 }
 
