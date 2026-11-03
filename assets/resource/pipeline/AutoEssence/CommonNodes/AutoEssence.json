@@ -20,7 +20,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoEssenceMain"
+            "AutoEssenceBeforeStashBackpack"
         ],
         "attach": {
             "monday": false,
@@ -36,6 +36,21 @@
         "desc": "基质刷取计划任务跳过",
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "AutoEssenceBeforeStashBackpack": {
+        "desc": "基质刷取前存放背包",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceMain"
+        ]
     },
     "AutoEssenceMain": {
         "desc": "自动基质刷取的主入口",
@@ -1692,16 +1707,16 @@
         "desc": "成功完成一次基质刷取后的守卫节点",
         "pre_delay": 0,
         "next": [
-            // 循环与整次结束由任务选项覆写 next；典型为 Main -> [JumpBack]汇总 -> OnComplete（汇总无自有 next，JumpBack 后继续 OnComplete）
+            // 循环与整次结束由任务选项覆写 next；典型为 Main -> [JumpBack]汇总 -> AfterStashBackpack（汇总无自有 next，JumpBack 后继续 AfterStashBackpack）
             "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
-            "AutoEssenceOnComplete"
+            "AutoEssenceAfterStashBackpack"
         ],
         "focus": {
             "Node.Action.Starting": "✅已完成一次基质刷取"
         }
     },
     "AutoEssenceAfterBattleRunEndLootReport": {
-        "desc": "战后筛选整次任务汇总：EssenceFilterFinishAction；max_hit=1 全任务仅输出一次；须由父节点以 [JumpBack] 引用以便继续 OnComplete 或体力不足 StopTask；默认关闭",
+        "desc": "战后筛选整次任务汇总：EssenceFilterFinishAction；max_hit=1 全任务仅输出一次；须由父节点以 [JumpBack] 引用以便继续后续结束流程或体力不足 StopTask；默认关闭",
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
@@ -1712,6 +1727,19 @@
             }
         },
         "post_delay": 0
+    },
+    "AutoEssenceAfterStashBackpack": {
+        "desc": "基质刷取后存放背包",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask"
+            ]
+        },
+        "next": [
+            "AutoEssenceOnComplete"
+        ]
     },
     "AutoEssenceOnComplete": {
         "desc": "成功完成了所有基质刷取，安全结束任务",
