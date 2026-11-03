@@ -289,6 +289,7 @@ func TestSetAnchorOverrideEnablesNode(t *testing.T) {
 	}
 }
 
+// TestFinishNextItemsChainsLootReportThenStashBackpack 验证目标模式结束链先汇总战利品、再进入存放背包节点。
 func TestFinishNextItemsChainsLootReportThenStashBackpack(t *testing.T) {
 	items := finishNextItems()
 	if len(items) != 2 {
@@ -297,8 +298,8 @@ func TestFinishNextItemsChainsLootReportThenStashBackpack(t *testing.T) {
 	if items[0].Name != nodeLootReportJumpBack {
 		t.Fatalf("first next want %q, got %q", nodeLootReportJumpBack, items[0].Name)
 	}
-	if items[1].Name != nodeAfterStashBackpack {
-		t.Fatalf("second next want %q, got %q", nodeAfterStashBackpack, items[1].Name)
+	if items[1].Name != "AutoEssenceAfterStashBackpack" {
+		t.Fatalf("second next want %q, got %q", "AutoEssenceAfterStashBackpack", items[1].Name)
 	}
 }
 
