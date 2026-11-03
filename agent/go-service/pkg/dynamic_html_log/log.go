@@ -51,9 +51,13 @@ func New() *DynamicHtmlLog {
 }
 
 func (log *DynamicHtmlLog) T(key string, args ...any) *DynamicHtmlLogData {
+	return log.Message(i18n.T(key, args...)) //使用i18n转换key和参数为文本
+}
+
+func (log *DynamicHtmlLog) Message(message string) *DynamicHtmlLogData {
 	return &DynamicHtmlLogData{
 		log:     log,
-		message: i18n.T(key, args...), //使用i18n转换key和参数为文本
+		message: message,
 	}
 }
 
