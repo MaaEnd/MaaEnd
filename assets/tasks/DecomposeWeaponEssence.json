@@ -3,7 +3,7 @@
         {
             "name": "DecomposeWeaponEssence",
             "label": "$task.DecomposeWeaponEssence.label",
-            "entry": "DecomposeWeaponEssenceStart",
+            "entry": "DecomposeWeaponEssenceSchedule",
             "description": "$task.DecomposeWeaponEssence.description",
             "group": [
                 "valuables_vault"
@@ -20,11 +20,104 @@
                 "Win32-Front"
             ],
             "option": [
+                "DecomposeWeaponEssenceSchedule",
                 "DecomposeWeaponEssenceThreshold"
             ]
         }
     ],
     "option": {
+        "DecomposeWeaponEssenceSchedule": {
+            "type": "checkbox",
+            "label": "$option.TaskSchedule.label",
+            "cases": [
+                {
+                    "name": "DecomposeWeaponEssenceScheduleMonday",
+                    "label": "$option.TaskScheduleMonday.label",
+                    "pipeline_override": {
+                        "DecomposeWeaponEssenceScheduleEnabled": {
+                            "attach": {
+                                "monday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DecomposeWeaponEssenceScheduleTuesday",
+                    "label": "$option.TaskScheduleTuesday.label",
+                    "pipeline_override": {
+                        "DecomposeWeaponEssenceScheduleEnabled": {
+                            "attach": {
+                                "tuesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DecomposeWeaponEssenceScheduleWednesday",
+                    "label": "$option.TaskScheduleWednesday.label",
+                    "pipeline_override": {
+                        "DecomposeWeaponEssenceScheduleEnabled": {
+                            "attach": {
+                                "wednesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DecomposeWeaponEssenceScheduleThursday",
+                    "label": "$option.TaskScheduleThursday.label",
+                    "pipeline_override": {
+                        "DecomposeWeaponEssenceScheduleEnabled": {
+                            "attach": {
+                                "thursday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DecomposeWeaponEssenceScheduleFriday",
+                    "label": "$option.TaskScheduleFriday.label",
+                    "pipeline_override": {
+                        "DecomposeWeaponEssenceScheduleEnabled": {
+                            "attach": {
+                                "friday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DecomposeWeaponEssenceScheduleSaturday",
+                    "label": "$option.TaskScheduleSaturday.label",
+                    "pipeline_override": {
+                        "DecomposeWeaponEssenceScheduleEnabled": {
+                            "attach": {
+                                "saturday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DecomposeWeaponEssenceScheduleSunday",
+                    "label": "$option.TaskScheduleSunday.label",
+                    "pipeline_override": {
+                        "DecomposeWeaponEssenceScheduleEnabled": {
+                            "attach": {
+                                "sunday": true
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": [
+                "DecomposeWeaponEssenceScheduleMonday",
+                "DecomposeWeaponEssenceScheduleTuesday",
+                "DecomposeWeaponEssenceScheduleWednesday",
+                "DecomposeWeaponEssenceScheduleThursday",
+                "DecomposeWeaponEssenceScheduleFriday",
+                "DecomposeWeaponEssenceScheduleSaturday",
+                "DecomposeWeaponEssenceScheduleSunday"
+            ]
+        },
         "DecomposeWeaponEssenceThreshold": {
             "type": "input",
             "label": "$option.DecomposeWeaponEssenceThreshold.label",
