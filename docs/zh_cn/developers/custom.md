@@ -559,6 +559,37 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 
 省略某个工作日标志时，默认视为 `false`（当天不执行）。若当天不在调度范围内，该 Recognition 会通过 `maafocus` 输出本地化提示（`schedule.skip_today`）并返回未命中。
 
+
+### CountDownAction
+
+`CountDownAction` 实现位于 `agent/go-service/common/countdown`。等待一段时间，并在运行日志输出倒计时。
+
+参数：
+
+- `duration: int`：必填。倒计时的时间，具体时间和`duration_type`共同决定，倒计时最多一个小时。
+- `duration_type: int`：可选。只能是0、1或2，为0时，时间以毫秒计；为1时，时间以秒计；为2时，时间以分钟计。
+- `duration_format_minute`：可选。日志中倒计时分钟数的显示格式，填i18n的key，默认为`countdown.format.minute`。
+- `duration_format_sec`：可选。日志中倒计时秒数的显示格式，填i18n的key，默认为`countdown.format.sec`。
+- `step_message`：可选。日志中倒计时显示的文字，填i18n的key，默认为`countdown.message.step`，必须有2个`%s`。
+- `done_message`：可选。日志中倒计时正常结束时显示的文字，填i18n的key，默认为`countdown.message.done`，必须有2个`%s`。
+- `stop_message`：可选。日志中倒计时因为任务停止时显示的文字，填i18n的key，默认为`countdown.message.stop`。
+
+示例：
+
+```json
+{
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "CountDownAction",
+            "custom_action_param": {
+                "duration": 3000
+            }
+        }
+    }
+}
+```
+
 ## 小结
 
 写 Pipeline 时，内置的 `TemplateMatch` / `OCR` / `Click` / `Swipe` 能解决绝大多数需求。遇到它们搞不定的——比如要比较两个 OCR 数值、运行时动态调参数、批量跑子任务——再来查这篇，看有没有现成的 Custom 能用。
@@ -584,5 +615,6 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 | 在指定位置 Ctrl + 点击 | `AutoCtrlClickAction` |
 | Alt + 滑动 | `AutoAltSwipeAction` |
 | 从画面中心悬停到识别框后再点击 | `AutoSwipeClickAction` |
+| 阻塞倒计时等待 | `CountDownAction` |
 
 所有 Custom 的 Go 代码实现在 `agent/go-service/` 下，Pipeline 作者不需要关心，照文档参数写 JSON 就行。

@@ -45,6 +45,7 @@
                 "ClearHitCount",
                 "CloseGameAction",
                 "CreditShoppingScanItemAction",
+                "CountDownAction",
                 "DeliveryJobsResolveOngoingDepotAction",
                 "ERROR",
                 "EssenceFilterAfterBattleSkillDecisionAction",
@@ -449,8 +450,59 @@
                     }
                 }
             }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": { "const": "CountDownAction" }
+                },
+                "required": [
+                    "custom_action"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "custom_action_param": {
+                                "type": "object",
+                                "properties": {
+                                    "duration": {
+                                        "type": "integer"
+                                    },
+                                    "duration_type": {
+                                        "type": "integer",
+                                        "enum": [0, 1, 2],
+                                        "description": "仅允许 0、1、2"
+                                    },
+                                    "duration_format_minute": {
+                                        "type": "string"
+                                    },
+                                    "duration_format_sec": {
+                                        "type": "string"
+                                    },
+                                    "step_message": {
+                                        "type": "string"
+                                    },
+                                    "done_message": {
+                                        "type": "string"
+                                    },
+                                    "stop_message": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "duration"
+                                ],
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                }
+            }
         }
-	],
+    ],
     "if": {
         "type": "object",
         "required": [ "custom_action" ],

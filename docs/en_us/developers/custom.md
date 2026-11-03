@@ -559,6 +559,36 @@ The `ScheduleRecognition` implementation is located in `agent/go-service/common/
 
 When a weekday flag is omitted, it defaults to `false` (do not execute that day). If the current day is not within the scheduling range, this Recognition emits the localized `schedule.skip_today` message via `maafocus` and returns no match.
 
+### ScheduleRecognition
+
+`CountDownAction` is implemented in `agent/go-service/common/countdown`. It pauses execution for a specified duration and displays a countdown timer in the execution log.
+
+Parameters:
+
+- `duration: int`: Required. The duration of the countdown. The actual time is determined by this value combined with `duration_type`. The maximum countdown limit is 1 hour.
+- `duration_type: int`: Optional. Must be 0, 1, or 2. 0 measures time in milliseconds; 1 measures time in seconds; 2 measures time in minutes.
+- `duration_format_minute`: Optional. The display format for the countdown minutes in the log. Enter an i18n key; defaults to `countdown.format.minute`.
+- `duration_format_sec`: Optional. The display format for the countdown seconds in the log. Enter an i18n key; defaults to `countdown.format.sec`.
+- `step_message`: Optional. The text displayed during the countdown in the log. Enter an i18n key; defaults to `countdown.message.step`. This format string must contain exactly two `%s` placeholders.
+- `done_message`: Optional. The text displayed when the countdown completes normally. Enter an i18n key; defaults to `countdown.message.done`. This format string must contain exactly two `%s` placeholders.
+- `stop_message`: Optional. The text displayed when the countdown is aborted because the task was stopped. Enter an i18n key; defaults to `countdown.message.stop`.
+
+Example:
+
+```json
+{
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "CountDownAction",
+            "custom_action_param": {
+                "duration": 3000
+            }
+        }
+    }
+}
+```
+
 ## Summary
 
 When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe` can handle most needs. When they fall short—for example, comparing two OCR values, dynamically adjusting parameters at runtime, or batch running subtasks—then refer to this document to see if there's an existing Custom action or recognition to use.
@@ -584,5 +614,6 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Ctrl + Click at specified position | `AutoCtrlClickAction` |
 | Alt + Swipe | `AutoAltSwipeAction` |
 | Hover from the screen center to the recognition box, then click | `AutoSwipeClickAction` |
+| Blocking Countdown Delay | `CountDownAction` |
 
 All Custom Go code implementations are located under `agent/go-service/`. Pipeline authors do not need to concern themselves with this; just write the JSON according to the documentation parameters.
