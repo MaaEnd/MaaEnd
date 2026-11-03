@@ -3,7 +3,6 @@
     "__SceneImageCheck": {
         "action": "DoNothing",
         "next": [
-            "[JumpBack]__SceneImageCheckMod",
             // 寻路的滑索功能依赖 UID
             "[JumpBack]__SceneImageCaptureUid",
             "__SceneImageCheckFinishExitSuccess"
