@@ -75,7 +75,7 @@ class NavTestServiceTest(unittest.TestCase):
                 assert resource.override is not None
                 self.assertEqual(
                     resource.override[NODE_NAME]["custom_action_param"],
-                    {"path": path, "heading_source": heading_source},
+                    {"path": path, "heading_source": heading_source, "zip": False},
                 )
 
     def test_invalid_heading_source_does_not_replace_armed_route(self) -> None:

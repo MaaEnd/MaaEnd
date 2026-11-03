@@ -65,8 +65,6 @@ thread_local NavmeshExpansionFailure g_expansion_failure;
 
 constexpr double kBlindTargetFallbackSnapRadius = 12.0;
 constexpr double kBlindTargetProbeStep = 2.0;
-// 只吸收坐标往返转换的浮点误差
-constexpr double kSameRoutePointWu = 0.01;
 constexpr int64_t kBlindTargetProbeBudgetMs = 8000;
 
 std::string describe_authored_waypoint(const Waypoint& waypoint, std::optional<size_t> authored_index)
@@ -198,19 +196,14 @@ bool is_navmesh_waypoint(const Waypoint& waypoint)
     return waypoint.action == ActionType::NAVMESH && waypoint.hasPosition();
 }
 
-bool is_global_route_target(const Waypoint& waypoint)
-{
-    return !waypoint.isZoneDeclaration() && waypoint.hasPosition();
-}
-
 bool contains_navmesh_waypoint(const std::vector<Waypoint>& path)
 {
     return std::any_of(path.begin(), path.end(), is_navmesh_waypoint);
 }
 
-bool contains_global_route_target(const std::vector<Waypoint>& path)
+bool contains_positioned_waypoint(const std::vector<Waypoint>& path)
 {
-    return std::any_of(path.begin(), path.end(), is_global_route_target);
+    return std::any_of(path.begin(), path.end(), [](const Waypoint& waypoint) { return waypoint.hasPosition(); });
 }
 
 bool has_explicit_coordinate_frame(const Waypoint& waypoint)
@@ -740,15 +733,14 @@ std::optional<ZiplineMountSpot>
     return farthest;
 }
 
-// walking 非空时滑索只在严格更省时顶替走路, 为空时用来桥接步行不连通的两侧
+// walking_path 非空时滑索只在严格更省时顶替走路, 为空时用来桥接步行不连通的两侧
 bool try_append_zipline_leg(
     ExpansionContext& ctx,
     LegState& state,
     const ProjectedTarget& target,
-    const navmesh::BaseNavRouteResult* walking,
+    const navmesh::WorldPath* walking_path,
     std::vector<Waypoint>& out_path)
 {
-    const navmesh::WorldPath* walking_path = walking == nullptr ? nullptr : &walking->path;
     auto route = PlanZiplineRoute(
         ctx.param,
         {
@@ -757,11 +749,13 @@ bool try_append_zipline_leg(
             .start = state.route_start,
             .goal = target.point,
             .walking_path = walking_path,
+            .goal_floor_y = target.floor_y,
             .goal_deck_y = target.deck_y,
             .start_floor_y = state.route_start_floor_y,
             .start_deck_y = state.route_start_deck_y,
             .should_stop = ctx.should_stop,
             .capture_diagnostics = ctx.diagnostics != nullptr,
+            .no_go = ctx.no_go,
         });
     if (!route || route->approach.points.empty() || route->departure.points.empty() || route->towers.size() < 2) {
         return false;
@@ -823,7 +817,7 @@ bool try_append_zipline_leg(
             std::make_move_iterator(route->diagnostics.begin()),
             std::make_move_iterator(route->diagnostics.end()));
     }
-    const bool walking_baseline_available = walking != nullptr;
+    const bool walking_baseline_available = walking_path != nullptr;
     LogInfo << "Expanded NAVMESH waypoint via zipline." << VAR(state.navmesh_zone) << VAR(state.current_zone)
             << VAR(walking_baseline_available) << VAR(route->cost) << VAR(insert_index) << VAR(out_path.size() - insert_index)
             << VAR(route->towers.size()) << VAR(mount_spot.x) << VAR(mount_spot.y) << VAR(route->mount_spots.size())
@@ -831,19 +825,12 @@ bool try_append_zipline_leg(
     return true;
 }
 
-enum class LegMode
-{
-    Authored,
-    GlobalProbe,
-};
-
 struct NavmeshLeg
 {
     ExpansionContext& ctx;
     LegState& state;
     std::vector<Waypoint>& out_path;
     const Waypoint& waypoint;
-    LegMode mode = LegMode::Authored;
     std::optional<size_t> authored_index;
 
     std::chrono::steady_clock::time_point expand_started_at {};
@@ -904,29 +891,14 @@ struct NavmeshLeg
         }
         // 盲走兜底只看二维, 有面声明时用它会把错层当成到达
         if (target.deck_y) {
-            if (mode == LegMode::Authored) {
-                LogError << "Failed to plan NAVMESH waypoint on the declared deck." << VAR(state.navmesh_zone) << VAR(state.current_zone)
-                         << VAR(target.point.x) << VAR(target.point.y) << VAR(*target.deck_y)
-                         << VAR(navmesh::ToString(route_result.status));
-                const std::string route_error = route_error_text(route_result);
-                const bool disconnected = route_result.gap_start.has_value() && route_result.gap_goal.has_value();
-                fail(
-                    disconnected ? "route_disconnected" : "target_deck_unreachable",
-                    disconnected ? std::format(" 的指定目标面与起点不连通（target_deck_y={:.2f}）：{}", *target.deck_y, route_error)
-                                 : std::format(" 无法抵达指定目标面（target_deck_y={:.2f}）：{}", *target.deck_y, route_error));
-            }
-            else {
-                LogDebug << "Global NAVMESH target is unavailable on the declared deck." << VAR(state.navmesh_zone)
-                         << VAR(state.current_zone) << VAR(target.point.x) << VAR(target.point.y) << VAR(*target.deck_y)
-                         << VAR(navmesh::ToString(route_result.status));
-            }
-            return false;
-        }
-        // 全局规划须完整抵达终点才能跳过作者提示, 盲走结果不算完整路线
-        if (mode == LegMode::GlobalProbe) {
-            LogDebug << "Global NAVMESH target not directly reachable; preserving authored hints." << VAR(state.navmesh_zone)
-                     << VAR(state.current_zone) << VAR(target.point.x) << VAR(target.point.y)
-                     << VAR(navmesh::ToString(route_result.status));
+            LogError << "Failed to plan NAVMESH waypoint on the declared deck." << VAR(state.navmesh_zone) << VAR(state.current_zone)
+                     << VAR(target.point.x) << VAR(target.point.y) << VAR(*target.deck_y) << VAR(navmesh::ToString(route_result.status));
+            const std::string route_error = route_error_text(route_result);
+            const bool disconnected = route_result.gap_start.has_value() && route_result.gap_goal.has_value();
+            fail(
+                disconnected ? "route_disconnected" : "target_deck_unreachable",
+                disconnected ? std::format(" 的指定目标面与起点不连通（target_deck_y={:.2f}）：{}", *target.deck_y, route_error)
+                             : std::format(" 无法抵达指定目标面（target_deck_y={:.2f}）：{}", *target.deck_y, route_error));
             return false;
         }
         LogWarn << "NAVMESH waypoint not directly reachable; attempting blind-target fallback." << VAR(state.navmesh_zone)
@@ -954,9 +926,6 @@ struct NavmeshLeg
     bool commitWalking()
     {
         log_generated_navmesh_path(state, request, route_result);
-        if (try_append_zipline_leg(ctx, state, target, &route_result, out_path)) {
-            return true;
-        }
         const size_t insert_index = out_path.size();
         if (!append_generated_waypoints(route_result.path, out_path, {}, &ctx.mesh.planner, route_result.path.zone_id)) {
             LogError << "NAVMESH planning returned an empty path." << VAR(state.navmesh_zone);
@@ -987,7 +956,6 @@ bool append_navmesh_leg(
     ExpansionContext& ctx,
     LegState& state,
     const Waypoint& waypoint,
-    LegMode mode,
     std::optional<size_t> authored_index,
     std::vector<Waypoint>& out_path)
 {
@@ -996,7 +964,6 @@ bool append_navmesh_leg(
         .state = state,
         .out_path = out_path,
         .waypoint = waypoint,
-        .mode = mode,
         .authored_index = authored_index,
     };
     return leg.append();
@@ -1010,7 +977,7 @@ bool append_authored_waypoint(
     std::vector<Waypoint>& out_path)
 {
     if (is_navmesh_waypoint(waypoint)) {
-        return append_navmesh_leg(ctx, state, waypoint, LegMode::Authored, authored_index, out_path);
+        return append_navmesh_leg(ctx, state, waypoint, authored_index, out_path);
     }
     const auto projected_waypoint = project_authored_target(ctx, waypoint);
     if (!projected_waypoint) {
@@ -1022,98 +989,133 @@ bool append_authored_waypoint(
     return true;
 }
 
-bool is_action_at_previous_point(const std::vector<Waypoint>& path, size_t begin, size_t end)
+void stamp_authored_group(std::vector<Waypoint>& out_path, size_t output_begin, size_t group_begin)
 {
-    if (begin == 0 || begin + 1 != end) {
+    for (size_t output = output_begin; output < out_path.size(); ++output) {
+        out_path[output].authored_group_begin = group_begin;
+    }
+}
+
+bool append_stamped_authored_waypoint(ExpansionContext& ctx, LegState& state, size_t authored_index, std::vector<Waypoint>& out_path)
+{
+    const size_t output_begin = out_path.size();
+    if (!append_authored_waypoint(ctx, state, ctx.param.path[authored_index], authored_index, out_path)) {
         return false;
     }
-    const Waypoint& previous = path[begin - 1];
-    const Waypoint& action = path[end - 1];
-    const bool same_deck =
-        !action.target_deck_y || (previous.target_deck_y && std::abs(*previous.target_deck_y - *action.target_deck_y) <= 1e-6);
-    return previous.hasPosition() && previous.target_tier == action.target_tier && action.action != ActionType::NAVMESH
-           && action.action != ActionType::RUN && same_deck
-           && std::hypot(action.x - previous.x, action.y - previous.y) <= kSameRoutePointWu;
+    stamp_authored_group(out_path, output_begin, authored_index);
+    return true;
 }
 
-Waypoint make_global_target(const Waypoint& endpoint)
+// 不跨 ZONE, 止于第一个边界点并把它算在段内
+size_t replaceable_span_end(const std::vector<Waypoint>& path, size_t begin)
 {
-    Waypoint global_target(endpoint.x, endpoint.y, ActionType::NAVMESH);
-    global_target.strict_arrival = true;
-    global_target.zone_id = endpoint.zone_id;
-    global_target.target_tier = endpoint.target_tier;
-    global_target.target_deck_y = endpoint.target_deck_y;
-    return global_target;
-}
-
-bool append_global_route_group(ExpansionContext& ctx, LegState& state, size_t begin, size_t end, std::vector<Waypoint>& out_path)
-{
-    if (begin >= end) {
-        return true;
+    size_t end = begin;
+    while (end < path.size() && !path[end].isZoneDeclaration()) {
+        if (path[end++].endsReplaceableSpan()) {
+            break;
+        }
     }
+    return end;
+}
 
+std::optional<size_t> last_positioned_index(const std::vector<Waypoint>& path, size_t begin, size_t end)
+{
+    for (size_t index = end; index > begin; --index) {
+        if (path[index - 1].hasPosition()) {
+            return index - 1;
+        }
+    }
+    return std::nullopt;
+}
+
+navmesh::WorldPath baseline_walk_path(const navmesh::WorldPoint& start, const std::vector<Waypoint>& out_path, size_t output_begin)
+{
+    navmesh::WorldPath walk;
+    walk.points.push_back(start);
+    for (size_t index = output_begin; index < out_path.size(); ++index) {
+        if (out_path[index].hasPosition()) {
+            walk.points.push_back({ .x = out_path[index].x, .y = out_path[index].y });
+        }
+    }
+    return walk;
+}
+
+// 整段都没经过规划时为空
+std::optional<double> baseline_arrival_height(const std::vector<Waypoint>& out_path, size_t output_begin)
+{
+    for (size_t index = out_path.size(); index > output_begin; --index) {
+        const Waypoint& waypoint = out_path[index - 1];
+        if (waypoint.target_deck_y) {
+            return waypoint.target_deck_y;
+        }
+        if (waypoint.route_floor_y) {
+            return waypoint.route_floor_y;
+        }
+    }
+    return std::nullopt;
+}
+
+bool rides_zipline(const std::vector<Waypoint>& out_path, size_t output_begin)
+{
+    return std::any_of(out_path.begin() + static_cast<std::ptrdiff_t>(output_begin), out_path.end(), [](const Waypoint& waypoint) {
+        return waypoint.action == ActionType::ZIPLINE;
+    });
+}
+
+// 先照作者路线展开当基线, 滑索比基线省够了才把这段走路整段换掉, 段尾的动作照常保留
+bool append_replaceable_span(ExpansionContext& ctx, LegState& state, size_t begin, size_t end, std::vector<Waypoint>& out_path)
+{
     const std::vector<Waypoint>& path = ctx.param.path;
-    const Waypoint& authored_endpoint = path[end - 1];
-    const bool endpoint_is_hard = authored_endpoint.closesGlobalRouteGroup();
-    size_t target_index = end;
-    while (target_index > begin && !path[target_index - 1].hasPosition()) {
-        --target_index;
-    }
-    if (target_index == begin) {
-        if (endpoint_is_hard) {
-            return append_authored_waypoint(ctx, state, authored_endpoint, end - 1, out_path);
-        }
-        LogInfo << "Skipped optional route actions without a position target." << VAR(begin) << VAR(end);
-        return true;
-    }
-
-    const Waypoint& authored_target = path[target_index - 1];
-    const auto projected_endpoint = project_authored_target(ctx, authored_target);
-    if (!projected_endpoint) {
-        ctx.failWaypoint("unknown_target_tier", " 的坐标层级不存在", authored_target, target_index - 1, state);
-        return false;
-    }
-
-    // 动作点和上一作者点同坐标同面时直接追加, 照常规划拿到空路径会被当成走不通去找滑索
-    if (endpoint_is_hard && is_action_at_previous_point(path, begin, end)) {
-        out_path.push_back(*projected_endpoint);
-        update_state_from_regular_waypoint(*projected_endpoint, state);
-        LogInfo << "Action point sits where the previous leg ended; appended without planning." << VAR(projected_endpoint->x)
-                << VAR(projected_endpoint->y) << VAR(static_cast<int>(authored_endpoint.action));
-        return true;
-    }
-
-    const Waypoint global_target = make_global_target(*projected_endpoint);
-    const LegState original_state = state;
-    const size_t original_path_size = out_path.size();
-    if (append_navmesh_leg(ctx, state, global_target, LegMode::GlobalProbe, target_index - 1, out_path)) {
-        if (endpoint_is_hard && !authored_endpoint.hasPosition()) {
-            if (!append_authored_waypoint(ctx, state, authored_endpoint, end - 1, out_path)) {
-                return false;
-            }
-        }
-        else if (endpoint_is_hard && authored_endpoint.action != ActionType::NAVMESH && authored_endpoint.action != ActionType::RUN) {
-            out_path.push_back(*projected_endpoint);
-            update_state_from_regular_waypoint(*projected_endpoint, state);
-        }
-        const size_t skipped_hints = end - begin - (endpoint_is_hard ? 1 : 0);
-        LogInfo << "Expanded authored route globally." << VAR(skipped_hints) << VAR(authored_target.x) << VAR(authored_target.y)
-                << VAR(endpoint_is_hard);
-        return true;
-    }
-    if (ctx.cancelIfStopped(state)) {
-        return false;
-    }
-    if (ctx.no_go_rejected) {
-        return false;
-    }
-
-    state = original_state;
-    out_path.resize(original_path_size);
-    LogInfo << "Global authored route unavailable; replaying authored hints." << VAR(begin) << VAR(end) << VAR(authored_target.x)
-            << VAR(authored_target.y) << VAR(endpoint_is_hard);
+    const LegState span_start = state;
+    const size_t output_begin = out_path.size();
+    const size_t diagnostics_begin = ctx.diagnostics == nullptr ? 0 : ctx.diagnostics->size();
     for (size_t index = begin; index < end; ++index) {
-        if (!append_authored_waypoint(ctx, state, path[index], index, out_path)) {
+        if (ctx.cancelIfStopped(state)) {
+            return false;
+        }
+        if (!append_stamped_authored_waypoint(ctx, state, index, out_path)) {
+            return false;
+        }
+    }
+
+    const std::optional<size_t> target_index = last_positioned_index(path, begin, end);
+    // 基线里已有的滑索是步行不通时的桥, 不再拿别的滑索去比
+    if (!target_index || rides_zipline(out_path, output_begin)) {
+        return true;
+    }
+
+    // 叠层处按基线到达的那层落地, 只是偏好, 那层到不了时照常落最近的面
+    ProjectedTarget target = resolve_projected_target(ctx.mesh.pack, path[*target_index]);
+    if (target.floor_y <= navmesh::kBaseNavFloorYValidMin) {
+        if (const std::optional<double> height = baseline_arrival_height(out_path, output_begin)) {
+            target.floor_y = static_cast<float>(*height);
+        }
+    }
+    const navmesh::WorldPath baseline = baseline_walk_path(span_start.route_start, out_path, output_begin);
+    const size_t diagnostics_end = ctx.diagnostics == nullptr ? 0 : ctx.diagnostics->size();
+    LegState shortcut_state = span_start;
+    std::vector<Waypoint> shortcut;
+    if (!try_append_zipline_leg(ctx, shortcut_state, target, &baseline, shortcut)) {
+        return true;
+    }
+
+    out_path.resize(output_begin);
+    out_path.insert(out_path.end(), std::make_move_iterator(shortcut.begin()), std::make_move_iterator(shortcut.end()));
+    // 滑索失败后要从段首重新展开整段
+    stamp_authored_group(out_path, output_begin, begin);
+    state = shortcut_state;
+    if (ctx.diagnostics != nullptr) {
+        const auto first = ctx.diagnostics->begin();
+        ctx.diagnostics->erase(
+            first + static_cast<std::ptrdiff_t>(diagnostics_begin),
+            first + static_cast<std::ptrdiff_t>(diagnostics_end));
+    }
+    LogInfo << "Zipline replaced the walking of an authored span." << VAR(begin) << VAR(end) << VAR_AS(target_index, *target_index);
+    for (size_t index = *target_index; index < end; ++index) {
+        if (index == *target_index && path[index].isMovementPoint()) {
+            continue;
+        }
+        if (!append_stamped_authored_waypoint(ctx, state, index, out_path)) {
             return false;
         }
     }
@@ -1124,24 +1126,6 @@ void append_zone_declaration(LegState& state, const Waypoint& waypoint, std::vec
 {
     state.current_zone = waypoint.zone_id;
     out_path.push_back(waypoint);
-}
-
-void stamp_authored_group(std::vector<Waypoint>& out_path, size_t output_begin, size_t group_begin)
-{
-    for (size_t output = output_begin; output < out_path.size(); ++output) {
-        out_path[output].authored_group_begin = group_begin;
-    }
-}
-
-size_t global_route_group_end(const std::vector<Waypoint>& path, size_t begin)
-{
-    size_t end = begin;
-    while (end < path.size() && !path[end].isZoneDeclaration()) {
-        if (path[end++].closesGlobalRouteGroup()) {
-            break;
-        }
-    }
-    return end;
 }
 
 bool append_authored_route(ExpansionContext& ctx, LegState& state, std::vector<Waypoint>& out_path)
@@ -1163,24 +1147,24 @@ bool append_authored_route(ExpansionContext& ctx, LegState& state, std::vector<W
     return true;
 }
 
-bool append_globally_planned_route(ExpansionContext& ctx, LegState& state, std::vector<Waypoint>& out_path)
+bool append_route_with_zipline_shortcuts(ExpansionContext& ctx, LegState& state, std::vector<Waypoint>& out_path)
 {
     const std::vector<Waypoint>& path = ctx.param.path;
     for (size_t index = 0; index < path.size();) {
         if (ctx.cancelIfStopped(state)) {
             return false;
         }
-        const size_t output_begin = out_path.size();
-        const bool zone_declaration = path[index].isZoneDeclaration();
-        const size_t group_end = zone_declaration ? index + 1 : global_route_group_end(path, index);
-        if (zone_declaration) {
+        if (path[index].isZoneDeclaration()) {
             append_zone_declaration(state, path[index], out_path);
+            stamp_authored_group(out_path, out_path.size() - 1, index);
+            ++index;
+            continue;
         }
-        else if (!append_global_route_group(ctx, state, index, group_end, out_path)) {
+        const size_t span_end = replaceable_span_end(path, index);
+        if (!append_replaceable_span(ctx, state, index, span_end, out_path)) {
             return false;
         }
-        stamp_authored_group(out_path, output_begin, index);
-        index = group_end;
+        index = span_end;
     }
     return true;
 }
@@ -1246,12 +1230,10 @@ bool ExpandNavmeshWaypoints(
         out_diagnostics->clear();
     }
     const bool contains_navmesh = contains_navmesh_waypoint(param.path);
-    const bool needs_global_planning = param.zipline_enabled && contains_global_route_target(param.path);
+    const bool plans_ziplines = param.zipline_enabled && contains_positioned_waypoint(param.path);
     const bool needs_regular_projection =
-        param.normalize_position_via_navmesh && std::any_of(param.path.begin(), param.path.end(), [](const Waypoint& waypoint) {
-            return has_explicit_coordinate_frame(waypoint) && (waypoint.hasPosition() || waypoint.closesGlobalRouteGroup());
-        });
-    if (!contains_navmesh && !needs_global_planning && !needs_regular_projection) {
+        param.normalize_position_via_navmesh && std::any_of(param.path.begin(), param.path.end(), has_explicit_coordinate_frame);
+    if (!contains_navmesh && !plans_ziplines && !needs_regular_projection) {
         out_path = param.path;
         return true;
     }
@@ -1272,7 +1254,7 @@ bool ExpandNavmeshWaypoints(
             state);
         if (!contains_navmesh && !needs_regular_projection) {
             out_path = param.path;
-            LogInfo << "Global route planning unavailable; keeping the authored path.";
+            LogInfo << "Zipline planning unavailable; keeping the authored path.";
             return true;
         }
         return false;
@@ -1285,7 +1267,7 @@ bool ExpandNavmeshWaypoints(
     if (!mesh) {
         if (!contains_navmesh && !needs_regular_projection) {
             out_path = param.path;
-            LogInfo << "Global route navmesh unavailable; keeping the authored path." << VAR_AS(state->navmesh_zone, state.navmesh_zone);
+            LogInfo << "Zipline navmesh unavailable; keeping the authored path." << VAR_AS(state->navmesh_zone, state.navmesh_zone);
             return true;
         }
         failure = zone_failure(
@@ -1306,7 +1288,7 @@ bool ExpandNavmeshWaypoints(
         .failure = failure,
     };
     const bool expanded =
-        needs_global_planning ? append_globally_planned_route(ctx, state, out_path) : append_authored_route(ctx, state, out_path);
+        plans_ziplines ? append_route_with_zipline_shortcuts(ctx, state, out_path) : append_authored_route(ctx, state, out_path);
     if (!expanded) {
         if (out_diagnostics != nullptr) {
             out_diagnostics->clear();
