@@ -1941,7 +1941,7 @@
     "option.ZiplineRouting.cases.Always.label": "Always on",
     "option.ZiplineRouting.cases.Auto.label": "Follow the task",
     "option.ZiplineRouting.cases.Never.label": "Always off",
-    "option.ZiplineRouting.description": "**Without imported coordinates this setting has no effect and routes walk the whole way.**\nRun the \"🚡 Import / Update Zipline Coordinates\" task from the task list first; a single import stays valid.\nFollow the task: used only on routes that specify a zipline\nAlways on: use ziplines wherever possible; those that fail the benefit check are skipped\nAlways off: walk the whole way",
+    "option.ZiplineRouting.description": "**Without imported coordinates this setting has no effect and routes walk the whole way.**\nRun the \"🚡 Import / Update Zipline Coordinates\" task from the task list first; a single import stays valid.\nFollow the task: used whenever it beats walking, unless the route opts out\nAlways on: use ziplines wherever possible; those that fail the benefit check are skipped\nAlways off: walk the whole way",
     "option.ZiplineRouting.label": "Use ziplines when navigating",
     "option.inputs.AutoSellTicketOverflowValue.label": "Maximum dispatch voucher amount",
     "preset.DailyFull.description": "Covers all daily routine tasks, perfect for one-click execution upon login.",

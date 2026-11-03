@@ -224,7 +224,7 @@ After you click `停止录制` (Stop Recording), the tool organizes the raw traj
 - Route planning: `两点测线` (Two-Point Test) in the map's top toolbar (the quick test) verifies any two points directly. The first click sets a temporary `S`, the second sets a temporary `G` and plans automatically with runtime semantics, and a third click starts over from a new `S`; `Esc`, `Delete`, or `清除线路` (Clear Route) clears the temporary points and the result. An end point on a layered basemap automatically carries the current `target_tier`. The temporary S/G never enter the author `path`, the undo stack, the copied result, or live test runs. The author path preview starts from the first author waypoint of the current segment by default. To test the character starting from another position and then continuing through the author waypoints, click `地图点选` (Pick on Map) in the `NavMesh起点` (NavMesh Start) row of the sidebar and pick a point on the map in the same zone; once the point is picked, the previous editing tool is restored automatically. The cyan `S` serves only as the planning start of the current segment and is never written to or exported into the author `path`, so a single author waypoint can also be used to test "start to target" planning directly. With the `添加/选择` (Add/Select) or `框选` (Box Select) tool, `S` can be selected and dragged, and it can be removed with `Delete` or the toolbar's `删除` (Delete) button. Clicking an author waypoint or the planning start shows its action, coordinates, tier, target deck, and other details in the top-right corner of the map. With `自动展开` (Auto Expand) checked (the default), the current segment is planned automatically whenever a waypoint or the start changes, and `重新展开` (Re-expand) plans it immediately; in the result, the pink polyline shows the walking legs expanded by the runtime, and cyan directed edges show the selected zipline hops; expand `寻路诊断` (Pathfinding Diagnostics) in the `图层` (Layers) panel to show the `拓扑逐格路径` (Topology Cell Path), `几何紧绷折线` (Geometric Taut Polyline), `取直后折线` (Straightened Polyline), and `端点拼接与去冗` (Endpoint Splicing and Redundancy Removal) stages separately, while `最终计划路径` (Final Planned Path) in the same panel controls the final route. The diagnostics only cover the walking legs of the fully expanded, finally adopted plan, not failed global direct attempts or unselected walking baselines. On failure, the status bar names the failing author waypoint and shows the raw runtime reason, such as the start or end being off the mesh, the endpoints not being connected, the specified target deck being unreachable, or navmesh loading failing; if the start and end fall in two disconnected reachable regions, the map focuses automatically and connects the nearest boundary points on the two sides with a red dashed line, labeling the gap distance. Only when a precise gap cannot be obtained does it fall back to marking the whole failing leg; off-mesh endpoints still keep their amber distance markers.
 - Quick test cleanup: actively switching to another editing tool, or to `断言` (Assert) / `日志分析` (Log Analysis), clears the temporary S/G and the planning result; switching to `禁区` (No-Go Zones) keeps both, and they show again back in `路径编辑` (Path Editing); holding `Alt` to pan temporarily does not count as leaving, and releasing it returns to the quick test.
 - Live trajectory: during a test run, `实时实际路径` (Live Actual Path) keeps drawing MapLocator's real localization and the current position; a new test run clears the previous run's trajectory, and localization gaps are not filled with predicted points.
-- Zipline toggle: after checking `滑索规划` (Zipline Planning) in the sidebar, preview, copy, and live test runs all carry the route-level `zip: true`. When there is no zipline data or the zipline cost has no advantage, it falls back to walking according to the runtime rules.
+- Zipline toggle: `滑索规划` (Zipline Planning) in the sidebar decides whether preview and live test runs consider ziplines; checked sends `zip: true` and unchecked sends `zip: false`, and the full parameters are only copied when it is checked. When there is no zipline data or ziplines have no advantage, the author route is kept according to the runtime rules.
 - Zipline pylon layer: `路径编辑` (Path Editing), `断言` (Assert), and `日志分析` (Log Analysis) share the `滑索架` (Zipline Pylons) toggle in `图层` (Layers). `路径编辑` and `断言` show the records of the current installation directory, while `日志分析` shows the zipline pylons in the current selection and in the ZIP snapshot of the same group; in all three 2D modes you can click a zipline pylon to see its basemap / world coordinates, navigation height, template, and Level, and they share the A / B selection, the possible-center span, and the geometric connectivity check. The layer is independent of the route-level zipline toggle and does not change preview parameters, copied content, or live test runs; recorded candidates may be unpowered or already excluded by the runtime, and being geometrically connectable does not mean being actually usable.
 - Multi-account ziplines: official-map imports derive a pseudonymous account identity from the `/map/mark/list` `roleId`; game runs derive the same identity from the UID captured once during scene initialization. Runtime planning filters by account before map. Legacy records without an account field are not attributed at import time: when zipline navigation runs, the current account claims them — if that account has no records of its own yet, the legacy coordinates are attributed to it wholesale and persisted in place, so nothing has to be imported again after an upgrade; if the account already has records of its own, nothing is claimed, so two sets of coordinates never mix and then silently go wrong after an account switch. A successful claim is announced to the user; see `ZiplineStore::claimLegacyRecords`. Offline route preview cannot read the in-game UID, so you can choose an imported pseudonymous account in the account drop-down next to `滑索规划` (Zipline Planning); it defaults to the most recently imported one and the choice is remembered in the browser. The choice also filters the current installation's zipline pylon layer, but is never copied into route parameters and never overrides the account detected during a live run. `日志分析` (Log Analysis) still filters snapshots by the account identity recorded in the matching run. Windows imports run in the cpp-algo embedded browser; on Linux, `agent/go-service/ziplineimport` captures the same endpoint through a local restricted MITM proxy, derives the account identity from the request URL's `roleId`, and stores records under `(account_id, map_id)` as well; an import that sees more than one `roleId` is rejected as a whole. Windows always clears the embedded browser site session before each import; Linux uses a throwaway Firefox profile on every import, so the session is never kept either.
 
@@ -254,7 +254,7 @@ With zipline planning enabled, the button changes to `复制完整参数` (Copy 
 
 Both `路径编辑` (Path Editing) and `断言` (Assert) use `选择项目节点` (Select Project Node) as their primary import entry. The tool scans the JSON / JSONC under the current project's `assets` and shows only the nodes that apply to the current mode:
 
-- `路径编辑` (Path Editing): select a `MapNavigateAction` with a valid `custom_action_param.path` to load the full path for further editing; if the node already has `zip: true`, the zipline toggle is checked as well;
+- `路径编辑` (Path Editing): select a `MapNavigateAction` with a valid `custom_action_param.path` to load the full path for further editing; unless the node writes `zip: false`, the zipline toggle is checked as well;
 - `断言` (Assert): selects `MapLocateAssertLocation` by default and loads its `zone_id` and `target` directly; after switching to `参考路线` (Reference Route), you can also select a `MapNavigateAction` to show its real path points on the assert basemap.
 
 The selector searches by resource path, node name, or zone and shows each node's type, point count, and zone summary, so the wrong node is not picked automatically when a file contains several. When a navigation path lacks zone information, you still need to assign zones to its segments on the page; imports validate action semantics strictly — **an unknown action is rejected outright** and never silently downgraded.
@@ -267,7 +267,7 @@ Both modes provide a direct `读取剪贴板` (Read Clipboard) button. The tool 
 
 This format is usually exported by the tool and does not need to be written by hand; refer to this section when you need to adjust it manually.
 
-`path` is an array whose elements are listed in the order the author intends them to be executed. Whether intermediate points may be skipped is covered in [Execution Order and `required`](#execution-order-and-required).
+`path` is an array whose elements are listed in the order the author intends them to be executed. Which points a zipline can replace is covered in [Execution Order and `required`](#execution-order-and-required).
 
 **Coordinates only**: continue to the next point upon arrival:
 
@@ -353,25 +353,21 @@ Only `INTERACT` points can take these fields — on any other action they are ig
 
 ### Execution Order and `required`
 
-Without ziplines enabled, the navigator executes strictly in `path` order. Ordinary points and actions are all kept, and `NAVMESH` is expanded point by point too.
+The navigator executes every point the author wrote in `path` order. Ordinary points and actions are all kept, and `NAVMESH` is expanded point by point too.
 
-Only with ziplines enabled does the navigator try to skip intermediate points, planning directly from the start of the current interval to its end. When the direct plan succeeds, the intermediate movement and reachability fallback points are skipped; when it fails, the author path is still executed point by point. Such optional points include `NAVMESH`, `RUN`, `SPRINT`, `JUMP`, `FIGHT`, `TRANSFER`, `JUMP_PAD`, `PORTAL`, and `INTERACT`.
+A zipline is a local replacement on the author route. During expansion the route is first split into segments at its boundaries; each segment is expanded along the author route as the walking baseline, and the planner compares "walk the baseline through this segment" with "walk to the boarding point → ride ziplines → walk from the dismount point to the segment end". Only when the zipline saves more than `min_gain` is the walking of that segment replaced as a whole; otherwise the segment is identical, point by point, to the route without ziplines.
 
-The following nodes are always kept and need no `required`:
+The following nodes are segment boundaries; ziplines never cross them, and their actions are executed as usual:
 
 - `ZONE`: declares the area context;
-- `HEADING`: adjusts the orientation;
-- `COLLECT`, `DIG`: perform the collection or digging task.
-- `FIND`: finds and approaches the target in a recognition box.
-- `TRIGGER`: route end point; navigation ends on a trigger node hit or on reaching `target`.
+- every action point other than `RUN` and `NAVMESH`, such as `INTERACT`, `JUMP_PAD`, `PORTAL`, `COLLECT`, `DIG`, `FIND`, `TRIGGER`, and `HEADING`;
+- a `RUN` or `NAVMESH` point with `"required": true`.
 
-With ziplines enabled, if another node must also be reached and executed, add `"required": true`. That node ends the current optimization interval, and the rest of the route starts again from there. The array form has no slot for this field, so required points must use the object form.
-
-For example, when the route must go over a particular jump pad, write:
+Only the `RUN` and `NAVMESH` points between two boundaries can be replaced by a zipline. When the route must pass a particular `RUN` or `NAVMESH` point, add `"required": true`. The array form has no slot for this field, so required points must use the object form:
 
 ```json
 {
-    "action": "JUMP_PAD",
+    "action": "NAVMESH",
     "target": [
         1001.89,
         305.68
@@ -380,7 +376,7 @@ For example, when the route must go over a particular jump pad, write:
 }
 ```
 
-The position of the route's last point is always the final goal. When the last point carries an ordinary action that must be executed, it also needs `required`. Without ziplines enabled, all nodes are executed in order anyway, and `required` does not change the result.
+Whether a route considers ziplines is set by `zip` in `custom_action_param`: leaving it out or writing `true` both consider them, and `false` makes the route walk the author route the whole way. When the user sets "Use ziplines when navigating" to "Always off", every route walks the whole way.
 
 ### Strict Arrival
 
@@ -397,7 +393,7 @@ Adding `true` at the end of the array means the point must be reached strictly:
 
 By default, the arrival check keeps a certain radius; once marked strict, the radius is smaller and arrival is slower, but the landing point is more precise. Actions such as interactions, jump platforms, teleports, and map transitions already use stricter arrival semantics on their own.
 
-Strict arrival only controls arrival precision and does not make a point required. With ziplines enabled, global planning can still skip strict arrival points; use `required` when a point must be executed.
+Strict arrival only controls arrival precision and does not make a point required. A strict-arrival `RUN` point can still be replaced by a zipline; use `required` when a point must be passed.
 
 ### Zone Declaration: `ZONE`
 
@@ -547,7 +543,7 @@ Paste the `path` exported by the recording tool into it and you have a complete 
 
 > [!WARNING]
 >
-> Adjacent path points should be reachable from one another in one continuous walk. The navigator cannot pass through models or understand business mechanisms; jump pads use `JUMP_PAD`, and segments such as map transitions, falls, and ascent mechanisms can be split into `PORTAL` / `TRANSFER` / business nodes as an author-path fallback. With ziplines enabled, nodes that must be passed or executed should be marked `required`.
+> Adjacent path points should be reachable from one another in one continuous walk. The navigator cannot pass through models or understand business mechanisms; jump pads use `JUMP_PAD`, and segments such as map transitions, falls, and ascent mechanisms can be split into `PORTAL` / `TRANSFER` / business nodes as an author-path fallback. Action points are always executed; only `RUN` / `NAVMESH` points that must be passed need `required`.
 
 ---
 
@@ -561,9 +557,9 @@ This section is for readers who need to understand the internal implementation; 
 4. Snap the landing point according to the current floor height, rasterize the triangle faces within the window into cells with height intervals, execute A\* on the cell graph, and then straighten the result under clearance constraints.
 5. Expand the planning result into ordinary `RUN` waypoints, which are then handed over to the movement execution chain. When the target is unreachable, a separate blind-walk fallback takes over, and the route it walks does not come from the planner.
 
-Without ziplines enabled, `NAVMESH` is expanded point by point in author order. With ziplines enabled, the expansion first splits the path into intervals at the [path boundaries](#execution-order-and-required), then compares the pure-walking and zipline routes of each interval; when no direct route is possible, it falls back to executing the author path point by point.
+`NAVMESH` is always expanded point by point in author order. When ziplines are considered, the expansion further splits the path into intervals at the [path boundaries](#execution-order-and-required) and uses each interval's author-route expansion as the walking baseline; an interval is replaced only when the zipline route costs at least `min_gain` less than the baseline, and the walk after dismounting prefers the floor the baseline arrives on.
 
-When pure walking is not connected, the whole interval is not judged unreachable right away: with ziplines enabled, the planner keeps looking for a bridging route of "walk to the boarding point → several consecutive zipline hops → walk from the dismount point to the end". As long as the boarding and dismount ends connect to the walkable surfaces of the start and the end respectively, this continuous chain takes priority over blind walking and falling back to author hints; when pure walking is itself possible, the comparison still uses the total cost and the `min_gain` threshold, so the planner never detours unconditionally just to ride a few more ziplines.
+When pure walking to a `NAVMESH` point is not connected, the point is not judged unreachable right away: the planner keeps looking for a bridging route of "walk to the boarding point → several consecutive zipline hops → walk from the dismount point to that point". As long as the boarding and dismount ends connect to the walkable surfaces of the start and the end respectively, this continuous chain takes priority over the blind-walk fallback; when pure walking is itself possible, the comparison still uses the interval cost and the `min_gain` threshold, so the planner never detours unconditionally just to ride a few more ziplines.
 
 When one hop of the continuous chain fails, the runtime discards the remaining hops of that chain, waits for localization to stabilize again and snap back onto the navmesh, then rejoins at the first actually reachable point of the remaining route. If there is no reachable point to rejoin at, this navigation fails explicitly instead of continuing with the old post-dismount path generated from the expected dismount point.
 
@@ -693,7 +689,7 @@ In `path`, write the interaction point in the object form and add `interact_text
 - When navigation should only walk there and recognize the prompt, leaving the press to the outer Pipeline, add `interact_rec`, see [Recognize Only, Never Press](#recognize-only-never-press-rec-mode).
 - A single route may mix interaction points from several businesses, and mix them with `COLLECT` / `DIG`, in any number.
 - **No trailing `true` is needed**: `INTERACT` is already handled with strict arrival semantics.
-- This example requires the interaction to happen, hence `required: true`; if the interaction only serves as a route fallback after zipline planning fails, it can be omitted. See [Execution Order and `required`](#execution-order-and-required).
+- `INTERACT` is a boundary that ziplines never cross, so the interaction always happens and `required: true` makes no difference. See [Execution Order and `required`](#execution-order-and-required).
 
 In the GUI: walk up to the interactable normally while recording, change that point's action to `INTERACT` after stopping, then add `interact_text` to it by hand after exporting the `path` (the editor does not emit this field yet).
 
@@ -842,7 +838,7 @@ The pre-filter only runs **while that point is the one being walked to and the l
 - If the prompt never shows up on the way, **the authoritative recognition still runs once upon precise arrival** — a missed pre-filter does not skip the point. Every async interaction point therefore gets exactly one authoritative recognition: a hit on the way completes it, and otherwise arrival makes it up.
 - **Async interaction never fails navigation.** The key press only happens when OCR matches the injected text, and never at all in rec mode; navigation itself does not verify that the interaction actually took place, and does not error out because no prompt was recognized. Whether the interaction succeeded has to be validated by the outer Pipeline (for example, the UI that should appear afterwards).
 
-When the interaction opens a UI (a registration desk, a commission board), **make that point the last one of the route and mark it `required: true`**: once the UI is up the character stops moving and the minimap is covered, so later points cannot be walked. This is the same author-side discipline as plain `INTERACT` without `interact_text` — async or not makes no difference here.
+When the interaction opens a UI (a registration desk, a commission board), **make that point the last one of the route**: once the UI is up the character stops moving and the minimap is covered, so later points cannot be walked. This is the same author-side discipline as plain `INTERACT` without `interact_text` — async or not makes no difference here.
 
 The `MapNavigatorInteract` node ships with a placeholder text that can never match, so a route that injects no `interact_text` recognizes nothing there and cannot press by mistake.
 
@@ -901,7 +897,7 @@ Additional rules:
 - **Control node**: without `target`, the search starts as soon as the character reaches the point.
 - The two forms differ only in where the search starts.
 - The array form `[182.52, 173.4, "FIND"]` carries a coordinate only; the target source and completion condition must come from route-level defaults.
-- `FIND` is an intrinsic boundary node and is never skipped by zipline planning.
+- `FIND` is an action point, so ziplines never cross it.
 
 ### Runtime Behavior
 
@@ -1095,5 +1091,5 @@ There are two kinds of jump pads: ones that launch the character as soon as it s
 1. **Prefer `NAVMESH`; record only when semantics are needed.** For plain-movement routes, place the points by hand in the path editor, confirm them with planning, and copy; adjust a target the preview cannot reach on the spot instead of waiting for it to fail at runtime. Only routes with semantics such as interactions and map transitions need recording.
 2. **Record rather than hand-write.** Walking through once in reality is usually more accurate than filling coordinates by feeling; if the precision of the recorded points is insufficient, move more slowly.
 3. **Keep the starting state stable.** Before recording, tidy up the character's position and viewpoint, which significantly reduces later point correction.
-4. **Keep special action points few and precise.** Add `INTERACT`, `JUMP_PAD`, `TRANSFER`, and `PORTAL` only where an interaction, a jump pad, or an area switch is needed; with ziplines enabled, points that must be executed should be marked `required`. `HEADING`, `COLLECT`, `DIG`, `FIND`, and `TRIGGER` are always kept.
+4. **Keep special action points few and precise.** Add `INTERACT`, `JUMP_PAD`, `TRANSFER`, and `PORTAL` only where an interaction, a jump pad, or an area switch is needed. Action points are always executed; only `RUN` / `NAVMESH` points that must be passed need `required`.
 5. **Always check map transition points on cross-area routes.** Automatic addition of `PORTAL` is only a semantic annotation and does not mean every cross-area boundary is inherently reasonable.

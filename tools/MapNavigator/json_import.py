@@ -127,7 +127,7 @@ def scan_project_import_nodes(
                             int(ActionType.NAVMESH) in get_point_actions(point) for point in route
                         ),
                         zone_ids=zone_ids,
-                        zip_enabled=node["custom_action_param"].get("zip") is True,
+                        zip_enabled=node["custom_action_param"].get("zip") is not False,
                     )
                 )
 
@@ -178,7 +178,7 @@ def load_project_import_node(
         return {
             "kind": "path",
             "path": param["path"],
-            "zip_enabled": param.get("zip") is True,
+            "zip_enabled": param.get("zip") is not False,
         }
 
     if kind == "assert":
@@ -446,7 +446,7 @@ def _walk_json_node(
         if path_value is not None:
             route = _parse_route(path_value, local_zone)
             if route:
-                routes.append((route, node.get("zip") is True))
+                routes.append((route, node.get("zip") is not False))
 
         for key, value in node.items():
             if key == "path" and path_value is not None:

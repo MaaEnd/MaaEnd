@@ -932,6 +932,7 @@ std::optional<PlannedLeg> plan_departure(const PlanInputs& in, const TowerSites&
             .start = sites.spots[spot],
             .start_floor_y = sites.nodes[sites.spot_tower[spot]].height,
             .goal = in.request.goal,
+            .goal_floor_y = in.request.goal_floor_y,
             .goal_deck_y = in.request.goal_deck_y,
         },
         in.request.capture_diagnostics ? &diagnostic : nullptr);
@@ -1127,10 +1128,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
     if (!param.zipline_enabled) {
         return std::nullopt;
     }
-    if (param.zipline_account_id.empty()) {
-        g_outcome.account_unknown = true;
-        return std::nullopt;
-    }
 
     const bool walking_baseline_available = request.walking_path != nullptr && !request.walking_path->points.empty();
 
@@ -1159,16 +1156,22 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
         return no_zipline("this zone is not calibrated", nullptr);
     }
 
-    TowerSites sites = collect_powered_towers(param, *data, *frame);
-    if (sites.nodes.size() < 2) {
-        return no_zipline("no powered ziplines recorded in this zone", &ZiplineOutcome::no_data);
-    }
-
+    // 每段路都会来问一次, 短路先挡掉, 缺账号和缺坐标只在值得坐滑索的路上才算数
     const zipline::ZiplineCostModel& cost = data->frames.cost();
     const double baseline_length = walking_baseline_available ? polyline_length(*request.walking_path) : 0.0;
     const double gain_threshold = walking_baseline_available ? baseline_length - cost.min_gain : std::numeric_limits<double>::infinity();
     if (walking_baseline_available && gain_threshold <= cost.mount_penalty) {
         return no_zipline("the walk is too short for any zipline to pay off", &ZiplineOutcome::not_chosen);
+    }
+
+    if (param.zipline_account_id.empty()) {
+        g_outcome.account_unknown = true;
+        return std::nullopt;
+    }
+
+    TowerSites sites = collect_powered_towers(param, *data, *frame);
+    if (sites.nodes.size() < 2) {
+        return no_zipline("no powered ziplines recorded in this zone", &ZiplineOutcome::no_data);
     }
 
     const PlanInputs in {

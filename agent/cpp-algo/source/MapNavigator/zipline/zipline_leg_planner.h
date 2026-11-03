@@ -53,6 +53,8 @@ struct ZiplineLegRequest
     navmesh::WorldPoint start;
     navmesh::WorldPoint goal;
     const navmesh::WorldPath* walking_path = nullptr;
+    // 下索后落哪层的偏好, 到不了时照常落最近的面
+    float goal_floor_y = navmesh::kBaseNavFloorYNone;
     std::optional<double> goal_deck_y;
     std::optional<double> start_floor_y;
     std::optional<double> start_deck_y;

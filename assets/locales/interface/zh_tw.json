@@ -1941,7 +1941,7 @@
     "option.ZiplineRouting.cases.Always.label": "始終啟用",
     "option.ZiplineRouting.cases.Auto.label": "跟隨任務",
     "option.ZiplineRouting.cases.Never.label": "始終停用",
-    "option.ZiplineRouting.description": "**未匯入滑索座標時本項不會生效，尋路將全程步行。**\n請先在任務清單中執行「🚡匯入/更新滑索座標」，匯入一次長期有效。\n跟隨任務：僅在路線指定使用滑索時啟用\n始終啟用：盡可能使用滑索，未通過效益判定的滑索會自動略過\n始終停用：全程步行",
+    "option.ZiplineRouting.description": "**未匯入滑索座標時本項不會生效，尋路將全程步行。**\n請先在任務清單中執行「🚡匯入/更新滑索座標」，匯入一次長期有效。\n跟隨任務：比步行更快時搭滑索，路線聲明不用滑索時除外\n始終啟用：盡可能使用滑索，未通過效益判定的滑索會自動略過\n始終停用：全程步行",
     "option.ZiplineRouting.label": "尋路時使用滑索",
     "option.inputs.AutoSellTicketOverflowValue.label": "調度券最高持有數量",
     "preset.DailyFull.description": "覆蓋所有每日例行任務，適合每天上線時一鍵執行",
