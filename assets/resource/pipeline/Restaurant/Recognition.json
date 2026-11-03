@@ -119,24 +119,6 @@
         "only_rec": true,
         "order_by": "Vertical"
     },
-    "RestaurantMenuPendingIcon": {
-        "desc": "识别菜单卡片上的待选/提示图标。",
-        "recognition": "Custom",
-        "custom_recognition": "IconRecognition",
-        "custom_recognition_param": {
-            "grid_type": "single_roi",
-            "item_filters": [
-                "Restaurant:*"
-            ]
-        },
-        "roi": "RestaurantMenuCardAnchor",
-        "roi_offset": [
-            34,
-            14,
-            -243,
-            -29
-        ]
-    },
     "RestaurantMenuSelectedCircle": {
         "recognition": "ColorMatch",
         "roi": "RestaurantMenuCardAnchor",
@@ -156,45 +138,12 @@
         "connected": true,
         "count": 80
     },
-    "RestaurantMenuSelectedBar": {
-        "recognition": "ColorMatch",
-        "roi": "RestaurantMenuSelectedCircle",
-        "roi_offset": [
-            5,
-            6,
-            -10,
-            -12
-        ],
-        "method": 6,
-        "lower": [
-            180
-        ],
-        "upper": [
-            255
-        ],
-        "count": 4
-    },
-    "RestaurantMenuCardSelected": {
-        "desc": "组合判断当前卡片是否已选中。",
-        "recognition": "And",
-        "all_of": [
-            "RestaurantMenuSelectedCircle",
-            "RestaurantMenuSelectedBar"
-        ]
-    },
     "RestaurantMenuCardFacts": {
         "desc": "组合当前卡片的识别信息。",
         "recognition": "And",
         "all_of": [
             "RestaurantMenuCardAnchor",
             "RestaurantMenuCardIcon",
-            {
-                "recognition": "Or",
-                "any_of": [
-                    "RestaurantMenuCardSelected",
-                    "RestaurantObservationEmpty"
-                ]
-            },
             {
                 "recognition": "Or",
                 "any_of": [

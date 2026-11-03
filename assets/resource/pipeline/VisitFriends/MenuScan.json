@@ -182,10 +182,36 @@
             "TextInput"
         ]
     },
+    "VisitFriendsPrioritySearchLoading": {
+        "desc": "搜索结果加载中提示",
+        "recognition": "OCR",
+        "roi": [
+            500,
+            120,
+            300,
+            100
+        ],
+        "expected": [
+            "加载中",
+            "載入中",
+            "Loading",
+            "読み込み中",
+            "로딩\\s+중"
+        ],
+        "threshold": 0.7,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "VisitFriendsPrioritySearchWaitResult": {
-        "desc": "输入完成后持续识别过滤结果行：命中进白名单进船拜访链，3 秒内未出现视为未搜到，清空输入框搜索下一个",
+        "desc": "输入完成后等待加载中消失：命中进白名单进船拜访链，超时未出现视为未搜到，清空输入框搜索下一个",
         "recognition": "DirectHit",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "DoNothing",
+            "wait_node": "VisitFriendsPrioritySearchLoading"
+        },
         "post_delay": 0,
         "timeout": 3000,
         "next": [

@@ -1001,6 +1001,9 @@
                         },
                         "AutoCollectWulingProtocolith1Start": {
                             "enabled": true
+                        },
+                        "AutoCollectWulingProtocolith2Start": {
+                            "enabled": true
                         }
                     }
                 },
