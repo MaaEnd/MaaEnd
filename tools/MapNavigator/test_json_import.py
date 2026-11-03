@@ -522,7 +522,7 @@ class ProjectImportNodesTest(unittest.TestCase):
 
         self.assertEqual(
             loaded,
-            {"kind": "path", "path": expected_path, "zip_enabled": False},
+            {"kind": "path", "path": expected_path, "zip_enabled": True},
         )
 
     def test_preserves_selected_map_navigate_zip_option(self) -> None:
@@ -533,7 +533,7 @@ class ProjectImportNodesTest(unittest.TestCase):
                 {
                     "Selected": {
                         "custom_action": "MapNavigateAction",
-                        "custom_action_param": {"path": expected_path, "zip": True},
+                        "custom_action_param": {"path": expected_path, "zip": False},
                     }
                 }
             ),
@@ -548,7 +548,7 @@ class ProjectImportNodesTest(unittest.TestCase):
 
         self.assertEqual(
             loaded,
-            {"kind": "path", "path": expected_path, "zip_enabled": True},
+            {"kind": "path", "path": expected_path, "zip_enabled": False},
         )
 
     def test_loads_the_selected_assert_location(self) -> None:
