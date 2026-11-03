@@ -3,56 +3,9 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectAltClick",
             "AutoCollectClick",
             "AutoCollectClickEnd"
         ]
-    },
-    "AutoCollectAltClick": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    803,
-                    350,
-                    263,
-                    219
-                ],
-                "expected": [
-                    "种植食材箱",
-                    "種植食材箱",
-                    "(?i)Farmer's\\s*Crate",
-                    "農産食材箱",
-                    "재배 식재료 상자",
-                    "养殖食材箱",
-                    "養殖食材箱",
-                    "(?i)Rancher's\\s*Crate",
-                    "畜産食材箱",
-                    "양식 식재료 상자",
-                    "饮品箱",
-                    "飲品箱",
-                    "(?i)Drinks\\s*Crate",
-                    "飲料箱",
-                    "음료 상자"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "AutoAltClickAction",
-        "post_delay": 0,
-        "next": [
-            "AutoCollectClickEnd"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "识别到采集物",
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
     },
     "AutoCollectClick": {
         "recognition": {
@@ -159,13 +112,28 @@
                     "탈로스 버섯",
                     "金石稻",
                     "金石稲",
-                    "(?i)Amber Rice"
+                    "(?i)Amber Rice",
+                    "种植食材箱",
+                    "種植食材箱",
+                    "(?i)Farmer's\\s*Crate",
+                    "農産食材箱",
+                    "재배 식재료 상자",
+                    "养殖食材箱",
+                    "養殖食材箱",
+                    "(?i)Rancher's\\s*Crate",
+                    "畜産食材箱",
+                    "양식 식재료 상자",
+                    "饮品箱",
+                    "飲品箱",
+                    "(?i)Drinks\\s*Crate",
+                    "飲料箱",
+                    "음료 상자"
                 ]
             }
         },
         "pre_delay": 0,
-        "action": "ClickKey",
-        "key": 70, // F 交互；可通过全局设置 KeymapInteract 改绑
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
         "post_delay": 0,
         "next": [
             "AutoCollectClickEnd"
