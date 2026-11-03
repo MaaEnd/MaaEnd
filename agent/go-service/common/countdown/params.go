@@ -52,6 +52,7 @@ func (action *Action) parseParams(arg *maa.CustomActionArg) *params {
 		return nil
 	}
 
+	p.Duration = time.Duration(p.DurationValue)
 	switch p.DurationType {
 	case DurationTypeMs:
 		p.Duration *= time.Millisecond
