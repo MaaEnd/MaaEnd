@@ -109,8 +109,7 @@
                     "Common/Button/CancelButtonType1Hover.png"
                 ],
                 "method": 5,
-                "threshold": 0.7,
-                "order_by": "Score"
+                "threshold": 0.7
             }
         },
         "pre_delay": 0,
