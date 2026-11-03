@@ -28,6 +28,7 @@
 | [`minicv`](#minicv轻量-cv) | 模板匹配、圆形掩码等纯 Go CV | 需要本地匹配且不想走 Pipeline 模板节点时 |
 | [`gamesetting`](#gamesetting游戏设置注册表) | 读写游戏设置注册表、判定区服、定位启动器安装目录（仅 Windows） | `LaunchGamePC`、`CloseGamePC`、分辨率 / HDR 检查 |
 | [`parentwatch`](#parentwatch父进程监视) | 父进程退出则结束自身，避免孤儿 Agent | 仅 `main` 启动期 |
+| [`dynamic_html_log`](#dynamic_html_log动态HTML日志) | 输出HTML运行日志，同组内只显示最后一条 | `CountDown` |
 
 ---
 
@@ -299,6 +300,13 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 路径：`pkg/parentwatch/`
 
 仅在 `main` 启动时 `Start()` 一次：父进程退出则 `os.Exit(0)`，防止 MaaAgentServer 变孤儿。业务包不要依赖它。
+
+### `dynamic_html_log`：动态HTML日志
+
+路径：`pkg/dynamic_html_log`
+
+使用`i18n`输出html的运行日志，同一个实例输出的日志，前面的会使用css自动隐藏，看起来就好像是动态更新一样。
+
 
 ---
 
