@@ -1688,7 +1688,10 @@
                     420,
                     260
                 ],
-                "template": "Common/Button/CancelButtonType1.png"
+                "template": [
+                    "Common/Button/CancelButtonType1.png",
+                    "Common/Button/CancelButtonType1Hover.png"
+                ]
             }
         },
         "pre_wait_freezes": 2000,
