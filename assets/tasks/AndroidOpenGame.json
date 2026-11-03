@@ -102,7 +102,7 @@
                             "action": {
                                 "type": "StartApp",
                                 "param": {
-                                    "package": "com.hypergryph.endfield.vn/com.u8.sdk.U8UnityContext"
+                                    "package": "com.gryphline.endfield.gp.vn/com.u8.sdk.U8UnityContext"
                                 }
                             }
                         },
@@ -110,7 +110,7 @@
                             "action": {
                                 "type": "StopApp",
                                 "param": {
-                                    "package": "com.hypergryph.endfield.vn"
+                                    "package": "com.gryphline.endfield.gp.vn"
                                 }
                             }
                         }

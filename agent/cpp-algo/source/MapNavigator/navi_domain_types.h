@@ -101,6 +101,32 @@ constexpr ActionTraits TraitsOf(ActionType action)
     return {};
 }
 
+// 执行后可能留下挡住小地图的界面
+constexpr bool MayOpenUi(ActionType action)
+{
+    switch (action) {
+    case ActionType::RUN:
+    case ActionType::SPRINT:
+    case ActionType::JUMP:
+    case ActionType::HEADING:
+    case ActionType::NAVMESH:
+    case ActionType::ZONE:
+        return false;
+    case ActionType::FIGHT:
+    case ActionType::INTERACT:
+    case ActionType::TRANSFER:
+    case ActionType::JUMP_PAD:
+    case ActionType::PORTAL:
+    case ActionType::COLLECT:
+    case ActionType::DIG:
+    case ActionType::FIND:
+    case ActionType::ZIPLINE:
+    case ActionType::TRIGGER:
+        return true;
+    }
+    return true;
+}
+
 // 从绳底交互坐上去, ride_s 秒后站在 top_height 那层
 struct RopeRideInfo
 {

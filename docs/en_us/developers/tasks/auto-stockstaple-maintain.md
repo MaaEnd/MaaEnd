@@ -2,7 +2,7 @@
 
 This document explains the file distribution and execution flow of `AutoStockStaple`.  
 It takes **Valley IV** as the main line; the **Wuling** Pipeline structure is completely symmetrical, differing only in the regional suffix and scene recognition.  
-This document was updated on October 26, 2026.
+This document was updated on October 30, 2026.
 
 ## File Paths
 
@@ -33,8 +33,7 @@ This document was updated on October 26, 2026.
     - Whether remaining stock bills are [below the retention threshold](#stock-bill-retention-threshold) → stop scanning this region.
     - Whether a [buyable target item is recognized](#item-recognition-chain-and-discount-groups) → click to enter the purchase popup; discount groups are tried in order within the same round.
     - Whether it is sold out → stop scanning this region.
-    - Whether the [list has reached its end](#5-sold-out-and-swiping) → stop scanning this region.
-    - Otherwise, swipe down the list to continue searching. Swiping has **no attempt cap**; only the sold-out and end-of-list recognizers stop it.
+    - Otherwise, swipe down the list to continue searching, at most 25 swipes per region (`AutoStockSwipe{Region}.max_hit`); still being on the staple page after the budget runs out means the list has reached its end.
 5. Handle the purchase popup according to the [three-branch quantity control](#quantity-control-three-branches): exit due to insufficient stock bills / purchase if under the limit / exclude if the limit is reached.
 6. End after all enabled regions are completed.
 
@@ -244,10 +243,10 @@ After all three match, click the item card (`target_offset: [-45, 85, -30, 0]`),
 ### 5. Sold-Out and Swiping
 
 - `SoldOut`: OCR recognizes text like "Sold Out / 已售罄" on the left; once matched, it stops swiping.
-- `AutoStockListComplete{Region}`: the **end-of-list recognizer**, placed before the swipe node. On its first run it captures the still frame inside `roi` as a runtime template; afterwards it compares every round: an unchanged frame (similarity ≥ `threshold`, set to 0.95 here) means the list has hit the bottom, and a hit ends the region scan; a changed frame means the template is recaptured and scrolling continues.
-    - `roi` covers the item card grid (`[65, 200, 1075, 360]` at the 720p baseline); adjust it when the card layout or the resolution baseline changes, otherwise the recognizer may never hit.
-    - `attach.ready` is the recognizer's runtime state (template `ListCompleteRecognition/AutoStockListComplete{Region}.png`); every task run uses a fresh Context, so no template leaks between runs.
-- `AutoStockSwipe{Region}`: swipes down within the regional page, `post_wait_freezes` waits for the list area to stabilize before entering the next round of recognition. Swiping has **no `max_hit`**: the loop only ends through `SoldOut` or `AutoStockListComplete{Region}`, so if neither hits it keeps swiping — the end-of-list recognizer `roi` / `threshold` must fit the regional list, otherwise that region scrolls forever (the `score` shows up in the `ListCompleteRecognition` lines of `go-service.log`).
+- `AutoStockSwipe{Region}`: swipes down within the regional page, `post_wait_freezes` waits for the list area to stabilize before entering the next round of recognition. `max_hit` is `25`, i.e. at most 25 swipes per region; the count accumulates within one task run, and purchase round-trips do not consume it.
+    - The loop has only two exit signals: `SoldOut` matches, or the 25 swipes run out and `AutoStockNoMoreTarget{Region}` catches it (it sits after the swipe node, so it only hits once that node is skipped by `max_hit`), ending the region scan as "list at its end and no matching item".
+    - So `max_hit` and `AutoStockNoMoreTarget{Region}` must be kept as a pair: together they are the only exit for "swiped everything without a result"; without it the region spins. Raise `max_hit` only when the list is longer than 25 screens.
+    - `ListCompleteRecognition` (comparing two consecutive frames to detect the end) briefly replaced this attempt cap: when the swipe itself does not take effect, both frames are equally static, so it mistook "did not scroll" for "reached the end" and skipped a whole screen of the list — hence the revert to an attempt cap.
 
 ## Quantity Control (Purchase Popup)
 
@@ -356,11 +355,10 @@ Maintain existing flows in their task and Pipeline files. The per-item template 
 If a third region for staple goods purchase is added in the future, a set of nodes can be copied corresponding to Valley IV:
 
 1. Create `assets/resource/pipeline/AutoStockStaple/{Region}.json`:
-    - `AutoStockInStaple{Region}` scan loop (keep the `next` order; the exits are this region's sold-out node and `AutoStockListComplete{Region}`, and the group judgment entries become one `[JumpBack]AutoStockBuyItem{Region}Task{Group}` per group).
+    - `AutoStockInStaple{Region}` scan loop (keep the `next` order; it always ends with `[JumpBack]AutoStockSwipe{Region}` plus `AutoStockNoMoreTarget{Region}` for when the swipe budget runs out, and the group judgment entries become one `[JumpBack]AutoStockBuyItem{Region}Task{Group}` per group).
     - `AutoStockTargetCompare{Region}` / `AutoStockTargetCanNotBuy{Region}`.
     - One `AutoStockBuyItem{Region}Task{Group}` per discount group (replace the group discount node names).
-    - `AutoStockListComplete{Region}` (end-of-list recognizer, adjust its `roi` to the regional list position).
-    - `AutoStockSwipe{Region}`.
+    - `AutoStockSwipe{Region}` (size `max_hit` to the list length, 25 for Valley IV) and the fallback exit `AutoStockNoMoreTarget{Region}`.
 2. Add `[JumpBack]AutoStockStaple{Region}` sub-task and SceneManager jump in `Main.json`.
 3. Add scene OCR in `StockStaple.json` or the regional InScene file.
 4. Add `AutoStockInStapleItemDiscounts{Region}{Group}` for every group in `Item.json` (`Daily` / `Industrial` / `Cultural` / `EngravingPermit`, plus `ArtificingCatalyst` when the region sells the artificing catalyst; even with the same layout each group needs its own node, since `AutoStockMinDiscount{Region}{Group}` overrides it), and add its `roi_offset` to the `resource_adb` `Item.json`.
@@ -374,8 +372,8 @@ The existing Wuling implementation is a mirror of Valley IV; you can directly di
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | Target item not recognized in list | The per-group `expected` regexes printed by `AttachToExpectedRegexAction` in `go-service.log`; whether anchor `AutoStockInStapleItem` matched |
 | Only one category is never bought | Whether that category switch is on; whether the tier selected in `AutoStockMinDiscount{Region}{Group}` covers the actual discount in that group's discount node `expected` |
-| Scanning stops before the list ends | Whether `AutoStockListComplete{Region}`'s `roi` covers the card grid and its `threshold` is too low; the `score` logged by `ListCompleteRecognition` in `go-service.log` |
-| Keeps swiping without ending | Whether `AutoStockListComplete{Region}` hits; the `score` in the `ListCompleteRecognition` lines of `go-service.log`, whether its `roi` covers the card grid, and whether its `threshold` is too high |
+| Scanning stops before the list ends | Whether `AutoStockSwipe{Region}.max_hit` is too small (long list, short travel per swipe); whether `AutoStockNoMoreTarget{Region}` matched early |
+| Keeps swiping without ending | Whether `AutoStockSwipe{Region}.max_hit` was removed or raised too much; whether `AutoStockNoMoreTarget{Region}` exists and sits after the swipe node |
 | Item recognized but not purchased | Whether quantity control went to `Exclude` or `StockBillInsufficient`; `AutoStockStapleQuantityControl{Item}Buy/Exclude` in `maafw*.log` |
 | Purchase quantity is incorrect | `threshold/current_count/target` in `AutoStockStapleQuantityControlAction` log; BetterSliding ROI |
 | Scanning stops even though stock bills seem sufficient | `AutoStockTargetCompareValleyIV` expression and user input `{ReserveValleyIV}` |

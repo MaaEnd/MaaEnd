@@ -1,0 +1,115 @@
+{
+    "AutoCollectWulingVitrodendra1Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCityGuhouMarsh"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingVitrodendra1AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingVitrodendra1.label"
+        }
+    },
+    "AutoCollectWulingVitrodendra1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingVitrodendra1AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                706,
+                1893,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingVitrodendra1Goto"
+        ]
+    },
+    "AutoCollectWulingVitrodendra1Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                733,
+                                1885
+                            ]
+                        },
+                        [
+                            741.38,
+                            1858.01,
+                            "COLLECT"
+                        ],
+                        [
+                            744.74,
+                            1856.43,
+                            "COLLECT"
+                        ],
+                        [
+                            743.14,
+                            1854.12,
+                            "COLLECT"
+                        ],
+                        [
+                            745.29,
+                            1851.11,
+                            "COLLECT"
+                        ],
+                        [
+                            746.92,
+                            1851.2,
+                            "COLLECT"
+                        ],
+                        [
+                            744.41,
+                            1846.84,
+                            "COLLECT"
+                        ],
+                        [
+                            739.32,
+                            1848.09,
+                            "COLLECT"
+                        ],
+                        [
+                            736.46,
+                            1849.97,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingVitrodendra1End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

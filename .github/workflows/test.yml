@@ -6,17 +6,23 @@ on:
       - "v2"
     paths:
       - ".github/workflows/test.yml"
+      - "tools/validate_schema.py"
       - "assets/**"
       - "tests/**"
       - "agent/cpp-algo/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
   pull_request:
     branches:
       - "v2"
     paths:
       - ".github/workflows/test.yml"
+      - "tools/validate_schema.py"
       - "assets/**"
       - "tests/**"
       - "agent/cpp-algo/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
   workflow_dispatch:
 
 permissions:

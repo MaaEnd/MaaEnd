@@ -43,8 +43,8 @@ pnpm install
 | （无参数） | 首次初始化，已安装的组件自动跳过 |
 | `--update` | 强制更新所有已安装的依赖到最新版本 |
 | `--clean-cache` | 清理下载缓存目录 |
-| `--cpp-algo-pr <N>` | 从指定 PR 的最新成功 CI run 下载 cpp-algo（用于快速测试尚未合并的 PR 改动） |
-| `--cpp-algo-run <ID>` | 从指定 workflow run ID 下载 cpp-algo |
+| `--cpp-algo-pr <N>` | 从指定 PR 的最新成功 CI run 下载 `cpp-algo`（用于快速测试尚未合并的 PR 改动） |
+| `--cpp-algo-run <ID>` | 从指定 workflow run ID 下载 `cpp-algo` |
 
 > `--cpp-algo-pr` 和 `--cpp-algo-run` 互斥，二选一；两者都表示明确指定，不再做任何推断。
 >
@@ -476,20 +476,26 @@ git push origin feat/auto-sell-items
     uv run tools/maadeps-download.py
     ```
 
-4. 编译 go-service、配置路径。
+4. 准备 `cpp-algo` 的构建环境。项目的 `assets/interface.json` 会启动 `go-service` 和 `cpp-algo`；`build-and-install` 默认只构建 `go-service`，因此下面使用 `--cpp-algo` 同时构建这两个 Agent。
+
+    安装 CMake 3.28+、Ninja 和当前平台的 C++ 工具链。Windows 需安装 Visual Studio / Build Tools 的「使用 C++ 的桌面开发」工作负载（含 MSVC 和 Windows SDK），并下载 WebView2 SDK：
 
     ```bash
-    uv run build-and-install
+    uv run python -m tools.setup.dep_3rdparty --webview2
     ```
 
-    > 如需同时编译 cpp-algo，请加上 `--cpp-algo` 参数：
-    >
-    > ```bash
-    > uv run build-and-install --cpp-algo
-    > ```
+    该命令将 SDK 安装到 `agent/cpp-algo/3rdparty/webview2/`。非 Windows 平台无需 WebView2 SDK。
 
-5. 将步骤 2 中解压的 `deps/bin` 内容复制到 `install/maafw/`。
+5. 编译并安装 `go-service` 和 `cpp-algo`，同时配置资源路径。
 
-6. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/`。
+    ```bash
+    uv run build-and-install --cpp-algo
+    ```
+
+    构建后确认 `install/agent/` 中存在 `go-service` 和 `cpp-algo`（Windows 下带 `.exe` 后缀）。Windows 下该目录还需包含配套的 `WebView2Loader.dll`，构建安装步骤会一并部署。
+
+6. 将步骤 2 中解压的 `deps/bin` 内容复制到 `install/maafw/`。
+
+7. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/`。
 
 </details>

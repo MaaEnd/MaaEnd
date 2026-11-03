@@ -1,0 +1,193 @@
+{
+    "task": [
+        {
+            "name": "WarEcho",
+            "label": "$task.WarEcho.label",
+            "entry": "WarEchoEntry",
+            "description": "$task.WarEcho.description",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
+            ],
+            "pipeline_override": {
+                "AutoFight": {
+                    "attach": {
+                        "pause_exit_nodes": [
+                            "WarEchoFightFinished"
+                        ]
+                    }
+                }
+            },
+            "option": [
+                "WarEchoTeamChoose",
+                "WarEchoRetryCount",
+                "AutoFightSetting"
+            ]
+        }
+    ],
+    "option": {
+        "WarEchoTeamChoose": {
+            "type": "select",
+            "label": "$option.WarEchoTeamChoose.label",
+            "cases": [
+                {
+                    "name": "Default",
+                    "label": "$option.WarEchoTeamChoose.case.Default.label",
+                    "pipeline_override": {
+                        "PrepareTeamChoose": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Team01",
+                    "label": "01",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot01"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Team02",
+                    "label": "02",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot02"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Team03",
+                    "label": "03",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot03"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Team04",
+                    "label": "04",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot04"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Team05",
+                    "label": "05",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot05"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Team06",
+                    "label": "06",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot06"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Team07",
+                    "label": "07",
+                    "pipeline_override": {
+                        "PrepareTeamChooseText": {
+                            "all_of": [
+                                "PrepareTeamSlot07"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "Default"
+        },
+        "WarEchoRetryCount": {
+            "type": "select",
+            "label": "$option.WarEchoRetryCount.label",
+            "cases": [
+                {
+                    "name": "Retry0",
+                    "label": "0",
+                    "pipeline_override": {
+                        "WarEchoFightFailedRetry": {
+                            "max_hit": 0
+                        }
+                    }
+                },
+                {
+                    "name": "Retry1",
+                    "label": "1",
+                    "pipeline_override": {
+                        "WarEchoFightFailedRetry": {
+                            "max_hit": 1
+                        }
+                    }
+                },
+                {
+                    "name": "Retry2",
+                    "label": "2",
+                    "pipeline_override": {
+                        "WarEchoFightFailedRetry": {
+                            "max_hit": 2
+                        }
+                    }
+                },
+                {
+                    "name": "Retry3",
+                    "label": "3",
+                    "pipeline_override": {
+                        "WarEchoFightFailedRetry": {
+                            "max_hit": 3
+                        }
+                    }
+                },
+                {
+                    "name": "Retry4",
+                    "label": "4",
+                    "pipeline_override": {
+                        "WarEchoFightFailedRetry": {
+                            "max_hit": 4
+                        }
+                    }
+                },
+                {
+                    "name": "Retry5",
+                    "label": "5",
+                    "pipeline_override": {
+                        "WarEchoFightFailedRetry": {
+                            "max_hit": 5
+                        }
+                    }
+                },
+                {
+                    "name": "Unlimited",
+                    "label": "$option.WarEchoRetryCount.case.Unlimited.label"
+                }
+            ],
+            "default_case": "Retry3"
+        }
+    }
+}

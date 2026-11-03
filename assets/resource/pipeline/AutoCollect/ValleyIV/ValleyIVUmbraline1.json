@@ -1,0 +1,124 @@
+{
+    "AutoCollectValleyIVUmbraline1Start": {
+        "desc": "黯银柑实采集线，3个点",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectValleyIVUmbraline1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVUmbraline1.label"
+        }
+    },
+    "AutoCollectValleyIVUmbraline1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectValleyIVUmbraline1": {
+        "desc": "6个黯银柑实",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHubHubBasePowerPlant"
+            ]
+        },
+        "next": [
+            "AutoCollectValleyIVUmbraline1AssertLocation1"
+        ]
+    },
+    "AutoCollectValleyIVUmbraline1AssertLocation1": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                436,
+                901,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectValleyIVUmbraline1Goto1"
+        ]
+    },
+    "AutoCollectValleyIVUmbraline1Goto1": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                357.84,
+                                949.37
+                            ],
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        [
+                            365.68,
+                            949.88,
+                            "COLLECT"
+                        ],
+                        [
+                            367.82,
+                            947.32,
+                            "COLLECT"
+                        ],
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                367.75,
+                                905.72
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                354.46,
+                                890.58
+                            ]
+                        },
+                        [
+                            351.78,
+                            897.23,
+                            "COLLECT"
+                        ],
+                        [
+                            351.78,
+                            897.23,
+                            "COLLECT"
+                        ],
+                        [
+                            351.78,
+                            897.23,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectValleyIVUmbraline1End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

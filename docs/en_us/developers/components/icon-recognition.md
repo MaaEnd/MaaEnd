@@ -497,7 +497,21 @@ With `debug=true`, the Custom entry point writes the recognition under `debug/vi
 - `annotated/<stem>.png`: ROI, cells, candidate boxes, and scores;
 - `detail/<stem>.json`: public result plus internal diagnostics.
 
-The three files with one stem form a group. Older groups are cleaned automatically. When recognition reaches the result-assembly stage, core C++ results retain grid and cell diagnostics; early `invalid_image`, `invalid_argument`, `grid_detection_failed`, or `exception` returns may lack them. With `debug=true`, performance diagnostics are recorded too. Public Custom detail omits these internal fields; only debug files and manual test output include them.
+The three files with one stem form a group. Older groups are cleaned automatically. When recognition reaches the result-assembly stage, core C++ results retain grid and cell diagnostics; early `invalid_image`, `invalid_argument`, `grid_detection_failed`, or `exception` returns may lack them. With `debug=true`, performance diagnostics are recorded too. Public Custom detail omits these internal fields; debug files and manual test output include them, while automatic diagnostic capture records them in logs.
+
+## Automatic diagnostic capture
+
+The Custom entry point automatically saves lossless PNGs of suspected missing items without requiring `debug` or changing recognition results. Images are saved under `on_error/` in the framework log directory and included in client log exports. Filenames follow the framework error screenshot format: `timestamp_IconRecognitionDiagnosticScreencap.png`. Reasons, calling nodes, ROIs, candidate scope, and matching diagnostics are logged.
+
+- Missing grid: a grid was required but detection failed; not applicable to `single_roi`.
+- Zero matches: cells were found but no items remain in the final result; captured with one candidate, multiple candidates, or category filters.
+- Suspicious rejection: candidates cover the requested category scope (or the default scene scope when unspecified), and a rejected cell has a chromatic rarity strip, or has texture and a normally matched cell in the same row.
+
+Normal zero matches during single-item page searches are also captured for diagnosis, without changing task success or page navigation. Changed grid geometry with normal results does not independently trigger capture. Page features deduplicate samples; capture does not guarantee detection of every omission.
+
+Images are saved synchronously through MaaFramework `Screencap`, without cropping, resizing, or annotations. It uses the controller cache and only requests a screenshot when the cache is empty. In a normal Pipeline with no intervening screenshot request, the saved image is the recognition frame; external inputs or concurrent cache refreshes do not guarantee the same frame. Saving adds no freeze wait, but PNG encoding and disk writes take callback time. Failures only log the problem while recognition continues. Direct C++ calls return diagnostics without saving images.
+
+There is no limit on saved disk samples, and the capture module does not delete older samples. Client log cleanup can remove them.
 
 ## Tests and internals
 

@@ -420,6 +420,22 @@ constexpr const char* kDefaultDigEntry = "AutoCollectDigStart";
 constexpr const char* kDigPipelineOverride = R"({"AutoCollectDigEnd":{"next":[]}})";
 constexpr int32_t kDigPostSleepMs = 80;
 
+// 丢定位即将超时、小地图被界面盖住时交给场景管理清一次
+constexpr const char* kSceneRecoveryEntryNode = "SceneAnyEnterWorld";
+// 剧情与 NPC 对话不交给场景管理
+constexpr const char* kSceneRecoveryStoryNode = "__ScenePrivateWorldStorySkip";
+constexpr const char* kSceneRecoveryDialogNode = "__ScenePrivateWorldDialogLeave";
+// 静止的弹窗会被它判成截图卡死
+constexpr const char* kSceneRecoveryStableCheckNode = "__ScenePrivateScreenshotStableAbnormal";
+constexpr const char* kSceneRecoveryEscNode = "__ScenePrivateAnyExit";
+// 命中计数与外层任务共用, 只在已用次数上再放这么多次
+constexpr int32_t kSceneRecoveryEscBudget = 3;
+constexpr int32_t kSceneRecoveryEntryTimeoutMs = 5000;
+// 导航自己交互后这么久内丢的定位, 盖住小地图的可能是自己开的界面
+constexpr int32_t kSceneRecoveryInteractionQuietMs = 10000;
+// 全局定位要凑齐冷启动一致帧
+constexpr int32_t kSceneRecoveryFixAttempts = 10;
+
 // find_text 注入此 OCR 节点的 expected 后逐帧调用, 不派发
 constexpr const char* kFindInlineOcrNode = "MapNavigatorFind";
 constexpr double kFindSearchStepDeg = 30.0;

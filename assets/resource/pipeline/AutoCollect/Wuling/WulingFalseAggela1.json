@@ -1,0 +1,115 @@
+{
+    "AutoCollectWulingFalseAggela1Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCityMaintenanceZone"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingFalseAggela1AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingFalseAggela1.label"
+        }
+    },
+    "AutoCollectWulingFalseAggela1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingFalseAggela1AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                910,
+                1583,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingFalseAggela1Goto"
+        ]
+    },
+    "AutoCollectWulingFalseAggela1Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                818.71,
+                                1519.42
+                            ]
+                        },
+                        [
+                            810.31,
+                            1514.48,
+                            "COLLECT"
+                        ],
+                        [
+                            809.5,
+                            1518.7,
+                            "COLLECT"
+                        ],
+                        [
+                            810.92,
+                            1520.33,
+                            "COLLECT"
+                        ],
+                        [
+                            811.28,
+                            1524.88,
+                            "COLLECT"
+                        ],
+                        [
+                            812.51,
+                            1525.93,
+                            "COLLECT"
+                        ],
+                        [
+                            810.49,
+                            1525.04,
+                            "COLLECT"
+                        ],
+                        [
+                            805.75,
+                            1524.73,
+                            "COLLECT"
+                        ],
+                        [
+                            804.2,
+                            1520.87,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingFalseAggela1End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

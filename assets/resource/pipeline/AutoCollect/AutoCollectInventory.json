@@ -1,0 +1,127 @@
+{
+    "AutoCollectInventoryResetSnapshot": {
+        "desc": "目标库存模式开始：强制恢复仓库同步入口并清除上一轮完整标记",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "resource_override": true,
+                    "patch": {
+                        "SyncDepotItemDataBegin": {
+                            "enabled": true
+                        },
+                        "SyncDepotItemDataCompleted": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectInventoryPrepare"
+        ],
+        "on_error": [
+            "AutoCollectInventoryFallback"
+        ]
+    },
+    "AutoCollectInventoryPrepare": {
+        "desc": "目标库存模式：严格执行 IMS 两仓事务同步，Action 失败时切换为无库存门控的兼容路径",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SyncDepotItemData"
+                    ],
+                    "strict": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectInventoryVerify"
+        ],
+        "on_error": [
+            "AutoCollectInventoryFallback"
+        ]
+    },
+    "AutoCollectInventoryVerify": {
+        "desc": "显式验证本轮两仓分页已全部完成且正式 IMS 提交成功，避免 SubTask 提前正常结束后误用旧缓存",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "SyncDepotItemDataCompletedNext": "AutoCollectInventoryReady"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataCompleted",
+            "AutoCollectInventoryFallback"
+        ]
+    },
+    "AutoCollectInventoryReady": {
+        "desc": "仓库同步成功，开始按目标库存筛选采集物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectInventoryPreflight"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.focus.inventory_ready"
+        }
+    },
+    "AutoCollectInventoryFallback": {
+        "desc": "仓库同步失败：跳过库存预判，已勾选的采集物全部执行，不使用旧缓存",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectInventoryReleaseSnapshot"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoCollect.focus.inventory_fallback"
+        }
+    },
+    "AutoCollectInventoryReleaseSnapshot": {
+        "desc": "在任何路线执行前立即恢复仓库入口并清除完成标记，避免中断后锁住采集前快照",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "resource_override": true,
+                    "patch": {
+                        "SyncDepotItemDataBegin": {
+                            "enabled": true
+                        },
+                        "SyncDepotItemDataCompleted": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectLoop"
+        ]
+    }
+}

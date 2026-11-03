@@ -1,0 +1,263 @@
+{
+    "UseConsumableStockVerifyBagPage": {
+        "desc": "当前背包页同时确认所有仍待满足的消耗品",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumablePrecheckStartSlot1",
+            "UseConsumablePrecheckStartSlot2",
+            "UseConsumablePrecheckStartSlot3",
+            "UseConsumablePrecheckStartSlot4",
+            "ItemTransferBagBottomReached",
+            "[JumpBack]ItemTransferScrollDownwardBag",
+            "ItemTransferStop"
+        ]
+    },
+    "UseConsumableStockVerifyBagFoundSlot1": {
+        "desc": "背包确认槽位1的消耗品已到位",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedStockSlot1": {
+                    "enabled": false
+                },
+                "UseConsumableNeedValleyIVSlot1": {
+                    "enabled": false
+                },
+                "UseConsumableStockFindItemSlot1": {
+                    "enabled": false
+                },
+                "UseConsumablePrecheckStartSlot1": {
+                    "enabled": false
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockVerifyBagPage"
+        ]
+    },
+    "UseConsumableStockVerifyBagFoundSlot2": {
+        "desc": "背包确认槽位2的消耗品已到位",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedStockSlot2": {
+                    "enabled": false
+                },
+                "UseConsumableNeedValleyIVSlot2": {
+                    "enabled": false
+                },
+                "UseConsumableStockFindItemSlot2": {
+                    "enabled": false
+                },
+                "UseConsumablePrecheckStartSlot2": {
+                    "enabled": false
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockVerifyBagPage"
+        ]
+    },
+    "UseConsumableStockVerifyBagFoundSlot3": {
+        "desc": "背包确认槽位3的消耗品已到位",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedStockSlot3": {
+                    "enabled": false
+                },
+                "UseConsumableNeedValleyIVSlot3": {
+                    "enabled": false
+                },
+                "UseConsumableStockFindItemSlot3": {
+                    "enabled": false
+                },
+                "UseConsumablePrecheckStartSlot3": {
+                    "enabled": false
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockVerifyBagPage"
+        ]
+    },
+    "UseConsumableStockVerifyBagFoundSlot4": {
+        "desc": "背包确认槽位4的消耗品已到位",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "UseConsumableNeedStockSlot4": {
+                    "enabled": false
+                },
+                "UseConsumableNeedValleyIVSlot4": {
+                    "enabled": false
+                },
+                "UseConsumableStockFindItemSlot4": {
+                    "enabled": false
+                },
+                "UseConsumablePrecheckStartSlot4": {
+                    "enabled": false
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockVerifyBagPage"
+        ]
+    },
+    "UseConsumableStockWulingVerifyBagStart": {
+        "desc": "开始一次武陵仓库取物后的合并背包确认",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "UseConsumableStockVerifyBagPage": {
+                    "enabled": true
+                },
+                "ItemTransferBagTopReached": {
+                    "next": [
+                        "UseConsumableStockVerifyBagPage"
+                    ]
+                },
+                "ItemTransferBagBottomReached": {
+                    "next": [
+                        "UseConsumableStockWulingVerifyBagFinish"
+                    ]
+                },
+                "UseConsumablePrecheckStartSlot1": {
+                    "next": [
+                        "UseConsumableStockVerifyBagFoundSlot1"
+                    ]
+                },
+                "UseConsumablePrecheckStartSlot2": {
+                    "next": [
+                        "UseConsumableStockVerifyBagFoundSlot2"
+                    ]
+                },
+                "UseConsumablePrecheckStartSlot3": {
+                    "next": [
+                        "UseConsumableStockVerifyBagFoundSlot3"
+                    ]
+                },
+                "UseConsumablePrecheckStartSlot4": {
+                    "next": [
+                        "UseConsumableStockVerifyBagFoundSlot4"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "ItemTransferResetBagScanBoundaries"
+        ]
+    },
+    "UseConsumableStockWulingVerifyBagFinish": {
+        "desc": "武陵背包确认完成，恢复通用扫描出口",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "ItemTransferBagTopReached": {
+                    "next": [
+                        "ItemTransferBagScanFromTop"
+                    ]
+                },
+                "UseConsumableStockVerifyBagPage": {
+                    "enabled": false
+                },
+                "ItemTransferBagBottomReached": {
+                    "next": [
+                        "[Anchor]ItemTransferCurrentBagNotFound"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockWulingResolveMissing"
+        ]
+    },
+    "UseConsumableStockValleyIVVerifyBagStart": {
+        "desc": "开始一次四号谷地仓库取物后的合并背包确认",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "UseConsumableStockVerifyBagPage": {
+                    "enabled": true
+                },
+                "ItemTransferBagTopReached": {
+                    "next": [
+                        "UseConsumableStockVerifyBagPage"
+                    ]
+                },
+                "ItemTransferBagBottomReached": {
+                    "next": [
+                        "UseConsumableStockValleyIVVerifyBagFinish"
+                    ]
+                },
+                "UseConsumablePrecheckStartSlot1": {
+                    "next": [
+                        "UseConsumableStockVerifyBagFoundSlot1"
+                    ]
+                },
+                "UseConsumablePrecheckStartSlot2": {
+                    "next": [
+                        "UseConsumableStockVerifyBagFoundSlot2"
+                    ]
+                },
+                "UseConsumablePrecheckStartSlot3": {
+                    "next": [
+                        "UseConsumableStockVerifyBagFoundSlot3"
+                    ]
+                },
+                "UseConsumablePrecheckStartSlot4": {
+                    "next": [
+                        "UseConsumableStockVerifyBagFoundSlot4"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "ItemTransferResetBagScanBoundaries"
+        ]
+    },
+    "UseConsumableStockValleyIVVerifyBagFinish": {
+        "desc": "四号谷地背包确认完成，恢复通用扫描出口",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "ItemTransferBagTopReached": {
+                    "next": [
+                        "ItemTransferBagScanFromTop"
+                    ]
+                },
+                "UseConsumableStockVerifyBagPage": {
+                    "enabled": false
+                },
+                "ItemTransferBagBottomReached": {
+                    "next": [
+                        "[Anchor]ItemTransferCurrentBagNotFound"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockValleyIVResolveMissing"
+        ]
+    }
+}

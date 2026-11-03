@@ -30,5 +30,17 @@
             35,
             -3
         ]
+    },
+    // ADB 上调度申请界面的底部按钮行比 Win32 更靠左下（白底快速转交 721..976、黄底开始运送 994..1248，纵向 623..674）
+    "DeliveryJobsDecideQuickTransfer": {
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                710,
+                612,
+                550,
+                74
+            ]
+        }
     }
 }

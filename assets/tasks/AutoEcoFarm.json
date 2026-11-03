@@ -18,6 +18,7 @@
                 "Win32-Front"
             ],
             "option": [
+                "CollectValleyFarm",
                 "CollectWulingCityFarm",
                 "CollectSisPaintingFarm",
                 "CollectRanch"
@@ -25,6 +26,59 @@
         }
     ],
     "option": {
+        "CollectValleyFarm": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.CollectValleyFarm.label",
+            "description": "$task.AutoEcoFarm.option.CollectValleyFarm.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "ValleyFarmWaitSeconds"
+                    ],
+                    "pipeline_override": {
+                        "AutoEcoFarmValleyFarmJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoEcoFarmValleyFarmJob": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
+        "ValleyFarmWaitSeconds": {
+            "type": "input",
+            "label": "$task.AutoEcoFarm.option.ValleyFarmWaitSeconds.label",
+            "description": "$task.AutoEcoFarm.option.ValleyFarmWaitSeconds.description",
+            "inputs": [
+                {
+                    "name": "ValleyFarmWaitSeconds",
+                    "label": "$task.AutoEcoFarm.option.ValleyFarmWaitSeconds.input.label",
+                    "default": "120",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[5-9]|[1-9]\\d|1[0-7]\\d|180)$",
+                    "pattern_msg": "$task.AutoEcoFarm.option.ValleyFarmWaitSeconds.input.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "__AutoEcoFarmValleyFarmWaitForTeammate": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "durationSec": "{ValleyFarmWaitSeconds}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "CollectWulingCityFarm": {
             "type": "switch",
             "label": "$task.AutoEcoFarm.option.CollectWulingCityFarm.label",

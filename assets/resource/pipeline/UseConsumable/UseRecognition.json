@@ -1,0 +1,126 @@
+{
+    "UseConsumableUseOpenBagMenuIcon": {
+        "recognition": "Or",
+        "any_of": [
+            "UseConsumableUseOpenBagMenuIcon1",
+            "UseConsumableUseOpenBagMenuIcon2",
+            "UseConsumableUseOpenBagMenuIcon3"
+        ]
+    },
+    "UseConsumableUseOpenBagMenuIcon1": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            -600,
+            0,
+            600,
+            100
+        ],
+        "template": "SceneManager/WordMenuBackpack.png",
+        "green_mask": true,
+        "threshold": 0.8
+    },
+    "UseConsumableUseOpenBagMenuIcon2": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            -600,
+            0,
+            600,
+            100
+        ],
+        "template": "SceneManager/WordMenuBackpack2.png",
+        "green_mask": true,
+        "threshold": 0.8
+    },
+    "UseConsumableUseOpenBagMenuIcon3": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            -600,
+            0,
+            600,
+            100
+        ],
+        "template": "SceneManager/Backpack.png",
+        "green_mask": true,
+        "threshold": 0.8
+    },
+    "UseConsumableUseMark": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            674,
+            118,
+            606,
+            601
+        ],
+        "template": "UseConsumable/StockMark.png",
+        "method": 5,
+        "threshold": 0.85
+    },
+    "UseConsumableUseText": {
+        "desc": "在仓库图标的右方限定区域识别使用按钮",
+        "recognition": "OCR",
+        "roi": "UseConsumableUseMark",
+        "roi_offset": [
+            120,
+            42,
+            111,
+            18
+        ],
+        "expected": [
+            "Usar",
+            "使用",
+            "Verwenden",
+            "Use",
+            "Utiliser",
+            "Gunakan",
+            "Usa",
+            "사용",
+            "Использовать",
+            "ใช้",
+            "Dùng"
+        ]
+    },
+    "UseConsumableUseConfirmButtonNormal": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            813,
+            403,
+            230,
+            136
+        ],
+        "template": "Common/Button/YellowConfirmButtonType2.png",
+        "threshold": 0.8
+    },
+    "UseConsumableUseConfirmButtonHover": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            813,
+            403,
+            230,
+            136
+        ],
+        "template": "Common/Button/YellowConfirmButtonType2Hover.png",
+        "threshold": 0.8
+    },
+    "UseConsumableUseCancelButtonNormal": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            601,
+            404,
+            230,
+            136
+        ],
+        "template": "Common/Button/CancelButtonType2.png",
+        "threshold": 0.8
+    },
+    "UseConsumableUseCancelButtonHover": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            601,
+            404,
+            230,
+            136
+        ],
+        "template": "Common/Button/CancelButtonType2Hover.png",
+        "threshold": 0.8
+    }
+}

@@ -4,6 +4,7 @@
         "resource": "官服",
         "controller": [
             "Win32",
+            "ADB",
             "CloudADB"
         ]
     },
@@ -13,9 +14,14 @@
             "hits": [
                 {
                     "node": "__ScenePrivateAnyExit",
-                    // CloudADB 返回退出图标；Win32 的按键出口为 DirectHit，此处不验证按键动作。
-                    // TODO: #6770 后 ADB 改为纯触控，拍照模式下暂无可识别的退出入口，先移出 ADB，补上拍照退出识别后恢复
+                    // ADB / CloudADB 都靠拍照界面右上角的退出图标退出；Win32 的按键出口为 DirectHit，此处不验证按键动作。
                     "box": {
+                        "ADB": [
+                            1100,
+                            10,
+                            160,
+                            60
+                        ],
                         "CloudADB": [
                             1100,
                             10,
@@ -38,6 +44,12 @@
                 {
                     "node": "__ScenePrivateAnyExit",
                     "box": {
+                        "ADB": [
+                            1100,
+                            10,
+                            160,
+                            60
+                        ],
                         "CloudADB": [
                             1100,
                             10,

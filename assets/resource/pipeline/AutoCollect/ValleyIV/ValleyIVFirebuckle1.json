@@ -1,0 +1,167 @@
+{
+    "AutoCollectValleyIVFirebuckle1Start": {
+        "desc": "映火荞花采集线，5个点",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectValleyIVFirebuckle1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVFirebuckle1.label"
+        }
+    },
+    "AutoCollectValleyIVFirebuckle1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectValleyIVFirebuckle1": {
+        "desc": "10个映火荞花",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHubHubBasePowerPlant"
+            ]
+        },
+        "next": [
+            "AutoCollectValleyIVFirebuckle1AssertLocation1"
+        ]
+    },
+    "AutoCollectValleyIVFirebuckle1AssertLocation1": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                436,
+                901,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectValleyIVFirebuckle1Goto"
+        ]
+    },
+    "AutoCollectValleyIVFirebuckle1Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                340.15,
+                                983.54
+                            ]
+                        },
+                        [
+                            343.02,
+                            991.38,
+                            "COLLECT"
+                        ],
+                        [
+                            343.02,
+                            991.38,
+                            "COLLECT"
+                        ],
+                        [
+                            343.02,
+                            991.38,
+                            "COLLECT"
+                        ],
+                        [
+                            340.15,
+                            991.2,
+                            "COLLECT"
+                        ],
+                        [
+                            340.15,
+                            991.2,
+                            "COLLECT"
+                        ],
+                        [
+                            340.15,
+                            991.2,
+                            "COLLECT"
+                        ],
+                        [
+                            340.43,
+                            992.4,
+                            "COLLECT"
+                        ],
+                        [
+                            340.43,
+                            992.4,
+                            "COLLECT"
+                        ],
+                        [
+                            340.43,
+                            992.4,
+                            "COLLECT"
+                        ],
+                        [
+                            350.22,
+                            996.09,
+                            "COLLECT"
+                        ],
+                        [
+                            350.22,
+                            996.09,
+                            "COLLECT"
+                        ],
+                        [
+                            350.22,
+                            996.09,
+                            "COLLECT"
+                        ],
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                361.11,
+                                894.47
+                            ],
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        [
+                            360.68,
+                            897.64,
+                            "COLLECT"
+                        ],
+                        [
+                            360.68,
+                            897.64,
+                            "COLLECT"
+                        ],
+                        [
+                            360.68,
+                            897.64,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectValleyIVFirebuckle1End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

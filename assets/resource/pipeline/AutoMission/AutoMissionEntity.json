@@ -1,0 +1,271 @@
+{
+    "AutoMissionEntity": {
+        "desc": "子流程入口：在任务界面先关闭，在大世界直接按 V",
+        "next": [
+            "AutoMissionEntityCloseJournal",
+            "AutoMissionEntityTrackCurrentMission"
+        ]
+    },
+    "AutoMissionEntityCloseJournal": {
+        "desc": "在任务界面，点击右上角关闭按钮回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoMissionEntityTrackCurrentMission"
+        ]
+    },
+    "AutoMissionEntityTrackCurrentMission": {
+        "desc": "在大世界按追踪当前任务键",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "ClickKey",
+        "key": 86, // V
+        "post_delay": 1500, // 等一会看会不会跳出地图追踪
+        "next": [
+            "AutoMissionEntityQuickTeleportSelect",
+            "AutoMissionEntityInWorld"
+        ]
+    },
+    "AutoMissionEntityQuickTeleportSelect": {
+        "desc": "不在当前地图点击前往传送",
+        "recognition": "And",
+        "all_of": [
+            "QuickTeleportButton"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoMissionEntityTeleport"
+        ]
+    },
+    "AutoMissionEntityTeleport": {
+        "desc": "点击传送",
+        "recognition": "And",
+        "all_of": [
+            "TeleportButton"
+        ],
+        "action": "Click",
+        "next": [
+            "AutoMissionEntityInWorld",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "AutoMissionEntityInWorld": {
+        "desc": "已返回大世界，按覆盖的区域和坐标寻路到实体，出现交互提示或进入剧情即停下",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "post_delay": 1500, // 走到目的地后等一会再继续，部分任务会进入剧情动画
+        "next": [
+            "AutoMissionEntityActionPuzzle",
+            "AutoMissionEntityActionInteract",
+            "AutoMissionEntityActionExitToWorld",
+            "AutoMissionEntityActionOpenCamera",
+            "AutoMissionEntityActionScan",
+            "[JumpBack]AutoFight",
+            "AutoMissionEntityActionMove",
+            "AutoMissionEntityActionBackInWorld"
+        ]
+    },
+    "AutoMissionEntityActionOpenCamera": {
+        "desc": "这一步要拍照但没触发交互，复用环境监测的进拍照和拍照流程，拍完经锚点回到本流程；默认关闭，由 Go 按数据打开",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "AutoMissionEntityActionPhotoDone"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhotoDirectly"
+        ]
+    },
+    "AutoMissionEntityActionScan": {
+        "desc": "这一步要用扫描，走到位置后打开扫描，打开即完成；默认关闭，由 Go 按数据打开",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoMissionOpenScan"
+            ]
+        },
+        "post_delay": 3000, // 扫描后剧情要过一会才开始，之前没有可识别的过渡画面
+        "next": [
+            "AutoMissionEntityActionExitToWorld",
+            "AutoMissionEntityActionBackInWorld"
+        ]
+    },
+    "AutoMissionEntityActionPuzzle": {
+        "desc": "走到实体旁边了，出现解锁、修复这类会进电路拼图的选项，点击后接拼图解谜",
+        "recognition": "And",
+        "all_of": [
+            "InWorld",
+            "AutoMissionEntityActionPuzzleRecognition"
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "AutoMissionEntityActionPuzzleRecognition"
+        },
+        "post_delay": 5000, // 点击后拼图界面要过一会才弹出，之前没有可识别的过渡画面
+        "next": [
+            "AutoMissionEntityActionRepair"
+        ]
+    },
+    "AutoMissionEntityActionInteract": {
+        "desc": "走到实体旁边了，出现目标交互文字，可以点击",
+        "recognition": "And",
+        "all_of": [
+            "InWorld",
+            "AutoMissionEntityActionInteractRecognition"
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "AutoMissionEntityActionInteractRecognition"
+        },
+        "post_delay": 3000, // 交互后拍照、拼图、剧情、小游戏等界面要过一会才弹出，之前没有可识别的过渡画面
+        "next": [
+            "AutoMissionEntityActionTakePhoto",
+            "AutoMissionEntityActionRepair",
+            "AutoMissionEntityActionExitToWorld",
+            "AutoMissionEntityActionBackInWorld"
+        ]
+    },
+    "AutoMissionEntityActionTakePhoto": {
+        "desc": "交互后进入拍照模式，复用环境监测的拍照流程，拍完经锚点回到本流程",
+        "recognition": "And",
+        "all_of": [
+            "ShutterButton"
+        ],
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "AutoMissionEntityActionPhotoDone"
+        },
+        "next": [
+            "EnvironmentMonitoringWaitShutterButton"
+        ]
+    },
+    "AutoMissionEntityActionPhotoDone": {
+        "desc": "拍照完成，关闭照片预览回到大世界",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 3000, // 拍照结束后剧情要过一会才开始，之前没有可识别的过渡画面
+        "next": [
+            "AutoMissionEntityActionExitToWorld",
+            "AutoMissionEntityActionBackInWorld"
+        ]
+    },
+    "AutoMissionEntityActionRepair": {
+        "desc": "解锁或修复后进入电路拼图，调用拼图解谜",
+        "recognition": "And",
+        "all_of": [
+            "PuzzleSolverOnScenePrepare"
+        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "PuzzleSolverMain"
+            ]
+        },
+        "post_delay": 3000, // 拼图结束后剧情要过一会才开始，之前没有可识别的过渡画面
+        "next": [
+            "AutoMissionEntityActionExitToWorld",
+            "AutoMissionEntityActionBackInWorld"
+        ]
+    },
+    "AutoMissionEntityActionExitToWorld": {
+        "desc": "剧情中识别到跳过按钮后，从画面中心悬停移过去并点击",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1140,
+            0,
+            120,
+            90
+        ],
+        "template": "RealTimeTask/AutoSkipEsc.png",
+        "pre_delay": 1000, // 刚进剧情时跳过按钮点了不生效，等一会再点
+        "action": "Custom",
+        "custom_action": "AutoSwipeClickAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionEntityActionExitToWorldConfirm"
+        ]
+    },
+    "AutoMissionEntityActionExitToWorldConfirm": {
+        "desc": "确认跳过剧情",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_delay": 1000, // 等待画面过度
+        "next": [
+            "AutoMissionEntityActionTakePhoto",
+            "AutoMissionEntityActionBackInWorld",
+            "AutoMissionEntityActionExitToWorld"
+        ]
+    },
+    "AutoMissionEntityActionBackInWorld": {
+        "desc": "已回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ]
+    },
+    "AutoMissionEntityActionMove": {
+        "desc": "追踪距离小于 10 m 时，按屏幕上的任务追踪图标走近，直到出现实体交互提示；远了不进，免得隔着障碍追远处或下一步的目标",
+        "recognition": "And",
+        "all_of": [
+            "AutoMissionWorldTrackRecognition",
+            "AutoMissionTrackDistanceNear"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "FIND",
+                    "find_target": "AutoMissionWorldTrackRecognition",
+                    "find_stop": "AutoMissionEntityActionInteractRecognition"
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionEntityActionPuzzle",
+            "AutoMissionEntityActionInteract"
+        ]
+    }
+}

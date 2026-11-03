@@ -160,5 +160,32 @@
                 ]
             }
         }
+    },
+    // ADB 实测（1280x720）：属性选项三列止于 x≈851，右侧「预刻写基质」侧栏自 x≈869 起是
+    // 一整块深灰面板。ROI 右边界一旦越过 869，侧栏就会持续命中深灰色块，
+    // 导致在词条选择界面一直点击空白处、且 AutoEssenceNoGrayAttributeOption 永远无法退出
+    "AutoEssenceClickGrayAttributeOption": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    43,
+                    125,
+                    820,
+                    540
+                ]
+            }
+        }
+    },
+    "AutoEssenceNoGrayAttributeOption": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    43,
+                    125,
+                    820,
+                    540
+                ]
+            }
+        }
     }
 }

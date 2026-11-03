@@ -1,0 +1,161 @@
+{
+    "AutoCollectWulingCosmagaric1Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCityGuhouMarsh"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingCosmagaric1AssertLocation1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCosmagaric1.label"
+        }
+    },
+    "AutoCollectWulingCosmagaric1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingCosmagaric1AssertLocation1": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                697,
+                1884,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingCosmagaric1Goto1"
+        ]
+    },
+    "AutoCollectWulingCosmagaric1Goto1": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                665.72,
+                                1858.93
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingCosmagaric1AssertLocation2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectWulingCosmagaric1AssertLocation2": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                655,
+                1851,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingCosmagaric1Goto2"
+        ]
+    },
+    "AutoCollectWulingCosmagaric1Goto2": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            669.42,
+                            1849.57,
+                            "COLLECT"
+                        ],
+                        [
+                            671.51,
+                            1848.21,
+                            "COLLECT"
+                        ],
+                        [
+                            672.88,
+                            1844.72,
+                            "COLLECT"
+                        ],
+                        [
+                            671.45,
+                            1842.04,
+                            "COLLECT"
+                        ],
+                        [
+                            669.89,
+                            1839.24,
+                            "COLLECT"
+                        ],
+                        [
+                            669.1,
+                            1841.93,
+                            "COLLECT"
+                        ],
+                        [
+                            664.75,
+                            1844.77,
+                            "COLLECT"
+                        ],
+                        [
+                            665.78,
+                            1848.59,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingCosmagaric1End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

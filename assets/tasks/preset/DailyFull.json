@@ -69,10 +69,10 @@
                     "name": "AutoCollect",
                     "enabled": false,
                     "option": {
-                        "AutoCollectValleyIVCommonRoutes": [],
-                        "AutoCollectWulingCommonRoutes": [
-                            "CommonRoute5",
-                            "CommonRoute7"
+                        "AutoCollectValleyIVCommonItems": [],
+                        "AutoCollectWulingCommonItems": [
+                            "item_plant_grass_spc_1",
+                            "item_plant_grass_spc_2"
                         ]
                     }
                 },

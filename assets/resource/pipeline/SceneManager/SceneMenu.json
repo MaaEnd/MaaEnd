@@ -1356,10 +1356,7 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 200,
-        "next": [
-            "__ScenePrivateMenuOperationalManualEnterUmbralMonument"
-        ]
+        "post_wait_freezes": 200
     },
     "__ScenePrivateMenuOperationalManualEnterUmbralMonument": {
         "desc": "在行动手册常驻标签页，进入影拓丰碑",
@@ -1411,6 +1408,46 @@
                 60
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMenuOperationalManualEnterWarEcho": {
+        "desc": "在行动手册常驻标签页，进入战争回响",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            160,
+                            200,
+                            960,
+                            80
+                        ],
+                        "expected": [
+                            "战争回响",
+                            "戰爭回響"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__ScenePrivateAnyEnterMenuOperationalManualWarEchoSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuOperationalManualWarEchoSuccess": {
+        "desc": "成功进入行动手册-战争回响",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManualWarEcho"
+        ],
         "pre_delay": 0,
         "post_delay": 0
     },

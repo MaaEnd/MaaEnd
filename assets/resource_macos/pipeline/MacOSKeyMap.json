@@ -58,6 +58,62 @@
             }
         }
     },
+    "AutoMissionEntityTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
+    "AutoMissionMissionAreaTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
+    "AutoMissionNpcProxyTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
+    "AutoMissionOpenScanClick": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "AutoMissionOpenScanKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "AutoMissionOpenScanLongPress": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "AutoMissionPosTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
     "AutoPickFalls": {
         "action": {
             "type": "ClickKey",
@@ -242,6 +298,14 @@
             }
         }
     },
+    "RestaurantRuntimeNextKitchen": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 14
+            }
+        }
+    },
     "SeizeDeliveryJobsPressEscAfterMatch": {
         "action": {
             "type": "ClickKey",
@@ -275,6 +339,70 @@
         }
     },
     "StashBackpackUsableItemsLimitedQuickMoveKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot1": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot2": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot3": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot4": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot1": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot2": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot3": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot4": {
         "action": {
             "type": "KeyUp",
             "param": {

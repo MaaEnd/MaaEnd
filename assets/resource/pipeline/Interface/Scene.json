@@ -16,6 +16,7 @@
             "[JumpBack]SceneNoticeRewardsConfirm",
             "[JumpBack]__ScenePrivateLoginMonthlyPassConfirm",
             "[JumpBack]__ScenePrivateWorldSpaceExit",
+            "[JumpBack]__ScenePrivateWorldDialogLeave",
             "[JumpBack]__ScenePrivateWorldStorySkip",
             "[JumpBack]__ScenePrivateLoggedOutConfirm",
             "[JumpBack]SceneWaitLoadingExit",
