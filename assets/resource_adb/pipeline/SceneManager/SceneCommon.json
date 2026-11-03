@@ -25,6 +25,8 @@
                     "__ScenePrivateBackPill",
                     "__ScenePrivateClickToContinue",
                     // 理智不足的界面
+                    "GrayCancelButton",
+                    // 虽然不知道哪里能用上，先超前部署了
                     "WhiteCancelButton"
                 ]
             }
