@@ -1048,6 +1048,9 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "repeat": 10,
         "repeat_delay": 50,
         "post_wait_freezes": {
@@ -1060,7 +1063,10 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]MouseMoveResetAnchor"
+        ]
     },
     "VisitFriendsBtwSellSellAnyway": {
         "desc": "顺便出售：已达上限仍不足 150000，按当前数量出售",
