@@ -11,6 +11,7 @@ import (
 
 const (
 	templateKey = "dynamic_html_log.log"
+	defClass    = `text-accent`
 )
 
 var (
@@ -80,6 +81,9 @@ func (data *DynamicHtmlLogData) Print() {
 	if !data.log.styleIsInit {
 		mu.Lock()
 		defer mu.Unlock()
+	}
+	if data.class == "" {
+		data.class = defClass
 	}
 	maafocus.PrintLargeContentTrimNewline(
 		i18n.RenderHTML(templateKey, map[string]any{
