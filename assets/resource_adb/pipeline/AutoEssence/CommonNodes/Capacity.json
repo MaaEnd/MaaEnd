@@ -1,4 +1,230 @@
 {
+    "AutoEssenceCapacityOnWeaponTab": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    0,
+                    44,
+                    97,
+                    532
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacitySwitchToWeaponTab": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    0,
+                    44,
+                    97,
+                    532
+                ]
+            }
+        },
+        "action": {
+            "param": {
+                "target_offset": [
+                    37,
+                    38,
+                    -73,
+                    -76
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityClickRecycle": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    420,
+                    610,
+                    120,
+                    90
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityFilterOpen": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    520,
+                    90,
+                    240,
+                    55
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityStableOff": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    340,
+                    221,
+                    70,
+                    18
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityStableOn": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    340,
+                    221,
+                    70,
+                    18
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityPureOff": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    680,
+                    221,
+                    70,
+                    18
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityPureOn": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    680,
+                    221,
+                    70,
+                    18
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityHighOff": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    1020,
+                    221,
+                    70,
+                    18
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityHighOn": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    1020,
+                    221,
+                    70,
+                    18
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityUnlockedOn": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    340,
+                    356,
+                    70,
+                    16
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityUnlockedOff": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    340,
+                    356,
+                    70,
+                    16
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityDiscardedOn": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    680,
+                    356,
+                    70,
+                    16
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityDiscardedOff": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    680,
+                    356,
+                    70,
+                    16
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityFilterResult": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    60,
+                    570,
+                    220,
+                    55
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityClickSave": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    960,
+                    570,
+                    240,
+                    55
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacitySelectedCountOCR": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    75,
+                    625,
+                    145,
+                    44
+                ]
+            }
+        }
+    },
+    "AutoEssenceCapacityClickConfirm": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    680,
+                    490,
+                    240,
+                    60
+                ]
+            }
+        }
+    },
     // base 按一次 ESC 回主菜单；ADB/PlayCover 没有可用按键（key=27 在 ADB 上是 Android CAMERA 键），
     // 改为在「确认已在武器基质页」的前提下点击右上角关闭/返回按钮。
     // 只复用 CloseButtonType1 / BackButton 的识别框，它们各自的 action / next 不会被执行。

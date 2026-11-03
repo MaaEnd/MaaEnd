@@ -375,9 +375,21 @@ class Library:
         return items
 
 
+def wait10sec_node(node: str) -> dict[str, Any]:
+    return {
+        "desc": "等待10s完成收集",
+        "pre_delay": 0,
+        "post_delay": 10000,
+        "next": [f"{node}End"],
+        "focus": {"Node.Recognition.Succeeded": "等待10s完成收集"},
+    }
+
+
 def route_document(route_id: str, plan: dict[str, Any]) -> dict[str, Any]:
     node = f"AutoCollect{route_id}"
-    return {
+    has_dig = any(isinstance(step, list) and len(step) >= 3 and step[2] == "DIG" for step in plan["path"])
+    following = f"{node}Wait10sec" if has_dig else f"{node}End"
+    document = {
         f"{node}Start": {
             "enabled": False,
             "action": "Custom",
@@ -401,10 +413,13 @@ def route_document(route_id: str, plan: dict[str, Any]) -> dict[str, Any]:
                 "type": "Custom",
                 "param": {"custom_action": "MapNavigateAction", "custom_action_param": {"path": plan["path"]}},
             },
-            "next": [f"{node}End"],
+            "next": [following],
             "focus": {"Node.Action.Succeeded": {"trace": True}, "Node.Action.Failed": {"trace": True}},
         },
     }
+    if has_dig:
+        document[f"{node}Wait10sec"] = wait10sec_node(node)
+    return document
 
 
 def relative(path: Path) -> str:

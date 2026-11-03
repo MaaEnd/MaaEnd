@@ -216,6 +216,13 @@
             "items": [
                 "item_corp_potato_1"
             ]
+        },
+        {
+            "id": "WulingProtocolith2",
+            "region": "Wuling",
+            "items": [
+                "item_plant_spcstone_2_3"
+            ]
         }
     ]
 }
