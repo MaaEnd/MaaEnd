@@ -14,6 +14,7 @@ namespace mapnavigator
 {
 
 struct NaviParam;
+struct VirtualNoGoDisc;
 
 struct ZiplineOutcome
 {
@@ -60,6 +61,8 @@ struct ZiplineLegRequest
     std::optional<double> start_deck_y;
     std::function<bool()> should_stop;
     bool capture_diagnostics = false;
+    // 上下索两段步行与作者路线避开同一批禁区
+    const std::vector<VirtualNoGoDisc>* no_go = nullptr;
 };
 
 std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const ZiplineLegRequest& request);

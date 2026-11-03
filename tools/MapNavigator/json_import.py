@@ -457,7 +457,7 @@ def _walk_json_node(
     if isinstance(node, list):
         route = _parse_route(node, zone_hint)
         if route:
-            routes.append((route, False))
+            routes.append((route, True))
             return
 
         for item in node:

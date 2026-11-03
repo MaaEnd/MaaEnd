@@ -918,7 +918,8 @@ std::optional<PlannedLeg> plan_approach(const PlanInputs& in, const TowerSites& 
             .goal = sites.spots[spot],
             .goal_deck_y = sites.nodes[sites.spot_tower[spot]].height,
         },
-        in.request.capture_diagnostics ? &diagnostic : nullptr);
+        in.request.capture_diagnostics ? &diagnostic : nullptr,
+        in.request.no_go);
     return to_planned_leg(route, std::move(diagnostic));
 }
 
@@ -935,7 +936,8 @@ std::optional<PlannedLeg> plan_departure(const PlanInputs& in, const TowerSites&
             .goal_floor_y = in.request.goal_floor_y,
             .goal_deck_y = in.request.goal_deck_y,
         },
-        in.request.capture_diagnostics ? &diagnostic : nullptr);
+        in.request.capture_diagnostics ? &diagnostic : nullptr,
+        in.request.no_go);
     return to_planned_leg(route, std::move(diagnostic));
 }
 

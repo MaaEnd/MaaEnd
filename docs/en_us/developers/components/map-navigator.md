@@ -230,7 +230,7 @@ After you click `停止录制` (Stop Recording), the tool organizes the raw traj
 
 Usually, the only fine-tuning you really need to do is:
 
-1. Change key interaction points to `INTERACT`; for interactions that must be triggered, also check `路径必经` (Required Waypoint). When the prompt text has to be confirmed before pressing, add `interact_text` to that point after exporting — see [Async Interaction](#async-interaction-interact).
+1. Change key interaction points to `INTERACT`. An `INTERACT` point always runs, so `路径必经` (Required Waypoint) is not needed for it. When the prompt text has to be confirmed before pressing, add `interact_text` to that point after exporting — see [Async Interaction](#async-interaction-interact).
 2. Change points that require jumping, sprinting, waiting for a teleport, or map transitions to the corresponding action.
 3. Check whether the two points before and after an area transition fall in reasonable locations.
 

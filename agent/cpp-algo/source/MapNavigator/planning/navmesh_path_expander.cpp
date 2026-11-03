@@ -755,6 +755,7 @@ bool try_append_zipline_leg(
             .start_deck_y = state.route_start_deck_y,
             .should_stop = ctx.should_stop,
             .capture_diagnostics = ctx.diagnostics != nullptr,
+            .no_go = ctx.no_go,
         });
     if (!route || route->approach.points.empty() || route->departure.points.empty() || route->towers.size() < 2) {
         return false;
@@ -988,6 +989,23 @@ bool append_authored_waypoint(
     return true;
 }
 
+void stamp_authored_group(std::vector<Waypoint>& out_path, size_t output_begin, size_t group_begin)
+{
+    for (size_t output = output_begin; output < out_path.size(); ++output) {
+        out_path[output].authored_group_begin = group_begin;
+    }
+}
+
+bool append_stamped_authored_waypoint(ExpansionContext& ctx, LegState& state, size_t authored_index, std::vector<Waypoint>& out_path)
+{
+    const size_t output_begin = out_path.size();
+    if (!append_authored_waypoint(ctx, state, ctx.param.path[authored_index], authored_index, out_path)) {
+        return false;
+    }
+    stamp_authored_group(out_path, output_begin, authored_index);
+    return true;
+}
+
 // 不跨 ZONE, 止于第一个边界点并把它算在段内
 size_t replaceable_span_end(const std::vector<Waypoint>& path, size_t begin)
 {
@@ -1055,7 +1073,7 @@ bool append_replaceable_span(ExpansionContext& ctx, LegState& state, size_t begi
         if (ctx.cancelIfStopped(state)) {
             return false;
         }
-        if (!append_authored_waypoint(ctx, state, path[index], index, out_path)) {
+        if (!append_stamped_authored_waypoint(ctx, state, index, out_path)) {
             return false;
         }
     }
@@ -1083,6 +1101,8 @@ bool append_replaceable_span(ExpansionContext& ctx, LegState& state, size_t begi
 
     out_path.resize(output_begin);
     out_path.insert(out_path.end(), std::make_move_iterator(shortcut.begin()), std::make_move_iterator(shortcut.end()));
+    // 滑索失败后要从段首重新展开整段
+    stamp_authored_group(out_path, output_begin, begin);
     state = shortcut_state;
     if (ctx.diagnostics != nullptr) {
         const auto first = ctx.diagnostics->begin();
@@ -1095,7 +1115,7 @@ bool append_replaceable_span(ExpansionContext& ctx, LegState& state, size_t begi
         if (index == *target_index && path[index].isMovementPoint()) {
             continue;
         }
-        if (!append_authored_waypoint(ctx, state, path[index], index, out_path)) {
+        if (!append_stamped_authored_waypoint(ctx, state, index, out_path)) {
             return false;
         }
     }
@@ -1106,13 +1126,6 @@ void append_zone_declaration(LegState& state, const Waypoint& waypoint, std::vec
 {
     state.current_zone = waypoint.zone_id;
     out_path.push_back(waypoint);
-}
-
-void stamp_authored_group(std::vector<Waypoint>& out_path, size_t output_begin, size_t group_begin)
-{
-    for (size_t output = output_begin; output < out_path.size(); ++output) {
-        out_path[output].authored_group_begin = group_begin;
-    }
 }
 
 bool append_authored_route(ExpansionContext& ctx, LegState& state, std::vector<Waypoint>& out_path)
@@ -1141,16 +1154,16 @@ bool append_route_with_zipline_shortcuts(ExpansionContext& ctx, LegState& state,
         if (ctx.cancelIfStopped(state)) {
             return false;
         }
-        const size_t output_begin = out_path.size();
-        const bool zone_declaration = path[index].isZoneDeclaration();
-        const size_t span_end = zone_declaration ? index + 1 : replaceable_span_end(path, index);
-        if (zone_declaration) {
+        if (path[index].isZoneDeclaration()) {
             append_zone_declaration(state, path[index], out_path);
+            stamp_authored_group(out_path, out_path.size() - 1, index);
+            ++index;
+            continue;
         }
-        else if (!append_replaceable_span(ctx, state, index, span_end, out_path)) {
+        const size_t span_end = replaceable_span_end(path, index);
+        if (!append_replaceable_span(ctx, state, index, span_end, out_path)) {
             return false;
         }
-        stamp_authored_group(out_path, output_begin, index);
         index = span_end;
     }
     return true;
