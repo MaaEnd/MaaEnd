@@ -7,61 +7,46 @@ on:
     paths:
       - ".github/workflows/test.yml"
       - "tools/validate_schema.py"
+      - "tools/check_maautils_sync.py"
+      - "tools/maadeps-download.py"
+      - "pyproject.toml"
+      - "uv.lock"
       - "assets/**"
       - "tests/**"
       - "agent/cpp-algo/**"
+      - "agent/go-service/**"
       - "package.json"
       - "pnpm-lock.yaml"
+      - "maatools.config.mts"
   pull_request:
     branches:
       - "v2"
     paths:
       - ".github/workflows/test.yml"
       - "tools/validate_schema.py"
+      - "tools/check_maautils_sync.py"
+      - "tools/maadeps-download.py"
+      - "pyproject.toml"
+      - "uv.lock"
       - "assets/**"
       - "tests/**"
       - "agent/cpp-algo/**"
+      - "agent/go-service/**"
       - "package.json"
       - "pnpm-lock.yaml"
+      - "maatools.config.mts"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  maa-tools-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          submodules: true
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run maa-tools test
-        run: pnpm test
-
-      - name: Upload logs
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: maa-tools-test-logs
-          path: tests/maatools
-
-  map-locate-test:
+  build-cpp-agent:
+    name: Build C++ agent
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      maafw_version: ${{ steps.maafw.outputs.release }}
     env:
       CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
       CCACHE_MAXSIZE: 1G
@@ -69,8 +54,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-        with:
-          submodules: recursive
+
+      # 构建只依赖 MaaUtils；不拉取 testset / model 等测试资源子模块。
+      - name: Checkout MaaUtils submodule
+        run: git submodule update --init --recursive --depth=1 agent/cpp-algo/MaaUtils
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v10.3.0
@@ -142,26 +129,159 @@ jobs:
           cmake --build build --preset "NinjaMulti Linux x64 - RelWithDebInfo" --target cpp-algo --parallel 2
           cmake --install build --config RelWithDebInfo --prefix "${{ github.workspace }}/install"
 
+      # Agent 从可执行文件所在目录向上定位资源与运行库，install/ 布局必须完整。
       - name: Prepare offline runtime
         run: |
           mkdir -p install/maafw
           cp -a deps/bin/. install/maafw/
+
+      # 地图测试复用该产物，避免重复构建；产物只含 C++ agent 与 framework，
+      # 资源目录由消费方在 checkout 后自行软链。
+      - name: Upload C++ agent
+        uses: actions/upload-artifact@v6
+        with:
+          name: maaend-cpp-algo-linux-x86_64
+          path: |
+            install/agent
+            install/maafw
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 1
+
+  build-go-agent:
+    name: Build Go agent
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: agent/go-service/go.mod
+          cache-dependency-path: agent/go-service/go.sum
+
+      - name: Build go-service
+        working-directory: agent/go-service
+        env:
+          CGO_ENABLED: 0
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          mkdir -p "${{ github.workspace }}/install/agent"
+          go build -trimpath -o "${{ github.workspace }}/install/agent/go-service" .
+
+      # 与 C++ agent 的产物分开上传：Go 编译失败不阻塞地图定位 / 连通性测试。
+      - name: Upload Go agent
+        uses: actions/upload-artifact@v6
+        with:
+          name: maaend-go-service-linux-x86_64
+          path: install/agent
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 1
+
+  maa-tools-test:
+    needs: [build-cpp-agent, build-go-agent]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # 测试只需要截图集与模型子模块。
+      - name: Checkout test submodules
+        run: git submodule update --init --recursive --depth=1 tests/MaaEndTestset assets/resource/model
+
+      # custom 识别用例由 install/ 下的 AgentServer 提供；纯内置识别用例不会启动 agent。
+      - name: Download C++ agent
+        uses: actions/download-artifact@v7
+        with:
+          name: maaend-cpp-algo-linux-x86_64
+          path: install
+
+      - name: Download Go agent
+        uses: actions/download-artifact@v7
+        with:
+          name: maaend-go-service-linux-x86_64
+          path: install
+
+      # artifact 不保留可执行位；资源目录由仓库软链回 install/ 布局。
+      - name: Prepare agent runtime
+        run: |
+          chmod +x install/agent/cpp-algo install/agent/go-service
+          ln -s ../assets/resource install/resource
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run maa-tools test
+        run: pnpm test
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: maa-tools-test-logs
+          path: tests/maatools
+
+  map-locate-test:
+    needs: build-cpp-agent
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # 测试只需要截图集与模型子模块。
+      - name: Checkout test submodules
+        run: git submodule update --init --recursive --depth=1 tests/MaaEndTestset assets/resource/model
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-python: true
+
+      # 产物根目录是 install，下载回 install/ 保持 agent 与 maafw 的相对布局。
+      - name: Download C++ agent
+        uses: actions/download-artifact@v7
+        with:
+          name: maaend-cpp-algo-linux-x86_64
+          path: install
+
+      # artifact 解压后不带可执行位（文件统一 644），这里补回；资源目录由仓库软链。
+      - name: Prepare offline runtime
+        run: |
+          chmod +x install/agent/cpp-algo
           ln -s ../assets/resource install/resource
 
       - name: Run location tests
         env:
-          MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
+          MAAFW_VERSION: ${{ needs.build-cpp-agent.outputs.maafw_version }}
         run: uv run --with "maafw==${MAAFW_VERSION#v}" python -u tests/MapLocateAssertLocation/map_locate.py
 
       # 与定位测试解耦：定位失败时仍执行规划连通性检查。
       - name: Run navmesh connectivity tests
         if: ${{ !cancelled() }}
         env:
-          MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
+          MAAFW_VERSION: ${{ needs.build-cpp-agent.outputs.maafw_version }}
         run: uv run --with "maafw==${MAAFW_VERSION#v}" python -u tests/MapNavmeshConnectivity/navmesh_connectivity.py
+
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v6
         with:
           name: map-locate-test-logs
-          path: tests/MapLocateAssertLocation/output
+          path: |
+            tests/MapLocateAssertLocation/output
+            tests/MapNavmeshConnectivity/output
