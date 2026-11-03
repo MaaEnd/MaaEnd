@@ -74,6 +74,8 @@
             "RealTimeAutoSkipChoose",
             "RealTimeAutoSkipNext",
             "RealTimeAutoSkipAll",
+            // 跳过确认弹窗可能在 RealTimeAutoSkipAll 之后才弹出，弹窗会遮住右上角图标，需在 Exit 之前识别
+            "RealTimeAutoSkipAllConfirm",
             "RealTimeAutoSkipExit",
             "RealTimeAutoSkipEntry"
         ]
@@ -137,24 +139,10 @@
     "RealTimeAutoSkipAllConfirm": {
         "desc": "确认跳过全部剧情",
         // 找中间跳过确认按钮
-        "recognition": "ColorMatch",
-        "roi": [
-            650,
-            450,
-            200,
-            100
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
         ],
-        "lower": [
-            245,
-            229,
-            0
-        ],
-        "upper": [
-            255,
-            249,
-            11
-        ],
-        "count": 200,
         "action": "Click",
         "next": [
             "RealTimeAutoSkipEntry"
