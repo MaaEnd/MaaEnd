@@ -82,7 +82,10 @@
 
     function scheduleBallPoll() {
         const delay = window.__maaCloudStart.running ? BALL_POLL_ACTIVE_MS : BALL_POLL_IDLE_MS;
-        window.__maaCloudStart.ballTimer = setInterval(disableCloudBall, delay);
+        window.__maaCloudStart.ballTimer = setInterval(() => {
+            disableCloudBall();
+            ensurePlayerInteractive();
+        }, delay);
     }
 
     function stop() {
@@ -166,12 +169,41 @@
         if (!at || at === button || button.contains(at) || at.contains(button)) {
             return false;
         }
+        // 启动期玩家层已挂载时，按钮中心命中的是视频容器；把它当遮罩禁用会直接断掉游戏输入
+        const video = document.getElementById("WelinkGameVideo");
+        const player = document.getElementById("game-video");
+        if (
+            at === video ||
+            at === player ||
+            (video && (at.contains(video) || video.contains(at))) ||
+            (player && (at.contains(player) || player.contains(at)))
+        ) {
+            return false;
+        }
         if ((at.innerText || "").trim()) {
             return false;
         }
         at.style.pointerEvents = "none";
         log("start overlay neutralized");
         return true;
+    }
+
+    // 玩家层一旦存在就保持可命中；同时修复启动期被遮罩解除逻辑误伤的内联 pointer-events
+    function ensurePlayerInteractive() {
+        const video = document.getElementById("WelinkGameVideo");
+        if (!video) {
+            return;
+        }
+        if (video.style.pointerEvents !== "auto") {
+            video.style.pointerEvents = "auto";
+        }
+        let node = video.parentElement;
+        while (node && node.id !== "root") {
+            if (node.style && node.style.pointerEvents === "none") {
+                node.style.pointerEvents = "";
+            }
+            node = node.parentElement;
+        }
     }
 
     let loggedIn = false;
