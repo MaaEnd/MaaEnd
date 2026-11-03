@@ -173,11 +173,12 @@ jobs:
           go build -trimpath -o "${{ github.workspace }}/install/agent/go-service" .
 
       # 与 C++ agent 的产物分开上传：Go 编译失败不阻塞地图定位 / 连通性测试。
+      # 以 install 为根上传，消费方解压回 install/ 后仍是 install/agent/go-service。
       - name: Upload Go agent
         uses: actions/upload-artifact@v6
         with:
           name: maaend-go-service-linux-x86_64
-          path: install/agent
+          path: install
           if-no-files-found: error
           compression-level: 0
           retention-days: 1
