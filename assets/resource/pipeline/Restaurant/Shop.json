@@ -34,21 +34,29 @@
                     "required": true
                 },
                 {
-                    "action": "INTERACT",
+                    "action": "NAVMESH",
                     "target": [
                         136.14,
                         133.75
                     ],
                     "target_tier": "Wuling_L10_468",
-                    "strict": true,
                     "required": true
                 }
+            ]
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                796,
+                347,
+                253,
+                279
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitDialogueSkip"
+            "RestaurantShopInteract"
         ],
         "on_error": [
             "FailedNode"
@@ -77,19 +85,62 @@
                     "required": true
                 },
                 {
-                    "action": "INTERACT",
+                    "action": "NAVMESH",
                     "target": [
                         136.14,
                         133.75
                     ],
                     "target_tier": "Wuling_L10_468",
-                    "strict": true,
                     "required": true
                 }
             ]
         },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                796,
+                347,
+                253,
+                279
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "RestaurantShopInteract"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopInteract": {
+        "desc": "识别小聪明或手不停的交互提示并 AltClick，直到提示消失，最多三次。",
+        "recognition": "OCR",
+        "roi": [
+            796,
+            347,
+            253,
+            279
+        ],
+        "expected": [
+            "小聪明",
+            "手不停",
+            "小聰明",
+            "手不停",
+            "꾸러기",
+            "열일이",
+            "ソウメイ",
+            "コマメ",
+            "Witty",
+            "Job Rusher"
+        ],
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "RestaurantShopInteract",
+            "repeat_count": 3
+        },
         "next": [
             "RestaurantShopWaitDialogueSkip"
         ],
