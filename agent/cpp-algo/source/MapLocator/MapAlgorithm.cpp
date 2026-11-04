@@ -84,9 +84,13 @@ cv::Mat GenerateMinimapMask(const cv::Mat& minimap, const ImageProcessingConfig&
     cv::Mat darkMask;
     // 滤除纯黑背景：当地图存在大量未探索区域或视口外的黑色空洞时，反向二值化将暗部剔除，避免与背景色融合导致匹配偏移
     cv::threshold(gray, darkMask, cfg.minimapDarkMaskThreshold, 255, cv::THRESH_BINARY_INV);
-    baseMask.setTo(0, darkMask);
+    cv::Mat litMask = baseMask.clone();
+    litMask.setTo(0, darkMask);
+    if (cv::countNonZero(litMask) < cfg.minimapDarkMaskMinKeptRatio * static_cast<double>(litMask.total())) {
+        return baseMask;
+    }
 
-    return baseMask;
+    return litMask;
 }
 
 namespace
