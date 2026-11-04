@@ -1,6 +1,7 @@
 package countdown
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -51,7 +52,7 @@ func (action *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	dm := i18n.T(p.DoneMessage)
 	if strings.Contains(dm, "%s") {
 		df := durationFormat(p.Duration, p.DurationFormatFull, p.DurationFormatLittle)
-		dm = i18n.T(dm, df)
+		dm = fmt.Sprintf(dm, df)
 	}
 	dynLog.Message(dm).Print()
 	return true
