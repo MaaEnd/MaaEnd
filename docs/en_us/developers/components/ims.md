@@ -187,7 +187,7 @@ With a cache it also prints one summary; no Pipeline Starting/Succeeded Focus is
 >
 > Reference Pipeline: `AddItemDataOnRewards` → `AddItemDataCloseRewards`.
 >
-> Close-reward paths already wired to A3: `SceneNoticeRewardsConfirm` (Claim Daily Rewards, etc.), `DijiangRewardsFastCollectAddItemData` (base Fast Collect, separate candidates), `CreditShoppingClaimConfirm` (Credit Shop: Oroberyl / T-Creds / Arsenal Ticket / Credits + `ValuableDepot:SpecialItem`), `MFGCabinClaimRewardClose`, `GrowthChamberClaimRewardClose`, `SceneNoticeRewardsConfirmWithAnchor`, `ReceptionRoomSendCluesQuickGiveClose` (Reception Room quick gift), `AutoDeliveryCloseRewardDialog` (automatic delivery), `ProtocolSpaceRewardAddItemData` (Protocol Space), `TrialOfSwordmancyFightSuccess` (Trial of Swordmancy).
+> Close-reward paths already wired to A3: `SceneNoticeRewardsConfirm` (Claim Daily Rewards, etc.), `DijiangRewardsFastCollectAddItemData` (base Fast Collect, separate candidates), `CreditShoppingClaimConfirm` (Credit Shop: Oroberyl / T-Creds / Arsenal Ticket / Credits + `ValuableDepot:SpecialItem`), `MFGCabinClaimRewardClose`, `GrowthChamberClaimRewardClose`, `SceneNoticeRewardsConfirmWithAnchor`, `ReceptionRoomSendCluesQuickGiveClose` (Reception Room quick gift), `AutoDeliveryCloseRewardDialog` (automatic delivery), `ProtocolSpaceRewardAddItemData` (Protocol Space), `TrialOfSwordmancyFightSuccess` (Trial of Swordmancy), `AutoStockStapleQuantityControlCloseRewards` (stable-material purchase: `Normal:Usable` + `ValuableDepot:CommercialItem` + `ValuableDepot:SpecialItem`, replacing the old “Buy X” Focus broadcast on each item's buy node).
 
 ---
 

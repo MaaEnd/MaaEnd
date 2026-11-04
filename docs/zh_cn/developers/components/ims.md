@@ -187,7 +187,7 @@ A3 **不要求 IMS 缓存已经存在**。
 >
 > 参考 Pipeline：`AddItemDataOnRewards` → `AddItemDataCloseRewards`。
 >
-> 已接入 A3 的关闭奖励路径：`SceneNoticeRewardsConfirm`（日常奖励等）、`DijiangRewardsFastCollectAddItemData`（基建快速收取，独立候选）、`CreditShoppingClaimConfirm`（信用商店：玉/折金票/武库配额/信用 + `ValuableDepot:SpecialItem`）、`MFGCabinClaimRewardClose`、`GrowthChamberClaimRewardClose`、`SceneNoticeRewardsConfirmWithAnchor`、`ReceptionRoomSendCluesQuickGiveClose`（会客室快速赠予）、`AutoDeliveryCloseRewardDialog`（自动送货）、`ProtocolSpaceRewardAddItemData`（协议空间）、`TrialOfSwordmancyFightSuccess`（选剑演武）。
+> 已接入 A3 的关闭奖励路径：`SceneNoticeRewardsConfirm`（日常奖励等）、`DijiangRewardsFastCollectAddItemData`（基建快速收取，独立候选）、`CreditShoppingClaimConfirm`（信用商店：玉/折金票/武库配额/信用 + `ValuableDepot:SpecialItem`）、`MFGCabinClaimRewardClose`、`GrowthChamberClaimRewardClose`、`SceneNoticeRewardsConfirmWithAnchor`、`ReceptionRoomSendCluesQuickGiveClose`（会客室快速赠予）、`AutoDeliveryCloseRewardDialog`（自动送货）、`ProtocolSpaceRewardAddItemData`（协议空间）、`TrialOfSwordmancyFightSuccess`（选剑演武）、`AutoStockStapleQuantityControlCloseRewards`（稳定物资购买：`Normal:Usable` + `ValuableDepot:CommercialItem` + `ValuableDepot:SpecialItem`，取代原先各物品买节点上的「购买 XXX」Focus 播报）。
 
 ---
 
