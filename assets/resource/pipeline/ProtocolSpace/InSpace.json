@@ -491,10 +491,10 @@
         "desc": "撤离弹窗中的重新挑战按钮",
         "recognition": "TemplateMatch",
         "roi": [
-            540,
-            350,
+            267,
             200,
-            80
+            493,
+            250
         ],
         "template": "ProtocolSpace/RetreatRestart.png"
     },
