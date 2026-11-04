@@ -272,7 +272,7 @@ func readTemplateFile(fileName string) (string, error) {
 
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return "", errors.New(`failed to read template file`)
+		return "", fmt.Errorf("failed to read template file: %w", err)
 	}
 
 	content := string(data)
