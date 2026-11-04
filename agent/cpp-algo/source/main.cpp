@@ -10,6 +10,7 @@
 #include <MaaFramework/Global/MaaGlobal.h>
 #include <MaaUtils/Platform.h>
 
+#include "ColorFreeze/ColorFreeze.h"
 #include "Common/CrashHandler.h"
 #include "Common/MacAppHost.h"
 #include "Common/ParentProcessWatcher.h"
@@ -122,6 +123,7 @@ int main(int argc, char** argv)
     essencegridscan::EssenceGrid essence_grid;
 
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
+    MaaAgentServerRegisterCustomRecognition("ColorFreezeRecognition", colorfreeze::Recognition::Run, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateRecognition", maplocator::MapLocateRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateAssertLocation", maplocator::MapLocateAssertLocationRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapNavmeshQuery", mapnavmesh::MapNavmeshQueryRun, nullptr);

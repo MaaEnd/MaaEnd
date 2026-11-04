@@ -189,37 +189,31 @@
     },
     "EnvironmentMonitoringPhotoSettingsOpened": {
         "desc": "拍照目标未达成，画面设置已打开",
-        "recognition": "ColorMatch",
+        "recognition": "Custom",
+        "custom_recognition": "ColorFreezeRecognition",
+        "custom_recognition_param": {
+            "method": 40,
+            "lower": [
+                28,
+                190,
+                240
+            ],
+            "upper": [
+                33,
+                255,
+                255
+            ],
+            "connected": true,
+            "count": 90,
+            "time": 200
+        },
         "roi": [
             12,
             33,
             101,
             45
         ],
-        "method": 40,
-        "lower": [
-            28,
-            190,
-            240
-        ],
-        "upper": [
-            33,
-            255,
-            255
-        ],
-        "connected": true,
-        "count": 90,
         "pre_delay": 0,
-        // 展开面板有动画，动画中间帧同样会命中颜色判据，等右侧下拉列静止后再判定
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                199,
-                69,
-                120,
-                25
-            ]
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
