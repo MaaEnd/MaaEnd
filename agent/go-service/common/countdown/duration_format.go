@@ -1,42 +1,53 @@
 package countdown
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
-	"time"
 )
 
 const (
+	hhFormat = `{hh}`
+	hFormat  = `{h}`
 	mmFormat = `{mm}`
 	mFormat  = `{m}`
 	ssFormat = `{ss}`
 	sFormat  = `{s}`
 )
 
-func durationFormat(d time.Duration, formatFull, formatLittle string) string {
-	totalSeconds := int64(d.Seconds())
-	minutes := totalSeconds / 60
+func (p *params) durationFormat() string {
+	totalSeconds := int(p.duration.Seconds())
+	hours := totalSeconds / 3600
+	minutes := (totalSeconds % 3600) / 60
 	seconds := totalSeconds % 60
 
-	result := formatLittle
-	if minutes > 0 {
-		result = formatFull
-		m := strconv.Itoa(int(minutes))
-		mm := m
-		if minutes < 10 {
-			mm = "0" + mm
-		}
-		result = strings.ReplaceAll(result, mmFormat, mm)
-		result = strings.ReplaceAll(result, mFormat, m)
+	result := p.DurationFormatS
+	var replacer *strings.Replacer
+	switch {
+	case hours > 0:
+		result = p.DurationFormatHMS
+		replacer = strings.NewReplacer(
+			hhFormat, fmt.Sprintf("%02d", hours),
+			hFormat, strconv.Itoa(hours),
+			mmFormat, fmt.Sprintf("%02d", minutes),
+			mFormat, strconv.Itoa(minutes),
+			ssFormat, fmt.Sprintf("%02d", seconds),
+			sFormat, strconv.Itoa(seconds),
+		)
+	case minutes > 0:
+		result = p.DurationFormatMS
+		replacer = strings.NewReplacer(
+			mmFormat, fmt.Sprintf("%02d", minutes),
+			mFormat, strconv.Itoa(minutes),
+			ssFormat, fmt.Sprintf("%02d", seconds),
+			sFormat, strconv.Itoa(seconds),
+		)
+	default:
+		replacer = strings.NewReplacer(
+			ssFormat, fmt.Sprintf("%02d", seconds),
+			sFormat, strconv.Itoa(seconds),
+		)
 	}
 
-	s := strconv.Itoa(int(seconds))
-	ss := s
-	if seconds < 10 {
-		ss = "0" + ss
-	}
-	result = strings.ReplaceAll(result, ssFormat, ss)
-	result = strings.ReplaceAll(result, sFormat, s)
-
-	return result
+	return replacer.Replace(result)
 }

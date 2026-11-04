@@ -12,7 +12,9 @@ import (
 )
 
 // 默认每次sleep500毫秒
-var step = time.Millisecond * 500
+var (
+	step = time.Millisecond * 500
+)
 
 type Action struct {
 }
@@ -22,37 +24,59 @@ func (action *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		log.Error().Str("component", "CountDown").Msg("interruptible sleep: nil arg")
 		return false
 	}
-	p := action.parseParams(arg)
-	if p == nil {
+	p, err := action.parseParams(arg)
+	if err != nil {
+		log.Error().
+			Str("component", "CountDown").
+			Err(err).
+			Msg("Failed to parse params")
 		return false
+	}
+	if p == nil {
+		return true
 	}
 
 	// 获取一个新的动态日志实例
 	dynLog := dynamic_html_log.New()
 
 	// 获取一个副本，以便结束后输出总时间
-	duration := p.Duration
-	for duration > 0 {
+	duration := p.duration
+	deadline := time.Now().Add(duration)
+	for {
+		remaining := time.Until(deadline)
+		if remaining <= 0 {
+			break
+		}
+
 		// 任务终止
-		if ctx.GetTasker().Stopping() {
-			log.Info().Str("component", "CountDown").Msg("task stopping, exit early")
+		if tasker := ctx.GetTasker(); tasker != nil {
+			if tasker.Stopping() {
+				log.Info().Str("component", "CountDown").Msg("task stopping, exit early")
+				dynLog.T(p.StopMessage).Print()
+				return true
+			}
+		} else {
+			log.Info().Str("component", "CountDown").Msg("get tasker fail")
 			dynLog.T(p.StopMessage).Print()
 			return true
 		}
 
 		// 更新倒计时
-		df := durationFormat(duration, p.DurationFormatFull, p.DurationFormatLittle)
-		dynLog.T(p.StepMessage, df).Print()
+		p.duration = remaining
+		dynLog.T(p.StepMessage, p.durationFormat()).Print()
 
-		time.Sleep(step)
-		duration -= step
+		remaining = time.Until(deadline)
+		if remaining <= 0 {
+			break
+		}
+		time.Sleep(min(step, remaining))
 	}
 
 	// 倒计时结束
+	p.duration = duration
 	dm := i18n.T(p.DoneMessage)
 	if strings.Contains(dm, "%s") {
-		df := durationFormat(p.Duration, p.DurationFormatFull, p.DurationFormatLittle)
-		dm = fmt.Sprintf(dm, df)
+		dm = fmt.Sprintf(dm, p.durationFormat())
 	}
 	dynLog.Message(dm).Print()
 	return true

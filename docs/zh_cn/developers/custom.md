@@ -566,15 +566,29 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 
 参数：
 
-- `duration: int`：必填。倒计时的时间，具体时间和`duration_type`共同决定，倒计时最多一个小时。
-- `duration_type: int`：可选。只能是0、1或2，为0时，时间以毫秒计；为1时，时间以秒计；为2时，时间以分钟计。
-- `duration_format_full`：可选。日志中倒计时达到或超过1分钟时的显示格式，填i18n的key，默认为`countdown.format.full`。
-- `duration_format_little`：可选。日志中倒计时不到1分钟时的显示格式，填i18n的key，默认为`countdown.format.little`。
-  - `duration_format_little`中可以使用`{ss}`代表有前导0的秒数，`3`会被格式化为`03`；`{s}`则代表无前导0的秒数，`3`会原样输出。
-  - `duration_format_full`中除了`{ss}`和`{s}`之外，还可以使用`{mm}`代表有前导0的分钟数，`{m}`代表无前导0的分钟数。
-- `step_message`：可选。日志中倒计时显示的文字，填i18n的key，默认为`countdown.message.step`，必须有1个`%s`。
-- `done_message`：可选。日志中倒计时正常结束时显示的文字，填i18n的key，默认为`countdown.message.done`，可以有1个`%s`。
-- `stop_message`：可选。日志中倒计时因为任务停止时显示的文字，填i18n的key，默认为`countdown.message.stop`。
+- `useOCRResult: bool`：可选，默认 `false`。是否使用当前节点的 OCR 识别结果作为等待时长。启用后忽略 `duration`，仍按 `duration_type` 解析 OCR 文本。
+- `duration: int | string`：`useOCRResult` 为 `false` 时必填。本次等待时长，具体格式和单位由 `duration_type` 决定，解析后的时长必须大于零且不超过 24 小时。
+- `duration_type: int`：可选，默认 `0`。等待时长的格式和单位：
+    - `0`：毫秒，使用整数，例如 `3000` 表示 3 秒。
+    - `1`：秒，使用整数，例如 `60` 表示 1 分钟。
+    - `2`：分钟，使用整数，例如 `20` 表示 20 分钟。
+    - `10`：Go duration 字符串，例如 `"1h20m30s"`。`h`、`m`、`s` 分别表示小时、分钟和秒，各部分可以省略，例如 `"20m"`、`"1h30s"`。
+    - `11`：`hh:mm:ss` 或 `mm:ss` 字符串，例如 `"01:20:30"`、`"20:30"`，支持中文冒号 `：`。
+- `duration_format_hms: string`：可选，默认 `countdown.format.hms`。剩余时间达到或超过 1 小时时使用的 i18n 键。
+- `duration_format_ms: string`：可选，默认 `countdown.format.ms`。剩余时间达到 1 分钟但不足 1 小时时使用的 i18n 键。
+- `duration_format_s: string`：可选，默认 `countdown.format.s`。剩余时间不足 1 分钟时使用的 i18n 键。
+    - `duration_format_s`中可以使用`{ss}`代表有前导0的秒数，`3`会被格式化为`03`；`{s}`则代表无前导0的秒数，`3`会原样输出。
+    - `duration_format_ms`中除了`{ss}`和`{s}`之外，还可以使用`{mm}`代表有前导0的分钟数，`{m}`代表无前导0的分钟数。
+    - `duration_format_hms`中除了`{mm}`、`{m}`、`{ss}`和`{s}`之外，还可以使用`{hh}`代表有前导0的小时数，`{h}`代表无前导0的小时数。
+- `step_message: string`：可选，默认 `countdown.message.step`。倒计时更新时输出的日志文案，填写 i18n 键。对应文案必须包含一个 `%s`，用于接收格式化后的剩余时间。
+- `done_message: string`：可选，默认 `countdown.message.done`。倒计时正常结束时输出的日志文案，填写 i18n 键。对应文案可以包含一个 `%s`，用于接收格式化后的本次等待时长。
+- `stop_message: string`：可选，默认 `countdown.message.stop`。倒计时因任务停止而提前结束时输出的日志文案，填写 i18n 键。
+- `complex_conf: object`：可选。复杂模式配置，用于设置累计等待时长上限和单次最大等待时长：
+    - `complex_mode: int`：可选，默认 `0`。`0` 表示关闭复杂模式；`1` 表示等待时长超过累计等待时长上限时直接跳过；`2` 表示等待时长超过累计等待时长上限时，按该上限等待。
+    - `long_duration_max: int | string`：可选。累计等待时长上限，按 `long_duration_type` 解析。复杂模式启用时必填，必须大于零且不超过 24 小时的值。
+    - `long_duration_type: int`：可选，默认 `0`。累计等待时长上限的格式和单位，取值与 `duration_type` 相同：`0` 为毫秒整数，`1` 为秒整数，`2` 为分钟整数，`10` 为 Go duration 字符串，`11` 为 `hh:mm:ss` 或 `mm:ss` 字符串。
+    - `long_duration_step_max: int`：可选，默认 `1200`。单次最大等待时长，单位为秒，即默认每次最多等待 20 分钟。
+    - `reset_start_time: bool`：可选，默认 `false`。复杂模式下，是否重新开始累计时间的计时，在预期的一批倒计时的第一次调用时，建议使用true，后续必须使用false。
 
 示例：
 

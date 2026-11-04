@@ -565,15 +565,29 @@ When a weekday flag is omitted, it defaults to `false` (do not execute that day)
 
 Parameters:
 
-- `duration: int`: Required. The duration of the countdown. The actual time is determined by this value combined with `duration_type`. The maximum countdown limit is 1 hour.
-- `duration_type: int`: Optional. Must be 0, 1, or 2. 0 measures time in milliseconds; 1 measures time in seconds; 2 measures time in minutes.
-- `duration_format_full`: Optional. The display format used in the log when the countdown is 1 minute or longer. Enter an i18n key; defaults to `countdown.format.full`.
-- `duration_format_little`: Optional. The display format used in the log when the countdown is less than 1 minute. Enter an i18n key; defaults to `countdown.format.little`.
-  - In `duration_format_little`, you can use `{ss}` to represent seconds with a leading zero (e.g., `3` is formatted as `03`), or `{s}` to represent seconds without a leading zero (e.g., `3` is output as-is).
-  - In `duration_format_full`, in addition to `{ss}` and `{s}`, you can also use `{mm}` for minutes with a leading zero and `{m}` for minutes without a leading zero.
-- `step_message`: Optional. The text displayed during the countdown in the log. Enter an i18n key; defaults to `countdown.message.step`. This format string must contain exactly one `%s` placeholder.
-- `done_message`: Optional. The text displayed when the countdown completes normally. Enter an i18n key; defaults to `countdown.message.done`. This format string can optionally contain one `%s` placeholder.
-- `stop_message`: Optional. The text displayed when the countdown is aborted because the task was stopped. Enter an i18n key; defaults to `countdown.message.stop`.
+- `useOCRResult: bool`: Optional, default `false`. Specifies whether to use the OCR recognition result of the current node as the wait duration. When enabled, `duration` is ignored, but the OCR text is still parsed according to `duration_type`.
+- `duration: int | string`: Required when `useOCRResult` is `false`. The wait duration for this instance. The specific format and unit are determined by `duration_type`. The parsed duration must be greater than zero and cannot exceed 24 hours.
+- `duration_type: int`: Optional, default `0`. The format and unit of the wait duration:
+    - `0`: Milliseconds, specified as an integer. For example, `3000` represents 3 seconds.
+    - `1`: Seconds, specified as an integer. For example, `60` represents 1 minute.
+    - `2`: Minutes, specified as an integer. For example, `20` represents 20 minutes.
+    - `10`: Go duration string. For example, `"1h20m30s"`. Here, `h`, `m`, and `s` represent hours, minutes, and seconds respectively; each component can be omitted, such as `"20m"` or `"1h30s"`.
+    - `11`: `hh:mm:ss` or `mm:ss` string. For example, `"01:20:30"` or `"20:30"`. Both standard and Chinese full-width colons (`：`) are supported.
+- `duration_format_hms: string`: Optional, default `countdown.format.hms`. The i18n key used when the remaining time is equal to or greater than 1 hour.
+- `duration_format_ms: string`: Optional, default `countdown.format.ms`. The i18n key used when the remaining time is equal to or greater than 1 minute but less than 1 hour.
+- `duration_format_s: string`: Optional, default `countdown.format.s`. The i18n key used when the remaining time is less than 1 minute.
+    - In `duration_format_s`, `{ss}` can be used to represent seconds with a leading zero (e.g., `3` is formatted as `03`), while `{s}` represents seconds without a leading zero (e.g., `3` is output as-is).
+    - In `duration_format_ms`, in addition to `{ss}` and `{s}`, you can use `{mm}` to represent minutes with a leading zero and `{m}` to represent minutes without a leading zero.
+    - In `duration_format_hms`, in addition to `{mm}`, `{m}`, `{ss}`, and `{s}`, you can use `{hh}` to represent hours with a leading zero and `{h}` to represent hours without a leading zero.
+- `step_message: string`: Optional, default `countdown.message.step`. The i18n key for the log message output when the countdown updates. The corresponding text must contain exactly one `%s` to receive the formatted remaining time.
+- `done_message: string`: Optional, default `countdown.message.done`. The i18n key for the log message output when the countdown finishes normally. The corresponding text can contain one `%s` to receive the formatted total wait duration of this instance.
+- `stop_message: string`: Optional, default `countdown.message.stop`. The i18n key for the log message output when the countdown is terminated prematurely due to a task stop event.
+- `complex_conf: object`: Optional. Complex mode configuration, used to set the cumulative wait duration ceiling and the maximum single wait duration:
+    - `complex_mode: int`: Optional, default `0`. `0` means complex mode is disabled; `1` means the step is directly skipped if the wait duration exceeds the cumulative wait duration ceiling; `2` means if the wait duration exceeds the cumulative ceiling, the wait will proceed but will be capped at that ceiling.
+    - `long_duration_max: int | string`: Optional. The cumulative wait duration ceiling, parsed according to `long_duration_type`. Required when complex mode is enabled. Must be greater than zero and cannot exceed 24 hours.
+    - `long_duration_type: int`: Optional, default `0`. The format and unit of the cumulative wait duration ceiling. Takes the same values as `duration_type`: `0` for millisecond integers, `1` for second integers, `2` for minute integers, `10` for Go duration strings, and `11` for `hh:mm:ss` or `mm:ss` strings.
+    - `long_duration_step_max: int`: Optional, default `1200`. The maximum duration for a single wait step, in seconds (defaults to 20 minutes per step).
+    - `reset_start_time: bool`: Optional, default `false`. In complex mode, whether to restart the cumulative duration tracking. It is recommended to set this to `true` during the first call of an expected batch of countdowns, and it must be set to `false` for subsequent calls.
 
 Example:
 
