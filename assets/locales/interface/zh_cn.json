@@ -2509,6 +2509,7 @@
     "task.GiftOperator.label": "🎁赠送干员礼物",
     "task.GiftOperator.select.all": "全部干员",
     "task.GiftOperator.select.any_three": "任意",
+    "task.GiftOperator.select.trust_not_full": "仅信赖未满",
     "task.ImportBluePrints.description": "一键批量导入蓝图，支持智能解析",
     "task.ImportBluePrints.label": "📐一键导入蓝图",
     "task.IntelArchive.description": "统计并记录档案库已有档案，可一键导入 https://opendfieldmap.org/intel/ 查缺补漏",
