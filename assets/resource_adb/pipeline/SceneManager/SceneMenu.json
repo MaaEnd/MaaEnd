@@ -14,7 +14,15 @@
             140,
             658
         ],
-        "template": "SceneManager/ProgressionTabNotChoosed.png"
+        "template": "SceneManager/ProgressionTabNotChoosed.png",
+        // 标签页只有图标本身可点，52x49 模板四周的条纹留白（约 4~5px）不响应；
+        // 框架默认在整块模板内随机取点（σ = 尺寸/3），约四成会落到留白上导致切页失败
+        "target_offset": [
+            16,
+            15,
+            -32,
+            -30
+        ]
     },
     "__ScenePrivateMenuFriendsEnterMenuFriendsList": {
         "roi": [
