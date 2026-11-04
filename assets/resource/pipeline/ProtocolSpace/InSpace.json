@@ -186,7 +186,7 @@
         }
     },
     "ProtocolSpaceEnterSpaceSuccess": {
-        "desc": "进入协议空间成功（首次进入、继续下一轮、失败后继续都会经过）：清零向光球移动的步数",
+        "desc": "进入协议空间成功（首次进入、继续下一轮、失败后继续、卡住后重新挑战都会经过）：清零向光球移动、找退出点的次数",
         "recognition": "And",
         "all_of": [
             "InProtocolSpace"
@@ -196,7 +196,9 @@
         "custom_action": "ClearHitCount",
         "custom_action_param": {
             "nodes": [
-                "ProtocolSpaceEnterSpaceMove"
+                "ProtocolSpaceEnterSpaceMove",
+                "ProtocolSpaceTouchExitMoveToTarget",
+                "ProtocolSpaceTouchExitNotFound"
             ]
         },
         "post_wait_freezes": 200,
@@ -361,10 +363,14 @@
             "[JumpBack]AutoFight",
             "[JumpBack]ProtocolSpaceTouchExitMoveToTarget",
             "[JumpBack]ProtocolSpaceTouchExitNotFound"
+        ],
+        "on_error": [
+            "ProtocolSpaceExitStuckRetreat"
         ]
     },
     "ProtocolSpaceTouchExitMoveToTarget": {
-        "desc": "向目标移动",
+        "desc": "向退出点移动，最多 60 次（max_hit，在 ProtocolSpaceEnterSpaceSuccess 清零）；被障碍卡住走不到时超出次数，由上层 on_error 撤离并重新挑战",
+        "max_hit": 60,
         "recognition": "And",
         "all_of": [
             "InProtocolSpace",
@@ -394,7 +400,8 @@
         }
     },
     "ProtocolSpaceTouchExitNotFound": {
-        "desc": "退出未找到，向右旋转",
+        "desc": "退出未找到，向右旋转，最多 60 次（max_hit，在 ProtocolSpaceEnterSpaceSuccess 清零）",
+        "max_hit": 60,
         "recognition": "And",
         "all_of": [
             "InProtocolSpace"
@@ -457,6 +464,51 @@
             "ProtocolSpaceTouchExitTouchRetry",
             "[JumpBack]ProtocolSpaceTouchExitMoveToTarget",
             "[JumpBack]ProtocolSpaceTouchExitNotFound"
+        ],
+        "on_error": [
+            "ProtocolSpaceExitStuckRetreat"
+        ]
+    },
+    "ProtocolSpaceExitStuckRetreat": {
+        "desc": "找退出点次数用完（被障碍卡住），点击左上角撤离直到弹出撤离弹窗",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace"
+        ],
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_nodes": [
+                "ProtocolSpaceExitStuckRestartButton"
+            ]
+        },
+        "next": [
+            "ProtocolSpaceExitStuckRestart"
+        ]
+    },
+    "ProtocolSpaceExitStuckRestartButton": {
+        "desc": "撤离弹窗中的重新挑战按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            540,
+            350,
+            200,
+            80
+        ],
+        "template": "ProtocolSpace/RetreatRestart.png"
+    },
+    "ProtocolSpaceExitStuckRestart": {
+        "desc": "撤离弹窗点击重新挑战，不计入行动失败次数",
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceExitStuckRestartButton"
+        ],
+        "pre_wait_freezes": 300,
+        "action": "Click",
+        "next": [
+            "[JumpBack]SceneWaitBlackScreenLoadingExit",
+            "ProtocolSpaceEnterSpaceSuccess"
         ]
     },
     "ProtocolSpaceTouchExitTouchRetry": {
