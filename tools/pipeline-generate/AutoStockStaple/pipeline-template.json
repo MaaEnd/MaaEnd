@@ -108,10 +108,7 @@
         "next": [
             "AutoStockStapleCheckSliding",
             "AutoStockStapleBetterSliding"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.${ItemId}"
-        }
+        ]
     },
     "AutoStockStapleQuantityControl${NodeId}Exclude": {
         "desc": "${Name}达到阈值后退出",
