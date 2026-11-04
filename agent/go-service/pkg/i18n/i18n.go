@@ -12,6 +12,7 @@ import (
 	"sync"
 	"text/template"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/jsonclean"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/rs/zerolog/log"
@@ -24,9 +25,8 @@ const (
 	LangJaJP = "ja_jp"
 	LangKoKR = "ko_kr"
 
-	DefaultLang        = LangZhCN
-	localeRelDir       = "locales/go-service"
-	localeAssetsRelDir = "assets/locales/go-service"
+	DefaultLang  = LangZhCN
+	localeRelDir = "locales/go-service"
 )
 
 var htmlTemplates = map[string]string{
@@ -282,48 +282,7 @@ func readTemplateFile(fileName string) (string, error) {
 }
 
 func resolveLocaleDir() string {
-	roots := make([]string, 0, 16)
-	seenRoots := make(map[string]struct{})
-	addRoots := func(start string) {
-		if start == "" {
-			return
-		}
-		dir := filepath.Clean(start)
-		for depth := 0; depth < 6; depth++ {
-			if _, seen := seenRoots[dir]; !seen {
-				roots = append(roots, dir)
-				seenRoots[dir] = struct{}{}
-			}
-			parent := filepath.Dir(dir)
-			if parent == dir {
-				break
-			}
-			dir = parent
-		}
-	}
-
-	cwd, err := os.Getwd()
-	if err == nil {
-		addRoots(cwd)
-	}
-	if exePath, err := os.Executable(); err == nil {
-		addRoots(filepath.Dir(exePath))
-	}
-
-	relDirs := []string{localeRelDir, localeAssetsRelDir}
-	for _, root := range roots {
-		for _, relDir := range relDirs {
-			candidate := filepath.Join(root, filepath.FromSlash(relDir))
-			if localeDirExists(candidate) {
-				return candidate
-			}
-		}
-	}
-
-	if cwd == "" {
-		return filepath.FromSlash(localeRelDir)
-	}
-	return filepath.Join(cwd, filepath.FromSlash(localeRelDir))
+	return fsutil.InstallPath(filepath.FromSlash(localeRelDir))
 }
 
 func localeDirExists(dir string) bool {

@@ -253,7 +253,7 @@ func extractAllDigits(s string) string {
 }
 
 func loadOrCreateSalt() (string, error) {
-	path := fsutil.OutputPath("debug", "record", "random_salt.txt")
+	path := fsutil.UserDataPath("debug", "record", "random_salt.txt")
 	data, err := os.ReadFile(path)
 	if err == nil && len(strings.TrimSpace(string(data))) > 0 {
 		return strings.TrimSpace(string(data)), nil
