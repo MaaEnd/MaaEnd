@@ -255,7 +255,7 @@ function newRun(parsed, line, sourceName, index) {
     accountId: "",
     zone: "",
     _fallbackZone: String(param.map_name || (path.find((entry) => entry.zone) || {}).zone || ""),
-    zipRequested: param.zip === true,
+    zipRequested: param.zip !== false,
     authoredPath: path,
     authoredPoints: path.map((entry) => entry.point),
     walks: [],

@@ -3,7 +3,7 @@
         {
             "name": "SwitchTeam",
             "label": "$task.SwitchTeam.label",
-            "entry": "SwitchTeamMain",
+            "entry": "SwitchTeamSchedule",
             "group": [
                 "open_world"
             ],
@@ -20,11 +20,104 @@
                 "Win32-Front"
             ],
             "option": [
+                "SwitchTeamSchedule",
                 "SwitchTeamTeamChoose"
             ]
         }
     ],
     "option": {
+        "SwitchTeamSchedule": {
+            "type": "checkbox",
+            "label": "$option.TaskSchedule.label",
+            "cases": [
+                {
+                    "name": "SwitchTeamScheduleMonday",
+                    "label": "$option.TaskScheduleMonday.label",
+                    "pipeline_override": {
+                        "SwitchTeamScheduleEnabled": {
+                            "attach": {
+                                "monday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SwitchTeamScheduleTuesday",
+                    "label": "$option.TaskScheduleTuesday.label",
+                    "pipeline_override": {
+                        "SwitchTeamScheduleEnabled": {
+                            "attach": {
+                                "tuesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SwitchTeamScheduleWednesday",
+                    "label": "$option.TaskScheduleWednesday.label",
+                    "pipeline_override": {
+                        "SwitchTeamScheduleEnabled": {
+                            "attach": {
+                                "wednesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SwitchTeamScheduleThursday",
+                    "label": "$option.TaskScheduleThursday.label",
+                    "pipeline_override": {
+                        "SwitchTeamScheduleEnabled": {
+                            "attach": {
+                                "thursday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SwitchTeamScheduleFriday",
+                    "label": "$option.TaskScheduleFriday.label",
+                    "pipeline_override": {
+                        "SwitchTeamScheduleEnabled": {
+                            "attach": {
+                                "friday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SwitchTeamScheduleSaturday",
+                    "label": "$option.TaskScheduleSaturday.label",
+                    "pipeline_override": {
+                        "SwitchTeamScheduleEnabled": {
+                            "attach": {
+                                "saturday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SwitchTeamScheduleSunday",
+                    "label": "$option.TaskScheduleSunday.label",
+                    "pipeline_override": {
+                        "SwitchTeamScheduleEnabled": {
+                            "attach": {
+                                "sunday": true
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": [
+                "SwitchTeamScheduleMonday",
+                "SwitchTeamScheduleTuesday",
+                "SwitchTeamScheduleWednesday",
+                "SwitchTeamScheduleThursday",
+                "SwitchTeamScheduleFriday",
+                "SwitchTeamScheduleSaturday",
+                "SwitchTeamScheduleSunday"
+            ]
+        },
         "SwitchTeamTeamChoose": {
             "type": "select",
             "label": "$option.SwitchTeamTeamChoose.label",

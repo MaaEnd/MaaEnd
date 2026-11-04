@@ -103,7 +103,6 @@ std::string ResolveZiplineAccountId(MaaContext* context)
 void NoticeZiplineOutcome(MaaContext* context)
 {
     static std::atomic_bool told_no_data { false };
-    static std::atomic_bool told_not_chosen { false };
     static std::atomic_bool told_account_unknown { false };
 
     if (context == nullptr) {
@@ -113,7 +112,6 @@ void NoticeZiplineOutcome(MaaContext* context)
     const ZiplineOutcome outcome = CurrentZiplineOutcome();
     if (outcome.used) {
         told_no_data.store(false);
-        told_not_chosen.store(false);
         told_account_unknown.store(false);
         return;
     }
@@ -127,18 +125,9 @@ void NoticeZiplineOutcome(MaaContext* context)
     }
     told_account_unknown.store(false);
 
-    // 两种都有时先说没数据, 只有它需要用户动手
-    if (outcome.no_data) {
-        if (!told_no_data.exchange(true)) {
-            LogWarn << "Zipline requested but no zipline coordinates are available here; this route walks the whole way.";
-            common::notice::Publish(context, common::notice::Text("zipline.no_data"));
-        }
-        return;
-    }
-
-    if (outcome.not_chosen && !told_not_chosen.exchange(true)) {
-        LogInfo << "Zipline requested but no candidate beat walking on this route.";
-        common::notice::Publish(context, common::notice::Text("zipline.not_chosen"));
+    if (outcome.no_data && !told_no_data.exchange(true)) {
+        LogWarn << "Zipline requested but no zipline coordinates are available here; this route walks the whole way.";
+        common::notice::Publish(context, common::notice::Text("zipline.no_data"));
     }
 }
 

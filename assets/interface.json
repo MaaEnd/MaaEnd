@@ -19,7 +19,8 @@
     "description": "$description.file",
     "telemetry": {
         "sentry": {
-            "dsn": "https://bd7fd739c3764eb264d3bfbb298cb56b@o4511806947065856.ingest.us.sentry.io/4511806958665728"
+            "dsn": "https://bd7fd739c3764eb264d3bfbb298cb56b@o4511806947065856.ingest.us.sentry.io/4511806958665728",
+            "failure_attachments_sample_rate": 0.003
         }
     },
     "controller": [
