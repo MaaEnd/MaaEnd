@@ -559,7 +559,6 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 
 省略某个工作日标志时，默认视为 `false`（当天不执行）。若当天不在调度范围内，该 Recognition 会通过 `maafocus` 输出本地化提示（`schedule.skip_today`）并返回未命中。
 
-
 ### CountDownAction
 
 `CountDownAction` 实现位于 `agent/go-service/common/countdown`。等待一段时间，并在运行日志输出倒计时。

@@ -319,7 +319,6 @@ resource := fsutil.InstallPath("resource")
 
 使用`i18n`输出html的运行日志，同一个实例输出的日志，前面的会使用css自动隐藏，看起来就好像是动态更新一样。
 
-
 ---
 
 ## 选型速查
