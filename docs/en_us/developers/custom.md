@@ -567,10 +567,12 @@ Parameters:
 
 - `duration: int`: Required. The duration of the countdown. The actual time is determined by this value combined with `duration_type`. The maximum countdown limit is 1 hour.
 - `duration_type: int`: Optional. Must be 0, 1, or 2. 0 measures time in milliseconds; 1 measures time in seconds; 2 measures time in minutes.
-- `duration_format_minute`: Optional. The display format for the countdown minutes in the log. Enter an i18n key; defaults to `countdown.format.minute`.
-- `duration_format_sec`: Optional. The display format for the countdown seconds in the log. Enter an i18n key; defaults to `countdown.format.sec`.
-- `step_message`: Optional. The text displayed during the countdown in the log. Enter an i18n key; defaults to `countdown.message.step`. This format string must contain exactly two `%s` placeholders.
-- `done_message`: Optional. The text displayed when the countdown completes normally. Enter an i18n key; defaults to `countdown.message.done`. This format string must contain exactly two `%s` placeholders.
+- `duration_format_full`: Optional. The display format used in the log when the countdown is 1 minute or longer. Enter an i18n key; defaults to `countdown.format.full`.
+- `duration_format_little`: Optional. The display format used in the log when the countdown is less than 1 minute. Enter an i18n key; defaults to `countdown.format.little`.
+  - In `duration_format_little`, you can use `{ss}` to represent seconds with a leading zero (e.g., `3` is formatted as `03`), or `{s}` to represent seconds without a leading zero (e.g., `3` is output as-is).
+  - In `duration_format_full`, in addition to `{ss}` and `{s}`, you can also use `{mm}` for minutes with a leading zero and `{m}` for minutes without a leading zero.
+- `step_message`: Optional. The text displayed during the countdown in the log. Enter an i18n key; defaults to `countdown.message.step`. This format string must contain exactly one `%s` placeholder.
+- `done_message`: Optional. The text displayed when the countdown completes normally. Enter an i18n key; defaults to `countdown.message.done`. This format string can optionally contain one `%s` placeholder.
 - `stop_message`: Optional. The text displayed when the countdown is aborted because the task was stopped. Enter an i18n key; defaults to `countdown.message.stop`.
 
 Example:

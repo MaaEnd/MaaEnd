@@ -476,10 +476,10 @@
                                         "enum": [0, 1, 2],
                                         "description": "仅允许 0、1、2"
                                     },
-                                    "duration_format_minute": {
+                                    "duration_format_full": {
                                         "type": "string"
                                     },
-                                    "duration_format_sec": {
+                                    "duration_format_little": {
                                         "type": "string"
                                     },
                                     "step_message": {

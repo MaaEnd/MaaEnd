@@ -13,30 +13,30 @@ const (
 	sFormat  = `{s}`
 )
 
-func durationFormat(d time.Duration, min, sec string) (fm string, fs string) {
-	fm = min
-	fs = sec
-
+func durationFormat(d time.Duration, formatFull, formatLittle string) string {
 	totalSeconds := int64(d.Seconds())
-
 	minutes := totalSeconds / 60
 	seconds := totalSeconds % 60
 
-	m := strconv.Itoa(int(minutes))
-	mm := m
-	if minutes < 10 {
-		mm = "0" + mm
+	result := formatLittle
+	if minutes > 0 {
+		result = formatFull
+		m := strconv.Itoa(int(minutes))
+		mm := m
+		if minutes < 10 {
+			mm = "0" + mm
+		}
+		result = strings.ReplaceAll(result, mmFormat, mm)
+		result = strings.ReplaceAll(result, mFormat, m)
 	}
-	fm = strings.ReplaceAll(fm, mmFormat, mm)
-	fm = strings.ReplaceAll(fm, mFormat, m)
 
 	s := strconv.Itoa(int(seconds))
 	ss := s
 	if seconds < 10 {
 		ss = "0" + ss
 	}
-	fs = strings.ReplaceAll(fs, ssFormat, ss)
-	fs = strings.ReplaceAll(fs, sFormat, s)
+	result = strings.ReplaceAll(result, ssFormat, ss)
+	result = strings.ReplaceAll(result, sFormat, s)
 
-	return
+	return result
 }

@@ -568,10 +568,12 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 
 - `duration: int`：必填。倒计时的时间，具体时间和`duration_type`共同决定，倒计时最多一个小时。
 - `duration_type: int`：可选。只能是0、1或2，为0时，时间以毫秒计；为1时，时间以秒计；为2时，时间以分钟计。
-- `duration_format_minute`：可选。日志中倒计时分钟数的显示格式，填i18n的key，默认为`countdown.format.minute`。
-- `duration_format_sec`：可选。日志中倒计时秒数的显示格式，填i18n的key，默认为`countdown.format.sec`。
-- `step_message`：可选。日志中倒计时显示的文字，填i18n的key，默认为`countdown.message.step`，必须有2个`%s`。
-- `done_message`：可选。日志中倒计时正常结束时显示的文字，填i18n的key，默认为`countdown.message.done`，必须有2个`%s`。
+- `duration_format_full`：可选。日志中倒计时达到或超过1分钟时的显示格式，填i18n的key，默认为`countdown.format.full`。
+- `duration_format_little`：可选。日志中倒计时不到1分钟时的显示格式，填i18n的key，默认为`countdown.format.little`。
+  - `duration_format_little`中可以使用`{ss}`代表有前导0的秒数，`3`会被格式化为`03`；`{s}`则代表无前导0的秒数，`3`会原样输出。
+  - `duration_format_full`中除了`{ss}`和`{s}`之外，还可以使用`{mm}`代表有前导0的分钟数，`{m}`代表无前导0的分钟数。
+- `step_message`：可选。日志中倒计时显示的文字，填i18n的key，默认为`countdown.message.step`，必须有1个`%s`。
+- `done_message`：可选。日志中倒计时正常结束时显示的文字，填i18n的key，默认为`countdown.message.done`，可以有1个`%s`。
 - `stop_message`：可选。日志中倒计时因为任务停止时显示的文字，填i18n的key，默认为`countdown.message.stop`。
 
 示例：

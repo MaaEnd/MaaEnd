@@ -13,13 +13,13 @@ const (
 	defStepMessage          = `countdown.message.step`
 	defDoneMessage          = `countdown.message.done`
 	defStopMessage          = `countdown.message.stop`
-	defDurationFormatMinute = `countdown.format.minute` //需要i18n
-	defDurationFormatSec    = `countdown.format.sec`
+	defDurationFormatFull   = `countdown.format.full`
+	defDurationFormatLittle = `countdown.format.little`
 )
 
 const (
 	DurationTypeMs int = iota
-	DurationTypeSec
+	DurationTypeSecond
 	DurationTypeMinute
 )
 
@@ -27,8 +27,8 @@ type params struct {
 	DurationValue        int           `json:"duration"`
 	DurationType         int           `json:"duration_type,omitempty"`
 	Duration             time.Duration `json:"-"`
-	DurationFormatMinute string        `json:"duration_format_minute,omitempty"`
-	DurationFormatSec    string        `json:"duration_format_sec,omitempty"`
+	DurationFormatFull   string        `json:"duration_format_full,omitempty"`
+	DurationFormatLittle string        `json:"duration_format_little,omitempty"`
 	StepMessage          string        `json:"step_message,omitempty"`
 	DoneMessage          string        `json:"done_message,omitempty"`
 	StopMessage          string        `json:"stop_message,omitempty"`
@@ -39,8 +39,8 @@ func (action *Action) parseParams(arg *maa.CustomActionArg) *params {
 		StepMessage:          defStepMessage,
 		DoneMessage:          defDoneMessage,
 		StopMessage:          defStopMessage,
-		DurationFormatMinute: defDurationFormatMinute,
-		DurationFormatSec:    defDurationFormatSec,
+		DurationFormatFull:   defDurationFormatFull,
+		DurationFormatLittle: defDurationFormatLittle,
 	}
 
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), p); err != nil {
@@ -56,7 +56,7 @@ func (action *Action) parseParams(arg *maa.CustomActionArg) *params {
 	switch p.DurationType {
 	case DurationTypeMs:
 		p.Duration *= time.Millisecond
-	case DurationTypeSec:
+	case DurationTypeSecond:
 		p.Duration *= time.Second
 	case DurationTypeMinute:
 		p.Duration *= time.Minute
@@ -83,8 +83,8 @@ func (action *Action) parseParams(arg *maa.CustomActionArg) *params {
 		return nil
 	}
 
-	p.DurationFormatMinute = i18n.T(p.DurationFormatMinute)
-	p.DurationFormatSec = i18n.T(p.DurationFormatSec)
+	p.DurationFormatFull = i18n.T(p.DurationFormatFull)
+	p.DurationFormatLittle = i18n.T(p.DurationFormatLittle)
 
 	return p
 }

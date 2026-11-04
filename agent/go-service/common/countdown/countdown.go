@@ -1,9 +1,11 @@
 package countdown
 
 import (
+	"strings"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/dynamic_html_log"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -38,15 +40,19 @@ func (action *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 
 		// 更新倒计时
-		mf, sf := durationFormat(duration, p.DurationFormatMinute, p.DurationFormatSec)
-		dynLog.T(p.StepMessage, mf, sf).Print()
+		df := durationFormat(duration, p.DurationFormatFull, p.DurationFormatLittle)
+		dynLog.T(p.StepMessage, df).Print()
 
 		time.Sleep(step)
 		duration -= step
 	}
 
 	// 倒计时结束
-	mf, sf := durationFormat(p.Duration, p.DurationFormatMinute, p.DurationFormatSec)
-	dynLog.T(p.DoneMessage, mf, sf).Print()
+	dm := i18n.T(p.DoneMessage)
+	if strings.Contains(dm, "%s") {
+		df := durationFormat(p.Duration, p.DurationFormatFull, p.DurationFormatLittle)
+		dm = i18n.T(dm, df)
+	}
+	dynLog.Message(dm).Print()
 	return true
 }
