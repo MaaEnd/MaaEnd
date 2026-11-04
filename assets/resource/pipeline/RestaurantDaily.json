@@ -287,10 +287,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                2196.41,
-                506.37,
-                10.6,
-                11.22
+                2186.33,
+                497.78,
+                29.14,
+                32.28
             ]
         },
         "pre_delay": 0,
