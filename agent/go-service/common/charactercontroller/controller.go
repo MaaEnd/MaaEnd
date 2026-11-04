@@ -309,20 +309,9 @@ var (
 )
 
 func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	targetNotFoundCounter++
-	if targetNotFoundCounter > 30 {
-		log.Warn().
-			Int("counter", targetNotFoundCounter).
-			Str("component", "CharacterController").
-			Str("action", "CharacterMoveToTargetNotFound").
-			Msg("target not found for too many times, stopping task")
-		targetNotFoundCounter = 0
-		clearLastTarget()
-		return false
-	}
-
 	var params struct {
-		Delta int `json:"delta"`
+		Delta     int    `json:"delta"`
+		LeaveTask string `json:"leave_task"`
 	}
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
 		log.Error().
@@ -330,6 +319,31 @@ func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.Cus
 			Str("component", "CharacterController").
 			Str("action", "CharacterMoveToTargetNotFound").
 			Msg("failed to parse CustomActionParam")
+		return false
+	}
+
+	targetNotFoundCounter++
+	if targetNotFoundCounter > 30 {
+		log.Warn().
+			Int("counter", targetNotFoundCounter).
+			Str("component", "CharacterController").
+			Str("action", "CharacterMoveToTargetNotFound").
+			Str("leave_task", params.LeaveTask).
+			Msg("target not found for too many times, stopping task")
+		targetNotFoundCounter = 0
+		clearLastTarget()
+		// 2026-10-25：放弃前先把角色带离当前场景（如协议空间的"撤离"），
+		// 否则游戏会停在私域场景里，连带后续任务（AutoCollect 等）全部失败。
+		if params.LeaveTask != "" {
+			if _, err := ctx.RunTask(params.LeaveTask); err != nil {
+				log.Error().
+					Err(err).
+					Str("component", "CharacterController").
+					Str("action", "CharacterMoveToTargetNotFound").
+					Str("leave_task", params.LeaveTask).
+					Msg("failed to run leave task")
+			}
+		}
 		return false
 	}
 
