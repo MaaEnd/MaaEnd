@@ -1,0 +1,775 @@
+{
+    "GiftOperatorTrustFilterHeader": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    400,
+                    100,
+                    350,
+                    140
+                ],
+                "expected": [
+                    "筛选"
+                ]
+            }
+        }
+    },
+    "GiftOperatorTrustFilterButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    480,
+                    420,
+                    800,
+                    240
+                ],
+                "template": [
+                    "GiftOperator/ContactFilter.png",
+                    "GiftOperator/ContactFilterActive.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "GiftOperatorTrustFilterSaveText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    700,
+                    450,
+                    480,
+                    200
+                ],
+                "expected": [
+                    "保存"
+                ]
+            }
+        }
+    },
+    "GiftOperatorTrustFilterFriendlyOff": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustFilterHeader",
+                    "GiftOperatorTrustFilterFriendlyText",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "GiftOperatorTrustFilterFriendlyText",
+                                "roi_offset": [
+                                    50,
+                                    2,
+                                    0,
+                                    -4
+                                ],
+                                "method": 6,
+                                "lower": [
+                                    0
+                                ],
+                                "upper": [
+                                    85
+                                ],
+                                "count": 100
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorTrustFilterFriendlyOn"
+        ]
+    },
+    "GiftOperatorTrustFilterFriendlyOn": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustFilterHeader",
+                    "GiftOperatorTrustFilterFriendlyText",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "GiftOperatorTrustFilterFriendlyText",
+                                "roi_offset": [
+                                    50,
+                                    2,
+                                    0,
+                                    -4
+                                ],
+                                "method": 6,
+                                "lower": [
+                                    150
+                                ],
+                                "upper": [
+                                    240
+                                ],
+                                "count": 100
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorTrustFilterCloseOff": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustFilterHeader",
+                    "GiftOperatorTrustFilterCloseText",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "GiftOperatorTrustFilterCloseText",
+                                "roi_offset": [
+                                    50,
+                                    2,
+                                    0,
+                                    -4
+                                ],
+                                "method": 6,
+                                "lower": [
+                                    0
+                                ],
+                                "upper": [
+                                    85
+                                ],
+                                "count": 100
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorTrustFilterCloseOn"
+        ]
+    },
+    "GiftOperatorTrustFilterCloseOn": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustFilterHeader",
+                    "GiftOperatorTrustFilterCloseText",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "GiftOperatorTrustFilterCloseText",
+                                "roi_offset": [
+                                    50,
+                                    2,
+                                    0,
+                                    -4
+                                ],
+                                "method": 6,
+                                "lower": [
+                                    150
+                                ],
+                                "upper": [
+                                    240
+                                ],
+                                "count": 100
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorTrustFilterFullOn": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustFilterHeader",
+                    "GiftOperatorTrustFilterFullText",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "GiftOperatorTrustFilterFullText",
+                                "roi_offset": [
+                                    50,
+                                    2,
+                                    0,
+                                    -4
+                                ],
+                                "method": 6,
+                                "lower": [
+                                    150
+                                ],
+                                "upper": [
+                                    240
+                                ],
+                                "count": 100
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorTrustFilterFullOff"
+        ]
+    },
+    "GiftOperatorTrustFilterFullOff": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustFilterHeader",
+                    "GiftOperatorTrustFilterFullText",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "GiftOperatorTrustFilterFullText",
+                                "roi_offset": [
+                                    50,
+                                    2,
+                                    0,
+                                    -4
+                                ],
+                                "method": 6,
+                                "lower": [
+                                    0
+                                ],
+                                "upper": [
+                                    85
+                                ],
+                                "count": 100
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // 仅调整信赖条件。每次点击确认新状态后返回，保留品质、收礼等其它筛选。
+    "GiftOperatorTrustFilterOpen": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckContact",
+                    "GiftOperatorTrustFilterButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                200,
+                300,
+                750,
+                80
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]GiftOperatorTrustFilterFriendlyOff",
+            "[JumpBack]GiftOperatorTrustFilterCloseOff",
+            "[JumpBack]GiftOperatorTrustFilterFullOn",
+            "GiftOperatorTrustFilterReady"
+        ]
+    },
+    "GiftOperatorTrustFilterReady": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustFilterFriendlyOn",
+                    "GiftOperatorTrustFilterCloseOn",
+                    "GiftOperatorTrustFilterFullOff",
+                    "GiftOperatorTrustFilterResultText",
+                    "GiftOperatorTrustFilterCountValue"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorTrustFilterCountZero",
+            "GiftOperatorTrustFilterCountPositive"
+        ]
+    },
+    "GiftOperatorTrustFilterResultText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    140,
+                    450,
+                    380,
+                    180
+                ],
+                "expected": [
+                    "筛选结果"
+                ]
+            }
+        }
+    },
+    // 人数框只定义一次；没有识别到数字时不走零候选分支。
+    "GiftOperatorTrustFilterCountValue": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorTrustFilterResultText",
+                "roi_offset": [
+                    74,
+                    -4,
+                    -46,
+                    12
+                ],
+                "expected": [
+                    // 完整筛选结果人数
+                    // @i18n-skip
+                    "^\\d+$"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "GiftOperatorTrustFilterCountZero": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorTrustFilterCountValue",
+                "expected": [
+                    // 完整筛选结果人数
+                    // @i18n-skip
+                    "^0$"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]GiftOperatorTrustRestoreFriendlyOn",
+            "[JumpBack]GiftOperatorTrustRestoreCloseOn",
+            "GiftOperatorTrustRestoreSave"
+        ]
+    },
+    "GiftOperatorTrustFilterCountPositive": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorTrustFilterCountValue",
+                "expected": [
+                    // 完整筛选结果人数
+                    // @i18n-skip
+                    "^[1-9]\\d*$"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorTrustFilterSave"
+        ]
+    },
+    "GiftOperatorTrustFilterSave": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustFilterReady",
+                    "GiftOperatorTrustFilterSaveText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                480,
+                180,
+                530,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorTrustFilterApplied"
+        ]
+    },
+    "GiftOperatorTrustFilterApplied": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckContact",
+                    "GiftOperatorTrustFilterButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]GiftOperatorSelectOp1",
+            "[JumpBack]GiftOperatorSelectOp2",
+            "[JumpBack]GiftOperatorSelectOp3",
+            "GiftOperatorTrustRestoreOpen"
+        ]
+    },
+    // 取消信赖筛选会保留已选名单；恢复后识别当前选中序号，再确认召唤。
+    "GiftOperatorTrustRestoreOpen": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckContact",
+                    "GiftOperatorTrustFilterButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                200,
+                300,
+                750,
+                80
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]GiftOperatorTrustRestoreFriendlyOn",
+            "[JumpBack]GiftOperatorTrustRestoreCloseOn",
+            "GiftOperatorTrustRestoreSave"
+        ]
+    },
+    "GiftOperatorTrustRestoreFriendlyOn": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustFilterFriendlyOn"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorTrustRestoreFriendlyOff"
+        ]
+    },
+    "GiftOperatorTrustRestoreFriendlyOff": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustFilterFriendlyOff"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorTrustRestoreCloseOn": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustFilterCloseOn"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorTrustRestoreCloseOff"
+        ]
+    },
+    "GiftOperatorTrustRestoreCloseOff": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustFilterCloseOff"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorTrustRestoreSave": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustFilterFriendlyOff",
+                    "GiftOperatorTrustFilterCloseOff",
+                    "GiftOperatorTrustFilterFullOff",
+                    "GiftOperatorTrustFilterSaveText"
+                ],
+                "box_index": 3
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                480,
+                180,
+                530,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorTrustRestored"
+        ]
+    },
+    // 清理后优先识别较大的选中序号，未命中时关闭联络界面。
+    "GiftOperatorTrustRestored": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckContact",
+                    "GiftOperatorTrustFilterButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorTrustVerifySelected3",
+            "GiftOperatorTrustVerifySelected2",
+            "GiftOperatorTrustVerifySelected1",
+            "GiftOperatorTrustCloseContact"
+        ]
+    },
+    "GiftOperatorTrustVerifySelected1": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckSelected1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorConfirmSelect"
+        ]
+    },
+    "GiftOperatorTrustVerifySelected2": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckSelected2"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorConfirmSelect"
+        ]
+    },
+    "GiftOperatorTrustVerifySelected3": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckSelected3"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorConfirmSelect"
+        ]
+    },
+    "GiftOperatorTrustCloseContact": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckContact",
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    700,
+                                    0,
+                                    580,
+                                    360
+                                ],
+                                "expected": [
+                                    "×"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorTrustSkipped"
+        ]
+    },
+    "GiftOperatorTrustSkipped": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangWorld"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "StopTask"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorTrustFilterFriendlyText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    140,
+                    140,
+                    880,
+                    420
+                ],
+                "expected": [
+                    "友好"
+                ]
+            }
+        }
+    },
+    "GiftOperatorTrustFilterCloseText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    140,
+                    140,
+                    880,
+                    420
+                ],
+                "expected": [
+                    "亲近"
+                ]
+            }
+        }
+    },
+    "GiftOperatorTrustFilterFullText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    140,
+                    140,
+                    880,
+                    420
+                ],
+                "expected": [
+                    "信任"
+                ]
+            }
+        }
+    }
+}

@@ -1,4 +1,45 @@
 {
+    "RestaurantSchedule": {
+        "desc": "缘缘庄经营执行周期",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantScheduleEnabled",
+            "RestaurantScheduleEnd"
+        ]
+    },
+    "RestaurantScheduleEnabled": {
+        "desc": "缘缘庄经营执行周期命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantInitialize"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "RestaurantScheduleEnd": {
+        "desc": "缘缘庄经营执行周期跳过",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "RestaurantInitialize": {
         "desc": "初始化经营决策状态和经营次数。",
         "recognition": "DirectHit",
