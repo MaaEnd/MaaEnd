@@ -559,7 +559,7 @@ The `ScheduleRecognition` implementation is located in `agent/go-service/common/
 
 When a weekday flag is omitted, it defaults to `false` (do not execute that day). If the current day is not within the scheduling range, this Recognition emits the localized `schedule.skip_today` message via `maafocus` and returns no match.
 
-### ScheduleRecognition
+### CountDownAction
 
 `CountDownAction` is implemented in `agent/go-service/common/countdown`. It pauses execution for a specified duration and displays a countdown timer in the execution log.
 
