@@ -276,7 +276,29 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "NavigateSisPaintingYuanyuanManorTeleportNearby",
             "NavigateSisPaintingYuanyuanManorTeleport"
+        ]
+    },
+    "NavigateSisPaintingYuanyuanManorTeleportNearby": {
+        "desc": "玩家已在缘缘庄传送点附近时跳过传送。",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                2196.41,
+                506.37,
+                10.6,
+                11.22
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantSkipBusinessAtManor",
+            "NavigateSisPaintingYuanyuanManorTarget"
         ]
     },
     "NavigateSisPaintingYuanyuanManorTeleport": {
