@@ -32,6 +32,8 @@ type DynamicHtmlLog struct {
 	// 标记style tag是否已经输出，以实现多次输出日志时，只有第一次才会输出style
 	// 避免每次输出日志都写一遍style，那样会很丑
 	styleIsInit bool
+	// 最后一次输出的日志，防止输出重复日志
+	lastMessage string
 }
 
 type DynamicHtmlLogData struct {
@@ -76,6 +78,9 @@ func (data *DynamicHtmlLogData) WithStyle(style string) *DynamicHtmlLogData {
 }
 
 func (data *DynamicHtmlLogData) Print() {
+	if data.log.lastMessage == data.message {
+		return
+	}
 	// 输出日志
 	// 如果style tag尚未输出，加个锁
 	if !data.log.styleIsInit {
@@ -95,4 +100,5 @@ func (data *DynamicHtmlLogData) Print() {
 		}),
 	)
 	data.log.styleIsInit = true
+	data.log.lastMessage = data.message
 }
