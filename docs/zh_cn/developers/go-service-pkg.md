@@ -28,7 +28,7 @@
 | [`minicv`](#minicv轻量-cv) | 模板匹配、圆形掩码等纯 Go CV | 需要本地匹配且不想走 Pipeline 模板节点时 |
 | [`gamesetting`](#gamesetting游戏设置注册表) | 读写游戏设置注册表、判定区服、定位启动器安装目录（仅 Windows） | `LaunchGamePC`、`CloseGamePC`、分辨率 / HDR 检查 |
 | [`parentwatch`](#parentwatch父进程监视) | 父进程退出则结束自身，避免孤儿 Agent | 仅 `main` 启动期 |
-| [`dynamic_html_log`](#dynamic_html_log动态HTML日志) | 输出HTML运行日志，同组内只显示最后一条 | `CountDown` |
+| [`dynamic_html_log`](#dynamic_html_log动态html日志) | 输出HTML运行日志，同组内只显示最后一条 | `CountDown` |
 
 ---
 

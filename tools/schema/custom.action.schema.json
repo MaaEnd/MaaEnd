@@ -554,7 +554,10 @@
                         },
                         "additionalProperties": false
                     }
-                }
+                },
+                "required": [
+                    "custom_action_param"
+                ]
             }
         }
     ],
