@@ -397,7 +397,7 @@ Create or modify a JSON file under `assets/tasks/` to define the task entry node
 
 ### UI Image Resource Paths
 
-The client UI can display images from the `assets/resource/` directory. Put the image path directly in the `icon` field; in fields that support Markdown, such as `label` and `description`, you can insert images with Markdown image syntax:
+The client UI can display images from the `assets/resource/` directory. Put the image path directly in the `icon` field; in fields that support Markdown, such as `description`, you can insert images with Markdown image syntax. `label` is displayed as plain text, so do not write Markdown in it; to show an icon, use the `icon` field of an `option` or `case` (items of an `input` have no icon field):
 
 ```json
 {
