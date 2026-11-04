@@ -76,7 +76,8 @@
                     "default": "",
                     "pipeline_type": "string",
                     "verify": "^\"?.+[\\\\/][Ll]auncher\\.exe\"?$",
-                    "pattern_msg": "$option.LaunchGamePCLauncherExe.LauncherExe.pattern_msg"
+                    "pattern_msg": "$option.LaunchGamePCLauncherExe.LauncherExe.pattern_msg",
+                    "input_type": "file"
                 }
             ]
         },

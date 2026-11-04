@@ -20,6 +20,7 @@ type calculationResult struct {
 	UsableOriginiumPulls      int
 	ResourcePulls             int
 	CarryToNextPulls          int
+	IntroLetterPulls          int
 	NextPoolShopPulls         int
 	NextPoolSigninPulls       int
 	CurrentPoolTotal          int
@@ -38,7 +39,7 @@ func calculatePullCount(values resourceValues, summary voucherSummary) calculati
 	oroberylPulls := values.Oroberyl / oroberylPerPull
 	usableOriginiumPulls := usableOriginiumOroberyl / oroberylPerPull
 	currentPoolTotal := resourcePulls + summary.CarryToNextPulls
-	nextPoolTotal := resourcePulls + summary.CarryToNextPulls + nextPoolShopPulls + nextPoolSigninPulls
+	nextPoolTotal := currentPoolTotal + summary.IntroLetterPulls + nextPoolShopPulls + nextPoolSigninPulls
 
 	return calculationResult{
 		ReservedOriginium:         reservedOriginium,
@@ -48,6 +49,7 @@ func calculatePullCount(values resourceValues, summary voucherSummary) calculati
 		UsableOriginiumPulls:      usableOriginiumPulls,
 		ResourcePulls:             resourcePulls,
 		CarryToNextPulls:          summary.CarryToNextPulls,
+		IntroLetterPulls:          summary.IntroLetterPulls,
 		NextPoolShopPulls:         nextPoolShopPulls,
 		NextPoolSigninPulls:       nextPoolSigninPulls,
 		CurrentPoolTotal:          currentPoolTotal,
@@ -68,6 +70,7 @@ func formatResultFocus(values resourceValues, result calculationResult) string {
 		result.UsableOriginiumOroberyl,
 		result.UsableOriginiumPulls,
 		result.CarryToNextPulls,
+		result.IntroLetterPulls,
 		result.NextPoolShopPulls,
 		result.NextPoolSigninPulls,
 		result.CurrentPoolTotal,

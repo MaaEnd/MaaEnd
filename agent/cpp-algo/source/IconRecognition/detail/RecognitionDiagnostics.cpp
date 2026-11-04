@@ -139,6 +139,7 @@ json::value RecognitionDiagnostics::to_json() const
         cells_json.emplace_back(cell);
     }
     json::object object { { "grids", std::move(grids_json) }, { "cells", std::move(cells_json) } };
+    object["candidate_scope_complete"] = candidate_scope_complete;
     if (performance) {
         object["performance"] = *performance;
     }

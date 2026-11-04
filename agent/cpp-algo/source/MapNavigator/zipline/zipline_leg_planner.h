@@ -14,6 +14,7 @@ namespace mapnavigator
 {
 
 struct NaviParam;
+struct VirtualNoGoDisc;
 
 struct ZiplineOutcome
 {
@@ -46,17 +47,24 @@ struct ZiplineRoute
 ZiplineNodeRef ToNodeRef(const zipline::ZiplineNode& node);
 
 // walking_path 为空表示步行不可达, goal_deck_y 须与步行方案一致, 两个区名不可互换
-std::optional<ZiplineRoute> PlanZiplineRoute(
-    const NaviParam& param,
-    const std::string& locator_zone,
-    const std::string& navmesh_zone,
-    const navmesh::WorldPoint& start,
-    const navmesh::WorldPoint& goal,
-    const navmesh::WorldPath* walking_path,
-    std::optional<double> goal_deck_y,
-    std::optional<double> start_floor_y,
-    std::optional<double> start_deck_y,
-    const std::function<bool()>& should_stop,
-    bool capture_diagnostics = false);
+struct ZiplineLegRequest
+{
+    std::string locator_zone;
+    std::string navmesh_zone;
+    navmesh::WorldPoint start;
+    navmesh::WorldPoint goal;
+    const navmesh::WorldPath* walking_path = nullptr;
+    // 下索后落哪层的偏好, 到不了时照常落最近的面
+    float goal_floor_y = navmesh::kBaseNavFloorYNone;
+    std::optional<double> goal_deck_y;
+    std::optional<double> start_floor_y;
+    std::optional<double> start_deck_y;
+    std::function<bool()> should_stop;
+    bool capture_diagnostics = false;
+    // 上下索两段步行与作者路线避开同一批禁区
+    const std::vector<VirtualNoGoDisc>* no_go = nullptr;
+};
+
+std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const ZiplineLegRequest& request);
 
 } // namespace mapnavigator

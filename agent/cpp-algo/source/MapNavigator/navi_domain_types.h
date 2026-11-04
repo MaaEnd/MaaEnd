@@ -50,7 +50,6 @@ struct ActionTraits
     bool settles_at_arrival = false; // 进圈后末端纠正到位才验收, 除 INTERACT 外只对线路明写 strict_arrival 的点
     bool walk_approach = false;
     bool walk_at_startup = false;    // 起步位移还没确认也允许走路
-    bool route_boundary = false;     // 全局规划分段的固有边界
     double commit_distance = 0.0;    // 判定圈下限 px, 0 = 不放宽
 };
 
@@ -75,30 +74,54 @@ constexpr ActionTraits TraitsOf(ActionType action)
     case ActionType::PORTAL:
         return { .strict_arrival = true, .commit_distance = kPortalCommitDistance };
     case ActionType::HEADING:
-        return { .route_boundary = true };
+        return {};
     case ActionType::NAVMESH:
         return { .strict_arrival = true, .settles_at_arrival = true, .walk_approach = true };
     case ActionType::ZONE:
         return {};
     case ActionType::COLLECT:
-        return { .walk_approach = true, .route_boundary = true };
+        return { .walk_approach = true };
     case ActionType::DIG:
         return {
             .strict_arrival = true,
             .settles_at_arrival = true,
             .walk_approach = true,
             .walk_at_startup = true,
-            .route_boundary = true,
         };
     case ActionType::FIND:
-        return { .walk_approach = true, .route_boundary = true };
+        return { .walk_approach = true };
     case ActionType::ZIPLINE:
         return { .strict_arrival = true, .walk_approach = true };
-    // 须设为边界, 否则滑索规划会把它换成不带 trigger_node 的点
     case ActionType::TRIGGER:
-        return { .strict_arrival = true, .settles_at_arrival = true, .route_boundary = true };
+        return { .strict_arrival = true, .settles_at_arrival = true };
     }
     return {};
+}
+
+// 执行后可能留下挡住小地图的界面
+constexpr bool MayOpenUi(ActionType action)
+{
+    switch (action) {
+    case ActionType::RUN:
+    case ActionType::SPRINT:
+    case ActionType::JUMP:
+    case ActionType::HEADING:
+    case ActionType::NAVMESH:
+    case ActionType::ZONE:
+        return false;
+    case ActionType::FIGHT:
+    case ActionType::INTERACT:
+    case ActionType::TRANSFER:
+    case ActionType::JUMP_PAD:
+    case ActionType::PORTAL:
+    case ActionType::COLLECT:
+    case ActionType::DIG:
+    case ActionType::FIND:
+    case ActionType::ZIPLINE:
+    case ActionType::TRIGGER:
+        return true;
+    }
+    return true;
 }
 
 // 从绳底交互坐上去, ride_s 秒后站在 top_height 那层
@@ -141,7 +164,7 @@ struct Waypoint
     std::optional<double> route_floor_y;
     // 台沿下落落点专用的起跳点, 沿起跳到落点方向越过本点才算到
     std::optional<std::array<double, 2>> drop_from;
-    // 仅作者路线: 强制作为全局规划分段边界
+    // 仅作者路线: 滑索不许越过这个点
     bool route_required;
     // INTERACT 专用: 停车后用作 OCR expected, 留空则不算异步交互
     std::vector<std::string> interact_text;
@@ -166,7 +189,7 @@ struct Waypoint
     std::optional<RopeRideInfo> rope_ride;
     // 绳顶落脚点, 坐完升降索即算到达
     bool rope_top = false;
-    // 展开来源在作者 path 中的组首下标, 作者原点和运行时生成的点为 max
+    // 展开来源在作者 path 中的段首下标, 作者原点和运行时生成的点为 max
     size_t authored_group_begin = std::numeric_limits<size_t>::max();
 
     double getLookahead() const
@@ -227,9 +250,10 @@ struct Waypoint
 
     bool isTriggerPoint() const { return action == ActionType::TRIGGER; }
 
-    bool isIntrinsicRouteBoundary() const { return traits().route_boundary; }
+    bool isMovementPoint() const { return action == ActionType::RUN || action == ActionType::NAVMESH; }
 
-    bool closesGlobalRouteGroup() const { return route_required || isIntrinsicRouteBoundary(); }
+    // 滑索只顶替两个边界之间的走路, 动作点和 required 点都是边界
+    bool endsReplaceableSpan() const { return route_required || !isMovementPoint(); }
 
     bool isZoneDeclaration() const { return action == ActionType::ZONE; }
 

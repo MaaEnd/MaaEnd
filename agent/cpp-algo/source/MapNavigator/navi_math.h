@@ -12,6 +12,7 @@ public:
     static double calcDeltaRotation(double current, double target);
     static double normalizeAngle(double angle);
     static double normalizeHeading(double angle);
+    static double calcElevation(const ZiplineNodeRef& from, const ZiplineNodeRef& to);
 };
 
 } // namespace mapnavigator

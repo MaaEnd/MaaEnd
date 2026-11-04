@@ -5,12 +5,25 @@
   z-index: 2;
 }
 
-/* 工具条左半边只放操作说明，字号与工具按钮一致 */
+/* 工具条里的操作说明，字号与工具按钮一致；窄屏时只截断固定说明，按键提示和按钮保持完整 */
 .collect-map-hint {
+  min-width: 0;
+  overflow: hidden;
   padding: 0 8px;
   color: var(--text-secondary);
   font-size: 12px;
+  text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.collect-key-hint,
+.collect-page .map-tools .btn-tool {
+  flex: 0 0 auto;
+}
+
+.collect-key-hint {
+  padding-left: 0;
+  color: var(--accent-yellow);
 }
 
 /* 图例在编辑器里跟着路径编辑工作区出现，这一页常驻 */
@@ -38,4 +51,24 @@
 .collect-type .wp-action {
   color: var(--text-primary);
   font-size: 12px;
+}
+
+/* 已有路线列表只占侧栏的一部分高度，采集物列表仍是主滚动区 */
+.collect-routes .waypoint-list {
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 30vh;
+}
+
+.collect-routes .wp-empty {
+  min-height: 40px;
+}
+
+.collect-warnings {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--accent-yellow);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }

@@ -451,9 +451,7 @@ class NavTestService:
             self._on_phase("preparing", "正在准备路线试跑…")
             self._on_status("● 试跑中 —— 按 F4 立即终止", "#ef4444")
             node_name = NODE_NAME
-            custom_action_param: dict[str, Any] = {"path": path, "heading_source": heading_source}
-            if zip_enabled:
-                custom_action_param["zip"] = True
+            custom_action_param: dict[str, Any] = {"path": path, "heading_source": heading_source, "zip": zip_enabled}
             override = {
                 node_name: {
                     "recognition": "DirectHit",

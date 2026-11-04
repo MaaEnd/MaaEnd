@@ -32,10 +32,19 @@
               </div>
             </section>
 
+            <!-- 当前地图、当前类别已登记的路线：单击打开，改选采集点后可重新生成 -->
+            <section class="sidebar-section collect-routes">
+              <div class="waypoint-list-header">
+                <span>已有路线</span>
+                <span id="route-count" class="waypoint-list-hint"></span>
+              </div>
+              <div id="route-list" class="waypoint-list"></div>
+            </section>
+
             <section class="sidebar-section panel-main">
               <div class="waypoint-list-header">
                 <span>采集物</span>
-                <span class="waypoint-list-hint">勾选显示 · 右侧为本图点数</span>
+                <span class="waypoint-list-hint">勾选显示 · 右侧为已有路线覆盖/本图点数</span>
               </div>
               <div id="type-list" class="waypoint-list"></div>
             </section>
@@ -61,11 +70,34 @@
           <canvas id="overlay-canvas"></canvas>
 
           <div class="map-bar">
-            <!-- 框选是主操作，平移不占左键，不设工具切换 -->
-            <div class="map-tools" role="note" aria-label="操作说明">
+            <!-- 框选是主操作，平移不占左键，不设工具切换；按键提示随当前可取消的内容变化 -->
+            <div class="map-tools" role="group" aria-label="地图工具">
               <span class="collect-map-hint">
                 左键拖动框选（Shift 追加，Ctrl / ⌘ 减选）· 单击切换单个采集物 · 右键或中键拖动、按住空格或 Alt 拖动平移
               </span>
+              <span id="key-hint" class="collect-map-hint collect-key-hint" hidden></span>
+              <div class="tool-divider"></div>
+              <button
+                id="btn-clear-view"
+                class="btn btn-tool"
+                type="button"
+                title="收起路线预览、关闭已打开的路线并清空选择"
+                disabled>
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="M4 15.5 12.5 7l5 5L9 20.5H6.5Z"></path>
+                  <path d="M10 20.5h10"></path>
+                  <path d="m9 10.5 5 5"></path>
+                </svg>
+                <span>清空显示</span>
+              </button>
             </div>
 
             <div class="map-view-controls" role="group" aria-label="视图控制">
@@ -125,11 +157,14 @@
                   <button id="route-clear" class="btn btn-secondary btn-sm" type="button">清除</button>
                 </div>
                 <dl id="route-facts" class="log-point-detail"></dl>
-                <div class="io-row io-row-2">
+                <div id="route-copy" class="io-row io-row-2">
                   <button id="copy-route" class="btn btn-secondary btn-sm" type="button">复制路线文件</button>
                   <button id="copy-path" class="btn btn-secondary btn-sm" type="button">复制 path</button>
                 </div>
                 <button id="route-apply" class="btn btn-primary btn-block" type="button">写入任务</button>
+                <button id="route-remove" class="btn btn-danger-outline btn-block" type="button" hidden>
+                  删除路线
+                </button>
               </div>
             </div>
           </div>
@@ -146,12 +181,13 @@
         </div>
       </div>
     </div>
-    <!-- 写入前确认：要改动的文件逐个列出来 -->
+    <!-- 写入或删除前确认：要改动的文件逐个列出来，下面是会丢失的内容 -->
     <div id="apply-dialog" class="modal" role="dialog" aria-labelledby="apply-dialog-title" hidden>
       <div class="modal-panel">
         <h2 id="apply-dialog-title" class="modal-title">写入任务</h2>
         <p id="apply-dialog-hint" class="modal-hint"></p>
         <dl id="apply-dialog-files" class="log-point-detail"></dl>
+        <ul id="apply-dialog-warnings" class="collect-warnings" hidden></ul>
         <div class="modal-actions">
           <button id="apply-dialog-cancel" class="btn btn-secondary" type="button">取消</button>
           <button id="apply-dialog-ok" class="btn btn-primary" type="button">写入</button>

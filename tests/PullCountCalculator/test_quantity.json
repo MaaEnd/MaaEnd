@@ -1,0 +1,41 @@
+{
+    "configs": {
+        "name": "抽数计算凭证数量",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "image": "贵重品库_珍贵物品_特许寻访凭证1张.png",
+            "hits": [
+                {
+                    "node": "PullCountCalculatorFindCarryToNextVoucher",
+                    "box": [
+                        251,
+                        88,
+                        82,
+                        82
+                    ]
+                },
+                {
+                    "node": "PullCountCalculatorCarryToNextVoucherQuantityTextArea",
+                    "box": [
+                        289,
+                        168,
+                        4,
+                        10
+                    ]
+                },
+                {
+                    "node": "PullCountCalculatorCarryToNextVoucherQuantityOCR",
+                    "box": [
+                        287,
+                        166,
+                        8,
+                        14
+                    ]
+                }
+            ]
+        }
+    ]
+}

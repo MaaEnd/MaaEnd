@@ -6,6 +6,7 @@ on:
       - "v2"
     paths:
       - ".github/workflows/check.yml"
+      - "tools/validate_schema.py"
       - "assets/**"
       - "!assets/resource/model"
       - "tools/schema/**"
@@ -19,6 +20,7 @@ on:
       - "**"
     paths:
       - ".github/workflows/check.yml"
+      - "tools/validate_schema.py"
       - "assets/**"
       - "!assets/resource/model"
       - "tools/schema/**"
@@ -28,6 +30,11 @@ on:
       - "uv.lock"
 
   workflow_dispatch:
+
+# 同一 PR / 分支再次推送时取消上一次运行，旧提交的验证不必跑完
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   resource:
@@ -55,4 +62,9 @@ jobs:
           pnpm run check
 
       - name: Validate JSON Schema
-        run: uv run tools/validate_schema.py --resource-dirs assets/resource --exclude-dirs assets/resource/gamedata assets/resource/image assets/resource/model --task-dirs assets/tasks
+        run: >-
+          uv run tools/validate_schema.py
+          --resource-dirs assets/resource
+          --overlay-dirs assets/resource_adb/pipeline assets/resource_cloud/pipeline assets/resource_linux/pipeline assets/resource_macos/pipeline
+          --exclude-dirs assets/resource/gamedata assets/resource/image assets/resource/model
+          --task-dirs assets/tasks

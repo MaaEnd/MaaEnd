@@ -20,7 +20,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoEssenceMain"
+            "AutoEssenceBeforeStashBackpack"
         ],
         "attach": {
             "monday": false,
@@ -36,6 +36,21 @@
         "desc": "基质刷取计划任务跳过",
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "AutoEssenceBeforeStashBackpack": {
+        "desc": "基质刷取前存放背包",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceMain"
+        ]
     },
     "AutoEssenceMain": {
         "desc": "自动基质刷取的主入口",
@@ -563,7 +578,18 @@
             "param": {}
         },
         "pre_delay": 0,
-        "action": "DoNothing",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "AutoEssenceScrollGrayAttributeOption",
+                        "AutoEssenceScrollEngraveBonusList"
+                    ]
+                }
+            }
+        },
         "post_wait_freezes": {
             "time": 500,
             "target": [
@@ -646,6 +672,7 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoEssenceClickGrayAttributeOption",
+            "[JumpBack]AutoEssenceScrollGrayAttributeOption",
             "AutoEssenceNoGrayAttributeOption"
         ]
     },
@@ -680,6 +707,40 @@
             "type": "Click"
         },
         "post_delay": 500,
+        "rate_limit": 0
+    },
+    "AutoEssenceScrollGrayAttributeOption": {
+        "desc": "当前页没有可取消的灰色词条时向下滚动一页（每次进入词条选择最多 1 次，滚动后不恢复）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    450,
+                    620
+                ],
+                "end": [
+                    450,
+                    480
+                ],
+                "duration": 300
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                43,
+                350,
+                820,
+                310
+            ]
+        },
+        "post_delay": 0,
         "rate_limit": 0
     },
     "AutoEssenceNoGrayAttributeOption": {
@@ -784,7 +845,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoEssenceSelectEngraveBonusCondition"
+            "AutoEssenceSelectEngraveBonus"
         ]
     },
     "AutoEssenceSelectEngraveBonusCondition": {
@@ -818,6 +879,58 @@
         "rate_limit": 0,
         "next": [
             "AutoEssenceConfirmEngraveSelection"
+        ]
+    },
+    "AutoEssenceSelectEngraveBonus": {
+        "desc": "选择附加/技能属性：当前页没有目标词条时反向滚动再找一次",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceSelectEngraveBonusCondition",
+            "AutoEssenceScrollEngraveBonusList"
+        ]
+    },
+    "AutoEssenceScrollEngraveBonusList": {
+        "desc": "附加/技能属性当前页没有目标词条时反向滚动一页（每次进入词条选择最多 1 次）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    450,
+                    480
+                ],
+                "end": [
+                    450,
+                    620
+                ],
+                "duration": 300
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                43,
+                350,
+                820,
+                310
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceSelectEngraveBonus"
         ]
     },
     "AutoEssenceConfirmEngraveSelection": {
@@ -1107,10 +1220,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoEssenceClickObtainButton",
-            "AutoEssenceClickDiscardButton",
-            "[JumpBack]AutoEssenceInObtain",
-            "[Anchor]AutoEssenceMoveToTriggerPoint" // 未识别到领取时纯寻路回交互位，再由 Interact 处理
+            // 挑战结束后走一次寻路再交互，避免战斗完毕刚好落在交互极限范围上出问题
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Recognition.Starting": "🔍检查挑战是否结束",
@@ -1577,7 +1688,10 @@
                     420,
                     260
                 ],
-                "template": "Common/Button/CancelButtonType1.png"
+                "template": [
+                    "Common/Button/CancelButtonType1.png",
+                    "Common/Button/CancelButtonType1Hover.png"
+                ]
             }
         },
         "pre_wait_freezes": 2000,
@@ -1596,16 +1710,16 @@
         "desc": "成功完成一次基质刷取后的守卫节点",
         "pre_delay": 0,
         "next": [
-            // 循环与整次结束由任务选项覆写 next；典型为 Main -> [JumpBack]汇总 -> OnComplete（汇总无自有 next，JumpBack 后继续 OnComplete）
+            // 循环与整次结束由任务选项覆写 next；典型为 Main -> [JumpBack]汇总 -> AfterStashBackpack（汇总无自有 next，JumpBack 后继续 AfterStashBackpack）
             "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
-            "AutoEssenceOnComplete"
+            "AutoEssenceAfterStashBackpack"
         ],
         "focus": {
             "Node.Action.Starting": "✅已完成一次基质刷取"
         }
     },
     "AutoEssenceAfterBattleRunEndLootReport": {
-        "desc": "战后筛选整次任务汇总：EssenceFilterFinishAction；max_hit=1 全任务仅输出一次；须由父节点以 [JumpBack] 引用以便继续 OnComplete 或体力不足 StopTask；默认关闭",
+        "desc": "战后筛选整次任务汇总：EssenceFilterFinishAction；max_hit=1 全任务仅输出一次；须由父节点以 [JumpBack] 引用以便继续后续结束流程或体力不足 StopTask；默认关闭",
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
@@ -1616,6 +1730,19 @@
             }
         },
         "post_delay": 0
+    },
+    "AutoEssenceAfterStashBackpack": {
+        "desc": "基质刷取后存放背包",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask"
+            ]
+        },
+        "next": [
+            "AutoEssenceOnComplete"
+        ]
     },
     "AutoEssenceOnComplete": {
         "desc": "成功完成了所有基质刷取，安全结束任务",

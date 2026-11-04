@@ -248,9 +248,7 @@ class KiteStationMission(msgspec.Struct, frozen=True, rename="camel"):
 class KiteStationEntrustRow(msgspec.Struct, frozen=True, rename="camel"):
     """``KiteStationEntrustTasksTable`` 的一行：一个监测终端下的观察点。"""
 
-    missions: dict[str, KiteStationMission] = msgspec.field(
-        default_factory=dict[str, KiteStationMission], name="list"
-    )
+    missions: dict[str, KiteStationMission] = msgspec.field(default_factory=dict[str, KiteStationMission], name="list")
     """这个终端下的观察点，key 是表里的行 key"""
 
 
@@ -319,9 +317,7 @@ class SettlementRow(msgspec.Struct, frozen=True, rename="camel"):
     """据点名"""
     want_tag_id_group: list[str] = msgspec.field(default_factory=list[str])
     """这个据点的特性 id，查 SettlementTagTable"""
-    settlement_level_map: dict[str, SettlementLevel] = msgspec.field(
-        default_factory=dict[str, SettlementLevel]
-    )
+    settlement_level_map: dict[str, SettlementLevel] = msgspec.field(default_factory=dict[str, SettlementLevel])
     """繁荣度等级（字符串数字）-> 各级能卖的物品"""
 
 
@@ -395,9 +391,7 @@ class LevelMap(msgspec.Struct, frozen=True, rename="camel"):
 
     tier_names: dict[str, str] = msgspec.field(default_factory=dict[str, str])
     """层级 id（字符串数字）-> 该层的名字文本 key"""
-    static_elements: dict[str, LevelMapElement] = msgspec.field(
-        default_factory=dict[str, LevelMapElement]
-    )
+    static_elements: dict[str, LevelMapElement] = msgspec.field(default_factory=dict[str, LevelMapElement])
     """静态元素，key 是元素 id"""
 
 
@@ -423,9 +417,7 @@ class WorldEntityBrief(msgspec.Struct, frozen=True, rename="camel"):
 class WorldEntityRegistry(msgspec.Struct, frozen=True, rename="camel"):
     """``WorldEntityRegistry``（只取实体简表）。"""
 
-    world_entity_brief_infos: dict[str, WorldEntityBrief] = msgspec.field(
-        default_factory=dict[str, WorldEntityBrief]
-    )
+    world_entity_brief_infos: dict[str, WorldEntityBrief] = msgspec.field(default_factory=dict[str, WorldEntityBrief])
     """实体 id -> 简表"""
 
 
@@ -519,9 +511,7 @@ class ComponentValue(msgspec.Struct, frozen=True, rename="camel"):
 class ComponentValueSet(msgspec.Struct, frozen=True, rename="camel"):
     """组件的某个参数可以带一串值；要用到的参数都只取第一项。"""
 
-    value_array: list[ComponentValue] = msgspec.field(
-        default_factory=list[ComponentValue], name="valueArray"
-    )
+    value_array: list[ComponentValue] = msgspec.field(default_factory=list[ComponentValue], name="valueArray")
     """取值列表"""
 
 
@@ -557,9 +547,7 @@ class LevelData(msgspec.Struct, frozen=True, rename="camel"):
 class InteractiveTemplateVariant(msgspec.Struct, frozen=True, rename="camel"):
     """交互模板的一个变体：它默认参数里被改掉的那几项。"""
 
-    diff_properties: list[ComponentProperty] = msgspec.field(
-        default_factory=list[ComponentProperty]
-    )
+    diff_properties: list[ComponentProperty] = msgspec.field(default_factory=list[ComponentProperty])
     """改掉的默认参数，采集物的 ``doodad_id`` 在这里"""
 
 
@@ -610,15 +598,42 @@ class DomainDepotLevel(msgspec.Struct, frozen=True, rename="camel"):
     """等级"""
     deliver_item_type_list: list[str] = msgspec.field(default_factory=list[str])
     """这一级能装的运送类型"""
+    deliver_pack_type_list: list[str] = msgspec.field(default_factory=list[str])
+    """这一级能用的货箱大小"""
 
 
 class DomainDepotLevelRow(msgspec.Struct, frozen=True, rename="camel"):
     """``DomainDepotLevelTable`` 的一行：一个仓储节点的各级配置。"""
 
-    level_list: dict[str, DomainDepotLevel] = msgspec.field(
-        default_factory=dict[str, DomainDepotLevel]
-    )
+    level_list: dict[str, DomainDepotLevel] = msgspec.field(default_factory=dict[str, DomainDepotLevel])
     """等级（字符串数字）-> 该等级的配置"""
+
+
+class DomainDepotPackValue(msgspec.Struct, frozen=True, rename="camel"):
+    """``DomainDepotPackValueTable`` 中一种货物与货箱的价值上限。"""
+
+    deliver_item_type: str = ""
+    """货物类型，与等级配置和货物价格系数对应"""
+    deliver_pack_type: str = ""
+    """货箱大小，与等级配置对应"""
+    max_limit: int = 0
+    """装箱物品总价值上限，不是买家报价"""
+
+
+class DomainDepotPackValueRow(msgspec.Struct, frozen=True, rename="camel"):
+    """``DomainDepotPackValueTable`` 的一行：一个仓储节点的货箱价值配置。"""
+
+    pack_value_list: list[DomainDepotPackValue] = msgspec.field(default_factory=list[DomainDepotPackValue])
+    """按货物类型和货箱大小区分的价值配置"""
+
+
+class DomainDepotDeliverItemTypeRow(msgspec.Struct, frozen=True, rename="camel"):
+    """``DomainDepotDeliverItemTypeTable`` 的一行：货物类型的价格系数。"""
+
+    deliver_item_type: str = ""
+    """货物类型，如 NaturalResource / Industry / Misc"""
+    price_factor: float = 0.0
+    """物品总价值换算基础报价时使用的系数"""
 
 
 # ── 干员培养 ────────────────────────────────────────────────────────────────
@@ -639,9 +654,7 @@ class GrowthNode(msgspec.Struct, frozen=True, rename="camel"):
     """突破阶段"""
     equip_tier_limit: int = 0
     """这一阶段解锁的装备档位"""
-    required_item: list[ItemStack] = msgspec.field(
-        default_factory=list[ItemStack], name="requiredItem"
-    )
+    required_item: list[ItemStack] = msgspec.field(default_factory=list[ItemStack], name="requiredItem")
     """消耗的素材"""
 
 
@@ -661,9 +674,7 @@ class SkillLevelUp(msgspec.Struct, frozen=True, rename="camel"):
 class CharGrowthRow(msgspec.Struct, frozen=True, rename="camel"):
     """``CharGrowthTable`` 的一行：一个干员的全部培养节点。"""
 
-    char_break_cost_map: dict[str, GrowthNode] = msgspec.field(
-        default_factory=dict[str, GrowthNode]
-    )
+    char_break_cost_map: dict[str, GrowthNode] = msgspec.field(default_factory=dict[str, GrowthNode])
     """突破与装备档位节点，key 是节点 id"""
     talent_node_map: dict[str, GrowthNode] = msgspec.field(default_factory=dict[str, GrowthNode])
     """天赋节点（潜能 / 被动 / 基建），key 是节点 id"""
@@ -699,6 +710,8 @@ class DomainRow(msgspec.Struct, frozen=True, rename="camel"):
     """这个地区的商店组，查 ShopGroupTable"""
     domain_name: TextRef = TextRef()
     """地区名"""
+    domain_depot_offer_price_ratio: float = 0.0
+    """运送委托基础报价的地区倍率"""
     sort_id: int = 0
     """排序"""
 
@@ -749,9 +762,7 @@ class ChannelLevel(msgspec.Struct, frozen=True, rename="camel"):
 class ShopChannelRow(msgspec.Struct, frozen=True, rename="camel"):
     """``ShopChannelDevelopmentTable`` 的一行：渠道各等级新增的供货。"""
 
-    channel_level_map: dict[str, ChannelLevel] = msgspec.field(
-        default_factory=dict[str, ChannelLevel]
-    )
+    channel_level_map: dict[str, ChannelLevel] = msgspec.field(default_factory=dict[str, ChannelLevel])
     """渠道等级（字符串数字）-> 这一级的供货"""
 
 
@@ -791,9 +802,7 @@ class ShopGoodsRow(msgspec.Struct, frozen=True, rename="camel"):
     """限购数量"""
     sort_id: int = 0
     """排序"""
-    unlock_conditions: list[UnlockCondition] = msgspec.field(
-        default_factory=list[UnlockCondition]
-    )
+    unlock_conditions: list[UnlockCondition] = msgspec.field(default_factory=list[UnlockCondition])
     """解锁条件；原样写进产物，不给产物换形状"""
 
 

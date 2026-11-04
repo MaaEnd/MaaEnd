@@ -19,7 +19,8 @@
     "description": "$description.file",
     "telemetry": {
         "sentry": {
-            "dsn": "https://bd7fd739c3764eb264d3bfbb298cb56b@o4511806947065856.ingest.us.sentry.io/4511806958665728"
+            "dsn": "https://bd7fd739c3764eb264d3bfbb298cb56b@o4511806947065856.ingest.us.sentry.io/4511806958665728",
+            "failure_attachments_sample_rate": 0.003
         }
     },
     "controller": [
@@ -203,6 +204,7 @@
     "import": [
         // pretask
         "tasks/pretasks/LaunchGamePC.json",
+        "tasks/pretasks/LaunchGamePlayCover.json",
         // group: regional_development
         "tasks/OutpostTrading.json",
         "tasks/SeizeDeliveryJobs.json",
@@ -266,6 +268,8 @@
         "tasks/ClaimSimulationRewards.json",
         "tasks/TrialOfSwordmancy.json",
         "tasks/UmbralMonument.json",
+        "tasks/WarEcho.json",
+        "tasks/ArenaOfGames.json",
         "tasks/CreditShopping.json",
         "tasks/AccountSwitch.json",
         "tasks/LaunchGameLinux.json",
@@ -275,6 +279,7 @@
         "tasks/AndroidOpenGame.json",
         "tasks/CloseGame.json",
         "tasks/CloseGamePC.json",
+        "tasks/CloseGamePlayCover.json",
         // group: realtime
         "tasks/RealTimeTask.json",
         // group: backpack
@@ -283,6 +288,7 @@
         "tasks/SimpleProductionBatchStart.json",
         "tasks/ReceiveProdManual.json",
         "tasks/StashBackpack.json",
+        "tasks/UseConsumable.json",
         // preset
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",

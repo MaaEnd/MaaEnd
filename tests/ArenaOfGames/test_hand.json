@@ -1,0 +1,98 @@
+{
+    "configs": {
+        "name": "百趣演武，测试全部花色点数和空手牌槽",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "image": "百趣演武_手牌_2筒2条4筒3条1万.png",
+            "hits": [
+                "ArenaOfGamesHandDot2",
+                "ArenaOfGamesHandBamboo2",
+                "ArenaOfGamesHandDot4",
+                "ArenaOfGamesHandBamboo3",
+                "ArenaOfGamesHandCharacter1"
+            ]
+        },
+        {
+            "image": "百趣演武_手牌_1万2筒1条2筒5条.png",
+            "hits": [
+                "ArenaOfGamesHandCharacter1",
+                "ArenaOfGamesHandDot2",
+                "ArenaOfGamesHandBamboo1",
+                "ArenaOfGamesHandBamboo5"
+            ]
+        },
+        {
+            "image": "百趣演武_手牌_5筒2条2条3筒4条.png",
+            "hits": [
+                "ArenaOfGamesHandDot5",
+                "ArenaOfGamesHandBamboo2",
+                "ArenaOfGamesHandDot3",
+                "ArenaOfGamesHandBamboo4"
+            ]
+        },
+        {
+            "image": "百趣演武_手牌_2筒1万5条5万4万.png",
+            "hits": [
+                "ArenaOfGamesHandDot2",
+                "ArenaOfGamesHandCharacter1",
+                "ArenaOfGamesHandBamboo5",
+                "ArenaOfGamesHandCharacter5",
+                "ArenaOfGamesHandCharacter4"
+            ]
+        },
+        {
+            "image": "百趣演武_手牌_2条1万1筒5筒4万.png",
+            "hits": [
+                "ArenaOfGamesHandBamboo2",
+                "ArenaOfGamesHandCharacter1",
+                "ArenaOfGamesHandDot1",
+                "ArenaOfGamesHandDot5",
+                "ArenaOfGamesHandCharacter4"
+            ]
+        },
+        {
+            "image": "百趣演武_手牌_4条3万3筒2筒1筒.png",
+            "hits": [
+                "ArenaOfGamesHandBamboo4",
+                "ArenaOfGamesHandCharacter3",
+                "ArenaOfGamesHandDot3",
+                "ArenaOfGamesHandDot2",
+                "ArenaOfGamesHandDot1"
+            ]
+        },
+        {
+            "image": "百趣演武_手牌_2万1条.png",
+            "hits": [
+                "ArenaOfGamesHandCharacter2",
+                "ArenaOfGamesHandBamboo1",
+                "ArenaOfGamesCardBack"
+            ]
+        },
+        {
+            "image": "百趣演武_空手_抽牌常态.png",
+            "hits": [
+                "ArenaOfGamesCardBack"
+            ]
+        },
+        {
+            "image": "百趣演武_空手_抽牌悬停.png",
+            "hits": [
+                "ArenaOfGamesCardBack"
+            ]
+        },
+        {
+            "image": "百趣演武_英文_空手.png",
+            "hits": [
+                "ArenaOfGamesCardBack"
+            ]
+        },
+        {
+            "name": "放弃确认弹窗遮挡手牌，不应命中牌面或牌背",
+            "image": "百趣演武_放弃挑战_确认.png",
+            "hits": []
+        }
+    ]
+}

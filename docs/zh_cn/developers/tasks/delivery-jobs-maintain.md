@@ -1,6 +1,7 @@
 # 开发手册 - DeliveryJobs 转交委托
 
-`DeliveryJobs`（任务名「转交委托」）按用户配置的地区与仓储节点遍历全部仓储节点，完成送货委托的装箱、接取与转交，可选把货物交给 [AutoDelivery](../components/auto-delivery.md) 全自动送掉。
+`DeliveryJobs`（任务名「转交委托」）按用户配置的地区与仓储节点遍历全部仓储节点，完成送货委托的装箱、接取与转交，可选把货物交给 [AutoDelivery](../components/auto-delivery.md) 全自动送掉。  
+该文档更新于 2026 年 10 月 29 日。
 
 本任务的三条结构性约定：
 
@@ -15,7 +16,7 @@ Go Service 只提供 `DeliveryJobsResolveOngoingDepotAction`（`agent/go-service
 - **入口**：`assets/tasks/DeliveryJobs.json` 的 `DeliveryJobs` 任务 → Pipeline 入口 `DeliveryJobsMain`，分组 `regional_development`。任务名与全部 option 名是配置持久化键，改名会让用户已有配置失效。
 - **两级配置**：先开关地区（四号谷地 / 武陵），再逐个仓储节点选处理方式（六选一）。处理方式决定该仓储节点走哪条流程。
 - **遍历粒度是仓储节点**：地区循环的每个候选都带 `[JumpBack]`，子链跑完回到循环节点再试下一个候选。所以「处理完一个仓储节点自动继续下一个」是循环重入实现的，不需要每个仓储节点自己声明后继。
-- **同一个仓储节点在一次任务里可能被访问两次**：仓储节点未满 3 级时装箱只能接取、转交推迟到之后的「查看任务」入口（三条路径见[三条转交路径](#三条转交路径)）。
+- **同一个仓储节点在一次任务里可能被访问两次**：「接取并转交」在仓储节点满 3 级时可当场快速转交；未满 3 级时先接取，再由地区循环下一轮的「查看任务」入口转交。该入口也会处理仓储节点里已有、尚未转交的普通委托（见[三条转交路径](#三条转交路径)）。
 
 ## 流程总览
 
@@ -35,7 +36,7 @@ flowchart TD
     RAuto --> Loop
     RTask --> RLoop(["DeliveryJobs{Region}Loop\nSubTask 进入本地区仓储节点场景\n设 DeliveryJobsGoToDepot / DeliveryJobsReturnToDepotNode / DeliveryJobsAfterAutoDelivery"])
     RLoop -->|"[JumpBack] × 本地区每个仓储节点"| EJob{{"DeliveryJobsEnter{Depot}DeliveryJob\n识别「查看任务」\n设 DeliveryJobsReturnToDepotNode = InLocalDepotNode"}}
-    RLoop -->|"[JumpBack] × 本地区每个仓储节点"| ECargo{{"DeliveryJobsEnter{Depot}Cargo\n识别「查看报价」/「货物装箱」\n设 5 个 anchor"}}
+    RLoop -->|"[JumpBack] × 本地区每个仓储节点"| ECargo{{"DeliveryJobsEnter{Depot}Cargo\n识别「查看报价」/「货物装箱」\n设 4 个 anchor"}}
     RLoop --> Next(["DeliveryJobsLoop\n下一个地区"])
     RLoop --> Menu
 ```
@@ -61,24 +62,28 @@ flowchart TD
     Mode -->|全自动送货 / 仅接取委托| RB["DeliveryJobsRedistributionBidNextStep\n点确认接取任务"]
     Mode -->|按报价处理| Decide["DeliveryJobsDecide{Depot}Quote，见「按报价处理」"]
     Mode -->|仅装箱货物| Close["DeliveryJobsCloseRedistributionBid\n关闭调度申请界面 → InLocalDepotNode"]
-    QD -->|"有白底「快速转交」（仓储节点满 3 级）"| QT["DeliveryJobsQuickTransfer → 确认 → 获得奖励 → 回本地仓储节点，见「三条转交路径」"]
+    QD -->|"有白底「快速转交」（仓储节点满 3 级）"| QT["DeliveryJobsQuickTransfer\n点击快速转交"]
     QD -->|"没有（仓储节点未满 3 级，只有黄底「开始运送」）"| RB
-    RB -->|"停在提示页（[Anchor]AfterAcceptJob）"| Quick["DeliveryJobsDeliverQuickly / DeliveryJobsClickScreenToContinue\n点掉「尽快送达」等提示"]
+    QT --> QTC["DeliveryJobsQuickTransferConfirm\n确认快速转交"]
+    QTC --> QTR["DeliveryJobsQuickTransferReward\n关闭「获得奖励」界面"]
+    QTR --> QTB["DeliveryJobsQuickTransferBackToLocalDepotNode\n点回「本地仓储节点」标签页"]
+    QTB --> Local["InLocalDepotNode\n回本地仓储节点（不经过 GoToDepot）"]
+    RB -->|"停在提示页"| Quick["DeliveryJobsDeliverQuickly / DeliveryJobsClickScreenToContinue\n点掉「尽快送达」等提示"]
     RB --> Back["DeliveryJobsBackToDepot\n等回到大世界（InWorld）"]
     Quick --> Back
     Back -->|"[Anchor]DeliveryJobsGoToDepot"| Land{"接取后去向（各方式不同）"}
     Land -->|接取并转交 / 仅接取委托| LandScene["本仓储节点场景\n「接取并转交」回退接取时在循环重入后由入口 A 转交；「仅接取委托」不转交"]
     Land -->|全自动送货| LandAuto["DeliveryJobsAutoDelivery{Depot}，见「全自动送货」"]
-    Land -->|按报价处理| LandRT["DeliveryJobsReturnAndTransfer{Depot} 或 DeliveryJobsAutoDelivery{Depot}\n由报价分支决定，见「按报价处理」"]
+    Land -->|按报价处理| LandRT["DeliveryJobsReturnAndTransfer{Depot} / DeliveryJobsAutoDelivery{Depot} / 本仓储节点场景\n由报价分支决定，见「按报价处理」"]
 ```
 
 ## 仓储节点处理方式
 
 每个仓储节点一个 `select`，默认「接取并转交」。六种方式通过覆盖该仓储节点的节点属性实现（`deliveryEnabled` / `cargoEnabled` 即 `DeliveryJobsEnter{Depot}DeliveryJob` / `DeliveryJobsEnter{Depot}Cargo` 的 `enabled`）：
 
-| 处理方式 | 入口启用 | 装箱识别文本 | 调度申请界面动作 | 接取后去向 |
+| 处理方式 | 入口启用 | 装箱识别文本 | 调度申请界面动作 | 后续去向 |
 | ------------------ | ---------------- | ------------------------ | -------------------------------------- | -------------------------------------------------- |
-| 接取并转交 | 两者都启用 | 查看报价 / 货物装箱 | `DeliveryJobsDecideQuickTransfer`（有白底「快速转交」就快速转交，否则回退 `DeliveryJobsRedistributionBidNextStep`） | 快速转交直接回仓储节点；回退接取时 `DeliveryJobsDeliverQuickly` → 回仓储节点 |
+| 接取并转交 | 两者都启用 | 查看报价 / 货物装箱 | `DeliveryJobsDecideQuickTransfer`（有白底「快速转交」就快速转交，否则回退 `DeliveryJobsRedistributionBidNextStep`） | 快速转交经确认、关奖励后回本地仓储节点；回退接取时处理提示并回仓储节点，再由循环重入后的入口 A 转交 |
 | 全自动送货 | 两者都启用 | 查看报价 / 货物装箱 | `DeliveryJobsRedistributionBidNextStep` | `DeliveryJobsAutoDelivery{Depot}` |
 | 按报价处理 | 只启用货物入口 | 查看报价 / 货物装箱 | `DeliveryJobsDecide{Depot}Quote` | 由报价分支决定 |
 | 仅接取委托 | 只启用货物入口 | 查看报价 / 货物装箱 | `DeliveryJobsRedistributionBidNextStep` | 回仓储节点，不转交 |
@@ -87,7 +92,8 @@ flowchart TD
 
 几处容易误读的地方：
 
-- **「接取并转交」的转交可能在装箱流程里就完成，也可能推迟到循环重入后。** 仓储节点满 3 级时，调度申请界面会并排给出白底「快速转交」与黄底「开始运送」，装箱流程当场就把委托交出去（见[三条转交路径](#三条转交路径)路径 1）；未满 3 级时界面只有黄底「开始运送」，只能先接取，再等地区循环下一轮命中入口 A（识别「查看任务」）转交，所以同一个仓储节点在一次任务里可能被访问两次。
+- **「接取并转交」的转交可能在装箱流程里就完成，也可能推迟到循环重入后。** 仓储节点满 3 级时，调度申请界面会并排给出白底「快速转交」与黄底「开始运送」，装箱流程经快速转交确认、关闭奖励、点回本地仓储节点，当场就把委托交出去（见[三条转交路径](#三条转交路径)路径 1）；未满 3 级时界面只有黄底「开始运送」，只能先接取，再等地区循环下一轮命中入口 A（识别「查看任务」）转交。
+- **入口 A 也处理已有的普通委托。** 「接取并转交」下，仓储节点里已有、尚未转交的普通委托（例如上次运行留下的）会在命中入口 A 时由 `DeliveryJobsClickTransferJob` → `DeliveryJobsConfirmTaskTransfer` 转交。快速转交本身不消耗这个入口的 `max_hit` 名额。
 - **「仅接取委托」和「仅装箱货物」靠停用入口 A 实现「不转交」**，不是靠流程判断；因此该仓储节点已有的送货任务在这两种方式下不会被转交；但两种方式都会进调度申请界面，手上若有抢来的委托，仍会按[残留送货任务](#残留送货任务)一律送掉。
 - **「仅装箱货物」的装箱识别只认「货物装箱」**，不认「查看报价」：货箱已装满时入口显示「查看报价」，未装满时才显示「货物装箱」。
 - **「不处理」不覆盖残留任务分派节点**，它走模板默认的 `DeliveryJobsSkipOngoingDelivery`（见[残留送货任务](#残留送货任务)）。
@@ -109,7 +115,7 @@ flowchart TD
 
 ### `DeliveryJobsEnter{Depot}PriceDeliveryJob`
 
-它与 `DeliveryJobsEnter{Depot}DeliveryJob` 的识别、anchor、`next` 完全相同，两者都带 `max_hit: 1`。「按报价处理」下入口 A 为 `enabled: false`，本节点仍启用；该方式的报价动作选「接取并转交」时，由 `DeliveryJobsReturnAndTransfer{Depot}` 指向它。
+它与 `DeliveryJobsEnter{Depot}DeliveryJob` 的识别、anchor、`next` 完全相同，两者都带 `max_hit: 1`。「按报价处理」下入口 A 为 `enabled: false`，本节点仍启用；该方式的报价动作选「接取并转交」且没有快速转交按钮时，先经 `DeliveryJobsRedistributionBidNextStep` 接取，处理提示并回到大世界，再由 `DeliveryJobsGoToDepot` 指向的 `DeliveryJobsReturnAndTransfer{Depot}` 调本节点转交。有快速转交按钮时当场转交，不经过本节点。
 
 ## 按报价处理
 
@@ -117,7 +123,7 @@ flowchart TD
 
 | 选项 | 类型 | 默认 | 作用 |
 | ---------------------------------------- | ------ | -------------- | ------------------------------------------------------ |
-| 报价处理阈值 | input | 119000 | 与当前选中报价比较的整数值，校验 `^\d+$` |
+| 报价处理阈值 | input | 按仓储节点，见[默认报价阈值](#默认报价阈值) | 与当前选中报价比较的整数值，校验 `^\d+$` |
 | 达到或高于阈值时 | select | 接取并转交 | 报价 ≥ 阈值时执行哪个动作 |
 | 低于阈值时 | select | 仅接取委托 | 报价 < 阈值时执行哪个动作 |
 
@@ -136,6 +142,7 @@ flowchart TD
     QA -->|不处理| Close["DeliveryJobsCloseRedistributionBid → InLocalDepotNode"]
     QD -->|"有白底「快速转交」（仓储节点满 3 级）"| QT["DeliveryJobsQuickTransfer"]
     QD -->|没有| RB
+    QT -->|确认、关闭奖励、点回本地仓储节点| Local["InLocalDepotNode"]
     RB --> Back["DeliveryJobsBackToDepot"]
     Back -->|"[Anchor]DeliveryJobsGoToDepot"| Land["ReturnAndTransfer{Depot} / AutoDelivery{Depot} / 本仓储节点场景"]
 ```
@@ -145,10 +152,33 @@ flowchart TD
 - 阈值以 `pipeline_type: string` 注入 `ExpressionRecognition.expression`，实际比较式是 `{DeliveryJobsSelectedBidPrice}>={阈值}` 与 `{DeliveryJobsSelectedBidPrice}<{阈值}`。**`pipeline_type` 必须保持 `string`**：设为 `int` 会尝试把整个表达式转成整数，最终得到 `null`。
 - 两侧动作都是四选一，取值与仓储节点处理方式**不共用**：`接取并转交` / `全自动送货` / `仅接取委托` / `不处理`，没有「按报价处理」和「仅装箱货物」两种取值。
 - **「怎么接取」由节点的 `next` 表达，「接取后去哪」只由 `DeliveryJobsGoToDepot` 表达。** 「全自动送货」「仅接取委托」两个动作共用 `DeliveryJobsRedistributionBidNextStep`，「接取并转交」多了前置的 `DeliveryJobsDecideQuickTransfer`（有白底「快速转交」就快速转交、不接取，没有才回退到同一个 `DeliveryJobsRedistributionBidNextStep`）；接取后的差别只在锚点取值：`DeliveryJobsReturnAndTransfer{Depot}`（回仓储节点并转交）、`DeliveryJobsAutoDelivery{Depot}`（交给全自动送货）或本仓储节点场景（只回去）。
+- **有快速转交按钮时不接取任务，也不消耗 `DeliveryJobsEnter{Depot}PriceDeliveryJob` 的 `max_hit` 名额。** 没有按钮时才回退接取，经提示页和大世界后进入 `DeliveryJobsReturnAndTransfer{Depot}`；快速转交确认节点只进入奖励流程，不回退到接取后的链路。
 - 这些覆盖由 option 直接改写 `DeliveryJobs{Depot}QuoteAtLeastMinimum` / `DeliveryJobs{Depot}QuoteBelowMinimum` 的 `next` 与 `anchor.DeliveryJobsGoToDepot`。「不处理」把 `next` 指向 `DeliveryJobsCloseRedistributionBid`，此时不经过 `DeliveryJobsBackToDepot`，`DeliveryJobsGoToDepot` 不参与。
 - `pipeline_override` 对 `anchor` 对象和数组 `next` 都是**整体替换**，覆盖时必须给全该字段，不要只写想改的那一项。
 - 报价 OCR 失败（`DeliveryJobsBidPriceRecognitionFailed`）直接 `StopTask` 并停在报价页，不猜、不自动接取。
 - **残留委托不走报价判断**：`DeliveryJobsOngoingDeliveryFor{Depot}.next` 被覆盖为 `DeliveryJobsAutoDelivery{Depot}`（无归属终点的仓储节点为 `DeliveryJobsSkipOngoingDelivery`），理由与影响见[残留送货任务](#残留送货任务)。
+
+### 默认报价阈值
+
+基础报价由 zmdmap 的 `datasets/delivery_jobs.py` 读取 `DomainDepotLevelTable`、`DomainDepotPackValueTable`、`DomainDepotDeliverItemTypeTable` 与 `DomainDataTable` 计算：逐个仓储节点枚举每一级实际允许的货物类型与货箱大小组合，对各组合计算 `floor(maxLimit * priceFactor * domainDepotOfferPriceRatio)`，再取最大值。它不含买家随机倍率或转交后的尾款比例。
+
+计算结果写入 `delivery_jobs.json` 的 `depots[id].max_base_quote`，为正整数。生成器的 `model.mjs` 在 `validateData()` 中逐个检查该字段必须是正安全整数，`buildDepot()` 再将其暴露为 `MaxBaseQuote`；缺失或非法时，在本次 locale 写入和 `prepare.mjs` 清理产物目录之前报错，不使用兜底价格。
+
+生成器保留常见买家倍率 `1.1` 和界面截千单位 `1000`，通过 `defaultQuoteThreshold(depot) = floor(depot.MaxBaseQuote * 1.1 / 1000) * 1000` 得到默认阈值。Pipeline 的两条阈值表达式与任务选项的 `input.default` 继续共用这个函数，不再维护逐节点的手写价格表。
+
+下表是游戏版本 `1.6.4+11262943-8` 的当前生成结果。该版本各节点的最大基础报价恰好对应 **4 级仓储节点、装满工业品的大型货箱**；计算不写死等级或组合，未来新增等级或仓储节点时按实际允许的组合自动重算。
+
+| 仓储节点 | MaaEnd 标识 | 最大基础报价（调度券） | 默认阈值（调度券） |
+| --- | --- | --- | --- |
+| 源石研究园 | `OriginiumSciencePark` | 192000 | 211000 |
+| 矿脉源区 | `OriginLodespring` | 312000 | 343000 |
+| 供能高地 | `PowerPlateau` | 336000 | 369000 |
+| 武陵城 | `WulingCity` | 129600 | 142000 |
+| 试验园区 | `TestArea` | 172800 | 190000 |
+
+常见买家倍率 `1.1` 的依据是[社区 Wiki 的 Depot Node 页面](https://endfield.wiki.gg/wiki/Depot_Node)，并非原始游戏表直接给出的买家倍率；该页面还列出罕见的 `1.5` 倍报价。`1.5` 倍罕见报价仍高于上述默认下限，无需以其为默认下限。
+
+阈值比较的是**发货侧买家报价**；15.9 万是转交后的尾款显示，不参与发货侧阈值计算。
 
 ## 残留送货任务
 
@@ -187,7 +217,7 @@ flowchart TD
 >
 > **判断「能不能转交」之前必须先让页面稳定。** 转交按钮在不在，同时决定「按仓储节点配置处理」和「一律送掉」两个去向：页面还在渲染时先判，会把本该转交的委托当成抢来的直接送掉。所以 `DeliveryJobsEnsureOngoingDeliveryMission` 之后先过 `DeliveryJobsWaitOngoingMissionDetail`（`And(AutoDeliveryInDeliveryMissionDetail)` + 详情区域 `pre_wait_freezes 200ms`），稳定后才由 `DeliveryJobsCheckTransferJobAvailable` 判断——这与入口 A 边上那个门节点 `DeliveryJobsWait{Depot}DeliveryMissionDetail` 是同一个思路。
 
-任务详情里的区域名与仓储节点名在五种语言下逐字一致，Go 侧才能用区域 ID 直接拼出 `DeliveryJobsOngoingDeliveryFor{ID}` 这个节点名（仓储节点名取自 `global.region.{DepotId}`）。
+任务详情里的区域名与仓储节点名在五种语言下逐字一致（`model.mjs` 在生成期断言），Go 侧才能用区域 ID 直接拼出 `DeliveryJobsOngoingDeliveryFor{ID}` 这个节点名；仓储节点名取自 `global.region.{DepotId}`，与节点名后缀同源。
 
 这条链路会改动正常流程，因此每一步都向用户输出 Focus 提示，说明原因与采取的行为；本任务的提示都以 🚚 开头，与其他模块的提示（如全自动送货阶段的 🚛）在运行日志里区分开：
 
@@ -201,6 +231,8 @@ flowchart TD
 | `DeliveryJobsTransferOngoingJob` | 🚚 按该送货任务所属仓储节点的设置转交它 | `task.DeliveryJobs.OngoingDeliveryTransferred`（interface locale） |
 | `DeliveryJobsTransferUnavailable` | 🚚 抢来的送货委托不能转交，准备自动送货 | `task.DeliveryJobs.OngoingDeliveryTransferUnavailable`（interface locale） |
 | `DeliveryJobsDeliverOngoingByAutoDelivery`（动作失败） | 🚚 自动送货未能送达 | `task.DeliveryJobs.AutoDeliveryFailed`（interface locale） |
+
+检测提示由 `DeliveryJobsOngoingDelivery` 认出提示文字时输出，归属提示由 Go 侧解析出区域后输出；两个出口各说明自己采取的动作，每条提示只讲这一步新增的信息。自动送货失败原因挂在公共调用节点的动作失败上，因此无论开关开还是关都会显示；开关只决定失败后是否继续转交。该开关只作用于 `DeliveryJobsDeliverByAutoDelivery`，降级路径 `DeliveryJobsDeliverOngoingByAutoDelivery` 不读它。
 
 ## 全自动送货
 
@@ -251,7 +283,7 @@ flowchart TD
 
 ## anchor 一览
 
-DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全靠 anchor 传递上下文。当前用到八个，全部声明点与读取点都在 Pipeline 内，唯一例外是 `DeliveryJobsSelectPriorityItems`（读者在 `assets/tasks/DeliveryJobs.json` 的 option 里）：
+DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全靠 anchor 传递上下文。当前用到七个，全部声明点与读取点都在 Pipeline 内，唯一例外是 `DeliveryJobsSelectPriorityItems`（读者在 `assets/tasks/DeliveryJobs.json` 的 option 里）：
 
 | anchor | 声明者 | 消费者 | 读取时所处界面 |
 | ------------------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------ | -------------------------------------- |
@@ -259,12 +291,11 @@ DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全�
 | `DeliveryJobsGoToDepot` | `DeliveryJobs{Region}Loop`、`DeliveryJobsEnter{Depot}Cargo`、`DeliveryJobs{Depot}QuoteAtLeastMinimum/BelowMinimum` | `DeliveryJobsBackToDepot` | 大世界 |
 | `DeliveryJobsSelectPriorityItems` | `DeliveryJobsEnter{Depot}Cargo` | `DeliveryJobsSelectTypeOfGoodsToPackNextStep`（在任务 option 里） | 货物装箱界面 |
 | `DeliveryJobsRedistributionBidAction` | `DeliveryJobsEnter{Depot}Cargo` | `DeliveryJobsInCargoRedistributionBid` | 调度申请界面 |
-| `DeliveryJobsAfterAcceptJob` | `DeliveryJobsEnter{Depot}Cargo` | `DeliveryJobsRedistributionBidNextStep` | 调度申请界面（点确认接取后） |
 | `DeliveryJobsCurrentPriorityItem` | `DeliveryJobsStartFill{Region}Priority{1..4}` | `DeliveryJobsSelectPriorityItemLoop` | 装箱物品列表 |
 | `DeliveryJobsNextPriority` | `DeliveryJobsStartFill{Region}Priority{1..4}` | `DeliveryJobsRecheckCargoFilledAfterSettle`、`DeliveryJobsItemListAtBottom` | 装箱物品列表 |
 | `DeliveryJobsAfterAutoDelivery` | `DeliveryJobs{Region}Loop`、`DeliveryJobsAutoDelivery{Depot}` | `DeliveryJobsDeliverByAutoDelivery`、`DeliveryJobsDeliverOngoingByAutoDelivery` | 送货结束后的界面 |
 
-表中除 `DeliveryJobsReturnToDepotNode` 外的 anchor，读取方都是跨仓储节点或跨地区的共享节点，取值随声明方变化：`DeliveryJobsSelectPriorityItems` 取本地区的优先级入口，`DeliveryJobsRedistributionBidAction` 与 `DeliveryJobsAfterAcceptJob` 随仓储节点的处理方式变化，`DeliveryJobsGoToDepot` 随接取后的去向变化。
+表中除 `DeliveryJobsReturnToDepotNode` 外的 anchor，读取方都是跨仓储节点或跨地区的共享节点，取值随声明方变化：`DeliveryJobsSelectPriorityItems` 取本地区的优先级入口，`DeliveryJobsRedistributionBidAction` 随仓储节点的处理方式变化，`DeliveryJobsGoToDepot` 随接取后的去向变化。`DeliveryJobsQuickTransfer*` 系列不使用 anchor，按界面顺序直接走到 `InLocalDepotNode`。
 
 ### `DeliveryJobsReturnToDepotNode`：本地区仓储节点的落点
 
@@ -294,7 +325,7 @@ DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全�
 | ------------------------------------------------ | ------ | -------------- | ------------------------------------------------ |
 | 四号谷地 / 武陵 | switch | 开 | 启停地区；关闭即 `enabled: false` 该地区节点 |
 | `{仓储节点}` | select | 接取并转交 | 该仓储节点的处理方式（六选一） |
-| 报价处理阈值 | input | 119000 | 仅「按报价处理」时出现 |
+| 报价处理阈值 | input | 按仓储节点，见[默认报价阈值](#默认报价阈值) | 仅「按报价处理」时出现 |
 | 达到或高于阈值时 / 低于阈值时 | select | 接取并转交 / 仅接取委托 | 仅「按报价处理」时出现 |
 | 填入指定货物 | switch | 关 | 启用后展开每地区 4 个优先级槽位 |
 | `{地区} · 优先级 1..4` | select | 砂叶粉末 / 不指定 | 仅启用「填入指定货物」时出现 |
@@ -312,9 +343,9 @@ DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全�
 
 ## 已知边界
 
-- **「按报价处理」下每个仓储节点每次运行最多经 `DeliveryJobsEnter{Depot}PriceDeliveryJob` 转交一次。** 该节点带 `max_hit: 1`，且只被 `DeliveryJobsReturnAndTransfer{Depot}` 调用；报价达标且动作选「接取并转交」时靠它完成这次转交。若这次没转成（报价动作选了「仅接取委托」、或该名额已被本次运行用掉），委托会作为残留任务在下次识别到「有待运送的货物」时交给 `DeliveryJobsAutoDelivery{Depot}` 送掉，不会长期占着调度申请界面——但代价是这条委托会真的被送完，而「全自动送货」只在有归属终点的仓储节点上可用，无终点的仓储节点仍走跳过。本条由节点配置推得，尚未实机确认。
-- `DeliveryJobsCheck{Depot}Cargo.expected` 的文本清单在 `depot-template.jsonc` 与 `task-template.mjs` 的 `ALL_CARGO_EXPECTED` / `PACK_CARGO_EXPECTED` 各有一份：「全自动送货」不覆盖它，该方式运行时用的就是模板那份，其余启用货物入口的方式由 option 覆盖，**改一处要同步另一处**。
-- 报价阈值默认值 `119000` 同样在模板表达式与 option `default` 各有一份。
+- **「按报价处理」下，回退接取后经 `DeliveryJobsEnter{Depot}PriceDeliveryJob` 转交的路径，每个仓储节点每次运行最多命中一次。** 没有快速转交按钮（仓储节点未满 3 级）且报价动作选「接取并转交」时，`DeliveryJobsDecideQuickTransfer` 回退 `DeliveryJobsRedistributionBidNextStep` 接取，再经 `DeliveryJobsBackToDepot` → `DeliveryJobsReturnAndTransfer{Depot}` → `DeliveryJobsEnter{Depot}PriceDeliveryJob` 转交；最后这个入口带 `max_hit: 1`。有快速转交按钮时不经过该入口，也不消耗它的名额。未在该入口转交的已接委托，后续再次识别到「有待运送的货物」时按归属仓储节点的处理方式处理：「按报价处理」下交给 `DeliveryJobsAutoDelivery{Depot}` 送完；无归属终点的仓储节点仍走跳过。本条由节点配置推得，尚未实机确认。
+- `DeliveryJobsCheck{Depot}Cargo.expected` 的识别文本只有一个来源：`constants.mjs` 的 `ALL_CARGO_EXPECTED`，由 depot 模板经数据注入成节点默认值；只有「仅装箱货物」用同文件的 `PACK_CARGO_EXPECTED` 覆盖，其余处理方式沿用节点默认。改文本只改 `constants.mjs` 并重新生成。
+- 报价阈值默认值由 `delivery_jobs.json` 的 `depots[id].max_base_quote` 经 `model.mjs` 的 `MaxBaseQuote` 传给 `defaultQuoteThreshold(depot)`，Pipeline 的两条阈值表达式与任务选项的 `input.default` 共用其计算结果。报价字段缺失或不是正安全整数时，生成器在本次 locale 写入和产物目录清理之前报错；取值与依据见[默认报价阈值](#默认报价阈值)。
 
 ## 生成器与维护
 

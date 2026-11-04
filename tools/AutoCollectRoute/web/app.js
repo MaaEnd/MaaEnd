@@ -1,5 +1,6 @@
 /**
- * 采集路线生成器：按采集物筛选、在底图上框选，生成 AutoCollect 路线与整套任务注册。
+ * 采集路线生成器：按采集物筛选、在底图上框选，生成 AutoCollect 路线与整套任务注册；已登记的路线可打开查看、
+ * 改选采集点后重新生成或删除。
  *
  * 地图前端整套复用 MapNavigator（服务端挂在 /mapnav/）：视图交互走 {@link module:map_view}，
  * 路线、运行时展开与选框由编辑器的 {@link Overlay} 画，命中与框选沿用 {@link PointEditing}；
@@ -35,10 +36,14 @@ import {initFeedback, setStatus} from "/mapnav/js/ui/toast.js";
 
 /** @returns {Promise<any>} collectible types, points, maps and teleport anchors */
 const getCatalog = () => getJson("/api/catalog");
+/** @returns {Promise<any>} registered routes as drawn on the map, and the files a removal rewrites */
+const getRoutes = () => getJson("/api/routes");
 /** @param {any} req @returns {Promise<any>} planned route and the pipeline files it would write */
 const previewRoute = (req) => sendJson("/api/preview", req);
 /** @param {any} req @returns {Promise<any>} same as {@link previewRoute}, after writing the files */
 const applyRoute = (req) => sendJson("/api/apply", req);
+/** @param {string} id @returns {Promise<any>} the files rewritten by the removal */
+const removeRoute = (id) => sendJson("/api/remove", {id});
 
 const COLOR_INFO = "#3b82f6";
 const COLOR_OK = "#10b981";
@@ -53,6 +58,7 @@ const ICON_SIZE = 18;
 const DOT_RADIUS = 3.5;
 const SELECTED_COLOR = "#f59e0b";
 const EXCLUDED_COLOR = "#ef4444";
+const COVERED_COLOR = "#10b981";
 const OUTLINE_COLOR = "#0f172a";
 const BADGE_FILL = "rgba(11, 18, 32, 0.82)";
 const ANCHOR_COLOR = "#22d3ee";
@@ -101,6 +107,54 @@ function routePoints(path) {
   return points;
 }
 
+/**
+ * @param {string} text
+ * @returns {HTMLDivElement} the placeholder a list shows when it has no rows
+ */
+function emptyRow(text) {
+  const empty = document.createElement("div");
+  empty.className = "wp-empty";
+  empty.textContent = text;
+  return empty;
+}
+
+/**
+ * @param {string} text
+ * @param {string} className
+ * @param {string} [title]
+ * @returns {HTMLSpanElement}
+ */
+function rowTag(text, className, title = "") {
+  const tag = document.createElement("span");
+  tag.className = className;
+  tag.textContent = text;
+  tag.title = title;
+  return tag;
+}
+
+/**
+ * @param {Array<[string, string]>} pairs
+ * @returns {HTMLElement[]} `<dt>` / `<dd>` pairs of a detail list
+ */
+function detailRows(pairs) {
+  return pairs.flatMap(([term, value]) => {
+    const dt = document.createElement("dt");
+    dt.textContent = term;
+    const dd = document.createElement("dd");
+    dd.textContent = value;
+    return [dt, dd];
+  });
+}
+
+/**
+ * @param {?any} anchor
+ * @returns {string}
+ */
+function anchorText(anchor) {
+  if (!anchor) return "未找到传送入口";
+  return anchor.name ? `${anchor.name} · ${anchor.entry}` : anchor.entry;
+}
+
 class CollectApp {
   constructor() {
     this.els = {
@@ -135,9 +189,22 @@ class CollectApp {
     /** @type {Set<string>} */
     this.selected = new Set();
     this.kind = "rare";
+    /** @type {?Array<any>} registered routes, null until loaded */
+    this.routes = null;
+    this.routesError = "";
+    /** @type {string[]} registry and generated files every removal rewrites */
+    this.routeFiles = [];
+    /** @type {Map<string, string[]>} point id -> ids of the registered routes collecting it */
+    this.coverage = new Map();
+    /** @type {?any} the registered route being viewed or regenerated */
+    this.opened = null;
     /** @type {any} */
     this.result = null;
-    /** @type {Array<any>} */
+    /** @type {?{anchor:?any, segments:Array<any>}} the preview as a single segment */
+    this.resultDisplay = null;
+    /** @type {?{anchor:?any, segments:Array<any>}} what the map draws: the preview, else the opened route */
+    this.display = null;
+    /** @type {Array<any>} points of every segment of {@link CollectApp#display} */
     this.route = [];
     /** @type {Set<string>} selected points the route cannot walk to */
     this.excluded = new Set();
@@ -154,6 +221,8 @@ class CollectApp {
     this.previewToken = 0;
     /** True while a write request is in flight; blocks a second write of the same route. */
     this.applying = false;
+    /** @type {'apply'|'remove'} what confirming the dialog does */
+    this.dialogAction = "apply";
     /** @type {Map<string, HTMLImageElement>} */
     this.icons = new Map();
     /** @type {?{width:number,height:number}} */
@@ -178,11 +247,15 @@ class CollectApp {
       return;
     }
     this.renderMapRail();
+    setStatus("正在读取已有路线…", COLOR_INFO);
+    const loaded = this.loadRoutes();
+    const shown = this.catalog.maps.length > 0 && (await this.setMap(this.catalog.maps[0].map));
+    if (!(await loaded) || !shown) return;
     setStatus(
-      `已载入 ${this.catalog.groups.length} 种采集物、${this.catalog.points.length} 个点。选择稀有或常规采集物后，在地图上框选。`,
+      `已载入 ${this.catalog.groups.length} 种采集物、${this.catalog.points.length} 个点与 ${this.routes.length} 条已有路线。` +
+        "单击左侧路线查看或修改，或在地图上框选新建。",
       COLOR_INFO,
     );
-    if (this.catalog.maps.length) await this.setMap(this.catalog.maps[0].map);
   }
 
   // --- wiring -------------------------------------------------------------------------
@@ -204,6 +277,7 @@ class CollectApp {
     $("btn-zoom-in").addEventListener("click", () => this.zoomBy(ZOOM_IN_FACTOR));
     $("btn-zoom-out").addEventListener("click", () => this.zoomBy(ZOOM_OUT_FACTOR));
     $("btn-fit-view").addEventListener("click", () => this.fitView());
+    $("btn-clear-view").addEventListener("click", () => this.clearView());
 
     $("type-search").addEventListener("input", () => this.renderTypeList());
     $("types-all").addEventListener("click", () => {
@@ -219,12 +293,13 @@ class CollectApp {
       button.addEventListener("click", () => this.setKind(button.dataset.kind));
     }
     $("route-preview").addEventListener("click", () => void this.preview());
-    $("route-clear").addEventListener("click", () => this.setResult(null));
+    $("route-clear").addEventListener("click", () => (this.result ? this.setResult(null) : this.closeRoute()));
     $("copy-route").addEventListener("click", () => void this.copy(this.result?.route_text, "路线文件"));
     $("copy-path").addEventListener("click", () => void this.copy(this.result?.path_text, "path"));
-    $("route-apply").addEventListener("click", () => this.openApplyDialog());
+    $("route-apply").addEventListener("click", () => this.openDialog("apply"));
+    $("route-remove").addEventListener("click", () => this.openDialog("remove"));
     $("apply-dialog-cancel").addEventListener("click", () => ($("apply-dialog").hidden = true));
-    $("apply-dialog-ok").addEventListener("click", () => void this.apply());
+    $("apply-dialog-ok").addEventListener("click", () => void this.confirm());
   }
 
   resize() {
@@ -259,10 +334,12 @@ class CollectApp {
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", String(active));
     }
+    this.opened = null;
     this.selected = new Set();
     this.history.clear();
     this.setResult(null);
     this.refreshVisible();
+    this.renderRouteList();
     this.renderTypeList();
     this.renderSelection();
     this.renderViewLabel();
@@ -286,13 +363,17 @@ class CollectApp {
     );
   }
 
-  /** @param {string} mapId */
+  /**
+   * @param {string} mapId
+   * @returns {Promise<boolean>} false when the basemap failed to load
+   */
   async setMap(mapId) {
     const map = this.catalog.maps.find((item) => item.map === mapId);
     this.mapId = mapId;
     this.mapPoints = this.catalog.points
       .filter((point) => point.map === mapId)
       .map((point) => ({...point, x: point.u, y: point.v}));
+    this.opened = null;
     this.selected = new Set();
     this.history.clear();
     this.setResult(null);
@@ -302,6 +383,7 @@ class CollectApp {
       button.setAttribute("aria-pressed", String(active));
     }
     this.refreshVisible();
+    this.renderRouteList();
     this.renderTypeList();
     this.renderSelection();
 
@@ -312,12 +394,13 @@ class CollectApp {
       await image.decode();
     } catch {
       setStatus(`底图加载失败：${map.image}`, COLOR_ERROR);
-      return;
+      return false;
     }
-    if (token !== this.basemapToken) return;
+    if (token !== this.basemapToken) return true;
     this.dims = {width: image.naturalWidth, height: image.naturalHeight};
     this.renderer.setBasemap(image, this.dims);
     this.fitView();
+    return true;
   }
 
   /** @returns {Array<any>} groups of the current kind with points on the current map */
@@ -349,9 +432,19 @@ class CollectApp {
     return counts;
   }
 
+  /** @returns {Map<string, number>} per item, points of the current map collected by a registered route */
+  coveredPerItem() {
+    const counts = new Map();
+    for (const point of this.mapPoints) {
+      if (this.coverage.has(point.id)) counts.set(point.item, (counts.get(point.item) || 0) + 1);
+    }
+    return counts;
+  }
+
   renderTypeList() {
     const query = $("type-search").value.trim().toLowerCase();
     const picked = this.selectedPerItem();
+    const covered = this.coveredPerItem();
     const rows = this.mapGroups()
       .filter((group) => !query || Object.values(group.names).some((name) => name.toLowerCase().includes(query)))
       .map((group) => {
@@ -370,40 +463,33 @@ class CollectApp {
           else this.hiddenItems.add(group.item);
           this.afterFilterChange();
         });
-        const icon = document.createElement("img");
-        icon.className = "collect-type-icon";
-        icon.alt = "";
-        icon.addEventListener("error", () => (icon.style.visibility = "hidden"), {once: true});
-        icon.src = this.icon(group.icon).src;
         const name = document.createElement("span");
         name.className = "wp-action";
         name.textContent = group.names.zh_cn;
-        row.append(box, icon, name);
-        if (group.action === "DIG") {
-          const tag = document.createElement("span");
-          tag.className = "wp-tier";
-          tag.textContent = "挖掘";
-          row.append(tag);
-        }
-        if (picked.has(group.item)) {
-          const tag = document.createElement("span");
-          tag.className = "wp-strict";
-          tag.textContent = `已选 ${picked.get(group.item)}`;
-          row.append(tag);
-        }
+        row.append(box, this.iconElement(group.icon), name);
+        if (group.action === "DIG") row.append(rowTag("挖掘", "wp-tier"));
+        if (picked.has(group.item)) row.append(rowTag(`已选 ${picked.get(group.item)}`, "wp-strict"));
         const count = document.createElement("span");
         count.className = "wp-coord";
-        count.textContent = String(group.counts[this.mapId]);
+        count.textContent = `${covered.get(group.item) || 0}/${group.counts[this.mapId]}`;
         row.append(count);
         return row;
       });
-    if (!rows.length) {
-      const empty = document.createElement("div");
-      empty.className = "wp-empty";
-      empty.textContent = query ? "没有匹配的采集物" : "当前地图没有该类采集物";
-      rows.push(empty);
-    }
+    if (!rows.length) rows.push(emptyRow(query ? "没有匹配的采集物" : "当前地图没有该类采集物"));
     $("type-list").replaceChildren(...rows);
+  }
+
+  /**
+   * @param {string} name icon file stem under `UI/Item/`
+   * @returns {HTMLImageElement} a list-row icon, hidden when the file is missing
+   */
+  iconElement(name) {
+    const icon = document.createElement("img");
+    icon.className = "collect-type-icon";
+    icon.alt = "";
+    icon.addEventListener("error", () => (icon.style.visibility = "hidden"), {once: true});
+    icon.src = this.icon(name).src;
+    return icon;
   }
 
   /**
@@ -419,6 +505,99 @@ class CollectApp {
       this.icons.set(name, image);
     }
     return image;
+  }
+
+  // --- registered routes --------------------------------------------------------------
+
+  /** @returns {Promise<boolean>} false when the routes could not be read */
+  async loadRoutes() {
+    try {
+      const {routes, files} = await getRoutes();
+      this.routes = routes;
+      this.routeFiles = files;
+      this.routesError = "";
+    } catch (err) {
+      this.routes = null;
+      this.routesError = err.message;
+      setStatus(`读取已有路线失败：${err.message}`, COLOR_ERROR);
+    }
+    this.coverage = new Map();
+    for (const route of this.routes || []) {
+      for (const id of route.point_ids) this.coverage.set(id, [...(this.coverage.get(id) || []), route.id]);
+    }
+    this.renderRouteList();
+    this.renderTypeList();
+    this.paint();
+    return this.routes !== null;
+  }
+
+  /** @returns {Array<any>} registered routes of the current map and kind */
+  mapRoutes() {
+    return (this.routes || []).filter((route) => route.map === this.mapId && route.kind === this.kind);
+  }
+
+  renderRouteList() {
+    const routes = this.mapRoutes();
+    $("route-count").textContent = this.routes ? `${routes.length} 条` : "";
+    const rows = routes.map((route) => {
+      const row = document.createElement("div");
+      row.className = "wp-row collect-type";
+      row.classList.toggle("wp-row-selected", this.opened?.id === route.id);
+      row.title = `${route.id} · ${route.file}`;
+      row.addEventListener("click", () => this.openRoute(route));
+      const name = document.createElement("span");
+      name.className = "wp-action";
+      name.textContent = route.name;
+      row.append(...route.items.map((item) => this.iconElement(item.icon)), name);
+      if (route.error) row.append(rowTag("读取失败", "wp-strict", route.error));
+      else if (route.notes.length) row.append(rowTag("特殊结构", "wp-tier", route.notes.join("；")));
+      row.append(rowTag(`${route.point_ids.length} 点`, "wp-coord"));
+      return row;
+    });
+    if (!rows.length) {
+      const text = this.routesError
+        ? "读取失败，详见状态栏"
+        : this.routes
+          ? `当前地图还没有${KIND_NAMES[this.kind]}路线`
+          : "正在读取…";
+      rows.push(emptyRow(text));
+    }
+    $("route-list").replaceChildren(...rows);
+  }
+
+  /**
+   * Show a registered route as its file stands and select the points it collects, so a box edit
+   * followed by「重新生成」replaces it.
+   * @param {any} route
+   */
+  openRoute(route) {
+    if (route.error) {
+      setStatus(`${route.id} 读取失败：${route.error}`, COLOR_ERROR);
+      return;
+    }
+    this.opened = route;
+    for (const item of route.items) this.hiddenItems.delete(item.item);
+    this.selected = new Set(route.point_ids);
+    this.history.clear();
+    this.setResult(null);
+    this.refreshVisible();
+    this.renderRouteList();
+    this.renderTypeList();
+    this.renderSelection();
+    this.renderViewLabel();
+    this.fitView();
+    setStatus(`已打开 ${route.id}，框选增减采集点后点「重新生成」可替换该路线。`, COLOR_INFO);
+  }
+
+  closeRoute() {
+    if (!this.opened) return;
+    this.opened = null;
+    this.selected = new Set();
+    this.history.clear();
+    this.setResult(null);
+    this.renderRouteList();
+    this.renderTypeList();
+    this.renderSelection();
   }
 
   // --- selection ----------------------------------------------------------------------
@@ -448,7 +627,7 @@ class CollectApp {
     summary.hidden = picked.size === 0;
     summary.textContent = [...picked].map(([item, count]) => `${names.get(item) || item} ×${count}`).join(" · ");
     $("route-preview").disabled = this.selected.size === 0;
-    $("route-preview").textContent = `生成${KIND_NAMES[this.kind]}路线`;
+    $("route-preview").textContent = this.opened ? `重新生成 ${this.opened.id}` : `生成${KIND_NAMES[this.kind]}路线`;
   }
 
   /** @returns {(wx:number, wy:number) => [number, number]} */
@@ -558,7 +737,10 @@ class CollectApp {
     }
     const group = this.catalog.groups.find((item) => item.item === point.item);
     const state = this.selected.has(point.id) ? "已选" : "未选";
-    $("view-label").textContent = `${group ? group.names.zh_cn : point.item} · [${point.u}, ${point.v}] · ${state}`;
+    const routes = this.coverage.get(point.id);
+    const covered = routes ? ` · 已有路线 ${routes.join("、")}` : "";
+    $("view-label").textContent =
+      `${group ? group.names.zh_cn : point.item} · [${point.u}, ${point.v}] · ${state}${covered}`;
   }
 
   renderViewLabel() {
@@ -588,15 +770,7 @@ class CollectApp {
     }
     if (isFormField(e.target)) return;
     if (e.key === "Escape") {
-      if (this.box.active) {
-        this.box.cancel();
-        this.paint();
-      } else if (this.selected.size) {
-        this.updateSelection(new Set());
-        setStatus("已取消当前选择。", COLOR_OK);
-      } else if (this.result) {
-        this.setResult(null);
-      }
+      this.escapeStep()?.run();
       e.preventDefault();
       return;
     }
@@ -633,6 +807,62 @@ class CollectApp {
     }
   }
 
+  /**
+   * What Esc cancels next: the open box, then the preview, then the opened route, then the selection.
+   * @returns {?{label:string, run:() => void}}
+   */
+  escapeStep() {
+    if (this.box.active) {
+      return {
+        label: "取消框选",
+        run: () => {
+          this.box.cancel();
+          this.paint();
+        },
+      };
+    }
+    if (this.result) return {label: "收起预览", run: () => this.setResult(null)};
+    if (this.opened) {
+      return {
+        label: "关闭路线",
+        run: () => {
+          this.closeRoute();
+          setStatus("已关闭路线。", COLOR_OK);
+        },
+      };
+    }
+    if (this.selected.size) {
+      return {
+        label: "取消选择",
+        run: () => {
+          this.updateSelection(new Set());
+          setStatus("已取消当前选择。", COLOR_OK);
+        },
+      };
+    }
+    return null;
+  }
+
+  /** Back to a blank map: drop the preview, close the opened route and clear the selection. */
+  clearView() {
+    this.box.cancel();
+    if (this.opened) this.closeRoute();
+    else this.updateSelection(new Set());
+    setStatus("已清空地图显示。", COLOR_OK);
+  }
+
+  /** The toolbar spells out what Esc and Delete would do right now. */
+  renderKeyHints() {
+    const escape = this.escapeStep()?.label;
+    const hints = escape ? [`Esc ${escape}`] : [];
+    if (this.selected.size && escape !== "取消选择") hints.push("Delete 清空选择");
+    const text = hints.join(" · ");
+    const hint = $("key-hint");
+    if (hint.textContent !== text) hint.textContent = text;
+    hint.hidden = !text;
+    $("btn-clear-view").disabled = !this.result && !this.opened && !this.selected.size;
+  }
+
   /** @param {boolean} redo */
   stepHistory(redo) {
     const current = [...this.selected];
@@ -660,8 +890,9 @@ class CollectApp {
   /** Frame the route, else the selection, else the whole basemap. */
   fitView() {
     if (!this.dims) return;
-    const points = this.result
-      ? [...this.route, {x: this.result.anchor.u, y: this.result.anchor.v}]
+    const anchor = this.display?.anchor;
+    const points = this.display
+      ? [...this.route, ...(anchor && "u" in anchor ? [{x: anchor.u, y: anchor.v}] : [])]
       : this.mapPoints.filter((point) => this.selected.has(point.id));
     if (points.length) {
       const xs = points.map((point) => point.x);
@@ -684,6 +915,7 @@ class CollectApp {
 
   paint() {
     this.renderer.requestRender(this.camera);
+    this.renderKeyHints();
     this.drawMarkers();
     // 路线、运行时展开与选框都按路径编辑器的画法出图；底图就是 base，展开结果无需换坐标系
     this.overlay.render(this.camera, {
@@ -719,7 +951,13 @@ class CollectApp {
         if (this.selected.has(point.id) !== selected) continue;
         const [x, y] = this.camera.worldToCanvas(point.x, point.y);
         if (!this.onScreen(x, y, BADGE_RADIUS + 4)) continue;
-        const ring = !selected ? null : this.excluded.has(point.id) ? EXCLUDED_COLOR : SELECTED_COLOR;
+        const ring = selected
+          ? this.excluded.has(point.id)
+            ? EXCLUDED_COLOR
+            : SELECTED_COLOR
+          : this.coverage.has(point.id)
+            ? COVERED_COLOR
+            : null;
         if (badges) this.drawBadge(ctx, x, y, this.icon(icons.get(point.item)), point.item, ring);
         else this.drawDot(ctx, x, y, point.item, ring);
       }
@@ -732,7 +970,7 @@ class CollectApp {
    * @param {number} x @param {number} y
    * @param {HTMLImageElement} image
    * @param {string} item
-   * @param {?string} ring selection ring color, null when not selected
+   * @param {?string} ring selection or coverage ring color, null for neither
    */
   drawBadge(ctx, x, y, image, item, ring) {
     ctx.save();
@@ -770,7 +1008,7 @@ class CollectApp {
    * @param {CanvasRenderingContext2D} ctx
    * @param {number} x @param {number} y
    * @param {string} item
-   * @param {?string} ring selection ring color, null when not selected
+   * @param {?string} ring selection or coverage ring color, null for neither
    */
   drawDot(ctx, x, y, item, ring) {
     ctx.save();
@@ -797,8 +1035,8 @@ class CollectApp {
    * @param {CanvasRenderingContext2D} ctx
    */
   drawAnchors(ctx) {
-    const chosen = this.result?.anchor;
-    if (chosen && this.route.length && !this.expanded) {
+    const chosen = this.display?.anchor;
+    if (chosen && "u" in chosen && this.route.length && !this.expanded) {
       const [ax, ay] = this.camera.worldToCanvas(chosen.u, chosen.v);
       const [fx, fy] = this.camera.worldToCanvas(this.route[0].x, this.route[0].y);
       ctx.save();
@@ -885,6 +1123,7 @@ class CollectApp {
     grid.className = "legend-grid";
     grid.append(
       item("已选采集物", {background: "transparent", borderColor: SELECTED_COLOR, borderWidth: "2px"}),
+      item("已有路线", {background: "transparent", borderColor: COVERED_COLOR, borderWidth: "2px"}),
       item("不连通", {background: "transparent", borderColor: EXCLUDED_COLOR, borderWidth: "2px"}),
       item("传送点", {background: ANCHOR_COLOR, borderRadius: "1px", transform: "rotate(45deg)"}),
       item("运行时展开", {backgroundColor: "#ff007f", borderRadius: "2px", height: "3px", width: "12px"}),
@@ -898,60 +1137,88 @@ class CollectApp {
 
   // --- route --------------------------------------------------------------------------
 
-  /** @param {any} result preview response, or null to drop the route */
+  /** @param {any} result preview response, or null to drop it */
   setResult(result) {
     this.result = result;
-    this.route = result ? routePoints(result.path) : [];
+    this.resultDisplay = result && {
+      anchor: result.anchor,
+      segments: [
+        {
+          start: {position: [result.anchor.u, result.anchor.v], zone: result.zone_id},
+          path: result.path,
+          points: routePoints(result.path),
+        },
+      ],
+    };
     this.excluded = new Set(result ? [...result.unreachable, ...result.blocked] : []);
-    this.expanded = null;
-    this.expandFailure = null;
-    this.expandState = "pending";
-    this.expandToken += 1;
     this.previewToken += 1;
+    this.refreshDisplay();
     this.renderResult();
     this.paint();
   }
 
-  /** Expand the generated `path` with the same runtime preview the editor uses, from the start anchor. */
+  /** Draw the preview, else the opened route, and expand it whenever that changes. */
+  refreshDisplay() {
+    const display = this.resultDisplay || this.opened;
+    if (display === this.display) return;
+    this.display = display;
+    this.route = display ? display.segments.flatMap((segment) => segment.points) : [];
+    this.expanded = null;
+    this.expandFailure = null;
+    this.expandState = "pending";
+    this.expandToken += 1;
+    if (display) void this.expand();
+  }
+
+  /** Expand each navigation segment with the same runtime preview the editor uses, from where the route starts it. */
   async expand() {
-    const result = this.result;
-    if (!result) return;
+    const display = this.display;
     const token = ++this.expandToken;
     this.expandState = "pending";
     this.renderResult();
+    const merged = {points: [], walk_segments: [], zipline_segments: [], rope_segments: []};
+    let count = 0;
+    let length = 0;
     try {
-      const response = await postRoutePreview({
-        position: [result.anchor.u, result.anchor.v],
-        position_zone: result.zone_id,
-        custom_action_param: {path: result.path},
-      });
-      if (token !== this.expandToken || response?.stale) return;
-      if (!response || !response.ok) {
-        this.expandFailure = response?.failure || null;
-        throw new Error(response?.error || "路线展开失败");
-      }
-      this.expanded = routePreviewData(response);
-      this.expandedCount = response.expanded_waypoints || this.expanded.points.length;
-      const points = this.expanded.points;
-      this.expandedLength = Math.round(
-        points
+      for (const [index, segment] of display.segments.entries()) {
+        const response = await postRoutePreview({
+          position: segment.start.position,
+          position_zone: segment.start.zone,
+          custom_action_param: {path: segment.path},
+        });
+        if (token !== this.expandToken || response?.stale) return;
+        if (!response || !response.ok) {
+          this.expandFailure = response?.failure || null;
+          const where = display.segments.length > 1 ? `第 ${index + 1} 段 ${segment.node}：` : "";
+          throw new Error(`${where}${response?.error || "路线展开失败"}`);
+        }
+        const points = response.points || [];
+        for (const key of Object.keys(merged)) merged[key].push(...(response[key] || []));
+        count += response.expanded_waypoints || points.length;
+        length += points
           .slice(1)
-          .reduce((sum, point, i) => sum + Math.hypot(point[0] - points[i][0], point[1] - points[i][1]), 0),
-      );
+          .reduce((sum, point, i) => sum + Math.hypot(point[0] - points[i][0], point[1] - points[i][1]), 0);
+      }
       this.expandState = "done";
-      setStatus(...routePreviewStatus(this.expanded, response, `${result.id} 已按运行时展开`));
+      if (this.result) {
+        const subject = `${this.result.id} 已按运行时展开`;
+        setStatus(...routePreviewStatus(routePreviewData(merged), {expanded_waypoints: count}, subject));
+      }
     } catch (err) {
       if (token !== this.expandToken) return;
       this.expandState = "failed";
       setStatus(`路线展开失败：${err.message}`, COLOR_ERROR);
     }
+    this.expanded = merged.points.length ? routePreviewData(merged) : null;
+    this.expandedCount = count;
+    this.expandedLength = Math.round(length);
     this.renderResult();
     this.paint();
   }
 
-  /** @returns {{map:string, ids:string[], kind:string}} */
+  /** @returns {{map:string, ids:string[], kind:string, replace:string}} */
   request() {
-    return {map: this.mapId, ids: [...this.selected], kind: this.kind};
+    return {map: this.mapId, ids: [...this.selected], kind: this.kind, replace: this.opened?.id || ""};
   }
 
   async preview() {
@@ -984,7 +1251,6 @@ class CollectApp {
       } else {
         setStatus("正在按运行时语义展开路线…", COLOR_INFO);
       }
-      void this.expand();
     } catch (err) {
       sorting = false;
       if (token !== this.previewToken) return;
@@ -998,36 +1264,73 @@ class CollectApp {
 
   renderResult() {
     const result = this.result;
-    $("route-box").hidden = !result;
-    if (!result) return;
-    $("route-title").textContent = `路线预览 · ${result.id}`;
+    const route = this.opened;
+    $("route-box").hidden = !result && !route;
+    if (!result && !route) return;
+    $("route-clear").textContent = result ? "清除" : "关闭";
+    $("route-copy").hidden = !result;
+    $("route-apply").hidden = !result;
+    $("route-remove").hidden = !!result;
+    if (result) {
+      const renamed = result.replace && result.replace !== result.id ? `${result.replace} → ` : "";
+      $("route-title").textContent = `${result.replace ? "重新生成" : "路线预览"} · ${renamed}${result.id}`;
+    } else {
+      $("route-title").textContent = `已有路线 · ${route.id}`;
+    }
+    $("route-facts").replaceChildren(...detailRows(result ? this.resultFacts(result) : this.routeFacts(route)));
+  }
 
-    const collects = result.path.filter((step) => Array.isArray(step));
-    const digs = collects.filter((step) => step[2] === "DIG").length;
-    const navmesh = result.path.filter((step) => step.action === "NAVMESH").length;
-    const expansion = {
+  /** @returns {string} */
+  expansionText() {
+    return {
       pending: "正在展开…",
       done: `${this.expandedCount} 个运行时路点，步行 ${this.expandedLength} px`,
       failed: "展开失败，详见状态栏",
     }[this.expandState];
+  }
+
+  /**
+   * @param {any} result
+   * @returns {Array<[string, string]>}
+   */
+  resultFacts(result) {
+    const collects = result.path.filter((step) => Array.isArray(step));
+    const digs = collects.filter((step) => step[2] === "DIG").length;
+    const navmesh = result.path.filter((step) => step.action === "NAVMESH").length;
     const facts = [
       ["文件", result.route_file],
-      ["起点传送", result.anchor.name ? `${result.anchor.name} · ${result.anchor.entry}` : result.anchor.entry],
+      ["起点传送", anchorText(result.anchor)],
       ["采集点", `${collects.length} 个${digs ? `（挖掘 ${digs}）` : ""}`],
       ["运行时寻路", `${navmesh} 段`],
-      ["运行时展开", expansion],
+      ["运行时展开", this.expansionText()],
       ["产物", result.items.map((item) => `${item.names.zh_cn} ×${item.count}`).join("、")],
     ];
+    if (result.replace) {
+      const before = new Set(this.opened.point_ids);
+      const after = new Set(result.order);
+      const added = [...after].filter((id) => !before.has(id)).length;
+      const removed = [...before].filter((id) => !after.has(id)).length;
+      facts.push(["改动", added || removed ? `新增 ${added} 个、移除 ${removed} 个采集点` : "采集点不变"]);
+    }
     if (this.excluded.size) facts.push(["不连通", `${this.excluded.size} 个，已排除（红圈标记）`]);
-    $("route-facts").replaceChildren(
-      ...facts.flatMap(([term, value]) => {
-        const dt = document.createElement("dt");
-        dt.textContent = term;
-        const dd = document.createElement("dd");
-        dd.textContent = value;
-        return [dt, dd];
-      }),
-    );
+    return facts;
+  }
+
+  /**
+   * @param {any} route
+   * @returns {Array<[string, string]>}
+   */
+  routeFacts(route) {
+    const facts = [
+      ["文件", route.file],
+      ["起点传送", anchorText(route.anchor)],
+      ["导航", `${route.segments.length} 段`],
+      ["采集点", `${route.point_ids.length} 个`],
+      ["运行时展开", this.expansionText()],
+      ["产物", route.items.map((item) => item.names.zh_cn).join("、")],
+    ];
+    if (route.notes.length) facts.push(["特殊结构", route.notes.join("；")]);
+    return facts;
   }
 
   /**
@@ -1040,37 +1343,84 @@ class CollectApp {
     else setStatus(`复制${what}失败。`, COLOR_ERROR);
   }
 
-  openApplyDialog() {
-    if (!this.result || this.applying) return;
-    $("apply-dialog-hint").textContent = `将新增 ${this.result.id}，并改动以下文件：`;
-    $("apply-dialog-files").replaceChildren(
-      ...this.result.files.flatMap((file, index) => {
-        const dt = document.createElement("dt");
-        dt.textContent = index === 0 ? "新建" : "修改";
-        const dd = document.createElement("dd");
-        dd.textContent = file;
-        return [dt, dd];
+  /**
+   * List every file the write or removal touches, and what it would lose: the hand-written structure of
+   * the route being replaced, and files elsewhere that reference nodes about to disappear.
+   * @param {'apply'|'remove'} action
+   */
+  openDialog(action) {
+    const result = this.result;
+    const route = this.opened;
+    if (this.applying || (action === "apply" ? !result : !route)) return;
+    this.dialogAction = action;
+    let hint;
+    let files;
+    const warnings = [];
+    if (action === "remove") {
+      hint = `将删除 ${route.id}，并改动以下文件：`;
+      files = [{path: route.file, action: "删除"}, ...this.routeFiles.map((path) => ({path, action: "修改"}))];
+    } else if (!result.replace) {
+      hint = `将新增 ${result.id}，并改动以下文件：`;
+      files = result.files;
+    } else {
+      hint =
+        result.id === result.replace
+          ? `将用新生成的路线覆盖 ${result.id}：`
+          : `采集物有变，将用 ${result.id} 替换 ${result.replace}，并改动以下文件：`;
+      files = result.files;
+      if (route.notes.length) warnings.push(`原路线的特殊结构不会保留：${route.notes.join("；")}。`);
+    }
+    for (const {file, nodes} of action === "remove" ? route.references : result.references) {
+      warnings.push(`${file} 引用了 ${nodes.join("、")}，需同步修改。`);
+    }
+    $("apply-dialog-title").textContent = action === "remove" ? "删除路线" : "写入任务";
+    $("apply-dialog-ok").textContent = action === "remove" ? "删除" : "写入";
+    $("apply-dialog-ok").classList.toggle("btn-danger", action === "remove");
+    $("apply-dialog-ok").classList.toggle("btn-primary", action !== "remove");
+    $("apply-dialog-hint").textContent = hint;
+    $("apply-dialog-files").replaceChildren(...detailRows(files.map((file) => [file.action, file.path])));
+    $("apply-dialog-warnings").hidden = warnings.length === 0;
+    $("apply-dialog-warnings").replaceChildren(
+      ...warnings.map((text) => {
+        const item = document.createElement("li");
+        item.textContent = text;
+        return item;
       }),
     );
     $("apply-dialog").hidden = false;
     $("apply-dialog-ok").focus();
   }
 
-  async apply() {
+  async confirm() {
     if (this.applying) return;
+    const action = this.dialogAction;
     this.applying = true;
     $("route-apply").disabled = true;
+    $("route-remove").disabled = true;
     $("apply-dialog-ok").disabled = true;
     $("apply-dialog").hidden = true;
     try {
-      const written = await applyRoute(this.request());
-      setStatus(`已写入 ${written.id}：${written.written.length} 个文件。`, COLOR_OK);
-      this.setResult(null);
+      if (action === "remove") {
+        const removed = await removeRoute(this.opened.id);
+        this.closeRoute();
+        await this.loadRoutes();
+        setStatus(`已删除 ${removed.id}：改动 ${removed.written.length} 个文件。`, COLOR_OK);
+      } else {
+        const written = await applyRoute(this.request());
+        this.opened = null;
+        this.setResult(null);
+        this.renderSelection();
+        await this.loadRoutes();
+        const route = (this.routes || []).find((item) => item.id === written.id);
+        if (route) this.openRoute(route);
+        setStatus(`已写入 ${written.id}：${written.written.length} 个文件。`, COLOR_OK);
+      }
     } catch (err) {
-      setStatus(`写入失败：${err.message}`, COLOR_ERROR);
+      setStatus(`${action === "remove" ? "删除" : "写入"}失败：${err.message}`, COLOR_ERROR);
     } finally {
       this.applying = false;
       $("route-apply").disabled = false;
+      $("route-remove").disabled = false;
       $("apply-dialog-ok").disabled = false;
     }
   }
