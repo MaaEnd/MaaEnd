@@ -47,6 +47,7 @@
                 "ClearHitCount",
                 "CloseGameAction",
                 "CreditShoppingScanItemAction",
+                "CountDownAction",
                 "DeliveryJobsResolveOngoingDepotAction",
                 "ERROR",
                 "EssenceFilterAfterBattleSkillDecisionAction",
@@ -451,8 +452,117 @@
                     }
                 }
             }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": { "const": "CountDownAction" }
+                },
+                "required": [
+                    "custom_action"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "useOCRResult": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "使用当前节点的 OCR 文本作为等待时长，启用后忽略 duration。"
+                            },
+                            "duration": {
+                                "type": ["integer", "string"],
+                                "minimum": 1,
+                                "minLength": 1,
+                                "pattern": "\\S",
+                                "description": "本次等待时长，按 duration_type 解析。显式提供时必须大于零且不超过 24 小时，useOCRResult为 false 时必须提供。"
+                            },
+                            "duration_type": {
+                                "type": "integer",
+                                "enum": [0, 1, 2, 10, 11],
+                                "default": 0,
+                                "description": "0：毫秒整数；1：秒整数；2：分钟整数；10：Go duration 字符串，如 1h20m；11：hh:mm:ss 或 mm:ss 字符串，支持中文冒号。"
+                            },
+                            "duration_format_hms": {
+                                "type": "string",
+                                "default": "countdown.format.hms",
+                                "description": "倒计时一小时及以上时时运行日志使用的 i18n 键，支持 {hh}、{h}、{mm}、{m}、{ss}、{s}。"
+                            },
+                            "duration_format_ms": {
+                                "type": "string",
+                                "default": "countdown.format.ms",
+                                "description": "倒计时达到一分钟但不足一小时时运行日志使用的 i18n 键，支持 {mm}、{m}、{ss}、{s}。"
+                            },
+                            "duration_format_s": {
+                                "type": "string",
+                                "default": "countdown.format.s",
+                                "description": "倒计时不足一分钟时运行日志使用的 i18n 格式键，支持 {ss}、{s}。"
+                            },
+                            "step_message": {
+                                "type": "string",
+                                "default": "countdown.message.step",
+                                "description": "倒计时跳动时运行日志的 i18n 键，必须有一个 %s 来接收剩余时间。"
+                            },
+                            "done_message": {
+                                "type": "string",
+                                "default": "countdown.message.done",
+                                "description": "正常结束时运行日志的 i18n 键，可以使用一个 %s 来接收本次等待时长。"
+                            },
+                            "stop_message": {
+                                "type": "string",
+                                "default": "countdown.message.stop",
+                                "description": "任务停止时运行日志的 i18n 键。"
+                            },
+                            "complex_conf": {
+                                "type": "object",
+                                "properties": {
+                                    "complex_mode": {
+                                        "type": "integer",
+                                        "enum": [0, 1, 2],
+                                        "default": 0,
+                                        "description": "0：关闭复杂模式；1：等待时长比累计等待时长上限长时直接跳过；2：等待时长比累计等待时长上限长时，等待累计等待时长上限的时间。"
+                                    },
+                                    "long_duration_max": {
+                                        "type": [
+                                            "integer",
+                                            "string"
+                                        ],
+                                        "minimum": 1,
+                                        "minLength": 1,
+                                        "pattern": "\\S",
+                                        "description": "累计等待时长上限，按 long_duration_type 解析。复杂模式启用时，显式提供的值必须大于零且不超过 24 小时。"
+                                    },
+                                    "long_duration_type": {
+                                        "type": "integer",
+                                        "enum": [0, 1, 2, 10, 11],
+                                        "default": 0,
+                                        "description": "0：毫秒整数；1：秒整数；2：分钟整数；10：Go duration 字符串；11：hh:mm:ss 或 mm:ss 字符串。"
+                                    },
+                                    "long_duration_step_max": {
+                                        "type": "integer",
+                                        "default": 1200,
+                                        "description": "单次最大等待时长，单位为秒。默认值 1200 秒。"
+                                    },
+                                    "reset_start_time": {
+                                        "type": "boolean",
+                                        "default": false,
+                                        "description": "复杂模式下，是否重新开始累计时间的计时。"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "custom_action_param"
+                ]
+            }
         }
-	],
+    ],
     "if": {
         "type": "object",
         "required": [ "custom_action" ],
