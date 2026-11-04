@@ -112,6 +112,8 @@ func (action *Action) parseParams(arg *maa.CustomActionArg) (*params, error) {
 		if p.ComplexConf.longDurationStepMax <= 0 {
 			p.ComplexConf.longDurationStepMax = defLongDurationStepMax
 		}
+	default:
+		return nil, fmt.Errorf("unknown complex_mode: %d", p.ComplexConf.ComplexMode)
 	}
 
 	// 解析本次等待时长
