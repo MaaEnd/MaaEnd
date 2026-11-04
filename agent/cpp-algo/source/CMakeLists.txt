@@ -67,7 +67,23 @@ target_include_directories(cpp-algo
 
 target_link_libraries(cpp-algo
     PRIVATE icon-recognition-core grid-tracker MaaUtils MaaAgentServer::MaaAgentServer
-    PRIVATE Boost::system ${OpenCV_LIBS} ONNXRuntime::ONNXRuntime ZLIB::ZLIB)
+    PRIVATE Boost::system ${OpenCV_LIBS} ZLIB::ZLIB)
+
+# 地图推理后端按平台编译固定：Android 使用 ncnn，桌面使用 onnxruntime。
+# libncnn.so 由 MaaDeps 提供，与 MaaFramework 共用同一份；模型文件不参与后端选择。
+if(ANDROID)
+    find_package(ncnn CONFIG REQUIRED)
+    # 顶层把所有配置都映射到 RelWithDebInfo，而 MaaDeps 只导出了 ncnn 的 Release 配置，这里改映射到 Release。
+    set_target_properties(ncnn PROPERTIES
+        MAP_IMPORTED_CONFIG_DEBUG Release
+        MAP_IMPORTED_CONFIG_RELEASE Release
+        MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+        MAP_IMPORTED_CONFIG_MINSIZEREL Release)
+    target_link_libraries(cpp-algo PRIVATE ncnn)
+    target_compile_definitions(cpp-algo PRIVATE MAAEND_WITH_NCNN)
+else()
+    target_link_libraries(cpp-algo PRIVATE ONNXRuntime::ONNXRuntime)
+endif()
 
 if(LINUX)
     target_link_libraries(cpp-algo PRIVATE pthread dl)

@@ -334,14 +334,21 @@ std::shared_ptr<MapLocator> getOrInitLocator()
     static std::shared_ptr<MapLocator> locator = []() {
         fs::path installDir = getInstallDir();
         fs::path mapRoot = installDir / "resource" / "image" / "MapLocator";
-        fs::path yoloModel = installDir / "resource" / "model" / "map" / "cls.onnx";
-        fs::path cameraOrientationDir = installDir / "resource" / "model" / "map" / "cameraorientation";
-        fs::path cameraOrientationRefModel = cameraOrientationDir / "polar_with_ref.onnx";
-
+        fs::path modelDir = installDir / "resource" / "model" / "map";
+        fs::path cameraOrientationDir = modelDir / "cameraorientation";
         std::string mapRootStr = MAA_NS::path_to_utf8_string(fs::absolute(mapRoot));
+#ifdef MAAEND_WITH_NCNN
+        // Android 不依赖 .onnx 的存在；缺 ncnn 文件必须进入加载器的明确报错路径。
+        std::string yoloModelStr = MAA_NS::path_to_utf8_string(fs::absolute(modelDir / "cls.ncnn.param"));
+        std::string cameraOrientationRefModelStr =
+            MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationDir / "polar_with_ref.ncnn.param"));
+#else
+        fs::path yoloModel = modelDir / "cls.onnx";
+        fs::path cameraOrientationRefModel = cameraOrientationDir / "polar_with_ref.onnx";
         std::string yoloModelStr = fs::exists(yoloModel) ? MAA_NS::path_to_utf8_string(fs::absolute(yoloModel)) : "";
         std::string cameraOrientationRefModelStr =
             fs::exists(cameraOrientationRefModel) ? MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationRefModel)) : "";
+#endif
 
         LogInfo << "Auto-init: mapRoot=" << mapRootStr;
         LogInfo << "Auto-init: yoloModel=" << (yoloModelStr.empty() ? "(not found)" : yoloModelStr);
