@@ -10,6 +10,7 @@
             "option": [
                 "AutoEssenceSchedule",
                 "AutoEssenceMenu",
+                "AutoEssenceStashBackpackSubTask",
                 "AutoFightSettingFull"
             ]
         }
@@ -107,6 +108,33 @@
                 "AutoEssenceScheduleSunday"
             ]
         },
+        "AutoEssenceStashBackpackSubTask": {
+            "type": "switch",
+            "label": "$task.AutoEssence.option.AutoEssenceStashBackpackSubTask.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "StashBackpackType",
+                        "StashBackpackArea"
+                    ],
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
+        },
         "AutoEssenceMenu": {
             "type": "select",
             "label": "$option.AutoEssenceMenu.label",
@@ -165,7 +193,7 @@
                             "next": [
                                 "AutoEssenceMain",
                                 "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
-                                "AutoEssenceOnComplete"
+                                "AutoEssenceAfterStashBackpack"
                             ]
                         },
                         "AutoEssenceOnComplete": {
@@ -581,7 +609,7 @@
                     "next": [
                         "AutoEssenceMain",
                         "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
-                        "AutoEssenceOnComplete"
+                        "AutoEssenceAfterStashBackpack"
                     ]
                 }
             }

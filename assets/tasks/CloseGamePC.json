@@ -23,6 +23,9 @@
     "option": {
         "CloseGamePCCloseLauncher": {
             "type": "switch",
+            "controller": [
+                "Win32-Front"
+            ],
             "label": "$option.CloseGamePCCloseLauncher.label",
             "cases": [
                 {
