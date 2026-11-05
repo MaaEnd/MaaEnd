@@ -80,7 +80,7 @@
             }
         },
         "next": [
-            "AutoCollectWulingFarmerCrate1End"
+            "AutoCollectWulingFarmerCrate1Wait10sec"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -89,6 +89,17 @@
             "Node.Action.Failed": {
                 "trace": true
             }
+        }
+    },
+    "AutoCollectWulingFarmerCrate1Wait10sec": {
+        "desc": "等待10s完成收集",
+        "pre_delay": 0,
+        "post_delay": 10000,
+        "next": [
+            "AutoCollectWulingFarmerCrate1End"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "等待10s完成收集"
         }
     }
 }

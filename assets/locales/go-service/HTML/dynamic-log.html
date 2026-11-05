@@ -1,0 +1,11 @@
+<div data-dynamic-log-id="{{.id}}" class="{{.class}}" style="{{.style}}">
+    {{if not .styleIsInit}}
+    <style>
+        div:has(.focus-content>div[data-dynamic-log-id="{{.id}}"]):has(~ div>.focus-content>div[data-dynamic-log-id="{{.id}}"]),
+        div:has(.focus-content>div[data-dynamic-log-id="{{.id}}"]):has(~ div>.focus-content>div[data-dynamic-log-id="{{.id}}"]) + div[aria-hidden="true"]:not(:has(*)){
+            display:none !important;
+        }
+    </style>
+    {{end}}
+    <span>{{.message}}</span>
+</div>

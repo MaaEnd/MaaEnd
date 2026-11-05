@@ -147,6 +147,9 @@
                 "GiftOperatorMoveLocation1Move",
                 "GiftOperatorGoAheadContact",
                 "GiftOperatorClickContact",
+                "GiftOperatorSelectOp1",
+                "GiftOperatorSelectOp2",
+                "GiftOperatorSelectOp3",
                 "GiftOperatorSwipe",
                 "GiftOperatorBack"
             ]

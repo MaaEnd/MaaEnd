@@ -21,7 +21,6 @@ const categories = {household: "DailyGoods", industry: "StockFactoryGoods", craf
 const namePrefix = "task.AutoStockStaple.item.";
 const focusPrefix = "task.AutoStockStaple.focus.quantity_control.";
 const events = [
-    "buy",
     "reached",
     "stock_bill_insufficient",
 ];

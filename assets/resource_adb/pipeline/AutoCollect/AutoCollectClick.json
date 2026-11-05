@@ -10,12 +10,6 @@
                     219
                 ]
             }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
         }
     }
 }

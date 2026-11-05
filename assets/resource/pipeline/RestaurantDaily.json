@@ -1,4 +1,45 @@
 {
+    "RestaurantSchedule": {
+        "desc": "缘缘庄经营执行周期",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantScheduleEnabled",
+            "RestaurantScheduleEnd"
+        ]
+    },
+    "RestaurantScheduleEnabled": {
+        "desc": "缘缘庄经营执行周期命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantInitialize"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "RestaurantScheduleEnd": {
+        "desc": "缘缘庄经营执行周期跳过",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "RestaurantInitialize": {
         "desc": "初始化经营决策状态和经营次数。",
         "recognition": "DirectHit",
@@ -157,6 +198,16 @@
                 }
             }
         },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                834,
+                408,
+                230,
+                153
+            ],
+            "timeout": 3000
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -266,7 +317,29 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "NavigateSisPaintingYuanyuanManorTeleportNearby",
             "NavigateSisPaintingYuanyuanManorTeleport"
+        ]
+    },
+    "NavigateSisPaintingYuanyuanManorTeleportNearby": {
+        "desc": "玩家已在缘缘庄传送点附近时跳过传送。",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                2186.33,
+                497.78,
+                29.14,
+                32.28
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantSkipBusinessAtManor",
+            "NavigateSisPaintingYuanyuanManorTarget"
         ]
     },
     "NavigateSisPaintingYuanyuanManorTeleport": {
@@ -314,6 +387,16 @@
                 }
             ]
         },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                834,
+                408,
+                230,
+                153
+            ],
+            "timeout": 3000
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -333,6 +416,16 @@
             "sub": [
                 "__CharacterControllerAxisLongPressForwardAction"
             ]
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                834,
+                408,
+                230,
+                153
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,

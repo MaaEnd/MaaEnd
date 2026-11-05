@@ -109,6 +109,7 @@ def run_cases(root: Path, log_dir: Path, cases: list[dict], report: dict) -> Non
     env = os.environ.copy()
     env["PATH"] = os.pathsep.join([str(install / "agent"), str(install / "maafw"), env.get("PATH", "")])
     env["LD_LIBRARY_PATH"] = os.pathsep.join([str(install / "maafw"), env.get("LD_LIBRARY_PATH", "")])
+    env["PI_USER_DATA_DIR"] = str(log_dir)
     options = {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
     client, process = None, None
     with (log_dir / "agent.log").open("w", encoding="utf-8") as agent_log:
@@ -123,7 +124,7 @@ def run_cases(root: Path, log_dir: Path, cases: list[dict], report: dict) -> Non
             if not client.bind(resource) or not client.set_timeout(30_000):
                 raise RuntimeError("C++ Agent 客户端初始化失败")
             process = subprocess.Popen(
-                [str(executable), identifier], cwd=log_dir, env=env,
+                [str(executable), identifier], cwd=install, env=env,
                 stdout=agent_log, stderr=subprocess.STDOUT, **options,
             )
             if not client.connect() or process.poll() is not None:

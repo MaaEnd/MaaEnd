@@ -2,7 +2,7 @@
 
 This document explains the file distribution and execution flow of `AutoStockStaple`.  
 It takes **Valley IV** as the main line; the **Wuling** Pipeline structure is completely symmetrical, differing only in the regional suffix and scene recognition.  
-This document was updated on October 30, 2026.
+This document was updated on November 4, 2026.
 
 ## File Paths
 
@@ -115,7 +115,10 @@ Read the OCR of the current held quantity in the top-right corner of the popup, 
 
 1. The Go action calculates `quantity_to_buy = limit - current_held_quantity`.
 2. Write the result into BetterSliding's `TargetQuantity` to smoothly adjust the purchase quantity slider.
-3. Click confirm purchase, close the reward popup, and return to the list to continue scanning.
+3. Click confirm purchase to enter the reward popup: `AutoStockStapleQuantityControlCloseRewards` first uses IMS A3 (`AddItemData`) to add this purchase's items into the inventory cache and prints one HTML summary with icons, then goes through IMS's own `AddItemDataCloseRewards` to click the close button and returns to the list to continue scanning.
+
+> [!NOTE]
+> The old “Buy X” Focus broadcast on each item's `{Item}Buy` node has been removed: purchase results are now announced once by IMS A3 on the reward popup with the items actually received (icons and quantities) instead of one line per item. A3's candidates are filtered to the categories stable materials actually use (`Normal:Usable` 16 food and buff items, `ValuableDepot:CommercialItem` 27 engraving permits / gifts / compasses / detectors / probes, `ValuableDepot:SpecialItem` 1 artificing catalyst, covering all 44 items); `item_ids` alone is not enough, because it would be intersected with the default rewards candidates and drop the food items. See [IMS](../components/ims.md#a3-additemdata).
 
 #### Branch 3: Held Quantity Reaches or Exceeds Limit, Exclude
 
@@ -311,7 +314,7 @@ Go **no longer** executes `RunTask` to perform sliding; quantity adjustment is c
 
 `AutoStockStapleBetterSliding` is defined in `General/Item.json`, with `enabled: false` by default; it is only enabled after Go override; the default value of `attach.TargetQuantity` is just a placeholder.
 
-After the purchase quantity adjustment is complete, `next` enters `AutoStockStapleQuantityControlConfirmBuy` to click the yellow confirm button, then closes the reward popup and returns to the list.
+After the purchase quantity adjustment is complete, `next` enters `AutoStockStapleQuantityControlConfirmBuy` to click the yellow confirm button; then `AutoStockStapleQuantityControlCloseRewards` uses IMS A3 to add and announce the items received, and goes through IMS's own `AddItemDataCloseRewards` to close the reward popup and return to the list.
 
 ### Branch 3: Quantity Reached or Exceeded Target, Exclude and Re-initialize
 

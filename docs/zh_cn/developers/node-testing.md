@@ -229,7 +229,9 @@ pnpm test
 
 当前仓库中的 `package.json` 会调用 `maa-tools test`，CI 也会执行同一条命令。
 
-`maa-tools test` 不启动 Agent，无法测试 Agent 提供的自定义识别。`MapLocateAssertLocation` 定位节点改用独立的 Python 执行器测试：运行 `pnpm test:map-locate`，或 `uv run tests/MapLocateAssertLocation/map_locate.py`。CI 中对应的是 `map-locate-test` job。用例格式、样本要求和运行前提见[定位节点截图测试](../../../tests/MapLocateAssertLocation/README.md)。
+`maa-tools test` 遇到 Custom 识别节点时，会按 `maatools.config.mts` 的 `test.agent` 拉起 `install/agent/` 下的 AgentServer；因此跑自定义识别用例前要先构建 Agent（`uv run build-and-install`，含 C++ Agent 时加 `--cpp-algo`），并保证 `install/` 布局完整。没有用到 Custom 识别的用例不会启动 Agent，未构建也不影响普通用例。
+
+需要连续多帧截图才能给出结论的识别算法（多帧识别）无法用 `maa-tools test` 覆盖：测试侧只提供单帧图片。这类节点改用独立执行器，目前是定位节点：运行 `pnpm test:map-locate`，或 `uv run tests/MapLocateAssertLocation/map_locate.py`。CI 中对应的是 `map-locate-test` job。用例格式、样本要求和运行前提见[定位节点截图测试](../../../tests/MapLocateAssertLocation/README.md)。
 
 路线的寻路连通性由另一个独立执行器检查：运行 `uv run tests/MapNavmeshConnectivity/navmesh_connectivity.py`，它按用例文件中的起点和终点交给 Agent 规划，规划成功即视为连通，不依赖截图。CI 中对应 `map-locate-test` job 的 `Run navmesh connectivity tests` 步骤。用例格式与判定方式见[连通性测试](../../../tests/MapNavmeshConnectivity/README.md)。
 

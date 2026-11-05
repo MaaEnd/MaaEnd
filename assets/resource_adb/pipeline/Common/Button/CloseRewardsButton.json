@@ -6,8 +6,7 @@
     "__CloseRewardsButtonStable": {
         "template": "AdbOnly/Common/Button/CloseRewardButton.png",
         "threshold": 0.7
-    },
-    "__CloseRewardsButtonHover": {
-        "threshold": 0.7
     }
+    // 悬停态沿用原版模板与原版阈值，不在此放宽：ADB 没有鼠标悬停态，
+    // 放宽后只会在字幕、装饰纹理上产生假阳性（AutoDeliveryCloseRewardDialog 曾据此误命中并卡死 20s）。
 }

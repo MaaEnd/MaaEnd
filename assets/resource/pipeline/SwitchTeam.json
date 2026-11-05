@@ -1,4 +1,42 @@
 {
+    "SwitchTeamSchedule": {
+        "desc": "切换编队计划任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SwitchTeamScheduleEnabled",
+            "SwitchTeamScheduleEnd"
+        ]
+    },
+    "SwitchTeamScheduleEnabled": {
+        "desc": "切换编队计划任务命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SwitchTeamMain"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "SwitchTeamScheduleEnd": {
+        "desc": "切换编队计划任务跳过",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "SwitchTeamMain": {
         "desc": "切换编队入口",
         "pre_delay": 0,

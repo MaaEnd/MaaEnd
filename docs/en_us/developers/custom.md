@@ -559,6 +559,52 @@ The `ScheduleRecognition` implementation is located in `agent/go-service/common/
 
 When a weekday flag is omitted, it defaults to `false` (do not execute that day). If the current day is not within the scheduling range, this Recognition emits the localized `schedule.skip_today` message via `maafocus` and returns no match.
 
+### CountDownAction
+
+`CountDownAction` is implemented in `agent/go-service/common/countdown`. It pauses execution for a specified duration and displays a countdown timer in the execution log.
+
+Parameters:
+
+- `useOCRResult: bool`: Optional, default `false`. Specifies whether to use the OCR recognition result of the current node as the wait duration. When enabled, `duration` is ignored, but the OCR text is still parsed according to `duration_type`.
+- `duration: int | string`: Required when `useOCRResult` is `false`. The wait duration for this instance. The specific format and unit are determined by `duration_type`. The parsed duration must be greater than zero and cannot exceed 24 hours.
+- `duration_type: int`: Optional, default `0`. The format and unit of the wait duration:
+    - `0`: Milliseconds, specified as an integer. For example, `3000` represents 3 seconds.
+    - `1`: Seconds, specified as an integer. For example, `60` represents 1 minute.
+    - `2`: Minutes, specified as an integer. For example, `20` represents 20 minutes.
+    - `10`: Go duration string. For example, `"1h20m30s"`. Here, `h`, `m`, and `s` represent hours, minutes, and seconds respectively; each component can be omitted, such as `"20m"` or `"1h30s"`.
+    - `11`: `hh:mm:ss` or `mm:ss` string. For example, `"01:20:30"` or `"20:30"`. Both standard and Chinese full-width colons (`：`) are supported.
+- `duration_format_hms: string`: Optional, default `countdown.format.hms`. The i18n key used when the remaining time is equal to or greater than 1 hour.
+- `duration_format_ms: string`: Optional, default `countdown.format.ms`. The i18n key used when the remaining time is equal to or greater than 1 minute but less than 1 hour.
+- `duration_format_s: string`: Optional, default `countdown.format.s`. The i18n key used when the remaining time is less than 1 minute.
+    - In `duration_format_s`, `{ss}` can be used to represent seconds with a leading zero (e.g., `3` is formatted as `03`), while `{s}` represents seconds without a leading zero (e.g., `3` is output as-is).
+    - In `duration_format_ms`, in addition to `{ss}` and `{s}`, you can use `{mm}` to represent minutes with a leading zero and `{m}` to represent minutes without a leading zero.
+    - In `duration_format_hms`, in addition to `{mm}`, `{m}`, `{ss}`, and `{s}`, you can use `{hh}` to represent hours with a leading zero and `{h}` to represent hours without a leading zero.
+- `step_message: string`: Optional, default `countdown.message.step`. The i18n key for the log message output when the countdown updates. The corresponding text must contain exactly one `%s` to receive the formatted remaining time.
+- `done_message: string`: Optional, default `countdown.message.done`. The i18n key for the log message output when the countdown finishes normally. The corresponding text can contain one `%s` to receive the formatted total wait duration of this instance.
+- `stop_message: string`: Optional, default `countdown.message.stop`. The i18n key for the log message output when the countdown is terminated prematurely due to a task stop event.
+- `complex_conf: object`: Optional. Complex mode configuration, used to set the cumulative wait duration ceiling and the maximum single wait duration:
+    - `complex_mode: int`: Optional, default `0`. `0` means complex mode is disabled; `1` means the step is directly skipped if the wait duration exceeds the cumulative wait duration ceiling; `2` means if the wait duration exceeds the cumulative ceiling, the wait will proceed but will be capped at that ceiling.
+    - `long_duration_max: int | string`: Optional. The cumulative wait duration ceiling, parsed according to `long_duration_type`. Required when complex mode is enabled. Must be greater than zero and cannot exceed 24 hours.
+    - `long_duration_type: int`: Optional, default `0`. The format and unit of the cumulative wait duration ceiling. Takes the same values as `duration_type`: `0` for millisecond integers, `1` for second integers, `2` for minute integers, `10` for Go duration strings, and `11` for `hh:mm:ss` or `mm:ss` strings.
+    - `long_duration_step_max: int`: Optional, default `1200`. The maximum duration for a single wait step, in seconds (defaults to 20 minutes per step).
+    - `reset_start_time: bool`: Optional, default `false`. In complex mode, whether to restart the cumulative duration tracking. It is recommended to set this to `true` during the first call of an expected batch of countdowns, and it must be set to `false` for subsequent calls.
+
+Example:
+
+```json
+{
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "CountDownAction",
+            "custom_action_param": {
+                "duration": 3000
+            }
+        }
+    }
+}
+```
+
 ## Summary
 
 When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe` can handle most needs. When they fall short—for example, comparing two OCR values, dynamically adjusting parameters at runtime, or batch running subtasks—then refer to this document to see if there's an existing Custom action or recognition to use.
@@ -584,5 +630,6 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Ctrl + Click at specified position | `AutoCtrlClickAction` |
 | Alt + Swipe | `AutoAltSwipeAction` |
 | Hover from the screen center to the recognition box, then click | `AutoSwipeClickAction` |
+| Blocking Countdown Delay | `CountDownAction` |
 
 All Custom Go code implementations are located under `agent/go-service/`. Pipeline authors do not need to concern themselves with this; just write the JSON according to the documentation parameters.
