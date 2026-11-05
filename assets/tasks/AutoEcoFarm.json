@@ -72,7 +72,8 @@
                     "action": {
                         "param": {
                             "custom_action_param": {
-                                "durationSec": "{ValleyFarmWaitSeconds}"
+                                "duration": "{ValleyFarmWaitSeconds}",
+                                "duration_type": 1
                             }
                         }
                     }

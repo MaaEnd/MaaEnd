@@ -174,8 +174,8 @@
             "param": {
                 "custom_action": "CountDownAction",
                 "custom_action_param": {
-                    "duration": 2,
-                    "duration_type": 2
+                    "duration": 120,
+                    "duration_type": 1
                 }
             }
         },
