@@ -176,8 +176,12 @@
                     "name": "No",
                     "pipeline_override": {
                         "CloudEndfieldTrafficTip": {
+                            // StopTask 会被当作任务正常完成，这里用 FalseAction 让动作失败以结束任务
                             "action": {
-                                "type": "StopTask"
+                                "type": "Custom",
+                                "param": {
+                                    "custom_action": "FalseAction"
+                                }
                             }
                         }
                     }
