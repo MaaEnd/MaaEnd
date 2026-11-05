@@ -70,6 +70,9 @@ struct NavigationSession
     void advanceToNextWaypoint(const char* reason);
     void advanceToNextWaypoint(ActionType expected_action, const char* reason);
     void skipPastWaypoint(size_t waypoint_idx, const char* reason);
+    // 导航自己最近一次发起可能留下界面的动作的时刻
+    std::chrono::steady_clock::time_point lastInteractionAt() const;
+    void noteInteraction();
     // 只改当前航点坐标, 动作和后续点不变, 走廊仍指向原坐标
     bool retargetCurrentWaypoint(double x, double y, const char* reason);
 
@@ -110,6 +113,7 @@ private:
     bool final_arrival_evidence_ = false;
     bool left_landed_deck_ = false;
     std::optional<ZiplineNodeRef> standing_tower_;
+    std::chrono::steady_clock::time_point last_interaction_at_ {};
 
     ProgressClock progress_;
     ProgressClock hard_progress_;

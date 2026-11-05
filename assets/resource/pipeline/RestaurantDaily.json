@@ -1,5 +1,47 @@
 {
+    "RestaurantSchedule": {
+        "desc": "缘缘庄经营执行周期",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantScheduleEnabled",
+            "RestaurantScheduleEnd"
+        ]
+    },
+    "RestaurantScheduleEnabled": {
+        "desc": "缘缘庄经营执行周期命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantInitialize"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "RestaurantScheduleEnd": {
+        "desc": "缘缘庄经营执行周期跳过",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "RestaurantInitialize": {
+        "desc": "初始化经营决策状态和经营次数。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -15,6 +57,7 @@
         ]
     },
     "RestaurantResetRoundCount": {
+        "desc": "清除本轮计数，然后决定跳过经营、进入经营循环或停止。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -28,11 +71,24 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "RestaurantSkipBusiness",
             "RestaurantRoundGate",
             "StopNode"
         ]
     },
+    "RestaurantSkipBusiness": {
+        "desc": "转入跳过经营阶段的流程。",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantCancelMissionTracking"
+        ]
+    },
     "RestaurantRoundGate": {
+        "desc": "检查经营循环次数是否允许继续。",
         "max_hit": 0,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -43,6 +99,7 @@
         ]
     },
     "RestaurantResetThemeScrollHitCount": {
+        "desc": "清除主题列表滚动状态的计数。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -61,6 +118,7 @@
         ]
     },
     "RestaurantMenuInitialize": {
+        "desc": "重置菜单与运行状态，并覆盖部分识别节点的初始状态。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -140,6 +198,16 @@
                 }
             }
         },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                834,
+                408,
+                230,
+                153
+            ],
+            "timeout": 3000
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -172,7 +240,7 @@
         ]
     },
     "RestaurantCancelMissionTracking": {
-        "desc": "寻路前进入任务界面并停止当前任务追踪",
+        "desc": "进入任务列表，为后续停止当前追踪做准备。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -192,6 +260,7 @@
         ]
     },
     "RestaurantCancelCurrentMissionTracking": {
+        "desc": "在任务列表中重复点击“停止追踪”，直到按钮消失。",
         "recognition": "And",
         "all_of": [
             "InMenuMission",
@@ -236,7 +305,7 @@
         ]
     },
     "NavigateSisPaintingYuanyuanManorStart": {
-        "desc": "先返回大世界",
+        "desc": "返回大世界，然后传送到缘缘庄。",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -248,7 +317,29 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "NavigateSisPaintingYuanyuanManorTeleportNearby",
             "NavigateSisPaintingYuanyuanManorTeleport"
+        ]
+    },
+    "NavigateSisPaintingYuanyuanManorTeleportNearby": {
+        "desc": "玩家已在缘缘庄传送点附近时跳过传送。",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                2186.33,
+                497.78,
+                29.14,
+                32.28
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantSkipBusinessAtManor",
+            "NavigateSisPaintingYuanyuanManorTarget"
         ]
     },
     "NavigateSisPaintingYuanyuanManorTeleport": {
@@ -264,11 +355,23 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "RestaurantSkipBusinessAtManor",
             "NavigateSisPaintingYuanyuanManorTarget"
         ]
     },
+    "RestaurantSkipBusinessAtManor": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopAfterRounds",
+            "StopNode"
+        ]
+    },
     "NavigateSisPaintingYuanyuanManorTarget": {
-        "desc": "导航至目标点",
+        "desc": "导航到缘缘庄柜台。",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -284,6 +387,16 @@
                 }
             ]
         },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                834,
+                408,
+                230,
+                153
+            ],
+            "timeout": 3000
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -293,6 +406,7 @@
     },
     // 每次前进前先检查柜台提示；最多短按前进 5 次。
     "RestaurantCounterPromptApproach": {
+        "desc": "在柜台交互提示出现前执行靠近操作，并限制尝试次数。",
         "max_hit": 5,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -302,6 +416,16 @@
             "sub": [
                 "__CharacterControllerAxisLongPressForwardAction"
             ]
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                834,
+                408,
+                230,
+                153
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -336,6 +460,7 @@
         ]
     },
     "RestaurantThemeListScan": {
+        "desc": "检查主题列表是否已滚到目标位置、是否停止变化，并决定搜索或滚动。",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
             "time": 200,
@@ -410,6 +535,7 @@
         ]
     },
     "RestaurantThemeListChangedReset": {
+        "desc": "列表发生变化后清除未变化计数。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -427,6 +553,7 @@
         ]
     },
     "RestaurantThemeScrollUp": {
+        "desc": "向上滚动左侧主题列表。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Scroll",
@@ -452,6 +579,7 @@
         ]
     },
     "RestaurantThemeScrollUpAfterUnchanged": {
+        "desc": "确认列表暂未变化后再次向上滚动。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Scroll",
@@ -477,6 +605,7 @@
         ]
     },
     "RestaurantThemeListSearch": {
+        "desc": "在当前列表位置查找目标主题，或继续向下滚动。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
@@ -488,6 +617,7 @@
         ]
     },
     "RestaurantThemeFindTopic": {
+        "desc": "OCR 查找并点击“席间小酌”。",
         "recognition": "OCR",
         "roi": [
             64,
@@ -522,6 +652,7 @@
         ]
     },
     "RestaurantThemeListAtBottom": {
+        "desc": "判断列表已到底；仍找不到主题时转入失败。",
         "recognition": "Custom",
         "custom_recognition": "ListCompleteRecognition",
         "custom_recognition_param": {
@@ -544,6 +675,7 @@
         }
     },
     "RestaurantThemeScrollDown": {
+        "desc": "向下滚动主题列表。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Scroll",
@@ -569,6 +701,7 @@
         ]
     },
     "RestaurantThemeSelected": {
+        "desc": "确认当前主题为“席间小酌”，随后检查客源。",
         "recognition": "OCR",
         "roi": [
             512,
@@ -592,6 +725,7 @@
         ]
     },
     "RestaurantPatronageOCR": {
+        "desc": "OCR 读取右上角客源数字。",
         "recognition": "OCR",
         "roi": [
             1083,
@@ -607,6 +741,7 @@
         "only_rec": true
     },
     "RestaurantPatronageAvailable": {
+        "desc": "判断客源是否足够，足够时进入正式经营。",
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
@@ -620,6 +755,7 @@
         ]
     },
     "RestaurantPatronageInsufficient": {
+        "desc": "判断客源不足，转入关闭主题界面流程。",
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
@@ -632,10 +768,11 @@
             "RestaurantCloseTheme"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "当前客源小于60，即将结束任务"
+            "Node.Recognition.Succeeded": "当前客源小于60，结束经营流程"
         }
     },
     "RestaurantCloseTheme": {
+        "desc": "关闭主题界面，然后进入购物流程或结束任务。",
         "recognition": "TemplateMatch",
         "roi": [
             1196,
@@ -655,10 +792,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "RestaurantShopAfterRounds",
             "StopNode"
         ]
     },
     "RestaurantFormalStart": {
+        "desc": "点击“正式经营”。",
         "recognition": "OCR",
         "roi": [
             1005,
@@ -695,6 +834,7 @@
         ]
     },
     "RestaurantManagementReady": {
+        "desc": "确认“营业设定”页面已打开，并判断是否需要清除上局设置。",
         "recognition": "OCR",
         "roi": [
             24,
@@ -718,6 +858,7 @@
         ]
     },
     "RestaurantClearPreviousSetup": {
+        "desc": "点击清空上局人员和菜单设置。",
         "recognition": "OCR",
         "roi": [
             715,
@@ -755,6 +896,7 @@
         ]
     },
     "RestaurantEmptySetup": {
+        "desc": "确认设置已清空并准备打开厨房人员页。",
         "recognition": "And",
         "all_of": [
             {
@@ -1327,6 +1469,7 @@
         ]
     },
     "RestaurantOpenMenu": {
+        "desc": "打开菜单设定界面。",
         "recognition": "OCR",
         "roi": [
             1012,
@@ -1360,6 +1503,7 @@
         ]
     },
     "RestaurantMenuScreenReady": {
+        "desc": "确认菜单设定界面已加载。",
         "recognition": "OCR",
         "roi": [
             48,
@@ -1382,6 +1526,7 @@
         ]
     },
     "RestaurantMenuSelectDishTab": {
+        "desc": "切换到全部菜品页签。",
         "recognition": "OCR",
         "roi": [
             528,
@@ -1418,6 +1563,7 @@
         ]
     },
     "RestaurantMenuFilterIcon": {
+        "desc": "点击菜单筛选图标。",
         "recognition": "TemplateMatch",
         "roi": [
             853,
@@ -1437,6 +1583,7 @@
         ]
     },
     "RestaurantMenuFilterSearch": {
+        "desc": "判断是否找到“可烹饪数量”筛选项，或继续滚动查找。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
@@ -1448,6 +1595,7 @@
         ]
     },
     "RestaurantMenuFilterCookableQuantity": {
+        "desc": "OCR 查找并选择“可烹饪数量”。",
         "recognition": "OCR",
         "roi": [
             193,
@@ -1471,6 +1619,7 @@
         ]
     },
     "RestaurantMenuFilterScrollAtBottom": {
+        "desc": "判断筛选列表是否已滚到底；仍未找到时转失败。",
         "recognition": "Custom",
         "custom_recognition": "ListCompleteRecognition",
         "custom_recognition_param": {
@@ -1493,6 +1642,7 @@
         }
     },
     "RestaurantMenuFilterScrollDown": {
+        "desc": "向下滚动筛选列表。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Scroll",
@@ -1518,6 +1668,7 @@
         ]
     },
     "RestaurantMenuFilterConfirm": {
+        "desc": "点击筛选确认按钮。",
         "recognition": "TemplateMatch",
         "roi": [
             995,
@@ -1551,6 +1702,7 @@
         ]
     },
     "RestaurantMenuSelectStapleTab": {
+        "desc": "切换到主食类别。",
         "recognition": "OCR",
         "roi": [
             640,
@@ -1583,6 +1735,7 @@
         ]
     },
     "RestaurantMenuSelectStapleLoop": {
+        "desc": "调用 Go 决策，读取并选择主食卡片。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -1607,6 +1760,7 @@
         ]
     },
     "RestaurantMenuStapleComplete": {
+        "desc": "标记主食类别选择完成。",
         "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1617,6 +1771,7 @@
         ]
     },
     "RestaurantMenuSelectVegetableTab": {
+        "desc": "切换到菜肴类别。",
         "recognition": "OCR",
         "roi": [
             737,
@@ -1651,6 +1806,7 @@
         ]
     },
     "RestaurantMenuSelectVegetableLoop": {
+        "desc": "调用 Go 决策，读取并选择菜肴卡片。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -1675,6 +1831,7 @@
         ]
     },
     "RestaurantMenuVegetableComplete": {
+        "desc": "标记菜肴类别选择完成。",
         "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1685,6 +1842,7 @@
         ]
     },
     "RestaurantMenuSelectDessertTab": {
+        "desc": "切换到甜品类别。",
         "recognition": "OCR",
         "roi": [
             830,
@@ -1718,6 +1876,7 @@
         ]
     },
     "RestaurantMenuSelectDessertLoop": {
+        "desc": "调用 Go 决策，读取并选择甜品卡片。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -1742,6 +1901,7 @@
         ]
     },
     "RestaurantMenuSelectDrinkTab": {
+        "desc": "切换到饮品类别。",
         "recognition": "OCR",
         "roi": [
             1098,
@@ -1779,6 +1939,7 @@
         ]
     },
     "RestaurantMenuSelectDrinkLoop": {
+        "desc": "调用 Go 决策，读取并选择饮品卡片。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -1840,7 +2001,7 @@
         ]
     },
     "RestaurantMenuStartBusinessWarning": {
-        "desc": "开始经营按钮上的未满足要求标记",
+        "desc": "识别开始经营条件未满足标记。",
         "recognition": "TemplateMatch",
         "roi": [
             966,
@@ -1867,6 +2028,7 @@
         }
     },
     "RestaurantWaitForBusinessState": {
+        "desc": "等待经营开始、派单面板就绪或游戏结束状态出现。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -1876,7 +2038,6 @@
             "wait_nodes": [
                 "RestaurantGameEnded",
                 "RestaurantKitchenPanelReady",
-                "RestaurantStartBusinessConfirm",
                 "RestaurantBusinessStarted"
             ],
             "repeat_count": 10,
@@ -1887,47 +2048,14 @@
         "next": [
             "RestaurantGameEnded",
             "RestaurantKitchenPanelReady",
-            "RestaurantStartBusinessConfirm",
             "RestaurantBusinessStarted"
         ],
         "on_error": [
             "FailedNode"
         ]
     },
-    "RestaurantStartBusinessConfirm": {
-        "recognition": "OCR",
-        "roi": [
-            647,
-            442,
-            211,
-            43
-        ],
-        "expected": [
-            "确认",
-            "Confirm",
-            "確定",
-            "확인"
-        ],
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "RepeatUntilNotFoundAction",
-        "custom_action_param": {
-            "action": "Click",
-            "wait_node": "RestaurantStartBusinessConfirm",
-            "repeat_count": 3
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantGameEnded",
-            "RestaurantKitchenPanelReady",
-            "RestaurantWaitForBusinessState"
-        ],
-        "on_error": [
-            "FailedNode"
-        ]
-    },
     "RestaurantBusinessStarted": {
+        "desc": "通过“结束经营”字样确认已进入经营中。",
         "recognition": "OCR",
         "roi": [
             0,
@@ -1951,6 +2079,7 @@
     },
     // 720p 固定派单按钮坐标；最多点击 10 次（默认间隔 3 秒），覆盖约 30 秒加载动画。
     "RestaurantOpenKitchenPanel": {
+        "desc": "在经营中反复点击派单位置，直到面板就绪或游戏结束。",
         "recognition": "And",
         "all_of": [
             "RestaurantBusinessStarted"
@@ -1991,6 +2120,7 @@
         ]
     },
     "RestaurantKitchenPanelReady": {
+        "desc": "识别厨房面板已打开。",
         "recognition": "OCR",
         "roi": [
             210,
@@ -2013,6 +2143,7 @@
         ]
     },
     "RestaurantRuntimeLoop": {
+        "desc": "经营循环入口，分流到结束结算、继续结算或经营状态观察。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
@@ -2025,6 +2156,7 @@
         ]
     },
     "RestaurantGameEnded": {
+        "desc": "识别经营结束画面。",
         "recognition": "OCR",
         "roi": [
             500,
@@ -2048,6 +2180,7 @@
         ]
     },
     "RestaurantSettlementContinue": {
+        "desc": "点击结算界面的继续按钮。",
         "recognition": "OCR",
         "roi": [
             1020,
@@ -2086,6 +2219,7 @@
         ]
     },
     "RestaurantSettlementComplete": {
+        "desc": "点击结算界面的完成按钮。",
         "recognition": "OCR",
         "roi": [
             1020,
@@ -2123,6 +2257,7 @@
         ]
     },
     "RestaurantRuntimeIdle": {
+        "desc": "暂无可执行派菜动作时返回经营循环。",
         "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -2133,6 +2268,7 @@
         ]
     },
     "RestaurantReturnedWorld": {
+        "desc": "确认回到大世界，并判断下一轮或购物流程。",
         "recognition": "And",
         "all_of": [
             "InWorld"
@@ -2147,6 +2283,7 @@
         ]
     },
     "RestaurantMenuDishesComplete": {
+        "desc": "标记菜品类别选择完成，并接入饮品选择。",
         "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -2157,6 +2294,7 @@
         ]
     },
     "RestaurantMenuDrinksComplete": {
+        "desc": "标记饮品选择完成，进入经营启动检查。",
         "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -2168,6 +2306,7 @@
         ]
     },
     "RestaurantMenuReadCard": {
+        "desc": "读取当前菜单卡片信息并让 Go 决定下一步。",
         "enabled": false,
         "recognition": "And",
         "all_of": [
@@ -2187,28 +2326,19 @@
             "RestaurantMenuDishesComplete",
             "RestaurantMenuDrinksComplete",
             "RestaurantMenuClickCard",
-            "RestaurantMenuReadCard"
+            "RestaurantMenuReadCard",
+            "RestaurantMenuInsufficient"
         ],
         "on_error": [
             "FailedNode"
         ]
     },
     "RestaurantMenuClickCard": {
+        "desc": "点击 Go 选定的菜单卡片。",
         "enabled": false,
-        "recognition": "And",
-        "all_of": [
-            "RestaurantMenuCardAnchor",
-            "RestaurantMenuPendingIcon"
-        ],
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Click",
-        "target": "RestaurantMenuCardAnchor",
-        "target_offset": [
-            230,
-            46,
-            -306,
-            -92
-        ],
         "post_wait_freezes": {
             "time": 350,
             "target": [
@@ -2222,21 +2352,22 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantMenuConfirmCard"
+            "RestaurantMenuAdvanceCard"
         ]
     },
-    "RestaurantMenuConfirmCard": {
+    "RestaurantMenuAdvanceCard": {
+        "desc": "识别卡片已选中后提交选择并推进索引。",
+        "enabled": false,
         "recognition": "And",
         "all_of": [
             "RestaurantMenuCardAnchor",
-            "RestaurantMenuPendingIcon",
-            "RestaurantMenuCardSelected"
+            "RestaurantMenuSelectedCircle"
         ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RestaurantDecisionAction",
         "custom_action_param": {
-            "step": "menu_confirm"
+            "step": "menu_advance"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -2246,13 +2377,29 @@
             "RestaurantMenuDishesComplete",
             "RestaurantMenuDrinksComplete",
             "RestaurantMenuClickCard",
-            "RestaurantMenuReadCard"
+            "RestaurantMenuReadCard",
+            "RestaurantMenuInsufficient"
         ],
         "on_error": [
             "FailedNode"
         ]
     },
+    "RestaurantMenuInsufficient": {
+        "desc": "菜品或饮品数量不足时进入失败流程。",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FailedNode"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.menu_items_insufficient"
+        }
+    },
     "RestaurantRuntimeObserve": {
+        "desc": "观察桌位、厨房队列和补充标记，由 Go 决定厨房及派菜动作。",
         "recognition": "And",
         "all_of": [
             "RestaurantRuntimeFullFrame"
@@ -2284,6 +2431,7 @@
         ]
     },
     "RestaurantRuntimeSwitchKitchen1": {
+        "desc": "切换并确认当前选中厨房为厨房一。",
         "enabled": false,
         "recognition": "And",
         "all_of": [
@@ -2318,6 +2466,7 @@
     },
     // 720p 固定厨房标签坐标；点击后由父节点 wait_nodes 识别 Selected 状态。
     "RestaurantRuntimeSwitchKitchen1Click": {
+        "desc": "点击厨房一标签。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "LongPress",
@@ -2330,6 +2479,7 @@
         "rate_limit": 0
     },
     "RestaurantRuntimeSwitchKitchen2": {
+        "desc": "切换并确认当前选中厨房为厨房二。",
         "enabled": false,
         "recognition": "And",
         "all_of": [
@@ -2364,6 +2514,7 @@
     },
     // 720p 固定厨房标签坐标；点击后由父节点 wait_nodes 识别 Selected 状态。
     "RestaurantRuntimeSwitchKitchen2Click": {
+        "desc": "点击厨房二标签。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "LongPress",
@@ -2376,6 +2527,7 @@
         "rate_limit": 0
     },
     "RestaurantRuntimeSwitchKitchen3": {
+        "desc": "切换并确认当前选中厨房为厨房三。",
         "enabled": false,
         "recognition": "And",
         "all_of": [
@@ -2410,6 +2562,7 @@
     },
     // 720p 固定厨房标签坐标；点击后由父节点 wait_nodes 识别 Selected 状态。
     "RestaurantRuntimeSwitchKitchen3Click": {
+        "desc": "点击厨房三标签。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "LongPress",
@@ -2536,6 +2689,7 @@
         ]
     },
     "RestaurantRuntimeNextKitchen": {
+        "desc": "通过按键切换到 Go 选定的厨房。",
         "enabled": false,
         "recognition": "And",
         "all_of": [
@@ -2557,6 +2711,7 @@
         ]
     },
     "RestaurantRuntimeDispatched": {
+        "desc": "通知 Go 已执行派菜，并返回经营循环。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",

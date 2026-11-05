@@ -93,9 +93,10 @@ struct LocateResult
 {
     LocateStatus status;
     std::optional<MapPosition> position;
-    std::string debugMessage;  // 用于向 Pipeline 输出日志
+    std::string debugMessage;    // 用于向 Pipeline 输出日志
     std::optional<CameraOrientation> camRot;
-    std::optional<double> rot; // 当前帧角色朝向，不依赖位置是否识别成功。
+    std::optional<double> rot;   // 当前帧角色朝向，不依赖位置是否识别成功。
+    bool minimap_absent = false; // YOLO 判定画面里没有小地图
 };
 
 enum class GlobalSearchMode
@@ -264,7 +265,8 @@ struct ImageProcessingConfig
     int whiteDilate;
     int colorDilate;
     bool useHsvWhiteMask;
-    int whiteMaskFloor = 255; // 三通道均不低于此值按白色图标剔除
+    int whiteMaskFloor = 255;                 // 三通道均不低于此值按白色图标剔除
+    double minimapDarkMaskMinKeptRatio = 0.0; // 剔除暗部后剩余像素占比低于此值时保留暗部
 };
 
 } // namespace maplocator

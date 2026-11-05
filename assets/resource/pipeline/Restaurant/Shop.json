@@ -1,15 +1,70 @@
 {
     "RestaurantShopAfterRounds": {
+        "desc": "进入堂头小铺购物流程。",
         "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopApproach"
+            "RestaurantShopApproach",
+            "RestaurantShopApproachAfterBusiness"
         ]
     },
     "RestaurantShopApproach": {
+        "desc": "导航到堂头小铺交互区域。",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        137.48,
+                        138.67
+                    ],
+                    "target_tier": "Wuling_L10_468",
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        136.14,
+                        133.75
+                    ],
+                    "target_tier": "Wuling_L10_468",
+                    "required": true
+                }
+            ]
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                796,
+                347,
+                253,
+                279
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopInteract"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopApproachAfterBusiness": {
+        "desc": "从缘缘庄经营区域导航到堂头小铺交互区域。",
+        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -30,27 +85,71 @@
                     "required": true
                 },
                 {
-                    "action": "INTERACT",
+                    "action": "NAVMESH",
                     "target": [
                         136.14,
                         133.75
                     ],
                     "target_tier": "Wuling_L10_468",
-                    "strict": true,
                     "required": true
                 }
+            ]
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                796,
+                347,
+                253,
+                279
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitOpenGoods"
+            "RestaurantShopInteract"
         ],
         "on_error": [
             "FailedNode"
         ]
     },
-    "RestaurantShopWaitOpenGoods": {
+    "RestaurantShopInteract": {
+        "desc": "识别小聪明或手不停的交互提示并 AltClick，直到提示消失，最多三次。",
+        "recognition": "OCR",
+        "roi": [
+            796,
+            347,
+            253,
+            279
+        ],
+        "expected": [
+            "小聪明",
+            "手不停",
+            "小聰明",
+            "手不停",
+            "꾸러기",
+            "열일이",
+            "ソウメイ",
+            "コマメ",
+            "Witty",
+            "Job Rusher"
+        ],
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "RestaurantShopInteract",
+            "repeat_count": 3
+        },
+        "next": [
+            "RestaurantShopWaitDialogueSkip"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopWaitDialogueSkip": {
+        "desc": "等待对话跳过按钮出现。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -58,10 +157,75 @@
         "custom_action_param": {
             "action": "DoNothing",
             "wait_nodes": [
+                "RestaurantShopDialogueSkipAll",
                 "RestaurantShopOpenGoods"
             ],
             "repeat_count": 3
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopDialogueSkipAll",
+            "RestaurantShopOpenGoods"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopDialogueSkipAll": {
+        "desc": "点击跳过对话。",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1140,
+            0,
+            120,
+            90
+        ],
+        "template": "RealTimeTask/AutoSkipEsc.png",
+        "threshold": 0.7,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopDialogueSkipAll",
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopDialogueSkipAllConfirm",
+            "RestaurantShopOpenGoods"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopDialogueSkipAllConfirm": {
+        "desc": "点击确认跳过并等待确认提示消失。",
+        "recognition": "OCR",
+        "roi": [
+            647,
+            442,
+            211,
+            43
+        ],
+        "expected": [
+            "确认",
+            "確認",
+            "確定",
+            "Confirm",
+            "확인"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopDialogueSkipAllConfirm",
+            "repeat_count": 3
+        },
+        "target": true,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -72,12 +236,13 @@
         ]
     },
     "RestaurantShopOpenGoods": {
+        "desc": "点击“看看货物”进入商品界面。",
         "recognition": "OCR",
         "roi": [
             946,
             352,
             252,
-            71
+            278
         ],
         "expected": [
             "看看货物",
@@ -105,6 +270,7 @@
         ]
     },
     "RestaurantShopEnsurePriorityStorage": {
+        "desc": "检查“优先存入地区仓库”是否勾选并分流。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -175,6 +341,7 @@
         ]
     },
     "RestaurantShopScan": {
+        "desc": "依次检查当前页面 14 个商品位、刷新入口或结束条件。",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
@@ -207,7 +374,7 @@
                     193,
                     139,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -254,7 +421,7 @@
                     345,
                     139,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -301,7 +468,7 @@
                     496,
                     139,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -348,7 +515,7 @@
                     648,
                     139,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -395,7 +562,7 @@
                     801,
                     139,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -442,7 +609,7 @@
                     953,
                     139,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -489,7 +656,7 @@
                     1105,
                     139,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -536,7 +703,7 @@
                     193,
                     358,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -583,7 +750,7 @@
                     345,
                     358,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -630,7 +797,7 @@
                     496,
                     358,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -677,7 +844,7 @@
                     648,
                     358,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -724,7 +891,7 @@
                     801,
                     358,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -771,7 +938,7 @@
                     953,
                     358,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -818,7 +985,7 @@
                     1105,
                     358,
                     54,
-                    30
+                    56
                 ],
                 // OCR full-text example: -95%
                 // @i18n-skip
@@ -949,6 +1116,7 @@
         ]
     },
     "RestaurantShopRefreshAvailable": {
+        "desc": "检查并点击刷新商品入口。",
         "enabled": false,
         "recognition": "OCR",
         "roi": [

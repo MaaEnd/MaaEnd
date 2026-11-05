@@ -86,6 +86,18 @@ double planar_distance(const navmesh::WorldPoint& a, const navmesh::WorldPoint& 
     return std::hypot(b.x - a.x, b.y - a.y);
 }
 
+// 与步行规划同一口径: 只认本区、仍当墙用的禁区
+bool inside_no_go(const ZiplineLegRequest& request, const navmesh::WorldPoint& point)
+{
+    if (request.no_go == nullptr) {
+        return false;
+    }
+    return std::any_of(request.no_go->begin(), request.no_go->end(), [&](const VirtualNoGoDisc& disc) {
+        return !disc.push_through && disc.zone_id == request.locator_zone
+               && planar_distance(point, { .x = disc.x, .y = disc.y }) < disc.radius;
+    });
+}
+
 // 类号集合有序, 任一边为空表示无从判断, 当作可能连通
 bool may_connect(const std::vector<uint32_t>& a, const std::vector<uint32_t>& b)
 {
@@ -918,7 +930,8 @@ std::optional<PlannedLeg> plan_approach(const PlanInputs& in, const TowerSites& 
             .goal = sites.spots[spot],
             .goal_deck_y = sites.nodes[sites.spot_tower[spot]].height,
         },
-        in.request.capture_diagnostics ? &diagnostic : nullptr);
+        in.request.capture_diagnostics ? &diagnostic : nullptr,
+        in.request.no_go);
     return to_planned_leg(route, std::move(diagnostic));
 }
 
@@ -932,9 +945,11 @@ std::optional<PlannedLeg> plan_departure(const PlanInputs& in, const TowerSites&
             .start = sites.spots[spot],
             .start_floor_y = sites.nodes[sites.spot_tower[spot]].height,
             .goal = in.request.goal,
+            .goal_floor_y = in.request.goal_floor_y,
             .goal_deck_y = in.request.goal_deck_y,
         },
-        in.request.capture_diagnostics ? &diagnostic : nullptr);
+        in.request.capture_diagnostics ? &diagnostic : nullptr,
+        in.request.no_go);
     return to_planned_leg(route, std::move(diagnostic));
 }
 
@@ -1093,6 +1108,8 @@ ZiplineRoute assemble_route(const PlanInputs& in, const TowerSites& sites, const
         in.frames.footprint(route.towers.front().template_id),
         approach_from,
         sites.supply_points);
+    // 全被排除时退回上索步行的终点, 那一点规划时已避开禁区
+    std::erase_if(route.mount_spots, [&](const navmesh::WorldPoint& spot) { return inside_no_go(in.request, spot); });
     return route;
 }
 
@@ -1127,10 +1144,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
     if (!param.zipline_enabled) {
         return std::nullopt;
     }
-    if (param.zipline_account_id.empty()) {
-        g_outcome.account_unknown = true;
-        return std::nullopt;
-    }
 
     const bool walking_baseline_available = request.walking_path != nullptr && !request.walking_path->points.empty();
 
@@ -1159,16 +1172,22 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
         return no_zipline("this zone is not calibrated", nullptr);
     }
 
-    TowerSites sites = collect_powered_towers(param, *data, *frame);
-    if (sites.nodes.size() < 2) {
-        return no_zipline("no powered ziplines recorded in this zone", &ZiplineOutcome::no_data);
-    }
-
+    // 每段路都会来问一次, 短路先挡掉, 缺账号和缺坐标只在值得坐滑索的路上才算数
     const zipline::ZiplineCostModel& cost = data->frames.cost();
     const double baseline_length = walking_baseline_available ? polyline_length(*request.walking_path) : 0.0;
     const double gain_threshold = walking_baseline_available ? baseline_length - cost.min_gain : std::numeric_limits<double>::infinity();
     if (walking_baseline_available && gain_threshold <= cost.mount_penalty) {
         return no_zipline("the walk is too short for any zipline to pay off", &ZiplineOutcome::not_chosen);
+    }
+
+    if (param.zipline_account_id.empty()) {
+        g_outcome.account_unknown = true;
+        return std::nullopt;
+    }
+
+    TowerSites sites = collect_powered_towers(param, *data, *frame);
+    if (sites.nodes.size() < 2) {
+        return no_zipline("no powered ziplines recorded in this zone", &ZiplineOutcome::no_data);
     }
 
     const PlanInputs in {

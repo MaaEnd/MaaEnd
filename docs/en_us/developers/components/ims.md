@@ -14,7 +14,7 @@ There are **2 recognitions + 3 actions**:
 
 Codes `A1` / `A2` / `A3` and `R1` / `R2` only reflect implementation order, not priority. **A2 was the second action written, but it is the core of IMS.**
 
-On-disk path: `debug/record/IMS.json` (relative to the working directory go-service was started in, resolved by `fsutil.OutputPath`).
+On-disk path: `debug/record/IMS.json` (in the user data directory given by `PI_USER_DATA_DIR`, or the install root when the variable is absent; resolved by `fsutil.UserDataPath`).
 
 ---
 
@@ -187,7 +187,7 @@ With a cache it also prints one summary; no Pipeline Starting/Succeeded Focus is
 >
 > Reference Pipeline: `AddItemDataOnRewards` → `AddItemDataCloseRewards`.
 >
-> Close-reward paths already wired to A3: `SceneNoticeRewardsConfirm` (Claim Daily Rewards, etc.), `DijiangRewardsFastCollectAddItemData` (base Fast Collect, separate candidates), `CreditShoppingClaimConfirm` (Credit Shop: Oroberyl / T-Creds / Arsenal Ticket / Credits + `ValuableDepot:SpecialItem`), `MFGCabinClaimRewardClose`, `GrowthChamberClaimRewardClose`, `SceneNoticeRewardsConfirmWithAnchor`, `ReceptionRoomSendCluesQuickGiveClose` (Reception Room quick gift), `AutoDeliveryCloseRewardDialog` (automatic delivery), `ProtocolSpaceRewardAddItemData` (Protocol Space), `TrialOfSwordmancyFightSuccess` (Trial of Swordmancy).
+> Close-reward paths already wired to A3: `SceneNoticeRewardsConfirm` (Claim Daily Rewards, etc.), `DijiangRewardsFastCollectAddItemData` (base Fast Collect, separate candidates), `CreditShoppingClaimConfirm` (Credit Shop: Oroberyl / T-Creds / Arsenal Ticket / Credits + `ValuableDepot:SpecialItem`), `MFGCabinClaimRewardClose`, `GrowthChamberClaimRewardClose`, `SceneNoticeRewardsConfirmWithAnchor`, `ReceptionRoomSendCluesQuickGiveClose` (Reception Room quick gift), `AutoDeliveryCloseRewardDialog` (automatic delivery), `ProtocolSpaceRewardAddItemData` (Protocol Space), `TrialOfSwordmancyFightSuccess` (Trial of Swordmancy), `AutoStockStapleQuantityControlCloseRewards` (stable-material purchase: `Normal:Usable` + `ValuableDepot:CommercialItem` + `ValuableDepot:SpecialItem`, replacing the old “Buy X” Focus broadcast on each item's buy node).
 
 ---
 

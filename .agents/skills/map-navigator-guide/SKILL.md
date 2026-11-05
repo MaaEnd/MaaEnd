@@ -60,13 +60,13 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 
 **终点落在重叠可走面上时必须标 `target_deck_y`。** 游戏是三维的、底图是二维的，走廊 / 天桥 / 屋顶可能压在同一个 `target` 上；不声明时寻路把该格全部可走面当终点，先够到哪张停哪张，而且上下两张常属同一连通块、二维到达判定也通过，所以走错面完全无声。数值是那张面的世界高度，用 MapNavigator 点中目标后从重叠面列表读出（可预览确认是哪一层），不要手估。
 
-未启用滑索时，严格按照作者给出的 `path` 顺序执行。普通点和动作全部保留，`NAVMESH` 逐点展开，显式 `target_tier` 仍按原规则投影。
+导航器始终按照作者给出的 `path` 顺序执行。普通点和动作全部保留，`NAVMESH` 逐点展开，显式 `target_tier` 仍按原规则投影。
 
-启用滑索后，才会对作者路径做全局规划。每个区间先尝试从起点直达末端；成功时跳过中间的移动和兜底点，失败时仍按作者路径逐点执行。可跳过的点包括 `NAVMESH`、`RUN`、`SPRINT`、`JUMP`、`FIGHT`、`TRANSFER`、`PORTAL` 和 `INTERACT`。
+滑索是对作者路线的局部替换，路线不写 `zip` 也会考虑，写 `zip: false` 才关。展开时按边界把路线切段，每段先照作者路线展开当步行基线，滑索比基线省下 `min_gain` 以上才把这段的走路整段换掉；不划算时这段与不开滑索逐点一致。
 
-`ZONE` 是结构边界，`HEADING`、`COLLECT`、`DIG`、`FIND`、`TRIGGER` 是固有动作边界，始终保留。其他节点必须抵达并执行时写 `required: true`；该节点会结束当前规划区间，并成为后续规划的新起点。
+`ZONE`、除 `RUN` / `NAVMESH` 外的所有动作点、写了 `required: true` 的 `RUN` / `NAVMESH` 点都是段边界，滑索不会跨过，动作照常执行。所以动作点不需要 `required`；只有必须经过的 `RUN` / `NAVMESH` 点才写。
 
-直达的纯步行路线不可达时，开启滑索的请求仍会尝试用一条连续滑索链桥接起终两侧可走面；桥接成功优先于盲走和作者路径回退。纯步行可达时才按全程成本与收益门槛比较，不能简单按滑索跳数给固定优先级。
+某个 `NAVMESH` 点纯步行不可达时，仍会尝试用一条连续滑索链桥接起终两侧可走面；桥接成功优先于盲走兜底。纯步行可达时才按区间成本与收益门槛比较，不能简单按滑索跳数给固定优先级。
 
 声明只钉这一段停在哪张面，起点站在哪张面由寻路按起点自己的高度判断，所以跨面的一段不需要给起点补声明。
 
@@ -134,7 +134,7 @@ MapNavigator 的位置输入完全来自 MapLocator 的逐帧识别结果。**�
 
 ### 资源路径
 
-`.nav` 数据包通过可执行文件相对路径定位（`get_exe_dir()` + `resource/` 前缀，优先 `.gz`），与 YOLO 模型的加载方式一致。开发时若从项目根目录运行，路径问题会被工作目录掩盖——验证资源加载改动时，应从其他工作目录、以可执行文件相对布局进行测试。
+`.nav` 数据包通过安装根目录相对路径定位（`common::InstallPath` + `resource/` 前缀，优先 `.gz`），与 YOLO 模型的加载方式一致。安装根目录即 agent 启动时的工作目录，由宿主保证；开发时从仓库根目录直接跑二进制会让它指向错误的位置——验证资源加载改动时，应以 `install/` 为工作目录启动。
 
 ### 日志改动要同步日志分析工具
 
@@ -148,4 +148,4 @@ MapNavigator 的位置输入完全来自 MapLocator 的逐帧识别结果。**�
 
 ### C++ 编码规范
 
-本目录下的代码遵循 `docs/zh_cn/developers/coding-standards.md`，另可参考 `cpp-algo-style` 技能。通用的 RAII 辅助设施（`ScopedImageBuffer` / `ScopedStringBuffer` / `to_mat` / `get_exe_dir`）统一放在 `source/utils.h`，**直接复用，不要在各自的 TU 里重新声明一份**。
+本目录下的代码遵循 `docs/zh_cn/developers/coding-standards.md`，另可参考 `cpp-algo-style` 技能。通用的 RAII 辅助设施（`ScopedImageBuffer` / `ScopedStringBuffer` / `to_mat`）统一放在 `source/utils.h`，路径基准统一用 `Common/paths.h` 的 `common::InstallPath` / `common::UserDataPath`，**直接复用，不要在各自的 TU 里重新声明一份**。

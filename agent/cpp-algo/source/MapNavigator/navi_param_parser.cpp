@@ -466,7 +466,8 @@ struct NaviParamInput
     std::string nav_file_;
     double navmesh_snap_radius_ = 5.0;
     double snap_radius_ = 5.0;
-    bool zip_ = false;
+    // 没写的路线也会在划算时坐滑索, 只有写 false 才关
+    bool zip_ = true;
     NaviActionListInput action_;
     NaviActionListInput actions_;
     double x_ = 0.0;

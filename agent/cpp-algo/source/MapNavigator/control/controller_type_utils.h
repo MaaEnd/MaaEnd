@@ -11,6 +11,9 @@
 #include <system_error>
 #include <vector>
 
+#include <MaaUtils/Platform.h>
+
+#include "../../Common/paths.h"
 #include "../../utils.h"
 
 namespace mapnavigator
@@ -45,7 +48,7 @@ inline bool IsLinuxControllerType(std::string_view controller_type)
 // 顺序与框架叠加 overlay 一致, 基础资源排最后, resource_cloud 无法按控制器类型区分故不参与
 inline std::vector<std::filesystem::path> ResourceImageRoots(std::string_view controller_type)
 {
-    const std::filesystem::path install_dir = std::filesystem::absolute(get_install_dir());
+    const std::filesystem::path program_dir = common::InstallPath();
 
     std::vector<std::string> dirs;
     if (IsPlayCoverControllerType(controller_type)) {
@@ -66,7 +69,7 @@ inline std::vector<std::filesystem::path> ResourceImageRoots(std::string_view co
     std::vector<std::filesystem::path> roots;
     roots.reserve(dirs.size());
     for (const std::string& dir : dirs) {
-        roots.push_back(install_dir / dir / "image");
+        roots.push_back(program_dir / dir / "image");
     }
     return roots;
 }

@@ -9,7 +9,7 @@ import registry
 from json_import import discover_path_routes
 from model import ActionType
 from registry import read_jsonc
-from route_builder import Library, RouteError, references, relative
+from route_builder import Library, RouteError, references, relative, wait10sec_node
 
 # (区域, x, y) -> 底图像素
 ToBase = Callable[[str, float, float], tuple[float, float]]
@@ -157,6 +157,11 @@ class RouteReader:
         visits = [point for segment in segments for point in segment["points"] if COLLECT_ACTIONS & set(point["actions"])]
         matched = [found for point in visits if (found := self.nearest(candidates, point)) is not None]
         point_ids = list(dict.fromkeys(matched))
+        if any(int(ActionType.DIG) in point["actions"] for point in visits):
+            node = f"AutoCollect{route.id}"
+            wait = f"{node}Wait10sec"
+            if document.get(wait) == wait10sec_node(node):
+                known.add(wait)
 
         notes = []
         if len(segments) > 1:

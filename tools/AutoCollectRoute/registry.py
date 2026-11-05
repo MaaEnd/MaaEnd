@@ -177,7 +177,7 @@ def join_names(locale: str, names: list[str]) -> str:
 def load_items() -> dict[str, Item]:
     return {
         info["item"]: Item(
-            info["item"], to_pascal(info["item_names"]["en_us"]), info["icon"], route_kind(info), info["item_names"]
+            info["item"], to_pascal(info["names"]["en_us"]), info["icon"], route_kind(info), info["names"]
         )
         for info in read_json(COLLECT_POINTS_PATH)["types"].values()
     }
@@ -473,9 +473,7 @@ def locale_texts(locale: str, groups: list[Group], routes: list[Route], names: d
     for item in unique_items(groups):
         name = item.names[locale]
         texts[f"option.AutoCollectItem.{item.id}.label"] = name
-        texts[f"option.AutoCollectTargetInventory.inputs.{item.id}.label"] = (
-            f"![](resource/image/UI/Item/{item.icon}.png) {name}"
-        )
+        texts[f"option.AutoCollectTargetInventory.inputs.{item.id}.label"] = name
         texts[f"task.AutoCollect.item.{item.id}.skipped"] = SKIPPED_TEXTS[locale].format(name=name)
     for route in routes:
         name = names[route.id][locale]

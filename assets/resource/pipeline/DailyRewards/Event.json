@@ -109,42 +109,60 @@
         ]
     },
     "DailyEventGoToFinishByRedDot": {
-        "desc": "校验红点入口切换成功",
+        "desc": "校验红点入口切换成功（本格左侧出现白色高亮卡）",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "ColorMatch",
             "param": {
                 "roi": "DailyEventGoToByRedDot",
-                // 注意避免x轴<0越界
+                // 只框本格左侧：左移 20、宽度收到 60（右侧缩略图不进 ROI）、高度收到 20
                 "roi_offset": [
                     -20,
-                    -50,
-                    20,
-                    100
+                    4,
+                    -29,
+                    -3
                 ],
-                "template": [
-                    "DailyRewards/Event/EventSwitchSuccess.png"
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    200
                 ],
-                "threshold": 0.85
+                "upper": [
+                    180,
+                    40,
+                    255
+                ],
+                "connected": true,
+                "count": 150
             }
         }
     },
     "DailyEventGoToFinishByNew": {
-        "desc": "校验 NEW 入口切换成功",
+        "desc": "校验 NEW 入口切换成功（本格左侧出现白色高亮卡）",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "ColorMatch",
             "param": {
                 "roi": "DailyEventGoToByNew",
-                // 注意避免x轴<0越界
+                // 本支路点击框更矮，向上取 2px 才能盖住箭头
                 "roi_offset": [
-                    -20,
-                    -50,
-                    20,
-                    100
+                    -10,
+                    -2,
+                    -30,
+                    5
                 ],
-                "template": [
-                    "DailyRewards/Event/EventSwitchSuccess.png"
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    200
                 ],
-                "threshold": 0.85
+                "upper": [
+                    180,
+                    40,
+                    255
+                ],
+                "connected": true,
+                "count": 150
             }
         }
     },

@@ -124,6 +124,7 @@ test("base goal omits target_tier while preserving the runtime start frame", () 
             ],
           },
         ],
+        zip: false,
       },
     },
   });

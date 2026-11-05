@@ -491,13 +491,27 @@ const iconrecognition::RecognitionResult result = recognizer.recognize(image, re
 
 ## Debug 输出
 
-`debug=true` 时，Custom 入口把本次识别保存到启动工作目录下的 `debug/vision/IconRecognition`：
+`debug=true` 时，Custom 入口把本次识别保存到用户数据目录下的 `debug/vision/IconRecognition`：
 
 - `raw/<stem>.png`：输入原图；
 - `annotated/<stem>.png`：ROI、格子、候选框和分数标注；
 - `detail/<stem>.json`：公开结果和内部诊断。
 
-三个文件使用相同 stem，合称一组。组件会自动清理较旧的组。正常执行到结果汇总阶段时，核心 C++ 结果保留网格和格子诊断；提前返回的 `invalid_image`、`invalid_argument`、`grid_detection_failed` 或 `exception` 可能不包含诊断。`debug=true` 时还会附加性能诊断。Custom 回调的公开 detail 不包含这些内部字段，只有 debug 文件和人工测试输出会附加它们。
+三个文件使用相同 stem，合称一组。组件会自动清理较旧的组。正常执行到结果汇总阶段时，核心 C++ 结果保留网格和格子诊断；提前返回的 `invalid_image`、`invalid_argument`、`grid_detection_failed` 或 `exception` 可能不包含诊断。`debug=true` 时还会附加性能诊断。Custom 回调的公开 detail 不包含这些内部字段，debug 文件和人工测试输出会附加它们；自动诊断采图时将它们写入日志。
+
+## 自动诊断采图
+
+Custom 入口自动保存疑似漏物品的无损 PNG，无需开启 `debug`，不改变识别结果。图片位于框架日志目录的 `on_error/`，可随客户端日志导出；文件名沿用框架错误截图格式：`时间戳_IconRecognitionDiagnosticScreencap.png`。原因、调用节点、ROI、候选范围和匹配诊断写入日志。
+
+- 无网格：需要网格但检测失败；不适用于 `single_roi`。
+- 零命中：有格子但最终没有物品命中，单候选、多候选及分类筛选均保存。
+- 可疑拒绝：候选覆盖本次分类范围（未指定时为默认场景），且拒绝格有彩色色带，或有纹理且同一行存在正常匹配。
+
+单物品翻页搜索的正常零命中也会留图供诊断，不改变任务成败或翻页流程；网格形态变化但结果正常不单独保存。页面特征用于去重，采集不保证发现所有漏项。
+
+图片通过 MaaFramework `Screencap` 同步保存，不裁剪、缩放或标注；优先使用控制器缓存，仅缓存为空时请求截图。正常 Pipeline 中没有其他截图请求插入时，保存的就是识别帧；外部输入或并发刷新缓存不保证同帧。保存不额外等待画面稳定，但 PNG 编码和写盘会占用回调时间；失败只记日志，识别继续执行。直接 C++ 调用只返回诊断，不自动存图。
+
+磁盘不设保存条数上限，采图模块不删除旧样本，可使用客户端的清理日志功能清理。
 
 ## 测试与内部实现
 
