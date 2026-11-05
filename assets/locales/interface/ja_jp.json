@@ -1445,6 +1445,8 @@
     "option.ClientVersion.label": "クライアントバージョン",
     "option.ClientVersionCloudLocked.description": "クラウド終末地(ADB) コントローラーではクラウド終末地クライアントに固定され、変更できません。",
     "option.ClientVersionCloudLocked.label": "クライアントバージョン",
+    "option.CloudEndfieldAllowMobileData.description": "オフの場合、モバイル通信の確認ダイアログを検出するとタスクを失敗させ、モバイル通信の消費を防ぎます。",
+    "option.CloudEndfieldAllowMobileData.label": "モバイル通信でのクラウド終末地起動を許可",
     "option.CloseGamePCApplyGameSetting.label": "終了後にゲーム設定を適用",
     "option.CloseGamePCAutoHDR.label": "自動 HDR",
     "option.CloseGamePCCloseLauncher.label": "ランチャーを終了",

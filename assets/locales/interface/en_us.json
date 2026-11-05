@@ -1445,6 +1445,8 @@
     "option.ClientVersion.label": "Client Version",
     "option.ClientVersionCloudLocked.description": "Locked to Cloud Endfield when using the Cloud Endfield (ADB) controller; cannot be changed.",
     "option.ClientVersionCloudLocked.label": "Client Version",
+    "option.CloudEndfieldAllowMobileData.description": "When off, detecting the mobile data prompt fails the task immediately to avoid consuming mobile data.",
+    "option.CloudEndfieldAllowMobileData.label": "Allow launching Cloud Endfield over mobile data",
     "option.CloseGamePCApplyGameSetting.label": "Apply game settings after close",
     "option.CloseGamePCAutoHDR.label": "Auto HDR",
     "option.CloseGamePCCloseLauncher.label": "Close launcher",

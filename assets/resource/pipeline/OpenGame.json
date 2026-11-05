@@ -235,7 +235,7 @@
         }
     },
     "CloudEndfieldTrafficTip": {
-        // 云终末地在移动网络下点「开始游戏」后会弹「流量消耗提示」，不点「继续游戏」会一直挡住启动
+        // 云终末地在移动网络下点「开始游戏」后会弹「流量消耗提示」；AndroidOpenGame 的 CloudEndfieldAllowMobileData 开启时点「继续游戏」，关闭时覆盖为 StopTask
         "desc": "云终末地流量消耗提示",
         "recognition": {
             "type": "OCR",

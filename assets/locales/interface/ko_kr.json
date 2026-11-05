@@ -1445,6 +1445,8 @@
     "option.ClientVersion.label": "클라이언트 버전",
     "option.ClientVersionCloudLocked.description": "클라우드 종말지(ADB) 컨트롤러에서는 클라우드 종말지 클라이언트로 고정되며 변경할 수 없습니다.",
     "option.ClientVersionCloudLocked.label": "클라이언트 버전",
+    "option.CloudEndfieldAllowMobileData.description": "꺼져 있으면 모바일 데이터 안내 창이 감지될 때 작업을 즉시 실패 처리하여 모바일 데이터 사용을 막습니다.",
+    "option.CloudEndfieldAllowMobileData.label": "모바일 데이터로 클라우드 종말지 실행 허용",
     "option.CloseGamePCApplyGameSetting.label": "종료 후 게임 설정 적용",
     "option.CloseGamePCAutoHDR.label": "자동 HDR",
     "option.CloseGamePCCloseLauncher.label": "런처 종료",

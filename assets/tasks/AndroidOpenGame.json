@@ -15,6 +15,7 @@
             "option": [
                 "ClientVersion",
                 "ClientVersionCloudLocked",
+                "CloudEndfieldAllowMobileData",
                 "EnterGameRecognitionMaxHit"
             ]
         }
@@ -151,6 +152,38 @@
                 }
             ],
             "default_case": "Cloud"
+        },
+        "CloudEndfieldAllowMobileData": {
+            // 默认关闭：移动网络下识别到「流量消耗提示」直接判失败，避免误耗流量；开启后才点「继续游戏」
+            "type": "switch",
+            "controller": [
+                "CloudADB"
+            ],
+            "label": "$option.CloudEndfieldAllowMobileData.label",
+            "description": "$option.CloudEndfieldAllowMobileData.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CloudEndfieldTrafficTip": {
+                            "action": {
+                                "type": "Click"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CloudEndfieldTrafficTip": {
+                            "action": {
+                                "type": "StopTask"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
         },
         "EnterGameRecognitionMaxHit": {
             "type": "input",

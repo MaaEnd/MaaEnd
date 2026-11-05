@@ -1445,6 +1445,8 @@
     "option.ClientVersion.label": "客户端版本",
     "option.ClientVersionCloudLocked.description": "云终末地(ADB) 控制器下锁定为云终末地客户端，不可更改",
     "option.ClientVersionCloudLocked.label": "客户端版本",
+    "option.CloudEndfieldAllowMobileData.description": "关闭时，识别到「流量消耗提示」会直接判定任务失败，避免消耗移动流量",
+    "option.CloudEndfieldAllowMobileData.label": "允许通过流量启动云终末地",
     "option.CloseGamePCApplyGameSetting.label": "关闭后设置游戏",
     "option.CloseGamePCAutoHDR.label": "自动 HDR",
     "option.CloseGamePCCloseLauncher.label": "关闭启动器",
