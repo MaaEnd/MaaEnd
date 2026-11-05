@@ -1,13 +1,32 @@
 {
+    // ADB 覆盖：奖励关闭按钮（✓）的阈值与 ROI。
+    // 阈值 0.70 -> 0.75：0.70 时送货完成的对白演出帧里，白字/白手套/高光这类
+    // 亮色块会以 0.717964 擦线命中本模板（2026-11-05 15:45:41 的送货日志），
+    // 真奖励面板实测 0.97~0.9997，0.75 不影响命中。
+    // ROI 由实测位置收窄：ADB 模板 44x45，x 恒为 618，y 有 586 / 628 两档
+    // （奖励面板行数不同、面板高度不同），取并集 [618,586,44,87]，
+    // 再按抖动余量向四周各扩 5px -> [613,581,54,97]（原 ROI 为 209x182）。
     "DectedCloseRewardsImage": {
         "template": "AdbOnly/Common/Button/CloseRewardImage.png",
         "threshold": 0.7
     },
     "__CloseRewardsButtonStable": {
+        "roi": [
+            613,
+            581,
+            54,
+            97
+        ],
         "template": "AdbOnly/Common/Button/CloseRewardButton.png",
-        "threshold": 0.7
+        "threshold": 0.75
     },
     "__CloseRewardsButtonHover": {
-        "threshold": 0.7
+        "roi": [
+            613,
+            581,
+            54,
+            97
+        ],
+        "threshold": 0.75
     }
 }
