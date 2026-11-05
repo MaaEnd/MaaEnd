@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/jsonclean"
 	"github.com/rs/zerolog/log"
 )
@@ -43,69 +44,26 @@ func ReadJsonResource(relativePath string, out any) error {
 	return nil
 }
 
-// FindResource tries to find a file in the cached resource path or standard fallback paths.
+// FindResource tries to find a file named by relativePath.
 //
-// The path will be resolved in the following order:
-//
-// 1. Directly using the provided relative path.
-//
-// 2. Searching in the resource base path set by resource sink.
-//
-// 3. Searching in "resource" and "assets" directories in the current working directory and its parent/grandparent directories.
+// Absolute paths are used as-is. Relative paths are resolved against the
+// install root only; there is no lookup chain.
 func FindResource(relativePath string) string {
-	tryPath := func(path string) string {
-		if path == "" {
-			return ""
-		}
-		if _, err := os.Stat(path); err == nil {
-			return path
-		}
-		return ""
-	}
-
 	rawPath := filepath.Clean(filepath.FromSlash(strings.TrimSpace(relativePath)))
 	if rawPath == "." {
-		rawPath = ""
-	}
-
-	if filepath.IsAbs(rawPath) {
-		if found := tryPath(rawPath); found != "" {
-			log.Debug().Str("relativePath", relativePath).Str("resolvedPath", found).Msg("Absolute resource path found")
-			return found
-		}
-	}
-
-	if found := tryPath(rawPath); found != "" {
-		log.Debug().Str("relativePath", relativePath).Str("resolvedPath", found).Msg("Direct resource path found")
-		return found
-	}
-
-	rel := strings.TrimPrefix(rawPath, string(filepath.Separator))
-
-	findPath := func(rel string) string {
-		if base := getResourceBase(); base != "" {
-			base = filepath.Clean(base)
-			if found := tryPath(filepath.Join(base, rel)); found != "" {
-				return found
-			}
-		}
-
-		for _, base := range getStandardResourceBase() {
-			if base != "" {
-				base = filepath.Clean(base)
-				if found := tryPath(filepath.Join(base, rel)); found != "" {
-					return found
-				}
-			}
-		}
-
 		return ""
 	}
 
-	if result := findPath(rel); result != "" {
-		log.Debug().Str("relativePath", relativePath).Str("resolvedPath", result).Msg("Resource found")
-		return result
+	resolvedPath := rawPath
+	if !filepath.IsAbs(rawPath) {
+		resolvedPath = fsutil.InstallPath(strings.TrimPrefix(rawPath, string(filepath.Separator)))
 	}
-	log.Warn().Str("relativePath", relativePath).Msg("Resource cannot be found in any known location")
-	return ""
+
+	if _, err := os.Stat(resolvedPath); err != nil {
+		log.Warn().Str("relativePath", relativePath).Str("resolvedPath", resolvedPath).Msg("Resource cannot be found")
+		return ""
+	}
+
+	log.Debug().Str("relativePath", relativePath).Str("resolvedPath", resolvedPath).Msg("Resource found")
+	return resolvedPath
 }

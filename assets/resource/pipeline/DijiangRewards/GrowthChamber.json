@@ -994,7 +994,18 @@
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Click",
+            // 关闭按钮左侧紧贴另一个按钮，点击区收到识别框右半部分：
+            // target_offset 为 [dx, dy, dw, dh]，最窄的关闭按钮模板 23x23 取半为 11.5，向上取整 12，
+            // dx 右移 12、dw 收 12 后目标框落在右侧，落点保持在右半区，远离左侧按钮
+            "param": {
+                "target_offset": [
+                    12,
+                    0,
+                    -12,
+                    0
+                ]
+            }
         },
         "next": [
             "InDijiangControlNexus"

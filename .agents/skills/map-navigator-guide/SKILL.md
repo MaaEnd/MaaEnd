@@ -134,7 +134,7 @@ MapNavigator 的位置输入完全来自 MapLocator 的逐帧识别结果。**�
 
 ### 资源路径
 
-`.nav` 数据包通过可执行文件相对路径定位（`get_exe_dir()` + `resource/` 前缀，优先 `.gz`），与 YOLO 模型的加载方式一致。开发时若从项目根目录运行，路径问题会被工作目录掩盖——验证资源加载改动时，应从其他工作目录、以可执行文件相对布局进行测试。
+`.nav` 数据包通过安装根目录相对路径定位（`common::InstallPath` + `resource/` 前缀，优先 `.gz`），与 YOLO 模型的加载方式一致。安装根目录即 agent 启动时的工作目录，由宿主保证；开发时从仓库根目录直接跑二进制会让它指向错误的位置——验证资源加载改动时，应以 `install/` 为工作目录启动。
 
 ### 日志改动要同步日志分析工具
 
@@ -148,4 +148,4 @@ MapNavigator 的位置输入完全来自 MapLocator 的逐帧识别结果。**�
 
 ### C++ 编码规范
 
-本目录下的代码遵循 `docs/zh_cn/developers/coding-standards.md`，另可参考 `cpp-algo-style` 技能。通用的 RAII 辅助设施（`ScopedImageBuffer` / `ScopedStringBuffer` / `to_mat` / `get_exe_dir`）统一放在 `source/utils.h`，**直接复用，不要在各自的 TU 里重新声明一份**。
+本目录下的代码遵循 `docs/zh_cn/developers/coding-standards.md`，另可参考 `cpp-algo-style` 技能。通用的 RAII 辅助设施（`ScopedImageBuffer` / `ScopedStringBuffer` / `to_mat`）统一放在 `source/utils.h`，路径基准统一用 `Common/paths.h` 的 `common::InstallPath` / `common::UserDataPath`，**直接复用，不要在各自的 TU 里重新声明一份**。
