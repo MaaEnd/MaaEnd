@@ -63,9 +63,9 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
+                "required": ["custom_recognition"],
                 "properties": {
-                    "custom_recognition": { "const": "ArenaOfGames.CheckHand" }
+                    "custom_recognition": {"const": "ArenaOfGames.CheckHand"}
                 }
             },
             "then": {
@@ -88,7 +88,7 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
+                "required": ["custom_recognition"],
                 "properties": {
                     "custom_recognition": {
                         "const": "IconRecognition"
@@ -97,12 +97,15 @@
             },
             "then": {
                 "type": "object",
-                "required": [ "roi", "custom_recognition_param" ],
+                "required": [
+                    "roi",
+                    "custom_recognition_param"
+                ],
                 "properties": {
                     "custom_recognition_param": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [ "grid_type" ],
+                        "required": ["grid_type"],
                         "properties": {
                             "grid_type": {
                                 "type": "string",
@@ -206,7 +209,7 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
+                "required": ["custom_recognition"],
                 "properties": {
                     "custom_recognition": {
                         "enum": [
@@ -218,7 +221,7 @@
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
                     "custom_recognition_param": {
                         "type": "object",
@@ -231,14 +234,14 @@
                             "grid_roi": {
                                 "description": "Grid detection rectangle [x, y, width, height].",
                                 "type": "array",
-                                "items": { "type": "integer" },
+                                "items": {"type": "integer"},
                                 "minItems": 4,
                                 "maxItems": 4
                             },
                             "center_roi": {
                                 "description": "Center-point detection rectangle [x, y, width, height].",
                                 "type": "array",
-                                "items": { "type": "integer" },
+                                "items": {"type": "integer"},
                                 "minItems": 4,
                                 "maxItems": 4
                             }
@@ -250,8 +253,8 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ItemDataReady" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ItemDataReady"}}
             },
             "then": {
                 "type": "object",
@@ -265,12 +268,12 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ItemQuantitySatisfied" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ItemQuantitySatisfied"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
                     "custom_recognition_param": {
                         "$ref": "./components/ims.schema.json#/$defs/ItemQuantitySatisfiedParam"
@@ -281,17 +284,17 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ExpressionRecognition" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ExpressionRecognition"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
                     "custom_recognition_param": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [ "expression" ],
+                        "required": ["expression"],
                         "properties": {
                             "expression": {
                                 "type": "string",
@@ -315,8 +318,8 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "IntelArchiveScanItemsRecognition" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "IntelArchiveScanItemsRecognition"}}
             },
             "then": {
                 "type": "object",
@@ -345,17 +348,20 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ItemTransferSameItemRecognition" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ItemTransferSameItemRecognition"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
                     "custom_recognition_param": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [ "forward_item_node", "return_item_node" ],
+                        "required": [
+                            "forward_item_node",
+                            "return_item_node"
+                        ],
                         "properties": {
                             "forward_item_node": {
                                 "type": "string",
@@ -373,8 +379,8 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ListCompleteRecognition" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ListCompleteRecognition"}}
             },
             "then": {
                 "type": "object",
@@ -399,12 +405,12 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ScrollbarRecognition" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ScrollbarRecognition"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "roi" ],
+                "required": ["roi"],
                 "properties": {
                     "custom_recognition_param": {
                         "type": "object",
@@ -416,12 +422,12 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ScrollbarCompleteRecognition" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ScrollbarCompleteRecognition"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "roi" ],
+                "required": ["roi"],
                 "properties": {
                     "custom_recognition_param": {
                         "type": "object",
@@ -442,17 +448,17 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ExpendableRecognition" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ExpendableRecognition"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
                     "custom_recognition_param": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [ "candidate" ],
+                        "required": ["candidate"],
                         "properties": {
                             "candidate": {
                                 "type": "string",
@@ -480,31 +486,34 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "MapFind" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "MapFind"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
-                    "custom_recognition_param": { "$ref": "./components/world_map.schema.json#/$defs/MapFindParam" }
+                    "custom_recognition_param": {"$ref": "./components/world_map.schema.json#/$defs/MapFindParam"}
                 }
             }
         },
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "MapLocateAssertLocation" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "MapLocateAssertLocation"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
                     "custom_recognition_param": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [ "zone_id", "target" ],
+                        "required": [
+                            "zone_id",
+                            "target"
+                        ],
                         "properties": {
                             "zone_id": {
                                 "type": "string",
@@ -526,12 +535,12 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "MapNavmeshQuery" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "MapNavmeshQuery"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
                     "custom_recognition_param": {
                         "$ref": "./components/map_navmesh.schema.json#/$defs/MapNavmeshQueryParam"
@@ -542,28 +551,32 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "OutpostTradingCurrentGoods" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "OutpostTradingCurrentGoods"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
-                    "custom_recognition_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/CurrentGoodsRecognitionParam" }
+                    "custom_recognition_param": {
+                        "$ref": "./components/outpost_trading.schema.json#/$defs/CurrentGoodsRecognitionParam"
+                    }
                 }
             }
         },
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "OutpostTradingPriorityItem" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "OutpostTradingPriorityItem"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
-                    "custom_recognition_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/PriorityItemRecognitionParam" }
+                    "custom_recognition_param": {
+                        "$ref": "./components/outpost_trading.schema.json#/$defs/PriorityItemRecognitionParam"
+                    }
                 }
             }
         }
