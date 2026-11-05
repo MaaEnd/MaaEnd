@@ -618,12 +618,12 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
-        // target_offset 为 [dx, dy, dw, dh]：点击区整体下移 15px，落在文字下半部分
+        // target_offset 为 [dx, dy, dw, dh]：上边界下移 15px、下边界不动，点击区收成文字下半部分
         "target_offset": [
             0,
             15,
             0,
-            0
+            -15
         ],
         "post_delay": 0,
         "rate_limit": 0,
