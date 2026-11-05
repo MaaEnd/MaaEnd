@@ -73,6 +73,27 @@
             }
         }
     },
+    "CreditShoppingRefreshLimitReached": {
+        "desc": "已达到选项设定的每日刷新次数（读下一次刷新的花费），不再刷新，结束任务",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            1140,
+            655,
+            32,
+            18
+        ],
+        "expected": [
+            "^160$"
+        ],
+        "only_rec": true,
+        "next": [
+            "CreditShoppingNothingToBuy"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.refresh_limit_reached"
+        }
+    },
     "RefreshColor": {
         "recognition": {
             "type": "ColorMatch",

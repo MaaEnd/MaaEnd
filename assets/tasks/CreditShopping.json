@@ -2256,6 +2256,7 @@
                     "name": "Refresh",
                     "label": "$option.CreditShoppingForce.cases.Refresh.label",
                     "option": [
+                        "CreditShoppingRefreshLimit",
                         "PrudentRefresh",
                         "CreditShoppingRefreshCheckPrice"
                     ],
@@ -2279,6 +2280,56 @@
                 }
             ],
             "default_case": "Refresh"
+        },
+        "CreditShoppingRefreshLimit": {
+            "type": "select",
+            "label": "$option.CreditShoppingRefreshLimit.label",
+            "description": "$option.CreditShoppingRefreshLimit.description",
+            "cases": [
+                {
+                    "name": "Unlimited",
+                    "label": "$option.CreditShoppingRefreshLimit.cases.Unlimited.label",
+                    "pipeline_override": {
+                        "CreditShoppingRefreshLimitReached": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "1",
+                    "pipeline_override": {
+                        "CreditShoppingRefreshLimitReached": {
+                            "enabled": true,
+                            "expected": [
+                                "^120$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "2",
+                    "pipeline_override": {
+                        "CreditShoppingRefreshLimitReached": {
+                            "enabled": true,
+                            "expected": [
+                                "^160$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "3",
+                    "pipeline_override": {
+                        "CreditShoppingRefreshLimitReached": {
+                            "enabled": true,
+                            "expected": [
+                                "^200$"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "Unlimited"
         },
         "CreditShoppingRefreshCheckPrice": {
             "type": "switch",
