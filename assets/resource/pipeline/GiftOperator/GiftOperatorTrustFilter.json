@@ -320,10 +320,11 @@
             "[JumpBack]GiftOperatorTrustFilterFriendlyOff",
             "[JumpBack]GiftOperatorTrustFilterCloseOff",
             "[JumpBack]GiftOperatorTrustFilterFullOn",
-            "GiftOperatorTrustFilterReady"
+            "GiftOperatorTrustFilterSave"
         ]
     },
-    "GiftOperatorTrustFilterReady": {
+    // 三人勾选态就绪即保存；候选为空时由恢复筛选后的序号复核兜底。
+    "GiftOperatorTrustFilterSave": {
         "recognition": {
             "type": "And",
             "param": {
@@ -331,107 +332,9 @@
                     "GiftOperatorTrustFilterFriendlyOn",
                     "GiftOperatorTrustFilterCloseOn",
                     "GiftOperatorTrustFilterFullOff",
-                    "GiftOperatorTrustFilterResultText",
-                    "GiftOperatorTrustFilterCountValue"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GiftOperatorTrustFilterCountZero",
-            "GiftOperatorTrustFilterCountPositive"
-        ]
-    },
-    "GiftOperatorTrustFilterResultText": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    140,
-                    450,
-                    380,
-                    180
-                ],
-                "expected": [
-                    "筛选结果"
-                ]
-            }
-        }
-    },
-    // 人数框只定义一次；没有识别到数字时不走零候选分支。
-    "GiftOperatorTrustFilterCountValue": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "GiftOperatorTrustFilterResultText",
-                "roi_offset": [
-                    74,
-                    -4,
-                    -46,
-                    12
-                ],
-                "expected": [
-                    // 完整筛选结果人数
-                    // @i18n-skip
-                    "^\\d+$"
-                ],
-                "only_rec": true
-            }
-        }
-    },
-    "GiftOperatorTrustFilterCountZero": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "GiftOperatorTrustFilterCountValue",
-                "expected": [
-                    // 完整筛选结果人数
-                    // @i18n-skip
-                    "^0$"
-                ],
-                "only_rec": true
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]GiftOperatorTrustRestoreFriendlyOn",
-            "[JumpBack]GiftOperatorTrustRestoreCloseOn",
-            "GiftOperatorTrustRestoreSave"
-        ]
-    },
-    "GiftOperatorTrustFilterCountPositive": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "GiftOperatorTrustFilterCountValue",
-                "expected": [
-                    // 完整筛选结果人数
-                    // @i18n-skip
-                    "^[1-9]\\d*$"
-                ],
-                "only_rec": true
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GiftOperatorTrustFilterSave"
-        ]
-    },
-    "GiftOperatorTrustFilterSave": {
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "GiftOperatorTrustFilterReady",
                     "GiftOperatorTrustFilterSaveText"
                 ],
-                "box_index": 1
+                "box_index": 3
             }
         },
         "pre_delay": 0,

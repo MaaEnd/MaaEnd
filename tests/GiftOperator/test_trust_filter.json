@@ -26,7 +26,6 @@
                 "GiftOperatorTrustFilterFriendlyOn",
                 "GiftOperatorTrustFilterCloseOn",
                 "GiftOperatorTrustFilterFullOff",
-                "GiftOperatorTrustFilterReady",
                 "GiftOperatorTrustFilterSave",
                 "GiftOperatorTrustRestoreFriendlyOn",
                 "GiftOperatorTrustRestoreCloseOn"
