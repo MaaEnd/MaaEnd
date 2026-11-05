@@ -1025,8 +1025,7 @@
                 "template": [
                     "ClaimDijiangRewards/BackButton.png"
                 ],
-                "green_mask": true,
-                "method": 10001
+                "green_mask": true
             }
         },
         "action": {
