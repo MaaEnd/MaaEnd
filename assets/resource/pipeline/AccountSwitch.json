@@ -200,7 +200,7 @@
         ]
     },
     "__AccountSwitchConfigureEmailPattern": {
-        "desc": "初始化国际服脱敏邮箱匹配规则",
+        "desc": "初始化脱敏邮箱 / 手机号完整匹配规则",
         "enabled": false,
         "recognition": "DirectHit",
         "action": "Custom",

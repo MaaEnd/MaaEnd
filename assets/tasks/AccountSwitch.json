@@ -97,7 +97,7 @@
                     "label": "$option.AccountSwitchEmail.Email.label",
                     "default": "",
                     "pipeline_type": "string",
-                    "verify": "^[\\x21-\\x29\\x2B-\\x3F\\x41-\\x7E]+\\*{5}[\\x21-\\x29\\x2B-\\x3F\\x41-\\x7E]*@[\\x21-\\x29\\x2B-\\x3F\\x41-\\x7E]+$",
+                    "verify": "^(?:\\d{3}\\*{4}\\d{4}|[\\x21-\\x29\\x2B-\\x3F\\x41-\\x7E]+\\*{5}[\\x21-\\x29\\x2B-\\x3F\\x41-\\x7E]*@[\\x21-\\x29\\x2B-\\x3F\\x41-\\x7E]+)$",
                     "pattern_msg": "$option.AccountSwitchEmail.Email.pattern_msg"
                 }
             ],
