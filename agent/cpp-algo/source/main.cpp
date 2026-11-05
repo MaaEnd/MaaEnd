@@ -9,12 +9,15 @@
 #include <MaaAgentServer/MaaAgentServerAPI.h>
 #include <MaaFramework/Global/MaaGlobal.h>
 #include <MaaUtils/Platform.h>
+#ifdef _WIN32
+#include <MaaUtils/SafeWindows.hpp>
+#endif
 
 #include "Common/CrashHandler.h"
 #include "Common/MacAppHost.h"
 #include "Common/ParentProcessWatcher.h"
 #include "Common/SystemMonitor.h"
-#include "Common/output_paths.h"
+#include "Common/paths.h"
 #include "EssenceGridScan/EssenceGridScan.h"
 #include "IconRecognition/IconRecognitionRecognition.h"
 #include "MapLocator/MapLocateAction.h"
@@ -31,11 +34,20 @@ namespace
 {
 constexpr const char* kLogDir = "debug/cpp-algo/debug";
 
+#ifdef _WIN32
+// DLL 随安装包部署，与项目资源同属安装根目录
+bool setup_dll_directory()
+{
+    const std::filesystem::path maafw_dir = common::InstallPath("maafw");
+    return SetDllDirectoryW(maafw_dir.c_str()) != 0;
+}
+#endif
+
 bool initialize_logging()
 {
     bool logging = true;
     MaaLoggingLevel stdout_level = MaaLoggingLevel_Error;
-    const auto config_path = MAA_NS::path("./config/maa_option.json");
+    const auto config_path = common::UserDataPath(MAA_NS::path("config/maa_option.json"));
     std::error_code ec;
     const bool config_exists = std::filesystem::exists(config_path, ec);
     if (ec) {
@@ -70,7 +82,7 @@ bool initialize_logging()
     }
 
     // AgentServer 只支持日志选项，图像保存等配置由主进程负责。
-    std::string log_dir = logging ? MAA_NS::path_to_utf8_string(common::OutputPath(MAA_NS::path(kLogDir))) : "";
+    std::string log_dir = logging ? MAA_NS::path_to_utf8_string(common::UserDataPath(MAA_NS::path(kLogDir))) : "";
     if (!MaaGlobalSetOption(MaaGlobalOption_LogDir, log_dir.data(), log_dir.size())) {
         std::cerr << "Failed to set AgentServer LogDir" << std::endl;
         return false;
@@ -86,10 +98,11 @@ bool initialize_logging()
 int main(int argc, char** argv)
 {
     try {
-        common::StartupDir();
+        common::InstallDir();
+        common::UserDataDir();
     }
-    catch (const std::filesystem::filesystem_error& error) {
-        std::cerr << "Failed to capture startup working directory: " << error.what() << std::endl;
+    catch (const std::exception& error) {
+        std::cerr << "Failed to resolve install and user data directories: " << error.what() << std::endl;
         return -1;
     }
 
@@ -110,7 +123,7 @@ int main(int argc, char** argv)
     }
 
     // 转储落到 maafw.log 同一目录，报 issue 打包日志时会一并带上。
-    common::InstallCrashHandler(common::OutputPath(MAA_NS::path(kLogDir)));
+    common::InstallCrashHandler(common::UserDataPath(MAA_NS::path(kLogDir)));
 
     // 父进程一旦退出立刻结束自己，避免 MXU/MFAA 崩溃后 cpp-algo 残留。
     common::StartParentProcessWatcher();

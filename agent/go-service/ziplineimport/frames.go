@@ -5,7 +5,8 @@ package ziplineimport
 import (
 	"encoding/json"
 	"os"
-	"path/filepath"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 )
 
 // 标定帧里的一条（只取本地图编号）。map_id 留空表示「不限地图」，不算进 expected。
@@ -25,10 +26,10 @@ type framesFile struct {
 	Types  []ziplineTypeDTO  `json:"types"`
 }
 
-// defaultFramesPath: <exe>/../data/MapNavigator/zipline_frames.json，
+// defaultFramesPath: <program dir>/data/MapNavigator/zipline_frames.json，
 // 与 cpp ZiplineFrames::DefaultPath 相同，是「该抓齐哪些图」的标定来源。
 func defaultFramesPath() string {
-	return filepath.Join(exeDir(), "..", "data", "MapNavigator", "zipline_frames.json")
+	return fsutil.InstallPath("data", "MapNavigator", "zipline_frames.json")
 }
 
 // loadFramesFile 读取标定帧文件。文件不存在或内容坏掉一律返回零值结构，

@@ -2,7 +2,7 @@
 
 本文说明 `AutoStockStaple` 的文件分布与执行流程。  
 以 **四号谷地** 为主线；**武陵** Pipeline 结构完全对称，仅地区后缀与场景识别不同。  
-该文档更新于 2026 年 10 月 30 日。
+该文档更新于 2026 年 11 月 4 日。
 
 ## 文件路径
 
@@ -115,7 +115,10 @@ Exclude 分支（物品已达标或券不足被剔除）也会触发重新初始
 
 1. Go 动作计算 `需购数量 = 上限 − 当前持有量`。
 2. 将结果写入 BetterSliding 的 `TargetQuantity`，平滑调节购买数量滑条。
-3. 点击确认购买，关闭奖励弹窗，回到列表继续扫描。
+3. 点击确认购买，进入奖励弹窗：`AutoStockStapleQuantityControlCloseRewards` 先用 IMS A3（`AddItemData`）把本次获得的物品累加进库存缓存并播报一条带图标的汇总，再走 IMS 自带的 `AddItemDataCloseRewards` 点击关闭按钮，回到列表继续扫描。
+
+> [!NOTE]
+> 各物品 `{Item}Buy` 节点上原有的「购买 XXX」Focus 播报已取消：购买结果统一由 IMS A3 在奖励弹窗按本局实际获得的物品播报（带图标与数量），不再逐件刷屏。A3 的候选按稳定物资实际所在分类过滤（`Normal:Usable` 16 件食物与增益、`ValuableDepot:CommercialItem` 27 件刻写券/礼物/罗盘/探物器/探针、`ValuableDepot:SpecialItem` 1 件精锻助剂，覆盖全部 44 件）；不能只传 `item_ids`，否则会与默认 rewards 候选取交集而漏掉食物类。详见 [IMS](../components/ims.md#a3additemdata)。
 
 #### 分支 3：持有量已达上限，排除
 
@@ -311,7 +314,7 @@ Go **不再** `RunTask` 执行滑动；数量调节由低代码分支完成：
 
 `AutoStockStapleBetterSliding` 定义在 `General/Item.json`，默认 `enabled: false`，仅在 Go override 后启用；`attach.TargetQuantity` 的默认值只是占位。
 
-购买数量调节完成后，`next` 进入 `AutoStockStapleQuantityControlConfirmBuy` 点击黄色确认按钮，再关闭奖励弹窗回到列表。
+购买数量调节完成后，`next` 进入 `AutoStockStapleQuantityControlConfirmBuy` 点击黄色确认按钮；随后 `AutoStockStapleQuantityControlCloseRewards` 用 IMS A3 累加并播报本次获得的物品，再走 IMS 自带的 `AddItemDataCloseRewards` 关闭奖励弹窗回到列表。
 
 ### 分支 3：数量已达到或超过目标，排除并重新初始化
 
