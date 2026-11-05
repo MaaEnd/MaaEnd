@@ -1,6 +1,6 @@
 {
     "version": "1.6.4+11262943-8",
-    "sha256": "e36da53f11d9a18509938609a94f5e7d9d6956c0333a1aadb08d10703e818ab5",
+    "sha256": "c41ca14fe5747ca22e523e2eb22cbaf853b3f4f2e6fede67d364e32a61847f7a",
     "wpn_claym_0003": {
         "internal_id": "wpn_claym_0003",
         "icon_id": "wpn_claym_0003",
@@ -3098,46 +3098,6 @@
     },
     "wpn_sword_0021": {
         "internal_id": "wpn_sword_0021",
-        "icon_id": "wpn_sword_0021",
-        "rarity": 6,
-        "weapon_type": "Sword",
-        "names": {
-            "CN": "宏愿",
-            "TC": "宏願",
-            "EN": "Grand Vision",
-            "JP": "大願",
-            "KR": "장대한 염원"
-        },
-        "skills": {
-            "CN": [
-                "敏捷提升·大",
-                "攻击提升·大",
-                "附术·长愿"
-            ],
-            "TC": [
-                "敏捷提升·大",
-                "攻擊提升·大",
-                "附術·長願"
-            ],
-            "EN": [
-                "Agility [L]",
-                "ATK [L]",
-                "Infliction: Long Time Wish"
-            ],
-            "JP": [
-                "敏捷UP・大",
-                "攻撃力UP・大",
-                "付術・長願"
-            ],
-            "KR": [
-                "민첩 증가 · 대",
-                "공격력 증가 · 대",
-                "고통 · 간절한 소망"
-            ]
-        }
-    },
-    "wpn_sword_0021_ink": {
-        "internal_id": "wpn_sword_0021_ink",
         "icon_id": "wpn_sword_0021",
         "rarity": 6,
         "weapon_type": "Sword",
