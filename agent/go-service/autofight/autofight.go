@@ -318,10 +318,9 @@ const (
 // 丢失锁定后的找敌时序（从最后一次识别到 EnemyLocked 开始计时），整个周期 lockCycleDuration 后重来。
 // 锁定键在已锁定时会取消锁定，重试间隔必须覆盖游戏响应与识别延迟，避免把刚锁上的目标按掉。
 const (
-	lockLostConfirmDuration = 1 * time.Second        // 持续未锁定超过该时长才视为真正丢失；EnemyLocked 实测漏检空窗最长约 0.55s
-	lockRetryInterval       = 1 * time.Second        // 两次锁定尝试的最小间隔
-	lockMoveAfter           = 3 * time.Second        // 仍未锁定则按 EnemyFacing 移动找敌
-	lockAfterMoveDelay      = 600 * time.Millisecond // 侧向/向后移动后等转身完成再锁定
+	lockLostConfirmDuration = 1 * time.Second // 持续未锁定超过该时长才视为真正丢失；EnemyLocked 实测漏检空窗最长约 0.55s
+	lockRetryInterval       = 1 * time.Second // 两次锁定尝试的最小间隔
+	lockMoveAfter           = 3 * time.Second // 仍未锁定则按 EnemyFacing 移动找敌
 	lockCycleDuration       = 5 * time.Second
 )
 
@@ -578,7 +577,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			//   [0, lockLostConfirmDuration)             -> 等待确认，过滤单帧识别抖动
 			//   [lockLostConfirmDuration, lockMoveAfter) -> 每隔 lockRetryInterval 发一次 ActionLockTarget
 			//   [lockMoveAfter, lockCycleDuration)       -> 进入时根据 EnemyFacing 方向移动一次：
-			//                                               左/右/后 -> 对应方向移动，lockAfterMoveDelay 后 ActionLockTarget
+			//                                               左/右/后 -> 对应方向移动 + Sleep + Sleep（阻塞队列）+ ActionLockTarget
 			//                                               无 facing -> 前进 + ActionLockTarget
 			//   [lockCycleDuration, ∞)                   -> 重置 noLockStart，从头循环重试
 			//   任意时刻检测到 EnemyLocked               -> 把 noLockStart 推回当前时刻
@@ -648,10 +647,19 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 								action:    ActionMoveForward,
 							})
 						}
-						// 侧向/向后移动需等转身完成再锁定；用延迟执行代替阻塞等待，期间闪避等动作照常派发
+						// 侧向/向后移动后阻塞整个动作队列等待转身完成，再锁定。
+						// 队列按 executeAt 排序，用递增偏移保证 移动 -> Sleep -> Sleep -> 锁定 的顺序
 						lockAt := now.Add(2 * time.Millisecond)
 						if facingBack || facingLeft || facingRight {
-							lockAt = now.Add(lockAfterMoveDelay)
+							enqueueAction(fightAction{
+								executeAt: now.Add(2 * time.Millisecond),
+								action:    ActionSleepSecond,
+							})
+							enqueueAction(fightAction{
+								executeAt: now.Add(3 * time.Millisecond),
+								action:    ActionSleepSecond,
+							})
+							lockAt = now.Add(4 * time.Millisecond)
 						}
 						enqueueAction(fightAction{
 							executeAt: lockAt,
