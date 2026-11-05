@@ -1463,6 +1463,8 @@
     "option.CloseGamePCGameSettingResolution.label": "分辨率",
     "option.CloseGamePCGameSettingResolutionHeight.label": "高",
     "option.CloseGamePCGameSettingResolutionWidth.label": "宽",
+    "option.CloudEndfieldAllowMobileData.description": "关闭时，识别到「流量消耗提示」会直接判定任务失败，避免消耗移动流量",
+    "option.CloudEndfieldAllowMobileData.label": "允许通过流量启动云终末地",
     "option.ClueSend.MaxClueSend.label": "指定最大赠送次数",
     "option.ClueSend.MaxClueSend.pattern_msg": "请输入 0 到 20 之间的整数，0 表示不赠送。",
     "option.ClueSend.description": "线索库满溢后，每次会客室流程最多进入赠送循环的次数，可选 0 到 20，0 表示不赠送。该值按「赠送轮数」计算，可能包含 7 种线索都未达到库存上限而空转的轮次，因此与实际送出的线索条数不一定相同。默认 3。",
