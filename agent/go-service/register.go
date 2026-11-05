@@ -22,6 +22,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/clearhitcount"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/closegame"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/countdown"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/exitlauncher"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expendable"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expressionrecognition"
@@ -124,6 +125,7 @@ func registerAll() {
 	pullcount.Register()
 	trialofswordmancy.Register()
 	restaurant.Register()
+	countdown.Register()
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }

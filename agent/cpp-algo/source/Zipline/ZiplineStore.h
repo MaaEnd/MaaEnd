@@ -31,7 +31,7 @@ struct ZiplineMapRecord
 class ZiplineStore
 {
 public:
-    // 锚在启动时的工作目录, 不随后续工作目录变化
+    // 锚在用户数据目录, 启动后不再变化
     static std::filesystem::path DefaultPath();
 
     // 文件不存在视为空库并返回 true, 只有内容坏掉才返回 false

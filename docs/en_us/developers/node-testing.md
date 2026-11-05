@@ -229,7 +229,9 @@ pnpm test
 
 In this repository, `package.json` maps that command to `maa-tools test`, and CI runs the same command.
 
-`maa-tools test` does not start agents, so it cannot test custom recognitions that agents provide. `MapLocateAssertLocation` location nodes are tested by a standalone Python runner instead: run `pnpm test:map-locate` or `uv run tests/MapLocateAssertLocation/map_locate.py`. In CI this is the `map-locate-test` job. See the [location node screenshot test](../../../tests/MapLocateAssertLocation/README.md) for the case format, sample requirements, and prerequisites.
+When `maa-tools test` meets a custom recognition node, it starts the AgentServers under `install/agent/` according to `test.agent` in `maatools.config.mts`. Build the agents before running custom-recognition cases (`uv run build-and-install`, add `--cpp-algo` to include the C++ agent) and make sure the `install/` layout is complete. Cases that only use built-in recognitions never start an agent, so a missing build does not affect them.
+
+Recognition algorithms that need a stable run of consecutive screencaps (multi-frame recognition) cannot be covered by `maa-tools test`, which only provides a single image. Such nodes use a standalone runner; currently this is the location nodes: run `pnpm test:map-locate` or `uv run tests/MapLocateAssertLocation/map_locate.py`. In CI this is the `map-locate-test` job. See the [location node screenshot test](../../../tests/MapLocateAssertLocation/README.md) for the case format, sample requirements, and prerequisites.
 
 Route pathfinding connectivity is checked by another standalone runner: run `uv run tests/MapNavmeshConnectivity/navmesh_connectivity.py`. It sends the start and goal from its case file to the agent for route planning; a successful plan counts as connected. It does not need screenshots. In CI this is the `Run navmesh connectivity tests` step of the `map-locate-test` job. See the [connectivity test](../../../tests/MapNavmeshConnectivity/README.md) for the case format and pass criteria.
 

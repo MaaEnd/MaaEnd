@@ -831,7 +831,8 @@ private:
                                          .borderMargin = 10,
                                          .whiteDilate = 11,
                                          .colorDilate = 3,
-                                         .useHsvWhiteMask = true };
+                                         .useHsvWhiteMask = true,
+                                         .minimapDarkMaskMinKeptRatio = 0.10 };
 
     ImageProcessingConfig tierImgCfg = { .darkMapThreshold = 20.0,
                                          .iconDiffThreshold = 40,

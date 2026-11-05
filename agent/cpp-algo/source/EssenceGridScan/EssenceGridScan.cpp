@@ -17,6 +17,7 @@
 #include <MaaUtils/JsonExt.hpp>
 #include <MaaUtils/Logger.h>
 
+#include "../Common/paths.h"
 #include "../GridTracker/GridTracker.h"
 #include "../RecoGrid/GridRecognizer.h"
 #include "../utils.h"
@@ -124,18 +125,10 @@ std::optional<std::filesystem::path> resolve_essence_image_path(const std::strin
     }
 
     const std::filesystem::path configured = MAA_NS::path(configured_path);
-    const std::filesystem::path install_dir = get_install_dir();
-    const std::vector<std::filesystem::path> candidates = {
-        configured,
-        std::filesystem::path("assets") / configured,
-        install_dir / configured,
-    };
-
-    for (const std::filesystem::path& path : candidates) {
-        std::error_code ec;
-        if (std::filesystem::exists(path, ec) && std::filesystem::is_regular_file(path, ec)) {
-            return path;
-        }
+    const std::filesystem::path resolved = common::InstallPath(configured);
+    std::error_code ec;
+    if (std::filesystem::exists(resolved, ec) && std::filesystem::is_regular_file(resolved, ec)) {
+        return resolved;
     }
     return std::nullopt;
 }
