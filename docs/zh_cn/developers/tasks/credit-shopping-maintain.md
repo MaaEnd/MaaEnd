@@ -2,7 +2,7 @@
 
 本文说明 `CreditShopping` 的文件分布与执行流程。  
 购买条件不是几个独立开关，而是从 `Item/` 串到 `Flow/` 的整条筛选链，维护时需按链路理解。  
-该文档更新于 2026 年 10 月 15 日。
+该文档更新于 2026 年 10 月 17 日。
 
 ## 文件路径
 
@@ -13,7 +13,7 @@ CreditShopping/
 │   ├── Scan.json          # 货架扫描门控 + 快照（触发购买决策循环）
 │   ├── BuyAction.json     # 三档购买 / 黑名单 / 稳健刷新 / 无物可买
 │   ├── BuyItem.json       # 购买确认 / 失败 / 强制购买价格阈值检查
-│   └── Special.json       # ADB 滑动 / 货架滑动工具节点 / 刷新时无法购买 / 刷新商品
+│   └── Special.json       # 刷新时无法购买 / 刷新商品
 ├── Credit/                # 信用点管理
 │   ├── Reserve.json       # 保留阈值检测 + 当前信用点 OCR
 │   ├── AutoGetCredits.json# 自动补信用（买不起时跳基建）
@@ -57,14 +57,6 @@ CreditShopping/
 ### 领取信用
 
 实现位于 `Credit/ClaimCredit.json`。进入信用交易所后先尝试领取待收取信用；没有可领项则直接进入扫描，不阻塞主流程。
-
-### 货架快照与两屏合并
-
-ADB 一屏装不下两排商品：第一排的名称和折扣完整可见时看不到第二排名称，滑到第二排完整可见时又看不到第一排折扣，所以 `RecordShelfSnapshotsAction`（`Flow/Scan.json` 的 `CreditShoppingScanItemAction`）在 ADB 下分两次截图，再按 slot 合并。快照只写入 `CreditShoppingShelfSnapshots.json` 供分析，不参与购买判断；「保留货架记录」关闭时该节点改为 `DoNothing`。
-
-滑动不直接操作控制器，而是 `ctx.RunAction` 调两个工具节点：两次截图之间调 `CreditShoppingSwipeShelfDown`，第二次截图后调 `CreditShoppingSwipeShelfUp` 滑回首屏。base 里两者是 Win32 的 `DoNothing`（一屏可见），实际的滑动参数与稳定等待由 `resource_adb` 覆盖。平台差异因此留在资源包里：Go 侧不直接滑动，只用 `isADBController` 选择单屏或两屏路径。
-
-Win32 走 `slotAssignPC` 单屏路径，不经过这两个节点。
 
 ### attach 与白名单初始化
 

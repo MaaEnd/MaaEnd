@@ -1,0 +1,50 @@
+{
+    "CreditShoppingPriority1Item": {
+        "roi": [
+            10,
+            120,
+            1250,
+            510
+        ]
+    },
+    "CreditShoppingPriority2Item": {
+        "roi": [
+            10,
+            120,
+            1250,
+            510
+        ]
+    },
+    "CreditShoppingPriority3Item": {
+        "roi": [
+            10,
+            120,
+            1250,
+            510
+        ]
+    },
+    "CreditShoppingRecordCatalogItems": {
+        "roi": [
+            10,
+            120,
+            1250,
+            510
+        ]
+    },
+    "CreditShoppingRecordAllItems": {
+        "roi": [
+            10,
+            120,
+            1250,
+            510
+        ]
+    },
+    "CreditShoppingShelfAnyItem": {
+        "roi": [
+            10,
+            120,
+            1250,
+            510
+        ]
+    }
+}
