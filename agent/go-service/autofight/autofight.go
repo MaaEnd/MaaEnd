@@ -488,6 +488,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		} else {
 			// 暂停期间（终结技动画等）看不到锁定状态，不计入丢失锁定的确认时长
 			noLockStart = time.Now()
+			lockTargetStage = lockStageLocked
 			if pauseStart.IsZero() {
 				pauseStart = time.Now()
 				log.Info().Str("component", "AutoFight").Msg("not in fight space, start pause timer")
@@ -581,9 +582,10 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			//                                               无 facing -> 前进 + ActionLockTarget
 			//   [lockCycleDuration, ∞)                   -> 重置 noLockStart，从头循环重试
 			//   任意时刻检测到 EnemyLocked               -> 把 noLockStart 推回当前时刻
-			//   当前帧 HUD 不可见（终结技等动画）        -> 无法判断锁定，把 noLockStart 推回当前时刻，不发锁定
+			//   当前帧 HUD 不可见（终结技等动画）        -> 无法判断锁定，把 noLockStart 推回当前时刻并重置阶段，不发锁定
 			if !screenAnalyzer.hasLabelInFrames(LabelCharacterSelect, 1, false) {
 				noLockStart = time.Now()
+				lockTargetStage = lockStageLocked
 			} else if screenAnalyzer.GetEnemyLocked() {
 				noLockStart = time.Now()
 				lockTargetStage = lockStageLocked
