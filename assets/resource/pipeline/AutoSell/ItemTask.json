@@ -358,20 +358,37 @@
         ]
     },
     "AutoSellFriendsPricesNoFriends": {
-        "desc": "明确识别无好友空状态，本次任务跳过好友出售并保留物资供第三轮处理",
+        "desc": "识别无好友或好友均未解锁弹性物资出售，本次任务跳过好友出售并保留物资供第三轮处理",
         "recognition": "And",
         "all_of": [
             "InFriendsStockRedistributionFriendsPrices",
             {
-                "recognition": "OCR",
-                "roi": [
-                    649,
-                    405,
-                    177,
-                    26
-                ],
-                "expected": [
-                    "当前未添加好友"
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        "recognition": "OCR",
+                        "roi": [
+                            649,
+                            405,
+                            177,
+                            26
+                        ],
+                        "expected": [
+                            "当前未添加好友"
+                        ]
+                    },
+                    {
+                        "recognition": "OCR",
+                        "roi": [
+                            449,
+                            367,
+                            414,
+                            27
+                        ],
+                        "expected": [
+                            "当前无好友解锁帝江号出售弹性需求物资"
+                        ]
+                    }
                 ]
             }
         ],
