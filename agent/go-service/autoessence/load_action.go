@@ -12,7 +12,7 @@ var _ maa.CustomActionRunner = &LoadInventoryAction{}
 type LoadInventoryAction struct{}
 
 func (a *LoadInventoryAction) Run(_ *maa.Context, _ *maa.CustomActionArg) bool {
-	path := fsutil.OutputPath(inventoryFilePath)
+	path := fsutil.UserDataPath(inventoryFilePath)
 	if err := LoadFile(path); err != nil {
 		log.Error().
 			Err(err).

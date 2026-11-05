@@ -9,7 +9,7 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "../Common/output_paths.h"
+#include "../Common/paths.h"
 
 namespace zipline
 {
@@ -38,7 +38,7 @@ std::string CurrentTimestamp()
 
 std::filesystem::path ZiplineStore::DefaultPath()
 {
-    return common::OutputPath("debug/record") / kRecordFileName;
+    return common::UserDataPath("debug/record") / kRecordFileName;
 }
 
 bool ZiplineStore::load(const std::filesystem::path& path)

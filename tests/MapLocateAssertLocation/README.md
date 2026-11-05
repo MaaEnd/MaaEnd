@@ -52,7 +52,7 @@ uv run build-and-install --cpp-algo
 uv run tests/MapLocateAssertLocation/map_locate.py
 ```
 
-也可以用 `pnpm test:map-locate`。运行前确认 `install/agent/cpp-algo` 由当前源码构建，`install/maafw` 与 Agent 版本匹配，`install/resource` 包含定位底图和模型。
+也可以用 `pnpm test:map-locate`。运行前确认 `install/agent/cpp-algo` 由当前源码构建，`install/maafw` 与 Agent 版本匹配，`install/resource` 包含定位底图和模型。脚本以 `install/` 作为 Agent 的工作目录启动它，资源按该目录解析；同时用 `PI_USER_DATA_DIR` 把 Agent 的日志与调试产物指到 `--output` 目录，安装目录不落盘。
 
 可选参数：`--cases <文件>` 指定其它用例文件，`--output <目录>` 指定输出目录。
 

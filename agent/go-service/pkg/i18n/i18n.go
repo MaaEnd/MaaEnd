@@ -3,6 +3,7 @@ package i18n
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"sync"
 	"text/template"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/jsonclean"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/rs/zerolog/log"
@@ -23,9 +25,8 @@ const (
 	LangJaJP = "ja_jp"
 	LangKoKR = "ko_kr"
 
-	DefaultLang        = LangZhCN
-	localeRelDir       = "locales/go-service"
-	localeAssetsRelDir = "assets/locales/go-service"
+	DefaultLang  = LangZhCN
+	localeRelDir = "locales/go-service"
 )
 
 var htmlTemplates = map[string]string{
@@ -53,6 +54,7 @@ var htmlTemplates = map[string]string{
 	"dijiangrewards.wait_exchange_countdown":  "HTML/dijiangrewards-wait-exchange-countdown.html",
 	"ims.sync_item_summary":                   "HTML/ims-sync-item-summary.html",
 	"ims.add_item_summary":                    "HTML/ims-add-item-summary.html",
+	"dynamic_html_log.log":                    "HTML/dynamic-log.html",
 }
 
 var (
@@ -63,6 +65,9 @@ var (
 
 	fileCache   map[string]string
 	fileCacheMu sync.RWMutex
+
+	templateCache   map[string]*template.Template
+	templateCacheMu sync.RWMutex
 )
 
 func Init() {
@@ -92,6 +97,7 @@ func Init() {
 	localeDir = resolved
 	messages = loadedMessages
 	fileCache = make(map[string]string)
+	templateCache = make(map[string]*template.Template)
 	mu.Unlock()
 
 	log.Info().
@@ -190,33 +196,7 @@ func Separator() string {
 // Templates support {{t "suffix"}} for i18n lookups (resolved as key.suffix)
 // and {{.Field}} / {{printf ...}} for runtime data.
 func RenderHTML(key string, data map[string]any) string {
-	fileName, ok := htmlTemplates[key]
-	if !ok {
-		return key
-	}
-
-	content := readTemplateFile(fileName)
-	if content == "" {
-		return key
-	}
-
-	tFunc := func(suffix string) string {
-		fullKey := key + "." + suffix
-		v, found := lookupMessage(fullKey)
-		if !found {
-			return fullKey
-		}
-		return v
-	}
-
-	tmpl, err := template.New(fileName).Funcs(template.FuncMap{
-		"t":          tFunc,
-		"escapeHTML": html.EscapeString,
-		"separator":  Separator,
-		"spanColor": func(color, text string) string {
-			return fmt.Sprintf(`<span style="color:%s;">%s</span>`, color, text)
-		},
-	}).Parse(content)
+	tmpl, err := readTemplate(key)
 	if err != nil {
 		log.Warn().Err(err).Str("key", key).Msg("failed to parse HTML template")
 		return key
@@ -230,7 +210,46 @@ func RenderHTML(key string, data map[string]any) string {
 	return buf.String()
 }
 
-func readTemplateFile(fileName string) string {
+func readTemplate(key string) (*template.Template, error) {
+	templateCacheMu.RLock()
+	if tmpl, ok := templateCache[key]; ok {
+		templateCacheMu.RUnlock()
+		return tmpl, nil
+	}
+	templateCacheMu.RUnlock()
+	templateCacheMu.Lock()
+	defer templateCacheMu.Unlock()
+	if tmpl, ok := templateCache[key]; ok {
+		return tmpl, nil
+	}
+
+	fileName, ok := htmlTemplates[key]
+	if !ok {
+		return nil, errors.New(`html template not found`)
+	}
+
+	content, err := readTemplateFile(fileName)
+	if err != nil {
+		return nil, err
+	}
+	if content == "" {
+		return nil, errors.New(`html template empty`)
+	}
+
+	tmpl, err := template.New(fileName).Funcs(template.FuncMap{
+		"t":          createTFunc(key),
+		"escapeHTML": html.EscapeString,
+		"separator":  Separator,
+		"spanColor":  spanColorFunc,
+	}).Parse(content)
+	if err != nil {
+		return nil, err
+	}
+	templateCache[key] = tmpl
+	return tmpl, nil
+}
+
+func readTemplateFile(fileName string) (string, error) {
 	mu.RLock()
 	dir := localeDir
 	mu.RUnlock()
@@ -240,66 +259,30 @@ func readTemplateFile(fileName string) string {
 	fileCacheMu.RLock()
 	if content, ok := fileCache[path]; ok {
 		fileCacheMu.RUnlock()
-		return content
+		return content, nil
 	}
 	fileCacheMu.RUnlock()
 
+	fileCacheMu.Lock()
+	defer fileCacheMu.Unlock()
+
+	if content, ok := fileCache[path]; ok {
+		return content, nil
+	}
+
 	data, err := os.ReadFile(path)
 	if err != nil {
-		log.Warn().Err(err).Str("file", fileName).Msg("failed to read template file")
-		return ""
+		return "", fmt.Errorf("failed to read template file: %w", err)
 	}
 
 	content := string(data)
-	fileCacheMu.Lock()
+
 	fileCache[path] = content
-	fileCacheMu.Unlock()
-	return content
+	return content, nil
 }
 
 func resolveLocaleDir() string {
-	roots := make([]string, 0, 16)
-	seenRoots := make(map[string]struct{})
-	addRoots := func(start string) {
-		if start == "" {
-			return
-		}
-		dir := filepath.Clean(start)
-		for depth := 0; depth < 6; depth++ {
-			if _, seen := seenRoots[dir]; !seen {
-				roots = append(roots, dir)
-				seenRoots[dir] = struct{}{}
-			}
-			parent := filepath.Dir(dir)
-			if parent == dir {
-				break
-			}
-			dir = parent
-		}
-	}
-
-	cwd, err := os.Getwd()
-	if err == nil {
-		addRoots(cwd)
-	}
-	if exePath, err := os.Executable(); err == nil {
-		addRoots(filepath.Dir(exePath))
-	}
-
-	relDirs := []string{localeRelDir, localeAssetsRelDir}
-	for _, root := range roots {
-		for _, relDir := range relDirs {
-			candidate := filepath.Join(root, filepath.FromSlash(relDir))
-			if localeDirExists(candidate) {
-				return candidate
-			}
-		}
-	}
-
-	if cwd == "" {
-		return filepath.FromSlash(localeRelDir)
-	}
-	return filepath.Join(cwd, filepath.FromSlash(localeRelDir))
+	return fsutil.InstallPath(filepath.FromSlash(localeRelDir))
 }
 
 func localeDirExists(dir string) bool {

@@ -1,0 +1,56 @@
+{
+    "configs": {
+        "name": "赠送干员：信赖筛选与联络入口",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "image": "帝江号_干员联络_信赖筛选_未选中.png",
+            "hits": [
+                "GiftOperatorTrustFilterHeader",
+                "GiftOperatorTrustFilterSaveText",
+                "GiftOperatorTrustFilterFriendlyOff",
+                "GiftOperatorTrustFilterCloseOff",
+                "GiftOperatorTrustFilterFullOff",
+                "GiftOperatorTrustRestoreFriendlyOff",
+                "GiftOperatorTrustRestoreCloseOff",
+                "GiftOperatorTrustRestoreSave"
+            ]
+        },
+        {
+            "image": "帝江号_干员联络_信赖筛选_友好亲近18人.png",
+            "hits": [
+                "GiftOperatorTrustFilterHeader",
+                "GiftOperatorTrustFilterSaveText",
+                "GiftOperatorTrustFilterFriendlyOn",
+                "GiftOperatorTrustFilterCloseOn",
+                "GiftOperatorTrustFilterFullOff",
+                "GiftOperatorTrustFilterReady",
+                "GiftOperatorTrustFilterSave",
+                "GiftOperatorTrustRestoreFriendlyOn",
+                "GiftOperatorTrustRestoreCloseOn"
+            ]
+        },
+        {
+            "image": "帝江号_干员联络_未筛选列表.png",
+            "hits": [
+                "GiftOperatorCheckContact",
+                {
+                    "node": "GiftOperatorTrustFilterButton",
+                    "box": [
+                        1053,
+                        509,
+                        34,
+                        34
+                    ]
+                },
+                "GiftOperatorTrustFilterOpen",
+                "GiftOperatorTrustFilterApplied",
+                "GiftOperatorTrustRestoreOpen",
+                "GiftOperatorTrustRestored",
+                "GiftOperatorTrustCloseContact"
+            ]
+        }
+    ]
+}

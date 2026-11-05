@@ -34,14 +34,6 @@
             }
         }
     },
-    "AutoCollectClick": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 3
-            }
-        }
-    },
     "AutoCollectDigSpace": {
         "action": {
             "type": "ClickKey",

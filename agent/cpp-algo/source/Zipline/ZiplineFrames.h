@@ -77,7 +77,7 @@ struct ZiplineCostModel
 class ZiplineFrames
 {
 public:
-    // <exe>/../data/MapNavigator/zipline_frames.json
+    // <program dir>/data/MapNavigator/zipline_frames.json
     static std::filesystem::path DefaultPath();
 
     // 文件不存在视为没有任何标定并返回 true

@@ -14,6 +14,7 @@
                 "AutoSellPriceCompareRecognition",
                 "AutoSellScanItemRecognition",
                 "AutoStockpile.Recognition",
+                "BatchAddFriendsStrangersPickRowRecognition",
                 "EssenceFilterAfterBattleNthRecognition",
                 "EssenceGridAdvanceRecognition",
                 "EssenceGridPendingRecognition",

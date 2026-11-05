@@ -1,0 +1,22 @@
+{
+    "VisitFriendsPrioritySearchFocusBox": {
+        "roi_offset": [
+            120,
+            20,
+            20,
+            0
+        ]
+    },
+    "VisitFriendsPrioritySearchDismissIme": {
+        "desc": "ENTER 提交文本",
+        "recognition": "DirectHit",
+        "action": "ClickKey",
+        "key": [
+            66
+        ],
+        "post_wait_freezes": 100,
+        "next": [
+            "VisitFriendsPrioritySearchWaitResult"
+        ]
+    }
+}
