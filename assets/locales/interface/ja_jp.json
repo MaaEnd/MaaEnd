@@ -1463,6 +1463,8 @@
     "option.CloseGamePCGameSettingResolution.label": "解像度",
     "option.CloseGamePCGameSettingResolutionHeight.label": "高さ",
     "option.CloseGamePCGameSettingResolutionWidth.label": "幅",
+    "option.CloudEndfieldAllowMobileData.description": "オフの場合、モバイル通信の確認ダイアログを検出するとタスクを失敗させ、モバイル通信の消費を防ぎます。",
+    "option.CloudEndfieldAllowMobileData.label": "モバイル通信でのクラウド終末地起動を許可",
     "option.ClueSend.MaxClueSend.label": "最大贈呈数の指定",
     "option.ClueSend.MaxClueSend.pattern_msg": "0 から 20 までの整数を入力してください。0 は贈呈しないことを表します。",
     "option.ClueSend.description": "手がかり庫があふれた後、1 回の応接室フローで贈呈ループに入る最大ラウンド数（0〜20、0 は贈呈しない）。ラウンド数で数えるため、7 種類とも在庫上限に達せず空振りするラウンドも含まれ、実際に贈った手がかりの数とは一致しません。既定は 3 です。",

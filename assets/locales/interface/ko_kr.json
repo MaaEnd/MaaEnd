@@ -1463,6 +1463,8 @@
     "option.CloseGamePCGameSettingResolution.label": "해상도",
     "option.CloseGamePCGameSettingResolutionHeight.label": "세로",
     "option.CloseGamePCGameSettingResolutionWidth.label": "가로",
+    "option.CloudEndfieldAllowMobileData.description": "꺼져 있으면 모바일 데이터 안내 창이 감지될 때 작업을 즉시 실패 처리하여 모바일 데이터 사용을 막습니다.",
+    "option.CloudEndfieldAllowMobileData.label": "모바일 데이터로 클라우드 종말지 실행 허용",
     "option.ClueSend.MaxClueSend.label": "최대 선물 개수 지정",
     "option.ClueSend.MaxClueSend.pattern_msg": "0부터 20 사이의 정수를 입력하세요. 0은 선물하지 않음을 뜻합니다.",
     "option.ClueSend.description": "단서고가 넘친 뒤 접견실 흐름 1회에서 선물 루프에 들어가는 최대 라운드 수(0~20, 0은 선물 안 함). 라운드 기준이라 7종류 모두 보유 상한에 못 미쳐 헛도는 라운드도 포함되므로 실제로 보낸 단서 개수와는 다를 수 있습니다. 기본값은 3입니다.",
