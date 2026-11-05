@@ -35,7 +35,7 @@ func run() bool {
 		return true
 	}
 
-	exePath := fsutil.OutputPath("cloud-shell", "cloud-shell.exe")
+	exePath := fsutil.InstallPath("cloud-shell", "cloud-shell.exe")
 	if _, err := os.Stat(exePath); err != nil {
 		log.Error().
 			Err(err).
@@ -46,7 +46,7 @@ func run() bool {
 	}
 
 	// 登录后自动点击「开始游戏」的注入脚本；缺失时仅告警，不阻塞 pretask
-	injectPath := fsutil.OutputPath("resource_cloud_web", "scripts", "cloud_start.js")
+	injectPath := fsutil.InstallPath("resource_cloud_web", "scripts", "cloud_start.js")
 	var shellArgs []string
 	if _, err := os.Stat(injectPath); err != nil {
 		log.Warn().
@@ -121,7 +121,7 @@ func run() bool {
 func startDetached(exePath string, args []string) (*os.Process, error) {
 	start := func(flags uint32) (*os.Process, error) {
 		cmd := exec.Command(exePath, args...)
-		cmd.Dir = fsutil.OutputPath()
+		cmd.Dir = fsutil.InstallPath()
 		cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: flags}
 		if err := cmd.Start(); err != nil {
 			return nil, err
