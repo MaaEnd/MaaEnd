@@ -6,6 +6,13 @@
             "AutoUseSpMedicationDialogText"
         ],
         "pre_wait_freezes": 100,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "__AutoUseSpMedicationSelectEmergencySanityBoosterAgain"
+            ]
+        },
         "next": [
             "__AutoUseSpMedicationSelectEmergencySanityBooster",
             "__AutoUseSpMedicationInQuickNoUseClose"
@@ -18,6 +25,29 @@
             "__AutoUseSpMedicationFindDeadlineEmergencySanityBooster"
         ],
         "action": "Click",
+        "target_offset": [
+            10,
+            10,
+            0,
+            0
+        ],
+        "post_wait_freezes": 300,
+        "next": [
+            "__AutoUseSpMedicationSelectEmergencySanityBoosterAgain",
+            "__AutoUseSpMedicationUseEmergencySpBooster"
+        ]
+    },
+    // 选中后悬浮提示会遮住药剂图标，无法再次模板匹配，因此直接点击上一次识别到的位置
+    // 一支 +40，理智从 0 补到 80 最多需要两支，所以 max_hit 为 1（加上首次共两次），进入对话框时清零
+    "__AutoUseSpMedicationSelectEmergencySanityBoosterAgain": {
+        "desc": "用药后理智仍未达到阈值，再选一支应急理智加强剂",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "__AutoUseSpMedicationSanityNotEnough"
+        ],
+        "action": "Click",
+        "target": "__AutoUseSpMedicationSelectEmergencySanityBooster",
         "target_offset": [
             10,
             10,
