@@ -5,12 +5,12 @@
     "properties": {
         "custom_recognition": {
             "enum": [
-                "AutoFightEntryRecognition",
-                "AutoMissionMatchQuest",
                 "AeroSalvageBalloonStateRecognition",
                 "AeroSalvageGridRecognition",
                 "AeroSalvageInitialStateRecognition",
                 "ArenaOfGames.CheckHand",
+                "AutoFightEntryRecognition",
+                "AutoMissionMatchQuest",
                 "AutoSellPriceCompareRecognition",
                 "AutoSellScanItemRecognition",
                 "AutoStockpile.Recognition",
@@ -20,8 +20,8 @@
                 "EssenceGridPendingRecognition",
                 "ExpendableRecognition",
                 "ExpressionRecognition",
-                "ImageCheckNotPassedRecognition",
                 "IconRecognition",
+                "ImageCheckNotPassedRecognition",
                 "IntelArchiveScanDetailRecognition",
                 "IntelArchiveScanItemsRecognition",
                 "ItemDataReady",
@@ -46,14 +46,14 @@
                 "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
                 "ScheduleRecognition",
                 "ScreenshotStableRecognition",
-                "ScrollbarRecognition",
                 "ScrollbarCompleteRecognition",
+                "ScrollbarRecognition",
+                "SeizeDeliveryJobsFindTargetRecognition",
+                "SeizeDeliveryJobsScanTargetRecognition",
                 "TextInputExhaustedRecognition",
                 "TrialOfSwordmancy.Recognize",
                 "TrialOfSwordmancy.RecognizeAband",
                 "TrialOfSwordmancy.RecognizeDeck",
-                "SeizeDeliveryJobsFindTargetRecognition",
-                "SeizeDeliveryJobsScanTargetRecognition",
                 "autoEcoFarmCalculateSwipeTarget",
                 "autoEcoFarmFindNearestRecognitionResult"
             ]
@@ -63,9 +63,53 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
+                "required": ["custom_recognition"],
                 "properties": {
-                    "custom_recognition": { "const": "ArenaOfGames.CheckHand" }
+                    "custom_recognition": {
+                        "enum": [
+                            "AeroSalvageGridRecognition",
+                            "AeroSalvageInitialStateRecognition"
+                        ]
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "required": ["custom_recognition_param"],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "grid_roi",
+                            "center_roi"
+                        ],
+                        "properties": {
+                            "grid_roi": {
+                                "description": "Grid detection rectangle [x, y, width, height].",
+                                "type": "array",
+                                "items": {"type": "integer"},
+                                "minItems": 4,
+                                "maxItems": 4
+                            },
+                            "center_roi": {
+                                "description": "Center-point detection rectangle [x, y, width, height].",
+                                "type": "array",
+                                "items": {"type": "integer"},
+                                "minItems": 4,
+                                "maxItems": 4
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": ["custom_recognition"],
+                "properties": {
+                    "custom_recognition": {"const": "ArenaOfGames.CheckHand"}
                 }
             },
             "then": {
@@ -88,7 +132,79 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ExpendableRecognition"}}
+            },
+            "then": {
+                "type": "object",
+                "required": ["custom_recognition_param"],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["candidate"],
+                        "properties": {
+                            "candidate": {
+                                "type": "string",
+                                "minLength": 1,
+                                "title": "Candidate",
+                                "description": "OCR or And (box_index -> text OCR). That named OCR is patched with visited blacklist. Hit box is returned for Click."
+                            },
+                            "visited_node": {
+                                "type": "string",
+                                "minLength": 1,
+                                "title": "Visited Node",
+                                "description": "Optional. Node whose attach.visited is used as the shared blacklist store. Defaults to the current Custom recognition node."
+                            },
+                            "key_regex": {
+                                "type": "string",
+                                "minLength": 1,
+                                "title": "Key Regex",
+                                "description": "Optional. Regex applied to OCR text to derive the visited key (capture group 1 if present, otherwise the full match; fall back to raw text on no match). Without it, store/exclude the raw OCR string exactly. With it, the blacklist also tolerates non-digit OCR tail noise after the key. Game-specific truncation (e.g. remark cut at first ')', normal name cut at '#UID') belongs in Pipeline, not in this component."
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ExpressionRecognition"}}
+            },
+            "then": {
+                "type": "object",
+                "required": ["custom_recognition_param"],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["expression"],
+                        "properties": {
+                            "expression": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "box_node": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "focus_matched_resolved_expression": {
+                                "type": "boolean"
+                            },
+                            "focus_unmatched_resolved_expression": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": ["custom_recognition"],
                 "properties": {
                     "custom_recognition": {
                         "const": "IconRecognition"
@@ -97,12 +213,15 @@
             },
             "then": {
                 "type": "object",
-                "required": [ "roi", "custom_recognition_param" ],
+                "required": [
+                    "roi",
+                    "custom_recognition_param"
+                ],
                 "properties": {
                     "custom_recognition_param": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [ "grid_type" ],
+                        "required": ["grid_type"],
                         "properties": {
                             "grid_type": {
                                 "type": "string",
@@ -206,117 +325,8 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": {
-                    "custom_recognition": {
-                        "enum": [
-                            "AeroSalvageGridRecognition",
-                            "AeroSalvageInitialStateRecognition"
-                        ]
-                    }
-                }
-            },
-            "then": {
-                "type": "object",
-                "required": [ "custom_recognition_param" ],
-                "properties": {
-                    "custom_recognition_param": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "required": [
-                            "grid_roi",
-                            "center_roi"
-                        ],
-                        "properties": {
-                            "grid_roi": {
-                                "description": "Grid detection rectangle [x, y, width, height].",
-                                "type": "array",
-                                "items": { "type": "integer" },
-                                "minItems": 4,
-                                "maxItems": 4
-                            },
-                            "center_roi": {
-                                "description": "Center-point detection rectangle [x, y, width, height].",
-                                "type": "array",
-                                "items": { "type": "integer" },
-                                "minItems": 4,
-                                "maxItems": 4
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        {
-            "if": {
-                "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ItemDataReady" } }
-            },
-            "then": {
-                "type": "object",
-                "properties": {
-                    "custom_recognition_param": {
-                        "$ref": "./components/ims.schema.json#/$defs/ItemDataReadyParam"
-                    }
-                }
-            }
-        },
-        {
-            "if": {
-                "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ItemQuantitySatisfied" } }
-            },
-            "then": {
-                "type": "object",
-                "required": [ "custom_recognition_param" ],
-                "properties": {
-                    "custom_recognition_param": {
-                        "$ref": "./components/ims.schema.json#/$defs/ItemQuantitySatisfiedParam"
-                    }
-                }
-            }
-        },
-        {
-            "if": {
-                "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ExpressionRecognition" } }
-            },
-            "then": {
-                "type": "object",
-                "required": [ "custom_recognition_param" ],
-                "properties": {
-                    "custom_recognition_param": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "required": [ "expression" ],
-                        "properties": {
-                            "expression": {
-                                "type": "string",
-                                "minLength": 1
-                            },
-                            "box_node": {
-                                "type": "string",
-                                "minLength": 1
-                            },
-                            "focus_matched_resolved_expression": {
-                                "type": "boolean"
-                            },
-                            "focus_unmatched_resolved_expression": {
-                                "type": "boolean"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        {
-            "if": {
-                "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "IntelArchiveScanItemsRecognition" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "IntelArchiveScanItemsRecognition"}}
             },
             "then": {
                 "type": "object",
@@ -345,17 +355,51 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ItemTransferSameItemRecognition" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ItemDataReady"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "$ref": "./components/ims.schema.json#/$defs/ItemDataReadyParam"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ItemQuantitySatisfied"}}
+            },
+            "then": {
+                "type": "object",
+                "required": ["custom_recognition_param"],
+                "properties": {
+                    "custom_recognition_param": {
+                        "$ref": "./components/ims.schema.json#/$defs/ItemQuantitySatisfiedParam"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ItemTransferSameItemRecognition"}}
+            },
+            "then": {
+                "type": "object",
+                "required": ["custom_recognition_param"],
                 "properties": {
                     "custom_recognition_param": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [ "forward_item_node", "return_item_node" ],
+                        "required": [
+                            "forward_item_node",
+                            "return_item_node"
+                        ],
                         "properties": {
                             "forward_item_node": {
                                 "type": "string",
@@ -373,8 +417,8 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ListCompleteRecognition" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ListCompleteRecognition"}}
             },
             "then": {
                 "type": "object",
@@ -399,112 +443,34 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ScrollbarRecognition" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "MapFind"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "roi" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
-                    "custom_recognition_param": {
-                        "type": "object",
-                        "additionalProperties": false
-                    }
+                    "custom_recognition_param": {"$ref": "./components/world_map.schema.json#/$defs/MapFindParam"}
                 }
             }
         },
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ScrollbarCompleteRecognition" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "MapLocateAssertLocation"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "roi" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
                     "custom_recognition_param": {
                         "type": "object",
                         "additionalProperties": false,
-                        "properties": {
-                            "position_tolerance": {
-                                "type": "integer",
-                                "minimum": 0,
-                                "default": 2,
-                                "title": "Position Tolerance",
-                                "description": "Maximum 720p pixel difference allowed for both the top and bottom boundaries of the detected scrollbar thumb. When both boundaries remain within tolerance between consecutive frames, the list is complete. Default 2. Recognition region uses the native recognition roi."
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        {
-            "if": {
-                "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "ExpendableRecognition" } }
-            },
-            "then": {
-                "type": "object",
-                "required": [ "custom_recognition_param" ],
-                "properties": {
-                    "custom_recognition_param": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "required": [ "candidate" ],
-                        "properties": {
-                            "candidate": {
-                                "type": "string",
-                                "minLength": 1,
-                                "title": "Candidate",
-                                "description": "OCR or And (box_index -> text OCR). That named OCR is patched with visited blacklist. Hit box is returned for Click."
-                            },
-                            "visited_node": {
-                                "type": "string",
-                                "minLength": 1,
-                                "title": "Visited Node",
-                                "description": "Optional. Node whose attach.visited is used as the shared blacklist store. Defaults to the current Custom recognition node."
-                            },
-                            "key_regex": {
-                                "type": "string",
-                                "minLength": 1,
-                                "title": "Key Regex",
-                                "description": "Optional. Regex applied to OCR text to derive the visited key (capture group 1 if present, otherwise the full match; fall back to raw text on no match). Without it, store/exclude the raw OCR string exactly. With it, the blacklist also tolerates non-digit OCR tail noise after the key. Game-specific truncation (e.g. remark cut at first ')', normal name cut at '#UID') belongs in Pipeline, not in this component."
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        {
-            "if": {
-                "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "MapFind" } }
-            },
-            "then": {
-                "type": "object",
-                "required": [ "custom_recognition_param" ],
-                "properties": {
-                    "custom_recognition_param": { "$ref": "./components/world_map.schema.json#/$defs/MapFindParam" }
-                }
-            }
-        },
-        {
-            "if": {
-                "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "MapLocateAssertLocation" } }
-            },
-            "then": {
-                "type": "object",
-                "required": [ "custom_recognition_param" ],
-                "properties": {
-                    "custom_recognition_param": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "required": [ "zone_id", "target" ],
+                        "required": [
+                            "zone_id",
+                            "target"
+                        ],
                         "properties": {
                             "zone_id": {
                                 "type": "string",
@@ -526,12 +492,12 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "MapNavmeshQuery" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "MapNavmeshQuery"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
                     "custom_recognition_param": {
                         "$ref": "./components/map_navmesh.schema.json#/$defs/MapNavmeshQueryParam"
@@ -542,28 +508,75 @@
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "OutpostTradingCurrentGoods" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "OutpostTradingCurrentGoods"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
-                    "custom_recognition_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/CurrentGoodsRecognitionParam" }
+                    "custom_recognition_param": {
+                        "$ref": "./components/outpost_trading.schema.json#/$defs/CurrentGoodsRecognitionParam"
+                    }
                 }
             }
         },
         {
             "if": {
                 "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "OutpostTradingPriorityItem" } }
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "OutpostTradingPriorityItem"}}
             },
             "then": {
                 "type": "object",
-                "required": [ "custom_recognition_param" ],
+                "required": ["custom_recognition_param"],
                 "properties": {
-                    "custom_recognition_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/PriorityItemRecognitionParam" }
+                    "custom_recognition_param": {
+                        "$ref": "./components/outpost_trading.schema.json#/$defs/PriorityItemRecognitionParam"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ScrollbarCompleteRecognition"}}
+            },
+            "then": {
+                "type": "object",
+                "required": ["roi"],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "position_tolerance": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "default": 2,
+                                "title": "Position Tolerance",
+                                "description": "Maximum 720p pixel difference allowed for both the top and bottom boundaries of the detected scrollbar thumb. When both boundaries remain within tolerance between consecutive frames, the list is complete. Default 2. Recognition region uses the native recognition roi."
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "ScrollbarRecognition"}}
+            },
+            "then": {
+                "type": "object",
+                "required": ["roi"],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false
+                    }
                 }
             }
         }

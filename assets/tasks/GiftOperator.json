@@ -1097,6 +1097,36 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "ArgentFlow",
+                    "label": "$operator.ArgentFlow",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/ArgentFlow.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "明河",
+                                "明河",
+                                "Argent Flow",
+                                "ミンホ",
+                                "명하"
+                            ]
+                        }
+                    }
                 }
             ],
             "default_case": "Any"

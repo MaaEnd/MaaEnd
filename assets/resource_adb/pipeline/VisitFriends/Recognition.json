@@ -68,5 +68,21 @@
             110,
             83
         ]
+    },
+    "VisitFriendsBtwSellPriceRecognition": {
+        "roi_offset": [
+            95,
+            -25,
+            10,
+            0
+        ]
+    },
+    "VisitFriendsBtwSellQuantityRecognition": {
+        "roi_offset": [
+            -65,
+            40,
+            10,
+            0
+        ]
     }
 }
