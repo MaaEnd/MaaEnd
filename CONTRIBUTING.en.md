@@ -11,7 +11,7 @@ MaaEnd itself is developed with plenty of AI assistance, and we welcome AI. But 
 Using AI to write code is fine, but if you can't explain what your changes do and how they interact with the greater system without the aid of AI, do not submit them. Specifically:
 
 - **Fully understand it**: be able to debug it on your own and explain any change to a reviewer without AI.
-- **Own maintenance**: game updates often change the UI, and features have to be adjusted along with them. You can't maintain code you don't understand.
+- **Own maintenance**: game updates often change the UI and flows, and features have to be adjusted along with them. You can't maintain code you don't understand.
 - **Respect maintainers' time**: before submitting, make sure the change is actually needed and fits the project architecture.
 
 ## Submitting a PR
