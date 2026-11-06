@@ -3,6 +3,8 @@
 #include <cmath>
 #include <optional>
 
+#include <meojson/json.hpp>
+
 #include <MaaUtils/Logger.h>
 
 #include "../control/motion_controller.h"
@@ -291,7 +293,11 @@ TickStep NavigationStateMachine::passArrivedWaypoints(NavigateTick& tick)
     Waypoint& waypoint = tick.waypoint;
     double& arrival_distance = tick.arrival_distance;
     do {
+        const auto arrival_started_at = std::chrono::steady_clock::now();
         const semantic_nodes::Result arrival_result = semantic_nodes::HandleArrival(semanticContext(), waypoint, route.waypoint_distance);
+        if (const int64_t arrival_ms = ElapsedMs(arrival_started_at); arrival_ms >= kFailureTrailSlowArrivalMs) {
+            failure_trail_.note(std::chrono::steady_clock::now(), "arrival " + json::value(waypoint.action).as_string(), arrival_ms);
+        }
         if (arrival_result.rope_unavailable != 0) {
             return EndTickWith(abandonRope(arrival_result.rope_unavailable));
         }
