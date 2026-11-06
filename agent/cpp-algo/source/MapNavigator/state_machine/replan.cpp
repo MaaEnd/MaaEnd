@@ -402,6 +402,7 @@ bool NavigationStateMachine::abandonRope(uint32_t uid)
 
 bool NavigationStateMachine::handleDynamicReplanRequest(const char* reason)
 {
+    failure_trail_.note(std::chrono::steady_clock::now(), std::string("replan ") + reason);
     if (giveUpUnreachableZipline(reason)) {
         return true;
     }

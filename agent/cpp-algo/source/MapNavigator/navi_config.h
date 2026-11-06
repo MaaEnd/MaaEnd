@@ -199,6 +199,11 @@ constexpr int32_t kOffRouteWedgeFailMs = 12000;
 constexpr double kDwellWatchdogRadius = 20.0;
 constexpr int32_t kDwellWatchdogFailMs = 120000;
 
+// 导航失败时回放的时长与取位采样间隔
+constexpr int32_t kFailureTrailWindowMs = 90000;
+constexpr int32_t kFailureTrailSampleIntervalMs = 1000;
+constexpr int32_t kFailureTrailSlowArrivalMs = 200; // 短于此的到点动作不记
+
 // 跨层脱困的到达距离, 须同时已回到基础区才算退出
 constexpr double kCrossTierEscapeArrivalM = 3.0;
 constexpr int32_t kCrossTierEscapeHardStallMs = 12000;
