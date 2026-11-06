@@ -33,6 +33,8 @@ size_t resolve_canonical_final_goal_index(const std::vector<Waypoint>& path)
     return std::numeric_limits<size_t>::max();
 }
 
+} // namespace
+
 const char* navi_phase_name(NaviPhase phase)
 {
     switch (phase) {
@@ -57,8 +59,6 @@ const char* navi_phase_name(NaviPhase phase)
     }
     return "Unknown";
 }
-
-} // namespace
 
 void ProgressClock::observe(size_t key, double actual_distance, std::chrono::steady_clock::time_point now)
 {

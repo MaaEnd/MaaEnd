@@ -15,6 +15,7 @@
 #include "../planning/nav_run_controller.h"
 #include "../planning/navigation_session.h"
 #include "../semantic/async_prompt_action.h"
+#include "failure_trail.h"
 #include "navigation_runtime_state.h"
 
 namespace mapnavigator
@@ -169,6 +170,7 @@ private:
     MaaContext* maa_context_;
     NavigationRuntimeState runtime_state_ {};
     NavRunController nav_run_controller_ {};
+    FailureTrail failure_trail_;
     std::chrono::steady_clock::time_point last_global_relocalize_at_ {};
     std::optional<uint64_t> prior_observation_epoch_;
     std::optional<NaviPhase> last_tick_phase_;
