@@ -49,15 +49,15 @@
         ]
     },
     // ===========================================================================
-    // 唯一一处完整牌库识别，随后求解本轮 MDP
+    // 每轮仅一次完整牌库识别，随后求解本轮 MDP
     // ===========================================================================
     "TrialOfSwordmancyDailyRecognizeDeck": {
         "desc": "识别牌库并求解",
         "recognition": "Custom",
-        "custom_recognition": "TrialOfSwordmancy.RecognizeDeck",
+        "custom_recognition": "TrialOfSwordmancy.RecognizeFullDeck",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "TrialOfSwordmancy.Solve",
+        "custom_action": "TrialOfSwordmancy.InitSolver",
         "custom_action_param": {
             "overflowMode": "OverflowTwice"
         },
@@ -140,7 +140,7 @@
             "YellowConfirmButtonType1",
             {
                 "recognition": "Custom",
-                "custom_recognition": "TrialOfSwordmancy.RecognizeAband"
+                "custom_recognition": "TrialOfSwordmancy.RecognizeRemainAbandon"
             }
         ],
         "pre_delay": 0,
@@ -177,7 +177,7 @@
     "TrialOfSwordmancyDecide": {
         "desc": "选剑演武单步决策",
         "recognition": "Custom",
-        "custom_recognition": "TrialOfSwordmancy.Recognize",
+        "custom_recognition": "TrialOfSwordmancy.RecognizeBoard",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "TrialOfSwordmancy.Decide",

@@ -14,14 +14,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var _ maa.CustomActionRunner = &SolveAction{}
+var _ maa.CustomActionRunner = &InitSolverAction{}
 
-// SolveAction 按本轮牌库与溢出模式求解 MDP，结果存进 RoundState 供 DecideAction 使用。
+// InitSolverAction 按本轮牌库与溢出模式求解 MDP，结果存进 RoundState 供 DecideAction 使用。
 // 由 TrialOfSwordmancyDailyRecognizeDeck 的动作调用，每轮演算一次。
-type SolveAction struct{}
+type InitSolverAction struct{}
 
 // Run 求解并缓存；配置未变时直接复用本轮已有的求解器。
-func (a *SolveAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *InitSolverAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().Str("component", component).Msg("custom action arg is nil")
 		return false

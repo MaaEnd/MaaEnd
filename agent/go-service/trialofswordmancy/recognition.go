@@ -21,13 +21,13 @@ type GameState struct {
 	HandRaw [5]int `json:"handRaw"`
 }
 
-var _ maa.CustomRecognitionRunner = &Recognition{}
+var _ maa.CustomRecognitionRunner = &BoardRecognition{}
 
-// Recognition 每步识别当前局面并组装 GameState：牌库由 RecognizeDeck 缓存，手牌由 Deck - remainDeck 推导。
-type Recognition struct{}
+// BoardRecognition 每步识别当前局面并组装 GameState：牌库由 RecognizeFullDeck 缓存，手牌由 Deck - remainDeck 推导。
+type BoardRecognition struct{}
 
 // Run 识别当前局面；关键字段任一读不到即中止，不在缺失信息上做决策。
-func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+func (r *BoardRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if arg == nil || arg.Img == nil {
 		log.Error().Str("component", component).Msg("custom recognition arg or image is nil")
 		return nil, false
@@ -267,12 +267,12 @@ func recognizeFullDeck(ctx *maa.Context, img image.Image) (deck, remainDeck, han
 	return
 }
 
-var _ maa.CustomRecognitionRunner = &DeckRecognition{}
+var _ maa.CustomRecognitionRunner = &FullDeckRecognition{}
 
-// DeckRecognition 完整识别牌库并缓存到 RoundState，一轮演算只需在轮次开始时执行一次。
-type DeckRecognition struct{}
+// FullDeckRecognition 完整识别牌库并缓存到 RoundState，一轮演算只需在轮次开始时执行一次。
+type FullDeckRecognition struct{}
 
-func (r *DeckRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+func (r *FullDeckRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if arg == nil || arg.Img == nil {
 		log.Error().Str("component", component).Msg("deck recognition arg or image is nil")
 		return nil, false
@@ -307,7 +307,7 @@ func (r *DeckRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	return &maa.CustomRecognitionResult{Box: arg.Roi, Detail: string(detailBytes)}, true
 }
 
-// deckDetail 是 DeckRecognition 写进 Detail 的观测载体，仅日志/调试用。
+// deckDetail 是 FullDeckRecognition 写进 Detail 的观测载体，仅日志/调试用。
 type deckDetail struct {
 	Deck       [5]int `json:"deck"`
 	RemainDeck [5]int `json:"remainDeck"`
@@ -315,12 +315,12 @@ type deckDetail struct {
 	HandRaw    [5]int `json:"handRaw"`
 }
 
-var _ maa.CustomRecognitionRunner = &AbandRecognition{}
+var _ maa.CustomRecognitionRunner = &RemainAbandonRecognition{}
 
-// AbandRecognition 从已显示的放弃确认弹窗识别剩余放弃次数，只读文本并更新缓存。
-type AbandRecognition struct{}
+// RemainAbandonRecognition 从已显示的放弃确认弹窗识别剩余放弃次数，只读文本并更新缓存。
+type RemainAbandonRecognition struct{}
 
-func (r *AbandRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+func (r *RemainAbandonRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if arg == nil || arg.Img == nil {
 		log.Error().Str("component", component).Msg("aband recognition arg or image is nil")
 		return nil, false

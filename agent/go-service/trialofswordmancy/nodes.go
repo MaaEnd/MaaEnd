@@ -12,11 +12,11 @@ import (
 const (
 	component = "trialofswordmancy"
 
-	recognitionName      = "TrialOfSwordmancy.Recognize"
-	deckRecognitionName  = "TrialOfSwordmancy.RecognizeDeck"
-	abandRecognitionName = "TrialOfSwordmancy.RecognizeAband"
-	decideName           = "TrialOfSwordmancy.Decide"
-	solveName            = "TrialOfSwordmancy.Solve"
+	recognizeBoardName         = "TrialOfSwordmancy.RecognizeBoard"
+	recognizeFullDeckName      = "TrialOfSwordmancy.RecognizeFullDeck"
+	recognizeRemainAbandonName = "TrialOfSwordmancy.RecognizeRemainAbandon"
+	decideName                 = "TrialOfSwordmancy.Decide"
+	initSolverName             = "TrialOfSwordmancy.InitSolver"
 )
 
 const (

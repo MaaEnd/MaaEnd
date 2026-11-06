@@ -97,7 +97,7 @@
                 "TextInputAction",
                 "TextInputInitAction",
                 "TrialOfSwordmancy.Decide",
-                "TrialOfSwordmancy.Solve",
+                "TrialOfSwordmancy.InitSolver",
                 "UpdateItemQuantity",
                 "VisitFriendsBtwSellSettleAction",
                 "VisitFriendsBtwSellSlidingAction",
@@ -621,7 +621,7 @@
         {
             "if": {
                 "properties": {
-                    "custom_action": {"const": "TrialOfSwordmancy.Solve"}
+                    "custom_action": {"const": "TrialOfSwordmancy.InitSolver"}
                 },
                 "required": ["custom_action"]
             },

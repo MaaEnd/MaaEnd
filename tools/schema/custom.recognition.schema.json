@@ -53,9 +53,9 @@
                 "SeizeDeliveryJobsFindTargetRecognition",
                 "SeizeDeliveryJobsScanTargetRecognition",
                 "TextInputExhaustedRecognition",
-                "TrialOfSwordmancy.Recognize",
-                "TrialOfSwordmancy.RecognizeAband",
-                "TrialOfSwordmancy.RecognizeDeck",
+                "TrialOfSwordmancy.RecognizeBoard",
+                "TrialOfSwordmancy.RecognizeFullDeck",
+                "TrialOfSwordmancy.RecognizeRemainAbandon",
                 "VisitFriendsBtwSellFinishedRecognition",
                 "autoEcoFarmCalculateSwipeTarget",
                 "autoEcoFarmFindNearestRecognitionResult"
