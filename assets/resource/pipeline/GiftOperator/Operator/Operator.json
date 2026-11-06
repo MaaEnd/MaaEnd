@@ -1279,5 +1279,45 @@
         "next": [
             "GiftOperatorSelectSpecifiedOpSuccess"
         ]
+    },
+    "GiftOperatorSelect_ArgentFlow": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/ArgentFlow.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "明河",
+                                "明河",
+                                "Argent Flow",
+                                "ミンホ",
+                                "명하"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
     }
 }

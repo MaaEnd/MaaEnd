@@ -7,8 +7,8 @@
             "type": "array",
             "description": "A 2D coordinate [x, y].",
             "prefixItems": [
-                { "type": "number" },
-                { "type": "number" }
+                {"type": "number"},
+                {"type": "number"}
             ],
             "minItems": 2,
             "maxItems": 2,
@@ -18,15 +18,15 @@
             "type": "object",
             "description": "Parameters for MapFind: work out where the open world map is currently showing, bring the given base map coordinate into view, and hand back the screen position it landed on. What to do with that position is the node's own action.",
             "additionalProperties": false,
-            "required": [ "zone" ],
+            "required": ["zone"],
             "oneOf": [
-                { "required": [ "at" ] },
-                { "required": [ "candidates" ] }
+                {"required": ["at"]},
+                {"required": ["candidates"]}
             ],
             "allOf": [
                 {
-                    "if": { "required": [ "candidates" ] },
-                    "then": { "required": [ "icon" ] }
+                    "if": {"required": ["candidates"]},
+                    "then": {"required": ["icon"]}
                 }
             ],
             "properties": {
@@ -49,7 +49,10 @@
                     "items": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [ "at", "next" ],
+                        "required": [
+                            "at",
+                            "next"
+                        ],
                         "properties": {
                             "at": {
                                 "title": "At",
@@ -74,7 +77,10 @@
                 "state": {
                     "title": "State",
                     "description": "Which unlock state counts as a hit. Requires an icon whose table entry carries gold_ratio, since that is what tells the two states apart. Optional, defaults to unlocked.",
-                    "enum": [ "unlocked", "locked" ],
+                    "enum": [
+                        "unlocked",
+                        "locked"
+                    ],
                     "default": "unlocked"
                 },
                 "max_attempts": {

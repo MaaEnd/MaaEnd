@@ -446,7 +446,7 @@
         ]
     },
     "AutoDeliverySubmitGoods": {
-        "desc": "在送货目标附近识别交互按钮并提交货物",
+        "desc": "[运行时覆盖] 在送货目标附近识别交互按钮并提交货物；next 按终点类型重写成 NPC 进入对话 / 资源回收站直接出奖励结算框",
         "recognition": "And",
         "all_of": [
             "AutoDeliveryCheckSubmitGoodsTarget"
@@ -466,6 +466,10 @@
         "timeout": 6000,
         "rate_limit": 0,
         "next": [
+            // next 运行时由 AutoDeliveryResolveDestinationAction 按终点类型整体重写：
+            // ・NPC 终点 → [AutoDeliveryCheckSkipChatReady]，提交后先进入对话；
+            // ・资源回收站终点 → [AutoDeliveryCloseRewardDialog]，提交后直接出奖励结算框。
+            // 静态这里两个都留，只是「还没解析出终点就执行到本节点」时的兜底。
             "AutoDeliveryCheckSkipChatReady",
             "AutoDeliveryCloseRewardDialog"
         ],

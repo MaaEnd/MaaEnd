@@ -9,24 +9,61 @@
         ]
     },
     "VisitFriendsEnter": {
-        "desc": "进入大世界并打开好友列表",
+        "desc": "进入大世界并打开好友列表（子任务链入口：清 gate 命中计数后交给 gate 链）",
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "SubTask",
+        "custom_action": "ClearHitCount",
         "custom_action_param": {
-            "sub": [
-                "SceneAnyEnterWorld",
-                "SceneEnterMenuFriendsList"
-            ]
+            "nodes": [
+                "__VisitFriendsEnterGateWorld",
+                "__VisitFriendsEnterGateFriendsList"
+            ],
+            "strict": true
         },
         "post_delay": 0,
         "next": [
-            "VisitFriendsMenu"
+            "[JumpBack]__VisitFriendsEnterGateWorld",
+            "[JumpBack]__VisitFriendsEnterGateFriendsList",
+            "__VisitFriendsEnterRestore"
         ],
         "focus": {
             "Node.Action.Succeeded": "开始拜访好友"
         }
+    },
+    // 子任务链：gate 依次命中一次，每条子链跑完回跳本链起点，最后由 restore 接回原 next。
+    // 约束：除 gate 外不要给其它 next 项加 [JumpBack]；restore 不能加（会回到本链起点重跑子任务）。
+    "__VisitFriendsEnterGateWorld": {
+        "desc": "子任务 1：回到大世界",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SceneAnyEnterWorld"
+        ]
+    },
+    "__VisitFriendsEnterGateFriendsList": {
+        "desc": "子任务 2：打开好友列表",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SceneEnterMenuFriendsList"
+        ]
+    },
+    "__VisitFriendsEnterRestore": {
+        "desc": "子任务链结束，接回进入好友列表后的原后继",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "VisitFriendsMenu"
+        ]
     },
     "VisitFriendsMenu": {
         "desc": "识别是否位于好友列表界面",

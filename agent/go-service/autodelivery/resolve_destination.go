@@ -17,9 +17,12 @@ const (
 	afterResolveDestinationNode  = "AutoDeliveryAfterResolveDestination"
 	areaTextNode                 = "AutoDeliveryCheckAreaText"
 	destinationTextNode          = "AutoDeliveryCheckDestinationText"
+	submitGoodsNode              = "AutoDeliverySubmitGoods"
 	submitGoodsTargetNode        = "AutoDeliveryCheckSubmitGoodsTarget"
 	submitGoodsButtonNode        = "AutoDeliveryCheckSubmitGoodsButton"
 	submitGoodsNameNode          = "AutoDeliveryCheckSubmitGoodsName"
+	checkSkipChatReadyNode       = "AutoDeliveryCheckSkipChatReady"
+	closeRewardDialogNode        = "AutoDeliveryCloseRewardDialog"
 	// destinationZiplineRequiredFocusKey 是「只能坐滑索抵达、但用户选择步行」时讲给用户的原因。
 	destinationZiplineRequiredFocusKey = "autodelivery.focus.destination_zipline_required"
 )
@@ -192,6 +195,12 @@ func buildDestinationNavigationOverride(dest destination, zip bool) map[string]a
 		}
 	}
 
+	// 提交货物后的画面由终点类型决定：NPC 终点先进入对话，资源回收站终点直接弹出奖励结算框。
+	// 两个画面同时挂在 next 里时，另一类终点的识别框有机会抢先命中，所以这里按终点类型写死单一路径。
+	override[submitGoodsNode] = map[string]any{
+		"next": submitGoodsFlow(dest.Kind),
+	}
+
 	// 交货图标只有十几像素，周围还有别的角色时容易命中别人的交互提示。
 	// 开启名称复核的终点额外要求提示文本命中该终点的名称；每次解析都显式重写 all_of，
 	// 避免上一个终点开启的复核残留到本次流程。
@@ -234,4 +243,13 @@ func defaultDestinationFlow() []string {
 	return []string{
 		"AutoDeliveryReturnWorldAndNavigateDestination",
 	}
+}
+
+// submitGoodsFlow 返回提交货物后要先识别的画面：
+// 资源回收站终点没有对话，直接出奖励结算框；NPC 终点先进入对话，等跳过按钮稳定再点。
+func submitGoodsFlow(kind string) []string {
+	if kind == destinationKindRecycleBin {
+		return []string{closeRewardDialogNode}
+	}
+	return []string{checkSkipChatReadyNode}
 }
