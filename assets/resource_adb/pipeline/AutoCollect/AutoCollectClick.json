@@ -27,10 +27,7 @@
     },
     "AutoCollectClickKey": {
         "action": {
-            "type": "Click",
-            "param": {
-                "target": "AutoCollectClick"
-            }
+            "type": "Click"
         }
     }
 }
