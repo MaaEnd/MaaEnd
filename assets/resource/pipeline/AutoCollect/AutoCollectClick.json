@@ -132,11 +132,10 @@
             }
         },
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "AutoAltClickAction",
         "post_delay": 0,
         "next": [
-            "AutoCollectClickEnd"
+            "AutoCollectClickCrate",
+            "AutoCollectClickKey"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "识别到采集物",
@@ -147,6 +146,53 @@
                 "trace": true
             }
         }
+    },
+    // 食材箱爆出的掉落物会占住交互键，只能按住 Alt 点名点开
+    "AutoCollectClickCrate": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    803,
+                    350,
+                    263,
+                    219
+                ],
+                "expected": [
+                    "种植食材箱",
+                    "種植食材箱",
+                    "(?i)Farmer's\\s*Crate",
+                    "農産食材箱",
+                    "재배 식재료 상자",
+                    "养殖食材箱",
+                    "養殖食材箱",
+                    "(?i)Rancher's\\s*Crate",
+                    "畜産食材箱",
+                    "양식 식재료 상자",
+                    "饮品箱",
+                    "飲品箱",
+                    "(?i)Drinks\\s*Crate",
+                    "飲料箱",
+                    "음료 상자"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
+        "next": [
+            "AutoCollectClickEnd"
+        ]
+    },
+    "AutoCollectClickKey": {
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 70, // F 交互；可通过全局设置 KeymapInteract 改绑
+        "post_delay": 0,
+        "next": [
+            "AutoCollectClickEnd"
+        ]
     },
     //子任务出口：由 MapNavigator 以 MaaContextRunTask 调起，跑到这里就结束、返回引擎
     "AutoCollectClickEnd": {
