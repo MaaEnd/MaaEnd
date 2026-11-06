@@ -1,0 +1,52 @@
+{
+    "ProtocolSpaceGrowthPerlica": {
+        "enabled": false,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ProtocolSpaceCalculateOperatorMaterialsAction",
+                "custom_action_param": {
+                    "__ProtocolSpaceGrowthOperator": "chr_0004_pelica",
+                    "__ProtocolSpaceGrowthOperatorLevel": 1,
+                    "__ProtocolSpaceGrowthNormalAttackLevel": 1,
+                    "__ProtocolSpaceGrowthNormalSkillLevel": 1,
+                    "__ProtocolSpaceGrowthComboSkillLevel": 1,
+                    "__ProtocolSpaceGrowthUltimateSkillLevel": 1
+                }
+            }
+        },
+        "attach": {
+            "__ProtocolSpaceGrowthOperator": "chr_0004_pelica",
+            "__ProtocolSpaceGrowthOperatorLevel": 1,
+            "__ProtocolSpaceGrowthNormalAttackLevel": 1,
+            "__ProtocolSpaceGrowthNormalSkillLevel": 1,
+            "__ProtocolSpaceGrowthComboSkillLevel": 1,
+            "__ProtocolSpaceGrowthUltimateSkillLevel": 1
+        }
+    },
+    "ProtocolSpaceGrowthEndministrator": {
+        "enabled": false,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ProtocolSpaceCalculateOperatorMaterialsAction",
+                "custom_action_param": {
+                    "__ProtocolSpaceGrowthOperator": "chr_0002_endminm",
+                    "__ProtocolSpaceGrowthOperatorLevel": 1,
+                    "__ProtocolSpaceGrowthNormalAttackLevel": 1,
+                    "__ProtocolSpaceGrowthNormalSkillLevel": 1,
+                    "__ProtocolSpaceGrowthComboSkillLevel": 1,
+                    "__ProtocolSpaceGrowthUltimateSkillLevel": 1
+                }
+            }
+        },
+        "attach": {
+            "__ProtocolSpaceGrowthOperator": "chr_0002_endminm",
+            "__ProtocolSpaceGrowthOperatorLevel": 1,
+            "__ProtocolSpaceGrowthNormalAttackLevel": 1,
+            "__ProtocolSpaceGrowthNormalSkillLevel": 1,
+            "__ProtocolSpaceGrowthComboSkillLevel": 1,
+            "__ProtocolSpaceGrowthUltimateSkillLevel": 1
+        }
+    }
+}
