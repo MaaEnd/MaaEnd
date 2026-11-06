@@ -27,7 +27,7 @@
                 "EnterCameraModeKeyUp": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
-                "AutoCollectClick": {
+                "AutoCollectClickKey": {
                     "key": "{KeymapInteract.primary}"
                 },
                 "MapNavigatorInteract": {
