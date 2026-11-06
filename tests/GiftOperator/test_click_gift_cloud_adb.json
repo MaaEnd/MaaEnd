@@ -11,9 +11,9 @@
                 {
                     "node": "GiftOperatorClickGift",
                     "box": [
-                        200,
+                        190,
                         555,
-                        55,
+                        76,
                         45
                     ]
                 }
@@ -25,9 +25,9 @@
                 {
                     "node": "GiftOperatorClickGift",
                     "box": [
-                        200,
+                        190,
                         555,
-                        55,
+                        76,
                         45
                     ]
                 }
