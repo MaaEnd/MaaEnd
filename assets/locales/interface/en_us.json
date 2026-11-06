@@ -1973,6 +1973,7 @@
     "preset.QuickDaily.label": "Quick Daily",
     "preset.RealtimeAssist.description": "Full suite of real-time assist features for AFK.",
     "preset.RealtimeAssist.label": "Real-time Assist",
+    "pretask.LaunchGamePC.description": "Works with the display on or asleep. Some monitors don't support running after being physically powered off.",
     "pretask.LaunchGamePC.label": "🚀 Launch Game (PC)",
     "pretask.LaunchGamePlayCover.description": "Opens Endfield in PlayCover and waits for the configured interval before connecting the controller. Other tasks handle login and entering the game.",
     "pretask.LaunchGamePlayCover.label": "🚀 Launch Game (PlayCover)",
