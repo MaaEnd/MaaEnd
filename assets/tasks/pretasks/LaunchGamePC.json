@@ -10,6 +10,7 @@
         ],
         "name": "LaunchGamePC",
         "label": "$pretask.LaunchGamePC.label",
+        "description": "$pretask.LaunchGamePC.description",
         "option": [
             "LaunchGamePCRegion",
             "LaunchGamePCLauncherPath",
