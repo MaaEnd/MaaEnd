@@ -1504,6 +1504,8 @@
     "option.CreditShoppingForce.label": "購入設定がいずれも命中しない時の動作",
     "option.CreditShoppingRefreshLimit.cases.Unlimited.label": "無制限",
     "option.CreditShoppingRefreshLimit.description": "この回数に達すると更新せずにタスクを終了し、より高価な更新にクレジットを使いません。ゲーム内の更新費用は 80、120、160、200 クレジットです。",
+    "option.CreditShoppingRefreshLimit.inputs.CreditShoppingRefreshLimitCreditFloor.description": "1日の最大更新回数に達した後も、所持クレジットから次の更新費用を引いた値がこの値以上なら更新を続けます。0 の場合は上限で停止します。",
+    "option.CreditShoppingRefreshLimit.inputs.CreditShoppingRefreshLimitCreditFloor.label": "上限到達後も更新を続けるクレジットの下限",
     "option.CreditShoppingRefreshLimit.label": "1日の最大更新回数",
     "option.CreditShoppingItems.cases.ArmsINSPKit.label": "武器検査セット",
     "option.CreditShoppingItems.cases.ArmsInspector.label": "武器検査ユニット",

@@ -1504,6 +1504,8 @@
     "option.CreditShoppingForce.label": "购买选项均未命中时操作",
     "option.CreditShoppingRefreshLimit.cases.Unlimited.label": "不限制",
     "option.CreditShoppingRefreshLimit.description": "达到该次数后不再刷新并结束任务，避免把信用点花在更贵的刷新上。游戏内刷新依次消耗 80、120、160、200 信用点。",
+    "option.CreditShoppingRefreshLimit.inputs.CreditShoppingRefreshLimitCreditFloor.description": "达到每日最多刷新次数后，如果当前信用点扣除下一次刷新花费后仍不低于该值，就继续刷新。填 0 表示到达次数上限即停止。",
+    "option.CreditShoppingRefreshLimit.inputs.CreditShoppingRefreshLimitCreditFloor.label": "达到上限后继续刷新的信用点下限",
     "option.CreditShoppingRefreshLimit.label": "每日最多刷新次数",
     "option.CreditShoppingItems.cases.ArmsINSPKit.label": "武器检查装置",
     "option.CreditShoppingItems.cases.ArmsInspector.label": "武器检查单元",

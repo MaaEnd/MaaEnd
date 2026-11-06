@@ -73,9 +73,8 @@
             }
         }
     },
-    "CreditShoppingRefreshLimitReached": {
-        "desc": "已达到选项设定的每日刷新次数（读下一次刷新的花费），不再刷新，结束任务",
-        "enabled": false,
+    "CreditShoppingRefreshLimitCost": {
+        "desc": "下一次刷新的花费是否已达到每日最多刷新次数（由选项设定可匹配的花费）",
         "recognition": "OCR",
         "roi": [
             1140,
@@ -86,7 +85,19 @@
         "expected": [
             "^160$"
         ],
-        "only_rec": true,
+        "only_rec": true
+    },
+    "CreditShoppingRefreshLimitReached": {
+        "desc": "已达到选项设定的每日刷新次数（读下一次刷新的花费），不再刷新，结束任务",
+        "enabled": false,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CreditShoppingRefreshLimitCost"
+                ]
+            }
+        },
         "next": [
             "CreditShoppingNothingToBuy"
         ],

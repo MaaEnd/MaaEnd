@@ -1504,6 +1504,8 @@
     "option.CreditShoppingForce.label": "구매 옵션이 모두 맞지 않을 때 동작",
     "option.CreditShoppingRefreshLimit.cases.Unlimited.label": "제한 없음",
     "option.CreditShoppingRefreshLimit.description": "이 횟수에 도달하면 새로고침하지 않고 작업을 종료하여 더 비싼 새로고침에 크레딧을 쓰지 않습니다. 게임 내 새로고침 비용은 80, 120, 160, 200 크레딧입니다.",
+    "option.CreditShoppingRefreshLimit.inputs.CreditShoppingRefreshLimitCreditFloor.description": "일일 최대 새로고침 횟수에 도달한 뒤에도 보유 크레딧에서 다음 새로고침 비용을 뺀 값이 이 값 이상이면 계속 새로고침합니다. 0이면 한도에서 멈춥니다.",
+    "option.CreditShoppingRefreshLimit.inputs.CreditShoppingRefreshLimitCreditFloor.label": "한도 도달 후에도 새로고침을 계속할 크레딧 하한",
     "option.CreditShoppingRefreshLimit.label": "하루 최대 새로고침 횟수",
     "option.CreditShoppingItems.cases.ArmsINSPKit.label": "무기 점검 장치",
     "option.CreditShoppingItems.cases.ArmsInspector.label": "무기 점검 유닛",

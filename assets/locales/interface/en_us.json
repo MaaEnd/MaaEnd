@@ -1504,6 +1504,8 @@
     "option.CreditShoppingForce.label": "Action when no purchase option matches",
     "option.CreditShoppingRefreshLimit.cases.Unlimited.label": "Unlimited",
     "option.CreditShoppingRefreshLimit.description": "Stop refreshing after this many refreshes and end the task, instead of spending credits on the more expensive ones. In-game refreshes cost 80, 120, 160 and 200 credits.",
+    "option.CreditShoppingRefreshLimit.inputs.CreditShoppingRefreshLimitCreditFloor.description": "After the daily refresh limit is reached, keep refreshing while your credits minus the next refresh cost stay at or above this value. 0 stops at the limit.",
+    "option.CreditShoppingRefreshLimit.inputs.CreditShoppingRefreshLimitCreditFloor.label": "Keep refreshing above this credit balance",
     "option.CreditShoppingRefreshLimit.label": "Maximum refreshes per day",
     "option.CreditShoppingItems.cases.ArmsINSPKit.label": "Arms INSP Kit",
     "option.CreditShoppingItems.cases.ArmsInspector.label": "Arms Inspector",
