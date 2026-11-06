@@ -140,15 +140,14 @@
             "param": {
                 "roi": "GiftOperatorClickGiftColor",
                 "roi_offset": [
-                    26,
-                    -24,
-                    -50,
-                    24
+                    24,
+                    -26,
+                    -46,
+                    28
                 ],
                 "expected": [
                     "[1-9]\\d*"
-                ],
-                "only_rec": true
+                ]
             }
         }
     },
