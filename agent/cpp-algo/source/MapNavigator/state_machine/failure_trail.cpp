@@ -42,16 +42,15 @@ void FailureTrail::sample(
     if (!samples_.empty() && now - samples_.back().at < std::chrono::milliseconds(kFailureTrailSampleIntervalMs)) {
         return;
     }
-    samples_.push_back(
-        Sample {
-            .at = now,
-            .x = position.x,
-            .y = position.y,
-            .score = position.score,
-            .captured = captured,
-            .locate_message = std::string(locate_message),
-            .node_idx = node_idx,
-        });
+    samples_.push_back(Sample {
+        .at = now,
+        .x = position.x,
+        .y = position.y,
+        .score = position.score,
+        .captured = captured,
+        .locate_message = std::string(locate_message),
+        .node_idx = node_idx,
+    });
     prune(now);
 }
 
