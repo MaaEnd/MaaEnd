@@ -2686,6 +2686,7 @@
     "task.RestaurantDaily.description": "Use this task to clear your daily patron supply and farm Spirit Money. It automatically configures the kitchens and menu, then selects dishes to queue based on table orders and restock markers. **Requires Inn Level 4 and all three kitchens unlocked.**",
     "task.RestaurantDaily.focus.menu_items_insufficient": "Not enough menu items",
     "task.RestaurantDaily.focus.menu_requirements_unmet": "Menu requirements are not met",
+    "task.RestaurantDaily.focus.no_tasks_configured": "<span style=\"font-weight: bold;\">No tasks are configured</span>",
     "task.RestaurantDaily.label": "🍽️Yuanyuan Manor Innkeeping",
     "task.RestaurantDaily.option.BuyShopDiscountedItems.label": "Purchase discounted items from the Pantry Shop",
     "task.RestaurantDaily.option.MaxRounds.input_label": "Enter an integer from 0 to 20",
