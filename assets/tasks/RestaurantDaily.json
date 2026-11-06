@@ -148,6 +148,9 @@
                     "pipeline_override": {
                         "RestaurantShopAfterRounds": {
                             "enabled": true
+                        },
+                        "RestaurantNoTasksConfigured": {
+                            "enabled": false
                         }
                     }
                 },
@@ -156,6 +159,9 @@
                     "pipeline_override": {
                         "RestaurantShopAfterRounds": {
                             "enabled": false
+                        },
+                        "RestaurantNoTasksConfigured": {
+                            "enabled": true
                         }
                     }
                 }
