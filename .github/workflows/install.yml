@@ -354,13 +354,16 @@ jobs:
 
           # 安装 MXU 并重命名为 MaaEnd
           echo "Install MXU"
-          if [[ -d downloads/MXU ]]; then
-            rm -rf downloads/MXU*.zip downloads/MXU*.tgz
-            if [[ -f downloads/MXU/mxu.exe ]]; then
-              cp downloads/MXU/mxu.exe install/MaaEnd.exe
-            elif [[ -f downloads/MXU/mxu ]]; then
-              cp downloads/MXU/mxu install/MaaEnd
-            fi
+          rm -rf downloads/MXU*.zip downloads/MXU*.tgz
+          if [[ -f downloads/MXU/mxu.exe ]]; then
+            cp downloads/MXU/mxu.exe install/MaaEnd.exe
+          elif [[ -f downloads/MXU/mxu ]]; then
+            cp downloads/MXU/mxu install/MaaEnd
+          elif [[ -f downloads/MXU/mxu.app/Contents/MacOS/mxu ]]; then
+            cp downloads/MXU/mxu.app/Contents/MacOS/mxu install/MaaEnd
+          else
+            echo "::error::MXU executable not found in downloads/MXU" >&2
+            exit 1
           fi
 
           # 合并各 resource 的 pipeline JSON 文件（json5 由 uv 环境提供）
