@@ -45,6 +45,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/outposttrading"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/protocolspace"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pullcount"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/restaurant"
@@ -119,6 +120,7 @@ func registerAll() {
 	intelarchive.Register()
 	itemtransfer.Register()
 	outposttrading.Register()
+	protocolspace.Register()
 	creditshopping.Register()
 	webevent202605.Register()
 	ziplineimport.Register()

@@ -54,6 +54,7 @@ jobs:
           pnpm generate:DeliveryJobs
           pnpm generate:EnvironmentMonitoring
           pnpm generate:OutpostTrading
+          pnpm generate:ProtocolSpace
           pnpm generate:AutoStockStaple
           pnpm generate:GiftOperator
           pnpm generate:SceneTeleport
@@ -90,6 +91,7 @@ jobs:
             - DeliveryJobs
             - EnvironmentMonitoring
             - OutpostTrading
+            - ProtocolSpace
             - AutoStockStaple
             - GiftOperator
             - SceneTeleport
