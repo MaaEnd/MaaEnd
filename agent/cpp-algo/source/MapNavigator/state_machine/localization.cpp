@@ -258,6 +258,16 @@ bool NavigationStateMachine::sceneRecoveryAllowed()
 bool NavigationStateMachine::runSceneRecovery()
 {
     runtime_state_.scene_recovery_attempted = true;
+    if (!returnToWorld()) {
+        return false;
+    }
+    // 被界面盖住和清界面的这段时间人走不了, 不算停滞
+    session_->excludeFromStallClocks(std::chrono::steady_clock::now() - runtime_state_.localization_loss.started_at);
+    return true;
+}
+
+bool NavigationStateMachine::returnToWorld()
+{
     MaaSize esc_used = 0;
     if (!MaaContextGetHitCount(maa_context_, kSceneRecoveryEscNode, &esc_used)) {
         LogWarn << "Scene recovery skipped: hit count unavailable.";
@@ -269,10 +279,6 @@ bool NavigationStateMachine::runSceneRecovery()
         position_provider_->waitForFix(position_, std::string(), kSceneRecoveryFixAttempts, kRelocationRetryIntervalMs, should_stop_);
     LogInfo << "Scene recovery finished." << VAR(restored) << VAR(handled) << VAR(esc_used);
     failure_trail_.note(std::chrono::steady_clock::now(), restored ? "scene recovery restored" : "scene recovery failed");
-    if (restored) {
-        // 被界面盖住和清界面的这段时间人走不了, 不算停滞
-        session_->excludeFromStallClocks(std::chrono::steady_clock::now() - runtime_state_.localization_loss.started_at);
-    }
     return restored;
 }
 

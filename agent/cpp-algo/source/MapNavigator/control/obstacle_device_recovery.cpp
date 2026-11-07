@@ -134,6 +134,11 @@ DeviceRemovalOutcome ObstacleDeviceRecovery::tryRemove(const RouteMeasurement& r
         LogWarn << "Blocking-device subtask result unavailable.";
         return DeviceRemovalOutcome::StillPinned;
     }
+    // 认不出点开的界面时设备子任务停在 InteractPost
+    if (!handled->empty() && handled->back() == kObstacleDeviceInteractPostNode) {
+        LogWarn << "Blocking-device click opened an unrecognized screen.";
+        return DeviceRemovalOutcome::UnknownUi;
+    }
     if (const char* walk_out = walk_out_entry_for(*handled); walk_out != nullptr) {
         // 搬起的设备会放回原处, 放下前须先走出来
         motion_controller_->reassertForward();

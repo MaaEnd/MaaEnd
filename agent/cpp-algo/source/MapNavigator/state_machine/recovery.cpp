@@ -158,6 +158,15 @@ bool NavigationStateMachine::climbRecoveryLadder(const NavigateTick& tick, bool 
     if (device_outcome == DeviceRemovalOutcome::NeedsFreshFix) {
         return true;
     }
+    if (device_outcome == DeviceRemovalOutcome::UnknownUi) {
+        const auto cleanup_started_at = std::chrono::steady_clock::now();
+        runtime_state_.offroute.pauseAt(cleanup_started_at);
+        if (!returnToWorld()) {
+            return true;
+        }
+        session_->excludeFromStallClocks(std::chrono::steady_clock::now() - cleanup_started_at);
+        session_->updateCurrentZone(position_->zone_id);
+    }
 
     ++escalation.jump_attempt_count;
     const NaviPosition jump_start = *position_;

@@ -91,6 +91,7 @@ private:
     bool sceneRecoveryAllowed();
     // 场景管理跑完后取回有效定位才返回 true
     bool runSceneRecovery();
+    bool returnToWorld();
     bool resumeAfterGlobalReacquire(const std::string& prior_zone, std::chrono::milliseconds loss_elapsed);
     bool armRiverFallRecoveryIfBlackScreenLoss(const char* via);
     TickStep runRiverFallRecovery(const NavigateTick& tick);

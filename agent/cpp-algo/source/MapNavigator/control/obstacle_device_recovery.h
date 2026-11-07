@@ -26,6 +26,7 @@ enum class DeviceRemovalOutcome
     NeedsFreshFix, // 已处理但定位不可用, 本拍须到此结束
     Escaped,
     StillPinned,
+    UnknownUi,
 };
 
 class ObstacleDeviceRecovery
