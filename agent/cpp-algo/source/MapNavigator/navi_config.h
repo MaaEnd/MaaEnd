@@ -413,6 +413,7 @@ constexpr int32_t kActionWalkTogglePressMs = 30;
 
 constexpr const char* kObstacleDeviceEntry = "MapNavigatorObstacleDevice";
 constexpr const char* kObstacleDeviceProbeNode = "__MapNavigatorObstacleDevice_InteractPre";
+constexpr const char* kObstacleDeviceInteractPostNode = "__MapNavigatorObstacleDevice_InteractPost";
 constexpr const char* kObstacleDeviceTemplateRelativePath = "MapNavigator/ObstacleDevice/InteractButton.png";
 constexpr double kObstacleDeviceMatchThreshold = 0.65;
 constexpr const char* kObstacleDeviceMoveNode = "__MapNavigatorObstacleDevice_MoveDevice";
@@ -425,7 +426,7 @@ constexpr const char* kDefaultDigEntry = "AutoCollectDigStart";
 constexpr const char* kDigPipelineOverride = R"({"AutoCollectDigEnd":{"next":[]}})";
 constexpr int32_t kDigPostSleepMs = 80;
 
-// 丢定位即将超时、小地图被界面盖住时交给场景管理清一次
+// 小地图被界面盖住时交给场景管理清一次
 constexpr const char* kSceneRecoveryEntryNode = "SceneAnyEnterWorld";
 // 剧情与 NPC 对话不交给场景管理
 constexpr const char* kSceneRecoveryStoryNode = "__ScenePrivateWorldStorySkip";
