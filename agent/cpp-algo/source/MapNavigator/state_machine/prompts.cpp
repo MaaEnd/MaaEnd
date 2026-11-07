@@ -1,5 +1,6 @@
 #include <array>
 #include <chrono>
+#include <format>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -211,11 +212,16 @@ bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurem
 
     const std::array<AsyncPromptAction*, 2> prompts = promptActions();
     for (size_t index = 0; index < prompts.size(); ++index) {
+        const auto started_at = std::chrono::steady_clock::now();
         const PromptTriggerOutcome outcome =
             prompts[index]->tryTriggerWhileWalking(motion_controller_, route.waypoint_distance, session_->currentNodeIdx());
         if (outcome == PromptTriggerOutcome::NotTriggered) {
             continue;
         }
+        failure_trail_.note(
+            std::chrono::steady_clock::now(),
+            std::format("prompt {} {}", prompts[index]->spec().tag, outcome == PromptTriggerOutcome::Recognized ? "recognized" : "missed"),
+            ElapsedMs(started_at));
         // 屏幕上一次只弹一个提示, 清掉另一类的检测结果, 免得为同一个提示停两次车
         for (size_t other = 0; other < prompts.size(); ++other) {
             if (other != index) {

@@ -362,6 +362,9 @@ jobs:
               cp downloads/MXU/mxu.exe install/MaaEnd.exe
             elif [[ -f downloads/MXU/mxu ]]; then
               cp downloads/MXU/mxu install/MaaEnd
+            elif [[ -f downloads/MXU/mxu.app/Contents/MacOS/mxu ]]; then
+              # MXU v2.10.0 起 macOS 包改为 mxu.app 布局
+              cp downloads/MXU/mxu.app/Contents/MacOS/mxu install/MaaEnd
             fi
           fi
 

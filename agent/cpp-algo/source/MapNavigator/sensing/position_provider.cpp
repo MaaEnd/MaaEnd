@@ -118,6 +118,7 @@ bool PositionProvider::captureWith(NaviPosition* out_pos, maplocator::LocateOpti
     out_pos->valid = false;
     last_capture_was_black_screen_ = false;
     last_capture_minimap_absent_ = false;
+    last_locate_message_ = "screencap failed";
     const auto capture_started_at = std::chrono::steady_clock::now();
 
     if (!waitForScreencap()) {
@@ -133,6 +134,7 @@ bool PositionProvider::captureWith(NaviPosition* out_pos, maplocator::LocateOpti
     cv::Mat image = to_mat(buffer.Get());
     last_capture_was_black_screen_ = is_black_screen(image);
     if (options.precise_position && last_capture_was_black_screen_) {
+        last_locate_message_ = "black screen";
         return false;
     }
     if (frame_observer_) {
@@ -140,6 +142,7 @@ bool PositionProvider::captureWith(NaviPosition* out_pos, maplocator::LocateOpti
     }
     cv::Mat minimap;
     if (!maplocator::TryExtractMinimap(image, adb_like_controller_, &minimap)) {
+        last_locate_message_ = "minimap not extracted";
         return false;
     }
     const auto image_prep_done_at = std::chrono::steady_clock::now();
@@ -149,6 +152,7 @@ bool PositionProvider::captureWith(NaviPosition* out_pos, maplocator::LocateOpti
     const auto locate_done_at = std::chrono::steady_clock::now();
     log_locate_result(locate_result);
     last_capture_minimap_absent_ = locate_result.minimap_absent;
+    last_locate_message_ = locate_result.debugMessage;
     if (locate_result.status != maplocator::LocateStatus::Success || !locate_result.position) {
         return false;
     }
@@ -156,12 +160,14 @@ bool PositionProvider::captureWith(NaviPosition* out_pos, maplocator::LocateOpti
     if (options.precise_position
         && (!std::isfinite(locate_result.position->x) || !std::isfinite(locate_result.position->y)
             || !std::isfinite(locate_result.position->score) || locate_result.position->score < options.loc_threshold)) {
+        last_locate_message_ = "precise position rejected";
         return false;
     }
 
     const std::optional<double> confident_camera = confident_camera_heading(locate_result);
     const std::optional<double> heading = heading_source == HeadingSource::Camera ? confident_camera : locate_result.rot;
     if (!heading || !std::isfinite(*heading) || *heading < 0.0 || *heading >= 360.0) {
+        last_locate_message_ = "heading unavailable";
         return false;
     }
 
@@ -253,6 +259,11 @@ bool PositionProvider::lastCaptureWasBlackScreen() const
 bool PositionProvider::lastCaptureMinimapAbsent() const
 {
     return last_capture_minimap_absent_;
+}
+
+const std::string& PositionProvider::lastLocateMessage() const
+{
+    return last_locate_message_;
 }
 
 } // namespace mapnavigator

@@ -148,6 +148,9 @@ bool NavigationStateMachine::climbRecoveryLadder(const NavigateTick& tick, bool 
         device_recovery_.tryRemove(route, waypoint, escalation.device_attempt_count < kRecoveryDeviceAttempts && far_or_strict);
     if (device_outcome != DeviceRemovalOutcome::NotAttempted) {
         ++escalation.device_attempt_count;
+        failure_trail_.note(
+            std::chrono::steady_clock::now(),
+            device_outcome == DeviceRemovalOutcome::Escaped ? "recovery device escaped" : "recovery device stuck");
     }
     if (device_outcome == DeviceRemovalOutcome::Escaped) {
         return resumeAfterEscape("recovery_device_move_escape");
@@ -159,6 +162,7 @@ bool NavigationStateMachine::climbRecoveryLadder(const NavigateTick& tick, bool 
     ++escalation.jump_attempt_count;
     const NaviPosition jump_start = *position_;
     LogInfo << "Dynamic recovery jump pulse issued." << VAR(escalation.jump_attempt_count) << VAR(escalation.detour_attempt_count);
+    failure_trail_.note(std::chrono::steady_clock::now(), "recovery jump");
     motion_controller_->setAction(LocalDriverAction::JumpForward, true);
     SleepFor(kActionJumpSettleMs);
     motion_controller_->setForwardState(false);
@@ -217,6 +221,7 @@ bool NavigationStateMachine::escalatePastJump(const NavigateTick& tick)
         LogWarn << "Dynamic recovery detour attempt failed; switching to physical unstick." << VAR(escalation.detour_attempt_count)
                 << VAR(escalation.jump_attempt_count) << VAR(post_jump_anchor->first) << VAR(route.progress_distance)
                 << VAR_AS(stalled_ms, tick.stalled_ms);
+        failure_trail_.note(std::chrono::steady_clock::now(), "recovery detour failed");
     }
     if (executePhysicalUnstick(stuck_heading)) {
         return true;
@@ -270,6 +275,7 @@ bool NavigationStateMachine::executePhysicalUnstick(double stuck_heading)
     const bool dislodged = moved >= distance * kUnstickSuccessFraction;
     LogInfo << "Physical unstick step executed." << VAR(distance) << VAR(moved) << VAR(dislodged) << VAR(unstick.count)
             << VAR(target_heading) << VAR(target->x) << VAR(target->y);
+    failure_trail_.note(std::chrono::steady_clock::now(), dislodged ? "recovery unstick dislodged" : "recovery unstick stuck");
 
     // 禁区以位移前的位置为原点, 障碍在那里的前方
     const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session_, *position_);

@@ -26,6 +26,8 @@ enum class NaviPhase
     Failed,
 };
 
+const char* navi_phase_name(NaviPhase phase);
+
 struct ProgressClock
 {
     size_t target_key = std::numeric_limits<size_t>::max();
