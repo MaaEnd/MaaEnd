@@ -24,7 +24,7 @@ No required parameters. Optional parameters (`custom_recognition_param`):
 
 | Parameter | Default | Description |
 | --------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `loc_threshold` | `0.55` | Validation score for global-search results (local tracking does not use it). Below it the second strategy runs first; if nothing clears it, the best raw peak is still delivered (its score must be above 0, otherwise the status is `TrackingLost`; it is still subject to the far-jump and cold-start consensus checks), so it is not a hard floor on the hit score |
+| `loc_threshold` | `0.55` | Validation score for global-search results (local tracking does not use it), on the same scale as `locConf`. If nothing clears it, the best raw peak is still delivered (its score must be above 0, otherwise the status is `TrackingLost`; it is still subject to the far-jump and cold-start consensus checks), so it is not a hard floor on the hit score |
 | `yolo_threshold` | `0.70` | YOLO confidence threshold. The current implementation stores it but never compares against it: YOLO always takes the top-scoring class, so changing it has no effect |
 | `force_global_search` | `false` | Set to `true` after cross-region teleports, respawns, or long screen switches to abandon tracking and re-lock via a full-map search |
 | `max_lost_frames` | `3` | Number of consecutive frames without a valid result that tracking tolerates; beyond it tracking is declared lost (fixed at 10 for `OMVBase` zones). Raising it tolerates brief occlusion but also lengthens how long an incorrect state persists |
@@ -41,7 +41,7 @@ No required parameters. Optional parameters (`custom_recognition_param`):
 | `rot` | Character orientation recognized in the current frame, in `[0°, 360°)`, north as zero; omitted when unavailable and may be present even when localization fails |
 | `camRot` | Camera orientation, 0°–360°, north as zero; carried only by frames with a successful localization (see [How Localization Works](#how-localization-works)). Unrelated to `rot` (the character orientation) |
 | `camRotConf` | Confidence of the camera orientation; present or omitted together with `camRot` |
-| `locConf` | Confidence score of this hit, for reference when tuning parameters |
+| `locConf` | Confidence score of this hit, for reference when tuning parameters. Road-heatmap zones (`OMVBase`) report the peak correlation; all other zones report the exclusivity score `1 - second peak / main peak` |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
 
 Successful localization does not guarantee an available orientation. Callers must check that the orientation fields they need are present.
@@ -119,7 +119,7 @@ There are no optional parameters. The assertion always forces a global search an
 | `rot` | Character orientation, with the same semantics as `MapLocateRecognition` |
 | `camRot` | Camera orientation, same value and source as `camRot` in `MapLocateRecognition` |
 | `camRotConf` | Confidence of the camera orientation; present or omitted together with `camRot` |
-| `locConf` | Confidence score of this hit |
+| `locConf` | Confidence score of this hit, on the same scale as `MapLocateRecognition` |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
 | `target` | Echoes the `[x, y, w, h]` rectangle used for this assertion |
 
@@ -156,7 +156,7 @@ This section is for readers who want to understand the internals; it is not requ
 
 1. **Native C++ image pipeline**: integrated into the Pipeline as an independent `cpp-algo` process. Image processing is built on C++ / OpenCV and optimized for memory copying, keeping latency at millisecond level even with YOLO inference included.
 2. **YOLO pre-filtering**: judges from the classification result whether a valid minimap area exists in the current frame (localization is skipped when it classifies the frame as `None`), filtering out abnormal frames such as full-screen menus and effect occlusion.
-3. **Masked grayscale ZNCC matching**: a mask first excludes UI and other interfering areas on the minimap, then ZNCC (Zero-mean Normalized Cross-Correlation) template matching runs on the grayscale image; when the primary strategy is not trustworthy, a road-color heatmap serves as a second strategy for cross-checking.
+3. **Local-contrast-normalized matching**: both the minimap and the map are converted to grayscale, each pixel is replaced by its deviation from the neighborhood mean divided by the neighborhood's own variation, and ZNCC (Zero-mean Normalized Cross-Correlation) template matching then runs under a mask that keeps only the area inside the circle, excluding the center arrow. After normalization, large uniform bright or dark areas such as fog and black voids lose their weight, and occlusions such as icons count only as ordinary noise. The delivered score is the exclusivity score `1 - second peak / main peak`, i.e. how far the main peak stands above every other position in the window. Road-heatmap zones (`OMVBase`) still match on the road-color heatmap and deliver the peak correlation.
 4. **MotionTracker motion prediction**: infers the search range for the current frame from historical movement speed instead of searching globally every frame, which improves speed and avoids matching distant areas that look similar but are not actually reachable.
 5. **Camera-orientation artifact**: `camRot` / `camRotConf` are produced by C++ preprocessing and `assets/resource/model/map/cameraorientation/polar_with_ref.onnx`. Preprocessing is performed by `CameraOrientationPreprocess.cpp`: it takes the 118×120 observation ROI (BGR), the zone map asset (BGRA, dynamic size) and the localized `(x, y, scale)`, and outputs the observation strip and the reference strip; the reference BGR is composited over a white backdrop at transparent asset pixels and out-of-bounds reads return 0, while the reference alpha keeps the raw asset values. `polar_with_ref.onnx` consumes the 7-channel `[obs.BGR, ref.BGR, ref.A]` reference pair and outputs a 360-bin azimuth probability distribution. A missing reference (cropped out of bounds or transparent, `ref.A` == 0) is expressed explicitly inside the pair and handled by the model, so MapLocator neither routes nor falls back: when the zone asset is missing or not BGRA it feeds a fully transparent placeholder asset, making the reference strip entirely missing, and the gap fraction only goes to the diagnostic log. The reference pair needs the localization result `(x, y, zone)`, so only frames with a successful localization and a zone other than `None` carry `camRot`; a model that is not loaded or fails inference yields none.
 

@@ -84,6 +84,9 @@ struct GlobalSearchAttempt
 {
     std::optional<MapPosition> result;
     MapPosition rawPos {};
+    TemplateFeatureKind kind = TemplateFeatureKind::StandardBase;
+    MatchResultRaw window;
+    MatchResultRaw refined;
 };
 
 struct AsyncYoloHandle
@@ -150,7 +153,6 @@ int GlobalSearchRoiPad(const cv::Size& templSize)
 enum class ScaleTaskPriority : int
 {
     Discarded = 0,
-    GlobalFallback = 1,
     GlobalPrimary = 2,
     Tracking = 3,
     Coordinator = 4,
@@ -363,8 +365,6 @@ public:
         }
     }
 
-    void promote(MapLocatorScaleExecutor& executor) { executor.reprioritize(control, ScaleTaskPriority::GlobalPrimary); }
-
     void cancel(MapLocatorScaleExecutor& executor) { executor.cancel(control); }
 
     void releaseTrackingCapacity(MapLocatorScaleExecutor& executor) { executor.releaseTrackingCapacity(control); }
@@ -508,8 +508,6 @@ struct GlobalSearchCandidates
     std::string targetZoneId;
     SearchConstraint constraint;
     GlobalSearchComputation primary;
-    std::optional<GlobalSearchComputation> fallback;
-    std::function<GlobalSearchComputation()> deferredFallback;
 };
 
 bool SearchConstraintsEqual(const SearchConstraint& lhs, const SearchConstraint& rhs)
@@ -585,9 +583,6 @@ private:
     {
         if (value.primary.batch) {
             value.primary.batch->cancel(executor);
-        }
-        if (value.fallback.has_value() && value.fallback->batch) {
-            value.fallback->batch->cancel(executor);
         }
     }
 
@@ -688,6 +683,23 @@ bool IsTightCluster(const std::vector<MapPosition>& buf, double radius)
     });
 }
 
+// 按峰值相关分选胜者，次峰在两窗并集里取，免得小窗的排他分偏高
+GlobalSearchAttempt MergeHintAttempt(const GlobalSearchAttempt& current, const GlobalSearchAttempt& hint, double passThreshold)
+{
+    const bool hintWins = hint.refined.score > current.refined.score;
+    const GlobalSearchAttempt& winner = hintWins ? hint : current;
+    const GlobalSearchAttempt& loser = hintWins ? current : hint;
+    const bool samePeak = std::hypot(winner.rawPos.x - loser.rawPos.x, winner.rawPos.y - loser.rawPos.y) <= kPositionConsensusRadius;
+    GlobalSearchAttempt merged = winner;
+    merged.window.secondScore = std::max(winner.window.secondScore, samePeak ? loser.window.secondScore : loser.window.score);
+    merged.rawPos.score = DeliveredScore(merged.kind, merged.window, merged.refined);
+    merged.result = std::nullopt;
+    if (merged.rawPos.score >= passThreshold) {
+        merged.result = merged.rawPos;
+    }
+    return merged;
+}
+
 double QuantizeToHundredth(double value)
 {
     return std::round(value * 100.0) / 100.0;
@@ -731,7 +743,6 @@ private:
         TimePoint now,
         const LocateOptions& options,
         const std::function<void()>& slowPathSignal,
-        MapPosition* outRawPos = nullptr,
         bool* outHoldPending = nullptr);
 
     GlobalSearchComputation startGlobalSearch(
@@ -745,6 +756,7 @@ private:
 
     std::optional<MapPosition> evaluateAndAcceptResult(
         const MatchResultRaw& fineRes,
+        double score,
         const cv::Rect& validFineRect,
         const cv::Size& templSize,
         IMatchStrategy* strategy,
@@ -777,13 +789,12 @@ private:
         const ImageProcessingConfig& baseImageConfig,
         const ImageProcessingConfig& tierImageConfig,
         bool reserveTrackingCapacity);
-    std::optional<MapPosition> finishGlobalSearchCandidates(GlobalSearchCandidates candidates, MapPosition* outBestRaw = nullptr);
-    std::optional<MapPosition> tryGlobalSearchWithFallback(
+    GlobalSearchAttempt finishGlobalSearchCandidates(GlobalSearchCandidates candidates);
+    GlobalSearchAttempt tryGlobalSearch(
         const cv::Mat& minimap,
         const std::string& targetZoneId,
         const SearchConstraint& constraint,
-        FrameTemplateFeatureCache& featureCache,
-        MapPosition* outBestRaw = nullptr);
+        FrameTemplateFeatureCache& featureCache);
     MapPosition stabilizePosition(const MapPosition& raw);
     MapPosition acceptPosition(const MapPosition& raw, TimePoint now, const LocateOptions& options);
     MatchFeature
@@ -817,33 +828,23 @@ private:
     std::vector<MapPosition> coldStartBuffer;
     std::optional<MapPosition> stablePosition;
 
-    // dual 裁判连续判主策略"离预测远"时，记下主策略自己报的位置，用于识别预测被喂错的死锁
-    std::optional<MapPosition> arbiterRejectedPrimary;
-    int arbiterRejectedPrimaryStreak = 0;
-
     TrackingConfig trackingCfg;
     MatchConfig matchCfg;
     ImageProcessingConfig baseImgCfg = { .darkMapThreshold = 20.0,
                                          .iconDiffThreshold = 40,
                                          .centerMaskRadius = 18,
                                          .gradientBaseWeight = 0.1,
-                                         .minimapDarkMaskThreshold = 20,
                                          .borderMargin = 10,
                                          .whiteDilate = 11,
-                                         .colorDilate = 3,
-                                         .useHsvWhiteMask = true,
-                                         .minimapDarkMaskMinKeptRatio = 0.10 };
+                                         .colorDilate = 3 };
 
     ImageProcessingConfig tierImgCfg = { .darkMapThreshold = 20.0,
                                          .iconDiffThreshold = 40,
                                          .centerMaskRadius = 8,
                                          .gradientBaseWeight = 0.1,
-                                         .minimapDarkMaskThreshold = 15,
                                          .borderMargin = 8,
                                          .whiteDilate = 9,
-                                         .colorDilate = 3,
-                                         .useHsvWhiteMask = false,
-                                         .whiteMaskFloor = 240 }; // 白图标经缩放后常到不了 255
+                                         .colorDilate = 3 };
 };
 
 bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg)
@@ -914,7 +915,10 @@ void MapLocator::Impl::loadAvailableZones(const std::string& root)
             }
             continue;
         }
-        if (img.channels() == 3) {
+        if (img.channels() == 1) {
+            cv::cvtColor(img, img, cv::COLOR_GRAY2BGRA);
+        }
+        else if (img.channels() == 3) {
             cv::cvtColor(img, img, cv::COLOR_BGR2BGRA);
         }
         zones[key] = std::move(img);
@@ -967,13 +971,14 @@ MapPosition MapLocator::Impl::stabilizePosition(const MapPosition& raw)
     }
 
     const double dist = std::hypot(raw.x - stablePosition->x, raw.y - stablePosition->y);
-    if (raw.score >= kStableMinScore && dist <= kStableDeadband) {
+    const double stableMin = ZoneScoreLines(raw.zoneId).stableMin;
+    if (raw.score >= stableMin && dist <= kStableDeadband) {
         MapPosition out = raw;
         out.x = stablePosition->x;
         out.y = stablePosition->y;
         return out;
     }
-    if (raw.score >= kStableMinScore && dist < kStableReleaseDist) {
+    if (raw.score >= stableMin && dist < kStableReleaseDist) {
         MapPosition out = raw;
         out.x = stablePosition->x;
         out.y = stablePosition->y;
@@ -997,7 +1002,6 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
     TimePoint now,
     const LocateOptions& options,
     const std::function<void()>& slowPathSignal,
-    MapPosition* outRawPos,
     bool* outHoldPending)
 {
     if (!strategy) {
@@ -1051,9 +1055,12 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
     std::optional<MatchResultRaw> trackResult = tracking.match;
     cv::Mat scaledTempl = std::move(tracking.scaledTemplate);
     cv::Mat scaledWeightMask = std::move(tracking.scaledWeightMask);
+    if (trackResult) {
+        trackResult->score = DeliveredScore(strategy->templateFeatureKind(), *trackResult, *trackResult);
+    }
 
     // 分数不到线就让上层考虑改走全局搜索，这一拍自己仍然照常返回
-    if (!trackResult || trackResult->score < kFastTrackingPassScore) {
+    if (!trackResult || trackResult->score < ZoneScoreLines(currentZoneId).fastTrackingPass) {
         signalSlowPath();
     }
 
@@ -1067,13 +1074,6 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
 
     auto validation =
         strategy->validateTracking(*trackResult, dt, motionTracker->getLastPos(), searchRect, scaledTempl.cols, scaledTempl.rows);
-
-    if (outRawPos) {
-        outRawPos->zoneId = currentZoneId;
-        outRawPos->x = validation.absX;
-        outRawPos->y = validation.absY;
-        outRawPos->score = trackResult->score;
-    }
 
     bool onlyAmbiguous = (!validation.isScreenBlocked && !validation.isEdgeSnapped && !validation.isTeleported);
 
@@ -1164,7 +1164,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
 
     if (validation.isValid) {
         // 坐标 outlier 拒绝：跳变距离超过阈值且分数不足以支撑大幅位移时，hold 上一帧而非接受
-        if (auto last = motionTracker->getLastPos(); last && trackResult->score < kTrackingOutlierMinScore) {
+        if (auto last = motionTracker->getLastPos(); last && trackResult->score < ZoneScoreLines(currentZoneId).trackingOutlierMin) {
             const double jumpDist = std::hypot(validation.absX - last->x, validation.absY - last->y);
             if (jumpDist > kTrackingOutlierDistance) {
                 signalSlowPath();
@@ -1193,6 +1193,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
 
 std::optional<MapPosition> MapLocator::Impl::evaluateAndAcceptResult(
     const MatchResultRaw& fineRes,
+    double score,
     const cv::Rect& validFineRect,
     const cv::Size& templSize,
     IMatchStrategy* strategy,
@@ -1201,9 +1202,8 @@ std::optional<MapPosition> MapLocator::Impl::evaluateAndAcceptResult(
     double absLeft = validFineRect.x + fineRes.loc.x;
     double absTop = validFineRect.y + fineRes.loc.y;
 
-    double finalScore = 0.0;
-    if (!strategy->validateGlobalSearch(fineRes, finalScore)) {
-        LogDebug << "Global Rejected. Score too low:" << VAR(fineRes.score) << VAR(fineRes.delta) << VAR(fineRes.psr);
+    if (!strategy->validateGlobalSearch(score)) {
+        LogDebug << "Global Rejected. Score too low:" << VAR(score) << VAR(fineRes.delta) << VAR(fineRes.psr);
         return std::nullopt;
     }
 
@@ -1211,7 +1211,7 @@ std::optional<MapPosition> MapLocator::Impl::evaluateAndAcceptResult(
     pos.zoneId = targetZoneId;
     pos.x = absLeft + templSize.width / 2.0;
     pos.y = absTop + templSize.height / 2.0;
-    pos.score = finalScore;
+    pos.score = score;
     return pos;
 }
 
@@ -1243,19 +1243,24 @@ GlobalSearchAttempt MapLocator::Impl::finishGlobalSearch(const GlobalSearchCompu
         return attempt;
     }
 
+    attempt.kind = evaluated->strategy->templateFeatureKind();
+    attempt.window = computation.batch->getResult().fineRes;
+    attempt.refined = fine.fineRes;
+    const double score = DeliveredScore(attempt.kind, attempt.window, attempt.refined);
     attempt.rawPos.zoneId = evaluated->targetZoneId;
     attempt.rawPos.x = evaluated->constrainedRect.x + fine.fineRes.loc.x + fine.scaledTemplSize.width / 2.0;
     attempt.rawPos.y = evaluated->constrainedRect.y + fine.fineRes.loc.y + fine.scaledTemplSize.height / 2.0;
-    attempt.rawPos.score = fine.fineRes.score;
+    attempt.rawPos.score = score;
 
     auto bestValidPosition = evaluateAndAcceptResult(
         fine.fineRes,
+        score,
         evaluated->constrainedRect,
         fine.scaledTemplSize,
         evaluated->strategy.get(),
         evaluated->targetZoneId);
     if (!bestValidPosition) {
-        LogInfo << "Global Search: constrained ROI direct fine rejected." << VAR(fine.fineRes.score);
+        LogInfo << "Global Search: constrained ROI direct fine rejected." << VAR(score);
         return attempt;
     }
 
@@ -1454,110 +1459,21 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
         return std::nullopt;
     }
 
-    auto primaryStrategy = MatchStrategyFactory::create(currentZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg);
-    if (!primaryStrategy) {
+    std::unique_ptr<IMatchStrategy> strategy = MatchStrategyFactory::create(currentZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg);
+    if (!strategy) {
         return std::nullopt;
     }
 
-    const bool isPathHeatmapZone = IsPathHeatmapZone(currentZoneId);
-    MapPosition rawPrimaryPos {};
     bool holdPending = false;
-    const MatchFeature& trackingTmpl = featureCache.get(minimap, primaryStrategy.get());
-    auto trackingResult = tryTracking(trackingTmpl, primaryStrategy.get(), now, options, slowPathSignal, &rawPrimaryPos, &holdPending);
+    const MatchFeature& trackingTmpl = featureCache.get(minimap, strategy.get());
+    auto trackingResult = tryTracking(trackingTmpl, strategy.get(), now, options, slowPathSignal, &holdPending);
 
     if (trackingResult) {
-        arbiterRejectedPrimaryStreak = 0;
-        arbiterRejectedPrimary.reset();
         return LocateResult {
             .status = LocateStatus::Success,
             .position = trackingResult,
             .debugMessage = "Tracking Success",
         };
-    }
-
-    const bool shouldTryDualTracking = !isPathHeatmapZone && rawPrimaryPos.score > 0.1;
-    if (shouldTryDualTracking) {
-        auto fallbackStrategy =
-            MatchStrategyFactory::create(currentZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg, MatchMode::ForcePathHeatmap);
-        const MatchFeature& fallbackTmpl = featureCache.get(minimap, fallbackStrategy.get());
-
-        MapPosition rawFallbackPos {};
-        // fallback 只作为 dual 互证的第二路信号；试算后立即恢复状态，避免两策略不一致时单独推进或 hold tracker
-        auto savedMotionTracker = *motionTracker;
-        const auto savedStablePosition = stablePosition;
-        tryTracking(fallbackTmpl, fallbackStrategy.get(), now, options, {}, &rawFallbackPos);
-        *motionTracker = savedMotionTracker;
-        stablePosition = savedStablePosition;
-        const double dist = std::hypot(rawPrimaryPos.x - rawFallbackPos.x, rawPrimaryPos.y - rawFallbackPos.y);
-
-        // 双策略互证：两者分数均需满足最低要求，且坐标差在容差内，才视为结果可信
-        if (rawPrimaryPos.score >= kDualVerifyMinScore && rawFallbackPos.score >= kDualVerifyMinScore && dist <= kDualVerifyMaxDistance) {
-            LogInfo << "Dual-Mode Tracking Verified! Coords matched. Dist: " << dist;
-
-            MapPosition verifiedPos = rawPrimaryPos;
-            verifiedPos.score = std::max(rawPrimaryPos.score, rawFallbackPos.score);
-            verifiedPos = acceptPosition(verifiedPos, now, options);
-            arbiterRejectedPrimaryStreak = 0;
-            arbiterRejectedPrimary.reset();
-
-            return LocateResult {
-                .status = LocateStatus::Success,
-                .position = verifiedPos,
-                .debugMessage = "Dual-Mode Tracking Success",
-            };
-        }
-        if (motionTracker->getLastPos().has_value()) {
-            const double predX = motionTracker->getPredictedX(now);
-            const double predY = motionTracker->getPredictedY(now);
-            const double distPrimaryToPred = std::hypot(rawPrimaryPos.x - predX, rawPrimaryPos.y - predY);
-            const double distFallbackToPred = std::hypot(rawFallbackPos.x - predX, rawFallbackPos.y - predY);
-            const bool primaryCloser = distPrimaryToPred <= distFallbackToPred;
-            MapPosition arbitrated = primaryCloser ? rawPrimaryPos : rawFallbackPos;
-            const double arbitratedDistToPred = primaryCloser ? distPrimaryToPred : distFallbackToPred;
-            if (arbitratedDistToPred <= kTrackingOutlierDistance) {
-                // 主策略被判"离预测远"却一直指着同一处、分数也不比兜底低：预测已被喂到错的位置，
-                // 再按预测选下去永远出不来。兜底分数更高时不算证据，那种局面本就该信兜底
-                if (!primaryCloser) {
-                    const bool primaryEvidenced = rawPrimaryPos.score >= rawFallbackPos.score;
-                    const bool selfConsistent =
-                        primaryEvidenced && arbiterRejectedPrimary.has_value()
-                        && std::hypot(rawPrimaryPos.x - arbiterRejectedPrimary->x, rawPrimaryPos.y - arbiterRejectedPrimary->y)
-                               <= kArbiterReclaimDriftDistance;
-                    arbiterRejectedPrimaryStreak = selfConsistent ? arbiterRejectedPrimaryStreak + 1 : (primaryEvidenced ? 1 : 0);
-                    arbiterRejectedPrimary = primaryEvidenced ? std::optional<MapPosition>(rawPrimaryPos) : std::nullopt;
-                    if (arbiterRejectedPrimaryStreak >= kArbiterReclaimStreak) {
-                        LogWarn << "Dual-Mode arbiter reclaimed by primary" << VAR(rawPrimaryPos.x) << VAR(rawPrimaryPos.y)
-                                << VAR(rawPrimaryPos.score) << VAR(rawFallbackPos.score) << VAR(distPrimaryToPred)
-                                << VAR(distFallbackToPred);
-                        arbiterRejectedPrimaryStreak = 0;
-                        arbiterRejectedPrimary.reset();
-                        // 先 markLost 让 update 跳过速度 EMA，否则这次几十像素的修正会被当成一次高速位移
-                        motionTracker->markLost(1);
-                        MapPosition reclaimed = acceptPosition(rawPrimaryPos, now, options);
-                        motionTracker->clearVelocity();
-                        return LocateResult {
-                            .status = LocateStatus::Success,
-                            .position = reclaimed,
-                            .debugMessage = "Dual-Mode Arbiter Reclaimed",
-                        };
-                    }
-                }
-                else {
-                    arbiterRejectedPrimaryStreak = 0;
-                    arbiterRejectedPrimary.reset();
-                }
-                LogInfo << "Dual-Mode arbitrated by motion continuity" << VAR(distPrimaryToPred) << VAR(distFallbackToPred)
-                        << VAR(arbitrated.x) << VAR(arbitrated.y) << VAR(arbitrated.score) << VAR(dist);
-                MapPosition accepted = acceptPosition(arbitrated, now, options);
-                return LocateResult {
-                    .status = LocateStatus::Success,
-                    .position = accepted,
-                    .debugMessage = "Dual-Mode Motion Arbitrated",
-                };
-            }
-        }
-        LogInfo << "Dual-Mode Tracking rejected" << VAR(rawPrimaryPos.score) << VAR(rawPrimaryPos.x) << VAR(rawPrimaryPos.y)
-                << VAR(rawFallbackPos.score) << VAR(rawFallbackPos.x) << VAR(rawFallbackPos.y) << VAR(dist);
     }
 
     if (!holdPending) {
@@ -1568,7 +1484,7 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
         return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Tracking Hold" };
     }
 
-    // 第二策略也没救回来，交付 tracker 里保留的上一帧坐标。丢失已在 tryTracking 里记账。
+    // 交付 tracker 里保留的上一帧坐标。丢失已在 tryTracking 里记账。
     return LocateResult { .status = LocateStatus::Success, .position = motionTracker->getLastPos(), .debugMessage = "Tracking Hold" };
 }
 
@@ -1650,70 +1566,25 @@ GlobalSearchCandidates MapLocator::Impl::startGlobalSearchCandidates(
         .targetZoneId = targetZoneId,
         .constraint = constraint,
     };
-    const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
-    const unsigned hardwareThreads = std::max(1U, std::thread::hardware_concurrency());
-    const bool canSpeculateDualMode = !isPathHeatmapZone && constraint.yolo_validated && hardwareThreads >= 8;
-
-    auto startSearch = [this,
-                        &minimap,
-                        &constraint,
-                        &targetZoneId,
-                        &featureCache,
-                        &trackingConfig,
-                        &matchConfig,
-                        &baseImageConfig,
-                        &tierImageConfig,
-                        reserveTrackingCapacity](MatchMode mode, ScaleTaskPriority priority) -> GlobalSearchComputation {
-        auto uniqueStrategy =
-            MatchStrategyFactory::create(targetZoneId, trackingConfig, matchConfig, baseImageConfig, tierImageConfig, mode);
-        if (!uniqueStrategy) {
-            return {};
-        }
-
-        std::shared_ptr<IMatchStrategy> strategy = std::move(uniqueStrategy);
-        const MatchFeature& globalTmpl = featureCache.get(minimap, strategy.get());
-        return startGlobalSearch(globalTmpl, std::move(strategy), targetZoneId, constraint, priority, reserveTrackingCapacity);
-    };
-
-    candidates.primary = startSearch(MatchMode::Auto, ScaleTaskPriority::GlobalPrimary);
-    if (!isPathHeatmapZone) {
-        auto uniqueFallbackStrategy = MatchStrategyFactory::create(
-            targetZoneId,
-            trackingConfig,
-            matchConfig,
-            baseImageConfig,
-            tierImageConfig,
-            MatchMode::ForcePathHeatmap);
-        if (uniqueFallbackStrategy) {
-            std::shared_ptr<IMatchStrategy> fallbackStrategy = std::move(uniqueFallbackStrategy);
-            MatchFeature fallbackTemplate = featureCache.get(minimap, fallbackStrategy.get());
-            candidates.deferredFallback = [this,
-                                           fallbackTemplate = std::move(fallbackTemplate),
-                                           fallbackStrategy = std::move(fallbackStrategy),
-                                           targetZoneId,
-                                           constraint,
-                                           reserveTrackingCapacity]() mutable {
-                return startGlobalSearch(
-                    fallbackTemplate,
-                    fallbackStrategy,
-                    targetZoneId,
-                    constraint,
-                    ScaleTaskPriority::GlobalFallback,
-                    reserveTrackingCapacity);
-            };
-            if (canSpeculateDualMode) {
-                candidates.fallback = candidates.deferredFallback();
-                candidates.deferredFallback = {};
-            }
-        }
+    std::shared_ptr<IMatchStrategy> strategy =
+        MatchStrategyFactory::create(targetZoneId, trackingConfig, matchConfig, baseImageConfig, tierImageConfig);
+    if (!strategy) {
+        return candidates;
     }
+
+    const MatchFeature& globalTmpl = featureCache.get(minimap, strategy.get());
+    candidates.primary = startGlobalSearch(
+        globalTmpl,
+        std::move(strategy),
+        targetZoneId,
+        constraint,
+        ScaleTaskPriority::GlobalPrimary,
+        reserveTrackingCapacity);
     return candidates;
 }
 
-std::optional<MapPosition> MapLocator::Impl::finishGlobalSearchCandidates(GlobalSearchCandidates candidates, MapPosition* outBestRaw)
+GlobalSearchAttempt MapLocator::Impl::finishGlobalSearchCandidates(GlobalSearchCandidates candidates)
 {
-    const bool isPathHeatmapZone = IsPathHeatmapZone(candidates.targetZoneId);
-
     // Speculative global work stays deliberately narrow while Tracking may still
     // win the frame. Once the original control flow reaches Global, let the
     // batch use the full executor because there is no foreground Tracking work
@@ -1721,75 +1592,15 @@ std::optional<MapPosition> MapLocator::Impl::finishGlobalSearchCandidates(Global
     if (candidates.primary.batch) {
         candidates.primary.batch->releaseTrackingCapacity(*scaleExecutor);
     }
-    if (candidates.fallback.has_value() && candidates.fallback->batch) {
-        candidates.fallback->batch->releaseTrackingCapacity(*scaleExecutor);
-    }
 
-    GlobalSearchAttempt primaryAttempt = finishGlobalSearch(candidates.primary);
-    auto globalResult = primaryAttempt.result;
-    const MapPosition& rawGlobalPrimaryPos = primaryAttempt.rawPos;
-
-    if (outBestRaw) {
-        *outBestRaw = rawGlobalPrimaryPos;
-    }
-
-    const bool shouldTryDualMode =
-        !globalResult && !isPathHeatmapZone && (candidates.constraint.yolo_validated || rawGlobalPrimaryPos.score > 0.1);
-    if (!shouldTryDualMode) {
-        if (candidates.fallback.has_value() && candidates.fallback->batch) {
-            candidates.fallback->batch->cancel(*scaleExecutor);
-        }
-        return globalResult;
-    }
-
-    GlobalSearchAttempt fallbackAttempt;
-    if (candidates.fallback.has_value() && candidates.fallback->batch) {
-        candidates.fallback->batch->promote(*scaleExecutor);
-        fallbackAttempt = finishGlobalSearch(*candidates.fallback);
-    }
-    else {
-        GlobalSearchComputation synchronousFallback;
-        if (candidates.deferredFallback) {
-            synchronousFallback = candidates.deferredFallback();
-            if (synchronousFallback.batch) {
-                synchronousFallback.batch->releaseTrackingCapacity(*scaleExecutor);
-                synchronousFallback.batch->promote(*scaleExecutor);
-            }
-        }
-        fallbackAttempt = finishGlobalSearch(synchronousFallback);
-    }
-
-    auto fallbackResult = fallbackAttempt.result;
-    const MapPosition& rawGlobalFallbackPos = fallbackAttempt.rawPos;
-    const double dist = std::hypot(rawGlobalPrimaryPos.x - rawGlobalFallbackPos.x, rawGlobalPrimaryPos.y - rawGlobalFallbackPos.y);
-
-    if (outBestRaw && rawGlobalFallbackPos.score > rawGlobalPrimaryPos.score) {
-        *outBestRaw = rawGlobalFallbackPos;
-    }
-
-    // 双策略验证：正常图传和梯度图传独立得出的坐标若极度相近，且双方分数都过线，才视为互证。
-    if (rawGlobalPrimaryPos.score >= kDualGlobalVerifyMinScore && rawGlobalFallbackPos.score >= kDualGlobalVerifyMinScore
-        && dist <= kDualVerifyMaxDistance) {
-        LogInfo << "Dual-Mode Global Search Verified! Dist: " << dist;
-        globalResult = rawGlobalPrimaryPos;
-        globalResult->score = std::max(rawGlobalPrimaryPos.score, rawGlobalFallbackPos.score);
-        return globalResult;
-    }
-
-    if (!globalResult && fallbackResult) {
-        LogInfo << "Global Search: accepted fallback strategy result inside same ROI/path.";
-        return fallbackResult;
-    }
-
-    return globalResult;
+    return finishGlobalSearch(candidates.primary);
 }
 
-std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
+GlobalSearchAttempt MapLocator::Impl::tryGlobalSearch(
     const cv::Mat& minimap,
     const std::string& targetZoneId,
     const SearchConstraint& constraint,
-    FrameTemplateFeatureCache& featureCache,
-    MapPosition* outBestRaw)
+    FrameTemplateFeatureCache& featureCache)
 {
     GlobalSearchCandidates candidates = startGlobalSearchCandidates(
         minimap,
@@ -1802,7 +1613,7 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
         baseImgCfg,
         tierImgCfg,
         false);
-    return finishGlobalSearchCandidates(std::move(candidates), outBestRaw);
+    return finishGlobalSearchCandidates(std::move(candidates));
 }
 
 LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOptions& options, const std::shared_future<double>& angle_future)
@@ -2033,18 +1844,17 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     }
 
     int maxAllowedLost = IsPathHeatmapZone(targetZoneId) ? 10 : options.max_lost_frames;
-    MapPosition bestRawGlobal {};
-    std::optional<MapPosition> globalResult;
+    GlobalSearchAttempt global;
     bool prefetchedCandidatesConsumed = false;
     if (frameSearchCoordinator) {
         auto prefetchedCandidates = frameSearchCoordinator->takeCandidates(activeFrameId, targetZoneId, constraint);
         if (prefetchedCandidates.has_value()) {
             prefetchedCandidatesConsumed = true;
-            globalResult = finishGlobalSearchCandidates(std::move(*prefetchedCandidates), &bestRawGlobal);
+            global = finishGlobalSearchCandidates(std::move(*prefetchedCandidates));
         }
     }
     if (!prefetchedCandidatesConsumed) {
-        globalResult = tryGlobalSearchWithFallback(minimap, targetZoneId, constraint, featureCache, &bestRawGlobal);
+        global = tryGlobalSearch(minimap, targetZoneId, constraint, featureCache);
     }
     // 调用方给了先验位置时，在每个先验附近再搜一小窗，跟 YOLO 格窗比原始峰分，高者胜出。
     // YOLO 报到相邻格时正确位置根本不在它的窗里，窗内最优再高也是错的，分数门看不出来。
@@ -2063,22 +1873,19 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
                 static_cast<int>(std::lround(hint.y)) - radius,
                 radius * 2 + 1,
                 radius * 2 + 1);
-            MapPosition hintRaw {};
-            auto hintResult = tryGlobalSearchWithFallback(minimap, targetZoneId, hintConstraint, featureCache, &hintRaw);
-            LogInfo << "Global Search: hint window." << VAR(hint.x) << VAR(hint.y) << VAR(hint.radius) << VAR(hintRaw.x) << VAR(hintRaw.y)
-                    << VAR(hintRaw.score) << VAR(bestRawGlobal.x) << VAR(bestRawGlobal.y) << VAR(bestRawGlobal.score);
-            // 双策略回退的裸峰分与主策略不同量纲, 没过校验的提示窗不能顶掉已校验的结果
-            if (hintRaw.score > bestRawGlobal.score && (hintResult.has_value() || !globalResult.has_value())) {
-                bestRawGlobal = hintRaw;
-                globalResult = hintResult;
-            }
+            GlobalSearchAttempt hintAttempt = tryGlobalSearch(minimap, targetZoneId, hintConstraint, featureCache);
+            LogInfo << "Global Search: hint window." << VAR(hint.x) << VAR(hint.y) << VAR(hint.radius) << VAR(hintAttempt.rawPos.x)
+                    << VAR(hintAttempt.rawPos.y) << VAR(hintAttempt.refined.score) << VAR(global.rawPos.x) << VAR(global.rawPos.y)
+                    << VAR(global.refined.score);
+            global = MergeHintAttempt(global, hintAttempt, matchCfg.passThreshold);
         }
     }
+    std::optional<MapPosition> globalResult = global.result;
     if (!globalResult) {
-        if (bestRawGlobal.score > kSeamFallbackMinPeakScore) {
-            globalResult = bestRawGlobal;
-            LogInfo << "Global gate low-confidence: releasing best raw peak to avoid cold-start deadlock." << VAR(bestRawGlobal.x)
-                    << VAR(bestRawGlobal.y) << VAR(bestRawGlobal.score);
+        if (global.rawPos.score > kSeamFallbackMinPeakScore) {
+            globalResult = global.rawPos;
+            LogInfo << "Global gate low-confidence: releasing best raw peak to avoid cold-start deadlock." << VAR(global.rawPos.x)
+                    << VAR(global.rawPos.y) << VAR(global.rawPos.score);
         }
         else {
             motionTracker->markLost();
@@ -2095,7 +1902,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     const bool hasLast = lastPosOpt.has_value() && !zoneChanged;
     const double jumpDist = hasLast ? std::hypot(globalResult->x - lastPosOpt->x, globalResult->y - lastPosOpt->y) : 0.0;
     const bool farJump = hasLast && jumpDist > kFarJumpRejectDistance;
-    const bool highConf = globalResult->score >= kHighConfidenceOverride;
+    const bool highConf = globalResult->score >= ZoneScoreLines(globalResult->zoneId).highConfidence;
 
     if (farJump && !highConf) {
         LogInfo << "Global Search: far-jump rejected." << VAR(jumpDist) << VAR(globalResult->score);
@@ -2149,8 +1956,6 @@ void MapLocator::Impl::resetTrackingState()
     occlusion_timed_out_ = false;
     coldStartBuffer.clear();
     stablePosition.reset();
-    arbiterRejectedPrimary.reset();
-    arbiterRejectedPrimaryStreak = 0;
 }
 
 std::optional<MapPosition> MapLocator::Impl::getLastKnownPos() const

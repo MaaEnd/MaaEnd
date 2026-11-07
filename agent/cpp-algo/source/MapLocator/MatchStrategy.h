@@ -74,17 +74,10 @@ public:
         int templRows) = 0;
 
     // 全局搜索的结果验证逻辑
-    virtual bool validateGlobalSearch(const MatchResultRaw& fineRes, double& outScore) = 0;
+    virtual bool validateGlobalSearch(double score) = 0;
 
     // 用于Chamfer补偿
     virtual bool needsChamferCompensation() const { return false; }
-};
-
-enum class MatchMode
-{
-    Auto,
-    ForceStandard,
-    ForcePathHeatmap
 };
 
 class MatchStrategyFactory
@@ -95,8 +88,7 @@ public:
         const TrackingConfig& trackingCfg,
         const MatchConfig& matchCfg,
         const ImageProcessingConfig& baseImgCfg,
-        const ImageProcessingConfig& tierImgCfg,
-        MatchMode mode = MatchMode::Auto);
+        const ImageProcessingConfig& tierImgCfg);
 };
 
 enum class PeakRefineMode
@@ -107,6 +99,7 @@ enum class PeakRefineMode
     Continuous,
 };
 
+double DeliveredScore(TemplateFeatureKind kind, const MatchResultRaw& window, const MatchResultRaw& refined);
 std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask);
 PreparedSearchFeature PrepareSearchFeature(const cv::Mat& searchImgRaw);
 std::optional<MatchResultRaw> CoreMatchPrepared(
