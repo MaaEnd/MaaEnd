@@ -85,7 +85,7 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 **C++** 代码位于 `agent/cpp-algo/source` 目录下，主要包含以下子目录：
 
 - `MapLocator` 目录：小地图定位实现；
-    - YOLO 前置鉴别、梯度域 ZNCC 模板匹配、MotionTracker 运动预测；
+    - YOLO 前置鉴别、局部对比度归一后的 ZNCC 模板匹配、MotionTracker 运动预测；
     - 对外暴露 `MapLocateRecognition` 与 `MapLocateAssertLocation` 两个节点。
 - `MapNavigator` 目录：导航状态机与路径执行；
     - `navi_param_parser.cpp`：`custom_action_param` 解析，含 `target_tier` 等字段；

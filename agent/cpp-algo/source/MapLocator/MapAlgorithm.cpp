@@ -7,6 +7,15 @@
 namespace maplocator
 {
 
+namespace
+{
+
+constexpr double kLocalContrastSigma = 3.0;
+constexpr double kLocalContrastStdFloor = 6.0;
+constexpr double kLocalContrastClip = 3.0;
+
+} // namespace
+
 cv::Mat GenerateMinimapMask(const cv::Mat& minimap, const ImageProcessingConfig& cfg, bool withUiMask, bool withCenterMask)
 {
     int w = minimap.cols, h = minimap.rows;
@@ -30,15 +39,7 @@ cv::Mat GenerateMinimapMask(const cv::Mat& minimap, const ImageProcessingConfig&
         cv::Mat whiteMask = cv::Mat::zeros(h, w, CV_8UC1);
         cv::Mat colorIconMask = cv::Mat::zeros(h, w, CV_8UC1);
 
-        cv::inRange(workImg, cv::Scalar::all(cfg.whiteMaskFloor), cv::Scalar::all(255), whiteMask);
-
-        if (cfg.useHsvWhiteMask) {
-            cv::Mat hsvImg, hsvWhite;
-            cv::cvtColor(workImg, hsvImg, cv::COLOR_BGR2HSV);
-            // 在 HSV 空间提取白底/高亮 UI：亮度 V 必须高(>200)，饱和度 S 必须极低(<60)，以此稳定剥离小地图上的标志图标白边或特定高光指示
-            cv::inRange(hsvImg, cv::Scalar(0, 0, 200), cv::Scalar(180, 60, 255), hsvWhite);
-            cv::bitwise_or(whiteMask, hsvWhite, whiteMask);
-        }
+        cv::inRange(workImg, cv::Scalar::all(255), cv::Scalar::all(255), whiteMask);
 
         for (int y = 0; y < h; y++) {
             uchar* colorRow = colorIconMask.ptr<uchar>(y);
@@ -73,24 +74,31 @@ cv::Mat GenerateMinimapMask(const cv::Mat& minimap, const ImageProcessingConfig&
         cv::circle(baseMask, cv::Point(centerX, centerY), cfg.centerMaskRadius, cv::Scalar(0), -1);
     }
 
-    cv::Mat gray;
-    if (minimap.channels() == 4) {
-        cv::cvtColor(minimap, gray, cv::COLOR_BGRA2GRAY);
-    }
-    else {
-        cv::cvtColor(minimap, gray, cv::COLOR_BGR2GRAY);
-    }
+    return baseMask;
+}
 
-    cv::Mat darkMask;
-    // 滤除纯黑背景：当地图存在大量未探索区域或视口外的黑色空洞时，反向二值化将暗部剔除，避免与背景色融合导致匹配偏移
-    cv::threshold(gray, darkMask, cfg.minimapDarkMaskThreshold, 255, cv::THRESH_BINARY_INV);
-    cv::Mat litMask = baseMask.clone();
-    litMask.setTo(0, darkMask);
-    if (cv::countNonZero(litMask) < cfg.minimapDarkMaskMinKeptRatio * static_cast<double>(litMask.total())) {
-        return baseMask;
-    }
+cv::Mat MinimapRingMask(const cv::Size& size, const ImageProcessingConfig& cfg)
+{
+    const cv::Point center(size.width / 2, size.height / 2);
+    const int radius = std::max(0, std::min(size.width, size.height) / 2 - cfg.borderMargin);
+    cv::Mat mask = cv::Mat::zeros(size, CV_8UC1);
+    cv::circle(mask, center, radius, cv::Scalar(255), -1);
+    cv::circle(mask, center, cfg.centerMaskRadius, cv::Scalar(0), -1);
+    return mask;
+}
 
-    return litMask;
+cv::Mat LocalContrastNormalize(const cv::Mat& gray)
+{
+    cv::Mat image;
+    gray.convertTo(image, CV_32F);
+    cv::Mat mean;
+    cv::Mat meanSq;
+    cv::GaussianBlur(image, mean, cv::Size(), kLocalContrastSigma);
+    cv::GaussianBlur(image.mul(image), meanSq, cv::Size(), kLocalContrastSigma);
+    cv::Mat stdDev;
+    cv::sqrt(cv::max(meanSq - mean.mul(mean), 0.0), stdDev);
+    cv::Mat normalized = (image - mean) / cv::max(stdDev, kLocalContrastStdFloor);
+    return cv::min(cv::max(normalized, -kLocalContrastClip), kLocalContrastClip);
 }
 
 namespace
