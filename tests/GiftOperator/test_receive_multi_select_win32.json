@@ -1,0 +1,40 @@
+{
+    "configs": {
+        "name": "只收礼物模式多选带礼物干员",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "image": "帝江号_干员联络_两名带礼物_未选中.png",
+            "hits": [
+                {
+                    "node": "GiftOperatorSelectGiftOp2",
+                    "box": [
+                        548,
+                        198,
+                        27,
+                        28
+                    ]
+                },
+                {
+                    "node": "GiftOperatorSelectGiftOp3",
+                    "box": [
+                        548,
+                        198,
+                        27,
+                        28
+                    ]
+                }
+            ]
+        },
+        {
+            "image": "帝江号_干员联络_两名带礼物均已选中_已选三人.png",
+            "hits": []
+        },
+        {
+            "image": "帝江号_大世界_联络台旁三名干员.png",
+            "hits": []
+        }
+    ]
+}

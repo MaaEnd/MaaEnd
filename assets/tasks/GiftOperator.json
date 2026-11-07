@@ -1151,7 +1151,22 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectGiftOp": {
-                            "enabled": true
+                            "enabled": true,
+                            "next": [
+                                "GiftOperatorCheckSelected1"
+                            ]
+                        },
+                        "GiftOperatorCheckSelected1": {
+                            "next": [
+                                "GiftOperatorSelectGiftOp2",
+                                "GiftOperatorConfirmSelect"
+                            ]
+                        },
+                        "GiftOperatorCheckSelected2": {
+                            "next": [
+                                "GiftOperatorSelectGiftOp3",
+                                "GiftOperatorConfirmSelect"
+                            ]
                         },
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": false

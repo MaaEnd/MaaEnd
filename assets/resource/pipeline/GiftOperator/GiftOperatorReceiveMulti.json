@@ -1,0 +1,149 @@
+{
+    // 只收礼物模式下，联络界面一次最多选中 3 名带礼物的干员 (#3846 #6572)
+    // 第 1 人沿用 GiftOperatorSelectGiftOp；第 2、3 人用下面的 And 识别器，
+    // 只取"带礼物且未选中"的卡片，选中人数由 GiftOperatorCheckSelected1/2/3 校验。
+    // 接线在 assets/tasks/GiftOperator.json 的 OnlyReceiveGift=Yes 中。
+    "GiftOperatorReceiveGiftIcon": {
+        "desc": "联络界面卡片左上角的礼物图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    546,
+                    181,
+                    550,
+                    309
+                ],
+                "template": [
+                    "GiftOperator/Gift.png",
+                    "GiftOperator/Gift_2.png"
+                ],
+                "green_mask": true,
+                // 多选要找到每一张礼物卡：红色头像底上的礼物图标实测约 0.69，非礼物区域不超过 0.55
+                "threshold": 0.6,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "GiftOperatorReceiveGiftNotSelect": {
+        "desc": "同一张卡片右上角没有选中序号",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "GiftOperatorReceiveGiftIcon",
+                "roi_offset": [
+                    60,
+                    -15,
+                    3,
+                    3
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        29,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        179,
+                        255,
+                        255
+                    ],
+                    [
+                        27,
+                        255,
+                        255
+                    ]
+                ],
+                "connected": true,
+                "count": 150,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "GiftOperatorReceiveGiftIconOnCard": {
+        "desc": "回到这张未选中卡片的礼物图标，作为点击与头像识别的锚点",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorReceiveGiftNotSelect",
+                "roi_offset": [
+                    -68,
+                    7,
+                    13,
+                    13
+                ],
+                "template": [
+                    "GiftOperator/Gift.png",
+                    "GiftOperator/Gift_2.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.6,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "GiftOperatorSelectGiftOp2": {
+        "desc": "选择第二名带礼物的干员",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorReceiveGiftIcon",
+                    "GiftOperatorReceiveGiftNotSelect",
+                    "GiftOperatorReceiveGiftIconOnCard"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    40,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorCheckSelected2"
+        ]
+    },
+    "GiftOperatorSelectGiftOp3": {
+        "desc": "选择第三名带礼物的干员",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorReceiveGiftIcon",
+                    "GiftOperatorReceiveGiftNotSelect",
+                    "GiftOperatorReceiveGiftIconOnCard"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    40,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorCheckSelected3"
+        ]
+    }
+}
