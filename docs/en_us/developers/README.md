@@ -33,7 +33,7 @@ It is recommended to read in the following order:
 9. When maintaining a specific task → refer to the corresponding documentation under `tasks/`
 
 > [!WARNING]
-> **You must read the [Coding Standards](./coding-standards.md) before submitting any code.**
+> **You must read the [Contributing Guide](../../../CONTRIBUTING.en.md) and the [Coding Standards](./coding-standards.md) before submitting any code.**
 > PRs that do not comply with the standards will be rejected outright.
 
 ## Documentation Index
