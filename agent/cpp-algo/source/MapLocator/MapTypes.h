@@ -200,7 +200,7 @@ constexpr int kOcclusionRejectTimeoutMs = 5000;
 constexpr double kStableDeadband = 0.15;
 constexpr double kStableReleaseDist = 0.40;
 // tracking 接受结果的分数下限；低于此值无论 psr/delta 如何均判为 ambiguous，走 hold 路径
-constexpr double kTrackingHardScoreFloor = 0.60;
+constexpr double kTrackingHardScoreFloor = 0.47;
 constexpr double kVelocityDeadband = 0.25;
 // tracking 路径的 outlier 拒绝参数：坐标跳变超过此距离且分数低于 trackingOutlierMin 时 hold 上一帧
 constexpr double kTrackingOutlierDistance = 25.0;
@@ -256,7 +256,7 @@ inline const ScoreLines& ZoneScoreLines(const std::string& zoneId)
 struct TrackingConfig
 {
     double maxNormalSpeed = 40.0;         // px/s
-    double screenBlockedThreshold = 0.53; // exclusivity below this means blocked
+    double screenBlockedThreshold = 0.28; // exclusivity below this means blocked
     int edgeSnapMargin = 1;
     double velocitySmoothingAlpha = 0.5;  // 平滑系数
     double maxDtForPrediction = 5.0;      // 超时则放弃速度预测
