@@ -36,6 +36,9 @@
                 "AutoSellPressStockRedistribution": {
                     "key": "{KeymapInteract.primary}"
                 },
+                "VisitFriendsPressStockRedistribution": {
+                    "key": "{KeymapInteract.primary}"
+                },
                 "AutoPickFalls": {
                     "key": "{KeymapInteract.primary}"
                 },
