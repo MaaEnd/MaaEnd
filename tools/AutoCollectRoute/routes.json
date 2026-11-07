@@ -1,4 +1,17 @@
 {
+    "series_order": [
+        "item_plant_mushroom_1",
+        "item_plant_crylplant_1",
+        "item_plant_spcstone_1",
+        "item_plant_mushroom_2",
+        "item_plant_crylplant_2",
+        "item_plant_spcstone_2",
+        "item_plant_moss_spc",
+        "item_plant_grass_spc",
+        "item_plant_sp",
+        "item_plant_tundra_insect",
+        "item_corp_potato"
+    ],
     "default_limits": {
         "item_plant_crylplant_1_1": 48,
         "item_plant_crylplant_1_2": 64,
