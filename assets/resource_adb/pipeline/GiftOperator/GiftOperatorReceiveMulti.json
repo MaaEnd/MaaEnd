@@ -1,0 +1,9 @@
+{
+    // 手机端联络界面布局与 PC 不同，多选的偏移还没有用手机截图标定，先保持只选 1 人
+    "GiftOperatorSelectGiftOp2": {
+        "enabled": false
+    },
+    "GiftOperatorSelectGiftOp3": {
+        "enabled": false
+    }
+}
