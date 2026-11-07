@@ -38,7 +38,7 @@ public:
     virtual const std::string& unsupportedReason() const = 0;
     virtual double defaultTurnUnitsPerDegree() const = 0;
 
-    virtual double defaultPitchUnitsPerDegree() const { return defaultTurnUnitsPerDegree(); }
+    virtual double defaultPitchRangeUnits() const = 0;
 
     virtual SteeringTransportProfile steeringProfile() const = 0;
 

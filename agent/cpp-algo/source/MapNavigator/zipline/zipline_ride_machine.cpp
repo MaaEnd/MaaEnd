@@ -25,12 +25,11 @@ double pitch_target_for_attempt(double elevation_deg, int attempt)
     if (std::abs(elevation_deg) < kZiplinePitchDeadbandDeg) {
         return 0.0;
     }
-    const double aim = std::clamp(elevation_deg, -kZiplinePitchMaximumDepressionDeg, kZiplinePitchMaximumElevationDeg);
     if (attempt == 0) {
-        return aim;
+        return elevation_deg;
     }
     if (attempt == 1) {
-        return -aim;
+        return -elevation_deg;
     }
     return 0.0;
 }
@@ -577,13 +576,10 @@ StageResult ZiplineRideMachine::tickAiming(const ZiplineObservation& obs, IZipli
     // 镜头此刻在俯仰上限, 从那里开环调到目标角
     const double pitch_target = pitch_target_for_attempt(seed_elevation_deg_, pitch_tier_);
     if (!pitch_lowered_) {
-        const double pitch_delta = pitch_target - kZiplinePitchMaximumElevationDeg;
-        if (std::abs(pitch_delta) >= 1.0) {
-            if (!actuator.turnPitch(pitch_delta)) {
-                return failAim(actuator, "zipline/aim/pitch_rejected", now);
-            }
-            actuator.wait(kWaitAfterFirstTurnMs);
+        if (!actuator.lowerPitchTo(pitch_target)) {
+            return failAim(actuator, "zipline/aim/pitch_rejected", now);
         }
+        actuator.wait(kWaitAfterFirstTurnMs);
         pitch_lowered_ = true;
         if (sweep_pending) {
             LogInfo << "zipline/aim/sweep" << VAR(target_heading) << VAR(heading) << VAR(bias) << VAR(pitch_target);

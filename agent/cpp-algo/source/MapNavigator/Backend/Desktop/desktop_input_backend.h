@@ -31,7 +31,7 @@ public:
     bool isSupported() const override;
     const std::string& unsupportedReason() const override;
     double defaultTurnUnitsPerDegree() const override;
-    double defaultPitchUnitsPerDegree() const override;
+    double defaultPitchRangeUnits() const override;
     SteeringTransportProfile steeringProfile() const override;
 
     bool supportsWalkToggle() const override { return true; }
@@ -64,7 +64,7 @@ private:
     std::string unsupported_reason_;
     DesktopKeyCodes key_codes_ {};
     double default_turn_units_per_degree_ = 0.0;
-    double default_pitch_units_per_degree_ = 0.0;
+    double default_pitch_range_units_ = 0.0;
     bool mouse_lock_follow_enabled_ = false;
     bool background_managed_keys_enabled_ = false;
     int hover_x_ = 0;

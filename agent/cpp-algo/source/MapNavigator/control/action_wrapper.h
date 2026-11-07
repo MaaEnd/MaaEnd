@@ -25,7 +25,7 @@ public:
     bool isSupported() const;
     const char* unsupportedReason() const;
     double defaultTurnUnitsPerDegree() const;
-    double defaultPitchUnitsPerDegree() const;
+    double defaultPitchRangeUnits() const;
     SteeringTransportProfile steeringProfile() const;
     bool supportsSprint() const;
     bool supportsWalkToggle() const;

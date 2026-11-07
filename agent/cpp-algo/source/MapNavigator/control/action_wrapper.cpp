@@ -45,10 +45,10 @@ double ActionWrapper::defaultTurnUnitsPerDegree() const
     return backend_->defaultTurnUnitsPerDegree() * sensitivity::TurnUnitsScale();
 }
 
-double ActionWrapper::defaultPitchUnitsPerDegree() const
+double ActionWrapper::defaultPitchRangeUnits() const
 {
     // 游戏视角灵敏度两轴共用, 偏航测出的倍率俯仰照乘
-    return backend_->defaultPitchUnitsPerDegree() * sensitivity::TurnUnitsScale();
+    return backend_->defaultPitchRangeUnits() * sensitivity::TurnUnitsScale();
 }
 
 SteeringTransportProfile ActionWrapper::steeringProfile() const

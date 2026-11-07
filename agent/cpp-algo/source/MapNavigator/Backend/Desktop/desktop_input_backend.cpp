@@ -46,28 +46,28 @@ bool try_set_background_managed_keys(MaaController* ctrl, const std::vector<int3
                static_cast<MaaOptionValueSize>(sizeof(int32_t) * keycodes.size()));
 }
 
-struct ViewUnitsPerDegree
+struct ViewScale
 {
-    double yaw = 0.0;
-    double pitch = 0.0;
+    double yaw_units_per_degree = 0.0;
+    double pitch_range_units = 0.0;
 };
 
-ViewUnitsPerDegree compute_view_units_per_degree(MaaController* ctrl, const std::string& backend_name)
+ViewScale compute_view_scale(MaaController* ctrl, const std::string& backend_name)
 {
     int32_t screen_width = 0;
     int32_t screen_height = 0;
     if (!MaaControllerGetResolution(ctrl, &screen_width, &screen_height) || screen_width <= 0 || screen_height <= 0) {
         LogWarn << backend_name << " backend: failed to get controller resolution, fallback to default turn scale." << VAR(screen_width)
                 << VAR(screen_height);
-        return ViewUnitsPerDegree { ComputeDefaultUnitsPerDegree(), ComputeDefaultPitchUnitsPerDegree() };
+        return ViewScale { ComputeDefaultUnitsPerDegree(), ComputeDefaultPitchRangeUnits() };
     }
 
     const int turn360 = ComputeTurn360Units(screen_width);
     const double units_per_degree = ComputeUnitsPerDegreeForWidth(screen_width);
-    const double pitch_units_per_degree = ComputeUnitsPerDegreeForHeight(screen_height);
+    const double pitch_range_units = ComputePitchRangeUnitsForHeight(screen_height);
     LogInfo << "Computed turn scale from raw controller resolution." << VAR(backend_name) << VAR(screen_width) << VAR(screen_height)
-            << VAR(turn360) << VAR(units_per_degree) << VAR(pitch_units_per_degree);
-    return ViewUnitsPerDegree { units_per_degree, pitch_units_per_degree };
+            << VAR(turn360) << VAR(units_per_degree) << VAR(pitch_range_units);
+    return ViewScale { units_per_degree, pitch_range_units };
 }
 
 } // namespace
@@ -84,9 +84,9 @@ DesktopInputBackend::DesktopInputBackend(
     , hover_x_(kDesktopDefaultHoverAnchorX)
     , hover_y_(kDesktopDefaultHoverAnchorY)
 {
-    const ViewUnitsPerDegree view_scale = compute_view_units_per_degree(ctrl, backend_name_);
-    default_turn_units_per_degree_ = view_scale.yaw;
-    default_pitch_units_per_degree_ = view_scale.pitch;
+    const ViewScale view_scale = compute_view_scale(ctrl, backend_name_);
+    default_turn_units_per_degree_ = view_scale.yaw_units_per_degree;
+    default_pitch_range_units_ = view_scale.pitch_range_units;
 
     if (ctrl_ == nullptr) {
         unsupported_reason_ = "controller handle is null";
@@ -149,9 +149,9 @@ double DesktopInputBackend::defaultTurnUnitsPerDegree() const
     return default_turn_units_per_degree_;
 }
 
-double DesktopInputBackend::defaultPitchUnitsPerDegree() const
+double DesktopInputBackend::defaultPitchRangeUnits() const
 {
-    return default_pitch_units_per_degree_;
+    return default_pitch_range_units_;
 }
 
 SteeringTransportProfile DesktopInputBackend::steeringProfile() const
