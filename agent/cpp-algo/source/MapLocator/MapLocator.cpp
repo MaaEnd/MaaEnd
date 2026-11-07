@@ -1882,7 +1882,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     }
     std::optional<MapPosition> globalResult = global.result;
     if (!globalResult) {
-        if (global.rawPos.score > kSeamFallbackMinPeakScore) {
+        if (global.refined.score > kSeamFallbackMinPeakScore) {
             globalResult = global.rawPos;
             LogInfo << "Global gate low-confidence: releasing best raw peak to avoid cold-start deadlock." << VAR(global.rawPos.x)
                     << VAR(global.rawPos.y) << VAR(global.rawPos.score);
