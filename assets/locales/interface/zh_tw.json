@@ -1973,7 +1973,7 @@
     "preset.QuickDaily.label": "快速日常",
     "preset.RealtimeAssist.description": "掛機時開啟的實時輔助功能全套",
     "preset.RealtimeAssist.label": "實時輔助",
-    "pretask.LaunchGamePC.description": "支援息屏/亮屏時執行，部分顯示器不支援實體關閉螢幕後執行",
+    "pretask.LaunchGamePC.description": "支援息屏/亮屏時執行，部分顯示器不支援實體關閉螢幕/闔蓋後執行",
     "pretask.LaunchGamePC.label": "🚀啟動遊戲（PC）",
     "pretask.LaunchGamePlayCover.description": "開啟 PlayCover 中的終末地，等待指定時間後連線控制器。登入與進入遊戲由其他任務處理。",
     "pretask.LaunchGamePlayCover.label": "🚀啟動遊戲（PlayCover）",

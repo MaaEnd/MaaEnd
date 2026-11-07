@@ -1973,7 +1973,7 @@
     "preset.QuickDaily.label": "빠른 일일 임무",
     "preset.RealtimeAssist.description": "방치 시 활성화하는 실시간 어시스트 기능 풀세트입니다.",
     "preset.RealtimeAssist.label": "실시간 어시스트",
-    "pretask.LaunchGamePC.description": "화면이 켜져 있거나 절전 상태일 때 실행할 수 있습니다. 일부 모니터는 전원을 물리적으로 끈 상태에서는 실행할 수 없습니다.",
+    "pretask.LaunchGamePC.description": "화면이 켜져 있거나 절전 상태일 때 실행할 수 있습니다. 일부 모니터는 전원을 물리적으로 끄거나 노트북 덮개를 닫은 상태에서는 실행할 수 없습니다.",
     "pretask.LaunchGamePC.label": "🚀 게임 실행 (PC)",
     "pretask.LaunchGamePlayCover.description": "PlayCover의 엔드필드를 실행하고 지정된 시간만큼 기다린 뒤 컨트롤러에 연결합니다. 로그인과 게임 진입은 다른 작업에서 처리합니다.",
     "pretask.LaunchGamePlayCover.label": "🚀 게임 실행 (PlayCover)",
