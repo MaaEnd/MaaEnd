@@ -58,7 +58,7 @@ function breakCosts(nodes, equipNodes, excludedItems) {
     return result;
 }
 
-// 汇总所有天赋节点的材料，以 all 为索引。
+// 汇总所有天赋节点的材料，以 1 为索引。
 function talentCosts(nodes, excludedItems) {
     const total = {};
     for (const node of nodes) {
@@ -69,7 +69,7 @@ function talentCosts(nodes, excludedItems) {
             total[id] = requireCount((total[id] ?? 0) + count, id);
         }
     }
-    return {all: total};
+    return {1: total};
 }
 
 // 以当前等级为键，生成升到下一级的经验与折金票消耗。
@@ -115,6 +115,7 @@ function buildOperators(operatorSource, excludedItems, existingOperators) {
         id,
         operator,
     ] of Object.entries(operatorSource).sort()) {
+        if (id === "chr_0002_endminm" || id === "chr_0003_endminf") continue;
         if (!/^chr_\d+_[a-z0-9]+$/.test(id)) throw new Error(`[ProtocolSpace] 非法干员 ID: ${id}`);
         if (Object.hasOwn(existingOperators, id)) continue;
         const skills = {};
@@ -135,7 +136,7 @@ function buildOperators(operatorSource, excludedItems, existingOperators) {
         operators[id] = {
             break_nodes: breakCosts(operator.break_nodes, operator.equip_break_nodes, excludedItems), //精英与装备突破材料
             skills, //四个干员技能
-            talent_nodes: talentCosts(operator.talent_nodes, excludedItems),//天赋直接取总和，赋值给字段all
+            talent_nodes: talentCosts(operator.talent_nodes, excludedItems), //天赋直接取总和，赋值给字段 1
         };
     }
     return operators;

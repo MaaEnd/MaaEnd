@@ -80,6 +80,9 @@
                 "PipelineOverride",
                 "PipelineOverrideAction",
                 "PostStop",
+                "ProtocolSpaceCalculateOperatorMaterialsAction",
+                "ProtocolSpaceOverrideOperatorSupplyPlanAction",
+                "ProtocolSpaceSumOperatorMaterialsAction",
                 "PullCountCalculatorAction",
                 "PuzzleAction",
                 "RealTimeTaskAction",
@@ -442,6 +445,107 @@
                     }
                 },
                 "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "ProtocolSpaceCalculateOperatorMaterialsAction"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "required": ["custom_action_param"],
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "__ProtocolSpaceGrowthOperator": {"type": "string", "minLength": 1},
+                            "__ProtocolSpaceGrowthOperatorLevel": {"type": "integer", "minimum": 1, "maximum": 90},
+                            "__ProtocolSpaceGrowthBreaknode": {"type": "integer", "minimum": 1, "maximum": 7},
+                            "__ProtocolSpaceGrowthNormalAttackLevel": {"type": "integer", "minimum": 1, "maximum": 12},
+                            "__ProtocolSpaceGrowthNormalSkillLevel": {"type": "integer", "minimum": 1, "maximum": 12},
+                            "__ProtocolSpaceGrowthComboSkillLevel": {"type": "integer", "minimum": 1, "maximum": 12},
+                            "__ProtocolSpaceGrowthUltimateSkillLevel": {"type": "integer", "minimum": 1, "maximum": 12},
+                            "__ProtocolSpaceGrowthTalentLevel": {"type": "integer", "const": 1}
+                        },
+                        "required": [
+                            "__ProtocolSpaceGrowthOperator",
+                            "__ProtocolSpaceGrowthOperatorLevel",
+                            "__ProtocolSpaceGrowthBreaknode",
+                            "__ProtocolSpaceGrowthNormalAttackLevel",
+                            "__ProtocolSpaceGrowthNormalSkillLevel",
+                            "__ProtocolSpaceGrowthComboSkillLevel",
+                            "__ProtocolSpaceGrowthUltimateSkillLevel",
+                            "__ProtocolSpaceGrowthTalentLevel"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "ProtocolSpaceOverrideOperatorSupplyPlanAction"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "required": ["custom_action_param"],
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "datanode":{
+                                "type":"string"
+                            },
+                            "replace_mapping": {
+                                "type": "object",
+                                "minProperties": 1,
+                                "propertyNames": {"minLength": 1},
+                                "additionalProperties": {"type": "string", "minLength": 1}
+                            },
+                            "nodes": {
+                                "type": "array",
+                                "minItems": 1,
+                                "uniqueItems": true,
+                                "items": {"type": "string", "minLength": 1}
+                            }
+                        },
+                        "required": [
+                            "datanode",
+                            "replace_mapping",
+                            "nodes"
+                        ],
+                        "additionalProperties": false
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "ProtocolSpaceSumOperatorMaterialsAction"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "required": ["custom_action_param"],
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "nodes": {
+                                "type": "array",
+                                "items": {"type": "string", "minLength": 1},
+                                "minItems": 1,
+                                "uniqueItems": true
+                            }
+                        },
+                        "required": ["nodes"],
+                        "additionalProperties": false
+                    }
+                }
             }
         },
         {

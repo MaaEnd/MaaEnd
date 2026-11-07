@@ -714,616 +714,10 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 93,
                     "item_gold": 98600,
                     "item_char_skill_level_7_12": 98
-                }
-            }
-        },
-        "chr_0002_endminm": {
-            "break_nodes": {
-                "1": {
-                    "item_char_break_stage_3_4": 60,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 152200,
-                    "item_char_break_stage_1_2": 33
-                },
-                "2": {
-                    "item_char_break_stage_3_4": 60,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 150600,
-                    "item_char_break_stage_1_2": 25
-                },
-                "3": {
-                    "item_char_break_stage_3_4": 60,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 149000,
-                    "item_char_break_stage_1_2": 25
-                },
-                "4": {
-                    "item_char_break_stage_3_4": 60,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 142500
-                },
-                "5": {
-                    "item_char_break_stage_3_4": 60,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 136000
-                },
-                "6": {
-                    "item_char_break_stage_3_4": 36,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 118000
-                },
-                "7": {
-                    "item_char_break_stage_3_4": 36,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 100000
-                }
-            },
-            "skills": {
-                "NormalAttack": {
-                    "1": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 172200,
-                        "item_char_skill_level_1_6": 82
-                    },
-                    "2": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 171200,
-                        "item_char_skill_level_1_6": 76
-                    },
-                    "3": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 168500,
-                        "item_char_skill_level_1_6": 64
-                    },
-                    "4": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 165300,
-                        "item_char_skill_level_1_6": 48
-                    },
-                    "5": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 161100,
-                        "item_char_skill_level_1_6": 27
-                    },
-                    "6": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 155700
-                    },
-                    "7": {
-                        "item_char_skill_level_7_12": 112,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 147500
-                    },
-                    "8": {
-                        "item_char_skill_level_7_12": 104,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 137000
-                    },
-                    "9": {
-                        "item_char_skill_level_7_12": 89,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 119000
-                    },
-                    "10": {
-                        "item_char_skill_level_7_12": 74,
-                        "item_char_skill_specialize_2": 52,
-                        "item_gold": 95000
-                    },
-                    "11": {
-                        "item_char_skill_level_7_12": 50,
-                        "item_char_skill_specialize_2": 36,
-                        "item_gold": 65000
-                    },
-                    "12": {}
-                },
-                "NormalSkill": {
-                    "1": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 172200,
-                        "item_char_skill_level_1_6": 82
-                    },
-                    "2": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 171200,
-                        "item_char_skill_level_1_6": 76
-                    },
-                    "3": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 168500,
-                        "item_char_skill_level_1_6": 64
-                    },
-                    "4": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 165300,
-                        "item_char_skill_level_1_6": 48
-                    },
-                    "5": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 161100,
-                        "item_char_skill_level_1_6": 27
-                    },
-                    "6": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 155700
-                    },
-                    "7": {
-                        "item_char_skill_level_7_12": 112,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 147500
-                    },
-                    "8": {
-                        "item_char_skill_level_7_12": 104,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 137000
-                    },
-                    "9": {
-                        "item_char_skill_level_7_12": 89,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 119000
-                    },
-                    "10": {
-                        "item_char_skill_level_7_12": 74,
-                        "item_char_skill_specialize_3": 52,
-                        "item_gold": 95000
-                    },
-                    "11": {
-                        "item_char_skill_level_7_12": 50,
-                        "item_char_skill_specialize_3": 36,
-                        "item_gold": 65000
-                    },
-                    "12": {}
-                },
-                "ComboSkill": {
-                    "1": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 172200,
-                        "item_char_skill_level_1_6": 82
-                    },
-                    "2": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 171200,
-                        "item_char_skill_level_1_6": 76
-                    },
-                    "3": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 168500,
-                        "item_char_skill_level_1_6": 64
-                    },
-                    "4": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 165300,
-                        "item_char_skill_level_1_6": 48
-                    },
-                    "5": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 161100,
-                        "item_char_skill_level_1_6": 27
-                    },
-                    "6": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 155700
-                    },
-                    "7": {
-                        "item_char_skill_level_7_12": 112,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 147500
-                    },
-                    "8": {
-                        "item_char_skill_level_7_12": 104,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 137000
-                    },
-                    "9": {
-                        "item_char_skill_level_7_12": 89,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 119000
-                    },
-                    "10": {
-                        "item_char_skill_level_7_12": 74,
-                        "item_char_skill_specialize_2": 52,
-                        "item_gold": 95000
-                    },
-                    "11": {
-                        "item_char_skill_level_7_12": 50,
-                        "item_char_skill_specialize_2": 36,
-                        "item_gold": 65000
-                    },
-                    "12": {}
-                },
-                "UltimateSkill": {
-                    "1": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 172200,
-                        "item_char_skill_level_1_6": 82
-                    },
-                    "2": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 171200,
-                        "item_char_skill_level_1_6": 76
-                    },
-                    "3": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 168500,
-                        "item_char_skill_level_1_6": 64
-                    },
-                    "4": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 165300,
-                        "item_char_skill_level_1_6": 48
-                    },
-                    "5": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 161100,
-                        "item_char_skill_level_1_6": 27
-                    },
-                    "6": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 155700
-                    },
-                    "7": {
-                        "item_char_skill_level_7_12": 112,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 147500
-                    },
-                    "8": {
-                        "item_char_skill_level_7_12": 104,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 137000
-                    },
-                    "9": {
-                        "item_char_skill_level_7_12": 89,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 119000
-                    },
-                    "10": {
-                        "item_char_skill_level_7_12": 74,
-                        "item_char_skill_specialize_3": 52,
-                        "item_gold": 95000
-                    },
-                    "11": {
-                        "item_char_skill_level_7_12": 50,
-                        "item_char_skill_specialize_3": 36,
-                        "item_gold": 65000
-                    },
-                    "12": {}
-                }
-            },
-            "talent_nodes": {
-                "all": {
-                    "item_char_skill_level_1_6": 115,
-                    "item_gold": 65800,
-                    "item_char_skill_level_7_12": 58
-                }
-            }
-        },
-        "chr_0003_endminf": {
-            "break_nodes": {
-                "1": {
-                    "item_char_break_stage_3_4": 60,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 152200,
-                    "item_char_break_stage_1_2": 33
-                },
-                "2": {
-                    "item_char_break_stage_3_4": 60,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 150600,
-                    "item_char_break_stage_1_2": 25
-                },
-                "3": {
-                    "item_char_break_stage_3_4": 60,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 149000,
-                    "item_char_break_stage_1_2": 25
-                },
-                "4": {
-                    "item_char_break_stage_3_4": 60,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 142500
-                },
-                "5": {
-                    "item_char_break_stage_3_4": 60,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 136000
-                },
-                "6": {
-                    "item_char_break_stage_3_4": 36,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 118000
-                },
-                "7": {
-                    "item_char_break_stage_3_4": 36,
-                    "item_char_skill_specialize_1": 20,
-                    "item_gold": 100000
-                }
-            },
-            "skills": {
-                "NormalAttack": {
-                    "1": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 172200,
-                        "item_char_skill_level_1_6": 82
-                    },
-                    "2": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 171200,
-                        "item_char_skill_level_1_6": 76
-                    },
-                    "3": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 168500,
-                        "item_char_skill_level_1_6": 64
-                    },
-                    "4": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 165300,
-                        "item_char_skill_level_1_6": 48
-                    },
-                    "5": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 161100,
-                        "item_char_skill_level_1_6": 27
-                    },
-                    "6": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 155700
-                    },
-                    "7": {
-                        "item_char_skill_level_7_12": 112,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 147500
-                    },
-                    "8": {
-                        "item_char_skill_level_7_12": 104,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 137000
-                    },
-                    "9": {
-                        "item_char_skill_level_7_12": 89,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 119000
-                    },
-                    "10": {
-                        "item_char_skill_level_7_12": 74,
-                        "item_char_skill_specialize_2": 52,
-                        "item_gold": 95000
-                    },
-                    "11": {
-                        "item_char_skill_level_7_12": 50,
-                        "item_char_skill_specialize_2": 36,
-                        "item_gold": 65000
-                    },
-                    "12": {}
-                },
-                "NormalSkill": {
-                    "1": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 172200,
-                        "item_char_skill_level_1_6": 82
-                    },
-                    "2": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 171200,
-                        "item_char_skill_level_1_6": 76
-                    },
-                    "3": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 168500,
-                        "item_char_skill_level_1_6": 64
-                    },
-                    "4": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 165300,
-                        "item_char_skill_level_1_6": 48
-                    },
-                    "5": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 161100,
-                        "item_char_skill_level_1_6": 27
-                    },
-                    "6": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 155700
-                    },
-                    "7": {
-                        "item_char_skill_level_7_12": 112,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 147500
-                    },
-                    "8": {
-                        "item_char_skill_level_7_12": 104,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 137000
-                    },
-                    "9": {
-                        "item_char_skill_level_7_12": 89,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 119000
-                    },
-                    "10": {
-                        "item_char_skill_level_7_12": 74,
-                        "item_char_skill_specialize_3": 52,
-                        "item_gold": 95000
-                    },
-                    "11": {
-                        "item_char_skill_level_7_12": 50,
-                        "item_char_skill_specialize_3": 36,
-                        "item_gold": 65000
-                    },
-                    "12": {}
-                },
-                "ComboSkill": {
-                    "1": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 172200,
-                        "item_char_skill_level_1_6": 82
-                    },
-                    "2": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 171200,
-                        "item_char_skill_level_1_6": 76
-                    },
-                    "3": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 168500,
-                        "item_char_skill_level_1_6": 64
-                    },
-                    "4": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 165300,
-                        "item_char_skill_level_1_6": 48
-                    },
-                    "5": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 161100,
-                        "item_char_skill_level_1_6": 27
-                    },
-                    "6": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 155700
-                    },
-                    "7": {
-                        "item_char_skill_level_7_12": 112,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 147500
-                    },
-                    "8": {
-                        "item_char_skill_level_7_12": 104,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 137000
-                    },
-                    "9": {
-                        "item_char_skill_level_7_12": 89,
-                        "item_char_skill_specialize_2": 58,
-                        "item_gold": 119000
-                    },
-                    "10": {
-                        "item_char_skill_level_7_12": 74,
-                        "item_char_skill_specialize_2": 52,
-                        "item_gold": 95000
-                    },
-                    "11": {
-                        "item_char_skill_level_7_12": 50,
-                        "item_char_skill_specialize_2": 36,
-                        "item_gold": 65000
-                    },
-                    "12": {}
-                },
-                "UltimateSkill": {
-                    "1": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 172200,
-                        "item_char_skill_level_1_6": 82
-                    },
-                    "2": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 171200,
-                        "item_char_skill_level_1_6": 76
-                    },
-                    "3": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 168500,
-                        "item_char_skill_level_1_6": 64
-                    },
-                    "4": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 165300,
-                        "item_char_skill_level_1_6": 48
-                    },
-                    "5": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 161100,
-                        "item_char_skill_level_1_6": 27
-                    },
-                    "6": {
-                        "item_char_skill_level_7_12": 118,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 155700
-                    },
-                    "7": {
-                        "item_char_skill_level_7_12": 112,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 147500
-                    },
-                    "8": {
-                        "item_char_skill_level_7_12": 104,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 137000
-                    },
-                    "9": {
-                        "item_char_skill_level_7_12": 89,
-                        "item_char_skill_specialize_3": 58,
-                        "item_gold": 119000
-                    },
-                    "10": {
-                        "item_char_skill_level_7_12": 74,
-                        "item_char_skill_specialize_3": 52,
-                        "item_gold": 95000
-                    },
-                    "11": {
-                        "item_char_skill_level_7_12": 50,
-                        "item_char_skill_specialize_3": 36,
-                        "item_gold": 65000
-                    },
-                    "12": {}
-                }
-            },
-            "talent_nodes": {
-                "all": {
-                    "item_char_skill_level_1_6": 115,
-                    "item_gold": 65800,
-                    "item_char_skill_level_7_12": 58
                 }
             }
         },
@@ -1623,7 +1017,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -1926,7 +1320,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -2229,7 +1623,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -2532,7 +1926,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -2835,7 +2229,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 93,
                     "item_gold": 98600,
                     "item_char_skill_level_7_12": 98
@@ -3138,7 +2532,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -3441,7 +2835,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -3744,7 +3138,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -4047,7 +3441,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -4350,7 +3744,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 93,
                     "item_gold": 98600,
                     "item_char_skill_level_7_12": 98
@@ -4653,7 +4047,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -4956,7 +4350,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -5259,7 +4653,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 93,
                     "item_gold": 98600,
                     "item_char_skill_level_7_12": 98
@@ -5562,7 +4956,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -5865,7 +5259,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -6168,7 +5562,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -6471,7 +5865,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -6774,7 +6168,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -7077,7 +6471,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 239,
                     "item_gold": 112600,
                     "item_char_skill_level_7_12": 62
@@ -7380,7 +6774,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -7683,7 +7077,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -7986,7 +7380,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -8289,7 +7683,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -8592,7 +7986,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -8895,7 +8289,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -9198,7 +8592,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 93,
                     "item_gold": 98600,
                     "item_char_skill_level_7_12": 98
@@ -9501,7 +8895,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -9804,7 +9198,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 93,
                     "item_gold": 98600,
                     "item_char_skill_level_7_12": 98
@@ -10107,7 +9501,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -10410,7 +9804,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -10713,7 +10107,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 133,
                     "item_gold": 98400,
                     "item_char_skill_level_7_12": 90
@@ -11016,7 +10410,7 @@
                 }
             },
             "talent_nodes": {
-                "all": {
+                "1": {
                     "item_char_skill_level_1_6": 115,
                     "item_gold": 65800,
                     "item_char_skill_level_7_12": 58

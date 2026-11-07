@@ -1,6 +1,20 @@
 {
+    "ProtocolSpaceGrowthMain": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]ProtocolSpaceGrowthPerlica",
+            "[JumpBack]ProtocolSpaceGrowthEndministrator",
+            "ProtocolSpaceGrowthSummary"
+        ]
+    },
+    //根据custom_action_param计算所需协议空间相关材料，结果输出到attach
+    // max_hit 记录本轮已计算的角色，JumpBack 返回后继续处理下一名。
     "ProtocolSpaceGrowthPerlica": {
         "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -8,45 +22,146 @@
                 "custom_action_param": {
                     "__ProtocolSpaceGrowthOperator": "chr_0004_pelica",
                     "__ProtocolSpaceGrowthOperatorLevel": 1,
+                    "__ProtocolSpaceGrowthBreaknode": 1,
                     "__ProtocolSpaceGrowthNormalAttackLevel": 1,
                     "__ProtocolSpaceGrowthNormalSkillLevel": 1,
                     "__ProtocolSpaceGrowthComboSkillLevel": 1,
-                    "__ProtocolSpaceGrowthUltimateSkillLevel": 1
+                    "__ProtocolSpaceGrowthUltimateSkillLevel": 1,
+                    "__ProtocolSpaceGrowthTalentLevel": 1
                 }
             }
         },
-        "attach": {
-            "__ProtocolSpaceGrowthOperator": "chr_0004_pelica",
-            "__ProtocolSpaceGrowthOperatorLevel": 1,
-            "__ProtocolSpaceGrowthNormalAttackLevel": 1,
-            "__ProtocolSpaceGrowthNormalSkillLevel": 1,
-            "__ProtocolSpaceGrowthComboSkillLevel": 1,
-            "__ProtocolSpaceGrowthUltimateSkillLevel": 1
-        }
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "ProtocolSpaceGrowthEndministrator": {
         "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "ProtocolSpaceCalculateOperatorMaterialsAction",
                 "custom_action_param": {
-                    "__ProtocolSpaceGrowthOperator": "chr_0002_endminm",
+                    "__ProtocolSpaceGrowthOperator": "chr_9000_endmin",
                     "__ProtocolSpaceGrowthOperatorLevel": 1,
+                    "__ProtocolSpaceGrowthBreaknode": 1,
                     "__ProtocolSpaceGrowthNormalAttackLevel": 1,
                     "__ProtocolSpaceGrowthNormalSkillLevel": 1,
                     "__ProtocolSpaceGrowthComboSkillLevel": 1,
-                    "__ProtocolSpaceGrowthUltimateSkillLevel": 1
+                    "__ProtocolSpaceGrowthUltimateSkillLevel": 1,
+                    "__ProtocolSpaceGrowthTalentLevel": 1
                 }
             }
         },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ProtocolSpaceGrowthSummary": {
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ProtocolSpaceSumOperatorMaterialsAction",
+                "custom_action_param": {
+                    "nodes": [
+                        "ProtocolSpaceGrowthPerlica",
+                        "ProtocolSpaceGrowthEndministrator"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceGrowthOverrideSupplyPlan"
+        ],
         "attach": {
-            "__ProtocolSpaceGrowthOperator": "chr_0002_endminm",
-            "__ProtocolSpaceGrowthOperatorLevel": 1,
-            "__ProtocolSpaceGrowthNormalAttackLevel": 1,
-            "__ProtocolSpaceGrowthNormalSkillLevel": 1,
-            "__ProtocolSpaceGrowthComboSkillLevel": 1,
-            "__ProtocolSpaceGrowthUltimateSkillLevel": 1
+            "item_gold": 0,
+            "item_char_skill_level_7_12": 0,
+            "item_char_skill_level_1_6": 0,
+            "COGNITIVE_CARRIER_EXP": 0,
+            "COMBAT_RECORD_EXP": 0,
+            "item_char_break_stage_3_4": 0,
+            "item_char_break_stage_1_2": 0,
+            "WEAPON_EXP": 0,
+            "item_weapon_break_high": 0,
+            "item_weapon_break_low": 0,
+            "item_char_skill_specialize_6": 0,
+            "item_char_skill_specialize_5": 0,
+            "item_char_skill_specialize_4": 0,
+            "item_char_skill_specialize_3": 0,
+            "item_char_skill_specialize_2": 0,
+            "item_char_skill_specialize_1": 0
         }
+    },
+    "ProtocolSpaceGrowthOverrideSupplyPlan": {
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ProtocolSpaceOverrideOperatorSupplyPlanAction",
+                "custom_action_param": {
+                    "datanode":"ProtocolSpaceGrowthSummary",
+                    "replace_mapping": {
+                        "{SupplyPlanLimit_T_CREDS}": "item_gold",
+                        "{SupplyPlanLimit_PROTOHEDRON}": "item_char_skill_level_7_12",
+                        "{SupplyPlanLimit_PROTOPRISM}": "item_char_skill_level_1_6",
+                        "{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}": "COGNITIVE_CARRIER_EXP",
+                        "{SupplyPlanLimit_COMBAT_RECORD_EXP}": "COMBAT_RECORD_EXP",
+                        "{SupplyPlanLimit_PROTOSET}": "item_char_break_stage_3_4",
+                        "{SupplyPlanLimit_PROTODISK}": "item_char_break_stage_1_2",
+                        "{SupplyPlanLimit_WEAPON_EXP}": "WEAPON_EXP",
+                        "{SupplyPlanLimit_HEAVY_CAST_DIE}": "item_weapon_break_high",
+                        "{SupplyPlanLimit_CAST_DIE}": "item_weapon_break_low",
+                        "{SupplyPlanLimit_WARP_PLASMA_COATED_SLIDE}": "item_char_skill_specialize_6",
+                        "{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}": "item_char_skill_specialize_5",
+                        "{SupplyPlanLimit_QUADRANT_FITTING_FLUID}": "item_char_skill_specialize_4",
+                        "{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}": "item_char_skill_specialize_3",
+                        "{SupplyPlanLimit_D96_STEEL_SAMPLE_4}": "item_char_skill_specialize_2",
+                        "{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}": "item_char_skill_specialize_1"
+                    },
+                    "nodes": [
+                        "SupplyPlanInsufficient_COGNITIVE_CARRIER_EXP",
+                        "SupplyPlanInsufficient_COMBAT_RECORD_EXP",
+                        "SupplyPlanInsufficient_PROTOSET",
+                        "SupplyPlanInsufficient_PROTODISK",
+                        "SupplyPlanInsufficient_WARP_PLASMA_COATED_SLIDE",
+                        "SupplyPlanInsufficient_TRIPHASIC_NANOFLAKE",
+                        "SupplyPlanInsufficient_QUADRANT_FITTING_FLUID",
+                        "SupplyPlanInsufficient_TACHYON_SCREENING_LATTICE",
+                        "SupplyPlanInsufficient_D96_STEEL_SAMPLE_4",
+                        "SupplyPlanInsufficient_METADIASTIMA_PHOTOEMISSION_TUBE",
+                        "SupplyPlanInsufficient_PROTOHEDRON",
+                        "SupplyPlanInsufficient_PROTOPRISM",
+                        "SupplyPlanInsufficient_T_CREDS",
+                        "SupplyPlanInsufficient_WEAPON_EXP",
+                        "SupplyPlanInsufficient_HEAVY_CAST_DIE",
+                        "SupplyPlanInsufficient_CAST_DIE",
+                        "SupplyPlanRewardItemMet_COGNITIVE_CARRIER_EXP",
+                        "SupplyPlanRewardItemMet_COMBAT_RECORD_EXP",
+                        "SupplyPlanRewardItemMet_PROTOSET",
+                        "SupplyPlanRewardItemMet_PROTODISK",
+                        "SupplyPlanRewardItemMet_WARP_PLASMA_COATED_SLIDE",
+                        "SupplyPlanRewardItemMet_TRIPHASIC_NANOFLAKE",
+                        "SupplyPlanRewardItemMet_QUADRANT_FITTING_FLUID",
+                        "SupplyPlanRewardItemMet_TACHYON_SCREENING_LATTICE",
+                        "SupplyPlanRewardItemMet_D96_STEEL_SAMPLE_4",
+                        "SupplyPlanRewardItemMet_METADIASTIMA_PHOTOEMISSION_TUBE",
+                        "SupplyPlanRewardItemMet_PROTOHEDRON",
+                        "SupplyPlanRewardItemMet_PROTOPRISM",
+                        "SupplyPlanRewardItemMet_T_CREDS",
+                        "SupplyPlanRewardItemMet_WEAPON_EXP",
+                        "SupplyPlanRewardItemMet_HEAVY_CAST_DIE",
+                        "SupplyPlanRewardItemMet_CAST_DIE"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanMain"
+        ]
     }
 }
