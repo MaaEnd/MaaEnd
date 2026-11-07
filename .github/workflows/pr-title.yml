@@ -1,8 +1,6 @@
 name: pr-title
 
 on:
-  # 用 pull_request 而不是 pull_request_target：标题检查不需要 secrets，这样 PR 对脚本、cliff.toml 的改动
-  # 也能在本 PR 的 CI 里验证；代价是 PR 可以改本工作流跳过检查，交给 review 把关
   pull_request:
     types:
       - opened
