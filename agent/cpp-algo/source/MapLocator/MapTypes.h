@@ -44,7 +44,7 @@ struct SearchHint
 
 struct LocateOptions
 {
-    double loc_threshold = 0.55;      // 低于此分先跑第二策略和提示窗, 仍无更高峰则照样交付
+    double loc_threshold = 0.55;      // 低于此分先跑提示窗, 仍无更高峰则照样交付
     double yolo_threshold = 0.70;
     bool force_global_search = false; // 是否强制放弃当前追踪，进行全局全图搜
     int max_lost_frames = 3;          // 允许丢失追踪的帧数
@@ -190,7 +190,6 @@ constexpr int kColdStartConsensusFrames = 3;      // 冷启动需要的一致帧
 static_assert(kColdStartConsensusFrames >= 1, "Cold-start consensus needs at least one frame.");
 constexpr double kPositionConsensusRadius = 12.0; // 近点判定半径
 constexpr double kFarJumpRejectDistance = 80.0;   // global 跨帧跳变阈值
-constexpr double kHighConfidenceOverride = 0.85;  // 压倒分：远跳但此分以上直接 reseed
 constexpr const char* kColdStartCollectingMessage = "Cold-start collecting.";
 constexpr double kSeamFallbackMinPeakScore = 0.0;
 
@@ -198,27 +197,13 @@ constexpr double kSeamFallbackMinPeakScore = 0.0;
 // 实测遮挡自行消散耗时 2.8~4.2s，取 5s 留余量；上界是导航起步等待定位的 10s 预算。
 constexpr int kOcclusionRejectTimeoutMs = 5000;
 
-// tracking 匹配低于此分时通知上层考虑改走全局搜索
-constexpr double kFastTrackingPassScore = 0.75;
 constexpr double kStableDeadband = 0.15;
 constexpr double kStableReleaseDist = 0.40;
-constexpr double kStableMinScore = 0.80;
 // tracking 接受结果的分数下限；低于此值无论 psr/delta 如何均判为 ambiguous，走 hold 路径
 constexpr double kTrackingHardScoreFloor = 0.60;
-// 低于此分数的帧不参与速度 EMA 更新，保持速度估计的稳定性
-constexpr double kVelocityUpdateMinScore = 0.70;
 constexpr double kVelocityDeadband = 0.25;
-// tracking 路径的 outlier 拒绝参数：坐标跳变超过此距离且分数低于 kTrackingOutlierMinScore 时 hold 上一帧
+// tracking 路径的 outlier 拒绝参数：坐标跳变超过此距离且分数低于 trackingOutlierMin 时 hold 上一帧
 constexpr double kTrackingOutlierDistance = 25.0;
-constexpr double kTrackingOutlierMinScore = 0.78;
-// dual-mode 互证要求：两个策略的分数均需达到阈值，且坐标距离在容差内
-constexpr double kDualVerifyMinScore = 0.45;
-constexpr double kDualVerifyMaxDistance = 4.0;
-constexpr double kDualGlobalVerifyMinScore = 0.50;
-// dual 裁判长期站在 fallback 一侧时的夺回条件：主策略连续 N 帧指着同一处（漂移不超过此距离），
-// 说明是运动预测被喂到了错的位置，把 tracker 搬回主策略
-constexpr int kArbiterReclaimStreak = 5;
-constexpr double kArbiterReclaimDriftDistance = 6.0;
 
 // 小地图与底图的像素尺度比，是底图导出时定死的资产属性。tier 图按游戏原生尺度导出，
 // base 图里只有 ValleyIV 被放大过 16/15。量法：拿 tier 图去 parent base 上匹配求峰。
@@ -238,35 +223,61 @@ inline bool IsPathHeatmapZone(const std::string& zoneId)
     return false;
 }
 
+struct ScoreLines
+{
+    double fastTrackingPass; // tracking 匹配低于此分时通知上层考虑改走全局搜索
+    double trackingOutlierMin;
+    double stableMin;
+    double velocityUpdateMin; // 低于此分数的帧不参与速度 EMA 更新，保持速度估计的稳定性
+    double highConfidence;    // 压倒分：远跳但此分以上直接 reseed
+};
+
+constexpr ScoreLines kCorrelationScoreLines {
+    .fastTrackingPass = 0.75,
+    .trackingOutlierMin = 0.78,
+    .stableMin = 0.80,
+    .velocityUpdateMin = 0.70,
+    .highConfidence = 0.85,
+};
+
+constexpr ScoreLines kExclusivityScoreLines {
+    .fastTrackingPass = 0.67,
+    .trackingOutlierMin = 0.70,
+    .stableMin = 0.71,
+    .velocityUpdateMin = 0.66,
+    .highConfidence = 0.70,
+};
+
+inline const ScoreLines& ZoneScoreLines(const std::string& zoneId)
+{
+    return IsPathHeatmapZone(zoneId) ? kCorrelationScoreLines : kExclusivityScoreLines;
+}
+
 struct TrackingConfig
 {
-    double maxNormalSpeed = 40.0;        // px/s
-    double screenBlockedThreshold = 0.4; // NCC correlation below this means blocked
+    double maxNormalSpeed = 40.0;         // px/s
+    double screenBlockedThreshold = 0.53; // exclusivity below this means blocked
     int edgeSnapMargin = 1;
-    double velocitySmoothingAlpha = 0.5; // 平滑系数
-    double maxDtForPrediction = 5.0;     // 超时则放弃速度预测
+    double velocitySmoothingAlpha = 0.5;  // 平滑系数
+    double maxDtForPrediction = 5.0;      // 超时则放弃速度预测
 };
 
 struct MatchConfig
 {
     int fineSearchRadius = 40;   // 精搜半径(px)
-    double passThreshold = 0.55; // 低于此分先跑第二策略和提示窗, 仍无更高峰则照样交付
+    double passThreshold = 0.55; // 低于此分先跑提示窗, 仍无更高峰则照样交付
     double yoloConfThreshold = 0.60;
 };
 
 struct ImageProcessingConfig
 {
     double darkMapThreshold;
-    int iconDiffThreshold;        // 黄/蓝图标与地图色差判定
-    int centerMaskRadius;         // 玩家箭头遮蔽半径
-    double gradientBaseWeight;    // 保底权重
-    int minimapDarkMaskThreshold; // 与暗部阈值对齐
+    int iconDiffThreshold;     // 黄/蓝图标与地图色差判定
+    int centerMaskRadius;      // 玩家箭头遮蔽半径
+    double gradientBaseWeight; // 保底权重
     int borderMargin;
     int whiteDilate;
     int colorDilate;
-    bool useHsvWhiteMask;
-    int whiteMaskFloor = 255;                 // 三通道均不低于此值按白色图标剔除
-    double minimapDarkMaskMinKeptRatio = 0.0; // 剔除暗部后剩余像素占比低于此值时保留暗部
 };
 
 } // namespace maplocator

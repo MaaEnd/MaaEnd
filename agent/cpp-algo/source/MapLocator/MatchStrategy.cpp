@@ -317,6 +317,17 @@ std::optional<MatchResultRaw> CoreMatchPrepared(
     return out;
 }
 
+double DeliveredScore(TemplateFeatureKind kind, const MatchResultRaw& window, const MatchResultRaw& refined)
+{
+    if (kind == TemplateFeatureKind::PathHeatmapBase || kind == TemplateFeatureKind::PathHeatmapTier) {
+        return refined.score;
+    }
+    if (window.score <= 0.0) {
+        return 0.0;
+    }
+    return 1.0 - std::max(window.secondScore, 0.0) / window.score;
+}
+
 std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask)
 {
     if (searchImgRaw.rows < templRaw.rows || searchImgRaw.cols < templRaw.cols) {
@@ -369,20 +380,17 @@ public:
             cv::bitwise_not(mask, inv);
             cv::Mat templGrayFilled = templGray.clone();
             templGrayFilled.setTo(meanV, inv);
+            feat.image = LocalContrastNormalize(templGrayFilled);
 
-            cv::Mat bgr[3] = { bgra[0].clone(), bgra[1].clone(), bgra[2].clone() };
-            for (int i = 0; i < 3; ++i) {
-                bgr[i].setTo(meanV, inv);
-            }
-            cv::merge(bgr, 3, feat.image);
-
-            feat.mask = GenerateMinimapMask(minimap, _isBase ? baseCfg : tierCfg);
+            feat.mask = MinimapRingMask(minimap.size(), _isBase ? baseCfg : tierCfg);
             cv::bitwise_and(feat.mask, mask, feat.mask);
         }
         else {
             feat.templRaw = minimap.clone();
-            minimap.copyTo(feat.image);
-            feat.mask = GenerateMinimapMask(minimap, _isBase ? baseCfg : tierCfg);
+            cv::Mat templGray;
+            cv::cvtColor(minimap, templGray, cv::COLOR_BGR2GRAY);
+            feat.image = LocalContrastNormalize(templGray);
+            feat.mask = MinimapRingMask(minimap.size(), _isBase ? baseCfg : tierCfg);
         }
         return feat;
     }
@@ -390,12 +398,9 @@ public:
     MatchFeature extractSearchFeature(const cv::Mat& mapRoi) override
     {
         MatchFeature feat;
-        if (mapRoi.channels() == 4) {
-            cv::cvtColor(mapRoi, feat.image, cv::COLOR_BGRA2BGR);
-        }
-        else {
-            feat.image = mapRoi;
-        }
+        cv::Mat gray;
+        cv::cvtColor(mapRoi, gray, mapRoi.channels() == 4 ? cv::COLOR_BGRA2GRAY : cv::COLOR_BGR2GRAY);
+        feat.image = LocalContrastNormalize(gray);
         return feat;
     }
 
@@ -440,7 +445,7 @@ public:
 
         // 分数硬下限：低于 kTrackingHardScoreFloor 时无论 psr/delta 如何均判为 ambiguous，走 hold 路径
         const bool belowHardFloor = trackResult.score < kTrackingHardScoreFloor;
-        bool lowScore = trackResult.score < 0.80;
+        bool lowScore = trackResult.score < 0.71;
         bool ambiguous = belowHardFloor || (lowScore && (trackResult.psr < 6.0 || trackResult.delta < 0.02));
         v.isScreenBlocked = trackResult.score < trackingCfg.screenBlockedThreshold;
 
@@ -449,14 +454,7 @@ public:
         return v;
     }
 
-    bool validateGlobalSearch(const MatchResultRaw& fineRes, double& outScore) override
-    {
-        if (fineRes.score < matchCfg.passThreshold) {
-            return false;
-        }
-        outScore = fineRes.score;
-        return true;
-    }
+    bool validateGlobalSearch(double score) override { return score >= matchCfg.passThreshold; }
 
 private:
     bool _isBase;
@@ -494,13 +492,7 @@ public:
         }
 
         feat.image = ExtractPathHeatmapFeature(minimap); // 梯度图
-
-        ImageProcessingConfig alphaCfg = _isBase ? baseCfg : tierCfg;
-        alphaCfg.minimapDarkMaskThreshold = -1; // 禁用暗部剔除
-        alphaCfg.useHsvWhiteMask = false;       // 保证路面像素不被白名单剔除
-        alphaCfg.whiteMaskFloor = 255;
-
-        feat.mask = GenerateMinimapMask(feat.templRaw, alphaCfg);
+        feat.mask = GenerateMinimapMask(feat.templRaw, _isBase ? baseCfg : tierCfg);
         return feat;
     }
 
@@ -563,14 +555,7 @@ public:
         return v;
     }
 
-    bool validateGlobalSearch(const MatchResultRaw& fineRes, double& outScore) override
-    {
-        if (fineRes.score < matchCfg.passThreshold) {
-            return false;
-        }
-        outScore = fineRes.score;
-        return true;
-    }
+    bool validateGlobalSearch(double score) override { return score >= matchCfg.passThreshold; }
 
     bool needsChamferCompensation() const override { return true; }
 
@@ -587,20 +572,10 @@ std::unique_ptr<IMatchStrategy> MatchStrategyFactory::create(
     const TrackingConfig& trackingCfg,
     const MatchConfig& matchCfg,
     const ImageProcessingConfig& baseImgCfg,
-    const ImageProcessingConfig& tierImgCfg,
-    MatchMode mode)
+    const ImageProcessingConfig& tierImgCfg)
 {
     bool isBase = (zoneId.find("Base") != std::string::npos);
-    bool usePathHeatmap = IsPathHeatmapZone(zoneId);
-
-    if (mode == MatchMode::ForcePathHeatmap) {
-        usePathHeatmap = true;
-    }
-    if (mode == MatchMode::ForceStandard) {
-        usePathHeatmap = false;
-    }
-
-    if (usePathHeatmap) {
+    if (IsPathHeatmapZone(zoneId)) {
         return std::make_unique<PathHeatmapMatchStrategy>(isBase, trackingCfg, matchCfg, baseImgCfg, tierImgCfg);
     }
     return std::make_unique<StandardMatchStrategy>(isBase, trackingCfg, matchCfg, baseImgCfg, tierImgCfg);
