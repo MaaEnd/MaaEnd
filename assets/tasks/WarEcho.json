@@ -24,6 +24,7 @@
                 }
             },
             "option": [
+                "WarEchoDifficulty",
                 "WarEchoTeamChoose",
                 "WarEchoRetryCount",
                 "AutoFightSetting"
@@ -31,6 +32,49 @@
         }
     ],
     "option": {
+        "WarEchoDifficulty": {
+            "type": "select",
+            "label": "$option.WarEchoDifficulty.label",
+            "cases": [
+                {
+                    "name": "Both",
+                    "label": "$option.WarEchoDifficulty.case.Both.label",
+                    "pipeline_override": {
+                        "WarEchoNormalUncleared": {
+                            "enabled": true
+                        },
+                        "WarEchoHardUncleared": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Normal",
+                    "label": "$option.WarEchoDifficulty.case.Normal.label",
+                    "pipeline_override": {
+                        "WarEchoNormalUncleared": {
+                            "enabled": true
+                        },
+                        "WarEchoHardUncleared": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Hard",
+                    "label": "$option.WarEchoDifficulty.case.Hard.label",
+                    "pipeline_override": {
+                        "WarEchoNormalUncleared": {
+                            "enabled": false
+                        },
+                        "WarEchoHardUncleared": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ],
+            "default_case": "Both"
+        },
         "WarEchoTeamChoose": {
             "type": "select",
             "label": "$option.WarEchoTeamChoose.label",
