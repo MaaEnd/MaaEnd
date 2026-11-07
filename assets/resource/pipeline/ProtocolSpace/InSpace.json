@@ -186,7 +186,7 @@
         }
     },
     "ProtocolSpaceEnterSpaceSuccess": {
-        "desc": "进入协议空间成功（首次进入、继续下一轮、失败后继续、卡住后重新挑战都会经过）：清零向光球移动、找退出点的次数",
+        "desc": "进入协议空间成功（首次进入、继续下一轮、失败后继续、卡住后重新挑战都会经过）：清零向光球移动、找光球、找退出点的次数",
         "recognition": "And",
         "all_of": [
             "InProtocolSpace"
@@ -197,6 +197,7 @@
         "custom_action_param": {
             "nodes": [
                 "ProtocolSpaceEnterSpaceMove",
+                "ProtocolSpaceTouchStartNotFound",
                 "ProtocolSpaceTouchExitMoveToTarget",
                 "ProtocolSpaceTouchExitNotFound"
             ]
@@ -279,7 +280,8 @@
         }
     },
     "ProtocolSpaceTouchStartNotFound": {
-        "desc": "光点未找到，向右旋转",
+        "desc": "光点未找到，向右旋转，最多 30 次（max_hit，在 ProtocolSpaceEnterSpaceSuccess 清零）",
+        "max_hit": 30,
         "recognition": "And",
         "all_of": [
             "InProtocolSpace"

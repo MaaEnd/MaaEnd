@@ -155,7 +155,7 @@ public:
     {
         const SteeringTransportProfile profile = ctx_.action_wrapper->steeringProfile();
         const int step_count = static_cast<int>(std::ceil(std::abs(delta_deg) / profile.max_batch_delta_deg));
-        const int step_interval_ms = std::max<int>(kHeadingTurnStepIntervalMs, profile.min_send_interval_ms);
+        const int step_interval_ms = std::max<int>(kWaitAfterFirstTurnMs, profile.min_send_interval_ms);
         // 屏幕 dy 向下为正, 抬头要取负
         const int units = static_cast<int>(std::lround(-delta_deg / step_count * ctx_.action_wrapper->defaultPitchUnitsPerDegree()));
         for (int step = 0; step < step_count; ++step) {
