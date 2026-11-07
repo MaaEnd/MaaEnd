@@ -683,15 +683,17 @@ bool IsTightCluster(const std::vector<MapPosition>& buf, double radius)
     });
 }
 
-// 按峰值相关分选胜者，次峰在两窗并集里取，免得小窗的排他分偏高
+// 同峰时只取交付分高的一份：没看全这座峰的窗口，次峰会落在同一座峰的山坡上
 GlobalSearchAttempt MergeHintAttempt(const GlobalSearchAttempt& current, const GlobalSearchAttempt& hint, double passThreshold)
 {
+    if (std::hypot(hint.rawPos.x - current.rawPos.x, hint.rawPos.y - current.rawPos.y) <= kPositionConsensusRadius) {
+        return hint.rawPos.score > current.rawPos.score ? hint : current;
+    }
     const bool hintWins = hint.refined.score > current.refined.score;
     const GlobalSearchAttempt& winner = hintWins ? hint : current;
     const GlobalSearchAttempt& loser = hintWins ? current : hint;
-    const bool samePeak = std::hypot(winner.rawPos.x - loser.rawPos.x, winner.rawPos.y - loser.rawPos.y) <= kPositionConsensusRadius;
     GlobalSearchAttempt merged = winner;
-    merged.window.secondScore = std::max(winner.window.secondScore, samePeak ? loser.window.secondScore : loser.window.score);
+    merged.window.secondScore = std::max(winner.window.secondScore, loser.window.score);
     merged.rawPos.score = DeliveredScore(merged.kind, merged.window, merged.refined);
     merged.result = std::nullopt;
     if (merged.rawPos.score >= passThreshold) {
