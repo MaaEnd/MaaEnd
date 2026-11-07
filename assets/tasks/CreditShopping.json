@@ -2256,6 +2256,7 @@
                     "name": "Refresh",
                     "label": "$option.CreditShoppingForce.cases.Refresh.label",
                     "option": [
+                        "CreditShoppingRefreshLimit",
                         "PrudentRefresh",
                         "CreditShoppingRefreshCheckPrice"
                     ],
@@ -2279,6 +2280,112 @@
                 }
             ],
             "default_case": "Refresh"
+        },
+        "CreditShoppingRefreshLimit": {
+            "type": "select",
+            "label": "$option.CreditShoppingRefreshLimit.label",
+            "description": "$option.CreditShoppingRefreshLimit.description",
+            "cases": [
+                {
+                    "name": "Unlimited",
+                    "label": "$option.CreditShoppingRefreshLimit.cases.Unlimited.label",
+                    "pipeline_override": {
+                        "CreditShoppingRefreshLimitReached": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "1",
+                    "option": [
+                        "CreditShoppingRefreshLimitCreditFloor"
+                    ],
+                    "pipeline_override": {
+                        "CreditShoppingRefreshLimitReached": {
+                            "enabled": true
+                        },
+                        "CreditShoppingRefreshLimitCost": {
+                            "expected": [
+                                "^120$",
+                                "^160$",
+                                "^200$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "2",
+                    "option": [
+                        "CreditShoppingRefreshLimitCreditFloor"
+                    ],
+                    "pipeline_override": {
+                        "CreditShoppingRefreshLimitReached": {
+                            "enabled": true
+                        },
+                        "CreditShoppingRefreshLimitCost": {
+                            "expected": [
+                                "^160$",
+                                "^200$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "3",
+                    "option": [
+                        "CreditShoppingRefreshLimitCreditFloor"
+                    ],
+                    "pipeline_override": {
+                        "CreditShoppingRefreshLimitReached": {
+                            "enabled": true
+                        },
+                        "CreditShoppingRefreshLimitCost": {
+                            "expected": [
+                                "^200$"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "Unlimited"
+        },
+        "CreditShoppingRefreshLimitCreditFloor": {
+            "type": "input",
+            "label": "$option.CreditShoppingRefreshLimit.inputs.CreditShoppingRefreshLimitCreditFloor.label",
+            "description": "$option.CreditShoppingRefreshLimit.inputs.CreditShoppingRefreshLimitCreditFloor.description",
+            "inputs": [
+                {
+                    "name": "CreditShoppingRefreshLimitCreditFloor",
+                    "label": "$option.CreditShoppingRefreshLimit.inputs.CreditShoppingRefreshLimitCreditFloor.label",
+                    "description": "$option.CreditShoppingRefreshLimit.inputs.CreditShoppingRefreshLimitCreditFloor.description",
+                    "default": "0",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$"
+                }
+            ],
+            "pipeline_override": {
+                "CreditShoppingRefreshLimitReached": {
+                    "recognition": {
+                        "type": "And",
+                        "param": {
+                            "all_of": [
+                                "CreditShoppingRefreshLimitCost",
+                                {
+                                    "recognition": {
+                                        "type": "Custom",
+                                        "param": {
+                                            "custom_recognition": "ExpressionRecognition",
+                                            "custom_recognition_param": {
+                                                "expression": "{CreditShoppingRefreshLimitCreditFloor}==0||{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<{CreditShoppingRefreshLimitCreditFloor}"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         },
         "CreditShoppingRefreshCheckPrice": {
             "type": "switch",
