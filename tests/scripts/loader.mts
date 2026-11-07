@@ -122,6 +122,7 @@ export async function fetchCases(): Promise<TestCases[]> {
     'Win32-Front': 'Win32',
     ADB: 'ADB',
     CloudADB: 'CloudADB',
+    CloudWeb: 'CloudWeb',
     // 'PlayCover': '',
   }
 
