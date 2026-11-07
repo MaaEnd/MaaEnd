@@ -5,6 +5,7 @@
 #include <cctype>
 #include <string>
 
+#include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
@@ -22,6 +23,7 @@ namespace
 // 三态存在这个节点的 attach 里, 节点只存值不执行
 constexpr const char* kPreferenceNode = "MapNavigatorZiplinePreference";
 constexpr const char* kAccountIdentityNode = "CurrentAccountIdentity";
+constexpr const char* kCaptureUidNode = "MapNavigatorZiplineCaptureUid";
 constexpr size_t kAccountIdLength = 16;
 
 bool read_preference(MaaContext* context, bool requested)
@@ -89,7 +91,13 @@ bool ResolveZiplineEnabled(MaaContext* context, bool requested)
 
 std::string ResolveZiplineAccountId(MaaContext* context)
 {
-    const std::string account_id = read_account_identity(context);
+    std::string account_id = read_account_identity(context);
+    if (account_id.empty()) {
+        if (MaaContextRunTask(context, kCaptureUidNode, "{}") == MaaInvalidId) {
+            LogWarn << "ZiplineAccount: UID capture did not run." << VAR(kCaptureUidNode);
+        }
+        account_id = read_account_identity(context);
+    }
     if (account_id.empty()) {
         LogWarn << "ZiplineAccount: current game account is unavailable; zipline records will not be used";
         return account_id;
