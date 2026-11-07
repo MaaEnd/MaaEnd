@@ -1977,7 +1977,7 @@
     "preset.QuickDaily.label": "クイックデイリー",
     "preset.RealtimeAssist.description": "放置時に有効にするリアルタイムアシスト機能のフルセット。",
     "preset.RealtimeAssist.label": "リアルタイムアシスト",
-    "pretask.LaunchGamePC.description": "画面オン/スリープ中でも実行できます。一部のモニターは物理的に電源を切った状態では実行できません。",
+    "pretask.LaunchGamePC.description": "画面オン/スリープ中でも実行できます。一部のモニターは物理的に電源を切った状態やノートPCの蓋を閉じた状態では実行できません。",
     "pretask.LaunchGamePC.label": "🚀 ゲーム起動（PC）",
     "pretask.LaunchGamePlayCover.description": "PlayCover のエンドフィールドを起動し、指定した時間だけ待ってからコントローラーに接続します。ログインとゲームへの移行は他のタスクで行います。",
     "pretask.LaunchGamePlayCover.label": "🚀 ゲーム起動（PlayCover）",
