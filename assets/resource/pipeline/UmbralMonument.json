@@ -225,12 +225,13 @@
         ]
     },
     "UmbralMonumentStageStart": {
-        "desc": "进入关卡后（新开一关或失败重试都会经过）：清零向光点移动的步数，等待加载，已开战则进入战斗，关卡目标为触摸光点则先走触摸路径",
+        "desc": "进入关卡后（新开一关或失败重试都会经过）：清零向光点移动的步数、找光点的次数，等待加载，已开战则进入战斗，关卡目标为触摸光点则先走触摸路径",
         "action": "Custom",
         "custom_action": "ClearHitCount",
         "custom_action_param": {
             "nodes": [
-                "UmbralMonumentTouchMove"
+                "UmbralMonumentTouchMove",
+                "UmbralMonumentTouchNotFound"
             ]
         },
         "next": [
@@ -345,7 +346,8 @@
         "post_delay": 600
     },
     "UmbralMonumentTouchNotFound": {
-        "desc": "光点未找到，向右旋转",
+        "desc": "光点未找到，向右旋转，最多 30 次（max_hit，在 UmbralMonumentStageStart 清零）",
+        "max_hit": 30,
         "recognition": "And",
         "all_of": [
             "InProtocolSpace",
