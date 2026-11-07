@@ -93,7 +93,9 @@ std::string ResolveZiplineAccountId(MaaContext* context)
 {
     std::string account_id = read_account_identity(context);
     if (account_id.empty()) {
-        MaaContextRunTask(context, kCaptureUidNode, "{}");
+        if (MaaContextRunTask(context, kCaptureUidNode, "{}") == MaaInvalidId) {
+            LogWarn << "ZiplineAccount: UID capture did not run." << VAR(kCaptureUidNode);
+        }
         account_id = read_account_identity(context);
     }
     if (account_id.empty()) {
