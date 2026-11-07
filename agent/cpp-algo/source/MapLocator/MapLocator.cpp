@@ -84,6 +84,9 @@ struct GlobalSearchAttempt
 {
     std::optional<MapPosition> result;
     MapPosition rawPos {};
+    TemplateFeatureKind kind = TemplateFeatureKind::StandardBase;
+    MatchResultRaw window;
+    MatchResultRaw refined;
 };
 
 struct AsyncYoloHandle
@@ -680,6 +683,23 @@ bool IsTightCluster(const std::vector<MapPosition>& buf, double radius)
     });
 }
 
+// 按峰值相关分选胜者，次峰在两窗并集里取，免得小窗的排他分偏高
+GlobalSearchAttempt MergeHintAttempt(const GlobalSearchAttempt& current, const GlobalSearchAttempt& hint, double passThreshold)
+{
+    const bool hintWins = hint.refined.score > current.refined.score;
+    const GlobalSearchAttempt& winner = hintWins ? hint : current;
+    const GlobalSearchAttempt& loser = hintWins ? current : hint;
+    const bool samePeak = std::hypot(winner.rawPos.x - loser.rawPos.x, winner.rawPos.y - loser.rawPos.y) <= kPositionConsensusRadius;
+    GlobalSearchAttempt merged = winner;
+    merged.window.secondScore = std::max(winner.window.secondScore, samePeak ? loser.window.secondScore : loser.window.score);
+    merged.rawPos.score = DeliveredScore(merged.kind, merged.window, merged.refined);
+    merged.result = std::nullopt;
+    if (merged.rawPos.score >= passThreshold) {
+        merged.result = merged.rawPos;
+    }
+    return merged;
+}
+
 double QuantizeToHundredth(double value)
 {
     return std::round(value * 100.0) / 100.0;
@@ -769,13 +789,12 @@ private:
         const ImageProcessingConfig& baseImageConfig,
         const ImageProcessingConfig& tierImageConfig,
         bool reserveTrackingCapacity);
-    std::optional<MapPosition> finishGlobalSearchCandidates(GlobalSearchCandidates candidates, MapPosition* outBestRaw = nullptr);
-    std::optional<MapPosition> tryGlobalSearch(
+    GlobalSearchAttempt finishGlobalSearchCandidates(GlobalSearchCandidates candidates);
+    GlobalSearchAttempt tryGlobalSearch(
         const cv::Mat& minimap,
         const std::string& targetZoneId,
         const SearchConstraint& constraint,
-        FrameTemplateFeatureCache& featureCache,
-        MapPosition* outBestRaw = nullptr);
+        FrameTemplateFeatureCache& featureCache);
     MapPosition stabilizePosition(const MapPosition& raw);
     MapPosition acceptPosition(const MapPosition& raw, TimePoint now, const LocateOptions& options);
     MatchFeature
@@ -896,7 +915,10 @@ void MapLocator::Impl::loadAvailableZones(const std::string& root)
             }
             continue;
         }
-        if (img.channels() == 3) {
+        if (img.channels() == 1) {
+            cv::cvtColor(img, img, cv::COLOR_GRAY2BGRA);
+        }
+        else if (img.channels() == 3) {
             cv::cvtColor(img, img, cv::COLOR_BGR2BGRA);
         }
         zones[key] = std::move(img);
@@ -1221,7 +1243,10 @@ GlobalSearchAttempt MapLocator::Impl::finishGlobalSearch(const GlobalSearchCompu
         return attempt;
     }
 
-    const double score = DeliveredScore(evaluated->strategy->templateFeatureKind(), computation.batch->getResult().fineRes, fine.fineRes);
+    attempt.kind = evaluated->strategy->templateFeatureKind();
+    attempt.window = computation.batch->getResult().fineRes;
+    attempt.refined = fine.fineRes;
+    const double score = DeliveredScore(attempt.kind, attempt.window, attempt.refined);
     attempt.rawPos.zoneId = evaluated->targetZoneId;
     attempt.rawPos.x = evaluated->constrainedRect.x + fine.fineRes.loc.x + fine.scaledTemplSize.width / 2.0;
     attempt.rawPos.y = evaluated->constrainedRect.y + fine.fineRes.loc.y + fine.scaledTemplSize.height / 2.0;
@@ -1558,7 +1583,7 @@ GlobalSearchCandidates MapLocator::Impl::startGlobalSearchCandidates(
     return candidates;
 }
 
-std::optional<MapPosition> MapLocator::Impl::finishGlobalSearchCandidates(GlobalSearchCandidates candidates, MapPosition* outBestRaw)
+GlobalSearchAttempt MapLocator::Impl::finishGlobalSearchCandidates(GlobalSearchCandidates candidates)
 {
     // Speculative global work stays deliberately narrow while Tracking may still
     // win the frame. Once the original control flow reaches Global, let the
@@ -1568,19 +1593,14 @@ std::optional<MapPosition> MapLocator::Impl::finishGlobalSearchCandidates(Global
         candidates.primary.batch->releaseTrackingCapacity(*scaleExecutor);
     }
 
-    GlobalSearchAttempt attempt = finishGlobalSearch(candidates.primary);
-    if (outBestRaw) {
-        *outBestRaw = attempt.rawPos;
-    }
-    return attempt.result;
+    return finishGlobalSearch(candidates.primary);
 }
 
-std::optional<MapPosition> MapLocator::Impl::tryGlobalSearch(
+GlobalSearchAttempt MapLocator::Impl::tryGlobalSearch(
     const cv::Mat& minimap,
     const std::string& targetZoneId,
     const SearchConstraint& constraint,
-    FrameTemplateFeatureCache& featureCache,
-    MapPosition* outBestRaw)
+    FrameTemplateFeatureCache& featureCache)
 {
     GlobalSearchCandidates candidates = startGlobalSearchCandidates(
         minimap,
@@ -1593,7 +1613,7 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearch(
         baseImgCfg,
         tierImgCfg,
         false);
-    return finishGlobalSearchCandidates(std::move(candidates), outBestRaw);
+    return finishGlobalSearchCandidates(std::move(candidates));
 }
 
 LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOptions& options, const std::shared_future<double>& angle_future)
@@ -1824,20 +1844,19 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     }
 
     int maxAllowedLost = IsPathHeatmapZone(targetZoneId) ? 10 : options.max_lost_frames;
-    MapPosition bestRawGlobal {};
-    std::optional<MapPosition> globalResult;
+    GlobalSearchAttempt global;
     bool prefetchedCandidatesConsumed = false;
     if (frameSearchCoordinator) {
         auto prefetchedCandidates = frameSearchCoordinator->takeCandidates(activeFrameId, targetZoneId, constraint);
         if (prefetchedCandidates.has_value()) {
             prefetchedCandidatesConsumed = true;
-            globalResult = finishGlobalSearchCandidates(std::move(*prefetchedCandidates), &bestRawGlobal);
+            global = finishGlobalSearchCandidates(std::move(*prefetchedCandidates));
         }
     }
     if (!prefetchedCandidatesConsumed) {
-        globalResult = tryGlobalSearch(minimap, targetZoneId, constraint, featureCache, &bestRawGlobal);
+        global = tryGlobalSearch(minimap, targetZoneId, constraint, featureCache);
     }
-    // 调用方给了先验位置时，在每个先验附近再搜一小窗，跟 YOLO 格窗比分，高者胜出。
+    // 调用方给了先验位置时，在每个先验附近再搜一小窗，跟 YOLO 格窗比原始峰分，高者胜出。
     // YOLO 报到相邻格时正确位置根本不在它的窗里，窗内最优再高也是错的，分数门看不出来。
     // 只在 YOLO 验过区域的帧上搜：区域都没认出来的帧上，小窗撞出的峰没有对照。
     if (constraint.yolo_validated) {
@@ -1854,21 +1873,19 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
                 static_cast<int>(std::lround(hint.y)) - radius,
                 radius * 2 + 1,
                 radius * 2 + 1);
-            MapPosition hintRaw {};
-            auto hintResult = tryGlobalSearch(minimap, targetZoneId, hintConstraint, featureCache, &hintRaw);
-            LogInfo << "Global Search: hint window." << VAR(hint.x) << VAR(hint.y) << VAR(hint.radius) << VAR(hintRaw.x) << VAR(hintRaw.y)
-                    << VAR(hintRaw.score) << VAR(bestRawGlobal.x) << VAR(bestRawGlobal.y) << VAR(bestRawGlobal.score);
-            if (hintRaw.score > bestRawGlobal.score) {
-                bestRawGlobal = hintRaw;
-                globalResult = hintResult;
-            }
+            GlobalSearchAttempt hintAttempt = tryGlobalSearch(minimap, targetZoneId, hintConstraint, featureCache);
+            LogInfo << "Global Search: hint window." << VAR(hint.x) << VAR(hint.y) << VAR(hint.radius) << VAR(hintAttempt.rawPos.x)
+                    << VAR(hintAttempt.rawPos.y) << VAR(hintAttempt.refined.score) << VAR(global.rawPos.x) << VAR(global.rawPos.y)
+                    << VAR(global.refined.score);
+            global = MergeHintAttempt(global, hintAttempt, matchCfg.passThreshold);
         }
     }
+    std::optional<MapPosition> globalResult = global.result;
     if (!globalResult) {
-        if (bestRawGlobal.score > kSeamFallbackMinPeakScore) {
-            globalResult = bestRawGlobal;
-            LogInfo << "Global gate low-confidence: releasing best raw peak to avoid cold-start deadlock." << VAR(bestRawGlobal.x)
-                    << VAR(bestRawGlobal.y) << VAR(bestRawGlobal.score);
+        if (global.rawPos.score > kSeamFallbackMinPeakScore) {
+            globalResult = global.rawPos;
+            LogInfo << "Global gate low-confidence: releasing best raw peak to avoid cold-start deadlock." << VAR(global.rawPos.x)
+                    << VAR(global.rawPos.y) << VAR(global.rawPos.score);
         }
         else {
             motionTracker->markLost();
