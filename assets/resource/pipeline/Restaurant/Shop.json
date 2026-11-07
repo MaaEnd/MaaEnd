@@ -31,15 +31,17 @@
                         138.67
                     ],
                     "target_tier": "Wuling_L10_468",
+                    "strict": true,
                     "required": true
                 },
                 {
                     "action": "NAVMESH",
                     "target": [
-                        136.14,
-                        133.75
+                        136.44,
+                        133.13
                     ],
                     "target_tier": "Wuling_L10_468",
+                    "strict": true,
                     "required": true
                 }
             ]
@@ -82,15 +84,17 @@
                         138.67
                     ],
                     "target_tier": "Wuling_L10_468",
+                    "strict": true,
                     "required": true
                 },
                 {
                     "action": "NAVMESH",
                     "target": [
-                        136.14,
-                        133.75
+                        136.44,
+                        133.13
                     ],
                     "target_tier": "Wuling_L10_468",
+                    "strict": true,
                     "required": true
                 }
             ]

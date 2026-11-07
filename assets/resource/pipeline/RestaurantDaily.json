@@ -1590,7 +1590,13 @@
         "method": 5,
         "threshold": 0.9,
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantMenuFilterIcon",
+            "repeat_count": 3
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
