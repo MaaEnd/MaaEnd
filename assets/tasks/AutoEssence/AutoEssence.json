@@ -272,6 +272,27 @@
             "description": "$option.AutoEssenceObtainMode.description",
             "cases": [
                 {
+                    "name": "Discard",
+                    "label": "$option.AutoEssenceObtainMode.cases.Discard.label",
+                    "pipeline_override": {
+                        "AutoEssenceClickObtainButton": {
+                            "enabled": false
+                        },
+                        "AutoEssenceClickDiscardButton": {
+                            "enabled": true
+                        },
+                        "AutoEssenceDismissWarningSanityLowStop": {
+                            "enabled": false
+                        },
+                        "AutoEssenceDismissWarningSanityLowUseSpMedicationPrepare": {
+                            "enabled": false
+                        },
+                        "AutoEssenceDismissWarningSanityLowContinue": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
                     "name": "ObtainScaling1",
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling1.label",
                     "option": [
