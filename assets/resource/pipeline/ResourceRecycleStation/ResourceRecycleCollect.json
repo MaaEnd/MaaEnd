@@ -137,6 +137,7 @@
         "target": true,
         "post_delay": 500,
         "next": [
+            "ResourceRecycleCollectLocked",
             "ResourceRecycleClickCollectBtn"
         ],
         "focus": {
@@ -235,6 +236,31 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.Empty"
+        }
+    },
+
+    "ResourceRecycleCollectLocked": {
+        "desc": "回收站等级不足，远程收取未解锁，跳过该站",
+        "recognition": "OCR",
+        "roi": [
+            944,
+            523,
+            310,
+            100
+        ],
+        "expected": [
+            "升到4级解锁远程收取",
+            "升到4級解鎖遠端收取",
+            "(?i)Level\\s*4",
+            "レベル\\s*4",
+            "레벨\\s*4"
+        ],
+        "action": "DoNothing",
+        "next": [
+            "ResourceRecycleRegionEnd"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.CollectLocked"
         }
     },
 
