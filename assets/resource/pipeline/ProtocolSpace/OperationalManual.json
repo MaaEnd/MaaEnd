@@ -111,8 +111,10 @@
         }
     },
     "ProtocolSpaceOperationalManualScrollNotFound": {
-        "desc": "滚动次数用尽仍未找到目标条目，按未找到收尾",
+        "desc": "滚动次数用尽仍未找到目标条目，抛出任务失败退出",
         "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "FalseAction",
         "focus": {
             "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sim_entry_not_found"
         }
