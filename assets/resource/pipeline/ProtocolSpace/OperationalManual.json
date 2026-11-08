@@ -127,7 +127,7 @@
             500
         ],
         "template": "ProtocolSpace/SkillUp.png",
-        "threshold": 0.8, // 条目图标边缘细节密集，半像素错位就会掉 0.05~0.10，0.9 没有余量（PlayCover 实测 0.85），回落到协议默认值 0.8
+        "threshold": 0.8,
         "focus": {
             "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sim_entry_not_found"
         }
@@ -142,7 +142,7 @@
             500
         ],
         "template": "ProtocolSpace/OperatorEXP.png",
-        "threshold": 0.8 // 同为行动手册条目图标，0.9 对跨平台渲染差异没有余量
+        "threshold": 0.8
     },
     "ProtocolSpaceEnterButtonEnableRecognition": {
         "desc": "找协议空间入口已解锁按钮",
