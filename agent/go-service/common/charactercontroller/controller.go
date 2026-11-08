@@ -54,6 +54,12 @@ func rotateView(ctx *maa.Context, dx, dy int) {
 	cursorDY += dy
 }
 
+// RotateView 供战斗等其它模块复用：保持与寻路/转视角一致的光标偏移管理，
+// 避免每次从屏幕中心重发 delta 造成视角回弹。
+func RotateView(ctx *maa.Context, dx, dy int) {
+	rotateView(ctx, dx, dy)
+}
+
 type characterControllerRelativeMoveParam struct {
 	Dx    int   `json:"dx"`
 	Dy    int   `json:"dy"`
@@ -175,8 +181,22 @@ func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int
 	box := arg.Box
 	rememberLastTarget(box, farTargetWidth)
 
+	// 出口在画面边缘时，先停住转向对齐，本轮绝不前进。
+	// 旧逻辑在「目标框 < farTargetWidth（远处出口）」时无条件
+	// 「走 200ms + 冲刺×3」并跳过转向，角色保持原朝向冲出去，
+	// 出口就在旁边也被直接路过。改为：只要水平偏移超出阈值，
+	// 无论远近都只转不走；对齐后才按距离决定步长。
+	alignX := box.X() + box.Width()/2 - screenW/2
+	if absInt(alignX) > alignThreshold {
+		rotateView(ctx, alignX/2, 0)
+		log.Debug().Int("offsetX", alignX).Msg("target in view but off-center — stop and turn only")
+		return true
+	}
+
 	if farTargetWidth != nil && box.Width() < *farTargetWidth {
-		// Keep original single W press, then Shift-sprint three times with gaps.
+		// 远处出口：恢复上游的大步长 + 冲刺（角色不会因为找出口挪半天），
+		// 但只在视角已经对准之后才跑；上面的「偏移超阈值只转不走」保证
+		// 不会朝着错误方向冲出去，从而兼顾速度与「旁边不走过头」。
 		moveAxis(ctx, 200)
 		for i := 0; i < 3; i++ {
 			time.Sleep(300 * time.Millisecond)
@@ -185,7 +205,7 @@ func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int
 		log.Debug().
 			Int("width", box.Width()).
 			Int("far_target_width", *farTargetWidth).
-			Msg("target too far — walk, then shift-sprint x3")
+			Msg("far target aligned — full-speed approach restored")
 		return true
 	}
 
@@ -212,13 +232,17 @@ func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int
 
 	case targetCenterY > lowerThreshold:
 		// Target is centered but in the lower half — already walked past, step backward.
-		moveAxis(ctx, -200)
+		moveAxis(ctx, -120)
 		log.Debug().Int("targetCenterY", targetCenterY).Msg("target behind — stepping backward")
 
 	default:
-		// Target is centered and in the upper half — step forward.
-		moveAxis(ctx, 200)
-		log.Debug().Int("offsetX", offsetX).Int("targetCenterY", targetCenterY).Msg("moving forward toward target")
+		// 近处出口：小步前进，避免一步跨过触碰点。
+		step := 200
+		if box.Width() > 200 || targetCenterY > 400 {
+			step = 70
+		}
+		moveAxis(ctx, step)
+		log.Debug().Int("step", step).Int("targetCenterY", targetCenterY).Msg("short step toward near exit")
 	}
 
 	return true
