@@ -10,8 +10,8 @@ namespace mapnavigator
 namespace semantic_nodes
 {
 
-Result ArriveJumpPad(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, double actual_distance);
-Result TickJumpPad(const Context& ctx);
+Result ArriveJumpPad(Navigator* nav, const Waypoint& waypoint, const std::optional<size_t>& node_idx, double actual_distance);
+Result TickJumpPad(Navigator* nav);
 
 } // namespace semantic_nodes
 

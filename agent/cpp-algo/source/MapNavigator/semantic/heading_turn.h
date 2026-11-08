@@ -22,16 +22,16 @@ std::optional<HeadingTurnSteps> PlanHeadingTurn(const InputBackend& input_backen
 // 不是最后一步时发完等一个间隔
 bool SendHeadingTurnStep(InputBackend* input_backend, const HeadingTurnSteps& turn, int step);
 // 只转镜头不前进, 指令发不出去时返回 false
-bool TurnToHeadingOnce(const Context& ctx, double heading_delta);
+bool TurnToHeadingOnce(Navigator* nav, double heading_delta);
 // 读不到镜头朝向时什么都不做
-void AlignCameraAndRecapture(const Context& ctx);
+void AlignCameraAndRecapture(Navigator* nav);
 // 连续两帧朝向一致才算数, 返回 false 时 out_heading 不可用
-bool CaptureStableHeading(const Context& ctx, double* out_heading);
+bool CaptureStableHeading(Navigator* nav, double* out_heading);
 // 返回 true 只代表指令已发出, 是否转到位由 VerifyAndCorrectHeading 复核
-bool TurnAndPulseForward(const Context& ctx, double heading_delta);
+bool TurnAndPulseForward(Navigator* nav, double heading_delta);
 // 返回实际朝向, 读不到稳定朝向时返回 fallback_heading
-double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double fallback_heading);
-Result ConsumeHeadingNodes(const Context& ctx);
+double VerifyAndCorrectHeading(Navigator* nav, double target_heading, double fallback_heading);
+Result ConsumeHeadingNodes(Navigator* nav);
 
 } // namespace semantic_nodes
 

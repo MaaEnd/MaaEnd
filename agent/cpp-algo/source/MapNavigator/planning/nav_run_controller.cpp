@@ -714,7 +714,7 @@ NavRunTickResult TickNavRun(
     NavRunTickResult result;
     if (runtime->nav_run_dirty) {
         invalidate(nav_run);
-        runtime->nav_run_dirty = false;
+        ClearNavRunDirty(runtime);
     }
 
     // 必须在下面所有提前返回之前, 走廊不可用时测速窗口也要继续积累

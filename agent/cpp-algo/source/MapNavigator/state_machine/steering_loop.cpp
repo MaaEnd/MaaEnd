@@ -78,6 +78,26 @@ std::optional<int64_t> sample_steer_period(FlowState* flow, std::chrono::steady_
     return flow->steer_periods_ms.empty() ? std::nullopt : std::optional<int64_t>(latency::Median(flow->steer_periods_ms));
 }
 
+struct PendingLifetime
+{
+    double batch_cap_deg = 0.0;
+    int64_t floor_ms = 0;
+    bool walk_engaged = false;
+};
+
+int64_t pending_lifetime_ms(const PendingLifetime& lifetime, double delta_deg)
+{
+    const double extra_sweep_deg = std::max(0.0, std::abs(delta_deg) - lifetime.batch_cap_deg);
+    const int64_t base_ms = lifetime.floor_ms + static_cast<int64_t>(extra_sweep_deg / kYawRateDegPerSec * 1000.0);
+    return lifetime.walk_engaged ? base_ms * kWalkModeSlowFactor : base_ms;
+}
+
+bool ahead_is_braked_corner(const FlowState& flow, const std::optional<SharpCorner>& corner)
+{
+    return corner && flow.braked_corner
+           && std::hypot(corner->point.x - flow.braked_corner->x, corner->point.y - flow.braked_corner->y) <= kCornerBrakeLatchRadiusM;
+}
+
 void settle_pending_turn(
     SteeringRateState* steering_rate_state,
     const Motion& motion,
@@ -87,19 +107,16 @@ void settle_pending_turn(
     std::optional<int64_t> steer_period_ms)
 {
     SteeringRateState& steering_rate = *steering_rate_state;
-    const double batch_cap_deg = motion.steering_profile.max_batch_delta_deg;
-    const bool walk_engaged = walkmode::Engaged();
-    const auto pending_lifetime_ms = [&](double delta_deg) {
-        const double extra_sweep_deg = std::max(0.0, std::abs(delta_deg) - batch_cap_deg);
-        const int64_t floor_ms = drops_turn_sends
-                                     ? std::max(kSteeringPendingLifetimeMs, kSteeringPendingLifetimeTicks * steer_period_ms.value_or(0))
-                                     : kSteeringPendingLifetimeMs;
-        const int64_t base_ms = floor_ms + static_cast<int64_t>(extra_sweep_deg / kYawRateDegPerSec * 1000.0);
-        return walk_engaged ? base_ms * kWalkModeSlowFactor : base_ms;
+    const PendingLifetime lifetime {
+        .batch_cap_deg = motion.steering_profile.max_batch_delta_deg,
+        .floor_ms = drops_turn_sends ? std::max(kSteeringPendingLifetimeMs, kSteeringPendingLifetimeTicks * steer_period_ms.value_or(0))
+                                     : kSteeringPendingLifetimeMs,
+        .walk_engaged = walkmode::Engaged(),
     };
     if (drops_turn_sends) {
         std::erase_if(steering_rate.in_flight, [&](const SteeringRateState::InFlightTurn& turn) {
-            return std::chrono::duration_cast<std::chrono::milliseconds>(now - turn.sent_at).count() >= pending_lifetime_ms(turn.delta_deg);
+            return std::chrono::duration_cast<std::chrono::milliseconds>(now - turn.sent_at).count()
+                   >= pending_lifetime_ms(lifetime, turn.delta_deg);
         });
         if (steering_rate.pending_turn_deg != 0.0) {
             if (steering_rate.in_flight.empty()) {
@@ -120,7 +137,7 @@ void settle_pending_turn(
     }
     else if (steering_rate.pending_turn_deg != 0.0) {
         const int64_t pending_age_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.cmd_at).count();
-        if (pending_age_ms >= pending_lifetime_ms(steering_rate.cmd_delta_deg)) {
+        if (pending_age_ms >= pending_lifetime_ms(lifetime, steering_rate.cmd_delta_deg)) {
             steering_rate.pending_turn_deg = 0.0;
         }
         else {
@@ -165,21 +182,16 @@ bool BrakeForSharpCorner(FlowState* flow, const NaviPosition& position, const Na
 {
     bool corner_brake = false;
     const std::optional<SharpCorner>& corner = nav_run_result.corner;
-    const auto ahead_is_braked_corner = [&] {
-        return corner && flow->braked_corner
-               && std::hypot(corner->point.x - flow->braked_corner->x, corner->point.y - flow->braked_corner->y)
-                      <= kCornerBrakeLatchRadiusM;
-    };
     if (slow_loop && corner && nav_run_result.step_per_tick) {
         const double stop_distance = *nav_run_result.step_per_tick * kCornerBrakeLeadTicks;
-        corner_brake = !ahead_is_braked_corner() && corner->distance <= stop_distance && corner->lead_distance < stop_distance;
+        corner_brake = !ahead_is_braked_corner(*flow, corner) && corner->distance <= stop_distance && corner->lead_distance < stop_distance;
         if (corner_brake) {
             flow->braked_corner = corner->point;
             LogInfo << "Braking before a sharp corner." << VAR(corner->distance) << VAR(corner->turn_deg) << VAR(corner->lead_distance)
                     << VAR(stop_distance) << VAR(corner->point.x) << VAR(corner->point.y);
         }
     }
-    if (const bool corner_walk = ahead_is_braked_corner(); corner_walk != flow->corner_walk) {
+    if (const bool corner_walk = ahead_is_braked_corner(*flow, corner); corner_walk != flow->corner_walk) {
         flow->corner_walk = corner_walk;
         LogInfo << (corner_walk ? "Walking into a braked corner." : "Braked corner behind; walking ends.") << VAR(position.x)
                 << VAR(position.y);

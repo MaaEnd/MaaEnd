@@ -4,6 +4,7 @@
 
 #include "../control/motion_controller.h"
 #include "../navi_time.h"
+#include "../state_machine/navigation_state_machine.h"
 
 namespace mapnavigator
 {
@@ -11,39 +12,39 @@ namespace mapnavigator
 namespace semantic_nodes
 {
 
-void HoldAndArmCameraAlign(const Context& ctx)
+void HoldAndArmCameraAlign(Navigator* nav)
 {
-    HoldPosition(ctx.motion_controller);
+    HoldPosition(nav->motion_controller);
     // JUMP/FIGHT/普通 INTERACT 不走这里, 须在调用处各自置位
-    ArmCameraAlign(ctx.runtime_state);
+    ArmCameraAlign(&nav->runtime_state);
 }
 
-void SelectPhaseOrFinishRoute(const Context& ctx, const char* reason)
+void SelectPhaseOrFinishRoute(Navigator* nav, const char* reason)
 {
-    if (!HasCurrentWaypoint(*ctx.session)) {
-        NoteRouteTailConsumed(ctx.session, *ctx.position, "route_tail_consumed");
+    if (!HasCurrentWaypoint(*nav->session)) {
+        NoteRouteTailConsumed(nav->session, *nav->position, "route_tail_consumed");
         return;
     }
-    UpdatePhase(ctx.session, NaviPhase::Navigate, reason);
+    UpdatePhase(nav->session, NaviPhase::Navigate, reason);
 }
 
-void CompleteArrival(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, const char* reason)
+void CompleteArrival(Navigator* nav, const Waypoint& waypoint, const std::optional<size_t>& node_idx, const char* reason)
 {
-    NoteCanonicalFinalGoalConsumed(ctx.session, node_idx, *ctx.position, reason);
-    AdvanceToNextWaypoint(ctx.session, waypoint.action, reason);
-    ResetOnWaypointAdvance(ctx.runtime_state);
-    SelectPhaseOrFinishRoute(ctx, reason);
+    NoteCanonicalFinalGoalConsumed(nav->session, node_idx, *nav->position, reason);
+    AdvanceToNextWaypoint(nav->session, waypoint.action, reason);
+    ResetOnWaypointAdvance(&nav->runtime_state);
+    SelectPhaseOrFinishRoute(nav, reason);
 }
 
-void ConsumeMatchedZoneNodes(const Context& ctx)
+void ConsumeMatchedZoneNodes(Navigator* nav)
 {
-    while (HasCurrentWaypoint(*ctx.session) && IsZoneDeclaration(CurrentWaypoint(*ctx.session))) {
-        const std::string& zone_id = CurrentWaypoint(*ctx.session).zone_id;
-        if (!zone_id.empty() && zone_id != ctx.session->current_zone_id) {
+    while (HasCurrentWaypoint(*nav->session) && IsZoneDeclaration(CurrentWaypoint(*nav->session))) {
+        const std::string& zone_id = CurrentWaypoint(*nav->session).zone_id;
+        if (!zone_id.empty() && zone_id != nav->session->current_zone_id) {
             break;
         }
-        AdvanceToNextWaypoint(ctx.session, ActionType::ZONE, "zone_declaration_consumed");
-        ResetOnWaypointAdvance(ctx.runtime_state);
+        AdvanceToNextWaypoint(nav->session, ActionType::ZONE, "zone_declaration_consumed");
+        ResetOnWaypointAdvance(&nav->runtime_state);
     }
 }
 
@@ -53,12 +54,12 @@ Result WaitNextFix(int interval_ms)
     return Pending();
 }
 
-void ResumeAfterRelocation(const Context& ctx, const char* reason)
+void ResumeAfterRelocation(Navigator* nav, const char* reason)
 {
-    UpdateCurrentZone(ctx.session, ctx.position->zone_id);
-    ResetProgress(ctx.session);
-    ResetNavigationAssistState(ctx.runtime_state);
-    SelectPhaseOrFinishRoute(ctx, reason);
+    UpdateCurrentZone(nav->session, nav->position->zone_id);
+    ResetProgress(nav->session);
+    ResetNavigationAssistState(&nav->runtime_state);
+    SelectPhaseOrFinishRoute(nav, reason);
 }
 
 } // namespace semantic_nodes

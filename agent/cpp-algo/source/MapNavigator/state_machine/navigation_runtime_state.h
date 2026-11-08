@@ -38,6 +38,11 @@ inline void ResetRouteTracking(RouteTrackerState* route)
     route->last_segment_to_idx = std::numeric_limits<size_t>::max();
 }
 
+inline void RestartRouteTracking(RouteTrackerState* route)
+{
+    *route = {};
+}
+
 inline void ConfirmStartupAt(RouteTrackerState* route, const NaviPosition& position)
 {
     route->startup_anchor_pos = position;
@@ -66,6 +71,12 @@ struct FlowState
     // 刹过车的那个弯还在前面
     bool corner_walk = false;
 };
+
+inline void ResetStallCounters(FlowState* flow)
+{
+    flow->motionless_hold_ticks = 0;
+    flow->futile_forward_reasserts = 0;
+}
 
 // pad 的 x/y 是板心, zone_id 是起跳所在区
 struct JumpPadState
@@ -139,6 +150,11 @@ inline void RestartDynamicRecovery(DynamicRecoveryState* recovery, const NaviPos
     recovery->anchor_pos = position;
     recovery->started_at = now;
     recovery->anchor_index = anchor;
+}
+
+inline void ClearDynamicRecovery(DynamicRecoveryState* recovery)
+{
+    *recovery = {};
 }
 
 // FIND 的进度。按点计: 推进点位或重开导航就清
@@ -451,23 +467,58 @@ inline void ArmCameraAlign(NavigationRuntimeState* runtime)
     runtime->camera_align_pending = true;
 }
 
+inline void ClearCameraAlignRequest(NavigationRuntimeState* runtime)
+{
+    runtime->camera_align_pending = false;
+}
+
+inline void RequestDynamicReplan(NavigationRuntimeState* runtime)
+{
+    runtime->dynamic_replan_requested = true;
+}
+
+inline void ClearDynamicReplanRequest(NavigationRuntimeState* runtime)
+{
+    runtime->dynamic_replan_requested = false;
+}
+
+inline void MarkNavRunDirty(NavigationRuntimeState* runtime)
+{
+    runtime->nav_run_dirty = true;
+}
+
+inline void ClearNavRunDirty(NavigationRuntimeState* runtime)
+{
+    runtime->nav_run_dirty = false;
+}
+
+inline void CountGlobalReacquire(NavigationRuntimeState* runtime)
+{
+    ++runtime->global_reacquire_streak;
+}
+
+inline void ResetGlobalReacquireStreak(NavigationRuntimeState* runtime)
+{
+    runtime->global_reacquire_streak = 0;
+}
+
 inline void ResetNavigationAssistState(NavigationRuntimeState* runtime)
 {
     ResetRouteTracking(&runtime->route);
-    runtime->recovery = {};
+    ClearDynamicRecovery(&runtime->recovery);
     runtime->recovery_escalation = {};
     runtime->steering_rate = {};
     runtime->offroute = {};
     runtime->zipline_recovery = {};
-    runtime->dynamic_replan_requested = false;
-    runtime->nav_run_dirty = true;
+    ClearDynamicReplanRequest(runtime);
+    MarkNavRunDirty(runtime);
 }
 
 inline void BeginNavigation(NavigationRuntimeState* runtime, TimePoint now)
 {
-    runtime->route = {};
+    RestartRouteTracking(&runtime->route);
     runtime->semantic = {};
-    runtime->recovery = {};
+    ClearDynamicRecovery(&runtime->recovery);
     runtime->recovery_escalation = {};
     runtime->localization_loss = {};
     runtime->scene_recovery_attempted = false;
@@ -485,10 +536,10 @@ inline void BeginNavigation(NavigationRuntimeState* runtime, TimePoint now)
     ResetZiplineNavigation(&runtime->zipline_ride);
     runtime->virtual_no_go.clear();
     runtime->progress_identity = {};
-    runtime->global_reacquire_streak = 0;
-    runtime->dynamic_replan_requested = false;
-    runtime->nav_run_dirty = true;
-    runtime->camera_align_pending = true;
+    ResetGlobalReacquireStreak(runtime);
+    ClearDynamicReplanRequest(runtime);
+    MarkNavRunDirty(runtime);
+    ArmCameraAlign(runtime);
     runtime->flow.navigate_started_at = now;
     runtime->flow.last_auto_sprint_time = {};
     runtime->flow.last_tick_started_at = {};
@@ -501,16 +552,16 @@ inline void BeginNavigation(NavigationRuntimeState* runtime, TimePoint now)
 inline void ResetOnWaypointAdvance(NavigationRuntimeState* runtime)
 {
     ResetRouteTracking(&runtime->route);
-    runtime->recovery = {};
+    ClearDynamicRecovery(&runtime->recovery);
     runtime->recovery_escalation = {};
     runtime->river_fall = {};
     runtime->bypass = {};
     runtime->offroute = {};
     runtime->zipline_recovery = {};
     runtime->find = {};
-    runtime->global_reacquire_streak = 0;
-    runtime->dynamic_replan_requested = false;
-    runtime->nav_run_dirty = true;
+    ResetGlobalReacquireStreak(runtime);
+    ClearDynamicReplanRequest(runtime);
+    MarkNavRunDirty(runtime);
     runtime->flow.last_auto_sprint_time = {};
 }
 

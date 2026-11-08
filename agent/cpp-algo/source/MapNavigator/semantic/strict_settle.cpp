@@ -20,6 +20,7 @@
 #include "../navi_math.h"
 #include "../navi_time.h"
 #include "../sensing/position_provider.h"
+#include "../state_machine/navigation_state_machine.h"
 #include "heading_turn.h"
 #include "semantic_helpers.h"
 
@@ -99,9 +100,9 @@ const char* cancelled_or(const SettleBudget& budget, const char* reason)
     return task_stopping(budget.maa_context) ? "cancelled" : reason;
 }
 
-bool turn_within_budget(const Context& ctx, const SettleBudget& budget, double heading_delta)
+bool turn_within_budget(Navigator* nav, const SettleBudget& budget, double heading_delta)
 {
-    const std::optional<HeadingTurnSteps> turn = PlanHeadingTurn(*ctx.input_backend, heading_delta);
+    const std::optional<HeadingTurnSteps> turn = PlanHeadingTurn(*nav->input_backend, heading_delta);
     if (!turn) {
         return true;
     }
@@ -109,14 +110,14 @@ bool turn_within_budget(const Context& ctx, const SettleBudget& budget, double h
         if (budget_exhausted(budget)) {
             return false;
         }
-        if (!SendHeadingTurnStep(ctx.input_backend, *turn, step)) {
+        if (!SendHeadingTurnStep(nav->input_backend, *turn, step)) {
             return false;
         }
     }
     return true;
 }
 
-bool capture_strict_goal_fix(const Context& ctx, const SettleBudget& budget, NaviPosition* out_pos)
+bool capture_strict_goal_fix(Navigator* nav, const SettleBudget& budget, NaviPosition* out_pos)
 {
     for (int frame = 0; frame < kStrictSettleFixMaxFrames; ++frame) {
         if (budget_exhausted(budget)) {
@@ -129,26 +130,26 @@ bool capture_strict_goal_fix(const Context& ctx, const SettleBudget& budget, Nav
         if (!waited) {
             break;
         }
-        if (!CaptureForStrictGoal(ctx.position_provider, out_pos, ctx.session->current_zone_id)) {
+        if (!CaptureForStrictGoal(nav->position_provider, out_pos, nav->session->current_zone_id)) {
             continue;
         }
         if (budget_exhausted(budget)) {
             break;
         }
-        *ctx.position = *out_pos;
+        *nav->position = *out_pos;
         return true;
     }
-    ctx.position->valid = false;
+    nav->position->valid = false;
     return false;
 }
 
-bool capture_still_fix(const Context& ctx, const SettleBudget& budget, NaviPosition* out_pos)
+bool capture_still_fix(Navigator* nav, const SettleBudget& budget, NaviPosition* out_pos)
 {
     std::optional<NaviPosition> first;
     int still_reads = 0;
     for (;;) {
         NaviPosition fix {};
-        if (!capture_strict_goal_fix(ctx, budget, &fix)) {
+        if (!capture_strict_goal_fix(nav, budget, &fix)) {
             return false;
         }
         if (first && std::hypot(fix.x - first->x, fix.y - first->y) <= kStrictSettleStillWu) {
@@ -232,14 +233,14 @@ SettleStep report_incomplete(const SettleRun& run, const char* reason)
     return SettleStep::Incomplete;
 }
 
-SettleStep report_verified(const Context& ctx, const SettleRun& run)
+SettleStep report_verified(Navigator* nav, const SettleRun& run)
 {
     LogInfo << "Strict arrival verified after settling." << VAR_AS(residual, run.residual) << VAR_AS(pulses, run.pulses)
-            << VAR(ctx.position->x) << VAR(ctx.position->y);
+            << VAR(nav->position->x) << VAR(nav->position->y);
     return SettleStep::Verified;
 }
 
-SettleStep align_toward_goal(const Context& ctx, SettleRun* run, const Waypoint& waypoint, const SettleBudget& budget)
+SettleStep align_toward_goal(Navigator* nav, SettleRun* run, const Waypoint& waypoint, const SettleBudget& budget)
 {
     for (int turns = 0;; ++turns) {
         run->bearing = CalcTargetRotation(run->fix.x, run->fix.y, waypoint.x, waypoint.y);
@@ -254,24 +255,24 @@ SettleStep align_toward_goal(const Context& ctx, SettleRun* run, const Waypoint&
         if (budget_exhausted(budget)) {
             return report_incomplete(*run, cancelled_or(budget, "view_turn_failed_or_budget_exhausted"));
         }
-        if (!turn_within_budget(ctx, budget, heading_delta)) {
+        if (!turn_within_budget(nav, budget, heading_delta)) {
             return report_incomplete(*run, cancelled_or(budget, "view_turn_failed_or_budget_exhausted"));
         }
         if (!sleep_within_budget(budget, std::chrono::milliseconds(kWaitAfterFirstTurnMs))) {
             return report_incomplete(*run, cancelled_or(budget, "camera_feedback_unavailable"));
         }
-        if (!capture_strict_goal_fix(ctx, budget, &run->fix)) {
+        if (!capture_strict_goal_fix(nav, budget, &run->fix)) {
             return report_incomplete(*run, cancelled_or(budget, "camera_feedback_unavailable"));
         }
         // 以实际读数为准, 不用指令预期的朝向
         run->residual = std::hypot(waypoint.x - run->fix.x, waypoint.y - run->fix.y);
         if (run->residual <= kStrictSettleAcceptBandWu) {
-            return report_verified(ctx, *run);
+            return report_verified(nav, *run);
         }
     }
 }
 
-SettleStep pulse_and_measure(const Context& ctx, SettleRun* run, const SettleBudget& budget, const StrictSettleInputProfile& input)
+SettleStep pulse_and_measure(Navigator* nav, SettleRun* run, const SettleBudget& budget, const StrictSettleInputProfile& input)
 {
     const int hold_ms = plan_hold_ms(snapshot_pulses(&g_pulse_history), run->residual, input.max_hold_ms);
     const auto settle_reserve = std::chrono::milliseconds(hold_ms + input.slide_ms + kStrictSettleStillReads * kStrictSettleFixIntervalMs);
@@ -281,16 +282,16 @@ SettleStep pulse_and_measure(const Context& ctx, SettleRun* run, const SettleBud
     LogInfo << "Strict arrival forward pulse." << VAR_AS(residual, run->residual) << VAR(hold_ms) << VAR_AS(pulses, run->pulses);
     ++run->pulses;
     const NaviPosition from = run->fix;
-    MoveForward(ctx.motion_controller);
+    MoveForward(nav->motion_controller);
     const auto pressed_at = std::chrono::steady_clock::now();
-    ctx.position->valid = false; // 一开始移动停稳读数就作废
+    nav->position->valid = false; // 一开始移动停稳读数就作废
     const bool held = sleep_within_budget(budget, std::chrono::milliseconds(hold_ms));
-    HoldPosition(ctx.motion_controller);
+    HoldPosition(nav->motion_controller);
     const double held_ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - pressed_at).count();
     if (!held) {
         return report_incomplete(*run, cancelled_or(budget, "budget_exhausted"));
     }
-    if (!capture_still_fix(ctx, budget, &run->fix)) {
+    if (!capture_still_fix(nav, budget, &run->fix)) {
         return report_incomplete(*run, cancelled_or(budget, "budget_exhausted"));
     }
 
@@ -306,13 +307,13 @@ SettleStep pulse_and_measure(const Context& ctx, SettleRun* run, const SettleBud
 }
 
 SettleStep settle_toward_goal(
-    const Context& ctx,
+    Navigator* nav,
     SettleRun* run,
     const Waypoint& waypoint,
     const SettleBudget& budget,
     const StrictSettleInputProfile& input)
 {
-    if (!capture_still_fix(ctx, budget, &run->fix)) {
+    if (!capture_still_fix(nav, budget, &run->fix)) {
         return report_incomplete(*run, cancelled_or(budget, "no_settled_fix"));
     }
 
@@ -320,7 +321,7 @@ SettleStep settle_toward_goal(
     for (;;) {
         run->residual = std::hypot(waypoint.x - run->fix.x, waypoint.y - run->fix.y);
         if (run->residual <= kStrictSettleAcceptBandWu) {
-            return report_verified(ctx, *run);
+            return report_verified(nav, *run);
         }
         if (run->pulses == kStrictSettleMaxPulses) {
             return report_incomplete(*run, "pulse_budget_exhausted");
@@ -329,15 +330,15 @@ SettleStep settle_toward_goal(
         if (previous_residual && run->residual > *previous_residual + kStrictSettleAcceptBandWu) {
             return report_incomplete(*run, "diverging");
         }
-        if (!SupportsWalkToggle(*ctx.input_backend)) {
+        if (!SupportsWalkToggle(*nav->input_backend)) {
             return report_incomplete(*run, "walking_unavailable");
         }
-        const SettleStep aligned = align_toward_goal(ctx, run, waypoint, budget);
+        const SettleStep aligned = align_toward_goal(nav, run, waypoint, budget);
         if (aligned != SettleStep::Continue) {
             return aligned;
         }
         previous_residual = run->residual;
-        const SettleStep pulsed = pulse_and_measure(ctx, run, budget, input);
+        const SettleStep pulsed = pulse_and_measure(nav, run, budget, input);
         if (pulsed != SettleStep::Continue) {
             return pulsed;
         }
@@ -351,24 +352,25 @@ int PlanPulseHoldMs(double residual, int max_hold_ms)
     return plan_hold_ms(snapshot_pulses(&g_pulse_history), residual, max_hold_ms);
 }
 
-bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint)
+bool SettleAtStrictGoal(Navigator* nav, const Waypoint& waypoint)
 {
     // 取消、指令被拒与异常退出都须松开移动
     struct StopOnExit
     {
-        const Context& ctx;
+        Navigator* nav;
 
-        ~StopOnExit() { HoldAndArmCameraAlign(ctx); }
-    } stop_on_exit { ctx };
+        ~StopOnExit() { HoldAndArmCameraAlign(nav); }
+    } stop_on_exit { nav };
 
-    HoldAndArmCameraAlign(ctx);
+    HoldAndArmCameraAlign(nav);
     const SettleBudget budget {
         .deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(kStrictSettleBudgetMs),
-        .maa_context = ctx.maa_context,
+        .maa_context = nav->maa_context,
     };
-    const StrictSettleInputProfile& input = UsesTouchBackend(*ctx.input_backend) ? kStrictSettleTouchProfile : kStrictSettleKeyboardProfile;
+    const StrictSettleInputProfile& input =
+        UsesTouchBackend(*nav->input_backend) ? kStrictSettleTouchProfile : kStrictSettleKeyboardProfile;
     SettleRun run;
-    return settle_toward_goal(ctx, &run, waypoint, budget, input) == SettleStep::Verified;
+    return settle_toward_goal(nav, &run, waypoint, budget, input) == SettleStep::Verified;
 }
 
 } // namespace semantic_nodes
