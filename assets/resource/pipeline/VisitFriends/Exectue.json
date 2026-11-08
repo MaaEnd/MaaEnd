@@ -925,7 +925,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "VisitFriendsBtwSellGoodsOpen"
+            "[JumpBack]AutoSellSellGoodsEmpty", // 防止识别出错误点进 0 库存物资
+            "VisitFriendsBtwSellGoodsOpen",
+            "VisitFriendsBtwSellNoStock"
         ]
     },
     "VisitFriendsBtwSellNoStock": {
@@ -1006,11 +1008,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "VisitFriendsBtwSellItemFinish"
+            "VisitFriendsBtwSellItemSettle"
         ]
     },
-    "VisitFriendsBtwSellItemFinish": {
-        "desc": "顺便出售：登记奖励并关闭奖励界面",
+    "VisitFriendsBtwSellItemSettle": {
+        "desc": "顺便出售：登记出售奖励",
         "recognition": "And",
         "all_of": [
             "InNoticeRewards",
@@ -1025,23 +1027,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "VisitFriendsBtwSellItemFinishClick"
-        ]
-    },
-    "VisitFriendsBtwSellItemFinishClick": {
-        "desc": "顺便出售：点击关闭奖励界面",
-        "recognition": "And",
-        "all_of": [
-            "InNoticeRewards",
-            "CloseRewardsButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "action": "Click",
-        "post_wait_freezes": 400,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
+            "[JumpBack]AddItemDataCloseRewards",
             "VisitFriendsBtwSellItemBackToList"
         ]
     },
