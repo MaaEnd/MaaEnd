@@ -33,6 +33,22 @@ bool inside_push_through_disc(const std::vector<VirtualNoGoDisc>& discs, const N
     });
 }
 
+std::optional<DynamicAnchor> resolve_recovery_anchor(NavigationSession* session, const NaviPosition& position)
+{
+    if (std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session, position)) {
+        return anchor;
+    }
+    if (!session->hasCurrentWaypoint()) {
+        return std::nullopt;
+    }
+    const Waypoint& current_waypoint = session->currentWaypoint();
+    const std::optional<size_t> canonical_index = session->canonicalIndexAtCurrent();
+    if (!current_waypoint.hasPosition() || !canonical_index) {
+        return std::nullopt;
+    }
+    return DynamicAnchor { *canonical_index, current_waypoint };
+}
+
 } // namespace
 
 // cross_track 不是有限值说明投影没算出来, 这时不启动看门狗
@@ -95,7 +111,7 @@ TickStep NavigationStateMachine::runObstacleRecovery(const NavigateTick& tick)
     if (!should_try_recovery) {
         return TickStep::Next;
     }
-    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session_, *position_);
+    const std::optional<DynamicAnchor> anchor = resolve_recovery_anchor(session_, *position_);
     if (!anchor) {
         return TickStep::Next;
     }
@@ -199,7 +215,7 @@ bool NavigationStateMachine::escalatePastJump(const NavigateTick& tick)
     const RouteMeasurement& route = tick.route;
     DynamicRecoveryState& recovery = runtime_state_.recovery;
     RecoveryEscalationState& escalation = runtime_state_.recovery_escalation;
-    const std::optional<DynamicAnchor> post_jump_anchor = ResolveCurrentAnchor(session_, *position_);
+    const std::optional<DynamicAnchor> post_jump_anchor = resolve_recovery_anchor(session_, *position_);
     if (!post_jump_anchor) {
         LogWarn << "Dynamic recovery skipped: no future anchor after post-jump local tracking." << VAR(position_->x) << VAR(position_->y)
                 << VAR(position_->zone_id);
