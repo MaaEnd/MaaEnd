@@ -100,7 +100,7 @@ void NavigationStateMachine::updateDwellWatchdog(bool captured)
     }
 
     const auto now = std::chrono::steady_clock::now();
-    const bool zone_changed = ZonesDiffer(dwell.center_zone, position_->zone_id);
+    const bool zone_changed = ZonesDifferInGeometry(param_, dwell.center_zone, position_->zone_id);
     if (!dwell.latched || zone_changed || std::hypot(position_->x - dwell.center_x, position_->y - dwell.center_y) > kDwellWatchdogRadius) {
         dwell.latched = true;
         dwell.center_x = position_->x;
@@ -284,21 +284,10 @@ bool NavigationStateMachine::resumeAfterGlobalReacquire(const std::string& prior
     const bool zone_changed = !position_->zone_id.empty() && position_->zone_id != prior_zone;
     session_->excludeFromStallClocks(std::chrono::steady_clock::now() - loss.started_at);
 
-    if (runtime_state_.cross_tier_escape.active) {
-        if (NavmeshZonesShareGeometry(param_, runtime_state_.cross_tier_escape.anchor_zone, position_->zone_id)) {
-            LogInfo << "Cross-tier escape rode a zone flip; preserving the corridor." << VAR(prior_zone) << VAR(position_->zone_id)
-                    << VAR(position_->x) << VAR(position_->y);
-            if (zone_changed) {
-                session_->updateCurrentZone(position_->zone_id);
-            }
-            loss.reset();
-            return true;
-        }
-        LogInfo << "Cross-tier escape: re-acquired zone left the pit span; reverting to loss handling." << VAR(prior_zone)
-                << VAR(position_->zone_id);
-        runtime_state_.cross_tier_escape.reset();
-    }
-    else if (zone_changed && tryEnterCrossTierEscape()) {
+    if (zone_changed && !loss.saw_black_screen && NavmeshZonesShareGeometry(param_, prior_zone, position_->zone_id)) {
+        LogInfo << "Zone flipped within the same geometry; keeping the corridor." << VAR(prior_zone) << VAR(position_->zone_id)
+                << VAR(position_->x) << VAR(position_->y);
+        session_->updateCurrentZone(position_->zone_id);
         loss.reset();
         return true;
     }
@@ -365,71 +354,6 @@ TickStep NavigationStateMachine::runRiverFallRecovery(const NavigateTick& tick)
         return EndTickWith(resumeAfterEscape("river_fall_recovered"));
     }
     return TickStep::EndTick;
-}
-
-bool NavigationStateMachine::tryEnterCrossTierEscape()
-{
-    const float tier_floor = NavmeshFloorYForZone(param_, position_->zone_id);
-    if (tier_floor <= navmesh::kBaseNavFloorYValidMin) {
-        LogInfo << "Cross-tier escape declined: zone is not a floored tier." << VAR(position_->zone_id) << VAR(tier_floor)
-                << VAR(position_->x) << VAR(position_->y);
-        return false;
-    }
-    if (ResolveCurrentAnchor(session_, *position_)) {
-        LogInfo << "Cross-tier escape declined: route has a zone-compatible anchor here (normal travel)." << VAR(position_->zone_id)
-                << VAR(position_->x) << VAR(position_->y);
-        return false;
-    }
-
-    if (!planCrossTierEscapeCorridorFromHere("crosstier_escape")) {
-        return false;
-    }
-    runtime_state_.cross_tier_escape.engage(position_->zone_id);
-    session_->resetHardProgress();
-    LogInfo << "Cross-tier escape engaged: routing out of a wrong tier via navmesh." << VAR(position_->zone_id) << VAR(position_->x)
-            << VAR(position_->y) << VAR(runtime_state_.cross_tier_escape.goal_x) << VAR(runtime_state_.cross_tier_escape.goal_y);
-    return true;
-}
-
-bool NavigationStateMachine::planCrossTierEscapeCorridorFromHere(const char* reason)
-{
-    const std::vector<Waypoint>& path = session_->currentPath();
-    for (size_t index = session_->currentNodeIdx(); index < path.size(); ++index) {
-        // 必须拷贝, 叠加成功会重建 current_path_
-        const Waypoint candidate = session_->currentPathAt(index);
-        if (!candidate.hasPosition()) {
-            continue;
-        }
-        const std::optional<size_t> continue_index = session_->canonicalIndexAtCurrentPath(index);
-        if (!continue_index) {
-            continue;
-        }
-        if (tryApplyDynamicOverlayToAnchor(reason, *continue_index, candidate, /*emit_interior_corners=*/true)) {
-            runtime_state_.cross_tier_escape.goal_x = candidate.x;
-            runtime_state_.cross_tier_escape.goal_y = candidate.y;
-            LogInfo << "Cross-tier escape corridor planned." << VAR(reason) << VAR(position_->zone_id) << VAR(position_->x)
-                    << VAR(position_->y) << VAR(*continue_index) << VAR(candidate.x) << VAR(candidate.y);
-            return true;
-        }
-    }
-    LogInfo << "Cross-tier escape: on a wrong tier but no reachable authored waypoint." << VAR(reason) << VAR(position_->zone_id)
-            << VAR(position_->x) << VAR(position_->y);
-    return false;
-}
-
-void NavigationStateMachine::endCrossTierEscapeAtRejoin()
-{
-    if (!runtime_state_.cross_tier_escape.active) {
-        return;
-    }
-    const double distance_to_goal =
-        std::hypot(position_->x - runtime_state_.cross_tier_escape.goal_x, position_->y - runtime_state_.cross_tier_escape.goal_y);
-    const bool on_floorless_zone = NavmeshFloorYForZone(param_, position_->zone_id) <= navmesh::kBaseNavFloorYValidMin;
-    if (distance_to_goal <= kCrossTierEscapeArrivalM && on_floorless_zone) {
-        LogInfo << "Cross-tier escape reached the rejoin point on the base floor; resuming authored route." << VAR(distance_to_goal)
-                << VAR(position_->zone_id) << VAR(position_->x) << VAR(position_->y);
-        runtime_state_.cross_tier_escape.reset();
-    }
 }
 
 } // namespace mapnavigator

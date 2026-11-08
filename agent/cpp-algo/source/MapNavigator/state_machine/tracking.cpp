@@ -25,7 +25,8 @@ namespace mapnavigator
 namespace
 {
 
-std::optional<DynamicAnchor> resolve_nav_run_anchor(NavigationSession* session, const NaviPosition& position, const RouteMeasurement& route)
+std::optional<DynamicAnchor>
+    resolve_nav_run_anchor(const NaviParam& param, NavigationSession* session, const NaviPosition& position, const RouteMeasurement& route)
 {
     if (!route.valid || !session->hasCurrentWaypoint()) {
         return std::nullopt;
@@ -37,7 +38,7 @@ std::optional<DynamicAnchor> resolve_nav_run_anchor(NavigationSession* session, 
     if (current_waypoint.requiresStrictArrival()) {
         return DynamicAnchor { session->canonicalIndexAtCurrent().value_or(kUnaddressableAnchorIndex), current_waypoint };
     }
-    return ResolveCurrentAnchor(session, position);
+    return ResolveCurrentAnchor(param, session, position);
 }
 
 // 台沿下落的落点: 进圈时人可能还在台上, 沿下落方向越过它才算到
@@ -94,7 +95,7 @@ TickFix NavigationStateMachine::readFix(std::chrono::steady_clock::time_point no
 
 void NavigationStateMachine::tickNavRun(NavigateTick& tick)
 {
-    if (const std::optional<DynamicAnchor> nav_run_anchor = resolve_nav_run_anchor(session_, *position_, tick.route)) {
+    if (const std::optional<DynamicAnchor> nav_run_anchor = resolve_nav_run_anchor(param_, session_, *position_, tick.route)) {
         tick.nav_run_anchor_index = nav_run_anchor->first;
         tick.nav_run_result = nav_run_controller_.tick(
             session_,
@@ -135,24 +136,12 @@ TickStep NavigationStateMachine::checkRouteProgress(NavigateTick& tick)
     const RouteMeasurement& route = tick.route;
     const NavRunTickResult& nav_run_result = tick.nav_run_result;
     tick.effective_progress = observeNavigationProgress(route, nav_run_result.straight_to_anchor, tick.nav_run_anchor_index, tick.now);
-    // 用硬进度时钟判, 脱困自己重铺路线不会重置它
-    if (runtime_state_.cross_tier_escape.active && session_->hardStalledMs(tick.now) >= kCrossTierEscapeHardStallMs) {
-        const double goal_dist =
-            std::hypot(position_->x - runtime_state_.cross_tier_escape.goal_x, position_->y - runtime_state_.cross_tier_escape.goal_y);
-        runtime_state_.cross_tier_escape.reset();
-        return EndTickWith(failNavigation(
-            "crosstier_escape_stalled",
-            "Cross-tier escape made no corridor progress (walled or unfollowable); terminating so the pipeline can retry.",
-            goal_dist,
-            0.0,
-            session_->hardStalledMs(tick.now)));
-    }
     // 只有偏离走廊的重规划会换走廊; 进度倒退的重规划不清停滞计时
     if (nav_run_result.replanned_with == NavRunReplanReason::OffCorridor) {
         session_->resetProgress();
     }
     if (runtime_state_.recovery.active) {
-        const bool recovery_zone_changed = ZonesDiffer(runtime_state_.recovery.anchor_pos.zone_id, position_->zone_id);
+        const bool recovery_zone_changed = ZonesDifferInGeometry(param_, runtime_state_.recovery.anchor_pos.zone_id, position_->zone_id);
         const double recovery_displacement =
             std::hypot(position_->x - runtime_state_.recovery.anchor_pos.x, position_->y - runtime_state_.recovery.anchor_pos.y);
         if (recovery_zone_changed || recovery_displacement >= kDynamicRecoveryResetDistance) {

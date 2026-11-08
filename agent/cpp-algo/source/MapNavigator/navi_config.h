@@ -204,9 +204,6 @@ constexpr int32_t kFailureTrailWindowMs = 90000;
 constexpr int32_t kFailureTrailSampleIntervalMs = 1000;
 constexpr int32_t kFailureTrailSlowArrivalMs = 200; // 短于此的到点动作不记
 
-// 跨层脱困的到达距离, 须同时已回到基础区才算退出
-constexpr double kCrossTierEscapeArrivalM = 3.0;
-constexpr int32_t kCrossTierEscapeHardStallMs = 12000;
 // 路点无推进期间全局重定位达到这么多次就失败
 constexpr int32_t kLocalizationThrashFailCount = 5;
 

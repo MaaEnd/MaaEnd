@@ -23,10 +23,12 @@ using DynamicAnchor = std::pair<size_t, Waypoint>;
 constexpr size_t kUnaddressableAnchorIndex = std::numeric_limits<size_t>::max();
 
 bool ZonesDiffer(const std::string& a, const std::string& b);
+bool ZonesDifferInGeometry(const NaviParam& param, const std::string& a, const std::string& b);
 bool IsZoneCompatible(const Waypoint& waypoint, const std::string& current_zone_id);
 bool IsRequiredSemanticAnchor(const Waypoint& waypoint);
-std::optional<DynamicAnchor> ResolveCurrentAnchorFrom(NavigationSession* session, const NaviPosition& position, size_t start_index);
-std::optional<DynamicAnchor> ResolveCurrentAnchor(NavigationSession* session, const NaviPosition& position);
+std::optional<DynamicAnchor>
+    ResolveCurrentAnchorFrom(const NaviParam& param, NavigationSession* session, const NaviPosition& position, size_t start_index);
+std::optional<DynamicAnchor> ResolveCurrentAnchor(const NaviParam& param, NavigationSession* session, const NaviPosition& position);
 std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
     const NaviParam& param,
     NavigationSession* session,

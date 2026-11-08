@@ -33,9 +33,9 @@ bool inside_push_through_disc(const std::vector<VirtualNoGoDisc>& discs, const N
     });
 }
 
-std::optional<DynamicAnchor> resolve_recovery_anchor(NavigationSession* session, const NaviPosition& position)
+std::optional<DynamicAnchor> resolve_recovery_anchor(const NaviParam& param, NavigationSession* session, const NaviPosition& position)
 {
-    if (std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session, position)) {
+    if (std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(param, session, position)) {
         return anchor;
     }
     if (!session->hasCurrentWaypoint()) {
@@ -55,8 +55,8 @@ std::optional<DynamicAnchor> resolve_recovery_anchor(NavigationSession* session,
 TickStep NavigationStateMachine::checkOffRouteWedge(const NavigateTick& tick)
 {
     const RouteMeasurement& route = tick.route;
-    const bool watched = session_->phase() == NaviPhase::Navigate && tick.waypoint.isContinuousRun() && !route.on_route
-                         && std::isfinite(route.cross_track) && !runtime_state_.cross_tier_escape.active;
+    const bool watched =
+        session_->phase() == NaviPhase::Navigate && tick.waypoint.isContinuousRun() && !route.on_route && std::isfinite(route.cross_track);
     if (!watched) {
         runtime_state_.offroute.reset();
         return TickStep::Next;
@@ -107,11 +107,11 @@ TickStep NavigationStateMachine::runObstacleRecovery(const NavigateTick& tick)
     const bool far_or_strict = tick.effective_progress > kNoProgressMinDistance || waypoint.requiresStrictArrival();
     const bool should_try_recovery = session_->phase() == NaviPhase::Navigate
                                      && (tick.stalled_ms >= kObstacleRecoveryMinTriggerMs || forward_hold_futile)
-                                     && (far_or_strict || pinned_without_own_fallback) && !runtime_state_.cross_tier_escape.active;
+                                     && (far_or_strict || pinned_without_own_fallback);
     if (!should_try_recovery) {
         return TickStep::Next;
     }
-    const std::optional<DynamicAnchor> anchor = resolve_recovery_anchor(session_, *position_);
+    const std::optional<DynamicAnchor> anchor = resolve_recovery_anchor(param_, session_, *position_);
     if (!anchor) {
         return TickStep::Next;
     }
@@ -198,7 +198,7 @@ bool NavigationStateMachine::climbRecoveryLadder(const NavigateTick& tick, bool 
         return true;
     }
 
-    const bool jump_zone_changed = ZonesDiffer(jump_start.zone_id, position_->zone_id);
+    const bool jump_zone_changed = ZonesDifferInGeometry(param_, jump_start.zone_id, position_->zone_id);
     const double jump_displacement = std::hypot(position_->x - jump_start.x, position_->y - jump_start.y);
     const double jump_waypoint_distance = std::hypot(waypoint.x - position_->x, waypoint.y - position_->y);
     const bool jump_made_progress = jump_waypoint_distance + kNoProgressDistanceEpsilon < route.waypoint_distance;
@@ -215,7 +215,7 @@ bool NavigationStateMachine::escalatePastJump(const NavigateTick& tick)
     const RouteMeasurement& route = tick.route;
     DynamicRecoveryState& recovery = runtime_state_.recovery;
     RecoveryEscalationState& escalation = runtime_state_.recovery_escalation;
-    const std::optional<DynamicAnchor> post_jump_anchor = resolve_recovery_anchor(session_, *position_);
+    const std::optional<DynamicAnchor> post_jump_anchor = resolve_recovery_anchor(param_, session_, *position_);
     if (!post_jump_anchor) {
         LogWarn << "Dynamic recovery skipped: no future anchor after post-jump local tracking." << VAR(position_->x) << VAR(position_->y)
                 << VAR(position_->zone_id);
@@ -303,7 +303,7 @@ bool NavigationStateMachine::executePhysicalUnstick(double stuck_heading)
     failure_trail_.note(std::chrono::steady_clock::now(), dislodged ? "recovery unstick dislodged" : "recovery unstick stuck");
 
     // 禁区以位移前的位置为原点, 障碍在那里的前方
-    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session_, *position_);
+    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(param_, session_, *position_);
     const bool replanned =
         (anchor && tryVirtualNoGoReplan("recovery_unstick_replan", anchor->first, anchor->second, step_start, stuck_heading))
         || tryApplyDynamicOverlayToNextAnchor("recovery_unstick_replan");

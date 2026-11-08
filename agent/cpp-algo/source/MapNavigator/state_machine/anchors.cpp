@@ -7,6 +7,7 @@
 
 #include "../navi_config.h"
 #include "../planning/navmesh_path_expander.h"
+#include "../planning/navmesh_queries.h"
 #include "internal.h"
 
 namespace mapnavigator
@@ -15,6 +16,11 @@ namespace mapnavigator
 bool ZonesDiffer(const std::string& a, const std::string& b)
 {
     return !a.empty() && !b.empty() && a != b;
+}
+
+bool ZonesDifferInGeometry(const NaviParam& param, const std::string& a, const std::string& b)
+{
+    return ZonesDiffer(a, b) && !NavmeshZonesShareGeometry(param, a, b);
 }
 
 bool IsZoneCompatible(const Waypoint& waypoint, const std::string& current_zone_id)
@@ -30,7 +36,8 @@ bool IsRequiredSemanticAnchor(const Waypoint& waypoint)
     return !waypoint.isContinuousRun();
 }
 
-std::optional<DynamicAnchor> ResolveCurrentAnchorFrom(NavigationSession* session, const NaviPosition& position, size_t start_index)
+std::optional<DynamicAnchor>
+    ResolveCurrentAnchorFrom(const NaviParam& param, NavigationSession* session, const NaviPosition& position, size_t start_index)
 {
     std::optional<DynamicAnchor> fallback;
     const size_t path_size = session->currentPath().size();
@@ -41,7 +48,7 @@ std::optional<DynamicAnchor> ResolveCurrentAnchorFrom(NavigationSession* session
             continue;
         }
         if (waypoint.isZoneDeclaration()) {
-            if (ZonesDiffer(waypoint.zone_id, position.zone_id)) {
+            if (ZonesDifferInGeometry(param, waypoint.zone_id, position.zone_id)) {
                 return fallback;
             }
             continue;
@@ -52,7 +59,7 @@ std::optional<DynamicAnchor> ResolveCurrentAnchorFrom(NavigationSession* session
             }
             continue;
         }
-        if (!IsZoneCompatible(waypoint, position.zone_id)) {
+        if (ZonesDifferInGeometry(param, waypoint.zone_id, position.zone_id)) {
             continue;
         }
 
@@ -64,9 +71,9 @@ std::optional<DynamicAnchor> ResolveCurrentAnchorFrom(NavigationSession* session
     return fallback;
 }
 
-std::optional<DynamicAnchor> ResolveCurrentAnchor(NavigationSession* session, const NaviPosition& position)
+std::optional<DynamicAnchor> ResolveCurrentAnchor(const NaviParam& param, NavigationSession* session, const NaviPosition& position)
 {
-    return ResolveCurrentAnchorFrom(session, position, session->currentNodeIdx());
+    return ResolveCurrentAnchorFrom(param, session, position, session->currentNodeIdx());
 }
 
 std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
@@ -89,7 +96,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
             continue;
         }
         if (waypoint.isZoneDeclaration()) {
-            if (ZonesDiffer(waypoint.zone_id, position.zone_id)) {
+            if (ZonesDifferInGeometry(param, waypoint.zone_id, position.zone_id)) {
                 break;
             }
             continue;
@@ -100,7 +107,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
             }
             continue;
         }
-        if (!IsZoneCompatible(waypoint, position.zone_id)) {
+        if (ZonesDifferInGeometry(param, waypoint.zone_id, position.zone_id)) {
             continue;
         }
 

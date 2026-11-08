@@ -200,7 +200,7 @@ std::optional<DynamicAnchor> resolve_bootstrap_anchor(const NaviParam& param, Na
     if (std::optional<DynamicAnchor> navmesh_anchor = ResolveReachableNavmeshAnchor(param, session, position, start_index, "bootstrap")) {
         return navmesh_anchor;
     }
-    return ResolveCurrentAnchorFrom(session, position, start_index);
+    return ResolveCurrentAnchorFrom(param, session, position, start_index);
 }
 
 } // namespace
@@ -229,7 +229,7 @@ bool NavigationStateMachine::bootstrap()
         LogInfo << "Bootstrap navmesh planning disabled by route param." << VAR(position_->x) << VAR(position_->y)
                 << VAR(position_->zone_id);
     }
-    if (anchor && tryApplyDynamicOverlayToAnchor("bootstrap_navmesh_overlay", anchor->first, anchor->second, false)) {
+    if (anchor && tryApplyDynamicOverlayToAnchor("bootstrap_navmesh_overlay", anchor->first, anchor->second)) {
         selectPhaseForCurrentWaypoint("bootstrap_navmesh_overlay");
         return true;
     }

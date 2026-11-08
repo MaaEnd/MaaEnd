@@ -486,13 +486,6 @@ struct GeneratedWaypointWriter
         markRope(index);
     }
 
-    void appendInteriorCorners(size_t loop_end)
-    {
-        for (size_t index = 1; index < loop_end; ++index) {
-            emitPoint(index, index + 1 == path.points.size());
-        }
-    }
-
     void appendPulledCorners(size_t anchor)
     {
         // 规划器已拉直的路线直接照抄下标, 这里的判据在叠层处会把楼下那层的捷径判成可走
@@ -570,11 +563,6 @@ bool append_generated_waypoints(
     };
     const size_t total = world_path.points.size();
     const size_t loop_end = options.include_goal ? total : total - 1;
-    if (options.emit_interior_corners) {
-        writer.appendInteriorCorners(loop_end);
-        return true;
-    }
-
     const std::unordered_set<size_t> segment_breaks(world_path.segment_breaks.begin(), world_path.segment_breaks.end());
     for (size_t index = 1; index < loop_end; ++index) {
         if (!segment_breaks.contains(index)) {

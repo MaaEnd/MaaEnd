@@ -388,29 +388,6 @@ struct DwellWatchdogState
     }
 };
 
-// 掉到错的楼层后沿一条规划好的走廊回到作者路线; anchor_zone 是掉进去的那层
-struct CrossTierEscapeState
-{
-    bool active = false;
-    std::string anchor_zone;
-    double goal_x = 0.0;
-    double goal_y = 0.0;
-
-    void reset()
-    {
-        active = false;
-        anchor_zone.clear();
-        goal_x = 0.0;
-        goal_y = 0.0;
-    }
-
-    void engage(const std::string& zone)
-    {
-        active = true;
-        anchor_zone = zone;
-    }
-};
-
 struct ProgressIdentityState
 {
     static constexpr size_t kSerialKeyBias = std::numeric_limits<size_t>::max() / 2;
@@ -518,7 +495,6 @@ struct NavigationRuntimeState
     OffRouteWedgeState offroute;
     // 不进任何 reset, 只在走出盘或换区时自清, 或由 beginNavigation 清
     DwellWatchdogState dwell;
-    CrossTierEscapeState cross_tier_escape;
     // 推进点位或重开导航就清
     FindState find;
     // 只由 beginNavigation 清, 推进点位不重置识别节拍
@@ -566,7 +542,6 @@ struct NavigationRuntimeState
         steering_rate.reset();
         offroute.reset();
         dwell.reset();
-        cross_tier_escape.reset();
         zipline_approach.reset();
         interact_approach.reset();
         zipline_recovery.reset();

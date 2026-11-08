@@ -218,7 +218,6 @@ TickStep NavigationStateMachine::runInlineSemantics()
             return EndTickWith(handleLocalizationLoss());
         }
     }
-    endCrossTierEscapeAtRejoin();
     if (const TickStep step = concludeSemanticStep(semantic_nodes::ConsumeInlineSemantics(semanticContext())); step != TickStep::Next) {
         return step;
     }
