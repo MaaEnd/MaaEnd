@@ -1336,6 +1336,7 @@
     "option.AutoFightDodgeCompat.label": "相容模式",
     "option.AutoFightEndSkill.label": "自動釋放終結技",
     "option.AutoFightHealthDangerousSwitch.label": "自動切換低血量幹員到後台",
+    "option.AutoFightKeepSpecialForm.label": "自動保持技能形態",
     "option.AutoFightLockTarget.description": "當敵人不在視角內自動尋找並靠近敵人，當敵人在視角內才會放戰技、終結技",
     "option.AutoFightLockTarget.label": "自動鎖定目標",
     "option.AutoFightReserveSkillLevel.label": "保留技能能量",

@@ -587,7 +587,14 @@
                     "option": [
                         "AutoFightAxisData",
                         "AutoFightAxisSkipComboCooldown"
-                    ]
+                    ],
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_keep_special_form": false
+                            }
+                        }
+                    }
                 },
                 {
                     "name": "No",
@@ -611,7 +618,14 @@
                     "option": [
                         "AutoFightAxisData",
                         "AutoFightAxisSkipComboCooldown"
-                    ]
+                    ],
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_keep_special_form": false
+                            }
+                        }
+                    }
                 },
                 {
                     "name": "No",
@@ -684,7 +698,8 @@
                         "AutoFightSkillOperator1",
                         "AutoFightSkillOperator2",
                         "AutoFightSkillOperator3",
-                        "AutoFightSkillOperator4"
+                        "AutoFightSkillOperator4",
+                        "AutoFightKeepSpecialForm"
                     ],
                     "pipeline_override": {
                         "AutoFight": {
@@ -699,13 +714,41 @@
                     "pipeline_override": {
                         "AutoFight": {
                             "attach": {
-                                "enable_skill": false
+                                "enable_skill": false,
+                                "enable_keep_special_form": false
                             }
                         }
                     }
                 }
             ],
             "default_case": "Yes"
+        },
+        "AutoFightKeepSpecialForm": {
+            "type": "switch",
+            "label": "$option.AutoFightKeepSpecialForm.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_keep_special_form": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_keep_special_form": false
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
         },
         "AutoFightReserveSkillLevel": {
             "type": "select",

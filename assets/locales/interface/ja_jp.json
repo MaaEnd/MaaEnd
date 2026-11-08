@@ -1336,6 +1336,7 @@
     "option.AutoFightDodgeCompat.label": "互換モード",
     "option.AutoFightEndSkill.label": "必殺技自動使用",
     "option.AutoFightHealthDangerousSwitch.label": "低HPオペレーターを後衛へ自動切替",
+    "option.AutoFightKeepSpecialForm.label": "スキル形態を自動維持",
     "option.AutoFightLockTarget.description": "敵が視界外のときは自動で敵を探索し接近し、視界内に敵がいる場合のみ戦技・必殺技を使用します。",
     "option.AutoFightLockTarget.label": "ターゲット自動ロック",
     "option.AutoFightReserveSkillLevel.label": "スキルエネルギーを保留",

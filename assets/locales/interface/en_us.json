@@ -1336,6 +1336,7 @@
     "option.AutoFightDodgeCompat.label": "Compatibility Mode",
     "option.AutoFightEndSkill.label": "Auto Use Ultimate",
     "option.AutoFightHealthDangerousSwitch.label": "Auto Switch Low-HP Operators to Back Line",
+    "option.AutoFightKeepSpecialForm.label": "Automatically maintain stance",
     "option.AutoFightLockTarget.description": "Automatically searches for and approaches enemies when they are outside the field of view; combat skills and ultimates are only used when enemies are visible.",
     "option.AutoFightLockTarget.label": "Auto Lock Target",
     "option.AutoFightReserveSkillLevel.label": "Reserve Skill Energy",
