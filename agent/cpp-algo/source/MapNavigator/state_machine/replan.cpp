@@ -44,11 +44,7 @@ auto with_planning_pause(MotionController* motion, NavigationRuntimeState* runti
 
 } // namespace
 
-bool NavigationStateMachine::tryApplyDynamicOverlayToAnchor(
-    const char* reason,
-    size_t continue_index,
-    const Waypoint& anchor,
-    bool emit_interior_corners)
+bool NavigationStateMachine::tryApplyDynamicOverlayToAnchor(const char* reason, size_t continue_index, const Waypoint& anchor)
 {
     if (!anchor.hasPosition()) {
         LogWarn << "Dynamic navmesh overlay skipped: anchor has no position." << VAR(reason) << VAR(continue_index);
@@ -88,7 +84,7 @@ bool NavigationStateMachine::tryApplyDynamicOverlayToAnchor(
             position_->zone_id,
             *route,
             generated_prefix,
-            { .include_goal = false, .emit_interior_corners = emit_interior_corners, .strict_segment_breaks = false })) {
+            { .include_goal = false, .strict_segment_breaks = false })) {
         LogWarn << "Dynamic navmesh overlay skipped: generated path is unusable." << VAR(reason) << VAR(continue_index)
                 << VAR(route->path.points.size());
         return false;
@@ -116,14 +112,14 @@ bool NavigationStateMachine::tryApplyDynamicOverlayToAnchor(
 
 bool NavigationStateMachine::tryApplyDynamicOverlayToNextAnchor(const char* reason)
 {
-    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session_, *position_);
+    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(param_, session_, *position_);
     if (!anchor) {
         runtime_state_.dynamic_replan_requested = false;
         LogInfo << "Dynamic navmesh overlay skipped: no future anchor." << VAR(reason) << VAR(position_->x) << VAR(position_->y)
                 << VAR(position_->zone_id);
         return false;
     }
-    return tryApplyDynamicOverlayToAnchor(reason, anchor->first, anchor->second, /*emit_interior_corners=*/false);
+    return tryApplyDynamicOverlayToAnchor(reason, anchor->first, anchor->second);
 }
 
 bool NavigationStateMachine::tryVirtualNoGoReplan(
@@ -200,7 +196,7 @@ bool NavigationStateMachine::tryVirtualNoGoReplan(
 
 bool NavigationStateMachine::giveUpUnreachableZipline(const char* reason)
 {
-    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session_, *position_);
+    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(param_, session_, *position_);
     if (!anchor || anchor->second.action != ActionType::ZIPLINE) {
         return false;
     }

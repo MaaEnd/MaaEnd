@@ -193,6 +193,7 @@ struct RecoveryEscalationState
     int device_attempt_count = 0;
     int jump_attempt_count = 0;
     int detour_attempt_count = 0;
+    std::string blocked_reason;
 
     void reset()
     {
@@ -200,6 +201,7 @@ struct RecoveryEscalationState
         device_attempt_count = 0;
         jump_attempt_count = 0;
         detour_attempt_count = 0;
+        blocked_reason.clear();
     }
 
     void retarget(size_t anchor)
@@ -388,29 +390,6 @@ struct DwellWatchdogState
     }
 };
 
-// 掉到错的楼层后沿一条规划好的走廊回到作者路线; anchor_zone 是掉进去的那层
-struct CrossTierEscapeState
-{
-    bool active = false;
-    std::string anchor_zone;
-    double goal_x = 0.0;
-    double goal_y = 0.0;
-
-    void reset()
-    {
-        active = false;
-        anchor_zone.clear();
-        goal_x = 0.0;
-        goal_y = 0.0;
-    }
-
-    void engage(const std::string& zone)
-    {
-        active = true;
-        anchor_zone = zone;
-    }
-};
-
 struct ProgressIdentityState
 {
     static constexpr size_t kSerialKeyBias = std::numeric_limits<size_t>::max() / 2;
@@ -477,6 +456,15 @@ struct InteractApproachState
     void reset() { prompt_missed_node.reset(); }
 };
 
+struct PromptRepeatState
+{
+    std::optional<size_t> node;
+    size_t prompt = 0;
+    int32_t recognized = 0;
+
+    void reset() { *this = {}; }
+};
+
 // 退索后要连续几次稳定的新定位重新确认位置, 才接回剩余路线
 struct ZiplineRecoveryState
 {
@@ -518,7 +506,6 @@ struct NavigationRuntimeState
     OffRouteWedgeState offroute;
     // 不进任何 reset, 只在走出盘或换区时自清, 或由 beginNavigation 清
     DwellWatchdogState dwell;
-    CrossTierEscapeState cross_tier_escape;
     // 推进点位或重开导航就清
     FindState find;
     // 只由 beginNavigation 清, 推进点位不重置识别节拍
@@ -526,6 +513,7 @@ struct NavigationRuntimeState
     // 不进任何 reset, 换了上索点按身份自清, 或由 beginNavigation 清
     ZiplineApproachState zipline_approach;
     InteractApproachState interact_approach;
+    PromptRepeatState prompt_repeat;
     ZiplineRecoveryState zipline_recovery;
     // 账本跨越丢链和重规划, 只由 beginNavigation 清
     ZiplineRideMachine zipline_ride;
@@ -566,9 +554,9 @@ struct NavigationRuntimeState
         steering_rate.reset();
         offroute.reset();
         dwell.reset();
-        cross_tier_escape.reset();
         zipline_approach.reset();
         interact_approach.reset();
+        prompt_repeat.reset();
         zipline_recovery.reset();
         find.reset();
         trigger.reset();

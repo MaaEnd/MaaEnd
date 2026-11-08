@@ -120,7 +120,7 @@ void NavigationStateMachine::updateWalkMode(NaviPhase phase)
         return;
     }
 
-    const bool recovering = runtime_state_.recovery.active || runtime_state_.cross_tier_escape.active;
+    const bool recovering = runtime_state_.recovery.active;
     if (phase == NaviPhase::Navigate && position_->valid && !recovering && !runtime_state_.river_fall.pending
         && runtime_state_.flow.corner_walk) {
         walk_mode_.request(true);

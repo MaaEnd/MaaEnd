@@ -162,6 +162,7 @@ constexpr double kMinArrivalBand = 1.0;
 constexpr int32_t kObstacleRecoveryMinTriggerMs = 3500;
 constexpr int32_t kDynamicRecoveryRetryIntervalMs = kObstacleRecoveryMinTriggerMs;
 constexpr int32_t kDynamicRecoveryTotalTimeoutMs = 30000;
+constexpr int32_t kNearTargetRecoveryBudgetMs = 12000;
 constexpr int32_t kRecoveryJumpAttemptsBeforeDetour = 2;
 constexpr double kDynamicRecoveryResetDistance = 2.0;
 constexpr int32_t kRecoveryDetourAttemptsBeforeUnstick = 3;
@@ -204,9 +205,6 @@ constexpr int32_t kFailureTrailWindowMs = 90000;
 constexpr int32_t kFailureTrailSampleIntervalMs = 1000;
 constexpr int32_t kFailureTrailSlowArrivalMs = 200; // 短于此的到点动作不记
 
-// 跨层脱困的到达距离, 须同时已回到基础区才算退出
-constexpr double kCrossTierEscapeArrivalM = 3.0;
-constexpr int32_t kCrossTierEscapeHardStallMs = 12000;
 // 路点无推进期间全局重定位达到这么多次就失败
 constexpr int32_t kLocalizationThrashFailCount = 5;
 
@@ -377,6 +375,7 @@ constexpr double kPromptIconMatchThreshold = 0.75;
 constexpr const char* kInteractScanNode = "MapNavigatorInteractScan";
 // 检测触发尝试的唯一节流, 只有真正尝试时才计时
 constexpr int32_t kPromptScanIntervalMs = 1200;
+constexpr int32_t kPromptRecognizedRepeatLimit = 5;
 constexpr double kCollectArrivalBandWu = 1.5;
 // 这么久无进展就退回常规判定圈
 constexpr int32_t kCollectArrivalRelaxMs = 6000;

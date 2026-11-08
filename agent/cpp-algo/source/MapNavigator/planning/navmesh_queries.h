@@ -55,7 +55,6 @@ std::vector<std::vector<double>> NavmeshGroundHeights(
 // 两点的连通类集合不相交就必然规划不通, 空集表示无从判断, 应当允许尝试
 std::vector<std::vector<uint32_t>>
     NavmeshRegionsNear(const NaviParam& param, const std::string& locator_zone, const std::vector<navmesh::WorldPoint>& points);
-float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone);
 bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b);
 
 template <typename Fn>

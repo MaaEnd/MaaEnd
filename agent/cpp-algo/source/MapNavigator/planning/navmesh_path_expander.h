@@ -74,7 +74,6 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
 struct GeneratedWaypointOptions
 {
     bool include_goal = true;
-    bool emit_interior_corners = false;
     bool strict_segment_breaks = true;
 };
 

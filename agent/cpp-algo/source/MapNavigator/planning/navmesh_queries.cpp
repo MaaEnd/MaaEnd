@@ -41,18 +41,6 @@ void NormalizeLivePositionToBase(const NaviParam& param, NaviPosition& pos)
     }
 }
 
-float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone)
-{
-    if (locator_zone.empty()) {
-        return navmesh::kBaseNavFloorYNone;
-    }
-    const ZoneNavmesh zone = LoadZoneNavmesh(param, locator_zone);
-    if (!zone.mesh) {
-        return navmesh::kBaseNavFloorYNone;
-    }
-    return zone.mesh->pack.floorYForZoneName(locator_zone);
-}
-
 bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b)
 {
     if (zone_a.empty() || zone_b.empty()) {

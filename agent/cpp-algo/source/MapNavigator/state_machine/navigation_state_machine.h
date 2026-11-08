@@ -95,9 +95,6 @@ private:
     bool resumeAfterGlobalReacquire(const std::string& prior_zone, std::chrono::milliseconds loss_elapsed);
     bool armRiverFallRecoveryIfBlackScreenLoss(const char* via);
     TickStep runRiverFallRecovery(const NavigateTick& tick);
-    bool tryEnterCrossTierEscape();
-    bool planCrossTierEscapeCorridorFromHere(const char* reason);
-    void endCrossTierEscapeAtRejoin();
 
     void trackRoute(NavigateTick& tick);
     TickFix readFix(std::chrono::steady_clock::time_point now);
@@ -114,11 +111,7 @@ private:
     TickStep settleAtArrival(const NavigateTick& tick);
     TickStep passArrivedWaypoints(NavigateTick& tick);
 
-    bool tryApplyDynamicOverlayToAnchor(
-        const char* reason,
-        size_t continue_index,
-        const Waypoint& anchor,
-        bool emit_interior_corners = false);
+    bool tryApplyDynamicOverlayToAnchor(const char* reason, size_t continue_index, const Waypoint& anchor);
     bool tryApplyDynamicOverlayToNextAnchor(const char* reason);
     // 在 origin 前方放一块禁区再规划到锚点; 这里是唯一通路时把禁区标成 push_through 并返回 false
     bool tryVirtualNoGoReplan(
@@ -136,7 +129,8 @@ private:
 
     TickStep checkOffRouteWedge(const NavigateTick& tick);
     TickStep runObstacleRecovery(const NavigateTick& tick);
-    bool climbRecoveryLadder(const NavigateTick& tick, bool far_or_strict);
+    void noteRecoveryBlocked(const char* reason);
+    bool climbRecoveryLadder(const NavigateTick& tick);
     bool escalatePastJump(const NavigateTick& tick);
     bool executePhysicalUnstick(double stuck_heading);
 
