@@ -6,11 +6,13 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
-	"github.com/MaaXYZ/maa-framework-go/v4"
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -57,15 +59,23 @@ type ScreenAnalyzer struct {
 	mobileLayout bool
 }
 
-// FrameCount prunes expired frames (older than 30s) and returns the current count.
-func (sa *ScreenAnalyzer) FrameCount() int {
+// pruneFrames 原地裁掉 30 秒之前的帧：压缩复用底层数组（消除每帧重新分配），
+// 并清零尾部槽位，让已裁帧的检测引用可被 GC 回收。
+func (sa *ScreenAnalyzer) pruneFrames() {
 	cutoff := time.Now().Add(-30 * time.Second)
 	i := 0
 	for i < len(sa.frames) && sa.frames[i].Timestamp.Before(cutoff) {
 		i++
 	}
-	sa.frames = sa.frames[i:]
-	return len(sa.frames)
+	if i == 0 {
+		return
+	}
+	remaining := copy(sa.frames, sa.frames[i:])
+	tail := sa.frames[remaining:]
+	for j := range tail {
+		tail[j] = screenFrame{}
+	}
+	sa.frames = sa.frames[:remaining]
 }
 
 func NewScreenAnalyzer() *ScreenAnalyzer {
@@ -85,6 +95,7 @@ func (sa *ScreenAnalyzer) UpdateScreenDetail(ctx *maa.Context, arg image.Image) 
 
 	if !detail_reco.Hit || detail_reco.Results.All == nil {
 		sa.frames = append(sa.frames, screenFrame{Timestamp: time.Now()})
+		sa.pruneFrames()
 		return true
 	}
 
@@ -127,15 +138,8 @@ func (sa *ScreenAnalyzer) UpdateScreenDetail(ctx *maa.Context, arg image.Image) 
 	// 	Floats64("scores", scores).
 	// 	Msg("Screen frame updated")
 
-	// 删除时间过久的帧
-	cutoff := time.Now().Add(-30 * time.Second)
-	newFrames := make([]screenFrame, 0, len(sa.frames))
-	for _, f := range sa.frames {
-		if f.Timestamp.After(cutoff) {
-			newFrames = append(newFrames, f)
-		}
-	}
-	sa.frames = newFrames
+	// 删除时间过久的帧（Hit/Miss 两条路径都会走到裁剪，缓冲恒有界）
+	sa.pruneFrames()
 
 	return true
 }
@@ -205,6 +209,21 @@ func (sa *ScreenAnalyzer) hasLabelInFrames(label string, n int, unused bool, reg
 	}
 
 	return true
+}
+
+// DetectionFingerprint 将最近一帧的检测集合折叠为稳定指纹（标签 + 量化坐标），
+// 供防站桩看门狗判断画面检测输出是否停滞。
+func (sa *ScreenAnalyzer) DetectionFingerprint() string {
+	if len(sa.frames) == 0 {
+		return ""
+	}
+	frame := sa.frames[len(sa.frames)-1]
+	parts := make([]string, 0, len(frame.Detections))
+	for _, det := range frame.Detections {
+		parts = append(parts, fmt.Sprintf("%s:%d,%d", det.Label, det.Box[0]/16, det.Box[1]/16))
+	}
+	sort.Strings(parts)
+	return strings.Join(parts, ";")
 }
 
 func (sa *ScreenAnalyzer) MarkLabelUsed(label string) {
@@ -296,6 +315,11 @@ var enemyTargetCenterRegion = maa.Rect{340, 0, 600, 720}
 
 func (sa *ScreenAnalyzer) GetEnemyTargetCenter() bool {
 	return sa.hasLabelInDuration(LabelEnemyTarget, 3*time.Second, enemyTargetCenterRegion)
+}
+
+// LatestEnemyTargetBox 返回最近 1 帧的 EnemyTarget 检测框，供持续对准视角使用。
+func (sa *ScreenAnalyzer) LatestEnemyTargetBox() (maa.Rect, bool) {
+	return sa.latestLabelBox(LabelEnemyTarget, 1)
 }
 
 func (sa *ScreenAnalyzer) GetEnemyDodge() bool {

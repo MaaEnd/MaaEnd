@@ -11,6 +11,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -96,6 +97,13 @@ func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
 		return false
 	}
 	return detail.Hit
+}
+
+func absIntLocal(v int) int {
+	if v < 0 {
+		return -v
+	}
+	return v
 }
 
 // hitExitNode 在 img 上依次运行 nodes 中各节点的识别，返回首个命中的节点名，未命中返回空字符串。
@@ -411,6 +419,10 @@ var (
 type AutoFightMainAction struct{}
 
 func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	// 跨轮不残留：每场战斗重置识别帧缓冲与动作队列（上一场残留帧会污染
+	// 前 5 帧投票，残留动作会开场误触发）。
+	screenAnalyzer = NewScreenAnalyzer()
+	actionQueue = nil
 	// 回调入口刷新一次控制器布局，下游的识别区域与 label 都按它取。
 	screenAnalyzer.RefreshLayout(ctx)
 
@@ -459,6 +471,16 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	skillCycleIndex := 1
 	skillModes := params.skillModes()
 	var skillUsedOnce [4]bool
+	// 终结技按操作者的释放验证窗：窗内不重施（防连点），窗后仍就绪则重试（防漏放）
+	var endSkillCastAt [4]time.Time
+	const endSkillRecastWindow = 3 * time.Second
+	// 持续对准敌人的上次转向时刻（300ms 冷却，防止每帧狂转）
+	var lastEnemyAlignAt time.Time
+	// 防站桩看门狗状态：每秒采样一次检测特征，连续 5 次不变判定停滞
+	stallFingerprint := ""
+	stallCount := 0
+	lastStallSample := time.Now()
+	lastAntiStall := time.Now()
 
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchDown", maa.Rect{600, 320, 80, 80}, "", nil)
@@ -481,8 +503,26 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		}
 
 		// 暂停判定：检查是否在战斗空间内
+		// 波次刷新后干员指示会间歇漏检（识别率约半数，被 GetCharacterSelect 的
+		// 5 帧可靠性否决拦下），仅凭当前帧会让暂停分支反复进出：锁敌、战技、
+		// 终结技全被跳过，表现为站桩，直到暂停超时或等级徽记误判提前退出。
+		// 用 2 秒时长窗兜底：最近 2 秒内见过干员指示即视为仍在战斗空间；
+		// 终结技动画等真遮挡在窗口耗尽后照旧进入暂停，保留动画期保护。
 		charSelect := screenAnalyzer.GetCharacterSelect()
-		inFightSpace := charSelect > 0
+		inFightSpace := charSelect > 0 ||
+			screenAnalyzer.hasLabelInDuration(LabelCharacterSelect, 2*time.Second)
+
+		// 敌人存在旁路：boss 战/过场动画期间 HUD 可能被特效遮挡，
+		// CharacterSelect 会整段漏检。只要画面上仍有敌人目标、锁定态、
+		// 闪避预警或 Boss 血条，就强制视为仍在战斗空间，绝不进暂停，
+		// 避免「boss 在眼前、角色持续挨揍却不闪避/不普攻」的站桩死锁。
+		// 用短时长窗而非单帧，防止单帧误检把暂停态硬拖成战斗态。
+		if !inFightSpace {
+			inFightSpace = screenAnalyzer.hasLabelInDuration(LabelEnemyTarget, 2*time.Second) ||
+				screenAnalyzer.hasLabelInDuration(LabelEnemyLocked, 2*time.Second) ||
+				screenAnalyzer.hasLabelInDuration(LabelEnemyDodge, 2*time.Second) ||
+				screenAnalyzer.hasLabelInDuration(LabelEnemyBossHealth, 2*time.Second)
+		}
 		if inFightSpace {
 			pauseStart = time.Time{}
 		} else {
@@ -535,6 +575,38 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				break
 			}
 		}
+
+		// 防站桩看门狗：战斗状态下每秒采样一次检测特征，连续 5 次无变化判定
+		// 状态机停滞（锁定重试/决策循环失去推进力）。保存现场、重置锁定状态
+		// 机并强制闪避打破僵局；15 秒冷却防止闪避连发。
+		if time.Since(lastStallSample) >= time.Second {
+			lastStallSample = time.Now()
+			fp := screenAnalyzer.DetectionFingerprint()
+			if fp == stallFingerprint {
+				stallCount++
+			} else {
+				stallFingerprint = fp
+				stallCount = 0
+			}
+			if stallCount >= 5 && time.Since(lastAntiStall) >= 15*time.Second {
+				log.Info().
+					Str("component", "AutoFight").
+					Int("stallSeconds", stallCount).
+					Msg("combat stalled, resetting lock state and dodging")
+				saveExitImage(img, "anti_stall")
+				maafocus.Print(ctx, i18n.T("autofight.anti_stall"))
+				noLockStart = time.Now()
+				lockTargetStage = lockStageLocked
+				firstNoLockIteration = true
+				lastDodgeAt = time.Time{}
+				enqueueAction(fightAction{
+					executeAt: time.Now().Add(time.Millisecond),
+					action:    ActionDodge,
+				})
+				lastAntiStall = time.Now()
+				stallCount = 0
+			}
+		}
 		// CharacterLevel小概率识别不到，comboEmpty大概率不显示了依然命中，双重保险
 		// if len(comboFull) == 0 && len(comboEmpty) == 0 {
 		// 	log.Info().Str("component", "AutoFight").Msg("no combo detected, exiting fight")
@@ -556,6 +628,33 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				Any("comboFull", comboFull).
 				Msg("initial character count detected")
 			maafocus.Print(ctx, i18n.T("autofight.character_count", characterCount))
+		}
+
+		// 持续对准敌人：YOLO 的 EnemyDodge 预警图标只有在敌人位于画面正方向时
+		// 才稳定出现在可识别区域。怪物从侧面/背后攻击时预警框会跑到视野边缘
+		// 被漏检，表现为「不掉血提示就挨揍」。这里用 EnemyTarget 检测框的 X 偏移
+		// 微调视角，把敌人保持在屏幕中央带（GetEnemyTargetCenter 的 600px 竖区）。
+		// 敌人存在即可对准：boss 刚刷新在画面边缘时游戏尚未锁定，
+		// 若坚持要求 GetEnemyLocked()，这一整段不会执行，角色就会保持
+		// 歪视角挨揍、也不去锁。放宽为「已锁定 或 画面里有敌人目标/Boss 血条」。
+		// 用短时长窗判定，避免单帧误检导致无意义狂转。
+		enemyVisible := screenAnalyzer.GetEnemyLocked() ||
+			screenAnalyzer.GetEnemyTarget() ||
+			screenAnalyzer.GetEnemyBossHealth()
+		if params.EnableLockTarget && enemyVisible && time.Since(lastEnemyAlignAt) >= 300*time.Millisecond {
+			if !screenAnalyzer.GetEnemyTargetCenter() {
+				if box, ok := screenAnalyzer.LatestEnemyTargetBox(); ok {
+					offset := box.X() + box.Width()/2 - 640
+					if absIntLocal(offset) > 40 {
+						charactercontroller.RotateView(ctx, offset/3, 0)
+						lastEnemyAlignAt = time.Now()
+						log.Debug().
+							Int("offsetX", offset).
+							Int("dx", offset/3).
+							Msg("aligning view to keep enemy centered")
+					}
+				}
+			}
 		}
 
 		if params.EnableDodge {
@@ -706,13 +805,23 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				if len(endSkillFull) > 0 {
 					screenAnalyzer.MarkLabelUsed(endSkillFullLabel())
 					for _, idx := range endSkillFull {
-						if idx >= 5-characterCount {
-							op := idx + characterCount - 4
-							enqueueAction(fightAction{
-								executeAt: time.Now(),
-								action:    endSkillAction(op),
-							})
+						if idx < 5-characterCount {
+							// 槽位不在可操作干员范围内：继续尝试下一个就绪槽位，
+							// 而不是无条件放弃整轮（旧逻辑 break 会漏放后面的干员）
+							continue
 						}
+						op := idx + characterCount - 4
+						// 释放验证窗：入队后 endSkillRecastWindow 内不重复施放，
+						// 防止长按动画期 HUD 仍显示就绪导致连点；窗口过后槽位
+						// 仍被识别为就绪则视为上次长按未生效，自动重试
+						if time.Since(endSkillCastAt[op-1]) < endSkillRecastWindow {
+							continue
+						}
+						enqueueAction(fightAction{
+							executeAt: time.Now(),
+							action:    endSkillAction(op),
+						})
+						endSkillCastAt[op-1] = time.Now()
 						break
 					}
 				}
@@ -812,29 +921,47 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 
 		drainActionQueue(ctx)
 	}
+	// 战斗退出瞬间：先清空动作队列，再抬起普攻触点。
+	// 队列里残留的 ActionMoveForward / ActionDodge / ActionCombo 会在退出后
+	// 被下一轮 drainActionQueue 执行，让角色「战斗结束了还在往前跑」——
+	// 出口就在旁边也被冲过去。抬触点放在最前面，杜绝退出后普攻继续把角色
+	// 带向更远处。
+	actionQueue = nil
+	lastDodgeAt = time.Time{}
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)
 	}
 
-	// 确保最后的攻击动作执行完毕，避免还在位移时进入下一个pipeline
+	// 等待最后一帧动作收敛，但不再固定空等 3 秒：
+	// 上游原版在这里固定耗 3 秒只截图不做决策，导致「怪杀完了还在点、
+	// 不赶紧转视角找出口」。改为条件退出——只要结算/出口画面已出现
+	// （pause_exit_nodes 命中）或画面已无敌人，立刻把控制权交回 pipeline
+	// 去转视角找出口；最坏情况仍等满 3 秒，保证截图状态收敛。
 	waitStart := time.Now()
 	for time.Since(waitStart) < 3*time.Second {
 		if ctx.GetTasker().Stopping() {
 			break
 		}
-		_, ok := captureAndUpdateScreenDetail(ctx)
+		img, ok := captureAndUpdateScreenDetail(ctx)
 		if !ok {
+			break
+		}
+		if time.Since(waitStart) < 300*time.Millisecond {
+			continue // 至少给一帧缓冲，避免刚退出就抢跑
+		}
+		if len(params.PauseExitNodes) > 0 && hitExitNode(ctx, img, params.PauseExitNodes) != "" {
+			log.Info().Str("component", "AutoFight").Msg("settlement detected — skipping post-fight wait")
+			break
+		}
+		if !screenAnalyzer.GetEnemyTarget() && !screenAnalyzer.GetEnemyLocked() &&
+			!screenAnalyzer.GetEnemyDodge() && !screenAnalyzer.GetEnemyBossHealth() {
+			log.Info().Str("component", "AutoFight").Msg("no enemy on screen — skipping post-fight wait")
 			break
 		}
 	}
 
-	if !ctx.GetTasker().Stopping() && screenAnalyzer.GetEnemyLockedReliable() {
-		enqueueAction(fightAction{
-			executeAt: time.Now().Add(time.Millisecond),
-			action:    ActionLockTarget,
-		})
-		drainActionQueue(ctx)
-	}
+	// 退出后不再补发 LockTarget：战斗已经结束，残留的 EnemyLocked 判定
+	// 只是上一场画面尾部，补发会额外触发一次点击/转向，干扰后续走位。
 	return result
 }
 
