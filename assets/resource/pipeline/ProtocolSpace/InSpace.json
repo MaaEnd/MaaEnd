@@ -230,8 +230,8 @@
         ]
     },
     "ProtocolSpaceEnterSpaceMove": {
-        "desc": "向前移动一步，最多 8 步（max_hit，在 ProtocolSpaceEnterSpaceSuccess 清零），之后改为识别光球并向其移动；技能提升界面起始位置在全低画质下与光球重叠无法识别，所以先走",
-        "max_hit": 8,
+        "desc": "向前移动一步的兜底节点（默认禁用）。上游注释：技能提升关卡出生点在全低画质下与光球重叠无法识别所以先盲走 8 步；实测任务入口强制回大世界重进、出生点固定，且 ProtocolSpaceTouchStartMoveToTarget 的 best.onnx 为全屏检测可独立定位光点，常规画质下该兜底为纯延迟。低画质用户可临时将 max_hit 改回 8 恢复。",
+        "max_hit": 0,
         "recognition": "And",
         "all_of": [
             "InProtocolSpace"
@@ -360,6 +360,7 @@
         "template": "ProtocolSpace/SpaceResart.png",
         "green_mask": true,
         "next": [
+            "ProtocolSpaceTouchExitTouchEdge",
             "ProtocolSpaceTouchExitTouch",
             "ProtocolSpaceOperationFailed",
             "[JumpBack]AutoFight",
@@ -396,7 +397,7 @@
             "align_threshold": 120,
             "far_target_width": 130
         },
-        "post_delay": 600,
+        "post_delay": 120,
         "focus": {
             "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.move_to_exit"
         }
@@ -419,6 +420,47 @@
             "Node.Action.Succeeded": "$task.ProtocolSpace.focus.exit_point_not_found"
         }
     },
+    "ProtocolSpaceTouchExitTouchEdge": {
+        "desc": "出口提示出现在屏幕边缘时全屏兜底，立即按键领取",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "expected": [
+                    "触碰",
+                    "觸碰",
+                    "[Tt]ouch",
+                    "タッチ",
+                    "터치",
+                    "领取",
+                    "領取",
+                    "[Cc]laim",
+                    "受取",
+                    "획득하기"
+                ]
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 70,
+        "post_delay": 2000,
+        "next": [
+            "ProtocolSpaceReward",
+            "ProtocolSpaceTouchExitRetry"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.open_reward"
+        }
+    },
+
     "ProtocolSpaceTouchExitTouch": {
         "desc": "判断出现触碰提示，开始触碰",
         "recognition": "And",
@@ -427,17 +469,22 @@
             {
                 "recognition": "OCR",
                 "roi": [
-                    755,
-                    330,
-                    297,
-                    312
+                    0,
+                    0,
+                    1280,
+                    720
                 ],
                 "expected": [
                     "领取",
                     "領取",
                     "[Cc]laim",
                     "受取",
-                    "획득하기"
+                    "획득하기",
+                    "触碰",
+                    "觸碰",
+                    "[Tt]ouch",
+                    "タッチ",
+                    "터치"
                 ]
             }
         ],
@@ -521,17 +568,22 @@
             {
                 "recognition": "OCR",
                 "roi": [
-                    755,
-                    330,
-                    297,
-                    312
+                    0,
+                    0,
+                    1280,
+                    720
                 ],
                 "expected": [
                     "领取",
                     "領取",
                     "[Cc]laim",
                     "受取",
-                    "획득하기"
+                    "획득하기",
+                    "触碰",
+                    "觸碰",
+                    "[Tt]ouch",
+                    "タッチ",
+                    "터치"
                 ]
             }
         ],
