@@ -385,18 +385,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    101,
-                    139,
-                    78,
-                    32
+                    105,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -432,18 +436,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    253,
-                    139,
-                    78,
-                    32
+                    257,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -479,18 +487,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    404,
-                    139,
-                    78,
-                    32
+                    408,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -526,18 +538,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    556,
-                    139,
-                    78,
-                    32
+                    560,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -573,18 +589,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    709,
-                    139,
-                    78,
-                    32
+                    713,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -620,18 +640,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    861,
-                    139,
-                    78,
-                    32
+                    865,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -667,18 +691,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    1013,
-                    139,
-                    78,
-                    32
+                    1017,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -714,18 +742,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    101,
-                    358,
-                    78,
-                    32
+                    105,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -761,18 +793,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    253,
-                    358,
-                    78,
-                    32
+                    257,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -808,18 +844,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    404,
-                    358,
-                    78,
-                    32
+                    408,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -855,18 +895,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    556,
-                    358,
-                    78,
-                    32
+                    560,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -902,18 +946,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    709,
-                    358,
-                    78,
-                    32
+                    713,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -949,18 +997,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    861,
-                    358,
-                    78,
-                    32
+                    865,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -996,18 +1048,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    1013,
-                    358,
-                    78,
-                    32
+                    1017,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
