@@ -39,6 +39,20 @@
             }
         },
         {
+            "name": "Win32-Background",
+            "label": "$controller.Win32-Background.label",
+            "description": "$controller.Win32-Background.description",
+            "type": "Win32",
+            "permission_required": false,
+            "win32": {
+                "class_regex": "UnityWndClass",
+                "window_regex": "Endfield",
+                "screencap": "PrintWindow",
+                "mouse": "AnchoredTouch",
+                "keyboard": "SendMessage"
+            }
+        },
+        {
             "name": "ADB",
             "label": "$controller.ADB.label",
             "description": "$controller.ADB.description",

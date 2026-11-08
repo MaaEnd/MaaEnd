@@ -9,6 +9,7 @@
                 "dijiang_ship"
             ],
             "controller": [
+                "Win32-Background",
                 "Win32-Front"
             ],
             "option": [

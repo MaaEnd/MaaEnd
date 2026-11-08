@@ -14,6 +14,7 @@
                 "Linux-Wlroots",
                 "MacOS-Background",
                 "MacOS-Front",
+                "Win32-Background",
                 "Win32-Front"
             ],
             "option": [

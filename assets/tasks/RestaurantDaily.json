@@ -9,6 +9,7 @@
                 "other_menu"
             ],
             "controller": [
+                "Win32-Background",
                 "Win32-Front",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",

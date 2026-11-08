@@ -9,6 +9,7 @@
                 "other_menu"
             ],
             "controller": [
+                "Win32-Background",
                 "Win32-Front",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
@@ -24,6 +25,7 @@
         "CloseGamePCCloseLauncher": {
             "type": "switch",
             "controller": [
+                "Win32-Background",
                 "Win32-Front"
             ],
             "label": "$option.CloseGamePCCloseLauncher.label",
@@ -54,6 +56,7 @@
         "CloseGamePCApplyGameSetting": {
             "type": "switch",
             "controller": [
+                "Win32-Background",
                 "Win32-Front"
             ],
             "label": "$option.CloseGamePCApplyGameSetting.label",

@@ -12,6 +12,7 @@
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
+                "Win32-Background",
                 "Win32-Front",
                 "ADB",
                 "PlayCover"
@@ -25,6 +26,7 @@
         "ZiplineImportClearLogin": {
             "type": "switch",
             "controller": [
+                "Win32-Background",
                 "Win32-Front",
                 "ADB",
                 "PlayCover"

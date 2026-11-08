@@ -1,6 +1,7 @@
 {
     "pretask": {
         "controller": [
+            "Win32-Background",
             "Win32-Front"
         ],
         "exec": "agent/go-service",

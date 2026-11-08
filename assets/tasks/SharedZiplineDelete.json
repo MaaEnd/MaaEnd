@@ -11,6 +11,7 @@
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
+                "Win32-Background",
                 "Win32-Front"
             ],
             "option": [
