@@ -205,7 +205,7 @@ size_t skip_continuous_run(const std::vector<Waypoint>& path, size_t index)
 Result drop_chain_and_recover(const Context& ctx, const char* reason, const char* detail, bool stay_on_tower)
 {
     Result result;
-    StopMotionAndCommitment(ctx);
+    HoldAndArmCameraAlign(ctx);
     if (!stay_on_tower) {
         LeaveZiplineTower(ctx);
     }
@@ -236,7 +236,7 @@ Result drop_chain_and_recover(const Context& ctx, const char* reason, const char
     BeginZiplineRecovery(&ctx.runtime_state->zipline_recovery, std::chrono::steady_clock::now());
     ctx.runtime_state->dynamic_replan_requested = true;
 
-    SelectPhaseForCurrentWaypoint(ctx, reason);
+    SelectPhaseOrFinishRoute(ctx, reason);
     result.consumed = true;
     result.stay_in_current_tick = true;
     return result;
@@ -274,7 +274,7 @@ Result finish_hop(const Context& ctx, const HopCompleted& done)
         LeaveZiplineTower(ctx);
     }
     ctx.runtime_state->dynamic_replan_requested = true;
-    SelectPhaseForCurrentWaypoint(ctx, "zipline_ride_complete");
+    SelectPhaseOrFinishRoute(ctx, "zipline_ride_complete");
     return result;
 }
 
@@ -309,7 +309,7 @@ Result AdvanceMountSpot(const Context& ctx, const Waypoint& waypoint, const char
     ctx.runtime_state->route = {};
     ConfirmStartupAt(&ctx.runtime_state->route, *ctx.position);
     ResetSensorTracking(ctx.position_provider);
-    SelectPhaseForCurrentWaypoint(ctx, reason);
+    SelectPhaseOrFinishRoute(ctx, reason);
 
     Result result;
     result.consumed = true;
@@ -362,7 +362,7 @@ void LeaveZiplineTower(const Context& ctx)
 Result StartZiplineHop(const Context& ctx, const Waypoint& waypoint, double actual_distance)
 {
     Result result;
-    StopMotionAndCommitment(ctx);
+    HoldAndArmCameraAlign(ctx);
 
     if (!waypoint.zipline_hop) {
         return AbandonZipline(ctx, "zipline_hop_missing", "waypoint carries no hop plan");

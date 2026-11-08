@@ -19,37 +19,51 @@ namespace mapnavigator
 namespace semantic_nodes
 {
 
-bool TurnToHeadingOnce(const Context& ctx, double heading_delta, const std::function<bool()>& should_stop)
+std::optional<HeadingTurnSteps> PlanHeadingTurn(const InputBackend& input_backend, double heading_delta)
 {
     if (std::abs(heading_delta) <= 1.0) {
-        return true;
+        return std::nullopt;
     }
 
-    const SteeringTransportProfile profile = SteeringProfileOf(*ctx.input_backend);
+    const SteeringTransportProfile profile = SteeringProfileOf(input_backend);
     const int step_count = static_cast<int>(std::ceil(std::abs(heading_delta) / profile.max_batch_delta_deg));
     const double step_deg = heading_delta / step_count;
     const int step_interval_ms = std::max<int>(kHeadingTurnStepIntervalMs, profile.min_send_interval_ms);
     LogInfo << "Heading-only node turn." << VAR(heading_delta) << VAR(step_count) << VAR(step_deg);
-    for (int step = 0; step < step_count; ++step) {
-        if (should_stop && should_stop()) {
+    return HeadingTurnSteps { .step_count = step_count, .step_deg = step_deg, .step_interval_ms = step_interval_ms };
+}
+
+bool SendHeadingTurnStep(InputBackend* input_backend, const HeadingTurnSteps& turn, int step)
+{
+    int units = static_cast<int>(std::lround(turn.step_deg * TurnUnitsPerDegree(*input_backend)));
+    if (units == 0) {
+        units = turn.step_deg > 0.0 ? 1 : -1;
+    }
+    if (!SendViewDeltaSync(input_backend, units, 0)) {
+        return false;
+    }
+    if (step + 1 < turn.step_count) {
+        SleepFor(turn.step_interval_ms);
+    }
+    return true;
+}
+
+bool TurnToHeadingOnce(const Context& ctx, double heading_delta)
+{
+    const std::optional<HeadingTurnSteps> turn = PlanHeadingTurn(*ctx.input_backend, heading_delta);
+    if (!turn) {
+        return true;
+    }
+    for (int step = 0; step < turn->step_count; ++step) {
+        if (!SendHeadingTurnStep(ctx.input_backend, *turn, step)) {
             return false;
-        }
-        int units = static_cast<int>(std::lround(step_deg * TurnUnitsPerDegree(*ctx.input_backend)));
-        if (units == 0) {
-            units = step_deg > 0.0 ? 1 : -1;
-        }
-        if (!SendViewDeltaSync(ctx.input_backend, units, 0)) {
-            return false;
-        }
-        if (step + 1 < step_count) {
-            SleepFor(step_interval_ms);
         }
     }
     return true;
 }
 
 // 调用方须保证 ctx.position 是刚取的一帧且人已站定
-void AlignCameraToHeadingOnce(const Context& ctx)
+void AlignCameraAndRecapture(const Context& ctx)
 {
     if (!ctx.position->camera_angle.has_value()) {
         LogInfo << "Camera align skipped: no camera orientation.";
@@ -94,7 +108,7 @@ bool CaptureStableHeading(const Context& ctx, double* out_heading)
     return false;
 }
 
-bool CommitHeadingTurn(const Context& ctx, double heading_delta)
+bool TurnAndPulseForward(const Context& ctx, double heading_delta)
 {
     if (!TurnToHeadingOnce(ctx, heading_delta)) {
         return false;
@@ -125,7 +139,7 @@ double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double
             return achieved;
         }
         LogInfo << "Heading off after turn, re-issuing." << VAR(target_heading) << VAR(achieved) << VAR(residual) << VAR(correction);
-        if (!CommitHeadingTurn(ctx, residual)) {
+        if (!TurnAndPulseForward(ctx, residual)) {
             return achieved;
         }
     }
@@ -159,7 +173,7 @@ Result ConsumeHeadingNodes(const Context& ctx)
             PulseForwardSync(ctx.input_backend, kPostHeadingForwardPulseMs);
             HoldPosition(ctx.motion_controller);
         }
-        else if (!CommitHeadingTurn(ctx, heading_delta)) {
+        else if (!TurnAndPulseForward(ctx, heading_delta)) {
             // 不推进, 下一拍重试
             return {};
         }

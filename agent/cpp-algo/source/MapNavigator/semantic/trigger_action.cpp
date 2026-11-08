@@ -28,16 +28,10 @@ namespace
 
 constexpr const char* kTriggerPipelineOverride = "{}";
 
-Result fail_trigger(const Context& ctx, const char* reason, const char* log_message)
+Result hold_and_fail_trigger(const Context& ctx, const char* reason, const char* log_message)
 {
     HoldPosition(ctx.motion_controller);
-    return {
-        .consumed = true,
-        .stay_in_current_tick = true,
-        .request_failure = true,
-        .failure_reason = reason,
-        .failure_log_message = log_message,
-    };
+    return ConsumedFailure(reason, log_message);
 }
 
 } // namespace
@@ -63,7 +57,13 @@ Result ProbeTriggerWhileNavigating(const Context& ctx)
     // 定位这一拍刚截过图, 缓存即当前画面
     MaaController* controller = ctx.input_backend->ctrl;
     ScopedImageBuffer image;
-    if (controller == nullptr || !MaaControllerCachedImage(controller, image.Get()) || MaaImageBufferIsEmpty(image.Get())) {
+    if (controller == nullptr) {
+        return {};
+    }
+    if (!MaaControllerCachedImage(controller, image.Get())) {
+        return {};
+    }
+    if (MaaImageBufferIsEmpty(image.Get())) {
         return {};
     }
 
@@ -71,7 +71,7 @@ Result ProbeTriggerWhileNavigating(const Context& ctx)
     const Waypoint& waypoint = CurrentPathAt(*ctx.session, trigger_idx);
     NodeSighting sighting {};
     if (!RunRecognitionNode(ctx.maa_context, waypoint.trigger_node, kTriggerPipelineOverride, image.Get(), &sighting)) {
-        return fail_trigger(ctx, "trigger_recognition_failed", "TRIGGER node failed to recognize.");
+        return hold_and_fail_trigger(ctx, "trigger_recognition_failed", "TRIGGER node failed to recognize.");
     }
     if (!sighting.hit) {
         return {};
@@ -91,9 +91,10 @@ Result ProbeTriggerWhileNavigating(const Context& ctx)
 
 Result ArriveTrigger(const Context& ctx, const Waypoint& waypoint, double actual_distance)
 {
-    StopMotionAndCommitment(ctx);
+    HoldAndArmCameraAlign(ctx);
     LogInfo << "Action: TRIGGER reached the point, navigation complete." << VAR(actual_distance) << VAR(waypoint.trigger_node);
-    return CompleteArrival(ctx, waypoint, CurrentAbsoluteNodeIndex(*ctx.session), "trigger_arrived");
+    CompleteArrival(ctx, waypoint, CurrentAbsoluteNodeIndex(*ctx.session), "trigger_arrived");
+    return Handled();
 }
 
 } // namespace semantic_nodes

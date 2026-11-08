@@ -15,6 +15,7 @@
 #include "../control/controller_type_utils.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
+#include "../navi_log.h"
 #include "../navi_time.h"
 #include "../sensing/maa_task.h"
 #include "../sensing/pipeline_node_reader.h"
@@ -48,13 +49,13 @@ cv::Mat frame_as_mat(const MaaImageBuffer* buffer)
     return { MaaImageBufferHeight(buffer), MaaImageBufferWidth(buffer), MaaImageBufferType(buffer), MaaImageBufferGetRawData(buffer) };
 }
 
-bool reached_arrive_point(const Context& ctx, const Waypoint& waypoint)
+bool capture_and_check_arrive_point(const Context& ctx, const Waypoint& waypoint)
 {
     if (!waypoint.find_arrive.has_value()) {
         return false;
     }
-    if (!CaptureTracked(ctx.position_provider, ctx.position, ctx.session->current_zone_id)
-        || ctx.position_provider->last_capture_was_black_screen) {
+    const bool captured = CaptureTracked(ctx.position_provider, ctx.position, ctx.session->current_zone_id);
+    if (!captured || ctx.position_provider->last_capture_was_black_screen) {
         return false;
     }
 
@@ -66,7 +67,7 @@ bool reached_arrive_point(const Context& ctx, const Waypoint& waypoint)
 }
 
 // 这一段转视角是开环的, 不清掉操舵状态下一段会拿旧朝向操舵
-void leave_find_phase(const Context& ctx)
+void stop_and_reset_find(const Context& ctx)
 {
     HoldPosition(ctx.motion_controller);
     ResetNavigationAssistState(ctx.runtime_state);
@@ -81,20 +82,15 @@ void leave_find_phase(const Context& ctx)
 Result fail_find(const Context& ctx, const char* reason, const char* message)
 {
     LogError << message << VAR(reason) << VAR(ctx.runtime_state->find.steps);
-    leave_find_phase(ctx);
-    return {
-        .consumed = true,
-        .stay_in_current_tick = true,
-        .request_failure = true,
-        .failure_reason = reason,
-        .failure_log_message = message,
-    };
+    stop_and_reset_find(ctx);
+    return ConsumedFailure(reason, message);
 }
 
 Result finish_find(const Context& ctx, const Waypoint& waypoint, const char* reason)
 {
-    leave_find_phase(ctx);
-    return CompleteArrival(ctx, waypoint, CurrentAbsoluteNodeIndex(*ctx.session), reason);
+    stop_and_reset_find(ctx);
+    CompleteArrival(ctx, waypoint, CurrentAbsoluteNodeIndex(*ctx.session), reason);
+    return Handled();
 }
 
 Result hold_find_step()
@@ -103,9 +99,9 @@ Result hold_find_step()
     return Handled();
 }
 
-void arm_stop_probe(const Context& ctx, const Waypoint& waypoint, FindState& find)
+void arm_stop_probe(const Context& ctx, const Waypoint& waypoint, FindState* find)
 {
-    find.stop_probe.reset();
+    find->stop_probe.reset();
     if (waypoint.find_stop.empty() || ctx.maa_context == nullptr) {
         return;
     }
@@ -118,12 +114,12 @@ void arm_stop_probe(const Context& ctx, const Waypoint& waypoint, FindState& fin
     if (!TryLoadPromptScanProfile(ctx.maa_context, waypoint.find_stop, ctx.input_backend->controller_type.c_str(), &profile)) {
         return;
     }
-    find.stop_probe = std::move(profile);
+    find->stop_probe = std::move(profile);
 }
 
 Result begin_find(const Context& ctx, const char* reason)
 {
-    StopMotionAndCommitment(ctx);
+    HoldAndArmCameraAlign(ctx);
     SleepFor(kStopWaitMs);
 
     FindState& find = ctx.runtime_state->find;
@@ -132,7 +128,7 @@ Result begin_find(const Context& ctx, const char* reason)
     UpdatePhase(ctx.session, NaviPhase::WaitFind, reason);
 
     const Waypoint& waypoint = CurrentWaypoint(*ctx.session);
-    arm_stop_probe(ctx, waypoint, find);
+    arm_stop_probe(ctx, waypoint, &find);
     LogInfo << "Action: FIND started." << VAR(reason) << VAR(waypoint.find_target) << VAR(waypoint.find_text.size())
             << VAR(waypoint.find_stop);
     return Handled();
@@ -147,11 +143,11 @@ bool search_one_step(const Context& ctx, const FindState& find)
     return TurnToHeadingOnce(ctx, step_deg);
 }
 
-bool approach_sighting(const Context& ctx, FindState& find, const MaaRect& box, int32_t frame_width, int32_t frame_height)
+bool approach_sighting(const Context& ctx, FindState* find, const MaaRect& box, int32_t frame_width, int32_t frame_height)
 {
     const int32_t center_x = box.x + box.width / 2;
     const int32_t center_y = box.y + box.height / 2;
-    find.last_seen_side = center_x >= frame_width / 2 ? 1 : -1;
+    find->last_seen_side = center_x >= frame_width / 2 ? 1 : -1;
     const int32_t offset_px = center_x - frame_width / 2;
     // 判定用 1280 基准帧像素, 角度换算用真实帧宽
     const int32_t offset_base =
@@ -166,7 +162,8 @@ bool approach_sighting(const Context& ctx, FindState& find, const MaaRect& box, 
         }
         const double degrees_per_px = kTurnDegreesPerCircle / static_cast<double>(ComputeTurn360Units(frame_width));
         const double yaw_deg = static_cast<double>(offset_px) * degrees_per_px * kFindSteerGain;
-        LogDebug << "FIND: turning toward the target." << VAR(find.steps) << VAR(offset_px) << VAR(yaw_deg) << VAR(walk_through);
+        LogDebug << "FIND: turning toward the target." << VAR_AS(find.steps, find->steps) << VAR(offset_px) << VAR(yaw_deg)
+                 << VAR(walk_through);
         const bool turned = TurnToHeadingOnce(ctx, yaw_deg);
         if (walk_through) {
             MoveForward(ctx.motion_controller);
@@ -175,14 +172,14 @@ bool approach_sighting(const Context& ctx, FindState& find, const MaaRect& box, 
     }
 
     if (static_cast<double>(center_y) > static_cast<double>(frame_height) * kFindPassedCenterYRatio) {
-        LogDebug << "FIND: target is behind, stepping back." << VAR(find.steps) << VAR(center_y);
+        LogDebug << "FIND: target is behind, stepping back." << VAR_AS(find.steps, find->steps) << VAR(center_y);
         HoldPosition(ctx.motion_controller);
         SetMovementStateSync(ctx.input_backend, { .backward = true }, kFindBackwardPulseMs);
         SetMovementStateSync(ctx.input_backend, {}, 0);
         return true;
     }
 
-    LogDebug << "FIND: walking toward the target." << VAR(find.steps) << VAR(offset_px);
+    LogDebug << "FIND: walking toward the target." << VAR_AS(find.steps, find->steps) << VAR(offset_px);
     MoveForward(ctx.motion_controller);
     return true;
 }
@@ -230,7 +227,7 @@ Result probe_stop_while_walking(const Context& ctx, const Waypoint& waypoint, Ma
     return {};
 }
 
-std::optional<Result> check_find_done(const Context& ctx, const Waypoint& waypoint, const MaaImageBuffer* image)
+std::optional<Result> finish_find_if_done(const Context& ctx, const Waypoint& waypoint, const MaaImageBuffer* image)
 {
     const FindState& find = ctx.runtime_state->find;
     if (!waypoint.find_stop.empty()) {
@@ -245,23 +242,24 @@ std::optional<Result> check_find_done(const Context& ctx, const Waypoint& waypoi
         }
     }
 
-    if (reached_arrive_point(ctx, waypoint)) {
+    if (capture_and_check_arrive_point(ctx, waypoint)) {
         LogInfo << "FIND: arrive point reached." << VAR(find.steps) << VAR(waypoint.find_arrive->at(0)) << VAR(waypoint.find_arrive->at(1));
         return finish_find(ctx, waypoint, "find_arrive_reached");
     }
     return std::nullopt;
 }
 
-Result handle_target_miss(const Context& ctx, FindState& find)
+Result handle_target_miss(const Context& ctx, FindState* find)
 {
     HoldPosition(ctx.motion_controller);
-    ++find.miss_streak;
+    ++find->miss_streak;
     // 见过的目标漏认几拍先原地等, 从没见过则直接搜
-    if (find.last_seen_side != 0 && find.miss_streak < kFindMissGraceTicks) {
-        LogDebug << "FIND: target lost for a beat, holding." << VAR(find.steps) << VAR(find.miss_streak);
+    if (find->last_seen_side != 0 && find->miss_streak < kFindMissGraceTicks) {
+        LogDebug << "FIND: target lost for a beat, holding." << VAR_AS(find.steps, find->steps)
+                 << VAR_AS(find.miss_streak, find->miss_streak);
         return hold_find_step();
     }
-    if (!search_one_step(ctx, find)) {
+    if (!search_one_step(ctx, *find)) {
         return fail_find(ctx, "find_turn_failed", "FIND failed to issue the search turn.");
     }
     return hold_find_step();
@@ -282,7 +280,7 @@ Result pursue_target(const Context& ctx, const Waypoint& waypoint, MaaController
         return fail_find(ctx, "find_recognition_failed", "FIND target node failed to recognize.");
     }
     if (!target_sighting.hit) {
-        return handle_target_miss(ctx, find);
+        return handle_target_miss(ctx, &find);
     }
     find.miss_streak = 0;
 
@@ -299,7 +297,7 @@ Result pursue_target(const Context& ctx, const Waypoint& waypoint, MaaController
         return hold_find_step();
     }
 
-    if (!approach_sighting(ctx, find, target_sighting.box, frame_width, frame_height)) {
+    if (!approach_sighting(ctx, &find, target_sighting.box, frame_width, frame_height)) {
         return fail_find(ctx, "find_turn_failed", "FIND failed to issue a view turn.");
     }
 
@@ -337,19 +335,13 @@ Result TickFindTarget(const Context& ctx)
     if (ctx.maa_context == nullptr || ctx.session == nullptr || !HasCurrentWaypoint(*ctx.session)) {
         // fail_find 会解引用 session, 上下文不全时只能直接返回失败
         LogError << "FIND is running without a waypoint or a MaaContext." << VAR(ctx.maa_context == nullptr) << VAR(ctx.session == nullptr);
-        return {
-            .consumed = true,
-            .stay_in_current_tick = true,
-            .request_failure = true,
-            .failure_reason = "find_context_missing",
-            .failure_log_message = "FIND is running without a waypoint or a MaaContext.",
-        };
+        return ConsumedFailure("find_context_missing", "FIND is running without a waypoint or a MaaContext.");
     }
 
     const Waypoint& waypoint = CurrentWaypoint(*ctx.session);
     if (!IsFindPoint(waypoint)) {
-        leave_find_phase(ctx);
-        SelectPhaseForCurrentWaypoint(ctx, "find_phase_mismatch");
+        stop_and_reset_find(ctx);
+        SelectPhaseOrFinishRoute(ctx, "find_phase_mismatch");
         return Handled();
     }
 
@@ -369,13 +361,17 @@ Result TickFindTarget(const Context& ctx)
 
     MaaController* controller = ctx.input_backend->ctrl;
     ScopedImageBuffer image;
-    if (controller == nullptr || !CaptureFreshFrame(controller, image.Get())) {
+    bool captured = false;
+    if (controller != nullptr) {
+        captured = CaptureFreshFrame(controller, image.Get());
+    }
+    if (!captured) {
         HoldPosition(ctx.motion_controller);
         LogWarn << "FIND: screencap failed, holding this step empty." << VAR(find.steps);
         return hold_find_step();
     }
 
-    if (const std::optional<Result> done = check_find_done(ctx, waypoint, image.Get())) {
+    if (const std::optional<Result> done = finish_find_if_done(ctx, waypoint, image.Get())) {
         return *done;
     }
     return pursue_target(ctx, waypoint, controller, image.Get());

@@ -11,14 +11,14 @@ namespace mapnavigator
 namespace semantic_nodes
 {
 
-void StopMotionAndCommitment(const Context& ctx)
+void HoldAndArmCameraAlign(const Context& ctx)
 {
     HoldPosition(ctx.motion_controller);
-    // 走 Execute* 自行停车的 JUMP/FIGHT/普通 INTERACT 绕过这里, 须在调用处各自置位
+    // JUMP/FIGHT/普通 INTERACT 不走这里, 须在调用处各自置位
     ArmCameraAlign(ctx.runtime_state);
 }
 
-void SelectPhaseForCurrentWaypoint(const Context& ctx, const char* reason)
+void SelectPhaseOrFinishRoute(const Context& ctx, const char* reason)
 {
     if (!HasCurrentWaypoint(*ctx.session)) {
         NoteRouteTailConsumed(ctx.session, *ctx.position, "route_tail_consumed");
@@ -27,13 +27,12 @@ void SelectPhaseForCurrentWaypoint(const Context& ctx, const char* reason)
     UpdatePhase(ctx.session, NaviPhase::Navigate, reason);
 }
 
-Result CompleteArrival(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, const char* reason)
+void CompleteArrival(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, const char* reason)
 {
     NoteCanonicalFinalGoalConsumed(ctx.session, node_idx, *ctx.position, reason);
     AdvanceToNextWaypoint(ctx.session, waypoint.action, reason);
     ResetOnWaypointAdvance(ctx.runtime_state);
-    SelectPhaseForCurrentWaypoint(ctx, reason);
-    return Handled();
+    SelectPhaseOrFinishRoute(ctx, reason);
 }
 
 void ConsumeMatchedZoneNodes(const Context& ctx)
@@ -54,13 +53,12 @@ Result WaitNextFix(int interval_ms)
     return Pending();
 }
 
-Result ResumeAfterRelocation(const Context& ctx, const char* reason)
+void ResumeAfterRelocation(const Context& ctx, const char* reason)
 {
     UpdateCurrentZone(ctx.session, ctx.position->zone_id);
     ResetProgress(ctx.session);
     ResetNavigationAssistState(ctx.runtime_state);
-    SelectPhaseForCurrentWaypoint(ctx, reason);
-    return Handled();
+    SelectPhaseOrFinishRoute(ctx, reason);
 }
 
 } // namespace semantic_nodes

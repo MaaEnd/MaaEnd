@@ -31,7 +31,7 @@ namespace
 
 Result arrive_transfer(const Context& ctx, const std::optional<size_t>& node_idx, double actual_distance)
 {
-    StopMotionAndCommitment(ctx);
+    HoldAndArmCameraAlign(ctx);
     NoteCanonicalFinalGoalConsumed(ctx.session, node_idx, *ctx.position, "transfer_wait_started");
     AdvanceToNextWaypoint(ctx.session, ActionType::TRANSFER, "transfer_wait_started");
     ResetOnWaypointAdvance(ctx.runtime_state);
@@ -62,13 +62,13 @@ Result arrive_portal(const Context& ctx, const std::optional<size_t>& node_idx, 
     ResetSensorTracking(ctx.position_provider);
     MoveForward(ctx.motion_controller);
     LogInfo << "Action: PORTAL entered transit flow." << VAR(actual_distance);
-    SelectPhaseForCurrentWaypoint(ctx, "portal_entered");
+    SelectPhaseOrFinishRoute(ctx, "portal_entered");
     return Handled();
 }
 
 Result arrive_dig(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, double actual_distance)
 {
-    StopMotionAndCommitment(ctx);
+    HoldAndArmCameraAlign(ctx);
     if (ctx.maa_context == nullptr) {
         LogError << "Action: DIG triggered but maa_context is null." << VAR(actual_distance);
         return Failure("dig_context_missing", "MaaContext is null when dispatching dig subtask.");
@@ -84,7 +84,8 @@ Result arrive_dig(const Context& ctx, const Waypoint& waypoint, const std::optio
     LogInfo << "Action: DIG subtask returned." << VAR(sub_id);
     SleepFor(kDigPostSleepMs);
     ctx.runtime_state->route = {};
-    return CompleteArrival(ctx, waypoint, node_idx, "dig_completed");
+    CompleteArrival(ctx, waypoint, node_idx, "dig_completed");
+    return Handled();
 }
 
 Result walk_on_after_prompt_miss(const Context& ctx, const std::optional<size_t>& node_idx, double actual_distance)
@@ -102,10 +103,10 @@ Result walk_on_after_prompt_miss(const Context& ctx, const std::optional<size_t>
 
 Result arrive_async_interact(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, double actual_distance)
 {
-    StopMotionAndCommitment(ctx);
+    HoldAndArmCameraAlign(ctx);
     LogInfo << "Action: INTERACT reached, running the authoritative recognition." << VAR(actual_distance)
             << VAR(waypoint.interact_text.size()) << VAR(waypoint.interact_scan) << VAR(waypoint.interact_rec);
-    const bool recognized = RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, waypoint.interact_rec);
+    const bool recognized = RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, PromptRunModeOf(waypoint));
     if (!recognized && waypoint.has_position && node_idx && !PromptMissedAt(ctx.runtime_state->interact_approach, node_idx)
         && actual_distance > kStrictSettleAcceptBandWu) {
         return walk_on_after_prompt_miss(ctx, node_idx, actual_distance);
@@ -116,7 +117,8 @@ Result arrive_async_interact(const Context& ctx, const Waypoint& waypoint, const
         return Failure("interact_prompt_missing", "Interact prompt not recognized on the point.");
     }
     if (!waypoint.rope_ride) {
-        return CompleteArrival(ctx, waypoint, node_idx, "async_interact_completed");
+        CompleteArrival(ctx, waypoint, node_idx, "async_interact_completed");
+        return Handled();
     }
 
     const RopeRideInfo ride = *waypoint.rope_ride;
@@ -140,9 +142,11 @@ Result arrive_key_interact(const Context& ctx, const Waypoint& waypoint, const s
     }
     else {
         ArmCameraAlign(ctx.runtime_state);
-        ExecuteInteract(ctx.input_backend, ctx.motion_controller);
+        HoldPosition(ctx.motion_controller);
+        ExecuteInteract(ctx.input_backend);
     }
-    return CompleteArrival(ctx, waypoint, node_idx, "waypoint_action_completed");
+    CompleteArrival(ctx, waypoint, node_idx, "waypoint_action_completed");
+    return Handled();
 }
 
 } // namespace
@@ -197,7 +201,7 @@ Result ConsumeInlineSemantics(const Context& ctx)
 
 Result StartRopeRide(const Context& ctx, const RopeRideInfo& ride)
 {
-    StopMotionAndCommitment(ctx);
+    HoldAndArmCameraAlign(ctx);
     ctx.runtime_state->semantic.rope = {
         .started = std::chrono::steady_clock::now(),
         .ride_ms = static_cast<int64_t>(std::ceil(ride.ride_s * 1000.0)),
@@ -215,7 +219,7 @@ Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual
 {
     const std::optional<size_t> node_idx = CurrentAbsoluteNodeIndex(*ctx.session);
     if (RequiresStrictArrival(waypoint) && ctx.motion_controller->is_moving) {
-        StopMotionAndCommitment(ctx);
+        HoldAndArmCameraAlign(ctx);
         SleepFor(kStopWaitMs);
     }
 
@@ -244,11 +248,13 @@ Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual
         break;
     case ActionType::JUMP:
         ArmCameraAlign(ctx.runtime_state);
-        ExecuteJump(ctx.input_backend, ctx.motion_controller);
+        HoldPosition(ctx.motion_controller);
+        ExecuteJump(ctx.input_backend);
         break;
     case ActionType::FIGHT:
         ArmCameraAlign(ctx.runtime_state);
-        ExecuteFight(ctx.input_backend, ctx.motion_controller);
+        HoldPosition(ctx.motion_controller);
+        ExecuteFight(ctx.input_backend);
         break;
     // HEADING/ZONE 没坐标, NAVMESH 展开后换成规划点, 实际到不了这里
     case ActionType::RUN:
@@ -258,7 +264,8 @@ Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual
     case ActionType::ZONE:
         break;
     }
-    return CompleteArrival(ctx, waypoint, node_idx, "waypoint_action_completed");
+    CompleteArrival(ctx, waypoint, node_idx, "waypoint_action_completed");
+    return Handled();
 }
 
 } // namespace semantic_nodes
