@@ -20,6 +20,7 @@
 #include "../navi_math.h"
 #include "../navi_time.h"
 #include "../sensing/position_provider.h"
+#include "../sensing/task_stop.h"
 #include "../state_machine/navigation_state_machine.h"
 #include "heading_turn.h"
 #include "semantic_helpers.h"
@@ -69,14 +70,9 @@ enum class SettleStep
     Incomplete,
 };
 
-bool task_stopping(MaaContext* maa_context)
-{
-    return MaaTaskerStopping(MaaContextGetTasker(maa_context));
-}
-
 bool budget_exhausted(const SettleBudget& budget, Duration reserve = {})
 {
-    return task_stopping(budget.maa_context) || std::chrono::steady_clock::now() + reserve >= budget.deadline;
+    return TaskStopping(budget.maa_context) || std::chrono::steady_clock::now() + reserve >= budget.deadline;
 }
 
 bool sleep_within_budget(const SettleBudget& budget, Duration duration)
@@ -85,7 +81,7 @@ bool sleep_within_budget(const SettleBudget& budget, Duration duration)
     if (until > budget.deadline) {
         return false;
     }
-    while (!task_stopping(budget.maa_context)) {
+    while (!TaskStopping(budget.maa_context)) {
         const auto now = std::chrono::steady_clock::now();
         if (now >= until) {
             return true;
@@ -97,7 +93,7 @@ bool sleep_within_budget(const SettleBudget& budget, Duration duration)
 
 const char* cancelled_or(const SettleBudget& budget, const char* reason)
 {
-    return task_stopping(budget.maa_context) ? "cancelled" : reason;
+    return TaskStopping(budget.maa_context) ? "cancelled" : reason;
 }
 
 bool turn_within_budget(Navigator* nav, const SettleBudget& budget, double heading_delta)

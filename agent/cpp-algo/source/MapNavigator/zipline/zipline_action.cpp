@@ -15,6 +15,7 @@
 #include "../control/camera_pitch.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
+#include "../navi_log.h"
 #include "../navi_time.h"
 #include "../semantic/heading_turn.h"
 #include "../semantic/semantic_helpers.h"
@@ -206,17 +207,11 @@ size_t skip_continuous_run(const std::vector<Waypoint>& path, size_t index)
     return index;
 }
 
-Result drop_chain_and_recover(Navigator* nav, const char* reason, const char* detail, bool stay_on_tower)
+// 整条链一起丢, 留一跳重规划就会把人送回刚失败的索
+size_t drop_zipline_chain(Navigator* nav, const char* reason)
 {
-    Result result;
-    HoldAndArmCameraAlign(nav);
-    if (!stay_on_tower) {
-        LeaveZiplineTower(nav);
-    }
-
     const std::vector<Waypoint>& path = nav->session->current_path;
     const size_t hop = skip_continuous_run(path, nav->session->current_node_idx);
-    // 整条链一起丢, 留一跳重规划就会把人送回刚失败的索
     size_t dropped = 0;
     while (hop + dropped < path.size() && path[hop + dropped].action == ActionType::ZIPLINE) {
         ++dropped;
@@ -224,13 +219,12 @@ Result drop_chain_and_recover(Navigator* nav, const char* reason, const char* de
     if (dropped != 0) {
         SkipPastWaypoint(nav->session, hop + dropped - 1, reason);
     }
-    if (stay_on_tower) {
-        NoteStandingTower(nav->session, ZiplineTowerUnderfoot(nav->runtime_state.zipline_ride));
-    }
+    return dropped;
+}
 
-    LogWarn << "Action: ZIPLINE given up, recovering from a fresh position." << VAR(reason) << VAR(detail) << VAR(dropped)
-            << VAR(stay_on_tower) << VAR(nav->position->x) << VAR(nav->position->y);
-
+Result restart_after_dropped_chain(Navigator* nav, const char* reason)
+{
+    Result result;
     nav->runtime_state.zipline_approach = {};
     ResetOnWaypointAdvance(&nav->runtime_state);
     RestartRouteTracking(&nav->runtime_state.route);
@@ -244,6 +238,26 @@ Result drop_chain_and_recover(Navigator* nav, const char* reason, const char* de
     result.consumed = true;
     result.stay_in_current_tick = true;
     return result;
+}
+
+Result abandon_chain_from_ground(Navigator* nav, const char* reason, const char* detail)
+{
+    HoldAndArmCameraAlign(nav);
+    LeaveZiplineTower(nav);
+    const size_t dropped = drop_zipline_chain(nav, reason);
+    LogWarn << "Action: ZIPLINE given up, recovering from a fresh position." << VAR(reason) << VAR(detail) << VAR(dropped)
+            << VAR_AS(stay_on_tower, false) << VAR(nav->position->x) << VAR(nav->position->y);
+    return restart_after_dropped_chain(nav, reason);
+}
+
+Result abandon_chain_on_tower(Navigator* nav, const char* reason, const char* detail)
+{
+    HoldAndArmCameraAlign(nav);
+    const size_t dropped = drop_zipline_chain(nav, reason);
+    NoteStandingTower(nav->session, ZiplineTowerUnderfoot(nav->runtime_state.zipline_ride));
+    LogWarn << "Action: ZIPLINE given up, recovering from a fresh position." << VAR(reason) << VAR(detail) << VAR(dropped)
+            << VAR_AS(stay_on_tower, true) << VAR(nav->position->x) << VAR(nav->position->y);
+    return restart_after_dropped_chain(nav, reason);
 }
 
 Result finish_hop(Navigator* nav, const HopCompleted& done)
@@ -331,7 +345,7 @@ bool SkipToHopUnderfoot(Navigator* nav, const char* reason)
     const size_t current = nav->session->current_node_idx;
     const size_t hop = skip_continuous_run(path, current);
     if (hop >= path.size() || path[hop].action != ActionType::ZIPLINE || !path[hop].zipline_hop
-        || !path[hop].zipline_hop->mount.sameTower(*underfoot)) {
+        || !SameTower(path[hop].zipline_hop->mount, *underfoot)) {
         return false;
     }
     if (hop > current) {
@@ -344,7 +358,7 @@ bool SkipToHopUnderfoot(Navigator* nav, const char* reason)
 
 Result AbandonZipline(Navigator* nav, const char* reason, const char* detail)
 {
-    return drop_chain_and_recover(nav, reason, detail, /*stay_on_tower=*/false);
+    return abandon_chain_from_ground(nav, reason, detail);
 }
 
 void LeaveZiplineTower(Navigator* nav)
@@ -375,7 +389,7 @@ Result StartZiplineHop(Navigator* nav, const Waypoint& waypoint, double actual_d
     // 站在别的架子上瞄, 发出去的是那根架子的索, 还会把好索记成坏的
     ZiplineRide* ride = &nav->runtime_state.zipline_ride;
     const std::optional<ZiplineNodeRef> underfoot = ZiplineTowerUnderfoot(*ride);
-    if (underfoot && !waypoint.zipline_hop->mount.sameTower(*underfoot)) {
+    if (underfoot && !SameTower(waypoint.zipline_hop->mount, *underfoot)) {
         LogWarn << "Standing on a tower this hop does not start from; stepping down first." << VAR(underfoot->x) << VAR(underfoot->y)
                 << VAR(waypoint.zipline_hop->mount.x) << VAR(waypoint.zipline_hop->mount.y);
         LeaveZiplineTower(nav);
@@ -426,12 +440,10 @@ Result TickZiplineRide(Navigator* nav)
         return AbandonZipline(nav, outcome.chain_abandoned.reason, "the ride machine gave this chain up");
     }
     if (outcome.kind == StageResultKind::ReplanRequested) {
-        return drop_chain_and_recover(
-            nav,
-            "zipline_replan_requested",
-            outcome.replan_requested.still_on_tower ? "waiting on the tower for a new route"
-                                                    : "this hop is dead, re-routing from the ground",
-            outcome.replan_requested.still_on_tower);
+        if (outcome.replan_requested.still_on_tower) {
+            return abandon_chain_on_tower(nav, "zipline_replan_requested", "waiting on the tower for a new route");
+        }
+        return abandon_chain_from_ground(nav, "zipline_replan_requested", "this hop is dead, re-routing from the ground");
     }
     if (outcome.kind == StageResultKind::NeedsReposition) {
         return AdvanceMountSpot(nav, CurrentWaypoint(*nav->session), "zipline_mount_unmounted");

@@ -203,11 +203,10 @@ bool climb_recovery_ladder(Navigator* nav, const NavigateTick& tick)
     const Waypoint& waypoint = tick.waypoint;
     const RouteMeasurement& route = tick.route;
     RecoveryEscalationState& escalation = nav->runtime_state.recovery_escalation;
-    const DeviceRemovalOutcome device_outcome = TryRemoveDevice(
-        &nav->device_recovery,
-        route,
-        waypoint,
-        escalation.device_attempt_count < kRecoveryDeviceAttempts && far_or_strict_target(tick.effective_progress, waypoint));
+    DeviceRemovalOutcome device_outcome = DeviceRemovalOutcome::NotAttempted;
+    if (escalation.device_attempt_count < kRecoveryDeviceAttempts && far_or_strict_target(tick.effective_progress, waypoint)) {
+        device_outcome = TryRemoveDevice(&nav->device_recovery, route, waypoint);
+    }
     if (device_outcome != DeviceRemovalOutcome::NotAttempted) {
         ++escalation.device_attempt_count;
         NoteFailure(

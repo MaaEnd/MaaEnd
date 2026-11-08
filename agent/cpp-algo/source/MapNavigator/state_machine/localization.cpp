@@ -35,7 +35,7 @@ namespace
 {
 
 // 读不到画面也当作有对话, 宁可不接
-bool dialog_on_screen(MaaContext* context, MaaController* controller)
+bool recognize_dialog_on_screen(MaaContext* context, MaaController* controller)
 {
     ScopedImageBuffer image;
     if (context == nullptr || controller == nullptr) {
@@ -94,7 +94,7 @@ void update_dwell_watchdog(Navigator* nav, bool captured)
     dwell.last_usable = now;
 }
 
-void record_capture(Navigator* nav, bool captured, uint64_t heading_epoch, const std::optional<double>& camera_heading_prior)
+void note_heading_prior(Navigator* nav, bool captured, uint64_t heading_epoch, const std::optional<double>& camera_heading_prior)
 {
     if (captured) {
         nav->prior_observation_epoch = heading_epoch;
@@ -104,6 +104,10 @@ void record_capture(Navigator* nav, bool captured, uint64_t heading_epoch, const
     else {
         nav->consecutive_prior_uses = 0;
     }
+}
+
+void sample_capture_trail(Navigator* nav, bool captured)
+{
     SampleFailureTrail(
         &nav->failure_trail,
         std::chrono::steady_clock::now(),
@@ -112,7 +116,6 @@ void record_capture(Navigator* nav, bool captured, uint64_t heading_epoch, const
         nav->position_provider->last_locate_message,
         nav->session->current_node_idx,
         navi_phase_name(nav->session->phase));
-    update_dwell_watchdog(nav, captured);
 }
 
 bool arm_river_fall_recovery_if_black_screen_loss(Navigator* nav, const char* via)
@@ -158,7 +161,7 @@ bool scene_recovery_allowed(Navigator* nav)
         LogInfo << "Scene recovery declined." << VAR(attempted) << VAR(foreign_ui) << VAR(own_ui);
         return false;
     }
-    if (dialog_on_screen(nav->maa_context, nav->input_backend->ctrl)) {
+    if (recognize_dialog_on_screen(nav->maa_context, nav->input_backend->ctrl)) {
         LogInfo << "Scene recovery declined: dialog on screen.";
         return false;
     }
@@ -228,7 +231,9 @@ bool CaptureTrackedFix(Navigator* nav)
                               && *nav->prior_observation_epoch == heading_epoch && nav->session->phase == NaviPhase::Navigate;
     const std::optional<double> camera_heading_prior = prior_usable ? std::optional<double>(nav->position->angle) : std::nullopt;
     const bool captured = CaptureTracked(nav->position_provider, nav->position, nav->session->current_zone_id, {}, camera_heading_prior);
-    record_capture(nav, captured, heading_epoch, camera_heading_prior);
+    note_heading_prior(nav, captured, heading_epoch, camera_heading_prior);
+    sample_capture_trail(nav, captured);
+    update_dwell_watchdog(nav, captured);
     return captured;
 }
 
@@ -237,7 +242,9 @@ bool CaptureGlobalFix(Navigator* nav)
     const uint64_t heading_epoch = nav->input_backend->heading_epoch;
     const std::optional<double> camera_heading_prior = std::nullopt;
     const bool captured = CaptureGlobal(nav->position_provider, nav->position, nav->session->current_zone_id, {}, camera_heading_prior);
-    record_capture(nav, captured, heading_epoch, camera_heading_prior);
+    note_heading_prior(nav, captured, heading_epoch, camera_heading_prior);
+    sample_capture_trail(nav, captured);
+    update_dwell_watchdog(nav, captured);
     return captured;
 }
 
@@ -370,7 +377,7 @@ bool ReturnToWorld(Navigator* nav)
         std::string(),
         kSceneRecoveryFixAttempts,
         kRelocationRetryIntervalMs,
-        nav->should_stop);
+        nav->maa_context);
     LogInfo << "Scene recovery finished." << VAR(restored) << VAR(handled) << VAR(esc_used);
     NoteFailure(&nav->failure_trail, std::chrono::steady_clock::now(), restored ? "scene recovery restored" : "scene recovery failed");
     return restored;

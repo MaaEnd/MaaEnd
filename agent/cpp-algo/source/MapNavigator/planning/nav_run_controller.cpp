@@ -343,13 +343,13 @@ navmesh::WorldPath build_authored_span_polyline(const Session& session, size_t a
 
 // 起跳点判到达时人常还站在台上, 只剩落点会触发重规划, 所以把起跳点补回线头
 bool prepend_drop_top_while_short(
-    navmesh::WorldPath& authored,
+    navmesh::WorldPath* authored,
     const Session& session,
     const Waypoint& anchor,
     const NaviPosition& position)
 {
     const size_t current = session.current_node_idx;
-    if (authored.points.size() != 1 || !anchor.drop_from || current == 0) {
+    if (authored->points.size() != 1 || !anchor.drop_from || current == 0) {
         return false;
     }
     const Waypoint& top = session.current_path[current - 1];
@@ -362,9 +362,9 @@ bool prepend_drop_top_while_short(
     if (!short_of_drop || std::hypot(position.x - top_x, position.y - top_y) > ArrivalBand(top, kMeasurementDefaultPositionQuantum)) {
         return false;
     }
-    authored.points.insert(authored.points.begin(), { .x = top_x, .y = top_y });
-    if (!authored.clearance.empty() || top.corridor_clearance > 0.0) {
-        authored.clearance = { top.corridor_clearance, anchor.corridor_clearance };
+    authored->points.insert(authored->points.begin(), { .x = top_x, .y = top_y });
+    if (!authored->clearance.empty() || top.corridor_clearance > 0.0) {
+        authored->clearance = { top.corridor_clearance, anchor.corridor_clearance };
     }
     return true;
 }
@@ -390,30 +390,30 @@ bool turns_back(const navmesh::WorldPath& authored, size_t vertex)
 }
 
 // 返回 false 表示人还没到线头, 调用方应补一段连到线头
-bool trim_authored_span_to_agent(navmesh::WorldPath& authored, const NaviPosition& position)
+bool trim_authored_span_to_agent(navmesh::WorldPath* authored, const NaviPosition& position)
 {
     // 下面两处限距离是防定位短暂跳到几百像素外时把整条线当成走过删掉
     size_t head = 0;
-    while (head + 2 < authored.points.size()) {
-        if (turns_back(authored, head + 1)) {
+    while (head + 2 < authored->points.size()) {
+        if (turns_back(*authored, head + 1)) {
             break;
         }
-        const auto [t, foot_x, foot_y] = edge_projection(authored, position, head);
+        const auto [t, foot_x, foot_y] = edge_projection(*authored, position, head);
         if (t < 1.0 || std::hypot(position.x - foot_x, position.y - foot_y) > kNavRunCrossTrackFailM) {
             break;
         }
         ++head;
     }
     // 垂足落在边端点上会和拐点重合成退化边, 所以 t 取不到 0 和 1
-    const auto [t, foot_x, foot_y] = edge_projection(authored, position, head);
+    const auto [t, foot_x, foot_y] = edge_projection(*authored, position, head);
     if (t <= 0.0 || t >= 1.0 || std::hypot(position.x - foot_x, position.y - foot_y) > kLookaheadRadius) {
         return false;
     }
-    authored.points.erase(authored.points.begin(), authored.points.begin() + head);
-    if (!authored.clearance.empty()) {
-        authored.clearance.erase(authored.clearance.begin(), authored.clearance.begin() + head);
+    authored->points.erase(authored->points.begin(), authored->points.begin() + head);
+    if (!authored->clearance.empty()) {
+        authored->clearance.erase(authored->clearance.begin(), authored->clearance.begin() + head);
     }
-    authored.points.front() = { .x = foot_x, .y = foot_y };
+    authored->points.front() = { .x = foot_x, .y = foot_y };
     return true;
 }
 
@@ -429,28 +429,15 @@ void commit_plan(NavRunPlan* plan, navmesh::WorldPath path, const NaviPosition& 
     plan->projected_from = { .x = position.x, .y = position.y };
 }
 
-void commit_authored_span(
-    NavRunPlan* plan,
-    navmesh::WorldPath authored,
-    bool on_authored_line,
-    size_t authored_points,
-    const NaviPosition& position,
-    size_t anchor_index)
+void prepend_agent_point(navmesh::WorldPath* authored, const NaviPosition& position)
 {
-    if (!on_authored_line) {
-        const navmesh::WorldPoint& span_start = authored.points.front();
-        if (std::hypot(position.x - span_start.x, position.y - span_start.y) > kMeasurementDefaultPositionQuantum) {
-            authored.points.insert(authored.points.begin(), { .x = position.x, .y = position.y });
-            if (!authored.clearance.empty()) {
-                authored.clearance.insert(authored.clearance.begin(), authored.clearance.front());
-            }
+    const navmesh::WorldPoint& span_start = authored->points.front();
+    if (std::hypot(position.x - span_start.x, position.y - span_start.y) > kMeasurementDefaultPositionQuantum) {
+        authored->points.insert(authored->points.begin(), { .x = position.x, .y = position.y });
+        if (!authored->clearance.empty()) {
+            authored->clearance.insert(authored->clearance.begin(), authored->clearance.front());
         }
     }
-    else {
-        LogDebug << "NavRunController span trimmed to agent." << VAR(anchor_index) << VAR(authored_points) << VAR(authored.points.size())
-                 << VAR(authored.points.front().x) << VAR(authored.points.front().y);
-    }
-    commit_plan(plan, std::move(authored), position, anchor_index);
 }
 
 std::optional<CorridorProjection> project_agent(NavRunPlan* plan, const NaviPosition& position)
@@ -587,15 +574,21 @@ bool build_plan(
     const Waypoint& anchor = input.anchor;
 
     navmesh::WorldPath authored = build_authored_span_polyline(session, anchor_index);
-    if (prepend_drop_top_while_short(authored, session, anchor, position)) {
+    if (prepend_drop_top_while_short(&authored, session, anchor, position)) {
         LogDebug << "NavRunController drop top kept on span." << VAR(anchor_index) << VAR(position.x) << VAR(position.y);
     }
     const bool has_authored = authored.points.size() >= 2;
     const size_t authored_points = authored.points.size();
-    const bool on_authored_line = has_authored && trim_authored_span_to_agent(authored, position);
 
     if (has_authored) {
-        commit_authored_span(&nav_run->plan, std::move(authored), on_authored_line, authored_points, position, anchor_index);
+        if (trim_authored_span_to_agent(&authored, position)) {
+            LogDebug << "NavRunController span trimmed to agent." << VAR(anchor_index) << VAR(authored_points)
+                     << VAR(authored.points.size()) << VAR(authored.points.front().x) << VAR(authored.points.front().y);
+        }
+        else {
+            prepend_agent_point(&authored, position);
+        }
+        commit_plan(&nav_run->plan, std::move(authored), position, anchor_index);
         return true;
     }
 
@@ -603,7 +596,8 @@ bool build_plan(
     if (authored.points.size() == 1 && IsContinuousRun(anchor) && anchor.corridor_clearance <= 0.0
         && std::hypot(position.x - anchor.x, position.y - anchor.y) > kMeasurementDefaultPositionQuantum) {
         LogDebug << "NavRunController trailing authored point kept literal." << VAR(anchor_index) << VAR(anchor.x) << VAR(anchor.y);
-        commit_authored_span(&nav_run->plan, std::move(authored), on_authored_line, authored_points, position, anchor_index);
+        prepend_agent_point(&authored, position);
+        commit_plan(&nav_run->plan, std::move(authored), position, anchor_index);
         return true;
     }
 

@@ -17,7 +17,6 @@ namespace mapnavigator
 
 struct NaviParam;
 
-// 按线程记录, ExpandNavmeshWaypoints 开头清空, 返回 false 后立即读取
 struct NavmeshExpansionFailure
 {
     std::string code;
@@ -44,14 +43,14 @@ std::string InitialExpectedZone(const NaviParam& param);
 void PreloadNavmeshWaypoints(const NaviParam& param);
 // maa_context 在路点之间查停止, 状态机还没建好, 规划期间只有这里能响应停止
 bool ExpandNavmeshWaypoints(
+    std::vector<Waypoint>* out_path,
+    NavmeshExpansionFailure* out_failure,
     const NaviParam& param,
     const NaviPosition& initial_pos,
     MaaContext* maa_context,
-    std::vector<Waypoint>& out_path,
     std::vector<NavmeshRouteDiagnostic>* out_diagnostics = nullptr,
     const std::vector<VirtualNoGoDisc>* no_go = nullptr,
     std::optional<double> start_deck_y = std::nullopt);
-NavmeshExpansionFailure CurrentNavmeshExpansionFailure();
 
 struct RouteEndpoints
 {
@@ -79,10 +78,10 @@ struct GeneratedWaypointOptions
 };
 
 bool AppendGeneratedNavmeshWaypoints(
+    std::vector<Waypoint>* out_path,
     const NaviParam& param,
     const std::string& locator_zone,
     const navmesh::BaseNavRouteResult& route,
-    std::vector<Waypoint>& out_path,
     const GeneratedWaypointOptions& options);
 
 } // namespace mapnavigator

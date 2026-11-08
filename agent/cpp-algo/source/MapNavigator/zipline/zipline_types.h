@@ -24,16 +24,16 @@ struct ZiplineNodeRef
     double x = 0.0;
     double y = 0.0;
     double height = 0.0;
-
-    bool sameTower(const ZiplineNodeRef& other) const
-    {
-        if (has_world && other.has_world) {
-            return level_id == other.level_id
-                   && std::hypot(world_x - other.world_x, world_y - other.world_y, world_z - other.world_z) < kZiplineTowerIdentityWu;
-        }
-        return std::hypot(x - other.x, y - other.y) < kZiplineLandingBandWu;
-    }
 };
+
+inline bool SameTower(const ZiplineNodeRef& a, const ZiplineNodeRef& b)
+{
+    if (a.has_world && b.has_world) {
+        return a.level_id == b.level_id
+               && std::hypot(a.world_x - b.world_x, a.world_y - b.world_y, a.world_z - b.world_z) < kZiplineTowerIdentityWu;
+    }
+    return std::hypot(a.x - b.x, a.y - b.y) < kZiplineLandingBandWu;
+}
 
 struct ZiplineHopPlan
 {

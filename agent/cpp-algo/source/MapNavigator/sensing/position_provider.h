@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -55,7 +54,7 @@ bool WaitForFix(
     const std::string& expected_zone_id,
     int max_retries,
     int retry_interval_ms,
-    const std::function<bool()>& should_stop);
+    MaaContext* context);
 void ResetSensorTracking(PositionSensor* sensor);
 
 } // namespace mapnavigator

@@ -105,7 +105,7 @@ json::object fail(const std::string& message)
 }
 
 // 建好就不再销毁, 返回的指针长期有效
-QueryContext* acquire_context(const std::string& configured_path, std::string& error)
+QueryContext* acquire_context(std::string* error, const std::string& configured_path)
 {
     std::error_code ec;
     const std::filesystem::path resolved = mapnavigator::ResolveNavmeshFilePath(configured_path);
@@ -124,8 +124,8 @@ QueryContext* acquire_context(const std::string& configured_path, std::string& e
 
     auto loaded = navmesh::LoadBaseNavPack(normalized, {});
     if (!loaded.ok()) {
-        error = loaded.message.empty() ? navmesh::ToString(loaded.status) : loaded.message;
-        LogError << "load navmesh failed" << VAR(key) << VAR(error);
+        *error = loaded.message.empty() ? navmesh::ToString(loaded.status) : loaded.message;
+        LogError << "load navmesh failed" << VAR(key) << VAR(*error);
         return nullptr;
     }
 
@@ -330,13 +330,13 @@ json::object build_deck_probe(const QueryContext& context, const QueryParam& par
     return json::object { { "ok", true }, { "decks", std::move(out) } };
 }
 
-json::object build_route(QueryContext& context, const QueryParam& param)
+json::object build_route(QueryContext* context, const QueryParam& param)
 {
     if (param.start.size() < 2 || param.goal.size() < 2) {
         return fail("start/goal 需为 [x, y]");
     }
-    const uint16_t geom = context.pack.geometryZoneId(static_cast<uint16_t>(param.zone_id));
-    const navmesh::BaseNavZone* zone = context.pack.findZone(geom);
+    const uint16_t geom = context->pack.geometryZoneId(static_cast<uint16_t>(param.zone_id));
+    const navmesh::BaseNavZone* zone = context->pack.findZone(geom);
     if (zone == nullptr) {
         return fail("未知 zone: " + std::to_string(param.zone_id));
     }
@@ -345,7 +345,7 @@ json::object build_route(QueryContext& context, const QueryParam& param)
     const navmesh::WorldPoint goal { .x = param.goal[0], .y = param.goal[1] };
     const float floor_y = floor_or_none(param.floor_y);
     const std::vector<uint32_t> no_rope_off;
-    const auto plan = context.engine->plan(
+    const auto plan = context->engine->plan(
         zone->name,
         start,
         goal,
@@ -365,7 +365,7 @@ json::object build_route(QueryContext& context, const QueryParam& param)
               json::object {
                   { "start",
                     probe_off_mesh(
-                        *context.planner,
+                        *context->planner,
                         geom,
                         start,
                         param.snap_radius,
@@ -373,7 +373,7 @@ json::object build_route(QueryContext& context, const QueryParam& param)
                         json::value(mapnavigator::kStartRecoveryMaxBlindWalk)) },
                   { "goal",
                     probe_off_mesh(
-                        *context.planner,
+                        *context->planner,
                         geom,
                         goal,
                         param.snap_radius,
@@ -436,28 +436,28 @@ json::object build_route(QueryContext& context, const QueryParam& param)
     for (const auto& warning : plan.debug.warnings) {
         debug["warnings"].as_array().emplace_back(warning);
     }
-    const auto ss = context.planner->snap(geom, start, param.snap_radius, floor_y);
-    const auto sg = context.planner->snap(geom, goal, param.snap_radius, floor_y);
+    const auto ss = context->planner->snap(geom, start, param.snap_radius, floor_y);
+    const auto sg = context->planner->snap(geom, goal, param.snap_radius, floor_y);
     json::object snap {
         { "start",
           ss ? json::object { { "point", json::array { ss->point.x, ss->point.y } },
                               { "triangle", ss->triangle },
                               { "distance", ss->distance },
-                              { "component", context.planner->componentId(ss->triangle) },
-                              { "component_size", context.planner->componentSize(ss->triangle) } }
+                              { "component", context->planner->componentId(ss->triangle) },
+                              { "component_size", context->planner->componentSize(ss->triangle) } }
              : json::value() },
         { "goal",
           sg ? json::object { { "point", json::array { sg->point.x, sg->point.y } },
                               { "triangle", sg->triangle },
                               { "distance", sg->distance },
-                              { "component", context.planner->componentId(sg->triangle) },
-                              { "component_size", context.planner->componentSize(sg->triangle) } }
+                              { "component", context->planner->componentId(sg->triangle) },
+                              { "component_size", context->planner->componentSize(sg->triangle) } }
              : json::value() },
     };
     debug["snap"] = std::move(snap);
     debug["connectivity"] =
         json::object { { "same_component",
-                         ss && sg && context.planner->componentId(ss->triangle) == context.planner->componentId(sg->triangle) },
+                         ss && sg && context->planner->componentId(ss->triangle) == context->planner->componentId(sg->triangle) },
                        { "reachable", true } };
     return json::object { { "ok", true }, { "points", std::move(points) }, { "cost", plan.length }, { "debug", std::move(debug) } };
 }
@@ -467,10 +467,10 @@ bool same_point(const navmesh::WorldPoint& lhs, const navmesh::WorldPoint& rhs)
     return std::hypot(lhs.x - rhs.x, lhs.y - rhs.y) < kPreviewPointMergeEpsilon;
 }
 
-void append_distinct(std::vector<navmesh::WorldPoint>& points, const navmesh::WorldPoint& point)
+void append_distinct(std::vector<navmesh::WorldPoint>* points, const navmesh::WorldPoint& point)
 {
-    if (points.empty() || !same_point(points.back(), point)) {
-        points.push_back(point);
+    if (points->empty() || !same_point(points->back(), point)) {
+        points->push_back(point);
     }
 }
 
@@ -481,6 +481,14 @@ json::array points_to_json(const std::vector<navmesh::WorldPoint>& points)
         out.emplace_back(json::array { point.x, point.y });
     }
     return out;
+}
+
+void flush_walk(std::vector<navmesh::WorldPoint>* current_walk, json::array* walk_segments)
+{
+    if (current_walk->size() >= 2) {
+        walk_segments->emplace_back(points_to_json(*current_walk));
+    }
+    current_walk->clear();
 }
 
 json::array diagnostic_points_to_json(
@@ -559,7 +567,7 @@ json::object build_route_preview(const QueryParam& query)
     }
 
     mapnavigator::NaviParam param;
-    if (!mapnavigator::TryParseNaviParam(query.custom_action_param, param, "MapNavmeshQuery route_preview")) {
+    if (!mapnavigator::TryParseNaviParam(&param, query.custom_action_param, "MapNavmeshQuery route_preview")) {
         return fail("custom_action_param 解析失败");
     }
     if (param.path.empty()) {
@@ -586,13 +594,13 @@ json::object build_route_preview(const QueryParam& query)
         .floor_y = query.floor_y.empty() ? std::optional<double> {} : std::optional<double> { query.floor_y.front() },
         .zone_id = query.position_zone,
     };
-    mapnavigator::NormalizeLivePositionToBase(param, position);
+    mapnavigator::NormalizeLivePositionToBase(&position, param);
 
     mapnavigator::ResetZiplineOutcome();
     std::vector<mapnavigator::Waypoint> expanded;
     std::vector<mapnavigator::NavmeshRouteDiagnostic> diagnostics;
-    if (!mapnavigator::ExpandNavmeshWaypoints(param, position, nullptr, expanded, &diagnostics)) {
-        const mapnavigator::NavmeshExpansionFailure failure = mapnavigator::CurrentNavmeshExpansionFailure();
+    mapnavigator::NavmeshExpansionFailure failure;
+    if (!mapnavigator::ExpandNavmeshWaypoints(&expanded, &failure, param, position, nullptr, &diagnostics)) {
         json::object result = fail(failure.message.empty() ? "路线展开失败" : failure.message);
         json::object detail {
             { "code", failure.code },
@@ -636,15 +644,8 @@ json::object build_route_preview(const QueryParam& query)
     json::array zipline_segments;
     json::array rope_segments;
     const navmesh::WorldPoint start { .x = position.x, .y = position.y };
-    append_distinct(all_points, start);
-    append_distinct(current_walk, start);
-
-    const auto flush_walk = [&]() {
-        if (current_walk.size() >= 2) {
-            walk_segments.emplace_back(points_to_json(current_walk));
-        }
-        current_walk.clear();
-    };
+    append_distinct(&all_points, start);
+    append_distinct(&current_walk, start);
 
     for (size_t index = 0; index < expanded.size(); ++index) {
         const mapnavigator::Waypoint& waypoint = expanded[index];
@@ -652,8 +653,8 @@ json::object build_route_preview(const QueryParam& query)
             continue;
         }
         const navmesh::WorldPoint point { .x = waypoint.x, .y = waypoint.y };
-        append_distinct(all_points, point);
-        append_distinct(current_walk, point);
+        append_distinct(&all_points, point);
+        append_distinct(&current_walk, point);
         if (waypoint.rope_ride && index + 1 < expanded.size()) {
             const mapnavigator::Waypoint& top = expanded[index + 1];
             rope_segments.emplace_back(json::object {
@@ -673,7 +674,7 @@ json::object build_route_preview(const QueryParam& query)
             return fail("滑索展开结果缺少下索点");
         }
 
-        flush_walk();
+        flush_walk(&current_walk, &walk_segments);
         const mapnavigator::ZiplineHopPlan& hop = *waypoint.zipline_hop;
         const navmesh::WorldPoint landing { .x = hop.landing.x, .y = hop.landing.y };
         json::object segment {
@@ -692,10 +693,10 @@ json::object build_route_preview(const QueryParam& query)
             segment.emplace("mount_spots", std::move(spots));
         }
         zipline_segments.emplace_back(std::move(segment));
-        append_distinct(all_points, landing);
-        append_distinct(current_walk, landing);
+        append_distinct(&all_points, landing);
+        append_distinct(&current_walk, landing);
     }
-    flush_walk();
+    flush_walk(&current_walk, &walk_segments);
 
     json::array diagnostic_items;
     for (const mapnavigator::NavmeshRouteDiagnostic& diagnostic : diagnostics) {
@@ -723,13 +724,13 @@ json::object build_route_preview(const QueryParam& query)
     };
 }
 
-json::object build_warm(QueryContext& context, const QueryParam& param)
+json::object build_warm(QueryContext* context, const QueryParam& param)
 {
-    const navmesh::BaseNavZone* zone = context.pack.findZone(context.pack.geometryZoneId(static_cast<uint16_t>(param.zone_id)));
+    const navmesh::BaseNavZone* zone = context->pack.findZone(context->pack.geometryZoneId(static_cast<uint16_t>(param.zone_id)));
     if (zone == nullptr || zone->triangle_count == 0) {
         return fail("该区无三角面");
     }
-    context.engine->warm(zone->name);
+    context->engine->warm(zone->name);
     return json::object { { "ok", true }, { "zone", zone->name } };
 }
 
@@ -742,7 +743,7 @@ json::object dispatch(const QueryParam& param)
         return build_route_preview(param);
     }
     std::string error;
-    QueryContext* context = acquire_context(param.navmesh_file, error);
+    QueryContext* context = acquire_context(&error, param.navmesh_file);
     if (context == nullptr) {
         return fail("navmesh 加载失败: " + error);
     }
@@ -760,10 +761,10 @@ json::object dispatch(const QueryParam& param)
         return build_deck_probe(*context, param);
     }
     if (param.op == "route") {
-        return build_route(*context, param);
+        return build_route(context, param);
     }
     if (param.op == "warm") {
-        return build_warm(*context, param);
+        return build_warm(context, param);
     }
     return fail("未知 op: " + param.op);
 }

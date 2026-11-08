@@ -88,7 +88,7 @@ bool apply_overlay_to_anchor(
         generated_prefix.push_back(Waypoint { .x = start_recovery_entry->x, .y = start_recovery_entry->y, .action = ActionType::RUN });
         generated_prefix.back().strict_arrival = false;
     }
-    if (!AppendGeneratedNavmeshWaypoints(*nav->param, nav->position->zone_id, *route, generated_prefix, options)) {
+    if (!AppendGeneratedNavmeshWaypoints(&generated_prefix, *nav->param, nav->position->zone_id, *route, options)) {
         LogWarn << "Dynamic navmesh overlay skipped: generated path is unusable." << VAR(reason) << VAR(continue_index)
                 << VAR(route->path.points.size());
         return false;
@@ -193,10 +193,11 @@ bool try_replan_remaining_authored_route(Navigator* nav, const char* reason)
     std::vector<Waypoint> replanned;
     const TimePoint expand_started_at = pause_for_planning(nav);
     const bool expanded = ExpandNavmeshWaypoints(
+        &replanned,
+        nullptr,
         replan_param,
         *nav->position,
         nav->maa_context,
-        replanned,
         nullptr,
         &nav->runtime_state.virtual_no_go,
         LandedTowerDeckY(*nav->session, *nav->position));
