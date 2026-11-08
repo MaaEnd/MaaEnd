@@ -1,7 +1,6 @@
 package autoessence
 
 import (
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -12,7 +11,7 @@ var _ maa.CustomActionRunner = &LoadInventoryAction{}
 type LoadInventoryAction struct{}
 
 func (a *LoadInventoryAction) Run(_ *maa.Context, _ *maa.CustomActionArg) bool {
-	path := fsutil.UserDataPath(inventoryFilePath)
+	path := defaultInventoryPath()
 	if err := LoadFile(path); err != nil {
 		log.Error().
 			Err(err).

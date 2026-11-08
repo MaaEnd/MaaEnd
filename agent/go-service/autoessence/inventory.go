@@ -16,6 +16,11 @@ const (
 	inventoryFilePath  = "EssenceInventory.json"
 )
 
+// defaultInventoryPath anchors the export under the shared user data directory.
+func defaultInventoryPath() string {
+	return fsutil.UserDataPath("debug", "record", inventoryFilePath)
+}
+
 // fileEssence is one levels/count row in EssenceInventory.json.
 // levels are ignored for AutoEssence stock checks (词条对应即可).
 type fileEssence struct {
@@ -81,7 +86,7 @@ func Loaded() bool {
 // Missing file yields an empty loaded inventory. Per-group counts sum all levels.
 func LoadFile(path string) error {
 	if path == "" {
-		path = fsutil.UserDataPath(inventoryFilePath)
+		path = defaultInventoryPath()
 	}
 	raw, err := os.ReadFile(path)
 	if err != nil {

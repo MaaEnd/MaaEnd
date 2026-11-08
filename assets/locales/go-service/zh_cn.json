@@ -106,7 +106,7 @@
     "essencefilter.focus.ocr_skills": "OCR到技能：%s(+%d) | %s(+%d) | %s(+%d)",
     "essencefilter.focus.plan.html_notice": "与上方日志内容相同，每次运行会覆写本文件。",
     "essencefilter.focus.plan.html_save_failed": "<span style=\"color:#ff4d4f;font-weight:700;\">保存 EssencePlan.html 失败</span><br/>路径：%s<br/>错误：%s",
-    "essencefilter.focus.plan.html_saved": "同内容已写入工作目录下的 EssencePlan.html。",
+    "essencefilter.focus.plan.html_saved": "同内容已写入 debug/record 下的 EssencePlan.html。",
     "essencefilter.focus.plan.html_title": "预刻写方案",
     "essencefilter.focus.plan.no_feasible_location_plans": "当前没有可行地点方案，仅展示未毕业武器列表。",
     "essencefilter.focus.warn.language_detect_failed": "未能从界面识别游戏语言，已回退为简体中文；请确认在基质库存页或战利品界面",
