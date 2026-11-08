@@ -877,7 +877,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "VisitFriendsBtwSellValleyIVStockedItemOpen",
+            "VisitFriendsBtwSellFinished",
+            "[JumpBack]VisitFriendsBtwSellValleyIVStockedItemOpen",
             "VisitFriendsBtwSellWulingSwitch",
             "VisitFriendsBtwSellNoStock"
         ]
@@ -938,7 +939,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "VisitFriendsBtwSellWulingStockedItemOpen",
+            "VisitFriendsBtwSellFinished",
+            "[JumpBack]VisitFriendsBtwSellWulingStockedItemOpen",
             "VisitFriendsBtwSellNoStock"
         ]
     },
@@ -1108,13 +1110,7 @@
         "action": "Click",
         "post_wait_freezes": 200,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "VisitFriendsBtwSellFinished",
-            "VisitFriendsBtwSellValleyIVStockedItemOpen",
-            "VisitFriendsBtwSellWulingSwitch",
-            "VisitFriendsBtwSellNoStock"
-        ]
+        "rate_limit": 0
     },
     "VisitFriendsBtwSellFinished": {
         "desc": "顺便出售：差值已耗尽，重置差值并结束本好友售卖",
@@ -1128,7 +1124,7 @@
         }
     },
     "VisitFriendsBtwSellCloseSellGoodsPage": {
-        "desc": "顺便出售：关闭出售物资界面",
+        "desc": "顺便出售：关闭出售物资界面并返回好友菜单",
         "recognition": "And",
         "all_of": [
             "InFriendsStockRedistributionSellGoods",
@@ -1147,7 +1143,7 @@
         ]
     },
     "VisitFriendsBtwSellCloseStockListPage": {
-        "desc": "顺便出售：关闭弹性需求物资列表",
+        "desc": "顺便出售：关闭弹性需求物资列表并返回好友菜单",
         "recognition": "And",
         "all_of": [
             "InFriendsStockRedistribution",
