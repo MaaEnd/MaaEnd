@@ -456,6 +456,14 @@ struct InteractApproachState
     void reset() { prompt_missed_node.reset(); }
 };
 
+struct PromptRepeatState
+{
+    std::optional<size_t> node;
+    int32_t recognized = 0;
+
+    void reset() { *this = {}; }
+};
+
 // 退索后要连续几次稳定的新定位重新确认位置, 才接回剩余路线
 struct ZiplineRecoveryState
 {
@@ -504,6 +512,7 @@ struct NavigationRuntimeState
     // 不进任何 reset, 换了上索点按身份自清, 或由 beginNavigation 清
     ZiplineApproachState zipline_approach;
     InteractApproachState interact_approach;
+    PromptRepeatState prompt_repeat;
     ZiplineRecoveryState zipline_recovery;
     // 账本跨越丢链和重规划, 只由 beginNavigation 清
     ZiplineRideMachine zipline_ride;
@@ -546,6 +555,7 @@ struct NavigationRuntimeState
         dwell.reset();
         zipline_approach.reset();
         interact_approach.reset();
+        prompt_repeat.reset();
         zipline_recovery.reset();
         find.reset();
         trigger.reset();

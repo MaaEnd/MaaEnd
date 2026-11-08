@@ -24,6 +24,25 @@
 namespace mapnavigator
 {
 
+namespace
+{
+
+bool prompt_repeats_exhausted(const PromptRepeatState& repeat, const std::optional<size_t>& node)
+{
+    return node.has_value() && repeat.node == node && repeat.recognized >= kPromptRecognizedRepeatLimit;
+}
+
+void count_prompt_repeat(PromptRepeatState* repeat, const std::optional<size_t>& node)
+{
+    if (repeat->node != node) {
+        repeat->node = node;
+        repeat->recognized = 0;
+    }
+    ++repeat->recognized;
+}
+
+} // namespace
+
 TickStep NavigationStateMachine::handlePrompts(const NavigateTick& tick)
 {
     const Waypoint& waypoint = tick.waypoint;
@@ -209,6 +228,13 @@ bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurem
     if (!route.startup_motion_confirmed) {
         return false;
     }
+    const std::optional<size_t> node = session_->currentAbsoluteNodeIndex();
+    if (prompt_repeats_exhausted(runtime_state_.prompt_repeat, node)) {
+        for (AsyncPromptAction* prompt : promptActions()) {
+            prompt->forgetDetection();
+        }
+        return false;
+    }
 
     const std::array<AsyncPromptAction*, 2> prompts = promptActions();
     for (size_t index = 0; index < prompts.size(); ++index) {
@@ -235,6 +261,13 @@ bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurem
         session_->noteInteraction();
         if (prompts[index]->spec().completesWaypointOnTrigger()) {
             completeWaypointAfterPromptTrigger();
+            return true;
+        }
+        count_prompt_repeat(&runtime_state_.prompt_repeat, node);
+        if (prompt_repeats_exhausted(runtime_state_.prompt_repeat, node)) {
+            LogWarn << "Prompt keeps being recognized without advancing; ignoring it at this waypoint." << VAR(prompts[index]->spec().tag)
+                    << VAR(node);
+            failure_trail_.note(std::chrono::steady_clock::now(), "prompt muted");
         }
         return true;
     }

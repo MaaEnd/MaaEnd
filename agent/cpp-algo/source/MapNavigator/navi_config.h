@@ -377,6 +377,7 @@ constexpr double kPromptIconMatchThreshold = 0.75;
 constexpr const char* kInteractScanNode = "MapNavigatorInteractScan";
 // 检测触发尝试的唯一节流, 只有真正尝试时才计时
 constexpr int32_t kPromptScanIntervalMs = 1200;
+constexpr int32_t kPromptRecognizedRepeatLimit = 5;
 constexpr double kCollectArrivalBandWu = 1.5;
 // 这么久无进展就退回常规判定圈
 constexpr int32_t kCollectArrivalRelaxMs = 6000;
