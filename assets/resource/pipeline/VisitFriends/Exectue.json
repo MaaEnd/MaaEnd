@@ -1069,11 +1069,25 @@
             "CloseRewardsButton"
         ],
         "box_index": 1,
-        "pre_wait_freezes": 300,
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                528,
+                299,
+                222,
+                131
+            ],
+            "threshold": 0.97,
+            "timeout": 1500
+        },
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "AddItemData",
-        "custom_action_param": {},
+        "custom_action_param": {
+            "item_filters": [
+                "Isolate:DomainGold"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
