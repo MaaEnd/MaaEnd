@@ -14,13 +14,7 @@ namespace mapnavigator
 {
 
 struct Motion;
-
-namespace sensitivity
-{
-
-struct SensitivityRun;
-
-} // namespace sensitivity
+struct NavProcessState;
 
 struct SteeringTurnObservation
 {
@@ -60,7 +54,7 @@ void UpdateCornerWalk(FlowState* flow, const NaviPosition& position, const NavRu
 std::pair<double, int64_t> SendSteering(
     SteeringRateState* steering_rate,
     Motion* motion,
-    sensitivity::SensitivityRun* sensitivity,
+    NavProcessState* process,
     const SteeringCommand& steering,
     int64_t tick_gap_ms,
     double steer_heading,

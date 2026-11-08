@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
-#include <deque>
 #include <limits>
 #include <mutex>
 #include <optional>
@@ -40,21 +39,6 @@ struct SettleBudget
     TimePoint deadline {};
     MaaContext* maa_context = nullptr;
 };
-
-struct PulseSample
-{
-    double hold_ms = 0.0;
-    double travel = 0.0;
-};
-
-// 同一进程即同一台机器与按键链路, 量到的关系跨点跨任务都成立
-struct PulseHistory
-{
-    std::mutex mutex;
-    std::deque<PulseSample> samples;
-};
-
-PulseHistory g_pulse_history;
 
 struct SettleRun
 {
@@ -127,7 +111,7 @@ bool capture_strict_goal_fix(Navigator* nav, const SettleBudget& budget, NaviPos
         if (!waited) {
             break;
         }
-        if (!CaptureForStrictGoal(nav->position_provider, out_pos, nav->session->current_zone_id)) {
+        if (!CaptureForStrictGoal(CapturePartsOf(*nav), out_pos, nav->session->current_zone_id)) {
             continue;
         }
         if (budget_exhausted(budget)) {
@@ -271,7 +255,7 @@ SettleStep align_toward_goal(Navigator* nav, SettleRun* run, const Waypoint& way
 
 SettleStep pulse_and_measure(Navigator* nav, SettleRun* run, const SettleBudget& budget, const StrictSettleInputProfile& input)
 {
-    const int hold_ms = plan_hold_ms(snapshot_pulses(&g_pulse_history), run->residual, input.max_hold_ms);
+    const int hold_ms = plan_hold_ms(snapshot_pulses(&nav->process->pulses), run->residual, input.max_hold_ms);
     const auto settle_reserve = std::chrono::milliseconds(hold_ms + input.slide_ms + kStrictSettleStillReads * kStrictSettleFixIntervalMs);
     if (budget_exhausted(budget, settle_reserve)) {
         return report_incomplete(*run, cancelled_or(budget, "budget_exhausted"));
@@ -297,7 +281,7 @@ SettleStep pulse_and_measure(Navigator* nav, SettleRun* run, const SettleBudget&
     const double deflection = std::abs(CalcDeltaRotation(run->bearing, CalcTargetRotation(from.x, from.y, run->fix.x, run->fix.y)));
     const bool usable = travel >= kStrictSettleStillWu && deflection <= kStrictSettlePulseDirectionToleranceDeg;
     if (usable) {
-        record_pulse(&g_pulse_history, held_ms, travel);
+        record_pulse(&nav->process->pulses, held_ms, travel);
     }
     LogInfo << "Strict arrival pulse landed." << VAR(held_ms) << VAR(travel) << VAR(deflection) << VAR(usable);
     return SettleStep::Continue;
@@ -344,9 +328,9 @@ SettleStep settle_toward_goal(
 
 } // namespace
 
-int PlanPulseHoldMs(double residual, int max_hold_ms)
+int PlanPulseHoldMs(PulseHistory* history, double residual, int max_hold_ms)
 {
-    return plan_hold_ms(snapshot_pulses(&g_pulse_history), residual, max_hold_ms);
+    return plan_hold_ms(snapshot_pulses(history), residual, max_hold_ms);
 }
 
 bool SettleAtStrictGoal(Navigator* nav, const Waypoint& waypoint)

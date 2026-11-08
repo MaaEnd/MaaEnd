@@ -1,7 +1,6 @@
 #include "zipline_preference.h"
 
 #include <algorithm>
-#include <atomic>
 #include <cctype>
 #include <string>
 
@@ -60,28 +59,6 @@ std::string read_account_identity(MaaContext* context)
     return account_id;
 }
 
-size_t claim_legacy_records(const std::string& account_id)
-{
-    const std::filesystem::path path = zipline::ZiplineStore::DefaultPath();
-
-    zipline::ZiplineStore store;
-    if (!store.load(path)) {
-        LogError << "ZiplineAccount: load zipline records failed, skip claiming legacy records" << VAR(path);
-        return 0;
-    }
-    return store.claimLegacyRecords(account_id, path);
-}
-
-void notice_claimed_legacy_records(MaaContext* context, size_t claimed)
-{
-    if (context == nullptr || claimed == 0) {
-        return;
-    }
-
-    LogInfo << "ZiplineAccount: claimed legacy zipline records for the current account" << VAR(claimed);
-    common::notice::Publish(context, common::notice::Text("zipline.legacy_claimed", { static_cast<int64_t>(claimed) }));
-}
-
 } // namespace
 
 bool ResolveZiplineEnabled(MaaContext* context, bool requested)
@@ -89,7 +66,7 @@ bool ResolveZiplineEnabled(MaaContext* context, bool requested)
     return read_preference(context, requested);
 }
 
-std::string ResolveZiplineAccountId(MaaContext* context)
+std::string ReadOrCaptureZiplineAccountId(MaaContext* context)
 {
     std::string account_id = read_account_identity(context);
     if (account_id.empty()) {
@@ -104,36 +81,53 @@ std::string ResolveZiplineAccountId(MaaContext* context)
     }
 
     LogInfo << "ZiplineAccount: current game account selected" << VAR(account_id);
-    notice_claimed_legacy_records(context, claim_legacy_records(account_id));
     return account_id;
 }
 
-void NoticeZiplineOutcome(MaaContext* context)
+size_t ClaimLegacyZiplineRecords(const std::string& account_id)
 {
-    static std::atomic_bool told_no_data { false };
-    static std::atomic_bool told_account_unknown { false };
+    const std::filesystem::path path = zipline::ZiplineStore::DefaultPath();
 
+    zipline::ZiplineStore store;
+    if (!store.load(path)) {
+        LogError << "ZiplineAccount: load zipline records failed, skip claiming legacy records" << VAR(path);
+        return 0;
+    }
+    return store.claimLegacyRecords(account_id, path);
+}
+
+void NoticeClaimedLegacyZiplineRecords(MaaContext* context, size_t claimed)
+{
+    if (context == nullptr || claimed == 0) {
+        return;
+    }
+
+    LogInfo << "ZiplineAccount: claimed legacy zipline records for the current account" << VAR(claimed);
+    common::notice::Publish(context, common::notice::Text("zipline.legacy_claimed", { static_cast<int64_t>(claimed) }));
+}
+
+void NoticeZiplineOutcome(ZiplineNoticeLatch* latch, MaaContext* context, const ZiplineOutcome& outcome)
+{
     if (context == nullptr) {
         return;
     }
 
-    const ZiplineOutcome outcome = CurrentZiplineOutcome();
     if (outcome.used) {
-        told_no_data.store(false);
-        told_account_unknown.store(false);
+        latch->told_no_data.store(false);
+        latch->told_account_unknown.store(false);
         return;
     }
 
     if (outcome.account_unknown) {
-        if (!told_account_unknown.exchange(true)) {
+        if (!latch->told_account_unknown.exchange(true)) {
             LogWarn << "Zipline requested but the current game account could not be identified; this route walks the whole way.";
             common::notice::Publish(context, common::notice::Text("zipline.account_unknown"));
         }
         return;
     }
-    told_account_unknown.store(false);
+    latch->told_account_unknown.store(false);
 
-    if (outcome.no_data && !told_no_data.exchange(true)) {
+    if (outcome.no_data && !latch->told_no_data.exchange(true)) {
         LogWarn << "Zipline requested but no zipline coordinates are available here; this route walks the whole way.";
         common::notice::Publish(context, common::notice::Text("zipline.no_data"));
     }

@@ -42,9 +42,34 @@ void ResetStallCounters(FlowState* flow)
     flow->futile_forward_reasserts = 0;
 }
 
+void BeginTransferWait(TransferWaitState* transfer, const NaviPosition& anchor, TimePoint started)
+{
+    *transfer = { .started = started, .anchor = anchor };
+}
+
+void ClearTransferWait(TransferWaitState* transfer)
+{
+    *transfer = {};
+}
+
 bool IsPortalTransitActive(const PortalTransitState& portal)
 {
     return portal.phase != PortalTransitPhase::Idle;
+}
+
+void BeginPortalTransit(PortalTransitState* portal, TimePoint started)
+{
+    *portal = { .phase = PortalTransitPhase::AwaitZone, .started = started };
+}
+
+void EndPortalTransit(PortalTransitState* portal)
+{
+    *portal = {};
+}
+
+void BeginRopeRide(RopeRideState* rope, int64_t ride_ms, TimePoint started)
+{
+    *rope = { .started = started, .ride_ms = ride_ms };
 }
 
 void RestartDynamicRecovery(DynamicRecoveryState* recovery, const NaviPosition& position, size_t anchor, TimePoint now)
@@ -65,6 +90,11 @@ void RetargetRecoveryEscalation(RecoveryEscalationState* escalation, size_t anch
 {
     *escalation = {};
     escalation->anchor_index = anchor;
+}
+
+void ResetRecoveryEscalation(RecoveryEscalationState* escalation)
+{
+    *escalation = {};
 }
 
 void ArmRiverFallRecovery(RiverFallRecoveryState* river_fall, const NaviPosition& position, double heading)
@@ -137,6 +167,11 @@ WedgeAction StepWedge(OffRouteWedgeState* wedge, double progress, TimePoint now)
     return WedgeAction::None;
 }
 
+void ForgetDwellSample(DwellWatchdogState* dwell)
+{
+    dwell->last_usable = {};
+}
+
 void RetargetZiplineApproach(ZiplineApproachState* approach, size_t anchor)
 {
     approach->anchor_index = anchor;
@@ -152,6 +187,11 @@ void FollowMountTower(ZiplineApproachState* approach, const ZiplineNodeRef& moun
         approach->spot_index = 0;
         approach->press_missed = false;
     }
+}
+
+void CountZiplineApproachReplan(ZiplineApproachState* approach)
+{
+    ++approach->replans;
 }
 
 bool PromptMissedAt(const InteractApproachState& approach, const std::optional<size_t>& node)

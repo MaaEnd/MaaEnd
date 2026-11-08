@@ -75,7 +75,7 @@ void update_dwell_watchdog(Navigator* nav, bool captured)
     DwellWatchdogState& dwell = nav->runtime_state.dwell;
     const bool usable = captured && nav->position->valid && !nav->position_provider->last_capture_was_black_screen;
     if (!usable || nav->session->phase != NaviPhase::Navigate) {
-        dwell.last_usable = {};
+        ForgetDwellSample(&dwell);
         return;
     }
 
@@ -231,7 +231,7 @@ bool CaptureTrackedFix(Navigator* nav)
     const bool prior_usable = nav->param->heading_source == HeadingSource::Camera && nav->position->valid && nav->prior_observation_epoch
                               && *nav->prior_observation_epoch == heading_epoch && nav->session->phase == NaviPhase::Navigate;
     const std::optional<double> camera_heading_prior = prior_usable ? std::optional<double>(nav->position->angle) : std::nullopt;
-    const bool captured = CaptureTracked(nav->position_provider, nav->position, nav->session->current_zone_id, {}, camera_heading_prior);
+    const bool captured = CaptureTracked(CapturePartsOf(*nav), nav->position, nav->session->current_zone_id, {}, camera_heading_prior);
     note_heading_prior(nav, captured, heading_epoch, camera_heading_prior);
     sample_capture_trail(nav, captured);
     update_dwell_watchdog(nav, captured);
@@ -242,7 +242,7 @@ bool CaptureGlobalFix(Navigator* nav)
 {
     const uint64_t heading_epoch = nav->input_backend->heading_epoch;
     const std::optional<double> camera_heading_prior = std::nullopt;
-    const bool captured = CaptureGlobal(nav->position_provider, nav->position, nav->session->current_zone_id, {}, camera_heading_prior);
+    const bool captured = CaptureGlobal(CapturePartsOf(*nav), nav->position, nav->session->current_zone_id, {}, camera_heading_prior);
     note_heading_prior(nav, captured, heading_epoch, camera_heading_prior);
     sample_capture_trail(nav, captured);
     update_dwell_watchdog(nav, captured);
@@ -271,7 +271,7 @@ TickStep CaptureNavigateFix(Navigator* nav, NavigateTick* tick)
     return TickStep::Next;
 }
 
-TickStep CheckDwellWatchdog(Navigator* nav)
+TickStep RunDwellWatchdog(Navigator* nav)
 {
     if (nav->runtime_state.dwell.dwell_ms < kDwellWatchdogFailMs || !HasCurrentWaypoint(*nav->session)) {
         return TickStep::Next;
@@ -296,6 +296,67 @@ TickStep CheckDwellWatchdog(Navigator* nav)
         nav->runtime_state.dwell.dwell_ms));
 }
 
+namespace
+{
+
+bool handle_loss_timeout(Navigator* nav, std::chrono::milliseconds loss_elapsed)
+{
+    bool recovered = false;
+    if (scene_recovery_allowed(nav)) {
+        recovered = run_scene_recovery(nav);
+    }
+    if (recovered) {
+        return resume_after_global_reacquire(nav, nav->session->current_zone_id, loss_elapsed);
+    }
+    return FailNavigation(
+        nav,
+        "localization_lost_timeout",
+        "Localization lost beyond timeout (re-acquire failed; likely shoved off-route into another zone); terminating navigation.",
+        0.0,
+        0.0,
+        0);
+}
+
+std::optional<bool> try_global_relocalize(Navigator* nav, std::chrono::milliseconds loss_elapsed, std::chrono::steady_clock::time_point now)
+{
+    const bool relocalize_cooling = nav->last_global_relocalize_at != std::chrono::steady_clock::time_point {}
+                                    && std::chrono::duration_cast<std::chrono::milliseconds>(now - nav->last_global_relocalize_at)
+                                           < std::chrono::milliseconds(kRelocationRetryIntervalMs);
+    if (!relocalize_cooling) {
+        nav->last_global_relocalize_at = now;
+        const std::string prior_zone = nav->session->current_zone_id;
+        const bool reacquired = CaptureGlobal(CapturePartsOf(*nav), nav->position, /*expected_zone_id=*/std::string());
+        NoteFailure(&nav->failure_trail, now, "global relocalize " + nav->position_provider->last_locate_message);
+        if (reacquired) {
+            return resume_after_global_reacquire(nav, prior_zone, loss_elapsed);
+        }
+    }
+    return std::nullopt;
+}
+
+bool try_blind_hop(Navigator* nav, std::chrono::milliseconds loss_elapsed, std::chrono::steady_clock::time_point now)
+{
+    const bool unstick_cooling =
+        nav->runtime_state.localization_loss.last_unstick_at != std::chrono::steady_clock::time_point {}
+        && std::chrono::duration_cast<std::chrono::milliseconds>(now - nav->runtime_state.localization_loss.last_unstick_at)
+               < std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs);
+    // 有 TRIGGER 在等命中时不盲跳, 按键会干扰它
+    if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs) && !unstick_cooling
+        && !semantic_nodes::IsTriggerPending(*nav->session)) {
+        nav->runtime_state.localization_loss.last_unstick_at = now;
+        LogInfo << "Localization lost; blind unstick hop issued." << VAR(loss_elapsed.count());
+        NoteFailure(&nav->failure_trail, now, "localization lost blind hop");
+        ArmSteeringQuietPeriod(nav->motion_controller);
+        ApplyLocalAction(nav->motion_controller, LocalDriverAction::JumpForward);
+        SleepFor(kActionJumpSettleMs);
+        HoldPosition(nav->motion_controller);
+        return true;
+    }
+    return false;
+}
+
+} // namespace
+
 bool HandleLocalizationLoss(Navigator* nav)
 {
     const auto now = std::chrono::steady_clock::now();
@@ -314,48 +375,12 @@ bool HandleLocalizationLoss(Navigator* nav)
 
     const auto loss_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - loss.started_at);
     if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossTimeoutMs)) {
-        bool recovered = false;
-        if (scene_recovery_allowed(nav)) {
-            recovered = run_scene_recovery(nav);
-        }
-        if (recovered) {
-            return resume_after_global_reacquire(nav, nav->session->current_zone_id, loss_elapsed);
-        }
-        return FailNavigation(
-            nav,
-            "localization_lost_timeout",
-            "Localization lost beyond timeout (re-acquire failed; likely shoved off-route into another zone); terminating navigation.",
-            0.0,
-            0.0,
-            0);
+        return handle_loss_timeout(nav, loss_elapsed);
     }
-
-    const bool relocalize_cooling = nav->last_global_relocalize_at != std::chrono::steady_clock::time_point {}
-                                    && std::chrono::duration_cast<std::chrono::milliseconds>(now - nav->last_global_relocalize_at)
-                                           < std::chrono::milliseconds(kRelocationRetryIntervalMs);
-    if (!relocalize_cooling) {
-        nav->last_global_relocalize_at = now;
-        const std::string prior_zone = nav->session->current_zone_id;
-        const bool reacquired = CaptureGlobal(nav->position_provider, nav->position, /*expected_zone_id=*/std::string());
-        NoteFailure(&nav->failure_trail, now, "global relocalize " + nav->position_provider->last_locate_message);
-        if (reacquired) {
-            return resume_after_global_reacquire(nav, prior_zone, loss_elapsed);
-        }
+    if (const std::optional<bool> resumed = try_global_relocalize(nav, loss_elapsed, now)) {
+        return *resumed;
     }
-
-    const bool unstick_cooling = loss.last_unstick_at != std::chrono::steady_clock::time_point {}
-                                 && std::chrono::duration_cast<std::chrono::milliseconds>(now - loss.last_unstick_at)
-                                        < std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs);
-    // 有 TRIGGER 在等命中时不盲跳, 按键会干扰它
-    if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs) && !unstick_cooling
-        && !semantic_nodes::IsTriggerPending(*nav->session)) {
-        loss.last_unstick_at = now;
-        LogInfo << "Localization lost; blind unstick hop issued." << VAR(loss_elapsed.count());
-        NoteFailure(&nav->failure_trail, now, "localization lost blind hop");
-        ArmSteeringQuietPeriod(nav->motion_controller);
-        ApplyLocalAction(nav->motion_controller, LocalDriverAction::JumpForward);
-        SleepFor(kActionJumpSettleMs);
-        HoldPosition(nav->motion_controller);
+    if (try_blind_hop(nav, loss_elapsed, now)) {
         return true;
     }
 
@@ -373,7 +398,7 @@ bool ReturnToWorld(Navigator* nav)
     const std::optional<std::vector<std::string>> handled =
         RunTaskForCompletedNodes(nav->maa_context, kSceneRecoveryEntryNode, scene_recovery_override(esc_used));
     const bool restored = WaitForFix(
-        nav->position_provider,
+        CapturePartsOf(*nav),
         nav->position,
         std::string(),
         kSceneRecoveryFixAttempts,

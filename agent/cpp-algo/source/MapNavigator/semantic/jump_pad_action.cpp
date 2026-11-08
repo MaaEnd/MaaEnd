@@ -12,6 +12,7 @@
 #include "../navi_log.h"
 #include "../navi_math.h"
 #include "../navi_time.h"
+#include "../process_state.h"
 #include "../sensing/position_provider.h"
 #include "../state_machine/navigation_state_machine.h"
 #include "heading_turn.h"
@@ -55,7 +56,7 @@ void nudge_toward_pad(Navigator* nav, JumpPadState* state, double offset)
     }
     const StrictSettleInputProfile& input =
         UsesTouchBackend(*nav->input_backend) ? kStrictSettleTouchProfile : kStrictSettleKeyboardProfile;
-    const int hold_ms = PlanPulseHoldMs(offset, input.max_hold_ms);
+    const int hold_ms = PlanPulseHoldMs(&nav->process->pulses, offset, input.max_hold_ms);
     LogInfo << "Jump pad forward pulse." << VAR(offset) << VAR(hold_ms) << VAR_AS(state.nudges, state->nudges);
     MoveForward(nav->motion_controller);
     SleepFor(hold_ms);
@@ -134,8 +135,8 @@ Result TickJumpPad(Navigator* nav)
     HoldPosition(nav->motion_controller);
 
     // 起飞前要用可信的镜头朝向对准板心, 起飞后只看位置
-    const bool captured = state.launched ? CaptureTracked(nav->position_provider, nav->position, {})
-                                         : CaptureForStrictGoal(nav->position_provider, nav->position, state.pad.zone_id);
+    const bool captured = state.launched ? CaptureTracked(CapturePartsOf(*nav), nav->position, {})
+                                         : CaptureForStrictGoal(CapturePartsOf(*nav), nav->position, state.pad.zone_id);
     if (!captured) {
         state.last_fix.reset();
         state.still_reads = 0;

@@ -1,7 +1,18 @@
 #include "view_turn.h"
 
+#include <cmath>
+
 namespace mapnavigator
 {
+
+int YawUnitsAtLeastOne(const InputBackend& backend, const sensitivity::SensitivityRun& sensitivity, double delta_deg)
+{
+    int units = static_cast<int>(std::lround(delta_deg * TurnUnitsPerDegree(backend, sensitivity)));
+    if (units == 0) {
+        units = delta_deg > 0.0 ? 1 : -1;
+    }
+    return units;
+}
 
 bool SendYawDeltaAndNoteTurn(InputBackend* backend, sensitivity::SensitivityRun* sensitivity, int dx, int dy)
 {

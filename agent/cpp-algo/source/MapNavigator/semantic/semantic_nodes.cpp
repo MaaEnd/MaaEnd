@@ -40,7 +40,12 @@ Result arrive_transfer(Navigator* nav, const std::optional<size_t>& node_idx, do
     ResetOnWaypointAdvance(&nav->runtime_state);
     const auto now = std::chrono::steady_clock::now();
     const bool waits = HasCurrentWaypoint(*nav->session);
-    nav->runtime_state.semantic.transfer = waits ? TransferWaitState { .started = now, .anchor = *nav->position } : TransferWaitState {};
+    if (waits) {
+        BeginTransferWait(&nav->runtime_state.semantic.transfer, *nav->position, now);
+    }
+    else {
+        ClearTransferWait(&nav->runtime_state.semantic.transfer);
+    }
     ResetSensorTracking(nav->position_provider);
     LogInfo << "Action: TRANSFER reached." << VAR(actual_distance);
 
@@ -60,9 +65,12 @@ Result arrive_portal(Navigator* nav, const std::optional<size_t>& node_idx, doub
     LeaveCurrentWaypoint(nav->session, ActionType::PORTAL, "portal_entered");
     ResetOnWaypointAdvance(&nav->runtime_state);
     const auto now = std::chrono::steady_clock::now();
-    nav->runtime_state.semantic.portal = HasCurrentWaypoint(*nav->session)
-                                             ? PortalTransitState { .phase = PortalTransitPhase::AwaitZone, .started = now }
-                                             : PortalTransitState {};
+    if (HasCurrentWaypoint(*nav->session)) {
+        BeginPortalTransit(&nav->runtime_state.semantic.portal, now);
+    }
+    else {
+        EndPortalTransit(&nav->runtime_state.semantic.portal);
+    }
     ResetSensorTracking(nav->position_provider);
     MoveForward(nav->motion_controller);
     LogInfo << "Action: PORTAL entered transit flow." << VAR(actual_distance);
@@ -206,10 +214,10 @@ Result ConsumeInlineSemantics(Navigator* nav)
 Result StartRopeRide(Navigator* nav, const RopeRideInfo& ride)
 {
     HoldAndArmCameraAlign(nav);
-    nav->runtime_state.semantic.rope = {
-        .started = std::chrono::steady_clock::now(),
-        .ride_ms = static_cast<int64_t>(std::ceil(ride.ride_s * 1000.0)),
-    };
+    BeginRopeRide(
+        &nav->runtime_state.semantic.rope,
+        static_cast<int64_t>(std::ceil(ride.ride_s * 1000.0)),
+        std::chrono::steady_clock::now());
     ResetSensorTracking(nav->position_provider);
     LogInfo << "Rope ride started." << VAR(ride.uid) << VAR(ride.ride_s) << VAR(ride.top_height);
     if (!HasCurrentWaypoint(*nav->session) || !CurrentWaypoint(*nav->session).rope_top) {

@@ -16,6 +16,7 @@ namespace mapnavigator
 {
 
 struct NaviParam;
+struct ZiplineOutcome;
 
 struct NavmeshExpansionFailure
 {
@@ -45,6 +46,7 @@ void PreloadNavmeshWaypoints(const NaviParam& param);
 bool ExpandNavmeshWaypoints(
     std::vector<Waypoint>* out_path,
     NavmeshExpansionFailure* out_failure,
+    ZiplineOutcome* zipline_outcome,
     const NaviParam& param,
     const NaviPosition& initial_pos,
     MaaContext* maa_context,

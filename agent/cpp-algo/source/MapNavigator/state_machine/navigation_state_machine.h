@@ -12,6 +12,7 @@
 #include "../planning/nav_run_controller.h"
 #include "../planning/navigation_session.h"
 #include "../semantic/async_prompt_action.h"
+#include "../sensing/frame_sinks.h"
 #include "failure_trail.h"
 #include "navigation_runtime_state.h"
 
@@ -20,9 +21,11 @@ namespace mapnavigator
 
 struct Motion;
 struct PositionSensor;
+struct CaptureParts;
 class RoiTemplateScanner;
 struct InputBackend;
 struct NavProcessState;
+struct ZiplineOutcome;
 
 std::optional<size_t> ResolveRouteResumeIndex(const std::vector<Waypoint>& path, const NaviPosition& position);
 
@@ -35,6 +38,7 @@ struct Navigator
     Motion* motion_controller = nullptr;
     NaviPosition* position = nullptr;
     NavProcessState* process = nullptr;
+    ZiplineOutcome* zipline_outcome = nullptr;
     MaaContext* maa_context = nullptr;
     NavigationRuntimeState runtime_state {};
     NavRun nav_run {};
@@ -52,6 +56,7 @@ struct Navigator
 
     ObstacleDeviceRecovery device_recovery {};
     std::unique_ptr<RoiTemplateScanner> zipline_mount_scanner {};
+    std::optional<FrameSinks> frame_sinks {};
 };
 
 Navigator MakeNavigator(
@@ -62,7 +67,9 @@ Navigator MakeNavigator(
     Motion* motion_controller,
     NaviPosition* position,
     NavProcessState* process,
+    ZiplineOutcome* zipline_outcome,
     MaaContext* maa_context);
+CaptureParts CapturePartsOf(const Navigator& nav);
 bool RunNavigator(Navigator* nav);
 void AdvanceHeadingEpochOnPhaseChange(Navigator* nav, NaviPhase phase);
 bool TickPhase(Navigator* nav, NaviPhase phase);

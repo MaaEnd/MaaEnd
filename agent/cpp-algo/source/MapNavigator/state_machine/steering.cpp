@@ -23,6 +23,32 @@
 namespace mapnavigator
 {
 
+namespace
+{
+
+bool move_or_hold_for_turn(Navigator* nav, const NavigateTick& tick, const SteeringReading& reading, const SteeringCommand& steering)
+{
+    // 慢循环里大转角要晚一拍才落地, 原地转免得冲过弯
+    const double turn_abs_deg = std::abs(steering.yaw_delta_deg);
+    const bool pivot_in_place = tick.fix.drops_turn_sends && steering.issued
+                                && (reading.steer_period_ms.has_value() ? reading.slow_loop && turn_abs_deg >= kSlowLoopPivotTurnDeg
+                                                                        : turn_abs_deg >= kStartupPivotTurnDeg);
+    const bool corner_brake = ShouldBrakeForSharpCorner(nav->runtime_state.flow, tick.nav_run_result, reading.slow_loop);
+    if (corner_brake) {
+        LatchBrakedCorner(&nav->runtime_state.flow, tick.nav_run_result);
+    }
+    UpdateCornerWalk(&nav->runtime_state.flow, *nav->position, tick.nav_run_result);
+    if (!pivot_in_place && !corner_brake) {
+        MoveForward(nav->motion_controller);
+    }
+    else {
+        HoldPosition(nav->motion_controller);
+    }
+    return corner_brake;
+}
+
+} // namespace
+
 double SteerAlongCorridor(Navigator* nav, const NavigateTick& tick)
 {
     const RouteMeasurement& route = tick.route;
@@ -46,27 +72,12 @@ double SteerAlongCorridor(Navigator* nav, const NavigateTick& tick)
     const SteeringCommand steering =
         DecideSteering(&nav->runtime_state.steering_rate, *nav->motion_controller, heading_error, heading_rate_deg);
 
-    // 慢循环里大转角要晚一拍才落地, 原地转免得冲过弯
-    const double turn_abs_deg = std::abs(steering.yaw_delta_deg);
-    const bool pivot_in_place = fix.drops_turn_sends && steering.issued
-                                && (reading.steer_period_ms.has_value() ? reading.slow_loop && turn_abs_deg >= kSlowLoopPivotTurnDeg
-                                                                        : turn_abs_deg >= kStartupPivotTurnDeg);
-    const bool corner_brake = ShouldBrakeForSharpCorner(nav->runtime_state.flow, nav_run_result, reading.slow_loop);
-    if (corner_brake) {
-        LatchBrakedCorner(&nav->runtime_state.flow, nav_run_result);
-    }
-    UpdateCornerWalk(&nav->runtime_state.flow, *nav->position, nav_run_result);
-    if (!pivot_in_place && !corner_brake) {
-        MoveForward(nav->motion_controller);
-    }
-    else {
-        HoldPosition(nav->motion_controller);
-    }
+    const bool corner_brake = move_or_hold_for_turn(nav, tick, reading, steering);
 
     const auto [issued_delta_deg, steer_send_ms] = SendSteering(
         &nav->runtime_state.steering_rate,
         nav->motion_controller,
-        &nav->process->sensitivity,
+        nav->process,
         steering,
         tick.gap_ms,
         fix.steer_heading,
@@ -119,8 +130,11 @@ double SteerAlongCorridor(Navigator* nav, const NavigateTick& tick)
              << VAR_AS(degraded_fix, fix.degraded_fix) << VAR_AS(capture_ms, tick.capture_ms) << VAR_AS(fix_age_ms, fix.fix_age_ms)
              << VAR_AS(tick_gap_ms, tick.gap_ms) << VAR(tick_compute_ms);
 
-    latency::RecordStage(latency::Stage::Other, std::max<int64_t>(0, tick_compute_ms - tick.capture_ms - steer_send_ms));
-    latency::RecordTick(nav->maa_context, nav->runtime_state.flow.tick_seq, tick.gap_ms);
+    latency::RecordStage(
+        &nav->process->latency,
+        latency::Stage::Other,
+        std::max<int64_t>(0, tick_compute_ms - tick.capture_ms - steer_send_ms));
+    latency::RecordTick(&nav->process->latency, nav->maa_context, nav->runtime_state.flow.tick_seq, tick.gap_ms);
     return heading_error;
 }
 

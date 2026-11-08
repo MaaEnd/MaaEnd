@@ -13,7 +13,7 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - GUI 动作编辑主要面向坐标点动作：`NAVMESH / RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER`。
 - `FIND` 是"只有识别框、没有坐标"的寻找语义点：地图上配置的是搜索锚点，`find_target` / `find_text` / `find_stop` / `find_arrive` 字段需在导出的 `path` 中手工维护，工具仅负责原样保留。
 - `TRIGGER` 放在路线末尾：边走边识别 `trigger_node`，命中就算导航成功；地图上的坐标是一直没命中时走到并等待的位置。`trigger_node` 同样在导出的 `path` 中手工维护。
-- `COLLECT / DIG` 是采集/挖掘语义点：精确抵达后由 `MapNavigator` 同步触发 `AutoCollectClickStart` / `AutoCollectDigStart` pipeline 子任务，期间不退出 NaviController，避免每次采集都重建定位/重新 Bootstrap/吃掉起步宽限。
+- `COLLECT / DIG` 是采集/挖掘语义点：精确抵达后由 `MapNavigator` 同步触发 `AutoCollectClickStart` / `AutoCollectDigStart` pipeline 子任务，期间不退出导航（`RunNavigation`），避免每次采集都重建定位/重新 Bootstrap/吃掉起步宽限。
 - 支持为单个点标记 `strict`，用于要求该点必须精确抵达。
 - 支持为单个点标记 `required`。未启用滑索时按作者顺序执行全部节点；启用滑索后，中间的移动和兜底点可被全局规划跳过，`required` 用于标记必须抵达并执行的点。`ZONE`、`HEADING`、`COLLECT`、`DIG`、`FIND`、`TRIGGER` 始终保留。
 - 支持为单个坐标点声明 `target_tier`；它只指定该点的坐标来源层级，不会改变 `ZONE` 或触发区域切换。

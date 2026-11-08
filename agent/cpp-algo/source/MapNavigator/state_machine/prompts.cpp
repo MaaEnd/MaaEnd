@@ -249,7 +249,7 @@ void StartScanners(Navigator* nav)
     if (nav->position_provider == nullptr) {
         return;
     }
-    nav->position_provider->frame_sinks = FrameSinks {
+    nav->frame_sinks = FrameSinks {
         .collect = &nav->collect_prompt,
         .interact = &nav->interact_prompt,
         .device = &nav->device_recovery,
@@ -259,9 +259,7 @@ void StartScanners(Navigator* nav)
 
 void StopScanners(Navigator* nav)
 {
-    if (nav->position_provider != nullptr) {
-        nav->position_provider->frame_sinks.reset();
-    }
+    nav->frame_sinks.reset();
     StopPromptAction(&nav->collect_prompt);
     StopPromptAction(&nav->interact_prompt);
     StopDeviceRecovery(&nav->device_recovery);

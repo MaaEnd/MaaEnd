@@ -9,7 +9,6 @@
 #include "../Backend/backend.h"
 #include "../navi_config.h"
 #include "../navi_time.h"
-#include "../sensing/latency_observer.h"
 #include "motion_controller.h"
 #include "view_turn.h"
 #include "walk_mode.h"
@@ -72,10 +71,7 @@ TurnCommandResult send_view_delta(sensitivity::SensitivityRun* sensitivity, cons
         return result;
     }
 
-    int units = static_cast<int>(std::lround(delta_degrees * TurnUnitsPerDegree(*motion.input_backend, *sensitivity)));
-    if (units == 0) {
-        units = delta_degrees > 0.0 ? 1 : -1;
-    }
+    const int units = YawUnitsAtLeastOne(*motion.input_backend, *sensitivity, delta_degrees);
     const auto send_started_at = std::chrono::steady_clock::now();
     const bool sent = SendYawDeltaAndNoteTurn(motion.input_backend, sensitivity, units, 0);
     const int64_t send_ms = ElapsedMs(send_started_at);
@@ -188,12 +184,7 @@ void PauseMotionForTurn(Motion* motion)
 
 TurnCommandResult SendSteeringBatches(Motion* motion, sensitivity::SensitivityRun* sensitivity, double yaw_delta_deg, int64_t tick_gap_ms)
 {
-    const TurnCommandResult result =
-        emit_batches(sensitivity, *motion, yaw_delta_deg, plan_batch_count(*motion, yaw_delta_deg, tick_gap_ms));
-    if (result.send_ms > 0) {
-        latency::RecordStage(latency::Stage::Steer, result.send_ms);
-    }
-    return result;
+    return emit_batches(sensitivity, *motion, yaw_delta_deg, plan_batch_count(*motion, yaw_delta_deg, tick_gap_ms));
 }
 
 void NoteSteeringSent(Motion* motion, SteeringGate gate, std::chrono::steady_clock::time_point now)

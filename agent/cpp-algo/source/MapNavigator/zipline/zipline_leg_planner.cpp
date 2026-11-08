@@ -1127,8 +1127,12 @@ ZiplineRoute assemble_route(const PlanInputs& in, const TowerSites& sites, const
 }
 
 // outcome 是这条腿记进哪本账, nullptr 表示不记账
-std::optional<ZiplineRoute>
-    no_zipline(const ZiplineLegRequest& request, bool walking_baseline_available, const char* why, bool ZiplineOutcome::* outcome)
+std::optional<ZiplineRoute> no_zipline(
+    ZiplineOutcome* outcomes,
+    const ZiplineLegRequest& request,
+    bool walking_baseline_available,
+    const char* why,
+    bool ZiplineOutcome::* outcome)
 {
     if (walking_baseline_available) {
         LogInfo << "ZiplineRoute: walking this leg instead." << VAR(why) << VAR_AS(navmesh_zone, request.navmesh_zone);
@@ -1137,7 +1141,7 @@ std::optional<ZiplineRoute>
         LogInfo << "ZiplineRoute: no bridge for the disconnected walking leg." << VAR(why) << VAR_AS(navmesh_zone, request.navmesh_zone);
     }
     if (outcome) {
-        g_outcome.*outcome = true;
+        outcomes->*outcome = true;
     }
     return std::nullopt;
 }
@@ -1158,17 +1162,12 @@ ZiplineNodeRef ToNodeRef(const zipline::ZiplineNode& node)
     return ref;
 }
 
-void ResetZiplineOutcome()
+ZiplineOutcome* ThreadZiplineOutcome()
 {
-    g_outcome = {};
+    return &g_outcome;
 }
 
-ZiplineOutcome CurrentZiplineOutcome()
-{
-    return g_outcome;
-}
-
-std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const ZiplineLegRequest& request)
+std::optional<ZiplineRoute> PlanZiplineRoute(ZiplineOutcome* outcome, const NaviParam& param, const ZiplineLegRequest& request)
 {
     if (!param.zipline_enabled) {
         return std::nullopt;
@@ -1178,12 +1177,12 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
 
     const std::shared_ptr<const ZiplineData> data = shared_data();
     if (!data->ok || data->frames.empty()) {
-        return no_zipline(request, walking_baseline_available, "no zipline calibration on disk", &ZiplineOutcome::no_data);
+        return no_zipline(outcome, request, walking_baseline_available, "no zipline calibration on disk", &ZiplineOutcome::no_data);
     }
 
     const zipline::ZiplineFrame* frame = data->frames.findByZone(request.navmesh_zone);
     if (!frame) {
-        return no_zipline(request, walking_baseline_available, "this zone is not calibrated", nullptr);
+        return no_zipline(outcome, request, walking_baseline_available, "this zone is not calibrated", nullptr);
     }
 
     // 每段路都会来问一次, 短路先挡掉, 缺账号和缺坐标只在值得坐滑索的路上才算数
@@ -1192,6 +1191,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
     const double gain_threshold = walking_baseline_available ? baseline_length - cost.min_gain : std::numeric_limits<double>::infinity();
     if (walking_baseline_available && gain_threshold <= cost.mount_penalty) {
         return no_zipline(
+            outcome,
             request,
             walking_baseline_available,
             "the walk is too short for any zipline to pay off",
@@ -1199,13 +1199,18 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
     }
 
     if (param.zipline_account_id.empty()) {
-        g_outcome.account_unknown = true;
+        outcome->account_unknown = true;
         return std::nullopt;
     }
 
     TowerSites sites = collect_powered_towers(param, *data, *frame);
     if (sites.nodes.size() < 2) {
-        return no_zipline(request, walking_baseline_available, "no powered ziplines recorded in this zone", &ZiplineOutcome::no_data);
+        return no_zipline(
+            outcome,
+            request,
+            walking_baseline_available,
+            "no powered ziplines recorded in this zone",
+            &ZiplineOutcome::no_data);
     }
 
     const PlanInputs in {
@@ -1218,13 +1223,19 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
     };
     find_boarding_spots(&sites, in);
     if (sites.spots.empty()) {
-        return no_zipline(request, walking_baseline_available, "not one zipline here can be walked up to", &ZiplineOutcome::not_chosen);
+        return no_zipline(
+            outcome,
+            request,
+            walking_baseline_available,
+            "not one zipline here can be walked up to",
+            &ZiplineOutcome::not_chosen);
     }
 
     split_by_region(&sites, in);
     drop_unboardable(&sites, param);
     if (none_usable(sites.board_spots) || none_usable(sites.land_spots)) {
         return no_zipline(
+            outcome,
             request,
             walking_baseline_available,
             "no zipline can be boarded from here, or none of them lands near the destination",
@@ -1238,6 +1249,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
     const std::vector<Candidate> candidates = collect_candidates(in, sites, graph);
     if (candidates.empty()) {
         return no_zipline(
+            outcome,
             request,
             walking_baseline_available,
             "no reachable pair of ziplines leads anywhere useful",
@@ -1253,6 +1265,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
     }
     if (!picker.best) {
         return no_zipline(
+            outcome,
             request,
             walking_baseline_available,
             walking_baseline_available ? "no zipline route beats walking" : "no feasible zipline bridge to target",
@@ -1263,7 +1276,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
     LogInfo << "ZiplineRoute: picked" << VAR(walking_baseline_available) << VAR(baseline_length) << VAR(best->cost)
             << VAR(best->towers.size()) << VAR(best->towers.front().x) << VAR(best->towers.front().y) << VAR(best->towers.back().x)
             << VAR(best->towers.back().y);
-    g_outcome.used = true;
+    outcome->used = true;
     return best;
 }
 

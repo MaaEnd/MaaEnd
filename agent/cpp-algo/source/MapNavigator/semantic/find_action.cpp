@@ -55,7 +55,7 @@ bool capture_and_check_arrive_point(Navigator* nav, const Waypoint& waypoint)
     if (!waypoint.find_arrive.has_value()) {
         return false;
     }
-    const bool captured = CaptureTracked(nav->position_provider, nav->position, nav->session->current_zone_id);
+    const bool captured = CaptureTracked(CapturePartsOf(*nav), nav->position, nav->session->current_zone_id);
     if (!captured || nav->position_provider->last_capture_was_black_screen) {
         return false;
     }

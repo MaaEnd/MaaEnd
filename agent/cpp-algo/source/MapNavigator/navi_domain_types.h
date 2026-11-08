@@ -169,6 +169,8 @@ Waypoint HeadingToTargetWaypoint(double target_x, double target_y);
 
 Waypoint ZoneWaypoint(std::string zone);
 
+void OffsetAuthoredGroups(std::vector<Waypoint>* path, size_t offset);
+
 struct TurnCommandResult
 {
     bool issued = false;

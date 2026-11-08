@@ -67,11 +67,11 @@ Result TickPortalTransit(Navigator* nav)
     }
 
     if (portal.phase == PortalTransitPhase::Reacquire) {
-        const bool captured = CaptureTracked(nav->position_provider, nav->position, nav->session->current_zone_id);
+        const bool captured = CaptureTracked(CapturePartsOf(*nav), nav->position, nav->session->current_zone_id);
         if (!captured || nav->position->zone_id != nav->session->current_zone_id) {
             return WaitNextFix(kZoneConfirmRetryIntervalMs);
         }
-        portal = {};
+        EndPortalTransit(&portal);
         RequestDynamicReplan(&nav->runtime_state);
         LogInfo << "Portal transit landing confirmed." << VAR(nav->position->zone_id);
         return Handled();
@@ -80,7 +80,7 @@ Result TickPortalTransit(Navigator* nav)
     MoveForward(nav->motion_controller);
 
     NaviPosition candidate;
-    if (!CaptureGlobal(nav->position_provider, &candidate, {})) {
+    if (!CaptureGlobal(CapturePartsOf(*nav), &candidate, {})) {
         return WaitNextFix(kZoneConfirmRetryIntervalMs);
     }
 
@@ -101,7 +101,7 @@ Result TickTransferWait(Navigator* nav)
 {
     TransferWaitState& transfer = nav->runtime_state.semantic.transfer;
     if (!HasCurrentWaypoint(*nav->session)) {
-        transfer = {};
+        ClearTransferWait(&transfer);
         ConcludeRouteTail(nav->session, *nav->position, "route_tail_consumed");
         return Handled();
     }
@@ -113,7 +113,7 @@ Result TickTransferWait(Navigator* nav)
         transfer.started = now;
     }
 
-    if (!CaptureTracked(nav->position_provider, nav->position, {})) {
+    if (!CaptureTracked(CapturePartsOf(*nav), nav->position, {})) {
         if (ElapsedMs(transfer.started, now) > kRelocationWaitTimeoutMs) {
             return Failure("transfer_wait_timeout", "TRANSFER wait timed out before capture stabilized.");
         }
@@ -136,7 +136,7 @@ Result TickTransferWait(Navigator* nav)
         return WaitNextFix(kRelocationRetryIntervalMs);
     }
 
-    transfer = {};
+    ClearTransferWait(&transfer);
     ResumeAfterRelocation(nav, "transfer_wait_complete");
     return Handled();
 }
@@ -153,7 +153,7 @@ Result TickRopeRide(Navigator* nav)
     if (waited_ms > rope.ride_ms + kRelocationWaitTimeoutMs) {
         return Failure("rope_ride_timeout", "Rope ride finished but the position never stabilized.");
     }
-    if (!CaptureTracked(nav->position_provider, nav->position, {})) {
+    if (!CaptureTracked(CapturePartsOf(*nav), nav->position, {})) {
         rope.stable_reads = 0;
         return WaitNextFix(kRelocationRetryIntervalMs);
     }

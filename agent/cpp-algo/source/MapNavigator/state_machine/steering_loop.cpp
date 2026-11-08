@@ -12,6 +12,7 @@
 #include "../control/walk_mode.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
+#include "../process_state.h"
 #include "../sensing/latency_observer.h"
 #include "steering_loop.h"
 
@@ -151,7 +152,7 @@ void settle_pending_turn(
     steering_rate.pending_ref_heading_deg = steer_heading;
 }
 
-TurnCommandResult send_yaw_command(Motion* motion, sensitivity::SensitivityRun* sensitivity, double yaw_delta_deg, int64_t tick_gap_ms)
+TurnCommandResult send_yaw_command(Motion* motion, NavProcessState* process, double yaw_delta_deg, int64_t tick_gap_ms)
 {
     if (std::abs(yaw_delta_deg) <= std::numeric_limits<double>::epsilon()) {
         return { .issued = true };
@@ -165,7 +166,10 @@ TurnCommandResult send_yaw_command(Motion* motion, sensitivity::SensitivityRun* 
     if (gate == SteeringGate::OpenPausingMove) {
         PauseMotionForTurn(motion);
     }
-    const TurnCommandResult result = SendSteeringBatches(motion, sensitivity, yaw_delta_deg, tick_gap_ms);
+    const TurnCommandResult result = SendSteeringBatches(motion, &process->sensitivity, yaw_delta_deg, tick_gap_ms);
+    if (result.send_ms > 0) {
+        latency::RecordStage(&process->latency, latency::Stage::Steer, result.send_ms);
+    }
     if (result.issued) {
         NoteSteeringSent(motion, gate, now);
     }
@@ -234,7 +238,7 @@ void UpdateCornerWalk(FlowState* flow, const NaviPosition& position, const NavRu
 std::pair<double, int64_t> SendSteering(
     SteeringRateState* steering_rate,
     Motion* motion,
-    sensitivity::SensitivityRun* sensitivity,
+    NavProcessState* process,
     const SteeringCommand& steering,
     int64_t tick_gap_ms,
     double steer_heading,
@@ -246,7 +250,7 @@ std::pair<double, int64_t> SendSteering(
     // 存活期从真正发出时算起, 这一拍前面若重规划过, 拍头时间已经过去很久
     const auto steer_sent_at = std::chrono::steady_clock::now();
     if (steering.issued) {
-        const TurnCommandResult steering_result = send_yaw_command(motion, sensitivity, steering.yaw_delta_deg, tick_gap_ms);
+        const TurnCommandResult steering_result = send_yaw_command(motion, process, steering.yaw_delta_deg, tick_gap_ms);
         steer_send_ms = steering_result.send_ms;
         if (steering_result.issued) {
             issued_delta_deg = steering_result.issued_delta_degrees;

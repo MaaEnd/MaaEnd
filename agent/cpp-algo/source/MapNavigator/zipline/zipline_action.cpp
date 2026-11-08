@@ -87,7 +87,7 @@ ZiplineObservation ZiplineIoObserveTracked(ZiplineIo* io, const std::vector<Zipl
     ZiplineObservation obs;
     obs.at = std::chrono::steady_clock::now();
     const std::vector<maplocator::SearchHint> hints = landing_hints(io->nav, hint_nodes);
-    const bool captured = CaptureTracked(io->nav->position_provider, io->nav->position, {}, hints);
+    const bool captured = CaptureTracked(CapturePartsOf(*io->nav), io->nav->position, {}, hints);
     if (captured) {
         obs.fix = *io->nav->position;
     }
@@ -99,7 +99,7 @@ ZiplineObservation ZiplineIoObserveGlobal(ZiplineIo* io, const std::vector<Zipli
     ZiplineObservation obs;
     obs.at = std::chrono::steady_clock::now();
     const std::vector<maplocator::SearchHint> hints = landing_hints(io->nav, hint_nodes);
-    const bool captured = CaptureGlobal(io->nav->position_provider, io->nav->position, {}, hints);
+    const bool captured = CaptureGlobal(CapturePartsOf(*io->nav), io->nav->position, {}, hints);
     if (captured) {
         obs.fix = *io->nav->position;
     }

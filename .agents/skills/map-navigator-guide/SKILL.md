@@ -94,7 +94,7 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 - `semantic_nodes.cpp`：各语义点（`COLLECT`/`DIG`/`INTERACT` 等）到达后的执行逻辑；
 - `find_action.cpp`：`FIND` 的搜索与接近（按帧跑识别节点取框、转视角、前进脉冲），以及退出时的记账作废；
 - `trigger_action.cpp`：`TRIGGER` 的行进中识别与到点完成；
-    - `NavigationStateMachine`：到点判定、疾跑控制、失败与恢复。
+    - `state_machine/`（`Navigator` 与 `RunNavigator`）：到点判定、疾跑控制、失败与恢复。
 - `Navmesh` 目录：BaseNav 三角图寻路核心；
     - `BaseNavReader.cpp`：`.nav` / `.nav.gz` 二进制包解析（magic 为 `BNAV`）；
     - `BaseNavPack.cpp`：zone 索引与楼层高度查询（`floorYForZoneName`）；

@@ -217,4 +217,13 @@ Waypoint ZoneWaypoint(std::string zone)
     return waypoint;
 }
 
+void OffsetAuthoredGroups(std::vector<Waypoint>* path, size_t offset)
+{
+    for (Waypoint& waypoint : *path) {
+        if (waypoint.authored_group_begin != std::numeric_limits<size_t>::max()) {
+            waypoint.authored_group_begin += offset;
+        }
+    }
+}
+
 } // namespace mapnavigator

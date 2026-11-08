@@ -586,7 +586,7 @@ Rope lifts are hooked up only by the full expansion at the start of a route; loc
 
 ## Collecting and Digging `COLLECT` / `DIG`
 
-`COLLECT` and `DIG` are MapNavigator's built-in collection/digging semantic points. In `path`, write the corresponding action as the third element of the collection coordinate; after arriving precisely, the navigator automatically stops, synchronously triggers the corresponding Pipeline subtask, and continues to the next segment once it finishes, **without exiting NaviController throughout**:
+`COLLECT` and `DIG` are MapNavigator's built-in collection/digging semantic points. In `path`, write the corresponding action as the third element of the collection coordinate; after arriving precisely, the navigator automatically stops, synchronously triggers the corresponding Pipeline subtask, and continues to the next segment once it finishes, **without leaving navigation (`RunNavigation`) throughout**:
 
 ```json
 "path": [
@@ -638,7 +638,7 @@ The following files are maintained by cpp-algo developers; path authors do not n
 
 **`AutoCollectClickEnd`'s `next` must not be changed.** It points to `[Anchor]AutoCollectClickAfter` to maintain compatibility with old anchor chain calls. When called from a `MaaContextRunTask` subtask, cpp-algo temporarily nullifies this `next` via `pipeline_override`, allowing the subtask to exit cleanly. Changing it affects other routes still using the old writing method.
 
-**Sprint control is runtime-managed.** For the entire segment before every `COLLECT`, `DIG`, and strict arrival point, automatic sprinting is hard-disabled by cpp-algo at the `NavigationStateMachine` level; path authors cannot and do not need to control it.
+**Sprint control is runtime-managed.** For the entire segment before every `COLLECT`, `DIG`, and strict arrival point, automatic sprinting is hard-disabled by cpp-algo at the navigation state machine (`state_machine/`) level; path authors cannot and do not need to control it.
 
 ### Adding a Collection Route
 

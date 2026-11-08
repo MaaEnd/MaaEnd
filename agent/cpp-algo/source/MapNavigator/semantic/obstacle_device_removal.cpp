@@ -65,7 +65,7 @@ std::optional<DeviceRemovalOutcome> run_device_subtasks(Navigator* nav)
 
 bool capture_fix_after_device_move(Navigator* nav)
 {
-    const bool captured = CaptureTracked(nav->position_provider, nav->position, nav->session->current_zone_id);
+    const bool captured = CaptureTracked(CapturePartsOf(*nav), nav->position, nav->session->current_zone_id);
     return captured && !nav->position_provider->last_capture_was_black_screen && nav->position->valid;
 }
 

@@ -54,17 +54,21 @@ MaaBool MAA_CALL MapNavigateActionRun(
     ResolveInteractTextNodes(&param, context);
     // 读不出就留空, 本次不用升降索
     TryReadNodeInteractTexts(context, kRopeInteractTextNode, &param.rope_interact_text);
-    ResetZiplineOutcome();
+    ZiplineOutcome* zipline_outcome = ThreadZiplineOutcome();
+    *zipline_outcome = {};
     param.zipline_enabled = ResolveZiplineEnabled(context, param.zipline_enabled);
     if (param.zipline_enabled) {
-        param.zipline_account_id = ResolveZiplineAccountId(context);
+        param.zipline_account_id = ReadOrCaptureZiplineAccountId(context);
+        if (!param.zipline_account_id.empty()) {
+            NoticeClaimedLegacyZiplineRecords(context, ClaimLegacyZiplineRecords(param.zipline_account_id));
+        }
     }
 
     // 规划在 navmesh 基础层上进行, 实时定位要先换算到基础像素坐标
     param.normalize_position_via_navmesh = true;
 
-    const bool arrived = RunNavigation(&g_process_state, context, param);
-    NoticeZiplineOutcome(context);
+    const bool arrived = RunNavigation(&g_process_state, zipline_outcome, context, param);
+    NoticeZiplineOutcome(&g_process_state.zipline_notices, context, *zipline_outcome);
     return arrived ? kMaaTrue : kMaaFalse;
 }
 

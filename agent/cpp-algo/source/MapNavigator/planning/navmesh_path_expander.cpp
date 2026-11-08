@@ -134,6 +134,7 @@ struct ExpansionContext
     // 判定不可用的升降索, 空指针表示这次不用升降索
     const std::vector<uint32_t>* rope_off = nullptr;
     NavmeshExpansionFailure* failure = nullptr;
+    ZiplineOutcome* zipline_outcome = nullptr;
 };
 
 navmesh::BaseNavRouteRequest leg_request(
@@ -724,6 +725,64 @@ std::optional<ZiplineMountSpot>
     return farthest;
 }
 
+void append_hop_waypoints(std::vector<Waypoint>* out_path, const ZiplineRoute& route, const navmesh::WorldPoint& mount_spot)
+{
+    for (size_t hop = 0; hop + 1 < route.towers.size(); ++hop) {
+        const zipline::ZiplineNode& from = route.towers[hop];
+        const zipline::ZiplineNode& to = route.towers[hop + 1];
+        const ZiplineNodeRef from_ref = ToNodeRef(from);
+        const ZiplineNodeRef to_ref = ToNodeRef(to);
+
+        out_path->push_back(
+            Waypoint {
+                .x = hop == 0 ? mount_spot.x : from.x,
+                .y = hop == 0 ? mount_spot.y : from.y,
+                .action = ActionType::ZIPLINE,
+            });
+        out_path->back().strict_arrival = true;
+        out_path->back().target_deck_y = from.height;
+
+        ZiplineHopPlan hop_plan;
+        hop_plan.mount = from_ref;
+        hop_plan.landing = to_ref;
+        hop_plan.planned_elevation_deg = CalcElevation(from_ref, to_ref);
+        if (hop == 0) {
+            for (const navmesh::WorldPoint& spot : route.mount_spots) {
+                hop_plan.mount_spots.push_back(ZiplineMountSpot { .x = spot.x, .y = spot.y });
+            }
+        }
+        if (hop < route.hop_alternates.size()) {
+            for (const zipline::ZiplineNode& other : route.hop_alternates[hop]) {
+                hop_plan.siblings.push_back(ToNodeRef(other));
+            }
+        }
+        hop_plan.chain_continues = hop + 2 < route.towers.size();
+        out_path->back().zipline_hop = hop_plan;
+    }
+}
+
+void append_departure(
+    std::vector<Waypoint>* out_path,
+    const ExpansionContext& ctx,
+    const ZiplineRoute& route,
+    const ProjectedTarget& target)
+{
+    // landing 是下索段末端, 这一跳的落点是 dismount
+    const size_t last_hop_index = out_path->size() - 1;
+    const ZiplineNodeRef dismount = (*out_path)[last_hop_index].zipline_hop->landing;
+    const size_t departure_index = out_path->size();
+    const navmesh::WorldPoint landing = route.departure.points.back();
+    append_generated_waypoints(out_path, route.departure, {}, &ctx.mesh->planner, route.departure.zone_id);
+    if (out_path->size() == departure_index) {
+        out_path->push_back(Waypoint { .x = landing.x, .y = landing.y, .action = ActionType::RUN });
+        out_path->back().strict_arrival = true;
+    }
+    (*out_path)[last_hop_index].zipline_hop->exit_aim = pick_exit_aim_point(*out_path, departure_index, dismount);
+    if (target.deck_y) {
+        out_path->back().target_deck_y = target.deck_y;
+    }
+}
+
 // walking_path 非空时滑索只在严格更省时顶替走路, 为空时用来桥接步行不连通的两侧
 bool try_append_zipline_leg(
     ExpansionContext* ctx,
@@ -733,6 +792,7 @@ bool try_append_zipline_leg(
     const navmesh::WorldPath* walking_path)
 {
     auto route = PlanZiplineRoute(
+        ctx->zipline_outcome,
         *ctx->param,
         {
             .locator_zone = state->current_zone,
@@ -758,55 +818,10 @@ bool try_append_zipline_leg(
     const navmesh::WorldPoint mount = route->approach.points.back();
     // 架子坐标是角格锚点, 走到跟前常碰不到设备, 所以头一跳瞄第一个站位
     const navmesh::WorldPoint mount_spot = route->mount_spots.empty() ? mount : route->mount_spots.front();
-    for (size_t hop = 0; hop + 1 < route->towers.size(); ++hop) {
-        const zipline::ZiplineNode& from = route->towers[hop];
-        const zipline::ZiplineNode& to = route->towers[hop + 1];
-        const ZiplineNodeRef from_ref = ToNodeRef(from);
-        const ZiplineNodeRef to_ref = ToNodeRef(to);
+    append_hop_waypoints(out_path, *route, mount_spot);
+    append_departure(out_path, *ctx, *route, target);
 
-        out_path->push_back(
-            Waypoint {
-                .x = hop == 0 ? mount_spot.x : from.x,
-                .y = hop == 0 ? mount_spot.y : from.y,
-                .action = ActionType::ZIPLINE,
-            });
-        out_path->back().strict_arrival = true;
-        out_path->back().target_deck_y = from.height;
-
-        ZiplineHopPlan hop_plan;
-        hop_plan.mount = from_ref;
-        hop_plan.landing = to_ref;
-        hop_plan.planned_elevation_deg = CalcElevation(from_ref, to_ref);
-        if (hop == 0) {
-            for (const navmesh::WorldPoint& spot : route->mount_spots) {
-                hop_plan.mount_spots.push_back(ZiplineMountSpot { .x = spot.x, .y = spot.y });
-            }
-        }
-        if (hop < route->hop_alternates.size()) {
-            for (const zipline::ZiplineNode& other : route->hop_alternates[hop]) {
-                hop_plan.siblings.push_back(ToNodeRef(other));
-            }
-        }
-        hop_plan.chain_continues = hop + 2 < route->towers.size();
-        out_path->back().zipline_hop = hop_plan;
-    }
-
-    // landing 是下索段末端, 这一跳的落点是 dismount
-    const size_t last_hop_index = out_path->size() - 1;
-    const ZiplineNodeRef dismount = (*out_path)[last_hop_index].zipline_hop->landing;
-    const size_t departure_index = out_path->size();
-    const navmesh::WorldPoint landing = route->departure.points.back();
-    append_generated_waypoints(out_path, route->departure, {}, &ctx->mesh->planner, route->departure.zone_id);
-    if (out_path->size() == departure_index) {
-        out_path->push_back(Waypoint { .x = landing.x, .y = landing.y, .action = ActionType::RUN });
-        out_path->back().strict_arrival = true;
-    }
-    (*out_path)[last_hop_index].zipline_hop->exit_aim = pick_exit_aim_point(*out_path, departure_index, dismount);
-    if (target.deck_y) {
-        out_path->back().target_deck_y = target.deck_y;
-    }
-
-    move_route_start(state, landing);
+    move_route_start(state, route->departure.points.back());
     if (ctx->diagnostics != nullptr) {
         ctx->diagnostics->insert(
             ctx->diagnostics->end(),
@@ -1234,6 +1249,7 @@ void PreloadNavmeshWaypoints(const NaviParam& param)
 bool ExpandNavmeshWaypoints(
     std::vector<Waypoint>* out_path,
     NavmeshExpansionFailure* out_failure,
+    ZiplineOutcome* zipline_outcome,
     const NaviParam& param,
     const NaviPosition& initial_pos,
     MaaContext* maa_context,
@@ -1304,6 +1320,7 @@ bool ExpandNavmeshWaypoints(
         .no_go = no_go,
         .rope_off = param.rope_interact_text.empty() ? nullptr : &param.rope_off,
         .failure = failure,
+        .zipline_outcome = zipline_outcome,
     };
     const bool expanded =
         plans_ziplines ? append_route_with_zipline_shortcuts(&ctx, &state, out_path) : append_authored_route(&ctx, &state, out_path);
