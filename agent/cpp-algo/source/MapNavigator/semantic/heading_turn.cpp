@@ -58,7 +58,7 @@ void AlignCameraToHeadingOnce(const Context& ctx)
 
     const double heading = ctx.position->angle;
     const double camera_before = *ctx.position->camera_angle;
-    const double delta = NaviMath::calcDeltaRotation(camera_before, heading);
+    const double delta = CalcDeltaRotation(camera_before, heading);
     if (std::abs(delta) < kCameraAlignMinDegrees) {
         LogInfo << "Camera already aligned." << VAR(heading) << VAR(camera_before) << VAR(delta);
         return;
@@ -84,8 +84,8 @@ bool CaptureStableHeading(const Context& ctx, double* out_heading)
             previous.reset();
             continue;
         }
-        const double current = NaviMath::normalizeAngle(ctx.position->angle);
-        if (previous && std::abs(NaviMath::normalizeAngle(current - *previous)) <= kHeadingStableReadToleranceDeg) {
+        const double current = NormalizeAngle(ctx.position->angle);
+        if (previous && std::abs(NormalizeAngle(current - *previous)) <= kHeadingStableReadToleranceDeg) {
             *out_heading = current;
             return true;
         }
@@ -116,7 +116,7 @@ double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double
             return achieved;
         }
         achieved = stable_heading;
-        const double residual = NaviMath::normalizeAngle(target_heading - achieved);
+        const double residual = NormalizeAngle(target_heading - achieved);
         if (std::abs(residual) <= kHeadingAcceptToleranceDeg) {
             return achieved;
         }
@@ -135,11 +135,11 @@ double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double
 Result ConsumeHeadingNodes(const Context& ctx)
 {
     bool consumed = false;
-    while (ctx.session->hasCurrentWaypoint() && ctx.session->currentWaypoint().isHeadingOnly()) {
+    while (ctx.session->hasCurrentWaypoint() && IsHeadingOnly(ctx.session->currentWaypoint())) {
         const Waypoint heading_node = ctx.session->currentWaypoint();
         double target_heading = 0.0;
         if (heading_node.heading_uses_target) {
-            target_heading = NaviMath::calcTargetRotation(ctx.position->x, ctx.position->y, heading_node.x, heading_node.y);
+            target_heading = CalcTargetRotation(ctx.position->x, ctx.position->y, heading_node.x, heading_node.y);
         }
         else {
             target_heading = std::fmod(heading_node.heading_angle, 360.0);
@@ -148,8 +148,8 @@ Result ConsumeHeadingNodes(const Context& ctx)
             }
         }
 
-        const double start_heading = NaviMath::normalizeAngle(ctx.position->angle);
-        const double heading_delta = NaviMath::normalizeAngle(target_heading - start_heading);
+        const double start_heading = NormalizeAngle(ctx.position->angle);
+        const double heading_delta = NormalizeAngle(target_heading - start_heading);
 
         ctx.motion_controller->setForwardState(false);
         SleepFor(kStopWaitMs);
@@ -169,7 +169,7 @@ Result ConsumeHeadingNodes(const Context& ctx)
                 << VAR(achieved_heading);
         ctx.session->advanceToNextWaypoint(ActionType::HEADING, "heading_consumed");
         ctx.session->resetProgress();
-        ctx.runtime_state->onWaypointAdvance();
+        ResetOnWaypointAdvance(ctx.runtime_state);
         consumed = true;
 
         if (!ctx.session->hasCurrentWaypoint()) {

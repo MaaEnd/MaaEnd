@@ -32,7 +32,7 @@ struct AsyncPromptActionSpec
 
     bool matches(const Waypoint& waypoint) const
     {
-        return waypoint.action == action && waypoint.hasPosition() && (!text_from_route || !waypoint.interact_text.empty());
+        return waypoint.action == action && waypoint.has_position && (!text_from_route || !waypoint.interact_text.empty());
     }
 
     bool completesWaypointOnTrigger() const { return text_from_route; }

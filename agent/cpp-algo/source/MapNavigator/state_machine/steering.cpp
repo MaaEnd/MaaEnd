@@ -31,7 +31,7 @@ double NavigationStateMachine::steerAlongCorridor(const NavigateTick& tick)
     const auto [heading_rate_deg, heading_rate_raw_delta_deg, heading_rate_gap_ms, heading_rate_gap_ticks] = reading.heading_rate;
     const uint64_t tick_seq = runtime_state_.flow.tick_seq;
 
-    const double heading_error = NaviMath::normalizeAngle(effective_route_heading - fix.steer_heading);
+    const double heading_error = NormalizeAngle(effective_route_heading - fix.steer_heading);
     const SteeringCommand steering = steering_loop.decide(heading_error, heading_rate_deg);
 
     // 慢循环里大转角要晚一拍才落地, 原地转免得冲过弯
@@ -53,11 +53,11 @@ double NavigationStateMachine::steerAlongCorridor(const NavigateTick& tick)
     const double projection_y = nav_run_result.projection_point.y;
     const int nav_run_replan_reason = static_cast<int>(nav_run_result.replanned_with);
     LogDebug << "TickNavigate corridor target." << VAR_AS(session_->current_node_idx(), session_->currentNodeIdx()) << VAR(waypoint.x)
-             << VAR(waypoint.y) << VAR_AS(waypoint.RequiresStrictArrival(), waypoint.requiresStrictArrival()) << VAR(lookahead_x)
-             << VAR(lookahead_y) << VAR(projection_x) << VAR(projection_y) << VAR(nav_run_result.remaining_to_anchor)
-             << VAR(nav_run_result.straight_to_anchor) << VAR(nav_run_result.passed_run_waypoints) << VAR(nav_run_replan_reason)
-             << VAR(route.along_track_remaining) << VAR(route.cross_track) << VAR(route.projection_anchor)
-             << VAR_AS(arrival_distance, tick.arrival_distance) << VAR(position_->zone_id) << VAR_AS(stalled_ms, tick.stalled_ms);
+             << VAR(waypoint.y) << VAR(RequiresStrictArrival(waypoint)) << VAR(lookahead_x) << VAR(lookahead_y) << VAR(projection_x)
+             << VAR(projection_y) << VAR(nav_run_result.remaining_to_anchor) << VAR(nav_run_result.straight_to_anchor)
+             << VAR(nav_run_result.passed_run_waypoints) << VAR(nav_run_replan_reason) << VAR(route.along_track_remaining)
+             << VAR(route.cross_track) << VAR(route.projection_anchor) << VAR_AS(arrival_distance, tick.arrival_distance)
+             << VAR(position_->zone_id) << VAR_AS(stalled_ms, tick.stalled_ms);
 
     const int64_t tick_compute_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - tick.started_at).count();
@@ -91,7 +91,7 @@ void NavigationStateMachine::updateAutoSprint(const NavigateTick& tick)
     const bool corridor_turn_calm =
         !nav_run_result.has_corridor_heading || nav_run_result.upcoming_turn_deg < kAutoSprintMaxUpcomingTurnDeg;
     const bool turn_calm = heading_aligned_for_sprint && corridor_turn_calm;
-    const bool target_requires_strict_arrival = tick.waypoint.requiresStrictArrival();
+    const bool target_requires_strict_arrival = RequiresStrictArrival(tick.waypoint);
     const double sprint_remaining = nav_run_result.has_corridor_heading && std::isfinite(nav_run_result.remaining_to_anchor)
                                         ? nav_run_result.remaining_to_anchor
                                         : route.along_track_remaining;
@@ -129,10 +129,10 @@ void NavigationStateMachine::updateWalkMode(NaviPhase phase)
 
     PromptDistance nearest = nearestPromptDistance();
     const bool has_waypoint = session_->hasCurrentWaypoint();
-    const ActionTraits traits = has_waypoint ? session_->currentWaypoint().traits() : ActionTraits {};
+    const ActionTraits traits = has_waypoint ? TraitsOf(session_->currentWaypoint().action) : ActionTraits {};
     const bool plain_approach = traits.walk_approach;
     bool settling_approach = false;
-    if (has_waypoint && session_->currentWaypoint().settlesAtArrival()) {
+    if (has_waypoint && SettlesAtArrival(session_->currentWaypoint())) {
         const Waypoint& goal = session_->currentWaypoint();
         const double dx = goal.x - position_->x;
         const double dy = goal.y - position_->y;

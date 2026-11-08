@@ -79,7 +79,8 @@ bool NavigationStateMachine::captureCurrentPosition(bool force_global_search)
     else {
         consecutive_prior_uses_ = 0;
     }
-    failure_trail_.sample(
+    SampleFailureTrail(
+        &failure_trail_,
         std::chrono::steady_clock::now(),
         *position_,
         captured,
@@ -140,7 +141,7 @@ bool NavigationStateMachine::endLocalizationLoss()
 {
     LocalizationLossState& loss = runtime_state_.localization_loss;
     if (loss.started_at == std::chrono::steady_clock::time_point {}) {
-        loss.reset();
+        loss = {};
         return false;
     }
     session_->excludeFromStallClocks(std::chrono::steady_clock::now() - loss.started_at);
@@ -148,8 +149,8 @@ bool NavigationStateMachine::endLocalizationLoss()
     const bool armed = armRiverFallRecoveryIfBlackScreenLoss("normal_reacquire");
     LogInfo << "Localization recovered via normal tracking." << VAR(loss_ms) << VAR(loss.saw_black_screen) << VAR(armed)
             << VAR(position_->x) << VAR(position_->y);
-    failure_trail_.note(std::chrono::steady_clock::now(), "localization recovered", loss_ms);
-    loss.reset();
+    NoteTimedFailure(&failure_trail_, std::chrono::steady_clock::now(), "localization recovered", loss_ms);
+    loss = {};
     return armed;
 }
 
@@ -163,7 +164,7 @@ TickStep NavigationStateMachine::checkDwellWatchdog()
         LogWarn << "Dwell watchdog tripped at a zipline tower; dropping the chain and walking." << VAR(runtime_state_.dwell.dwell_ms)
                 << VAR(position_->x) << VAR(position_->y);
         semantic_nodes::AbandonZipline(semanticContext(), "zipline_dwell_watchdog", "never left the tower's dwell radius");
-        runtime_state_.dwell.reset();
+        runtime_state_.dwell = {};
         return TickStep::EndTick;
     }
     LogError << "Dwell watchdog tripped; the agent never left its dwell radius." << VAR(runtime_state_.dwell.dwell_ms)
@@ -184,9 +185,9 @@ bool NavigationStateMachine::handleLocalizationLoss()
     if (loss.started_at == std::chrono::steady_clock::time_point {}) {
         loss.started_at = now;
         loss.last_fix = *position_;
-        failure_trail_.note(now, "localization lost");
+        NoteFailure(&failure_trail_, now, "localization lost");
     }
-    runtime_state_.offroute.pauseAt(now);
+    PauseWedge(&runtime_state_.offroute, now);
     // 丢定位期间截到黑屏就是落水了
     if (position_provider_->lastCaptureWasBlackScreen()) {
         loss.saw_black_screen = true;
@@ -213,7 +214,7 @@ bool NavigationStateMachine::handleLocalizationLoss()
         last_global_relocalize_at_ = now;
         const std::string prior_zone = session_->currentZoneId();
         const bool reacquired = position_provider_->capture(position_, /*force_global_search=*/true, /*expected_zone_id=*/std::string());
-        failure_trail_.note(now, "global relocalize " + position_provider_->lastLocateMessage());
+        NoteFailure(&failure_trail_, now, "global relocalize " + position_provider_->lastLocateMessage());
         if (reacquired) {
             return resumeAfterGlobalReacquire(prior_zone, loss_elapsed);
         }
@@ -227,7 +228,7 @@ bool NavigationStateMachine::handleLocalizationLoss()
         && !semantic_nodes::IsTriggerPending(*session_)) {
         loss.last_unstick_at = now;
         LogInfo << "Localization lost; blind unstick hop issued." << VAR(loss_elapsed.count());
-        failure_trail_.note(now, "localization lost blind hop");
+        NoteFailure(&failure_trail_, now, "localization lost blind hop");
         motion_controller_->setAction(LocalDriverAction::JumpForward, true);
         SleepFor(kActionJumpSettleMs);
         motion_controller_->setForwardState(false);
@@ -274,7 +275,7 @@ bool NavigationStateMachine::returnToWorld()
     const bool restored =
         position_provider_->waitForFix(position_, std::string(), kSceneRecoveryFixAttempts, kRelocationRetryIntervalMs, should_stop_);
     LogInfo << "Scene recovery finished." << VAR(restored) << VAR(handled) << VAR(esc_used);
-    failure_trail_.note(std::chrono::steady_clock::now(), restored ? "scene recovery restored" : "scene recovery failed");
+    NoteFailure(&failure_trail_, std::chrono::steady_clock::now(), restored ? "scene recovery restored" : "scene recovery failed");
     return restored;
 }
 
@@ -289,7 +290,7 @@ bool NavigationStateMachine::resumeAfterGlobalReacquire(const std::string& prior
         LogInfo << "Zone flipped within the same geometry; keeping the corridor." << VAR(prior_zone) << VAR(position_->zone_id)
                 << VAR(position_->x) << VAR(position_->y);
         session_->updateCurrentZone(position_->zone_id);
-        loss.reset();
+        loss = {};
         return true;
     }
 
@@ -311,10 +312,10 @@ bool NavigationStateMachine::resumeAfterGlobalReacquire(const std::string& prior
     LogInfo << "Localization recovered via global re-acquire; resuming navigation." << VAR(loss_elapsed.count()) << VAR(prior_zone)
             << VAR(position_->zone_id) << VAR(position_->x) << VAR(position_->y) << VAR(runtime_state_.global_reacquire_streak)
             << VAR(dropped_frames);
-    failure_trail_.note(std::chrono::steady_clock::now(), "localization reacquired globally", loss_elapsed.count());
+    NoteTimedFailure(&failure_trail_, std::chrono::steady_clock::now(), "localization reacquired globally", loss_elapsed.count());
     armRiverFallRecoveryIfBlackScreenLoss("global_reacquire");
-    loss.reset();
-    runtime_state_.route.resetTracking();
+    loss = {};
+    ResetRouteTracking(&runtime_state_.route);
     runtime_state_.nav_run_dirty = true;
     session_->resetProgress();
     return true;
@@ -325,9 +326,9 @@ bool NavigationStateMachine::armRiverFallRecoveryIfBlackScreenLoss(const char* v
     if (!runtime_state_.localization_loss.saw_black_screen) {
         return false;
     }
-    runtime_state_.river_fall.arm(*position_, NaviMath::normalizeAngle(position_->angle));
+    ArmRiverFallRecovery(&runtime_state_.river_fall, *position_, NormalizeAngle(position_->angle));
     // 落水前的卡死恢复已经过时, 留着会抢在上岸流程前面
-    runtime_state_.recovery.reset();
+    runtime_state_.recovery = {};
     session_->resetHardProgress();
     LogInfo << "River-fall recovery armed (black-screen loss recovered)." << VAR(via) << VAR(position_->x) << VAR(position_->y)
             << VAR(runtime_state_.river_fall.water_heading);
@@ -340,17 +341,17 @@ TickStep NavigationStateMachine::runRiverFallRecovery(const NavigateTick& tick)
         return TickStep::Next;
     }
     const RouteMeasurement& route = tick.route;
-    runtime_state_.offroute.pauseAt(tick.now);
+    PauseWedge(&runtime_state_.offroute, tick.now);
     if (session_->hardStalledMs(tick.now) > kRiverFallRecoveryTimeoutMs) {
         return EndTickWith(failNavigation(
             "river_fall_recovery_timeout",
             "River-fall recovery made no net progress past the timeout; terminating navigation.",
             route.progress_distance,
-            NaviMath::normalizeAngle(route.route_heading - tick.fix.current_heading),
+            NormalizeAngle(route.route_heading - tick.fix.current_heading),
             tick.stalled_ms));
     }
-    RiverFallRecovery recovery(runtime_state_.river_fall, action_wrapper_, motion_controller_, position_);
-    if (recovery.advance(tick.fix.current_heading) == RiverFallRecovery::Step::Cleared) {
+    if (AdvanceRiverFallRecovery(&runtime_state_.river_fall, action_wrapper_, motion_controller_, *position_, tick.fix.current_heading)
+        == RiverFallStep::Cleared) {
         return EndTickWith(resumeAfterEscape("river_fall_recovered"));
     }
     return TickStep::EndTick;

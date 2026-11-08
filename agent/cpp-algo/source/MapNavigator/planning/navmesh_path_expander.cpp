@@ -70,7 +70,7 @@ constexpr int64_t kBlindTargetProbeBudgetMs = 8000;
 std::string describe_authored_waypoint(const Waypoint& waypoint, std::optional<size_t> authored_index)
 {
     std::string description = authored_index ? std::format("第 {} 个路点", *authored_index + 1) : "当前路点";
-    if (waypoint.hasPosition()) {
+    if (waypoint.has_position) {
         description += std::format(" [{:.2f}, {:.2f}]", waypoint.x, waypoint.y);
     }
     if (!waypoint.target_tier.empty()) {
@@ -177,7 +177,7 @@ struct ExpansionContext
             .target_tier = waypoint.target_tier,
             .target_deck_y = waypoint.target_deck_y,
         };
-        if (waypoint.hasPosition()) {
+        if (waypoint.has_position) {
             recorded.target = navmesh::WorldPoint { .x = waypoint.x, .y = waypoint.y };
         }
         if (route_result != nullptr) {
@@ -193,7 +193,7 @@ struct ExpansionContext
 
 bool is_navmesh_waypoint(const Waypoint& waypoint)
 {
-    return waypoint.action == ActionType::NAVMESH && waypoint.hasPosition();
+    return waypoint.action == ActionType::NAVMESH && waypoint.has_position;
 }
 
 bool contains_navmesh_waypoint(const std::vector<Waypoint>& path)
@@ -203,12 +203,12 @@ bool contains_navmesh_waypoint(const std::vector<Waypoint>& path)
 
 bool contains_positioned_waypoint(const std::vector<Waypoint>& path)
 {
-    return std::any_of(path.begin(), path.end(), [](const Waypoint& waypoint) { return waypoint.hasPosition(); });
+    return std::any_of(path.begin(), path.end(), [](const Waypoint& waypoint) { return waypoint.has_position; });
 }
 
 bool has_explicit_coordinate_frame(const Waypoint& waypoint)
 {
-    return !waypoint.target_tier.empty() && (waypoint.hasPosition() || waypoint.heading_uses_target);
+    return !waypoint.target_tier.empty() && (waypoint.has_position || waypoint.heading_uses_target);
 }
 
 std::string route_error_text(const navmesh::BaseNavRouteResult& route_result)
@@ -228,7 +228,7 @@ std::vector<std::vector<double>> path_points_for_log(const navmesh::WorldPath& p
 
 void update_state_from_regular_waypoint(const Waypoint& waypoint, LegState& state)
 {
-    if (waypoint.hasPosition()) {
+    if (waypoint.has_position) {
         state.moveRouteStart({ .x = waypoint.x, .y = waypoint.y });
     }
     if (!waypoint.zone_id.empty()) {
@@ -461,7 +461,7 @@ struct GeneratedWaypointWriter
             out_path.pop_back();
             const navmesh::WorldPoint& base = path.points[index - 1];
             if (out_path.empty() || out_path.back().x != base.x || out_path.back().y != base.y) {
-                out_path.emplace_back(base.x, base.y, ActionType::RUN);
+                out_path.push_back(Waypoint { .x = base.x, .y = base.y, .action = ActionType::RUN });
                 out_path.back().corridor_clearance = clearanceAt(index - 1);
                 out_path.back().route_floor_y = heightAt(index - 1);
             }
@@ -478,7 +478,7 @@ struct GeneratedWaypointWriter
 
     void emitPoint(size_t index, bool strict_arrival)
     {
-        out_path.emplace_back(path.points[index].x, path.points[index].y, ActionType::RUN);
+        out_path.push_back(Waypoint { .x = path.points[index].x, .y = path.points[index].y, .action = ActionType::RUN });
         out_path.back().strict_arrival = strict_arrival;
         out_path.back().corridor_clearance = clearanceAt(index);
         out_path.back().route_floor_y = heightAt(index);
@@ -673,7 +673,7 @@ bool append_blind_target_fallback(
         ctx.diagnostics->push_back(std::move(accepted_diagnostic));
     }
     if (blind_gap > kWaypointArrivalSlack) {
-        out_path.emplace_back(target.x, target.y, ActionType::RUN);
+        out_path.push_back(Waypoint { .x = target.x, .y = target.y, .action = ActionType::RUN });
         out_path.back().strict_arrival = false;
     }
     state.moveRouteStart(target);
@@ -694,7 +694,7 @@ bool append_start_recovery(
         return false;
     }
 
-    out_path.emplace_back(entry->point.x, entry->point.y, ActionType::RUN);
+    out_path.push_back(Waypoint { .x = entry->point.x, .y = entry->point.y, .action = ActionType::RUN });
     out_path.back().strict_arrival = false;
     state.moveRouteStart(entry->point);
     LogInfo << "NAVMESH start off mesh; walking onto the nearest mesh point first." << VAR(state.navmesh_zone) << VAR(state.current_zone)
@@ -761,14 +761,19 @@ bool try_append_zipline_leg(
         const ZiplineNodeRef from_ref = ToNodeRef(from);
         const ZiplineNodeRef to_ref = ToNodeRef(to);
 
-        out_path.emplace_back(hop == 0 ? mount_spot.x : from.x, hop == 0 ? mount_spot.y : from.y, ActionType::ZIPLINE);
+        out_path.push_back(
+            Waypoint {
+                .x = hop == 0 ? mount_spot.x : from.x,
+                .y = hop == 0 ? mount_spot.y : from.y,
+                .action = ActionType::ZIPLINE,
+            });
         out_path.back().strict_arrival = true;
         out_path.back().target_deck_y = from.height;
 
         ZiplineHopPlan hop_plan;
         hop_plan.mount = from_ref;
         hop_plan.landing = to_ref;
-        hop_plan.planned_elevation_deg = NaviMath::calcElevation(from_ref, to_ref);
+        hop_plan.planned_elevation_deg = CalcElevation(from_ref, to_ref);
         if (hop == 0) {
             for (const navmesh::WorldPoint& spot : route->mount_spots) {
                 hop_plan.mount_spots.push_back(ZiplineMountSpot { .x = spot.x, .y = spot.y });
@@ -790,7 +795,7 @@ bool try_append_zipline_leg(
     const navmesh::WorldPoint landing = route->departure.points.back();
     append_generated_waypoints(route->departure, out_path, {}, &ctx.mesh.planner, route->departure.zone_id);
     if (out_path.size() == departure_index) {
-        out_path.emplace_back(landing.x, landing.y, ActionType::RUN);
+        out_path.push_back(Waypoint { .x = landing.x, .y = landing.y, .action = ActionType::RUN });
         out_path.back().strict_arrival = true;
     }
     out_path[last_hop_index].zipline_hop->exit_aim = pick_exit_aim_point(out_path, departure_index, dismount);
@@ -998,8 +1003,8 @@ bool append_stamped_authored_waypoint(ExpansionContext& ctx, LegState& state, si
 size_t replaceable_span_end(const std::vector<Waypoint>& path, size_t begin)
 {
     size_t end = begin;
-    while (end < path.size() && !path[end].isZoneDeclaration()) {
-        if (path[end++].endsReplaceableSpan()) {
+    while (end < path.size() && !IsZoneDeclaration(path[end])) {
+        if (EndsReplaceableSpan(path[end++])) {
             break;
         }
     }
@@ -1009,7 +1014,7 @@ size_t replaceable_span_end(const std::vector<Waypoint>& path, size_t begin)
 std::optional<size_t> last_positioned_index(const std::vector<Waypoint>& path, size_t begin, size_t end)
 {
     for (size_t index = end; index > begin; --index) {
-        if (path[index - 1].hasPosition()) {
+        if (path[index - 1].has_position) {
             return index - 1;
         }
     }
@@ -1021,7 +1026,7 @@ navmesh::WorldPath baseline_walk_path(const navmesh::WorldPoint& start, const st
     navmesh::WorldPath walk;
     walk.points.push_back(start);
     for (size_t index = output_begin; index < out_path.size(); ++index) {
-        if (out_path[index].hasPosition()) {
+        if (out_path[index].has_position) {
             walk.points.push_back({ .x = out_path[index].x, .y = out_path[index].y });
         }
     }
@@ -1100,7 +1105,7 @@ bool append_replaceable_span(ExpansionContext& ctx, LegState& state, size_t begi
     }
     LogInfo << "Zipline replaced the walking of an authored span." << VAR(begin) << VAR(end) << VAR_AS(target_index, *target_index);
     for (size_t index = *target_index; index < end; ++index) {
-        if (index == *target_index && path[index].isMovementPoint()) {
+        if (index == *target_index && IsMovementPoint(path[index])) {
             continue;
         }
         if (!append_stamped_authored_waypoint(ctx, state, index, out_path)) {
@@ -1124,7 +1129,7 @@ bool append_authored_route(ExpansionContext& ctx, LegState& state, std::vector<W
             return false;
         }
         const size_t output_begin = out_path.size();
-        if (path[index].isZoneDeclaration()) {
+        if (IsZoneDeclaration(path[index])) {
             append_zone_declaration(state, path[index], out_path);
         }
         else if (!append_authored_waypoint(ctx, state, path[index], index, out_path)) {
@@ -1142,7 +1147,7 @@ bool append_route_with_zipline_shortcuts(ExpansionContext& ctx, LegState& state,
         if (ctx.cancelIfStopped(state)) {
             return false;
         }
-        if (path[index].isZoneDeclaration()) {
+        if (IsZoneDeclaration(path[index])) {
             append_zone_declaration(state, path[index], out_path);
             stamp_authored_group(out_path, out_path.size() - 1, index);
             ++index;
@@ -1161,7 +1166,7 @@ std::optional<std::string> infer_preload_navmesh_zone(const NaviParam& param)
 {
     std::string current_zone = param.map_name;
     for (const Waypoint& waypoint : param.path) {
-        if (waypoint.isZoneDeclaration()) {
+        if (IsZoneDeclaration(waypoint)) {
             current_zone = waypoint.zone_id;
             continue;
         }

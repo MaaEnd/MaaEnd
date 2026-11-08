@@ -338,7 +338,7 @@ const Waypoint* AsyncPromptAction::tailWaypointOfThisKind() const
 
     const std::vector<Waypoint>& path = session_->originalPath();
     for (auto it = path.rbegin(); it != path.rend(); ++it) {
-        if (!it->hasPosition()) {
+        if (!it->has_position) {
             continue;
         }
         return spec_.matches(*it) ? &*it : nullptr;

@@ -36,7 +36,7 @@ double pitch_target_for_attempt(double elevation_deg, int attempt)
 
 double bearing_deg(const ZiplineNodeRef& from, const ZiplineNodeRef& to)
 {
-    return NaviMath::calcTargetRotation(from.x, from.y, to.x, to.y);
+    return CalcTargetRotation(from.x, from.y, to.x, to.y);
 }
 
 double away_side_cap_deg(const std::vector<double>& neighbor_offsets_deg, double away)
@@ -188,7 +188,7 @@ std::optional<double> YawAimLoop::settledHeading(const ZiplineObservation& obs)
         return std::nullopt;
     }
     const double heading = obs.fix->angle;
-    const bool agrees = prev_heading_ && std::abs(NaviMath::normalizeAngle(heading - *prev_heading_)) <= kHeadingStableReadToleranceDeg;
+    const bool agrees = prev_heading_ && std::abs(NormalizeAngle(heading - *prev_heading_)) <= kHeadingStableReadToleranceDeg;
     stable_heading_hits_ = agrees ? stable_heading_hits_ + 1 : 1;
     prev_heading_ = heading;
     if (stable_heading_hits_ < 2) {
@@ -202,7 +202,7 @@ void YawAimLoop::noteTurnResponse(double heading)
     if (!turn_pending_ || std::abs(turn_cmd_deg_) < kZiplineAimResponseMinCmdDeg) {
         return;
     }
-    const double achieved = NaviMath::normalizeAngle(heading - turn_ref_heading_);
+    const double achieved = NormalizeAngle(heading - turn_ref_heading_);
     if (achieved * turn_cmd_deg_ <= 0.0) {
         return;
     }
@@ -413,7 +413,7 @@ std::vector<double> ZiplineRideMachine::neighborOffsetsDeg() const
         if (node.sameTower(plan_.mount) || node.sameTower(plan_.landing)) {
             continue;
         }
-        offsets.push_back(NaviMath::normalizeAngle(bearing_deg(plan_.mount, node) - planned));
+        offsets.push_back(NormalizeAngle(bearing_deg(plan_.mount, node) - planned));
     }
     return offsets;
 }
@@ -431,7 +431,7 @@ double ZiplineRideMachine::firstShotAimBiasDeg() const
 
 double ZiplineRideMachine::escalatedAimBiasDeg(double wrong_bearing_deg) const
 {
-    const double offset = NaviMath::normalizeAngle(wrong_bearing_deg - bearing_deg(plan_.mount, plan_.landing));
+    const double offset = NormalizeAngle(wrong_bearing_deg - bearing_deg(plan_.mount, plan_.landing));
     if (offset == 0.0) {
         return aim_bias_deg_;
     }
@@ -518,7 +518,7 @@ StageResult ZiplineRideMachine::tickOnTower(IZiplineActuator& actuator, Clock::t
 {
     if (returning_) {
         target_ = plan_.mount;
-        seed_elevation_deg_ = NaviMath::calcElevation(origin_, target_);
+        seed_elevation_deg_ = CalcElevation(origin_, target_);
     }
     else {
         origin_ = plan_.mount;
@@ -554,9 +554,9 @@ StageResult ZiplineRideMachine::tickAiming(const ZiplineObservation& obs, IZipli
 
     const double bias = returning_ ? 0.0 : aim_bias_deg_;
     const bool sweep_pending = bias != 0.0 && !pitch_lowered_;
-    const double target_heading = NaviMath::calcTargetRotation(obs.fix->x, obs.fix->y, target_.x, target_.y) + bias
+    const double target_heading = CalcTargetRotation(obs.fix->x, obs.fix->y, target_.x, target_.y) + bias
                                   + (sweep_pending ? std::copysign(kZiplineAimSweepLeadDeg, bias) : 0.0);
-    const double residual = NaviMath::normalizeAngle(target_heading - heading);
+    const double residual = NormalizeAngle(target_heading - heading);
     if (!aim_budget_ms_) {
         const int64_t elapsed_ms = stageElapsedMs(now);
         aim_budget_ms_ = std::max(kZiplineAimHeadingTimeoutMs, static_cast<int32_t>(elapsed_ms) + YawAimLoop::turnBudgetMs(residual));
@@ -708,8 +708,8 @@ StageResult ZiplineRideMachine::tickExitAiming(const ZiplineObservation& obs, IZ
     }
     const double heading = *settled;
 
-    const double target_heading = NaviMath::calcTargetRotation(obs.fix->x, obs.fix->y, exit_aim_.x, exit_aim_.y);
-    const double residual = NaviMath::normalizeAngle(target_heading - heading);
+    const double target_heading = CalcTargetRotation(obs.fix->x, obs.fix->y, exit_aim_.x, exit_aim_.y);
+    const double residual = NormalizeAngle(target_heading - heading);
     if (std::abs(residual) > kZiplineExitAimToleranceDeg) {
         const std::optional<double> issued = aim_.issueTurn(actuator, heading, residual, now);
         if (!issued) {
@@ -730,8 +730,8 @@ double ZiplineRideMachine::residualToExitAim() const
     if (!last_fix_) {
         return 0.0;
     }
-    const double target_heading = NaviMath::calcTargetRotation(last_fix_->x, last_fix_->y, exit_aim_.x, exit_aim_.y);
-    return NaviMath::normalizeAngle(target_heading - last_fix_->angle);
+    const double target_heading = CalcTargetRotation(last_fix_->x, last_fix_->y, exit_aim_.x, exit_aim_.y);
+    return NormalizeAngle(target_heading - last_fix_->angle);
 }
 
 StageResult ZiplineRideMachine::startExitAim(const HopCompleted& done, Clock::time_point now)

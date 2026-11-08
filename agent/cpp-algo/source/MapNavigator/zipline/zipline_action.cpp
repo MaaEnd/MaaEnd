@@ -175,7 +175,7 @@ private:
 
 size_t skip_continuous_run(const std::vector<Waypoint>& path, size_t index)
 {
-    while (index < path.size() && path[index].isContinuousRun()) {
+    while (index < path.size() && IsContinuousRun(path[index])) {
         ++index;
     }
     return index;
@@ -206,13 +206,13 @@ Result drop_chain_and_recover(const Context& ctx, const char* reason, const char
     LogWarn << "Action: ZIPLINE given up, recovering from a fresh position." << VAR(reason) << VAR(detail) << VAR(dropped)
             << VAR(stay_on_tower) << VAR(ctx.position->x) << VAR(ctx.position->y);
 
-    ctx.runtime_state->zipline_approach.reset();
-    ctx.runtime_state->onWaypointAdvance();
-    ctx.runtime_state->route.reset();
+    ctx.runtime_state->zipline_approach = {};
+    ResetOnWaypointAdvance(ctx.runtime_state);
+    ctx.runtime_state->route = {};
     ctx.position_provider->resetTracking();
     ctx.session->resetProgress();
-    // onWaypointAdvance 会清掉恢复状态和重规划标志, 这两行必须在它后面
-    ctx.runtime_state->zipline_recovery.begin(std::chrono::steady_clock::now());
+    // ResetOnWaypointAdvance 会清掉恢复状态和重规划标志, 这两行必须在它后面
+    BeginZiplineRecovery(&ctx.runtime_state->zipline_recovery, std::chrono::steady_clock::now());
     ctx.runtime_state->dynamic_replan_requested = true;
 
     SelectPhaseForCurrentWaypoint(ctx, reason);
@@ -229,16 +229,16 @@ Result finish_hop(const Context& ctx, const HopCompleted& done)
 
     ctx.session->noteCanonicalFinalGoalConsumed(ctx.session->currentAbsoluteNodeIndex(), done.at, "zipline_ride_complete");
     ctx.session->advanceToNextWaypoint(ActionType::ZIPLINE, "zipline_ride_complete");
-    ctx.runtime_state->onWaypointAdvance();
+    ResetOnWaypointAdvance(ctx.runtime_state);
     LogInfo << "Action: ZIPLINE ride landed." << VAR(done.at.x) << VAR(done.at.y) << VAR(done.still_on_tower);
     if (!done.at.zone_id.empty()) {
         ctx.session->updateCurrentZone(done.at.zone_id);
     }
     ctx.session->resetProgress();
-    ctx.runtime_state->resetNavigationAssistState();
-    ctx.runtime_state->route.reset();
+    ResetNavigationAssistState(ctx.runtime_state);
+    ctx.runtime_state->route = {};
     // 起步确认直接置位, 下一跳的上索点就在脚下, 拦住就得先走开再走回来
-    ctx.runtime_state->route.confirmStartupAt(done.at);
+    ConfirmStartupAt(&ctx.runtime_state->route, done.at);
     ctx.position_provider->resetTracking();
 
     if (!ctx.session->hasCurrentWaypoint()) {
@@ -270,7 +270,8 @@ Result AdvanceMountSpot(const Context& ctx, const Waypoint& waypoint, const char
     const ZiplineHopPlan& plan = *waypoint.zipline_hop;
     ZiplineApproachState& approach = ctx.runtime_state->zipline_approach;
     const size_t spot_count = plan.mount_spots.size();
-    const size_t cursor = approach.mountSpotCursor(plan.mount);
+    FollowMountTower(&approach, plan.mount);
+    const size_t cursor = approach.spot_index;
     if (cursor + 1 >= spot_count) {
         ctx.runtime_state->zipline_ride.markMountUnreachable(plan);
         return AbandonZipline(ctx, kGiveUpReason, kGiveUpDetail);
@@ -284,8 +285,8 @@ Result AdvanceMountSpot(const Context& ctx, const Waypoint& waypoint, const char
     ctx.session->resetHardProgress();
     LogWarn << "Action: ZIPLINE no mount prompt here; walking to the next stand point." << VAR(reason) << VAR(retargeted)
             << VAR(approach.spot_index) << VAR(spot_count) << VAR(spot.x) << VAR(spot.y);
-    ctx.runtime_state->route.reset();
-    ctx.runtime_state->route.confirmStartupAt(*ctx.position);
+    ctx.runtime_state->route = {};
+    ConfirmStartupAt(&ctx.runtime_state->route, *ctx.position);
     ctx.position_provider->resetTracking();
     SelectPhaseForCurrentWaypoint(ctx, reason);
 

@@ -54,13 +54,13 @@ void BeginRun()
         LogInfo << "Turn sensitivity scale in effect." << VAR(scale);
     }
     const std::lock_guard<std::mutex> guard(g_mutex);
-    g_detector.beginRun();
+    BeginDetectorRun(&g_detector);
 }
 
 void NoteTurnIssued(double delta_deg)
 {
     const std::lock_guard<std::mutex> guard(g_mutex);
-    g_detector.noteIssued(delta_deg);
+    NoteDetectorIssued(&g_detector, delta_deg);
 }
 
 double TurnUnitsScale()
@@ -79,8 +79,8 @@ void RecordTick(
     std::optional<Estimate> estimate;
     {
         const std::lock_guard<std::mutex> guard(g_mutex);
-        verdict = g_detector.recordTick(tick_seq, camera_heading_deg, issued_delta_deg, degraded_fix);
-        estimate = g_detector.takeLastEstimate();
+        verdict = RecordDetectorTick(&g_detector, tick_seq, camera_heading_deg, issued_delta_deg, degraded_fix);
+        estimate = TakeLastEstimate(&g_detector);
     }
 
     log_estimate(estimate);
@@ -95,8 +95,8 @@ void EndRun(MaaContext* context)
     std::optional<Estimate> estimate;
     {
         const std::lock_guard<std::mutex> guard(g_mutex);
-        verdict = g_detector.endRun();
-        estimate = g_detector.takeLastEstimate();
+        verdict = EndDetectorRun(&g_detector);
+        estimate = TakeLastEstimate(&g_detector);
     }
 
     log_estimate(estimate);

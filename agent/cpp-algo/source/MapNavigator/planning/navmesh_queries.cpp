@@ -18,7 +18,7 @@ namespace
 
 navmesh::WorldPoint offset_point(const NaviPosition& position, double heading, double distance)
 {
-    const double radians = NaviMath::normalizeHeading(heading) * kPi / 180.0;
+    const double radians = NormalizeHeading(heading) * kPi / 180.0;
     return { .x = position.x + std::sin(radians) * distance, .y = position.y - std::cos(radians) * distance };
 }
 
@@ -211,7 +211,7 @@ std::optional<navmesh::WorldPoint>
     const int rot = ((attempt_index % kFanCount) + kFanCount) % kFanCount;
 
     for (int i = 0; i < kFanCount; ++i) {
-        const double bearing = NaviMath::normalizeHeading(stuck_heading + kFan[(i + rot) % kFanCount]);
+        const double bearing = NormalizeHeading(stuck_heading + kFan[(i + rot) % kFanCount]);
         double run = 0.0;
         double longest = 0.0;
         double solid_start = -1.0; // 末尾连续在网格上那段的起始距离, -1 表示没有

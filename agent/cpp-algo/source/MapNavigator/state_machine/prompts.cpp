@@ -80,8 +80,9 @@ TickStep NavigationStateMachine::handlePrompts(const NavigateTick& tick)
         }
     }
 
-    if (waypoint.action == ActionType::ZIPLINE && !runtime_state_.isZiplineMounted() && waypoint.zipline_hop) {
-        const size_t cursor = runtime_state_.zipline_approach.mountSpotCursor(waypoint.zipline_hop->mount);
+    if (waypoint.action == ActionType::ZIPLINE && !IsZiplineMounted(runtime_state_) && waypoint.zipline_hop) {
+        FollowMountTower(&runtime_state_.zipline_approach, waypoint.zipline_hop->mount);
+        const size_t cursor = runtime_state_.zipline_approach.spot_index;
         if (cursor + 1 < waypoint.zipline_hop->mount_spots.size() && route.waypoint_distance <= kZiplineWalkEnterBandWu
             && session_->hardStalledMs(tick.now) >= kZiplineMountSpotStallMs) {
             const semantic_nodes::Result advanced =
@@ -172,7 +173,7 @@ bool NavigationStateMachine::tryZiplineMountPrompt(const Waypoint& waypoint, con
         zipline_mount_scanner_.reset();
         return false;
     }
-    if (runtime_state_.isZiplineMounted()) {
+    if (IsZiplineMounted(runtime_state_)) {
         return false;
     }
     if (zipline_mount_scanner_ == nullptr && maa_context_ != nullptr) {
@@ -206,8 +207,8 @@ NavigationStateMachine::PromptDistance NavigationStateMachine::nearestPromptDist
     for (size_t index = session_->currentNodeIdx(); index < path.size(); ++index) {
         const Waypoint& waypoint = path[index];
         const bool is_zipline = waypoint.action == ActionType::ZIPLINE;
-        if (!waypoint.hasPosition() || (waypoint.action != ActionType::DIG && !is_zipline)
-            || (is_zipline && runtime_state_.isZiplineMounted())) {
+        if (!waypoint.has_position || (waypoint.action != ActionType::DIG && !is_zipline)
+            || (is_zipline && IsZiplineMounted(runtime_state_))) {
             continue;
         }
         const double dx = waypoint.x - position_->x;
@@ -253,7 +254,8 @@ bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurem
         if (outcome == PromptTriggerOutcome::NotTriggered) {
             continue;
         }
-        failure_trail_.note(
+        NoteTimedFailure(
+            &failure_trail_,
             std::chrono::steady_clock::now(),
             std::format("prompt {} {}", prompts[index]->spec().tag, outcome == PromptTriggerOutcome::Recognized ? "recognized" : "missed"),
             ElapsedMs(started_at));
@@ -276,7 +278,7 @@ bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurem
         if (prompt_repeats_exhausted(runtime_state_.prompt_repeat, node, index)) {
             LogWarn << "Prompt keeps being recognized without advancing; ignoring it at this waypoint." << VAR(prompts[index]->spec().tag)
                     << VAR(node);
-            failure_trail_.note(std::chrono::steady_clock::now(), "prompt muted");
+            NoteFailure(&failure_trail_, std::chrono::steady_clock::now(), "prompt muted");
         }
         return true;
     }
@@ -295,7 +297,7 @@ void NavigationStateMachine::completeWaypointAfterPromptTrigger()
     const std::optional<size_t> consumed_absolute_node_idx = session_->currentAbsoluteNodeIndex();
     session_->noteCanonicalFinalGoalConsumed(consumed_absolute_node_idx, *position_, "async_prompt_completed");
     session_->advanceToNextWaypoint(action, "async_prompt_completed");
-    runtime_state_.onWaypointAdvance();
+    ResetOnWaypointAdvance(&runtime_state_);
     if (!session_->hasCurrentWaypoint()) {
         session_->noteRouteTailConsumed(*position_, "route_tail_consumed");
         return;

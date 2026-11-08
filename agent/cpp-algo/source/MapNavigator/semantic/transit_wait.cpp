@@ -28,7 +28,7 @@ size_t find_future_zone_declaration(const Context& ctx, const std::string& zone_
     const std::vector<Waypoint>& path = ctx.session->currentPath();
     for (size_t index = ctx.session->currentNodeIdx(); index < path.size(); ++index) {
         const Waypoint& waypoint = path[index];
-        if (waypoint.isZoneDeclaration() && !waypoint.zone_id.empty() && waypoint.zone_id == zone_id) {
+        if (IsZoneDeclaration(waypoint) && !waypoint.zone_id.empty() && waypoint.zone_id == zone_id) {
             return index;
         }
     }
@@ -42,7 +42,7 @@ Result finalize_portal_transit_zone(const Context& ctx, const std::string& zone_
     }
     ctx.session->updateCurrentZone(zone_id);
     ctx.session->resetProgress();
-    ctx.runtime_state->onWaypointAdvance();
+    ResetOnWaypointAdvance(ctx.runtime_state);
     ConsumeMatchedZoneNodes(ctx);
     StopMotionAndCommitment(ctx);
     ctx.position_provider->resetTracking();
@@ -56,7 +56,7 @@ Result finalize_portal_transit_zone(const Context& ctx, const std::string& zone_
 Result TickPortalTransit(const Context& ctx)
 {
     PortalTransitState& portal = ctx.runtime_state->semantic.portal;
-    if (!portal.active()) {
+    if (!IsPortalTransitActive(portal)) {
         return {};
     }
 

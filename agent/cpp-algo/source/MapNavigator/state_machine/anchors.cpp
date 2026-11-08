@@ -45,15 +45,15 @@ bool ZonesDifferInGeometry(const NaviParam& param, const std::string& a, const s
 
 bool IsZoneCompatible(const Waypoint& waypoint, const std::string& current_zone_id)
 {
-    return waypoint.hasPosition() && !ZonesDiffer(waypoint.zone_id, current_zone_id);
+    return waypoint.has_position && !ZonesDiffer(waypoint.zone_id, current_zone_id);
 }
 
 bool IsRequiredSemanticAnchor(const Waypoint& waypoint)
 {
-    if (!waypoint.hasPosition()) {
-        return waypoint.isHeadingOnly() || waypoint.isZoneDeclaration();
+    if (!waypoint.has_position) {
+        return IsHeadingOnly(waypoint) || IsZoneDeclaration(waypoint);
     }
-    return !waypoint.isContinuousRun();
+    return !IsContinuousRun(waypoint);
 }
 
 std::optional<DynamicAnchor>
@@ -68,13 +68,13 @@ std::optional<DynamicAnchor>
         if (!canonical_index) {
             continue;
         }
-        if (waypoint.isZoneDeclaration()) {
+        if (IsZoneDeclaration(waypoint)) {
             if (differs_in_geometry(param, &last_check, waypoint.zone_id, position.zone_id)) {
                 return fallback;
             }
             continue;
         }
-        if (!waypoint.hasPosition()) {
+        if (!waypoint.has_position) {
             if (IsRequiredSemanticAnchor(waypoint)) {
                 return fallback;
             }
@@ -117,13 +117,13 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
         if (!canonical_index) {
             continue;
         }
-        if (waypoint.isZoneDeclaration()) {
+        if (IsZoneDeclaration(waypoint)) {
             if (differs_in_geometry(param, &last_check, waypoint.zone_id, position.zone_id)) {
                 break;
             }
             continue;
         }
-        if (!waypoint.hasPosition()) {
+        if (!waypoint.has_position) {
             if (IsRequiredSemanticAnchor(waypoint)) {
                 break;
             }
