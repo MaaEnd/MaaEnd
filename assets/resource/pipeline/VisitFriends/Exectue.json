@@ -1078,40 +1078,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "VisitFriendsBtwSellItemSettle"
-        ]
-    },
-    "VisitFriendsBtwSellItemSettle": {
-        "desc": "顺便出售：登记出售奖励",
-        "recognition": "And",
-        "all_of": [
-            "InNoticeRewards",
-            "CloseRewardsButton"
-        ],
-        "box_index": 1,
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                528,
-                299,
-                222,
-                131
-            ],
-            "threshold": 0.97,
-            "timeout": 1500
-        },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "AddItemData",
-        "custom_action_param": {
-            "item_filters": [
-                "Isolate:DomainGold"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AddItemDataCloseRewards"
+            "SceneNoticeRewardsConfirm"
         ]
     },
     "VisitFriendsBtwSellFinished": {
