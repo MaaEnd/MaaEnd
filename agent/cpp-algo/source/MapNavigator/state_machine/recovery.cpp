@@ -8,7 +8,7 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "../control/action_wrapper.h"
+#include "../Backend/backend.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_log.h"
@@ -124,7 +124,7 @@ TickStep NavigationStateMachine::runObstacleRecovery(const NavigateTick& tick)
         const bool fought_another_anchor = escalation.anchor_index != std::numeric_limits<size_t>::max();
         RetargetRecoveryEscalation(&escalation, anchor->first);
         if (fought_another_anchor) {
-            device_recovery_.forgetObservation();
+            ForgetDeviceObservation(&device_recovery_);
         }
     }
 
@@ -173,7 +173,8 @@ bool NavigationStateMachine::climbRecoveryLadder(const NavigateTick& tick)
     const Waypoint& waypoint = tick.waypoint;
     const RouteMeasurement& route = tick.route;
     RecoveryEscalationState& escalation = runtime_state_.recovery_escalation;
-    const DeviceRemovalOutcome device_outcome = device_recovery_.tryRemove(
+    const DeviceRemovalOutcome device_outcome = TryRemoveDevice(
+        &device_recovery_,
         route,
         waypoint,
         escalation.device_attempt_count < kRecoveryDeviceAttempts && far_or_strict_target(tick.effective_progress, waypoint));
@@ -207,10 +208,11 @@ bool NavigationStateMachine::climbRecoveryLadder(const NavigateTick& tick)
     const NaviPosition jump_start = *position_;
     LogInfo << "Dynamic recovery jump pulse issued." << VAR(escalation.jump_attempt_count) << VAR(escalation.detour_attempt_count);
     NoteFailure(&failure_trail_, std::chrono::steady_clock::now(), "recovery jump");
-    motion_controller_->setAction(LocalDriverAction::JumpForward, true);
+    ArmSteeringQuietPeriod(motion_controller_);
+    ApplyLocalAction(motion_controller_, LocalDriverAction::JumpForward);
     SleepFor(kActionJumpSettleMs);
-    motion_controller_->setForwardState(false);
-    if (!captureCurrentPosition(false) || position_provider_->lastCaptureWasBlackScreen() || !position_->valid) {
+    HoldPosition(motion_controller_);
+    if (!captureCurrentPosition(false) || position_provider_->last_capture_was_black_screen || !position_->valid) {
         LogWarn << "Dynamic recovery waiting for post-jump local tracking fix." << VAR_AS(stalled_ms, tick.stalled_ms)
                 << VAR(escalation.jump_attempt_count);
         SleepFor(kTargetTickMs);
@@ -295,19 +297,19 @@ bool NavigationStateMachine::executePhysicalUnstick(double stuck_heading)
 
     const double target_heading = CalcTargetRotation(position_->x, position_->y, target->x, target->y);
     const double heading_delta = CalcDeltaRotation(position_->angle, target_heading);
-    motion_controller_->setForwardState(false);
+    HoldPosition(motion_controller_);
     SleepFor(kStopWaitMs);
-    int units = static_cast<int>(std::lround(heading_delta * action_wrapper_->defaultTurnUnitsPerDegree()));
+    int units = static_cast<int>(std::lround(heading_delta * TurnUnitsPerDegree(*input_backend_)));
     if (units == 0) {
         units = heading_delta > 0.0 ? 1 : -1;
     }
-    action_wrapper_->sendViewDeltaSync(units, 0);
+    SendViewDeltaSync(input_backend_, units, 0);
 
     const NaviPosition step_start = *position_;
     double moved = 0.0;
     for (int pulse = 0; pulse < kUnstickMaxPulses; ++pulse) {
-        action_wrapper_->pulseForwardSync(kUnstickPulseMs);
-        if (!captureCurrentPosition(false) || position_provider_->lastCaptureWasBlackScreen() || !position_->valid) {
+        PulseForwardSync(input_backend_, kUnstickPulseMs);
+        if (!captureCurrentPosition(false) || position_provider_->last_capture_was_black_screen || !position_->valid) {
             break;
         }
         moved = std::hypot(position_->x - step_start.x, position_->y - step_start.y);
@@ -315,7 +317,7 @@ bool NavigationStateMachine::executePhysicalUnstick(double stuck_heading)
             break;
         }
     }
-    motion_controller_->setForwardState(false);
+    HoldPosition(motion_controller_);
     ++unstick.count;
     const bool dislodged = moved >= distance * kUnstickSuccessFraction;
     LogInfo << "Physical unstick step executed." << VAR(distance) << VAR(moved) << VAR(dislodged) << VAR(unstick.count)

@@ -2,7 +2,7 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "action_wrapper.h"
+#include "../Backend/backend.h"
 
 namespace mapnavigator::walkmode
 {
@@ -27,30 +27,32 @@ void NoteSprintTriggered()
     LogInfo << "Walk mode cleared by sprint (the game leaves walking on its own).";
 }
 
-Toggle::Toggle(ActionWrapper* action_wrapper)
-    : action_wrapper_(action_wrapper)
+Toggle OpenToggle(InputBackend* input_backend)
 {
+    Toggle toggle;
+    toggle.input_backend = input_backend;
     if (g_walking) {
         LogWarn << "Walk mode belief survived the previous run; restoring jogging before navigating.";
-        request(false);
+        RequestWalk(toggle, false);
     }
+    return toggle;
 }
 
-Toggle::~Toggle()
+void CloseToggle(const Toggle& toggle)
 {
-    request(false);
+    RequestWalk(toggle, false);
 }
 
-void Toggle::request(bool walk)
+void RequestWalk(const Toggle& toggle, bool walk)
 {
     if (walk == g_walking) {
         return;
     }
-    if (action_wrapper_ == nullptr || !action_wrapper_->supportsWalkToggle()) {
+    if (toggle.input_backend == nullptr || !SupportsWalkToggle(*toggle.input_backend)) {
         return;
     }
 
-    action_wrapper_->toggleWalkModeSync();
+    ToggleWalkModeSync(toggle.input_backend);
     g_walking = walk;
     LogInfo << (walk ? "Walk mode engaged (game walking speed)." : "Walk mode released (back to jogging).");
 }

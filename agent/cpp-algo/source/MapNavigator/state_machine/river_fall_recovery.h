@@ -5,8 +5,8 @@
 namespace mapnavigator
 {
 
-class ActionWrapper;
-class MotionController;
+struct Motion;
+struct InputBackend;
 
 enum class RiverFallStep
 {
@@ -16,8 +16,8 @@ enum class RiverFallStep
 
 RiverFallStep AdvanceRiverFallRecovery(
     RiverFallRecoveryState* state,
-    ActionWrapper* action_wrapper,
-    MotionController* motion_controller,
+    InputBackend* input_backend,
+    Motion* motion_controller,
     const NaviPosition& position,
     double current_heading);
 

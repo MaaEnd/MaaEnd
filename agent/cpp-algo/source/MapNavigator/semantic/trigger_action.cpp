@@ -6,7 +6,7 @@
 #include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
 
-#include "../control/action_wrapper.h"
+#include "../Backend/backend.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_log.h"
@@ -30,7 +30,7 @@ constexpr const char* kTriggerPipelineOverride = "{}";
 
 Result fail_trigger(const Context& ctx, const char* reason, const char* log_message)
 {
-    ctx.motion_controller->setForwardState(false);
+    HoldPosition(ctx.motion_controller);
     return {
         .consumed = true,
         .stay_in_current_tick = true,
@@ -61,7 +61,7 @@ Result ProbeTriggerWhileNavigating(const Context& ctx)
     trigger.last_probe_at = now;
 
     // 定位这一拍刚截过图, 缓存即当前画面
-    MaaController* controller = ctx.action_wrapper->getCtrl();
+    MaaController* controller = ctx.input_backend->ctrl;
     ScopedImageBuffer image;
     if (controller == nullptr || !MaaControllerCachedImage(controller, image.Get()) || MaaImageBufferIsEmpty(image.Get())) {
         return {};
@@ -81,7 +81,7 @@ Result ProbeTriggerWhileNavigating(const Context& ctx)
     LogInfo << "TRIGGER: node hit on the way, navigation complete." << VAR(waypoint.trigger_node)
             << VAR_AS(ctx.session->current_node_idx(), ctx.session->currentNodeIdx()) << VAR(trigger_idx) << VAR(ctx.position->valid)
             << VAR(remaining);
-    ctx.motion_controller->setForwardState(false);
+    HoldPosition(ctx.motion_controller);
     ctx.session->noteCanonicalFinalGoalConsumed(ctx.session->canonicalIndexAtCurrentPath(trigger_idx), *ctx.position, "trigger_hit");
     ctx.session->skipPastWaypoint(trigger_idx, "trigger_hit");
     ResetOnWaypointAdvance(ctx.runtime_state);

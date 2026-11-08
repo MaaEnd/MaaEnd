@@ -8,6 +8,8 @@
 #include "../control/controller_type_utils.h"
 #include "../navi_config.h"
 #include "../navi_time.h"
+#include "../planning/navmesh_queries.h"
+#include "frame_sinks.h"
 #include "latency_observer.h"
 #include "position_provider.h"
 
@@ -71,88 +73,85 @@ std::optional<double> confident_camera_heading(const maplocator::LocateResult& l
                : std::nullopt;
 }
 
-} // namespace
-
-PositionProvider::PositionProvider(MaaController* controller, std::shared_ptr<maplocator::MapLocator> locator, HeadingSource heading_source)
-    : controller_(controller)
-    , locator_(std::move(locator))
-    , heading_source_(heading_source)
-    , adb_like_controller_(IsAdbLikeControllerType(DetectControllerType(controller_)))
+bool wait_for_screencap(const PositionSensor& sensor)
 {
+    const MaaCtrlId screencap_id = MaaControllerPostScreencap(sensor.controller);
+    if (screencap_id == MaaInvalidId) {
+        LogWarn << "Position capture failed to dispatch screencap.";
+        return false;
+    }
+    const MaaStatus capture_status = MaaControllerWait(sensor.controller, screencap_id);
+    if (capture_status != MaaStatus_Succeeded) {
+        LogWarn << "Position capture screencap did not succeed." << VAR(screencap_id) << VAR(capture_status);
+        return false;
+    }
+    return true;
 }
 
-void PositionProvider::setFrameObserver(std::function<void(const cv::Mat&)> observer)
-{
-    frame_observer_ = std::move(observer);
-}
-
-bool PositionProvider::capture(
+void fill_position(
+    const PositionSensor& sensor,
     NaviPosition* out_pos,
-    bool force_global_search,
-    const std::string& expected_zone_id,
-    const std::vector<maplocator::SearchHint>& search_hints,
-    std::optional<double> camera_heading_prior)
+    const maplocator::LocateResult& locate_result,
+    double heading,
+    std::optional<double> confident_camera,
+    std::chrono::steady_clock::time_point captured_at)
 {
-    maplocator::LocateOptions options;
-    options.force_global_search = force_global_search;
-    options.expected_zone_id = expected_zone_id;
-    options.search_hints = search_hints;
-    options.camera_heading_prior = camera_heading_prior;
-    return captureWith(out_pos, std::move(options), heading_source_);
+    out_pos->x = locate_result.position->x;
+    out_pos->y = locate_result.position->y;
+    out_pos->angle = heading;
+    out_pos->score = locate_result.position->score;
+    out_pos->zone_id = locate_result.position->zoneId;
+    out_pos->camera_angle = sensor.adb_like_controller
+                                ? confident_camera
+                                : (locate_result.camRot ? std::optional<double>(locate_result.camRot->rot) : std::nullopt);
+    out_pos->valid = true;
+    out_pos->timestamp = captured_at;
 }
 
-bool PositionProvider::captureForStrictGoal(NaviPosition* out_pos, const std::string& expected_zone_id)
-{
-    maplocator::LocateOptions options;
-    options.precise_position = true;
-    options.expected_zone_id = expected_zone_id;
-    return captureWith(out_pos, std::move(options), HeadingSource::Camera);
-}
-
-bool PositionProvider::captureWith(NaviPosition* out_pos, maplocator::LocateOptions options, HeadingSource heading_source)
+bool capture_with(PositionSensor* sensor, NaviPosition* out_pos, maplocator::LocateOptions options, HeadingSource heading_source)
 {
     if (out_pos == nullptr) {
         return false;
     }
 
     out_pos->valid = false;
-    last_capture_was_black_screen_ = false;
-    last_capture_minimap_absent_ = false;
-    last_locate_message_ = "screencap failed";
+    sensor->last_capture_was_black_screen = false;
+    sensor->last_capture_minimap_absent = false;
+    sensor->last_locate_message = "screencap failed";
     const auto capture_started_at = std::chrono::steady_clock::now();
 
-    if (!waitForScreencap()) {
+    if (!wait_for_screencap(*sensor)) {
         return false;
     }
     ScopedImageBuffer buffer;
 
-    if (!MaaControllerCachedImage(controller_, buffer.Get()) || MaaImageBufferIsEmpty(buffer.Get())) {
+    if (!MaaControllerCachedImage(sensor->controller, buffer.Get()) || MaaImageBufferIsEmpty(buffer.Get())) {
         return false;
     }
     const auto screencap_done_at = std::chrono::steady_clock::now();
 
     cv::Mat image = to_mat(buffer.Get());
-    last_capture_was_black_screen_ = is_black_screen(image);
-    if (options.precise_position && last_capture_was_black_screen_) {
-        last_locate_message_ = "black screen";
+    sensor->last_capture_was_black_screen = is_black_screen(image);
+    if (options.precise_position && sensor->last_capture_was_black_screen) {
+        sensor->last_locate_message = "black screen";
         return false;
     }
-    if (frame_observer_) {
-        frame_observer_(image);
+    if (sensor->frame_sinks.has_value()) {
+        SubmitFrameToSinks(*sensor->frame_sinks, image);
     }
     cv::Mat minimap;
-    if (!maplocator::TryExtractMinimap(image, adb_like_controller_, &minimap)) {
-        last_locate_message_ = "minimap not extracted";
+    if (!maplocator::TryExtractMinimap(image, sensor->adb_like_controller, &minimap)) {
+        sensor->last_locate_message = "minimap not extracted";
         return false;
     }
     const auto image_prep_done_at = std::chrono::steady_clock::now();
 
     options.reject_occluded_frames = heading_source != HeadingSource::Camera;
-    const auto locate_result = locator_->locate(minimap, options);
+    const auto locate_result = sensor->locator->locate(minimap, options);
     const auto locate_done_at = std::chrono::steady_clock::now();
     log_locate_result(locate_result);
-    last_capture_minimap_absent_ = locate_result.minimap_absent;
-    last_locate_message_ = locate_result.debugMessage;
+    sensor->last_capture_minimap_absent = locate_result.minimap_absent;
+    sensor->last_locate_message = locate_result.debugMessage;
     if (locate_result.status != maplocator::LocateStatus::Success || !locate_result.position) {
         return false;
     }
@@ -160,14 +159,14 @@ bool PositionProvider::captureWith(NaviPosition* out_pos, maplocator::LocateOpti
     if (options.precise_position
         && (!std::isfinite(locate_result.position->x) || !std::isfinite(locate_result.position->y)
             || !std::isfinite(locate_result.position->score) || locate_result.position->score < options.loc_threshold)) {
-        last_locate_message_ = "precise position rejected";
+        sensor->last_locate_message = "precise position rejected";
         return false;
     }
 
     const std::optional<double> confident_camera = confident_camera_heading(locate_result);
     const std::optional<double> heading = heading_source == HeadingSource::Camera ? confident_camera : locate_result.rot;
     if (!heading || !std::isfinite(*heading) || *heading < 0.0 || *heading >= 360.0) {
-        last_locate_message_ = "heading unavailable";
+        sensor->last_locate_message = "heading unavailable";
         return false;
     }
 
@@ -178,54 +177,71 @@ bool PositionProvider::captureWith(NaviPosition* out_pos, maplocator::LocateOpti
         latency::RecordStage(latency::Stage::Locate, ElapsedMs(image_prep_done_at, locate_done_at));
     }
 
-    fillPosition(out_pos, locate_result, *heading, confident_camera, capture_started_at);
+    fill_position(*sensor, out_pos, locate_result, *heading, confident_camera, capture_started_at);
 
     // 所有取位都经过这里, 且 out_pos 刚由本次定位结果填好, 换算每次恰好一次
-    if (position_normalizer_) {
-        position_normalizer_(*out_pos);
+    if (sensor->normalize_param != nullptr) {
+        NormalizeLivePositionToBase(*sensor->normalize_param, *out_pos);
     }
     return true;
 }
 
-bool PositionProvider::waitForScreencap() const
+maplocator::LocateOptions locate_options(
+    const std::string& expected_zone_id,
+    const std::vector<maplocator::SearchHint>& search_hints,
+    std::optional<double> camera_heading_prior)
 {
-    const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller_);
-    if (screencap_id == MaaInvalidId) {
-        LogWarn << "Position capture failed to dispatch screencap.";
-        return false;
-    }
-    const MaaStatus capture_status = MaaControllerWait(controller_, screencap_id);
-    if (capture_status != MaaStatus_Succeeded) {
-        LogWarn << "Position capture screencap did not succeed." << VAR(screencap_id) << VAR(capture_status);
-        return false;
-    }
-    return true;
+    maplocator::LocateOptions options;
+    options.expected_zone_id = expected_zone_id;
+    options.search_hints = search_hints;
+    options.camera_heading_prior = camera_heading_prior;
+    return options;
 }
 
-void PositionProvider::fillPosition(
+} // namespace
+
+PositionSensor MakePositionSensor(MaaController* controller, std::shared_ptr<maplocator::MapLocator> locator, HeadingSource heading_source)
+{
+    PositionSensor sensor;
+    sensor.controller = controller;
+    sensor.locator = std::move(locator);
+    sensor.heading_source = heading_source;
+    sensor.adb_like_controller = IsAdbLikeControllerType(DetectControllerType(sensor.controller));
+    return sensor;
+}
+
+bool CaptureTracked(
+    PositionSensor* sensor,
     NaviPosition* out_pos,
-    const maplocator::LocateResult& locate_result,
-    double heading,
-    std::optional<double> confident_camera,
-    std::chrono::steady_clock::time_point captured_at) const
+    const std::string& expected_zone_id,
+    const std::vector<maplocator::SearchHint>& search_hints,
+    std::optional<double> camera_heading_prior)
 {
-    out_pos->x = locate_result.position->x;
-    out_pos->y = locate_result.position->y;
-    out_pos->angle = heading;
-    out_pos->score = locate_result.position->score;
-    out_pos->zone_id = locate_result.position->zoneId;
-    out_pos->camera_angle =
-        adb_like_controller_ ? confident_camera : (locate_result.camRot ? std::optional<double>(locate_result.camRot->rot) : std::nullopt);
-    out_pos->valid = true;
-    out_pos->timestamp = captured_at;
+    return capture_with(sensor, out_pos, locate_options(expected_zone_id, search_hints, camera_heading_prior), sensor->heading_source);
 }
 
-void PositionProvider::setPositionNormalizer(std::function<void(NaviPosition&)> normalizer)
+bool CaptureGlobal(
+    PositionSensor* sensor,
+    NaviPosition* out_pos,
+    const std::string& expected_zone_id,
+    const std::vector<maplocator::SearchHint>& search_hints,
+    std::optional<double> camera_heading_prior)
 {
-    position_normalizer_ = std::move(normalizer);
+    maplocator::LocateOptions options = locate_options(expected_zone_id, search_hints, camera_heading_prior);
+    options.force_global_search = true;
+    return capture_with(sensor, out_pos, std::move(options), sensor->heading_source);
 }
 
-bool PositionProvider::waitForFix(
+bool CaptureForStrictGoal(PositionSensor* sensor, NaviPosition* out_pos, const std::string& expected_zone_id)
+{
+    maplocator::LocateOptions options;
+    options.precise_position = true;
+    options.expected_zone_id = expected_zone_id;
+    return capture_with(sensor, out_pos, std::move(options), HeadingSource::Camera);
+}
+
+bool WaitForFix(
+    PositionSensor* sensor,
     NaviPosition* out_pos,
     const std::string& expected_zone_id,
     int max_retries,
@@ -236,7 +252,9 @@ bool PositionProvider::waitForFix(
         if (should_stop()) {
             return false;
         }
-        if (capture(out_pos, !expected_zone_id.empty(), expected_zone_id)) {
+        const bool captured =
+            expected_zone_id.empty() ? CaptureTracked(sensor, out_pos, expected_zone_id) : CaptureGlobal(sensor, out_pos, expected_zone_id);
+        if (captured) {
             return true;
         }
         SleepFor(retry_interval_ms);
@@ -244,26 +262,11 @@ bool PositionProvider::waitForFix(
     return false;
 }
 
-void PositionProvider::resetTracking()
+void ResetSensorTracking(PositionSensor* sensor)
 {
-    locator_->resetTrackingState();
-    last_capture_was_black_screen_ = false;
-    last_capture_minimap_absent_ = false;
-}
-
-bool PositionProvider::lastCaptureWasBlackScreen() const
-{
-    return last_capture_was_black_screen_;
-}
-
-bool PositionProvider::lastCaptureMinimapAbsent() const
-{
-    return last_capture_minimap_absent_;
-}
-
-const std::string& PositionProvider::lastLocateMessage() const
-{
-    return last_locate_message_;
+    sensor->locator->resetTrackingState();
+    sensor->last_capture_was_black_screen = false;
+    sensor->last_capture_minimap_absent = false;
 }
 
 } // namespace mapnavigator

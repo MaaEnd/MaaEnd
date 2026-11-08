@@ -11,14 +11,13 @@
 #include <MaaUtils/Logger.h>
 
 #include "../MapLocator/MapLocateAction.h"
-#include "control/action_wrapper.h"
+#include "Backend/backend.h"
 #include "control/motion_controller.h"
 #include "navi_config.h"
 #include "navi_controller.h"
 #include "planning/navigation_session.h"
 #include "planning/navmesh_path_expander.h"
 #include "planning/navmesh_queries.h"
-#include "semantic/action_executor.h"
 #include "sensing/position_provider.h"
 #include "state_machine/navigation_state_machine.h"
 
@@ -92,41 +91,24 @@ void offset_authored_groups(std::vector<Waypoint>& path, size_t resume_index)
     }
 }
 
-} // namespace
-
-NaviController::NaviController(MaaContext* ctx)
-    : ctx_(ctx)
+bool navigate_with_backend(MaaContext* ctx, NaviParam& param, InputBackend* input_backend)
 {
-}
-
-bool NaviController::navigate(const NaviParam& requested_param)
-{
-    // 须最先取闸, 被拒的节点可能被无限重试
-    const NavigationEntryGuard entry_guard(MaaContextGetTasker(ctx_));
-    if (!entry_guard.taken()) {
-        LogError << "Refusing to nest navigation: this tasker is already navigating.";
-        return false;
-    }
-
-    NaviParam param = requested_param;
-
-    ActionWrapper action_wrapper(ctx_);
-    PositionProvider position_provider(action_wrapper.getCtrl(), maplocator::getOrInitLocator(), param.heading_source);
-    position_provider.resetTracking();
+    PositionSensor position_provider = MakePositionSensor(input_backend->ctrl, maplocator::getOrInitLocator(), param.heading_source);
+    ResetSensorTracking(&position_provider);
     if (param.normalize_position_via_navmesh) {
-        position_provider.setPositionNormalizer([&param](NaviPosition& pos) { NormalizeLivePositionToBase(param, pos); });
+        position_provider.normalize_param = &param;
     }
-    const char* controller_type = action_wrapper.controllerType();
-    const bool uses_touch_backend = action_wrapper.usesTouchBackend();
+    const char* controller_type = input_backend->controller_type.c_str();
+    const bool uses_touch_backend = UsesTouchBackend(*input_backend);
     LogInfo << "MapNavigator controller initialized." << VAR(controller_type) << VAR(uses_touch_backend);
-    if (!action_wrapper.isSupported()) {
-        const char* unsupported_reason = action_wrapper.unsupportedReason();
+    if (!IsInputBackendSupported(*input_backend)) {
+        const char* unsupported_reason = input_backend->unsupported_reason.c_str();
         LogError << "MapNavigator controller backend is unsupported." << VAR(controller_type) << VAR(unsupported_reason);
         return false;
     }
 
     const auto is_stopping = [&]() {
-        return MaaTaskerStopping(MaaContextGetTasker(ctx_));
+        return MaaTaskerStopping(MaaContextGetTasker(ctx));
     };
 
     if (param.path.empty()) {
@@ -140,7 +122,7 @@ bool NaviController::navigate(const NaviParam& requested_param)
 
     NaviPosition pos;
     const std::string initial_expected_zone = InitialExpectedZone(param);
-    if (!position_provider.waitForFix(&pos, initial_expected_zone, kLocatorWaitMaxRetries, kLocatorWaitIntervalMs, is_stopping)
+    if (!WaitForFix(&position_provider, &pos, initial_expected_zone, kLocatorWaitMaxRetries, kLocatorWaitIntervalMs, is_stopping)
         || is_stopping()) {
         return false;
     }
@@ -166,20 +148,44 @@ bool NaviController::navigate(const NaviParam& requested_param)
     NavigationSession session(expanded_param.path, pos);
     session.updatePhase(NaviPhase::Bootstrap, "initial_fix");
 
-    MotionController motion_controller(&action_wrapper, param.enable_local_driver, param.enable_sprint);
-    ActionExecutor action_executor(&action_wrapper, &motion_controller);
-    NavigationStateMachine state_machine(
-        expanded_param,
-        &action_wrapper,
-        &position_provider,
-        &session,
-        &motion_controller,
-        &action_executor,
-        &pos,
-        is_stopping,
-        ctx_);
+    Motion motion_controller = MakeMotion(input_backend);
+    motion_controller.enable_local_driver = param.enable_local_driver;
+    motion_controller.enable_sprint = param.enable_sprint;
+    NavigationStateMachine
+        state_machine(expanded_param, input_backend, &position_provider, &session, &motion_controller, &pos, is_stopping, ctx);
 
     return state_machine.run();
+}
+
+} // namespace
+
+NaviController::NaviController(MaaContext* ctx)
+    : ctx_(ctx)
+{
+}
+
+bool NaviController::navigate(const NaviParam& requested_param)
+{
+    // 须最先取闸, 被拒的节点可能被无限重试
+    const NavigationEntryGuard entry_guard(MaaContextGetTasker(ctx_));
+    if (!entry_guard.taken()) {
+        LogError << "Refusing to nest navigation: this tasker is already navigating.";
+        return false;
+    }
+
+    NaviParam param = requested_param;
+
+    InputBackend input_backend = OpenInputBackend(MaaTaskerGetController(MaaContextGetTasker(ctx_)));
+
+    // 异常退出也须恢复按键和鼠标锁定、松开摇杆
+    struct CloseOnExit
+    {
+        InputBackend& input_backend;
+
+        ~CloseOnExit() { CloseInputBackend(&input_backend); }
+    } close_on_exit { input_backend };
+
+    return navigate_with_backend(ctx_, param, &input_backend);
 }
 
 } // namespace mapnavigator

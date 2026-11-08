@@ -13,8 +13,8 @@ struct MaaContext;
 namespace mapnavigator
 {
 
-class MotionController;
-class PositionProvider;
+struct Motion;
+struct PositionSensor;
 class RoiTemplateScanner;
 struct NavigationSession;
 struct RouteMeasurement;
@@ -29,43 +29,38 @@ enum class DeviceRemovalOutcome
     UnknownUi,
 };
 
-class ObstacleDeviceRecovery
+struct ObstacleDeviceRecovery
 {
-public:
-    ObstacleDeviceRecovery(
-        MaaContext* maa_context,
-        MotionController* motion_controller,
-        PositionProvider* position_provider,
-        NavigationSession* session,
-        NaviPosition* position);
-    ~ObstacleDeviceRecovery();
+    MaaContext* maa_context;
+    Motion* motion_controller;
+    PositionSensor* position_provider;
+    NavigationSession* session;
+    NaviPosition* position;
 
-    ObstacleDeviceRecovery(const ObstacleDeviceRecovery&) = delete;
-    ObstacleDeviceRecovery& operator=(const ObstacleDeviceRecovery&) = delete;
-
-    // base_roi 取自 pipeline 节点, 交互按钮模板缺失时探测不启动
-    void start(const cv::Rect& base_roi, std::string_view controller_type);
-    void stop();
-
-    // 只有已启动且正在喂帧时才生效
-    void submitFrame(const cv::Mat& frame);
-
-    void updateFeeding(int64_t stalled_ms, bool attempt_available);
-
-    // 锚点变化时调用方须清掉旧的命中
-    void forgetObservation();
-
-    DeviceRemovalOutcome tryRemove(const RouteMeasurement& route, const Waypoint& waypoint, bool attempt_available);
-
-private:
-    MaaContext* maa_context_;
-    MotionController* motion_controller_;
-    PositionProvider* position_provider_;
-    NavigationSession* session_;
-    NaviPosition* position_;
-
-    std::unique_ptr<RoiTemplateScanner> scanner_;
-    bool feeding_ = false;
+    std::unique_ptr<RoiTemplateScanner> scanner;
+    bool feeding = false;
 };
+
+ObstacleDeviceRecovery MakeDeviceRecovery(
+    MaaContext* maa_context,
+    Motion* motion_controller,
+    PositionSensor* position_provider,
+    NavigationSession* session,
+    NaviPosition* position);
+
+// base_roi 取自 pipeline 节点, 交互按钮模板缺失时探测不启动
+void StartDeviceRecovery(ObstacleDeviceRecovery* recovery, const cv::Rect& base_roi, std::string_view controller_type);
+void StopDeviceRecovery(ObstacleDeviceRecovery* recovery);
+
+// 只有已启动且正在喂帧时才生效
+void SubmitDeviceFrame(ObstacleDeviceRecovery* recovery, const cv::Mat& frame);
+
+void UpdateDeviceFeeding(ObstacleDeviceRecovery* recovery, int64_t stalled_ms, bool attempt_available);
+
+// 锚点变化时调用方须清掉旧的命中
+void ForgetDeviceObservation(ObstacleDeviceRecovery* recovery);
+
+DeviceRemovalOutcome
+    TryRemoveDevice(ObstacleDeviceRecovery* recovery, const RouteMeasurement& route, const Waypoint& waypoint, bool attempt_available);
 
 } // namespace mapnavigator

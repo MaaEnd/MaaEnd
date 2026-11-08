@@ -13,8 +13,8 @@ namespace semantic_nodes
 
 void StopMotionAndCommitment(const Context& ctx)
 {
-    ctx.motion_controller->setForwardState(false);
-    // 走 ActionExecutor 自行停车的 JUMP/FIGHT/普通 INTERACT 绕过这里, 须在调用处各自置位
+    HoldPosition(ctx.motion_controller);
+    // 走 Execute* 自行停车的 JUMP/FIGHT/普通 INTERACT 绕过这里, 须在调用处各自置位
     ArmCameraAlign(ctx.runtime_state);
 }
 

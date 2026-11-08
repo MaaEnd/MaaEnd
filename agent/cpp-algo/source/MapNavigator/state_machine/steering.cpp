@@ -24,28 +24,50 @@ double NavigationStateMachine::steerAlongCorridor(const NavigateTick& tick)
     const NavRunTickResult& nav_run_result = tick.nav_run_result;
     const Waypoint& waypoint = tick.waypoint;
     const TickFix& fix = tick.fix;
-    SteeringLoop steering_loop(runtime_state_.steering_rate, runtime_state_.flow, motion_controller_, walk_mode_, position_);
     const double effective_route_heading = EffectiveRouteHeading(nav_run_result, route);
-    const SteeringLoop::Reading reading = steering_loop.observe(fix.steer_heading, tick.now, fix.drops_turn_sends);
+    const SteeringReading reading = ObserveSteering(
+        &runtime_state_.steering_rate,
+        &runtime_state_.flow,
+        *motion_controller_,
+        fix.steer_heading,
+        tick.now,
+        fix.drops_turn_sends);
     const auto [turn_achieved_deg, turn_residual_deg, turn_elapsed_ms] = reading.last_turn;
     const auto [heading_rate_deg, heading_rate_raw_delta_deg, heading_rate_gap_ms, heading_rate_gap_ticks] = reading.heading_rate;
     const uint64_t tick_seq = runtime_state_.flow.tick_seq;
 
     const double heading_error = NormalizeAngle(effective_route_heading - fix.steer_heading);
-    const SteeringCommand steering = steering_loop.decide(heading_error, heading_rate_deg);
+    const SteeringCommand steering = DecideSteering(&runtime_state_.steering_rate, *motion_controller_, heading_error, heading_rate_deg);
 
     // 慢循环里大转角要晚一拍才落地, 原地转免得冲过弯
     const double turn_abs_deg = std::abs(steering.yaw_delta_deg);
     const bool pivot_in_place = fix.drops_turn_sends && steering.issued
                                 && (reading.steer_period_ms.has_value() ? reading.slow_loop && turn_abs_deg >= kSlowLoopPivotTurnDeg
                                                                         : turn_abs_deg >= kStartupPivotTurnDeg);
-    const bool corner_brake = steering_loop.brakeForSharpCorner(nav_run_result, reading.slow_loop);
-    motion_controller_->setForwardState(!pivot_in_place && !corner_brake);
+    const bool corner_brake = BrakeForSharpCorner(&runtime_state_.flow, *position_, nav_run_result, reading.slow_loop);
+    if (!pivot_in_place && !corner_brake) {
+        MoveForward(motion_controller_);
+    }
+    else {
+        HoldPosition(motion_controller_);
+    }
 
-    const auto [issued_delta_deg, steer_send_ms] =
-        steering_loop.send(steering, tick.gap_ms, fix.steer_heading, tick.now, fix.drops_turn_sends);
+    const auto [issued_delta_deg, steer_send_ms] = SendSteering(
+        &runtime_state_.steering_rate,
+        motion_controller_,
+        steering,
+        tick.gap_ms,
+        fix.steer_heading,
+        tick.now,
+        fix.drops_turn_sends);
     sensitivity::RecordTick(maa_context_, tick_seq, position_->camera_angle, issued_delta_deg, fix.degraded_fix);
-    steering_loop.updateForwardHold(issued_delta_deg, heading_error, runtime_state_.recovery.active);
+    UpdateForwardHold(
+        &runtime_state_.flow,
+        motion_controller_,
+        *position_,
+        issued_delta_deg,
+        heading_error,
+        runtime_state_.recovery.active);
 
     const double lookahead_x = nav_run_result.lookahead_point.x;
     const double lookahead_y = nav_run_result.lookahead_point.y;
@@ -98,7 +120,7 @@ void NavigationStateMachine::updateAutoSprint(const NavigateTick& tick)
     const bool has_strict_arrival_braking_room =
         !target_requires_strict_arrival || route.waypoint_distance > tick.arrival_distance + kStrictArrivalSprintBrakeDistance;
     const bool allow_sprint =
-        turn_calm && motion_controller_->supportsSprint() && tick.fix.startup_grace_elapsed && param_.sprint_threshold > 0.0
+        turn_calm && CanSprint(*motion_controller_) && tick.fix.startup_grace_elapsed && param_.sprint_threshold > 0.0
         && has_strict_arrival_braking_room && sprint_remaining > param_.sprint_threshold
         && (runtime_state_.flow.last_auto_sprint_time.time_since_epoch().count() == 0
             || std::chrono::duration_cast<std::chrono::milliseconds>(tick.now - runtime_state_.flow.last_auto_sprint_time).count()
@@ -106,24 +128,26 @@ void NavigationStateMachine::updateAutoSprint(const NavigateTick& tick)
     LogDebug << "TickNavigate sprint gate." << VAR(allow_sprint) << VAR(heading_aligned_for_sprint) << VAR(corridor_turn_calm)
              << VAR_AS(startup_grace_elapsed, tick.fix.startup_grace_elapsed) << VAR(has_strict_arrival_braking_room)
              << VAR(sprint_remaining) << VAR(param_.sprint_threshold);
-    if (allow_sprint) {
-        if (motion_controller_->triggerSprint()) {
-            runtime_state_.flow.last_auto_sprint_time = tick.now;
-        }
+    if (allow_sprint && SprintAllowed(*motion_controller_)) {
+        ArmSteeringQuietPeriod(motion_controller_);
+        TriggerSprintSync(motion_controller_->input_backend);
+        walkmode::NoteSprintTriggered();
+        MarkSprintActive(motion_controller_);
+        runtime_state_.flow.last_auto_sprint_time = tick.now;
     }
 }
 
 void NavigationStateMachine::updateWalkMode(NaviPhase phase)
 {
     if (phase == NaviPhase::WaitFind || phase == NaviPhase::WaitJumpPad) {
-        walk_mode_.request(true);
+        walkmode::RequestWalk(walk_mode_, true);
         return;
     }
 
     const bool recovering = runtime_state_.recovery.active;
     if (phase == NaviPhase::Navigate && position_->valid && !recovering && !runtime_state_.river_fall.pending
         && runtime_state_.flow.corner_walk) {
-        walk_mode_.request(true);
+        walkmode::RequestWalk(walk_mode_, true);
         return;
     }
 
@@ -146,18 +170,18 @@ void NavigationStateMachine::updateWalkMode(NaviPhase phase)
     const bool startup_blocks_walk = !runtime_state_.route.startup_motion_confirmed && !traits.walk_at_startup;
     if (phase != NaviPhase::Navigate || !position_->valid || nearest.distance_sq < 0.0 || recovering
         || !(plain_approach || settling_approach) || startup_blocks_walk) {
-        walk_mode_.request(false);
+        walkmode::RequestWalk(walk_mode_, false);
         return;
     }
 
-    const bool was_engaged = walk_mode_.engaged();
+    const bool was_engaged = walkmode::Engaged();
     const double enter_band = nearest.is_zipline ? kZiplineWalkEnterBandWu : kCollectWalkEnterBandWu;
     const double exit_band = nearest.is_zipline ? kZiplineWalkExitBandWu : kCollectWalkExitBandWu;
     const double band = was_engaged ? exit_band : enter_band;
     const double dig_band = was_engaged ? kDigWalkExitBandWu : kDigWalkEnterBandWu;
     const bool approaching_dig = nearest.dig_distance_sq >= 0.0 && nearest.dig_distance_sq <= dig_band * dig_band;
-    walk_mode_.request(nearest.distance_sq <= band * band || approaching_dig);
-    const bool walking = walk_mode_.engaged();
+    walkmode::RequestWalk(walk_mode_, nearest.distance_sq <= band * band || approaching_dig);
+    const bool walking = walkmode::Engaged();
     if (walking != was_engaged) {
         const double nearest_stop_point = std::sqrt(nearest.distance_sq);
         LogInfo << "Walk mode boundary crossed." << VAR(walking) << VAR(nearest.is_zipline) << VAR(nearest_stop_point) << VAR(position_->x)

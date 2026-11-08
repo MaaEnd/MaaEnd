@@ -1,67 +1,53 @@
 #pragma once
 
-#include <memory>
+#include <cstdint>
 #include <string>
 
 #include <MaaFramework/MaaAPI.h>
 
+#include "Adb/adb_input_backend.h"
+#include "Desktop/desktop_input_backend.h"
+#include "backend_types.h"
+
 namespace mapnavigator
 {
 
-struct SteeringTransportProfile
+struct InputBackend
 {
-    bool supports_concurrent_move_and_look = true;
-    int min_send_interval_ms = 0;
-    double min_emit_delta_deg = 1.0;
-    double max_batch_delta_deg = 18.0;
-    int action_quiet_period_ms = 0;
-    bool drops_turn_sends = false;
+    BackendKind kind = BackendKind::Desktop;
+    MaaController* ctrl = nullptr;
+    std::string controller_type;
+    std::string unsupported_reason;
+    double default_turn_units_per_degree = 0.0;
+    double default_pitch_range_units = 0.0;
+    backend::desktop::DesktopBackend desktop;
+    backend::adb::AdbBackend adb;
+    // 每次可能动过镜头就加一, 取位时记下的值仍等于当前值, 那次的镜头朝向才可当参考
+    uint64_t heading_epoch = 0;
 };
 
-struct MovementState
-{
-    bool forward = false;
-    bool left = false;
-    bool backward = false;
-    bool right = false;
-};
+InputBackend OpenInputBackend(MaaController* ctrl);
+void CloseInputBackend(InputBackend* backend);
 
-class IInputBackend
-{
-public:
-    virtual ~IInputBackend() = default;
+bool UsesTouchBackend(const InputBackend& backend);
+bool IsInputBackendSupported(const InputBackend& backend);
+double TurnUnitsPerDegree(const InputBackend& backend);
+double PitchRangeUnits(const InputBackend& backend);
+SteeringTransportProfile SteeringProfileOf(const InputBackend& backend);
+bool SupportsSprint(const InputBackend& backend);
+// 返回 false 时走路请求不生效, 保持跑步速度
+bool SupportsWalkToggle(const InputBackend& backend);
 
-    virtual MaaController* getCtrl() const = 0;
-    virtual const std::string& controllerType() const = 0;
-    virtual bool usesTouchBackend() const = 0;
-    virtual bool isSupported() const = 0;
-    virtual const std::string& unsupportedReason() const = 0;
-    virtual double defaultTurnUnitsPerDegree() const = 0;
-
-    virtual double defaultPitchRangeUnits() const = 0;
-
-    virtual SteeringTransportProfile steeringProfile() const = 0;
-
-    virtual bool supportsSprint() const { return true; }
-
-    // 返回 false 时走路请求不生效, 保持跑步速度
-    virtual bool supportsWalkToggle() const { return false; }
-
-    virtual void setMovementStateSync(MovementState state, int delay_millis) = 0;
-    virtual void triggerJumpSync(int hold_millis) = 0;
-    virtual void triggerInteractSync(int hold_millis) = 0;
-    virtual void pulseForwardSync(int hold_millis) = 0;
-    virtual void triggerSprintSync() = 0;
-
-    virtual void toggleWalkModeSync() {}
-
-    virtual void resetForwardWalkSync(int release_millis) = 0;
-    virtual void clickMouseLeftSync() = 0;
-    virtual void triggerZiplineLaunchSync() = 0;
-    virtual void triggerZiplineDismountSync(int hold_millis) = 0;
-    virtual bool sendViewDeltaSync(int dx, int dy) = 0;
-};
-
-std::unique_ptr<IInputBackend> CreateInputBackend(MaaController* ctrl);
+void SetMovementStateSync(InputBackend* backend, MovementState state, int delay_millis);
+void TriggerJumpSync(InputBackend* backend, int hold_millis);
+void TriggerInteractSync(InputBackend* backend, int hold_millis);
+void PulseForwardSync(InputBackend* backend, int hold_millis);
+void TriggerSprintSync(InputBackend* backend);
+void ToggleWalkModeSync(InputBackend* backend);
+void ResetForwardWalkSync(InputBackend* backend, int release_millis);
+void ClickMouseLeftSync(InputBackend* backend);
+void TriggerZiplineLaunchSync(InputBackend* backend);
+void TriggerZiplineDismountSync(InputBackend* backend, int hold_millis);
+bool SendViewDeltaSync(InputBackend* backend, int dx, int dy);
 
 } // namespace mapnavigator

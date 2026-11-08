@@ -8,20 +8,19 @@ struct MaaContext;
 namespace mapnavigator
 {
 
-class ActionWrapper;
-class MotionController;
-class PositionProvider;
+struct Motion;
+struct PositionSensor;
+struct InputBackend;
 
 namespace semantic_nodes
 {
 
 struct Context
 {
-    ActionWrapper* action_wrapper = nullptr;
-    PositionProvider* position_provider = nullptr;
+    InputBackend* input_backend = nullptr;
+    PositionSensor* position_provider = nullptr;
     NavigationSession* session = nullptr;
-    MotionController* motion_controller = nullptr;
-    ActionExecutor* action_executor = nullptr;
+    Motion* motion_controller = nullptr;
     NaviPosition* position = nullptr;
     NavigationRuntimeState* runtime_state = nullptr;
     MaaContext* maa_context = nullptr;

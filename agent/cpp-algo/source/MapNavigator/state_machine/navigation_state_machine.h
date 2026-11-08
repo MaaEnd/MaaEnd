@@ -21,11 +21,10 @@
 namespace mapnavigator
 {
 
-class ActionExecutor;
-class ActionWrapper;
-class MotionController;
-class PositionProvider;
+struct Motion;
+struct PositionSensor;
 class RoiTemplateScanner;
+struct InputBackend;
 struct RouteMeasurement;
 struct TickFix;
 enum class TickStep;
@@ -43,11 +42,10 @@ class NavigationStateMachine
 public:
     NavigationStateMachine(
         const NaviParam& param,
-        ActionWrapper* action_wrapper,
-        PositionProvider* position_provider,
+        InputBackend* input_backend,
+        PositionSensor* position_provider,
         NavigationSession* session,
-        MotionController* motion_controller,
-        ActionExecutor* action_executor,
+        Motion* motion_controller,
         NaviPosition* position,
         std::function<bool()> should_stop,
         MaaContext* maa_context);
@@ -155,11 +153,10 @@ private:
     void tryRunPromptSubtaskAtRouteTail();
 
     const NaviParam& param_;
-    ActionWrapper* action_wrapper_;
-    PositionProvider* position_provider_;
+    InputBackend* input_backend_;
+    PositionSensor* position_provider_;
     NavigationSession* session_;
-    MotionController* motion_controller_;
-    ActionExecutor* action_executor_;
+    Motion* motion_controller_;
     NaviPosition* position_;
     std::function<bool()> should_stop_;
     MaaContext* maa_context_;
@@ -179,8 +176,8 @@ private:
 
     ObstacleDeviceRecovery device_recovery_;
     std::unique_ptr<RoiTemplateScanner> zipline_mount_scanner_;
-    // 放在最后, 析构时最先执行, 恢复慢跑时用到的成员都还在
     walkmode::Toggle walk_mode_;
+    walkmode::RestoreJogOnExit restore_jog_on_exit_;
 };
 
 } // namespace mapnavigator

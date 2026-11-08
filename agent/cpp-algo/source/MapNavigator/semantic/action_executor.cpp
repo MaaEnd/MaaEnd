@@ -1,7 +1,8 @@
 #include <MaaUtils/Logger.h>
 
-#include "../control/action_wrapper.h"
+#include "../Backend/backend.h"
 #include "../control/motion_controller.h"
+#include "../control/walk_mode.h"
 #include "../navi_config.h"
 #include "../navi_time.h"
 #include "action_executor.h"
@@ -9,15 +10,13 @@
 namespace mapnavigator
 {
 
-ActionExecutor::ActionExecutor(ActionWrapper* action_wrapper, MotionController* motion_controller)
-    : action_wrapper_(action_wrapper)
-    , motion_controller_(motion_controller)
+void ExecuteSprint(Motion* motion_controller)
 {
-}
-
-void ActionExecutor::sprint()
-{
-    if (motion_controller_->triggerSprint()) {
+    if (SprintAllowed(*motion_controller)) {
+        ArmSteeringQuietPeriod(motion_controller);
+        TriggerSprintSync(motion_controller->input_backend);
+        walkmode::NoteSprintTriggered();
+        MarkSprintActive(motion_controller);
         LogInfo << "Action: SPRINT triggered.";
     }
     else {
@@ -25,27 +24,27 @@ void ActionExecutor::sprint()
     }
 }
 
-void ActionExecutor::jump()
+void ExecuteJump(InputBackend* input_backend, Motion* motion_controller)
 {
-    motion_controller_->setForwardState(false);
-    action_wrapper_->triggerJumpSync(kActionJumpHoldMs);
+    HoldPosition(motion_controller);
+    TriggerJumpSync(input_backend, kActionJumpHoldMs);
     LogInfo << "Action: JUMP triggered.";
     SleepFor(kActionJumpSettleMs);
 }
 
-void ActionExecutor::interact()
+void ExecuteInteract(InputBackend* input_backend, Motion* motion_controller)
 {
-    motion_controller_->setForwardState(false);
+    HoldPosition(motion_controller);
     for (int i = 0; i < kActionInteractAttempts; ++i) {
-        action_wrapper_->triggerInteractSync(kActionInteractHoldMs);
+        TriggerInteractSync(input_backend, kActionInteractHoldMs);
     }
     LogInfo << "Action: INTERACT completed.";
 }
 
-void ActionExecutor::fight()
+void ExecuteFight(InputBackend* input_backend, Motion* motion_controller)
 {
-    motion_controller_->setForwardState(false);
-    action_wrapper_->clickMouseLeftSync();
+    HoldPosition(motion_controller);
+    ClickMouseLeftSync(input_backend);
     LogInfo << "Action: FIGHT triggered.";
 }
 

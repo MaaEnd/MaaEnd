@@ -12,7 +12,7 @@
 #include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
-#include "../control/action_wrapper.h"
+#include "../Backend/backend.h"
 #include "../control/camera_pitch.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
@@ -84,7 +84,9 @@ public:
                     maplocator::SearchHint { .zone_id = zone, .x = node.x, .y = node.y, .radius = kZiplineLandingHintRadiusWu });
             }
         }
-        if (ctx_.position_provider->capture(ctx_.position, force_global_search, {}, hints)) {
+        const bool captured = force_global_search ? CaptureGlobal(ctx_.position_provider, ctx_.position, {}, hints)
+                                                  : CaptureTracked(ctx_.position_provider, ctx_.position, {}, hints);
+        if (captured) {
             obs.fix = *ctx_.position;
         }
         return obs;
@@ -103,7 +105,7 @@ public:
         return hint ? MountVerdict::OnTower : MountVerdict::Unclear;
     }
 
-    void resetTracking() override { ctx_.position_provider->resetTracking(); }
+    void resetTracking() override { ResetSensorTracking(ctx_.position_provider); }
 
 private:
     const Context& ctx_;
@@ -120,9 +122,9 @@ public:
     // 俯仰无读数, 只能拉到天空方向的硬限位当已知位置; 走 pipeline 节点是因为 Swipe 会带一次左键
     bool resetPitchToMaximum() override
     {
-        const int units = static_cast<int>(std::lround(-kZiplinePitchResetRangeScale * ctx_.action_wrapper->defaultPitchRangeUnits()));
-        if (ctx_.action_wrapper->usesTouchBackend()) {
-            return units != 0 && ctx_.action_wrapper->sendViewDeltaSync(0, units);
+        const int units = static_cast<int>(std::lround(-kZiplinePitchResetRangeScale * PitchRangeUnits(*ctx_.input_backend)));
+        if (UsesTouchBackend(*ctx_.input_backend)) {
+            return units != 0 && SendViewDeltaSync(ctx_.input_backend, 0, units);
         }
         if (ctx_.maa_context == nullptr) {
             LogWarn << "Zipline aim: no pipeline context to reset the pitch.";
@@ -142,7 +144,7 @@ public:
 
     std::optional<double> turnYaw(double delta_deg) override
     {
-        const double cap = ctx_.action_wrapper->steeringProfile().max_batch_delta_deg;
+        const double cap = SteeringProfileOf(*ctx_.input_backend).max_batch_delta_deg;
         const double step = std::clamp(delta_deg, -cap, cap);
         if (!TurnToHeadingOnce(ctx_, step)) {
             return std::nullopt;
@@ -153,19 +155,19 @@ public:
     bool lowerPitchTo(double elevation_deg) override
     {
         const double fraction = CameraVerticalFractionForElevation(elevation_deg);
-        const int units = static_cast<int>(std::lround(fraction * ctx_.action_wrapper->defaultPitchRangeUnits()));
-        return units == 0 || ctx_.action_wrapper->sendViewDeltaSync(0, units);
+        const int units = static_cast<int>(std::lround(fraction * PitchRangeUnits(*ctx_.input_backend)));
+        return units == 0 || SendViewDeltaSync(ctx_.input_backend, 0, units);
     }
 
     bool pressMount() override { return press_mount_prompt(ctx_.maa_context); }
 
     void fireLaunch() override
     {
-        ctx_.motion_controller->setForwardState(false);
-        ctx_.action_wrapper->triggerZiplineLaunchSync();
+        HoldPosition(ctx_.motion_controller);
+        TriggerZiplineLaunchSync(ctx_.input_backend);
     }
 
-    void dismount() override { ctx_.action_wrapper->triggerZiplineDismountSync(kZiplineDismountHoldMs); }
+    void dismount() override { TriggerZiplineDismountSync(ctx_.input_backend, kZiplineDismountHoldMs); }
 
     void wait(int32_t ms) override { SleepFor(ms); }
 
@@ -209,7 +211,7 @@ Result drop_chain_and_recover(const Context& ctx, const char* reason, const char
     ctx.runtime_state->zipline_approach = {};
     ResetOnWaypointAdvance(ctx.runtime_state);
     ctx.runtime_state->route = {};
-    ctx.position_provider->resetTracking();
+    ResetSensorTracking(ctx.position_provider);
     ctx.session->resetProgress();
     // ResetOnWaypointAdvance 会清掉恢复状态和重规划标志, 这两行必须在它后面
     BeginZiplineRecovery(&ctx.runtime_state->zipline_recovery, std::chrono::steady_clock::now());
@@ -239,7 +241,7 @@ Result finish_hop(const Context& ctx, const HopCompleted& done)
     ctx.runtime_state->route = {};
     // 起步确认直接置位, 下一跳的上索点就在脚下, 拦住就得先走开再走回来
     ConfirmStartupAt(&ctx.runtime_state->route, done.at);
-    ctx.position_provider->resetTracking();
+    ResetSensorTracking(ctx.position_provider);
 
     if (!ctx.session->hasCurrentWaypoint()) {
         LeaveZiplineTower(ctx);
@@ -287,7 +289,7 @@ Result AdvanceMountSpot(const Context& ctx, const Waypoint& waypoint, const char
             << VAR(approach.spot_index) << VAR(spot_count) << VAR(spot.x) << VAR(spot.y);
     ctx.runtime_state->route = {};
     ConfirmStartupAt(&ctx.runtime_state->route, *ctx.position);
-    ctx.position_provider->resetTracking();
+    ResetSensorTracking(ctx.position_provider);
     SelectPhaseForCurrentWaypoint(ctx, reason);
 
     Result result;
@@ -381,7 +383,7 @@ Result StartZiplineHop(const Context& ctx, const Waypoint& waypoint, double actu
 Result TickZiplineRide(const Context& ctx)
 {
     Result result;
-    ctx.motion_controller->setForwardState(false);
+    HoldPosition(ctx.motion_controller);
 
     ZiplineRideMachine& ride = ctx.runtime_state->zipline_ride;
     if (ride.stage() == ZiplineStage::Idle) {

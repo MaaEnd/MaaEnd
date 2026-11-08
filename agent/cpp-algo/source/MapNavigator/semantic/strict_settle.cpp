@@ -12,7 +12,7 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "../control/action_wrapper.h"
+#include "../Backend/backend.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
@@ -68,7 +68,7 @@ bool capture_strict_goal_fix(const Context& ctx, const StrictSettleBudget& budge
         if (frame > 0 && !budget.sleep(std::chrono::milliseconds(kStrictSettleFixIntervalMs))) {
             break;
         }
-        if (!ctx.position_provider->captureForStrictGoal(out_pos, ctx.session->currentZoneId())) {
+        if (!CaptureForStrictGoal(ctx.position_provider, out_pos, ctx.session->currentZoneId())) {
             continue;
         }
         if (budget.exhausted()) {
@@ -211,7 +211,7 @@ struct StrictSettle
             if (previous_residual && residual > *previous_residual + kStrictSettleAcceptBandWu) {
                 return incomplete("diverging");
             }
-            if (!ctx.action_wrapper->supportsWalkToggle()) {
+            if (!SupportsWalkToggle(*ctx.input_backend)) {
                 return incomplete("walking_unavailable");
             }
             if (const std::optional<bool> verdict = alignTowardGoal()) {
@@ -261,11 +261,11 @@ struct StrictSettle
         LogInfo << "Strict arrival forward pulse." << VAR(residual) << VAR(hold_ms) << VAR(pulses);
         ++pulses;
         const NaviPosition from = fix;
-        ctx.motion_controller->setForwardState(true);
+        MoveForward(ctx.motion_controller);
         const auto pressed_at = std::chrono::steady_clock::now();
         ctx.position->valid = false; // 一开始移动停稳读数就作废
         const bool held = budget.sleep(std::chrono::milliseconds(hold_ms));
-        ctx.motion_controller->setForwardState(false);
+        HoldPosition(ctx.motion_controller);
         const double held_ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - pressed_at).count();
         if (!held || !capture_still_fix(ctx, budget, &fix)) {
             return incomplete(budget.cancelledOr("budget_exhausted"));
@@ -319,7 +319,7 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std:
         .waypoint = waypoint,
         .budget = { .deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(kStrictSettleBudgetMs),
                     .should_stop = should_stop },
-        .input = ctx.action_wrapper->usesTouchBackend() ? kStrictSettleTouchProfile : kStrictSettleKeyboardProfile,
+        .input = UsesTouchBackend(*ctx.input_backend) ? kStrictSettleTouchProfile : kStrictSettleKeyboardProfile,
     };
     return settle.run();
 }

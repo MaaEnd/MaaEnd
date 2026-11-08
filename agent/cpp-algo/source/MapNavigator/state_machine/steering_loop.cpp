@@ -8,6 +8,7 @@
 #include <MaaUtils/Logger.h>
 
 #include "../control/motion_controller.h"
+#include "../control/walk_mode.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
 #include "../sensing/latency_observer.h"
@@ -16,105 +17,78 @@
 namespace mapnavigator
 {
 
-SteeringLoop::SteeringLoop(
-    SteeringRateState& steering_rate,
-    FlowState& flow,
-    MotionController* motion_controller,
-    const walkmode::Toggle& walk_mode,
-    const NaviPosition* position)
-    : steering_rate_(steering_rate)
-    , flow_(flow)
-    , motion_controller_(motion_controller)
-    , walk_mode_(walk_mode)
-    , position_(position)
+namespace
 {
-}
 
-SteeringLoop::Reading SteeringLoop::observe(double steer_heading, std::chrono::steady_clock::time_point now, bool drops_turn_sends)
+SteeringTurnObservation
+    observe_last_turn(const SteeringRateState& steering_rate, double steer_heading, std::chrono::steady_clock::time_point now)
 {
-    Reading reading;
-    reading.last_turn = observeLastTurn(steer_heading, now);
-    reading.heading_rate = trackHeadingRate(steer_heading, now);
-    reading.steer_period_ms = sampleSteerPeriod(now);
-    reading.slow_loop = drops_turn_sends && reading.steer_period_ms.has_value() && *reading.steer_period_ms >= kSlowLoopPivotPeriodMs;
-    settlePendingTurn(steer_heading, now, drops_turn_sends, reading.steer_period_ms);
-    return reading;
-}
-
-SteeringCommand SteeringLoop::decide(double heading_error, double heading_rate_deg)
-{
-    return UpdateSteering(
-        &steering_rate_.turn_latch_sign,
-        heading_error,
-        heading_rate_deg,
-        motion_controller_->isMovingForward(),
-        steering_rate_.pending_turn_deg);
-}
-
-SteeringLoop::TurnObservation SteeringLoop::observeLastTurn(double steer_heading, std::chrono::steady_clock::time_point now) const
-{
-    if (!steering_rate_.has_cmd) {
+    if (!steering_rate.has_cmd) {
         return {};
     }
-    const double achieved_deg = NormalizeAngle(steer_heading - steering_rate_.cmd_heading_deg);
+    const double achieved_deg = NormalizeAngle(steer_heading - steering_rate.cmd_heading_deg);
     return {
         .achieved_deg = achieved_deg,
-        .residual_deg = NormalizeAngle(achieved_deg - steering_rate_.cmd_delta_deg),
-        .elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate_.cmd_at).count(),
+        .residual_deg = NormalizeAngle(achieved_deg - steering_rate.cmd_delta_deg),
+        .elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.cmd_at).count(),
     };
 }
 
-SteeringLoop::HeadingRate SteeringLoop::trackHeadingRate(double steer_heading, std::chrono::steady_clock::time_point now)
+SteeringHeadingRate track_heading_rate(
+    SteeringRateState* steering_rate,
+    const FlowState& flow,
+    double steer_heading,
+    std::chrono::steady_clock::time_point now)
 {
-    SteeringRateState& steering_rate = steering_rate_;
-    const uint64_t tick_seq = flow_.tick_seq;
-    if (!steering_rate.has_prev) {
-        steering_rate.prev_heading_deg = steer_heading;
-        steering_rate.at = now;
-        steering_rate.at_tick = tick_seq;
-        steering_rate.has_prev = true;
+    const uint64_t tick_seq = flow.tick_seq;
+    if (!steering_rate->has_prev) {
+        steering_rate->prev_heading_deg = steer_heading;
+        steering_rate->at = now;
+        steering_rate->at_tick = tick_seq;
+        steering_rate->has_prev = true;
         return {};
     }
-    HeadingRate rate;
-    rate.raw_delta_deg = NormalizeAngle(steer_heading - steering_rate.prev_heading_deg);
-    rate.gap_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.at).count();
-    rate.gap_ticks = tick_seq - steering_rate.at_tick;
+    SteeringHeadingRate rate;
+    rate.raw_delta_deg = NormalizeAngle(steer_heading - steering_rate->prev_heading_deg);
+    rate.gap_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate->at).count();
+    rate.gap_ticks = tick_seq - steering_rate->at_tick;
     const bool heading_changed = std::abs(rate.raw_delta_deg) > kSteeringHeadingChangeEpsilonDeg;
     // 按拍数判过期: 截图慢只会拉长间隔, 观察机会并没有变少
     if (heading_changed && rate.gap_ms > 0 && rate.gap_ticks <= kSteeringRateMaxGapTicks) {
         rate.rate_deg = rate.raw_delta_deg * static_cast<double>(kSteeringRateReferenceMs) / static_cast<double>(rate.gap_ms);
     }
     if (heading_changed) {
-        steering_rate.prev_heading_deg = steer_heading;
-        steering_rate.at = now;
-        steering_rate.at_tick = tick_seq;
+        steering_rate->prev_heading_deg = steer_heading;
+        steering_rate->at = now;
+        steering_rate->at_tick = tick_seq;
     }
     return rate;
 }
 
-std::optional<int64_t> SteeringLoop::sampleSteerPeriod(std::chrono::steady_clock::time_point now)
+std::optional<int64_t> sample_steer_period(FlowState* flow, std::chrono::steady_clock::time_point now)
 {
-    FlowState& flow = flow_;
-    if (flow.last_steer_tick_at.time_since_epoch().count() > 0) {
-        const int64_t period_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - flow.last_steer_tick_at).count();
-        flow.steer_periods_ms.push_back(std::min(period_ms, kSteerPeriodMaxSampleMs));
-        if (flow.steer_periods_ms.size() > kSteerPeriodWindow) {
-            flow.steer_periods_ms.erase(flow.steer_periods_ms.begin());
+    if (flow->last_steer_tick_at.time_since_epoch().count() > 0) {
+        const int64_t period_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - flow->last_steer_tick_at).count();
+        flow->steer_periods_ms.push_back(std::min(period_ms, kSteerPeriodMaxSampleMs));
+        if (flow->steer_periods_ms.size() > kSteerPeriodWindow) {
+            flow->steer_periods_ms.erase(flow->steer_periods_ms.begin());
         }
     }
-    flow.last_steer_tick_at = now;
-    return flow.steer_periods_ms.empty() ? std::nullopt : std::optional<int64_t>(latency::Median(flow.steer_periods_ms));
+    flow->last_steer_tick_at = now;
+    return flow->steer_periods_ms.empty() ? std::nullopt : std::optional<int64_t>(latency::Median(flow->steer_periods_ms));
 }
 
-void SteeringLoop::settlePendingTurn(
+void settle_pending_turn(
+    SteeringRateState* steering_rate_state,
+    const Motion& motion,
     double steer_heading,
     std::chrono::steady_clock::time_point now,
     bool drops_turn_sends,
     std::optional<int64_t> steer_period_ms)
 {
-    SteeringRateState& steering_rate = steering_rate_;
-    const double batch_cap_deg = motion_controller_->steeringBatchCapDeg();
-    const bool walk_engaged = walk_mode_.engaged();
+    SteeringRateState& steering_rate = *steering_rate_state;
+    const double batch_cap_deg = motion.steering_profile.max_batch_delta_deg;
+    const bool walk_engaged = walkmode::Engaged();
     const auto pending_lifetime_ms = [&](double delta_deg) {
         const double extra_sweep_deg = std::max(0.0, std::abs(delta_deg) - batch_cap_deg);
         const int64_t floor_ms = drops_turn_sends
@@ -158,90 +132,125 @@ void SteeringLoop::settlePendingTurn(
     steering_rate.pending_ref_heading_deg = steer_heading;
 }
 
-bool SteeringLoop::brakeForSharpCorner(const NavRunTickResult& nav_run_result, bool slow_loop)
+} // namespace
+
+SteeringReading ObserveSteering(
+    SteeringRateState* steering_rate,
+    FlowState* flow,
+    const Motion& motion,
+    double steer_heading,
+    std::chrono::steady_clock::time_point now,
+    bool drops_turn_sends)
 {
-    FlowState& flow = flow_;
+    SteeringReading reading;
+    reading.last_turn = observe_last_turn(*steering_rate, steer_heading, now);
+    reading.heading_rate = track_heading_rate(steering_rate, *flow, steer_heading, now);
+    reading.steer_period_ms = sample_steer_period(flow, now);
+    reading.slow_loop = drops_turn_sends && reading.steer_period_ms.has_value() && *reading.steer_period_ms >= kSlowLoopPivotPeriodMs;
+    settle_pending_turn(steering_rate, motion, steer_heading, now, drops_turn_sends, reading.steer_period_ms);
+    return reading;
+}
+
+SteeringCommand DecideSteering(SteeringRateState* steering_rate, const Motion& motion, double heading_error, double heading_rate_deg)
+{
+    return UpdateSteering(
+        &steering_rate->turn_latch_sign,
+        heading_error,
+        heading_rate_deg,
+        motion.is_moving_forward,
+        steering_rate->pending_turn_deg);
+}
+
+bool BrakeForSharpCorner(FlowState* flow, const NaviPosition& position, const NavRunTickResult& nav_run_result, bool slow_loop)
+{
     bool corner_brake = false;
     const std::optional<SharpCorner>& corner = nav_run_result.corner;
     const auto ahead_is_braked_corner = [&] {
-        return corner && flow.braked_corner
-               && std::hypot(corner->point.x - flow.braked_corner->x, corner->point.y - flow.braked_corner->y) <= kCornerBrakeLatchRadiusM;
+        return corner && flow->braked_corner
+               && std::hypot(corner->point.x - flow->braked_corner->x, corner->point.y - flow->braked_corner->y)
+                      <= kCornerBrakeLatchRadiusM;
     };
     if (slow_loop && corner && nav_run_result.step_per_tick) {
         const double stop_distance = *nav_run_result.step_per_tick * kCornerBrakeLeadTicks;
         corner_brake = !ahead_is_braked_corner() && corner->distance <= stop_distance && corner->lead_distance < stop_distance;
         if (corner_brake) {
-            flow.braked_corner = corner->point;
+            flow->braked_corner = corner->point;
             LogInfo << "Braking before a sharp corner." << VAR(corner->distance) << VAR(corner->turn_deg) << VAR(corner->lead_distance)
                     << VAR(stop_distance) << VAR(corner->point.x) << VAR(corner->point.y);
         }
     }
-    if (const bool corner_walk = ahead_is_braked_corner(); corner_walk != flow.corner_walk) {
-        flow.corner_walk = corner_walk;
-        LogInfo << (corner_walk ? "Walking into a braked corner." : "Braked corner behind; walking ends.") << VAR(position_->x)
-                << VAR(position_->y);
+    if (const bool corner_walk = ahead_is_braked_corner(); corner_walk != flow->corner_walk) {
+        flow->corner_walk = corner_walk;
+        LogInfo << (corner_walk ? "Walking into a braked corner." : "Braked corner behind; walking ends.") << VAR(position.x)
+                << VAR(position.y);
     }
     return corner_brake;
 }
 
-std::pair<double, int64_t> SteeringLoop::send(
+std::pair<double, int64_t> SendSteering(
+    SteeringRateState* steering_rate,
+    Motion* motion,
     const SteeringCommand& steering,
     int64_t tick_gap_ms,
     double steer_heading,
     std::chrono::steady_clock::time_point now,
     bool drops_turn_sends)
 {
-    SteeringRateState& steering_rate = steering_rate_;
     double issued_delta_deg = 0.0;
     int64_t steer_send_ms = 0;
     // 存活期从真正发出时算起, 这一拍前面若重规划过, 拍头时间已经过去很久
     const auto steer_sent_at = std::chrono::steady_clock::now();
     if (steering.issued) {
-        const TurnCommandResult steering_result = motion_controller_->applySteering(steering.yaw_delta_deg, tick_gap_ms);
+        const TurnCommandResult steering_result = ApplySteering(motion, steering.yaw_delta_deg, tick_gap_ms);
         steer_send_ms = steering_result.send_ms;
         if (steering_result.issued) {
             issued_delta_deg = steering_result.issued_delta_degrees;
         }
     }
     if (issued_delta_deg != 0.0) {
-        steering_rate.cmd_heading_deg = steer_heading;
-        steering_rate.cmd_delta_deg = issued_delta_deg;
-        steering_rate.cmd_at = now;
-        steering_rate.has_cmd = true;
-        steering_rate.pending_turn_deg += issued_delta_deg;
+        steering_rate->cmd_heading_deg = steer_heading;
+        steering_rate->cmd_delta_deg = issued_delta_deg;
+        steering_rate->cmd_at = now;
+        steering_rate->has_cmd = true;
+        steering_rate->pending_turn_deg += issued_delta_deg;
         if (drops_turn_sends) {
-            steering_rate.in_flight.push_back({ .delta_deg = issued_delta_deg, .sent_at = steer_sent_at });
+            steering_rate->in_flight.push_back({ .delta_deg = issued_delta_deg, .sent_at = steer_sent_at });
         }
     }
     return { issued_delta_deg, steer_send_ms };
 }
 
-void SteeringLoop::updateForwardHold(double issued_delta_deg, double heading_error, bool recovering)
+void UpdateForwardHold(
+    FlowState* flow,
+    Motion* motion,
+    const NaviPosition& position,
+    double issued_delta_deg,
+    double heading_error,
+    bool recovering)
 {
-    FlowState& flow = flow_;
-    const bool moved = flow.has_last_steer_position
-                       && std::hypot(position_->x - flow.last_steer_position.x, position_->y - flow.last_steer_position.y)
+    const bool moved = flow->has_last_steer_position
+                       && std::hypot(position.x - flow->last_steer_position.x, position.y - flow->last_steer_position.y)
                               > kMeasurementDefaultPositionQuantum;
     // 重发计数在恢复启动后也保留, 只有真的走动或转向才清零
-    const bool hold_progressing = moved || issued_delta_deg != 0.0 || !motion_controller_->isMovingForward();
+    const bool hold_progressing = moved || issued_delta_deg != 0.0 || !motion->is_moving_forward;
     if (hold_progressing) {
-        flow.futile_forward_reasserts = 0;
+        flow->futile_forward_reasserts = 0;
     }
     if (hold_progressing || recovering) {
-        flow.motionless_hold_ticks = 0;
+        flow->motionless_hold_ticks = 0;
     }
-    else if (flow.has_last_steer_position) {
-        ++flow.motionless_hold_ticks;
+    else if (flow->has_last_steer_position) {
+        ++flow->motionless_hold_ticks;
     }
-    flow.last_steer_position = *position_;
-    flow.has_last_steer_position = true;
-    const int32_t hold_reassert_ticks = walk_mode_.engaged() ? kForwardHoldReassertTicks * kWalkModeSlowFactor : kForwardHoldReassertTicks;
-    if (flow.motionless_hold_ticks >= hold_reassert_ticks) {
-        ++flow.futile_forward_reasserts;
-        LogWarn << "Forward hold produced no motion; re-sending it." << VAR(flow.motionless_hold_ticks) << VAR(heading_error)
-                << VAR(flow.futile_forward_reasserts) << VAR(position_->x) << VAR(position_->y);
-        motion_controller_->reassertForward();
-        flow.motionless_hold_ticks = 0;
+    flow->last_steer_position = position;
+    flow->has_last_steer_position = true;
+    const int32_t hold_reassert_ticks = walkmode::Engaged() ? kForwardHoldReassertTicks * kWalkModeSlowFactor : kForwardHoldReassertTicks;
+    if (flow->motionless_hold_ticks >= hold_reassert_ticks) {
+        ++flow->futile_forward_reasserts;
+        LogWarn << "Forward hold produced no motion; re-sending it." << VAR(flow->motionless_hold_ticks) << VAR(heading_error)
+                << VAR(flow->futile_forward_reasserts) << VAR(position.x) << VAR(position.y);
+        ReassertForward(motion);
+        flow->motionless_hold_ticks = 0;
     }
 }
 
