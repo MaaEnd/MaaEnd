@@ -962,16 +962,24 @@ void ResetZiplineNavigation(ZiplineRide* ride)
     ride->ledger.clear();
 }
 
-void BeginZiplineHop(ZiplineRide* ride, const ZiplineHopPlan& plan)
+bool ZiplineHopResumable(const ZiplineRide& ride, const ZiplineHopPlan& plan)
 {
-    const auto now = std::chrono::steady_clock::now();
+    return ride.hop_open && SameTower(ride.plan.mount, plan.mount) && SameTower(ride.plan.landing, plan.landing);
+}
+
+void CloseOpenHop(ZiplineRide* ride, std::chrono::steady_clock::time_point now)
+{
+    if (ride->hop_open) {
+        commit_record(ride, HopOutcome::Dismounted, now);
+    }
+}
+
+void BeginZiplineHop(ZiplineRide* ride, const ZiplineHopPlan& plan, std::chrono::steady_clock::time_point now)
+{
     const bool standing = ZiplineOnTower(*ride);
     // 重新站过上索点再回来仍算同一跳, 记录接着写
-    const bool resume = ride->hop_open && SameTower(ride->plan.mount, plan.mount) && SameTower(ride->plan.landing, plan.landing);
+    const bool resume = ZiplineHopResumable(*ride, plan);
     if (!resume) {
-        if (ride->hop_open) {
-            commit_record(ride, HopOutcome::Dismounted, now);
-        }
         ResetZiplineHop(ride);
         ride->plan = plan;
         ride->record = {};

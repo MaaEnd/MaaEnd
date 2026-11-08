@@ -560,6 +560,35 @@ struct TickInputs
 };
 
 // 同步规划的耗时计入 result.planning, 并把 now 顺延同样的时长
+std::optional<navmesh::BaseNavRouteResult>
+    plan_by_astar_holding(Motion* motion, const TickInputs& input, std::chrono::steady_clock::time_point* now, NavRunTickResult* result)
+{
+    const NaviPosition& position = input.position;
+    const Waypoint& anchor = input.anchor;
+    const navmesh::WorldPoint start { .x = position.x, .y = position.y };
+    const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
+    if (motion != nullptr) {
+        HoldPosition(motion);
+    }
+    const auto plan_started_at = std::chrono::steady_clock::now();
+    auto route = PlanNavmeshRoute(
+        input.param,
+        position.zone_id,
+        {
+            .start = start,
+            .start_floor_y = WalkedFloorY(input.session, position),
+            .start_deck_y = LandedTowerDeckY(input.session, position),
+            .goal = goal,
+            .goal_deck_y = anchor.target_deck_y,
+        },
+        nullptr,
+        &input.runtime.virtual_no_go);
+    const auto planning = std::chrono::steady_clock::now() - plan_started_at;
+    result->planning += planning;
+    *now += planning;
+    return route;
+}
+
 bool build_plan(
     NavRun* nav_run,
     Motion* motion,
@@ -601,27 +630,7 @@ bool build_plan(
         return true;
     }
 
-    const navmesh::WorldPoint start { .x = position.x, .y = position.y };
-    const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
-    if (motion != nullptr) {
-        HoldPosition(motion);
-    }
-    const auto plan_started_at = std::chrono::steady_clock::now();
-    auto route = PlanNavmeshRoute(
-        input.param,
-        position.zone_id,
-        {
-            .start = start,
-            .start_floor_y = WalkedFloorY(session, position),
-            .start_deck_y = LandedTowerDeckY(session, position),
-            .goal = goal,
-            .goal_deck_y = anchor.target_deck_y,
-        },
-        nullptr,
-        &input.runtime.virtual_no_go);
-    const auto planning = std::chrono::steady_clock::now() - plan_started_at;
-    result->planning += planning;
-    *now += planning;
+    auto route = plan_by_astar_holding(motion, input, now, result);
     if (route && route->ok() && route->path.points.size() >= 2) {
         commit_plan(&nav_run->plan, std::move(route->path), position, anchor_index);
         return true;

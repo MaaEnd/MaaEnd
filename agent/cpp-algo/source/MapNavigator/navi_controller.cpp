@@ -12,11 +12,13 @@
 #include "../MapLocator/MapLocateAction.h"
 #include "Backend/backend.h"
 #include "control/motion_controller.h"
+#include "control/walk_mode.h"
 #include "navi_config.h"
 #include "navi_controller.h"
 #include "planning/navigation_session.h"
 #include "planning/navmesh_path_expander.h"
 #include "planning/navmesh_queries.h"
+#include "process_state.h"
 #include "sensing/position_provider.h"
 #include "sensing/task_stop.h"
 #include "state_machine/navigation_state_machine.h"
@@ -91,7 +93,7 @@ void offset_authored_groups(std::vector<Waypoint>* path, size_t resume_index)
     }
 }
 
-bool navigate_with_backend(NaviParam* param, InputBackend* input_backend, MaaContext* ctx)
+bool navigate_with_backend(NavProcessState* process, NaviParam* param, InputBackend* input_backend, MaaContext* ctx)
 {
     PositionSensor position_provider = MakePositionSensor(input_backend->ctrl, maplocator::getOrInitLocator(), param->heading_source);
     ResetSensorTracking(&position_provider);
@@ -149,8 +151,10 @@ bool navigate_with_backend(NaviParam* param, InputBackend* input_backend, MaaCon
     Motion motion_controller = MakeMotion(input_backend);
     motion_controller.enable_local_driver = param->enable_local_driver;
     motion_controller.enable_sprint = param->enable_sprint;
-    Navigator navigator = MakeNavigator(expanded_param, input_backend, &position_provider, &session, &motion_controller, &pos, ctx);
-    const walkmode::RestoreJogOnExit restore_jog_on_exit { navigator.walk_mode };
+    Navigator navigator =
+        MakeNavigator(expanded_param, input_backend, &position_provider, &session, &motion_controller, &pos, process, ctx);
+    walkmode::RestoreJogIfBeliefSurvived(&process->walk, input_backend);
+    const walkmode::RestoreJogOnExit restore_jog_on_exit { &process->walk, input_backend };
     LogInfo << "Navigation route runner selected. backend=orchestrated";
 
     const bool succeeded = RunNavigator(&navigator);
@@ -161,7 +165,7 @@ bool navigate_with_backend(NaviParam* param, InputBackend* input_backend, MaaCon
 
 } // namespace
 
-bool RunNavigation(MaaContext* context, const NaviParam& requested_param)
+bool RunNavigation(NavProcessState* process, MaaContext* context, const NaviParam& requested_param)
 {
     // 须最先取闸, 被拒的节点可能被无限重试
     const NavigationEntryGuard entry_guard(MaaContextGetTasker(context));
@@ -182,7 +186,7 @@ bool RunNavigation(MaaContext* context, const NaviParam& requested_param)
         ~CloseInputBackendOnExit() { CloseInputBackend(input_backend); }
     } close_on_exit { &input_backend };
 
-    return navigate_with_backend(&param, &input_backend, context);
+    return navigate_with_backend(process, &param, &input_backend, context);
 }
 
 } // namespace mapnavigator

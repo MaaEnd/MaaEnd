@@ -18,6 +18,7 @@
 #include "../navi_math.h"
 #include "../navi_time.h"
 #include "../planning/navmesh_queries.h"
+#include "../process_state.h"
 #include "../semantic/semantic_nodes.h"
 #include "../semantic/trigger_action.h"
 #include "../sensing/maa_task.h"
@@ -403,6 +404,7 @@ TickStep RunRiverFallRecovery(Navigator* nav, const NavigateTick& tick)
             &nav->runtime_state.river_fall,
             nav->input_backend,
             nav->motion_controller,
+            &nav->process->sensitivity,
             *nav->position,
             tick.fix.current_heading)
         == RiverFallStep::Cleared) {

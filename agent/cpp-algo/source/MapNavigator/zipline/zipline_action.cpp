@@ -17,6 +17,7 @@
 #include "../navi_config.h"
 #include "../navi_log.h"
 #include "../navi_time.h"
+#include "../process_state.h"
 #include "../semantic/heading_turn.h"
 #include "../semantic/semantic_helpers.h"
 #include "../sensing/maa_task.h"
@@ -126,7 +127,8 @@ void ZiplineIoResetTracking(ZiplineIo* io)
 // 俯仰无读数, 只能拉到天空方向的硬限位当已知位置; 走 pipeline 节点是因为 Swipe 会带一次左键
 bool ZiplineIoResetPitchToMaximum(ZiplineIo* io)
 {
-    const int units = static_cast<int>(std::lround(-kZiplinePitchResetRangeScale * PitchRangeUnits(*io->nav->input_backend)));
+    const int units = static_cast<int>(
+        std::lround(-kZiplinePitchResetRangeScale * PitchRangeUnits(*io->nav->input_backend, io->nav->process->sensitivity)));
     if (UsesTouchBackend(*io->nav->input_backend)) {
         if (units == 0) {
             return false;
@@ -165,7 +167,7 @@ std::optional<double> ZiplineIoTurnYaw(ZiplineIo* io, double delta_deg)
 bool ZiplineIoLowerPitchTo(ZiplineIo* io, double elevation_deg)
 {
     const double fraction = CameraVerticalFractionForElevation(elevation_deg);
-    const int units = static_cast<int>(std::lround(fraction * PitchRangeUnits(*io->nav->input_backend)));
+    const int units = static_cast<int>(std::lround(fraction * PitchRangeUnits(*io->nav->input_backend, io->nav->process->sensitivity)));
     if (units == 0) {
         return true;
     }
@@ -217,7 +219,8 @@ size_t drop_zipline_chain(Navigator* nav, const char* reason)
         ++dropped;
     }
     if (dropped != 0) {
-        SkipPastWaypoint(nav->session, hop + dropped - 1, reason);
+        NoteInteraction(nav->session);
+        LeaveWaypointsThrough(nav->session, hop + dropped - 1, reason);
     }
     return dropped;
 }
@@ -267,7 +270,8 @@ Result finish_hop(Navigator* nav, const HopCompleted& done)
     result.stay_in_current_tick = true;
 
     NoteCanonicalFinalGoalConsumed(nav->session, CurrentAbsoluteNodeIndex(*nav->session), done.at, "zipline_ride_complete");
-    AdvanceToNextWaypoint(nav->session, ActionType::ZIPLINE, "zipline_ride_complete");
+    NoteInteraction(nav->session);
+    LeaveCurrentWaypoint(nav->session, ActionType::ZIPLINE, "zipline_ride_complete");
     ResetOnWaypointAdvance(&nav->runtime_state);
     LogInfo << "Action: ZIPLINE ride landed." << VAR(done.at.x) << VAR(done.at.y) << VAR(done.still_on_tower);
     if (!done.at.zone_id.empty()) {
@@ -282,7 +286,7 @@ Result finish_hop(Navigator* nav, const HopCompleted& done)
 
     if (!HasCurrentWaypoint(*nav->session)) {
         LeaveZiplineTower(nav);
-        NoteRouteTailConsumed(nav->session, done.at, "route_tail_consumed");
+        ConcludeRouteTail(nav->session, done.at, "route_tail_consumed");
         return result;
     }
     if (done.still_on_tower) {
@@ -320,6 +324,10 @@ Result AdvanceMountSpot(Navigator* nav, const Waypoint& waypoint, const char* re
     approach.press_missed = true;
     const ZiplineMountSpot& spot = plan.mount_spots[approach.spot_index];
     const bool retargeted = RetargetCurrentWaypoint(nav->session, spot.x, spot.y, reason);
+    if (retargeted) {
+        // 旧坐标上攒的最好距离会让无进展判据误以为人在倒退
+        ResetProgress(nav->session);
+    }
     // 硬时钟不归零的话, 下一拍就会把剩下的站位一口气烧光
     ResetHardProgress(nav->session);
     LogWarn << "Action: ZIPLINE no mount prompt here; walking to the next stand point." << VAR(reason) << VAR(retargeted)
@@ -351,7 +359,8 @@ bool SkipToHopUnderfoot(Navigator* nav, const char* reason)
     if (hop > current) {
         LogInfo << "Next hop leaves from the tower underfoot; skipping the walk to its stand point." << VAR(reason) << VAR(current)
                 << VAR(hop) << VAR(underfoot->x) << VAR(underfoot->y);
-        SkipPastWaypoint(nav->session, hop - 1, reason);
+        NoteInteraction(nav->session);
+        LeaveWaypointsThrough(nav->session, hop - 1, reason);
     }
     return true;
 }
@@ -411,7 +420,11 @@ Result StartZiplineHop(Navigator* nav, const Waypoint& waypoint, double actual_d
         nav->runtime_state.zipline_approach.press_missed = false;
     }
 
-    BeginZiplineHop(ride, *waypoint.zipline_hop);
+    const auto hop_started_at = std::chrono::steady_clock::now();
+    if (!ZiplineHopResumable(*ride, *waypoint.zipline_hop)) {
+        CloseOpenHop(ride, hop_started_at);
+    }
+    BeginZiplineHop(ride, *waypoint.zipline_hop, hop_started_at);
     LogInfo << "Action: ZIPLINE hop started." << VAR(waypoint.zipline_hop->landing.x) << VAR(waypoint.zipline_hop->landing.y)
             << VAR(waypoint.zipline_hop->planned_elevation_deg) << VAR(waypoint.zipline_hop->chain_continues) << VAR(actual_distance);
     // 航点等落地再推进, 起滑时人还在上索点, 链尾也不能在这里收工

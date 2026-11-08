@@ -84,9 +84,10 @@ Result ProbeTriggerWhileNavigating(Navigator* nav)
             << VAR(remaining);
     HoldPosition(nav->motion_controller);
     NoteCanonicalFinalGoalConsumed(nav->session, CanonicalIndexAtCurrentPath(*nav->session, trigger_idx), *nav->position, "trigger_hit");
-    SkipPastWaypoint(nav->session, trigger_idx, "trigger_hit");
+    NoteInteraction(nav->session);
+    LeaveWaypointsThrough(nav->session, trigger_idx, "trigger_hit");
     ResetOnWaypointAdvance(&nav->runtime_state);
-    NoteRouteTailConsumed(nav->session, *nav->position, "route_tail_consumed");
+    ConcludeRouteTail(nav->session, *nav->position, "route_tail_consumed");
     return Handled();
 }
 

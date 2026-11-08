@@ -113,7 +113,8 @@ Result ArriveJumpPad(Navigator* nav, const Waypoint& waypoint, const std::option
 {
     HoldAndArmCameraAlign(nav);
     NoteCanonicalFinalGoalConsumed(nav->session, node_idx, *nav->position, "jump_pad_reached");
-    AdvanceToNextWaypoint(nav->session, ActionType::JUMP_PAD, "jump_pad_reached");
+    NoteInteraction(nav->session);
+    LeaveCurrentWaypoint(nav->session, ActionType::JUMP_PAD, "jump_pad_reached");
     ResetOnWaypointAdvance(&nav->runtime_state);
 
     JumpPadState& state = nav->runtime_state.semantic.jump_pad;

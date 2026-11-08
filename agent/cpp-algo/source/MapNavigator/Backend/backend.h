@@ -12,6 +12,13 @@
 namespace mapnavigator
 {
 
+namespace sensitivity
+{
+
+struct SensitivityRun;
+
+} // namespace sensitivity
+
 struct InputBackend
 {
     BackendKind kind = BackendKind::Desktop;
@@ -31,8 +38,8 @@ void CloseInputBackend(InputBackend* backend);
 
 bool UsesTouchBackend(const InputBackend& backend);
 bool IsInputBackendSupported(const InputBackend& backend);
-double TurnUnitsPerDegree(const InputBackend& backend);
-double PitchRangeUnits(const InputBackend& backend);
+double TurnUnitsPerDegree(const InputBackend& backend, const sensitivity::SensitivityRun& sensitivity);
+double PitchRangeUnits(const InputBackend& backend, const sensitivity::SensitivityRun& sensitivity);
 SteeringTransportProfile SteeringProfileOf(const InputBackend& backend);
 bool SupportsSprint(const InputBackend& backend);
 // 返回 false 时走路请求不生效, 保持跑步速度
@@ -49,5 +56,6 @@ void ClickMouseLeftSync(InputBackend* backend);
 void TriggerZiplineLaunchSync(InputBackend* backend);
 void TriggerZiplineDismountSync(InputBackend* backend, int hold_millis);
 bool SendViewDeltaSync(InputBackend* backend, int dx, int dy);
+void AdvanceHeadingEpoch(InputBackend* backend);
 
 } // namespace mapnavigator

@@ -33,23 +33,6 @@ size_t resolve_canonical_final_goal_index(const std::vector<Waypoint>& path)
     return std::numeric_limits<size_t>::max();
 }
 
-void observe_clock(ProgressClock* clock, size_t key, double actual_distance, TimePoint now)
-{
-    const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
-    if (!clock->initialized || clock->target_key != key) {
-        clock->target_key = key;
-        clock->best_distance = actual_distance;
-        clock->last_progress_time = now;
-        clock->initialized = true;
-        return;
-    }
-
-    if (actual_distance < clock->best_distance - progress_epsilon) {
-        clock->best_distance = actual_distance;
-        clock->last_progress_time = now;
-    }
-}
-
 int64_t clock_stalled_ms(const ProgressClock& clock, TimePoint now)
 {
     if (!clock.initialized || IsUnset(clock.last_progress_time)) {
@@ -306,7 +289,7 @@ void NoteCanonicalFinalGoalConsumed(
     record_final_arrival_evidence(session, position, false, reason);
 }
 
-void NoteRouteTailConsumed(Session* session, const NaviPosition& position, const char* reason)
+void ConcludeRouteTail(Session* session, const NaviPosition& position, const char* reason)
 {
     session->route_tail_consumed = true;
     if (!has_canonical_final_goal(*session)) {
@@ -330,34 +313,21 @@ void UpdateCurrentZone(Session* session, const std::string& zone_id)
     session->current_zone_id = zone_id;
 }
 
-void AdvanceToNextWaypoint(Session* session, const char* reason)
+void LeaveCurrentWaypoint(Session* session, [[maybe_unused]] ActionType expected_action, const char* reason)
 {
     if (!require_current_waypoint(*session, reason)) {
         return;
     }
+    assert(session->current_path[session->current_node_idx].action == expected_action && "Unexpected action while leaving waypoint.");
     leave_current_waypoint(session, session->current_node_idx + 1);
 }
 
-void AdvanceToNextWaypoint(Session* session, ActionType expected_action, const char* reason)
-{
-    if (!require_current_waypoint(*session, reason)) {
-        return;
-    }
-    assert(session->current_path[session->current_node_idx].action == expected_action && "Unexpected action while advancing waypoint.");
-    if (MayOpenUi(expected_action)) {
-        NoteInteraction(session);
-    }
-    AdvanceToNextWaypoint(session, reason);
-}
-
-void SkipPastWaypoint(Session* session, size_t waypoint_idx, const char* reason)
+void LeaveWaypointsThrough(Session* session, size_t waypoint_idx, const char* reason)
 {
     if (!require_waypoint_index(*session, waypoint_idx, reason)) {
         return;
     }
-    assert(waypoint_idx >= session->current_node_idx && "SkipPastWaypoint cannot move backward.");
-    // 跳点只发生在传送、滑索和 TRIGGER 命中之后
-    NoteInteraction(session);
+    assert(waypoint_idx >= session->current_node_idx && "LeaveWaypointsThrough cannot move backward.");
     leave_current_waypoint(session, waypoint_idx + 1);
 }
 
@@ -379,19 +349,34 @@ bool RetargetCurrentWaypoint(Session* session, double x, double y, const char* r
             << VAR(waypoint.y) << VAR(x) << VAR(y);
     waypoint.x = x;
     waypoint.y = y;
-    // 旧坐标上攒的最好距离会让无进展判据误以为人在倒退
-    ResetProgress(session);
     return true;
+}
+
+bool ProgressClockTracks(const ProgressClock& clock, size_t key)
+{
+    return clock.initialized && clock.target_key == key;
+}
+
+void RestartProgressClock(ProgressClock* clock, size_t key, double actual_distance, TimePoint now)
+{
+    clock->target_key = key;
+    clock->best_distance = actual_distance;
+    clock->last_progress_time = now;
+    clock->initialized = true;
+}
+
+void ObserveProgressClock(ProgressClock* clock, double actual_distance, TimePoint now)
+{
+    const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
+    if (actual_distance < clock->best_distance - progress_epsilon) {
+        clock->best_distance = actual_distance;
+        clock->last_progress_time = now;
+    }
 }
 
 void ResetProgress(Session* session)
 {
     session->visit.progress = {};
-}
-
-void ObserveProgress(Session* session, size_t waypoint_idx, double actual_distance, TimePoint now)
-{
-    observe_clock(&session->visit.progress, waypoint_idx, actual_distance, now);
 }
 
 int64_t StalledMs(const Session& session, TimePoint now)
@@ -402,11 +387,6 @@ int64_t StalledMs(const Session& session, TimePoint now)
 void ResetHardProgress(Session* session)
 {
     session->visit.hard_progress = {};
-}
-
-void ObserveHardProgress(Session* session, size_t target_key, double actual_distance, TimePoint now)
-{
-    observe_clock(&session->visit.hard_progress, target_key, actual_distance, now);
 }
 
 int64_t HardStalledMs(const Session& session, TimePoint now)

@@ -19,6 +19,7 @@
 #include "../navi_log.h"
 #include "../navi_math.h"
 #include "../navi_time.h"
+#include "../process_state.h"
 #include "../sensing/position_provider.h"
 #include "../sensing/task_stop.h"
 #include "../state_machine/navigation_state_machine.h"
@@ -106,7 +107,7 @@ bool turn_within_budget(Navigator* nav, const SettleBudget& budget, double headi
         if (budget_exhausted(budget)) {
             return false;
         }
-        if (!SendHeadingTurnStep(nav->input_backend, *turn, step)) {
+        if (!SendHeadingTurnStep(nav->input_backend, &nav->process->sensitivity, *turn, step)) {
             return false;
         }
     }

@@ -7,6 +7,8 @@
 namespace mapnavigator
 {
 
-bool RunNavigation(MaaContext* context, const NaviParam& requested_param);
+struct NavProcessState;
+
+bool RunNavigation(NavProcessState* process, MaaContext* context, const NaviParam& requested_param);
 
 } // namespace mapnavigator

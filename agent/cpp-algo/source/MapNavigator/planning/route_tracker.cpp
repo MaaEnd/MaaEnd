@@ -105,12 +105,42 @@ std::optional<SegmentProjection>
     return projection;
 }
 
-void advance_passed_run_waypoints(Session* session, RouteTrackerState* state, bool startup_motion_confirmed, const NaviPosition& position)
+} // namespace
+
+bool UpdateStartupGate(RouteTrackerState* state, const Session& session, const NaviPosition& position)
 {
-    if (session == nullptr || state == nullptr) {
+    if (!HasCurrentWaypoint(session)) {
+        return false;
+    }
+
+    if (!state->startup_anchor_initialized) {
+        state->startup_anchor_pos = position;
+        state->startup_anchor_initialized = true;
+    }
+
+    if (!state->startup_motion_confirmed) {
+        const bool same_zone =
+            state->startup_anchor_pos.zone_id.empty() || position.zone_id.empty() || state->startup_anchor_pos.zone_id == position.zone_id;
+        const double startup_displacement =
+            same_zone ? std::hypot(position.x - state->startup_anchor_pos.x, position.y - state->startup_anchor_pos.y)
+                      : std::numeric_limits<double>::infinity();
+        if (!same_zone || startup_displacement >= kStartupMotionConfirmDistance) {
+            state->startup_motion_confirmed = true;
+        }
+        LogDebug << "Startup motion gate." << VAR(state->startup_anchor_initialized) << VAR(state->startup_motion_confirmed)
+                 << VAR(state->startup_anchor_pos.x) << VAR(state->startup_anchor_pos.y) << VAR(state->startup_anchor_pos.zone_id)
+                 << VAR(position.x) << VAR(position.y) << VAR(position.zone_id) << VAR(startup_displacement);
+    }
+
+    return state->startup_motion_confirmed;
+}
+
+void AdvancePassedRunWaypoints(Session* session, RouteTrackerState* state, const NaviPosition& position)
+{
+    if (!HasCurrentWaypoint(*session)) {
         return;
     }
-    if (!startup_motion_confirmed) {
+    if (!state->startup_motion_confirmed) {
         LogDebug << "Passed advance blocked before startup movement confirmed."
                  << VAR_AS(session->current_node_idx(), session->current_node_idx) << VAR(position.x) << VAR(position.y)
                  << VAR(position.zone_id);
@@ -168,45 +198,20 @@ void advance_passed_run_waypoints(Session* session, RouteTrackerState* state, bo
         }
 
         ResetRouteTracking(state);
-        AdvanceToNextWaypoint(session, ActionType::RUN, "passed_waypoint_advance");
+        LeaveCurrentWaypoint(session, ActionType::RUN, "passed_waypoint_advance");
     }
 }
 
-} // namespace
-
-RouteMeasurement UpdateRouteTracking(RouteTrackerState* state, Session* session, const NaviPosition& position)
+RouteMeasurement
+    MeasureRoute(const RouteTrackerState& state, const Session& session, const NaviPosition& position, bool startup_motion_confirmed)
 {
     RouteMeasurement tracking;
-    if (session == nullptr || state == nullptr || !HasCurrentWaypoint(*session)) {
+    tracking.startup_motion_confirmed = startup_motion_confirmed;
+    if (!HasCurrentWaypoint(session)) {
         return tracking;
     }
 
-    if (!state->startup_anchor_initialized) {
-        state->startup_anchor_pos = position;
-        state->startup_anchor_initialized = true;
-    }
-
-    if (!state->startup_motion_confirmed) {
-        const bool same_zone =
-            state->startup_anchor_pos.zone_id.empty() || position.zone_id.empty() || state->startup_anchor_pos.zone_id == position.zone_id;
-        const double startup_displacement =
-            same_zone ? std::hypot(position.x - state->startup_anchor_pos.x, position.y - state->startup_anchor_pos.y)
-                      : std::numeric_limits<double>::infinity();
-        if (!same_zone || startup_displacement >= kStartupMotionConfirmDistance) {
-            state->startup_motion_confirmed = true;
-        }
-        LogDebug << "Startup motion gate." << VAR(state->startup_anchor_initialized) << VAR(state->startup_motion_confirmed)
-                 << VAR(state->startup_anchor_pos.x) << VAR(state->startup_anchor_pos.y) << VAR(state->startup_anchor_pos.zone_id)
-                 << VAR(position.x) << VAR(position.y) << VAR(position.zone_id) << VAR(startup_displacement);
-    }
-
-    tracking.startup_motion_confirmed = state->startup_motion_confirmed;
-    advance_passed_run_waypoints(session, state, tracking.startup_motion_confirmed, position);
-    if (!HasCurrentWaypoint(*session)) {
-        return tracking;
-    }
-
-    const Waypoint& waypoint = CurrentWaypoint(*session);
+    const Waypoint& waypoint = CurrentWaypoint(session);
     if (!waypoint.has_position) {
         return tracking;
     }
@@ -221,8 +226,8 @@ RouteMeasurement UpdateRouteTracking(RouteTrackerState* state, Session* session,
         return tracking;
     }
 
-    const std::vector<Waypoint>& path = session->current_path;
-    const std::optional<SegmentProjection> segment = project_onto_serial_route_segment(path, session->current_node_idx, position);
+    const std::vector<Waypoint>& path = session.current_path;
+    const std::optional<SegmentProjection> segment = project_onto_serial_route_segment(path, session.current_node_idx, position);
     if (!segment.has_value()) {
         return tracking;
     }
@@ -231,8 +236,8 @@ RouteMeasurement UpdateRouteTracking(RouteTrackerState* state, Session* session,
     tracking.progress_distance = std::min(tracking.progress_distance, segment->next_distance);
     tracking.on_route = segment->cross_track_distance <= kSerialRouteDeviationFailThreshold;
 
-    const bool same_runtime_segment = state->last_segment_from_idx == segment->from_idx && state->last_segment_to_idx == segment->to_idx;
-    const double projection_memory = same_runtime_segment ? state->best_projection_on_segment : 0.0;
+    const bool same_runtime_segment = state.last_segment_from_idx == segment->from_idx && state.last_segment_to_idx == segment->to_idx;
+    const double projection_memory = same_runtime_segment ? state.best_projection_on_segment : 0.0;
     const double projection_anchor = std::clamp(std::max(segment->clamped_projection, projection_memory), 0.0, 1.0);
     tracking.projection_anchor = projection_anchor;
 
@@ -248,7 +253,7 @@ RouteMeasurement UpdateRouteTracking(RouteTrackerState* state, Session* session,
     }
     tracking.along_track_remaining = remaining_distance;
 
-    LogDebug << "RouteTracker update." << VAR_AS(session->current_node_idx(), session->current_node_idx) << VAR(position.x)
+    LogDebug << "RouteTracker update." << VAR_AS(session->current_node_idx(), session.current_node_idx) << VAR(position.x)
              << VAR(position.y) << VAR(waypoint.x) << VAR(waypoint.y) << VAR(segment->from_idx) << VAR(segment->to_idx)
              << VAR(segment->raw_projection) << VAR(projection_anchor) << VAR(segment->cross_track_distance)
              << VAR(tracking.waypoint_distance) << VAR(tracking.route_heading) << VAR(tracking.along_track_remaining);

@@ -66,7 +66,7 @@ std::array<AsyncPromptAction*, 2> prompt_actions(Navigator* nav)
 void start_prompt_scanners(Navigator* nav)
 {
     for (AsyncPromptAction* prompt : prompt_actions(nav)) {
-        if (prompt->started || !PromptRouteHasPoint(*prompt)) {
+        if (prompt->started || !PromptRouteHasPoint(prompt->spec, nav->session)) {
             continue;
         }
 
@@ -76,7 +76,7 @@ void start_prompt_scanners(Navigator* nav)
                     << VAR(prompt->spec.recognition_node);
             continue;
         }
-        StartPromptAction(prompt, base_roi, nav->input_backend->controller_type.c_str());
+        StartPromptAction(nav, prompt, base_roi);
     }
 }
 
@@ -131,10 +131,13 @@ void complete_waypoint_after_prompt_trigger(Navigator* nav)
     const std::optional<RopeRideInfo> rope_ride = CurrentWaypoint(*nav->session).rope_ride;
     const std::optional<size_t> consumed_absolute_node_idx = CurrentAbsoluteNodeIndex(*nav->session);
     NoteCanonicalFinalGoalConsumed(nav->session, consumed_absolute_node_idx, *nav->position, "async_prompt_completed");
-    AdvanceToNextWaypoint(nav->session, action, "async_prompt_completed");
+    if (MayOpenUi(action)) {
+        NoteInteraction(nav->session);
+    }
+    LeaveCurrentWaypoint(nav->session, action, "async_prompt_completed");
     ResetOnWaypointAdvance(&nav->runtime_state);
     if (!HasCurrentWaypoint(*nav->session)) {
-        NoteRouteTailConsumed(nav->session, *nav->position, "route_tail_consumed");
+        ConcludeRouteTail(nav->session, *nav->position, "route_tail_consumed");
         return;
     }
     if (rope_ride) {
@@ -157,8 +160,7 @@ bool try_run_prompt_subtask_while_walking(Navigator* nav, const RouteMeasurement
             continue;
         }
         const auto started_at = std::chrono::steady_clock::now();
-        const PromptTriggerOutcome outcome =
-            TryTriggerPromptWhileWalking(prompts[index], nav->motion_controller, route.waypoint_distance, nav->session->current_node_idx);
+        const PromptTriggerOutcome outcome = TryTriggerPromptWhileWalking(nav, prompts[index], route.waypoint_distance);
         if (outcome == PromptTriggerOutcome::NotTriggered) {
             continue;
         }
@@ -260,9 +262,6 @@ void StopScanners(Navigator* nav)
     if (nav->position_provider != nullptr) {
         nav->position_provider->frame_sinks.reset();
     }
-    if (nav->motion_controller != nullptr) {
-        nav->motion_controller->sprint_suppressed = false;
-    }
     StopPromptAction(&nav->collect_prompt);
     StopPromptAction(&nav->interact_prompt);
     StopDeviceRecovery(&nav->device_recovery);
@@ -272,7 +271,7 @@ void StopScanners(Navigator* nav)
 void PreWarmPrompts(Navigator* nav)
 {
     for (AsyncPromptAction* prompt : prompt_actions(nav)) {
-        PreWarmPromptRecognition(*prompt);
+        PreWarmPromptRecognition(*nav, *prompt);
     }
 }
 
@@ -280,7 +279,7 @@ PromptDistance NearestPromptDistance(const Navigator& nav)
 {
     PromptDistance nearest;
     for (const AsyncPromptAction* prompt : { &nav.collect_prompt, &nav.interact_prompt }) {
-        const double distance_sq = NearestPromptDistanceSq(*prompt);
+        const double distance_sq = NearestPromptDistanceSq(*prompt, nav.session, nav.position);
         if (distance_sq >= 0.0 && (nearest.distance_sq < 0.0 || distance_sq < nearest.distance_sq)) {
             nearest.distance_sq = distance_sq;
             nearest.is_zipline = false;
@@ -308,18 +307,10 @@ PromptDistance NearestPromptDistance(const Navigator& nav)
     return nearest;
 }
 
-void UpdatePromptSprintSuppression(Navigator* nav)
+bool ApproachingPrompt(const Navigator& nav)
 {
-    if (nav->motion_controller == nullptr) {
-        return;
-    }
-
-    const double nearest_sq = NearestPromptDistance(*nav).distance_sq;
-    const bool approaching_prompt = nearest_sq >= 0.0 && nearest_sq <= kCollectSprintSuppressBandWu * kCollectSprintSuppressBandWu;
-    if (approaching_prompt && SprintCancellable(*nav->motion_controller)) {
-        CancelSprint(nav->motion_controller);
-    }
-    nav->motion_controller->sprint_suppressed = approaching_prompt;
+    const double nearest_sq = NearestPromptDistance(nav).distance_sq;
+    return nearest_sq >= 0.0 && nearest_sq <= kCollectSprintSuppressBandWu * kCollectSprintSuppressBandWu;
 }
 
 // 走完最后一个点的那一拍扫描器就停了, 所以收尾单独再检测一次
@@ -337,7 +328,7 @@ void TryRunPromptSubtaskAtRouteTail(Navigator* nav)
 
     AsyncPromptAction* tail_prompt = nullptr;
     for (AsyncPromptAction* prompt : prompt_actions(nav)) {
-        if (prompt->started && !CompletesWaypointOnTrigger(prompt->spec) && PromptRouteEndsWithPoint(*prompt)) {
+        if (prompt->started && !CompletesWaypointOnTrigger(prompt->spec) && PromptRouteEndsWithPoint(prompt->spec, nav->session)) {
             tail_prompt = prompt;
             break;
         }
@@ -350,7 +341,7 @@ void TryRunPromptSubtaskAtRouteTail(Navigator* nav)
     SleepFor(kStopWaitMs); // 先站定, 还在滑行就动手容易白按一次
     const auto started_at = std::chrono::steady_clock::now();
     while (!TaskStopping(nav->maa_context)) {
-        if (TryTriggerPromptAtRouteTail(tail_prompt)) {
+        if (TryTriggerPromptAtRouteTail(nav, tail_prompt)) {
             return;
         }
 

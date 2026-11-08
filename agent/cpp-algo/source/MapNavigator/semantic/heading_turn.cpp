@@ -8,9 +8,11 @@
 
 #include "../Backend/backend.h"
 #include "../control/motion_controller.h"
+#include "../control/view_turn.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
 #include "../navi_time.h"
+#include "../process_state.h"
 #include "../sensing/position_provider.h"
 #include "../state_machine/navigation_state_machine.h"
 
@@ -34,13 +36,13 @@ std::optional<HeadingTurnSteps> PlanHeadingTurn(const InputBackend& input_backen
     return HeadingTurnSteps { .step_count = step_count, .step_deg = step_deg, .step_interval_ms = step_interval_ms };
 }
 
-bool SendHeadingTurnStep(InputBackend* input_backend, const HeadingTurnSteps& turn, int step)
+bool SendHeadingTurnStep(InputBackend* input_backend, sensitivity::SensitivityRun* sensitivity, const HeadingTurnSteps& turn, int step)
 {
-    int units = static_cast<int>(std::lround(turn.step_deg * TurnUnitsPerDegree(*input_backend)));
+    int units = static_cast<int>(std::lround(turn.step_deg * TurnUnitsPerDegree(*input_backend, *sensitivity)));
     if (units == 0) {
         units = turn.step_deg > 0.0 ? 1 : -1;
     }
-    if (!SendViewDeltaSync(input_backend, units, 0)) {
+    if (!SendYawDeltaAndNoteTurn(input_backend, sensitivity, units, 0)) {
         return false;
     }
     if (step + 1 < turn.step_count) {
@@ -56,7 +58,7 @@ bool TurnToHeadingOnce(Navigator* nav, double heading_delta)
         return true;
     }
     for (int step = 0; step < turn->step_count; ++step) {
-        if (!SendHeadingTurnStep(nav->input_backend, *turn, step)) {
+        if (!SendHeadingTurnStep(nav->input_backend, &nav->process->sensitivity, *turn, step)) {
             return false;
         }
     }
@@ -182,13 +184,13 @@ Result ConsumeHeadingNodes(Navigator* nav)
         const double achieved_heading = VerifyAndCorrectHeading(nav, target_heading, start_heading);
         LogInfo << "Heading-only node completed." << VAR(target_heading) << VAR(start_heading) << VAR(heading_delta)
                 << VAR(achieved_heading);
-        AdvanceToNextWaypoint(nav->session, ActionType::HEADING, "heading_consumed");
+        LeaveCurrentWaypoint(nav->session, ActionType::HEADING, "heading_consumed");
         ResetProgress(nav->session);
         ResetOnWaypointAdvance(&nav->runtime_state);
         consumed = true;
 
         if (!HasCurrentWaypoint(*nav->session)) {
-            NoteRouteTailConsumed(nav->session, *nav->position, "heading_route_consumed");
+            ConcludeRouteTail(nav->session, *nav->position, "heading_route_consumed");
         }
         // 后续节点等下一拍重新取位, 免得用到缺失的朝向
         if (!nav->position->valid) {

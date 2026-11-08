@@ -19,7 +19,7 @@ void StartScanners(Navigator* nav);
 void PreWarmPrompts(Navigator* nav);
 // 路线上没有需要减速接近的点时 distance_sq 为 -1
 PromptDistance NearestPromptDistance(const Navigator& nav);
-void UpdatePromptSprintSuppression(Navigator* nav);
+bool ApproachingPrompt(const Navigator& nav);
 void TryRunPromptSubtaskAtRouteTail(Navigator* nav);
 
 } // namespace mapnavigator

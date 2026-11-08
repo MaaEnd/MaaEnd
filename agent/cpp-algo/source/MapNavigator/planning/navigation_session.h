@@ -83,21 +83,21 @@ void NoteCanonicalFinalGoalConsumed(
     std::optional<size_t> consumed_absolute_index,
     const NaviPosition& position,
     const char* reason);
-void NoteRouteTailConsumed(Session* session, const NaviPosition& position, const char* reason);
+void ConcludeRouteTail(Session* session, const NaviPosition& position, const char* reason);
 
 void UpdateCurrentZone(Session* session, const std::string& zone_id);
-void AdvanceToNextWaypoint(Session* session, const char* reason);
-void AdvanceToNextWaypoint(Session* session, ActionType expected_action, const char* reason);
-void SkipPastWaypoint(Session* session, size_t waypoint_idx, const char* reason);
+void LeaveCurrentWaypoint(Session* session, ActionType expected_action, const char* reason);
+void LeaveWaypointsThrough(Session* session, size_t waypoint_idx, const char* reason);
 void NoteInteraction(Session* session);
 // 只改当前航点坐标, 动作和后续点不变, 走廊仍指向原坐标
 bool RetargetCurrentWaypoint(Session* session, double x, double y, const char* reason);
 
+bool ProgressClockTracks(const ProgressClock& clock, size_t key);
+void RestartProgressClock(ProgressClock* clock, size_t key, double actual_distance, TimePoint now);
+void ObserveProgressClock(ProgressClock* clock, double actual_distance, TimePoint now);
 void ResetProgress(Session* session);
-void ObserveProgress(Session* session, size_t waypoint_idx, double actual_distance, TimePoint now);
 int64_t StalledMs(const Session& session, TimePoint now);
 void ResetHardProgress(Session* session);
-void ObserveHardProgress(Session* session, size_t target_key, double actual_distance, TimePoint now);
 int64_t HardStalledMs(const Session& session, TimePoint now);
 void ExcludeFromStallClocks(Session* session, Duration paused);
 

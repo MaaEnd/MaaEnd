@@ -39,7 +39,8 @@ std::optional<size_t> find_future_zone_declaration(Navigator* nav, const std::st
 Result finalize_portal_transit_zone(Navigator* nav, const std::string& zone_id, size_t matched_zone_index)
 {
     if (matched_zone_index > nav->session->current_node_idx) {
-        SkipPastWaypoint(nav->session, matched_zone_index - 1, "portal_zone_fast_forward");
+        NoteInteraction(nav->session);
+        LeaveWaypointsThrough(nav->session, matched_zone_index - 1, "portal_zone_fast_forward");
     }
     UpdateCurrentZone(nav->session, zone_id);
     ResetProgress(nav->session);
@@ -101,7 +102,7 @@ Result TickTransferWait(Navigator* nav)
     TransferWaitState& transfer = nav->runtime_state.semantic.transfer;
     if (!HasCurrentWaypoint(*nav->session)) {
         transfer = {};
-        NoteRouteTailConsumed(nav->session, *nav->position, "route_tail_consumed");
+        ConcludeRouteTail(nav->session, *nav->position, "route_tail_consumed");
         return Handled();
     }
 

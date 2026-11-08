@@ -16,7 +16,7 @@ struct MaaContext;
 namespace mapnavigator
 {
 
-struct Motion;
+struct Navigator;
 class RoiTemplateScanner;
 struct Session;
 
@@ -82,9 +82,6 @@ enum class PromptTriggerOutcome
 struct AsyncPromptAction
 {
     AsyncPromptActionSpec spec;
-    MaaContext* context;
-    Session* session;
-    const NaviPosition* position;
     cv::Rect fallback_roi {};
     std::string controller_type;
     std::string scan_node;
@@ -93,28 +90,29 @@ struct AsyncPromptAction
     std::chrono::steady_clock::time_point last_trigger_at {};
 };
 
-AsyncPromptAction
-    MakeAsyncPromptAction(const AsyncPromptActionSpec& spec, MaaContext* context, Session* session, const NaviPosition* position);
+AsyncPromptAction MakeAsyncPromptAction(const AsyncPromptActionSpec& spec);
 
-bool PromptRouteHasPoint(const AsyncPromptAction& action);
-bool PromptRouteEndsWithPoint(const AsyncPromptAction& action);
+bool PromptRouteHasPoint(const AsyncPromptActionSpec& spec, const Session* session);
+bool PromptRouteEndsWithPoint(const AsyncPromptActionSpec& spec, const Session* session);
 
 // fallback_roi 是识别节点自己的 ROI, 只有内置预筛用它
-void StartPromptAction(AsyncPromptAction* action, const cv::Rect& fallback_roi, std::string_view controller_type);
+void StartPromptAction(Navigator* nav, AsyncPromptAction* action, const cv::Rect& fallback_roi);
 void StopPromptAction(AsyncPromptAction* action);
 void SubmitPromptFrame(AsyncPromptAction* action, const cv::Mat& frame);
 
+void RestartPromptScanner(AsyncPromptAction* action, MaaContext* context, const std::string& scan_node);
+bool ConsumePromptDetection(AsyncPromptAction* action);
+
 // 只在角色停下时调用, 付掉识别模型的冷启动
-void PreWarmPromptRecognition(const AsyncPromptAction& action);
+void PreWarmPromptRecognition(const Navigator& nav, const AsyncPromptAction& action);
 
 // 未启动、未定位或没有剩余同类点时返回 -1
-double NearestPromptDistanceSq(const AsyncPromptAction& action);
+double NearestPromptDistanceSq(const AsyncPromptAction& action, const Session* session, const NaviPosition* position);
 
 // 非 NotTriggered 表示本拍已用掉, 只有 Recognized 才让路线命名的点算走完
-PromptTriggerOutcome
-    TryTriggerPromptWhileWalking(AsyncPromptAction* action, Motion* motion_controller, double waypoint_distance, size_t node_idx);
+PromptTriggerOutcome TryTriggerPromptWhileWalking(Navigator* nav, AsyncPromptAction* action, double waypoint_distance);
 // 不节流, 调用方须在路线末尾站定后调用
-bool TryTriggerPromptAtRouteTail(AsyncPromptAction* action);
+bool TryTriggerPromptAtRouteTail(Navigator* nav, AsyncPromptAction* action);
 
 void ForgetPromptDetection(AsyncPromptAction* action);
 

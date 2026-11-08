@@ -118,8 +118,10 @@ struct ZiplineRide
     StageResult pending_exit;
 };
 
+bool ZiplineHopResumable(const ZiplineRide& ride, const ZiplineHopPlan& plan);
+void CloseOpenHop(ZiplineRide* ride, std::chrono::steady_clock::time_point now);
 // 人不在架子上时调用方要先按上索键再调
-void BeginZiplineHop(ZiplineRide* ride, const ZiplineHopPlan& plan);
+void BeginZiplineHop(ZiplineRide* ride, const ZiplineHopPlan& plan, std::chrono::steady_clock::time_point now);
 StageResult TickZiplineHop(ZiplineRide* ride, ZiplineIo* io);
 void MarkZiplineMountUnreachable(ZiplineRide* ride, const ZiplineHopPlan& plan);
 

@@ -4,6 +4,7 @@
 
 #include "../Backend/backend.h"
 #include "../control/motion_controller.h"
+#include "../control/view_turn.h"
 #include "../navi_config.h"
 #include "../navi_time.h"
 #include "river_fall_recovery.h"
@@ -15,6 +16,7 @@ RiverFallStep AdvanceRiverFallRecovery(
     RiverFallRecoveryState* state,
     InputBackend* input_backend,
     Motion* motion_controller,
+    sensitivity::SensitivityRun* sensitivity,
     const NaviPosition& position,
     double current_heading)
 {
@@ -35,8 +37,8 @@ RiverFallStep AdvanceRiverFallRecovery(
     if (!state->turned) {
         state->turned = true;
         state->water_heading = current_heading;
-        const int turn_units = static_cast<int>(std::lround(180.0 * TurnUnitsPerDegree(*input_backend)));
-        SendViewDeltaSync(input_backend, turn_units, 0);
+        const int turn_units = static_cast<int>(std::lround(180.0 * TurnUnitsPerDegree(*input_backend, *sensitivity)));
+        SendYawDeltaAndNoteTurn(input_backend, sensitivity, turn_units, 0);
         SleepFor(kWaitAfterFirstTurnMs);
         LogInfo << "River-fall recovery about-face issued." << VAR(state->water_heading) << VAR(turn_units) << VAR(rf_displacement);
     }

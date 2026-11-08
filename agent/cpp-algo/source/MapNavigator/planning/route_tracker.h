@@ -23,6 +23,9 @@ struct RouteMeasurement
     double arrival_band = 0.0;
 };
 
-RouteMeasurement UpdateRouteTracking(RouteTrackerState* state, Session* session, const NaviPosition& position);
+bool UpdateStartupGate(RouteTrackerState* state, const Session& session, const NaviPosition& position);
+void AdvancePassedRunWaypoints(Session* session, RouteTrackerState* state, const NaviPosition& position);
+RouteMeasurement
+    MeasureRoute(const RouteTrackerState& state, const Session& session, const NaviPosition& position, bool startup_motion_confirmed);
 
 } // namespace mapnavigator

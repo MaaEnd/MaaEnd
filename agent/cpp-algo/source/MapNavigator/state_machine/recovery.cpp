@@ -12,11 +12,14 @@
 
 #include "../Backend/backend.h"
 #include "../control/motion_controller.h"
+#include "../control/view_turn.h"
 #include "../navi_config.h"
 #include "../navi_log.h"
 #include "../navi_math.h"
 #include "../navi_time.h"
 #include "../planning/navmesh_queries.h"
+#include "../process_state.h"
+#include "../semantic/obstacle_device_removal.h"
 #include "../semantic/semantic_helpers.h"
 #include "../semantic/semantic_nodes.h"
 #include "../sensing/position_provider.h"
@@ -95,11 +98,11 @@ bool execute_physical_unstick(Navigator* nav, double stuck_heading)
     const double heading_delta = CalcDeltaRotation(nav->position->angle, target_heading);
     HoldPosition(nav->motion_controller);
     SleepFor(kStopWaitMs);
-    int units = static_cast<int>(std::lround(heading_delta * TurnUnitsPerDegree(*nav->input_backend)));
+    int units = static_cast<int>(std::lround(heading_delta * TurnUnitsPerDegree(*nav->input_backend, nav->process->sensitivity)));
     if (units == 0) {
         units = heading_delta > 0.0 ? 1 : -1;
     }
-    SendViewDeltaSync(nav->input_backend, units, 0);
+    SendYawDeltaAndNoteTurn(nav->input_backend, &nav->process->sensitivity, units, 0);
 
     const NaviPosition step_start = *nav->position;
     double moved = 0.0;
@@ -205,7 +208,7 @@ bool climb_recovery_ladder(Navigator* nav, const NavigateTick& tick)
     RecoveryEscalationState& escalation = nav->runtime_state.recovery_escalation;
     DeviceRemovalOutcome device_outcome = DeviceRemovalOutcome::NotAttempted;
     if (escalation.device_attempt_count < kRecoveryDeviceAttempts && far_or_strict_target(tick.effective_progress, waypoint)) {
-        device_outcome = TryRemoveDevice(&nav->device_recovery, route, waypoint);
+        device_outcome = TryRemoveDevice(nav, route, waypoint);
     }
     if (device_outcome != DeviceRemovalOutcome::NotAttempted) {
         ++escalation.device_attempt_count;
