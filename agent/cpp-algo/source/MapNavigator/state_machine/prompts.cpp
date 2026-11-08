@@ -27,15 +27,27 @@ namespace mapnavigator
 namespace
 {
 
-bool prompt_repeats_exhausted(const PromptRepeatState& repeat, const std::optional<size_t>& node)
+std::optional<size_t> next_authored_node(const NavigationSession& session)
 {
-    return node.has_value() && repeat.node == node && repeat.recognized >= kPromptRecognizedRepeatLimit;
+    const size_t path_size = session.currentPath().size();
+    for (size_t index = session.currentNodeIdx(); index < path_size; ++index) {
+        if (const std::optional<size_t> canonical = session.canonicalIndexAtCurrentPath(index)) {
+            return canonical;
+        }
+    }
+    return std::nullopt;
 }
 
-void count_prompt_repeat(PromptRepeatState* repeat, const std::optional<size_t>& node)
+bool prompt_repeats_exhausted(const PromptRepeatState& repeat, const std::optional<size_t>& node, size_t prompt)
 {
-    if (repeat->node != node) {
+    return node.has_value() && repeat.node == node && repeat.prompt == prompt && repeat.recognized >= kPromptRecognizedRepeatLimit;
+}
+
+void count_prompt_repeat(PromptRepeatState* repeat, const std::optional<size_t>& node, size_t prompt)
+{
+    if (repeat->node != node || repeat->prompt != prompt) {
         repeat->node = node;
+        repeat->prompt = prompt;
         repeat->recognized = 0;
     }
     ++repeat->recognized;
@@ -228,16 +240,13 @@ bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurem
     if (!route.startup_motion_confirmed) {
         return false;
     }
-    const std::optional<size_t> node = session_->currentAbsoluteNodeIndex();
-    if (prompt_repeats_exhausted(runtime_state_.prompt_repeat, node)) {
-        for (AsyncPromptAction* prompt : promptActions()) {
-            prompt->forgetDetection();
-        }
-        return false;
-    }
-
+    const std::optional<size_t> node = next_authored_node(*session_);
     const std::array<AsyncPromptAction*, 2> prompts = promptActions();
     for (size_t index = 0; index < prompts.size(); ++index) {
+        if (prompt_repeats_exhausted(runtime_state_.prompt_repeat, node, index)) {
+            prompts[index]->forgetDetection();
+            continue;
+        }
         const auto started_at = std::chrono::steady_clock::now();
         const PromptTriggerOutcome outcome =
             prompts[index]->tryTriggerWhileWalking(motion_controller_, route.waypoint_distance, session_->currentNodeIdx());
@@ -263,8 +272,8 @@ bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurem
             completeWaypointAfterPromptTrigger();
             return true;
         }
-        count_prompt_repeat(&runtime_state_.prompt_repeat, node);
-        if (prompt_repeats_exhausted(runtime_state_.prompt_repeat, node)) {
+        count_prompt_repeat(&runtime_state_.prompt_repeat, node, index);
+        if (prompt_repeats_exhausted(runtime_state_.prompt_repeat, node, index)) {
             LogWarn << "Prompt keeps being recognized without advancing; ignoring it at this waypoint." << VAR(prompts[index]->spec().tag)
                     << VAR(node);
             failure_trail_.note(std::chrono::steady_clock::now(), "prompt muted");

@@ -459,6 +459,7 @@ struct InteractApproachState
 struct PromptRepeatState
 {
     std::optional<size_t> node;
+    size_t prompt = 0;
     int32_t recognized = 0;
 
     void reset() { *this = {}; }

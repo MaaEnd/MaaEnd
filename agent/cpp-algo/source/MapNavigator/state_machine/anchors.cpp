@@ -13,6 +13,26 @@
 namespace mapnavigator
 {
 
+namespace
+{
+
+struct ZoneGeometryCheck
+{
+    std::string zone;
+    bool differs = false;
+};
+
+bool differs_in_geometry(const NaviParam& param, ZoneGeometryCheck* last, const std::string& waypoint_zone, const std::string& current_zone)
+{
+    if (last->zone != waypoint_zone) {
+        last->zone = waypoint_zone;
+        last->differs = ZonesDifferInGeometry(param, waypoint_zone, current_zone);
+    }
+    return last->differs;
+}
+
+} // namespace
+
 bool ZonesDiffer(const std::string& a, const std::string& b)
 {
     return !a.empty() && !b.empty() && a != b;
@@ -40,6 +60,7 @@ std::optional<DynamicAnchor>
     ResolveCurrentAnchorFrom(const NaviParam& param, NavigationSession* session, const NaviPosition& position, size_t start_index)
 {
     std::optional<DynamicAnchor> fallback;
+    ZoneGeometryCheck last_check;
     const size_t path_size = session->currentPath().size();
     for (size_t index = std::min(start_index, path_size); index < path_size; ++index) {
         const Waypoint& waypoint = session->currentPathAt(index);
@@ -48,7 +69,7 @@ std::optional<DynamicAnchor>
             continue;
         }
         if (waypoint.isZoneDeclaration()) {
-            if (ZonesDifferInGeometry(param, waypoint.zone_id, position.zone_id)) {
+            if (differs_in_geometry(param, &last_check, waypoint.zone_id, position.zone_id)) {
                 return fallback;
             }
             continue;
@@ -59,7 +80,7 @@ std::optional<DynamicAnchor>
             }
             continue;
         }
-        if (ZonesDifferInGeometry(param, waypoint.zone_id, position.zone_id)) {
+        if (differs_in_geometry(param, &last_check, waypoint.zone_id, position.zone_id)) {
             continue;
         }
 
@@ -88,6 +109,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
     std::optional<DynamicAnchor> anchor;
     double anchor_cost = std::numeric_limits<double>::infinity();
     int plan_attempts = 0;
+    ZoneGeometryCheck last_check;
 
     for (size_t index = std::min(start_index, path_size); index < path_size; ++index) {
         const Waypoint& waypoint = session->currentPathAt(index);
@@ -96,7 +118,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
             continue;
         }
         if (waypoint.isZoneDeclaration()) {
-            if (ZonesDifferInGeometry(param, waypoint.zone_id, position.zone_id)) {
+            if (differs_in_geometry(param, &last_check, waypoint.zone_id, position.zone_id)) {
                 break;
             }
             continue;
@@ -107,7 +129,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
             }
             continue;
         }
-        if (ZonesDifferInGeometry(param, waypoint.zone_id, position.zone_id)) {
+        if (differs_in_geometry(param, &last_check, waypoint.zone_id, position.zone_id)) {
             continue;
         }
 

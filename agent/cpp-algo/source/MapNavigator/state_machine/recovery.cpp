@@ -114,6 +114,7 @@ TickStep NavigationStateMachine::runObstacleRecovery(const NavigateTick& tick)
     const bool stalled =
         session_->phase() == NaviPhase::Navigate && (tick.stalled_ms >= kObstacleRecoveryMinTriggerMs || forward_hold_futile);
     if (!stalled) {
+        runtime_state_.recovery_escalation.blocked_reason.clear();
         return TickStep::Next;
     }
     if (!far_or_strict && !pinned_without_own_fallback && session_->hardStalledMs(tick.now) < kNearTargetRecoveryBudgetMs) {

@@ -282,9 +282,10 @@ bool NavigationStateMachine::resumeAfterGlobalReacquire(const std::string& prior
 {
     LocalizationLossState& loss = runtime_state_.localization_loss;
     const bool zone_changed = !position_->zone_id.empty() && position_->zone_id != prior_zone;
+    const bool near_last_fix = std::hypot(position_->x - loss.last_fix.x, position_->y - loss.last_fix.y) < kDwellWatchdogRadius;
     session_->excludeFromStallClocks(std::chrono::steady_clock::now() - loss.started_at);
 
-    if (zone_changed && !loss.saw_black_screen && NavmeshZonesShareGeometry(param_, prior_zone, position_->zone_id)) {
+    if (zone_changed && !loss.saw_black_screen && near_last_fix && NavmeshZonesShareGeometry(param_, prior_zone, position_->zone_id)) {
         LogInfo << "Zone flipped within the same geometry; keeping the corridor." << VAR(prior_zone) << VAR(position_->zone_id)
                 << VAR(position_->x) << VAR(position_->y);
         session_->updateCurrentZone(position_->zone_id);
@@ -297,8 +298,7 @@ bool NavigationStateMachine::resumeAfterGlobalReacquire(const std::string& prior
         session_->updateCurrentZone(position_->zone_id);
     }
     const bool dropped_frames = !zone_changed && !loss.saw_black_screen
-                                && loss_elapsed < std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs)
-                                && std::hypot(position_->x - loss.last_fix.x, position_->y - loss.last_fix.y) < kDwellWatchdogRadius;
+                                && loss_elapsed < std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs) && near_last_fix;
     if (!dropped_frames && ++runtime_state_.global_reacquire_streak >= kLocalizationThrashFailCount) {
         return failNavigation(
             "localization_thrash",
