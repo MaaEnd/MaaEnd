@@ -1005,10 +1005,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoSellSellGoodsEmpty", // 防止识别出错 误点进 0 库存物资
-            "VisitFriendsBtwSellItemSliding",
-            "VisitFriendsBtwSellCloseSellGoodsPage",
-            "VisitFriendsBtwSellCloseStockListPage"
+            "VisitFriendsBtwSellItemSliding"
         ]
     },
     "VisitFriendsBtwSellItemSliding": {
