@@ -209,6 +209,9 @@ bool NavigationStateMachine::climbRecoveryLadder(const NavigateTick& tick)
         session_->updateCurrentZone(position_->zone_id);
     }
 
+    if (escalation.jump_attempt_count >= kRecoveryJumpAttemptsBeforeDetour) {
+        return escalatePastJump(tick);
+    }
     ++escalation.jump_attempt_count;
     const NaviPosition jump_start = *position_;
     LogInfo << "Dynamic recovery jump pulse issued." << VAR(escalation.jump_attempt_count) << VAR(escalation.detour_attempt_count);
@@ -295,6 +298,7 @@ bool NavigationStateMachine::executePhysicalUnstick(double stuck_heading)
     if (!target) {
         ++unstick.count;
         LogWarn << "Physical unstick: no on-mesh escape bearing found." << VAR(stuck_heading) << VAR(unstick.count);
+        failure_trail_.note(std::chrono::steady_clock::now(), "recovery unstick no bearing");
         return false;
     }
 
@@ -326,6 +330,9 @@ bool NavigationStateMachine::executePhysicalUnstick(double stuck_heading)
     LogInfo << "Physical unstick step executed." << VAR(distance) << VAR(moved) << VAR(dislodged) << VAR(unstick.count)
             << VAR(target_heading) << VAR(target->x) << VAR(target->y);
     failure_trail_.note(std::chrono::steady_clock::now(), dislodged ? "recovery unstick dislodged" : "recovery unstick stuck");
+    if (dislodged) {
+        runtime_state_.recovery_escalation.jump_attempt_count = 0;
+    }
 
     // 禁区以位移前的位置为原点, 障碍在那里的前方
     const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(param_, session_, *position_);
