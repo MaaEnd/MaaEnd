@@ -2,6 +2,7 @@ package scenemanager
 
 import (
 	"image"
+	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
@@ -12,6 +13,7 @@ import (
 var screenshotStableDone bool
 var screenshotStableCount int // 0=未采；1=已有 baseline；2=第 2 帧已匹配，等待第 3 帧
 var screenshotStableBaseline *image.RGBA
+var screenshotStableBaselineAt time.Time
 
 var _ maa.CustomRecognitionRunner = (*ScreenshotStableRecognition)(nil)
 
@@ -33,6 +35,12 @@ func (r *ScreenshotStableRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 		return nil, false
 	}
 
+	// 中断恢复：周期进行中若长时间没有后续帧（任务被打断），丢弃 baseline
+	// 重新起算，避免基准帧（约 3.5MB）驻留到进程结束。
+	if screenshotStableCount != 0 && time.Since(screenshotStableBaselineAt) > 10*time.Second {
+		restartScreenshotStable()
+	}
+
 	cur := minicv.ImageConvertRGBA(arg.Img)
 	if cur == nil || cur.Bounds().Empty() {
 		log.Error().Str("component", "ScreenshotStableRecognition").Msg("empty image")
@@ -42,6 +50,7 @@ func (r *ScreenshotStableRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 	// 第 1 帧：只存 baseline
 	if screenshotStableCount == 0 {
 		screenshotStableBaseline = minicv.ImageCopy(cur)
+		screenshotStableBaselineAt = time.Now()
 		screenshotStableCount = 1
 		return nil, false
 	}
@@ -76,7 +85,13 @@ func shouldRunScreenshotStable() bool {
 
 func finishScreenshotStable() {
 	screenshotStableDone = true
+	restartScreenshotStable()
+}
+
+// restartScreenshotStable 丢弃进行中的周期状态（不动 Done 标志）。
+func restartScreenshotStable() {
 	screenshotStableBaseline = nil
+	screenshotStableBaselineAt = time.Time{}
 	screenshotStableCount = 0
 }
 

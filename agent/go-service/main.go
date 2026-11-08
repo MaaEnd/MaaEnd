@@ -20,6 +20,9 @@ func main() {
 		debug.SetTraceback("crash")
 	}
 	debug.SetPanicOnFault(true)
+	// 常驻 Agent 进程：更激进的 GC 节奏压低 RSS 峰值，512MiB 软上限兜底分配尖峰。
+	debug.SetGCPercent(50)
+	debug.SetMemoryLimit(512 << 20)
 
 	if _, err := fsutil.InstallDir(); err != nil {
 		log.Fatal().Err(err).Msg("Failed to resolve install directory")

@@ -15,11 +15,15 @@ const nodeName = "_GO_SERVICE_FOCUS_"
 
 // 进程级的限频时间戳表：以 PrintThrottle 的 content 字符串作为 key，
 // 记录上次成功输出的时间。结构小、访问不频繁，简单 mutex 足够。
-// 该表只增不减，不做主动清理：调用方应保证 content 取值集合有界
-// （例如来自 i18n 模板而不是任意外部输入）。
+// 该表有界（见 throttleHistoryMax）：调用方 key 通常来自 i18n 模板；
+// 动态文本 key（如按场景名拼装）触发上限时整体重置，代价仅是重置后
+// 同内容可能多打印一次。
 var (
 	throttleHistory = make(map[string]time.Time)
 )
+
+// throttleHistoryMax 限制限频表条目数，保证内存有界。
+const throttleHistoryMax = 512
 
 // Print sends focus payload on node action starting event,
 // so that the client can make the payload visible to users.
@@ -64,8 +68,8 @@ func Print(ctx *maa.Context, content string) {
 // Notes:
 //   - The throttle key is the exact (already-formatted) content string;
 //     identical strings from different call sites share the same window.
-//   - Throttle state is process-wide and never auto-evicted; callers should
-//     keep the set of distinct content values bounded.
+//   - Throttle state is process-wide and bounded by [throttleHistoryMax];
+//     exceeding the cap resets the table (a repeated hint may print once more).
 //   - If interval <= 0, this degenerates to a plain [Print] call.
 func PrintThrottle(ctx *maa.Context, interval time.Duration, content string) {
 	if interval > 0 && !shouldPrintThrottled(content, interval) {
@@ -78,6 +82,9 @@ func shouldPrintThrottled(content string, interval time.Duration) bool {
 	now := time.Now()
 	if last, ok := throttleHistory[content]; ok && now.Sub(last) < interval {
 		return false
+	}
+	if len(throttleHistory) >= throttleHistoryMax {
+		clear(throttleHistory)
 	}
 	throttleHistory[content] = now
 	return true
