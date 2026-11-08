@@ -15,7 +15,7 @@ const (
 
 	target = 150000
 
-	swipe = "VisitFriendsBtwSellItemSwipe"
+	sliding = "VisitFriendsBtwSellItemSliding"
 )
 
 var (
@@ -26,19 +26,19 @@ var (
 	base      *int
 )
 
-// Swipe 从节点识别结果取单价，按差值计算本次售卖数量并覆写滑条目标
+// Sliding 从节点识别结果取单价，按差值计算本次售卖数量并覆写滑条目标
 // 首次调用记录 IMS 获得过的调度券数量，给 FinishedRecognition 用
-type SwipeAction struct{}
+type SlidingAction struct{}
 
 // Finished 用 IMS 累计的调度券增量扣减差值，差值耗尽时命中并重置差值
 type FinishedRecognition struct{}
 
 var (
-	_ maa.CustomActionRunner      = (*SwipeAction)(nil)
+	_ maa.CustomActionRunner      = (*SlidingAction)(nil)
 	_ maa.CustomRecognitionRunner = (*FinishedRecognition)(nil)
 )
 
-func (a *SwipeAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *SlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().Str("component", component).Msg("custom action arg is nil")
 		return false
@@ -73,7 +73,7 @@ func (a *SwipeAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	err = ctx.OverridePipeline(map[string]any{
-		swipe: map[string]any{"attach": map[string]any{"TargetQuantity": qty}},
+		sliding: map[string]any{"attach": map[string]any{"TargetQuantity": qty}},
 	})
 	if err != nil {
 		log.Error().Err(err).Str("component", component).Msg("failed to override btwsell pipeline")

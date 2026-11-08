@@ -11,7 +11,7 @@
             }
         }
     },
-    "VisitFriendsBtwSellItemSwipe": {
+    "VisitFriendsBtwSellItemSliding": {
         "action": {
             "type": "Custom",
             "param": {
