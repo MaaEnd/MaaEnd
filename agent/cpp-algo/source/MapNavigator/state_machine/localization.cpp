@@ -143,6 +143,7 @@ bool NavigationStateMachine::endLocalizationLoss()
         loss.reset();
         return false;
     }
+    session_->excludeFromStallClocks(std::chrono::steady_clock::now() - loss.started_at);
     const auto loss_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - loss.started_at).count();
     const bool armed = armRiverFallRecoveryIfBlackScreenLoss("normal_reacquire");
     LogInfo << "Localization recovered via normal tracking." << VAR(loss_ms) << VAR(loss.saw_black_screen) << VAR(armed)
@@ -258,12 +259,7 @@ bool NavigationStateMachine::sceneRecoveryAllowed()
 bool NavigationStateMachine::runSceneRecovery()
 {
     runtime_state_.scene_recovery_attempted = true;
-    if (!returnToWorld()) {
-        return false;
-    }
-    // 被界面盖住和清界面的这段时间人走不了, 不算停滞
-    session_->excludeFromStallClocks(std::chrono::steady_clock::now() - runtime_state_.localization_loss.started_at);
-    return true;
+    return returnToWorld();
 }
 
 bool NavigationStateMachine::returnToWorld()
@@ -286,6 +282,7 @@ bool NavigationStateMachine::resumeAfterGlobalReacquire(const std::string& prior
 {
     LocalizationLossState& loss = runtime_state_.localization_loss;
     const bool zone_changed = !position_->zone_id.empty() && position_->zone_id != prior_zone;
+    session_->excludeFromStallClocks(std::chrono::steady_clock::now() - loss.started_at);
 
     if (runtime_state_.cross_tier_escape.active) {
         if (NavmeshZonesShareGeometry(param_, runtime_state_.cross_tier_escape.anchor_zone, position_->zone_id)) {
