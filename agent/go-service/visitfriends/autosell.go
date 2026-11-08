@@ -27,10 +27,10 @@ var (
 )
 
 // Sliding 从节点识别结果取单价，按差值计算本次售卖数量并覆写滑条目标
-// 首次调用记录 IMS 获得过的调度券数量，给 FinishedRecognition 用
 type SlidingAction struct{}
 
 // Finished 用 IMS 累计的调度券增量扣减差值，差值耗尽时命中并重置差值
+// 首次调用记录 IMS 当前调度券数量，辅助识别出售结果
 type FinishedRecognition struct{}
 
 var (
@@ -45,14 +45,6 @@ func (a *SlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	mu.Lock()
-	if base == nil {
-		snap := ims.ItemsSnapshot()
-		sum := 0
-		for _, id := range coupons {
-			sum += snap[id]
-		}
-		base = &sum
-	}
 	rest := remaining
 	mu.Unlock()
 
