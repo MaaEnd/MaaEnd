@@ -3,7 +3,6 @@ package visitfriends
 import (
 	"sync"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/ims"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/ocrnum"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -19,22 +18,23 @@ const (
 )
 
 var (
-	coupons = []string{"item_domain_jinlong_coupon", "item_domain_tundra_coupon"}
-
-	mu        sync.Mutex
-	remaining int
-	base      *int
+	mu         sync.Mutex
+	remaining  = target
+	sellPrice  int
 )
 
 // Sliding 从节点识别结果取单价，按差值计算本次售卖数量并覆写滑条目标
 type SlidingAction struct{}
 
-// Finished 用 IMS 累计的调度券增量扣减差值，差值耗尽时命中并重置差值
-// 首次调用记录 IMS 当前调度券数量，辅助识别出售结果
+// Settle 按滑条实际数量与单价扣减差值
+type SettleAction struct{}
+
+// Finished 差值已耗尽时命中并重置差值
 type FinishedRecognition struct{}
 
 var (
 	_ maa.CustomActionRunner      = (*SlidingAction)(nil)
+	_ maa.CustomActionRunner      = (*SettleAction)(nil)
 	_ maa.CustomRecognitionRunner = (*FinishedRecognition)(nil)
 )
 
@@ -59,7 +59,7 @@ func (a *SlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	qty := rest / price
+	qty := (rest + price - 1) / price
 	if qty < 1 {
 		qty = 1
 	}
@@ -72,6 +72,10 @@ func (a *SlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
+	mu.Lock()
+	sellPrice = price
+	mu.Unlock()
+
 	log.Info().
 		Str("component", component).
 		Int("price", price).
@@ -81,30 +85,50 @@ func (a *SlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	return true
 }
 
+func (a *SettleAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	if arg == nil {
+		log.Error().Str("component", component).Msg("custom action arg is nil")
+		return false
+	}
+
+	detail, err := recogtarget.SelectDetail(ctx, arg.CurrentTaskName, arg.RecognitionDetail)
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Msg("select detail failed")
+		return false
+	}
+	qty, err := ocrnum.Extract(detail)
+	if err != nil || qty <= 0 {
+		log.Error().Err(err).Str("component", component).Msg("quantity parse failed")
+		return false
+	}
+
+	mu.Lock()
+	price := sellPrice
+	if price <= 0 {
+		mu.Unlock()
+		log.Error().Str("component", component).Msg("sell price not set before accounting")
+		return false
+	}
+	remaining -= qty * price
+	left := remaining
+	mu.Unlock()
+
+	log.Info().
+		Str("component", component).
+		Int("price", price).
+		Int("qty", qty).
+		Int("remaining", left).
+		Msg("btwsell accounted")
+	return true
+}
+
 func (r *FinishedRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	snap := ims.ItemsSnapshot()
-	cur := 0
-	for _, id := range coupons {
-		cur += snap[id]
-	}
-	// get the result by this sell from IMS
-	gain := 0
-	if base != nil {
-		gain = cur - *base
-		if gain < 0 {
-			gain = 0
-		}
-		remaining -= gain
-	}
-	base = &cur
-
 	if remaining > 0 {
 		log.Info().
 			Str("component", component).
-			Int("gain", gain).
 			Int("remaining", remaining).
 			Msg("btwsell ongoing")
 		return nil, false
@@ -112,7 +136,6 @@ func (r *FinishedRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionAr
 	remaining = target
 	log.Info().
 		Str("component", component).
-		Int("gain", gain).
 		Msg("btwsell finished")
 	return &maa.CustomRecognitionResult{}, true
 }

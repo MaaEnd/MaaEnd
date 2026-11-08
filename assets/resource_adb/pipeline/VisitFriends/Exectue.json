@@ -19,15 +19,23 @@
                 "custom_action_param": {
                     "SliderQuantity": {
                         "roi": [
-                            304,
-                            540,
-                            54,
-                            39
+                            305,
+                            550,
+                            91,
+                            35
                         ],
                         "only_rec": true
                     }
                 }
             }
         }
+    },
+    "VisitFriendsBtwSellItemQuantity": {
+        "roi": [
+            305,
+            550,
+            91,
+            35
+        ]
     }
 }

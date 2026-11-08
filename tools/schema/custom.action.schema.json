@@ -95,6 +95,7 @@
                 "TextInputInitAction",
                 "TrialOfSwordmancy.Decide",
                 "UpdateItemQuantity",
+                "VisitFriendsBtwSellSettleAction",
                 "VisitFriendsBtwSellSlidingAction",
                 "WebEvent202605Action",
                 "ZiplineImport",
