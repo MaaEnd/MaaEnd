@@ -877,44 +877,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "VisitFriendsBtwSellValleyIVStockedItemOpen",
+            "VisitFriendsBtwSellItemOpen",
             "VisitFriendsBtwSellWulingSwitch",
             "VisitFriendsBtwSellNoStock"
-        ]
-    },
-    "VisitFriendsBtwSellValleyIVStockedItemOpen": {
-        "desc": "顺便出售：点击四号谷地第一个库存数大于 0 的商品",
-        "recognition": "And",
-        "all_of": [
-            {
-                "sub_name": "region",
-                "recognition": "TemplateMatch",
-                "roi": [
-                    0,
-                    0,
-                    600,
-                    150
-                ],
-                "template": [
-                    "AutoSell/StockRedistributionValleyIVChoose.png"
-                ],
-                "threshold": 0.85
-            },
-            "AutoSellBtwStockQuantityRecognition"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "action": "Click",
-        "target_offset": [
-            55,
-            5,
-            -45,
-            25
-        ],
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "VisitFriendsBtwSellGoodsOpen"
         ]
     },
     "VisitFriendsBtwSellWulingSwitch": {
@@ -938,31 +903,17 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "VisitFriendsBtwSellWulingStockedItemOpen",
+            "VisitFriendsBtwSellItemOpen",
             "VisitFriendsBtwSellNoStock"
         ]
     },
-    "VisitFriendsBtwSellWulingStockedItemOpen": {
-        "desc": "顺便出售：点击武陵第一个库存数大于 0 的商品",
+    "VisitFriendsBtwSellItemOpen": {
+        "desc": "顺便出售：点击第一个库存数大于 0 的商品打开出售界面",
         "recognition": "And",
         "all_of": [
-            {
-                "sub_name": "region",
-                "recognition": "TemplateMatch",
-                "roi": [
-                    0,
-                    0,
-                    600,
-                    150
-                ],
-                "template": [
-                    "AutoSell/StockRedistributionWulingChoose.png"
-                ],
-                "threshold": 0.85
-            },
             "AutoSellBtwStockQuantityRecognition"
         ],
-        "box_index": 1,
+        "box_index": 0,
         "pre_delay": 0,
         "action": "Click",
         "target_offset": [
@@ -978,7 +929,7 @@
         ]
     },
     "VisitFriendsBtwSellNoStock": {
-        "desc": "顺便出售：可售地区均无库存（或未勾选可售地区），结束本好友售卖",
+        "desc": "顺便出售：差值耗尽或可售地区均无库存或未勾选可售地区，结束本好友售卖",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
@@ -989,98 +940,142 @@
         ]
     },
     "VisitFriendsBtwSellGoodsOpen": {
-        "desc": "顺便出售：打开出售物资界面成功",
-        "recognition": "And",
-        "all_of": [
-            "InFriendsStockRedistributionSellGoods"
-        ],
-        "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]AutoSellSellGoodsEmpty",
-            "[JumpBack]VisitFriendsBtwSellSumEnough",
-            "[JumpBack]VisitFriendsBtwSellBuyPlus",
-            "[JumpBack]VisitFriendsBtwSellSellAnyway",
-            "VisitFriendsBtwSellCloseSellGoodsPage",
-            "VisitFriendsBtwSellCloseStockListPage"
-        ]
-    },
-    "VisitFriendsBtwSellSumEnough": {
-        "desc": "顺便出售：数量*售出价 >= 150000",
-        "recognition": "Custom",
-        "custom_recognition": "ExpressionRecognition",
-        "custom_recognition_param": {
-            "expression": "{VisitFriendsBtwSellQuantityRecognition} * {VisitFriendsBtwSellPriceRecognition} >= 150000",
-            "box_node": "VisitFriendsBtwSellPriceRecognition",
-            "focus_matched_resolved_expression": true,
-            "focus_unmatched_resolved_expression": true
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellFriendsPricesExpectedBuyClick"
-        ]
-    },
-    "VisitFriendsBtwSellBuyPlus": {
-        "desc": "顺便出售：加号连点 10 次",
+        "desc": "顺便出售：打开出售物资界面成功，识别单价并按差值覆写滑条目标",
         "recognition": "And",
         "all_of": [
             "InFriendsStockRedistributionSellGoods",
-            {
-                "sub_name": "increase",
-                "recognition": "TemplateMatch",
-                "roi": [
-                    680,
-                    490,
-                    100,
-                    75
-                ],
-                "template": [
-                    "AutoStockpile/IncreaseButton.png"
-                ],
-                "green_mask": true,
-                "threshold": 0.8
+            "VisitFriendsBtwSellPriceRecognition"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsBtwSellSwipeAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "VisitFriendsBtwSellItemSwipe"
+        ]
+    },
+    "VisitFriendsBtwSellItemSwipe": {
+        "desc": "顺便出售：滑动滑条选择数量（attach.TargetQuantity 由 Go 按差值/单价覆写）",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "ClampTargetToSliderMax": true,
+                    "DecreaseButton": {
+                        "template": "AutoStockpile/DecreaseButton.png"
+                    },
+                    "Direction": "right",
+                    "IncreaseButton": {
+                        "template": "AutoStockpile/IncreaseButton.png"
+                    },
+                    "SliderQuantity": {
+                        "roi": [
+                            375,
+                            508,
+                            36,
+                            24
+                        ],
+                        "only_rec": true
+                    }
+                }
             }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "VisitFriendsBtwSellItemConfirm"
+        ],
+        "attach": {
+            "TargetQuantity": 1
+        }
+    },
+    "VisitFriendsBtwSellItemConfirm": {
+        "desc": "顺便出售：点击售卖",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType2"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "VisitFriendsBtwSellItemFinish"
+        ]
+    },
+    "VisitFriendsBtwSellItemFinish": {
+        "desc": "顺便出售：登记奖励并关闭奖励界面",
+        "recognition": "And",
+        "all_of": [
+            "InNoticeRewards",
+            "CloseRewardsButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 300,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AddItemData",
+        "custom_action_param": {},
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "VisitFriendsBtwSellItemFinishClick"
+        ]
+    },
+    "VisitFriendsBtwSellItemFinishClick": {
+        "desc": "顺便出售：点击关闭奖励界面",
+        "recognition": "And",
+        "all_of": [
+            "InNoticeRewards",
+            "CloseRewardsButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
-        "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
-        },
-        "repeat": 10,
-        "repeat_delay": 50,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                314,
-                96,
-                346,
-                174
-            ]
-        },
+        "post_wait_freezes": 400,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]MouseMoveResetAnchor"
+            "VisitFriendsBtwSellItemBackToList"
         ]
     },
-    "VisitFriendsBtwSellSellAnyway": {
-        "desc": "顺便出售：已达上限仍不足 150000，按当前数量出售",
+    "VisitFriendsBtwSellItemBackToList": {
+        "desc": "顺便出售：关闭出售物资界面返回物资列表",
         "recognition": "And",
         "all_of": [
-            "InFriendsStockRedistributionSellGoods"
+            "InFriendsStockRedistributionSellGoods",
+            "CloseButtonType1"
         ],
+        "box_index": 1,
         "pre_wait_freezes": 100,
         "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellFriendsPricesExpectedBuyClick"
+            "VisitFriendsBtwSellFinished",
+            "VisitFriendsBtwSellItemOpen",
+            "VisitFriendsBtwSellWulingSwitch",
+            "VisitFriendsBtwSellNoStock"
         ]
+    },
+    "VisitFriendsBtwSellFinished": {
+        "desc": "顺便出售：差值已耗尽，重置差值并结束本好友售卖",
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsBtwSellFinishedRecognition",
+        "next": [
+            "VisitFriendsBtwSellNoStock"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "已售满15W，结束售卖"
+        }
     },
     "VisitFriendsBtwSellCloseSellGoodsPage": {
         "desc": "顺便出售：关闭出售物资界面",

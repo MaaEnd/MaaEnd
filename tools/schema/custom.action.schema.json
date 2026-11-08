@@ -95,6 +95,7 @@
                 "TextInputInitAction",
                 "TrialOfSwordmancy.Decide",
                 "UpdateItemQuantity",
+                "VisitFriendsBtwSellSwipeAction",
                 "WebEvent202605Action",
                 "ZiplineImport",
                 "autoEcoFarmInterruptibleSleep",
