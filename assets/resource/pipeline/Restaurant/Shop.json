@@ -385,20 +385,6 @@
                 ]
             },
             {
-                "recognition": "OCR",
-                "roi": [
-                    101,
-                    139,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
-            },
-            {
                 "recognition": "ColorMatch",
                 "roi": [
                     105,
@@ -447,20 +433,6 @@
                 // @i18n-skip
                 "expected": [
                     "-\\d+%"
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "roi": [
-                    253,
-                    139,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
                 ]
             },
             {
@@ -515,20 +487,6 @@
                 ]
             },
             {
-                "recognition": "OCR",
-                "roi": [
-                    404,
-                    139,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
-            },
-            {
                 "recognition": "ColorMatch",
                 "roi": [
                     408,
@@ -577,20 +535,6 @@
                 // @i18n-skip
                 "expected": [
                     "-\\d+%"
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "roi": [
-                    556,
-                    139,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
                 ]
             },
             {
@@ -645,20 +589,6 @@
                 ]
             },
             {
-                "recognition": "OCR",
-                "roi": [
-                    709,
-                    139,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
-            },
-            {
                 "recognition": "ColorMatch",
                 "roi": [
                     713,
@@ -707,20 +637,6 @@
                 // @i18n-skip
                 "expected": [
                     "-\\d+%"
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "roi": [
-                    861,
-                    139,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
                 ]
             },
             {
@@ -775,20 +691,6 @@
                 ]
             },
             {
-                "recognition": "OCR",
-                "roi": [
-                    1013,
-                    139,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
-            },
-            {
                 "recognition": "ColorMatch",
                 "roi": [
                     1017,
@@ -837,20 +739,6 @@
                 // @i18n-skip
                 "expected": [
                     "-\\d+%"
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "roi": [
-                    101,
-                    358,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
                 ]
             },
             {
@@ -905,20 +793,6 @@
                 ]
             },
             {
-                "recognition": "OCR",
-                "roi": [
-                    253,
-                    358,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
-            },
-            {
                 "recognition": "ColorMatch",
                 "roi": [
                     257,
@@ -967,20 +841,6 @@
                 // @i18n-skip
                 "expected": [
                     "-\\d+%"
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "roi": [
-                    404,
-                    358,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
                 ]
             },
             {
@@ -1035,20 +895,6 @@
                 ]
             },
             {
-                "recognition": "OCR",
-                "roi": [
-                    556,
-                    358,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
-            },
-            {
                 "recognition": "ColorMatch",
                 "roi": [
                     560,
@@ -1097,20 +943,6 @@
                 // @i18n-skip
                 "expected": [
                     "-\\d+%"
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "roi": [
-                    709,
-                    358,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
                 ]
             },
             {
@@ -1165,20 +997,6 @@
                 ]
             },
             {
-                "recognition": "OCR",
-                "roi": [
-                    861,
-                    358,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
-            },
-            {
                 "recognition": "ColorMatch",
                 "roi": [
                     865,
@@ -1227,20 +1045,6 @@
                 // @i18n-skip
                 "expected": [
                     "-\\d+%"
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "roi": [
-                    1013,
-                    358,
-                    78,
-                    32
-                ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
                 ]
             },
             {
