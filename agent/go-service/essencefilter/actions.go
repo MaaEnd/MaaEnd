@@ -201,6 +201,44 @@ func (a *EssenceFilterCheckItemLevelAction) Run(ctx *maa.Context, arg *maa.Custo
 	return false
 }
 
+// EssenceFilterReadLockStateAction - read the lock state of the cell chosen by the C++ grid scanner
+type EssenceFilterReadLockStateAction struct{}
+
+func (a *EssenceFilterReadLockStateAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
+	st := currentRun
+	if st == nil || st.Inventory == nil {
+		return true
+	}
+	locked, ok := readSelectedLockState(arg.RecognitionDetail)
+	if !ok {
+		log.Error().Str("component", "EssenceFilter").Str("action", "ReadLockState").Msg("advance detail has no thumb state")
+		return false
+	}
+	st.CurrentLocked = locked
+	return true
+}
+
+func readSelectedLockState(detail *maa.RecognitionDetail) (bool, bool) {
+	if detail == nil || detail.Results == nil || detail.Results.Best == nil {
+		return false, false
+	}
+	custom, ok := detail.Results.Best.AsCustom()
+	if !ok || custom == nil || custom.Detail == "" {
+		return false, false
+	}
+	return parseSelectedThumbState(custom.Detail)
+}
+
+func parseSelectedThumbState(raw string) (bool, bool) {
+	var parsed struct {
+		SelectedThumbState *string `json:"selected_thumb_state"`
+	}
+	if err := json.Unmarshal([]byte(raw), &parsed); err != nil || parsed.SelectedThumbState == nil {
+		return false, false
+	}
+	return *parsed.SelectedThumbState == "lock", true
+}
+
 // EssenceFilterSkillDecisionAction - match skills then decide lock or skip
 type EssenceFilterSkillDecisionAction struct{}
 
@@ -224,7 +262,7 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 		if err != nil {
 			return inventoryFailed(err)
 		}
-		st.Inventory.record(match)
+		st.Inventory.record(match, st.CurrentLocked)
 		return true
 	}
 	return runUnifiedSkillDecision(ctx, arg, st, st.MatchEngine, ocr, decisionNextNodes{
@@ -264,6 +302,7 @@ var (
 	_ maa.CustomActionRunner = &EssenceFilterInitAction{}
 	_ maa.CustomActionRunner = &EssenceFilterCheckItemAction{}
 	_ maa.CustomActionRunner = &EssenceFilterCheckItemLevelAction{}
+	_ maa.CustomActionRunner = &EssenceFilterReadLockStateAction{}
 	_ maa.CustomActionRunner = &EssenceFilterSkillDecisionAction{}
 	_ maa.CustomActionRunner = &EssenceFilterFinishAction{}
 )

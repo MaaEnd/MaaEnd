@@ -17,6 +17,7 @@ const inventoryExportPath = "EssenceInventory.json"
 type inventoryEssence struct {
 	Levels [3]int `json:"levels"`
 	Count  int    `json:"count"`
+	Locked int    `json:"locked"`
 }
 
 type inventoryGroup struct {
@@ -24,9 +25,14 @@ type inventoryGroup struct {
 	Essences  []inventoryEssence `json:"essences"`
 }
 
+type inventoryLevelCounts struct {
+	total  int
+	locked int
+}
+
 type inventoryCounts struct {
 	weaponIDs []string
-	levels    map[[3]int]int
+	levels    map[[3]int]*inventoryLevelCounts
 }
 
 type inventoryState struct {
@@ -34,30 +40,43 @@ type inventoryState struct {
 }
 
 // record aggregates one essence selected by the grid scanner.
-func (s *inventoryState) record(match *matchapi.InventoryMatch) {
+func (s *inventoryState) record(match *matchapi.InventoryMatch, locked bool) {
 	if match == nil {
 		return
 	}
 	group := s.groups[match.SkillIDs]
 	if group == nil {
-		group = &inventoryCounts{levels: make(map[[3]int]int)}
+		group = &inventoryCounts{levels: make(map[[3]int]*inventoryLevelCounts)}
 		for _, weapon := range match.Weapons {
 			group.weaponIDs = append(group.weaponIDs, weapon.InternalID)
 		}
 		slices.Sort(group.weaponIDs)
 		s.groups[match.SkillIDs] = group
 	}
-	group.levels[match.Levels]++
+	counts := group.levels[match.Levels]
+	if counts == nil {
+		counts = &inventoryLevelCounts{}
+		group.levels[match.Levels] = counts
+	}
+	counts.total++
+	if locked {
+		counts.locked++
+	}
 }
 
-func (s *inventoryState) exportGroups() ([]inventoryGroup, int) {
+func (s *inventoryState) exportGroups() ([]inventoryGroup, int, int) {
 	groups := make([]inventoryGroup, 0, len(s.groups))
-	total := 0
+	total, locked := 0, 0
 	for _, counts := range s.groups {
 		group := inventoryGroup{WeaponIDs: counts.weaponIDs}
-		for levels, count := range counts.levels {
-			group.Essences = append(group.Essences, inventoryEssence{Levels: levels, Count: count})
-			total += count
+		for levels, levelCounts := range counts.levels {
+			group.Essences = append(group.Essences, inventoryEssence{
+				Levels: levels,
+				Count:  levelCounts.total,
+				Locked: levelCounts.locked,
+			})
+			total += levelCounts.total
+			locked += levelCounts.locked
 		}
 		slices.SortFunc(group.Essences, func(a, b inventoryEssence) int {
 			return slices.Compare(a.Levels[:], b.Levels[:])
@@ -67,7 +86,7 @@ func (s *inventoryState) exportGroups() ([]inventoryGroup, int) {
 	slices.SortFunc(groups, func(a, b inventoryGroup) int {
 		return slices.Compare(a.WeaponIDs, b.WeaponIDs)
 	})
-	return groups, total
+	return groups, total, locked
 }
 
 func inventoryFailed(err error) bool {
@@ -76,13 +95,13 @@ func inventoryFailed(err error) bool {
 }
 
 func finishInventory(ctx *maa.Context, st *RunState) bool {
-	groups, total := st.Inventory.exportGroups()
+	groups, total, locked := st.Inventory.exportGroups()
 	path := fsutil.UserDataPath(inventoryExportPath)
 	if err := writeInventoryFile(path, groups); err != nil {
 		return inventoryFailed(err)
 	}
 	log.Info().Str("component", "EssenceInventory").Str("path", path).
-		Int("groups", len(groups)).Int("count", total).Msg("inventory exported")
+		Int("groups", len(groups)).Int("count", total).Int("locked", locked).Msg("inventory exported")
 	reportSimpleByKey(ctx, "inventory.saved", path, len(groups), total)
 	return true
 }

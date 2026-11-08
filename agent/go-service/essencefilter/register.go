@@ -7,6 +7,7 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("EssenceFilterInitAction", &EssenceFilterInitAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterCheckItemAction", &EssenceFilterCheckItemAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterCheckItemLevelAction", &EssenceFilterCheckItemLevelAction{})
+	maa.AgentServerRegisterCustomAction("EssenceFilterReadLockStateAction", &EssenceFilterReadLockStateAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterSkillDecisionAction", &EssenceFilterSkillDecisionAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterFinishAction", &EssenceFilterFinishAction{})
 

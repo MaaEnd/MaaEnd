@@ -29,6 +29,9 @@ type RunState struct {
 	CurrentSkills      [3]string
 	CurrentSkillLevels [3]int
 
+	// CurrentLocked is the lock state of the grid cell chosen by the C++ scanner.
+	CurrentLocked bool
+
 	// After-battle grid cache
 	RowBoxes [][4]int
 	RowIndex int
