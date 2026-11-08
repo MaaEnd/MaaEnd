@@ -45,7 +45,7 @@ ObstacleDeviceRecovery MakeDeviceRecovery(
     MaaContext* maa_context,
     Motion* motion_controller,
     PositionSensor* position_provider,
-    NavigationSession* session,
+    Session* session,
     NaviPosition* position)
 {
     ObstacleDeviceRecovery recovery;
@@ -129,7 +129,7 @@ DeviceRemovalOutcome
     LogInfo << "Dynamic recovery carrying off the blocking device." << VAR(route.waypoint_distance);
     // 边走边点会点到滚到下面的另一行提示, 移动点击前须站定
     HoldPosition(recovery->motion_controller);
-    recovery->session->noteInteraction();
+    NoteInteraction(recovery->session);
     const std::optional<std::vector<std::string>> handled = RunTaskForCompletedNodes(recovery->maa_context, kObstacleDeviceEntry, "{}");
     if (!handled) {
         LogWarn << "Blocking-device subtask result unavailable.";
@@ -149,7 +149,7 @@ DeviceRemovalOutcome
         }
     }
 
-    if (!CaptureTracked(recovery->position_provider, recovery->position, recovery->session->currentZoneId())
+    if (!CaptureTracked(recovery->position_provider, recovery->position, recovery->session->current_zone_id)
         || recovery->position_provider->last_capture_was_black_screen || !recovery->position->valid) {
         // 旧定位会让随后的跳跃从旧点量位移, 误报已脱困
         LogWarn << "Dynamic recovery waiting for a local tracking fix after the device move.";

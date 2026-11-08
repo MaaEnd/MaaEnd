@@ -591,12 +591,7 @@ json::object build_route_preview(const QueryParam& query)
     mapnavigator::ResetZiplineOutcome();
     std::vector<mapnavigator::Waypoint> expanded;
     std::vector<mapnavigator::NavmeshRouteDiagnostic> diagnostics;
-    if (!mapnavigator::ExpandNavmeshWaypoints(
-            param,
-            position,
-            [] { return false; },
-            expanded,
-            &diagnostics)) {
+    if (!mapnavigator::ExpandNavmeshWaypoints(param, position, nullptr, expanded, &diagnostics)) {
         const mapnavigator::NavmeshExpansionFailure failure = mapnavigator::CurrentNavmeshExpansionFailure();
         json::object result = fail(failure.message.empty() ? "路线展开失败" : failure.message);
         json::object detail {

@@ -32,13 +32,13 @@ double arrival_band_for_startup_bypass(const Waypoint& waypoint)
 }
 
 template <typename Plan>
-auto with_planning_pause(Motion* motion, NavigationRuntimeState* runtime, NavigationSession* session, Plan&& plan)
+auto with_planning_pause(Motion* motion, NavigationRuntimeState* runtime, Session* session, Plan&& plan)
 {
     const auto started_at = std::chrono::steady_clock::now();
     HoldPosition(motion);
     PauseWedge(&runtime->offroute, started_at);
     auto result = plan();
-    session->excludeFromStallClocks(std::chrono::steady_clock::now() - started_at);
+    ExcludeFromStallClocks(session, std::chrono::steady_clock::now() - started_at);
     return result;
 }
 
@@ -61,8 +61,8 @@ bool NavigationStateMachine::tryApplyDynamicOverlayToAnchor(const char* reason, 
             position_->zone_id,
             {
                 .start = start,
-                .start_floor_y = session_->walkedFloorY(*position_),
-                .start_deck_y = session_->landedTowerDeckY(*position_),
+                .start_floor_y = WalkedFloorY(*session_, *position_),
+                .start_deck_y = LandedTowerDeckY(*session_, *position_),
                 .goal = goal,
                 .goal_deck_y = anchor.target_deck_y,
             },
@@ -96,7 +96,7 @@ bool NavigationStateMachine::tryApplyDynamicOverlayToAnchor(const char* reason, 
                 << VAR(position_->x) << VAR(position_->y);
     }
     const size_t generated_count = generated_prefix.size();
-    session_->applyDynamicOverlay(std::move(generated_prefix), continue_index, *position_);
+    ApplyDynamicOverlay(session_, std::move(generated_prefix), continue_index, *position_);
     runtime_state_.route = {};
     DropWedgeBaseline(&runtime_state_.offroute);
     runtime_state_.nav_run_dirty = true;
@@ -252,7 +252,7 @@ bool NavigationStateMachine::handleZiplineRecoveryReplan()
     }
 
     if (!position_->zone_id.empty()) {
-        session_->updateCurrentZone(position_->zone_id);
+        UpdateCurrentZone(session_, position_->zone_id);
     }
     LogInfo << "Zipline recovery position stabilized." << VAR(elapsed_ms) << VAR(recovery.stable_hits) << VAR(position_->x)
             << VAR(position_->y) << VAR(position_->zone_id);
@@ -267,7 +267,7 @@ bool NavigationStateMachine::handleZiplineRecoveryReplan()
     }
     if (!rejoined && on_mesh) {
         const std::optional<DynamicAnchor> anchor = with_planning_pause(motion_controller_, &runtime_state_, session_, [&] {
-            return ResolveReachableNavmeshAnchor(param_, session_, *position_, session_->currentNodeIdx(), "zipline_recovery");
+            return ResolveReachableNavmeshAnchor(param_, session_, *position_, session_->current_node_idx, "zipline_recovery");
         });
         rejoined = anchor && tryApplyDynamicOverlayToAnchor("zipline_recovery", anchor->first, anchor->second);
     }
@@ -283,7 +283,7 @@ bool NavigationStateMachine::handleZiplineRecoveryReplan()
 
     recovery = {};
     if (IsZiplineMounted(runtime_state_)) {
-        semantic_nodes::StartZiplineHop(semanticContext(), session_->currentWaypoint(), 0.0);
+        semantic_nodes::StartZiplineHop(semanticContext(), CurrentWaypoint(*session_), 0.0);
         return true;
     }
     selectPhaseForCurrentWaypoint("zipline_recovery");
@@ -298,12 +298,12 @@ bool NavigationStateMachine::tryReplanRemainingAuthoredRoute(const char* reason)
     }
 
     size_t slice_begin = authored.size();
-    for (size_t index = session_->currentNodeIdx(); index < session_->currentPath().size(); ++index) {
-        const std::optional<size_t> canonical_index = session_->canonicalIndexAtCurrentPath(index);
+    for (size_t index = session_->current_node_idx; index < session_->current_path.size(); ++index) {
+        const std::optional<size_t> canonical_index = CanonicalIndexAtCurrentPath(*session_, index);
         if (!canonical_index) {
             continue;
         }
-        const size_t stamp = session_->originalPath()[*canonical_index].authored_group_begin;
+        const size_t stamp = session_->original_path[*canonical_index].authored_group_begin;
         if (stamp < authored.size()) {
             slice_begin = stamp;
             break;
@@ -311,13 +311,13 @@ bool NavigationStateMachine::tryReplanRemainingAuthoredRoute(const char* reason)
     }
     if (slice_begin >= authored.size()) {
         LogWarn << "Authored route replan unavailable: no authored origin recorded past the current node." << VAR(reason)
-                << VAR_AS(session_->current_node_idx(), session_->currentNodeIdx())
-                << VAR_AS(session_->current_path().size(), session_->currentPath().size());
+                << VAR_AS(session_->current_node_idx(), session_->current_node_idx)
+                << VAR_AS(session_->current_path().size(), session_->current_path.size());
         return false;
     }
 
     NaviParam replan_param = param_;
-    const HopLedger& ledger = runtime_state_.zipline_ride.ledger();
+    const HopLedger& ledger = runtime_state_.zipline_ride.ledger;
     const int32_t rope_failures = CountZiplineRopeFailures(ledger);
     if (rope_failures >= kZiplineAbandonWalkFallbackCount) {
         replan_param.zipline_enabled = false;
@@ -333,11 +333,11 @@ bool NavigationStateMachine::tryReplanRemainingAuthoredRoute(const char* reason)
         return ExpandNavmeshWaypoints(
             replan_param,
             *position_,
-            should_stop_,
+            maa_context_,
             replanned,
             nullptr,
             &runtime_state_.virtual_no_go,
-            session_->landedTowerDeckY(*position_));
+            LandedTowerDeckY(*session_, *position_));
     });
     if (!expanded || replanned.empty()) {
         LogWarn << "Authored route replan failed to expand the remaining route." << VAR(reason) << VAR(slice_begin)
@@ -351,7 +351,7 @@ bool NavigationStateMachine::tryReplanRemainingAuthoredRoute(const char* reason)
         }
     }
 
-    session_->replaceRoute(std::move(replanned), *position_, reason);
+    ReplaceRoute(session_, std::move(replanned), *position_, reason);
     runtime_state_.route = {};
     DropWedgeBaseline(&runtime_state_.offroute);
     runtime_state_.nav_run_dirty = true;
@@ -361,7 +361,7 @@ bool NavigationStateMachine::tryReplanRemainingAuthoredRoute(const char* reason)
         const semantic_nodes::Context ctx = semanticContext();
         if (semantic_nodes::SkipToHopUnderfoot(ctx, reason)) {
             LogInfo << "Zipline recovery re-expanded the remaining authored route; the next hop leaves from this tower." << VAR(reason)
-                    << VAR(slice_begin) << VAR_AS(session_->current_path().size(), session_->currentPath().size());
+                    << VAR(slice_begin) << VAR_AS(session_->current_path().size(), session_->current_path.size());
             return true;
         }
         semantic_nodes::LeaveZiplineTower(ctx);
@@ -374,7 +374,7 @@ bool NavigationStateMachine::tryReplanRemainingAuthoredRoute(const char* reason)
         tryApplyDynamicOverlayToAnchor(reason, anchor->first, anchor->second);
     }
     LogInfo << "Zipline recovery re-expanded the remaining authored route." << VAR(reason) << VAR(slice_begin)
-            << VAR_AS(session_->current_path().size(), session_->currentPath().size()) << VAR(position_->x) << VAR(position_->y)
+            << VAR_AS(session_->current_path().size(), session_->current_path.size()) << VAR(position_->x) << VAR(position_->y)
             << VAR(position_->zone_id);
     return true;
 }
@@ -408,7 +408,7 @@ bool NavigationStateMachine::handleDynamicReplanRequest(const char* reason)
 
     runtime_state_.dynamic_replan_requested = false;
     ResetRouteTracking(&runtime_state_.route);
-    session_->resetProgress();
+    ResetProgress(session_);
     LogWarn << "Dynamic navmesh replan unavailable; falling back to current route." << VAR(reason) << VAR(position_->x) << VAR(position_->y)
             << VAR(position_->zone_id);
     selectPhaseForCurrentWaypoint("dynamic_replan_fallback");

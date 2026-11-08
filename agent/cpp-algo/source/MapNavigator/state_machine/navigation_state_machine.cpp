@@ -26,7 +26,7 @@ NavigationStateMachine::NavigationStateMachine(
     const NaviParam& param,
     InputBackend* input_backend,
     PositionSensor* position_provider,
-    NavigationSession* session,
+    Session* session,
     Motion* motion_controller,
     NaviPosition* position,
     std::function<bool()> should_stop,
@@ -81,8 +81,8 @@ bool NavigationStateMachine::run()
 
     startScanners();
 
-    while (!should_stop_() && session_->phase() != NaviPhase::Finished && session_->phase() != NaviPhase::Failed) {
-        if (!tickPhase(session_->phase())) {
+    while (!should_stop_() && session_->phase != NaviPhase::Finished && session_->phase != NaviPhase::Failed) {
+        if (!tickPhase(session_->phase)) {
             stopScanners();
             stopMotion();
             sensitivity::EndRun(maa_context_);
@@ -90,8 +90,10 @@ bool NavigationStateMachine::run()
         }
     }
 
-    if (!should_stop_() && session_->phase() != NaviPhase::Failed) {
-        session_->hasSatisfiedFinalSuccess(*position_, "navigation_complete");
+    if (!should_stop_() && session_->phase != NaviPhase::Failed) {
+        if (FinalSuccessReady(*session_, *position_)) {
+            CommitFinalSuccess(session_, *position_, "navigation_complete");
+        }
     }
 
     tryRunPromptSubtaskAtRouteTail();
@@ -99,7 +101,7 @@ bool NavigationStateMachine::run()
     stopScanners();
     stopMotion();
 
-    const bool succeeded = !should_stop_() && session_->success();
+    const bool succeeded = !should_stop_() && session_->success;
     sensitivity::EndRun(maa_context_);
     return succeeded;
 }
@@ -152,7 +154,7 @@ bool NavigationStateMachine::tickNavigate()
         [&] { return idleWhileNotWalking(); },
         [&] { trackRoute(tick); },
         [&] { return checkRouteProgress(tick); },
-        [&] { tick.waypoint = session_->currentWaypoint(); },
+        [&] { tick.waypoint = CurrentWaypoint(*session_); },
         [&] { return handlePrompts(tick); },
         [&] { tick.arrival_distance = resolveArrivalDistance(tick); },
         [&] { return handleWaypointArrival(tick); },
@@ -179,8 +181,8 @@ NavigationStateMachine::NavigateTick NavigationStateMachine::beginNavigateTick()
 
 TickStep NavigationStateMachine::runSemanticFlow()
 {
-    if (!session_->hasCurrentWaypoint()) {
-        session_->noteRouteTailConsumed(*position_, "route_tail_consumed");
+    if (!HasCurrentWaypoint(*session_)) {
+        NoteRouteTailConsumed(session_, *position_, "route_tail_consumed");
         return TickStep::EndTick;
     }
     return concludeSemanticStep(semantic_nodes::TickPortalTransit(semanticContext()));
@@ -221,8 +223,8 @@ TickStep NavigationStateMachine::runInlineSemantics()
     if (!position_->valid) {
         return EndTickWith(handleLocalizationLoss());
     }
-    if (!session_->hasCurrentWaypoint()) {
-        session_->noteRouteTailConsumed(*position_, "route_tail_consumed");
+    if (!HasCurrentWaypoint(*session_)) {
+        NoteRouteTailConsumed(session_, *position_, "route_tail_consumed");
         return TickStep::EndTick;
     }
     return TickStep::Next;
@@ -230,7 +232,7 @@ TickStep NavigationStateMachine::runInlineSemantics()
 
 TickStep NavigationStateMachine::idleWhileNotWalking()
 {
-    if (IsPortalTransitActive(runtime_state_.semantic.portal) || session_->phase() != NaviPhase::Navigate) {
+    if (IsPortalTransitActive(runtime_state_.semantic.portal) || session_->phase != NaviPhase::Navigate) {
         SleepFor(kTargetTickMs);
         return TickStep::EndTick;
     }
@@ -270,7 +272,7 @@ bool NavigationStateMachine::resumeAfterEscape(const char* reason)
     ResetRouteTracking(&runtime_state_.route);
     runtime_state_.dynamic_replan_requested = false;
     runtime_state_.nav_run_dirty = true;
-    session_->resetProgress();
+    ResetProgress(session_);
     selectPhaseForCurrentWaypoint(reason);
     return true;
 }
@@ -289,7 +291,7 @@ bool NavigationStateMachine::failNavigation(
 {
     stopMotion();
     ResetNavigationAssistState(&runtime_state_);
-    session_->updatePhase(NaviPhase::Failed, reason);
+    UpdatePhase(session_, NaviPhase::Failed, reason);
     const TimePoint failed_at = std::chrono::steady_clock::now();
     PruneFailureTrail(&failure_trail_, failed_at);
     LogFailureTrail(failure_trail_, failed_at);

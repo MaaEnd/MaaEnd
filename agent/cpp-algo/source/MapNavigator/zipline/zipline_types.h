@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-#include <variant>
 #include <vector>
 
 #include "../navi_config.h"
@@ -166,6 +165,23 @@ struct NeedsReposition
 {
 };
 
-using StageResult = std::variant<std::monostate, HopCompleted, ChainAbandoned, ReplanRequested, NeedsReposition>;
+// 数值按整数写进日志, 不能改
+enum class StageResultKind
+{
+    Continue = 0,
+    HopCompleted = 1,
+    ChainAbandoned = 2,
+    ReplanRequested = 3,
+    NeedsReposition = 4,
+};
+
+// 只有 kind 对应的那个字段有意义
+struct StageResult
+{
+    StageResultKind kind = StageResultKind::Continue;
+    HopCompleted hop_completed;
+    ChainAbandoned chain_abandoned;
+    ReplanRequested replan_requested;
+};
 
 } // namespace mapnavigator

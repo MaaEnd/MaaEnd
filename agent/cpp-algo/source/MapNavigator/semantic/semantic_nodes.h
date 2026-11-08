@@ -19,7 +19,7 @@ struct Context
 {
     InputBackend* input_backend = nullptr;
     PositionSensor* position_provider = nullptr;
-    NavigationSession* session = nullptr;
+    Session* session = nullptr;
     Motion* motion_controller = nullptr;
     NaviPosition* position = nullptr;
     NavigationRuntimeState* runtime_state = nullptr;

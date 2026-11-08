@@ -2,10 +2,11 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include <MaaFramework/MaaAPI.h>
 
 #include "../../Navmesh/BaseNavPlanner.h"
 #include "../navi_domain_types.h"
@@ -41,11 +42,11 @@ inline constexpr double kBlindTargetMaxExtension = 30.0;
 
 std::string InitialExpectedZone(const NaviParam& param);
 void PreloadNavmeshWaypoints(const NaviParam& param);
-// should_stop 在路点之间轮询, 状态机还没建好, 规划期间只有这里能响应停止
+// maa_context 在路点之间查停止, 状态机还没建好, 规划期间只有这里能响应停止
 bool ExpandNavmeshWaypoints(
     const NaviParam& param,
     const NaviPosition& initial_pos,
-    const std::function<bool()>& should_stop,
+    MaaContext* maa_context,
     std::vector<Waypoint>& out_path,
     std::vector<NavmeshRouteDiagnostic>* out_diagnostics = nullptr,
     const std::vector<VirtualNoGoDisc>* no_go = nullptr,

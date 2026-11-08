@@ -32,31 +32,31 @@ namespace
 Result arrive_transfer(const Context& ctx, const std::optional<size_t>& node_idx, double actual_distance)
 {
     StopMotionAndCommitment(ctx);
-    ctx.session->noteCanonicalFinalGoalConsumed(node_idx, *ctx.position, "transfer_wait_started");
-    ctx.session->advanceToNextWaypoint(ActionType::TRANSFER, "transfer_wait_started");
+    NoteCanonicalFinalGoalConsumed(ctx.session, node_idx, *ctx.position, "transfer_wait_started");
+    AdvanceToNextWaypoint(ctx.session, ActionType::TRANSFER, "transfer_wait_started");
     ResetOnWaypointAdvance(ctx.runtime_state);
     const auto now = std::chrono::steady_clock::now();
-    const bool waits = ctx.session->hasCurrentWaypoint();
+    const bool waits = HasCurrentWaypoint(*ctx.session);
     ctx.runtime_state->semantic.transfer = waits ? TransferWaitState { .started = now, .anchor = *ctx.position } : TransferWaitState {};
     ResetSensorTracking(ctx.position_provider);
     LogInfo << "Action: TRANSFER reached." << VAR(actual_distance);
 
     if (waits) {
-        ctx.session->updatePhase(NaviPhase::WaitTransfer, "transfer_wait_started");
+        UpdatePhase(ctx.session, NaviPhase::WaitTransfer, "transfer_wait_started");
     }
     else {
-        ctx.session->noteRouteTailConsumed(*ctx.position, "route_tail_consumed");
+        NoteRouteTailConsumed(ctx.session, *ctx.position, "route_tail_consumed");
     }
     return Handled();
 }
 
 Result arrive_portal(const Context& ctx, const std::optional<size_t>& node_idx, double actual_distance)
 {
-    ctx.session->noteCanonicalFinalGoalConsumed(node_idx, *ctx.position, "portal_entered");
-    ctx.session->advanceToNextWaypoint(ActionType::PORTAL, "portal_entered");
+    NoteCanonicalFinalGoalConsumed(ctx.session, node_idx, *ctx.position, "portal_entered");
+    AdvanceToNextWaypoint(ctx.session, ActionType::PORTAL, "portal_entered");
     ResetOnWaypointAdvance(ctx.runtime_state);
     const auto now = std::chrono::steady_clock::now();
-    ctx.runtime_state->semantic.portal = ctx.session->hasCurrentWaypoint()
+    ctx.runtime_state->semantic.portal = HasCurrentWaypoint(*ctx.session)
                                              ? PortalTransitState { .phase = PortalTransitPhase::AwaitZone, .started = now }
                                              : PortalTransitState {};
     ResetSensorTracking(ctx.position_provider);
@@ -95,7 +95,7 @@ Result walk_on_after_prompt_miss(const Context& ctx, const std::optional<size_t>
     // 起步按已确认算, 否则要先挪够起步距离才放行到点判定
     ctx.runtime_state->route = {};
     ConfirmStartupAt(&ctx.runtime_state->route, *ctx.position);
-    ctx.session->resetHardProgress();
+    ResetHardProgress(ctx.session);
     LogInfo << "Action: INTERACT prompt missed, walking on onto the point." << VAR(actual_distance) << VAR(*node_idx);
     return { .consumed = true };
 }
@@ -172,8 +172,8 @@ Result TickWaitPhase(const Context& ctx, NaviPhase phase)
 Result ConsumeInlineSemantics(const Context& ctx)
 {
     ConsumeMatchedZoneNodes(ctx);
-    if (!ctx.session->hasCurrentWaypoint()) {
-        ctx.session->noteRouteTailConsumed(*ctx.position, "route_tail_consumed");
+    if (!HasCurrentWaypoint(*ctx.session)) {
+        NoteRouteTailConsumed(ctx.session, *ctx.position, "route_tail_consumed");
         return Handled();
     }
 
@@ -188,7 +188,7 @@ Result ConsumeInlineSemantics(const Context& ctx)
         return find_result;
     }
 
-    if (ctx.session->hasCurrentWaypoint() && IsZoneDeclaration(ctx.session->currentWaypoint())) {
+    if (HasCurrentWaypoint(*ctx.session) && IsZoneDeclaration(CurrentWaypoint(*ctx.session))) {
         MoveForward(ctx.motion_controller);
         return Handled();
     }
@@ -204,16 +204,16 @@ Result StartRopeRide(const Context& ctx, const RopeRideInfo& ride)
     };
     ResetSensorTracking(ctx.position_provider);
     LogInfo << "Rope ride started." << VAR(ride.uid) << VAR(ride.ride_s) << VAR(ride.top_height);
-    if (!ctx.session->hasCurrentWaypoint() || !ctx.session->currentWaypoint().rope_top) {
+    if (!HasCurrentWaypoint(*ctx.session) || !CurrentWaypoint(*ctx.session).rope_top) {
         LogWarn << "Rope ride started without a top landing as the next point." << VAR(ride.uid);
     }
-    ctx.session->updatePhase(NaviPhase::WaitRope, "rope_ride_started");
+    UpdatePhase(ctx.session, NaviPhase::WaitRope, "rope_ride_started");
     return Handled();
 }
 
 Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual_distance)
 {
-    const std::optional<size_t> node_idx = ctx.session->currentAbsoluteNodeIndex();
+    const std::optional<size_t> node_idx = CurrentAbsoluteNodeIndex(*ctx.session);
     if (RequiresStrictArrival(waypoint) && ctx.motion_controller->is_moving) {
         StopMotionAndCommitment(ctx);
         SleepFor(kStopWaitMs);

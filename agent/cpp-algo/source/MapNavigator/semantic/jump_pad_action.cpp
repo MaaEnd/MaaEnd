@@ -105,18 +105,18 @@ Result tick_on_pad(const Context& ctx, JumpPadState& state, double offset)
 Result ArriveJumpPad(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, double actual_distance)
 {
     StopMotionAndCommitment(ctx);
-    ctx.session->noteCanonicalFinalGoalConsumed(node_idx, *ctx.position, "jump_pad_reached");
-    ctx.session->advanceToNextWaypoint(ActionType::JUMP_PAD, "jump_pad_reached");
+    NoteCanonicalFinalGoalConsumed(ctx.session, node_idx, *ctx.position, "jump_pad_reached");
+    AdvanceToNextWaypoint(ctx.session, ActionType::JUMP_PAD, "jump_pad_reached");
     ResetOnWaypointAdvance(ctx.runtime_state);
 
     JumpPadState& state = ctx.runtime_state->semantic.jump_pad;
     state = {};
     state.pad.x = waypoint.x;
     state.pad.y = waypoint.y;
-    state.pad.zone_id = ctx.session->currentZoneId();
+    state.pad.zone_id = ctx.session->current_zone_id;
     state.started = std::chrono::steady_clock::now();
     LogInfo << "Action: JUMP_PAD reached." << VAR(actual_distance) << VAR(waypoint.x) << VAR(waypoint.y);
-    ctx.session->updatePhase(NaviPhase::WaitJumpPad, "jump_pad_reached");
+    UpdatePhase(ctx.session, NaviPhase::WaitJumpPad, "jump_pad_reached");
     return Handled();
 }
 

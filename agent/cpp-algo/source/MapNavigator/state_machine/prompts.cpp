@@ -27,11 +27,11 @@ namespace mapnavigator
 namespace
 {
 
-std::optional<size_t> next_authored_node(const NavigationSession& session)
+std::optional<size_t> next_authored_node(const Session& session)
 {
-    const size_t path_size = session.currentPath().size();
-    for (size_t index = session.currentNodeIdx(); index < path_size; ++index) {
-        if (const std::optional<size_t> canonical = session.canonicalIndexAtCurrentPath(index)) {
+    const size_t path_size = session.current_path.size();
+    for (size_t index = session.current_node_idx; index < path_size; ++index) {
+        if (const std::optional<size_t> canonical = CanonicalIndexAtCurrentPath(session, index)) {
             return canonical;
         }
     }
@@ -84,7 +84,7 @@ TickStep NavigationStateMachine::handlePrompts(const NavigateTick& tick)
         FollowMountTower(&runtime_state_.zipline_approach, waypoint.zipline_hop->mount);
         const size_t cursor = runtime_state_.zipline_approach.spot_index;
         if (cursor + 1 < waypoint.zipline_hop->mount_spots.size() && route.waypoint_distance <= kZiplineWalkEnterBandWu
-            && session_->hardStalledMs(tick.now) >= kZiplineMountSpotStallMs) {
+            && HardStalledMs(*session_, tick.now) >= kZiplineMountSpotStallMs) {
             const semantic_nodes::Result advanced =
                 semantic_nodes::AdvanceMountSpot(semanticContext(), waypoint, "zipline_mount_spot_stalled");
             if (advanced.consumed) {
@@ -201,8 +201,8 @@ NavigationStateMachine::PromptDistance NavigationStateMachine::nearestPromptDist
             nearest.is_zipline = false;
         }
     }
-    const std::vector<Waypoint>& path = session_->currentPath();
-    for (size_t index = session_->currentNodeIdx(); index < path.size(); ++index) {
+    const std::vector<Waypoint>& path = session_->current_path;
+    for (size_t index = session_->current_node_idx; index < path.size(); ++index) {
         const Waypoint& waypoint = path[index];
         const bool is_zipline = waypoint.action == ActionType::ZIPLINE;
         if (!waypoint.has_position || (waypoint.action != ActionType::DIG && !is_zipline)
@@ -251,7 +251,7 @@ bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurem
         }
         const auto started_at = std::chrono::steady_clock::now();
         const PromptTriggerOutcome outcome =
-            TryTriggerPromptWhileWalking(prompts[index], motion_controller_, route.waypoint_distance, session_->currentNodeIdx());
+            TryTriggerPromptWhileWalking(prompts[index], motion_controller_, route.waypoint_distance, session_->current_node_idx);
         if (outcome == PromptTriggerOutcome::NotTriggered) {
             continue;
         }
@@ -270,7 +270,7 @@ bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurem
             return true;
         }
         // 采集提示认中后不走完路点, 交互时刻须在这里记
-        session_->noteInteraction();
+        NoteInteraction(session_);
         if (CompletesWaypointOnTrigger(prompts[index]->spec)) {
             completeWaypointAfterPromptTrigger();
             return true;
@@ -289,18 +289,18 @@ bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurem
 // 交互一开角色就不动、小地图也没了, 所以提示命中即算走完
 void NavigationStateMachine::completeWaypointAfterPromptTrigger()
 {
-    if (!session_->hasCurrentWaypoint()) {
+    if (!HasCurrentWaypoint(*session_)) {
         return;
     }
 
-    const ActionType action = session_->currentWaypoint().action;
-    const std::optional<RopeRideInfo> rope_ride = session_->currentWaypoint().rope_ride;
-    const std::optional<size_t> consumed_absolute_node_idx = session_->currentAbsoluteNodeIndex();
-    session_->noteCanonicalFinalGoalConsumed(consumed_absolute_node_idx, *position_, "async_prompt_completed");
-    session_->advanceToNextWaypoint(action, "async_prompt_completed");
+    const ActionType action = CurrentWaypoint(*session_).action;
+    const std::optional<RopeRideInfo> rope_ride = CurrentWaypoint(*session_).rope_ride;
+    const std::optional<size_t> consumed_absolute_node_idx = CurrentAbsoluteNodeIndex(*session_);
+    NoteCanonicalFinalGoalConsumed(session_, consumed_absolute_node_idx, *position_, "async_prompt_completed");
+    AdvanceToNextWaypoint(session_, action, "async_prompt_completed");
     ResetOnWaypointAdvance(&runtime_state_);
-    if (!session_->hasCurrentWaypoint()) {
-        session_->noteRouteTailConsumed(*position_, "route_tail_consumed");
+    if (!HasCurrentWaypoint(*session_)) {
+        NoteRouteTailConsumed(session_, *position_, "route_tail_consumed");
         return;
     }
     if (rope_ride) {
@@ -313,7 +313,7 @@ void NavigationStateMachine::completeWaypointAfterPromptTrigger()
 // 走完最后一个点的那一拍扫描器就停了, 所以收尾单独再检测一次
 void NavigationStateMachine::tryRunPromptSubtaskAtRouteTail()
 {
-    if (maa_context_ == nullptr || should_stop_() || session_->phase() != NaviPhase::Finished) {
+    if (maa_context_ == nullptr || should_stop_() || session_->phase != NaviPhase::Finished) {
         return;
     }
 

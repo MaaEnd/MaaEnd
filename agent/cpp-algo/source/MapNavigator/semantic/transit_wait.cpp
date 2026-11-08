@@ -25,8 +25,8 @@ namespace
 
 size_t find_future_zone_declaration(const Context& ctx, const std::string& zone_id)
 {
-    const std::vector<Waypoint>& path = ctx.session->currentPath();
-    for (size_t index = ctx.session->currentNodeIdx(); index < path.size(); ++index) {
+    const std::vector<Waypoint>& path = ctx.session->current_path;
+    for (size_t index = ctx.session->current_node_idx; index < path.size(); ++index) {
         const Waypoint& waypoint = path[index];
         if (IsZoneDeclaration(waypoint) && !waypoint.zone_id.empty() && waypoint.zone_id == zone_id) {
             return index;
@@ -37,11 +37,11 @@ size_t find_future_zone_declaration(const Context& ctx, const std::string& zone_
 
 Result finalize_portal_transit_zone(const Context& ctx, const std::string& zone_id, size_t matched_zone_index)
 {
-    if (matched_zone_index > ctx.session->currentNodeIdx()) {
-        ctx.session->skipPastWaypoint(matched_zone_index - 1, "portal_zone_fast_forward");
+    if (matched_zone_index > ctx.session->current_node_idx) {
+        SkipPastWaypoint(ctx.session, matched_zone_index - 1, "portal_zone_fast_forward");
     }
-    ctx.session->updateCurrentZone(zone_id);
-    ctx.session->resetProgress();
+    UpdateCurrentZone(ctx.session, zone_id);
+    ResetProgress(ctx.session);
     ResetOnWaypointAdvance(ctx.runtime_state);
     ConsumeMatchedZoneNodes(ctx);
     StopMotionAndCommitment(ctx);
@@ -65,8 +65,8 @@ Result TickPortalTransit(const Context& ctx)
     }
 
     if (portal.phase == PortalTransitPhase::Reacquire) {
-        if (!CaptureTracked(ctx.position_provider, ctx.position, ctx.session->currentZoneId())
-            || ctx.position->zone_id != ctx.session->currentZoneId()) {
+        if (!CaptureTracked(ctx.position_provider, ctx.position, ctx.session->current_zone_id)
+            || ctx.position->zone_id != ctx.session->current_zone_id) {
             return WaitNextFix(kZoneConfirmRetryIntervalMs);
         }
         portal = {};
@@ -83,7 +83,7 @@ Result TickPortalTransit(const Context& ctx)
     }
 
     *ctx.position = candidate;
-    if (candidate.zone_id.empty() || candidate.zone_id == ctx.session->currentZoneId()) {
+    if (candidate.zone_id.empty() || candidate.zone_id == ctx.session->current_zone_id) {
         return WaitNextFix(kZoneConfirmRetryIntervalMs);
     }
 
@@ -98,9 +98,9 @@ Result TickPortalTransit(const Context& ctx)
 Result TickTransferWait(const Context& ctx)
 {
     TransferWaitState& transfer = ctx.runtime_state->semantic.transfer;
-    if (!ctx.session->hasCurrentWaypoint()) {
+    if (!HasCurrentWaypoint(*ctx.session)) {
         transfer = {};
-        ctx.session->noteRouteTailConsumed(*ctx.position, "route_tail_consumed");
+        NoteRouteTailConsumed(ctx.session, *ctx.position, "route_tail_consumed");
         return Handled();
     }
 
@@ -159,10 +159,10 @@ Result TickRopeRide(const Context& ctx)
 
     LogInfo << "Rope ride finished." << VAR(waited_ms) << VAR(ctx.position->x) << VAR(ctx.position->y) << VAR(ctx.position->zone_id);
     rope = {};
-    if (ctx.session->hasCurrentWaypoint() && ctx.session->currentWaypoint().rope_top) {
-        ctx.session->updateCurrentZone(ctx.position->zone_id);
-        const Waypoint& top = ctx.session->currentWaypoint();
-        return CompleteArrival(ctx, top, ctx.session->currentAbsoluteNodeIndex(), "rope_ride_completed");
+    if (HasCurrentWaypoint(*ctx.session) && CurrentWaypoint(*ctx.session).rope_top) {
+        UpdateCurrentZone(ctx.session, ctx.position->zone_id);
+        const Waypoint& top = CurrentWaypoint(*ctx.session);
+        return CompleteArrival(ctx, top, CurrentAbsoluteNodeIndex(*ctx.session), "rope_ride_completed");
     }
     return ResumeAfterRelocation(ctx, "rope_ride_completed");
 }
