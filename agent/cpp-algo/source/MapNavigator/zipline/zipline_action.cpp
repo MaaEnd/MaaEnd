@@ -13,6 +13,7 @@
 #include <meojson/json.hpp>
 
 #include "../control/action_wrapper.h"
+#include "../control/camera_pitch.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_time.h"
@@ -119,9 +120,7 @@ public:
     // 俯仰无读数, 只能拉到天空方向的硬限位当已知位置; 走 pipeline 节点是因为 Swipe 会带一次左键
     bool resetPitchToMaximum() override
     {
-        const double reset_delta_deg =
-            kZiplinePitchMaximumElevationDeg + kZiplinePitchMaximumDepressionDeg + kZiplinePitchResetOvershootDeg;
-        const int units = static_cast<int>(std::lround(-reset_delta_deg * ctx_.action_wrapper->defaultPitchUnitsPerDegree()));
+        const int units = static_cast<int>(std::lround(-kZiplinePitchResetRangeScale * ctx_.action_wrapper->defaultPitchRangeUnits()));
         if (ctx_.action_wrapper->usesTouchBackend()) {
             return units != 0 && ctx_.action_wrapper->sendViewDeltaSync(0, units);
         }
@@ -151,22 +150,11 @@ public:
         return step;
     }
 
-    bool turnPitch(double delta_deg) override
+    bool lowerPitchTo(double elevation_deg) override
     {
-        const SteeringTransportProfile profile = ctx_.action_wrapper->steeringProfile();
-        const int step_count = static_cast<int>(std::ceil(std::abs(delta_deg) / profile.max_batch_delta_deg));
-        const int step_interval_ms = std::max<int>(kWaitAfterFirstTurnMs, profile.min_send_interval_ms);
-        // 屏幕 dy 向下为正, 抬头要取负
-        const int units = static_cast<int>(std::lround(-delta_deg / step_count * ctx_.action_wrapper->defaultPitchUnitsPerDegree()));
-        for (int step = 0; step < step_count; ++step) {
-            if (!ctx_.action_wrapper->sendViewDeltaSync(0, units)) {
-                return false;
-            }
-            if (step + 1 < step_count) {
-                SleepFor(step_interval_ms);
-            }
-        }
-        return true;
+        const double fraction = CameraVerticalFractionForElevation(elevation_deg);
+        const int units = static_cast<int>(std::lround(fraction * ctx_.action_wrapper->defaultPitchRangeUnits()));
+        return units == 0 || ctx_.action_wrapper->sendViewDeltaSync(0, units);
     }
 
     bool pressMount() override { return press_mount_prompt(ctx_.maa_context); }

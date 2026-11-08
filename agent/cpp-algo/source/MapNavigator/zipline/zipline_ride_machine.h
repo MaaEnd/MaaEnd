@@ -29,7 +29,7 @@ public:
     virtual bool resetPitchToMaximum() = 0;
     // 只发一个后端批次, 返回实际发出的度数, 发不出去返回空
     virtual std::optional<double> turnYaw(double delta_deg) = 0;
-    virtual bool turnPitch(double delta_deg) = 0;
+    virtual bool lowerPitchTo(double elevation_deg) = 0;
     // 识别不到交互提示时不发按键, 返回是否识别到
     virtual bool pressMount() = 0;
     virtual void fireLaunch() = 0;

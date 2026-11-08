@@ -14,13 +14,13 @@ constexpr double kNavigationCameraMinConfidence = 0.3;
 
 constexpr double kTurn360UnitsPerWidth = 2.23006;
 constexpr double kTurnDegreesPerCircle = 360.0;
-constexpr double kPitchDegreesPerRange = 180.0;
+// 鼠标上下拖镜头的速度是左右的这么多倍
+constexpr double kMouseVerticalDragSpeedRatio = 0.7;
 
 struct AdbTouchTurnProfile
 {
     double default_units_per_degree = 3.0;
-    double default_pitch_units_per_degree =
-        default_units_per_degree * kTurnDegreesPerCircle * kWorkHeight / (kWorkWidth * kPitchDegreesPerRange);
+    double default_pitch_range_units = default_units_per_degree * kTurnDegreesPerCircle * kWorkHeight / kWorkWidth;
     int32_t swipe_duration_ms = 70;
     int32_t post_swipe_settle_ms = 0;
     // 移动指令后这段时间内发的转向会被游戏吞掉
@@ -46,14 +46,14 @@ inline double ComputeDefaultUnitsPerDegree()
     return ComputeUnitsPerDegreeForWidth(kWorkWidth);
 }
 
-inline double ComputeUnitsPerDegreeForHeight(int32_t screen_height)
+inline double ComputePitchRangeUnitsForHeight(int32_t screen_height)
 {
-    return kTurn360UnitsPerWidth * static_cast<double>(screen_height) / kPitchDegreesPerRange;
+    return kTurn360UnitsPerWidth * static_cast<double>(screen_height) / kMouseVerticalDragSpeedRatio;
 }
 
-inline double ComputeDefaultPitchUnitsPerDegree()
+inline double ComputeDefaultPitchRangeUnits()
 {
-    return ComputeUnitsPerDegreeForHeight(kWorkHeight);
+    return ComputePitchRangeUnitsForHeight(kWorkHeight);
 }
 
 constexpr int32_t kActionSprintPressMs = 30;
@@ -282,12 +282,10 @@ constexpr double kZiplineAimResponseMinCmdDeg = 2.0;
 constexpr double kZiplineExitAimToleranceDeg = 15.0;
 constexpr int32_t kZiplineTurnBudgetBaseMs = 1500;
 constexpr double kZiplineTurnBudgetPerDegMs = 45.0;
-// 俯仰开环控制, 以上仰硬限位为 +90 度基准
+// 俯仰开环控制, 以上仰硬限位为基准
 constexpr double kZiplinePitchDeadbandDeg = 8.0;
-constexpr double kZiplinePitchMaximumElevationDeg = 90.0;
-constexpr double kZiplinePitchMaximumDepressionDeg = 60.0;
-// 复位时超出硬限位多发的角度, 撞到限位后不会再转
-constexpr double kZiplinePitchResetOvershootDeg = 30.0;
+// 复位按整段竖直行程的这么多倍发, 撞到限位后多出的不起作用
+constexpr double kZiplinePitchResetRangeScale = 1.2;
 // 三次依次用算出的仰角、反向、不动俯仰
 constexpr int32_t kZiplineLaunchAttempts = 3;
 // 连续这么多拍位移都小于此值算滑行结束
