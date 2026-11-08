@@ -129,7 +129,8 @@ private:
 
     TickStep checkOffRouteWedge(const NavigateTick& tick);
     TickStep runObstacleRecovery(const NavigateTick& tick);
-    bool climbRecoveryLadder(const NavigateTick& tick, bool far_or_strict);
+    void noteRecoveryBlocked(const char* reason);
+    bool climbRecoveryLadder(const NavigateTick& tick);
     bool escalatePastJump(const NavigateTick& tick);
     bool executePhysicalUnstick(double stuck_heading);
 

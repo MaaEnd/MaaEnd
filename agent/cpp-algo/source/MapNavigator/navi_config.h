@@ -162,6 +162,7 @@ constexpr double kMinArrivalBand = 1.0;
 constexpr int32_t kObstacleRecoveryMinTriggerMs = 3500;
 constexpr int32_t kDynamicRecoveryRetryIntervalMs = kObstacleRecoveryMinTriggerMs;
 constexpr int32_t kDynamicRecoveryTotalTimeoutMs = 30000;
+constexpr int32_t kNearTargetRecoveryBudgetMs = 12000;
 constexpr int32_t kRecoveryJumpAttemptsBeforeDetour = 2;
 constexpr double kDynamicRecoveryResetDistance = 2.0;
 constexpr int32_t kRecoveryDetourAttemptsBeforeUnstick = 3;

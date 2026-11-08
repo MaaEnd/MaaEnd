@@ -193,6 +193,7 @@ struct RecoveryEscalationState
     int device_attempt_count = 0;
     int jump_attempt_count = 0;
     int detour_attempt_count = 0;
+    std::string blocked_reason;
 
     void reset()
     {
@@ -200,6 +201,7 @@ struct RecoveryEscalationState
         device_attempt_count = 0;
         jump_attempt_count = 0;
         detour_attempt_count = 0;
+        blocked_reason.clear();
     }
 
     void retarget(size_t anchor)
