@@ -144,6 +144,17 @@ void post_key_down_sync(InputBackend* backend, int key_code, int delay_millis)
         *movement_state = true;
     }
 
+    // 键盘输入法为 Interception 时绕开 MaaFramework 直连驱动：框架的
+    // InterceptionInput::key_down 会 ensure_foreground()，每次按键都把游戏窗口拉到前台，
+    // 后台挂机无法成立。其它输入法保持上游路径不变。
+    MaaWin32InputMethod kb_method {};
+    if (TryGetWin32KeyboardInputMethod(backend->ctrl, &kb_method)
+        && kb_method == MaaWin32InputMethod_Interception
+        && InterceptionKeyboard::Instance().KeyDown(key_code)) {
+        SleepFor(delay_millis);
+        return;
+    }
+
     const MaaCtrlId ctrl_id = MaaControllerPostKeyDown(backend->ctrl, key_code);
     MaaControllerWait(backend->ctrl, ctrl_id);
     SleepFor(delay_millis);
@@ -153,6 +164,14 @@ void post_key_up_sync(InputBackend* backend, int key_code, int delay_millis)
 {
     if (bool* movement_state = find_movement_key_state(&backend->desktop, key_code)) {
         *movement_state = false;
+    }
+
+    MaaWin32InputMethod kb_method {};
+    if (TryGetWin32KeyboardInputMethod(backend->ctrl, &kb_method)
+        && kb_method == MaaWin32InputMethod_Interception
+        && InterceptionKeyboard::Instance().KeyUp(key_code)) {
+        SleepFor(delay_millis);
+        return;
     }
 
     const MaaCtrlId ctrl_id = MaaControllerPostKeyUp(backend->ctrl, key_code);
@@ -321,6 +340,17 @@ bool SendDesktopViewDeltaSync(const InputBackend& backend, int dx, int dy)
 
     if (backend.ctrl == nullptr) {
         return false;
+    }
+
+    // 鼠标输入法为 Interception 时直连驱动：MaaFramework 的 InterceptionInput 至今没有实现
+    // RelativeMoveInput，MaaControllerPostRelativeMove 会直接失败，转视角随之失效
+    // （表现是角色朝错误方向走、甚至走进水里）。
+    MaaWin32InputMethod mouse_method {};
+    if (TryGetWin32MouseInputMethod(backend.ctrl, &mouse_method)
+        && mouse_method == MaaWin32InputMethod_Interception
+        && InterceptionKeyboard::Instance().MouseRelativeMove(dx, dy)) {
+        LogInfo << "SendRelativeMoveInterception" << VAR(dx) << VAR(dy);
+        return true;
     }
 
     LogInfo << "SendRelativeMoveNative" << VAR(dx) << VAR(dy);
