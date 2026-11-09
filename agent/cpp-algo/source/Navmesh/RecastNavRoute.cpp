@@ -36,7 +36,7 @@ namespace
 double triHeightOf(const PolyMesh& mesh, int32_t t)
 {
     const auto& tri = mesh.T[static_cast<size_t>(t)];
-    return (mesh.h(tri[0]) + mesh.h(tri[1]) + mesh.h(tri[2])) / 3.0;
+    return (MeshHeight(mesh, tri[0]) + MeshHeight(mesh, tri[1]) + MeshHeight(mesh, tri[2])) / 3.0;
 }
 
 // 净空截断的格数, 含取整余量, 须与 Clearance 的扫描半径同式
@@ -50,16 +50,16 @@ constexpr double kFallRadius = 0.41;
 double triHeightAt(const PolyMesh& mesh, int32_t t, const WorldPoint& p)
 {
     const auto& tri = mesh.T[static_cast<size_t>(t)];
-    const WorldPoint a = mesh.v(tri[0]);
-    const WorldPoint b = mesh.v(tri[1]);
-    const WorldPoint c = mesh.v(tri[2]);
+    const WorldPoint a = MeshPoint(mesh, tri[0]);
+    const WorldPoint b = MeshPoint(mesh, tri[1]);
+    const WorldPoint c = MeshPoint(mesh, tri[2]);
     const double det = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y);
     if (det == 0.0) {
         return triHeightOf(mesh, t);
     }
     const double l0 = ((b.y - c.y) * (p.x - c.x) + (c.x - b.x) * (p.y - c.y)) / det;
     const double l1 = ((c.y - a.y) * (p.x - c.x) + (a.x - c.x) * (p.y - c.y)) / det;
-    return l0 * mesh.h(tri[0]) + l1 * mesh.h(tri[1]) + (1.0 - l0 - l1) * mesh.h(tri[2]);
+    return l0 * MeshHeight(mesh, tri[0]) + l1 * MeshHeight(mesh, tri[1]) + (1.0 - l0 - l1) * MeshHeight(mesh, tri[2]);
 }
 
 std::optional<std::pair<WorldPoint, double>> meshPointAt(const ZoneClean& zc, const WorldPoint& p, double h)
@@ -67,18 +67,19 @@ std::optional<std::pair<WorldPoint, double>> meshPointAt(const ZoneClean& zc, co
     bool have = false;
     std::pair<double, double> bk {};
     std::pair<WorldPoint, double> best {};
-    for (const int32_t t : zc.mesh.trisNear(p, kCS)) {
+    for (const int32_t t : TrisNear(zc.mesh, p, kCS)) {
         if (zc.walkable[static_cast<size_t>(t)] == 0) {
             continue;
         }
         const auto& tri = zc.mesh.T[static_cast<size_t>(t)];
-        const double ha = zc.mesh.h(tri[0]);
-        const double hb = zc.mesh.h(tri[1]);
-        const double hc = zc.mesh.h(tri[2]);
+        const double ha = MeshHeight(zc.mesh, tri[0]);
+        const double hb = MeshHeight(zc.mesh, tri[1]);
+        const double hc = MeshHeight(zc.mesh, tri[2]);
         if (std::fmin(ha, std::fmin(hb, hc)) > h + kDeckBand + 1e-6 || std::fmax(ha, std::fmax(hb, hc)) < h - kDeckBand - 1e-6) {
             continue;
         }
-        const WorldPoint q = detail::ClosestPointOnTriangle(p, { zc.mesh.v(tri[0]), zc.mesh.v(tri[1]), zc.mesh.v(tri[2]) });
+        const WorldPoint q =
+            detail::ClosestPointOnTriangle(p, { MeshPoint(zc.mesh, tri[0]), MeshPoint(zc.mesh, tri[1]), MeshPoint(zc.mesh, tri[2]) });
         const double dist = detail::Distance(q, p);
         if (dist > kCS) {
             continue;
@@ -574,6 +575,36 @@ int64_t seedRec(const GridPatch& ps, const WorldPoint& s, const WorldPoint& s_sn
     return pickStartRec(ps.gw, ps.nx, ps.ny, gx, gy, h0);
 }
 
+// 起点吸到 sp 后定出的种子格里有 region 的非填充面
+bool seeds_in_region(const GridPatch& ps, uint32_t region, const WorldPoint& start, const WorldPoint& sp, double h)
+{
+    int64_t gx = 0;
+    int64_t gy = 0;
+    const int64_t rec = seedRec(ps, start, sp, h, gx, gy);
+    if (rec < 0) {
+        return false;
+    }
+    const auto cell = static_cast<size_t>(ps.gw.rec[static_cast<size_t>(rec)].cell);
+    for (int64_t i = ps.gw.head[cell]; i >= 0; i = ps.gw.next[static_cast<size_t>(i)]) {
+        const GridSpanRec& r = ps.gw.rec[static_cast<size_t>(i)];
+        if (r.rid == region && (r.flags & kGridFlagFill) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::optional<ZoneSnapHit>
+    snap_seeding_region(const ZoneClean& zc, const GridPatch& ps, uint32_t region, const WorldPoint& start, std::optional<double> floor_y)
+{
+    for (const ZoneSnapHit& hit : ZoneSnapCandidates(zc, start, kSnapRadius, floor_y)) {
+        if (seeds_in_region(ps, region, start, hit.point, triHeightOf(zc.mesh, hit.tri))) {
+            return hit;
+        }
+    }
+    return std::nullopt;
+}
+
 // 终点声明了面时改由终点定类, 免得起点二维吸附落在屋顶把线拉到别层
 bool pickRegion(
     const GridPatch& ps,
@@ -712,7 +743,7 @@ std::optional<WindowInfo> buildWindow(
     const FieldsPack& fp,
     const FieldsZoneDir& fzd,
     const FieldsZone& fz,
-    ZoneClean& zc,
+    const ZoneClean& zc,
     int64_t seed_gx,
     int64_t seed_gy,
     double seed_h,
@@ -2854,7 +2885,7 @@ RecastNavEngine::ZoneEntry& RecastNavEngine::zoneEntry(const std::string& name)
         const BaseNavZone* zone = FindBaseNavZoneByName(pack_, name);
         const bool real = zone != nullptr && zone->triangle_count > 0;
         auto rank = [](const ZoneEntry& e) {
-            return e.zc->valid() ? e.used_at : 0;
+            return ZoneCleanValid(*e.zc) ? e.used_at : 0;
         };
         while (real && zones_.size() >= kZoneCacheMax) {
             auto victim = zones_.begin();
@@ -2866,7 +2897,7 @@ RecastNavEngine::ZoneEntry& RecastNavEngine::zoneEntry(const std::string& name)
             zones_.erase(victim);
         }
         ZoneEntry e;
-        e.zc = std::make_unique<ZoneClean>(pack_, planner_, name);
+        e.zc = std::make_unique<ZoneClean>(BuildZoneClean(pack_, planner_, name));
         if (const FieldsZoneDir* fzd = FindFieldsZone(*fields_, name); fzd != nullptr) {
             e.fz = std::make_unique<FieldsZone>();
             if (!LoadFieldsZone(e.fz.get(), &e.fields_error, *fields_, *fzd)) {
@@ -3105,8 +3136,8 @@ RecastPlanResult RecastNavEngine::planLocked(
         return res;
     }
     ZoneEntry& ze = zoneEntry(zone_name);
-    if (!ze.zc->valid()) {
-        res.error = ze.zc->error();
+    if (!ZoneCleanValid(*ze.zc)) {
+        res.error = ze.zc->error;
         return res;
     }
     const FieldsZoneDir* fzd = FindFieldsZone(*fields_, zone_name);
@@ -3115,7 +3146,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         return res;
     }
     const FieldsZone* fz = ze.fz.get();
-    ZoneClean& zc = *ze.zc;
+    const ZoneClean& zc = *ze.zc;
     const std::optional<double> sfl =
         start_floor_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(start_floor_y)) : std::nullopt;
     const std::optional<double> gfl =
@@ -3144,7 +3175,7 @@ RecastPlanResult RecastNavEngine::planLocked(
     GridPatch pg;
     bool patched = false;
     // 终点声明了面时起点优先吸到含终点类面的格, 没有再照旧吸
-    std::function<bool(int32_t, const WorldPoint&)> seeds_in_deck_region;
+    bool deck_region_known = false;
     uint32_t deck_region = 0;
     if (gdk.has_value()) {
         // 起点块盖住兜底吸附半径内任一吸附点再外扩一个定类半径
@@ -3159,39 +3190,24 @@ RecastPlanResult RecastNavEngine::planLocked(
                                          : -1;
         if (deck_rec >= 0) {
             deck_region = pg.gw.rec[static_cast<size_t>(deck_rec)].rid;
-            seeds_in_deck_region = [&](int32_t t, const WorldPoint& sp) {
-                int64_t gx = 0;
-                int64_t gy = 0;
-                const int64_t rec = seedRec(ps, start, sp, triHeightOf(zc.mesh, t), gx, gy);
-                if (rec < 0) {
-                    return false;
-                }
-                const auto cell = static_cast<size_t>(ps.gw.rec[static_cast<size_t>(rec)].cell);
-                for (int64_t i = ps.gw.head[cell]; i >= 0; i = ps.gw.next[static_cast<size_t>(i)]) {
-                    const GridSpanRec& r = ps.gw.rec[static_cast<size_t>(i)];
-                    if (r.rid == deck_region && (r.flags & kGridFlagFill) == 0) {
-                        return true;
-                    }
-                }
-                return false;
-            };
+            deck_region_known = true;
         }
     }
-    std::optional<ZoneClean::SnapHit> ss;
+    std::optional<ZoneSnapHit> ss;
     if (sdk.has_value()) {
-        ss = zc.snapOnDeck(start, kSnapRadius, *sdk);
+        ss = ZoneSnapOnDeck(zc, start, kSnapRadius, *sdk);
     }
-    else if (seeds_in_deck_region) {
-        ss = zc.snap(start, kSnapRadius, sfl, seeds_in_deck_region);
+    else if (deck_region_known) {
+        ss = snap_seeding_region(zc, ps, deck_region, start, sfl);
     }
     if (!ss.has_value()) {
-        ss = zc.snap(start, kSnapRadius, sfl);
+        ss = ZoneSnap(zc, start, kSnapRadius, sfl);
     }
     if (!ss.has_value()) {
         res.error = "起点不在网格附近";
         return res;
     }
-    const auto gs = zc.snap(goal, kSnapRadius, gfl);
+    const auto gs = ZoneSnap(zc, goal, kSnapRadius, gfl);
     if (!gs.has_value()) {
         res.error = "终点不在网格附近";
         return res;
