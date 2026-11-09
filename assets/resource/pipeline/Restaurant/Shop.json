@@ -9,7 +9,10 @@
         "next": [
             "RestaurantShopApproach",
             "RestaurantShopApproachAfterBusiness"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.shop_started"
+        }
     },
     "RestaurantShopApproach": {
         "desc": "导航到堂头小铺交互区域。",
@@ -61,7 +64,10 @@
         ],
         "on_error": [
             "FailedNode"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.shop_approach"
+        }
     },
     "RestaurantShopApproachAfterBusiness": {
         "desc": "从缘缘庄经营区域导航到堂头小铺交互区域。",
@@ -113,7 +119,10 @@
         ],
         "on_error": [
             "FailedNode"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.shop_approach"
+        }
     },
     "RestaurantShopInteract": {
         "desc": "识别小聪明或手不停的交互提示并 AltClick，直到提示消失，最多三次。",
@@ -310,7 +319,10 @@
         "rate_limit": 0,
         "next": [
             "RestaurantShopScan"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.priority_storage_enabled"
+        }
     },
     "RestaurantShopPriorityStorageUnchecked": {
         "recognition": "TemplateMatch",
@@ -1206,7 +1218,10 @@
         ],
         "on_error": [
             "FailedNode"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.shop_refreshing"
+        }
     },
     "RestaurantShopRefreshConfirm": {
         "recognition": "OCR",

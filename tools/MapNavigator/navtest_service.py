@@ -98,7 +98,7 @@ class NavTestService:
         self._navigation_phase_reported = False
 
     _POSITION_RE = re.compile(
-        r"MapLocator \[status=0\].*?\[position\.zoneId=(.*?)\] "
+        r"MapLocator \[status=0\].*?\[position\.(?:zone_id|zoneId)=(.*?)\] "
         r"\[position\.x=([-+0-9.eE]+)\] \[position\.y=([-+0-9.eE]+)\].*?"
         r"\[position\.angle=([-+0-9.eE]+)\]"
     )

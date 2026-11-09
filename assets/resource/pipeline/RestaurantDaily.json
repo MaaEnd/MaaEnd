@@ -417,7 +417,10 @@
         "next": [
             "RestaurantOpenCounter",
             "RestaurantCounterPromptApproach"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.navigate_counter"
+        }
     },
     // 每次前进前先检查柜台提示；最多短按前进 5 次。
     "RestaurantCounterPromptApproach": {
@@ -737,7 +740,10 @@
         "next": [
             "RestaurantPatronageAvailable",
             "RestaurantPatronageInsufficient"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.theme_selected"
+        }
     },
     "RestaurantPatronageOCR": {
         "desc": "OCR 读取右上角客源数字。",
@@ -767,7 +773,10 @@
         "rate_limit": 0,
         "next": [
             "RestaurantFormalStart"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.patronage_available"
+        }
     },
     "RestaurantPatronageInsufficient": {
         "desc": "判断客源不足，转入关闭主题界面流程。",
@@ -870,7 +879,10 @@
         "next": [
             "RestaurantEmptySetup",
             "RestaurantClearPreviousSetup"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.management_ready"
+        }
     },
     "RestaurantClearPreviousSetup": {
         "desc": "点击清空上局人员和菜单设置。",
@@ -2096,7 +2108,10 @@
         "rate_limit": 0,
         "next": [
             "RestaurantOpenKitchenPanel"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.business_started"
+        }
     },
     // 720p 固定派单按钮坐标；最多点击 10 次（默认间隔 3 秒），覆盖约 30 秒加载动画。
     "RestaurantOpenKitchenPanel": {
@@ -2198,7 +2213,10 @@
         "rate_limit": 0,
         "next": [
             "RestaurantSettlementContinue"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.business_ended"
+        }
     },
     "RestaurantSettlementContinue": {
         "desc": "点击结算界面的继续按钮。",
@@ -2301,7 +2319,10 @@
             "RestaurantRoundGate",
             "RestaurantShopAfterRounds",
             "StopNode"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.returned_world"
+        }
     },
     "RestaurantMenuDishesComplete": {
         "desc": "标记菜品类别选择完成，并接入饮品选择。",

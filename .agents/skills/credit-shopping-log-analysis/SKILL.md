@@ -1,6 +1,6 @@
 ---
 name: credit-shopping-log-analysis
-description: 分析 MaaEnd `CreditShoppingMain` 的日志。用于还原信用购物任务中实际购买了什么商品、每件商品的折扣力度、是否触发过刷新（或刷新次数已用尽）、稳健刷新是否触发、以及信用点的消耗状况。货架槽位必须以日志中的 `CreditIcon`（TemplateMatcher）为锚，有无 `BuyFirstOCR`/`Priority2OCR` 不影响槽位级货架的还原与呈现。适用于用户询问信用点交易、信用购物买了什么、折扣情况、刷新配置、`CreditShoppingMain` 任务行为等场景。
+description: 分析 MaaEnd `CreditShoppingMain` 的日志。用于还原信用购物任务中实际购买了什么商品、每件商品的折扣力度、是否触发过刷新（或刷新次数已用尽）、稳健刷新是否触发、以及信用点的消耗状况。货架证据来自 IconRecognition 的 `CreditShoppingPriority{1,2,3}Item` / `CreditShoppingShelfAnyItem`（detail 含 `cell_box` / `row` / `column` / `item_id`）；折扣 OCR 为 `CreditShoppingPriority*Discount`（买不起链为 `*DiscountCannotAfford`）；买得起判定为 `*CanAfford` / `*CanNotAfford`。适用于用户询问信用点交易、信用购物买了什么、折扣情况、刷新配置、`CreditShoppingMain` 任务行为等场景。
 ---
 
 # CreditShoppingMain 日志分析
@@ -9,9 +9,23 @@ description: 分析 MaaEnd `CreditShoppingMain` 的日志。用于还原信用�
 
 不要将本流程复用到 `AutoStockStapleMain`、`AutoStockpileMain` 或通用 issue 故障排查。
 
-## 适用范围
+## 节点速查（当前 Pipeline）
 
-当用户提出下列问题时使用本 Skill：
+| 用途 | 日志中搜索的节点名 |
+| ---- | -------------------------- |
+| 优先购买 N 的物品识别（IconRecognition） | `CreditShoppingPriority1Item` / `CreditShoppingPriority2Item` / `CreditShoppingPriority3Item` |
+| 任意购买物品识别（全 catalog） | `CreditShoppingShelfAnyItem` |
+| 买得起 / 买不起（ColorMatch） | `CreditShoppingPriority{1,2,3}CanAfford` / `...CanNotAfford`、`CreditShoppingShelfAnyCanAfford` |
+| 折扣 OCR（买得起链） | `CreditShoppingPriority1Discount` / `2Discount` / `3Discount` |
+| 折扣 OCR（买不起链，补信用等） | `CreditShoppingPriority{1,2,3}DiscountCannotAfford` |
+| 购买决策（And 链） | `CreditShoppingBuyPriority1/2/3`、`CreditShoppingBuyBlacklist`、`CreditShoppingPrudentRefresh`、`CreditShoppingRefreshCountReached` |
+| 购买确认 / 奖励领取 | `CreditShoppingBuyConfirm`、`CreditShoppingBuyFailed`、`CreditShoppingClaimConfirm` |
+| 保留阈值（表达式识别） | `CreditShoppingReserveCredit`、`CreditShoppingReserveCreditSatisfied` |
+| 刷新状态 | `RefreshButton`、`RefreshCost`、`RefreshUsedUp`、`RefreshItem` |
+
+> **已删除、勿再 grep**：`CreditIcon`、`CreditShoppingRecordShelfSlot`、`CreditShoppingRecordItem*`、`RecordItemDiscount`、`CreditShoppingScanItemAction`、`CreditShopping*NotSoldOut`、`BuyFirstOCR`、`Priority2OCR`、`IsDiscountPriority*`。货架记录模块与商品名 OCR 都已移除，分析**新日志**时必须用上表名称。
+
+## 适用范围
 
 - "信用购物买了什么"
 - "折扣力度如何"
@@ -19,7 +33,7 @@ description: 分析 MaaEnd `CreditShoppingMain` 的日志。用于还原信用�
 - "稳健刷新触发了吗"
 - "信用点消耗了多少"
 - "为什么没买/没刷新"
-- "货架上有什么 / 缺哪一格 / 某时刻货架什么样"（槽位以 `CreditIcon` 为准）
+- "货架上有什么 / 缺哪一格 / 某时刻货架什么样"
 
 ## 主要证据来源
 
@@ -27,13 +41,17 @@ description: 分析 MaaEnd `CreditShoppingMain` 的日志。用于还原信用�
 
 1. `maafw.log`（最新会话）
 2. `maafw.bak.*.log`（若任务发生在之前的会话）
-3. **`CreditIcon`（`TemplateMatcher`）**：货架**槽位与排位**的锚；每次出现即对应一份槽位级货架（ADB 可能为半份后再合并）。
-4. `go-service.log`（信用点 OCR 数值、表达式求值）
-5. `mxu-web-YYYY-MM-DD.log`（前端下发的 pipelineOverride，含开关配置）
+3. **`CreditShoppingShelfAnyItem` / `CreditShoppingPriority{N}Item`**：IconRecognition 的 Custom 结果。每个 `all_results_` 元素带 `cell_box`（格子框）、`row` / `column`（行列）、`item_id`（catalog id）、`score`，是还原货架的唯一权威来源。
+4. **`*Discount`**：折扣角标 OCR，`all_results_` 里是 `{"box":[x,y,w,h],"score":..,"text":"-50%"}`。
+5. **`*CanAfford` / `*CanNotAfford`**：ColorMatch，`count` 与 `box` 可用来解释「为什么这一格没被买」。
+6. `go-service.log`：`apply priority items: OverridePipeline applied`（本次勾选）、`ExpressionRecognition`（信用点数值 / 保留阈值）。
+7. `mxu-web-YYYY-MM-DD.log`：前端下发的 `pipelineOverride`（勾选与开关）。
 
 代码上下文（了解节点语义）：
 
 - `assets/tasks/CreditShopping.json`
+- `assets/resource/pipeline/CreditShopping/Flow/ApplyPriorityItems.json`
+- `assets/resource/pipeline/CreditShopping/Item/ShelfChecks.json`
 
 ## 工作流
 
@@ -43,165 +61,80 @@ description: 分析 MaaEnd `CreditShoppingMain` 的日志。用于还原信用�
 
 ```text
 Tasker.Task.Starting.*CreditShoppingMain
-task start:.*CreditShoppingMain
 ```
 
-记录命中的 `task_id`，后续所有分析必须限定在该 `task_id` 范围内。
+记录命中的 `task_id`，后续所有分析限定在该 `task_id` 范围内。
 
-> 若 `maafw.log` 未命中，改查 `maafw.bak.*.log`，以文件时间戳最近的为优先。
+### 2. 读取本次勾选与开关
 
-### 2. 读取前端配置（关键前置步骤）
+先在 `go-service.log` 搜：
 
-在对应日期的 `mxu-web-YYYY-MM-DD.log` 中找 `CreditShoppingMain` 的 `pipelineOverride`，重点关注末尾：
+```text
+apply priority items: OverridePipeline applied
+```
+
+日志里的 `priority1/2/3` 数组就是本次三档勾选（case 名），据此知道哪些 `CreditShoppingPriority{N}Item` 会真正参与识别。
+
+再在 `mxu-web-YYYY-MM-DD.log` 里找同一个任务的 `pipelineOverride`，关注：
 
 ```json
 "CreditShoppingPrudentRefresh": {"enabled": false/true},
 "RefreshItem":                  {"enabled": false/true},
 "CreditShoppingBuyPriority1":   {"enabled": false/true},
-"CreditShoppingBuyPriority2":   {"enabled": false/true}
+"CreditShoppingBuyPriority2":   {"enabled": false/true},
+"CreditShoppingBuyPriority3":   {"enabled": false/true}
 ```
-
-这一步决定哪些功能在本次运行中被关闭，从而解释后续日志中"节点从未进入识别"的原因。
-
-**常见结论**：
 
 - `CreditShoppingPrudentRefresh: enabled: false` → 稳健刷新被**主动禁用**，不是条件不满足
-- `RefreshItem: enabled: false` → 信用点刷新商品功能关闭，不会消耗信用点刷新
+- `RefreshItem: enabled: false` → 刷新商品功能关闭，不会消耗信用点刷新
 
-### 3. 还原折扣信息
+### 3. 还原货架（以 IconRecognition 的格子为准）
 
-`IsDiscountPriority2` OCR 会在每次扫描时读取整行商品的折扣标签（`expected: "75|95|99"`），可用**多次扫描对比**定位每件商品的折扣。
+同一 `task_id` 下，每次进入识别会有一条 Custom 结果：
 
-在 `maafw*.log` 中搜索：
-
-```log
-OCRer.*IsDiscountPriority2
+```json
+{"box":[56,144,160,160],
+ "detail":{"cell_box":[56,144,160,160],"row":0,"column":0,
+           "item_id":"item_gold","item_box":[49,150,175,175],"score":0.95}}
 ```
 
-每次扫描的 `all_results_` 包含所有可见折扣，格式如：
+还原步骤：
+
+1. 取**同一帧**（同一时间戳附近）的 `CreditShoppingShelfAnyItem` 或三个 `CreditShoppingPriority{N}Item` 的 `all_results_`，按 `row` / `column` 归位。
+2. 只出现部分格子时（例如某一档只认自己勾选的商品），**不得**把不同帧的结果拼成一份货架；换 `CreditShoppingShelfAnyItem` 或同一帧的其他档补全。
+3. `CreditShoppingShelfAnyItem` 只在强制购买 / 稳健刷新 / 次数用尽的兜底路径里跑；**普通一轮扫描没有全 catalog 结果**，此时只能按各档自己的 `Priority{N}Item` 描述，缺的格子写「未识别」，不要编造。
+4. 槽位布局：ADB 为 **6+4**（上排 6、下排 4），Win32 为 **7+3**，合计 10 格；以日志里实际出现的 `row` / `column` 为准。
+
+### 4. 还原折扣
+
+折扣来自 `CreditShoppingPriority{N}Discount`（买不起链为 `...DiscountCannotAfford`），`expected` 由该档「最低折扣」选项改写。
 
 ```log
-{"box":[x,y,w,h],"score":...,"text":"-75%"}
+"name":"CreditShoppingPriority1Discount" ... {"box":[169,140,53,25],"score":0.99,"text":"-50%"}
 ```
 
 **逐次对比法**：比较相邻两次扫描的 `all_results_`，消失的条目对应刚被购买的商品。
 
-配合 `CreditShoppingBuyPriority2` 的命中 box（x 坐标）即可定位该商品的折扣标签（同一列 x 坐标）。
+折扣 ROI 是相对**物品框**的偏移（`ShelfChecks.json` 的 `roi_offset`），所以某个格子有物品识别、但该格折扣 OCR 为空时，通常意味着那一格没有角标，而不是识别失败。
 
-> `filtered_results_` 中出现表示该条目满足 75/95/99 阈值，触发了优先级购买。
+「任意」档（`CreditShoppingPriority{N}DiscountValue` = `Any`）会把该档折扣节点整体换成 `DirectHit`：日志里没有折扣 OCR 文本、也不会出现 `*Discount` 的 `all_results_`，这是配置结果，不是识别失败，更不能据此推断「该格无折扣」。
 
-### 3b. 还原每次货架（以 `CreditIcon` 为锚；名字为可选叠加）
+### 5. 还原实际购买
 
-当用户询问“第一次刷新出了什么”“买完某件后货架怎么变了”“有没有缺格/漏识别”时，必须补做本节。**货架槽位不以 `BuyFirstOCR` / `Priority2OCR` 是否运行为前提。**
+购买事实以框架点击结果为准，不能仅看识别候选。弹窗内的商品名 OCR 已移除，播报由 IMS A3 负责。
 
-#### 货架的判定来源（权威顺序）
-
-1. **槽位与排位（必须）**：同一 `task_id` 下，只要在日志中出现 **`CreditIcon`** 的 `TemplateMatch`（搜索 `TemplateMatcher.*CreditIcon` 或带 `"name":"CreditIcon"` 的识别结果），即视为该次扫描有一份**货架骨架**。
-    - **非 ADB**：同一帧/同一心跳内通常为**一整份**槽位（`all_results_` 中每个 box 为一格）。
-    - **ADB**：可能仅为**半份**（例如先上半再下半）；须标注「半份」，并按下文 ADB 规则与相邻采集合并后再写「满架」结论。
-2. **商品名（可选叠加）**：若**同一扫描时刻**存在 `BuyFirstOCR` / `Priority2OCR` 的 `all_results_`，可将其中 `"text"` 按列对齐叠到槽位上。
-3. **禁止臆造名字**：若某帧**没有**名字 OCR 的 `all_results_`（或 `all_results_` 为空），**不得**用上一轮/下一轮的名称、也不得凭推测填写商品名；必须明确写 **「本帧无商品名 OCR」** 或 **「仅槽位」**。
-
-#### 槽位还原步骤（有 `CreditIcon` 就必须输出）
-
-在 `maafw*.log` 中搜索：
-
-```log
-TemplateMatcher.*CreditIcon
-```
-
-取该次 **`CreditIcon`** 的 `all_results_`（若流水线实际使用 `filtered_results_`，以日志为准并在分析中说明二者差异）。
-
-1. 按 `box` 的 **y** 分成两排：`y≈240` 一带为上排，`y≈440～486` 一带为下排（以相对聚集为准，勿机械抠死一个像素）。
-2. 每排内按 **x 从小到大** 排序，得到从左到右的列（第 1 列…）。
-3. **输出最低要求**：至少写出 **上排 m 格、下排 n 格**（或每格 x / 列序号），使排位可追溯；**即使本轮没有任何商品名 OCR** 也要写。
-4. 用 `NotSoldOut` 等（若日志中有）辅助判断未卖空槽位；格数少于 10 时如实记录；若为买空后 9 格且缺列与刚购商品列一致，注明「买空后正常缺格」。
-
-#### 商品名叠加（若存在）
-
-当同一次扫描中存在名字 OCR 时，搜索：
-
-```log
-OCRer.*BuyFirstOCR
-OCRer.*Priority2OCR
-```
-
-将 `all_results_` 中各条的 `box` 与 `CreditIcon` 列 **按 x/y 对齐** 后填入名称列。**不得**在日志无 `text` 证据时填充具体商品名。
-
-其它辅助节点（可按需引用）：
-
-```log
-ColorMatcher.*NotSoldOut
-ColorMatcher.*BuyFirstOCRLabelColor
-ColorMatcher.*BuyFirstOCRTextColor
-```
-
-#### 异常情况：刷新后只识别到部分货架
-
-有时日志里会出现类似以下情况：
-
-- `CreditIcon` 候选存在，但 `filtered_results_` 只剩 1~9 个
-- `NotSoldOut` 只剩 1~9 个槽位
-- 没有跑出 `BuyFirstOCR` / `Priority2OCR` 名字列表，或列表为空
-- 或者只识别出上排、下排中的一部分
-
-**仍须先根据 `CreditIcon`（及可用的半份/合并规则）写出槽位级货架**；其中「无名字」不等于「无货架」。
-
-若槽位数明显异常（例如远少于 9 且无法用买空解释）、或动画中间帧导致 `CreditIcon` 不稳定，该帧可标为**异常中间态 / 不稳定货架**，**不能**单独当作“本次刷新后的最终完整商店”，应继续在同一轮刷新窗口内找下一帧 `CreditIcon` 佐证。
-
-#### 区分两类表述（避免把「无名」当成「无货架」）
-
-1. **槽位货架（必有，只要跑了 `CreditIcon`）**
-    - 用 `CreditIcon` 的格数与排位描述；**不要求**名字 OCR。
-2. **命名货架（可选）**
-    - 在槽位货架基础上，若存在 `BuyFirstOCR` / `Priority2OCR` 的 `text`，再填商品名。
-    - **完整命名货架**（用于回答“架上分别是什么商品”）：宜满足 **10 个槽位 + 10 个可对齐的名字**；若名字缺失，应写「若干列无名」，**不得编造**。
-3. **完整刷新后的槽位快照**
-    - 指“首次进入”或“某次 `RefreshItem` 成功后”用于描述本轮内容的帧：默认 **10 个 `CreditIcon` 槽位**（命名与否另计）。
-4. **购买后中间快照**
-    - 允许 **9 个** `CreditIcon` 槽位；若能对齐刚购列，注明「买空后正常缺格」。
-
-处理规则：
-
-1. **不得**因本轮未运行 `BuyFirstOCR`/`Priority2OCR` 而跳过货架小节；有 `CreditIcon` 就必须给出槽位表。
-2. **购买后中间快照**允许 9 槽位，须说明缺列与购买列的关系（若日志可对齐）。
-3. 若仅有 **部分槽位**（例如远少于 9）且不满足买空解释 → 标为 **异常帧**，并在同一轮刷新内向后找补充 `CreditIcon` 帧。
-4. 查找「刷新后完整 10 槽位」时，**不得跨过**下一次 `RefreshItem` 的 `Node.Action.Succeeded`。
-5. 若直到下一次刷新点击仍无法得到稳定 10 槽位 `CreditIcon`，如实说明；若仅有槽位而无名字，同样如实说明，**不要用猜测的商品名补全**。
-
-#### ADB 特例：分两次识别上下半货架
-
-部分 ADB 场景下，日志/截图可能无法在同一帧内拿到完整两排：
-
-- 第一次识别只覆盖上半部分
-- 滑动后才出现下半部分
-
-这类情况允许按**两次采集后合并**来还原单次货架：
-
-1. **槽位**：合并后宜达到 **10 个 `CreditIcon` 槽位**（半份须标注，合并后再计数）。
-2. **名字**：若两次采集均无名字 OCR，合并结果仍为**有效槽位货架**，名称列填「未识别」；**不得编造**。若仅部分采集有名字，只填写有日志证据的列。
-3. 必须说明「该货架由上下半（或两次心跳）合并得到」。
-4. 合并范围必须限制在**同一轮刷新、且下一次 `RefreshItem` 点击之前**。
-5. 合并后仍不足 10 槽位 → **不完整货架**，须标注并继续在同一刷新窗口内找下一帧佐证。
-
-### 4. 还原实际购买
-
-购买事实以框架点击结果为准，不能仅看 OCR 候选。弹窗内商品名 OCR（`BuyItemOCR_*`）已移除，播报改由 IMS A3 负责。
-
-步骤：
-
-1. 在 `maafw*.log` 中搜索本轮点击货架后的 `CreditShoppingBuyConfirm`（Action.Succeeded）
-2. 确认后续 `CreditShoppingClaimConfirm` / `CreditShoppingBuySuccess`（含 `"购买成功"`）识别成功并关闭
-3. 商品名优先从同轮货架快照（`CreditIcon` 槽位 + 名字 OCR）或 `go-service` / Focus 中的 A3「获得 xxx ×n」还原；**不得编造**
+1. `maafw*.log` 中搜本轮 `CreditShoppingBuyConfirm`（`Action.Succeeded`）
+2. 确认后续 `CreditShoppingClaimConfirm`（奖励界面关闭）成功
+3. 商品名来源：同帧 `CreditShoppingBuyPriority{N}` 的 `all_results_` 里 `CreditShoppingPriority{N}Item` 的 `item_id`、`CreditShoppingShelfAnyItem` 的 `item_id`、或 IMS A3 的「获得 xxx ×n」；**不得编造**
 
 只有同时满足以下条件才算已购买：
 
 - `CreditShoppingBuyConfirm` Action.Succeeded
 - `CreditShoppingClaimConfirm`（或购买成功文案）识别并成功关闭奖励界面
 
-常见货架商品名对照（用于把槽位 OCR / A3 播报映射到中文名）：
+常见 `item_id` → 中文对照（与 `assets/tasks/CreditShopping.json` 的 case 名一致）：
 
-| 内部名 / 槽位 OCR 线索 | 商品名 |
+| Catalog ID | 商品名 |
 | ---------------------------- | ------------ |
 | `ArmsInspector` | 武器检查单元 |
 | `ArmsINSPKit` | 武器检查装置 |
@@ -218,34 +151,30 @@ ColorMatcher.*BuyFirstOCRTextColor
 | `CastDie` | 强固模具 |
 | `HeavyCastDie` | 重型强固模具 |
 
-### 5. 判断刷新状态
+### 6. 判断刷新状态
 
-**区分两种不同的「刷新」概念**：
+**区分两种「刷新」**：
 
-#### 5a. 今日刷新次数已用尽（`CreditShoppingRefreshCountReached`）
-
-在 `maafw*.log` 中搜索：
+#### 6a. 今日刷新次数已用尽（`CreditShoppingRefreshCountReached`）
 
 ```text
 CreditShoppingRefreshCountReached.*Succeeded
 今日刷新次数已用尽
 ```
 
-若命中，说明**游戏内每日免费刷新配额已耗尽**（非 MAA 刷新），OCR 会同时读到倒计时文字（如 `2小时36分钟`）。
+命中说明游戏内每日免费刷新配额已耗尽（非 MAA 刷新），OCR 同时会读到倒计时文字。
 
-该节点 Succeeded 后会点击（Click）——这是在「次数已满」状态下继续扫描购买剩余商品，**不等于成功刷新了一次商品列表**。
+该节点 Succeeded 后仍会点击购买剩余商品，**不等于成功刷新了一次货架**。
 
-#### 5b. 稳健刷新（`CreditShoppingPrudentRefresh`）
-
-在 `maafw*.log` 中搜索：
+#### 6b. 稳健刷新（`CreditShoppingPrudentRefresh`）
 
 ```text
 Node.Recognition.Starting.*CreditShoppingPrudentRefresh
 ```
 
-**只有**找到该 `Recognition.Starting` 记录，才说明稳健刷新节点被真正进入识别。仅出现在 `parse_node`/`NextList` 中不算触发。
+**只有**找到该 `Recognition.Starting` 才算真正进入识别；仅出现在 `parse_node` / `NextList` 中不算触发。
 
-### 6. 信用点数值追踪
+### 7. 信用点数值追踪
 
 在 `go-service.log` 中搜索：
 
@@ -253,7 +182,7 @@ Node.Recognition.Starting.*CreditShoppingPrudentRefresh
 ExpressionRecognition.*CreditShoppingReserveCreditOCRInternal
 ```
 
-每条记录包含：
+每条包含：
 
 ```json
 {
@@ -264,9 +193,9 @@ ExpressionRecognition.*CreditShoppingReserveCreditOCRInternal
 }
 ```
 
-将这些时间戳与 `maafw.log` 的购买事件对齐，即可还原信用点时间线。
+与 `maafw.log` 的购买事件按时间对齐，即可还原信用点时间线。
 
-> **注意**：数值有时因 OCR 时机（购买确认动画中）出现非预期跳变，需结合上下文解读，不要孤立解释单个数值。
+> 数值有时因 OCR 时机（购买确认动画中）出现跳变，需结合上下文解读，不要孤立解释单个数值。
 
 ## 输出模板
 
@@ -277,72 +206,38 @@ ExpressionRecognition.*CreditShoppingReserveCreditOCRInternal
 - 起止时间: `...`
 - 结束原因: 自然完成 / 被停止
 
-## 前端配置
+## 本次勾选
 
-| 功能            | 状态                        |
-| --------------- | --------------------------- |
-| Priority 1 购买 | 启用 / 关闭                 |
-| Priority 2 购买 | 启用 / 关闭                 |
-| 稳健刷新        | 启用 / **关闭（主动禁用）** |
-| RefreshItem     | 启用 / 关闭                 |
+| 档位 | 勾选商品 | 开关（无条件购买 / 自动补信用 / 稳健刷新） |
+| ---- | -------- | ------------------------------------------ |
+| P1   | ...      | ...                                        |
+| P2   | ...      | ...                                        |
+| P3   | ...      | ...                                        |
 
 ## 实际购买
 
 | #   | 时间 | 商品         | 折扣       | 购买路径                     |
 | --- | ---- | ------------ | ---------- | ---------------------------- |
 | 1   | ...  | 武器检查单元 | 由日志填写 | Priority 2 扫描命中          |
-| 2   | ...  | 协议棱柱组   | 由日志填写 | RefreshCountReached 后续购买 |
 
 ## 货架快照
 
-每一小节**至少**包含：`CreditIcon` 对应的槽位数与排位（上/下排、列序）；商品名仅在日志有 `BuyFirstOCR`/`Priority2OCR` 证据时列出，否则写「本帧无商品名 OCR」。
-
-### 首次进入
-
-时间：`...`（附 `CreditIcon` 日志时间戳）
+### 首次进入（时间：`...`）
 
 ```text
-槽位（CreditIcon）: 上排 m 格 | 下排 n 格（列序：…）
-商品名（若有 OCR）: 上排: [...] / 下排: [...]；若无则写「仅槽位」
+上排（row=0）: [col0 折金票 -50%] [col1 协议圆盘 -50%] ...
+下排（row=1）: [col0 协议圆盘 -25%] ...（其余未识别）
 ```
 
-### 第 1 次刷新后
+### 第 N 次刷新后（`RefreshItem` Action.Succeeded 之后）
 
-刷新点击：`...`
-刷新后扫描：`...`（**必须有该帧 `CreditIcon`**）
-
-```text
-（同上格式）
-```
-
-### 第 2 次刷新后
-
-刷新点击：`...`
-刷新后扫描：`...`
-
-```text
-（同上格式）
-```
-
-> 必须按每一次 `RefreshItem` 的 `Node.Action.Succeeded` 逐次追加货架小节；**不得**因本轮未运行名字 OCR 而省略「槽位货架」。
-> 若中途发生购买且用户关心“缺格/漏识别”，补一节“购买后、下次刷新前”的货架（以 `CreditIcon` 格数变化为准），并标出空列。
-> 若某次刷新后只有部分槽位或不稳定的 `CreditIcon`，单列为「异常帧」，并在同一刷新窗口内继续找下一帧佐证；**禁止**用猜测的商品名凑满格子。
-> 若刷新后某一心跳仅有 `CreditIcon`、无 `BuyFirstOCR`/`Priority2OCR`，仍须给出该心跳的槽位表；不得写成「无法还原货架」除非连 `CreditIcon` 也不存在或日志截断。
-
-## 折扣全览（首次扫描时商店）
-
-| 槽位 x | 折扣       | 是否购买         |
-| ------ | ---------- | ---------------- |
-| x=...  | 由日志填写 | ✅/❌ 由日志填写 |
-| x=...  | 由日志填写 | ✅/❌ 由日志填写 |
-| x=...  | 由日志填写 | ✅/❌ 由日志填写 |
-| x=...  | 由日志填写 | ✅/❌ 由日志填写 |
+（同上格式；数值来自同一帧的 IconRecognition 结果）
 
 ## 刷新状态
 
-- 每日刷新配额：**已用尽**（OCR: 「今日刷新次数已用尽」+ 倒计时）
-- 实际刷新次数：**0 次**
-- 稳健刷新：**未触发**（原因: `CreditShoppingPrudentRefresh` enabled: false）
+- 每日刷新配额：已用尽（OCR: 「今日刷新次数已用尽」+ 倒计时）
+- 实际刷新次数：0 次
+- 稳健刷新：未触发（原因: `CreditShoppingPrudentRefresh` enabled: false）
 
 ## 信用点时间线
 
@@ -350,39 +245,26 @@ ExpressionRecognition.*CreditShoppingReserveCreditOCRInternal
 | -------- | ---------- | --------------------------------- |
 | 01:22:57 | 850        | 任务开始，储备门控 ≥300 通过      |
 | 01:23:06 | 528        | 购买①后                           |
-| 01:23:16 | 758 ⚠️     | OCR 疑似误读（购买②后数值应偏低） |
 ````
 
 ## 约束（Guardrails）
 
 - 仅分析 `CreditShoppingMain`，不混入其他任务的购买列表。
-- 稳健刷新未触发时，必须区分「被禁用（enabled: false）」与「条件不满足」两种原因。
+- 稳健刷新未触发时，必须区分「被禁用（enabled: false）」与「条件不满足」。
 - `CreditShoppingRefreshCountReached` Succeeded **不等于**执行了一次商品刷新。
 - 只有 `Recognition.Starting` 出现在 `CreditShoppingPrudentRefresh` 节点时，才能确认稳健刷新真正进入识别。
-- **货架排位必须以 `CreditIcon` 为准**（槽位级）；`BuyFirstOCR` / `Priority2OCR` 仅用于**叠加商品名**，不可替代槽位来源。
-- 当用户询问“某次刷新后有什么”“玉有没有出现”“哪一格缺了”时：**先用 `CreditIcon` 列出槽位与列序**；若日志中有名字 OCR，再回答“有什么商品”；若无名字 OCR，明确写「仅有槽位、无名证据」，**禁止**用猜测补商品名。
-- 每一次 `RefreshItem` 点击成功都必须在“货架快照”中单独列出一节；小节内须包含该刷新窗口内用于描述的 **`CreditIcon` 帧**（时间戳），即使本轮没有名字 OCR、没有命中购买。
-- 刷新后若 **`CreditIcon` 不稳定或缺失**（动画中间帧等），可将该轮标为“不稳定帧”，并在同一刷新窗口内继续向后找下一帧 `CreditIcon`；不得用下一轮刷新的槽位冒充本轮。
-- **不得**因本轮未运行 `BuyFirstOCR`/`Priority2OCR` 而省略货架小节——只要有 `CreditIcon`，就必须给出槽位表。
-- “完整刷新后的槽位快照”默认 **10 个 `CreditIcon` 槽位**；“完整命名货架”另行要求 10 个可对齐的名字（缺失则如实写无名列）。
-- “购买后中间快照”允许 **9 槽位** `CreditIcon`；若能对齐刚购列，判定为正常买空而非异常。
-- 查找某次刷新后的完整槽位时，不得跨过下一次 `RefreshItem` 的 `Node.Action.Succeeded`。
-- ADB 允许按“上半 + 下半”合并；合并后宜达到 **10 槽位 `CreditIcon`**；名字可为空或部分，**不得编造**。
-- 判断“缺的是哪一格/是否漏识别”时，以 **`CreditIcon` 格数变化 + 列序** 为主，辅以 `NotSoldOut`、名字 OCR（若有）。
-- 折扣结论必须来自 `IsDiscountPriority2` OCR 的 `all_results_` 对比，而非猜测。
-- 信用点数值若出现非预期跳变（如购买后反升），标注 ⚠️ 并说明可能原因，不要强行解释为"获得了信用"。
-- 判断"没有购买"之前，必须确认目标 `task_id` 范围内不存在任何 `CreditShoppingBuyConfirm` Action.Succeeded + 购买成功/ClaimConfirm 关闭组合。
+- **货架只能来自同一帧的 IconRecognition 结果**（`cell_box` / `row` / `column` / `item_id`）；不得跨帧拼接，也不得用已删除的记录节点或快照 JSON。
+- 普通扫描没有全 catalog 结果时，只描述实际出现的 `CreditShoppingPriority{N}Item` 命中，缺格写「未识别」，禁止猜测。
+- **折扣**须来自 `CreditShoppingPriority{N}Discount`（或 `*DiscountCannotAfford`）；不得猜测。
+- 判断"没有购买"之前，必须确认目标 `task_id` 内无 `CreditShoppingBuyConfirm` Action.Succeeded + 奖励界面关闭的组合。
+- 信用点数值异常跳变标注 ⚠️。
 
 ### 防幻觉（禁止编造）
 
-- **商品名**只能来自日志里出现的货架 OCR `text`、A3 Focus「获得 xxx ×n」、或其它明确字段，不得用常识、上一轮货架或用户口述代替。
-- **槽位**只能来自日志里的 `CreditIcon`（及 ADB 合并规则）；不得仅凭“应该有 10 格”臆造格数。
-- 区分三件事并分开写：**槽位货架**（必有若跑了 `CreditIcon`）、**命名叠加**（可有可无）、**折扣数字**（须单独引用 `IsDiscountPriority2`，勿与名称混为一谈）。
+- **商品名**只能来自 `item_id` 对照表、`CreditShoppingPriority{N}Item` / `CreditShoppingShelfAnyItem` 的 detail、A3 Focus 或 logs 中明确字段。
+- **槽位**只能来自同一帧的 IconRecognition 结果；不得跨帧拼成 10 格。
+- 区分：**槽位（row/column）**、**商品（item_id）**、**折扣 OCR** 分开写，勿混为一谈。
 
-### 防止注意力丢失（执行本 Skill 时的自检清单）
+## 历史日志（重构前）
 
-1. 已锁定 `task_id`，后续 grep **全部带该 id**（或确认上下文无串任务）。
-2. 还原货架时 **先搜 `CreditIcon`**，再搜 `BuyFirstOCR`/`Priority2OCR`；避免只 grep 名字节点导致“以为没有货架”。
-3. 每一次 `RefreshItem` **Succeeded** 是否都对应一小节快照（含 `CreditIcon` 时间戳）。
-4. 若用户点名某一时刻（如 `03:31:38`），检查该时刻附近是否有 **`CreditIcon`**：有则输出槽位表，无名字则标明「无名」；**不因无 BuyFirst 而留空**。
-5. 输出前复读：是否写了任何日志里**未出现**的具体商品名？若有 → 删除或改为「未识别」。
+若日志日期早于当前 Pipeline，可能仍出现 `CreditIcon`、`CreditShoppingRecordShelfSlot`、`BuyFirstOCR`、`IsDiscountPriority2` 等节点名；仅在对**旧包**做考古时使用旧 grep，并在结论中注明「旧 Pipeline」。**新日志一律用上文节点表。**

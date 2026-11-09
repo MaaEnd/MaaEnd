@@ -20,7 +20,7 @@ cv::Mat GenerateMinimapMask(const cv::Mat& minimap, const ImageProcessingConfig&
 {
     int w = minimap.cols, h = minimap.rows;
     int centerX = w / 2, centerY = h / 2;
-    int radius = std::min(w, h) / 2 - cfg.borderMargin;
+    int radius = std::min(w, h) / 2 - cfg.border_margin;
     if (radius < 0) {
         radius = 0;
     }
@@ -53,25 +53,25 @@ cv::Mat GenerateMinimapMask(const cv::Mat& minimap, const ImageProcessingConfig&
 
                 int b = imgRow[x][0], g = imgRow[x][1], r = imgRow[x][2];
                 // 提取干扰色块：基于特定游戏 UI 色彩分布进行消除，暖色系(高 R/G)及冷色系特异区域(高 B)
-                if ((r > 100 && g > 100 && std::min(r, g) - b > cfg.iconDiffThreshold) || (b > 140 && b > r + 50)) {
+                if ((r > 100 && g > 100 && std::min(r, g) - b > cfg.icon_diff_threshold) || (b > 140 && b > r + 50)) {
                     colorRow[x] = 255;
                 }
             }
         }
 
-        int cD = std::max(1, cfg.colorDilate);
+        int cD = std::max(1, cfg.color_dilate);
         // 颜色掩膜膨胀：小地图 UI 往往伴随半透明发光或抗锯齿像素，直接提取容易留有彩色残边（形成强烈的虚假梯度），膨胀能确保干扰被完全剔除
         cv::dilate(colorIconMask, colorIconMask, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(cD, cD)));
         baseMask.setTo(0, colorIconMask);
 
-        int wD = std::max(1, cfg.whiteDilate);
+        int wD = std::max(1, cfg.white_dilate);
         // 白色掩膜膨胀：进一步覆盖白色 UI 周围残余的黑边或阴影
         cv::dilate(whiteMask, whiteMask, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(wD, wD)));
         baseMask.setTo(0, whiteMask);
     }
 
     if (withCenterMask) {
-        cv::circle(baseMask, cv::Point(centerX, centerY), cfg.centerMaskRadius, cv::Scalar(0), -1);
+        cv::circle(baseMask, cv::Point(centerX, centerY), cfg.center_mask_radius, cv::Scalar(0), -1);
     }
 
     return baseMask;
@@ -80,10 +80,10 @@ cv::Mat GenerateMinimapMask(const cv::Mat& minimap, const ImageProcessingConfig&
 cv::Mat MinimapRingMask(const cv::Size& size, const ImageProcessingConfig& cfg)
 {
     const cv::Point center(size.width / 2, size.height / 2);
-    const int radius = std::max(0, std::min(size.width, size.height) / 2 - cfg.borderMargin);
+    const int radius = std::max(0, std::min(size.width, size.height) / 2 - cfg.border_margin);
     cv::Mat mask = cv::Mat::zeros(size, CV_8UC1);
     cv::circle(mask, center, radius, cv::Scalar(255), -1);
-    cv::circle(mask, center, cfg.centerMaskRadius, cv::Scalar(0), -1);
+    cv::circle(mask, center, cfg.center_mask_radius, cv::Scalar(0), -1);
     return mask;
 }
 
@@ -104,7 +104,7 @@ cv::Mat LocalContrastNormalize(const cv::Mat& gray)
 namespace
 {
 
-bool EstimateArrowForward(const std::vector<cv::Point>& contour, const cv::Point2f& centroid, cv::Point2f* outForward)
+bool estimate_arrow_forward(const std::vector<cv::Point>& contour, const cv::Point2f& centroid, cv::Point2f* outForward)
 {
     if (outForward == nullptr) {
         return false;
@@ -254,7 +254,7 @@ double InferYellowArrowRotation(const cv::Mat& minimap)
 
     int tipIdx = 0;
     cv::Point2f forward;
-    if (EstimateArrowForward(hrContours[hrBestIdx], centroid, &forward)) {
+    if (estimate_arrow_forward(hrContours[hrBestIdx], centroid, &forward)) {
         double maxDot = -2.0;
         for (int i = 0; i < 3; ++i) {
             cv::Point2f d = triangle[i] - centroid;
