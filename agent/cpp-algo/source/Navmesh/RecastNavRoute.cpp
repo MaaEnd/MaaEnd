@@ -36,7 +36,7 @@ namespace navmesh::recast
 namespace
 {
 
-double triHeightOf(const PolyMesh& mesh, int32_t t)
+double tri_height_of(const PolyMesh& mesh, int32_t t)
 {
     const auto& tri = mesh.T[static_cast<size_t>(t)];
     return (MeshHeight(mesh, tri[0]) + MeshHeight(mesh, tri[1]) + MeshHeight(mesh, tri[2])) / 3.0;
@@ -50,7 +50,7 @@ constexpr double kFallClimb = 0.39;
 constexpr double kFallHeight = 2.1;
 constexpr double kFallRadius = 0.41;
 
-double triHeightAt(const PolyMesh& mesh, int32_t t, const WorldPoint& p)
+double tri_height_at(const PolyMesh& mesh, int32_t t, const WorldPoint& p)
 {
     const auto& tri = mesh.T[static_cast<size_t>(t)];
     const WorldPoint a = MeshPoint(mesh, tri[0]);
@@ -58,14 +58,14 @@ double triHeightAt(const PolyMesh& mesh, int32_t t, const WorldPoint& p)
     const WorldPoint c = MeshPoint(mesh, tri[2]);
     const double det = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y);
     if (det == 0.0) {
-        return triHeightOf(mesh, t);
+        return tri_height_of(mesh, t);
     }
     const double l0 = ((b.y - c.y) * (p.x - c.x) + (c.x - b.x) * (p.y - c.y)) / det;
     const double l1 = ((c.y - a.y) * (p.x - c.x) + (a.x - c.x) * (p.y - c.y)) / det;
     return l0 * MeshHeight(mesh, tri[0]) + l1 * MeshHeight(mesh, tri[1]) + (1.0 - l0 - l1) * MeshHeight(mesh, tri[2]);
 }
 
-std::optional<std::pair<WorldPoint, double>> meshPointAt(const ZoneClean& zc, const WorldPoint& p, double h)
+std::optional<std::pair<WorldPoint, double>> mesh_point_at(const ZoneClean& zc, const WorldPoint& p, double h)
 {
     bool have = false;
     std::pair<double, double> bk {};
@@ -87,7 +87,7 @@ std::optional<std::pair<WorldPoint, double>> meshPointAt(const ZoneClean& zc, co
         if (dist > kCS) {
             continue;
         }
-        const double y = triHeightAt(zc.mesh, t, q);
+        const double y = tri_height_at(zc.mesh, t, q);
         if (std::fabs(y - h) > kDeckBand) {
             continue;
         }
@@ -222,7 +222,7 @@ OccluderPoint fall_point(FallGate* gate, int64_t c, const FallPointKey& pk)
     }
     const WorldPoint p { gate->x0 + (static_cast<double>(c % gate->nx) + 0.5) * kCS,
                          gate->y0 + (static_cast<double>(c / gate->nx) + 0.5) * kCS };
-    const auto m = meshPointAt(*gate->zc, p, static_cast<double>(pk.h)).value_or(std::make_pair(p, static_cast<double>(pk.h)));
+    const auto m = mesh_point_at(*gate->zc, p, static_cast<double>(pk.h)).value_or(std::make_pair(p, static_cast<double>(pk.h)));
     const OccluderPoint q { .x = (m.first.x - gate->tx) / gate->sx, .y = m.second, .z = (gate->ty - m.first.y) / gate->sy };
     gate->cache->points.emplace(pk, q);
     return q;
@@ -285,7 +285,7 @@ struct RouteDiag
     std::optional<double> gap_distance;
 };
 
-double nowMs()
+double now_ms()
 {
     return std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
@@ -306,7 +306,8 @@ struct GridWindow
 constexpr uint8_t kGwMedialBit = 0x80U;
 
 // fz 为空时只解格图, opn 命中的死记录并入标志位并取较大净空
-bool loadGridWindow(
+bool load_grid_window(
+    GridWindow* window,
     const GridPack& gp,
     const GridZoneDir& gz,
     const FieldsZoneDir* fz,
@@ -315,9 +316,9 @@ bool loadGridWindow(
     int64_t wgx0,
     int64_t wgy0,
     int64_t nx,
-    int64_t ny,
-    GridWindow& out)
+    int64_t ny)
 {
+    GridWindow& out = *window;
     const std::vector<const GridTileRef*> tiles = GridTilesInRect(gz, wgx0, wgy0, wgx0 + nx - 1, wgy0 + ny - 1);
     // 每块瓦按记录数上界独占一段写区, 收工按瓦序压紧, rec 次序与线程数无关
     const bool with_fields = fz != nullptr;
@@ -441,7 +442,7 @@ bool loadGridWindow(
 }
 
 // 只在层带内的可走 span 里挑, 贴崖站立时起点格常只有被墙盖掉的 span
-int64_t pickStartRec(const GridWindow& gw, int64_t nx, int64_t ny, int64_t gcx, int64_t gcy, double h0)
+int64_t pick_start_rec(const GridWindow& gw, int64_t nx, int64_t ny, int64_t gcx, int64_t gcy, double h0)
 {
     const auto rad = static_cast<int64_t>(std::ceil(kSnapRadius / kCS));
     int64_t best = -1;
@@ -473,7 +474,7 @@ int64_t pickStartRec(const GridWindow& gw, int64_t nx, int64_t ny, int64_t gcx, 
     return best;
 }
 
-int64_t pickDeckRec(const GridWindow& gw, int64_t nx, int64_t ny, int64_t gcx, int64_t gcy, double deck)
+int64_t pick_deck_rec(const GridWindow& gw, int64_t nx, int64_t ny, int64_t gcx, int64_t gcy, double deck)
 {
     const auto rad = static_cast<int64_t>(std::ceil(kSnapRadius / kCS));
     int64_t best = -1;
@@ -506,7 +507,7 @@ int64_t pickDeckRec(const GridWindow& gw, int64_t nx, int64_t ny, int64_t gcx, i
 }
 
 // 两点到最近核心格的距离 px, 搜不到时返回搜索半径作下界
-std::array<double, 2> coreAnchorPx(const GridPack& gp, const GridZoneDir& gz, const std::array<WorldPoint, 2>& pts)
+std::array<double, 2> core_anchor_px(const GridPack& gp, const GridZoneDir& gz, const std::array<WorldPoint, 2>& pts)
 {
     const double cs = gp.cell_size;
     const double reach = kSnapRadius * 2.0;
@@ -589,17 +590,17 @@ struct GridPatch
     int64_t ny = 0;
 };
 
-int64_t seedRec(const GridPatch& ps, const WorldPoint& s, const WorldPoint& s_snap, double h0, int64_t& gx, int64_t& gy)
+int64_t seed_rec(int64_t* gx, int64_t* gy, const GridPatch& ps, const WorldPoint& s, const WorldPoint& s_snap, double h0)
 {
-    gx = static_cast<int64_t>((s.x - ps.x0) / kCS);
-    gy = static_cast<int64_t>((s.y - ps.y0) / kCS);
-    const int64_t rec = pickStartRec(ps.gw, ps.nx, ps.ny, gx, gy, h0);
+    *gx = static_cast<int64_t>((s.x - ps.x0) / kCS);
+    *gy = static_cast<int64_t>((s.y - ps.y0) / kCS);
+    const int64_t rec = pick_start_rec(ps.gw, ps.nx, ps.ny, *gx, *gy, h0);
     if (rec >= 0) {
         return rec;
     }
-    gx = static_cast<int64_t>((s_snap.x - ps.x0) / kCS);
-    gy = static_cast<int64_t>((s_snap.y - ps.y0) / kCS);
-    return pickStartRec(ps.gw, ps.nx, ps.ny, gx, gy, h0);
+    *gx = static_cast<int64_t>((s_snap.x - ps.x0) / kCS);
+    *gy = static_cast<int64_t>((s_snap.y - ps.y0) / kCS);
+    return pick_start_rec(ps.gw, ps.nx, ps.ny, *gx, *gy, h0);
 }
 
 // 起点吸到 sp 后定出的种子格里有 region 的非填充面
@@ -607,7 +608,7 @@ bool seeds_in_region(const GridPatch& ps, uint32_t region, const WorldPoint& sta
 {
     int64_t gx = 0;
     int64_t gy = 0;
-    const int64_t rec = seedRec(ps, start, sp, h, gx, gy);
+    const int64_t rec = seed_rec(&gx, &gy, ps, start, sp, h);
     if (rec < 0) {
         return false;
     }
@@ -625,42 +626,48 @@ std::optional<ZoneSnapHit>
     snap_seeding_region(const ZoneClean& zc, const GridPatch& ps, uint32_t region, const WorldPoint& start, std::optional<double> floor_y)
 {
     for (const ZoneSnapHit& hit : ZoneSnapCandidates(zc, start, kSnapRadius, floor_y)) {
-        if (seeds_in_region(ps, region, start, hit.point, triHeightOf(zc.mesh, hit.tri))) {
+        if (seeds_in_region(ps, region, start, hit.point, tri_height_of(zc.mesh, hit.tri))) {
             return hit;
         }
     }
     return std::nullopt;
 }
 
+struct RegionSeed
+{
+    uint32_t region = 0;
+    int64_t gx = 0;
+    int64_t gy = 0;
+    double h = 0.0;
+};
+
 // 终点声明了面时改由终点定类, 免得起点二维吸附落在屋顶把线拉到别层
-bool pickRegion(
+std::optional<RegionSeed> pick_region(
+    std::string* err,
     const GridPatch& ps,
     const GridPatch& pg,
     const WorldPoint& s,
     const WorldPoint& s_snap,
     const WorldPoint& g,
     double h0,
-    std::optional<double> goal_deck,
-    uint32_t& region,
-    int64_t& seed_gx,
-    int64_t& seed_gy,
-    double& seed_h,
-    std::string& err)
+    std::optional<double> goal_deck)
 {
     int64_t gx = 0;
     int64_t gy = 0;
-    const int64_t start_rec = seedRec(ps, s, s_snap, h0, gx, gy);
+    const int64_t start_rec = seed_rec(&gx, &gy, ps, s, s_snap, h0);
     if (start_rec < 0) {
-        err = "起点附近无可走体素 (gx=" + std::to_string(gx) + ",gy=" + std::to_string(gy) + ")";
-        return false;
+        *err = "起点附近无可走体素 (gx=" + std::to_string(gx) + ",gy=" + std::to_string(gy) + ")";
+        return std::nullopt;
     }
     const GridSpanRec& sr = ps.gw.rec[static_cast<size_t>(start_rec)];
-    region = sr.rid;
-    seed_gx = std::llround(ps.x0 / kCS) + sr.cell % ps.nx;
-    seed_gy = std::llround(ps.y0 / kCS) + sr.cell / ps.nx;
-    seed_h = static_cast<double>(sr.h);
+    RegionSeed seed {
+        .region = sr.rid,
+        .gx = std::llround(ps.x0 / kCS) + sr.cell % ps.nx,
+        .gy = std::llround(ps.y0 / kCS) + sr.cell / ps.nx,
+        .h = static_cast<double>(sr.h),
+    };
     if (goal_deck.has_value()) {
-        const int64_t deck_rec = pickDeckRec(
+        const int64_t deck_rec = pick_deck_rec(
             pg.gw,
             pg.nx,
             pg.ny,
@@ -668,15 +675,15 @@ bool pickRegion(
             static_cast<int64_t>((g.y - pg.y0) / kCS),
             *goal_deck);
         if (deck_rec < 0) {
-            err = "终点附近没有声明的面 (deck=" + std::to_string(*goal_deck) + ")";
-            return false;
+            *err = "终点附近没有声明的面 (deck=" + std::to_string(*goal_deck) + ")";
+            return std::nullopt;
         }
-        region = pg.gw.rec[static_cast<size_t>(deck_rec)].rid;
+        seed.region = pg.gw.rec[static_cast<size_t>(deck_rec)].rid;
     }
-    return true;
+    return seed;
 }
 
-ZoneBoundsPx regionBounds(const GridPack& gp, const GridZoneDir& gz, uint32_t region)
+ZoneBoundsPx region_bounds(const GridPack& gp, const GridZoneDir& gz, uint32_t region)
 {
     ZoneBoundsPx b;
     b.x0 = std::numeric_limits<int64_t>::max();
@@ -741,7 +748,7 @@ ZoneBoundsPx regionBounds(const GridPack& gp, const GridZoneDir& gz, uint32_t re
     return b;
 }
 
-int64_t seedSpan(const SpanTable& st, const std::vector<uint8_t>& vis, int64_t cell, double h0)
+int64_t seed_span(const SpanTable& st, const std::vector<uint8_t>& vis, int64_t cell, double h0)
 {
     const int64_t sj = OccupiedIndex(st, cell);
     if (sj < 0) {
@@ -789,26 +796,27 @@ int64_t link_span(const WindowInfo& info, int64_t cell, float h)
     return best;
 }
 
-std::optional<WindowInfo> buildWindow(
+std::optional<WindowInfo> build_window(
+    std::string* err,
     const GridPack& gp,
     const GridZoneDir& gz,
     const FieldsPack& fp,
     const FieldsZoneDir& fzd,
     const FieldsZone& fz,
     const ZoneClean& zc,
-    int64_t seed_gx,
-    int64_t seed_gy,
-    double seed_h,
+    const RegionSeed& seed,
     double h0,
-    uint32_t region,
     double x0,
     double y0,
     double x1,
     double y1,
     const std::vector<NoGoPoly>* no_go,
-    const std::vector<BaseNavNoGoDisc>& no_go_discs,
-    std::string& err)
+    const std::vector<BaseNavNoGoDisc>& no_go_discs)
 {
+    const int64_t seed_gx = seed.gx;
+    const int64_t seed_gy = seed.gy;
+    const double seed_h = seed.h;
+    const uint32_t region = seed.region;
     const int64_t nx = static_cast<int64_t>(std::ceil((x1 - x0) / kCS));
     const int64_t ny = static_cast<int64_t>(std::ceil((y1 - y0) / kCS));
     // 窗口原点已对齐到全局格线
@@ -823,14 +831,14 @@ std::optional<WindowInfo> buildWindow(
     pw.ny = ny;
     GridWindow& gw = pw.gw;
     const std::span<const FieldsOpenRec> opn = FieldsOpensOfZone(fp, zc.zone_id);
-    if (!loadGridWindow(gp, gz, &fzd, opn.data(), opn.size(), wgx0, wgy0, nx, ny, gw)) {
-        err = "预烘格图或旁包解不开";
+    if (!load_grid_window(&gw, gp, gz, &fzd, opn.data(), opn.size(), wgx0, wgy0, nx, ny)) {
+        *err = "预烘格图或旁包解不开";
         return std::nullopt;
     }
 
     const int64_t cell0 = (seed_gy - wgy0) * nx + (seed_gx - wgx0);
     if (seed_gx < wgx0 || seed_gx >= wgx0 + nx || seed_gy < wgy0 || seed_gy >= wgy0 + ny) {
-        err = "起点种子格落在窗外";
+        *err = "起点种子格落在窗外";
         return std::nullopt;
     }
     gw.head = std::vector<int32_t>();
@@ -916,7 +924,7 @@ std::optional<WindowInfo> buildWindow(
         bool known = false;
         const bool keep = FieldsZoneWallKeep(&known, fz, walls.tri[i], walls.k[i], region);
         if (!known) {
-            err = "旁包留墙表没有这条边 (tri " + std::to_string(walls.tri[i]) + ")";
+            *err = "旁包留墙表没有这条边 (tri " + std::to_string(walls.tri[i]) + ")";
             return std::nullopt;
         }
         if (keep) {
@@ -990,9 +998,9 @@ std::optional<WindowInfo> buildWindow(
     stepbits = std::vector<uint8_t>();
     stepbits2 = std::vector<uint8_t>();
     segbits = std::vector<uint8_t>();
-    const int64_t seed3 = seedSpan(info.st3, info.vis3, cell0, seed_h);
+    const int64_t seed3 = seed_span(info.st3, info.vis3, cell0, seed_h);
     if (seed3 < 0) {
-        err = "起点格没有与终点同类的面";
+        *err = "起点格没有与终点同类的面";
         return std::nullopt;
     }
     // 跳边单价不得低于 1, 否则启发式不可采纳
@@ -1034,7 +1042,7 @@ std::optional<WindowInfo> buildWindow(
     {
         const std::vector<uint8_t> hit = FieldsZoneReachFrom(fz, region, sp_scc[static_cast<size_t>(seed3)]);
         if (hit.empty()) {
-            err = "旁包分量图里没有起点面所在的分量";
+            *err = "旁包分量图里没有起点面所在的分量";
             return std::nullopt;
         }
         info.reach3.assign(info.vis3.size(), 0);
@@ -1044,7 +1052,7 @@ std::optional<WindowInfo> buildWindow(
             }
             const uint32_t comp = sp_scc[sid];
             if (comp == 0 || comp >= hit.size()) {
-                err = "旁包分量号越界";
+                *err = "旁包分量号越界";
                 return std::nullopt;
             }
             info.reach3[sid] = hit[comp];
@@ -1078,16 +1086,15 @@ std::optional<WindowInfo> buildWindow(
 }
 
 // 只查面高度连续会顺着叠层的下一层走通, 所以还要查挡线
-void PullWaypoints(
+void pull_waypoints(
+    RouteDiag* dg,
+    Blockers* blk,
     const std::vector<WorldPoint>& pts,
-    RouteDiag& dg,
     const BaseNavPlanner& pl,
     const BaseNavPack& pack,
-    uint16_t zid,
-    Blockers* blk,
-    bool has_layer)
+    uint16_t zid)
 {
-    if (!has_layer || pts.size() < 2) {
+    if (pts.size() < 2) {
         return;
     }
     // 一次拉直最多吞掉的顶点数, 只为限制成本
@@ -1097,11 +1104,11 @@ void PullWaypoints(
     while (cursor + 1 < anchor) {
         // 捷径不得比它吞掉的最窄处更窄
         double swallowed = std::numeric_limits<double>::infinity();
-        const std::optional<double> seed = cursor < dg.height.size() ? std::optional<double>(dg.height[cursor]) : std::nullopt;
+        const std::optional<double> seed = cursor < dg->height.size() ? std::optional<double>(dg->height[cursor]) : std::nullopt;
         size_t reach = cursor;
         size_t reach_limit = std::min(anchor, cursor + kMaxPullSpan);
         // 台沿下落的落点必须留成航点, 控制端靠它判下落
-        for (const DropLanding& drop : dg.drops) {
+        for (const DropLanding& drop : dg->drops) {
             if (drop.index > cursor && drop.index < reach_limit) {
                 reach_limit = drop.index;
             }
@@ -1113,7 +1120,7 @@ void PullWaypoints(
             if (!IsRouteSegmentDrivable(pl, pack, zid, a, c, required, seed) || SegmentBlocked(blk, a, c)) {
                 break;
             }
-            swallowed = std::min(swallowed, reach + 1 < dg.clearance.size() ? dg.clearance[reach + 1] : 0.0);
+            swallowed = std::min(swallowed, reach + 1 < dg->clearance.size() ? dg->clearance[reach + 1] : 0.0);
             ++reach;
         }
         if (reach == cursor) {
@@ -1122,18 +1129,19 @@ void PullWaypoints(
         if (reach >= anchor) {
             break;
         }
-        dg.waypoints.push_back(reach);
+        dg->waypoints.push_back(reach);
         cursor = reach;
     }
-    dg.waypoints.push_back(anchor);
+    dg->waypoints.push_back(anchor);
 }
 
-std::optional<double> spanNear(const SpanTable& st, int64_t nx, int64_t ny, int64_t gx, int64_t gy, double h)
+std::optional<double> span_near(const LayerOracle& lyo, int64_t gx, int64_t gy, double h)
 {
-    if (gx < 0 || gy < 0 || gx >= nx || gy >= ny) {
+    const SpanTable& st = *lyo.st;
+    if (gx < 0 || gy < 0 || gx >= lyo.nx || gy >= lyo.ny) {
         return std::nullopt;
     }
-    const int64_t j = OccupiedIndex(st, gy * nx + gx);
+    const int64_t j = OccupiedIndex(st, gy * lyo.nx + gx);
     if (j < 0) {
         return std::nullopt;
     }
@@ -1147,58 +1155,64 @@ std::optional<double> spanNear(const SpanTable& st, int64_t nx, int64_t ny, int6
     return best;
 }
 
+std::pair<int64_t, int64_t> cell_of(const LayerOracle& lyo, const WorldPoint& p)
+{
+    return std::make_pair(static_cast<int64_t>(std::floor((p.x - lyo.x0) / kCS)), static_cast<int64_t>(std::floor((p.y - lyo.y0) / kCS)));
+}
+
+WorldPoint cell_centre(const LayerOracle& lyo, int64_t gx, int64_t gy)
+{
+    return WorldPoint { lyo.x0 + (static_cast<double>(gx) + 0.5) * kCS, lyo.y0 + (static_cast<double>(gy) + 0.5) * kCS };
+}
+
+bool upper_at(const LayerOracle& lyo, int64_t gx, int64_t gy, double h, double h_up)
+{
+    const SpanTable& st = *lyo.st;
+    if (gx < 0 || gy < 0 || gx >= lyo.nx || gy >= lyo.ny) {
+        return false;
+    }
+    const int64_t j = OccupiedIndex(st, gy * lyo.nx + gx);
+    if (j < 0) {
+        return false;
+    }
+    for (int64_t k = CellSpanStart(st, j), ke = k + CellSpanCount(st, j); k < ke; ++k) {
+        const double v = static_cast<double>(st.sp_h[static_cast<size_t>(k)]);
+        if (v > h + kClimb && v <= h_up + kClimb) {
+            return true;
+        }
+    }
+    return false;
+}
+
+double upper_dist(const LayerOracle& lyo, const WorldPoint& p, double h, double h_up, double reach)
+{
+    const auto [cx, cy] = cell_of(lyo, p);
+    const auto rc = static_cast<int64_t>(std::ceil(reach / kCS));
+    double best = reach;
+    for (int64_t gy = cy - rc; gy <= cy + rc; ++gy) {
+        for (int64_t gx = cx - rc; gx <= cx + rc; ++gx) {
+            const double qx = std::clamp(p.x, lyo.x0 + static_cast<double>(gx) * kCS, lyo.x0 + static_cast<double>(gx + 1) * kCS);
+            const double qy = std::clamp(p.y, lyo.y0 + static_cast<double>(gy) * kCS, lyo.y0 + static_cast<double>(gy + 1) * kCS);
+            const double d = std::hypot(qx - p.x, qy - p.y);
+            if (d < best && upper_at(lyo, gx, gy, h, h_up)) {
+                best = d;
+            }
+        }
+    }
+    return best;
+}
+
 // 落点挪到下层离上层可走面四个角色半径处
-void PushDropLandings(
-    std::vector<WorldPoint>& pts,
-    std::vector<double>& hz,
-    RouteDiag& dg,
-    const SpanTable& st,
+void push_drop_landings(
+    std::vector<WorldPoint>* points,
+    std::vector<double>* heights,
+    RouteDiag* dg,
     const Grid<float>& dist,
-    int64_t nx,
-    int64_t ny,
-    double x0,
-    double y0,
     double radius,
     const LayerOracle& lyo)
 {
-    const auto cell_of = [&](const WorldPoint& p) {
-        return std::make_pair(static_cast<int64_t>(std::floor((p.x - x0) / kCS)), static_cast<int64_t>(std::floor((p.y - y0) / kCS)));
-    };
-    const auto span_h = [&](int64_t gx, int64_t gy, double h) {
-        return spanNear(st, nx, ny, gx, gy, h);
-    };
-    const auto upper_at = [&](int64_t gx, int64_t gy, double h, double h_up) {
-        if (gx < 0 || gy < 0 || gx >= nx || gy >= ny) {
-            return false;
-        }
-        const int64_t j = OccupiedIndex(st, gy * nx + gx);
-        if (j < 0) {
-            return false;
-        }
-        for (int64_t k = CellSpanStart(st, j), ke = k + CellSpanCount(st, j); k < ke; ++k) {
-            const double v = static_cast<double>(st.sp_h[static_cast<size_t>(k)]);
-            if (v > h + kClimb && v <= h_up + kClimb) {
-                return true;
-            }
-        }
-        return false;
-    };
-    const auto upper_dist = [&](const WorldPoint& p, double h, double h_up, double reach) {
-        const auto [cx, cy] = cell_of(p);
-        const auto rc = static_cast<int64_t>(std::ceil(reach / kCS));
-        double best = reach;
-        for (int64_t gy = cy - rc; gy <= cy + rc; ++gy) {
-            for (int64_t gx = cx - rc; gx <= cx + rc; ++gx) {
-                const double qx = std::clamp(p.x, x0 + static_cast<double>(gx) * kCS, x0 + static_cast<double>(gx + 1) * kCS);
-                const double qy = std::clamp(p.y, y0 + static_cast<double>(gy) * kCS, y0 + static_cast<double>(gy + 1) * kCS);
-                const double d = std::hypot(qx - p.x, qy - p.y);
-                if (d < best && upper_at(gx, gy, h, h_up)) {
-                    best = d;
-                }
-            }
-        }
-        return best;
-    };
+    std::vector<WorldPoint>& pts = *points;
+    std::vector<double>& hz = *heights;
     constexpr double kStep = kCS / 4.0;
     for (size_t i = 1; i + 1 < pts.size(); ++i) {
         if (hz[i - 1] - hz[i] <= kClimb || std::hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y) <= 0.0) {
@@ -1216,8 +1230,8 @@ void PushDropLandings(
             const double ux = len > 0.0 ? (land.x - take.x) / len : 0.0;
             const double uy = len > 0.0 ? (land.y - take.y) / len : 0.0;
             for (double t = 0.0; t < len; t += kStep) {
-                const auto [gx, gy] = cell_of({ take.x + ux * t, take.y + uy * t });
-                const auto v = span_h(gx, gy, h_up);
+                const auto [gx, gy] = cell_of(lyo, { take.x + ux * t, take.y + uy * t });
+                const auto v = span_near(lyo, gx, gy, h_up);
                 if (!v.has_value()) {
                     edge = true;
                     break;
@@ -1244,22 +1258,19 @@ void PushDropLandings(
         const WorldPoint next = pts[i + 1];
         const auto h_next = static_cast<float>(hz[i + 1]);
         {
-            const auto [lx, ly] = cell_of(land);
-            const auto centre = [&](int64_t gx, int64_t gy) {
-                return WorldPoint { x0 + (static_cast<double>(gx) + 0.5) * kCS, y0 + (static_cast<double>(gy) + 0.5) * kCS };
-            };
+            const auto [lx, ly] = cell_of(lyo, land);
             using Node = std::tuple<double, int64_t, int64_t, double>;
             std::priority_queue<Node, std::vector<Node>, std::greater<>> open;
             std::set<std::pair<int64_t, int64_t>> seen { { lx, ly } };
-            if (const auto v = span_h(lx, ly, hz[i])) {
+            if (const auto v = span_near(lyo, lx, ly, hz[i])) {
                 open.emplace(0.0, lx, ly, *v);
             }
             while (!open.empty()) {
                 const auto [d, gx, gy, h] = open.top();
                 open.pop();
-                const WorldPoint c = d == 0.0 ? land : centre(gx, gy);
+                const WorldPoint c = d == 0.0 ? land : cell_centre(lyo, gx, gy);
                 if (d == 0.0 || LayerStepOk(lyo, c, next, static_cast<float>(h), h_next)) {
-                    const double clr = upper_dist(c, h, h_up, 4.0 * radius);
+                    const double clr = upper_dist(lyo, c, h, h_up, 4.0 * radius);
                     if (clr > at_clr) {
                         at = c;
                         h_low = h;
@@ -1272,27 +1283,27 @@ void PushDropLandings(
                 for (const auto& [dx, dy] : { std::pair { 1, 0 }, std::pair { -1, 0 }, std::pair { 0, 1 }, std::pair { 0, -1 } }) {
                     const int64_t qx = gx + dx;
                     const int64_t qy = gy + dy;
-                    const WorldPoint q = centre(qx, qy);
+                    const WorldPoint q = cell_centre(lyo, qx, qy);
                     const double dq = std::hypot(q.x - land.x, q.y - land.y);
                     if (dq > 8.0 * radius || !seen.insert({ qx, qy }).second) {
                         continue;
                     }
-                    if (const auto v = span_h(qx, qy, h)) {
+                    if (const auto v = span_near(lyo, qx, qy, h)) {
                         open.emplace(dq, qx, qy, *v);
                     }
                 }
             }
         }
-        dg.drops.push_back({ .index = i, .height = h_low });
+        dg->drops.push_back({ .index = i, .height = h_low });
         if (at.x == land.x && at.y == land.y) {
             continue;
         }
-        const auto [ax, ay] = cell_of(at);
+        const auto [ax, ay] = cell_of(lyo, at);
         pts[i] = at;
         hz[i] = h_low;
         // 跨类下落试点时净空图已释放
         if (!dist.v.empty()) {
-            dg.clearance[i] = static_cast<double>(dist.at(ay, ax));
+            dg->clearance[i] = static_cast<double>(dist.at(ay, ax));
         }
     }
 }
@@ -1353,7 +1364,7 @@ std::vector<CrossDrop> cross_drops(const WindowInfo& info)
 }
 
 // 逐 span 记 peer 类可走面的分量号, 其余记 0
-std::vector<uint32_t> PeerSpans(
+std::vector<uint32_t> peer_spans(
     const GridPack& gp,
     const GridZoneDir& gz,
     const FieldsPack& fp,
@@ -1380,7 +1391,8 @@ std::vector<uint32_t> PeerSpans(
     const int64_t pnx = bx1 - bx0 + 1;
     const std::span<const FieldsOpenRec> opn = FieldsOpensOfZone(fp, zone_id);
     GridWindow pw;
-    if (!loadGridWindow(
+    if (!load_grid_window(
+            &pw,
             gp,
             gz,
             &fzd,
@@ -1389,8 +1401,7 @@ std::vector<uint32_t> PeerSpans(
             std::llround(info.x0 / kCS) + bx0,
             std::llround(info.y0 / kCS) + by0,
             pnx,
-            by1 - by0 + 1,
-            pw)) {
+            by1 - by0 + 1)) {
         return peer3;
     }
     const SpanTable& st = info.st3;
@@ -1472,7 +1483,7 @@ std::pair<int64_t, int64_t> ledge_runs(const DropEdgeSet& edge, const WindowInfo
 }
 
 // 同一分量只留离两端最近的一处, 起跳处沿台沿两侧须各连着 kClrPref
-std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uint32_t>& peer3, const WorldPoint& s, const WorldPoint& g)
+std::vector<DropHop> cross_drop_hops(const WindowInfo& info, const std::vector<uint32_t>& peer3, const WorldPoint& s, const WorldPoint& g)
 {
     const SpanTable& st = info.st3;
     const int64_t nx = info.nx;
@@ -1547,7 +1558,7 @@ std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uin
             std::vector<double> hz { hop.take_h, hop.land_h, hop.land_h };
             RouteDiag tdg;
             tdg.clearance.assign(pts.size(), 0.0);
-            PushDropLandings(pts, hz, tdg, st, info.dist, nx, info.ny, info.x0, info.y0, info.fall_r, lyo);
+            push_drop_landings(&pts, &hz, &tdg, info.dist, info.fall_r, lyo);
             hop.land = pts[1];
             hop.land_h = hz[1];
         }
@@ -1614,7 +1625,7 @@ void join_tail(RecastPlanResult* joined, const RecastPlanResult& b, size_t base,
     da.warnings = r.warnings;
 }
 
-RecastPlanResult JoinDropHop(RecastPlanResult a, const RecastPlanResult& b, double land_h)
+RecastPlanResult join_drop_hop(RecastPlanResult a, const RecastPlanResult& b, double land_h)
 {
     const size_t base = a.points.size();
     RecastPlanResult r = join_head(std::move(a), b);
@@ -1623,7 +1634,7 @@ RecastPlanResult JoinDropHop(RecastPlanResult a, const RecastPlanResult& b, doub
     return r;
 }
 
-RecastPlanResult JoinRopeHop(RecastPlanResult a, const RecastPlanResult& b, const FieldsRopeRec& rope)
+RecastPlanResult join_rope_hop(RecastPlanResult a, const RecastPlanResult& b, const FieldsRopeRec& rope)
 {
     const size_t base = a.points.size();
     RecastPlanResult r = join_head(std::move(a), b);
@@ -1635,13 +1646,13 @@ RecastPlanResult JoinRopeHop(RecastPlanResult a, const RecastPlanResult& b, cons
     return r;
 }
 
-WorldPoint CellCentre(const FieldsLinkSide& s)
+WorldPoint link_side_centre(const FieldsLinkSide& s)
 {
     return { .x = (static_cast<double>(s.gx) + 0.5) * kCS, .y = (static_cast<double>(s.gy) + 0.5) * kCS };
 }
 
 // 取样须与层走查同一套整数插值, 两处判据的经过格才一致
-double SegMinClr(const Grid<float>& d, double x0, double y0, const WorldPoint& a, const WorldPoint& b)
+double seg_min_clr(const Grid<float>& d, double x0, double y0, const WorldPoint& a, const WorldPoint& b)
 {
     const int64_t ax = static_cast<int64_t>((a.x - x0) / kCS);
     const int64_t ay = static_cast<int64_t>((a.y - y0) / kCS);
@@ -1668,7 +1679,7 @@ double turn_side(const WorldPoint& a, const WorldPoint& b, const WorldPoint& c)
     return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
 
-bool SegCross(const WorldPoint& p, const WorldPoint& q, const WorldPoint& r, const WorldPoint& s)
+bool seg_cross(const WorldPoint& p, const WorldPoint& q, const WorldPoint& r, const WorldPoint& s)
 {
     return (turn_side(r, s, p) > 0.0) != (turn_side(r, s, q) > 0.0) && (turn_side(p, q, r) > 0.0) != (turn_side(p, q, s) > 0.0);
 }
@@ -1685,16 +1696,11 @@ float nearest_layer_height(const std::vector<float>& hs, float ref)
 }
 
 // 新弦段内最小净空不得低于原值, 防止拐点挪进窄缝
-void LiftCorners(
-    std::vector<WorldPoint>& P,
-    const Grid<float>& d,
-    double x0,
-    double y0,
-    Visibility* vis,
-    const LayerOracle& lyo,
-    float h0,
-    double lift)
+void lift_corners(std::vector<WorldPoint>* path, Visibility* vis, const Grid<float>& d, const LayerOracle& lyo, float h0, double lift)
 {
+    std::vector<WorldPoint>& P = *path;
+    const double x0 = lyo.x0;
+    const double y0 = lyo.y0;
     const int64_t rad = static_cast<int64_t>(std::lround(lift / kCS));
     if (P.size() < 3 || rad <= 0) {
         return;
@@ -1713,7 +1719,7 @@ void LiftCorners(
             continue;
         }
         const double here = static_cast<double>(d.at(cy0, cx0));
-        const double keep = std::min(SegMinClr(d, x0, y0, P[i - 1], P[i]), SegMinClr(d, x0, y0, P[i], P[i + 1]));
+        const double keep = std::min(seg_min_clr(d, x0, y0, P[i - 1], P[i]), seg_min_clr(d, x0, y0, P[i], P[i + 1]));
         // 候选按净空降序, 同净空按格序, 保证结果可复现
         std::vector<std::pair<double, int64_t>> cand;
         for (int64_t dy = -rad; dy <= rad; ++dy) {
@@ -1740,11 +1746,12 @@ void LiftCorners(
             if (std::hypot(w.x - P[i - 1].x, w.y - P[i - 1].y) < kCS * 0.5 || std::hypot(w.x - P[i + 1].x, w.y - P[i + 1].y) < kCS * 0.5) {
                 continue;
             }
-            if (std::min(SegMinClr(d, x0, y0, P[i - 1], w), SegMinClr(d, x0, y0, w, P[i + 1])) < keep - 1e-9) {
+            if (std::min(seg_min_clr(d, x0, y0, P[i - 1], w), seg_min_clr(d, x0, y0, w, P[i + 1])) < keep - 1e-9) {
                 continue;
             }
             // 中间一段比位移还短时, 挪一下会与隔一段的弦自交
-            if ((i >= 2 && SegCross(w, P[i + 1], P[i - 2], P[i - 1])) || (i + 2 < P.size() && SegCross(P[i - 1], w, P[i + 1], P[i + 2]))) {
+            if ((i >= 2 && seg_cross(w, P[i + 1], P[i - 2], P[i - 1]))
+                || (i + 2 < P.size() && seg_cross(P[i - 1], w, P[i + 1], P[i + 2]))) {
                 continue;
             }
             const auto h1 = LayerWalk(lyo, { P[i - 1], w }, ha);
@@ -1767,7 +1774,7 @@ void LiftCorners(
     }
 }
 
-// routeWindow 各步共用的窗口状态, 开头一次填好; 吸附锚点在基线退到格级时重挑
+// route_window 各步共用的窗口状态, 开头一次填好; 吸附锚点在基线退到格级时重挑
 struct RouteWindow
 {
     const WindowInfo* info = nullptr;
@@ -2667,7 +2674,7 @@ std::vector<double> walk_heights_falling(const LayerOracle* lyo, const std::vect
 }
 
 // goal_deck 为空时终点格任一 span 都算到达, start_deck 为空时起点取离吸附面最近的 span
-std::optional<std::vector<WorldPoint>> routeWindow(
+std::optional<std::vector<WorldPoint>> route_window(
     RouteDiag* dg,
     WindowInfo* info,
     const BaseNavPlanner& pl,
@@ -2678,7 +2685,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     std::optional<double> start_deck,
     uint16_t zid)
 {
-    const double t_topo0 = nowMs();
+    const double t_topo0 = now_ms();
     RouteWindow rw;
     rw.info = info;
     rw.nx = info->nx;
@@ -2758,7 +2765,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     }
     if (!base.has_value()) {
         report_gap(dg, rw);
-        dg->timing.topology_ms = nowMs() - t_topo0;
+        dg->timing.topology_ms = now_ms() - t_topo0;
         if (rw.goal_deck.has_value()) {
             const std::vector<int64_t> gv = spans_at(rw, *rw.ag, useW);
             std::vector<float> hv;
@@ -2852,8 +2859,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             }
         }
     }
-    dg->timing.topology_ms = nowMs() - t_topo0;
-    const double t_geo0 = nowMs();
+    dg->timing.topology_ms = now_ms() - t_topo0;
+    const double t_geo0 = now_ms();
     // 弦只许落在实心区内, 对中脊取直会把线拽向墙
     const double solid_c = cpref + kGeoMargin;
     Mask band;
@@ -2904,7 +2911,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             vv = std::move(tt);
         }
     }
-    dg->timing.geometry_ms = nowMs() - t_geo0;
+    dg->timing.geometry_ms = now_ms() - t_geo0;
     const WindowTopo& win = vv.has_value() ? *vv : *base;
     for (const std::string& w : win.warn) {
         dg->warn.push_back(w);
@@ -2978,16 +2985,16 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             gq.push_back({ c % rw.nx, c / rw.nx });
         }
     }
-    const double t_pull0 = nowMs();
+    const double t_pull0 = now_ms();
     std::vector<WorldPoint> taut = cell_centres(rw, by_corn ? gq : *q);
     dg->taut_points = taut;
     if (taut.size() >= 2) {
         taut = StringPull(&blk_gray, by_corn ? &vis_geo : nullptr, taut, hs.empty() ? nullptr : &rw.lyo, hs.empty() ? nullptr : &hs);
     }
     dg->pulled_points = taut;
-    dg->timing.pull_ms = nowMs() - t_pull0;
+    dg->timing.pull_ms = now_ms() - t_pull0;
 
-    const double t_asm0 = nowMs();
+    const double t_asm0 = now_ms();
     std::vector<WorldPoint> line;
     line.push_back(s);
     line.insert(line.end(), taut.begin(), taut.end());
@@ -3029,7 +3036,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         out = ded;
     }
     dg->assembled_points = out;
-    dg->timing.assemble_ms = nowMs() - t_asm0;
+    dg->timing.assemble_ms = now_ms() - t_asm0;
     // 只往前对回父链, 叠层处才不会对到另一遍上
     if (!hs.empty() && out.size() >= 2) {
         size_t k = 0;
@@ -3049,7 +3056,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
     }
 
-    const double t_lift0 = nowMs();
+    const double t_lift0 = now_ms();
     // 抬升须在取直之后, 判据用硬墙, 通道掩膜只比路径宽一格会锁死拐点
     if (lyo_p != nullptr && out.size() >= 3) {
         Blockers blk_hard = MakeBlockers(core_segs, std::nullopt);
@@ -3061,15 +3068,13 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                               .ny = rw.ny,
                               .x0 = rw.x0,
                               .y0 = rw.y0 };
-        LiftCorners(out, rw.dist, rw.x0, rw.y0, &vis_hard, rw.lyo, lyo_h, kLiftMax);
+        lift_corners(&out, &vis_hard, rw.dist, rw.lyo, lyo_h, kLiftMax);
         for (size_t i = 1; i + 1 < out.size() && dg->span_height.size() == out.size(); ++i) {
             if (out[i].x == dg->assembled_points[i].x && out[i].y == dg->assembled_points[i].y) {
                 continue;
             }
-            const auto v = spanNear(
-                *rw.st3,
-                rw.nx,
-                rw.ny,
+            const auto v = span_near(
+                rw.lyo,
                 static_cast<int64_t>(std::floor((out[i].x - rw.x0) / kCS)),
                 static_cast<int64_t>(std::floor((out[i].y - rw.y0) / kCS)),
                 dg->span_height[i]);
@@ -3080,7 +3085,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             dg->span_height[i] = *v;
         }
     }
-    dg->timing.lift_ms = nowMs() - t_lift0;
+    dg->timing.lift_ms = now_ms() - t_lift0;
     dg->clearance.reserve(out.size());
     for (const auto& p : out) {
         const int64_t cx = std::min(std::max(static_cast<int64_t>(std::floor((p.x - info->x0) / kCS)), int64_t { 0 }), rw.nx - 1);
@@ -3093,7 +3098,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         const bool by_span = dg->span_height.size() == out.size();
         std::vector<double> hz = by_span ? dg->span_height : dg->height.empty() ? walk_heights_falling(lyo_p, out, lyo_h) : dg->height;
         if (hz.size() == out.size()) {
-            PushDropLandings(out, hz, *dg, *rw.st3, rw.dist, rw.nx, rw.ny, rw.x0, rw.y0, info->fall_r, rw.lyo);
+            push_drop_landings(&out, &hz, dg, rw.dist, info->fall_r, rw.lyo);
             if (by_span) {
                 for (size_t i = 0; i < dg->height.size(); ++i) {
                     if (hz[i] != dg->span_height[i]) {
@@ -3107,7 +3112,9 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             }
         }
     }
-    PullWaypoints(out, *dg, pl, pack, zid, &blk_gray, lyo_p != nullptr);
+    if (lyo_p != nullptr) {
+        pull_waypoints(dg, &blk_gray, out, pl, pack, zid);
+    }
     return out;
 }
 
@@ -3193,8 +3200,8 @@ double rope_walk_px(
     walk_scope.hopping = true;
     const RecastPlanRequest walk_req {
         .zone_name = zone_name,
-        .start = CellCentre(rope.bottom),
-        .goal = CellCentre(rope.top),
+        .start = link_side_centre(rope.bottom),
+        .goal = link_side_centre(rope.top),
         .goal_deck_y = rope.top.h,
         .start_deck_y = rope.bottom.h,
     };
@@ -3318,7 +3325,7 @@ bool load_patch(
     p->ny = std::max(ay, by) + r - gy0 + 1;
     p->x0 = static_cast<double>(gx0) * kCS;
     p->y0 = static_cast<double>(gy0) * kCS;
-    return loadGridWindow(gp, gz, nullptr, opn.data(), opn.size(), gx0, gy0, p->nx, p->ny, p->gw);
+    return load_grid_window(&p->gw, gp, gz, nullptr, opn.data(), opn.size(), gx0, gy0, p->nx, p->ny);
 }
 
 std::vector<uint32_t>
@@ -3351,7 +3358,7 @@ void fill_debug(RecastPlanResult* res, RouteDiag* dg, const WindowRect& win, int
 {
     res->debug.timing = dg->timing;
     res->debug.timing.window_ms = window_ms;
-    res->debug.timing.total_ms = nowMs() - t_all0;
+    res->debug.timing.total_ms = now_ms() - t_all0;
     res->debug.x0 = static_cast<double>(win.x0) * kCS;
     res->debug.y0 = static_cast<double>(win.y0) * kCS;
     res->debug.nx = win.nx;
@@ -3401,7 +3408,7 @@ std::optional<RecastPlanResult> plan_drop_hops(
         if (!b.ok) {
             continue;
         }
-        return JoinDropHop(std::move(a), b, hop.land_h);
+        return join_drop_hop(std::move(a), b, hop.land_h);
     }
     return std::nullopt;
 }
@@ -3440,8 +3447,8 @@ std::optional<RecastPlanResult> try_ropes(
         if (r.bottom.rid != start_region || listed_uid(*scope.rope_off, r.uid_bottom) || listed_uid(out_of_reach, r.uid_bottom)) {
             continue;
         }
-        const WorldPoint b = CellCentre(r.bottom);
-        const WorldPoint t = CellCentre(r.top);
+        const WorldPoint b = link_side_centre(r.bottom);
+        const WorldPoint t = link_side_centre(r.top);
         const double bound = std::hypot(b.x - start.x, b.y - start.y) + r.cost_px + std::hypot(goal.x - t.x, goal.y - t.y);
         if (bound < best_cost) {
             cands.push_back({ .bound = bound, .rope = &r });
@@ -3470,8 +3477,8 @@ std::optional<RecastPlanResult> try_ropes(
             continue;
         }
         ++tried;
-        const WorldPoint bottom = CellCentre(rope.bottom);
-        const WorldPoint top = CellCentre(rope.top);
+        const WorldPoint bottom = link_side_centre(rope.bottom);
+        const WorldPoint top = link_side_centre(rope.top);
         RecastPlanRequest to_bottom = req;
         to_bottom.goal = bottom;
         to_bottom.goal_floor_y = kBaseNavFloorYNone;
@@ -3489,7 +3496,7 @@ std::optional<RecastPlanResult> try_ropes(
             continue;
         }
         best_total = a.length + rope.cost_px + b.length;
-        best = JoinRopeHop(std::move(a), b, rope);
+        best = join_rope_hop(std::move(a), b, rope);
     }
     return best;
 }
@@ -3509,7 +3516,7 @@ RecastPlanResult plan_locked(
     const float goal_deck_y = req.goal_deck_y;
     const float start_deck_y = req.start_deck_y;
     const std::vector<BaseNavNoGoDisc>& no_go_discs = req.no_go_discs;
-    const double t_all0 = nowMs();
+    const double t_all0 = now_ms();
     RecastPlanResult res;
     if (!GridPackParsed(engine->grid)) {
         res.error = engine->grid_error;
@@ -3552,7 +3559,7 @@ RecastPlanResult plan_locked(
         // 起点块盖住兜底吸附半径内任一吸附点再外扩一个定类半径
         patched = load_patch(&ps, engine->grid, *gz, zone_opens, start, start, kSnapFallbackRadius + kSnapRadius)
                   && load_patch(&pg, engine->grid, *gz, zone_opens, goal, goal, kSnapRadius);
-        const int64_t deck_rec = patched ? pickDeckRec(
+        const int64_t deck_rec = patched ? pick_deck_rec(
                                      pg.gw,
                                      pg.nx,
                                      pg.ny,
@@ -3584,13 +3591,13 @@ RecastPlanResult plan_locked(
         res.error = "终点不在网格附近";
         return res;
     }
-    const double h0 = triHeightOf(zc.mesh, ss->tri);
+    const double h0 = tri_height_of(zc.mesh, ss->tri);
 
     const std::vector<NoGoPoly>* nogo = FindNoGoZone(engine->nogo, zone_name);
     if (nogo != nullptr) {
         std::string hit;
         const bool in_start = NoGoContains(*nogo, start, h0, hit);
-        if (in_start || NoGoContains(*nogo, goal, triHeightOf(zc.mesh, gs->tri), hit)) {
+        if (in_start || NoGoContains(*nogo, goal, tri_height_of(zc.mesh, gs->tri), hit)) {
             res.no_go = true;
             res.error = std::string(in_start ? "起点" : "终点") + "在虚拟禁区内";
             if (!hit.empty()) {
@@ -3605,7 +3612,7 @@ RecastPlanResult plan_locked(
         pz != nullptr ? LoadOccluderScene(OccluderSidecarPath(pack.path), zone_name) : nullptr;
 
     // 全区锚距是任何窗口里锚距的下界, 过不了这道闸的腿换多大窗口也接不上
-    const auto [zsa, zga] = coreAnchorPx(engine->grid, *gz, { start, goal });
+    const auto [zsa, zga] = core_anchor_px(engine->grid, *gz, { start, goal });
     if (zsa > kSnapRadius || zga > kSnapRadius) {
         char buf[128];
         std::snprintf(buf, sizeof(buf), "端点接不上可走层 (起 %.1fpx / 终 %.1fpx)", zsa, zga);
@@ -3620,14 +3627,12 @@ RecastPlanResult plan_locked(
         return res;
     }
     std::string err;
-    uint32_t region = 0;
-    int64_t seed_gx = 0;
-    int64_t seed_gy = 0;
-    double seed_h = 0.0;
-    if (!pickRegion(ps, pg, start, ss->point, goal, h0, gdk, region, seed_gx, seed_gy, seed_h, err)) {
+    const std::optional<RegionSeed> seed = pick_region(&err, ps, pg, start, ss->point, goal, h0, gdk);
+    if (!seed) {
         res.error = err;
         return res;
     }
+    const uint32_t region = seed->region;
     ps = GridPatch {};
     pg = GridPatch {};
 
@@ -3638,7 +3643,7 @@ RecastPlanResult plan_locked(
     // 外扩 kFieldHalo 后类边缘的场与整区图上算的相同
     auto zbit = ze.bounds.find(region);
     if (zbit == ze.bounds.end()) {
-        zbit = ze.bounds.emplace(region, regionBounds(engine->grid, *gz, region)).first;
+        zbit = ze.bounds.emplace(region, region_bounds(engine->grid, *gz, region)).first;
     }
     const ZoneBoundsPx zb = zbit->second;
     if (ZoneBoundsEmpty(zb)) {
@@ -3716,27 +3721,9 @@ RecastPlanResult plan_locked(
         const double y1 = static_cast<double>(gy0 + ny) * kCS;
         const int64_t margin = local ? kTrustMargin : 0;
 
-        const double t_win0 = nowMs();
-        info = buildWindow(
-            engine->grid,
-            *gz,
-            *engine->fields,
-            *fzd,
-            *fz,
-            zc,
-            seed_gx,
-            seed_gy,
-            seed_h,
-            h0,
-            region,
-            x0,
-            y0,
-            x1,
-            y1,
-            nogo,
-            no_go_discs,
-            err);
-        const double window_ms = nowMs() - t_win0;
+        const double t_win0 = now_ms();
+        info = build_window(&err, engine->grid, *gz, *engine->fields, *fzd, *fz, zc, *seed, h0, x0, y0, x1, y1, nogo, no_go_discs);
+        const double window_ms = now_ms() - t_win0;
         const uint16_t zone_id = zc.zone_id;
         if (!info.has_value()) {
             if (local && !capped) {
@@ -3760,7 +3747,7 @@ RecastPlanResult plan_locked(
         RouteDiag dg;
         dg.margin = margin;
         dg.final = capped;
-        auto line = routeWindow(&dg, &*info, planner, pack, start, goal, gdk, sdk, zone_id);
+        auto line = route_window(&dg, &*info, planner, pack, start, goal, gdk, sdk, zone_id);
         if (local && !capped) {
             std::string why;
             if (dg.escalate) {
@@ -3792,21 +3779,21 @@ RecastPlanResult plan_locked(
             if (!scope.hopping && !dg.hop_barrier && dg.snap_start <= kSnapRadius && !gdk.has_value()) {
                 GridPatch pq;
                 const bool goal_patched = load_patch(&pq, engine->grid, *gz, zone_opens, goal, goal, kSnapRadius);
-                const int64_t qrec = goal_patched ? pickStartRec(
+                const int64_t qrec = goal_patched ? pick_start_rec(
                                          pq.gw,
                                          pq.nx,
                                          pq.ny,
                                          static_cast<int64_t>((goal.x - pq.x0) / kCS),
                                          static_cast<int64_t>((goal.y - pq.y0) / kCS),
-                                         triHeightOf(zc.mesh, gs->tri))
+                                         tri_height_of(zc.mesh, gs->tri))
                                                   : -1;
                 const uint32_t peer = qrec >= 0 ? pq.gw.rec[static_cast<size_t>(qrec)].rid : region;
                 pq = GridPatch {};
                 std::vector<DropHop> hops;
                 if (peer != region) {
-                    const std::vector<uint32_t> peer3 = PeerSpans(engine->grid, *gz, *engine->fields, *fzd, zone_id, *info, peer);
+                    const std::vector<uint32_t> peer3 = peer_spans(engine->grid, *gz, *engine->fields, *fzd, zone_id, *info, peer);
                     if (!peer3.empty()) {
-                        hops = CrossDropHops(*info, peer3, start, goal);
+                        hops = cross_drop_hops(*info, peer3, start, goal);
                     }
                 }
                 const std::vector<uint32_t> far_ropes = ropes_out_of_reach(*engine->fields, zone_id, region, *info, cur);
@@ -3831,7 +3818,7 @@ RecastPlanResult plan_locked(
                     far_ropes);
                 if (roped || dropped) {
                     RecastPlanResult r = std::move(roped ? *roped : *dropped);
-                    r.debug.timing.total_ms = nowMs() - t_all0;
+                    r.debug.timing.total_ms = now_ms() - t_all0;
                     return r;
                 }
             }
@@ -3866,7 +3853,7 @@ RecastPlanResult plan_locked(
         std::optional<RecastPlanResult> roped =
             try_ropes(engine, pack, planner, scope, req, zone_id, region, region, res.length, 1, far_ropes);
         if (roped) {
-            roped->debug.timing.total_ms = nowMs() - t_all0;
+            roped->debug.timing.total_ms = now_ms() - t_all0;
             return std::move(*roped);
         }
         return res;
