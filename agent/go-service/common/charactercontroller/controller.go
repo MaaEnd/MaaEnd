@@ -54,6 +54,12 @@ func rotateView(ctx *maa.Context, dx, dy int) {
 	cursorDY += dy
 }
 
+// RotateView 供战斗等其它模块复用：保持与寻路/转视角一致的光标偏移管理，
+// 避免每次从屏幕中心重发 delta 造成视角回弹。
+func RotateView(ctx *maa.Context, dx, dy int) {
+	rotateView(ctx, dx, dy)
+}
+
 type characterControllerRelativeMoveParam struct {
 	Dx    int   `json:"dx"`
 	Dy    int   `json:"dy"`
