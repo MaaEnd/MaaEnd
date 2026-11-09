@@ -54,15 +54,6 @@ func priorityItemByID(caseID string) (creditShoppingItem, bool) {
 	return creditShoppingItem{}, false
 }
 
-func creditCaseIDFromRecognitionItemID(recognitionItemID string) (caseID string, ok bool) {
-	for _, item := range creditShoppingItemCatalog {
-		if item.RecognitionItemID == recognitionItemID {
-			return item.CaseID, true
-		}
-	}
-	return "", false
-}
-
 func creditShoppingRecognitionItemIDs(caseIDs []string) []string {
 	out := make([]string, 0, len(caseIDs))
 	for _, caseID := range caseIDs {
@@ -70,14 +61,6 @@ func creditShoppingRecognitionItemIDs(caseIDs []string) []string {
 		if !ok {
 			continue
 		}
-		out = append(out, item.RecognitionItemID)
-	}
-	return out
-}
-
-func allCreditShoppingRecognitionItemIDs() []string {
-	out := make([]string, 0, len(creditShoppingItemCatalog))
-	for _, item := range creditShoppingItemCatalog {
 		out = append(out, item.RecognitionItemID)
 	}
 	return out
