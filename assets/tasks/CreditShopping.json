@@ -486,7 +486,8 @@
             "default_case": [
                 "ArsenalTicket",
                 "Oroberyl"
-            ]
+            ],
+            "min_count": 1
         },
         "CreditShoppingPriority1DiscountValue": {
             "type": "select",
@@ -919,7 +920,8 @@
                 "Protohedron",
                 "Protoset",
                 "TCreds"
-            ]
+            ],
+            "min_count": 1
         },
         "CreditShoppingPriority2DiscountValue": {
             "type": "select",
@@ -1340,7 +1342,8 @@
             "default_case": [
                 "ArsenalTicket",
                 "Oroberyl"
-            ]
+            ],
+            "min_count": 1
         },
         "CreditShoppingPriority3DiscountValue": {
             "type": "select",
