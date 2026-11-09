@@ -104,7 +104,7 @@ cv::Mat LocalContrastNormalize(const cv::Mat& gray)
 namespace
 {
 
-bool EstimateArrowForward(const std::vector<cv::Point>& contour, const cv::Point2f& centroid, cv::Point2f* outForward)
+bool estimate_arrow_forward(const std::vector<cv::Point>& contour, const cv::Point2f& centroid, cv::Point2f* outForward)
 {
     if (outForward == nullptr) {
         return false;
@@ -254,7 +254,7 @@ double InferYellowArrowRotation(const cv::Mat& minimap)
 
     int tipIdx = 0;
     cv::Point2f forward;
-    if (EstimateArrowForward(hrContours[hrBestIdx], centroid, &forward)) {
+    if (estimate_arrow_forward(hrContours[hrBestIdx], centroid, &forward)) {
         double maxDot = -2.0;
         for (int i = 0; i < 3; ++i) {
             cv::Point2f d = triangle[i] - centroid;

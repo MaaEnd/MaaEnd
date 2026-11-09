@@ -16,7 +16,7 @@ namespace maplocator
 namespace
 {
 
-cv::Mat ExtractPathHeatmapFeature(const cv::Mat& src)
+cv::Mat extract_path_heatmap_feature(const cv::Mat& src)
 {
     cv::Mat bgr, alpha;
     if (src.channels() == 4) {
@@ -65,7 +65,7 @@ cv::Mat ExtractPathHeatmapFeature(const cv::Mat& src)
     return feature;
 }
 
-double RefinePeakOffset(float prev, float center, float next)
+double refine_peak_offset(float prev, float center, float next)
 {
     const double denom = static_cast<double>(prev) - 2.0 * static_cast<double>(center) + static_cast<double>(next);
     if (std::abs(denom) < 1e-12) {
@@ -76,7 +76,7 @@ double RefinePeakOffset(float prev, float center, float next)
     return std::clamp(offset, -0.5, 0.5);
 }
 
-cv::Point2d RefinePeakSubpixel(const cv::Mat& result, const cv::Point& maxLoc)
+cv::Point2d refine_peak_subpixel(const cv::Mat& result, const cv::Point& maxLoc)
 {
     CV_Assert(result.type() == CV_32F);
     CV_Assert(maxLoc.x >= 0 && maxLoc.x < result.cols && maxLoc.y >= 0 && maxLoc.y < result.rows);
@@ -85,10 +85,10 @@ cv::Point2d RefinePeakSubpixel(const cv::Mat& result, const cv::Point& maxLoc)
     const float center = result.at<float>(maxLoc.y, maxLoc.x);
 
     if (maxLoc.x > 0 && maxLoc.x + 1 < result.cols) {
-        refined.x += RefinePeakOffset(result.at<float>(maxLoc.y, maxLoc.x - 1), center, result.at<float>(maxLoc.y, maxLoc.x + 1));
+        refined.x += refine_peak_offset(result.at<float>(maxLoc.y, maxLoc.x - 1), center, result.at<float>(maxLoc.y, maxLoc.x + 1));
     }
     if (maxLoc.y > 0 && maxLoc.y + 1 < result.rows) {
-        refined.y += RefinePeakOffset(result.at<float>(maxLoc.y - 1, maxLoc.x), center, result.at<float>(maxLoc.y + 1, maxLoc.x));
+        refined.y += refine_peak_offset(result.at<float>(maxLoc.y - 1, maxLoc.x), center, result.at<float>(maxLoc.y + 1, maxLoc.x));
     }
 
     return refined;
@@ -106,7 +106,7 @@ struct RefinedPeak
 
 // 在整点峰周围连续求极大。目标函数与 TM_CCOEFF_NORMED 同式（整点处两者逐位相同），
 // 区别是底图按亚像素位置重采样，因此不受相关面格点的限制
-std::optional<RefinedPeak> RefinePeakContinuous(
+std::optional<RefinedPeak> refine_peak_continuous(
     const cv::Mat& searchImage,
     const cv::Mat& templ,
     const cv::Mat& weightMask,
@@ -251,7 +251,7 @@ MatchFeature heatmap_extract_template_feature(const MatchStrategy& strategy, con
         feat.templ_raw = minimap.clone();
     }
 
-    feat.image = ExtractPathHeatmapFeature(minimap); // 梯度图
+    feat.image = extract_path_heatmap_feature(minimap); // 梯度图
     feat.mask = GenerateMinimapMask(feat.templ_raw, strategy.is_base ? strategy.base_image : strategy.tier_image);
     return feat;
 }
@@ -268,7 +268,7 @@ MatchFeature standard_extract_search_feature(const cv::Mat& mapRoi)
 MatchFeature heatmap_extract_search_feature(const cv::Mat& mapRoi)
 {
     MatchFeature feat;
-    feat.image = ExtractPathHeatmapFeature(mapRoi);
+    feat.image = extract_path_heatmap_feature(mapRoi);
     return feat;
 }
 
@@ -447,11 +447,11 @@ std::optional<MatchResultRaw> CoreMatchPrepared(
     cv::Point minLoc, maxLoc;
     cv::minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc);
 
-    cv::Point2d refinedLoc = RefinePeakSubpixel(result, maxLoc);
+    cv::Point2d refinedLoc = refine_peak_subpixel(result, maxLoc);
     double peakScore = maxVal;
 
     if (refineMode == PeakRefineMode::Continuous) {
-        if (const auto refined = RefinePeakContinuous(searchFeature.image, templ, weightMask, maxLoc, refinedLoc)) {
+        if (const auto refined = refine_peak_continuous(searchFeature.image, templ, weightMask, maxLoc, refinedLoc)) {
             refinedLoc = refined->loc;
             peakScore = refined->score;
         }

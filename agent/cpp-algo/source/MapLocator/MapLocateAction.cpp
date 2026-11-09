@@ -106,7 +106,7 @@ struct MapLocateAssertLocationOutput
 
 // 参数由 pipeline 提供，字段类型不由本模块保证。解析失败退回默认值，与不传参数同路。
 template <typename T>
-T ParseCustomRecognitionParam(const char* custom_recognition_param)
+T parse_custom_recognition_param(const char* custom_recognition_param)
 {
     if (custom_recognition_param == nullptr || std::strlen(custom_recognition_param) == 0) {
         return T {};
@@ -123,7 +123,7 @@ T ParseCustomRecognitionParam(const char* custom_recognition_param)
 }
 
 template <typename T>
-void WriteJsonDetail(MaaStringBuffer* out_detail, const T& payload)
+void write_json_detail(MaaStringBuffer* out_detail, const T& payload)
 {
     if (out_detail == nullptr) {
         return;
@@ -142,7 +142,7 @@ void WriteJsonDetail(MaaStringBuffer* out_detail, const T& payload)
     MaaStringBufferSet(out_detail, json_text.c_str());
 }
 
-LocateOutput BuildLocateOutput(const LocateResult& result)
+LocateOutput build_locate_output(const LocateResult& result)
 {
     LocateOutput output;
     output.status = static_cast<int>(result.status);
@@ -165,7 +165,8 @@ LocateOutput BuildLocateOutput(const LocateResult& result)
     return output;
 }
 
-MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& result, const MapLocateAssertLocationParam& param, bool matched)
+MapLocateAssertLocationOutput
+    build_assert_location_output(const LocateResult& result, const MapLocateAssertLocationParam& param, bool matched)
 {
     MapLocateAssertLocationOutput output;
     output.status = static_cast<int>(result.status);
@@ -191,7 +192,7 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& resu
     return output;
 }
 
-MaaRect MakePointBox(const MapPosition& position)
+MaaRect make_point_box(const MapPosition& position)
 {
     return {
         static_cast<int>(std::lround(position.x)),
@@ -201,7 +202,7 @@ MaaRect MakePointBox(const MapPosition& position)
     };
 }
 
-bool TryBuildAssertRect(const MapLocateAssertLocationParam& param, MaaRect* out_rect)
+bool try_build_assert_rect(const MapLocateAssertLocationParam& param, MaaRect* out_rect)
 {
     if (out_rect == nullptr || param.target.size() != 4) {
         return false;
@@ -220,7 +221,7 @@ bool TryBuildAssertRect(const MapLocateAssertLocationParam& param, MaaRect* out_
     return true;
 }
 
-bool IsPositionInsideRect(const MapPosition& position, const MaaRect& rect)
+bool is_position_inside_rect(const MapPosition& position, const MaaRect& rect)
 {
     const double left = static_cast<double>(rect.x);
     const double top = static_cast<double>(rect.y);
@@ -233,7 +234,7 @@ bool IsPositionInsideRect(const MapPosition& position, const MaaRect& rect)
 constexpr int kAssertLocateMaxFrames = 60;
 constexpr auto kAssertLocatePollDelay = std::chrono::milliseconds(250);
 
-std::string DetectControllerType(MaaContext* context)
+std::string detect_controller_type(MaaContext* context)
 {
     if (context == nullptr) {
         return {};
@@ -269,7 +270,7 @@ std::string DetectControllerType(MaaContext* context)
     return controller_type;
 }
 
-bool UsesAdbMinimapRoi(std::string_view controller_type)
+bool uses_adb_minimap_roi(std::string_view controller_type)
 {
     auto equals_ignore_case = [controller_type](std::string_view candidate) {
         return controller_type.size() == candidate.size() && std::ranges::equal(controller_type, candidate, [](char lhs, char rhs) {
@@ -281,7 +282,7 @@ bool UsesAdbMinimapRoi(std::string_view controller_type)
            || equals_ignore_case("native_android");
 }
 
-bool TryLocateOnMinimap(MaaContext* context, const MaaImageBuffer* image, const LocateOptions& options, LocateResult* out_result)
+bool try_locate_on_minimap(MaaContext* context, const MaaImageBuffer* image, const LocateOptions& options, LocateResult* out_result)
 {
     if (out_result == nullptr) {
         return false;
@@ -313,7 +314,7 @@ bool TryLocateOnMinimap(MaaContext* context, const MaaImageBuffer* image, const 
 
     cv::Mat minimap;
     const cv::Mat image_mat = to_mat(actual_image);
-    if (!TryExtractMinimap(image_mat, UsesAdbMinimapRoi(DetectControllerType(context)), &minimap)) {
+    if (!TryExtractMinimap(image_mat, uses_adb_minimap_roi(detect_controller_type(context)), &minimap)) {
         LogError << "MapLocateRecognition: ROI empty";
         return false;
     }
@@ -373,18 +374,18 @@ MaaBool MAA_CALL MapLocateRecognitionRun(
     MaaRect* out_box,
     MaaStringBuffer* out_detail)
 {
-    const LocateOptions options = ParseCustomRecognitionParam<LocateOptions>(custom_recognition_param);
+    const LocateOptions options = parse_custom_recognition_param<LocateOptions>(custom_recognition_param);
 
     LocateResult result;
-    if (!TryLocateOnMinimap(context, image, options, &result)) {
+    if (!try_locate_on_minimap(context, image, options, &result)) {
         return MAA_FALSE;
     }
 
-    WriteJsonDetail(out_detail, BuildLocateOutput(result));
+    write_json_detail(out_detail, build_locate_output(result));
 
     if (result.status == LocateStatus::Success && result.position.has_value()) {
         if (out_box != nullptr) {
-            *out_box = MakePointBox(result.position.value());
+            *out_box = make_point_box(result.position.value());
         }
         LogInfo << "OK " << VAR(result.position->zone_id) << VAR(result.position->x) << VAR(result.position->y)
                 << VAR(result.position->angle) << VAR(result.position->score) << VAR(result.position->latency_ms);
@@ -411,10 +412,10 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
     MaaRect* out_box,
     MaaStringBuffer* out_detail)
 {
-    const auto param = ParseCustomRecognitionParam<MapLocateAssertLocationParam>(custom_recognition_param);
+    const auto param = parse_custom_recognition_param<MapLocateAssertLocationParam>(custom_recognition_param);
 
     MaaRect target_rect {};
-    if (param.zone_id.empty() || !TryBuildAssertRect(param, &target_rect)) {
+    if (param.zone_id.empty() || !try_build_assert_rect(param, &target_rect)) {
         LogError << "MapLocateAssertLocation: invalid param" << VAR(param.zone_id) << VAR(param.target.size());
         return MAA_FALSE;
     }
@@ -435,12 +436,12 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
 
     for (int frame = 0; frame < kAssertLocateMaxFrames; ++frame) {
         const MaaImageBuffer* frame_image = frame == 0 ? image : nullptr;
-        if (!TryLocateOnMinimap(context, frame_image, options, &result)) {
+        if (!try_locate_on_minimap(context, frame_image, options, &result)) {
             return MAA_FALSE;
         }
 
         const bool located = result.status == LocateStatus::Success && result.position.has_value();
-        if (located && IsPositionInsideRect(result.position.value(), target_rect)) {
+        if (located && is_position_inside_rect(result.position.value(), target_rect)) {
             matched = true;
             break;
         }
@@ -451,7 +452,7 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
         }
     }
 
-    WriteJsonDetail(out_detail, BuildAssertLocationOutput(result, param, matched));
+    write_json_detail(out_detail, build_assert_location_output(result, param, matched));
 
     if (!matched) {
         LogInfo << "MapLocateAssertLocation miss" << VAR(param.zone_id) << VAR(target_rect.x) << VAR(target_rect.y)

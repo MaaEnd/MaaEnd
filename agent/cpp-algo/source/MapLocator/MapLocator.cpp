@@ -36,13 +36,13 @@ namespace maplocator
 namespace
 {
 
-std::string TrimLeadingZeros(std::string value)
+std::string trim_leading_zeros(std::string value)
 {
     value.erase(0, std::min(value.find_first_not_of('0'), value.size() - 1));
     return value;
 }
 
-bool IsSupportedMapImage(const fs::path& path)
+bool is_supported_map_image(const fs::path& path)
 {
     static constexpr std::array<std::string_view, 5> kMapImageExtensions { ".png", ".jpg", ".jpeg", ".webp", ".bmp" };
     std::string ext = MAA_NS::path_to_utf8_string(path.extension());
@@ -50,7 +50,7 @@ bool IsSupportedMapImage(const fs::path& path)
     return std::ranges::any_of(kMapImageExtensions, [&ext](std::string_view candidate) { return candidate == ext; });
 }
 
-bool MatchesExpectedZoneSelector(const std::string& expected_zone_selector, const YoloCoarseResult& coarse)
+bool matches_expected_zone_selector(const std::string& expected_zone_selector, const YoloCoarseResult& coarse)
 {
     if (expected_zone_selector.empty()) {
         return true;
@@ -62,7 +62,7 @@ bool MatchesExpectedZoneSelector(const std::string& expected_zone_selector, cons
     return coarse.raw_class.starts_with(expected_zone_selector);
 }
 
-std::string NormalizeExpectedZoneId(const std::string& expected_zone_selector, const YoloModel* predictor)
+std::string normalize_expected_zone_id(const std::string& expected_zone_selector, const YoloModel* predictor)
 {
     if (expected_zone_selector.empty() || predictor == nullptr) {
         return expected_zone_selector;
@@ -127,12 +127,19 @@ constexpr size_t kMatchWorkerLimit = 11;
 constexpr int kMinMaskBorderMargin = 8;
 
 // 模板中心只能落在搜索窗内缩 模板/2 的地方，搜索窗要按这个量补边，infer_margin 才是真的可达余量
-int GlobalSearchRoiPad(const cv::Size& templSize)
+int global_search_roi_pad(const cv::Size& templSize)
 {
     const int discSide = std::min(templSize.width, templSize.height) - 2 * kMinMaskBorderMargin + 1;
     const int side = std::clamp(discSide, 1, std::max(templSize.width, templSize.height));
     return static_cast<int>(std::ceil(side / 2.0)) + 1;
 }
+
+// 跟踪还可能赢下这一帧时，推测性的全局搜索限量占用线程，给跟踪留出余量
+enum class SearchThreads
+{
+    All,
+    YieldToTracking,
+};
 
 struct GlobalSearchBatchInput
 {
@@ -221,16 +228,13 @@ void run_global_search_batch(GlobalSearchBatch* batch)
     }
 }
 
-std::shared_ptr<GlobalSearchBatch> start_global_search_batch(
-    MapLocatorScaleExecutor* executor,
-    GlobalSearchBatchInput input,
-    ScaleTaskPriority priority,
-    bool reserveTrackingCapacity)
+std::shared_ptr<GlobalSearchBatch>
+    start_global_search_batch(MapLocatorScaleExecutor* executor, GlobalSearchBatchInput input, SearchThreads threads)
 {
     auto batch = std::make_shared<GlobalSearchBatch>();
     batch->input = std::move(input);
-    batch->control->priority.store(priority, std::memory_order_relaxed);
-    batch->control->reserve_tracking_capacity.store(reserveTrackingCapacity, std::memory_order_relaxed);
+    batch->control->priority.store(ScaleTaskPriority::GlobalPrimary, std::memory_order_relaxed);
+    batch->control->reserve_tracking_capacity.store(threads == SearchThreads::YieldToTracking, std::memory_order_relaxed);
     batch->remaining.store(1, std::memory_order_relaxed);
     executor->submit(batch->control, ScaleTaskClass::Global, [batch]() { run_global_search_batch(batch.get()); });
     return batch;
@@ -252,7 +256,7 @@ struct TrackingMatch
     cv::Mat scaledWeightMask;
 };
 
-TrackingMatch MatchTrackingTemplate(
+TrackingMatch match_tracking_template(
     const MatchFeature& templateFeature,
     const PreparedSearchFeature& searchFeature,
     const cv::Size& searchSize,
@@ -289,7 +293,7 @@ struct GlobalSearchComputation
 };
 
 // 这一批给出的模板中心（未裁剪模板口径）
-std::optional<cv::Point2d> BestRawCenter(const GlobalSearchComputation& computation)
+std::optional<cv::Point2d> best_raw_center(const GlobalSearchComputation& computation)
 {
     const FineMatchResult& best = computation.batch->result;
     if (!best.has_raw_result) {
@@ -308,12 +312,12 @@ struct GlobalSearchCandidates
     GlobalSearchComputation primary;
 };
 
-bool SearchConstraintsEqual(const SearchConstraint& lhs, const SearchConstraint& rhs)
+bool search_constraints_equal(const SearchConstraint& lhs, const SearchConstraint& rhs)
 {
     return lhs.mode == rhs.mode && lhs.roi == rhs.roi && lhs.yolo_validated == rhs.yolo_validated;
 }
 
-bool IsTightCluster(const std::vector<MapPosition>& buf, double radius)
+bool is_tight_cluster(const std::vector<MapPosition>& buf, double radius)
 {
     if (buf.size() < static_cast<size_t>(kColdStartConsensusFrames)) {
         return false;
@@ -325,7 +329,7 @@ bool IsTightCluster(const std::vector<MapPosition>& buf, double radius)
 }
 
 // 同峰时只取交付分高的一份：没看全这座峰的窗口，次峰会落在同一座峰的山坡上
-GlobalSearchAttempt MergeHintAttempt(const GlobalSearchAttempt& current, const GlobalSearchAttempt& hint, double passThreshold)
+GlobalSearchAttempt merge_hint_attempt(const GlobalSearchAttempt& current, const GlobalSearchAttempt& hint, double passThreshold)
 {
     if (std::hypot(hint.raw_pos.x - current.raw_pos.x, hint.raw_pos.y - current.raw_pos.y) <= kPositionConsensusRadius) {
         return hint.raw_pos.score > current.raw_pos.score ? hint : current;
@@ -343,15 +347,15 @@ GlobalSearchAttempt MergeHintAttempt(const GlobalSearchAttempt& current, const G
     return merged;
 }
 
-double QuantizeToHundredth(double value)
+double quantize_to_hundredth(double value)
 {
     return std::round(value * 100.0) / 100.0;
 }
 
-MapPosition QuantizePosition(MapPosition position)
+MapPosition quantize_position(MapPosition position)
 {
-    position.x = QuantizeToHundredth(position.x);
-    position.y = QuantizeToHundredth(position.y);
+    position.x = quantize_to_hundredth(position.x);
+    position.y = quantize_to_hundredth(position.y);
     return position;
 }
 
@@ -416,7 +420,7 @@ void load_available_zones(LocatorResources* resources, const std::string& root)
         else {
             boost::smatch matches;
             if (boost::regex_search(filename, matches, layerFileRegex)) {
-                key = std::format("{}_L{}_{}", parentName, TrimLeadingZeros(matches[1].str()), TrimLeadingZeros(matches[2].str()));
+                key = std::format("{}_L{}_{}", parentName, trim_leading_zeros(matches[1].str()), trim_leading_zeros(matches[2].str()));
             }
             else {
                 key = MAA_NS::path_to_utf8_string(entryPath.stem());
@@ -425,7 +429,7 @@ void load_available_zones(LocatorResources* resources, const std::string& root)
 
         cv::Mat img = MAA_NS::imread(entryPath, cv::IMREAD_UNCHANGED);
         if (img.empty()) {
-            if (IsSupportedMapImage(entryPath)) {
+            if (is_supported_map_image(entryPath)) {
                 LogError << "Failed to load map: " << MAA_NS::path_to_utf8_string(entryPath);
             }
             continue;
@@ -473,7 +477,7 @@ MapPosition stabilize_position(std::optional<MapPosition>* stable, const MapPosi
     }
 
     if (!stable->has_value() || (*stable)->zone_id != raw.zone_id) {
-        *stable = QuantizePosition(raw);
+        *stable = quantize_position(raw);
         return **stable;
     }
 
@@ -492,7 +496,7 @@ MapPosition stabilize_position(std::optional<MapPosition>* stable, const MapPosi
         return out;
     }
 
-    *stable = QuantizePosition(raw);
+    *stable = quantize_position(raw);
     return **stable;
 }
 
@@ -555,7 +559,7 @@ TrackingOutcome track_frame(
     auto searchFeature = ExtractSearchFeature(strategy, searchRoiWithPad);
     const PreparedSearchFeature preparedSearch = PrepareSearchFeature(searchFeature.image);
 
-    TrackingMatch tracking = MatchTrackingTemplate(tmplFeat, preparedSearch, searchFeature.image.size(), templateScale);
+    TrackingMatch tracking = match_tracking_template(tmplFeat, preparedSearch, searchFeature.image.size(), templateScale);
     std::optional<MatchResultRaw> trackResult = tracking.match;
     cv::Mat scaledTempl = std::move(tracking.scaledTemplate);
     cv::Mat scaledWeightMask = std::move(tracking.scaledWeightMask);
@@ -722,7 +726,7 @@ GlobalSearchComputation start_refine_search(LocatorResources* resources, const G
 
     const cv::Mat& bigMap = zoneIt->second;
     const MatchFeature& tmplFeat = coarse.batch->input.template_feature;
-    const int half = kGlobalRefineRadius + GlobalSearchRoiPad(tmplFeat.image.size());
+    const int half = kGlobalRefineRadius + global_search_roi_pad(tmplFeat.image.size());
     const cv::Rect refineRect =
         cv::Rect(static_cast<int>(std::lround(center.x)) - half, static_cast<int>(std::lround(center.y)) - half, half * 2, half * 2)
         & cv::Rect(0, 0, bigMap.cols, bigMap.rows);
@@ -746,8 +750,7 @@ GlobalSearchComputation start_refine_search(LocatorResources* resources, const G
             .template_scale = ZoneTemplateScale(coarse.target_zone_id),
             .refine_mode = PeakRefineMode::Continuous,
         },
-        ScaleTaskPriority::GlobalPrimary,
-        false);
+        SearchThreads::All);
     return refined;
 }
 
@@ -763,7 +766,7 @@ GlobalSearchAttempt finish_global_search(LocatorResources* resources, const Glob
     // 粗扫只负责挑位置，随后在它周围的小窗里连续求极大定坐标；精修开不起来就直接用粗扫结果
     const GlobalSearchComputation* evaluated = &computation;
     GlobalSearchComputation refined;
-    if (const auto center = BestRawCenter(computation)) {
+    if (const auto center = best_raw_center(computation)) {
         refined = start_refine_search(resources, computation, *center);
         if (refined.batch) {
             wait_global_search_batch(refined.batch.get());
@@ -811,8 +814,7 @@ GlobalSearchComputation start_global_search(
     const std::string& targetZoneId,
     const SearchConstraint& constraint,
     std::shared_ptr<const MatchStrategy> strategy,
-    ScaleTaskPriority priority,
-    bool reserveTrackingCapacity)
+    SearchThreads threads)
 {
     GlobalSearchComputation computation {
         .strategy = std::move(strategy),
@@ -839,7 +841,7 @@ GlobalSearchComputation start_global_search(
     MatchFeature searchFeature;
     if (constraint.mode == GlobalSearchMode::RoiFine) {
         // 不补边的话 infer_margin 名义上 64、实际只剩十来格，YOLO 报到相邻格时正确位置根本不在候选集里
-        const int pad = GlobalSearchRoiPad(tmplFeat.image.size());
+        const int pad = global_search_roi_pad(tmplFeat.image.size());
         const cv::Rect paddedRoi(
             constraint.roi.x - pad,
             constraint.roi.y - pad,
@@ -867,8 +869,7 @@ GlobalSearchComputation start_global_search(
             .template_scale = ZoneTemplateScale(targetZoneId),
             .refine_mode = PeakRefineMode::Parabola,
         },
-        priority,
-        reserveTrackingCapacity);
+        threads);
     return computation;
 }
 
@@ -949,7 +950,7 @@ SearchConstraint build_search_constraint(
         return constraint;
     }
 
-    constraint.yolo_validated = coarse.zone_id == targetZoneId && MatchesExpectedZoneSelector(expectedZoneSelector, coarse);
+    constraint.yolo_validated = coarse.zone_id == targetZoneId && matches_expected_zone_selector(expectedZoneSelector, coarse);
     if (!constraint.yolo_validated) {
         return constraint;
     }
@@ -1020,7 +1021,7 @@ GlobalSearchCandidates start_global_search_candidates(
     const SearchConstraint& constraint,
     const StrategyConfigs& configs,
     std::uint64_t searchFrameId,
-    bool reserveTrackingCapacity)
+    SearchThreads threads)
 {
     GlobalSearchCandidates candidates {
         .frame_id = searchFrameId,
@@ -1030,23 +1031,13 @@ GlobalSearchCandidates start_global_search_candidates(
     std::shared_ptr<const MatchStrategy> strategy = std::make_shared<const MatchStrategy>(make_strategy(targetZoneId, configs));
 
     const MatchFeature& globalTmpl = frame_template_feature(templateFeatures, minimap, *strategy);
-    candidates.primary = start_global_search(
-        resources,
-        globalTmpl,
-        targetZoneId,
-        constraint,
-        std::move(strategy),
-        ScaleTaskPriority::GlobalPrimary,
-        reserveTrackingCapacity);
+    candidates.primary = start_global_search(resources, globalTmpl, targetZoneId, constraint, std::move(strategy), threads);
     return candidates;
 }
 
 GlobalSearchAttempt finish_global_search_candidates(LocatorResources* resources, GlobalSearchCandidates candidates)
 {
-    // Speculative global work stays deliberately narrow while Tracking may still
-    // win the frame. Once the original control flow reaches Global, let the
-    // batch use the full executor because there is no foreground Tracking work
-    // left to protect.
+    // 走到这里跟踪已经没赢下这一帧，放开推测搜索的线程限量
     if (candidates.primary.batch) {
         resources->executor->releaseTrackingCapacity(candidates.primary.batch->control);
     }
@@ -1069,7 +1060,7 @@ GlobalSearchAttempt try_global_search(
         constraint,
         current_strategy_configs(*locator),
         locator->active_frame_id,
-        false);
+        SearchThreads::All);
     return finish_global_search_candidates(&locator->resources, std::move(candidates));
 }
 
@@ -1082,7 +1073,7 @@ struct FrameSearchInput
     std::string expected_zone_selector;
     std::string expected_zone_id;
     StrategyConfigs configs;
-    bool reserve_tracking_capacity = false;
+    SearchThreads threads = SearchThreads::All;
 };
 
 // 后台先取这一帧的 YOLO 结果，再按它起全局搜索；主线程随后取走候选，或在退出这一帧时取消
@@ -1100,7 +1091,7 @@ struct FrameSearch
     bool completed = false;
 };
 
-YoloCoarseResult predict_frame_search_coarse(const FrameSearchInput& input, YoloModel* yolo)
+YoloCoarseResult predict_frame_search_coarse(YoloModel* yolo, const FrameSearchInput& input)
 {
     if (input.same_frame_yolo.has_value()) {
         return input.same_frame_yolo->get();
@@ -1140,7 +1131,7 @@ std::optional<GlobalSearchCandidates>
         constraint,
         input.configs,
         input.frame_id,
-        input.reserve_tracking_capacity);
+        input.threads);
 }
 
 void cancel_candidates(MapLocatorScaleExecutor* executor, const GlobalSearchCandidates& candidates)
@@ -1157,7 +1148,7 @@ void run_frame_search(FrameSearch* search, LocatorResources* resources)
     std::optional<YoloCoarseResult> predicted;
     try {
         if (!search->canceled.load(std::memory_order_relaxed)) {
-            predicted = predict_frame_search_coarse(search->input, resources->yolo.get());
+            predicted = predict_frame_search_coarse(resources->yolo.get(), search->input);
             {
                 std::lock_guard<std::mutex> lock(search->mutex);
                 search->coarse = predicted;
@@ -1219,7 +1210,7 @@ std::optional<GlobalSearchCandidates> take_frame_search_candidates(
         std::rethrow_exception(search->exception);
     }
     if (!search->candidates.has_value() || search->candidates->frame_id != expectedFrameId
-        || search->candidates->target_zone_id != targetZoneId || !SearchConstraintsEqual(search->candidates->constraint, constraint)) {
+        || search->candidates->target_zone_id != targetZoneId || !search_constraints_equal(search->candidates->constraint, constraint)) {
         return std::nullopt;
     }
     GlobalSearchCandidates result = std::move(*search->candidates);
@@ -1339,7 +1330,7 @@ bool should_search_before_tracking(const MapLocator& locator, const FrameContext
 }
 
 // 在后台推测性地起这一帧的全局搜索，跟踪赢下这一帧时会被取消
-void start_frame_search(MapLocator* locator, FrameContext* frame, bool reserveTrackingCapacity)
+void start_frame_search(MapLocator* locator, FrameContext* frame, SearchThreads threads)
 {
     FrameSearchInput input {
         .frame_id = locator->active_frame_id,
@@ -1348,7 +1339,7 @@ void start_frame_search(MapLocator* locator, FrameContext* frame, bool reserveTr
         .expected_zone_selector = frame->expected_zone_selector,
         .expected_zone_id = frame->expected_zone_id,
         .configs = current_strategy_configs(*locator),
-        .reserve_tracking_capacity = reserveTrackingCapacity,
+        .threads = threads,
     };
     if (frame->same_frame_yolo.has_value() && frame->same_frame_yolo->frame_id == input.frame_id
         && frame->same_frame_yolo->future.valid()) {
@@ -1477,7 +1468,7 @@ GlobalSearchAttempt search_hint_windows(
         LogInfo << "Global Search: hint window." << VAR(hint.x) << VAR(hint.y) << VAR(hint.radius) << VAR(hintAttempt.raw_pos.x)
                 << VAR(hintAttempt.raw_pos.y) << VAR(hintAttempt.refined.score) << VAR(global.raw_pos.x) << VAR(global.raw_pos.y)
                 << VAR(global.refined.score);
-        global = MergeHintAttempt(global, hintAttempt, locator->match_config.pass_threshold);
+        global = merge_hint_attempt(global, hintAttempt, locator->match_config.pass_threshold);
     }
     return global;
 }
@@ -1554,7 +1545,7 @@ LocateResult accept_global_result(
             locator->cold_start.erase(locator->cold_start.begin());
         }
         locator->cold_start.push_back(globalResult);
-        if (!IsTightCluster(locator->cold_start, kPositionConsensusRadius)) {
+        if (!is_tight_cluster(locator->cold_start, kPositionConsensusRadius)) {
             LogInfo << "Cold-start: collecting." << VAR(locator->cold_start.size()) << VAR(globalResult.x) << VAR(globalResult.y)
                     << VAR(globalResult.score);
             return LocateResult { .status = LocateStatus::TrackingLost, .debug_message = kColdStartCollectingMessage };
@@ -1651,7 +1642,7 @@ LocateResult
         .options = options,
         .now = now,
         .expected_zone_selector = options.expected_zone_id,
-        .expected_zone_id = NormalizeExpectedZoneId(options.expected_zone_id, locator->resources.yolo.get()),
+        .expected_zone_id = normalize_expected_zone_id(options.expected_zone_id, locator->resources.yolo.get()),
     };
     const CancelFrameSearchOnExit cancelOnExit { &frame.search, locator->resources.executor.get() };
 
@@ -1661,12 +1652,12 @@ LocateResult
         frame.same_frame_yolo = apply_and_relaunch_periodic_yolo(locator, minimap, now);
     }
     if (searchBeforeTracking) {
-        start_frame_search(locator, &frame, false);
+        start_frame_search(locator, &frame, SearchThreads::All);
     }
 
     const TrackingLocate tracked = try_tracking_locate(locator, &frame);
     if (tracked.wants_global_search && can_start_frame_search(*locator, frame)) {
-        start_frame_search(locator, &frame, true);
+        start_frame_search(locator, &frame, SearchThreads::YieldToTracking);
     }
     if (tracked.result) {
         LocateResult trackingResult = *tracked.result;
