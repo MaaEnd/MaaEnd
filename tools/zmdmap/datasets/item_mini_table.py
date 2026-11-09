@@ -14,6 +14,9 @@
   文本 id 的函数，只按名字去重会把「同一句文案挂在两个文本 id 上」的条目误并。
 - ``category`` / ``storageKind`` / ``categoryType``：展示用的分类名，这条来自背包（``Normal``）、仓库页签
   （``ValuableDepot``）还是餐厅（``Restaurant``），以及对应的分类 key。
+- ``type``：物品类型，取 ``ItemTable.type``（如 ``TacticalItem`` / ``ConsumableItem`` / ``Material``）。它和
+  ``categoryType`` 不是同一层东西：``categoryType`` 是背包页签 key，战术物品与消耗品都挂在 ``Usable``
+  页签下、这一项完全一样，要按游戏自己的类型区分两者只能看 ``type``。
 - ``iconId`` / ``rarity`` / ``sortId1`` / ``sortId2``：图标名、稀有度、页签内排序与次级排序。
 - ``fluidType`` / ``fluid`` / ``fullContainers`` / ``emptyContainers``：这条是气体还是液体、满容器里装的是
   哪种流体、这种流体的满/空容器物品 id；与流体无关的条目这几项是 ``null`` 或空数组。
@@ -49,7 +52,7 @@ class ItemMiniTable(Dataset):
 
     @classmethod
     def build(cls, table_cfg: TableCfg) -> dict[str, dict[str, Any]]:
-        """背包及餐厅物品与分类、图标、稀有度、排序和五语名字。"""
+        """背包及餐厅物品的类型、分类、图标、稀有度、排序和五语名字。"""
         items = table_cfg.table("ItemTable", ItemRow)
         showing_types = table_cfg.table("ItemShowingTypeTable", ItemShowingTypeRow)
         depots = table_cfg.table("ValuableDepot", ValuableDepotRow)
@@ -97,6 +100,7 @@ class ItemMiniTable(Dataset):
                 "category": category,
                 "storageKind": "ValuableDepot" if from_depot else "Normal",
                 "categoryType": valuable_tab if from_depot else item.showing_type,
+                "type": item.type,
                 "iconId": item.icon_id,
                 "rarity": item.rarity,
                 "sortId1": item.sort_id1,
@@ -151,6 +155,7 @@ def _restaurant_items(
             "category": "客栈菜品" if category_type == "Dish" else "客栈饮品",
             "storageKind": "Restaurant",
             "categoryType": category_type,
+            "type": item.type,
             "iconId": item.icon_id,
             "rarity": item.rarity,
             "sortId1": item.sort_id1,
