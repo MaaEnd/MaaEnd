@@ -1,5 +1,11 @@
 #include "interception_keyboard.h"
 
+// 该实现完全依赖 Windows 的 Interception 驱动（winsock2.h / windows.h / interception.dll）。
+// source/CMakeLists.txt 用 GLOB_RECURSE 收集 *.cpp，本文件会进入所有平台的构建，
+// 因此非 Windows 平台必须编译成空实现：#else 分支里 Initialize 返回 false，
+// 调用方（desktop_input_backend）据此自然回退到 MaaController 路径。
+#ifdef _WIN32
+
 // winsock2.h 必须先于 windows.h：windows.h 会拉入旧版 winsock.h，
 // 与 MaaUtils 依赖链里的 winsock2.h 产生 struct 重定义冲突。
 #include <winsock2.h>
@@ -327,3 +333,55 @@ void InterceptionKeyboard::ReleaseAll()
 }
 
 } // namespace mapnavigator::backend::desktop
+
+#else // !_WIN32
+
+// 非 Windows 平台：Interception 驱动不存在，常量返回未初始化 / 未发送。
+// 保持与 Windows 版完全相同的符号，避免调用方出现链接错误。
+namespace mapnavigator::backend::desktop
+{
+
+InterceptionKeyboard& InterceptionKeyboard::Instance()
+{
+    static InterceptionKeyboard instance;
+    return instance;
+}
+
+bool InterceptionKeyboard::Initialize()
+{
+    return false;
+}
+
+void InterceptionKeyboard::Destroy() {}
+
+bool InterceptionKeyboard::SendKey(int vk_code, bool up)
+{
+    (void)vk_code;
+    (void)up;
+    return false;
+}
+
+bool InterceptionKeyboard::KeyDown(int vk_code)
+{
+    (void)vk_code;
+    return false;
+}
+
+bool InterceptionKeyboard::KeyUp(int vk_code)
+{
+    (void)vk_code;
+    return false;
+}
+
+bool InterceptionKeyboard::MouseRelativeMove(int dx, int dy)
+{
+    (void)dx;
+    (void)dy;
+    return false;
+}
+
+void InterceptionKeyboard::ReleaseAll() {}
+
+} // namespace mapnavigator::backend::desktop
+
+#endif // _WIN32
