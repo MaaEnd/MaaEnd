@@ -2952,6 +2952,203 @@ bool listed_uid(const std::vector<uint32_t>& v, uint32_t uid)
     return std::find(v.begin(), v.end(), uid) != v.end();
 }
 
+constexpr int64_t kTrustMargin = 64; // 可信余量, 格, 须盖过净空截断 kEdtCells 与中轴邻域
+constexpr int64_t kLocalMaxCells = 3'000'000;
+constexpr double kRatio0 = 2.0;      // 首档允许的代价与直线距离之比
+constexpr double kRatioStep = 2.0;
+constexpr double kCostSlack = 200.0; // 短腿的固定代价余量, 格
+static_assert(kTrustMargin > kEdtCells + 8);
+
+struct WindowRect
+{
+    int64_t x0 = 0, y0 = 0, nx = 0, ny = 0;
+};
+
+int64_t window_cells(const WindowRect& r)
+{
+    return r.nx * r.ny;
+}
+
+enum class WindowKind
+{
+    Tentative, // 小窗, 全套验收
+    Capped,    // 面积到上限, 关掉与窗口大小有关的验收
+    Full       // 整类窗口, 不做验收
+};
+
+// 以起终点为焦点的搜索椭圆, 单位是格; b* 是起点、起点吸附点与终点所在格的包围盒
+struct WindowEllipse
+{
+    double fsx = 0.0;
+    double fsy = 0.0;
+    double fgx = 0.0;
+    double fgy = 0.0;
+    double leg = 0.0;
+    double ang = 0.0;
+    int64_t bx0 = 0;
+    int64_t bx1 = 0;
+    int64_t by0 = 0;
+    int64_t by1 = 0;
+};
+
+int64_t cell_of(double v)
+{
+    return static_cast<int64_t>(std::floor(v / kCS));
+}
+
+// 搜索椭圆外接矩形, 半长轴 C/2, 半短轴 sqrt(C²-L²)/2
+WindowRect ellipse_rect(const WindowEllipse& e, double cost)
+{
+    const double a = cost / 2.0;
+    const double b = std::sqrt(std::max(cost * cost - e.leg * e.leg, 0.0)) / 2.0;
+    const double c = std::cos(e.ang);
+    const double s = std::sin(e.ang);
+    const double ex = std::sqrt(a * a * c * c + b * b * s * s);
+    const double ey = std::sqrt(a * a * s * s + b * b * c * c);
+    const double cx = (e.fsx + e.fgx) / 2.0;
+    const double cy = (e.fsy + e.fgy) / 2.0;
+    constexpr int64_t halo = kTrustMargin + 8;
+    const int64_t x0 = std::min(e.bx0, static_cast<int64_t>(std::floor(cx - ex))) - halo;
+    const int64_t x1 = std::max(e.bx1, static_cast<int64_t>(std::ceil(cx + ex))) + halo;
+    const int64_t y0 = std::min(e.by0, static_cast<int64_t>(std::floor(cy - ey))) - halo;
+    const int64_t y1 = std::max(e.by1, static_cast<int64_t>(std::ceil(cy + ey))) + halo;
+    return WindowRect { x0, y0, x1 - x0 + 1, y1 - y0 + 1 };
+}
+
+std::pair<WindowRect, WindowKind> tier_window(const WindowEllipse& e, const WindowRect& region_rect, int tier)
+{
+    const double cost = e.leg * kRatio0 * std::pow(kRatioStep, tier) + kCostSlack;
+    WindowRect r = ellipse_rect(e, cost);
+    const bool covers = r.x0 <= region_rect.x0 && r.y0 <= region_rect.y0 && r.x0 + r.nx >= region_rect.x0 + region_rect.nx
+                        && r.y0 + r.ny >= region_rect.y0 + region_rect.ny;
+    // 椭圆盖住整类或面积差不到两成时直接用整类窗口
+    if (window_cells(region_rect) <= kLocalMaxCells && (covers || window_cells(r) * 5 >= window_cells(region_rect) * 4)) {
+        return { region_rect, WindowKind::Full };
+    }
+    if (window_cells(r) <= kLocalMaxCells) {
+        return { r, WindowKind::Tentative };
+    }
+    double lo = e.leg;
+    double hi = cost;
+    if (window_cells(ellipse_rect(e, lo)) > kLocalMaxCells) {
+        return { ellipse_rect(e, lo), WindowKind::Capped };
+    }
+    for (int i = 0; i < 40; ++i) {
+        const double mid = (lo + hi) / 2.0;
+        (window_cells(ellipse_rect(e, mid)) <= kLocalMaxCells ? lo : hi) = mid;
+    }
+    return { ellipse_rect(e, lo), WindowKind::Capped };
+}
+
+// [a, b] 包围盒外扩 pad 的格图块, 不读场数据
+bool load_patch(
+    GridPatch* p,
+    const GridPack& gp,
+    const GridZoneDir& gz,
+    std::span<const FieldsOpenRec> opn,
+    const WorldPoint& a,
+    const WorldPoint& b,
+    double pad)
+{
+    const auto r = static_cast<int64_t>(std::ceil(pad / kCS));
+    const int64_t ax = static_cast<int64_t>(std::floor(a.x / kCS));
+    const int64_t ay = static_cast<int64_t>(std::floor(a.y / kCS));
+    const int64_t bx = static_cast<int64_t>(std::floor(b.x / kCS));
+    const int64_t by = static_cast<int64_t>(std::floor(b.y / kCS));
+    const int64_t gx0 = std::min(ax, bx) - r;
+    const int64_t gy0 = std::min(ay, by) - r;
+    p->nx = std::max(ax, bx) + r - gx0 + 1;
+    p->ny = std::max(ay, by) + r - gy0 + 1;
+    p->x0 = static_cast<double>(gx0) * kCS;
+    p->y0 = static_cast<double>(gy0) * kCS;
+    return loadGridWindow(gp, gz, nullptr, opn.data(), opn.size(), gx0, gy0, p->nx, p->ny, p->gw);
+}
+
+std::vector<uint32_t>
+    ropes_out_of_reach(const FieldsPack& fp, uint16_t zone_id, uint32_t region, const WindowInfo& info, const WindowRect& win)
+{
+    std::vector<uint32_t> out;
+    const std::span<const FieldsRopeRec> ropes = FieldsRopesOfZone(fp, zone_id);
+    for (size_t i = 0; i < ropes.size(); ++i) {
+        const FieldsLinkSide& b = ropes[i].bottom;
+        const int64_t cx = b.gx - win.x0;
+        const int64_t cy = b.gy - win.y0;
+        if (b.rid != region || cx < 0 || cy < 0 || cx >= win.nx || cy >= win.ny) {
+            continue;
+        }
+        const int64_t j = OccupiedIndex(info.st3, cy * win.nx + cx);
+        if (j < 0) {
+            continue;
+        }
+        for (int64_t k = CellSpanStart(info.st3, j), ke = k + CellSpanCount(info.st3, j); k < ke; ++k) {
+            const auto sk = static_cast<size_t>(k);
+            if (info.st3.sp_h[sk] == b.h && info.vis3[sk] != 0 && info.reach3[sk] == 0) {
+                out.push_back(ropes[i].uid_bottom);
+            }
+        }
+    }
+    return out;
+}
+
+void fill_debug(RecastPlanResult* res, RouteDiag* dg, const WindowRect& win, int tier, double window_ms, double t_all0)
+{
+    res->debug.timing = dg->timing;
+    res->debug.timing.window_ms = window_ms;
+    res->debug.timing.total_ms = nowMs() - t_all0;
+    res->debug.x0 = static_cast<double>(win.x0) * kCS;
+    res->debug.y0 = static_cast<double>(win.y0) * kCS;
+    res->debug.nx = win.nx;
+    res->debug.ny = win.ny;
+    res->debug.cell_size = kCS;
+    res->debug.tier = tier;
+    res->debug.topology_cells = std::move(dg->topology_cells);
+    res->debug.topology_heights = std::move(dg->topology_heights);
+    res->debug.taut_points = std::move(dg->taut_points);
+    res->debug.pulled_points = std::move(dg->pulled_points);
+    res->debug.assembled_points = std::move(dg->assembled_points);
+    res->debug.gap_start = dg->gap_start;
+    res->debug.gap_goal = dg->gap_goal;
+    res->debug.gap_distance = dg->gap_distance;
+    res->debug.warnings = dg->warn;
+}
+
+// 依次试跨类下落, 第一个两段都接得上的合成整条
+std::optional<RecastPlanResult> plan_drop_hops(
+    RecastNavEngine* engine,
+    const BaseNavPack& pack,
+    const BaseNavPlanner& planner,
+    const PlanScope& scope,
+    const RecastPlanRequest& req,
+    const std::vector<DropHop>& hops)
+{
+    PlanScope hop_scope = scope;
+    hop_scope.hopping = true;
+    for (const DropHop& hop : hops) {
+        if (plan_stopping(scope.stop_context)) {
+            break;
+        }
+        RecastPlanRequest to_take = req;
+        to_take.goal = hop.take;
+        to_take.goal_floor_y = kBaseNavFloorYNone;
+        to_take.goal_deck_y = static_cast<float>(hop.take_h);
+        RecastPlanResult a = plan_locked(engine, pack, planner, hop_scope, to_take);
+        if (!a.ok) {
+            continue;
+        }
+        RecastPlanRequest from_land = req;
+        from_land.start = hop.land;
+        from_land.start_floor_y = kBaseNavFloorYNone;
+        from_land.goal_deck_y = kBaseNavFloorYNone;
+        from_land.start_deck_y = static_cast<float>(hop.land_h);
+        RecastPlanResult b = plan_locked(engine, pack, planner, hop_scope, from_land);
+        if (!b.ok) {
+            continue;
+        }
+        return JoinDropHop(std::move(a), std::move(b), hop.land_h);
+    }
+    return std::nullopt;
+}
+
 // 只在总代价低于 best_cost 时返回
 std::optional<RecastPlanResult> try_ropes(
     RecastNavEngine* engine,
@@ -3087,21 +3284,7 @@ RecastPlanResult plan_locked(
     const std::optional<double> sdk =
         start_deck_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(start_deck_y)) : std::nullopt;
 
-    const auto loadPatch = [&](const WorldPoint& a, const WorldPoint& b, double pad, GridPatch& p) {
-        const auto r = static_cast<int64_t>(std::ceil(pad / kCS));
-        const int64_t ax = static_cast<int64_t>(std::floor(a.x / kCS));
-        const int64_t ay = static_cast<int64_t>(std::floor(a.y / kCS));
-        const int64_t bx = static_cast<int64_t>(std::floor(b.x / kCS));
-        const int64_t by = static_cast<int64_t>(std::floor(b.y / kCS));
-        const int64_t gx0 = std::min(ax, bx) - r;
-        const int64_t gy0 = std::min(ay, by) - r;
-        p.nx = std::max(ax, bx) + r - gx0 + 1;
-        p.ny = std::max(ay, by) + r - gy0 + 1;
-        p.x0 = static_cast<double>(gx0) * kCS;
-        p.y0 = static_cast<double>(gy0) * kCS;
-        const std::span<const FieldsOpenRec> opn = FieldsOpensOfZone(*engine->fields, zc.zone_id);
-        return loadGridWindow(engine->grid, *gz, nullptr, opn.data(), opn.size(), gx0, gy0, p.nx, p.ny, p.gw);
-    };
+    const std::span<const FieldsOpenRec> zone_opens = FieldsOpensOfZone(*engine->fields, zc.zone_id);
     GridPatch ps;
     GridPatch pg;
     bool patched = false;
@@ -3110,7 +3293,8 @@ RecastPlanResult plan_locked(
     uint32_t deck_region = 0;
     if (gdk.has_value()) {
         // 起点块盖住兜底吸附半径内任一吸附点再外扩一个定类半径
-        patched = loadPatch(start, start, kSnapFallbackRadius + kSnapRadius, ps) && loadPatch(goal, goal, kSnapRadius, pg);
+        patched = load_patch(&ps, engine->grid, *gz, zone_opens, start, start, kSnapFallbackRadius + kSnapRadius)
+                  && load_patch(&pg, engine->grid, *gz, zone_opens, goal, goal, kSnapRadius);
         const int64_t deck_rec = patched ? pickDeckRec(
                                      pg.gw,
                                      pg.nx,
@@ -3172,7 +3356,9 @@ RecastPlanResult plan_locked(
         return res;
     }
 
-    if (!patched && (!loadPatch(start, ss->point, kSnapRadius, ps) || (gdk.has_value() && !loadPatch(goal, goal, kSnapRadius, pg)))) {
+    if (!patched
+        && (!load_patch(&ps, engine->grid, *gz, zone_opens, start, ss->point, kSnapRadius)
+            || (gdk.has_value() && !load_patch(&pg, engine->grid, *gz, zone_opens, goal, goal, kSnapRadius)))) {
         res.error = "预烘格图解不开";
         return res;
     }
@@ -3188,19 +3374,10 @@ RecastPlanResult plan_locked(
     ps = GridPatch {};
     pg = GridPatch {};
 
-    constexpr int64_t kTrustMargin = 64; // 可信余量, 格, 须盖过净空截断 kEdtCells 与中轴邻域
-    constexpr int64_t kLocalMaxCells = 3'000'000;
-    constexpr double kRatio0 = 2.0;      // 首档允许的代价与直线距离之比
-    constexpr double kRatioStep = 2.0;
-    constexpr double kCostSlack = 200.0; // 短腿的固定代价余量, 格
-    static_assert(kTrustMargin > kEdtCells + 8);
-    const auto cellOf = [](double v) {
-        return static_cast<int64_t>(std::floor(v / kCS));
-    };
-    const int64_t bx0 = std::min({ cellOf(start.x), cellOf(ss->point.x), cellOf(goal.x) });
-    const int64_t bx1 = std::max({ cellOf(start.x), cellOf(ss->point.x), cellOf(goal.x) });
-    const int64_t by0 = std::min({ cellOf(start.y), cellOf(ss->point.y), cellOf(goal.y) });
-    const int64_t by1 = std::max({ cellOf(start.y), cellOf(ss->point.y), cellOf(goal.y) });
+    const int64_t bx0 = std::min({ cell_of(start.x), cell_of(ss->point.x), cell_of(goal.x) });
+    const int64_t bx1 = std::max({ cell_of(start.x), cell_of(ss->point.x), cell_of(goal.x) });
+    const int64_t by0 = std::min({ cell_of(start.y), cell_of(ss->point.y), cell_of(goal.y) });
+    const int64_t by1 = std::max({ cell_of(start.y), cell_of(ss->point.y), cell_of(goal.y) });
     // 外扩 kFieldHalo 后类边缘的场与整区图上算的相同
     auto zbit = ze.bounds.find(region);
     if (zbit == ze.bounds.end()) {
@@ -3215,97 +3392,54 @@ RecastPlanResult plan_locked(
     const int64_t rgy0 = zb.y0 - kFieldHalo;
     const int64_t rnx = zb.x1 - zb.x0 + 1 + 2 * kFieldHalo;
     const int64_t rny = zb.y1 - zb.y0 + 1 + 2 * kFieldHalo;
-    // 搜索椭圆外接矩形, 焦点为起终点, 半长轴 C/2, 半短轴 sqrt(C²-L²)/2
     const double fsx = start.x / kCS;
     const double fsy = start.y / kCS;
     const double fgx = goal.x / kCS;
     const double fgy = goal.y / kCS;
-    const double leg = std::hypot(fgx - fsx, fgy - fsy);
-    const double ang = std::atan2(fgy - fsy, fgx - fsx);
-
-    struct Rect
-    {
-        int64_t x0 = 0, y0 = 0, nx = 0, ny = 0;
-
-        int64_t cells() const { return nx * ny; }
+    const WindowEllipse ellipse {
+        .fsx = fsx,
+        .fsy = fsy,
+        .fgx = fgx,
+        .fgy = fgy,
+        .leg = std::hypot(fgx - fsx, fgy - fsy),
+        .ang = std::atan2(fgy - fsy, fgx - fsx),
+        .bx0 = bx0,
+        .bx1 = bx1,
+        .by0 = by0,
+        .by1 = by1,
     };
-
-    const auto rectFor = [&](double cost) {
-        const double a = cost / 2.0;
-        const double b = std::sqrt(std::max(cost * cost - leg * leg, 0.0)) / 2.0;
-        const double c = std::cos(ang);
-        const double s = std::sin(ang);
-        const double ex = std::sqrt(a * a * c * c + b * b * s * s);
-        const double ey = std::sqrt(a * a * s * s + b * b * c * c);
-        const double cx = (fsx + fgx) / 2.0;
-        const double cy = (fsy + fgy) / 2.0;
-        constexpr int64_t halo = kTrustMargin + 8;
-        const int64_t x0 = std::min(bx0, static_cast<int64_t>(std::floor(cx - ex))) - halo;
-        const int64_t x1 = std::max(bx1, static_cast<int64_t>(std::ceil(cx + ex))) + halo;
-        const int64_t y0 = std::min(by0, static_cast<int64_t>(std::floor(cy - ey))) - halo;
-        const int64_t y1 = std::max(by1, static_cast<int64_t>(std::ceil(cy + ey))) + halo;
-        return Rect { x0, y0, x1 - x0 + 1, y1 - y0 + 1 };
-    };
-    enum class Kind
-    {
-        Tentative, // 小窗, 全套验收
-        Capped,    // 面积到上限, 关掉与窗口大小有关的验收
-        Full       // 整类窗口, 不做验收
-    };
-    const Rect region_rect { rgx0, rgy0, rnx, rny };
-    const auto tierRect = [&](int tier) -> std::pair<Rect, Kind> {
-        const double cost = leg * kRatio0 * std::pow(kRatioStep, tier) + kCostSlack;
-        Rect r = rectFor(cost);
-        const bool covers = r.x0 <= rgx0 && r.y0 <= rgy0 && r.x0 + r.nx >= rgx0 + rnx && r.y0 + r.ny >= rgy0 + rny;
-        // 椭圆盖住整类或面积差不到两成时直接用整类窗口
-        if (region_rect.cells() <= kLocalMaxCells && (covers || r.cells() * 5 >= region_rect.cells() * 4)) {
-            return { region_rect, Kind::Full };
-        }
-        if (r.cells() <= kLocalMaxCells) {
-            return { r, Kind::Tentative };
-        }
-        double lo = leg;
-        double hi = cost;
-        if (rectFor(lo).cells() > kLocalMaxCells) {
-            return { rectFor(lo), Kind::Capped };
-        }
-        for (int i = 0; i < 40; ++i) {
-            const double mid = (lo + hi) / 2.0;
-            (rectFor(mid).cells() <= kLocalMaxCells ? lo : hi) = mid;
-        }
-        return { rectFor(lo), Kind::Capped };
-    };
+    const WindowRect region_rect { rgx0, rgy0, rnx, rny };
     std::optional<WindowInfo> info;
     const auto fall_cache = std::make_shared<FallCache>();
     int level = 0;
     bool last_resort = false;
-    Rect cur;
-    Rect prev { 0, 0, 0, 0 };
-    Kind kind = Kind::Tentative;
+    WindowRect cur;
+    WindowRect prev { 0, 0, 0, 0 };
+    WindowKind kind = WindowKind::Tentative;
     for (int tier = 0;; ++tier) {
         if (last_resort) {
             cur = region_rect;
-            kind = Kind::Full;
+            kind = WindowKind::Full;
         }
         else {
-            std::tie(cur, kind) = tierRect(level);
+            std::tie(cur, kind) = tier_window(ellipse, region_rect, level);
             // 极短腿的椭圆可能一档长不出一格, 同一窗口不重跑, 跳不动就用整类窗口
             constexpr int kMaxLevel = 64;
-            while (kind == Kind::Tentative && tier > 0 && cur.x0 == prev.x0 && cur.y0 == prev.y0 && cur.nx == prev.nx
+            while (kind == WindowKind::Tentative && tier > 0 && cur.x0 == prev.x0 && cur.y0 == prev.y0 && cur.nx == prev.nx
                    && cur.ny == prev.ny) {
                 if (++level > kMaxLevel) {
                     cur = region_rect;
-                    kind = Kind::Full;
+                    kind = WindowKind::Full;
                     last_resort = true;
                     break;
                 }
-                std::tie(cur, kind) = tierRect(level);
+                std::tie(cur, kind) = tier_window(ellipse, region_rect, level);
             }
         }
         prev = cur;
-        const bool local = kind != Kind::Full;
-        const bool capped = kind == Kind::Capped;
-        if (!local && region_rect.cells() > kMaxCells) {
+        const bool local = kind != WindowKind::Full;
+        const bool capped = kind == WindowKind::Capped;
+        if (!local && window_cells(region_rect) > kMaxCells) {
             res.error = "类过大 (" + std::to_string(rnx) + "×" + std::to_string(rny) + " 格)";
             return res;
         }
@@ -3383,71 +3517,29 @@ RecastPlanResult plan_locked(
             }
         }
         // 封顶档窗内不通可能是绕路出了窗, 整类窗口放得下就退整类再判
-        if (local && capped && !line.has_value() && region_rect.cells() <= kMaxCells) {
+        if (local && capped && !line.has_value() && window_cells(region_rect) <= kMaxCells) {
             info.reset();
             res.debug.tier_notes.push_back((dg.err.empty() ? std::string("路线失败") : dg.err) + "→整类窗口");
             last_resort = true;
             continue;
         }
-        const auto ropesOutOfReach = [&] {
-            std::vector<uint32_t> out;
-            const std::span<const FieldsRopeRec> ropes = FieldsRopesOfZone(*engine->fields, zone_id);
-            for (size_t i = 0; i < ropes.size(); ++i) {
-                const FieldsLinkSide& b = ropes[i].bottom;
-                const int64_t cx = b.gx - gx0;
-                const int64_t cy = b.gy - gy0;
-                if (b.rid != region || cx < 0 || cy < 0 || cx >= nx || cy >= ny) {
-                    continue;
-                }
-                const int64_t j = OccupiedIndex(info->st3, cy * nx + cx);
-                if (j < 0) {
-                    continue;
-                }
-                for (int64_t k = CellSpanStart(info->st3, j), ke = k + CellSpanCount(info->st3, j); k < ke; ++k) {
-                    const auto sk = static_cast<size_t>(k);
-                    if (info->st3.sp_h[sk] == b.h && info->vis3[sk] != 0 && info->reach3[sk] == 0) {
-                        out.push_back(ropes[i].uid_bottom);
-                    }
-                }
-            }
-            return out;
-        };
-        const auto dump = [&] {
-            res.debug.timing = dg.timing;
-            res.debug.timing.window_ms = window_ms;
-            res.debug.timing.total_ms = nowMs() - t_all0;
-            res.debug.x0 = x0;
-            res.debug.y0 = y0;
-            res.debug.nx = nx;
-            res.debug.ny = ny;
-            res.debug.cell_size = kCS;
-            res.debug.tier = tier;
-            res.debug.topology_cells = std::move(dg.topology_cells);
-            res.debug.topology_heights = std::move(dg.topology_heights);
-            res.debug.taut_points = std::move(dg.taut_points);
-            res.debug.pulled_points = std::move(dg.pulled_points);
-            res.debug.assembled_points = std::move(dg.assembled_points);
-            res.debug.gap_start = dg.gap_start;
-            res.debug.gap_goal = dg.gap_goal;
-            res.debug.gap_distance = dg.gap_distance;
-            res.debug.warnings = dg.warn;
-        };
         if (!line.has_value()) {
             res.error = dg.err.empty() ? "路线失败" : dg.err;
-            dump();
+            fill_debug(&res, &dg, cur, tier, window_ms, t_all0);
             return res;
         }
         if (std::max(dg.snap_start, dg.snap_goal) > kSnapRadius || dg.hop_barrier) {
             if (!scope.hopping && !dg.hop_barrier && dg.snap_start <= kSnapRadius && !gdk.has_value()) {
                 GridPatch pq;
-                const int64_t qrec = loadPatch(goal, goal, kSnapRadius, pq) ? pickStartRec(
+                const bool goal_patched = load_patch(&pq, engine->grid, *gz, zone_opens, goal, goal, kSnapRadius);
+                const int64_t qrec = goal_patched ? pickStartRec(
                                          pq.gw,
                                          pq.nx,
                                          pq.ny,
                                          static_cast<int64_t>((goal.x - pq.x0) / kCS),
                                          static_cast<int64_t>((goal.y - pq.y0) / kCS),
                                          triHeightOf(zc.mesh, gs->tri))
-                                                                            : -1;
+                                                  : -1;
                 const uint32_t peer = qrec >= 0 ? pq.gw.rec[static_cast<size_t>(qrec)].rid : region;
                 pq = GridPatch {};
                 std::vector<DropHop> hops;
@@ -3457,36 +3549,10 @@ RecastPlanResult plan_locked(
                         hops = CrossDropHops(*info, peer3, start, goal);
                     }
                 }
-                const std::vector<uint32_t> far_ropes = ropesOutOfReach();
+                const std::vector<uint32_t> far_ropes = ropes_out_of_reach(*engine->fields, zone_id, region, *info, cur);
                 info.reset();
 
-                std::optional<RecastPlanResult> dropped;
-                PlanScope hop_scope = scope;
-                hop_scope.hopping = true;
-                for (const DropHop& hop : hops) {
-                    if (plan_stopping(scope.stop_context)) {
-                        break;
-                    }
-                    RecastPlanRequest to_take = req;
-                    to_take.goal = hop.take;
-                    to_take.goal_floor_y = kBaseNavFloorYNone;
-                    to_take.goal_deck_y = static_cast<float>(hop.take_h);
-                    RecastPlanResult a = plan_locked(engine, pack, planner, hop_scope, to_take);
-                    if (!a.ok) {
-                        continue;
-                    }
-                    RecastPlanRequest from_land = req;
-                    from_land.start = hop.land;
-                    from_land.start_floor_y = kBaseNavFloorYNone;
-                    from_land.goal_deck_y = kBaseNavFloorYNone;
-                    from_land.start_deck_y = static_cast<float>(hop.land_h);
-                    RecastPlanResult b = plan_locked(engine, pack, planner, hop_scope, from_land);
-                    if (!b.ok) {
-                        continue;
-                    }
-                    dropped = JoinDropHop(std::move(a), std::move(b), hop.land_h);
-                    break;
-                }
+                std::optional<RecastPlanResult> dropped = plan_drop_hops(engine, pack, planner, scope, req, hops);
                 if (!dropped && plan_stopping(scope.stop_context)) {
                     res.error = "规划已取消";
                     return res;
@@ -3518,7 +3584,7 @@ RecastPlanResult plan_locked(
                 dg.snap_start,
                 dg.snap_goal);
             res.error = buf;
-            dump();
+            fill_debug(&res, &dg, cur, tier, window_ms, t_all0);
             return res;
         }
         res.ok = true;
@@ -3533,9 +3599,9 @@ RecastPlanResult plan_locked(
         res.snap_goal = dg.snap_goal;
         res.waypoints = std::move(dg.waypoints);
         res.drops = std::move(dg.drops);
-        dump();
+        fill_debug(&res, &dg, cur, tier, window_ms, t_all0);
         res.debug.planned_points = res.points;
-        const std::vector<uint32_t> far_ropes = ropesOutOfReach();
+        const std::vector<uint32_t> far_ropes = ropes_out_of_reach(*engine->fields, zone_id, region, *info, cur);
         info.reset();
         std::optional<RecastPlanResult> roped =
             try_ropes(engine, pack, planner, scope, req, zone_id, region, region, res.length, 1, far_ropes);
