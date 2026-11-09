@@ -17,12 +17,13 @@ func itoaLevel(level int) string {
 	}
 }
 
+// priorityItemIconRecognitionOverride 只重写识别参数，不写 roi：
+// 各控制器的 roi 由 resource / resource_adb 覆盖决定，在这里写死会盖掉 ADB 的覆盖。
 func priorityItemIconRecognitionOverride(caseIDs []string) map[string]any {
 	recognitionIDs := creditShoppingRecognitionItemIDs(caseIDs)
 	return map[string]any{
 		"recognition":         "Custom",
 		"custom_recognition":  "IconRecognition",
-		"roi":                 creditTradeIconROIWin32,
 		"index":               0,
 		"custom_recognition_param": map[string]any{
 			"grid_type":    "credit_trade",

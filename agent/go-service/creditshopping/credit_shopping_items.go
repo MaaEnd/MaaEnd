@@ -42,9 +42,6 @@ var creditShoppingItemCatalog = []creditShoppingItem{
 	{CaseID: "TCreds", Name: "折金票", RecognitionItemID: "item_gold"},
 }
 
-// creditTradeIconROIWin32 为 IconRecognition grid_type=credit_trade 的 Win32 参考 ROI（720p）。
-var creditTradeIconROIWin32 = []int{70, 95, 1140, 415}
-
 func priorityItemByID(caseID string) (creditShoppingItem, bool) {
 	for _, item := range creditShoppingItemCatalog {
 		if item.CaseID == caseID {

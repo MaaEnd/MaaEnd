@@ -21,6 +21,9 @@ func TestBuildPriorityLevelOverrideIconRecognition(t *testing.T) {
 	if node["custom_recognition"] != "IconRecognition" {
 		t.Fatalf("custom_recognition %v", node["custom_recognition"])
 	}
+	if roi, ok := node["roi"]; ok {
+		t.Fatalf("override must not pin a controller-specific roi: %v", roi)
+	}
 	param, ok := node["custom_recognition_param"].(map[string]any)
 	if !ok {
 		t.Fatal("missing custom_recognition_param")
