@@ -24,7 +24,9 @@ func absInt(v int) int {
 	return v
 }
 
-func rotateView(ctx *maa.Context, dx, dy int) {
+// rotateView 返回 false 表示转视角动作没有真正下发（例如控制器掉线）。
+// 调用方据此决定是否推进自身状态，避免在"没转动"的情况下继续按已对齐处理。
+func rotateView(ctx *maa.Context, dx, dy int) bool {
 	cx, cy := screenW/2, screenH/2
 	if absInt(cursorDX) > screenW/4 || absInt(cursorDY) > screenH/4 {
 		ctx.RunAction("__CharacterControllerDeltaAltKeyDownAction",
@@ -48,10 +50,14 @@ func rotateView(ctx *maa.Context, dx, dy int) {
 			},
 		},
 	}
-	ctx.RunAction("__CharacterControllerDeltaSwipeAction",
+	detail, err := ctx.RunAction("__CharacterControllerDeltaSwipeAction",
 		maa.Rect{0, 0, 0, 0}, "", override)
+	if err != nil || detail == nil {
+		return false
+	}
 	cursorDX += dx
 	cursorDY += dy
+	return true
 }
 
 // RotateView 供战斗等其它模块复用：保持与寻路/转视角一致的光标偏移管理，
@@ -188,7 +194,12 @@ func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int
 	// 无论远近都只转不走；对齐后才按距离决定步长。
 	alignX := box.X() + box.Width()/2 - screenW/2
 	if absInt(alignX) > alignThreshold {
-		rotateView(ctx, alignX/2, 0)
+		if !rotateView(ctx, alignX/2, 0) {
+			// 转视角没有真正下发：本轮不能声明"已对齐"，返回失败让上层重试，
+			// 否则管线会以为对齐完成并继续按原朝向接近出口。
+			log.Warn().Int("offsetX", alignX).Msg("rotate view failed while aligning target — abort this step")
+			return false
+		}
 		log.Debug().Int("offsetX", alignX).Msg("target in view but off-center — stop and turn only")
 		return true
 	}
