@@ -41,25 +41,25 @@ const char* walk_out_entry_for(const std::vector<std::string>& handled)
 
 } // namespace
 
-ObstacleDeviceRecovery::ObstacleDeviceRecovery(
+ObstacleDeviceRecovery MakeDeviceRecovery(
     MaaContext* maa_context,
-    MotionController* motion_controller,
-    PositionProvider* position_provider,
+    Motion* motion_controller,
+    PositionSensor* position_provider,
     NavigationSession* session,
     NaviPosition* position)
-    : maa_context_(maa_context)
-    , motion_controller_(motion_controller)
-    , position_provider_(position_provider)
-    , session_(session)
-    , position_(position)
 {
+    ObstacleDeviceRecovery recovery;
+    recovery.maa_context = maa_context;
+    recovery.motion_controller = motion_controller;
+    recovery.position_provider = position_provider;
+    recovery.session = session;
+    recovery.position = position;
+    return recovery;
 }
 
-ObstacleDeviceRecovery::~ObstacleDeviceRecovery() = default;
-
-void ObstacleDeviceRecovery::start(const cv::Rect& base_roi, std::string_view controller_type)
+void StartDeviceRecovery(ObstacleDeviceRecovery* recovery, const cv::Rect& base_roi, std::string_view controller_type)
 {
-    if (scanner_ != nullptr) {
+    if (recovery->scanner != nullptr) {
         return;
     }
 
@@ -74,62 +74,63 @@ void ObstacleDeviceRecovery::start(const cv::Rect& base_roi, std::string_view co
         return;
     }
 
-    scanner_ = std::make_unique<RoiTemplateScanner>(
+    recovery->scanner = std::make_unique<RoiTemplateScanner>(
         "device",
         base_roi,
         std::vector<ScanIcon> { ScanIcon { .templ = button_template, .threshold = kObstacleDeviceMatchThreshold } });
     LogInfo << "Blocking-device probe started." << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width) << VAR(base_roi.height);
 }
 
-void ObstacleDeviceRecovery::stop()
+void StopDeviceRecovery(ObstacleDeviceRecovery* recovery)
 {
-    scanner_.reset();
-    feeding_ = false;
+    recovery->scanner.reset();
+    recovery->feeding = false;
 }
 
-void ObstacleDeviceRecovery::submitFrame(const cv::Mat& frame)
+void SubmitDeviceFrame(ObstacleDeviceRecovery* recovery, const cv::Mat& frame)
 {
-    if (scanner_ == nullptr || !feeding_) {
+    if (recovery->scanner == nullptr || !recovery->feeding) {
         return;
     }
-    scanner_->submitFrame(frame);
+    recovery->scanner->submitFrame(frame);
 }
 
-void ObstacleDeviceRecovery::updateFeeding(int64_t stalled_ms, bool attempt_available)
+void UpdateDeviceFeeding(ObstacleDeviceRecovery* recovery, int64_t stalled_ms, bool attempt_available)
 {
-    if (scanner_ == nullptr) {
+    if (recovery->scanner == nullptr) {
         return;
     }
     const bool feed = stalled_ms > 0 && attempt_available;
-    if (feed && !feeding_) {
-        scanner_->consumeDetection(); // 重新开喂时丢掉停喂期间的命中
+    if (feed && !recovery->feeding) {
+        recovery->scanner->consumeDetection(); // 重新开喂时丢掉停喂期间的命中
     }
-    feeding_ = feed;
+    recovery->feeding = feed;
 }
 
-void ObstacleDeviceRecovery::forgetObservation()
+void ForgetDeviceObservation(ObstacleDeviceRecovery* recovery)
 {
-    if (scanner_ != nullptr) {
-        scanner_->consumeDetection();
+    if (recovery->scanner != nullptr) {
+        recovery->scanner->consumeDetection();
     }
-    feeding_ = false;
+    recovery->feeding = false;
 }
 
-DeviceRemovalOutcome ObstacleDeviceRecovery::tryRemove(const RouteMeasurement& route, const Waypoint& waypoint, bool attempt_available)
+DeviceRemovalOutcome
+    TryRemoveDevice(ObstacleDeviceRecovery* recovery, const RouteMeasurement& route, const Waypoint& waypoint, bool attempt_available)
 {
-    if (maa_context_ == nullptr || scanner_ == nullptr || !attempt_available) {
+    if (recovery->maa_context == nullptr || recovery->scanner == nullptr || !attempt_available) {
         return DeviceRemovalOutcome::NotAttempted;
     }
-    if (!scanner_->consumeDetection()) {
+    if (!recovery->scanner->consumeDetection()) {
         return DeviceRemovalOutcome::NotAttempted;
     }
 
-    const NaviPosition move_start = *position_;
+    const NaviPosition move_start = *recovery->position;
     LogInfo << "Dynamic recovery carrying off the blocking device." << VAR(route.waypoint_distance);
     // 边走边点会点到滚到下面的另一行提示, 移动点击前须站定
-    motion_controller_->setForwardState(false);
-    session_->noteInteraction();
-    const std::optional<std::vector<std::string>> handled = RunTaskForCompletedNodes(maa_context_, kObstacleDeviceEntry, "{}");
+    HoldPosition(recovery->motion_controller);
+    recovery->session->noteInteraction();
+    const std::optional<std::vector<std::string>> handled = RunTaskForCompletedNodes(recovery->maa_context, kObstacleDeviceEntry, "{}");
     if (!handled) {
         LogWarn << "Blocking-device subtask result unavailable.";
         return DeviceRemovalOutcome::StillPinned;
@@ -141,24 +142,25 @@ DeviceRemovalOutcome ObstacleDeviceRecovery::tryRemove(const RouteMeasurement& r
     }
     if (const char* walk_out = walk_out_entry_for(*handled); walk_out != nullptr) {
         // 搬起的设备会放回原处, 放下前须先走出来
-        motion_controller_->reassertForward();
-        if (MaaContextRunTask(maa_context_, walk_out, "{}") == MaaInvalidId) {
+        ReassertForward(recovery->motion_controller);
+        if (MaaContextRunTask(recovery->maa_context, walk_out, "{}") == MaaInvalidId) {
             LogWarn << "Blocking-device walk-out did not run." << VAR(walk_out);
             return DeviceRemovalOutcome::StillPinned;
         }
     }
 
-    if (!position_provider_->capture(position_, false, session_->currentZoneId()) || position_provider_->lastCaptureWasBlackScreen()
-        || !position_->valid) {
+    if (!CaptureTracked(recovery->position_provider, recovery->position, recovery->session->currentZoneId())
+        || recovery->position_provider->last_capture_was_black_screen || !recovery->position->valid) {
         // 旧定位会让随后的跳跃从旧点量位移, 误报已脱困
         LogWarn << "Dynamic recovery waiting for a local tracking fix after the device move.";
         SleepFor(kTargetTickMs);
         return DeviceRemovalOutcome::NeedsFreshFix;
     }
 
-    const bool zone_changed = !move_start.zone_id.empty() && !position_->zone_id.empty() && move_start.zone_id != position_->zone_id;
-    const double displacement = std::hypot(position_->x - move_start.x, position_->y - move_start.y);
-    const double move_waypoint_distance = std::hypot(waypoint.x - position_->x, waypoint.y - position_->y);
+    const bool zone_changed =
+        !move_start.zone_id.empty() && !recovery->position->zone_id.empty() && move_start.zone_id != recovery->position->zone_id;
+    const double displacement = std::hypot(recovery->position->x - move_start.x, recovery->position->y - move_start.y);
+    const double move_waypoint_distance = std::hypot(waypoint.x - recovery->position->x, waypoint.y - recovery->position->y);
     const bool made_progress = move_waypoint_distance + kNoProgressDistanceEpsilon < route.waypoint_distance;
     const bool moved_forward = displacement >= kDynamicRecoveryResetDistance * 0.5 && made_progress;
     if (zone_changed || displacement >= kDynamicRecoveryResetDistance || moved_forward) {

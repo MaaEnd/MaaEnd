@@ -45,7 +45,7 @@ Result finalize_portal_transit_zone(const Context& ctx, const std::string& zone_
     ResetOnWaypointAdvance(ctx.runtime_state);
     ConsumeMatchedZoneNodes(ctx);
     StopMotionAndCommitment(ctx);
-    ctx.position_provider->resetTracking();
+    ResetSensorTracking(ctx.position_provider);
     ctx.runtime_state->semantic.portal.phase = PortalTransitPhase::Reacquire;
     LogInfo << "Portal transit accepted zone transition." << VAR(zone_id) << VAR(matched_zone_index);
     return Handled();
@@ -65,7 +65,7 @@ Result TickPortalTransit(const Context& ctx)
     }
 
     if (portal.phase == PortalTransitPhase::Reacquire) {
-        if (!ctx.position_provider->capture(ctx.position, false, ctx.session->currentZoneId())
+        if (!CaptureTracked(ctx.position_provider, ctx.position, ctx.session->currentZoneId())
             || ctx.position->zone_id != ctx.session->currentZoneId()) {
             return WaitNextFix(kZoneConfirmRetryIntervalMs);
         }
@@ -75,10 +75,10 @@ Result TickPortalTransit(const Context& ctx)
         return Handled();
     }
 
-    ctx.motion_controller->setForwardState(true);
+    MoveForward(ctx.motion_controller);
 
     NaviPosition candidate;
-    if (!ctx.position_provider->capture(&candidate, true, {})) {
+    if (!CaptureGlobal(ctx.position_provider, &candidate, {})) {
         return WaitNextFix(kZoneConfirmRetryIntervalMs);
     }
 
@@ -104,14 +104,14 @@ Result TickTransferWait(const Context& ctx)
         return Handled();
     }
 
-    ctx.motion_controller->setForwardState(false);
+    HoldPosition(ctx.motion_controller);
 
     const auto now = std::chrono::steady_clock::now();
     if (IsUnset(transfer.started)) {
         transfer.started = now;
     }
 
-    if (!ctx.position_provider->capture(ctx.position, false, {})) {
+    if (!CaptureTracked(ctx.position_provider, ctx.position, {})) {
         if (ElapsedMs(transfer.started, now) > kRelocationWaitTimeoutMs) {
             return Failure("transfer_wait_timeout", "TRANSFER wait timed out before capture stabilized.");
         }
@@ -141,7 +141,7 @@ Result TickTransferWait(const Context& ctx)
 Result TickRopeRide(const Context& ctx)
 {
     RopeRideState& rope = ctx.runtime_state->semantic.rope;
-    ctx.motion_controller->setForwardState(false);
+    HoldPosition(ctx.motion_controller);
     const int64_t waited_ms = ElapsedMs(rope.started);
     if (waited_ms < rope.ride_ms) {
         return WaitNextFix(kRelocationRetryIntervalMs);
@@ -149,7 +149,7 @@ Result TickRopeRide(const Context& ctx)
     if (waited_ms > rope.ride_ms + kRelocationWaitTimeoutMs) {
         return Failure("rope_ride_timeout", "Rope ride finished but the position never stabilized.");
     }
-    if (!ctx.position_provider->capture(ctx.position, false, {})) {
+    if (!CaptureTracked(ctx.position_provider, ctx.position, {})) {
         rope.stable_reads = 0;
         return WaitNextFix(kRelocationRetryIntervalMs);
     }

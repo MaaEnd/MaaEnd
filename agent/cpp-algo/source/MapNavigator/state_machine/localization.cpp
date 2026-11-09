@@ -9,7 +9,7 @@
 #include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
 
-#include "../control/action_wrapper.h"
+#include "../Backend/backend.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_log.h"
@@ -65,12 +65,14 @@ std::string scene_recovery_override(MaaSize esc_used)
 
 bool NavigationStateMachine::captureCurrentPosition(bool force_global_search)
 {
-    const uint64_t heading_epoch = action_wrapper_->headingEpoch();
+    const uint64_t heading_epoch = input_backend_->heading_epoch;
     const bool prior_usable = !force_global_search && param_.heading_source == HeadingSource::Camera && position_->valid
                               && prior_observation_epoch_ && *prior_observation_epoch_ == heading_epoch
                               && session_->phase() == NaviPhase::Navigate;
     const std::optional<double> camera_heading_prior = prior_usable ? std::optional<double>(position_->angle) : std::nullopt;
-    const bool captured = position_provider_->capture(position_, force_global_search, session_->currentZoneId(), {}, camera_heading_prior);
+    const bool captured = force_global_search
+                              ? CaptureGlobal(position_provider_, position_, session_->currentZoneId(), {}, camera_heading_prior)
+                              : CaptureTracked(position_provider_, position_, session_->currentZoneId(), {}, camera_heading_prior);
     if (captured) {
         prior_observation_epoch_ = heading_epoch;
         consecutive_prior_uses_ = camera_heading_prior ? consecutive_prior_uses_ + 1 : 0;
@@ -84,7 +86,7 @@ bool NavigationStateMachine::captureCurrentPosition(bool force_global_search)
         std::chrono::steady_clock::now(),
         *position_,
         captured,
-        position_provider_->lastLocateMessage(),
+        position_provider_->last_locate_message,
         session_->currentNodeIdx(),
         navi_phase_name(session_->phase()));
     updateDwellWatchdog(captured);
@@ -94,7 +96,7 @@ bool NavigationStateMachine::captureCurrentPosition(bool force_global_search)
 void NavigationStateMachine::updateDwellWatchdog(bool captured)
 {
     DwellWatchdogState& dwell = runtime_state_.dwell;
-    const bool usable = captured && position_->valid && !position_provider_->lastCaptureWasBlackScreen();
+    const bool usable = captured && position_->valid && !position_provider_->last_capture_was_black_screen;
     if (!usable || session_->phase() != NaviPhase::Navigate) {
         dwell.last_usable = {};
         return;
@@ -189,10 +191,10 @@ bool NavigationStateMachine::handleLocalizationLoss()
     }
     PauseWedge(&runtime_state_.offroute, now);
     // 丢定位期间截到黑屏就是落水了
-    if (position_provider_->lastCaptureWasBlackScreen()) {
+    if (position_provider_->last_capture_was_black_screen) {
         loss.saw_black_screen = true;
     }
-    motion_controller_->setForwardState(false);
+    HoldPosition(motion_controller_);
 
     const auto loss_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - loss.started_at);
     if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossTimeoutMs)) {
@@ -213,8 +215,8 @@ bool NavigationStateMachine::handleLocalizationLoss()
     if (!relocalize_cooling) {
         last_global_relocalize_at_ = now;
         const std::string prior_zone = session_->currentZoneId();
-        const bool reacquired = position_provider_->capture(position_, /*force_global_search=*/true, /*expected_zone_id=*/std::string());
-        NoteFailure(&failure_trail_, now, "global relocalize " + position_provider_->lastLocateMessage());
+        const bool reacquired = CaptureGlobal(position_provider_, position_, /*expected_zone_id=*/std::string());
+        NoteFailure(&failure_trail_, now, "global relocalize " + position_provider_->last_locate_message);
         if (reacquired) {
             return resumeAfterGlobalReacquire(prior_zone, loss_elapsed);
         }
@@ -229,9 +231,10 @@ bool NavigationStateMachine::handleLocalizationLoss()
         loss.last_unstick_at = now;
         LogInfo << "Localization lost; blind unstick hop issued." << VAR(loss_elapsed.count());
         NoteFailure(&failure_trail_, now, "localization lost blind hop");
-        motion_controller_->setAction(LocalDriverAction::JumpForward, true);
+        ArmSteeringQuietPeriod(motion_controller_);
+        ApplyLocalAction(motion_controller_, LocalDriverAction::JumpForward);
         SleepFor(kActionJumpSettleMs);
-        motion_controller_->setForwardState(false);
+        HoldPosition(motion_controller_);
         return true;
     }
 
@@ -243,14 +246,14 @@ bool NavigationStateMachine::sceneRecoveryAllowed()
 {
     const LocalizationLossState& loss = runtime_state_.localization_loss;
     const bool attempted = runtime_state_.scene_recovery_attempted;
-    const bool foreign_ui = position_provider_->lastCaptureMinimapAbsent() && !loss.saw_black_screen;
+    const bool foreign_ui = position_provider_->last_capture_minimap_absent && !loss.saw_black_screen;
     const bool own_ui = semantic_nodes::IsTriggerPending(*session_)
                         || ElapsedMs(session_->lastInteractionAt(), loss.started_at) < kSceneRecoveryInteractionQuietMs;
     if (attempted || !foreign_ui || own_ui) {
         LogInfo << "Scene recovery declined." << VAR(attempted) << VAR(foreign_ui) << VAR(own_ui);
         return false;
     }
-    if (dialog_on_screen(maa_context_, action_wrapper_->getCtrl())) {
+    if (dialog_on_screen(maa_context_, input_backend_->ctrl)) {
         LogInfo << "Scene recovery declined: dialog on screen.";
         return false;
     }
@@ -273,7 +276,7 @@ bool NavigationStateMachine::returnToWorld()
     const std::optional<std::vector<std::string>> handled =
         RunTaskForCompletedNodes(maa_context_, kSceneRecoveryEntryNode, scene_recovery_override(esc_used));
     const bool restored =
-        position_provider_->waitForFix(position_, std::string(), kSceneRecoveryFixAttempts, kRelocationRetryIntervalMs, should_stop_);
+        WaitForFix(position_provider_, position_, std::string(), kSceneRecoveryFixAttempts, kRelocationRetryIntervalMs, should_stop_);
     LogInfo << "Scene recovery finished." << VAR(restored) << VAR(handled) << VAR(esc_used);
     NoteFailure(&failure_trail_, std::chrono::steady_clock::now(), restored ? "scene recovery restored" : "scene recovery failed");
     return restored;
@@ -350,7 +353,7 @@ TickStep NavigationStateMachine::runRiverFallRecovery(const NavigateTick& tick)
             NormalizeAngle(route.route_heading - tick.fix.current_heading),
             tick.stalled_ms));
     }
-    if (AdvanceRiverFallRecovery(&runtime_state_.river_fall, action_wrapper_, motion_controller_, *position_, tick.fix.current_heading)
+    if (AdvanceRiverFallRecovery(&runtime_state_.river_fall, input_backend_, motion_controller_, *position_, tick.fix.current_heading)
         == RiverFallStep::Cleared) {
         return EndTickWith(resumeAfterEscape("river_fall_recovered"));
     }

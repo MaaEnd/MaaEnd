@@ -96,6 +96,72 @@ PromptScanProfile default_scan_profile(
     return profile;
 }
 
+// 空串表示用默认预筛, 节点坏了也记下名字, 免得每拍重读
+void build_scanner(AsyncPromptAction* action, const std::string& scan_node)
+{
+    action->scanner.reset();
+    action->scan_node = scan_node;
+
+    PromptScanProfile profile;
+    if (scan_node.empty()) {
+        profile = default_scan_profile(action->context, action->spec, action->fallback_roi, action->controller_type);
+    }
+    else if (!TryLoadPromptScanProfile(action->context, scan_node, action->controller_type, &profile)) {
+        LogError << "Points naming this scan node get no pre-filter; they stop on arrival instead." << VAR(action->spec.tag)
+                 << VAR(scan_node);
+        return;
+    }
+    if (profile.icons.empty()) {
+        LogError << "Prompt scan template is empty; these points stop on arrival instead." << VAR(action->spec.tag) << VAR(scan_node);
+        return;
+    }
+
+    LogInfo << "Async prompt scanner started." << VAR(action->spec.tag) << VAR(scan_node) << VAR(profile.base_roi.x)
+            << VAR(profile.base_roi.y) << VAR(profile.base_roi.width) << VAR(profile.base_roi.height) << VAR(profile.icons.size());
+    action->scanner = std::make_unique<RoiTemplateScanner>(action->spec.tag, profile.base_roi, std::move(profile.icons));
+}
+
+// 扫描节点变了才重建, 重建会一并丢掉旧闩
+void ensure_scanner_for(AsyncPromptAction* action, const Waypoint* waypoint)
+{
+    if (waypoint == nullptr || waypoint->interact_scan == action->scan_node) {
+        return;
+    }
+    build_scanner(action, waypoint->interact_scan);
+}
+
+bool consume_detection(AsyncPromptAction* action)
+{
+    return action->scanner != nullptr && action->scanner->consumeDetection();
+}
+
+// 只认当前要走到的那个点, nullptr 表示这一拍不该停车
+const Waypoint* current_waypoint_of_this_kind(const AsyncPromptAction& action)
+{
+    if (action.session == nullptr || !action.session->hasCurrentWaypoint()) {
+        return nullptr;
+    }
+
+    const Waypoint& waypoint = action.session->currentWaypoint();
+    return SpecMatches(action.spec, waypoint) ? &waypoint : nullptr;
+}
+
+const Waypoint* tail_waypoint_of_this_kind(const AsyncPromptAction& action)
+{
+    if (action.session == nullptr) {
+        return nullptr;
+    }
+
+    const std::vector<Waypoint>& path = action.session->originalPath();
+    for (auto it = path.rbegin(); it != path.rend(); ++it) {
+        if (!it->has_position) {
+            continue;
+        }
+        return SpecMatches(action.spec, *it) ? &*it : nullptr;
+    }
+    return nullptr;
+}
+
 } // namespace
 
 bool RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec)
@@ -114,89 +180,86 @@ bool RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, co
     return *recognized;
 }
 
-AsyncPromptAction::AsyncPromptAction(
-    const AsyncPromptActionSpec& spec,
-    MaaContext* context,
-    NavigationSession* session,
-    const NaviPosition* position)
-    : spec_(spec)
-    , context_(context)
-    , session_(session)
-    , position_(position)
+AsyncPromptAction
+    MakeAsyncPromptAction(const AsyncPromptActionSpec& spec, MaaContext* context, NavigationSession* session, const NaviPosition* position)
 {
+    AsyncPromptAction action;
+    action.spec = spec;
+    action.context = context;
+    action.session = session;
+    action.position = position;
+    return action;
 }
 
-AsyncPromptAction::~AsyncPromptAction() = default;
-
-bool AsyncPromptAction::routeHasPoint() const
+bool PromptRouteHasPoint(const AsyncPromptAction& action)
 {
-    if (session_ == nullptr) {
+    if (action.session == nullptr) {
         return false;
     }
-    const std::vector<Waypoint>& path = session_->originalPath();
-    return std::any_of(path.begin(), path.end(), [this](const Waypoint& waypoint) { return spec_.matches(waypoint); });
+    const std::vector<Waypoint>& path = action.session->originalPath();
+    return std::any_of(path.begin(), path.end(), [&action](const Waypoint& waypoint) { return SpecMatches(action.spec, waypoint); });
 }
 
-bool AsyncPromptAction::routeEndsWithPoint() const
+bool PromptRouteEndsWithPoint(const AsyncPromptAction& action)
 {
-    return tailWaypointOfThisKind() != nullptr;
+    return tail_waypoint_of_this_kind(action) != nullptr;
 }
 
-void AsyncPromptAction::start(const cv::Rect& fallback_roi, std::string_view controller_type)
+void StartPromptAction(AsyncPromptAction* action, const cv::Rect& fallback_roi, std::string_view controller_type)
 {
-    if (started_ || !routeHasPoint()) {
+    if (action->started || !PromptRouteHasPoint(*action)) {
         return;
     }
-    fallback_roi_ = fallback_roi;
-    controller_type_ = controller_type;
-    started_ = true;
+    action->fallback_roi = fallback_roi;
+    action->controller_type = controller_type;
+    action->started = true;
 
-    for (const Waypoint& waypoint : session_->originalPath()) {
-        if (spec_.matches(waypoint)) {
-            buildScanner(waypoint.interact_scan);
+    for (const Waypoint& waypoint : action->session->originalPath()) {
+        if (SpecMatches(action->spec, waypoint)) {
+            build_scanner(action, waypoint.interact_scan);
             break;
         }
     }
 }
 
-void AsyncPromptAction::stop()
+void StopPromptAction(AsyncPromptAction* action)
 {
-    scanner_.reset();
-    scan_node_.clear();
-    started_ = false;
+    action->scanner.reset();
+    action->scan_node.clear();
+    action->started = false;
 }
 
-void AsyncPromptAction::submitFrame(const cv::Mat& frame)
+void SubmitPromptFrame(AsyncPromptAction* action, const cv::Mat& frame)
 {
-    if (scanner_ != nullptr) {
-        scanner_->submitFrame(frame);
+    if (action->scanner != nullptr) {
+        action->scanner->submitFrame(frame);
     }
 }
 
-void AsyncPromptAction::preWarmRecognition()
+void PreWarmPromptRecognition(const AsyncPromptAction& action)
 {
-    if (context_ == nullptr || !routeHasPoint()) {
+    if (action.context == nullptr || !PromptRouteHasPoint(action)) {
         return;
     }
 
-    LogInfo << "Pre-warming the prompt recognition model while the agent is stopped." << VAR(spec_.tag);
-    const std::string pipeline_override = build_pre_warm_override(spec_);
-    MaaContextRunTask(context_, spec_.entry_node, pipeline_override.c_str());
+    LogInfo << "Pre-warming the prompt recognition model while the agent is stopped." << VAR(action.spec.tag);
+    const std::string pipeline_override = build_pre_warm_override(action.spec);
+    MaaContextRunTask(action.context, action.spec.entry_node, pipeline_override.c_str());
 }
 
-double AsyncPromptAction::nearestDistanceSq() const
+double NearestPromptDistanceSq(const AsyncPromptAction& action)
 {
-    if (!started_ || session_ == nullptr || position_ == nullptr || !position_->valid) {
+    if (!action.started || action.session == nullptr || action.position == nullptr || !action.position->valid) {
         return -1.0;
     }
 
     double nearest_sq = -1.0;
-    for (const Waypoint& waypoint : session_->currentPath()) {
-        if (!spec_.matches(waypoint)) {
+    for (const Waypoint& waypoint : action.session->currentPath()) {
+        if (!SpecMatches(action.spec, waypoint)) {
             continue;
         }
-        const double dx = waypoint.x - position_->x;
-        const double dy = waypoint.y - position_->y;
+        const double dx = waypoint.x - action.position->x;
+        const double dy = waypoint.y - action.position->y;
         const double distance_sq = dx * dx + dy * dy;
         if (nearest_sq < 0.0 || distance_sq < nearest_sq) {
             nearest_sq = distance_sq;
@@ -206,14 +269,14 @@ double AsyncPromptAction::nearestDistanceSq() const
 }
 
 PromptTriggerOutcome
-    AsyncPromptAction::tryTriggerWhileWalking(MotionController* motion_controller, double waypoint_distance, size_t node_idx)
+    TryTriggerPromptWhileWalking(AsyncPromptAction* action, Motion* motion_controller, double waypoint_distance, size_t node_idx)
 {
-    if (context_ == nullptr || !started_ || motion_controller == nullptr) {
+    if (action->context == nullptr || !action->started || motion_controller == nullptr) {
         return PromptTriggerOutcome::NotTriggered;
     }
 
     const auto now = std::chrono::steady_clock::now();
-    if (!IsUnset(last_trigger_at_) && now - last_trigger_at_ < std::chrono::milliseconds(kPromptScanIntervalMs)) {
+    if (!IsUnset(action->last_trigger_at) && now - action->last_trigger_at < std::chrono::milliseconds(kPromptScanIntervalMs)) {
         return PromptTriggerOutcome::NotTriggered;
     }
 
@@ -221,10 +284,10 @@ PromptTriggerOutcome
     const std::vector<std::string>* expected = nullptr;
     bool rec = false;
     bool in_band = false;
-    if (spec_.text_from_route) {
+    if (action->spec.text_from_route) {
         // 认中就算本点走完, 所以只认正在走向的那个点
-        const Waypoint* waypoint = currentWaypointOfThisKind();
-        ensureScannerFor(waypoint);
+        const Waypoint* waypoint = current_waypoint_of_this_kind(*action);
+        ensure_scanner_for(action, waypoint);
         in_band = waypoint != nullptr && waypoint_distance <= kPromptTriggerBandWu;
         if (in_band) {
             expected = &waypoint->interact_text;
@@ -233,117 +296,53 @@ PromptTriggerOutcome
     }
     else {
         // 共用表那类按最近同类点算距离, 已走过的也算, 提示常在走过头后才弹出
-        const double nearest_sq = nearestDistanceSq();
+        const double nearest_sq = NearestPromptDistanceSq(*action);
         in_band = nearest_sq >= 0.0 && nearest_sq <= kPromptTriggerBandWu * kPromptTriggerBandWu;
     }
 
     // 带外也要读闩把旧观测作废, 否则进带第一拍会拿老观测开火
-    if (!consumeDetection() || !in_band) {
+    if (!consume_detection(action) || !in_band) {
         return PromptTriggerOutcome::NotTriggered;
     }
 
-    last_trigger_at_ = now;
-    LogInfo << "Async prompt flagged — stopping for authoritative recognition." << VAR(spec_.tag) << VAR(waypoint_distance) << VAR(node_idx)
-            << VAR(rec);
-    motion_controller->setForwardState(false);
+    action->last_trigger_at = now;
+    LogInfo << "Async prompt flagged — stopping for authoritative recognition." << VAR(action->spec.tag) << VAR(waypoint_distance)
+            << VAR(node_idx) << VAR(rec);
+    HoldPosition(motion_controller);
     SleepFor(kStopWaitMs);
-    if (!RunPromptSubtask(context_, spec_, expected, rec)) {
+    if (!RunPromptSubtask(action->context, action->spec, expected, rec)) {
         // 间隔从识别结束算起, 否则常驻的别家提示会挤掉到点判定
-        last_trigger_at_ = std::chrono::steady_clock::now();
-        LogInfo << "Async prompt not confirmed — resuming the walk." << VAR(spec_.tag) << VAR(waypoint_distance) << VAR(node_idx);
+        action->last_trigger_at = std::chrono::steady_clock::now();
+        LogInfo << "Async prompt not confirmed — resuming the walk." << VAR(action->spec.tag) << VAR(waypoint_distance) << VAR(node_idx);
         return PromptTriggerOutcome::Missed;
     }
     return PromptTriggerOutcome::Recognized;
 }
 
-bool AsyncPromptAction::tryTriggerAtRouteTail()
+bool TryTriggerPromptAtRouteTail(AsyncPromptAction* action)
 {
-    if (context_ == nullptr || !started_) {
+    if (action->context == nullptr || !action->started) {
         return false;
     }
 
-    const Waypoint* waypoint = tailWaypointOfThisKind();
-    if (spec_.text_from_route && waypoint == nullptr) {
+    const Waypoint* waypoint = tail_waypoint_of_this_kind(*action);
+    if (action->spec.text_from_route && waypoint == nullptr) {
         return false;
     }
-    ensureScannerFor(waypoint);
-    if (!consumeDetection()) {
+    ensure_scanner_for(action, waypoint);
+    if (!consume_detection(action)) {
         return false;
     }
 
     const bool rec = waypoint != nullptr && waypoint->interact_rec;
-    LogInfo << "Route tail prompt flagged — running the authoritative recognition before finishing." << VAR(spec_.tag) << VAR(rec);
-    RunPromptSubtask(context_, spec_, waypoint != nullptr ? &waypoint->interact_text : nullptr, rec);
+    LogInfo << "Route tail prompt flagged — running the authoritative recognition before finishing." << VAR(action->spec.tag) << VAR(rec);
+    RunPromptSubtask(action->context, action->spec, waypoint != nullptr ? &waypoint->interact_text : nullptr, rec);
     return true;
 }
 
-void AsyncPromptAction::forgetDetection()
+void ForgetPromptDetection(AsyncPromptAction* action)
 {
-    consumeDetection();
-}
-
-void AsyncPromptAction::ensureScannerFor(const Waypoint* waypoint)
-{
-    if (waypoint == nullptr || waypoint->interact_scan == scan_node_) {
-        return;
-    }
-    buildScanner(waypoint->interact_scan);
-}
-
-// 空串表示用默认预筛, 节点坏了也记下名字, 免得每拍重读
-void AsyncPromptAction::buildScanner(const std::string& scan_node)
-{
-    scanner_.reset();
-    scan_node_ = scan_node;
-
-    PromptScanProfile profile;
-    if (scan_node.empty()) {
-        profile = default_scan_profile(context_, spec_, fallback_roi_, controller_type_);
-    }
-    else if (!TryLoadPromptScanProfile(context_, scan_node, controller_type_, &profile)) {
-        LogError << "Points naming this scan node get no pre-filter; they stop on arrival instead." << VAR(spec_.tag) << VAR(scan_node);
-        return;
-    }
-    if (profile.icons.empty()) {
-        LogError << "Prompt scan template is empty; these points stop on arrival instead." << VAR(spec_.tag) << VAR(scan_node);
-        return;
-    }
-
-    LogInfo << "Async prompt scanner started." << VAR(spec_.tag) << VAR(scan_node) << VAR(profile.base_roi.x) << VAR(profile.base_roi.y)
-            << VAR(profile.base_roi.width) << VAR(profile.base_roi.height) << VAR(profile.icons.size());
-    scanner_ = std::make_unique<RoiTemplateScanner>(spec_.tag, profile.base_roi, std::move(profile.icons));
-}
-
-bool AsyncPromptAction::consumeDetection()
-{
-    return scanner_ != nullptr && scanner_->consumeDetection();
-}
-
-// 只认当前要走到的那个点, nullptr 表示这一拍不该停车
-const Waypoint* AsyncPromptAction::currentWaypointOfThisKind() const
-{
-    if (session_ == nullptr || !session_->hasCurrentWaypoint()) {
-        return nullptr;
-    }
-
-    const Waypoint& waypoint = session_->currentWaypoint();
-    return spec_.matches(waypoint) ? &waypoint : nullptr;
-}
-
-const Waypoint* AsyncPromptAction::tailWaypointOfThisKind() const
-{
-    if (session_ == nullptr) {
-        return nullptr;
-    }
-
-    const std::vector<Waypoint>& path = session_->originalPath();
-    for (auto it = path.rbegin(); it != path.rend(); ++it) {
-        if (!it->has_position) {
-            continue;
-        }
-        return spec_.matches(*it) ? &*it : nullptr;
-    }
-    return nullptr;
+    consume_detection(action);
 }
 
 } // namespace mapnavigator

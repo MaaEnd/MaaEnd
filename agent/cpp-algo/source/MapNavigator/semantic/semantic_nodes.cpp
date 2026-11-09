@@ -38,7 +38,7 @@ Result arrive_transfer(const Context& ctx, const std::optional<size_t>& node_idx
     const auto now = std::chrono::steady_clock::now();
     const bool waits = ctx.session->hasCurrentWaypoint();
     ctx.runtime_state->semantic.transfer = waits ? TransferWaitState { .started = now, .anchor = *ctx.position } : TransferWaitState {};
-    ctx.position_provider->resetTracking();
+    ResetSensorTracking(ctx.position_provider);
     LogInfo << "Action: TRANSFER reached." << VAR(actual_distance);
 
     if (waits) {
@@ -59,8 +59,8 @@ Result arrive_portal(const Context& ctx, const std::optional<size_t>& node_idx, 
     ctx.runtime_state->semantic.portal = ctx.session->hasCurrentWaypoint()
                                              ? PortalTransitState { .phase = PortalTransitPhase::AwaitZone, .started = now }
                                              : PortalTransitState {};
-    ctx.position_provider->resetTracking();
-    ctx.motion_controller->setForwardState(true);
+    ResetSensorTracking(ctx.position_provider);
+    MoveForward(ctx.motion_controller);
     LogInfo << "Action: PORTAL entered transit flow." << VAR(actual_distance);
     SelectPhaseForCurrentWaypoint(ctx, "portal_entered");
     return Handled();
@@ -140,7 +140,7 @@ Result arrive_key_interact(const Context& ctx, const Waypoint& waypoint, const s
     }
     else {
         ArmCameraAlign(ctx.runtime_state);
-        ctx.action_executor->interact();
+        ExecuteInteract(ctx.input_backend, ctx.motion_controller);
     }
     return CompleteArrival(ctx, waypoint, node_idx, "waypoint_action_completed");
 }
@@ -189,7 +189,7 @@ Result ConsumeInlineSemantics(const Context& ctx)
     }
 
     if (ctx.session->hasCurrentWaypoint() && IsZoneDeclaration(ctx.session->currentWaypoint())) {
-        ctx.motion_controller->setForwardState(true);
+        MoveForward(ctx.motion_controller);
         return Handled();
     }
     return {};
@@ -202,7 +202,7 @@ Result StartRopeRide(const Context& ctx, const RopeRideInfo& ride)
         .started = std::chrono::steady_clock::now(),
         .ride_ms = static_cast<int64_t>(std::ceil(ride.ride_s * 1000.0)),
     };
-    ctx.position_provider->resetTracking();
+    ResetSensorTracking(ctx.position_provider);
     LogInfo << "Rope ride started." << VAR(ride.uid) << VAR(ride.ride_s) << VAR(ride.top_height);
     if (!ctx.session->hasCurrentWaypoint() || !ctx.session->currentWaypoint().rope_top) {
         LogWarn << "Rope ride started without a top landing as the next point." << VAR(ride.uid);
@@ -214,7 +214,7 @@ Result StartRopeRide(const Context& ctx, const RopeRideInfo& ride)
 Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual_distance)
 {
     const std::optional<size_t> node_idx = ctx.session->currentAbsoluteNodeIndex();
-    if (RequiresStrictArrival(waypoint) && ctx.motion_controller->isMoving()) {
+    if (RequiresStrictArrival(waypoint) && ctx.motion_controller->is_moving) {
         StopMotionAndCommitment(ctx);
         SleepFor(kStopWaitMs);
     }
@@ -240,15 +240,15 @@ Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual
         }
         return arrive_key_interact(ctx, waypoint, node_idx);
     case ActionType::SPRINT:
-        ctx.action_executor->sprint();
+        ExecuteSprint(ctx.motion_controller);
         break;
     case ActionType::JUMP:
         ArmCameraAlign(ctx.runtime_state);
-        ctx.action_executor->jump();
+        ExecuteJump(ctx.input_backend, ctx.motion_controller);
         break;
     case ActionType::FIGHT:
         ArmCameraAlign(ctx.runtime_state);
-        ctx.action_executor->fight();
+        ExecuteFight(ctx.input_backend, ctx.motion_controller);
         break;
     // HEADING/ZONE 没坐标, NAVMESH 展开后换成规划点, 实际到不了这里
     case ActionType::RUN:

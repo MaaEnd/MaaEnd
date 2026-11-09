@@ -6,12 +6,11 @@
 
 #include <MaaUtils/Logger.h>
 
+#include "../Backend/backend.h"
 #include "../navi_config.h"
 #include "../navi_time.h"
 #include "../sensing/latency_observer.h"
-#include "action_wrapper.h"
 #include "motion_controller.h"
-#include "walk_mode.h"
 
 namespace mapnavigator
 {
@@ -40,183 +39,59 @@ LocalActionTraits local_action_traits_of(LocalDriverAction action)
     return {};
 }
 
-} // namespace
-
-MotionController::MotionController(ActionWrapper* action_wrapper, bool enable_local_driver, bool enable_sprint)
-    : action_wrapper_(action_wrapper)
-    , enable_local_driver_(enable_local_driver)
-    , enable_sprint_(enable_sprint)
+bool steering_gate_open(const Motion& motion, double yaw_delta_deg, std::chrono::steady_clock::time_point now)
 {
-    if (action_wrapper_ != nullptr) {
-        steering_profile_ = action_wrapper_->steeringProfile();
-    }
-}
-
-void MotionController::stop()
-{
-    holdPosition();
-}
-
-void MotionController::setForwardState(bool forward)
-{
-    if (!forward) {
-        holdPosition();
-        return;
-    }
-
-    if (enable_local_driver_) {
-        setAction(LocalDriverAction::Forward, !is_moving_forward_);
-        return;
-    }
-
-    if (!is_moving_forward_) {
-        action_wrapper_->setMovementStateSync({ .forward = true }, 0);
-    }
-    is_moving_ = true;
-    is_moving_forward_ = true;
-}
-
-void MotionController::reassertForward()
-{
-    if (!is_moving_forward_) {
-        setForwardState(true);
-        return;
-    }
-    // 后端会跳过与缓存状态相同的按键, 须松开再按, 且绕过 setAction 以免清掉在途转向
-    action_wrapper_->resetForwardWalkSync(kWalkResetReleaseMs);
-}
-
-TurnCommandResult MotionController::applySteering(double yaw_delta_deg, int64_t tick_gap_ms)
-{
-    if (std::abs(yaw_delta_deg) <= std::numeric_limits<double>::epsilon()) {
-        return { .issued = true };
-    }
-
-    const auto now = std::chrono::steady_clock::now();
-    if (!steeringGateOpen(yaw_delta_deg, now)) {
-        return {};
-    }
-
-    const bool should_pause_motion = !steering_profile_.supports_concurrent_move_and_look && isMoving();
-    if (should_pause_motion) {
-        action_wrapper_->setMovementStateSync({}, 0);
-    }
-
-    const TurnCommandResult result = emitBatches(yaw_delta_deg, planBatchCount(yaw_delta_deg, tick_gap_ms));
-    if (result.send_ms > 0) {
-        latency::RecordStage(latency::Stage::Steer, result.send_ms);
-    }
-    if (result.issued) {
-        last_steering_sent_at_ = now;
-        if (should_pause_motion) {
-            is_moving_ = false;
-            is_moving_forward_ = false;
-            has_applied_action_ = false;
-        }
-    }
-    return result;
-}
-
-bool MotionController::supportsSprint() const
-{
-    return enable_sprint_ && action_wrapper_ != nullptr && action_wrapper_->supportsSprint();
-}
-
-void MotionController::setSprintSuppressed(bool suppressed)
-{
-    if (suppressed && !sprint_suppressed_ && sprint_active_ && is_moving_forward_ && action_wrapper_ != nullptr) {
-        action_wrapper_->resetForwardWalkSync(kSprintCancelReleaseMs);
-        sprint_active_ = false;
-        LogInfo << "Sprint cancelled near collect point (dropped to walking speed).";
-    }
-    sprint_suppressed_ = suppressed;
-}
-
-bool MotionController::triggerSprint()
-{
-    if (sprint_suppressed_) {
-        return false;
-    }
-    if (!supportsSprint()) {
-        return false;
-    }
-
-    armSteeringQuietPeriod();
-    action_wrapper_->triggerSprintSync();
-    walkmode::NoteSprintTriggered();
-    sprint_active_ = true;
-    LogInfo << "Sprint state armed.";
-    return true;
-}
-
-void MotionController::holdPosition()
-{
-    action_wrapper_->setMovementStateSync({}, 0);
-    has_applied_action_ = false;
-    is_moving_ = false;
-    is_moving_forward_ = false;
-    sprint_active_ = false;
-    steering_quiet_until_ = {};
-}
-
-void MotionController::setAction(LocalDriverAction action, bool force)
-{
-    const LocalActionTraits traits = local_action_traits_of(action);
-    if (!force && has_applied_action_ && applied_action_ == action) {
-        is_moving_ = traits.translates;
-        is_moving_forward_ = traits.moves_forward;
-        return;
-    }
-
-    armSteeringQuietPeriod();
-
-    action_wrapper_->setMovementStateSync(traits.movement, 0);
-    if (traits.jumps) {
-        action_wrapper_->triggerJumpSync(kActionJumpHoldMs);
-    }
-
-    applied_action_ = action;
-    has_applied_action_ = true;
-    is_moving_ = traits.translates;
-    is_moving_forward_ = traits.moves_forward;
-    sprint_active_ = false;
-}
-
-bool MotionController::isMoving() const
-{
-    return is_moving_;
-}
-
-bool MotionController::isMovingForward() const
-{
-    return is_moving_forward_;
-}
-
-bool MotionController::steeringGateOpen(double yaw_delta_deg, std::chrono::steady_clock::time_point now) const
-{
-    if (steering_quiet_until_.time_since_epoch().count() > 0 && now < steering_quiet_until_) {
+    if (motion.steering_quiet_until.time_since_epoch().count() > 0 && now < motion.steering_quiet_until) {
         return false;
     }
     const int64_t elapsed_ms =
-        IsUnset(last_steering_sent_at_) ? std::numeric_limits<int64_t>::max() : ElapsedMs(last_steering_sent_at_, now);
-    return std::abs(yaw_delta_deg) >= steering_profile_.min_emit_delta_deg && elapsed_ms >= steering_profile_.min_send_interval_ms;
+        IsUnset(motion.last_steering_sent_at) ? std::numeric_limits<int64_t>::max() : ElapsedMs(motion.last_steering_sent_at, now);
+    return std::abs(yaw_delta_deg) >= motion.steering_profile.min_emit_delta_deg
+           && elapsed_ms >= motion.steering_profile.min_send_interval_ms;
 }
 
-int64_t MotionController::planBatchCount(double yaw_delta_deg, int64_t tick_gap_ms) const
+int64_t plan_batch_count(const Motion& motion, double yaw_delta_deg, int64_t tick_gap_ms)
 {
     int64_t batches = std::clamp<int64_t>(
-        static_cast<int64_t>(std::ceil(std::abs(yaw_delta_deg) / steering_profile_.max_batch_delta_deg)),
+        static_cast<int64_t>(std::ceil(std::abs(yaw_delta_deg) / motion.steering_profile.max_batch_delta_deg)),
         1,
         kSteeringMaxBatchesPerTick);
-    if (steering_profile_.min_send_interval_ms > 0) {
-        batches = std::max<int64_t>(1, std::min(batches, tick_gap_ms / steering_profile_.min_send_interval_ms));
+    if (motion.steering_profile.min_send_interval_ms > 0) {
+        batches = std::max<int64_t>(1, std::min(batches, tick_gap_ms / motion.steering_profile.min_send_interval_ms));
     }
     return batches;
 }
 
-TurnCommandResult MotionController::emitBatches(double yaw_delta_deg, int64_t batches)
+TurnCommandResult send_view_delta(const Motion& motion, double delta_degrees)
 {
-    const double batch_cap = steering_profile_.max_batch_delta_deg;
+    TurnCommandResult result;
+    if (std::abs(delta_degrees) <= std::numeric_limits<double>::epsilon()) {
+        result.issued = true;
+        return result;
+    }
+
+    int units = static_cast<int>(std::lround(delta_degrees * TurnUnitsPerDegree(*motion.input_backend)));
+    if (units == 0) {
+        units = delta_degrees > 0.0 ? 1 : -1;
+    }
+    const auto send_started_at = std::chrono::steady_clock::now();
+    const bool sent = SendViewDeltaSync(motion.input_backend, units, 0);
+    const int64_t send_ms = ElapsedMs(send_started_at);
+    result.send_ms = send_ms;
+    if (!sent) {
+        LogWarn << "Steering command rejected by the input backend." << VAR(delta_degrees) << VAR(units) << VAR(send_ms);
+        return result;
+    }
+
+    result.issued = true;
+    result.issued_delta_degrees = delta_degrees;
+    LogDebug << "Steering command issued." << VAR(delta_degrees) << VAR(units) << VAR(send_ms);
+    return result;
+}
+
+TurnCommandResult emit_batches(const Motion& motion, double yaw_delta_deg, int64_t batches)
+{
+    const double batch_cap = motion.steering_profile.max_batch_delta_deg;
     const double tick_cap = batch_cap * static_cast<double>(batches);
     const double want_deg = std::clamp(yaw_delta_deg, -tick_cap, tick_cap);
 
@@ -225,11 +100,11 @@ TurnCommandResult MotionController::emitBatches(double yaw_delta_deg, int64_t ba
     int64_t send_ms_total = 0;
     for (int64_t batch = 0; batch < batches; ++batch) {
         const double remaining = want_deg - emit_deg;
-        if (std::abs(remaining) < steering_profile_.min_emit_delta_deg) {
+        if (std::abs(remaining) < motion.steering_profile.min_emit_delta_deg) {
             break;
         }
         const double step_deg = std::clamp(remaining, -batch_cap, batch_cap);
-        const TurnCommandResult sent = sendViewDelta(step_deg);
+        const TurnCommandResult sent = send_view_delta(motion, step_deg);
         send_ms_total += sent.send_ms;
         if (!sent.issued) {
             break;
@@ -244,39 +119,138 @@ TurnCommandResult MotionController::emitBatches(double yaw_delta_deg, int64_t ba
     return result;
 }
 
-TurnCommandResult MotionController::sendViewDelta(double delta_degrees)
+} // namespace
+
+Motion MakeMotion(InputBackend* input_backend)
 {
-    TurnCommandResult result;
-    if (std::abs(delta_degrees) <= std::numeric_limits<double>::epsilon()) {
-        result.issued = true;
-        return result;
+    Motion motion;
+    motion.input_backend = input_backend;
+    if (motion.input_backend != nullptr) {
+        motion.steering_profile = SteeringProfileOf(*motion.input_backend);
+    }
+    return motion;
+}
+
+void HoldPosition(Motion* motion)
+{
+    SetMovementStateSync(motion->input_backend, {}, 0);
+    motion->has_applied_action = false;
+    motion->is_moving = false;
+    motion->is_moving_forward = false;
+    motion->sprint_active = false;
+    motion->steering_quiet_until = {};
+}
+
+void MoveForward(Motion* motion)
+{
+    if (motion->enable_local_driver) {
+        if (motion->is_moving_forward && motion->has_applied_action && motion->applied_action == LocalDriverAction::Forward) {
+            motion->is_moving = true;
+            return;
+        }
+        ArmSteeringQuietPeriod(motion);
+        ApplyLocalAction(motion, LocalDriverAction::Forward);
+        return;
     }
 
-    int units = static_cast<int>(std::lround(delta_degrees * action_wrapper_->defaultTurnUnitsPerDegree()));
-    if (units == 0) {
-        units = delta_degrees > 0.0 ? 1 : -1;
+    if (!motion->is_moving_forward) {
+        SetMovementStateSync(motion->input_backend, { .forward = true }, 0);
     }
-    const auto send_started_at = std::chrono::steady_clock::now();
-    const bool sent = action_wrapper_->sendViewDeltaSync(units, 0);
-    const int64_t send_ms = ElapsedMs(send_started_at);
-    result.send_ms = send_ms;
-    if (!sent) {
-        LogWarn << "Steering command rejected by the input backend." << VAR(delta_degrees) << VAR(units) << VAR(send_ms);
-        return result;
+    motion->is_moving = true;
+    motion->is_moving_forward = true;
+}
+
+void ReassertForward(Motion* motion)
+{
+    if (!motion->is_moving_forward) {
+        MoveForward(motion);
+        return;
+    }
+    // 后端会跳过与缓存状态相同的按键, 须松开再按, 且不开静默期以免清掉在途转向
+    ResetForwardWalkSync(motion->input_backend, kWalkResetReleaseMs);
+}
+
+TurnCommandResult ApplySteering(Motion* motion, double yaw_delta_deg, int64_t tick_gap_ms)
+{
+    if (std::abs(yaw_delta_deg) <= std::numeric_limits<double>::epsilon()) {
+        return { .issued = true };
     }
 
-    result.issued = true;
-    result.issued_delta_degrees = delta_degrees;
-    LogDebug << "Steering command issued." << VAR(delta_degrees) << VAR(units) << VAR(send_ms);
+    const auto now = std::chrono::steady_clock::now();
+    if (!steering_gate_open(*motion, yaw_delta_deg, now)) {
+        return {};
+    }
+
+    const bool should_pause_motion = !motion->steering_profile.supports_concurrent_move_and_look && motion->is_moving;
+    if (should_pause_motion) {
+        SetMovementStateSync(motion->input_backend, {}, 0);
+    }
+
+    const TurnCommandResult result = emit_batches(*motion, yaw_delta_deg, plan_batch_count(*motion, yaw_delta_deg, tick_gap_ms));
+    if (result.send_ms > 0) {
+        latency::RecordStage(latency::Stage::Steer, result.send_ms);
+    }
+    if (result.issued) {
+        motion->last_steering_sent_at = now;
+        if (should_pause_motion) {
+            motion->is_moving = false;
+            motion->is_moving_forward = false;
+            motion->has_applied_action = false;
+        }
+    }
     return result;
 }
 
-void MotionController::armSteeringQuietPeriod()
+void ArmSteeringQuietPeriod(Motion* motion)
 {
-    if (steering_profile_.action_quiet_period_ms <= 0) {
+    if (motion->steering_profile.action_quiet_period_ms <= 0) {
         return;
     }
-    steering_quiet_until_ = std::chrono::steady_clock::now() + std::chrono::milliseconds(steering_profile_.action_quiet_period_ms);
+    motion->steering_quiet_until =
+        std::chrono::steady_clock::now() + std::chrono::milliseconds(motion->steering_profile.action_quiet_period_ms);
+}
+
+bool CanSprint(const Motion& motion)
+{
+    return motion.enable_sprint && motion.input_backend != nullptr && SupportsSprint(*motion.input_backend);
+}
+
+bool SprintAllowed(const Motion& motion)
+{
+    return !motion.sprint_suppressed && CanSprint(motion);
+}
+
+void MarkSprintActive(Motion* motion)
+{
+    motion->sprint_active = true;
+    LogInfo << "Sprint state armed.";
+}
+
+bool SprintCancellable(const Motion& motion)
+{
+    return !motion.sprint_suppressed && motion.sprint_active && motion.is_moving_forward && motion.input_backend != nullptr;
+}
+
+void CancelSprint(Motion* motion)
+{
+    ResetForwardWalkSync(motion->input_backend, kSprintCancelReleaseMs);
+    motion->sprint_active = false;
+    LogInfo << "Sprint cancelled near collect point (dropped to walking speed).";
+}
+
+void ApplyLocalAction(Motion* motion, LocalDriverAction action)
+{
+    const LocalActionTraits traits = local_action_traits_of(action);
+    SetMovementStateSync(motion->input_backend, traits.movement, 0);
+    if (traits.jumps) {
+        TriggerJumpSync(motion->input_backend, kActionJumpHoldMs);
+    }
+
+    motion->applied_action = action;
+    motion->has_applied_action = true;
+    motion->is_moving = traits.translates;
+    motion->is_moving_forward = traits.moves_forward;
+    motion->sprint_active = false;
 }
 
 } // namespace mapnavigator

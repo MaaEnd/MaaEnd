@@ -32,10 +32,10 @@ double arrival_band_for_startup_bypass(const Waypoint& waypoint)
 }
 
 template <typename Plan>
-auto with_planning_pause(MotionController* motion, NavigationRuntimeState* runtime, NavigationSession* session, Plan&& plan)
+auto with_planning_pause(Motion* motion, NavigationRuntimeState* runtime, NavigationSession* session, Plan&& plan)
 {
     const auto started_at = std::chrono::steady_clock::now();
-    motion->setForwardState(false);
+    HoldPosition(motion);
     PauseWedge(&runtime->offroute, started_at);
     auto result = plan();
     session->excludeFromStallClocks(std::chrono::steady_clock::now() - started_at);

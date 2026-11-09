@@ -6,7 +6,7 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "../control/action_wrapper.h"
+#include "../Backend/backend.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
@@ -48,13 +48,12 @@ void nudge_toward_pad(const Context& ctx, JumpPadState& state, double offset)
         SleepFor(kWaitAfterFirstTurnMs);
         return;
     }
-    const StrictSettleInputProfile& input =
-        ctx.action_wrapper->usesTouchBackend() ? kStrictSettleTouchProfile : kStrictSettleKeyboardProfile;
+    const StrictSettleInputProfile& input = UsesTouchBackend(*ctx.input_backend) ? kStrictSettleTouchProfile : kStrictSettleKeyboardProfile;
     const int hold_ms = PlanPulseHoldMs(offset, input.max_hold_ms);
     LogInfo << "Jump pad forward pulse." << VAR(offset) << VAR(hold_ms) << VAR(state.nudges);
-    ctx.motion_controller->setForwardState(true);
+    MoveForward(ctx.motion_controller);
     SleepFor(hold_ms);
-    ctx.motion_controller->setForwardState(false);
+    HoldPosition(ctx.motion_controller);
 }
 
 Result tick_landing(const Context& ctx, const JumpPadState& state)
@@ -97,7 +96,7 @@ Result tick_on_pad(const Context& ctx, JumpPadState& state, double offset)
     state.last_fix.reset();
     state.still_reads = 0;
     LogInfo << "Jump pad jump." << VAR(offset) << VAR(state.jumps) << VAR(state.nudges);
-    ctx.action_executor->jump();
+    ExecuteJump(ctx.input_backend, ctx.motion_controller);
     return Pending();
 }
 
@@ -124,11 +123,11 @@ Result ArriveJumpPad(const Context& ctx, const Waypoint& waypoint, const std::op
 Result TickJumpPad(const Context& ctx)
 {
     JumpPadState& state = ctx.runtime_state->semantic.jump_pad;
-    ctx.motion_controller->setForwardState(false);
+    HoldPosition(ctx.motion_controller);
 
     // 起飞前要用可信的镜头朝向对准板心, 起飞后只看位置
-    const bool captured = state.launched ? ctx.position_provider->capture(ctx.position, false, {})
-                                         : ctx.position_provider->captureForStrictGoal(ctx.position, state.pad.zone_id);
+    const bool captured = state.launched ? CaptureTracked(ctx.position_provider, ctx.position, {})
+                                         : CaptureForStrictGoal(ctx.position_provider, ctx.position, state.pad.zone_id);
     if (!captured) {
         state.last_fix.reset();
         state.still_reads = 0;
@@ -152,7 +151,7 @@ Result TickJumpPad(const Context& ctx)
         state.launched = true;
         state.launched_at = std::chrono::steady_clock::now();
         state.still_reads = 0;
-        ctx.position_provider->resetTracking();
+        ResetSensorTracking(ctx.position_provider);
         LogInfo << "Jump pad launched." << VAR(offset) << VAR(state.jumps) << VAR(state.nudges);
     }
     return state.launched ? tick_landing(ctx, state) : tick_on_pad(ctx, state, offset);

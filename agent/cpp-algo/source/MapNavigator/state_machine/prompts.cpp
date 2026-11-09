@@ -8,7 +8,7 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "../control/action_wrapper.h"
+#include "../Backend/backend.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_time.h"
@@ -108,44 +108,42 @@ void NavigationStateMachine::startScanners()
     if (position_provider_ == nullptr) {
         return;
     }
-    position_provider_->setFrameObserver([this](const cv::Mat& frame) {
-        collect_prompt_.submitFrame(frame);
-        interact_prompt_.submitFrame(frame);
-        device_recovery_.submitFrame(frame);
-        if (zipline_mount_scanner_ != nullptr) {
-            zipline_mount_scanner_->submitFrame(frame);
-        }
-    });
+    position_provider_->frame_sinks = FrameSinks {
+        .collect = &collect_prompt_,
+        .interact = &interact_prompt_,
+        .device = &device_recovery_,
+        .zipline_mount = &zipline_mount_scanner_,
+    };
 }
 
 void NavigationStateMachine::stopScanners()
 {
     if (position_provider_ != nullptr) {
-        position_provider_->setFrameObserver(nullptr);
+        position_provider_->frame_sinks.reset();
     }
     if (motion_controller_ != nullptr) {
-        motion_controller_->setSprintSuppressed(false);
+        motion_controller_->sprint_suppressed = false;
     }
-    collect_prompt_.stop();
-    interact_prompt_.stop();
-    device_recovery_.stop();
+    StopPromptAction(&collect_prompt_);
+    StopPromptAction(&interact_prompt_);
+    StopDeviceRecovery(&device_recovery_);
     zipline_mount_scanner_.reset();
 }
 
 void NavigationStateMachine::startPromptScanners()
 {
     for (AsyncPromptAction* prompt : promptActions()) {
-        if (prompt->started() || !prompt->routeHasPoint()) {
+        if (prompt->started || !PromptRouteHasPoint(*prompt)) {
             continue;
         }
 
         cv::Rect base_roi;
-        if (!TryReadNodeRoi(maa_context_, prompt->spec().recognition_node, &base_roi)) {
-            LogWarn << "Async prompt scanner not started: could not read its ROI from the pipeline." << VAR(prompt->spec().tag)
-                    << VAR(prompt->spec().recognition_node);
+        if (!TryReadNodeRoi(maa_context_, prompt->spec.recognition_node, &base_roi)) {
+            LogWarn << "Async prompt scanner not started: could not read its ROI from the pipeline." << VAR(prompt->spec.tag)
+                    << VAR(prompt->spec.recognition_node);
             continue;
         }
-        prompt->start(base_roi, action_wrapper_->controllerType());
+        StartPromptAction(prompt, base_roi, input_backend_->controller_type.c_str());
     }
 }
 
@@ -156,13 +154,13 @@ void NavigationStateMachine::startDeviceProbe()
         LogWarn << "Blocking-device probe not started: could not read its ROI from the pipeline." << VAR(kObstacleDeviceProbeNode);
         return;
     }
-    device_recovery_.start(base_roi, action_wrapper_->controllerType());
+    StartDeviceRecovery(&device_recovery_, base_roi, input_backend_->controller_type.c_str());
 }
 
 void NavigationStateMachine::preWarmPromptRecognition()
 {
     for (AsyncPromptAction* prompt : promptActions()) {
-        prompt->preWarmRecognition();
+        PreWarmPromptRecognition(*prompt);
     }
 }
 
@@ -178,7 +176,7 @@ bool NavigationStateMachine::tryZiplineMountPrompt(const Waypoint& waypoint, con
     }
     if (zipline_mount_scanner_ == nullptr && maa_context_ != nullptr) {
         PromptScanProfile profile;
-        if (!TryLoadPromptScanProfile(maa_context_, kZiplineMountScanNode, action_wrapper_->controllerType(), &profile)) {
+        if (!TryLoadPromptScanProfile(maa_context_, kZiplineMountScanNode, input_backend_->controller_type.c_str(), &profile)) {
             LogWarn << "Zipline mount pre-filter not started; the chain stops on arrival instead." << VAR(kZiplineMountScanNode);
             return false;
         }
@@ -197,7 +195,7 @@ NavigationStateMachine::PromptDistance NavigationStateMachine::nearestPromptDist
 {
     PromptDistance nearest;
     for (const AsyncPromptAction* prompt : { &collect_prompt_, &interact_prompt_ }) {
-        const double distance_sq = prompt->nearestDistanceSq();
+        const double distance_sq = NearestPromptDistanceSq(*prompt);
         if (distance_sq >= 0.0 && (nearest.distance_sq < 0.0 || distance_sq < nearest.distance_sq)) {
             nearest.distance_sq = distance_sq;
             nearest.is_zipline = false;
@@ -233,7 +231,10 @@ void NavigationStateMachine::updatePromptSprintSuppression()
 
     const double nearest_sq = nearestPromptDistance().distance_sq;
     const bool approaching_prompt = nearest_sq >= 0.0 && nearest_sq <= kCollectSprintSuppressBandWu * kCollectSprintSuppressBandWu;
-    motion_controller_->setSprintSuppressed(approaching_prompt);
+    if (approaching_prompt && SprintCancellable(*motion_controller_)) {
+        CancelSprint(motion_controller_);
+    }
+    motion_controller_->sprint_suppressed = approaching_prompt;
 }
 
 bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurement& route)
@@ -245,24 +246,24 @@ bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurem
     const std::array<AsyncPromptAction*, 2> prompts = promptActions();
     for (size_t index = 0; index < prompts.size(); ++index) {
         if (prompt_repeats_exhausted(runtime_state_.prompt_repeat, node, index)) {
-            prompts[index]->forgetDetection();
+            ForgetPromptDetection(prompts[index]);
             continue;
         }
         const auto started_at = std::chrono::steady_clock::now();
         const PromptTriggerOutcome outcome =
-            prompts[index]->tryTriggerWhileWalking(motion_controller_, route.waypoint_distance, session_->currentNodeIdx());
+            TryTriggerPromptWhileWalking(prompts[index], motion_controller_, route.waypoint_distance, session_->currentNodeIdx());
         if (outcome == PromptTriggerOutcome::NotTriggered) {
             continue;
         }
         NoteTimedFailure(
             &failure_trail_,
             std::chrono::steady_clock::now(),
-            std::format("prompt {} {}", prompts[index]->spec().tag, outcome == PromptTriggerOutcome::Recognized ? "recognized" : "missed"),
+            std::format("prompt {} {}", prompts[index]->spec.tag, outcome == PromptTriggerOutcome::Recognized ? "recognized" : "missed"),
             ElapsedMs(started_at));
         // 屏幕上一次只弹一个提示, 清掉另一类的检测结果, 免得为同一个提示停两次车
         for (size_t other = 0; other < prompts.size(); ++other) {
             if (other != index) {
-                prompts[other]->forgetDetection();
+                ForgetPromptDetection(prompts[other]);
             }
         }
         if (outcome != PromptTriggerOutcome::Recognized) {
@@ -270,13 +271,13 @@ bool NavigationStateMachine::tryRunPromptSubtaskWhileWalking(const RouteMeasurem
         }
         // 采集提示认中后不走完路点, 交互时刻须在这里记
         session_->noteInteraction();
-        if (prompts[index]->spec().completesWaypointOnTrigger()) {
+        if (CompletesWaypointOnTrigger(prompts[index]->spec)) {
             completeWaypointAfterPromptTrigger();
             return true;
         }
         count_prompt_repeat(&runtime_state_.prompt_repeat, node, index);
         if (prompt_repeats_exhausted(runtime_state_.prompt_repeat, node, index)) {
-            LogWarn << "Prompt keeps being recognized without advancing; ignoring it at this waypoint." << VAR(prompts[index]->spec().tag)
+            LogWarn << "Prompt keeps being recognized without advancing; ignoring it at this waypoint." << VAR(prompts[index]->spec.tag)
                     << VAR(node);
             NoteFailure(&failure_trail_, std::chrono::steady_clock::now(), "prompt muted");
         }
@@ -318,7 +319,7 @@ void NavigationStateMachine::tryRunPromptSubtaskAtRouteTail()
 
     AsyncPromptAction* tail_prompt = nullptr;
     for (AsyncPromptAction* prompt : promptActions()) {
-        if (prompt->started() && !prompt->spec().completesWaypointOnTrigger() && prompt->routeEndsWithPoint()) {
+        if (prompt->started && !CompletesWaypointOnTrigger(prompt->spec) && PromptRouteEndsWithPoint(*prompt)) {
             tail_prompt = prompt;
             break;
         }
@@ -331,14 +332,14 @@ void NavigationStateMachine::tryRunPromptSubtaskAtRouteTail()
     SleepFor(kStopWaitMs); // 先站定, 还在滑行就动手容易白按一次
     const auto started_at = std::chrono::steady_clock::now();
     while (!should_stop_()) {
-        if (tail_prompt->tryTriggerAtRouteTail()) {
+        if (TryTriggerPromptAtRouteTail(tail_prompt)) {
             return;
         }
 
         const int64_t elapsed_ms =
             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - started_at).count();
         if (elapsed_ms >= kCollectTailGraceMs) {
-            LogInfo << "Route tail prompt grace expired with nothing flagged." << VAR(tail_prompt->spec().tag) << VAR(elapsed_ms);
+            LogInfo << "Route tail prompt grace expired with nothing flagged." << VAR(tail_prompt->spec.tag) << VAR(elapsed_ms);
             return;
         }
 

@@ -2,7 +2,7 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "../control/action_wrapper.h"
+#include "../Backend/backend.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_time.h"
@@ -13,8 +13,8 @@ namespace mapnavigator
 
 RiverFallStep AdvanceRiverFallRecovery(
     RiverFallRecoveryState* state,
-    ActionWrapper* action_wrapper,
-    MotionController* motion_controller,
+    InputBackend* input_backend,
+    Motion* motion_controller,
     const NaviPosition& position,
     double current_heading)
 {
@@ -24,7 +24,7 @@ RiverFallStep AdvanceRiverFallRecovery(
         LogInfo << "River-fall recovery cleared; resuming navigation." << VAR(rf_displacement) << VAR(current_heading);
         return RiverFallStep::Cleared;
     }
-    motion_controller->setForwardState(false);
+    HoldPosition(motion_controller);
     // 上岸瞬间的箭头读数不可信, 先站定再算转身
     if (!state->settled) {
         state->settled = true;
@@ -35,14 +35,14 @@ RiverFallStep AdvanceRiverFallRecovery(
     if (!state->turned) {
         state->turned = true;
         state->water_heading = current_heading;
-        const int turn_units = static_cast<int>(std::lround(180.0 * action_wrapper->defaultTurnUnitsPerDegree()));
-        action_wrapper->sendViewDeltaSync(turn_units, 0);
+        const int turn_units = static_cast<int>(std::lround(180.0 * TurnUnitsPerDegree(*input_backend)));
+        SendViewDeltaSync(input_backend, turn_units, 0);
         SleepFor(kWaitAfterFirstTurnMs);
         LogInfo << "River-fall recovery about-face issued." << VAR(state->water_heading) << VAR(turn_units) << VAR(rf_displacement);
     }
     // 角色朝向要迈一步才跟上镜头, 这一步沿相机方向离水
-    action_wrapper->pulseForwardSync(kRiverFallRecoveryPulseMs);
-    motion_controller->setForwardState(false);
+    PulseForwardSync(input_backend, kRiverFallRecoveryPulseMs);
+    HoldPosition(motion_controller);
     LogInfo << "River-fall recovery inland pulse." << VAR(current_heading) << VAR(rf_displacement) << VAR(position.x) << VAR(position.y);
     return RiverFallStep::Escaping;
 }

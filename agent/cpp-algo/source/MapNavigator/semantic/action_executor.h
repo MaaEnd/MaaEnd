@@ -3,22 +3,12 @@
 namespace mapnavigator
 {
 
-class MotionController;
-class ActionWrapper;
+struct Motion;
+struct InputBackend;
 
-class ActionExecutor
-{
-public:
-    ActionExecutor(ActionWrapper* action_wrapper, MotionController* motion_controller);
-
-    void sprint();
-    void jump();
-    void interact();
-    void fight();
-
-private:
-    ActionWrapper* action_wrapper_;
-    MotionController* motion_controller_;
-};
+void ExecuteSprint(Motion* motion_controller);
+void ExecuteJump(InputBackend* input_backend, Motion* motion_controller);
+void ExecuteInteract(InputBackend* input_backend, Motion* motion_controller);
+void ExecuteFight(InputBackend* input_backend, Motion* motion_controller);
 
 } // namespace mapnavigator
