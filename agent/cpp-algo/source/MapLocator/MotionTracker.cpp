@@ -25,10 +25,11 @@ void UpdateTrack(MotionTrack* track, const MapPosition& newPos, std::chrono::ste
         }
         // 仅在帧间隔合理且匹配分数达标时更新速度，保证速度估计的可靠性
         else if (
-            dtSec > 0.016 && dtSec < track->config.maxDtForPrediction && newPos.score >= ZoneScoreLines(newPos.zoneId).velocityUpdateMin) {
+            dtSec > 0.016 && dtSec < track->config.max_dt_for_prediction
+            && newPos.score >= ZoneScoreLines(newPos.zone_id).velocity_update_min) {
             double rawVx = dx / dtSec;
             double rawVy = dy / dtSec;
-            double alpha = track->config.velocitySmoothingAlpha;
+            double alpha = track->config.velocity_smoothing_alpha;
             track->velocity_x = track->velocity_x * (1.0 - alpha) + rawVx * alpha;
             track->velocity_y = track->velocity_y * (1.0 - alpha) + rawVy * alpha;
         }
@@ -51,7 +52,7 @@ void MarkTrackLost(MotionTrack* track, int increment)
 
 void ForceTrackLost(MotionTrack* track)
 {
-    track->lost_count = MaxLostTrackingCount + 100;
+    track->lost_count = kMaxLostTrackingCount + 100;
     track->last_known_pos = std::nullopt;
     ClearTrackVelocity(track);
 }
@@ -74,7 +75,7 @@ double PredictedX(const MotionTrack& track, std::chrono::steady_clock::time_poin
     }
     std::chrono::duration<double> dt = now - track.last_time;
     double dtSec = dt.count();
-    if (dtSec > track.config.maxDtForPrediction) {
+    if (dtSec > track.config.max_dt_for_prediction) {
         return track.last_known_pos->x;
     }
     return track.last_known_pos->x + track.velocity_x * dtSec;
@@ -87,7 +88,7 @@ double PredictedY(const MotionTrack& track, std::chrono::steady_clock::time_poin
     }
     std::chrono::duration<double> dt = now - track.last_time;
     double dtSec = dt.count();
-    if (dtSec > track.config.maxDtForPrediction) {
+    if (dtSec > track.config.max_dt_for_prediction) {
         return track.last_known_pos->y;
     }
     return track.last_known_pos->y + track.velocity_y * dtSec;
@@ -102,7 +103,7 @@ cv::Rect PredictNextSearchRect(
 {
     double predX = PredictedX(track, now);
     double predY = PredictedY(track, now);
-    int pad = static_cast<int>(MobileSearchRadius + std::max(templCols, templRows) * trackScale / 2.0);
+    int pad = static_cast<int>(kMobileSearchRadius + std::max(templCols, templRows) * trackScale / 2.0);
     return cv::Rect((int)predX - pad, (int)predY - pad, pad * 2, pad * 2);
 }
 

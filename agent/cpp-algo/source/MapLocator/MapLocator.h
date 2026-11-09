@@ -25,7 +25,7 @@ namespace maplocator
 
 struct GlobalSearchFeatureCacheKey
 {
-    std::string zoneId;
+    std::string zone_id;
     TemplateFeatureKind kind = TemplateFeatureKind::StandardBase;
     cv::Rect roi {};
     std::uint64_t generation = 0;
@@ -50,29 +50,29 @@ struct LocatorResources
     std::unique_ptr<YoloModel> yolo;
     std::unique_ptr<OrientationModel> orientation;
     TrackingConfig tracking_config;
-    ImageProcessingConfig base_image_config = { .darkMapThreshold = 20.0,
-                                                .iconDiffThreshold = 40,
-                                                .centerMaskRadius = 18,
-                                                .gradientBaseWeight = 0.1,
-                                                .borderMargin = 10,
-                                                .whiteDilate = 11,
-                                                .colorDilate = 3 };
-    ImageProcessingConfig tier_image_config = { .darkMapThreshold = 20.0,
-                                                .iconDiffThreshold = 40,
-                                                .centerMaskRadius = 8,
-                                                .gradientBaseWeight = 0.1,
-                                                .borderMargin = 8,
-                                                .whiteDilate = 9,
-                                                .colorDilate = 3 };
+    ImageProcessingConfig base_image_config = { .dark_map_threshold = 20.0,
+                                                .icon_diff_threshold = 40,
+                                                .center_mask_radius = 18,
+                                                .gradient_base_weight = 0.1,
+                                                .border_margin = 10,
+                                                .white_dilate = 11,
+                                                .color_dilate = 3 };
+    ImageProcessingConfig tier_image_config = { .dark_map_threshold = 20.0,
+                                                .icon_diff_threshold = 40,
+                                                .center_mask_radius = 8,
+                                                .gradient_base_weight = 0.1,
+                                                .border_margin = 8,
+                                                .white_dilate = 9,
+                                                .color_dilate = 3 };
     // 字段倒序析构：线程池最先停，后台任务还在跑时底图、缓存和模型都还在
     std::unique_ptr<MapLocatorScaleExecutor> executor;
 };
 
 struct AsyncYoloState
 {
-    std::uint64_t frameId = 0;
+    std::uint64_t frame_id = 0;
     std::shared_future<YoloCoarseResult> future;
-    bool zoneGuardApplied = false;
+    bool zone_guard_applied = false;
 };
 
 // 每隔几秒在后台跑一次 YOLO，用来发现跟踪没察觉的换区和小地图消失

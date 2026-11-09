@@ -14,7 +14,7 @@ struct MotionTrack
 {
     TrackingConfig config;
     std::optional<MapPosition> last_known_pos;
-    int lost_count = MaxLostTrackingCount + 1;
+    int lost_count = kMaxLostTrackingCount + 1;
     double velocity_x = 0.0;
     double velocity_y = 0.0;
     std::chrono::steady_clock::time_point last_time {};

@@ -204,7 +204,7 @@ MatchFeature standard_extract_template_feature(const MatchStrategy& strategy, co
 {
     MatchFeature feat;
     if (minimap.channels() == 4) {
-        cv::cvtColor(minimap, feat.templRaw, cv::COLOR_BGRA2BGR);
+        cv::cvtColor(minimap, feat.templ_raw, cv::COLOR_BGRA2BGR);
 
         cv::Mat bgra[4];
         cv::split(minimap, bgra);
@@ -215,7 +215,7 @@ MatchFeature standard_extract_template_feature(const MatchStrategy& strategy, co
         cv::erode(mask, mask, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3)));
 
         cv::Mat templGray;
-        cv::cvtColor(feat.templRaw, templGray, cv::COLOR_BGR2GRAY);
+        cv::cvtColor(feat.templ_raw, templGray, cv::COLOR_BGR2GRAY);
 
         // 均值外推填补：由于原图周围是被抠空的透明区，在 NCC 基于均值的滑动互相关中，
         // 实体与虚无的黑边界线会产生极其强烈的“虚假强梯度”，导致系统倾向于匹配这种假边缘而非内部细节。
@@ -232,7 +232,7 @@ MatchFeature standard_extract_template_feature(const MatchStrategy& strategy, co
         cv::bitwise_and(feat.mask, mask, feat.mask);
     }
     else {
-        feat.templRaw = minimap.clone();
+        feat.templ_raw = minimap.clone();
         cv::Mat templGray;
         cv::cvtColor(minimap, templGray, cv::COLOR_BGR2GRAY);
         feat.image = LocalContrastNormalize(templGray);
@@ -245,14 +245,14 @@ MatchFeature heatmap_extract_template_feature(const MatchStrategy& strategy, con
 {
     MatchFeature feat;
     if (minimap.channels() == 4) {
-        cv::cvtColor(minimap, feat.templRaw, cv::COLOR_BGRA2BGR);
+        cv::cvtColor(minimap, feat.templ_raw, cv::COLOR_BGRA2BGR);
     }
     else {
-        feat.templRaw = minimap.clone();
+        feat.templ_raw = minimap.clone();
     }
 
     feat.image = ExtractPathHeatmapFeature(minimap); // 梯度图
-    feat.mask = GenerateMinimapMask(feat.templRaw, strategy.is_base ? strategy.base_image : strategy.tier_image);
+    feat.mask = GenerateMinimapMask(feat.templ_raw, strategy.is_base ? strategy.base_image : strategy.tier_image);
     return feat;
 }
 
@@ -296,17 +296,19 @@ TrackingValidation standard_validate_tracking(
     // 边缘吸附
     int maxX = searchRect.width - templCols;
     int maxY = searchRect.height - templRows;
-    bool hitEdgeX = (trackResult.loc.x <= strategy.tracking.edgeSnapMargin || trackResult.loc.x >= maxX - strategy.tracking.edgeSnapMargin);
-    bool hitEdgeY = (trackResult.loc.y <= strategy.tracking.edgeSnapMargin || trackResult.loc.y >= maxY - strategy.tracking.edgeSnapMargin);
-    v.isEdgeSnapped = hitEdgeX || hitEdgeY;
+    bool hitEdgeX =
+        (trackResult.loc.x <= strategy.tracking.edge_snap_margin || trackResult.loc.x >= maxX - strategy.tracking.edge_snap_margin);
+    bool hitEdgeY =
+        (trackResult.loc.y <= strategy.tracking.edge_snap_margin || trackResult.loc.y >= maxY - strategy.tracking.edge_snap_margin);
+    v.is_edge_snapped = hitEdgeX || hitEdgeY;
 
-    v.absX = (double)searchRect.x + trackResult.loc.x + templCols / 2.0;
-    v.absY = (double)searchRect.y + trackResult.loc.y + templRows / 2.0;
+    v.abs_x = (double)searchRect.x + trackResult.loc.x + templCols / 2.0;
+    v.abs_y = (double)searchRect.y + trackResult.loc.y + templRows / 2.0;
 
     double currentSpeed = 0.0;
     if (lastPos) {
-        double dx = v.absX - lastPos->x;
-        double dy = v.absY - lastPos->y;
+        double dx = v.abs_x - lastPos->x;
+        double dy = v.abs_y - lastPos->y;
         double distanceMoved = std::sqrt(dx * dx + dy * dy);
         double dtSec = dt.count();
         if (dtSec < 0.001) {
@@ -315,15 +317,15 @@ TrackingValidation standard_validate_tracking(
         currentSpeed = distanceMoved / dtSec;
     }
     // 突变防御：若帧间换算速度超过限制，则认为是发生了传送或视角剧变，需打断追踪状态强制重搜
-    v.isTeleported = currentSpeed > strategy.tracking.maxNormalSpeed;
+    v.is_teleported = currentSpeed > strategy.tracking.max_normal_speed;
 
     // 分数硬下限：低于 kTrackingHardScoreFloor 时无论 psr/delta 如何均判为 ambiguous，走 hold 路径
     const bool belowHardFloor = trackResult.score < kTrackingHardScoreFloor;
     bool lowScore = trackResult.score < 0.71;
     bool ambiguous = belowHardFloor || (lowScore && (trackResult.psr < 6.0 || trackResult.delta < 0.02));
-    v.isScreenBlocked = trackResult.score < strategy.tracking.screenBlockedThreshold;
+    v.is_screen_blocked = trackResult.score < strategy.tracking.screen_blocked_threshold;
 
-    v.isValid = !v.isEdgeSnapped && !v.isTeleported && !v.isScreenBlocked && !ambiguous;
+    v.is_valid = !v.is_edge_snapped && !v.is_teleported && !v.is_screen_blocked && !ambiguous;
 
     return v;
 }
@@ -341,17 +343,19 @@ TrackingValidation heatmap_validate_tracking(
 
     int maxX = searchRect.width - templCols;
     int maxY = searchRect.height - templRows;
-    bool hitEdgeX = (trackResult.loc.x <= strategy.tracking.edgeSnapMargin || trackResult.loc.x >= maxX - strategy.tracking.edgeSnapMargin);
-    bool hitEdgeY = (trackResult.loc.y <= strategy.tracking.edgeSnapMargin || trackResult.loc.y >= maxY - strategy.tracking.edgeSnapMargin);
-    v.isEdgeSnapped = hitEdgeX || hitEdgeY;
+    bool hitEdgeX =
+        (trackResult.loc.x <= strategy.tracking.edge_snap_margin || trackResult.loc.x >= maxX - strategy.tracking.edge_snap_margin);
+    bool hitEdgeY =
+        (trackResult.loc.y <= strategy.tracking.edge_snap_margin || trackResult.loc.y >= maxY - strategy.tracking.edge_snap_margin);
+    v.is_edge_snapped = hitEdgeX || hitEdgeY;
 
-    v.absX = (double)searchRect.x + trackResult.loc.x + templCols / 2.0;
-    v.absY = (double)searchRect.y + trackResult.loc.y + templRows / 2.0;
+    v.abs_x = (double)searchRect.x + trackResult.loc.x + templCols / 2.0;
+    v.abs_y = (double)searchRect.y + trackResult.loc.y + templRows / 2.0;
 
     double currentSpeed = 0.0;
     if (lastPos) {
-        double dx = v.absX - lastPos->x;
-        double dy = v.absY - lastPos->y;
+        double dx = v.abs_x - lastPos->x;
+        double dy = v.abs_y - lastPos->y;
         double distanceMoved = std::sqrt(dx * dx + dy * dy);
         double dtSec = dt.count();
         if (dtSec < 0.001) {
@@ -359,7 +363,7 @@ TrackingValidation heatmap_validate_tracking(
         }
         currentSpeed = distanceMoved / dtSec;
     }
-    v.isTeleported = currentSpeed > strategy.tracking.maxNormalSpeed;
+    v.is_teleported = currentSpeed > strategy.tracking.max_normal_speed;
 
     // 追踪态高分豁免
     bool accept = (trackResult.score >= 0.85) || (trackResult.score >= 0.70 && trackResult.delta >= 0.25 && trackResult.psr >= 2.0)
@@ -369,9 +373,9 @@ TrackingValidation heatmap_validate_tracking(
                 || (trackResult.score >= 0.35 && trackResult.psr >= 4.0);
 
     bool ambiguous = !accept;
-    v.isScreenBlocked = !accept && !hold;
+    v.is_screen_blocked = !accept && !hold;
 
-    v.isValid = !v.isEdgeSnapped && !v.isTeleported && !v.isScreenBlocked && !ambiguous;
+    v.is_valid = !v.is_edge_snapped && !v.is_teleported && !v.is_screen_blocked && !ambiguous;
 
     return v;
 }
@@ -486,7 +490,7 @@ std::optional<MatchResultRaw> CoreMatchPrepared(
     MatchResultRaw out;
     out.score = peakScore;
     out.loc = refinedLoc;
-    out.secondScore = secondVal;
+    out.second_score = secondVal;
     out.delta = peakScore - secondVal;
     out.psr = psr;
 
@@ -501,7 +505,7 @@ double DeliveredScore(TemplateFeatureKind kind, const MatchResultRaw& window, co
     if (window.score <= 0.0) {
         return 0.0;
     }
-    return 1.0 - std::max(window.secondScore, 0.0) / window.score;
+    return 1.0 - std::max(window.second_score, 0.0) / window.score;
 }
 
 std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask)
@@ -584,7 +588,7 @@ TrackingValidation ValidateTracking(
 
 bool ValidateGlobalSearch(const MatchStrategy& strategy, double score)
 {
-    return score >= strategy.match.passThreshold;
+    return score >= strategy.match.pass_threshold;
 }
 
 bool NeedsChamferCompensation(const MatchStrategy& strategy)

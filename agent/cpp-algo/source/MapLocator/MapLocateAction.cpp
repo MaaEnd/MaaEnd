@@ -146,21 +146,21 @@ LocateOutput BuildLocateOutput(const LocateResult& result)
 {
     LocateOutput output;
     output.status = static_cast<int>(result.status);
-    output.message = result.debugMessage;
+    output.message = result.debug_message;
     output.rot = result.rot;
     if (!result.position.has_value()) {
         return output;
     }
 
     const auto& pos = result.position.value();
-    output.mapName = pos.zoneId;
+    output.mapName = pos.zone_id;
     output.x = pos.x;
     output.y = pos.y;
     output.locConf = pos.score;
-    output.latencyMs = static_cast<int>(pos.latencyMs);
-    if (result.camRot.has_value()) {
-        output.camRot = result.camRot->rot;
-        output.camRotConf = result.camRot->confidence;
+    output.latencyMs = static_cast<int>(pos.latency_ms);
+    if (result.cam_rot.has_value()) {
+        output.camRot = result.cam_rot->rot;
+        output.camRotConf = result.cam_rot->confidence;
     }
     return output;
 }
@@ -171,7 +171,7 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& resu
     output.status = static_cast<int>(result.status);
     output.matched = matched;
     output.inTarget = matched;
-    output.message = result.debugMessage;
+    output.message = result.debug_message;
     output.zoneId = param.zone_id;
     output.target = param.target;
     output.rot = result.rot;
@@ -183,10 +183,10 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& resu
     output.x = pos.x;
     output.y = pos.y;
     output.locConf = pos.score;
-    output.latencyMs = static_cast<int>(pos.latencyMs);
-    if (result.camRot.has_value()) {
-        output.camRot = result.camRot->rot;
-        output.camRotConf = result.camRot->confidence;
+    output.latencyMs = static_cast<int>(pos.latency_ms);
+    if (result.cam_rot.has_value()) {
+        output.camRot = result.cam_rot->rot;
+        output.camRotConf = result.cam_rot->confidence;
     }
     return output;
 }
@@ -343,11 +343,11 @@ std::shared_ptr<MapLocator> getOrInitLocator()
                 << (cameraOrientationRefModelStr.empty() ? "(not found)" : cameraOrientationRefModelStr);
 
         MapLocatorConfig cfg;
-        cfg.mapResourceDir = mapRootStr;
-        cfg.yoloModelPath = yoloModelStr;
-        cfg.cameraOrientationRefModelPath = cameraOrientationRefModelStr;
+        cfg.map_resource_dir = mapRootStr;
+        cfg.yolo_model_path = yoloModelStr;
+        cfg.camera_orientation_ref_model_path = cameraOrientationRefModelStr;
         const unsigned hardwareThreads = std::thread::hardware_concurrency();
-        cfg.yoloThreads = (hardwareThreads >= 8) ? 4 : ((hardwareThreads >= 4) ? 2 : 1);
+        cfg.yolo_threads = (hardwareThreads >= 8) ? 4 : ((hardwareThreads >= 4) ? 2 : 1);
 
         auto loc = std::make_shared<MapLocator>();
         bool ok = InitializeLocator(loc.get(), cfg);
@@ -386,8 +386,8 @@ MaaBool MAA_CALL MapLocateRecognitionRun(
         if (out_box != nullptr) {
             *out_box = MakePointBox(result.position.value());
         }
-        LogInfo << "OK " << VAR(result.position->zoneId) << VAR(result.position->x) << VAR(result.position->y)
-                << VAR(result.position->angle) << VAR(result.position->score) << VAR(result.position->latencyMs);
+        LogInfo << "OK " << VAR(result.position->zone_id) << VAR(result.position->x) << VAR(result.position->y)
+                << VAR(result.position->angle) << VAR(result.position->score) << VAR(result.position->latency_ms);
         return MAA_TRUE;
     }
     if (result.status == LocateStatus::ScreenBlocked) {
@@ -395,7 +395,7 @@ MaaBool MAA_CALL MapLocateRecognitionRun(
         return MAA_FALSE;
     }
 
-    LogWarn << "failed: " << result.debugMessage;
+    LogWarn << "failed: " << result.debug_message;
     return MAA_FALSE;
 }
 
@@ -445,7 +445,7 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
             break;
         }
 
-        LogInfo << "MapLocateAssertLocation waiting" << VAR(frame) << VAR(param.zone_id) << VAR(located) << VAR(result.debugMessage);
+        LogInfo << "MapLocateAssertLocation waiting" << VAR(frame) << VAR(param.zone_id) << VAR(located) << VAR(result.debug_message);
         if (frame + 1 < kAssertLocateMaxFrames) {
             std::this_thread::sleep_for(kAssertLocatePollDelay);
         }
@@ -455,7 +455,7 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
 
     if (!matched) {
         LogInfo << "MapLocateAssertLocation miss" << VAR(param.zone_id) << VAR(target_rect.x) << VAR(target_rect.y)
-                << VAR(target_rect.width) << VAR(target_rect.height) << VAR(result.debugMessage);
+                << VAR(target_rect.width) << VAR(target_rect.height) << VAR(result.debug_message);
         return MAA_FALSE;
     }
 

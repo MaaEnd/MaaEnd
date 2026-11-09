@@ -12,9 +12,9 @@ namespace maplocator
 
 struct MatchFeature
 {
-    cv::Mat image;    // 最终参与 matchTemplate 的图 (灰度图或梯度热力图)
-    cv::Mat mask;     // 对应的权重 Mask
-    cv::Mat templRaw; // 给YOLO吃的未预处理原图
+    cv::Mat image;     // 最终参与 matchTemplate 的图 (灰度图或梯度热力图)
+    cv::Mat mask;      // 对应的权重 Mask
+    cv::Mat templ_raw; // 给YOLO吃的未预处理原图
 };
 
 struct MatchResultRaw
@@ -23,7 +23,7 @@ struct MatchResultRaw
     cv::Point2d loc { 0.0, 0.0 };
 
     // 置信度指标
-    double secondScore = -1.0;
+    double second_score = -1.0;
     double delta = 0.0;
     double psr = 0.0;
 };
@@ -43,11 +43,12 @@ enum class TemplateFeatureKind
 
 struct TrackingValidation
 {
-    bool isValid;
-    bool isEdgeSnapped;
-    bool isTeleported;
-    bool isScreenBlocked;
-    double absX, absY;
+    bool is_valid = false;
+    bool is_edge_snapped = false;
+    bool is_teleported = false;
+    bool is_screen_blocked = false;
+    double abs_x = 0.0;
+    double abs_y = 0.0;
 };
 
 enum class MatchStrategyKind

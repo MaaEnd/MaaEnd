@@ -33,7 +33,7 @@ struct ScaleTaskControl
 {
     std::atomic<ScaleTaskPriority> priority = ScaleTaskPriority::Discarded;
     std::atomic<bool> canceled = false;
-    std::atomic<bool> reserveTrackingCapacity = false;
+    std::atomic<bool> reserve_tracking_capacity = false;
 };
 
 // 自己持有工作线程，析构时停线程，保留类的写法
@@ -95,7 +95,7 @@ public:
 
     void releaseTrackingCapacity(const std::shared_ptr<ScaleTaskControl>& control)
     {
-        control->reserveTrackingCapacity.store(false, std::memory_order_relaxed);
+        control->reserve_tracking_capacity.store(false, std::memory_order_relaxed);
         condition.notify_all();
     }
 
@@ -116,7 +116,7 @@ private:
         int selectedPriority = std::numeric_limits<int>::min();
         std::uint64_t selectedSequence = std::numeric_limits<std::uint64_t>::max();
         for (auto it = queue.begin(); it != queue.end(); ++it) {
-            if (it->taskClass == ScaleTaskClass::Global && it->control->reserveTrackingCapacity.load(std::memory_order_relaxed)
+            if (it->taskClass == ScaleTaskClass::Global && it->control->reserve_tracking_capacity.load(std::memory_order_relaxed)
                 && activeGlobalTasks >= globalConcurrencyLimit) {
                 continue;
             }
