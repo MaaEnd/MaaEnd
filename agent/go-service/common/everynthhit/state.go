@@ -36,10 +36,3 @@ func Reset(key string) {
 	delete(states.counts, key)
 	states.Unlock()
 }
-
-// ResetAll 清零所有 key 的计数。
-func ResetAll() {
-	states.Lock()
-	clear(states.counts)
-	states.Unlock()
-}
