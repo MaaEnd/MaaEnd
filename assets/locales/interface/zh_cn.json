@@ -1609,6 +1609,7 @@
     "option.DiscountValue.cases.-95%.label": "-95%及以上",
     "option.DiscountValue.cases.-99%.label": "-99%",
     "option.DiscountValue.cases.Any.label": "任意",
+    "option.DiscountValue.cases.Any.description": "不检查折扣：未打折的商品也会被购买",
     "option.DiscountValue.label": "折扣比例",
     "option.EnableClickAnywhere.description": "自动识别并点击全屏遮罩提示",
     "option.EnableClickAnywhere.label": "点击任意处继续",

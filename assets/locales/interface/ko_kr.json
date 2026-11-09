@@ -1609,6 +1609,7 @@
     "option.DiscountValue.cases.-95%.label": "-95% 이상",
     "option.DiscountValue.cases.-99%.label": "-99%",
     "option.DiscountValue.cases.Any.label": "임의",
+    "option.DiscountValue.cases.Any.description": "할인 미확인: 할인 없는 상품도 구매합니다",
     "option.DiscountValue.label": "할인율",
     "option.EnableClickAnywhere.description": "전체 화면 오버레이 프롬프트를 자동으로 감지하고 클릭",
     "option.EnableClickAnywhere.label": "아무 곳이나 클릭하여 계속",

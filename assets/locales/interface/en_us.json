@@ -1609,6 +1609,7 @@
     "option.DiscountValue.cases.-95%.label": "-95% and above",
     "option.DiscountValue.cases.-99%.label": "-99%",
     "option.DiscountValue.cases.Any.label": "Any",
+    "option.DiscountValue.cases.Any.description": "No discount check: items without a discount badge are also purchased",
     "option.DiscountValue.label": "Discount threshold",
     "option.EnableClickAnywhere.description": "Automatically detect and click fullscreen overlay prompts",
     "option.EnableClickAnywhere.label": "Click Anywhere to Continue",

@@ -496,6 +496,7 @@
                 {
                     "name": "Any",
                     "label": "$option.DiscountValue.cases.Any.label",
+                    "description": "$option.DiscountValue.cases.Any.description",
                     "pipeline_override": {
                         "CreditShoppingPriority1Discount": {
                             "recognition": "DirectHit"
@@ -930,6 +931,7 @@
                 {
                     "name": "Any",
                     "label": "$option.DiscountValue.cases.Any.label",
+                    "description": "$option.DiscountValue.cases.Any.description",
                     "pipeline_override": {
                         "CreditShoppingPriority2Discount": {
                             "recognition": "DirectHit"
@@ -1352,6 +1354,7 @@
                 {
                     "name": "Any",
                     "label": "$option.DiscountValue.cases.Any.label",
+                    "description": "$option.DiscountValue.cases.Any.description",
                     "pipeline_override": {
                         "CreditShoppingPriority3Discount": {
                             "recognition": "DirectHit"

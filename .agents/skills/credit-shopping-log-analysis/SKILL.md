@@ -118,6 +118,8 @@ apply priority items: OverridePipeline applied
 
 折扣 ROI 是相对**物品框**的偏移（`ShelfChecks.json` 的 `roi_offset`），所以某个格子有物品识别、但该格折扣 OCR 为空时，通常意味着那一格没有角标，而不是识别失败。
 
+「任意」档（`CreditShoppingPriority{N}DiscountValue` = `Any`）会把该档折扣节点整体换成 `DirectHit`：日志里没有折扣 OCR 文本、也不会出现 `*Discount` 的 `all_results_`，这是配置结果，不是识别失败，更不能据此推断「该格无折扣」。
+
 ### 5. 还原实际购买
 
 购买事实以框架点击结果为准，不能仅看识别候选。弹窗内的商品名 OCR 已移除，播报由 IMS A3 负责。

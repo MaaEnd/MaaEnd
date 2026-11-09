@@ -112,8 +112,8 @@ Each tier has its own independent switch; insufficient refresh cost **will not**
 
 ### Discount Options
 
-The discount option for each tier modifies the corresponding tier's discount OCR `expected`, or changes it to ColorMatch ("any discount").
-"Any discount" uses color matching instead of loose OCR to preserve the offset anchor ROI.
+The discount option for each tier modifies the corresponding tier's discount OCR `expected`, or switches to the "Any" case.
+Numeric tiers only rewrite `expected` (e.g. "-25% and above"); the "Any" case replaces the discount node with `DirectHit`, so **no discount badge is checked** — items without a discount are purchased too, matching the "Any" semantics of `AutoStockStaple`.
 Discount rules must cover both the affordable and unaffordable sides.
 
 ### Force Strategy and Refresh
