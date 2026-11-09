@@ -114,13 +114,13 @@ struct BaseNavOffMeshLink
     uint8_t dir_ok = 0;
     uint32_t start_triangle = kBaseNavOffMeshTriangleNone;
     uint32_t end_triangle = kBaseNavOffMeshTriangleNone;
-
-    bool anchored() const
-    {
-        return start_triangle != kBaseNavOffMeshTriangleNone && end_triangle != kBaseNavOffMeshTriangleNone
-               && start_triangle != end_triangle;
-    }
 };
+
+inline bool OffMeshLinkAnchored(const BaseNavOffMeshLink& link)
+{
+    return link.start_triangle != kBaseNavOffMeshTriangleNone && link.end_triangle != kBaseNavOffMeshTriangleNone
+           && link.start_triangle != link.end_triangle;
+}
 
 // v4 起包尾的附加段, 由头里的段目录定位, 认不出的 tag 跳过
 struct BaseNavSection
@@ -215,9 +215,12 @@ struct BaseNavLoadResult
     BaseNavLoadStatus status = BaseNavLoadStatus::Success;
     std::string message;
     std::optional<BaseNavPack> pack;
-
-    bool ok() const { return status == BaseNavLoadStatus::Success && pack.has_value(); }
 };
+
+inline bool LoadSucceeded(const BaseNavLoadResult& result)
+{
+    return result.status == BaseNavLoadStatus::Success && result.pack.has_value();
+}
 
 const char* ToString(BaseNavLoadStatus status);
 

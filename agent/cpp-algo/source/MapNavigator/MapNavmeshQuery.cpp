@@ -123,7 +123,7 @@ QueryContext* acquire_context(std::string* error, const std::string& configured_
     }
 
     auto loaded = navmesh::LoadBaseNavPack(normalized, {});
-    if (!loaded.ok()) {
+    if (!navmesh::LoadSucceeded(loaded)) {
         *error = loaded.message.empty() ? navmesh::ToString(loaded.status) : loaded.message;
         LogError << "load navmesh failed" << VAR(key) << VAR(*error);
         return nullptr;

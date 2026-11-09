@@ -26,22 +26,20 @@ struct NoGoPoly
     double by0 = 0.0;
     double bx1 = 0.0;
     double by1 = 0.0;
-
-    bool contains(const WorldPoint& p) const;
 };
 
-class NoGoTable
+bool NoGoPolyContains(const NoGoPoly& poly, const WorldPoint& p);
+
+struct NoGoTable
 {
-public:
-    // 文件不存在视为没有禁区, 存在但解析失败或引用包里没有的 tier 时返回 false
-    bool load(const std::filesystem::path& path, const BaseNavPack& pack, std::string& err);
-
-    // 区名不在表里时返回 nullptr
-    const std::vector<NoGoPoly>* zone(const std::string& name) const;
-
-private:
-    std::unordered_map<std::string, std::vector<NoGoPoly>> zones_;
+    std::unordered_map<std::string, std::vector<NoGoPoly>> zones;
 };
+
+// 文件不存在视为没有禁区, 存在但解析失败或引用包里没有的 tier 时返回 false
+bool LoadNoGoTable(NoGoTable* table, std::string* err, const std::filesystem::path& path, const BaseNavPack& pack);
+
+// 区名不在表里时返回 nullptr
+const std::vector<NoGoPoly>* FindNoGoZone(const NoGoTable& table, const std::string& name);
 
 // 格心落在环内即盖, lh 是逐格层高, NaN 表示该格没有面
 void StampNoGo(

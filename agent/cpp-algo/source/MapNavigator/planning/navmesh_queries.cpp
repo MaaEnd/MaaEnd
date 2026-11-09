@@ -144,7 +144,7 @@ std::vector<std::vector<navmesh::OccluderHit>>
     for (size_t index = 0; index < groups.size(); ++index) {
         std::vector<navmesh::OccluderHit> hits;
         for (const NavmeshAirLine& line : groups[index]) {
-            const std::vector<navmesh::OccluderHit> line_hits = scene->lineHits(line.a, line.b);
+            const std::vector<navmesh::OccluderHit> line_hits = navmesh::OccluderLineHits(*scene, line.a, line.b);
             if (line_hits.empty()) {
                 hits.clear();
                 break;
@@ -177,7 +177,7 @@ std::vector<std::vector<double>> NavmeshGroundHeights(
     }
     for (size_t index = 0; index < bases.size(); ++index) {
         for (size_t k = 0; k < bases[index].size(); ++k) {
-            heights[index][k] = scene->groundHeight(bases[index][k]);
+            heights[index][k] = navmesh::OccluderGroundHeight(*scene, bases[index][k]);
         }
     }
     return heights;

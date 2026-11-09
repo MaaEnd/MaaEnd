@@ -65,9 +65,12 @@ struct BaseNavRouteResult
     std::optional<WorldPoint> gap_start;
     std::optional<WorldPoint> gap_goal;
     std::optional<double> gap_distance;
-
-    bool ok() const { return status == BaseNavRouteStatus::Success; }
 };
+
+inline bool RouteSucceeded(const BaseNavRouteResult& result)
+{
+    return result.status == BaseNavRouteStatus::Success;
+}
 
 class BaseNavPlanner
 {
