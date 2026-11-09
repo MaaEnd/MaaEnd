@@ -64,8 +64,8 @@ struct LocatorResources
                                                 .border_margin = 8,
                                                 .white_dilate = 9,
                                                 .color_dilate = 3 };
-    // 字段倒序析构：线程池最先停，后台任务还在跑时底图、缓存和模型都还在
-    std::unique_ptr<MapLocatorScaleExecutor> executor;
+    // 倒序析构时线程池最先停并等后台任务跑完；用 optional 直接持有，停的过程中任务仍能访问它和其余字段
+    std::optional<MapLocatorScaleExecutor> executor;
 };
 
 struct AsyncYoloState

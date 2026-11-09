@@ -742,7 +742,7 @@ GlobalSearchComputation start_refine_search(LocatorResources* resources, const G
     // 精修窗逐帧都不一样，走缓存只会把粗扫那份挤掉
     MatchFeature searchFeature = ExtractSearchFeature(*coarse.strategy, bigMap(refineRect));
     refined.batch = start_global_search_batch(
-        resources->executor.get(),
+        &*resources->executor,
         GlobalSearchBatchInput {
             .template_feature = tmplFeat,
             .search_feature = PrepareSearchFeature(searchFeature.image),
@@ -861,7 +861,7 @@ GlobalSearchComputation start_global_search(
     }
 
     computation.batch = start_global_search_batch(
-        resources->executor.get(),
+        &*resources->executor,
         GlobalSearchBatchInput {
             .template_feature = tmplFeat,
             .search_feature = PrepareSearchFeature(searchFeature.image),
@@ -1169,7 +1169,7 @@ void run_frame_search(FrameSearch* search, LocatorResources* resources)
         search->candidates = std::move(computed);
         search->exception = caught;
         if (search->canceled.load(std::memory_order_relaxed) && search->candidates.has_value()) {
-            cancel_candidates(resources->executor.get(), *search->candidates);
+            cancel_candidates(&*resources->executor, *search->candidates);
         }
         search->completed = true;
     }
@@ -1644,7 +1644,7 @@ LocateResult
         .expected_zone_selector = options.expected_zone_id,
         .expected_zone_id = normalize_expected_zone_id(options.expected_zone_id, locator->resources.yolo.get()),
     };
-    const CancelFrameSearchOnExit cancelOnExit { &frame.search, locator->resources.executor.get() };
+    const CancelFrameSearchOnExit cancelOnExit { &frame.search, &*locator->resources.executor };
 
     // 要在后台 YOLO 改写跟踪状态之前判断
     const bool searchBeforeTracking = should_search_before_tracking(*locator, frame) && can_start_frame_search(*locator, frame);
@@ -1682,7 +1682,7 @@ bool InitializeLocator(MapLocator* locator, const MapLocatorConfig& cfg)
 
     locator->track = MakeMotionTrack(resources.tracking_config);
     const size_t matchWorkerCount = std::min(kMatchWorkerLimit, static_cast<size_t>(std::max(1U, std::thread::hardware_concurrency())));
-    resources.executor = std::make_unique<MapLocatorScaleExecutor>(matchWorkerCount);
+    resources.executor.emplace(matchWorkerCount);
     load_available_zones(&resources, resources.config.map_resource_dir);
 
     if (!resources.config.yolo_model_path.empty()) {
