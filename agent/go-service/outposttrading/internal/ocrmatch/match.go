@@ -16,6 +16,7 @@ import (
 	"sort"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 )
@@ -94,6 +95,29 @@ func FindBest(ocrItems []Item, candidates []string) *Result {
 		}
 	}
 
+	// Tier A2: 与 Tier A 相同，只是额外容忍一个被 OCR 粘进名字的前导竖线字形。
+	// 只在 Tier A 严格相等失败后才尝试，因此不会把本来就能匹配的名字改坏。
+	for _, item := range sortedItems {
+		trimmed := stripLeadingBarGlyph(item.Text)
+		if trimmed == "" {
+			continue
+		}
+		ocrA := StripSeparators(trimmed)
+		if ocrA == "" {
+			continue
+		}
+		for i, candA := range tierACandidates {
+			if candA != "" && ocrA == candA {
+				return &Result{
+					OCRText:   item.Text,
+					Candidate: candidates[i],
+					Tier:      "A2",
+					Box:       item.Box,
+				}
+			}
+		}
+	}
+
 	for _, item := range sortedItems {
 		ocrB := StripASCIIAlnum(StripSeparators(item.Text))
 		if ocrB == "" {
@@ -130,6 +154,45 @@ func SortItemsByPosition(items []Item) []Item {
 	return sortedItems
 }
 
+// latinDiacriticFold 把带变音符号的拉丁字母折回基本字母。
+// 库存货品名里出现过 "Jincão Tea" 这类 OCR 结果，而数据表里写的是 "Jincao Tea"；
+// 只是字形差异，不是不同的货品，所以两侧统一折叠后再比较。
+var latinDiacriticFold = map[rune]rune{
+	'á': 'a', 'à': 'a', 'â': 'a', 'ä': 'a', 'ã': 'a', 'å': 'a', 'ā': 'a', 'ă': 'a', 'ą': 'a',
+	'ç': 'c', 'ć': 'c', 'č': 'c',
+	'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e', 'ē': 'e', 'ę': 'e', 'ě': 'e',
+	'í': 'i', 'ì': 'i', 'î': 'i', 'ï': 'i', 'ī': 'i', 'į': 'i',
+	'ñ': 'n', 'ń': 'n', 'ň': 'n',
+	'ó': 'o', 'ò': 'o', 'ô': 'o', 'ö': 'o', 'õ': 'o', 'ø': 'o', 'ō': 'o', 'ő': 'o',
+	'ś': 's', 'š': 's', 'ß': 's',
+	'ú': 'u', 'ù': 'u', 'û': 'u', 'ü': 'u', 'ū': 'u', 'ů': 'u', 'ű': 'u',
+	'ý': 'y', 'ÿ': 'y',
+	'ź': 'z', 'ż': 'z', 'ž': 'z',
+}
+
+// ocrBarGlyphs 是货品列表左侧竖线分隔符可能被 OCR 认成的字符。
+// 这条竖线紧贴货品名左侧，识别后常被粘进名字里：
+// "|LC Wuling Battery" -> "ILC Wuling Battery"。
+const ocrBarGlyphs = "|IlL!1"
+
+// stripLeadingBarGlyph 去掉最多一个前导竖线字形以及紧随其后的空白。
+// 没有可去掉的内容时返回空字符串，调用方据此跳过。
+func stripLeadingBarGlyph(s string) string {
+	t := strings.TrimSpace(s)
+	if t == "" {
+		return ""
+	}
+	r, size := utf8.DecodeRuneInString(t)
+	if !strings.ContainsRune(ocrBarGlyphs, r) {
+		return ""
+	}
+	rest := strings.TrimLeft(t[size:], " \t")
+	if rest == "" || rest == t {
+		return ""
+	}
+	return rest
+}
+
 // StripSeparators 剥除允许差异的分隔字符并统一 ASCII 大小写，保留字母 / 数字 / CJK。
 func StripSeparators(s string) string {
 	s = strings.TrimSpace(s)
@@ -145,6 +208,10 @@ func StripSeparators(s string) string {
 			continue
 		}
 		if unicode.IsSpace(r) {
+			continue
+		}
+		if folded, ok := latinDiacriticFold[unicode.ToLower(r)]; ok {
+			b.WriteRune(folded)
 			continue
 		}
 		b.WriteRune(unicode.ToLower(r))
