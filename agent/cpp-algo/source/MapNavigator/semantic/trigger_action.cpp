@@ -44,7 +44,7 @@ Result fail_trigger(const Context& ctx, const char* reason, const char* log_mess
 
 bool IsTriggerPending(const NavigationSession& session)
 {
-    return session.hasCurrentWaypoint() && session.currentPath().back().isTriggerPoint();
+    return session.hasCurrentWaypoint() && IsTriggerPoint(session.currentPath().back());
 }
 
 Result ProbeTriggerWhileNavigating(const Context& ctx)
@@ -84,7 +84,7 @@ Result ProbeTriggerWhileNavigating(const Context& ctx)
     ctx.motion_controller->setForwardState(false);
     ctx.session->noteCanonicalFinalGoalConsumed(ctx.session->canonicalIndexAtCurrentPath(trigger_idx), *ctx.position, "trigger_hit");
     ctx.session->skipPastWaypoint(trigger_idx, "trigger_hit");
-    ctx.runtime_state->onWaypointAdvance();
+    ResetOnWaypointAdvance(ctx.runtime_state);
     ctx.session->noteRouteTailConsumed(*ctx.position, "route_tail_consumed");
     return Handled();
 }

@@ -653,7 +653,7 @@ json::object build_route_preview(const QueryParam& query)
 
     for (size_t index = 0; index < expanded.size(); ++index) {
         const mapnavigator::Waypoint& waypoint = expanded[index];
-        if (!waypoint.hasPosition()) {
+        if (!waypoint.has_position) {
             continue;
         }
         const navmesh::WorldPoint point { .x = waypoint.x, .y = waypoint.y };

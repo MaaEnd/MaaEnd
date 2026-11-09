@@ -26,7 +26,7 @@ const Waypoint& empty_waypoint()
 size_t resolve_canonical_final_goal_index(const std::vector<Waypoint>& path)
 {
     for (size_t index = path.size(); index > 0; --index) {
-        if (path[index - 1].hasPosition()) {
+        if (path[index - 1].has_position) {
             return index - 1;
         }
     }
@@ -145,7 +145,7 @@ double NavigationSession::finalGoalAcceptanceBand() const
         return 0.0;
     }
     const Waypoint& final_goal = canonicalFinalGoal();
-    return final_goal.requiresStrictArrival() ? kStrictArrivalLookaheadRadius : final_goal.getLookahead();
+    return RequiresStrictArrival(final_goal) ? kStrictArrivalLookaheadRadius : GetLookahead(final_goal);
 }
 
 bool NavigationSession::hasReachedCanonicalFinalGoal(const NaviPosition& position) const
@@ -257,11 +257,11 @@ std::optional<double> NavigationSession::walkedFloorY(const NaviPosition& positi
     }
     const Waypoint& to = current_path_[current_node_idx_];
     const Waypoint* from =
-        current_node_idx_ > 0 && current_path_[current_node_idx_ - 1].hasPosition() ? &current_path_[current_node_idx_ - 1] : nullptr;
+        current_node_idx_ > 0 && current_path_[current_node_idx_ - 1].has_position ? &current_path_[current_node_idx_ - 1] : nullptr;
     if (from == nullptr || !from->route_floor_y) {
         return to.route_floor_y;
     }
-    if (!to.hasPosition() || !to.route_floor_y) {
+    if (!to.has_position || !to.route_floor_y) {
         return from->route_floor_y;
     }
     // 台沿下落的落点不插值: 沿下落方向越过它之前算台上
@@ -367,7 +367,7 @@ bool NavigationSession::retargetCurrentWaypoint(double x, double y, const char* 
         return false;
     }
     Waypoint& waypoint = current_path_[current_node_idx_];
-    if (!waypoint.hasPosition()) {
+    if (!waypoint.has_position) {
         return false;
     }
     LogInfo << "Waypoint retargeted." << VAR(reason) << VAR(current_node_idx_) << VAR(waypoint.x) << VAR(waypoint.y) << VAR(x) << VAR(y);

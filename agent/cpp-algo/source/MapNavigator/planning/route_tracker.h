@@ -23,10 +23,6 @@ struct RouteMeasurement
     double arrival_band = 0.0;
 };
 
-class RouteTracker
-{
-public:
-    static RouteMeasurement update(NavigationSession* session, RouteTrackerState* state, const NaviPosition& position);
-};
+RouteMeasurement UpdateRouteTracking(RouteTrackerState* state, NavigationSession* session, const NaviPosition& position);
 
 } // namespace mapnavigator

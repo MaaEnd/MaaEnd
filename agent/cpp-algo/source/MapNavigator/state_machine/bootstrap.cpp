@@ -109,14 +109,14 @@ std::vector<BootstrapWaypointCandidate> collect_reachable_waypoints(const std::v
 size_t rewind_to_earliest_nearby(const std::vector<Waypoint>& path, const NaviPosition& position, size_t index)
 {
     const Waypoint& anchor = path[index];
-    if (!anchor.hasPosition()) {
+    if (!anchor.has_position) {
         return index;
     }
 
     size_t rewound = index;
     while (rewound > 0) {
         const Waypoint& previous = path[rewound - 1];
-        if (!previous.hasPosition() || !IsZoneCompatible(previous, position.zone_id)) {
+        if (!previous.has_position || !IsZoneCompatible(previous, position.zone_id)) {
             break;
         }
         if (std::hypot(previous.x - anchor.x, previous.y - anchor.y) > kBootstrapOwnershipMaxDistance) {
@@ -126,7 +126,7 @@ size_t rewind_to_earliest_nearby(const std::vector<Waypoint>& path, const NaviPo
     }
 
     const auto rewound_begin = path.begin() + static_cast<std::ptrdiff_t>(rewound);
-    if (std::none_of(path.begin(), rewound_begin, [](const Waypoint& waypoint) { return waypoint.hasPosition(); })) {
+    if (std::none_of(path.begin(), rewound_begin, [](const Waypoint& waypoint) { return waypoint.has_position; })) {
         return 0;
     }
     return rewound;
@@ -218,7 +218,7 @@ std::optional<size_t> ResolveRouteResumeIndex(const std::vector<Waypoint>& path,
 
 bool NavigationStateMachine::bootstrap()
 {
-    runtime_state_.beginNavigation(std::chrono::steady_clock::now());
+    BeginNavigation(&runtime_state_, std::chrono::steady_clock::now());
     sensitivity::BeginRun();
 
     std::optional<DynamicAnchor> anchor;
@@ -239,7 +239,7 @@ bool NavigationStateMachine::bootstrap()
     if (continue_candidate && continue_candidate->continue_index > 0
         && continue_candidate->continue_index < session_->originalPath().size()) {
         session_->applyDynamicOverlay({}, continue_candidate->continue_index, *position_);
-        runtime_state_.route.reset();
+        runtime_state_.route = {};
         runtime_state_.nav_run_dirty = true;
         LogInfo << "Bootstrap serial route continue after navmesh overlay unavailable." << VAR(continue_candidate->continue_index)
                 << VAR(continue_candidate->route_distance) << VAR(position_->x) << VAR(position_->y) << VAR(position_->zone_id);

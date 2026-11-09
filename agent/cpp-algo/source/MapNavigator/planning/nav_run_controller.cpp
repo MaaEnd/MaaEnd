@@ -38,7 +38,7 @@ struct CorridorProjection
 
 bool can_use_nav_run_steering(const Waypoint& waypoint)
 {
-    return waypoint.hasPosition() && waypoint.action == ActionType::RUN;
+    return waypoint.has_position && waypoint.action == ActionType::RUN;
 }
 
 std::optional<CorridorProjection> project_onto_corridor(
@@ -142,7 +142,7 @@ size_t count_corridor_passed_run_waypoints(
             break;
         }
         const Waypoint& waypoint = waypoints[index];
-        if (!waypoint.isContinuousRun()) {
+        if (!IsContinuousRun(waypoint)) {
             break;
         }
         const NaviPosition waypoint_pos { .x = waypoint.x, .y = waypoint.y };
@@ -199,7 +199,7 @@ navmesh::WorldPoint
 
     // 急弯进入 commit_distance 之前瞄点停在拐点上, 否则瞄点绕过弯后直线会切穿内侧的墙
     const navmesh::WorldPoint& edge_start = path.points[projection.edge_idx];
-    const double base_heading = NaviMath::calcTargetRotation(edge_start.x, edge_start.y, edge_end.x, edge_end.y);
+    const double base_heading = CalcTargetRotation(edge_start.x, edge_start.y, edge_end.x, edge_end.y);
     for (size_t edge = projection.edge_idx + 1; edge < num_edges; ++edge) {
         const navmesh::WorldPoint& a = path.points[edge];
         const navmesh::WorldPoint& b = path.points[edge + 1];
@@ -207,8 +207,8 @@ navmesh::WorldPoint
         const double dy = b.y - a.y;
         const double len = std::hypot(dx, dy);
         if (len >= kNavRunCorridorEdgeMinM) {
-            const double heading = NaviMath::calcTargetRotation(a.x, a.y, b.x, b.y);
-            const double turn = std::abs(NaviMath::normalizeAngle(heading - base_heading));
+            const double heading = CalcTargetRotation(a.x, a.y, b.x, b.y);
+            const double turn = std::abs(NormalizeAngle(heading - base_heading));
             if (turn > kNavRunLookaheadTurnBudgetDeg && travelled > corner_commit_distance(path, edge, turn, commit_distance)) {
                 return a;
             }
@@ -235,14 +235,14 @@ std::optional<SharpCorner> next_sharp_corner(const navmesh::WorldPath& path, con
     const size_t num_edges = path.points.size() - 1;
     const navmesh::WorldPoint& edge_start = path.points[projection.edge_idx];
     const navmesh::WorldPoint& edge_end = path.points[projection.edge_idx + 1];
-    const double base_heading = NaviMath::calcTargetRotation(edge_start.x, edge_start.y, edge_end.x, edge_end.y);
+    const double base_heading = CalcTargetRotation(edge_start.x, edge_start.y, edge_end.x, edge_end.y);
     double travelled = std::hypot(edge_end.x - projection.point.x, edge_end.y - projection.point.y);
     for (size_t edge = projection.edge_idx + 1; edge < num_edges && travelled <= kCornerBrakeScanM; ++edge) {
         const navmesh::WorldPoint& a = path.points[edge];
         const navmesh::WorldPoint& b = path.points[edge + 1];
         const double len = std::hypot(b.x - a.x, b.y - a.y);
         if (len >= kNavRunCorridorEdgeMinM) {
-            const double turn = std::abs(NaviMath::normalizeAngle(NaviMath::calcTargetRotation(a.x, a.y, b.x, b.y) - base_heading));
+            const double turn = std::abs(NormalizeAngle(CalcTargetRotation(a.x, a.y, b.x, b.y) - base_heading));
             if (turn > kNavRunLookaheadTurnBudgetDeg) {
                 return SharpCorner {
                     .distance = travelled,
@@ -264,10 +264,10 @@ double corridor_aim_heading(const NaviPosition& position, const navmesh::WorldPo
     constexpr double kChordFloorM = 1e-6;
     const double chord = std::hypot(dx, dy);
     if (chord <= kChordFloorM) {
-        return NaviMath::calcTargetRotation(position.x, position.y, lookahead.x, lookahead.y);
+        return CalcTargetRotation(position.x, position.y, lookahead.x, lookahead.y);
     }
     const double reach = std::max(kNavRunAimReachMinM, chord);
-    return NaviMath::calcTargetRotation(position.x, position.y, anchor.x + dx / chord * reach, anchor.y + dy / chord * reach);
+    return CalcTargetRotation(position.x, position.y, anchor.x + dx / chord * reach, anchor.y + dy / chord * reach);
 }
 
 double upcoming_corridor_turn_deg(const navmesh::WorldPath& path, const CorridorProjection& projection, double lookahead_distance)
@@ -290,11 +290,11 @@ double upcoming_corridor_turn_deg(const navmesh::WorldPath& path, const Corridor
         if (length > std::numeric_limits<double>::epsilon()) {
             // 过短的边照样扣预览距离, 但朝向是量化噪声, 不参与转角
             if (length >= kNavRunCorridorEdgeMinM) {
-                const double heading = NaviMath::calcTargetRotation(segment_start.x, segment_start.y, segment_end.x, segment_end.y);
+                const double heading = CalcTargetRotation(segment_start.x, segment_start.y, segment_end.x, segment_end.y);
                 if (!base_heading) {
                     base_heading = heading;
                 }
-                max_turn = std::max(max_turn, std::abs(NaviMath::normalizeAngle(heading - *base_heading)));
+                max_turn = std::max(max_turn, std::abs(NormalizeAngle(heading - *base_heading)));
             }
             remaining -= length;
         }
@@ -318,7 +318,7 @@ navmesh::WorldPath build_authored_span_polyline(const NavigationSession& session
     bool any_clearance = false;
     for (size_t index = session.currentNodeIdx(); index < waypoints.size(); ++index) {
         const Waypoint& waypoint = waypoints[index];
-        if (!waypoint.hasPosition()) {
+        if (!waypoint.has_position) {
             break;
         }
         poly.points.push_back({ .x = waypoint.x, .y = waypoint.y });
@@ -354,11 +354,11 @@ bool prepend_drop_top_while_short(
     const Waypoint& top = session.currentPath()[current - 1];
     const double top_x = (*anchor.drop_from)[0];
     const double top_y = (*anchor.drop_from)[1];
-    if (!top.isContinuousRun() || top.x != top_x || top.y != top_y) {
+    if (!IsContinuousRun(top) || top.x != top_x || top.y != top_y) {
         return false;
     }
     const bool short_of_drop = (position.x - anchor.x) * (anchor.x - top_x) + (position.y - anchor.y) * (anchor.y - top_y) < 0.0;
-    if (!short_of_drop || std::hypot(position.x - top_x, position.y - top_y) > top.arrivalBand(kMeasurementDefaultPositionQuantum)) {
+    if (!short_of_drop || std::hypot(position.x - top_x, position.y - top_y) > ArrivalBand(top, kMeasurementDefaultPositionQuantum)) {
         return false;
     }
     authored.points.insert(authored.points.begin(), { .x = top_x, .y = top_y });
@@ -482,7 +482,7 @@ bool NavRunController::buildPlan(
     }
 
     // 手写裸坐标的末点直接走直线, 交给 A* 会为贴回网格绕远路
-    if (authored.points.size() == 1 && anchor.isContinuousRun() && anchor.corridor_clearance <= 0.0
+    if (authored.points.size() == 1 && IsContinuousRun(anchor) && anchor.corridor_clearance <= 0.0
         && std::hypot(position.x - anchor.x, position.y - anchor.y) > kMeasurementDefaultPositionQuantum) {
         LogDebug << "NavRunController trailing authored point kept literal." << VAR(anchor_index) << VAR(anchor.x) << VAR(anchor.y);
         return commit_authored();
@@ -668,7 +668,7 @@ NavRunTickResult NavRunController::tick(
     // 必须在下面所有提前返回之前, 走廊不可用时测速窗口也要继续积累
     recordSpeedSample(position, now);
 
-    if (!anchor.hasPosition() || !session->hasCurrentWaypoint()) {
+    if (!anchor.has_position || !session->hasCurrentWaypoint()) {
         return result;
     }
     if (!can_use_nav_run_steering(session->currentWaypoint())) {

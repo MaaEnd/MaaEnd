@@ -75,31 +75,10 @@ bool has_any_key(const json::value& input, std::initializer_list<const char*> ke
     return std::any_of(keys.begin(), keys.end(), [&input](const char* key) { return has_key(input, key); });
 }
 
-// 都为空时返回最后一个
-template <typename T, typename... Rest>
-const T& first_non_empty(const T& first, const Rest&... rest)
+// 都为空时返回后一个
+const std::string& first_non_empty(const std::string& first, const std::string& second)
 {
-    if constexpr (sizeof...(rest) == 0) {
-        return first;
-    }
-    else {
-        return first.empty() ? first_non_empty(rest...) : first;
-    }
-}
-
-// 调用前须已过 MEO 解析以排除 null
-template <typename T, typename... Rest>
-std::optional<T> first_present(const json::value& input, const char* key, const T& value, const Rest&... rest)
-{
-    if (has_key(input, key)) {
-        return value;
-    }
-    if constexpr (sizeof...(rest) == 0) {
-        return std::nullopt;
-    }
-    else {
-        return first_present(input, rest...);
-    }
+    return first.empty() ? second : first;
 }
 
 struct NaviActionListInput
@@ -179,6 +158,11 @@ struct NaviTextListInput
     }
 };
 
+const NaviTextListInput& first_non_empty(const NaviTextListInput& first, const NaviTextListInput& second)
+{
+    return first.empty() ? second : first;
+}
+
 using NaviWaypointArrayItem = std::variant<double, NaviActionListInput, bool, std::string>;
 
 // 每个别名都要通过类型校验
@@ -229,6 +213,56 @@ struct NaviWaypointObjectInput
         MEO_OPT MEO_KEY("yaw") yaw_,
         MEO_OPT MEO_KEY("target") target_)
 };
+
+const std::string& authored_zone(const NaviWaypointObjectInput& object)
+{
+    for (const std::string* zone : { &object.zone_id_, &object.zoneId_, &object.zone_, &object.map_name_ }) {
+        if (!zone->empty()) {
+            return *zone;
+        }
+    }
+    return object.mapName_;
+}
+
+// 调用前须已过 MEO 解析以排除 null
+std::optional<double> authored_angle(const json::value& input, const NaviWaypointObjectInput& object)
+{
+    if (has_key(input, "angle")) {
+        return object.angle_;
+    }
+    if (has_key(input, "heading")) {
+        return object.heading_;
+    }
+    if (has_key(input, "yaw")) {
+        return object.yaw_;
+    }
+    return std::nullopt;
+}
+
+std::optional<double> authored_deck_y(const json::value& input, const NaviWaypointObjectInput& object)
+{
+    if (has_key(input, "target_deck_y")) {
+        return object.target_deck_y_;
+    }
+    if (has_key(input, "targetDeckY")) {
+        return object.targetDeckY_;
+    }
+    return std::nullopt;
+}
+
+bool authored_strict(const json::value& input, const NaviWaypointObjectInput& object)
+{
+    if (has_key(input, "strict")) {
+        return object.strict_;
+    }
+    if (has_key(input, "strict_arrival")) {
+        return object.strict_arrival_;
+    }
+    if (has_key(input, "strictArrival")) {
+        return object.strictArrival_;
+    }
+    return false;
+}
 
 // 单独一趟解析, MEO_OPT MEO_KEY 每个键占 3 个宏参数, 一块最多 21 个键
 struct NaviInteractInput
@@ -431,16 +465,14 @@ private:
         appendActions(object.action_);
         appendActions(object.actions_);
 
-        zone_id_ = first_non_empty(object.zone_id_, object.zoneId_, object.zone_, object.map_name_, object.mapName_);
+        zone_id_ = authored_zone(object);
         target_tier_ = first_non_empty(object.target_tier_, object.targetTier_);
-        x_ = first_present(input, "x", object.x_);
-        y_ = first_present(input, "y", object.y_);
-        angle_ = first_present(input, "angle", object.angle_, "heading", object.heading_, "yaw", object.yaw_);
-        target_ = first_present(input, "target", object.target_);
-        target_deck_y_ = first_present(input, "target_deck_y", object.target_deck_y_, "targetDeckY", object.targetDeckY_);
-        strict_arrival_ =
-            first_present(input, "strict", object.strict_, "strict_arrival", object.strict_arrival_, "strictArrival", object.strictArrival_)
-                .value_or(false);
+        x_ = has_key(input, "x") ? std::optional<double>(object.x_) : std::nullopt;
+        y_ = has_key(input, "y") ? std::optional<double>(object.y_) : std::nullopt;
+        angle_ = authored_angle(input, object);
+        target_ = has_key(input, "target") ? std::optional<std::array<double, 2>>(object.target_) : std::nullopt;
+        target_deck_y_ = authored_deck_y(input, object);
+        strict_arrival_ = authored_strict(input, object);
         required_ = object.required_;
         trigger_node_ = first_non_empty(trigger.trigger_node_, trigger.triggerNode_);
     }
@@ -501,6 +533,28 @@ struct NaviParamInput
         MEO_OPT MEO_KEY("target") target_)
 };
 
+std::string authored_navmesh_file(const json::value& custom_action_param, const NaviParamInput& input, const std::string& fallback)
+{
+    if (has_key(custom_action_param, "nav_file")) {
+        return input.nav_file_;
+    }
+    if (has_key(custom_action_param, "navmesh_file")) {
+        return input.navmesh_file_;
+    }
+    return fallback;
+}
+
+double authored_snap_radius(const json::value& custom_action_param, const NaviParamInput& input, double fallback)
+{
+    if (has_key(custom_action_param, "snap_radius")) {
+        return input.snap_radius_;
+    }
+    if (has_key(custom_action_param, "navmesh_snap_radius")) {
+        return input.navmesh_snap_radius_;
+    }
+    return fallback;
+}
+
 NaviParam build_navi_param(const json::value& custom_action_param, const NaviParamInput& input)
 {
     NaviParam param;
@@ -512,11 +566,8 @@ NaviParam build_navi_param(const json::value& custom_action_param, const NaviPar
     param.enable_local_driver = input.enable_local_driver_;
     param.zipline_enabled = input.zip_;
     param.enable_bootstrap_navmesh = input.enable_bootstrap_navmesh_;
-    param.navmesh_file =
-        first_present(custom_action_param, "nav_file", input.nav_file_, "navmesh_file", input.navmesh_file_).value_or(param.navmesh_file);
-    param.navmesh_snap_radius =
-        first_present(custom_action_param, "snap_radius", input.snap_radius_, "navmesh_snap_radius", input.navmesh_snap_radius_)
-            .value_or(param.navmesh_snap_radius);
+    param.navmesh_file = authored_navmesh_file(custom_action_param, input, param.navmesh_file);
+    param.navmesh_snap_radius = authored_snap_radius(custom_action_param, input, param.navmesh_snap_radius);
     return param;
 }
 
@@ -536,24 +587,26 @@ std::optional<std::array<double, 2>> authored_position(const NaviWaypointInput& 
     return std::nullopt;
 }
 
+Waypoint
+    authored_waypoint(const NaviWaypointInput& input, const std::array<double, 2>& position, const std::string& zone_id, ActionType action)
+{
+    Waypoint waypoint { .x = position.at(0), .y = position.at(1), .action = action };
+    waypoint.zone_id = zone_id;
+    waypoint.target_tier = input.target_tier_;
+    waypoint.strict_arrival = input.strict_arrival_;
+    waypoint.authored_strict_arrival = input.strict_arrival_;
+    waypoint.route_required = input.required_;
+    return waypoint;
+}
+
 void append_expanded_waypoints(
     const NaviWaypointInput& input,
     const std::array<double, 2>& position,
     const std::string& zone_id,
     std::vector<Waypoint>& out_waypoints)
 {
-    const auto append = [&](ActionType action) {
-        Waypoint waypoint(position.at(0), position.at(1), action);
-        waypoint.zone_id = zone_id;
-        waypoint.target_tier = input.target_tier_;
-        waypoint.strict_arrival = input.strict_arrival_;
-        waypoint.authored_strict_arrival = input.strict_arrival_;
-        waypoint.route_required = input.required_;
-        out_waypoints.push_back(std::move(waypoint));
-    };
-
     if (input.actions_.empty()) {
-        append(ActionType::RUN);
+        out_waypoints.push_back(authored_waypoint(input, position, zone_id, ActionType::RUN));
         return;
     }
     const bool has_non_run_action =
@@ -562,7 +615,7 @@ void append_expanded_waypoints(
         if (has_non_run_action && action == ActionType::RUN) {
             continue;
         }
-        append(action);
+        out_waypoints.push_back(authored_waypoint(input, position, zone_id, action));
     }
 }
 
@@ -742,7 +795,7 @@ bool append_zone(const std::string& zone_id, std::vector<Waypoint>& out_waypoint
     if (zone_id.empty()) {
         return false;
     }
-    out_waypoints.push_back(Waypoint::zone(zone_id));
+    out_waypoints.push_back(ZoneWaypoint(zone_id));
     zone_context = zone_id;
     return true;
 }
@@ -750,7 +803,7 @@ bool append_zone(const std::string& zone_id, std::vector<Waypoint>& out_waypoint
 bool append_heading(const NaviWaypointInput& input, const std::string& zone_id, std::vector<Waypoint>& out_waypoints)
 {
     if (input.target_) {
-        Waypoint heading_waypoint = Waypoint::headingToTarget(input.target_->at(0), input.target_->at(1));
+        Waypoint heading_waypoint = HeadingToTargetWaypoint(input.target_->at(0), input.target_->at(1));
         heading_waypoint.zone_id = zone_id;
         heading_waypoint.target_tier = input.target_tier_;
         heading_waypoint.route_required = input.required_;
@@ -760,7 +813,7 @@ bool append_heading(const NaviWaypointInput& input, const std::string& zone_id, 
     if (!input.angle_) {
         return false;
     }
-    Waypoint heading_waypoint = Waypoint::heading(*input.angle_);
+    Waypoint heading_waypoint = HeadingWaypoint(*input.angle_);
     heading_waypoint.zone_id = zone_id;
     heading_waypoint.route_required = input.required_;
     out_waypoints.push_back(std::move(heading_waypoint));
@@ -772,7 +825,7 @@ bool append_navmesh(const NaviWaypointInput& input, const std::string& zone_id, 
     if (!input.target_) {
         return false;
     }
-    Waypoint navmesh_waypoint(input.target_->at(0), input.target_->at(1), ActionType::NAVMESH);
+    Waypoint navmesh_waypoint { .x = input.target_->at(0), .y = input.target_->at(1), .action = ActionType::NAVMESH };
     // 规划腿一律按严判收尾, 与作者是否写 strict_arrival 无关
     navmesh_waypoint.strict_arrival = true;
     navmesh_waypoint.zone_id = zone_id;
@@ -793,7 +846,7 @@ bool append_find(
 {
     Waypoint find_waypoint;
     if (const std::optional<std::array<double, 2>> position = authored_position(input)) {
-        find_waypoint = Waypoint(position->at(0), position->at(1), ActionType::FIND);
+        find_waypoint = Waypoint { .x = position->at(0), .y = position->at(1), .action = ActionType::FIND };
         find_waypoint.target_tier = input.target_tier_;
         find_waypoint.target_deck_y = input.target_deck_y_;
         find_waypoint.strict_arrival = input.strict_arrival_;
@@ -833,7 +886,7 @@ bool append_positioned(
     if (!input.angle_) {
         return false;
     }
-    Waypoint heading_waypoint = Waypoint::heading(*input.angle_);
+    Waypoint heading_waypoint = HeadingWaypoint(*input.angle_);
     heading_waypoint.zone_id = zone_id;
     out_waypoints.push_back(std::move(heading_waypoint));
     return true;

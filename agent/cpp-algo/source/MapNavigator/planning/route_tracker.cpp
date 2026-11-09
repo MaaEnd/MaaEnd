@@ -51,7 +51,7 @@ bool is_same_zone_segment(const Waypoint& lhs, const Waypoint& rhs)
 size_t find_next_position_node(const std::vector<Waypoint>& path, size_t waypoint_idx)
 {
     for (size_t index = waypoint_idx + 1; index < path.size(); ++index) {
-        if (path[index].hasPosition()) {
+        if (path[index].has_position) {
             return index;
         }
     }
@@ -67,7 +67,7 @@ std::optional<size_t> next_serial_segment_end(const std::vector<Waypoint>& path,
     }
     const Waypoint& from = path[from_idx];
     const Waypoint& to = path[to_idx];
-    if (!from.isContinuousRun() || !to.isContinuousRun() || !is_same_zone_segment(from, to)) {
+    if (!IsContinuousRun(from) || !IsContinuousRun(to) || !is_same_zone_segment(from, to)) {
         return std::nullopt;
     }
     return to_idx;
@@ -101,8 +101,7 @@ std::optional<SegmentProjection>
     projection.cross_track_distance = std::hypot(position.x - projected_x, position.y - projected_y);
     projection.current_distance = std::hypot(from.x - position.x, from.y - position.y);
     projection.next_distance = std::hypot(to.x - position.x, to.y - position.y);
-    projection.turn_back_yaw =
-        std::abs(NaviMath::normalizeAngle(NaviMath::calcTargetRotation(position.x, position.y, from.x, from.y) - position.angle));
+    projection.turn_back_yaw = std::abs(NormalizeAngle(CalcTargetRotation(position.x, position.y, from.x, from.y) - position.angle));
     return projection;
 }
 
@@ -127,13 +126,13 @@ void advance_passed_run_waypoints(
         const size_t current_idx = session->currentNodeIdx();
         const std::optional<SegmentProjection> segment = project_onto_serial_route_segment(session->currentPath(), current_idx, position);
         if (!segment.has_value()) {
-            state->resetTracking();
+            ResetRouteTracking(state);
             break;
         }
 
         const bool same_segment = state->last_segment_from_idx == segment->from_idx && state->last_segment_to_idx == segment->to_idx;
         if (!same_segment) {
-            state->resetTracking();
+            ResetRouteTracking(state);
         }
         state->last_segment_from_idx = segment->from_idx;
         state->last_segment_to_idx = segment->to_idx;
@@ -143,7 +142,7 @@ void advance_passed_run_waypoints(
         }
 
         const Waypoint& next_waypoint = session->currentPathAt(segment->to_idx);
-        const double next_arrival_band = next_waypoint.arrivalBand(position_quantum);
+        const double next_arrival_band = ArrivalBand(next_waypoint, position_quantum);
         const bool near_next_waypoint = segment->next_distance <= next_arrival_band;
         const bool entered_next_segment = segment->raw_projection >= kEnteredNextSegmentProjection;
         const bool projection_growing = state->best_projection_on_segment >= kProjectionGrowingMin
@@ -163,7 +162,7 @@ void advance_passed_run_waypoints(
         const bool latched_for_current = state->passed_waypoint_latched && state->passed_waypoint_idx == current_idx;
         if (!latched_for_current) {
             if (segment->cross_track_distance > kSerialRouteDeviationFailThreshold) {
-                state->resetTracking();
+                ResetRouteTracking(state);
             }
             break;
         }
@@ -172,14 +171,14 @@ void advance_passed_run_waypoints(
             break;
         }
 
-        state->resetTracking();
+        ResetRouteTracking(state);
         session->advanceToNextWaypoint(ActionType::RUN, "passed_waypoint_advance");
     }
 }
 
 } // namespace
 
-RouteMeasurement RouteTracker::update(NavigationSession* session, RouteTrackerState* state, const NaviPosition& position)
+RouteMeasurement UpdateRouteTracking(RouteTrackerState* state, NavigationSession* session, const NaviPosition& position)
 {
     RouteMeasurement tracking;
     if (session == nullptr || state == nullptr || !session->hasCurrentWaypoint()) {
@@ -212,17 +211,17 @@ RouteMeasurement RouteTracker::update(NavigationSession* session, RouteTrackerSt
     }
 
     const Waypoint& waypoint = session->currentWaypoint();
-    if (!waypoint.hasPosition()) {
+    if (!waypoint.has_position) {
         return tracking;
     }
 
     tracking.valid = true;
-    tracking.arrival_band = waypoint.arrivalBand(tracking_position_quantum());
+    tracking.arrival_band = ArrivalBand(waypoint, tracking_position_quantum());
     tracking.waypoint_distance = std::hypot(waypoint.x - position.x, waypoint.y - position.y);
     tracking.progress_distance = tracking.waypoint_distance;
-    tracking.waypoint_heading = NaviMath::calcTargetRotation(position.x, position.y, waypoint.x, waypoint.y);
+    tracking.waypoint_heading = CalcTargetRotation(position.x, position.y, waypoint.x, waypoint.y);
     tracking.route_heading = tracking.waypoint_heading;
-    if (!waypoint.isContinuousRun()) {
+    if (!IsContinuousRun(waypoint)) {
         return tracking;
     }
 

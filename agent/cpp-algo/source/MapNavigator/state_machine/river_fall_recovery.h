@@ -8,28 +8,17 @@ namespace mapnavigator
 class ActionWrapper;
 class MotionController;
 
-class RiverFallRecovery
+enum class RiverFallStep
 {
-public:
-    enum class Step
-    {
-        Cleared,
-        Escaping,
-    };
-
-    RiverFallRecovery(
-        RiverFallRecoveryState& state,
-        ActionWrapper* action_wrapper,
-        MotionController* motion_controller,
-        const NaviPosition* position);
-
-    Step advance(double current_heading);
-
-private:
-    RiverFallRecoveryState& state_;
-    ActionWrapper* action_wrapper_;
-    MotionController* motion_controller_;
-    const NaviPosition* position_;
+    Cleared,
+    Escaping,
 };
+
+RiverFallStep AdvanceRiverFallRecovery(
+    RiverFallRecoveryState* state,
+    ActionWrapper* action_wrapper,
+    MotionController* motion_controller,
+    const NaviPosition& position,
+    double current_heading);
 
 } // namespace mapnavigator

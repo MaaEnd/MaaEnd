@@ -227,8 +227,8 @@ struct StrictSettle
     std::optional<bool> alignTowardGoal()
     {
         for (int turns = 0;; ++turns) {
-            bearing = NaviMath::calcTargetRotation(fix.x, fix.y, waypoint.x, waypoint.y);
-            const double heading_delta = NaviMath::calcDeltaRotation(*fix.camera_angle, bearing);
+            bearing = CalcTargetRotation(fix.x, fix.y, waypoint.x, waypoint.y);
+            const double heading_delta = CalcDeltaRotation(*fix.camera_angle, bearing);
             if (std::abs(heading_delta) <= kStrictSettleHeadingToleranceDeg) {
                 return std::nullopt;
             }
@@ -273,8 +273,7 @@ struct StrictSettle
 
         // 挪得太少或偏得太多的这一下是被地形挡了, 不代表按键时长和位移的关系
         const double travel = std::hypot(fix.x - from.x, fix.y - from.y);
-        const double deflection =
-            std::abs(NaviMath::calcDeltaRotation(bearing, NaviMath::calcTargetRotation(from.x, from.y, fix.x, fix.y)));
+        const double deflection = std::abs(CalcDeltaRotation(bearing, CalcTargetRotation(from.x, from.y, fix.x, fix.y)));
         const bool usable = travel >= kStrictSettleStillWu && deflection <= kStrictSettlePulseDirectionToleranceDeg;
         if (usable) {
             g_pulse_model.record(held_ms, travel);

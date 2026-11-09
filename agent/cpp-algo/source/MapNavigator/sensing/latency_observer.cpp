@@ -47,13 +47,13 @@ void emit(MaaContext* context, const Verdict& verdict)
 void BeginRun()
 {
     const std::lock_guard<std::mutex> guard(g_mutex);
-    g_detector.beginRun();
+    BeginDetectorRun(&g_detector);
 }
 
 void RecordStage(Stage stage, int64_t elapsed_ms)
 {
     const std::lock_guard<std::mutex> guard(g_mutex);
-    g_detector.recordStage(stage, elapsed_ms);
+    RecordDetectorStage(&g_detector, stage, elapsed_ms);
 }
 
 void RecordTick(MaaContext* context, uint64_t tick_seq, int64_t tick_gap_ms)
@@ -61,7 +61,7 @@ void RecordTick(MaaContext* context, uint64_t tick_seq, int64_t tick_gap_ms)
     std::optional<Verdict> verdict;
     {
         const std::lock_guard<std::mutex> guard(g_mutex);
-        verdict = g_detector.recordTick(tick_seq, tick_gap_ms);
+        verdict = RecordDetectorTick(&g_detector, tick_seq, tick_gap_ms);
     }
     if (verdict) {
         emit(context, *verdict);
