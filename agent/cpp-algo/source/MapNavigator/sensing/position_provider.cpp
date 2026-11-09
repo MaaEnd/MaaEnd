@@ -55,22 +55,22 @@ void log_locate_result(const maplocator::LocateResult& locate_result)
     const int status = static_cast<int>(locate_result.status);
     if (locate_result.position) {
         const auto& position = *locate_result.position;
-        const double cam_rot = locate_result.camRot ? locate_result.camRot->rot : -1.0;
-        const double cam_rot_conf = locate_result.camRot ? locate_result.camRot->confidence : -1.0;
-        LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debugMessage) << VAR(position.zoneId) << VAR(position.x)
-                << VAR(position.y) << VAR(position.score) << VAR(position.sliceIndex) << VAR(position.angle) << VAR(cam_rot)
-                << VAR(cam_rot_conf) << VAR(position.latencyMs);
+        const double cam_rot = locate_result.cam_rot ? locate_result.cam_rot->rot : -1.0;
+        const double cam_rot_conf = locate_result.cam_rot ? locate_result.cam_rot->confidence : -1.0;
+        LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debug_message) << VAR(position.zone_id) << VAR(position.x)
+                << VAR(position.y) << VAR(position.score) << VAR(position.slice_index) << VAR(position.angle) << VAR(cam_rot)
+                << VAR(cam_rot_conf) << VAR(position.latency_ms);
     }
     else {
-        LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debugMessage) << "position=null";
+        LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debug_message) << "position=null";
     }
 }
 
 std::optional<double> confident_camera_heading(const maplocator::LocateResult& locate_result)
 {
-    return locate_result.camRot && std::isfinite(locate_result.camRot->confidence)
-                   && locate_result.camRot->confidence >= kNavigationCameraMinConfidence
-               ? std::optional<double>(locate_result.camRot->rot)
+    return locate_result.cam_rot && std::isfinite(locate_result.cam_rot->confidence)
+                   && locate_result.cam_rot->confidence >= kNavigationCameraMinConfidence
+               ? std::optional<double>(locate_result.cam_rot->rot)
                : std::nullopt;
 }
 
@@ -101,10 +101,10 @@ void fill_position(
     out_pos->y = locate_result.position->y;
     out_pos->angle = heading;
     out_pos->score = locate_result.position->score;
-    out_pos->zone_id = locate_result.position->zoneId;
+    out_pos->zone_id = locate_result.position->zone_id;
     out_pos->camera_angle = sensor.adb_like_controller
                                 ? confident_camera
-                                : (locate_result.camRot ? std::optional<double>(locate_result.camRot->rot) : std::nullopt);
+                                : (locate_result.cam_rot ? std::optional<double>(locate_result.cam_rot->rot) : std::nullopt);
     out_pos->valid = true;
     out_pos->timestamp = captured_at;
 }
@@ -180,11 +180,11 @@ bool capture_with(const CaptureParts& parts, NaviPosition* out_pos, maplocator::
     times.image_prep_done_at = std::chrono::steady_clock::now();
 
     options.reject_occluded_frames = heading_source != HeadingSource::Camera;
-    const auto locate_result = sensor->locator->locate(minimap, options);
+    const auto locate_result = maplocator::Locate(sensor->locator.get(), minimap, options);
     times.locate_done_at = std::chrono::steady_clock::now();
     log_locate_result(locate_result);
     sensor->last_capture_minimap_absent = locate_result.minimap_absent;
-    sensor->last_locate_message = locate_result.debugMessage;
+    sensor->last_locate_message = locate_result.debug_message;
     if (locate_result.status != maplocator::LocateStatus::Success || !locate_result.position) {
         return false;
     }
@@ -295,7 +295,7 @@ bool WaitForFix(
 
 void ResetSensorTracking(PositionSensor* sensor)
 {
-    sensor->locator->resetTrackingState();
+    maplocator::ResetTrackingState(sensor->locator.get());
     sensor->last_capture_was_black_screen = false;
     sensor->last_capture_minimap_absent = false;
 }

@@ -25,8 +25,8 @@ const request = {
   task_id: 200000001,
 };
 
-function position(timestamp, x, y, {status = 0, functionName = "captureImpl"} = {}) {
-  return `[${timestamp}][INF][position_provider.cpp][mapnavigator::PositionProvider::${functionName}] MapLocator [status=${status}] [position.zoneId=Wuling_Base] [position.x=${x}] [position.y=${y}]`;
+function position(timestamp, x, y, {status = 0, functionName = "captureImpl", zoneKey = "zone_id"} = {}) {
+  return `[${timestamp}][INF][position_provider.cpp][mapnavigator::PositionProvider::${functionName}] MapLocator [status=${status}] [position.${zoneKey}=Wuling_Base] [position.x=${x}] [position.y=${y}]`;
 }
 
 const lines = [
@@ -484,22 +484,24 @@ test("does not draw replan connectors for other reasons or unchanged positions",
 
 test("does not bridge localization gaps, zone changes, or zipline flights with replan connectors", () => {
   const softReplan = "NavRunController soft replan. [static_cast<int>(reason)=3]";
-  for (const boundary of [
-    position("2026-10-02 20:24:34.000", 0, 0, {status: 1}),
-    position("2026-10-02 20:24:34.000", 10, 0).replace("Wuling_Base", "ValleyIV_Base"),
-    "Action: ZIPLINE launched toward the landing point. [landing.x=10] [landing.y=0]",
-  ]) {
-    const [run] = parseMapNavigatorLog(
-      [
-        lines[0],
-        position("2026-10-02 20:24:33.000", 0, 0),
-        boundary,
-        softReplan,
-        position("2026-10-02 20:24:35.000", 12, 0),
-        softReplan,
-      ].join("\n"),
-    );
-    assert.deepEqual(run.observedReplans, [], boundary);
+  for (const zoneKey of ["zone_id", "zoneId"]) {
+    for (const boundary of [
+      position("2026-10-02 20:24:34.000", 0, 0, {status: 1, zoneKey}),
+      position("2026-10-02 20:24:34.000", 10, 0, {zoneKey}).replace("Wuling_Base", "ValleyIV_Base"),
+      "Action: ZIPLINE launched toward the landing point. [landing.x=10] [landing.y=0]",
+    ]) {
+      const [run] = parseMapNavigatorLog(
+        [
+          lines[0],
+          position("2026-10-02 20:24:33.000", 0, 0, {zoneKey}),
+          boundary,
+          softReplan,
+          position("2026-10-02 20:24:35.000", 12, 0, {zoneKey}),
+          softReplan,
+        ].join("\n"),
+      );
+      assert.deepEqual(run.observedReplans, [], `${zoneKey}: ${boundary}`);
+    }
   }
 });
 

@@ -345,7 +345,7 @@ function addObservedPosition(run, line) {
 
   const sample = {
     point,
-    zone: valueOf(line, "position.zoneId") || "",
+    zone: valueOf(line, "position.zone_id") || valueOf(line, "position.zoneId") || "",
   };
   if (run._ziplineInFlight) {
     run._ziplineLastPosition = sample;
