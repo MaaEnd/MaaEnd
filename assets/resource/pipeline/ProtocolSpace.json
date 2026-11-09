@@ -37,6 +37,16 @@
         "pre_delay": 0,
         "post_delay": 0
     },
+    "ProtocolSpaceGrowthEntry": {
+        "desc": "培养模式入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceGrowthCheckOverview",
+            "[JumpBack]SceneEnterMenuOperator"
+        ]
+    },
     "ProtocolSpaceEntry": {
         "desc": "协议空间任务入口",
         "pre_delay": 0,
