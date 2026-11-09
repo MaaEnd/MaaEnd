@@ -19,6 +19,7 @@
 #include "../semantic/semantic_nodes.h"
 #include "../semantic/strict_settle.h"
 #include "../sensing/position_provider.h"
+#include "../sensing/task_stop.h"
 #include "internal.h"
 #include "localization.h"
 #include "replan.h"
@@ -161,7 +162,7 @@ TickStep settle_at_arrival(Navigator* nav, const NavigateTick& tick)
         const bool settled = semantic_nodes::SettleAtStrictGoal(nav, waypoint);
         // 原地转镜头不经过转向环, 转向环记着的待生效转角要清掉
         nav->runtime_state.steering_rate = {};
-        if (nav->should_stop()) {
+        if (TaskStopping(nav->maa_context)) {
             walkmode::RequestWalk(nav->walk_mode, false);
             return TickStep::EndTick;
         }
@@ -325,7 +326,7 @@ TickStep HandleWaypointArrival(Navigator* nav, NavigateTick* tick)
         return step;
     }
     // 退出走路模式时可能同步等控制器, 期间收到取消就别再执行到点动作
-    if (nav->should_stop()) {
+    if (TaskStopping(nav->maa_context)) {
         return TickStep::EndTick;
     }
     return pass_arrived_waypoints(nav, tick);

@@ -42,28 +42,26 @@ struct LegState
     std::optional<double> route_start_deck_y;
     std::string current_zone;
     std::string navmesh_zone;
-
-    void moveRouteStart(const navmesh::WorldPoint& point)
-    {
-        route_start = point;
-        route_start_floor_y.reset();
-        route_start_deck_y.reset();
-    }
-
-    RouteEndpoints legTo(const navmesh::WorldPoint& goal, float goal_floor_y, std::optional<double> goal_deck_y) const
-    {
-        return RouteEndpoints {
-            .start = route_start,
-            .start_floor_y = route_start_floor_y,
-            .start_deck_y = route_start_deck_y,
-            .goal = goal,
-            .goal_floor_y = goal_floor_y,
-            .goal_deck_y = goal_deck_y,
-        };
-    }
 };
 
-thread_local NavmeshExpansionFailure g_expansion_failure;
+void move_route_start(LegState* state, const navmesh::WorldPoint& point)
+{
+    state->route_start = point;
+    state->route_start_floor_y.reset();
+    state->route_start_deck_y.reset();
+}
+
+RouteEndpoints leg_endpoints(const LegState& state, const navmesh::WorldPoint& goal, float goal_floor_y, std::optional<double> goal_deck_y)
+{
+    return RouteEndpoints {
+        .start = state.route_start,
+        .start_floor_y = state.route_start_floor_y,
+        .start_deck_y = state.route_start_deck_y,
+        .goal = goal,
+        .goal_floor_y = goal_floor_y,
+        .goal_deck_y = goal_deck_y,
+    };
+}
 
 constexpr double kBlindTargetFallbackSnapRadius = 12.0;
 constexpr double kBlindTargetProbeStep = 2.0;
@@ -128,71 +126,74 @@ navmesh::BaseNavRouteRequest build_route_request(
 
 struct ExpansionContext
 {
-    const NaviParam& param;
-    const CachedNavmesh& mesh;
+    const NaviParam* param = nullptr;
+    const CachedNavmesh* mesh = nullptr;
     MaaContext* maa_context = nullptr;
     std::vector<NavmeshRouteDiagnostic>* diagnostics = nullptr;
     const std::vector<VirtualNoGoDisc>* no_go = nullptr;
     // 判定不可用的升降索, 空指针表示这次不用升降索
     const std::vector<uint32_t>* rope_off = nullptr;
-    NavmeshExpansionFailure& failure;
-    // 终态, 整条展开到此为止
-    bool no_go_rejected = false;
-
-    navmesh::BaseNavRouteRequest
-        legRequest(const LegState& state, const navmesh::WorldPoint& goal, float goal_floor_y, std::optional<double> goal_deck_y) const
-    {
-        return build_route_request(
-            mesh.pack,
-            state.current_zone,
-            state.navmesh_zone,
-            state.legTo(goal, goal_floor_y, goal_deck_y),
-            no_go,
-            rope_off);
-    }
-
-    bool cancelIfStopped(const LegState& state)
-    {
-        const bool stopping = maa_context != nullptr && MaaTaskerStopping(MaaContextGetTasker(maa_context));
-        if (!stopping) {
-            return false;
-        }
-        failure = zone_failure("cancelled", "路线规划已取消", state);
-        return true;
-    }
-
-    void failWaypoint(
-        std::string code,
-        std::string detail,
-        const Waypoint& waypoint,
-        std::optional<size_t> authored_index,
-        const LegState& state,
-        const navmesh::BaseNavRouteResult* route_result = nullptr,
-        std::optional<navmesh::WorldPoint> segment_goal = std::nullopt)
-    {
-        NavmeshExpansionFailure recorded {
-            .code = std::move(code),
-            .message = describe_authored_waypoint(waypoint, authored_index) + detail,
-            .authored_index = authored_index,
-            .zone_id = state.current_zone,
-            .segment_start = state.route_start,
-            .segment_goal = segment_goal,
-            .target_tier = waypoint.target_tier,
-            .target_deck_y = waypoint.target_deck_y,
-        };
-        if (waypoint.has_position) {
-            recorded.target = navmesh::WorldPoint { .x = waypoint.x, .y = waypoint.y };
-        }
-        if (route_result != nullptr) {
-            recorded.route_status = navmesh::ToString(route_result->status);
-            recorded.route_error = route_result->error;
-            recorded.gap_start = route_result->gap_start;
-            recorded.gap_goal = route_result->gap_goal;
-            recorded.gap_distance = route_result->gap_distance;
-        }
-        failure = std::move(recorded);
-    }
+    NavmeshExpansionFailure* failure = nullptr;
 };
+
+navmesh::BaseNavRouteRequest leg_request(
+    const ExpansionContext& ctx,
+    const LegState& state,
+    const navmesh::WorldPoint& goal,
+    float goal_floor_y,
+    std::optional<double> goal_deck_y)
+{
+    return build_route_request(
+        ctx.mesh->pack,
+        state.current_zone,
+        state.navmesh_zone,
+        leg_endpoints(state, goal, goal_floor_y, goal_deck_y),
+        ctx.no_go,
+        ctx.rope_off);
+}
+
+bool cancel_if_stopped(ExpansionContext* ctx, const LegState& state)
+{
+    const bool stopping = ctx->maa_context != nullptr && MaaTaskerStopping(MaaContextGetTasker(ctx->maa_context));
+    if (!stopping) {
+        return false;
+    }
+    *ctx->failure = zone_failure("cancelled", "路线规划已取消", state);
+    return true;
+}
+
+void fail_waypoint(
+    ExpansionContext* ctx,
+    std::string code,
+    std::string detail,
+    const Waypoint& waypoint,
+    std::optional<size_t> authored_index,
+    const LegState& state,
+    const navmesh::BaseNavRouteResult* route_result = nullptr,
+    std::optional<navmesh::WorldPoint> segment_goal = std::nullopt)
+{
+    NavmeshExpansionFailure recorded {
+        .code = std::move(code),
+        .message = describe_authored_waypoint(waypoint, authored_index) + detail,
+        .authored_index = authored_index,
+        .zone_id = state.current_zone,
+        .segment_start = state.route_start,
+        .segment_goal = segment_goal,
+        .target_tier = waypoint.target_tier,
+        .target_deck_y = waypoint.target_deck_y,
+    };
+    if (waypoint.has_position) {
+        recorded.target = navmesh::WorldPoint { .x = waypoint.x, .y = waypoint.y };
+    }
+    if (route_result != nullptr) {
+        recorded.route_status = navmesh::ToString(route_result->status);
+        recorded.route_error = route_result->error;
+        recorded.gap_start = route_result->gap_start;
+        recorded.gap_goal = route_result->gap_goal;
+        recorded.gap_distance = route_result->gap_distance;
+    }
+    *ctx->failure = std::move(recorded);
+}
 
 bool is_navmesh_waypoint(const Waypoint& waypoint)
 {
@@ -229,13 +230,13 @@ std::vector<std::vector<double>> path_points_for_log(const navmesh::WorldPath& p
     return result;
 }
 
-void update_state_from_regular_waypoint(const Waypoint& waypoint, LegState& state)
+void update_state_from_regular_waypoint(LegState* state, const Waypoint& waypoint)
 {
     if (waypoint.has_position) {
-        state.moveRouteStart({ .x = waypoint.x, .y = waypoint.y });
+        move_route_start(state, { .x = waypoint.x, .y = waypoint.y });
     }
     if (!waypoint.zone_id.empty()) {
-        state.current_zone = waypoint.zone_id;
+        state->current_zone = waypoint.zone_id;
     }
 }
 
@@ -285,33 +286,33 @@ std::optional<Waypoint> project_regular_waypoint_to_base(const navmesh::BaseNavP
 
 std::optional<Waypoint> project_authored_target(const ExpansionContext& ctx, const Waypoint& waypoint)
 {
-    if (is_navmesh_waypoint(waypoint) || !ctx.param.normalize_position_via_navmesh) {
+    if (is_navmesh_waypoint(waypoint) || !ctx.param->normalize_position_via_navmesh) {
         return waypoint;
     }
-    return project_regular_waypoint_to_base(ctx.mesh.pack, waypoint);
+    return project_regular_waypoint_to_base(ctx.mesh->pack, waypoint);
 }
 
-void copy_plan_debug(navmesh::recast::RecastPlanResult::Debug& debug, NavmeshRouteDiagnostic& out)
+void move_plan_debug(NavmeshRouteDiagnostic* out, navmesh::recast::RecastPlanResult::Debug* debug)
 {
-    out.timing.window_ms = debug.timing.window_ms;
-    out.timing.topology_ms = debug.timing.topology_ms;
-    out.timing.geometry_ms = debug.timing.geometry_ms;
-    out.timing.pull_ms = debug.timing.pull_ms;
-    out.timing.assemble_ms = debug.timing.assemble_ms;
-    out.timing.lift_ms = debug.timing.lift_ms;
-    out.timing.total_ms = debug.timing.total_ms;
-    out.x0 = debug.x0;
-    out.y0 = debug.y0;
-    out.nx = debug.nx;
-    out.ny = debug.ny;
-    out.cell_size = debug.cell_size;
-    out.topology_cells = std::move(debug.topology_cells);
-    out.topology_heights = std::move(debug.topology_heights);
-    out.taut_points = std::move(debug.taut_points);
-    out.pulled_points = std::move(debug.pulled_points);
-    out.assembled_points = std::move(debug.assembled_points);
-    out.planned_points = std::move(debug.planned_points);
-    out.warnings = std::move(debug.warnings);
+    out->timing.window_ms = debug->timing.window_ms;
+    out->timing.topology_ms = debug->timing.topology_ms;
+    out->timing.geometry_ms = debug->timing.geometry_ms;
+    out->timing.pull_ms = debug->timing.pull_ms;
+    out->timing.assemble_ms = debug->timing.assemble_ms;
+    out->timing.lift_ms = debug->timing.lift_ms;
+    out->timing.total_ms = debug->timing.total_ms;
+    out->x0 = debug->x0;
+    out->y0 = debug->y0;
+    out->nx = debug->nx;
+    out->ny = debug->ny;
+    out->cell_size = debug->cell_size;
+    out->topology_cells = std::move(debug->topology_cells);
+    out->topology_heights = std::move(debug->topology_heights);
+    out->taut_points = std::move(debug->taut_points);
+    out->pulled_points = std::move(debug->pulled_points);
+    out->assembled_points = std::move(debug->assembled_points);
+    out->planned_points = std::move(debug->planned_points);
+    out->warnings = std::move(debug->warnings);
 }
 
 navmesh::BaseNavRouteResult plan_corridor_route(
@@ -380,7 +381,7 @@ navmesh::BaseNavRouteResult plan_corridor_route(
     if (out_diagnostic != nullptr) {
         out_diagnostic->start = request.start;
         out_diagnostic->goal = request.goal;
-        copy_plan_debug(plan.debug, *out_diagnostic);
+        move_plan_debug(out_diagnostic, &plan.debug);
     }
     return result;
 }
@@ -433,129 +434,122 @@ void log_generated_navmesh_path(
             << VAR(navmesh_path_points);
 }
 
-struct GeneratedWaypointWriter
+double clearance_at(const navmesh::WorldPath& path, size_t index)
 {
-    const navmesh::WorldPath& path;
-    std::vector<Waypoint>& out_path;
-    const navmesh::BaseNavPlanner* drivability_planner = nullptr;
-    uint16_t drivable_zone_id = 0;
-    size_t last_anchor = 0;
+    return index < path.clearance.size() ? path.clearance[index] : 0.0;
+}
 
-    double clearanceAt(size_t index) const { return index < path.clearance.size() ? path.clearance[index] : 0.0; }
+std::optional<double> height_at(const navmesh::WorldPath& path, size_t index)
+{
+    return index < path.heights.size() ? std::optional<double>(path.heights[index]) : std::nullopt;
+}
 
-    std::optional<double> heightAt(size_t index) const
-    {
-        return index < path.heights.size() ? std::optional<double>(path.heights[index]) : std::nullopt;
+void mark_drop(std::vector<Waypoint>* out_path, const navmesh::WorldPath& path, size_t index)
+{
+    for (const navmesh::DropLanding& drop : path.drops) {
+        if (drop.index == index && index > 0) {
+            Waypoint& landing = out_path->back();
+            landing.strict_arrival = true;
+            landing.target_deck_y = drop.height;
+            landing.drop_from = std::array<double, 2> { path.points[index - 1].x, path.points[index - 1].y };
+        }
     }
+}
 
-    void markDrop(size_t index)
-    {
+void mark_rope(std::vector<Waypoint>* out_path, const navmesh::WorldPath& path, size_t index)
+{
+    for (const navmesh::RopeRide& rope : path.ropes) {
+        if (rope.index != index || index == 0) {
+            continue;
+        }
+        Waypoint top = std::move(out_path->back());
+        out_path->pop_back();
+        const navmesh::WorldPoint& base = path.points[index - 1];
+        if (out_path->empty() || out_path->back().x != base.x || out_path->back().y != base.y) {
+            out_path->push_back(Waypoint { .x = base.x, .y = base.y, .action = ActionType::RUN });
+            out_path->back().corridor_clearance = clearance_at(path, index - 1);
+            out_path->back().route_floor_y = height_at(path, index - 1);
+        }
+        Waypoint& bottom = out_path->back();
+        bottom.action = ActionType::INTERACT;
+        bottom.strict_arrival = true;
+        bottom.rope_ride = RopeRideInfo { .uid = rope.uid, .ride_s = rope.ride_s, .top_height = rope.top_height };
+        top.strict_arrival = true;
+        top.target_deck_y = rope.top_height;
+        top.rope_top = true;
+        out_path->push_back(std::move(top));
+    }
+}
+
+void emit_point(std::vector<Waypoint>* out_path, const navmesh::WorldPath& path, size_t index, bool strict_arrival)
+{
+    out_path->push_back(Waypoint { .x = path.points[index].x, .y = path.points[index].y, .action = ActionType::RUN });
+    out_path->back().strict_arrival = strict_arrival;
+    out_path->back().corridor_clearance = clearance_at(path, index);
+    out_path->back().route_floor_y = height_at(path, index);
+    mark_drop(out_path, path, index);
+    mark_rope(out_path, path, index);
+}
+
+void append_pulled_corners(
+    std::vector<Waypoint>* out_path,
+    const navmesh::WorldPath& path,
+    const navmesh::BaseNavPlanner* drivability_planner,
+    uint16_t drivable_zone_id,
+    size_t last_anchor,
+    size_t anchor)
+{
+    // 规划器已拉直的路线直接照抄下标, 这里的判据在叠层处会把楼下那层的捷径判成可走
+    if (!path.waypoints.empty() && last_anchor == 0 && anchor + 1 == path.points.size()) {
+        for (size_t index = 0; index + 1 < path.waypoints.size(); ++index) {
+            emit_point(out_path, path, path.waypoints[index], false);
+        }
+        return;
+    }
+    if (drivability_planner == nullptr || anchor <= last_anchor + 1) {
+        return;
+    }
+    // 一次拉直最多吞的原始顶点数, 只为限制二次复杂度
+    constexpr size_t kMaxPullSpan = 64;
+    size_t cursor = last_anchor;
+    while (cursor + 1 < anchor) {
+        size_t reach = cursor;
+        size_t reach_limit = std::min(anchor, cursor + kMaxPullSpan);
         for (const navmesh::DropLanding& drop : path.drops) {
-            if (drop.index == index && index > 0) {
-                Waypoint& landing = out_path.back();
-                landing.strict_arrival = true;
-                landing.target_deck_y = drop.height;
-                landing.drop_from = std::array<double, 2> { path.points[index - 1].x, path.points[index - 1].y };
+            if (drop.index > cursor && drop.index < reach_limit) {
+                reach_limit = drop.index;
             }
         }
-    }
-
-    void markRope(size_t index)
-    {
         for (const navmesh::RopeRide& rope : path.ropes) {
-            if (rope.index != index || index == 0) {
-                continue;
+            if (rope.index > cursor && rope.index < reach_limit) {
+                reach_limit = rope.index;
             }
-            Waypoint top = std::move(out_path.back());
-            out_path.pop_back();
-            const navmesh::WorldPoint& base = path.points[index - 1];
-            if (out_path.empty() || out_path.back().x != base.x || out_path.back().y != base.y) {
-                out_path.push_back(Waypoint { .x = base.x, .y = base.y, .action = ActionType::RUN });
-                out_path.back().corridor_clearance = clearanceAt(index - 1);
-                out_path.back().route_floor_y = heightAt(index - 1);
-            }
-            Waypoint& bottom = out_path.back();
-            bottom.action = ActionType::INTERACT;
-            bottom.strict_arrival = true;
-            bottom.rope_ride = RopeRideInfo { .uid = rope.uid, .ride_s = rope.ride_s, .top_height = rope.top_height };
-            top.strict_arrival = true;
-            top.target_deck_y = rope.top_height;
-            top.rope_top = true;
-            out_path.push_back(std::move(top));
         }
-    }
-
-    void emitPoint(size_t index, bool strict_arrival)
-    {
-        out_path.push_back(Waypoint { .x = path.points[index].x, .y = path.points[index].y, .action = ActionType::RUN });
-        out_path.back().strict_arrival = strict_arrival;
-        out_path.back().corridor_clearance = clearanceAt(index);
-        out_path.back().route_floor_y = heightAt(index);
-        markDrop(index);
-        markRope(index);
-    }
-
-    void appendPulledCorners(size_t anchor)
-    {
-        // 规划器已拉直的路线直接照抄下标, 这里的判据在叠层处会把楼下那层的捷径判成可走
-        if (!path.waypoints.empty() && last_anchor == 0 && anchor + 1 == path.points.size()) {
-            for (size_t index = 0; index + 1 < path.waypoints.size(); ++index) {
-                emitPoint(path.waypoints[index], false);
+        double swallowed_clearance = std::numeric_limits<double>::infinity();
+        while (reach < reach_limit) {
+            // 捷径不能比它吞掉的最窄走廊点更窄, 宽度未知按 0
+            const double required = std::isfinite(swallowed_clearance) ? swallowed_clearance : 0.0;
+            if (!drivability_planner->isRouteSegmentDrivable(drivable_zone_id, path.points[cursor], path.points[reach + 1], required)) {
+                break;
             }
+            swallowed_clearance = std::min(swallowed_clearance, clearance_at(path, reach + 1));
+            ++reach;
+        }
+        // 走廊自己的下一条边也可能判不过, 照样前进一格, 保证循环推进
+        if (reach == cursor) {
+            ++reach;
+        }
+        if (reach >= anchor) {
             return;
         }
-        if (drivability_planner == nullptr || anchor <= last_anchor + 1) {
-            return;
-        }
-        // 一次拉直最多吞的原始顶点数, 只为限制二次复杂度
-        constexpr size_t kMaxPullSpan = 64;
-        size_t cursor = last_anchor;
-        while (cursor + 1 < anchor) {
-            size_t reach = cursor;
-            size_t reach_limit = std::min(anchor, cursor + kMaxPullSpan);
-            for (const navmesh::DropLanding& drop : path.drops) {
-                if (drop.index > cursor && drop.index < reach_limit) {
-                    reach_limit = drop.index;
-                }
-            }
-            for (const navmesh::RopeRide& rope : path.ropes) {
-                if (rope.index > cursor && rope.index < reach_limit) {
-                    reach_limit = rope.index;
-                }
-            }
-            double swallowed_clearance = std::numeric_limits<double>::infinity();
-            while (reach < reach_limit) {
-                // 捷径不能比它吞掉的最窄走廊点更窄, 宽度未知按 0
-                const double required = std::isfinite(swallowed_clearance) ? swallowed_clearance : 0.0;
-                if (!drivability_planner->isRouteSegmentDrivable(drivable_zone_id, path.points[cursor], path.points[reach + 1], required)) {
-                    break;
-                }
-                swallowed_clearance = std::min(swallowed_clearance, clearanceAt(reach + 1));
-                ++reach;
-            }
-            // 走廊自己的下一条边也可能判不过, 照样前进一格, 保证循环推进
-            if (reach == cursor) {
-                ++reach;
-            }
-            if (reach >= anchor) {
-                return;
-            }
-            emitPoint(reach, false);
-            cursor = reach;
-        }
+        emit_point(out_path, path, reach, false);
+        cursor = reach;
     }
-
-    void flushLegTo(size_t anchor, bool strict_arrival)
-    {
-        appendPulledCorners(anchor);
-        emitPoint(anchor, strict_arrival);
-        last_anchor = anchor;
-    }
-};
+}
 
 bool append_generated_waypoints(
+    std::vector<Waypoint>* out_path,
     const navmesh::WorldPath& world_path,
-    std::vector<Waypoint>& out_path,
     const GeneratedWaypointOptions& options,
     const navmesh::BaseNavPlanner* drivability_planner = nullptr,
     uint16_t drivable_zone_id = 0)
@@ -564,12 +558,7 @@ bool append_generated_waypoints(
         return false;
     }
 
-    GeneratedWaypointWriter writer {
-        .path = world_path,
-        .out_path = out_path,
-        .drivability_planner = drivability_planner,
-        .drivable_zone_id = drivable_zone_id,
-    };
+    size_t last_anchor = 0;
     const size_t total = world_path.points.size();
     const size_t loop_end = options.include_goal ? total : total - 1;
     const std::unordered_set<size_t> segment_breaks(world_path.segment_breaks.begin(), world_path.segment_breaks.end());
@@ -581,48 +570,53 @@ bool append_generated_waypoints(
         if (emit_idx == 0) {
             continue;
         }
-        writer.flushLegTo(emit_idx, options.strict_segment_breaks);
+        append_pulled_corners(out_path, world_path, drivability_planner, drivable_zone_id, last_anchor, emit_idx);
+        emit_point(out_path, world_path, emit_idx, options.strict_segment_breaks);
+        last_anchor = emit_idx;
     }
 
     if (total >= 2) {
         if (options.include_goal) {
-            writer.flushLegTo(total - 1, true);
+            append_pulled_corners(out_path, world_path, drivability_planner, drivable_zone_id, last_anchor, total - 1);
+            emit_point(out_path, world_path, total - 1, true);
         }
         else {
-            writer.appendPulledCorners(total - 1);
+            append_pulled_corners(out_path, world_path, drivability_planner, drivable_zone_id, last_anchor, total - 1);
         }
     }
 
     return true;
 }
 
-bool append_blind_target_fallback(
-    ExpansionContext& ctx,
-    LegState& state,
-    const navmesh::WorldPoint& base_target,
-    float goal_floor_y,
-    std::vector<Waypoint>& out_path,
-    std::string* out_error)
+bool fail_with(std::string* out_error, std::string message)
 {
-    const auto fail = [out_error](std::string message) {
-        if (out_error != nullptr) {
-            *out_error = std::move(message);
-        }
-        return false;
-    };
+    if (out_error != nullptr) {
+        *out_error = std::move(message);
+    }
+    return false;
+}
+
+bool append_blind_target_fallback(
+    ExpansionContext* ctx,
+    LegState* state,
+    std::vector<Waypoint>* out_path,
+    std::string* out_error,
+    const navmesh::WorldPoint& base_target,
+    float goal_floor_y)
+{
     const navmesh::WorldPoint target = base_target;
-    const navmesh::WorldPoint start = state.route_start;
+    const navmesh::WorldPoint start = state->route_start;
     const double total = std::hypot(target.x - start.x, target.y - start.y);
     if (total < 1e-6) {
-        return fail("目标与起点重合，但没有生成有效路线");
+        return fail_with(out_error, "目标与起点重合，但没有生成有效路线");
     }
-    const navmesh::BaseNavZone* zone = ctx.mesh.pack.findZoneByName(state.navmesh_zone);
+    const navmesh::BaseNavZone* zone = ctx->mesh->pack.findZoneByName(state->navmesh_zone);
     if (zone == nullptr) {
-        return fail("找不到当前区域的 navmesh");
+        return fail_with(out_error, "找不到当前区域的 navmesh");
     }
-    const double snap_radius = std::max(ctx.param.navmesh_snap_radius, kBlindTargetFallbackSnapRadius);
+    const double snap_radius = std::max(ctx->param->navmesh_snap_radius, kBlindTargetFallbackSnapRadius);
     const float snap_floor =
-        goal_floor_y > navmesh::kBaseNavFloorYValidMin ? goal_floor_y : ctx.mesh.pack.floorYForZoneName(state.current_zone);
+        goal_floor_y > navmesh::kBaseNavFloorYValidMin ? goal_floor_y : ctx->mesh->pack.floorYForZoneName(state->current_zone);
 
     // 探针剩余缺口至少是 offset - snap_radius, 超出这个上限的探针必然过不了缺口检查
     const double probe_limit = std::min(total, kBlindTargetMaxExtension + snap_radius);
@@ -633,28 +627,28 @@ bool append_blind_target_fallback(
     double blind_gap = 0.0;
     const auto probe_started_at = std::chrono::steady_clock::now();
     for (double offset = 0.0; offset <= probe_limit + 1e-6; offset += kBlindTargetProbeStep) {
-        if (ctx.maa_context != nullptr && MaaTaskerStopping(MaaContextGetTasker(ctx.maa_context))) {
-            return fail("规划已取消");
+        if (ctx->maa_context != nullptr && MaaTaskerStopping(MaaContextGetTasker(ctx->maa_context))) {
+            return fail_with(out_error, "规划已取消");
         }
         const int64_t probe_elapsed_ms = ElapsedMs(probe_started_at);
         if (probe_elapsed_ms > kBlindTargetProbeBudgetMs) {
-            LogWarn << "NAVMESH blind-target fallback gave up: probe budget exhausted." << VAR(state.navmesh_zone)
-                    << VAR(state.current_zone) << VAR(target.x) << VAR(target.y) << VAR(offset) << VAR(probe_limit)
+            LogWarn << "NAVMESH blind-target fallback gave up: probe budget exhausted." << VAR(state->navmesh_zone)
+                    << VAR(state->current_zone) << VAR(target.x) << VAR(target.y) << VAR(offset) << VAR(probe_limit)
                     << VAR(probe_elapsed_ms);
-            return fail(std::format("目标附近探测超过 {} ms 预算", kBlindTargetProbeBudgetMs));
+            return fail_with(out_error, std::format("目标附近探测超过 {} ms 预算", kBlindTargetProbeBudgetMs));
         }
         const double t = std::min(offset / total, 1.0);
         const navmesh::WorldPoint probe {
             .x = target.x + (start.x - target.x) * t,
             .y = target.y + (start.y - target.y) * t,
         };
-        const auto entry = ctx.mesh.planner.snap(zone->zone_id, probe, snap_radius, snap_floor);
+        const auto entry = ctx->mesh->planner.snap(zone->zone_id, probe, snap_radius, snap_floor);
         if (!entry) {
             continue;
         }
-        const auto request = ctx.legRequest(state, entry->point, goal_floor_y, std::nullopt);
+        const auto request = leg_request(*ctx, *state, entry->point, goal_floor_y, std::nullopt);
         NavmeshRouteDiagnostic diagnostic;
-        const auto route = plan_corridor_route(ctx.mesh, request, ctx.maa_context, ctx.diagnostics == nullptr ? nullptr : &diagnostic);
+        const auto route = plan_corridor_route(*ctx->mesh, request, ctx->maa_context, ctx->diagnostics == nullptr ? nullptr : &diagnostic);
         if (!route.ok() || route.path.points.empty()) {
             continue;
         }
@@ -667,46 +661,46 @@ bool append_blind_target_fallback(
     }
 
     if (!found) {
-        return fail("目标附近没有与起点连通的网格接近点");
+        return fail_with(out_error, "目标附近没有与起点连通的网格接近点");
     }
     if (blind_gap > kBlindTargetMaxExtension) {
-        LogWarn << "NAVMESH blind-target fallback rejected: residual gap too large." << VAR(state.navmesh_zone) << VAR(state.current_zone)
+        LogWarn << "NAVMESH blind-target fallback rejected: residual gap too large." << VAR(state->navmesh_zone) << VAR(state->current_zone)
                 << VAR(target.x) << VAR(target.y) << VAR(blind_gap) << VAR(kBlindTargetMaxExtension);
-        return fail(std::format("剩余盲走距离 {:.2f}px 超过 {:.2f}px 上限", blind_gap, kBlindTargetMaxExtension));
+        return fail_with(out_error, std::format("剩余盲走距离 {:.2f}px 超过 {:.2f}px 上限", blind_gap, kBlindTargetMaxExtension));
     }
 
-    if (!append_generated_waypoints(approach.path, out_path, {}, &ctx.mesh.planner, approach.path.zone_id)) {
-        return fail("网格接近路线没有生成可执行路点");
+    if (!append_generated_waypoints(out_path, approach.path, {}, &ctx->mesh->planner, approach.path.zone_id)) {
+        return fail_with(out_error, "网格接近路线没有生成可执行路点");
     }
-    if (ctx.diagnostics != nullptr) {
-        ctx.diagnostics->push_back(std::move(accepted_diagnostic));
+    if (ctx->diagnostics != nullptr) {
+        ctx->diagnostics->push_back(std::move(accepted_diagnostic));
     }
     if (blind_gap > kWaypointArrivalSlack) {
-        out_path.push_back(Waypoint { .x = target.x, .y = target.y, .action = ActionType::RUN });
-        out_path.back().strict_arrival = false;
+        out_path->push_back(Waypoint { .x = target.x, .y = target.y, .action = ActionType::RUN });
+        out_path->back().strict_arrival = false;
     }
-    state.moveRouteStart(target);
-    LogInfo << "NAVMESH blind-target fallback applied." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(target.x)
+    move_route_start(state, target);
+    LogInfo << "NAVMESH blind-target fallback applied." << VAR(state->navmesh_zone) << VAR(state->current_zone) << VAR(target.x)
             << VAR(target.y) << VAR(blind_gap) << VAR(approach.path.points.back().x) << VAR(approach.path.points.back().y);
     return true;
 }
 
 bool append_start_recovery(
+    LegState* state,
+    std::vector<Waypoint>* out_path,
+    std::string* out_error,
     const ExpansionContext& ctx,
-    LegState& state,
-    const navmesh::BaseNavRouteRequest& request,
-    std::vector<Waypoint>& out_path,
-    std::string* out_error)
+    const navmesh::BaseNavRouteRequest& request)
 {
-    const auto entry = find_start_recovery_entry(ctx.param, ctx.mesh, state.navmesh_zone, state.current_zone, request, out_error);
+    const auto entry = find_start_recovery_entry(*ctx.param, *ctx.mesh, state->navmesh_zone, state->current_zone, request, out_error);
     if (!entry) {
         return false;
     }
 
-    out_path.push_back(Waypoint { .x = entry->point.x, .y = entry->point.y, .action = ActionType::RUN });
-    out_path.back().strict_arrival = false;
-    state.moveRouteStart(entry->point);
-    LogInfo << "NAVMESH start off mesh; walking onto the nearest mesh point first." << VAR(state.navmesh_zone) << VAR(state.current_zone)
+    out_path->push_back(Waypoint { .x = entry->point.x, .y = entry->point.y, .action = ActionType::RUN });
+    out_path->back().strict_arrival = false;
+    move_route_start(state, entry->point);
+    LogInfo << "NAVMESH start off mesh; walking onto the nearest mesh point first." << VAR(state->navmesh_zone) << VAR(state->current_zone)
             << VAR(request.start.x) << VAR(request.start.y) << VAR(entry->point.x) << VAR(entry->point.y) << VAR(entry->distance);
     return true;
 }
@@ -732,35 +726,35 @@ std::optional<ZiplineMountSpot>
 
 // walking_path 非空时滑索只在严格更省时顶替走路, 为空时用来桥接步行不连通的两侧
 bool try_append_zipline_leg(
-    ExpansionContext& ctx,
-    LegState& state,
+    ExpansionContext* ctx,
+    LegState* state,
+    std::vector<Waypoint>* out_path,
     const ProjectedTarget& target,
-    const navmesh::WorldPath* walking_path,
-    std::vector<Waypoint>& out_path)
+    const navmesh::WorldPath* walking_path)
 {
     auto route = PlanZiplineRoute(
-        ctx.param,
+        *ctx->param,
         {
-            .locator_zone = state.current_zone,
-            .navmesh_zone = state.navmesh_zone,
-            .start = state.route_start,
+            .locator_zone = state->current_zone,
+            .navmesh_zone = state->navmesh_zone,
+            .start = state->route_start,
             .goal = target.point,
             .walking_path = walking_path,
             .goal_floor_y = target.floor_y,
             .goal_deck_y = target.deck_y,
-            .start_floor_y = state.route_start_floor_y,
-            .start_deck_y = state.route_start_deck_y,
-            .maa_context = ctx.maa_context,
-            .capture_diagnostics = ctx.diagnostics != nullptr,
-            .no_go = ctx.no_go,
+            .start_floor_y = state->route_start_floor_y,
+            .start_deck_y = state->route_start_deck_y,
+            .maa_context = ctx->maa_context,
+            .capture_diagnostics = ctx->diagnostics != nullptr,
+            .no_go = ctx->no_go,
         });
     if (!route || route->approach.points.empty() || route->departure.points.empty() || route->towers.size() < 2) {
         return false;
     }
 
-    const size_t insert_index = out_path.size();
+    const size_t insert_index = out_path->size();
     // 上索点在下面自己补, 起点已在索下时通用追加一个点都不会产出
-    append_generated_waypoints(route->approach, out_path, { .include_goal = false }, &ctx.mesh.planner, route->approach.zone_id);
+    append_generated_waypoints(out_path, route->approach, { .include_goal = false }, &ctx->mesh->planner, route->approach.zone_id);
     const navmesh::WorldPoint mount = route->approach.points.back();
     // 架子坐标是角格锚点, 走到跟前常碰不到设备, 所以头一跳瞄第一个站位
     const navmesh::WorldPoint mount_spot = route->mount_spots.empty() ? mount : route->mount_spots.front();
@@ -770,14 +764,14 @@ bool try_append_zipline_leg(
         const ZiplineNodeRef from_ref = ToNodeRef(from);
         const ZiplineNodeRef to_ref = ToNodeRef(to);
 
-        out_path.push_back(
+        out_path->push_back(
             Waypoint {
                 .x = hop == 0 ? mount_spot.x : from.x,
                 .y = hop == 0 ? mount_spot.y : from.y,
                 .action = ActionType::ZIPLINE,
             });
-        out_path.back().strict_arrival = true;
-        out_path.back().target_deck_y = from.height;
+        out_path->back().strict_arrival = true;
+        out_path->back().target_deck_y = from.height;
 
         ZiplineHopPlan hop_plan;
         hop_plan.mount = from_ref;
@@ -794,48 +788,41 @@ bool try_append_zipline_leg(
             }
         }
         hop_plan.chain_continues = hop + 2 < route->towers.size();
-        out_path.back().zipline_hop = hop_plan;
+        out_path->back().zipline_hop = hop_plan;
     }
 
     // landing 是下索段末端, 这一跳的落点是 dismount
-    const size_t last_hop_index = out_path.size() - 1;
-    const ZiplineNodeRef dismount = out_path[last_hop_index].zipline_hop->landing;
-    const size_t departure_index = out_path.size();
+    const size_t last_hop_index = out_path->size() - 1;
+    const ZiplineNodeRef dismount = (*out_path)[last_hop_index].zipline_hop->landing;
+    const size_t departure_index = out_path->size();
     const navmesh::WorldPoint landing = route->departure.points.back();
-    append_generated_waypoints(route->departure, out_path, {}, &ctx.mesh.planner, route->departure.zone_id);
-    if (out_path.size() == departure_index) {
-        out_path.push_back(Waypoint { .x = landing.x, .y = landing.y, .action = ActionType::RUN });
-        out_path.back().strict_arrival = true;
+    append_generated_waypoints(out_path, route->departure, {}, &ctx->mesh->planner, route->departure.zone_id);
+    if (out_path->size() == departure_index) {
+        out_path->push_back(Waypoint { .x = landing.x, .y = landing.y, .action = ActionType::RUN });
+        out_path->back().strict_arrival = true;
     }
-    out_path[last_hop_index].zipline_hop->exit_aim = pick_exit_aim_point(out_path, departure_index, dismount);
+    (*out_path)[last_hop_index].zipline_hop->exit_aim = pick_exit_aim_point(*out_path, departure_index, dismount);
     if (target.deck_y) {
-        out_path.back().target_deck_y = target.deck_y;
+        out_path->back().target_deck_y = target.deck_y;
     }
 
-    state.moveRouteStart(landing);
-    if (ctx.diagnostics != nullptr) {
-        ctx.diagnostics->insert(
-            ctx.diagnostics->end(),
+    move_route_start(state, landing);
+    if (ctx->diagnostics != nullptr) {
+        ctx->diagnostics->insert(
+            ctx->diagnostics->end(),
             std::make_move_iterator(route->diagnostics.begin()),
             std::make_move_iterator(route->diagnostics.end()));
     }
     const bool walking_baseline_available = walking_path != nullptr;
-    LogInfo << "Expanded NAVMESH waypoint via zipline." << VAR(state.navmesh_zone) << VAR(state.current_zone)
-            << VAR(walking_baseline_available) << VAR(route->cost) << VAR(insert_index) << VAR(out_path.size() - insert_index)
+    LogInfo << "Expanded NAVMESH waypoint via zipline." << VAR(state->navmesh_zone) << VAR(state->current_zone)
+            << VAR(walking_baseline_available) << VAR(route->cost) << VAR(insert_index) << VAR(out_path->size() - insert_index)
             << VAR(route->towers.size()) << VAR(mount_spot.x) << VAR(mount_spot.y) << VAR(route->mount_spots.size())
             << VAR(route->towers.back().x) << VAR(route->towers.back().y);
     return true;
 }
 
-struct NavmeshLeg
+struct NavmeshLegPlan
 {
-    ExpansionContext& ctx;
-    LegState& state;
-    std::vector<Waypoint>& out_path;
-    const Waypoint& waypoint;
-    std::optional<size_t> authored_index;
-
-    std::chrono::steady_clock::time_point expand_started_at {};
     ProjectedTarget target {};
     navmesh::BaseNavRouteRequest request {};
     navmesh::BaseNavRouteResult route_result {};
@@ -843,165 +830,192 @@ struct NavmeshLeg
     bool start_recovered = false;
     std::string start_recovery_error {};
     int64_t plan_ms = 0;
-
-    bool append()
-    {
-        expand_started_at = std::chrono::steady_clock::now();
-        target = resolve_projected_target(ctx.mesh.pack, waypoint);
-        request = ctx.legRequest(state, target.point, target.floor_y, target.deck_y);
-        planWithStartRecovery();
-        return route_result.ok() ? commitWalking() : handleUnreachable();
-    }
-
-    NavmeshRouteDiagnostic* diagnosticSink() { return ctx.diagnostics == nullptr ? nullptr : &route_diagnostic; }
-
-    void fail(std::string code, std::string detail)
-    {
-        ctx.failWaypoint(std::move(code), std::move(detail), waypoint, authored_index, state, &route_result, target.point);
-    }
-
-    void planWithStartRecovery()
-    {
-        const auto plan_started_at = std::chrono::steady_clock::now();
-        route_result = plan_corridor_route(ctx.mesh, request, ctx.maa_context, diagnosticSink());
-        if (!route_result.ok() && route_result.status != navmesh::BaseNavRouteStatus::NoGo
-            && append_start_recovery(ctx, state, request, out_path, &start_recovery_error)) {
-            request.start = state.route_start;
-            route_diagnostic = {};
-            route_result = plan_corridor_route(ctx.mesh, request, ctx.maa_context, diagnosticSink());
-            start_recovered = true;
-        }
-        plan_ms = ElapsedMs(plan_started_at);
-    }
-
-    bool handleUnreachable()
-    {
-        // 下面的兜底都不看可走面, 禁区必须先拦下, 否则会穿过禁区
-        if (route_result.status == navmesh::BaseNavRouteStatus::NoGo) {
-            LogError << "NAVMESH waypoint rejected by a virtual no-go zone." << VAR(state.navmesh_zone) << VAR(state.current_zone)
-                     << VAR(target.point.x) << VAR(target.point.y) << VAR(route_result.error);
-            fail("route_no_go", " 无法规划：" + route_result.error);
-            ctx.no_go_rejected = true;
-            return false;
-        }
-        // 滑索能桥接步行不连通的两侧, 优先于盲走和作者提示回退
-        if (try_append_zipline_leg(ctx, state, target, nullptr, out_path)) {
-            return true;
-        }
-        if (ctx.cancelIfStopped(state)) {
-            return false;
-        }
-        // 盲走兜底只看二维, 有面声明时用它会把错层当成到达
-        if (target.deck_y) {
-            LogError << "Failed to plan NAVMESH waypoint on the declared deck." << VAR(state.navmesh_zone) << VAR(state.current_zone)
-                     << VAR(target.point.x) << VAR(target.point.y) << VAR(*target.deck_y) << VAR(navmesh::ToString(route_result.status));
-            const std::string route_error = route_error_text(route_result);
-            const bool disconnected = route_result.gap_start.has_value() && route_result.gap_goal.has_value();
-            fail(
-                disconnected ? "route_disconnected" : "target_deck_unreachable",
-                disconnected ? std::format(" 的指定目标面与起点不连通（target_deck_y={:.2f}）：{}", *target.deck_y, route_error)
-                             : std::format(" 无法抵达指定目标面（target_deck_y={:.2f}）：{}", *target.deck_y, route_error));
-            return false;
-        }
-        LogWarn << "NAVMESH waypoint not directly reachable; attempting blind-target fallback." << VAR(state.navmesh_zone)
-                << VAR(state.current_zone) << VAR(target.point.x) << VAR(target.point.y) << VAR(navmesh::ToString(route_result.status));
-        std::string blind_fallback_error;
-        if (append_blind_target_fallback(ctx, state, target.point, target.floor_y, out_path, &blind_fallback_error)) {
-            return true;
-        }
-        if (ctx.cancelIfStopped(state)) {
-            return false;
-        }
-        LogError << "Failed to plan NAVMESH waypoint." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(target.point.x)
-                 << VAR(target.point.y) << VAR(navmesh::ToString(route_result.status));
-        std::string detail = " 无法规划：" + route_error_text(route_result);
-        if (!start_recovery_error.empty()) {
-            detail += "；起点恢复失败：" + start_recovery_error;
-        }
-        if (!blind_fallback_error.empty()) {
-            detail += "；盲走兜底失败：" + blind_fallback_error;
-        }
-        fail("route_unreachable", std::move(detail));
-        return false;
-    }
-
-    bool commitWalking()
-    {
-        log_generated_navmesh_path(state, request, route_result);
-        const size_t insert_index = out_path.size();
-        if (!append_generated_waypoints(route_result.path, out_path, {}, &ctx.mesh.planner, route_result.path.zone_id)) {
-            LogError << "NAVMESH planning returned an empty path." << VAR(state.navmesh_zone);
-            fail("empty_route", " 的规划结果没有可执行路点");
-            return false;
-        }
-
-        // 这一腿没追加点时末点属于上一腿, 不能盖
-        if (target.deck_y && out_path.size() > insert_index) {
-            out_path.back().target_deck_y = target.deck_y;
-        }
-        state.moveRouteStart(route_result.path.points.back());
-        if (ctx.diagnostics != nullptr) {
-            ctx.diagnostics->push_back(std::move(route_diagnostic));
-        }
-        const size_t path_point_count = route_result.path.points.size();
-        const size_t appended_waypoints = out_path.size() - insert_index;
-        const size_t route_waypoints = out_path.size();
-        const int64_t expand_ms = ElapsedMs(expand_started_at);
-        LogInfo << "Expanded NAVMESH waypoint." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(path_point_count)
-                << VAR(insert_index) << VAR(appended_waypoints) << VAR(route_waypoints) << VAR(start_recovered) << VAR(plan_ms)
-                << VAR(expand_ms);
-        return true;
-    }
 };
 
-bool append_navmesh_leg(
-    ExpansionContext& ctx,
-    LegState& state,
-    const Waypoint& waypoint,
-    std::optional<size_t> authored_index,
-    std::vector<Waypoint>& out_path)
+NavmeshRouteDiagnostic* diagnostic_sink(const ExpansionContext& ctx, NavmeshRouteDiagnostic* diagnostic)
 {
-    NavmeshLeg leg {
-        .ctx = ctx,
-        .state = state,
-        .out_path = out_path,
-        .waypoint = waypoint,
-        .authored_index = authored_index,
-    };
-    return leg.append();
+    return ctx.diagnostics == nullptr ? nullptr : diagnostic;
 }
 
-bool append_authored_waypoint(
-    ExpansionContext& ctx,
-    LegState& state,
-    const Waypoint& waypoint,
-    size_t authored_index,
-    std::vector<Waypoint>& out_path)
+void plan_leg_with_start_recovery(NavmeshLegPlan* leg, LegState* state, std::vector<Waypoint>* out_path, const ExpansionContext& ctx)
 {
-    if (is_navmesh_waypoint(waypoint)) {
-        return append_navmesh_leg(ctx, state, waypoint, authored_index, out_path);
+    const auto plan_started_at = std::chrono::steady_clock::now();
+    leg->route_result = plan_corridor_route(*ctx.mesh, leg->request, ctx.maa_context, diagnostic_sink(ctx, &leg->route_diagnostic));
+    if (!leg->route_result.ok() && leg->route_result.status != navmesh::BaseNavRouteStatus::NoGo) {
+        if (append_start_recovery(state, out_path, &leg->start_recovery_error, ctx, leg->request)) {
+            leg->request.start = state->route_start;
+            leg->route_diagnostic = {};
+            leg->route_result = plan_corridor_route(*ctx.mesh, leg->request, ctx.maa_context, diagnostic_sink(ctx, &leg->route_diagnostic));
+            leg->start_recovered = true;
+        }
     }
-    const auto projected_waypoint = project_authored_target(ctx, waypoint);
-    if (!projected_waypoint) {
-        ctx.failWaypoint("unknown_target_tier", " 的坐标层级不存在", waypoint, authored_index, state);
+    leg->plan_ms = ElapsedMs(plan_started_at);
+}
+
+bool handle_unreachable_leg(
+    ExpansionContext* ctx,
+    LegState* state,
+    std::vector<Waypoint>* out_path,
+    const NavmeshLegPlan& leg,
+    const Waypoint& waypoint,
+    std::optional<size_t> authored_index)
+{
+    // 下面的兜底都不看可走面, 禁区必须先拦下, 否则会穿过禁区
+    if (leg.route_result.status == navmesh::BaseNavRouteStatus::NoGo) {
+        LogError << "NAVMESH waypoint rejected by a virtual no-go zone." << VAR(state->navmesh_zone) << VAR(state->current_zone)
+                 << VAR(leg.target.point.x) << VAR(leg.target.point.y) << VAR(leg.route_result.error);
+        fail_waypoint(
+            ctx,
+            "route_no_go",
+            " 无法规划：" + leg.route_result.error,
+            waypoint,
+            authored_index,
+            *state,
+            &leg.route_result,
+            leg.target.point);
         return false;
     }
-    out_path.push_back(*projected_waypoint);
-    update_state_from_regular_waypoint(*projected_waypoint, state);
+    // 滑索能桥接步行不连通的两侧, 优先于盲走和作者提示回退
+    if (try_append_zipline_leg(ctx, state, out_path, leg.target, nullptr)) {
+        return true;
+    }
+    if (cancel_if_stopped(ctx, *state)) {
+        return false;
+    }
+    // 盲走兜底只看二维, 有面声明时用它会把错层当成到达
+    if (leg.target.deck_y) {
+        LogError << "Failed to plan NAVMESH waypoint on the declared deck." << VAR(state->navmesh_zone) << VAR(state->current_zone)
+                 << VAR(leg.target.point.x) << VAR(leg.target.point.y) << VAR(*leg.target.deck_y)
+                 << VAR(navmesh::ToString(leg.route_result.status));
+        const std::string route_error = route_error_text(leg.route_result);
+        const bool disconnected = leg.route_result.gap_start.has_value() && leg.route_result.gap_goal.has_value();
+        fail_waypoint(
+            ctx,
+            disconnected ? "route_disconnected" : "target_deck_unreachable",
+            disconnected ? std::format(" 的指定目标面与起点不连通（target_deck_y={:.2f}）：{}", *leg.target.deck_y, route_error)
+                         : std::format(" 无法抵达指定目标面（target_deck_y={:.2f}）：{}", *leg.target.deck_y, route_error),
+            waypoint,
+            authored_index,
+            *state,
+            &leg.route_result,
+            leg.target.point);
+        return false;
+    }
+    LogWarn << "NAVMESH waypoint not directly reachable; attempting blind-target fallback." << VAR(state->navmesh_zone)
+            << VAR(state->current_zone) << VAR(leg.target.point.x) << VAR(leg.target.point.y)
+            << VAR(navmesh::ToString(leg.route_result.status));
+    std::string blind_fallback_error;
+    if (append_blind_target_fallback(ctx, state, out_path, &blind_fallback_error, leg.target.point, leg.target.floor_y)) {
+        return true;
+    }
+    if (cancel_if_stopped(ctx, *state)) {
+        return false;
+    }
+    LogError << "Failed to plan NAVMESH waypoint." << VAR(state->navmesh_zone) << VAR(state->current_zone) << VAR(leg.target.point.x)
+             << VAR(leg.target.point.y) << VAR(navmesh::ToString(leg.route_result.status));
+    std::string detail = " 无法规划：" + route_error_text(leg.route_result);
+    if (!leg.start_recovery_error.empty()) {
+        detail += "；起点恢复失败：" + leg.start_recovery_error;
+    }
+    if (!blind_fallback_error.empty()) {
+        detail += "；盲走兜底失败：" + blind_fallback_error;
+    }
+    fail_waypoint(ctx, "route_unreachable", std::move(detail), waypoint, authored_index, *state, &leg.route_result, leg.target.point);
+    return false;
+}
+
+bool commit_walking_leg(
+    ExpansionContext* ctx,
+    LegState* state,
+    std::vector<Waypoint>* out_path,
+    NavmeshLegPlan* leg,
+    const Waypoint& waypoint,
+    std::optional<size_t> authored_index,
+    TimePoint expand_started_at)
+{
+    log_generated_navmesh_path(*state, leg->request, leg->route_result);
+    const size_t insert_index = out_path->size();
+    if (!append_generated_waypoints(out_path, leg->route_result.path, {}, &ctx->mesh->planner, leg->route_result.path.zone_id)) {
+        LogError << "NAVMESH planning returned an empty path." << VAR(state->navmesh_zone);
+        fail_waypoint(
+            ctx,
+            "empty_route",
+            " 的规划结果没有可执行路点",
+            waypoint,
+            authored_index,
+            *state,
+            &leg->route_result,
+            leg->target.point);
+        return false;
+    }
+
+    // 这一腿没追加点时末点属于上一腿, 不能盖
+    if (leg->target.deck_y && out_path->size() > insert_index) {
+        out_path->back().target_deck_y = leg->target.deck_y;
+    }
+    move_route_start(state, leg->route_result.path.points.back());
+    if (ctx->diagnostics != nullptr) {
+        ctx->diagnostics->push_back(std::move(leg->route_diagnostic));
+    }
+    const size_t path_point_count = leg->route_result.path.points.size();
+    const size_t appended_waypoints = out_path->size() - insert_index;
+    const size_t route_waypoints = out_path->size();
+    const int64_t expand_ms = ElapsedMs(expand_started_at);
+    LogInfo << "Expanded NAVMESH waypoint." << VAR(state->navmesh_zone) << VAR(state->current_zone) << VAR(path_point_count)
+            << VAR(insert_index) << VAR(appended_waypoints) << VAR(route_waypoints) << VAR(leg->start_recovered) << VAR(leg->plan_ms)
+            << VAR(expand_ms);
     return true;
 }
 
-void stamp_authored_group(std::vector<Waypoint>& out_path, size_t output_begin, size_t group_begin)
+bool append_navmesh_leg(
+    ExpansionContext* ctx,
+    LegState* state,
+    std::vector<Waypoint>* out_path,
+    const Waypoint& waypoint,
+    std::optional<size_t> authored_index)
 {
-    for (size_t output = output_begin; output < out_path.size(); ++output) {
-        out_path[output].authored_group_begin = group_begin;
+    const TimePoint expand_started_at = std::chrono::steady_clock::now();
+    NavmeshLegPlan leg;
+    leg.target = resolve_projected_target(ctx->mesh->pack, waypoint);
+    leg.request = leg_request(*ctx, *state, leg.target.point, leg.target.floor_y, leg.target.deck_y);
+    plan_leg_with_start_recovery(&leg, state, out_path, *ctx);
+    if (!leg.route_result.ok()) {
+        return handle_unreachable_leg(ctx, state, out_path, leg, waypoint, authored_index);
+    }
+    return commit_walking_leg(ctx, state, out_path, &leg, waypoint, authored_index, expand_started_at);
+}
+
+bool append_authored_waypoint(
+    ExpansionContext* ctx,
+    LegState* state,
+    std::vector<Waypoint>* out_path,
+    const Waypoint& waypoint,
+    size_t authored_index)
+{
+    if (is_navmesh_waypoint(waypoint)) {
+        return append_navmesh_leg(ctx, state, out_path, waypoint, authored_index);
+    }
+    const auto projected_waypoint = project_authored_target(*ctx, waypoint);
+    if (!projected_waypoint) {
+        fail_waypoint(ctx, "unknown_target_tier", " 的坐标层级不存在", waypoint, authored_index, *state);
+        return false;
+    }
+    out_path->push_back(*projected_waypoint);
+    update_state_from_regular_waypoint(state, *projected_waypoint);
+    return true;
+}
+
+void stamp_authored_group(std::vector<Waypoint>* out_path, size_t output_begin, size_t group_begin)
+{
+    for (size_t output = output_begin; output < out_path->size(); ++output) {
+        (*out_path)[output].authored_group_begin = group_begin;
     }
 }
 
-bool append_stamped_authored_waypoint(ExpansionContext& ctx, LegState& state, size_t authored_index, std::vector<Waypoint>& out_path)
+bool append_stamped_authored_waypoint(ExpansionContext* ctx, LegState* state, std::vector<Waypoint>* out_path, size_t authored_index)
 {
-    const size_t output_begin = out_path.size();
-    if (!append_authored_waypoint(ctx, state, ctx.param.path[authored_index], authored_index, out_path)) {
+    const size_t output_begin = out_path->size();
+    if (!append_authored_waypoint(ctx, state, out_path, ctx->param->path[authored_index], authored_index)) {
         return false;
     }
     stamp_authored_group(out_path, output_begin, authored_index);
@@ -1065,50 +1079,50 @@ bool rides_zipline(const std::vector<Waypoint>& out_path, size_t output_begin)
 }
 
 // 先照作者路线展开当基线, 滑索比基线省够了才把这段走路整段换掉, 段尾的动作照常保留
-bool append_replaceable_span(ExpansionContext& ctx, LegState& state, size_t begin, size_t end, std::vector<Waypoint>& out_path)
+bool append_replaceable_span(ExpansionContext* ctx, LegState* state, std::vector<Waypoint>* out_path, size_t begin, size_t end)
 {
-    const std::vector<Waypoint>& path = ctx.param.path;
-    const LegState span_start = state;
-    const size_t output_begin = out_path.size();
-    const size_t diagnostics_begin = ctx.diagnostics == nullptr ? 0 : ctx.diagnostics->size();
+    const std::vector<Waypoint>& path = ctx->param->path;
+    const LegState span_start = *state;
+    const size_t output_begin = out_path->size();
+    const size_t diagnostics_begin = ctx->diagnostics == nullptr ? 0 : ctx->diagnostics->size();
     for (size_t index = begin; index < end; ++index) {
-        if (ctx.cancelIfStopped(state)) {
+        if (cancel_if_stopped(ctx, *state)) {
             return false;
         }
-        if (!append_stamped_authored_waypoint(ctx, state, index, out_path)) {
+        if (!append_stamped_authored_waypoint(ctx, state, out_path, index)) {
             return false;
         }
     }
 
     const std::optional<size_t> target_index = last_positioned_index(path, begin, end);
     // 基线里已有的滑索是步行不通时的桥, 不再拿别的滑索去比
-    if (!target_index || rides_zipline(out_path, output_begin)) {
+    if (!target_index || rides_zipline(*out_path, output_begin)) {
         return true;
     }
 
     // 叠层处按基线到达的那层落地, 只是偏好, 那层到不了时照常落最近的面
-    ProjectedTarget target = resolve_projected_target(ctx.mesh.pack, path[*target_index]);
+    ProjectedTarget target = resolve_projected_target(ctx->mesh->pack, path[*target_index]);
     if (target.floor_y <= navmesh::kBaseNavFloorYValidMin) {
-        if (const std::optional<double> height = baseline_arrival_height(out_path, output_begin)) {
+        if (const std::optional<double> height = baseline_arrival_height(*out_path, output_begin)) {
             target.floor_y = static_cast<float>(*height);
         }
     }
-    const navmesh::WorldPath baseline = baseline_walk_path(span_start.route_start, out_path, output_begin);
-    const size_t diagnostics_end = ctx.diagnostics == nullptr ? 0 : ctx.diagnostics->size();
+    const navmesh::WorldPath baseline = baseline_walk_path(span_start.route_start, *out_path, output_begin);
+    const size_t diagnostics_end = ctx->diagnostics == nullptr ? 0 : ctx->diagnostics->size();
     LegState shortcut_state = span_start;
     std::vector<Waypoint> shortcut;
-    if (!try_append_zipline_leg(ctx, shortcut_state, target, &baseline, shortcut)) {
+    if (!try_append_zipline_leg(ctx, &shortcut_state, &shortcut, target, &baseline)) {
         return true;
     }
 
-    out_path.resize(output_begin);
-    out_path.insert(out_path.end(), std::make_move_iterator(shortcut.begin()), std::make_move_iterator(shortcut.end()));
+    out_path->resize(output_begin);
+    out_path->insert(out_path->end(), std::make_move_iterator(shortcut.begin()), std::make_move_iterator(shortcut.end()));
     // 滑索失败后要从段首重新展开整段
     stamp_authored_group(out_path, output_begin, begin);
-    state = shortcut_state;
-    if (ctx.diagnostics != nullptr) {
-        const auto first = ctx.diagnostics->begin();
-        ctx.diagnostics->erase(
+    *state = shortcut_state;
+    if (ctx->diagnostics != nullptr) {
+        const auto first = ctx->diagnostics->begin();
+        ctx->diagnostics->erase(
             first + static_cast<std::ptrdiff_t>(diagnostics_begin),
             first + static_cast<std::ptrdiff_t>(diagnostics_end));
     }
@@ -1117,31 +1131,31 @@ bool append_replaceable_span(ExpansionContext& ctx, LegState& state, size_t begi
         if (index == *target_index && IsMovementPoint(path[index])) {
             continue;
         }
-        if (!append_stamped_authored_waypoint(ctx, state, index, out_path)) {
+        if (!append_stamped_authored_waypoint(ctx, state, out_path, index)) {
             return false;
         }
     }
     return true;
 }
 
-void append_zone_declaration(LegState& state, const Waypoint& waypoint, std::vector<Waypoint>& out_path)
+void append_zone_declaration(LegState* state, std::vector<Waypoint>* out_path, const Waypoint& waypoint)
 {
-    state.current_zone = waypoint.zone_id;
-    out_path.push_back(waypoint);
+    state->current_zone = waypoint.zone_id;
+    out_path->push_back(waypoint);
 }
 
-bool append_authored_route(ExpansionContext& ctx, LegState& state, std::vector<Waypoint>& out_path)
+bool append_authored_route(ExpansionContext* ctx, LegState* state, std::vector<Waypoint>* out_path)
 {
-    const std::vector<Waypoint>& path = ctx.param.path;
+    const std::vector<Waypoint>& path = ctx->param->path;
     for (size_t index = 0; index < path.size(); ++index) {
-        if (ctx.cancelIfStopped(state)) {
+        if (cancel_if_stopped(ctx, *state)) {
             return false;
         }
-        const size_t output_begin = out_path.size();
+        const size_t output_begin = out_path->size();
         if (IsZoneDeclaration(path[index])) {
-            append_zone_declaration(state, path[index], out_path);
+            append_zone_declaration(state, out_path, path[index]);
         }
-        else if (!append_authored_waypoint(ctx, state, path[index], index, out_path)) {
+        else if (!append_authored_waypoint(ctx, state, out_path, path[index], index)) {
             return false;
         }
         stamp_authored_group(out_path, output_begin, index);
@@ -1149,21 +1163,21 @@ bool append_authored_route(ExpansionContext& ctx, LegState& state, std::vector<W
     return true;
 }
 
-bool append_route_with_zipline_shortcuts(ExpansionContext& ctx, LegState& state, std::vector<Waypoint>& out_path)
+bool append_route_with_zipline_shortcuts(ExpansionContext* ctx, LegState* state, std::vector<Waypoint>* out_path)
 {
-    const std::vector<Waypoint>& path = ctx.param.path;
+    const std::vector<Waypoint>& path = ctx->param->path;
     for (size_t index = 0; index < path.size();) {
-        if (ctx.cancelIfStopped(state)) {
+        if (cancel_if_stopped(ctx, *state)) {
             return false;
         }
         if (IsZoneDeclaration(path[index])) {
-            append_zone_declaration(state, path[index], out_path);
-            stamp_authored_group(out_path, out_path.size() - 1, index);
+            append_zone_declaration(state, out_path, path[index]);
+            stamp_authored_group(out_path, out_path->size() - 1, index);
             ++index;
             continue;
         }
         const size_t span_end = replaceable_span_end(path, index);
-        if (!append_replaceable_span(ctx, state, index, span_end, out_path)) {
+        if (!append_replaceable_span(ctx, state, out_path, index, span_end)) {
             return false;
         }
         index = span_end;
@@ -1218,16 +1232,18 @@ void PreloadNavmeshWaypoints(const NaviParam& param)
 }
 
 bool ExpandNavmeshWaypoints(
+    std::vector<Waypoint>* out_path,
+    NavmeshExpansionFailure* out_failure,
     const NaviParam& param,
     const NaviPosition& initial_pos,
     MaaContext* maa_context,
-    std::vector<Waypoint>& out_path,
     std::vector<NavmeshRouteDiagnostic>* out_diagnostics,
     const std::vector<VirtualNoGoDisc>* no_go,
     std::optional<double> start_deck_y)
 {
-    NavmeshExpansionFailure& failure = g_expansion_failure;
-    failure = {};
+    NavmeshExpansionFailure discarded_failure;
+    NavmeshExpansionFailure* failure = out_failure != nullptr ? out_failure : &discarded_failure;
+    *failure = {};
     if (out_diagnostics != nullptr) {
         out_diagnostics->clear();
     }
@@ -1236,7 +1252,7 @@ bool ExpandNavmeshWaypoints(
     const bool needs_regular_projection =
         param.normalize_position_via_navmesh && std::any_of(param.path.begin(), param.path.end(), has_explicit_coordinate_frame);
     if (!contains_navmesh && !plans_ziplines && !needs_regular_projection) {
-        out_path = param.path;
+        *out_path = param.path;
         return true;
     }
 
@@ -1250,12 +1266,12 @@ bool ExpandNavmeshWaypoints(
     };
     if (state.navmesh_zone.empty()) {
         LogError << "Failed to infer NAVMESH base zone." << VAR(state.current_zone) << VAR(param.map_name);
-        failure = zone_failure(
+        *failure = zone_failure(
             "zone_unresolved",
             std::format("无法根据当前位置区域 {} 与 map_name {} 推断 navmesh 区域", state.current_zone, param.map_name),
             state);
         if (!contains_navmesh && !needs_regular_projection) {
-            out_path = param.path;
+            *out_path = param.path;
             LogInfo << "Zipline planning unavailable; keeping the authored path.";
             return true;
         }
@@ -1268,21 +1284,21 @@ bool ExpandNavmeshWaypoints(
     const int64_t navmesh_load_ms = ElapsedMs(expand_started_at);
     if (!mesh) {
         if (!contains_navmesh && !needs_regular_projection) {
-            out_path = param.path;
+            *out_path = param.path;
             LogInfo << "Zipline navmesh unavailable; keeping the authored path." << VAR_AS(state->navmesh_zone, state.navmesh_zone);
             return true;
         }
-        failure = zone_failure(
+        *failure = zone_failure(
             "navmesh_load_failed",
             std::format("无法加载区域 {} 的 navmesh 数据（{}）", state.navmesh_zone, MAA_NS::path_to_utf8_string(navmesh_path)),
             state);
         return false;
     }
 
-    out_path.clear();
+    out_path->clear();
     ExpansionContext ctx {
-        .param = param,
-        .mesh = *mesh,
+        .param = &param,
+        .mesh = mesh.get(),
         .maa_context = maa_context,
         .diagnostics = out_diagnostics,
         .no_go = no_go,
@@ -1290,18 +1306,18 @@ bool ExpandNavmeshWaypoints(
         .failure = failure,
     };
     const bool expanded =
-        plans_ziplines ? append_route_with_zipline_shortcuts(ctx, state, out_path) : append_authored_route(ctx, state, out_path);
+        plans_ziplines ? append_route_with_zipline_shortcuts(&ctx, &state, out_path) : append_authored_route(&ctx, &state, out_path);
     if (!expanded) {
         if (out_diagnostics != nullptr) {
             out_diagnostics->clear();
         }
-        if (failure.message.empty()) {
-            failure = zone_failure("expansion_failed", "路线展开失败，未返回具体原因", state);
+        if (failure->message.empty()) {
+            *failure = zone_failure("expansion_failed", "路线展开失败，未返回具体原因", state);
         }
         return false;
     }
     size_t rope_rides = 0;
-    for (Waypoint& waypoint : out_path) {
+    for (Waypoint& waypoint : *out_path) {
         if (waypoint.rope_ride) {
             waypoint.interact_text = param.rope_interact_text;
             ++rope_rides;
@@ -1309,15 +1325,10 @@ bool ExpandNavmeshWaypoints(
     }
     const int64_t expand_total_ms = ElapsedMs(expand_started_at);
     const size_t authored_waypoints = param.path.size();
-    const size_t expanded_waypoints = out_path.size();
+    const size_t expanded_waypoints = out_path->size();
     LogInfo << "NAVMESH route expansion finished." << VAR_AS(state->navmesh_zone, state.navmesh_zone) << VAR(authored_waypoints)
             << VAR(expanded_waypoints) << VAR(rope_rides) << VAR(navmesh_load_ms) << VAR(expand_total_ms);
     return true;
-}
-
-NavmeshExpansionFailure CurrentNavmeshExpansionFailure()
-{
-    return g_expansion_failure;
 }
 
 std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
@@ -1376,19 +1387,19 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
 }
 
 bool AppendGeneratedNavmeshWaypoints(
+    std::vector<Waypoint>* out_path,
     const NaviParam& param,
     const std::string& locator_zone,
     const navmesh::BaseNavRouteResult& route,
-    std::vector<Waypoint>& out_path,
     const GeneratedWaypointOptions& options)
 {
     const ZoneNavmesh zone = LoadZoneNavmesh(param, locator_zone);
     if (!zone.mesh) {
         LogWarn << "Generated navmesh waypoints emitted without a drivability check." << VAR(locator_zone)
                 << VAR_AS(navmesh_zone, zone.navmesh_zone);
-        return append_generated_waypoints(route.path, out_path, options);
+        return append_generated_waypoints(out_path, route.path, options);
     }
-    return append_generated_waypoints(route.path, out_path, options, &zone.mesh->planner, route.path.zone_id);
+    return append_generated_waypoints(out_path, route.path, options, &zone.mesh->planner, route.path.zone_id);
 }
 
 } // namespace mapnavigator

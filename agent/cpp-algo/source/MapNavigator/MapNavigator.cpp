@@ -39,7 +39,7 @@ MaaBool MAA_CALL MapNavigateActionRun(
     LogInfo << "MapNavigateActionRun param string: " << custom_action_param;
 
     NaviParam param;
-    if (!TryParseNaviParam(custom_action_param, param)) {
+    if (!TryParseNaviParam(&param, custom_action_param)) {
         return kMaaFalse;
     }
 
@@ -47,7 +47,7 @@ MaaBool MAA_CALL MapNavigateActionRun(
         return kMaaTrue;
     }
 
-    ResolveInteractTextNodes(context, param);
+    ResolveInteractTextNodes(&param, context);
     // 读不出就留空, 本次不用升降索
     TryReadNodeInteractTexts(context, kRopeInteractTextNode, &param.rope_interact_text);
     ResetZiplineOutcome();
@@ -59,8 +59,7 @@ MaaBool MAA_CALL MapNavigateActionRun(
     // 规划在 navmesh 基础层上进行, 实时定位要先换算到基础像素坐标
     param.normalize_position_via_navmesh = true;
 
-    NaviController controller(context);
-    const bool arrived = controller.navigate(param);
+    const bool arrived = RunNavigation(context, param);
     NoticeZiplineOutcome(context);
     return arrived ? kMaaTrue : kMaaFalse;
 }

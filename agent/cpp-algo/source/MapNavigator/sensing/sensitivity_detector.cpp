@@ -12,16 +12,16 @@ namespace sensitivity
 namespace
 {
 
-std::optional<Verdict> evaluate(Detector* detector, bool log_estimate)
+std::optional<Estimate> estimate_turn_ratio(const Detector& detector)
 {
-    const size_t count = detector->samples.size();
-    if (count < static_cast<size_t>(detector->config.min_samples)) {
+    const size_t count = detector.samples.size();
+    if (count < static_cast<size_t>(detector.config.min_samples)) {
         return std::nullopt;
     }
-    std::vector<double> sorted = detector->samples;
+    std::vector<double> sorted = detector.samples;
     std::sort(sorted.begin(), sorted.end());
     const double center = static_cast<double>(count) / 2.0;
-    const double half_width = detector->config.sigma_margin * std::sqrt(static_cast<double>(count)) / 2.0;
+    const double half_width = detector.config.sigma_margin * std::sqrt(static_cast<double>(count)) / 2.0;
     const size_t low_rank = static_cast<size_t>(std::max(0.0, std::floor(center - half_width)));
     const size_t high_rank = std::min(count - 1, static_cast<size_t>(std::ceil(center + half_width)) - 1);
 
@@ -30,16 +30,18 @@ std::optional<Verdict> evaluate(Detector* detector, bool log_estimate)
     estimate.low = sorted[low_rank];
     estimate.high = sorted[high_rank];
     estimate.sample_count = static_cast<int>(count);
-    const bool too_fast = estimate.low > detector->config.overshoot_ratio && estimate.ratio <= detector->config.max_ratio;
-    const bool too_slow = estimate.high < detector->config.undershoot_ratio && estimate.ratio >= detector->config.min_ratio;
-    const bool decided = !detector->fired && (too_fast || too_slow);
-    if (log_estimate || decided) {
-        detector->last_estimate = estimate;
-    }
-    if (!decided) {
-        return std::nullopt;
-    }
+    return estimate;
+}
 
+bool verdict_due(const Detector& detector, const Estimate& estimate)
+{
+    const bool too_fast = estimate.low > detector.config.overshoot_ratio && estimate.ratio <= detector.config.max_ratio;
+    const bool too_slow = estimate.high < detector.config.undershoot_ratio && estimate.ratio >= detector.config.min_ratio;
+    return !detector.fired && (too_fast || too_slow);
+}
+
+Verdict fire_verdict(Detector* detector, const Estimate& estimate)
+{
     Verdict verdict;
     verdict.ratio = estimate.ratio;
     verdict.ratio_percent = static_cast<int>(std::lround(estimate.ratio * 100.0));
@@ -128,13 +130,33 @@ std::optional<Verdict> RecordDetectorTick(
     if (log_due) {
         detector->next_log_at *= 2;
     }
-    return evaluate(detector, log_due);
+    const std::optional<Estimate> estimate = estimate_turn_ratio(*detector);
+    if (!estimate) {
+        return std::nullopt;
+    }
+    const bool decided = verdict_due(*detector, *estimate);
+    if (log_due || decided) {
+        detector->last_estimate = *estimate;
+    }
+    if (!decided) {
+        return std::nullopt;
+    }
+    return fire_verdict(detector, *estimate);
 }
 
 std::optional<Verdict> EndDetectorRun(Detector* detector)
 {
     detector->pending.reset();
-    return evaluate(detector, true);
+    const std::optional<Estimate> estimate = estimate_turn_ratio(*detector);
+    if (!estimate) {
+        return std::nullopt;
+    }
+    const bool decided = verdict_due(*detector, *estimate);
+    detector->last_estimate = *estimate;
+    if (!decided) {
+        return std::nullopt;
+    }
+    return fire_verdict(detector, *estimate);
 }
 
 } // namespace sensitivity

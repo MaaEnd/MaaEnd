@@ -115,10 +115,9 @@ void ForgetDeviceObservation(ObstacleDeviceRecovery* recovery)
     recovery->feeding = false;
 }
 
-DeviceRemovalOutcome
-    TryRemoveDevice(ObstacleDeviceRecovery* recovery, const RouteMeasurement& route, const Waypoint& waypoint, bool attempt_available)
+DeviceRemovalOutcome TryRemoveDevice(ObstacleDeviceRecovery* recovery, const RouteMeasurement& route, const Waypoint& waypoint)
 {
-    if (recovery->maa_context == nullptr || recovery->scanner == nullptr || !attempt_available) {
+    if (recovery->maa_context == nullptr || recovery->scanner == nullptr) {
         return DeviceRemovalOutcome::NotAttempted;
     }
     if (!recovery->scanner->consumeDetection()) {
@@ -149,8 +148,8 @@ DeviceRemovalOutcome
         }
     }
 
-    if (!CaptureTracked(recovery->position_provider, recovery->position, recovery->session->current_zone_id)
-        || recovery->position_provider->last_capture_was_black_screen || !recovery->position->valid) {
+    const bool captured = CaptureTracked(recovery->position_provider, recovery->position, recovery->session->current_zone_id);
+    if (!captured || recovery->position_provider->last_capture_was_black_screen || !recovery->position->valid) {
         // 旧定位会让随后的跳跃从旧点量位移, 误报已脱困
         LogWarn << "Dynamic recovery waiting for a local tracking fix after the device move.";
         SleepFor(kTargetTickMs);

@@ -363,13 +363,15 @@ struct ZipLinkGraph
     std::vector<RopeCandidate> ropes;
 };
 
-void drop_edge(std::vector<std::vector<size_t>>& links, size_t a, size_t b)
+void erase_target(std::vector<size_t>* outgoing, size_t target)
 {
-    const auto drop = [](std::vector<size_t>& outgoing, size_t target) {
-        outgoing.erase(std::remove(outgoing.begin(), outgoing.end(), target), outgoing.end());
-    };
-    drop(links[a], b);
-    drop(links[b], a);
+    outgoing->erase(std::remove(outgoing->begin(), outgoing->end(), target), outgoing->end());
+}
+
+void drop_edge(std::vector<std::vector<size_t>>* links, size_t a, size_t b)
+{
+    erase_target(&(*links)[a], b);
+    erase_target(&(*links)[b], a);
 }
 
 // 返回拦路架到索线的垂距, nodes 须已做过通电筛选
@@ -648,18 +650,18 @@ TowerSites collect_powered_towers(const NaviParam& param, const ZiplineData& dat
 }
 
 // 平面距离和高度都要判, 可走面会在同一平面坐标上摞好几层
-void find_boarding_spots(const PlanInputs& in, TowerSites& sites)
+void find_boarding_spots(TowerSites* sites, const PlanInputs& in)
 {
-    sites.footprints.resize(sites.nodes.size());
-    sites.tower_spots.resize(sites.nodes.size());
+    sites->footprints.resize(sites->nodes.size());
+    sites->tower_spots.resize(sites->nodes.size());
     size_t out_of_reach = 0;
     size_t wrong_floor = 0;
-    for (size_t i = 0; i < sites.nodes.size(); ++i) {
-        const zipline::ZiplineNode& node = sites.nodes[i];
-        sites.footprints[i] = in.frames.footprint(node.template_id);
+    for (size_t i = 0; i < sites->nodes.size(); ++i) {
+        const zipline::ZiplineNode& node = sites->nodes[i];
+        sites->footprints[i] = in.frames.footprint(node.template_id);
         const navmesh::WorldPoint anchor = to_world(node);
         std::vector<navmesh::WorldPoint> tries { anchor };
-        for (const navmesh::WorldPoint& center : center_spots(in.frame, node, sites.footprints[i])) {
+        for (const navmesh::WorldPoint& center : center_spots(in.frame, node, sites->footprints[i])) {
             if (center.x != anchor.x || center.y != anchor.y) {
                 tries.push_back(center);
             }
@@ -674,68 +676,68 @@ void find_boarding_spots(const PlanInputs& in, TowerSites& sites)
             if (std::abs(snap->height - node.height) > navmesh::kBaseNavFloorBand) {
                 continue;
             }
-            sites.tower_spots[i].push_back(sites.spots.size());
-            sites.spots.push_back(point);
-            sites.spot_tower.push_back(i);
+            sites->tower_spots[i].push_back(sites->spots.size());
+            sites->spots.push_back(point);
+            sites->spot_tower.push_back(i);
         }
-        if (sites.tower_spots[i].empty()) {
+        if (sites->tower_spots[i].empty()) {
             ++(in_reach ? wrong_floor : out_of_reach);
         }
     }
     if (out_of_reach != 0 || wrong_floor != 0) {
         LogDebug << "ZiplineRoute: these ziplines can be ridden through but not boarded" << VAR(out_of_reach) << VAR(wrong_floor)
-                 << VAR_AS(nodes.size(), sites.nodes.size());
+                 << VAR_AS(nodes.size(), sites->nodes.size());
     }
 }
 
-void split_by_region(const PlanInputs& in, TowerSites& sites)
+void split_by_region(TowerSites* sites, const PlanInputs& in)
 {
-    std::vector<navmesh::WorldPoint> probes = sites.spots;
+    std::vector<navmesh::WorldPoint> probes = sites->spots;
     probes.push_back(in.request.start);
     probes.push_back(in.request.goal);
     const std::vector<std::vector<uint32_t>> regions = NavmeshRegionsNear(in.param, in.request.locator_zone, probes);
-    const std::vector<uint32_t>& start_regions = regions[sites.spots.size()];
-    const std::vector<uint32_t>& goal_regions = regions[sites.spots.size() + 1];
-    sites.board_spots.resize(sites.nodes.size());
-    sites.land_spots.resize(sites.nodes.size());
+    const std::vector<uint32_t>& start_regions = regions[sites->spots.size()];
+    const std::vector<uint32_t>& goal_regions = regions[sites->spots.size() + 1];
+    sites->board_spots.resize(sites->nodes.size());
+    sites->land_spots.resize(sites->nodes.size());
     size_t cut_off = 0;
-    for (size_t i = 0; i < sites.nodes.size(); ++i) {
-        for (const size_t spot : sites.tower_spots[i]) {
+    for (size_t i = 0; i < sites->nodes.size(); ++i) {
+        for (const size_t spot : sites->tower_spots[i]) {
             if (may_connect(regions[spot], start_regions)) {
-                sites.board_spots[i].push_back(spot);
+                sites->board_spots[i].push_back(spot);
             }
             if (may_connect(regions[spot], goal_regions)) {
-                sites.land_spots[i].push_back(spot);
+                sites->land_spots[i].push_back(spot);
             }
         }
-        if (!sites.tower_spots[i].empty() && sites.board_spots[i].empty() && sites.land_spots[i].empty()) {
+        if (!sites->tower_spots[i].empty() && sites->board_spots[i].empty() && sites->land_spots[i].empty()) {
             ++cut_off;
         }
     }
     if (cut_off != 0) {
         LogDebug << "ZiplineRoute: these ziplines share no walkable ground with either end" << VAR(cut_off)
-                 << VAR_AS(nodes.size(), sites.nodes.size());
+                 << VAR_AS(nodes.size(), sites->nodes.size());
     }
 }
 
 // 上不去的架子只取消上索资格, 仍可当落点
-void drop_unboardable(const NaviParam& param, TowerSites& sites)
+void drop_unboardable(TowerSites* sites, const NaviParam& param)
 {
     size_t unboardable = 0;
     for (const ZiplineHopRecord& entry : param.zipline_ledger) {
         if (entry.outcome != HopOutcome::Unboardable) {
             continue;
         }
-        for (size_t i = 0; i < sites.nodes.size(); ++i) {
-            if (!sites.board_spots[i].empty() && ToNodeRef(sites.nodes[i]).sameTower(entry.plan.mount)) {
-                sites.board_spots[i].clear();
+        for (size_t i = 0; i < sites->nodes.size(); ++i) {
+            if (!sites->board_spots[i].empty() && SameTower(ToNodeRef(sites->nodes[i]), entry.plan.mount)) {
+                sites->board_spots[i].clear();
                 ++unboardable;
             }
         }
     }
     if (unboardable != 0) {
         LogInfo << "ZiplineRoute: left out the towers the runtime never managed to board." << VAR(unboardable)
-                << VAR_AS(nodes.size(), sites.nodes.size());
+                << VAR_AS(nodes.size(), sites->nodes.size());
     }
 }
 
@@ -744,16 +746,16 @@ bool none_usable(const std::vector<std::vector<size_t>>& per_tower)
     return std::all_of(per_tower.begin(), per_tower.end(), [](const std::vector<size_t>& v) { return v.empty(); });
 }
 
-void walk_bounds(const PlanInputs& in, TowerSites& sites)
+void walk_bounds(TowerSites* sites, const PlanInputs& in)
 {
-    sites.lb_from_start.assign(sites.nodes.size(), std::numeric_limits<double>::infinity());
-    sites.lb_to_goal.assign(sites.nodes.size(), std::numeric_limits<double>::infinity());
-    for (size_t i = 0; i < sites.nodes.size(); ++i) {
-        for (const size_t spot : sites.board_spots[i]) {
-            sites.lb_from_start[i] = std::min(sites.lb_from_start[i], planar_distance(in.request.start, sites.spots[spot]));
+    sites->lb_from_start.assign(sites->nodes.size(), std::numeric_limits<double>::infinity());
+    sites->lb_to_goal.assign(sites->nodes.size(), std::numeric_limits<double>::infinity());
+    for (size_t i = 0; i < sites->nodes.size(); ++i) {
+        for (const size_t spot : sites->board_spots[i]) {
+            sites->lb_from_start[i] = std::min(sites->lb_from_start[i], planar_distance(in.request.start, sites->spots[spot]));
         }
-        for (const size_t spot : sites.land_spots[i]) {
-            sites.lb_to_goal[i] = std::min(sites.lb_to_goal[i], planar_distance(sites.spots[spot], in.request.goal));
+        for (const size_t spot : sites->land_spots[i]) {
+            sites->lb_to_goal[i] = std::min(sites->lb_to_goal[i], planar_distance(sites->spots[spot], in.request.goal));
         }
     }
 }
@@ -803,7 +805,7 @@ ZipLinkGraph build_rope_graph(const PlanInputs& in, const TowerSites& sites)
 }
 
 // 索不分上下行, 失败的跳两个方向一起封
-void ban_failed_hops(const NaviParam& param, const std::vector<zipline::ZiplineNode>& nodes, ZipLinkGraph& graph)
+void ban_failed_hops(ZipLinkGraph* graph, const NaviParam& param, const std::vector<zipline::ZiplineNode>& nodes)
 {
     if (param.zipline_ledger.empty()) {
         return;
@@ -812,8 +814,8 @@ void ban_failed_hops(const NaviParam& param, const std::vector<zipline::ZiplineN
         return std::hypot(nodes[tower].x - ref.x, nodes[tower].y - ref.y) <= kZiplineHopBanMatchWu;
     };
     std::vector<std::pair<size_t, size_t>> banned;
-    for (size_t i = 0; i < graph.all.size(); ++i) {
-        for (const size_t j : graph.all[i]) {
+    for (size_t i = 0; i < graph->all.size(); ++i) {
+        for (const size_t j : graph->all[i]) {
             if (j <= i) {
                 continue;
             }
@@ -836,8 +838,8 @@ void ban_failed_hops(const NaviParam& param, const std::vector<zipline::ZiplineN
         }
     }
     for (const auto& [a, b] : banned) {
-        drop_edge(graph.all, a, b);
-        drop_edge(graph.certain, a, b);
+        drop_edge(&graph->all, a, b);
+        drop_edge(&graph->certain, a, b);
     }
     LogInfo << "ZiplineRoute: dropped the hops the runtime already gave up on." << VAR(param.zipline_ledger.size()) << VAR(banned.size());
 }
@@ -852,6 +854,27 @@ struct Candidate
     // 链解自确定边子图, 还原链和列举备选架子须用同一张图
     bool certain = false;
 };
+
+void offer_candidate(
+    std::vector<Candidate>* candidates,
+    const PlanInputs& in,
+    const TowerSites& sites,
+    size_t mount,
+    size_t dismount,
+    double chain,
+    bool certain)
+{
+    if (!std::isfinite(chain)) {
+        return;
+    }
+    const double zip_cost = in.cost.mount_penalty - in.cost.transfer_penalty + chain;
+    const double lower_bound = sites.lb_from_start[mount] + zip_cost + sites.lb_to_goal[dismount];
+    if (lower_bound >= in.gain_threshold) {
+        return;
+    }
+    candidates->push_back(
+        Candidate { .mount = mount, .dismount = dismount, .zip_cost = zip_cost, .lower_bound = lower_bound, .certain = certain });
+}
 
 // 按下界升序, LegPicker 靠这个顺序剪枝
 std::vector<Candidate> collect_candidates(const PlanInputs& in, const TowerSites& sites, const ZipLinkGraph& graph)
@@ -872,21 +895,9 @@ std::vector<Candidate> collect_candidates(const PlanInputs& in, const TowerSites
             if (j == i || sites.land_spots[j].empty()) {
                 continue;
             }
-            const auto offer = [&](double chain, bool certain) {
-                if (!std::isfinite(chain)) {
-                    return;
-                }
-                const double zip_cost = in.cost.mount_penalty - in.cost.transfer_penalty + chain;
-                const double lower_bound = sites.lb_from_start[i] + zip_cost + sites.lb_to_goal[j];
-                if (lower_bound >= in.gain_threshold) {
-                    return;
-                }
-                candidates.push_back(
-                    Candidate { .mount = i, .dismount = j, .zip_cost = zip_cost, .lower_bound = lower_bound, .certain = certain });
-            };
-            offer(certain_cost[j], true);
+            offer_candidate(&candidates, in, sites, i, j, certain_cost[j], true);
             if (chain_cost[j] < certain_cost[j]) {
-                offer(chain_cost[j], false);
+                offer_candidate(&candidates, in, sites, i, j, chain_cost[j], false);
             }
         }
     }
@@ -1115,6 +1126,22 @@ ZiplineRoute assemble_route(const PlanInputs& in, const TowerSites& sites, const
     return route;
 }
 
+// outcome 是这条腿记进哪本账, nullptr 表示不记账
+std::optional<ZiplineRoute>
+    no_zipline(const ZiplineLegRequest& request, bool walking_baseline_available, const char* why, bool ZiplineOutcome::* outcome)
+{
+    if (walking_baseline_available) {
+        LogInfo << "ZiplineRoute: walking this leg instead." << VAR(why) << VAR_AS(navmesh_zone, request.navmesh_zone);
+    }
+    else {
+        LogInfo << "ZiplineRoute: no bridge for the disconnected walking leg." << VAR(why) << VAR_AS(navmesh_zone, request.navmesh_zone);
+    }
+    if (outcome) {
+        g_outcome.*outcome = true;
+    }
+    return std::nullopt;
+}
+
 } // namespace
 
 ZiplineNodeRef ToNodeRef(const zipline::ZiplineNode& node)
@@ -1149,29 +1176,14 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
 
     const bool walking_baseline_available = request.walking_path != nullptr && !request.walking_path->points.empty();
 
-    // outcome 是这条腿记进哪本账, nullptr 表示不记账
-    const auto no_zipline = [&](const char* why, bool ZiplineOutcome::*outcome) -> std::optional<ZiplineRoute> {
-        if (walking_baseline_available) {
-            LogInfo << "ZiplineRoute: walking this leg instead." << VAR(why) << VAR_AS(navmesh_zone, request.navmesh_zone);
-        }
-        else {
-            LogInfo << "ZiplineRoute: no bridge for the disconnected walking leg." << VAR(why)
-                    << VAR_AS(navmesh_zone, request.navmesh_zone);
-        }
-        if (outcome) {
-            g_outcome.*outcome = true;
-        }
-        return std::nullopt;
-    };
-
     const std::shared_ptr<const ZiplineData> data = shared_data();
     if (!data->ok || data->frames.empty()) {
-        return no_zipline("no zipline calibration on disk", &ZiplineOutcome::no_data);
+        return no_zipline(request, walking_baseline_available, "no zipline calibration on disk", &ZiplineOutcome::no_data);
     }
 
     const zipline::ZiplineFrame* frame = data->frames.findByZone(request.navmesh_zone);
     if (!frame) {
-        return no_zipline("this zone is not calibrated", nullptr);
+        return no_zipline(request, walking_baseline_available, "this zone is not calibrated", nullptr);
     }
 
     // 每段路都会来问一次, 短路先挡掉, 缺账号和缺坐标只在值得坐滑索的路上才算数
@@ -1179,7 +1191,11 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
     const double baseline_length = walking_baseline_available ? polyline_length(*request.walking_path) : 0.0;
     const double gain_threshold = walking_baseline_available ? baseline_length - cost.min_gain : std::numeric_limits<double>::infinity();
     if (walking_baseline_available && gain_threshold <= cost.mount_penalty) {
-        return no_zipline("the walk is too short for any zipline to pay off", &ZiplineOutcome::not_chosen);
+        return no_zipline(
+            request,
+            walking_baseline_available,
+            "the walk is too short for any zipline to pay off",
+            &ZiplineOutcome::not_chosen);
     }
 
     if (param.zipline_account_id.empty()) {
@@ -1189,7 +1205,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
 
     TowerSites sites = collect_powered_towers(param, *data, *frame);
     if (sites.nodes.size() < 2) {
-        return no_zipline("no powered ziplines recorded in this zone", &ZiplineOutcome::no_data);
+        return no_zipline(request, walking_baseline_available, "no powered ziplines recorded in this zone", &ZiplineOutcome::no_data);
     }
 
     const PlanInputs in {
@@ -1200,24 +1216,32 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
         .cost = cost,
         .gain_threshold = gain_threshold,
     };
-    find_boarding_spots(in, sites);
+    find_boarding_spots(&sites, in);
     if (sites.spots.empty()) {
-        return no_zipline("not one zipline here can be walked up to", &ZiplineOutcome::not_chosen);
+        return no_zipline(request, walking_baseline_available, "not one zipline here can be walked up to", &ZiplineOutcome::not_chosen);
     }
 
-    split_by_region(in, sites);
-    drop_unboardable(param, sites);
+    split_by_region(&sites, in);
+    drop_unboardable(&sites, param);
     if (none_usable(sites.board_spots) || none_usable(sites.land_spots)) {
-        return no_zipline("no zipline can be boarded from here, or none of them lands near the destination", &ZiplineOutcome::not_chosen);
+        return no_zipline(
+            request,
+            walking_baseline_available,
+            "no zipline can be boarded from here, or none of them lands near the destination",
+            &ZiplineOutcome::not_chosen);
     }
 
-    walk_bounds(in, sites);
+    walk_bounds(&sites, in);
     ZipLinkGraph graph = build_rope_graph(in, sites);
-    ban_failed_hops(param, sites.nodes, graph);
+    ban_failed_hops(&graph, param, sites.nodes);
 
     const std::vector<Candidate> candidates = collect_candidates(in, sites, graph);
     if (candidates.empty()) {
-        return no_zipline("no reachable pair of ziplines leads anywhere useful", &ZiplineOutcome::not_chosen);
+        return no_zipline(
+            request,
+            walking_baseline_available,
+            "no reachable pair of ziplines leads anywhere useful",
+            &ZiplineOutcome::not_chosen);
     }
 
     LegPicker picker;
@@ -1229,6 +1253,8 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
     }
     if (!picker.best) {
         return no_zipline(
+            request,
+            walking_baseline_available,
             walking_baseline_available ? "no zipline route beats walking" : "no feasible zipline bridge to target",
             picker.truncated || picker.interrupted ? nullptr : &ZiplineOutcome::not_chosen);
     }

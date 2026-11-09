@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <array>
 #include <chrono>
 #include <limits>
@@ -10,7 +9,6 @@
 
 #include <meojson/json.hpp>
 
-#include "navi_config.h"
 #include "navi_position.h"
 #include "zipline/zipline_types.h"
 
@@ -53,76 +51,10 @@ struct ActionTraits
     double commit_distance = 0.0;    // 判定圈下限 px, 0 = 不放宽
 };
 
-constexpr ActionTraits TraitsOf(ActionType action)
-{
-    switch (action) {
-    case ActionType::RUN:
-        return { .settles_at_arrival = true, .walk_approach = true };
-    case ActionType::SPRINT:
-        return { .strict_arrival = true, .settles_at_arrival = true };
-    case ActionType::JUMP:
-        return { .strict_arrival = true, .settles_at_arrival = true };
-    case ActionType::FIGHT:
-        return { .strict_arrival = true, .settles_at_arrival = true };
-    case ActionType::INTERACT:
-        return { .strict_arrival = true, .settles_at_arrival = true, .walk_approach = true };
-    case ActionType::TRANSFER:
-        return { .strict_arrival = true, .settles_at_arrival = true };
-    // 不做末端纠正, 纠正途中就可能被跳板弹走
-    case ActionType::JUMP_PAD:
-        return { .strict_arrival = true, .walk_approach = true };
-    case ActionType::PORTAL:
-        return { .strict_arrival = true, .commit_distance = kPortalCommitDistance };
-    case ActionType::HEADING:
-        return {};
-    case ActionType::NAVMESH:
-        return { .strict_arrival = true, .settles_at_arrival = true, .walk_approach = true };
-    case ActionType::ZONE:
-        return {};
-    case ActionType::COLLECT:
-        return { .walk_approach = true };
-    case ActionType::DIG:
-        return {
-            .strict_arrival = true,
-            .settles_at_arrival = true,
-            .walk_approach = true,
-            .walk_at_startup = true,
-        };
-    case ActionType::FIND:
-        return { .walk_approach = true };
-    case ActionType::ZIPLINE:
-        return { .strict_arrival = true, .walk_approach = true };
-    case ActionType::TRIGGER:
-        return { .strict_arrival = true, .settles_at_arrival = true };
-    }
-    return {};
-}
+ActionTraits TraitsOf(ActionType action);
 
 // 执行后可能留下挡住小地图的界面
-constexpr bool MayOpenUi(ActionType action)
-{
-    switch (action) {
-    case ActionType::RUN:
-    case ActionType::SPRINT:
-    case ActionType::JUMP:
-    case ActionType::HEADING:
-    case ActionType::NAVMESH:
-    case ActionType::ZONE:
-        return false;
-    case ActionType::FIGHT:
-    case ActionType::INTERACT:
-    case ActionType::TRANSFER:
-    case ActionType::JUMP_PAD:
-    case ActionType::PORTAL:
-    case ActionType::COLLECT:
-    case ActionType::DIG:
-    case ActionType::FIND:
-    case ActionType::ZIPLINE:
-    case ActionType::TRIGGER:
-        return true;
-    }
-    return true;
-}
+bool MayOpenUi(ActionType action);
 
 // 从绳底交互坐上去, ride_s 秒后站在 top_height 那层
 struct RopeRideInfo
@@ -193,148 +125,49 @@ struct Waypoint
     size_t authored_group_begin = std::numeric_limits<size_t>::max();
 };
 
-inline bool RequiresStrictArrival(const Waypoint& waypoint)
-{
-    return waypoint.has_position && (waypoint.strict_arrival || TraitsOf(waypoint.action).strict_arrival);
-}
+bool RequiresStrictArrival(const Waypoint& waypoint);
 
-inline double GetLookahead(const Waypoint& waypoint)
-{
-    if (!waypoint.has_position) {
-        return 0.0;
-    }
-    if (RequiresStrictArrival(waypoint)) {
-        return kStrictArrivalLookaheadRadius;
-    }
-    return kLookaheadRadius;
-}
+double GetLookahead(const Waypoint& waypoint);
 
 // 只给 interact_scan 不给文本的点不算异步交互, 共用节点里的占位文本认不出东西
-inline bool IsAsyncInteract(const Waypoint& waypoint)
-{
-    return waypoint.action == ActionType::INTERACT && !waypoint.interact_text.empty();
-}
+bool IsAsyncInteract(const Waypoint& waypoint);
 
 // 不看文本, 否则文本解析失败的点会退回到点连按交互键
-inline bool IsRecInteract(const Waypoint& waypoint)
-{
-    return waypoint.action == ActionType::INTERACT && waypoint.interact_rec;
-}
+bool IsRecInteract(const Waypoint& waypoint);
 
 // 上索点也认提示, 但只有链首要认, 那道收紧在状态机里
-inline bool StopsOnPromptDetection(const Waypoint& waypoint)
-{
-    return waypoint.action == ActionType::COLLECT || IsAsyncInteract(waypoint);
-}
+bool StopsOnPromptDetection(const Waypoint& waypoint);
 
-inline double BaseArrivalBand(const Waypoint& waypoint, double position_quantum)
-{
-    const bool strict = RequiresStrictArrival(waypoint);
-    return strict ? GetLookahead(waypoint) + position_quantum : GetLookahead(waypoint) + kWaypointArrivalSlack + position_quantum;
-}
+double BaseArrivalBand(const Waypoint& waypoint, double position_quantum);
 
-inline double ClampArrivalBandToCorridor(const Waypoint& waypoint, double band)
-{
-    if (RequiresStrictArrival(waypoint) || waypoint.corridor_clearance <= 0.0) {
-        return band;
-    }
-    return std::min(band, std::max(waypoint.corridor_clearance, kMinArrivalBand));
-}
+double ClampArrivalBandToCorridor(const Waypoint& waypoint, double band);
 
-inline double ArrivalBand(const Waypoint& waypoint, double position_quantum)
-{
-    double band = BaseArrivalBand(waypoint, position_quantum);
-    if (StopsOnPromptDetection(waypoint)) {
-        band = std::min(band, kCollectArrivalBandWu);
-    }
-    return ClampArrivalBandToCorridor(waypoint, band);
-}
+double ArrivalBand(const Waypoint& waypoint, double position_quantum);
 
-inline double UntightenedArrivalBand(const Waypoint& waypoint, double position_quantum)
-{
-    return ClampArrivalBandToCorridor(waypoint, BaseArrivalBand(waypoint, position_quantum));
-}
+double UntightenedArrivalBand(const Waypoint& waypoint, double position_quantum);
 
-inline bool SettlesAtArrival(const Waypoint& waypoint)
-{
-    if (!waypoint.has_position || !TraitsOf(waypoint.action).settles_at_arrival) {
-        return false;
-    }
-    if (waypoint.action == ActionType::INTERACT) {
-        return !IsAsyncInteract(waypoint);
-    }
-    return waypoint.authored_strict_arrival;
-}
+bool SettlesAtArrival(const Waypoint& waypoint);
 
-inline bool IsContinuousRun(const Waypoint& waypoint)
-{
-    return waypoint.has_position && waypoint.action == ActionType::RUN && !RequiresStrictArrival(waypoint);
-}
+bool IsContinuousRun(const Waypoint& waypoint);
 
-inline bool IsHeadingOnly(const Waypoint& waypoint)
-{
-    return waypoint.action == ActionType::HEADING;
-}
+bool IsHeadingOnly(const Waypoint& waypoint);
 
-inline bool IsFindPoint(const Waypoint& waypoint)
-{
-    return waypoint.action == ActionType::FIND;
-}
+bool IsFindPoint(const Waypoint& waypoint);
 
-inline bool IsTriggerPoint(const Waypoint& waypoint)
-{
-    return waypoint.action == ActionType::TRIGGER;
-}
+bool IsTriggerPoint(const Waypoint& waypoint);
 
-inline bool IsMovementPoint(const Waypoint& waypoint)
-{
-    return waypoint.action == ActionType::RUN || waypoint.action == ActionType::NAVMESH;
-}
+bool IsMovementPoint(const Waypoint& waypoint);
 
 // 滑索只顶替两个边界之间的走路, 动作点和 required 点都是边界
-inline bool EndsReplaceableSpan(const Waypoint& waypoint)
-{
-    return waypoint.route_required || !IsMovementPoint(waypoint);
-}
+bool EndsReplaceableSpan(const Waypoint& waypoint);
 
-inline bool IsZoneDeclaration(const Waypoint& waypoint)
-{
-    return waypoint.action == ActionType::ZONE;
-}
+bool IsZoneDeclaration(const Waypoint& waypoint);
 
-inline Waypoint HeadingWaypoint(double angle)
-{
-    Waypoint waypoint;
-    waypoint.action = ActionType::HEADING;
-    waypoint.has_position = false;
-    waypoint.strict_arrival = false;
-    waypoint.heading_uses_target = false;
-    waypoint.heading_angle = angle;
-    return waypoint;
-}
+Waypoint HeadingWaypoint(double angle);
 
-inline Waypoint HeadingToTargetWaypoint(double target_x, double target_y)
-{
-    Waypoint waypoint;
-    waypoint.x = target_x;
-    waypoint.y = target_y;
-    waypoint.action = ActionType::HEADING;
-    waypoint.has_position = false;
-    waypoint.strict_arrival = false;
-    waypoint.heading_uses_target = true;
-    waypoint.heading_angle = 0.0;
-    return waypoint;
-}
+Waypoint HeadingToTargetWaypoint(double target_x, double target_y);
 
-inline Waypoint ZoneWaypoint(std::string zone)
-{
-    Waypoint waypoint;
-    waypoint.action = ActionType::ZONE;
-    waypoint.has_position = false;
-    waypoint.strict_arrival = false;
-    waypoint.zone_id = std::move(zone);
-    return waypoint;
-}
+Waypoint ZoneWaypoint(std::string zone);
 
 struct TurnCommandResult
 {

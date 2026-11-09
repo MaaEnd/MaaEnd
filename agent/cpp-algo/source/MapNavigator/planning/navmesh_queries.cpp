@@ -60,20 +60,20 @@ std::optional<bool> point_on_mesh(const ZoneNavmesh& zone, const navmesh::WorldP
 
 } // namespace
 
-void NormalizeLivePositionToBase(const NaviParam& param, NaviPosition& pos)
+void NormalizeLivePositionToBase(NaviPosition* pos, const NaviParam& param)
 {
-    if (pos.zone_id.empty()) {
+    if (pos->zone_id.empty()) {
         return;
     }
-    const ZoneNavmesh zone = LoadZoneNavmesh(param, pos.zone_id);
+    const ZoneNavmesh zone = LoadZoneNavmesh(param, pos->zone_id);
     if (!zone.mesh) {
         return;
     }
-    const auto projection = zone.mesh->pack.projectToBase(pos.zone_id, pos.x, pos.y);
+    const auto projection = zone.mesh->pack.projectToBase(pos->zone_id, pos->x, pos->y);
     if (projection && projection->was_tier) {
         // zone_id 保持定位器命名, 区域校验要拿它比对
-        pos.x = projection->x;
-        pos.y = projection->y;
+        pos->x = projection->x;
+        pos->y = projection->y;
     }
 }
 

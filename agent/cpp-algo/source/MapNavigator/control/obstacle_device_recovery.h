@@ -60,7 +60,6 @@ void UpdateDeviceFeeding(ObstacleDeviceRecovery* recovery, int64_t stalled_ms, b
 // 锚点变化时调用方须清掉旧的命中
 void ForgetDeviceObservation(ObstacleDeviceRecovery* recovery);
 
-DeviceRemovalOutcome
-    TryRemoveDevice(ObstacleDeviceRecovery* recovery, const RouteMeasurement& route, const Waypoint& waypoint, bool attempt_available);
+DeviceRemovalOutcome TryRemoveDevice(ObstacleDeviceRecovery* recovery, const RouteMeasurement& route, const Waypoint& waypoint);
 
 } // namespace mapnavigator

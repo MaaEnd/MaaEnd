@@ -2,7 +2,6 @@
 
 #include <chrono>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -10,7 +9,7 @@
 
 #include "../control/obstacle_device_recovery.h"
 #include "../control/walk_mode.h"
-#include "../navi_controller.h"
+#include "../navi_param.h"
 #include "../planning/nav_run_controller.h"
 #include "../planning/navigation_session.h"
 #include "../semantic/async_prompt_action.h"
@@ -35,7 +34,6 @@ struct Navigator
     Session* session = nullptr;
     Motion* motion_controller = nullptr;
     NaviPosition* position = nullptr;
-    std::function<bool()> should_stop {};
     MaaContext* maa_context = nullptr;
     NavigationRuntimeState runtime_state {};
     NavRun nav_run {};
@@ -64,7 +62,6 @@ Navigator MakeNavigator(
     Session* session,
     Motion* motion_controller,
     NaviPosition* position,
-    std::function<bool()> should_stop,
     MaaContext* maa_context);
 bool RunNavigator(Navigator* nav);
 void AdvanceHeadingEpochOnPhaseChange(Navigator* nav, NaviPhase phase);

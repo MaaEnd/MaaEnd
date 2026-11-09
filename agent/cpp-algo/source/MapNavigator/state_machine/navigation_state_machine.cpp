@@ -17,6 +17,7 @@
 #include "../sensing/latency_observer.h"
 #include "../sensing/position_provider.h"
 #include "../sensing/sensitivity_observer.h"
+#include "../sensing/task_stop.h"
 #include "bootstrap.h"
 #include "internal.h"
 #include "localization.h"
@@ -197,7 +198,6 @@ Navigator MakeNavigator(
     Session* session,
     Motion* motion_controller,
     NaviPosition* position,
-    std::function<bool()> should_stop,
     MaaContext* maa_context)
 {
     return Navigator {
@@ -207,7 +207,6 @@ Navigator MakeNavigator(
         .session = session,
         .motion_controller = motion_controller,
         .position = position,
-        .should_stop = std::move(should_stop),
         .maa_context = maa_context,
         .collect_prompt = MakeAsyncPromptAction(kCollectPromptSpec, maa_context, session, position),
         .interact_prompt = MakeAsyncPromptAction(kInteractPromptSpec, maa_context, session, position),
@@ -230,7 +229,7 @@ bool RunNavigator(Navigator* nav)
 
     StartScanners(nav);
 
-    while (!nav->should_stop() && nav->session->phase != NaviPhase::Finished && nav->session->phase != NaviPhase::Failed) {
+    while (!TaskStopping(nav->maa_context) && nav->session->phase != NaviPhase::Finished && nav->session->phase != NaviPhase::Failed) {
         const NaviPhase phase = nav->session->phase;
         AdvanceHeadingEpochOnPhaseChange(nav, phase);
         if (!TickPhase(nav, phase)) {
@@ -241,7 +240,7 @@ bool RunNavigator(Navigator* nav)
         }
     }
 
-    if (!nav->should_stop() && nav->session->phase != NaviPhase::Failed) {
+    if (!TaskStopping(nav->maa_context) && nav->session->phase != NaviPhase::Failed) {
         if (FinalSuccessReady(*nav->session, *nav->position)) {
             CommitFinalSuccess(nav->session, *nav->position, "navigation_complete");
         }
@@ -252,7 +251,7 @@ bool RunNavigator(Navigator* nav)
     StopScanners(nav);
     HoldPosition(nav->motion_controller);
 
-    const bool succeeded = !nav->should_stop() && nav->session->success;
+    const bool succeeded = !TaskStopping(nav->maa_context) && nav->session->success;
     sensitivity::EndRun(nav->maa_context);
     return succeeded;
 }

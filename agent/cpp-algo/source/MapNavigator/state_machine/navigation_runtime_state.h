@@ -29,26 +29,11 @@ struct RouteTrackerState
     bool startup_motion_confirmed = false;
 };
 
-inline void ResetRouteTracking(RouteTrackerState* route)
-{
-    route->passed_waypoint_idx = std::numeric_limits<size_t>::max();
-    route->passed_waypoint_latched = false;
-    route->best_projection_on_segment = 0.0;
-    route->last_segment_from_idx = std::numeric_limits<size_t>::max();
-    route->last_segment_to_idx = std::numeric_limits<size_t>::max();
-}
+void ResetRouteTracking(RouteTrackerState* route);
 
-inline void RestartRouteTracking(RouteTrackerState* route)
-{
-    *route = {};
-}
+void RestartRouteTracking(RouteTrackerState* route);
 
-inline void ConfirmStartupAt(RouteTrackerState* route, const NaviPosition& position)
-{
-    route->startup_anchor_pos = position;
-    route->startup_anchor_initialized = true;
-    route->startup_motion_confirmed = true;
-}
+void ConfirmStartupAt(RouteTrackerState* route, const NaviPosition& position);
 
 struct FlowState
 {
@@ -72,11 +57,7 @@ struct FlowState
     bool corner_walk = false;
 };
 
-inline void ResetStallCounters(FlowState* flow)
-{
-    flow->motionless_hold_ticks = 0;
-    flow->futile_forward_reasserts = 0;
-}
+void ResetStallCounters(FlowState* flow);
 
 // pad 的 x/y 是板心, zone_id 是起跳所在区
 struct JumpPadState
@@ -112,10 +93,7 @@ struct PortalTransitState
     std::chrono::steady_clock::time_point started {};
 };
 
-inline bool IsPortalTransitActive(const PortalTransitState& portal)
-{
-    return portal.phase != PortalTransitPhase::Idle;
-}
+bool IsPortalTransitActive(const PortalTransitState& portal);
 
 struct RopeRideState
 {
@@ -143,19 +121,9 @@ struct DynamicRecoveryState
     bool active = false;
 };
 
-inline void RestartDynamicRecovery(DynamicRecoveryState* recovery, const NaviPosition& position, size_t anchor, TimePoint now)
-{
-    *recovery = {};
-    recovery->active = true;
-    recovery->anchor_pos = position;
-    recovery->started_at = now;
-    recovery->anchor_index = anchor;
-}
+void RestartDynamicRecovery(DynamicRecoveryState* recovery, const NaviPosition& position, size_t anchor, TimePoint now);
 
-inline void ClearDynamicRecovery(DynamicRecoveryState* recovery)
-{
-    *recovery = {};
-}
+void ClearDynamicRecovery(DynamicRecoveryState* recovery);
 
 // FIND 的进度。按点计: 推进点位或重开导航就清
 struct FindState
@@ -186,11 +154,7 @@ struct RecoveryEscalationState
     std::string blocked_reason;
 };
 
-inline void RetargetRecoveryEscalation(RecoveryEscalationState* escalation, size_t anchor)
-{
-    *escalation = {};
-    escalation->anchor_index = anchor;
-}
+void RetargetRecoveryEscalation(RecoveryEscalationState* escalation, size_t anchor);
 
 struct LocalizationLossState
 {
@@ -213,13 +177,7 @@ struct RiverFallRecoveryState
     bool turned = false;
 };
 
-inline void ArmRiverFallRecovery(RiverFallRecoveryState* river_fall, const NaviPosition& position, double heading)
-{
-    *river_fall = {};
-    river_fall->pending = true;
-    river_fall->anchor_pos = position;
-    river_fall->water_heading = heading;
-}
+void ArmRiverFallRecovery(RiverFallRecoveryState* river_fall, const NaviPosition& position, double heading);
 
 // 清 recovery 时不清它, 同一处反复脱困时方向会轮换
 struct LateralBypassState
@@ -229,12 +187,7 @@ struct LateralBypassState
     bool active = false;
 };
 
-inline void BeginLateralBypass(LateralBypassState* bypass, const NaviPosition& position)
-{
-    bypass->active = true;
-    bypass->origin = position;
-    bypass->count = 0;
-}
+void BeginLateralBypass(LateralBypassState* bypass, const NaviPosition& position);
 
 // cmd_* 只用于诊断
 struct SteeringRateState
@@ -281,62 +234,17 @@ enum class WedgeAction
     Fail,
 };
 
-inline void PauseWedge(OffRouteWedgeState* wedge, TimePoint now)
-{
-    if (wedge->active && wedge->blind_since == std::chrono::steady_clock::time_point {}) {
-        wedge->blind_since = now;
-    }
-}
+void PauseWedge(OffRouteWedgeState* wedge, TimePoint now);
 
 // 返回扣掉的盲区毫秒数, 没暂停过返回 0
-inline int64_t ResumeWedge(OffRouteWedgeState* wedge, TimePoint now)
-{
-    if (wedge->blind_since == std::chrono::steady_clock::time_point {}) {
-        return 0;
-    }
-    const auto blind = now - wedge->blind_since;
-    wedge->since += blind;
-    if (wedge->last_replan_at != std::chrono::steady_clock::time_point {}) {
-        wedge->last_replan_at += blind;
-    }
-    wedge->blind_since = {};
-    return std::chrono::duration_cast<std::chrono::milliseconds>(blind).count();
-}
+int64_t ResumeWedge(OffRouteWedgeState* wedge, TimePoint now);
 
 // 换了走廊后 best_distance 下一拍重取, 计时照走
-inline void DropWedgeBaseline(OffRouteWedgeState* wedge)
-{
-    wedge->best_distance = std::numeric_limits<double>::max();
-}
+void DropWedgeBaseline(OffRouteWedgeState* wedge);
 
-inline bool HasWedgeBaseline(const OffRouteWedgeState& wedge)
-{
-    return wedge.best_distance != std::numeric_limits<double>::max();
-}
+bool HasWedgeBaseline(const OffRouteWedgeState& wedge);
 
-inline WedgeAction StepWedge(OffRouteWedgeState* wedge, double progress, TimePoint now)
-{
-    const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
-    const bool retaking_baseline = wedge->active && !HasWedgeBaseline(*wedge);
-    if (!wedge->active || retaking_baseline || progress + progress_epsilon < wedge->best_distance) {
-        wedge->active = true;
-        wedge->best_distance = progress;
-        if (!retaking_baseline) {
-            wedge->since = now;
-        }
-    }
-    const int64_t wedge_ms = ElapsedMs(wedge->since, now);
-    if (wedge_ms >= kOffRouteWedgeFailMs) {
-        return WedgeAction::Fail;
-    }
-    const bool replan_cooling =
-        wedge->last_replan_at.time_since_epoch().count() > 0 && ElapsedMs(wedge->last_replan_at, now) < kOffRouteWedgeReplanCooldownMs;
-    if (wedge_ms >= kOffRouteWedgeReplanMs && !replan_cooling) {
-        wedge->last_replan_at = now;
-        return WedgeAction::Replan;
-    }
-    return WedgeAction::None;
-}
+WedgeAction StepWedge(OffRouteWedgeState* wedge, double progress, TimePoint now);
 
 // 在一个固定的世界坐标圆里待了多久, 只在相邻两次有效取位之间累计
 struct DwellWatchdogState
@@ -369,23 +277,10 @@ struct ZiplineApproachState
     ZiplineNodeRef spot_tower;
 };
 
-inline void RetargetZiplineApproach(ZiplineApproachState* approach, size_t anchor)
-{
-    approach->anchor_index = anchor;
-    approach->replans = 0;
-    approach->press_missed = false;
-    approach->spot_index = 0;
-}
+void RetargetZiplineApproach(ZiplineApproachState* approach, size_t anchor);
 
 // 游标只对 spot_tower 那根架子有效, 换了架子从头试
-inline void FollowMountTower(ZiplineApproachState* approach, const ZiplineNodeRef& mount)
-{
-    if (!approach->spot_tower.sameTower(mount)) {
-        approach->spot_tower = mount;
-        approach->spot_index = 0;
-        approach->press_missed = false;
-    }
-}
+void FollowMountTower(ZiplineApproachState* approach, const ZiplineNodeRef& mount);
 
 // 到点认空过一次的交互点, 身份记 canonical 下标
 struct InteractApproachState
@@ -395,10 +290,7 @@ struct InteractApproachState
     std::chrono::steady_clock::time_point missed_at {};
 };
 
-inline bool PromptMissedAt(const InteractApproachState& approach, const std::optional<size_t>& node)
-{
-    return node.has_value() && approach.prompt_missed_node == node;
-}
+bool PromptMissedAt(const InteractApproachState& approach, const std::optional<size_t>& node);
 
 struct PromptRepeatState
 {
@@ -416,13 +308,7 @@ struct ZiplineRecoveryState
     bool pending = false;
 };
 
-inline void BeginZiplineRecovery(ZiplineRecoveryState* recovery, TimePoint now)
-{
-    recovery->started_at = now;
-    recovery->stable_pos = {};
-    recovery->stable_hits = 0;
-    recovery->pending = true;
-}
+void BeginZiplineRecovery(ZiplineRecoveryState* recovery, TimePoint now);
 
 struct NavigationRuntimeState
 {
@@ -462,113 +348,29 @@ struct NavigationRuntimeState
     ProgressIdentityState progress_identity;
 };
 
-inline void ArmCameraAlign(NavigationRuntimeState* runtime)
-{
-    runtime->camera_align_pending = true;
-}
+void ArmCameraAlign(NavigationRuntimeState* runtime);
 
-inline void ClearCameraAlignRequest(NavigationRuntimeState* runtime)
-{
-    runtime->camera_align_pending = false;
-}
+void ClearCameraAlignRequest(NavigationRuntimeState* runtime);
 
-inline void RequestDynamicReplan(NavigationRuntimeState* runtime)
-{
-    runtime->dynamic_replan_requested = true;
-}
+void RequestDynamicReplan(NavigationRuntimeState* runtime);
 
-inline void ClearDynamicReplanRequest(NavigationRuntimeState* runtime)
-{
-    runtime->dynamic_replan_requested = false;
-}
+void ClearDynamicReplanRequest(NavigationRuntimeState* runtime);
 
-inline void MarkNavRunDirty(NavigationRuntimeState* runtime)
-{
-    runtime->nav_run_dirty = true;
-}
+void MarkNavRunDirty(NavigationRuntimeState* runtime);
 
-inline void ClearNavRunDirty(NavigationRuntimeState* runtime)
-{
-    runtime->nav_run_dirty = false;
-}
+void ClearNavRunDirty(NavigationRuntimeState* runtime);
 
-inline void CountGlobalReacquire(NavigationRuntimeState* runtime)
-{
-    ++runtime->global_reacquire_streak;
-}
+void CountGlobalReacquire(NavigationRuntimeState* runtime);
 
-inline void ResetGlobalReacquireStreak(NavigationRuntimeState* runtime)
-{
-    runtime->global_reacquire_streak = 0;
-}
+void ResetGlobalReacquireStreak(NavigationRuntimeState* runtime);
 
-inline void ResetNavigationAssistState(NavigationRuntimeState* runtime)
-{
-    ResetRouteTracking(&runtime->route);
-    ClearDynamicRecovery(&runtime->recovery);
-    runtime->recovery_escalation = {};
-    runtime->steering_rate = {};
-    runtime->offroute = {};
-    runtime->zipline_recovery = {};
-    ClearDynamicReplanRequest(runtime);
-    MarkNavRunDirty(runtime);
-}
+void ResetNavigationAssistState(NavigationRuntimeState* runtime);
 
-inline void BeginNavigation(NavigationRuntimeState* runtime, TimePoint now)
-{
-    RestartRouteTracking(&runtime->route);
-    runtime->semantic = {};
-    ClearDynamicRecovery(&runtime->recovery);
-    runtime->recovery_escalation = {};
-    runtime->localization_loss = {};
-    runtime->scene_recovery_attempted = false;
-    runtime->river_fall = {};
-    runtime->bypass = {};
-    runtime->steering_rate = {};
-    runtime->offroute = {};
-    runtime->dwell = {};
-    runtime->zipline_approach = {};
-    runtime->interact_approach.prompt_missed_node.reset();
-    runtime->prompt_repeat = {};
-    runtime->zipline_recovery = {};
-    runtime->find = {};
-    runtime->trigger = {};
-    ResetZiplineNavigation(&runtime->zipline_ride);
-    runtime->virtual_no_go.clear();
-    runtime->progress_identity = {};
-    ResetGlobalReacquireStreak(runtime);
-    ClearDynamicReplanRequest(runtime);
-    MarkNavRunDirty(runtime);
-    ArmCameraAlign(runtime);
-    runtime->flow.navigate_started_at = now;
-    runtime->flow.last_auto_sprint_time = {};
-    runtime->flow.last_tick_started_at = {};
-    runtime->flow.steer_periods_ms.clear();
-    runtime->flow.last_steer_tick_at = {};
-    runtime->flow.braked_corner.reset();
-    runtime->flow.corner_walk = false;
-}
+void BeginNavigation(NavigationRuntimeState* runtime, TimePoint now);
 
-inline void ResetOnWaypointAdvance(NavigationRuntimeState* runtime)
-{
-    ResetRouteTracking(&runtime->route);
-    ClearDynamicRecovery(&runtime->recovery);
-    runtime->recovery_escalation = {};
-    runtime->river_fall = {};
-    runtime->bypass = {};
-    runtime->offroute = {};
-    runtime->zipline_recovery = {};
-    runtime->find = {};
-    ResetGlobalReacquireStreak(runtime);
-    ClearDynamicReplanRequest(runtime);
-    MarkNavRunDirty(runtime);
-    runtime->flow.last_auto_sprint_time = {};
-}
+void ResetOnWaypointAdvance(NavigationRuntimeState* runtime);
 
 // 人站在滑索架上。这时移动指令会被架子吃掉, 上索提示也不用再认
-inline bool IsZiplineMounted(const NavigationRuntimeState& runtime)
-{
-    return ZiplineOnTower(runtime.zipline_ride);
-}
+bool IsZiplineMounted(const NavigationRuntimeState& runtime);
 
 } // namespace mapnavigator

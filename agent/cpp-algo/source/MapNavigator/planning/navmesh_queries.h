@@ -16,7 +16,7 @@ namespace mapnavigator
 struct NaviParam;
 
 // 原地把 tier 模板像素坐标换算到 navmesh 底图像素系, 其他 zone 原样不动
-void NormalizeLivePositionToBase(const NaviParam& param, NaviPosition& pos);
+void NormalizeLivePositionToBase(NaviPosition* pos, const NaviParam& param);
 
 // distance 是平面距离, height 与 BaseNavRouteRequest::floor_y 同一量纲
 struct NavmeshSnap

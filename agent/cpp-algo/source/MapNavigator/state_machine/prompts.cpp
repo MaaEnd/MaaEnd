@@ -21,6 +21,7 @@
 #include "../sensing/position_provider.h"
 #include "../sensing/prompt_scan_profile.h"
 #include "../sensing/roi_template_scanner.h"
+#include "../sensing/task_stop.h"
 #include "../zipline/zipline_action.h"
 #include "internal.h"
 #include "localization.h"
@@ -89,8 +90,8 @@ void start_device_probe(Navigator* nav)
     StartDeviceRecovery(&nav->device_recovery, base_roi, nav->input_backend->controller_type.c_str());
 }
 
-// 判定圈外的检测结果也要读掉, 免得进圈那一拍拿着旧结果触发
-bool try_zipline_mount_prompt(Navigator* nav, const Waypoint& waypoint, const RouteMeasurement& route)
+// 返回扫描器这一拍是否在为这个滑索点工作
+bool sync_zipline_mount_scanner(Navigator* nav, const Waypoint& waypoint)
 {
     if (waypoint.action != ActionType::ZIPLINE) {
         nav->zipline_mount_scanner.reset();
@@ -109,9 +110,12 @@ bool try_zipline_mount_prompt(Navigator* nav, const Waypoint& waypoint, const Ro
                 << VAR(profile.icons.size());
         nav->zipline_mount_scanner = std::make_unique<RoiTemplateScanner>("zipline", profile.base_roi, std::move(profile.icons));
     }
-    if (nav->zipline_mount_scanner == nullptr) {
-        return false;
-    }
+    return nav->zipline_mount_scanner != nullptr;
+}
+
+// 判定圈外的检测结果也要读掉, 免得进圈那一拍拿着旧结果触发
+bool consume_zipline_mount_prompt(Navigator* nav, const RouteMeasurement& route)
+{
     const bool flagged = nav->zipline_mount_scanner->consumeDetection();
     return flagged && route.startup_motion_confirmed && route.waypoint_distance <= kPromptTriggerBandWu;
 }
@@ -199,7 +203,11 @@ TickStep HandlePrompts(Navigator* nav, const NavigateTick& tick)
         return TickStep::EndTick;
     }
 
-    if (try_zipline_mount_prompt(nav, waypoint, route)) {
+    bool mount_prompt_due = false;
+    if (sync_zipline_mount_scanner(nav, waypoint)) {
+        mount_prompt_due = consume_zipline_mount_prompt(nav, route);
+    }
+    if (mount_prompt_due) {
         nav->runtime_state.semantic.zipline_prompt_probe = true;
         const semantic_nodes::Result prompt_result = semantic_nodes::HandleArrival(nav, waypoint, route.waypoint_distance);
         nav->runtime_state.semantic.zipline_prompt_probe = false;
@@ -320,7 +328,7 @@ void TryRunPromptSubtaskAtRouteTail(Navigator* nav)
     if (nav->maa_context == nullptr) {
         return;
     }
-    if (nav->should_stop()) {
+    if (TaskStopping(nav->maa_context)) {
         return;
     }
     if (nav->session->phase != NaviPhase::Finished) {
@@ -341,7 +349,7 @@ void TryRunPromptSubtaskAtRouteTail(Navigator* nav)
     HoldPosition(nav->motion_controller);
     SleepFor(kStopWaitMs); // 先站定, 还在滑行就动手容易白按一次
     const auto started_at = std::chrono::steady_clock::now();
-    while (!nav->should_stop()) {
+    while (!TaskStopping(nav->maa_context)) {
         if (TryTriggerPromptAtRouteTail(tail_prompt)) {
             return;
         }

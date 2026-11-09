@@ -12,6 +12,7 @@
 #include "frame_sinks.h"
 #include "latency_observer.h"
 #include "position_provider.h"
+#include "task_stop.h"
 
 namespace mapnavigator
 {
@@ -181,7 +182,7 @@ bool capture_with(PositionSensor* sensor, NaviPosition* out_pos, maplocator::Loc
 
     // 所有取位都经过这里, 且 out_pos 刚由本次定位结果填好, 换算每次恰好一次
     if (sensor->normalize_param != nullptr) {
-        NormalizeLivePositionToBase(*sensor->normalize_param, *out_pos);
+        NormalizeLivePositionToBase(out_pos, *sensor->normalize_param);
     }
     return true;
 }
@@ -246,10 +247,10 @@ bool WaitForFix(
     const std::string& expected_zone_id,
     int max_retries,
     int retry_interval_ms,
-    const std::function<bool()>& should_stop)
+    MaaContext* context)
 {
     for (int retry = 0; retry < max_retries; ++retry) {
-        if (should_stop()) {
+        if (TaskStopping(context)) {
             return false;
         }
         const bool captured =

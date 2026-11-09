@@ -201,7 +201,7 @@ std::vector<double> neighbor_offsets_deg(const ZiplineRide& ride)
     const double planned = bearing_deg(ride.plan.mount, ride.plan.landing);
     std::vector<double> offsets;
     for (const ZiplineNodeRef& node : nodes) {
-        if (node.sameTower(ride.plan.mount) || node.sameTower(ride.plan.landing)) {
+        if (SameTower(node, ride.plan.mount) || SameTower(node, ride.plan.landing)) {
             continue;
         }
         offsets.push_back(NormalizeAngle(bearing_deg(ride.plan.mount, node) - planned));
@@ -363,7 +363,7 @@ StageResult
             ride->discovered_towers.push_back(reached);
         }
         const std::optional<ZiplineNodeRef> previous = previous_wrong_tower(ride->record.launches);
-        if (previous && previous->sameTower(reached)) {
+        if (previous && SameTower(*previous, reached)) {
             ride->hop_retry_count = kZiplineHopRetryBudget;
             LogInfo << "zipline/aim/same_wrong_tower" << VAR(reached.x) << VAR(reached.y)
                     << VAR_AS(record_.launches.size(), ride->record.launches.size());
@@ -813,10 +813,10 @@ LandingClass ClassifyLanding(
     }
     if (nearest != nullptr) {
         *reached = *nearest;
-        if (nearest->sameTower(target)) {
+        if (SameTower(*nearest, target)) {
             return LandingClass::AtTarget;
         }
-        if (nearest->sameTower(origin)) {
+        if (SameTower(*nearest, origin)) {
             return LandingClass::AtOrigin;
         }
         return LandingClass::AtOther;
@@ -967,7 +967,7 @@ void BeginZiplineHop(ZiplineRide* ride, const ZiplineHopPlan& plan)
     const auto now = std::chrono::steady_clock::now();
     const bool standing = ZiplineOnTower(*ride);
     // 重新站过上索点再回来仍算同一跳, 记录接着写
-    const bool resume = ride->hop_open && ride->plan.mount.sameTower(plan.mount) && ride->plan.landing.sameTower(plan.landing);
+    const bool resume = ride->hop_open && SameTower(ride->plan.mount, plan.mount) && SameTower(ride->plan.landing, plan.landing);
     if (!resume) {
         if (ride->hop_open) {
             commit_record(ride, HopOutcome::Dismounted, now);
