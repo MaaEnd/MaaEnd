@@ -23,22 +23,6 @@
             510
         ]
     },
-    "CreditShoppingRecordCatalogItems": {
-        "roi": [
-            10,
-            120,
-            1250,
-            510
-        ]
-    },
-    "CreditShoppingRecordAllItems": {
-        "roi": [
-            10,
-            120,
-            1250,
-            510
-        ]
-    },
     "CreditShoppingShelfAnyItem": {
         "roi": [
             10,

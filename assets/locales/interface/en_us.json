@@ -1556,8 +1556,6 @@
     "option.CreditShoppingItems.cases.WulingEngravingPermit.label": "Wuling Engraving Permit",
     "option.CreditShoppingItems.cases.WulingTalositeProbe.label": "Wuling Talosite Probe",
     "option.CreditShoppingItems.cases.YinglungDumbbells.label": "Yinglung Dumbbells",
-    "option.CreditShoppingKeepShelfRecord.description": "Write shelf items and discounts to local debug/record/CreditShoppingShelfSnapshots.json for refresh analysis; when off, no file is written",
-    "option.CreditShoppingKeepShelfRecord.label": "Keep shelf records",
     "option.CreditShoppingPriority1.label": "Purchase Item Option 1",
     "option.CreditShoppingPriority1Items.label": "Items in Purchase Item Option 1",
     "option.CreditShoppingPriority2.label": "Purchase Item Option 2",

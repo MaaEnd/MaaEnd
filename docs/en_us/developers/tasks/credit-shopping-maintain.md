@@ -10,7 +10,7 @@ This document was updated on October 17, 2026.
 CreditShopping/
 ├── Flow/                  # Main shopping flow
 │   ├── Entry.json         # Entry detection + whitelist init
-│   ├── Scan.json          # Shelf scan gate + snapshot (triggers buy decision loop)
+│   ├── Scan.json          # Shelf scan gate (triggers buy decision loop)
 │   ├── BuyAction.json     # 3-tier purchase / blacklist / prudent refresh / nothing to buy
 │   ├── BuyItem.json       # Purchase confirm / failure / force-buy price reserve check
 │   └── Special.json       # unable to buy on refresh / refresh item
@@ -24,7 +24,6 @@ CreditShopping/
 │   ├── Priority2.json     # Purchase Item Option 2 whitelist + discount
 │   └── Priority3.json     # Purchase Item Option 3 whitelist + discount
 ├── GoToShop.json           # Navigate to shop and switch to credit exchange tab
-├── record.json             # Record item name and discount during shelf snapshot
 └── Reflash.json            # Refresh button / cost / used up / unable to refresh
 ```
 
@@ -42,7 +41,7 @@ Other related files:
 
 1. Enter the credit exchange tab; if not in the shop, navigate first (`GoToShop.json`), then [claim pending credits](#claiming-credits) (`Credit/ClaimCredit.json`).
 2. Before entering the scan loop, [initialize the item name whitelist for each tier once](#attach-and-whitelist-initialization) (`Flow/Entry.json` + `attachregex/action.go`).
-3. In each round, for the current shelf snapshot, evaluate in a fixed priority order (`Flow/Scan.json` → `Flow/BuyAction.json`):
+3. In each round, scan the current shelf and evaluate in a fixed priority order (`Flow/Scan.json` → `Flow/BuyAction.json`):
     - A tier has "Automatically collect credits" enabled and its target item [is unaffordable (not enough credit)](#automatic-credit-replenishment) → jump to base to replenish credit and return; tiers with it disabled skip this check.
     - Whether it matches [Purchase Item Option 1 / 2 / 3](#three-tier-purchase-priority) → confirm purchase directly.
     - Whether the current credit is [below the reserve threshold](#credit-point-reserve-threshold) → end the task.

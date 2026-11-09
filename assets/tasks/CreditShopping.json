@@ -44,8 +44,7 @@
                 "CreditShoppingPriority1",
                 "CreditShoppingPriority2",
                 "CreditShoppingPriority3",
-                "CreditShoppingForce",
-                "CreditShoppingKeepShelfRecord"
+                "CreditShoppingForce"
             ]
         }
     ],
@@ -1657,25 +1656,6 @@
                     }
                 }
             }
-        },
-        "CreditShoppingKeepShelfRecord": {
-            "type": "switch",
-            "label": "$option.CreditShoppingKeepShelfRecord.label",
-            "description": "$option.CreditShoppingKeepShelfRecord.description",
-            "cases": [
-                {
-                    "name": "Yes"
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "CreditShoppingScanItemAction": {
-                            "action": "DoNothing"
-                        }
-                    }
-                }
-            ],
-            "default_case": "Yes"
         },
         "CreditShoppingReserve": {
             "type": "input",

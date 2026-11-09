@@ -48,7 +48,6 @@
                 "CloseGameAction",
                 "CountDownAction",
                 "CreditShoppingApplyPriorityItemsAction",
-                "CreditShoppingScanItemAction",
                 "DeliveryJobsResolveOngoingDepotAction",
                 "ERROR",
                 "EssenceFilterAfterBattleSkillDecisionAction",

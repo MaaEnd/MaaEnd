@@ -1556,8 +1556,6 @@
     "option.CreditShoppingItems.cases.WulingEngravingPermit.label": "Wuling Engraving Permit",
     "option.CreditShoppingItems.cases.WulingTalositeProbe.label": "무릉 유령수정 탐침기",
     "option.CreditShoppingItems.cases.YinglungDumbbells.label": "Yinglung Dumbbells",
-    "option.CreditShoppingKeepShelfRecord.description": "선반 물품과 할인을 로컬 debug/record/CreditShoppingShelfSnapshots.json에 기록해 새로고침 규칙 분석에 사용합니다. 끄면 기록하지 않습니다",
-    "option.CreditShoppingKeepShelfRecord.label": "선반 기록 유지",
     "option.CreditShoppingPriority1.label": "구매 물품 옵션 1",
     "option.CreditShoppingPriority1Items.label": "구매 물품 옵션 1의 대상 물품",
     "option.CreditShoppingPriority2.label": "구매 물품 옵션 2",

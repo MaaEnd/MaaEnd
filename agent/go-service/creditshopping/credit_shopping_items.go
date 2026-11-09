@@ -1,5 +1,8 @@
 package creditshopping
 
+// component 是 zerolog 日志的组件名。
+const component = "creditshopping"
+
 // creditShoppingItem 信用交易所可购物品：任务 case 名与 IconRecognition catalog item_id。
 type creditShoppingItem struct {
 	CaseID            string

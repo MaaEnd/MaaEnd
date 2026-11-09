@@ -10,7 +10,7 @@
 CreditShopping/
 ├── Flow/                  # 主购物流程
 │   ├── Entry.json         # 入口检测 + 白名单初始化
-│   ├── Scan.json          # 货架扫描门控 + 快照（触发购买决策循环）
+│   ├── Scan.json          # 货架扫描门控（触发购买决策循环）
 │   ├── BuyAction.json     # 三档购买 / 黑名单 / 稳健刷新 / 无物可买
 │   ├── BuyItem.json       # 购买确认 / 失败 / 强制购买价格阈值检查
 │   └── Special.json       # 刷新时无法购买 / 刷新商品
@@ -24,7 +24,6 @@ CreditShopping/
 │   ├── Priority2.json     # 购买物品选项2 白名单 + 折扣
 │   └── Priority3.json     # 购买物品选项3 白名单 + 折扣
 ├── GoToShop.json           # 导航到商店并切到信用交易所页签
-├── record.json             # 货架快照时记录商品名与折扣
 └── Reflash.json            # 刷新按钮 / 花费 / 次数用尽 / 无法刷新
 ```
 
@@ -42,7 +41,7 @@ CreditShopping/
 
 1. 进入信用交易所页签；若不在商店则先导航（`GoToShop.json`），再[领取待收取信用](#领取信用)（`Credit/ClaimCredit.json`）。
 2. 进入扫描循环前，[一次性初始化各档商品名白名单](#attach-与白名单初始化)（`Flow/Entry.json` + `attachregex/action.go`）。
-3. 每轮对当前货架快照，按固定优先级依次判断（`Flow/Scan.json` → `Flow/BuyAction.json`）：
+3. 每轮扫描当前货架，按固定优先级依次判断（`Flow/Scan.json` → `Flow/BuyAction.json`）：
     - 某档开启了「自动获取信用点」，且该档目标商品[买不起（信用不够）](#自动补信用) → 跳基建补信用后回来；未开启的档位不做此判断。
     - 是否命中[购买物品选项 1 / 2 / 3](#三档购买优先级) → 直接确认购买。
     - 当前信用是否[低于保留阈值](#保留信用点阈值) → 结束任务。

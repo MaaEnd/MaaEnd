@@ -1556,8 +1556,6 @@
     "option.CreditShoppingItems.cases.WulingEngravingPermit.label": "Wuling Engraving Permit",
     "option.CreditShoppingItems.cases.WulingTalositeProbe.label": "武陵タロサイト探査機",
     "option.CreditShoppingItems.cases.YinglungDumbbells.label": "Yinglung Dumbbells",
-    "option.CreditShoppingKeepShelfRecord.description": "棚の商品と割引をローカル debug/record/CreditShoppingShelfSnapshots.json に書き込み、更新規則の分析に使用します。オフの場合は書き込みません",
-    "option.CreditShoppingKeepShelfRecord.label": "棚記録を保持",
     "option.CreditShoppingPriority1.label": "購入アイテム設定1",
     "option.CreditShoppingPriority1Items.label": "購入アイテム設定1の対象アイテム",
     "option.CreditShoppingPriority2.label": "購入アイテム設定2",

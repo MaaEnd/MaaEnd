@@ -1556,8 +1556,6 @@
     "option.CreditShoppingItems.cases.WulingEngravingPermit.label": "武陵刻写券",
     "option.CreditShoppingItems.cases.WulingTalositeProbe.label": "武陵塔晶探针",
     "option.CreditShoppingItems.cases.YinglungDumbbells.label": "应龙哑铃",
-    "option.CreditShoppingKeepShelfRecord.description": "将货架商品与折扣写入本地 debug/record/CreditShoppingShelfSnapshots.json，用于分析刷新规律；关闭后不再写入",
-    "option.CreditShoppingKeepShelfRecord.label": "保留货架记录",
     "option.CreditShoppingPriority1.label": "购买物品选项1",
     "option.CreditShoppingPriority1Items.label": "购买物品选项1中的物品",
     "option.CreditShoppingPriority2.label": "购买物品选项2",
