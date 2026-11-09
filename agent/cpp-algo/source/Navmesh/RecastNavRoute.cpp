@@ -1767,271 +1767,355 @@ void LiftCorners(
     }
 }
 
-// goal_deck 为空时终点格任一 span 都算到达, start_deck 为空时起点取离吸附面最近的 span
-std::optional<std::vector<WorldPoint>> routeWindow(
-    WindowInfo& info,
-    const WorldPoint& s,
-    const WorldPoint& g,
-    RouteDiag& dg,
-    std::optional<double> goal_deck,
-    std::optional<double> start_deck,
-    const BaseNavPlanner& pl,
-    const BaseNavPack& pack,
-    uint16_t zid)
+// routeWindow 各步共用的窗口状态, 开头一次填好; 吸附锚点在基线退到格级时重挑
+struct RouteWindow
 {
-    const double t_topo0 = nowMs();
-    const int64_t nx = info.nx;
-    const int64_t ny = info.ny;
-    const double x0 = info.x0;
-    const double y0 = info.y0;
-    Mask walk(nx, ny, 0);
-    for (size_t i = 0; i < walk.v.size(); ++i) {
-        walk.v[i] = static_cast<uint8_t>(info.core.v[i] != 0 && info.lay.v[i] != 0);
-    }
-    info.lay = Mask();
-    Grid<float> dist = std::move(info.dist);
-    info.dist = Grid<float>();
-    Mask rdg = std::move(info.medial);
-    info.medial = Mask();
-    const double cpref = kClrPref;
-    const auto chan = [&](double cc, const Mask& band) {
-        Mask w(nx, ny, 0);
-        for (size_t i = 0; i < w.v.size(); ++i) {
-            w.v[i] = static_cast<uint8_t>(static_cast<double>(dist.v[i]) >= cc || band.v[i] != 0);
-        }
-        return w;
-    };
-    const PriceField mult { .dist = &dist, .lo = kCS, .hi = cpref };
-    // 区间上端取最宽处, 单价恒不低于 1, 欧氏距离才是可采纳的下界
-    const PriceField multw { .dist = &dist, .lo = kClrNarrow, .hi = kClrWide };
-
-    const CellPt sc { static_cast<int64_t>((s.x - x0) / kCS), static_cast<int64_t>((s.y - y0) / kCS) };
-    const CellPt gc { static_cast<int64_t>((g.x - x0) / kCS), static_cast<int64_t>((g.y - y0) / kCS) };
-
-    // 单价恒 ≥1, 代价低于 limit 或 limit2 的搜索碰不到可信区外的格
-    const bool tentative = dg.margin > 0;
-    const bool bounded = tentative && !dg.final;
-    const bool strict = bounded;
-    const int64_t edge_s = std::min({ sc.x, sc.y, nx - 1 - sc.x, ny - 1 - sc.y });
-    const int64_t edge_g = std::min({ gc.x, gc.y, nx - 1 - gc.x, ny - 1 - gc.y });
-    const int64_t edge = std::min(edge_s, edge_g);
-    const double limit = static_cast<double>(edge - dg.margin);
-    // 两距之和是凸函数, 区外下界取在可信区边界四条边上, 每条边三分求极小, 再让一格给取整
-    const auto ellipseFloor = [&]() {
-        const auto sum2 = [&](double x, double y) {
-            return std::hypot(x - static_cast<double>(sc.x), y - static_cast<double>(sc.y))
-                   + std::hypot(x - static_cast<double>(gc.x), y - static_cast<double>(gc.y));
-        };
-        const auto onSeg = [&](double ax, double ay, double bx, double by) {
-            double lo = 0.0;
-            double hi = 1.0;
-            for (int i = 0; i < 100; ++i) {
-                const double m1 = lo + (hi - lo) / 3.0;
-                const double m2 = hi - (hi - lo) / 3.0;
-                if (sum2(ax + (bx - ax) * m1, ay + (by - ay) * m1) < sum2(ax + (bx - ax) * m2, ay + (by - ay) * m2)) {
-                    hi = m2;
-                }
-                else {
-                    lo = m1;
-                }
-            }
-            return sum2(ax + (bx - ax) * lo, ay + (by - ay) * lo);
-        };
-        const double rx0 = static_cast<double>(dg.margin - 1);
-        const double ry0 = static_cast<double>(dg.margin - 1);
-        const double rx1 = static_cast<double>(nx - dg.margin);
-        const double ry1 = static_cast<double>(ny - dg.margin);
-        return std::min({ onSeg(rx0, ry0, rx1, ry0), onSeg(rx1, ry0, rx1, ry1), onSeg(rx1, ry1, rx0, ry1), onSeg(rx0, ry1, rx0, ry0) })
-               - 1.0;
-    };
-    const double limit2 = tentative ? ellipseFloor() : 0.0;
-    const auto esc = [&](const char* why) {
-        if (!dg.escalate) {
-            dg.escalate = true;
-            dg.escalate_why = why;
-        }
-    };
-    if (tentative && limit <= 0.0) {
-        esc("端点离窗边不足");
-        return std::nullopt;
-    }
-
-    const auto nearestCell = [&](const Mask& mask, const CellPt& p) -> std::pair<std::optional<CellPt>, double> {
-        bool have = false;
-        int64_t bd = 0;
-        CellPt bc;
-        for (int64_t y = 0; y < ny; ++y) {
-            for (int64_t x = 0; x < nx; ++x) {
-                if (mask.at(y, x) == 0) {
-                    continue;
-                }
-                const int64_t d = (x - p.x) * (x - p.x) + (y - p.y) * (y - p.y);
-                if (!have || d < bd) {
-                    have = true;
-                    bd = d;
-                    bc = { x, y };
-                }
-            }
-        }
-        if (!have) {
-            return { std::nullopt, 0.0 };
-        }
-        return { bc, std::sqrt(static_cast<double>(bd)) * kCS };
-    };
-    const SpanTable& st3 = info.st3;
-    const LayerOracle lyo { .st = &st3, .nx = nx, .ny = ny, .x0 = x0, .y0 = y0 };
-    const auto mk = [&](const Mask& m2, std::vector<uint8_t>& use, Mask& c3) {
-        use.assign(st3.sp_h.size(), 0);
-        c3 = Mask(nx, ny, 0);
-        for (size_t i = 0; i < use.size(); ++i) {
-            const auto cell = static_cast<size_t>(st3.sp_cell[i]);
-            if (info.reach3[i] != 0 && m2.v[cell] != 0) {
-                use[i] = 1;
-                c3.v[cell] = 1;
-            }
-        }
-    };
-    std::vector<uint8_t> useW;
+    const WindowInfo* info = nullptr;
+    int64_t nx = 0;
+    int64_t ny = 0;
+    double x0 = 0.0;
+    double y0 = 0.0;
+    const SpanTable* st3 = nullptr;
+    LayerOracle lyo;
+    Mask walk;
+    Grid<float> dist;
+    CellPt sc;
+    CellPt gc;
+    bool tentative = false;
+    bool bounded = false;
+    bool strict = false;
+    double limit = 0.0;
+    double limit2 = 0.0;
+    std::optional<double> goal_deck;
+    std::optional<double> start_deck;
     Mask cw3;
-    mk(walk, useW, cw3);
-    const auto pick = [&](const CellPt& c, const std::vector<uint8_t>& use) {
-        std::vector<int64_t> out;
-        const int64_t j = OccupiedIndex(info.st3, c.y * nx + c.x);
-        if (j < 0) {
-            return out;
-        }
-        const int64_t jb = CellSpanStart(st3, j);
-        for (int64_t k = 0, kn = CellSpanCount(st3, j); k < kn; ++k) {
-            const int64_t v = jb + k;
-            if (use[static_cast<size_t>(v)] != 0) {
-                out.push_back(v);
-            }
-        }
-        return out;
-    };
-    const auto atSeedLayer = [&](const std::vector<int64_t>& vs) {
-        int64_t best = -1;
-        float bd = 0.0F;
-        for (const int64_t v : vs) {
-            const float d = std::fabs(st3.sp_h[static_cast<size_t>(v)] - static_cast<float>(info.h0));
-            if (best < 0 || d < bd) {
-                best = v;
-                bd = d;
-            }
-        }
-        return best;
-    };
-    // 超出 kDeckBand 视为该面不在此格
-    const auto atDeck = [&](const std::vector<int64_t>& vs, double deck) {
-        int64_t best = -1;
-        double bd = 0.0;
-        for (const int64_t v : vs) {
-            const double d = std::fabs(static_cast<double>(st3.sp_h[static_cast<size_t>(v)]) - deck);
-            if (best < 0 || d < bd) {
-                best = v;
-                bd = d;
-            }
-        }
-        return best >= 0 && bd <= kDeckBand ? best : -1;
-    };
-    // 终点声明是硬约束, 匹配不上返回空集让本级失败
-    const auto goalsOf = [&](const std::vector<int64_t>& vs) {
-        if (!goal_deck.has_value()) {
-            return vs;
-        }
-        const int64_t v = atDeck(vs, *goal_deck);
-        return v >= 0 ? std::vector<int64_t> { v } : std::vector<int64_t> {};
-    };
-    const auto startOf = [&](const std::vector<int64_t>& vs) {
-        return start_deck.has_value() ? atDeck(vs, *start_deck) : atSeedLayer(vs);
-    };
+    const EdgeBits* faces = nullptr;
+    const JumpEdges* jspan = nullptr;
+    const JumpEdges* jcell = nullptr;
+    std::optional<CellPt> as;
+    std::optional<CellPt> ag;
+    double dsa = 0.0;
+    double dga = 0.0;
+    // ends_linked 反复用的暂存
+    std::vector<uint8_t> seen;
+    std::vector<int64_t> stk;
+};
 
-    // 最近的可走格未必带着声明的面, 所以按面吸附
-    const auto nearDeck = [&](const std::vector<uint8_t>& use,
-                              const Mask& cells,
-                              const CellPt& at,
-                              std::optional<double> deck) -> std::pair<std::optional<CellPt>, double> {
-        if (!deck.has_value()) {
-            return nearestCell(cells, at);
+void escalate(RouteDiag* dg, const char* why)
+{
+    if (!dg->escalate) {
+        dg->escalate = true;
+        dg->escalate_why = why;
+    }
+}
+
+double focal_sum(const CellPt& sc, const CellPt& gc, double x, double y)
+{
+    return std::hypot(x - static_cast<double>(sc.x), y - static_cast<double>(sc.y))
+           + std::hypot(x - static_cast<double>(gc.x), y - static_cast<double>(gc.y));
+}
+
+double min_focal_sum_on_edge(const CellPt& sc, const CellPt& gc, double ax, double ay, double bx, double by)
+{
+    double lo = 0.0;
+    double hi = 1.0;
+    for (int i = 0; i < 100; ++i) {
+        const double m1 = lo + (hi - lo) / 3.0;
+        const double m2 = hi - (hi - lo) / 3.0;
+        if (focal_sum(sc, gc, ax + (bx - ax) * m1, ay + (by - ay) * m1) < focal_sum(sc, gc, ax + (bx - ax) * m2, ay + (by - ay) * m2)) {
+            hi = m2;
         }
-        bool have = false;
-        int64_t bd = 0;
-        double bh = 0.0;
-        CellPt bc;
-        for (size_t i = 0; i < use.size(); ++i) {
-            if (use[i] == 0) {
+        else {
+            lo = m1;
+        }
+    }
+    return focal_sum(sc, gc, ax + (bx - ax) * lo, ay + (by - ay) * lo);
+}
+
+// 两距之和是凸函数, 区外下界取在可信区边界四条边上, 每条边三分求极小, 再让一格给取整
+double ellipse_floor(const CellPt& sc, const CellPt& gc, int64_t margin, int64_t nx, int64_t ny)
+{
+    const double rx0 = static_cast<double>(margin - 1);
+    const double ry0 = static_cast<double>(margin - 1);
+    const double rx1 = static_cast<double>(nx - margin);
+    const double ry1 = static_cast<double>(ny - margin);
+    return std::min({ min_focal_sum_on_edge(sc, gc, rx0, ry0, rx1, ry0),
+                      min_focal_sum_on_edge(sc, gc, rx1, ry0, rx1, ry1),
+                      min_focal_sum_on_edge(sc, gc, rx1, ry1, rx0, ry1),
+                      min_focal_sum_on_edge(sc, gc, rx0, ry1, rx0, ry0) })
+           - 1.0;
+}
+
+Mask channel_mask(const RouteWindow& rw, double cc, const Mask& band)
+{
+    Mask w(rw.nx, rw.ny, 0);
+    for (size_t i = 0; i < w.v.size(); ++i) {
+        w.v[i] = static_cast<uint8_t>(static_cast<double>(rw.dist.v[i]) >= cc || band.v[i] != 0);
+    }
+    return w;
+}
+
+std::pair<std::optional<CellPt>, double> nearest_cell(const RouteWindow& rw, const Mask& mask, const CellPt& p)
+{
+    bool have = false;
+    int64_t bd = 0;
+    CellPt bc;
+    for (int64_t y = 0; y < rw.ny; ++y) {
+        for (int64_t x = 0; x < rw.nx; ++x) {
+            if (mask.at(y, x) == 0) {
                 continue;
             }
-            const double dh = std::fabs(static_cast<double>(st3.sp_h[i]) - *deck);
-            if (dh > kDeckBand) {
-                continue;
-            }
-            const int64_t cell = st3.sp_cell[i];
-            const int64_t x = cell % nx;
-            const int64_t y = cell / nx;
-            const int64_t d = (x - at.x) * (x - at.x) + (y - at.y) * (y - at.y);
-            if (!have || d < bd || (d == bd && dh < bh)) {
+            const int64_t d = (x - p.x) * (x - p.x) + (y - p.y) * (y - p.y);
+            if (!have || d < bd) {
                 have = true;
                 bd = d;
-                bh = dh;
                 bc = { x, y };
             }
         }
-        if (!have) {
-            return { std::nullopt, 0.0 };
-        }
-        return { bc, std::sqrt(static_cast<double>(bd)) * kCS };
-    };
+    }
+    if (!have) {
+        return { std::nullopt, 0.0 };
+    }
+    return { bc, std::sqrt(static_cast<double>(bd)) * kCS };
+}
 
-    const auto snap0 = nearDeck(useW, cw3, sc, start_deck);
-    const auto snap1 = nearDeck(useW, cw3, gc, goal_deck);
-    const auto hasDeckSpan = [&](const CellPt& c, double deck) {
-        const int64_t j = OccupiedIndex(info.st3, c.y * nx + c.x);
-        if (j < 0) {
-            return false;
+void spans_in_mask(std::vector<uint8_t>* use, Mask* c3, const RouteWindow& rw, const Mask& m2)
+{
+    use->assign(rw.st3->sp_h.size(), 0);
+    *c3 = Mask(rw.nx, rw.ny, 0);
+    for (size_t i = 0; i < use->size(); ++i) {
+        const auto cell = static_cast<size_t>(rw.st3->sp_cell[i]);
+        if (rw.info->reach3[i] != 0 && m2.v[cell] != 0) {
+            (*use)[i] = 1;
+            c3->v[cell] = 1;
         }
-        for (int64_t v = CellSpanStart(st3, j), end = v + CellSpanCount(st3, j); v < end; ++v) {
-            if (std::fabs(static_cast<double>(st3.sp_h[static_cast<size_t>(v)]) - deck) <= kDeckBand) {
-                return true;
+    }
+}
+
+std::vector<int64_t> spans_at(const RouteWindow& rw, const CellPt& c, const std::vector<uint8_t>& use)
+{
+    std::vector<int64_t> out;
+    const int64_t j = OccupiedIndex(rw.info->st3, c.y * rw.nx + c.x);
+    if (j < 0) {
+        return out;
+    }
+    const int64_t jb = CellSpanStart(*rw.st3, j);
+    for (int64_t k = 0, kn = CellSpanCount(*rw.st3, j); k < kn; ++k) {
+        const int64_t v = jb + k;
+        if (use[static_cast<size_t>(v)] != 0) {
+            out.push_back(v);
+        }
+    }
+    return out;
+}
+
+int64_t span_at_seed_layer(const RouteWindow& rw, const std::vector<int64_t>& vs)
+{
+    int64_t best = -1;
+    float bd = 0.0F;
+    for (const int64_t v : vs) {
+        const float d = std::fabs(rw.st3->sp_h[static_cast<size_t>(v)] - static_cast<float>(rw.info->h0));
+        if (best < 0 || d < bd) {
+            best = v;
+            bd = d;
+        }
+    }
+    return best;
+}
+
+// 超出 kDeckBand 视为该面不在此格
+int64_t span_on_deck(const RouteWindow& rw, const std::vector<int64_t>& vs, double deck)
+{
+    int64_t best = -1;
+    double bd = 0.0;
+    for (const int64_t v : vs) {
+        const double d = std::fabs(static_cast<double>(rw.st3->sp_h[static_cast<size_t>(v)]) - deck);
+        if (best < 0 || d < bd) {
+            best = v;
+            bd = d;
+        }
+    }
+    return best >= 0 && bd <= kDeckBand ? best : -1;
+}
+
+// 终点声明是硬约束, 匹配不上返回空集让本级失败
+std::vector<int64_t> goal_spans(const RouteWindow& rw, const std::vector<int64_t>& vs)
+{
+    if (!rw.goal_deck.has_value()) {
+        return vs;
+    }
+    const int64_t v = span_on_deck(rw, vs, *rw.goal_deck);
+    return v >= 0 ? std::vector<int64_t> { v } : std::vector<int64_t> {};
+}
+
+int64_t start_span(const RouteWindow& rw, const std::vector<int64_t>& vs)
+{
+    return rw.start_deck.has_value() ? span_on_deck(rw, vs, *rw.start_deck) : span_at_seed_layer(rw, vs);
+}
+
+// 最近的可走格未必带着声明的面, 所以按面吸附
+std::pair<std::optional<CellPt>, double> nearest_deck_cell(
+    const RouteWindow& rw,
+    const std::vector<uint8_t>& use,
+    const Mask& cells,
+    const CellPt& at,
+    std::optional<double> deck)
+{
+    if (!deck.has_value()) {
+        return nearest_cell(rw, cells, at);
+    }
+    bool have = false;
+    int64_t bd = 0;
+    double bh = 0.0;
+    CellPt bc;
+    for (size_t i = 0; i < use.size(); ++i) {
+        if (use[i] == 0) {
+            continue;
+        }
+        const double dh = std::fabs(static_cast<double>(rw.st3->sp_h[i]) - *deck);
+        if (dh > kDeckBand) {
+            continue;
+        }
+        const int64_t cell = rw.st3->sp_cell[i];
+        const int64_t x = cell % rw.nx;
+        const int64_t y = cell / rw.nx;
+        const int64_t d = (x - at.x) * (x - at.x) + (y - at.y) * (y - at.y);
+        if (!have || d < bd || (d == bd && dh < bh)) {
+            have = true;
+            bd = d;
+            bh = dh;
+            bc = { x, y };
+        }
+    }
+    if (!have) {
+        return { std::nullopt, 0.0 };
+    }
+    return { bc, std::sqrt(static_cast<double>(bd)) * kCS };
+}
+
+bool cell_has_deck(const RouteWindow& rw, const CellPt& c, double deck)
+{
+    const int64_t j = OccupiedIndex(rw.info->st3, c.y * rw.nx + c.x);
+    if (j < 0) {
+        return false;
+    }
+    for (int64_t v = CellSpanStart(*rw.st3, j), end = v + CellSpanCount(*rw.st3, j); v < end; ++v) {
+        if (std::fabs(static_cast<double>(rw.st3->sp_h[static_cast<size_t>(v)]) - deck) <= kDeckBand) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// 端点到通道的最短接入链, 同长取瓶颈最高再按格序, 距离用整数免得浮点累加乱序
+std::optional<std::vector<int64_t>> access_chain(RouteDiag* dg, const RouteWindow& rw, const Mask& lim, const std::optional<CellPt>& a)
+{
+    if (!a.has_value()) {
+        return std::vector<int64_t> {};
+    }
+    const size_t n = static_cast<size_t>(rw.nx * rw.ny);
+    const size_t s0 = static_cast<size_t>(a->y * rw.nx + a->x);
+    if (lim.v[s0] != 0) {
+        return std::vector<int64_t> {};
+    }
+    std::vector<int32_t> cs(n, std::numeric_limits<int32_t>::max());
+    std::vector<float> bw(n, -1.0F);
+    // 格号上界 kMaxCells 装得进 32 位
+    std::vector<int32_t> pv(n, -1);
+    std::priority_queue<std::tuple<int32_t, float, int64_t>> pq;
+    cs[s0] = 0;
+    bw[s0] = rw.dist.v[s0];
+    pq.emplace(0, bw[s0], -static_cast<int64_t>(s0));
+    int64_t hit = -1;
+    while (!pq.empty()) {
+        const int32_t cc = -std::get<0>(pq.top());
+        const float b = std::get<1>(pq.top());
+        const int64_t c = -std::get<2>(pq.top());
+        pq.pop();
+        if (cc != cs[static_cast<size_t>(c)] || b != bw[static_cast<size_t>(c)]) {
+            continue;
+        }
+        if (lim.v[static_cast<size_t>(c)] != 0) {
+            hit = c;
+            break;
+        }
+        const int64_t cx = c % rw.nx;
+        const int64_t cy = c / rw.nx;
+        for (int64_t dy = -1; dy <= 1; ++dy) {
+            for (int64_t dx = -1; dx <= 1; ++dx) {
+                const int64_t bx = cx + dx;
+                const int64_t by = cy + dy;
+                if ((dx == 0 && dy == 0) || bx < 0 || by < 0 || bx >= rw.nx || by >= rw.ny) {
+                    continue;
+                }
+                const size_t k = static_cast<size_t>(by * rw.nx + bx);
+                if (rw.cw3.v[k] == 0) {
+                    continue;
+                }
+                const int32_t kc = cc + (dx != 0 && dy != 0 ? 141 : 100);
+                const float kb = std::min(b, rw.dist.v[k]);
+                if (kc < cs[k] || (kc == cs[k] && (kb > bw[k] || (kb == bw[k] && c < pv[k])))) {
+                    cs[k] = kc;
+                    bw[k] = kb;
+                    pv[k] = static_cast<int32_t>(c);
+                    pq.emplace(-kc, kb, -static_cast<int64_t>(k));
+                }
             }
         }
-        return false;
-    };
-    const bool goal_off_deck = goal_deck.has_value() && gc.x >= 0 && gc.y >= 0 && gc.x < nx && gc.y < ny && !hasDeckSpan(gc, *goal_deck);
-    if (!snap0.first.has_value()) {
-        dg.err = start_deck.has_value() ? "起点附近没有未封堵的声明面" : "walk 掩膜为空";
+    }
+    if (hit < 0) {
+        if (rw.strict) {
+            escalate(dg, "接入链接不通");
+        }
         return std::nullopt;
     }
-    if (!snap1.first.has_value()) {
-        dg.err = goal_deck.has_value() ? "目标附近没有未封堵的声明面" : "walk 掩膜为空";
+    const double chain_len = static_cast<double>(cs[static_cast<size_t>(hit)]) / 100.0;
+    if (rw.bounded && chain_len >= rw.limit) {
+        escalate(dg, "接入链碰边");
         return std::nullopt;
     }
-    std::optional<CellPt> as_ = snap0.first;
-    std::optional<CellPt> ag_ = snap1.first;
-    double dsa = snap0.second;
-    double dga = snap1.second;
-    if (bounded && (dsa / kCS >= limit || dga / kCS >= limit)) {
-        esc("吸附距离碰边");
-        return std::nullopt;
+    std::vector<int64_t> ch;
+    for (int64_t c = hit; c >= 0; c = pv[static_cast<size_t>(c)]) {
+        ch.push_back(c);
     }
+    return ch;
+}
 
-    // 端点到通道的最短接入链, 同长取瓶颈最高再按格序, 距离用整数免得浮点累加乱序
-    const auto access = [&](const Mask& lim, const std::optional<CellPt>& a) -> std::optional<std::vector<int64_t>> {
-        if (!a.has_value()) {
-            return std::vector<int64_t> {};
-        }
-        const size_t n = static_cast<size_t>(nx * ny);
-        const size_t s0 = static_cast<size_t>(a->y * nx + a->x);
+void open_cells(Mask* lim, const std::vector<int64_t>& ch)
+{
+    for (const int64_t c : ch) {
+        lim->v[static_cast<size_t>(c)] = 1;
+    }
+}
+
+// 跳边每端最多走 kLinkChainCells 格, 走不到的留空且不升档
+std::vector<std::vector<int64_t>> link_chains(const RouteWindow& rw, const Mask& lim, const std::vector<int64_t>& ends)
+{
+    std::vector<std::vector<int64_t>> out(ends.size());
+    if (ends.empty()) {
+        return out;
+    }
+    const size_t n = static_cast<size_t>(rw.nx * rw.ny);
+    std::vector<int32_t> cs(n, std::numeric_limits<int32_t>::max());
+    std::vector<float> bw(n, -1.0F);
+    std::vector<int32_t> pv(n, -1);
+    std::vector<int64_t> touched;
+    std::priority_queue<std::tuple<int32_t, float, int64_t>> pq;
+    for (size_t i = 0; i < ends.size(); ++i) {
+        const size_t s0 = static_cast<size_t>(ends[i]);
         if (lim.v[s0] != 0) {
-            return std::vector<int64_t> {};
+            continue;
         }
-        std::vector<int32_t> cs(n, std::numeric_limits<int32_t>::max());
-        std::vector<float> bw(n, -1.0F);
-        // 格号上界 kMaxCells 装得进 32 位
-        std::vector<int32_t> pv(n, -1);
-        std::priority_queue<std::tuple<int32_t, float, int64_t>> pq;
+        for (const int64_t t : touched) {
+            cs[static_cast<size_t>(t)] = std::numeric_limits<int32_t>::max();
+            bw[static_cast<size_t>(t)] = -1.0F;
+            pv[static_cast<size_t>(t)] = -1;
+        }
+        touched.clear();
+        pq = {};
         cs[s0] = 0;
-        bw[s0] = dist.v[s0];
+        bw[s0] = rw.dist.v[s0];
+        touched.push_back(static_cast<int64_t>(s0));
         pq.emplace(0, bw[s0], -static_cast<int64_t>(s0));
         int64_t hit = -1;
         while (!pq.empty()) {
@@ -2046,22 +2130,28 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                 hit = c;
                 break;
             }
-            const int64_t cx = c % nx;
-            const int64_t cy = c / nx;
+            if (cc >= kLinkChainCells * 100) {
+                break;
+            }
+            const int64_t cx = c % rw.nx;
+            const int64_t cy = c / rw.nx;
             for (int64_t dy = -1; dy <= 1; ++dy) {
                 for (int64_t dx = -1; dx <= 1; ++dx) {
                     const int64_t bx = cx + dx;
                     const int64_t by = cy + dy;
-                    if ((dx == 0 && dy == 0) || bx < 0 || by < 0 || bx >= nx || by >= ny) {
+                    if ((dx == 0 && dy == 0) || bx < 0 || by < 0 || bx >= rw.nx || by >= rw.ny) {
                         continue;
                     }
-                    const size_t k = static_cast<size_t>(by * nx + bx);
-                    if (cw3.v[k] == 0) {
+                    const size_t k = static_cast<size_t>(by * rw.nx + bx);
+                    if (rw.cw3.v[k] == 0) {
                         continue;
                     }
                     const int32_t kc = cc + (dx != 0 && dy != 0 ? 141 : 100);
-                    const float kb = std::min(b, dist.v[k]);
+                    const float kb = std::min(b, rw.dist.v[k]);
                     if (kc < cs[k] || (kc == cs[k] && (kb > bw[k] || (kb == bw[k] && c < pv[k])))) {
+                        if (cs[k] == std::numeric_limits<int32_t>::max()) {
+                            touched.push_back(static_cast<int64_t>(k));
+                        }
                         cs[k] = kc;
                         bw[k] = kb;
                         pv[k] = static_cast<int32_t>(c);
@@ -2070,457 +2160,611 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                 }
             }
         }
-        if (hit < 0) {
-            if (strict) {
-                esc("接入链接不通");
-            }
-            return std::nullopt;
-        }
-        const double chain_len = static_cast<double>(cs[static_cast<size_t>(hit)]) / 100.0;
-        if (bounded && chain_len >= limit) {
-            esc("接入链碰边");
-            return std::nullopt;
-        }
-        std::vector<int64_t> ch;
         for (int64_t c = hit; c >= 0; c = pv[static_cast<size_t>(c)]) {
-            ch.push_back(c);
+            out[i].push_back(c);
         }
-        return ch;
-    };
-    const auto openc = [&](Mask& lim, const std::vector<int64_t>& ch) {
-        for (const int64_t c : ch) {
-            lim.v[static_cast<size_t>(c)] = 1;
-        }
-    };
-    // 跳边每端最多走 kLinkChainCells 格, 走不到的留空且不升档
-    const auto linkChains = [&](const Mask& lim, const std::vector<int64_t>& ends) -> std::vector<std::vector<int64_t>> {
-        std::vector<std::vector<int64_t>> out(ends.size());
-        if (ends.empty()) {
-            return out;
-        }
-        const size_t n = static_cast<size_t>(nx * ny);
-        std::vector<int32_t> cs(n, std::numeric_limits<int32_t>::max());
-        std::vector<float> bw(n, -1.0F);
-        std::vector<int32_t> pv(n, -1);
-        std::vector<int64_t> touched;
-        std::priority_queue<std::tuple<int32_t, float, int64_t>> pq;
-        for (size_t i = 0; i < ends.size(); ++i) {
-            const size_t s0 = static_cast<size_t>(ends[i]);
-            if (lim.v[s0] != 0) {
-                continue;
+    }
+    return out;
+}
+
+bool in_core_and(const RouteWindow& rw, const Mask& lim, int64_t c)
+{
+    return rw.info->core.v[static_cast<size_t>(c)] != 0 && lim.v[static_cast<size_t>(c)] != 0;
+}
+
+// 两端在 core∧lim 内八连通是 solve 成功的必要条件
+bool ends_linked(RouteWindow* rw, const Mask& lim)
+{
+    const int64_t sc = rw->as->y * rw->nx + rw->as->x;
+    const int64_t gc = rw->ag->y * rw->nx + rw->ag->x;
+    if (!in_core_and(*rw, lim, sc) || !in_core_and(*rw, lim, gc)) {
+        return false;
+    }
+    std::fill(rw->seen.begin(), rw->seen.end(), static_cast<uint8_t>(0));
+    rw->stk.clear();
+    rw->stk.push_back(sc);
+    rw->seen[static_cast<size_t>(sc)] = 1;
+    for (;;) {
+        while (!rw->stk.empty()) {
+            const int64_t c = rw->stk.back();
+            rw->stk.pop_back();
+            if (c == gc) {
+                return true;
             }
-            for (const int64_t t : touched) {
-                cs[static_cast<size_t>(t)] = std::numeric_limits<int32_t>::max();
-                bw[static_cast<size_t>(t)] = -1.0F;
-                pv[static_cast<size_t>(t)] = -1;
-            }
-            touched.clear();
-            pq = {};
-            cs[s0] = 0;
-            bw[s0] = dist.v[s0];
-            touched.push_back(static_cast<int64_t>(s0));
-            pq.emplace(0, bw[s0], -static_cast<int64_t>(s0));
-            int64_t hit = -1;
-            while (!pq.empty()) {
-                const int32_t cc = -std::get<0>(pq.top());
-                const float b = std::get<1>(pq.top());
-                const int64_t c = -std::get<2>(pq.top());
-                pq.pop();
-                if (cc != cs[static_cast<size_t>(c)] || b != bw[static_cast<size_t>(c)]) {
-                    continue;
-                }
-                if (lim.v[static_cast<size_t>(c)] != 0) {
-                    hit = c;
-                    break;
-                }
-                if (cc >= kLinkChainCells * 100) {
-                    break;
-                }
-                const int64_t cx = c % nx;
-                const int64_t cy = c / nx;
-                for (int64_t dy = -1; dy <= 1; ++dy) {
-                    for (int64_t dx = -1; dx <= 1; ++dx) {
-                        const int64_t bx = cx + dx;
-                        const int64_t by = cy + dy;
-                        if ((dx == 0 && dy == 0) || bx < 0 || by < 0 || bx >= nx || by >= ny) {
-                            continue;
-                        }
-                        const size_t k = static_cast<size_t>(by * nx + bx);
-                        if (cw3.v[k] == 0) {
-                            continue;
-                        }
-                        const int32_t kc = cc + (dx != 0 && dy != 0 ? 141 : 100);
-                        const float kb = std::min(b, dist.v[k]);
-                        if (kc < cs[k] || (kc == cs[k] && (kb > bw[k] || (kb == bw[k] && c < pv[k])))) {
-                            if (cs[k] == std::numeric_limits<int32_t>::max()) {
-                                touched.push_back(static_cast<int64_t>(k));
-                            }
-                            cs[k] = kc;
-                            bw[k] = kb;
-                            pv[k] = static_cast<int32_t>(c);
-                            pq.emplace(-kc, kb, -static_cast<int64_t>(k));
-                        }
+            const int64_t cx = c % rw->nx;
+            const int64_t cy = c / rw->nx;
+            for (int64_t dy = -1; dy <= 1; ++dy) {
+                for (int64_t dx = -1; dx <= 1; ++dx) {
+                    const int64_t bx = cx + dx;
+                    const int64_t by = cy + dy;
+                    if (bx < 0 || by < 0 || bx >= rw->nx || by >= rw->ny) {
+                        continue;
+                    }
+                    const int64_t b = by * rw->nx + bx;
+                    if (rw->seen[static_cast<size_t>(b)] == 0 && in_core_and(*rw, lim, b)) {
+                        rw->seen[static_cast<size_t>(b)] = 1;
+                        rw->stk.push_back(b);
                     }
                 }
             }
-            for (int64_t c = hit; c >= 0; c = pv[static_cast<size_t>(c)]) {
-                out[i].push_back(c);
+        }
+        for (const JumpEdge& e : rw->info->links_cell.e) {
+            if (rw->seen[static_cast<size_t>(e.src)] != 0 && rw->seen[static_cast<size_t>(e.dst)] == 0 && in_core_and(*rw, lim, e.dst)) {
+                rw->seen[static_cast<size_t>(e.dst)] = 1;
+                rw->stk.push_back(e.dst);
             }
         }
-        return out;
-    };
-
-    const EdgeBits* faces = &info.sev.steps;
-    const JumpEdges* jspan = JumpEdgesEmpty(info.links_span) ? nullptr : &info.links_span;
-    const JumpEdges* jcell = JumpEdgesEmpty(info.links_cell) ? nullptr : &info.links_cell;
-
-    struct Topo
-    {
-        std::vector<CellPt> q;
-        std::optional<std::vector<int64_t>> qs;
-        // 只有带视线判据的搜索才填, 即几何要走的折线
-        std::vector<int64_t> corn;
-        Mask on3;
-        std::vector<std::string> warn;
-    };
-
-    // 两端在 core∧lim 内八连通是 solve 成功的必要条件
-    std::vector<uint8_t> seen(static_cast<size_t>(nx * ny), 0);
-    std::vector<int64_t> stk;
-    const auto linked = [&](const Mask& lim) {
-        const int64_t sc = as_->y * nx + as_->x;
-        const int64_t gc = ag_->y * nx + ag_->x;
-        const auto in = [&](int64_t c) {
-            return info.core.v[static_cast<size_t>(c)] != 0 && lim.v[static_cast<size_t>(c)] != 0;
-        };
-        if (!in(sc) || !in(gc)) {
+        if (rw->stk.empty()) {
             return false;
         }
-        std::fill(seen.begin(), seen.end(), static_cast<uint8_t>(0));
-        stk.clear();
-        stk.push_back(sc);
-        seen[static_cast<size_t>(sc)] = 1;
-        for (;;) {
-            while (!stk.empty()) {
-                const int64_t c = stk.back();
-                stk.pop_back();
-                if (c == gc) {
-                    return true;
-                }
-                const int64_t cx = c % nx;
-                const int64_t cy = c / nx;
-                for (int64_t dy = -1; dy <= 1; ++dy) {
-                    for (int64_t dx = -1; dx <= 1; ++dx) {
-                        const int64_t bx = cx + dx;
-                        const int64_t by = cy + dy;
-                        if (bx < 0 || by < 0 || bx >= nx || by >= ny) {
-                            continue;
-                        }
-                        const int64_t b = by * nx + bx;
-                        if (seen[static_cast<size_t>(b)] == 0 && in(b)) {
-                            seen[static_cast<size_t>(b)] = 1;
-                            stk.push_back(b);
-                        }
-                    }
-                }
-            }
-            for (const JumpEdge& e : info.links_cell.e) {
-                if (seen[static_cast<size_t>(e.src)] != 0 && seen[static_cast<size_t>(e.dst)] == 0 && in(e.dst)) {
-                    seen[static_cast<size_t>(e.dst)] = 1;
-                    stk.push_back(e.dst);
-                }
-            }
-            if (stk.empty()) {
-                return false;
-            }
-        }
-    };
+    }
+}
 
-    // lim 只能收紧可达判据, 不得放宽任何一条
-    const auto solve =
-        [&](const Mask& lim, const PriceField& price, const EdgeBits* banned, const double* bnp, bool resnap, Visibility* vis = nullptr)
-        -> std::optional<Topo> {
-        // resnap 会重挑吸附锚点, 两端不再是 linked 判的那两点
-        if (!resnap && !linked(lim)) {
-            if (strict) {
-                esc("掩膜内两端不连通");
-            }
+struct WindowTopo
+{
+    std::vector<CellPt> q;
+    std::optional<std::vector<int64_t>> qs;
+    // 只有带视线判据的搜索才填, 即几何要走的折线
+    std::vector<int64_t> corn;
+    Mask on3;
+    std::vector<std::string> warn;
+};
+
+// 拓扑搜索的计价与判据, vis 非空时判弦会改写挡线的去重戳
+struct TopoSearch
+{
+    const PriceField* price = nullptr;
+    const EdgeBits* banned = nullptr;
+    const double* bnp = nullptr;
+    Visibility* vis = nullptr;
+};
+
+std::optional<std::vector<int64_t>> run_span_search(
+    std::vector<int64_t>* corn,
+    double* cost,
+    const RouteWindow& rw,
+    const TopoSearch& search,
+    const std::vector<uint8_t>& use,
+    const Mask& m3)
+{
+    corn->clear();
+    *cost = 0.0;
+    if (m3.at(rw.as->y, rw.as->x) == 0 || m3.at(rw.ag->y, rw.ag->x) == 0) {
+        return std::nullopt;
+    }
+    const std::vector<int64_t> gs = goal_spans(rw, spans_at(rw, *rw.ag, use));
+    const int64_t sd = start_span(rw, spans_at(rw, *rw.as, use));
+    if (rw.as->x == rw.ag->x && rw.as->y == rw.ag->y) {
+        if (!rw.goal_deck.has_value()) {
+            return sd >= 0 ? std::optional<std::vector<int64_t>> { { sd } } : std::nullopt;
+        }
+        return gs.empty() ? std::nullopt : std::optional<std::vector<int64_t>> { { gs.front() } };
+    }
+    if (sd < 0 || (rw.goal_deck.has_value() && gs.empty())) {
+        return std::nullopt;
+    }
+    const double give_up_at = rw.bounded ? rw.limit2 - (rw.dsa + rw.dga) / kCS + 1.0 : std::numeric_limits<double>::infinity();
+    const SpanSearch span_search { .st = rw.st3,
+                                   .ok = &use,
+                                   .ok2 = &m3,
+                                   .mult = search.price,
+                                   .banned = search.banned,
+                                   .bnp = search.bnp,
+                                   .forbidden = rw.faces,
+                                   .vis = search.vis,
+                                   .jumps = rw.jspan };
+    return SpanAstar(search.vis != nullptr ? corn : nullptr, cost, span_search, sd, gs, give_up_at);
+}
+
+std::optional<WindowTopo> solve_spans(RouteDiag* dg, const RouteWindow& rw, const TopoSearch& search, const Mask& wl, const Mask& cr)
+{
+    std::vector<uint8_t> uw;
+    std::vector<uint8_t> uc;
+    Mask w3;
+    Mask c3;
+    spans_in_mask(&uw, &w3, rw, wl);
+    spans_in_mask(&uc, &c3, rw, cr);
+    std::vector<int64_t> corn;
+    double cost = 0.0;
+    WindowTopo t;
+    t.on3 = w3;
+    std::optional<std::vector<int64_t>> sq = run_span_search(&corn, &cost, rw, search, uw, w3);
+    if (!sq.has_value()) {
+        // 小窗里的退档可能是窗口切出来的假失败
+        if (rw.strict) {
+            escalate(dg, "walk 断开");
             return std::nullopt;
         }
-        Mask wl(nx, ny, 0);
-        Mask cr(nx, ny, 0);
-        for (size_t i = 0; i < wl.v.size(); ++i) {
-            wl.v[i] = static_cast<uint8_t>(walk.v[i] != 0 && lim.v[i] != 0);
-            cr.v[i] = static_cast<uint8_t>(info.core.v[i] != 0 && lim.v[i] != 0);
-        }
-        std::vector<uint8_t> uw;
-        std::vector<uint8_t> uc;
-        Mask w3;
-        Mask c3;
-        mk(wl, uw, w3);
-        mk(cr, uc, c3);
-        std::vector<int64_t> corn;
-        double cost = 0.0;
-        const auto run = [&](const std::vector<uint8_t>& use, const Mask& m3) -> std::optional<std::vector<int64_t>> {
-            corn.clear();
-            cost = 0.0;
-            if (m3.at(as_->y, as_->x) == 0 || m3.at(ag_->y, ag_->x) == 0) {
-                return std::nullopt;
-            }
-            const std::vector<int64_t> gs = goalsOf(pick(*ag_, use));
-            const int64_t sd = startOf(pick(*as_, use));
-            if (as_->x == ag_->x && as_->y == ag_->y) {
-                if (!goal_deck.has_value()) {
-                    return sd >= 0 ? std::optional<std::vector<int64_t>> { { sd } } : std::nullopt;
-                }
-                return gs.empty() ? std::nullopt : std::optional<std::vector<int64_t>> { { gs.front() } };
-            }
-            if (sd < 0 || (goal_deck.has_value() && gs.empty())) {
-                return std::nullopt;
-            }
-            const double give_up_at = bounded ? limit2 - (dsa + dga) / kCS + 1.0 : std::numeric_limits<double>::infinity();
-            const SpanSearch search { .st = &st3,
-                                      .ok = &use,
-                                      .ok2 = &m3,
-                                      .mult = &price,
-                                      .banned = banned,
-                                      .bnp = bnp,
-                                      .forbidden = faces,
-                                      .vis = vis,
-                                      .jumps = jspan };
-            return SpanAstar(vis != nullptr ? &corn : nullptr, &cost, search, sd, gs, give_up_at);
-        };
-        Topo t;
-        t.on3 = w3;
-        std::optional<std::vector<int64_t>> sq = run(uw, w3);
-        if (!sq.has_value()) {
-            // 小窗里的退档可能是窗口切出来的假失败
-            if (strict) {
-                esc("walk 断开");
-                return std::nullopt;
-            }
-            sq = run(uc, c3);
-            if (sq.has_value()) {
-                t.on3 = c3;
-                t.warn.push_back("walk 断开→退回 core");
-            }
-        }
+        sq = run_span_search(&corn, &cost, rw, search, uc, c3);
         if (sq.has_value()) {
-            // 搜索从吸附锚点出发, 焦点却取端点格, 两段吸附偏移并入代价
-            if (bounded && cost + (dsa + dga) / kCS >= limit2) {
-                esc("搜索碰边");
-                return std::nullopt;
-            }
-            t.q.reserve(sq->size());
-            for (const int64_t v : *sq) {
-                const int64_t c = st3.sp_cell[static_cast<size_t>(v)];
-                t.q.push_back({ c % nx, c / nx });
-            }
-            t.qs = std::move(sq);
-            t.corn = std::move(corn);
-            return t;
+            t.on3 = c3;
+            t.warn.push_back("walk 断开→退回 core");
         }
-        // 格级搜索不看 span, 声明了端点面就不能退到这一级
-        if (goal_deck.has_value() || start_deck.has_value()) {
+    }
+    if (sq.has_value()) {
+        // 搜索从吸附锚点出发, 焦点却取端点格, 两段吸附偏移并入代价
+        if (rw.bounded && cost + (rw.dsa + rw.dga) / kCS >= rw.limit2) {
+            escalate(dg, "搜索碰边");
             return std::nullopt;
         }
-        // 舒适选路无权改吸附锚点, 够不着就报断开
-        if (!resnap) {
-            return std::nullopt;
+        t.q.reserve(sq->size());
+        for (const int64_t v : *sq) {
+            const int64_t c = rw.st3->sp_cell[static_cast<size_t>(v)];
+            t.q.push_back({ c % rw.nx, c / rw.nx });
         }
-        if (strict) {
-            esc("层不连通");
-            return std::nullopt;
-        }
-        std::tie(as_, dsa) = nearestCell(wl, sc);
-        std::tie(ag_, dga) = nearestCell(wl, gc);
-        if (!as_.has_value() || !ag_.has_value()) {
-            return std::nullopt;
-        }
-        t.on3 = wl;
-        std::optional<std::vector<CellPt>> qc;
-        if (as_->x == ag_->x && as_->y == ag_->y) {
-            qc = std::vector<CellPt> { *as_ };
-        }
-        else {
-            qc = CostAstar(wl, *as_, *ag_, price, banned, bnp, faces, nullptr, jcell);
-        }
-        if (!qc.has_value()) {
-            t.on3 = cr;
-            qc = CostAstar(cr, *as_, *ag_, price, banned, bnp, faces, nullptr, jcell);
-            if (qc.has_value()) {
-                t.warn.push_back("walk 断开→退回 core");
-            }
-        }
-        if (!qc.has_value()) {
-            return std::nullopt;
-        }
-        t.warn.push_back("层不连通→退回格级");
-        t.q = std::move(*qc);
+        t.qs = std::move(sq);
+        t.corn = std::move(corn);
         return t;
-    };
+    }
+    return std::nullopt;
+}
 
-    // 禁行边与抬升判据有向, backward 必须按 v→u 问
-    const auto reachFrom = [&](const std::vector<int64_t>& seeds, const std::vector<uint8_t>& use, const Mask& ok2, bool backward) {
-        std::vector<uint8_t> seen(st3.sp_h.size(), 0);
-        std::vector<int64_t> frontier;
-        for (const int64_t v : seeds) {
-            if (v >= 0 && use[static_cast<size_t>(v)] != 0 && seen[static_cast<size_t>(v)] == 0) {
-                seen[static_cast<size_t>(v)] = 1;
-                frontier.push_back(v);
-            }
+// lim 只能收紧可达判据, 不得放宽任何一条
+std::optional<WindowTopo> solve_channel(RouteDiag* dg, RouteWindow* rw, const TopoSearch& search, const Mask& lim)
+{
+    if (!ends_linked(rw, lim)) {
+        if (rw->strict) {
+            escalate(dg, "掩膜内两端不连通");
         }
-        const JumpEdges& jl = backward ? info.links_span_rev : info.links_span;
-        const auto viaJumps = [&] {
-            for (const JumpEdge& e : jl.e) {
-                if (seen[static_cast<size_t>(e.src)] != 0 && seen[static_cast<size_t>(e.dst)] == 0
-                    && use[static_cast<size_t>(e.dst)] != 0) {
-                    seen[static_cast<size_t>(e.dst)] = 1;
-                    frontier.push_back(e.dst);
-                }
-            }
-        };
-        viaJumps();
-        while (!frontier.empty()) {
-            std::vector<int64_t> next;
-            for (const int64_t u : frontier) {
-                const int64_t cu = st3.sp_cell[static_cast<size_t>(u)];
-                const int64_t ux = cu % nx;
-                const int64_t uy = cu / nx;
-                const float hu = st3.sp_h[static_cast<size_t>(u)];
-                for (int64_t dy = -1; dy <= 1; ++dy) {
-                    for (int64_t dx = -1; dx <= 1; ++dx) {
-                        const int64_t vx = ux + dx;
-                        const int64_t vy = uy + dy;
-                        if ((dx == 0 && dy == 0) || vx < 0 || vy < 0 || vx >= nx || vy >= ny) {
+        return std::nullopt;
+    }
+    Mask wl(rw->nx, rw->ny, 0);
+    Mask cr(rw->nx, rw->ny, 0);
+    for (size_t i = 0; i < wl.v.size(); ++i) {
+        wl.v[i] = static_cast<uint8_t>(rw->walk.v[i] != 0 && lim.v[i] != 0);
+        cr.v[i] = static_cast<uint8_t>(rw->info->core.v[i] != 0 && lim.v[i] != 0);
+    }
+    return solve_spans(dg, *rw, search, wl, cr);
+}
+
+// lim 只能收紧可达判据, 不得放宽任何一条
+std::optional<WindowTopo> solve_baseline(RouteDiag* dg, RouteWindow* rw, const TopoSearch& search, const Mask& lim)
+{
+    Mask wl(rw->nx, rw->ny, 0);
+    Mask cr(rw->nx, rw->ny, 0);
+    for (size_t i = 0; i < wl.v.size(); ++i) {
+        wl.v[i] = static_cast<uint8_t>(rw->walk.v[i] != 0 && lim.v[i] != 0);
+        cr.v[i] = static_cast<uint8_t>(rw->info->core.v[i] != 0 && lim.v[i] != 0);
+    }
+    std::optional<WindowTopo> t = solve_spans(dg, *rw, search, wl, cr);
+    if (t.has_value()) {
+        return t;
+    }
+    // 格级搜索不看 span, 声明了端点面就不能退到这一级
+    if (rw->goal_deck.has_value() || rw->start_deck.has_value()) {
+        return std::nullopt;
+    }
+    if (rw->strict) {
+        escalate(dg, "层不连通");
+        return std::nullopt;
+    }
+    std::tie(rw->as, rw->dsa) = nearest_cell(*rw, wl, rw->sc);
+    std::tie(rw->ag, rw->dga) = nearest_cell(*rw, wl, rw->gc);
+    if (!rw->as.has_value() || !rw->ag.has_value()) {
+        return std::nullopt;
+    }
+    WindowTopo t2;
+    t2.on3 = wl;
+    std::optional<std::vector<CellPt>> qc;
+    if (rw->as->x == rw->ag->x && rw->as->y == rw->ag->y) {
+        qc = std::vector<CellPt> { *rw->as };
+    }
+    else {
+        qc = CostAstar(wl, *rw->as, *rw->ag, *search.price, search.banned, search.bnp, rw->faces, nullptr, rw->jcell);
+    }
+    if (!qc.has_value()) {
+        t2.on3 = cr;
+        qc = CostAstar(cr, *rw->as, *rw->ag, *search.price, search.banned, search.bnp, rw->faces, nullptr, rw->jcell);
+        if (qc.has_value()) {
+            t2.warn.push_back("walk 断开→退回 core");
+        }
+    }
+    if (!qc.has_value()) {
+        return std::nullopt;
+    }
+    t2.warn.push_back("层不连通→退回格级");
+    t2.q = std::move(*qc);
+    return t2;
+}
+
+enum class ReachDirection
+{
+    Forward,  // 从起点顺着可走方向扩
+    Backward, // 从终点逆着可走方向扩, 禁行边与抬升判据都按 v→u 问
+};
+
+void spread_via_jumps(std::vector<uint8_t>* seen, std::vector<int64_t>* frontier, const JumpEdges& jl, const std::vector<uint8_t>& use)
+{
+    for (const JumpEdge& e : jl.e) {
+        if ((*seen)[static_cast<size_t>(e.src)] != 0 && (*seen)[static_cast<size_t>(e.dst)] == 0 && use[static_cast<size_t>(e.dst)] != 0) {
+            (*seen)[static_cast<size_t>(e.dst)] = 1;
+            frontier->push_back(e.dst);
+        }
+    }
+}
+
+std::vector<uint8_t> reach_spans(
+    const RouteWindow& rw,
+    const std::vector<int64_t>& seeds,
+    const std::vector<uint8_t>& use,
+    const Mask& ok2,
+    ReachDirection dir)
+{
+    const bool backward = dir == ReachDirection::Backward;
+    std::vector<uint8_t> seen(rw.st3->sp_h.size(), 0);
+    std::vector<int64_t> frontier;
+    for (const int64_t v : seeds) {
+        if (v >= 0 && use[static_cast<size_t>(v)] != 0 && seen[static_cast<size_t>(v)] == 0) {
+            seen[static_cast<size_t>(v)] = 1;
+            frontier.push_back(v);
+        }
+    }
+    const JumpEdges& jl = backward ? rw.info->links_span_rev : rw.info->links_span;
+    spread_via_jumps(&seen, &frontier, jl, use);
+    while (!frontier.empty()) {
+        std::vector<int64_t> next;
+        for (const int64_t u : frontier) {
+            const int64_t cu = rw.st3->sp_cell[static_cast<size_t>(u)];
+            const int64_t ux = cu % rw.nx;
+            const int64_t uy = cu / rw.nx;
+            const float hu = rw.st3->sp_h[static_cast<size_t>(u)];
+            for (int64_t dy = -1; dy <= 1; ++dy) {
+                for (int64_t dx = -1; dx <= 1; ++dx) {
+                    const int64_t vx = ux + dx;
+                    const int64_t vy = uy + dy;
+                    if ((dx == 0 && dy == 0) || vx < 0 || vy < 0 || vx >= rw.nx || vy >= rw.ny) {
+                        continue;
+                    }
+                    const int64_t cv = vy * rw.nx + vx;
+                    if (ok2.v[static_cast<size_t>(cv)] == 0) {
+                        continue;
+                    }
+                    if (dx != 0 && dy != 0 && !(ok2.at(uy, vx) && ok2.at(vy, ux))) {
+                        continue;
+                    }
+                    if (OccupiedIndex(rw.info->st3, cv) < 0) {
+                        continue;
+                    }
+                    if (HasEdgeBit(*rw.faces, backward ? cv : cu, backward ? cu : cv)) {
+                        continue;
+                    }
+                    const int64_t j = OccupiedIndex(rw.info->st3, cv);
+                    const int64_t jb = CellSpanStart(*rw.st3, j);
+                    for (int64_t k = 0, kn = CellSpanCount(*rw.st3, j); k < kn; ++k) {
+                        const int64_t v = jb + k;
+                        if (use[static_cast<size_t>(v)] == 0 || seen[static_cast<size_t>(v)] != 0) {
                             continue;
                         }
-                        const int64_t cv = vy * nx + vx;
-                        if (ok2.v[static_cast<size_t>(cv)] == 0) {
+                        const float hv = rw.st3->sp_h[static_cast<size_t>(v)];
+                        if (!(backward ? RiseOk(*rw.st3, rw.nx, rw.ny, cv, -dx, -dy, hv, hu)
+                                       : RiseOk(*rw.st3, rw.nx, rw.ny, cu, dx, dy, hu, hv))) {
                             continue;
                         }
-                        if (dx != 0 && dy != 0 && !(ok2.at(uy, vx) && ok2.at(vy, ux))) {
-                            continue;
-                        }
-                        if (OccupiedIndex(info.st3, cv) < 0) {
-                            continue;
-                        }
-                        if (HasEdgeBit(*faces, backward ? cv : cu, backward ? cu : cv)) {
-                            continue;
-                        }
-                        const int64_t j = OccupiedIndex(info.st3, cv);
-                        const int64_t jb = CellSpanStart(st3, j);
-                        for (int64_t k = 0, kn = CellSpanCount(st3, j); k < kn; ++k) {
-                            const int64_t v = jb + k;
-                            if (use[static_cast<size_t>(v)] == 0 || seen[static_cast<size_t>(v)] != 0) {
-                                continue;
-                            }
-                            const float hv = st3.sp_h[static_cast<size_t>(v)];
-                            if (!(backward ? RiseOk(st3, nx, ny, cv, -dx, -dy, hv, hu) : RiseOk(st3, nx, ny, cu, dx, dy, hu, hv))) {
-                                continue;
-                            }
-                            seen[static_cast<size_t>(v)] = 1;
-                            next.push_back(v);
-                        }
+                        seen[static_cast<size_t>(v)] = 1;
+                        next.push_back(v);
                     }
                 }
             }
-            frontier = std::move(next);
-            if (frontier.empty()) {
-                viaJumps();
-            }
         }
-        return seen;
-    };
-    const auto reportGap = [&] {
-        if (!as_.has_value() || !ag_.has_value()) {
-            return;
+        frontier = std::move(next);
+        if (frontier.empty()) {
+            spread_via_jumps(&seen, &frontier, jl, use);
         }
-        std::vector<uint8_t> useC;
-        Mask cc3;
-        mk(info.core, useC, cc3);
-        const int64_t sd = startOf(pick(*as_, useC));
-        const std::vector<int64_t> gs = goalsOf(pick(*ag_, useC));
-        if (sd < 0 || gs.empty()) {
-            return;
+    }
+    return seen;
+}
+
+constexpr int32_t kGapFar = std::numeric_limits<int32_t>::max() / 4;
+
+// 逐格到终点可达集的最近距离与那个最近格, 两遍扫描的倒角距离
+struct GapField
+{
+    int64_t nx = 0;
+    int64_t ny = 0;
+    std::vector<int32_t> dc;
+    std::vector<int32_t> src;
+};
+
+void relax_gap(GapField* f, size_t c, int64_t bx, int64_t by, int32_t w)
+{
+    if (bx < 0 || by < 0 || bx >= f->nx || by >= f->ny) {
+        return;
+    }
+    const auto b = static_cast<size_t>(by * f->nx + bx);
+    if (f->dc[b] < kGapFar && f->dc[b] + w < f->dc[c]) {
+        f->dc[c] = f->dc[b] + w;
+        f->src[c] = f->src[b];
+    }
+}
+
+void report_gap(RouteDiag* dg, const RouteWindow& rw)
+{
+    if (!rw.as.has_value() || !rw.ag.has_value()) {
+        return;
+    }
+    std::vector<uint8_t> useC;
+    Mask cc3;
+    spans_in_mask(&useC, &cc3, rw, rw.info->core);
+    const int64_t sd = start_span(rw, spans_at(rw, *rw.as, useC));
+    const std::vector<int64_t> gs = goal_spans(rw, spans_at(rw, *rw.ag, useC));
+    if (sd < 0 || gs.empty()) {
+        return;
+    }
+    const std::vector<uint8_t> ra = reach_spans(rw, { sd }, useC, cc3, ReachDirection::Forward);
+    const std::vector<uint8_t> rb = reach_spans(rw, gs, useC, cc3, ReachDirection::Backward);
+    const size_t n = static_cast<size_t>(rw.nx * rw.ny);
+    GapField field { .nx = rw.nx, .ny = rw.ny, .dc = std::vector<int32_t>(n, kGapFar), .src = std::vector<int32_t>(n, -1) };
+    std::vector<uint8_t> ina(n, 0);
+    for (size_t i = 0; i < ra.size(); ++i) {
+        const auto c = static_cast<size_t>(rw.st3->sp_cell[i]);
+        ina[c] = static_cast<uint8_t>(ina[c] | ra[i]);
+        if (rb[i] != 0) {
+            field.dc[c] = 0;
+            field.src[c] = static_cast<int32_t>(c);
         }
-        const std::vector<uint8_t> ra = reachFrom({ sd }, useC, cc3, false);
-        const std::vector<uint8_t> rb = reachFrom(gs, useC, cc3, true);
-        const size_t n = static_cast<size_t>(nx * ny);
-        constexpr int32_t kBig = std::numeric_limits<int32_t>::max() / 4;
-        std::vector<int32_t> dc(n, kBig);
-        std::vector<int32_t> src(n, -1);
-        std::vector<uint8_t> ina(n, 0);
-        for (size_t i = 0; i < ra.size(); ++i) {
-            const auto c = static_cast<size_t>(st3.sp_cell[i]);
-            ina[c] = static_cast<uint8_t>(ina[c] | ra[i]);
-            if (rb[i] != 0) {
-                dc[c] = 0;
-                src[c] = static_cast<int32_t>(c);
-            }
+    }
+    for (int64_t y = 0; y < rw.ny; ++y) {
+        for (int64_t x = 0; x < rw.nx; ++x) {
+            const auto c = static_cast<size_t>(y * rw.nx + x);
+            relax_gap(&field, c, x - 1, y - 1, 141);
+            relax_gap(&field, c, x, y - 1, 100);
+            relax_gap(&field, c, x + 1, y - 1, 141);
+            relax_gap(&field, c, x - 1, y, 100);
         }
-        const auto relax = [&](size_t c, int64_t bx, int64_t by, int32_t w) {
-            if (bx < 0 || by < 0 || bx >= nx || by >= ny) {
-                return;
-            }
-            const auto b = static_cast<size_t>(by * nx + bx);
-            if (dc[b] < kBig && dc[b] + w < dc[c]) {
-                dc[c] = dc[b] + w;
-                src[c] = src[b];
-            }
-        };
-        for (int64_t y = 0; y < ny; ++y) {
-            for (int64_t x = 0; x < nx; ++x) {
-                const auto c = static_cast<size_t>(y * nx + x);
-                relax(c, x - 1, y - 1, 141);
-                relax(c, x, y - 1, 100);
-                relax(c, x + 1, y - 1, 141);
-                relax(c, x - 1, y, 100);
-            }
+    }
+    for (int64_t y = rw.ny - 1; y >= 0; --y) {
+        for (int64_t x = rw.nx - 1; x >= 0; --x) {
+            const auto c = static_cast<size_t>(y * rw.nx + x);
+            relax_gap(&field, c, x + 1, y + 1, 141);
+            relax_gap(&field, c, x, y + 1, 100);
+            relax_gap(&field, c, x - 1, y + 1, 141);
+            relax_gap(&field, c, x + 1, y, 100);
         }
-        for (int64_t y = ny - 1; y >= 0; --y) {
-            for (int64_t x = nx - 1; x >= 0; --x) {
-                const auto c = static_cast<size_t>(y * nx + x);
-                relax(c, x + 1, y + 1, 141);
-                relax(c, x, y + 1, 100);
-                relax(c, x - 1, y + 1, 141);
-                relax(c, x + 1, y, 100);
-            }
+    }
+    int64_t best = -1;
+    for (size_t c = 0; c < n; ++c) {
+        if (ina[c] != 0 && field.src[c] >= 0 && (best < 0 || field.dc[c] < field.dc[static_cast<size_t>(best)])) {
+            best = static_cast<int64_t>(c);
         }
-        int64_t best = -1;
-        for (size_t c = 0; c < n; ++c) {
-            if (ina[c] != 0 && src[c] >= 0 && (best < 0 || dc[c] < dc[static_cast<size_t>(best)])) {
-                best = static_cast<int64_t>(c);
-            }
+    }
+    if (best < 0) {
+        return;
+    }
+    const int64_t peer = field.src[static_cast<size_t>(best)];
+    const WorldPoint a { rw.x0 + (static_cast<double>(best % rw.nx) + 0.5) * kCS, rw.y0 + (static_cast<double>(best / rw.nx) + 0.5) * kCS };
+    const WorldPoint b { rw.x0 + (static_cast<double>(peer % rw.nx) + 0.5) * kCS, rw.y0 + (static_cast<double>(peer / rw.nx) + 0.5) * kCS };
+    dg->gap_start = a;
+    dg->gap_goal = b;
+    dg->gap_distance = std::hypot(a.x - b.x, a.y - b.y);
+}
+
+void open_access(
+    Mask* lim,
+    RouteDiag* dg,
+    const RouteWindow& rw,
+    const std::optional<std::vector<int64_t>>& ac_s,
+    const std::optional<std::vector<int64_t>>& ac_g)
+{
+    const std::optional<std::vector<int64_t>> s = ac_s.has_value() ? ac_s : access_chain(dg, rw, *lim, rw.as);
+    const std::optional<std::vector<int64_t>> g = ac_g.has_value() ? ac_g : access_chain(dg, rw, *lim, rw.ag);
+    if (s.has_value()) {
+        open_cells(lim, *s);
+    }
+    if (g.has_value()) {
+        open_cells(lim, *g);
+    }
+}
+
+std::vector<std::vector<WorldPoint>> loops_to_world(const RouteWindow& rw, const std::vector<std::vector<WorldPoint>>& loops)
+{
+    std::vector<std::vector<WorldPoint>> out;
+    out.reserve(loops.size());
+    for (const auto& L : loops) {
+        std::vector<WorldPoint> w;
+        w.reserve(L.size());
+        for (const auto& p : L) {
+            w.push_back({ rw.x0 + p.x * kCS, rw.y0 + p.y * kCS });
         }
-        if (best < 0) {
-            return;
+        out.push_back(std::move(w));
+    }
+    return out;
+}
+
+void open_link_chains(Mask* limw, const RouteWindow& rw, const Mask& chan0, const Mask& medial, const std::vector<int64_t>& ends)
+{
+    const std::vector<std::vector<int64_t>> wide = link_chains(rw, chan0, ends);
+    std::vector<int64_t> miss;
+    for (size_t i = 0; i < ends.size(); ++i) {
+        if (wide[i].empty() && chan0.v[static_cast<size_t>(ends[i])] == 0) {
+            miss.push_back(ends[i]);
         }
-        const int64_t peer = src[static_cast<size_t>(best)];
-        const WorldPoint a { x0 + (static_cast<double>(best % nx) + 0.5) * kCS, y0 + (static_cast<double>(best / nx) + 0.5) * kCS };
-        const WorldPoint b { x0 + (static_cast<double>(peer % nx) + 0.5) * kCS, y0 + (static_cast<double>(peer / nx) + 0.5) * kCS };
-        dg.gap_start = a;
-        dg.gap_goal = b;
-        dg.gap_distance = std::hypot(a.x - b.x, a.y - b.y);
-    };
+        open_cells(limw, wide[i]);
+    }
+    for (const std::vector<int64_t>& ch : link_chains(rw, medial, miss)) {
+        open_cells(limw, ch);
+    }
+}
+
+std::vector<WorldPoint> cell_centres(const RouteWindow& rw, const std::vector<CellPt>& P)
+{
+    std::vector<WorldPoint> out;
+    out.reserve(P.size());
+    for (const auto& c : P) {
+        out.push_back({ rw.x0 + (static_cast<double>(c.x) + 0.5) * kCS, rw.y0 + (static_cast<double>(c.y) + 0.5) * kCS });
+    }
+    return out;
+}
+
+double nearest_height(const std::vector<float>& cur, double ref)
+{
+    double nearest_h = static_cast<double>(cur.front());
+    for (const float v : cur) {
+        if (std::fabs(static_cast<double>(v) - ref) < std::fabs(nearest_h - ref)) {
+            nearest_h = static_cast<double>(v);
+        }
+    }
+    return nearest_h;
+}
+
+std::vector<double> walk_heights(const LayerOracle* lyo, const std::vector<WorldPoint>& out, float lyo_h)
+{
+    std::vector<double> hz;
+    if (lyo == nullptr || out.empty()) {
+        return hz;
+    }
+    std::vector<float> cur { lyo_h };
+    hz.push_back(static_cast<double>(lyo_h));
+    for (size_t i = 1; i < out.size(); ++i) {
+        const std::optional<std::vector<float>> nxt = LayerWalk(*lyo, { out[i - 1], out[i] }, cur);
+        if (!nxt.has_value() || nxt->empty()) {
+            hz.clear();
+            break;
+        }
+        cur = *nxt;
+        hz.push_back(nearest_height(cur, hz.back()));
+    }
+    return hz;
+}
+
+std::vector<double> walk_heights_falling(const LayerOracle* lyo, const std::vector<WorldPoint>& out, float lyo_h)
+{
+    std::vector<double> hz;
+    if (lyo == nullptr || out.empty()) {
+        return hz;
+    }
+    std::vector<float> cur { lyo_h };
+    hz.push_back(static_cast<double>(lyo_h));
+    for (size_t i = 1; i < out.size(); ++i) {
+        const std::vector<float> nxt = LayerWalkFalling(*lyo, { out[i - 1], out[i] }, cur);
+        if (nxt.empty()) {
+            hz.clear();
+            break;
+        }
+        cur = nxt;
+        hz.push_back(nearest_height(cur, hz.back()));
+    }
+    return hz;
+}
+
+// goal_deck 为空时终点格任一 span 都算到达, start_deck 为空时起点取离吸附面最近的 span
+std::optional<std::vector<WorldPoint>> routeWindow(
+    RouteDiag* dg,
+    WindowInfo* info,
+    const BaseNavPlanner& pl,
+    const BaseNavPack& pack,
+    const WorldPoint& s,
+    const WorldPoint& g,
+    std::optional<double> goal_deck,
+    std::optional<double> start_deck,
+    uint16_t zid)
+{
+    const double t_topo0 = nowMs();
+    RouteWindow rw;
+    rw.info = info;
+    rw.nx = info->nx;
+    rw.ny = info->ny;
+    rw.x0 = info->x0;
+    rw.y0 = info->y0;
+    rw.walk = Mask(rw.nx, rw.ny, 0);
+    for (size_t i = 0; i < rw.walk.v.size(); ++i) {
+        rw.walk.v[i] = static_cast<uint8_t>(info->core.v[i] != 0 && info->lay.v[i] != 0);
+    }
+    info->lay = Mask();
+    rw.dist = std::move(info->dist);
+    info->dist = Grid<float>();
+    Mask rdg = std::move(info->medial);
+    info->medial = Mask();
+    const double cpref = kClrPref;
+    rw.sc = { static_cast<int64_t>((s.x - rw.x0) / kCS), static_cast<int64_t>((s.y - rw.y0) / kCS) };
+    rw.gc = { static_cast<int64_t>((g.x - rw.x0) / kCS), static_cast<int64_t>((g.y - rw.y0) / kCS) };
+
+    // 单价恒 ≥1, 代价低于 limit 或 limit2 的搜索碰不到可信区外的格
+    rw.tentative = dg->margin > 0;
+    rw.bounded = rw.tentative && !dg->final;
+    rw.strict = rw.bounded;
+    const int64_t edge_s = std::min({ rw.sc.x, rw.sc.y, rw.nx - 1 - rw.sc.x, rw.ny - 1 - rw.sc.y });
+    const int64_t edge_g = std::min({ rw.gc.x, rw.gc.y, rw.nx - 1 - rw.gc.x, rw.ny - 1 - rw.gc.y });
+    const int64_t edge = std::min(edge_s, edge_g);
+    rw.limit = static_cast<double>(edge - dg->margin);
+    rw.limit2 = rw.tentative ? ellipse_floor(rw.sc, rw.gc, dg->margin, rw.nx, rw.ny) : 0.0;
+    if (rw.tentative && rw.limit <= 0.0) {
+        escalate(dg, "端点离窗边不足");
+        return std::nullopt;
+    }
+
+    rw.st3 = &info->st3;
+    rw.lyo = { .st = rw.st3, .nx = rw.nx, .ny = rw.ny, .x0 = rw.x0, .y0 = rw.y0 };
+    rw.goal_deck = goal_deck;
+    rw.start_deck = start_deck;
+    std::vector<uint8_t> useW;
+    spans_in_mask(&useW, &rw.cw3, rw, rw.walk);
+
+    const auto snap0 = nearest_deck_cell(rw, useW, rw.cw3, rw.sc, rw.start_deck);
+    const auto snap1 = nearest_deck_cell(rw, useW, rw.cw3, rw.gc, rw.goal_deck);
+    const bool goal_off_deck = rw.goal_deck.has_value() && rw.gc.x >= 0 && rw.gc.y >= 0 && rw.gc.x < rw.nx && rw.gc.y < rw.ny
+                               && !cell_has_deck(rw, rw.gc, *rw.goal_deck);
+    if (!snap0.first.has_value()) {
+        dg->err = rw.start_deck.has_value() ? "起点附近没有未封堵的声明面" : "walk 掩膜为空";
+        return std::nullopt;
+    }
+    if (!snap1.first.has_value()) {
+        dg->err = rw.goal_deck.has_value() ? "目标附近没有未封堵的声明面" : "walk 掩膜为空";
+        return std::nullopt;
+    }
+    rw.as = snap0.first;
+    rw.ag = snap1.first;
+    rw.dsa = snap0.second;
+    rw.dga = snap1.second;
+    if (rw.bounded && (rw.dsa / kCS >= rw.limit || rw.dga / kCS >= rw.limit)) {
+        escalate(dg, "吸附距离碰边");
+        return std::nullopt;
+    }
+
+    rw.faces = &info->sev.steps;
+    rw.jspan = JumpEdgesEmpty(info->links_span) ? nullptr : &info->links_span;
+    rw.jcell = JumpEdgesEmpty(info->links_cell) ? nullptr : &info->links_cell;
+    rw.seen.assign(static_cast<size_t>(rw.nx * rw.ny), 0);
+    const PriceField mult { .dist = &rw.dist, .lo = kCS, .hi = cpref };
+    // 区间上端取最宽处, 单价恒不低于 1, 欧氏距离才是可采纳的下界
+    const PriceField multw { .dist = &rw.dist, .lo = kClrNarrow, .hi = kClrWide };
 
     // 基线只按长度计价, 硬图可达就一定有解
-    const Mask all(nx, ny, 1);
+    const Mask all(rw.nx, rw.ny, 1);
     const PriceField unit {};
-    const std::optional<Topo> base = solve(all, unit, nullptr, nullptr, true);
-    if (strict && !base.has_value()) {
-        esc("基线不通");
+    const std::optional<WindowTopo> base = solve_baseline(dg, &rw, TopoSearch { .price = &unit }, all);
+    if (rw.strict && !base.has_value()) {
+        escalate(dg, "基线不通");
         return std::nullopt;
     }
     if (!base.has_value()) {
-        reportGap();
-        dg.timing.topology_ms = nowMs() - t_topo0;
-        if (goal_deck.has_value()) {
-            const std::vector<int64_t> gv = pick(*ag_, useW);
+        report_gap(dg, rw);
+        dg->timing.topology_ms = nowMs() - t_topo0;
+        if (rw.goal_deck.has_value()) {
+            const std::vector<int64_t> gv = spans_at(rw, *rw.ag, useW);
             std::vector<float> hv;
             hv.reserve(gv.size());
             for (const int64_t v : gv) {
-                hv.push_back(st3.sp_h[static_cast<size_t>(v)]);
+                hv.push_back(rw.st3->sp_h[static_cast<size_t>(v)]);
             }
             std::sort(hv.begin(), hv.end());
             hv.erase(std::unique(hv.begin(), hv.end()), hv.end());
@@ -2530,152 +2774,117 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                 std::snprintf(buf, sizeof(buf), "%.2f", static_cast<double>(h));
                 list += (list.empty() ? "" : ", ") + std::string(buf);
             }
-            std::snprintf(buf, sizeof(buf), "%.2f", *goal_deck);
-            dg.err =
+            std::snprintf(buf, sizeof(buf), "%.2f", *rw.goal_deck);
+            dg->err =
                 "目标面不可达 (声明 " + std::string(buf) + ", 终点格里的面 " + (list.empty() ? std::string("无") : "[" + list + "]") + ")";
             return std::nullopt;
         }
-        dg.err = "不连通";
+        dg->err = "不连通";
         return std::nullopt;
     }
     useW = std::vector<uint8_t>();
 
     const double tax = kStepTax;
 
-    const EdgeBits* bn = tax > 0.0 ? &info.step_edges : nullptr;
+    const EdgeBits* bn = tax > 0.0 ? &info->step_edges : nullptr;
     const double* bp = tax > 0.0 ? &tax : nullptr;
     // 拓扑层把路面单价抬了 kClrWide / cpref 倍, 台阶税要同比换算
     const double taxw = tax * kClrWide / cpref;
     const double* bpw = tax > 0.0 ? &taxw : nullptr;
-    Mask chan0 = chan(cpref, Mask(nx, ny, 0));
-    const std::optional<std::vector<int64_t>> ac_s = access(chan0, as_);
-    const std::optional<std::vector<int64_t>> ac_g = access(chan0, ag_);
-    if (dg.escalate) {
+    Mask chan0 = channel_mask(rw, cpref, Mask(rw.nx, rw.ny, 0));
+    const std::optional<std::vector<int64_t>> ac_s = access_chain(dg, rw, chan0, rw.as);
+    const std::optional<std::vector<int64_t>> ac_g = access_chain(dg, rw, chan0, rw.ag);
+    if (dg->escalate) {
         return std::nullopt;
     }
     // 跳边端点须接到 chan0, 缝沿的中轴常是孤立碎片, 先只为基线经过的跳边开链
     std::vector<int64_t> lends;
-    if (jspan != nullptr && base->qs.has_value()) {
+    if (rw.jspan != nullptr && base->qs.has_value()) {
         const std::vector<int64_t>& q = *base->qs;
         for (size_t i = 1; i < q.size(); ++i) {
-            if (HasJumpEdge(*jspan, q[i - 1], q[i])) {
-                lends.push_back(st3.sp_cell[static_cast<size_t>(q[i - 1])]);
-                lends.push_back(st3.sp_cell[static_cast<size_t>(q[i])]);
+            if (HasJumpEdge(*rw.jspan, q[i - 1], q[i])) {
+                lends.push_back(rw.st3->sp_cell[static_cast<size_t>(q[i - 1])]);
+                lends.push_back(rw.st3->sp_cell[static_cast<size_t>(q[i])]);
             }
         }
     }
-    const auto join = [&](Mask& lim) {
-        const std::optional<std::vector<int64_t>> s = ac_s.has_value() ? ac_s : access(lim, as_);
-        const std::optional<std::vector<int64_t>> g = ac_g.has_value() ? ac_g : access(lim, ag_);
-        if (s.has_value()) {
-            openc(lim, *s);
-        }
-        if (g.has_value()) {
-            openc(lim, *g);
-        }
-    };
-    const auto toWorld = [&](const std::vector<std::vector<WorldPoint>>& loops) {
-        std::vector<std::vector<WorldPoint>> out;
-        out.reserve(loops.size());
-        for (const auto& L : loops) {
-            std::vector<WorldPoint> w;
-            w.reserve(L.size());
-            for (const auto& p : L) {
-                w.push_back({ x0 + p.x * kCS, y0 + p.y * kCS });
-            }
-            out.push_back(std::move(w));
-        }
-        return out;
-    };
-    const auto loops_core = toWorld(TraceContours(info.core));
+    const auto loops_core = loops_to_world(rw, TraceContours(info->core));
 
-    Mask limw = chan(cpref, rdg);
+    Mask limw = channel_mask(rw, cpref, rdg);
     rdg = Mask();
-    join(limw);
-    if (dg.escalate) {
+    open_access(&limw, dg, rw, ac_s, ac_g);
+    if (dg->escalate) {
         return std::nullopt;
     }
     // 接不到宽处的端点(窄路上的跳边)退一步接到中轴
     const Mask medial = limw;
-    const auto chainOpen = [&](const std::vector<int64_t>& ends) {
-        const std::vector<std::vector<int64_t>> wide = linkChains(chan0, ends);
-        std::vector<int64_t> miss;
-        for (size_t i = 0; i < ends.size(); ++i) {
-            if (wide[i].empty() && chan0.v[static_cast<size_t>(ends[i])] == 0) {
-                miss.push_back(ends[i]);
-            }
-            openc(limw, wide[i]);
-        }
-        for (const std::vector<int64_t>& ch : linkChains(medial, miss)) {
-            openc(limw, ch);
-        }
-    };
-    chainOpen(lends);
-    if (!JumpEdgesEmpty(info.links_cell) && !linked(limw)) {
+    open_link_chains(&limw, rw, chan0, medial, lends);
+    if (!JumpEdgesEmpty(info->links_cell) && !ends_linked(&rw, limw)) {
         lends.clear();
-        for (const JumpEdge& e : info.links_cell.e) {
+        for (const JumpEdge& e : info->links_cell.e) {
             lends.push_back(e.src);
             lends.push_back(e.dst);
         }
-        chainOpen(lends);
+        open_link_chains(&limw, rw, chan0, medial, lends);
     }
     chan0 = Mask();
-    std::optional<Topo> vv = solve(limw, multw, bn, bpw, false);
-    if (strict && !vv.has_value()) {
-        esc("通道未接通");
+    std::optional<WindowTopo> vv = solve_channel(dg, &rw, TopoSearch { .price = &multw, .banned = bn, .bnp = bpw }, limw);
+    if (rw.strict && !vv.has_value()) {
+        escalate(dg, "通道未接通");
         return std::nullopt;
     }
     if (!vv.has_value()) {
-        limw = Mask(nx, ny, 1);
-        vv = solve(limw, multw, bn, bpw, false);
-        dg.warn.emplace_back("通道未接通, 退到全图亏欠计价");
+        limw = Mask(rw.nx, rw.ny, 1);
+        vv = solve_channel(dg, &rw, TopoSearch { .price = &multw, .banned = bn, .bnp = bpw }, limw);
+        dg->warn.emplace_back("通道未接通, 退到全图亏欠计价");
     }
     {
-        const Topo& tp = vv.has_value() ? *vv : *base;
-        dg.topology_cells.reserve(tp.q.size());
+        const WindowTopo& tp = vv.has_value() ? *vv : *base;
+        dg->topology_cells.reserve(tp.q.size());
         for (const CellPt& c : tp.q) {
-            dg.topology_cells.push_back({ x0 + (static_cast<double>(c.x) + 0.5) * kCS, y0 + (static_cast<double>(c.y) + 0.5) * kCS });
+            dg->topology_cells.push_back(
+                { rw.x0 + (static_cast<double>(c.x) + 0.5) * kCS, rw.y0 + (static_cast<double>(c.y) + 0.5) * kCS });
         }
         if (tp.qs.has_value()) {
-            dg.topology_heights.reserve(tp.qs->size());
+            dg->topology_heights.reserve(tp.qs->size());
             for (const int64_t v : *tp.qs) {
-                dg.topology_heights.push_back(static_cast<double>(st3.sp_h[static_cast<size_t>(v)]));
+                dg->topology_heights.push_back(static_cast<double>(rw.st3->sp_h[static_cast<size_t>(v)]));
             }
         }
     }
-    dg.timing.topology_ms = nowMs() - t_topo0;
+    dg->timing.topology_ms = nowMs() - t_topo0;
     const double t_geo0 = nowMs();
     // 弦只许落在实心区内, 对中脊取直会把线拽向墙
     const double solid_c = cpref + kGeoMargin;
     Mask band;
-    Mask solidc(nx, ny, 0);
+    Mask solidc(rw.nx, rw.ny, 0);
     {
-        Mask bb(nx, ny, 0);
+        Mask bb(rw.nx, rw.ny, 0);
         for (const CellPt& c : (vv.has_value() ? vv->q : base->q)) {
             bb.at(c.y, c.x) = 1;
         }
-        const Grid<float> cw = CorridorWidth(dist, bb, &band);
+        const Grid<float> cw = CorridorWidth(rw.dist, bb, &band);
         for (size_t i = 0; i < solidc.v.size(); ++i) {
             const double need = std::max(solid_c, kChordFrac * static_cast<double>(cw.v[i]));
-            solidc.v[i] = static_cast<uint8_t>(static_cast<double>(dist.v[i]) >= need);
+            solidc.v[i] = static_cast<uint8_t>(static_cast<double>(rw.dist.v[i]) >= need);
         }
         // 净空场只在可信区内与整类窗口相同
-        if (bounded) {
-            const int64_t m = dg.margin;
-            for (int64_t y = 0; y < ny; ++y) {
-                for (int64_t x = 0; x < nx; ++x) {
-                    if (band.at(y, x) != 0 && (x < m || y < m || x >= nx - m || y >= ny - m)) {
-                        esc("走廊碰边");
+        if (rw.bounded) {
+            const int64_t m = dg->margin;
+            for (int64_t y = 0; y < rw.ny; ++y) {
+                for (int64_t x = 0; x < rw.nx; ++x) {
+                    if (band.at(y, x) != 0 && (x < m || y < m || x >= rw.nx - m || y >= rw.ny - m)) {
+                        escalate(dg, "走廊碰边");
                         return std::nullopt;
                     }
                 }
             }
         }
     }
-    const BlockerOnMask onv { &solidc, x0, y0, kCS };
+    const BlockerOnMask onv { &solidc, rw.x0, rw.y0, kCS };
     const BlockerSegments no_segs;
     Blockers blk_vis = MakeBlockers(no_segs, onv);
-    Visibility vis { .blk = &blk_vis, .lyo = &lyo, .faces = faces, .steps = bn, .nx = nx, .ny = ny, .x0 = x0, .y0 = y0 };
+    Visibility vis { .blk = &blk_vis, .lyo = &rw.lyo, .faces = rw.faces, .steps = bn, .nx = rw.nx, .ny = rw.ny, .x0 = rw.x0, .y0 = rw.y0 };
     if (vv.has_value()) {
         // 锁在走廊里, 否则按恒一单价重解会挑回拓扑绕开的窄分支
         Mask limg = limw;
@@ -2683,60 +2892,52 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             limg.v[i] = static_cast<uint8_t>(limg.v[i] != 0 && band.v[i] != 0);
         }
         band = Mask();
-        std::optional<Topo> tt = solve(limg, mult, bn, bp, false, &vis);
-        if (strict && !tt.has_value()) {
-            esc("走廊内几何不通");
+        std::optional<WindowTopo> tt = solve_channel(dg, &rw, TopoSearch { .price = &mult, .banned = bn, .bnp = bp, .vis = &vis }, limg);
+        if (rw.strict && !tt.has_value()) {
+            escalate(dg, "走廊内几何不通");
             return std::nullopt;
         }
         if (!tt.has_value()) {
-            tt = solve(limw, mult, bn, bp, false, &vis);
+            tt = solve_channel(dg, &rw, TopoSearch { .price = &mult, .banned = bn, .bnp = bp, .vis = &vis }, limw);
         }
         if (tt.has_value()) {
             vv = std::move(tt);
         }
     }
-    dg.timing.geometry_ms = nowMs() - t_geo0;
-    const Topo& win = vv.has_value() ? *vv : *base;
+    dg->timing.geometry_ms = nowMs() - t_geo0;
+    const WindowTopo& win = vv.has_value() ? *vv : *base;
     for (const std::string& w : win.warn) {
-        dg.warn.push_back(w);
+        dg->warn.push_back(w);
     }
     Mask on3 = win.on3;
     const std::optional<std::vector<CellPt>> q = win.q;
     const std::optional<std::vector<int64_t>>& qs = win.qs;
-    dg.snap_start = dsa;
-    dg.snap_goal = dga;
+    dg->snap_start = rw.dsa;
+    dg->snap_goal = rw.dga;
     // 末段锚点直连终点不查阻挡, 终点在可走面上却不在可达集里就是穿墙
-    if (gc.x >= 0 && gc.y >= 0 && gc.x < nx && gc.y < ny) {
+    if (rw.gc.x >= 0 && rw.gc.y >= 0 && rw.gc.x < rw.nx && rw.gc.y < rw.ny) {
         // 须用基线的硬可达集, 舒适通道不含贴墙的终点
-        dg.hop_barrier = !goal_off_deck && walk.at(gc.y, gc.x) != 0 && base->on3.at(gc.y, gc.x) == 0;
+        dg->hop_barrier = !goal_off_deck && rw.walk.at(rw.gc.y, rw.gc.x) != 0 && base->on3.at(rw.gc.y, rw.gc.x) == 0;
     }
     std::vector<size_t> bad;
     for (size_t k = 1; k < q->size(); ++k) {
-        const int64_t ca = (*q)[k - 1].y * nx + (*q)[k - 1].x;
-        const int64_t cb = (*q)[k].y * nx + (*q)[k].x;
-        if (HasEdgeBit(info.sev.steps, ca, cb) && !HasJumpEdge(info.links_cell, ca, cb)) {
+        const int64_t ca = (*q)[k - 1].y * rw.nx + (*q)[k - 1].x;
+        const int64_t cb = (*q)[k].y * rw.nx + (*q)[k].x;
+        if (HasEdgeBit(info->sev.steps, ca, cb) && !HasJumpEdge(info->links_cell, ca, cb)) {
             bad.push_back(k);
         }
     }
     if (!bad.empty()) {
-        dg.warn.push_back("不可避立面 " + std::to_string(bad.size()) + " 步");
+        dg->warn.push_back("不可避立面 " + std::to_string(bad.size()) + " 步");
     }
-    if (info.links_dropped != 0) {
-        dg.warn.push_back("离网连接 " + std::to_string(info.links_dropped) + " 条落不到面");
+    if (info->links_dropped != 0) {
+        dg->warn.push_back("离网连接 " + std::to_string(info->links_dropped) + " 条落不到面");
     }
-    dg.crossed_barrier = !bad.empty();
+    dg->crossed_barrier = !bad.empty();
 
-    const auto cen = [&](const std::vector<CellPt>& P) {
-        std::vector<WorldPoint> out;
-        out.reserve(P.size());
-        for (const auto& c : P) {
-            out.push_back({ x0 + (static_cast<double>(c.x) + 0.5) * kCS, y0 + (static_cast<double>(c.y) + 0.5) * kCS });
-        }
-        return out;
-    };
     // 取直与计价须共用一道挡线, 再把选定路径放宽一格, 免得接入链被自己的挡线判掉
     Mask tm = solidc;
-    join(tm);
+    open_access(&tm, dg, rw, ac_s, ac_g);
     for (size_t i = 0; i < tm.v.size(); ++i) {
         tm.v[i] = static_cast<uint8_t>(tm.v[i] != 0 && on3.v[i] != 0);
     }
@@ -2748,16 +2949,17 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             for (int64_t dx = -1; dx <= 1; ++dx) {
                 const int64_t bx = c.x + dx;
                 const int64_t by = c.y + dy;
-                if (bx >= 0 && by >= 0 && bx < nx && by < ny && on3.at(by, bx) != 0) {
+                if (bx >= 0 && by >= 0 && bx < rw.nx && by < rw.ny && on3.at(by, bx) != 0) {
                     tm.at(by, bx) = 1;
                 }
             }
         }
     }
-    const BlockerOnMask onm { &tm, x0, y0, kCS };
-    const BlockerSegments core_segs = MakeBlockerSegments(loops_core, &info.segA, &info.segB);
+    const BlockerOnMask onm { &tm, rw.x0, rw.y0, kCS };
+    const BlockerSegments core_segs = MakeBlockerSegments(loops_core, &info->segA, &info->segB);
     Blockers blk_gray = MakeBlockers(core_segs, onm);
-    Visibility vis_geo { .blk = &blk_gray, .lyo = &lyo, .faces = faces, .steps = bn, .nx = nx, .ny = ny, .x0 = x0, .y0 = y0 };
+    Visibility
+        vis_geo { .blk = &blk_gray, .lyo = &rw.lyo, .faces = rw.faces, .steps = bn, .nx = rw.nx, .ny = rw.ny, .x0 = rw.x0, .y0 = rw.y0 };
 
     const bool by_corn = win.corn.size() >= 2;
     const std::vector<int64_t>& gsrc = by_corn ? win.corn : (qs.has_value() ? *qs : win.corn);
@@ -2765,25 +2967,25 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     if (by_corn || qs.has_value()) {
         hs.reserve(gsrc.size());
         for (const int64_t v : gsrc) {
-            hs.push_back(st3.sp_h[static_cast<size_t>(v)]);
+            hs.push_back(rw.st3->sp_h[static_cast<size_t>(v)]);
         }
     }
     std::vector<CellPt> gq;
     if (by_corn) {
         gq.reserve(gsrc.size());
         for (const int64_t v : gsrc) {
-            const int64_t c = st3.sp_cell[static_cast<size_t>(v)];
-            gq.push_back({ c % nx, c / nx });
+            const int64_t c = rw.st3->sp_cell[static_cast<size_t>(v)];
+            gq.push_back({ c % rw.nx, c / rw.nx });
         }
     }
     const double t_pull0 = nowMs();
-    std::vector<WorldPoint> taut = cen(by_corn ? gq : *q);
-    dg.taut_points = taut;
+    std::vector<WorldPoint> taut = cell_centres(rw, by_corn ? gq : *q);
+    dg->taut_points = taut;
     if (taut.size() >= 2) {
-        taut = StringPull(&blk_gray, by_corn ? &vis_geo : nullptr, taut, hs.empty() ? nullptr : &lyo, hs.empty() ? nullptr : &hs);
+        taut = StringPull(&blk_gray, by_corn ? &vis_geo : nullptr, taut, hs.empty() ? nullptr : &rw.lyo, hs.empty() ? nullptr : &hs);
     }
-    dg.pulled_points = taut;
-    dg.timing.pull_ms = nowMs() - t_pull0;
+    dg->pulled_points = taut;
+    dg->timing.pull_ms = nowMs() - t_pull0;
 
     const double t_asm0 = nowMs();
     std::vector<WorldPoint> line;
@@ -2803,7 +3005,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             ded.push_back(stripped[i]);
         }
     }
-    const LayerOracle* lyo_p = (by_corn || qs.has_value()) ? &lyo : nullptr;
+    const LayerOracle* lyo_p = (by_corn || qs.has_value()) ? &rw.lyo : nullptr;
     const float lyo_h = hs.empty() ? 0.0F : hs.front();
     std::vector<WorldPoint> out;
     if (by_corn && ded.size() >= 2) {
@@ -2826,24 +3028,24 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     else {
         out = ded;
     }
-    dg.assembled_points = out;
-    dg.timing.assemble_ms = nowMs() - t_asm0;
+    dg->assembled_points = out;
+    dg->timing.assemble_ms = nowMs() - t_asm0;
     // 只往前对回父链, 叠层处才不会对到另一遍上
     if (!hs.empty() && out.size() >= 2) {
         size_t k = 0;
-        dg.span_height.push_back(static_cast<double>(hs.front()));
+        dg->span_height.push_back(static_cast<double>(hs.front()));
         for (size_t i = 1; i + 1 < out.size(); ++i) {
-            while (k < dg.taut_points.size() && (dg.taut_points[k].x != out[i].x || dg.taut_points[k].y != out[i].y)) {
+            while (k < dg->taut_points.size() && (dg->taut_points[k].x != out[i].x || dg->taut_points[k].y != out[i].y)) {
                 ++k;
             }
-            if (k == dg.taut_points.size()) {
-                dg.span_height.clear();
+            if (k == dg->taut_points.size()) {
+                dg->span_height.clear();
                 break;
             }
-            dg.span_height.push_back(static_cast<double>(hs[k]));
+            dg->span_height.push_back(static_cast<double>(hs[k]));
         }
-        if (!dg.span_height.empty()) {
-            dg.span_height.push_back(static_cast<double>(hs.back()));
+        if (!dg->span_height.empty()) {
+            dg->span_height.push_back(static_cast<double>(hs.back()));
         }
     }
 
@@ -2851,80 +3053,61 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     // 抬升须在取直之后, 判据用硬墙, 通道掩膜只比路径宽一格会锁死拐点
     if (lyo_p != nullptr && out.size() >= 3) {
         Blockers blk_hard = MakeBlockers(core_segs, std::nullopt);
-        Visibility vis_hard { .blk = &blk_hard, .lyo = &lyo, .faces = faces, .steps = bn, .nx = nx, .ny = ny, .x0 = x0, .y0 = y0 };
-        LiftCorners(out, dist, x0, y0, &vis_hard, lyo, lyo_h, kLiftMax);
-        for (size_t i = 1; i + 1 < out.size() && dg.span_height.size() == out.size(); ++i) {
-            if (out[i].x == dg.assembled_points[i].x && out[i].y == dg.assembled_points[i].y) {
+        Visibility vis_hard { .blk = &blk_hard,
+                              .lyo = &rw.lyo,
+                              .faces = rw.faces,
+                              .steps = bn,
+                              .nx = rw.nx,
+                              .ny = rw.ny,
+                              .x0 = rw.x0,
+                              .y0 = rw.y0 };
+        LiftCorners(out, rw.dist, rw.x0, rw.y0, &vis_hard, rw.lyo, lyo_h, kLiftMax);
+        for (size_t i = 1; i + 1 < out.size() && dg->span_height.size() == out.size(); ++i) {
+            if (out[i].x == dg->assembled_points[i].x && out[i].y == dg->assembled_points[i].y) {
                 continue;
             }
             const auto v = spanNear(
-                st3,
-                nx,
-                ny,
-                static_cast<int64_t>(std::floor((out[i].x - x0) / kCS)),
-                static_cast<int64_t>(std::floor((out[i].y - y0) / kCS)),
-                dg.span_height[i]);
+                *rw.st3,
+                rw.nx,
+                rw.ny,
+                static_cast<int64_t>(std::floor((out[i].x - rw.x0) / kCS)),
+                static_cast<int64_t>(std::floor((out[i].y - rw.y0) / kCS)),
+                dg->span_height[i]);
             if (!v.has_value()) {
-                dg.span_height.clear();
+                dg->span_height.clear();
                 break;
             }
-            dg.span_height[i] = *v;
+            dg->span_height[i] = *v;
         }
     }
-    dg.timing.lift_ms = nowMs() - t_lift0;
-    dg.clearance.reserve(out.size());
+    dg->timing.lift_ms = nowMs() - t_lift0;
+    dg->clearance.reserve(out.size());
     for (const auto& p : out) {
-        const int64_t cx = std::min(std::max(static_cast<int64_t>(std::floor((p.x - info.x0) / kCS)), int64_t { 0 }), nx - 1);
-        const int64_t cy = std::min(std::max(static_cast<int64_t>(std::floor((p.y - info.y0) / kCS)), int64_t { 0 }), ny - 1);
-        dg.clearance.push_back(static_cast<double>(dist.at(cy, cx)));
+        const int64_t cx = std::min(std::max(static_cast<int64_t>(std::floor((p.x - info->x0) / kCS)), int64_t { 0 }), rw.nx - 1);
+        const int64_t cy = std::min(std::max(static_cast<int64_t>(std::floor((p.y - info->y0) / kCS)), int64_t { 0 }), rw.ny - 1);
+        dg->clearance.push_back(static_cast<double>(rw.dist.at(cy, cx)));
     }
-    const auto walk_heights = [&](bool fall) {
-        std::vector<double> hz;
-        if (lyo_p == nullptr || out.empty()) {
-            return hz;
-        }
-        std::vector<float> cur { lyo_h };
-        hz.push_back(static_cast<double>(lyo_h));
-        for (size_t i = 1; i < out.size(); ++i) {
-            const std::optional<std::vector<float>> nxt =
-                fall ? LayerWalkFalling(*lyo_p, { out[i - 1], out[i] }, cur) : LayerWalk(*lyo_p, { out[i - 1], out[i] }, cur);
-            if (!nxt.has_value() || nxt->empty()) {
-                hz.clear();
-                break;
-            }
-            cur = *nxt;
-            const double ref = hz.back();
-            double nearest_h = static_cast<double>(cur.front());
-            for (const float v : cur) {
-                if (std::fabs(static_cast<double>(v) - ref) < std::fabs(nearest_h - ref)) {
-                    nearest_h = static_cast<double>(v);
-                }
-            }
-            hz.push_back(nearest_h);
-        }
-        return hz;
-    };
-    dg.height = walk_heights(false);
-    if (info.fall_r > 0.0) {
+    dg->height = walk_heights(lyo_p, out, lyo_h);
+    if (info->fall_r > 0.0) {
         // 优先用搜索挑的面高, 放行下落的走查在叠层处会漂到楼下
-        const bool by_span = dg.span_height.size() == out.size();
-        std::vector<double> hz = by_span ? dg.span_height : dg.height.empty() ? walk_heights(true) : dg.height;
+        const bool by_span = dg->span_height.size() == out.size();
+        std::vector<double> hz = by_span ? dg->span_height : dg->height.empty() ? walk_heights_falling(lyo_p, out, lyo_h) : dg->height;
         if (hz.size() == out.size()) {
-            PushDropLandings(out, hz, dg, st3, dist, nx, ny, x0, y0, info.fall_r, lyo);
+            PushDropLandings(out, hz, *dg, *rw.st3, rw.dist, rw.nx, rw.ny, rw.x0, rw.y0, info->fall_r, rw.lyo);
             if (by_span) {
-                for (size_t i = 0; i < dg.height.size(); ++i) {
-                    if (hz[i] != dg.span_height[i]) {
-                        dg.height[i] = hz[i];
+                for (size_t i = 0; i < dg->height.size(); ++i) {
+                    if (hz[i] != dg->span_height[i]) {
+                        dg->height[i] = hz[i];
                     }
                 }
-                dg.span_height = std::move(hz);
+                dg->span_height = std::move(hz);
             }
-            else if (!dg.height.empty()) {
-                dg.height = std::move(hz);
+            else if (!dg->height.empty()) {
+                dg->height = std::move(hz);
             }
         }
     }
-    PullWaypoints(out, dg, pl, pack, zid, &blk_gray, lyo_p != nullptr);
+    PullWaypoints(out, *dg, pl, pack, zid, &blk_gray, lyo_p != nullptr);
     return out;
 }
 
@@ -3577,7 +3760,7 @@ RecastPlanResult plan_locked(
         RouteDiag dg;
         dg.margin = margin;
         dg.final = capped;
-        auto line = routeWindow(*info, start, goal, dg, gdk, sdk, planner, pack, zone_id);
+        auto line = routeWindow(&dg, &*info, planner, pack, start, goal, gdk, sdk, zone_id);
         if (local && !capped) {
             std::string why;
             if (dg.escalate) {
