@@ -17,6 +17,14 @@
             "param": {
                 "custom_action": "BetterSliding",
                 "custom_action_param": {
+                    "ClampTargetToSliderMax": true,
+                    "DecreaseButton": {
+                        "template": "AutoStockpile/DecreaseButton.png"
+                    },
+                    "Direction": "right",
+                    "IncreaseButton": {
+                        "template": "AutoStockpile/IncreaseButton.png"
+                    },
                     "SliderQuantity": {
                         "roi": [
                             305,
