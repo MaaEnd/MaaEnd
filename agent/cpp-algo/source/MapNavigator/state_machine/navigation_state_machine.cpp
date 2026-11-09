@@ -212,7 +212,7 @@ TickStep NavigationStateMachine::runInlineSemantics()
     // 先对齐镜头, 后面的 HEADING 转身才从对齐后的朝向算起
     if (runtime_state_.camera_align_pending) {
         runtime_state_.camera_align_pending = false;
-        semantic_nodes::AlignCameraToHeadingOnce(semanticContext());
+        semantic_nodes::AlignCameraAndRecapture(semanticContext());
         if (!position_->valid) {
             return EndTickWith(handleLocalizationLoss());
         }
@@ -260,7 +260,7 @@ TickStep NavigationStateMachine::finishNavigateTick(const NavigateTick& tick)
 
 void NavigationStateMachine::selectPhaseForCurrentWaypoint(const char* reason)
 {
-    semantic_nodes::SelectPhaseForCurrentWaypoint(semanticContext(), reason);
+    semantic_nodes::SelectPhaseOrFinishRoute(semanticContext(), reason);
 }
 
 bool NavigationStateMachine::resumeAfterEscape(const char* reason)

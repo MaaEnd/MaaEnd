@@ -15,6 +15,7 @@
 
 #include "../control/controller_type_utils.h"
 #include "../control/motion_controller.h"
+#include "../navi_log.h"
 #include "../navi_time.h"
 #include "../planning/navigation_session.h"
 #include "../sensing/maa_task.h"
@@ -30,7 +31,7 @@ namespace
 {
 
 // override 会合并进节点, 所以只写调用方拥有的字段, roi/key 留在 pipeline 里
-std::string build_run_override(const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec)
+std::string build_run_override(const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, PromptRunMode mode)
 {
     json::object exit_node;
     exit_node["next"] = json::array {};
@@ -39,9 +40,9 @@ std::string build_run_override(const AsyncPromptActionSpec& spec, const std::vec
     root[spec.exit_node] = std::move(exit_node);
 
     const bool has_expected = expected != nullptr && !expected->empty();
-    if (has_expected || rec) {
+    if (has_expected || mode == PromptRunMode::RecognizeOnly) {
         json::object recognition_node = has_expected ? ExpectedTextOverride(*expected) : json::object {};
-        if (rec) {
+        if (mode == PromptRunMode::RecognizeOnly) {
             json::object do_nothing;
             do_nothing["type"] = "DoNothing";
             recognition_node["action"] = std::move(do_nothing);
@@ -77,7 +78,11 @@ PromptScanProfile default_scan_profile(
     std::string_view controller_type)
 {
     PromptScanProfile profile;
-    if (spec.default_scan_node != nullptr && TryLoadPromptScanProfile(context, spec.default_scan_node, controller_type, &profile)) {
+    bool loaded = false;
+    if (spec.default_scan_node != nullptr) {
+        loaded = TryLoadPromptScanProfile(context, spec.default_scan_node, controller_type, &profile);
+    }
+    if (loaded) {
         return profile;
     }
 
@@ -97,7 +102,7 @@ PromptScanProfile default_scan_profile(
 }
 
 // 空串表示用默认预筛, 节点坏了也记下名字, 免得每拍重读
-void build_scanner(AsyncPromptAction* action, const std::string& scan_node)
+void restart_scanner(AsyncPromptAction* action, const std::string& scan_node)
 {
     action->scanner.reset();
     action->scan_node = scan_node;
@@ -127,7 +132,7 @@ void ensure_scanner_for(AsyncPromptAction* action, const Waypoint* waypoint)
     if (waypoint == nullptr || waypoint->interact_scan == action->scan_node) {
         return;
     }
-    build_scanner(action, waypoint->interact_scan);
+    restart_scanner(action, waypoint->interact_scan);
 }
 
 bool consume_detection(AsyncPromptAction* action)
@@ -164,13 +169,18 @@ const Waypoint* tail_waypoint_of_this_kind(const AsyncPromptAction& action)
 
 } // namespace
 
-bool RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec)
+PromptRunMode PromptRunModeOf(const Waypoint& waypoint)
+{
+    return waypoint.interact_rec ? PromptRunMode::RecognizeOnly : PromptRunMode::Act;
+}
+
+bool RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, PromptRunMode mode)
 {
     if (context == nullptr) {
         return false;
     }
 
-    const std::string pipeline_override = build_run_override(spec, expected, rec);
+    const std::string pipeline_override = build_run_override(spec, expected, mode);
     const std::optional<bool> recognized = RunTaskAndCheckNode(context, spec.entry_node, spec.recognition_node, pipeline_override);
     if (!recognized) {
         LogWarn << "Prompt subtask produced no result." << VAR(spec.tag) << VAR(spec.entry_node);
@@ -216,7 +226,7 @@ void StartPromptAction(AsyncPromptAction* action, const cv::Rect& fallback_roi, 
 
     for (const Waypoint& waypoint : action->session->original_path) {
         if (SpecMatches(action->spec, waypoint)) {
-            build_scanner(action, waypoint.interact_scan);
+            restart_scanner(action, waypoint.interact_scan);
             break;
         }
     }
@@ -282,7 +292,7 @@ PromptTriggerOutcome
 
     // 提示图标是全局的, 只在自家语义点附近才停车
     const std::vector<std::string>* expected = nullptr;
-    bool rec = false;
+    PromptRunMode mode = PromptRunMode::Act;
     bool in_band = false;
     if (action->spec.text_from_route) {
         // 认中就算本点走完, 所以只认正在走向的那个点
@@ -291,7 +301,7 @@ PromptTriggerOutcome
         in_band = waypoint != nullptr && waypoint_distance <= kPromptTriggerBandWu;
         if (in_band) {
             expected = &waypoint->interact_text;
-            rec = waypoint->interact_rec;
+            mode = PromptRunModeOf(*waypoint);
         }
     }
     else {
@@ -301,16 +311,17 @@ PromptTriggerOutcome
     }
 
     // 带外也要读闩把旧观测作废, 否则进带第一拍会拿老观测开火
-    if (!consume_detection(action) || !in_band) {
+    const bool detected = consume_detection(action);
+    if (!detected || !in_band) {
         return PromptTriggerOutcome::NotTriggered;
     }
 
     action->last_trigger_at = now;
     LogInfo << "Async prompt flagged — stopping for authoritative recognition." << VAR(action->spec.tag) << VAR(waypoint_distance)
-            << VAR(node_idx) << VAR(rec);
+            << VAR(node_idx) << VAR_AS(rec, mode == PromptRunMode::RecognizeOnly);
     HoldPosition(motion_controller);
     SleepFor(kStopWaitMs);
-    if (!RunPromptSubtask(action->context, action->spec, expected, rec)) {
+    if (!RunPromptSubtask(action->context, action->spec, expected, mode)) {
         // 间隔从识别结束算起, 否则常驻的别家提示会挤掉到点判定
         action->last_trigger_at = std::chrono::steady_clock::now();
         LogInfo << "Async prompt not confirmed — resuming the walk." << VAR(action->spec.tag) << VAR(waypoint_distance) << VAR(node_idx);
@@ -334,9 +345,10 @@ bool TryTriggerPromptAtRouteTail(AsyncPromptAction* action)
         return false;
     }
 
-    const bool rec = waypoint != nullptr && waypoint->interact_rec;
-    LogInfo << "Route tail prompt flagged — running the authoritative recognition before finishing." << VAR(action->spec.tag) << VAR(rec);
-    RunPromptSubtask(action->context, action->spec, waypoint != nullptr ? &waypoint->interact_text : nullptr, rec);
+    const PromptRunMode mode = waypoint != nullptr ? PromptRunModeOf(*waypoint) : PromptRunMode::Act;
+    LogInfo << "Route tail prompt flagged — running the authoritative recognition before finishing." << VAR(action->spec.tag)
+            << VAR_AS(rec, mode == PromptRunMode::RecognizeOnly);
+    RunPromptSubtask(action->context, action->spec, waypoint != nullptr ? &waypoint->interact_text : nullptr, mode);
     return true;
 }
 

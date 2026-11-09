@@ -61,8 +61,16 @@ inline constexpr AsyncPromptActionSpec kInteractPromptSpec {
     .text_from_route = true,
 };
 
-// expected 为空时沿用节点自带文本表, rec 为真时把节点动作换成 DoNothing 只做识别
-bool RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec);
+enum class PromptRunMode
+{
+    Act,
+    RecognizeOnly,
+};
+
+PromptRunMode PromptRunModeOf(const Waypoint& waypoint);
+
+// expected 为空时沿用节点自带文本表, mode 为 RecognizeOnly 时把节点动作换成 DoNothing 只做识别
+bool RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, PromptRunMode mode);
 
 enum class PromptTriggerOutcome
 {

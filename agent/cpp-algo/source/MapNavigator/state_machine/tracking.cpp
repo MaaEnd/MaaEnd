@@ -256,9 +256,9 @@ TickStep NavigationStateMachine::settleAtArrival(const NavigateTick& tick)
     if (route.waypoint_distance <= route.arrival_band) {
         const semantic_nodes::Context semantic_ctx = semanticContext();
         // 这一拍可能已跨过步行带, 所以先停车
-        semantic_nodes::StopMotionAndCommitment(semantic_ctx);
+        semantic_nodes::HoldAndArmCameraAlign(semantic_ctx);
         walkmode::RequestWalk(walk_mode_, true);
-        const bool settled = semantic_nodes::SettleAtStrictGoal(semantic_ctx, waypoint, should_stop_);
+        const bool settled = semantic_nodes::SettleAtStrictGoal(semantic_ctx, waypoint);
         // 原地转镜头不经过转向环, 转向环记着的待生效转角要清掉
         runtime_state_.steering_rate = {};
         if (should_stop_()) {

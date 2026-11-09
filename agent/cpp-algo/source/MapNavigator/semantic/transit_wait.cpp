@@ -2,7 +2,7 @@
 
 #include <chrono>
 #include <cmath>
-#include <limits>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -23,7 +23,7 @@ namespace semantic_nodes
 namespace
 {
 
-size_t find_future_zone_declaration(const Context& ctx, const std::string& zone_id)
+std::optional<size_t> find_future_zone_declaration(const Context& ctx, const std::string& zone_id)
 {
     const std::vector<Waypoint>& path = ctx.session->current_path;
     for (size_t index = ctx.session->current_node_idx; index < path.size(); ++index) {
@@ -32,7 +32,7 @@ size_t find_future_zone_declaration(const Context& ctx, const std::string& zone_
             return index;
         }
     }
-    return std::numeric_limits<size_t>::max();
+    return std::nullopt;
 }
 
 Result finalize_portal_transit_zone(const Context& ctx, const std::string& zone_id, size_t matched_zone_index)
@@ -44,7 +44,7 @@ Result finalize_portal_transit_zone(const Context& ctx, const std::string& zone_
     ResetProgress(ctx.session);
     ResetOnWaypointAdvance(ctx.runtime_state);
     ConsumeMatchedZoneNodes(ctx);
-    StopMotionAndCommitment(ctx);
+    HoldAndArmCameraAlign(ctx);
     ResetSensorTracking(ctx.position_provider);
     ctx.runtime_state->semantic.portal.phase = PortalTransitPhase::Reacquire;
     LogInfo << "Portal transit accepted zone transition." << VAR(zone_id) << VAR(matched_zone_index);
@@ -65,8 +65,8 @@ Result TickPortalTransit(const Context& ctx)
     }
 
     if (portal.phase == PortalTransitPhase::Reacquire) {
-        if (!CaptureTracked(ctx.position_provider, ctx.position, ctx.session->current_zone_id)
-            || ctx.position->zone_id != ctx.session->current_zone_id) {
+        const bool captured = CaptureTracked(ctx.position_provider, ctx.position, ctx.session->current_zone_id);
+        if (!captured || ctx.position->zone_id != ctx.session->current_zone_id) {
             return WaitNextFix(kZoneConfirmRetryIntervalMs);
         }
         portal = {};
@@ -87,12 +87,12 @@ Result TickPortalTransit(const Context& ctx)
         return WaitNextFix(kZoneConfirmRetryIntervalMs);
     }
 
-    const size_t matched_zone_index = find_future_zone_declaration(ctx, candidate.zone_id);
-    if (matched_zone_index == std::numeric_limits<size_t>::max()) {
-        StopMotionAndCommitment(ctx);
+    const std::optional<size_t> matched_zone_index = find_future_zone_declaration(ctx, candidate.zone_id);
+    if (!matched_zone_index) {
+        HoldAndArmCameraAlign(ctx);
         return WaitNextFix(kZoneConfirmRetryIntervalMs);
     }
-    return finalize_portal_transit_zone(ctx, candidate.zone_id, matched_zone_index);
+    return finalize_portal_transit_zone(ctx, candidate.zone_id, *matched_zone_index);
 }
 
 Result TickTransferWait(const Context& ctx)
@@ -129,12 +129,14 @@ Result TickTransferWait(const Context& ctx)
         return WaitNextFix(kRelocationRetryIntervalMs);
     }
 
-    if (++transfer.moved_reads < kRelocationStableFixes) {
+    ++transfer.moved_reads;
+    if (transfer.moved_reads < kRelocationStableFixes) {
         return WaitNextFix(kRelocationRetryIntervalMs);
     }
 
     transfer = {};
-    return ResumeAfterRelocation(ctx, "transfer_wait_complete");
+    ResumeAfterRelocation(ctx, "transfer_wait_complete");
+    return Handled();
 }
 
 // 坐升降索时小地图坐标几乎不动, 所以按乘坐时长等满再要求连续取位成功
@@ -153,7 +155,8 @@ Result TickRopeRide(const Context& ctx)
         rope.stable_reads = 0;
         return WaitNextFix(kRelocationRetryIntervalMs);
     }
-    if (++rope.stable_reads < kRelocationStableFixes) {
+    ++rope.stable_reads;
+    if (rope.stable_reads < kRelocationStableFixes) {
         return WaitNextFix(kRelocationRetryIntervalMs);
     }
 
@@ -162,9 +165,11 @@ Result TickRopeRide(const Context& ctx)
     if (HasCurrentWaypoint(*ctx.session) && CurrentWaypoint(*ctx.session).rope_top) {
         UpdateCurrentZone(ctx.session, ctx.position->zone_id);
         const Waypoint& top = CurrentWaypoint(*ctx.session);
-        return CompleteArrival(ctx, top, CurrentAbsoluteNodeIndex(*ctx.session), "rope_ride_completed");
+        CompleteArrival(ctx, top, CurrentAbsoluteNodeIndex(*ctx.session), "rope_ride_completed");
+        return Handled();
     }
-    return ResumeAfterRelocation(ctx, "rope_ride_completed");
+    ResumeAfterRelocation(ctx, "rope_ride_completed");
+    return Handled();
 }
 
 } // namespace semantic_nodes

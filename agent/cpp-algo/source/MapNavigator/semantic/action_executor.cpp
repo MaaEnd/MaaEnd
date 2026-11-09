@@ -24,26 +24,23 @@ void ExecuteSprint(Motion* motion_controller)
     }
 }
 
-void ExecuteJump(InputBackend* input_backend, Motion* motion_controller)
+void ExecuteJump(InputBackend* input_backend)
 {
-    HoldPosition(motion_controller);
     TriggerJumpSync(input_backend, kActionJumpHoldMs);
     LogInfo << "Action: JUMP triggered.";
     SleepFor(kActionJumpSettleMs);
 }
 
-void ExecuteInteract(InputBackend* input_backend, Motion* motion_controller)
+void ExecuteInteract(InputBackend* input_backend)
 {
-    HoldPosition(motion_controller);
     for (int i = 0; i < kActionInteractAttempts; ++i) {
         TriggerInteractSync(input_backend, kActionInteractHoldMs);
     }
     LogInfo << "Action: INTERACT completed.";
 }
 
-void ExecuteFight(InputBackend* input_backend, Motion* motion_controller)
+void ExecuteFight(InputBackend* input_backend)
 {
-    HoldPosition(motion_controller);
     ClickMouseLeftSync(input_backend);
     LogInfo << "Action: FIGHT triggered.";
 }

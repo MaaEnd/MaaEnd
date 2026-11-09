@@ -52,6 +52,17 @@ inline Result Failure(const char* reason, const char* log_message)
     return { .request_failure = true, .failure_reason = reason, .failure_log_message = log_message };
 }
 
+inline Result ConsumedFailure(const char* reason, const char* log_message)
+{
+    return {
+        .consumed = true,
+        .stay_in_current_tick = true,
+        .request_failure = true,
+        .failure_reason = reason,
+        .failure_log_message = log_message,
+    };
+}
+
 Result TickWaitPhase(const Context& ctx, NaviPhase phase);
 Result ConsumeInlineSemantics(const Context& ctx);
 Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual_distance);
