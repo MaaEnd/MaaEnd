@@ -56,7 +56,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/processcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/taskfail"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/useconsumable"
 	webevent202605 "github.com/MaaXYZ/MaaEnd/agent/go-service/webevent/202605"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/ziplineimport"
 	"github.com/rs/zerolog/log"
@@ -125,7 +124,6 @@ func registerAll() {
 	ziplineimport.Register()
 	pullcount.Register()
 	trialofswordmancy.Register()
-	useconsumable.Register()
 	restaurant.Register()
 	countdown.Register()
 	log.Info().
