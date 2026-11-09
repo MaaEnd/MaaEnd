@@ -5,94 +5,103 @@
 namespace maplocator
 {
 
-MotionTracker::MotionTracker(const TrackingConfig& cfg)
-    : trackingCfg(cfg)
-    , lostTrackingCount(MaxLostTrackingCount + 1)
-    , velocityX(0)
-    , velocityY(0)
+MotionTrack MakeMotionTrack(const TrackingConfig& config)
 {
+    MotionTrack track;
+    track.config = config;
+    return track;
 }
 
-void MotionTracker::update(const MapPosition& newPos, std::chrono::steady_clock::time_point now)
+void UpdateTrack(MotionTrack* track, const MapPosition& newPos, std::chrono::steady_clock::time_point now)
 {
-    if (lastKnownPos.has_value() && lostTrackingCount == 0) {
-        std::chrono::duration<double> dt = now - lastTime;
+    if (track->last_known_pos.has_value() && track->lost_count == 0) {
+        std::chrono::duration<double> dt = now - track->last_time;
         double dtSec = dt.count();
-        const double dx = newPos.x - lastKnownPos->x;
-        const double dy = newPos.y - lastKnownPos->y;
+        const double dx = newPos.x - track->last_known_pos->x;
+        const double dy = newPos.y - track->last_known_pos->y;
         if (std::hypot(dx, dy) < kVelocityDeadband) {
-            velocityX = 0.0;
-            velocityY = 0.0;
+            track->velocity_x = 0.0;
+            track->velocity_y = 0.0;
         }
         // 仅在帧间隔合理且匹配分数达标时更新速度，保证速度估计的可靠性
         else if (
-            dtSec > 0.016 && dtSec < trackingCfg.maxDtForPrediction && newPos.score >= ZoneScoreLines(newPos.zoneId).velocityUpdateMin) {
+            dtSec > 0.016 && dtSec < track->config.maxDtForPrediction && newPos.score >= ZoneScoreLines(newPos.zoneId).velocityUpdateMin) {
             double rawVx = dx / dtSec;
             double rawVy = dy / dtSec;
-            double alpha = trackingCfg.velocitySmoothingAlpha;
-            velocityX = velocityX * (1.0 - alpha) + rawVx * alpha;
-            velocityY = velocityY * (1.0 - alpha) + rawVy * alpha;
+            double alpha = track->config.velocitySmoothingAlpha;
+            track->velocity_x = track->velocity_x * (1.0 - alpha) + rawVx * alpha;
+            track->velocity_y = track->velocity_y * (1.0 - alpha) + rawVy * alpha;
         }
     }
-    lastKnownPos = newPos;
-    lastTime = now;
-    lostTrackingCount = 0;
+    track->last_known_pos = newPos;
+    track->last_time = now;
+    track->lost_count = 0;
 }
 
-void MotionTracker::hold(const MapPosition& oldPos, std::chrono::steady_clock::time_point now)
+void HoldTrack(MotionTrack* track, const MapPosition& oldPos, std::chrono::steady_clock::time_point now)
 {
-    lastKnownPos = oldPos;
-    lastTime = now;
+    track->last_known_pos = oldPos;
+    track->last_time = now;
 }
 
-void MotionTracker::markLost(int increment)
+void MarkTrackLost(MotionTrack* track, int increment)
 {
-    lostTrackingCount += increment;
+    track->lost_count += increment;
 }
 
-void MotionTracker::forceLost()
+void ForceTrackLost(MotionTrack* track)
 {
-    lostTrackingCount = MaxLostTrackingCount + 100;
-    lastKnownPos = std::nullopt;
-    clearVelocity();
+    track->lost_count = MaxLostTrackingCount + 100;
+    track->last_known_pos = std::nullopt;
+    ClearTrackVelocity(track);
 }
 
-bool MotionTracker::isTracking(int maxAllowedLost) const
+void ClearTrackVelocity(MotionTrack* track)
 {
-    return lastKnownPos.has_value() && lostTrackingCount <= maxAllowedLost;
+    track->velocity_x = 0;
+    track->velocity_y = 0;
 }
 
-double MotionTracker::getPredictedX(std::chrono::steady_clock::time_point now) const
+bool IsTracking(const MotionTrack& track, int maxAllowedLost)
 {
-    if (!lastKnownPos.has_value()) {
+    return track.last_known_pos.has_value() && track.lost_count <= maxAllowedLost;
+}
+
+double PredictedX(const MotionTrack& track, std::chrono::steady_clock::time_point now)
+{
+    if (!track.last_known_pos.has_value()) {
         return 0;
     }
-    std::chrono::duration<double> dt = now - lastTime;
+    std::chrono::duration<double> dt = now - track.last_time;
     double dtSec = dt.count();
-    if (dtSec > trackingCfg.maxDtForPrediction) {
-        return lastKnownPos->x;
+    if (dtSec > track.config.maxDtForPrediction) {
+        return track.last_known_pos->x;
     }
-    return lastKnownPos->x + velocityX * dtSec;
+    return track.last_known_pos->x + track.velocity_x * dtSec;
 }
 
-double MotionTracker::getPredictedY(std::chrono::steady_clock::time_point now) const
+double PredictedY(const MotionTrack& track, std::chrono::steady_clock::time_point now)
 {
-    if (!lastKnownPos.has_value()) {
+    if (!track.last_known_pos.has_value()) {
         return 0;
     }
-    std::chrono::duration<double> dt = now - lastTime;
+    std::chrono::duration<double> dt = now - track.last_time;
     double dtSec = dt.count();
-    if (dtSec > trackingCfg.maxDtForPrediction) {
-        return lastKnownPos->y;
+    if (dtSec > track.config.maxDtForPrediction) {
+        return track.last_known_pos->y;
     }
-    return lastKnownPos->y + velocityY * dtSec;
+    return track.last_known_pos->y + track.velocity_y * dtSec;
 }
 
-cv::Rect
-    MotionTracker::predictNextSearchRect(double trackScale, int templCols, int templRows, std::chrono::steady_clock::time_point now) const
+cv::Rect PredictNextSearchRect(
+    const MotionTrack& track,
+    double trackScale,
+    int templCols,
+    int templRows,
+    std::chrono::steady_clock::time_point now)
 {
-    double predX = getPredictedX(now);
-    double predY = getPredictedY(now);
+    double predX = PredictedX(track, now);
+    double predY = PredictedY(track, now);
     int pad = static_cast<int>(MobileSearchRadius + std::max(templCols, templRows) * trackScale / 2.0);
     return cv::Rect((int)predX - pad, (int)predY - pad, pad * 2, pad * 2);
 }

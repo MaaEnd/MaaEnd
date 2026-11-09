@@ -1,7 +1,6 @@
 #pragma once
 
 #include <chrono>
-#include <memory>
 #include <string>
 
 #include <MaaUtils/NoWarningCV.hpp>
@@ -51,45 +50,52 @@ struct TrackingValidation
     double absX, absY;
 };
 
-class IMatchStrategy
+enum class MatchStrategyKind
 {
-public:
-    virtual ~IMatchStrategy() = default;
-
-    // 预处理小地图（模板）
-    virtual MatchFeature extractTemplateFeature(const cv::Mat& minimap) = 0;
-
-    // 预处理大地图的搜索区域（Search ROI）
-    virtual MatchFeature extractSearchFeature(const cv::Mat& mapRoi) = 0;
-
-    virtual TemplateFeatureKind templateFeatureKind() const = 0;
-
-    // 追踪态的结果验证逻辑
-    virtual TrackingValidation validateTracking(
-        const MatchResultRaw& trackResult,
-        std::chrono::duration<double> dt,
-        std::optional<MapPosition> lastPos,
-        const cv::Rect& searchRect,
-        int templCols,
-        int templRows) = 0;
-
-    // 全局搜索的结果验证逻辑
-    virtual bool validateGlobalSearch(double score) = 0;
-
-    // 用于Chamfer补偿
-    virtual bool needsChamferCompensation() const { return false; }
+    Standard,
+    PathHeatmap,
 };
 
-class MatchStrategyFactory
+struct MatchStrategy
 {
-public:
-    static std::unique_ptr<IMatchStrategy> create(
-        const std::string& zoneId,
-        const TrackingConfig& trackingCfg,
-        const MatchConfig& matchCfg,
-        const ImageProcessingConfig& baseImgCfg,
-        const ImageProcessingConfig& tierImgCfg);
+    MatchStrategyKind kind = MatchStrategyKind::Standard;
+    bool is_base = false;
+    TrackingConfig tracking;
+    MatchConfig match;
+    ImageProcessingConfig base_image {};
+    ImageProcessingConfig tier_image {};
 };
+
+MatchStrategy MakeMatchStrategy(
+    const std::string& zoneId,
+    const TrackingConfig& trackingCfg,
+    const MatchConfig& matchCfg,
+    const ImageProcessingConfig& baseImgCfg,
+    const ImageProcessingConfig& tierImgCfg);
+
+// 预处理小地图（模板）
+MatchFeature ExtractTemplateFeature(const MatchStrategy& strategy, const cv::Mat& minimap);
+
+// 预处理大地图的搜索区域（Search ROI）
+MatchFeature ExtractSearchFeature(const MatchStrategy& strategy, const cv::Mat& mapRoi);
+
+TemplateFeatureKind TemplateKindOf(const MatchStrategy& strategy);
+
+// 追踪态的结果验证逻辑
+TrackingValidation ValidateTracking(
+    const MatchStrategy& strategy,
+    const MatchResultRaw& trackResult,
+    std::chrono::duration<double> dt,
+    std::optional<MapPosition> lastPos,
+    const cv::Rect& searchRect,
+    int templCols,
+    int templRows);
+
+// 全局搜索的结果验证逻辑
+bool ValidateGlobalSearch(const MatchStrategy& strategy, double score);
+
+// 用于Chamfer补偿
+bool NeedsChamferCompensation(const MatchStrategy& strategy);
 
 enum class PeakRefineMode
 {

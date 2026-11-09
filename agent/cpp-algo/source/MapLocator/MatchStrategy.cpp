@@ -200,6 +200,182 @@ std::optional<RefinedPeak> RefinePeakContinuous(
     return RefinedPeak { .loc = cv::Point2d(peak.x + tx, peak.y + ty), .score = best };
 }
 
+MatchFeature standard_extract_template_feature(const MatchStrategy& strategy, const cv::Mat& minimap)
+{
+    MatchFeature feat;
+    if (minimap.channels() == 4) {
+        cv::cvtColor(minimap, feat.templRaw, cv::COLOR_BGRA2BGR);
+
+        cv::Mat bgra[4];
+        cv::split(minimap, bgra);
+        cv::Mat alpha = bgra[3];
+        cv::Mat mask = (alpha >= 220); // 取有效区域
+
+        // 防止边界泄漏 腐蚀一下
+        cv::erode(mask, mask, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3)));
+
+        cv::Mat templGray;
+        cv::cvtColor(feat.templRaw, templGray, cv::COLOR_BGR2GRAY);
+
+        // 均值外推填补：由于原图周围是被抠空的透明区，在 NCC 基于均值的滑动互相关中，
+        // 实体与虚无的黑边界线会产生极其强烈的“虚假强梯度”，导致系统倾向于匹配这种假边缘而非内部细节。
+        // 提取有效遮罩均值往外灌注，彻底消融边缘轮廓造成的误诱导。
+        cv::Scalar meanVScalar = cv::mean(templGray, mask);
+        double meanV = meanVScalar[0];
+        cv::Mat inv;
+        cv::bitwise_not(mask, inv);
+        cv::Mat templGrayFilled = templGray.clone();
+        templGrayFilled.setTo(meanV, inv);
+        feat.image = LocalContrastNormalize(templGrayFilled);
+
+        feat.mask = MinimapRingMask(minimap.size(), strategy.is_base ? strategy.base_image : strategy.tier_image);
+        cv::bitwise_and(feat.mask, mask, feat.mask);
+    }
+    else {
+        feat.templRaw = minimap.clone();
+        cv::Mat templGray;
+        cv::cvtColor(minimap, templGray, cv::COLOR_BGR2GRAY);
+        feat.image = LocalContrastNormalize(templGray);
+        feat.mask = MinimapRingMask(minimap.size(), strategy.is_base ? strategy.base_image : strategy.tier_image);
+    }
+    return feat;
+}
+
+MatchFeature heatmap_extract_template_feature(const MatchStrategy& strategy, const cv::Mat& minimap)
+{
+    MatchFeature feat;
+    if (minimap.channels() == 4) {
+        cv::cvtColor(minimap, feat.templRaw, cv::COLOR_BGRA2BGR);
+    }
+    else {
+        feat.templRaw = minimap.clone();
+    }
+
+    feat.image = ExtractPathHeatmapFeature(minimap); // 梯度图
+    feat.mask = GenerateMinimapMask(feat.templRaw, strategy.is_base ? strategy.base_image : strategy.tier_image);
+    return feat;
+}
+
+MatchFeature standard_extract_search_feature(const cv::Mat& mapRoi)
+{
+    MatchFeature feat;
+    cv::Mat gray;
+    cv::cvtColor(mapRoi, gray, mapRoi.channels() == 4 ? cv::COLOR_BGRA2GRAY : cv::COLOR_BGR2GRAY);
+    feat.image = LocalContrastNormalize(gray);
+    return feat;
+}
+
+MatchFeature heatmap_extract_search_feature(const cv::Mat& mapRoi)
+{
+    MatchFeature feat;
+    feat.image = ExtractPathHeatmapFeature(mapRoi);
+    return feat;
+}
+
+TemplateFeatureKind standard_template_kind(const MatchStrategy& strategy)
+{
+    return strategy.is_base ? TemplateFeatureKind::StandardBase : TemplateFeatureKind::StandardTier;
+}
+
+TemplateFeatureKind heatmap_template_kind(const MatchStrategy& strategy)
+{
+    return strategy.is_base ? TemplateFeatureKind::PathHeatmapBase : TemplateFeatureKind::PathHeatmapTier;
+}
+
+TrackingValidation standard_validate_tracking(
+    const MatchStrategy& strategy,
+    const MatchResultRaw& trackResult,
+    std::chrono::duration<double> dt,
+    std::optional<MapPosition> lastPos,
+    const cv::Rect& searchRect,
+    int templCols,
+    int templRows)
+{
+    TrackingValidation v;
+
+    // 边缘吸附
+    int maxX = searchRect.width - templCols;
+    int maxY = searchRect.height - templRows;
+    bool hitEdgeX = (trackResult.loc.x <= strategy.tracking.edgeSnapMargin || trackResult.loc.x >= maxX - strategy.tracking.edgeSnapMargin);
+    bool hitEdgeY = (trackResult.loc.y <= strategy.tracking.edgeSnapMargin || trackResult.loc.y >= maxY - strategy.tracking.edgeSnapMargin);
+    v.isEdgeSnapped = hitEdgeX || hitEdgeY;
+
+    v.absX = (double)searchRect.x + trackResult.loc.x + templCols / 2.0;
+    v.absY = (double)searchRect.y + trackResult.loc.y + templRows / 2.0;
+
+    double currentSpeed = 0.0;
+    if (lastPos) {
+        double dx = v.absX - lastPos->x;
+        double dy = v.absY - lastPos->y;
+        double distanceMoved = std::sqrt(dx * dx + dy * dy);
+        double dtSec = dt.count();
+        if (dtSec < 0.001) {
+            dtSec = 0.001;
+        }
+        currentSpeed = distanceMoved / dtSec;
+    }
+    // 突变防御：若帧间换算速度超过限制，则认为是发生了传送或视角剧变，需打断追踪状态强制重搜
+    v.isTeleported = currentSpeed > strategy.tracking.maxNormalSpeed;
+
+    // 分数硬下限：低于 kTrackingHardScoreFloor 时无论 psr/delta 如何均判为 ambiguous，走 hold 路径
+    const bool belowHardFloor = trackResult.score < kTrackingHardScoreFloor;
+    bool lowScore = trackResult.score < 0.71;
+    bool ambiguous = belowHardFloor || (lowScore && (trackResult.psr < 6.0 || trackResult.delta < 0.02));
+    v.isScreenBlocked = trackResult.score < strategy.tracking.screenBlockedThreshold;
+
+    v.isValid = !v.isEdgeSnapped && !v.isTeleported && !v.isScreenBlocked && !ambiguous;
+
+    return v;
+}
+
+TrackingValidation heatmap_validate_tracking(
+    const MatchStrategy& strategy,
+    const MatchResultRaw& trackResult,
+    std::chrono::duration<double> dt,
+    std::optional<MapPosition> lastPos,
+    const cv::Rect& searchRect,
+    int templCols,
+    int templRows)
+{
+    TrackingValidation v;
+
+    int maxX = searchRect.width - templCols;
+    int maxY = searchRect.height - templRows;
+    bool hitEdgeX = (trackResult.loc.x <= strategy.tracking.edgeSnapMargin || trackResult.loc.x >= maxX - strategy.tracking.edgeSnapMargin);
+    bool hitEdgeY = (trackResult.loc.y <= strategy.tracking.edgeSnapMargin || trackResult.loc.y >= maxY - strategy.tracking.edgeSnapMargin);
+    v.isEdgeSnapped = hitEdgeX || hitEdgeY;
+
+    v.absX = (double)searchRect.x + trackResult.loc.x + templCols / 2.0;
+    v.absY = (double)searchRect.y + trackResult.loc.y + templRows / 2.0;
+
+    double currentSpeed = 0.0;
+    if (lastPos) {
+        double dx = v.absX - lastPos->x;
+        double dy = v.absY - lastPos->y;
+        double distanceMoved = std::sqrt(dx * dx + dy * dy);
+        double dtSec = dt.count();
+        if (dtSec < 0.001) {
+            dtSec = 0.001;
+        }
+        currentSpeed = distanceMoved / dtSec;
+    }
+    v.isTeleported = currentSpeed > strategy.tracking.maxNormalSpeed;
+
+    // 追踪态高分豁免
+    bool accept = (trackResult.score >= 0.85) || (trackResult.score >= 0.70 && trackResult.delta >= 0.25 && trackResult.psr >= 2.0)
+                  || (trackResult.score >= 0.42 && trackResult.delta >= 0.04 && trackResult.psr >= 3.8)
+                  || (trackResult.score >= 0.40 && trackResult.delta >= 0.05 && trackResult.psr >= 3.8);
+    bool hold = (trackResult.score >= 0.70 && trackResult.delta >= 0.25 && trackResult.psr >= 2.0)
+                || (trackResult.score >= 0.35 && trackResult.psr >= 4.0);
+
+    bool ambiguous = !accept;
+    v.isScreenBlocked = !accept && !hold;
+
+    v.isValid = !v.isEdgeSnapped && !v.isTeleported && !v.isScreenBlocked && !ambiguous;
+
+    return v;
+}
+
 } // namespace
 
 PreparedSearchFeature PrepareSearchFeature(const cv::Mat& searchImgRaw)
@@ -337,237 +513,7 @@ std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::M
     return CoreMatchPrepared(PrepareSearchFeature(searchImgRaw), templRaw, weightMask);
 }
 
-class StandardMatchStrategy : public IMatchStrategy
-{
-public:
-    StandardMatchStrategy(
-        bool isBase,
-        const TrackingConfig& tCfg,
-        const MatchConfig& mCfg,
-        const ImageProcessingConfig& bCfg,
-        const ImageProcessingConfig& trCfg)
-        : _isBase(isBase)
-        , trackingCfg(tCfg)
-        , matchCfg(mCfg)
-        , baseCfg(bCfg)
-        , tierCfg(trCfg)
-    {
-    }
-
-    MatchFeature extractTemplateFeature(const cv::Mat& minimap) override
-    {
-        MatchFeature feat;
-        if (minimap.channels() == 4) {
-            cv::cvtColor(minimap, feat.templRaw, cv::COLOR_BGRA2BGR);
-
-            cv::Mat bgra[4];
-            cv::split(minimap, bgra);
-            cv::Mat alpha = bgra[3];
-            cv::Mat mask = (alpha >= 220); // 取有效区域
-
-            // 防止边界泄漏 腐蚀一下
-            cv::erode(mask, mask, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3)));
-
-            cv::Mat templGray;
-            cv::cvtColor(feat.templRaw, templGray, cv::COLOR_BGR2GRAY);
-
-            // 均值外推填补：由于原图周围是被抠空的透明区，在 NCC 基于均值的滑动互相关中，
-            // 实体与虚无的黑边界线会产生极其强烈的“虚假强梯度”，导致系统倾向于匹配这种假边缘而非内部细节。
-            // 提取有效遮罩均值往外灌注，彻底消融边缘轮廓造成的误诱导。
-            cv::Scalar meanVScalar = cv::mean(templGray, mask);
-            double meanV = meanVScalar[0];
-            cv::Mat inv;
-            cv::bitwise_not(mask, inv);
-            cv::Mat templGrayFilled = templGray.clone();
-            templGrayFilled.setTo(meanV, inv);
-            feat.image = LocalContrastNormalize(templGrayFilled);
-
-            feat.mask = MinimapRingMask(minimap.size(), _isBase ? baseCfg : tierCfg);
-            cv::bitwise_and(feat.mask, mask, feat.mask);
-        }
-        else {
-            feat.templRaw = minimap.clone();
-            cv::Mat templGray;
-            cv::cvtColor(minimap, templGray, cv::COLOR_BGR2GRAY);
-            feat.image = LocalContrastNormalize(templGray);
-            feat.mask = MinimapRingMask(minimap.size(), _isBase ? baseCfg : tierCfg);
-        }
-        return feat;
-    }
-
-    MatchFeature extractSearchFeature(const cv::Mat& mapRoi) override
-    {
-        MatchFeature feat;
-        cv::Mat gray;
-        cv::cvtColor(mapRoi, gray, mapRoi.channels() == 4 ? cv::COLOR_BGRA2GRAY : cv::COLOR_BGR2GRAY);
-        feat.image = LocalContrastNormalize(gray);
-        return feat;
-    }
-
-    TemplateFeatureKind templateFeatureKind() const override
-    {
-        return _isBase ? TemplateFeatureKind::StandardBase : TemplateFeatureKind::StandardTier;
-    }
-
-    TrackingValidation validateTracking(
-        const MatchResultRaw& trackResult,
-        std::chrono::duration<double> dt,
-        std::optional<MapPosition> lastPos,
-        const cv::Rect& searchRect,
-        int templCols,
-        int templRows) override
-    {
-        TrackingValidation v;
-
-        // 边缘吸附
-        int maxX = searchRect.width - templCols;
-        int maxY = searchRect.height - templRows;
-        bool hitEdgeX = (trackResult.loc.x <= trackingCfg.edgeSnapMargin || trackResult.loc.x >= maxX - trackingCfg.edgeSnapMargin);
-        bool hitEdgeY = (trackResult.loc.y <= trackingCfg.edgeSnapMargin || trackResult.loc.y >= maxY - trackingCfg.edgeSnapMargin);
-        v.isEdgeSnapped = hitEdgeX || hitEdgeY;
-
-        v.absX = (double)searchRect.x + trackResult.loc.x + templCols / 2.0;
-        v.absY = (double)searchRect.y + trackResult.loc.y + templRows / 2.0;
-
-        double currentSpeed = 0.0;
-        if (lastPos) {
-            double dx = v.absX - lastPos->x;
-            double dy = v.absY - lastPos->y;
-            double distanceMoved = std::sqrt(dx * dx + dy * dy);
-            double dtSec = dt.count();
-            if (dtSec < 0.001) {
-                dtSec = 0.001;
-            }
-            currentSpeed = distanceMoved / dtSec;
-        }
-        // 突变防御：若帧间换算速度超过限制，则认为是发生了传送或视角剧变，需打断追踪状态强制重搜
-        v.isTeleported = currentSpeed > trackingCfg.maxNormalSpeed;
-
-        // 分数硬下限：低于 kTrackingHardScoreFloor 时无论 psr/delta 如何均判为 ambiguous，走 hold 路径
-        const bool belowHardFloor = trackResult.score < kTrackingHardScoreFloor;
-        bool lowScore = trackResult.score < 0.71;
-        bool ambiguous = belowHardFloor || (lowScore && (trackResult.psr < 6.0 || trackResult.delta < 0.02));
-        v.isScreenBlocked = trackResult.score < trackingCfg.screenBlockedThreshold;
-
-        v.isValid = !v.isEdgeSnapped && !v.isTeleported && !v.isScreenBlocked && !ambiguous;
-
-        return v;
-    }
-
-    bool validateGlobalSearch(double score) override { return score >= matchCfg.passThreshold; }
-
-private:
-    bool _isBase;
-    TrackingConfig trackingCfg;
-    MatchConfig matchCfg;
-    ImageProcessingConfig baseCfg;
-    ImageProcessingConfig tierCfg;
-};
-
-class PathHeatmapMatchStrategy : public IMatchStrategy
-{
-public:
-    PathHeatmapMatchStrategy(
-        bool isBase,
-        const TrackingConfig& tCfg,
-        const MatchConfig& mCfg,
-        const ImageProcessingConfig& bCfg,
-        const ImageProcessingConfig& trCfg)
-        : _isBase(isBase)
-        , trackingCfg(tCfg)
-        , matchCfg(mCfg)
-        , baseCfg(bCfg)
-        , tierCfg(trCfg)
-    {
-    }
-
-    MatchFeature extractTemplateFeature(const cv::Mat& minimap) override
-    {
-        MatchFeature feat;
-        if (minimap.channels() == 4) {
-            cv::cvtColor(minimap, feat.templRaw, cv::COLOR_BGRA2BGR);
-        }
-        else {
-            feat.templRaw = minimap.clone();
-        }
-
-        feat.image = ExtractPathHeatmapFeature(minimap); // 梯度图
-        feat.mask = GenerateMinimapMask(feat.templRaw, _isBase ? baseCfg : tierCfg);
-        return feat;
-    }
-
-    MatchFeature extractSearchFeature(const cv::Mat& mapRoi) override
-    {
-        MatchFeature feat;
-        feat.image = ExtractPathHeatmapFeature(mapRoi);
-        return feat;
-    }
-
-    TemplateFeatureKind templateFeatureKind() const override
-    {
-        return _isBase ? TemplateFeatureKind::PathHeatmapBase : TemplateFeatureKind::PathHeatmapTier;
-    }
-
-    TrackingValidation validateTracking(
-        const MatchResultRaw& trackResult,
-        std::chrono::duration<double> dt,
-        std::optional<MapPosition> lastPos,
-        const cv::Rect& searchRect,
-        int templCols,
-        int templRows) override
-    {
-        TrackingValidation v;
-
-        int maxX = searchRect.width - templCols;
-        int maxY = searchRect.height - templRows;
-        bool hitEdgeX = (trackResult.loc.x <= trackingCfg.edgeSnapMargin || trackResult.loc.x >= maxX - trackingCfg.edgeSnapMargin);
-        bool hitEdgeY = (trackResult.loc.y <= trackingCfg.edgeSnapMargin || trackResult.loc.y >= maxY - trackingCfg.edgeSnapMargin);
-        v.isEdgeSnapped = hitEdgeX || hitEdgeY;
-
-        v.absX = (double)searchRect.x + trackResult.loc.x + templCols / 2.0;
-        v.absY = (double)searchRect.y + trackResult.loc.y + templRows / 2.0;
-
-        double currentSpeed = 0.0;
-        if (lastPos) {
-            double dx = v.absX - lastPos->x;
-            double dy = v.absY - lastPos->y;
-            double distanceMoved = std::sqrt(dx * dx + dy * dy);
-            double dtSec = dt.count();
-            if (dtSec < 0.001) {
-                dtSec = 0.001;
-            }
-            currentSpeed = distanceMoved / dtSec;
-        }
-        v.isTeleported = currentSpeed > trackingCfg.maxNormalSpeed;
-
-        // 追踪态高分豁免
-        bool accept = (trackResult.score >= 0.85) || (trackResult.score >= 0.70 && trackResult.delta >= 0.25 && trackResult.psr >= 2.0)
-                      || (trackResult.score >= 0.42 && trackResult.delta >= 0.04 && trackResult.psr >= 3.8)
-                      || (trackResult.score >= 0.40 && trackResult.delta >= 0.05 && trackResult.psr >= 3.8);
-        bool hold = (trackResult.score >= 0.70 && trackResult.delta >= 0.25 && trackResult.psr >= 2.0)
-                    || (trackResult.score >= 0.35 && trackResult.psr >= 4.0);
-
-        bool ambiguous = !accept;
-        v.isScreenBlocked = !accept && !hold;
-
-        v.isValid = !v.isEdgeSnapped && !v.isTeleported && !v.isScreenBlocked && !ambiguous;
-
-        return v;
-    }
-
-    bool validateGlobalSearch(double score) override { return score >= matchCfg.passThreshold; }
-
-    bool needsChamferCompensation() const override { return true; }
-
-private:
-    bool _isBase;
-    TrackingConfig trackingCfg;
-    MatchConfig matchCfg;
-    ImageProcessingConfig baseCfg;
-    ImageProcessingConfig tierCfg;
-};
-
-std::unique_ptr<IMatchStrategy> MatchStrategyFactory::create(
+MatchStrategy MakeMatchStrategy(
     const std::string& zoneId,
     const TrackingConfig& trackingCfg,
     const MatchConfig& matchCfg,
@@ -575,10 +521,81 @@ std::unique_ptr<IMatchStrategy> MatchStrategyFactory::create(
     const ImageProcessingConfig& tierImgCfg)
 {
     bool isBase = (zoneId.find("Base") != std::string::npos);
-    if (IsPathHeatmapZone(zoneId)) {
-        return std::make_unique<PathHeatmapMatchStrategy>(isBase, trackingCfg, matchCfg, baseImgCfg, tierImgCfg);
+    return MatchStrategy {
+        .kind = IsPathHeatmapZone(zoneId) ? MatchStrategyKind::PathHeatmap : MatchStrategyKind::Standard,
+        .is_base = isBase,
+        .tracking = trackingCfg,
+        .match = matchCfg,
+        .base_image = baseImgCfg,
+        .tier_image = tierImgCfg,
+    };
+}
+
+MatchFeature ExtractTemplateFeature(const MatchStrategy& strategy, const cv::Mat& minimap)
+{
+    switch (strategy.kind) {
+    case MatchStrategyKind::Standard:
+        return standard_extract_template_feature(strategy, minimap);
+    case MatchStrategyKind::PathHeatmap:
+        return heatmap_extract_template_feature(strategy, minimap);
     }
-    return std::make_unique<StandardMatchStrategy>(isBase, trackingCfg, matchCfg, baseImgCfg, tierImgCfg);
+    return standard_extract_template_feature(strategy, minimap);
+}
+
+MatchFeature ExtractSearchFeature(const MatchStrategy& strategy, const cv::Mat& mapRoi)
+{
+    switch (strategy.kind) {
+    case MatchStrategyKind::Standard:
+        return standard_extract_search_feature(mapRoi);
+    case MatchStrategyKind::PathHeatmap:
+        return heatmap_extract_search_feature(mapRoi);
+    }
+    return standard_extract_search_feature(mapRoi);
+}
+
+TemplateFeatureKind TemplateKindOf(const MatchStrategy& strategy)
+{
+    switch (strategy.kind) {
+    case MatchStrategyKind::Standard:
+        return standard_template_kind(strategy);
+    case MatchStrategyKind::PathHeatmap:
+        return heatmap_template_kind(strategy);
+    }
+    return standard_template_kind(strategy);
+}
+
+TrackingValidation ValidateTracking(
+    const MatchStrategy& strategy,
+    const MatchResultRaw& trackResult,
+    std::chrono::duration<double> dt,
+    std::optional<MapPosition> lastPos,
+    const cv::Rect& searchRect,
+    int templCols,
+    int templRows)
+{
+    switch (strategy.kind) {
+    case MatchStrategyKind::Standard:
+        return standard_validate_tracking(strategy, trackResult, dt, lastPos, searchRect, templCols, templRows);
+    case MatchStrategyKind::PathHeatmap:
+        return heatmap_validate_tracking(strategy, trackResult, dt, lastPos, searchRect, templCols, templRows);
+    }
+    return standard_validate_tracking(strategy, trackResult, dt, lastPos, searchRect, templCols, templRows);
+}
+
+bool ValidateGlobalSearch(const MatchStrategy& strategy, double score)
+{
+    return score >= strategy.match.passThreshold;
+}
+
+bool NeedsChamferCompensation(const MatchStrategy& strategy)
+{
+    switch (strategy.kind) {
+    case MatchStrategyKind::Standard:
+        return false;
+    case MatchStrategyKind::PathHeatmap:
+        return true;
+    }
+    return false;
 }
 
 } // namespace maplocator
