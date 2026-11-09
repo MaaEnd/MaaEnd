@@ -71,13 +71,13 @@
         ]
     },
     "UseConsumableStockFindItemsPage": {
-        "desc": "在当前仓库页同时检查所有仍缺少的消耗品",
+        "desc": "按启用槽位查找仓库中待取用的消耗品",
         "recognition": "DirectHit",
         "next": [
-            "UseConsumableStockFindItemSlot1",
-            "UseConsumableStockFindItemSlot2",
-            "UseConsumableStockFindItemSlot3",
-            "UseConsumableStockFindItemSlot4",
+            "UseConsumableStockUniqueItemSlot1",
+            "UseConsumableStockUniqueItemSlot2",
+            "UseConsumableStockUniqueItemSlot3",
+            "UseConsumableStockUniqueItemSlot4",
             "ItemTransferRepoBottomReached",
             "[JumpBack]ItemTransferScrollDownwardRepo",
             "ItemTransferStop"

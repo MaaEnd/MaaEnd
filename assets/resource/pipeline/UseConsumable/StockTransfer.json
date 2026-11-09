@@ -1,4 +1,64 @@
 {
+    "UseConsumableStockUniqueItemSlot1": {
+        "desc": "判断一号位物品是否为启用槽位中的首次取货需求",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "UseConsumableUniqueItemRecognition",
+                "custom_recognition_param": {
+                    "slot": 1
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockFindItemSlot1"
+        ]
+    },
+    "UseConsumableStockUniqueItemSlot2": {
+        "desc": "判断二号位物品是否为启用槽位中的首次取货需求",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "UseConsumableUniqueItemRecognition",
+                "custom_recognition_param": {
+                    "slot": 2
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockFindItemSlot2"
+        ]
+    },
+    "UseConsumableStockUniqueItemSlot3": {
+        "desc": "判断三号位物品是否为启用槽位中的首次取货需求",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "UseConsumableUniqueItemRecognition",
+                "custom_recognition_param": {
+                    "slot": 3
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockFindItemSlot3"
+        ]
+    },
+    "UseConsumableStockUniqueItemSlot4": {
+        "desc": "判断四号位物品是否为启用槽位中的首次取货需求",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "UseConsumableUniqueItemRecognition",
+                "custom_recognition_param": {
+                    "slot": 4
+                }
+            }
+        },
+        "next": [
+            "UseConsumableStockFindItemSlot4"
+        ]
+    },
     "UseConsumableStockFindItemSlot1": {
         "enabled": true,
         "recognition": {
