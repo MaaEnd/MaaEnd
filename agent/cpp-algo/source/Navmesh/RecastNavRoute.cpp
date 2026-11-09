@@ -935,7 +935,7 @@ std::optional<WindowInfo> build_window(
     walls = BakedWalls();
     // 净空也要清零, 否则拐角能从禁区上空拉直过去
     if (no_go != nullptr) {
-        StampNoGo(*no_go, x0, y0, nx, ny, lh, info.core, info.lay, info.dist);
+        StampNoGo(&info.core, &info.lay, &info.dist, *no_go, x0, y0, nx, ny, lh);
     }
     lh = Grid<float>();
 
@@ -3596,8 +3596,8 @@ RecastPlanResult plan_locked(
     const std::vector<NoGoPoly>* nogo = FindNoGoZone(engine->nogo, zone_name);
     if (nogo != nullptr) {
         std::string hit;
-        const bool in_start = NoGoContains(*nogo, start, h0, hit);
-        if (in_start || NoGoContains(*nogo, goal, tri_height_of(zc.mesh, gs->tri), hit)) {
+        const bool in_start = NoGoContains(&hit, *nogo, start, h0);
+        if (in_start || NoGoContains(&hit, *nogo, goal, tri_height_of(zc.mesh, gs->tri))) {
             res.no_go = true;
             res.error = std::string(in_start ? "起点" : "终点") + "在虚拟禁区内";
             if (!hit.empty()) {

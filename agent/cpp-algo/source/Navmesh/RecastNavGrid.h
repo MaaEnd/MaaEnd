@@ -170,7 +170,7 @@ RasterCells Rasterize(
     int64_t ny,
     const std::vector<uint8_t>* walkable = nullptr);
 
-void AppendSeamBridge(RasterCells& rc, int64_t nx, int64_t ny);
+void AppendSeamBridge(RasterCells* rc, int64_t nx, int64_t ny);
 
 SpanTable BuildSpans(const std::vector<int64_t>& cell, const std::vector<float>& h);
 

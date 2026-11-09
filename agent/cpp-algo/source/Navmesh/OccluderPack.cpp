@@ -92,31 +92,31 @@ constexpr double kFlatDet = 1e-12;
 constexpr double kColumnEdge = 1e-6;
 constexpr double kCurtainMinLength = 1e-9;
 
-uint16_t ReadU16(const uint8_t*& cursor)
+uint16_t read_u16(const uint8_t** cursor)
 {
-    const uint16_t value = static_cast<uint16_t>(cursor[0] | (cursor[1] << 8U));
-    cursor += 2;
+    const uint16_t value = static_cast<uint16_t>((*cursor)[0] | ((*cursor)[1] << 8U));
+    *cursor += 2;
     return value;
 }
 
-uint32_t ReadU32(const uint8_t*& cursor)
+uint32_t read_u32(const uint8_t** cursor)
 {
-    const uint32_t value = static_cast<uint32_t>(cursor[0]) | (static_cast<uint32_t>(cursor[1]) << 8U)
-                           | (static_cast<uint32_t>(cursor[2]) << 16U) | (static_cast<uint32_t>(cursor[3]) << 24U);
-    cursor += 4;
+    const uint32_t value = static_cast<uint32_t>((*cursor)[0]) | (static_cast<uint32_t>((*cursor)[1]) << 8U)
+                           | (static_cast<uint32_t>((*cursor)[2]) << 16U) | (static_cast<uint32_t>((*cursor)[3]) << 24U);
+    *cursor += 4;
     return value;
 }
 
-uint64_t ReadU64(const uint8_t*& cursor)
+uint64_t read_u64(const uint8_t** cursor)
 {
-    const uint64_t low = ReadU32(cursor);
-    const uint64_t high = ReadU32(cursor);
+    const uint64_t low = read_u32(cursor);
+    const uint64_t high = read_u32(cursor);
     return low | (high << 32U);
 }
 
-double ReadF64(const uint8_t*& cursor)
+double read_f64(const uint8_t** cursor)
 {
-    return std::bit_cast<double>(ReadU64(cursor));
+    return std::bit_cast<double>(read_u64(cursor));
 }
 
 // 读过头或变长整数不合规时 ok 置 false, 此后读到的都是 0
@@ -126,93 +126,99 @@ struct Stream
     const uint8_t* cursor = nullptr;
     const uint8_t* end = nullptr;
     bool ok = true;
-
-    size_t size() const { return static_cast<size_t>(end - begin); }
-
-    uint8_t Byte()
-    {
-        if (!ok || cursor == end) {
-            ok = false;
-            return 0;
-        }
-        return *cursor++;
-    }
-
-    uint64_t Uv()
-    {
-        uint64_t value = 0;
-        if (!ok || !GetVarint(cursor, end, value)) {
-            ok = false;
-            return 0;
-        }
-        return value;
-    }
-
-    int64_t Sv() { return UnZigzag(Uv()); }
-
-    float F32()
-    {
-        if (!ok || end - cursor < 4) {
-            ok = false;
-            return 0.0F;
-        }
-        return std::bit_cast<float>(ReadU32(cursor));
-    }
-
-    const uint8_t* Take(size_t bytes)
-    {
-        if (!ok || static_cast<size_t>(end - cursor) < bytes) {
-            ok = false;
-            return nullptr;
-        }
-        const uint8_t* const start = cursor;
-        cursor += bytes;
-        return start;
-    }
 };
 
+size_t stream_size(const Stream& st)
+{
+    return static_cast<size_t>(st.end - st.begin);
+}
+
+uint8_t stream_byte(Stream* st)
+{
+    if (!st->ok || st->cursor == st->end) {
+        st->ok = false;
+        return 0;
+    }
+    return *st->cursor++;
+}
+
+uint64_t stream_uv(Stream* st)
+{
+    uint64_t value = 0;
+    if (!st->ok || !GetVarint(st->cursor, st->end, value)) {
+        st->ok = false;
+        return 0;
+    }
+    return value;
+}
+
+int64_t stream_sv(Stream* st)
+{
+    return UnZigzag(stream_uv(st));
+}
+
+float stream_f32(Stream* st)
+{
+    if (!st->ok || st->end - st->cursor < 4) {
+        st->ok = false;
+        return 0.0F;
+    }
+    return std::bit_cast<float>(read_u32(&st->cursor));
+}
+
+const uint8_t* stream_take(Stream* st, size_t bytes)
+{
+    if (!st->ok || static_cast<size_t>(st->end - st->cursor) < bytes) {
+        st->ok = false;
+        return nullptr;
+    }
+    const uint8_t* const start = st->cursor;
+    st->cursor += bytes;
+    return start;
+}
+
 // 按补码回绕, 坏数据不会触发有符号溢出
-int64_t WrapAdd(int64_t a, int64_t b)
+int64_t wrap_add(int64_t a, int64_t b)
 {
     return static_cast<int64_t>(static_cast<uint64_t>(a) + static_cast<uint64_t>(b));
 }
 
-Vec3 Sub(const Vec3& a, const Vec3& b)
+Vec3 vec_sub(const Vec3& a, const Vec3& b)
 {
     return { a[0] - b[0], a[1] - b[1], a[2] - b[2] };
 }
 
-Vec3 Add(const Vec3& a, const Vec3& b)
+Vec3 vec_add(const Vec3& a, const Vec3& b)
 {
     return { a[0] + b[0], a[1] + b[1], a[2] + b[2] };
 }
 
-Vec3 Scale(const Vec3& v, double s)
+Vec3 vec_scale(const Vec3& v, double s)
 {
     return { v[0] * s, v[1] * s, v[2] * s };
 }
 
-double Dot(const Vec3& a, const Vec3& b)
+double vec_dot(const Vec3& a, const Vec3& b)
 {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
-Vec3 Cross(const Vec3& a, const Vec3& b)
+Vec3 vec_cross(const Vec3& a, const Vec3& b)
 {
     return { a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0] };
 }
 
-Vec3 Mul(const Mat3& m, const Vec3& v)
+Vec3 mat_vec_mul(const Mat3& m, const Vec3& v)
 {
-    return { Dot(m[0], v), Dot(m[1], v), Dot(m[2], v) };
+    return { vec_dot(m[0], v), vec_dot(m[1], v), vec_dot(m[2], v) };
 }
 
-double Det(const Mat3& m)
+double mat_det(const Mat3& m)
 {
-    return Dot(m[0], Cross(m[1], m[2]));
+    return vec_dot(m[0], vec_cross(m[1], m[2]));
 }
 
-bool Inverse(const Mat3& m, Mat3& out)
+bool mat_inverse(Mat3* out, const Mat3& m)
 {
     const Mat3 c { {
         { m[1][1] * m[2][2] - m[1][2] * m[2][1], m[1][2] * m[2][0] - m[1][0] * m[2][2], m[1][0] * m[2][1] - m[1][1] * m[2][0] },
@@ -225,14 +231,19 @@ bool Inverse(const Mat3& m, Mat3& out)
     }
     for (size_t i = 0; i < 3; ++i) {
         for (size_t j = 0; j < 3; ++j) {
-            out[i][j] = c[j][i] / det;
+            (*out)[i][j] = c[j][i] / det;
         }
     }
     return true;
 }
 
 // code 是四元数 (x, y, z, w) 里略去的最大分量位置, rot 是其余三个分量, scale 是 s·scale_unit
-Mat3 AffineDecode(uint8_t code, const std::array<int64_t, 3>& rot, const std::array<int64_t, 3>& scale, double rot_scale, double scale_unit)
+Mat3 affine_decode(
+    uint8_t code,
+    const std::array<int64_t, 3>& rot,
+    const std::array<int64_t, 3>& scale,
+    double rot_scale,
+    double scale_unit)
 {
     double c[3];
     for (size_t i = 0; i < 3; ++i) {
@@ -265,7 +276,7 @@ Mat3 AffineDecode(uint8_t code, const std::array<int64_t, 3>& rot, const std::ar
     return a;
 }
 
-bool SegBox(const Vec3& o, const Vec3& d, const Vec3& lo, const Vec3& hi)
+bool seg_box(const Vec3& o, const Vec3& d, const Vec3& lo, const Vec3& hi)
 {
     double s0 = 0.0;
     double s1 = 1.0;
@@ -291,61 +302,63 @@ bool SegBox(const Vec3& o, const Vec3& d, const Vec3& lo, const Vec3& hi)
 }
 
 // Möller–Trumbore, 正反面与边角端点都算交, d2 = |d|²
-bool SegTri(const Vec3& o, const Vec3& d, double d2, const Vec3& v0, const Vec3& v1, const Vec3& v2, double& t)
+bool seg_tri(double* t, const Vec3& o, const Vec3& d, double d2, const Vec3& v0, const Vec3& v1, const Vec3& v2)
 {
-    const Vec3 e1 = Sub(v1, v0);
-    const Vec3 e2 = Sub(v2, v0);
-    const Vec3 n = Cross(e1, e2);
-    const double n2 = Dot(n, n);
-    const Vec3 p = Cross(d, e2);
-    const double det = Dot(e1, p);
+    const Vec3 e1 = vec_sub(v1, v0);
+    const Vec3 e2 = vec_sub(v2, v0);
+    const Vec3 n = vec_cross(e1, e2);
+    const double n2 = vec_dot(n, n);
+    const Vec3 p = vec_cross(d, e2);
+    const double det = vec_dot(e1, p);
     if (n2 == 0.0 || det * det <= kParallelSin2 * n2 * d2) {
         return false;
     }
     const double inv = 1.0 / det;
-    const Vec3 s = Sub(o, v0);
-    const double u = Dot(s, p) * inv;
+    const Vec3 s = vec_sub(o, v0);
+    const double u = vec_dot(s, p) * inv;
     if (!(u >= 0.0 && u <= 1.0)) {
         return false;
     }
-    const Vec3 q = Cross(s, e1);
-    const double v = Dot(d, q) * inv;
+    const Vec3 q = vec_cross(s, e1);
+    const double v = vec_dot(d, q) * inv;
     if (v < 0.0 || u + v > 1.0) {
         return false;
     }
-    t = Dot(e2, q) * inv;
-    return t >= 0.0 && t <= 1.0;
+    *t = vec_dot(e2, q) * inv;
+    return *t >= 0.0 && *t <= 1.0;
 }
 
-size_t ClipToRect(const Vec3 (&tri)[3], double x0, double x1, double z0, double z1, std::array<Vec3, kClipMaxVertices>& poly)
+struct Cut
 {
-    struct Cut
-    {
-        size_t axis;
-        double bound;
-        bool keep_above;
-    };
+    size_t axis;
+    double bound;
+    bool keep_above;
+};
 
+bool cut_inside(const Cut& cut, const Vec3& p)
+{
+    return cut.keep_above ? p[cut.axis] >= cut.bound : p[cut.axis] <= cut.bound;
+}
+
+size_t clip_to_rect(std::array<Vec3, kClipMaxVertices>* poly, const Vec3 (&tri)[3], double x0, double x1, double z0, double z1)
+{
     const Cut cuts[4] = { { 0, x0, true }, { 0, x1, false }, { 2, z0, true }, { 2, z1, false } };
-    std::copy(std::begin(tri), std::end(tri), poly.begin());
+    std::copy(std::begin(tri), std::end(tri), poly->begin());
     size_t count = 3;
     std::array<Vec3, kClipMaxVertices> next {};
     for (const Cut& cut : cuts) {
-        const auto inside = [&](const Vec3& p) {
-            return cut.keep_above ? p[cut.axis] >= cut.bound : p[cut.axis] <= cut.bound;
-        };
         size_t kept = 0;
         for (size_t i = 0; i < count; ++i) {
-            const Vec3& p = poly[i];
-            const Vec3& q = poly[(i + 1) % count];
-            if (inside(p)) {
+            const Vec3& p = (*poly)[i];
+            const Vec3& q = (*poly)[(i + 1) % count];
+            if (cut_inside(cut, p)) {
                 next[kept++] = p;
             }
-            if (inside(p) != inside(q)) {
-                next[kept++] = Add(p, Scale(Sub(q, p), (cut.bound - p[cut.axis]) / (q[cut.axis] - p[cut.axis])));
+            if (cut_inside(cut, p) != cut_inside(cut, q)) {
+                next[kept++] = vec_add(p, vec_scale(vec_sub(q, p), (cut.bound - p[cut.axis]) / (q[cut.axis] - p[cut.axis])));
             }
         }
-        poly = next;
+        *poly = next;
         count = kept;
         if (count == 0) {
             break;
@@ -354,7 +367,7 @@ size_t ClipToRect(const Vec3 (&tri)[3], double x0, double x1, double z0, double 
     return count;
 }
 
-float FloatDown(double value)
+float float_down(double value)
 {
     constexpr double kMax = std::numeric_limits<float>::max();
     if (!(value > -kMax)) {
@@ -370,7 +383,7 @@ float FloatDown(double value)
     return f;
 }
 
-float FloatUp(double value)
+float float_up(double value)
 {
     constexpr double kMax = std::numeric_limits<float>::max();
     if (!(value < kMax)) {
@@ -386,72 +399,70 @@ float FloatUp(double value)
     return f;
 }
 
-struct TreeBuild
+struct ItemBoxes
 {
     const std::vector<Vec3>& lo;
     const std::vector<Vec3>& hi;
     const std::vector<Vec3>& centre;
     double pad;
-    std::vector<BoxNode>& nodes;
-    std::vector<uint32_t>& order;
-
-    uint32_t Node(uint32_t begin, uint32_t end)
-    {
-        const uint32_t index = static_cast<uint32_t>(nodes.size());
-        nodes.emplace_back();
-        Vec3 box_lo;
-        Vec3 box_hi;
-        box_lo.fill(std::numeric_limits<double>::infinity());
-        box_hi.fill(-std::numeric_limits<double>::infinity());
-        Vec3 centre_lo = box_lo;
-        Vec3 centre_hi = box_hi;
-        for (uint32_t i = begin; i < end; ++i) {
-            const uint32_t item = order[i];
-            for (size_t k = 0; k < 3; ++k) {
-                box_lo[k] = std::fmin(box_lo[k], lo[item][k] - pad);
-                box_hi[k] = std::fmax(box_hi[k], hi[item][k] + pad);
-                centre_lo[k] = std::fmin(centre_lo[k], centre[item][k]);
-                centre_hi[k] = std::fmax(centre_hi[k], centre[item][k]);
-            }
-        }
-        for (size_t k = 0; k < 3; ++k) {
-            nodes[index].lo[k] = FloatDown(box_lo[k]);
-            nodes[index].hi[k] = FloatUp(box_hi[k]);
-        }
-        if (end - begin <= kLeafSize) {
-            nodes[index].first = begin;
-            nodes[index].count = end - begin;
-            return index;
-        }
-        size_t axis = 0;
-        for (size_t k = 1; k < 3; ++k) {
-            if (centre_hi[k] - centre_lo[k] > centre_hi[axis] - centre_lo[axis]) {
-                axis = k;
-            }
-        }
-        const uint32_t mid = begin + (end - begin) / 2;
-        std::nth_element(order.begin() + begin, order.begin() + mid, order.begin() + end, [&](uint32_t a, uint32_t b) {
-            return std::tie(centre[a][axis], a) < std::tie(centre[b][axis], b);
-        });
-        Node(begin, mid);
-        const uint32_t right = Node(mid, end);
-        nodes[index].first = right;
-        nodes[index].count = 0;
-        return index;
-    }
 };
 
-void BuildTree(
+uint32_t build_tree_node(std::vector<BoxNode>* nodes, std::vector<uint32_t>* order, const ItemBoxes& items, uint32_t begin, uint32_t end)
+{
+    const uint32_t index = static_cast<uint32_t>(nodes->size());
+    nodes->emplace_back();
+    Vec3 box_lo;
+    Vec3 box_hi;
+    box_lo.fill(std::numeric_limits<double>::infinity());
+    box_hi.fill(-std::numeric_limits<double>::infinity());
+    Vec3 centre_lo = box_lo;
+    Vec3 centre_hi = box_hi;
+    for (uint32_t i = begin; i < end; ++i) {
+        const uint32_t item = (*order)[i];
+        for (size_t k = 0; k < 3; ++k) {
+            box_lo[k] = std::fmin(box_lo[k], items.lo[item][k] - items.pad);
+            box_hi[k] = std::fmax(box_hi[k], items.hi[item][k] + items.pad);
+            centre_lo[k] = std::fmin(centre_lo[k], items.centre[item][k]);
+            centre_hi[k] = std::fmax(centre_hi[k], items.centre[item][k]);
+        }
+    }
+    for (size_t k = 0; k < 3; ++k) {
+        (*nodes)[index].lo[k] = float_down(box_lo[k]);
+        (*nodes)[index].hi[k] = float_up(box_hi[k]);
+    }
+    if (end - begin <= kLeafSize) {
+        (*nodes)[index].first = begin;
+        (*nodes)[index].count = end - begin;
+        return index;
+    }
+    size_t axis = 0;
+    for (size_t k = 1; k < 3; ++k) {
+        if (centre_hi[k] - centre_lo[k] > centre_hi[axis] - centre_lo[axis]) {
+            axis = k;
+        }
+    }
+    const uint32_t mid = begin + (end - begin) / 2;
+    std::nth_element(order->begin() + begin, order->begin() + mid, order->begin() + end, [&](uint32_t a, uint32_t b) {
+        return std::tie(items.centre[a][axis], a) < std::tie(items.centre[b][axis], b);
+    });
+    build_tree_node(nodes, order, items, begin, mid);
+    const uint32_t right = build_tree_node(nodes, order, items, mid, end);
+    (*nodes)[index].first = right;
+    (*nodes)[index].count = 0;
+    return index;
+}
+
+void build_tree(
+    std::vector<BoxNode>* nodes,
+    std::vector<uint32_t>* order,
     const std::vector<Vec3>& lo,
     const std::vector<Vec3>& hi,
-    double pad,
-    std::vector<BoxNode>& nodes,
-    std::vector<uint32_t>& order)
+    double pad)
 {
     const uint32_t count = static_cast<uint32_t>(lo.size());
-    order.resize(count);
-    std::iota(order.begin(), order.end(), 0U);
-    nodes.clear();
+    order->resize(count);
+    std::iota(order->begin(), order->end(), 0U);
+    nodes->clear();
     if (count == 0) {
         return;
     }
@@ -461,13 +472,13 @@ void BuildTree(
             centre[i][k] = 0.5 * (lo[i][k] + hi[i][k]);
         }
     }
-    nodes.reserve(2 * static_cast<size_t>(count));
-    TreeBuild { .lo = lo, .hi = hi, .centre = centre, .pad = pad, .nodes = nodes, .order = order }.Node(0, count);
-    nodes.shrink_to_fit();
+    nodes->reserve(2 * static_cast<size_t>(count));
+    build_tree_node(nodes, order, ItemBoxes { .lo = lo, .hi = hi, .centre = centre, .pad = pad }, 0, count);
+    nodes->shrink_to_fit();
 }
 
 // 只给第二个盒子外扩 kBoxPad
-bool BoxBox(const Vec3& lo, const Vec3& hi, const Vec3& other_lo, const Vec3& other_hi)
+bool box_box(const Vec3& lo, const Vec3& hi, const Vec3& other_lo, const Vec3& other_hi)
 {
     for (size_t k = 0; k < 3; ++k) {
         if (other_lo[k] - kBoxPad > hi[k] || other_hi[k] + kBoxPad < lo[k]) {
@@ -478,11 +489,12 @@ bool BoxBox(const Vec3& lo, const Vec3& hi, const Vec3& other_lo, const Vec3& ot
 }
 
 // 对半分的树深不过 32 层, 栈开 64 足够
-template <typename Reaches, typename Visit>
-void VisitTree(const std::vector<BoxNode>& nodes, const std::vector<uint32_t>& order, Reaches&& reaches, Visit&& visit)
+std::vector<uint32_t>
+    tree_leaves_in_box(const std::vector<BoxNode>& nodes, const std::vector<uint32_t>& order, const Vec3& query_lo, const Vec3& query_hi)
 {
+    std::vector<uint32_t> out;
     if (nodes.empty()) {
-        return;
+        return out;
     }
     uint32_t stack[64];
     size_t top = 0;
@@ -492,18 +504,50 @@ void VisitTree(const std::vector<BoxNode>& nodes, const std::vector<uint32_t>& o
         const BoxNode& node = nodes[index];
         const Vec3 lo { node.lo[0], node.lo[1], node.lo[2] };
         const Vec3 hi { node.hi[0], node.hi[1], node.hi[2] };
-        if (!reaches(lo, hi)) {
+        if (!box_box(query_lo, query_hi, lo, hi)) {
             continue;
         }
         if (node.count > 0) {
             for (uint32_t i = node.first; i < node.first + node.count; ++i) {
-                visit(order[i]);
+                out.push_back(order[i]);
             }
             continue;
         }
         stack[top++] = node.first;
         stack[top++] = index + 1;
     }
+    return out;
+}
+
+// 对半分的树深不过 32 层, 栈开 64 足够
+std::vector<uint32_t>
+    tree_leaves_on_segment(const std::vector<BoxNode>& nodes, const std::vector<uint32_t>& order, const Vec3& a, const Vec3& d)
+{
+    std::vector<uint32_t> out;
+    if (nodes.empty()) {
+        return out;
+    }
+    uint32_t stack[64];
+    size_t top = 0;
+    stack[top++] = 0;
+    while (top > 0) {
+        const uint32_t index = stack[--top];
+        const BoxNode& node = nodes[index];
+        const Vec3 lo { node.lo[0], node.lo[1], node.lo[2] };
+        const Vec3 hi { node.hi[0], node.hi[1], node.hi[2] };
+        if (!seg_box(a, d, lo, hi)) {
+            continue;
+        }
+        if (node.count > 0) {
+            for (uint32_t i = node.first; i < node.first + node.count; ++i) {
+                out.push_back(order[i]);
+            }
+            continue;
+        }
+        stack[top++] = node.first;
+        stack[top++] = index + 1;
+    }
+    return out;
 }
 
 struct Face
@@ -512,36 +556,48 @@ struct Face
     bool up = false;
 };
 
-std::vector<Face> FacesInBox(const OccluderScene& scene, const Vec3& lo, const Vec3& hi)
+void push_instance_face(
+    std::vector<Face>* faces,
+    const Mat3& a,
+    const OccluderScene::Template& tpl,
+    const OccluderScene::Instance& inst,
+    double facing,
+    uint32_t k)
+{
+    Face face;
+    for (size_t c = 0; c < 3; ++c) {
+        face.v[c] = vec_add(mat_vec_mul(a, tpl.verts[tpl.tris[k][c]]), inst.t);
+    }
+    face.up = facing * vec_cross(vec_sub(face.v[1], face.v[0]), vec_sub(face.v[2], face.v[0]))[1] < 0.0;
+    faces->push_back(face);
+}
+
+Vec3 block_sample_point(const OccluderScene& scene, const OccluderScene::Block& block, double cell, size_t n, size_t u, size_t v)
+{
+    return Vec3 { block.x0 + static_cast<double>(u) * cell,
+                  scene.lattice_a + scene.lattice_b * static_cast<double>(block.k[v * n + u]),
+                  block.z0 + static_cast<double>(v) * cell };
+}
+
+std::vector<Face> faces_in_box(const OccluderScene& scene, const Vec3& lo, const Vec3& hi)
 {
     std::vector<Face> faces;
-    const auto reaches = [&](const Vec3& node_lo, const Vec3& node_hi) {
-        return BoxBox(lo, hi, node_lo, node_hi);
-    };
-    VisitTree(scene.instance_nodes, scene.instance_order, reaches, [&](uint32_t index) {
+    for (const uint32_t index : tree_leaves_in_box(scene.instance_nodes, scene.instance_order, lo, hi)) {
         const OccluderScene::Instance& inst = scene.instances[index];
-        if (!BoxBox(lo, hi, inst.lo, inst.hi)) {
-            return;
+        if (!box_box(lo, hi, inst.lo, inst.hi)) {
+            continue;
         }
         Mat3 a = inst.m;
-        if (inst.invertible && !Inverse(inst.m, a)) {
-            return;
+        if (inst.invertible && !mat_inverse(&a, inst.m)) {
+            continue;
         }
-        const double facing = Det(a) < 0.0 ? -1.0 : 1.0;
+        const double facing = mat_det(a) < 0.0 ? -1.0 : 1.0;
         const OccluderScene::Template& tpl = scene.templates[inst.tpl];
-        const auto take = [&](uint32_t k) {
-            Face face;
-            for (size_t c = 0; c < 3; ++c) {
-                face.v[c] = Add(Mul(a, tpl.verts[tpl.tris[k][c]]), inst.t);
-            }
-            face.up = facing * Cross(Sub(face.v[1], face.v[0]), Sub(face.v[2], face.v[0]))[1] < 0.0;
-            faces.push_back(face);
-        };
         if (!inst.invertible || tpl.nodes.empty()) {
             for (uint32_t k = 0; k < tpl.tris.size(); ++k) {
-                take(k);
+                push_instance_face(&faces, a, tpl, inst, facing, k);
             }
-            return;
+            continue;
         }
         Vec3 local_lo;
         Vec3 local_hi;
@@ -552,21 +608,20 @@ std::vector<Face> FacesInBox(const OccluderScene& scene, const Vec3& lo, const V
             for (size_t j = 0; j < 3; ++j) {
                 w[j] = ((corner >> j) & 1U) == 0 ? lo[j] : hi[j];
             }
-            const Vec3 l = Mul(inst.m, Sub(w, inst.t));
+            const Vec3 l = mat_vec_mul(inst.m, vec_sub(w, inst.t));
             for (size_t j = 0; j < 3; ++j) {
                 local_lo[j] = std::fmin(local_lo[j], l[j]);
                 local_hi[j] = std::fmax(local_hi[j], l[j]);
             }
         }
-        const auto local_reaches = [&](const Vec3& node_lo, const Vec3& node_hi) {
-            return BoxBox(local_lo, local_hi, node_lo, node_hi);
-        };
-        VisitTree(tpl.nodes, tpl.order, local_reaches, take);
-    });
+        for (const uint32_t k : tree_leaves_in_box(tpl.nodes, tpl.order, local_lo, local_hi)) {
+            push_instance_face(&faces, a, tpl, inst, facing, k);
+        }
+    }
     const size_t n = scene.block_n;
     const double cell = scene.cell;
     for (const OccluderScene::Block& block : scene.blocks) {
-        if (!BoxBox(lo, hi, block.lo, block.hi)) {
+        if (!box_box(lo, hi, block.lo, block.hi)) {
             continue;
         }
         const double last = static_cast<double>(n - 2);
@@ -577,21 +632,16 @@ std::vector<Face> FacesInBox(const OccluderScene& scene, const Vec3& lo, const V
         if (!(u0 <= u1 && v0 <= v1)) {
             continue;
         }
-        const auto sample = [&](size_t u, size_t v) {
-            return Vec3 { block.x0 + static_cast<double>(u) * cell,
-                          scene.lattice_a + scene.lattice_b * static_cast<double>(block.k[v * n + u]),
-                          block.z0 + static_cast<double>(v) * cell };
-        };
         for (size_t v = static_cast<size_t>(v0); v <= static_cast<size_t>(v1); ++v) {
             for (size_t u = static_cast<size_t>(u0); u <= static_cast<size_t>(u1); ++u) {
                 const size_t c = v * (n - 1) + u;
                 if (!block.holes.empty() && ((block.holes[c / 8] >> (c % 8)) & 1U) != 0) {
                     continue;
                 }
-                const Vec3 p00 = sample(u, v);
-                const Vec3 p01 = sample(u, v + 1);
-                const Vec3 p10 = sample(u + 1, v);
-                const Vec3 p11 = sample(u + 1, v + 1);
+                const Vec3 p00 = block_sample_point(scene, block, cell, n, u, v);
+                const Vec3 p01 = block_sample_point(scene, block, cell, n, u, v + 1);
+                const Vec3 p10 = block_sample_point(scene, block, cell, n, u + 1, v);
+                const Vec3 p11 = block_sample_point(scene, block, cell, n, u + 1, v + 1);
                 faces.push_back(Face { .v = { p00, p01, p10 }, .up = true });
                 faces.push_back(Face { .v = { p10, p01, p11 }, .up = true });
             }
@@ -600,7 +650,7 @@ std::vector<Face> FacesInBox(const OccluderScene& scene, const Vec3& lo, const V
     return faces;
 }
 
-std::optional<double> HeightAt(const Vec3 (&tri)[3], double x, double z)
+std::optional<double> height_at(const Vec3 (&tri)[3], double x, double z)
 {
     const Vec3& a = tri[0];
     const Vec3& b = tri[1];
@@ -618,7 +668,51 @@ std::optional<double> HeightAt(const Vec3 (&tri)[3], double x, double z)
     return l0 * a[1] + l1 * b[1] + l2 * c[1];
 }
 
-bool CrossesCurtain(const Vec3 (&tri)[3], double ax, double az, double bx, double bz, double lo, double hi)
+using Point = std::array<double, 2>;
+
+enum class ClipEdge
+{
+    AlongMin,
+    AlongMax,
+    HeightMin,
+    HeightMax,
+};
+
+double clip_distance(ClipEdge edge, const Point& p, double len, double lo, double hi)
+{
+    switch (edge) {
+    case ClipEdge::AlongMin:
+        return p[0];
+    case ClipEdge::AlongMax:
+        return len - p[0];
+    case ClipEdge::HeightMin:
+        return p[1] - lo;
+    case ClipEdge::HeightMax:
+        return hi - p[1];
+    }
+    return 0.0;
+}
+
+void clip_section(std::vector<Point>* section, ClipEdge edge, double len, double lo, double hi)
+{
+    std::vector<Point> kept;
+    for (size_t i = 0; i < section->size(); ++i) {
+        const Point& cur = (*section)[i];
+        const Point& next = (*section)[(i + 1) % section->size()];
+        const double dc = clip_distance(edge, cur, len, lo, hi);
+        const double dn = clip_distance(edge, next, len, lo, hi);
+        if (dc >= 0.0) {
+            kept.push_back(cur);
+        }
+        if ((dc > 0.0 && dn < 0.0) || (dc < 0.0 && dn > 0.0)) {
+            const double t = dc / (dc - dn);
+            kept.push_back({ cur[0] + t * (next[0] - cur[0]), cur[1] + t * (next[1] - cur[1]) });
+        }
+    }
+    *section = std::move(kept);
+}
+
+bool crosses_curtain(const Vec3 (&tri)[3], double ax, double az, double bx, double bz, double lo, double hi)
 {
     const double dx = bx - ax;
     const double dz = bz - az;
@@ -628,7 +722,6 @@ bool CrossesCurtain(const Vec3 (&tri)[3], double ax, double az, double bx, doubl
     }
     const double ux = dx / len;
     const double uz = dz / len;
-    using Point = std::array<double, 2>;
     double side[3] {};
     double along[3] {};
     for (size_t k = 0; k < 3; ++k) {
@@ -646,27 +739,10 @@ bool CrossesCurtain(const Vec3 (&tri)[3], double ax, double az, double bx, doubl
             section.push_back({ along[k] + t * (along[j] - along[k]), tri[k][1] + t * (tri[j][1] - tri[k][1]) });
         }
     }
-    const auto clip = [&](auto&& inside) {
-        std::vector<Point> kept;
-        for (size_t i = 0; i < section.size(); ++i) {
-            const Point& cur = section[i];
-            const Point& next = section[(i + 1) % section.size()];
-            const double dc = inside(cur);
-            const double dn = inside(next);
-            if (dc >= 0.0) {
-                kept.push_back(cur);
-            }
-            if ((dc > 0.0 && dn < 0.0) || (dc < 0.0 && dn > 0.0)) {
-                const double t = dc / (dc - dn);
-                kept.push_back({ cur[0] + t * (next[0] - cur[0]), cur[1] + t * (next[1] - cur[1]) });
-            }
-        }
-        section = std::move(kept);
-    };
-    clip([&](const Point& p) { return p[0]; });
-    clip([&](const Point& p) { return len - p[0]; });
-    clip([&](const Point& p) { return p[1] - lo; });
-    clip([&](const Point& p) { return hi - p[1]; });
+    clip_section(&section, ClipEdge::AlongMin, len, lo, hi);
+    clip_section(&section, ClipEdge::AlongMax, len, lo, hi);
+    clip_section(&section, ClipEdge::HeightMin, len, lo, hi);
+    clip_section(&section, ClipEdge::HeightMax, len, lo, hi);
     if (section.empty()) {
         return false;
     }
@@ -679,15 +755,15 @@ bool CrossesCurtain(const Vec3 (&tri)[3], double ax, double az, double bx, doubl
     return y_hi > lo && y_lo < hi;
 }
 
-bool DecodeTemplates(OccluderScene& scene, uint32_t count, Stream* st)
+bool decode_templates(OccluderScene* scene, uint32_t count, Stream* st)
 {
-    scene.templates.resize(count);
-    for (OccluderScene::Template& tpl : scene.templates) {
-        const uint64_t vertex_count = st[kTemplate].Uv();
-        const uint64_t triangle_count = st[kTemplate].Uv();
-        const int64_t exponent = st[kTemplate].Sv();
-        if (!st[kTemplate].ok || exponent < -60 || exponent > 60 || vertex_count > st[kVertex].size()
-            || triangle_count > st[kIndex].size()) {
+    scene->templates.resize(count);
+    for (OccluderScene::Template& tpl : scene->templates) {
+        const uint64_t vertex_count = stream_uv(&st[kTemplate]);
+        const uint64_t triangle_count = stream_uv(&st[kTemplate]);
+        const int64_t exponent = stream_sv(&st[kTemplate]);
+        if (!st[kTemplate].ok || exponent < -60 || exponent > 60 || vertex_count > stream_size(st[kVertex])
+            || triangle_count > stream_size(st[kIndex])) {
             return false;
         }
         const double step = std::ldexp(1.0, static_cast<int>(exponent));
@@ -695,7 +771,7 @@ bool DecodeTemplates(OccluderScene& scene, uint32_t count, Stream* st)
         for (size_t axis = 0; axis < 3; ++axis) {
             int64_t prev = 0;
             for (Vec3& vertex : tpl.verts) {
-                prev = WrapAdd(prev, st[kVertex].Sv());
+                prev = wrap_add(prev, stream_sv(&st[kVertex]));
                 vertex[axis] = static_cast<double>(prev) * step;
             }
         }
@@ -703,7 +779,7 @@ bool DecodeTemplates(OccluderScene& scene, uint32_t count, Stream* st)
         uint64_t next = 0;
         for (std::array<uint32_t, 3>& tri : tpl.tris) {
             for (uint32_t& corner : tri) {
-                const uint64_t back = st[kIndex].Uv();
+                const uint64_t back = stream_uv(&st[kIndex]);
                 if (back > next) {
                     return false;
                 }
@@ -729,8 +805,8 @@ bool DecodeTemplates(OccluderScene& scene, uint32_t count, Stream* st)
 }
 
 // 位置按位置步长的整数存, x、z 相对表头原点, y 原点恒为 0
-bool DecodeInstances(
-    OccluderScene& scene,
+bool decode_instances(
+    OccluderScene* scene,
     uint32_t count,
     double pos_q,
     const std::array<int64_t, 3>& origin,
@@ -741,8 +817,8 @@ bool DecodeInstances(
     // 实例按模板排好, 逐模板存一个实例数
     std::vector<uint32_t> tpl_of;
     tpl_of.reserve(count);
-    for (uint32_t k = 0; k < scene.templates.size(); ++k) {
-        const uint64_t n = st[kInstanceCount].Uv();
+    for (uint32_t k = 0; k < scene->templates.size(); ++k) {
+        const uint64_t n = stream_uv(&st[kInstanceCount]);
         if (!st[kInstanceCount].ok || n > count - tpl_of.size()) {
             return false;
         }
@@ -755,11 +831,11 @@ bool DecodeInstances(
     for (size_t axis = 0; axis < 3; ++axis) {
         int64_t prev = 0;
         for (std::array<int64_t, 3>& p : pos) {
-            prev = WrapAdd(prev, st[kPosition].Sv());
-            p[axis] = WrapAdd(prev, origin[axis]);
+            prev = wrap_add(prev, stream_sv(&st[kPosition]));
+            p[axis] = wrap_add(prev, origin[axis]);
         }
     }
-    const uint8_t* const codes = st[kRotationCode].Take(count);
+    const uint8_t* const codes = stream_take(&st[kRotationCode], count);
     if (!st[kPosition].ok || codes == nullptr || std::any_of(codes, codes + count, [](uint8_t code) { return code > 4; })) {
         return false;
     }
@@ -768,39 +844,39 @@ bool DecodeInstances(
     const int64_t rot_limit = static_cast<int64_t>(rot_scale);
     for (size_t k = 0; k < 3; ++k) {
         for (std::array<int64_t, 3>& r : rot) {
-            r[k] = st[kRotation].Sv();
+            r[k] = stream_sv(&st[kRotation]);
             if (r[k] > rot_limit || r[k] < -rot_limit) {
                 return false;
             }
         }
     }
-    const uint64_t scale_count = st[kScale].Uv();
-    if (!st[kRotation].ok || !st[kScale].ok || scale_count > st[kScale].size()) {
+    const uint64_t scale_count = stream_uv(&st[kScale]);
+    if (!st[kRotation].ok || !st[kScale].ok || scale_count > stream_size(st[kScale])) {
         return false;
     }
     std::vector<std::array<int64_t, 3>> scales(scale_count);
     for (std::array<int64_t, 3>& s : scales) {
         for (int64_t& v : s) {
-            v = st[kScale].Sv();
+            v = stream_sv(&st[kScale]);
         }
     }
 
-    scene.instances.resize(count);
+    scene->instances.resize(count);
     size_t quat_index = 0;
     for (uint32_t i = 0; i < count; ++i) {
-        OccluderScene::Instance& inst = scene.instances[i];
+        OccluderScene::Instance& inst = scene->instances[i];
         Mat3 a {};
         if (codes[i] < 4) {
-            const uint64_t scale_index = st[kScale].Uv();
+            const uint64_t scale_index = stream_uv(&st[kScale]);
             if (!st[kScale].ok || scale_index >= scales.size()) {
                 return false;
             }
-            a = AffineDecode(codes[i], rot[quat_index++], scales[scale_index], rot_scale, scale_unit);
+            a = affine_decode(codes[i], rot[quat_index++], scales[scale_index], rot_scale, scale_unit);
         }
         else {
             for (Vec3& row : a) {
                 for (double& v : row) {
-                    v = static_cast<double>(st[kMatrix].F32());
+                    v = static_cast<double>(stream_f32(&st[kMatrix]));
                 }
             }
             if (!st[kMatrix].ok) {
@@ -811,7 +887,7 @@ bool DecodeInstances(
         for (size_t k = 0; k < 3; ++k) {
             inst.t[k] = static_cast<double>(pos[i][k]) * pos_q;
         }
-        const OccluderScene::Template& tpl = scene.templates[inst.tpl];
+        const OccluderScene::Template& tpl = scene->templates[inst.tpl];
         inst.lo.fill(std::numeric_limits<double>::max());
         inst.hi.fill(std::numeric_limits<double>::lowest());
         for (uint32_t corner = 0; corner < 8; ++corner) {
@@ -819,13 +895,13 @@ bool DecodeInstances(
             for (size_t j = 0; j < 3; ++j) {
                 c[j] = ((corner >> j) & 1U) == 0 ? tpl.lo[j] : tpl.hi[j];
             }
-            const Vec3 w = Add(Mul(a, c), inst.t);
+            const Vec3 w = vec_add(mat_vec_mul(a, c), inst.t);
             for (size_t j = 0; j < 3; ++j) {
                 inst.lo[j] = std::fmin(inst.lo[j], w[j]);
                 inst.hi[j] = std::fmax(inst.hi[j], w[j]);
             }
         }
-        inst.invertible = Inverse(a, inst.m);
+        inst.invertible = mat_inverse(&inst.m, a);
         if (!inst.invertible) {
             inst.m = a;
         }
@@ -834,28 +910,28 @@ bool DecodeInstances(
 }
 
 // 块原点同样相对表头原点存
-bool DecodeBlocks(OccluderScene& scene, uint32_t count, double pos_q, const std::array<int64_t, 3>& origin, Stream* st)
+bool decode_blocks(OccluderScene* scene, uint32_t count, double pos_q, const std::array<int64_t, 3>& origin, Stream* st)
 {
-    const size_t n = scene.block_n;
+    const size_t n = scene->block_n;
     const size_t m = n - 1;
     // 每个采样至少占高度流一字节, 先拦住撑爆内存的坏表头
-    if (count > 0 && static_cast<uint64_t>(n) * n > st[kHeight].size() / count) {
+    if (count > 0 && static_cast<uint64_t>(n) * n > stream_size(st[kHeight]) / count) {
         return false;
     }
     const size_t hole_bytes = (m * m + 7) / 8;
-    scene.blocks.resize(count);
+    scene->blocks.resize(count);
     int64_t ox = 0;
     int64_t oz = 0;
     int64_t prev_first = 0;
-    for (OccluderScene::Block& block : scene.blocks) {
-        ox = WrapAdd(ox, st[kBlock].Sv());
-        oz = WrapAdd(oz, st[kBlock].Sv());
-        const uint8_t flag = st[kBlock].Byte();
+    for (OccluderScene::Block& block : scene->blocks) {
+        ox = wrap_add(ox, stream_sv(&st[kBlock]));
+        oz = wrap_add(oz, stream_sv(&st[kBlock]));
+        const uint8_t flag = stream_byte(&st[kBlock]);
         if (!st[kBlock].ok || flag > 1) {
             return false;
         }
         if (flag == 1) {
-            const uint8_t* const mask = st[kHole].Take(hole_bytes);
+            const uint8_t* const mask = stream_take(&st[kHole], hole_bytes);
             if (mask == nullptr) {
                 return false;
             }
@@ -876,7 +952,7 @@ bool DecodeBlocks(OccluderScene& scene, uint32_t count, double pos_q, const std:
                 else if (v > 0) {
                     pred = k[i - n];
                 }
-                k[i] = WrapAdd(pred, st[kHeight].Sv());
+                k[i] = wrap_add(pred, stream_sv(&st[kHeight]));
             }
         }
         if (!st[kHeight].ok) {
@@ -891,24 +967,24 @@ bool DecodeBlocks(OccluderScene& scene, uint32_t count, double pos_q, const std:
                 return false;
             }
             block.k[i] = static_cast<int32_t>(k[i]);
-            const double y = scene.lattice_a + scene.lattice_b * static_cast<double>(k[i]);
+            const double y = scene->lattice_a + scene->lattice_b * static_cast<double>(k[i]);
             y_lo = std::fmin(y_lo, y);
             y_hi = std::fmax(y_hi, y);
         }
-        block.x0 = static_cast<double>(WrapAdd(ox, origin[0])) * pos_q;
-        block.z0 = static_cast<double>(WrapAdd(oz, origin[2])) * pos_q;
-        const double span = static_cast<double>(m) * scene.cell;
+        block.x0 = static_cast<double>(wrap_add(ox, origin[0])) * pos_q;
+        block.z0 = static_cast<double>(wrap_add(oz, origin[2])) * pos_q;
+        const double span = static_cast<double>(m) * scene->cell;
         block.lo = { block.x0, y_lo, block.z0 };
         block.hi = { block.x0 + span, y_hi, block.z0 + span };
     }
     return true;
 }
 
-void BuildTrees(OccluderScene& scene)
+void build_trees(OccluderScene* scene)
 {
     std::vector<Vec3> lo;
     std::vector<Vec3> hi;
-    for (OccluderScene::Template& tpl : scene.templates) {
+    for (OccluderScene::Template& tpl : scene->templates) {
         if (tpl.tris.size() <= kTreeMinTriangles) {
             continue;
         }
@@ -925,40 +1001,40 @@ void BuildTrees(OccluderScene& scene)
                 }
             }
         }
-        BuildTree(lo, hi, kTriangleBoxPad, tpl.nodes, tpl.order);
+        build_tree(&tpl.nodes, &tpl.order, lo, hi, kTriangleBoxPad);
     }
-    lo.resize(scene.instances.size());
-    hi.resize(scene.instances.size());
-    for (size_t i = 0; i < scene.instances.size(); ++i) {
-        lo[i] = scene.instances[i].lo;
-        hi[i] = scene.instances[i].hi;
+    lo.resize(scene->instances.size());
+    hi.resize(scene->instances.size());
+    for (size_t i = 0; i < scene->instances.size(); ++i) {
+        lo[i] = scene->instances[i].lo;
+        hi[i] = scene->instances[i].hi;
     }
-    BuildTree(lo, hi, 0.0, scene.instance_nodes, scene.instance_order);
+    build_tree(&scene->instance_nodes, &scene->instance_order, lo, hi, 0.0);
 }
 
-std::shared_ptr<const OccluderScene> DecodeSceneBody(const uint8_t* data, size_t size)
+std::shared_ptr<const OccluderScene> decode_scene_body(const uint8_t* data, size_t size)
 {
     if (size < kSceneHeaderSize || std::memcmp(data, kSceneTag, sizeof(kSceneTag)) != 0) {
         return nullptr;
     }
     const uint8_t* cursor = data + sizeof(kSceneTag);
     const uint8_t* const end = data + size;
-    if (ReadU32(cursor) != kSceneVersion) {
+    if (read_u32(&cursor) != kSceneVersion) {
         return nullptr;
     }
     auto scene = std::make_shared<OccluderScene>();
-    const uint32_t template_count = ReadU32(cursor);
-    const uint32_t instance_count = ReadU32(cursor);
-    const uint32_t block_count = ReadU32(cursor);
-    scene->block_n = ReadU32(cursor);
-    const double pos_q = ReadF64(cursor);
-    scene->cell = ReadF64(cursor);
-    scene->lattice_a = ReadF64(cursor);
-    scene->lattice_b = ReadF64(cursor);
-    const double rot_scale = static_cast<double>(ReadU32(cursor));
-    const uint32_t scale_shift = ReadU32(cursor);
-    const int64_t origin_x = static_cast<int64_t>(ReadU64(cursor));
-    const int64_t origin_z = static_cast<int64_t>(ReadU64(cursor));
+    const uint32_t template_count = read_u32(&cursor);
+    const uint32_t instance_count = read_u32(&cursor);
+    const uint32_t block_count = read_u32(&cursor);
+    scene->block_n = read_u32(&cursor);
+    const double pos_q = read_f64(&cursor);
+    scene->cell = read_f64(&cursor);
+    scene->lattice_a = read_f64(&cursor);
+    scene->lattice_b = read_f64(&cursor);
+    const double rot_scale = static_cast<double>(read_u32(&cursor));
+    const uint32_t scale_shift = read_u32(&cursor);
+    const int64_t origin_x = static_cast<int64_t>(read_u64(&cursor));
+    const int64_t origin_z = static_cast<int64_t>(read_u64(&cursor));
     const std::array<int64_t, 3> origin { origin_x, 0, origin_z };
     if (scale_shift > 52 || rot_scale == 0.0) {
         return nullptr;
@@ -973,7 +1049,7 @@ std::shared_ptr<const OccluderScene> DecodeSceneBody(const uint8_t* data, size_t
         if (static_cast<size_t>(end - cursor) < sizeof(uint32_t)) {
             return nullptr;
         }
-        const uint32_t bytes = ReadU32(cursor);
+        const uint32_t bytes = read_u32(&cursor);
         if (static_cast<size_t>(end - cursor) < bytes) {
             return nullptr;
         }
@@ -986,11 +1062,13 @@ std::shared_ptr<const OccluderScene> DecodeSceneBody(const uint8_t* data, size_t
         return nullptr;
     }
     // 模板与块在各自流里至少 3 字节, 实例在旋转码流里正好 1 字节
-    if (template_count > st[kTemplate].size() / 3 || instance_count != st[kRotationCode].size() || block_count > st[kBlock].size() / 3) {
+    if (template_count > stream_size(st[kTemplate]) / 3 || instance_count != stream_size(st[kRotationCode])
+        || block_count > stream_size(st[kBlock]) / 3) {
         return nullptr;
     }
-    if (!DecodeTemplates(*scene, template_count, st) || !DecodeInstances(*scene, instance_count, pos_q, origin, rot_scale, scale_unit, st)
-        || !DecodeBlocks(*scene, block_count, pos_q, origin, st)) {
+    if (!decode_templates(scene.get(), template_count, st)
+        || !decode_instances(scene.get(), instance_count, pos_q, origin, rot_scale, scale_unit, st)
+        || !decode_blocks(scene.get(), block_count, pos_q, origin, st)) {
         return nullptr;
     }
     for (const Stream& stream : st) {
@@ -998,8 +1076,69 @@ std::shared_ptr<const OccluderScene> DecodeSceneBody(const uint8_t* data, size_t
             return nullptr;
         }
     }
-    BuildTrees(*scene);
+    build_trees(scene.get());
     return scene;
+}
+
+void push_mesh_hit(std::vector<OccluderHit>* out, const Vec3& a, const Vec3& d, uint32_t index, uint32_t triangle, double s)
+{
+    OccluderHit& hit = out->emplace_back();
+    hit.s = s;
+    hit.point = OccluderPoint { .x = a[0] + d[0] * s, .y = a[1] + d[1] * s, .z = a[2] + d[2] * s };
+    hit.instance = index;
+    hit.triangle = triangle;
+}
+
+struct Level
+{
+    double y = 0.0;
+    bool up = false;
+};
+
+std::vector<Level> column_levels(const OccluderScene& scene, const OccluderPoint& at, double bottom, double top)
+{
+    std::vector<Level> levels;
+    for (const Face& face : faces_in_box(scene, Vec3 { at.x, bottom, at.z }, Vec3 { at.x, top, at.z })) {
+        const std::optional<double> y = height_at(face.v, at.x, at.z);
+        if (y.has_value() && *y > bottom && *y < top) {
+            levels.push_back(Level { .y = *y, .up = face.up });
+        }
+    }
+    return levels;
+}
+
+std::optional<double> floor_under(const std::vector<Level>& levels, double climb, double y)
+{
+    std::optional<double> best;
+    for (const Level& level : levels) {
+        if (level.up && std::fabs(level.y - y) <= climb && (!best.has_value() || level.y > *best)) {
+            best = level.y;
+        }
+    }
+    return best;
+}
+
+struct InstanceSegment
+{
+    Vec3 a;
+    Vec3 d;
+    Vec3 la;
+    Vec3 ld;
+    double d2 = 0.0;
+};
+
+void test_local_triangle(
+    std::vector<OccluderHit>* out,
+    const InstanceSegment& seg,
+    const OccluderScene::Template& tpl,
+    uint32_t index,
+    uint32_t k)
+{
+    const auto& tri = tpl.tris[k];
+    double s = 0.0;
+    if (seg_tri(&s, seg.la, seg.ld, seg.d2, tpl.verts[tri[0]], tpl.verts[tri[1]], tpl.verts[tri[2]])) {
+        push_mesh_hit(out, seg.a, seg.d, index, k, s);
+    }
 }
 
 } // namespace
@@ -1008,66 +1147,45 @@ std::vector<OccluderHit> OccluderLineHits(const OccluderScene& scene, const Occl
 {
     const Vec3 a { start.x, start.y, start.z };
     const Vec3 b { finish.x, finish.y, finish.z };
-    const Vec3 d = Sub(b, a);
+    const Vec3 d = vec_sub(b, a);
     std::vector<OccluderHit> out;
-    const auto push = [&](double s) -> OccluderHit& {
-        OccluderHit& hit = out.emplace_back();
-        hit.s = s;
-        hit.point = OccluderPoint { .x = a[0] + d[0] * s, .y = a[1] + d[1] * s, .z = a[2] + d[2] * s };
-        return hit;
-    };
 
-    const auto reaches = [&](const Vec3& lo, const Vec3& hi) {
-        return SegBox(a, d, lo, hi);
-    };
-    VisitTree(scene.instance_nodes, scene.instance_order, reaches, [&](uint32_t index) {
+    for (const uint32_t index : tree_leaves_on_segment(scene.instance_nodes, scene.instance_order, a, d)) {
         const OccluderScene::Instance& inst = scene.instances[index];
-        if (!SegBox(a, d, inst.lo, inst.hi)) {
-            return;
+        if (!seg_box(a, d, inst.lo, inst.hi)) {
+            continue;
         }
         const OccluderScene::Template& tpl = scene.templates[inst.tpl];
-        const auto mesh_hit = [&](uint32_t triangle, double s) {
-            OccluderHit& hit = push(s);
-            hit.instance = index;
-            hit.triangle = triangle;
-        };
         if (!inst.invertible) {
-            const double d2 = Dot(d, d);
+            const double d2 = vec_dot(d, d);
             for (uint32_t k = 0; k < tpl.tris.size(); ++k) {
                 const auto& tri = tpl.tris[k];
-                const Vec3 v0 = Add(Mul(inst.m, tpl.verts[tri[0]]), inst.t);
-                const Vec3 v1 = Add(Mul(inst.m, tpl.verts[tri[1]]), inst.t);
-                const Vec3 v2 = Add(Mul(inst.m, tpl.verts[tri[2]]), inst.t);
+                const Vec3 v0 = vec_add(mat_vec_mul(inst.m, tpl.verts[tri[0]]), inst.t);
+                const Vec3 v1 = vec_add(mat_vec_mul(inst.m, tpl.verts[tri[1]]), inst.t);
+                const Vec3 v2 = vec_add(mat_vec_mul(inst.m, tpl.verts[tri[2]]), inst.t);
                 double s = 0.0;
-                if (SegTri(a, d, d2, v0, v1, v2, s)) {
-                    mesh_hit(k, s);
+                if (seg_tri(&s, a, d, d2, v0, v1, v2)) {
+                    push_mesh_hit(&out, a, d, index, k, s);
                 }
             }
-            return;
+            continue;
         }
         // 换进模板局部系求交, 沿线参数不变
-        const Vec3 la = Mul(inst.m, Sub(a, inst.t));
-        const Vec3 ld = Sub(Mul(inst.m, Sub(b, inst.t)), la);
-        const double d2 = Dot(ld, ld);
-        const auto test = [&](uint32_t k) {
-            const auto& tri = tpl.tris[k];
-            double s = 0.0;
-            if (SegTri(la, ld, d2, tpl.verts[tri[0]], tpl.verts[tri[1]], tpl.verts[tri[2]], s)) {
-                mesh_hit(k, s);
-            }
-        };
+        const Vec3 la = mat_vec_mul(inst.m, vec_sub(a, inst.t));
+        const Vec3 ld = vec_sub(mat_vec_mul(inst.m, vec_sub(b, inst.t)), la);
+        const double d2 = vec_dot(ld, ld);
+        const InstanceSegment seg { .a = a, .d = d, .la = la, .ld = ld, .d2 = d2 };
         if (tpl.nodes.empty()) {
             for (uint32_t k = 0; k < tpl.tris.size(); ++k) {
-                test(k);
+                test_local_triangle(&out, seg, tpl, index, k);
             }
         }
         else {
-            const auto local_reaches = [&](const Vec3& lo, const Vec3& hi) {
-                return SegBox(la, ld, lo, hi);
-            };
-            VisitTree(tpl.nodes, tpl.order, local_reaches, test);
+            for (const uint32_t k : tree_leaves_on_segment(tpl.nodes, tpl.order, la, ld)) {
+                test_local_triangle(&out, seg, tpl, index, k);
+            }
         }
-    });
+    }
 
     std::sort(out.begin(), out.end(), [&](const OccluderHit& x, const OccluderHit& y) {
         if (x.s != y.s) {
@@ -1092,13 +1210,13 @@ double OccluderGroundHeight(const OccluderScene& scene, const OccluderPoint& bas
     const double top = start + kSettlePlateAbove;
     const Vec3 lo { x0, bottom - kSettleDrop, z0 };
     const Vec3 hi { x1, top, z1 };
-    const std::vector<Face> faces = FacesInBox(scene, lo, hi);
+    const std::vector<Face> faces = faces_in_box(scene, lo, hi);
 
     bool touching = false;
     double landed = -std::numeric_limits<double>::infinity();
     for (const Face& face : faces) {
         std::array<Vec3, kClipMaxVertices> poly;
-        const size_t count = ClipToRect(face.v, x0, x1, z0, z1, poly);
+        const size_t count = clip_to_rect(&poly, face.v, x0, x1, z0, z1);
         if (count == 0) {
             continue;
         }
@@ -1118,13 +1236,13 @@ double OccluderGroundHeight(const OccluderScene& scene, const OccluderPoint& bas
     if (touching) {
         landed = -std::numeric_limits<double>::infinity();
         const Vec3 d { 0.0, -kSettleDrop, 0.0 };
-        const double d2 = Dot(d, d);
+        const double d2 = vec_dot(d, d);
         for (const double cx : { x0, x1 }) {
             for (const double cz : { z0, z1 }) {
                 const Vec3 o { cx, start, cz };
                 for (const Face& face : faces) {
                     double s = 0.0;
-                    if (face.up && SegTri(o, d, d2, face.v[0], face.v[1], face.v[2], s)) {
+                    if (face.up && seg_tri(&s, o, d, d2, face.v[0], face.v[1], face.v[2])) {
                         landed = std::fmax(landed, start + d[1] * s);
                     }
                 }
@@ -1137,34 +1255,10 @@ double OccluderGroundHeight(const OccluderScene& scene, const OccluderPoint& bas
 
 bool OccluderDropBlocked(const OccluderScene& scene, const OccluderPoint& take, const OccluderPoint& land, double climb, double height)
 {
-    struct Level
-    {
-        double y = 0.0;
-        bool up = false;
-    };
-
-    const auto column = [&](const OccluderPoint& at, double bottom, double top) {
-        std::vector<Level> levels;
-        for (const Face& face : FacesInBox(scene, Vec3 { at.x, bottom, at.z }, Vec3 { at.x, top, at.z })) {
-            const std::optional<double> y = HeightAt(face.v, at.x, at.z);
-            if (y.has_value() && *y > bottom && *y < top) {
-                levels.push_back(Level { .y = *y, .up = face.up });
-            }
-        }
-        return levels;
-    };
-    const auto floor_under = [&](const std::vector<Level>& levels, double y) {
-        std::optional<double> best;
-        for (const Level& level : levels) {
-            if (level.up && std::fabs(level.y - y) <= climb && (!best.has_value() || level.y > *best)) {
-                best = level.y;
-            }
-        }
-        return best;
-    };
-    const std::vector<Level> at_take = column(take, take.y - climb - kColumnEdge, take.y + climb + kColumnEdge);
-    const std::vector<Level> at_land = column(land, land.y - climb - kColumnEdge, std::fmax(take.y, land.y + climb + kColumnEdge));
-    if (!floor_under(at_land, land.y).has_value()) {
+    const std::vector<Level> at_take = column_levels(scene, take, take.y - climb - kColumnEdge, take.y + climb + kColumnEdge);
+    const std::vector<Level> at_land =
+        column_levels(scene, land, land.y - climb - kColumnEdge, std::fmax(take.y, land.y + climb + kColumnEdge));
+    if (!floor_under(at_land, climb, land.y).has_value()) {
         return false;
     }
     for (const Level& level : at_land) {
@@ -1172,7 +1266,7 @@ bool OccluderDropBlocked(const OccluderScene& scene, const OccluderPoint& take, 
             return true;
         }
     }
-    const std::optional<double> take_floor = floor_under(at_take, take.y);
+    const std::optional<double> take_floor = floor_under(at_take, climb, take.y);
     if (!take_floor.has_value()) {
         return false;
     }
@@ -1181,8 +1275,8 @@ bool OccluderDropBlocked(const OccluderScene& scene, const OccluderPoint& take, 
     const double hi = base + height;
     const Vec3 box_lo { std::fmin(take.x, land.x), lo, std::fmin(take.z, land.z) };
     const Vec3 box_hi { std::fmax(take.x, land.x), hi, std::fmax(take.z, land.z) };
-    for (const Face& face : FacesInBox(scene, box_lo, box_hi)) {
-        if (CrossesCurtain(face.v, take.x, take.z, land.x, land.z, lo, hi)) {
+    for (const Face& face : faces_in_box(scene, box_lo, box_hi)) {
+        if (crosses_curtain(face.v, take.x, take.z, land.x, land.z, lo, hi)) {
             return true;
         }
     }
@@ -1196,10 +1290,10 @@ std::shared_ptr<const OccluderScene> DecodeOccluderScene(const uint8_t* data, si
     }
     const uint8_t* cursor = data + sizeof(kContainerTag);
     const uint8_t* const end = data + size;
-    if (ReadU32(cursor) != kContainerVersion) {
+    if (read_u32(&cursor) != kContainerVersion) {
         return nullptr;
     }
-    const uint32_t count = ReadU32(cursor);
+    const uint32_t count = read_u32(&cursor);
     const uint8_t* body = nullptr;
     size_t body_size = 0;
     for (uint32_t i = 0; i < count; ++i) {
@@ -1207,7 +1301,7 @@ std::shared_ptr<const OccluderScene> DecodeOccluderScene(const uint8_t* data, si
         if (static_cast<size_t>(end - cursor) < sizeof(uint16_t)) {
             return nullptr;
         }
-        const uint16_t name_bytes = ReadU16(cursor);
+        const uint16_t name_bytes = read_u16(&cursor);
         if (static_cast<size_t>(end - cursor) < name_bytes) {
             return nullptr;
         }
@@ -1216,7 +1310,7 @@ std::shared_ptr<const OccluderScene> DecodeOccluderScene(const uint8_t* data, si
         if (static_cast<size_t>(end - cursor) < sizeof(uint32_t)) {
             return nullptr;
         }
-        const uint32_t bytes = ReadU32(cursor);
+        const uint32_t bytes = read_u32(&cursor);
         if (static_cast<size_t>(end - cursor) < bytes) {
             return nullptr;
         }
@@ -1229,7 +1323,7 @@ std::shared_ptr<const OccluderScene> DecodeOccluderScene(const uint8_t* data, si
     if (cursor != end || body == nullptr) {
         return nullptr;
     }
-    return DecodeSceneBody(body, body_size);
+    return decode_scene_body(body, body_size);
 }
 
 std::filesystem::path OccluderSidecarPath(const std::filesystem::path& main_pack)

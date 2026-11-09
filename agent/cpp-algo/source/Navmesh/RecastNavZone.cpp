@@ -18,13 +18,13 @@ namespace
 
 constexpr double kTriGridCell = 24.0; // 三角分桶的方格边长 px
 
-double triHeight(const PolyMesh& mesh, int32_t t)
+double tri_height(const PolyMesh& mesh, int32_t t)
 {
     const auto& tri = mesh.T[static_cast<size_t>(t)];
     return (MeshHeight(mesh, tri[0]) + MeshHeight(mesh, tri[1]) + MeshHeight(mesh, tri[2])) / 3.0;
 }
 
-std::pair<WorldPoint, double> closestOnTri(const WorldPoint& p, const std::array<WorldPoint, 3>& tri)
+std::pair<WorldPoint, double> closest_on_tri(const WorldPoint& p, const std::array<WorldPoint, 3>& tri)
 {
     if (detail::PointInTriangle(p, tri)) {
         return { p, 0.0 };
@@ -242,7 +242,7 @@ std::optional<ZoneSnapHit> snap_hit(const ZoneClean& zc, const WorldPoint& p, do
         return std::nullopt;
     }
     const auto& tri = zc.mesh.T[static_cast<size_t>(t)];
-    const auto [sp, dist] = closestOnTri(p, { MeshPoint(zc.mesh, tri[0]), MeshPoint(zc.mesh, tri[1]), MeshPoint(zc.mesh, tri[2]) });
+    const auto [sp, dist] = closest_on_tri(p, { MeshPoint(zc.mesh, tri[0]), MeshPoint(zc.mesh, tri[1]), MeshPoint(zc.mesh, tri[2]) });
     if (dist > rr) {
         return std::nullopt;
     }
@@ -254,9 +254,9 @@ std::array<double, 4> snap_key(const ZoneClean& zc, int32_t t, double dist, std:
     const double isl = zc.island[static_cast<size_t>(t)] != 0 ? 1.0 : 0.0;
     // 未给楼层时多层同距取最高层, 高层能往下掉, 低层爬不上去
     if (!floor_y.has_value()) {
-        return { dist, -triHeight(zc.mesh, t), isl, static_cast<double>(t) };
+        return { dist, -tri_height(zc.mesh, t), isl, static_cast<double>(t) };
     }
-    const double delta = std::fabs(triHeight(zc.mesh, t) - *floor_y);
+    const double delta = std::fabs(tri_height(zc.mesh, t) - *floor_y);
     return { delta <= static_cast<double>(kBaseNavFloorBand) ? 0.0 : 1.0, dist, delta, isl };
 }
 
@@ -594,7 +594,7 @@ std::optional<ZoneSnapHit> ZoneSnapOnDeck(const ZoneClean& zc, const WorldPoint&
             if (!hit.has_value()) {
                 continue;
             }
-            const double delta = std::fabs(triHeight(zc.mesh, t) - deck_y);
+            const double delta = std::fabs(tri_height(zc.mesh, t) - deck_y);
             const std::array<double, 4> k = { delta <= kDeckBand ? 0.0 : 1.0, hit->dist, delta, static_cast<double>(t) };
             if (!have || k < bk) {
                 have = true;

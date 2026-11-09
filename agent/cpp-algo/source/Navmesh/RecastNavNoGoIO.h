@@ -43,17 +43,17 @@ const std::vector<NoGoPoly>* FindNoGoZone(const NoGoTable& table, const std::str
 
 // 格心落在环内即盖, lh 是逐格层高, NaN 表示该格没有面
 void StampNoGo(
+    Mask* core,
+    Mask* lay,
+    Grid<float>* dist,
     const std::vector<NoGoPoly>& polys,
     double x0,
     double y0,
     int64_t nx,
     int64_t ny,
-    const Grid<float>& lh,
-    Mask& core,
-    Mask& lay,
-    Grid<float>& dist);
+    const Grid<float>& lh);
 
 // h 是点所在面的高度, 命中时回填禁区 id
-bool NoGoContains(const std::vector<NoGoPoly>& polys, const WorldPoint& p, double h, std::string& hit_id);
+bool NoGoContains(std::string* hit_id, const std::vector<NoGoPoly>& polys, const WorldPoint& p, double h);
 
 }

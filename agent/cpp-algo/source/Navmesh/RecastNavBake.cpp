@@ -51,7 +51,7 @@ BakedCells BakeCells(const ZoneClean& zc, double x0, double y0, int64_t nx, int6
     out.nx = nx;
     out.ny = ny;
     out.rcs = Rasterize(MeshVertices(zc.mesh), zc.mesh.T, x0, y0, nx, ny, &zc.walkable);
-    AppendSeamBridge(out.rcs, nx, ny);
+    AppendSeamBridge(&out.rcs, nx, ny);
     out.st = BuildSpans(out.rcs.cell, out.rcs.h);
 
     BakedWalls walls = BakeWalls(zc, x0, y0, nx, ny);

@@ -169,26 +169,33 @@ void build_index(BaseNavPlanner* planner, const BaseNavPack& pack, const std::ve
     planner->bridge_links.shrink_to_fit();
 }
 
+struct BinRect
+{
+    int32_t x0, x1, y0, y1;
+};
+
+BinRect triangle_bin_rect(const BaseNavPack& pack, uint32_t triangle_index)
+{
+    const auto points = TrianglePoints(pack, triangle_index);
+    const double left = std::min({ points[0].x, points[1].x, points[2].x });
+    const double right = std::max({ points[0].x, points[1].x, points[2].x });
+    const double top = std::min({ points[0].y, points[1].y, points[2].y });
+    const double bottom = std::max({ points[0].y, points[1].y, points[2].y });
+    return { static_cast<int32_t>(std::floor(left / kIndexBinSize)),
+             static_cast<int32_t>(std::floor(right / kIndexBinSize)),
+             static_cast<int32_t>(std::floor(top / kIndexBinSize)),
+             static_cast<int32_t>(std::floor(bottom / kIndexBinSize)) };
+}
+
+size_t bin_cell(const BaseNavBinGrid& grid, int32_t bin_x, int32_t bin_y)
+{
+    return static_cast<size_t>(bin_x - grid.bx0) * static_cast<size_t>(grid.ny) + static_cast<size_t>(bin_y - grid.by0);
+}
+
 void build_spatial_index(std::vector<BaseNavBinGrid>* bin_grids, const std::vector<uint16_t>& triangle_zones, const BaseNavPack& pack)
 {
     const auto& triangles = pack.triangles;
 
-    struct BinRect
-    {
-        int32_t x0, x1, y0, y1;
-    };
-
-    const auto bin_rect = [&pack](uint32_t triangle_index) -> BinRect {
-        const auto points = TrianglePoints(pack, triangle_index);
-        const double left = std::min({ points[0].x, points[1].x, points[2].x });
-        const double right = std::max({ points[0].x, points[1].x, points[2].x });
-        const double top = std::min({ points[0].y, points[1].y, points[2].y });
-        const double bottom = std::max({ points[0].y, points[1].y, points[2].y });
-        return { static_cast<int32_t>(std::floor(left / kIndexBinSize)),
-                 static_cast<int32_t>(std::floor(right / kIndexBinSize)),
-                 static_cast<int32_t>(std::floor(top / kIndexBinSize)),
-                 static_cast<int32_t>(std::floor(bottom / kIndexBinSize)) };
-    };
     bin_grids->clear();
     std::vector<int32_t> zone_slot(size_t { 1 } << 16, -1);
     for (const BaseNavZone& zone : pack.zones) {
@@ -200,19 +207,6 @@ void build_spatial_index(std::vector<BaseNavBinGrid>* bin_grids, const std::vect
     const size_t nslots = bin_grids->size();
     const int64_t n = static_cast<int64_t>(triangles.size());
     const size_t workers = NavWorkerCount(n);
-    // 块序即三角序, 所以格内三角升序且与线程数无关
-    const auto for_each_tri = [&](auto&& fn) {
-        ParallelChunks(n, workers, [&](size_t w, int64_t begin, int64_t end) {
-            for (int64_t t = begin; t < end; ++t) {
-                const uint16_t zone_id = static_cast<size_t>(t) < triangle_zones.size() ? triangle_zones[static_cast<size_t>(t)] : 0;
-                const int32_t slot = zone_slot[zone_id];
-                if (slot < 0) {
-                    continue;
-                }
-                fn(w, static_cast<size_t>(slot), bin_rect(static_cast<uint32_t>(t)), static_cast<uint32_t>(t));
-            }
-        });
-    };
     std::vector<std::vector<BinRect>> bounds(
         workers,
         std::vector<BinRect>(
@@ -221,12 +215,21 @@ void build_spatial_index(std::vector<BaseNavBinGrid>* bin_grids, const std::vect
               std::numeric_limits<int32_t>::min(),
               std::numeric_limits<int32_t>::max(),
               std::numeric_limits<int32_t>::min() }));
-    for_each_tri([&bounds](size_t w, size_t slot, const BinRect& r, uint32_t) {
-        BinRect& b = bounds[w][slot];
-        b.x0 = std::min(b.x0, r.x0);
-        b.x1 = std::max(b.x1, r.x1);
-        b.y0 = std::min(b.y0, r.y0);
-        b.y1 = std::max(b.y1, r.y1);
+    // 块序即三角序, 所以格内三角升序且与线程数无关
+    ParallelChunks(n, workers, [&](size_t w, int64_t begin, int64_t end) {
+        for (int64_t t = begin; t < end; ++t) {
+            const uint16_t zone_id = static_cast<size_t>(t) < triangle_zones.size() ? triangle_zones[static_cast<size_t>(t)] : 0;
+            const int32_t slot = zone_slot[zone_id];
+            if (slot < 0) {
+                continue;
+            }
+            const BinRect r = triangle_bin_rect(pack, static_cast<uint32_t>(t));
+            BinRect& b = bounds[w][static_cast<size_t>(slot)];
+            b.x0 = std::min(b.x0, r.x0);
+            b.x1 = std::max(b.x1, r.x1);
+            b.y0 = std::min(b.y0, r.y0);
+            b.y1 = std::max(b.y1, r.y1);
+        }
     });
     for (size_t slot = 0; slot < nslots; ++slot) {
         BinRect b = bounds[0][slot];
@@ -246,9 +249,6 @@ void build_spatial_index(std::vector<BaseNavBinGrid>* bin_grids, const std::vect
         grid.ny = b.y1 - b.y0 + 1;
         grid.offsets.assign(static_cast<size_t>(grid.nx) * static_cast<size_t>(grid.ny) + 1, 0);
     }
-    const auto cell = [](const BaseNavBinGrid& grid, int32_t bin_x, int32_t bin_y) -> size_t {
-        return static_cast<size_t>(bin_x - grid.bx0) * static_cast<size_t>(grid.ny) + static_cast<size_t>(bin_y - grid.by0);
-    };
     // counts[w][slot][c] 先是第 w 块落进格 c 的三角数, 前缀和后变成写入游标
     std::vector<std::vector<std::vector<uint32_t>>> counts(workers, std::vector<std::vector<uint32_t>>(nslots));
     for (size_t w = 0; w < workers; ++w) {
@@ -256,12 +256,20 @@ void build_spatial_index(std::vector<BaseNavBinGrid>* bin_grids, const std::vect
             counts[w][slot].assign((*bin_grids)[slot].offsets.empty() ? 0 : (*bin_grids)[slot].offsets.size() - 1, 0);
         }
     }
-    for_each_tri([&](size_t w, size_t slot, const BinRect& r, uint32_t) {
-        const BaseNavBinGrid& grid = (*bin_grids)[slot];
-        std::vector<uint32_t>& cnt = counts[w][slot];
-        for (int32_t bin_x = r.x0; bin_x <= r.x1; ++bin_x) {
-            for (int32_t bin_y = r.y0; bin_y <= r.y1; ++bin_y) {
-                ++cnt[cell(grid, bin_x, bin_y)];
+    ParallelChunks(n, workers, [&](size_t w, int64_t begin, int64_t end) {
+        for (int64_t t = begin; t < end; ++t) {
+            const uint16_t zone_id = static_cast<size_t>(t) < triangle_zones.size() ? triangle_zones[static_cast<size_t>(t)] : 0;
+            const int32_t slot = zone_slot[zone_id];
+            if (slot < 0) {
+                continue;
+            }
+            const BinRect r = triangle_bin_rect(pack, static_cast<uint32_t>(t));
+            const BaseNavBinGrid& grid = (*bin_grids)[static_cast<size_t>(slot)];
+            std::vector<uint32_t>& cnt = counts[w][static_cast<size_t>(slot)];
+            for (int32_t bin_x = r.x0; bin_x <= r.x1; ++bin_x) {
+                for (int32_t bin_y = r.y0; bin_y <= r.y1; ++bin_y) {
+                    ++cnt[bin_cell(grid, bin_x, bin_y)];
+                }
             }
         }
     });
@@ -281,12 +289,20 @@ void build_spatial_index(std::vector<BaseNavBinGrid>* bin_grids, const std::vect
         }
         grid.triangles.assign(running, 0);
     }
-    for_each_tri([&](size_t w, size_t slot, const BinRect& r, uint32_t triangle_index) {
-        BaseNavBinGrid& grid = (*bin_grids)[slot];
-        std::vector<uint32_t>& next = counts[w][slot];
-        for (int32_t bin_x = r.x0; bin_x <= r.x1; ++bin_x) {
-            for (int32_t bin_y = r.y0; bin_y <= r.y1; ++bin_y) {
-                grid.triangles[next[cell(grid, bin_x, bin_y)]++] = triangle_index;
+    ParallelChunks(n, workers, [&](size_t w, int64_t begin, int64_t end) {
+        for (int64_t t = begin; t < end; ++t) {
+            const uint16_t zone_id = static_cast<size_t>(t) < triangle_zones.size() ? triangle_zones[static_cast<size_t>(t)] : 0;
+            const int32_t slot = zone_slot[zone_id];
+            if (slot < 0) {
+                continue;
+            }
+            const BinRect r = triangle_bin_rect(pack, static_cast<uint32_t>(t));
+            BaseNavBinGrid& grid = (*bin_grids)[static_cast<size_t>(slot)];
+            std::vector<uint32_t>& next = counts[w][static_cast<size_t>(slot)];
+            for (int32_t bin_x = r.x0; bin_x <= r.x1; ++bin_x) {
+                for (int32_t bin_y = r.y0; bin_y <= r.y1; ++bin_y) {
+                    grid.triangles[next[bin_cell(grid, bin_x, bin_y)]++] = static_cast<uint32_t>(t);
+                }
             }
         }
     });

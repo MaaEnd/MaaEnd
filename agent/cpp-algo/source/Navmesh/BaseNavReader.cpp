@@ -6,7 +6,6 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
-#include <functional>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -63,81 +62,81 @@ constexpr size_t kInflateChunkSize = 1U << 16U;
 constexpr uint64_t kFnvOffset = 14'695'981'039'346'656'037ULL;
 constexpr uint64_t kFnvPrime = 1'099'511'628'211ULL;
 
-bool ReadExact(std::istream& input, uint8_t* out, size_t size)
+bool read_exact(std::istream* input, uint8_t* out, size_t size)
 {
-    input.read(reinterpret_cast<char*>(out), static_cast<std::streamsize>(size));
-    return input.good() || input.gcount() == static_cast<std::streamsize>(size);
+    input->read(reinterpret_cast<char*>(out), static_cast<std::streamsize>(size));
+    return input->good() || input->gcount() == static_cast<std::streamsize>(size);
 }
 
-uint16_t ReadU16(const uint8_t*& cursor)
+uint16_t read_u16(const uint8_t** cursor)
 {
-    const uint16_t value = static_cast<uint16_t>(cursor[0]) | (static_cast<uint16_t>(cursor[1]) << 8);
-    cursor += 2;
+    const uint16_t value = static_cast<uint16_t>((*cursor)[0]) | (static_cast<uint16_t>((*cursor)[1]) << 8);
+    *cursor += 2;
     return value;
 }
 
-uint32_t ReadU32(const uint8_t*& cursor)
+uint32_t read_u32(const uint8_t** cursor)
 {
-    const uint32_t value = static_cast<uint32_t>(cursor[0]) | (static_cast<uint32_t>(cursor[1]) << 8)
-                           | (static_cast<uint32_t>(cursor[2]) << 16) | (static_cast<uint32_t>(cursor[3]) << 24);
-    cursor += 4;
+    const uint32_t value = static_cast<uint32_t>((*cursor)[0]) | (static_cast<uint32_t>((*cursor)[1]) << 8)
+                           | (static_cast<uint32_t>((*cursor)[2]) << 16) | (static_cast<uint32_t>((*cursor)[3]) << 24);
+    *cursor += 4;
     return value;
 }
 
-uint32_t PeekU32(const uint8_t* bytes)
+uint32_t peek_u32(const uint8_t* bytes)
 {
     return static_cast<uint32_t>(bytes[0]) | (static_cast<uint32_t>(bytes[1]) << 8) | (static_cast<uint32_t>(bytes[2]) << 16)
            | (static_cast<uint32_t>(bytes[3]) << 24);
 }
 
-uint64_t ReadU64(const uint8_t*& cursor)
+uint64_t read_u64(const uint8_t** cursor)
 {
     uint64_t value = 0;
     for (int index = 0; index < 8; ++index) {
-        value |= static_cast<uint64_t>(cursor[index]) << (index * 8);
+        value |= static_cast<uint64_t>((*cursor)[index]) << (index * 8);
     }
-    cursor += 8;
+    *cursor += 8;
     return value;
 }
 
-int32_t ReadI32(const uint8_t*& cursor)
+int32_t read_i32(const uint8_t** cursor)
 {
-    return static_cast<int32_t>(ReadU32(cursor));
+    return static_cast<int32_t>(read_u32(cursor));
 }
 
-float ReadF32(const uint8_t*& cursor)
+float read_f32(const uint8_t** cursor)
 {
-    const uint32_t bits = ReadU32(cursor);
+    const uint32_t bits = read_u32(cursor);
     float value = 0.0F;
     std::memcpy(&value, &bits, sizeof(value));
     return value;
 }
 
-BaseNavTriangle ReadTriangleRecord(const uint8_t*& cursor)
+BaseNavTriangle read_triangle_record(const uint8_t** cursor)
 {
     BaseNavTriangle triangle;
     for (uint32_t& value : triangle.vertices) {
-        value = ReadU32(cursor);
+        value = read_u32(cursor);
     }
     for (int32_t& value : triangle.neighbors) {
-        value = ReadI32(cursor);
+        value = read_i32(cursor);
     }
     // 跳过分量号与两个 float 重心, 哈希仍按整条 36 字节记录算
-    cursor += 12;
+    *cursor += 12;
     return triangle;
 }
 
-bool ParseOffMeshSection(const uint8_t* data, size_t size, std::vector<BaseNavOffMeshLink>* links)
+bool parse_off_mesh_section(const uint8_t* data, size_t size, std::vector<BaseNavOffMeshLink>* links)
 {
     links->clear();
     if (size < kOffMeshHeaderSize || std::memcmp(data, kOffMeshSectionTag, 4) != 0) {
         return false;
     }
     const uint8_t* cursor = data + 4;
-    const uint16_t version = ReadU16(cursor);
-    const uint16_t record_size = ReadU16(cursor);
-    const uint32_t count = ReadU32(cursor);
-    (void)ReadU32(cursor);
+    const uint16_t version = read_u16(&cursor);
+    const uint16_t record_size = read_u16(&cursor);
+    const uint32_t count = read_u32(&cursor);
+    (void)read_u32(&cursor);
     const uint16_t expect_record_size = version == 1 ? kOffMeshRecordSizeV1 : (version == 2 ? kOffMeshRecordSizeV2 : 0);
     if (version > kOffMeshSectionVersion || expect_record_size == 0 || record_size != expect_record_size
         || count != (size - kOffMeshHeaderSize) / record_size || size != kOffMeshHeaderSize + static_cast<size_t>(count) * record_size) {
@@ -146,47 +145,47 @@ bool ParseOffMeshSection(const uint8_t* data, size_t size, std::vector<BaseNavOf
     links->reserve(count);
     for (uint32_t index = 0; index < count; ++index) {
         BaseNavOffMeshLink link;
-        link.zone_id = ReadU16(cursor);
+        link.zone_id = read_u16(&cursor);
         link.kind = *cursor++;
         ++cursor;
-        link.is_ext = ReadI32(cursor);
-        link.bidirectional = ReadI32(cursor);
-        link.area = ReadI32(cursor);
-        link.link_type = ReadU16(cursor);
+        link.is_ext = read_i32(&cursor);
+        link.bidirectional = read_i32(&cursor);
+        link.area = read_i32(&cursor);
+        link.link_type = read_u16(&cursor);
         link.direction = *cursor++;
         ++cursor;
-        link.radius = ReadF32(cursor);
-        link.cost_modifier = ReadF32(cursor);
+        link.radius = read_f32(&cursor);
+        link.cost_modifier = read_f32(&cursor);
         for (BaseNavVertex& point : link.points) {
-            point.u = ReadF32(cursor);
-            point.v = ReadF32(cursor);
-            point.height = ReadF32(cursor);
+            point.u = read_f32(&cursor);
+            point.v = read_f32(&cursor);
+            point.height = read_f32(&cursor);
         }
         if (version >= 2) {
             link.dir_ok = *cursor++;
             cursor += 3; // 对齐填充
-            link.start_triangle = ReadU32(cursor);
-            link.end_triangle = ReadU32(cursor);
+            link.start_triangle = read_u32(&cursor);
+            link.end_triangle = read_u32(&cursor);
         }
         else {
-            (void)ReadU32(cursor);
+            (void)read_u32(&cursor);
         }
         links->push_back(link);
     }
     return cursor == data + size;
 }
 
-bool ParseSurfaceSection(const uint8_t* data, size_t size, std::vector<BaseNavSurface>* surfaces)
+bool parse_surface_section(const uint8_t* data, size_t size, std::vector<BaseNavSurface>* surfaces)
 {
     surfaces->clear();
     if (size < kSurfaceHeaderSize || std::memcmp(data, kSurfaceSectionTag, 4) != 0) {
         return false;
     }
     const uint8_t* cursor = data + 4;
-    const uint16_t version = ReadU16(cursor);
-    const uint16_t record_size = ReadU16(cursor);
-    const uint32_t count = ReadU32(cursor);
-    (void)ReadU32(cursor);
+    const uint16_t version = read_u16(&cursor);
+    const uint16_t record_size = read_u16(&cursor);
+    const uint32_t count = read_u32(&cursor);
+    (void)read_u32(&cursor);
     if (version != kSurfaceSectionVersion || record_size != kSurfaceRecordSize || count != (size - kSurfaceHeaderSize) / kSurfaceRecordSize
         || size != kSurfaceHeaderSize + static_cast<size_t>(count) * kSurfaceRecordSize) {
         return false;
@@ -196,14 +195,14 @@ bool ParseSurfaceSection(const uint8_t* data, size_t size, std::vector<BaseNavSu
         BaseNavSurface surface;
         surface.area = *cursor++;
         surface.poly_type = *cursor++;
-        (void)ReadU16(cursor);
-        surface.flags = ReadU32(cursor);
+        (void)read_u16(&cursor);
+        surface.flags = read_u32(&cursor);
         surfaces->push_back(surface);
     }
     return cursor == data + size;
 }
 
-uint64_t Fnv64Update(uint64_t hash, const uint8_t* bytes, size_t size)
+uint64_t fnv64_update(uint64_t hash, const uint8_t* bytes, size_t size)
 {
     for (size_t index = 0; index < size; ++index) {
         hash ^= bytes[index];
@@ -212,12 +211,12 @@ uint64_t Fnv64Update(uint64_t hash, const uint8_t* bytes, size_t size)
     return hash;
 }
 
-bool OffsetRangeValid(uint64_t offset, uint64_t size, uint64_t file_size)
+bool offset_range_valid(uint64_t offset, uint64_t size, uint64_t file_size)
 {
     return offset <= file_size && size <= file_size - offset;
 }
 
-bool Inflate(const uint8_t* data, size_t size, std::vector<uint8_t>* output)
+bool inflate_buffer(const uint8_t* data, size_t size, std::vector<uint8_t>* output)
 {
     output->clear();
     z_stream stream {};
@@ -265,7 +264,7 @@ int64_t UnZigzag(uint64_t value)
 }
 
 // 块内是若干条 varint 长度 + deflate 流, 条数由表类型定死
-bool SplitChunkStreams(const uint8_t* data, size_t size, size_t count, std::vector<std::vector<uint8_t>>* out)
+bool split_chunk_streams(const uint8_t* data, size_t size, size_t count, std::vector<std::vector<uint8_t>>* out)
 {
     out->assign(count, {});
     const uint8_t* cursor = data;
@@ -273,7 +272,7 @@ bool SplitChunkStreams(const uint8_t* data, size_t size, size_t count, std::vect
     for (std::vector<uint8_t>& stream : *out) {
         uint64_t packed = 0;
         if (!GetVarint(cursor, end, packed) || static_cast<uint64_t>(end - cursor) < packed
-            || !Inflate(cursor, static_cast<size_t>(packed), &stream)) {
+            || !inflate_buffer(cursor, static_cast<size_t>(packed), &stream)) {
             return false;
         }
         cursor += packed;
@@ -287,29 +286,41 @@ struct GeoChunkTable
     const uint8_t* directory = nullptr;
     uint32_t chunk = 0;
     uint32_t total = 0;
-
-    uint32_t count() const { return chunk == 0 ? 0 : (total + chunk - 1) / chunk; }
-
-    uint32_t first(uint32_t index) const { return index * chunk; }
-
-    uint32_t span(uint32_t index) const { return std::min(chunk, total - first(index)); }
-
-    uint32_t aux(uint32_t index) const { return PeekU32(directory + index * kGeoChunkEntrySize + 12); }
-
-    void entry(uint32_t index, uint64_t& offset, uint32_t& size) const
-    {
-        const uint8_t* cursor = directory + static_cast<size_t>(index) * kGeoChunkEntrySize;
-        offset = ReadU64(cursor);
-        size = ReadU32(cursor);
-    }
-
-    const uint8_t* bytes(const uint8_t* base, uint32_t index, uint32_t& size) const
-    {
-        uint64_t offset = 0;
-        entry(index, offset, size);
-        return base + offset;
-    }
 };
+
+uint32_t geo_chunk_count(const GeoChunkTable& table)
+{
+    return table.chunk == 0 ? 0 : (table.total + table.chunk - 1) / table.chunk;
+}
+
+uint32_t geo_chunk_first(const GeoChunkTable& table, uint32_t index)
+{
+    return index * table.chunk;
+}
+
+uint32_t geo_chunk_span(const GeoChunkTable& table, uint32_t index)
+{
+    return std::min(table.chunk, table.total - geo_chunk_first(table, index));
+}
+
+uint32_t geo_chunk_aux(const GeoChunkTable& table, uint32_t index)
+{
+    return peek_u32(table.directory + index * kGeoChunkEntrySize + 12);
+}
+
+void geo_chunk_entry(uint64_t* offset, uint32_t* size, const GeoChunkTable& table, uint32_t index)
+{
+    const uint8_t* cursor = table.directory + static_cast<size_t>(index) * kGeoChunkEntrySize;
+    *offset = read_u64(&cursor);
+    *size = read_u32(&cursor);
+}
+
+const uint8_t* geo_chunk_bytes(uint32_t* size, const GeoChunkTable& table, const uint8_t* base, uint32_t index)
+{
+    uint64_t offset = 0;
+    geo_chunk_entry(&offset, size, table, index);
+    return base + offset;
+}
 
 struct GeometrySection
 {
@@ -321,44 +332,44 @@ struct GeometrySection
     GeoChunkTable links;
 };
 
-bool ParseGeometrySection(const uint8_t* data, uint64_t size, GeometrySection* out)
+bool parse_geometry_section(const uint8_t* data, uint64_t size, GeometrySection* out)
 {
     if (data == nullptr || size < kGeoHeaderSize || std::memcmp(data, kGeometrySectionTag, 4) != 0) {
         return false;
     }
     const uint8_t* cursor = data + 4;
-    if (ReadU32(cursor) != kGeometrySectionVersion) {
+    if (read_u32(&cursor) != kGeometrySectionVersion) {
         return false;
     }
     out->base = data;
-    out->vertices.total = ReadU32(cursor);
-    out->triangles.total = ReadU32(cursor);
-    out->links.total = ReadU32(cursor);
-    out->vertices.chunk = ReadU32(cursor);
-    out->triangles.chunk = ReadU32(cursor);
-    out->links.chunk = ReadU32(cursor);
-    out->zone_table_size = ReadU32(cursor);
-    (void)ReadU32(cursor); // 保留字段
+    out->vertices.total = read_u32(&cursor);
+    out->triangles.total = read_u32(&cursor);
+    out->links.total = read_u32(&cursor);
+    out->vertices.chunk = read_u32(&cursor);
+    out->triangles.chunk = read_u32(&cursor);
+    out->links.chunk = read_u32(&cursor);
+    out->zone_table_size = read_u32(&cursor);
+    (void)read_u32(&cursor); // 保留字段
     GeoChunkTable* const tables[3] = { &out->vertices, &out->triangles, &out->links };
     for (GeoChunkTable* table : tables) {
-        const uint64_t at = ReadU64(cursor);
-        if (table->chunk == 0 || !OffsetRangeValid(at, static_cast<uint64_t>(table->count()) * kGeoChunkEntrySize, size)) {
+        const uint64_t at = read_u64(&cursor);
+        if (table->chunk == 0 || !offset_range_valid(at, static_cast<uint64_t>(geo_chunk_count(*table)) * kGeoChunkEntrySize, size)) {
             return false;
         }
         table->directory = data + at;
     }
-    const uint64_t zone_at = ReadU64(cursor);
-    if (!OffsetRangeValid(zone_at, out->zone_table_size, size)) {
+    const uint64_t zone_at = read_u64(&cursor);
+    if (!offset_range_valid(zone_at, out->zone_table_size, size)) {
         return false;
     }
     out->zone_table = data + zone_at;
     // 校验只看偏移, 先加到指针上再判越界是未定义行为
     for (const GeoChunkTable* table : tables) {
-        for (uint32_t i = 0; i < table->count(); ++i) {
+        for (uint32_t i = 0; i < geo_chunk_count(*table); ++i) {
             uint64_t at = 0;
             uint32_t chunk_size = 0;
-            table->entry(i, at, chunk_size);
-            if (!OffsetRangeValid(at, chunk_size, size)) {
+            geo_chunk_entry(&at, &chunk_size, *table, i);
+            if (!offset_range_valid(at, chunk_size, size)) {
                 return false;
             }
         }
@@ -367,10 +378,10 @@ bool ParseGeometrySection(const uint8_t* data, uint64_t size, GeometrySection* o
 }
 
 // 顶点按字节平面存, n × 12 的字节矩阵转置成 12 × n
-bool DecodeVertexChunk(const uint8_t* data, size_t size, uint32_t count, uint8_t* out)
+bool decode_vertex_chunk(const uint8_t* data, size_t size, uint32_t count, uint8_t* out)
 {
     std::vector<std::vector<uint8_t>> stream;
-    if (!SplitChunkStreams(data, size, 1, &stream) || stream[0].size() != static_cast<size_t>(count) * kVertexSize) {
+    if (!split_chunk_streams(data, size, 1, &stream) || stream[0].size() != static_cast<size_t>(count) * kVertexSize) {
         return false;
     }
     for (size_t i = 0; i < count; ++i) {
@@ -382,10 +393,10 @@ bool DecodeVertexChunk(const uint8_t* data, size_t size, uint32_t count, uint8_t
 }
 
 // 重心不存, 先留空, 顶点到位后按 ((a+b)+c)/3.0f 重算
-bool DecodeTriangleChunk(const uint8_t* data, size_t size, uint32_t count, uint32_t first, uint8_t* out)
+bool decode_triangle_chunk(const uint8_t* data, size_t size, uint32_t count, uint32_t first, uint8_t* out)
 {
     std::vector<std::vector<uint8_t>> stream;
-    if (!SplitChunkStreams(data, size, 7, &stream) || stream[3].size() != (static_cast<size_t>(count) * 3 + 7) / 8) {
+    if (!split_chunk_streams(data, size, 7, &stream) || stream[3].size() != (static_cast<size_t>(count) * 3 + 7) / 8) {
         return false;
     }
     const uint8_t* index_cursor[3] = { stream[0].data(), stream[1].data(), stream[2].data() };
@@ -463,10 +474,10 @@ bool DecodeTriangleChunk(const uint8_t* data, size_t size, uint32_t count, uint3
     return neighbor_cursor == neighbor_end && value_cursor == value_end && length_cursor == length_end;
 }
 
-bool DecodeLinkChunk(const uint8_t* data, size_t size, uint32_t count, uint8_t* out)
+bool decode_link_chunk(const uint8_t* data, size_t size, uint32_t count, uint8_t* out)
 {
     std::vector<std::vector<uint8_t>> stream;
-    if (!SplitChunkStreams(data, size, 2, &stream)) {
+    if (!split_chunk_streams(data, size, 2, &stream)) {
         return false;
     }
     const uint8_t* source_cursor = stream[0].data();
@@ -491,31 +502,51 @@ bool DecodeLinkChunk(const uint8_t* data, size_t size, uint32_t count, uint8_t* 
     return source_cursor == source_end && target_cursor == target_end;
 }
 
-size_t ChunkSpanRecords(const GeoChunkTable& table, uint32_t low, uint32_t high)
+size_t chunk_span_records(const GeoChunkTable& table, uint32_t low, uint32_t high)
 {
-    return static_cast<size_t>(table.first(high)) + table.span(high) - table.first(low);
+    return static_cast<size_t>(geo_chunk_first(table, high)) + geo_chunk_span(table, high) - geo_chunk_first(table, low);
 }
 
-// 解第 [low, high] 块到 dst, dst 须按 ChunkSpanRecords 开好
-bool DecodeChunkSpan(
+enum class GeoChunkKind
+{
+    Vertex,
+    Triangle,
+    Link,
+};
+
+bool decode_chunk(GeoChunkKind kind, const uint8_t* at, size_t size, uint32_t span, uint32_t first, uint8_t* dst)
+{
+    switch (kind) {
+    case GeoChunkKind::Vertex:
+        return decode_vertex_chunk(at, size, span, dst);
+    case GeoChunkKind::Triangle:
+        return decode_triangle_chunk(at, size, span, first, dst);
+    case GeoChunkKind::Link:
+        return decode_link_chunk(at, size, span, dst);
+    }
+    return false;
+}
+
+// 解第 [low, high] 块到 dst, dst 须按 chunk_span_records 开好
+bool decode_chunk_span(
     const GeoChunkTable& table,
     const uint8_t* base,
     uint32_t low,
     uint32_t high,
     size_t record_size,
     uint8_t* dst,
-    const std::function<bool(const uint8_t*, size_t, uint32_t, uint32_t, uint8_t*)>& decode)
+    GeoChunkKind kind)
 {
-    const uint32_t base_record = table.first(low);
+    const uint32_t base_record = geo_chunk_first(table, low);
     const auto chunks = static_cast<int64_t>(high - low + 1);
     std::vector<uint8_t> ok(static_cast<size_t>(chunks), 1);
-    ParallelChunks(chunks, NavWorkerCount(static_cast<int64_t>(ChunkSpanRecords(table, low, high))), [&](size_t, int64_t b, int64_t e) {
+    ParallelChunks(chunks, NavWorkerCount(static_cast<int64_t>(chunk_span_records(table, low, high))), [&](size_t, int64_t b, int64_t e) {
         for (int64_t c = b; c < e; ++c) {
             const uint32_t i = low + static_cast<uint32_t>(c);
             uint32_t size = 0;
-            const uint8_t* src = table.bytes(base, i, size);
-            uint8_t* at = dst + (static_cast<size_t>(table.first(i)) - base_record) * record_size;
-            if (!decode(src, size, table.span(i), table.first(i), at)) {
+            const uint8_t* src = geo_chunk_bytes(&size, table, base, i);
+            uint8_t* at = dst + (static_cast<size_t>(geo_chunk_first(table, i)) - base_record) * record_size;
+            if (!decode_chunk(kind, src, size, geo_chunk_span(table, i), geo_chunk_first(table, i), at)) {
                 ok[static_cast<size_t>(c)] = 0;
             }
         }
@@ -532,7 +563,7 @@ struct ChunkWindow
     size_t records = 0;
 };
 
-std::optional<ChunkWindow> ChunkWindowFor(const GeoChunkTable& table, uint32_t from, uint32_t to)
+std::optional<ChunkWindow> chunk_window_for(const GeoChunkTable& table, uint32_t from, uint32_t to)
 {
     ChunkWindow window;
     if (from >= to) {
@@ -541,18 +572,18 @@ std::optional<ChunkWindow> ChunkWindowFor(const GeoChunkTable& table, uint32_t f
     }
     window.low = from / table.chunk;
     window.high = (to - 1) / table.chunk;
-    if (window.high >= table.count()) {
+    if (window.high >= geo_chunk_count(table)) {
         return std::nullopt;
     }
-    window.first = table.first(window.low);
-    window.records = ChunkSpanRecords(table, window.low, window.high);
+    window.first = geo_chunk_first(table, window.low);
+    window.records = chunk_span_records(table, window.low, window.high);
     return window;
 }
 
 // 三角逐批解码的每批记录数, 用来压低加载峰值内存
 constexpr size_t kTriangleBatchRecords = 1U << 20U;
 
-BaseNavLoadResult Fail(BaseNavLoadStatus status, std::string message)
+BaseNavLoadResult fail(BaseNavLoadStatus status, std::string message)
 {
     BaseNavLoadResult result;
     result.status = status;
@@ -561,16 +592,16 @@ BaseNavLoadResult Fail(BaseNavLoadStatus status, std::string message)
 }
 
 // aux 是每块首条的 source, 表按 source 非降
-uint32_t GeoLinkChunkFor(const GeoChunkTable& table, uint32_t source)
+uint32_t geo_link_chunk_for(const GeoChunkTable& table, uint32_t source)
 {
     uint32_t index = 0;
-    while (index + 1 < table.count() && table.aux(index + 1) < source) {
+    while (index + 1 < geo_chunk_count(table) && geo_chunk_aux(table, index + 1) < source) {
         ++index;
     }
     return index;
 }
 
-size_t LowerBoundLinkSource(const std::vector<BaseNavLink>& links, uint32_t source)
+size_t lower_bound_link_source(const std::vector<BaseNavLink>& links, uint32_t source)
 {
     size_t left = 0;
     size_t right = links.size();
@@ -586,12 +617,12 @@ size_t LowerBoundLinkSource(const std::vector<BaseNavLink>& links, uint32_t sour
     return left;
 }
 
-bool HasGzipSuffix(const std::filesystem::path& path)
+bool has_gzip_suffix(const std::filesystem::path& path)
 {
     return path.extension() == ".gz";
 }
 
-std::optional<size_t> ReadGzipUncompressedSize(const std::filesystem::path& path)
+std::optional<size_t> read_gzip_uncompressed_size(const std::filesystem::path& path)
 {
     std::ifstream input(path, std::ios::binary | std::ios::ate);
     if (!input) {
@@ -602,13 +633,13 @@ std::optional<size_t> ReadGzipUncompressedSize(const std::filesystem::path& path
     }
     input.seekg(-4, std::ios::end);
     std::array<uint8_t, 4> size_bytes {};
-    if (!ReadExact(input, size_bytes.data(), size_bytes.size())) {
+    if (!read_exact(&input, size_bytes.data(), size_bytes.size())) {
         return std::nullopt;
     }
-    return static_cast<size_t>(PeekU32(size_bytes.data()));
+    return static_cast<size_t>(peek_u32(size_bytes.data()));
 }
 
-BaseNavLoadResult ReadGzipFile(const std::filesystem::path& path, std::vector<uint8_t>* output)
+BaseNavLoadResult read_gzip_file(const std::filesystem::path& path, std::vector<uint8_t>* output)
 {
 #ifdef _WIN32
     gzFile file = gzopen_w(path.c_str(), "rb");
@@ -616,10 +647,10 @@ BaseNavLoadResult ReadGzipFile(const std::filesystem::path& path, std::vector<ui
     gzFile file = gzopen(path.string().c_str(), "rb");
 #endif
     if (file == nullptr) {
-        return Fail(BaseNavLoadStatus::FileOpenFailed, "failed to open gzip nav file");
+        return fail(BaseNavLoadStatus::FileOpenFailed, "failed to open gzip nav file");
     }
     gzbuffer(file, static_cast<unsigned int>(kGzipReadChunkSize));
-    if (const auto uncompressed_size = ReadGzipUncompressedSize(path); uncompressed_size && *uncompressed_size > 0) {
+    if (const auto uncompressed_size = read_gzip_uncompressed_size(path); uncompressed_size && *uncompressed_size > 0) {
         output->reserve(*uncompressed_size);
     }
 
@@ -630,7 +661,7 @@ BaseNavLoadResult ReadGzipFile(const std::filesystem::path& path, std::vector<ui
             int error_code = Z_OK;
             const char* message = gzerror(file, &error_code);
             gzclose(file);
-            return Fail(BaseNavLoadStatus::FileReadFailed, message != nullptr ? message : "failed to decompress gzip nav file");
+            return fail(BaseNavLoadStatus::FileReadFailed, message != nullptr ? message : "failed to decompress gzip nav file");
         }
         if (bytes_read == 0) {
             break;
@@ -639,7 +670,7 @@ BaseNavLoadResult ReadGzipFile(const std::filesystem::path& path, std::vector<ui
     }
 
     if (gzclose(file) != Z_OK) {
-        return Fail(BaseNavLoadStatus::FileReadFailed, "failed to close gzip nav file");
+        return fail(BaseNavLoadStatus::FileReadFailed, "failed to close gzip nav file");
     }
     return {};
 }
@@ -648,23 +679,23 @@ BaseNavLoadResult ReadGzipFile(const std::filesystem::path& path, std::vector<ui
 
 BaseNavLoadResult ReadNavFileBytes(const std::filesystem::path& path, std::vector<uint8_t>* output)
 {
-    if (HasGzipSuffix(path)) {
-        return ReadGzipFile(path, output);
+    if (has_gzip_suffix(path)) {
+        return read_gzip_file(path, output);
     }
 
     std::error_code ec;
     const uint64_t file_size = std::filesystem::file_size(path, ec);
     if (ec) {
-        return Fail(BaseNavLoadStatus::FileOpenFailed, "failed to stat nav file");
+        return fail(BaseNavLoadStatus::FileOpenFailed, "failed to stat nav file");
     }
 
     std::ifstream input(path, std::ios::binary);
     if (!input) {
-        return Fail(BaseNavLoadStatus::FileOpenFailed, "failed to open nav file");
+        return fail(BaseNavLoadStatus::FileOpenFailed, "failed to open nav file");
     }
     output->resize(static_cast<size_t>(file_size));
-    if (!output->empty() && !ReadExact(input, output->data(), output->size())) {
-        return Fail(BaseNavLoadStatus::FileReadFailed, "failed to read nav file");
+    if (!output->empty() && !read_exact(&input, output->data(), output->size())) {
+        return fail(BaseNavLoadStatus::FileReadFailed, "failed to read nav file");
     }
     return {};
 }
@@ -672,7 +703,7 @@ BaseNavLoadResult ReadNavFileBytes(const std::filesystem::path& path, std::vecto
 namespace
 {
 
-std::shared_ptr<const std::vector<uint8_t>> SharedSectionBytes(uint64_t file_fnv, const uint8_t* at, size_t size)
+std::shared_ptr<const std::vector<uint8_t>> shared_section_bytes(uint64_t file_fnv, const uint8_t* at, size_t size)
 {
     static std::mutex mutex;
     static std::unordered_map<uint64_t, std::weak_ptr<const std::vector<uint8_t>>> cache;
@@ -688,6 +719,106 @@ std::shared_ptr<const std::vector<uint8_t>> SharedSectionBytes(uint64_t file_fnv
     return fresh;
 }
 
+struct TriangleSelection
+{
+    uint32_t first_triangle = 0;
+    uint32_t end_triangle = 0;
+    uint32_t vertex_count = 0;
+    bool zone_scoped = false;
+};
+
+struct TriangleRecordBatch
+{
+    const uint8_t* records = nullptr;
+    uint32_t first = 0;
+    size_t count = 0;
+};
+
+const char* convert_triangles(
+    std::vector<BaseNavTriangle>* triangles,
+    uint32_t* first_vertex,
+    uint32_t* last_vertex,
+    const TriangleSelection& selection,
+    const TriangleRecordBatch& batch)
+{
+    const uint32_t begin = std::max(batch.first, selection.first_triangle);
+    const uint32_t end =
+        static_cast<uint32_t>(std::min<uint64_t>(static_cast<uint64_t>(batch.first) + batch.count, selection.end_triangle));
+    if (begin >= end) {
+        return nullptr;
+    }
+    const uint8_t* cursor = batch.records + static_cast<size_t>(begin - batch.first) * kTriangleSize;
+    for (uint32_t index = begin; index < end; ++index) {
+        BaseNavTriangle triangle = read_triangle_record(&cursor);
+        for (uint32_t value : triangle.vertices) {
+            if (value >= selection.vertex_count) {
+                return "triangle vertex index is outside vertex table";
+            }
+            if (selection.zone_scoped) {
+                *first_vertex = std::min(*first_vertex, value);
+                *last_vertex = std::max(*last_vertex, value);
+            }
+        }
+        if (selection.zone_scoped) {
+            for (int32_t& neighbor : triangle.neighbors) {
+                if (neighbor < 0 || static_cast<uint32_t>(neighbor) < selection.first_triangle
+                    || static_cast<uint32_t>(neighbor) >= selection.end_triangle) {
+                    neighbor = -1;
+                    continue;
+                }
+                neighbor -= static_cast<int32_t>(selection.first_triangle);
+            }
+        }
+        triangles->push_back(triangle);
+    }
+    return nullptr;
+}
+
+const char* decode_vertices(std::vector<BaseNavVertex>* vertices, const GeometrySection& geometry, uint32_t from, uint32_t to)
+{
+    const auto window = chunk_window_for(geometry.vertices, from, to);
+    if (!window) {
+        return "nav vertex chunk is malformed";
+    }
+    vertices->resize(window->records);
+    if (window->records == 0) {
+        return nullptr;
+    }
+    if (!decode_chunk_span(
+            geometry.vertices,
+            geometry.base,
+            window->low,
+            window->high,
+            kVertexSize,
+            reinterpret_cast<uint8_t*>(vertices->data()),
+            GeoChunkKind::Vertex)) {
+        return "nav vertex chunk is malformed";
+    }
+    vertices->erase(vertices->begin() + static_cast<std::ptrdiff_t>(to - window->first), vertices->end());
+    vertices->erase(vertices->begin(), vertices->begin() + static_cast<std::ptrdiff_t>(from - window->first));
+    return nullptr;
+}
+
+bool invalid_link(const std::vector<BaseNavLink>& link_table, uint32_t triangle_count, uint32_t link_base, size_t index)
+{
+    const BaseNavLink& link = link_table[index];
+    if (link.source >= triangle_count || link.target >= triangle_count) {
+        LogWarn << "Skipping invalid BaseNav link." << VAR(link_base + index) << VAR(link.source) << VAR(link.target)
+                << VAR(triangle_count);
+        return true;
+    }
+    return false;
+}
+
+void rebase_triangle(uint32_t* triangle, uint32_t first_triangle, uint32_t end_triangle)
+{
+    if (*triangle < first_triangle || *triangle >= end_triangle) {
+        *triangle = kBaseNavOffMeshTriangleNone;
+        return;
+    }
+    *triangle -= first_triangle;
+}
+
 }
 
 BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string_view zone_name)
@@ -700,46 +831,46 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
 
     const uint64_t file_size = file_bytes.size();
     if (file_size < kHeaderSize) {
-        return Fail(BaseNavLoadStatus::InvalidSize, "nav file is smaller than header");
+        return fail(BaseNavLoadStatus::InvalidSize, "nav file is smaller than header");
     }
-    const uint64_t file_fnv = Fnv64Update(kFnvOffset, file_bytes.data(), file_bytes.size());
+    const uint64_t file_fnv = fnv64_update(kFnvOffset, file_bytes.data(), file_bytes.size());
 
     if (std::memcmp(file_bytes.data(), "BNAV", 4) != 0) {
-        return Fail(BaseNavLoadStatus::InvalidMagic, "invalid nav magic");
+        return fail(BaseNavLoadStatus::InvalidMagic, "invalid nav magic");
     }
     const uint8_t* header_cursor = file_bytes.data() + 4;
-    const uint16_t version = ReadU16(header_cursor);
-    (void)ReadU16(header_cursor); // flags
+    const uint16_t version = read_u16(&header_cursor);
+    (void)read_u16(&header_cursor); // flags
     if (version == 0 || version > kBaseNavRevision) {
-        return Fail(BaseNavLoadStatus::UnsupportedVersion, "unsupported nav version");
+        return fail(BaseNavLoadStatus::UnsupportedVersion, "unsupported nav version");
     }
     const size_t header_size = version >= kSectionDirSince ? kHeaderSizeV4 : kHeaderSize;
     if (file_size < header_size) {
-        return Fail(BaseNavLoadStatus::InvalidSize, "nav file is smaller than header");
+        return fail(BaseNavLoadStatus::InvalidSize, "nav file is smaller than header");
     }
     const size_t zone_prefix_size = kZonePrefixSize + (version >= kZoneFloorYSince ? 4 : 0);
-    const uint32_t zone_count = ReadU32(header_cursor);
-    const uint32_t vertex_count = ReadU32(header_cursor);
-    const uint32_t triangle_count = ReadU32(header_cursor);
-    const uint32_t link_count = ReadU32(header_cursor);
-    const uint64_t zone_table_offset = ReadU64(header_cursor);
-    const uint64_t vertex_offset = ReadU64(header_cursor);
-    const uint64_t triangle_offset = ReadU64(header_cursor);
-    const uint64_t link_offset = ReadU64(header_cursor);
-    const uint64_t build_hash = ReadU64(header_cursor);
+    const uint32_t zone_count = read_u32(&header_cursor);
+    const uint32_t vertex_count = read_u32(&header_cursor);
+    const uint32_t triangle_count = read_u32(&header_cursor);
+    const uint32_t link_count = read_u32(&header_cursor);
+    const uint64_t zone_table_offset = read_u64(&header_cursor);
+    const uint64_t vertex_offset = read_u64(&header_cursor);
+    const uint64_t triangle_offset = read_u64(&header_cursor);
+    const uint64_t link_offset = read_u64(&header_cursor);
+    const uint64_t build_hash = read_u64(&header_cursor);
 
     if (link_count == 0) {
-        return Fail(BaseNavLoadStatus::InvalidSize, "nav link table is empty");
+        return fail(BaseNavLoadStatus::InvalidSize, "nav link table is empty");
     }
     uint64_t section_dir_offset = 0;
     uint32_t section_count = 0;
     if (version >= kSectionDirSince) {
-        section_dir_offset = ReadU64(header_cursor);
-        section_count = ReadU32(header_cursor);
-        (void)ReadU32(header_cursor); // 保留字段
+        section_dir_offset = read_u64(&header_cursor);
+        section_count = read_u32(&header_cursor);
+        (void)read_u32(&header_cursor); // 保留字段
         if (section_count != 0
-            && !OffsetRangeValid(section_dir_offset, static_cast<uint64_t>(section_count) * kSectionEntrySize, file_size)) {
-            return Fail(BaseNavLoadStatus::InvalidOffset, "nav section directory is outside file bounds");
+            && !offset_range_valid(section_dir_offset, static_cast<uint64_t>(section_count) * kSectionEntrySize, file_size)) {
+            return fail(BaseNavLoadStatus::InvalidOffset, "nav section directory is outside file bounds");
         }
     }
 
@@ -753,16 +884,16 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         BaseNavSection sec;
         std::memcpy(sec.tag.data(), dir_cursor, 4);
         dir_cursor += 4;
-        sec.flags = ReadU32(dir_cursor);
-        const uint64_t offset = ReadU64(dir_cursor);
-        const uint64_t size = ReadU64(dir_cursor);
-        if (!OffsetRangeValid(offset, size, file_size)) {
-            return Fail(BaseNavLoadStatus::InvalidOffset, "nav section is outside file bounds");
+        sec.flags = read_u32(&dir_cursor);
+        const uint64_t offset = read_u64(&dir_cursor);
+        const uint64_t size = read_u64(&dir_cursor);
+        if (!offset_range_valid(offset, size, file_size)) {
+            return fail(BaseNavLoadStatus::InvalidOffset, "nav section is outside file bounds");
         }
         const uint8_t* at = file_bytes.data() + offset;
         section_raw.emplace_back(at, static_cast<size_t>(size));
         if (std::memcmp(sec.tag.data(), kGridSectionTag, 4) == 0) {
-            sec.bytes = SharedSectionBytes(file_fnv, at, static_cast<size_t>(size));
+            sec.bytes = shared_section_bytes(file_fnv, at, static_cast<size_t>(size));
         }
         sections.push_back(std::move(sec));
     }
@@ -781,11 +912,11 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
                 found = &section_raw[i];
             }
         }
-        if (found == nullptr || !ParseGeometrySection(found->first, found->second, &geometry)) {
-            return Fail(BaseNavLoadStatus::InvalidOffset, "nav geometry section is missing or malformed");
+        if (found == nullptr || !parse_geometry_section(found->first, found->second, &geometry)) {
+            return fail(BaseNavLoadStatus::InvalidOffset, "nav geometry section is missing or malformed");
         }
         if (geometry.vertices.total != vertex_count || geometry.triangles.total != triangle_count || geometry.links.total != link_count) {
-            return Fail(BaseNavLoadStatus::InvalidSize, "nav geometry section disagrees with the header counts");
+            return fail(BaseNavLoadStatus::InvalidSize, "nav geometry section disagrees with the header counts");
         }
         zone_table = geometry.zone_table;
         zone_table_size = geometry.zone_table_size;
@@ -793,12 +924,12 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     else {
         if (zone_table_offset < header_size || vertex_offset < zone_table_offset || triangle_offset < vertex_offset
             || link_offset < triangle_offset) {
-            return Fail(BaseNavLoadStatus::InvalidOffset, "invalid nav offsets");
+            return fail(BaseNavLoadStatus::InvalidOffset, "invalid nav offsets");
         }
-        if (!OffsetRangeValid(vertex_offset, static_cast<uint64_t>(vertex_count) * kVertexSize, file_size)
-            || !OffsetRangeValid(triangle_offset, static_cast<uint64_t>(triangle_count) * kTriangleSize, file_size)
-            || !OffsetRangeValid(link_offset, static_cast<uint64_t>(link_count) * kLinkSize, file_size)) {
-            return Fail(BaseNavLoadStatus::InvalidOffset, "nav payload is outside file bounds");
+        if (!offset_range_valid(vertex_offset, static_cast<uint64_t>(vertex_count) * kVertexSize, file_size)
+            || !offset_range_valid(triangle_offset, static_cast<uint64_t>(triangle_count) * kTriangleSize, file_size)
+            || !offset_range_valid(link_offset, static_cast<uint64_t>(link_count) * kLinkSize, file_size)) {
+            return fail(BaseNavLoadStatus::InvalidOffset, "nav payload is outside file bounds");
         }
         zone_table_size = vertex_offset - zone_table_offset;
         zone_table = file_bytes.data() + zone_table_offset;
@@ -814,44 +945,44 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     const uint8_t* zone_cursor = zone_table;
     for (uint32_t index = 0; index < zone_count; ++index) {
         if (static_cast<size_t>(zone_end - zone_cursor) < zone_prefix_size) {
-            return Fail(BaseNavLoadStatus::InvalidSize, "zone table is truncated");
+            return fail(BaseNavLoadStatus::InvalidSize, "zone table is truncated");
         }
         BaseNavZone zone;
-        zone.zone_id = ReadU16(zone_cursor);
-        zone.flags = ReadU16(zone_cursor);
-        const uint32_t name_size = ReadU32(zone_cursor);
-        zone.first_triangle = ReadU32(zone_cursor);
-        zone.triangle_count = ReadU32(zone_cursor);
-        zone.component_count = ReadU32(zone_cursor);
-        zone.width = ReadF32(zone_cursor);
-        zone.height = ReadF32(zone_cursor);
+        zone.zone_id = read_u16(&zone_cursor);
+        zone.flags = read_u16(&zone_cursor);
+        const uint32_t name_size = read_u32(&zone_cursor);
+        zone.first_triangle = read_u32(&zone_cursor);
+        zone.triangle_count = read_u32(&zone_cursor);
+        zone.component_count = read_u32(&zone_cursor);
+        zone.width = read_f32(&zone_cursor);
+        zone.height = read_f32(&zone_cursor);
         for (float& value : zone.transform) {
-            value = ReadF32(zone_cursor);
+            value = read_f32(&zone_cursor);
         }
         if (version >= kZoneFloorYSince) {
-            zone.floor_y = ReadF32(zone_cursor);
+            zone.floor_y = read_f32(&zone_cursor);
         }
         if (static_cast<size_t>(zone_end - zone_cursor) < name_size) {
-            return Fail(BaseNavLoadStatus::InvalidSize, "zone name is truncated");
+            return fail(BaseNavLoadStatus::InvalidSize, "zone name is truncated");
         }
         zone.name.assign(reinterpret_cast<const char*>(zone_cursor), name_size);
         zone_cursor += name_size;
         if (!zone_ids.insert(zone.zone_id).second) {
-            return Fail(BaseNavLoadStatus::DuplicateZone, "duplicate zone id");
+            return fail(BaseNavLoadStatus::DuplicateZone, "duplicate zone id");
         }
         zones.push_back(std::move(zone));
     }
     std::optional<BaseNavZone> selected_zone;
     for (const BaseNavZone& zone : zones) {
         if (static_cast<uint64_t>(zone.first_triangle) + zone.triangle_count > triangle_count) {
-            return Fail(BaseNavLoadStatus::InvalidSize, "zone triangle range is outside triangle table");
+            return fail(BaseNavLoadStatus::InvalidSize, "zone triangle range is outside triangle table");
         }
         if (!zone_name.empty() && zone.name == zone_name) {
             selected_zone = zone;
         }
     }
     if (!zone_name.empty() && !selected_zone) {
-        return Fail(BaseNavLoadStatus::ZoneNotFound, "nav zone not found");
+        return fail(BaseNavLoadStatus::ZoneNotFound, "nav zone not found");
     }
     const uint32_t selected_first_triangle = selected_zone ? selected_zone->first_triangle : 0;
     const uint32_t selected_triangle_count = selected_zone ? selected_zone->triangle_count : triangle_count;
@@ -871,107 +1002,47 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     uint32_t last_vertex = 0;
 
     // 哈希按区表、顶点、三角、连接的顺序算在规范字节上, 三角含重心
-    const bool should_verify_hash = zone_name.empty() || (!sectioned && !HasGzipSuffix(path));
+    const bool should_verify_hash = zone_name.empty() || (!sectioned && !has_gzip_suffix(path));
     uint64_t hash = kFnvOffset;
     if (should_verify_hash) {
-        hash = Fnv64Update(hash, zone_table, static_cast<size_t>(zone_table_size));
+        hash = fnv64_update(hash, zone_table, static_cast<size_t>(zone_table_size));
     }
 
-    const auto convert_triangles = [&](const uint8_t* records, uint32_t first, size_t count) -> const char* {
-        const uint32_t begin = std::max(first, selected_first_triangle);
-        const uint32_t end = static_cast<uint32_t>(std::min<uint64_t>(static_cast<uint64_t>(first) + count, selected_triangle_end));
-        if (begin >= end) {
-            return nullptr;
-        }
-        const uint8_t* cursor = records + static_cast<size_t>(begin - first) * kTriangleSize;
-        for (uint32_t index = begin; index < end; ++index) {
-            BaseNavTriangle triangle = ReadTriangleRecord(cursor);
-            for (uint32_t value : triangle.vertices) {
-                if (value >= vertex_count) {
-                    return "triangle vertex index is outside vertex table";
-                }
-                if (zone_scoped) {
-                    first_vertex = std::min(first_vertex, value);
-                    last_vertex = std::max(last_vertex, value);
-                }
-            }
-            if (zone_scoped) {
-                for (int32_t& neighbor : triangle.neighbors) {
-                    if (neighbor < 0 || static_cast<uint32_t>(neighbor) < selected_first_triangle
-                        || static_cast<uint32_t>(neighbor) >= selected_triangle_end) {
-                        neighbor = -1;
-                        continue;
-                    }
-                    neighbor -= static_cast<int32_t>(selected_first_triangle);
-                }
-            }
-            triangles.push_back(triangle);
-        }
-        return nullptr;
+    const TriangleSelection selection {
+        .first_triangle = selected_first_triangle,
+        .end_triangle = selected_triangle_end,
+        .vertex_count = vertex_count,
+        .zone_scoped = zone_scoped,
     };
 
     if (sectioned) {
-        const auto decode_vertices = [&](uint32_t from, uint32_t to) -> const char* {
-            const auto window = ChunkWindowFor(geometry.vertices, from, to);
-            if (!window) {
-                return "nav vertex chunk is malformed";
-            }
-            vertices.resize(window->records);
-            if (window->records == 0) {
-                return nullptr;
-            }
-            if (!DecodeChunkSpan(
-                    geometry.vertices,
-                    geometry.base,
-                    window->low,
-                    window->high,
-                    kVertexSize,
-                    reinterpret_cast<uint8_t*>(vertices.data()),
-                    [](const uint8_t* at, size_t size, uint32_t span, uint32_t, uint8_t* dst) {
-                        return DecodeVertexChunk(at, size, span, dst);
-                    })) {
-                return "nav vertex chunk is malformed";
-            }
-            vertices.erase(vertices.begin() + static_cast<std::ptrdiff_t>(to - window->first), vertices.end());
-            vertices.erase(vertices.begin(), vertices.begin() + static_cast<std::ptrdiff_t>(from - window->first));
-            return nullptr;
-        };
         // 整包时重心要靠顶点补所以顶点先解, 按区时顶点范围要扫完三角才知道所以后解
         if (!zone_scoped) {
-            if (const char* error = decode_vertices(0, vertex_count)) {
-                return Fail(BaseNavLoadStatus::InvalidSize, error);
+            if (const char* error = decode_vertices(&vertices, geometry, 0, vertex_count)) {
+                return fail(BaseNavLoadStatus::InvalidSize, error);
             }
             if (should_verify_hash) {
-                hash = Fnv64Update(hash, reinterpret_cast<const uint8_t*>(vertices.data()), vertices.size() * kVertexSize);
+                hash = fnv64_update(hash, reinterpret_cast<const uint8_t*>(vertices.data()), vertices.size() * kVertexSize);
             }
         }
 
-        const auto window = ChunkWindowFor(geometry.triangles, selected_first_triangle, selected_triangle_end);
+        const auto window = chunk_window_for(geometry.triangles, selected_first_triangle, selected_triangle_end);
         if (!window) {
-            return Fail(BaseNavLoadStatus::InvalidSize, "nav triangle chunk is malformed");
+            return fail(BaseNavLoadStatus::InvalidSize, "nav triangle chunk is malformed");
         }
         std::vector<uint8_t> scratch;
         const size_t workers = NavWorkerCount(static_cast<int64_t>(window->records));
         for (uint32_t low = window->low; window->records != 0 && low <= window->high;) {
             uint32_t high = low;
-            size_t records = geometry.triangles.span(low);
+            size_t records = geo_chunk_span(geometry.triangles, low);
             while (high < window->high
-                   && (records + geometry.triangles.span(high + 1) <= kTriangleBatchRecords || high + 1 - low < workers)) {
+                   && (records + geo_chunk_span(geometry.triangles, high + 1) <= kTriangleBatchRecords || high + 1 - low < workers)) {
                 ++high;
-                records += geometry.triangles.span(high);
+                records += geo_chunk_span(geometry.triangles, high);
             }
             scratch.resize(records * kTriangleSize);
-            if (!DecodeChunkSpan(
-                    geometry.triangles,
-                    geometry.base,
-                    low,
-                    high,
-                    kTriangleSize,
-                    scratch.data(),
-                    [](const uint8_t* at, size_t size, uint32_t span, uint32_t first, uint8_t* dst) {
-                        return DecodeTriangleChunk(at, size, span, first, dst);
-                    })) {
-                return Fail(BaseNavLoadStatus::InvalidSize, "nav triangle chunk is malformed");
+            if (!decode_chunk_span(geometry.triangles, geometry.base, low, high, kTriangleSize, scratch.data(), GeoChunkKind::Triangle)) {
+                return fail(BaseNavLoadStatus::InvalidSize, "nav triangle chunk is malformed");
             }
             if (should_verify_hash) {
                 // 重心须按 ((a+b)+c)/3.0f 补回, 乘 1/3 的结果不逐位相同
@@ -980,9 +1051,9 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
                     float u[3] = {};
                     float v[3] = {};
                     for (int i = 0; i < 3; ++i) {
-                        const uint32_t value = PeekU32(record + i * 4);
+                        const uint32_t value = peek_u32(record + i * 4);
                         if (value >= vertex_count) {
-                            return Fail(BaseNavLoadStatus::InvalidSize, "triangle vertex index is outside vertex table");
+                            return fail(BaseNavLoadStatus::InvalidSize, "triangle vertex index is outside vertex table");
                         }
                         u[i] = vertices[value].u;
                         v[i] = vertices[value].v;
@@ -992,10 +1063,17 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
                     std::memcpy(record + 28, &center_u, sizeof(float));
                     std::memcpy(record + 32, &center_v, sizeof(float));
                 }
-                hash = Fnv64Update(hash, scratch.data(), scratch.size());
+                hash = fnv64_update(hash, scratch.data(), scratch.size());
             }
-            if (const char* error = convert_triangles(scratch.data(), geometry.triangles.first(low), records)) {
-                return Fail(BaseNavLoadStatus::InvalidSize, error);
+            if (const char* error = convert_triangles(
+                    &triangles,
+                    &first_vertex,
+                    &last_vertex,
+                    selection,
+                    TriangleRecordBatch { .records = scratch.data(),
+                                          .first = geo_chunk_first(geometry.triangles, low),
+                                          .count = records })) {
+                return fail(BaseNavLoadStatus::InvalidSize, error);
             }
             low = high + 1;
         }
@@ -1004,43 +1082,46 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         if (zone_scoped) {
             const uint32_t want_low = triangles.empty() ? 0 : first_vertex;
             const uint32_t want_high = triangles.empty() ? 0 : last_vertex + 1;
-            if (const char* error = decode_vertices(want_low, want_high)) {
-                return Fail(BaseNavLoadStatus::InvalidSize, error);
+            if (const char* error = decode_vertices(&vertices, geometry, want_low, want_high)) {
+                return fail(BaseNavLoadStatus::InvalidSize, error);
             }
         }
 
-        const uint32_t link_chunks = geometry.links.count();
-        const uint32_t low_chunk = zone_scoped ? GeoLinkChunkFor(geometry.links, selected_first_triangle) : 0;
-        const uint32_t high_chunk = zone_scoped ? GeoLinkChunkFor(geometry.links, selected_triangle_end) : link_chunks;
+        const uint32_t link_chunks = geo_chunk_count(geometry.links);
+        const uint32_t low_chunk = zone_scoped ? geo_link_chunk_for(geometry.links, selected_first_triangle) : 0;
+        const uint32_t high_chunk = zone_scoped ? geo_link_chunk_for(geometry.links, selected_triangle_end) : link_chunks;
         if (low_chunk < link_chunks && low_chunk <= high_chunk) {
             const uint32_t last_chunk = std::min(high_chunk, link_chunks - 1);
-            link_table.resize(ChunkSpanRecords(geometry.links, low_chunk, last_chunk));
-            if (!DecodeChunkSpan(
+            link_table.resize(chunk_span_records(geometry.links, low_chunk, last_chunk));
+            if (!decode_chunk_span(
                     geometry.links,
                     geometry.base,
                     low_chunk,
                     last_chunk,
                     kLinkSize,
                     reinterpret_cast<uint8_t*>(link_table.data()),
-                    [](const uint8_t* at, size_t size, uint32_t span, uint32_t, uint8_t* dst) {
-                        return DecodeLinkChunk(at, size, span, dst);
-                    })) {
-                return Fail(BaseNavLoadStatus::InvalidSize, "nav link chunk is malformed");
+                    GeoChunkKind::Link)) {
+                return fail(BaseNavLoadStatus::InvalidSize, "nav link chunk is malformed");
             }
         }
-        link_base = geometry.links.first(low_chunk);
+        link_base = geo_chunk_first(geometry.links, low_chunk);
         if (should_verify_hash) {
-            hash = Fnv64Update(hash, reinterpret_cast<const uint8_t*>(link_table.data()), link_table.size() * kLinkSize);
+            hash = fnv64_update(hash, reinterpret_cast<const uint8_t*>(link_table.data()), link_table.size() * kLinkSize);
         }
     }
     else {
         if (should_verify_hash) {
-            hash = Fnv64Update(hash, vertex_bytes, static_cast<size_t>(vertex_count) * kVertexSize);
-            hash = Fnv64Update(hash, triangle_bytes, static_cast<size_t>(triangle_count) * kTriangleSize);
-            hash = Fnv64Update(hash, link_bytes, static_cast<size_t>(link_count) * kLinkSize);
+            hash = fnv64_update(hash, vertex_bytes, static_cast<size_t>(vertex_count) * kVertexSize);
+            hash = fnv64_update(hash, triangle_bytes, static_cast<size_t>(triangle_count) * kTriangleSize);
+            hash = fnv64_update(hash, link_bytes, static_cast<size_t>(link_count) * kLinkSize);
         }
-        if (const char* error = convert_triangles(triangle_bytes, 0, triangle_count)) {
-            return Fail(BaseNavLoadStatus::InvalidSize, error);
+        if (const char* error = convert_triangles(
+                &triangles,
+                &first_vertex,
+                &last_vertex,
+                selection,
+                TriangleRecordBatch { .records = triangle_bytes, .first = 0, .count = triangle_count })) {
+            return fail(BaseNavLoadStatus::InvalidSize, error);
         }
         const uint32_t selected_vertex_count = zone_scoped ? (triangles.empty() ? 0 : last_vertex - first_vertex + 1) : vertex_count;
         vertices.resize(selected_vertex_count);
@@ -1054,7 +1135,7 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         std::memcpy(link_table.data(), link_bytes, static_cast<size_t>(link_count) * kLinkSize);
     }
     if (should_verify_hash && hash != build_hash) {
-        return Fail(BaseNavLoadStatus::HashMismatch, "nav build hash mismatch");
+        return fail(BaseNavLoadStatus::HashMismatch, "nav build hash mismatch");
     }
 
     if (zone_scoped) {
@@ -1080,22 +1161,13 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         zones = std::move(scoped_zones);
     }
 
-    const auto invalid_link = [&](size_t index) {
-        const BaseNavLink& link = link_table[index];
-        if (link.source >= triangle_count || link.target >= triangle_count) {
-            LogWarn << "Skipping invalid BaseNav link." << VAR(link_base + index) << VAR(link.source) << VAR(link.target)
-                    << VAR(triangle_count);
-            return true;
-        }
-        return false;
-    };
     std::vector<BaseNavLink> links;
     if (zone_scoped) {
-        const size_t first_link = LowerBoundLinkSource(link_table, selected_first_triangle);
-        const size_t last_link = LowerBoundLinkSource(link_table, selected_triangle_end);
+        const size_t first_link = lower_bound_link_source(link_table, selected_first_triangle);
+        const size_t last_link = lower_bound_link_source(link_table, selected_triangle_end);
         links.reserve(last_link - first_link);
         for (size_t index = first_link; index < last_link; ++index) {
-            if (invalid_link(index)) {
+            if (invalid_link(link_table, triangle_count, link_base, index)) {
                 continue;
             }
             BaseNavLink link = link_table[index];
@@ -1111,7 +1183,7 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     else {
         size_t kept = 0;
         for (size_t index = 0; index < link_table.size(); ++index) {
-            if (!invalid_link(index)) {
+            if (!invalid_link(link_table, triangle_count, link_base, index)) {
                 link_table[kept++] = link_table[index];
             }
         }
@@ -1122,30 +1194,23 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     std::vector<BaseNavOffMeshLink> off_mesh_links;
     for (size_t i = 0; i < sections.size(); ++i) {
         if (std::memcmp(sections[i].tag.data(), kOffMeshSectionTag, 4) == 0
-            && !ParseOffMeshSection(section_raw[i].first, section_raw[i].second, &off_mesh_links)) {
-            return Fail(BaseNavLoadStatus::InvalidSize, "nav off-mesh section is malformed");
+            && !parse_off_mesh_section(section_raw[i].first, section_raw[i].second, &off_mesh_links)) {
+            return fail(BaseNavLoadStatus::InvalidSize, "nav off-mesh section is malformed");
         }
     }
     // 两沿三角是整包下标, 按区加载时同样平移, 区外锚点退回哨兵值
     if (zone_scoped) {
         for (BaseNavOffMeshLink& link : off_mesh_links) {
-            const auto rebase = [&](uint32_t& triangle) {
-                if (triangle < selected_first_triangle || triangle >= selected_triangle_end) {
-                    triangle = kBaseNavOffMeshTriangleNone;
-                    return;
-                }
-                triangle -= selected_first_triangle;
-            };
-            rebase(link.start_triangle);
-            rebase(link.end_triangle);
+            rebase_triangle(&link.start_triangle, selected_first_triangle, selected_triangle_end);
+            rebase_triangle(&link.end_triangle, selected_first_triangle, selected_triangle_end);
         }
     }
 
     std::vector<BaseNavSurface> surfaces;
     for (size_t i = 0; i < sections.size(); ++i) {
         if (std::memcmp(sections[i].tag.data(), kSurfaceSectionTag, 4) == 0) {
-            if (!ParseSurfaceSection(section_raw[i].first, section_raw[i].second, &surfaces) || surfaces.size() != triangle_count) {
-                return Fail(BaseNavLoadStatus::InvalidSize, "nav surface section is malformed");
+            if (!parse_surface_section(section_raw[i].first, section_raw[i].second, &surfaces) || surfaces.size() != triangle_count) {
+                return fail(BaseNavLoadStatus::InvalidSize, "nav surface section is malformed");
             }
         }
     }
@@ -1160,7 +1225,7 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         const bool known_zone =
             std::any_of(zones.begin(), zones.end(), [&](const BaseNavZone& zone) { return zone.zone_id == link.zone_id; });
         if (!known_zone) {
-            return Fail(BaseNavLoadStatus::InvalidSize, "nav off-mesh link refers to an unknown zone");
+            return fail(BaseNavLoadStatus::InvalidSize, "nav off-mesh link refers to an unknown zone");
         }
     }
 
@@ -1180,4 +1245,4 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     return result;
 }
 
-}
+} // namespace navmesh
