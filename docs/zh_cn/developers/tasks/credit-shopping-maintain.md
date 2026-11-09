@@ -24,7 +24,7 @@ CreditShopping/
 │   ├── Priority2Items.json# 购买物品选项2：IconRecognition item_ids
 │   ├── Priority3Items.json# 购买物品选项3：IconRecognition item_ids
 │   ├── AnyItems.json      # 任意可买物品：全 catalog IconRecognition
-│   └── ShelfChecks.json   # 未售罄 / 买得起 / 折扣（相对物品框偏移）
+│   └── ShelfChecks.json   # 买得起 / 折扣（相对物品框偏移）
 ├── GoToShop.json           # 导航到商店并切到信用交易所页签
 └── Reflash.json            # 刷新按钮 / 花费 / 次数用尽 / 无法刷新
 ```
@@ -72,11 +72,12 @@ CreditShopping/
 
 1. **物品**：`IconRecognition`（`grid_type: credit_trade`）在 `roi` 内识别整排卡片，返回每格的 `cell_box` / `row` / `column` / `item_id`。`CreditShoppingPriority{N}Item` 只认该档 `item_ids`，`CreditShoppingShelfAnyItem` 认全 catalog，两者都取 `index: 0`（货架自然顺序的第一个命中）。
 2. **判定**：`ShelfChecks.json` 以物品框为基准偏移，依次给出
-    - 未售罄 `*NotSoldOut`（ColorMatch 灰度）
     - 买得起 `*CanAfford` / 买不起 `*CanNotAfford`（价格文字颜色）
     - 折扣 `*Discount`（OCR 角标）
 
-`CreditShoppingBuyPriority{N}` 是 And 链：物品 → 未售罄 → 买得起 → 折扣 → 保留阈值门控，`box_index: 0` 保证点击落在物品格中心。**前层未命中则整条链失效**，排查时按 物品 → 未售罄 → 买得起 → 折扣 顺序看。
+售罄卡（卡片变暗 + 「售罄」）不会被 IconRecognition 命中，所以 Pipeline 不再单独判断未售罄。
+
+`CreditShoppingBuyPriority{N}` 是 And 链：物品 → 买得起 → 折扣 → 保留阈值门控，`box_index: 0` 保证点击落在物品格中心。**前层未命中则整条链失效**，排查时按 物品 → 买得起 → 折扣 顺序看。
 
 控制器差异分开维护：ADB 的 IconRecognition ROI 在 `assets/resource_adb/pipeline/CreditShopping/IconRecognitionRoi.json`，云端颜色阈值在 `assets/resource_cloud/pipeline/CreditShopping/Item.json`。Pipeline 与 Go 都不写死 ROI，改区域时只改对应资源覆盖。
 
@@ -123,7 +124,7 @@ CreditShopping/
 | 策略 | 行为 |
 | ---------- | -------------------------------- |
 | 退出 | 不买任意品、不刷新，直接结束 |
-| 购买所有物品 | 购买任意买得起且未售罄的商品；确认前用 `BuyItemBelowReserve` 按「持有 − 价格」检查保留阈值，不足则取消并停止 |
+| 购买所有物品 | 购买任意买得起的商品（售罄卡不会被识别）；确认前用 `BuyItemBelowReserve` 按「持有 − 价格」检查保留阈值，不足则取消并停止 |
 | 执行刷新 | 尝试刷新货架；可展开「稳健模式刷新」「直购前检查价格」 |
 
 **稳健刷新**：若「当前信用 − 刷新花费 < 稳健刷新阈值」且架上仍有可买品，则不刷新、改为直接购买。

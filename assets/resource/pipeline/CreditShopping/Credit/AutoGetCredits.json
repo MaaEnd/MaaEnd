@@ -36,7 +36,6 @@
         "recognition": "And",
         "all_of": [
             "CreditShoppingPriority1Item",
-            "CreditShoppingPriority1NotSoldOut",
             "CreditShoppingPriority1CanNotAfford",
             "CreditShoppingPriority1DiscountCannotAfford"
         ],
@@ -46,7 +45,6 @@
         "recognition": "And",
         "all_of": [
             "CreditShoppingPriority2Item",
-            "CreditShoppingPriority2NotSoldOut",
             "CreditShoppingPriority2CanNotAfford",
             "CreditShoppingPriority2DiscountCannotAfford"
         ],
@@ -56,7 +54,6 @@
         "recognition": "And",
         "all_of": [
             "CreditShoppingPriority3Item",
-            "CreditShoppingPriority3NotSoldOut",
             "CreditShoppingPriority3CanNotAfford",
             "CreditShoppingPriority3DiscountCannotAfford"
         ],

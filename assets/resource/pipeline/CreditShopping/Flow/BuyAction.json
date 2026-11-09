@@ -4,7 +4,6 @@
         "recognition": "And",
         "all_of": [
             "CreditShoppingPriority1Item",
-            "CreditShoppingPriority1NotSoldOut",
             "CreditShoppingPriority1CanAfford",
             "CreditShoppingPriority1Discount",
             "CreditShoppingPriority1ReserveCreditGate"
@@ -22,7 +21,6 @@
         "recognition": "And",
         "all_of": [
             "CreditShoppingPriority2Item",
-            "CreditShoppingPriority2NotSoldOut",
             "CreditShoppingPriority2CanAfford",
             "CreditShoppingPriority2Discount",
             "CreditShoppingPriority2ReserveCreditGate"
@@ -40,7 +38,6 @@
         "recognition": "And",
         "all_of": [
             "CreditShoppingPriority3Item",
-            "CreditShoppingPriority3NotSoldOut",
             "CreditShoppingPriority3CanAfford",
             "CreditShoppingPriority3Discount",
             "CreditShoppingPriority3ReserveCreditGate"
@@ -58,7 +55,6 @@
         "recognition": "And",
         "all_of": [
             "CreditShoppingShelfAnyItem",
-            "CreditShoppingShelfAnyNotSoldOut",
             "CreditShoppingShelfAnyCanAfford"
         ],
         "box_index": 0,
@@ -88,7 +84,6 @@
                         }
                     },
                     "CreditShoppingShelfAnyItem",
-                    "CreditShoppingShelfAnyNotSoldOut",
                     "CreditShoppingShelfAnyCanAfford"
                 ],
                 "box_index": 1
@@ -115,7 +110,6 @@
                 "all_of": [
                     "RefreshUsedUp",
                     "CreditShoppingShelfAnyItem",
-                    "CreditShoppingShelfAnyNotSoldOut",
                     "CreditShoppingShelfAnyCanAfford"
                 ],
                 "box_index": 1

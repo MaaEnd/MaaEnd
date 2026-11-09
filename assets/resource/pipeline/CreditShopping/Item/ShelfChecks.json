@@ -108,9 +108,9 @@
         "order_by": "Expected"
     },
     "CreditShoppingPriority1CanAfford": {
-        "desc": "优先购买1买得起。相对未售罄框",
+        "desc": "优先购买1买得起。相对物品框",
         "recognition": "ColorMatch",
-        "roi": "CreditShoppingPriority1NotSoldOut",
+        "roi": "CreditShoppingPriority1Item",
         "roi_offset": [
             95,
             132,
@@ -131,9 +131,9 @@
         "count": 30
     },
     "CreditShoppingPriority2CanAfford": {
-        "desc": "优先购买2买得起。相对未售罄框",
+        "desc": "优先购买2买得起。相对物品框",
         "recognition": "ColorMatch",
-        "roi": "CreditShoppingPriority2NotSoldOut",
+        "roi": "CreditShoppingPriority2Item",
         "roi_offset": [
             95,
             132,
@@ -154,9 +154,9 @@
         "count": 30
     },
     "CreditShoppingPriority3CanAfford": {
-        "desc": "优先购买3买得起。相对未售罄框",
+        "desc": "优先购买3买得起。相对物品框",
         "recognition": "ColorMatch",
-        "roi": "CreditShoppingPriority3NotSoldOut",
+        "roi": "CreditShoppingPriority3Item",
         "roi_offset": [
             95,
             132,
@@ -177,9 +177,9 @@
         "count": 30
     },
     "CreditShoppingPriority1CanNotAfford": {
-        "desc": "优先购买1买不起。相对未售罄框",
+        "desc": "优先购买1买不起。相对物品框",
         "recognition": "ColorMatch",
-        "roi": "CreditShoppingPriority1NotSoldOut",
+        "roi": "CreditShoppingPriority1Item",
         "roi_offset": [
             95,
             132,
@@ -199,9 +199,9 @@
         "count": 20
     },
     "CreditShoppingPriority2CanNotAfford": {
-        "desc": "优先购买2买不起。相对未售罄框",
+        "desc": "优先购买2买不起。相对物品框",
         "recognition": "ColorMatch",
-        "roi": "CreditShoppingPriority2NotSoldOut",
+        "roi": "CreditShoppingPriority2Item",
         "roi_offset": [
             95,
             132,
@@ -221,9 +221,9 @@
         "count": 20
     },
     "CreditShoppingPriority3CanNotAfford": {
-        "desc": "优先购买3买不起。相对未售罄框",
+        "desc": "优先购买3买不起。相对物品框",
         "recognition": "ColorMatch",
-        "roi": "CreditShoppingPriority3NotSoldOut",
+        "roi": "CreditShoppingPriority3Item",
         "roi_offset": [
             95,
             132,
@@ -242,49 +242,10 @@
         ],
         "count": 20
     },
-    "CreditShoppingPriority1NotSoldOut": {
-        "desc": "优先购买1未售罄。识别框与物品模板相同，不偏移",
-        "recognition": "ColorMatch",
-        "roi": "CreditShoppingPriority1Item",
-        "method": 6,
-        "lower": [
-            120
-        ],
-        "upper": [
-            255
-        ],
-        "count": 1200
-    },
-    "CreditShoppingPriority2NotSoldOut": {
-        "desc": "优先购买2未售罄。识别框与物品模板相同，不偏移",
-        "recognition": "ColorMatch",
-        "roi": "CreditShoppingPriority2Item",
-        "method": 6,
-        "lower": [
-            120
-        ],
-        "upper": [
-            255
-        ],
-        "count": 1200
-    },
-    "CreditShoppingPriority3NotSoldOut": {
-        "desc": "优先购买3未售罄。识别框与物品模板相同，不偏移",
-        "recognition": "ColorMatch",
-        "roi": "CreditShoppingPriority3Item",
-        "method": 6,
-        "lower": [
-            120
-        ],
-        "upper": [
-            255
-        ],
-        "count": 1200
-    },
     "CreditShoppingShelfAnyCanAfford": {
-        "desc": "任意物品买得起。相对未售罄框，偏移与三档购买相同",
+        "desc": "任意物品买得起。相对物品框，偏移与三档购买相同",
         "recognition": "ColorMatch",
-        "roi": "CreditShoppingShelfAnyNotSoldOut",
+        "roi": "CreditShoppingShelfAnyItem",
         "roi_offset": [
             95,
             132,
@@ -303,18 +264,5 @@
             150
         ],
         "count": 30
-    },
-    "CreditShoppingShelfAnyNotSoldOut": {
-        "desc": "任意物品未售罄。识别框与物品模板相同，不偏移",
-        "recognition": "ColorMatch",
-        "roi": "CreditShoppingShelfAnyItem",
-        "method": 6,
-        "lower": [
-            120
-        ],
-        "upper": [
-            255
-        ],
-        "count": 1200
     }
 }

@@ -15,7 +15,6 @@ description: 分析 MaaEnd `CreditShoppingMain` 的日志。用于还原信用�
 | ---- | -------------------------- |
 | 优先购买 N 的物品识别（IconRecognition） | `CreditShoppingPriority1Item` / `CreditShoppingPriority2Item` / `CreditShoppingPriority3Item` |
 | 任意购买物品识别（全 catalog） | `CreditShoppingShelfAnyItem` |
-| 未售罄（ColorMatch） | `CreditShoppingPriority{1,2,3}NotSoldOut`、`CreditShoppingShelfAnyNotSoldOut` |
 | 买得起 / 买不起（ColorMatch） | `CreditShoppingPriority{1,2,3}CanAfford` / `...CanNotAfford`、`CreditShoppingShelfAnyCanAfford` |
 | 折扣 OCR（买得起链） | `CreditShoppingPriority1Discount` / `2Discount` / `3Discount` |
 | 折扣 OCR（买不起链，补信用等） | `CreditShoppingPriority{1,2,3}DiscountCannotAfford` |
@@ -24,7 +23,7 @@ description: 分析 MaaEnd `CreditShoppingMain` 的日志。用于还原信用�
 | 保留阈值（表达式识别） | `CreditShoppingReserveCredit`、`CreditShoppingReserveCreditSatisfied` |
 | 刷新状态 | `RefreshButton`、`RefreshCost`、`RefreshUsedUp`、`RefreshItem` |
 
-> **已删除、勿再 grep**：`CreditIcon`、`CreditShoppingRecordShelfSlot`、`CreditShoppingRecordItem*`、`RecordItemDiscount`、`CreditShoppingScanItemAction`、`BuyFirstOCR`、`Priority2OCR`、`IsDiscountPriority*`。货架记录模块与商品名 OCR 都已移除，分析**新日志**时必须用上表名称。
+> **已删除、勿再 grep**：`CreditIcon`、`CreditShoppingRecordShelfSlot`、`CreditShoppingRecordItem*`、`RecordItemDiscount`、`CreditShoppingScanItemAction`、`CreditShopping*NotSoldOut`、`BuyFirstOCR`、`Priority2OCR`、`IsDiscountPriority*`。货架记录模块与商品名 OCR 都已移除，分析**新日志**时必须用上表名称。
 
 ## 适用范围
 
@@ -44,7 +43,7 @@ description: 分析 MaaEnd `CreditShoppingMain` 的日志。用于还原信用�
 2. `maafw.bak.*.log`（若任务发生在之前的会话）
 3. **`CreditShoppingShelfAnyItem` / `CreditShoppingPriority{N}Item`**：IconRecognition 的 Custom 结果。每个 `all_results_` 元素带 `cell_box`（格子框）、`row` / `column`（行列）、`item_id`（catalog id）、`score`，是还原货架的唯一权威来源。
 4. **`*Discount`**：折扣角标 OCR，`all_results_` 里是 `{"box":[x,y,w,h],"score":..,"text":"-50%"}`。
-5. **`*CanAfford` / `*CanNotAfford` / `*NotSoldOut`**：ColorMatch，`count` 与 `box` 可用来解释「为什么这一格没被买」。
+5. **`*CanAfford` / `*CanNotAfford`**：ColorMatch，`count` 与 `box` 可用来解释「为什么这一格没被买」。
 6. `go-service.log`：`apply priority items: OverridePipeline applied`（本次勾选）、`ExpressionRecognition`（信用点数值 / 保留阈值）。
 7. `mxu-web-YYYY-MM-DD.log`：前端下发的 `pipelineOverride`（勾选与开关）。
 

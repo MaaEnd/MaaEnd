@@ -24,7 +24,7 @@ CreditShopping/
 │   ├── Priority2Items.json# Purchase Item Option 2: IconRecognition item_ids
 │   ├── Priority3Items.json# Purchase Item Option 3: IconRecognition item_ids
 │   ├── AnyItems.json      # Any purchasable item: full-catalog IconRecognition
-│   └── ShelfChecks.json   # Not sold out / affordable / discount (offsets from the item box)
+│   └── ShelfChecks.json   # Affordable / discount (offsets from the item box)
 ├── GoToShop.json           # Navigate to shop and switch to credit exchange tab
 └── Reflash.json            # Refresh button / cost / used up / unable to refresh
 ```
@@ -72,11 +72,12 @@ Implemented in `Item/` plus `Item/ShelfChecks.json`; recognition has two layers:
 
 1. **Items**: `IconRecognition` (`grid_type: credit_trade`) recognizes the card row inside `roi` and returns `cell_box` / `row` / `column` / `item_id` per cell. `CreditShoppingPriority{N}Item` only matches that tier's `item_ids`; `CreditShoppingShelfAnyItem` matches the full catalog. Both use `index: 0`, i.e. the first hit in natural shelf order.
 2. **Checks**: `ShelfChecks.json` offsets from the item box to derive
-    - not sold out `*NotSoldOut` (ColorMatch, grayscale)
     - affordable `*CanAfford` / unaffordable `*CanNotAfford` (price text color)
     - discount `*Discount` (OCR of the badge)
 
-`CreditShoppingBuyPriority{N}` is an And chain: item → not sold out → affordable → discount → reserve gate, with `box_index: 0` so the click lands on the item cell center. **If a preceding layer misses, the whole chain fails**; troubleshoot in order item → not sold out → affordable → discount.
+Sold-out cards (dimmed card + "Sold Out") are not matched by IconRecognition, so the Pipeline no longer checks sold-out state separately.
+
+`CreditShoppingBuyPriority{N}` is an And chain: item → affordable → discount → reserve gate, with `box_index: 0` so the click lands on the item cell center. **If a preceding layer misses, the whole chain fails**; troubleshoot in order item → affordable → discount.
 
 Controller differences are maintained separately: the ADB IconRecognition ROI lives in `assets/resource_adb/pipeline/CreditShopping/IconRecognitionRoi.json`, cloud color thresholds in `assets/resource_cloud/pipeline/CreditShopping/Item.json`. Neither the Pipeline nor Go pins a ROI, so region changes belong in those resource overrides.
 
@@ -123,7 +124,7 @@ The fallback after all three tiers fail to match is determined by `CreditShoppin
 | Strategy | Behavior |
 | ---------------- | ------------------------------------------------------------ |
 | Exit | Do not purchase any item, do not refresh, end directly |
-| Buy any item | Purchase any affordable, not sold-out item; before confirm, `BuyItemBelowReserve` checks reserve via "held − price", and cancels/stops if insufficient |
+| Buy any item | Purchase any affordable item (sold-out cards are not recognized); before confirm, `BuyItemBelowReserve` checks reserve via "held − price", and cancels/stops if insufficient |
 | Strictly buy by whitelist and enable refresh | Attempt to refresh the shelf; can expand to "Prudent refresh" and "Check price before direct buy" |
 
 **Prudent refresh**: If "Current credit − Refresh cost < Prudent refresh threshold" and there are still purchasable items on the shelf, then do not refresh, but directly purchase instead.

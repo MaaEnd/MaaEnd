@@ -1649,7 +1649,6 @@
                                         "param": {
                                             "all_of": [
                                                 "CreditShoppingShelfAnyItem",
-                                                "CreditShoppingShelfAnyNotSoldOut",
                                                 "CreditShoppingShelfAnyCanAfford"
                                             ],
                                             "box_index": 0
