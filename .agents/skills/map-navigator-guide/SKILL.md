@@ -258,7 +258,7 @@ TickStep run_navigate_steps(Navigator* nav, NavigateTick* tick)
 
 ### 保留的写法
 
-- 守卫结构体：只用来在退出时收尾，相当于 Rust 的 `Drop`。字段是要收尾的对象的指针，析构函数只有一行，名字写明退出时做什么：
+- 守卫结构体：只用来在退出时收尾，相当于 Rust 的 `Drop`。字段是要收尾的对象的指针，不设默认值；拿到要收尾的东西之后立刻创建，创建时一次写全所有字段，不先默认构造再赋值。析构函数只有一行，名字写明退出时做什么：
 
     ```cpp
     struct LeaveNavigationOnExit
@@ -268,6 +268,11 @@ TickStep run_navigate_steps(Navigator* nav, NavigateTick* tick)
 
         ~LeaveNavigationOnExit() { LeaveNavigation(navigating, tasker); }
     };
+
+    if (!TryEnterNavigation(&process->navigating, tasker)) {
+        return false;
+    }
+    const LeaveNavigationOnExit leave_on_exit { &process->navigating, tasker };
     ```
 
 - `sensing/roi_template_scanner` 自己持有工作线程，析构时停线程，保留类的写法。
