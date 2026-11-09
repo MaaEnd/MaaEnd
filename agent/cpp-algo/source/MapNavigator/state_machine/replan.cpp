@@ -4,7 +4,6 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
-#include <limits>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -141,7 +140,7 @@ bool give_up_unreachable_zipline(Navigator* nav, const char* reason)
     if (approach.anchor_index != anchor->first) {
         RetargetZiplineApproach(&approach, anchor->first);
     }
-    ++approach.replans;
+    CountZiplineApproachReplan(&approach);
     if (approach.replans <= kZiplineApproachReplanBudget) {
         return false;
     }
@@ -153,13 +152,8 @@ bool give_up_unreachable_zipline(Navigator* nav, const char* reason)
     return true;
 }
 
-bool try_replan_remaining_authored_route(Navigator* nav, const char* reason)
+std::optional<size_t> find_authored_slice_begin(const Navigator* nav, const std::vector<Waypoint>& authored, const char* reason)
 {
-    const std::vector<Waypoint>& authored = nav->param->authored_path;
-    if (authored.empty()) {
-        return false;
-    }
-
     size_t slice_begin = authored.size();
     for (size_t index = nav->session->current_node_idx; index < nav->session->current_path.size(); ++index) {
         const std::optional<size_t> canonical_index = CanonicalIndexAtCurrentPath(*nav->session, index);
@@ -175,9 +169,13 @@ bool try_replan_remaining_authored_route(Navigator* nav, const char* reason)
     if (slice_begin >= authored.size()) {
         LogWarn << "Authored route replan unavailable: no authored origin recorded past the current node." << VAR(reason)
                 << VAR(nav->session->current_node_idx) << VAR(nav->session->current_path.size());
-        return false;
+        return std::nullopt;
     }
+    return slice_begin;
+}
 
+NaviParam make_replan_param(const Navigator* nav, const std::vector<Waypoint>& authored, size_t slice_begin)
+{
     NaviParam replan_param = *nav->param;
     const HopLedger& ledger = nav->runtime_state.zipline_ride.ledger;
     const int32_t rope_failures = CountZiplineRopeFailures(ledger);
@@ -190,11 +188,29 @@ bool try_replan_remaining_authored_route(Navigator* nav, const char* reason)
     }
     replan_param.rope_off.insert(replan_param.rope_off.end(), nav->rope_off.begin(), nav->rope_off.end());
     replan_param.path.assign(authored.begin() + static_cast<std::ptrdiff_t>(slice_begin), authored.end());
+    return replan_param;
+}
+
+bool try_replan_remaining_authored_route(Navigator* nav, const char* reason)
+{
+    const std::vector<Waypoint>& authored = nav->param->authored_path;
+    if (authored.empty()) {
+        return false;
+    }
+
+    const std::optional<size_t> found_slice_begin = find_authored_slice_begin(nav, authored, reason);
+    if (!found_slice_begin) {
+        return false;
+    }
+    const size_t slice_begin = *found_slice_begin;
+
+    const NaviParam replan_param = make_replan_param(nav, authored, slice_begin);
     std::vector<Waypoint> replanned;
     const TimePoint expand_started_at = pause_for_planning(nav);
     const bool expanded = ExpandNavmeshWaypoints(
         &replanned,
         nullptr,
+        nav->zipline_outcome,
         replan_param,
         *nav->position,
         nav->maa_context,
@@ -208,11 +224,7 @@ bool try_replan_remaining_authored_route(Navigator* nav, const char* reason)
         return false;
     }
     // 展开出来的组首下标是切片内的偏移, 换算回完整作者路线
-    for (Waypoint& waypoint : replanned) {
-        if (waypoint.authored_group_begin != std::numeric_limits<size_t>::max()) {
-            waypoint.authored_group_begin += slice_begin;
-        }
-    }
+    OffsetAuthoredGroups(&replanned, slice_begin);
 
     ReplaceRoute(nav->session, std::move(replanned), *nav->position, reason);
     RestartRouteTracking(&nav->runtime_state.route);
@@ -325,6 +337,43 @@ bool TryVirtualNoGoReplan(
     return false;
 }
 
+namespace
+{
+
+std::optional<bool> rejoin_authored_route(Navigator* nav, bool on_tower, bool on_mesh, int64_t elapsed_ms)
+{
+    bool rejoined = try_replan_remaining_authored_route(nav, "zipline_recovery_reexpand");
+    if (!rejoined && on_tower) {
+        LogWarn << "Zipline recovery could not re-expand from the tower; stepping down to retry from the ground." << VAR(elapsed_ms)
+                << VAR(nav->position->x) << VAR(nav->position->y);
+        semantic_nodes::LeaveZiplineTower(nav);
+        BeginZiplineRecovery(&nav->runtime_state.zipline_recovery, std::chrono::steady_clock::now());
+        return true;
+    }
+    if (!rejoined && on_mesh) {
+        const TimePoint resolve_started_at = pause_for_planning(nav);
+        const std::optional<DynamicAnchor> anchor =
+            ResolveReachableNavmeshAnchor(*nav->param, *nav->session, *nav->position, nav->session->current_node_idx, "zipline_recovery");
+        resume_after_planning(nav, resolve_started_at);
+        if (anchor) {
+            rejoined = TryApplyDynamicOverlayToAnchor(nav, "zipline_recovery", anchor->first, anchor->second);
+        }
+    }
+    if (!rejoined) {
+        return FailNavigation(
+            nav,
+            "zipline_recovery_route_unavailable",
+            "Zipline recovery found no reachable point in the remaining route and could not re-expand the authored route; "
+            "refusing to follow the stale departure route.",
+            0.0,
+            0.0,
+            elapsed_ms);
+    }
+    return std::nullopt;
+}
+
+} // namespace
+
 bool HandleZiplineRecoveryReplan(Navigator* nav)
 {
     ZiplineRecoveryState& recovery = nav->runtime_state.zipline_recovery;
@@ -368,32 +417,8 @@ bool HandleZiplineRecoveryReplan(Navigator* nav)
     LogInfo << "Zipline recovery position stabilized." << VAR(elapsed_ms) << VAR(recovery.stable_hits) << VAR(nav->position->x)
             << VAR(nav->position->y) << VAR(nav->position->zone_id);
 
-    bool rejoined = try_replan_remaining_authored_route(nav, "zipline_recovery_reexpand");
-    if (!rejoined && on_tower) {
-        LogWarn << "Zipline recovery could not re-expand from the tower; stepping down to retry from the ground." << VAR(elapsed_ms)
-                << VAR(nav->position->x) << VAR(nav->position->y);
-        semantic_nodes::LeaveZiplineTower(nav);
-        BeginZiplineRecovery(&recovery, std::chrono::steady_clock::now());
-        return true;
-    }
-    if (!rejoined && on_mesh) {
-        const TimePoint resolve_started_at = pause_for_planning(nav);
-        const std::optional<DynamicAnchor> anchor =
-            ResolveReachableNavmeshAnchor(*nav->param, *nav->session, *nav->position, nav->session->current_node_idx, "zipline_recovery");
-        resume_after_planning(nav, resolve_started_at);
-        if (anchor) {
-            rejoined = TryApplyDynamicOverlayToAnchor(nav, "zipline_recovery", anchor->first, anchor->second);
-        }
-    }
-    if (!rejoined) {
-        return FailNavigation(
-            nav,
-            "zipline_recovery_route_unavailable",
-            "Zipline recovery found no reachable point in the remaining route and could not re-expand the authored route; "
-            "refusing to follow the stale departure route.",
-            0.0,
-            0.0,
-            elapsed_ms);
+    if (const std::optional<bool> done = rejoin_authored_route(nav, on_tower, on_mesh, elapsed_ms)) {
+        return *done;
     }
 
     recovery = {};

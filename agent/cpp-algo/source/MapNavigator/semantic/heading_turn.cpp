@@ -38,10 +38,7 @@ std::optional<HeadingTurnSteps> PlanHeadingTurn(const InputBackend& input_backen
 
 bool SendHeadingTurnStep(InputBackend* input_backend, sensitivity::SensitivityRun* sensitivity, const HeadingTurnSteps& turn, int step)
 {
-    int units = static_cast<int>(std::lround(turn.step_deg * TurnUnitsPerDegree(*input_backend, *sensitivity)));
-    if (units == 0) {
-        units = turn.step_deg > 0.0 ? 1 : -1;
-    }
+    const int units = YawUnitsAtLeastOne(*input_backend, *sensitivity, turn.step_deg);
     if (!SendYawDeltaAndNoteTurn(input_backend, sensitivity, units, 0)) {
         return false;
     }
@@ -86,7 +83,7 @@ void AlignCameraAndRecapture(Navigator* nav)
     }
     SleepFor(kWaitAfterFirstTurnMs);
 
-    const bool captured = CaptureTracked(nav->position_provider, nav->position, nav->session->current_zone_id);
+    const bool captured = CaptureTracked(CapturePartsOf(*nav), nav->position, nav->session->current_zone_id);
     LogInfo << "Camera aligned to navigation heading." << VAR(heading) << VAR(camera_before) << VAR(delta) << VAR(captured);
 }
 
@@ -97,7 +94,7 @@ bool CaptureStableHeading(Navigator* nav, double* out_heading)
         if (frame > 0) {
             SleepFor(kHeadingStableReadIntervalMs);
         }
-        if (!CaptureTracked(nav->position_provider, nav->position, nav->session->current_zone_id)) {
+        if (!CaptureTracked(CapturePartsOf(*nav), nav->position, nav->session->current_zone_id)) {
             previous.reset();
             continue;
         }

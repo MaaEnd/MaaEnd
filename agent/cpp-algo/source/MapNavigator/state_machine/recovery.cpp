@@ -74,6 +74,55 @@ void note_recovery_blocked(Navigator* nav, const char* reason)
     NoteFailure(&nav->failure_trail, std::chrono::steady_clock::now(), std::string("recovery blocked ") + reason);
 }
 
+void turn_toward_unstick_target(Navigator* nav, double target_heading)
+{
+    const double heading_delta = CalcDeltaRotation(nav->position->angle, target_heading);
+    HoldPosition(nav->motion_controller);
+    SleepFor(kStopWaitMs);
+    const int units = YawUnitsAtLeastOne(*nav->input_backend, nav->process->sensitivity, heading_delta);
+    SendYawDeltaAndNoteTurn(nav->input_backend, &nav->process->sensitivity, units, 0);
+}
+
+double pulse_forward_until_moved(Navigator* nav, const NaviPosition& step_start, double distance)
+{
+    double moved = 0.0;
+    for (int pulse = 0; pulse < kUnstickMaxPulses; ++pulse) {
+        PulseForwardSync(nav->input_backend, kUnstickPulseMs);
+        const bool captured = CaptureTrackedFix(nav);
+        if (!captured || nav->position_provider->last_capture_was_black_screen || !nav->position->valid) {
+            break;
+        }
+        moved = std::hypot(nav->position->x - step_start.x, nav->position->y - step_start.y);
+        if (moved >= distance * kUnstickSuccessFraction) {
+            break;
+        }
+    }
+    return moved;
+}
+
+void replan_after_unstick(Navigator* nav, double stuck_heading, const NaviPosition& step_start)
+{
+    // 禁区以位移前的位置为原点, 障碍在那里的前方
+    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(*nav->param, *nav->session, *nav->position);
+    bool replanned = false;
+    if (anchor) {
+        replanned = TryVirtualNoGoReplan(nav, "recovery_unstick_replan", anchor->first, anchor->second, step_start, stuck_heading);
+    }
+    if (!replanned) {
+        replanned = TryApplyDynamicOverlayToNextAnchor(nav, "recovery_unstick_replan");
+    }
+    if (replanned) {
+        ResetProgress(nav->session);
+        semantic_nodes::SelectPhaseOrFinishRoute(nav, "recovery_unstick_replan");
+        return;
+    }
+    ResetRouteTracking(&nav->runtime_state.route);
+    ClearDynamicReplanRequest(&nav->runtime_state);
+    MarkNavRunDirty(&nav->runtime_state);
+    ResetProgress(nav->session);
+    semantic_nodes::SelectPhaseOrFinishRoute(nav, "recovery_physical_unstick");
+}
+
 bool execute_physical_unstick(Navigator* nav, double stuck_heading)
 {
     LateralBypassState& unstick = nav->runtime_state.bypass;
@@ -95,28 +144,10 @@ bool execute_physical_unstick(Navigator* nav, double stuck_heading)
     }
 
     const double target_heading = CalcTargetRotation(nav->position->x, nav->position->y, target->x, target->y);
-    const double heading_delta = CalcDeltaRotation(nav->position->angle, target_heading);
-    HoldPosition(nav->motion_controller);
-    SleepFor(kStopWaitMs);
-    int units = static_cast<int>(std::lround(heading_delta * TurnUnitsPerDegree(*nav->input_backend, nav->process->sensitivity)));
-    if (units == 0) {
-        units = heading_delta > 0.0 ? 1 : -1;
-    }
-    SendYawDeltaAndNoteTurn(nav->input_backend, &nav->process->sensitivity, units, 0);
+    turn_toward_unstick_target(nav, target_heading);
 
     const NaviPosition step_start = *nav->position;
-    double moved = 0.0;
-    for (int pulse = 0; pulse < kUnstickMaxPulses; ++pulse) {
-        PulseForwardSync(nav->input_backend, kUnstickPulseMs);
-        const bool captured = CaptureTrackedFix(nav);
-        if (!captured || nav->position_provider->last_capture_was_black_screen || !nav->position->valid) {
-            break;
-        }
-        moved = std::hypot(nav->position->x - step_start.x, nav->position->y - step_start.y);
-        if (moved >= distance * kUnstickSuccessFraction) {
-            break;
-        }
-    }
+    const double moved = pulse_forward_until_moved(nav, step_start, distance);
     HoldPosition(nav->motion_controller);
     ++unstick.count;
     const bool dislodged = moved >= distance * kUnstickSuccessFraction;
@@ -127,25 +158,7 @@ bool execute_physical_unstick(Navigator* nav, double stuck_heading)
         nav->runtime_state.recovery_escalation.jump_attempt_count = 0;
     }
 
-    // 禁区以位移前的位置为原点, 障碍在那里的前方
-    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(*nav->param, *nav->session, *nav->position);
-    bool replanned = false;
-    if (anchor) {
-        replanned = TryVirtualNoGoReplan(nav, "recovery_unstick_replan", anchor->first, anchor->second, step_start, stuck_heading);
-    }
-    if (!replanned) {
-        replanned = TryApplyDynamicOverlayToNextAnchor(nav, "recovery_unstick_replan");
-    }
-    if (replanned) {
-        ResetProgress(nav->session);
-        semantic_nodes::SelectPhaseOrFinishRoute(nav, "recovery_unstick_replan");
-        return true;
-    }
-    ResetRouteTracking(&nav->runtime_state.route);
-    ClearDynamicReplanRequest(&nav->runtime_state);
-    MarkNavRunDirty(&nav->runtime_state);
-    ResetProgress(nav->session);
-    semantic_nodes::SelectPhaseOrFinishRoute(nav, "recovery_physical_unstick");
+    replan_after_unstick(nav, stuck_heading, step_start);
     return true;
 }
 
@@ -201,17 +214,15 @@ bool escalate_past_jump(Navigator* nav, const NavigateTick& tick)
     return true;
 }
 
-bool climb_recovery_ladder(Navigator* nav, const NavigateTick& tick)
+std::optional<bool> run_device_removal_step(Navigator* nav, const NavigateTick& tick)
 {
-    const Waypoint& waypoint = tick.waypoint;
-    const RouteMeasurement& route = tick.route;
-    RecoveryEscalationState& escalation = nav->runtime_state.recovery_escalation;
     DeviceRemovalOutcome device_outcome = DeviceRemovalOutcome::NotAttempted;
-    if (escalation.device_attempt_count < kRecoveryDeviceAttempts && far_or_strict_target(tick.effective_progress, waypoint)) {
-        device_outcome = TryRemoveDevice(nav, route, waypoint);
+    if (nav->runtime_state.recovery_escalation.device_attempt_count < kRecoveryDeviceAttempts
+        && far_or_strict_target(tick.effective_progress, tick.waypoint)) {
+        device_outcome = TryRemoveDevice(nav, tick.route, tick.waypoint);
     }
     if (device_outcome != DeviceRemovalOutcome::NotAttempted) {
-        ++escalation.device_attempt_count;
+        ++nav->runtime_state.recovery_escalation.device_attempt_count;
         NoteFailure(
             &nav->failure_trail,
             std::chrono::steady_clock::now(),
@@ -231,6 +242,17 @@ bool climb_recovery_ladder(Navigator* nav, const NavigateTick& tick)
         }
         ExcludeFromStallClocks(nav->session, std::chrono::steady_clock::now() - cleanup_started_at);
         UpdateCurrentZone(nav->session, nav->position->zone_id);
+    }
+    return std::nullopt;
+}
+
+bool climb_recovery_ladder(Navigator* nav, const NavigateTick& tick)
+{
+    const Waypoint& waypoint = tick.waypoint;
+    const RouteMeasurement& route = tick.route;
+    RecoveryEscalationState& escalation = nav->runtime_state.recovery_escalation;
+    if (const std::optional<bool> done = run_device_removal_step(nav, tick)) {
+        return *done;
     }
 
     if (escalation.jump_attempt_count >= kRecoveryJumpAttemptsBeforeDetour) {
@@ -267,7 +289,7 @@ bool climb_recovery_ladder(Navigator* nav, const NavigateTick& tick)
 } // namespace
 
 // cross_track 不是有限值说明投影没算出来, 这时不启动看门狗
-TickStep CheckOffRouteWedge(Navigator* nav, const NavigateTick& tick)
+TickStep RunOffRouteWedge(Navigator* nav, const NavigateTick& tick)
 {
     const RouteMeasurement& route = tick.route;
     const bool watched =
@@ -302,10 +324,40 @@ TickStep CheckOffRouteWedge(Navigator* nav, const NavigateTick& tick)
     return TickStep::Next;
 }
 
+namespace
+{
+
+std::optional<TickStep> recovery_timeout_step(Navigator* nav, const NavigateTick& tick, const Waypoint& waypoint)
+{
+    const RouteMeasurement& route = tick.route;
+    // 用硬进度时钟计时, 每次小脱困都会重置 recovery.started_at
+    const int64_t recovery_elapsed_ms = HardStalledMs(*nav->session, tick.now);
+    const int64_t recovery_timeout_ms = far_or_strict_target(tick.effective_progress, waypoint)
+                                            ? kDynamicRecoveryTotalTimeoutMs
+                                            : kNearTargetRecoveryBudgetMs + kDynamicRecoveryTotalTimeoutMs;
+    if (recovery_elapsed_ms > recovery_timeout_ms) {
+        if (waypoint.action == ActionType::ZIPLINE) {
+            LogWarn << "Recovery timed out at a zipline tower; dropping the chain and walking." << VAR(recovery_elapsed_ms)
+                    << VAR(waypoint.x) << VAR(waypoint.y) << VAR(nav->position->x) << VAR(nav->position->y);
+            semantic_nodes::AbandonZipline(nav, "zipline_recovery_timeout", "stuck at the tower after recovery ran out");
+            return TickStep::EndTick;
+        }
+        return EndTickWith(FailNavigation(
+            nav,
+            "dynamic_recovery_timeout",
+            "Dynamic recovery timeout reached and navigation was terminated.",
+            route.progress_distance,
+            NormalizeAngle(route.route_heading - tick.fix.current_heading),
+            tick.stalled_ms));
+    }
+    return std::nullopt;
+}
+
+} // namespace
+
 TickStep RunObstacleRecovery(Navigator* nav, const NavigateTick& tick)
 {
     const Waypoint& waypoint = tick.waypoint;
-    const RouteMeasurement& route = tick.route;
     const bool forward_hold_futile = nav->runtime_state.flow.futile_forward_reasserts >= kForwardHoldFutileReassertsBeforeRecovery;
     const bool pinned_without_own_fallback = forward_hold_futile && tick.stalled_ms >= kObstacleRecoveryMinTriggerMs
                                              && !StopsOnPromptDetection(waypoint) && waypoint.action != ActionType::ZIPLINE;
@@ -338,24 +390,8 @@ TickStep RunObstacleRecovery(Navigator* nav, const NavigateTick& tick)
         }
     }
 
-    // 用硬进度时钟计时, 每次小脱困都会重置 recovery.started_at
-    const int64_t recovery_elapsed_ms = HardStalledMs(*nav->session, tick.now);
-    const int64_t recovery_timeout_ms =
-        far_or_strict ? kDynamicRecoveryTotalTimeoutMs : kNearTargetRecoveryBudgetMs + kDynamicRecoveryTotalTimeoutMs;
-    if (recovery_elapsed_ms > recovery_timeout_ms) {
-        if (waypoint.action == ActionType::ZIPLINE) {
-            LogWarn << "Recovery timed out at a zipline tower; dropping the chain and walking." << VAR(recovery_elapsed_ms)
-                    << VAR(waypoint.x) << VAR(waypoint.y) << VAR(nav->position->x) << VAR(nav->position->y);
-            semantic_nodes::AbandonZipline(nav, "zipline_recovery_timeout", "stuck at the tower after recovery ran out");
-            return TickStep::EndTick;
-        }
-        return EndTickWith(FailNavigation(
-            nav,
-            "dynamic_recovery_timeout",
-            "Dynamic recovery timeout reached and navigation was terminated.",
-            route.progress_distance,
-            NormalizeAngle(route.route_heading - tick.fix.current_heading),
-            tick.stalled_ms));
+    if (const std::optional<TickStep> step = recovery_timeout_step(nav, tick, waypoint)) {
+        return *step;
     }
 
     const bool retry_cooling_down = recovery.last_replan_at.time_since_epoch().count() > 0

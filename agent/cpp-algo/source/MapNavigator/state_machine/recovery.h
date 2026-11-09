@@ -7,7 +7,7 @@ struct Navigator;
 struct NavigateTick;
 enum class TickStep;
 
-TickStep CheckOffRouteWedge(Navigator* nav, const NavigateTick& tick);
+TickStep RunOffRouteWedge(Navigator* nav, const NavigateTick& tick);
 TickStep RunObstacleRecovery(Navigator* nav, const NavigateTick& tick);
 
 } // namespace mapnavigator

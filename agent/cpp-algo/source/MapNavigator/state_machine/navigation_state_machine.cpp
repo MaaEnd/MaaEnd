@@ -54,7 +54,7 @@ TickStep conclude_semantic_step(Navigator* nav, const semantic_nodes::Result& re
     }
     // 必须在下面的重规划分支之前, 那里会提前返回
     if (result.stay_in_current_tick) {
-        nav->runtime_state.dwell.last_usable = {};
+        ForgetDwellSample(&nav->runtime_state.dwell);
     }
     if (nav->runtime_state.dynamic_replan_requested) {
         return EndTickWith(
@@ -144,7 +144,7 @@ TickStep run_navigate_steps(Navigator* nav, NavigateTick* tick)
     if (step != TickStep::Next) {
         return step;
     }
-    step = CheckDwellWatchdog(nav);
+    step = RunDwellWatchdog(nav);
     if (step != TickStep::Next) {
         return step;
     }
@@ -157,7 +157,7 @@ TickStep run_navigate_steps(Navigator* nav, NavigateTick* tick)
         return step;
     }
     TrackRoute(nav, tick);
-    step = CheckRouteProgress(nav, tick);
+    step = RunRouteProgress(nav, tick);
     if (step != TickStep::Next) {
         return step;
     }
@@ -175,7 +175,7 @@ TickStep run_navigate_steps(Navigator* nav, NavigateTick* tick)
     if (step != TickStep::Next) {
         return step;
     }
-    step = CheckOffRouteWedge(nav, *tick);
+    step = RunOffRouteWedge(nav, *tick);
     if (step != TickStep::Next) {
         return step;
     }
@@ -204,6 +204,7 @@ Navigator MakeNavigator(
     Motion* motion_controller,
     NaviPosition* position,
     NavProcessState* process,
+    ZiplineOutcome* zipline_outcome,
     MaaContext* maa_context)
 {
     return Navigator {
@@ -214,6 +215,7 @@ Navigator MakeNavigator(
         .motion_controller = motion_controller,
         .position = position,
         .process = process,
+        .zipline_outcome = zipline_outcome,
         .maa_context = maa_context,
         .collect_prompt = MakeAsyncPromptAction(kCollectPromptSpec),
         .interact_prompt = MakeAsyncPromptAction(kInteractPromptSpec),
@@ -221,9 +223,19 @@ Navigator MakeNavigator(
     };
 }
 
+CaptureParts CapturePartsOf(const Navigator& nav)
+{
+    return {
+        .sensor = nav.position_provider,
+        .frame_sinks = nav.frame_sinks ? &*nav.frame_sinks : nullptr,
+        .latency = &nav.process->latency,
+        .normalize_param = nav.param->normalize_position_via_navmesh ? nav.param : nullptr,
+    };
+}
+
 bool RunNavigator(Navigator* nav)
 {
-    latency::BeginRun();
+    latency::BeginRun(&nav->process->latency);
 
     if (!Bootstrap(nav)) {
         HoldPosition(nav->motion_controller);
@@ -308,7 +320,7 @@ bool ResumeAfterEscape(Navigator* nav, const char* reason)
 {
     ResetStallCounters(&nav->runtime_state.flow);
     ClearDynamicRecovery(&nav->runtime_state.recovery);
-    nav->runtime_state.recovery_escalation = {};
+    ResetRecoveryEscalation(&nav->runtime_state.recovery_escalation);
     ResetRouteTracking(&nav->runtime_state.route);
     ClearDynamicReplanRequest(&nav->runtime_state);
     MarkNavRunDirty(&nav->runtime_state);

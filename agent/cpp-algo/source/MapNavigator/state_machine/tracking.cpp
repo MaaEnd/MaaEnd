@@ -246,6 +246,22 @@ TickStep pass_arrived_waypoints(Navigator* nav, NavigateTick* tick)
     return TickStep::Next;
 }
 
+std::optional<TickStep> end_on_recovery_escape(Navigator* nav)
+{
+    if (nav->runtime_state.recovery.active) {
+        const bool recovery_zone_changed =
+            ZonesDifferInGeometry(*nav->param, nav->runtime_state.recovery.anchor_pos.zone_id, nav->position->zone_id);
+        const double recovery_displacement = std::hypot(
+            nav->position->x - nav->runtime_state.recovery.anchor_pos.x,
+            nav->position->y - nav->runtime_state.recovery.anchor_pos.y);
+        if (recovery_zone_changed || recovery_displacement >= kDynamicRecoveryResetDistance) {
+            LogInfo << "Dynamic recovery escaped obstacle." << VAR(recovery_zone_changed) << VAR(recovery_displacement);
+            return EndTickWith(ResumeAfterEscape(nav, "recovery_escape"));
+        }
+    }
+    return std::nullopt;
+}
+
 } // namespace
 
 double EffectiveRouteHeading(const NavRunTickResult& nav_run_result, const RouteMeasurement& route)
@@ -266,7 +282,7 @@ void TrackRoute(Navigator* nav, NavigateTick* tick)
     consume_corridor_passed_waypoints(nav, tick);
 }
 
-TickStep CheckRouteProgress(Navigator* nav, NavigateTick* tick)
+TickStep RunRouteProgress(Navigator* nav, NavigateTick* tick)
 {
     const RouteMeasurement& route = tick->route;
     const NavRunTickResult& nav_run_result = tick->nav_run_result;
@@ -276,16 +292,8 @@ TickStep CheckRouteProgress(Navigator* nav, NavigateTick* tick)
     if (nav_run_result.replanned_with == NavRunReplanReason::OffCorridor) {
         ResetProgress(nav->session);
     }
-    if (nav->runtime_state.recovery.active) {
-        const bool recovery_zone_changed =
-            ZonesDifferInGeometry(*nav->param, nav->runtime_state.recovery.anchor_pos.zone_id, nav->position->zone_id);
-        const double recovery_displacement = std::hypot(
-            nav->position->x - nav->runtime_state.recovery.anchor_pos.x,
-            nav->position->y - nav->runtime_state.recovery.anchor_pos.y);
-        if (recovery_zone_changed || recovery_displacement >= kDynamicRecoveryResetDistance) {
-            LogInfo << "Dynamic recovery escaped obstacle." << VAR(recovery_zone_changed) << VAR(recovery_displacement);
-            return EndTickWith(ResumeAfterEscape(nav, "recovery_escape"));
-        }
+    if (const std::optional<TickStep> step = end_on_recovery_escape(nav)) {
+        return *step;
     }
     tick->stalled_ms = StalledMs(*nav->session, tick->now);
     UpdateDeviceFeeding(

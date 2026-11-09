@@ -48,31 +48,13 @@ bool read_scan_thresholds(
     return true;
 }
 
-bool load_scan_icon(
+bool accept_scan_icon(
     const std::string& scan_node,
     const std::string& relative_path,
     const std::filesystem::path& resolved,
-    double threshold,
-    bool green_mask,
     const cv::Rect& base_roi,
-    ScanIcon* out)
+    const ScanIcon& icon)
 {
-    // 纯绿像素不参与匹配, 与 pipeline 的 TemplateMatch 一致
-    ScanIcon icon { .threshold = threshold };
-    if (green_mask) {
-        const cv::Mat color = MAA_NS::imread(resolved, cv::IMREAD_COLOR);
-        if (!color.empty()) {
-            cv::inRange(color, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0), icon.mask);
-            icon.mask = ~icon.mask;
-            if (cv::countNonZero(icon.mask) == icon.mask.rows * icon.mask.cols) {
-                icon.mask.release();
-            }
-            cv::cvtColor(color, icon.templ, cv::COLOR_BGR2GRAY);
-        }
-    }
-    else {
-        icon.templ = MAA_NS::imread(resolved, cv::IMREAD_GRAYSCALE);
-    }
     if (icon.templ.empty()) {
         LogError << "Prompt scan template failed to decode." << VAR(scan_node)
                  << VAR_AS(MAA_NS::path_to_utf8_string(*resolved), MAA_NS::path_to_utf8_string(resolved));
@@ -82,6 +64,48 @@ bool load_scan_icon(
     if (icon.templ.cols > base_roi.width || icon.templ.rows > base_roi.height) {
         LogError << "Prompt scan template is larger than its roi." << VAR(scan_node) << VAR(relative_path) << VAR(icon.templ.cols)
                  << VAR(icon.templ.rows) << VAR(base_roi.width) << VAR(base_roi.height);
+        return false;
+    }
+    return true;
+}
+
+bool load_scan_icon_gray(
+    const std::string& scan_node,
+    const std::string& relative_path,
+    const std::filesystem::path& resolved,
+    double threshold,
+    const cv::Rect& base_roi,
+    ScanIcon* out)
+{
+    ScanIcon icon { .threshold = threshold };
+    icon.templ = MAA_NS::imread(resolved, cv::IMREAD_GRAYSCALE);
+    if (!accept_scan_icon(scan_node, relative_path, resolved, base_roi, icon)) {
+        return false;
+    }
+    *out = std::move(icon);
+    return true;
+}
+
+bool load_scan_icon_green_masked(
+    const std::string& scan_node,
+    const std::string& relative_path,
+    const std::filesystem::path& resolved,
+    double threshold,
+    const cv::Rect& base_roi,
+    ScanIcon* out)
+{
+    // 纯绿像素不参与匹配, 与 pipeline 的 TemplateMatch 一致
+    ScanIcon icon { .threshold = threshold };
+    const cv::Mat color = MAA_NS::imread(resolved, cv::IMREAD_COLOR);
+    if (!color.empty()) {
+        cv::inRange(color, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0), icon.mask);
+        icon.mask = ~icon.mask;
+        if (cv::countNonZero(icon.mask) == icon.mask.rows * icon.mask.cols) {
+            icon.mask.release();
+        }
+        cv::cvtColor(color, icon.templ, cv::COLOR_BGR2GRAY);
+    }
+    if (!accept_scan_icon(scan_node, relative_path, resolved, base_roi, icon)) {
         return false;
     }
     *out = std::move(icon);
@@ -149,7 +173,9 @@ bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node,
         }
         ScanIcon icon;
         const double threshold = thresholds.size() == 1 ? thresholds.front() : thresholds[i];
-        if (!load_scan_icon(scan_node, relative_path, *resolved, threshold, green_mask, base_roi, &icon)) {
+        const bool loaded = green_mask ? load_scan_icon_green_masked(scan_node, relative_path, *resolved, threshold, base_roi, &icon)
+                                       : load_scan_icon_gray(scan_node, relative_path, *resolved, threshold, base_roi, &icon);
+        if (!loaded) {
             return false;
         }
         resolved_paths.push_back(MAA_NS::path_to_utf8_string(*resolved));

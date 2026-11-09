@@ -16,9 +16,6 @@ namespace latency
 namespace
 {
 
-std::mutex g_mutex;
-Detector g_detector;
-
 int64_t stage_ms(const Verdict& verdict, Stage stage)
 {
     return verdict.stage_median_ms[static_cast<std::size_t>(stage)];
@@ -44,24 +41,24 @@ void emit(MaaContext* context, const Verdict& verdict)
 
 } // namespace
 
-void BeginRun()
+void BeginRun(LatencyRun* run)
 {
-    const std::lock_guard<std::mutex> guard(g_mutex);
-    BeginDetectorRun(&g_detector);
+    const std::lock_guard<std::mutex> guard(run->mutex);
+    BeginDetectorRun(&run->detector);
 }
 
-void RecordStage(Stage stage, int64_t elapsed_ms)
+void RecordStage(LatencyRun* run, Stage stage, int64_t elapsed_ms)
 {
-    const std::lock_guard<std::mutex> guard(g_mutex);
-    RecordDetectorStage(&g_detector, stage, elapsed_ms);
+    const std::lock_guard<std::mutex> guard(run->mutex);
+    RecordDetectorStage(&run->detector, stage, elapsed_ms);
 }
 
-void RecordTick(MaaContext* context, uint64_t tick_seq, int64_t tick_gap_ms)
+void RecordTick(LatencyRun* run, MaaContext* context, uint64_t tick_seq, int64_t tick_gap_ms)
 {
     std::optional<Verdict> verdict;
     {
-        const std::lock_guard<std::mutex> guard(g_mutex);
-        verdict = RecordDetectorTick(&g_detector, tick_seq, tick_gap_ms);
+        const std::lock_guard<std::mutex> guard(run->mutex);
+        verdict = RecordDetectorTick(&run->detector, tick_seq, tick_gap_ms);
     }
     if (verdict) {
         emit(context, *verdict);

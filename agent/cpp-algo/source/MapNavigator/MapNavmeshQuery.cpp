@@ -169,20 +169,19 @@ json::object build_zones(const navmesh::BaseNavPack& pack)
     return json::object { { "ok", true }, { "zones", std::move(zones) } };
 }
 
-json::object build_mesh(const QueryContext& context, uint16_t zone_id, const std::string& out_file)
+struct MeshBlob
 {
-    if (out_file.empty()) {
-        return fail("mesh 需要 out_file");
-    }
-    const navmesh::BaseNavZone* zone = context.pack.findZone(context.pack.geometryZoneId(zone_id));
-    if (zone == nullptr || zone->triangle_count == 0) {
-        return fail("该区无三角面");
-    }
+    std::vector<uint8_t> bytes;
+    uint32_t vertex_count = 0;
+    uint32_t triangle_count = 0;
+};
 
-    const auto& triangles = context.pack.triangles();
-    const auto& vertices = context.pack.vertices();
-    const uint32_t first = zone->first_triangle;
-    const uint32_t count = zone->triangle_count;
+MeshBlob serialize_mesh(const navmesh::BaseNavPack& pack, const navmesh::BaseNavZone& zone)
+{
+    const auto& triangles = pack.triangles();
+    const auto& vertices = pack.vertices();
+    const uint32_t first = zone.first_triangle;
+    const uint32_t count = zone.triangle_count;
 
     std::vector<uint32_t> refs;
     refs.reserve(static_cast<size_t>(count) * 3);
@@ -220,21 +219,43 @@ json::object build_mesh(const QueryContext& context, uint16_t zone_id, const std
         cursor += 4;
     }
 
+    return MeshBlob { .bytes = std::move(blob), .vertex_count = vertex_count, .triangle_count = count };
+}
+
+std::optional<std::string> write_mesh_file(const std::string& out_file, const std::vector<uint8_t>& bytes)
+{
     std::ofstream out(MAA_NS::path(out_file), std::ios::binary);
     if (!out.is_open()) {
-        return fail("写不开 " + out_file);
+        return "写不开 " + out_file;
     }
-    out.write(reinterpret_cast<const char*>(blob.data()), static_cast<std::streamsize>(blob.size()));
+    out.write(reinterpret_cast<const char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
     out.close();
     if (!out) {
-        return fail("写入失败 " + out_file);
+        return "写入失败 " + out_file;
+    }
+    return std::nullopt;
+}
+
+json::object build_mesh(const QueryContext& context, uint16_t zone_id, const std::string& out_file)
+{
+    if (out_file.empty()) {
+        return fail("mesh 需要 out_file");
+    }
+    const navmesh::BaseNavZone* zone = context.pack.findZone(context.pack.geometryZoneId(zone_id));
+    if (zone == nullptr || zone->triangle_count == 0) {
+        return fail("该区无三角面");
+    }
+
+    const MeshBlob blob = serialize_mesh(context.pack, *zone);
+    if (const std::optional<std::string> error = write_mesh_file(out_file, blob.bytes)) {
+        return fail(*error);
     }
 
     return json::object { { "ok", true },
                           { "path", out_file },
-                          { "bytes", blob.size() },
-                          { "vertex_count", vertex_count },
-                          { "triangle_count", count } };
+                          { "bytes", blob.bytes.size() },
+                          { "vertex_count", blob.vertex_count },
+                          { "triangle_count", blob.triangle_count } };
 }
 
 // 吸得上时返回空, 吸不上才给最近网格点
@@ -557,36 +578,25 @@ json::object diagnostic_to_json(const mapnavigator::NavmeshRouteDiagnostic& diag
     };
 }
 
-json::object build_route_preview(const QueryParam& query)
+void fill_preview_param(mapnavigator::NaviParam* param, const QueryParam& query)
 {
-    if (query.position.size() < 2 || query.position_zone.empty()) {
-        return fail("route_preview 需要 position=[x,y] 与 position_zone");
-    }
-    if (!query.custom_action_param.is_object()) {
-        return fail("route_preview 的 custom_action_param 必须是对象");
-    }
-
-    mapnavigator::NaviParam param;
-    if (!mapnavigator::TryParseNaviParam(&param, query.custom_action_param, "MapNavmeshQuery route_preview")) {
-        return fail("custom_action_param 解析失败");
-    }
-    if (param.path.empty()) {
-        return fail("route_preview 的 path 不能为空");
-    }
-    param.navmesh_file = query.navmesh_file;
-    param.normalize_position_via_navmesh = true;
-    param.rope_interact_text = query.rope_interact_text;
-    if (param.zipline_enabled) {
+    param->navmesh_file = query.navmesh_file;
+    param->normalize_position_via_navmesh = true;
+    param->rope_interact_text = query.rope_interact_text;
+    if (param->zipline_enabled) {
         // 仅开发工具用的查询字段, 正式运行只认当前游戏 UID
-        param.zipline_account_id = query.zipline_account_id;
-        if (param.zipline_account_id.empty()) {
+        param->zipline_account_id = query.zipline_account_id;
+        if (param->zipline_account_id.empty()) {
             zipline::ZiplineStore store;
             if (store.load(zipline::ZiplineStore::DefaultPath())) {
-                param.zipline_account_id = store.latestAccountId();
+                param->zipline_account_id = store.latestAccountId();
             }
         }
     }
+}
 
+mapnavigator::NaviPosition preview_start_position(const QueryParam& query, const mapnavigator::NaviParam& param)
+{
     mapnavigator::NaviPosition position {
         .x = query.position[0],
         .y = query.position[1],
@@ -595,55 +605,64 @@ json::object build_route_preview(const QueryParam& query)
         .zone_id = query.position_zone,
     };
     mapnavigator::NormalizeLivePositionToBase(&position, param);
+    return position;
+}
 
-    mapnavigator::ResetZiplineOutcome();
-    std::vector<mapnavigator::Waypoint> expanded;
-    std::vector<mapnavigator::NavmeshRouteDiagnostic> diagnostics;
-    mapnavigator::NavmeshExpansionFailure failure;
-    if (!mapnavigator::ExpandNavmeshWaypoints(&expanded, &failure, param, position, nullptr, &diagnostics)) {
-        json::object result = fail(failure.message.empty() ? "路线展开失败" : failure.message);
-        json::object detail {
-            { "code", failure.code },
-            { "message", failure.message },
-            { "zone_id", failure.zone_id },
-            { "target_tier", failure.target_tier },
-            { "route_status", failure.route_status },
-            { "route_error", failure.route_error },
-        };
-        if (failure.authored_index) {
-            detail.emplace("authored_index", *failure.authored_index);
-        }
-        if (failure.segment_start) {
-            detail.emplace("segment_start", json::array { failure.segment_start->x, failure.segment_start->y });
-        }
-        if (failure.segment_goal) {
-            detail.emplace("segment_goal", json::array { failure.segment_goal->x, failure.segment_goal->y });
-        }
-        if (failure.gap_start) {
-            detail.emplace("gap_start", json::array { failure.gap_start->x, failure.gap_start->y });
-        }
-        if (failure.gap_goal) {
-            detail.emplace("gap_goal", json::array { failure.gap_goal->x, failure.gap_goal->y });
-        }
-        if (failure.gap_distance) {
-            detail.emplace("gap_distance", *failure.gap_distance);
-        }
-        if (failure.target) {
-            detail.emplace("target", json::array { failure.target->x, failure.target->y });
-        }
-        if (failure.target_deck_y) {
-            detail.emplace("target_deck_y", *failure.target_deck_y);
-        }
-        result.emplace("failure", std::move(detail));
-        return result;
+json::object expansion_failure_json(const mapnavigator::NavmeshExpansionFailure& failure)
+{
+    json::object result = fail(failure.message.empty() ? "路线展开失败" : failure.message);
+    json::object detail {
+        { "code", failure.code },
+        { "message", failure.message },
+        { "zone_id", failure.zone_id },
+        { "target_tier", failure.target_tier },
+        { "route_status", failure.route_status },
+        { "route_error", failure.route_error },
+    };
+    if (failure.authored_index) {
+        detail.emplace("authored_index", *failure.authored_index);
     }
+    if (failure.segment_start) {
+        detail.emplace("segment_start", json::array { failure.segment_start->x, failure.segment_start->y });
+    }
+    if (failure.segment_goal) {
+        detail.emplace("segment_goal", json::array { failure.segment_goal->x, failure.segment_goal->y });
+    }
+    if (failure.gap_start) {
+        detail.emplace("gap_start", json::array { failure.gap_start->x, failure.gap_start->y });
+    }
+    if (failure.gap_goal) {
+        detail.emplace("gap_goal", json::array { failure.gap_goal->x, failure.gap_goal->y });
+    }
+    if (failure.gap_distance) {
+        detail.emplace("gap_distance", *failure.gap_distance);
+    }
+    if (failure.target) {
+        detail.emplace("target", json::array { failure.target->x, failure.target->y });
+    }
+    if (failure.target_deck_y) {
+        detail.emplace("target_deck_y", *failure.target_deck_y);
+    }
+    result.emplace("failure", std::move(detail));
+    return result;
+}
 
+struct PreviewSegments
+{
+    std::vector<navmesh::WorldPoint> points;
+    json::array walk_segments;
+    json::array zipline_segments;
+    json::array rope_segments;
+    std::string error;
+};
+
+PreviewSegments collect_preview_segments(const std::vector<mapnavigator::Waypoint>& expanded, const navmesh::WorldPoint& start)
+{
     std::vector<navmesh::WorldPoint> all_points;
     std::vector<navmesh::WorldPoint> current_walk;
     json::array walk_segments;
     json::array zipline_segments;
     json::array rope_segments;
-    const navmesh::WorldPoint start { .x = position.x, .y = position.y };
     append_distinct(&all_points, start);
     append_distinct(&current_walk, start);
 
@@ -671,7 +690,7 @@ json::object build_route_preview(const QueryParam& query)
             continue;
         }
         if (!waypoint.zipline_hop) {
-            return fail("滑索展开结果缺少下索点");
+            return PreviewSegments { .error = "滑索展开结果缺少下索点" };
         }
 
         flush_walk(&current_walk, &walk_segments);
@@ -698,18 +717,61 @@ json::object build_route_preview(const QueryParam& query)
     }
     flush_walk(&current_walk, &walk_segments);
 
+    return PreviewSegments {
+        .points = std::move(all_points),
+        .walk_segments = std::move(walk_segments),
+        .zipline_segments = std::move(zipline_segments),
+        .rope_segments = std::move(rope_segments),
+    };
+}
+
+json::object build_route_preview(const QueryParam& query)
+{
+    if (query.position.size() < 2 || query.position_zone.empty()) {
+        return fail("route_preview 需要 position=[x,y] 与 position_zone");
+    }
+    if (!query.custom_action_param.is_object()) {
+        return fail("route_preview 的 custom_action_param 必须是对象");
+    }
+
+    mapnavigator::NaviParam param;
+    if (!mapnavigator::TryParseNaviParam(&param, query.custom_action_param, "MapNavmeshQuery route_preview")) {
+        return fail("custom_action_param 解析失败");
+    }
+    if (param.path.empty()) {
+        return fail("route_preview 的 path 不能为空");
+    }
+    fill_preview_param(&param, query);
+
+    const mapnavigator::NaviPosition position = preview_start_position(query, param);
+
+    mapnavigator::ZiplineOutcome* zipline_outcome = mapnavigator::ThreadZiplineOutcome();
+    *zipline_outcome = {};
+    std::vector<mapnavigator::Waypoint> expanded;
+    std::vector<mapnavigator::NavmeshRouteDiagnostic> diagnostics;
+    mapnavigator::NavmeshExpansionFailure failure;
+    if (!mapnavigator::ExpandNavmeshWaypoints(&expanded, &failure, zipline_outcome, param, position, nullptr, &diagnostics)) {
+        return expansion_failure_json(failure);
+    }
+
+    const navmesh::WorldPoint start { .x = position.x, .y = position.y };
+    PreviewSegments segments = collect_preview_segments(expanded, start);
+    if (!segments.error.empty()) {
+        return fail(segments.error);
+    }
+
     json::array diagnostic_items;
     for (const mapnavigator::NavmeshRouteDiagnostic& diagnostic : diagnostics) {
         diagnostic_items.emplace_back(diagnostic_to_json(diagnostic));
     }
 
-    const mapnavigator::ZiplineOutcome outcome = mapnavigator::CurrentZiplineOutcome();
+    const mapnavigator::ZiplineOutcome outcome = *zipline_outcome;
     return json::object {
         { "ok", true },
-        { "points", points_to_json(all_points) },
-        { "walk_segments", std::move(walk_segments) },
-        { "zipline_segments", std::move(zipline_segments) },
-        { "rope_segments", std::move(rope_segments) },
+        { "points", points_to_json(segments.points) },
+        { "walk_segments", std::move(segments.walk_segments) },
+        { "zipline_segments", std::move(segments.zipline_segments) },
+        { "rope_segments", std::move(segments.rope_segments) },
         { "diagnostics", std::move(diagnostic_items) },
         { "expanded_waypoints", expanded.size() },
         { "zipline",

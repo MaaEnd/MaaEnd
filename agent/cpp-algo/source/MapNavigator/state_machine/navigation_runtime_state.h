@@ -80,6 +80,10 @@ struct TransferWaitState
     int moved_reads = 0;
 };
 
+void BeginTransferWait(TransferWaitState* transfer, const NaviPosition& anchor, TimePoint started);
+
+void ClearTransferWait(TransferWaitState* transfer);
+
 enum class PortalTransitPhase
 {
     Idle,
@@ -95,12 +99,18 @@ struct PortalTransitState
 
 bool IsPortalTransitActive(const PortalTransitState& portal);
 
+void BeginPortalTransit(PortalTransitState* portal, TimePoint started);
+
+void EndPortalTransit(PortalTransitState* portal);
+
 struct RopeRideState
 {
     std::chrono::steady_clock::time_point started {};
     int64_t ride_ms = 0;
     int stable_reads = 0;
 };
+
+void BeginRopeRide(RopeRideState* rope, int64_t ride_ms, TimePoint started);
 
 struct SemanticState
 {
@@ -155,6 +165,8 @@ struct RecoveryEscalationState
 };
 
 void RetargetRecoveryEscalation(RecoveryEscalationState* escalation, size_t anchor);
+
+void ResetRecoveryEscalation(RecoveryEscalationState* escalation);
 
 struct LocalizationLossState
 {
@@ -257,6 +269,8 @@ struct DwellWatchdogState
     std::chrono::steady_clock::time_point last_usable {};
 };
 
+void ForgetDwellSample(DwellWatchdogState* dwell);
+
 struct ProgressIdentityState
 {
     static constexpr size_t kSerialKeyBias = std::numeric_limits<size_t>::max() / 2;
@@ -281,6 +295,8 @@ void RetargetZiplineApproach(ZiplineApproachState* approach, size_t anchor);
 
 // 游标只对 spot_tower 那根架子有效, 换了架子从头试
 void FollowMountTower(ZiplineApproachState* approach, const ZiplineNodeRef& mount);
+
+void CountZiplineApproachReplan(ZiplineApproachState* approach);
 
 // 到点认空过一次的交互点, 身份记 canonical 下标
 struct InteractApproachState

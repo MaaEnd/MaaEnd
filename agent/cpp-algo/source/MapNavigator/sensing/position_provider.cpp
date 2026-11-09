@@ -109,47 +109,79 @@ void fill_position(
     out_pos->timestamp = captured_at;
 }
 
-bool capture_with(PositionSensor* sensor, NaviPosition* out_pos, maplocator::LocateOptions options, HeadingSource heading_source)
+struct CaptureTimes
+{
+    TimePoint started_at {};
+    TimePoint screencap_done_at {};
+    TimePoint image_prep_done_at {};
+    TimePoint locate_done_at {};
+};
+
+struct ScreenFrame
+{
+    std::optional<ScopedImageBuffer> buffer;
+    cv::Mat image;
+};
+
+bool grab_screen_frame(PositionSensor* sensor, bool precise_position, ScreenFrame* frame, CaptureTimes* times)
+{
+    if (!wait_for_screencap(*sensor)) {
+        return false;
+    }
+    frame->buffer.emplace();
+
+    if (!MaaControllerCachedImage(sensor->controller, frame->buffer->Get()) || MaaImageBufferIsEmpty(frame->buffer->Get())) {
+        return false;
+    }
+    times->screencap_done_at = std::chrono::steady_clock::now();
+
+    frame->image = to_mat(frame->buffer->Get());
+    sensor->last_capture_was_black_screen = is_black_screen(frame->image);
+    if (precise_position && sensor->last_capture_was_black_screen) {
+        sensor->last_locate_message = "black screen";
+        return false;
+    }
+    return true;
+}
+
+void record_locate_latency(latency::LatencyRun* latency, const CaptureTimes& times)
+{
+    latency::RecordStage(latency, latency::Stage::Screencap, ElapsedMs(times.started_at, times.screencap_done_at));
+    latency::RecordStage(latency, latency::Stage::ImagePrep, ElapsedMs(times.screencap_done_at, times.image_prep_done_at));
+    latency::RecordStage(latency, latency::Stage::Locate, ElapsedMs(times.image_prep_done_at, times.locate_done_at));
+}
+
+bool capture_with(const CaptureParts& parts, NaviPosition* out_pos, maplocator::LocateOptions options, HeadingSource heading_source)
 {
     if (out_pos == nullptr) {
         return false;
     }
 
+    PositionSensor* sensor = parts.sensor;
     out_pos->valid = false;
     sensor->last_capture_was_black_screen = false;
     sensor->last_capture_minimap_absent = false;
     sensor->last_locate_message = "screencap failed";
-    const auto capture_started_at = std::chrono::steady_clock::now();
+    CaptureTimes times;
+    times.started_at = std::chrono::steady_clock::now();
 
-    if (!wait_for_screencap(*sensor)) {
+    ScreenFrame frame;
+    if (!grab_screen_frame(sensor, options.precise_position, &frame, &times)) {
         return false;
     }
-    ScopedImageBuffer buffer;
-
-    if (!MaaControllerCachedImage(sensor->controller, buffer.Get()) || MaaImageBufferIsEmpty(buffer.Get())) {
-        return false;
-    }
-    const auto screencap_done_at = std::chrono::steady_clock::now();
-
-    cv::Mat image = to_mat(buffer.Get());
-    sensor->last_capture_was_black_screen = is_black_screen(image);
-    if (options.precise_position && sensor->last_capture_was_black_screen) {
-        sensor->last_locate_message = "black screen";
-        return false;
-    }
-    if (sensor->frame_sinks.has_value()) {
-        SubmitFrameToSinks(*sensor->frame_sinks, image);
+    if (parts.frame_sinks != nullptr) {
+        SubmitFrameToSinks(*parts.frame_sinks, frame.image);
     }
     cv::Mat minimap;
-    if (!maplocator::TryExtractMinimap(image, sensor->adb_like_controller, &minimap)) {
+    if (!maplocator::TryExtractMinimap(frame.image, sensor->adb_like_controller, &minimap)) {
         sensor->last_locate_message = "minimap not extracted";
         return false;
     }
-    const auto image_prep_done_at = std::chrono::steady_clock::now();
+    times.image_prep_done_at = std::chrono::steady_clock::now();
 
     options.reject_occluded_frames = heading_source != HeadingSource::Camera;
     const auto locate_result = sensor->locator->locate(minimap, options);
-    const auto locate_done_at = std::chrono::steady_clock::now();
+    times.locate_done_at = std::chrono::steady_clock::now();
     log_locate_result(locate_result);
     sensor->last_capture_minimap_absent = locate_result.minimap_absent;
     sensor->last_locate_message = locate_result.debugMessage;
@@ -173,16 +205,14 @@ bool capture_with(PositionSensor* sensor, NaviPosition* out_pos, maplocator::Loc
 
     // 全局搜索本就更慢, 不计入耗时统计
     if (!options.force_global_search) {
-        latency::RecordStage(latency::Stage::Screencap, ElapsedMs(capture_started_at, screencap_done_at));
-        latency::RecordStage(latency::Stage::ImagePrep, ElapsedMs(screencap_done_at, image_prep_done_at));
-        latency::RecordStage(latency::Stage::Locate, ElapsedMs(image_prep_done_at, locate_done_at));
+        record_locate_latency(parts.latency, times);
     }
 
-    fill_position(*sensor, out_pos, locate_result, *heading, confident_camera, capture_started_at);
+    fill_position(*sensor, out_pos, locate_result, *heading, confident_camera, times.started_at);
 
     // 所有取位都经过这里, 且 out_pos 刚由本次定位结果填好, 换算每次恰好一次
-    if (sensor->normalize_param != nullptr) {
-        NormalizeLivePositionToBase(out_pos, *sensor->normalize_param);
+    if (parts.normalize_param != nullptr) {
+        NormalizeLivePositionToBase(out_pos, *parts.normalize_param);
     }
     return true;
 }
@@ -212,17 +242,17 @@ PositionSensor MakePositionSensor(MaaController* controller, std::shared_ptr<map
 }
 
 bool CaptureTracked(
-    PositionSensor* sensor,
+    const CaptureParts& parts,
     NaviPosition* out_pos,
     const std::string& expected_zone_id,
     const std::vector<maplocator::SearchHint>& search_hints,
     std::optional<double> camera_heading_prior)
 {
-    return capture_with(sensor, out_pos, locate_options(expected_zone_id, search_hints, camera_heading_prior), sensor->heading_source);
+    return capture_with(parts, out_pos, locate_options(expected_zone_id, search_hints, camera_heading_prior), parts.sensor->heading_source);
 }
 
 bool CaptureGlobal(
-    PositionSensor* sensor,
+    const CaptureParts& parts,
     NaviPosition* out_pos,
     const std::string& expected_zone_id,
     const std::vector<maplocator::SearchHint>& search_hints,
@@ -230,19 +260,19 @@ bool CaptureGlobal(
 {
     maplocator::LocateOptions options = locate_options(expected_zone_id, search_hints, camera_heading_prior);
     options.force_global_search = true;
-    return capture_with(sensor, out_pos, std::move(options), sensor->heading_source);
+    return capture_with(parts, out_pos, std::move(options), parts.sensor->heading_source);
 }
 
-bool CaptureForStrictGoal(PositionSensor* sensor, NaviPosition* out_pos, const std::string& expected_zone_id)
+bool CaptureForStrictGoal(const CaptureParts& parts, NaviPosition* out_pos, const std::string& expected_zone_id)
 {
     maplocator::LocateOptions options;
     options.precise_position = true;
     options.expected_zone_id = expected_zone_id;
-    return capture_with(sensor, out_pos, std::move(options), HeadingSource::Camera);
+    return capture_with(parts, out_pos, std::move(options), HeadingSource::Camera);
 }
 
 bool WaitForFix(
-    PositionSensor* sensor,
+    const CaptureParts& parts,
     NaviPosition* out_pos,
     const std::string& expected_zone_id,
     int max_retries,
@@ -254,7 +284,7 @@ bool WaitForFix(
             return false;
         }
         const bool captured =
-            expected_zone_id.empty() ? CaptureTracked(sensor, out_pos, expected_zone_id) : CaptureGlobal(sensor, out_pos, expected_zone_id);
+            expected_zone_id.empty() ? CaptureTracked(parts, out_pos, expected_zone_id) : CaptureGlobal(parts, out_pos, expected_zone_id);
         if (captured) {
             return true;
         }

@@ -586,7 +586,7 @@ uv run map-navigator --port 9000 --no-browser
 
 ## 采集与挖掘 `COLLECT` / `DIG`
 
-`COLLECT` 与 `DIG` 是 MapNavigator 内置的采集 / 挖掘语义点。在 `path` 中将采集坐标的第三位写为对应动作，导航器精确到点后自动停止、同步触发对应的 Pipeline 子任务，完成后继续下一段，**全程不退出 NaviController**：
+`COLLECT` 与 `DIG` 是 MapNavigator 内置的采集 / 挖掘语义点。在 `path` 中将采集坐标的第三位写为对应动作，导航器精确到点后自动停止、同步触发对应的 Pipeline 子任务，完成后继续下一段，**全程不退出导航（`RunNavigation`）**：
 
 ```json
 "path": [
@@ -638,7 +638,7 @@ uv run map-navigator --port 9000 --no-browser
 
 **`AutoCollectClickEnd` 的 `next` 不可修改。** 它指向 `[Anchor]AutoCollectClickAfter` 是为了兼容旧的 anchor 链调用。从 `MaaContextRunTask` 子任务调用时，cpp-algo 会通过 `pipeline_override` 将该 `next` 临时置空，使子任务干净退出。修改后会影响仍在使用旧写法的其他路线。
 
-**疾跑由运行时控制。** 所有 `COLLECT`、`DIG` 与严格到达点之前的整段路，自动疾跑由 cpp-algo 在 `NavigationStateMachine` 层面强制禁用，路线作者无法也无需控制。
+**疾跑由运行时控制。** 所有 `COLLECT`、`DIG` 与严格到达点之前的整段路，自动疾跑由 cpp-algo 在导航状态机（`state_machine/`）层面强制禁用，路线作者无法也无需控制。
 
 ### 新增采集路线
 

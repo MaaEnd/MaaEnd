@@ -700,6 +700,33 @@ NavRunReplanReason soft_replan_if_due(
     return built ? reason : NavRunReplanReason::None;
 }
 
+void note_corridor_passed(NavRunTickResult* result, const NavRun& nav_run, const CorridorProjection& projection, const TickInputs& input)
+{
+    const double character_arc = corridor_arc_length_to(nav_run.plan.path, nav_run.plan.corridor_arc_prefix, projection);
+    const size_t corridor_passed = count_corridor_passed_run_waypoints(
+        input.session,
+        nav_run.plan.path,
+        nav_run.plan.corridor_arc_prefix,
+        input.anchor_index,
+        character_arc);
+    const bool clamped_without_passage =
+        projection.before_window || projection.capped || (projection.after_window && projection.cross_track > kNavRunCrossTrackWarnM);
+    if (clamped_without_passage) {
+        if (corridor_passed > 0) {
+            LogDebug << "Corridor passed advance suppressed; corridor projection clamped outside the window." << VAR(corridor_passed)
+                     << VAR_AS(session->current_node_idx(), input.session.current_node_idx) << VAR(projection.before_window)
+                     << VAR(projection.after_window) << VAR(projection.capped) << VAR(projection.cross_track);
+        }
+    }
+    else if (input.route.startup_motion_confirmed) {
+        result->passed_run_waypoints = corridor_passed;
+    }
+    else if (corridor_passed > 0) {
+        LogDebug << "Corridor passed advance blocked before startup movement confirmed." << VAR(corridor_passed)
+                 << VAR_AS(session->current_node_idx(), input.session.current_node_idx) << VAR(character_arc);
+    }
+}
+
 } // namespace
 
 NavRunTickResult TickNavRun(
@@ -796,25 +823,7 @@ NavRunTickResult TickNavRun(
     result.step_per_tick = step;
     result.corner = next_sharp_corner(nav_run->plan.path, *projection, turn_commit_distance);
 
-    const double character_arc = corridor_arc_length_to(nav_run->plan.path, nav_run->plan.corridor_arc_prefix, *projection);
-    const size_t corridor_passed =
-        count_corridor_passed_run_waypoints(*session, nav_run->plan.path, nav_run->plan.corridor_arc_prefix, anchor_index, character_arc);
-    const bool clamped_without_passage =
-        projection->before_window || projection->capped || (projection->after_window && projection->cross_track > kNavRunCrossTrackWarnM);
-    if (clamped_without_passage) {
-        if (corridor_passed > 0) {
-            LogDebug << "Corridor passed advance suppressed; corridor projection clamped outside the window." << VAR(corridor_passed)
-                     << VAR_AS(session->current_node_idx(), session->current_node_idx) << VAR(projection->before_window)
-                     << VAR(projection->after_window) << VAR(projection->capped) << VAR(projection->cross_track);
-        }
-    }
-    else if (route.startup_motion_confirmed) {
-        result.passed_run_waypoints = corridor_passed;
-    }
-    else if (corridor_passed > 0) {
-        LogDebug << "Corridor passed advance blocked before startup movement confirmed." << VAR(corridor_passed)
-                 << VAR_AS(session->current_node_idx(), session->current_node_idx) << VAR(character_arc);
-    }
+    note_corridor_passed(&result, *nav_run, *projection, input);
     return result;
 }
 
