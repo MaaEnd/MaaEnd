@@ -53,7 +53,7 @@ bool reached_arrive_point(const Context& ctx, const Waypoint& waypoint)
     if (!waypoint.find_arrive.has_value()) {
         return false;
     }
-    if (!CaptureTracked(ctx.position_provider, ctx.position, ctx.session->currentZoneId())
+    if (!CaptureTracked(ctx.position_provider, ctx.position, ctx.session->current_zone_id)
         || ctx.position_provider->last_capture_was_black_screen) {
         return false;
     }
@@ -73,7 +73,7 @@ void leave_find_phase(const Context& ctx)
     ctx.runtime_state->flow.motionless_hold_ticks = 0;
     ctx.runtime_state->flow.futile_forward_reasserts = 0;
     ResetSensorTracking(ctx.position_provider);
-    ctx.session->resetProgress();
+    ResetProgress(ctx.session);
     ctx.runtime_state->find = {};
 }
 
@@ -94,7 +94,7 @@ Result fail_find(const Context& ctx, const char* reason, const char* message)
 Result finish_find(const Context& ctx, const Waypoint& waypoint, const char* reason)
 {
     leave_find_phase(ctx);
-    return CompleteArrival(ctx, waypoint, ctx.session->currentAbsoluteNodeIndex(), reason);
+    return CompleteArrival(ctx, waypoint, CurrentAbsoluteNodeIndex(*ctx.session), reason);
 }
 
 Result hold_find_step()
@@ -129,9 +129,9 @@ Result begin_find(const Context& ctx, const char* reason)
     FindState& find = ctx.runtime_state->find;
     find = {};
     find.started_at = std::chrono::steady_clock::now();
-    ctx.session->updatePhase(NaviPhase::WaitFind, reason);
+    UpdatePhase(ctx.session, NaviPhase::WaitFind, reason);
 
-    const Waypoint& waypoint = ctx.session->currentWaypoint();
+    const Waypoint& waypoint = CurrentWaypoint(*ctx.session);
     arm_stop_probe(ctx, waypoint, find);
     LogInfo << "Action: FIND started." << VAR(reason) << VAR(waypoint.find_target) << VAR(waypoint.find_text.size())
             << VAR(waypoint.find_stop);
@@ -320,11 +320,11 @@ Result ArriveFind(const Context& ctx, const Waypoint& waypoint, double actual_di
 
 Result ConsumeFindNodes(const Context& ctx)
 {
-    if (!ctx.session->hasCurrentWaypoint()) {
+    if (!HasCurrentWaypoint(*ctx.session)) {
         return {};
     }
 
-    const Waypoint& waypoint = ctx.session->currentWaypoint();
+    const Waypoint& waypoint = CurrentWaypoint(*ctx.session);
     // 带坐标的点由 ArriveFind 接手, 这里接了会被提前吃掉
     if (!IsFindPoint(waypoint) || waypoint.has_position) {
         return {};
@@ -334,7 +334,7 @@ Result ConsumeFindNodes(const Context& ctx)
 
 Result TickFindTarget(const Context& ctx)
 {
-    if (ctx.maa_context == nullptr || ctx.session == nullptr || !ctx.session->hasCurrentWaypoint()) {
+    if (ctx.maa_context == nullptr || ctx.session == nullptr || !HasCurrentWaypoint(*ctx.session)) {
         // fail_find 会解引用 session, 上下文不全时只能直接返回失败
         LogError << "FIND is running without a waypoint or a MaaContext." << VAR(ctx.maa_context == nullptr) << VAR(ctx.session == nullptr);
         return {
@@ -346,7 +346,7 @@ Result TickFindTarget(const Context& ctx)
         };
     }
 
-    const Waypoint& waypoint = ctx.session->currentWaypoint();
+    const Waypoint& waypoint = CurrentWaypoint(*ctx.session);
     if (!IsFindPoint(waypoint)) {
         leave_find_phase(ctx);
         SelectPhaseForCurrentWaypoint(ctx, "find_phase_mismatch");

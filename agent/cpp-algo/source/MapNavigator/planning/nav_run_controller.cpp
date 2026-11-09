@@ -9,6 +9,7 @@
 
 #include <MaaUtils/Logger.h>
 
+#include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_log.h"
 #include "../navi_math.h"
@@ -123,7 +124,7 @@ double corridor_arc_length_to(const navmesh::WorldPath& path, const std::vector<
 }
 
 size_t count_corridor_passed_run_waypoints(
-    const NavigationSession& session,
+    const Session& session,
     const navmesh::WorldPath& path,
     const std::vector<double>& arc_prefix,
     size_t anchor_index,
@@ -133,11 +134,11 @@ size_t count_corridor_passed_run_waypoints(
         return 0;
     }
 
-    const std::vector<Waypoint>& waypoints = session.currentPath();
+    const std::vector<Waypoint>& waypoints = session.current_path;
     const double margin = std::max(kMeasurementDefaultPositionQuantum, 0.0);
     size_t count = 0;
-    for (size_t index = session.currentNodeIdx(); index < waypoints.size(); ++index) {
-        const std::optional<size_t> canonical = session.canonicalIndexAtCurrentPath(index);
+    for (size_t index = session.current_node_idx; index < waypoints.size(); ++index) {
+        const std::optional<size_t> canonical = CanonicalIndexAtCurrentPath(session, index);
         if (canonical && *canonical == anchor_index) {
             break;
         }
@@ -310,13 +311,13 @@ int64_t elapsed_ms_or_max(std::chrono::steady_clock::time_point from, std::chron
 }
 
 // 线没走到锚点就返回空, 调用方据此改用 navmesh 走廊
-navmesh::WorldPath build_authored_span_polyline(const NavigationSession& session, size_t anchor_index)
+navmesh::WorldPath build_authored_span_polyline(const Session& session, size_t anchor_index)
 {
-    const std::vector<Waypoint>& waypoints = session.currentPath();
+    const std::vector<Waypoint>& waypoints = session.current_path;
     navmesh::WorldPath poly;
     bool reached_anchor = false;
     bool any_clearance = false;
-    for (size_t index = session.currentNodeIdx(); index < waypoints.size(); ++index) {
+    for (size_t index = session.current_node_idx; index < waypoints.size(); ++index) {
         const Waypoint& waypoint = waypoints[index];
         if (!waypoint.has_position) {
             break;
@@ -324,7 +325,7 @@ navmesh::WorldPath build_authored_span_polyline(const NavigationSession& session
         poly.points.push_back({ .x = waypoint.x, .y = waypoint.y });
         poly.clearance.push_back(waypoint.corridor_clearance);
         any_clearance = any_clearance || waypoint.corridor_clearance > 0.0;
-        const std::optional<size_t> canonical = session.canonicalIndexAtCurrentPath(index);
+        const std::optional<size_t> canonical = CanonicalIndexAtCurrentPath(session, index);
         if (canonical && *canonical == anchor_index) {
             reached_anchor = true;
             break;
@@ -343,15 +344,15 @@ navmesh::WorldPath build_authored_span_polyline(const NavigationSession& session
 // 起跳点判到达时人常还站在台上, 只剩落点会触发重规划, 所以把起跳点补回线头
 bool prepend_drop_top_while_short(
     navmesh::WorldPath& authored,
-    const NavigationSession& session,
+    const Session& session,
     const Waypoint& anchor,
     const NaviPosition& position)
 {
-    const size_t current = session.currentNodeIdx();
+    const size_t current = session.current_node_idx;
     if (authored.points.size() != 1 || !anchor.drop_from || current == 0) {
         return false;
     }
-    const Waypoint& top = session.currentPath()[current - 1];
+    const Waypoint& top = session.current_path[current - 1];
     const double top_x = (*anchor.drop_from)[0];
     const double top_y = (*anchor.drop_from)[1];
     if (!IsContinuousRun(top) || top.x != top_x || top.y != top_y) {
@@ -368,42 +369,43 @@ bool prepend_drop_top_while_short(
     return true;
 }
 
+std::tuple<double, double, double> edge_projection(const navmesh::WorldPath& authored, const NaviPosition& position, size_t edge)
+{
+    const navmesh::WorldPoint& a = authored.points[edge];
+    const navmesh::WorldPoint& b = authored.points[edge + 1];
+    const double dx = b.x - a.x;
+    const double dy = b.y - a.y;
+    const double len_sq = dx * dx + dy * dy;
+    const double t = len_sq <= std::numeric_limits<double>::epsilon() ? 1.0 : ((position.x - a.x) * dx + (position.y - a.y) * dy) / len_sq;
+    return std::tuple { t, a.x + std::clamp(t, 0.0, 1.0) * dx, a.y + std::clamp(t, 0.0, 1.0) * dy };
+}
+
+// 转角超过 90° 时垂足会提前滑出入边, 在这裁会切穿拐角, 所以停在拐点前
+bool turns_back(const navmesh::WorldPath& authored, size_t vertex)
+{
+    const navmesh::WorldPoint& prev = authored.points[vertex - 1];
+    const navmesh::WorldPoint& curr = authored.points[vertex];
+    const navmesh::WorldPoint& next = authored.points[vertex + 1];
+    return (curr.x - prev.x) * (next.x - curr.x) + (curr.y - prev.y) * (next.y - curr.y) <= 0.0;
+}
+
 // 返回 false 表示人还没到线头, 调用方应补一段连到线头
 bool trim_authored_span_to_agent(navmesh::WorldPath& authored, const NaviPosition& position)
 {
-    const auto edge_projection = [&](size_t edge) {
-        const navmesh::WorldPoint& a = authored.points[edge];
-        const navmesh::WorldPoint& b = authored.points[edge + 1];
-        const double dx = b.x - a.x;
-        const double dy = b.y - a.y;
-        const double len_sq = dx * dx + dy * dy;
-        const double t =
-            len_sq <= std::numeric_limits<double>::epsilon() ? 1.0 : ((position.x - a.x) * dx + (position.y - a.y) * dy) / len_sq;
-        return std::tuple { t, a.x + std::clamp(t, 0.0, 1.0) * dx, a.y + std::clamp(t, 0.0, 1.0) * dy };
-    };
-
-    // 转角超过 90° 时垂足会提前滑出入边, 在这裁会切穿拐角, 所以停在拐点前
-    const auto turns_back = [&](size_t vertex) {
-        const navmesh::WorldPoint& prev = authored.points[vertex - 1];
-        const navmesh::WorldPoint& curr = authored.points[vertex];
-        const navmesh::WorldPoint& next = authored.points[vertex + 1];
-        return (curr.x - prev.x) * (next.x - curr.x) + (curr.y - prev.y) * (next.y - curr.y) <= 0.0;
-    };
-
     // 下面两处限距离是防定位短暂跳到几百像素外时把整条线当成走过删掉
     size_t head = 0;
     while (head + 2 < authored.points.size()) {
-        if (turns_back(head + 1)) {
+        if (turns_back(authored, head + 1)) {
             break;
         }
-        const auto [t, foot_x, foot_y] = edge_projection(head);
+        const auto [t, foot_x, foot_y] = edge_projection(authored, position, head);
         if (t < 1.0 || std::hypot(position.x - foot_x, position.y - foot_y) > kNavRunCrossTrackFailM) {
             break;
         }
         ++head;
     }
     // 垂足落在边端点上会和拐点重合成退化边, 所以 t 取不到 0 和 1
-    const auto [t, foot_x, foot_y] = edge_projection(head);
+    const auto [t, foot_x, foot_y] = edge_projection(authored, position, head);
     if (t <= 0.0 || t >= 1.0 || std::hypot(position.x - foot_x, position.y - foot_y) > kLookaheadRadius) {
         return false;
     }
@@ -415,153 +417,115 @@ bool trim_authored_span_to_agent(navmesh::WorldPath& authored, const NaviPositio
     return true;
 }
 
-} // namespace
-
-void NavRunController::invalidate()
+void commit_plan(NavRunPlan* plan, navmesh::WorldPath path, const NaviPosition& position, size_t anchor_index)
 {
-    plan_ = NavRunPlan {};
-    last_progress_seen_ = {};
-    last_remaining_to_anchor_ = std::numeric_limits<double>::infinity();
+    plan->valid = true;
+    plan->zone_id = position.zone_id;
+    plan->anchor_index = anchor_index;
+    plan->path = std::move(path);
+    plan->corridor_arc_prefix = build_corridor_arc_prefix(plan->path);
+    plan->cursor = 0;
+    plan->projected_arc = 0.0;
+    plan->projected_from = { .x = position.x, .y = position.y };
 }
 
-void NavRunController::restartProgressWatch(std::chrono::steady_clock::time_point now)
+void commit_authored_span(
+    NavRunPlan* plan,
+    navmesh::WorldPath authored,
+    bool on_authored_line,
+    size_t authored_points,
+    const NaviPosition& position,
+    size_t anchor_index)
 {
-    last_progress_seen_ = now;
-    last_remaining_to_anchor_ = std::numeric_limits<double>::infinity();
-}
-
-bool NavRunController::buildPlan(
-    const TickInput& input,
-    NavRunReplanReason reason,
-    std::chrono::steady_clock::time_point& now,
-    NavRunTickResult& result)
-{
-    const NavigationSession& session = input.session;
-    const NaviPosition& position = input.position;
-    const size_t anchor_index = input.anchor_index;
-    const Waypoint& anchor = input.anchor;
-    const auto commit = [&](navmesh::WorldPath path) {
-        plan_.valid = true;
-        plan_.zone_id = position.zone_id;
-        plan_.anchor_index = anchor_index;
-        plan_.path = std::move(path);
-        plan_.corridor_arc_prefix = build_corridor_arc_prefix(plan_.path);
-        plan_.cursor = 0;
-        plan_.projected_arc = 0.0;
-        plan_.projected_from = { .x = position.x, .y = position.y };
-    };
-
-    navmesh::WorldPath authored = build_authored_span_polyline(session, anchor_index);
-    if (prepend_drop_top_while_short(authored, session, anchor, position)) {
-        LogDebug << "NavRunController drop top kept on span." << VAR(anchor_index) << VAR(position.x) << VAR(position.y);
-    }
-    const bool has_authored = authored.points.size() >= 2;
-    const size_t authored_points = authored.points.size();
-    const bool on_authored_line = has_authored && trim_authored_span_to_agent(authored, position);
-
-    const auto commit_authored = [&] {
-        if (!on_authored_line) {
-            const navmesh::WorldPoint& span_start = authored.points.front();
-            if (std::hypot(position.x - span_start.x, position.y - span_start.y) > kMeasurementDefaultPositionQuantum) {
-                authored.points.insert(authored.points.begin(), { .x = position.x, .y = position.y });
-                if (!authored.clearance.empty()) {
-                    authored.clearance.insert(authored.clearance.begin(), authored.clearance.front());
-                }
+    if (!on_authored_line) {
+        const navmesh::WorldPoint& span_start = authored.points.front();
+        if (std::hypot(position.x - span_start.x, position.y - span_start.y) > kMeasurementDefaultPositionQuantum) {
+            authored.points.insert(authored.points.begin(), { .x = position.x, .y = position.y });
+            if (!authored.clearance.empty()) {
+                authored.clearance.insert(authored.clearance.begin(), authored.clearance.front());
             }
         }
-        else {
-            LogDebug << "NavRunController span trimmed to agent." << VAR(anchor_index) << VAR(authored_points)
-                     << VAR(authored.points.size()) << VAR(authored.points.front().x) << VAR(authored.points.front().y);
-        }
-        commit(std::move(authored));
-        return true;
-    };
-
-    if (has_authored) {
-        return commit_authored();
     }
-
-    // 手写裸坐标的末点直接走直线, 交给 A* 会为贴回网格绕远路
-    if (authored.points.size() == 1 && IsContinuousRun(anchor) && anchor.corridor_clearance <= 0.0
-        && std::hypot(position.x - anchor.x, position.y - anchor.y) > kMeasurementDefaultPositionQuantum) {
-        LogDebug << "NavRunController trailing authored point kept literal." << VAR(anchor_index) << VAR(anchor.x) << VAR(anchor.y);
-        return commit_authored();
+    else {
+        LogDebug << "NavRunController span trimmed to agent." << VAR(anchor_index) << VAR(authored_points) << VAR(authored.points.size())
+                 << VAR(authored.points.front().x) << VAR(authored.points.front().y);
     }
-
-    const navmesh::WorldPoint start { .x = position.x, .y = position.y };
-    const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
-    if (input.halt) {
-        input.halt();
-    }
-    const auto plan_started_at = std::chrono::steady_clock::now();
-    auto route = PlanNavmeshRoute(
-        input.param,
-        position.zone_id,
-        {
-            .start = start,
-            .start_floor_y = session.walkedFloorY(position),
-            .start_deck_y = session.landedTowerDeckY(position),
-            .goal = goal,
-            .goal_deck_y = anchor.target_deck_y,
-        },
-        nullptr,
-        &input.runtime.virtual_no_go);
-    const auto planning = std::chrono::steady_clock::now() - plan_started_at;
-    result.planning += planning;
-    now += planning;
-    if (route && route->ok() && route->path.points.size() >= 2) {
-        commit(std::move(route->path));
-        return true;
-    }
-    LogDebug << "NavRunController plan build failed." << VAR(static_cast<int>(reason)) << VAR(anchor_index) << VAR(position.zone_id);
-    return false;
+    commit_plan(plan, std::move(authored), position, anchor_index);
 }
 
-void NavRunController::recordSpeedSample(const NaviPosition& position, std::chrono::steady_clock::time_point now)
+std::optional<CorridorProjection> project_agent(NavRunPlan* plan, const NaviPosition& position)
 {
-    ++tick_seq_;
-    if (!speed_samples_.empty()) {
-        const NavRunSpeedSample& last = speed_samples_.back();
+    const double moved = std::hypot(position.x - plan->projected_from.x, position.y - plan->projected_from.y);
+    const double max_arc = plan->projected_arc + moved + kNavRunProjectionAdvanceSlackM;
+    auto projected = project_onto_corridor(plan->path, plan->corridor_arc_prefix, plan->cursor, position, max_arc);
+    if (projected && !projected->capped) {
+        plan->projected_arc = corridor_arc_length_to(plan->path, plan->corridor_arc_prefix, *projected);
+        plan->projected_from = { .x = position.x, .y = position.y };
+    }
+    return projected;
+}
+
+void invalidate(NavRun* nav_run)
+{
+    nav_run->plan = NavRunPlan {};
+    nav_run->last_progress_seen = {};
+    nav_run->last_remaining_to_anchor = std::numeric_limits<double>::infinity();
+}
+
+void restart_progress_watch(NavRun* nav_run, std::chrono::steady_clock::time_point now)
+{
+    nav_run->last_progress_seen = now;
+    nav_run->last_remaining_to_anchor = std::numeric_limits<double>::infinity();
+}
+
+void record_speed_sample(NavRun* nav_run, const NaviPosition& position, std::chrono::steady_clock::time_point now)
+{
+    ++nav_run->tick_seq;
+    if (!nav_run->speed_samples.empty()) {
+        const NavRunSpeedSample& last = nav_run->speed_samples.back();
         const double step = std::hypot(position.x - last.x, position.y - last.y);
         if (step <= kMeasurementDefaultPositionQuantum) {
             return;
         }
         const int64_t span_ms = elapsed_ms_or_max(last.at, now);
         const double span_sec = static_cast<double>(span_ms) / 1000.0;
-        if (span_sec <= 0.0 || tick_seq_ - last.tick_seq > kNavRunSpeedMaxSampleGapTicks || step > kNavRunSpeedJumpMaxPxPerSec * span_sec) {
-            speed_samples_.clear();
+        if (span_sec <= 0.0 || nav_run->tick_seq - last.tick_seq > kNavRunSpeedMaxSampleGapTicks
+            || step > kNavRunSpeedJumpMaxPxPerSec * span_sec) {
+            nav_run->speed_samples.clear();
         }
     }
-    speed_samples_.push_back(NavRunSpeedSample { .at = now, .tick_seq = tick_seq_, .x = position.x, .y = position.y });
-    while (speed_samples_.size() > kNavRunSpeedMaxSamples
-           || (speed_samples_.size() > 1 && elapsed_ms_or_max(speed_samples_.front().at, now) > kNavRunSpeedKeepMs)) {
-        speed_samples_.erase(speed_samples_.begin());
+    nav_run->speed_samples.push_back(NavRunSpeedSample { .at = now, .tick_seq = nav_run->tick_seq, .x = position.x, .y = position.y });
+    while (nav_run->speed_samples.size() > kNavRunSpeedMaxSamples
+           || (nav_run->speed_samples.size() > 1 && elapsed_ms_or_max(nav_run->speed_samples.front().at, now) > kNavRunSpeedKeepMs)) {
+        nav_run->speed_samples.erase(nav_run->speed_samples.begin());
     }
 }
 
-std::optional<double> NavRunController::estimateStepPerTick() const
+std::optional<double> estimate_step_per_tick(const NavRun& nav_run)
 {
-    if (speed_samples_.size() < 2) {
+    if (nav_run.speed_samples.size() < 2) {
         return std::nullopt;
     }
-    const NavRunSpeedSample& newest = speed_samples_.back();
+    const NavRunSpeedSample& newest = nav_run.speed_samples.back();
     size_t oldest = 0;
-    for (size_t i = 0; i + 1 < speed_samples_.size(); ++i) {
-        if (elapsed_ms_or_max(speed_samples_[i].at, newest.at) >= kNavRunSpeedWindowMs) {
+    for (size_t i = 0; i + 1 < nav_run.speed_samples.size(); ++i) {
+        if (elapsed_ms_or_max(nav_run.speed_samples[i].at, newest.at) >= kNavRunSpeedWindowMs) {
             oldest = i;
         }
     }
-    if (newest.tick_seq <= speed_samples_[oldest].tick_seq) {
+    if (newest.tick_seq <= nav_run.speed_samples[oldest].tick_seq) {
         return std::nullopt;
     }
     double arc = 0.0;
-    for (size_t i = oldest; i + 1 < speed_samples_.size(); ++i) {
-        arc += std::hypot(speed_samples_[i + 1].x - speed_samples_[i].x, speed_samples_[i + 1].y - speed_samples_[i].y);
+    for (size_t i = oldest; i + 1 < nav_run.speed_samples.size(); ++i) {
+        arc += std::hypot(
+            nav_run.speed_samples[i + 1].x - nav_run.speed_samples[i].x,
+            nav_run.speed_samples[i + 1].y - nav_run.speed_samples[i].y);
     }
-    return arc / static_cast<double>(newest.tick_seq - speed_samples_[oldest].tick_seq);
+    return arc / static_cast<double>(newest.tick_seq - nav_run.speed_samples[oldest].tick_seq);
 }
 
-double NavRunController::chooseLookaheadDistance(const RouteMeasurement& route, std::optional<double> step) const
+double choose_lookahead_distance(const RouteMeasurement& route, std::optional<double> step)
 {
     if (!route.startup_motion_confirmed) {
         return kNavRunLookaheadLowSpeedM;
@@ -572,113 +536,201 @@ double NavRunController::chooseLookaheadDistance(const RouteMeasurement& route, 
     return std::clamp(kNavRunLookaheadPreviewTicks * *step, kNavRunLookaheadMinM, kNavRunLookaheadMaxM);
 }
 
-double NavRunController::chooseTurnCommitDistance(double lookahead_distance, std::optional<double> step) const
+double choose_turn_commit_distance(double lookahead_distance, std::optional<double> step)
 {
     const double by_speed = step ? kNavRunTurnCommitTicks * *step : kNavRunLookaheadMinM;
     return std::clamp(by_speed, kNavRunLookaheadMinM, lookahead_distance);
 }
 
-NavRunReplanReason NavRunController::detectReplanTrigger(const RouteMeasurement& route, std::chrono::steady_clock::time_point now) const
+NavRunReplanReason detect_replan_trigger(const NavRun& nav_run, const RouteMeasurement& route, std::chrono::steady_clock::time_point now)
 {
-    if (route.startup_motion_confirmed && elapsed_ms_or_max(last_progress_seen_, now) >= kNavRunProgressRegressionMs) {
+    if (route.startup_motion_confirmed && elapsed_ms_or_max(nav_run.last_progress_seen, now) >= kNavRunProgressRegressionMs) {
         return NavRunReplanReason::ProgressRegression;
     }
     return NavRunReplanReason::None;
 }
 
-bool NavRunController::ensurePlan(const TickInput& input, std::chrono::steady_clock::time_point& now, NavRunTickResult& result)
+void track_progress(NavRun* nav_run, double remaining, std::chrono::steady_clock::time_point now)
 {
-    if (plan_.valid
-        && (plan_.anchor_index != input.anchor_index || (!input.position.zone_id.empty() && plan_.zone_id != input.position.zone_id))) {
-        invalidate();
+    if (nav_run->last_remaining_to_anchor - remaining >= kRouteProgressEpsilon) {
+        nav_run->last_progress_seen = now;
+        nav_run->last_remaining_to_anchor = remaining;
     }
-    if (plan_.valid) {
+    else if (remaining < nav_run->last_remaining_to_anchor) {
+        nav_run->last_remaining_to_anchor = remaining;
+    }
+}
+
+struct TickInputs
+{
+    const Session& session;
+    const NavigationRuntimeState& runtime;
+    const NaviPosition& position;
+    const RouteMeasurement& route;
+    const NaviParam& param;
+    size_t anchor_index = 0;
+    const Waypoint& anchor;
+};
+
+// 同步规划的耗时计入 result.planning, 并把 now 顺延同样的时长
+bool build_plan(
+    NavRun* nav_run,
+    Motion* motion,
+    const TickInputs& input,
+    NavRunReplanReason reason,
+    std::chrono::steady_clock::time_point* now,
+    NavRunTickResult* result)
+{
+    const Session& session = input.session;
+    const NaviPosition& position = input.position;
+    const size_t anchor_index = input.anchor_index;
+    const Waypoint& anchor = input.anchor;
+
+    navmesh::WorldPath authored = build_authored_span_polyline(session, anchor_index);
+    if (prepend_drop_top_while_short(authored, session, anchor, position)) {
+        LogDebug << "NavRunController drop top kept on span." << VAR(anchor_index) << VAR(position.x) << VAR(position.y);
+    }
+    const bool has_authored = authored.points.size() >= 2;
+    const size_t authored_points = authored.points.size();
+    const bool on_authored_line = has_authored && trim_authored_span_to_agent(authored, position);
+
+    if (has_authored) {
+        commit_authored_span(&nav_run->plan, std::move(authored), on_authored_line, authored_points, position, anchor_index);
         return true;
     }
-    if (failed_build_anchor_ == input.anchor_index && elapsed_ms_or_max(failed_build_at_, now) < kNavRunPlanFailureCooldownMs) {
+
+    // 手写裸坐标的末点直接走直线, 交给 A* 会为贴回网格绕远路
+    if (authored.points.size() == 1 && IsContinuousRun(anchor) && anchor.corridor_clearance <= 0.0
+        && std::hypot(position.x - anchor.x, position.y - anchor.y) > kMeasurementDefaultPositionQuantum) {
+        LogDebug << "NavRunController trailing authored point kept literal." << VAR(anchor_index) << VAR(anchor.x) << VAR(anchor.y);
+        commit_authored_span(&nav_run->plan, std::move(authored), on_authored_line, authored_points, position, anchor_index);
+        return true;
+    }
+
+    const navmesh::WorldPoint start { .x = position.x, .y = position.y };
+    const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
+    if (motion != nullptr) {
+        HoldPosition(motion);
+    }
+    const auto plan_started_at = std::chrono::steady_clock::now();
+    auto route = PlanNavmeshRoute(
+        input.param,
+        position.zone_id,
+        {
+            .start = start,
+            .start_floor_y = WalkedFloorY(session, position),
+            .start_deck_y = LandedTowerDeckY(session, position),
+            .goal = goal,
+            .goal_deck_y = anchor.target_deck_y,
+        },
+        nullptr,
+        &input.runtime.virtual_no_go);
+    const auto planning = std::chrono::steady_clock::now() - plan_started_at;
+    result->planning += planning;
+    *now += planning;
+    if (route && route->ok() && route->path.points.size() >= 2) {
+        commit_plan(&nav_run->plan, std::move(route->path), position, anchor_index);
+        return true;
+    }
+    LogDebug << "NavRunController plan build failed." << VAR(static_cast<int>(reason)) << VAR(anchor_index) << VAR(position.zone_id);
+    return false;
+}
+
+bool ensure_plan(
+    NavRun* nav_run,
+    Motion* motion,
+    const TickInputs& input,
+    std::chrono::steady_clock::time_point* now,
+    NavRunTickResult* result)
+{
+    if (nav_run->plan.valid
+        && (nav_run->plan.anchor_index != input.anchor_index
+            || (!input.position.zone_id.empty() && nav_run->plan.zone_id != input.position.zone_id))) {
+        invalidate(nav_run);
+    }
+    if (nav_run->plan.valid) {
+        return true;
+    }
+    if (nav_run->failed_build_anchor == input.anchor_index
+        && elapsed_ms_or_max(nav_run->failed_build_at, *now) < kNavRunPlanFailureCooldownMs) {
         return false;
     }
-    if (!buildPlan(input, NavRunReplanReason::AnchorChanged, now, result)) {
-        failed_build_anchor_ = input.anchor_index;
-        failed_build_at_ = now;
+    if (!build_plan(nav_run, motion, input, NavRunReplanReason::AnchorChanged, now, result)) {
+        nav_run->failed_build_anchor = input.anchor_index;
+        nav_run->failed_build_at = *now;
         return false;
     }
-    failed_build_anchor_ = std::numeric_limits<size_t>::max();
-    restartProgressWatch(now);
+    nav_run->failed_build_anchor = std::numeric_limits<size_t>::max();
+    restart_progress_watch(nav_run, *now);
     return true;
 }
 
-NavRunReplanReason NavRunController::softReplanIfDue(
-    const TickInput& input,
+// 重建成功时返回触发原因, 否则返回 None
+NavRunReplanReason soft_replan_if_due(
+    NavRun* nav_run,
+    Motion* motion,
+    const TickInputs& input,
     double cross_track,
-    std::chrono::steady_clock::time_point& now,
-    NavRunTickResult& result)
+    std::chrono::steady_clock::time_point* now,
+    NavRunTickResult* result)
 {
     const bool hard_off = cross_track > kNavRunCrossTrackFailM;
     const bool soft_off = cross_track > kNavRunCrossTrackWarnM;
-    NavRunReplanReason time_trigger = detectReplanTrigger(input.route, now);
+    NavRunReplanReason time_trigger = detect_replan_trigger(*nav_run, input.route, *now);
     if (time_trigger == NavRunReplanReason::ProgressRegression && cross_track < kNavRunProgressReplanMinCrossTrackM) {
         time_trigger = NavRunReplanReason::None;
-        last_progress_seen_ = now;
+        nav_run->last_progress_seen = *now;
     }
     if (!hard_off && !soft_off && time_trigger == NavRunReplanReason::None) {
         return NavRunReplanReason::None;
     }
 
-    const bool cooldown_ready = elapsed_ms_or_max(plan_.last_soft_replan_at, now) >= kNavRunSoftReplanCooldownMs;
-    const bool budget_left = plan_.soft_replan_attempts < kNavRunSoftReplanMaxPerAnchor;
+    const bool cooldown_ready = elapsed_ms_or_max(nav_run->plan.last_soft_replan_at, *now) >= kNavRunSoftReplanCooldownMs;
+    const bool budget_left = nav_run->plan.soft_replan_attempts < kNavRunSoftReplanMaxPerAnchor;
     if (!budget_left || (!hard_off && !cooldown_ready)) {
         return NavRunReplanReason::None;
     }
     const NavRunReplanReason reason = hard_off || soft_off ? NavRunReplanReason::OffCorridor : time_trigger;
-    plan_.soft_replan_attempts += 1;
-    const bool built = buildPlan(input, reason, now, result);
-    plan_.last_soft_replan_at = now;
+    nav_run->plan.soft_replan_attempts += 1;
+    const bool built = build_plan(nav_run, motion, input, reason, now, result);
+    nav_run->plan.last_soft_replan_at = *now;
     return built ? reason : NavRunReplanReason::None;
 }
 
-void NavRunController::trackProgress(double remaining, std::chrono::steady_clock::time_point now)
-{
-    if (last_remaining_to_anchor_ - remaining >= kRouteProgressEpsilon) {
-        last_progress_seen_ = now;
-        last_remaining_to_anchor_ = remaining;
-    }
-    else if (remaining < last_remaining_to_anchor_) {
-        last_remaining_to_anchor_ = remaining;
-    }
-}
+} // namespace
 
-NavRunTickResult NavRunController::tick(
-    NavigationSession* session,
+NavRunTickResult TickNavRun(
+    NavRun* nav_run,
+    Session* session,
     NavigationRuntimeState* runtime,
+    Motion* motion,
     const NaviPosition& position,
     const RouteMeasurement& route,
     const NaviParam& param,
-    size_t anchor_index,
     const Waypoint& anchor,
-    std::chrono::steady_clock::time_point now,
-    const std::function<void()>& halt)
+    size_t anchor_index,
+    std::chrono::steady_clock::time_point now)
 {
     NavRunTickResult result;
     if (runtime->nav_run_dirty) {
-        invalidate();
+        invalidate(nav_run);
         runtime->nav_run_dirty = false;
     }
 
     // 必须在下面所有提前返回之前, 走廊不可用时测速窗口也要继续积累
-    recordSpeedSample(position, now);
+    record_speed_sample(nav_run, position, now);
 
-    if (!anchor.has_position || !session->hasCurrentWaypoint()) {
+    if (!anchor.has_position || !HasCurrentWaypoint(*session)) {
         return result;
     }
-    if (!can_use_nav_run_steering(session->currentWaypoint())) {
+    if (!can_use_nav_run_steering(CurrentWaypoint(*session))) {
         return result;
     }
 
     // 必须在下面所有提前返回之前赋值, 否则看门狗会拿近处路点的距离误判已到达
     result.straight_to_anchor = std::hypot(position.x - anchor.x, position.y - anchor.y);
 
-    const TickInput input {
+    const TickInputs input {
         .session = *session,
         .runtime = *runtime,
         .position = position,
@@ -686,81 +738,70 @@ NavRunTickResult NavRunController::tick(
         .param = param,
         .anchor_index = anchor_index,
         .anchor = anchor,
-        .halt = halt,
     };
-    if (!ensurePlan(input, now, result)) {
+    if (!ensure_plan(nav_run, motion, input, &now, &result)) {
         return result;
     }
 
-    const auto project_agent = [&] {
-        const double moved = std::hypot(position.x - plan_.projected_from.x, position.y - plan_.projected_from.y);
-        const double max_arc = plan_.projected_arc + moved + kNavRunProjectionAdvanceSlackM;
-        auto projected = project_onto_corridor(plan_.path, plan_.corridor_arc_prefix, plan_.cursor, position, max_arc);
-        if (projected && !projected->capped) {
-            plan_.projected_arc = corridor_arc_length_to(plan_.path, plan_.corridor_arc_prefix, *projected);
-            plan_.projected_from = { .x = position.x, .y = position.y };
-        }
-        return projected;
-    };
-
-    auto projection = project_agent();
+    auto projection = project_agent(&nav_run->plan, position);
     if (!projection) {
-        invalidate();
+        invalidate(nav_run);
         return result;
     }
     if (!projection->capped) {
-        plan_.cursor = projection->edge_idx;
+        nav_run->plan.cursor = projection->edge_idx;
     }
-    for (const navmesh::DropLanding& drop : plan_.path.drops) {
-        if (plan_.cursor + 1 >= drop.index) {
-            session->leaveLandedTowerDeck();
+    for (const navmesh::DropLanding& drop : nav_run->plan.path.drops) {
+        if (nav_run->plan.cursor + 1 >= drop.index) {
+            LeaveLandedTowerDeck(session);
             break;
         }
     }
 
-    const NavRunReplanReason reason = softReplanIfDue(input, projection->cross_track, now, result);
+    const NavRunReplanReason reason = soft_replan_if_due(nav_run, motion, input, projection->cross_track, &now, &result);
     if (reason != NavRunReplanReason::None) {
-        projection = project_agent();
+        projection = project_agent(&nav_run->plan, position);
         if (!projection) {
-            invalidate();
+            invalidate(nav_run);
             return result;
         }
-        restartProgressWatch(now);
+        restart_progress_watch(nav_run, now);
         result.replanned_with = reason;
-        LogInfo << "NavRunController soft replan." << VAR(static_cast<int>(reason)) << VAR(plan_.soft_replan_attempts)
-                << VAR(projection->cross_track) << VAR(anchor_index);
+        LogInfo << "NavRunController soft replan." << VAR(static_cast<int>(reason))
+                << VAR_AS(plan_.soft_replan_attempts, nav_run->plan.soft_replan_attempts) << VAR(projection->cross_track)
+                << VAR(anchor_index);
     }
 
     if ((projection->before_window || projection->after_window) && projection->cross_track > kNavRunCrossTrackFailM) {
         return result;
     }
 
-    const double remaining = remaining_along_corridor(plan_.path, *projection);
-    trackProgress(remaining, now);
+    const double remaining = remaining_along_corridor(nav_run->plan.path, *projection);
+    track_progress(nav_run, remaining, now);
 
-    const std::optional<double> step = estimateStepPerTick();
-    const double lookahead_distance = chooseLookaheadDistance(route, step);
-    const double turn_commit_distance = chooseTurnCommitDistance(lookahead_distance, step);
-    const navmesh::WorldPoint lookahead = lookahead_on_corridor(plan_.path, *projection, lookahead_distance, turn_commit_distance);
+    const std::optional<double> step = estimate_step_per_tick(*nav_run);
+    const double lookahead_distance = choose_lookahead_distance(route, step);
+    const double turn_commit_distance = choose_turn_commit_distance(lookahead_distance, step);
+    const navmesh::WorldPoint lookahead = lookahead_on_corridor(nav_run->plan.path, *projection, lookahead_distance, turn_commit_distance);
     result.has_corridor_heading = true;
     result.corridor_heading = corridor_aim_heading(position, projection->point, lookahead);
     result.lookahead_point = lookahead;
     result.projection_point = projection->point;
     result.cross_track = projection->cross_track;
     result.remaining_to_anchor = remaining;
-    result.upcoming_turn_deg = upcoming_corridor_turn_deg(plan_.path, *projection, kNavRunUpcomingTurnLookaheadM);
+    result.upcoming_turn_deg = upcoming_corridor_turn_deg(nav_run->plan.path, *projection, kNavRunUpcomingTurnLookaheadM);
     result.step_per_tick = step;
-    result.corner = next_sharp_corner(plan_.path, *projection, turn_commit_distance);
+    result.corner = next_sharp_corner(nav_run->plan.path, *projection, turn_commit_distance);
 
-    const double character_arc = corridor_arc_length_to(plan_.path, plan_.corridor_arc_prefix, *projection);
+    const double character_arc = corridor_arc_length_to(nav_run->plan.path, nav_run->plan.corridor_arc_prefix, *projection);
     const size_t corridor_passed =
-        count_corridor_passed_run_waypoints(*session, plan_.path, plan_.corridor_arc_prefix, anchor_index, character_arc);
+        count_corridor_passed_run_waypoints(*session, nav_run->plan.path, nav_run->plan.corridor_arc_prefix, anchor_index, character_arc);
     const bool clamped_without_passage =
         projection->before_window || projection->capped || (projection->after_window && projection->cross_track > kNavRunCrossTrackWarnM);
     if (clamped_without_passage) {
         if (corridor_passed > 0) {
             LogDebug << "Corridor passed advance suppressed; corridor projection clamped outside the window." << VAR(corridor_passed)
-                     << VAR_AS(session->current_node_idx(), session->currentNodeIdx()) << VAR(projection->before_window)
+                     << VAR_AS(session->current_node_idx(), session->current_node_idx) << VAR(projection->before_window)
                      << VAR(projection->after_window) << VAR(projection->capped) << VAR(projection->cross_track);
         }
     }
@@ -769,7 +810,7 @@ NavRunTickResult NavRunController::tick(
     }
     else if (corridor_passed > 0) {
         LogDebug << "Corridor passed advance blocked before startup movement confirmed." << VAR(corridor_passed)
-                 << VAR_AS(session->current_node_idx(), session->currentNodeIdx()) << VAR(character_arc);
+                 << VAR_AS(session->current_node_idx(), session->current_node_idx) << VAR(character_arc);
     }
     return result;
 }

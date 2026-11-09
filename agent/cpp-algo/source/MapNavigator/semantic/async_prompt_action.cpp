@@ -138,11 +138,11 @@ bool consume_detection(AsyncPromptAction* action)
 // 只认当前要走到的那个点, nullptr 表示这一拍不该停车
 const Waypoint* current_waypoint_of_this_kind(const AsyncPromptAction& action)
 {
-    if (action.session == nullptr || !action.session->hasCurrentWaypoint()) {
+    if (action.session == nullptr || !HasCurrentWaypoint(*action.session)) {
         return nullptr;
     }
 
-    const Waypoint& waypoint = action.session->currentWaypoint();
+    const Waypoint& waypoint = CurrentWaypoint(*action.session);
     return SpecMatches(action.spec, waypoint) ? &waypoint : nullptr;
 }
 
@@ -152,7 +152,7 @@ const Waypoint* tail_waypoint_of_this_kind(const AsyncPromptAction& action)
         return nullptr;
     }
 
-    const std::vector<Waypoint>& path = action.session->originalPath();
+    const std::vector<Waypoint>& path = action.session->original_path;
     for (auto it = path.rbegin(); it != path.rend(); ++it) {
         if (!it->has_position) {
             continue;
@@ -181,7 +181,7 @@ bool RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, co
 }
 
 AsyncPromptAction
-    MakeAsyncPromptAction(const AsyncPromptActionSpec& spec, MaaContext* context, NavigationSession* session, const NaviPosition* position)
+    MakeAsyncPromptAction(const AsyncPromptActionSpec& spec, MaaContext* context, Session* session, const NaviPosition* position)
 {
     AsyncPromptAction action;
     action.spec = spec;
@@ -196,7 +196,7 @@ bool PromptRouteHasPoint(const AsyncPromptAction& action)
     if (action.session == nullptr) {
         return false;
     }
-    const std::vector<Waypoint>& path = action.session->originalPath();
+    const std::vector<Waypoint>& path = action.session->original_path;
     return std::any_of(path.begin(), path.end(), [&action](const Waypoint& waypoint) { return SpecMatches(action.spec, waypoint); });
 }
 
@@ -214,7 +214,7 @@ void StartPromptAction(AsyncPromptAction* action, const cv::Rect& fallback_roi, 
     action->controller_type = controller_type;
     action->started = true;
 
-    for (const Waypoint& waypoint : action->session->originalPath()) {
+    for (const Waypoint& waypoint : action->session->original_path) {
         if (SpecMatches(action->spec, waypoint)) {
             build_scanner(action, waypoint.interact_scan);
             break;
@@ -254,7 +254,7 @@ double NearestPromptDistanceSq(const AsyncPromptAction& action)
     }
 
     double nearest_sq = -1.0;
-    for (const Waypoint& waypoint : action.session->currentPath()) {
+    for (const Waypoint& waypoint : action.session->current_path) {
         if (!SpecMatches(action.spec, waypoint)) {
             continue;
         }

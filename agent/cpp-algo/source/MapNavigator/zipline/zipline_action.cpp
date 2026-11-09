@@ -5,7 +5,6 @@
 #include <cmath>
 #include <optional>
 #include <string>
-#include <variant>
 #include <vector>
 
 #include <MaaFramework/MaaAPI.h>
@@ -24,9 +23,6 @@
 #include "zipline_ride_machine.h"
 
 namespace mapnavigator
-{
-
-namespace semantic_nodes
 {
 
 namespace
@@ -64,116 +60,139 @@ std::string build_pitch_reset_override(int units)
     return json::value(std::move(root)).dumps();
 }
 
-class RuntimeZiplineObserver : public IZiplineObserver
+std::vector<maplocator::SearchHint> landing_hints(const semantic_nodes::Context& ctx, const std::vector<ZiplineNodeRef>& hint_nodes)
 {
-public:
-    explicit RuntimeZiplineObserver(const Context& ctx)
-        : ctx_(ctx)
-    {
+    std::vector<maplocator::SearchHint> hints;
+    const std::string zone = ctx.position->zone_id;
+    if (!zone.empty()) {
+        for (const ZiplineNodeRef& node : hint_nodes) {
+            hints.push_back(maplocator::SearchHint { .zone_id = zone, .x = node.x, .y = node.y, .radius = kZiplineLandingHintRadiusWu });
+        }
     }
+    return hints;
+}
 
-    ZiplineObservation observe(const std::vector<ZiplineNodeRef>& hint_nodes, bool force_global_search) override
-    {
-        ZiplineObservation obs;
-        obs.at = std::chrono::steady_clock::now();
-        std::vector<maplocator::SearchHint> hints;
-        const std::string zone = ctx_.position->zone_id;
-        if (!zone.empty()) {
-            for (const ZiplineNodeRef& node : hint_nodes) {
-                hints.push_back(
-                    maplocator::SearchHint { .zone_id = zone, .x = node.x, .y = node.y, .radius = kZiplineLandingHintRadiusWu });
-            }
-        }
-        const bool captured = force_global_search ? CaptureGlobal(ctx_.position_provider, ctx_.position, {}, hints)
-                                                  : CaptureTracked(ctx_.position_provider, ctx_.position, {}, hints);
-        if (captured) {
-            obs.fix = *ctx_.position;
-        }
-        return obs;
-    }
+} // namespace
 
-    // 右上角按钮上架后会收起, 所以命中地面判据即在地面, 否则再看底部引导
-    MountVerdict checkMounted() override
-    {
-        if (ctx_.maa_context == nullptr) {
-            return MountVerdict::Unclear;
-        }
-        if (run_node_and_report_hit(ctx_.maa_context, kZiplineOnGroundEntryNode, kZiplineOnGroundNode, "{}")) {
-            return MountVerdict::OnGround;
-        }
-        const bool hint = run_node_and_report_hit(ctx_.maa_context, kZiplineOnTowerHintEntryNode, kZiplineOnTowerHintNode, "{}");
-        return hint ? MountVerdict::OnTower : MountVerdict::Unclear;
-    }
-
-    void resetTracking() override { ResetSensorTracking(ctx_.position_provider); }
-
-private:
-    const Context& ctx_;
+struct ZiplineIo
+{
+    const semantic_nodes::Context& ctx;
 };
 
-class RuntimeZiplineActuator : public IZiplineActuator
+ZiplineObservation ZiplineIoObserveTracked(ZiplineIo* io, const std::vector<ZiplineNodeRef>& hint_nodes)
 {
-public:
-    explicit RuntimeZiplineActuator(const Context& ctx)
-        : ctx_(ctx)
-    {
+    ZiplineObservation obs;
+    obs.at = std::chrono::steady_clock::now();
+    const std::vector<maplocator::SearchHint> hints = landing_hints(io->ctx, hint_nodes);
+    const bool captured = CaptureTracked(io->ctx.position_provider, io->ctx.position, {}, hints);
+    if (captured) {
+        obs.fix = *io->ctx.position;
     }
+    return obs;
+}
 
-    // 俯仰无读数, 只能拉到天空方向的硬限位当已知位置; 走 pipeline 节点是因为 Swipe 会带一次左键
-    bool resetPitchToMaximum() override
-    {
-        const int units = static_cast<int>(std::lround(-kZiplinePitchResetRangeScale * PitchRangeUnits(*ctx_.input_backend)));
-        if (UsesTouchBackend(*ctx_.input_backend)) {
-            return units != 0 && SendViewDeltaSync(ctx_.input_backend, 0, units);
-        }
-        if (ctx_.maa_context == nullptr) {
-            LogWarn << "Zipline aim: no pipeline context to reset the pitch.";
+ZiplineObservation ZiplineIoObserveGlobal(ZiplineIo* io, const std::vector<ZiplineNodeRef>& hint_nodes)
+{
+    ZiplineObservation obs;
+    obs.at = std::chrono::steady_clock::now();
+    const std::vector<maplocator::SearchHint> hints = landing_hints(io->ctx, hint_nodes);
+    const bool captured = CaptureGlobal(io->ctx.position_provider, io->ctx.position, {}, hints);
+    if (captured) {
+        obs.fix = *io->ctx.position;
+    }
+    return obs;
+}
+
+// 右上角按钮上架后会收起, 所以命中地面判据即在地面, 否则再看底部引导
+MountVerdict ZiplineIoCheckMounted(ZiplineIo* io)
+{
+    if (io->ctx.maa_context == nullptr) {
+        return MountVerdict::Unclear;
+    }
+    if (run_node_and_report_hit(io->ctx.maa_context, kZiplineOnGroundEntryNode, kZiplineOnGroundNode, "{}")) {
+        return MountVerdict::OnGround;
+    }
+    const bool hint = run_node_and_report_hit(io->ctx.maa_context, kZiplineOnTowerHintEntryNode, kZiplineOnTowerHintNode, "{}");
+    return hint ? MountVerdict::OnTower : MountVerdict::Unclear;
+}
+
+void ZiplineIoResetTracking(ZiplineIo* io)
+{
+    ResetSensorTracking(io->ctx.position_provider);
+}
+
+// 俯仰无读数, 只能拉到天空方向的硬限位当已知位置; 走 pipeline 节点是因为 Swipe 会带一次左键
+bool ZiplineIoResetPitchToMaximum(ZiplineIo* io)
+{
+    const int units = static_cast<int>(std::lround(-kZiplinePitchResetRangeScale * PitchRangeUnits(*io->ctx.input_backend)));
+    if (UsesTouchBackend(*io->ctx.input_backend)) {
+        if (units == 0) {
             return false;
         }
-        if (units == 0
-            || !run_node_and_report_hit(
-                ctx_.maa_context,
-                kZiplinePitchResetNode,
-                kZiplinePitchResetNode,
-                build_pitch_reset_override(units))) {
-            LogWarn << "Zipline aim: the pitch reset task did not complete." << VAR(kZiplinePitchResetNode) << VAR(units);
-            return false;
-        }
+        return SendViewDeltaSync(io->ctx.input_backend, 0, units);
+    }
+    if (io->ctx.maa_context == nullptr) {
+        LogWarn << "Zipline aim: no pipeline context to reset the pitch.";
+        return false;
+    }
+    bool completed = false;
+    if (units != 0) {
+        completed =
+            run_node_and_report_hit(io->ctx.maa_context, kZiplinePitchResetNode, kZiplinePitchResetNode, build_pitch_reset_override(units));
+    }
+    if (!completed) {
+        LogWarn << "Zipline aim: the pitch reset task did not complete." << VAR(kZiplinePitchResetNode) << VAR(units);
+        return false;
+    }
+    return true;
+}
+
+std::optional<double> ZiplineIoTurnYaw(ZiplineIo* io, double delta_deg)
+{
+    const double cap = SteeringProfileOf(*io->ctx.input_backend).max_batch_delta_deg;
+    const double step = std::clamp(delta_deg, -cap, cap);
+    if (!semantic_nodes::TurnToHeadingOnce(io->ctx, step)) {
+        return std::nullopt;
+    }
+    return step;
+}
+
+bool ZiplineIoLowerPitchTo(ZiplineIo* io, double elevation_deg)
+{
+    const double fraction = CameraVerticalFractionForElevation(elevation_deg);
+    const int units = static_cast<int>(std::lround(fraction * PitchRangeUnits(*io->ctx.input_backend)));
+    if (units == 0) {
         return true;
     }
+    return SendViewDeltaSync(io->ctx.input_backend, 0, units);
+}
 
-    std::optional<double> turnYaw(double delta_deg) override
-    {
-        const double cap = SteeringProfileOf(*ctx_.input_backend).max_batch_delta_deg;
-        const double step = std::clamp(delta_deg, -cap, cap);
-        if (!TurnToHeadingOnce(ctx_, step)) {
-            return std::nullopt;
-        }
-        return step;
-    }
+bool ZiplineIoPressMount(ZiplineIo* io)
+{
+    return press_mount_prompt(io->ctx.maa_context);
+}
 
-    bool lowerPitchTo(double elevation_deg) override
-    {
-        const double fraction = CameraVerticalFractionForElevation(elevation_deg);
-        const int units = static_cast<int>(std::lround(fraction * PitchRangeUnits(*ctx_.input_backend)));
-        return units == 0 || SendViewDeltaSync(ctx_.input_backend, 0, units);
-    }
+void ZiplineIoFireLaunch(ZiplineIo* io)
+{
+    HoldPosition(io->ctx.motion_controller);
+    TriggerZiplineLaunchSync(io->ctx.input_backend);
+}
 
-    bool pressMount() override { return press_mount_prompt(ctx_.maa_context); }
+void ZiplineIoDismount(ZiplineIo* io)
+{
+    TriggerZiplineDismountSync(io->ctx.input_backend, kZiplineDismountHoldMs);
+}
 
-    void fireLaunch() override
-    {
-        HoldPosition(ctx_.motion_controller);
-        TriggerZiplineLaunchSync(ctx_.input_backend);
-    }
+void ZiplineIoWait(ZiplineIo*, int32_t ms)
+{
+    SleepFor(ms);
+}
 
-    void dismount() override { TriggerZiplineDismountSync(ctx_.input_backend, kZiplineDismountHoldMs); }
+namespace semantic_nodes
+{
 
-    void wait(int32_t ms) override { SleepFor(ms); }
-
-private:
-    const Context& ctx_;
-};
+namespace
+{
 
 size_t skip_continuous_run(const std::vector<Waypoint>& path, size_t index)
 {
@@ -191,18 +210,18 @@ Result drop_chain_and_recover(const Context& ctx, const char* reason, const char
         LeaveZiplineTower(ctx);
     }
 
-    const std::vector<Waypoint>& path = ctx.session->currentPath();
-    const size_t hop = skip_continuous_run(path, ctx.session->currentNodeIdx());
+    const std::vector<Waypoint>& path = ctx.session->current_path;
+    const size_t hop = skip_continuous_run(path, ctx.session->current_node_idx);
     // 整条链一起丢, 留一跳重规划就会把人送回刚失败的索
     size_t dropped = 0;
     while (hop + dropped < path.size() && path[hop + dropped].action == ActionType::ZIPLINE) {
         ++dropped;
     }
     if (dropped != 0) {
-        ctx.session->skipPastWaypoint(hop + dropped - 1, reason);
+        SkipPastWaypoint(ctx.session, hop + dropped - 1, reason);
     }
     if (stay_on_tower) {
-        ctx.session->noteStandingTower(ctx.runtime_state->zipline_ride.towerUnderfoot());
+        NoteStandingTower(ctx.session, ZiplineTowerUnderfoot(ctx.runtime_state->zipline_ride));
     }
 
     LogWarn << "Action: ZIPLINE given up, recovering from a fresh position." << VAR(reason) << VAR(detail) << VAR(dropped)
@@ -212,7 +231,7 @@ Result drop_chain_and_recover(const Context& ctx, const char* reason, const char
     ResetOnWaypointAdvance(ctx.runtime_state);
     ctx.runtime_state->route = {};
     ResetSensorTracking(ctx.position_provider);
-    ctx.session->resetProgress();
+    ResetProgress(ctx.session);
     // ResetOnWaypointAdvance 会清掉恢复状态和重规划标志, 这两行必须在它后面
     BeginZiplineRecovery(&ctx.runtime_state->zipline_recovery, std::chrono::steady_clock::now());
     ctx.runtime_state->dynamic_replan_requested = true;
@@ -229,28 +248,28 @@ Result finish_hop(const Context& ctx, const HopCompleted& done)
     result.consumed = true;
     result.stay_in_current_tick = true;
 
-    ctx.session->noteCanonicalFinalGoalConsumed(ctx.session->currentAbsoluteNodeIndex(), done.at, "zipline_ride_complete");
-    ctx.session->advanceToNextWaypoint(ActionType::ZIPLINE, "zipline_ride_complete");
+    NoteCanonicalFinalGoalConsumed(ctx.session, CurrentAbsoluteNodeIndex(*ctx.session), done.at, "zipline_ride_complete");
+    AdvanceToNextWaypoint(ctx.session, ActionType::ZIPLINE, "zipline_ride_complete");
     ResetOnWaypointAdvance(ctx.runtime_state);
     LogInfo << "Action: ZIPLINE ride landed." << VAR(done.at.x) << VAR(done.at.y) << VAR(done.still_on_tower);
     if (!done.at.zone_id.empty()) {
-        ctx.session->updateCurrentZone(done.at.zone_id);
+        UpdateCurrentZone(ctx.session, done.at.zone_id);
     }
-    ctx.session->resetProgress();
+    ResetProgress(ctx.session);
     ResetNavigationAssistState(ctx.runtime_state);
     ctx.runtime_state->route = {};
     // 起步确认直接置位, 下一跳的上索点就在脚下, 拦住就得先走开再走回来
     ConfirmStartupAt(&ctx.runtime_state->route, done.at);
     ResetSensorTracking(ctx.position_provider);
 
-    if (!ctx.session->hasCurrentWaypoint()) {
+    if (!HasCurrentWaypoint(*ctx.session)) {
         LeaveZiplineTower(ctx);
-        ctx.session->noteRouteTailConsumed(done.at, "route_tail_consumed");
+        NoteRouteTailConsumed(ctx.session, done.at, "route_tail_consumed");
         return result;
     }
     if (done.still_on_tower) {
         if (SkipToHopUnderfoot(ctx, "zipline_ride_complete")) {
-            return StartZiplineHop(ctx, ctx.session->currentWaypoint(), 0.0);
+            return StartZiplineHop(ctx, CurrentWaypoint(*ctx.session), 0.0);
         }
         LeaveZiplineTower(ctx);
     }
@@ -275,16 +294,16 @@ Result AdvanceMountSpot(const Context& ctx, const Waypoint& waypoint, const char
     FollowMountTower(&approach, plan.mount);
     const size_t cursor = approach.spot_index;
     if (cursor + 1 >= spot_count) {
-        ctx.runtime_state->zipline_ride.markMountUnreachable(plan);
+        MarkZiplineMountUnreachable(&ctx.runtime_state->zipline_ride, plan);
         return AbandonZipline(ctx, kGiveUpReason, kGiveUpDetail);
     }
 
     approach.spot_index = cursor + 1;
     approach.press_missed = true;
     const ZiplineMountSpot& spot = plan.mount_spots[approach.spot_index];
-    const bool retargeted = ctx.session->retargetCurrentWaypoint(spot.x, spot.y, reason);
+    const bool retargeted = RetargetCurrentWaypoint(ctx.session, spot.x, spot.y, reason);
     // 硬时钟不归零的话, 下一拍就会把剩下的站位一口气烧光
-    ctx.session->resetHardProgress();
+    ResetHardProgress(ctx.session);
     LogWarn << "Action: ZIPLINE no mount prompt here; walking to the next stand point." << VAR(reason) << VAR(retargeted)
             << VAR(approach.spot_index) << VAR(spot_count) << VAR(spot.x) << VAR(spot.y);
     ctx.runtime_state->route = {};
@@ -300,12 +319,12 @@ Result AdvanceMountSpot(const Context& ctx, const Waypoint& waypoint, const char
 
 bool SkipToHopUnderfoot(const Context& ctx, const char* reason)
 {
-    const std::optional<ZiplineNodeRef> underfoot = ctx.runtime_state->zipline_ride.towerUnderfoot();
+    const std::optional<ZiplineNodeRef> underfoot = ZiplineTowerUnderfoot(ctx.runtime_state->zipline_ride);
     if (!underfoot) {
         return false;
     }
-    const std::vector<Waypoint>& path = ctx.session->currentPath();
-    const size_t current = ctx.session->currentNodeIdx();
+    const std::vector<Waypoint>& path = ctx.session->current_path;
+    const size_t current = ctx.session->current_node_idx;
     const size_t hop = skip_continuous_run(path, current);
     if (hop >= path.size() || path[hop].action != ActionType::ZIPLINE || !path[hop].zipline_hop
         || !path[hop].zipline_hop->mount.sameTower(*underfoot)) {
@@ -314,7 +333,7 @@ bool SkipToHopUnderfoot(const Context& ctx, const char* reason)
     if (hop > current) {
         LogInfo << "Next hop leaves from the tower underfoot; skipping the walk to its stand point." << VAR(reason) << VAR(current)
                 << VAR(hop) << VAR(underfoot->x) << VAR(underfoot->y);
-        ctx.session->skipPastWaypoint(hop - 1, reason);
+        SkipPastWaypoint(ctx.session, hop - 1, reason);
     }
     return true;
 }
@@ -326,10 +345,14 @@ Result AbandonZipline(const Context& ctx, const char* reason, const char* detail
 
 void LeaveZiplineTower(const Context& ctx)
 {
-    ZiplineRideMachine& ride = ctx.runtime_state->zipline_ride;
-    const bool was_on_tower = ride.onTower();
-    RuntimeZiplineActuator actuator(ctx);
-    ride.dismount(actuator);
+    ZiplineRide* ride = &ctx.runtime_state->zipline_ride;
+    const bool was_on_tower = ZiplineOnTower(*ride);
+    ZiplineIo io { ctx };
+    if (was_on_tower) {
+        ZiplineIoDismount(&io);
+    }
+    RecordDismissedHop(ride);
+    ResetZiplineHop(ride);
     // 刚下来的那几百毫秒移动指令还会被架子吃掉
     if (was_on_tower) {
         SleepFor(kZiplineLaunchSettleMs);
@@ -346,15 +369,15 @@ Result StartZiplineHop(const Context& ctx, const Waypoint& waypoint, double actu
     }
 
     // 站在别的架子上瞄, 发出去的是那根架子的索, 还会把好索记成坏的
-    ZiplineRideMachine& ride = ctx.runtime_state->zipline_ride;
-    const std::optional<ZiplineNodeRef> underfoot = ride.towerUnderfoot();
+    ZiplineRide* ride = &ctx.runtime_state->zipline_ride;
+    const std::optional<ZiplineNodeRef> underfoot = ZiplineTowerUnderfoot(*ride);
     if (underfoot && !waypoint.zipline_hop->mount.sameTower(*underfoot)) {
         LogWarn << "Standing on a tower this hop does not start from; stepping down first." << VAR(underfoot->x) << VAR(underfoot->y)
                 << VAR(waypoint.zipline_hop->mount.x) << VAR(waypoint.zipline_hop->mount.y);
         LeaveZiplineTower(ctx);
     }
 
-    if (!ride.onTower()) {
+    if (!ZiplineOnTower(*ride)) {
         if (ctx.maa_context == nullptr) {
             return AbandonZipline(ctx, "zipline_no_context", "no pipeline context to recognize the mount prompt");
         }
@@ -370,11 +393,11 @@ Result StartZiplineHop(const Context& ctx, const Waypoint& waypoint, double actu
         ctx.runtime_state->zipline_approach.press_missed = false;
     }
 
-    ride.begin(*waypoint.zipline_hop);
+    BeginZiplineHop(ride, *waypoint.zipline_hop);
     LogInfo << "Action: ZIPLINE hop started." << VAR(waypoint.zipline_hop->landing.x) << VAR(waypoint.zipline_hop->landing.y)
             << VAR(waypoint.zipline_hop->planned_elevation_deg) << VAR(waypoint.zipline_hop->chain_continues) << VAR(actual_distance);
     // 航点等落地再推进, 起滑时人还在上索点, 链尾也不能在这里收工
-    ctx.session->updatePhase(NaviPhase::WaitZipline, "zipline_hop_started");
+    UpdatePhase(ctx.session, NaviPhase::WaitZipline, "zipline_hop_started");
     result.consumed = true;
     result.stay_in_current_tick = true;
     return result;
@@ -385,29 +408,29 @@ Result TickZiplineRide(const Context& ctx)
     Result result;
     HoldPosition(ctx.motion_controller);
 
-    ZiplineRideMachine& ride = ctx.runtime_state->zipline_ride;
-    if (ride.stage() == ZiplineStage::Idle) {
+    ZiplineRide* ride = &ctx.runtime_state->zipline_ride;
+    if (ride->stage == ZiplineStage::Idle) {
         return AbandonZipline(ctx, "zipline_ride_idle", "waiting on a ride that is not running");
     }
-    RuntimeZiplineObserver observer(ctx);
-    RuntimeZiplineActuator actuator(ctx);
-    const StageResult outcome = ride.tick(observer, actuator);
+    ZiplineIo io { ctx };
+    const StageResult outcome = TickZiplineHop(ride, &io);
 
-    if (const auto* done = std::get_if<HopCompleted>(&outcome)) {
-        return finish_hop(ctx, *done);
+    if (outcome.kind == StageResultKind::HopCompleted) {
+        return finish_hop(ctx, outcome.hop_completed);
     }
-    if (const auto* abandoned = std::get_if<ChainAbandoned>(&outcome)) {
-        return AbandonZipline(ctx, abandoned->reason, "the ride machine gave this chain up");
+    if (outcome.kind == StageResultKind::ChainAbandoned) {
+        return AbandonZipline(ctx, outcome.chain_abandoned.reason, "the ride machine gave this chain up");
     }
-    if (const auto* replan = std::get_if<ReplanRequested>(&outcome)) {
+    if (outcome.kind == StageResultKind::ReplanRequested) {
         return drop_chain_and_recover(
             ctx,
             "zipline_replan_requested",
-            replan->still_on_tower ? "waiting on the tower for a new route" : "this hop is dead, re-routing from the ground",
-            replan->still_on_tower);
+            outcome.replan_requested.still_on_tower ? "waiting on the tower for a new route"
+                                                    : "this hop is dead, re-routing from the ground",
+            outcome.replan_requested.still_on_tower);
     }
-    if (std::get_if<NeedsReposition>(&outcome) != nullptr) {
-        return AdvanceMountSpot(ctx, ctx.session->currentWaypoint(), "zipline_mount_unmounted");
+    if (outcome.kind == StageResultKind::NeedsReposition) {
+        return AdvanceMountSpot(ctx, CurrentWaypoint(*ctx.session), "zipline_mount_unmounted");
     }
     result.stay_in_current_tick = true;
     SleepFor(kZiplineRideRetryIntervalMs);

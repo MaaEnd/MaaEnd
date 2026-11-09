@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <filesystem>
 #include <format>
+#include <functional>
 #include <iterator>
 #include <limits>
 #include <memory>
@@ -14,6 +15,7 @@
 #include <utility>
 #include <vector>
 
+#include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
 
@@ -128,7 +130,7 @@ struct ExpansionContext
 {
     const NaviParam& param;
     const CachedNavmesh& mesh;
-    const std::function<bool()>& should_stop;
+    MaaContext* maa_context = nullptr;
     std::vector<NavmeshRouteDiagnostic>* diagnostics = nullptr;
     const std::vector<VirtualNoGoDisc>* no_go = nullptr;
     // 判定不可用的升降索, 空指针表示这次不用升降索
@@ -151,7 +153,8 @@ struct ExpansionContext
 
     bool cancelIfStopped(const LegState& state)
     {
-        if (!should_stop()) {
+        const bool stopping = maa_context != nullptr && MaaTaskerStopping(MaaContextGetTasker(maa_context));
+        if (!stopping) {
             return false;
         }
         failure = zone_failure("cancelled", "路线规划已取消", state);
@@ -314,7 +317,7 @@ void copy_plan_debug(navmesh::recast::RecastPlanResult::Debug& debug, NavmeshRou
 navmesh::BaseNavRouteResult plan_corridor_route(
     const CachedNavmesh& mesh,
     const navmesh::BaseNavRouteRequest& request,
-    const std::function<bool()>& should_stop = {},
+    MaaContext* maa_context,
     NavmeshRouteDiagnostic* out_diagnostic = nullptr)
 {
     navmesh::BaseNavRouteResult result;
@@ -326,6 +329,12 @@ navmesh::BaseNavRouteResult plan_corridor_route(
     }
     const float start_floor = request.start_floor_y > navmesh::kBaseNavFloorYValidMin ? request.start_floor_y : request.floor_y;
     const float goal_floor = request.goal_floor_y > navmesh::kBaseNavFloorYValidMin ? request.goal_floor_y : request.floor_y;
+    std::function<bool()> should_stop;
+    if (maa_context != nullptr) {
+        should_stop = [maa_context] {
+            return MaaTaskerStopping(MaaContextGetTasker(maa_context));
+        };
+    }
     auto plan = mesh.engine.plan(
         request.zone_name,
         request.start,
@@ -624,7 +633,7 @@ bool append_blind_target_fallback(
     double blind_gap = 0.0;
     const auto probe_started_at = std::chrono::steady_clock::now();
     for (double offset = 0.0; offset <= probe_limit + 1e-6; offset += kBlindTargetProbeStep) {
-        if (ctx.should_stop()) {
+        if (ctx.maa_context != nullptr && MaaTaskerStopping(MaaContextGetTasker(ctx.maa_context))) {
             return fail("规划已取消");
         }
         const int64_t probe_elapsed_ms = ElapsedMs(probe_started_at);
@@ -645,7 +654,7 @@ bool append_blind_target_fallback(
         }
         const auto request = ctx.legRequest(state, entry->point, goal_floor_y, std::nullopt);
         NavmeshRouteDiagnostic diagnostic;
-        const auto route = plan_corridor_route(ctx.mesh, request, ctx.should_stop, ctx.diagnostics == nullptr ? nullptr : &diagnostic);
+        const auto route = plan_corridor_route(ctx.mesh, request, ctx.maa_context, ctx.diagnostics == nullptr ? nullptr : &diagnostic);
         if (!route.ok() || route.path.points.empty()) {
             continue;
         }
@@ -741,7 +750,7 @@ bool try_append_zipline_leg(
             .goal_deck_y = target.deck_y,
             .start_floor_y = state.route_start_floor_y,
             .start_deck_y = state.route_start_deck_y,
-            .should_stop = ctx.should_stop,
+            .maa_context = ctx.maa_context,
             .capture_diagnostics = ctx.diagnostics != nullptr,
             .no_go = ctx.no_go,
         });
@@ -854,12 +863,12 @@ struct NavmeshLeg
     void planWithStartRecovery()
     {
         const auto plan_started_at = std::chrono::steady_clock::now();
-        route_result = plan_corridor_route(ctx.mesh, request, ctx.should_stop, diagnosticSink());
+        route_result = plan_corridor_route(ctx.mesh, request, ctx.maa_context, diagnosticSink());
         if (!route_result.ok() && route_result.status != navmesh::BaseNavRouteStatus::NoGo
             && append_start_recovery(ctx, state, request, out_path, &start_recovery_error)) {
             request.start = state.route_start;
             route_diagnostic = {};
-            route_result = plan_corridor_route(ctx.mesh, request, ctx.should_stop, diagnosticSink());
+            route_result = plan_corridor_route(ctx.mesh, request, ctx.maa_context, diagnosticSink());
             start_recovered = true;
         }
         plan_ms = ElapsedMs(plan_started_at);
@@ -1211,7 +1220,7 @@ void PreloadNavmeshWaypoints(const NaviParam& param)
 bool ExpandNavmeshWaypoints(
     const NaviParam& param,
     const NaviPosition& initial_pos,
-    const std::function<bool()>& should_stop,
+    MaaContext* maa_context,
     std::vector<Waypoint>& out_path,
     std::vector<NavmeshRouteDiagnostic>* out_diagnostics,
     const std::vector<VirtualNoGoDisc>* no_go,
@@ -1274,7 +1283,7 @@ bool ExpandNavmeshWaypoints(
     ExpansionContext ctx {
         .param = param,
         .mesh = *mesh,
-        .should_stop = should_stop,
+        .maa_context = maa_context,
         .diagnostics = out_diagnostics,
         .no_go = no_go,
         .rope_off = param.rope_interact_text.empty() ? nullptr : &param.rope_off,
@@ -1337,14 +1346,14 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
 
     const auto request = build_route_request(mesh->pack, locator_zone, navmesh_zone, endpoints, no_go);
     const auto plan_started_at = std::chrono::steady_clock::now();
-    auto route_result = plan_corridor_route(*mesh, request, {}, out_diagnostic);
+    auto route_result = plan_corridor_route(*mesh, request, nullptr, out_diagnostic);
     // 禁区判掉的不接, 盲走会径直穿过禁区; 入口搜索半径可能超出盲走预算, 所以再卡一次距离
     if (!route_result.ok() && out_start_recovery_entry != nullptr && route_result.status != navmesh::BaseNavRouteStatus::NoGo) {
         const auto entry = find_start_recovery_entry(param, *mesh, navmesh_zone, locator_zone, request, nullptr);
         if (entry && entry->distance <= kStartRecoveryMaxBlindWalk) {
             navmesh::BaseNavRouteRequest recovered = request;
             recovered.start = entry->point;
-            auto retry = plan_corridor_route(*mesh, recovered, {}, out_diagnostic);
+            auto retry = plan_corridor_route(*mesh, recovered, nullptr, out_diagnostic);
             if (retry.ok()) {
                 LogInfo << "NAVMESH replan start off mesh; walking onto the nearest mesh point first." << VAR(navmesh_zone)
                         << VAR(locator_zone) << VAR(start.x) << VAR(start.y) << VAR(entry->point.x) << VAR(entry->point.y)

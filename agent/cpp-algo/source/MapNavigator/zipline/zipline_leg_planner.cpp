@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <mutex>
@@ -13,6 +14,7 @@
 #include <utility>
 #include <vector>
 
+#include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
 
 #include "../../Zipline/ZiplineStore.h"
@@ -547,40 +549,17 @@ struct LegBudget
     size_t remaining = kMaxExtraPlans;
 };
 
-// 缓存里存 nullopt 表示这段规划不出来, 下次不必再试
-class LegCache
+enum class LegSide
 {
-public:
-    using Planner = std::function<std::optional<PlannedLeg>(size_t)>;
+    Approach,
+    Departure,
+};
 
-    LegCache(Planner planner, LegBudget& budget)
-        : planner_(std::move(planner))
-        , budget_(budget)
-    {
-    }
-
-    // 返回 Planned 时 *leg 指向缓存里的结果
-    LegLookup get(size_t index, const PlannedLeg** leg)
-    {
-        auto it = cache_.find(index);
-        if (it == cache_.end()) {
-            if (budget_.remaining == 0) {
-                return LegLookup::OutOfBudget;
-            }
-            --budget_.remaining;
-            it = cache_.emplace(index, planner_(index)).first;
-        }
-        if (!it->second) {
-            return LegLookup::Unplannable;
-        }
-        *leg = &*it->second;
-        return LegLookup::Planned;
-    }
-
-private:
-    Planner planner_;
-    LegBudget& budget_;
-    std::unordered_map<size_t, std::optional<PlannedLeg>> cache_;
+// 缓存里存 nullopt 表示这段规划不出来, 下次不必再试
+struct LegCache
+{
+    LegSide side = LegSide::Approach;
+    std::unordered_map<size_t, std::optional<PlannedLeg>> legs;
 };
 
 struct PlanInputs
@@ -953,12 +932,48 @@ std::optional<PlannedLeg> plan_departure(const PlanInputs& in, const TowerSites&
     return to_planned_leg(route, std::move(diagnostic));
 }
 
+std::optional<PlannedLeg> plan_leg(const PlanInputs& in, const TowerSites& sites, LegSide side, size_t spot)
+{
+    switch (side) {
+    case LegSide::Approach:
+        return plan_approach(in, sites, spot);
+    case LegSide::Departure:
+        return plan_departure(in, sites, spot);
+    }
+    return std::nullopt;
+}
+
+// 返回 Planned 时 *leg 指向缓存里的结果
+LegLookup
+    cached_leg(LegCache* cache, LegBudget* budget, const PlanInputs& in, const TowerSites& sites, size_t index, const PlannedLeg** leg)
+{
+    auto it = cache->legs.find(index);
+    if (it == cache->legs.end()) {
+        if (budget->remaining == 0) {
+            return LegLookup::OutOfBudget;
+        }
+        --budget->remaining;
+        it = cache->legs.emplace(index, plan_leg(in, sites, cache->side, index)).first;
+    }
+    if (!it->second) {
+        return LegLookup::Unplannable;
+    }
+    *leg = &*it->second;
+    return LegLookup::Planned;
+}
+
 // 规划通一个站点或预算用完就停
-LegLookup first_leg(LegCache& cache, const std::vector<size_t>& spots, const PlannedLeg** leg)
+LegLookup first_leg(
+    LegCache* cache,
+    LegBudget* budget,
+    const PlanInputs& in,
+    const TowerSites& sites,
+    const std::vector<size_t>& spots,
+    const PlannedLeg** leg)
 {
     LegLookup lookup = LegLookup::OutOfBudget;
     for (const size_t spot : spots) {
-        lookup = cache.get(spot, leg);
+        lookup = cached_leg(cache, budget, in, sites, spot, leg);
         if (lookup != LegLookup::Unplannable) {
             break;
         }
@@ -975,96 +990,83 @@ struct PickedLegs
     double cost = 0.0;
 };
 
-class LegPicker
+// 两个缓存共用一份预算
+struct LegPicker
 {
-public:
-    LegPicker(const PlanInputs& in, const TowerSites& sites)
-        : in_(in)
-        , sites_(sites)
-        , approach_cache_([&in, &sites](size_t spot) { return plan_approach(in, sites, spot); }, budget_)
-        , departure_cache_([&in, &sites](size_t spot) { return plan_departure(in, sites, spot); }, budget_)
-        , best_cost_(in.gain_threshold)
-    {
-    }
-
-    LegPicker(const LegPicker&) = delete;
-    LegPicker& operator=(const LegPicker&) = delete;
-
-    // 先只比确定边候选, 都走不通才比不确定的, 混在一起比会让便宜的不确定直索赢
-    void pick(const std::vector<Candidate>& candidates)
-    {
-        evaluate(candidates, true);
-        if (!best_ && !interrupted_) {
-            evaluate(candidates, false);
-        }
-    }
-
-    const std::optional<PickedLegs>& best() const { return best_; }
-
-    bool truncated() const { return truncated_; }
-
-    bool interrupted() const { return interrupted_; }
-
-private:
-    void evaluate(const std::vector<Candidate>& candidates, bool want_certain)
-    {
-        const std::function<bool()>& should_stop = in_.request.should_stop;
-        for (const auto& candidate : candidates) {
-            if (candidate.certain != want_certain) {
-                continue;
-            }
-            if (should_stop && should_stop()) {
-                interrupted_ = true;
-                break;
-            }
-            if (candidate.lower_bound >= best_cost_) {
-                break;
-            }
-
-            const PlannedLeg* approach = nullptr;
-            const LegLookup approach_lookup = first_leg(approach_cache_, sites_.board_spots[candidate.mount], &approach);
-            if (approach_lookup == LegLookup::OutOfBudget) {
-                truncated_ = true;
-                break;
-            }
-            if (approach_lookup == LegLookup::Unplannable) {
-                continue;
-            }
-
-            if (approach->length + candidate.zip_cost + sites_.lb_to_goal[candidate.dismount] >= best_cost_) {
-                continue;
-            }
-
-            const PlannedLeg* departure = nullptr;
-            const LegLookup departure_lookup = first_leg(departure_cache_, sites_.land_spots[candidate.dismount], &departure);
-            if (departure_lookup == LegLookup::OutOfBudget) {
-                truncated_ = true;
-                break;
-            }
-            if (departure_lookup == LegLookup::Unplannable) {
-                continue;
-            }
-
-            const double total = approach->length + candidate.zip_cost + departure->length;
-            if (total >= best_cost_) {
-                continue;
-            }
-
-            best_cost_ = total;
-            best_ = PickedLegs { .candidate = candidate, .approach = approach, .departure = departure, .cost = total };
-        }
-    }
-
-    const PlanInputs& in_;
-    const TowerSites& sites_;
-    LegBudget budget_;
-    LegCache approach_cache_;
-    LegCache departure_cache_;
-    double best_cost_ = 0.0;
-    std::optional<PickedLegs> best_;
-    bool truncated_ = false;
-    bool interrupted_ = false;
+    LegBudget budget;
+    LegCache approach_cache { .side = LegSide::Approach };
+    LegCache departure_cache { .side = LegSide::Departure };
+    double best_cost = 0.0;
+    std::optional<PickedLegs> best;
+    bool truncated = false;
+    bool interrupted = false;
 };
+
+void evaluate_candidates(LegPicker* picker, const PlanInputs& in, const TowerSites& sites, const std::vector<Candidate>& candidates)
+{
+    for (const auto& candidate : candidates) {
+        if (in.request.maa_context != nullptr && MaaTaskerStopping(MaaContextGetTasker(in.request.maa_context))) {
+            picker->interrupted = true;
+            break;
+        }
+        if (candidate.lower_bound >= picker->best_cost) {
+            break;
+        }
+
+        const PlannedLeg* approach = nullptr;
+        const LegLookup approach_lookup =
+            first_leg(&picker->approach_cache, &picker->budget, in, sites, sites.board_spots[candidate.mount], &approach);
+        if (approach_lookup == LegLookup::OutOfBudget) {
+            picker->truncated = true;
+            break;
+        }
+        if (approach_lookup == LegLookup::Unplannable) {
+            continue;
+        }
+
+        if (approach->length + candidate.zip_cost + sites.lb_to_goal[candidate.dismount] >= picker->best_cost) {
+            continue;
+        }
+
+        const PlannedLeg* departure = nullptr;
+        const LegLookup departure_lookup =
+            first_leg(&picker->departure_cache, &picker->budget, in, sites, sites.land_spots[candidate.dismount], &departure);
+        if (departure_lookup == LegLookup::OutOfBudget) {
+            picker->truncated = true;
+            break;
+        }
+        if (departure_lookup == LegLookup::Unplannable) {
+            continue;
+        }
+
+        const double total = approach->length + candidate.zip_cost + departure->length;
+        if (total >= picker->best_cost) {
+            continue;
+        }
+
+        picker->best_cost = total;
+        picker->best = PickedLegs { .candidate = candidate, .approach = approach, .departure = departure, .cost = total };
+    }
+}
+
+// 先只比确定边候选, 都走不通才比不确定的, 混在一起比会让便宜的不确定直索赢
+void pick_legs(LegPicker* picker, const PlanInputs& in, const TowerSites& sites, const std::vector<Candidate>& candidates)
+{
+    std::vector<Candidate> certain;
+    std::vector<Candidate> uncertain;
+    for (const Candidate& candidate : candidates) {
+        if (candidate.certain) {
+            certain.push_back(candidate);
+        }
+        else {
+            uncertain.push_back(candidate);
+        }
+    }
+    evaluate_candidates(picker, in, sites, certain);
+    if (!picker->best && !picker->interrupted) {
+        evaluate_candidates(picker, in, sites, uncertain);
+    }
+}
 
 ZiplineRoute assemble_route(const PlanInputs& in, const TowerSites& sites, const ZipLinkGraph& graph, const PickedLegs& picked)
 {
@@ -1218,19 +1220,20 @@ std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const Zipli
         return no_zipline("no reachable pair of ziplines leads anywhere useful", &ZiplineOutcome::not_chosen);
     }
 
-    LegPicker picker(in, sites);
-    picker.pick(candidates);
-    if (picker.truncated()) {
+    LegPicker picker;
+    picker.best_cost = in.gain_threshold;
+    pick_legs(&picker, in, sites, candidates);
+    if (picker.truncated) {
         LogWarn << "ZiplineRoute: plan budget exhausted, decided on the candidates evaluated so far" << VAR(kMaxExtraPlans)
                 << VAR(candidates.size());
     }
-    if (!picker.best()) {
+    if (!picker.best) {
         return no_zipline(
             walking_baseline_available ? "no zipline route beats walking" : "no feasible zipline bridge to target",
-            picker.truncated() || picker.interrupted() ? nullptr : &ZiplineOutcome::not_chosen);
+            picker.truncated || picker.interrupted ? nullptr : &ZiplineOutcome::not_chosen);
     }
 
-    std::optional<ZiplineRoute> best = assemble_route(in, sites, graph, *picker.best());
+    std::optional<ZiplineRoute> best = assemble_route(in, sites, graph, *picker.best);
     LogInfo << "ZiplineRoute: picked" << VAR(walking_baseline_available) << VAR(baseline_length) << VAR(best->cost)
             << VAR(best->towers.size()) << VAR(best->towers.front().x) << VAR(best->towers.front().y) << VAR(best->towers.back().x)
             << VAR(best->towers.back().y);

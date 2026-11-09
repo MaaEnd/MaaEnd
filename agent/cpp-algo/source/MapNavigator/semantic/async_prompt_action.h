@@ -18,7 +18,7 @@ namespace mapnavigator
 
 struct Motion;
 class RoiTemplateScanner;
-struct NavigationSession;
+struct Session;
 
 struct AsyncPromptActionSpec
 {
@@ -75,7 +75,7 @@ struct AsyncPromptAction
 {
     AsyncPromptActionSpec spec;
     MaaContext* context;
-    NavigationSession* session;
+    Session* session;
     const NaviPosition* position;
     cv::Rect fallback_roi {};
     std::string controller_type;
@@ -86,7 +86,7 @@ struct AsyncPromptAction
 };
 
 AsyncPromptAction
-    MakeAsyncPromptAction(const AsyncPromptActionSpec& spec, MaaContext* context, NavigationSession* session, const NaviPosition* position);
+    MakeAsyncPromptAction(const AsyncPromptActionSpec& spec, MaaContext* context, Session* session, const NaviPosition* position);
 
 bool PromptRouteHasPoint(const AsyncPromptAction& action);
 bool PromptRouteEndsWithPoint(const AsyncPromptAction& action);

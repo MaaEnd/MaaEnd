@@ -1,4 +1,3 @@
-#include <functional>
 #include <limits>
 #include <mutex>
 #include <optional>
@@ -62,9 +61,9 @@ private:
 
 // 返回跳过的作者点数
 std::optional<size_t>
-    expand_route(const NaviParam& param, const NaviPosition& pos, const std::function<bool()>& is_stopping, std::vector<Waypoint>& out_path)
+    expand_route(const NaviParam& param, const NaviPosition& pos, MaaContext* maa_context, std::vector<Waypoint>& out_path)
 {
-    if (ExpandNavmeshWaypoints(param, pos, is_stopping, out_path)) {
+    if (ExpandNavmeshWaypoints(param, pos, maa_context, out_path)) {
         return 0;
     }
     const std::optional<size_t> resume = ResolveRouteResumeIndex(param.path, pos);
@@ -73,7 +72,7 @@ std::optional<size_t>
     }
     NaviParam resumed_param = param;
     resumed_param.path.assign(param.path.begin() + static_cast<std::ptrdiff_t>(*resume), param.path.end());
-    if (!ExpandNavmeshWaypoints(resumed_param, pos, is_stopping, out_path)) {
+    if (!ExpandNavmeshWaypoints(resumed_param, pos, maa_context, out_path)) {
         return std::nullopt;
     }
     const size_t resume_index = *resume;
@@ -132,7 +131,7 @@ bool navigate_with_backend(MaaContext* ctx, NaviParam& param, InputBackend* inpu
     LogInfo << "Initial Pos fixed:" << VAR(position_x) << VAR(position_y);
 
     std::vector<Waypoint> expanded_path;
-    const std::optional<size_t> resume_index = expand_route(param, pos, is_stopping, expanded_path);
+    const std::optional<size_t> resume_index = expand_route(param, pos, ctx, expanded_path);
     if (!resume_index) {
         return false;
     }
@@ -145,8 +144,8 @@ bool navigate_with_backend(MaaContext* ctx, NaviParam& param, InputBackend* inpu
     expanded_param.authored_path = std::move(param.path);
     offset_authored_groups(expanded_param.path, *resume_index);
 
-    NavigationSession session(expanded_param.path, pos);
-    session.updatePhase(NaviPhase::Bootstrap, "initial_fix");
+    Session session = MakeSession(expanded_param.path, pos);
+    UpdatePhase(&session, NaviPhase::Bootstrap, "initial_fix");
 
     Motion motion_controller = MakeMotion(input_backend);
     motion_controller.enable_local_driver = param.enable_local_driver;

@@ -42,9 +42,9 @@ Result fail_trigger(const Context& ctx, const char* reason, const char* log_mess
 
 } // namespace
 
-bool IsTriggerPending(const NavigationSession& session)
+bool IsTriggerPending(const Session& session)
 {
-    return session.hasCurrentWaypoint() && IsTriggerPoint(session.currentPath().back());
+    return HasCurrentWaypoint(session) && IsTriggerPoint(session.current_path.back());
 }
 
 Result ProbeTriggerWhileNavigating(const Context& ctx)
@@ -67,8 +67,8 @@ Result ProbeTriggerWhileNavigating(const Context& ctx)
         return {};
     }
 
-    const size_t trigger_idx = ctx.session->currentPath().size() - 1;
-    const Waypoint& waypoint = ctx.session->currentPathAt(trigger_idx);
+    const size_t trigger_idx = ctx.session->current_path.size() - 1;
+    const Waypoint& waypoint = CurrentPathAt(*ctx.session, trigger_idx);
     NodeSighting sighting {};
     if (!RunRecognitionNode(ctx.maa_context, waypoint.trigger_node, kTriggerPipelineOverride, image.Get(), &sighting)) {
         return fail_trigger(ctx, "trigger_recognition_failed", "TRIGGER node failed to recognize.");
@@ -79,13 +79,13 @@ Result ProbeTriggerWhileNavigating(const Context& ctx)
 
     const double remaining = std::hypot(waypoint.x - ctx.position->x, waypoint.y - ctx.position->y);
     LogInfo << "TRIGGER: node hit on the way, navigation complete." << VAR(waypoint.trigger_node)
-            << VAR_AS(ctx.session->current_node_idx(), ctx.session->currentNodeIdx()) << VAR(trigger_idx) << VAR(ctx.position->valid)
+            << VAR_AS(ctx.session->current_node_idx(), ctx.session->current_node_idx) << VAR(trigger_idx) << VAR(ctx.position->valid)
             << VAR(remaining);
     HoldPosition(ctx.motion_controller);
-    ctx.session->noteCanonicalFinalGoalConsumed(ctx.session->canonicalIndexAtCurrentPath(trigger_idx), *ctx.position, "trigger_hit");
-    ctx.session->skipPastWaypoint(trigger_idx, "trigger_hit");
+    NoteCanonicalFinalGoalConsumed(ctx.session, CanonicalIndexAtCurrentPath(*ctx.session, trigger_idx), *ctx.position, "trigger_hit");
+    SkipPastWaypoint(ctx.session, trigger_idx, "trigger_hit");
     ResetOnWaypointAdvance(ctx.runtime_state);
-    ctx.session->noteRouteTailConsumed(*ctx.position, "route_tail_consumed");
+    NoteRouteTailConsumed(ctx.session, *ctx.position, "route_tail_consumed");
     return Handled();
 }
 
@@ -93,7 +93,7 @@ Result ArriveTrigger(const Context& ctx, const Waypoint& waypoint, double actual
 {
     StopMotionAndCommitment(ctx);
     LogInfo << "Action: TRIGGER reached the point, navigation complete." << VAR(actual_distance) << VAR(waypoint.trigger_node);
-    return CompleteArrival(ctx, waypoint, ctx.session->currentAbsoluteNodeIndex(), "trigger_arrived");
+    return CompleteArrival(ctx, waypoint, CurrentAbsoluteNodeIndex(*ctx.session), "trigger_arrived");
 }
 
 } // namespace semantic_nodes

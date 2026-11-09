@@ -69,7 +69,7 @@ void AlignCameraToHeadingOnce(const Context& ctx)
     }
     SleepFor(kWaitAfterFirstTurnMs);
 
-    const bool captured = CaptureTracked(ctx.position_provider, ctx.position, ctx.session->currentZoneId());
+    const bool captured = CaptureTracked(ctx.position_provider, ctx.position, ctx.session->current_zone_id);
     LogInfo << "Camera aligned to navigation heading." << VAR(heading) << VAR(camera_before) << VAR(delta) << VAR(captured);
 }
 
@@ -80,7 +80,7 @@ bool CaptureStableHeading(const Context& ctx, double* out_heading)
         if (frame > 0) {
             SleepFor(kHeadingStableReadIntervalMs);
         }
-        if (!CaptureTracked(ctx.position_provider, ctx.position, ctx.session->currentZoneId())) {
+        if (!CaptureTracked(ctx.position_provider, ctx.position, ctx.session->current_zone_id)) {
             previous.reset();
             continue;
         }
@@ -135,8 +135,8 @@ double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double
 Result ConsumeHeadingNodes(const Context& ctx)
 {
     bool consumed = false;
-    while (ctx.session->hasCurrentWaypoint() && IsHeadingOnly(ctx.session->currentWaypoint())) {
-        const Waypoint heading_node = ctx.session->currentWaypoint();
+    while (HasCurrentWaypoint(*ctx.session) && IsHeadingOnly(CurrentWaypoint(*ctx.session))) {
+        const Waypoint heading_node = CurrentWaypoint(*ctx.session);
         double target_heading = 0.0;
         if (heading_node.heading_uses_target) {
             target_heading = CalcTargetRotation(ctx.position->x, ctx.position->y, heading_node.x, heading_node.y);
@@ -167,13 +167,13 @@ Result ConsumeHeadingNodes(const Context& ctx)
         const double achieved_heading = VerifyAndCorrectHeading(ctx, target_heading, start_heading);
         LogInfo << "Heading-only node completed." << VAR(target_heading) << VAR(start_heading) << VAR(heading_delta)
                 << VAR(achieved_heading);
-        ctx.session->advanceToNextWaypoint(ActionType::HEADING, "heading_consumed");
-        ctx.session->resetProgress();
+        AdvanceToNextWaypoint(ctx.session, ActionType::HEADING, "heading_consumed");
+        ResetProgress(ctx.session);
         ResetOnWaypointAdvance(ctx.runtime_state);
         consumed = true;
 
-        if (!ctx.session->hasCurrentWaypoint()) {
-            ctx.session->noteRouteTailConsumed(*ctx.position, "heading_route_consumed");
+        if (!HasCurrentWaypoint(*ctx.session)) {
+            NoteRouteTailConsumed(ctx.session, *ctx.position, "heading_route_consumed");
         }
         // 后续节点等下一拍重新取位, 免得用到缺失的朝向
         if (!ctx.position->valid) {

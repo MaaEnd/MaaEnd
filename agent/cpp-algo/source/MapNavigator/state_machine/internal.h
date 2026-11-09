@@ -27,11 +27,11 @@ bool ZonesDifferInGeometry(const NaviParam& param, const std::string& a, const s
 bool IsZoneCompatible(const Waypoint& waypoint, const std::string& current_zone_id);
 bool IsRequiredSemanticAnchor(const Waypoint& waypoint);
 std::optional<DynamicAnchor>
-    ResolveCurrentAnchorFrom(const NaviParam& param, NavigationSession* session, const NaviPosition& position, size_t start_index);
-std::optional<DynamicAnchor> ResolveCurrentAnchor(const NaviParam& param, NavigationSession* session, const NaviPosition& position);
+    ResolveCurrentAnchorFrom(const NaviParam& param, Session* session, const NaviPosition& position, size_t start_index);
+std::optional<DynamicAnchor> ResolveCurrentAnchor(const NaviParam& param, Session* session, const NaviPosition& position);
 std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
     const NaviParam& param,
-    NavigationSession* session,
+    Session* session,
     const NaviPosition& position,
     size_t start_index,
     const char* reason);

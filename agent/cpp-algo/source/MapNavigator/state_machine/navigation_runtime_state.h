@@ -434,7 +434,7 @@ struct NavigationRuntimeState
     PromptRepeatState prompt_repeat;
     ZiplineRecoveryState zipline_recovery;
     // 账本跨越丢链和重规划, 只由 BeginNavigation 清
-    ZiplineRideMachine zipline_ride;
+    ZiplineRide zipline_ride;
     // 整趟导航有效, 只由 BeginNavigation 清
     std::vector<VirtualNoGoDisc> virtual_no_go;
     // 上次真正推进路点以来的全局重定位次数, 只由 ResetOnWaypointAdvance 和 BeginNavigation 清
@@ -482,7 +482,7 @@ inline void BeginNavigation(NavigationRuntimeState* runtime, TimePoint now)
     runtime->zipline_recovery = {};
     runtime->find = {};
     runtime->trigger = {};
-    runtime->zipline_ride.resetNavigation();
+    ResetZiplineNavigation(&runtime->zipline_ride);
     runtime->virtual_no_go.clear();
     runtime->progress_identity = {};
     runtime->global_reacquire_streak = 0;
@@ -517,7 +517,7 @@ inline void ResetOnWaypointAdvance(NavigationRuntimeState* runtime)
 // 人站在滑索架上。这时移动指令会被架子吃掉, 上索提示也不用再认
 inline bool IsZiplineMounted(const NavigationRuntimeState& runtime)
 {
-    return runtime.zipline_ride.onTower();
+    return ZiplineOnTower(runtime.zipline_ride);
 }
 
 } // namespace mapnavigator

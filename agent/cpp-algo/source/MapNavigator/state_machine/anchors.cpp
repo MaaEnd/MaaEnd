@@ -57,14 +57,14 @@ bool IsRequiredSemanticAnchor(const Waypoint& waypoint)
 }
 
 std::optional<DynamicAnchor>
-    ResolveCurrentAnchorFrom(const NaviParam& param, NavigationSession* session, const NaviPosition& position, size_t start_index)
+    ResolveCurrentAnchorFrom(const NaviParam& param, Session* session, const NaviPosition& position, size_t start_index)
 {
     std::optional<DynamicAnchor> fallback;
     ZoneGeometryCheck last_check;
-    const size_t path_size = session->currentPath().size();
+    const size_t path_size = session->current_path.size();
     for (size_t index = std::min(start_index, path_size); index < path_size; ++index) {
-        const Waypoint& waypoint = session->currentPathAt(index);
-        const std::optional<size_t> canonical_index = session->canonicalIndexAtCurrentPath(index);
+        const Waypoint& waypoint = CurrentPathAt(*session, index);
+        const std::optional<size_t> canonical_index = CanonicalIndexAtCurrentPath(*session, index);
         if (!canonical_index) {
             continue;
         }
@@ -92,28 +92,28 @@ std::optional<DynamicAnchor>
     return fallback;
 }
 
-std::optional<DynamicAnchor> ResolveCurrentAnchor(const NaviParam& param, NavigationSession* session, const NaviPosition& position)
+std::optional<DynamicAnchor> ResolveCurrentAnchor(const NaviParam& param, Session* session, const NaviPosition& position)
 {
-    return ResolveCurrentAnchorFrom(param, session, position, session->currentNodeIdx());
+    return ResolveCurrentAnchorFrom(param, session, position, session->current_node_idx);
 }
 
 std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
     const NaviParam& param,
-    NavigationSession* session,
+    Session* session,
     const NaviPosition& position,
     size_t start_index,
     const char* reason)
 {
-    const size_t path_size = session->currentPath().size();
-    const std::optional<double> walked_floor_y = session->walkedFloorY(position);
+    const size_t path_size = session->current_path.size();
+    const std::optional<double> walked_floor_y = WalkedFloorY(*session, position);
     std::optional<DynamicAnchor> anchor;
     double anchor_cost = std::numeric_limits<double>::infinity();
     int plan_attempts = 0;
     ZoneGeometryCheck last_check;
 
     for (size_t index = std::min(start_index, path_size); index < path_size; ++index) {
-        const Waypoint& waypoint = session->currentPathAt(index);
-        const std::optional<size_t> canonical_index = session->canonicalIndexAtCurrentPath(index);
+        const Waypoint& waypoint = CurrentPathAt(*session, index);
+        const std::optional<size_t> canonical_index = CanonicalIndexAtCurrentPath(*session, index);
         if (!canonical_index) {
             continue;
         }
@@ -142,7 +142,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
             {
                 .start = start,
                 .start_floor_y = walked_floor_y,
-                .start_deck_y = session->landedTowerDeckY(position),
+                .start_deck_y = LandedTowerDeckY(*session, position),
                 .goal = goal,
                 .goal_deck_y = waypoint.target_deck_y,
             });

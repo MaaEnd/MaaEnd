@@ -74,7 +74,7 @@ double NavigationStateMachine::steerAlongCorridor(const NavigateTick& tick)
     const double projection_x = nav_run_result.projection_point.x;
     const double projection_y = nav_run_result.projection_point.y;
     const int nav_run_replan_reason = static_cast<int>(nav_run_result.replanned_with);
-    LogDebug << "TickNavigate corridor target." << VAR_AS(session_->current_node_idx(), session_->currentNodeIdx()) << VAR(waypoint.x)
+    LogDebug << "TickNavigate corridor target." << VAR_AS(session_->current_node_idx(), session_->current_node_idx) << VAR(waypoint.x)
              << VAR(waypoint.y) << VAR(RequiresStrictArrival(waypoint)) << VAR(lookahead_x) << VAR(lookahead_y) << VAR(projection_x)
              << VAR(projection_y) << VAR(nav_run_result.remaining_to_anchor) << VAR(nav_run_result.straight_to_anchor)
              << VAR(nav_run_result.passed_run_waypoints) << VAR(nav_run_replan_reason) << VAR(route.along_track_remaining)
@@ -152,12 +152,12 @@ void NavigationStateMachine::updateWalkMode(NaviPhase phase)
     }
 
     PromptDistance nearest = nearestPromptDistance();
-    const bool has_waypoint = session_->hasCurrentWaypoint();
-    const ActionTraits traits = has_waypoint ? TraitsOf(session_->currentWaypoint().action) : ActionTraits {};
+    const bool has_waypoint = HasCurrentWaypoint(*session_);
+    const ActionTraits traits = has_waypoint ? TraitsOf(CurrentWaypoint(*session_).action) : ActionTraits {};
     const bool plain_approach = traits.walk_approach;
     bool settling_approach = false;
-    if (has_waypoint && SettlesAtArrival(session_->currentWaypoint())) {
-        const Waypoint& goal = session_->currentWaypoint();
+    if (has_waypoint && SettlesAtArrival(CurrentWaypoint(*session_))) {
+        const Waypoint& goal = CurrentWaypoint(*session_);
         const double dx = goal.x - position_->x;
         const double dy = goal.y - position_->y;
         const double distance_sq = dx * dx + dy * dy;

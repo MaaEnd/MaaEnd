@@ -8,7 +8,7 @@ namespace mapnavigator
 namespace semantic_nodes
 {
 
-bool IsTriggerPending(const NavigationSession& session);
+bool IsTriggerPending(const Session& session);
 
 Result ProbeTriggerWhileNavigating(const Context& ctx);
 

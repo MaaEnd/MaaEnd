@@ -23,6 +23,6 @@ struct RouteMeasurement
     double arrival_band = 0.0;
 };
 
-RouteMeasurement UpdateRouteTracking(RouteTrackerState* state, NavigationSession* session, const NaviPosition& position);
+RouteMeasurement UpdateRouteTracking(RouteTrackerState* state, Session* session, const NaviPosition& position);
 
 } // namespace mapnavigator

@@ -20,17 +20,17 @@ void StopMotionAndCommitment(const Context& ctx)
 
 void SelectPhaseForCurrentWaypoint(const Context& ctx, const char* reason)
 {
-    if (!ctx.session->hasCurrentWaypoint()) {
-        ctx.session->noteRouteTailConsumed(*ctx.position, "route_tail_consumed");
+    if (!HasCurrentWaypoint(*ctx.session)) {
+        NoteRouteTailConsumed(ctx.session, *ctx.position, "route_tail_consumed");
         return;
     }
-    ctx.session->updatePhase(NaviPhase::Navigate, reason);
+    UpdatePhase(ctx.session, NaviPhase::Navigate, reason);
 }
 
 Result CompleteArrival(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, const char* reason)
 {
-    ctx.session->noteCanonicalFinalGoalConsumed(node_idx, *ctx.position, reason);
-    ctx.session->advanceToNextWaypoint(waypoint.action, reason);
+    NoteCanonicalFinalGoalConsumed(ctx.session, node_idx, *ctx.position, reason);
+    AdvanceToNextWaypoint(ctx.session, waypoint.action, reason);
     ResetOnWaypointAdvance(ctx.runtime_state);
     SelectPhaseForCurrentWaypoint(ctx, reason);
     return Handled();
@@ -38,12 +38,12 @@ Result CompleteArrival(const Context& ctx, const Waypoint& waypoint, const std::
 
 void ConsumeMatchedZoneNodes(const Context& ctx)
 {
-    while (ctx.session->hasCurrentWaypoint() && IsZoneDeclaration(ctx.session->currentWaypoint())) {
-        const std::string& zone_id = ctx.session->currentWaypoint().zone_id;
-        if (!zone_id.empty() && zone_id != ctx.session->currentZoneId()) {
+    while (HasCurrentWaypoint(*ctx.session) && IsZoneDeclaration(CurrentWaypoint(*ctx.session))) {
+        const std::string& zone_id = CurrentWaypoint(*ctx.session).zone_id;
+        if (!zone_id.empty() && zone_id != ctx.session->current_zone_id) {
             break;
         }
-        ctx.session->advanceToNextWaypoint(ActionType::ZONE, "zone_declaration_consumed");
+        AdvanceToNextWaypoint(ctx.session, ActionType::ZONE, "zone_declaration_consumed");
         ResetOnWaypointAdvance(ctx.runtime_state);
     }
 }
@@ -56,8 +56,8 @@ Result WaitNextFix(int interval_ms)
 
 Result ResumeAfterRelocation(const Context& ctx, const char* reason)
 {
-    ctx.session->updateCurrentZone(ctx.position->zone_id);
-    ctx.session->resetProgress();
+    UpdateCurrentZone(ctx.session, ctx.position->zone_id);
+    ResetProgress(ctx.session);
     ResetNavigationAssistState(ctx.runtime_state);
     SelectPhaseForCurrentWaypoint(ctx, reason);
     return Handled();

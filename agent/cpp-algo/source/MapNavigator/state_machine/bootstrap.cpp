@@ -187,11 +187,11 @@ std::optional<BootstrapContinueCandidate>
     };
 }
 
-std::optional<DynamicAnchor> resolve_bootstrap_anchor(const NaviParam& param, NavigationSession* session, const NaviPosition& position)
+std::optional<DynamicAnchor> resolve_bootstrap_anchor(const NaviParam& param, Session* session, const NaviPosition& position)
 {
     size_t start_index = 0;
     const std::optional<BootstrapContinueCandidate> continue_candidate =
-        resolve_bootstrap_continue_candidate(session->originalPath(), position);
+        resolve_bootstrap_continue_candidate(session->original_path, position);
     if (continue_candidate.has_value()) {
         start_index = continue_candidate->continue_index;
         LogInfo << "Bootstrap dynamic anchor scan adjusted." << VAR(continue_candidate->reason) << VAR(start_index)
@@ -235,10 +235,10 @@ bool NavigationStateMachine::bootstrap()
     }
 
     const std::optional<BootstrapContinueCandidate> continue_candidate =
-        resolve_bootstrap_continue_candidate(session_->originalPath(), *position_);
+        resolve_bootstrap_continue_candidate(session_->original_path, *position_);
     if (continue_candidate && continue_candidate->continue_index > 0
-        && continue_candidate->continue_index < session_->originalPath().size()) {
-        session_->applyDynamicOverlay({}, continue_candidate->continue_index, *position_);
+        && continue_candidate->continue_index < session_->original_path.size()) {
+        ApplyDynamicOverlay(session_, {}, continue_candidate->continue_index, *position_);
         runtime_state_.route = {};
         runtime_state_.nav_run_dirty = true;
         LogInfo << "Bootstrap serial route continue after navmesh overlay unavailable." << VAR(continue_candidate->continue_index)

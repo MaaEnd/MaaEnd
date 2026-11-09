@@ -44,7 +44,7 @@ public:
         const NaviParam& param,
         InputBackend* input_backend,
         PositionSensor* position_provider,
-        NavigationSession* session,
+        Session* session,
         Motion* motion_controller,
         NaviPosition* position,
         std::function<bool()> should_stop,
@@ -155,13 +155,13 @@ private:
     const NaviParam& param_;
     InputBackend* input_backend_;
     PositionSensor* position_provider_;
-    NavigationSession* session_;
+    Session* session_;
     Motion* motion_controller_;
     NaviPosition* position_;
     std::function<bool()> should_stop_;
     MaaContext* maa_context_;
     NavigationRuntimeState runtime_state_ {};
-    NavRunController nav_run_controller_ {};
+    NavRun nav_run_ {};
     FailureTrail failure_trail_;
     std::chrono::steady_clock::time_point last_global_relocalize_at_ {};
     std::optional<uint64_t> prior_observation_epoch_;

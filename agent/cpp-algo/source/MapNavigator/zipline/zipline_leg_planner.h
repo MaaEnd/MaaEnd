@@ -1,9 +1,10 @@
 #pragma once
 
-#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include <MaaFramework/MaaAPI.h>
 
 #include "../../Navmesh/BaseNavPlanner.h"
 #include "../../Zipline/ZiplineFrames.h"
@@ -59,7 +60,7 @@ struct ZiplineLegRequest
     std::optional<double> goal_deck_y;
     std::optional<double> start_floor_y;
     std::optional<double> start_deck_y;
-    std::function<bool()> should_stop;
+    MaaContext* maa_context = nullptr;
     bool capture_diagnostics = false;
     // 上下索两段步行与作者路线避开同一批禁区
     const std::vector<VirtualNoGoDisc>* no_go = nullptr;

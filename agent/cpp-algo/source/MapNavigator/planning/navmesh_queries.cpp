@@ -1,7 +1,12 @@
 #include "navmesh_queries.h"
 
+#include <algorithm>
+#include <cmath>
 #include <filesystem>
 #include <memory>
+#include <optional>
+#include <string>
+#include <vector>
 
 #include <MaaUtils/Logger.h>
 
@@ -20,6 +25,37 @@ navmesh::WorldPoint offset_point(const NaviPosition& position, double heading, d
 {
     const double radians = NormalizeHeading(heading) * kPi / 180.0;
     return { .x = position.x + std::sin(radians) * distance, .y = position.y - std::cos(radians) * distance };
+}
+
+std::vector<navmesh::WorldPoint> resample_polyline(const std::vector<navmesh::WorldPoint>& poly, double step)
+{
+    std::vector<navmesh::WorldPoint> points;
+    if (poly.empty()) {
+        return points;
+    }
+    const double safe_step = std::max(step, 0.1);
+    points.push_back(poly.front());
+    for (size_t i = 0; i + 1 < poly.size(); ++i) {
+        const navmesh::WorldPoint& a = poly[i];
+        const navmesh::WorldPoint& b = poly[i + 1];
+        const double seg = std::hypot(b.x - a.x, b.y - a.y);
+        const int steps = static_cast<int>(std::ceil(seg / safe_step));
+        for (int k = 1; k <= steps; ++k) {
+            const double t = static_cast<double>(k) / static_cast<double>(steps);
+            points.push_back(navmesh::WorldPoint { .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t });
+        }
+    }
+    return points;
+}
+
+// 投影不到底图时为空
+std::optional<bool> point_on_mesh(const ZoneNavmesh& zone, const navmesh::WorldPoint& p)
+{
+    const auto proj = zone.mesh->pack.projectToBase(zone.navmesh_zone, p.x, p.y);
+    if (!proj || proj->geometry_zone == nullptr) {
+        return std::nullopt;
+    }
+    return zone.mesh->planner.pointOnMesh(proj->geometry_zone->zone_id, { .x = proj->x, .y = proj->y });
 }
 
 } // namespace
@@ -173,18 +209,16 @@ double NavmeshOffMeshFraction(
 
     size_t total = 0;
     size_t off = 0;
-    const auto sample = [&](const navmesh::WorldPoint& p) {
-        const auto proj = zone.mesh->pack.projectToBase(zone.navmesh_zone, p.x, p.y);
-        if (!proj || proj->geometry_zone == nullptr) {
-            return;
+    for (const navmesh::WorldPoint& p : resample_polyline(polyline, step)) {
+        const std::optional<bool> on_mesh = point_on_mesh(zone, p);
+        if (!on_mesh) {
+            continue;
         }
         ++total;
-        if (!zone.mesh->planner.pointOnMesh(proj->geometry_zone->zone_id, { .x = proj->x, .y = proj->y })) {
+        if (!*on_mesh) {
             ++off;
         }
-    };
-
-    ForEachResampledPoint(polyline, step, sample);
+    }
     if (total == 0) {
         return 0.0;
     }
@@ -198,14 +232,6 @@ std::optional<navmesh::WorldPoint>
     if (!zone.mesh) {
         return std::nullopt;
     }
-    const auto on_mesh = [&](const navmesh::WorldPoint& p) {
-        const auto proj = zone.mesh->pack.projectToBase(zone.navmesh_zone, p.x, p.y);
-        if (!proj || proj->geometry_zone == nullptr) {
-            return true;
-        }
-        return zone.mesh->planner.pointOnMesh(proj->geometry_zone->zone_id, { .x = proj->x, .y = proj->y });
-    };
-
     static constexpr double kFan[] = { 180.0, -135.0, 135.0, -90.0, 90.0 };
     constexpr int kFanCount = static_cast<int>(sizeof(kFan) / sizeof(kFan[0]));
     const int rot = ((attempt_index % kFanCount) + kFanCount) % kFanCount;
@@ -216,7 +242,7 @@ std::optional<navmesh::WorldPoint>
         double longest = 0.0;
         double solid_start = -1.0; // 末尾连续在网格上那段的起始距离, -1 表示没有
         for (double d = kUnstickSampleStepM; d <= kUnstickMaxDistanceM + 1e-9; d += kUnstickSampleStepM) {
-            if (on_mesh(offset_point(position, bearing, d))) {
+            if (point_on_mesh(zone, offset_point(position, bearing, d)).value_or(true)) {
                 if (solid_start < 0.0) {
                     solid_start = d;
                 }

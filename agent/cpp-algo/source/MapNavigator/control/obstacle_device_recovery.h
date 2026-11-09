@@ -16,7 +16,7 @@ namespace mapnavigator
 struct Motion;
 struct PositionSensor;
 class RoiTemplateScanner;
-struct NavigationSession;
+struct Session;
 struct RouteMeasurement;
 
 // 除 NotAttempted 外都已跑过子任务并用掉这次机会
@@ -34,7 +34,7 @@ struct ObstacleDeviceRecovery
     MaaContext* maa_context;
     Motion* motion_controller;
     PositionSensor* position_provider;
-    NavigationSession* session;
+    Session* session;
     NaviPosition* position;
 
     std::unique_ptr<RoiTemplateScanner> scanner;
@@ -45,7 +45,7 @@ ObstacleDeviceRecovery MakeDeviceRecovery(
     MaaContext* maa_context,
     Motion* motion_controller,
     PositionSensor* position_provider,
-    NavigationSession* session,
+    Session* session,
     NaviPosition* position);
 
 // base_roi 取自 pipeline 节点, 交互按钮模板缺失时探测不启动

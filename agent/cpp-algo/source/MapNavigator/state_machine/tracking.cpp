@@ -26,17 +26,17 @@ namespace
 {
 
 std::optional<DynamicAnchor>
-    resolve_nav_run_anchor(const NaviParam& param, NavigationSession* session, const NaviPosition& position, const RouteMeasurement& route)
+    resolve_nav_run_anchor(const NaviParam& param, Session* session, const NaviPosition& position, const RouteMeasurement& route)
 {
-    if (!route.valid || !session->hasCurrentWaypoint()) {
+    if (!route.valid || !HasCurrentWaypoint(*session)) {
         return std::nullopt;
     }
-    const Waypoint& current_waypoint = session->currentWaypoint();
+    const Waypoint& current_waypoint = CurrentWaypoint(*session);
     if (!current_waypoint.has_position || current_waypoint.action != ActionType::RUN) {
         return std::nullopt;
     }
     if (RequiresStrictArrival(current_waypoint)) {
-        return DynamicAnchor { session->canonicalIndexAtCurrent().value_or(kUnaddressableAnchorIndex), current_waypoint };
+        return DynamicAnchor { CanonicalIndexAtCurrent(*session).value_or(kUnaddressableAnchorIndex), current_waypoint };
     }
     return ResolveCurrentAnchor(param, session, position);
 }
@@ -63,9 +63,9 @@ void NavigationStateMachine::trackRoute(NavigateTick& tick)
 {
     tick.now = std::chrono::steady_clock::now();
     tick.fix = readFix(tick.now);
-    const size_t node_idx_before_tracking = session_->currentNodeIdx();
+    const size_t node_idx_before_tracking = session_->current_node_idx;
     tick.route = UpdateRouteTracking(&runtime_state_.route, session_, *position_);
-    if (session_->currentNodeIdx() != node_idx_before_tracking) {
+    if (session_->current_node_idx != node_idx_before_tracking) {
         runtime_state_.recovery = {};
     }
     tickNavRun(tick);
@@ -97,20 +97,21 @@ void NavigationStateMachine::tickNavRun(NavigateTick& tick)
 {
     if (const std::optional<DynamicAnchor> nav_run_anchor = resolve_nav_run_anchor(param_, session_, *position_, tick.route)) {
         tick.nav_run_anchor_index = nav_run_anchor->first;
-        tick.nav_run_result = nav_run_controller_.tick(
+        tick.nav_run_result = TickNavRun(
+            &nav_run_,
             session_,
             &runtime_state_,
+            motion_controller_,
             *position_,
             tick.route,
             param_,
-            nav_run_anchor->first,
             nav_run_anchor->second,
-            tick.now,
-            [this] { HoldPosition(motion_controller_); });
+            nav_run_anchor->first,
+            tick.now);
     }
     if (tick.nav_run_result.planning > std::chrono::steady_clock::duration::zero()) {
         PauseWedge(&runtime_state_.offroute, tick.now);
-        session_->excludeFromStallClocks(tick.nav_run_result.planning);
+        ExcludeFromStallClocks(session_, tick.nav_run_result.planning);
         tick.now += tick.nav_run_result.planning;
     }
 }
@@ -118,9 +119,9 @@ void NavigationStateMachine::tickNavRun(NavigateTick& tick)
 void NavigationStateMachine::consumeCorridorPassedWaypoints(NavigateTick& tick)
 {
     size_t consumed = 0;
-    while (consumed < tick.nav_run_result.passed_run_waypoints && session_->hasCurrentWaypoint()
-           && IsContinuousRun(session_->currentWaypoint())) {
-        session_->advanceToNextWaypoint(ActionType::RUN, "navmesh_corridor_passed_run_waypoint");
+    while (consumed < tick.nav_run_result.passed_run_waypoints && HasCurrentWaypoint(*session_)
+           && IsContinuousRun(CurrentWaypoint(*session_))) {
+        AdvanceToNextWaypoint(session_, ActionType::RUN, "navmesh_corridor_passed_run_waypoint");
         ++consumed;
     }
     if (consumed == 0) {
@@ -138,7 +139,7 @@ TickStep NavigationStateMachine::checkRouteProgress(NavigateTick& tick)
     tick.effective_progress = observeNavigationProgress(route, nav_run_result.straight_to_anchor, tick.nav_run_anchor_index, tick.now);
     // 只有偏离走廊的重规划会换走廊; 进度倒退的重规划不清停滞计时
     if (nav_run_result.replanned_with == NavRunReplanReason::OffCorridor) {
-        session_->resetProgress();
+        ResetProgress(session_);
     }
     if (runtime_state_.recovery.active) {
         const bool recovery_zone_changed = ZonesDifferInGeometry(param_, runtime_state_.recovery.anchor_pos.zone_id, position_->zone_id);
@@ -149,7 +150,7 @@ TickStep NavigationStateMachine::checkRouteProgress(NavigateTick& tick)
             return EndTickWith(resumeAfterEscape("recovery_escape"));
         }
     }
-    tick.stalled_ms = session_->stalledMs(tick.now);
+    tick.stalled_ms = StalledMs(*session_, tick.now);
     UpdateDeviceFeeding(
         &device_recovery_,
         tick.stalled_ms,
@@ -179,17 +180,17 @@ double NavigationStateMachine::observeNavigationProgress(
     ProgressIdentityState& identity = runtime_state_.progress_identity;
     if (identity.from_anchor != from_anchor) {
         identity.from_anchor = from_anchor;
-        if (identity.source_reset_idx != session_->currentNodeIdx()) {
-            identity.source_reset_idx = session_->currentNodeIdx();
-            session_->resetProgress();
-            session_->resetHardProgress();
+        if (identity.source_reset_idx != session_->current_node_idx) {
+            identity.source_reset_idx = session_->current_node_idx;
+            ResetProgress(session_);
+            ResetHardProgress(session_);
         }
     }
-    session_->observeProgress(session_->currentNodeIdx(), effective_progress, now);
+    ObserveProgress(session_, session_->current_node_idx, effective_progress, now);
     // 脱困重置不了硬进度时钟, 恢复超时才可能触发
     const size_t hard_progress_key =
-        from_anchor && anchor_index ? *anchor_index : ProgressIdentityState::kSerialKeyBias + session_->currentNodeIdx();
-    session_->observeHardProgress(hard_progress_key, effective_progress, now);
+        from_anchor && anchor_index ? *anchor_index : ProgressIdentityState::kSerialKeyBias + session_->current_node_idx;
+    ObserveHardProgress(session_, hard_progress_key, effective_progress, now);
     return effective_progress;
 }
 
@@ -198,23 +199,23 @@ double NavigationStateMachine::resolveArrivalDistance(const NavigateTick& tick)
     const Waypoint& waypoint = tick.waypoint;
     const RouteMeasurement& route = tick.route;
     double arrival_distance = std::max(route.arrival_band, TraitsOf(waypoint.action).commit_distance);
-    if (StopsOnPromptDetection(waypoint) && session_->hardStalledMs(tick.now) > kCollectArrivalRelaxMs) {
+    if (StopsOnPromptDetection(waypoint) && HardStalledMs(*session_, tick.now) > kCollectArrivalRelaxMs) {
         const double relaxed = UntightenedArrivalBand(waypoint, kMeasurementDefaultPositionQuantum);
         if (relaxed > arrival_distance && route.waypoint_distance <= relaxed) {
             LogInfo << "Prompt-point arrival band relaxed after no progress."
-                    << VAR_AS(session_->current_node_idx(), session_->currentNodeIdx()) << VAR(route.waypoint_distance)
+                    << VAR_AS(session_->current_node_idx(), session_->current_node_idx) << VAR(route.waypoint_distance)
                     << VAR(arrival_distance) << VAR(relaxed);
         }
         arrival_distance = std::max(arrival_distance, relaxed);
     }
     if (waypoint.action == ActionType::ZIPLINE && !IsZiplineMounted(runtime_state_)
-        && session_->hardStalledMs(tick.now) <= kCollectArrivalRelaxMs) {
+        && HardStalledMs(*session_, tick.now) <= kCollectArrivalRelaxMs) {
         arrival_distance = std::min(arrival_distance, kCollectArrivalBandWu);
         if (runtime_state_.zipline_approach.press_missed) {
             arrival_distance = std::min(arrival_distance, kZiplineRestandBandWu);
         }
     }
-    if (IsAsyncInteract(waypoint) && PromptMissedAt(runtime_state_.interact_approach, session_->currentAbsoluteNodeIndex())
+    if (IsAsyncInteract(waypoint) && PromptMissedAt(runtime_state_.interact_approach, CurrentAbsoluteNodeIndex(*session_))
         && tick.now - runtime_state_.interact_approach.missed_at <= std::chrono::milliseconds(kCollectArrivalRelaxMs)) {
         arrival_distance = std::min(arrival_distance, kStrictSettleAcceptBandWu);
     }
@@ -231,7 +232,7 @@ TickStep NavigationStateMachine::handleWaypointArrival(NavigateTick& tick)
     }
     if (!route.startup_motion_confirmed) {
         LogDebug << "Arrival advance blocked before startup movement confirmed."
-                 << VAR_AS(session_->current_node_idx(), session_->currentNodeIdx()) << VAR(route.waypoint_distance)
+                 << VAR_AS(session_->current_node_idx(), session_->current_node_idx) << VAR(route.waypoint_distance)
                  << VAR(arrival_distance) << VAR(route.progress_distance) << VAR(route.cross_track) << VAR(route.projection_anchor);
         return TickStep::Next;
     }
@@ -271,7 +272,7 @@ TickStep NavigationStateMachine::settleAtArrival(const NavigateTick& tick)
                 return EndTickWith(handleLocalizationLoss());
             }
             LogWarn << "Strict arrival correction incomplete; arrival action remains non-fatal."
-                    << VAR_AS(session_->current_node_idx(), session_->currentNodeIdx()) << VAR(position_->valid);
+                    << VAR_AS(session_->current_node_idx(), session_->current_node_idx) << VAR(position_->valid);
         }
     }
     walkmode::RequestWalk(walk_mode_, false);
@@ -305,18 +306,18 @@ TickStep NavigationStateMachine::passArrivedWaypoints(NavigateTick& tick)
                 0.0,
                 tick.stalled_ms));
         }
-        if (!tick.fix.drops_turn_sends || !IsContinuousRun(waypoint) || session_->phase() != NaviPhase::Navigate
-            || !session_->hasCurrentWaypoint()) {
+        if (!tick.fix.drops_turn_sends || !IsContinuousRun(waypoint) || session_->phase != NaviPhase::Navigate
+            || !HasCurrentWaypoint(*session_)) {
             return TickStep::EndTick;
         }
         route = UpdateRouteTracking(&runtime_state_.route, session_, *position_);
-        waypoint = session_->currentWaypoint();
+        waypoint = CurrentWaypoint(*session_);
         if (!route.valid || !IsContinuousRun(waypoint) || waypoint.drop_from) {
             return TickStep::EndTick;
         }
         arrival_distance = std::max(route.arrival_band, TraitsOf(waypoint.action).commit_distance);
     } while (route.waypoint_distance <= arrival_distance && route.startup_motion_confirmed);
-    LogDebug << "Passed corridor waypoints; steering on this fix." << VAR_AS(session_->current_node_idx(), session_->currentNodeIdx())
+    LogDebug << "Passed corridor waypoints; steering on this fix." << VAR_AS(session_->current_node_idx(), session_->current_node_idx)
              << VAR(route.waypoint_distance) << VAR(arrival_distance);
     return TickStep::Next;
 }

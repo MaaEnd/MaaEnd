@@ -1,7 +1,5 @@
 #pragma once
 
-#include <algorithm>
-#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <optional>
@@ -56,26 +54,6 @@ std::vector<std::vector<double>> NavmeshGroundHeights(
 std::vector<std::vector<uint32_t>>
     NavmeshRegionsNear(const NaviParam& param, const std::string& locator_zone, const std::vector<navmesh::WorldPoint>& points);
 bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b);
-
-template <typename Fn>
-void ForEachResampledPoint(const std::vector<navmesh::WorldPoint>& poly, double step, Fn&& fn)
-{
-    if (poly.empty()) {
-        return;
-    }
-    const double safe_step = std::max(step, 0.1);
-    fn(poly.front());
-    for (size_t i = 0; i + 1 < poly.size(); ++i) {
-        const navmesh::WorldPoint& a = poly[i];
-        const navmesh::WorldPoint& b = poly[i + 1];
-        const double seg = std::hypot(b.x - a.x, b.y - a.y);
-        const int steps = static_cast<int>(std::ceil(seg / safe_step));
-        for (int k = 1; k <= steps; ++k) {
-            const double t = static_cast<double>(k) / static_cast<double>(steps);
-            fn(navmesh::WorldPoint { .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t });
-        }
-    }
-}
 
 // 不在 navmesh 上的采样比例, zone 解析不了或线为空时返回 0
 double NavmeshOffMeshFraction(
