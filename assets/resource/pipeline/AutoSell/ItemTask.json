@@ -407,11 +407,12 @@
             "InFriendsStockRedistributionFriendsPrices",
             {
                 "recognition": "OCR",
+                // 覆盖整个好友列表区域，PC 与移动端提示文字位置不同
                 "roi": [
-                    470,
-                    390,
-                    610,
-                    50
+                    420,
+                    130,
+                    790,
+                    500
                 ],
                 "expected": [
                     "当前未添加好友",
