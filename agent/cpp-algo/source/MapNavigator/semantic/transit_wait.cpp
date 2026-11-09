@@ -12,6 +12,7 @@
 #include "../navi_config.h"
 #include "../navi_time.h"
 #include "../sensing/position_provider.h"
+#include "../state_machine/navigation_state_machine.h"
 #include "semantic_helpers.h"
 
 namespace mapnavigator
@@ -23,10 +24,10 @@ namespace semantic_nodes
 namespace
 {
 
-std::optional<size_t> find_future_zone_declaration(const Context& ctx, const std::string& zone_id)
+std::optional<size_t> find_future_zone_declaration(Navigator* nav, const std::string& zone_id)
 {
-    const std::vector<Waypoint>& path = ctx.session->current_path;
-    for (size_t index = ctx.session->current_node_idx; index < path.size(); ++index) {
+    const std::vector<Waypoint>& path = nav->session->current_path;
+    for (size_t index = nav->session->current_node_idx; index < path.size(); ++index) {
         const Waypoint& waypoint = path[index];
         if (IsZoneDeclaration(waypoint) && !waypoint.zone_id.empty() && waypoint.zone_id == zone_id) {
             return index;
@@ -35,27 +36,27 @@ std::optional<size_t> find_future_zone_declaration(const Context& ctx, const std
     return std::nullopt;
 }
 
-Result finalize_portal_transit_zone(const Context& ctx, const std::string& zone_id, size_t matched_zone_index)
+Result finalize_portal_transit_zone(Navigator* nav, const std::string& zone_id, size_t matched_zone_index)
 {
-    if (matched_zone_index > ctx.session->current_node_idx) {
-        SkipPastWaypoint(ctx.session, matched_zone_index - 1, "portal_zone_fast_forward");
+    if (matched_zone_index > nav->session->current_node_idx) {
+        SkipPastWaypoint(nav->session, matched_zone_index - 1, "portal_zone_fast_forward");
     }
-    UpdateCurrentZone(ctx.session, zone_id);
-    ResetProgress(ctx.session);
-    ResetOnWaypointAdvance(ctx.runtime_state);
-    ConsumeMatchedZoneNodes(ctx);
-    HoldAndArmCameraAlign(ctx);
-    ResetSensorTracking(ctx.position_provider);
-    ctx.runtime_state->semantic.portal.phase = PortalTransitPhase::Reacquire;
+    UpdateCurrentZone(nav->session, zone_id);
+    ResetProgress(nav->session);
+    ResetOnWaypointAdvance(&nav->runtime_state);
+    ConsumeMatchedZoneNodes(nav);
+    HoldAndArmCameraAlign(nav);
+    ResetSensorTracking(nav->position_provider);
+    nav->runtime_state.semantic.portal.phase = PortalTransitPhase::Reacquire;
     LogInfo << "Portal transit accepted zone transition." << VAR(zone_id) << VAR(matched_zone_index);
     return Handled();
 }
 
 } // namespace
 
-Result TickPortalTransit(const Context& ctx)
+Result TickPortalTransit(Navigator* nav)
 {
-    PortalTransitState& portal = ctx.runtime_state->semantic.portal;
+    PortalTransitState& portal = nav->runtime_state.semantic.portal;
     if (!IsPortalTransitActive(portal)) {
         return {};
     }
@@ -65,53 +66,53 @@ Result TickPortalTransit(const Context& ctx)
     }
 
     if (portal.phase == PortalTransitPhase::Reacquire) {
-        const bool captured = CaptureTracked(ctx.position_provider, ctx.position, ctx.session->current_zone_id);
-        if (!captured || ctx.position->zone_id != ctx.session->current_zone_id) {
+        const bool captured = CaptureTracked(nav->position_provider, nav->position, nav->session->current_zone_id);
+        if (!captured || nav->position->zone_id != nav->session->current_zone_id) {
             return WaitNextFix(kZoneConfirmRetryIntervalMs);
         }
         portal = {};
-        ctx.runtime_state->dynamic_replan_requested = true;
-        LogInfo << "Portal transit landing confirmed." << VAR(ctx.position->zone_id);
+        RequestDynamicReplan(&nav->runtime_state);
+        LogInfo << "Portal transit landing confirmed." << VAR(nav->position->zone_id);
         return Handled();
     }
 
-    MoveForward(ctx.motion_controller);
+    MoveForward(nav->motion_controller);
 
     NaviPosition candidate;
-    if (!CaptureGlobal(ctx.position_provider, &candidate, {})) {
+    if (!CaptureGlobal(nav->position_provider, &candidate, {})) {
         return WaitNextFix(kZoneConfirmRetryIntervalMs);
     }
 
-    *ctx.position = candidate;
-    if (candidate.zone_id.empty() || candidate.zone_id == ctx.session->current_zone_id) {
+    *nav->position = candidate;
+    if (candidate.zone_id.empty() || candidate.zone_id == nav->session->current_zone_id) {
         return WaitNextFix(kZoneConfirmRetryIntervalMs);
     }
 
-    const std::optional<size_t> matched_zone_index = find_future_zone_declaration(ctx, candidate.zone_id);
+    const std::optional<size_t> matched_zone_index = find_future_zone_declaration(nav, candidate.zone_id);
     if (!matched_zone_index) {
-        HoldAndArmCameraAlign(ctx);
+        HoldAndArmCameraAlign(nav);
         return WaitNextFix(kZoneConfirmRetryIntervalMs);
     }
-    return finalize_portal_transit_zone(ctx, candidate.zone_id, *matched_zone_index);
+    return finalize_portal_transit_zone(nav, candidate.zone_id, *matched_zone_index);
 }
 
-Result TickTransferWait(const Context& ctx)
+Result TickTransferWait(Navigator* nav)
 {
-    TransferWaitState& transfer = ctx.runtime_state->semantic.transfer;
-    if (!HasCurrentWaypoint(*ctx.session)) {
+    TransferWaitState& transfer = nav->runtime_state.semantic.transfer;
+    if (!HasCurrentWaypoint(*nav->session)) {
         transfer = {};
-        NoteRouteTailConsumed(ctx.session, *ctx.position, "route_tail_consumed");
+        NoteRouteTailConsumed(nav->session, *nav->position, "route_tail_consumed");
         return Handled();
     }
 
-    HoldPosition(ctx.motion_controller);
+    HoldPosition(nav->motion_controller);
 
     const auto now = std::chrono::steady_clock::now();
     if (IsUnset(transfer.started)) {
         transfer.started = now;
     }
 
-    if (!CaptureTracked(ctx.position_provider, ctx.position, {})) {
+    if (!CaptureTracked(nav->position_provider, nav->position, {})) {
         if (ElapsedMs(transfer.started, now) > kRelocationWaitTimeoutMs) {
             return Failure("transfer_wait_timeout", "TRANSFER wait timed out before capture stabilized.");
         }
@@ -119,8 +120,8 @@ Result TickTransferWait(const Context& ctx)
     }
 
     const int64_t waited_ms = ElapsedMs(transfer.started, now);
-    const double moved_from_anchor = std::hypot(ctx.position->x - transfer.anchor.x, ctx.position->y - transfer.anchor.y);
-    const bool movement_observed = ctx.position->zone_id != transfer.anchor.zone_id || moved_from_anchor >= kRelocationResumeMinDistance;
+    const double moved_from_anchor = std::hypot(nav->position->x - transfer.anchor.x, nav->position->y - transfer.anchor.y);
+    const bool movement_observed = nav->position->zone_id != transfer.anchor.zone_id || moved_from_anchor >= kRelocationResumeMinDistance;
     if (!movement_observed) {
         transfer.moved_reads = 0;
         if (waited_ms > kRelocationWaitTimeoutMs) {
@@ -135,15 +136,15 @@ Result TickTransferWait(const Context& ctx)
     }
 
     transfer = {};
-    ResumeAfterRelocation(ctx, "transfer_wait_complete");
+    ResumeAfterRelocation(nav, "transfer_wait_complete");
     return Handled();
 }
 
 // 坐升降索时小地图坐标几乎不动, 所以按乘坐时长等满再要求连续取位成功
-Result TickRopeRide(const Context& ctx)
+Result TickRopeRide(Navigator* nav)
 {
-    RopeRideState& rope = ctx.runtime_state->semantic.rope;
-    HoldPosition(ctx.motion_controller);
+    RopeRideState& rope = nav->runtime_state.semantic.rope;
+    HoldPosition(nav->motion_controller);
     const int64_t waited_ms = ElapsedMs(rope.started);
     if (waited_ms < rope.ride_ms) {
         return WaitNextFix(kRelocationRetryIntervalMs);
@@ -151,7 +152,7 @@ Result TickRopeRide(const Context& ctx)
     if (waited_ms > rope.ride_ms + kRelocationWaitTimeoutMs) {
         return Failure("rope_ride_timeout", "Rope ride finished but the position never stabilized.");
     }
-    if (!CaptureTracked(ctx.position_provider, ctx.position, {})) {
+    if (!CaptureTracked(nav->position_provider, nav->position, {})) {
         rope.stable_reads = 0;
         return WaitNextFix(kRelocationRetryIntervalMs);
     }
@@ -160,15 +161,15 @@ Result TickRopeRide(const Context& ctx)
         return WaitNextFix(kRelocationRetryIntervalMs);
     }
 
-    LogInfo << "Rope ride finished." << VAR(waited_ms) << VAR(ctx.position->x) << VAR(ctx.position->y) << VAR(ctx.position->zone_id);
+    LogInfo << "Rope ride finished." << VAR(waited_ms) << VAR(nav->position->x) << VAR(nav->position->y) << VAR(nav->position->zone_id);
     rope = {};
-    if (HasCurrentWaypoint(*ctx.session) && CurrentWaypoint(*ctx.session).rope_top) {
-        UpdateCurrentZone(ctx.session, ctx.position->zone_id);
-        const Waypoint& top = CurrentWaypoint(*ctx.session);
-        CompleteArrival(ctx, top, CurrentAbsoluteNodeIndex(*ctx.session), "rope_ride_completed");
+    if (HasCurrentWaypoint(*nav->session) && CurrentWaypoint(*nav->session).rope_top) {
+        UpdateCurrentZone(nav->session, nav->position->zone_id);
+        const Waypoint& top = CurrentWaypoint(*nav->session);
+        CompleteArrival(nav, top, CurrentAbsoluteNodeIndex(*nav->session), "rope_ride_completed");
         return Handled();
     }
-    ResumeAfterRelocation(ctx, "rope_ride_completed");
+    ResumeAfterRelocation(nav, "rope_ride_completed");
     return Handled();
 }
 

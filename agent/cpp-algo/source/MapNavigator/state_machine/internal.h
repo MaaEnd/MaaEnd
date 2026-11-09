@@ -5,7 +5,6 @@
 #include <limits>
 #include <optional>
 #include <string>
-#include <type_traits>
 #include <utility>
 
 #include <MaaUtils/Logger.h>
@@ -27,11 +26,11 @@ bool ZonesDifferInGeometry(const NaviParam& param, const std::string& a, const s
 bool IsZoneCompatible(const Waypoint& waypoint, const std::string& current_zone_id);
 bool IsRequiredSemanticAnchor(const Waypoint& waypoint);
 std::optional<DynamicAnchor>
-    ResolveCurrentAnchorFrom(const NaviParam& param, Session* session, const NaviPosition& position, size_t start_index);
-std::optional<DynamicAnchor> ResolveCurrentAnchor(const NaviParam& param, Session* session, const NaviPosition& position);
+    ResolveCurrentAnchorFrom(const NaviParam& param, const Session& session, const NaviPosition& position, size_t start_index);
+std::optional<DynamicAnchor> ResolveCurrentAnchor(const NaviParam& param, const Session& session, const NaviPosition& position);
 std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
     const NaviParam& param,
-    Session* session,
+    const Session& session,
     const NaviPosition& position,
     size_t start_index,
     const char* reason);
@@ -50,24 +49,6 @@ constexpr TickStep EndTickWith(bool keep_running)
     return keep_running ? TickStep::EndTick : TickStep::Abort;
 }
 
-// 依次执行, 返回第一个不是 Next 的结果; 没有返回值的步骤算作 Next
-template <typename... Steps>
-TickStep FirstToClaim(Steps&&... steps)
-{
-    TickStep result = TickStep::Next;
-    const auto run = [&result](auto& step) {
-        if constexpr (std::is_void_v<decltype(step())>) {
-            step();
-        }
-        else {
-            result = step();
-        }
-        return result == TickStep::Next;
-    };
-    static_cast<void>((run(steps) && ...));
-    return result;
-}
-
 struct TickFix
 {
     bool startup_grace_elapsed = false;
@@ -80,7 +61,7 @@ struct TickFix
     int64_t fix_age_ms = 0;
 };
 
-struct NavigationStateMachine::NavigateTick
+struct NavigateTick
 {
     std::chrono::steady_clock::time_point started_at {};
     int64_t gap_ms = 0;

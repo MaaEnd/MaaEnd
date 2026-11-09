@@ -11,20 +11,10 @@ namespace mapnavigator
 struct Motion;
 struct PositionSensor;
 struct InputBackend;
+struct Navigator;
 
 namespace semantic_nodes
 {
-
-struct Context
-{
-    InputBackend* input_backend = nullptr;
-    PositionSensor* position_provider = nullptr;
-    Session* session = nullptr;
-    Motion* motion_controller = nullptr;
-    NaviPosition* position = nullptr;
-    NavigationRuntimeState* runtime_state = nullptr;
-    MaaContext* maa_context = nullptr;
-};
 
 struct Result
 {
@@ -63,11 +53,11 @@ inline Result ConsumedFailure(const char* reason, const char* log_message)
     };
 }
 
-Result TickWaitPhase(const Context& ctx, NaviPhase phase);
-Result ConsumeInlineSemantics(const Context& ctx);
-Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual_distance);
+Result TickWaitPhase(Navigator* nav, NaviPhase phase);
+Result ConsumeInlineSemantics(Navigator* nav);
+Result HandleArrival(Navigator* nav, const Waypoint& waypoint, double actual_distance);
 // 调用前绳底交互须已按下, 当前点须已推进到绳顶落脚点
-Result StartRopeRide(const Context& ctx, const RopeRideInfo& ride);
+Result StartRopeRide(Navigator* nav, const RopeRideInfo& ride);
 
 } // namespace semantic_nodes
 

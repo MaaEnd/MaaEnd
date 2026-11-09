@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <chrono>
 #include <cstdint>
 #include <functional>
@@ -25,159 +24,59 @@ struct Motion;
 struct PositionSensor;
 class RoiTemplateScanner;
 struct InputBackend;
-struct RouteMeasurement;
-struct TickFix;
-enum class TickStep;
-
-namespace semantic_nodes
-{
-struct Context;
-struct Result;
-} // namespace semantic_nodes
 
 std::optional<size_t> ResolveRouteResumeIndex(const std::vector<Waypoint>& path, const NaviPosition& position);
 
-class NavigationStateMachine
+struct Navigator
 {
-public:
-    NavigationStateMachine(
-        const NaviParam& param,
-        InputBackend* input_backend,
-        PositionSensor* position_provider,
-        Session* session,
-        Motion* motion_controller,
-        NaviPosition* position,
-        std::function<bool()> should_stop,
-        MaaContext* maa_context);
-
-    bool run();
-    ~NavigationStateMachine();
-
-private:
-    struct PromptDistance
-    {
-        double distance_sq = -1.0;
-        bool is_zipline = false;
-        double dig_distance_sq = -1.0;
-    };
-
-    struct NavigateTick;
-
-    semantic_nodes::Context semanticContext();
-    bool tickPhase(NaviPhase phase);
-    bool tickNavigate();
-    NavigateTick beginNavigateTick();
-    TickStep runSemanticFlow();
-    TickStep concludeSemanticStep(const semantic_nodes::Result& result);
-    TickStep runInlineSemantics();
-    TickStep idleWhileNotWalking();
-    TickStep finishNavigateTick(const NavigateTick& tick);
-    void selectPhaseForCurrentWaypoint(const char* reason);
-    bool resumeAfterEscape(const char* reason);
-    void stopMotion();
-    bool failNavigation(const char* reason, const char* log_message, double current_distance, double yaw_error, int64_t stalled_ms);
-
-    bool bootstrap();
-
-    bool captureCurrentPosition(bool force_global_search = false);
-    void updateDwellWatchdog(bool captured);
-    TickStep captureNavigateFix(NavigateTick& tick);
-    // 丢定位由落水造成时返回 true, 此时落水自救已挂上
-    bool endLocalizationLoss();
-    TickStep checkDwellWatchdog();
-    bool handleLocalizationLoss();
-    bool sceneRecoveryAllowed();
-    // 场景管理跑完后取回有效定位才返回 true
-    bool runSceneRecovery();
-    bool returnToWorld();
-    bool resumeAfterGlobalReacquire(const std::string& prior_zone, std::chrono::milliseconds loss_elapsed);
-    bool armRiverFallRecoveryIfBlackScreenLoss(const char* via);
-    TickStep runRiverFallRecovery(const NavigateTick& tick);
-
-    void trackRoute(NavigateTick& tick);
-    TickFix readFix(std::chrono::steady_clock::time_point now);
-    void tickNavRun(NavigateTick& tick);
-    void consumeCorridorPassedWaypoints(NavigateTick& tick);
-    TickStep checkRouteProgress(NavigateTick& tick);
-    double observeNavigationProgress(
-        const RouteMeasurement& route,
-        double straight_to_anchor,
-        const std::optional<size_t>& anchor_index,
-        const std::chrono::steady_clock::time_point& now);
-    double resolveArrivalDistance(const NavigateTick& tick);
-    TickStep handleWaypointArrival(NavigateTick& tick);
-    TickStep settleAtArrival(const NavigateTick& tick);
-    TickStep passArrivedWaypoints(NavigateTick& tick);
-
-    bool tryApplyDynamicOverlayToAnchor(const char* reason, size_t continue_index, const Waypoint& anchor);
-    bool tryApplyDynamicOverlayToNextAnchor(const char* reason);
-    // 在 origin 前方放一块禁区再规划到锚点; 这里是唯一通路时把禁区标成 push_through 并返回 false
-    bool tryVirtualNoGoReplan(
-        const char* reason,
-        size_t continue_index,
-        const Waypoint& anchor,
-        const NaviPosition& origin,
-        double stuck_heading);
-    // 判成够不着就丢链改走路, 返回 true 表示这一拍已处理完
-    bool giveUpUnreachableZipline(const char* reason);
-    bool handleZiplineRecoveryReplan();
-    bool tryReplanRemainingAuthoredRoute(const char* reason);
-    bool abandonRope(uint32_t uid);
-    bool handleDynamicReplanRequest(const char* reason);
-
-    TickStep checkOffRouteWedge(const NavigateTick& tick);
-    TickStep runObstacleRecovery(const NavigateTick& tick);
-    void noteRecoveryBlocked(const char* reason);
-    bool climbRecoveryLadder(const NavigateTick& tick);
-    bool escalatePastJump(const NavigateTick& tick);
-    bool executePhysicalUnstick(double stuck_heading);
-
-    // 返回本拍的朝向误差
-    double steerAlongCorridor(const NavigateTick& tick);
-    void updateAutoSprint(const NavigateTick& tick);
-    void updateWalkMode(NaviPhase phase);
-
-    TickStep handlePrompts(const NavigateTick& tick);
-    std::array<AsyncPromptAction*, 2> promptActions();
-    void startScanners();
-    void stopScanners();
-    void startPromptScanners();
-    void startDeviceProbe();
-    void preWarmPromptRecognition();
-    bool tryZiplineMountPrompt(const Waypoint& waypoint, const RouteMeasurement& route);
-    // 路线上没有需要减速接近的点时 distance_sq 为 -1
-    PromptDistance nearestPromptDistance() const;
-    void updatePromptSprintSuppression();
-    bool tryRunPromptSubtaskWhileWalking(const RouteMeasurement& route);
-    void completeWaypointAfterPromptTrigger();
-    void tryRunPromptSubtaskAtRouteTail();
-
-    const NaviParam& param_;
-    InputBackend* input_backend_;
-    PositionSensor* position_provider_;
-    Session* session_;
-    Motion* motion_controller_;
-    NaviPosition* position_;
-    std::function<bool()> should_stop_;
-    MaaContext* maa_context_;
-    NavigationRuntimeState runtime_state_ {};
-    NavRun nav_run_ {};
-    FailureTrail failure_trail_;
-    std::chrono::steady_clock::time_point last_global_relocalize_at_ {};
-    std::optional<uint64_t> prior_observation_epoch_;
-    std::optional<NaviPhase> last_tick_phase_;
+    const NaviParam* param = nullptr;
+    InputBackend* input_backend = nullptr;
+    PositionSensor* position_provider = nullptr;
+    Session* session = nullptr;
+    Motion* motion_controller = nullptr;
+    NaviPosition* position = nullptr;
+    std::function<bool()> should_stop {};
+    MaaContext* maa_context = nullptr;
+    NavigationRuntimeState runtime_state {};
+    NavRun nav_run {};
+    FailureTrail failure_trail {};
+    std::chrono::steady_clock::time_point last_global_relocalize_at {};
+    std::optional<uint64_t> prior_observation_epoch {};
+    std::optional<NaviPhase> last_tick_phase {};
     // 只用于诊断
-    int consecutive_prior_uses_ = 0;
+    int consecutive_prior_uses = 0;
     // 本次导航封禁的升降索底端 uid
-    std::vector<uint32_t> rope_off_;
+    std::vector<uint32_t> rope_off {};
 
-    AsyncPromptAction collect_prompt_;
-    AsyncPromptAction interact_prompt_;
+    AsyncPromptAction collect_prompt {};
+    AsyncPromptAction interact_prompt {};
 
-    ObstacleDeviceRecovery device_recovery_;
-    std::unique_ptr<RoiTemplateScanner> zipline_mount_scanner_;
-    walkmode::Toggle walk_mode_;
-    walkmode::RestoreJogOnExit restore_jog_on_exit_;
+    ObstacleDeviceRecovery device_recovery {};
+    std::unique_ptr<RoiTemplateScanner> zipline_mount_scanner {};
+    walkmode::Toggle walk_mode {};
 };
+
+// 调用方须紧接着用 walkmode::RestoreJogOnExit 守住 walk_mode
+Navigator MakeNavigator(
+    const NaviParam& param,
+    InputBackend* input_backend,
+    PositionSensor* position_provider,
+    Session* session,
+    Motion* motion_controller,
+    NaviPosition* position,
+    std::function<bool()> should_stop,
+    MaaContext* maa_context);
+bool RunNavigator(Navigator* nav);
+void AdvanceHeadingEpochOnPhaseChange(Navigator* nav, NaviPhase phase);
+bool TickPhase(Navigator* nav, NaviPhase phase);
+void StopScanners(Navigator* nav);
+bool ResumeAfterEscape(Navigator* nav, const char* reason);
+bool FailNavigation(
+    Navigator* nav,
+    const char* reason,
+    const char* log_message,
+    double current_distance,
+    double yaw_error,
+    int64_t stalled_ms);
 
 } // namespace mapnavigator

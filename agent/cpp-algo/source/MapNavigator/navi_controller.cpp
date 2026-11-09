@@ -150,10 +150,15 @@ bool navigate_with_backend(MaaContext* ctx, NaviParam& param, InputBackend* inpu
     Motion motion_controller = MakeMotion(input_backend);
     motion_controller.enable_local_driver = param.enable_local_driver;
     motion_controller.enable_sprint = param.enable_sprint;
-    NavigationStateMachine
-        state_machine(expanded_param, input_backend, &position_provider, &session, &motion_controller, &pos, is_stopping, ctx);
+    Navigator navigator =
+        MakeNavigator(expanded_param, input_backend, &position_provider, &session, &motion_controller, &pos, is_stopping, ctx);
+    const walkmode::RestoreJogOnExit restore_jog_on_exit { navigator.walk_mode };
+    LogInfo << "Navigation route runner selected. backend=orchestrated";
 
-    return state_machine.run();
+    const bool succeeded = RunNavigator(&navigator);
+    // 帧回调里存着 navigator 成员的地址, 析构前必须先拆掉
+    StopScanners(&navigator);
+    return succeeded;
 }
 
 } // namespace

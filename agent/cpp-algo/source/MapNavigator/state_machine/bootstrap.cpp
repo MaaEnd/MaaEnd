@@ -1,3 +1,5 @@
+#include "bootstrap.h"
+
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -8,8 +10,10 @@
 #include <MaaUtils/Logger.h>
 
 #include "../navi_config.h"
+#include "../semantic/semantic_helpers.h"
 #include "../sensing/sensitivity_observer.h"
 #include "internal.h"
+#include "replan.h"
 
 namespace mapnavigator
 {
@@ -187,11 +191,11 @@ std::optional<BootstrapContinueCandidate>
     };
 }
 
-std::optional<DynamicAnchor> resolve_bootstrap_anchor(const NaviParam& param, Session* session, const NaviPosition& position)
+std::optional<DynamicAnchor> resolve_bootstrap_anchor(const NaviParam& param, const Session& session, const NaviPosition& position)
 {
     size_t start_index = 0;
     const std::optional<BootstrapContinueCandidate> continue_candidate =
-        resolve_bootstrap_continue_candidate(session->original_path, position);
+        resolve_bootstrap_continue_candidate(session.original_path, position);
     if (continue_candidate.has_value()) {
         start_index = continue_candidate->continue_index;
         LogInfo << "Bootstrap dynamic anchor scan adjusted." << VAR(continue_candidate->reason) << VAR(start_index)
@@ -216,39 +220,44 @@ std::optional<size_t> ResolveRouteResumeIndex(const std::vector<Waypoint>& path,
     return candidate->continue_index;
 }
 
-bool NavigationStateMachine::bootstrap()
+bool Bootstrap(Navigator* nav)
 {
-    BeginNavigation(&runtime_state_, std::chrono::steady_clock::now());
+    BeginNavigation(&nav->runtime_state, std::chrono::steady_clock::now());
     sensitivity::BeginRun();
 
     std::optional<DynamicAnchor> anchor;
-    if (param_.enable_bootstrap_navmesh) {
-        anchor = resolve_bootstrap_anchor(param_, session_, *position_);
+    if (nav->param->enable_bootstrap_navmesh) {
+        anchor = resolve_bootstrap_anchor(*nav->param, *nav->session, *nav->position);
     }
     else {
-        LogInfo << "Bootstrap navmesh planning disabled by route param." << VAR(position_->x) << VAR(position_->y)
-                << VAR(position_->zone_id);
+        LogInfo << "Bootstrap navmesh planning disabled by route param." << VAR(nav->position->x) << VAR(nav->position->y)
+                << VAR(nav->position->zone_id);
     }
-    if (anchor && tryApplyDynamicOverlayToAnchor("bootstrap_navmesh_overlay", anchor->first, anchor->second)) {
-        selectPhaseForCurrentWaypoint("bootstrap_navmesh_overlay");
+    bool overlaid = false;
+    if (anchor) {
+        overlaid = TryApplyDynamicOverlayToAnchor(nav, "bootstrap_navmesh_overlay", anchor->first, anchor->second);
+    }
+    if (overlaid) {
+        semantic_nodes::SelectPhaseOrFinishRoute(nav, "bootstrap_navmesh_overlay");
         return true;
     }
 
     const std::optional<BootstrapContinueCandidate> continue_candidate =
-        resolve_bootstrap_continue_candidate(session_->original_path, *position_);
+        resolve_bootstrap_continue_candidate(nav->session->original_path, *nav->position);
     if (continue_candidate && continue_candidate->continue_index > 0
-        && continue_candidate->continue_index < session_->original_path.size()) {
-        ApplyDynamicOverlay(session_, {}, continue_candidate->continue_index, *position_);
-        runtime_state_.route = {};
-        runtime_state_.nav_run_dirty = true;
+        && continue_candidate->continue_index < nav->session->original_path.size()) {
+        ApplyDynamicOverlay(nav->session, {}, continue_candidate->continue_index, *nav->position);
+        RestartRouteTracking(&nav->runtime_state.route);
+        MarkNavRunDirty(&nav->runtime_state);
         LogInfo << "Bootstrap serial route continue after navmesh overlay unavailable." << VAR(continue_candidate->continue_index)
-                << VAR(continue_candidate->route_distance) << VAR(position_->x) << VAR(position_->y) << VAR(position_->zone_id);
-        selectPhaseForCurrentWaypoint("bootstrap_serial_continue");
+                << VAR(continue_candidate->route_distance) << VAR(nav->position->x) << VAR(nav->position->y) << VAR(nav->position->zone_id);
+        semantic_nodes::SelectPhaseOrFinishRoute(nav, "bootstrap_serial_continue");
         return true;
     }
 
-    LogWarn << "Bootstrap ownership fallback to route head." << VAR(position_->x) << VAR(position_->y) << VAR(position_->zone_id);
-    selectPhaseForCurrentWaypoint("bootstrap_ready");
+    LogWarn << "Bootstrap ownership fallback to route head." << VAR(nav->position->x) << VAR(nav->position->y)
+            << VAR(nav->position->zone_id);
+    semantic_nodes::SelectPhaseOrFinishRoute(nav, "bootstrap_ready");
     return true;
 }
 
