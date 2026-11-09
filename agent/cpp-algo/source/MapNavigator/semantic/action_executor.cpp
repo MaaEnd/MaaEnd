@@ -10,13 +10,10 @@
 namespace mapnavigator
 {
 
-void ExecuteSprint(Motion* motion_controller)
+void ExecuteSprint(Motion* motion_controller, walkmode::WalkBelief* walk)
 {
     if (SprintAllowed(*motion_controller)) {
-        ArmSteeringQuietPeriod(motion_controller);
-        TriggerSprintSync(motion_controller->input_backend);
-        walkmode::NoteSprintTriggered();
-        MarkSprintActive(motion_controller);
+        TriggerSprint(motion_controller, walk);
         LogInfo << "Action: SPRINT triggered.";
     }
     else {

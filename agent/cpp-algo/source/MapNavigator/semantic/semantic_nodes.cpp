@@ -10,6 +10,7 @@
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_time.h"
+#include "../process_state.h"
 #include "../sensing/position_provider.h"
 #include "../state_machine/navigation_state_machine.h"
 #include "../zipline/zipline_action.h"
@@ -34,7 +35,8 @@ Result arrive_transfer(Navigator* nav, const std::optional<size_t>& node_idx, do
 {
     HoldAndArmCameraAlign(nav);
     NoteCanonicalFinalGoalConsumed(nav->session, node_idx, *nav->position, "transfer_wait_started");
-    AdvanceToNextWaypoint(nav->session, ActionType::TRANSFER, "transfer_wait_started");
+    NoteInteraction(nav->session);
+    LeaveCurrentWaypoint(nav->session, ActionType::TRANSFER, "transfer_wait_started");
     ResetOnWaypointAdvance(&nav->runtime_state);
     const auto now = std::chrono::steady_clock::now();
     const bool waits = HasCurrentWaypoint(*nav->session);
@@ -46,7 +48,7 @@ Result arrive_transfer(Navigator* nav, const std::optional<size_t>& node_idx, do
         UpdatePhase(nav->session, NaviPhase::WaitTransfer, "transfer_wait_started");
     }
     else {
-        NoteRouteTailConsumed(nav->session, *nav->position, "route_tail_consumed");
+        ConcludeRouteTail(nav->session, *nav->position, "route_tail_consumed");
     }
     return Handled();
 }
@@ -54,7 +56,8 @@ Result arrive_transfer(Navigator* nav, const std::optional<size_t>& node_idx, do
 Result arrive_portal(Navigator* nav, const std::optional<size_t>& node_idx, double actual_distance)
 {
     NoteCanonicalFinalGoalConsumed(nav->session, node_idx, *nav->position, "portal_entered");
-    AdvanceToNextWaypoint(nav->session, ActionType::PORTAL, "portal_entered");
+    NoteInteraction(nav->session);
+    LeaveCurrentWaypoint(nav->session, ActionType::PORTAL, "portal_entered");
     ResetOnWaypointAdvance(&nav->runtime_state);
     const auto now = std::chrono::steady_clock::now();
     nav->runtime_state.semantic.portal = HasCurrentWaypoint(*nav->session)
@@ -178,7 +181,7 @@ Result ConsumeInlineSemantics(Navigator* nav)
 {
     ConsumeMatchedZoneNodes(nav);
     if (!HasCurrentWaypoint(*nav->session)) {
-        NoteRouteTailConsumed(nav->session, *nav->position, "route_tail_consumed");
+        ConcludeRouteTail(nav->session, *nav->position, "route_tail_consumed");
         return Handled();
     }
 
@@ -245,7 +248,7 @@ Result HandleArrival(Navigator* nav, const Waypoint& waypoint, double actual_dis
         }
         return arrive_key_interact(nav, waypoint, node_idx);
     case ActionType::SPRINT:
-        ExecuteSprint(nav->motion_controller);
+        ExecuteSprint(nav->motion_controller, &nav->process->walk);
         break;
     case ActionType::JUMP:
         ArmCameraAlign(&nav->runtime_state);

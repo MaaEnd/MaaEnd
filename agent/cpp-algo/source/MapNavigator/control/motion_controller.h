@@ -5,6 +5,7 @@
 
 #include "../Backend/backend.h"
 #include "../navi_domain_types.h"
+#include "walk_mode.h"
 
 namespace mapnavigator
 {
@@ -25,16 +26,27 @@ struct Motion
     bool sprint_suppressed = false;
 };
 
+enum class SteeringGate
+{
+    Closed,
+    Open,
+    OpenPausingMove,
+};
+
 Motion MakeMotion(InputBackend* input_backend);
 
 void HoldPosition(Motion* motion);
 void MoveForward(Motion* motion);
 void ReassertForward(Motion* motion);
-TurnCommandResult ApplySteering(Motion* motion, double yaw_delta_deg, int64_t tick_gap_ms);
+SteeringGate SteeringGateOf(const Motion& motion, double yaw_delta_deg, std::chrono::steady_clock::time_point now);
+void PauseMotionForTurn(Motion* motion);
+TurnCommandResult SendSteeringBatches(Motion* motion, sensitivity::SensitivityRun* sensitivity, double yaw_delta_deg, int64_t tick_gap_ms);
+void NoteSteeringSent(Motion* motion, SteeringGate gate, std::chrono::steady_clock::time_point now);
 void ArmSteeringQuietPeriod(Motion* motion);
 bool CanSprint(const Motion& motion);
 bool SprintAllowed(const Motion& motion);
 void MarkSprintActive(Motion* motion);
+void TriggerSprint(Motion* motion, walkmode::WalkBelief* walk);
 bool SprintCancellable(const Motion& motion);
 void CancelSprint(Motion* motion);
 void ApplyLocalAction(Motion* motion, LocalDriverAction action);

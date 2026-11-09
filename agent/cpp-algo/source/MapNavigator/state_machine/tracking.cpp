@@ -10,11 +10,13 @@
 #include <MaaUtils/Logger.h>
 
 #include "../control/motion_controller.h"
+#include "../control/walk_mode.h"
 #include "../navi_config.h"
 #include "../navi_log.h"
 #include "../navi_math.h"
 #include "../navi_time.h"
 #include "../planning/route_tracker.h"
+#include "../process_state.h"
 #include "../semantic/semantic_helpers.h"
 #include "../semantic/semantic_nodes.h"
 #include "../semantic/strict_settle.h"
@@ -103,12 +105,20 @@ void tick_nav_run(Navigator* nav, NavigateTick* tick)
     }
 }
 
+RouteMeasurement advance_and_measure_route(Navigator* nav)
+{
+    RouteTrackerState* state = &nav->runtime_state.route;
+    const bool startup_motion_confirmed = UpdateStartupGate(state, *nav->session, *nav->position);
+    AdvancePassedRunWaypoints(nav->session, state, *nav->position);
+    return MeasureRoute(*state, *nav->session, *nav->position, startup_motion_confirmed);
+}
+
 void consume_corridor_passed_waypoints(Navigator* nav, NavigateTick* tick)
 {
     size_t consumed = 0;
     while (consumed < tick->nav_run_result.passed_run_waypoints && HasCurrentWaypoint(*nav->session)
            && IsContinuousRun(CurrentWaypoint(*nav->session))) {
-        AdvanceToNextWaypoint(nav->session, ActionType::RUN, "navmesh_corridor_passed_run_waypoint");
+        LeaveCurrentWaypoint(nav->session, ActionType::RUN, "navmesh_corridor_passed_run_waypoint");
         ++consumed;
     }
     if (consumed == 0) {
@@ -116,7 +126,7 @@ void consume_corridor_passed_waypoints(Navigator* nav, NavigateTick* tick)
     }
     ClearDynamicRecovery(&nav->runtime_state.recovery);
     ResetGlobalReacquireStreak(&nav->runtime_state);
-    tick->route = UpdateRouteTracking(&nav->runtime_state.route, nav->session, *nav->position);
+    tick->route = advance_and_measure_route(nav);
 }
 
 double observe_navigation_progress(
@@ -140,11 +150,23 @@ double observe_navigation_progress(
             ResetHardProgress(nav->session);
         }
     }
-    ObserveProgress(nav->session, nav->session->current_node_idx, effective_progress, now);
+    ProgressClock* progress = &nav->session->visit.progress;
+    if (ProgressClockTracks(*progress, nav->session->current_node_idx)) {
+        ObserveProgressClock(progress, effective_progress, now);
+    }
+    else {
+        RestartProgressClock(progress, nav->session->current_node_idx, effective_progress, now);
+    }
     // 脱困重置不了硬进度时钟, 恢复超时才可能触发
     const size_t hard_progress_key =
         from_anchor && anchor_index ? *anchor_index : ProgressIdentityState::kSerialKeyBias + nav->session->current_node_idx;
-    ObserveHardProgress(nav->session, hard_progress_key, effective_progress, now);
+    ProgressClock* hard_progress = &nav->session->visit.hard_progress;
+    if (ProgressClockTracks(*hard_progress, hard_progress_key)) {
+        ObserveProgressClock(hard_progress, effective_progress, now);
+    }
+    else {
+        RestartProgressClock(hard_progress, hard_progress_key, effective_progress, now);
+    }
     return effective_progress;
 }
 
@@ -158,25 +180,25 @@ TickStep settle_at_arrival(Navigator* nav, const NavigateTick& tick)
     if (route.waypoint_distance <= route.arrival_band) {
         // 这一拍可能已跨过步行带, 所以先停车
         semantic_nodes::HoldAndArmCameraAlign(nav);
-        walkmode::RequestWalk(nav->walk_mode, true);
+        walkmode::RequestWalk(&nav->process->walk, nav->input_backend, true);
         const bool settled = semantic_nodes::SettleAtStrictGoal(nav, waypoint);
         // 原地转镜头不经过转向环, 转向环记着的待生效转角要清掉
         nav->runtime_state.steering_rate = {};
         if (TaskStopping(nav->maa_context)) {
-            walkmode::RequestWalk(nav->walk_mode, false);
+            walkmode::RequestWalk(&nav->process->walk, nav->input_backend, false);
             return TickStep::EndTick;
         }
         if (!settled) {
             // 定位失效时人可能没到点, 交给丢定位处理
             if (!nav->position->valid) {
-                walkmode::RequestWalk(nav->walk_mode, false);
+                walkmode::RequestWalk(&nav->process->walk, nav->input_backend, false);
                 return EndTickWith(HandleLocalizationLoss(nav));
             }
             LogWarn << "Strict arrival correction incomplete; arrival action remains non-fatal." << VAR(nav->session->current_node_idx)
                     << VAR(nav->position->valid);
         }
     }
-    walkmode::RequestWalk(nav->walk_mode, false);
+    walkmode::RequestWalk(&nav->process->walk, nav->input_backend, false);
     return TickStep::Next;
 }
 
@@ -212,7 +234,7 @@ TickStep pass_arrived_waypoints(Navigator* nav, NavigateTick* tick)
             || !HasCurrentWaypoint(*nav->session)) {
             return TickStep::EndTick;
         }
-        route = UpdateRouteTracking(&nav->runtime_state.route, nav->session, *nav->position);
+        route = advance_and_measure_route(nav);
         waypoint = CurrentWaypoint(*nav->session);
         if (!route.valid || !IsContinuousRun(waypoint) || waypoint.drop_from) {
             return TickStep::EndTick;
@@ -236,7 +258,7 @@ void TrackRoute(Navigator* nav, NavigateTick* tick)
     tick->now = std::chrono::steady_clock::now();
     tick->fix = read_fix(*nav, tick->now);
     const size_t node_idx_before_tracking = nav->session->current_node_idx;
-    tick->route = UpdateRouteTracking(&nav->runtime_state.route, nav->session, *nav->position);
+    tick->route = advance_and_measure_route(nav);
     if (nav->session->current_node_idx != node_idx_before_tracking) {
         ClearDynamicRecovery(&nav->runtime_state.recovery);
     }

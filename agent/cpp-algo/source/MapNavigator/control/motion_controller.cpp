@@ -11,6 +11,8 @@
 #include "../navi_time.h"
 #include "../sensing/latency_observer.h"
 #include "motion_controller.h"
+#include "view_turn.h"
+#include "walk_mode.h"
 
 namespace mapnavigator
 {
@@ -62,7 +64,7 @@ int64_t plan_batch_count(const Motion& motion, double yaw_delta_deg, int64_t tic
     return batches;
 }
 
-TurnCommandResult send_view_delta(const Motion& motion, double delta_degrees)
+TurnCommandResult send_view_delta(sensitivity::SensitivityRun* sensitivity, const Motion& motion, double delta_degrees)
 {
     TurnCommandResult result;
     if (std::abs(delta_degrees) <= std::numeric_limits<double>::epsilon()) {
@@ -70,12 +72,12 @@ TurnCommandResult send_view_delta(const Motion& motion, double delta_degrees)
         return result;
     }
 
-    int units = static_cast<int>(std::lround(delta_degrees * TurnUnitsPerDegree(*motion.input_backend)));
+    int units = static_cast<int>(std::lround(delta_degrees * TurnUnitsPerDegree(*motion.input_backend, *sensitivity)));
     if (units == 0) {
         units = delta_degrees > 0.0 ? 1 : -1;
     }
     const auto send_started_at = std::chrono::steady_clock::now();
-    const bool sent = SendViewDeltaSync(motion.input_backend, units, 0);
+    const bool sent = SendYawDeltaAndNoteTurn(motion.input_backend, sensitivity, units, 0);
     const int64_t send_ms = ElapsedMs(send_started_at);
     result.send_ms = send_ms;
     if (!sent) {
@@ -89,7 +91,7 @@ TurnCommandResult send_view_delta(const Motion& motion, double delta_degrees)
     return result;
 }
 
-TurnCommandResult emit_batches(const Motion& motion, double yaw_delta_deg, int64_t batches)
+TurnCommandResult emit_batches(sensitivity::SensitivityRun* sensitivity, const Motion& motion, double yaw_delta_deg, int64_t batches)
 {
     const double batch_cap = motion.steering_profile.max_batch_delta_deg;
     const double tick_cap = batch_cap * static_cast<double>(batches);
@@ -104,7 +106,7 @@ TurnCommandResult emit_batches(const Motion& motion, double yaw_delta_deg, int64
             break;
         }
         const double step_deg = std::clamp(remaining, -batch_cap, batch_cap);
-        const TurnCommandResult sent = send_view_delta(motion, step_deg);
+        const TurnCommandResult sent = send_view_delta(sensitivity, motion, step_deg);
         send_ms_total += sent.send_ms;
         if (!sent.issued) {
             break;
@@ -170,35 +172,38 @@ void ReassertForward(Motion* motion)
     ResetForwardWalkSync(motion->input_backend, kWalkResetReleaseMs);
 }
 
-TurnCommandResult ApplySteering(Motion* motion, double yaw_delta_deg, int64_t tick_gap_ms)
+SteeringGate SteeringGateOf(const Motion& motion, double yaw_delta_deg, std::chrono::steady_clock::time_point now)
 {
-    if (std::abs(yaw_delta_deg) <= std::numeric_limits<double>::epsilon()) {
-        return { .issued = true };
+    if (!steering_gate_open(motion, yaw_delta_deg, now)) {
+        return SteeringGate::Closed;
     }
+    const bool pauses_move = !motion.steering_profile.supports_concurrent_move_and_look && motion.is_moving;
+    return pauses_move ? SteeringGate::OpenPausingMove : SteeringGate::Open;
+}
 
-    const auto now = std::chrono::steady_clock::now();
-    if (!steering_gate_open(*motion, yaw_delta_deg, now)) {
-        return {};
-    }
+void PauseMotionForTurn(Motion* motion)
+{
+    SetMovementStateSync(motion->input_backend, {}, 0);
+}
 
-    const bool should_pause_motion = !motion->steering_profile.supports_concurrent_move_and_look && motion->is_moving;
-    if (should_pause_motion) {
-        SetMovementStateSync(motion->input_backend, {}, 0);
-    }
-
-    const TurnCommandResult result = emit_batches(*motion, yaw_delta_deg, plan_batch_count(*motion, yaw_delta_deg, tick_gap_ms));
+TurnCommandResult SendSteeringBatches(Motion* motion, sensitivity::SensitivityRun* sensitivity, double yaw_delta_deg, int64_t tick_gap_ms)
+{
+    const TurnCommandResult result =
+        emit_batches(sensitivity, *motion, yaw_delta_deg, plan_batch_count(*motion, yaw_delta_deg, tick_gap_ms));
     if (result.send_ms > 0) {
         latency::RecordStage(latency::Stage::Steer, result.send_ms);
     }
-    if (result.issued) {
-        motion->last_steering_sent_at = now;
-        if (should_pause_motion) {
-            motion->is_moving = false;
-            motion->is_moving_forward = false;
-            motion->has_applied_action = false;
-        }
-    }
     return result;
+}
+
+void NoteSteeringSent(Motion* motion, SteeringGate gate, std::chrono::steady_clock::time_point now)
+{
+    motion->last_steering_sent_at = now;
+    if (gate == SteeringGate::OpenPausingMove) {
+        motion->is_moving = false;
+        motion->is_moving_forward = false;
+        motion->has_applied_action = false;
+    }
 }
 
 void ArmSteeringQuietPeriod(Motion* motion)
@@ -224,6 +229,14 @@ void MarkSprintActive(Motion* motion)
 {
     motion->sprint_active = true;
     LogInfo << "Sprint state armed.";
+}
+
+void TriggerSprint(Motion* motion, walkmode::WalkBelief* walk)
+{
+    ArmSteeringQuietPeriod(motion);
+    TriggerSprintSync(motion->input_backend);
+    walkmode::NoteSprintTriggered(walk);
+    MarkSprintActive(motion);
 }
 
 bool SprintCancellable(const Motion& motion)

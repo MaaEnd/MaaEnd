@@ -2,6 +2,7 @@
 #include <chrono>
 #include <cmath>
 #include <deque>
+#include <limits>
 #include <optional>
 #include <utility>
 
@@ -100,6 +101,7 @@ bool ahead_is_braked_corner(const FlowState& flow, const std::optional<SharpCorn
 
 void settle_pending_turn(
     SteeringRateState* steering_rate_state,
+    const walkmode::WalkBelief& walk,
     const Motion& motion,
     double steer_heading,
     std::chrono::steady_clock::time_point now,
@@ -111,7 +113,7 @@ void settle_pending_turn(
         .batch_cap_deg = motion.steering_profile.max_batch_delta_deg,
         .floor_ms = drops_turn_sends ? std::max(kSteeringPendingLifetimeMs, kSteeringPendingLifetimeTicks * steer_period_ms.value_or(0))
                                      : kSteeringPendingLifetimeMs,
-        .walk_engaged = walkmode::Engaged(),
+        .walk_engaged = walkmode::Engaged(walk),
     };
     if (drops_turn_sends) {
         std::erase_if(steering_rate.in_flight, [&](const SteeringRateState::InFlightTurn& turn) {
@@ -149,11 +151,33 @@ void settle_pending_turn(
     steering_rate.pending_ref_heading_deg = steer_heading;
 }
 
+TurnCommandResult send_yaw_command(Motion* motion, sensitivity::SensitivityRun* sensitivity, double yaw_delta_deg, int64_t tick_gap_ms)
+{
+    if (std::abs(yaw_delta_deg) <= std::numeric_limits<double>::epsilon()) {
+        return { .issued = true };
+    }
+
+    const auto now = std::chrono::steady_clock::now();
+    const SteeringGate gate = SteeringGateOf(*motion, yaw_delta_deg, now);
+    if (gate == SteeringGate::Closed) {
+        return {};
+    }
+    if (gate == SteeringGate::OpenPausingMove) {
+        PauseMotionForTurn(motion);
+    }
+    const TurnCommandResult result = SendSteeringBatches(motion, sensitivity, yaw_delta_deg, tick_gap_ms);
+    if (result.issued) {
+        NoteSteeringSent(motion, gate, now);
+    }
+    return result;
+}
+
 } // namespace
 
 SteeringReading ObserveSteering(
     SteeringRateState* steering_rate,
     FlowState* flow,
+    const walkmode::WalkBelief& walk,
     const Motion& motion,
     double steer_heading,
     std::chrono::steady_clock::time_point now,
@@ -164,7 +188,7 @@ SteeringReading ObserveSteering(
     reading.heading_rate = track_heading_rate(steering_rate, *flow, steer_heading, now);
     reading.steer_period_ms = sample_steer_period(flow, now);
     reading.slow_loop = drops_turn_sends && reading.steer_period_ms.has_value() && *reading.steer_period_ms >= kSlowLoopPivotPeriodMs;
-    settle_pending_turn(steering_rate, motion, steer_heading, now, drops_turn_sends, reading.steer_period_ms);
+    settle_pending_turn(steering_rate, walk, motion, steer_heading, now, drops_turn_sends, reading.steer_period_ms);
     return reading;
 }
 
@@ -178,30 +202,39 @@ SteeringCommand DecideSteering(SteeringRateState* steering_rate, const Motion& m
         steering_rate->pending_turn_deg);
 }
 
-bool BrakeForSharpCorner(FlowState* flow, const NaviPosition& position, const NavRunTickResult& nav_run_result, bool slow_loop)
+bool ShouldBrakeForSharpCorner(const FlowState& flow, const NavRunTickResult& nav_run_result, bool slow_loop)
 {
-    bool corner_brake = false;
     const std::optional<SharpCorner>& corner = nav_run_result.corner;
-    if (slow_loop && corner && nav_run_result.step_per_tick) {
-        const double stop_distance = *nav_run_result.step_per_tick * kCornerBrakeLeadTicks;
-        corner_brake = !ahead_is_braked_corner(*flow, corner) && corner->distance <= stop_distance && corner->lead_distance < stop_distance;
-        if (corner_brake) {
-            flow->braked_corner = corner->point;
-            LogInfo << "Braking before a sharp corner." << VAR(corner->distance) << VAR(corner->turn_deg) << VAR(corner->lead_distance)
-                    << VAR(stop_distance) << VAR(corner->point.x) << VAR(corner->point.y);
-        }
+    if (!slow_loop || !corner || !nav_run_result.step_per_tick) {
+        return false;
     }
+    const double stop_distance = *nav_run_result.step_per_tick * kCornerBrakeLeadTicks;
+    return !ahead_is_braked_corner(flow, corner) && corner->distance <= stop_distance && corner->lead_distance < stop_distance;
+}
+
+void LatchBrakedCorner(FlowState* flow, const NavRunTickResult& nav_run_result)
+{
+    const std::optional<SharpCorner>& corner = nav_run_result.corner;
+    const double stop_distance = *nav_run_result.step_per_tick * kCornerBrakeLeadTicks;
+    flow->braked_corner = corner->point;
+    LogInfo << "Braking before a sharp corner." << VAR(corner->distance) << VAR(corner->turn_deg) << VAR(corner->lead_distance)
+            << VAR(stop_distance) << VAR(corner->point.x) << VAR(corner->point.y);
+}
+
+void UpdateCornerWalk(FlowState* flow, const NaviPosition& position, const NavRunTickResult& nav_run_result)
+{
+    const std::optional<SharpCorner>& corner = nav_run_result.corner;
     if (const bool corner_walk = ahead_is_braked_corner(*flow, corner); corner_walk != flow->corner_walk) {
         flow->corner_walk = corner_walk;
         LogInfo << (corner_walk ? "Walking into a braked corner." : "Braked corner behind; walking ends.") << VAR(position.x)
                 << VAR(position.y);
     }
-    return corner_brake;
 }
 
 std::pair<double, int64_t> SendSteering(
     SteeringRateState* steering_rate,
     Motion* motion,
+    sensitivity::SensitivityRun* sensitivity,
     const SteeringCommand& steering,
     int64_t tick_gap_ms,
     double steer_heading,
@@ -213,7 +246,7 @@ std::pair<double, int64_t> SendSteering(
     // 存活期从真正发出时算起, 这一拍前面若重规划过, 拍头时间已经过去很久
     const auto steer_sent_at = std::chrono::steady_clock::now();
     if (steering.issued) {
-        const TurnCommandResult steering_result = ApplySteering(motion, steering.yaw_delta_deg, tick_gap_ms);
+        const TurnCommandResult steering_result = send_yaw_command(motion, sensitivity, steering.yaw_delta_deg, tick_gap_ms);
         steer_send_ms = steering_result.send_ms;
         if (steering_result.issued) {
             issued_delta_deg = steering_result.issued_delta_degrees;
@@ -235,6 +268,7 @@ std::pair<double, int64_t> SendSteering(
 void UpdateForwardHold(
     FlowState* flow,
     Motion* motion,
+    const walkmode::WalkBelief& walk,
     const NaviPosition& position,
     double issued_delta_deg,
     double heading_error,
@@ -256,7 +290,8 @@ void UpdateForwardHold(
     }
     flow->last_steer_position = position;
     flow->has_last_steer_position = true;
-    const int32_t hold_reassert_ticks = walkmode::Engaged() ? kForwardHoldReassertTicks * kWalkModeSlowFactor : kForwardHoldReassertTicks;
+    const int32_t hold_reassert_ticks =
+        walkmode::Engaged(walk) ? kForwardHoldReassertTicks * kWalkModeSlowFactor : kForwardHoldReassertTicks;
     if (flow->motionless_hold_ticks >= hold_reassert_ticks) {
         ++flow->futile_forward_reasserts;
         LogWarn << "Forward hold produced no motion; re-sending it." << VAR(flow->motionless_hold_ticks) << VAR(heading_error)

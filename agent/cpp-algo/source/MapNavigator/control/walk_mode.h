@@ -8,27 +8,28 @@ struct InputBackend;
 namespace mapnavigator::walkmode
 {
 
-bool Engaged();
-
-// 冲刺会自动退出走路, 只更新记录不发键
-void NoteSprintTriggered();
-
-struct Toggle
+struct WalkBelief
 {
-    InputBackend* input_backend = nullptr;
+    bool walking = false;
 };
 
-Toggle OpenToggle(InputBackend* input_backend);
-void CloseToggle(const Toggle& toggle);
-// 幂等, 后端无走路键时不生效, 记录只随真实按键变化
-void RequestWalk(const Toggle& toggle, bool walk);
+bool Engaged(const WalkBelief& belief);
 
-// 持有者构造中途失败或异常退出也须恢复跑步
+// 冲刺会自动退出走路, 只更新记录不发键
+void NoteSprintTriggered(WalkBelief* belief);
+
+// 幂等, 后端无走路键时不生效, 记录只随真实按键变化
+void RequestWalk(WalkBelief* belief, InputBackend* input_backend, bool walk);
+
+void RestoreJogIfBeliefSurvived(WalkBelief* belief, InputBackend* input_backend);
+
+// 导航中途异常退出也须恢复跑步
 struct RestoreJogOnExit
 {
-    const Toggle& toggle;
+    WalkBelief* belief;
+    InputBackend* input_backend;
 
-    ~RestoreJogOnExit() { CloseToggle(toggle); }
+    ~RestoreJogOnExit() { RequestWalk(belief, input_backend, false); }
 };
 
 } // namespace mapnavigator::walkmode

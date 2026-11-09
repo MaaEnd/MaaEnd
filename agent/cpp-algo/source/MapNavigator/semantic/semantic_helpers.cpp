@@ -22,7 +22,7 @@ void HoldAndArmCameraAlign(Navigator* nav)
 void SelectPhaseOrFinishRoute(Navigator* nav, const char* reason)
 {
     if (!HasCurrentWaypoint(*nav->session)) {
-        NoteRouteTailConsumed(nav->session, *nav->position, "route_tail_consumed");
+        ConcludeRouteTail(nav->session, *nav->position, "route_tail_consumed");
         return;
     }
     UpdatePhase(nav->session, NaviPhase::Navigate, reason);
@@ -31,7 +31,10 @@ void SelectPhaseOrFinishRoute(Navigator* nav, const char* reason)
 void CompleteArrival(Navigator* nav, const Waypoint& waypoint, const std::optional<size_t>& node_idx, const char* reason)
 {
     NoteCanonicalFinalGoalConsumed(nav->session, node_idx, *nav->position, reason);
-    AdvanceToNextWaypoint(nav->session, waypoint.action, reason);
+    if (MayOpenUi(waypoint.action)) {
+        NoteInteraction(nav->session);
+    }
+    LeaveCurrentWaypoint(nav->session, waypoint.action, reason);
     ResetOnWaypointAdvance(&nav->runtime_state);
     SelectPhaseOrFinishRoute(nav, reason);
 }
@@ -43,7 +46,7 @@ void ConsumeMatchedZoneNodes(Navigator* nav)
         if (!zone_id.empty() && zone_id != nav->session->current_zone_id) {
             break;
         }
-        AdvanceToNextWaypoint(nav->session, ActionType::ZONE, "zone_declaration_consumed");
+        LeaveCurrentWaypoint(nav->session, ActionType::ZONE, "zone_declaration_consumed");
         ResetOnWaypointAdvance(&nav->runtime_state);
     }
 }

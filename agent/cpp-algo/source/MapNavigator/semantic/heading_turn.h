@@ -7,6 +7,13 @@
 namespace mapnavigator
 {
 
+namespace sensitivity
+{
+
+struct SensitivityRun;
+
+} // namespace sensitivity
+
 namespace semantic_nodes
 {
 
@@ -20,7 +27,7 @@ struct HeadingTurnSteps
 // 1 度以内不用转, 返回 std::nullopt
 std::optional<HeadingTurnSteps> PlanHeadingTurn(const InputBackend& input_backend, double heading_delta);
 // 不是最后一步时发完等一个间隔
-bool SendHeadingTurnStep(InputBackend* input_backend, const HeadingTurnSteps& turn, int step);
+bool SendHeadingTurnStep(InputBackend* input_backend, sensitivity::SensitivityRun* sensitivity, const HeadingTurnSteps& turn, int step);
 // 只转镜头不前进, 指令发不出去时返回 false
 bool TurnToHeadingOnce(Navigator* nav, double heading_delta);
 // 读不到镜头朝向时什么都不做

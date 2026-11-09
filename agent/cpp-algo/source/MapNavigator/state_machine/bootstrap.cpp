@@ -10,6 +10,7 @@
 #include <MaaUtils/Logger.h>
 
 #include "../navi_config.h"
+#include "../process_state.h"
 #include "../semantic/semantic_helpers.h"
 #include "../sensing/sensitivity_observer.h"
 #include "internal.h"
@@ -223,7 +224,7 @@ std::optional<size_t> ResolveRouteResumeIndex(const std::vector<Waypoint>& path,
 bool Bootstrap(Navigator* nav)
 {
     BeginNavigation(&nav->runtime_state, std::chrono::steady_clock::now());
-    sensitivity::BeginRun();
+    sensitivity::BeginRun(&nav->process->sensitivity);
 
     std::optional<DynamicAnchor> anchor;
     if (nav->param->enable_bootstrap_navmesh) {

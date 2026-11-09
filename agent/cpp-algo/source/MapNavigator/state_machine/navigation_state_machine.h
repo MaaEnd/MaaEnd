@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "../control/obstacle_device_recovery.h"
-#include "../control/walk_mode.h"
 #include "../navi_param.h"
 #include "../planning/nav_run_controller.h"
 #include "../planning/navigation_session.h"
@@ -23,6 +22,7 @@ struct Motion;
 struct PositionSensor;
 class RoiTemplateScanner;
 struct InputBackend;
+struct NavProcessState;
 
 std::optional<size_t> ResolveRouteResumeIndex(const std::vector<Waypoint>& path, const NaviPosition& position);
 
@@ -34,6 +34,7 @@ struct Navigator
     Session* session = nullptr;
     Motion* motion_controller = nullptr;
     NaviPosition* position = nullptr;
+    NavProcessState* process = nullptr;
     MaaContext* maa_context = nullptr;
     NavigationRuntimeState runtime_state {};
     NavRun nav_run {};
@@ -51,10 +52,8 @@ struct Navigator
 
     ObstacleDeviceRecovery device_recovery {};
     std::unique_ptr<RoiTemplateScanner> zipline_mount_scanner {};
-    walkmode::Toggle walk_mode {};
 };
 
-// 调用方须紧接着用 walkmode::RestoreJogOnExit 守住 walk_mode
 Navigator MakeNavigator(
     const NaviParam& param,
     InputBackend* input_backend,
@@ -62,6 +61,7 @@ Navigator MakeNavigator(
     Session* session,
     Motion* motion_controller,
     NaviPosition* position,
+    NavProcessState* process,
     MaaContext* maa_context);
 bool RunNavigator(Navigator* nav);
 void AdvanceHeadingEpochOnPhaseChange(Navigator* nav, NaviPhase phase);

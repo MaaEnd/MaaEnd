@@ -9,9 +9,11 @@
 #include <MaaUtils/Logger.h>
 
 #include "../control/motion_controller.h"
+#include "../control/walk_mode.h"
 #include "../navi_config.h"
 #include "../navi_log.h"
 #include "../navi_math.h"
+#include "../process_state.h"
 #include "../sensing/latency_observer.h"
 #include "../sensing/sensitivity_observer.h"
 #include "internal.h"
@@ -31,6 +33,7 @@ double SteerAlongCorridor(Navigator* nav, const NavigateTick& tick)
     const SteeringReading reading = ObserveSteering(
         &nav->runtime_state.steering_rate,
         &nav->runtime_state.flow,
+        nav->process->walk,
         *nav->motion_controller,
         fix.steer_heading,
         tick.now,
@@ -48,7 +51,11 @@ double SteerAlongCorridor(Navigator* nav, const NavigateTick& tick)
     const bool pivot_in_place = fix.drops_turn_sends && steering.issued
                                 && (reading.steer_period_ms.has_value() ? reading.slow_loop && turn_abs_deg >= kSlowLoopPivotTurnDeg
                                                                         : turn_abs_deg >= kStartupPivotTurnDeg);
-    const bool corner_brake = BrakeForSharpCorner(&nav->runtime_state.flow, *nav->position, nav_run_result, reading.slow_loop);
+    const bool corner_brake = ShouldBrakeForSharpCorner(nav->runtime_state.flow, nav_run_result, reading.slow_loop);
+    if (corner_brake) {
+        LatchBrakedCorner(&nav->runtime_state.flow, nav_run_result);
+    }
+    UpdateCornerWalk(&nav->runtime_state.flow, *nav->position, nav_run_result);
     if (!pivot_in_place && !corner_brake) {
         MoveForward(nav->motion_controller);
     }
@@ -59,15 +66,23 @@ double SteerAlongCorridor(Navigator* nav, const NavigateTick& tick)
     const auto [issued_delta_deg, steer_send_ms] = SendSteering(
         &nav->runtime_state.steering_rate,
         nav->motion_controller,
+        &nav->process->sensitivity,
         steering,
         tick.gap_ms,
         fix.steer_heading,
         tick.now,
         fix.drops_turn_sends);
-    sensitivity::RecordTick(nav->maa_context, tick_seq, nav->position->camera_angle, issued_delta_deg, fix.degraded_fix);
+    sensitivity::RecordTick(
+        &nav->process->sensitivity,
+        nav->maa_context,
+        tick_seq,
+        nav->position->camera_angle,
+        issued_delta_deg,
+        fix.degraded_fix);
     UpdateForwardHold(
         &nav->runtime_state.flow,
         nav->motion_controller,
+        nav->process->walk,
         *nav->position,
         issued_delta_deg,
         heading_error,
@@ -133,10 +148,7 @@ void UpdateAutoSprint(Navigator* nav, const NavigateTick& tick)
              << VAR_AS(startup_grace_elapsed, tick.fix.startup_grace_elapsed) << VAR(has_strict_arrival_braking_room)
              << VAR(sprint_remaining) << VAR(nav->param->sprint_threshold);
     if (allow_sprint && SprintAllowed(*nav->motion_controller)) {
-        ArmSteeringQuietPeriod(nav->motion_controller);
-        TriggerSprintSync(nav->motion_controller->input_backend);
-        walkmode::NoteSprintTriggered();
-        MarkSprintActive(nav->motion_controller);
+        TriggerSprint(nav->motion_controller, &nav->process->walk);
         nav->runtime_state.flow.last_auto_sprint_time = tick.now;
     }
 }
@@ -144,14 +156,14 @@ void UpdateAutoSprint(Navigator* nav, const NavigateTick& tick)
 void UpdateWalkMode(Navigator* nav, NaviPhase phase)
 {
     if (phase == NaviPhase::WaitFind || phase == NaviPhase::WaitJumpPad) {
-        walkmode::RequestWalk(nav->walk_mode, true);
+        walkmode::RequestWalk(&nav->process->walk, nav->input_backend, true);
         return;
     }
 
     const bool recovering = nav->runtime_state.recovery.active;
     if (phase == NaviPhase::Navigate && nav->position->valid && !recovering && !nav->runtime_state.river_fall.pending
         && nav->runtime_state.flow.corner_walk) {
-        walkmode::RequestWalk(nav->walk_mode, true);
+        walkmode::RequestWalk(&nav->process->walk, nav->input_backend, true);
         return;
     }
 
@@ -174,18 +186,18 @@ void UpdateWalkMode(Navigator* nav, NaviPhase phase)
     const bool startup_blocks_walk = !nav->runtime_state.route.startup_motion_confirmed && !traits.walk_at_startup;
     if (phase != NaviPhase::Navigate || !nav->position->valid || nearest.distance_sq < 0.0 || recovering
         || !(plain_approach || settling_approach) || startup_blocks_walk) {
-        walkmode::RequestWalk(nav->walk_mode, false);
+        walkmode::RequestWalk(&nav->process->walk, nav->input_backend, false);
         return;
     }
 
-    const bool was_engaged = walkmode::Engaged();
+    const bool was_engaged = walkmode::Engaged(nav->process->walk);
     const double enter_band = nearest.is_zipline ? kZiplineWalkEnterBandWu : kCollectWalkEnterBandWu;
     const double exit_band = nearest.is_zipline ? kZiplineWalkExitBandWu : kCollectWalkExitBandWu;
     const double band = was_engaged ? exit_band : enter_band;
     const double dig_band = was_engaged ? kDigWalkExitBandWu : kDigWalkEnterBandWu;
     const bool approaching_dig = nearest.dig_distance_sq >= 0.0 && nearest.dig_distance_sq <= dig_band * dig_band;
-    walkmode::RequestWalk(nav->walk_mode, nearest.distance_sq <= band * band || approaching_dig);
-    const bool walking = walkmode::Engaged();
+    walkmode::RequestWalk(&nav->process->walk, nav->input_backend, nearest.distance_sq <= band * band || approaching_dig);
+    const bool walking = walkmode::Engaged(nav->process->walk);
     if (walking != was_engaged) {
         const double nearest_stop_point = std::sqrt(nearest.distance_sq);
         LogInfo << "Walk mode boundary crossed." << VAR(walking) << VAR(nearest.is_zipline) << VAR(nearest_stop_point)

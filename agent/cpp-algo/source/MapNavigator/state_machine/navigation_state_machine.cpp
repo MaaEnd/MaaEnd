@@ -9,6 +9,7 @@
 #include "../navi_config.h"
 #include "../navi_math.h"
 #include "../navi_time.h"
+#include "../process_state.h"
 #include "../semantic/async_prompt_action.h"
 #include "../semantic/heading_turn.h"
 #include "../semantic/semantic_helpers.h"
@@ -69,7 +70,7 @@ TickStep conclude_semantic_step(Navigator* nav, const semantic_nodes::Result& re
 TickStep run_semantic_flow(Navigator* nav)
 {
     if (!HasCurrentWaypoint(*nav->session)) {
-        NoteRouteTailConsumed(nav->session, *nav->position, "route_tail_consumed");
+        ConcludeRouteTail(nav->session, *nav->position, "route_tail_consumed");
         return TickStep::EndTick;
     }
     return conclude_semantic_step(nav, semantic_nodes::TickPortalTransit(nav));
@@ -93,7 +94,7 @@ TickStep run_inline_semantics(Navigator* nav)
         return EndTickWith(HandleLocalizationLoss(nav));
     }
     if (!HasCurrentWaypoint(*nav->session)) {
-        NoteRouteTailConsumed(nav->session, *nav->position, "route_tail_consumed");
+        ConcludeRouteTail(nav->session, *nav->position, "route_tail_consumed");
         return TickStep::EndTick;
     }
     return TickStep::Next;
@@ -111,7 +112,11 @@ TickStep idle_while_not_walking(const Navigator& nav)
 TickStep finish_navigate_tick(Navigator* nav, const NavigateTick& tick)
 {
     // 必须在冲刺判定之前
-    UpdatePromptSprintSuppression(nav);
+    const bool approaching_prompt = ApproachingPrompt(*nav);
+    if (approaching_prompt && SprintCancellable(*nav->motion_controller)) {
+        CancelSprint(nav->motion_controller);
+    }
+    nav->motion_controller->sprint_suppressed = approaching_prompt;
     UpdateAutoSprint(nav, tick);
 
     if (nav->param->arrival_timeout > 0 && tick.stalled_ms > nav->param->arrival_timeout) {
@@ -198,6 +203,7 @@ Navigator MakeNavigator(
     Session* session,
     Motion* motion_controller,
     NaviPosition* position,
+    NavProcessState* process,
     MaaContext* maa_context)
 {
     return Navigator {
@@ -207,11 +213,11 @@ Navigator MakeNavigator(
         .session = session,
         .motion_controller = motion_controller,
         .position = position,
+        .process = process,
         .maa_context = maa_context,
-        .collect_prompt = MakeAsyncPromptAction(kCollectPromptSpec, maa_context, session, position),
-        .interact_prompt = MakeAsyncPromptAction(kInteractPromptSpec, maa_context, session, position),
-        .device_recovery = MakeDeviceRecovery(maa_context, motion_controller, position_provider, session, position),
-        .walk_mode = walkmode::OpenToggle(input_backend),
+        .collect_prompt = MakeAsyncPromptAction(kCollectPromptSpec),
+        .interact_prompt = MakeAsyncPromptAction(kInteractPromptSpec),
+        .device_recovery = MakeDeviceRecovery(),
     };
 }
 
@@ -221,7 +227,7 @@ bool RunNavigator(Navigator* nav)
 
     if (!Bootstrap(nav)) {
         HoldPosition(nav->motion_controller);
-        sensitivity::EndRun(nav->maa_context);
+        sensitivity::EndRun(&nav->process->sensitivity, nav->maa_context);
         return false;
     }
 
@@ -234,8 +240,9 @@ bool RunNavigator(Navigator* nav)
         AdvanceHeadingEpochOnPhaseChange(nav, phase);
         if (!TickPhase(nav, phase)) {
             StopScanners(nav);
+            nav->motion_controller->sprint_suppressed = false;
             HoldPosition(nav->motion_controller);
-            sensitivity::EndRun(nav->maa_context);
+            sensitivity::EndRun(&nav->process->sensitivity, nav->maa_context);
             return false;
         }
     }
@@ -249,10 +256,11 @@ bool RunNavigator(Navigator* nav)
     TryRunPromptSubtaskAtRouteTail(nav);
 
     StopScanners(nav);
+    nav->motion_controller->sprint_suppressed = false;
     HoldPosition(nav->motion_controller);
 
     const bool succeeded = !TaskStopping(nav->maa_context) && nav->session->success;
-    sensitivity::EndRun(nav->maa_context);
+    sensitivity::EndRun(&nav->process->sensitivity, nav->maa_context);
     return succeeded;
 }
 
@@ -260,7 +268,7 @@ void AdvanceHeadingEpochOnPhaseChange(Navigator* nav, NaviPhase phase)
 {
     if (!nav->last_tick_phase || *nav->last_tick_phase != phase) {
         nav->last_tick_phase = phase;
-        ++nav->input_backend->heading_epoch;
+        AdvanceHeadingEpoch(nav->input_backend);
     }
 }
 
