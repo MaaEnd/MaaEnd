@@ -3,7 +3,7 @@
         {
             "name": "UseConsumable",
             "label": "$task.UseConsumable.label",
-            "entry": "UseConsumableFailureCollectorReset",
+            "entry": "UseConsumableBeforeStashBackpack",
             "description": "$task.UseConsumable.description",
             "group": [
                 "backpack"
@@ -18,11 +18,9 @@
                 "Win32-Front"
             ],
             "option": [
-                "UseConsumableSlot1",
-                "UseConsumableSlot2",
-                "UseConsumableSlot3",
-                "UseConsumableSlot4",
-                "UseConsumableRegion"
+                "UseConsumableStashBackpackSubTask",
+                "UseConsumableTacticalItems",
+                "UseConsumableEnabled"
             ]
         }
     ],
@@ -5811,6 +5809,290 @@
                 }
             ],
             "default_case": "ValleyIV"
+        },
+        "UseConsumableStashBackpackSubTask": {
+            "type": "switch",
+            "label": "$task.StashBackpack.option.StashBackpackSubTask.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "StashBackpackType",
+                        "StashBackpackArea"
+                    ],
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "UseConsumableTacticalItems": {
+            "type": "switch",
+            "label": "$option.UseConsumableTacticalItems.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "UseConsumableTacticalItem"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "UseConsumableTacticalItem": {
+            "type": "select",
+            "label": "$option.UseConsumableTacticalItem.label",
+            "cases": [
+                {
+                    "name": "item_plant_grass_spc_powder_2",
+                    "label": "$iconRecognition.name.item_plant_grass_spc_powder_2"
+                },
+                {
+                    "name": "item_plant_grass_spc_powder_1",
+                    "label": "$iconRecognition.name.item_plant_grass_spc_powder_1"
+                },
+                {
+                    "name": "item_plant_grass_powder_2",
+                    "label": "$iconRecognition.name.item_plant_grass_powder_2"
+                },
+                {
+                    "name": "item_plant_grass_powder_1",
+                    "label": "$iconRecognition.name.item_plant_grass_powder_1"
+                },
+                {
+                    "name": "item_plant_moss_spc_powder_2",
+                    "label": "$iconRecognition.name.item_plant_moss_spc_powder_2"
+                },
+                {
+                    "name": "item_plant_moss_spc_powder_1",
+                    "label": "$iconRecognition.name.item_plant_moss_spc_powder_1"
+                },
+                {
+                    "name": "item_plant_moss_powder_2",
+                    "label": "$iconRecognition.name.item_plant_moss_powder_2"
+                },
+                {
+                    "name": "item_plant_moss_powder_1",
+                    "label": "$iconRecognition.name.item_plant_moss_powder_1"
+                },
+                {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1"
+                },
+                {
+                    "name": "item_inkbiter_1_wgshoal_1_1",
+                    "label": "$iconRecognition.name.item_inkbiter_1_wgshoal_1_1"
+                },
+                {
+                    "name": "item_dog_hsmob_corp_1",
+                    "label": "$iconRecognition.name.item_dog_hsmob_corp_1"
+                },
+                {
+                    "name": "item_corp4_spc",
+                    "label": "$iconRecognition.name.item_corp4_spc"
+                },
+                {
+                    "name": "item_corp2_animal_1",
+                    "label": "$iconRecognition.name.item_corp2_animal_1"
+                },
+                {
+                    "name": "item_corp1_animal_1",
+                    "label": "$iconRecognition.name.item_corp1_animal_1"
+                },
+                {
+                    "name": "item_wgslime_1_hsmob_1_grass_2_1",
+                    "label": "$iconRecognition.name.item_wgslime_1_hsmob_1_grass_2_1"
+                },
+                {
+                    "name": "item_hscrane_1_hsmob_1_grass_1_1",
+                    "label": "$iconRecognition.name.item_hscrane_1_hsmob_1_grass_1_1"
+                },
+                {
+                    "name": "item_hsmob_1_grass_2_1",
+                    "label": "$iconRecognition.name.item_hsmob_1_grass_2_1"
+                },
+                {
+                    "name": "item_corp4_grass2_1",
+                    "label": "$iconRecognition.name.item_corp4_grass2_1"
+                },
+                {
+                    "name": "item_slimeml_1_erhound_1_agfly_1_1",
+                    "label": "$iconRecognition.name.item_slimeml_1_erhound_1_agfly_1_1"
+                },
+                {
+                    "name": "item_sp_2_moss_2_agrange_1_1",
+                    "label": "$iconRecognition.name.item_sp_2_moss_2_agrange_1_1"
+                },
+                {
+                    "name": "item_sp_1_moss_1_agmelee_1_1",
+                    "label": "$iconRecognition.name.item_sp_1_moss_1_agmelee_1_1"
+                },
+                {
+                    "name": "item_bottled_insec1_2",
+                    "label": "$iconRecognition.name.item_bottled_insec1_2"
+                },
+                {
+                    "name": "item_bottled_moss_2_animal_1",
+                    "label": "$iconRecognition.name.item_bottled_moss_2_animal_1"
+                },
+                {
+                    "name": "item_lbmob_1_moss_2_bottled_1",
+                    "label": "$iconRecognition.name.item_lbmob_1_moss_2_bottled_1"
+                },
+                {
+                    "name": "item_agfly_1_agmelee_1_moss_2_1",
+                    "label": "$iconRecognition.name.item_agfly_1_agmelee_1_moss_2_1"
+                },
+                {
+                    "name": "item_lbmob_1_lbshamman_1_sp_1_1",
+                    "label": "$iconRecognition.name.item_lbmob_1_lbshamman_1_sp_1_1"
+                },
+                {
+                    "name": "item_bottled_insec1_1",
+                    "label": "$iconRecognition.name.item_bottled_insec1_1"
+                },
+                {
+                    "name": "item_slimeml_1_agrange_1_moss_2_1",
+                    "label": "$iconRecognition.name.item_slimeml_1_agrange_1_moss_2_1"
+                },
+                {
+                    "name": "item_dog_1_slimeml_1_1",
+                    "label": "$iconRecognition.name.item_dog_1_slimeml_1_1"
+                },
+                {
+                    "name": "item_lbshamman_1_agmelee_1_1",
+                    "label": "$iconRecognition.name.item_lbshamman_1_agmelee_1_1"
+                },
+                {
+                    "name": "item_agmelee_1_moss_1_lbmob_1_1",
+                    "label": "$iconRecognition.name.item_agmelee_1_moss_1_lbmob_1_1"
+                },
+                {
+                    "name": "item_bottled_grass2spc_2",
+                    "label": "$iconRecognition.name.item_bottled_grass2spc_2"
+                },
+                {
+                    "name": "item_bottled_grass2spc_1",
+                    "label": "$iconRecognition.name.item_bottled_grass2spc_1"
+                },
+                {
+                    "name": "item_bottled_grass1spc_2",
+                    "label": "$iconRecognition.name.item_bottled_grass1spc_2"
+                },
+                {
+                    "name": "item_bottled_grass1spc_1",
+                    "label": "$iconRecognition.name.item_bottled_grass1spc_1"
+                },
+                {
+                    "name": "item_bottled_flower2spc_3",
+                    "label": "$iconRecognition.name.item_bottled_flower2spc_3"
+                },
+                {
+                    "name": "item_bottled_flower2spc_2",
+                    "label": "$iconRecognition.name.item_bottled_flower2spc_2"
+                },
+                {
+                    "name": "item_bottled_flower2spc_1",
+                    "label": "$iconRecognition.name.item_bottled_flower2spc_1"
+                },
+                {
+                    "name": "item_bottled_flower1spc_3",
+                    "label": "$iconRecognition.name.item_bottled_flower1spc_3"
+                },
+                {
+                    "name": "item_bottled_flower1spc_2",
+                    "label": "$iconRecognition.name.item_bottled_flower1spc_2"
+                },
+                {
+                    "name": "item_bottled_flower1spc_1",
+                    "label": "$iconRecognition.name.item_bottled_flower1spc_1"
+                },
+                {
+                    "name": "item_bottled_rec_hp_5",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_5"
+                },
+                {
+                    "name": "item_bottled_rec_hp_4",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_4"
+                },
+                {
+                    "name": "item_bottled_rec_hp_3",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_3"
+                },
+                {
+                    "name": "item_bottled_rec_hp_2",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_2"
+                },
+                {
+                    "name": "item_bottled_rec_hp_1",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_1"
+                },
+                {
+                    "name": "item_bottled_food_5",
+                    "label": "$iconRecognition.name.item_bottled_food_5"
+                },
+                {
+                    "name": "item_bottled_food_4",
+                    "label": "$iconRecognition.name.item_bottled_food_4"
+                },
+                {
+                    "name": "item_bottled_food_3",
+                    "label": "$iconRecognition.name.item_bottled_food_3"
+                },
+                {
+                    "name": "item_bottled_food_2",
+                    "label": "$iconRecognition.name.item_bottled_food_2"
+                },
+                {
+                    "name": "item_bottled_food_1",
+                    "label": "$iconRecognition.name.item_bottled_food_1"
+                }
+            ],
+            "default_case": "item_plant_grass_spc_powder_2"
+        },
+        "UseConsumableEnabled": {
+            "type": "switch",
+            "label": "$option.UseConsumableEnabled.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "UseConsumableSlot1",
+                        "UseConsumableSlot2",
+                        "UseConsumableSlot3",
+                        "UseConsumableSlot4",
+                        "UseConsumableRegion"
+                    ],
+                    "pipeline_override": {
+                        "UseConsumableTaskStart": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "UseConsumableTaskStart": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
         }
     }
 }

@@ -54,6 +54,7 @@
                 "TrialOfSwordmancy.Recognize",
                 "TrialOfSwordmancy.RecognizeAband",
                 "TrialOfSwordmancy.RecognizeDeck",
+                "UseConsumableUniqueItemRecognition",
                 "autoEcoFarmCalculateSwipeTarget",
                 "autoEcoFarmFindNearestRecognitionResult"
             ]
@@ -421,6 +422,31 @@
                             "return_item_node": {
                                 "type": "string",
                                 "minLength": 1
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "UseConsumableUniqueItemRecognition"}}
+            },
+            "then": {
+                "type": "object",
+                "required": ["custom_recognition_param"],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["slot"],
+                        "properties": {
+                            "slot": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 4
                             }
                         }
                     }
