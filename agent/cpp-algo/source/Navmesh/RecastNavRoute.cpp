@@ -1021,6 +1021,7 @@ void PullWaypoints(
     const std::vector<WorldPoint>& pts,
     RouteDiag& dg,
     const BaseNavPlanner& pl,
+    const BaseNavPack& pack,
     uint16_t zid,
     const Blockers& blk,
     bool has_layer)
@@ -1048,7 +1049,7 @@ void PullWaypoints(
             const WorldPoint& a = pts[cursor];
             const WorldPoint& c = pts[reach + 1];
             const double required = std::isfinite(swallowed) ? swallowed : 0.0;
-            if (!pl.isRouteSegmentDrivable(zid, a, c, required, seed) || blk.blocked(a, c)) {
+            if (!IsRouteSegmentDrivable(pl, pack, zid, a, c, required, seed) || blk.blocked(a, c)) {
                 break;
             }
             swallowed = std::min(swallowed, reach + 1 < dg.clearance.size() ? dg.clearance[reach + 1] : 0.0);
@@ -1668,6 +1669,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     std::optional<double> goal_deck,
     std::optional<double> start_deck,
     const BaseNavPlanner& pl,
+    const BaseNavPack& pack,
     uint16_t zid)
 {
     const double t_topo0 = nowMs();
@@ -2822,7 +2824,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             }
         }
     }
-    PullWaypoints(out, dg, pl, zid, blk_gray, lyo_p != nullptr);
+    PullWaypoints(out, dg, pl, pack, zid, blk_gray, lyo_p != nullptr);
     return out;
 }
 
@@ -2832,7 +2834,7 @@ RecastNavEngine::RecastNavEngine(const BaseNavPack& pack, const BaseNavPlanner& 
     : pack_(pack)
     , planner_(planner)
 {
-    const BaseNavSection* sec = pack_.section(kGridSectionTag);
+    const BaseNavSection* sec = FindBaseNavSection(pack_, kGridSectionTag);
     if (sec == nullptr || sec->bytes == nullptr) {
         grid_error_ = "包里没有预烘格图段";
         return;
@@ -2841,7 +2843,7 @@ RecastNavEngine::RecastNavEngine(const BaseNavPack& pack, const BaseNavPlanner& 
         grid_ = GridPack();
         return;
     }
-    if (!LoadSharedFieldsPack(&fields_, &grid_error_, FieldsSidecarPath(pack_.path()), pack_, grid_)) {
+    if (!LoadSharedFieldsPack(&fields_, &grid_error_, FieldsSidecarPath(pack_.path), pack_, grid_)) {
         grid_ = GridPack();
         return;
     }
@@ -2856,7 +2858,7 @@ RecastNavEngine::ZoneEntry& RecastNavEngine::zoneEntry(const std::string& name)
     auto it = zones_.find(name);
     if (it == zones_.end()) {
         // 先淘汰再建, 免得新旧两个大区同时占内存
-        const BaseNavZone* zone = pack_.findZoneByName(name);
+        const BaseNavZone* zone = FindBaseNavZoneByName(pack_, name);
         const bool real = zone != nullptr && zone->triangle_count > 0;
         auto rank = [](const ZoneEntry& e) {
             return e.zc->valid() ? e.used_at : 0;
@@ -3217,9 +3219,9 @@ RecastPlanResult RecastNavEngine::planLocked(
         }
     }
 
-    const BaseNavZone* pz = pack_.findZoneByName(zone_name);
+    const BaseNavZone* pz = FindBaseNavZoneByName(pack_, zone_name);
     const std::shared_ptr<const OccluderScene> solid =
-        pz != nullptr ? LoadOccluderScene(OccluderSidecarPath(pack_.path()), zone_name) : nullptr;
+        pz != nullptr ? LoadOccluderScene(OccluderSidecarPath(pack_.path), zone_name) : nullptr;
 
     // 全区锚距是任何窗口里锚距的下界, 过不了这道闸的腿换多大窗口也接不上
     const auto [zsa, zga] = coreAnchorPx(grid_, *gz, { start, goal });
@@ -3407,7 +3409,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         RouteDiag dg;
         dg.margin = margin;
         dg.final = capped;
-        auto line = routeWindow(*info, start, goal, dg, gdk, sdk, planner_, zone_id);
+        auto line = routeWindow(*info, start, goal, dg, gdk, sdk, planner_, pack_, zone_id);
         if (local && !capped) {
             std::string why;
             if (dg.escalate) {

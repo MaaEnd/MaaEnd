@@ -434,7 +434,7 @@ bool LoadFieldsPack(FieldsPack* pack, std::string* err, const std::filesystem::p
         *err = "旁包格式版本 " + std::to_string(version) + ", 需要 " + std::to_string(kFieldsFormatVersion);
         return false;
     }
-    if (build_hash != main.buildHash() || fnv != main.fileFnv()) {
+    if (build_hash != main.build_hash || fnv != main.file_fnv) {
         *err = "旁包不是配这份主包的 (build_hash/fnv 不符)";
         return false;
     }
@@ -605,8 +605,8 @@ bool LoadSharedFieldsPack(
             if (!ec) {
                 const auto ticks = mtime.time_since_epoch().count();
                 key = MAA_NS::path_to_utf8_string(abs) + '\n' + std::to_string(size) + '\n'
-                      + std::string(reinterpret_cast<const char*>(&ticks), sizeof(ticks)) + '\n' + std::to_string(main.buildHash()) + '\n'
-                      + std::to_string(main.fileFnv());
+                      + std::string(reinterpret_cast<const char*>(&ticks), sizeof(ticks)) + '\n' + std::to_string(main.build_hash) + '\n'
+                      + std::to_string(main.file_fnv);
             }
         }
     }

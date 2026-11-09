@@ -94,7 +94,7 @@ bool LoadNoGoTable(NoGoTable* table, std::string* err, const std::filesystem::pa
                 return false;
             }
             if (!src.tier.empty()) {
-                const BaseNavZone* tz = pack.findZoneByName(src.tier);
+                const BaseNavZone* tz = FindBaseNavZoneByName(pack, src.tier);
                 if (tz == nullptr) {
                     *err = "区 " + name + " 的禁区 " + p.id + " 画在包里没有的 tier " + src.tier + " 上";
                     table->zones.clear();

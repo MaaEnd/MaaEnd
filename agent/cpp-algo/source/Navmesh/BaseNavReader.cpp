@@ -1165,17 +1165,18 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     }
 
     BaseNavLoadResult result;
-    result.pack = detail::MakeBaseNavPack(
-        path,
-        std::move(zones),
-        std::move(vertices),
-        std::move(triangles),
-        std::move(links),
-        std::move(surfaces),
-        std::move(off_mesh_links),
-        std::move(sections),
-        build_hash,
-        file_fnv);
+    result.pack = BaseNavPack {
+        .path = path,
+        .build_hash = build_hash,
+        .file_fnv = file_fnv,
+        .zones = std::move(zones),
+        .vertices = std::move(vertices),
+        .triangles = std::move(triangles),
+        .links = std::move(links),
+        .surfaces = std::move(surfaces),
+        .off_mesh_links = std::move(off_mesh_links),
+        .sections = std::move(sections),
+    };
     return result;
 }
 

@@ -26,68 +26,107 @@ constexpr double kRoutePullSampleStep = 0.5; // 拉直判据沿捷径采样的�
 struct DisjointSet
 {
     std::vector<uint32_t> parent;
-
-    explicit DisjointSet(size_t count)
-        : parent(count, 0)
-    {
-        std::iota(parent.begin(), parent.end(), 0U);
-    }
-
-    uint32_t find(uint32_t value)
-    {
-        while (parent[value] != value) {
-            parent[value] = parent[parent[value]];
-            value = parent[value];
-        }
-        return value;
-    }
-
-    void unite(uint32_t lhs, uint32_t rhs)
-    {
-        const uint32_t lhs_root = find(lhs);
-        const uint32_t rhs_root = find(rhs);
-        if (lhs_root != rhs_root) {
-            parent[rhs_root] = lhs_root;
-        }
-    }
 };
+
+DisjointSet make_disjoint_set(size_t count)
+{
+    DisjointSet set { .parent = std::vector<uint32_t>(count, 0) };
+    std::iota(set.parent.begin(), set.parent.end(), 0U);
+    return set;
+}
+
+uint32_t disjoint_find(DisjointSet* set, uint32_t value)
+{
+    while (set->parent[value] != value) {
+        set->parent[value] = set->parent[set->parent[value]];
+        value = set->parent[value];
+    }
+    return value;
+}
+
+void disjoint_unite(DisjointSet* set, uint32_t lhs, uint32_t rhs)
+{
+    const uint32_t lhs_root = disjoint_find(set, lhs);
+    const uint32_t rhs_root = disjoint_find(set, rhs);
+    if (lhs_root != rhs_root) {
+        set->parent[rhs_root] = lhs_root;
+    }
+}
 
 constexpr uint32_t kInvalidTriangle = std::numeric_limits<uint32_t>::max();
 constexpr double kIndexBinSize = 4.0;          // 空间分箱的格边长 px
 
 constexpr double kSegmentWalkSnapRadius = 1.0; // 点查询取候选三角的邻域半径 px
 
-}
-
-BaseNavPlanner::BaseNavPlanner(const BaseNavPack& pack)
-    : pack_(pack)
-    , triangle_zones_(pack.triangles().size(), 0)
-    , neighbor_link_bits_(pack.triangles().size(), 0)
+bool is_natural_neighbor(const BaseNavPack& pack, uint32_t lhs, uint32_t rhs)
 {
-    for (const auto& zone : pack_.zones()) {
-        const uint32_t end = zone.first_triangle + zone.triangle_count;
-        for (uint32_t index = zone.first_triangle; index < end && index < triangle_zones_.size(); ++index) {
-            triangle_zones_[index] = zone.zone_id;
+    for (int32_t neighbor : pack.triangles[lhs].neighbors) {
+        if (neighbor >= 0 && static_cast<uint32_t>(neighbor) == rhs) {
+            return true;
         }
     }
-    // 两段只写各自的成员且不读对方产物, 所以可以并行
-    if (NavWorkerCount(static_cast<int64_t>(pack_.triangles().size())) <= 1) {
-        buildIndex();
-        buildSpatialIndex();
-        return;
-    }
-    // buildIndex 抛出时 jthread 析构会自动 join
-    std::jthread bins([this] { buildSpatialIndex(); });
-    buildIndex();
-    bins.join();
+    return false;
 }
 
-void BaseNavPlanner::buildIndex()
+bool is_traversable_link(const BaseNavPlanner& planner, const BaseNavPack& pack, uint32_t lhs, uint32_t rhs)
 {
-    buildNaturalComponents();
+    if (lhs >= planner.triangle_zones.size() || rhs >= planner.triangle_zones.size() || planner.triangle_zones[lhs] == 0
+        || planner.triangle_zones[lhs] != planner.triangle_zones[rhs]) {
+        return false;
+    }
+    if (is_natural_neighbor(pack, lhs, rhs)) {
+        return true;
+    }
+
+    const uint32_t lhs_component = planner.natural_component_ids[lhs];
+    const uint32_t rhs_component = planner.natural_component_ids[rhs];
+    const uint32_t min_component_size =
+        std::min(planner.natural_component_sizes[lhs_component], planner.natural_component_sizes[rhs_component]);
+    if (min_component_size > kSmallBridgeComponentMaxTriangles) {
+        return true;
+    }
+
+    const auto bridge_points = ClosestEdgeBridgePoints(pack, lhs, rhs);
+    return bridge_points && detail::Distance((*bridge_points)[0], (*bridge_points)[1]) <= kSmallBridgeMaxGap;
+}
+
+void build_natural_components(BaseNavPlanner* planner, const BaseNavPack& pack)
+{
+    const auto& triangles = pack.triangles;
+    DisjointSet components = make_disjoint_set(triangles.size());
+    for (uint32_t triangle_index = 0; triangle_index < triangles.size(); ++triangle_index) {
+        for (int32_t neighbor : triangles[triangle_index].neighbors) {
+            if (neighbor < 0) {
+                continue;
+            }
+            const uint32_t next = static_cast<uint32_t>(neighbor);
+            if (next < triangles.size() && planner->triangle_zones[next] == planner->triangle_zones[triangle_index]) {
+                disjoint_unite(&components, triangle_index, next);
+            }
+        }
+    }
+
+    constexpr uint32_t kInvalidComponent = std::numeric_limits<uint32_t>::max();
+    std::vector<uint32_t> root_to_component(triangles.size(), kInvalidComponent);
+    planner->natural_component_ids.assign(triangles.size(), kInvalidComponent);
+    planner->natural_component_sizes.clear();
+    for (uint32_t triangle_index = 0; triangle_index < triangles.size(); ++triangle_index) {
+        const uint32_t root = disjoint_find(&components, triangle_index);
+        uint32_t& component_id = root_to_component[root];
+        if (component_id == kInvalidComponent) {
+            component_id = static_cast<uint32_t>(planner->natural_component_sizes.size());
+            planner->natural_component_sizes.push_back(0);
+        }
+        planner->natural_component_ids[triangle_index] = component_id;
+        ++planner->natural_component_sizes[component_id];
+    }
+}
+
+void build_index(BaseNavPlanner* planner, const BaseNavPack& pack, const std::vector<BaseNavLink>& links)
+{
+    build_natural_components(planner, pack);
 
     // 按 uint64_t 字切块并行, 相邻块不共用一个字
-    const auto& links = pack_.links();
     const size_t word_count = links.size() / 64 + 1;
     std::vector<uint64_t> passed(word_count, 0);
     ParallelChunks(
@@ -100,7 +139,7 @@ void BaseNavPlanner::buildIndex()
                 uint64_t bits = 0;
                 for (size_t index = first; index < last; ++index) {
                     const BaseNavLink& link = links[index];
-                    if (isTraversableLink(link.source, link.target)) {
+                    if (is_traversable_link(*planner, pack, link.source, link.target)) {
                         bits |= uint64_t { 1 } << (index & 63);
                     }
                 }
@@ -108,7 +147,7 @@ void BaseNavPlanner::buildIndex()
             }
         });
 
-    const auto& triangles = pack_.triangles();
+    const auto& triangles = pack.triangles;
     for (size_t index = 0; index < links.size(); ++index) {
         if (((passed[index >> 6] >> (index & 63)) & 1) == 0) {
             continue;
@@ -118,75 +157,29 @@ void BaseNavPlanner::buildIndex()
         bool slotted = false;
         for (size_t slot = 0; slot < neighbors.size(); ++slot) {
             if (neighbors[slot] >= 0 && static_cast<uint32_t>(neighbors[slot]) == link.target) {
-                neighbor_link_bits_[link.source] |= static_cast<uint8_t>(1U << slot);
+                planner->neighbor_link_bits[link.source] |= static_cast<uint8_t>(1U << slot);
                 slotted = true;
             }
         }
         if (!slotted) {
-            bridge_links_.push_back((static_cast<uint64_t>(link.source) << 32U) | link.target);
+            planner->bridge_links.push_back((static_cast<uint64_t>(link.source) << 32U) | link.target);
         }
     }
-    std::sort(bridge_links_.begin(), bridge_links_.end());
-    bridge_links_.shrink_to_fit();
+    std::sort(planner->bridge_links.begin(), planner->bridge_links.end());
+    planner->bridge_links.shrink_to_fit();
 }
 
-bool BaseNavPlanner::hasLink(uint32_t source, uint32_t target) const
+void build_spatial_index(std::vector<BaseNavBinGrid>* bin_grids, const std::vector<uint16_t>& triangle_zones, const BaseNavPack& pack)
 {
-    if (source >= neighbor_link_bits_.size()) {
-        return false;
-    }
-    const auto& neighbors = pack_.triangles()[source].neighbors;
-    for (size_t slot = 0; slot < neighbors.size(); ++slot) {
-        if (neighbors[slot] >= 0 && static_cast<uint32_t>(neighbors[slot]) == target) {
-            return ((neighbor_link_bits_[source] >> slot) & 1U) != 0;
-        }
-    }
-    return std::binary_search(bridge_links_.begin(), bridge_links_.end(), (static_cast<uint64_t>(source) << 32U) | target);
-}
-
-void BaseNavPlanner::buildNaturalComponents()
-{
-    const auto& triangles = pack_.triangles();
-    DisjointSet components(triangles.size());
-    for (uint32_t triangle_index = 0; triangle_index < triangles.size(); ++triangle_index) {
-        for (int32_t neighbor : triangles[triangle_index].neighbors) {
-            if (neighbor < 0) {
-                continue;
-            }
-            const uint32_t next = static_cast<uint32_t>(neighbor);
-            if (next < triangles.size() && triangle_zones_[next] == triangle_zones_[triangle_index]) {
-                components.unite(triangle_index, next);
-            }
-        }
-    }
-
-    constexpr uint32_t kInvalidComponent = std::numeric_limits<uint32_t>::max();
-    std::vector<uint32_t> root_to_component(triangles.size(), kInvalidComponent);
-    natural_component_ids_.assign(triangles.size(), kInvalidComponent);
-    natural_component_sizes_.clear();
-    for (uint32_t triangle_index = 0; triangle_index < triangles.size(); ++triangle_index) {
-        const uint32_t root = components.find(triangle_index);
-        uint32_t& component_id = root_to_component[root];
-        if (component_id == kInvalidComponent) {
-            component_id = static_cast<uint32_t>(natural_component_sizes_.size());
-            natural_component_sizes_.push_back(0);
-        }
-        natural_component_ids_[triangle_index] = component_id;
-        ++natural_component_sizes_[component_id];
-    }
-}
-
-void BaseNavPlanner::buildSpatialIndex()
-{
-    const auto& triangles = pack_.triangles();
+    const auto& triangles = pack.triangles;
 
     struct BinRect
     {
         int32_t x0, x1, y0, y1;
     };
 
-    const auto bin_rect = [this](uint32_t triangle_index) -> BinRect {
-        const auto points = trianglePoints(triangle_index);
+    const auto bin_rect = [&pack](uint32_t triangle_index) -> BinRect {
+        const auto points = TrianglePoints(pack, triangle_index);
         const double left = std::min({ points[0].x, points[1].x, points[2].x });
         const double right = std::max({ points[0].x, points[1].x, points[2].x });
         const double top = std::min({ points[0].y, points[1].y, points[2].y });
@@ -196,22 +189,22 @@ void BaseNavPlanner::buildSpatialIndex()
                  static_cast<int32_t>(std::floor(top / kIndexBinSize)),
                  static_cast<int32_t>(std::floor(bottom / kIndexBinSize)) };
     };
-    bin_grids_.clear();
+    bin_grids->clear();
     std::vector<int32_t> zone_slot(size_t { 1 } << 16, -1);
-    for (const BaseNavZone& zone : pack_.zones()) {
+    for (const BaseNavZone& zone : pack.zones) {
         if (zone.zone_id != 0 && zone.triangle_count != 0 && zone_slot[zone.zone_id] < 0) {
-            zone_slot[zone.zone_id] = static_cast<int32_t>(bin_grids_.size());
-            bin_grids_.push_back(BinGrid { .zone_id = zone.zone_id });
+            zone_slot[zone.zone_id] = static_cast<int32_t>(bin_grids->size());
+            bin_grids->push_back(BaseNavBinGrid { .zone_id = zone.zone_id });
         }
     }
-    const size_t nslots = bin_grids_.size();
+    const size_t nslots = bin_grids->size();
     const int64_t n = static_cast<int64_t>(triangles.size());
     const size_t workers = NavWorkerCount(n);
     // 块序即三角序, 所以格内三角升序且与线程数无关
     const auto for_each_tri = [&](auto&& fn) {
         ParallelChunks(n, workers, [&](size_t w, int64_t begin, int64_t end) {
             for (int64_t t = begin; t < end; ++t) {
-                const uint16_t zone_id = static_cast<size_t>(t) < triangle_zones_.size() ? triangle_zones_[static_cast<size_t>(t)] : 0;
+                const uint16_t zone_id = static_cast<size_t>(t) < triangle_zones.size() ? triangle_zones[static_cast<size_t>(t)] : 0;
                 const int32_t slot = zone_slot[zone_id];
                 if (slot < 0) {
                     continue;
@@ -243,7 +236,7 @@ void BaseNavPlanner::buildSpatialIndex()
             b.y0 = std::min(b.y0, bounds[w][slot].y0);
             b.y1 = std::max(b.y1, bounds[w][slot].y1);
         }
-        BinGrid& grid = bin_grids_[slot];
+        BaseNavBinGrid& grid = (*bin_grids)[slot];
         if (b.x0 > b.x1) {
             continue;
         }
@@ -253,18 +246,18 @@ void BaseNavPlanner::buildSpatialIndex()
         grid.ny = b.y1 - b.y0 + 1;
         grid.offsets.assign(static_cast<size_t>(grid.nx) * static_cast<size_t>(grid.ny) + 1, 0);
     }
-    const auto cell = [](const BinGrid& grid, int32_t bin_x, int32_t bin_y) -> size_t {
+    const auto cell = [](const BaseNavBinGrid& grid, int32_t bin_x, int32_t bin_y) -> size_t {
         return static_cast<size_t>(bin_x - grid.bx0) * static_cast<size_t>(grid.ny) + static_cast<size_t>(bin_y - grid.by0);
     };
     // counts[w][slot][c] 先是第 w 块落进格 c 的三角数, 前缀和后变成写入游标
     std::vector<std::vector<std::vector<uint32_t>>> counts(workers, std::vector<std::vector<uint32_t>>(nslots));
     for (size_t w = 0; w < workers; ++w) {
         for (size_t slot = 0; slot < nslots; ++slot) {
-            counts[w][slot].assign(bin_grids_[slot].offsets.empty() ? 0 : bin_grids_[slot].offsets.size() - 1, 0);
+            counts[w][slot].assign((*bin_grids)[slot].offsets.empty() ? 0 : (*bin_grids)[slot].offsets.size() - 1, 0);
         }
     }
     for_each_tri([&](size_t w, size_t slot, const BinRect& r, uint32_t) {
-        const BinGrid& grid = bin_grids_[slot];
+        const BaseNavBinGrid& grid = (*bin_grids)[slot];
         std::vector<uint32_t>& cnt = counts[w][slot];
         for (int32_t bin_x = r.x0; bin_x <= r.x1; ++bin_x) {
             for (int32_t bin_y = r.y0; bin_y <= r.y1; ++bin_y) {
@@ -273,7 +266,7 @@ void BaseNavPlanner::buildSpatialIndex()
         }
     });
     for (size_t slot = 0; slot < nslots; ++slot) {
-        BinGrid& grid = bin_grids_[slot];
+        BaseNavBinGrid& grid = (*bin_grids)[slot];
         uint32_t running = 0;
         for (size_t c = 0; c + 1 < grid.offsets.size(); ++c) {
             grid.offsets[c] = running;
@@ -289,7 +282,7 @@ void BaseNavPlanner::buildSpatialIndex()
         grid.triangles.assign(running, 0);
     }
     for_each_tri([&](size_t w, size_t slot, const BinRect& r, uint32_t triangle_index) {
-        BinGrid& grid = bin_grids_[slot];
+        BaseNavBinGrid& grid = (*bin_grids)[slot];
         std::vector<uint32_t>& next = counts[w][slot];
         for (int32_t bin_x = r.x0; bin_x <= r.x1; ++bin_x) {
             for (int32_t bin_y = r.y0; bin_y <= r.y1; ++bin_y) {
@@ -299,7 +292,95 @@ void BaseNavPlanner::buildSpatialIndex()
     });
 }
 
-std::vector<uint32_t> BaseNavPlanner::candidateTriangles(uint16_t zone_id, const WorldPoint& point, double radius) const
+// 取包含 point 的三角中高度最接近 reference 的, reference 为空时取最低
+std::optional<double> ground_height_near_indexed(
+    uint32_t* out_triangle,
+    const BaseNavPlanner& planner,
+    const BaseNavPack& pack,
+    uint16_t zone_id,
+    const WorldPoint& point,
+    std::optional<double> reference)
+{
+    std::optional<double> best;
+    *out_triangle = kInvalidTriangle;
+    for (const uint32_t triangle_index : CandidateTriangles(planner, zone_id, point, kSegmentWalkSnapRadius)) {
+        if (planner.triangle_zones[triangle_index] != zone_id) {
+            continue;
+        }
+        if (!detail::PointInTriangle(point, TrianglePoints(pack, triangle_index))) {
+            continue;
+        }
+        const double height = TriangleHeight(pack, triangle_index);
+        if (!best) {
+            best = height;
+            *out_triangle = triangle_index;
+        }
+        else if (!reference) {
+            if (height < *best) {
+                best = height;
+                *out_triangle = triangle_index;
+            }
+        }
+        else if (std::abs(height - *reference) < std::abs(*best - *reference)) {
+            best = height;
+            *out_triangle = triangle_index;
+        }
+    }
+    return best;
+}
+
+bool segment_height_walkable(
+    const BaseNavPlanner& planner,
+    const BaseNavPack& pack,
+    uint16_t zone_id,
+    const WorldPoint& a,
+    const WorldPoint& b,
+    std::optional<double> seed_height)
+{
+    if (FindBaseNavZone(pack, zone_id) == nullptr) {
+        return false;
+    }
+    const double length = std::hypot(b.x - a.x, b.y - a.y);
+    const int samples = std::max(1, static_cast<int>(length / kRoutePullSampleStep));
+    std::optional<double> previous = seed_height;
+    uint32_t cached = kInvalidTriangle;
+    for (int index = 0; index <= samples; ++index) {
+        const double t = static_cast<double>(index) / samples;
+        const WorldPoint point { .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t };
+        if (previous && cached != kInvalidTriangle) {
+            if (detail::PointInTriangle(point, TrianglePoints(pack, cached))) {
+                continue;
+            }
+        }
+        const std::optional<double> height = ground_height_near_indexed(&cached, planner, pack, zone_id, point, previous);
+        if (!height) {
+            return false;
+        }
+        if (previous && std::abs(*height - *previous) > kBridgeMaxHeightDelta) {
+            return false;
+        }
+        previous = height;
+    }
+    return true;
+}
+
+}
+
+bool HasLink(const BaseNavPlanner& planner, const BaseNavPack& pack, uint32_t source, uint32_t target)
+{
+    if (source >= planner.neighbor_link_bits.size()) {
+        return false;
+    }
+    const auto& neighbors = pack.triangles[source].neighbors;
+    for (size_t slot = 0; slot < neighbors.size(); ++slot) {
+        if (neighbors[slot] >= 0 && static_cast<uint32_t>(neighbors[slot]) == target) {
+            return ((planner.neighbor_link_bits[source] >> slot) & 1U) != 0;
+        }
+    }
+    return std::binary_search(planner.bridge_links.begin(), planner.bridge_links.end(), (static_cast<uint64_t>(source) << 32U) | target);
+}
+
+std::vector<uint32_t> CandidateTriangles(const BaseNavPlanner& planner, uint16_t zone_id, const WorldPoint& point, double radius)
 {
     std::vector<uint32_t> result;
     const double query_radius = std::max(0.0, radius);
@@ -307,8 +388,8 @@ std::vector<uint32_t> BaseNavPlanner::candidateTriangles(uint16_t zone_id, const
     const int32_t bin_x1 = static_cast<int32_t>(std::floor((point.x + query_radius) / kIndexBinSize));
     const int32_t bin_y0 = static_cast<int32_t>(std::floor((point.y - query_radius) / kIndexBinSize));
     const int32_t bin_y1 = static_cast<int32_t>(std::floor((point.y + query_radius) / kIndexBinSize));
-    const BinGrid* grid = nullptr;
-    for (const BinGrid& g : bin_grids_) {
+    const BaseNavBinGrid* grid = nullptr;
+    for (const BaseNavBinGrid& g : planner.bin_grids) {
         if (g.zone_id == zone_id) {
             grid = &g;
             break;
@@ -327,144 +408,51 @@ std::vector<uint32_t> BaseNavPlanner::candidateTriangles(uint16_t zone_id, const
     return result;
 }
 
-bool BaseNavPlanner::pointOnMesh(uint16_t zone_id, const WorldPoint& point) const
+bool PointOnMesh(const BaseNavPlanner& planner, const BaseNavPack& pack, uint16_t zone_id, const WorldPoint& point)
 {
-    if (pack_.findZone(zone_id) == nullptr) {
+    if (FindBaseNavZone(pack, zone_id) == nullptr) {
         return false;
     }
-    for (const uint32_t triangle_index : candidateTriangles(zone_id, point, kSegmentWalkSnapRadius)) {
-        if (triangle_zones_[triangle_index] != zone_id) {
+    for (const uint32_t triangle_index : CandidateTriangles(planner, zone_id, point, kSegmentWalkSnapRadius)) {
+        if (planner.triangle_zones[triangle_index] != zone_id) {
             continue;
         }
-        if (detail::PointInTriangle(point, trianglePoints(triangle_index))) {
+        if (detail::PointInTriangle(point, TrianglePoints(pack, triangle_index))) {
             return true;
         }
     }
     return false;
 }
 
-std::optional<double> BaseNavPlanner::groundHeightNearIndexed(
+std::optional<BaseNavSnapResult> SnapToMesh(
+    const BaseNavPlanner& planner,
+    const BaseNavPack& pack,
     uint16_t zone_id,
     const WorldPoint& point,
-    std::optional<double> reference,
-    uint32_t& out_triangle) const
+    double radius,
+    float floor_y)
 {
-    std::optional<double> best;
-    out_triangle = kInvalidTriangle;
-    for (const uint32_t triangle_index : candidateTriangles(zone_id, point, kSegmentWalkSnapRadius)) {
-        if (triangle_zones_[triangle_index] != zone_id) {
-            continue;
-        }
-        if (!detail::PointInTriangle(point, trianglePoints(triangle_index))) {
-            continue;
-        }
-        const double height = triangleHeight(triangle_index);
-        if (!best) {
-            best = height;
-            out_triangle = triangle_index;
-        }
-        else if (!reference) {
-            if (height < *best) {
-                best = height;
-                out_triangle = triangle_index;
-            }
-        }
-        else if (std::abs(height - *reference) < std::abs(*best - *reference)) {
-            best = height;
-            out_triangle = triangle_index;
-        }
-    }
-    return best;
-}
-
-bool BaseNavPlanner::segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b, std::optional<double> seed_height)
-    const
-{
-    if (pack_.findZone(zone_id) == nullptr) {
-        return false;
-    }
-    const double length = std::hypot(b.x - a.x, b.y - a.y);
-    const int samples = std::max(1, static_cast<int>(length / kRoutePullSampleStep));
-    std::optional<double> previous = seed_height;
-    uint32_t cached = kInvalidTriangle;
-    for (int index = 0; index <= samples; ++index) {
-        const double t = static_cast<double>(index) / samples;
-        const WorldPoint point { .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t };
-        if (previous && cached != kInvalidTriangle) {
-            if (detail::PointInTriangle(point, trianglePoints(cached))) {
-                continue;
-            }
-        }
-        const std::optional<double> height = groundHeightNearIndexed(zone_id, point, previous, cached);
-        if (!height) {
-            return false;
-        }
-        if (previous && std::abs(*height - *previous) > kBridgeMaxHeightDelta) {
-            return false;
-        }
-        previous = height;
-    }
-    return true;
-}
-
-bool BaseNavPlanner::isNaturalNeighbor(uint32_t lhs, uint32_t rhs) const
-{
-    for (int32_t neighbor : pack_.triangles()[lhs].neighbors) {
-        if (neighbor >= 0 && static_cast<uint32_t>(neighbor) == rhs) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool BaseNavPlanner::isTraversableLink(uint32_t lhs, uint32_t rhs) const
-{
-    if (lhs >= triangle_zones_.size() || rhs >= triangle_zones_.size() || triangle_zones_[lhs] == 0
-        || triangle_zones_[lhs] != triangle_zones_[rhs]) {
-        return false;
-    }
-    if (isNaturalNeighbor(lhs, rhs)) {
-        return true;
-    }
-
-    const uint32_t lhs_component = natural_component_ids_[lhs];
-    const uint32_t rhs_component = natural_component_ids_[rhs];
-    const uint32_t min_component_size = std::min(natural_component_sizes_[lhs_component], natural_component_sizes_[rhs_component]);
-    if (min_component_size > kSmallBridgeComponentMaxTriangles) {
-        return true;
-    }
-
-    const auto bridge_points = closestEdgeBridgePoints(lhs, rhs);
-    return bridge_points && detail::Distance((*bridge_points)[0], (*bridge_points)[1]) <= kSmallBridgeMaxGap;
-}
-
-std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const WorldPoint& point, double radius, float floor_y) const
-{
-    const BaseNavZone* zone = pack_.findZone(zone_id);
+    const BaseNavZone* zone = FindBaseNavZone(pack, zone_id);
     if (zone == nullptr) {
         return std::nullopt;
     }
 
     const double query_radius = std::max(0.0, radius);
-    std::vector<uint32_t> candidates = candidateTriangles(zone_id, point, query_radius);
+    std::vector<uint32_t> candidates = CandidateTriangles(planner, zone_id, point, query_radius);
     if (candidates.empty() && query_radius < kIndexBinSize) {
         // 放宽只为取候选, 命中仍受 radius 剔除
-        candidates = candidateTriangles(zone_id, point, kIndexBinSize);
+        candidates = CandidateTriangles(planner, zone_id, point, kIndexBinSize);
     }
 
-    // 小碎片常摞在真实路面上方, 吸上去会让 A* 误报不可达, 所以排在后面
-    const auto is_small_island = [&](uint32_t triangle_index) {
-        return natural_component_sizes_[natural_component_ids_[triangle_index]] <= kSmallBridgeComponentMaxTriangles;
-    };
-
+    // 小碎片常摞在真实路面上方, 吸上去会让 A* 误报不可达, 所以排序时排在后面
     if (floor_y > kBaseNavFloorYValidMin) {
         std::optional<std::tuple<int, int, double, double>> best_key;
         std::optional<BaseNavSnapResult> best_floor;
         for (const uint32_t triangle_index : candidates) {
-            if (triangle_zones_[triangle_index] != zone_id) {
+            if (planner.triangle_zones[triangle_index] != zone_id) {
                 continue;
             }
-            const auto points = trianglePoints(triangle_index);
+            const auto points = TrianglePoints(pack, triangle_index);
             const double left = std::min({ points[0].x, points[1].x, points[2].x });
             const double right = std::max({ points[0].x, points[1].x, points[2].x });
             const double top = std::min({ points[0].y, points[1].y, points[2].y });
@@ -481,9 +469,9 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
                     continue;
                 }
             }
-            const double delta = std::abs(triangleHeight(triangle_index) - static_cast<double>(floor_y));
+            const double delta = std::abs(TriangleHeight(pack, triangle_index) - static_cast<double>(floor_y));
             const std::tuple<int, int, double, double> key { delta <= static_cast<double>(kBaseNavFloorBand) ? 0 : 1,
-                                                             is_small_island(triangle_index) ? 1 : 0,
+                                                             IsSmallIslandTriangle(planner, triangle_index) ? 1 : 0,
                                                              distance,
                                                              delta };
             if (!best_key || key < *best_key) {
@@ -497,10 +485,10 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
     std::optional<std::tuple<int, double, double, uint32_t>> best_key;
     std::optional<BaseNavSnapResult> best;
     for (const uint32_t triangle_index : candidates) {
-        if (triangle_zones_[triangle_index] != zone_id) {
+        if (planner.triangle_zones[triangle_index] != zone_id) {
             continue;
         }
-        const auto points = trianglePoints(triangle_index);
+        const auto points = TrianglePoints(pack, triangle_index);
         const double left = std::min({ points[0].x, points[1].x, points[2].x });
         const double right = std::max({ points[0].x, points[1].x, points[2].x });
         const double top = std::min({ points[0].y, points[1].y, points[2].y });
@@ -518,9 +506,9 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
             }
         }
         // 同一 (u,v) 摞着几层时距离都为 0, 取最上层, 俯视底图看见的就是它
-        const std::tuple<int, double, double, uint32_t> key { is_small_island(triangle_index) ? 1 : 0,
+        const std::tuple<int, double, double, uint32_t> key { IsSmallIslandTriangle(planner, triangle_index) ? 1 : 0,
                                                               distance,
-                                                              -triangleHeight(triangle_index),
+                                                              -TriangleHeight(pack, triangle_index),
                                                               triangle_index };
         if (!best_key || key < *best_key) {
             best_key = key;
@@ -530,14 +518,16 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
     return best;
 }
 
-bool BaseNavPlanner::isRouteSegmentDrivable(
+bool IsRouteSegmentDrivable(
+    const BaseNavPlanner& planner,
+    const BaseNavPack& pack,
     uint16_t zone_id,
     const WorldPoint& a,
     const WorldPoint& b,
     double half_width,
-    std::optional<double> seed_height) const
+    std::optional<double> seed_height)
 {
-    if (!segmentHeightWalkable(zone_id, a, b, seed_height)) {
+    if (!segment_height_walkable(planner, pack, zone_id, a, b, seed_height)) {
         return false;
     }
     const double dx = b.x - a.x;
@@ -555,22 +545,28 @@ bool BaseNavPlanner::isRouteSegmentDrivable(
     for (const double side : { 1.0, -1.0 }) {
         const double ox = -uy * half_width * side;
         const double oy = ux * half_width * side;
-        if (!segmentHeightWalkable(zone_id, { .x = head.x + ox, .y = head.y + oy }, { .x = tail.x + ox, .y = tail.y + oy }, seed_height)) {
+        if (!segment_height_walkable(
+                planner,
+                pack,
+                zone_id,
+                { .x = head.x + ox, .y = head.y + oy },
+                { .x = tail.x + ox, .y = tail.y + oy },
+                seed_height)) {
             return false;
         }
     }
     return true;
 }
 
-bool BaseNavPlanner::isSmallIslandTriangle(uint32_t triangle_index) const
+bool IsSmallIslandTriangle(const BaseNavPlanner& planner, uint32_t triangle_index)
 {
-    return natural_component_sizes_[natural_component_ids_[triangle_index]] <= kSmallBridgeComponentMaxTriangles;
+    return planner.natural_component_sizes[planner.natural_component_ids[triangle_index]] <= kSmallBridgeComponentMaxTriangles;
 }
 
-std::array<WorldPoint, 3> BaseNavPlanner::trianglePoints(uint32_t triangle_index) const
+std::array<WorldPoint, 3> TrianglePoints(const BaseNavPack& pack, uint32_t triangle_index)
 {
-    const BaseNavTriangle& triangle = pack_.triangles()[triangle_index];
-    const auto& vertices = pack_.vertices();
+    const BaseNavTriangle& triangle = pack.triangles[triangle_index];
+    const auto& vertices = pack.vertices;
     return {
         WorldPoint { .x = vertices[triangle.vertices[0]].u, .y = vertices[triangle.vertices[0]].v },
         WorldPoint { .x = vertices[triangle.vertices[1]].u, .y = vertices[triangle.vertices[1]].v },
@@ -578,30 +574,31 @@ std::array<WorldPoint, 3> BaseNavPlanner::trianglePoints(uint32_t triangle_index
     };
 }
 
-double BaseNavPlanner::triangleHeight(uint32_t triangle_index) const
+double TriangleHeight(const BaseNavPack& pack, uint32_t triangle_index)
 {
-    const auto& triangle = pack_.triangles()[triangle_index];
-    const auto& vertices = pack_.vertices();
+    const auto& triangle = pack.triangles[triangle_index];
+    const auto& vertices = pack.vertices;
     return (static_cast<double>(vertices[triangle.vertices[0]].height) + static_cast<double>(vertices[triangle.vertices[1]].height)
             + static_cast<double>(vertices[triangle.vertices[2]].height))
            / 3.0;
 }
 
-uint32_t BaseNavPlanner::componentId(uint32_t triangle_index) const
+uint32_t ComponentId(const BaseNavPlanner& planner, uint32_t triangle_index)
 {
-    return triangle_index < natural_component_ids_.size() ? natural_component_ids_[triangle_index] : std::numeric_limits<uint32_t>::max();
+    return triangle_index < planner.natural_component_ids.size() ? planner.natural_component_ids[triangle_index]
+                                                                 : std::numeric_limits<uint32_t>::max();
 }
 
-uint32_t BaseNavPlanner::componentSize(uint32_t triangle_index) const
+uint32_t ComponentSize(const BaseNavPlanner& planner, uint32_t triangle_index)
 {
-    const uint32_t id = componentId(triangle_index);
-    return id < natural_component_sizes_.size() ? natural_component_sizes_[id] : 0;
+    const uint32_t id = ComponentId(planner, triangle_index);
+    return id < planner.natural_component_sizes.size() ? planner.natural_component_sizes[id] : 0;
 }
 
-std::optional<std::array<WorldPoint, 2>> BaseNavPlanner::closestEdgeBridgePoints(uint32_t lhs, uint32_t rhs) const
+std::optional<std::array<WorldPoint, 2>> ClosestEdgeBridgePoints(const BaseNavPack& pack, uint32_t lhs, uint32_t rhs)
 {
-    const auto lhs_points = trianglePoints(lhs);
-    const auto rhs_points = trianglePoints(rhs);
+    const auto lhs_points = TrianglePoints(pack, lhs);
+    const auto rhs_points = TrianglePoints(pack, rhs);
     const std::array<std::array<WorldPoint, 2>, 3> lhs_edges {
         std::array<WorldPoint, 2> { lhs_points[0], lhs_points[1] },
         std::array<WorldPoint, 2> { lhs_points[1], lhs_points[2] },
@@ -626,6 +623,31 @@ std::optional<std::array<WorldPoint, 2>> BaseNavPlanner::closestEdgeBridgePoints
         return std::nullopt;
     }
     return std::array<WorldPoint, 2> { std::get<1>(*best), std::get<2>(*best) };
+}
+
+BaseNavPlanner BuildBaseNavPlanner(const BaseNavPack& pack, std::vector<BaseNavLink> links)
+{
+    BaseNavPlanner planner {
+        .triangle_zones = std::vector<uint16_t>(pack.triangles.size(), 0),
+        .neighbor_link_bits = std::vector<uint8_t>(pack.triangles.size(), 0),
+    };
+    for (const auto& zone : pack.zones) {
+        const uint32_t end = zone.first_triangle + zone.triangle_count;
+        for (uint32_t index = zone.first_triangle; index < end && index < planner.triangle_zones.size(); ++index) {
+            planner.triangle_zones[index] = zone.zone_id;
+        }
+    }
+    // 两段只写各自的字段且不读对方产物, 所以可以并行
+    if (NavWorkerCount(static_cast<int64_t>(pack.triangles.size())) <= 1) {
+        build_index(&planner, pack, links);
+        build_spatial_index(&planner.bin_grids, planner.triangle_zones, pack);
+        return planner;
+    }
+    // build_index 抛出时 jthread 析构会自动 join
+    std::jthread bins([&planner, &pack] { build_spatial_index(&planner.bin_grids, planner.triangle_zones, pack); });
+    build_index(&planner, pack, links);
+    bins.join();
+    return planner;
 }
 
 const char* ToString(BaseNavRouteStatus status)
