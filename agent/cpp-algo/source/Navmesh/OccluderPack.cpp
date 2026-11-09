@@ -145,7 +145,7 @@ uint8_t stream_byte(Stream* st)
 uint64_t stream_uv(Stream* st)
 {
     uint64_t value = 0;
-    if (!st->ok || !GetVarint(st->cursor, st->end, value)) {
+    if (!st->ok || !GetVarint(&value, &st->cursor, st->end)) {
         st->ok = false;
         return 0;
     }

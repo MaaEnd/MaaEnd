@@ -435,7 +435,7 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
                 }
             }
         });
-        ConcatBins(bins, kills);
+        ConcatBins(&kills, bins);
     }
     for (const int64_t slot : kills) {
         NB[static_cast<size_t>(slot / 3)][slot % 3] = -1;
@@ -466,7 +466,7 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
                 }
             }
         });
-        ConcatBins(bins, cand);
+        ConcatBins(&cand, bins);
         for (const int64_t c : masked) {
             n_mask_cut += c;
         }

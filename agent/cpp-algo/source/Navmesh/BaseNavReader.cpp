@@ -22,6 +22,7 @@
 
 #include "BaseNavReader.h"
 #include "NavParallel.h"
+#include "NavVarint.h"
 
 namespace navmesh
 {
@@ -242,27 +243,6 @@ bool inflate_buffer(const uint8_t* data, size_t size, std::vector<uint8_t>* outp
     return true;
 }
 
-bool GetVarint(const uint8_t*& cursor, const uint8_t* end, uint64_t& out)
-{
-    out = 0;
-    for (int shift = 0; shift < 64; shift += 7) {
-        if (cursor == end) {
-            return false;
-        }
-        const uint8_t byte = *cursor++;
-        out |= static_cast<uint64_t>(byte & 0x7FU) << shift;
-        if ((byte & 0x80U) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
-int64_t UnZigzag(uint64_t value)
-{
-    return static_cast<int64_t>(value >> 1U) ^ -static_cast<int64_t>(value & 1U);
-}
-
 // 块内是若干条 varint 长度 + deflate 流, 条数由表类型定死
 bool split_chunk_streams(const uint8_t* data, size_t size, size_t count, std::vector<std::vector<uint8_t>>* out)
 {
@@ -271,7 +251,7 @@ bool split_chunk_streams(const uint8_t* data, size_t size, size_t count, std::ve
     const uint8_t* const end = data + size;
     for (std::vector<uint8_t>& stream : *out) {
         uint64_t packed = 0;
-        if (!GetVarint(cursor, end, packed) || static_cast<uint64_t>(end - cursor) < packed
+        if (!GetVarint(&packed, &cursor, end) || static_cast<uint64_t>(end - cursor) < packed
             || !inflate_buffer(cursor, static_cast<size_t>(packed), &stream)) {
             return false;
         }
@@ -411,7 +391,7 @@ bool decode_triangle_chunk(const uint8_t* data, size_t size, uint32_t count, uin
     for (uint32_t t = 0; t < count; ++t) {
         uint64_t packed[3] = {};
         for (int i = 0; i < 3; ++i) {
-            if (!GetVarint(index_cursor[i], index_end[i], packed[i])) {
+            if (!GetVarint(&packed[i], &index_cursor[i], index_end[i])) {
                 return false;
             }
         }
@@ -431,7 +411,7 @@ bool decode_triangle_chunk(const uint8_t* data, size_t size, uint32_t count, uin
             const size_t bit = static_cast<size_t>(t) * 3 + i;
             if ((stream[3][bit / 8] & (1U << (7 - bit % 8))) != 0) {
                 uint64_t delta = 0;
-                if (!GetVarint(neighbor_cursor, neighbor_end, delta)) {
+                if (!GetVarint(&delta, &neighbor_cursor, neighbor_end)) {
                     return false;
                 }
                 const int64_t value = self_index + UnZigzag(delta);
@@ -453,7 +433,7 @@ bool decode_triangle_chunk(const uint8_t* data, size_t size, uint32_t count, uin
     while (filled < count) {
         uint64_t delta = 0;
         uint64_t run = 0;
-        if (!GetVarint(value_cursor, value_end, delta) || !GetVarint(length_cursor, length_end, run)) {
+        if (!GetVarint(&delta, &value_cursor, value_end) || !GetVarint(&run, &length_cursor, length_end)) {
             return false;
         }
         component += UnZigzag(delta);
@@ -488,7 +468,7 @@ bool decode_link_chunk(const uint8_t* data, size_t size, uint32_t count, uint8_t
     for (uint32_t i = 0; i < count; ++i) {
         uint64_t step = 0;
         uint64_t delta = 0;
-        if (!GetVarint(source_cursor, source_end, step) || !GetVarint(target_cursor, target_end, delta)) {
+        if (!GetVarint(&step, &source_cursor, source_end) || !GetVarint(&delta, &target_cursor, target_end)) {
             return false;
         }
         source = i == 0 ? static_cast<int64_t>(step) : source + static_cast<int64_t>(step);

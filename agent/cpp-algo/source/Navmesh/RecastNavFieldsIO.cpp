@@ -9,6 +9,7 @@
 #include <MaaUtils/Platform.h>
 
 #include "BaseNavReader.h"
+#include "NavVarint.h"
 #include "RecastNavGrid.h"
 #include "RecastNavZone.h"
 
@@ -308,18 +309,7 @@ struct Reader
 
 bool reader_varint(Reader* rd, uint64_t* out)
 {
-    *out = 0;
-    for (int shift = 0; shift < 64; shift += 7) {
-        if (rd->p == rd->end) {
-            return false;
-        }
-        const uint8_t c = *rd->p++;
-        *out |= static_cast<uint64_t>(c & 0x7FU) << shift;
-        if ((c & 0x80U) == 0) {
-            return true;
-        }
-    }
-    return false;
+    return GetVarint(out, &rd->p, rd->end);
 }
 
 bool reader_u32(Reader* rd, uint32_t* out)
