@@ -49,6 +49,7 @@
                 "CountDownAction",
                 "DeliveryJobsResolveOngoingDepotAction",
                 "ERROR",
+                "EssenceFilterAfterBattleInventoryCommitAction",
                 "EssenceFilterAfterBattleSkillDecisionAction",
                 "EssenceFilterAfterBattleTierGateAction",
                 "EssenceFilterCheckItemAction",

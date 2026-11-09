@@ -5,7 +5,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoessence"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -221,6 +220,8 @@ type decisionNextNodes struct {
 	Lock    string
 	Discard string
 	Skip    string
+	// AfterBattle marks the after-battle flow, whose decisions are recorded as inventory increments.
+	AfterBattle bool
 }
 
 func runUnifiedSkillDecision(
@@ -245,13 +246,16 @@ func runUnifiedSkillDecision(
 
 	reportOCRSkills(ctx, skills, ocr.Levels, matchResult.Kind != matchapi.MatchNone)
 
+	if next.AfterBattle {
+		if delta, ok := afterBattleInventoryDelta(matchResult); ok {
+			st.PendingInventory = append(st.PendingInventory, delta)
+		}
+	}
+
 	switch matchResult.Kind {
 	case matchapi.MatchExact:
 		st.MatchedCount++
 		reportMatchedWeapons(ctx, matchResult.Weapons)
-		if next.Lock == "EssenceFilterAfterBattleLockItem" {
-			recordAfterBattleInventory(matchResult.Weapons)
-		}
 
 		key := skillCombinationKey(matchResult.SkillIDs)
 		if key != "" {
@@ -323,16 +327,6 @@ func runUnifiedSkillDecision(
 	st.CurrentSkills = [3]string{}
 	st.CurrentSkillLevels = [3]int{}
 	return true
-}
-
-func recordAfterBattleInventory(weapons []matchapi.WeaponData) {
-	ids := make([]string, 0, len(weapons))
-	for _, w := range weapons {
-		if w.InternalID != "" {
-			ids = append(ids, w.InternalID)
-		}
-	}
-	autoessence.Add(ids, 1)
 }
 
 func loadMatchEngine(ctx *maa.Context, nodeName string) (*matchapi.Engine, *EssenceFilterOptions, error) {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -70,11 +71,18 @@ func (a *TargetPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
+	// 每轮都从文件重新加载库存，让上一轮战后筛选写入的基质参与本轮缺口计算。
+	if err := LoadFile(essencefilter.InventoryPath()); err != nil {
+		log.Error().Str("component", componentPlan).Msg("failed to load inventory before planning")
+		return false
+	}
+
 	selected, err := readSelectedWeapons(ctx, arg.CurrentTaskName)
 	if err != nil {
 		log.Error().Err(err).Str("component", componentPlan).Msg("failed to read attach")
 		return false
 	}
+
 	if len(selected) == 0 {
 		log.Error().Str("component", componentPlan).Msg("no weapons selected in attach")
 		maafocus.Print(ctx, "🎯目标模式：未勾选任何武器，结束任务")

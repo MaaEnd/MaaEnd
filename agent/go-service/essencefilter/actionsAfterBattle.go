@@ -10,6 +10,9 @@ import (
 
 type EssenceFilterAfterBattleSkillDecisionAction struct{}
 
+// EssenceFilterAfterBattleInventoryCommitAction merges this loot run's decisions into EssenceInventory.json.
+type EssenceFilterAfterBattleInventoryCommitAction struct{}
+
 // EssenceFilterAfterBattleTierGateAction gates after-battle items by essence tier.
 // Pipeline param "tier" must be "flawless" or "pure".
 type EssenceFilterAfterBattleTierGateAction struct{}
@@ -17,6 +20,7 @@ type EssenceFilterAfterBattleTierGateAction struct{}
 // Compile-time interface checks
 var (
 	_ maa.CustomActionRunner = &EssenceFilterAfterBattleSkillDecisionAction{}
+	_ maa.CustomActionRunner = &EssenceFilterAfterBattleInventoryCommitAction{}
 	_ maa.CustomActionRunner = &EssenceFilterAfterBattleTierGateAction{}
 )
 
@@ -81,8 +85,20 @@ func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg 
 		return false
 	}
 	return runUnifiedSkillDecision(ctx, arg, st, st.MatchEngine, ocr, decisionNextNodes{
-		Lock:    "EssenceFilterAfterBattleLockItem",
-		Discard: "EssenceFilterAfterBattleDiscardItem",
-		Skip:    "EssenceFilterAfterBattleCloseDetail",
+		Lock:        "EssenceFilterAfterBattleLockItem",
+		Discard:     "EssenceFilterAfterBattleDiscardItem",
+		Skip:        "EssenceFilterAfterBattleCloseDetail",
+		AfterBattle: true,
 	})
+}
+
+func (a *EssenceFilterAfterBattleInventoryCommitAction) Run(ctx *maa.Context, _ *maa.CustomActionArg) bool {
+	st := currentRun
+	if st == nil {
+		log.Error().Str("component", "EssenceFilter").Str("action", "AfterBattleInventoryCommit").
+			Msg("no run state")
+		reportFocusByKey(ctx, "focus.error.no_run_state")
+		return false
+	}
+	return commitAfterBattleInventory(ctx, st)
 }

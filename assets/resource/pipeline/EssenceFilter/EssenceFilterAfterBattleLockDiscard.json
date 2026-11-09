@@ -211,7 +211,7 @@
         "next": [
             "[JumpBack]EssenceFilterAfterBattleCloseDetailJumpback",
             "EssenceFilterAfterBattleNthRecognition",
-            "EssenceFilterAfterBattleExit"
+            "EssenceFilterAfterBattleCommitInventory"
         ]
     },
     "EssenceFilterAfterBattleNthRecognition": {
@@ -236,7 +236,7 @@
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleExit"
+            "EssenceFilterAfterBattleCommitInventory"
         ]
     }
 }
