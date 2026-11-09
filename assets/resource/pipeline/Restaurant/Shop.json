@@ -9,7 +9,10 @@
         "next": [
             "RestaurantShopApproach",
             "RestaurantShopApproachAfterBusiness"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.shop_started"
+        }
     },
     "RestaurantShopApproach": {
         "desc": "导航到堂头小铺交互区域。",
@@ -61,7 +64,10 @@
         ],
         "on_error": [
             "FailedNode"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.shop_approach"
+        }
     },
     "RestaurantShopApproachAfterBusiness": {
         "desc": "从缘缘庄经营区域导航到堂头小铺交互区域。",
@@ -113,7 +119,10 @@
         ],
         "on_error": [
             "FailedNode"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.shop_approach"
+        }
     },
     "RestaurantShopInteract": {
         "desc": "识别小聪明或手不停的交互提示并 AltClick，直到提示消失，最多三次。",
@@ -310,7 +319,10 @@
         "rate_limit": 0,
         "next": [
             "RestaurantShopScan"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.priority_storage_enabled"
+        }
     },
     "RestaurantShopPriorityStorageUnchecked": {
         "recognition": "TemplateMatch",
@@ -403,16 +415,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            175,
-            228
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot1DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -454,16 +462,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            327,
-            228
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot2DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -505,16 +509,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            478,
-            228
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot3DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -556,16 +556,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            630,
-            228
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot4DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -607,16 +603,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            783,
-            228
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot5DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -658,16 +650,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            935,
-            228
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot6DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -709,16 +697,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            1087,
-            228
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot7DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -760,16 +744,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            175,
-            447
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot8DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -811,16 +791,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            327,
-            447
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot9DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -862,16 +838,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            478,
-            447
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot10DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -913,16 +885,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            630,
-            447
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot11DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -964,16 +932,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            783,
-            447
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot12DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -1015,16 +979,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            935,
-            447
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot13DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -1066,16 +1026,12 @@
                 "count": 10000
             }
         ],
+        "box_index": 0,
         "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            1087,
-            447
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopWaitPurchaseModal"
+            "RestaurantShopSlot14DiscountFocus"
         ],
         "on_error": [
             "FailedNode"
@@ -1206,7 +1162,10 @@
         ],
         "on_error": [
             "FailedNode"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.shop_refreshing"
+        }
     },
     "RestaurantShopRefreshConfirm": {
         "recognition": "OCR",
@@ -1298,6 +1257,524 @@
         "rate_limit": 0,
         "next": [
             "RestaurantShopRefreshConfirm"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot1DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot1Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot1DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot1DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot1DiscountClick": {
+        "desc": "点击第 1 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            175,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot2DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot2Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot2DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot2DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot2DiscountClick": {
+        "desc": "点击第 2 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            327,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot3DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot3Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot3DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot3DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot3DiscountClick": {
+        "desc": "点击第 3 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            478,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot4DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot4Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot4DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot4DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot4DiscountClick": {
+        "desc": "点击第 4 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            630,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot5DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot5Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot5DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot5DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot5DiscountClick": {
+        "desc": "点击第 5 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            783,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot6DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot6Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot6DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot6DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot6DiscountClick": {
+        "desc": "点击第 6 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            935,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot7DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot7Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot7DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot7DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot7DiscountClick": {
+        "desc": "点击第 7 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            1087,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot8DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot8Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot8DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot8DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot8DiscountClick": {
+        "desc": "点击第 8 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            175,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot9DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot9Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot9DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot9DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot9DiscountClick": {
+        "desc": "点击第 9 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            327,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot10DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot10Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot10DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot10DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot10DiscountClick": {
+        "desc": "点击第 10 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            478,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot11DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot11Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot11DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot11DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot11DiscountClick": {
+        "desc": "点击第 11 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            630,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot12DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot12Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot12DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot12DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot12DiscountClick": {
+        "desc": "点击第 12 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            783,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot13DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot13Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot13DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot13DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot13DiscountClick": {
+        "desc": "点击第 13 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            935,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot14DiscountFocus": {
+        "desc": "在折扣识别命中后播报 OCR 识别到的折扣。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "RestaurantShopSlot14Discount",
+            "focus": "识别到折扣 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot14DiscountClick"
+        ],
+        "on_error": [
+            "RestaurantShopSlot14DiscountClick"
+        ]
+    },
+    "RestaurantShopSlot14DiscountClick": {
+        "desc": "点击第 14 个折扣商品。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            1087,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
         ],
         "on_error": [
             "FailedNode"
