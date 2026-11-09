@@ -331,22 +331,22 @@ navmesh::BaseNavRouteResult plan_corridor_route(
     }
     const float start_floor = request.start_floor_y > navmesh::kBaseNavFloorYValidMin ? request.start_floor_y : request.floor_y;
     const float goal_floor = request.goal_floor_y > navmesh::kBaseNavFloorYValidMin ? request.goal_floor_y : request.floor_y;
-    std::function<bool()> should_stop;
-    if (maa_context != nullptr) {
-        should_stop = [maa_context] {
-            return MaaTaskerStopping(MaaContextGetTasker(maa_context));
-        };
-    }
-    auto plan = mesh.engine.plan(
-        request.zone_name,
-        request.start,
-        request.goal,
-        start_floor,
-        goal_floor,
-        request.goal_deck_y,
-        request.start_deck_y,
-        request.no_go_discs,
-        should_stop,
+    const navmesh::recast::RecastPlanRequest plan_request {
+        .zone_name = request.zone_name,
+        .start = request.start,
+        .goal = request.goal,
+        .start_floor_y = start_floor,
+        .goal_floor_y = goal_floor,
+        .goal_deck_y = request.goal_deck_y,
+        .start_deck_y = request.start_deck_y,
+        .no_go_discs = request.no_go_discs,
+    };
+    auto plan = navmesh::recast::PlanRecastRoute(
+        &mesh.engine,
+        mesh.pack,
+        mesh.planner,
+        plan_request,
+        maa_context,
         request.rope_off ? &*request.rope_off : nullptr);
     result.gap_start = plan.debug.gap_start;
     result.gap_goal = plan.debug.gap_goal;

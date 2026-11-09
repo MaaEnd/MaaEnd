@@ -192,7 +192,7 @@ std::vector<std::vector<uint32_t>>
     if (!zone.mesh) {
         return std::vector<std::vector<uint32_t>>(points.size());
     }
-    return zone.mesh->engine.regionsNear(zone.navmesh_zone, points);
+    return navmesh::recast::RecastRegionsNear(&zone.mesh->engine, zone.navmesh_zone, points);
 }
 
 double NavmeshOffMeshFraction(

@@ -93,7 +93,7 @@ struct QueryContext
 {
     navmesh::BaseNavPack pack;
     navmesh::BaseNavPlanner planner;
-    std::optional<navmesh::recast::RecastNavEngine> engine;
+    navmesh::recast::RecastNavEngine engine;
 };
 
 std::mutex g_contexts_mutex;
@@ -132,7 +132,7 @@ QueryContext* acquire_context(std::string* error, const std::string& configured_
     auto context = std::make_unique<QueryContext>();
     context->pack = std::move(*loaded.pack);
     context->planner = navmesh::BuildBaseNavPlanner(context->pack, std::move(context->pack.links));
-    context->engine.emplace(context->pack, context->planner, mapnavigator::NoGoTablePath());
+    navmesh::recast::LoadRecastNavEngine(&context->engine, context->pack, mapnavigator::NoGoTablePath());
     QueryContext* raw = context.get();
     g_contexts.emplace(key, std::move(context));
     LogInfo << "navmesh loaded" << VAR(key);
@@ -364,16 +364,20 @@ json::object build_route(QueryContext* context, const QueryParam& param)
     const navmesh::WorldPoint goal { .x = param.goal[0], .y = param.goal[1] };
     const float floor_y = floor_or_none(param.floor_y);
     const std::vector<uint32_t> no_rope_off;
-    const auto plan = context->engine->plan(
-        zone->name,
-        start,
-        goal,
-        floor_y,
-        floor_y,
-        floor_or_none(param.goal_deck_y),
-        navmesh::kBaseNavFloorYNone,
-        {},
-        {},
+    const navmesh::recast::RecastPlanRequest request {
+        .zone_name = zone->name,
+        .start = start,
+        .goal = goal,
+        .start_floor_y = floor_y,
+        .goal_floor_y = floor_y,
+        .goal_deck_y = floor_or_none(param.goal_deck_y),
+    };
+    const auto plan = navmesh::recast::PlanRecastRoute(
+        &context->engine,
+        context->pack,
+        context->planner,
+        request,
+        nullptr,
         param.rope_interact_text.empty() ? nullptr : &no_rope_off);
 
     if (!plan.ok) {
@@ -786,7 +790,7 @@ json::object build_warm(QueryContext* context, const QueryParam& param)
     if (zone == nullptr || zone->triangle_count == 0) {
         return fail("该区无三角面");
     }
-    context->engine->warm(zone->name);
+    navmesh::recast::WarmRecastZone(&context->engine, context->pack, context->planner, zone->name);
     return json::object { { "ok", true }, { "zone", zone->name } };
 }
 
