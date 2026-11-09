@@ -95,13 +95,6 @@ struct AsyncYoloHandle
     std::shared_future<YoloCoarseResult> future;
 };
 
-struct AsyncYoloState
-{
-    std::uint64_t frameId = 0;
-    std::shared_future<YoloCoarseResult> future;
-    bool zoneGuardApplied = false;
-};
-
 class FrameTemplateFeatureCache
 {
 public:
@@ -149,183 +142,6 @@ int GlobalSearchRoiPad(const cv::Size& templSize)
     const int side = std::clamp(discSide, 1, std::max(templSize.width, templSize.height));
     return static_cast<int>(std::ceil(side / 2.0)) + 1;
 }
-
-enum class ScaleTaskPriority : int
-{
-    Discarded = 0,
-    GlobalPrimary = 2,
-    Tracking = 3,
-    Coordinator = 4,
-};
-
-enum class ScaleTaskClass
-{
-    Tracking,
-    Global,
-    Coordinator,
-};
-
-struct ScaleTaskControl
-{
-    std::atomic<ScaleTaskPriority> priority = ScaleTaskPriority::Discarded;
-    std::atomic<bool> canceled = false;
-    std::atomic<bool> reserveTrackingCapacity = false;
-};
-
-class MapLocatorScaleExecutor
-{
-public:
-    explicit MapLocatorScaleExecutor(size_t workerCount)
-        : globalConcurrencyLimit(workerCount > 4 ? std::max<size_t>(1, workerCount / 3) : workerCount)
-    {
-        workers.reserve(workerCount);
-        for (size_t index = 0; index < workerCount; ++index) {
-            workers.emplace_back([this]() { workerLoop(); });
-        }
-    }
-
-    ~MapLocatorScaleExecutor()
-    {
-        {
-            std::lock_guard<std::mutex> lock(mutex);
-            stopping = true;
-            queue.clear();
-        }
-        condition.notify_all();
-        for (auto& worker : workers) {
-            if (worker.joinable()) {
-                worker.join();
-            }
-        }
-    }
-
-    MapLocatorScaleExecutor(const MapLocatorScaleExecutor&) = delete;
-    MapLocatorScaleExecutor& operator=(const MapLocatorScaleExecutor&) = delete;
-
-    void submit(const std::shared_ptr<ScaleTaskControl>& control, ScaleTaskClass taskClass, std::function<void()> function)
-    {
-        {
-            std::lock_guard<std::mutex> lock(mutex);
-            queue.emplace_back(QueuedTask {
-                .control = control,
-                .taskClass = taskClass,
-                .sequence = nextSequence++,
-                .function = std::move(function),
-            });
-        }
-        condition.notify_one();
-    }
-
-    void reprioritize(const std::shared_ptr<ScaleTaskControl>& control, ScaleTaskPriority priority)
-    {
-        control->priority.store(priority, std::memory_order_relaxed);
-        condition.notify_all();
-    }
-
-    void cancel(const std::shared_ptr<ScaleTaskControl>& control)
-    {
-        control->canceled.store(true, std::memory_order_relaxed);
-        reprioritize(control, ScaleTaskPriority::Discarded);
-    }
-
-    void releaseTrackingCapacity(const std::shared_ptr<ScaleTaskControl>& control)
-    {
-        control->reserveTrackingCapacity.store(false, std::memory_order_relaxed);
-        condition.notify_all();
-    }
-
-    size_t workerCount() const { return workers.size(); }
-
-private:
-    struct QueuedTask
-    {
-        std::shared_ptr<ScaleTaskControl> control;
-        ScaleTaskClass taskClass = ScaleTaskClass::Global;
-        std::uint64_t sequence = 0;
-        std::function<void()> function;
-    };
-
-    auto findNextTask()
-    {
-        auto selected = queue.end();
-        int selectedPriority = std::numeric_limits<int>::min();
-        std::uint64_t selectedSequence = std::numeric_limits<std::uint64_t>::max();
-        for (auto it = queue.begin(); it != queue.end(); ++it) {
-            if (it->taskClass == ScaleTaskClass::Global && it->control->reserveTrackingCapacity.load(std::memory_order_relaxed)
-                && activeGlobalTasks >= globalConcurrencyLimit) {
-                continue;
-            }
-            if (it->taskClass == ScaleTaskClass::Coordinator && activeCoordinatorTasks >= 1) {
-                continue;
-            }
-            const int priority = static_cast<int>(it->control->priority.load(std::memory_order_relaxed));
-            if (priority > selectedPriority || (priority == selectedPriority && it->sequence < selectedSequence)) {
-                selected = it;
-                selectedPriority = priority;
-                selectedSequence = it->sequence;
-            }
-        }
-        return selected;
-    }
-
-    void workerLoop()
-    {
-        while (true) {
-            QueuedTask task;
-            {
-                std::unique_lock<std::mutex> lock(mutex);
-                condition.wait(lock, [this]() { return stopping || !queue.empty(); });
-                if (stopping) {
-                    return;
-                }
-
-                auto selected = findNextTask();
-                if (selected == queue.end()) {
-                    condition.wait(lock);
-                    continue;
-                }
-                task = std::move(*selected);
-                queue.erase(selected);
-                if (task.taskClass == ScaleTaskClass::Global) {
-                    ++activeGlobalTasks;
-                }
-                else if (task.taskClass == ScaleTaskClass::Tracking) {
-                    ++activeTrackingTasks;
-                }
-                else if (task.taskClass == ScaleTaskClass::Coordinator) {
-                    ++activeCoordinatorTasks;
-                }
-            }
-
-            task.function();
-
-            {
-                std::lock_guard<std::mutex> lock(mutex);
-                if (task.taskClass == ScaleTaskClass::Global) {
-                    --activeGlobalTasks;
-                }
-                else if (task.taskClass == ScaleTaskClass::Tracking) {
-                    --activeTrackingTasks;
-                }
-                else if (task.taskClass == ScaleTaskClass::Coordinator) {
-                    --activeCoordinatorTasks;
-                }
-            }
-            condition.notify_all();
-        }
-    }
-
-    std::vector<std::thread> workers;
-    std::deque<QueuedTask> queue;
-    mutable std::mutex mutex;
-    std::condition_variable condition;
-    size_t activeTrackingTasks = 0;
-    size_t activeGlobalTasks = 0;
-    size_t activeCoordinatorTasks = 0;
-    size_t globalConcurrencyLimit = 1;
-    std::uint64_t nextSequence = 0;
-    bool stopping = false;
-};
 
 class GlobalSearchBatch : public std::enable_shared_from_this<GlobalSearchBatch>
 {
@@ -655,23 +471,6 @@ private:
     std::shared_ptr<FrameSearchCoordinator>* coordinator = nullptr;
 };
 
-struct GlobalSearchFeatureCacheKey
-{
-    std::string zoneId;
-    TemplateFeatureKind kind = TemplateFeatureKind::StandardBase;
-    cv::Rect roi {};
-    std::uint64_t generation = 0;
-
-    bool operator==(const GlobalSearchFeatureCacheKey&) const = default;
-};
-
-struct CachedGlobalSearchFeature
-{
-    std::mutex mutex;
-    std::optional<GlobalSearchFeatureCacheKey> key;
-    MatchFeature feature;
-};
-
 bool IsTightCluster(const std::vector<MapPosition>& buf, double radius)
 {
     if (buf.size() < static_cast<size_t>(kColdStartConsensusFrames)) {
@@ -714,171 +513,43 @@ MapPosition QuantizePosition(MapPosition position)
     return position;
 }
 
-} // namespace
-
-class MapLocator::Impl
+// 这一帧建策略用的配置快照，后台搜索拿它的拷贝
+struct StrategyConfigs
 {
-public:
-    Impl() = default;
-
-    ~Impl()
-    {
-        if (asyncYoloState.has_value() && asyncYoloState->future.valid()) {
-            asyncYoloState->future.wait();
-        }
-        scaleExecutor.reset();
-    }
-
-    bool initialize(const MapLocatorConfig& cfg);
-
-    bool getIsInitialized() const { return isInitialized; }
-
-    LocateResult locate(const cv::Mat& minimap, const LocateOptions& options, const std::shared_future<double>& angle_future);
-    YoloCoarseResult predictCoarse(const cv::Mat& minimap) const;
-    void resetTrackingState();
-    std::optional<MapPosition> getLastKnownPos() const;
-
-private:
-    std::optional<MapPosition> tryTracking(
-        const MatchFeature& tmplFeat,
-        const MatchStrategy& strategy,
-        TimePoint now,
-        const LocateOptions& options,
-        const std::function<void()>& slowPathSignal,
-        bool* outHoldPending = nullptr);
-
-    GlobalSearchComputation startGlobalSearch(
-        const MatchFeature& tmplFeat,
-        std::shared_ptr<const MatchStrategy> strategy,
-        const std::string& targetZoneId,
-        const SearchConstraint& constraint,
-        ScaleTaskPriority priority,
-        bool reserveTrackingCapacity);
-    GlobalSearchComputation startRefineSearch(const GlobalSearchComputation& coarse, const cv::Point2d& center);
-
-    std::optional<MapPosition> evaluateAndAcceptResult(
-        const MatchResultRaw& fineRes,
-        double score,
-        const cv::Rect& validFineRect,
-        const cv::Size& templSize,
-        const MatchStrategy& strategy,
-        const std::string& targetZoneId);
-    GlobalSearchAttempt finishGlobalSearch(const GlobalSearchComputation& computation);
-
-    std::optional<AsyncYoloHandle> refreshAsyncYoloState(const cv::Mat& minimap, TimePoint now);
-    std::optional<LocateResult> tryTrackingLocate(
-        const cv::Mat& minimap,
-        const LocateOptions& options,
-        const std::string& expectedZoneId,
-        TimePoint now,
-        FrameTemplateFeatureCache& featureCache,
-        std::optional<AsyncYoloHandle>* sameFrameYolo,
-        bool yoloRefreshAlreadyPerformed,
-        const std::function<void()>& slowPathSignal);
-    SearchConstraint buildSearchConstraint(
-        const std::string& expectedZoneSelector,
-        const std::string& targetZoneId,
-        const YoloCoarseResult& coarse,
-        bool emitLog = true) const;
-    GlobalSearchCandidates startGlobalSearchCandidates(
-        const cv::Mat& minimap,
-        const std::string& targetZoneId,
-        const SearchConstraint& constraint,
-        FrameTemplateFeatureCache featureCache,
-        std::uint64_t searchFrameId,
-        const TrackingConfig& trackingConfig,
-        const MatchConfig& matchConfig,
-        const ImageProcessingConfig& baseImageConfig,
-        const ImageProcessingConfig& tierImageConfig,
-        bool reserveTrackingCapacity);
-    GlobalSearchAttempt finishGlobalSearchCandidates(GlobalSearchCandidates candidates);
-    GlobalSearchAttempt tryGlobalSearch(
-        const cv::Mat& minimap,
-        const std::string& targetZoneId,
-        const SearchConstraint& constraint,
-        FrameTemplateFeatureCache& featureCache);
-    MapPosition stabilizePosition(const MapPosition& raw);
-    MapPosition acceptPosition(const MapPosition& raw, TimePoint now, const LocateOptions& options);
-    MatchFeature
-        getGlobalSearchFeature(const std::string& targetZoneId, const cv::Rect& roi, const cv::Mat& mapRoi, const MatchStrategy& strategy);
-    void clearGlobalSearchFeatureCache();
-
-    void loadAvailableZones(const std::string& root);
-
-    bool isInitialized = false;
-    MapLocatorConfig config;
-
-    std::map<std::string, cv::Mat> zones;
-    std::string currentZoneId;
-    std::array<CachedGlobalSearchFeature, 2> globalSearchFeatureCache;
-    std::uint64_t zoneGeneration = 0;
-
-    std::unique_ptr<MotionTrack> motionTracker;
-    std::unique_ptr<YoloModel> zoneClassifier;
-    std::unique_ptr<OrientationModel> orientationPredictor;
-    std::unique_ptr<MapLocatorScaleExecutor> scaleExecutor;
-    std::mutex taskMutex;
-    std::optional<AsyncYoloState> asyncYoloState;
-    std::chrono::steady_clock::time_point lastYoloCheckTime;
-    std::uint64_t frameId = 0;
-    std::uint64_t activeFrameId = 0;
-
-    // 小地图被遮挡的起始时刻，未遮挡时为默认值；超时放行后置位以免重复打日志
-    TimePoint occluded_since_ {};
-    bool occlusion_timed_out_ = false;
-
-    std::vector<MapPosition> coldStartBuffer;
-    std::optional<MapPosition> stablePosition;
-
-    TrackingConfig trackingCfg;
-    MatchConfig matchCfg;
-    ImageProcessingConfig baseImgCfg = { .darkMapThreshold = 20.0,
-                                         .iconDiffThreshold = 40,
-                                         .centerMaskRadius = 18,
-                                         .gradientBaseWeight = 0.1,
-                                         .borderMargin = 10,
-                                         .whiteDilate = 11,
-                                         .colorDilate = 3 };
-
-    ImageProcessingConfig tierImgCfg = { .darkMapThreshold = 20.0,
-                                         .iconDiffThreshold = 40,
-                                         .centerMaskRadius = 8,
-                                         .gradientBaseWeight = 0.1,
-                                         .borderMargin = 8,
-                                         .whiteDilate = 9,
-                                         .colorDilate = 3 };
+    TrackingConfig tracking;
+    MatchConfig match;
+    ImageProcessingConfig base_image {};
+    ImageProcessingConfig tier_image {};
 };
 
-bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg)
+StrategyConfigs current_strategy_configs(const MapLocator& locator)
 {
-    if (isInitialized) {
-        return true;
-    }
-    config = cfg;
-
-    motionTracker = std::make_unique<MotionTrack>(MakeMotionTrack(trackingCfg));
-    const size_t matchWorkerCount = std::min(kMatchWorkerLimit, static_cast<size_t>(std::max(1U, std::thread::hardware_concurrency())));
-    scaleExecutor = std::make_unique<MapLocatorScaleExecutor>(matchWorkerCount);
-    loadAvailableZones(config.mapResourceDir);
-
-    if (!config.yoloModelPath.empty()) {
-        zoneClassifier = LoadYoloModel(config.yoloModelPath, matchCfg.yoloConfThreshold, config.yoloThreads);
-    }
-
-    // 摄像机朝向：预处理在 C++ 里执行，参考配对分类器的推理是本阶段的主要开销，故用 2 个
-    // intra-op 线程并行，缩短同步帧追加的定位延迟。
-    if (!config.cameraOrientationRefModelPath.empty()) {
-        orientationPredictor = LoadOrientationModel(config.cameraOrientationRefModelPath, 2);
-    }
-
-    isInitialized = true;
-    return true;
+    return StrategyConfigs {
+        .tracking = locator.resources.tracking_config,
+        .match = locator.match_config,
+        .base_image = locator.resources.base_image_config,
+        .tier_image = locator.resources.tier_image_config,
+    };
 }
 
-void MapLocator::Impl::loadAvailableZones(const std::string& root)
+MatchStrategy make_strategy(const std::string& zoneId, const StrategyConfigs& configs)
 {
-    ++zoneGeneration;
-    clearGlobalSearchFeatureCache();
+    return MakeMatchStrategy(zoneId, configs.tracking, configs.match, configs.base_image, configs.tier_image);
+}
+
+void clear_global_search_feature_cache(LocatorResources* resources)
+{
+    for (auto& cache : resources->search_feature_cache) {
+        std::lock_guard<std::mutex> lock(cache.mutex);
+        cache.key.reset();
+        cache.feature = {};
+    }
+}
+
+void load_available_zones(LocatorResources* resources, const std::string& root)
+{
+    ++resources->zone_generation;
+    clear_global_search_feature_cache(resources);
     if (!fs::exists(MAA_NS::path(root))) {
         return;
     }
@@ -923,12 +594,13 @@ void MapLocator::Impl::loadAvailableZones(const std::string& root)
         else if (img.channels() == 3) {
             cv::cvtColor(img, img, cv::COLOR_BGR2BGRA);
         }
-        zones[key] = std::move(img);
+        resources->zones[key] = std::move(img);
         LogInfo << "Loaded Map: " << key;
     }
 }
 
-MatchFeature MapLocator::Impl::getGlobalSearchFeature(
+MatchFeature get_global_search_feature(
+    LocatorResources* resources,
     const std::string& targetZoneId,
     const cv::Rect& roi,
     const cv::Mat& mapRoi,
@@ -936,12 +608,12 @@ MatchFeature MapLocator::Impl::getGlobalSearchFeature(
 {
     const TemplateFeatureKind kind = TemplateKindOf(strategy);
     const bool isPathHeatmap = kind == TemplateFeatureKind::PathHeatmapBase || kind == TemplateFeatureKind::PathHeatmapTier;
-    CachedGlobalSearchFeature& cache = globalSearchFeatureCache.at(isPathHeatmap ? 1 : 0);
+    CachedGlobalSearchFeature& cache = resources->search_feature_cache.at(isPathHeatmap ? 1 : 0);
     const GlobalSearchFeatureCacheKey key {
         .zoneId = targetZoneId,
         .kind = kind,
         .roi = roi,
-        .generation = zoneGeneration,
+        .generation = resources->zone_generation,
     };
 
     std::lock_guard<std::mutex> lock(cache.mutex);
@@ -952,77 +624,77 @@ MatchFeature MapLocator::Impl::getGlobalSearchFeature(
     return cache.feature;
 }
 
-void MapLocator::Impl::clearGlobalSearchFeatureCache()
-{
-    for (auto& cache : globalSearchFeatureCache) {
-        std::lock_guard<std::mutex> lock(cache.mutex);
-        cache.key.reset();
-        cache.feature = {};
-    }
-}
-
-MapPosition MapLocator::Impl::stabilizePosition(const MapPosition& raw)
+MapPosition stabilize_position(std::optional<MapPosition>* stable, const MapPosition& raw)
 {
     if (raw.zoneId == "None") {
         return raw;
     }
 
-    if (!stablePosition.has_value() || stablePosition->zoneId != raw.zoneId) {
-        stablePosition = QuantizePosition(raw);
-        return *stablePosition;
+    if (!stable->has_value() || (*stable)->zoneId != raw.zoneId) {
+        *stable = QuantizePosition(raw);
+        return **stable;
     }
 
-    const double dist = std::hypot(raw.x - stablePosition->x, raw.y - stablePosition->y);
+    const double dist = std::hypot(raw.x - (*stable)->x, raw.y - (*stable)->y);
     const double stableMin = ZoneScoreLines(raw.zoneId).stableMin;
     if (raw.score >= stableMin && dist <= kStableDeadband) {
         MapPosition out = raw;
-        out.x = stablePosition->x;
-        out.y = stablePosition->y;
+        out.x = (*stable)->x;
+        out.y = (*stable)->y;
         return out;
     }
     if (raw.score >= stableMin && dist < kStableReleaseDist) {
         MapPosition out = raw;
-        out.x = stablePosition->x;
-        out.y = stablePosition->y;
+        out.x = (*stable)->x;
+        out.y = (*stable)->y;
         return out;
     }
 
-    stablePosition = QuantizePosition(raw);
-    return *stablePosition;
+    *stable = QuantizePosition(raw);
+    return **stable;
 }
 
-MapPosition MapLocator::Impl::acceptPosition(const MapPosition& raw, TimePoint now, const LocateOptions& options)
+// 经静止锁定后记进跟踪器
+MapPosition accept_position(MapLocator* locator, const MapPosition& raw, const LocateOptions& options, TimePoint now)
 {
-    MapPosition stable = stabilizePosition(raw);
-    UpdateTrack(motionTracker.get(), stable, now);
+    MapPosition stable = stabilize_position(&locator->stable_position, raw);
+    UpdateTrack(&locator->track, stable, now);
     return options.precise_position ? raw : stable;
 }
 
-std::optional<MapPosition> MapLocator::Impl::tryTracking(
+struct TrackingOutcome
+{
+    std::optional<MapPosition> position;
+    bool hold_pending = false;
+    // 本帧跟踪不可信或分数不到线，调用方应起全局搜索；本帧照常返回
+    bool wants_global_search = false;
+};
+
+TrackingOutcome track_frame(
+    MapLocator* locator,
     const MatchFeature& tmplFeat,
     const MatchStrategy& strategy,
-    TimePoint now,
     const LocateOptions& options,
-    const std::function<void()>& slowPathSignal,
-    bool* outHoldPending)
+    TimePoint now)
 {
-    int maxAllowedLost = IsPathHeatmapZone(currentZoneId) ? 10 : options.max_lost_frames;
-    if (currentZoneId.empty() || !IsTracking(*motionTracker, maxAllowedLost)) {
-        return std::nullopt;
+    TrackingOutcome outcome;
+    int maxAllowedLost = IsPathHeatmapZone(locator->zone_id) ? 10 : options.max_lost_frames;
+    if (locator->zone_id.empty() || !IsTracking(locator->track, maxAllowedLost)) {
+        return outcome;
     }
 
-    auto it = zones.find(currentZoneId);
-    if (it == zones.end()) {
-        return std::nullopt;
+    auto it = locator->resources.zones.find(locator->zone_id);
+    if (it == locator->resources.zones.end()) {
+        return outcome;
     }
 
     const cv::Mat& zoneMap = it->second;
 
-    std::chrono::duration<double> dt = now - motionTracker->last_time;
+    std::chrono::duration<double> dt = now - locator->track.last_time;
 
-    const double templateScale = ZoneTemplateScale(currentZoneId);
+    const double templateScale = ZoneTemplateScale(locator->zone_id);
 
-    cv::Rect searchRect = PredictNextSearchRect(*motionTracker, templateScale, tmplFeat.image.cols, tmplFeat.image.rows, now);
+    cv::Rect searchRect = PredictNextSearchRect(locator->track, templateScale, tmplFeat.image.cols, tmplFeat.image.rows, now);
 
     cv::Rect mapBounds(0, 0, zoneMap.cols, zoneMap.rows);
     cv::Rect validRoi = searchRect & mapBounds;
@@ -1041,14 +713,6 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
     auto searchFeature = ExtractSearchFeature(strategy, searchRoiWithPad);
     const PreparedSearchFeature preparedSearch = PrepareSearchFeature(searchFeature.image);
 
-    bool slowPathSignaled = false;
-    auto signalSlowPath = [&]() {
-        if (!slowPathSignaled && slowPathSignal) {
-            slowPathSignaled = true;
-            slowPathSignal();
-        }
-    };
-
     TrackingMatch tracking = MatchTrackingTemplate(tmplFeat, preparedSearch, searchFeature.image.size(), templateScale);
     std::optional<MatchResultRaw> trackResult = tracking.match;
     cv::Mat scaledTempl = std::move(tracking.scaledTemplate);
@@ -1058,20 +722,20 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
     }
 
     // 分数不到线就让上层考虑改走全局搜索，这一拍自己仍然照常返回
-    if (!trackResult || trackResult->score < ZoneScoreLines(currentZoneId).fastTrackingPass) {
-        signalSlowPath();
+    if (!trackResult || trackResult->score < ZoneScoreLines(locator->zone_id).fastTrackingPass) {
+        outcome.wants_global_search = true;
     }
 
     if (!trackResult) {
         LogInfo << "tryTracking: CoreMatch returned nullopt.";
-        return std::nullopt;
+        return outcome;
     }
 
     LogInfo << "tryTracking" << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta)
             << VAR(trackResult->secondScore);
 
     auto validation =
-        ValidateTracking(strategy, *trackResult, dt, motionTracker->last_known_pos, searchRect, scaledTempl.cols, scaledTempl.rows);
+        ValidateTracking(strategy, *trackResult, dt, locator->track.last_known_pos, searchRect, scaledTempl.cols, scaledTempl.rows);
 
     bool onlyAmbiguous = (!validation.isScreenBlocked && !validation.isEdgeSnapped && !validation.isTeleported);
 
@@ -1142,54 +806,47 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
 
     // 本帧不可信：交付上一帧坐标保持导航输入连续，同时记一次丢失。连续攒满 max_lost_frames
     // 后 IsTracking 失效，自然翻进全局重新观测，不会一直吃陈旧坐标。
-    if (onlyAmbiguous && IsTracking(*motionTracker, maxAllowedLost) && !validation.isValid) {
-        signalSlowPath();
-        auto hold = *motionTracker->last_known_pos;
+    if (onlyAmbiguous && IsTracking(locator->track, maxAllowedLost) && !validation.isValid) {
+        outcome.wants_global_search = true;
+        auto hold = *locator->track.last_known_pos;
         hold.score = trackResult->score;
-        HoldTrack(motionTracker.get(), hold, now);
-        MarkTrackLost(motionTracker.get(), 1);
-        if (outHoldPending) {
-            *outHoldPending = true;
-        }
+        HoldTrack(&locator->track, hold, now);
+        MarkTrackLost(&locator->track, 1);
+        outcome.hold_pending = true;
         LogInfo << "Tracking ambiguous -> HOLD last pos." << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta);
-        return std::nullopt;
+        return outcome;
     }
 
     if (!validation.isValid) {
-        signalSlowPath();
-        return std::nullopt;
+        outcome.wants_global_search = true;
+        return outcome;
     }
 
-    if (validation.isValid) {
-        // 坐标 outlier 拒绝：跳变距离超过阈值且分数不足以支撑大幅位移时，hold 上一帧而非接受
-        if (auto last = motionTracker->last_known_pos; last && trackResult->score < ZoneScoreLines(currentZoneId).trackingOutlierMin) {
-            const double jumpDist = std::hypot(validation.absX - last->x, validation.absY - last->y);
-            if (jumpDist > kTrackingOutlierDistance) {
-                signalSlowPath();
-                auto held = *last;
-                held.score = trackResult->score;
-                HoldTrack(motionTracker.get(), held, now);
-                MarkTrackLost(motionTracker.get(), 1);
-                if (outHoldPending) {
-                    *outHoldPending = true;
-                }
-                LogInfo << "Tracking outlier rejected, holding last pos." << VAR(jumpDist) << VAR(trackResult->score);
-                return std::nullopt;
-            }
+    // 坐标 outlier 拒绝：跳变距离超过阈值且分数不足以支撑大幅位移时，hold 上一帧而非接受
+    if (auto last = locator->track.last_known_pos; last && trackResult->score < ZoneScoreLines(locator->zone_id).trackingOutlierMin) {
+        const double jumpDist = std::hypot(validation.absX - last->x, validation.absY - last->y);
+        if (jumpDist > kTrackingOutlierDistance) {
+            outcome.wants_global_search = true;
+            auto held = *last;
+            held.score = trackResult->score;
+            HoldTrack(&locator->track, held, now);
+            MarkTrackLost(&locator->track, 1);
+            outcome.hold_pending = true;
+            LogInfo << "Tracking outlier rejected, holding last pos." << VAR(jumpDist) << VAR(trackResult->score);
+            return outcome;
         }
-
-        MapPosition pos;
-        pos.zoneId = currentZoneId;
-        pos.x = validation.absX;
-        pos.y = validation.absY;
-        pos.score = trackResult->score;
-        return acceptPosition(pos, now, options);
     }
 
-    return std::nullopt;
+    MapPosition pos;
+    pos.zoneId = locator->zone_id;
+    pos.x = validation.absX;
+    pos.y = validation.absY;
+    pos.score = trackResult->score;
+    outcome.position = accept_position(locator, pos, options, now);
+    return outcome;
 }
 
-std::optional<MapPosition> MapLocator::Impl::evaluateAndAcceptResult(
+std::optional<MapPosition> global_position_if_valid(
     const MatchResultRaw& fineRes,
     double score,
     const cv::Rect& validFineRect,
@@ -1213,130 +870,11 @@ std::optional<MapPosition> MapLocator::Impl::evaluateAndAcceptResult(
     return pos;
 }
 
-GlobalSearchAttempt MapLocator::Impl::finishGlobalSearch(const GlobalSearchComputation& computation)
-{
-    GlobalSearchAttempt attempt;
-    if (!computation.batch || !computation.strategy) {
-        return attempt;
-    }
-
-    computation.batch->wait();
-
-    // 粗扫只负责挑位置，随后在它周围的小窗里连续求极大定坐标；精修开不起来就直接用粗扫结果
-    const GlobalSearchComputation* evaluated = &computation;
-    GlobalSearchComputation refined;
-    if (const auto center = BestRawCenter(computation)) {
-        refined = startRefineSearch(computation, *center);
-        if (refined.batch) {
-            refined.batch->wait();
-            if (refined.batch->hasRawResult()) {
-                evaluated = &refined;
-            }
-        }
-    }
-
-    const FineMatchResult& fine = evaluated->batch->getResult();
-    if (!fine.hasRawResult) {
-        LogInfo << "Global Search: constrained ROI direct fine failed, no coarse fallback will be used.";
-        return attempt;
-    }
-
-    attempt.kind = TemplateKindOf(*evaluated->strategy);
-    attempt.window = computation.batch->getResult().fineRes;
-    attempt.refined = fine.fineRes;
-    const double score = DeliveredScore(attempt.kind, attempt.window, attempt.refined);
-    attempt.rawPos.zoneId = evaluated->targetZoneId;
-    attempt.rawPos.x = evaluated->constrainedRect.x + fine.fineRes.loc.x + fine.scaledTemplSize.width / 2.0;
-    attempt.rawPos.y = evaluated->constrainedRect.y + fine.fineRes.loc.y + fine.scaledTemplSize.height / 2.0;
-    attempt.rawPos.score = score;
-
-    auto bestValidPosition = evaluateAndAcceptResult(
-        fine.fineRes,
-        score,
-        evaluated->constrainedRect,
-        fine.scaledTemplSize,
-        *evaluated->strategy,
-        evaluated->targetZoneId);
-    if (!bestValidPosition) {
-        LogInfo << "Global Search: constrained ROI direct fine rejected." << VAR(score);
-        return attempt;
-    }
-
-    LogInfo << "Global Search: direct fine search accepted inside constrained ROI." << VAR(bestValidPosition->score);
-    attempt.result = bestValidPosition;
-    return attempt;
-}
-
-GlobalSearchComputation MapLocator::Impl::startGlobalSearch(
-    const MatchFeature& tmplFeat,
-    std::shared_ptr<const MatchStrategy> strategy,
-    const std::string& targetZoneId,
-    const SearchConstraint& constraint,
-    ScaleTaskPriority priority,
-    bool reserveTrackingCapacity)
-{
-    GlobalSearchComputation computation {
-        .strategy = std::move(strategy),
-        .targetZoneId = targetZoneId,
-    };
-    if (!computation.strategy || targetZoneId.empty()) {
-        LogInfo << "Global Search Aborted: YOLO returned no result.";
-        return computation;
-    }
-
-    if (zones.find(targetZoneId) == zones.end()) {
-        std::string msg = "Global Search Aborted: YOLO predicted '" + targetZoneId + "', but this map is NOT loaded in 'zones'.";
-        LogInfo << msg;
-        return computation;
-    }
-
-    if (!constraint.yolo_validated) {
-        LogInfo << "Global Search Aborted: no validated YOLO constraint." << VAR(targetZoneId);
-        return computation;
-    }
-
-    const cv::Mat& bigMap = zones.at(targetZoneId);
-    const cv::Rect mapBounds(0, 0, bigMap.cols, bigMap.rows);
-    MatchFeature searchFeature;
-    if (constraint.mode == GlobalSearchMode::RoiFine) {
-        // 不补边的话 infer_margin 名义上 64、实际只剩十来格，YOLO 报到相邻格时正确位置根本不在候选集里
-        const int pad = GlobalSearchRoiPad(tmplFeat.image.size());
-        const cv::Rect paddedRoi(
-            constraint.roi.x - pad,
-            constraint.roi.y - pad,
-            constraint.roi.width + pad * 2,
-            constraint.roi.height + pad * 2);
-        const cv::Rect constrainedRect = paddedRoi & mapBounds;
-        if (constrainedRect.empty()) {
-            LogInfo << "Global Search Aborted: coarse ROI is outside of map bounds.";
-            return computation;
-        }
-        computation.constrainedRect = constrainedRect;
-        searchFeature = getGlobalSearchFeature(targetZoneId, constrainedRect, bigMap(constrainedRect), *computation.strategy);
-    }
-    else {
-        computation.constrainedRect = mapBounds;
-        searchFeature = ExtractSearchFeature(*computation.strategy, bigMap(mapBounds));
-    }
-
-    PreparedSearchFeature preparedSearch = PrepareSearchFeature(searchFeature.image);
-    computation.batch = std::make_shared<GlobalSearchBatch>(
-        tmplFeat,
-        std::move(preparedSearch),
-        searchFeature.image.size(),
-        ZoneTemplateScale(targetZoneId),
-        priority,
-        PeakRefineMode::Parabola,
-        reserveTrackingCapacity);
-    computation.batch->start(*scaleExecutor);
-    return computation;
-}
-
 // 在粗扫峰位周围开一个小窗做连续求极大；相关面的格点不再是精度上限，代价只是一个小窗
-GlobalSearchComputation MapLocator::Impl::startRefineSearch(const GlobalSearchComputation& coarse, const cv::Point2d& center)
+GlobalSearchComputation start_refine_search(LocatorResources* resources, const GlobalSearchComputation& coarse, const cv::Point2d& center)
 {
-    const auto zoneIt = zones.find(coarse.targetZoneId);
-    if (zoneIt == zones.end()) {
+    const auto zoneIt = resources->zones.find(coarse.targetZoneId);
+    if (zoneIt == resources->zones.end()) {
         return {};
     }
 
@@ -1364,130 +902,201 @@ GlobalSearchComputation MapLocator::Impl::startRefineSearch(const GlobalSearchCo
         ZoneTemplateScale(coarse.targetZoneId),
         ScaleTaskPriority::GlobalPrimary,
         PeakRefineMode::Continuous);
-    refined.batch->start(*scaleExecutor);
+    refined.batch->start(*resources->executor);
     return refined;
 }
 
-YoloCoarseResult MapLocator::Impl::predictCoarse(const cv::Mat& minimap) const
+GlobalSearchAttempt finish_global_search(LocatorResources* resources, const GlobalSearchComputation& computation)
 {
-    if (!zoneClassifier || !zoneClassifier->loaded) {
-        return {};
+    GlobalSearchAttempt attempt;
+    if (!computation.batch || !computation.strategy) {
+        return attempt;
     }
-    return PredictCoarseByYolo(zoneClassifier.get(), minimap);
+
+    computation.batch->wait();
+
+    // 粗扫只负责挑位置，随后在它周围的小窗里连续求极大定坐标；精修开不起来就直接用粗扫结果
+    const GlobalSearchComputation* evaluated = &computation;
+    GlobalSearchComputation refined;
+    if (const auto center = BestRawCenter(computation)) {
+        refined = start_refine_search(resources, computation, *center);
+        if (refined.batch) {
+            refined.batch->wait();
+            if (refined.batch->hasRawResult()) {
+                evaluated = &refined;
+            }
+        }
+    }
+
+    const FineMatchResult& fine = evaluated->batch->getResult();
+    if (!fine.hasRawResult) {
+        LogInfo << "Global Search: constrained ROI direct fine failed, no coarse fallback will be used.";
+        return attempt;
+    }
+
+    attempt.kind = TemplateKindOf(*evaluated->strategy);
+    attempt.window = computation.batch->getResult().fineRes;
+    attempt.refined = fine.fineRes;
+    const double score = DeliveredScore(attempt.kind, attempt.window, attempt.refined);
+    attempt.rawPos.zoneId = evaluated->targetZoneId;
+    attempt.rawPos.x = evaluated->constrainedRect.x + fine.fineRes.loc.x + fine.scaledTemplSize.width / 2.0;
+    attempt.rawPos.y = evaluated->constrainedRect.y + fine.fineRes.loc.y + fine.scaledTemplSize.height / 2.0;
+    attempt.rawPos.score = score;
+
+    auto bestValidPosition = global_position_if_valid(
+        fine.fineRes,
+        score,
+        evaluated->constrainedRect,
+        fine.scaledTemplSize,
+        *evaluated->strategy,
+        evaluated->targetZoneId);
+    if (!bestValidPosition) {
+        LogInfo << "Global Search: constrained ROI direct fine rejected." << VAR(score);
+        return attempt;
+    }
+
+    LogInfo << "Global Search: direct fine search accepted inside constrained ROI." << VAR(bestValidPosition->score);
+    attempt.result = bestValidPosition;
+    return attempt;
 }
 
-std::optional<AsyncYoloHandle> MapLocator::Impl::refreshAsyncYoloState(const cv::Mat& minimap, TimePoint now)
+GlobalSearchComputation start_global_search(
+    LocatorResources* resources,
+    const MatchFeature& tmplFeat,
+    const std::string& targetZoneId,
+    const SearchConstraint& constraint,
+    std::shared_ptr<const MatchStrategy> strategy,
+    ScaleTaskPriority priority,
+    bool reserveTrackingCapacity)
 {
-    if (!zoneClassifier || !zoneClassifier->loaded) {
+    GlobalSearchComputation computation {
+        .strategy = std::move(strategy),
+        .targetZoneId = targetZoneId,
+    };
+    if (!computation.strategy || targetZoneId.empty()) {
+        LogInfo << "Global Search Aborted: YOLO returned no result.";
+        return computation;
+    }
+
+    if (resources->zones.find(targetZoneId) == resources->zones.end()) {
+        std::string msg = "Global Search Aborted: YOLO predicted '" + targetZoneId + "', but this map is NOT loaded in 'zones'.";
+        LogInfo << msg;
+        return computation;
+    }
+
+    if (!constraint.yolo_validated) {
+        LogInfo << "Global Search Aborted: no validated YOLO constraint." << VAR(targetZoneId);
+        return computation;
+    }
+
+    const cv::Mat& bigMap = resources->zones.at(targetZoneId);
+    const cv::Rect mapBounds(0, 0, bigMap.cols, bigMap.rows);
+    MatchFeature searchFeature;
+    if (constraint.mode == GlobalSearchMode::RoiFine) {
+        // 不补边的话 infer_margin 名义上 64、实际只剩十来格，YOLO 报到相邻格时正确位置根本不在候选集里
+        const int pad = GlobalSearchRoiPad(tmplFeat.image.size());
+        const cv::Rect paddedRoi(
+            constraint.roi.x - pad,
+            constraint.roi.y - pad,
+            constraint.roi.width + pad * 2,
+            constraint.roi.height + pad * 2);
+        const cv::Rect constrainedRect = paddedRoi & mapBounds;
+        if (constrainedRect.empty()) {
+            LogInfo << "Global Search Aborted: coarse ROI is outside of map bounds.";
+            return computation;
+        }
+        computation.constrainedRect = constrainedRect;
+        searchFeature = get_global_search_feature(resources, targetZoneId, constrainedRect, bigMap(constrainedRect), *computation.strategy);
+    }
+    else {
+        computation.constrainedRect = mapBounds;
+        searchFeature = ExtractSearchFeature(*computation.strategy, bigMap(mapBounds));
+    }
+
+    PreparedSearchFeature preparedSearch = PrepareSearchFeature(searchFeature.image);
+    computation.batch = std::make_shared<GlobalSearchBatch>(
+        tmplFeat,
+        std::move(preparedSearch),
+        searchFeature.image.size(),
+        ZoneTemplateScale(targetZoneId),
+        priority,
+        PeakRefineMode::Parabola,
+        reserveTrackingCapacity);
+    computation.batch->start(*resources->executor);
+    return computation;
+}
+
+YoloCoarseResult predict_coarse(YoloModel* yolo, const cv::Mat& minimap)
+{
+    if (!yolo || !yolo->loaded) {
+        return {};
+    }
+    return PredictCoarseByYolo(yolo, minimap);
+}
+
+// 后台 YOLO 说小地图没了或换区了，就丢掉跟踪
+void apply_zone_guard(MapLocator* locator, const YoloCoarseResult& predicted)
+{
+    if (predicted.valid && predicted.is_none) {
+        LogInfo << "Async YOLO sees no minimap; dropping tracking.";
+        ForceTrackLost(&locator->track);
+        locator->stable_position.reset();
+    }
+    else if (predicted.valid && !predicted.zone_id.empty() && !locator->zone_id.empty() && predicted.zone_id != locator->zone_id) {
+        LogInfo << "Async YOLO detected zone change: " << locator->zone_id << " -> " << predicted.zone_id;
+        ForceTrackLost(&locator->track);
+        locator->stable_position.reset();
+    }
+}
+
+// 上一次后台 YOLO 出了结果就先应用它的换区判断，到了间隔再发起新的一次，返回本帧发起的那一次
+std::optional<AsyncYoloHandle> apply_and_relaunch_periodic_yolo(MapLocator* locator, const cv::Mat& minimap, TimePoint now)
+{
+    YoloModel* yolo = locator->resources.yolo.get();
+    if (!yolo || !yolo->loaded) {
         return std::nullopt;
     }
 
-    std::unique_lock<std::mutex> lock(taskMutex, std::try_to_lock);
+    PeriodicYolo& periodic = locator->periodic_yolo;
+    std::unique_lock<std::mutex> lock(periodic.mutex, std::try_to_lock);
     if (!lock.owns_lock()) {
         return std::nullopt;
     }
 
-    if (asyncYoloState.has_value() && asyncYoloState->future.valid()) {
-        const bool isReady = asyncYoloState->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-        if (isReady && !asyncYoloState->zoneGuardApplied) {
-            const YoloCoarseResult predicted = asyncYoloState->future.get();
-            if (predicted.valid && predicted.is_none) {
-                LogInfo << "Async YOLO sees no minimap; dropping tracking.";
-                ForceTrackLost(motionTracker.get());
-                stablePosition.reset();
-            }
-            else if (predicted.valid && !predicted.zone_id.empty() && !currentZoneId.empty() && predicted.zone_id != currentZoneId) {
-                LogInfo << "Async YOLO detected zone change: " << currentZoneId << " -> " << predicted.zone_id;
-                ForceTrackLost(motionTracker.get());
-                stablePosition.reset();
-            }
-            asyncYoloState->zoneGuardApplied = true;
+    if (periodic.pending.has_value() && periodic.pending->future.valid()) {
+        const bool isReady = periodic.pending->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+        if (isReady && !periodic.pending->zoneGuardApplied) {
+            const YoloCoarseResult predicted = periodic.pending->future.get();
+            apply_zone_guard(locator, predicted);
+            periodic.pending->zoneGuardApplied = true;
         }
 
-        if (asyncYoloState->frameId == activeFrameId) {
-            return AsyncYoloHandle { .frameId = asyncYoloState->frameId, .future = asyncYoloState->future };
+        if (periodic.pending->frameId == locator->active_frame_id) {
+            return AsyncYoloHandle { .frameId = periodic.pending->frameId, .future = periodic.pending->future };
         }
         if (!isReady) {
             return std::nullopt;
         }
     }
 
-    const auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - lastYoloCheckTime).count();
+    const auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - periodic.last_check).count();
     if (elapsed < 3) {
         return std::nullopt;
     }
 
     // 限制频次：YOLO CPU 推理存在开销，区域大范围切换并非瞬发，降低频率足以应对漂移容错并显著降低资源负担
-    lastYoloCheckTime = now;
+    periodic.last_check = now;
     cv::Mat yoloInput = minimap.clone();
-    auto future =
-        std::async(std::launch::async, [this, yoloInput]() { return PredictCoarseByYolo(zoneClassifier.get(), yoloInput); }).share();
-    asyncYoloState = AsyncYoloState { .frameId = activeFrameId, .future = future };
-    return AsyncYoloHandle { .frameId = activeFrameId, .future = std::move(future) };
+    auto future = std::async(std::launch::async, [yolo, yoloInput]() { return PredictCoarseByYolo(yolo, yoloInput); }).share();
+    periodic.pending = AsyncYoloState { .frameId = locator->active_frame_id, .future = future };
+    return AsyncYoloHandle { .frameId = locator->active_frame_id, .future = std::move(future) };
 }
 
-std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
-    const cv::Mat& minimap,
-    const LocateOptions& options,
-    const std::string& expectedZoneId,
-    TimePoint now,
-    FrameTemplateFeatureCache& featureCache,
-    std::optional<AsyncYoloHandle>* sameFrameYolo,
-    bool yoloRefreshAlreadyPerformed,
-    const std::function<void()>& slowPathSignal)
-{
-    if (options.force_global_search) {
-        return std::nullopt;
-    }
-    if (!motionTracker) {
-        return std::nullopt;
-    }
-
-    if (!yoloRefreshAlreadyPerformed) {
-        const std::optional<AsyncYoloHandle> refreshedYolo = refreshAsyncYoloState(minimap, now);
-        if (sameFrameYolo && !sameFrameYolo->has_value() && refreshedYolo.has_value()) {
-            *sameFrameYolo = refreshedYolo;
-        }
-    }
-
-    if (currentZoneId.empty()) {
-        return std::nullopt;
-    }
-    if (!expectedZoneId.empty() && currentZoneId != expectedZoneId) {
-        return std::nullopt;
-    }
-
-    const MatchStrategy strategy = MakeMatchStrategy(currentZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg);
-
-    bool holdPending = false;
-    const MatchFeature& trackingTmpl = featureCache.get(minimap, strategy);
-    auto trackingResult = tryTracking(trackingTmpl, strategy, now, options, slowPathSignal, &holdPending);
-
-    if (trackingResult) {
-        return LocateResult {
-            .status = LocateStatus::Success,
-            .position = trackingResult,
-            .debugMessage = "Tracking Success",
-        };
-    }
-
-    if (!holdPending) {
-        return std::nullopt;
-    }
-    // 精确取位只要本帧实测：这帧直接判没认出，不交旧坐标，也不落到后面的全局搜索去改写跟踪状态。
-    if (options.precise_position) {
-        return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Tracking Hold" };
-    }
-
-    // 交付 tracker 里保留的上一帧坐标。丢失已在 tryTracking 里记账。
-    return LocateResult { .status = LocateStatus::Success, .position = motionTracker->last_known_pos, .debugMessage = "Tracking Hold" };
-}
-
-SearchConstraint MapLocator::Impl::buildSearchConstraint(
+SearchConstraint build_search_constraint(
+    const LocatorResources& resources,
     const std::string& expectedZoneSelector,
     const std::string& targetZoneId,
-    const YoloCoarseResult& coarse,
-    bool emitLog) const
+    const YoloCoarseResult& coarse)
 {
     SearchConstraint constraint;
     if (!coarse.valid) {
@@ -1502,24 +1111,16 @@ SearchConstraint MapLocator::Impl::buildSearchConstraint(
     const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
     if (isPathHeatmapZone) {
         constraint.mode = GlobalSearchMode::FullMapFine;
-        if (emitLog) {
-            LogInfo << "YOLO validated path-heatmap zone; using full-map direct fine search." << VAR(expectedZoneSelector)
-                    << VAR(coarse.raw_class) << VAR(targetZoneId);
-        }
         return constraint;
     }
 
     if (!coarse.has_roi) {
         constraint.mode = GlobalSearchMode::FullMapFine;
-        if (emitLog) {
-            LogInfo << "YOLO validated zone without ROI mapping; using full-map direct fine search." << VAR(expectedZoneSelector)
-                    << VAR(coarse.raw_class) << VAR(targetZoneId);
-        }
         return constraint;
     }
 
-    const auto zoneIt = zones.find(targetZoneId);
-    if (zoneIt == zones.end()) {
+    const auto zoneIt = resources.zones.find(targetZoneId);
+    if (zoneIt == resources.zones.end()) {
         return constraint;
     }
 
@@ -1537,23 +1138,42 @@ SearchConstraint MapLocator::Impl::buildSearchConstraint(
 
     constraint.mode = GlobalSearchMode::RoiFine;
     constraint.roi = constrainedRoi;
-    if (emitLog) {
-        LogInfo << "YOLO constrained global search to ROI" << VAR(expectedZoneSelector) << VAR(coarse.raw_class) << VAR(targetZoneId)
-                << VAR(constraint.roi.x) << VAR(constraint.roi.y) << VAR(constraint.roi.width) << VAR(constraint.roi.height);
-    }
     return constraint;
 }
 
-GlobalSearchCandidates MapLocator::Impl::startGlobalSearchCandidates(
+void log_search_constraint(
+    const SearchConstraint& constraint,
+    const std::string& expectedZoneSelector,
+    const std::string& targetZoneId,
+    const YoloCoarseResult& coarse)
+{
+    if (!constraint.yolo_validated) {
+        return;
+    }
+    if (IsPathHeatmapZone(targetZoneId)) {
+        LogInfo << "YOLO validated path-heatmap zone; using full-map direct fine search." << VAR(expectedZoneSelector)
+                << VAR(coarse.raw_class) << VAR(targetZoneId);
+        return;
+    }
+    if (!coarse.has_roi) {
+        LogInfo << "YOLO validated zone without ROI mapping; using full-map direct fine search." << VAR(expectedZoneSelector)
+                << VAR(coarse.raw_class) << VAR(targetZoneId);
+        return;
+    }
+    if (constraint.mode == GlobalSearchMode::RoiFine) {
+        LogInfo << "YOLO constrained global search to ROI" << VAR(expectedZoneSelector) << VAR(coarse.raw_class) << VAR(targetZoneId)
+                << VAR(constraint.roi.x) << VAR(constraint.roi.y) << VAR(constraint.roi.width) << VAR(constraint.roi.height);
+    }
+}
+
+GlobalSearchCandidates start_global_search_candidates(
+    LocatorResources* resources,
     const cv::Mat& minimap,
     const std::string& targetZoneId,
     const SearchConstraint& constraint,
+    const StrategyConfigs& configs,
     FrameTemplateFeatureCache featureCache,
     std::uint64_t searchFrameId,
-    const TrackingConfig& trackingConfig,
-    const MatchConfig& matchConfig,
-    const ImageProcessingConfig& baseImageConfig,
-    const ImageProcessingConfig& tierImageConfig,
     bool reserveTrackingCapacity)
 {
     GlobalSearchCandidates candidates {
@@ -1561,243 +1181,431 @@ GlobalSearchCandidates MapLocator::Impl::startGlobalSearchCandidates(
         .targetZoneId = targetZoneId,
         .constraint = constraint,
     };
-    std::shared_ptr<const MatchStrategy> strategy = std::make_shared<const MatchStrategy>(
-        MakeMatchStrategy(targetZoneId, trackingConfig, matchConfig, baseImageConfig, tierImageConfig));
+    std::shared_ptr<const MatchStrategy> strategy = std::make_shared<const MatchStrategy>(make_strategy(targetZoneId, configs));
 
     const MatchFeature& globalTmpl = featureCache.get(minimap, *strategy);
-    candidates.primary = startGlobalSearch(
+    candidates.primary = start_global_search(
+        resources,
         globalTmpl,
-        std::move(strategy),
         targetZoneId,
         constraint,
+        std::move(strategy),
         ScaleTaskPriority::GlobalPrimary,
         reserveTrackingCapacity);
     return candidates;
 }
 
-GlobalSearchAttempt MapLocator::Impl::finishGlobalSearchCandidates(GlobalSearchCandidates candidates)
+GlobalSearchAttempt finish_global_search_candidates(LocatorResources* resources, GlobalSearchCandidates candidates)
 {
     // Speculative global work stays deliberately narrow while Tracking may still
     // win the frame. Once the original control flow reaches Global, let the
     // batch use the full executor because there is no foreground Tracking work
     // left to protect.
     if (candidates.primary.batch) {
-        candidates.primary.batch->releaseTrackingCapacity(*scaleExecutor);
+        candidates.primary.batch->releaseTrackingCapacity(*resources->executor);
     }
 
-    return finishGlobalSearch(candidates.primary);
+    return finish_global_search(resources, candidates.primary);
 }
 
-GlobalSearchAttempt MapLocator::Impl::tryGlobalSearch(
+GlobalSearchAttempt try_global_search(
+    MapLocator* locator,
     const cv::Mat& minimap,
     const std::string& targetZoneId,
     const SearchConstraint& constraint,
-    FrameTemplateFeatureCache& featureCache)
+    FrameTemplateFeatureCache featureCache)
 {
-    GlobalSearchCandidates candidates = startGlobalSearchCandidates(
+    GlobalSearchCandidates candidates = start_global_search_candidates(
+        &locator->resources,
         minimap,
         targetZoneId,
         constraint,
-        featureCache,
-        activeFrameId,
-        trackingCfg,
-        matchCfg,
-        baseImgCfg,
-        tierImgCfg,
+        current_strategy_configs(*locator),
+        std::move(featureCache),
+        locator->active_frame_id,
         false);
-    return finishGlobalSearchCandidates(std::move(candidates));
+    return finish_global_search_candidates(&locator->resources, std::move(candidates));
 }
 
-LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOptions& options, const std::shared_future<double>& angle_future)
+// 一帧里各步骤共用的输入和中间结果
+struct FrameContext
 {
-    const auto now = std::chrono::steady_clock::now();
-    activeFrameId = ++frameId;
+    cv::Mat minimap;
+    LocateOptions options;
+    TimePoint now {};
+    std::string expected_zone_selector;
+    std::string expected_zone_id;
+    FrameTemplateFeatureCache feature_cache;
+    std::optional<AsyncYoloHandle> same_frame_yolo;
+    std::shared_ptr<FrameSearchCoordinator> coordinator;
+};
 
-    if (!isInitialized) {
-        return LocateResult { .status = LocateStatus::NotInitialized, .debugMessage = "MapLocator not initialized." };
+void apply_frame_thresholds(MapLocator* locator, const LocateOptions& options)
+{
+    locator->match_config.passThreshold = options.loc_threshold;
+    locator->match_config.yoloConfThreshold = options.yolo_threshold;
+    if (locator->resources.yolo) {
+        locator->resources.yolo->conf_threshold = options.yolo_threshold;
     }
+}
 
-    matchCfg.passThreshold = options.loc_threshold;
-    matchCfg.yoloConfThreshold = options.yolo_threshold;
-    if (zoneClassifier) {
-        zoneClassifier->conf_threshold = options.yolo_threshold;
-    }
-
-    // camRot 由参考配对模型同步推理；它需要 (x, y, zone)，定位失败帧没有参考可采。
-    auto attachCamRot = [&](LocateResult&& result) -> LocateResult {
-        if (!orientationPredictor || !OrientationModelLoaded(*orientationPredictor) || !result.position.has_value()) {
-            return result;
-        }
-        const std::string& zoneId = result.position->zoneId;
-        if (zoneId == "None") {
-            // None 是遮挡占位，没有对应的底图资产。
-            return result;
-        }
-        const auto zoneIt = zones.find(zoneId);
-        const cv::Mat referenceAsset = zoneIt != zones.end() ? zoneIt->second : cv::Mat();
-        result.camRot = PredictCameraOrientation(
-            orientationPredictor.get(),
-            minimap,
-            referenceAsset,
-            result.position->x,
-            result.position->y,
-            ZoneTemplateScale(zoneId),
-            zoneId,
-            options.camera_heading_prior);
-        return result;
-    };
-    // 箭头不可见时，小地图可能被横幅遮挡；在匹配及更新追踪状态前拒帧。
-    // 超时放行以免长期遮挡处卡死；镜头朝向导航由调用方显式跳过此拦截。
+// 箭头不可见时，小地图可能被横幅遮挡；在匹配及更新追踪状态前拒帧。
+// 超时放行以免长期遮挡处卡死；镜头朝向导航由调用方显式跳过此拦截。
+std::optional<LocateResult>
+    gate_occluded_frame(OcclusionGate* gate, const LocateOptions& options, const std::shared_future<double>& angle_future, TimePoint now)
+{
     if (options.reject_occluded_frames && angle_future.get() < 0.0) {
-        if (occluded_since_ == TimePoint {}) {
-            occluded_since_ = now;
-            occlusion_timed_out_ = false;
+        if (gate->since == TimePoint {}) {
+            gate->since = now;
+            gate->timed_out = false;
             LogWarn << "Minimap occluded: character arrow not visible; holding until it clears.";
         }
-        if (now - occluded_since_ < std::chrono::milliseconds(kOcclusionRejectTimeoutMs)) {
+        if (now - gate->since < std::chrono::milliseconds(kOcclusionRejectTimeoutMs)) {
             return LocateResult { .status = LocateStatus::ScreenBlocked, .debugMessage = "Minimap occluded: arrow not visible." };
         }
-        if (!occlusion_timed_out_) {
-            occlusion_timed_out_ = true;
+        if (!gate->timed_out) {
+            gate->timed_out = true;
             LogWarn << "Minimap occlusion outlasted the reject timeout; locating on occluded frames again.";
         }
+        return std::nullopt;
+    }
+    gate->since = {};
+    gate->timed_out = false;
+    return std::nullopt;
+}
+
+// camRot 由参考配对模型同步推理；它需要 (x, y, zone)，定位失败帧没有参考可采。
+LocateResult attach_cam_rot(LocatorResources* resources, const FrameContext& frame, LocateResult result)
+{
+    if (!resources->orientation || !OrientationModelLoaded(*resources->orientation) || !result.position.has_value()) {
+        return result;
+    }
+    const std::string& zoneId = result.position->zoneId;
+    if (zoneId == "None") {
+        // None 是遮挡占位，没有对应的底图资产。
+        return result;
+    }
+    const auto zoneIt = resources->zones.find(zoneId);
+    const cv::Mat referenceAsset = zoneIt != resources->zones.end() ? zoneIt->second : cv::Mat();
+    result.camRot = PredictCameraOrientation(
+        resources->orientation.get(),
+        frame.minimap,
+        referenceAsset,
+        result.position->x,
+        result.position->y,
+        ZoneTemplateScale(zoneId),
+        zoneId,
+        frame.options.camera_heading_prior);
+    return result;
+}
+
+bool can_start_frame_search(const MapLocator& locator, const FrameContext& frame)
+{
+    return !frame.coordinator && locator.resources.executor->workerCount() >= 6;
+}
+
+// 强制全局、跟踪已丢或不在期望区域时，全局搜索可以和跟踪尝试并行先起
+bool should_search_before_tracking(const MapLocator& locator, const FrameContext& frame)
+{
+    const int trackingLostLimit = IsPathHeatmapZone(locator.zone_id) ? 10 : frame.options.max_lost_frames;
+    const bool trackerUnavailable = locator.zone_id.empty() || !IsTracking(locator.track, trackingLostLimit);
+    const bool expectedZoneMismatch = !frame.expected_zone_id.empty() && locator.zone_id != frame.expected_zone_id;
+    return frame.options.force_global_search || trackerUnavailable || expectedZoneMismatch;
+}
+
+// 在后台推测性地起这一帧的全局搜索，跟踪赢下这一帧时会被取消
+void start_frame_search(MapLocator* locator, FrameContext* frame, bool reserveTrackingCapacity)
+{
+    const std::uint64_t searchFrameId = locator->active_frame_id;
+    cv::Mat frameMinimap = frame->minimap.clone();
+    FrameSearchCoordinator::CoarseFunction predictForFrame;
+    if (frame->same_frame_yolo.has_value() && frame->same_frame_yolo->frameId == searchFrameId && frame->same_frame_yolo->future.valid()) {
+        const std::shared_future<YoloCoarseResult> future = frame->same_frame_yolo->future;
+        predictForFrame = [future]() {
+            return future.get();
+        };
     }
     else {
-        occluded_since_ = {};
-        occlusion_timed_out_ = false;
-    }
-
-    FrameTemplateFeatureCache featureCache;
-    std::optional<AsyncYoloHandle> sameFrameYolo;
-    const std::string expectedZoneSelector = options.expected_zone_id;
-    const std::string expectedZoneId = NormalizeExpectedZoneId(expectedZoneSelector, zoneClassifier.get());
-    std::shared_ptr<FrameSearchCoordinator> frameSearchCoordinator;
-    FrameSearchCancelGuard frameSearchCancelGuard(&frameSearchCoordinator);
-    bool periodicYoloRefreshPerformed = false;
-    auto ensureFrameSearch = [&](bool allowPeriodicRefresh, bool reserveTrackingCapacity) {
-        if (frameSearchCoordinator || !scaleExecutor || scaleExecutor->workerCount() < 6) {
-            return;
-        }
-
-        if ((!sameFrameYolo.has_value() || sameFrameYolo->frameId != activeFrameId) && allowPeriodicRefresh) {
-            sameFrameYolo = refreshAsyncYoloState(minimap, now);
-            periodicYoloRefreshPerformed = true;
-        }
-
-        const std::uint64_t searchFrameId = activeFrameId;
-        cv::Mat frameMinimap = minimap.clone();
-        FrameSearchCoordinator::CoarseFunction predictForFrame;
-        if (sameFrameYolo.has_value() && sameFrameYolo->frameId == searchFrameId && sameFrameYolo->future.valid()) {
-            const std::shared_future<YoloCoarseResult> future = sameFrameYolo->future;
-            predictForFrame = [future]() {
-                return future.get();
-            };
-        }
-        else {
-            cv::Mat yoloInput = frameMinimap;
-            predictForFrame = [this, yoloInput = std::move(yoloInput)]() {
-                return predictCoarse(yoloInput);
-            };
-        }
-        FrameTemplateFeatureCache frameFeatureCache = featureCache;
-        const TrackingConfig trackingConfig = trackingCfg;
-        const MatchConfig matchConfig = matchCfg;
-        const ImageProcessingConfig baseImageConfig = baseImgCfg;
-        const ImageProcessingConfig tierImageConfig = tierImgCfg;
-        auto compute = [this,
-                        frameMinimap = std::move(frameMinimap),
-                        frameFeatureCache = std::move(frameFeatureCache),
-                        expectedZoneSelector,
-                        expectedZoneId,
-                        searchFrameId,
-                        trackingConfig,
-                        matchConfig,
-                        baseImageConfig,
-                        tierImageConfig,
-                        reserveTrackingCapacity](const YoloCoarseResult& coarse) mutable -> std::optional<GlobalSearchCandidates> {
-            if (coarse.valid && coarse.is_none) {
-                return std::nullopt;
-            }
-
-            std::string targetZoneId = expectedZoneId;
-            if (targetZoneId.empty() && coarse.valid) {
-                targetZoneId = coarse.zone_id;
-            }
-            if (targetZoneId.empty() || targetZoneId == "None") {
-                return std::nullopt;
-            }
-
-            const SearchConstraint constraint = buildSearchConstraint(expectedZoneSelector, targetZoneId, coarse, false);
-            if (coarse.valid && !coarse.is_none && !constraint.yolo_validated) {
-                return std::nullopt;
-            }
-            const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
-            if (coarse.valid && !coarse.is_none && coarse.has_roi && !isPathHeatmapZone && constraint.mode != GlobalSearchMode::RoiFine) {
-                return std::nullopt;
-            }
-
-            return startGlobalSearchCandidates(
-                frameMinimap,
-                targetZoneId,
-                constraint,
-                frameFeatureCache,
-                searchFrameId,
-                trackingConfig,
-                matchConfig,
-                baseImageConfig,
-                tierImageConfig,
-                reserveTrackingCapacity);
+        cv::Mat yoloInput = frameMinimap;
+        predictForFrame = [yolo = locator->resources.yolo.get(), yoloInput = std::move(yoloInput)]() {
+            return predict_coarse(yolo, yoloInput);
         };
+    }
+    FrameTemplateFeatureCache frameFeatureCache = frame->feature_cache;
+    const StrategyConfigs configs = current_strategy_configs(*locator);
+    auto compute = [resources = &locator->resources,
+                    frameMinimap = std::move(frameMinimap),
+                    frameFeatureCache = std::move(frameFeatureCache),
+                    expectedZoneSelector = frame->expected_zone_selector,
+                    expectedZoneId = frame->expected_zone_id,
+                    searchFrameId,
+                    configs,
+                    reserveTrackingCapacity](const YoloCoarseResult& coarse) mutable -> std::optional<GlobalSearchCandidates> {
+        if (coarse.valid && coarse.is_none) {
+            return std::nullopt;
+        }
 
-        frameSearchCoordinator = std::make_shared<FrameSearchCoordinator>(std::move(predictForFrame), *scaleExecutor, std::move(compute));
-        frameSearchCoordinator->start();
+        std::string targetZoneId = expectedZoneId;
+        if (targetZoneId.empty() && coarse.valid) {
+            targetZoneId = coarse.zone_id;
+        }
+        if (targetZoneId.empty() || targetZoneId == "None") {
+            return std::nullopt;
+        }
+
+        const SearchConstraint constraint = build_search_constraint(*resources, expectedZoneSelector, targetZoneId, coarse);
+        if (coarse.valid && !coarse.is_none && !constraint.yolo_validated) {
+            return std::nullopt;
+        }
+        const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
+        if (coarse.valid && !coarse.is_none && coarse.has_roi && !isPathHeatmapZone && constraint.mode != GlobalSearchMode::RoiFine) {
+            return std::nullopt;
+        }
+
+        return start_global_search_candidates(
+            resources,
+            frameMinimap,
+            targetZoneId,
+            constraint,
+            configs,
+            frameFeatureCache,
+            searchFrameId,
+            reserveTrackingCapacity);
     };
 
-    const int trackingLostLimit = IsPathHeatmapZone(currentZoneId) ? 10 : options.max_lost_frames;
-    const bool trackerUnavailable = !motionTracker || currentZoneId.empty() || !IsTracking(*motionTracker, trackingLostLimit);
-    const bool expectedZoneMismatch = !expectedZoneId.empty() && currentZoneId != expectedZoneId;
-    if (options.force_global_search || trackerUnavailable || expectedZoneMismatch) {
-        ensureFrameSearch(!options.force_global_search && motionTracker != nullptr, false);
+    frame->coordinator =
+        std::make_shared<FrameSearchCoordinator>(std::move(predictForFrame), *locator->resources.executor, std::move(compute));
+    frame->coordinator->start();
+}
+
+struct TrackingLocate
+{
+    std::optional<LocateResult> result;
+    bool wants_global_search = false;
+};
+
+TrackingLocate try_tracking_locate(MapLocator* locator, FrameContext* frame)
+{
+    TrackingLocate out;
+    if (frame->options.force_global_search) {
+        return out;
+    }
+    if (locator->zone_id.empty()) {
+        return out;
+    }
+    if (!frame->expected_zone_id.empty() && locator->zone_id != frame->expected_zone_id) {
+        return out;
     }
 
-    auto slowPathSignal = [&]() {
-        ensureFrameSearch(false, true);
-    };
-    if (auto trackingResult = tryTrackingLocate(
-            minimap,
-            options,
-            expectedZoneId,
-            now,
-            featureCache,
-            &sameFrameYolo,
-            periodicYoloRefreshPerformed,
-            slowPathSignal)) {
-        if (trackingResult->position.has_value()) {
-            trackingResult->position->angle = angle_future.get();
-        }
-        return attachCamRot(std::move(*trackingResult));
+    const MatchStrategy strategy = make_strategy(locator->zone_id, current_strategy_configs(*locator));
+
+    const MatchFeature& trackingTmpl = frame->feature_cache.get(frame->minimap, strategy);
+    const TrackingOutcome tracked = track_frame(locator, trackingTmpl, strategy, frame->options, frame->now);
+    out.wants_global_search = tracked.wants_global_search;
+
+    if (tracked.position) {
+        out.result = LocateResult {
+            .status = LocateStatus::Success,
+            .position = tracked.position,
+            .debugMessage = "Tracking Success",
+        };
+        return out;
     }
 
-    auto predictCurrentFrameCoarse = [&]() {
-        if (frameSearchCoordinator) {
-            return frameSearchCoordinator->getCoarse();
-        }
-        if (sameFrameYolo.has_value() && sameFrameYolo->frameId == activeFrameId && sameFrameYolo->future.valid()) {
-            return sameFrameYolo->future.get();
-        }
-        return predictCoarse(minimap);
+    if (!tracked.hold_pending) {
+        return out;
+    }
+    // 精确取位只要本帧实测：这帧直接判没认出，不交旧坐标，也不落到后面的全局搜索去改写跟踪状态。
+    if (frame->options.precise_position) {
+        out.result = LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Tracking Hold" };
+        return out;
+    }
+
+    // 交付 tracker 里保留的上一帧坐标。丢失已在 track_frame 里记账。
+    out.result =
+        LocateResult { .status = LocateStatus::Success, .position = locator->track.last_known_pos, .debugMessage = "Tracking Hold" };
+    return out;
+}
+
+YoloCoarseResult frame_coarse(MapLocator* locator, const FrameContext& frame)
+{
+    if (frame.coordinator) {
+        return frame.coordinator->getCoarse();
+    }
+    if (frame.same_frame_yolo.has_value() && frame.same_frame_yolo->frameId == locator->active_frame_id
+        && frame.same_frame_yolo->future.valid()) {
+        return frame.same_frame_yolo->future.get();
+    }
+    return predict_coarse(locator->resources.yolo.get(), frame.minimap);
+}
+
+// YOLO 认定画面里没有小地图：停跟，免得下一帧跟踪在遮挡画面上挑个近处的假峰接着跟
+LocateResult drop_tracking_for_absent_minimap(MapLocator* locator)
+{
+    ForceTrackLost(&locator->track);
+    locator->stable_position.reset();
+    return LocateResult {
+        .status = LocateStatus::TrackingLost,
+        .debugMessage = kColdStartCollectingMessage,
+        .minimap_absent = true,
     };
-    std::string targetZoneId = expectedZoneId;
-    const YoloCoarseResult coarse = predictCurrentFrameCoarse();
+}
+
+LocateResult hold_for_ui_occlusion(MapLocator* locator, TimePoint now)
+{
+    LogInfo << "YOLO explicitly identified 'None', assuming UI occlusion.";
+
+    if (locator->track.last_known_pos) {
+        HoldTrack(&locator->track, *locator->track.last_known_pos, now);
+    }
+
+    MapPosition nonePos;
+    nonePos.zoneId = "None";
+    nonePos.x = 0;
+    nonePos.y = 0;
+    nonePos.score = 1.0;
+    return LocateResult { .status = LocateStatus::Success, .position = nonePos, .debugMessage = "Occluded by UI (None)" };
+}
+
+// 调用方给了先验位置时，在每个先验附近再搜一小窗，跟 YOLO 格窗比原始峰分，高者胜出。
+// YOLO 报到相邻格时正确位置根本不在它的窗里，窗内最优再高也是错的，分数门看不出来。
+// 只在 YOLO 验过区域的帧上搜：区域都没认出来的帧上，小窗撞出的峰没有对照。
+GlobalSearchAttempt search_hint_windows(
+    MapLocator* locator,
+    FrameContext* frame,
+    const std::string& targetZoneId,
+    const SearchConstraint& constraint,
+    GlobalSearchAttempt global)
+{
+    if (!constraint.yolo_validated) {
+        return global;
+    }
+    for (const SearchHint& hint : frame->options.search_hints) {
+        const int radius = static_cast<int>(std::lround(hint.radius));
+        if (hint.zone_id != targetZoneId || radius <= 0) {
+            continue;
+        }
+        SearchConstraint hintConstraint;
+        hintConstraint.mode = GlobalSearchMode::RoiFine;
+        hintConstraint.yolo_validated = true;
+        hintConstraint.roi = cv::Rect(
+            static_cast<int>(std::lround(hint.x)) - radius,
+            static_cast<int>(std::lround(hint.y)) - radius,
+            radius * 2 + 1,
+            radius * 2 + 1);
+        GlobalSearchAttempt hintAttempt = try_global_search(locator, frame->minimap, targetZoneId, hintConstraint, frame->feature_cache);
+        LogInfo << "Global Search: hint window." << VAR(hint.x) << VAR(hint.y) << VAR(hint.radius) << VAR(hintAttempt.rawPos.x)
+                << VAR(hintAttempt.rawPos.y) << VAR(hintAttempt.refined.score) << VAR(global.rawPos.x) << VAR(global.rawPos.y)
+                << VAR(global.refined.score);
+        global = MergeHintAttempt(global, hintAttempt, locator->match_config.passThreshold);
+    }
+    return global;
+}
+
+GlobalSearchAttempt
+    search_frame_globally(MapLocator* locator, FrameContext* frame, const std::string& targetZoneId, const SearchConstraint& constraint)
+{
+    GlobalSearchAttempt global;
+    bool prefetchedCandidatesConsumed = false;
+    if (frame->coordinator) {
+        auto prefetchedCandidates = frame->coordinator->takeCandidates(locator->active_frame_id, targetZoneId, constraint);
+        if (prefetchedCandidates.has_value()) {
+            prefetchedCandidatesConsumed = true;
+            global = finish_global_search_candidates(&locator->resources, std::move(*prefetchedCandidates));
+        }
+    }
+    if (!prefetchedCandidatesConsumed) {
+        global = try_global_search(locator, frame->minimap, targetZoneId, constraint, frame->feature_cache);
+    }
+    return search_hint_windows(locator, frame, targetZoneId, constraint, std::move(global));
+}
+
+LocateResult fail_global_search(MapLocator* locator, int maxAllowedLost)
+{
+    MarkTrackLost(&locator->track, 1);
+    if (locator->track.lost_count > maxAllowedLost) {
+        ForceTrackLost(&locator->track);
+        locator->stable_position.reset();
+    }
+    return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Global search failed." };
+}
+
+LocateResult reject_far_jump(MapLocator* locator, int maxAllowedLost)
+{
+    MarkTrackLost(&locator->track, 1);
+    if (locator->track.lost_count > maxAllowedLost) {
+        ForceTrackLost(&locator->track);
+        locator->cold_start.clear();
+        locator->stable_position.reset();
+    }
+    return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Far-jump rejected." };
+}
+
+// 换区或高置信远跳后重新播种
+void reseed_tracking(MapLocator* locator)
+{
+    locator->stable_position.reset();
+    ClearTrackVelocity(&locator->track);
+    // 先 MarkTrackLost 让 UpdateTrack 跳过速度 EMA，重播种的跳变不计入速度
+    MarkTrackLost(&locator->track, 1);
+}
+
+LocateResult accept_global_result(
+    MapLocator* locator,
+    const FrameContext& frame,
+    const std::shared_future<double>& angle_future,
+    MapPosition globalResult,
+    int maxAllowedLost)
+{
+    const auto lastPosOpt = locator->track.last_known_pos;
+    const bool zoneChanged = locator->zone_id != globalResult.zoneId;
+    const bool hasLast = lastPosOpt.has_value() && !zoneChanged;
+    const double jumpDist = hasLast ? std::hypot(globalResult.x - lastPosOpt->x, globalResult.y - lastPosOpt->y) : 0.0;
+    const bool farJump = hasLast && jumpDist > kFarJumpRejectDistance;
+    const bool highConf = globalResult.score >= ZoneScoreLines(globalResult.zoneId).highConfidence;
+
+    if (farJump && !highConf) {
+        LogInfo << "Global Search: far-jump rejected." << VAR(jumpDist) << VAR(globalResult.score);
+        return reject_far_jump(locator, maxAllowedLost);
+    }
+
+    if (!hasLast && !highConf) {
+        if (locator->cold_start.size() >= static_cast<size_t>(kColdStartConsensusFrames)) {
+            locator->cold_start.erase(locator->cold_start.begin());
+        }
+        locator->cold_start.push_back(globalResult);
+        if (!IsTightCluster(locator->cold_start, kPositionConsensusRadius)) {
+            LogInfo << "Cold-start: collecting." << VAR(locator->cold_start.size()) << VAR(globalResult.x) << VAR(globalResult.y)
+                    << VAR(globalResult.score);
+            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = kColdStartCollectingMessage };
+        }
+        LogInfo << "Cold-start: consensus." << VAR(globalResult.x) << VAR(globalResult.y) << VAR(globalResult.score);
+    }
+    locator->cold_start.clear();
+
+    if (farJump || zoneChanged) {
+        reseed_tracking(locator);
+        if (farJump) {
+            LogInfo << "Global Search: high-conf reseed." << VAR(jumpDist) << VAR(globalResult.score);
+        }
+    }
+
+    locator->zone_id = globalResult.zoneId;
+    globalResult.angle = angle_future.get();
+    MapPosition accepted = accept_position(locator, globalResult, frame.options, frame.now);
+    return attach_cam_rot(
+        &locator->resources,
+        frame,
+        LocateResult { .status = LocateStatus::Success, .position = accepted, .debugMessage = "Global Search Success" });
+}
+
+// 跟踪没给出结果时：按 YOLO 定区域、校验约束，再全局搜索并决定是否采用
+LocateResult locate_globally(MapLocator* locator, FrameContext* frame, const std::shared_future<double>& angle_future)
+{
+    std::string targetZoneId = frame->expected_zone_id;
+    const YoloCoarseResult coarse = frame_coarse(locator, *frame);
     if (coarse.valid && coarse.is_none) {
-        // 不停跟的话下一帧跟踪会在遮挡画面上挑个近处的假峰接着跟
-        ForceTrackLost(motionTracker.get());
-        stablePosition.reset();
-        return LocateResult {
-            .status = LocateStatus::TrackingLost,
-            .debugMessage = kColdStartCollectingMessage,
-            .minimap_absent = true,
-        };
+        return drop_tracking_for_absent_minimap(locator);
     }
 
     if (targetZoneId.empty() && coarse.valid) {
@@ -1806,26 +1614,16 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
     if (targetZoneId.empty()) {
         const std::string debugMessage =
-            expectedZoneId.empty() ? "YOLO inference failed or no result." : "Expected zone is empty and YOLO inference failed.";
+            frame->expected_zone_id.empty() ? "YOLO inference failed or no result." : "Expected zone is empty and YOLO inference failed.";
         return LocateResult { .status = LocateStatus::YoloFailed, .debugMessage = debugMessage };
     }
 
-    if ((expectedZoneId.empty() && coarse.valid && coarse.is_none) || targetZoneId == "None") {
-        LogInfo << "YOLO explicitly identified 'None', assuming UI occlusion.";
-
-        if (motionTracker->last_known_pos) {
-            HoldTrack(motionTracker.get(), *motionTracker->last_known_pos, now);
-        }
-
-        MapPosition nonePos;
-        nonePos.zoneId = "None";
-        nonePos.x = 0;
-        nonePos.y = 0;
-        nonePos.score = 1.0;
-        return LocateResult { .status = LocateStatus::Success, .position = nonePos, .debugMessage = "Occluded by UI (None)" };
+    if ((frame->expected_zone_id.empty() && coarse.valid && coarse.is_none) || targetZoneId == "None") {
+        return hold_for_ui_occlusion(locator, frame->now);
     }
 
-    const SearchConstraint constraint = buildSearchConstraint(expectedZoneSelector, targetZoneId, coarse);
+    const SearchConstraint constraint = build_search_constraint(locator->resources, frame->expected_zone_selector, targetZoneId, coarse);
+    log_search_constraint(constraint, frame->expected_zone_selector, targetZoneId, coarse);
     if (coarse.valid && !coarse.is_none && !constraint.yolo_validated) {
         return LocateResult { .status = LocateStatus::YoloFailed,
                               .debugMessage = "YOLO is confident but zone validation failed. Aborting before broad search." };
@@ -1836,43 +1634,8 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
                               .debugMessage = "YOLO is confident but ROI constraint validation failed. Aborting to avoid broad search." };
     }
 
-    int maxAllowedLost = IsPathHeatmapZone(targetZoneId) ? 10 : options.max_lost_frames;
-    GlobalSearchAttempt global;
-    bool prefetchedCandidatesConsumed = false;
-    if (frameSearchCoordinator) {
-        auto prefetchedCandidates = frameSearchCoordinator->takeCandidates(activeFrameId, targetZoneId, constraint);
-        if (prefetchedCandidates.has_value()) {
-            prefetchedCandidatesConsumed = true;
-            global = finishGlobalSearchCandidates(std::move(*prefetchedCandidates));
-        }
-    }
-    if (!prefetchedCandidatesConsumed) {
-        global = tryGlobalSearch(minimap, targetZoneId, constraint, featureCache);
-    }
-    // 调用方给了先验位置时，在每个先验附近再搜一小窗，跟 YOLO 格窗比原始峰分，高者胜出。
-    // YOLO 报到相邻格时正确位置根本不在它的窗里，窗内最优再高也是错的，分数门看不出来。
-    // 只在 YOLO 验过区域的帧上搜：区域都没认出来的帧上，小窗撞出的峰没有对照。
-    if (constraint.yolo_validated) {
-        for (const SearchHint& hint : options.search_hints) {
-            const int radius = static_cast<int>(std::lround(hint.radius));
-            if (hint.zone_id != targetZoneId || radius <= 0) {
-                continue;
-            }
-            SearchConstraint hintConstraint;
-            hintConstraint.mode = GlobalSearchMode::RoiFine;
-            hintConstraint.yolo_validated = true;
-            hintConstraint.roi = cv::Rect(
-                static_cast<int>(std::lround(hint.x)) - radius,
-                static_cast<int>(std::lround(hint.y)) - radius,
-                radius * 2 + 1,
-                radius * 2 + 1);
-            GlobalSearchAttempt hintAttempt = tryGlobalSearch(minimap, targetZoneId, hintConstraint, featureCache);
-            LogInfo << "Global Search: hint window." << VAR(hint.x) << VAR(hint.y) << VAR(hint.radius) << VAR(hintAttempt.rawPos.x)
-                    << VAR(hintAttempt.rawPos.y) << VAR(hintAttempt.refined.score) << VAR(global.rawPos.x) << VAR(global.rawPos.y)
-                    << VAR(global.refined.score);
-            global = MergeHintAttempt(global, hintAttempt, matchCfg.passThreshold);
-        }
-    }
+    int maxAllowedLost = IsPathHeatmapZone(targetZoneId) ? 10 : frame->options.max_lost_frames;
+    const GlobalSearchAttempt global = search_frame_globally(locator, frame, targetZoneId, constraint);
     std::optional<MapPosition> globalResult = global.result;
     if (!globalResult) {
         if (global.refined.score > kSeamFallbackMinPeakScore) {
@@ -1881,111 +1644,97 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
                     << VAR(global.rawPos.y) << VAR(global.rawPos.score);
         }
         else {
-            MarkTrackLost(motionTracker.get(), 1);
-            if (motionTracker->lost_count > maxAllowedLost) {
-                ForceTrackLost(motionTracker.get());
-                stablePosition.reset();
-            }
-            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Global search failed." };
+            return fail_global_search(locator, maxAllowedLost);
         }
     }
 
-    const auto lastPosOpt = motionTracker->last_known_pos;
-    const bool zoneChanged = currentZoneId != globalResult->zoneId;
-    const bool hasLast = lastPosOpt.has_value() && !zoneChanged;
-    const double jumpDist = hasLast ? std::hypot(globalResult->x - lastPosOpt->x, globalResult->y - lastPosOpt->y) : 0.0;
-    const bool farJump = hasLast && jumpDist > kFarJumpRejectDistance;
-    const bool highConf = globalResult->score >= ZoneScoreLines(globalResult->zoneId).highConfidence;
+    return accept_global_result(locator, *frame, angle_future, *globalResult, maxAllowedLost);
+}
 
-    if (farJump && !highConf) {
-        LogInfo << "Global Search: far-jump rejected." << VAR(jumpDist) << VAR(globalResult->score);
-        MarkTrackLost(motionTracker.get(), 1);
-        if (motionTracker->lost_count > maxAllowedLost) {
-            ForceTrackLost(motionTracker.get());
-            coldStartBuffer.clear();
-            stablePosition.reset();
+LocateResult
+    locate_frame(MapLocator* locator, const cv::Mat& minimap, const LocateOptions& options, const std::shared_future<double>& angle_future)
+{
+    const auto now = std::chrono::steady_clock::now();
+    locator->active_frame_id = ++locator->frame_id;
+
+    if (!locator->initialized) {
+        return LocateResult { .status = LocateStatus::NotInitialized, .debugMessage = "MapLocator not initialized." };
+    }
+
+    apply_frame_thresholds(locator, options);
+    if (std::optional<LocateResult> blocked = gate_occluded_frame(&locator->occlusion, options, angle_future, now)) {
+        return *blocked;
+    }
+
+    FrameContext frame {
+        .minimap = minimap,
+        .options = options,
+        .now = now,
+        .expected_zone_selector = options.expected_zone_id,
+        .expected_zone_id = NormalizeExpectedZoneId(options.expected_zone_id, locator->resources.yolo.get()),
+    };
+    FrameSearchCancelGuard frameSearchCancelGuard(&frame.coordinator);
+
+    // 要在后台 YOLO 改写跟踪状态之前判断
+    const bool searchBeforeTracking = should_search_before_tracking(*locator, frame) && can_start_frame_search(*locator, frame);
+    if (!options.force_global_search) {
+        frame.same_frame_yolo = apply_and_relaunch_periodic_yolo(locator, minimap, now);
+    }
+    if (searchBeforeTracking) {
+        start_frame_search(locator, &frame, false);
+    }
+
+    const TrackingLocate tracked = try_tracking_locate(locator, &frame);
+    if (tracked.wants_global_search && can_start_frame_search(*locator, frame)) {
+        start_frame_search(locator, &frame, true);
+    }
+    if (tracked.result) {
+        LocateResult trackingResult = *tracked.result;
+        if (trackingResult.position.has_value()) {
+            trackingResult.position->angle = angle_future.get();
         }
-        return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Far-jump rejected." };
+        return attach_cam_rot(&locator->resources, frame, std::move(trackingResult));
     }
 
-    if (!hasLast && !highConf) {
-        if (coldStartBuffer.size() >= static_cast<size_t>(kColdStartConsensusFrames)) {
-            coldStartBuffer.erase(coldStartBuffer.begin());
-        }
-        coldStartBuffer.push_back(*globalResult);
-        if (!IsTightCluster(coldStartBuffer, kPositionConsensusRadius)) {
-            LogInfo << "Cold-start: collecting." << VAR(coldStartBuffer.size()) << VAR(globalResult->x) << VAR(globalResult->y)
-                    << VAR(globalResult->score);
-            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = kColdStartCollectingMessage };
-        }
-        LogInfo << "Cold-start: consensus." << VAR(globalResult->x) << VAR(globalResult->y) << VAR(globalResult->score);
+    return locate_globally(locator, &frame, angle_future);
+}
+
+} // namespace
+
+bool InitializeLocator(MapLocator* locator, const MapLocatorConfig& cfg)
+{
+    if (locator->initialized) {
+        return true;
     }
-    coldStartBuffer.clear();
+    LocatorResources& resources = locator->resources;
+    resources.config = cfg;
 
-    if (farJump || zoneChanged) {
-        stablePosition.reset();
-        ClearTrackVelocity(motionTracker.get());
-        // 先 MarkTrackLost 让 UpdateTrack 跳过速度 EMA，重播种的跳变不计入速度
-        MarkTrackLost(motionTracker.get(), 1);
-        if (farJump) {
-            LogInfo << "Global Search: high-conf reseed." << VAR(jumpDist) << VAR(globalResult->score);
-        }
+    locator->track = MakeMotionTrack(resources.tracking_config);
+    const size_t matchWorkerCount = std::min(kMatchWorkerLimit, static_cast<size_t>(std::max(1U, std::thread::hardware_concurrency())));
+    resources.executor = std::make_unique<MapLocatorScaleExecutor>(matchWorkerCount);
+    load_available_zones(&resources, resources.config.mapResourceDir);
+
+    if (!resources.config.yoloModelPath.empty()) {
+        resources.yolo =
+            LoadYoloModel(resources.config.yoloModelPath, locator->match_config.yoloConfThreshold, resources.config.yoloThreads);
     }
 
-    currentZoneId = globalResult->zoneId;
-    globalResult->angle = angle_future.get();
-    MapPosition accepted = acceptPosition(*globalResult, now, options);
-    return attachCamRot(LocateResult { .status = LocateStatus::Success, .position = accepted, .debugMessage = "Global Search Success" });
-}
-
-void MapLocator::Impl::resetTrackingState()
-{
-    if (motionTracker) {
-        ForceTrackLost(motionTracker.get());
-        ClearTrackVelocity(motionTracker.get());
+    // 摄像机朝向：预处理在 C++ 里执行，参考配对分类器的推理是本阶段的主要开销，故用 2 个
+    // intra-op 线程并行，缩短同步帧追加的定位延迟。
+    if (!resources.config.cameraOrientationRefModelPath.empty()) {
+        resources.orientation = LoadOrientationModel(resources.config.cameraOrientationRefModelPath, 2);
     }
-    currentZoneId = "";
-    occluded_since_ = {};
-    occlusion_timed_out_ = false;
-    coldStartBuffer.clear();
-    stablePosition.reset();
+
+    locator->initialized = true;
+    return true;
 }
 
-std::optional<MapPosition> MapLocator::Impl::getLastKnownPos() const
-{
-    if (motionTracker) {
-        return motionTracker->last_known_pos;
-    }
-    return std::nullopt;
-}
-
-// ======================================
-// MapLocator Public Interface
-// ======================================
-
-MapLocator::MapLocator()
-    : pimpl(std::make_unique<Impl>())
-{
-}
-
-MapLocator::~MapLocator() = default;
-
-bool MapLocator::initialize(const MapLocatorConfig& config)
-{
-    return pimpl->initialize(config);
-}
-
-bool MapLocator::isInitialized() const
-{
-    return pimpl->getIsInitialized();
-}
-
-LocateResult MapLocator::locate(const cv::Mat& minimap, const LocateOptions& options)
+LocateResult Locate(MapLocator* locator, const cv::Mat& minimap, const LocateOptions& options)
 {
     auto start = std::chrono::high_resolution_clock::now();
     // 角色朝向独立识别，在统一出口汇总，位置识别提前失败时也不丢弃本帧朝向。
     const auto angle_future = std::async(std::launch::async, [&minimap]() { return InferYellowArrowRotation(minimap); }).share();
-    LocateResult res = pimpl->locate(minimap, options, angle_future);
+    LocateResult res = locate_frame(locator, minimap, options, angle_future);
     const double angle = angle_future.get();
     if (std::isfinite(angle) && angle >= 0.0) {
         res.rot = angle;
@@ -2001,19 +1750,14 @@ LocateResult MapLocator::locate(const cv::Mat& minimap, const LocateOptions& opt
     return res;
 }
 
-YoloCoarseResult MapLocator::predictCoarse(const cv::Mat& minimap) const
+void ResetTrackingState(MapLocator* locator)
 {
-    return pimpl->predictCoarse(minimap);
-}
-
-void MapLocator::resetTrackingState()
-{
-    pimpl->resetTrackingState();
-}
-
-std::optional<MapPosition> MapLocator::getLastKnownPos() const
-{
-    return pimpl->getLastKnownPos();
+    ForceTrackLost(&locator->track);
+    ClearTrackVelocity(&locator->track);
+    locator->zone_id = "";
+    locator->occlusion = {};
+    locator->cold_start.clear();
+    locator->stable_position.reset();
 }
 
 } // namespace maplocator

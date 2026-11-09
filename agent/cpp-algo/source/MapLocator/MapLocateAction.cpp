@@ -318,7 +318,7 @@ bool TryLocateOnMinimap(MaaContext* context, const MaaImageBuffer* image, const 
         return false;
     }
 
-    *out_result = locator->locate(minimap, options);
+    *out_result = Locate(locator.get(), minimap, options);
     return true;
 }
 
@@ -350,7 +350,7 @@ std::shared_ptr<MapLocator> getOrInitLocator()
         cfg.yoloThreads = (hardwareThreads >= 8) ? 4 : ((hardwareThreads >= 4) ? 2 : 1);
 
         auto loc = std::make_shared<MapLocator>();
-        bool ok = loc->initialize(cfg);
+        bool ok = InitializeLocator(loc.get(), cfg);
         if (!ok) {
             LogError << "Initialize failed!";
         }
@@ -424,7 +424,7 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
         LogError << "MapLocateAssertLocation: Locator init failed";
         return MAA_FALSE;
     }
-    locator->resetTrackingState();
+    ResetTrackingState(locator.get());
 
     LocateOptions options;
     options.expected_zone_id = param.zone_id;

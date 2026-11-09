@@ -180,7 +180,7 @@ bool capture_with(const CaptureParts& parts, NaviPosition* out_pos, maplocator::
     times.image_prep_done_at = std::chrono::steady_clock::now();
 
     options.reject_occluded_frames = heading_source != HeadingSource::Camera;
-    const auto locate_result = sensor->locator->locate(minimap, options);
+    const auto locate_result = maplocator::Locate(sensor->locator.get(), minimap, options);
     times.locate_done_at = std::chrono::steady_clock::now();
     log_locate_result(locate_result);
     sensor->last_capture_minimap_absent = locate_result.minimap_absent;
@@ -295,7 +295,7 @@ bool WaitForFix(
 
 void ResetSensorTracking(PositionSensor* sensor)
 {
-    sensor->locator->resetTrackingState();
+    maplocator::ResetTrackingState(sensor->locator.get());
     sensor->last_capture_was_black_screen = false;
     sensor->last_capture_minimap_absent = false;
 }

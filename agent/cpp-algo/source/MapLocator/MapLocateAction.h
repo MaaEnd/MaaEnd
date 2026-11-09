@@ -7,7 +7,7 @@
 namespace maplocator
 {
 
-class MapLocator;
+struct MapLocator;
 std::shared_ptr<MapLocator> getOrInitLocator();
 
 MaaBool MAA_CALL MapLocateRecognitionRun(

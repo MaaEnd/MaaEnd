@@ -12,7 +12,7 @@
 namespace maplocator
 {
 
-class MapLocator;
+struct MapLocator;
 
 } // namespace maplocator
 
