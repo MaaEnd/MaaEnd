@@ -21,8 +21,11 @@ func main() {
 	}
 	debug.SetPanicOnFault(true)
 	// 常驻 Agent 进程：更激进的 GC 节奏压低 RSS 峰值，512MiB 软上限兜底分配尖峰。
+	// 尊重外部 GOMEMLIMIT：容器或启动器已设定预算时不再覆盖，避免把用户的硬预算顶高。
 	debug.SetGCPercent(50)
-	debug.SetMemoryLimit(512 << 20)
+	if _, ok := os.LookupEnv("GOMEMLIMIT"); !ok {
+		debug.SetMemoryLimit(512 << 20)
+	}
 
 	if _, err := fsutil.InstallDir(); err != nil {
 		log.Fatal().Err(err).Msg("Failed to resolve install directory")

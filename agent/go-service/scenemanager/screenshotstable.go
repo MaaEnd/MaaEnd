@@ -61,6 +61,9 @@ func (r *ScreenshotStableRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 			finishScreenshotStable()
 			return nil, false
 		}
+		// 以最近一帧为基准刷新中断计时：否则 0/6/12s 这种稀疏序列会在第 3 帧
+		// 被误判为"中断恢复"而重启，稳定判定永远凑不满 3 帧。
+		screenshotStableBaselineAt = time.Now()
 		screenshotStableCount = 2
 		return nil, false
 	}
