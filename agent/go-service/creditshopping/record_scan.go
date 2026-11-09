@@ -69,7 +69,7 @@ func recordCollectCatalogHits(ctx *maa.Context, img image.Image) []itemPositionH
 		log.Warn().Err(err).Str("component", component).Msg("record: parse IconRecognition detail failed")
 		return nil
 	}
-	matches, err := iconrecognition.CollectMatches(parsed.All(), parsed.Filter(), parsed.Best())
+	matches, err := parsed.All().Matches()
 	if err != nil {
 		log.Warn().Err(err).Str("component", component).Msg("record: IconRecognition matches failed")
 		return nil
