@@ -10,24 +10,6 @@ type creditShoppingItem struct {
 	RecognitionItemID string
 }
 
-// priorityItemCaseOrder 与 assets/tasks/CreditShopping.json 各档 Items checkbox cases 顺序一致。
-var priorityItemCaseOrder = []string{
-	"ArsenalTicket",
-	"Oroberyl",
-	"TCreds",
-	"ElementaryCognitiveCarrier",
-	"ElementaryCombatRecord",
-	"IntermediateCombatRecord",
-	"ArmsInspector",
-	"ArmsINSPKit",
-	"CastDie",
-	"HeavyCastDie",
-	"Protodisk",
-	"Protoset",
-	"Protoprism",
-	"Protohedron",
-}
-
 var creditShoppingItemCatalog = []creditShoppingItem{
 	{CaseID: "ArmsInspector", Name: "武器检查单元", RecognitionItemID: "item_weapon_expcard_low"},
 	{CaseID: "ArmsINSPKit", Name: "武器检查装置", RecognitionItemID: "item_weapon_expcard_mid"},

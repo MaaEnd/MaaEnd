@@ -29,8 +29,8 @@ func TestBuildPriorityLevelOverrideIconRecognition(t *testing.T) {
 		t.Fatal("missing custom_recognition_param")
 	}
 	assertStringList(t, param["item_ids"], []string{
-		"item_weapon_expcard_mid",
 		"item_char_skill_level_7_12",
+		"item_weapon_expcard_mid",
 	})
 	if param["grid_type"] != "credit_trade" || param["order_by"] != "natural" {
 		t.Fatalf("param %#v", param)

@@ -15,16 +15,10 @@ const (
 	creditShoppingApplyPriorityItemsNodeName   = "CreditShoppingApplyPriorityItems"
 )
 
-// ApplyPriorityItemsAction 将任务选项中的多选物品写成各档 IconRecognition 节点的 item_ids。
+// ApplyPriorityItemsAction 把任务选项的勾选（节点 attach）复制成各档 IconRecognition 节点的 item_ids。
 type ApplyPriorityItemsAction struct{}
 
 var _ maa.CustomActionRunner = (*ApplyPriorityItemsAction)(nil)
-
-type applyPriorityItemsParam struct {
-	Priority1 []string `json:"priority1,omitempty"`
-	Priority2 []string `json:"priority2,omitempty"`
-	Priority3 []string `json:"priority3,omitempty"`
-}
 
 func (a *ApplyPriorityItemsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctx == nil {
@@ -36,24 +30,14 @@ func (a *ApplyPriorityItemsAction) Run(ctx *maa.Context, arg *maa.CustomActionAr
 		return false
 	}
 
-	var param applyPriorityItemsParam
-	if raw := arg.CustomActionParam; raw != "" {
-		if err := json.Unmarshal([]byte(raw), &param); err != nil {
-			log.Error().Err(err).Str("component", component).Msg("apply priority items: parse param failed")
-			return false
-		}
+	selected := priorityItemsFromAttach(ctx, creditShoppingApplyPriorityItemsNodeName)
+	if len(selected) == 0 {
+		log.Debug().Str("component", component).Msg("apply priority items: empty selection, skip OverridePipeline")
+		return true
 	}
-	param = mergeApplyPriorityParamFromAttach(ctx, param)
 
 	patch := map[string]any{}
-	for level, ids := range map[int][]string{
-		1: param.Priority1,
-		2: param.Priority2,
-		3: param.Priority3,
-	} {
-		if ids == nil {
-			continue
-		}
+	for level, ids := range selected {
 		levelPatch, err := buildPriorityLevelOverride(level, ids)
 		if err != nil {
 			log.Error().Err(err).Int("priority", level).Str("component", component).Msg("apply priority items: build override failed")
@@ -65,7 +49,7 @@ func (a *ApplyPriorityItemsAction) Run(ctx *maa.Context, arg *maa.CustomActionAr
 	}
 
 	if len(patch) == 0 {
-		log.Debug().Str("component", component).Msg("apply priority items: empty param, skip OverridePipeline")
+		log.Debug().Str("component", component).Msg("apply priority items: empty patch, skip OverridePipeline")
 		return true
 	}
 
@@ -76,9 +60,9 @@ func (a *ApplyPriorityItemsAction) Run(ctx *maa.Context, arg *maa.CustomActionAr
 
 	log.Info().
 		Str("component", component).
-		Interface("priority1", param.Priority1).
-		Interface("priority2", param.Priority2).
-		Interface("priority3", param.Priority3).
+		Interface("priority1", selected[1]).
+		Interface("priority2", selected[2]).
+		Interface("priority3", selected[3]).
 		Msg("apply priority items: OverridePipeline applied")
 	return true
 }
@@ -104,81 +88,39 @@ func buildPriorityLevelOverride(level int, selectedIDs []string) (map[string]any
 		normalized = append(normalized, id)
 	}
 
-	ordered := orderIDsByCase(normalized)
-	if len(ordered) == 0 {
+	if len(normalized) == 0 {
 		return map[string]any{}, nil
 	}
 	return map[string]any{
-		priorityItemNodeName(level): priorityItemIconRecognitionOverride(ordered),
+		priorityItemNodeName(level): priorityItemIconRecognitionOverride(normalized),
 	}, nil
 }
 
-func orderIDsByCase(ids []string) []string {
-	if len(ids) == 0 {
-		return nil
-	}
-	selected := make(map[string]struct{}, len(ids))
-	for _, id := range ids {
-		selected[id] = struct{}{}
-	}
-	out := make([]string, 0, len(selected))
-	for _, id := range priorityItemCaseOrder {
-		if _, ok := selected[id]; ok {
-			out = append(out, id)
-		}
-	}
-	return out
-}
-
-func mergeApplyPriorityParamFromAttach(ctx *maa.Context, param applyPriorityItemsParam) applyPriorityItemsParam {
-	if !applyPriorityParamEmpty(param) {
-		return param
-	}
-	fromAttach, ok := priorityItemsFromAttach(ctx, creditShoppingApplyPriorityItemsNodeName)
-	if !ok {
-		return param
-	}
-	return fromAttach
-}
-
-func applyPriorityParamEmpty(param applyPriorityItemsParam) bool {
-	return len(param.Priority1) == 0 && len(param.Priority2) == 0 && len(param.Priority3) == 0
-}
-
-func priorityItemsFromAttach(ctx *maa.Context, nodeName string) (applyPriorityItemsParam, bool) {
+// priorityItemsFromAttach 读取节点 attach 里 priority{N}__<CaseID> 的勾选项，按档位分组返回。
+func priorityItemsFromAttach(ctx *maa.Context, nodeName string) map[int][]string {
 	raw, err := ctx.GetNodeJSON(nodeName)
 	if err != nil || raw == "" {
-		return applyPriorityItemsParam{}, false
+		return nil
 	}
 	var node struct {
 		Attach map[string]json.RawMessage `json:"attach"`
 	}
 	if err := json.Unmarshal([]byte(raw), &node); err != nil || len(node.Attach) == 0 {
-		return applyPriorityItemsParam{}, false
+		return nil
 	}
 
-	selected := map[int]map[string]struct{}{
-		1: {},
-		2: {},
-		3: {},
-	}
+	selected := map[int][]string{}
 	for key, rawValue := range node.Attach {
 		level, itemID, ok := parseAttachPriorityKey(key)
 		if !ok || !attachValueEnabled(rawValue) {
 			continue
 		}
-		selected[level][itemID] = struct{}{}
+		selected[level] = append(selected[level], itemID)
 	}
-
-	out := applyPriorityItemsParam{
-		Priority1: orderIDsByCase(mapKeys(selected[1])),
-		Priority2: orderIDsByCase(mapKeys(selected[2])),
-		Priority3: orderIDsByCase(mapKeys(selected[3])),
+	if len(selected) == 0 {
+		return nil
 	}
-	if applyPriorityParamEmpty(out) {
-		return applyPriorityItemsParam{}, false
-	}
-	return out, true
+	return selected
 }
 
 func parseAttachPriorityKey(key string) (level int, itemID string, ok bool) {
@@ -204,17 +146,6 @@ func attachValueEnabled(raw json.RawMessage) bool {
 		return strings.TrimSpace(asString) != "" && !strings.EqualFold(asString, "false")
 	}
 	return true
-}
-
-func mapKeys(set map[string]struct{}) []string {
-	if len(set) == 0 {
-		return nil
-	}
-	keys := make([]string, 0, len(set))
-	for key := range set {
-		keys = append(keys, key)
-	}
-	return keys
 }
 
 func patchKeys(patch map[string]any) []string {
