@@ -33,7 +33,7 @@
         ]
     },
     "UseConsumablePrecheckBagReady": {
-        "desc": "扫描背包中的物品堆叠，检查各槽位的取货需求",
+        "desc": "检查背包中的目标物品并更新各槽位取货状态",
         "recognition": "And",
         "all_of": [
             "InBackpack"
@@ -53,12 +53,12 @@
         ]
     },
     "UseConsumablePrecheckStartSlot1": {
-        "desc": "检查一号位物品的背包堆叠数量是否超过 4 个",
+        "desc": "检查一号位物品是否已在背包中",
         "enabled": true,
         "recognition": "And",
         "all_of": [
             "InBackpack",
-            "UseConsumableStackThresholdSlot1"
+            "UseConsumableFindItemSlot1"
         ],
         "next": [
             "UseConsumablePrecheckFoundSlot1"
@@ -89,7 +89,7 @@
         ]
     },
     "UseConsumablePrecheckFoundSlot1": {
-        "desc": "一号位物品堆叠超过 4 个，跳过仓库取货并继续使用流程",
+        "desc": "一号位物品已在背包中，跳过仓库取货并继续使用流程",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -111,12 +111,12 @@
         ]
     },
     "UseConsumablePrecheckStartSlot2": {
-        "desc": "检查二号位物品的背包堆叠数量是否超过 4 个",
+        "desc": "检查二号位物品是否已在背包中",
         "enabled": true,
         "recognition": "And",
         "all_of": [
             "InBackpack",
-            "UseConsumableStackThresholdSlot2"
+            "UseConsumableFindItemSlot2"
         ],
         "next": [
             "UseConsumablePrecheckFoundSlot2"
@@ -147,7 +147,7 @@
         ]
     },
     "UseConsumablePrecheckFoundSlot2": {
-        "desc": "二号位物品堆叠超过 4 个，跳过仓库取货并继续使用流程",
+        "desc": "二号位物品已在背包中，跳过仓库取货并继续使用流程",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -169,12 +169,12 @@
         ]
     },
     "UseConsumablePrecheckStartSlot3": {
-        "desc": "检查三号位物品的背包堆叠数量是否超过 4 个",
+        "desc": "检查三号位物品是否已在背包中",
         "enabled": true,
         "recognition": "And",
         "all_of": [
             "InBackpack",
-            "UseConsumableStackThresholdSlot3"
+            "UseConsumableFindItemSlot3"
         ],
         "next": [
             "UseConsumablePrecheckFoundSlot3"
@@ -205,7 +205,7 @@
         ]
     },
     "UseConsumablePrecheckFoundSlot3": {
-        "desc": "三号位物品堆叠超过 4 个，跳过仓库取货并继续使用流程",
+        "desc": "三号位物品已在背包中，跳过仓库取货并继续使用流程",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -227,12 +227,12 @@
         ]
     },
     "UseConsumablePrecheckStartSlot4": {
-        "desc": "检查四号位物品的背包堆叠数量是否超过 4 个",
+        "desc": "检查四号位物品是否已在背包中",
         "enabled": true,
         "recognition": "And",
         "all_of": [
             "InBackpack",
-            "UseConsumableStackThresholdSlot4"
+            "UseConsumableFindItemSlot4"
         ],
         "next": [
             "UseConsumablePrecheckFoundSlot4"
@@ -263,7 +263,7 @@
         ]
     },
     "UseConsumablePrecheckFoundSlot4": {
-        "desc": "四号位物品堆叠超过 4 个，跳过仓库取货并继续使用流程",
+        "desc": "四号位物品已在背包中，跳过仓库取货并继续使用流程",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -364,125 +364,5 @@
         "next": [
             "ItemTransferResetBagScanBoundaries"
         ]
-    },
-    "UseConsumableStackThresholdSlot1": {
-        "desc": "识别一号位物品的背包堆叠数量是否大于 4",
-        "recognition": "And",
-        "all_of": [
-            "UseConsumableFindItemSlot1",
-            {
-                "sub_name": "badge",
-                "recognition": "TemplateMatch",
-                "roi": "UseConsumableFindItemSlot1",
-                "template": [
-                    "StashBackpack/UsableItems.png"
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "roi": "badge",
-                "roi_offset": [
-                    20,
-                    44,
-                    4,
-                    -2
-                ],
-                "expected": [
-                    "(?<!\\d)(?:[5-9]|[1-9]\\d+)(?!\\d)"
-                ],
-                "only_rec": true
-            }
-        ],
-        "box_index": 1
-    },
-    "UseConsumableStackThresholdSlot2": {
-        "desc": "识别二号位物品的背包堆叠数量是否大于 4",
-        "recognition": "And",
-        "all_of": [
-            "UseConsumableFindItemSlot2",
-            {
-                "sub_name": "badge",
-                "recognition": "TemplateMatch",
-                "roi": "UseConsumableFindItemSlot2",
-                "template": [
-                    "StashBackpack/UsableItems.png"
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "roi": "badge",
-                "roi_offset": [
-                    20,
-                    44,
-                    4,
-                    -2
-                ],
-                "expected": [
-                    "(?<!\\d)(?:[5-9]|[1-9]\\d+)(?!\\d)"
-                ],
-                "only_rec": true
-            }
-        ],
-        "box_index": 1
-    },
-    "UseConsumableStackThresholdSlot3": {
-        "desc": "识别三号位物品的背包堆叠数量是否大于 4",
-        "recognition": "And",
-        "all_of": [
-            "UseConsumableFindItemSlot3",
-            {
-                "sub_name": "badge",
-                "recognition": "TemplateMatch",
-                "roi": "UseConsumableFindItemSlot3",
-                "template": [
-                    "StashBackpack/UsableItems.png"
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "roi": "badge",
-                "roi_offset": [
-                    20,
-                    44,
-                    4,
-                    -2
-                ],
-                "expected": [
-                    "(?<!\\d)(?:[5-9]|[1-9]\\d+)(?!\\d)"
-                ],
-                "only_rec": true
-            }
-        ],
-        "box_index": 1
-    },
-    "UseConsumableStackThresholdSlot4": {
-        "desc": "识别四号位物品的背包堆叠数量是否大于 4",
-        "recognition": "And",
-        "all_of": [
-            "UseConsumableFindItemSlot4",
-            {
-                "sub_name": "badge",
-                "recognition": "TemplateMatch",
-                "roi": "UseConsumableFindItemSlot4",
-                "template": [
-                    "StashBackpack/UsableItems.png"
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "roi": "badge",
-                "roi_offset": [
-                    20,
-                    44,
-                    4,
-                    -2
-                ],
-                "expected": [
-                    "(?<!\\d)(?:[5-9]|[1-9]\\d+)(?!\\d)"
-                ],
-                "only_rec": true
-            }
-        ],
-        "box_index": 1
     }
 }
