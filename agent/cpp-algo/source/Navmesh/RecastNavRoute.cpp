@@ -10,6 +10,7 @@
 #include <bit>
 #include <chrono>
 #include <cmath>
+#include <functional>
 #include <limits>
 #include <map>
 #include <numeric>
@@ -103,60 +104,84 @@ std::optional<std::pair<WorldPoint, double>> meshPointAt(const ZoneClean& zc, co
     return best;
 }
 
+uint64_t fall_mix(uint64_t x)
+{
+    x ^= x >> 30;
+    x *= 0xbf58476d1ce4e5b9ULL;
+    x ^= x >> 27;
+    x *= 0x94d049bb133111ebULL;
+    return x ^ (x >> 31);
+}
+
+struct FallPointKey
+{
+    int64_t gx;
+    int64_t gy;
+    float h;
+
+    bool operator==(const FallPointKey& o) const { return gx == o.gx && gy == o.gy && h == o.h; }
+};
+
+struct FallEdgeKey
+{
+    FallPointKey a;
+    FallPointKey b;
+
+    bool operator==(const FallEdgeKey& o) const { return a == o.a && b == o.b; }
+};
+
+// ±0 相等, 散列前并成 +0
+uint64_t fall_hash_point(const FallPointKey& k)
+{
+    const float h = k.h == 0.0F ? 0.0F : k.h;
+    return fall_mix(
+        static_cast<uint64_t>(k.gx) * 0x9E3779B97F4A7C15ULL ^ fall_mix(static_cast<uint64_t>(k.gy)) ^ std::bit_cast<uint32_t>(h));
+}
+
+struct FallPointHash
+{
+    size_t operator()(const FallPointKey& k) const { return static_cast<size_t>(fall_hash_point(k)); }
+};
+
+struct FallEdgeHash
+{
+    size_t operator()(const FallEdgeKey& k) const
+    {
+        return static_cast<size_t>(fall_mix(fall_hash_point(k.a) + 0x9E3779B97F4A7C15ULL * fall_hash_point(k.b)));
+    }
+};
+
 // 按全局格记, 一次规划的各档窗口共用
 struct FallCache
 {
-    struct PointKey
-    {
-        int64_t gx;
-        int64_t gy;
-        float h;
-
-        bool operator==(const PointKey& o) const { return gx == o.gx && gy == o.gy && h == o.h; }
-    };
-
-    struct EdgeKey
-    {
-        PointKey a;
-        PointKey b;
-
-        bool operator==(const EdgeKey& o) const { return a == o.a && b == o.b; }
-    };
-
-    static uint64_t mix(uint64_t x)
-    {
-        x ^= x >> 30;
-        x *= 0xbf58476d1ce4e5b9ULL;
-        x ^= x >> 27;
-        x *= 0x94d049bb133111ebULL;
-        return x ^ (x >> 31);
-    }
-
-    // ±0 相等, 散列前并成 +0
-    static uint64_t hashPoint(const PointKey& k)
-    {
-        const float h = k.h == 0.0F ? 0.0F : k.h;
-        return mix(static_cast<uint64_t>(k.gx) * 0x9E3779B97F4A7C15ULL ^ mix(static_cast<uint64_t>(k.gy)) ^ std::bit_cast<uint32_t>(h));
-    }
-
-    struct PointHash
-    {
-        size_t operator()(const PointKey& k) const { return static_cast<size_t>(hashPoint(k)); }
-    };
-
-    struct EdgeHash
-    {
-        size_t operator()(const EdgeKey& k) const
-        {
-            return static_cast<size_t>(mix(hashPoint(k.a) + 0x9E3779B97F4A7C15ULL * hashPoint(k.b)));
-        }
-    };
-
-    std::unordered_map<PointKey, OccluderPoint, PointHash> points;
-    std::unordered_map<EdgeKey, bool, EdgeHash> memo;
+    std::unordered_map<FallPointKey, OccluderPoint, FallPointHash> points;
+    std::unordered_map<FallEdgeKey, bool, FallEdgeHash> memo;
 };
 
-std::function<bool(int64_t, int64_t, float, float)> FallGate(
+}
+
+// 在遮挡体里查台沿下落那一步有没有被挡, 窗口格号按 gx0/gy0/nx 换成全局格
+struct FallGate
+{
+    std::shared_ptr<const OccluderScene> solid;
+    const ZoneClean* zc = nullptr;
+    double sx = 0.0;
+    double tx = 0.0;
+    double sy = 0.0;
+    double ty = 0.0;
+    int64_t gx0 = 0;
+    int64_t gy0 = 0;
+    double x0 = 0.0;
+    double y0 = 0.0;
+    int64_t nx = 0;
+    std::shared_ptr<FallCache> cache;
+};
+
+namespace
+{
+
+// 遮挡体为空或仿射退化时不另判
+std::optional<FallGate> make_fall_gate(
     std::shared_ptr<const OccluderScene> solid,
     const ZoneClean& zc,
     const std::array<float, 4>& tf,
@@ -170,37 +195,37 @@ std::function<bool(int64_t, int64_t, float, float)> FallGate(
     const double sy = tf[2];
     const double ty = tf[3];
     if (solid == nullptr || sx == 0.0 || sy == 0.0) {
-        return {};
+        return std::nullopt;
     }
     const double x0 = static_cast<double>(gx0) * kCS;
     const double y0 = static_cast<double>(gy0) * kCS;
-    return [solid = std::move(solid), zc = &zc, sx, tx, sy, ty, gx0, gy0, x0, y0, nx, cache = std::move(cache)](
-               int64_t a,
-               int64_t b,
-               float ha,
-               float hb) {
-        const FallCache::PointKey ka { gx0 + a % nx, gy0 + a / nx, ha };
-        const FallCache::PointKey kb { gx0 + b % nx, gy0 + b / nx, hb };
-        const FallCache::EdgeKey key { ka, kb };
-        if (const auto it = cache->memo.find(key); it != cache->memo.end()) {
-            return it->second;
-        }
-        const auto at = [&](int64_t c, const FallCache::PointKey& pk) {
-            if (const auto hit = cache->points.find(pk); hit != cache->points.end()) {
-                return hit->second;
-            }
-            const WorldPoint p { x0 + (static_cast<double>(c % nx) + 0.5) * kCS, y0 + (static_cast<double>(c / nx) + 0.5) * kCS };
-            const auto m = meshPointAt(*zc, p, static_cast<double>(pk.h)).value_or(std::make_pair(p, static_cast<double>(pk.h)));
-            const OccluderPoint q { .x = (m.first.x - tx) / sx, .y = m.second, .z = (ty - m.first.y) / sy };
-            cache->points.emplace(pk, q);
-            return q;
-        };
-        const OccluderPoint pa = at(a, ka);
-        const OccluderPoint pb = at(b, kb);
-        const bool ok = !OccluderDropBlocked(*solid, pa, pb, kFallClimb, kFallHeight);
-        cache->memo.emplace(key, ok);
-        return ok;
+    return FallGate {
+        .solid = std::move(solid),
+        .zc = &zc,
+        .sx = sx,
+        .tx = tx,
+        .sy = sy,
+        .ty = ty,
+        .gx0 = gx0,
+        .gy0 = gy0,
+        .x0 = x0,
+        .y0 = y0,
+        .nx = nx,
+        .cache = std::move(cache),
     };
+}
+
+OccluderPoint fall_point(FallGate* gate, int64_t c, const FallPointKey& pk)
+{
+    if (const auto hit = gate->cache->points.find(pk); hit != gate->cache->points.end()) {
+        return hit->second;
+    }
+    const WorldPoint p { gate->x0 + (static_cast<double>(c % gate->nx) + 0.5) * kCS,
+                         gate->y0 + (static_cast<double>(c / gate->nx) + 0.5) * kCS };
+    const auto m = meshPointAt(*gate->zc, p, static_cast<double>(pk.h)).value_or(std::make_pair(p, static_cast<double>(pk.h)));
+    const OccluderPoint q { .x = (m.first.x - gate->tx) / gate->sx, .y = m.second, .z = (gate->ty - m.first.y) / gate->sy };
+    gate->cache->points.emplace(pk, q);
+    return q;
 }
 
 struct WindowInfo
@@ -739,6 +764,31 @@ int64_t seedSpan(const SpanTable& st, const std::vector<uint8_t>& vis, int64_t c
     return seed;
 }
 
+// 格里与 h 相差 kMcHBand 内、可见的 span 中最近的一个, 没有返回 -1
+int64_t link_span(const WindowInfo& info, int64_t cell, float h)
+{
+    const int64_t j = OccupiedIndex(info.st3, cell);
+    if (j < 0) {
+        return -1;
+    }
+    int64_t best = -1;
+    float bd = 0.0F;
+    for (int64_t k = CellSpanStart(info.st3, j), kn = k + CellSpanCount(info.st3, j); k < kn; ++k) {
+        if (info.vis3[static_cast<size_t>(k)] == 0) {
+            continue;
+        }
+        const float dh = std::fabs(info.st3.sp_h[static_cast<size_t>(k)] - h);
+        if (static_cast<double>(dh) > kMcHBand) {
+            continue;
+        }
+        if (best < 0 || dh < bd) {
+            best = k;
+            bd = dh;
+        }
+    }
+    return best;
+}
+
 std::optional<WindowInfo> buildWindow(
     const GridPack& gp,
     const GridZoneDir& gz,
@@ -948,28 +998,6 @@ std::optional<WindowInfo> buildWindow(
     // 跳边单价不得低于 1, 否则启发式不可采纳
     {
         const std::span<const FieldsLinkRec> lr = FieldsLinksOfZone(fp, zc.zone_id);
-        const auto pickSpan = [&](int64_t cell, float h) -> int64_t {
-            const int64_t j = OccupiedIndex(info.st3, cell);
-            if (j < 0) {
-                return -1;
-            }
-            int64_t best = -1;
-            float bd = 0.0F;
-            for (int64_t k = CellSpanStart(info.st3, j), kn = k + CellSpanCount(info.st3, j); k < kn; ++k) {
-                if (info.vis3[static_cast<size_t>(k)] == 0) {
-                    continue;
-                }
-                const float dh = std::fabs(info.st3.sp_h[static_cast<size_t>(k)] - h);
-                if (static_cast<double>(dh) > kMcHBand) {
-                    continue;
-                }
-                if (best < 0 || dh < bd) {
-                    best = k;
-                    bd = dh;
-                }
-            }
-            return best;
-        };
         for (size_t i = 0; i < lr.size(); ++i) {
             const FieldsLinkRec& r = lr[i];
             if (r.valid != 3) {
@@ -981,7 +1009,7 @@ std::optional<WindowInfo> buildWindow(
                 continue;
             }
             const int64_t cl = ly * nx + lx, ch = hy * nx + hx;
-            const int64_t sl = pickSpan(cl, r.lo.h), sh = pickSpan(ch, r.hi.h);
+            const int64_t sl = link_span(info, cl, r.lo.h), sh = link_span(info, ch, r.hi.h);
             if (sl < 0 || sh < 0) {
                 if (r.lo.rid == region && r.hi.rid == region) {
                     ++info.links_dropped;
@@ -1280,9 +1308,20 @@ struct DropHop
 // 每试一处要多规划两段, 纯成本上界
 constexpr size_t kDropHopTries = 3;
 
-template <typename Fn>
-void ForEachCrossDrop(const WindowInfo& info, Fn&& fn)
+// 起点可达的 span u 往四邻跨一格落到不可见的 span k, 落差超过一步
+struct CrossDrop
 {
+    int64_t u = 0;
+    int64_t cu = 0;
+    int64_t cv = 0;
+    int dx = 0;
+    int dy = 0;
+    int64_t k = 0;
+};
+
+std::vector<CrossDrop> cross_drops(const WindowInfo& info)
+{
+    std::vector<CrossDrop> out;
     const SpanTable& st = info.st3;
     const int64_t nx = info.nx;
     const int64_t ny = info.ny;
@@ -1305,11 +1344,12 @@ void ForEachCrossDrop(const WindowInfo& info, Fn&& fn)
             }
             for (int64_t k = CellSpanStart(st, j), ke = k + CellSpanCount(st, j); k < ke; ++k) {
                 if (info.vis3[static_cast<size_t>(k)] == 0 && static_cast<double>(st.sp_h[static_cast<size_t>(k)]) < hu - kClimb) {
-                    fn(static_cast<int64_t>(u), cu, cv, dx, dy, k);
+                    out.push_back({ .u = static_cast<int64_t>(u), .cu = cu, .cv = cv, .dx = dx, .dy = dy, .k = k });
                 }
             }
         }
     }
+    return out;
 }
 
 // 逐 span 记 peer 类可走面的分量号, 其余记 0
@@ -1327,12 +1367,12 @@ std::vector<uint32_t> PeerSpans(
     int64_t by0 = info.ny;
     int64_t bx1 = -1;
     int64_t by1 = -1;
-    ForEachCrossDrop(info, [&](int64_t, int64_t, int64_t cv, int, int, int64_t) {
-        bx0 = std::min(bx0, cv % nx);
-        by0 = std::min(by0, cv / nx);
-        bx1 = std::max(bx1, cv % nx);
-        by1 = std::max(by1, cv / nx);
-    });
+    for (const CrossDrop& drop : cross_drops(info)) {
+        bx0 = std::min(bx0, drop.cv % nx);
+        by0 = std::min(by0, drop.cv / nx);
+        bx1 = std::max(bx1, drop.cv % nx);
+        by1 = std::max(by1, drop.cv / nx);
+    }
     std::vector<uint32_t> peer3;
     if (bx0 > bx1) {
         return peer3;
@@ -1373,44 +1413,39 @@ std::vector<uint32_t> PeerSpans(
     return peer3;
 }
 
-// 同一分量只留离两端最近的一处, 起跳处沿台沿两侧须各连着 kClrPref
-std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uint32_t>& peer3, const WorldPoint& s, const WorldPoint& g)
+WorldPoint window_cell_centre(const WindowInfo& info, int64_t c)
 {
-    const SpanTable& st = info.st3;
+    return WorldPoint { info.x0 + (static_cast<double>(c % info.nx) + 0.5) * kCS,
+                        info.y0 + (static_cast<double>(c / info.nx) + 0.5) * kCS };
+}
+
+int drop_dir(int dx, int dy)
+{
+    if (dx == 1) {
+        return 0;
+    }
+    if (dx == -1) {
+        return 1;
+    }
+    if (dy == 1) {
+        return 2;
+    }
+    return 3;
+}
+
+// (格, 跳下方向, 落进哪一分量)
+using DropEdgeSet = std::set<std::tuple<int64_t, int, uint32_t>>;
+
+// 沿台沿往左右两侧各数连着几格, 数到 kClrPref 为止; 下一格可前后错开一格, 斜的台沿是一级级台阶
+std::pair<int64_t, int64_t> ledge_runs(const DropEdgeSet& edge, const WindowInfo& info, int64_t c, int dx, int dy, uint32_t comp)
+{
     const int64_t nx = info.nx;
-    const auto centre = [&](int64_t c) {
-        return WorldPoint { info.x0 + (static_cast<double>(c % nx) + 0.5) * kCS, info.y0 + (static_cast<double>(c / nx) + 0.5) * kCS };
-    };
-    const auto dirOf = [](int dx, int dy) {
-        return dx == 1 ? 0 : dx == -1 ? 1 : dy == 1 ? 2 : 3;
-    };
-
-    struct Cand
-    {
-        double score = 0.0;
-        int64_t u = -1;
-        int64_t v = -1;
-        int dx = 0;
-        int dy = 0;
-    };
-
-    std::vector<Cand> cand;
-    // (格, 跳下方向, 落进哪一分量)
-    std::set<std::tuple<int64_t, int, uint32_t>> edge;
-    ForEachCrossDrop(info, [&](int64_t u, int64_t cu, int64_t cv, int dx, int dy, int64_t k) {
-        if (peer3[static_cast<size_t>(k)] == 0
-            || !RiseOk(st, nx, info.ny, cu, dx, dy, st.sp_h[static_cast<size_t>(u)], st.sp_h[static_cast<size_t>(k)])) {
-            return;
-        }
-        const WorldPoint a = centre(cu);
-        const WorldPoint b = centre(cv);
-        cand.push_back({ std::hypot(a.x - s.x, a.y - s.y) + std::hypot(b.x - g.x, b.y - g.y), u, k, dx, dy });
-        edge.emplace(cu, dirOf(dx, dy), peer3[static_cast<size_t>(k)]);
-    });
     const int64_t need = static_cast<int64_t>(std::ceil(kClrPref / kCS));
-    // 下一格可前后错开一格, 斜的台沿是一级级台阶
-    const auto along = [&](int64_t c, int dx, int dy, int sx, int sy, uint32_t comp) {
-        const int d = dirOf(dx, dy);
+    const int d = drop_dir(dx, dy);
+    const std::array<std::pair<int, int>, 2> sides { std::pair { -dy, dx }, std::pair { dy, -dx } };
+    std::array<int64_t, 2> runs {};
+    for (size_t side = 0; side < sides.size(); ++side) {
+        const auto [sx, sy] = sides[side];
         int64_t x = c % nx;
         int64_t y = c / nx;
         int64_t n = 0;
@@ -1431,8 +1466,39 @@ std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uin
             }
             ++n;
         }
-        return n;
+        runs[side] = n;
+    }
+    return { runs[0], runs[1] };
+}
+
+// 同一分量只留离两端最近的一处, 起跳处沿台沿两侧须各连着 kClrPref
+std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uint32_t>& peer3, const WorldPoint& s, const WorldPoint& g)
+{
+    const SpanTable& st = info.st3;
+    const int64_t nx = info.nx;
+
+    struct Cand
+    {
+        double score = 0.0;
+        int64_t u = -1;
+        int64_t v = -1;
+        int dx = 0;
+        int dy = 0;
     };
+
+    std::vector<Cand> cand;
+    DropEdgeSet edge;
+    for (const CrossDrop& drop : cross_drops(info)) {
+        const auto k = static_cast<size_t>(drop.k);
+        if (peer3[k] == 0 || !RiseOk(st, nx, info.ny, drop.cu, drop.dx, drop.dy, st.sp_h[static_cast<size_t>(drop.u)], st.sp_h[k])) {
+            continue;
+        }
+        const WorldPoint a = window_cell_centre(info, drop.cu);
+        const WorldPoint b = window_cell_centre(info, drop.cv);
+        cand.push_back({ std::hypot(a.x - s.x, a.y - s.y) + std::hypot(b.x - g.x, b.y - g.y), drop.u, drop.k, drop.dx, drop.dy });
+        edge.emplace(drop.cu, drop_dir(drop.dx, drop.dy), peer3[k]);
+    }
+    const int64_t need = static_cast<int64_t>(std::ceil(kClrPref / kCS));
     // 某一分量一处都不够宽时照旧全收, 不因此丢掉这一分量
     std::vector<uint8_t> tight(cand.size(), 0);
     std::set<uint32_t> roomy;
@@ -1440,8 +1506,7 @@ std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uin
         const Cand& c = cand[i];
         const int64_t cu = st.sp_cell[static_cast<size_t>(c.u)];
         const uint32_t comp = peer3[static_cast<size_t>(c.v)];
-        const int64_t l = along(cu, c.dx, c.dy, -c.dy, c.dx, comp);
-        const int64_t r = along(cu, c.dx, c.dy, c.dy, -c.dx, comp);
+        const auto [l, r] = ledge_runs(edge, info, cu, c.dx, c.dy, comp);
         tight[i] = std::min(l, r) < need && std::abs(l - r) > 1;
         if (!tight[i]) {
             roomy.insert(comp);
@@ -1471,9 +1536,9 @@ std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uin
             continue;
         }
         tried.push_back(comp);
-        DropHop hop { .take = centre(st.sp_cell[static_cast<size_t>(c.u)]),
+        DropHop hop { .take = window_cell_centre(info, st.sp_cell[static_cast<size_t>(c.u)]),
                       .take_h = static_cast<double>(st.sp_h[static_cast<size_t>(c.u)]),
-                      .land = centre(st.sp_cell[static_cast<size_t>(c.v)]),
+                      .land = window_cell_centre(info, st.sp_cell[static_cast<size_t>(c.v)]),
                       .land_h = static_cast<double>(st.sp_h[static_cast<size_t>(c.v)]) };
         // 朝跳下方向补一个点, 给落点外推留出范围
         if (info.fall_r > 0.0) {
@@ -1491,25 +1556,27 @@ std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uin
     return out;
 }
 
-// mark 收到的是后段首点在拼接后的下标
-RecastPlanResult
-    JoinLegs(RecastPlanResult a, RecastPlanResult b, const std::function<void(RecastPlanResult&, size_t)>& mark, const char* warning)
+// 两段都齐全才拼, 否则整列作废
+void join_point_values(std::vector<double>* x, const std::vector<double>& y, size_t base, size_t nb)
+{
+    if (x->size() == base && y.size() == nb) {
+        x->insert(x->end(), y.begin(), y.end());
+    }
+    else {
+        x->clear();
+    }
+}
+
+// 拼点列与逐点量; 接缝那一步由调用方紧接着记, 下标是 a 的点数
+RecastPlanResult join_head(RecastPlanResult a, const RecastPlanResult& b)
 {
     const size_t base = a.points.size();
     const size_t nb = b.points.size();
     RecastPlanResult r = std::move(a);
     r.length += std::hypot(b.points.front().x - r.points.back().x, b.points.front().y - r.points.back().y) + b.length;
     r.points.insert(r.points.end(), b.points.begin(), b.points.end());
-    const auto cat = [&](std::vector<double>& x, const std::vector<double>& y) {
-        if (x.size() == base && y.size() == nb) {
-            x.insert(x.end(), y.begin(), y.end());
-        }
-        else {
-            x.clear();
-        }
-    };
-    cat(r.clearance, b.clearance);
-    cat(r.heights, b.heights);
+    join_point_values(&r.clearance, b.clearance, base, nb);
+    join_point_values(&r.heights, b.heights, base, nb);
     if (!r.waypoints.empty() && !b.waypoints.empty()) {
         r.waypoints.push_back(base);
         for (const size_t w : b.waypoints) {
@@ -1519,7 +1586,12 @@ RecastPlanResult
     else {
         r.waypoints.clear();
     }
-    mark(r, base);
+    return r;
+}
+
+void join_tail(RecastPlanResult* joined, const RecastPlanResult& b, size_t base, const char* warning)
+{
+    RecastPlanResult& r = *joined;
     for (const DropLanding& d : b.drops) {
         r.drops.push_back({ .index = base + d.index, .height = d.height });
     }
@@ -1540,30 +1612,27 @@ RecastPlanResult
     da.assembled_points.insert(da.assembled_points.end(), db.assembled_points.begin(), db.assembled_points.end());
     da.planned_points = r.points;
     da.warnings = r.warnings;
+}
+
+RecastPlanResult JoinDropHop(RecastPlanResult a, const RecastPlanResult& b, double land_h)
+{
+    const size_t base = a.points.size();
+    RecastPlanResult r = join_head(std::move(a), b);
+    r.drops.push_back({ .index = base, .height = land_h });
+    join_tail(&r, b, base, "台沿下落换类");
     return r;
 }
 
-RecastPlanResult JoinDropHop(RecastPlanResult a, RecastPlanResult b, double land_h)
+RecastPlanResult JoinRopeHop(RecastPlanResult a, const RecastPlanResult& b, const FieldsRopeRec& rope)
 {
-    return JoinLegs(
-        std::move(a),
-        std::move(b),
-        [land_h](RecastPlanResult& r, size_t base) { r.drops.push_back({ .index = base, .height = land_h }); },
-        "台沿下落换类");
-}
-
-RecastPlanResult JoinRopeHop(RecastPlanResult a, RecastPlanResult b, const FieldsRopeRec& rope)
-{
-    return JoinLegs(
-        std::move(a),
-        std::move(b),
-        [&rope](RecastPlanResult& r, size_t base) {
-            r.ropes.push_back({ .index = base,
-                                .top_height = static_cast<double>(rope.top.h),
-                                .uid = rope.uid_bottom,
-                                .ride_s = static_cast<double>(rope.ride_s) });
-        },
-        "升降索换层");
+    const size_t base = a.points.size();
+    RecastPlanResult r = join_head(std::move(a), b);
+    r.ropes.push_back({ .index = base,
+                        .top_height = static_cast<double>(rope.top.h),
+                        .uid = rope.uid_bottom,
+                        .ride_s = static_cast<double>(rope.ride_s) });
+    join_tail(&r, b, base, "升降索换层");
+    return r;
 }
 
 WorldPoint CellCentre(const FieldsLinkSide& s)
@@ -1593,12 +1662,26 @@ double SegMinClr(const Grid<float>& d, double x0, double y0, const WorldPoint& a
     return m;
 }
 
+// c 在有向线 a→b 的哪一侧, 正为左
+double turn_side(const WorldPoint& a, const WorldPoint& b, const WorldPoint& c)
+{
+    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+
 bool SegCross(const WorldPoint& p, const WorldPoint& q, const WorldPoint& r, const WorldPoint& s)
 {
-    const auto side = [](const WorldPoint& a, const WorldPoint& b, const WorldPoint& c) {
-        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
-    };
-    return (side(r, s, p) > 0.0) != (side(r, s, q) > 0.0) && (side(p, q, r) > 0.0) != (side(p, q, s) > 0.0);
+    return (turn_side(r, s, p) > 0.0) != (turn_side(r, s, q) > 0.0) && (turn_side(p, q, r) > 0.0) != (turn_side(p, q, s) > 0.0);
+}
+
+float nearest_layer_height(const std::vector<float>& hs, float ref)
+{
+    float best = hs.front();
+    for (const float v : hs) {
+        if (std::fabs(v - ref) < std::fabs(best - ref)) {
+            best = v;
+        }
+    }
+    return best;
 }
 
 // 新弦段内最小净空不得低于原值, 防止拐点挪进窄缝
@@ -1616,22 +1699,13 @@ void LiftCorners(
     if (P.size() < 3 || rad <= 0) {
         return;
     }
-    const auto nearest = [](const std::vector<float>& hs, float ref) {
-        float best = hs.front();
-        for (const float v : hs) {
-            if (std::fabs(v - ref) < std::fabs(best - ref)) {
-                best = v;
-            }
-        }
-        return best;
-    };
     float ha = h0;
     for (size_t i = 1; i + 1 < P.size(); ++i) {
         const auto hb = LayerWalk(lyo, { P[i - 1], P[i] }, ha);
         if (!hb.has_value() || hb->empty()) {
             return;
         }
-        const float hv0 = nearest(*hb, ha);
+        const float hv0 = nearest_layer_height(*hb, ha);
         const int64_t cx0 = static_cast<int64_t>((P[i].x - x0) / kCS);
         const int64_t cy0 = static_cast<int64_t>((P[i].y - y0) / kCS);
         if (cx0 < 0 || cy0 < 0 || cx0 >= d.nx || cy0 >= d.ny) {
@@ -1677,12 +1751,12 @@ void LiftCorners(
             if (!h1.has_value() || h1->empty()) {
                 continue;
             }
-            const float hw = nearest(*h1, ha);
+            const float hw = nearest_layer_height(*h1, ha);
             const auto h2 = LayerWalk(lyo, { w, P[i + 1] }, hw);
             if (!h2.has_value() || h2->empty()) {
                 continue;
             }
-            if (!ChordVisible(vis, P[i - 1], w, ha, hw) || !ChordVisible(vis, w, P[i + 1], hw, nearest(*h2, hw))) {
+            if (!ChordVisible(vis, P[i - 1], w, ha, hw) || !ChordVisible(vis, w, P[i + 1], hw, nearest_layer_height(*h2, hw))) {
                 continue;
             }
             P[i] = w;
@@ -3144,7 +3218,7 @@ std::optional<RecastPlanResult> plan_drop_hops(
         if (!b.ok) {
             continue;
         }
-        return JoinDropHop(std::move(a), std::move(b), hop.land_h);
+        return JoinDropHop(std::move(a), b, hop.land_h);
     }
     return std::nullopt;
 }
@@ -3232,7 +3306,7 @@ std::optional<RecastPlanResult> try_ropes(
             continue;
         }
         best_total = a.length + rope.cost_px + b.length;
-        best = JoinRopeHop(std::move(a), std::move(b), rope);
+        best = JoinRopeHop(std::move(a), b, rope);
     }
     return best;
 }
@@ -3411,6 +3485,8 @@ RecastPlanResult plan_locked(
     const WindowRect region_rect { rgx0, rgy0, rnx, rny };
     std::optional<WindowInfo> info;
     const auto fall_cache = std::make_shared<FallCache>();
+    // 窗口的 st3.fall 指着它, 须与 info 同寿
+    std::optional<FallGate> fall_gate;
     int level = 0;
     bool last_resort = false;
     WindowRect cur;
@@ -3494,7 +3570,8 @@ RecastPlanResult plan_locked(
             return res;
         }
         if (pz != nullptr) {
-            info->st3.fall = FallGate(solid, zc, pz->transform, gx0, gy0, nx, fall_cache);
+            fall_gate = make_fall_gate(solid, zc, pz->transform, gx0, gy0, nx, fall_cache);
+            info->st3.fall = fall_gate.has_value() ? &*fall_gate : nullptr;
             info->fall_r = kFallRadius * std::fabs(static_cast<double>(pz->transform[0]));
         }
         RouteDiag dg;
@@ -3614,6 +3691,21 @@ RecastPlanResult plan_locked(
 }
 
 } // namespace
+
+bool FallClear(FallGate* gate, int64_t a, int64_t b, float ha, float hb)
+{
+    const FallPointKey ka { gate->gx0 + a % gate->nx, gate->gy0 + a / gate->nx, ha };
+    const FallPointKey kb { gate->gx0 + b % gate->nx, gate->gy0 + b / gate->nx, hb };
+    const FallEdgeKey key { ka, kb };
+    if (const auto it = gate->cache->memo.find(key); it != gate->cache->memo.end()) {
+        return it->second;
+    }
+    const OccluderPoint pa = fall_point(gate, a, ka);
+    const OccluderPoint pb = fall_point(gate, b, kb);
+    const bool ok = !OccluderDropBlocked(*gate->solid, pa, pb, kFallClimb, kFallHeight);
+    gate->cache->memo.emplace(key, ok);
+    return ok;
+}
 
 void LoadRecastNavEngine(RecastNavEngine* engine, const BaseNavPack& pack, const std::filesystem::path& nogo_table)
 {

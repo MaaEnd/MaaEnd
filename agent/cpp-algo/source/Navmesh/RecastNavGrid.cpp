@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <limits>
 #include <numbers>
 #include <numeric>
@@ -94,7 +95,7 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
                 return false;
             }
         }
-        if (st.fall && !st.fall(cid, cid + dy * nx + dx, h0, h1)) {
+        if (st.fall != nullptr && !FallClear(st.fall, cid, cid + dy * nx + dx, h0, h1)) {
             return false;
         }
     }
