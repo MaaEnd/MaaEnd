@@ -77,7 +77,7 @@ func inventoryFailed(err error) bool {
 
 func finishInventory(ctx *maa.Context, st *RunState) bool {
 	groups, total := st.Inventory.exportGroups()
-	path := fsutil.OutputPath(inventoryExportPath)
+	path := fsutil.UserDataPath(inventoryExportPath)
 	if err := writeInventoryFile(path, groups); err != nil {
 		return inventoryFailed(err)
 	}

@@ -54,9 +54,11 @@ on:
 permissions:
   contents: read
 
+# 同一 PR / 分支再次推送时取消上一次运行；tag 推送、手动触发以及被 install.yml
+# 调用出的发版 APK 不取消
 concurrency:
   group: android-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' && !startsWith(github.ref, 'refs/tags/') }}
 
 env:
   # agent 交叉编译用的 NDK；MaaFwApp 自身的 native 部分由 AGP 按其默认版本自动下载

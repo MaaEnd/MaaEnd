@@ -13,10 +13,10 @@ import (
 
 // interruptibleSleepChunkMs 单次休眠粒度，便于在两次 sleep 之间检查
 // Stopping，避免长 post_delay 无法停止任务。
-const interruptibleSleepChunkMs = 250
+const interruptibleSleepChunkMs = 500
 
 type interruptibleSleepParams struct {
-	DurationMs       int `json:"durationMs"`
+	DurationSec      int `json:"durationSec"`
 	ReportIntervalMs int `json:"reportIntervalMs,omitempty"`
 }
 
@@ -24,7 +24,7 @@ type autoEcoFarmInterruptibleSleep struct{}
 
 var _ maa.CustomActionRunner = &autoEcoFarmInterruptibleSleep{}
 
-// Run 在约 durationMs 毫秒内分片休眠；期间每 reportIntervalMs 输出一次剩
+// Run 在约 durationSec 秒内分片休眠；期间每 reportIntervalMs 输出一次剩
 // 余秒数（HTML stdout，客户端只展示最新一条），收到停止信号则提前结束。
 func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
@@ -41,17 +41,17 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 		return false
 	}
 	// 无等待时间，直接返回
-	if params.DurationMs <= 0 {
+	if params.DurationSec <= 0 {
 		return true
 	}
 
-	// 未指定报告间隔时默认 5 秒
+	// 未指定报告间隔时默认 1 秒
 	if params.ReportIntervalMs <= 0 {
-		params.ReportIntervalMs = 5000
+		params.ReportIntervalMs = 1000
 	}
 
 	// 下次触发输出时的剩余毫秒阈值
-	remaining := params.DurationMs
+	remaining := params.DurationSec * 1000
 	nextReportRemaining := remaining - params.ReportIntervalMs
 
 	for remaining > 0 {

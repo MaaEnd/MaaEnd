@@ -27,13 +27,16 @@
                 "EnterCameraModeKeyUp": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
-                "AutoCollectClick": {
+                "AutoCollectClickKey": {
                     "key": "{KeymapInteract.primary}"
                 },
                 "MapNavigatorInteract": {
                     "key": "{KeymapInteract.primary}"
                 },
                 "AutoSellPressStockRedistribution": {
+                    "key": "{KeymapInteract.primary}"
+                },
+                "VisitFriendsPressStockRedistribution": {
                     "key": "{KeymapInteract.primary}"
                 },
                 "AutoPickFalls": {

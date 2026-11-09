@@ -304,7 +304,7 @@ export class Importer {
       } else {
         if (!Array.isArray(result.path)) throw new Error("所选导航节点缺少有效 path");
         await this.analyzeText(
-          JSON.stringify({path: result.path, ...(result.zip_enabled ? {zip: true} : {})}),
+          JSON.stringify({path: result.path, zip: !!result.zip_enabled}),
           sourceLabel,
         );
       }

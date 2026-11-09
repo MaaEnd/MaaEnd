@@ -551,6 +551,15 @@
                 "ko_kr": "사"
             }
         },
+        "ArgentFlow": {
+            "names": {
+                "zh_cn": "明河",
+                "zh_tw": "明河",
+                "en_us": "Argent Flow",
+                "ja_jp": "ミンホ",
+                "ko_kr": "명하"
+            }
+        },
         "Purrchena": {
             "names": {
                 "zh_cn": "噗切娜",
@@ -1032,6 +1041,11 @@
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
+                    "name": "ArgentFlow",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
                     "name": "Arcane",
                     "bonus_tier": 2,
                     "outpost_prosperity_max_bonus_tier": 0
@@ -1069,6 +1083,7 @@
             ],
             "restore_operators": [
                 "Tangtang",
+                "ArgentFlow",
                 "Arcane",
                 "Wulfgard",
                 "MiFu",
@@ -1144,6 +1159,11 @@
                 },
                 {
                     "name": "Si",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "ArgentFlow",
                     "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
@@ -1245,6 +1265,11 @@
             "target_operators": [
                 {
                     "name": "Arcane",
+                    "bonus_tier": 0,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "ArgentFlow",
                     "bonus_tier": 0,
                     "outpost_prosperity_max_bonus_tier": 0
                 },

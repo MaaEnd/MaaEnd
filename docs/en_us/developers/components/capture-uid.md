@@ -116,7 +116,7 @@ The action executes in the following order:
 | OutpostTrading | `assets/resource/pipeline/OutpostTrading.json` (`OutpostTradingCaptureUid` node), `agent/go-service/outposttrading/operator/cache.go` | Pipeline (`CaptureUid`) + Go API (`GetCachedUID`) | Partition the operator cache by account |
 | AccountSwitch | `assets/resource/pipeline/AccountSwitch.json` (`__AccountSwitchClearUidCache` node) | Pipeline (`clear_cache`) | Clear cache after switching accounts |
 | SceneImageCheck | `assets/resource/pipeline/SceneManager/SceneImageCheck.json` (`__SceneImageCaptureUid`) | Pipeline (empty-param `CaptureUid`) | Publish `CurrentAccountIdentity` during scene screen check |
-| MapNavigator | `assets/resource/pipeline/Common/AccountIdentity.json` | Resource shared state node | Automatically select zipline records for the current account |
+| MapNavigator | `assets/resource/pipeline/Common/AccountIdentity.json`, `assets/resource/pipeline/MapNavigator/Zipline.json` (`MapNavigatorZiplineCaptureUid` node) | Resource shared state node + Pipeline (empty-param `CaptureUid`) | Automatically select zipline records for the current account, capturing once first when no account identity is available |
 | ZiplineImport (Linux) | `agent/go-service/ziplineimport/parse.go` | Go API (`AccountIDFromRawUID`) | Derive the same account identity from the web `roleId` and store zipline records per account |
 
 After `AccountSwitch` succeeds, it also resets the scene image check state to incomplete so the next scene task in the same queue re-runs the screen check, and clears the UID cache plus `CurrentAccountIdentity` so the previous account identity is not reused.

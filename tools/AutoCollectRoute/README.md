@@ -66,7 +66,7 @@ uv run autocollect-route
 
 ## 生成结果
 
-路线文件与现有路线同构：`Start` 进入传送点、`AssertLocation` 断言到达、`Goto` 执行 `MapNavigateAction`。`path` 以 `ZONE` 开头，采集点写作 `[u, v, "COLLECT" | "DIG", true]`。以下采集点前插入一个带 `target_deck_y` 的 `NAVMESH`，由运行时规划前往，其余采集点直线前往：
+路线文件与现有路线同构：`Start` 进入传送点、`AssertLocation` 断言到达、`Goto` 执行 `MapNavigateAction`。`path` 以 `ZONE` 开头，采集点写作 `[u, v, "COLLECT" | "DIG", true]`。含 `DIG` 路点的路线在 `Goto` 之后追加 `Wait10sec` 节点，等挖掘掉落入包后再结束；纯 `COLLECT` 路线不追加。以下采集点前插入一个带 `target_deck_y` 的 `NAVMESH`，由运行时规划前往，其余采集点直线前往：
 
 1. 首个采集点；
 2. 与上一点相距超过 15 px（含高度折算）的采集点。现有手写路线中采集点之间直走的段最长 13.1 px，更远的段均依赖录制路点或 `NAVMESH`；
@@ -100,5 +100,6 @@ uv run autocollect-route generate
 | `routes[].region` | 地区，`ValleyIV` 或 `Wuling`，决定路线文件所在目录和所属的地区选项 |
 | `routes[].items` | 路线覆盖的产物 id；覆盖多种产物时，勾选其中任一种都会执行，一轮只执行一次 |
 | `default_limits` | 产物的默认目标库存；未列出的稀有产物取 32，常规产物取 0（始终运行） |
+| `series_order` | 产物系列的排列顺序；产物选项排列 |
 
 任务界面按产物勾选，同一产物名下有多条路线时依次执行。目标库存模式下，每种产物在开跑前按仓库库存判断一次，未达目标就执行其名下全部路线。

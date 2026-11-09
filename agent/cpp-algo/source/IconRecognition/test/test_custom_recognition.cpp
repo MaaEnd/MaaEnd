@@ -11,6 +11,7 @@
 #include <MaaFramework/Utility/MaaBuffer.h>
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/NoWarningCV.hpp>
+#include <MaaUtils/Platform.h>
 #include <meojson/json.hpp>
 
 #include "../../utils.h"
@@ -488,7 +489,7 @@ void TestGridDiagnosticsSerializeSelectionEvidence()
 
 void TestRecognizerPreloadsEveryRequestedTemplateSize()
 {
-    iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
+    iconrecognition::IconRecognizer recognizer(MAA_NS::path(ICON_RECOGNITION_TEST_RUNTIME) / "data" / "IconRecognition");
     Require(recognizer.initialize(), "preload recognizer must initialize");
 
     iconrecognition::RecognitionRequest transfer;
@@ -507,6 +508,8 @@ void TestRecognizerPreloadsEveryRequestedTemplateSize()
 int main()
 {
     try {
+        // 生产入口以 CWD 作为安装根；运行时目录按安装根布局生成（agent/ 与 data/、resource/ 同级）。
+        std::filesystem::current_path(MAA_NS::path(ICON_RECOGNITION_TEST_RUNTIME));
         TestAttachOverridesSupportedArrays();
         TestAttachPreservesDefaultArrays();
         TestAttachDoesNotModifyUnrelatedData();

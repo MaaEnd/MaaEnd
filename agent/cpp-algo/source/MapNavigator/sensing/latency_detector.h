@@ -47,40 +47,28 @@ struct Verdict
 };
 
 // 只按整拍耗时判定, 各阶段耗时只用于报告
-class Detector
+struct Detector
 {
-public:
-    explicit Detector(Config config = {});
+    Config config;
+    std::vector<int64_t> tick_history;
+    std::array<std::vector<int64_t>, kStageCount> stage_history;
 
-    // 每次导航开始调用, 重开预热和当前窗口, 已判过的整窗保留
-    void beginRun();
-    void recordStage(Stage stage, int64_t elapsed_ms);
-    std::optional<Verdict> recordTick(uint64_t tick_seq, int64_t tick_gap_ms);
-
-    bool fired() const { return fired_; }
-
-private:
-    using Clock = std::chrono::steady_clock;
-
-    void push(std::vector<int64_t>& history, int64_t value) const;
-    void clearHistory();
-    Verdict buildVerdict() const;
-
-    Config config_;
-    std::vector<int64_t> tick_history_;
-    std::array<std::vector<int64_t>, kStageCount> stage_history_;
-
-    uint64_t prev_tick_seq_ = 0;
-    bool has_prev_tick_ = false;
-    Clock::time_point warmup_until_ {};
-    Clock::time_point window_started_at_ {};
-    bool has_window_ = false;
-    int64_t window_samples_ = 0;
-    int64_t window_slow_ = 0;
-    int slow_windows_ = 0;
-    int64_t total_samples_ = 0;
-    bool fired_ = false;
+    uint64_t prev_tick_seq = 0;
+    bool has_prev_tick = false;
+    std::chrono::steady_clock::time_point warmup_until {};
+    std::chrono::steady_clock::time_point window_started_at {};
+    bool has_window = false;
+    int64_t window_samples = 0;
+    int64_t window_slow = 0;
+    int slow_windows = 0;
+    int64_t total_samples = 0;
+    bool fired = false;
 };
+
+// 每次导航开始调用, 重开预热和当前窗口, 已判过的整窗保留
+void BeginDetectorRun(Detector* detector);
+void RecordDetectorStage(Detector* detector, Stage stage, int64_t elapsed_ms);
+std::optional<Verdict> RecordDetectorTick(Detector* detector, uint64_t tick_seq, int64_t tick_gap_ms);
 
 double WilsonLowerBound(int64_t hits, int64_t total, double z);
 

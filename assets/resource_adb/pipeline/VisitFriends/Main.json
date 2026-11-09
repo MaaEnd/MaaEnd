@@ -1,0 +1,9 @@
+{
+    "VisitFriendsPrioritySearchInit": {
+        // adb 会弹出软键盘
+        "anchor": {
+            "TextInputFocus": "VisitFriendsPrioritySearchFocusBox",
+            "TextInputSubmit": "VisitFriendsPrioritySearchDismissIme"
+        }
+    }
+}

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <map>
+#include <set>
 #include <stdexcept>
 #include <unordered_set>
 
@@ -67,6 +68,24 @@ void ValidateCandidateFilterList(const std::vector<std::string>& filters, std::s
     for (const auto& filter : filters) {
         static_cast<void>(ParseFilter(filter, field));
     }
+}
+
+bool CandidateSelectionCoversScene(
+    const std::vector<PreparedTemplate>& all,
+    const std::vector<PreparedTemplate>& selected,
+    const CandidateFilter& candidates,
+    const std::vector<std::string>& defaults)
+{
+    const auto& base_filters = candidates.item_filters.empty() ? defaults : candidates.item_filters;
+    std::set<std::pair<std::string, std::string>> identities;
+    for (const auto& templ : selected) {
+        identities.emplace(templ.record.icon_id, templ.record.fluid_icon_id);
+    }
+    return !all.empty() && std::ranges::all_of(all, [&](const auto& templ) {
+        const bool in_scope = MatchesAnyFilter(templ.record, base_filters, "diagnostic scene")
+                              || MatchesAnyFilter(templ.record, candidates.additional_item_filters, "diagnostic scene");
+        return !in_scope || identities.contains({ templ.record.icon_id, templ.record.fluid_icon_id });
+    });
 }
 
 std::vector<PreparedTemplate> SelectCandidateTemplates(

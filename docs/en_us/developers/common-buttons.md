@@ -176,6 +176,19 @@
 
 ---
 
+## ProfilePageMoreButton
+
+**Description**: The **more button** (a round button with three horizontal dots) on the player profile page, below the avatar. This node only recognizes, it carries no click action, and is used as the criterion for "currently on the player profile page".
+
+| Item | Description |
+| ------------ | -------------------------------------------------------------------------------------------------------------------- |
+| **Recognition Method** | `TemplateMatch` on `Common/Button/ProfilePageMoreButton.png`, using `green_mask` to filter out the pure green background. |
+| **Search Range** | **Restricted area**: ROI `[88, 199, 221, 162]` (720p), the upper-left info block of the profile page; identical icons elsewhere will not match. |
+| **Action** | None. The node only returns a recognition result; the caller's `And` / `Or` guard decides what to do next. |
+| **Usage Condition** | Combine it with other profile-only elements such as the authority level icon to determine whether the player profile page is open. |
+
+---
+
 ## Summary
 
 | Node Name | Typical Usage Scenarios |
@@ -190,6 +203,7 @@
 | `QuickTeleportButton` | Quick-teleport button to the left of the teleport button on the map interface |
 | `CloseRewardsButton` | Checkmark close button in the lower middle of the reward interface |
 | `CloseButtonType1` | Upper right X that only closes the interface (freezes under ESC) |
+| `ProfilePageMoreButton` | More button on the player profile page |
 
 ## Q&A
 

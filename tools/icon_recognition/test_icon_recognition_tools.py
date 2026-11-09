@@ -846,6 +846,54 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 (asset_image_root / "3" / "item_liquid_acid.png").exists()
             )
 
+    def test_restaurant_items_reach_catalog_and_locales(self) -> None:
+        for category_type, category in (("Dish", "客栈菜品"), ("Drink", "客栈饮品")):
+            with self.subTest(category_type=category_type), tempfile.TemporaryDirectory() as directory:
+                item_id = f"item_restaurant_{category_type.lower()}"
+                names = {language: f"{category}-{language}" for language, _ in LOCALE_MAP.values()}
+                source = {
+                    item_id: self._mini_item(
+                        name=names["CN"],
+                        names=names,
+                        category=category,
+                        storageKind="Restaurant",
+                        categoryType=category_type,
+                        iconId=item_id,
+                    )
+                }
+                items, removals = prepare_item_map(source, blacklist=())
+                self.assertEqual(removals, [])
+                self.assertEqual(items[item_id]["category"], category)
+
+                # 用本地图标替代网络下载，验证新分类能完整传递到发布目录和多语言名称。
+                image_root = Path(directory)
+                jobs, missing_icons = build_download_jobs(items, image_root)
+                self.assertEqual(missing_icons, [])
+                self.assertEqual(len(jobs), 1)
+                self.assertEqual(jobs[0].icon_id, item_id)
+                jobs[0].destination.parent.mkdir(parents=True, exist_ok=True)
+                jobs[0].destination.write_bytes(b"png")
+                catalog = build_catalog(items, image_root)
+                self.assertEqual(catalog[item_id]["category"], category)
+                self.assertEqual(catalog[item_id]["storageKind"], "Restaurant")
+                self.assertEqual(catalog[item_id]["categoryType"], category_type)
+                for language, _ in LOCALE_MAP.values():
+                    self.assertEqual(
+                        build_locale_values(catalog, source, language),
+                        {f"iconRecognition.name.{item_id}": names[language]},
+                    )
+
+    def test_prepare_item_map_rejects_unknown_categories(self) -> None:
+        for storage_kind, category_type in (("FutureStorage", "Dish"), ("Restaurant", "FutureCategory")):
+            with (
+                self.subTest(storage_kind=storage_kind, category_type=category_type),
+                self.assertRaisesRegex(ValueError, f"未知物品分类: {storage_kind}:{category_type}"),
+            ):
+                prepare_item_map(
+                    {"item_test": self._mini_item(storageKind=storage_kind, categoryType=category_type)},
+                    blacklist=(),
+                )
+
     def test_prepare_item_map_accepts_isolate_category_types(self) -> None:
         items, removals = prepare_item_map(
             {

@@ -99,20 +99,15 @@
         }
     },
     "VisitFriendsRecognitionItemNamePriorityByEnterButton": {
-        "desc": "按进船按钮偏移识别指定优先好友名",
+        "desc": "在名字色带内 only_rec 读出指定优先好友名",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "VisitFriendsRecognitionItemOnline",
-                "roi_offset": [
-                    -10,
-                    -62,
-                    151,
-                    62
-                ],
+                "roi": "VisitFriendsRecognitionItemNameColor",
                 "expected": [
                     "a^"
                 ],
+                "only_rec": true,
                 "order_by": "Vertical"
             }
         }
@@ -142,15 +137,16 @@
         "box_index": 4
     },
     "VisitFriendsRecognitionItemWithPriority": {
-        "desc": "识别进船按钮与指定优先好友名；box_index=3 返回名字框，供优先选友链路消费",
+        "desc": "识别进船按钮与指定优先好友名；box_index=4 返回名字框，供优先选友链路消费",
         "recognition": "And",
         "all_of": [
             "VisitFriendsRecognitionItemEnterButton",
             "VisitFriendsRecognitionItemClueExchange",
             "VisitFriendsRecognitionItemOnline",
+            "VisitFriendsRecognitionItemNameColor",
             "VisitFriendsRecognitionItemNamePriorityByEnterButton"
         ],
-        "box_index": 3
+        "box_index": 4
     },
     "VisitFriendsRecognitionItemEnterButtonByNamePriority": {
         "desc": "优先链路：以白名单名框为锚向右偏移，识别该行进船（飞船）图标",
@@ -282,5 +278,33 @@
             "VisitFriendsMenuScanPriorityFallbackToNormal",
             "VisitFriendsPrioritySearchDone"
         ]
+    },
+    "VisitFriendsBtwSellPriceRecognition": {
+        "desc": "顺便出售：识别出售物资界面的单个物品售出价",
+        "recognition": "OCR",
+        "roi": [
+            1015,
+            240,
+            60,
+            25
+        ],
+        "expected": [
+            "\\d"
+        ],
+        "only_rec": true
+    },
+    "VisitFriendsBtwSellQuantityRecognition": {
+        "desc": "顺便出售：识别出售物资界面的当前选择数量",
+        "recognition": "OCR",
+        "roi": [
+            370,
+            510,
+            60,
+            35
+        ],
+        "expected": [
+            "\\d"
+        ],
+        "only_rec": true
     }
 }

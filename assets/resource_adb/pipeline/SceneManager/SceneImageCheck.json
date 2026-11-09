@@ -1,6 +1,21 @@
 {
     // ADB 不做画面/颜色检查（滤镜、HDR 等为 PC 侧问题）
     "__SceneImageCheck": {
-        "enabled": false
+        "action": "DoNothing",
+        "next": [
+            // 寻路的滑索功能依赖 UID
+            "[JumpBack]__SceneImageCaptureUid",
+            "__SceneImageCheckSuccess"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": ""
+        }
+    },
+    "__SceneImageCheckSuccess": {
+        "desc": "场景图像检查，检查完毕后结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
     }
 }

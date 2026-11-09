@@ -4962,8 +4962,7 @@ class MapNavigatorApp {
     try {
       // 默认模式把第一个作者点视作已抵达的起点；手动起点则保留全部作者点为目标。
       const exported = await exportPath(plan.targets);
-      const customActionParam = {path: exported.nodes || []};
-      if (this.els.chkEditZipline.checked) customActionParam.zip = true;
+      const customActionParam = {path: exported.nodes || [], zip: this.els.chkEditZipline.checked};
       const result = await postRoutePreview({
         position: plan.position,
         position_zone: plan.positionZone,
