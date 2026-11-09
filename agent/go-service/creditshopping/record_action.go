@@ -14,7 +14,7 @@ const creditShoppingScanItemActionName = "CreditShoppingScanItemAction"
 // RecordShelfSnapshotsAction 信用商店货架快照（best-effort，失败不阻断购物）：
 //  1. 截图并识别当日第几次刷新（RefreshCost）；
 //  2. 取 UID，查本地 JSON 是否已有 uid+game_date+refresh_index；有则直接结束；
-//  3. 尚无记录时 CreditShoppingRecordShelfSlot 定骨架（Win32 7+3 / ADB 5+5）→ record 物品挂格（未识别 unknown）→ 折扣 OCR → 追加写入；
+//  3. 尚无记录时 CreditShoppingRecordShelfSlot 定骨架（Win32 7+3 / ADB 6+4）→ record 物品挂格（未识别 unknown）→ 折扣 OCR → 追加写入；
 //     锚点未命中时不写入，避免占位后永久跳过重试。
 type RecordShelfSnapshotsAction struct{}
 

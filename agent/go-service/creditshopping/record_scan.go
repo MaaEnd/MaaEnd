@@ -115,21 +115,23 @@ func recordAssembleSlotRecords(
 	discountFor func(anchor maa.Rect) string,
 ) []SlotRecord {
 	out := make([]SlotRecord, 0, len(slotBoxes))
-	for i, slotBox := range slotBoxes {
+	for i := range slotBoxes {
 		hit := matched[i]
-		discountBox := slotBox
 		name := recordSlotNameUnknown
 		id := recordSlotItemIDUnknown
+		// 未挂上商品的槽位没有商品框，按槽位锚点套商品尺寸的 roi_offset 会得到非法区域，
+		// 因此直接记 None，不再跑一次必然失败的折扣 OCR。
+		discount := recordDiscountNone
 		if recordRectValid(hit.Box) {
-			discountBox = hit.Box
 			name = strings.TrimSpace(hit.Name)
 			id = hit.ID
+			discount = discountFor(hit.Box)
 		}
 		out = append(out, SlotRecord{
 			Slot:     i,
 			Name:     name,
 			ID:       id,
-			Discount: discountFor(discountBox),
+			Discount: discount,
 		})
 	}
 	return out

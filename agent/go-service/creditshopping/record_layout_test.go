@@ -11,20 +11,20 @@ func box(x, y int) maa.Rect {
 }
 
 func TestRecordOrderSlotBoxesByLayout(t *testing.T) {
-	t.Run("adb 5+5", func(t *testing.T) {
+	t.Run("adb 6+4", func(t *testing.T) {
 		var boxes []maa.Rect
-		for i := 0; i < 5; i++ {
+		for i := 0; i < 6; i++ {
 			boxes = append(boxes, box(100+i*80, 200))
 		}
-		for i := 0; i < 5; i++ {
+		for i := 0; i < 4; i++ {
 			boxes = append(boxes, box(100+i*80, 400))
 		}
-		got := recordOrderSlotBoxesByLayout(boxes, recordShelfLayout{5, 5})
+		got := recordOrderSlotBoxesByLayout(boxes, recordShelfLayout{6, 4})
 		if len(got) != 10 {
 			t.Fatalf("len = %d, want 10", len(got))
 		}
-		if recordRectCenterY(got[4]) >= recordRectCenterY(got[5]) {
-			t.Fatal("expected top row before bottom row")
+		if recordRectCenterY(got[5]) >= recordRectCenterY(got[6]) {
+			t.Fatal("expected 6 top slots before 4 bottom slots")
 		}
 	})
 
@@ -106,7 +106,7 @@ func TestRecordMatchItemsToSlots(t *testing.T) {
 
 func TestRecordLayoutFromControllerKind(t *testing.T) {
 	adb := recordLayoutFromControllerKind("adb")
-	if adb.topRow != 5 || adb.bottomRow != 5 {
+	if adb.topRow != 6 || adb.bottomRow != 4 {
 		t.Fatalf("adb layout = %+v", adb)
 	}
 	pc := recordLayoutFromControllerKind("win32")

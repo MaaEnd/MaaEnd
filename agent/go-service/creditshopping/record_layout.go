@@ -22,10 +22,10 @@ type recordShelfLayout struct {
 }
 
 // recordLayoutFromControllerKind 按控制器类型返回货架骨架：触摸端（ADB / PlayCover /
-// 原生 Android）5+5，桌面端 7+3；类型未知时也按桌面处理。
+// 原生 Android）6+4，桌面端 7+3；类型未知时也按桌面处理。
 func recordLayoutFromControllerKind(kind string) recordShelfLayout {
 	if pienv.IsAdbLikeControllerType(kind) {
-		return recordShelfLayout{topRow: 5, bottomRow: 5}
+		return recordShelfLayout{topRow: 6, bottomRow: 4}
 	}
 	return recordShelfLayout{topRow: 7, bottomRow: 3}
 }
@@ -73,7 +73,7 @@ func recordClusterRowsByYFromBoxes(boxes []maa.Rect) [][]maa.Rect {
 	return rows
 }
 
-// recordOrderSlotBoxesByLayout 按平台骨架（Win32 7+3 / ADB 5+5）排序槽位锚框：上行从左到右，再下行从左到右。
+// recordOrderSlotBoxesByLayout 按平台骨架（Win32 7+3 / ADB 6+4）排序槽位锚框：上行从左到右，再下行从左到右。
 func recordOrderSlotBoxesByLayout(boxes []maa.Rect, layout recordShelfLayout) []maa.Rect {
 	rows := recordClusterRowsByYFromBoxes(boxes)
 	if len(rows) == 0 {
