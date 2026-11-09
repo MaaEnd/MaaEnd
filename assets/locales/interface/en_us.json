@@ -2683,6 +2683,7 @@
     "task.ReceiveProdManual.label": "🌾 Claim Simple Crafting Manual Rewards",
     "task.ResourceRecycleStation.description": "Automatically collect resources from Resource Recycle Stations in Wuling and Valley IV",
     "task.ResourceRecycleStation.focus.Empty": "No collectible resources in this region",
+    "task.ResourceRecycleStation.focus.CollectLocked": "Remote collection locked (requires station level 4), skipping this station",
     "task.ResourceRecycleStation.focus.Found": "Resource recycle station found",
     "task.ResourceRecycleStation.focus.LimitReached": "Rare resource limit reached, scrolling",
     "task.ResourceRecycleStation.focus.ValleyIVStart": "Collecting Valley IV Resource Recycle Station",

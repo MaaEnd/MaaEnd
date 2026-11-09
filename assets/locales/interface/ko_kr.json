@@ -2683,6 +2683,7 @@
     "task.ReceiveProdManual.label": "🌾 간단 제작 매뉴얼 보상 수령",
     "task.ResourceRecycleStation.description": "무릉과 4호 계곡의 자원 재활용 스테이션에서 자동으로 수집합니다",
     "task.ResourceRecycleStation.focus.Empty": "이 지역에 수집 가능한 자원이 없습니다",
+    "task.ResourceRecycleStation.focus.CollectLocked": "원격 수집 미해금(회수소 레벨 4 필요), 이 지점을 건너뜁니다",
     "task.ResourceRecycleStation.focus.Found": "자원 재활용 스테이션 발견",
     "task.ResourceRecycleStation.focus.LimitReached": "희귀 자원 한도 도달, 스크롤 중",
     "task.ResourceRecycleStation.focus.ValleyIVStart": "4호 계곡 자원 재활용 스테이션 수집 중",

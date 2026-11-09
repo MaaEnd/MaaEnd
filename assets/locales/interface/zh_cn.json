@@ -2683,6 +2683,7 @@
     "task.ReceiveProdManual.label": "🌾简制手册领取",
     "task.ResourceRecycleStation.description": "自动收取武陵和四号谷地的资源回收站物资",
     "task.ResourceRecycleStation.focus.Empty": "该地区暂无可收取资源",
+    "task.ResourceRecycleStation.focus.CollectLocked": "远程收取未解锁（需回收站等级 4），跳过该站",
     "task.ResourceRecycleStation.focus.Found": "发现资源回收站",
     "task.ResourceRecycleStation.focus.LimitReached": "稀有资源已达上限，滑动查看",
     "task.ResourceRecycleStation.focus.ValleyIVStart": "开始收取四号谷地资源回收站",

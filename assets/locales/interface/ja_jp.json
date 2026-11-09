@@ -2683,6 +2683,7 @@
     "task.ReceiveProdManual.label": "🌾 簡易製作手帳報酬受取",
     "task.ResourceRecycleStation.description": "武陵と四号谷地の資源回収ステーションから自動的に収集します",
     "task.ResourceRecycleStation.focus.Empty": "この地域に収集可能な資源はありません",
+    "task.ResourceRecycleStation.focus.CollectLocked": "遠隔回収は未解放（ステーションLv4が必要）、このステーションをスキップ",
     "task.ResourceRecycleStation.focus.Found": "資源回収ステーションを発見",
     "task.ResourceRecycleStation.focus.LimitReached": "希少資源が上限に達しました、スクロール中",
     "task.ResourceRecycleStation.focus.ValleyIVStart": "四号谷地の資源回収ステーションを収集中",
