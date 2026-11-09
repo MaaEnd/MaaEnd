@@ -147,6 +147,9 @@ void post_key_down_sync(InputBackend* backend, int key_code, int delay_millis)
     // 键盘输入法为 Interception 时绕开 MaaFramework 直连驱动：框架的
     // InterceptionInput::key_down 会 ensure_foreground()，每次按键都把游戏窗口拉到前台，
     // 后台挂机无法成立。其它输入法保持上游路径不变。
+    // MaaWin32InputMethod 只在 Windows 资源里定义，与上游 is_mouse_lock_follow_supported
+    // 等调用点一致，必须整段包在 _WIN32 内，否则 Linux/macOS/Android 编译失败。
+#ifdef _WIN32
     MaaWin32InputMethod kb_method {};
     if (TryGetWin32KeyboardInputMethod(backend->ctrl, &kb_method)
         && kb_method == MaaWin32InputMethod_Interception
@@ -154,6 +157,7 @@ void post_key_down_sync(InputBackend* backend, int key_code, int delay_millis)
         SleepFor(delay_millis);
         return;
     }
+#endif
 
     const MaaCtrlId ctrl_id = MaaControllerPostKeyDown(backend->ctrl, key_code);
     MaaControllerWait(backend->ctrl, ctrl_id);
@@ -166,6 +170,7 @@ void post_key_up_sync(InputBackend* backend, int key_code, int delay_millis)
         *movement_state = false;
     }
 
+#ifdef _WIN32
     MaaWin32InputMethod kb_method {};
     if (TryGetWin32KeyboardInputMethod(backend->ctrl, &kb_method)
         && kb_method == MaaWin32InputMethod_Interception
@@ -173,6 +178,7 @@ void post_key_up_sync(InputBackend* backend, int key_code, int delay_millis)
         SleepFor(delay_millis);
         return;
     }
+#endif
 
     const MaaCtrlId ctrl_id = MaaControllerPostKeyUp(backend->ctrl, key_code);
     MaaControllerWait(backend->ctrl, ctrl_id);
@@ -345,6 +351,7 @@ bool SendDesktopViewDeltaSync(const InputBackend& backend, int dx, int dy)
     // 鼠标输入法为 Interception 时直连驱动：MaaFramework 的 InterceptionInput 至今没有实现
     // RelativeMoveInput，MaaControllerPostRelativeMove 会直接失败，转视角随之失效
     // （表现是角色朝错误方向走、甚至走进水里）。
+#ifdef _WIN32
     MaaWin32InputMethod mouse_method {};
     if (TryGetWin32MouseInputMethod(backend.ctrl, &mouse_method)
         && mouse_method == MaaWin32InputMethod_Interception
@@ -352,6 +359,7 @@ bool SendDesktopViewDeltaSync(const InputBackend& backend, int dx, int dy)
         LogInfo << "SendRelativeMoveInterception" << VAR(dx) << VAR(dy);
         return true;
     }
+#endif
 
     LogInfo << "SendRelativeMoveNative" << VAR(dx) << VAR(dy);
     const MaaCtrlId ctrl_id = MaaControllerPostRelativeMove(backend.ctrl, dx, dy);
