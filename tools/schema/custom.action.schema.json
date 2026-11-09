@@ -320,22 +320,6 @@
         {
             "if": {
                 "properties": {
-                    "custom_action": {"const": "CreditShoppingApplyPriorityItemsAction"}
-                },
-                "required": ["custom_action"]
-            },
-            "then": {
-                "properties": {
-                    "custom_action_param": {
-                        "$ref": "./components/credit_shopping.schema.json#/$defs/ApplyPriorityItemsParam"
-                    }
-                },
-                "required": ["custom_action_param"]
-            }
-        },
-        {
-            "if": {
-                "properties": {
                     "custom_action": {"const": "FailureCollectorFinish"}
                 },
                 "required": ["custom_action"]
