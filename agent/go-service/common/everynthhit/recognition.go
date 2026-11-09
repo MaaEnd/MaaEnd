@@ -2,6 +2,7 @@ package everynthhit
 
 import (
 	"encoding/json"
+	"math/big"
 	"strconv"
 	"strings"
 
@@ -74,17 +75,12 @@ func (r *EveryNthHit) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 // parseEvery 从 every 的原始 JSON 中解析次数，同时接受 JSON 数字与数字字符串。
 //
-// 数字先格式化成十进制字符串再走 Atoi，因此 3 与 3.0 等价、3.5 之类的小数会被
-// 拒绝；布尔、数组等非数字类型同样返回 false。这里只做语法解析，非正数由 Run
-// 的 every <= 0 判断拦下，避免两处各写一套范围检查。
+// 数字字符串保持十进制整数规则；JSON 数字通过 json.Number 保留原始文本，再用
+// big.Rat 精确判断整性，因此 3 与 3.0 等价，非整数即使会被 float64 舍入成整数
+// 也会被拒绝。这里只做语法、整性和 int 范围解析，非正数由 Run 拦下。
 func parseEvery(raw json.RawMessage) (int, bool) {
 	if len(raw) == 0 {
 		return 0, false
-	}
-
-	var number float64
-	if err := json.Unmarshal(raw, &number); err == nil {
-		return atoiEvery(strconv.FormatFloat(number, 'f', -1, 64))
 	}
 
 	var text string
@@ -92,10 +88,30 @@ func parseEvery(raw json.RawMessage) (int, bool) {
 		return atoiEvery(strings.TrimSpace(text))
 	}
 
+	var number json.Number
+	if err := json.Unmarshal(raw, &number); err == nil {
+		return jsonNumberToInt(number)
+	}
+
 	return 0, false
 }
 
-// atoiEvery 把十进制字符串转成正整数；空串、小数、非数字一律视为非法。
+// jsonNumberToInt 精确检查 JSON 数字是否为 int 范围内的整数。
+func jsonNumberToInt(number json.Number) (int, bool) {
+	rational, ok := new(big.Rat).SetString(number.String())
+	if !ok || !rational.IsInt() || !rational.Num().IsInt64() {
+		return 0, false
+	}
+
+	value64 := rational.Num().Int64()
+	value := int(value64)
+	if int64(value) != value64 {
+		return 0, false
+	}
+	return value, true
+}
+
+// atoiEvery 把十进制字符串转成整数；空串、小数、非数字一律视为非法。
 func atoiEvery(text string) (int, bool) {
 	value, err := strconv.Atoi(text)
 	if err != nil {
