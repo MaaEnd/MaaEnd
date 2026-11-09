@@ -16,6 +16,8 @@
     "controller.MacOS-Front.label": "macOS 前景視窗（測試版）",
     "controller.Win32-Front.description": "穩定性最好，需要遊戲視窗保持在最前且不被遮擋，會完全搶占滑鼠",
     "controller.Win32-Front.label": "電腦端-前台",
+    "controller.Win32-Background.description": "後台截圖 + 後台輸入。滑鼠可後台點擊；鍵盤對 Unity 遊戲無效，WASD 移動不可用。請謹慎使用。",
+    "controller.Win32-Background.label": "電腦端 - 後台（測試版）",
     "controller.Win32-Window-Background.description": "因遊戲更新導致無法繼續適配，後台控制器已棄用，並將在後續版本中移除。",
     "controller.Win32-Window-Background.label": "電腦端-後台棄用(無法適配新版本)",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.zh_tw.md",

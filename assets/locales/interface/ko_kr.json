@@ -16,6 +16,8 @@
     "controller.MacOS-Front.label": "macOS 전면 창(베타)",
     "controller.Win32-Front.description": "안정성이 가장 뛰어납니다. 게임 창이 항상 최앞단에 있고 가려지지 않아야 하며, 마우스를 완전히 점유합니다.",
     "controller.Win32-Front.label": "PC-포그라운드",
+    "controller.Win32-Background.description": "백그라운드 화면 캡처 + 백그라운드 입력. 마우스 클릭은 백그라운드에서 동작하지만, 키보드는 Unity 게임에서 동작하지 않아 WASD 이동을 사용할 수 없습니다. 주의해서 사용하세요.",
+    "controller.Win32-Background.label": "PC - 백그라운드(테스트)",
     "controller.Win32-Window-Background.description": "게임 업데이트로 인해 더 이상 호환할 수 없습니다. 백그라운드 컨트롤러는 사용 중단되었으며 향후 버전에서 제거될 예정입니다.",
     "controller.Win32-Window-Background.label": "PC-백그라운드 (사용 중단 - 새 버전 호환 불가)",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.ko_kr.md",

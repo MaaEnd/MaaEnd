@@ -16,6 +16,8 @@
     "controller.MacOS-Front.label": "macOS 前面ウィンドウ（ベータ版）",
     "controller.Win32-Front.description": "安定性が最も高い。ゲームウィンドウを最前面に表示し、遮られないようにする必要があります。マウスを完全に占有します。",
     "controller.Win32-Front.label": "PC-前面",
+    "controller.Win32-Background.description": "バックグラウンドの画面取得 + 入力。マウスはバックグラウンドでクリック可能。キーボードは Unity 製ゲームでは機能しないため WASD 移動は使用できません。慎重に使用してください。",
+    "controller.Win32-Background.label": "PC - バックグラウンド（試験版）",
     "controller.Win32-Window-Background.description": "ゲームの更新により適応を継続できなくなりました。バックグラウンドコントローラーは非推奨となり、今後のバージョンで削除される予定です。",
     "controller.Win32-Window-Background.label": "PC-バックグラウンド（非推奨 - 新バージョンに対応不可）",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.ja_jp.md",

@@ -16,6 +16,8 @@
     "controller.MacOS-Front.label": "macOS Foreground Window (Beta)",
     "controller.Win32-Front.description": "Best stability. Requires the game window to remain in the foreground and unobstructed; will fully grab the mouse.",
     "controller.Win32-Front.label": "PC-Foreground",
+    "controller.Win32-Background.description": "Background screencap + background input. Mouse clicks work in the background; keyboard does NOT work for Unity titles, so WASD movement is unavailable. Use with caution.",
+    "controller.Win32-Background.label": "PC - Background (Experimental)",
     "controller.Win32-Window-Background.description": "Due to game updates, it can no longer be adapted. The background controller has been deprecated and will be removed in a future version.",
     "controller.Win32-Window-Background.label": "PC-Background (Deprecated - incompatible with new version)",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.en_us.md",
