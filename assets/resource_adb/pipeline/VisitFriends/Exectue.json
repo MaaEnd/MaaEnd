@@ -10,5 +10,25 @@
                 "custom_action": "AutoAltClickAction"
             }
         }
+    },
+    "VisitFriendsBtwSellBuyPlus": {
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods",
+            {
+                "sub_name": "increase",
+                "recognition": "TemplateMatch",
+                "roi_offset": [
+                    639,
+                    495,
+                    255,
+                    146
+                ],
+                "template": [
+                    "AutoStockpile/IncreaseButton.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.8
+            }
+        ]
     }
 }

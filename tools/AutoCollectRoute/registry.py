@@ -3,7 +3,7 @@
 import json
 import re
 from collections import Counter
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from itertools import groupby
 from pathlib import Path
@@ -105,6 +105,16 @@ class Item:
     kind: str
     names: dict[str, str]
 
+    @property
+    def series(self) -> str:
+        """去掉末尾阶数/变体号：item_plant_mushroom_1_2 -> item_plant_mushroom_1"""
+        return self.id.rsplit("_", 1)[0]
+
+    @property
+    def grade(self) -> int:
+        tail = self.id.rsplit("_", 1)[-1]
+        return int(tail) if tail.isdigit() else 0
+
 
 @dataclass(frozen=True)
 class Route:
@@ -177,7 +187,7 @@ def join_names(locale: str, names: list[str]) -> str:
 def load_items() -> dict[str, Item]:
     return {
         info["item"]: Item(
-            info["item"], to_pascal(info["item_names"]["en_us"]), info["icon"], route_kind(info), info["item_names"]
+            info["item"], to_pascal(info["names"]["en_us"]), info["icon"], route_kind(info), info["names"]
         )
         for info in read_json(COLLECT_POINTS_PATH)["types"].values()
     }
@@ -207,8 +217,19 @@ def load_routes(registry: dict[str, Any], items: dict[str, Item]) -> list[Route]
     return routes
 
 
+def validate_series_order(series_order: list[str], items: dict[str, Item]) -> None:
+    """登记的系列名对不上任何采集物的 series 视为拼写错误，避免静默失效。"""
+    known = {item.series for item in items.values()}
+    invalid = [name for name in series_order if name not in known]
+    if invalid:
+        raise RegistryError(f"series_order 中的名字对不上任何采集物系列: {', '.join(invalid)}")
+
+
 def validate() -> None:
-    load_routes(read_jsonc(REGISTRY_PATH), load_items())
+    registry = read_jsonc(REGISTRY_PATH)
+    items = load_items()
+    validate_series_order(registry.get("series_order", []), items)
+    load_routes(registry, items)
 
 
 def next_route_id(region: str, item_ids: list[str]) -> str:
@@ -256,13 +277,20 @@ def node_references() -> dict[str, list[str]]:
     return found
 
 
-def build_groups(routes: list[Route]) -> list[Group]:
+def item_rank(routes: list[Route], series_order: list[str]) -> Callable[[Item], tuple[int, int, int]]:
+    """排序键：登记了顺序的系列在前；未登记的系列按路线登记表首次出现排其后；同系列按阶数。"""
+    appeared = (item.series for route in routes for item in route.items)
+    ranks = {name: index for index, name in enumerate(dict.fromkeys([*series_order, *appeared]))}
+    return lambda item: (KINDS.index(item.kind), ranks[item.series], item.grade)
+
+
+def build_groups(routes: list[Route], rank: Callable[[Item], tuple[int, int, int]]) -> list[Group]:
     groups: dict[tuple[str, str], Group] = {}
     for route in routes:
         for item in route.items:
             groups.setdefault((route.region, item.id), Group(route.region, item)).routes.append(route)
     regions = list(dict.fromkeys(route.region for route in routes))
-    return sorted(groups.values(), key=lambda group: (regions.index(group.region), KINDS.index(group.item.kind)))
+    return sorted(groups.values(), key=lambda group: (regions.index(group.region), rank(group.item)))
 
 
 def route_names(routes: list[Route]) -> dict[str, dict[str, str]]:
@@ -430,7 +458,12 @@ def unique_items(groups: list[Group]) -> list[Item]:
     return list({group.item.id: group.item for group in groups}.values())
 
 
-def update_task(task: dict[str, Any], groups: list[Group], default_limits: dict[str, int]) -> dict[str, Any]:
+def update_task(
+    task: dict[str, Any],
+    groups: list[Group],
+    rank: Callable[[Item], tuple[int, int, int]],
+    default_limits: dict[str, int],
+) -> dict[str, Any]:
     generated = region_options(groups)
     options = {name: option for name, option in task["option"].items() if name in HAND_WRITTEN_OPTIONS}
 
@@ -444,7 +477,8 @@ def update_task(task: dict[str, Any], groups: list[Group], default_limits: dict[
             "verify": "^\\d+$",
             "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg",
         }
-        for item in unique_items(groups)
+        # 目标库存输入是跨地区的扁平列表，按系列/阶数全局排序，不让地区打乱三阶连续
+        for item in sorted(unique_items(groups), key=rank)
     ]
     inventory["pipeline_override"] = {
         f"{group.node}Skipped": {
@@ -468,14 +502,14 @@ def owned_key(key: str) -> bool:
     return key.startswith("option.AutoCollect") and not key.startswith(HAND_WRITTEN_KEYS)
 
 
-def locale_texts(locale: str, groups: list[Group], routes: list[Route], names: dict[str, dict[str, str]]) -> dict[str, str]:
+def locale_texts(
+    locale: str, groups: list[Group], routes: list[Route], names: dict[str, dict[str, str]]
+) -> dict[str, str]:
     texts = {f"option.AutoCollect{kind.capitalize()}Items.label": KIND_LABELS[kind][locale] for kind in KINDS}
     for item in unique_items(groups):
         name = item.names[locale]
         texts[f"option.AutoCollectItem.{item.id}.label"] = name
-        texts[f"option.AutoCollectTargetInventory.inputs.{item.id}.label"] = (
-            f"![](resource/image/UI/Item/{item.icon}.png) {name}"
-        )
+        texts[f"option.AutoCollectTargetInventory.inputs.{item.id}.label"] = name
         texts[f"task.AutoCollect.item.{item.id}.skipped"] = SKIPPED_TEXTS[locale].format(name=name)
     for route in routes:
         name = names[route.id][locale]
@@ -486,12 +520,16 @@ def locale_texts(locale: str, groups: list[Group], routes: list[Route], names: d
 
 def generate() -> list[Path]:
     registry = read_jsonc(REGISTRY_PATH)
-    routes = load_routes(registry, load_items())
-    groups = build_groups(routes)
+    items = load_items()
+    series_order = registry.get("series_order", [])
+    validate_series_order(series_order, items)
+    routes = load_routes(registry, items)
+    rank = item_rank(routes, series_order)
+    groups = build_groups(routes, rank)
     names = route_names(routes)
 
     write_json(DISPATCH_PATH, dispatch_document(groups, routes, names))
-    write_json(TASK_PATH, update_task(read_jsonc(TASK_PATH), groups, registry.get("default_limits", {})))
+    write_json(TASK_PATH, update_task(read_jsonc(TASK_PATH), groups, rank, registry.get("default_limits", {})))
     for locale in LOCALES:
         path = LOCALE_DIR / f"{locale}.json"
         messages = {key: value for key, value in read_json(path).items() if not owned_key(key)}

@@ -192,26 +192,56 @@
         },
         "action": "DoNothing",
         "next": [
+            "PullCountCalculatorCarryToNextVoucherQuantityTextArea"
+        ]
+    },
+    "PullCountCalculatorCarryToNextVoucherQuantityTextArea": {
+        "desc": "在特许寻访凭证的数量带内定位暗色数字，排除格子左右边界并保留抗锯齿笔画",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "PullCountCalculatorFindCarryToNextVoucher",
+                "roi_offset": [
+                    0,
+                    78,
+                    0,
+                    -64
+                ],
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    179,
+                    64,
+                    105
+                ],
+                "count": 1
+            }
+        },
+        "action": "DoNothing",
+        "next": [
             "PullCountCalculatorCarryToNextVoucherQuantityOCR"
         ]
     },
     "PullCountCalculatorCarryToNextVoucherQuantityOCR": {
-        "desc": "识别特许寻访凭证格子底部的堆叠数量；PC 96px 格子底部取 18px 数量带",
+        "desc": "仅识别 ColorMatch 数字框及其周围 2px 的堆叠数量",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "PullCountCalculatorFindCarryToNextVoucher",
+                "roi": "PullCountCalculatorCarryToNextVoucherQuantityTextArea",
                 "roi_offset": [
-                    -7,
-                    78,
-                    14,
-                    -64
+                    -2,
+                    -2,
+                    4,
+                    4
                 ],
                 "expected": [
                     "\\d"
                 ],
-                "only_rec": true,
-                "color_filter": "PullCountCalculatorVoucherQuantityColorFilter"
+                "only_rec": true
             }
         },
         "action": "Custom",
@@ -224,25 +254,6 @@
             "PullCountCalculatorFindIntroLetter",
             "PullCountCalculatorPageDone"
         ]
-    },
-    "PullCountCalculatorVoucherQuantityColorFilter": {
-        "desc": "提取数量文字的黑色和深灰色像素，供数量 OCR 二值化使用",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "method": 4,
-                "lower": [
-                    0,
-                    0,
-                    0
-                ],
-                "upper": [
-                    100,
-                    100,
-                    100
-                ]
-            }
-        }
     },
     "PullCountCalculatorFindIntroLetter": {
         "desc": "查找寻访情报书图标，命中后按一份统计",

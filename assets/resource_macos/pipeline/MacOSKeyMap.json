@@ -34,7 +34,7 @@
             }
         }
     },
-    "AutoCollectClick": {
+    "AutoCollectClickKey": {
         "action": {
             "type": "ClickKey",
             "param": {

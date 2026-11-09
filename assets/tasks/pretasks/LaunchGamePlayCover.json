@@ -1,0 +1,45 @@
+{
+    "pretask": {
+        "controller": [
+            "PlayCover"
+        ],
+        "exec": "agent/go-service",
+        "args": [
+            "--pretask",
+            "LaunchGamePlayCover"
+        ],
+        "name": "LaunchGamePlayCover",
+        "label": "$pretask.LaunchGamePlayCover.label",
+        "description": "$pretask.LaunchGamePlayCover.description",
+        "option": [
+            "LaunchGamePlayCoverAppPath",
+            "LaunchGamePlayCoverLaunchDelay"
+        ]
+    },
+    "option": {
+        "LaunchGamePlayCoverAppPath": {
+            "type": "input",
+            "label": "$option.LaunchGamePlayCoverAppPath.label",
+            "inputs": [
+                {
+                    "name": "Path",
+                    "label": "$option.LaunchGamePlayCoverAppPath.Path.label",
+                    "default": ""
+                }
+            ]
+        },
+        "LaunchGamePlayCoverLaunchDelay": {
+            "type": "input",
+            "label": "$option.LaunchGamePlayCoverLaunchDelay.label",
+            "inputs": [
+                {
+                    "name": "Seconds",
+                    "label": "$option.LaunchGamePlayCoverLaunchDelay.Seconds.label",
+                    "default": "10",
+                    "verify": "^(?:300(?:\\.0+)?|(?:[0-9]|[1-9][0-9]|[12][0-9]{2})(?:\\.[0-9]+)?)$",
+                    "pattern_msg": "$option.LaunchGamePlayCoverLaunchDelay.Seconds.pattern_msg"
+                }
+            ]
+        }
+    }
+}

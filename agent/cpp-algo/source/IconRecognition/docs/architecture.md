@@ -76,7 +76,9 @@
 - 格子级记录候选模板、分数、稀有度缩减、是否使用禁用后备，以及候选为何没有进入公开结果；
 - 性能诊断记录各阶段耗时与模板数量。
 
-正常执行到结果汇总阶段时会收集网格级和格子级诊断；提前返回的 `invalid_image`、`invalid_argument`、`grid_detection_failed` 或 `exception` 可能不包含诊断。这些诊断供内部实现、debug 文件和人工测试使用；性能诊断以及 Custom 入口的 debug 文件由 debug 开关控制。添加诊断字段时，需要同步人工测试输出；除非公开契约确实需要，否则不要修改 `RecognitionResult::to_json()`。
+正常执行到结果汇总阶段时会收集网格级和格子级诊断；提前返回的 `invalid_image`、`invalid_argument`、`grid_detection_failed` 或 `exception` 可能不包含诊断。这些诊断供内部实现、debug 文件、自动诊断采图和人工测试使用；性能诊断以及 Custom 入口的 debug 文件由 debug 开关控制。添加诊断字段时，需要同步人工测试输出；除非公开契约确实需要，否则不要修改 `RecognitionResult::to_json()`。
+
+`DiagnosticCapture` 在 Custom 回调内消费最终诊断：有格子但最终零命中时保存；部分命中时结合本次分类范围的候选覆盖率和拒绝证据决定是否采图，页面特征仅用于去重，不重跑识别或改变结果。保存时同步调用 MaaFramework `Screencap`，检查动作状态和实际图片路径，诊断信息写入日志；失败不影响识别，不在回调外持有框架句柄。采图条件、缓存限制、文件格式与清理方式见[开发者指南](/docs/zh_cn/developers/components/icon-recognition.md#自动诊断采图)。
 
 ## 维护约束
 

@@ -1,0 +1,1306 @@
+{
+    "RestaurantShopAfterRounds": {
+        "desc": "进入堂头小铺购物流程。",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopApproach",
+            "RestaurantShopApproachAfterBusiness"
+        ]
+    },
+    "RestaurantShopApproach": {
+        "desc": "导航到堂头小铺交互区域。",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        137.48,
+                        138.67
+                    ],
+                    "target_tier": "Wuling_L10_468",
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        136.44,
+                        133.13
+                    ],
+                    "target_tier": "Wuling_L10_468",
+                    "strict": true,
+                    "required": true
+                }
+            ]
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                796,
+                347,
+                253,
+                279
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopInteract"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopApproachAfterBusiness": {
+        "desc": "从缘缘庄经营区域导航到堂头小铺交互区域。",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_L10_468"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        137.48,
+                        138.67
+                    ],
+                    "target_tier": "Wuling_L10_468",
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        136.44,
+                        133.13
+                    ],
+                    "target_tier": "Wuling_L10_468",
+                    "strict": true,
+                    "required": true
+                }
+            ]
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                796,
+                347,
+                253,
+                279
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopInteract"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopInteract": {
+        "desc": "识别小聪明或手不停的交互提示并 AltClick，直到提示消失，最多三次。",
+        "recognition": "OCR",
+        "roi": [
+            796,
+            347,
+            253,
+            279
+        ],
+        "expected": [
+            "小聪明",
+            "手不停",
+            "小聰明",
+            "手不停",
+            "꾸러기",
+            "열일이",
+            "ソウメイ",
+            "コマメ",
+            "Witty",
+            "Job Rusher"
+        ],
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "RestaurantShopInteract",
+            "repeat_count": 3
+        },
+        "next": [
+            "RestaurantShopWaitDialogueSkip"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopWaitDialogueSkip": {
+        "desc": "等待对话跳过按钮出现。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "DoNothing",
+            "wait_nodes": [
+                "RestaurantShopDialogueSkipAll",
+                "RestaurantShopOpenGoods"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopDialogueSkipAll",
+            "RestaurantShopOpenGoods"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopDialogueSkipAll": {
+        "desc": "点击跳过对话。",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1140,
+            0,
+            120,
+            90
+        ],
+        "template": "RealTimeTask/AutoSkipEsc.png",
+        "threshold": 0.7,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopDialogueSkipAll",
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopDialogueSkipAllConfirm",
+            "RestaurantShopOpenGoods"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopDialogueSkipAllConfirm": {
+        "desc": "点击确认跳过并等待确认提示消失。",
+        "recognition": "OCR",
+        "roi": [
+            647,
+            442,
+            211,
+            43
+        ],
+        "expected": [
+            "确认",
+            "確認",
+            "確定",
+            "Confirm",
+            "확인"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopDialogueSkipAllConfirm",
+            "repeat_count": 3
+        },
+        "target": true,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopOpenGoods"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopOpenGoods": {
+        "desc": "点击“看看货物”进入商品界面。",
+        "recognition": "OCR",
+        "roi": [
+            946,
+            352,
+            252,
+            278
+        ],
+        "expected": [
+            "看看货物",
+            "看看貨物",
+            "Check the goods",
+            "品物を見る",
+            "물품을 확인하기."
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopOpenGoods",
+            "repeat_count": 3
+        },
+        "target": true,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopEnsurePriorityStorage"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopEnsurePriorityStorage": {
+        "desc": "检查“优先存入地区仓库”是否勾选并分流。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "DoNothing",
+            "wait_nodes": [
+                "RestaurantShopPriorityStorageChecked",
+                "RestaurantShopPriorityStorageUnchecked"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopPriorityStorageChecked",
+            "RestaurantShopPriorityStorageUnchecked"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopPriorityStorageChecked": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            43,
+            631,
+            233,
+            63
+        ],
+        "template": "Restaurant/Shop/StoreInRegionChecked.png",
+        "threshold": 0.85,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopScan"
+        ]
+    },
+    "RestaurantShopPriorityStorageUnchecked": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            43,
+            631,
+            233,
+            63
+        ],
+        "template": "Restaurant/Shop/StoreInRegionUnchecked.png",
+        "threshold": 0.85,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_nodes": [
+                "RestaurantShopPriorityStorageChecked"
+            ],
+            "repeat_count": 3
+        },
+        "target": true,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopScan"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopScan": {
+        "desc": "依次检查当前页面 14 个商品位、刷新入口或结束条件。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlot1Discount",
+            "RestaurantShopSlot2Discount",
+            "RestaurantShopSlot3Discount",
+            "RestaurantShopSlot4Discount",
+            "RestaurantShopSlot5Discount",
+            "RestaurantShopSlot6Discount",
+            "RestaurantShopSlot7Discount",
+            "RestaurantShopSlot8Discount",
+            "RestaurantShopSlot9Discount",
+            "RestaurantShopSlot10Discount",
+            "RestaurantShopSlot11Discount",
+            "RestaurantShopSlot12Discount",
+            "RestaurantShopSlot13Discount",
+            "RestaurantShopSlot14Discount",
+            "RestaurantShopRefreshAvailable",
+            "StopNode"
+        ]
+    },
+    "RestaurantShopSlot1Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    193,
+                    139,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    105,
+                    141,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            175,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot2Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    345,
+                    139,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    257,
+                    141,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            327,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot3Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    496,
+                    139,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    408,
+                    141,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            478,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot4Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    648,
+                    139,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    560,
+                    141,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            630,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot5Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    801,
+                    139,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    713,
+                    141,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            783,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot6Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    953,
+                    139,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    865,
+                    141,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            935,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot7Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    1105,
+                    139,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    1017,
+                    141,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            1087,
+            228
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot8Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    193,
+                    358,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    105,
+                    360,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            175,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot9Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    345,
+                    358,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    257,
+                    360,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            327,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot10Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    496,
+                    358,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    408,
+                    360,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            478,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot11Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    648,
+                    358,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    560,
+                    360,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            630,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot12Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    801,
+                    358,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    713,
+                    360,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            783,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot13Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    953,
+                    358,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    865,
+                    360,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            935,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlot14Discount": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    1105,
+                    358,
+                    54,
+                    56
+                ],
+                // OCR full-text example: -95%
+                // @i18n-skip
+                "expected": [
+                    "-\\d+%"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    1017,
+                    360,
+                    141,
+                    174
+                ],
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            1087,
+            447
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseModal"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopPurchaseModalReady": {
+        "recognition": "And",
+        "all_of": [
+            "YellowButtonBackground"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopSlideQuantityMax",
+            "RestaurantShopConfirmPurchase"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopSlideQuantityMax": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            520,
+            510,
+            180,
+            36
+        ],
+        "template": "BetterSliding/SwipeButton.png",
+        "green_mask": true,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "Direction": "right"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopConfirmPurchase"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopConfirmPurchase": {
+        "recognition": "And",
+        "all_of": [
+            "YellowButtonBackground"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitPurchaseSuccess"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopPurchaseSuccess": {
+        "recognition": "And",
+        "all_of": [
+            "CloseRewardsButton",
+            "CloseRewardsButtonColor"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopPurchaseSuccess",
+            "repeat_count": 3
+        },
+        "target": true,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopScan"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopRefreshAvailable": {
+        "desc": "检查并点击刷新商品入口。",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            891,
+            626,
+            354,
+            71
+        ],
+        "expected": [
+            "刷新商品",
+            "更新商品",
+            "Refresh",
+            "商品更新",
+            "상품 새로고침"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopRefreshAvailable",
+            "repeat_count": 3
+        },
+        "target": true,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopWaitRefreshConfirm"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopRefreshConfirm": {
+        "recognition": "OCR",
+        "roi": [
+            647,
+            442,
+            211,
+            43
+        ],
+        "expected": [
+            "确认",
+            "確定",
+            "Confirm",
+            "확인"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantShopRefreshConfirm",
+            "repeat_count": 3
+        },
+        "target": true,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopScan"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopWaitPurchaseModal": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "DoNothing",
+            "wait_nodes": [
+                "RestaurantShopPurchaseModalReady"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopPurchaseModalReady"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopWaitPurchaseSuccess": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "DoNothing",
+            "wait_nodes": [
+                "RestaurantShopPurchaseSuccess"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopPurchaseSuccess"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantShopWaitRefreshConfirm": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "DoNothing",
+            "wait_nodes": [
+                "RestaurantShopRefreshConfirm"
+            ],
+            "repeat_count": 3
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantShopRefreshConfirm"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    }
+}

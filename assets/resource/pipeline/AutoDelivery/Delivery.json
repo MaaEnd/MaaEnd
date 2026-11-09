@@ -349,7 +349,7 @@
         ]
     },
     "AutoDeliverySkipChat": {
-        "desc": "送货交互进入对话时，先将鼠标移到左上角",
+        "desc": "送货交互进入对话后单击跳过对话",
         "recognition": "And",
         "all_of": [
             "AutoDeliveryInChatDialog",
@@ -357,65 +357,8 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "TouchMove",
-        "target": [
-            0,
-            0,
-            1,
-            1
-        ],
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryCheckSkipChatAfterMoveAway"
-        ]
-    },
-    "AutoDeliveryCheckSkipChatAfterMoveAway": {
-        "desc": "鼠标移到左上角后，重新识别对话和跳过按钮，确认按钮仍可见并产出最新识别框",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInChatDialog",
-            "AutoDeliveryCheckSkipChatButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliverySkipChatMoveToButton"
-        ]
-    },
-    "AutoDeliverySkipChatMoveToButton": {
-        "desc": "按移开后重新识别到的跳过按钮位置，将鼠标移回跳过按钮",
-        "pre_delay": 0,
-        "action": "TouchMove",
-        "target": "AutoDeliveryCheckSkipChatAfterMoveAway",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliverySkipChatClick"
-        ]
-    },
-    "AutoDeliverySkipChatClick": {
-        "desc": "鼠标移回跳过按钮后，重新确认对话和按钮仍然可见再点击",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInChatDialog",
-            "AutoDeliveryCheckSkipChatButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 80, // 等一帧
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 500,
-            "target": [
-                520,
-                300,
-                240,
-                120
-            ],
-            "timeout": 10000
-        },
+        "action": "Custom",
+        "custom_action": "AutoSwipeClickAction",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -446,7 +389,7 @@
         ]
     },
     "AutoDeliverySubmitGoods": {
-        "desc": "在送货目标附近识别交互按钮并提交货物",
+        "desc": "[运行时覆盖] 在送货目标附近识别交互按钮并提交货物；next 按终点类型重写成 NPC 进入对话 / 资源回收站直接出奖励结算框",
         "recognition": "And",
         "all_of": [
             "AutoDeliveryCheckSubmitGoodsTarget"
@@ -466,6 +409,10 @@
         "timeout": 6000,
         "rate_limit": 0,
         "next": [
+            // next 运行时由 AutoDeliveryResolveDestinationAction 按终点类型整体重写：
+            // ・NPC 终点 → [AutoDeliveryCheckSkipChatReady]，提交后先进入对话；
+            // ・资源回收站终点 → [AutoDeliveryCloseRewardDialog]，提交后直接出奖励结算框。
+            // 静态这里两个都留，只是「还没解析出终点就执行到本节点」时的兜底。
             "AutoDeliveryCheckSkipChatReady",
             "AutoDeliveryCloseRewardDialog"
         ],

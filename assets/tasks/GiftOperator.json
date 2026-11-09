@@ -53,6 +53,65 @@
                     }
                 },
                 {
+                    "name": "TrustNotFull",
+                    "label": "$task.GiftOperator.select.trust_not_full",
+                    "pipeline_override": {
+                        "GiftOperatorCheckContact": {
+                            "next": [
+                                "GiftOperatorTrustFilterOpen"
+                            ]
+                        },
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": true,
+                            "max_hit": 1
+                        },
+                        "GiftOperatorSelectOp2": {
+                            "max_hit": 1
+                        },
+                        "GiftOperatorSelectOp3": {
+                            "max_hit": 1
+                        },
+                        "GiftOperatorCheckSelected1": {
+                            "next": []
+                        },
+                        "GiftOperatorCheckSelected2": {
+                            "next": []
+                        },
+                        "GiftOperatorTrustIcon": {
+                            "recognition": {
+                                "param": {
+                                    "roi": [
+                                        480,
+                                        160,
+                                        800,
+                                        360
+                                    ]
+                                }
+                            }
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                ".*"
+                            ]
+                        },
+                        "GiftOperatorCheckSelected3": {
+                            "next": []
+                        }
+                    }
+                },
+                {
                     "name": "ALL",
                     "label": "$task.GiftOperator.select.all",
                     "pipeline_override": {
@@ -1034,6 +1093,36 @@
                                 "Si",
                                 "スー",
                                 "사"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ArgentFlow",
+                    "label": "$operator.ArgentFlow",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/ArgentFlow.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "明河",
+                                "明河",
+                                "Argent Flow",
+                                "ミンホ",
+                                "명하"
                             ]
                         }
                     }

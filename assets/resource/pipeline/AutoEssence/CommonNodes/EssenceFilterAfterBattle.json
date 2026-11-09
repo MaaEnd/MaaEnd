@@ -104,7 +104,10 @@
                     124,
                     83
                 ],
-                "template": "Common/Button/CancelButtonType1.png",
+                "template": [
+                    "Common/Button/CancelButtonType1.png",
+                    "Common/Button/CancelButtonType1Hover.png"
+                ],
                 "method": 5,
                 "threshold": 0.7
             }

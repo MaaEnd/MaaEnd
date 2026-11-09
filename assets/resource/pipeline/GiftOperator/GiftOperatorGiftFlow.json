@@ -122,9 +122,10 @@
             "param": {
                 "all_of": [
                     "GiftOperatorClickGiftColor",
+                    "GiftOperatorClickGiftTextColor",
                     "GiftOperatorClickGiftColorNumber"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "action": {
@@ -134,20 +135,47 @@
             "GiftOperatorGiftSelected"
         ]
     },
+    "GiftOperatorClickGiftTextColor": {
+        "desc": "礼物数量文字颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "GiftOperatorClickGiftColor",
+                "roi_offset": [
+                    0,
+                    -24,
+                    0,
+                    24
+                ],
+                "lower": [
+                    200,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 5
+            }
+        }
+    },
     "GiftOperatorClickGiftColorNumber": {
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "GiftOperatorClickGiftColor",
+                "roi": "GiftOperatorClickGiftTextColor",
                 "roi_offset": [
-                    26,
-                    -24,
-                    -50,
-                    24
+                    -2,
+                    -2,
+                    4,
+                    4
                 ],
                 "expected": [
                     "[1-9]\\d*"
-                ]
+                ],
+                "only_rec": true
             }
         }
     },

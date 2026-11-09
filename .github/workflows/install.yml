@@ -31,6 +31,12 @@ on:
         type: string
         default: ''
 
+# 同一 PR / 分支再次推送时取消上一次运行；tag 推送与手动触发是发版构建，
+# 永不取消，排队等前一次跑完
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')) }}
+
 jobs:
   meta:
     runs-on: ubuntu-latest
@@ -354,6 +360,9 @@ jobs:
               cp downloads/MXU/mxu.exe install/MaaEnd.exe
             elif [[ -f downloads/MXU/mxu ]]; then
               cp downloads/MXU/mxu install/MaaEnd
+            elif [[ -f downloads/MXU/mxu.app/Contents/MacOS/mxu ]]; then
+              # MXU v2.10.0 起 macOS 包改为 mxu.app 布局
+              cp downloads/MXU/mxu.app/Contents/MacOS/mxu install/MaaEnd
             fi
           fi
 

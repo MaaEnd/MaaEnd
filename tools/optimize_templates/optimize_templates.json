@@ -2587,5 +2587,18 @@
     "resource/image/ArenaOfGames/Character5": "06e11785ce40a480e4b46212959023ac1aab846351709e1b02005f5aff660de2",
     "resource/image/ArenaOfGames/Dot1": "e83a2f8a1a3f7a9dd298de2ecae11588a1ec52a4f4f695ad96403acc92633df9",
     "resource/image/ArenaOfGames/Character3": "bbf94c9b1e1ff913ffe35483dc3e5a265b05c6323c3688b643b49b8eb127a08c",
-    "resource/image/ArenaOfGames/Dot3": "1a82bda26de4dbb83b669fed2e94e9d1523cf8420fc919c24a21312056876dc1"
+    "resource/image/ArenaOfGames/Dot3": "1a82bda26de4dbb83b669fed2e94e9d1523cf8420fc919c24a21312056876dc1",
+    "resource/image/Restaurant/Shop/StoreInRegionUnchecked": "b25ea0f60f0ac17868d7847b9a4ad4dbe536cf8d820b21cc5db7153155380706",
+    "resource/image/Restaurant/Shop/StoreInRegionChecked": "56b3f22f86b58708d693ba4b0f691f1f1e91c45463ba65f2a0dab68093435486",
+    "resource/image/WarEcho/StageCleared": "24dec7ef7cce42fbb8dbae07859a99de2c8e39576bdee4d9c4439a56eaba8b59",
+    "resource/image/Common/HighLatencyLoadingOverlay": "d3ed27f9ee06214afe0a6607872d51c6bc6e792c9957d79e840724c034459df2",
+    "resource/image/Common/Button/ProfilePageMoreButton": "8bf20b4ba05fb71fcb9cfd5afc8e89577cbfbe9e3730c00bde111180d798c806",
+    "resource/image/GiftOperator/ContactFilter": "8bb9c62da4eed1054b335a4bb9f90b2977b6f90d409d58883c86d1c2e95d67b8",
+    "resource/image/GiftOperator/ContactFilterActive": "b09ab825577504225e9c9fdeffd6f0e5469a0584c3709c0d15f957bc4574ba43",
+    "resource/image/BatchAddFriends/echoesOfWarLustrous": "cfb09dd6987cead19e7e1d3e38834beddd4ac2fd85a8dab8cabf29c01b576e71",
+    "resource/image/BatchAddFriends/wuling": "4ea52d73ea3838c990dfca74895accace908841f0acd31ed9e5d265cfeee93bb",
+    "resource/image/BatchAddFriends/valleyIV": "e9297ced87834794208445dca570615352b75018a1f09495262860fc9ca539bb",
+    "resource/image/BatchAddFriends/authorityLevel": "e7e9076f4e058d14df58c47e52bcc6bc39dfeed75459f40427884c1112677a07",
+    "resource/image/ProtocolSpace/RetreatRestart": "15b7cbe82c07cfd86e33ff0bda347891e84cf4ca4ae769bdad98f1b0a38720dd",
+    "resource/image/GiftOperator/Operators/ArgentFlow": "421beaf94904217c4a62e9b1d86b94d612d3a1a2aa47dd7aa02804976b1de1e4"
 }

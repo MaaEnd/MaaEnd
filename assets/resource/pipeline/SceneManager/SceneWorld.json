@@ -34,6 +34,29 @@
             "__ScenePrivateEndVisit"
         ]
     },
+    "__ScenePrivateWorldDialogLeave": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    900,
+                    334,
+                    350,
+                    318
+                ],
+                "expected": [
+                    "暂时离开",
+                    "暫時離開",
+                    "(?i)Leave\\s*for\\s*now",
+                    "一旦離れる"
+                ]
+            }
+        },
+        "pre_wait_freezes": 300,
+        "action": {
+            "type": "Click"
+        }
+    },
     "__ScenePrivateWorldStorySkip": {
         "desc": "大世界剧情跳过",
         "recognition": "TemplateMatch",

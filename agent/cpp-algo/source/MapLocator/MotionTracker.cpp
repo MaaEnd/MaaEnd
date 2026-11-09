@@ -25,7 +25,8 @@ void MotionTracker::update(const MapPosition& newPos, std::chrono::steady_clock:
             velocityY = 0.0;
         }
         // 仅在帧间隔合理且匹配分数达标时更新速度，保证速度估计的可靠性
-        else if (dtSec > 0.016 && dtSec < trackingCfg.maxDtForPrediction && newPos.score >= kVelocityUpdateMinScore) {
+        else if (
+            dtSec > 0.016 && dtSec < trackingCfg.maxDtForPrediction && newPos.score >= ZoneScoreLines(newPos.zoneId).velocityUpdateMin) {
             double rawVx = dx / dtSec;
             double rawVy = dy / dtSec;
             double alpha = trackingCfg.velocitySmoothingAlpha;

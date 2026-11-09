@@ -8,9 +8,9 @@ namespace mapnavigator
 namespace semantic_nodes
 {
 
-Result TickPortalTransit(const Context& ctx);
-Result TickTransferWait(const Context& ctx);
-Result TickRopeRide(const Context& ctx);
+Result TickPortalTransit(Navigator* nav);
+Result TickTransferWait(Navigator* nav);
+Result TickRopeRide(Navigator* nav);
 
 } // namespace semantic_nodes
 

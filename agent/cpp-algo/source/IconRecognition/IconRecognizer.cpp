@@ -797,6 +797,11 @@ public:
             result.grid_type = request.grid_type;
             result.roi = request.roi;
             result.diagnostics = std::make_shared<detail::RecognitionDiagnostics>();
+            result.diagnostics->candidate_scope_complete = detail::CandidateSelectionCoversScene(
+                single_roi ? RoiTemplates(request.roi.width) : TemplatesFor(request.grid_type, grid_scale),
+                selected,
+                request.candidates,
+                detail::DefaultItemFilters(request.grid_type));
             for (const auto& grid : detected_grids) {
                 if (grid.selection_diagnostics) {
                     result.diagnostics->grids.push_back(*grid.selection_diagnostics);

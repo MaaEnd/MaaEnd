@@ -1,0 +1,135 @@
+{
+    "AutoCollectWulingIgneosite2Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingQingboStockadeMainFort"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingIgneosite2AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingIgneosite2.label"
+        }
+    },
+    "AutoCollectWulingIgneosite2End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingIgneosite2AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                1389.0,
+                2430.98,
+                20.0,
+                20.0
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingIgneosite2Goto"
+        ]
+    },
+    "AutoCollectWulingIgneosite2Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1334.93,
+                                2609.54
+                            ],
+                            "target_deck_y": 330.11
+                        },
+                        [
+                            1334.93,
+                            2609.54,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            1333.27,
+                            2614.15,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            1330.55,
+                            2619.65,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            1331.67,
+                            2624.16,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            1330.25,
+                            2628.05,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            1321.42,
+                            2618.1,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            1322.94,
+                            2611.77,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            1325.13,
+                            2609.89,
+                            "DIG",
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingIgneosite2Wait10sec"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectWulingIgneosite2Wait10sec": {
+        "desc": "等待10s完成收集",
+        "pre_delay": 0,
+        "post_delay": 10000,
+        "next": [
+            "AutoCollectWulingIgneosite2End"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "等待10s完成收集"
+        }
+    }
+}

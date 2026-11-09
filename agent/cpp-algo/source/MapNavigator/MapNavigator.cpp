@@ -7,7 +7,9 @@
 #include "navi_config.h"
 #include "navi_controller.h"
 #include "navi_param_parser.h"
+#include "process_state.h"
 #include "sensing/pipeline_node_reader.h"
+#include "zipline/zipline_leg_planner.h"
 #include "zipline/zipline_preference.h"
 
 namespace mapnavigator
@@ -18,6 +20,9 @@ namespace
 
 constexpr MaaBool kMaaTrue = 1;
 constexpr MaaBool kMaaFalse = 0;
+
+// 跨导航、跨 tasker 共用, 只此一份
+NavProcessState g_process_state;
 
 } // namespace
 
@@ -38,7 +43,7 @@ MaaBool MAA_CALL MapNavigateActionRun(
     LogInfo << "MapNavigateActionRun param string: " << custom_action_param;
 
     NaviParam param;
-    if (!TryParseNaviParam(custom_action_param, param)) {
+    if (!TryParseNaviParam(&param, custom_action_param)) {
         return kMaaFalse;
     }
 
@@ -46,20 +51,24 @@ MaaBool MAA_CALL MapNavigateActionRun(
         return kMaaTrue;
     }
 
-    ResolveInteractTextNodes(context, param);
+    ResolveInteractTextNodes(&param, context);
     // 读不出就留空, 本次不用升降索
     TryReadNodeInteractTexts(context, kRopeInteractTextNode, &param.rope_interact_text);
+    ZiplineOutcome* zipline_outcome = ThreadZiplineOutcome();
+    *zipline_outcome = {};
     param.zipline_enabled = ResolveZiplineEnabled(context, param.zipline_enabled);
     if (param.zipline_enabled) {
-        param.zipline_account_id = ResolveZiplineAccountId(context);
+        param.zipline_account_id = ReadOrCaptureZiplineAccountId(context);
+        if (!param.zipline_account_id.empty()) {
+            NoticeClaimedLegacyZiplineRecords(context, ClaimLegacyZiplineRecords(param.zipline_account_id));
+        }
     }
 
     // 规划在 navmesh 基础层上进行, 实时定位要先换算到基础像素坐标
     param.normalize_position_via_navmesh = true;
 
-    NaviController controller(context);
-    const bool arrived = controller.navigate(param);
-    NoticeZiplineOutcome(context);
+    const bool arrived = RunNavigation(&g_process_state, zipline_outcome, context, param);
+    NoticeZiplineOutcome(&g_process_state.zipline_notices, context, *zipline_outcome);
     return arrived ? kMaaTrue : kMaaFalse;
 }
 
