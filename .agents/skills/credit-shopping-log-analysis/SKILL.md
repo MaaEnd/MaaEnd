@@ -44,13 +44,13 @@ description: 分析 MaaEnd `CreditShoppingMain` 的日志。用于还原信用�
 3. **`CreditShoppingShelfAnyItem` / `CreditShoppingPriority{N}Item`**：IconRecognition 的 Custom 结果。每个 `all_results_` 元素带 `cell_box`（格子框）、`row` / `column`（行列）、`item_id`（catalog id）、`score`，是还原货架的唯一权威来源。
 4. **`*Discount`**：折扣角标 OCR，`all_results_` 里是 `{"box":[x,y,w,h],"score":..,"text":"-50%"}`。
 5. **`*CanAfford` / `*CanNotAfford`**：ColorMatch，`count` 与 `box` 可用来解释「为什么这一格没被买」。
-6. `go-service.log`：`apply priority items: OverridePipeline applied`（本次勾选）、`ExpressionRecognition`（信用点数值 / 保留阈值）。
+6. `go-service.log`：`ExpressionRecognition`（信用点数值 / 保留阈值）；勾选不在 Go 里处理。
 7. `mxu-web-YYYY-MM-DD.log`：前端下发的 `pipelineOverride`（勾选与开关）。
 
 代码上下文（了解节点语义）：
 
 - `assets/tasks/CreditShopping.json`
-- `assets/resource/pipeline/CreditShopping/Flow/ApplyPriorityItems.json`
+- `assets/resource/pipeline/CreditShopping/Item/Priority1Items.json`（`CreditShoppingPriority{N}Item`，`item_ids` 由任务选项的 `attach` 覆盖）
 - `assets/resource/pipeline/CreditShopping/Item/ShelfChecks.json`
 
 ## 工作流
@@ -67,15 +67,16 @@ Tasker.Task.Starting.*CreditShoppingMain
 
 ### 2. 读取本次勾选与开关
 
-先在 `go-service.log` 搜：
+先在 `mxu-web-YYYY-MM-DD.log` 里找同一个任务的 `pipelineOverride`，其中的勾选写成 `CreditShoppingPriority{N}Item.attach` 的 `IconRecognition.item_ids.<item_id>: true`：
 
-```text
-apply priority items: OverridePipeline applied
+```json
+"CreditShoppingPriority1Item": {"attach": {"IconRecognition.item_ids.item_gold": true}},
+"CreditShoppingPriority2Item": {"attach": {"IconRecognition.item_ids.item_diamond": true}}
 ```
 
-日志里的 `priority1/2/3` 数组就是本次三档勾选（case 名），据此知道哪些 `CreditShoppingPriority{N}Item` 会真正参与识别。
+据此知道哪些 `CreditShoppingPriority{N}Item` 会真正参与识别；某档没有 attach 时沿用 Pipeline 默认 `item_ids`。
 
-再在 `mxu-web-YYYY-MM-DD.log` 里找同一个任务的 `pipelineOverride`，关注：
+同一个 `pipelineOverride` 里还要关注开关：
 
 ```json
 "CreditShoppingPrudentRefresh": {"enabled": false/true},
