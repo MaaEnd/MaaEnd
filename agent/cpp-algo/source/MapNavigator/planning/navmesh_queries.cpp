@@ -148,6 +148,19 @@ void FlattenWaypointZones(std::vector<Waypoint>* path, const NaviParam& param)
     }
 }
 
+std::optional<navmesh::WorldPoint> ProjectToMapBase(const NaviParam& param, const std::string& zone_id, double x, double y)
+{
+    const ZoneNavmesh zone = LoadZoneNavmesh(param, zone_id);
+    if (!zone.mesh) {
+        return std::nullopt;
+    }
+    const auto projection = navmesh::ProjectToBase(zone.mesh->pack, zone_id, x, y);
+    if (!projection) {
+        return std::nullopt;
+    }
+    return navmesh::WorldPoint { .x = projection->x, .y = projection->y };
+}
+
 std::optional<NavmeshSnap> NavmeshSnapAt(
     const NaviParam& param,
     const std::string& locator_zone,
