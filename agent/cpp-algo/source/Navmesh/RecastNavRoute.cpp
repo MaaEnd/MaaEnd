@@ -685,14 +685,14 @@ ZoneBoundsPx regionBounds(const GridPack& gp, const GridZoneDir& gz, uint32_t re
 
 int64_t seedSpan(const SpanTable& st, const std::vector<uint8_t>& vis, int64_t cell, double h0)
 {
-    const int64_t sj = st.j(cell);
+    const int64_t sj = OccupiedIndex(st, cell);
     if (sj < 0) {
         return -1;
     }
     int64_t seed = -1;
     float best = 0.0F;
-    const int64_t b = st.cstart(sj);
-    for (int64_t k = 0, kn = st.ccnt(sj); k < kn; ++k) {
+    const int64_t b = CellSpanStart(st, sj);
+    for (int64_t k = 0, kn = CellSpanCount(st, sj); k < kn; ++k) {
         const int64_t sid = b + k;
         if (vis[static_cast<size_t>(sid)] == 0) {
             continue;
@@ -762,7 +762,7 @@ std::optional<WindowInfo> buildWindow(
     info.core = Mask(nx, ny, 0);
     info.dist = Grid<float>(nx, ny, 0.0F);
     info.medial = Mask(nx, ny, 0);
-    info.step_edges.resize(nx, ny);
+    ResetEdgeBits(&info.step_edges, nx, ny);
     Grid<float> lh(nx, ny, std::numeric_limits<float>::quiet_NaN());
     std::vector<uint8_t> stepbits(static_cast<size_t>(nx * ny), 0);
     std::vector<uint8_t> stepbits2(static_cast<size_t>(nx * ny), 0);
@@ -809,7 +809,7 @@ std::optional<WindowInfo> buildWindow(
                         if (bx < 0 || by < 0 || bx >= nx || by >= ny) {
                             continue;
                         }
-                        info.step_edges.set(static_cast<int64_t>(cell), by * nx + bx);
+                        SetEdgeBit(&info.step_edges, static_cast<int64_t>(cell), by * nx + bx);
                     }
                 }
             }
@@ -870,7 +870,7 @@ std::optional<WindowInfo> buildWindow(
 
     const int64_t nc = nx * ny;
     info.h0 = h0;
-    info.sev.steps.resize(nx, ny);
+    ResetEdgeBits(&info.sev.steps, nx, ny);
     info.st3 = PackSpans(std::move(sp_cell), std::move(sp_h), &info.vis3, &sp_scc);
 
     // 只有正交两向出线段, 对角步不挡视线
@@ -890,10 +890,10 @@ std::optional<WindowInfo> buildWindow(
             const int64_t b = ay * nx + ax;
             const uint8_t bits2 = static_cast<uint8_t>(stepbits2[static_cast<size_t>(c)] >> (2 * i)) & 0x03U;
             if ((bits2 & 0x01U) != 0) {
-                info.sev.steps.set(c, b);
+                SetEdgeBit(&info.sev.steps, c, b);
             }
             if ((bits2 & 0x02U) != 0) {
-                info.sev.steps.set(b, c);
+                SetEdgeBit(&info.sev.steps, b, c);
             }
             if (i >= 2 || ((segbits[static_cast<size_t>(c)] >> i) & 0x01U) == 0) {
                 continue;
@@ -916,13 +916,13 @@ std::optional<WindowInfo> buildWindow(
     {
         const std::span<const FieldsLinkRec> lr = FieldsLinksOfZone(fp, zc.zone_id);
         const auto pickSpan = [&](int64_t cell, float h) -> int64_t {
-            const int64_t j = info.st3.j(cell);
+            const int64_t j = OccupiedIndex(info.st3, cell);
             if (j < 0) {
                 return -1;
             }
             int64_t best = -1;
             float bd = 0.0F;
-            for (int64_t k = info.st3.cstart(j), kn = k + info.st3.ccnt(j); k < kn; ++k) {
+            for (int64_t k = CellSpanStart(info.st3, j), kn = k + CellSpanCount(info.st3, j); k < kn; ++k) {
                 if (info.vis3[static_cast<size_t>(k)] == 0) {
                     continue;
                 }
@@ -957,18 +957,18 @@ std::optional<WindowInfo> buildWindow(
             }
             const float cost = std::max(r.cost_modifier, 1.0F)
                                * static_cast<float>(std::hypot(static_cast<double>(hx - lx), static_cast<double>(hy - ly)));
-            info.links_cell.add(cl, ch, cost);
-            info.links_span.add(sl, sh, cost);
-            info.links_span_rev.add(sh, sl, cost);
+            AddJumpEdge(&info.links_cell, cl, ch, cost);
+            AddJumpEdge(&info.links_span, sl, sh, cost);
+            AddJumpEdge(&info.links_span_rev, sh, sl, cost);
             if (r.bidirectional != 0) {
-                info.links_cell.add(ch, cl, cost);
-                info.links_span.add(sh, sl, cost);
-                info.links_span_rev.add(sl, sh, cost);
+                AddJumpEdge(&info.links_cell, ch, cl, cost);
+                AddJumpEdge(&info.links_span, sh, sl, cost);
+                AddJumpEdge(&info.links_span_rev, sl, sh, cost);
             }
         }
-        info.links_cell.finish();
-        info.links_span.finish();
-        info.links_span_rev.finish();
+        SortJumpEdges(&info.links_cell);
+        SortJumpEdges(&info.links_span);
+        SortJumpEdges(&info.links_span_rev);
     }
     {
         const std::vector<uint8_t> hit = FieldsZoneReachFrom(fz, region, sp_scc[static_cast<size_t>(seed3)]);
@@ -989,9 +989,9 @@ std::optional<WindowInfo> buildWindow(
             info.reach3[sid] = hit[comp];
         }
         // 分量图不含跳边, 沿跳边把对面分量能到的并进来直到不再增长
-        for (bool grew = !info.links_span.empty(); grew;) {
+        for (bool grew = !JumpEdgesEmpty(info.links_span); grew;) {
             grew = false;
-            for (const JumpEdges::Edge& e : info.links_span.e) {
+            for (const JumpEdge& e : info.links_span.e) {
                 if (info.reach3[static_cast<size_t>(e.src)] == 0 || info.reach3[static_cast<size_t>(e.dst)] != 0) {
                     continue;
                 }
@@ -1023,7 +1023,7 @@ void PullWaypoints(
     const BaseNavPlanner& pl,
     const BaseNavPack& pack,
     uint16_t zid,
-    const Blockers& blk,
+    Blockers* blk,
     bool has_layer)
 {
     if (!has_layer || pts.size() < 2) {
@@ -1049,7 +1049,7 @@ void PullWaypoints(
             const WorldPoint& a = pts[cursor];
             const WorldPoint& c = pts[reach + 1];
             const double required = std::isfinite(swallowed) ? swallowed : 0.0;
-            if (!IsRouteSegmentDrivable(pl, pack, zid, a, c, required, seed) || blk.blocked(a, c)) {
+            if (!IsRouteSegmentDrivable(pl, pack, zid, a, c, required, seed) || SegmentBlocked(blk, a, c)) {
                 break;
             }
             swallowed = std::min(swallowed, reach + 1 < dg.clearance.size() ? dg.clearance[reach + 1] : 0.0);
@@ -1072,12 +1072,12 @@ std::optional<double> spanNear(const SpanTable& st, int64_t nx, int64_t ny, int6
     if (gx < 0 || gy < 0 || gx >= nx || gy >= ny) {
         return std::nullopt;
     }
-    const int64_t j = st.j(gy * nx + gx);
+    const int64_t j = OccupiedIndex(st, gy * nx + gx);
     if (j < 0) {
         return std::nullopt;
     }
     std::optional<double> best;
-    for (int64_t k = st.cstart(j), ke = k + st.ccnt(j); k < ke; ++k) {
+    for (int64_t k = CellSpanStart(st, j), ke = k + CellSpanCount(st, j); k < ke; ++k) {
         const double v = static_cast<double>(st.sp_h[static_cast<size_t>(k)]);
         if (std::fabs(v - h) <= kQH && (!best.has_value() || std::fabs(v - h) < std::fabs(*best - h))) {
             best = v;
@@ -1110,11 +1110,11 @@ void PushDropLandings(
         if (gx < 0 || gy < 0 || gx >= nx || gy >= ny) {
             return false;
         }
-        const int64_t j = st.j(gy * nx + gx);
+        const int64_t j = OccupiedIndex(st, gy * nx + gx);
         if (j < 0) {
             return false;
         }
-        for (int64_t k = st.cstart(j), ke = k + st.ccnt(j); k < ke; ++k) {
+        for (int64_t k = CellSpanStart(st, j), ke = k + CellSpanCount(st, j); k < ke; ++k) {
             const double v = static_cast<double>(st.sp_h[static_cast<size_t>(k)]);
             if (v > h + kClimb && v <= h_up + kClimb) {
                 return true;
@@ -1197,7 +1197,7 @@ void PushDropLandings(
                 const auto [d, gx, gy, h] = open.top();
                 open.pop();
                 const WorldPoint c = d == 0.0 ? land : centre(gx, gy);
-                if (d == 0.0 || lyo.ok(c, next, static_cast<float>(h), h_next)) {
+                if (d == 0.0 || LayerStepOk(lyo, c, next, static_cast<float>(h), h_next)) {
                     const double clr = upper_dist(c, h, h_up, 4.0 * radius);
                     if (clr > at_clr) {
                         at = c;
@@ -1266,11 +1266,11 @@ void ForEachCrossDrop(const WindowInfo& info, Fn&& fn)
                 continue;
             }
             const int64_t cv = vy * nx + vx;
-            const int64_t j = st.j(cv);
-            if (j < 0 || info.sev.steps.has(cu, cv)) {
+            const int64_t j = OccupiedIndex(st, cv);
+            if (j < 0 || HasEdgeBit(info.sev.steps, cu, cv)) {
                 continue;
             }
-            for (int64_t k = st.cstart(j), ke = k + st.ccnt(j); k < ke; ++k) {
+            for (int64_t k = CellSpanStart(st, j), ke = k + CellSpanCount(st, j); k < ke; ++k) {
                 if (info.vis3[static_cast<size_t>(k)] == 0 && static_cast<double>(st.sp_h[static_cast<size_t>(k)]) < hu - kClimb) {
                     fn(static_cast<int64_t>(u), cu, cv, dx, dy, k);
                 }
@@ -1327,11 +1327,11 @@ std::vector<uint32_t> PeerSpans(
         if (r.rid != peer || (r.flags & kGridFlagWalk) == 0 || (r.flags & (kGridFlagGhost | kGridFlagFill)) != 0) {
             continue;
         }
-        const int64_t j = st.j((by0 + r.cell / pnx) * nx + bx0 + r.cell % pnx);
+        const int64_t j = OccupiedIndex(st, (by0 + r.cell / pnx) * nx + bx0 + r.cell % pnx);
         if (j < 0) {
             continue;
         }
-        for (int64_t k = st.cstart(j), ke = k + st.ccnt(j); k < ke; ++k) {
+        for (int64_t k = CellSpanStart(st, j), ke = k + CellSpanCount(st, j); k < ke; ++k) {
             if (info.vis3[static_cast<size_t>(k)] == 0 && st.sp_h[static_cast<size_t>(k)] == r.h) {
                 peer3[static_cast<size_t>(k)] = pw.scc[i];
             }
@@ -1426,7 +1426,7 @@ std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uin
     std::sort(cand.begin(), cand.end(), [](const Cand& p, const Cand& q) {
         return std::tie(p.score, p.u, p.v) < std::tie(q.score, q.u, q.v);
     });
-    const LayerOracle lyo(&st, nx, info.ny, info.x0, info.y0);
+    const LayerOracle lyo { .st = &st, .nx = nx, .ny = info.ny, .x0 = info.x0, .y0 = info.y0 };
     std::vector<DropHop> out;
     std::vector<uint32_t> tried;
     for (const Cand& c : cand) {
@@ -1574,7 +1574,7 @@ void LiftCorners(
     const Grid<float>& d,
     double x0,
     double y0,
-    const Visibility& vis,
+    Visibility* vis,
     const LayerOracle& lyo,
     float h0,
     double lift)
@@ -1594,7 +1594,7 @@ void LiftCorners(
     };
     float ha = h0;
     for (size_t i = 1; i + 1 < P.size(); ++i) {
-        const auto hb = lyo.walk({ P[i - 1], P[i] }, ha);
+        const auto hb = LayerWalk(lyo, { P[i - 1], P[i] }, ha);
         if (!hb.has_value() || hb->empty()) {
             return;
         }
@@ -1640,16 +1640,16 @@ void LiftCorners(
             if ((i >= 2 && SegCross(w, P[i + 1], P[i - 2], P[i - 1])) || (i + 2 < P.size() && SegCross(P[i - 1], w, P[i + 1], P[i + 2]))) {
                 continue;
             }
-            const auto h1 = lyo.walk({ P[i - 1], w }, ha);
+            const auto h1 = LayerWalk(lyo, { P[i - 1], w }, ha);
             if (!h1.has_value() || h1->empty()) {
                 continue;
             }
             const float hw = nearest(*h1, ha);
-            const auto h2 = lyo.walk({ w, P[i + 1] }, hw);
+            const auto h2 = LayerWalk(lyo, { w, P[i + 1] }, hw);
             if (!h2.has_value() || h2->empty()) {
                 continue;
             }
-            if (!vis.ok(P[i - 1], w, ha, hw) || !vis.ok(w, P[i + 1], hw, nearest(*h2, hw))) {
+            if (!ChordVisible(vis, P[i - 1], w, ha, hw) || !ChordVisible(vis, w, P[i + 1], hw, nearest(*h2, hw))) {
                 continue;
             }
             P[i] = w;
@@ -1772,7 +1772,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         return { bc, std::sqrt(static_cast<double>(bd)) * kCS };
     };
     const SpanTable& st3 = info.st3;
-    const LayerOracle lyo(&st3, nx, ny, x0, y0);
+    const LayerOracle lyo { .st = &st3, .nx = nx, .ny = ny, .x0 = x0, .y0 = y0 };
     const auto mk = [&](const Mask& m2, std::vector<uint8_t>& use, Mask& c3) {
         use.assign(st3.sp_h.size(), 0);
         c3 = Mask(nx, ny, 0);
@@ -1789,12 +1789,12 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     mk(walk, useW, cw3);
     const auto pick = [&](const CellPt& c, const std::vector<uint8_t>& use) {
         std::vector<int64_t> out;
-        const int64_t j = info.st3.j(c.y * nx + c.x);
+        const int64_t j = OccupiedIndex(info.st3, c.y * nx + c.x);
         if (j < 0) {
             return out;
         }
-        const int64_t jb = st3.cstart(j);
-        for (int64_t k = 0, kn = st3.ccnt(j); k < kn; ++k) {
+        const int64_t jb = CellSpanStart(st3, j);
+        for (int64_t k = 0, kn = CellSpanCount(st3, j); k < kn; ++k) {
             const int64_t v = jb + k;
             if (use[static_cast<size_t>(v)] != 0) {
                 out.push_back(v);
@@ -1879,11 +1879,11 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const auto snap0 = nearDeck(useW, cw3, sc, start_deck);
     const auto snap1 = nearDeck(useW, cw3, gc, goal_deck);
     const auto hasDeckSpan = [&](const CellPt& c, double deck) {
-        const int64_t j = info.st3.j(c.y * nx + c.x);
+        const int64_t j = OccupiedIndex(info.st3, c.y * nx + c.x);
         if (j < 0) {
             return false;
         }
-        for (int64_t v = st3.cstart(j), end = v + st3.ccnt(j); v < end; ++v) {
+        for (int64_t v = CellSpanStart(st3, j), end = v + CellSpanCount(st3, j); v < end; ++v) {
             if (std::fabs(static_cast<double>(st3.sp_h[static_cast<size_t>(v)]) - deck) <= kDeckBand) {
                 return true;
             }
@@ -2064,8 +2064,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     };
 
     const EdgeBits* faces = &info.sev.steps;
-    const JumpEdges* jspan = info.links_span.empty() ? nullptr : &info.links_span;
-    const JumpEdges* jcell = info.links_cell.empty() ? nullptr : &info.links_cell;
+    const JumpEdges* jspan = JumpEdgesEmpty(info.links_span) ? nullptr : &info.links_span;
+    const JumpEdges* jcell = JumpEdgesEmpty(info.links_cell) ? nullptr : &info.links_cell;
 
     struct Topo
     {
@@ -2117,7 +2117,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                     }
                 }
             }
-            for (const JumpEdges::Edge& e : info.links_cell.e) {
+            for (const JumpEdge& e : info.links_cell.e) {
                 if (seen[static_cast<size_t>(e.src)] != 0 && seen[static_cast<size_t>(e.dst)] == 0 && in(e.dst)) {
                     seen[static_cast<size_t>(e.dst)] = 1;
                     stk.push_back(e.dst);
@@ -2130,12 +2130,9 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     };
 
     // lim 只能收紧可达判据, 不得放宽任何一条
-    const auto solve = [&](const Mask& lim,
-                           const PriceField& price,
-                           const EdgeBits* banned,
-                           const double* bnp,
-                           bool resnap,
-                           const Visibility* vis = nullptr) -> std::optional<Topo> {
+    const auto solve =
+        [&](const Mask& lim, const PriceField& price, const EdgeBits* banned, const double* bnp, bool resnap, Visibility* vis = nullptr)
+        -> std::optional<Topo> {
         // resnap 会重挑吸附锚点, 两端不再是 linked 判的那两点
         if (!resnap && !linked(lim)) {
             if (strict) {
@@ -2175,21 +2172,16 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                 return std::nullopt;
             }
             const double give_up_at = bounded ? limit2 - (dsa + dga) / kCS + 1.0 : std::numeric_limits<double>::infinity();
-            return SpanAstar(
-                st3,
-                use,
-                m3,
-                sd,
-                gs,
-                price,
-                banned,
-                bnp,
-                faces,
-                vis,
-                vis != nullptr ? &corn : nullptr,
-                &cost,
-                jspan,
-                give_up_at);
+            const SpanSearch search { .st = &st3,
+                                      .ok = &use,
+                                      .ok2 = &m3,
+                                      .mult = &price,
+                                      .banned = banned,
+                                      .bnp = bnp,
+                                      .forbidden = faces,
+                                      .vis = vis,
+                                      .jumps = jspan };
+            return SpanAstar(vis != nullptr ? &corn : nullptr, &cost, search, sd, gs, give_up_at);
         };
         Topo t;
         t.on3 = w3;
@@ -2273,7 +2265,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         const JumpEdges& jl = backward ? info.links_span_rev : info.links_span;
         const auto viaJumps = [&] {
-            for (const JumpEdges::Edge& e : jl.e) {
+            for (const JumpEdge& e : jl.e) {
                 if (seen[static_cast<size_t>(e.src)] != 0 && seen[static_cast<size_t>(e.dst)] == 0
                     && use[static_cast<size_t>(e.dst)] != 0) {
                     seen[static_cast<size_t>(e.dst)] = 1;
@@ -2303,15 +2295,15 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                         if (dx != 0 && dy != 0 && !(ok2.at(uy, vx) && ok2.at(vy, ux))) {
                             continue;
                         }
-                        if (info.st3.j(cv) < 0) {
+                        if (OccupiedIndex(info.st3, cv) < 0) {
                             continue;
                         }
-                        if (faces->has(backward ? cv : cu, backward ? cu : cv)) {
+                        if (HasEdgeBit(*faces, backward ? cv : cu, backward ? cu : cv)) {
                             continue;
                         }
-                        const int64_t j = info.st3.j(cv);
-                        const int64_t jb = st3.cstart(j);
-                        for (int64_t k = 0, kn = st3.ccnt(j); k < kn; ++k) {
+                        const int64_t j = OccupiedIndex(info.st3, cv);
+                        const int64_t jb = CellSpanStart(st3, j);
+                        for (int64_t k = 0, kn = CellSpanCount(st3, j); k < kn; ++k) {
                             const int64_t v = jb + k;
                             if (use[static_cast<size_t>(v)] == 0 || seen[static_cast<size_t>(v)] != 0) {
                                 continue;
@@ -2459,7 +2451,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     if (jspan != nullptr && base->qs.has_value()) {
         const std::vector<int64_t>& q = *base->qs;
         for (size_t i = 1; i < q.size(); ++i) {
-            if (jspan->has(q[i - 1], q[i])) {
+            if (HasJumpEdge(*jspan, q[i - 1], q[i])) {
                 lends.push_back(st3.sp_cell[static_cast<size_t>(q[i - 1])]);
                 lends.push_back(st3.sp_cell[static_cast<size_t>(q[i])]);
             }
@@ -2512,9 +2504,9 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
     };
     chainOpen(lends);
-    if (!info.links_cell.empty() && !linked(limw)) {
+    if (!JumpEdgesEmpty(info.links_cell) && !linked(limw)) {
         lends.clear();
-        for (const JumpEdges::Edge& e : info.links_cell.e) {
+        for (const JumpEdge& e : info.links_cell.e) {
             lends.push_back(e.src);
             lends.push_back(e.dst);
         }
@@ -2573,10 +2565,10 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             }
         }
     }
-    const Blockers::OnMask onv { &solidc, x0, y0, kCS };
+    const BlockerOnMask onv { &solidc, x0, y0, kCS };
     const BlockerSegments no_segs;
-    const Blockers blk_vis(no_segs, onv);
-    const Visibility vis(&blk_vis, &lyo, faces, bn, nx, ny, x0, y0);
+    Blockers blk_vis = MakeBlockers(no_segs, onv);
+    Visibility vis { .blk = &blk_vis, .lyo = &lyo, .faces = faces, .steps = bn, .nx = nx, .ny = ny, .x0 = x0, .y0 = y0 };
     if (vv.has_value()) {
         // 锁在走廊里, 否则按恒一单价重解会挑回拓扑绕开的窄分支
         Mask limg = limw;
@@ -2615,7 +2607,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     for (size_t k = 1; k < q->size(); ++k) {
         const int64_t ca = (*q)[k - 1].y * nx + (*q)[k - 1].x;
         const int64_t cb = (*q)[k].y * nx + (*q)[k].x;
-        if (info.sev.steps.has(ca, cb) && !info.links_cell.has(ca, cb)) {
+        if (HasEdgeBit(info.sev.steps, ca, cb) && !HasJumpEdge(info.links_cell, ca, cb)) {
             bad.push_back(k);
         }
     }
@@ -2655,10 +2647,10 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             }
         }
     }
-    const Blockers::OnMask onm { &tm, x0, y0, kCS };
-    const BlockerSegments core_segs(loops_core, &info.segA, &info.segB);
-    const Blockers blk_gray(core_segs, onm);
-    const Visibility vis_geo(&blk_gray, &lyo, faces, bn, nx, ny, x0, y0);
+    const BlockerOnMask onm { &tm, x0, y0, kCS };
+    const BlockerSegments core_segs = MakeBlockerSegments(loops_core, &info.segA, &info.segB);
+    Blockers blk_gray = MakeBlockers(core_segs, onm);
+    Visibility vis_geo { .blk = &blk_gray, .lyo = &lyo, .faces = faces, .steps = bn, .nx = nx, .ny = ny, .x0 = x0, .y0 = y0 };
 
     const bool by_corn = win.corn.size() >= 2;
     const std::vector<int64_t>& gsrc = by_corn ? win.corn : (qs.has_value() ? *qs : win.corn);
@@ -2681,7 +2673,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     std::vector<WorldPoint> taut = cen(by_corn ? gq : *q);
     dg.taut_points = taut;
     if (taut.size() >= 2) {
-        taut = StringPull(taut, blk_gray, hs.empty() ? nullptr : &lyo, hs.empty() ? nullptr : &hs, by_corn ? &vis_geo : nullptr);
+        taut = StringPull(&blk_gray, by_corn ? &vis_geo : nullptr, taut, hs.empty() ? nullptr : &lyo, hs.empty() ? nullptr : &hs);
     }
     dg.pulled_points = taut;
     dg.timing.pull_ms = nowMs() - t_pull0;
@@ -2751,9 +2743,9 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const double t_lift0 = nowMs();
     // 抬升须在取直之后, 判据用硬墙, 通道掩膜只比路径宽一格会锁死拐点
     if (lyo_p != nullptr && out.size() >= 3) {
-        const Blockers blk_hard(core_segs, std::nullopt);
-        const Visibility vis_hard(&blk_hard, &lyo, faces, bn, nx, ny, x0, y0);
-        LiftCorners(out, dist, x0, y0, vis_hard, lyo, lyo_h, kLiftMax);
+        Blockers blk_hard = MakeBlockers(core_segs, std::nullopt);
+        Visibility vis_hard { .blk = &blk_hard, .lyo = &lyo, .faces = faces, .steps = bn, .nx = nx, .ny = ny, .x0 = x0, .y0 = y0 };
+        LiftCorners(out, dist, x0, y0, &vis_hard, lyo, lyo_h, kLiftMax);
         for (size_t i = 1; i + 1 < out.size() && dg.span_height.size() == out.size(); ++i) {
             if (out[i].x == dg.assembled_points[i].x && out[i].y == dg.assembled_points[i].y) {
                 continue;
@@ -2787,7 +2779,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         std::vector<float> cur { lyo_h };
         hz.push_back(static_cast<double>(lyo_h));
         for (size_t i = 1; i < out.size(); ++i) {
-            const auto nxt = lyo_p->walk({ out[i - 1], out[i] }, cur, fall);
+            const std::optional<std::vector<float>> nxt =
+                fall ? LayerWalkFalling(*lyo_p, { out[i - 1], out[i] }, cur) : LayerWalk(*lyo_p, { out[i - 1], out[i] }, cur);
             if (!nxt.has_value() || nxt->empty()) {
                 hz.clear();
                 break;
@@ -2824,7 +2817,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             }
         }
     }
-    PullWaypoints(out, dg, pl, pack, zid, blk_gray, lyo_p != nullptr);
+    PullWaypoints(out, dg, pl, pack, zid, &blk_gray, lyo_p != nullptr);
     return out;
 }
 
@@ -3442,11 +3435,11 @@ RecastPlanResult RecastNavEngine::planLocked(
                 if (b.rid != region || cx < 0 || cy < 0 || cx >= nx || cy >= ny) {
                     continue;
                 }
-                const int64_t j = info->st3.j(cy * nx + cx);
+                const int64_t j = OccupiedIndex(info->st3, cy * nx + cx);
                 if (j < 0) {
                     continue;
                 }
-                for (int64_t k = info->st3.cstart(j), ke = k + info->st3.ccnt(j); k < ke; ++k) {
+                for (int64_t k = CellSpanStart(info->st3, j), ke = k + CellSpanCount(info->st3, j); k < ke; ++k) {
                     const auto sk = static_cast<size_t>(k);
                     if (info->st3.sp_h[sk] == b.h && info->vis3[sk] != 0 && info->reach3[sk] == 0) {
                         out.push_back(ropes[i].uid_bottom);

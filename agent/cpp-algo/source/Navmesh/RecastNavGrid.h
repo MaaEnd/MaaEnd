@@ -103,7 +103,7 @@ struct RasterCells
     std::vector<uint8_t> ins;
 };
 
-// 同一格的 span 在 sp_h 里是连续一段, 下标 [cstart(j), cstart(j)+ccnt(j))
+// 同一格的 span 在 sp_h 里是连续一段, 下标 [CellSpanStart(st, j), CellSpanStart(st, j)+CellSpanCount(st, j))
 struct SpanTable
 {
     std::vector<int32_t> sp_cell;
@@ -117,29 +117,41 @@ struct SpanTable
     std::vector<int32_t> occ_rank;
     // 台沿下落能否跳: (出发格, 落点格, 出发高, 落点高), 空则不另判
     std::function<bool(int64_t, int64_t, float, float)> fall;
-
-    int64_t nOcc() const { return cs.empty() ? 0 : static_cast<int64_t>(cs.size()) - 1; }
-
-    int64_t cstart(int64_t ci) const { return cs[static_cast<size_t>(ci)]; }
-
-    int64_t ccnt(int64_t ci) const { return cs[static_cast<size_t>(ci) + 1] - cs[static_cast<size_t>(ci)]; }
-
-    int64_t occ(int64_t ci) const { return sp_cell[static_cast<size_t>(cs[static_cast<size_t>(ci)])]; }
-
-    int64_t j(int64_t cid) const
-    {
-        const auto w = static_cast<size_t>(cid >> 6);
-        if (cid < 0 || w >= occ_bits.size()) {
-            return -1;
-        }
-        const uint64_t bits = occ_bits[w];
-        const int b = static_cast<int>(cid & 63);
-        if (((bits >> b) & 1U) == 0) {
-            return -1;
-        }
-        return occ_rank[w] + std::popcount(bits & ((uint64_t { 1 } << b) - 1));
-    }
 };
+
+inline int64_t OccupiedCount(const SpanTable& st)
+{
+    return st.cs.empty() ? 0 : static_cast<int64_t>(st.cs.size()) - 1;
+}
+
+inline int64_t CellSpanStart(const SpanTable& st, int64_t ci)
+{
+    return st.cs[static_cast<size_t>(ci)];
+}
+
+inline int64_t CellSpanCount(const SpanTable& st, int64_t ci)
+{
+    return st.cs[static_cast<size_t>(ci) + 1] - st.cs[static_cast<size_t>(ci)];
+}
+
+inline int64_t OccupiedCell(const SpanTable& st, int64_t ci)
+{
+    return st.sp_cell[static_cast<size_t>(st.cs[static_cast<size_t>(ci)])];
+}
+
+inline int64_t OccupiedIndex(const SpanTable& st, int64_t cid)
+{
+    const auto w = static_cast<size_t>(cid >> 6);
+    if (cid < 0 || w >= st.occ_bits.size()) {
+        return -1;
+    }
+    const uint64_t bits = st.occ_bits[w];
+    const int b = static_cast<int>(cid & 63);
+    if (((bits >> b) & 1U) == 0) {
+        return -1;
+    }
+    return st.occ_rank[w] + std::popcount(bits & ((uint64_t { 1 } << b) - 1));
+}
 
 bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, float h0, float h1);
 
@@ -212,101 +224,110 @@ struct EdgeBits
     int64_t nx = 0;
     int64_t ny = 0;
     bool any = false;
-
-    void resize(int64_t w, int64_t h)
-    {
-        nx = w;
-        ny = h;
-        v.assign(static_cast<size_t>(w * h), 0);
-        any = false;
-    }
-
-    // 返回 (存位的格 << 3) | 位号
-    int64_t locate(int64_t a, int64_t b) const
-    {
-        const int64_t dx = b % nx - a % nx;
-        const int64_t dy = b / nx - a / nx;
-        if (dx < -1 || dx > 1 || dy < -1 || dy > 1) {
-            return -1;
-        }
-        const int8_t s = kEdgeSlot[static_cast<size_t>((dy + 1) * 3 + dx + 1)];
-        if (s < 0) {
-            return -1;
-        }
-        return (((s & 8) != 0 ? b : a) << 3) | (s & 7);
-    }
-
-    void set(int64_t a, int64_t b)
-    {
-        const int64_t loc = locate(a, b);
-        if (loc < 0) {
-            return;
-        }
-        v[static_cast<size_t>(loc >> 3)] |= static_cast<uint8_t>(1U << (loc & 7));
-        any = true;
-    }
-
-    bool has(int64_t a, int64_t b) const
-    {
-        const int64_t loc = locate(a, b);
-        return loc >= 0 && (v[static_cast<size_t>(loc >> 3)] & (1U << (loc & 7))) != 0;
-    }
-
-    // 前提是 b = a + dy·gnx + dx
-    bool hasStep(int64_t a, int64_t b, int64_t dx, int64_t dy, int64_t gnx) const
-    {
-        if (gnx != nx) {
-            return has(a, b);
-        }
-        const int8_t s = kEdgeSlot[static_cast<size_t>((dy + 1) * 3 + dx + 1)];
-        if (s < 0) {
-            return false;
-        }
-        return (v[static_cast<size_t>((s & 8) != 0 ? b : a)] & (1U << (s & 7))) != 0;
-    }
-
-    bool empty() const { return !any; }
 };
 
-// 有向跳边, src 是格号或 span 下标, from 之前须先 finish 按源排序
-struct JumpEdges
+inline void ResetEdgeBits(EdgeBits* bits, int64_t w, int64_t h)
 {
-    struct Edge
-    {
-        int64_t src = 0;
-        int64_t dst = 0;
-        float cost = 0.0F; // 格单位, 须 ≥ 两端欧氏格距
-    };
+    bits->nx = w;
+    bits->ny = h;
+    bits->v.assign(static_cast<size_t>(w * h), 0);
+    bits->any = false;
+}
 
-    std::vector<Edge> e;
-
-    bool empty() const { return e.empty(); }
-
-    void add(int64_t src, int64_t dst, float cost) { e.push_back({ src, dst, cost }); }
-
-    void finish()
-    {
-        std::stable_sort(e.begin(), e.end(), [](const Edge& a, const Edge& b) { return a.src < b.src; });
+// 返回 (存位的格 << 3) | 位号
+inline int64_t EdgeBitLocation(const EdgeBits& bits, int64_t a, int64_t b)
+{
+    const int64_t dx = b % bits.nx - a % bits.nx;
+    const int64_t dy = b / bits.nx - a / bits.nx;
+    if (dx < -1 || dx > 1 || dy < -1 || dy > 1) {
+        return -1;
     }
-
-    std::pair<size_t, size_t> from(int64_t src) const
-    {
-        const auto lo = std::lower_bound(e.begin(), e.end(), src, [](const Edge& a, int64_t s) { return a.src < s; });
-        const auto hi = std::upper_bound(e.begin(), e.end(), src, [](int64_t s, const Edge& a) { return s < a.src; });
-        return { static_cast<size_t>(lo - e.begin()), static_cast<size_t>(hi - e.begin()) };
+    const int8_t s = kEdgeSlot[static_cast<size_t>((dy + 1) * 3 + dx + 1)];
+    if (s < 0) {
+        return -1;
     }
+    return (((s & 8) != 0 ? b : a) << 3) | (s & 7);
+}
 
-    bool has(int64_t src, int64_t dst) const
-    {
-        auto [i, n] = from(src);
-        for (; i < n; ++i) {
-            if (e[i].dst == dst) {
-                return true;
-            }
-        }
+inline void SetEdgeBit(EdgeBits* bits, int64_t a, int64_t b)
+{
+    const int64_t loc = EdgeBitLocation(*bits, a, b);
+    if (loc < 0) {
+        return;
+    }
+    bits->v[static_cast<size_t>(loc >> 3)] |= static_cast<uint8_t>(1U << (loc & 7));
+    bits->any = true;
+}
+
+inline bool HasEdgeBit(const EdgeBits& bits, int64_t a, int64_t b)
+{
+    const int64_t loc = EdgeBitLocation(bits, a, b);
+    return loc >= 0 && (bits.v[static_cast<size_t>(loc >> 3)] & (1U << (loc & 7))) != 0;
+}
+
+// 前提是 b = a + dy·gnx + dx
+inline bool HasEdgeBitStep(const EdgeBits& bits, int64_t a, int64_t b, int64_t dx, int64_t dy, int64_t gnx)
+{
+    if (gnx != bits.nx) {
+        return HasEdgeBit(bits, a, b);
+    }
+    const int8_t s = kEdgeSlot[static_cast<size_t>((dy + 1) * 3 + dx + 1)];
+    if (s < 0) {
         return false;
     }
+    return (bits.v[static_cast<size_t>((s & 8) != 0 ? b : a)] & (1U << (s & 7))) != 0;
+}
+
+inline bool EdgeBitsEmpty(const EdgeBits& bits)
+{
+    return !bits.any;
+}
+
+struct JumpEdge
+{
+    int64_t src = 0;
+    int64_t dst = 0;
+    float cost = 0.0F; // 格单位, 须 ≥ 两端欧氏格距
 };
+
+// 有向跳边, src 是格号或 span 下标, 查询前须先 SortJumpEdges 按源排序
+struct JumpEdges
+{
+    std::vector<JumpEdge> e;
+};
+
+inline bool JumpEdgesEmpty(const JumpEdges& jumps)
+{
+    return jumps.e.empty();
+}
+
+inline void AddJumpEdge(JumpEdges* jumps, int64_t src, int64_t dst, float cost)
+{
+    jumps->e.push_back({ src, dst, cost });
+}
+
+inline void SortJumpEdges(JumpEdges* jumps)
+{
+    std::stable_sort(jumps->e.begin(), jumps->e.end(), [](const JumpEdge& a, const JumpEdge& b) { return a.src < b.src; });
+}
+
+inline std::pair<size_t, size_t> JumpEdgesFrom(const JumpEdges& jumps, int64_t src)
+{
+    const auto lo = std::lower_bound(jumps.e.begin(), jumps.e.end(), src, [](const JumpEdge& a, int64_t s) { return a.src < s; });
+    const auto hi = std::upper_bound(jumps.e.begin(), jumps.e.end(), src, [](int64_t s, const JumpEdge& a) { return s < a.src; });
+    return { static_cast<size_t>(lo - jumps.e.begin()), static_cast<size_t>(hi - jumps.e.begin()) };
+}
+
+inline bool HasJumpEdge(const JumpEdges& jumps, int64_t src, int64_t dst)
+{
+    auto [i, n] = JumpEdgesFrom(jumps, src);
+    for (; i < n; ++i) {
+        if (jumps.e[i].dst == dst) {
+            return true;
+        }
+    }
+    return false;
+}
 
 struct StepBarrier
 {
@@ -326,17 +347,20 @@ struct PriceField
     const Grid<float>* dist = nullptr;
     double lo = 0.0;
     double hi = 0.0;
-
-    float v(size_t i) const
-    {
-        if (dist == nullptr) {
-            return 1.0F;
-        }
-        return static_cast<float>(hi / std::min(std::max(static_cast<double>(dist->v[i]), lo), hi));
-    }
-
-    float at(int64_t y, int64_t x) const { return dist == nullptr ? 1.0F : v(static_cast<size_t>(y * dist->nx + x)); }
 };
+
+inline float PriceAt(const PriceField& price, size_t i)
+{
+    if (price.dist == nullptr) {
+        return 1.0F;
+    }
+    return static_cast<float>(price.hi / std::min(std::max(static_cast<double>(price.dist->v[i]), price.lo), price.hi));
+}
+
+inline float PriceAtCell(const PriceField& price, int64_t y, int64_t x)
+{
+    return price.dist == nullptr ? 1.0F : PriceAt(price, static_cast<size_t>(y * price.dist->nx + x));
+}
 
 std::optional<std::vector<CellPt>> CostAstar(
     const Mask& mask,
@@ -349,24 +373,30 @@ std::optional<std::vector<CellPt>> CostAstar(
     double* out_cost = nullptr,
     const JumpEdges* jumps = nullptr);
 
-class Visibility;
+struct Visibility;
 
-// vis 非空时按 Lazy Theta* 展开, corners 收父链折线, give_up_at 只在 vis 为空时生效
+struct SpanSearch
+{
+    const SpanTable* st = nullptr;
+    const std::vector<uint8_t>* ok = nullptr;
+    const Mask* ok2 = nullptr;
+    const PriceField* mult = nullptr;
+    const EdgeBits* banned = nullptr;
+    const double* bnp = nullptr;
+    const EdgeBits* forbidden = nullptr;
+    // 非空时按 Lazy Theta* 展开, 判弦时改写挡线的去重戳
+    Visibility* vis = nullptr;
+    const JumpEdges* jumps = nullptr;
+};
+
+// corners 收父链折线, give_up_at 只在 search.vis 为空时生效
 std::optional<std::vector<int64_t>> SpanAstar(
-    const SpanTable& st,
-    const std::vector<uint8_t>& ok,
-    const Mask& ok2,
+    std::vector<int64_t>* corners,
+    double* out_cost,
+    const SpanSearch& search,
     int64_t s,
     const std::vector<int64_t>& gset,
-    const PriceField& mult,
-    const EdgeBits* banned,
-    const double* bnp,
-    const EdgeBits* forbidden = nullptr,
-    const Visibility* vis = nullptr,
-    std::vector<int64_t>* corners = nullptr,
-    double* out_cost = nullptr,
-    const JumpEdges* jumps = nullptr,
-    double give_up_at = std::numeric_limits<double>::infinity());
+    double give_up_at);
 
 Mask MedialAxis(const Grid<float>& dist, double lam);
 
@@ -376,144 +406,90 @@ std::vector<std::vector<WorldPoint>> TraceContours(const Mask& mask);
 
 std::vector<WorldPoint> SimplifyLoop(const std::vector<WorldPoint>& P, double max_err);
 
-class BlockerSegments
+struct BlockerOnMask
 {
-public:
-    BlockerSegments() = default;
-    BlockerSegments(
-        const std::vector<std::vector<WorldPoint>>& loops,
-        const std::vector<WorldPoint>* extra_a,
-        const std::vector<WorldPoint>* extra_b);
-
-private:
-    friend class Blockers;
-
-    void buildIndex() const;
-
-    WorldPoint lo(size_t i) const { return { std::min(a_[i].x, b_[i].x), std::min(a_[i].y, b_[i].y) }; }
-
-    WorldPoint hi(size_t i) const { return { std::max(a_[i].x, b_[i].x), std::max(a_[i].y, b_[i].y) }; }
-
-    std::vector<WorldPoint> a_;
-    std::vector<WorldPoint> b_;
-    // 挡线的均匀桶 CSR 索引, 首次查询时才建
-    mutable bool built_ = false;
-    mutable double bx0_ = 0.0;
-    mutable double by0_ = 0.0;
-    mutable int64_t bnx_ = 0;
-    mutable int64_t bny_ = 0;
-    mutable std::vector<int32_t> bstart_;
-    mutable std::vector<int32_t> bitem_;
-    // 段与桶各挂一组世代戳, 单次查询内去重, 跨查询不清零
-    mutable std::vector<uint32_t> seen_;
-    mutable std::vector<uint32_t> bseen_;
-    mutable uint32_t epoch_ = 0;
+    const Mask* mask = nullptr;
+    double x0 = 0.0;
+    double y0 = 0.0;
+    double cs = kCS;
 };
+
+// 挡线与均匀桶 CSR 索引, MakeBlockerSegments 一次建好后只读
+struct BlockerSegments
+{
+    std::vector<WorldPoint> a;
+    std::vector<WorldPoint> b;
+    double bx0 = 0.0;
+    double by0 = 0.0;
+    int64_t bnx = 0;
+    int64_t bny = 0;
+    std::vector<int32_t> bstart;
+    std::vector<int32_t> bitem;
+};
+
+BlockerSegments MakeBlockerSegments(
+    const std::vector<std::vector<WorldPoint>>& loops,
+    const std::vector<WorldPoint>* extra_a,
+    const std::vector<WorldPoint>* extra_b);
 
 // on 掩膜密采样兜底, 精确 45° 弦会从轮廓顶点缝溜走
-class Blockers
+struct Blockers
 {
-public:
-    struct OnMask
-    {
-        const Mask* mask = nullptr;
-        double x0 = 0.0;
-        double y0 = 0.0;
-        double cs = kCS;
-    };
-
-    Blockers(const BlockerSegments& segs, std::optional<OnMask> on)
-        : segs_(&segs)
-        , on_(on)
-    {
-    }
-
-    bool blocked(const WorldPoint& p, const WorldPoint& q) const;
-
-private:
-    bool offMask(const WorldPoint& p, const WorldPoint& q) const;
-
-    const BlockerSegments* segs_ = nullptr;
-    std::optional<OnMask> on_;
+    const BlockerSegments* segs = nullptr;
+    std::optional<BlockerOnMask> on;
+    // 段与桶各一组世代戳, 单次查询内去重, 跨查询不清零
+    std::vector<uint32_t> seen;
+    std::vector<uint32_t> bseen;
+    uint32_t epoch = 0;
 };
+
+Blockers MakeBlockers(const BlockerSegments& segs, std::optional<BlockerOnMask> on);
+
+// 只改 blk 的去重戳
+bool SegmentBlocked(Blockers* blk, const WorldPoint& p, const WorldPoint& q);
 
 // 只用来跟住弦所在的层, 抬升按体素取样容差放宽
-class LayerOracle
+struct LayerOracle
 {
-public:
-    LayerOracle(const SpanTable* st, int64_t nx, int64_t ny, double x0, double y0)
-        : st_(st)
-        , nx_(nx)
-        , ny_(ny)
-        , x0_(x0)
-        , y0_(y0)
-    {
-    }
-
-    std::optional<std::vector<float>> walk(const std::vector<WorldPoint>& pts, float h) const;
-
-    // fall 为真时往下多深都放行, 接不上的格也不判失败
-    std::optional<std::vector<float>> walk(const std::vector<WorldPoint>& pts, const std::vector<float>& h, bool fall = false) const;
-
-    bool ok(const WorldPoint& p, const WorldPoint& q, float h, float hq) const;
-
-private:
-    const SpanTable* st_ = nullptr;
-    int64_t nx_ = 0;
-    int64_t ny_ = 0;
-    double x0_ = 0.0;
-    double y0_ = 0.0;
+    const SpanTable* st = nullptr;
+    int64_t nx = 0;
+    int64_t ny = 0;
+    double x0 = 0.0;
+    double y0 = 0.0;
 };
 
-class Visibility
+std::optional<std::vector<float>> LayerWalk(const LayerOracle& lyo, const std::vector<WorldPoint>& pts, float h);
+
+std::optional<std::vector<float>> LayerWalk(const LayerOracle& lyo, const std::vector<WorldPoint>& pts, const std::vector<float>& h);
+
+// 往下多深都放行, 接不上的格也不判失败
+std::vector<float> LayerWalkFalling(const LayerOracle& lyo, const std::vector<WorldPoint>& pts, const std::vector<float>& h);
+
+bool LayerStepOk(const LayerOracle& lyo, const WorldPoint& p, const WorldPoint& q, float h, float hq);
+
+struct Visibility
 {
-public:
-    Visibility(
-        const Blockers* blk,
-        const LayerOracle* lyo,
-        const EdgeBits* faces,
-        const EdgeBits* steps,
-        int64_t nx,
-        int64_t ny,
-        double x0,
-        double y0)
-        : blk_(blk)
-        , lyo_(lyo)
-        , faces_(faces)
-        , steps_(steps)
-        , nx_(nx)
-        , ny_(ny)
-        , x0_(x0)
-        , y0_(y0)
-    {
-    }
-
-    bool ok(const WorldPoint& p, const WorldPoint& q, float hp, float hq) const;
-
-    WorldPoint at(int64_t cell) const
-    {
-        return { x0_ + (static_cast<double>(cell % nx_) + 0.5) * kCS, y0_ + (static_cast<double>(cell / nx_) + 0.5) * kCS };
-    }
-
-private:
-    bool crossesStep(const WorldPoint& p, const WorldPoint& q) const;
-
-    const Blockers* blk_ = nullptr;
-    const LayerOracle* lyo_ = nullptr;
-    const EdgeBits* faces_ = nullptr;
-    const EdgeBits* steps_ = nullptr;
-    int64_t nx_ = 0;
-    int64_t ny_ = 0;
-    double x0_ = 0.0;
-    double y0_ = 0.0;
+    // 判弦时改写它的去重戳
+    Blockers* blk = nullptr;
+    const LayerOracle* lyo = nullptr;
+    const EdgeBits* faces = nullptr;
+    const EdgeBits* steps = nullptr;
+    int64_t nx = 0;
+    int64_t ny = 0;
+    double x0 = 0.0;
+    double y0 = 0.0;
 };
+
+// 只改 vis->blk 的去重戳
+bool ChordVisible(Visibility* vis, const WorldPoint& p, const WorldPoint& q, float hp, float hq);
+
+inline WorldPoint VisibilityCellCenter(const Visibility& vis, int64_t cell)
+{
+    return { vis.x0 + (static_cast<double>(cell % vis.nx) + 0.5) * kCS, vis.y0 + (static_cast<double>(cell / vis.nx) + 0.5) * kCS };
+}
 
 // vis 非空时只按 vis 判弦
-std::vector<WorldPoint> StringPull(
-    const std::vector<WorldPoint>& pts,
-    const Blockers& blk,
-    const LayerOracle* lyo = nullptr,
-    const std::vector<float>* hs = nullptr,
-    const Visibility* vis = nullptr);
+std::vector<WorldPoint>
+    StringPull(Blockers* blk, Visibility* vis, const std::vector<WorldPoint>& pts, const LayerOracle* lyo, const std::vector<float>* hs);
 
 }
