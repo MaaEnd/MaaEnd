@@ -80,7 +80,7 @@ void update_dwell_watchdog(Navigator* nav, bool captured)
     }
 
     const auto now = std::chrono::steady_clock::now();
-    const bool zone_changed = ZonesDifferInGeometry(*nav->param, dwell.center_zone, nav->position->zone_id);
+    const bool zone_changed = ZonesDiffer(dwell.center_zone, nav->position->zone_id);
     if (!dwell.latched || zone_changed
         || std::hypot(nav->position->x - dwell.center_x, nav->position->y - dwell.center_y) > kDwellWatchdogRadius) {
         dwell.latched = true;
@@ -182,15 +182,6 @@ bool resume_after_global_reacquire(Navigator* nav, const std::string& prior_zone
     const bool zone_changed = !nav->position->zone_id.empty() && nav->position->zone_id != prior_zone;
     const bool near_last_fix = std::hypot(nav->position->x - loss.last_fix.x, nav->position->y - loss.last_fix.y) < kDwellWatchdogRadius;
     ExcludeFromStallClocks(nav->session, std::chrono::steady_clock::now() - loss.started_at);
-
-    if (zone_changed && !loss.saw_black_screen && near_last_fix
-        && NavmeshZonesShareGeometry(*nav->param, prior_zone, nav->position->zone_id)) {
-        LogInfo << "Zone flipped within the same geometry; keeping the corridor." << VAR(prior_zone) << VAR(nav->position->zone_id)
-                << VAR(nav->position->x) << VAR(nav->position->y);
-        UpdateCurrentZone(nav->session, nav->position->zone_id);
-        loss = {};
-        return true;
-    }
 
     if (zone_changed) {
         // 不更新的话下次取位还按旧区域找, 会接着失败

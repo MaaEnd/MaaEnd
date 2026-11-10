@@ -148,27 +148,6 @@ void FlattenWaypointZones(std::vector<Waypoint>* path, const NaviParam& param)
     }
 }
 
-bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b)
-{
-    if (zone_a.empty() || zone_b.empty()) {
-        return false;
-    }
-    if (zone_a == zone_b) {
-        return true;
-    }
-    const ZoneNavmesh zone = LoadZoneNavmesh(param, zone_a);
-    if (!zone.mesh) {
-        return false;
-    }
-    const navmesh::BaseNavPack& pack = zone.mesh->pack;
-    const auto geometry_id = [&pack](const std::string& name) -> int {
-        const navmesh::BaseNavZone* found = navmesh::FindBaseNavZoneByName(pack, name);
-        return found == nullptr ? -1 : static_cast<int>(navmesh::GeometryZoneId(pack, found->zone_id));
-    };
-    const int geom_a = geometry_id(zone_a);
-    return geom_a >= 0 && geom_a == geometry_id(zone_b);
-}
-
 std::optional<NavmeshSnap> NavmeshSnapAt(
     const NaviParam& param,
     const std::string& locator_zone,
