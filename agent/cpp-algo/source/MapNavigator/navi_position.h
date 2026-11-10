@@ -21,6 +21,8 @@ struct NaviPosition
     double score = 0.0;
     // 所在可走面高度, 只有预览端选了层才有值, 缺省按区的主层
     std::optional<double> floor_y;
+    // 取位落在层上时为该层主楼面高
+    std::optional<double> zone_floor_y;
     // angle 是本次选定的朝向, camera_angle 是镜头朝向, 后者可能因置信度不足而缺省
     std::optional<double> camera_angle;
     // 位置与选定朝向都可用

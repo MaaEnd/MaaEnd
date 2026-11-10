@@ -739,6 +739,7 @@ json::object build_route_preview(const QueryParam& query)
         return fail("route_preview 的 path 不能为空");
     }
     fill_preview_param(&param, query);
+    mapnavigator::FlattenWaypointZones(&param.path, param);
 
     const mapnavigator::NaviPosition position = preview_start_position(query, param);
 

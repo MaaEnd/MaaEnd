@@ -145,6 +145,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
                 .start_deck_y = LandedTowerDeckY(session, position),
                 .goal = goal,
                 .goal_deck_y = waypoint.target_deck_y,
+                .zone_floor_y = position.zone_floor_y,
             });
         if (route) {
             anchor_cost = route->cost;

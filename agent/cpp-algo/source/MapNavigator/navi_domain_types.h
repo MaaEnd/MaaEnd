@@ -88,6 +88,8 @@ struct Waypoint
     bool heading_uses_target = false;
     double heading_angle = 0.0;
     std::string zone_id;
+    // 区名压扁前所指层的主楼面高
+    std::optional<double> zone_floor_y;
     // x/y 所在的 tier 坐标系, 执行前投影到基础像素坐标, 空表示 x/y 已是基础坐标
     std::string target_tier;
     // 仅 NAVMESH: 本点所在重叠层的高度, 钉住进出两段的层, 未设则不限层

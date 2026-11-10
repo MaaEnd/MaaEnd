@@ -15,8 +15,14 @@ namespace mapnavigator
 
 struct NaviParam;
 
-// 原地把 tier 模板像素坐标换算到 navmesh 底图像素系, 其他 zone 原样不动
+// 原地把层上的位置换成所在地图底图的坐标和区名, 层的主楼面高记进 zone_floor_y, 其他 zone 原样不动
 void NormalizeLivePositionToBase(NaviPosition* pos, const NaviParam& param);
+
+// 与 zone_id 同在一张地图上的全部区名, 包里查不到时为空
+std::vector<std::string> ZonesOnSameMap(const NaviParam& param, const std::string& zone_id);
+
+// 原地把路点的区名换成所在地图底图的区名, 原层的主楼面高记进 zone_floor_y
+void FlattenWaypointZones(std::vector<Waypoint>* path, const NaviParam& param);
 
 // distance 是平面距离, height 与 BaseNavRouteRequest::floor_y 同一量纲
 struct NavmeshSnap

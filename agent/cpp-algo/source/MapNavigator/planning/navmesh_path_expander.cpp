@@ -40,6 +40,7 @@ struct LegState
     // 本字段和 route_start_deck_y 只有整条链的头一腿有值
     std::optional<double> route_start_floor_y;
     std::optional<double> route_start_deck_y;
+    std::optional<double> zone_floor_y;
     std::string current_zone;
     std::string navmesh_zone;
 };
@@ -60,6 +61,7 @@ RouteEndpoints leg_endpoints(const LegState& state, const navmesh::WorldPoint& g
         .goal = goal,
         .goal_floor_y = goal_floor_y,
         .goal_deck_y = goal_deck_y,
+        .zone_floor_y = state.zone_floor_y,
     };
 }
 
@@ -86,6 +88,14 @@ NavmeshExpansionFailure zone_failure(std::string code, std::string message, cons
         .message = std::move(message),
         .zone_id = state.current_zone,
     };
+}
+
+float zone_floor(const navmesh::BaseNavPack& pack, const std::string& zone, std::optional<double> zone_floor_y)
+{
+    if (zone_floor_y) {
+        return static_cast<float>(*zone_floor_y);
+    }
+    return navmesh::FloorYForZoneName(pack, zone);
 }
 
 navmesh::BaseNavRouteRequest build_route_request(
@@ -117,7 +127,7 @@ navmesh::BaseNavRouteRequest build_route_request(
     if (endpoints.start_deck_y) {
         request.start_deck_y = static_cast<float>(*endpoints.start_deck_y);
     }
-    const float zone_floor_y = navmesh::FloorYForZoneName(pack, locator_zone);
+    const float zone_floor_y = zone_floor(pack, locator_zone, endpoints.zone_floor_y);
     request.start_floor_y = endpoints.start_floor_y ? static_cast<float>(*endpoints.start_floor_y) : zone_floor_y;
     // 终点兜底取 zone 主层, 被覆盖的起点高度只代表人站在哪
     request.goal_floor_y = endpoints.goal_floor_y > navmesh::kBaseNavFloorYValidMin ? endpoints.goal_floor_y : zone_floor_y;
@@ -238,6 +248,7 @@ void update_state_from_regular_waypoint(LegState* state, const Waypoint& waypoin
     }
     if (!waypoint.zone_id.empty()) {
         state->current_zone = waypoint.zone_id;
+        state->zone_floor_y = waypoint.zone_floor_y;
     }
 }
 
@@ -622,8 +633,9 @@ bool append_blind_target_fallback(
         return fail_with(out_error, "找不到当前区域的 navmesh");
     }
     const double snap_radius = std::max(ctx->param->navmesh_snap_radius, kBlindTargetFallbackSnapRadius);
-    const float snap_floor =
-        goal_floor_y > navmesh::kBaseNavFloorYValidMin ? goal_floor_y : navmesh::FloorYForZoneName(ctx->mesh->pack, state->current_zone);
+    const float snap_floor = goal_floor_y > navmesh::kBaseNavFloorYValidMin
+                                 ? goal_floor_y
+                                 : zone_floor(ctx->mesh->pack, state->current_zone, state->zone_floor_y);
 
     // 探针剩余缺口至少是 offset - snap_radius, 超出这个上限的探针必然过不了缺口检查
     const double probe_limit = std::min(total, kBlindTargetMaxExtension + snap_radius);
@@ -810,6 +822,7 @@ bool try_append_zipline_leg(
             .goal_deck_y = target.deck_y,
             .start_floor_y = state->route_start_floor_y,
             .start_deck_y = state->route_start_deck_y,
+            .zone_floor_y = state->zone_floor_y,
             .maa_context = ctx->maa_context,
             .capture_diagnostics = ctx->diagnostics != nullptr,
             .no_go = ctx->no_go,
@@ -1162,6 +1175,7 @@ bool append_replaceable_span(ExpansionContext* ctx, LegState* state, std::vector
 void append_zone_declaration(LegState* state, std::vector<Waypoint>* out_path, const Waypoint& waypoint)
 {
     state->current_zone = waypoint.zone_id;
+    state->zone_floor_y = waypoint.zone_floor_y;
     out_path->push_back(waypoint);
 }
 
@@ -1281,8 +1295,9 @@ bool ExpandNavmeshWaypoints(
     const std::string current_zone = initial_pos.zone_id.empty() ? param.map_name : initial_pos.zone_id;
     LegState state {
         .route_start = { .x = initial_pos.x, .y = initial_pos.y },
-        .route_start_floor_y = initial_pos.floor_y,
+        .route_start_floor_y = initial_pos.floor_y ? initial_pos.floor_y : initial_pos.zone_floor_y,
         .route_start_deck_y = start_deck_y,
+        .zone_floor_y = initial_pos.zone_floor_y,
         .current_zone = current_zone,
         .navmesh_zone = InferBaseNavZone(current_zone, param.map_name),
     };

@@ -73,6 +73,7 @@ bool apply_overlay_to_anchor(
             .start_deck_y = LandedTowerDeckY(*nav->session, *nav->position),
             .goal = goal,
             .goal_deck_y = anchor.target_deck_y,
+            .zone_floor_y = nav->position->zone_floor_y,
         },
         nullptr,
         &nav->runtime_state.virtual_no_go,
