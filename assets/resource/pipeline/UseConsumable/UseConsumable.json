@@ -1,4 +1,17 @@
 {
+    "UseConsumableBeforeStashBackpack": {
+        "desc": "按任务选项整理背包后进入可用道具取用流程",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask"
+            ]
+        },
+        "next": [
+            "UseConsumableFailureCollectorReset"
+        ]
+    },
     "UseConsumableNeedValleyIV": {
         "enabled": false,
         "recognition": "DirectHit",
@@ -107,6 +120,7 @@
         "recognition": "DirectHit"
     },
     "UseConsumableTaskStart": {
+        "desc": "开始槽位检查并进入对应的取用流程",
         "recognition": "DirectHit",
         "next": [
             "UseConsumableSlot1Enabled",
