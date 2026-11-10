@@ -33,6 +33,13 @@ struct FileJson
     MEO_JSONIZATION(version, MEO_OPT zones);
 };
 
+bool cell_span(int64_t* c0, int64_t* c1, double lo, double hi, double org, int64_t n)
+{
+    *c0 = static_cast<int64_t>(std::clamp(std::ceil((lo - org) / kCS - 0.5), 0.0, static_cast<double>(n)));
+    *c1 = static_cast<int64_t>(std::clamp(std::floor((hi - org) / kCS - 0.5), -1.0, static_cast<double>(n - 1)));
+    return *c0 <= *c1;
+}
+
 }
 
 bool NoGoPolyContains(const NoGoPoly& poly, const WorldPoint& p)
@@ -133,27 +140,22 @@ const std::vector<NoGoPoly>* FindNoGoZone(const NoGoTable& table, const std::str
 }
 
 void StampNoGo(
+    Mask* core,
+    Mask* lay,
+    Grid<float>* dist,
     const std::vector<NoGoPoly>& polys,
     double x0,
     double y0,
     int64_t nx,
     int64_t ny,
-    const Grid<float>& lh,
-    Mask& core,
-    Mask& lay,
-    Grid<float>& dist)
+    const Grid<float>& lh)
 {
-    const auto span = [](double lo, double hi, double org, int64_t n, int64_t& c0, int64_t& c1) {
-        c0 = static_cast<int64_t>(std::clamp(std::ceil((lo - org) / kCS - 0.5), 0.0, static_cast<double>(n)));
-        c1 = static_cast<int64_t>(std::clamp(std::floor((hi - org) / kCS - 0.5), -1.0, static_cast<double>(n - 1)));
-        return c0 <= c1;
-    };
     for (const NoGoPoly& p : polys) {
         int64_t gx0 = 0;
         int64_t gx1 = 0;
         int64_t gy0 = 0;
         int64_t gy1 = 0;
-        if (!span(p.bx0, p.bx1, x0, nx, gx0, gx1) || !span(p.by0, p.by1, y0, ny, gy0, gy1)) {
+        if (!cell_span(&gx0, &gx1, p.bx0, p.bx1, x0, nx) || !cell_span(&gy0, &gy1, p.by0, p.by1, y0, ny)) {
             continue;
         }
         for (int64_t gy = gy0; gy <= gy1; ++gy) {
@@ -169,22 +171,22 @@ void StampNoGo(
                 if (!NoGoPolyContains(p, { x0 + (static_cast<double>(gx) + 0.5) * kCS, cy })) {
                     continue;
                 }
-                core.v[cell] = 0;
-                lay.v[cell] = 0;
-                dist.v[cell] = 0.0F;
+                core->v[cell] = 0;
+                lay->v[cell] = 0;
+                dist->v[cell] = 0.0F;
             }
         }
     }
 }
 
-bool NoGoContains(const std::vector<NoGoPoly>& polys, const WorldPoint& p, double h, std::string& hit_id)
+bool NoGoContains(std::string* hit_id, const std::vector<NoGoPoly>& polys, const WorldPoint& p, double h)
 {
     for (const NoGoPoly& z : polys) {
         if (z.banded && (h < z.y_lo || h > z.y_hi)) {
             continue;
         }
         if (NoGoPolyContains(z, p)) {
-            hit_id = z.id;
+            *hit_id = z.id;
             return true;
         }
     }

@@ -38,24 +38,24 @@ const Nb8 kNb8[8] = {
     { -1, -1, std::sqrt(2.0) },
 };
 
-int64_t sampleSteps(double len, double sub)
+int64_t sample_steps(double len, double sub)
 {
     return std::max<int64_t>(static_cast<int64_t>(std::ceil(len / (kCS * sub))), 1) + 1;
 }
 
-int64_t occFind(const SpanTable& st, int64_t cid)
+int64_t occ_find(const SpanTable& st, int64_t cid)
 {
     return OccupiedIndex(st, cid);
 }
 
-bool levelAt(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, int64_t s, float h, double tol)
+bool level_at(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, int64_t s, float h, double tol)
 {
     const int64_t ax = cid % nx + dx * s;
     const int64_t ay = cid / nx + dy * s;
     if (ax < 0 || ax >= nx || ay < 0 || ay >= ny) {
         return false;
     }
-    const int64_t j = occFind(st, ay * nx + ax);
+    const int64_t j = occ_find(st, ay * nx + ax);
     if (j < 0) {
         return false;
     }
@@ -69,14 +69,14 @@ bool levelAt(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t d
     return false;
 }
 
-bool rasterFace(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, int64_t s)
+bool raster_face(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, int64_t s)
 {
     const int64_t ax = cid % nx + dx * s;
     const int64_t ay = cid / nx + dy * s;
     if (ax < 0 || ax >= nx || ay < 0 || ay >= ny) {
         return false;
     }
-    const int64_t j = occFind(st, ay * nx + ax);
+    const int64_t j = occ_find(st, ay * nx + ax);
     return j >= 0 && st.face[static_cast<size_t>(j)] != 0;
 }
 
@@ -91,7 +91,7 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
     // 出发那层几格内又回来说明脚下只是一道缝, 不许掉进去
     if (dh < -kClimb) {
         for (int64_t s = 1; s <= kSeamCells; ++s) {
-            if (levelAt(st, nx, ny, cid, dx, dy, s, h0, kClimb)) {
+            if (level_at(st, nx, ny, cid, dx, dy, s, h0, kClimb)) {
                 return false;
             }
         }
@@ -108,7 +108,7 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
         return true;
     }
     // 立面上只按坡度放行, 否则能顺着叠层逐格爬上整堵墙
-    if (rasterFace(st, nx, ny, cid, dx, dy, 0) || rasterFace(st, nx, ny, cid, dx, dy, 1)) {
+    if (raster_face(st, nx, ny, cid, dx, dy, 0) || raster_face(st, nx, ny, cid, dx, dy, 1)) {
         return false;
     }
     if (dh <= kStepUp) {
@@ -119,13 +119,13 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
     }
     for (int64_t s = 2; s <= kBumpCells; ++s) {
         // 前方回到出发高度而无目标高度即窄凸起, 两个高度都在是叠层, 不算凸起
-        if (levelAt(st, nx, ny, cid, dx, dy, s, h0, kStepUp) && !levelAt(st, nx, ny, cid, dx, dy, s, h1, kStepUp)) {
+        if (level_at(st, nx, ny, cid, dx, dy, s, h0, kStepUp) && !level_at(st, nx, ny, cid, dx, dy, s, h1, kStepUp)) {
             return true;
         }
     }
     for (int64_t s = 1; s <= kDipCells; ++s) {
         // 身后有目标高度而无出发高度即浅坑, 两个高度都在是叠层, 不算浅坑
-        if (levelAt(st, nx, ny, cid, dx, dy, -s, h1, kStepUp) && !levelAt(st, nx, ny, cid, dx, dy, -s, h0, kStepUp)) {
+        if (level_at(st, nx, ny, cid, dx, dy, -s, h1, kStepUp) && !level_at(st, nx, ny, cid, dx, dy, -s, h0, kStepUp)) {
             return true;
         }
     }
@@ -137,7 +137,7 @@ namespace
 
 static_assert(kClimb <= kDrop);
 
-inline bool riseOkFast(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, float h0, float h1)
+inline bool rise_ok_fast(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, float h0, float h1)
 {
     const double dh = static_cast<double>(h1) - static_cast<double>(h0);
     return (dh >= -kClimb && dh <= kSlope * kCS) || RiseOk(st, nx, ny, cid, dx, dy, h0, h1);
@@ -514,13 +514,13 @@ SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector
     return st;
 }
 
-void AppendSeamBridge(RasterCells& rc, int64_t nx, int64_t ny)
+void AppendSeamBridge(RasterCells* rc, int64_t nx, int64_t ny)
 {
     const int64_t kb = static_cast<int64_t>(std::nearbyint(0.5 / kCS)) - 1;
-    if (kb <= 0 || rc.cell.empty()) {
+    if (kb <= 0 || rc->cell.empty()) {
         return;
     }
-    const SpanTable st = BuildSpans(rc.cell, rc.h);
+    const SpanTable st = BuildSpans(rc->cell, rc->h);
     std::vector<uint8_t> O2(static_cast<size_t>(nx * ny), 0);
     for (int64_t ci = 0, cn = OccupiedCount(st); ci < cn; ++ci) {
         O2[static_cast<size_t>(OccupiedCell(st, ci))] = 1;
@@ -549,8 +549,8 @@ void AppendSeamBridge(RasterCells& rc, int64_t nx, int64_t ny)
                             continue;
                         }
                         const int64_t cid = y * nx + x;
-                        const int64_t ja = occFind(st, cid + dl * (dy * nx + dx));
-                        const int64_t jb = occFind(st, cid - dr * (dy * nx + dx));
+                        const int64_t ja = occ_find(st, cid + dl * (dy * nx + dx));
+                        const int64_t jb = occ_find(st, cid - dr * (dy * nx + dx));
                         float best_dh = std::numeric_limits<float>::infinity();
                         float best_ha = 0.0f, best_hb = 0.0f;
                         const int64_t ba = CellSpanStart(st, ja), na = CellSpanCount(st, ja);
@@ -568,9 +568,9 @@ void AppendSeamBridge(RasterCells& rc, int64_t nx, int64_t ny)
                             }
                         }
                         if (best_dh <= 3.0f) {
-                            rc.cell.push_back(cid);
-                            rc.h.push_back((best_ha + best_hb) * 0.5f);
-                            rc.ins.push_back(0);
+                            rc->cell.push_back(cid);
+                            rc->h.push_back((best_ha + best_hb) * 0.5f);
+                            rc->ins.push_back(0);
                         }
                     }
                 }
@@ -595,7 +595,7 @@ std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx)
                 if (dx != 0 && (gx + dx < 0 || gx + dx >= nx)) {
                     continue;
                 }
-                const int64_t j = occFind(st, cid + dy * nx + dx);
+                const int64_t j = occ_find(st, cid + dy * nx + dx);
                 if (j < 0) {
                     continue;
                 }
@@ -630,7 +630,7 @@ std::vector<int32_t> LabelRegions(const SpanTable& st, int64_t nx)
             if (d[0] != 0 && gx + d[0] >= nx) {
                 continue;
             }
-            const int64_t j = occFind(st, cid + d[1] * nx + d[0]);
+            const int64_t j = occ_find(st, cid + d[1] * nx + d[0]);
             if (j < 0) {
                 continue;
             }
@@ -675,7 +675,7 @@ std::vector<uint8_t> SpanReach(int64_t seed, const SpanTable& st, const std::vec
                 if (ax < 0 || ax >= nx || ay < 0 || ay >= ny) {
                     continue;
                 }
-                const int64_t j = occFind(st, ay * nx + ax);
+                const int64_t j = occ_find(st, ay * nx + ax);
                 if (j < 0) {
                     continue;
                 }
@@ -761,7 +761,7 @@ std::vector<uint8_t> StampWalls(
     std::vector<uint8_t> blocked(st.sp_h.size(), 0);
     for (size_t i = 0; i < p0.size(); ++i) {
         const double L = std::hypot(p1[i].x - p0[i].x, p1[i].y - p0[i].y);
-        const int64_t steps = sampleSteps(L, 0.4);
+        const int64_t steps = sample_steps(L, 0.4);
         for (int64_t k = 0; k < steps; ++k) {
             const double t = static_cast<double>(k) / static_cast<double>(steps - 1);
             const double sx = p0[i].x + (p1[i].x - p0[i].x) * t;
@@ -771,7 +771,7 @@ std::vector<uint8_t> StampWalls(
             if (gx < 0 || gx >= nx || gy < 0 || gy >= ny) {
                 continue;
             }
-            const int64_t j = occFind(st, gy * nx + gx);
+            const int64_t j = occ_find(st, gy * nx + gx);
             if (j < 0) {
                 continue;
             }
@@ -798,7 +798,7 @@ std::vector<uint8_t> WallsAtLayer(
     std::vector<uint8_t> keep(p0.size(), 0);
     for (size_t i = 0; i < p0.size(); ++i) {
         const double L = std::hypot(p1[i].x - p0[i].x, p1[i].y - p0[i].y);
-        const int64_t steps = sampleSteps(L, 0.4);
+        const int64_t steps = sample_steps(L, 0.4);
         for (int64_t k = 0; k < steps && !keep[i]; ++k) {
             const double t = static_cast<double>(k) / static_cast<double>(steps - 1);
             const double sx = p0[i].x + (p1[i].x - p0[i].x) * t;
@@ -1152,7 +1152,7 @@ void reparent(
             if (faceblk && !by_fall(st, w, u)) {
                 continue;
             }
-            if (!riseOkFast(st, nx, ny, cw, -d.dx, -d.dy, st.sp_h[static_cast<size_t>(w)], hu)) {
+            if (!rise_ok_fast(st, nx, ny, cw, -d.dx, -d.dy, st.sp_h[static_cast<size_t>(w)], hu)) {
                 continue;
             }
             const double nd = (*dist)[static_cast<size_t>(w)] + stp + pen;
@@ -1297,7 +1297,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 if (faceblk && !fall) {
                     continue;
                 }
-                if (!riseOkFast(st, nx, ny, cu, d.dx, d.dy, hu, hv)) {
+                if (!rise_ok_fast(st, nx, ny, cu, d.dx, d.dy, hu, hv)) {
                     continue;
                 }
                 // 下落不接祖父, 弦会从台沿上方穿空而过
@@ -1426,55 +1426,55 @@ void take_nearest_source(std::vector<int32_t>* fx, std::vector<int32_t>* fy, int
 }
 
 // 两遍扫描求每格的最近源点, 没有源点的格留 -1
-void NearestSource(const std::vector<uint8_t>& src, int64_t nx, int64_t ny, std::vector<int32_t>& fx, std::vector<int32_t>& fy)
+void nearest_source(std::vector<int32_t>* fx, std::vector<int32_t>* fy, const std::vector<uint8_t>& src, int64_t nx, int64_t ny)
 {
     const int64_t n = nx * ny;
-    fx.assign(static_cast<size_t>(n), -1);
-    fy.assign(static_cast<size_t>(n), -1);
+    fx->assign(static_cast<size_t>(n), -1);
+    fy->assign(static_cast<size_t>(n), -1);
     for (int64_t i = 0; i < n; ++i) {
         if (src[static_cast<size_t>(i)] != 0) {
-            fx[static_cast<size_t>(i)] = static_cast<int32_t>(i % nx);
-            fy[static_cast<size_t>(i)] = static_cast<int32_t>(i / nx);
+            (*fx)[static_cast<size_t>(i)] = static_cast<int32_t>(i % nx);
+            (*fy)[static_cast<size_t>(i)] = static_cast<int32_t>(i / nx);
         }
     }
     for (int64_t y = 0; y < ny; ++y) {
         for (int64_t x = 0; x < nx; ++x) {
             const int64_t c = y * nx + x;
             if (y > 0) {
-                take_nearest_source(&fx, &fy, c, x, y, c - nx);
+                take_nearest_source(fx, fy, c, x, y, c - nx);
                 if (x > 0) {
-                    take_nearest_source(&fx, &fy, c, x, y, c - nx - 1);
+                    take_nearest_source(fx, fy, c, x, y, c - nx - 1);
                 }
                 if (x + 1 < nx) {
-                    take_nearest_source(&fx, &fy, c, x, y, c - nx + 1);
+                    take_nearest_source(fx, fy, c, x, y, c - nx + 1);
                 }
             }
             if (x > 0) {
-                take_nearest_source(&fx, &fy, c, x, y, c - 1);
+                take_nearest_source(fx, fy, c, x, y, c - 1);
             }
         }
         for (int64_t x = nx - 2; x >= 0; --x) {
-            take_nearest_source(&fx, &fy, y * nx + x, x, y, y * nx + x + 1);
+            take_nearest_source(fx, fy, y * nx + x, x, y, y * nx + x + 1);
         }
     }
     for (int64_t y = ny - 1; y >= 0; --y) {
         for (int64_t x = nx - 1; x >= 0; --x) {
             const int64_t c = y * nx + x;
             if (y + 1 < ny) {
-                take_nearest_source(&fx, &fy, c, x, y, c + nx);
+                take_nearest_source(fx, fy, c, x, y, c + nx);
                 if (x > 0) {
-                    take_nearest_source(&fx, &fy, c, x, y, c + nx - 1);
+                    take_nearest_source(fx, fy, c, x, y, c + nx - 1);
                 }
                 if (x + 1 < nx) {
-                    take_nearest_source(&fx, &fy, c, x, y, c + nx + 1);
+                    take_nearest_source(fx, fy, c, x, y, c + nx + 1);
                 }
             }
             if (x + 1 < nx) {
-                take_nearest_source(&fx, &fy, c, x, y, c + 1);
+                take_nearest_source(fx, fy, c, x, y, c + 1);
             }
         }
         for (int64_t x = 1; x < nx; ++x) {
-            take_nearest_source(&fx, &fy, y * nx + x, x, y, y * nx + x - 1);
+            take_nearest_source(fx, fy, y * nx + x, x, y, y * nx + x - 1);
         }
     }
 }
@@ -1493,7 +1493,7 @@ Mask MedialAxis(const Grid<float>& dist, double lam)
     }
     std::vector<int32_t> fx;
     std::vector<int32_t> fy;
-    NearestSource(solid, nx, ny, fx, fy);
+    nearest_source(&fx, &fy, solid, nx, ny);
     const double step = lam / kCS;
     const int64_t thr = static_cast<int64_t>(std::ceil(step * step));
     Mask out(nx, ny, 0);
@@ -1534,7 +1534,7 @@ Grid<float> CorridorWidth(const Grid<float>& dist, const Mask& seed, Mask* band)
     const int64_t nx = dist.nx;
     std::vector<int32_t> fx;
     std::vector<int32_t> fy;
-    NearestSource(seed.v, nx, ny, fx, fy);
+    nearest_source(&fx, &fy, seed.v, nx, ny);
     Grid<float> out(nx, ny, 0.0F);
     if (band != nullptr) {
         *band = Mask(nx, ny, 0);
@@ -1679,7 +1679,7 @@ std::vector<std::vector<WorldPoint>> TraceContours(const Mask& mask)
 namespace
 {
 
-int64_t DpSplit(const std::vector<WorldPoint>& P, int64_t i0, int64_t i1, double max_err)
+int64_t dp_split(const std::vector<WorldPoint>& P, int64_t i0, int64_t i1, double max_err)
 {
     const int64_t n = static_cast<int64_t>(P.size());
     const double dx = P[i1].x - P[i0].x, dy = P[i1].y - P[i0].y;
@@ -1728,7 +1728,7 @@ std::vector<WorldPoint> SimplifyLoop(const std::vector<WorldPoint>& P, double ma
     while (i < keep.size()) {
         const int64_t a = keep[i];
         const int64_t b = keep[(i + 1) % keep.size()];
-        const int64_t bi = DpSplit(P, a, b, max_err);
+        const int64_t bi = dp_split(P, a, b, max_err);
         if (bi >= 0) {
             keep.insert(keep.begin() + static_cast<int64_t>(i) + 1, bi);
         }
@@ -1950,7 +1950,7 @@ void cell_span_heights(std::vector<float>* nb, const SpanTable& st, int64_t j)
 bool seam_returns(const LayerOracle& lyo, CellPt pc, int64_t sx, int64_t sy, float c)
 {
     for (int64_t s = 1; s <= kSeamCells; ++s) {
-        if (levelAt(*lyo.st, lyo.nx, lyo.ny, pc.y * lyo.nx + pc.x, sx, sy, s, c, kClimb)) {
+        if (level_at(*lyo.st, lyo.nx, lyo.ny, pc.y * lyo.nx + pc.x, sx, sy, s, c, kClimb)) {
             return true;
         }
     }
