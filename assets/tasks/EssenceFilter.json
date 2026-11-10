@@ -33,10 +33,11 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
+                        "EssenceFilterInventoryInit": {
+                            "enabled": true
+                        },
                         "EssenceFilterInit": {
-                            "attach": {
-                                "export_inventory": true
-                            }
+                            "enabled": false
                         },
                         "EssenceFilterCheckItemOCRFallback": {
                             "action": "StopTask"
@@ -64,10 +65,11 @@
                         "SkipThumbDiscard"
                     ],
                     "pipeline_override": {
+                        "EssenceFilterInventoryInit": {
+                            "enabled": false
+                        },
                         "EssenceFilterInit": {
-                            "attach": {
-                                "export_inventory": false
-                            }
+                            "enabled": true
                         }
                     }
                 }

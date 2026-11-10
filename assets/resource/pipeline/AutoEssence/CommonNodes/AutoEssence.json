@@ -113,7 +113,7 @@
         }
     },
     "AutoEssenceTargetPrepare": {
-        "desc": "目标模式：首次强制盘点无瑕基质库存（export_inventory）后加载内存仓储；max_hit=1",
+        "desc": "目标模式：首次强制盘点无瑕基质库存（EssenceFilterInventoryInit）后加载内存仓储；max_hit=1",
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -122,10 +122,11 @@
                 "custom_action": "PipelineOverride",
                 "custom_action_param": {
                     "patch": {
+                        "EssenceFilterInventoryInit": {
+                            "enabled": true
+                        },
                         "EssenceFilterInit": {
-                            "attach": {
-                                "export_inventory": true
-                            }
+                            "enabled": false
                         },
                         "EssenceFilterCheckItemOCRFallback": {
                             "action": "StopTask"

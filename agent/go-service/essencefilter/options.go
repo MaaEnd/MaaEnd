@@ -12,20 +12,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func inventoryPreset(opts EssenceFilterOptions) EssenceFilterOptions {
-	if !opts.ExportInventory {
-		return opts
-	}
-	return EssenceFilterOptions{
-		ExportInventory: true,
-		InputLanguage:   opts.InputLanguage,
-		FlawlessEssence: true,
-		Rarity4Weapon:   true,
-		Rarity5Weapon:   true,
-		Rarity6Weapon:   true,
-	}
-}
-
 func inventoryGridOverride() map[string]any {
 	return map[string]any{
 		"EssenceGridAdvance": map[string]any{
