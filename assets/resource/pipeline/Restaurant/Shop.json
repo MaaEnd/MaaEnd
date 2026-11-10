@@ -80,7 +80,7 @@
             "path": [
                 {
                     "action": "ZONE",
-                    "zone_id": "Wuling_L10_468"
+                    "zone_id": "Wuling_Base"
                 },
                 {
                     "action": "NAVMESH",
