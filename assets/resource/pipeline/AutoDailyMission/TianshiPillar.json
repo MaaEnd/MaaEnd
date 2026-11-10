@@ -1,0 +1,1009 @@
+{
+    "AutoDailyMissionTianshiPillarListItem": {
+        "desc": "委派任务列表里的日常·天桩追踪",
+        "recognition": "OCR",
+        "roi": [
+            42,
+            70,
+            360,
+            590
+        ],
+        // 完整文本："日常·天桩追踪" / "日常·天樁追蹤" / "Daily: Sky Pole Tracking" / "日常・天杭追跡" / "일상 · 천장을 찾습니다"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "天桩追踪",
+            "天樁追蹤",
+            "(?i)Sky\\s*Pole\\s*Tracking",
+            "天杭追跡",
+            "천장을\\s*찾습니다"
+        ]
+    },
+    "AutoDailyMissionTianshiPillarDetail": {
+        "desc": "右侧详情已选中日常·天桩追踪",
+        "recognition": "OCR",
+        "roi": [
+            410,
+            55,
+            400,
+            45
+        ],
+        "expected": [
+            "日常·天桩追踪",
+            "日常·天樁追蹤",
+            "(?i)Daily:\\s*Sky\\s*Pole\\s*Tracking",
+            "日常・天杭追跡",
+            "일상\\s*·\\s*천장을\\s*찾습니다"
+        ]
+    },
+    "AutoDailyMissionTianshiPillarMapPanel": {
+        "desc": "任务地图右侧详情栏是日常·天桩追踪",
+        "recognition": "OCR",
+        "roi": [
+            950,
+            45,
+            320,
+            45
+        ],
+        // 完整文本："日常·天桩追踪" / "日常·天樁追蹤" / "Daily: Sky Pole Tracking" / "日常・天杭追跡" / "일상 · 천장을 찾습니다"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "天桩追踪",
+            "天樁追蹤",
+            "(?i)Sky\\s*Pole\\s*Tracking",
+            "天杭追跡",
+            "천장을\\s*찾습니다"
+        ]
+    },
+    "AutoDailyMissionTianshiPillarEntry": {
+        "desc": "在委派任务列表中点击日常·天桩追踪",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionTianshiPillarListItem"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionTianshiPillarOpenMap",
+            "AutoDailyMissionTianshiPillarStartTracking"
+        ]
+    },
+    "AutoDailyMissionTianshiPillarOpenMap": {
+        "desc": "点击定位按钮打开天桩追踪的任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionTianshiPillarDetail",
+            "TrackedMissionMapButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionTianshiPillarClosePanel"
+        ]
+    },
+    "AutoDailyMissionTianshiPillarStartTracking": {
+        "desc": "天桩追踪还没追踪时点击开始追踪，打开任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionTianshiPillarDetail",
+            "AutoDailyMissionStartTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionTianshiPillarClosePanel"
+        ]
+    },
+    "AutoDailyMissionTianshiPillarClosePanel": {
+        "desc": "确认已打开天桩追踪的任务地图，关闭右侧详情栏",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "AutoDailyMissionTianshiPillarMapPanel"
+        ],
+        "box_index": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoDailyMissionTianshiPillarRegionWulingCity",
+            "AutoDailyMissionTianshiPillarRegionJingyuValley"
+        ]
+    },
+    "AutoDailyMissionTianshiPillarRegionWulingCity": {
+        "desc": "地图左上角子区域是武陵城",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "武陵城",
+            "(?i)Wuling\\s*City",
+            "무릉성"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionTianshiPillarCandidatesWulingCity"
+        ]
+    },
+    "AutoDailyMissionTianshiPillarCandidatesWulingCity": {
+        "desc": "在地图上确认武陵城里哪个天桩是今天的任务",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        425.791,
+                        1844.325
+                    ],
+                    "next": "AutoDailyMissionTianshiPillarTianshiBureauAcademy"
+                },
+                {
+                    "at": [
+                        906.9,
+                        1950
+                    ],
+                    "next": "AutoDailyMissionTianshiPillarFieldLogisticsDepot"
+                },
+                {
+                    "at": [
+                        668.1,
+                        1718.775
+                    ],
+                    "next": "AutoDailyMissionTianshiPillarFangxingAvenue"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionTianshiPillarRegionJingyuValley": {
+        "desc": "地图左上角子区域是景玉谷",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "景玉谷",
+            "(?i)Jingyu\\s*Valley",
+            "경옥\\s*골짜기"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionTianshiPillarCandidatesJingyuValley"
+        ]
+    },
+    "AutoDailyMissionTianshiPillarCandidatesJingyuValley": {
+        "desc": "在地图上确认景玉谷里哪个天桩是今天的任务",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        764.55,
+                        2564.775
+                    ],
+                    "next": "AutoDailyMissionTianshiPillarZhailingIslet"
+                },
+                {
+                    "at": [
+                        880.275,
+                        2270.925
+                    ],
+                    "next": "AutoDailyMissionTianshiPillarTreasureGrotto"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionTianshiPillarTianshiBureauAcademy": {
+        "desc": "今天的天桩在天师府学院附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionTianshiPillarRouteTianshiBureauAcademyBeacon1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionCloseMap"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.tianshi_pillar_tianshi_bureau_academy"
+        }
+    },
+    "AutoDailyMissionTianshiPillarFieldLogisticsDepot": {
+        "desc": "今天的天桩在储备站附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionTianshiPillarRouteFieldLogisticsDepotBeacon1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionCloseMap"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.tianshi_pillar_field_logistics_depot"
+        }
+    },
+    "AutoDailyMissionTianshiPillarFangxingAvenue": {
+        "desc": "今天的天桩在方兴衢附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionTianshiPillarRouteFangxingAvenueBeacon1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionCloseMap"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.tianshi_pillar_fangxing_avenue"
+        }
+    },
+    "AutoDailyMissionTianshiPillarZhailingIslet": {
+        "desc": "今天的天桩在摘菱屿附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionTianshiPillarRouteZhailingIsletBeacon1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionCloseMap"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.tianshi_pillar_zhailing_islet"
+        }
+    },
+    "AutoDailyMissionTianshiPillarTreasureGrotto": {
+        "desc": "今天的天桩在聚宝窟附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionTianshiPillarRouteTreasureGrottoBeacon1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionCloseMap"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.tianshi_pillar_treasure_grotto"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteTianshiBureauAcademyBeacon1": {
+        "desc": "走到天师府学院附近的天桩区域，放置第一个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        425.791,
+                        1844.325
+                    ],
+                    "target_deck_y": 321.459,
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        435.329,
+                        1822.455
+                    ],
+                    "target_deck_y": 309.99,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        435.329,
+                        1822.455
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionTianshiPillarRouteTianshiBureauAcademyBeacon2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteTianshiBureauAcademyBeacon2": {
+        "desc": "放置天师府学院附近的第二个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        394.852,
+                        1816.207
+                    ],
+                    "target_deck_y": 322.449,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        394.852,
+                        1816.207
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionTianshiPillarRouteTianshiBureauAcademyBeacon3"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteTianshiBureauAcademyBeacon3": {
+        "desc": "放置天师府学院附近的第三个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        426.142,
+                        1869.713
+                    ],
+                    "target_deck_y": 321.625,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        426.142,
+                        1869.713
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMain"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteFieldLogisticsDepotBeacon1": {
+        "desc": "走到储备站附近的天桩区域，放置第一个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        906.9,
+                        1950
+                    ],
+                    "target_deck_y": 298.154,
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        901.627,
+                        1956.25
+                    ],
+                    "target_deck_y": 299.715,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        901.627,
+                        1956.25
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionTianshiPillarRouteFieldLogisticsDepotBeacon2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteFieldLogisticsDepotBeacon2": {
+        "desc": "放置储备站附近的第二个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        878.28,
+                        1916.43
+                    ],
+                    "target_deck_y": 296.42,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        878.28,
+                        1916.43
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionTianshiPillarRouteFieldLogisticsDepotBeacon3"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteFieldLogisticsDepotBeacon3": {
+        "desc": "放置储备站附近的第三个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        912.398,
+                        1910.565
+                    ],
+                    "target_deck_y": 289.28,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        912.398,
+                        1910.565
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMain"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteFangxingAvenueBeacon1": {
+        "desc": "走到方兴衢附近的天桩区域，放置第一个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        668.1,
+                        1718.775
+                    ],
+                    "target_deck_y": 290.69,
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        661.953,
+                        1712.539
+                    ],
+                    "target_deck_y": 291.478,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        661.953,
+                        1712.539
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionTianshiPillarRouteFangxingAvenueBeacon2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteFangxingAvenueBeacon2": {
+        "desc": "放置方兴衢附近的第二个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        653.483,
+                        1704.45
+                    ],
+                    "target_deck_y": 291.471,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        653.483,
+                        1704.45
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionTianshiPillarRouteFangxingAvenueBeacon3"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteFangxingAvenueBeacon3": {
+        "desc": "放置方兴衢附近的第三个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        697.845,
+                        1722.832
+                    ],
+                    "target_deck_y": 281.43,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        697.845,
+                        1722.832
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMain"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteZhailingIsletBeacon1": {
+        "desc": "走到摘菱屿附近的天桩区域，放置第一个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        764.55,
+                        2564.775
+                    ],
+                    "target_deck_y": 227.816,
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        759.99,
+                        2574.938
+                    ],
+                    "target_deck_y": 226.65,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        759.99,
+                        2574.938
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionTianshiPillarRouteZhailingIsletBeacon2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteZhailingIsletBeacon2": {
+        "desc": "放置摘菱屿附近的第二个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        770.975,
+                        2550.178
+                    ],
+                    "target_deck_y": 228.834,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        770.975,
+                        2550.178
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionTianshiPillarRouteZhailingIsletBeacon3"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteZhailingIsletBeacon3": {
+        "desc": "放置摘菱屿附近的第三个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        791.442,
+                        2604.778
+                    ],
+                    "target_deck_y": 226.482,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        791.442,
+                        2604.778
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMain"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteTreasureGrottoBeacon1": {
+        "desc": "走到聚宝窟附近的天桩区域，放置第一个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        880.275,
+                        2270.925
+                    ],
+                    "target_deck_y": 224.791,
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        868.064,
+                        2263.012
+                    ],
+                    "target_deck_y": 225.024,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        868.064,
+                        2263.012
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionTianshiPillarRouteTreasureGrottoBeacon2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteTreasureGrottoBeacon2": {
+        "desc": "放置聚宝窟附近的第二个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        866.885,
+                        2292.184
+                    ],
+                    "target_deck_y": 225.303,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        866.885,
+                        2292.184
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionTianshiPillarRouteTreasureGrottoBeacon3"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    },
+    "AutoDailyMissionTianshiPillarRouteTreasureGrottoBeacon3": {
+        "desc": "放置聚宝窟附近的第三个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        919.921,
+                        2265.062
+                    ],
+                    "target_deck_y": 225.89,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        919.921,
+                        2265.062
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMain"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_placed"
+        }
+    }
+}

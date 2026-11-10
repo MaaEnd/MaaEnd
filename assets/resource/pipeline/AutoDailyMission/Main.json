@@ -1,0 +1,110 @@
+{
+    "AutoDailyMissionMain": {
+        "desc": "进入任务界面的委派任务页签",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuMissionCommission"
+            ]
+        },
+        "next": [
+            "AutoDailyMissionDispatch"
+        ]
+    },
+    "AutoDailyMissionDispatch": {
+        "desc": "依次尝试已适配的日常任务",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                42,
+                70,
+                360,
+                590
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionTianshiPillarEntry",
+            "AutoDailyMissionEnd"
+        ]
+    },
+    "AutoDailyMissionEnd": {
+        "desc": "没有可做的日常任务，结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoDailyMissionStartTrackingButton": {
+        "desc": "任务详情右下角的开始追踪按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1070,
+            570,
+            200,
+            140
+        ],
+        "template": [
+            "Common/Button/WhiteConfirmButtonType1.png",
+            "Common/Button/WhiteConfirmButtonType1Hover.png"
+        ],
+        "order_by": "Score"
+    },
+    "AutoDailyMissionQuickTeleport": {
+        "desc": "在任务地图中点击前往传送",
+        "recognition": "And",
+        "all_of": [
+            "QuickTeleportButton"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoDailyMissionTeleport"
+        ]
+    },
+    "AutoDailyMissionTeleport": {
+        "desc": "在任务地图中点击传送",
+        "recognition": "And",
+        "all_of": [
+            "TeleportButton"
+        ],
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionArrived",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "AutoDailyMissionCloseMap": {
+        "desc": "地图上没有前往传送时关闭地图回到大世界",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "AutoDailyMissionArrived"
+        ]
+    },
+    "AutoDailyMissionArrived": {
+        "desc": "已在大世界，执行判定出的日常任务路线",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]AutoDailyMissionRoute"
+        ]
+    }
+}
