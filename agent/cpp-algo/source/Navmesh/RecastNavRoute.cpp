@@ -21,6 +21,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <MaaFramework/MaaAPI.h>
+
 #if defined(__APPLE__)
 #include <malloc/malloc.h>
 #elif defined(_WIN32)
@@ -36,7 +38,7 @@ namespace
 double triHeightOf(const PolyMesh& mesh, int32_t t)
 {
     const auto& tri = mesh.T[static_cast<size_t>(t)];
-    return (mesh.h(tri[0]) + mesh.h(tri[1]) + mesh.h(tri[2])) / 3.0;
+    return (MeshHeight(mesh, tri[0]) + MeshHeight(mesh, tri[1]) + MeshHeight(mesh, tri[2])) / 3.0;
 }
 
 // 净空截断的格数, 含取整余量, 须与 Clearance 的扫描半径同式
@@ -50,16 +52,16 @@ constexpr double kFallRadius = 0.41;
 double triHeightAt(const PolyMesh& mesh, int32_t t, const WorldPoint& p)
 {
     const auto& tri = mesh.T[static_cast<size_t>(t)];
-    const WorldPoint a = mesh.v(tri[0]);
-    const WorldPoint b = mesh.v(tri[1]);
-    const WorldPoint c = mesh.v(tri[2]);
+    const WorldPoint a = MeshPoint(mesh, tri[0]);
+    const WorldPoint b = MeshPoint(mesh, tri[1]);
+    const WorldPoint c = MeshPoint(mesh, tri[2]);
     const double det = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y);
     if (det == 0.0) {
         return triHeightOf(mesh, t);
     }
     const double l0 = ((b.y - c.y) * (p.x - c.x) + (c.x - b.x) * (p.y - c.y)) / det;
     const double l1 = ((c.y - a.y) * (p.x - c.x) + (a.x - c.x) * (p.y - c.y)) / det;
-    return l0 * mesh.h(tri[0]) + l1 * mesh.h(tri[1]) + (1.0 - l0 - l1) * mesh.h(tri[2]);
+    return l0 * MeshHeight(mesh, tri[0]) + l1 * MeshHeight(mesh, tri[1]) + (1.0 - l0 - l1) * MeshHeight(mesh, tri[2]);
 }
 
 std::optional<std::pair<WorldPoint, double>> meshPointAt(const ZoneClean& zc, const WorldPoint& p, double h)
@@ -67,18 +69,19 @@ std::optional<std::pair<WorldPoint, double>> meshPointAt(const ZoneClean& zc, co
     bool have = false;
     std::pair<double, double> bk {};
     std::pair<WorldPoint, double> best {};
-    for (const int32_t t : zc.mesh.trisNear(p, kCS)) {
+    for (const int32_t t : TrisNear(zc.mesh, p, kCS)) {
         if (zc.walkable[static_cast<size_t>(t)] == 0) {
             continue;
         }
         const auto& tri = zc.mesh.T[static_cast<size_t>(t)];
-        const double ha = zc.mesh.h(tri[0]);
-        const double hb = zc.mesh.h(tri[1]);
-        const double hc = zc.mesh.h(tri[2]);
+        const double ha = MeshHeight(zc.mesh, tri[0]);
+        const double hb = MeshHeight(zc.mesh, tri[1]);
+        const double hc = MeshHeight(zc.mesh, tri[2]);
         if (std::fmin(ha, std::fmin(hb, hc)) > h + kDeckBand + 1e-6 || std::fmax(ha, std::fmax(hb, hc)) < h - kDeckBand - 1e-6) {
             continue;
         }
-        const WorldPoint q = detail::ClosestPointOnTriangle(p, { zc.mesh.v(tri[0]), zc.mesh.v(tri[1]), zc.mesh.v(tri[2]) });
+        const WorldPoint q =
+            detail::ClosestPointOnTriangle(p, { MeshPoint(zc.mesh, tri[0]), MeshPoint(zc.mesh, tri[1]), MeshPoint(zc.mesh, tri[2]) });
         const double dist = detail::Distance(q, p);
         if (dist > kCS) {
             continue;
@@ -574,6 +577,36 @@ int64_t seedRec(const GridPatch& ps, const WorldPoint& s, const WorldPoint& s_sn
     return pickStartRec(ps.gw, ps.nx, ps.ny, gx, gy, h0);
 }
 
+// 起点吸到 sp 后定出的种子格里有 region 的非填充面
+bool seeds_in_region(const GridPatch& ps, uint32_t region, const WorldPoint& start, const WorldPoint& sp, double h)
+{
+    int64_t gx = 0;
+    int64_t gy = 0;
+    const int64_t rec = seedRec(ps, start, sp, h, gx, gy);
+    if (rec < 0) {
+        return false;
+    }
+    const auto cell = static_cast<size_t>(ps.gw.rec[static_cast<size_t>(rec)].cell);
+    for (int64_t i = ps.gw.head[cell]; i >= 0; i = ps.gw.next[static_cast<size_t>(i)]) {
+        const GridSpanRec& r = ps.gw.rec[static_cast<size_t>(i)];
+        if (r.rid == region && (r.flags & kGridFlagFill) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::optional<ZoneSnapHit>
+    snap_seeding_region(const ZoneClean& zc, const GridPatch& ps, uint32_t region, const WorldPoint& start, std::optional<double> floor_y)
+{
+    for (const ZoneSnapHit& hit : ZoneSnapCandidates(zc, start, kSnapRadius, floor_y)) {
+        if (seeds_in_region(ps, region, start, hit.point, triHeightOf(zc.mesh, hit.tri))) {
+            return hit;
+        }
+    }
+    return std::nullopt;
+}
+
 // 终点声明了面时改由终点定类, 免得起点二维吸附落在屋顶把线拉到别层
 bool pickRegion(
     const GridPatch& ps,
@@ -712,7 +745,7 @@ std::optional<WindowInfo> buildWindow(
     const FieldsPack& fp,
     const FieldsZoneDir& fzd,
     const FieldsZone& fz,
-    ZoneClean& zc,
+    const ZoneClean& zc,
     int64_t seed_gx,
     int64_t seed_gy,
     double seed_h,
@@ -2821,113 +2854,124 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     return out;
 }
 
-} // namespace
+// 每个 ZoneClean 常驻几十到两百 MB
+constexpr size_t kZoneCacheMax = 2;
 
-RecastNavEngine::RecastNavEngine(const BaseNavPack& pack, const BaseNavPlanner& planner, const std::filesystem::path& nogo_table)
-    : pack_(pack)
-    , planner_(planner)
+// 一次规划沿递归往下传的约束
+struct PlanScope
 {
-    const BaseNavSection* sec = FindBaseNavSection(pack_, kGridSectionTag);
-    if (sec == nullptr || sec->bytes == nullptr) {
-        grid_error_ = "包里没有预烘格图段";
-        return;
-    }
-    if (!ParseGridPack(&grid_, &grid_error_, sec->bytes->data(), sec->bytes->size())) {
-        grid_ = GridPack();
-        return;
-    }
-    if (!LoadSharedFieldsPack(&fields_, &grid_error_, FieldsSidecarPath(pack_.path), pack_, grid_)) {
-        grid_ = GridPack();
-        return;
-    }
-    if (!LoadNoGoTable(&nogo_, &grid_error_, nogo_table, pack_)) {
-        grid_ = GridPack();
-    }
+    MaaContext* stop_context = nullptr;
+    const std::vector<uint32_t>* rope_off = nullptr;
+    bool hopping = false; // 正在规划跨类下落的两段, 它们自己不再往下接
+    bool roping = false;  // 正在规划升降索的两段, 它们自己不再接升降索
+};
+
+bool plan_stopping(MaaContext* context)
+{
+    return context != nullptr && MaaTaskerStopping(MaaContextGetTasker(context));
 }
 
-RecastNavEngine::ZoneEntry& RecastNavEngine::zoneEntry(const std::string& name)
+uint64_t zone_rank(const RecastZoneEntry& e)
 {
-    // 返回的引用在下一次 zoneEntry/warm 后可能被淘汰, 不得跨调用持有
-    auto it = zones_.find(name);
-    if (it == zones_.end()) {
+    return ZoneCleanValid(*e.zc) ? e.used_at : 0;
+}
+
+// 返回的引用在下一次 zone_entry 后可能被淘汰, 不得跨调用持有
+RecastZoneEntry& zone_entry(RecastNavEngine* engine, const BaseNavPack& pack, const BaseNavPlanner& planner, const std::string& name)
+{
+    auto it = engine->zones.find(name);
+    if (it == engine->zones.end()) {
         // 先淘汰再建, 免得新旧两个大区同时占内存
-        const BaseNavZone* zone = FindBaseNavZoneByName(pack_, name);
+        const BaseNavZone* zone = FindBaseNavZoneByName(pack, name);
         const bool real = zone != nullptr && zone->triangle_count > 0;
-        auto rank = [](const ZoneEntry& e) {
-            return e.zc->valid() ? e.used_at : 0;
-        };
-        while (real && zones_.size() >= kZoneCacheMax) {
-            auto victim = zones_.begin();
-            for (auto z = zones_.begin(); z != zones_.end(); ++z) {
-                if (rank(z->second) < rank(victim->second)) {
+        while (real && engine->zones.size() >= kZoneCacheMax) {
+            auto victim = engine->zones.begin();
+            for (auto z = engine->zones.begin(); z != engine->zones.end(); ++z) {
+                if (zone_rank(z->second) < zone_rank(victim->second)) {
                     victim = z;
                 }
             }
-            zones_.erase(victim);
+            engine->zones.erase(victim);
         }
-        ZoneEntry e;
-        e.zc = std::make_unique<ZoneClean>(pack_, planner_, name);
-        if (const FieldsZoneDir* fzd = FindFieldsZone(*fields_, name); fzd != nullptr) {
+        RecastZoneEntry e;
+        e.zc = std::make_unique<ZoneClean>(BuildZoneClean(pack, planner, name));
+        if (const FieldsZoneDir* fzd = FindFieldsZone(*engine->fields, name); fzd != nullptr) {
             e.fz = std::make_unique<FieldsZone>();
-            if (!LoadFieldsZone(e.fz.get(), &e.fields_error, *fields_, *fzd)) {
+            if (!LoadFieldsZone(e.fz.get(), &e.fields_error, *engine->fields, *fzd)) {
                 e.fz.reset();
             }
         }
         else {
             e.fields_error = "旁包里没有这个区";
         }
-        it = zones_.emplace(name, std::move(e)).first;
+        it = engine->zones.emplace(name, std::move(e)).first;
     }
-    it->second.used_at = ++zone_clock_;
+    it->second.used_at = ++engine->zone_clock;
     return it->second;
 }
 
-RecastPlanResult RecastNavEngine::plan(
+RecastPlanResult plan_locked(
+    RecastNavEngine* engine,
+    const BaseNavPack& pack,
+    const BaseNavPlanner& planner,
+    const PlanScope& scope,
+    const RecastPlanRequest& req);
+
+// 走路不比坐索远的绳索省不了路, 每根只量一次
+double rope_walk_px(
+    RecastNavEngine* engine,
+    const BaseNavPack& pack,
+    const BaseNavPlanner& planner,
+    const PlanScope& rope_scope,
     const std::string& zone_name,
-    const WorldPoint& start,
-    const WorldPoint& goal,
-    float start_floor_y,
-    float goal_floor_y,
-    float goal_deck_y,
-    float start_deck_y,
-    const std::vector<BaseNavNoGoDisc>& no_go_discs,
-    const std::function<bool()>& should_stop,
-    const std::vector<uint32_t>* rope_off)
+    uint16_t zone_id,
+    const FieldsRopeRec& rope)
 {
-    const std::lock_guard<std::mutex> lock(mutex_);
-    rope_off_ = rope_off;
-    RecastPlanResult res =
-        planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, goal_deck_y, start_deck_y, no_go_discs, should_stop);
-    rope_off_ = nullptr;
-#if defined(__APPLE__)
-    malloc_zone_pressure_relief(nullptr, 0);
-#elif defined(_WIN32)
-    _heapmin();
-#endif
-    return res;
+    const uint64_t key = (static_cast<uint64_t>(zone_id) << 32) | rope.uid_bottom;
+    if (const auto it = engine->rope_walk.find(key); it != engine->rope_walk.end()) {
+        return it->second;
+    }
+    // 往上走不靠台沿下落, 量这段时不接下落
+    PlanScope walk_scope = rope_scope;
+    walk_scope.hopping = true;
+    const RecastPlanRequest walk_req {
+        .zone_name = zone_name,
+        .start = CellCentre(rope.bottom),
+        .goal = CellCentre(rope.top),
+        .goal_deck_y = rope.top.h,
+        .start_deck_y = rope.bottom.h,
+    };
+    const RecastPlanResult w = plan_locked(engine, pack, planner, walk_scope, walk_req);
+    const double walk = w.ok ? w.length : std::numeric_limits<double>::infinity();
+    engine->rope_walk.emplace(key, walk);
+    return walk;
 }
 
-std::optional<RecastPlanResult> RecastNavEngine::tryRopes(
-    const std::string& zone_name,
+bool listed_uid(const std::vector<uint32_t>& v, uint32_t uid)
+{
+    return std::find(v.begin(), v.end(), uid) != v.end();
+}
+
+// 只在总代价低于 best_cost 时返回
+std::optional<RecastPlanResult> try_ropes(
+    RecastNavEngine* engine,
+    const BaseNavPack& pack,
+    const BaseNavPlanner& planner,
+    const PlanScope& scope,
+    const RecastPlanRequest& req,
     uint16_t zone_id,
     uint32_t start_region,
     uint32_t goal_region,
-    const WorldPoint& start,
-    const WorldPoint& goal,
-    float start_floor_y,
-    float goal_floor_y,
-    float goal_deck_y,
-    float start_deck_y,
-    const std::vector<BaseNavNoGoDisc>& no_go_discs,
-    const std::function<bool()>& should_stop,
     double best_cost,
     size_t max_tries,
     const std::vector<uint32_t>& out_of_reach)
 {
-    const std::span<const FieldsRopeRec> recs = FieldsRopesOfZone(*fields_, zone_id);
-    if (roping_ || hopping_ || rope_off_ == nullptr || recs.empty()) {
+    const std::span<const FieldsRopeRec> recs = FieldsRopesOfZone(*engine->fields, zone_id);
+    if (scope.roping || scope.hopping || scope.rope_off == nullptr || recs.empty()) {
         return std::nullopt;
     }
+    const WorldPoint& start = req.start;
+    const WorldPoint& goal = req.goal;
 
     // bound 是按直线距离算的总路程下界
     struct Cand
@@ -2936,13 +2980,10 @@ std::optional<RecastPlanResult> RecastNavEngine::tryRopes(
         const FieldsRopeRec* rope = nullptr;
     };
 
-    const auto listed = [](const std::vector<uint32_t>& v, uint32_t uid) {
-        return std::find(v.begin(), v.end(), uid) != v.end();
-    };
     std::vector<Cand> cands;
     for (size_t i = 0; i < recs.size(); ++i) {
         const FieldsRopeRec& r = recs[i];
-        if (r.bottom.rid != start_region || listed(*rope_off_, r.uid_bottom) || listed(out_of_reach, r.uid_bottom)) {
+        if (r.bottom.rid != start_region || listed_uid(*scope.rope_off, r.uid_bottom) || listed_uid(out_of_reach, r.uid_bottom)) {
             continue;
         }
         const WorldPoint b = CellCentre(r.bottom);
@@ -2958,62 +2999,38 @@ std::optional<RecastPlanResult> RecastNavEngine::tryRopes(
                < std::make_tuple(q.rope->top.rid != goal_region, q.bound, q.rope->uid_bottom);
     });
 
-    struct Unrope
-    {
-        bool& f;
-
-        ~Unrope() { f = false; }
-    };
-
-    roping_ = true;
-    const Unrope unrope { roping_ };
-    // 走路不比坐索远的绳索省不了路, 每根只量一次
-    const auto walk_of = [&](const FieldsRopeRec& rope) {
-        const uint64_t key = (static_cast<uint64_t>(zone_id) << 32) | rope.uid_bottom;
-        if (const auto it = rope_walk_.find(key); it != rope_walk_.end()) {
-            return it->second;
-        }
-        // 往上走不靠台沿下落, 量这段时不接下落
-        hopping_ = true;
-        const Unrope unhop { hopping_ };
-        const RecastPlanResult w = planLocked(
-            zone_name,
-            CellCentre(rope.bottom),
-            CellCentre(rope.top),
-            kBaseNavFloorYNone,
-            kBaseNavFloorYNone,
-            rope.top.h,
-            rope.bottom.h,
-            {},
-            should_stop);
-        const double walk = w.ok ? w.length : std::numeric_limits<double>::infinity();
-        rope_walk_.emplace(key, walk);
-        return walk;
-    };
+    PlanScope rope_scope = scope;
+    rope_scope.roping = true;
     std::optional<RecastPlanResult> best;
     double best_total = best_cost;
     size_t tried = 0;
     for (const Cand& c : cands) {
-        if (tried >= max_tries || (should_stop && should_stop())) {
+        if (tried >= max_tries || plan_stopping(scope.stop_context)) {
             break;
         }
         if (c.bound >= best_total) {
             continue;
         }
         const FieldsRopeRec& rope = *c.rope;
-        if (walk_of(rope) <= rope.cost_px) {
+        if (rope_walk_px(engine, pack, planner, rope_scope, req.zone_name, zone_id, rope) <= rope.cost_px) {
             continue;
         }
         ++tried;
         const WorldPoint bottom = CellCentre(rope.bottom);
         const WorldPoint top = CellCentre(rope.top);
-        RecastPlanResult a =
-            planLocked(zone_name, start, bottom, start_floor_y, kBaseNavFloorYNone, rope.bottom.h, start_deck_y, no_go_discs, should_stop);
+        RecastPlanRequest to_bottom = req;
+        to_bottom.goal = bottom;
+        to_bottom.goal_floor_y = kBaseNavFloorYNone;
+        to_bottom.goal_deck_y = rope.bottom.h;
+        RecastPlanResult a = plan_locked(engine, pack, planner, rope_scope, to_bottom);
         if (!a.ok || a.length + rope.cost_px + std::hypot(goal.x - top.x, goal.y - top.y) >= best_total) {
             continue;
         }
-        RecastPlanResult b =
-            planLocked(zone_name, top, goal, kBaseNavFloorYNone, goal_floor_y, goal_deck_y, rope.top.h, no_go_discs, should_stop);
+        RecastPlanRequest from_top = req;
+        from_top.start = top;
+        from_top.start_floor_y = kBaseNavFloorYNone;
+        from_top.start_deck_y = rope.top.h;
+        RecastPlanResult b = plan_locked(engine, pack, planner, rope_scope, from_top);
         if (!b.ok || a.length + rope.cost_px + b.length >= best_total) {
             continue;
         }
@@ -3023,99 +3040,44 @@ std::optional<RecastPlanResult> RecastNavEngine::tryRopes(
     return best;
 }
 
-void RecastNavEngine::warm(const std::string& zone_name)
+RecastPlanResult plan_locked(
+    RecastNavEngine* engine,
+    const BaseNavPack& pack,
+    const BaseNavPlanner& planner,
+    const PlanScope& scope,
+    const RecastPlanRequest& req)
 {
-    const std::lock_guard<std::mutex> lock(mutex_);
-    zoneEntry(zone_name);
-}
-
-std::vector<std::vector<uint32_t>> RecastNavEngine::regionsNear(const std::string& zone_name, const std::vector<WorldPoint>& points)
-{
-    const std::lock_guard<std::mutex> lock(mutex_);
-    std::vector<std::vector<uint32_t>> out(points.size());
-    const GridZoneDir* gz = GridPackParsed(grid_) ? FindGridZone(grid_, zone_name) : nullptr;
-    if (gz == nullptr || points.empty()) {
-        return out;
-    }
-    const double cs = grid_.cell_size;
-    const auto rad = static_cast<int64_t>(std::ceil(kSnapRadius / cs));
-    std::unordered_map<const GridTileRef*, std::vector<size_t>> by_tile;
-    std::vector<int64_t> pcx(points.size());
-    std::vector<int64_t> pcy(points.size());
-    for (size_t i = 0; i < points.size(); ++i) {
-        pcx[i] = static_cast<int64_t>(std::floor(points[i].x / cs));
-        pcy[i] = static_cast<int64_t>(std::floor(points[i].y / cs));
-        for (const GridTileRef* t : GridTilesInRect(*gz, pcx[i] - rad, pcy[i] - rad, pcx[i] + rad, pcy[i] + rad)) {
-            if (t->records != 0) {
-                by_tile[t].push_back(i);
-            }
-        }
-    }
-    GridTile tile;
-    for (const auto& [t, idx] : by_tile) {
-        if (!DecodeGridPackTile(&tile, grid_, *t)) {
-            continue;
-        }
-        for (const GridSpanRec& r : tile.rec) {
-            // 补格两个选类器都不会挑, 其余宁可多算不可漏
-            if ((r.flags & kGridFlagFill) != 0) {
-                continue;
-            }
-            const int64_t gx = t->gx0 + r.cell % t->nx;
-            const int64_t gy = t->gy0 + r.cell / t->nx;
-            for (const size_t i : idx) {
-                if (std::llabs(gx - pcx[i]) > rad || std::llabs(gy - pcy[i]) > rad) {
-                    continue;
-                }
-                const double dx = (static_cast<double>(gx) + 0.5) * cs - points[i].x;
-                const double dy = (static_cast<double>(gy) + 0.5) * cs - points[i].y;
-                if (dx * dx + dy * dy <= kSnapRadius * kSnapRadius) {
-                    out[i].push_back(r.rid);
-                }
-            }
-        }
-    }
-    for (std::vector<uint32_t>& v : out) {
-        std::sort(v.begin(), v.end());
-        v.erase(std::unique(v.begin(), v.end()), v.end());
-    }
-    return out;
-}
-
-RecastPlanResult RecastNavEngine::planLocked(
-    const std::string& zone_name,
-    const WorldPoint& start,
-    const WorldPoint& goal,
-    float start_floor_y,
-    float goal_floor_y,
-    float goal_deck_y,
-    float start_deck_y,
-    const std::vector<BaseNavNoGoDisc>& no_go_discs,
-    const std::function<bool()>& should_stop)
-{
+    const std::string& zone_name = req.zone_name;
+    const WorldPoint& start = req.start;
+    const WorldPoint& goal = req.goal;
+    const float start_floor_y = req.start_floor_y;
+    const float goal_floor_y = req.goal_floor_y;
+    const float goal_deck_y = req.goal_deck_y;
+    const float start_deck_y = req.start_deck_y;
+    const std::vector<BaseNavNoGoDisc>& no_go_discs = req.no_go_discs;
     const double t_all0 = nowMs();
     RecastPlanResult res;
-    if (!GridPackParsed(grid_)) {
-        res.error = grid_error_;
+    if (!GridPackParsed(engine->grid)) {
+        res.error = engine->grid_error;
         return res;
     }
-    const GridZoneDir* gz = FindGridZone(grid_, zone_name);
+    const GridZoneDir* gz = FindGridZone(engine->grid, zone_name);
     if (gz == nullptr) {
         res.error = "区没有预烘格图 (" + zone_name + ")";
         return res;
     }
-    ZoneEntry& ze = zoneEntry(zone_name);
-    if (!ze.zc->valid()) {
-        res.error = ze.zc->error();
+    RecastZoneEntry& ze = zone_entry(engine, pack, planner, zone_name);
+    if (!ZoneCleanValid(*ze.zc)) {
+        res.error = ze.zc->error;
         return res;
     }
-    const FieldsZoneDir* fzd = FindFieldsZone(*fields_, zone_name);
+    const FieldsZoneDir* fzd = FindFieldsZone(*engine->fields, zone_name);
     if (fzd == nullptr || ze.fz == nullptr) {
         res.error = "旁包读不出这个区 (" + zone_name + "): " + ze.fields_error;
         return res;
     }
     const FieldsZone* fz = ze.fz.get();
-    ZoneClean& zc = *ze.zc;
+    const ZoneClean& zc = *ze.zc;
     const std::optional<double> sfl =
         start_floor_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(start_floor_y)) : std::nullopt;
     const std::optional<double> gfl =
@@ -3137,14 +3099,14 @@ RecastPlanResult RecastNavEngine::planLocked(
         p.ny = std::max(ay, by) + r - gy0 + 1;
         p.x0 = static_cast<double>(gx0) * kCS;
         p.y0 = static_cast<double>(gy0) * kCS;
-        const std::span<const FieldsOpenRec> opn = FieldsOpensOfZone(*fields_, zc.zone_id);
-        return loadGridWindow(grid_, *gz, nullptr, opn.data(), opn.size(), gx0, gy0, p.nx, p.ny, p.gw);
+        const std::span<const FieldsOpenRec> opn = FieldsOpensOfZone(*engine->fields, zc.zone_id);
+        return loadGridWindow(engine->grid, *gz, nullptr, opn.data(), opn.size(), gx0, gy0, p.nx, p.ny, p.gw);
     };
     GridPatch ps;
     GridPatch pg;
     bool patched = false;
     // 终点声明了面时起点优先吸到含终点类面的格, 没有再照旧吸
-    std::function<bool(int32_t, const WorldPoint&)> seeds_in_deck_region;
+    bool deck_region_known = false;
     uint32_t deck_region = 0;
     if (gdk.has_value()) {
         // 起点块盖住兜底吸附半径内任一吸附点再外扩一个定类半径
@@ -3159,46 +3121,31 @@ RecastPlanResult RecastNavEngine::planLocked(
                                          : -1;
         if (deck_rec >= 0) {
             deck_region = pg.gw.rec[static_cast<size_t>(deck_rec)].rid;
-            seeds_in_deck_region = [&](int32_t t, const WorldPoint& sp) {
-                int64_t gx = 0;
-                int64_t gy = 0;
-                const int64_t rec = seedRec(ps, start, sp, triHeightOf(zc.mesh, t), gx, gy);
-                if (rec < 0) {
-                    return false;
-                }
-                const auto cell = static_cast<size_t>(ps.gw.rec[static_cast<size_t>(rec)].cell);
-                for (int64_t i = ps.gw.head[cell]; i >= 0; i = ps.gw.next[static_cast<size_t>(i)]) {
-                    const GridSpanRec& r = ps.gw.rec[static_cast<size_t>(i)];
-                    if (r.rid == deck_region && (r.flags & kGridFlagFill) == 0) {
-                        return true;
-                    }
-                }
-                return false;
-            };
+            deck_region_known = true;
         }
     }
-    std::optional<ZoneClean::SnapHit> ss;
+    std::optional<ZoneSnapHit> ss;
     if (sdk.has_value()) {
-        ss = zc.snapOnDeck(start, kSnapRadius, *sdk);
+        ss = ZoneSnapOnDeck(zc, start, kSnapRadius, *sdk);
     }
-    else if (seeds_in_deck_region) {
-        ss = zc.snap(start, kSnapRadius, sfl, seeds_in_deck_region);
+    else if (deck_region_known) {
+        ss = snap_seeding_region(zc, ps, deck_region, start, sfl);
     }
     if (!ss.has_value()) {
-        ss = zc.snap(start, kSnapRadius, sfl);
+        ss = ZoneSnap(zc, start, kSnapRadius, sfl);
     }
     if (!ss.has_value()) {
         res.error = "起点不在网格附近";
         return res;
     }
-    const auto gs = zc.snap(goal, kSnapRadius, gfl);
+    const auto gs = ZoneSnap(zc, goal, kSnapRadius, gfl);
     if (!gs.has_value()) {
         res.error = "终点不在网格附近";
         return res;
     }
     const double h0 = triHeightOf(zc.mesh, ss->tri);
 
-    const std::vector<NoGoPoly>* nogo = FindNoGoZone(nogo_, zone_name);
+    const std::vector<NoGoPoly>* nogo = FindNoGoZone(engine->nogo, zone_name);
     if (nogo != nullptr) {
         std::string hit;
         const bool in_start = NoGoContains(*nogo, start, h0, hit);
@@ -3212,12 +3159,12 @@ RecastPlanResult RecastNavEngine::planLocked(
         }
     }
 
-    const BaseNavZone* pz = FindBaseNavZoneByName(pack_, zone_name);
+    const BaseNavZone* pz = FindBaseNavZoneByName(pack, zone_name);
     const std::shared_ptr<const OccluderScene> solid =
-        pz != nullptr ? LoadOccluderScene(OccluderSidecarPath(pack_.path), zone_name) : nullptr;
+        pz != nullptr ? LoadOccluderScene(OccluderSidecarPath(pack.path), zone_name) : nullptr;
 
     // 全区锚距是任何窗口里锚距的下界, 过不了这道闸的腿换多大窗口也接不上
-    const auto [zsa, zga] = coreAnchorPx(grid_, *gz, { start, goal });
+    const auto [zsa, zga] = coreAnchorPx(engine->grid, *gz, { start, goal });
     if (zsa > kSnapRadius || zga > kSnapRadius) {
         char buf[128];
         std::snprintf(buf, sizeof(buf), "端点接不上可走层 (起 %.1fpx / 终 %.1fpx)", zsa, zga);
@@ -3257,7 +3204,7 @@ RecastPlanResult RecastNavEngine::planLocked(
     // 外扩 kFieldHalo 后类边缘的场与整区图上算的相同
     auto zbit = ze.bounds.find(region);
     if (zbit == ze.bounds.end()) {
-        zbit = ze.bounds.emplace(region, regionBounds(grid_, *gz, region)).first;
+        zbit = ze.bounds.emplace(region, regionBounds(engine->grid, *gz, region)).first;
     }
     const ZoneBoundsPx zb = zbit->second;
     if (ZoneBoundsEmpty(zb)) {
@@ -3366,7 +3313,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         const int64_t gy0 = cur.y0;
         const int64_t nx = cur.nx;
         const int64_t ny = cur.ny;
-        if (should_stop && should_stop()) {
+        if (plan_stopping(scope.stop_context)) {
             res.error = "规划已取消";
             return res;
         }
@@ -3377,8 +3324,25 @@ RecastPlanResult RecastNavEngine::planLocked(
         const int64_t margin = local ? kTrustMargin : 0;
 
         const double t_win0 = nowMs();
-        info =
-            buildWindow(grid_, *gz, *fields_, *fzd, *fz, zc, seed_gx, seed_gy, seed_h, h0, region, x0, y0, x1, y1, nogo, no_go_discs, err);
+        info = buildWindow(
+            engine->grid,
+            *gz,
+            *engine->fields,
+            *fzd,
+            *fz,
+            zc,
+            seed_gx,
+            seed_gy,
+            seed_h,
+            h0,
+            region,
+            x0,
+            y0,
+            x1,
+            y1,
+            nogo,
+            no_go_discs,
+            err);
         const double window_ms = nowMs() - t_win0;
         const uint16_t zone_id = zc.zone_id;
         if (!info.has_value()) {
@@ -3402,7 +3366,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         RouteDiag dg;
         dg.margin = margin;
         dg.final = capped;
-        auto line = routeWindow(*info, start, goal, dg, gdk, sdk, planner_, pack_, zone_id);
+        auto line = routeWindow(*info, start, goal, dg, gdk, sdk, planner, pack, zone_id);
         if (local && !capped) {
             std::string why;
             if (dg.escalate) {
@@ -3427,7 +3391,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         }
         const auto ropesOutOfReach = [&] {
             std::vector<uint32_t> out;
-            const std::span<const FieldsRopeRec> ropes = FieldsRopesOfZone(*fields_, zone_id);
+            const std::span<const FieldsRopeRec> ropes = FieldsRopesOfZone(*engine->fields, zone_id);
             for (size_t i = 0; i < ropes.size(); ++i) {
                 const FieldsLinkSide& b = ropes[i].bottom;
                 const int64_t cx = b.gx - gx0;
@@ -3474,7 +3438,7 @@ RecastPlanResult RecastNavEngine::planLocked(
             return res;
         }
         if (std::max(dg.snap_start, dg.snap_goal) > kSnapRadius || dg.hop_barrier) {
-            if (!hopping_ && !dg.hop_barrier && dg.snap_start <= kSnapRadius && !gdk.has_value()) {
+            if (!scope.hopping && !dg.hop_barrier && dg.snap_start <= kSnapRadius && !gdk.has_value()) {
                 GridPatch pq;
                 const int64_t qrec = loadPatch(goal, goal, kSnapRadius, pq) ? pickStartRec(
                                          pq.gw,
@@ -3488,7 +3452,7 @@ RecastPlanResult RecastNavEngine::planLocked(
                 pq = GridPatch {};
                 std::vector<DropHop> hops;
                 if (peer != region) {
-                    const std::vector<uint32_t> peer3 = PeerSpans(grid_, *gz, *fields_, *fzd, zone_id, *info, peer);
+                    const std::vector<uint32_t> peer3 = PeerSpans(engine->grid, *gz, *engine->fields, *fzd, zone_id, *info, peer);
                     if (!peer3.empty()) {
                         hops = CrossDropHops(*info, peer3, start, goal);
                     }
@@ -3496,68 +3460,46 @@ RecastPlanResult RecastNavEngine::planLocked(
                 const std::vector<uint32_t> far_ropes = ropesOutOfReach();
                 info.reset();
 
-                struct Unhop
-                {
-                    bool& f;
-
-                    ~Unhop() { f = false; }
-                };
-
                 std::optional<RecastPlanResult> dropped;
-                {
-                    hopping_ = true;
-                    const Unhop unhop { hopping_ };
-                    for (const DropHop& hop : hops) {
-                        if (should_stop && should_stop()) {
-                            break;
-                        }
-                        RecastPlanResult a = planLocked(
-                            zone_name,
-                            start,
-                            hop.take,
-                            start_floor_y,
-                            kBaseNavFloorYNone,
-                            static_cast<float>(hop.take_h),
-                            start_deck_y,
-                            no_go_discs,
-                            should_stop);
-                        if (!a.ok) {
-                            continue;
-                        }
-                        RecastPlanResult b = planLocked(
-                            zone_name,
-                            hop.land,
-                            goal,
-                            kBaseNavFloorYNone,
-                            goal_floor_y,
-                            kBaseNavFloorYNone,
-                            static_cast<float>(hop.land_h),
-                            no_go_discs,
-                            should_stop);
-                        if (!b.ok) {
-                            continue;
-                        }
-                        dropped = JoinDropHop(std::move(a), std::move(b), hop.land_h);
+                PlanScope hop_scope = scope;
+                hop_scope.hopping = true;
+                for (const DropHop& hop : hops) {
+                    if (plan_stopping(scope.stop_context)) {
                         break;
                     }
+                    RecastPlanRequest to_take = req;
+                    to_take.goal = hop.take;
+                    to_take.goal_floor_y = kBaseNavFloorYNone;
+                    to_take.goal_deck_y = static_cast<float>(hop.take_h);
+                    RecastPlanResult a = plan_locked(engine, pack, planner, hop_scope, to_take);
+                    if (!a.ok) {
+                        continue;
+                    }
+                    RecastPlanRequest from_land = req;
+                    from_land.start = hop.land;
+                    from_land.start_floor_y = kBaseNavFloorYNone;
+                    from_land.goal_deck_y = kBaseNavFloorYNone;
+                    from_land.start_deck_y = static_cast<float>(hop.land_h);
+                    RecastPlanResult b = plan_locked(engine, pack, planner, hop_scope, from_land);
+                    if (!b.ok) {
+                        continue;
+                    }
+                    dropped = JoinDropHop(std::move(a), std::move(b), hop.land_h);
+                    break;
                 }
-                if (!dropped && should_stop && should_stop()) {
+                if (!dropped && plan_stopping(scope.stop_context)) {
                     res.error = "规划已取消";
                     return res;
                 }
-                std::optional<RecastPlanResult> roped = tryRopes(
-                    zone_name,
+                std::optional<RecastPlanResult> roped = try_ropes(
+                    engine,
+                    pack,
+                    planner,
+                    scope,
+                    req,
                     zone_id,
                     region,
                     peer,
-                    start,
-                    goal,
-                    start_floor_y,
-                    goal_floor_y,
-                    goal_deck_y,
-                    start_deck_y,
-                    no_go_discs,
-                    should_stop,
                     dropped ? dropped->length : std::numeric_limits<double>::infinity(),
                     kDropHopTries,
                     far_ropes);
@@ -3595,28 +3537,115 @@ RecastPlanResult RecastNavEngine::planLocked(
         res.debug.planned_points = res.points;
         const std::vector<uint32_t> far_ropes = ropesOutOfReach();
         info.reset();
-        std::optional<RecastPlanResult> roped = tryRopes(
-            zone_name,
-            zone_id,
-            region,
-            region,
-            start,
-            goal,
-            start_floor_y,
-            goal_floor_y,
-            goal_deck_y,
-            start_deck_y,
-            no_go_discs,
-            should_stop,
-            res.length,
-            1,
-            far_ropes);
+        std::optional<RecastPlanResult> roped =
+            try_ropes(engine, pack, planner, scope, req, zone_id, region, region, res.length, 1, far_ropes);
         if (roped) {
             roped->debug.timing.total_ms = nowMs() - t_all0;
             return std::move(*roped);
         }
         return res;
     }
+}
+
+} // namespace
+
+void LoadRecastNavEngine(RecastNavEngine* engine, const BaseNavPack& pack, const std::filesystem::path& nogo_table)
+{
+    const BaseNavSection* sec = FindBaseNavSection(pack, kGridSectionTag);
+    if (sec == nullptr || sec->bytes == nullptr) {
+        engine->grid_error = "包里没有预烘格图段";
+        return;
+    }
+    if (!ParseGridPack(&engine->grid, &engine->grid_error, sec->bytes->data(), sec->bytes->size())) {
+        engine->grid = GridPack();
+        return;
+    }
+    if (!LoadSharedFieldsPack(&engine->fields, &engine->grid_error, FieldsSidecarPath(pack.path), pack, engine->grid)) {
+        engine->grid = GridPack();
+        return;
+    }
+    if (!LoadNoGoTable(&engine->nogo, &engine->grid_error, nogo_table, pack)) {
+        engine->grid = GridPack();
+    }
+}
+
+RecastPlanResult PlanRecastRoute(
+    RecastNavEngine* engine,
+    const BaseNavPack& pack,
+    const BaseNavPlanner& planner,
+    const RecastPlanRequest& request,
+    MaaContext* stop_context,
+    const std::vector<uint32_t>* rope_off)
+{
+    const std::lock_guard<std::mutex> lock(engine->mutex);
+    const PlanScope scope { .stop_context = stop_context, .rope_off = rope_off };
+    RecastPlanResult res = plan_locked(engine, pack, planner, scope, request);
+#if defined(__APPLE__)
+    malloc_zone_pressure_relief(nullptr, 0);
+#elif defined(_WIN32)
+    _heapmin();
+#endif
+    return res;
+}
+
+void WarmRecastZone(RecastNavEngine* engine, const BaseNavPack& pack, const BaseNavPlanner& planner, const std::string& zone_name)
+{
+    const std::lock_guard<std::mutex> lock(engine->mutex);
+    zone_entry(engine, pack, planner, zone_name);
+}
+
+std::vector<std::vector<uint32_t>>
+    RecastRegionsNear(RecastNavEngine* engine, const std::string& zone_name, const std::vector<WorldPoint>& points)
+{
+    const std::lock_guard<std::mutex> lock(engine->mutex);
+    std::vector<std::vector<uint32_t>> out(points.size());
+    const GridZoneDir* gz = GridPackParsed(engine->grid) ? FindGridZone(engine->grid, zone_name) : nullptr;
+    if (gz == nullptr || points.empty()) {
+        return out;
+    }
+    const double cs = engine->grid.cell_size;
+    const auto rad = static_cast<int64_t>(std::ceil(kSnapRadius / cs));
+    std::unordered_map<const GridTileRef*, std::vector<size_t>> by_tile;
+    std::vector<int64_t> pcx(points.size());
+    std::vector<int64_t> pcy(points.size());
+    for (size_t i = 0; i < points.size(); ++i) {
+        pcx[i] = static_cast<int64_t>(std::floor(points[i].x / cs));
+        pcy[i] = static_cast<int64_t>(std::floor(points[i].y / cs));
+        for (const GridTileRef* t : GridTilesInRect(*gz, pcx[i] - rad, pcy[i] - rad, pcx[i] + rad, pcy[i] + rad)) {
+            if (t->records != 0) {
+                by_tile[t].push_back(i);
+            }
+        }
+    }
+    GridTile tile;
+    for (const auto& [t, idx] : by_tile) {
+        if (!DecodeGridPackTile(&tile, engine->grid, *t)) {
+            continue;
+        }
+        for (const GridSpanRec& r : tile.rec) {
+            // 补格两个选类器都不会挑, 其余宁可多算不可漏
+            if ((r.flags & kGridFlagFill) != 0) {
+                continue;
+            }
+            const int64_t gx = t->gx0 + r.cell % t->nx;
+            const int64_t gy = t->gy0 + r.cell / t->nx;
+            for (const size_t i : idx) {
+                if (std::llabs(gx - pcx[i]) > rad || std::llabs(gy - pcy[i]) > rad) {
+                    continue;
+                }
+                const double dx = (static_cast<double>(gx) + 0.5) * cs - points[i].x;
+                const double dy = (static_cast<double>(gy) + 0.5) * cs - points[i].y;
+                if (dx * dx + dy * dy <= kSnapRadius * kSnapRadius) {
+                    out[i].push_back(r.rid);
+                }
+            }
+        }
+    }
+    for (std::vector<uint32_t>& v : out) {
+        std::sort(v.begin(), v.end());
+        v.erase(std::unique(v.begin(), v.end()), v.end());
+    }
+    return out;
 }
 
 } // namespace navmesh::recast
