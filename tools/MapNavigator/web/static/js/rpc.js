@@ -300,10 +300,11 @@ export function loadProjectNode(kind, resourcePath, nodeName) {
  *   - `{ok:true, kind:'assert', zone_id, target, condition_count}`
  *   - `{ok:false, error}` (verbatim Chinese message)
  * @param {string} text raw file contents
+ * @param {?Object<string, string>} mapZones zone name → base zone name of its map
  * @returns {Promise<Object>}
  */
-export function importAnalyze(text) {
-  return sendJson("/api/import/analyze", {text});
+export function importAnalyze(text, mapZones) {
+  return sendJson("/api/import/analyze", {text, map_zones: mapZones || {}});
 }
 
 /**
@@ -311,20 +312,26 @@ export function importAnalyze(text) {
  * tk `confirm()` + the post-dialog normalize tail).
  * @param {Array<Object>} rawPoints the `raw_points` from {@link importAnalyze}
  * @param {Array<{start:number, end:number, zone:string}>} zoneAssignments per-segment zone
+ * @param {?Object<string, string>} mapZones zone name → base zone name of its map
  * @returns {Promise<{ok:boolean, points?:Array<Object>, error?:string}>}
  */
-export function importFinalize(rawPoints, zoneAssignments) {
-  return sendJson("/api/import/finalize", {raw_points: rawPoints, zone_assignments: zoneAssignments});
+export function importFinalize(rawPoints, zoneAssignments, mapZones) {
+  return sendJson("/api/import/finalize", {
+    raw_points: rawPoints,
+    zone_assignments: zoneAssignments,
+    map_zones: mapZones || {},
+  });
 }
 
 /**
  * Export points to `path` nodes + a byte-parity JSON string (backend uses the same
  * `json.dumps(..., indent=4, ensure_ascii=False)` as the tk tool).
  * @param {Array<Object>} points
+ * @param {?Object<string, string>} mapZones zone name → base zone name of its map
  * @returns {Promise<{nodes:Array<any>, text:string}>}
  */
-export function exportPath(points) {
-  return sendJson("/api/export/path", {points});
+export function exportPath(points, mapZones) {
+  return sendJson("/api/export/path", {points, map_zones: mapZones || {}});
 }
 
 /**
@@ -530,7 +537,7 @@ export class NavTestSocket extends SessionSocket {
    * `{zone_id, target:[x,y,w,h]}` runs the assert rect instead and wins over `path`.
    * `zipline_account_id` travels with `zip` so the runtime can match account-scoped
    * zipline records; without it the whole route degrades to walking.
-   * @param {{path: Array, exported: boolean, zip?: boolean, zipline_account_id?: string, heading_source?: string, assert_target: ?Object}} route
+   * @param {{path: Array, exported: boolean, zip?: boolean, zipline_account_id?: string, heading_source?: string, map_zones?: Object<string, string>, assert_target: ?Object}} route
    * @returns {void}
    */
   arm(route) {
@@ -542,7 +549,7 @@ export class NavTestSocket extends SessionSocket {
     this._send({type: "run", ...this._route(route)});
   }
 
-  /** @returns {{path: Array, exported: boolean, zip: boolean, zipline_account_id: string, heading_source: string, assert_target: ?Object}} */
+  /** @returns {{path: Array, exported: boolean, zip: boolean, zipline_account_id: string, heading_source: string, map_zones: Object<string, string>, assert_target: ?Object}} */
   _route(route) {
     return {
       path: (route && route.path) || [],
@@ -550,6 +557,7 @@ export class NavTestSocket extends SessionSocket {
       zip: !!(route && route.zip),
       zipline_account_id: (route && route.zipline_account_id) || "",
       heading_source: (route && route.heading_source) || "character",
+      map_zones: (route && route.map_zones) || {},
       assert_target: (route && route.assert_target) || null,
     };
   }

@@ -51,6 +51,47 @@ test("path normalization preserves finite target decks and keeps distinct decks 
   assert.equal(normalizePathPoints([makePoint(ActionType.NAVMESH, {target_deck_y: " "})])[0].target_deck_y, undefined);
 });
 
+test("path normalization inserts PORTAL only where the map changes", () => {
+  const mapZones = {Wuling_Base: "Wuling_Base", Wuling_L4_328: "Wuling_Base", ValleyIV_Base: "ValleyIV_Base"};
+  const withinMap = normalizePathPoints(
+    [makePoint(ActionType.RUN, {zone: "Wuling_Base"}), makePoint(ActionType.RUN, {x: 300, zone: "Wuling_L4_328"})],
+    mapZones,
+  );
+  const acrossMaps = normalizePathPoints(
+    [makePoint(ActionType.RUN, {zone: "Wuling_Base"}), makePoint(ActionType.RUN, {x: 300, zone: "ValleyIV_Base"})],
+    mapZones,
+  );
+
+  assert.deepEqual(
+    withinMap.map((point) => point.actions),
+    [[ActionType.RUN], [ActionType.RUN]],
+  );
+  assert.deepEqual(
+    acrossMaps.map((point) => point.actions),
+    [[ActionType.PORTAL], [ActionType.PORTAL]],
+  );
+});
+
+test("points set before the zone table loads keep their actions and gain PORTAL only across maps", () => {
+  const state = new AppState();
+  state.setPoints([
+    makePoint(ActionType.FIGHT, {zone: "Wuling_Base"}),
+    makePoint(ActionType.RUN, {x: 300, zone: "Wuling_L4_328"}),
+    makePoint(ActionType.RUN, {x: 500, zone: "ValleyIV_Base"}),
+  ]);
+  assert.deepEqual(
+    state.points.map((point) => point.actions),
+    [[ActionType.FIGHT], [ActionType.RUN], [ActionType.RUN]],
+  );
+
+  state.mapZones = {Wuling_Base: "Wuling_Base", Wuling_L4_328: "Wuling_Base", ValleyIV_Base: "ValleyIV_Base"};
+  state.reindex();
+  assert.deepEqual(
+    state.points.map((point) => point.actions),
+    [[ActionType.FIGHT], [ActionType.PORTAL], [ActionType.PORTAL]],
+  );
+});
+
 test("target deck matching follows the runtime two-pixel nearest-surface band", () => {
   const decks = [
     {height: 332.92},

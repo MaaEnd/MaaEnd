@@ -538,3 +538,19 @@ test("navtest socket carries heading source on start, arm and run", () => {
   socket.arm({path: [[1, 2]]});
   assert.equal(messages.at(-1).heading_source, "character");
 });
+
+test("navtest socket carries the map zone table on start, arm and run", () => {
+  const socket = new NavTestSocket();
+  const messages = [];
+  socket._open = (message) => messages.push(message);
+  socket._send = (message) => messages.push(message);
+  const mapZones = {Wuling_L4_328: "Wuling_Base"};
+  const route = {path: [[1, 2]], map_zones: mapZones};
+  socket.start({kind: "win32"}, route);
+  socket.arm(route);
+  socket.run(route);
+  assert.deepEqual(
+    messages.map((message) => message.map_zones),
+    [mapZones, mapZones, mapZones],
+  );
+});

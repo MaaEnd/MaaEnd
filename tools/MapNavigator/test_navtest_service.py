@@ -97,6 +97,28 @@ class NavTestServiceTest(unittest.TestCase):
                     {"path": path, "heading_source": heading_source, "zip": False},
                 )
 
+    def test_arm_message_exports_with_the_map_zone_table(self) -> None:
+        service = self._make_service()
+        service.apply_client_message(
+            {
+                "type": "arm",
+                "path": [
+                    {"x": 10, "y": 20, "action": 0, "zone": "Wuling_Base"},
+                    {"x": 30, "y": 40, "action": 0, "zone": "Wuling_L4_328"},
+                ],
+                "map_zones": {"Wuling_Base": "Wuling_Base", "Wuling_L4_328": "Wuling_Base"},
+            }
+        )
+
+        self.assertEqual(
+            service._armed_path,
+            [
+                {"action": "ZONE", "zone_id": "Wuling_Base"},
+                [10, 20],
+                {"action": "RUN", "target": [30, 40], "target_tier": "Wuling_L4_328"},
+            ],
+        )
+
     def test_invalid_heading_source_does_not_replace_armed_route(self) -> None:
         service = self._make_service()
         service.arm([[1, 2]], exported=True, heading_source="camera")

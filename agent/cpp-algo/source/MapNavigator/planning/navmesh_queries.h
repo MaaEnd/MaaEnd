@@ -10,10 +10,18 @@
 #include "../../Navmesh/OccluderPack.h"
 #include "../navi_domain_types.h"
 
+namespace navmesh
+{
+struct BaseNavPack;
+}
+
 namespace mapnavigator
 {
 
 struct NaviParam;
+
+// 同一地图的层都归到坐标与底图一致的那个区名, 包里查不到的区原样返回
+std::string BaseZoneName(const navmesh::BaseNavPack& pack, const std::string& zone_id);
 
 // 原地把层上的位置换成所在地图底图的坐标和区名, 层的主楼面高记进 zone_floor_y, 其他 zone 原样不动
 void NormalizeLivePositionToBase(NaviPosition* pos, const NaviParam& param);

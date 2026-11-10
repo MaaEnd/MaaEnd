@@ -42,6 +42,7 @@ class SessionModesTest(unittest.TestCase):
             heading_source="camera",
             assert_target=None,
             zipline_account_id="",
+            map_zones={},
         )
         service.start.assert_called_once_with(session_config)
 

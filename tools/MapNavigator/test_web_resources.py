@@ -60,6 +60,37 @@ class WebResourceTest(unittest.TestCase):
     def test_route_preview_reads_the_runtime_rope_text_node(self) -> None:
         self.assertIn("^使用$", rope_interact_text())
 
+    def test_export_uses_the_map_zone_table_from_the_request(self) -> None:
+        payload = {
+            "points": [
+                {"x": 10, "y": 20, "action": 0, "zone": "Wuling_Base"},
+                {"x": 30, "y": 40, "action": 0, "zone": "Wuling_L4_328"},
+            ],
+            "map_zones": {"Wuling_Base": "Wuling_Base", "Wuling_L4_328": "Wuling_Base"},
+        }
+        with patch.object(
+            serve.navmesh_backend, "query", side_effect=AssertionError("export must not wait on navmesh")
+        ):
+            response = asyncio.run(serve.api_export_path(payload))
+
+        self.assertEqual(
+            response["nodes"],
+            [
+                {"action": "ZONE", "zone_id": "Wuling_Base"},
+                [10, 20],
+                {"action": "RUN", "target": [30, 40], "target_tier": "Wuling_L4_328"},
+            ],
+        )
+
+    def test_export_without_a_map_zone_table_fails_at_once(self) -> None:
+        with (
+            patch.object(serve.navmesh_backend, "query", side_effect=AssertionError("export must not wait on navmesh")),
+            self.assertRaises(HTTPException) as context,
+        ):
+            asyncio.run(serve.api_export_path({"points": [], "map_zones": {}}))
+
+        self.assertEqual(context.exception.status_code, 400)
+
 
 if __name__ == "__main__":
     unittest.main()

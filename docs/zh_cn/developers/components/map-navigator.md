@@ -209,7 +209,7 @@ uv run map-navigator --port 9000 --no-browser
 
 `FIGHT`、`TRANSFER`、`HEADING` 等业务语义较强的点**不会在录制时自动判定**，需在停止录制后在页面中手动修改。
 
-点击 `停止录制` 后，工具会整理原始轨迹：统一为 canonical 格式，将跨区域边界两侧的点标记为 `PORTAL`，并按区域分段显示。
+点击 `停止录制` 后，工具会整理原始轨迹：统一为 canonical 格式，将跨地图边界两侧的点标记为 `PORTAL`（同一张地图上的层与底图之间不标记），并按区域分段显示。
 
 ### 编辑路径点
 
@@ -435,7 +435,7 @@ uv run map-navigator --port 9000 --no-browser
 
 > [!NOTE]
 >
-> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`FIND` 的 `find_target` / `find_text` / `find_stop` / `find_arrive` 与 `TRIGGER` 的 `trigger_node` 同样要导出后手写，工具只负责原样保留。
+> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明：`ZONE` 写所在地图的底图区名，坐标在层上的点导出时自动带上 `target_tier`。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`FIND` 的 `find_target` / `find_text` / `find_stop` / `find_arrive` 与 `TRIGGER` 的 `trigger_node` 同样要导出后手写，工具只负责原样保留。
 
 ---
 

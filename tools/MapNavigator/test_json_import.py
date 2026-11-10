@@ -11,7 +11,7 @@ from json_import import (
     load_project_import_node,
     scan_project_import_nodes,
 )
-from model import ActionType, PathPoint, normalize_path_points
+from model import ActionType, PathPoint, assign_point_frames, normalize_path_points
 
 
 def make_point(action: ActionType, *, strict: bool = False, required: bool = False) -> PathPoint:
@@ -306,6 +306,77 @@ class ExportPathNodesTest(unittest.TestCase):
 
         self.assertEqual(len(routes), 1)
         self.assertTrue(routes[0][0]["required"])
+
+
+MAP_ZONES = {"Wuling_Base": "Wuling_Base", "Wuling_L4_328": "Wuling_Base", "ValleyIV_Base": "ValleyIV_Base"}
+
+
+def make_zone_point(zone: str, x: float, **fields: object) -> PathPoint:
+    point = make_point(ActionType.RUN)
+    point["zone"] = zone
+    point["x"] = x
+    return {**point, **fields}  # type: ignore[typeddict-item]
+
+
+class ZonesByMapTest(unittest.TestCase):
+    def test_portal_only_where_the_map_changes(self) -> None:
+        within_map = normalize_path_points(
+            [make_zone_point("Wuling_Base", 10.0), make_zone_point("Wuling_L4_328", 20.0)], MAP_ZONES
+        )
+        across_maps = normalize_path_points(
+            [make_zone_point("Wuling_Base", 10.0), make_zone_point("ValleyIV_Base", 20.0)], MAP_ZONES
+        )
+
+        self.assertEqual([point["actions"] for point in within_map], [[int(ActionType.RUN)], [int(ActionType.RUN)]])
+        self.assertEqual(
+            [point["actions"] for point in across_maps], [[int(ActionType.PORTAL)], [int(ActionType.PORTAL)]]
+        )
+
+    def test_exports_tier_frame_points_under_the_map_zone(self) -> None:
+        nodes = export_path_nodes(
+            [make_zone_point("Wuling_Base", 10.0), make_zone_point("Wuling_L4_328", 20.0)], MAP_ZONES
+        )
+
+        self.assertEqual(
+            nodes,
+            [
+                {"action": "ZONE", "zone_id": "Wuling_Base"},
+                [10, 773.41],
+                {"action": "RUN", "target": [20, 773.41], "target_tier": "Wuling_L4_328"},
+            ],
+        )
+
+    def test_imported_frames_follow_the_runtime(self) -> None:
+        framed = assign_point_frames(
+            [
+                make_zone_point("Wuling_L4_328", 1502.0),
+                make_zone_point("Wuling_L4_328", 137.19, target_tier="Wuling_L4_328"),
+            ],
+            MAP_ZONES,
+        )
+
+        self.assertEqual([point["zone"] for point in framed], ["Wuling_Base", "Wuling_L4_328"])
+
+    def test_import_keeps_actions_where_the_zone_changes_within_a_map(self) -> None:
+        with tempfile.NamedTemporaryFile("w", suffix=".json", encoding="utf-8", delete=False) as handle:
+            json.dump(
+                {
+                    "path": [
+                        {"action": "ZONE", "zone_id": "Wuling_Base"},
+                        [10, 20, "FIGHT"],
+                        {"action": "ZONE", "zone_id": "Wuling_L4_328"},
+                        [30, 40],
+                    ]
+                },
+                handle,
+            )
+            path = Path(handle.name)
+        try:
+            route = load_points_from_json_file(path, MAP_ZONES)
+        finally:
+            path.unlink(missing_ok=True)
+
+        self.assertEqual([point["actions"] for point in route.points], [[int(ActionType.FIGHT)], [int(ActionType.RUN)]])
 
 
 class GenericImportShapesTest(unittest.TestCase):
