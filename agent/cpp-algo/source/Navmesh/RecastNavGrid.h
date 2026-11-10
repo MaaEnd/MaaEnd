@@ -4,7 +4,6 @@
 #include <array>
 #include <bit>
 #include <cstdint>
-#include <functional>
 #include <limits>
 #include <optional>
 #include <unordered_set>
@@ -103,6 +102,12 @@ struct RasterCells
     std::vector<uint8_t> ins;
 };
 
+// 定义在规划层
+struct FallGate;
+
+// 台沿下落能否跳, 格号是窗口内格号; 会写 gate 的记忆表
+bool FallClear(FallGate* gate, int64_t from, int64_t to, float h_from, float h_to);
+
 // 同一格的 span 在 sp_h 里是连续一段, 下标 [CellSpanStart(st, j), CellSpanStart(st, j)+CellSpanCount(st, j))
 struct SpanTable
 {
@@ -115,8 +120,8 @@ struct SpanTable
     // 逐格一位的占用图与每 64 格的前缀占用数, 长度只到最大占用格, 表外视为空格
     std::vector<uint64_t> occ_bits;
     std::vector<int32_t> occ_rank;
-    // 台沿下落能否跳: (出发格, 落点格, 出发高, 落点高), 空则不另判
-    std::function<bool(int64_t, int64_t, float, float)> fall;
+    // 台沿下落的另一道判据, 空则不另判
+    FallGate* fall = nullptr;
 };
 
 inline int64_t OccupiedCount(const SpanTable& st)
