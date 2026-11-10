@@ -107,9 +107,6 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	currentRun = st
 	if opts.Mode == InitModeInventory {
 		st.Inventory = &inventoryState{groups: make(map[[3]int]*inventoryCounts)}
-		if err := ctx.OverridePipeline(inventoryGridOverride()); err != nil {
-			return inventoryFailed(err)
-		}
 		reportSimpleByKey(ctx, "inventory.started")
 	}
 	reportInitSelection(ctx, weaponRarity, essenceTypes)

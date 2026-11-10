@@ -12,19 +12,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func inventoryGridOverride() map[string]any {
-	return map[string]any{
-		"EssenceGridAdvance": map[string]any{
-			"attach": map[string]any{
-				"flawless_essence":   true,
-				"pure_essence":       false,
-				"skip_thumb_lock":    false,
-				"skip_thumb_discard": true,
-			},
-		},
-	}
-}
-
 // matchOptsFromPipeline maps pipeline attach options to the match engine subset.
 func matchOptsFromPipeline(opts *EssenceFilterOptions) matchapi.EssenceFilterOptions {
 	if opts == nil {

@@ -48,9 +48,10 @@
             "min_raw_segment_length": 10,
             "min_kept_segment_ratio": 0.9,
             "repeat_match_ratio": 0.95,
+            //品质与缩略图默认值即库存盘点口径；普通筛选由 FlawlessEssence / PureEssence / SkipThumbLock / SkipThumbDiscard 选项覆盖
             "flawless_essence": true,
             "pure_essence": false,
-            "skip_thumb_lock": true,
+            "skip_thumb_lock": false,
             "skip_thumb_discard": true
         }
     },
