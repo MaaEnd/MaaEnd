@@ -45,7 +45,7 @@
         ]
     },
     "UseConsumableTacticalOpenBackpack": {
-        "desc": "复用背包入口识别并打开背包",
+        "desc": "识别背包入口并打开背包",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",

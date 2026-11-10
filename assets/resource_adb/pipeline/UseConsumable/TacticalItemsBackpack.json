@@ -32,7 +32,7 @@
         "desc": "ADB 触点 0 点击转移菜单图标",
         "recognition": "TemplateMatch",
         "roi": [
-            937,
+            34,
             128,
             309,
             212
