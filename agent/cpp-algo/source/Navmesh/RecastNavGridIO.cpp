@@ -107,9 +107,9 @@ int64_t UnZigzag(uint64_t value)
 
 }
 
-bool DecodeGridTile(const uint8_t* data, size_t len, GridTile& out)
+bool DecodeGridTile(GridTile* out, const uint8_t* data, size_t len)
 {
-    out = GridTile {};
+    *out = GridTile {};
     if (data == nullptr) {
         return false;
     }
@@ -152,8 +152,8 @@ bool DecodeGridTile(const uint8_t* data, size_t len, GridTile& out)
         return false;
     }
 
-    out.regions = static_cast<uint32_t>(regions);
-    out.rec.reserve(static_cast<size_t>(n));
+    out->regions = static_cast<uint32_t>(regions);
+    out->rec.reserve(static_cast<size_t>(n));
     int64_t cell = 0;
     for (uint64_t i = 0; i < ncell; ++i) {
         uint64_t delta = 0;
@@ -163,7 +163,7 @@ bool DecodeGridTile(const uint8_t* data, size_t len, GridTile& out)
         }
         cell += static_cast<int64_t>(delta);
         for (uint64_t j = 0; j < k; ++j) {
-            if (out.rec.size() >= static_cast<size_t>(n)) {
+            if (out->rec.size() >= static_cast<size_t>(n)) {
                 return false;
             }
             uint64_t hq = 0;
@@ -182,10 +182,10 @@ bool DecodeGridTile(const uint8_t* data, size_t len, GridTile& out)
             r.flags = *col[3]++;
             r.steps = *col[4]++;
             r.h = (r.flags & kGridFlagFill) != 0 ? 0.0F : static_cast<float>(static_cast<double>(hmin) + static_cast<double>(hq) / 64.0);
-            out.rec.push_back(r);
+            out->rec.push_back(r);
         }
     }
-    if (out.rec.size() != static_cast<size_t>(n)) {
+    if (out->rec.size() != static_cast<size_t>(n)) {
         return false;
     }
     for (int i = 0; i < 6; ++i) {
@@ -197,9 +197,9 @@ bool DecodeGridTile(const uint8_t* data, size_t len, GridTile& out)
 }
 
 // 头部须与 DecodeGridTileV3 逐字段相同
-bool DecodeGridTileRegionsV3(const uint8_t* data, size_t len, std::vector<uint32_t>& out)
+bool DecodeGridTileRegionsV3(std::vector<uint32_t>* out, const uint8_t* data, size_t len)
 {
-    out.clear();
+    out->clear();
     if (data == nullptr) {
         return false;
     }
@@ -247,10 +247,10 @@ bool DecodeGridTileRegionsV3(const uint8_t* data, size_t len, std::vector<uint32
     if (regions > dict.size()) {
         return false;
     }
-    out.resize(static_cast<size_t>(regions));
+    out->resize(static_cast<size_t>(regions));
     const uint8_t* pd = dict.data();
     const uint8_t* const pd_end = pd + dict.size();
-    for (uint32_t& id : out) {
+    for (uint32_t& id : *out) {
         uint64_t value = 0;
         if (!GetVarint(pd, pd_end, value) || value > UINT32_MAX) {
             return false;
@@ -260,9 +260,9 @@ bool DecodeGridTileRegionsV3(const uint8_t* data, size_t len, std::vector<uint32
     return pd == pd_end;
 }
 
-bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out)
+bool DecodeGridTileV3(GridTile* out, const uint8_t* data, size_t len, int32_t nx)
 {
-    out = GridTile {};
+    *out = GridTile {};
     if (data == nullptr || nx <= 0) {
         return false;
     }
@@ -354,11 +354,11 @@ bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out
         return false;
     }
 
-    out.regions = static_cast<uint32_t>(regions);
-    out.rec.assign(static_cast<size_t>(n), GridSpanRec {});
+    out->regions = static_cast<uint32_t>(regions);
+    out->rec.assign(static_cast<size_t>(n), GridSpanRec {});
     for (size_t i = 0; i < static_cast<size_t>(ncell); ++i) {
         for (uint64_t j = 0; j < depth[i]; ++j) {
-            out.rec[base[i] + static_cast<size_t>(j)].cell = static_cast<int32_t>(cell[i]);
+            out->rec[base[i] + static_cast<size_t>(j)].cell = static_cast<int32_t>(cell[i]);
         }
     }
 
@@ -422,7 +422,7 @@ bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out
                 current[i] = value;
 
                 const size_t at = base[i] + static_cast<size_t>(layer);
-                GridSpanRec& r = out.rec[at];
+                GridSpanRec& r = out->rec[at];
                 switch (field) {
                 case 0:
                     if (value < 0) {
@@ -464,7 +464,7 @@ bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out
     }
 
     for (size_t i = 0; i < static_cast<size_t>(n); ++i) {
-        GridSpanRec& r = out.rec[i];
+        GridSpanRec& r = out->rec[i];
         r.rid = dictionary[static_cast<size_t>(region_index[i])];
         r.h =
             (r.flags & kGridFlagFill) != 0 ? 0.0F : static_cast<float>(static_cast<double>(hmin) + static_cast<double>(height_q[i]) / 64.0);
@@ -472,63 +472,63 @@ bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out
     return true;
 }
 
-bool GridPack::parse(const uint8_t* data, size_t len, std::string& err)
+bool ParseGridPack(GridPack* pack, std::string* err, const uint8_t* data, size_t len)
 {
-    base_ = nullptr;
-    len_ = 0;
-    zones_.clear();
+    pack->base = nullptr;
+    pack->len = 0;
+    pack->zones.clear();
     if (data == nullptr || len < kGridHeaderSize) {
-        err = "GRID section is truncated";
+        *err = "GRID section is truncated";
         return false;
     }
     if (std::memcmp(data, kGridSectionTag, 4) != 0) {
-        err = "GRID section has a bad magic";
+        *err = "GRID section has a bad magic";
         return false;
     }
     Cursor cur { data + 4, data + len };
     uint32_t version = 0;
     uint32_t zone_count = 0;
     uint32_t reserved = 0;
-    if (!cur.u32(version) || !cur.f64(cell_size_) || !cur.f64(tile_px_) || !cur.f64(apron_px_) || !cur.u32(zone_count)
+    if (!cur.u32(version) || !cur.f64(pack->cell_size) || !cur.f64(pack->tile_px) || !cur.f64(pack->apron_px) || !cur.u32(zone_count)
         || !cur.u32(reserved)) {
-        err = "GRID header is truncated";
+        *err = "GRID header is truncated";
         return false;
     }
     if (version != kGridSectionVersion && version != kGridSectionVersionColumnar) {
-        err = "GRID section version " + std::to_string(version) + " is not supported";
+        *err = "GRID section version " + std::to_string(version) + " is not supported";
         return false;
     }
-    version_ = version;
-    if (std::abs(cell_size_ - kCS) > 1e-12) {
-        err = "GRID cell size does not match the runtime grid";
+    pack->version = version;
+    if (std::abs(pack->cell_size - kCS) > 1e-12) {
+        *err = "GRID cell size does not match the runtime grid";
         return false;
     }
 
     // 区目录项最少 28 字节: 名长、名字、两个原点、类号数、瓦数
     if (static_cast<size_t>(cur.end - cur.p) < static_cast<size_t>(zone_count) * kGridZoneMinSize) {
-        err = "GRID zone directory is truncated";
+        *err = "GRID zone directory is truncated";
         return false;
     }
     // 瓦边格数上限由段头的瓦边长与围裙定死
-    const int64_t max_side = static_cast<int64_t>((tile_px_ + 2.0 * apron_px_) / cell_size_) + 2;
-    zones_.resize(zone_count);
+    const int64_t max_side = static_cast<int64_t>((pack->tile_px + 2.0 * pack->apron_px) / pack->cell_size) + 2;
+    pack->zones.resize(zone_count);
     for (uint32_t i = 0; i < zone_count; ++i) {
-        GridZoneDir& z = zones_[i];
+        GridZoneDir& z = pack->zones[i];
         uint32_t name_len = 0;
         uint32_t tile_count = 0;
         if (!cur.u32(name_len)) {
-            err = "GRID zone directory is truncated";
+            *err = "GRID zone directory is truncated";
             return false;
         }
         const size_t padded = (static_cast<size_t>(name_len) + 3) / 4 * 4;
         const uint8_t* name_bytes = nullptr;
         if (!cur.take(padded, name_bytes) || !cur.f64(z.x0) || !cur.f64(z.y0) || !cur.u32(z.global_regions) || !cur.u32(tile_count)) {
-            err = "GRID zone directory is truncated";
+            *err = "GRID zone directory is truncated";
             return false;
         }
         z.name.assign(reinterpret_cast<const char*>(name_bytes), name_len);
         if (static_cast<size_t>(cur.end - cur.p) < static_cast<size_t>(tile_count) * kGridTileEntrySize) {
-            err = "GRID tile directory of zone '" + z.name + "' is truncated";
+            *err = "GRID tile directory of zone '" + z.name + "' is truncated";
             return false;
         }
         z.tiles.resize(tile_count);
@@ -542,19 +542,24 @@ bool GridPack::parse(const uint8_t* data, size_t len, std::string& err)
             cur.u32(r.len);
             cur.u32(r.records);
             if (!cur.ok || r.nx <= 0 || r.ny <= 0 || r.nx > max_side || r.ny > max_side || r.offset > len || r.len > len - r.offset) {
-                err = "GRID tile of zone '" + z.name + "' points outside the section";
+                *err = "GRID tile of zone '" + z.name + "' points outside the section";
                 return false;
             }
         }
     }
-    base_ = data;
-    len_ = len;
+    pack->base = data;
+    pack->len = len;
     return true;
 }
 
-const GridZoneDir* GridPack::findZone(const std::string& name) const
+bool GridPackParsed(const GridPack& pack)
 {
-    for (const GridZoneDir& z : zones_) {
+    return pack.base != nullptr;
+}
+
+const GridZoneDir* FindGridZone(const GridPack& pack, const std::string& name)
+{
+    for (const GridZoneDir& z : pack.zones) {
         if (z.name == name) {
             return &z;
         }
@@ -562,47 +567,47 @@ const GridZoneDir* GridPack::findZone(const std::string& name) const
     return nullptr;
 }
 
-bool GridPack::decodeTile(const GridTileRef& t, GridTile& out) const
+bool DecodeGridPackTile(GridTile* out, const GridPack& pack, const GridTileRef& tile)
 {
-    out = GridTile {};
-    if (base_ == nullptr) {
+    *out = GridTile {};
+    if (pack.base == nullptr) {
         return false;
     }
-    if (t.records == 0) {
+    if (tile.records == 0) {
         return true;
     }
-    if (version_ == kGridSectionVersion) {
+    if (pack.version == kGridSectionVersion) {
         // v3 载荷逐流压缩, 整块没有外层 deflate
-        return DecodeGridTileV3(base_ + t.offset, t.len, t.nx, out) && out.rec.size() == t.records;
+        return DecodeGridTileV3(out, pack.base + tile.offset, tile.len, tile.nx) && out->rec.size() == tile.records;
     }
     std::vector<uint8_t> raw;
-    if (!Inflate(base_ + t.offset, t.len, raw)) {
+    if (!Inflate(pack.base + tile.offset, tile.len, raw)) {
         return false;
     }
-    return DecodeGridTile(raw.data(), raw.size(), out) && out.rec.size() == t.records;
+    return DecodeGridTile(out, raw.data(), raw.size()) && out->rec.size() == tile.records;
 }
 
-bool GridPack::tileRegions(const GridTileRef& t, std::vector<uint32_t>& out) const
+bool GridPackTileRegions(std::vector<uint32_t>* out, const GridPack& pack, const GridTileRef& tile)
 {
-    out.clear();
-    if (base_ == nullptr) {
+    out->clear();
+    if (pack.base == nullptr) {
         return false;
     }
-    if (t.records == 0) {
+    if (tile.records == 0) {
         return true;
     }
-    if (version_ == kGridSectionVersion) {
-        return DecodeGridTileRegionsV3(base_ + t.offset, t.len, out);
+    if (pack.version == kGridSectionVersion) {
+        return DecodeGridTileRegionsV3(out, pack.base + tile.offset, tile.len);
     }
-    GridTile tile;
-    if (!decodeTile(t, tile)) {
+    GridTile decoded;
+    if (!DecodeGridPackTile(&decoded, pack, tile)) {
         return false;
     }
-    for (const GridSpanRec& r : tile.rec) {
-        out.push_back(r.rid);
+    for (const GridSpanRec& r : decoded.rec) {
+        out->push_back(r.rid);
     }
-    std::sort(out.begin(), out.end());
-    out.erase(std::unique(out.begin(), out.end()), out.end());
+    std::sort(out->begin(), out->end());
+    out->erase(std::unique(out->begin(), out->end()), out->end());
     return true;
 }
 
@@ -622,9 +627,9 @@ std::vector<const GridTileRef*> GridTilesInRect(const GridZoneDir& zone, int64_t
     return hit;
 }
 
-bool InflateBytes(const uint8_t* data, size_t len, std::vector<uint8_t>& out)
+bool InflateBytes(std::vector<uint8_t>* out, const uint8_t* data, size_t len)
 {
-    return Inflate(data, len, out);
+    return Inflate(data, len, *out);
 }
 
 }

@@ -35,17 +35,17 @@ struct FileJson
 
 }
 
-bool NoGoPoly::contains(const WorldPoint& p) const
+bool NoGoPolyContains(const NoGoPoly& poly, const WorldPoint& p)
 {
-    if (p.x < bx0 || p.x > bx1 || p.y < by0 || p.y > by1) {
+    if (p.x < poly.bx0 || p.x > poly.bx1 || p.y < poly.by0 || p.y > poly.by1) {
         return false;
     }
     // 奇偶规则, 自交环也有确定结果
     bool in = false;
-    const size_t n = ring.size();
+    const size_t n = poly.ring.size();
     for (size_t i = 0, j = n - 1; i < n; j = i++) {
-        const WorldPoint& a = ring[j];
-        const WorldPoint& b = ring[i];
+        const WorldPoint& a = poly.ring[j];
+        const WorldPoint& b = poly.ring[i];
         if ((a.y > p.y) != (b.y > p.y) && p.x < a.x + (p.y - a.y) * (b.x - a.x) / (b.y - a.y)) {
             in = !in;
         }
@@ -53,13 +53,13 @@ bool NoGoPoly::contains(const WorldPoint& p) const
     return in;
 }
 
-bool NoGoTable::load(const std::filesystem::path& path, const BaseNavPack& pack, std::string& err)
+bool LoadNoGoTable(NoGoTable* table, std::string* err, const std::filesystem::path& path, const BaseNavPack& pack)
 {
-    zones_.clear();
+    table->zones.clear();
     std::error_code ec;
     const bool present = std::filesystem::exists(path, ec);
     if (ec) {
-        err = "虚拟禁区表读不到 (" + MAA_NS::path_to_utf8_string(path) + "): " + ec.message();
+        *err = "虚拟禁区表读不到 (" + MAA_NS::path_to_utf8_string(path) + "): " + ec.message();
         return false;
     }
     if (!present) {
@@ -67,12 +67,12 @@ bool NoGoTable::load(const std::filesystem::path& path, const BaseNavPack& pack,
     }
     const auto doc = json::open(path, true, true);
     if (!doc.has_value() || !doc->is<FileJson>()) {
-        err = "虚拟禁区表解不开 (" + MAA_NS::path_to_utf8_string(path) + ")";
+        *err = "虚拟禁区表解不开 (" + MAA_NS::path_to_utf8_string(path) + ")";
         return false;
     }
     const auto file = doc->as<FileJson>();
     if (file.version != 1) {
-        err = "虚拟禁区表版本不认识 (" + MAA_NS::path_to_utf8_string(path) + ")";
+        *err = "虚拟禁区表版本不认识 (" + MAA_NS::path_to_utf8_string(path) + ")";
         return false;
     }
     for (const auto& [name, list] : file.zones) {
@@ -82,22 +82,22 @@ bool NoGoTable::load(const std::filesystem::path& path, const BaseNavPack& pack,
             p.id = src.id;
             for (const std::vector<double>& q : src.poly) {
                 if (q.size() < 2) {
-                    err = "区 " + name + " 的禁区里有不是两个数的点";
-                    zones_.clear();
+                    *err = "区 " + name + " 的禁区里有不是两个数的点";
+                    table->zones.clear();
                     return false;
                 }
                 p.ring.push_back({ q[0], q[1] });
             }
             if (p.ring.size() < 3) {
-                err = "区 " + name + " 的禁区点数不够";
-                zones_.clear();
+                *err = "区 " + name + " 的禁区点数不够";
+                table->zones.clear();
                 return false;
             }
             if (!src.tier.empty()) {
-                const BaseNavZone* tz = pack.findZoneByName(src.tier);
+                const BaseNavZone* tz = FindBaseNavZoneByName(pack, src.tier);
                 if (tz == nullptr) {
-                    err = "区 " + name + " 的禁区 " + p.id + " 画在包里没有的 tier " + src.tier + " 上";
-                    zones_.clear();
+                    *err = "区 " + name + " 的禁区 " + p.id + " 画在包里没有的 tier " + src.tier + " 上";
+                    table->zones.clear();
                     return false;
                 }
                 p.tier = src.tier;
@@ -120,16 +120,16 @@ bool NoGoTable::load(const std::filesystem::path& path, const BaseNavPack& pack,
             out.push_back(std::move(p));
         }
         if (!out.empty()) {
-            zones_.emplace(name, std::move(out));
+            table->zones.emplace(name, std::move(out));
         }
     }
     return true;
 }
 
-const std::vector<NoGoPoly>* NoGoTable::zone(const std::string& name) const
+const std::vector<NoGoPoly>* FindNoGoZone(const NoGoTable& table, const std::string& name)
 {
-    const auto it = zones_.find(name);
-    return it == zones_.end() ? nullptr : &it->second;
+    const auto it = table.zones.find(name);
+    return it == table.zones.end() ? nullptr : &it->second;
 }
 
 void StampNoGo(
@@ -166,7 +166,7 @@ void StampNoGo(
                         continue;
                     }
                 }
-                if (!p.contains({ x0 + (static_cast<double>(gx) + 0.5) * kCS, cy })) {
+                if (!NoGoPolyContains(p, { x0 + (static_cast<double>(gx) + 0.5) * kCS, cy })) {
                     continue;
                 }
                 core.v[cell] = 0;
@@ -183,7 +183,7 @@ bool NoGoContains(const std::vector<NoGoPoly>& polys, const WorldPoint& p, doubl
         if (z.banded && (h < z.y_lo || h > z.y_hi)) {
             continue;
         }
-        if (z.contains(p)) {
+        if (NoGoPolyContains(z, p)) {
             hit_id = z.id;
             return true;
         }

@@ -78,9 +78,12 @@ struct ZoneBoundsPx
     int64_t y0 = 0;
     int64_t x1 = -1;
     int64_t y1 = -1;
-
-    bool empty() const { return x1 < x0 || y1 < y0; }
 };
+
+inline bool ZoneBoundsEmpty(const ZoneBoundsPx& bounds)
+{
+    return bounds.x1 < bounds.x0 || bounds.y1 < bounds.y0;
+}
 
 class RecastNavEngine
 {

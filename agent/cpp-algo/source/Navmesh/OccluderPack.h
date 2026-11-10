@@ -85,15 +85,15 @@ struct OccluderScene
     double lattice_b = 0.0;
     std::vector<BoxNode> instance_nodes;
     std::vector<uint32_t> instance_order;
-
-    // 按沿线参数升序, 并列时按 instance 再按 triangle
-    std::vector<OccluderHit> lineHits(const OccluderPoint& a, const OccluderPoint& b) const;
-
-    // 以 base 为名义塔底的建筑落地后的高度, 结果夹在 base.y ± 1 m 内
-    double groundHeight(const OccluderPoint& base) const;
-
-    bool dropBlocked(const OccluderPoint& take, const OccluderPoint& land, double climb, double height) const;
 };
+
+// 按沿线参数升序, 并列时按 instance 再按 triangle
+std::vector<OccluderHit> OccluderLineHits(const OccluderScene& scene, const OccluderPoint& a, const OccluderPoint& b);
+
+// 以 base 为名义塔底的建筑落地后的高度, 结果夹在 base.y ± 1 m 内
+double OccluderGroundHeight(const OccluderScene& scene, const OccluderPoint& base);
+
+bool OccluderDropBlocked(const OccluderScene& scene, const OccluderPoint& take, const OccluderPoint& land, double climb, double height);
 
 // 输入须是解压后的整份容器, 数据有误返回 nullptr
 std::shared_ptr<const OccluderScene> DecodeOccluderScene(const uint8_t* data, size_t size, std::string_view zone_name);

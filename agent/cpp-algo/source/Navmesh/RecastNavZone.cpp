@@ -227,7 +227,7 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
 {
     name = zone_name;
     walkable_flags = walkable_flags_in;
-    const BaseNavZone* zone = pack.findZoneByName(zone_name);
+    const BaseNavZone* zone = FindBaseNavZoneByName(pack, zone_name);
     if (zone == nullptr || zone->triangle_count == 0) {
         error_ = zone_name + ": zone not found or empty";
         return;
@@ -235,17 +235,18 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
     zone_id = zone->zone_id;
     lo = zone->first_triangle;
     hi = lo + zone->triangle_count;
-    const auto& ptris = pack.triangles();
-    const auto& pverts = pack.vertices();
+    const auto& ptris = pack.triangles;
+    const auto& pverts = pack.vertices;
     // 带 BGEO 段的包顶点已精确焊接, 再取整焊接只会挪动坐标
-    const bool source_exact = pack.section("BGEO") != nullptr || (!pack.surfaces().empty() && pack.surfaces().size() == ptris.size());
-    const bool has_source_surfaces = !pack.surfaces().empty() && pack.surfaces().size() == ptris.size();
+    const bool source_exact =
+        FindBaseNavSection(pack, "BGEO") != nullptr || (!pack.surfaces.empty() && pack.surfaces.size() == ptris.size());
+    const bool has_source_surfaces = !pack.surfaces.empty() && pack.surfaces.size() == ptris.size();
 
     const int64_t m_all = hi - lo;
     walkable.assign(static_cast<size_t>(m_all), 1);
     int64_t n_masked = 0;
     if (has_source_surfaces) {
-        const auto& psurf = pack.surfaces();
+        const auto& psurf = pack.surfaces;
         for (int64_t i = 0; i < m_all; ++i) {
             if ((psurf[static_cast<size_t>(lo + i)].flags & walkable_flags) == 0U) {
                 walkable[static_cast<size_t>(i)] = 0;
@@ -378,7 +379,7 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
     }
 
     const auto endorsed = [&](int32_t a, int32_t b) {
-        return planner.hasLink(static_cast<uint32_t>(lo + a), static_cast<uint32_t>(lo + b));
+        return HasLink(planner, pack, static_cast<uint32_t>(lo + a), static_cast<uint32_t>(lo + b));
     };
     std::vector<int64_t> cand;
     int64_t n_mask_cut = 0;
@@ -456,7 +457,7 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
     std::vector<int32_t> n_isl(static_cast<size_t>(m), 0);
     for (int64_t i = 0; i < m; ++i) {
         ++n_tot[par[static_cast<size_t>(i)]];
-        if (planner.isSmallIslandTriangle(static_cast<uint32_t>(lo + i))) {
+        if (IsSmallIslandTriangle(planner, static_cast<uint32_t>(lo + i))) {
             ++n_isl[par[static_cast<size_t>(i)]];
         }
     }

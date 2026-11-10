@@ -1004,7 +1004,7 @@ std::shared_ptr<const OccluderScene> DecodeSceneBody(const uint8_t* data, size_t
 
 } // namespace
 
-std::vector<OccluderHit> OccluderScene::lineHits(const OccluderPoint& start, const OccluderPoint& finish) const
+std::vector<OccluderHit> OccluderLineHits(const OccluderScene& scene, const OccluderPoint& start, const OccluderPoint& finish)
 {
     const Vec3 a { start.x, start.y, start.z };
     const Vec3 b { finish.x, finish.y, finish.z };
@@ -1020,12 +1020,12 @@ std::vector<OccluderHit> OccluderScene::lineHits(const OccluderPoint& start, con
     const auto reaches = [&](const Vec3& lo, const Vec3& hi) {
         return SegBox(a, d, lo, hi);
     };
-    VisitTree(instance_nodes, instance_order, reaches, [&](uint32_t index) {
-        const Instance& inst = instances[index];
+    VisitTree(scene.instance_nodes, scene.instance_order, reaches, [&](uint32_t index) {
+        const OccluderScene::Instance& inst = scene.instances[index];
         if (!SegBox(a, d, inst.lo, inst.hi)) {
             return;
         }
-        const Template& tpl = templates[inst.tpl];
+        const OccluderScene::Template& tpl = scene.templates[inst.tpl];
         const auto mesh_hit = [&](uint32_t triangle, double s) {
             OccluderHit& hit = push(s);
             hit.instance = index;
@@ -1081,7 +1081,7 @@ std::vector<OccluderHit> OccluderScene::lineHits(const OccluderPoint& start, con
     return out;
 }
 
-double OccluderScene::groundHeight(const OccluderPoint& base) const
+double OccluderGroundHeight(const OccluderScene& scene, const OccluderPoint& base)
 {
     const double x0 = std::floor(base.x - kSettleHalfWidth);
     const double z0 = std::floor(base.z - kSettleHalfWidth);
@@ -1092,7 +1092,7 @@ double OccluderScene::groundHeight(const OccluderPoint& base) const
     const double top = start + kSettlePlateAbove;
     const Vec3 lo { x0, bottom - kSettleDrop, z0 };
     const Vec3 hi { x1, top, z1 };
-    const std::vector<Face> faces = FacesInBox(*this, lo, hi);
+    const std::vector<Face> faces = FacesInBox(scene, lo, hi);
 
     bool touching = false;
     double landed = -std::numeric_limits<double>::infinity();
@@ -1135,7 +1135,7 @@ double OccluderScene::groundHeight(const OccluderPoint& base) const
     return std::fmin(std::fmax(ground, base.y - kSettleClamp), base.y + kSettleClamp);
 }
 
-bool OccluderScene::dropBlocked(const OccluderPoint& take, const OccluderPoint& land, double climb, double height) const
+bool OccluderDropBlocked(const OccluderScene& scene, const OccluderPoint& take, const OccluderPoint& land, double climb, double height)
 {
     struct Level
     {
@@ -1145,7 +1145,7 @@ bool OccluderScene::dropBlocked(const OccluderPoint& take, const OccluderPoint& 
 
     const auto column = [&](const OccluderPoint& at, double bottom, double top) {
         std::vector<Level> levels;
-        for (const Face& face : FacesInBox(*this, Vec3 { at.x, bottom, at.z }, Vec3 { at.x, top, at.z })) {
+        for (const Face& face : FacesInBox(scene, Vec3 { at.x, bottom, at.z }, Vec3 { at.x, top, at.z })) {
             const std::optional<double> y = HeightAt(face.v, at.x, at.z);
             if (y.has_value() && *y > bottom && *y < top) {
                 levels.push_back(Level { .y = *y, .up = face.up });
@@ -1181,7 +1181,7 @@ bool OccluderScene::dropBlocked(const OccluderPoint& take, const OccluderPoint& 
     const double hi = base + height;
     const Vec3 box_lo { std::fmin(take.x, land.x), lo, std::fmin(take.z, land.z) };
     const Vec3 box_hi { std::fmax(take.x, land.x), hi, std::fmax(take.z, land.z) };
-    for (const Face& face : FacesInBox(*this, box_lo, box_hi)) {
+    for (const Face& face : FacesInBox(scene, box_lo, box_hi)) {
         if (CrossesCurtain(face.v, take.x, take.z, land.x, land.z, lo, hi)) {
             return true;
         }

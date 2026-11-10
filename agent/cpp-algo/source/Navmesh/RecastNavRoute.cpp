@@ -194,7 +194,7 @@ std::function<bool(int64_t, int64_t, float, float)> FallGate(
         };
         const OccluderPoint pa = at(a, ka);
         const OccluderPoint pb = at(b, kb);
-        const bool ok = !solid->dropBlocked(pa, pb, kFallClimb, kFallHeight);
+        const bool ok = !OccluderDropBlocked(*solid, pa, pb, kFallClimb, kFallHeight);
         cache->memo.emplace(key, ok);
         return ok;
     };
@@ -277,11 +277,10 @@ struct GridWindow
 
 constexpr uint8_t kGwMedialBit = 0x80U;
 
-// fp/fz 为空时只解格图, opn 命中的死记录并入标志位并取较大净空
+// fz 为空时只解格图, opn 命中的死记录并入标志位并取较大净空
 bool loadGridWindow(
     const GridPack& gp,
     const GridZoneDir& gz,
-    const FieldsPack* fp,
     const FieldsZoneDir* fz,
     const FieldsOpenRec* opn,
     size_t n_opn,
@@ -293,7 +292,7 @@ bool loadGridWindow(
 {
     const std::vector<const GridTileRef*> tiles = GridTilesInRect(gz, wgx0, wgy0, wgx0 + nx - 1, wgy0 + ny - 1);
     // 每块瓦按记录数上界独占一段写区, 收工按瓦序压紧, rec 次序与线程数无关
-    const bool with_fields = fp != nullptr && fz != nullptr;
+    const bool with_fields = fz != nullptr;
     const auto nt = static_cast<int64_t>(tiles.size());
     const size_t nw = NavWorkerCountForBlocks(nt);
     std::vector<size_t> beg(static_cast<size_t>(nt) + 1, 0);
@@ -326,14 +325,14 @@ bool loadGridWindow(
                 continue;
             }
             size_t at = beg[static_cast<size_t>(i)];
-            if (!gp.decodeTile(*t, tile)) {
+            if (!DecodeGridPackTile(&tile, gp, *t)) {
                 ok.store(false);
                 return;
             }
             if (with_fields) {
                 // 场数据瓦表与格图同区同序, 记录逐条对位
                 const auto ti = static_cast<size_t>(t - gz.tiles.data());
-                if (ti >= fz->tiles.size() || !fp->decodeTile(fz->tiles[ti], ft) || ft.scc.size() != tile.rec.size()) {
+                if (ti >= fz->tiles.size() || !DecodeFieldsTile(&ft, fz->tiles[ti]) || ft.scc.size() != tile.rec.size()) {
                     ok.store(false);
                     return;
                 }
@@ -481,7 +480,7 @@ int64_t pickDeckRec(const GridWindow& gw, int64_t nx, int64_t ny, int64_t gcx, i
 // 两点到最近核心格的距离 px, 搜不到时返回搜索半径作下界
 std::array<double, 2> coreAnchorPx(const GridPack& gp, const GridZoneDir& gz, const std::array<WorldPoint, 2>& pts)
 {
-    const double cs = gp.cellSize();
+    const double cs = gp.cell_size;
     const double reach = kSnapRadius * 2.0;
     const auto rad = static_cast<int64_t>(std::ceil(reach / cs));
     std::array<int64_t, 2> cx {};
@@ -511,7 +510,7 @@ std::array<double, 2> coreAnchorPx(const GridPack& gp, const GridZoneDir& gz, co
         GridTile tile;
         for (int64_t i = lo; i < hi; ++i) {
             const GridTileRef* t = tiles[static_cast<size_t>(i)];
-            if (!gp.decodeTile(*t, tile)) {
+            if (!DecodeGridPackTile(&tile, gp, *t)) {
                 continue;
             }
             const uint8_t own = owners[static_cast<size_t>(i)];
@@ -637,7 +636,7 @@ ZoneBoundsPx regionBounds(const GridPack& gp, const GridZoneDir& gz, uint32_t re
                 if (t.records == 0) {
                     continue;
                 }
-                if (gp.tileRegions(t, rids) && std::find(rids.begin(), rids.end(), region) != rids.end()) {
+                if (GridPackTileRegions(&rids, gp, t) && std::find(rids.begin(), rids.end(), region) != rids.end()) {
                     hit[static_cast<size_t>(i)] = 1;
                 }
             }
@@ -656,7 +655,7 @@ ZoneBoundsPx regionBounds(const GridPack& gp, const GridZoneDir& gz, uint32_t re
         GridTile tile;
         for (int64_t i = lo; i < hi; ++i) {
             const GridTileRef& t = *hits[static_cast<size_t>(i)];
-            if (!gp.decodeTile(t, tile)) {
+            if (!DecodeGridPackTile(&tile, gp, t)) {
                 continue;
             }
             for (const GridSpanRec& r : tile.rec) {
@@ -740,9 +739,8 @@ std::optional<WindowInfo> buildWindow(
     pw.nx = nx;
     pw.ny = ny;
     GridWindow& gw = pw.gw;
-    size_t n_opn = 0;
-    const FieldsOpenRec* opn = fp.opensOfZone(zc.zone_id, n_opn);
-    if (!loadGridWindow(gp, gz, &fp, &fzd, opn, n_opn, wgx0, wgy0, nx, ny, gw)) {
+    const std::span<const FieldsOpenRec> opn = FieldsOpensOfZone(fp, zc.zone_id);
+    if (!loadGridWindow(gp, gz, &fzd, opn.data(), opn.size(), wgx0, wgy0, nx, ny, gw)) {
         err = "预烘格图或旁包解不开";
         return std::nullopt;
     }
@@ -833,7 +831,7 @@ std::optional<WindowInfo> buildWindow(
     std::vector<WorldPoint> wP1;
     for (size_t i = 0; i < walls.p0.size(); ++i) {
         bool known = false;
-        const bool keep = fz.wallKeep(walls.tri[i], walls.k[i], region, known);
+        const bool keep = FieldsZoneWallKeep(&known, fz, walls.tri[i], walls.k[i], region);
         if (!known) {
             err = "旁包留墙表没有这条边 (tri " + std::to_string(walls.tri[i]) + ")";
             return std::nullopt;
@@ -916,8 +914,7 @@ std::optional<WindowInfo> buildWindow(
     }
     // 跳边单价不得低于 1, 否则启发式不可采纳
     {
-        size_t ln = 0;
-        const FieldsLinkRec* lr = fp.linksOfZone(zc.zone_id, ln);
+        const std::span<const FieldsLinkRec> lr = FieldsLinksOfZone(fp, zc.zone_id);
         const auto pickSpan = [&](int64_t cell, float h) -> int64_t {
             const int64_t j = info.st3.j(cell);
             if (j < 0) {
@@ -940,7 +937,7 @@ std::optional<WindowInfo> buildWindow(
             }
             return best;
         };
-        for (size_t i = 0; i < ln; ++i) {
+        for (size_t i = 0; i < lr.size(); ++i) {
             const FieldsLinkRec& r = lr[i];
             if (r.valid != 3) {
                 continue;
@@ -974,7 +971,7 @@ std::optional<WindowInfo> buildWindow(
         info.links_span_rev.finish();
     }
     {
-        const std::vector<uint8_t> hit = fz.reachFrom(region, sp_scc[static_cast<size_t>(seed3)]);
+        const std::vector<uint8_t> hit = FieldsZoneReachFrom(fz, region, sp_scc[static_cast<size_t>(seed3)]);
         if (hit.empty()) {
             err = "旁包分量图里没有起点面所在的分量";
             return std::nullopt;
@@ -998,7 +995,7 @@ std::optional<WindowInfo> buildWindow(
                 if (info.reach3[static_cast<size_t>(e.src)] == 0 || info.reach3[static_cast<size_t>(e.dst)] != 0) {
                     continue;
                 }
-                const std::vector<uint8_t> more = fz.reachFrom(region, sp_scc[static_cast<size_t>(e.dst)]);
+                const std::vector<uint8_t> more = FieldsZoneReachFrom(fz, region, sp_scc[static_cast<size_t>(e.dst)]);
                 for (size_t sid = 0; sid < info.vis3.size(); ++sid) {
                     const uint32_t comp = sp_scc[sid];
                     if (info.vis3[sid] != 0 && info.reach3[sid] == 0 && comp < more.size() && more[comp] != 0) {
@@ -1024,6 +1021,7 @@ void PullWaypoints(
     const std::vector<WorldPoint>& pts,
     RouteDiag& dg,
     const BaseNavPlanner& pl,
+    const BaseNavPack& pack,
     uint16_t zid,
     const Blockers& blk,
     bool has_layer)
@@ -1051,7 +1049,7 @@ void PullWaypoints(
             const WorldPoint& a = pts[cursor];
             const WorldPoint& c = pts[reach + 1];
             const double required = std::isfinite(swallowed) ? swallowed : 0.0;
-            if (!pl.isRouteSegmentDrivable(zid, a, c, required, seed) || blk.blocked(a, c)) {
+            if (!IsRouteSegmentDrivable(pl, pack, zid, a, c, required, seed) || blk.blocked(a, c)) {
                 break;
             }
             swallowed = std::min(swallowed, reach + 1 < dg.clearance.size() ? dg.clearance[reach + 1] : 0.0);
@@ -1307,16 +1305,14 @@ std::vector<uint32_t> PeerSpans(
         return peer3;
     }
     const int64_t pnx = bx1 - bx0 + 1;
-    size_t n_opn = 0;
-    const FieldsOpenRec* opn = fp.opensOfZone(zone_id, n_opn);
+    const std::span<const FieldsOpenRec> opn = FieldsOpensOfZone(fp, zone_id);
     GridWindow pw;
     if (!loadGridWindow(
             gp,
             gz,
-            &fp,
             &fzd,
-            opn,
-            n_opn,
+            opn.data(),
+            opn.size(),
             std::llround(info.x0 / kCS) + bx0,
             std::llround(info.y0 / kCS) + by0,
             pnx,
@@ -1673,6 +1669,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     std::optional<double> goal_deck,
     std::optional<double> start_deck,
     const BaseNavPlanner& pl,
+    const BaseNavPack& pack,
     uint16_t zid)
 {
     const double t_topo0 = nowMs();
@@ -2827,7 +2824,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             }
         }
     }
-    PullWaypoints(out, dg, pl, zid, blk_gray, lyo_p != nullptr);
+    PullWaypoints(out, dg, pl, pack, zid, blk_gray, lyo_p != nullptr);
     return out;
 }
 
@@ -2837,20 +2834,20 @@ RecastNavEngine::RecastNavEngine(const BaseNavPack& pack, const BaseNavPlanner& 
     : pack_(pack)
     , planner_(planner)
 {
-    const BaseNavSection* sec = pack_.section(kGridSectionTag);
+    const BaseNavSection* sec = FindBaseNavSection(pack_, kGridSectionTag);
     if (sec == nullptr || sec->bytes == nullptr) {
         grid_error_ = "包里没有预烘格图段";
         return;
     }
-    if (!grid_.parse(sec->bytes->data(), sec->bytes->size(), grid_error_)) {
+    if (!ParseGridPack(&grid_, &grid_error_, sec->bytes->data(), sec->bytes->size())) {
         grid_ = GridPack();
         return;
     }
-    if (!LoadSharedFieldsPack(FieldsSidecarPath(pack_.path()), pack_, grid_, fields_, grid_error_)) {
+    if (!LoadSharedFieldsPack(&fields_, &grid_error_, FieldsSidecarPath(pack_.path), pack_, grid_)) {
         grid_ = GridPack();
         return;
     }
-    if (!nogo_.load(nogo_table, pack_, grid_error_)) {
+    if (!LoadNoGoTable(&nogo_, &grid_error_, nogo_table, pack_)) {
         grid_ = GridPack();
     }
 }
@@ -2861,7 +2858,7 @@ RecastNavEngine::ZoneEntry& RecastNavEngine::zoneEntry(const std::string& name)
     auto it = zones_.find(name);
     if (it == zones_.end()) {
         // 先淘汰再建, 免得新旧两个大区同时占内存
-        const BaseNavZone* zone = pack_.findZoneByName(name);
+        const BaseNavZone* zone = FindBaseNavZoneByName(pack_, name);
         const bool real = zone != nullptr && zone->triangle_count > 0;
         auto rank = [](const ZoneEntry& e) {
             return e.zc->valid() ? e.used_at : 0;
@@ -2877,9 +2874,9 @@ RecastNavEngine::ZoneEntry& RecastNavEngine::zoneEntry(const std::string& name)
         }
         ZoneEntry e;
         e.zc = std::make_unique<ZoneClean>(pack_, planner_, name);
-        if (const FieldsZoneDir* fzd = fields_->findZone(name); fzd != nullptr) {
+        if (const FieldsZoneDir* fzd = FindFieldsZone(*fields_, name); fzd != nullptr) {
             e.fz = std::make_unique<FieldsZone>();
-            if (!fields_->loadZone(*fzd, *e.fz, e.fields_error)) {
+            if (!LoadFieldsZone(e.fz.get(), &e.fields_error, *fields_, *fzd)) {
                 e.fz.reset();
             }
         }
@@ -2934,9 +2931,8 @@ std::optional<RecastPlanResult> RecastNavEngine::tryRopes(
     size_t max_tries,
     const std::vector<uint32_t>& out_of_reach)
 {
-    size_t n = 0;
-    const FieldsRopeRec* recs = fields_->ropesOfZone(zone_id, n);
-    if (roping_ || hopping_ || rope_off_ == nullptr || recs == nullptr) {
+    const std::span<const FieldsRopeRec> recs = FieldsRopesOfZone(*fields_, zone_id);
+    if (roping_ || hopping_ || rope_off_ == nullptr || recs.empty()) {
         return std::nullopt;
     }
 
@@ -2951,7 +2947,7 @@ std::optional<RecastPlanResult> RecastNavEngine::tryRopes(
         return std::find(v.begin(), v.end(), uid) != v.end();
     };
     std::vector<Cand> cands;
-    for (size_t i = 0; i < n; ++i) {
+    for (size_t i = 0; i < recs.size(); ++i) {
         const FieldsRopeRec& r = recs[i];
         if (r.bottom.rid != start_region || listed(*rope_off_, r.uid_bottom) || listed(out_of_reach, r.uid_bottom)) {
             continue;
@@ -3044,11 +3040,11 @@ std::vector<std::vector<uint32_t>> RecastNavEngine::regionsNear(const std::strin
 {
     const std::lock_guard<std::mutex> lock(mutex_);
     std::vector<std::vector<uint32_t>> out(points.size());
-    const GridZoneDir* gz = grid_.valid() ? grid_.findZone(zone_name) : nullptr;
+    const GridZoneDir* gz = GridPackParsed(grid_) ? FindGridZone(grid_, zone_name) : nullptr;
     if (gz == nullptr || points.empty()) {
         return out;
     }
-    const double cs = grid_.cellSize();
+    const double cs = grid_.cell_size;
     const auto rad = static_cast<int64_t>(std::ceil(kSnapRadius / cs));
     std::unordered_map<const GridTileRef*, std::vector<size_t>> by_tile;
     std::vector<int64_t> pcx(points.size());
@@ -3064,7 +3060,7 @@ std::vector<std::vector<uint32_t>> RecastNavEngine::regionsNear(const std::strin
     }
     GridTile tile;
     for (const auto& [t, idx] : by_tile) {
-        if (!grid_.decodeTile(*t, tile)) {
+        if (!DecodeGridPackTile(&tile, grid_, *t)) {
             continue;
         }
         for (const GridSpanRec& r : tile.rec) {
@@ -3106,11 +3102,11 @@ RecastPlanResult RecastNavEngine::planLocked(
 {
     const double t_all0 = nowMs();
     RecastPlanResult res;
-    if (!grid_.valid()) {
+    if (!GridPackParsed(grid_)) {
         res.error = grid_error_;
         return res;
     }
-    const GridZoneDir* gz = grid_.findZone(zone_name);
+    const GridZoneDir* gz = FindGridZone(grid_, zone_name);
     if (gz == nullptr) {
         res.error = "区没有预烘格图 (" + zone_name + ")";
         return res;
@@ -3120,7 +3116,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         res.error = ze.zc->error();
         return res;
     }
-    const FieldsZoneDir* fzd = fields_->findZone(zone_name);
+    const FieldsZoneDir* fzd = FindFieldsZone(*fields_, zone_name);
     if (fzd == nullptr || ze.fz == nullptr) {
         res.error = "旁包读不出这个区 (" + zone_name + "): " + ze.fields_error;
         return res;
@@ -3148,9 +3144,8 @@ RecastPlanResult RecastNavEngine::planLocked(
         p.ny = std::max(ay, by) + r - gy0 + 1;
         p.x0 = static_cast<double>(gx0) * kCS;
         p.y0 = static_cast<double>(gy0) * kCS;
-        size_t n_opn = 0;
-        const FieldsOpenRec* opn = fields_->opensOfZone(zc.zone_id, n_opn);
-        return loadGridWindow(grid_, *gz, nullptr, nullptr, opn, n_opn, gx0, gy0, p.nx, p.ny, p.gw);
+        const std::span<const FieldsOpenRec> opn = FieldsOpensOfZone(*fields_, zc.zone_id);
+        return loadGridWindow(grid_, *gz, nullptr, opn.data(), opn.size(), gx0, gy0, p.nx, p.ny, p.gw);
     };
     GridPatch ps;
     GridPatch pg;
@@ -3210,7 +3205,7 @@ RecastPlanResult RecastNavEngine::planLocked(
     }
     const double h0 = triHeightOf(zc.mesh, ss->tri);
 
-    const std::vector<NoGoPoly>* nogo = nogo_.zone(zone_name);
+    const std::vector<NoGoPoly>* nogo = FindNoGoZone(nogo_, zone_name);
     if (nogo != nullptr) {
         std::string hit;
         const bool in_start = NoGoContains(*nogo, start, h0, hit);
@@ -3224,9 +3219,9 @@ RecastPlanResult RecastNavEngine::planLocked(
         }
     }
 
-    const BaseNavZone* pz = pack_.findZoneByName(zone_name);
+    const BaseNavZone* pz = FindBaseNavZoneByName(pack_, zone_name);
     const std::shared_ptr<const OccluderScene> solid =
-        pz != nullptr ? LoadOccluderScene(OccluderSidecarPath(pack_.path()), zone_name) : nullptr;
+        pz != nullptr ? LoadOccluderScene(OccluderSidecarPath(pack_.path), zone_name) : nullptr;
 
     // 全区锚距是任何窗口里锚距的下界, 过不了这道闸的腿换多大窗口也接不上
     const auto [zsa, zga] = coreAnchorPx(grid_, *gz, { start, goal });
@@ -3272,7 +3267,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         zbit = ze.bounds.emplace(region, regionBounds(grid_, *gz, region)).first;
     }
     const ZoneBoundsPx zb = zbit->second;
-    if (zb.empty()) {
+    if (ZoneBoundsEmpty(zb)) {
         res.error = "类内没有格图";
         return res;
     }
@@ -3414,7 +3409,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         RouteDiag dg;
         dg.margin = margin;
         dg.final = capped;
-        auto line = routeWindow(*info, start, goal, dg, gdk, sdk, planner_, zone_id);
+        auto line = routeWindow(*info, start, goal, dg, gdk, sdk, planner_, pack_, zone_id);
         if (local && !capped) {
             std::string why;
             if (dg.escalate) {
@@ -3439,9 +3434,8 @@ RecastPlanResult RecastNavEngine::planLocked(
         }
         const auto ropesOutOfReach = [&] {
             std::vector<uint32_t> out;
-            size_t n_rope = 0;
-            const FieldsRopeRec* ropes = fields_->ropesOfZone(zone_id, n_rope);
-            for (size_t i = 0; i < n_rope; ++i) {
+            const std::span<const FieldsRopeRec> ropes = FieldsRopesOfZone(*fields_, zone_id);
+            for (size_t i = 0; i < ropes.size(); ++i) {
                 const FieldsLinkSide& b = ropes[i].bottom;
                 const int64_t cx = b.gx - gx0;
                 const int64_t cy = b.gy - gy0;

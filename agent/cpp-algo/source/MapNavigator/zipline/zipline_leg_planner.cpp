@@ -528,7 +528,7 @@ struct PlannedLeg
 
 std::optional<PlannedLeg> to_planned_leg(const std::optional<navmesh::BaseNavRouteResult>& route, NavmeshRouteDiagnostic diagnostic)
 {
-    if (!route || !route->ok()) {
+    if (!route || !navmesh::RouteSucceeded(*route)) {
         return std::nullopt;
     }
     return PlannedLeg {

@@ -333,7 +333,7 @@ struct Reader
         if (!varint(len) || len > static_cast<uint64_t>(end - p)) {
             return false;
         }
-        const bool ok = InflateBytes(p, static_cast<size_t>(len), out);
+        const bool ok = InflateBytes(&out, p, static_cast<size_t>(len));
         p += len;
         return ok;
     }
@@ -367,23 +367,23 @@ std::filesystem::path FieldsSidecarPath(const std::filesystem::path& main_pack)
     return main_pack.parent_path() / MAA_NS::path(name);
 }
 
-std::vector<uint8_t> FieldsZone::reachFrom(uint32_t rid, uint32_t s0) const
+std::vector<uint8_t> FieldsZoneReachFrom(const FieldsZone& zone, uint32_t rid, uint32_t s0)
 {
     std::vector<uint8_t> seen;
-    if (rid >= regions.size() || s0 == 0 || s0 > regions[rid].n_scc) {
+    if (rid >= zone.regions.size() || s0 == 0 || s0 > zone.regions[rid].n_scc) {
         return seen;
     }
-    const Region& r = regions[rid];
+    const FieldsZone::Region& r = zone.regions[rid];
     seen.assign(static_cast<size_t>(r.n_scc) + 1, 0);
     std::vector<uint32_t> stack { s0 };
     seen[s0] = 1;
     while (!stack.empty()) {
         const uint32_t s = stack.back();
         stack.pop_back();
-        const uint32_t b = adj_start[r.adj_off + s];
-        const uint32_t e = adj_start[r.adj_off + s + 1];
+        const uint32_t b = zone.adj_start[r.adj_off + s];
+        const uint32_t e = zone.adj_start[r.adj_off + s + 1];
         for (uint32_t i = b; i < e; ++i) {
-            const uint32_t d = edge_dst[i];
+            const uint32_t d = zone.edge_dst[i];
             if (seen[d] == 0) {
                 seen[d] = 1;
                 stack.push_back(d);
@@ -393,57 +393,57 @@ std::vector<uint8_t> FieldsZone::reachFrom(uint32_t rid, uint32_t s0) const
     return seen;
 }
 
-bool FieldsZone::wallKeep(int32_t tri, int k, uint32_t rid, bool& known) const
+bool FieldsZoneWallKeep(bool* known, const FieldsZone& zone, int32_t tri, int k, uint32_t rid)
 {
     const auto key = static_cast<uint32_t>(tri) * 3U + static_cast<uint32_t>(k);
-    const auto it = std::lower_bound(wall_key.begin(), wall_key.end(), key);
-    known = it != wall_key.end() && *it == key;
-    if (!known) {
+    const auto it = std::lower_bound(zone.wall_key.begin(), zone.wall_key.end(), key);
+    *known = it != zone.wall_key.end() && *it == key;
+    if (!*known) {
         return false;
     }
-    const auto w = static_cast<size_t>(it - wall_key.begin());
-    const auto b = wall_rid.begin() + wall_rid_start[w];
-    const auto e = wall_rid.begin() + wall_rid_start[w + 1];
+    const auto w = static_cast<size_t>(it - zone.wall_key.begin());
+    const auto b = zone.wall_rid.begin() + zone.wall_rid_start[w];
+    const auto e = zone.wall_rid.begin() + zone.wall_rid_start[w + 1];
     return std::binary_search(b, e, rid);
 }
 
-bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main, const GridPack& grid, std::string& err)
+bool LoadFieldsPack(FieldsPack* pack, std::string* err, const std::filesystem::path& path, const BaseNavPack& main, const GridPack& grid)
 {
-    loaded_ = false;
-    zones_.clear();
-    bytes_.clear();
-    const BaseNavLoadResult read = ReadNavFileBytes(path, &bytes_);
+    pack->loaded = false;
+    pack->zones.clear();
+    pack->bytes.clear();
+    const BaseNavLoadResult read = ReadNavFileBytes(path, &pack->bytes);
     if (read.status != BaseNavLoadStatus::Success) {
-        err = "旁包读不到 (" + MAA_NS::path_to_utf8_string(path) + "): " + read.message;
+        *err = "旁包读不到 (" + MAA_NS::path_to_utf8_string(path) + "): " + read.message;
         return false;
     }
-    const size_t size = bytes_.size();
-    const uint8_t* base = bytes_.data();
+    const size_t size = pack->bytes.size();
+    const uint8_t* base = pack->bytes.data();
     if (size < kHeaderSize || std::memcmp(base, "BNVF", 4) != 0) {
-        err = "旁包不是 BNVF";
+        *err = "旁包不是 BNVF";
         return false;
     }
     const uint16_t version = peekU16(base + 4);
-    flags_ = peekU16(base + 6);
+    pack->flags = peekU16(base + 6);
     const uint64_t build_hash = peekU64(base + 8);
     const uint64_t fnv = peekU64(base + 16);
     const uint32_t rules = peekU32(base + 24);
     const uint32_t section_count = peekU32(base + 28);
     const uint64_t dir_off = peekU64(base + 32);
     if (version != kFieldsFormatVersion) {
-        err = "旁包格式版本 " + std::to_string(version) + ", 需要 " + std::to_string(kFieldsFormatVersion);
+        *err = "旁包格式版本 " + std::to_string(version) + ", 需要 " + std::to_string(kFieldsFormatVersion);
         return false;
     }
-    if (build_hash != main.buildHash() || fnv != main.fileFnv()) {
-        err = "旁包不是配这份主包的 (build_hash/fnv 不符)";
+    if (build_hash != main.build_hash || fnv != main.file_fnv) {
+        *err = "旁包不是配这份主包的 (build_hash/fnv 不符)";
         return false;
     }
     if (rules != kFieldsRulesVersion) {
-        err = "旁包判据版本不符 (" + std::to_string(rules) + " ≠ " + std::to_string(kFieldsRulesVersion) + ")";
+        *err = "旁包判据版本不符 (" + std::to_string(rules) + " ≠ " + std::to_string(kFieldsRulesVersion) + ")";
         return false;
     }
     if (dir_off > size || static_cast<uint64_t>(section_count) * kSectionEntrySize > size - dir_off) {
-        err = "旁包段目录越界";
+        *err = "旁包段目录越界";
         return false;
     }
 
@@ -460,42 +460,42 @@ bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main
         const uint64_t off = peekU64(e + 8);
         const uint64_t len = peekU64(e + 16);
         if (off > size || len > size - off) {
-            err = "旁包段 " + tag + " 越界";
+            *err = "旁包段 " + tag + " 越界";
             return false;
         }
         secs[tag] = Sec { base + off, static_cast<size_t>(len) };
     }
     for (const char* tag : { "FCON", "FZON", "FSPN", "FSCC", "FWAL" }) {
         if (secs.find(tag) == secs.end()) {
-            err = std::string("旁包缺段 ") + tag;
+            *err = std::string("旁包缺段 ") + tag;
             return false;
         }
     }
-    links_.clear();
-    link_zones_.clear();
+    pack->links.clear();
+    pack->link_zones.clear();
     if (const auto it = secs.find("FLNK"); it != secs.end()) {
-        if (!parseLinks(it->second.p, it->second.len, links_, link_zones_, err)) {
+        if (!parseLinks(it->second.p, it->second.len, pack->links, pack->link_zones, *err)) {
             return false;
         }
     }
-    opens_.clear();
-    open_zones_.clear();
+    pack->opens.clear();
+    pack->open_zones.clear();
     if (const auto it = secs.find("FOPN"); it != secs.end()) {
-        if (!parseOpens(it->second.p, it->second.len, opens_, open_zones_, err)) {
+        if (!parseOpens(it->second.p, it->second.len, pack->opens, pack->open_zones, *err)) {
             return false;
         }
     }
-    ropes_.clear();
-    rope_zones_.clear();
+    pack->ropes.clear();
+    pack->rope_zones.clear();
     if (const auto it = secs.find("FROP"); it != secs.end()) {
-        if (!parseRopes(it->second.p, it->second.len, ropes_, rope_zones_, err)) {
+        if (!parseRopes(it->second.p, it->second.len, pack->ropes, pack->rope_zones, *err)) {
             return false;
         }
     }
     const Sec con = secs["FCON"];
     const std::vector<uint8_t> want = expectedConst();
     if (con.len != kConstSize || std::memcmp(con.p, want.data(), kConstSize) != 0) {
-        err = "旁包的判据常数与运行期不符";
+        *err = "旁包的判据常数与运行期不符";
         return false;
     }
     const Sec zon = secs["FZON"];
@@ -503,7 +503,7 @@ bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main
     const Sec scc = secs["FSCC"];
     const Sec wal = secs["FWAL"];
     if (zon.len < 4) {
-        err = "旁包区表残缺";
+        *err = "旁包区表残缺";
         return false;
     }
     const uint32_t zone_count = peekU32(zon.p);
@@ -511,14 +511,14 @@ bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main
     const uint8_t* zend = zon.p + zon.len;
     for (uint32_t zi = 0; zi < zone_count; ++zi) {
         if (zend - p < 4) {
-            err = "旁包区表残缺";
+            *err = "旁包区表残缺";
             return false;
         }
         const uint32_t name_len = peekU32(p);
         p += 4;
         const size_t padded = (static_cast<size_t>(name_len) + 3) / 4 * 4;
         if (static_cast<size_t>(zend - p) < padded + 8 + 48) {
-            err = "旁包区表残缺";
+            *err = "旁包区表残缺";
             return false;
         }
         FieldsZoneDir z;
@@ -532,7 +532,7 @@ bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main
         p += 56;
         if (spn_off > spn.len || spn_len > spn.len - spn_off || scc_off > scc.len || scc_len > scc.len - scc_off || wal_off > wal.len
             || wal_len > wal.len - wal_off) {
-            err = "旁包区 " + z.name + " 的段范围越界";
+            *err = "旁包区 " + z.name + " 的段范围越界";
             return false;
         }
         z.scc = scc.p + scc_off;
@@ -541,7 +541,7 @@ bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main
         z.wal_len = static_cast<size_t>(wal_len);
         const uint8_t* zb = spn.p + spn_off;
         if (static_cast<uint64_t>(tile_count) * 16 > spn_len) {
-            err = "旁包区 " + z.name + " 的瓦表越界";
+            *err = "旁包区 " + z.name + " 的瓦表越界";
             return false;
         }
         z.tiles.resize(tile_count);
@@ -552,48 +552,48 @@ bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main
             const uint64_t off = peekU64(e + 4);
             const uint32_t len = peekU32(e + 12);
             if (off > spn_len || len > spn_len - off) {
-                err = "旁包区 " + z.name + " 的瓦载荷越界";
+                *err = "旁包区 " + z.name + " 的瓦载荷越界";
                 return false;
             }
             r.data = zb + off;
             r.len = len;
         }
-        zones_.push_back(std::move(z));
+        pack->zones.push_back(std::move(z));
     }
     // 主包按区裁剪载入时格图仍是整份, 所以按区名配对
-    for (const GridZoneDir& g : grid.zones()) {
+    for (const GridZoneDir& g : grid.zones) {
         const FieldsZoneDir* z = nullptr;
-        for (const FieldsZoneDir& c : zones_) {
+        for (const FieldsZoneDir& c : pack->zones) {
             if (c.name == g.name) {
                 z = &c;
                 break;
             }
         }
         if (z == nullptr) {
-            err = "旁包没有区 " + g.name;
+            *err = "旁包没有区 " + g.name;
             return false;
         }
         if (z->global_regions != g.global_regions || z->tiles.size() != g.tiles.size()) {
-            err = "旁包区 " + g.name + " 的类数或瓦数与格图不符";
+            *err = "旁包区 " + g.name + " 的类数或瓦数与格图不符";
             return false;
         }
         for (size_t t = 0; t < g.tiles.size(); ++t) {
             if (z->tiles[t].records != g.tiles[t].records) {
-                err = "旁包区 " + g.name + " 第 " + std::to_string(t) + " 瓦记录数与格图不符";
+                *err = "旁包区 " + g.name + " 第 " + std::to_string(t) + " 瓦记录数与格图不符";
                 return false;
             }
         }
     }
-    loaded_ = true;
+    pack->loaded = true;
     return true;
 }
 
 bool LoadSharedFieldsPack(
+    std::shared_ptr<const FieldsPack>* out,
+    std::string* err,
     const std::filesystem::path& path,
     const BaseNavPack& main,
-    const GridPack& grid,
-    std::shared_ptr<const FieldsPack>& out,
-    std::string& err)
+    const GridPack& grid)
 {
     std::string key;
     std::error_code ec;
@@ -605,8 +605,8 @@ bool LoadSharedFieldsPack(
             if (!ec) {
                 const auto ticks = mtime.time_since_epoch().count();
                 key = MAA_NS::path_to_utf8_string(abs) + '\n' + std::to_string(size) + '\n'
-                      + std::string(reinterpret_cast<const char*>(&ticks), sizeof(ticks)) + '\n' + std::to_string(main.buildHash()) + '\n'
-                      + std::to_string(main.fileFnv());
+                      + std::string(reinterpret_cast<const char*>(&ticks), sizeof(ticks)) + '\n' + std::to_string(main.build_hash) + '\n'
+                      + std::to_string(main.file_fnv);
             }
         }
     }
@@ -616,23 +616,23 @@ bool LoadSharedFieldsPack(
     if (!key.empty()) {
         if (const auto it = cache.find(key); it != cache.end()) {
             if (std::shared_ptr<const FieldsPack> hit = it->second.lock()) {
-                out = std::move(hit);
+                *out = std::move(hit);
                 return true;
             }
         }
     }
     auto fresh = std::make_shared<FieldsPack>();
-    const bool ok = fresh->load(path, main, grid, err);
+    const bool ok = LoadFieldsPack(fresh.get(), err, path, main, grid);
     if (ok && !key.empty()) {
         cache[key] = fresh;
     }
-    out = std::move(fresh);
+    *out = std::move(fresh);
     return ok;
 }
 
-const FieldsZoneDir* FieldsPack::findZone(const std::string& name) const
+const FieldsZoneDir* FindFieldsZone(const FieldsPack& pack, const std::string& name)
 {
-    for (const FieldsZoneDir& z : zones_) {
+    for (const FieldsZoneDir& z : pack.zones) {
         if (z.name == name) {
             return &z;
         }
@@ -640,40 +640,34 @@ const FieldsZoneDir* FieldsPack::findZone(const std::string& name) const
     return nullptr;
 }
 
-const FieldsLinkRec* FieldsPack::linksOfZone(uint16_t zone_id, size_t& n) const
+std::span<const FieldsLinkRec> FieldsLinksOfZone(const FieldsPack& pack, uint16_t zone_id)
 {
-    for (const FieldsLinkZone& z : link_zones_) {
+    for (const FieldsLinkZone& z : pack.link_zones) {
         if (z.zone_id == zone_id) {
-            n = z.len;
-            return z.len == 0 ? nullptr : links_.data() + z.first;
+            return z.len == 0 ? std::span<const FieldsLinkRec> {} : std::span<const FieldsLinkRec>(pack.links.data() + z.first, z.len);
         }
     }
-    n = 0;
-    return nullptr;
+    return {};
 }
 
-const FieldsRopeRec* FieldsPack::ropesOfZone(uint16_t zone_id, size_t& n) const
+std::span<const FieldsRopeRec> FieldsRopesOfZone(const FieldsPack& pack, uint16_t zone_id)
 {
-    for (const FieldsLinkZone& z : rope_zones_) {
+    for (const FieldsLinkZone& z : pack.rope_zones) {
         if (z.zone_id == zone_id) {
-            n = z.len;
-            return z.len == 0 ? nullptr : ropes_.data() + z.first;
+            return z.len == 0 ? std::span<const FieldsRopeRec> {} : std::span<const FieldsRopeRec>(pack.ropes.data() + z.first, z.len);
         }
     }
-    n = 0;
-    return nullptr;
+    return {};
 }
 
-const FieldsOpenRec* FieldsPack::opensOfZone(uint16_t zone_id, size_t& n) const
+std::span<const FieldsOpenRec> FieldsOpensOfZone(const FieldsPack& pack, uint16_t zone_id)
 {
-    for (const FieldsLinkZone& z : open_zones_) {
+    for (const FieldsLinkZone& z : pack.open_zones) {
         if (z.zone_id == zone_id) {
-            n = z.len;
-            return z.len == 0 ? nullptr : opens_.data() + z.first;
+            return z.len == 0 ? std::span<const FieldsOpenRec> {} : std::span<const FieldsOpenRec>(pack.opens.data() + z.first, z.len);
         }
     }
-    n = 0;
-    return nullptr;
+    return {};
 }
 
 const FieldsOpenRec* FindOpen(const FieldsOpenRec* p, size_t n, int32_t gx, int32_t gy, float h)
@@ -689,33 +683,33 @@ const FieldsOpenRec* FindOpen(const FieldsOpenRec* p, size_t n, int32_t gx, int3
     return it;
 }
 
-bool FieldsPack::decodeTile(const FieldsTileRef& t, FieldsTile& out) const
+bool DecodeFieldsTile(FieldsTile* out, const FieldsTileRef& tile)
 {
-    out.scc.clear();
-    out.steps2x.clear();
-    out.seg.clear();
-    out.tax.clear();
-    out.clr2d.clear();
-    out.medial.clear();
-    if (t.records == 0) {
+    out->scc.clear();
+    out->steps2x.clear();
+    out->seg.clear();
+    out->tax.clear();
+    out->clr2d.clear();
+    out->medial.clear();
+    if (tile.records == 0) {
         return true;
     }
-    Reader rd { t.data, t.data + t.len };
+    Reader rd { tile.data, tile.data + tile.len };
     uint64_t n = 0;
-    if (!rd.varint(n) || n != t.records) {
+    if (!rd.varint(n) || n != tile.records) {
         return false;
     }
     // 六条流依次: 分量号 (zigzag 差分 varint)、禁步 XOR、段位、税边位、净空差 (varint)、中轴位
     std::vector<uint8_t> s0;
     std::vector<uint8_t> s4;
-    if (!rd.stream(s0) || !rd.stream(out.steps2x) || !rd.stream(out.seg) || !rd.stream(out.tax) || !rd.stream(s4) || !rd.stream(out.medial)
-        || !rd.done()) {
+    if (!rd.stream(s0) || !rd.stream(out->steps2x) || !rd.stream(out->seg) || !rd.stream(out->tax) || !rd.stream(s4)
+        || !rd.stream(out->medial) || !rd.done()) {
         return false;
     }
-    if (out.steps2x.size() != n || out.seg.size() != n || out.tax.size() != n || out.medial.size() != n) {
+    if (out->steps2x.size() != n || out->seg.size() != n || out->tax.size() != n || out->medial.size() != n) {
         return false;
     }
-    out.scc.resize(static_cast<size_t>(n));
+    out->scc.resize(static_cast<size_t>(n));
     Reader r0 { s0.data(), s0.data() + s0.size() };
     int64_t prev = 0;
     for (size_t i = 0; i < n; ++i) {
@@ -727,30 +721,30 @@ bool FieldsPack::decodeTile(const FieldsTileRef& t, FieldsTile& out) const
         if (prev < 0) {
             return false;
         }
-        out.scc[i] = static_cast<uint32_t>(prev);
+        out->scc[i] = static_cast<uint32_t>(prev);
     }
-    out.clr2d.resize(static_cast<size_t>(n));
+    out->clr2d.resize(static_cast<size_t>(n));
     Reader r4 { s4.data(), s4.data() + s4.size() };
     for (size_t i = 0; i < n; ++i) {
         uint64_t u = 0;
         if (!r4.varint(u) || u > 0xFFFFULL) {
             return false;
         }
-        out.clr2d[i] = static_cast<uint16_t>(u);
+        out->clr2d[i] = static_cast<uint16_t>(u);
     }
     return r0.done() && r4.done();
 }
 
-bool FieldsPack::loadZone(const FieldsZoneDir& z, FieldsZone& out, std::string& err) const
+bool LoadFieldsZone(FieldsZone* out, std::string* err, const FieldsPack& pack, const FieldsZoneDir& zone)
 {
-    out = FieldsZone();
-    out.regions.assign(static_cast<size_t>(z.global_regions) + 1, FieldsZone::Region {});
+    *out = FieldsZone();
+    out->regions.assign(static_cast<size_t>(zone.global_regions) + 1, FieldsZone::Region {});
     // 分量图的边已按 (src, dst) 升序, 计数装填即成 CSR
     {
-        Reader rd { z.scc, z.scc + z.scc_len };
+        Reader rd { zone.scc, zone.scc + zone.scc_len };
         uint32_t rc = 0;
         if (!rd.u32(rc)) {
-            err = "旁包区 " + z.name + " 的分量图残缺";
+            *err = "旁包区 " + zone.name + " 的分量图残缺";
             return false;
         }
         std::vector<uint8_t> st;
@@ -758,26 +752,26 @@ bool FieldsPack::loadZone(const FieldsZoneDir& z, FieldsZone& out, std::string& 
         std::vector<uint32_t> dst;
         for (uint32_t i = 0; i < rc; ++i) {
             uint32_t rid = 0, n_scc = 0, n_edges = 0;
-            if (!rd.u32(rid) || !rd.u32(n_scc) || !rd.u32(n_edges) || rid > z.global_regions || n_scc == 0) {
-                err = "旁包区 " + z.name + " 的分量图残缺";
+            if (!rd.u32(rid) || !rd.u32(n_scc) || !rd.u32(n_edges) || rid > zone.global_regions || n_scc == 0) {
+                *err = "旁包区 " + zone.name + " 的分量图残缺";
                 return false;
             }
-            if ((flags_ & 1U) != 0) {
+            if ((pack.flags & 1U) != 0) {
                 uint64_t skip = 0;
                 for (int b = 0; b < 4; ++b) {
                     if (!rd.varint(skip)) {
-                        err = "旁包区 " + z.name + " 的分量图残缺";
+                        *err = "旁包区 " + zone.name + " 的分量图残缺";
                         return false;
                     }
                 }
             }
             if (!rd.stream(st)) {
-                err = "旁包区 " + z.name + " 的分量图解不开";
+                *err = "旁包区 " + zone.name + " 的分量图解不开";
                 return false;
             }
             // 每条边至少 2 字节, 先按流长卡住 n_edges 再分配
             if (st.size() < 2ULL * n_edges) {
-                err = "旁包区 " + z.name + " 的分量图残缺";
+                *err = "旁包区 " + zone.name + " 的分量图残缺";
                 return false;
             }
             Reader es { st.data(), st.data() + st.size() };
@@ -787,82 +781,82 @@ bool FieldsPack::loadZone(const FieldsZoneDir& z, FieldsZone& out, std::string& 
             for (uint32_t e = 0; e < n_edges; ++e) {
                 uint32_t d = 0;
                 if (!es.u32(d) || !es.u32(dst[e])) {
-                    err = "旁包区 " + z.name + " 的分量图残缺";
+                    *err = "旁包区 " + zone.name + " 的分量图残缺";
                     return false;
                 }
                 prev += d;
                 src[e] = prev;
                 if (src[e] == 0 || src[e] > n_scc || dst[e] == 0 || dst[e] > n_scc) {
-                    err = "旁包区 " + z.name + " 类 " + std::to_string(rid) + " 的边越界";
+                    *err = "旁包区 " + zone.name + " 类 " + std::to_string(rid) + " 的边越界";
                     return false;
                 }
             }
             if (!es.done()) {
-                err = "旁包区 " + z.name + " 的分量图残缺";
+                *err = "旁包区 " + zone.name + " 的分量图残缺";
                 return false;
             }
-            FieldsZone::Region& r = out.regions[rid];
+            FieldsZone::Region& r = out->regions[rid];
             r.n_scc = n_scc;
-            r.adj_off = static_cast<uint32_t>(out.adj_start.size());
-            const auto base_e = static_cast<uint32_t>(out.edge_dst.size());
-            out.adj_start.resize(out.adj_start.size() + n_scc + 2, base_e);
+            r.adj_off = static_cast<uint32_t>(out->adj_start.size());
+            const auto base_e = static_cast<uint32_t>(out->edge_dst.size());
+            out->adj_start.resize(out->adj_start.size() + n_scc + 2, base_e);
             for (uint32_t e = 0; e < n_edges; ++e) {
-                out.adj_start[r.adj_off + src[e] + 1] += 1;
+                out->adj_start[r.adj_off + src[e] + 1] += 1;
             }
             for (uint32_t s = 1; s <= n_scc + 1; ++s) {
-                out.adj_start[r.adj_off + s] += out.adj_start[r.adj_off + s - 1] - base_e;
+                out->adj_start[r.adj_off + s] += out->adj_start[r.adj_off + s - 1] - base_e;
             }
-            out.edge_dst.insert(out.edge_dst.end(), dst.begin(), dst.end());
+            out->edge_dst.insert(out->edge_dst.end(), dst.begin(), dst.end());
         }
         if (!rd.done()) {
-            err = "旁包区 " + z.name + " 的分量图有多余字节";
+            *err = "旁包区 " + zone.name + " 的分量图有多余字节";
             return false;
         }
     }
     // 留墙表: 键升序差分, 逐墙的类表升序差分
     {
-        Reader rd { z.wal, z.wal + z.wal_len };
+        Reader rd { zone.wal, zone.wal + zone.wal_len };
         uint32_t nw = 0;
         std::vector<uint8_t> a;
         std::vector<uint8_t> b;
         if (!rd.u32(nw) || !rd.stream(a) || !rd.stream(b) || !rd.done()) {
-            err = "旁包区 " + z.name + " 的留墙表残缺";
+            *err = "旁包区 " + zone.name + " 的留墙表残缺";
             return false;
         }
         Reader ra { a.data(), a.data() + a.size() };
         Reader rb { b.data(), b.data() + b.size() };
-        out.wall_key.resize(nw);
-        out.wall_rid_start.assign(static_cast<size_t>(nw) + 1, 0);
+        out->wall_key.resize(nw);
+        out->wall_rid_start.assign(static_cast<size_t>(nw) + 1, 0);
         uint32_t prev = 0;
         for (uint32_t i = 0; i < nw; ++i) {
             uint32_t d = 0;
             if (!ra.u32(d)) {
-                err = "旁包区 " + z.name + " 的留墙表残缺";
+                *err = "旁包区 " + zone.name + " 的留墙表残缺";
                 return false;
             }
             prev += d;
-            out.wall_key[i] = prev;
+            out->wall_key[i] = prev;
         }
         for (uint32_t i = 0; i < nw; ++i) {
             uint32_t nr = 0;
             if (!rb.u32(nr)) {
-                err = "旁包区 " + z.name + " 的留墙表残缺";
+                *err = "旁包区 " + zone.name + " 的留墙表残缺";
                 return false;
             }
             uint32_t rp = 0;
             for (uint32_t k = 0; k < nr; ++k) {
                 uint32_t d = 0;
                 if (!rb.u32(d)) {
-                    err = "旁包区 " + z.name + " 的留墙表残缺";
+                    *err = "旁包区 " + zone.name + " 的留墙表残缺";
                     return false;
                 }
                 rp += d;
-                out.wall_rid.push_back(rp);
+                out->wall_rid.push_back(rp);
             }
-            out.wall_rid_start[static_cast<size_t>(i) + 1] = static_cast<uint32_t>(out.wall_rid.size());
+            out->wall_rid_start[static_cast<size_t>(i) + 1] = static_cast<uint32_t>(out->wall_rid.size());
         }
         if (!ra.done() || !rb.done()) {
-            err = "旁包区 " + z.name + " 的留墙表有多余字节";
+            *err = "旁包区 " + zone.name + " 的留墙表有多余字节";
             return false;
         }
     }

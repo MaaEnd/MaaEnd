@@ -65,75 +65,72 @@ struct BaseNavRouteResult
     std::optional<WorldPoint> gap_start;
     std::optional<WorldPoint> gap_goal;
     std::optional<double> gap_distance;
-
-    bool ok() const { return status == BaseNavRouteStatus::Success; }
 };
 
-class BaseNavPlanner
+inline bool RouteSucceeded(const BaseNavRouteResult& result)
 {
-public:
-    explicit BaseNavPlanner(const BaseNavPack& pack);
+    return result.status == BaseNavRouteStatus::Success;
+}
 
-    std::optional<BaseNavSnapResult>
-        snap(uint16_t zone_id, const WorldPoint& point, double radius, float floor_y = kBaseNavFloorYNone) const;
-
-    bool pointOnMesh(uint16_t zone_id, const WorldPoint& point) const;
-
-    // half_width 为 0 只验中线, seed_height 是 a 点所在面的高度, 缺省时叠层处取最低面
-    bool isRouteSegmentDrivable(
-        uint16_t zone_id,
-        const WorldPoint& a,
-        const WorldPoint& b,
-        double half_width = 0.0,
-        std::optional<double> seed_height = std::nullopt) const;
-
-    // 仅含通过通行判据的链接
-    bool hasLink(uint32_t source, uint32_t target) const;
-
-    bool isSmallIslandTriangle(uint32_t triangle_index) const;
-    std::optional<std::array<WorldPoint, 2>> closestEdgeBridgePoints(uint32_t lhs, uint32_t rhs) const;
-
-    // 返回 point±radius 覆盖的各格内的三角, 可能重复
-    std::vector<uint32_t> candidateTriangles(uint16_t zone_id, const WorldPoint& point, double radius) const;
-    std::array<WorldPoint, 3> trianglePoints(uint32_t triangle_index) const;
-    double triangleHeight(uint32_t triangle_index) const;
-    uint32_t componentId(uint32_t triangle_index) const;
-    uint32_t componentSize(uint32_t triangle_index) const;
-
-private:
-    const BaseNavPack& pack_;
-    std::vector<uint16_t> triangle_zones_;
-    // 落在三角邻居槽上的链接按槽存一位, 其余按 (source<<32|target) 升序存进 bridge_links_
-    std::vector<uint8_t> neighbor_link_bits_;
-    std::vector<uint64_t> bridge_links_;
-    std::vector<uint32_t> natural_component_ids_;
-    std::vector<uint32_t> natural_component_sizes_;
-
-    // 每区一张铺满包围盒的格偏移表, 格内三角按下标升序, 包围盒外视为空格
-    struct BinGrid
-    {
-        uint16_t zone_id = 0;
-        int32_t bx0 = 0;
-        int32_t by0 = 0;
-        int32_t nx = 0;
-        int32_t ny = 0;
-        std::vector<uint32_t> offsets; // nx*ny+1, 行主序 (bin_x - bx0) * ny + (bin_y - by0)
-        std::vector<uint32_t> triangles;
-    };
-
-    std::vector<BinGrid> bin_grids_;
-
-    void buildIndex();
-    void buildNaturalComponents();
-    void buildSpatialIndex();
-    bool isNaturalNeighbor(uint32_t lhs, uint32_t rhs) const;
-    bool isTraversableLink(uint32_t lhs, uint32_t rhs) const;
-    // 取包含 point 的三角中高度最接近 reference 的, reference 为空时取最低
-    std::optional<double>
-        groundHeightNearIndexed(uint16_t zone_id, const WorldPoint& point, std::optional<double> reference, uint32_t& out_triangle) const;
-    bool segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b, std::optional<double> seed_height = std::nullopt)
-        const;
+// 每区一张铺满包围盒的格偏移表, 格内三角按下标升序, 包围盒外视为空格
+struct BaseNavBinGrid
+{
+    uint16_t zone_id = 0;
+    int32_t bx0 = 0;
+    int32_t by0 = 0;
+    int32_t nx = 0;
+    int32_t ny = 0;
+    std::vector<uint32_t> offsets; // nx*ny+1, 行主序 (bin_x - bx0) * ny + (bin_y - by0)
+    std::vector<uint32_t> triangles;
 };
+
+// 由 BaseNavPack 建出的索引, 查询时与建它的包一起传入
+struct BaseNavPlanner
+{
+    std::vector<uint16_t> triangle_zones;
+    // 落在三角邻居槽上的链接按槽存一位, 其余按 (source<<32|target) 升序存进 bridge_links
+    std::vector<uint8_t> neighbor_link_bits;
+    std::vector<uint64_t> bridge_links;
+    std::vector<uint32_t> natural_component_ids;
+    std::vector<uint32_t> natural_component_sizes;
+    std::vector<BaseNavBinGrid> bin_grids;
+};
+
+// links 传 std::move(pack.links), 建完随参数释放
+BaseNavPlanner BuildBaseNavPlanner(const BaseNavPack& pack, std::vector<BaseNavLink> links);
+
+std::optional<BaseNavSnapResult> SnapToMesh(
+    const BaseNavPlanner& planner,
+    const BaseNavPack& pack,
+    uint16_t zone_id,
+    const WorldPoint& point,
+    double radius,
+    float floor_y = kBaseNavFloorYNone);
+
+bool PointOnMesh(const BaseNavPlanner& planner, const BaseNavPack& pack, uint16_t zone_id, const WorldPoint& point);
+
+// half_width 为 0 只验中线, seed_height 是 a 点所在面的高度, 缺省时叠层处取最低面
+bool IsRouteSegmentDrivable(
+    const BaseNavPlanner& planner,
+    const BaseNavPack& pack,
+    uint16_t zone_id,
+    const WorldPoint& a,
+    const WorldPoint& b,
+    double half_width = 0.0,
+    std::optional<double> seed_height = std::nullopt);
+
+// 仅含通过通行判据的链接
+bool HasLink(const BaseNavPlanner& planner, const BaseNavPack& pack, uint32_t source, uint32_t target);
+
+bool IsSmallIslandTriangle(const BaseNavPlanner& planner, uint32_t triangle_index);
+std::optional<std::array<WorldPoint, 2>> ClosestEdgeBridgePoints(const BaseNavPack& pack, uint32_t lhs, uint32_t rhs);
+
+// 返回 point±radius 覆盖的各格内的三角, 可能重复
+std::vector<uint32_t> CandidateTriangles(const BaseNavPlanner& planner, uint16_t zone_id, const WorldPoint& point, double radius);
+std::array<WorldPoint, 3> TrianglePoints(const BaseNavPack& pack, uint32_t triangle_index);
+double TriangleHeight(const BaseNavPack& pack, uint32_t triangle_index);
+uint32_t ComponentId(const BaseNavPlanner& planner, uint32_t triangle_index);
+uint32_t ComponentSize(const BaseNavPlanner& planner, uint32_t triangle_index);
 
 const char* ToString(BaseNavRouteStatus status);
 

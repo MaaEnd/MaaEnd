@@ -51,11 +51,11 @@ std::vector<navmesh::WorldPoint> resample_polyline(const std::vector<navmesh::Wo
 // 投影不到底图时为空
 std::optional<bool> point_on_mesh(const ZoneNavmesh& zone, const navmesh::WorldPoint& p)
 {
-    const auto proj = zone.mesh->pack.projectToBase(zone.navmesh_zone, p.x, p.y);
+    const auto proj = navmesh::ProjectToBase(zone.mesh->pack, zone.navmesh_zone, p.x, p.y);
     if (!proj || proj->geometry_zone == nullptr) {
         return std::nullopt;
     }
-    return zone.mesh->planner.pointOnMesh(proj->geometry_zone->zone_id, { .x = proj->x, .y = proj->y });
+    return navmesh::PointOnMesh(zone.mesh->planner, zone.mesh->pack, proj->geometry_zone->zone_id, { .x = proj->x, .y = proj->y });
 }
 
 } // namespace
@@ -69,7 +69,7 @@ void NormalizeLivePositionToBase(NaviPosition* pos, const NaviParam& param)
     if (!zone.mesh) {
         return;
     }
-    const auto projection = zone.mesh->pack.projectToBase(pos->zone_id, pos->x, pos->y);
+    const auto projection = navmesh::ProjectToBase(zone.mesh->pack, pos->zone_id, pos->x, pos->y);
     if (projection && projection->was_tier) {
         // zone_id 保持定位器命名, 区域校验要拿它比对
         pos->x = projection->x;
@@ -91,8 +91,8 @@ bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a
     }
     const navmesh::BaseNavPack& pack = zone.mesh->pack;
     const auto geometry_id = [&pack](const std::string& name) -> int {
-        const navmesh::BaseNavZone* found = pack.findZoneByName(name);
-        return found == nullptr ? -1 : static_cast<int>(pack.geometryZoneId(found->zone_id));
+        const navmesh::BaseNavZone* found = navmesh::FindBaseNavZoneByName(pack, name);
+        return found == nullptr ? -1 : static_cast<int>(navmesh::GeometryZoneId(pack, found->zone_id));
     };
     const int geom_a = geometry_id(zone_a);
     return geom_a >= 0 && geom_a == geometry_id(zone_b);
@@ -109,11 +109,13 @@ std::optional<NavmeshSnap> NavmeshSnapAt(
     if (!zone.mesh) {
         return std::nullopt;
     }
-    const auto proj = zone.mesh->pack.projectToBase(zone.navmesh_zone, point.x, point.y);
+    const auto proj = navmesh::ProjectToBase(zone.mesh->pack, zone.navmesh_zone, point.x, point.y);
     if (!proj || proj->geometry_zone == nullptr) {
         return std::nullopt;
     }
-    const auto entry = zone.mesh->planner.snap(
+    const auto entry = navmesh::SnapToMesh(
+        zone.mesh->planner,
+        zone.mesh->pack,
         proj->geometry_zone->zone_id,
         { .x = proj->x, .y = proj->y },
         radius,
@@ -121,7 +123,7 @@ std::optional<NavmeshSnap> NavmeshSnapAt(
     if (!entry) {
         return std::nullopt;
     }
-    return NavmeshSnap { .distance = entry->distance, .height = zone.mesh->planner.triangleHeight(entry->triangle) };
+    return NavmeshSnap { .distance = entry->distance, .height = navmesh::TriangleHeight(zone.mesh->pack, entry->triangle) };
 }
 
 std::vector<std::vector<navmesh::OccluderHit>>
@@ -144,7 +146,7 @@ std::vector<std::vector<navmesh::OccluderHit>>
     for (size_t index = 0; index < groups.size(); ++index) {
         std::vector<navmesh::OccluderHit> hits;
         for (const NavmeshAirLine& line : groups[index]) {
-            const std::vector<navmesh::OccluderHit> line_hits = scene->lineHits(line.a, line.b);
+            const std::vector<navmesh::OccluderHit> line_hits = navmesh::OccluderLineHits(*scene, line.a, line.b);
             if (line_hits.empty()) {
                 hits.clear();
                 break;
@@ -177,7 +179,7 @@ std::vector<std::vector<double>> NavmeshGroundHeights(
     }
     for (size_t index = 0; index < bases.size(); ++index) {
         for (size_t k = 0; k < bases[index].size(); ++k) {
-            heights[index][k] = scene->groundHeight(bases[index][k]);
+            heights[index][k] = navmesh::OccluderGroundHeight(*scene, bases[index][k]);
         }
     }
     return heights;
