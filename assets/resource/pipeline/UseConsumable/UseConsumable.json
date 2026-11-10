@@ -1,6 +1,6 @@
 {
     "UseConsumableBeforeStashBackpack": {
-        "desc": "按任务选项整理背包后进入可用道具取用流程",
+        "desc": "按任务选项整理背包后进入道具补充与取用流程",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -10,6 +10,14 @@
         },
         "next": [
             "UseConsumableFailureCollectorReset"
+        ]
+    },
+    "UseConsumableTacticalItemsEnabled": {
+        "desc": "进入战术物品补充流程",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTacticalStart"
         ]
     },
     "UseConsumableNeedValleyIV": {
@@ -120,7 +128,16 @@
         "recognition": "DirectHit"
     },
     "UseConsumableTaskStart": {
-        "desc": "开始槽位检查并进入对应的取用流程",
+        "desc": "开始检查启用的消耗品槽位",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTaskConsumablesEnabled",
+            "UseConsumableFailureCollectorFinish"
+        ]
+    },
+    "UseConsumableTaskConsumablesEnabled": {
+        "desc": "进入消耗品槽位检查流程",
+        "enabled": false,
         "recognition": "DirectHit",
         "next": [
             "UseConsumableSlot1Enabled",
@@ -131,7 +148,7 @@
         ]
     },
     "UseConsumableTaskHasSelectedSlot": {
-        "desc": "至少选择了一个使用槽位，开始消耗品流程",
+        "desc": "检测到启用的消耗品槽位，进入消耗品取用流程",
         "recognition": "DirectHit",
         "next": [
             "UseConsumableInitialWorldReady",
@@ -139,10 +156,14 @@
         ]
     },
     "UseConsumableTaskNoSelectedSlot": {
-        "desc": "没有选择使用槽位，跳过消耗品流程",
-        "recognition": "DirectHit"
+        "desc": "完成消耗品槽位选项检查",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableFailureCollectorFinish"
+        ]
     },
     "UseConsumableInitialWorldReady": {
+        "desc": "确认处于大世界后检查背包中的消耗品",
         "recognition": "And",
         "all_of": [
             "InWorld"

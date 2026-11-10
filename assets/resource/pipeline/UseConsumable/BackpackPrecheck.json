@@ -323,7 +323,7 @@
         "box_index": 1,
         "action": "Click",
         "next": [
-            "UseConsumableStockWulingEnter"
+            "UseConsumableStockEnsureWorldForDepot"
         ]
     },
     "UseConsumablePrecheckCloseBackpackToUse": {

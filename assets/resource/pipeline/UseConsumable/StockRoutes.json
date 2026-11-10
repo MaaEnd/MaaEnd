@@ -1,5 +1,61 @@
 {
+    "UseConsumableStockEnsureWorldForDepot": {
+        "desc": "确认处于大世界后进入武陵仓库流程",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableStockWorldReadyForDepot",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "UseConsumableStockWorldReadyForDepot": {
+        "desc": "确认玩家处于大世界并检查帝江号位置",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "UseConsumableStockAlreadyInDijiangWorld",
+            "UseConsumableStockTeleportToDijiang"
+        ]
+    },
+    "UseConsumableStockAlreadyInDijiangWorld": {
+        "desc": "识别当前位于帝江号大世界",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangWorld"
+        ],
+        "next": [
+            "UseConsumableStockWulingEnter"
+        ]
+    },
+    "UseConsumableStockTeleportToDijiang": {
+        "desc": "从当前大世界传送至帝江号",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldDijiang"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "next": [
+            "UseConsumableStockDijiangWorldReadyForDepot"
+        ]
+    },
+    "UseConsumableStockDijiangWorldReadyForDepot": {
+        "desc": "确认已进入帝江号大世界",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangWorld"
+        ],
+        "next": [
+            "UseConsumableStockWulingEnter"
+        ]
+    },
     "UseConsumableStockWulingEnter": {
+        "desc": "进入武陵仓库并选择可用道具分类",
         "recognition": "DirectHit",
         "next": [
             "UseConsumableStockWulingDepotReady",

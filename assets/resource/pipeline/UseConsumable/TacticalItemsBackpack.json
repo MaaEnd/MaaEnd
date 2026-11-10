@@ -1,0 +1,178 @@
+{
+    "UseConsumableTacticalStart": {
+        "desc": "开始战术物品补充并确认当前处于大世界",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTacticalWorldReady",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "UseConsumableTacticalWorldReady": {
+        "desc": "确认玩家处于大世界并检查帝江号位置",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "UseConsumableTacticalDijiangWorldReady",
+            "UseConsumableTacticalTeleportToDijiang"
+        ]
+    },
+    "UseConsumableTacticalDijiangWorldReady": {
+        "desc": "识别当前位于帝江号大世界",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangWorld"
+        ],
+        "next": [
+            "UseConsumableTacticalOpenBackpack"
+        ]
+    },
+    "UseConsumableTacticalTeleportToDijiang": {
+        "desc": "从当前大世界传送至帝江号",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldDijiang"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "next": [
+            "UseConsumableTacticalDijiangWorldReady"
+        ]
+    },
+    "UseConsumableTacticalOpenBackpack": {
+        "desc": "复用背包入口识别并打开背包",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "UseConsumableUseBagReady": {
+                    "next": [
+                        "UseConsumableTacticalBackpackSearchStart"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "UseConsumableUseStart"
+        ]
+    },
+    "UseConsumableTacticalBackpackSearchStart": {
+        "desc": "重置背包滚动位置并开始查找选定战术物品",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "UseConsumableTacticalBackpackSearchPage": {
+                    "enabled": true
+                },
+                "ItemTransferBagTopReached": {
+                    "next": [
+                        "UseConsumableTacticalBackpackSearchPage"
+                    ]
+                },
+                "ItemTransferBagBottomReached": {
+                    "next": [
+                        "UseConsumableTacticalBackpackSearchDone"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "ItemTransferResetBagScanBoundaries"
+        ]
+    },
+    "UseConsumableTacticalBackpackSearchPage": {
+        "desc": "遍历当前背包页并识别选定战术物品",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset",
+            "ItemTransferCurrentBagFind": "UseConsumableTacticalFindBackpackItem",
+            "ItemTransferCurrentBagTransfer": "UseConsumableTacticalBackpackTransferBegin"
+        },
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "[Anchor]ItemTransferCurrentBagFind",
+            "ItemTransferBagBottomReached",
+            "[JumpBack]ItemTransferScrollDownwardBag",
+            "ItemTransferStop"
+        ]
+    },
+    "UseConsumableTacticalFindBackpackItem": {
+        "desc": "识别背包中的选定战术物品",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_recheck_filters": [
+                        "Normal:Usable"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    739,
+                    202,
+                    398,
+                    291
+                ]
+            }
+        },
+        "next": [
+            "[Anchor]ItemTransferCurrentBagTransfer"
+        ]
+    },
+    "UseConsumableTacticalBackpackTransferBegin": {
+        "desc": "按住背包中的目标物品准备转入仓库",
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 16,
+        "post_delay": 50,
+        "next": [
+            "UseConsumableTacticalBackpackTransferClick"
+        ]
+    },
+    "UseConsumableTacticalBackpackTransferClick": {
+        "desc": "Shift 单击背包中的目标物品",
+        "action": "Click",
+        "target": "UseConsumableTacticalFindBackpackItem",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "post_delay": 50,
+        "next": [
+            "UseConsumableTacticalBackpackTransferRelease"
+        ]
+    },
+    "UseConsumableTacticalBackpackTransferRelease": {
+        "desc": "释放 Shift 并进入武陵仓库检查",
+        "action": "KeyUp",
+        "key": 16,
+        "next": [
+            "UseConsumableTacticalEnsureWulingDepot"
+        ]
+    },
+    "UseConsumableTacticalBackpackSearchDone": {
+        "desc": "背包遍历完成，继续检查武陵仓库",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTacticalEnsureWulingDepot"
+        ]
+    }
+}

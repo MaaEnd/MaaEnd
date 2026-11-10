@@ -34,32 +34,39 @@ function buildItemOption(slot, itemIds, defaultItemId) {
         type: "select",
         label: "$option.UseConsumableItem.label",
         cases: itemIds.map((itemId) => {
-            const recognitionParam = {
-                grid_type: "transfer",
-                item_ids: [itemId],
-                item_recheck_filters: ["Normal:Usable"],
-                deduplicate: true,
-            };
             return {
                 name: itemId,
                 label: `$iconRecognition.name.${itemId}`,
-                pipeline_override: Object.fromEntries(
+                pipeline_override: buildItemRecognitionOverrides(
                     [
                         `UseConsumableFindItemSlot${slot}`,
                         `UseConsumableStockFindItemSlot${slot}`,
-                    ].map((node) => [
-                        node,
-                        {
-                            recognition: {
-                                param: {custom_recognition_param: recognitionParam},
-                            },
-                        },
-                    ]),
+                    ],
+                    itemId,
                 ),
             };
         }),
         default_case: defaultItemId,
     };
+}
+
+function buildItemRecognitionOverrides(nodes, itemId) {
+    const recognitionParam = {
+        grid_type: "transfer",
+        item_ids: [itemId],
+        item_recheck_filters: ["Normal:Usable"],
+        deduplicate: true,
+    };
+    return Object.fromEntries(
+        nodes.map((node) => [
+            node,
+            {
+                recognition: {
+                    param: {custom_recognition_param: recognitionParam},
+                },
+            },
+        ]),
+    );
 }
 
 function buildRegionOption(regions, defaultRegion) {
@@ -110,8 +117,15 @@ function buildTacticalItemsOption() {
         type: "switch",
         label: "$option.UseConsumableTacticalItems.label",
         cases: [
-            {name: "Yes", option: ["UseConsumableTacticalItem"]},
-            {name: "No"},
+            {
+                name: "Yes",
+                option: ["UseConsumableTacticalItem"],
+                pipeline_override: {UseConsumableTacticalItemsEnabled: {enabled: true}},
+            },
+            {
+                name: "No",
+                pipeline_override: {UseConsumableTacticalItemsEnabled: {enabled: false}},
+            },
         ],
         default_case: "No",
     };
@@ -121,10 +135,19 @@ function buildTacticalItemOption(tacticalItemIds) {
     return {
         type: "select",
         label: "$option.UseConsumableTacticalItem.label",
-        cases: tacticalItemIds.map((itemId) => ({
-            name: itemId,
-            label: `$iconRecognition.name.${itemId}`,
-        })),
+        cases: tacticalItemIds.map((itemId) => {
+            return {
+                name: itemId,
+                label: `$iconRecognition.name.${itemId}`,
+                pipeline_override: buildItemRecognitionOverrides(
+                    [
+                        "UseConsumableTacticalFindBackpackItem",
+                        "UseConsumableTacticalFindDepotItem",
+                    ],
+                    itemId,
+                ),
+            };
+        }),
         default_case: tacticalItemIds[0],
     };
 }
@@ -140,11 +163,11 @@ function buildUseConsumableEnabledOption(slots) {
                     ...slots.map((slot) => `UseConsumableSlot${slot}`),
                     "UseConsumableRegion",
                 ],
-                pipeline_override: {UseConsumableTaskStart: {enabled: true}},
+                pipeline_override: {UseConsumableTaskConsumablesEnabled: {enabled: true}},
             },
             {
                 name: "No",
-                pipeline_override: {UseConsumableTaskStart: {enabled: false}},
+                pipeline_override: {UseConsumableTaskConsumablesEnabled: {enabled: false}},
             },
         ],
         default_case: "Yes",
