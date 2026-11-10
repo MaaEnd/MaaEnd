@@ -319,9 +319,9 @@
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
                     "icon": "resource/image/UI/Item/item_gachabyproducts_weapongold.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__ArsenalTicket": "ArsenalTicket"
+                                "IconRecognition.item_ids.item_gachabyproducts_weapongold": true
                             }
                         }
                     }
@@ -331,9 +331,9 @@
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
                     "icon": "resource/image/UI/Item/item_diamond.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__Oroberyl": "Oroberyl"
+                                "IconRecognition.item_ids.item_diamond": true
                             }
                         }
                     }
@@ -343,9 +343,9 @@
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
                     "icon": "resource/image/UI/Item/item_gold.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__TCreds": "TCreds"
+                                "IconRecognition.item_ids.item_gold": true
                             }
                         }
                     }
@@ -355,9 +355,9 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage2_low.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__ElementaryCognitiveCarrier": "ElementaryCognitiveCarrier"
+                                "IconRecognition.item_ids.item_expcard_stage2_low": true
                             }
                         }
                     }
@@ -367,9 +367,9 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_low.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__ElementaryCombatRecord": "ElementaryCombatRecord"
+                                "IconRecognition.item_ids.item_expcard_stage1_low": true
                             }
                         }
                     }
@@ -379,9 +379,9 @@
                     "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_mid.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__IntermediateCombatRecord": "IntermediateCombatRecord"
+                                "IconRecognition.item_ids.item_expcard_stage1_mid": true
                             }
                         }
                     }
@@ -391,9 +391,9 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_low.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__ArmsInspector": "ArmsInspector"
+                                "IconRecognition.item_ids.item_weapon_expcard_low": true
                             }
                         }
                     }
@@ -403,9 +403,9 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_mid.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__ArmsINSPKit": "ArmsINSPKit"
+                                "IconRecognition.item_ids.item_weapon_expcard_mid": true
                             }
                         }
                     }
@@ -415,9 +415,9 @@
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_low.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__CastDie": "CastDie"
+                                "IconRecognition.item_ids.item_weapon_break_low": true
                             }
                         }
                     }
@@ -427,9 +427,9 @@
                     "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_high.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__HeavyCastDie": "HeavyCastDie"
+                                "IconRecognition.item_ids.item_weapon_break_high": true
                             }
                         }
                     }
@@ -439,9 +439,9 @@
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_1_2.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__Protodisk": "Protodisk"
+                                "IconRecognition.item_ids.item_char_break_stage_1_2": true
                             }
                         }
                     }
@@ -451,9 +451,9 @@
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_3_4.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__Protoset": "Protoset"
+                                "IconRecognition.item_ids.item_char_break_stage_3_4": true
                             }
                         }
                     }
@@ -463,9 +463,9 @@
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_1_6.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__Protoprism": "Protoprism"
+                                "IconRecognition.item_ids.item_char_skill_level_1_6": true
                             }
                         }
                     }
@@ -475,9 +475,9 @@
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_7_12.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority1Item": {
                             "attach": {
-                                "priority1__Protohedron": "Protohedron"
+                                "IconRecognition.item_ids.item_char_skill_level_7_12": true
                             }
                         }
                     }
@@ -742,9 +742,9 @@
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
                     "icon": "resource/image/UI/Item/item_gachabyproducts_weapongold.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__ArsenalTicket": "ArsenalTicket"
+                                "IconRecognition.item_ids.item_gachabyproducts_weapongold": true
                             }
                         }
                     }
@@ -754,9 +754,9 @@
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
                     "icon": "resource/image/UI/Item/item_diamond.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__Oroberyl": "Oroberyl"
+                                "IconRecognition.item_ids.item_diamond": true
                             }
                         }
                     }
@@ -766,9 +766,9 @@
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
                     "icon": "resource/image/UI/Item/item_gold.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__TCreds": "TCreds"
+                                "IconRecognition.item_ids.item_gold": true
                             }
                         }
                     }
@@ -778,9 +778,9 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage2_low.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__ElementaryCognitiveCarrier": "ElementaryCognitiveCarrier"
+                                "IconRecognition.item_ids.item_expcard_stage2_low": true
                             }
                         }
                     }
@@ -790,9 +790,9 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_low.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__ElementaryCombatRecord": "ElementaryCombatRecord"
+                                "IconRecognition.item_ids.item_expcard_stage1_low": true
                             }
                         }
                     }
@@ -802,9 +802,9 @@
                     "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_mid.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__IntermediateCombatRecord": "IntermediateCombatRecord"
+                                "IconRecognition.item_ids.item_expcard_stage1_mid": true
                             }
                         }
                     }
@@ -814,9 +814,9 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_low.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__ArmsInspector": "ArmsInspector"
+                                "IconRecognition.item_ids.item_weapon_expcard_low": true
                             }
                         }
                     }
@@ -826,9 +826,9 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_mid.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__ArmsINSPKit": "ArmsINSPKit"
+                                "IconRecognition.item_ids.item_weapon_expcard_mid": true
                             }
                         }
                     }
@@ -838,9 +838,9 @@
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_low.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__CastDie": "CastDie"
+                                "IconRecognition.item_ids.item_weapon_break_low": true
                             }
                         }
                     }
@@ -850,9 +850,9 @@
                     "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_high.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__HeavyCastDie": "HeavyCastDie"
+                                "IconRecognition.item_ids.item_weapon_break_high": true
                             }
                         }
                     }
@@ -862,9 +862,9 @@
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_1_2.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__Protodisk": "Protodisk"
+                                "IconRecognition.item_ids.item_char_break_stage_1_2": true
                             }
                         }
                     }
@@ -874,9 +874,9 @@
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_3_4.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__Protoset": "Protoset"
+                                "IconRecognition.item_ids.item_char_break_stage_3_4": true
                             }
                         }
                     }
@@ -886,9 +886,9 @@
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_1_6.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__Protoprism": "Protoprism"
+                                "IconRecognition.item_ids.item_char_skill_level_1_6": true
                             }
                         }
                     }
@@ -898,9 +898,9 @@
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_7_12.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority2Item": {
                             "attach": {
-                                "priority2__Protohedron": "Protohedron"
+                                "IconRecognition.item_ids.item_char_skill_level_7_12": true
                             }
                         }
                     }
@@ -1177,9 +1177,9 @@
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
                     "icon": "resource/image/UI/Item/item_gachabyproducts_weapongold.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__ArsenalTicket": "ArsenalTicket"
+                                "IconRecognition.item_ids.item_gachabyproducts_weapongold": true
                             }
                         }
                     }
@@ -1189,9 +1189,9 @@
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
                     "icon": "resource/image/UI/Item/item_diamond.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__Oroberyl": "Oroberyl"
+                                "IconRecognition.item_ids.item_diamond": true
                             }
                         }
                     }
@@ -1201,9 +1201,9 @@
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
                     "icon": "resource/image/UI/Item/item_gold.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__TCreds": "TCreds"
+                                "IconRecognition.item_ids.item_gold": true
                             }
                         }
                     }
@@ -1213,9 +1213,9 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage2_low.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__ElementaryCognitiveCarrier": "ElementaryCognitiveCarrier"
+                                "IconRecognition.item_ids.item_expcard_stage2_low": true
                             }
                         }
                     }
@@ -1225,9 +1225,9 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_low.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__ElementaryCombatRecord": "ElementaryCombatRecord"
+                                "IconRecognition.item_ids.item_expcard_stage1_low": true
                             }
                         }
                     }
@@ -1237,9 +1237,9 @@
                     "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_mid.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__IntermediateCombatRecord": "IntermediateCombatRecord"
+                                "IconRecognition.item_ids.item_expcard_stage1_mid": true
                             }
                         }
                     }
@@ -1249,9 +1249,9 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_low.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__ArmsInspector": "ArmsInspector"
+                                "IconRecognition.item_ids.item_weapon_expcard_low": true
                             }
                         }
                     }
@@ -1261,9 +1261,9 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_mid.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__ArmsINSPKit": "ArmsINSPKit"
+                                "IconRecognition.item_ids.item_weapon_expcard_mid": true
                             }
                         }
                     }
@@ -1273,9 +1273,9 @@
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_low.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__CastDie": "CastDie"
+                                "IconRecognition.item_ids.item_weapon_break_low": true
                             }
                         }
                     }
@@ -1285,9 +1285,9 @@
                     "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_high.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__HeavyCastDie": "HeavyCastDie"
+                                "IconRecognition.item_ids.item_weapon_break_high": true
                             }
                         }
                     }
@@ -1297,9 +1297,9 @@
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_1_2.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__Protodisk": "Protodisk"
+                                "IconRecognition.item_ids.item_char_break_stage_1_2": true
                             }
                         }
                     }
@@ -1309,9 +1309,9 @@
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_3_4.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__Protoset": "Protoset"
+                                "IconRecognition.item_ids.item_char_break_stage_3_4": true
                             }
                         }
                     }
@@ -1321,9 +1321,9 @@
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_1_6.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__Protoprism": "Protoprism"
+                                "IconRecognition.item_ids.item_char_skill_level_1_6": true
                             }
                         }
                     }
@@ -1333,9 +1333,9 @@
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_7_12.png",
                     "pipeline_override": {
-                        "CreditShoppingApplyPriorityItems": {
+                        "CreditShoppingPriority3Item": {
                             "attach": {
-                                "priority3__Protohedron": "Protohedron"
+                                "IconRecognition.item_ids.item_char_skill_level_7_12": true
                             }
                         }
                     }
