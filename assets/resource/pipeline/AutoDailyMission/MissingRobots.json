@@ -477,6 +477,32 @@
         }
     },
     "AutoDailyMissionMissingRobotsRouteOriginiumByproductProcessingCenterBeacon2": {
+        "desc": "走到源石副产物中心附近的第二个定位信标，有敌人时先自动战斗",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        316.877,
+                        917.53
+                    ],
+                    "target_deck_y": 106.646,
+                    "required": true
+                }
+            ]
+        },
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoDailyMissionMissingRobotsRouteOriginiumByproductProcessingCenterBeacon2Interact"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsRouteOriginiumByproductProcessingCenterBeacon2Interact": {
         "desc": "放置源石副产物中心附近的第二个定位信标",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -492,15 +518,6 @@
                 {
                     "action": "ZONE",
                     "zone_id": "ValleyIV_Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        316.877,
-                        917.53
-                    ],
-                    "target_deck_y": 106.646,
-                    "required": true
                 },
                 {
                     "action": "INTERACT",
