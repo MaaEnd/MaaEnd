@@ -59,6 +59,7 @@ enum class BaseNavRouteStatus
 enum class RouteFailure
 {
     None,
+    ZoneNotFound,
     GridUnavailable,
     ZoneHasNoGrid,
     ZoneMeshUnusable,

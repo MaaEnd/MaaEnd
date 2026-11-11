@@ -686,6 +686,8 @@ const char* ToString(RouteFailure failure)
     switch (failure) {
     case RouteFailure::None:
         return "";
+    case RouteFailure::ZoneNotFound:
+        return "zone is not in the navmesh pack";
     case RouteFailure::GridUnavailable:
         return "baked grid is unavailable";
     case RouteFailure::ZoneHasNoGrid:

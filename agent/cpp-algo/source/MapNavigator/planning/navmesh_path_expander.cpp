@@ -328,6 +328,7 @@ navmesh::BaseNavRouteResult plan_corridor_route(
     if (zone == nullptr) {
         LogWarn << "NAVMESH zone not found." << VAR(request.zone_name);
         result.status = navmesh::BaseNavRouteStatus::ZoneNotFound;
+        result.failure = navmesh::RouteFailure::ZoneNotFound;
         return result;
     }
     const float start_floor = request.start_floor_y > navmesh::kBaseNavFloorYValidMin ? request.start_floor_y : request.floor_y;
