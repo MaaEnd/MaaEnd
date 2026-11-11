@@ -11,6 +11,7 @@
                 "ArenaOfGames.CheckHand",
                 "AutoFightEntryRecognition",
                 "AutoMissionMatchQuest",
+                "AutoSellDownArrowRecognition",
                 "AutoSellPriceCompareRecognition",
                 "AutoSellScanItemRecognition",
                 "AutoStockpile.Recognition",
