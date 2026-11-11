@@ -318,8 +318,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopPriorityStorageConfirmed"
-        ]
+            "RestaurantShopScan"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.priority_storage_enabled"
+        }
     },
     "RestaurantShopPriorityStorageUnchecked": {
         "recognition": "TemplateMatch",
@@ -345,24 +348,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopPriorityStorageConfirmed"
+            "RestaurantShopPriorityStorageChecked"
         ],
         "on_error": [
             "FailedNode"
         ]
-    },
-    "RestaurantShopPriorityStorageConfirmed": {
-        "desc": "确认优先存入地区仓库已启用。",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantShopScan"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.priority_storage_enabled"
-        }
     },
     "RestaurantShopScan": {
         "desc": "依次检查当前页面 14 个商品位、刷新入口或结束条件。",
