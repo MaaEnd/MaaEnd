@@ -47,18 +47,13 @@
     "UseConsumableTacticalStockSearchPage": {
         "desc": "遍历当前仓库页并识别选定战术物品",
         "enabled": false,
-        "recognition": "And",
-        "all_of": [
-            "InDijiangDepotUsable"
-        ],
+        "recognition": "DirectHit",
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset",
-            "ItemTransferCurrentRepoFind": "UseConsumableTacticalFindDepotItem",
-            "ItemTransferCurrentRepoTransfer": "UseConsumableTacticalDepotTransferBegin"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "next": [
             "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "[Anchor]ItemTransferCurrentRepoFind",
+            "UseConsumableTacticalFindDepotItem",
             "ItemTransferRepoBottomReached",
             "[JumpBack]ItemTransferScrollDownwardRepo",
             "ItemTransferStop"
@@ -86,7 +81,7 @@
             }
         },
         "next": [
-            "[Anchor]ItemTransferCurrentRepoTransfer"
+            "UseConsumableTacticalDepotTransferBegin"
         ]
     },
     "UseConsumableTacticalDepotTransferBegin": {

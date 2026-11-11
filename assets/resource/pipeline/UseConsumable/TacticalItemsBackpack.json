@@ -93,18 +93,13 @@
     "UseConsumableTacticalBackpackSearchPage": {
         "desc": "遍历当前背包页并识别选定战术物品",
         "enabled": false,
-        "recognition": "And",
-        "all_of": [
-            "InBackpack"
-        ],
+        "recognition": "DirectHit",
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset",
-            "ItemTransferCurrentBagFind": "UseConsumableTacticalFindBackpackItem",
-            "ItemTransferCurrentBagTransfer": "UseConsumableTacticalBackpackTransferBegin"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "next": [
             "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "[Anchor]ItemTransferCurrentBagFind",
+            "UseConsumableTacticalFindBackpackItem",
             "ItemTransferBagBottomReached",
             "[JumpBack]ItemTransferScrollDownwardBag",
             "ItemTransferStop"
@@ -132,7 +127,7 @@
             }
         },
         "next": [
-            "[Anchor]ItemTransferCurrentBagTransfer"
+            "UseConsumableTacticalBackpackTransferBegin"
         ]
     },
     "UseConsumableTacticalBackpackTransferBegin": {

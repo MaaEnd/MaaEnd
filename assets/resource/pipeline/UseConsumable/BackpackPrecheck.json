@@ -2,11 +2,11 @@
     "UseConsumablePrecheckStart": {
         "recognition": "DirectHit",
         "next": [
-            "UseConsumablePrecheckBackpackAlreadyOpen",
+            "UseConsumablePrecheckBackpackReady",
             "UseConsumablePrecheckOpenBagMenu"
         ]
     },
-    "UseConsumablePrecheckBackpackAlreadyOpen": {
+    "UseConsumablePrecheckBackpackReady": {
         "recognition": "And",
         "all_of": [
             "InBackpack"
@@ -29,15 +29,12 @@
             "wait_node": "UseConsumableUseOpenBagMenuIcon"
         },
         "next": [
-            "UseConsumablePrecheckStartScan"
+            "UseConsumablePrecheckBackpackReady"
         ]
     },
     "UseConsumablePrecheckBagReady": {
         "desc": "检查背包中的目标物品并更新各槽位取货状态",
-        "recognition": "And",
-        "all_of": [
-            "InBackpack"
-        ],
+        "recognition": "DirectHit",
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset"
         },
@@ -57,7 +54,6 @@
         "enabled": true,
         "recognition": "And",
         "all_of": [
-            "InBackpack",
             "UseConsumableFindItemSlot1"
         ],
         "next": [
@@ -115,7 +111,6 @@
         "enabled": true,
         "recognition": "And",
         "all_of": [
-            "InBackpack",
             "UseConsumableFindItemSlot2"
         ],
         "next": [
@@ -173,7 +168,6 @@
         "enabled": true,
         "recognition": "And",
         "all_of": [
-            "InBackpack",
             "UseConsumableFindItemSlot3"
         ],
         "next": [
@@ -231,7 +225,6 @@
         "enabled": true,
         "recognition": "And",
         "all_of": [
-            "InBackpack",
             "UseConsumableFindItemSlot4"
         ],
         "next": [

@@ -72,10 +72,7 @@
         ]
     },
     "UseConsumableStockValleyIVEnter": {
-        "recognition": "And",
-        "all_of": [
-            "InDijiangDepotWulingUsable"
-        ],
+        "recognition": "DirectHit",
         "next": [
             "UseConsumableStockValleyIVDepotReady",
             "[JumpBack]SceneEnterMenuBackpackWithDepotValleyIVUsable"
