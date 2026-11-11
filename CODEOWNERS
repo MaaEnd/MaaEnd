@@ -84,7 +84,6 @@
 /assets/resource*/pipeline/CreditShopping/                        @overflow65537
 /assets/tasks/CreditShopping.json                                 @overflow65537
 /assets/resource*/image/CreditShopping/                           @overflow65537
-/agent/go-service/creditshopping/                                 @overflow65537
 /docs/*/developers/tasks/credit-shopping-maintain.md              @overflow65537
 
 # ---------------------------------------------------------------------------

@@ -40,6 +40,7 @@ struct LegState
     // 本字段和 route_start_deck_y 只有整条链的头一腿有值
     std::optional<double> route_start_floor_y;
     std::optional<double> route_start_deck_y;
+    std::optional<double> zone_floor_y;
     std::string current_zone;
     std::string navmesh_zone;
 };
@@ -60,6 +61,7 @@ RouteEndpoints leg_endpoints(const LegState& state, const navmesh::WorldPoint& g
         .goal = goal,
         .goal_floor_y = goal_floor_y,
         .goal_deck_y = goal_deck_y,
+        .zone_floor_y = state.zone_floor_y,
     };
 }
 
@@ -86,6 +88,14 @@ NavmeshExpansionFailure zone_failure(std::string code, std::string message, cons
         .message = std::move(message),
         .zone_id = state.current_zone,
     };
+}
+
+float zone_floor(const navmesh::BaseNavPack& pack, const std::string& zone, std::optional<double> zone_floor_y)
+{
+    if (zone_floor_y) {
+        return static_cast<float>(*zone_floor_y);
+    }
+    return navmesh::FloorYForZoneName(pack, zone);
 }
 
 navmesh::BaseNavRouteRequest build_route_request(
@@ -117,7 +127,7 @@ navmesh::BaseNavRouteRequest build_route_request(
     if (endpoints.start_deck_y) {
         request.start_deck_y = static_cast<float>(*endpoints.start_deck_y);
     }
-    const float zone_floor_y = pack.floorYForZoneName(locator_zone);
+    const float zone_floor_y = zone_floor(pack, locator_zone, endpoints.zone_floor_y);
     request.start_floor_y = endpoints.start_floor_y ? static_cast<float>(*endpoints.start_floor_y) : zone_floor_y;
     // 终点兜底取 zone 主层, 被覆盖的起点高度只代表人站在哪
     request.goal_floor_y = endpoints.goal_floor_y > navmesh::kBaseNavFloorYValidMin ? endpoints.goal_floor_y : zone_floor_y;
@@ -238,6 +248,7 @@ void update_state_from_regular_waypoint(LegState* state, const Waypoint& waypoin
     }
     if (!waypoint.zone_id.empty()) {
         state->current_zone = waypoint.zone_id;
+        state->zone_floor_y = waypoint.zone_floor_y;
     }
 }
 
@@ -255,14 +266,14 @@ ProjectedTarget resolve_projected_target(const navmesh::BaseNavPack& pack, const
     if (waypoint.target_tier.empty()) {
         return { raw, navmesh::kBaseNavFloorYNone, waypoint.target_deck_y };
     }
-    const auto projection = pack.projectToBase(waypoint.target_tier, waypoint.x, waypoint.y);
+    const auto projection = navmesh::ProjectToBase(pack, waypoint.target_tier, waypoint.x, waypoint.y);
     if (!projection) {
         LogWarn << "NAVMESH target_tier unknown; treating target as base-frame." << VAR(waypoint.target_tier) << VAR(waypoint.x)
                 << VAR(waypoint.y);
         return { raw, navmesh::kBaseNavFloorYNone, waypoint.target_deck_y };
     }
     return { navmesh::WorldPoint { .x = projection->x, .y = projection->y },
-             pack.floorYForZoneName(waypoint.target_tier),
+             navmesh::FloorYForZoneName(pack, waypoint.target_tier),
              waypoint.target_deck_y };
 }
 
@@ -272,7 +283,7 @@ std::optional<Waypoint> project_regular_waypoint_to_base(const navmesh::BaseNavP
         return waypoint;
     }
 
-    const auto projection = pack.projectToBase(waypoint.target_tier, waypoint.x, waypoint.y);
+    const auto projection = navmesh::ProjectToBase(pack, waypoint.target_tier, waypoint.x, waypoint.y);
     if (!projection) {
         LogError << "MapNavigator waypoint target_tier is unknown." << VAR(waypoint.target_tier) << VAR(waypoint.x) << VAR(waypoint.y);
         return std::nullopt;
@@ -323,7 +334,7 @@ navmesh::BaseNavRouteResult plan_corridor_route(
     NavmeshRouteDiagnostic* out_diagnostic = nullptr)
 {
     navmesh::BaseNavRouteResult result;
-    const navmesh::BaseNavZone* zone = mesh.pack.findZoneByName(request.zone_name);
+    const navmesh::BaseNavZone* zone = navmesh::FindBaseNavZoneByName(mesh.pack, request.zone_name);
     if (zone == nullptr) {
         result.status = navmesh::BaseNavRouteStatus::ZoneNotFound;
         result.error = "未找到 navmesh 区域: " + request.zone_name;
@@ -331,22 +342,22 @@ navmesh::BaseNavRouteResult plan_corridor_route(
     }
     const float start_floor = request.start_floor_y > navmesh::kBaseNavFloorYValidMin ? request.start_floor_y : request.floor_y;
     const float goal_floor = request.goal_floor_y > navmesh::kBaseNavFloorYValidMin ? request.goal_floor_y : request.floor_y;
-    std::function<bool()> should_stop;
-    if (maa_context != nullptr) {
-        should_stop = [maa_context] {
-            return MaaTaskerStopping(MaaContextGetTasker(maa_context));
-        };
-    }
-    auto plan = mesh.engine.plan(
-        request.zone_name,
-        request.start,
-        request.goal,
-        start_floor,
-        goal_floor,
-        request.goal_deck_y,
-        request.start_deck_y,
-        request.no_go_discs,
-        should_stop,
+    const navmesh::recast::RecastPlanRequest plan_request {
+        .zone_name = request.zone_name,
+        .start = request.start,
+        .goal = request.goal,
+        .start_floor_y = start_floor,
+        .goal_floor_y = goal_floor,
+        .goal_deck_y = request.goal_deck_y,
+        .start_deck_y = request.start_deck_y,
+        .no_go_discs = request.no_go_discs,
+    };
+    auto plan = navmesh::recast::PlanRecastRoute(
+        &mesh.engine,
+        mesh.pack,
+        mesh.planner,
+        plan_request,
+        maa_context,
         request.rope_off ? &*request.rope_off : nullptr);
     result.gap_start = plan.debug.gap_start;
     result.gap_goal = plan.debug.gap_goal;
@@ -396,7 +407,7 @@ std::optional<navmesh::BaseNavSnapResult> find_start_recovery_entry(
     const navmesh::BaseNavRouteRequest& request,
     std::string* out_error)
 {
-    const navmesh::BaseNavZone* zone = mesh.pack.findZoneByName(navmesh_zone);
+    const navmesh::BaseNavZone* zone = navmesh::FindBaseNavZoneByName(mesh.pack, navmesh_zone);
     if (zone == nullptr) {
         if (out_error != nullptr) {
             *out_error = "找不到当前区域的 navmesh";
@@ -405,7 +416,7 @@ std::optional<navmesh::BaseNavSnapResult> find_start_recovery_entry(
     }
     const double radius = std::max(param.navmesh_snap_radius, kStartRecoveryMaxBlindWalk);
     const float floor_y = request.start_deck_y > navmesh::kBaseNavFloorYValidMin ? request.start_deck_y : request.start_floor_y;
-    const auto entry = mesh.planner.snap(zone->zone_id, request.start, radius, floor_y);
+    const auto entry = navmesh::SnapToMesh(mesh.planner, mesh.pack, zone->zone_id, request.start, radius, floor_y);
     if (!entry) {
         LogWarn << "NAVMESH start recovery rejected: no mesh point within the blind-walk budget." << VAR(navmesh_zone) << VAR(current_zone)
                 << VAR(request.start.x) << VAR(request.start.y) << VAR(radius);
@@ -495,7 +506,7 @@ void emit_point(std::vector<Waypoint>* out_path, const navmesh::WorldPath& path,
 void append_pulled_corners(
     std::vector<Waypoint>* out_path,
     const navmesh::WorldPath& path,
-    const navmesh::BaseNavPlanner* drivability_planner,
+    const CachedNavmesh* drivability_mesh,
     uint16_t drivable_zone_id,
     size_t last_anchor,
     size_t anchor)
@@ -507,7 +518,7 @@ void append_pulled_corners(
         }
         return;
     }
-    if (drivability_planner == nullptr || anchor <= last_anchor + 1) {
+    if (drivability_mesh == nullptr || anchor <= last_anchor + 1) {
         return;
     }
     // 一次拉直最多吞的原始顶点数, 只为限制二次复杂度
@@ -530,7 +541,13 @@ void append_pulled_corners(
         while (reach < reach_limit) {
             // 捷径不能比它吞掉的最窄走廊点更窄, 宽度未知按 0
             const double required = std::isfinite(swallowed_clearance) ? swallowed_clearance : 0.0;
-            if (!drivability_planner->isRouteSegmentDrivable(drivable_zone_id, path.points[cursor], path.points[reach + 1], required)) {
+            if (!navmesh::IsRouteSegmentDrivable(
+                    drivability_mesh->planner,
+                    drivability_mesh->pack,
+                    drivable_zone_id,
+                    path.points[cursor],
+                    path.points[reach + 1],
+                    required)) {
                 break;
             }
             swallowed_clearance = std::min(swallowed_clearance, clearance_at(path, reach + 1));
@@ -552,7 +569,7 @@ bool append_generated_waypoints(
     std::vector<Waypoint>* out_path,
     const navmesh::WorldPath& world_path,
     const GeneratedWaypointOptions& options,
-    const navmesh::BaseNavPlanner* drivability_planner = nullptr,
+    const CachedNavmesh* drivability_mesh = nullptr,
     uint16_t drivable_zone_id = 0)
 {
     if (world_path.points.empty()) {
@@ -571,18 +588,18 @@ bool append_generated_waypoints(
         if (emit_idx == 0) {
             continue;
         }
-        append_pulled_corners(out_path, world_path, drivability_planner, drivable_zone_id, last_anchor, emit_idx);
+        append_pulled_corners(out_path, world_path, drivability_mesh, drivable_zone_id, last_anchor, emit_idx);
         emit_point(out_path, world_path, emit_idx, options.strict_segment_breaks);
         last_anchor = emit_idx;
     }
 
     if (total >= 2) {
         if (options.include_goal) {
-            append_pulled_corners(out_path, world_path, drivability_planner, drivable_zone_id, last_anchor, total - 1);
+            append_pulled_corners(out_path, world_path, drivability_mesh, drivable_zone_id, last_anchor, total - 1);
             emit_point(out_path, world_path, total - 1, true);
         }
         else {
-            append_pulled_corners(out_path, world_path, drivability_planner, drivable_zone_id, last_anchor, total - 1);
+            append_pulled_corners(out_path, world_path, drivability_mesh, drivable_zone_id, last_anchor, total - 1);
         }
     }
 
@@ -611,13 +628,14 @@ bool append_blind_target_fallback(
     if (total < 1e-6) {
         return fail_with(out_error, "目标与起点重合，但没有生成有效路线");
     }
-    const navmesh::BaseNavZone* zone = ctx->mesh->pack.findZoneByName(state->navmesh_zone);
+    const navmesh::BaseNavZone* zone = navmesh::FindBaseNavZoneByName(ctx->mesh->pack, state->navmesh_zone);
     if (zone == nullptr) {
         return fail_with(out_error, "找不到当前区域的 navmesh");
     }
     const double snap_radius = std::max(ctx->param->navmesh_snap_radius, kBlindTargetFallbackSnapRadius);
-    const float snap_floor =
-        goal_floor_y > navmesh::kBaseNavFloorYValidMin ? goal_floor_y : ctx->mesh->pack.floorYForZoneName(state->current_zone);
+    const float snap_floor = goal_floor_y > navmesh::kBaseNavFloorYValidMin
+                                 ? goal_floor_y
+                                 : zone_floor(ctx->mesh->pack, state->current_zone, state->zone_floor_y);
 
     // 探针剩余缺口至少是 offset - snap_radius, 超出这个上限的探针必然过不了缺口检查
     const double probe_limit = std::min(total, kBlindTargetMaxExtension + snap_radius);
@@ -643,14 +661,14 @@ bool append_blind_target_fallback(
             .x = target.x + (start.x - target.x) * t,
             .y = target.y + (start.y - target.y) * t,
         };
-        const auto entry = ctx->mesh->planner.snap(zone->zone_id, probe, snap_radius, snap_floor);
+        const auto entry = navmesh::SnapToMesh(ctx->mesh->planner, ctx->mesh->pack, zone->zone_id, probe, snap_radius, snap_floor);
         if (!entry) {
             continue;
         }
         const auto request = leg_request(*ctx, *state, entry->point, goal_floor_y, std::nullopt);
         NavmeshRouteDiagnostic diagnostic;
         const auto route = plan_corridor_route(*ctx->mesh, request, ctx->maa_context, ctx->diagnostics == nullptr ? nullptr : &diagnostic);
-        if (!route.ok() || route.path.points.empty()) {
+        if (!navmesh::RouteSucceeded(route) || route.path.points.empty()) {
             continue;
         }
         const navmesh::WorldPoint reached = route.path.points.back();
@@ -670,7 +688,7 @@ bool append_blind_target_fallback(
         return fail_with(out_error, std::format("剩余盲走距离 {:.2f}px 超过 {:.2f}px 上限", blind_gap, kBlindTargetMaxExtension));
     }
 
-    if (!append_generated_waypoints(out_path, approach.path, {}, &ctx->mesh->planner, approach.path.zone_id)) {
+    if (!append_generated_waypoints(out_path, approach.path, {}, ctx->mesh, approach.path.zone_id)) {
         return fail_with(out_error, "网格接近路线没有生成可执行路点");
     }
     if (ctx->diagnostics != nullptr) {
@@ -772,7 +790,7 @@ void append_departure(
     const ZiplineNodeRef dismount = (*out_path)[last_hop_index].zipline_hop->landing;
     const size_t departure_index = out_path->size();
     const navmesh::WorldPoint landing = route.departure.points.back();
-    append_generated_waypoints(out_path, route.departure, {}, &ctx.mesh->planner, route.departure.zone_id);
+    append_generated_waypoints(out_path, route.departure, {}, ctx.mesh, route.departure.zone_id);
     if (out_path->size() == departure_index) {
         out_path->push_back(Waypoint { .x = landing.x, .y = landing.y, .action = ActionType::RUN });
         out_path->back().strict_arrival = true;
@@ -804,6 +822,7 @@ bool try_append_zipline_leg(
             .goal_deck_y = target.deck_y,
             .start_floor_y = state->route_start_floor_y,
             .start_deck_y = state->route_start_deck_y,
+            .zone_floor_y = state->zone_floor_y,
             .maa_context = ctx->maa_context,
             .capture_diagnostics = ctx->diagnostics != nullptr,
             .no_go = ctx->no_go,
@@ -814,7 +833,7 @@ bool try_append_zipline_leg(
 
     const size_t insert_index = out_path->size();
     // 上索点在下面自己补, 起点已在索下时通用追加一个点都不会产出
-    append_generated_waypoints(out_path, route->approach, { .include_goal = false }, &ctx->mesh->planner, route->approach.zone_id);
+    append_generated_waypoints(out_path, route->approach, { .include_goal = false }, ctx->mesh, route->approach.zone_id);
     const navmesh::WorldPoint mount = route->approach.points.back();
     // 架子坐标是角格锚点, 走到跟前常碰不到设备, 所以头一跳瞄第一个站位
     const navmesh::WorldPoint mount_spot = route->mount_spots.empty() ? mount : route->mount_spots.front();
@@ -856,7 +875,7 @@ void plan_leg_with_start_recovery(NavmeshLegPlan* leg, LegState* state, std::vec
 {
     const auto plan_started_at = std::chrono::steady_clock::now();
     leg->route_result = plan_corridor_route(*ctx.mesh, leg->request, ctx.maa_context, diagnostic_sink(ctx, &leg->route_diagnostic));
-    if (!leg->route_result.ok() && leg->route_result.status != navmesh::BaseNavRouteStatus::NoGo) {
+    if (!navmesh::RouteSucceeded(leg->route_result) && leg->route_result.status != navmesh::BaseNavRouteStatus::NoGo) {
         if (append_start_recovery(state, out_path, &leg->start_recovery_error, ctx, leg->request)) {
             leg->request.start = state->route_start;
             leg->route_diagnostic = {};
@@ -950,7 +969,7 @@ bool commit_walking_leg(
 {
     log_generated_navmesh_path(*state, leg->request, leg->route_result);
     const size_t insert_index = out_path->size();
-    if (!append_generated_waypoints(out_path, leg->route_result.path, {}, &ctx->mesh->planner, leg->route_result.path.zone_id)) {
+    if (!append_generated_waypoints(out_path, leg->route_result.path, {}, ctx->mesh, leg->route_result.path.zone_id)) {
         LogError << "NAVMESH planning returned an empty path." << VAR(state->navmesh_zone);
         fail_waypoint(
             ctx,
@@ -994,7 +1013,7 @@ bool append_navmesh_leg(
     leg.target = resolve_projected_target(ctx->mesh->pack, waypoint);
     leg.request = leg_request(*ctx, *state, leg.target.point, leg.target.floor_y, leg.target.deck_y);
     plan_leg_with_start_recovery(&leg, state, out_path, *ctx);
-    if (!leg.route_result.ok()) {
+    if (!navmesh::RouteSucceeded(leg.route_result)) {
         return handle_unreachable_leg(ctx, state, out_path, leg, waypoint, authored_index);
     }
     return commit_walking_leg(ctx, state, out_path, &leg, waypoint, authored_index, expand_started_at);
@@ -1156,6 +1175,7 @@ bool append_replaceable_span(ExpansionContext* ctx, LegState* state, std::vector
 void append_zone_declaration(LegState* state, std::vector<Waypoint>* out_path, const Waypoint& waypoint)
 {
     state->current_zone = waypoint.zone_id;
+    state->zone_floor_y = waypoint.zone_floor_y;
     out_path->push_back(waypoint);
 }
 
@@ -1275,8 +1295,9 @@ bool ExpandNavmeshWaypoints(
     const std::string current_zone = initial_pos.zone_id.empty() ? param.map_name : initial_pos.zone_id;
     LegState state {
         .route_start = { .x = initial_pos.x, .y = initial_pos.y },
-        .route_start_floor_y = initial_pos.floor_y,
+        .route_start_floor_y = initial_pos.floor_y ? initial_pos.floor_y : initial_pos.zone_floor_y,
         .route_start_deck_y = start_deck_y,
+        .zone_floor_y = initial_pos.zone_floor_y,
         .current_zone = current_zone,
         .navmesh_zone = InferBaseNavZone(current_zone, param.map_name),
     };
@@ -1376,13 +1397,14 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const auto plan_started_at = std::chrono::steady_clock::now();
     auto route_result = plan_corridor_route(*mesh, request, nullptr, out_diagnostic);
     // 禁区判掉的不接, 盲走会径直穿过禁区; 入口搜索半径可能超出盲走预算, 所以再卡一次距离
-    if (!route_result.ok() && out_start_recovery_entry != nullptr && route_result.status != navmesh::BaseNavRouteStatus::NoGo) {
+    if (!navmesh::RouteSucceeded(route_result) && out_start_recovery_entry != nullptr
+        && route_result.status != navmesh::BaseNavRouteStatus::NoGo) {
         const auto entry = find_start_recovery_entry(param, *mesh, navmesh_zone, locator_zone, request, nullptr);
         if (entry && entry->distance <= kStartRecoveryMaxBlindWalk) {
             navmesh::BaseNavRouteRequest recovered = request;
             recovered.start = entry->point;
             auto retry = plan_corridor_route(*mesh, recovered, nullptr, out_diagnostic);
-            if (retry.ok()) {
+            if (navmesh::RouteSucceeded(retry)) {
                 LogInfo << "NAVMESH replan start off mesh; walking onto the nearest mesh point first." << VAR(navmesh_zone)
                         << VAR(locator_zone) << VAR(start.x) << VAR(start.y) << VAR(entry->point.x) << VAR(entry->point.y)
                         << VAR(entry->distance);
@@ -1392,7 +1414,7 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
         }
     }
     const int64_t plan_ms = ElapsedMs(plan_started_at);
-    if (!route_result.ok()) {
+    if (!navmesh::RouteSucceeded(route_result)) {
         LogWarn << "Failed to plan NAVMESH route." << VAR(navmesh_zone) << VAR(locator_zone) << VAR(start.x) << VAR(start.y) << VAR(goal.x)
                 << VAR(goal.y) << VAR(navmesh::ToString(route_result.status)) << VAR(plan_ms);
         return std::nullopt;
@@ -1416,7 +1438,7 @@ bool AppendGeneratedNavmeshWaypoints(
                 << VAR_AS(navmesh_zone, zone.navmesh_zone);
         return append_generated_waypoints(out_path, route.path, options);
     }
-    return append_generated_waypoints(out_path, route.path, options, &zone.mesh->planner, route.path.zone_id);
+    return append_generated_waypoints(out_path, route.path, options, zone.mesh.get(), route.path.zone_id);
 }
 
 } // namespace mapnavigator

@@ -32,8 +32,7 @@ namespace mapnavigator
 namespace
 {
 
-std::optional<DynamicAnchor>
-    resolve_nav_run_anchor(const NaviParam& param, const Session& session, const NaviPosition& position, const RouteMeasurement& route)
+std::optional<DynamicAnchor> resolve_nav_run_anchor(const Session& session, const NaviPosition& position, const RouteMeasurement& route)
 {
     if (!route.valid || !HasCurrentWaypoint(session)) {
         return std::nullopt;
@@ -45,7 +44,7 @@ std::optional<DynamicAnchor>
     if (RequiresStrictArrival(current_waypoint)) {
         return DynamicAnchor { CanonicalIndexAtCurrent(session).value_or(kUnaddressableAnchorIndex), current_waypoint };
     }
-    return ResolveCurrentAnchor(param, session, position);
+    return ResolveCurrentAnchor(session, position);
 }
 
 // 台沿下落的落点: 进圈时人可能还在台上, 沿下落方向越过它才算到
@@ -83,8 +82,7 @@ TickFix read_fix(const Navigator& nav, TimePoint now)
 
 void tick_nav_run(Navigator* nav, NavigateTick* tick)
 {
-    if (const std::optional<DynamicAnchor> nav_run_anchor =
-            resolve_nav_run_anchor(*nav->param, *nav->session, *nav->position, tick->route)) {
+    if (const std::optional<DynamicAnchor> nav_run_anchor = resolve_nav_run_anchor(*nav->session, *nav->position, tick->route)) {
         tick->nav_run_anchor_index = nav_run_anchor->first;
         tick->nav_run_result = TickNavRun(
             &nav->nav_run,
@@ -249,8 +247,7 @@ TickStep pass_arrived_waypoints(Navigator* nav, NavigateTick* tick)
 std::optional<TickStep> end_on_recovery_escape(Navigator* nav)
 {
     if (nav->runtime_state.recovery.active) {
-        const bool recovery_zone_changed =
-            ZonesDifferInGeometry(*nav->param, nav->runtime_state.recovery.anchor_pos.zone_id, nav->position->zone_id);
+        const bool recovery_zone_changed = ZonesDiffer(nav->runtime_state.recovery.anchor_pos.zone_id, nav->position->zone_id);
         const double recovery_displacement = std::hypot(
             nav->position->x - nav->runtime_state.recovery.anchor_pos.x,
             nav->position->y - nav->runtime_state.recovery.anchor_pos.y);

@@ -580,6 +580,7 @@ std::optional<navmesh::BaseNavRouteResult>
             .start_deck_y = LandedTowerDeckY(input.session, position),
             .goal = goal,
             .goal_deck_y = anchor.target_deck_y,
+            .zone_floor_y = position.zone_floor_y,
         },
         nullptr,
         &input.runtime.virtual_no_go);
@@ -631,7 +632,7 @@ bool build_plan(
     }
 
     auto route = plan_by_astar_holding(motion, input, now, result);
-    if (route && route->ok() && route->path.points.size() >= 2) {
+    if (route && navmesh::RouteSucceeded(*route) && route->path.points.size() >= 2) {
         commit_plan(&nav_run->plan, std::move(route->path), position, anchor_index);
         return true;
     }

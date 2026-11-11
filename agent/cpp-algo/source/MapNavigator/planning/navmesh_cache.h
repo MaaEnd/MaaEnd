@@ -25,10 +25,9 @@ struct CachedNavmesh
 
     explicit CachedNavmesh(navmesh::BaseNavPack nav_pack)
         : pack(std::move(nav_pack))
-        , planner(pack)
-        , engine(pack, planner, NoGoTablePath())
+        , planner(navmesh::BuildBaseNavPlanner(pack, std::move(pack.links)))
     {
-        pack.releaseLinks();
+        navmesh::recast::LoadRecastNavEngine(&engine, pack, NoGoTablePath());
     }
 };
 

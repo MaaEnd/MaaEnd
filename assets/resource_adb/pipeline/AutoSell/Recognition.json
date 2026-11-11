@@ -13,6 +13,32 @@
             40
         ]
     },
+    // 移动端好友列表行更高，「对比本地」箭头在调度券右侧约 140~160px，且随百分比文字长短左右移动
+    "AutoSellFriendsPriceFirstLowerArrowRecognition": {
+        "roi_offset": [
+            125,
+            -2,
+            25,
+            0
+        ]
+    },
+    // 移动端今日售价一行在 y≈220，调度券图标与数字都比 PC 大
+    "AutoSellOwnPriceTicketRecognition": {
+        "roi": [
+            800,
+            200,
+            380,
+            60
+        ]
+    },
+    "AutoSellOwnPriceTextRecognition": {
+        "roi_offset": [
+            27,
+            -3,
+            50,
+            6
+        ]
+    },
     // 移动端卡片里绿线在「拥有」黑框下方约 64~70px，PC 的区域只到 +68，第一行常只截到线的下半截，
     // 凑不够 count 370，要卖的货品在第一行时就找不到。区域加高 10px 把整条线框进来
     "AutoSellStockRedistributionItemGreenLineRecognition": {

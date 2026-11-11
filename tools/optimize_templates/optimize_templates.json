@@ -2600,5 +2600,7 @@
     "resource/image/BatchAddFriends/valleyIV": "e9297ced87834794208445dca570615352b75018a1f09495262860fc9ca539bb",
     "resource/image/BatchAddFriends/authorityLevel": "e7e9076f4e058d14df58c47e52bcc6bc39dfeed75459f40427884c1112677a07",
     "resource/image/ProtocolSpace/RetreatRestart": "15b7cbe82c07cfd86e33ff0bda347891e84cf4ca4ae769bdad98f1b0a38720dd",
-    "resource/image/GiftOperator/Operators/ArgentFlow": "421beaf94904217c4a62e9b1d86b94d612d3a1a2aa47dd7aa02804976b1de1e4"
+    "resource/image/GiftOperator/Operators/ArgentFlow": "421beaf94904217c4a62e9b1d86b94d612d3a1a2aa47dd7aa02804976b1de1e4",
+    "resource/image/AutoSell/SellPriceTicketValleyIV": "9f2170f85028a2a766fe799e00c69796aa2d51d546e3fb90da6d063defc35b72",
+    "resource/image/AutoSell/SellPriceTicketWuling": "465075f673e1a7877e2d287ec0e2ab0ce580955b078a6748501f9fa380992a1c"
 }

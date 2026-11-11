@@ -1,6 +1,6 @@
 {
     "CreditShoppingPriority3Item": {
-        "desc": "优先购买3物品。item_ids 由 CreditShoppingApplyPriorityItems 写入",
+        "desc": "优先购买3物品。item_ids 由任务勾选经 attach 覆盖（IconRecognition.item_ids.<item_id>）",
         "recognition": "Custom",
         "custom_recognition": "IconRecognition",
         "custom_recognition_param": {
