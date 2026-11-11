@@ -59,7 +59,6 @@ std::vector<std::vector<double>> NavmeshGroundHeights(
 // 两点的连通类集合不相交就必然规划不通, 空集表示无从判断, 应当允许尝试
 std::vector<std::vector<uint32_t>>
     NavmeshRegionsNear(const NaviParam& param, const std::string& locator_zone, const std::vector<navmesh::WorldPoint>& points);
-bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b);
 
 // 不在 navmesh 上的采样比例, zone 解析不了或线为空时返回 0
 double NavmeshOffMeshFraction(

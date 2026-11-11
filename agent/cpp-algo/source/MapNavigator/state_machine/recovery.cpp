@@ -47,9 +47,9 @@ bool far_or_strict_target(double effective_progress, const Waypoint& waypoint)
     return effective_progress > kNoProgressMinDistance || RequiresStrictArrival(waypoint);
 }
 
-std::optional<DynamicAnchor> resolve_recovery_anchor(const NaviParam& param, const Session& session, const NaviPosition& position)
+std::optional<DynamicAnchor> resolve_recovery_anchor(const Session& session, const NaviPosition& position)
 {
-    if (std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(param, session, position)) {
+    if (std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session, position)) {
         return anchor;
     }
     if (!HasCurrentWaypoint(session)) {
@@ -103,7 +103,7 @@ double pulse_forward_until_moved(Navigator* nav, const NaviPosition& step_start,
 void replan_after_unstick(Navigator* nav, double stuck_heading, const NaviPosition& step_start)
 {
     // 禁区以位移前的位置为原点, 障碍在那里的前方
-    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(*nav->param, *nav->session, *nav->position);
+    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(*nav->session, *nav->position);
     bool replanned = false;
     if (anchor) {
         replanned = TryVirtualNoGoReplan(nav, "recovery_unstick_replan", anchor->first, anchor->second, step_start, stuck_heading);
@@ -167,7 +167,7 @@ bool escalate_past_jump(Navigator* nav, const NavigateTick& tick)
     const RouteMeasurement& route = tick.route;
     DynamicRecoveryState& recovery = nav->runtime_state.recovery;
     RecoveryEscalationState& escalation = nav->runtime_state.recovery_escalation;
-    const std::optional<DynamicAnchor> post_jump_anchor = resolve_recovery_anchor(*nav->param, *nav->session, *nav->position);
+    const std::optional<DynamicAnchor> post_jump_anchor = resolve_recovery_anchor(*nav->session, *nav->position);
     if (!post_jump_anchor) {
         LogWarn << "Dynamic recovery skipped: no future anchor after post-jump local tracking." << VAR(nav->position->x)
                 << VAR(nav->position->y) << VAR(nav->position->zone_id);
@@ -274,7 +274,7 @@ bool climb_recovery_ladder(Navigator* nav, const NavigateTick& tick)
         return true;
     }
 
-    const bool jump_zone_changed = ZonesDifferInGeometry(*nav->param, jump_start.zone_id, nav->position->zone_id);
+    const bool jump_zone_changed = ZonesDiffer(jump_start.zone_id, nav->position->zone_id);
     const double jump_displacement = std::hypot(nav->position->x - jump_start.x, nav->position->y - jump_start.y);
     const double jump_waypoint_distance = std::hypot(waypoint.x - nav->position->x, waypoint.y - nav->position->y);
     const bool jump_made_progress = jump_waypoint_distance + kNoProgressDistanceEpsilon < route.waypoint_distance;
@@ -372,7 +372,7 @@ TickStep RunObstacleRecovery(Navigator* nav, const NavigateTick& tick)
         note_recovery_blocked(nav, "awaiting_arrival");
         return TickStep::Next;
     }
-    const std::optional<DynamicAnchor> anchor = resolve_recovery_anchor(*nav->param, *nav->session, *nav->position);
+    const std::optional<DynamicAnchor> anchor = resolve_recovery_anchor(*nav->session, *nav->position);
     if (!anchor) {
         note_recovery_blocked(nav, "no_anchor");
         return TickStep::Next;

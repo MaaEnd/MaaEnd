@@ -205,7 +205,7 @@ std::optional<DynamicAnchor> resolve_bootstrap_anchor(const NaviParam& param, co
     if (std::optional<DynamicAnchor> navmesh_anchor = ResolveReachableNavmeshAnchor(param, session, position, start_index, "bootstrap")) {
         return navmesh_anchor;
     }
-    return ResolveCurrentAnchorFrom(param, session, position, start_index);
+    return ResolveCurrentAnchorFrom(session, position, start_index);
 }
 
 } // namespace
