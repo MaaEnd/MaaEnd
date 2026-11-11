@@ -149,13 +149,13 @@ struct FieldsPack
     std::vector<FieldsLinkZone> rope_zones;
 };
 
-bool LoadFieldsPack(FieldsPack* pack, std::string* err, const std::filesystem::path& path, const BaseNavPack& main, const GridPack& grid);
+bool LoadFieldsPack(FieldsPack* pack, const std::filesystem::path& path, const BaseNavPack& main, const GridPack& grid);
 
 const FieldsZoneDir* FindFieldsZone(const FieldsPack& pack, const std::string& name);
 
 bool DecodeFieldsTile(FieldsTile* out, const FieldsTileRef& tile);
 
-bool LoadFieldsZone(FieldsZone* out, std::string* err, const FieldsPack& pack, const FieldsZoneDir& zone);
+bool LoadFieldsZone(FieldsZone* out, const FieldsPack& pack, const FieldsZoneDir& zone);
 
 // 按 BOML 下标升序, 没有时为空
 std::span<const FieldsLinkRec> FieldsLinksOfZone(const FieldsPack& pack, uint16_t zone_id);
@@ -167,7 +167,6 @@ std::span<const FieldsRopeRec> FieldsRopesOfZone(const FieldsPack& pack, uint16_
 
 bool LoadSharedFieldsPack(
     std::shared_ptr<const FieldsPack>* out,
-    std::string* err,
     const std::filesystem::path& path,
     const BaseNavPack& main,
     const GridPack& grid);

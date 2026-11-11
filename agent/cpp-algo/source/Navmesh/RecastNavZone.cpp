@@ -7,6 +7,8 @@
 #include <numeric>
 #include <utility>
 
+#include <MaaUtils/Logger.h>
+
 #include "BaseNavGeometry.h"
 #include "NavParallel.h"
 
@@ -294,7 +296,8 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
     zc.walkable_flags = walkable_flags;
     const BaseNavZone* zone = FindBaseNavZoneByName(pack, zone_name);
     if (zone == nullptr || zone->triangle_count == 0) {
-        zc.error = zone_name + ": zone not found or empty";
+        LogWarn << "Zone is not in the pack or has no triangles." << VAR(zone_name);
+        zc.failed = true;
         return zc;
     }
     zc.zone_id = zone->zone_id;
@@ -320,7 +323,8 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
         }
     }
     if (n_masked == m_all) {
-        zc.error = zone_name + ": walkable mask " + std::to_string(zc.walkable_flags) + " left no walkable tris";
+        LogError << "Walkable mask left no walkable triangles." << VAR(zone_name) << VAR(zc.walkable_flags);
+        zc.failed = true;
         return zc;
     }
 
@@ -335,7 +339,6 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
     const int64_t nv = static_cast<int64_t>(vmax) - vmin + 1;
     std::vector<BaseNavVertex> CV;
     std::vector<int32_t> MAP;
-    int64_t n_weld = 0;
     if (!source_exact) {
         CV.resize(static_cast<size_t>(nv));
         for (int64_t i = 0; i < nv; ++i) {
@@ -367,7 +370,6 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
                 for (size_t t = 1; t < ids.size(); ++t) {
                     if (cv_height(CV, ids[t]) - cv_height(CV, ids[t - 1]) <= kWeldDh) {
                         MAP[ids[t]] = rep;
-                        ++n_weld;
                     }
                     else {
                         rep = ids[t];
@@ -390,7 +392,8 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
         }
     }
     if (degen != 0) {
-        zc.error = zone_name + ": weld produced " + std::to_string(degen) + " degenerate tris";
+        LogError << "Weld produced degenerate triangles." << VAR(zone_name) << VAR(degen);
+        zc.failed = true;
         return zc;
     }
     std::vector<int32_t>().swap(MAP);
@@ -401,7 +404,6 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
     const auto& T = zc.mesh.T;
     auto& NB = zc.mesh.NB;
     const int64_t m = static_cast<int64_t>(T.size());
-    int64_t n_dup = 0;
     for (int64_t slot = 0; slot < 3 * m; ++slot) {
         if (dup[static_cast<size_t>(slot)] == 0) {
             continue;
@@ -417,7 +419,6 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
                 }
             }
         }
-        ++n_dup;
     }
     std::vector<int64_t> kills;
     {
@@ -442,11 +443,9 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
     }
 
     std::vector<int64_t> cand;
-    int64_t n_mask_cut = 0;
     {
         const size_t nw = NavWorkerCount(3 * m);
         std::vector<std::vector<int64_t>> bins(nw);
-        std::vector<int64_t> masked(nw, 0);
         ParallelChunks(3 * m, nw, [&](size_t w, int64_t lo_s, int64_t hi_s) {
             for (int64_t slot = lo_s; slot < hi_s; ++slot) {
                 const int64_t i = slot / 3;
@@ -456,7 +455,6 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
                 }
                 if (zc.walkable[static_cast<size_t>(i)] == 0 || zc.walkable[static_cast<size_t>(j)] == 0) {
                     bins[w].push_back(slot);
-                    ++masked[w];
                     continue;
                 }
                 const auto a = static_cast<int32_t>(std::min<int64_t>(i, j));
@@ -467,11 +465,7 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
             }
         });
         ConcatBins(&cand, bins);
-        for (const int64_t c : masked) {
-            n_mask_cut += c;
-        }
     }
-    int64_t n_cut = 0;
     for (const int64_t slot : cand) {
         const int64_t i = slot / 3;
         const int32_t j = NB[static_cast<size_t>(i)][slot % 3];
@@ -484,7 +478,6 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
                 NB[static_cast<size_t>(j)][k2] = -1;
             }
         }
-        ++n_cut;
     }
 
     std::vector<int32_t> par(static_cast<size_t>(m));
@@ -519,23 +512,12 @@ ZoneClean BuildZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner,
         const auto c = static_cast<size_t>(par[static_cast<size_t>(i)]);
         zc.island[static_cast<size_t>(i)] = (n_tot[c] == 0 || n_isl[c] * 2 > n_tot[c]) ? 1 : 0;
     }
-
-    int64_t ncomps = 0;
-    for (int64_t i = 0; i < m; ++i) {
-        if (par[static_cast<size_t>(i)] == i) {
-            ++ncomps;
-        }
-    }
-    zc.stats = source_exact ? "source-exact " : "weld " + std::to_string(n_weld) + "v ";
-    zc.stats +=
-        "mask " + std::to_string(zc.walkable_flags) + " masked " + std::to_string(n_masked) + " cut " + std::to_string(n_mask_cut) + ", ";
-    zc.stats += "dup-sever " + std::to_string(n_dup) + ", link-mask cut " + std::to_string(n_cut) + ", comps " + std::to_string(ncomps);
     return zc;
 }
 
 bool ZoneCleanValid(const ZoneClean& zc)
 {
-    return zc.error.empty();
+    return !zc.failed;
 }
 
 std::optional<ZoneSnapHit> ZoneSnap(const ZoneClean& zc, const WorldPoint& p, double radius, std::optional<double> floor_y)

@@ -4,6 +4,8 @@
 
 #include <zlib.h>
 
+#include <MaaUtils/Logger.h>
+
 #include "NavVarint.h"
 #include "RecastNavGrid.h"
 
@@ -437,17 +439,17 @@ bool DecodeGridTileV3(GridTile* out, const uint8_t* data, size_t len, int32_t nx
     return true;
 }
 
-bool ParseGridPack(GridPack* pack, std::string* err, const uint8_t* data, size_t len)
+bool ParseGridPack(GridPack* pack, const uint8_t* data, size_t len)
 {
     pack->base = nullptr;
     pack->len = 0;
     pack->zones.clear();
     if (data == nullptr || len < kGridHeaderSize) {
-        *err = "GRID section is truncated";
+        LogError << "GRID section is truncated." << VAR(len);
         return false;
     }
     if (std::memcmp(data, kGridSectionTag, 4) != 0) {
-        *err = "GRID section has a bad magic";
+        LogError << "GRID section has a bad magic.";
         return false;
     }
     Cursor cur { data + 4, data + len };
@@ -456,22 +458,22 @@ bool ParseGridPack(GridPack* pack, std::string* err, const uint8_t* data, size_t
     uint32_t reserved = 0;
     if (!cursor_u32(&cur, &version) || !cursor_f64(&cur, &pack->cell_size) || !cursor_f64(&cur, &pack->tile_px)
         || !cursor_f64(&cur, &pack->apron_px) || !cursor_u32(&cur, &zone_count) || !cursor_u32(&cur, &reserved)) {
-        *err = "GRID header is truncated";
+        LogError << "GRID header is truncated.";
         return false;
     }
     if (version != kGridSectionVersion && version != kGridSectionVersionColumnar) {
-        *err = "GRID section version " + std::to_string(version) + " is not supported";
+        LogError << "GRID section version is not supported." << VAR(version);
         return false;
     }
     pack->version = version;
     if (std::abs(pack->cell_size - kCS) > 1e-12) {
-        *err = "GRID cell size does not match the runtime grid";
+        LogError << "GRID cell size does not match the runtime grid." << VAR(pack->cell_size) << VAR(kCS);
         return false;
     }
 
     // 区目录项最少 28 字节: 名长、名字、两个原点、类号数、瓦数
     if (static_cast<size_t>(cur.end - cur.p) < static_cast<size_t>(zone_count) * kGridZoneMinSize) {
-        *err = "GRID zone directory is truncated";
+        LogError << "GRID zone directory is truncated.";
         return false;
     }
     // 瓦边格数上限由段头的瓦边长与围裙定死
@@ -482,19 +484,19 @@ bool ParseGridPack(GridPack* pack, std::string* err, const uint8_t* data, size_t
         uint32_t name_len = 0;
         uint32_t tile_count = 0;
         if (!cursor_u32(&cur, &name_len)) {
-            *err = "GRID zone directory is truncated";
+            LogError << "GRID zone directory is truncated.";
             return false;
         }
         const size_t padded = (static_cast<size_t>(name_len) + 3) / 4 * 4;
         const uint8_t* name_bytes = nullptr;
         if (!cursor_take(&cur, padded, &name_bytes) || !cursor_f64(&cur, &z.x0) || !cursor_f64(&cur, &z.y0)
             || !cursor_u32(&cur, &z.global_regions) || !cursor_u32(&cur, &tile_count)) {
-            *err = "GRID zone directory is truncated";
+            LogError << "GRID zone directory is truncated.";
             return false;
         }
         z.name.assign(reinterpret_cast<const char*>(name_bytes), name_len);
         if (static_cast<size_t>(cur.end - cur.p) < static_cast<size_t>(tile_count) * kGridTileEntrySize) {
-            *err = "GRID tile directory of zone '" + z.name + "' is truncated";
+            LogError << "GRID tile directory is truncated." << VAR(z.name) << VAR(tile_count);
             return false;
         }
         z.tiles.resize(tile_count);
@@ -508,7 +510,7 @@ bool ParseGridPack(GridPack* pack, std::string* err, const uint8_t* data, size_t
             cursor_u32(&cur, &r.len);
             cursor_u32(&cur, &r.records);
             if (!cur.ok || r.nx <= 0 || r.ny <= 0 || r.nx > max_side || r.ny > max_side || r.offset > len || r.len > len - r.offset) {
-                *err = "GRID tile of zone '" + z.name + "' points outside the section";
+                LogError << "GRID tile points outside the section." << VAR(z.name) << VAR(t);
                 return false;
             }
         }

@@ -383,7 +383,7 @@ json::object build_route(QueryContext* context, const QueryParam& param)
     if (!plan.ok) {
         return json::object {
             { "ok", false },
-            { "error", plan.error },
+            { "error", navmesh::ToString(plan.failure) },
             { "off_mesh",
               json::object {
                   { "start",

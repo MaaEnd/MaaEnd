@@ -681,4 +681,73 @@ const char* ToString(BaseNavRouteStatus status)
     return "unknown";
 }
 
+const char* ToString(RouteFailure failure)
+{
+    switch (failure) {
+    case RouteFailure::None:
+        return "";
+    case RouteFailure::GridUnavailable:
+        return "baked grid is unavailable";
+    case RouteFailure::ZoneHasNoGrid:
+        return "zone has no baked grid";
+    case RouteFailure::ZoneMeshUnusable:
+        return "zone mesh is unusable";
+    case RouteFailure::FieldsZoneUnusable:
+        return "fields zone failed to load";
+    case RouteFailure::StartOffMesh:
+        return "start is not near the mesh";
+    case RouteFailure::GoalOffMesh:
+        return "goal is not near the mesh";
+    case RouteFailure::StartInNoGo:
+        return "start is inside a no-go zone";
+    case RouteFailure::GoalInNoGo:
+        return "goal is inside a no-go zone";
+    case RouteFailure::EndpointsOffWalkableLayer:
+        return "endpoints do not reach the walkable layer";
+    case RouteFailure::GridDecodeFailed:
+        return "baked grid failed to decode";
+    case RouteFailure::NoWalkableVoxelNearStart:
+        return "no walkable voxel near the start";
+    case RouteFailure::NoDeclaredDeckNearGoal:
+        return "no declared deck near the goal";
+    case RouteFailure::RegionHasNoGridCells:
+        return "region has no grid cells";
+    case RouteFailure::RegionTooLarge:
+        return "region is too large";
+    case RouteFailure::Cancelled:
+        return "planning was cancelled";
+    case RouteFailure::WindowDecodeFailed:
+        return "baked grid or fields tile failed to decode";
+    case RouteFailure::StartSeedOutsideWindow:
+        return "start seed cell is outside the window";
+    case RouteFailure::WallTableMissingEdge:
+        return "fields wall table is missing an edge";
+    case RouteFailure::StartCellNotInGoalRegion:
+        return "start cell has no span in the goal region";
+    case RouteFailure::StartComponentMissing:
+        return "fields component graph lacks the start component";
+    case RouteFailure::ComponentIdOutOfBounds:
+        return "fields component id is out of bounds";
+    case RouteFailure::NoUnblockedDeckNearStart:
+        return "no unblocked declared deck near the start";
+    case RouteFailure::NoUnblockedDeckNearGoal:
+        return "no unblocked declared deck near the goal";
+    case RouteFailure::WalkMaskEmpty:
+        return "walk mask is empty";
+    case RouteFailure::TargetDeckUnreachable:
+        return "target deck is unreachable";
+    case RouteFailure::Disconnected:
+        return "start and goal are disconnected";
+    case RouteFailure::SeparatedByBarrier:
+        return "start and goal are separated by a barrier edge";
+    case RouteFailure::GoalUnreachable:
+        return "goal is unreachable from the start";
+    case RouteFailure::RouteFailed:
+        return "route failed";
+    case RouteFailure::NoUsablePath:
+        return "plan produced no usable waypoints";
+    }
+    return "";
+}
+
 } // namespace navmesh

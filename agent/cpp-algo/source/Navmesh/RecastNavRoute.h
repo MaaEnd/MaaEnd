@@ -23,7 +23,7 @@ namespace navmesh::recast
 struct RecastPlanResult
 {
     bool ok = false;
-    std::string error;
+    RouteFailure failure = RouteFailure::None;
     // 端点落在虚拟禁区内, 调用方不该再兜底凑线
     bool no_go = false;
     std::vector<WorldPoint> points;
@@ -90,7 +90,6 @@ struct RecastZoneEntry
 {
     std::unique_ptr<ZoneClean> zc;
     std::unique_ptr<FieldsZone> fz;
-    std::string fields_error;
     uint64_t used_at = 0; // 取用条目的序号, 淘汰时先丢最久没用的
     std::unordered_map<uint32_t, ZoneBoundsPx> bounds;
 };
@@ -104,8 +103,6 @@ struct RecastNavEngine
     GridPack grid;
     std::shared_ptr<const FieldsPack> fields = std::make_shared<const FieldsPack>();
     NoGoTable nogo;
-    // 读包失败时 grid 为空, 之后每次规划都报这条
-    std::string grid_error;
     // 每根升降索从绳底走到绳顶的路程 px, 键是 区号 << 32 | 底端 uid, 走不到记无穷
     std::unordered_map<uint64_t, double> rope_walk;
 };

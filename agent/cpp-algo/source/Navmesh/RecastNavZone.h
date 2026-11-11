@@ -76,9 +76,8 @@ struct ZoneClean
     // 与 mesh.T 同长同序, 下游按 (全局三角号 - lo) 索引, 不得压缩重排
     std::vector<uint8_t> walkable;
     uint32_t walkable_flags = kWalkableFlagsDefault;
-    std::string stats;
-    // 非空表示没建成, 此时其余字段不可用
-    std::string error;
+    // 为真表示没建成, 此时其余字段不可用
+    bool failed = false;
 };
 
 ZoneClean BuildZoneClean(

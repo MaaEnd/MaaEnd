@@ -97,7 +97,7 @@ struct GridPack
     std::vector<GridZoneDir> zones;
 };
 
-bool ParseGridPack(GridPack* pack, std::string* err, const uint8_t* data, size_t len);
+bool ParseGridPack(GridPack* pack, const uint8_t* data, size_t len);
 
 bool GridPackParsed(const GridPack& pack);
 

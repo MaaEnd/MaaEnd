@@ -6,6 +6,7 @@
 #include <tuple>
 #include <unordered_map>
 
+#include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
 
 #include "BaseNavReader.h"
@@ -83,22 +84,22 @@ FieldsLinkSide peek_link_side(const uint8_t* p)
     return s;
 }
 
-bool parse_links(std::vector<FieldsLinkRec>* recs, std::vector<FieldsLinkZone>* zones, std::string* err, const uint8_t* p, size_t len)
+bool parse_links(std::vector<FieldsLinkRec>* recs, std::vector<FieldsLinkZone>* zones, const uint8_t* p, size_t len)
 {
     if (len < kLinkHeaderSize) {
-        *err = "旁包离网连接段残缺";
+        LogError << "Fields link section is truncated." << VAR(len);
         return false;
     }
     const uint32_t count = peek_u32(p);
     const uint16_t ver = peek_u16(p + 4);
     const uint32_t zone_count = peek_u32(p + 8);
     if (ver != kLinkRecVersion) {
-        *err = "旁包离网连接记录版本不符 (" + std::to_string(ver) + " ≠ " + std::to_string(kLinkRecVersion) + ")";
+        LogError << "Fields link record version mismatch." << VAR(ver) << VAR(kLinkRecVersion);
         return false;
     }
     const uint64_t want = kLinkHeaderSize + static_cast<uint64_t>(zone_count) * kLinkZoneSize + static_cast<uint64_t>(count) * kLinkRecSize;
     if (want != len) {
-        *err = "旁包离网连接段长度与条数不符";
+        LogError << "Fields link section size does not match its record count." << VAR(len) << VAR(want);
         return false;
     }
     const uint8_t* zp = p + kLinkHeaderSize;
@@ -111,7 +112,7 @@ bool parse_links(std::vector<FieldsLinkRec>* recs, std::vector<FieldsLinkZone>* 
         z.first = peek_u32(e + 4);
         z.len = peek_u32(e + 8);
         if (z.first > count || z.len > count - z.first) {
-            *err = "旁包离网连接区索引越界";
+            LogError << "Fields link zone index is out of bounds." << VAR(z.zone_id) << VAR(z.first) << VAR(z.len) << VAR(count);
             return false;
         }
     }
@@ -142,22 +143,22 @@ constexpr size_t kRopeZoneSize = 12;
 constexpr size_t kRopeRecSize = 64;
 constexpr uint16_t kRopeRecVersion = 1;
 
-bool parse_ropes(std::vector<FieldsRopeRec>* recs, std::vector<FieldsLinkZone>* zones, std::string* err, const uint8_t* p, size_t len)
+bool parse_ropes(std::vector<FieldsRopeRec>* recs, std::vector<FieldsLinkZone>* zones, const uint8_t* p, size_t len)
 {
     if (len < kRopeHeaderSize) {
-        *err = "旁包升降索段残缺";
+        LogError << "Fields rope section is truncated." << VAR(len);
         return false;
     }
     const uint32_t count = peek_u32(p);
     const uint16_t ver = peek_u16(p + 4);
     const uint32_t zone_count = peek_u32(p + 8);
     if (ver != kRopeRecVersion) {
-        *err = "旁包升降索记录版本不符 (" + std::to_string(ver) + " ≠ " + std::to_string(kRopeRecVersion) + ")";
+        LogError << "Fields rope record version mismatch." << VAR(ver) << VAR(kRopeRecVersion);
         return false;
     }
     const uint64_t want = kRopeHeaderSize + static_cast<uint64_t>(zone_count) * kRopeZoneSize + static_cast<uint64_t>(count) * kRopeRecSize;
     if (want != len) {
-        *err = "旁包升降索段长度与条数不符";
+        LogError << "Fields rope section size does not match its record count." << VAR(len) << VAR(want);
         return false;
     }
     const uint8_t* zp = p + kRopeHeaderSize;
@@ -170,7 +171,7 @@ bool parse_ropes(std::vector<FieldsRopeRec>* recs, std::vector<FieldsLinkZone>* 
         z.first = peek_u32(e + 4);
         z.len = peek_u32(e + 8);
         if (z.first > count || z.len > count - z.first) {
-            *err = "旁包升降索区索引越界";
+            LogError << "Fields rope zone index is out of bounds." << VAR(z.zone_id) << VAR(z.first) << VAR(z.len) << VAR(count);
             return false;
         }
     }
@@ -206,22 +207,22 @@ bool open_less(const FieldsOpenRec& a, const FieldsOpenRec& b)
     return std::tie(a.gy, a.gx) != std::tie(b.gy, b.gx) ? std::tie(a.gy, a.gx) < std::tie(b.gy, b.gx) : h_bits(a.h) < h_bits(b.h);
 }
 
-bool parse_opens(std::vector<FieldsOpenRec>* recs, std::vector<FieldsLinkZone>* zones, std::string* err, const uint8_t* p, size_t len)
+bool parse_opens(std::vector<FieldsOpenRec>* recs, std::vector<FieldsLinkZone>* zones, const uint8_t* p, size_t len)
 {
     if (len < kOpenHeaderSize) {
-        *err = "旁包打通表残缺";
+        LogError << "Fields open table is truncated." << VAR(len);
         return false;
     }
     const uint32_t count = peek_u32(p);
     const uint16_t ver = peek_u16(p + 4);
     const uint32_t zone_count = peek_u32(p + 8);
     if (ver != kOpenRecVersion) {
-        *err = "旁包打通表记录版本不符 (" + std::to_string(ver) + " ≠ " + std::to_string(kOpenRecVersion) + ")";
+        LogError << "Fields open record version mismatch." << VAR(ver) << VAR(kOpenRecVersion);
         return false;
     }
     const uint64_t want = kOpenHeaderSize + static_cast<uint64_t>(zone_count) * kOpenZoneSize + static_cast<uint64_t>(count) * kOpenRecSize;
     if (want != len) {
-        *err = "旁包打通表长度与条数不符";
+        LogError << "Fields open table size does not match its record count." << VAR(len) << VAR(want);
         return false;
     }
     const uint8_t* zp = p + kOpenHeaderSize;
@@ -234,7 +235,7 @@ bool parse_opens(std::vector<FieldsOpenRec>* recs, std::vector<FieldsLinkZone>* 
         z.first = peek_u32(e + 4);
         z.len = peek_u32(e + 8);
         if (z.first > count || z.len > count - z.first) {
-            *err = "旁包打通表区索引越界";
+            LogError << "Fields open zone index is out of bounds." << VAR(z.zone_id) << VAR(z.first) << VAR(z.len) << VAR(count);
             return false;
         }
     }
@@ -251,7 +252,7 @@ bool parse_opens(std::vector<FieldsOpenRec>* recs, std::vector<FieldsLinkZone>* 
     }
     for (const FieldsLinkZone& z : *zones) {
         if (!std::is_sorted(recs->begin() + z.first, recs->begin() + z.first + z.len, open_less)) {
-            *err = "旁包打通表未按格序排列";
+            LogError << "Fields open table is not sorted by cell." << VAR(z.zone_id);
             return false;
         }
     }
@@ -406,20 +407,20 @@ bool FieldsZoneWallKeep(bool* known, const FieldsZone& zone, int32_t tri, int k,
     return std::binary_search(b, e, rid);
 }
 
-bool LoadFieldsPack(FieldsPack* pack, std::string* err, const std::filesystem::path& path, const BaseNavPack& main, const GridPack& grid)
+bool LoadFieldsPack(FieldsPack* pack, const std::filesystem::path& path, const BaseNavPack& main, const GridPack& grid)
 {
     pack->loaded = false;
     pack->zones.clear();
     pack->bytes.clear();
     const BaseNavLoadResult read = ReadNavFileBytes(path, &pack->bytes);
     if (read.status != BaseNavLoadStatus::Success) {
-        *err = "旁包读不到 (" + MAA_NS::path_to_utf8_string(path) + "): " + read.message;
+        LogError << "Fields pack unreadable." << VAR(MAA_NS::path_to_utf8_string(path)) << VAR(read.message);
         return false;
     }
     const size_t size = pack->bytes.size();
     const uint8_t* base = pack->bytes.data();
     if (size < kHeaderSize || std::memcmp(base, "BNVF", 4) != 0) {
-        *err = "旁包不是 BNVF";
+        LogError << "Fields pack has a bad magic." << VAR(MAA_NS::path_to_utf8_string(path)) << VAR(size);
         return false;
     }
     const uint16_t version = peek_u16(base + 4);
@@ -430,19 +431,20 @@ bool LoadFieldsPack(FieldsPack* pack, std::string* err, const std::filesystem::p
     const uint32_t section_count = peek_u32(base + 28);
     const uint64_t dir_off = peek_u64(base + 32);
     if (version != kFieldsFormatVersion) {
-        *err = "旁包格式版本 " + std::to_string(version) + ", 需要 " + std::to_string(kFieldsFormatVersion);
+        LogError << "Fields pack format version mismatch." << VAR(version) << VAR(kFieldsFormatVersion);
         return false;
     }
     if (build_hash != main.build_hash || fnv != main.file_fnv) {
-        *err = "旁包不是配这份主包的 (build_hash/fnv 不符)";
+        LogError << "Fields pack does not match the main pack." << VAR(build_hash) << VAR(main.build_hash) << VAR(fnv)
+                 << VAR(main.file_fnv);
         return false;
     }
     if (rules != kFieldsRulesVersion) {
-        *err = "旁包判据版本不符 (" + std::to_string(rules) + " ≠ " + std::to_string(kFieldsRulesVersion) + ")";
+        LogError << "Fields pack rules version mismatch." << VAR(rules) << VAR(kFieldsRulesVersion);
         return false;
     }
     if (dir_off > size || static_cast<uint64_t>(section_count) * kSectionEntrySize > size - dir_off) {
-        *err = "旁包段目录越界";
+        LogError << "Fields section directory is out of bounds." << VAR(dir_off) << VAR(section_count) << VAR(size);
         return false;
     }
 
@@ -459,42 +461,42 @@ bool LoadFieldsPack(FieldsPack* pack, std::string* err, const std::filesystem::p
         const uint64_t off = peek_u64(e + 8);
         const uint64_t len = peek_u64(e + 16);
         if (off > size || len > size - off) {
-            *err = "旁包段 " + tag + " 越界";
+            LogError << "Fields pack section out of range." << VAR(tag) << VAR(off) << VAR(len) << VAR(size);
             return false;
         }
         secs[tag] = Sec { base + off, static_cast<size_t>(len) };
     }
     for (const char* tag : { "FCON", "FZON", "FSPN", "FSCC", "FWAL" }) {
         if (secs.find(tag) == secs.end()) {
-            *err = std::string("旁包缺段 ") + tag;
+            LogError << "Fields pack section missing." << VAR(tag);
             return false;
         }
     }
     pack->links.clear();
     pack->link_zones.clear();
     if (const auto it = secs.find("FLNK"); it != secs.end()) {
-        if (!parse_links(&pack->links, &pack->link_zones, err, it->second.p, it->second.len)) {
+        if (!parse_links(&pack->links, &pack->link_zones, it->second.p, it->second.len)) {
             return false;
         }
     }
     pack->opens.clear();
     pack->open_zones.clear();
     if (const auto it = secs.find("FOPN"); it != secs.end()) {
-        if (!parse_opens(&pack->opens, &pack->open_zones, err, it->second.p, it->second.len)) {
+        if (!parse_opens(&pack->opens, &pack->open_zones, it->second.p, it->second.len)) {
             return false;
         }
     }
     pack->ropes.clear();
     pack->rope_zones.clear();
     if (const auto it = secs.find("FROP"); it != secs.end()) {
-        if (!parse_ropes(&pack->ropes, &pack->rope_zones, err, it->second.p, it->second.len)) {
+        if (!parse_ropes(&pack->ropes, &pack->rope_zones, it->second.p, it->second.len)) {
             return false;
         }
     }
     const Sec con = secs["FCON"];
     const std::vector<uint8_t> want = expected_const();
     if (con.len != kConstSize || std::memcmp(con.p, want.data(), kConstSize) != 0) {
-        *err = "旁包的判据常数与运行期不符";
+        LogError << "Fields pack constants do not match the runtime." << VAR(con.len) << VAR(kConstSize);
         return false;
     }
     const Sec zon = secs["FZON"];
@@ -502,7 +504,7 @@ bool LoadFieldsPack(FieldsPack* pack, std::string* err, const std::filesystem::p
     const Sec scc = secs["FSCC"];
     const Sec wal = secs["FWAL"];
     if (zon.len < 4) {
-        *err = "旁包区表残缺";
+        LogError << "Fields zone table is truncated.";
         return false;
     }
     const uint32_t zone_count = peek_u32(zon.p);
@@ -510,14 +512,14 @@ bool LoadFieldsPack(FieldsPack* pack, std::string* err, const std::filesystem::p
     const uint8_t* zend = zon.p + zon.len;
     for (uint32_t zi = 0; zi < zone_count; ++zi) {
         if (zend - p < 4) {
-            *err = "旁包区表残缺";
+            LogError << "Fields zone table is truncated.";
             return false;
         }
         const uint32_t name_len = peek_u32(p);
         p += 4;
         const size_t padded = (static_cast<size_t>(name_len) + 3) / 4 * 4;
         if (static_cast<size_t>(zend - p) < padded + 8 + 48) {
-            *err = "旁包区表残缺";
+            LogError << "Fields zone table is truncated.";
             return false;
         }
         FieldsZoneDir z;
@@ -531,7 +533,7 @@ bool LoadFieldsPack(FieldsPack* pack, std::string* err, const std::filesystem::p
         p += 56;
         if (spn_off > spn.len || spn_len > spn.len - spn_off || scc_off > scc.len || scc_len > scc.len - scc_off || wal_off > wal.len
             || wal_len > wal.len - wal_off) {
-            *err = "旁包区 " + z.name + " 的段范围越界";
+            LogError << "Fields zone sections out of range." << VAR(z.name);
             return false;
         }
         z.scc = scc.p + scc_off;
@@ -540,7 +542,7 @@ bool LoadFieldsPack(FieldsPack* pack, std::string* err, const std::filesystem::p
         z.wal_len = static_cast<size_t>(wal_len);
         const uint8_t* zb = spn.p + spn_off;
         if (static_cast<uint64_t>(tile_count) * 16 > spn_len) {
-            *err = "旁包区 " + z.name + " 的瓦表越界";
+            LogError << "Fields zone tile table out of range." << VAR(z.name) << VAR(tile_count) << VAR(spn_len);
             return false;
         }
         z.tiles.resize(tile_count);
@@ -551,7 +553,7 @@ bool LoadFieldsPack(FieldsPack* pack, std::string* err, const std::filesystem::p
             const uint64_t off = peek_u64(e + 4);
             const uint32_t len = peek_u32(e + 12);
             if (off > spn_len || len > spn_len - off) {
-                *err = "旁包区 " + z.name + " 的瓦载荷越界";
+                LogError << "Fields zone tile payload out of range." << VAR(z.name) << VAR(t);
                 return false;
             }
             r.data = zb + off;
@@ -569,16 +571,18 @@ bool LoadFieldsPack(FieldsPack* pack, std::string* err, const std::filesystem::p
             }
         }
         if (z == nullptr) {
-            *err = "旁包没有区 " + g.name;
+            LogError << "Fields pack is missing a grid zone." << VAR(g.name);
             return false;
         }
         if (z->global_regions != g.global_regions || z->tiles.size() != g.tiles.size()) {
-            *err = "旁包区 " + g.name + " 的类数或瓦数与格图不符";
+            LogError << "Fields zone disagrees with the grid." << VAR(g.name) << VAR(z->global_regions) << VAR(g.global_regions)
+                     << VAR(z->tiles.size()) << VAR(g.tiles.size());
             return false;
         }
         for (size_t t = 0; t < g.tiles.size(); ++t) {
             if (z->tiles[t].records != g.tiles[t].records) {
-                *err = "旁包区 " + g.name + " 第 " + std::to_string(t) + " 瓦记录数与格图不符";
+                LogError << "Fields tile record count disagrees with the grid." << VAR(g.name) << VAR(t) << VAR(z->tiles[t].records)
+                         << VAR(g.tiles[t].records);
                 return false;
             }
         }
@@ -589,7 +593,6 @@ bool LoadFieldsPack(FieldsPack* pack, std::string* err, const std::filesystem::p
 
 bool LoadSharedFieldsPack(
     std::shared_ptr<const FieldsPack>* out,
-    std::string* err,
     const std::filesystem::path& path,
     const BaseNavPack& main,
     const GridPack& grid)
@@ -621,7 +624,7 @@ bool LoadSharedFieldsPack(
         }
     }
     auto fresh = std::make_shared<FieldsPack>();
-    const bool ok = LoadFieldsPack(fresh.get(), err, path, main, grid);
+    const bool ok = LoadFieldsPack(fresh.get(), path, main, grid);
     if (ok && !key.empty()) {
         cache[key] = fresh;
     }
@@ -734,7 +737,7 @@ bool DecodeFieldsTile(FieldsTile* out, const FieldsTileRef& tile)
     return reader_done(r0) && reader_done(r4);
 }
 
-bool LoadFieldsZone(FieldsZone* out, std::string* err, const FieldsPack& pack, const FieldsZoneDir& zone)
+bool LoadFieldsZone(FieldsZone* out, const FieldsPack& pack, const FieldsZoneDir& zone)
 {
     *out = FieldsZone();
     out->regions.assign(static_cast<size_t>(zone.global_regions) + 1, FieldsZone::Region {});
@@ -743,7 +746,7 @@ bool LoadFieldsZone(FieldsZone* out, std::string* err, const FieldsPack& pack, c
         Reader rd { zone.scc, zone.scc + zone.scc_len };
         uint32_t rc = 0;
         if (!reader_u32(&rd, &rc)) {
-            *err = "旁包区 " + zone.name + " 的分量图残缺";
+            LogError << "Fields component graph is truncated." << VAR(zone.name);
             return false;
         }
         std::vector<uint8_t> st;
@@ -753,25 +756,25 @@ bool LoadFieldsZone(FieldsZone* out, std::string* err, const FieldsPack& pack, c
             uint32_t rid = 0, n_scc = 0, n_edges = 0;
             if (!reader_u32(&rd, &rid) || !reader_u32(&rd, &n_scc) || !reader_u32(&rd, &n_edges) || rid > zone.global_regions
                 || n_scc == 0) {
-                *err = "旁包区 " + zone.name + " 的分量图残缺";
+                LogError << "Fields component graph is truncated." << VAR(zone.name);
                 return false;
             }
             if ((pack.flags & 1U) != 0) {
                 uint64_t skip = 0;
                 for (int b = 0; b < 4; ++b) {
                     if (!reader_varint(&rd, &skip)) {
-                        *err = "旁包区 " + zone.name + " 的分量图残缺";
+                        LogError << "Fields component graph is truncated." << VAR(zone.name);
                         return false;
                     }
                 }
             }
             if (!reader_stream(&rd, &st)) {
-                *err = "旁包区 " + zone.name + " 的分量图解不开";
+                LogError << "Fields component graph failed to decompress." << VAR(zone.name) << VAR(rid);
                 return false;
             }
             // 每条边至少 2 字节, 先按流长卡住 n_edges 再分配
             if (st.size() < 2ULL * n_edges) {
-                *err = "旁包区 " + zone.name + " 的分量图残缺";
+                LogError << "Fields component graph is truncated." << VAR(zone.name);
                 return false;
             }
             Reader es { st.data(), st.data() + st.size() };
@@ -781,18 +784,18 @@ bool LoadFieldsZone(FieldsZone* out, std::string* err, const FieldsPack& pack, c
             for (uint32_t e = 0; e < n_edges; ++e) {
                 uint32_t d = 0;
                 if (!reader_u32(&es, &d) || !reader_u32(&es, &dst[e])) {
-                    *err = "旁包区 " + zone.name + " 的分量图残缺";
+                    LogError << "Fields component graph is truncated." << VAR(zone.name);
                     return false;
                 }
                 prev += d;
                 src[e] = prev;
                 if (src[e] == 0 || src[e] > n_scc || dst[e] == 0 || dst[e] > n_scc) {
-                    *err = "旁包区 " + zone.name + " 类 " + std::to_string(rid) + " 的边越界";
+                    LogError << "Fields component edge out of range." << VAR(zone.name) << VAR(rid);
                     return false;
                 }
             }
             if (!reader_done(es)) {
-                *err = "旁包区 " + zone.name + " 的分量图残缺";
+                LogError << "Fields component graph is truncated." << VAR(zone.name);
                 return false;
             }
             FieldsZone::Region& r = out->regions[rid];
@@ -809,7 +812,7 @@ bool LoadFieldsZone(FieldsZone* out, std::string* err, const FieldsPack& pack, c
             out->edge_dst.insert(out->edge_dst.end(), dst.begin(), dst.end());
         }
         if (!reader_done(rd)) {
-            *err = "旁包区 " + zone.name + " 的分量图有多余字节";
+            LogError << "Fields component graph has trailing bytes." << VAR(zone.name);
             return false;
         }
     }
@@ -820,7 +823,7 @@ bool LoadFieldsZone(FieldsZone* out, std::string* err, const FieldsPack& pack, c
         std::vector<uint8_t> a;
         std::vector<uint8_t> b;
         if (!reader_u32(&rd, &nw) || !reader_stream(&rd, &a) || !reader_stream(&rd, &b) || !reader_done(rd)) {
-            *err = "旁包区 " + zone.name + " 的留墙表残缺";
+            LogError << "Fields wall table is truncated." << VAR(zone.name);
             return false;
         }
         Reader ra { a.data(), a.data() + a.size() };
@@ -831,7 +834,7 @@ bool LoadFieldsZone(FieldsZone* out, std::string* err, const FieldsPack& pack, c
         for (uint32_t i = 0; i < nw; ++i) {
             uint32_t d = 0;
             if (!reader_u32(&ra, &d)) {
-                *err = "旁包区 " + zone.name + " 的留墙表残缺";
+                LogError << "Fields wall table is truncated." << VAR(zone.name);
                 return false;
             }
             prev += d;
@@ -840,14 +843,14 @@ bool LoadFieldsZone(FieldsZone* out, std::string* err, const FieldsPack& pack, c
         for (uint32_t i = 0; i < nw; ++i) {
             uint32_t nr = 0;
             if (!reader_u32(&rb, &nr)) {
-                *err = "旁包区 " + zone.name + " 的留墙表残缺";
+                LogError << "Fields wall table is truncated." << VAR(zone.name);
                 return false;
             }
             uint32_t rp = 0;
             for (uint32_t k = 0; k < nr; ++k) {
                 uint32_t d = 0;
                 if (!reader_u32(&rb, &d)) {
-                    *err = "旁包区 " + zone.name + " 的留墙表残缺";
+                    LogError << "Fields wall table is truncated." << VAR(zone.name);
                     return false;
                 }
                 rp += d;
@@ -856,7 +859,7 @@ bool LoadFieldsZone(FieldsZone* out, std::string* err, const FieldsPack& pack, c
             out->wall_rid_start[static_cast<size_t>(i) + 1] = static_cast<uint32_t>(out->wall_rid.size());
         }
         if (!reader_done(ra) || !reader_done(rb)) {
-            *err = "旁包区 " + zone.name + " 的留墙表有多余字节";
+            LogError << "Fields wall table has trailing bytes." << VAR(zone.name);
             return false;
         }
     }

@@ -171,7 +171,7 @@ The game is three-dimensional, the map is not: a walkway, a bridge and a rooftop
 ```
 
 - Read the number from the MapNavigator GUI: click the target and the `选中对象` (Selected Object) card in the top-right corner of the map lists the overlapping decks; selecting one highlights that deck on the canvas, and the `选择` (Select) button writes the value into the field. Do not estimate it by hand.
-- A deck matches when it is the nearest surface and within 2px (measured spacing between adjacent decks is 8–9px). When nothing matches, the route fails with `目标面不可达` (target deck unreachable) — it does not fall back to the cell-level search and is not absorbed by the blind-walk fallback. Failing loudly beats silently walking onto another deck.
+- A deck matches when it is the nearest surface and within 2px (measured spacing between adjacent decks is 8–9px). When nothing matches, the route fails with `target deck is unreachable` — it does not fall back to the cell-level search and is not absorbed by the blind-walk fallback. Failing loudly beats silently walking onto another deck.
 - Points with a single surface do not need it; the GUI hides the list when there is no overlap.
 - The field also supports camelCase writing `targetDeckY`, and can be combined with `target_tier`.
 
