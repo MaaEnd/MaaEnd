@@ -2,7 +2,7 @@
 
 WorldMap is a native C++ coordinate recognition system for the open world map. A node only states "which zone, which coordinate on that zone's base map"; WorldMap works out where that coordinate currently sits on screen, pans the map over if it has to, confirms that the named icon really is there, and hands the screen position back to the node. **What happens with that position is the node's own `action`** — a teleport point gets clicked, another use may only want the coordinate.
 
-It shares its template matching core and its base map images with [MapLocator](./map-locator.md). The difference: MapLocator reads the minimap and answers "where is the character", WorldMap reads the full screen map and answers "where is this coordinate drawn right now".
+It shares its template matching core, its local contrast normalisation and its base map images with [MapLocator](./map-locator.md). The difference: MapLocator reads the minimap and answers "where is the character", WorldMap reads the full screen map and answers "where is this coordinate drawn right now".
 
 - [Developer Manual - WorldMap World Map Recognition](#developer-manual---worldmap-world-map-recognition)
     - [MapFind](#mapfind)
@@ -14,10 +14,10 @@ It shares its template matching core and its base map images with [MapLocator](.
     - [Icon table](#icon-table)
     - [Wiring up teleport points](#wiring-up-teleport-points)
     - [How recognition works](#how-recognition-works)
-        - [Fog masking](#fog-masking)
-        - [Block voting](#block-voting)
+        - [Features and thresholds](#features-and-thresholds)
+        - [Tier layers](#tier-layers)
 
-WorldMap is a recognition layer. It only resolves a coordinate into a screen position on an already open map. Opening the map and switching layers are the job of the [SceneManager](../scene-manager.md) universal jump; the confirmation dialog afterwards is handled by the Pipeline. The zoom it sets itself, see below.
+WorldMap is a recognition layer. It only resolves a coordinate into a screen position on an already open map. Opening the map and switching layers are the job of the [SceneManager](../scene-manager.md) universal jump; the confirmation dialog afterwards is handled by the Pipeline. The zoom it sets itself, see below. A map sitting on a tier layer is solved too, see [Tier layers](#tier-layers).
 
 ---
 
@@ -47,7 +47,6 @@ Optional (`custom_recognition_param`):
 | `icon` | none | An icon name from the [icon table](#icon-table). Omit it to only solve the coordinate, confirming no icon at all |
 | `state` | `"unlocked"` | Which unlock state counts as a hit. Requires an icon carrying `gold_ratio` in the table, since nothing else tells the two states apart |
 | `max_attempts` | `4` | Recognition attempts. Panning the map is not charged against it |
-| `vote_grid` | `3` | When neither the whole window nor [fog masking](#fog-masking) can solve the viewport, solve again with [block voting](#block-voting) at this grid size. Set to `1` to turn the fallback off |
 
 Thresholds, templates and calibrated scales never appear in the node: they belong to the icon and live in the icon table. A new kind of icon is one table entry, not a fistful of node parameters.
 
@@ -264,33 +263,20 @@ The unlock check runs on its own track. Locked and unlocked icons differ only in
 >
 > Once `icon` is given, icon confirmation is the sole basis for acting. A solved viewport is **not** enough to click on — however accurate the transform, it only says "if an icon is there, it should be at this position", not that one is. Missing an icon costs a retry; hitting the wrong one costs a click on another teleport point or on bare terrain, and the two are not equivalent. Without `icon` the node hands back a coordinate and makes no promise about it; wiring that to `Click` is clicking blind, so know what you are doing.
 
-### Fog masking
+### Features and thresholds
 
-The fog over unexplored ground is a solid patch of grey-white, brighter than the terrain. Once it enters the search window, normalised correlation takes it for the strongest signal in the frame, the solve is dragged onto the wrong scale and its delta turns negative. When the fog covers a lot of the window, the polluted blocks stop being a minority in block voting too, and that path cannot recover the frame either.
+Both sides of the viewport solve go through local contrast normalisation before the normalised correlation, the same feature MapLocator uses on the minimap: each pixel becomes how much brighter it is than its neighbourhood of a few pixels, in units of that neighbourhood's variation. The overall brightness of the frame and its large light and dark areas are flattened out, what is compared is edges and ground texture, and dark areas count as much as bright ones. The screen is scaled to each rung first and normalised afterwards, so both sides measure their neighbourhoods in base-map pixels.
 
-So once the whole window has been rejected, the node first looks for fog across the full frame. Four tests:
+The zone base map is transparent outside the map and reads as black, while the game draws a grey backdrop there that is brighter than dark terrain. The light and dark sides of the coastline are therefore swapped against the screenshot, that edge correlates negatively once normalised, and when the outside covers a large part of the frame it is enough to sink the correct position's score. So the transparent area is filled with grey 34 when the base map is loaded, close to the backdrop in screenshots.
 
-1. Near grey: the largest channel minus the smallest is at most 14.
-2. Bright: grey level at least 100.
-3. Smooth at large scale: low gradient energy, which is what separates fog from white and grey buildings.
-4. In patches: at least 1200 pixels.
+The thresholds are a score of 0.30 and a delta of 0.02, where delta is the solved score minus the best coarse rung more than 6% away in scale. On a set of users' world-map failure screenshots, wrong positions scored at most 0.17 and correct ones at least 0.43, and 0.30 sits between them. When the whole window cannot be solved, the node nudges the map, captures again and solves again, rather than forcing another method onto the same frame.
 
-Holes left in a patch by icons and labels are filled, then the patch is grown by 9 pixels to cover the fog's soft edge.
+### Tier layers
 
-When fog covers at least 3% of the search window and at least half of the window is left, the fog is masked out and the viewport is solved again from the remaining pixels, under the same thresholds. Block voting runs only if that fails too.
+When the map sits on a tier layer, that layer is lit, everything else is dimmed to about a third, and place names are hidden. Such a frame does not match the zone base map, so the whole base map cannot solve the viewport.
 
-The mask only removes pixels. What is left still has to match uniquely under the same mask to pass, so the wrong base map is rejected all the same. With too few pixels left, a wrong position's score gets inflated, which is why the at-least-half floor is necessary. This path runs only after the whole window has been rejected, so a frame the whole window solves never reaches it, and a misjudged fog patch cannot affect such frames.
+So when `at` lies inside a tier, the viewport is first solved as if the map sat on that tier: the original tier image is pasted onto the base map where it belongs, with 300 base pixels around it, giving what the world map looks like with that layer selected, and matched with the same thresholds as the base map. If the score falls short, the frame is showing the main layer, and the base map is solved as described above. When `at` lies inside several overlapping tiers they are tried one by one, and if two of their solutions lie more than 10 base pixels apart the frame is rejected. When `at` lies in no tier the base map is used directly.
 
-Fog detection only covers the bright kind; dark, translucent haze is not detected. `viewport_fog` in the recognition detail is the share of the window masked out when the fog retry produced the solve, and 0 on every other path.
+The tier images are the same ones MapLocator uses (`MapLocator/<zone>/LvNNNTierMMM.png` and the like); where each sits on the base map is read from the zone table of the navigation pack `base.nav.gz`, once per zone the first time it is needed. `viewport_tier` in the recognition detail is the tier the viewport was solved on, and empty when the base map solved it.
 
-### Block voting
-
-The viewport solve treats the whole search window as one template by default, and normalised correlation gives a single number for the whole window. When something covers part of it locally — the fog over unexplored ground, for instance — that one-tenth of the area drags the whole frame's score down, and the correct rung falls below the threshold with it.
-
-Rather than give up there, the window is split into `vote_grid` × `vote_grid` blocks matched separately; each block's score surface is shifted back by that block's offset inside the window so they all agree on one window origin, then combined by a per-pixel median before taking the maximum. An occluded block is only a minority vote and gets outvoted by the rest — and this path never has to know what the occlusion looks like, so fog, weather, overlays and map markers all go through it alike.
-
-It only runs after both the whole window and fog masking have been rejected; a frame either of them solves never reaches it. The cost is one extra pass of matching, on a frame that was already going to pay for another pan and capture. Block side length has a floor, since a block too small carries no positioning information; a rung with fewer than four voting blocks is discarded entirely and left to the other scale rungs.
-
-The position block voting reports is integer-pixel, with no sub-pixel extrapolation — a median surface is not a correlation surface, so extrapolating on it has no basis. The maximum is taken over the base map, so rounding costs under half a base-map pixel; that is one term of the total error, and whatever the match itself is off by comes on top of it. What ultimately bounds the position is icon confirmation, whose window is 10 base pixels.
-
-Block voting only changes how the viewport is solved; whatever it solves still has to pass icon confirmation, so the note above applies to it unchanged.
+When the map is on the main layer, the content of a tier (a cave under the tree canopy, say) is not on screen, so only the base map applies then.

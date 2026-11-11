@@ -47,11 +47,7 @@ struct FindParam
     std::string state;
     int max_attempts = 4;
 
-    // 整窗解不出来时用几乘几的分块投票再解一次。置 1 关掉这条回退路径：
-    // 单个点位要是被它坑了可以就地关掉，不必等下一版
-    int vote_grid = ViewportConfig {}.voteGrid;
-
-    MEO_JSONIZATION(zone, MEO_OPT at, MEO_OPT candidates, MEO_OPT icon, MEO_OPT state, MEO_OPT max_attempts, MEO_OPT vote_grid);
+    MEO_JSONIZATION(zone, MEO_OPT at, MEO_OPT candidates, MEO_OPT icon, MEO_OPT state, MEO_OPT max_attempts);
 };
 
 // 解析后的统一形态：单点写法归一成一个不带 next 的候选，往下只认这一种
@@ -402,6 +398,14 @@ struct FindSession
     MapView view;
 };
 
+std::optional<Viewport> SolveForTarget(const FindSession& session, const cv::Mat& screen, const ViewportConfig& cfg, const Target& target)
+{
+    if (auto vp = session.solver->SolveViewportOnTiers(screen, session.param->zone, cfg, target.at)) {
+        return vp;
+    }
+    return session.solver->SolveViewport(screen, session.param->zone, cfg);
+}
+
 // 把一个候选认到底。重试、平移、放弃都只影响这一个候选，画面与视口留给下一个接着用
 Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index, MaaRect* out_box, MaaStringBuffer* out_detail)
 {
@@ -436,13 +440,13 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
             if (view.previous) {
                 ViewportConfig pinned = session.viewportCfg;
                 pinned.scaleHint = view.previous->scale;
-                view.viewport = session.solver->SolveViewport(view.screen, param.zone, pinned);
+                view.viewport = SolveForTarget(session, view.screen, pinned, target);
                 if (!view.viewport) {
                     LogInfo << "WorldMap: pinned scale rejected, rescanning full ladder" << VAR(view.previous->scale);
                 }
             }
             if (!view.viewport) {
-                view.viewport = session.solver->SolveViewport(view.screen, param.zone, session.viewportCfg);
+                view.viewport = SolveForTarget(session, view.screen, session.viewportCfg, target);
             }
             if (!view.viewport) {
                 view.previous.reset();
@@ -526,8 +530,7 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
             { "at", json::array { target.at.x, target.at.y } },
             { "screen", json::array { expected.x, expected.y } },
             { "viewport_scale", viewport.scale },
-            { "viewport_vote", viewport.voteGrid },
-            { "viewport_fog", viewport.fogRatio },
+            { "viewport_tier", viewport.tier },
         };
         if (!target.next.empty()) {
             detail.emplace("next", target.next);
@@ -587,7 +590,7 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
         }
 
         LogWarn << "WorldMap: icon not confirmed at expected position" << VAR(attempt) << VAR(index) << VAR(expected.x) << VAR(expected.y)
-                << VAR(viewport.voteGrid) << VAR(viewport.fogRatio);
+                << VAR(viewport.tier);
         view.screen.release();
         std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
     }
@@ -626,8 +629,6 @@ MaaBool MAA_CALL MapFindRun(
     }
 
     WorldMapSolver& solver = GetSolver(ControllerType(controller));
-    ViewportConfig viewportCfg {};
-    viewportCfg.voteGrid = param.vote_grid;
 
     // 图标名给了就必须在表里查得到：查不到照样跑下去等于把认图标这一步悄悄跳过
     std::optional<IconSpec> spec;
@@ -651,7 +652,6 @@ MaaBool MAA_CALL MapFindRun(
     FindSession session;
     session.controller = controller;
     session.solver = &solver;
-    session.viewportCfg = viewportCfg;
     session.param = &param;
     session.spec = spec;
 
