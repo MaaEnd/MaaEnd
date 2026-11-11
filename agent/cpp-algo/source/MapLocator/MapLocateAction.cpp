@@ -18,6 +18,8 @@
 #endif
 
 #include "../Common/paths.h"
+#include "../MapNavigator/navi_param.h"
+#include "../MapNavigator/planning/navmesh_queries.h"
 #include "../utils.h"
 
 #include "MapLocateAction.h"
@@ -230,6 +232,25 @@ bool is_position_inside_rect(const MapPosition& position, const MaaRect& rect)
     return position.x >= left && position.x < right && position.y >= top && position.y < bottom;
 }
 
+// 定位落在同一地图的别的层上时, 位置和框都换到底图再比
+bool is_position_inside_target(
+    const MapPosition& position,
+    const std::string& target_zone,
+    const MaaRect& rect,
+    const mapnavigator::NaviParam& navi_param)
+{
+    if (position.zone_id == target_zone) {
+        return is_position_inside_rect(position, rect);
+    }
+    const auto at = mapnavigator::ProjectToMapBase(navi_param, position.zone_id, position.x, position.y);
+    const auto top_left = mapnavigator::ProjectToMapBase(navi_param, target_zone, rect.x, rect.y);
+    const auto bottom_right = mapnavigator::ProjectToMapBase(navi_param, target_zone, rect.x + rect.width, rect.y + rect.height);
+    if (!at || !top_left || !bottom_right) {
+        return false;
+    }
+    return at->x >= top_left->x && at->x < bottom_right->x && at->y >= top_left->y && at->y < bottom_right->y;
+}
+
 // 传送落地后区域横幅会压住小地图，定位在横幅散掉之前拿不到可用结果，预算要覆盖这段等待。
 constexpr int kAssertLocateMaxFrames = 60;
 constexpr auto kAssertLocatePollDelay = std::chrono::milliseconds(250);
@@ -427,8 +448,10 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
     }
     ResetTrackingState(locator.get());
 
+    const mapnavigator::NaviParam navi_param;
     LocateOptions options;
     options.expected_zone_id = param.zone_id;
+    options.accepted_zone_ids = mapnavigator::ZonesOnSameMap(navi_param, param.zone_id);
     options.force_global_search = true;
 
     LocateResult result;
@@ -441,7 +464,7 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
         }
 
         const bool located = result.status == LocateStatus::Success && result.position.has_value();
-        if (located && is_position_inside_rect(result.position.value(), target_rect)) {
+        if (located && is_position_inside_target(result.position.value(), param.zone_id, target_rect, navi_param)) {
             matched = true;
             break;
         }

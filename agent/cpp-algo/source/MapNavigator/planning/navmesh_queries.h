@@ -24,6 +24,9 @@ std::vector<std::string> ZonesOnSameMap(const NaviParam& param, const std::strin
 // 原地把路点的区名换成所在地图底图的区名, 原层的主楼面高记进 zone_floor_y
 void FlattenWaypointZones(std::vector<Waypoint>* path, const NaviParam& param);
 
+// zone_id 那张图上的点换成所在地图底图的坐标, 包里查不到时为空
+std::optional<navmesh::WorldPoint> ProjectToMapBase(const NaviParam& param, const std::string& zone_id, double x, double y);
+
 // distance 是平面距离, height 与 BaseNavRouteRequest::floor_y 同一量纲
 struct NavmeshSnap
 {
