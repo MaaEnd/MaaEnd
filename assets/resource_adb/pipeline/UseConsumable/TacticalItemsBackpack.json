@@ -1,0 +1,64 @@
+{
+    "UseConsumableTacticalFindBackpackItem": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    800,
+                    178,
+                    430,
+                    344
+                ]
+            }
+        }
+    },
+    "UseConsumableTacticalBackpackTransferBegin": {
+        "desc": "ADB 触点 4 按住背包目标物品并打开转移菜单",
+        "action": "TouchDown",
+        "target": "UseConsumableTacticalFindBackpackItem",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "contact": 4,
+        "auto_up": true,
+        "post_delay": 1000,
+        "next": [
+            "UseConsumableTacticalBackpackTransferMenuClick"
+        ]
+    },
+    "UseConsumableTacticalBackpackTransferMenuClick": {
+        "desc": "ADB 触点 0 点击转移菜单图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            34,
+            128,
+            309,
+            212
+        ],
+        "template": "UseConsumable/TransferToBackpack.png",
+        "threshold": 0.8,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "UseConsumableTacticalBackpackTransferMenuClick",
+            "repeat_count": 5,
+            "interval_ms": 500
+        },
+        "rate_limit": 250,
+        "next": [
+            "UseConsumableTacticalBackpackTransferRelease"
+        ]
+    },
+    "UseConsumableTacticalBackpackTransferRelease": {
+        "desc": "ADB 释放背包物品触点并进入武陵仓库检查",
+        "recognition": "DirectHit",
+        "action": "TouchUp",
+        "contact": 4,
+        "next": [
+            "UseConsumableTacticalEnsureWulingDepot"
+        ]
+    }
+}
