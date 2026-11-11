@@ -36,7 +36,7 @@ struct NoGoTable
 };
 
 // 文件不存在视为没有禁区, 存在但解析失败或引用包里没有的 tier 时返回 false
-bool LoadNoGoTable(NoGoTable* table, std::string* err, const std::filesystem::path& path, const BaseNavPack& pack);
+bool LoadNoGoTable(NoGoTable* table, const std::filesystem::path& path, const BaseNavPack& pack);
 
 // 区名不在表里时返回 nullptr
 const std::vector<NoGoPoly>* FindNoGoZone(const NoGoTable& table, const std::string& name);

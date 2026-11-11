@@ -55,10 +55,47 @@ enum class BaseNavRouteStatus
     NoGo,
 };
 
+// 规划失败的具体原因, 只用来显示与记日志, 分支看 BaseNavRouteStatus
+enum class RouteFailure
+{
+    None,
+    ZoneNotFound,
+    GridUnavailable,
+    ZoneHasNoGrid,
+    ZoneMeshUnusable,
+    FieldsZoneUnusable,
+    StartOffMesh,
+    GoalOffMesh,
+    StartInNoGo,
+    GoalInNoGo,
+    EndpointsOffWalkableLayer,
+    GridDecodeFailed,
+    NoWalkableVoxelNearStart,
+    NoDeclaredDeckNearGoal,
+    RegionHasNoGridCells,
+    RegionTooLarge,
+    Cancelled,
+    WindowDecodeFailed,
+    StartSeedOutsideWindow,
+    WallTableMissingEdge,
+    StartCellNotInGoalRegion,
+    StartComponentMissing,
+    ComponentIdOutOfBounds,
+    NoUnblockedDeckNearStart,
+    NoUnblockedDeckNearGoal,
+    WalkMaskEmpty,
+    TargetDeckUnreachable,
+    Disconnected,
+    SeparatedByBarrier,
+    GoalUnreachable,
+    RouteFailed,
+    NoUsablePath,
+};
+
 struct BaseNavRouteResult
 {
     BaseNavRouteStatus status = BaseNavRouteStatus::Unreachable;
-    std::string error;
+    RouteFailure failure = RouteFailure::None;
     WorldPath path;
     double cost = 0.0;
     // 起终点分属不同连通区时, 两区边界上的最近点对
@@ -133,5 +170,8 @@ uint32_t ComponentId(const BaseNavPlanner& planner, uint32_t triangle_index);
 uint32_t ComponentSize(const BaseNavPlanner& planner, uint32_t triangle_index);
 
 const char* ToString(BaseNavRouteStatus status);
+
+// None 给空串
+const char* ToString(RouteFailure failure);
 
 }

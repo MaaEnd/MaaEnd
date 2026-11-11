@@ -198,7 +198,7 @@ void fail_waypoint(
     }
     if (route_result != nullptr) {
         recorded.route_status = navmesh::ToString(route_result->status);
-        recorded.route_error = route_result->error;
+        recorded.route_error = navmesh::ToString(route_result->failure);
         recorded.gap_start = route_result->gap_start;
         recorded.gap_goal = route_result->gap_goal;
         recorded.gap_distance = route_result->gap_distance;
@@ -228,7 +228,8 @@ bool has_explicit_coordinate_frame(const Waypoint& waypoint)
 
 std::string route_error_text(const navmesh::BaseNavRouteResult& route_result)
 {
-    return route_result.error.empty() ? navmesh::ToString(route_result.status) : route_result.error;
+    return route_result.failure == navmesh::RouteFailure::None ? navmesh::ToString(route_result.status)
+                                                               : navmesh::ToString(route_result.failure);
 }
 
 std::vector<std::vector<double>> path_points_for_log(const navmesh::WorldPath& path)
@@ -336,8 +337,9 @@ navmesh::BaseNavRouteResult plan_corridor_route(
     navmesh::BaseNavRouteResult result;
     const navmesh::BaseNavZone* zone = navmesh::FindBaseNavZoneByName(mesh.pack, request.zone_name);
     if (zone == nullptr) {
+        LogWarn << "NAVMESH zone not found." << VAR(request.zone_name);
         result.status = navmesh::BaseNavRouteStatus::ZoneNotFound;
-        result.error = "未找到 navmesh 区域: " + request.zone_name;
+        result.failure = navmesh::RouteFailure::ZoneNotFound;
         return result;
     }
     const float start_floor = request.start_floor_y > navmesh::kBaseNavFloorYValidMin ? request.start_floor_y : request.floor_y;
@@ -363,11 +365,12 @@ navmesh::BaseNavRouteResult plan_corridor_route(
     result.gap_goal = plan.debug.gap_goal;
     result.gap_distance = plan.debug.gap_distance;
     if (!plan.ok || plan.points.size() < 2) {
-        result.error = plan.error.empty() ? "规划结果没有可执行路径点" : plan.error;
+        result.failure = plan.failure == navmesh::RouteFailure::None ? navmesh::RouteFailure::NoUsablePath : plan.failure;
         if (plan.no_go) {
             result.status = navmesh::BaseNavRouteStatus::NoGo;
         }
-        LogWarn << "RECAST plan failed." << VAR(request.zone_name) << VAR(request.no_go_discs.size()) << VAR(result.error);
+        const char* reason = navmesh::ToString(result.failure);
+        LogWarn << "RECAST plan failed." << VAR(request.zone_name) << VAR(request.no_go_discs.size()) << VAR(reason);
         return result;
     }
     for (const std::string& warning : plan.warnings) {
@@ -896,12 +899,13 @@ bool handle_unreachable_leg(
 {
     // 下面的兜底都不看可走面, 禁区必须先拦下, 否则会穿过禁区
     if (leg.route_result.status == navmesh::BaseNavRouteStatus::NoGo) {
+        const char* reason = navmesh::ToString(leg.route_result.failure);
         LogError << "NAVMESH waypoint rejected by a virtual no-go zone." << VAR(state->navmesh_zone) << VAR(state->current_zone)
-                 << VAR(leg.target.point.x) << VAR(leg.target.point.y) << VAR(leg.route_result.error);
+                 << VAR(leg.target.point.x) << VAR(leg.target.point.y) << VAR(reason);
         fail_waypoint(
             ctx,
             "route_no_go",
-            " 无法规划：" + leg.route_result.error,
+            std::string(" 无法规划：") + reason,
             waypoint,
             authored_index,
             *state,

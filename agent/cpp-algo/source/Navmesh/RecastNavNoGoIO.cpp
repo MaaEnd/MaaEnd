@@ -8,6 +8,7 @@
 
 #include <meojson/json.hpp>
 
+#include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
 
 namespace navmesh::recast
@@ -60,13 +61,13 @@ bool NoGoPolyContains(const NoGoPoly& poly, const WorldPoint& p)
     return in;
 }
 
-bool LoadNoGoTable(NoGoTable* table, std::string* err, const std::filesystem::path& path, const BaseNavPack& pack)
+bool LoadNoGoTable(NoGoTable* table, const std::filesystem::path& path, const BaseNavPack& pack)
 {
     table->zones.clear();
     std::error_code ec;
     const bool present = std::filesystem::exists(path, ec);
     if (ec) {
-        *err = "虚拟禁区表读不到 (" + MAA_NS::path_to_utf8_string(path) + "): " + ec.message();
+        LogError << "No-go table unreadable." << VAR(MAA_NS::path_to_utf8_string(path)) << VAR(ec.message());
         return false;
     }
     if (!present) {
@@ -74,12 +75,12 @@ bool LoadNoGoTable(NoGoTable* table, std::string* err, const std::filesystem::pa
     }
     const auto doc = json::open(path, true, true);
     if (!doc.has_value() || !doc->is<FileJson>()) {
-        *err = "虚拟禁区表解不开 (" + MAA_NS::path_to_utf8_string(path) + ")";
+        LogError << "No-go table failed to parse." << VAR(MAA_NS::path_to_utf8_string(path));
         return false;
     }
     const auto file = doc->as<FileJson>();
     if (file.version != 1) {
-        *err = "虚拟禁区表版本不认识 (" + MAA_NS::path_to_utf8_string(path) + ")";
+        LogError << "No-go table version is unknown." << VAR(MAA_NS::path_to_utf8_string(path)) << VAR(file.version);
         return false;
     }
     for (const auto& [name, list] : file.zones) {
@@ -89,21 +90,21 @@ bool LoadNoGoTable(NoGoTable* table, std::string* err, const std::filesystem::pa
             p.id = src.id;
             for (const std::vector<double>& q : src.poly) {
                 if (q.size() < 2) {
-                    *err = "区 " + name + " 的禁区里有不是两个数的点";
+                    LogError << "No-go polygon has a point with fewer than two coordinates." << VAR(name) << VAR(src.id);
                     table->zones.clear();
                     return false;
                 }
                 p.ring.push_back({ q[0], q[1] });
             }
             if (p.ring.size() < 3) {
-                *err = "区 " + name + " 的禁区点数不够";
+                LogError << "No-go polygon has fewer than three points." << VAR(name) << VAR(src.id);
                 table->zones.clear();
                 return false;
             }
             if (!src.tier.empty()) {
                 const BaseNavZone* tz = FindBaseNavZoneByName(pack, src.tier);
                 if (tz == nullptr) {
-                    *err = "区 " + name + " 的禁区 " + p.id + " 画在包里没有的 tier " + src.tier + " 上";
+                    LogError << "No-go polygon is drawn on a tier missing from the pack." << VAR(name) << VAR(p.id) << VAR(src.tier);
                     table->zones.clear();
                     return false;
                 }
