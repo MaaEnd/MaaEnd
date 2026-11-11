@@ -58,7 +58,6 @@
     },
     "AutoDailyMissionMissingRobotsEntry": {
         "desc": "在委派任务列表中点击日常·寻机启事",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMenuMission",
@@ -356,7 +355,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDailyMissionQuickTeleport",
-            "AutoDailyMissionCloseMap"
+            "AutoDailyMissionSelectTrackedMission"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.missing_robots_originium_byproduct_processing_center"
@@ -372,7 +371,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDailyMissionQuickTeleport",
-            "AutoDailyMissionCloseMap"
+            "AutoDailyMissionSelectTrackedMission"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.missing_robots_southern_meadows"
@@ -388,7 +387,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDailyMissionQuickTeleport",
-            "AutoDailyMissionCloseMap"
+            "AutoDailyMissionSelectTrackedMission"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.missing_robots_route_5"
@@ -404,7 +403,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDailyMissionQuickTeleport",
-            "AutoDailyMissionCloseMap"
+            "AutoDailyMissionSelectTrackedMission"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.missing_robots_mining_area_clinic"
@@ -420,7 +419,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDailyMissionQuickTeleport",
-            "AutoDailyMissionCloseMap"
+            "AutoDailyMissionSelectTrackedMission"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.missing_robots_united_parking_lot"
@@ -555,7 +554,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionMain"
+            "AutoDailyMissionCheckFinished"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -690,7 +689,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionMain"
+            "AutoDailyMissionCheckFinished"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -825,7 +824,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionMain"
+            "AutoDailyMissionCheckFinished"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -977,7 +976,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionMain"
+            "AutoDailyMissionCheckFinished"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -1091,7 +1090,7 @@
             "path": [
                 {
                     "action": "ZONE",
-                    "zone_id": "ValleyIV_Base"
+                    "zone_id": "ValleyIV_L7_135"
                 },
                 {
                     "action": "NAVMESH",
@@ -1112,7 +1111,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionMain"
+            "AutoDailyMissionCheckFinished"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"

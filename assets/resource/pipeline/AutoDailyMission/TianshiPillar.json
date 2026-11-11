@@ -58,7 +58,6 @@
     },
     "AutoDailyMissionTianshiPillarEntry": {
         "desc": "在委派任务列表中点击日常·天桩追踪",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMenuMission",
@@ -261,7 +260,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDailyMissionQuickTeleport",
-            "AutoDailyMissionCloseMap"
+            "AutoDailyMissionSelectTrackedMission"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.tianshi_pillar_tianshi_bureau_academy"
@@ -277,7 +276,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDailyMissionQuickTeleport",
-            "AutoDailyMissionCloseMap"
+            "AutoDailyMissionSelectTrackedMission"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.tianshi_pillar_field_logistics_depot"
@@ -293,7 +292,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDailyMissionQuickTeleport",
-            "AutoDailyMissionCloseMap"
+            "AutoDailyMissionSelectTrackedMission"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.tianshi_pillar_fangxing_avenue"
@@ -309,7 +308,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDailyMissionQuickTeleport",
-            "AutoDailyMissionCloseMap"
+            "AutoDailyMissionSelectTrackedMission"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.tianshi_pillar_zhailing_islet"
@@ -325,7 +324,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDailyMissionQuickTeleport",
-            "AutoDailyMissionCloseMap"
+            "AutoDailyMissionSelectTrackedMission"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.tianshi_pillar_treasure_grotto"
@@ -460,7 +459,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionMain"
+            "AutoDailyMissionCheckFinished"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -595,7 +594,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionMain"
+            "AutoDailyMissionCheckFinished"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -730,7 +729,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionMain"
+            "AutoDailyMissionCheckFinished"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -865,7 +864,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionMain"
+            "AutoDailyMissionCheckFinished"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -1000,7 +999,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionMain"
+            "AutoDailyMissionCheckFinished"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
