@@ -2,12 +2,6 @@
     "AutoStockInStapleItem": {
         "recognition": {
             "param": {
-                "roi": [
-                    0,
-                    160,
-                    1280,
-                    540
-                ],
                 "lower": [
                     [
                         70,
@@ -41,7 +35,8 @@
                         255,
                         217
                     ]
-                ]
+                ],
+                "count": 600
             }
         }
     },
