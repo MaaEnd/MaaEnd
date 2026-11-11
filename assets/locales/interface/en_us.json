@@ -1566,7 +1566,7 @@
     "option.CreditShoppingQuickGiveDuplicateClues.label": "Give Away All Duplicates",
     "option.CreditShoppingRefreshCheckPrice.description": "Check the reserve threshold before a direct buy and cancel if it would be breached.",
     "option.CreditShoppingRefreshCheckPrice.label": "Check price before direct buy",
-    "option.CreditShoppingReserve.description": "Stop buying when credits fall below this value; 0 disables.",
+    "option.CreditShoppingReserve.description": "Stop buying when credits fall below this value.",
     "option.CreditShoppingReserve.inputs.ReserveCreditThreshold.description": "Enter a non-negative integer. Buying items stops below this value.",
     "option.CreditShoppingReserve.inputs.ReserveCreditThreshold.label": "Minimum Reserved Credits",
     "option.CreditShoppingReserve.label": "Reserved Credits",

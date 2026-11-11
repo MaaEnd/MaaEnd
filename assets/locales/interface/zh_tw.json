@@ -1566,7 +1566,7 @@
     "option.CreditShoppingQuickGiveDuplicateClues.label": "快速贈予重複線索",
     "option.CreditShoppingRefreshCheckPrice.description": "直購前先判斷是否會跌破保留閾值，不足則取消購買。",
     "option.CreditShoppingRefreshCheckPrice.label": "直購前檢查價格",
-    "option.CreditShoppingReserve.description": "信用點低於該值時停止購買，0 表示不啟用。",
+    "option.CreditShoppingReserve.description": "信用點低於該值時停止購買。",
     "option.CreditShoppingReserve.inputs.ReserveCreditThreshold.description": "請輸入非負整數，低於該值時停止購買物品。",
     "option.CreditShoppingReserve.inputs.ReserveCreditThreshold.label": "最低保留信用點",
     "option.CreditShoppingReserve.label": "保留信用點",

@@ -1566,7 +1566,7 @@
     "option.CreditShoppingQuickGiveDuplicateClues.label": "重複分を一括譲渡",
     "option.CreditShoppingRefreshCheckPrice.description": "直購入の前に保留閾値を割るかを判定し、割る場合は購入を中止します。",
     "option.CreditShoppingRefreshCheckPrice.label": "直購入前に価格を確認",
-    "option.CreditShoppingReserve.description": "クレジットがこの値を下回ると購入を停止します。0 で無効化します。",
+    "option.CreditShoppingReserve.description": "クレジットがこの値を下回ると購入を停止します。",
     "option.CreditShoppingReserve.inputs.ReserveCreditThreshold.description": "0 以上の整数を入力してください。この値を下回ると商品の購入を停止します。",
     "option.CreditShoppingReserve.inputs.ReserveCreditThreshold.label": "最低保留クレジット",
     "option.CreditShoppingReserve.label": "保留クレジット",
