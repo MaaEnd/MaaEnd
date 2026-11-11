@@ -1,7 +1,6 @@
 #pragma once
 
 #include <chrono>
-#include <memory>
 #include <string>
 
 #include <MaaUtils/NoWarningCV.hpp>
@@ -13,9 +12,9 @@ namespace maplocator
 
 struct MatchFeature
 {
-    cv::Mat image;    // 最终参与 matchTemplate 的图 (灰度图或梯度热力图)
-    cv::Mat mask;     // 对应的权重 Mask
-    cv::Mat templRaw; // 给YOLO吃的未预处理原图
+    cv::Mat image;     // 最终参与 matchTemplate 的图 (灰度图或梯度热力图)
+    cv::Mat mask;      // 对应的权重 Mask
+    cv::Mat templ_raw; // 给YOLO吃的未预处理原图
 };
 
 struct MatchResultRaw
@@ -24,7 +23,7 @@ struct MatchResultRaw
     cv::Point2d loc { 0.0, 0.0 };
 
     // 置信度指标
-    double secondScore = -1.0;
+    double second_score = -1.0;
     double delta = 0.0;
     double psr = 0.0;
 };
@@ -44,60 +43,60 @@ enum class TemplateFeatureKind
 
 struct TrackingValidation
 {
-    bool isValid;
-    bool isEdgeSnapped;
-    bool isTeleported;
-    bool isScreenBlocked;
-    double absX, absY;
+    bool is_valid = false;
+    bool is_edge_snapped = false;
+    bool is_teleported = false;
+    bool is_screen_blocked = false;
+    double abs_x = 0.0;
+    double abs_y = 0.0;
 };
 
-class IMatchStrategy
+enum class MatchStrategyKind
 {
-public:
-    virtual ~IMatchStrategy() = default;
-
-    // 预处理小地图（模板）
-    virtual MatchFeature extractTemplateFeature(const cv::Mat& minimap) = 0;
-
-    // 预处理大地图的搜索区域（Search ROI）
-    virtual MatchFeature extractSearchFeature(const cv::Mat& mapRoi) = 0;
-
-    virtual TemplateFeatureKind templateFeatureKind() const = 0;
-
-    // 追踪态的结果验证逻辑
-    virtual TrackingValidation validateTracking(
-        const MatchResultRaw& trackResult,
-        std::chrono::duration<double> dt,
-        std::optional<MapPosition> lastPos,
-        const cv::Rect& searchRect,
-        int templCols,
-        int templRows) = 0;
-
-    // 全局搜索的结果验证逻辑
-    virtual bool validateGlobalSearch(const MatchResultRaw& fineRes, double& outScore) = 0;
-
-    // 用于Chamfer补偿
-    virtual bool needsChamferCompensation() const { return false; }
+    Standard,
+    PathHeatmap,
 };
 
-enum class MatchMode
+struct MatchStrategy
 {
-    Auto,
-    ForceStandard,
-    ForcePathHeatmap
+    MatchStrategyKind kind = MatchStrategyKind::Standard;
+    bool is_base = false;
+    TrackingConfig tracking;
+    MatchConfig match;
+    ImageProcessingConfig base_image {};
+    ImageProcessingConfig tier_image {};
 };
 
-class MatchStrategyFactory
-{
-public:
-    static std::unique_ptr<IMatchStrategy> create(
-        const std::string& zoneId,
-        const TrackingConfig& trackingCfg,
-        const MatchConfig& matchCfg,
-        const ImageProcessingConfig& baseImgCfg,
-        const ImageProcessingConfig& tierImgCfg,
-        MatchMode mode = MatchMode::Auto);
-};
+MatchStrategy MakeMatchStrategy(
+    const std::string& zoneId,
+    const TrackingConfig& trackingCfg,
+    const MatchConfig& matchCfg,
+    const ImageProcessingConfig& baseImgCfg,
+    const ImageProcessingConfig& tierImgCfg);
+
+// 预处理小地图（模板）
+MatchFeature ExtractTemplateFeature(const MatchStrategy& strategy, const cv::Mat& minimap);
+
+// 预处理大地图的搜索区域（Search ROI）
+MatchFeature ExtractSearchFeature(const MatchStrategy& strategy, const cv::Mat& mapRoi);
+
+TemplateFeatureKind TemplateKindOf(const MatchStrategy& strategy);
+
+// 追踪态的结果验证逻辑
+TrackingValidation ValidateTracking(
+    const MatchStrategy& strategy,
+    const MatchResultRaw& trackResult,
+    std::chrono::duration<double> dt,
+    std::optional<MapPosition> lastPos,
+    const cv::Rect& searchRect,
+    int templCols,
+    int templRows);
+
+// 全局搜索的结果验证逻辑
+bool ValidateGlobalSearch(const MatchStrategy& strategy, double score);
+
+// 用于Chamfer补偿
+bool NeedsChamferCompensation(const MatchStrategy& strategy);
 
 enum class PeakRefineMode
 {
@@ -107,6 +106,7 @@ enum class PeakRefineMode
     Continuous,
 };
 
+double DeliveredScore(TemplateFeatureKind kind, const MatchResultRaw& window, const MatchResultRaw& refined);
 std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask);
 PreparedSearchFeature PrepareSearchFeature(const cv::Mat& searchImgRaw);
 std::optional<MatchResultRaw> CoreMatchPrepared(

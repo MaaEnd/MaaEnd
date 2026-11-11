@@ -37,6 +37,25 @@ class NavTestServiceTest(unittest.TestCase):
             INSTALL_DIR / "debug" / "cpp-algo" / "debug" / "maafw.log",
         )
 
+    def test_position_regex_accepts_current_and_legacy_zone_keys(self) -> None:
+        lines = {
+            "current": (
+                "MapLocator [status=0] [locate_result.debug_message=Tracking Success] [position.zone_id=Wuling_Base] "
+                "[position.x=1.5] [position.y=-2] [position.score=0.9] [position.slice_index=0] [position.angle=90] "
+                "[cam_rot=-1] [cam_rot_conf=-1] [position.latency_ms=12]"
+            ),
+            "legacy": (
+                "MapLocator [status=0] [locate_result.debugMessage=Tracking Success] [position.zoneId=Wuling_Base] "
+                "[position.x=1.5] [position.y=-2] [position.score=0.9] [position.sliceIndex=0] [position.angle=90] "
+                "[cam_rot=-1] [cam_rot_conf=-1] [position.latencyMs=12]"
+            ),
+        }
+        for name, line in lines.items():
+            with self.subTest(name):
+                match = NavTestService._POSITION_RE.search(line)
+                self.assertIsNotNone(match)
+                self.assertEqual(match.groups(), ("Wuling_Base", "1.5", "-2", "90"))
+
     def test_passes_zip_option_to_map_navigate_action(self) -> None:
         service = self._make_service()
         resource = _Resource()

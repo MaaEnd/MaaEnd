@@ -164,6 +164,19 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 					"expression": "{AutoSellFriendsPriceCurrentRecognition} >= " + strconv.Itoa(targetPrice),
 				},
 			},
+			"AutoSellLocalPriceGoHomeValleyIV": map[string]any{
+				"enabled": param.Region == "ValleyIV",
+			},
+			"AutoSellLocalPriceGoHomeWuling": map[string]any{
+				"enabled": param.Region == "Wuling",
+			},
+			"AutoSellLocalPriceExpected": map[string]any{
+				"custom_recognition_param": map[string]any{
+					"expression":                          "{AutoSellOwnPriceRecognition} >= " + strconv.Itoa(targetPrice),
+					"focus_matched_resolved_expression":   true,
+					"focus_unmatched_resolved_expression": true,
+				},
+			},
 			"AutoSellStockRedistributionItemFindTextRecognition": map[string]any{
 				"expected": targetName,
 			},

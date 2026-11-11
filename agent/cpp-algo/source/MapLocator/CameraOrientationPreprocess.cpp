@@ -25,7 +25,7 @@ struct AzimuthTable
     std::array<float, kOrientationStripWidth> cos {};
 };
 
-const AzimuthTable& GetAzimuthTable()
+const AzimuthTable& get_azimuth_table()
 {
     static const AzimuthTable table = [] {
         AzimuthTable result;
@@ -39,14 +39,14 @@ const AzimuthTable& GetAzimuthTable()
     return table;
 }
 
-uint8_t ToByte(float value)
+uint8_t to_byte(float value)
 {
     return static_cast<uint8_t>(std::clamp(std::lround(value), 0L, 255L));
 }
 
 // 双线性采样一个像素写入 out（长度 image.channels()）。
 // clamp_to_edge 为真时越界取边缘（观测条带），否则越界取 0（参考条带）。
-void SampleBilinear(const cv::Mat& image, float x, float y, bool clamp_to_edge, float* out)
+void sample_bilinear(const cv::Mat& image, float x, float y, bool clamp_to_edge, float* out)
 {
     const int channels = image.channels();
     const int width = image.cols;
@@ -85,7 +85,7 @@ bool BuildOrientationStrips(const cv::Mat& minimap, const cv::Mat& asset, float 
         return false;
     }
 
-    const AzimuthTable& azimuth = GetAzimuthTable();
+    const AzimuthTable& azimuth = get_azimuth_table();
     out.observed.create(kOrientationStripHeight, kOrientationStripWidth, CV_8UC3);
     out.reference.create(kOrientationStripHeight, kOrientationStripWidth, CV_8UC4);
 
@@ -99,21 +99,21 @@ bool BuildOrientationStrips(const cv::Mat& minimap, const cv::Mat& asset, float 
             const float v = kPoleV - radius * azimuth.cos[col];
 
             float obs[3];
-            SampleBilinear(minimap, u, v, true, obs);
+            sample_bilinear(minimap, u, v, true, obs);
             for (int channel = 0; channel < 3; ++channel) {
-                observed[col * 3 + channel] = ToByte(obs[channel]);
+                observed[col * 3 + channel] = to_byte(obs[channel]);
             }
 
             // 底图坐标 = 极点定位 (x, y) + 采样点相对极点的偏移 * scale。
             float ref[4];
-            SampleBilinear(asset, x + (u - kPoleU) * scale, y + (v - kPoleV) * scale, false, ref);
+            sample_bilinear(asset, x + (u - kPoleU) * scale, y + (v - kPoleV) * scale, false, ref);
 
             // 参考 BGR 在资产透明处向白底过渡，alpha 保留原值。
             const float alpha = ref[3] / 255.0f;
             for (int channel = 0; channel < 3; ++channel) {
-                reference[col * 4 + channel] = ToByte(ref[channel] * alpha + 255.0f * (1.0f - alpha));
+                reference[col * 4 + channel] = to_byte(ref[channel] * alpha + 255.0f * (1.0f - alpha));
             }
-            reference[col * 4 + 3] = ToByte(ref[3]);
+            reference[col * 4 + 3] = to_byte(ref[3]);
         }
     }
     return true;

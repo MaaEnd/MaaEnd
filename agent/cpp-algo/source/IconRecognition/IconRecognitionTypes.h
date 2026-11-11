@@ -207,6 +207,12 @@ struct CandidateFilter
     std::vector<std::string> item_recheck_filters;
 };
 
+enum class ResultOrder
+{
+    Score,
+    Natural,
+};
+
 struct RecognitionRequest
 {
     // 默认值仅作为构造占位；调用入口解析成功后必须写入实际 grid_type。
@@ -223,6 +229,9 @@ struct RecognitionRequest
     bool deduplicate = false;
     // 地区禁用模板只作为普通识别失败后的按需后备，默认不加载也不参与识别。
     bool recognize_region_unavailable = false;
+    // 仅影响最终结果的输出顺序；复核和去重始终使用分数顺序，保证去重保留最高分命中。
+    ResultOrder order_by = ResultOrder::Score;
+    bool reverse = false;
     // 默认不采集内部诊断和耗时，避免正常识别承担额外观测开销。
     bool debug = false;
 };

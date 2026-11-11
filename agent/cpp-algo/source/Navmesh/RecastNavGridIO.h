@@ -53,12 +53,12 @@ struct GridTile
 };
 
 // v2 瓦载荷, 输入须已解压
-bool DecodeGridTile(const uint8_t* data, size_t len, GridTile& out);
+bool DecodeGridTile(GridTile* out, const uint8_t* data, size_t len);
 
 // 输入段里的原始字节, 内部逐流 inflate
-bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out);
+bool DecodeGridTileV3(GridTile* out, const uint8_t* data, size_t len, int32_t nx);
 
-bool DecodeGridTileRegionsV3(const uint8_t* data, size_t len, std::vector<uint32_t>& out);
+bool DecodeGridTileRegionsV3(std::vector<uint32_t>* out, const uint8_t* data, size_t len);
 
 // gx0/gy0 是全局格号, [px0,px1]×[py0,py1] 是瓦内闭区间, 各瓦互不重叠且覆盖全区
 struct GridTileRef
@@ -86,39 +86,31 @@ struct GridZoneDir
 };
 
 // 只记段字节的指针, 寿命不能长过它解析的那个包
-class GridPack
+struct GridPack
 {
-public:
-    bool parse(const uint8_t* data, size_t len, std::string& err);
-
-    bool valid() const { return base_ != nullptr; }
-
-    double cellSize() const { return cell_size_; }
-
-    double tilePx() const { return tile_px_; }
-
-    double apronPx() const { return apron_px_; }
-
-    const std::vector<GridZoneDir>& zones() const { return zones_; }
-
-    const GridZoneDir* findZone(const std::string& name) const;
-    bool decodeTile(const GridTileRef& t, GridTile& out) const;
-    bool tileRegions(const GridTileRef& t, std::vector<uint32_t>& out) const;
-
-private:
-    const uint8_t* base_ = nullptr;
-    size_t len_ = 0;
-    uint32_t version_ = 0;
-    double cell_size_ = 0.0;
-    double tile_px_ = 0.0;
-    double apron_px_ = 0.0;
-    std::vector<GridZoneDir> zones_;
+    const uint8_t* base = nullptr;
+    size_t len = 0;
+    uint32_t version = 0;
+    double cell_size = 0.0;
+    double tile_px = 0.0;
+    double apron_px = 0.0;
+    std::vector<GridZoneDir> zones;
 };
+
+bool ParseGridPack(GridPack* pack, std::string* err, const uint8_t* data, size_t len);
+
+bool GridPackParsed(const GridPack& pack);
+
+const GridZoneDir* FindGridZone(const GridPack& pack, const std::string& name);
+
+bool DecodeGridPackTile(GridTile* out, const GridPack& pack, const GridTileRef& tile);
+
+bool GridPackTileRegions(std::vector<uint32_t>* out, const GridPack& pack, const GridTileRef& tile);
 
 // 自有矩形与全局格闭区间 [gx0,gx1]×[gy0,gy1] 相交的瓦
 std::vector<const GridTileRef*> GridTilesInRect(const GridZoneDir& zone, int64_t gx0, int64_t gy0, int64_t gx1, int64_t gy1);
 
 // 解不带原长的 zlib 流, 覆盖写入 out
-bool InflateBytes(const uint8_t* data, size_t len, std::vector<uint8_t>& out);
+bool InflateBytes(std::vector<uint8_t>* out, const uint8_t* data, size_t len);
 
 }

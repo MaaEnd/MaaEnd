@@ -16,18 +16,20 @@ namespace fs = std::filesystem;
 namespace maplocator
 {
 
-YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThreshold, int threads)
-    : yoloConfThreshold(confThreshold)
+std::unique_ptr<YoloModel> LoadYoloModel(const std::string& yoloModelPath, double confThreshold, int threads)
 {
+    auto model = std::make_unique<YoloModel>();
+    model->conf_threshold = confThreshold;
+
     if (!yoloModelPath.empty()) {
-        ortEnv = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "MapLocatorYolo");
+        model->env = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "MapLocatorYolo");
         Ort::SessionOptions sessionOptions;
         sessionOptions.SetIntraOpNumThreads(std::max(1, threads));
         sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_BASIC);
 
         auto osModelPath = MAA_NS::to_osstring(yoloModelPath);
-        ortSession = std::make_unique<Ort::Session>(*ortEnv, osModelPath.c_str(), sessionOptions);
-        isYoloLoaded = true;
+        model->session = std::make_unique<Ort::Session>(*model->env, osModelPath.c_str(), sessionOptions);
+        model->loaded = true;
 
         fs::path modelPath = MAA_NS::path(yoloModelPath);
         fs::path jsonPath = modelPath;
@@ -38,18 +40,18 @@ YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThresh
             Json j = *j_opt;
 
             if (j.contains("input_name")) {
-                inputNodeNames.push_back(j["input_name"].as<std::string>());
+                model->input_names.push_back(j["input_name"].as<std::string>());
             }
             if (j.contains("output_name")) {
-                outputNodeNames.push_back(j["output_name"].as<std::string>());
+                model->output_names.push_back(j["output_name"].as<std::string>());
             }
 
             if (j.contains("classes")) {
-                yoloClassNames = j["classes"].as<std::vector<std::string>>();
+                model->class_names = j["classes"].as<std::vector<std::string>>();
             }
             if (j.contains("region_mapping")) {
                 for (auto& [key, val] : j["region_mapping"].as_object()) {
-                    regionMapping[key] = val.as<std::string>();
+                    model->region_mapping[key] = val.as<std::string>();
                 }
             }
             LogInfo << "Loaded config from: " << jsonPath;
@@ -64,10 +66,10 @@ YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThresh
         if (tileMappingOpt) {
             const Json& tileMapping = *tileMappingOpt;
             for (auto& [key, val] : tileMapping.as_object()) {
-                tileRegions.emplace(key, val.as<TileRegion>());
+                model->tile_regions.emplace(key, val.as<YoloTileRegion>());
             }
             const std::string tileMappingPathUtf8 = MAA_NS::path_to_utf8_string(tileMappingPath);
-            LogInfo << "Loaded tile mapping" << VAR(tileMappingPathUtf8) << VAR(tileRegions.size());
+            LogInfo << "Loaded tile mapping" << VAR(tileMappingPathUtf8) << VAR(model->tile_regions.size());
         }
         else {
             const std::string tileMappingPathUtf8 = MAA_NS::path_to_utf8_string(tileMappingPath);
@@ -76,14 +78,16 @@ YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThresh
 
         LogInfo << "YOLO Model loaded successfully.";
     }
+
+    return model;
 }
 
-std::string YoloPredictor::convertYoloNameToZoneId(const std::string& yoloName)
+std::string YoloNameToZoneId(const YoloModel& model, const std::string& yoloName)
 {
     const std::string prefix = yoloName.length() >= 5 ? yoloName.substr(0, 5) : yoloName;
 
-    auto it = regionMapping.find(prefix);
-    if (it != regionMapping.end()) {
+    auto it = model.region_mapping.find(prefix);
+    if (it != model.region_mapping.end()) {
         const std::string& regionName = it->second;
         if (yoloName.find("Base") != std::string::npos && yoloName.find("Map") != std::string::npos) {
             return regionName + "_Base";
@@ -98,12 +102,12 @@ std::string YoloPredictor::convertYoloNameToZoneId(const std::string& yoloName)
     return yoloName;
 }
 
-YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
+YoloCoarseResult PredictCoarseByYolo(YoloModel* model, const cv::Mat& minimap)
 {
-    std::lock_guard<std::mutex> lock(yoloMutex);
+    std::lock_guard<std::mutex> lock(model->mutex);
     YoloCoarseResult result;
 
-    if (!isYoloLoaded || !ortSession) {
+    if (!model->loaded || !model->session) {
         LogError << "YOLO Error: Model is NOT loaded.";
         return result;
     }
@@ -124,8 +128,8 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
         img3C = minimap.clone();
     }
 
-    canvasScratch.create(OUTPUT_SIZE, OUTPUT_SIZE, CV_8UC3);
-    canvasScratch.setTo(cv::Scalar::all(0));
+    model->canvas_scratch.create(OUTPUT_SIZE, OUTPUT_SIZE, CV_8UC3);
+    model->canvas_scratch.setTo(cv::Scalar::all(0));
     int h = img3C.rows, w = img3C.cols;
     int start_y = std::max(0, (OUTPUT_SIZE - h) / 2);
     int start_x = std::max(0, (OUTPUT_SIZE - w) / 2);
@@ -134,31 +138,32 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
 
     cv::Rect canvas_roi(start_x, start_y, crop_w, crop_h);
     cv::Rect img_roi((w - crop_w) / 2, (h - crop_h) / 2, crop_w, crop_h);
-    img3C(img_roi).copyTo(canvasScratch(canvas_roi));
+    img3C(img_roi).copyTo(model->canvas_scratch(canvas_roi));
 
-    if (maskScratch.size() != cv::Size(OUTPUT_SIZE, OUTPUT_SIZE) || maskScratch.type() != CV_8UC1) {
-        maskScratch.create(OUTPUT_SIZE, OUTPUT_SIZE, CV_8UC1);
-        maskScratch.setTo(cv::Scalar::all(0));
-        cv::circle(maskScratch, cv::Point(OUTPUT_SIZE / 2, OUTPUT_SIZE / 2), MASK_DIAMETER / 2, cv::Scalar(255), -1);
+    if (model->mask_scratch.size() != cv::Size(OUTPUT_SIZE, OUTPUT_SIZE) || model->mask_scratch.type() != CV_8UC1) {
+        model->mask_scratch.create(OUTPUT_SIZE, OUTPUT_SIZE, CV_8UC1);
+        model->mask_scratch.setTo(cv::Scalar::all(0));
+        cv::circle(model->mask_scratch, cv::Point(OUTPUT_SIZE / 2, OUTPUT_SIZE / 2), MASK_DIAMETER / 2, cv::Scalar(255), -1);
     }
 
-    processedScratch.create(OUTPUT_SIZE, OUTPUT_SIZE, CV_8UC3);
-    processedScratch.setTo(cv::Scalar::all(0));
-    cv::bitwise_and(canvasScratch, canvasScratch, processedScratch, maskScratch);
+    model->processed_scratch.create(OUTPUT_SIZE, OUTPUT_SIZE, CV_8UC3);
+    model->processed_scratch.setTo(cv::Scalar::all(0));
+    cv::bitwise_and(model->canvas_scratch, model->canvas_scratch, model->processed_scratch, model->mask_scratch);
 
-    cv::cvtColor(processedScratch, rgbScratch, cv::COLOR_BGR2RGB);
+    cv::cvtColor(model->processed_scratch, model->rgb_scratch, cv::COLOR_BGR2RGB);
 
     // Convert to Float and Normalize [0, 1]
-    rgbScratch.convertTo(floatScratch, CV_32F, 1.0 / 255.0);
+    model->rgb_scratch.convertTo(model->float_scratch, CV_32F, 1.0 / 255.0);
 
     // Prepare input tensor (NCHW: 1x3x128x128)
-    inputTensorScratch.resize(1 * 3 * OUTPUT_SIZE * OUTPUT_SIZE);
+    model->input_tensor_scratch.resize(1 * 3 * OUTPUT_SIZE * OUTPUT_SIZE);
 
     // HWC to CHW
     for (int c = 0; c < 3; c++) {
         for (int i = 0; i < OUTPUT_SIZE; i++) {
             for (int j = 0; j < OUTPUT_SIZE; j++) {
-                inputTensorScratch[c * OUTPUT_SIZE * OUTPUT_SIZE + i * OUTPUT_SIZE + j] = floatScratch.at<cv::Vec3f>(i, j)[c];
+                model->input_tensor_scratch[c * OUTPUT_SIZE * OUTPUT_SIZE + i * OUTPUT_SIZE + j] =
+                    model->float_scratch.at<cv::Vec3f>(i, j)[c];
             }
         }
     }
@@ -168,20 +173,20 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
     auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
     Ort::Value inputTensor = Ort::Value::CreateTensor<float>(
         memoryInfo,
-        inputTensorScratch.data(),
-        inputTensorScratch.size(),
+        model->input_tensor_scratch.data(),
+        model->input_tensor_scratch.size(),
         kInputShape.data(),
         kInputShape.size());
 
-    if (inputNodeNames.empty() || outputNodeNames.empty()) {
+    if (model->input_names.empty() || model->output_names.empty()) {
         LogError << "YOLO Error: input/output node names are not configured. Check model JSON sidecar.";
         return result;
     }
 
     // Run Inference
-    const char* inName = inputNodeNames[0].c_str();
-    const char* outName = outputNodeNames[0].c_str();
-    auto outputTensors = ortSession->Run(Ort::RunOptions { nullptr }, &inName, &inputTensor, 1, &outName, 1);
+    const char* inName = model->input_names[0].c_str();
+    const char* outName = model->output_names[0].c_str();
+    auto outputTensors = model->session->Run(Ort::RunOptions { nullptr }, &inName, &inputTensor, 1, &outName, 1);
 
     if (outputTensors.empty()) {
         return result;
@@ -203,11 +208,11 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
 
     std::string predictedName = "Unknown";
     // 保护性越界判断：即便模型输出的 maxIdx 超出实际 classes 的范围，也能优雅 fallback
-    if (maxIdx >= 0 && static_cast<size_t>(maxIdx) < yoloClassNames.size()) {
-        predictedName = yoloClassNames[maxIdx];
+    if (maxIdx >= 0 && static_cast<size_t>(maxIdx) < model->class_names.size()) {
+        predictedName = model->class_names[maxIdx];
     }
 
-    LogTrace << "YOLO Raw All:" << yoloClassNames << std::vector<float>(outputData, outputData + outputCount);
+    LogTrace << "YOLO Raw All:" << model->class_names << std::vector<float>(outputData, outputData + outputCount);
     LogDebug << "YOLO Raw:" << VAR(predictedName) << VAR(maxIdx) << VAR(maxConf);
     result.raw_class = predictedName;
     result.confidence = maxConf;
@@ -220,12 +225,12 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
         return result;
     }
 
-    if (maxIdx >= 0 && static_cast<size_t>(maxIdx) < yoloClassNames.size()) {
+    if (maxIdx >= 0 && static_cast<size_t>(maxIdx) < model->class_names.size()) {
         result.valid = true;
-        result.zone_id = convertYoloNameToZoneId(predictedName);
+        result.zone_id = YoloNameToZoneId(*model, predictedName);
 
-        auto tileIt = tileRegions.find(predictedName);
-        if (tileIt != tileRegions.end()) {
+        auto tileIt = model->tile_regions.find(predictedName);
+        if (tileIt != model->tile_regions.end()) {
             result.base_class = tileIt->second.base_class;
             result.has_roi = true;
             result.roi_x = tileIt->second.x;
@@ -243,7 +248,7 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
         return result;
     }
 
-    LogInfo << "YOLO Fail: Index Out of Bounds" << VAR(maxIdx) << VAR(yoloClassNames.size());
+    LogInfo << "YOLO Fail: Index Out of Bounds" << VAR(maxIdx) << VAR(model->class_names.size());
 
     return result;
 }

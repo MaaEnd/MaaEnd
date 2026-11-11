@@ -8,11 +8,11 @@ namespace mapnavigator
 namespace semantic_nodes
 {
 
-bool IsTriggerPending(const NavigationSession& session);
+bool IsTriggerPending(const Session& session);
 
-Result ProbeTriggerWhileNavigating(const Context& ctx);
+Result ProbeTriggerWhileNavigating(Navigator* nav);
 
-Result ArriveTrigger(const Context& ctx, const Waypoint& waypoint, double actual_distance);
+Result ArriveTrigger(Navigator* nav, const Waypoint& waypoint, double actual_distance);
 
 } // namespace semantic_nodes
 

@@ -1,9 +1,6 @@
 #pragma once
 
-#include <optional>
-
 #include <MaaFramework/MaaAPI.h>
-#include <MaaUtils/NoWarningCV.hpp>
 
 #include "../../navi_config.h"
 
@@ -34,32 +31,12 @@ struct AdbCameraSwipeDriverConfig
     int post_swipe_settle_ms = kAdbTouchTurnProfile.post_swipe_settle_ms;
 };
 
-class AdbCameraSwipeDriver
+struct AdbCameraSwipeDriver
 {
-public:
-    AdbCameraSwipeDriver(MaaController* controller, AdbCameraSwipeDriverConfig config = {});
-
-    bool swipeByPixels(int dx, int dy) const;
-
-private:
-    struct ScreenGeometry
-    {
-        cv::Size resolution {};
-        cv::Point center {};
-        int up_limit = 0;
-        int down_limit = 0;
-    };
-
-    std::optional<ScreenGeometry> getScreenGeometry() const;
-    bool executeStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
-    bool postTouchDown(const cv::Point& point) const;
-    bool postTouchMove(const cv::Point& point) const;
-    bool postTouchUp() const;
-    bool ensureControllerActionPosted(MaaCtrlId ctrl_id, const char* action_name) const;
-    bool waitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const;
-
-    MaaController* controller_ = nullptr;
-    AdbCameraSwipeDriverConfig config_;
+    MaaController* controller = nullptr;
+    AdbCameraSwipeDriverConfig config;
 };
+
+bool SwipeCameraByPixels(const AdbCameraSwipeDriver& driver, int dx, int dy);
 
 } // namespace mapnavigator::backend::adb

@@ -1,9 +1,10 @@
 #pragma once
 
-#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include <MaaFramework/MaaAPI.h>
 
 #include "../../Navmesh/BaseNavPlanner.h"
 #include "../../Zipline/ZiplineFrames.h"
@@ -25,8 +26,7 @@ struct ZiplineOutcome
 };
 
 // 按调用线程记账, 寻路入口开始时清零、结束时取用
-void ResetZiplineOutcome();
-ZiplineOutcome CurrentZiplineOutcome();
+ZiplineOutcome* ThreadZiplineOutcome();
 
 struct ZiplineRoute
 {
@@ -43,7 +43,7 @@ struct ZiplineRoute
     std::vector<NavmeshRouteDiagnostic> diagnostics;
 };
 
-// sameTower 靠世界坐标认架子, 漏一个分量就退化成按像素认, 所以两侧共用这份映射
+// SameTower 靠世界坐标认架子, 漏一个分量就退化成按像素认, 所以两侧共用这份映射
 ZiplineNodeRef ToNodeRef(const zipline::ZiplineNode& node);
 
 // walking_path 为空表示步行不可达, goal_deck_y 须与步行方案一致, 两个区名不可互换
@@ -59,12 +59,12 @@ struct ZiplineLegRequest
     std::optional<double> goal_deck_y;
     std::optional<double> start_floor_y;
     std::optional<double> start_deck_y;
-    std::function<bool()> should_stop;
+    MaaContext* maa_context = nullptr;
     bool capture_diagnostics = false;
     // 上下索两段步行与作者路线避开同一批禁区
     const std::vector<VirtualNoGoDisc>* no_go = nullptr;
 };
 
-std::optional<ZiplineRoute> PlanZiplineRoute(const NaviParam& param, const ZiplineLegRequest& request);
+std::optional<ZiplineRoute> PlanZiplineRoute(ZiplineOutcome* outcome, const NaviParam& param, const ZiplineLegRequest& request);
 
 } // namespace mapnavigator

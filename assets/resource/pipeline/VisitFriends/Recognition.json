@@ -278,5 +278,19 @@
             "VisitFriendsMenuScanPriorityFallbackToNormal",
             "VisitFriendsPrioritySearchDone"
         ]
+    },
+    "VisitFriendsBtwSellPriceRecognition": {
+        "desc": "顺便出售：识别出售物资界面的单个物品售出价",
+        "recognition": "OCR",
+        "roi": [
+            1015,
+            240,
+            60,
+            25
+        ],
+        "expected": [
+            "\\d"
+        ],
+        "only_rec": true
     }
 }

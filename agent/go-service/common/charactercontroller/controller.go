@@ -229,9 +229,8 @@ type lastTargetBox struct {
 }
 
 var (
-	targetNotFoundCounter = 0
-	lastTarget            *lastTargetBox
-	lastFarTargetWidth    *int
+	lastTarget         *lastTargetBox
+	lastFarTargetWidth *int
 )
 
 func rememberLastTarget(box maa.Rect, farTargetWidth *int) {
@@ -276,7 +275,6 @@ func signedDeltaFromLastBox(box *lastTargetBox, farW *int, absDelta int) (signed
 type CharacterMoveToTargetAction struct{}
 
 func (a *CharacterMoveToTargetAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	targetNotFoundCounter = 0
 	var params struct {
 		AlignThreshold *int `json:"align_threshold"`
 		FarTargetWidth *int `json:"far_target_width"`
@@ -309,18 +307,6 @@ var (
 )
 
 func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	targetNotFoundCounter++
-	if targetNotFoundCounter > 30 {
-		log.Warn().
-			Int("counter", targetNotFoundCounter).
-			Str("component", "CharacterController").
-			Str("action", "CharacterMoveToTargetNotFound").
-			Msg("target not found for too many times, stopping task")
-		targetNotFoundCounter = 0
-		clearLastTarget()
-		return false
-	}
-
 	var params struct {
 		Delta int `json:"delta"`
 	}
@@ -338,7 +324,6 @@ func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.Cus
 	clearLastTarget()
 
 	evt := log.Debug().
-		Int("counter", targetNotFoundCounter).
 		Str("component", "CharacterController").
 		Str("action", "CharacterMoveToTargetNotFound").
 		Str("side", side).

@@ -12,22 +12,22 @@ namespace maplocator
 
 struct MapPosition
 {
-    std::string zoneId;
+    std::string zone_id;
     double x = 0.0;
     double y = 0.0;
     double score = 0.0;
-    int sliceIndex = 0;
+    int slice_index = 0;
     double angle = 0.0; // 当前帧角色朝向，负值表示未识别到；定位成功不保证朝向可用。
-    long long latencyMs = 0;
+    long long latency_ms = 0;
 };
 
 struct MapLocatorConfig
 {
-    std::string mapResourceDir;
-    std::string yoloModelPath;
+    std::string map_resource_dir;
+    std::string yolo_model_path;
     // 摄像机朝向参考配对分类器；路径为空表示未部署。预处理由 C++ 执行，不需要模型文件。
-    std::string cameraOrientationRefModelPath;
-    int yoloThreads = 1;
+    std::string camera_orientation_ref_model_path;
+    int yolo_threads = 1;
 };
 
 // 调用方对「人大概在哪」的先验，例如滑索落点、传送落点。只在全局搜索时多开一个以它为中心的
@@ -44,7 +44,7 @@ struct SearchHint
 
 struct LocateOptions
 {
-    double loc_threshold = 0.55;      // 低于此分先跑第二策略和提示窗, 仍无更高峰则照样交付
+    double loc_threshold = 0.55;      // 全局结果的校验线, 都没过线时照样交付最高峰
     double yolo_threshold = 0.70;
     bool force_global_search = false; // 是否强制放弃当前追踪，进行全局全图搜
     int max_lost_frames = 3;          // 允许丢失追踪的帧数
@@ -93,8 +93,8 @@ struct LocateResult
 {
     LocateStatus status;
     std::optional<MapPosition> position;
-    std::string debugMessage;    // 用于向 Pipeline 输出日志
-    std::optional<CameraOrientation> camRot;
+    std::string debug_message;   // 用于向 Pipeline 输出日志
+    std::optional<CameraOrientation> cam_rot;
     std::optional<double> rot;   // 当前帧角色朝向，不依赖位置是否识别成功。
     bool minimap_absent = false; // YOLO 判定画面里没有小地图
 };
@@ -149,10 +149,6 @@ constexpr MinimapRoiConfig kAdbMinimapRoi {
     kDefaultMinimapRoi.width,
     kDefaultMinimapRoi.height,
 };
-constexpr int MinimapROIOriginX = kDefaultMinimapRoi.x;
-constexpr int MinimapROIOriginY = kDefaultMinimapRoi.y;
-constexpr int MinimapROIWidth = kDefaultMinimapRoi.width;
-constexpr int MinimapROIHeight = kDefaultMinimapRoi.height;
 
 inline const MinimapRoiConfig& GetMinimapRoiConfig(bool use_adb_minimap_roi)
 {
@@ -182,15 +178,14 @@ inline bool TryExtractMinimap(const cv::Mat& image, bool use_adb_minimap_roi, cv
     return !out_minimap->empty();
 }
 
-constexpr int MaxLostTrackingCount = 3;
-constexpr double MobileSearchRadius = 50.0;
+constexpr int kMaxLostTrackingCount = 3;
+constexpr double kMobileSearchRadius = 50.0;
 
 // global 跨帧跳变保护 + 冷启动 burn-in
 constexpr int kColdStartConsensusFrames = 3;      // 冷启动需要的一致帧数
 static_assert(kColdStartConsensusFrames >= 1, "Cold-start consensus needs at least one frame.");
 constexpr double kPositionConsensusRadius = 12.0; // 近点判定半径
 constexpr double kFarJumpRejectDistance = 80.0;   // global 跨帧跳变阈值
-constexpr double kHighConfidenceOverride = 0.85;  // 压倒分：远跳但此分以上直接 reseed
 constexpr const char* kColdStartCollectingMessage = "Cold-start collecting.";
 constexpr double kSeamFallbackMinPeakScore = 0.0;
 
@@ -198,27 +193,13 @@ constexpr double kSeamFallbackMinPeakScore = 0.0;
 // 实测遮挡自行消散耗时 2.8~4.2s，取 5s 留余量；上界是导航起步等待定位的 10s 预算。
 constexpr int kOcclusionRejectTimeoutMs = 5000;
 
-// tracking 匹配低于此分时通知上层考虑改走全局搜索
-constexpr double kFastTrackingPassScore = 0.75;
 constexpr double kStableDeadband = 0.15;
 constexpr double kStableReleaseDist = 0.40;
-constexpr double kStableMinScore = 0.80;
 // tracking 接受结果的分数下限；低于此值无论 psr/delta 如何均判为 ambiguous，走 hold 路径
-constexpr double kTrackingHardScoreFloor = 0.60;
-// 低于此分数的帧不参与速度 EMA 更新，保持速度估计的稳定性
-constexpr double kVelocityUpdateMinScore = 0.70;
+constexpr double kTrackingHardScoreFloor = 0.47;
 constexpr double kVelocityDeadband = 0.25;
-// tracking 路径的 outlier 拒绝参数：坐标跳变超过此距离且分数低于 kTrackingOutlierMinScore 时 hold 上一帧
+// tracking 路径的 outlier 拒绝参数：坐标跳变超过此距离且分数低于 tracking_outlier_min 时 hold 上一帧
 constexpr double kTrackingOutlierDistance = 25.0;
-constexpr double kTrackingOutlierMinScore = 0.78;
-// dual-mode 互证要求：两个策略的分数均需达到阈值，且坐标距离在容差内
-constexpr double kDualVerifyMinScore = 0.45;
-constexpr double kDualVerifyMaxDistance = 4.0;
-constexpr double kDualGlobalVerifyMinScore = 0.50;
-// dual 裁判长期站在 fallback 一侧时的夺回条件：主策略连续 N 帧指着同一处（漂移不超过此距离），
-// 说明是运动预测被喂到了错的位置，把 tracker 搬回主策略
-constexpr int kArbiterReclaimStreak = 5;
-constexpr double kArbiterReclaimDriftDistance = 6.0;
 
 // 小地图与底图的像素尺度比，是底图导出时定死的资产属性。tier 图按游戏原生尺度导出，
 // base 图里只有 ValleyIV 被放大过 16/15。量法：拿 tier 图去 parent base 上匹配求峰。
@@ -238,35 +219,61 @@ inline bool IsPathHeatmapZone(const std::string& zoneId)
     return false;
 }
 
+struct ScoreLines
+{
+    double fast_tracking_pass; // tracking 匹配低于此分时通知上层考虑改走全局搜索
+    double tracking_outlier_min;
+    double stable_min;
+    double velocity_update_min; // 低于此分数的帧不参与速度 EMA 更新，保持速度估计的稳定性
+    double high_confidence;     // 压倒分：远跳但此分以上直接 reseed
+};
+
+constexpr ScoreLines kCorrelationScoreLines {
+    .fast_tracking_pass = 0.75,
+    .tracking_outlier_min = 0.78,
+    .stable_min = 0.80,
+    .velocity_update_min = 0.70,
+    .high_confidence = 0.85,
+};
+
+constexpr ScoreLines kExclusivityScoreLines {
+    .fast_tracking_pass = 0.67,
+    .tracking_outlier_min = 0.70,
+    .stable_min = 0.71,
+    .velocity_update_min = 0.66,
+    .high_confidence = 0.70,
+};
+
+inline const ScoreLines& ZoneScoreLines(const std::string& zoneId)
+{
+    return IsPathHeatmapZone(zoneId) ? kCorrelationScoreLines : kExclusivityScoreLines;
+}
+
 struct TrackingConfig
 {
-    double maxNormalSpeed = 40.0;        // px/s
-    double screenBlockedThreshold = 0.4; // NCC correlation below this means blocked
-    int edgeSnapMargin = 1;
-    double velocitySmoothingAlpha = 0.5; // 平滑系数
-    double maxDtForPrediction = 5.0;     // 超时则放弃速度预测
+    double max_normal_speed = 40.0;         // px/s
+    double screen_blocked_threshold = 0.28; // exclusivity below this means blocked
+    int edge_snap_margin = 1;
+    double velocity_smoothing_alpha = 0.5;  // 平滑系数
+    double max_dt_for_prediction = 5.0;     // 超时则放弃速度预测
 };
 
 struct MatchConfig
 {
-    int fineSearchRadius = 40;   // 精搜半径(px)
-    double passThreshold = 0.55; // 低于此分先跑第二策略和提示窗, 仍无更高峰则照样交付
-    double yoloConfThreshold = 0.60;
+    int fine_search_radius = 40;  // 精搜半径(px)
+    double pass_threshold = 0.55; // 全局结果的校验线, 都没过线时照样交付最高峰
+    double yolo_conf_threshold = 0.60;
 };
 
 struct ImageProcessingConfig
 {
-    double darkMapThreshold;
-    int iconDiffThreshold;        // 黄/蓝图标与地图色差判定
-    int centerMaskRadius;         // 玩家箭头遮蔽半径
-    double gradientBaseWeight;    // 保底权重
-    int minimapDarkMaskThreshold; // 与暗部阈值对齐
-    int borderMargin;
-    int whiteDilate;
-    int colorDilate;
-    bool useHsvWhiteMask;
-    int whiteMaskFloor = 255;                 // 三通道均不低于此值按白色图标剔除
-    double minimapDarkMaskMinKeptRatio = 0.0; // 剔除暗部后剩余像素占比低于此值时保留暗部
+    double dark_map_threshold;
+    int icon_diff_threshold;     // 黄/蓝图标与地图色差判定
+    int center_mask_radius;      // 玩家箭头遮蔽半径
+    double gradient_base_weight; // 保底权重
+    int border_margin;
+    int white_dilate;
+    int color_dilate;
 };
 
 } // namespace maplocator

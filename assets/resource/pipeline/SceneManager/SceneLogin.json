@@ -198,6 +198,7 @@
     },
     "__ScenePrivateCloseErrorDialog": {
         "desc": "关闭登录时错误弹窗提示",
+        "max_hit": 20, // 网络持续异常时游戏会反复弹窗，限制次数让登录超时失败，避免任务无限卡住
         "recognition": "TemplateMatch",
         "roi": [
             350,

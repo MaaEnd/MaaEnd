@@ -5,14 +5,10 @@
 namespace mapnavigator
 {
 
-class NaviMath
-{
-public:
-    static double calcTargetRotation(double from_x, double from_y, double to_x, double to_y);
-    static double calcDeltaRotation(double current, double target);
-    static double normalizeAngle(double angle);
-    static double normalizeHeading(double angle);
-    static double calcElevation(const ZiplineNodeRef& from, const ZiplineNodeRef& to);
-};
+double CalcTargetRotation(double from_x, double from_y, double to_x, double to_y);
+double CalcDeltaRotation(double current, double target);
+double NormalizeAngle(double angle);
+double NormalizeHeading(double angle);
+double CalcElevation(const ZiplineNodeRef& from, const ZiplineNodeRef& to);
 
 } // namespace mapnavigator

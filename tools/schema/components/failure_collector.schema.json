@@ -15,31 +15,31 @@
                 }
             }
         },
-		"RunTaskParam": {
+        "RunTaskParam": {
             "allOf": [
                 {
                     "$ref": "#/$defs/BaseParam"
                 },
                 {
                     "type": "object",
-					"required": [
-						"task",
-						"failure_task"
-					],
-					"properties": {
-						"task": {
-							"type": "string",
-							"minLength": 1
-						},
-						"failure_task": {
-							"type": "string",
-							"minLength": 1
-						},
-						"recovery_task": {
-							"type": "string",
-							"minLength": 1
-						}
-					}
+                    "required": [
+                        "task",
+                        "failure_task"
+                    ],
+                    "properties": {
+                        "task": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "failure_task": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "recovery_task": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
                 }
             ],
             "unevaluatedProperties": false
@@ -49,9 +49,9 @@
                 {
                     "$ref": "#/$defs/BaseParam"
                 },
-				{
-					"type": "object"
-				}
+                {
+                    "type": "object"
+                }
             ],
             "unevaluatedProperties": false
         }

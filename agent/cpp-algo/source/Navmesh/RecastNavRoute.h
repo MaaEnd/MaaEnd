@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -15,6 +14,8 @@
 #include "RecastNavGridIO.h"
 #include "RecastNavNoGoIO.h"
 #include "RecastNavZone.h"
+
+struct MaaContext;
 
 namespace navmesh::recast
 {
@@ -78,93 +79,68 @@ struct ZoneBoundsPx
     int64_t y0 = 0;
     int64_t x1 = -1;
     int64_t y1 = -1;
-
-    bool empty() const { return x1 < x0 || y1 < y0; }
 };
 
-class RecastNavEngine
+inline bool ZoneBoundsEmpty(const ZoneBoundsPx& bounds)
 {
-public:
-    // 场数据包按名从主包同目录读取 (base.nav.gz → base.fields.nav.gz), 读不到就无法规划
-    RecastNavEngine(const BaseNavPack& pack, const BaseNavPlanner& planner, const std::filesystem::path& nogo_table);
+    return bounds.x1 < bounds.x0 || bounds.y1 < bounds.y0;
+}
 
-    // floor_y <= kBaseNavFloorYValidMin 时不分楼层吸附, deck_y 是选层用的重叠面高度, start_deck_y 盖过 start_floor_y
-    // no_go_discs 盖格方式同作者禁区, 但端点落在里面照常规划
-    // rope_off 是本次不可用的升降索底端 uid, 空指针表示不用升降索
-    RecastPlanResult plan(
-        const std::string& zone_name,
-        const WorldPoint& start,
-        const WorldPoint& goal,
-        float start_floor_y = kBaseNavFloorYNone,
-        float goal_floor_y = kBaseNavFloorYNone,
-        float goal_deck_y = kBaseNavFloorYNone,
-        float start_deck_y = kBaseNavFloorYNone,
-        const std::vector<BaseNavNoGoDisc>& no_go_discs = {},
-        const std::function<bool()>& should_stop = {},
-        const std::vector<uint32_t>* rope_off = nullptr);
-
-    void warm(const std::string& zone_name);
-
-    // 两点类号集合不相交则这条腿必败, 空集表示无法判断
-    std::vector<std::vector<uint32_t>> regionsNear(const std::string& zone_name, const std::vector<WorldPoint>& points);
-
-private:
-    struct ZoneEntry
-    {
-        std::unique_ptr<ZoneClean> zc;
-        std::unique_ptr<FieldsZone> fz;
-        std::string fields_error;
-        uint64_t used_at = 0; // zoneEntry 的调用序号
-        std::unordered_map<uint32_t, ZoneBoundsPx> bounds;
-    };
-
-    // 每个 ZoneClean 常驻几十到两百 MB
-    static constexpr size_t kZoneCacheMax = 2;
-
-    ZoneEntry& zoneEntry(const std::string& name);
-    RecastPlanResult planLocked(
-        const std::string& zone_name,
-        const WorldPoint& start,
-        const WorldPoint& goal,
-        float start_floor_y,
-        float goal_floor_y,
-        float goal_deck_y,
-        float start_deck_y,
-        const std::vector<BaseNavNoGoDisc>& no_go_discs,
-        const std::function<bool()>& should_stop);
-
-    const BaseNavPack& pack_;
-    const BaseNavPlanner& planner_;
-    std::mutex mutex_;
-    std::unordered_map<std::string, ZoneEntry> zones_;
-    uint64_t zone_clock_ = 0;
-    GridPack grid_;
-    std::shared_ptr<const FieldsPack> fields_ = std::make_shared<const FieldsPack>();
-    NoGoTable nogo_;
-    std::string grid_error_;
-    bool hopping_ = false; // 正在规划跨类下落的两段, 它们自己不再往下接
-    bool roping_ = false;  // 正在规划升降索的两段, 它们自己不再接升降索
-    const std::vector<uint32_t>* rope_off_ = nullptr;
-    // 每根升降索从绳底走到绳顶的路程 px, 键是 区号 << 32 | 底端 uid, 走不到记无穷
-    std::unordered_map<uint64_t, double> rope_walk_;
-
-    // 只在总代价低于 best_cost 时返回
-    std::optional<RecastPlanResult> tryRopes(
-        const std::string& zone_name,
-        uint16_t zone_id,
-        uint32_t start_region,
-        uint32_t goal_region,
-        const WorldPoint& start,
-        const WorldPoint& goal,
-        float start_floor_y,
-        float goal_floor_y,
-        float goal_deck_y,
-        float start_deck_y,
-        const std::vector<BaseNavNoGoDisc>& no_go_discs,
-        const std::function<bool()>& should_stop,
-        double best_cost,
-        size_t max_tries,
-        const std::vector<uint32_t>& out_of_reach);
+struct RecastZoneEntry
+{
+    std::unique_ptr<ZoneClean> zc;
+    std::unique_ptr<FieldsZone> fz;
+    std::string fields_error;
+    uint64_t used_at = 0; // 取用条目的序号, 淘汰时先丢最久没用的
+    std::unordered_map<uint32_t, ZoneBoundsPx> bounds;
 };
+
+// 跨规划保留的包数据与缓存, 每次规划全程持锁
+struct RecastNavEngine
+{
+    std::mutex mutex;
+    std::unordered_map<std::string, RecastZoneEntry> zones;
+    uint64_t zone_clock = 0;
+    GridPack grid;
+    std::shared_ptr<const FieldsPack> fields = std::make_shared<const FieldsPack>();
+    NoGoTable nogo;
+    // 读包失败时 grid 为空, 之后每次规划都报这条
+    std::string grid_error;
+    // 每根升降索从绳底走到绳顶的路程 px, 键是 区号 << 32 | 底端 uid, 走不到记无穷
+    std::unordered_map<uint64_t, double> rope_walk;
+};
+
+// 场数据包按名从主包同目录读取 (base.nav.gz → base.fields.nav.gz), 读不到就无法规划
+void LoadRecastNavEngine(RecastNavEngine* engine, const BaseNavPack& pack, const std::filesystem::path& nogo_table);
+
+struct RecastPlanRequest
+{
+    std::string zone_name;
+    WorldPoint start;
+    WorldPoint goal;
+    // <= kBaseNavFloorYValidMin 时不分楼层吸附
+    float start_floor_y = kBaseNavFloorYNone;
+    float goal_floor_y = kBaseNavFloorYNone;
+    // 选层用的重叠面高度, start_deck_y 盖过 start_floor_y
+    float goal_deck_y = kBaseNavFloorYNone;
+    float start_deck_y = kBaseNavFloorYNone;
+    // 盖格方式同作者禁区, 但端点落在里面照常规划
+    std::vector<BaseNavNoGoDisc> no_go_discs;
+};
+
+// stop_context 非空时途中查任务是否在停; rope_off 是本次不可用的升降索底端 uid, 空指针表示不用升降索
+RecastPlanResult PlanRecastRoute(
+    RecastNavEngine* engine,
+    const BaseNavPack& pack,
+    const BaseNavPlanner& planner,
+    const RecastPlanRequest& request,
+    MaaContext* stop_context,
+    const std::vector<uint32_t>* rope_off);
+
+void WarmRecastZone(RecastNavEngine* engine, const BaseNavPack& pack, const BaseNavPlanner& planner, const std::string& zone_name);
+
+// 两点类号集合不相交则这条腿必败, 空集表示无法判断
+std::vector<std::vector<uint32_t>>
+    RecastRegionsNear(RecastNavEngine* engine, const std::string& zone_name, const std::vector<WorldPoint>& points);
 
 }

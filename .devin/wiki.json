@@ -17,7 +17,7 @@
             "author": "maintainer"
         },
         {
-            "content": "Go Service 架构说明：agent/go-service/main.go 是入口，register.go 统一注册所有自定义识别器和动作，各功能子包（essencefilter/、puzzle-solver/、autofight/、bettersliding/、autostockpile/、creditshopping/、autodelivery/、outposttrading/ 等）有自己的 register.go。Go Service 通过 MaaFramework 的 CustomRecognition 和 CustomAction 接口与 Pipeline 交互，仅处理 Pipeline 难以实现的复杂算法，流程控制仍由 Pipeline 负责。原生 C++ 层 agent/cpp-algo 负责地图定位/寻路、图标识别、网格识别等高性能识别，并在 agent/cpp-algo/source/main.cpp 中注册。",
+            "content": "Go Service 架构说明：agent/go-service/main.go 是入口，register.go 统一注册所有自定义识别器和动作，各功能子包（essencefilter/、puzzle-solver/、autofight/、bettersliding/、autostockpile/、autodelivery/、outposttrading/ 等）有自己的 register.go。Go Service 通过 MaaFramework 的 CustomRecognition 和 CustomAction 接口与 Pipeline 交互，仅处理 Pipeline 难以实现的复杂算法，流程控制仍由 Pipeline 负责。原生 C++ 层 agent/cpp-algo 负责地图定位/寻路、图标识别、网格识别等高性能识别，并在 agent/cpp-algo/source/main.cpp 中注册。",
             "author": "maintainer"
         },
         {
@@ -123,7 +123,7 @@
         },
         {
             "title": "信用点购物",
-            "purpose": "文档化 CreditShopping 模块：Go 层的 creditshopping 子包和 Pipeline 层目录。引用 docs/zh_cn/developers/tasks/credit-shopping-maintain.md。",
+            "purpose": "文档化 CreditShopping 模块：Pipeline 层目录（物品勾选经 IconRecognition 的 attach 生效，无 Go 子包）。引用 docs/zh_cn/developers/tasks/credit-shopping-maintain.md。",
             "parent": "任务功能模块总览"
         },
         {

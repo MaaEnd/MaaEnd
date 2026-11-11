@@ -1,0 +1,149 @@
+{
+    "AutoCollectWulingBloodcap1Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStoneCloudrestGrotto"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingBloodcap1AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingBloodcap1.label"
+        }
+    },
+    "AutoCollectWulingBloodcap1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingBloodcap1AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_L4_328",
+            "target": [
+                238.28,
+                204.47,
+                40.0,
+                40.0
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingBloodcap1Goto"
+        ]
+    },
+    "AutoCollectWulingBloodcap1Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                243.84,
+                                105.42
+                            ],
+                            "target_deck_y": 275.04,
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                243.84,
+                                105.42
+                            ],
+                            "target_tier": "Wuling_L4_328",
+                            "strict": true
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                242.03,
+                                101.2
+                            ],
+                            "target_tier": "Wuling_L4_328",
+                            "strict": true
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                238.36,
+                                99.84
+                            ],
+                            "target_tier": "Wuling_L4_328",
+                            "strict": true
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                236.69,
+                                101.22
+                            ],
+                            "target_tier": "Wuling_L4_328",
+                            "strict": true
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                246.63,
+                                98.09
+                            ],
+                            "target_tier": "Wuling_L4_328",
+                            "strict": true
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                247.66,
+                                95.53
+                            ],
+                            "target_tier": "Wuling_L4_328",
+                            "strict": true
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                250.96,
+                                103.46
+                            ],
+                            "target_tier": "Wuling_L4_328",
+                            "strict": true
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                250.79,
+                                104.33
+                            ],
+                            "target_tier": "Wuling_L4_328",
+                            "strict": true
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingBloodcap1End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

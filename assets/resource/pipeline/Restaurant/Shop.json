@@ -9,7 +9,10 @@
         "next": [
             "RestaurantShopApproach",
             "RestaurantShopApproachAfterBusiness"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.shop_started"
+        }
     },
     "RestaurantShopApproach": {
         "desc": "导航到堂头小铺交互区域。",
@@ -36,10 +39,11 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        136.14,
-                        133.75
+                        136.44,
+                        133.13
                     ],
                     "target_tier": "Wuling_L10_468",
+                    "strict": true,
                     "required": true
                 }
             ]
@@ -60,7 +64,10 @@
         ],
         "on_error": [
             "FailedNode"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.shop_approach"
+        }
     },
     "RestaurantShopApproachAfterBusiness": {
         "desc": "从缘缘庄经营区域导航到堂头小铺交互区域。",
@@ -87,10 +94,11 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        136.14,
-                        133.75
+                        136.44,
+                        133.13
                     ],
                     "target_tier": "Wuling_L10_468",
+                    "strict": true,
                     "required": true
                 }
             ]
@@ -111,7 +119,10 @@
         ],
         "on_error": [
             "FailedNode"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.shop_approach"
+        }
     },
     "RestaurantShopInteract": {
         "desc": "识别小聪明或手不停的交互提示并 AltClick，直到提示消失，最多三次。",
@@ -308,7 +319,10 @@
         "rate_limit": 0,
         "next": [
             "RestaurantShopScan"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.priority_storage_enabled"
+        }
     },
     "RestaurantShopPriorityStorageUnchecked": {
         "recognition": "TemplateMatch",
@@ -383,18 +397,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    101,
-                    139,
-                    78,
-                    32
+                    105,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -430,18 +448,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    253,
-                    139,
-                    78,
-                    32
+                    257,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -477,18 +499,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    404,
-                    139,
-                    78,
-                    32
+                    408,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -524,18 +550,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    556,
-                    139,
-                    78,
-                    32
+                    560,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -571,18 +601,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    709,
-                    139,
-                    78,
-                    32
+                    713,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -618,18 +652,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    861,
-                    139,
-                    78,
-                    32
+                    865,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -665,18 +703,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    1013,
-                    139,
-                    78,
-                    32
+                    1017,
+                    141,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -712,18 +754,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    101,
-                    358,
-                    78,
-                    32
+                    105,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -759,18 +805,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    253,
-                    358,
-                    78,
-                    32
+                    257,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -806,18 +856,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    404,
-                    358,
-                    78,
-                    32
+                    408,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -853,18 +907,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    556,
-                    358,
-                    78,
-                    32
+                    560,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -900,18 +958,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    709,
-                    358,
-                    78,
-                    32
+                    713,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -947,18 +1009,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    861,
-                    358,
-                    78,
-                    32
+                    865,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -994,18 +1060,22 @@
                 ]
             },
             {
-                "recognition": "OCR",
+                "recognition": "ColorMatch",
                 "roi": [
-                    1013,
-                    358,
-                    78,
-                    32
+                    1017,
+                    360,
+                    141,
+                    174
                 ],
-                // OCR full-text example: 库存5
-                // @i18n-skip
-                "expected": [
-                    "^\\D*[1-9]\\d*$"
-                ]
+                // 售罄蒙层会使卡片整体灰化，要求区域内亮像素达到门槛。
+                "method": 6,
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
             }
         ],
         "pre_delay": 0,
@@ -1148,7 +1218,10 @@
         ],
         "on_error": [
             "FailedNode"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.shop_refreshing"
+        }
     },
     "RestaurantShopRefreshConfirm": {
         "recognition": "OCR",

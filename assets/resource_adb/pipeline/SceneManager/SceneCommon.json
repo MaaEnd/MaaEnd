@@ -27,7 +27,8 @@
                     // 理智不足的界面
                     "GrayCancelButton",
                     // 虽然不知道哪里能用上，先超前部署了
-                    "WhiteCancelButton"
+                    "WhiteCancelButton",
+                    "__SceneLeaveZipline"
                 ]
             }
         },
@@ -109,5 +110,19 @@
                 ]
             }
         }
+    },
+    "__SceneLeaveZipline": {
+        "desc": "离开滑索",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1090,
+            330,
+            150,
+            150
+        ],
+        "template": [
+            "SceneManager/LeaveZipline.png"
+        ],
+        "threshold": 0.85
     }
 }

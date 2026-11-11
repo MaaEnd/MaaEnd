@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <array>
 #include <chrono>
 #include <limits>
@@ -10,7 +9,6 @@
 
 #include <meojson/json.hpp>
 
-#include "navi_config.h"
 #include "navi_position.h"
 #include "zipline/zipline_types.h"
 
@@ -53,76 +51,10 @@ struct ActionTraits
     double commit_distance = 0.0;    // 判定圈下限 px, 0 = 不放宽
 };
 
-constexpr ActionTraits TraitsOf(ActionType action)
-{
-    switch (action) {
-    case ActionType::RUN:
-        return { .settles_at_arrival = true, .walk_approach = true };
-    case ActionType::SPRINT:
-        return { .strict_arrival = true, .settles_at_arrival = true };
-    case ActionType::JUMP:
-        return { .strict_arrival = true, .settles_at_arrival = true };
-    case ActionType::FIGHT:
-        return { .strict_arrival = true, .settles_at_arrival = true };
-    case ActionType::INTERACT:
-        return { .strict_arrival = true, .settles_at_arrival = true, .walk_approach = true };
-    case ActionType::TRANSFER:
-        return { .strict_arrival = true, .settles_at_arrival = true };
-    // 不做末端纠正, 纠正途中就可能被跳板弹走
-    case ActionType::JUMP_PAD:
-        return { .strict_arrival = true, .walk_approach = true };
-    case ActionType::PORTAL:
-        return { .strict_arrival = true, .commit_distance = kPortalCommitDistance };
-    case ActionType::HEADING:
-        return {};
-    case ActionType::NAVMESH:
-        return { .strict_arrival = true, .settles_at_arrival = true, .walk_approach = true };
-    case ActionType::ZONE:
-        return {};
-    case ActionType::COLLECT:
-        return { .walk_approach = true };
-    case ActionType::DIG:
-        return {
-            .strict_arrival = true,
-            .settles_at_arrival = true,
-            .walk_approach = true,
-            .walk_at_startup = true,
-        };
-    case ActionType::FIND:
-        return { .walk_approach = true };
-    case ActionType::ZIPLINE:
-        return { .strict_arrival = true, .walk_approach = true };
-    case ActionType::TRIGGER:
-        return { .strict_arrival = true, .settles_at_arrival = true };
-    }
-    return {};
-}
+ActionTraits TraitsOf(ActionType action);
 
 // 执行后可能留下挡住小地图的界面
-constexpr bool MayOpenUi(ActionType action)
-{
-    switch (action) {
-    case ActionType::RUN:
-    case ActionType::SPRINT:
-    case ActionType::JUMP:
-    case ActionType::HEADING:
-    case ActionType::NAVMESH:
-    case ActionType::ZONE:
-        return false;
-    case ActionType::FIGHT:
-    case ActionType::INTERACT:
-    case ActionType::TRANSFER:
-    case ActionType::JUMP_PAD:
-    case ActionType::PORTAL:
-    case ActionType::COLLECT:
-    case ActionType::DIG:
-    case ActionType::FIND:
-    case ActionType::ZIPLINE:
-    case ActionType::TRIGGER:
-        return true;
-    }
-    return true;
-}
+bool MayOpenUi(ActionType action);
 
 // 从绳底交互坐上去, ride_s 秒后站在 top_height 那层
 struct RopeRideInfo
@@ -144,17 +76,17 @@ struct VirtualNoGoDisc
 
 struct Waypoint
 {
-    double x;
-    double y;
-    ActionType action;
-    bool has_position;
-    bool strict_arrival;
+    double x = 0.0;
+    double y = 0.0;
+    ActionType action = ActionType::RUN;
+    bool has_position = true;
+    bool strict_arrival = false;
     // 线路明写的 strict_arrival 原样副本, strict_arrival 本身还会被引擎置位
-    bool authored_strict_arrival;
+    bool authored_strict_arrival = false;
     // 该点处的通道半宽 px, 0 = 未知(非 navmesh 规划的点)
-    double corridor_clearance;
-    bool heading_uses_target;
-    double heading_angle;
+    double corridor_clearance = 0.0;
+    bool heading_uses_target = false;
+    double heading_angle = 0.0;
     std::string zone_id;
     // x/y 所在的 tier 坐标系, 执行前投影到基础像素坐标, 空表示 x/y 已是基础坐标
     std::string target_tier;
@@ -165,7 +97,7 @@ struct Waypoint
     // 台沿下落落点专用的起跳点, 沿起跳到落点方向越过本点才算到
     std::optional<std::array<double, 2>> drop_from;
     // 仅作者路线: 滑索不许越过这个点
-    bool route_required;
+    bool route_required = false;
     // INTERACT 专用: 停车后用作 OCR expected, 留空则不算异步交互
     std::vector<std::string> interact_text;
     // 作者写 { "node": ... } 时的节点名, 开跑前读出其 expected 填进 interact_text
@@ -173,7 +105,7 @@ struct Waypoint
     // 行进预筛用的 TemplateMatch 节点, 留空用默认节点
     std::string interact_scan;
     // 只认提示不按键, 路线顶层设的是默认值, 点上只能开不能关
-    bool interact_rec;
+    bool interact_rec = false;
     // 目标识别节点名, 与 find_text 二选一
     std::string find_target;
     // 内联 OCR 文本, 执行时注入内置节点
@@ -191,140 +123,53 @@ struct Waypoint
     bool rope_top = false;
     // 展开来源在作者 path 中的段首下标, 作者原点和运行时生成的点为 max
     size_t authored_group_begin = std::numeric_limits<size_t>::max();
-
-    double getLookahead() const
-    {
-        if (!has_position) {
-            return 0.0;
-        }
-        if (requiresStrictArrival()) {
-            return kStrictArrivalLookaheadRadius;
-        }
-        return kLookaheadRadius;
-    }
-
-    double arrivalBand(double position_quantum, bool relax_tight_band = false) const
-    {
-        const bool strict = requiresStrictArrival();
-        double band = strict ? getLookahead() + position_quantum : getLookahead() + kWaypointArrivalSlack + position_quantum;
-        if (stopsOnPromptDetection() && !relax_tight_band) {
-            band = std::min(band, kCollectArrivalBandWu);
-        }
-        if (strict || corridor_clearance <= 0.0) {
-            return band;
-        }
-        return std::min(band, std::max(corridor_clearance, kMinArrivalBand));
-    }
-
-    ActionTraits traits() const { return TraitsOf(action); }
-
-    bool requiresStrictArrival() const { return has_position && (strict_arrival || traits().strict_arrival); }
-
-    bool settlesAtArrival() const
-    {
-        if (!has_position || !traits().settles_at_arrival) {
-            return false;
-        }
-        if (action == ActionType::INTERACT) {
-            return !isAsyncInteract();
-        }
-        return authored_strict_arrival;
-    }
-
-    bool isContinuousRun() const { return has_position && action == ActionType::RUN && !requiresStrictArrival(); }
-
-    // 只给 interact_scan 不给文本的点不算异步交互, 共用节点里的占位文本认不出东西
-    bool isAsyncInteract() const { return action == ActionType::INTERACT && !interact_text.empty(); }
-
-    // 不看文本, 否则文本解析失败的点会退回到点连按交互键
-    bool isRecInteract() const { return action == ActionType::INTERACT && interact_rec; }
-
-    // 上索点也认提示, 但只有链首要认, 那道收紧在状态机里
-    bool stopsOnPromptDetection() const { return action == ActionType::COLLECT || isAsyncInteract(); }
-
-    bool hasPosition() const { return has_position; }
-
-    bool isHeadingOnly() const { return action == ActionType::HEADING; }
-
-    bool isFindPoint() const { return action == ActionType::FIND; }
-
-    bool isTriggerPoint() const { return action == ActionType::TRIGGER; }
-
-    bool isMovementPoint() const { return action == ActionType::RUN || action == ActionType::NAVMESH; }
-
-    // 滑索只顶替两个边界之间的走路, 动作点和 required 点都是边界
-    bool endsReplaceableSpan() const { return route_required || !isMovementPoint(); }
-
-    bool isZoneDeclaration() const { return action == ActionType::ZONE; }
-
-    bool isControlNode() const { return !has_position; }
-
-    Waypoint()
-        : x(0.0)
-        , y(0.0)
-        , action(ActionType::RUN)
-        , has_position(true)
-        , strict_arrival(false)
-        , authored_strict_arrival(false)
-        , corridor_clearance(0.0)
-        , heading_uses_target(false)
-        , heading_angle(0.0)
-        , zone_id()
-        , route_required(false)
-        , interact_rec(false)
-    {
-    }
-
-    Waypoint(double waypoint_x, double waypoint_y, ActionType waypoint_action = ActionType::RUN)
-        : x(waypoint_x)
-        , y(waypoint_y)
-        , action(waypoint_action)
-        , has_position(true)
-        , strict_arrival(false)
-        , authored_strict_arrival(false)
-        , corridor_clearance(0.0)
-        , heading_uses_target(false)
-        , heading_angle(0.0)
-        , zone_id()
-        , route_required(false)
-        , interact_rec(false)
-    {
-    }
-
-    static Waypoint heading(double angle)
-    {
-        Waypoint waypoint;
-        waypoint.action = ActionType::HEADING;
-        waypoint.has_position = false;
-        waypoint.strict_arrival = false;
-        waypoint.heading_uses_target = false;
-        waypoint.heading_angle = angle;
-        return waypoint;
-    }
-
-    static Waypoint headingToTarget(double target_x, double target_y)
-    {
-        Waypoint waypoint;
-        waypoint.x = target_x;
-        waypoint.y = target_y;
-        waypoint.action = ActionType::HEADING;
-        waypoint.has_position = false;
-        waypoint.strict_arrival = false;
-        waypoint.heading_uses_target = true;
-        waypoint.heading_angle = 0.0;
-        return waypoint;
-    }
-
-    static Waypoint zone(std::string zone)
-    {
-        Waypoint waypoint;
-        waypoint.action = ActionType::ZONE;
-        waypoint.has_position = false;
-        waypoint.strict_arrival = false;
-        waypoint.zone_id = std::move(zone);
-        return waypoint;
-    }
 };
+
+bool RequiresStrictArrival(const Waypoint& waypoint);
+
+double GetLookahead(const Waypoint& waypoint);
+
+// 只给 interact_scan 不给文本的点不算异步交互, 共用节点里的占位文本认不出东西
+bool IsAsyncInteract(const Waypoint& waypoint);
+
+// 不看文本, 否则文本解析失败的点会退回到点连按交互键
+bool IsRecInteract(const Waypoint& waypoint);
+
+// 上索点也认提示, 但只有链首要认, 那道收紧在状态机里
+bool StopsOnPromptDetection(const Waypoint& waypoint);
+
+double BaseArrivalBand(const Waypoint& waypoint, double position_quantum);
+
+double ClampArrivalBandToCorridor(const Waypoint& waypoint, double band);
+
+double ArrivalBand(const Waypoint& waypoint, double position_quantum);
+
+double UntightenedArrivalBand(const Waypoint& waypoint, double position_quantum);
+
+bool SettlesAtArrival(const Waypoint& waypoint);
+
+bool IsContinuousRun(const Waypoint& waypoint);
+
+bool IsHeadingOnly(const Waypoint& waypoint);
+
+bool IsFindPoint(const Waypoint& waypoint);
+
+bool IsTriggerPoint(const Waypoint& waypoint);
+
+bool IsMovementPoint(const Waypoint& waypoint);
+
+// 滑索只顶替两个边界之间的走路, 动作点和 required 点都是边界
+bool EndsReplaceableSpan(const Waypoint& waypoint);
+
+bool IsZoneDeclaration(const Waypoint& waypoint);
+
+Waypoint HeadingWaypoint(double angle);
+
+Waypoint HeadingToTargetWaypoint(double target_x, double target_y);
+
+Waypoint ZoneWaypoint(std::string zone);
+
+void OffsetAuthoredGroups(std::vector<Waypoint>* path, size_t offset);
 
 struct TurnCommandResult
 {

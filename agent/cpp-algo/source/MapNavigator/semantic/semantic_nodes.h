@@ -8,24 +8,13 @@ struct MaaContext;
 namespace mapnavigator
 {
 
-class ActionWrapper;
-class MotionController;
-class PositionProvider;
+struct Motion;
+struct PositionSensor;
+struct InputBackend;
+struct Navigator;
 
 namespace semantic_nodes
 {
-
-struct Context
-{
-    ActionWrapper* action_wrapper = nullptr;
-    PositionProvider* position_provider = nullptr;
-    NavigationSession* session = nullptr;
-    MotionController* motion_controller = nullptr;
-    ActionExecutor* action_executor = nullptr;
-    NaviPosition* position = nullptr;
-    NavigationRuntimeState* runtime_state = nullptr;
-    MaaContext* maa_context = nullptr;
-};
 
 struct Result
 {
@@ -53,11 +42,22 @@ inline Result Failure(const char* reason, const char* log_message)
     return { .request_failure = true, .failure_reason = reason, .failure_log_message = log_message };
 }
 
-Result TickWaitPhase(const Context& ctx, NaviPhase phase);
-Result ConsumeInlineSemantics(const Context& ctx);
-Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual_distance);
+inline Result ConsumedFailure(const char* reason, const char* log_message)
+{
+    return {
+        .consumed = true,
+        .stay_in_current_tick = true,
+        .request_failure = true,
+        .failure_reason = reason,
+        .failure_log_message = log_message,
+    };
+}
+
+Result TickWaitPhase(Navigator* nav, NaviPhase phase);
+Result ConsumeInlineSemantics(Navigator* nav);
+Result HandleArrival(Navigator* nav, const Waypoint& waypoint, double actual_distance);
 // 调用前绳底交互须已按下, 当前点须已推进到绳顶落脚点
-Result StartRopeRide(const Context& ctx, const RopeRideInfo& ride);
+Result StartRopeRide(Navigator* nav, const RopeRideInfo& ride);
 
 } // namespace semantic_nodes
 

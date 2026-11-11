@@ -33,7 +33,7 @@ flowchart TD
 9. 维护某个具体任务时 → 查 `tasks/` 下的对应文档
 
 > [!WARNING]
-> **提交任何代码前，必须先通读 [编码规范](./coding-standards.md)。**
+> **提交任何代码前，必须先通读 [贡献指南](../../../CONTRIBUTING.md) 和 [编码规范](./coding-standards.md)。**
 > 不合规范的 PR 会被直接打回。
 
 ## 文档索引

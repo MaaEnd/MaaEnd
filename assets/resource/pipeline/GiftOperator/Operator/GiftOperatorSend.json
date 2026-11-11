@@ -6,6 +6,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]GiftOperatorSendSelect_ArgentFlow",
             "[JumpBack]GiftOperatorSendSelect_Perlica",
             "[JumpBack]GiftOperatorSendSelect_Yvonne",
             "[JumpBack]GiftOperatorSendSelect_Ardelia",
@@ -1198,5 +1199,41 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "GiftOperatorSendSelect_ArgentFlow": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "template": [
+                                "GiftOperator/Operators/ArgentFlow.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "明河",
+                                "明河",
+                                "Argent Flow",
+                                "ミンホ",
+                                "명하"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$operator.ArgentFlow"
+        }
     }
 }

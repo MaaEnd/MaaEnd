@@ -245,6 +245,9 @@
             -60,
             0
         ],
+        "anchor": {
+            "AutoSellLocalSellAnchor": "AutoSellLocalPriceGoHome"
+        }, // 好友飞船上只能按好友价出售，本地价最高时要回到自己的商店
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -272,6 +275,9 @@
             -60,
             0
         ],
+        "anchor": {
+            "AutoSellLocalSellAnchor": "AutoSellLocalPriceBackToSellGoodsSuccess"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -353,7 +359,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellFriendsPricesOpenSuccess"
+            "AutoSellFriendsPricesOpenSuccess",
+            "AutoSellFriendsPricesNoFriends"
         ]
     },
     "AutoSellFriendsPricesOpenSuccess": {
@@ -388,8 +395,140 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoSellFriendsPricesLocalHighest",
             "AutoSellFriendsPricesExpected",
             "AutoSellFriendsPricesUnExpected"
+        ]
+    },
+    "AutoSellFriendsPricesNoFriends": {
+        "desc": "当前未添加好友，返回出售物资界面按本地售价判断",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionFriendsPrices",
+            {
+                "recognition": "OCR",
+                // 覆盖整个好友列表区域，PC 与移动端提示文字位置不同
+                "roi": [
+                    420,
+                    130,
+                    790,
+                    500
+                ],
+                "expected": [
+                    "当前未添加好友",
+                    "目前尚未新增好友",
+                    "(?i)No\\s*friends\\s*added\\s*yet",
+                    "追加済みのフレンドはいません",
+                    "현재 추가한 친구가 없습니다"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "template": "AutoSell/FriendsPricesBack.png",
+                "threshold": 0.9
+            }
+        ],
+        "box_index": 2,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellLocalPriceBackToSellGoodsSuccess"
+        ]
+    },
+    "AutoSellFriendsPricesLocalHighest": {
+        "desc": "最高价好友低于本地售价，返回出售物资界面按本地售价判断",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellFriendsPriceFirstLowerRecognition",
+            {
+                "recognition": "TemplateMatch",
+                "template": "AutoSell/FriendsPricesBack.png",
+                "threshold": 0.9
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "[Anchor]AutoSellLocalSellAnchor"
+        ]
+    },
+    "AutoSellLocalPriceGoHome": {
+        "desc": "在好友飞船上只能按好友价出售，回到自己的商店",
+        "next": [
+            "AutoSellLocalPriceGoHomeValleyIV",
+            "AutoSellLocalPriceGoHomeWuling"
+        ]
+    },
+    "AutoSellLocalPriceGoHomeValleyIV": {
+        "desc": "回到地区建设四号谷地物资调度，在自己的商店重新打开物资",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+            ]
+        },
+        "next": [
+            "[JumpBack]AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab",
+            "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
+        ]
+    },
+    "AutoSellLocalPriceGoHomeWuling": {
+        "desc": "回到地区建设武陵物资调度，在自己的商店重新打开物资",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+            ]
+        },
+        "next": [
+            "[JumpBack]AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab",
+            "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
+        ]
+    },
+    "AutoSellLocalPriceBackToSellGoodsSuccess": {
+        "desc": "在自己的商店，从好友价格界面返回到出售物资界面成功",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellLocalPriceExpected",
+            "AutoSellLocalPriceUnExpected"
+        ]
+    },
+    "AutoSellLocalPriceExpected": {
+        "desc": "本地售价符合预期，在自己的商店直接售卖",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{AutoSellOwnPriceRecognition} >= 5000",
+            "focus_matched_resolved_expression": true,
+            "focus_unmatched_resolved_expression": true
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedNeedSlide",
+            "AutoSellFriendsPricesExpectedBuyDirect"
+        ]
+    },
+    "AutoSellLocalPriceUnExpected": {
+        "desc": "本地售价不符合预期",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesBackToView0"
         ]
     },
     "AutoSellFriendsPricesExpected": {
@@ -526,47 +665,6 @@
         "rate_limit": 0,
         "next": [
             "AutoSellFriendsPricesExpectedBuySlide"
-        ]
-    },
-    "AutoSellFriendsPricesExpectedBuyPlus": {
-        "desc": "指定好友出售：最多出售 60 个",
-        "recognition": "And",
-        "all_of": [
-            "InFriendsStockRedistributionSellGoods",
-            {
-                "sub_name": "increase",
-                "recognition": "TemplateMatch",
-                "roi": [
-                    680,
-                    490,
-                    100,
-                    75
-                ],
-                "template": [
-                    "AutoStockpile/IncreaseButton.png"
-                ],
-                "green_mask": true,
-                "threshold": 0.8
-            }
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "action": "Click",
-        "repeat": 59,
-        "repeat_delay": 50,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                682,
-                512,
-                34,
-                26
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellFriendsPricesExpectedBuyClick"
         ]
     },
     "AutoSellFriendsPricesExpectedBuySlide": {
