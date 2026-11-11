@@ -4,12 +4,19 @@
 //
 //  1. 分隔符归一化（Tier A）：剥除空白、方括号、竖线、连字符、点号、顿号等常见分隔符并统
 //     一大小写后要求严格相等。用于 EN 名在 OCR 里多出 `[` `]` `|` 的情况。
-//  2. CJK 纯核归一化（Tier B）：在 Tier A 基础上再剔除 ASCII 字母 / 数字（这些是 CJK 名称
+//  2. 前导竖线字形（Tier A2）：Tier A 未命中时，去掉最多一个被 OCR 粘进名字前导的竖线字形
+//     （`|` `I` `l` `L` `!` `1`）及紧随空白后，再做 Tier A 的严格相等比较。用于货品列表左侧
+//     竖线被认成字母的情况，如 "ILC Wuling Battery" → "LC Wuling Battery"。仅在 Tier A 失败后
+//     尝试，不改变已能严格匹配的名字。
+//  3. CJK 纯核归一化（Tier B）：在 Tier A 基础上再剔除 ASCII 字母 / 数字（这些是 CJK 名称
 //     里的噪声）；候选做相同处理后要求严格相等。用于 "I紫晶质瓶" → "紫晶质瓶"；而「优质柑
 //     实罐头」的 CJK 核心与「柑实罐头」不相等，天然不会被误匹配。
 //
-// 两层均为严格相等比较，无相似度阈值。候选 EN 名自带 ASCII 字母时 Tier B 会同时剥掉两侧的
-// 字母，对 EN 名退化为 Tier A 的等价形式，不会引入新风险。
+// 各层均为严格相等比较，无相似度阈值、无编辑距离。候选 EN 名自带 ASCII 字母时 Tier B 会同时
+// 剥掉两侧的字母，对 EN 名退化为 Tier A 的等价形式，不会引入新风险。
+//
+// 变音符号折叠：StripSeparators 会把带变音的拉丁字母折回基本字母（两侧同样处理），使
+// "Jincão Tea" 与数据表的 "Jincao Tea" 归一后相等。这只是字形差异，不是不同货品。
 package ocrmatch
 
 import (
@@ -66,7 +73,7 @@ type Result struct {
 	Box       maa.Rect
 }
 
-// FindBest 按 Tier A → Tier B 的顺序匹配，任一层命中即返回。
+// FindBest 按 Tier A → Tier A2 → Tier B 的顺序匹配，任一层命中即返回。
 // OCR 结果按屏幕顺序排序，优先命中靠上 / 靠左的文本。Tier 划分见 package doc。
 func FindBest(ocrItems []Item, candidates []string) *Result {
 	tierACandidates := make([]string, len(candidates))
