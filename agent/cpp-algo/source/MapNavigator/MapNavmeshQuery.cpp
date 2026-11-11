@@ -151,6 +151,7 @@ json::object build_zones(const navmesh::BaseNavPack& pack)
         json::object item {
             { "zone_id", zone.zone_id },
             { "name", zone.name },
+            { "map_zone", mapnavigator::BaseZoneName(pack, zone.name) },
             { "is_tier", navmesh::IsTierZone(zone) },
             { "geometry_zone_id", navmesh::GeometryZoneId(pack, zone.zone_id) },
             { "width", static_cast<double>(zone.width) },

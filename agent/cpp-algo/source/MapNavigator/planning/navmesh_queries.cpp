@@ -24,23 +24,6 @@ namespace
 
 constexpr std::array<float, 4> kIdentityTierTransform { 1.0F, 0.0F, 1.0F, 0.0F };
 
-// 同一地图的层都归到坐标与底图一致的那个区名, 包里查不到的区原样返回
-std::string base_zone_name(const navmesh::BaseNavPack& pack, const std::string& zone_id)
-{
-    const navmesh::BaseNavZone* zone = navmesh::FindBaseNavZoneByName(pack, zone_id);
-    if (zone == nullptr) {
-        return zone_id;
-    }
-    const uint16_t geometry = navmesh::GeometryZoneId(pack, zone->zone_id);
-    for (const navmesh::BaseNavZone& candidate : pack.zones) {
-        if (navmesh::IsTierZone(candidate) && navmesh::GeometryZoneId(pack, candidate.zone_id) == geometry
-            && candidate.transform == kIdentityTierTransform) {
-            return candidate.name;
-        }
-    }
-    return zone_id;
-}
-
 std::optional<double> zone_main_floor(const navmesh::BaseNavPack& pack, const std::string& zone_id)
 {
     const float floor_y = navmesh::FloorYForZoneName(pack, zone_id);
@@ -89,6 +72,22 @@ std::optional<bool> point_on_mesh(const ZoneNavmesh& zone, const navmesh::WorldP
 
 } // namespace
 
+std::string BaseZoneName(const navmesh::BaseNavPack& pack, const std::string& zone_id)
+{
+    const navmesh::BaseNavZone* zone = navmesh::FindBaseNavZoneByName(pack, zone_id);
+    if (zone == nullptr) {
+        return zone_id;
+    }
+    const uint16_t geometry = navmesh::GeometryZoneId(pack, zone->zone_id);
+    for (const navmesh::BaseNavZone& candidate : pack.zones) {
+        if (navmesh::IsTierZone(candidate) && navmesh::GeometryZoneId(pack, candidate.zone_id) == geometry
+            && candidate.transform == kIdentityTierTransform) {
+            return candidate.name;
+        }
+    }
+    return zone_id;
+}
+
 void NormalizeLivePositionToBase(NaviPosition* pos, const NaviParam& param)
 {
     pos->zone_floor_y.reset();
@@ -107,7 +106,7 @@ void NormalizeLivePositionToBase(NaviPosition* pos, const NaviParam& param)
     pos->x = projection->x;
     pos->y = projection->y;
     pos->zone_floor_y = zone_main_floor(pack, pos->zone_id);
-    pos->zone_id = base_zone_name(pack, pos->zone_id);
+    pos->zone_id = BaseZoneName(pack, pos->zone_id);
 }
 
 std::vector<std::string> ZonesOnSameMap(const NaviParam& param, const std::string& zone_id)
@@ -143,7 +142,7 @@ void FlattenWaypointZones(std::vector<Waypoint>* path, const NaviParam& param)
         const ZoneNavmesh zone = LoadZoneNavmesh(param, waypoint.zone_id);
         if (zone.mesh) {
             waypoint.zone_floor_y = zone_main_floor(zone.mesh->pack, waypoint.zone_id);
-            waypoint.zone_id = base_zone_name(zone.mesh->pack, waypoint.zone_id);
+            waypoint.zone_id = BaseZoneName(zone.mesh->pack, waypoint.zone_id);
         }
     }
 }

@@ -1,5 +1,6 @@
 import math
 import re
+from collections.abc import Mapping
 from enum import IntEnum
 from pathlib import Path
 from typing import TypedDict
@@ -335,9 +336,21 @@ def _sync_portal_flags(point: PathPoint) -> None:
         point.pop("suppress_auto_portal", None)
 
 
-def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
+def map_zone_of(zone_id: str, map_zones: Mapping[str, str] | None) -> str:
+    """zone 所在地图的底图区名; 表里没有的区就是它自己。"""
+    return map_zones.get(zone_id, zone_id) if map_zones else zone_id
+
+
+def assign_point_frames(points: list[PathPoint], map_zones: Mapping[str, str]) -> list[PathPoint]:
+    """导入的点按运行时口径定坐标系: 写了 target_tier 的在那一层上, 其余在所在地图的底图上。"""
+    return [
+        {**point, "zone": point.get("target_tier") or map_zone_of(point.get("zone", ""), map_zones)} for point in points
+    ]
+
+
+def normalize_path_points(points: list[PathPoint], map_zones: Mapping[str, str] | None = None) -> list[PathPoint]:
     """
-    统一清洗轨迹点，并自动在跨区域边界补 PORTAL 动作。
+    统一清洗轨迹点，并自动在跨地图边界补 PORTAL 动作。
 
     已存在的 PORTAL 点会被保留；边界点会被强制标成 PORTAL。
     """
@@ -384,7 +397,7 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
     for idx in range(len(normalized) - 1):
         current_zone = normalized[idx]["zone"]
         next_zone = normalized[idx + 1]["zone"]
-        if current_zone and next_zone and current_zone != next_zone:
+        if current_zone and next_zone and map_zone_of(current_zone, map_zones) != map_zone_of(next_zone, map_zones):
             boundary_indices.add(idx)
             boundary_indices.add(idx + 1)
 
