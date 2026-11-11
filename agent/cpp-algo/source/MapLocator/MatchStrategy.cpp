@@ -422,11 +422,18 @@ std::optional<MatchResultRaw> CoreMatchPrepared(
 
     cv::Mat result;
     try {
-        if (cv::countNonZero(weightMask) < 5) {
+        const int weighted = cv::countNonZero(weightMask);
+        if (weighted < 5) {
             return std::nullopt;
         }
 
-        cv::matchTemplate(searchFeature.image, templ, result, cv::TM_CCOEFF_NORMED, weightMask);
+        // 带掩膜的实现在平坦窗口上会冒假峰，全 255 的掩膜改走等价的无掩膜实现
+        if (weighted == static_cast<int>(weightMask.total())) {
+            cv::matchTemplate(searchFeature.image, templ, result, cv::TM_CCOEFF_NORMED);
+        }
+        else {
+            cv::matchTemplate(searchFeature.image, templ, result, cv::TM_CCOEFF_NORMED, weightMask);
+        }
 
         cv::patchNaNs(result, -1.0);
         for (int y = 0; y < result.rows; ++y) {
