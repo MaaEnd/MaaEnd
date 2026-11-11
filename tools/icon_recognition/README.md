@@ -64,11 +64,7 @@ python tools/icon_recognition/publish.py --fixed-only
 
 ## 取用可用道具任务
 
-运行 `pnpm generate:UseConsumable` 时，任务模板会从 zmdmap 的
-`item_mini_table.json` 按 `storageKind == "Normal"`、`categoryType == "Usable"`、
-`type == "TacticalItem"` 生成战术物品选项，并校验物品已加入 IconRecognition catalog。
-此字段由 PR #7227 提供；使用该 PR 尚未合入的生成表时，可通过
-`MAAEND_ITEM_MINI_TABLE` 环境变量指定表路径。四个消耗品选项继续由现有的消耗品数据生成。
+运行 `pnpm generate:UseConsumable` 时，任务模板会从 zmdmap 的 `item_mini_table.json` 按 `storageKind == "Normal"`、`categoryType == "Usable"`、`type == "TacticalItem"` 生成战术物品选项，并校验物品已加入 IconRecognition catalog。四个消耗品选项继续由现有的消耗品数据生成。
 
 ## 发布数据结构
 

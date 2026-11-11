@@ -90,28 +90,6 @@ function buildRegionOption(regions, defaultRegion) {
     };
 }
 
-function buildStashBackpackOption() {
-    return {
-        type: "switch",
-        label: "$task.StashBackpack.option.StashBackpackSubTask.label",
-        cases: [
-            {
-                name: "Yes",
-                option: [
-                    "StashBackpackType",
-                    "StashBackpackArea",
-                ],
-                pipeline_override: {StashBackpackMain: {enabled: true}},
-            },
-            {
-                name: "No",
-                pipeline_override: {StashBackpackMain: {enabled: false}},
-            },
-        ],
-        default_case: "Yes",
-    };
-}
-
 function buildTacticalItemsOption() {
     return {
         type: "switch",
@@ -190,7 +168,6 @@ export default function buildUseConsumableTask({
         options[`UseConsumableSlot${slot}Item`] = buildItemOption(slot, itemIds, defaultItemId);
     }
     options.UseConsumableRegion = buildRegionOption(regions, defaultRegion);
-    options.UseConsumableStashBackpackSubTask = buildStashBackpackOption();
     options.UseConsumableTacticalItems = buildTacticalItemsOption();
     options.UseConsumableTacticalItem = buildTacticalItemOption(tacticalItemIds);
     options.UseConsumableEnabled = buildUseConsumableEnabledOption(slots);
@@ -200,7 +177,7 @@ export default function buildUseConsumableTask({
             {
                 ...task,
                 option: [
-                    "UseConsumableStashBackpackSubTask",
+                    "StashBackpackSubTask",
                     "UseConsumableTacticalItems",
                     "UseConsumableEnabled",
                 ],

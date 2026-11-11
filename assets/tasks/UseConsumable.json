@@ -18,7 +18,7 @@
                 "Win32-Front"
             ],
             "option": [
-                "UseConsumableStashBackpackSubTask",
+                "StashBackpackSubTask",
                 "UseConsumableTacticalItems",
                 "UseConsumableEnabled"
             ]
@@ -5809,33 +5809,6 @@
                 }
             ],
             "default_case": "ValleyIV"
-        },
-        "UseConsumableStashBackpackSubTask": {
-            "type": "switch",
-            "label": "$task.StashBackpack.option.StashBackpackSubTask.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "StashBackpackType",
-                        "StashBackpackArea"
-                    ],
-                    "pipeline_override": {
-                        "StashBackpackMain": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "StashBackpackMain": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ],
-            "default_case": "Yes"
         },
         "UseConsumableTacticalItems": {
             "type": "switch",

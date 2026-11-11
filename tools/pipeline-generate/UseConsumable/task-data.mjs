@@ -24,7 +24,7 @@ function loadUsableItems() {
 }
 
 function loadTacticalItemIds() {
-    const sourcePath = process.env.MAAEND_ITEM_MINI_TABLE || resolve(dataDir, "item_mini_table.json");
+    const sourcePath = resolve(dataDir, "item_mini_table.json");
     let data;
     try {
         data = JSON.parse(readFileSync(sourcePath, "utf8"));
@@ -38,12 +38,7 @@ function loadTacticalItemIds() {
         ]) => item && typeof item === "object",
     );
     if (
-        !records.some(
-            ([
-                ,
-                item,
-            ]) => "type" in item,
-        ) ||
+        records.length === 0 ||
         records.some(
             ([
                 ,
@@ -51,7 +46,7 @@ function loadTacticalItemIds() {
             ]) => !("type" in item),
         )
     ) {
-        throw new Error(`[UseConsumable] ${sourcePath} 缺少完整的 ItemTable.type 字段，请使用 PR #7227 生成的数据`);
+        throw new Error(`[UseConsumable] ${sourcePath} 缺少完整的 ItemTable.type 字段，请更新物品数据表`);
     }
 
     const ids = records
