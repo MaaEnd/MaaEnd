@@ -348,7 +348,7 @@ Only `INTERACT` points can take these fields — on any other action they are ig
 | `NAVMESH` | Plans a route automatically from the current localization and moves to `target`; must use the object form above |
 | `TRANSFER` | Waits in place for an external force (story, teleport, etc.) to move the character to the next segment, then continues from the following points |
 | `JUMP_PAD` | Jump pad: stands on the pad center, jumps when needed, steps and retries if it did not launch, then continues from the following points after landing; see [Jump Pads](#jump-pads-jump_pad) |
-| `PORTAL` | Map transition point: after triggering, walks blind for a short distance and waits for the area switch |
+| `PORTAL` | Map transition point: after triggering, walks blind for a short distance and waits until localization reaches a map declared by a later `ZONE`; any other map keeps it waiting until the timeout |
 | `HEADING` | Turns the camera to the specified orientation, then presses `W` once to make the orientation take effect |
 
 ### Execution Order and `required`
@@ -406,7 +406,7 @@ Use `ZONE` to specify the map area of the following points:
 }
 ```
 
-This node produces no movement and only provides area **verification** context for the following path points. A `path` exported from a recording usually contains it already.
+This node produces no movement and only provides area **verification** context for the following path points. A `path` exported from a recording usually contains it already. Areas are compared by map: tiers and the basemap of the same map count as one area, so a tier name (such as `Wuling_L4_328`) in `zone_id` is equivalent to the basemap name (`Wuling_Base`).
 
 ### Adjusting Orientation: `HEADING`
 

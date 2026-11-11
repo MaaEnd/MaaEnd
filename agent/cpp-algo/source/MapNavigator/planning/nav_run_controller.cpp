@@ -580,6 +580,7 @@ std::optional<navmesh::BaseNavRouteResult>
             .start_deck_y = LandedTowerDeckY(input.session, position),
             .goal = goal,
             .goal_deck_y = anchor.target_deck_y,
+            .zone_floor_y = position.zone_floor_y,
         },
         nullptr,
         &input.runtime.virtual_no_go);

@@ -1,6 +1,7 @@
 #include "navmesh_queries.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <filesystem>
 #include <memory>
@@ -20,6 +21,34 @@ namespace mapnavigator
 
 namespace
 {
+
+constexpr std::array<float, 4> kIdentityTierTransform { 1.0F, 0.0F, 1.0F, 0.0F };
+
+// 同一地图的层都归到坐标与底图一致的那个区名, 包里查不到的区原样返回
+std::string base_zone_name(const navmesh::BaseNavPack& pack, const std::string& zone_id)
+{
+    const navmesh::BaseNavZone* zone = navmesh::FindBaseNavZoneByName(pack, zone_id);
+    if (zone == nullptr) {
+        return zone_id;
+    }
+    const uint16_t geometry = navmesh::GeometryZoneId(pack, zone->zone_id);
+    for (const navmesh::BaseNavZone& candidate : pack.zones) {
+        if (navmesh::IsTierZone(candidate) && navmesh::GeometryZoneId(pack, candidate.zone_id) == geometry
+            && candidate.transform == kIdentityTierTransform) {
+            return candidate.name;
+        }
+    }
+    return zone_id;
+}
+
+std::optional<double> zone_main_floor(const navmesh::BaseNavPack& pack, const std::string& zone_id)
+{
+    const float floor_y = navmesh::FloorYForZoneName(pack, zone_id);
+    if (floor_y <= navmesh::kBaseNavFloorYValidMin) {
+        return std::nullopt;
+    }
+    return floor_y;
+}
 
 navmesh::WorldPoint offset_point(const NaviPosition& position, double heading, double distance)
 {
@@ -62,6 +91,7 @@ std::optional<bool> point_on_mesh(const ZoneNavmesh& zone, const navmesh::WorldP
 
 void NormalizeLivePositionToBase(NaviPosition* pos, const NaviParam& param)
 {
+    pos->zone_floor_y.reset();
     if (pos->zone_id.empty()) {
         return;
     }
@@ -69,11 +99,52 @@ void NormalizeLivePositionToBase(NaviPosition* pos, const NaviParam& param)
     if (!zone.mesh) {
         return;
     }
-    const auto projection = navmesh::ProjectToBase(zone.mesh->pack, pos->zone_id, pos->x, pos->y);
-    if (projection && projection->was_tier) {
-        // zone_id 保持定位器命名, 区域校验要拿它比对
-        pos->x = projection->x;
-        pos->y = projection->y;
+    const navmesh::BaseNavPack& pack = zone.mesh->pack;
+    const auto projection = navmesh::ProjectToBase(pack, pos->zone_id, pos->x, pos->y);
+    if (!projection || !projection->was_tier) {
+        return;
+    }
+    pos->x = projection->x;
+    pos->y = projection->y;
+    pos->zone_floor_y = zone_main_floor(pack, pos->zone_id);
+    pos->zone_id = base_zone_name(pack, pos->zone_id);
+}
+
+std::vector<std::string> ZonesOnSameMap(const NaviParam& param, const std::string& zone_id)
+{
+    std::vector<std::string> zones;
+    if (zone_id.empty()) {
+        return zones;
+    }
+    const ZoneNavmesh zone = LoadZoneNavmesh(param, zone_id);
+    if (!zone.mesh) {
+        return zones;
+    }
+    const navmesh::BaseNavPack& pack = zone.mesh->pack;
+    const navmesh::BaseNavZone* found = navmesh::FindBaseNavZoneByName(pack, zone_id);
+    if (found == nullptr) {
+        return zones;
+    }
+    const uint16_t geometry = navmesh::GeometryZoneId(pack, found->zone_id);
+    for (const navmesh::BaseNavZone& candidate : pack.zones) {
+        if (navmesh::GeometryZoneId(pack, candidate.zone_id) == geometry) {
+            zones.push_back(candidate.name);
+        }
+    }
+    return zones;
+}
+
+void FlattenWaypointZones(std::vector<Waypoint>* path, const NaviParam& param)
+{
+    for (Waypoint& waypoint : *path) {
+        if (waypoint.zone_id.empty()) {
+            continue;
+        }
+        const ZoneNavmesh zone = LoadZoneNavmesh(param, waypoint.zone_id);
+        if (zone.mesh) {
+            waypoint.zone_floor_y = zone_main_floor(zone.mesh->pack, waypoint.zone_id);
+            waypoint.zone_id = base_zone_name(zone.mesh->pack, waypoint.zone_id);
+        }
     }
 }
 

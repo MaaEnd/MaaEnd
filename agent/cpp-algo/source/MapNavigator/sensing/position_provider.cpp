@@ -180,6 +180,9 @@ bool capture_with(const CaptureParts& parts, NaviPosition* out_pos, maplocator::
     times.image_prep_done_at = std::chrono::steady_clock::now();
 
     options.reject_occluded_frames = heading_source != HeadingSource::Camera;
+    if (parts.normalize_param != nullptr) {
+        options.accepted_zone_ids = ZonesOnSameMap(*parts.normalize_param, options.expected_zone_id);
+    }
     const auto locate_result = maplocator::Locate(sensor->locator.get(), minimap, options);
     times.locate_done_at = std::chrono::steady_clock::now();
     log_locate_result(locate_result);

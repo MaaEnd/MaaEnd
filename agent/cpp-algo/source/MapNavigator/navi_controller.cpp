@@ -77,6 +77,9 @@ bool navigate_with_backend(
     const size_t target_count = param->path.size();
     LogInfo << "Starting navigation to targets." << VAR(target_count);
     PreloadNavmeshWaypoints(*param);
+    if (param->normalize_position_via_navmesh) {
+        FlattenWaypointZones(&param->path, *param);
+    }
     LogInfo << "Waiting for first valid GPS signal...";
 
     NaviPosition pos;

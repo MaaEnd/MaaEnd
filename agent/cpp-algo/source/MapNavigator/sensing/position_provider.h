@@ -40,7 +40,7 @@ struct CaptureParts
     // 为空时不喂帧
     const FrameSinks* frame_sinks = nullptr;
     latency::LatencyRun* latency = nullptr;
-    // 非空时每次成功取位后用它把坐标换算到统一坐标系
+    // 非空时期望区域按整张地图接受, 每次成功取位后用它把坐标换算到统一坐标系
     const NaviParam* normalize_param = nullptr;
 };
 
