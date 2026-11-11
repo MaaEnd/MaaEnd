@@ -1,4 +1,16 @@
 {
+    "GearAssemblyNonsetGear": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    750,
+                    100
+                ]
+            }
+        }
+    },
     "GearAssemblySwipeToNextRow": {
         "action": {
             "param": {
