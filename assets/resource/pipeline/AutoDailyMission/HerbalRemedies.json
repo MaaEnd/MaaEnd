@@ -1,0 +1,650 @@
+{
+    "AutoDailyMissionHerbalRemediesListItem": {
+        "desc": "委派任务列表里的日常·疗伤良药",
+        "recognition": "OCR",
+        "roi": [
+            42,
+            70,
+            360,
+            590
+        ],
+        // 完整文本："日常·疗伤良药" / "日常·療傷良藥" / "Daily: Herbal Remedies" / "日常・治療良薬" / "일상 · 상처 치료에 좋은 약"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "疗伤良药",
+            "療傷良藥",
+            "(?i)Herbal\\s*Remedies",
+            "治療良薬",
+            "상처\\s*치료에\\s*좋은\\s*약"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesDetail": {
+        "desc": "右侧详情已选中日常·疗伤良药",
+        "recognition": "OCR",
+        "roi": [
+            410,
+            55,
+            400,
+            45
+        ],
+        "expected": [
+            "日常·疗伤良药",
+            "日常·療傷良藥",
+            "(?i)Daily:\\s*Herbal\\s*Remedies",
+            "日常・治療良薬",
+            "일상\\s*·\\s*상처\\s*치료에\\s*좋은\\s*약"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesMapPanel": {
+        "desc": "任务地图右侧详情栏是日常·疗伤良药",
+        "recognition": "OCR",
+        "roi": [
+            950,
+            45,
+            320,
+            45
+        ],
+        // 完整文本："日常·疗伤良药" / "日常·療傷良藥" / "Daily: Herbal Remedies" / "日常・治療良薬" / "일상 · 상처 치료에 좋은 약"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "疗伤良药",
+            "療傷良藥",
+            "(?i)Herbal\\s*Remedies",
+            "治療良薬",
+            "상처\\s*치료에\\s*좋은\\s*약"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesEntry": {
+        "desc": "在委派任务列表中点击日常·疗伤良药",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionHerbalRemediesListItem"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionSnsTracked",
+            "AutoDailyMissionSnsUntracked",
+            "AutoDailyMissionHerbalRemediesOpenMap",
+            "AutoDailyMissionHerbalRemediesStartTracking"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesOpenMap": {
+        "desc": "点击定位按钮打开疗伤良药的任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionHerbalRemediesDetail",
+            "TrackedMissionMapButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionHerbalRemediesClosePanel"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesStartTracking": {
+        "desc": "疗伤良药还没追踪时点击开始追踪，打开任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionHerbalRemediesDetail",
+            "AutoDailyMissionStartTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionHerbalRemediesClosePanel"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesClosePanel": {
+        "desc": "确认已打开疗伤良药的任务地图，关闭右侧详情栏",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "AutoDailyMissionHerbalRemediesMapPanel"
+        ],
+        "box_index": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoDailyMissionHerbalRemediesRegionWulingCity",
+            "AutoDailyMissionHerbalRemediesRegionJingyuValley"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesRegionWulingCity": {
+        "desc": "地图左上角子区域是武陵城",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "武陵城",
+            "(?i)Wuling\\s*City",
+            "무릉성"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionHerbalRemediesCandidatesWulingCity"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesCandidatesWulingCity": {
+        "desc": "在地图上确认今天的疗伤良药是武陵城里的哪一处",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        810.974,
+                        1508.925
+                    ],
+                    "next": "AutoDailyMissionHerbalRemediesMaintenanceZone"
+                },
+                {
+                    "at": [
+                        917.025,
+                        1895.85
+                    ],
+                    "next": "AutoDailyMissionHerbalRemediesFieldLogisticsDepot"
+                },
+                {
+                    "at": [
+                        925.725,
+                        1739.325
+                    ],
+                    "next": "AutoDailyMissionHerbalRemediesTianjingCourtyard"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionHerbalRemediesRegionJingyuValley": {
+        "desc": "地图左上角子区域是景玉谷",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "景玉谷",
+            "(?i)Jingyu\\s*Valley",
+            "경옥\\s*골짜기"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionHerbalRemediesCandidatesJingyuValley"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesCandidatesJingyuValley": {
+        "desc": "在地图上确认今天的疗伤良药是景玉谷里的哪一处",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        657.637,
+                        2798.775
+                    ],
+                    "next": "AutoDailyMissionHerbalRemediesEverwaterBrook"
+                },
+                {
+                    "at": [
+                        868.856,
+                        2221.885
+                    ],
+                    "next": "AutoDailyMissionHerbalRemediesEcologicalResearchStation"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionHerbalRemediesMaintenanceZone": {
+        "desc": "今天的疗伤良药在待修缮区附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionHerbalRemediesRouteMaintenanceZone"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.herbal_remedies_maintenance_zone"
+        }
+    },
+    "AutoDailyMissionHerbalRemediesFieldLogisticsDepot": {
+        "desc": "今天的疗伤良药在储备站附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionHerbalRemediesRouteFieldLogisticsDepot"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.herbal_remedies_field_logistics_depot"
+        }
+    },
+    "AutoDailyMissionHerbalRemediesTianjingCourtyard": {
+        "desc": "今天的疗伤良药在天井院附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionHerbalRemediesRouteTianjingCourtyard"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.herbal_remedies_tianjing_courtyard"
+        }
+    },
+    "AutoDailyMissionHerbalRemediesEverwaterBrook": {
+        "desc": "今天的疗伤良药在水泽涧附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionHerbalRemediesRouteEverwaterBrook"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.herbal_remedies_everwater_brook"
+        }
+    },
+    "AutoDailyMissionHerbalRemediesEcologicalResearchStation": {
+        "desc": "今天的疗伤良药在生态实验站附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStation"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.herbal_remedies_ecological_research_station"
+        }
+    },
+    "AutoDailyMissionHerbalRemediesRouteMaintenanceZone": {
+        "desc": "走到待修缮区附近的任务区域，采集 5 株蓬茸锦草",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        818.28,
+                        1508.97
+                    ]
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        818.28,
+                        1508.97
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        806.46,
+                        1520.273
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        826.072,
+                        1530.368
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        845.355,
+                        1524.54
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        819.677,
+                        1492.537
+                    ],
+                    "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesRouteFieldLogisticsDepot": {
+        "desc": "走到储备站附近的任务区域，采集 5 株蓬茸锦草",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        915.53,
+                        1910.54
+                    ]
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        916.283,
+                        1911.84
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        929.722,
+                        1909.215
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        940.8,
+                        1884.9
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        916.597,
+                        1876.987
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        888.255,
+                        1881.847
+                    ],
+                    "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesRouteTianjingCourtyard": {
+        "desc": "走到天井院附近的任务区域，采集 5 株荆刺芽针",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        922.507,
+                        1736.985
+                    ]
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        922.507,
+                        1736.985
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        918.577,
+                        1730.265
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        934.148,
+                        1723.905
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        940.192,
+                        1744.253
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        921.713,
+                        1749.638
+                    ],
+                    "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesRouteEverwaterBrook": {
+        "desc": "走到水泽涧附近的任务区域，采集 5 株荆刺芽针",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        650.018,
+                        2798.296
+                    ]
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        650.018,
+                        2798.296
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        650.79,
+                        2806.29
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        666.007,
+                        2799.113
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        667.102,
+                        2796.225
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        660.082,
+                        2791.485
+                    ],
+                    "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStation": {
+        "desc": "走到生态实验站附近的任务区域，采集 5 株蓬茸锦草",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        860.73,
+                        2221.2
+                    ]
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        860.73,
+                        2221.2
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        851.1,
+                        2225.325
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        867.217,
+                        2241.023
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        877.912,
+                        2225.52
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        881.31,
+                        2209.185
+                    ],
+                    "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ]
+    }
+}

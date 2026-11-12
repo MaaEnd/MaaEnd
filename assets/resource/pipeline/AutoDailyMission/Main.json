@@ -34,6 +34,8 @@
             "AutoDailyMissionTianshiPillarEntry",
             "AutoDailyMissionMissingRobotsEntry",
             "AutoDailyMissionSprayAndCleanEntry",
+            "AutoDailyMissionHerbalRemediesEntry",
+            "AutoDailyMissionAuthenticMedsEntry",
             "AutoDailyMissionEnd"
         ]
     },
