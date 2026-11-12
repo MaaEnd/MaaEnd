@@ -11,6 +11,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// missionsPath 是任务数据。height 只给多层可走面上的点保留：每次更新数据后都要跑
+// tools/AutoMission/strip_deck_height.py，对带 height 的点跑 navmesh 的 deck_probe，
+// 层数 <= 1 或 zone 不在 navmesh 里就删掉 height。用法见脚本开头的说明。
 const missionsPath = "data/AutoMission/missions.json.gz"
 
 type missionText struct {
@@ -23,7 +26,7 @@ type trackData struct {
 	ZoneID string   `json:"zone_id,omitempty"`
 	X      *float64 `json:"x,omitempty"`
 	Y      *float64 `json:"y,omitempty"`
-	// Height 是世界高度，只有坐标贴地的坐标点、NPC 追踪才有，寻路时钉住目标所在的那层可走面。
+	// Height 是世界高度，只有目标点底下压着多层可走面时才有，寻路时钉住目标所在的那层；单层的点不带。
 	Height     *float64    `json:"height,omitempty"`
 	PhaseID    string      `json:"phase_id,omitempty"`
 	Components []string    `json:"components,omitempty"`
@@ -44,7 +47,7 @@ type trackData struct {
 	Points []groundPoint `json:"points,omitempty"`
 }
 
-// groundPoint 是一个贴地的底图坐标，带世界高度。
+// groundPoint 是一个贴地的底图坐标，多层可走面时带世界高度。
 type groundPoint struct {
 	ZoneID string   `json:"zone_id"`
 	X      float64  `json:"x"`
@@ -53,7 +56,7 @@ type groundPoint struct {
 }
 
 // mapPoint 是完成条件里的一个底图坐标，如一只怪或一个区域中心。
-// Height 是世界高度，区域和触发区才有，寻路时钉住目标所在的那层可走面。
+// Height 是世界高度，区域和触发区落在多层可走面上时才有，寻路时钉住目标所在的那层。
 type mapPoint struct {
 	ZoneID string   `json:"zone_id"`
 	X      float64  `json:"x"`
