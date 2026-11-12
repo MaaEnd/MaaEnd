@@ -14,7 +14,7 @@
         ]
     },
     // 移动端好友列表行更高，「对比本地」箭头在调度券右侧约 140~160px，且随百分比文字长短左右移动
-    "AutoSellFriendsPriceFirstLowerArrowRecognition": {
+    "AutoSellFriendsPriceFirstArrowRecognition": {
         "roi_offset": [
             125,
             -2,

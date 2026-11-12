@@ -152,8 +152,9 @@
         ],
         "box_index": 1
     },
-    "AutoSellFriendsPriceFirstLowerArrowRecognition": {
-        "desc": "识别好友列表第一行对比本地的绿色下降箭头",
+    // 红绿两组颜色都要认：国服红涨绿跌，国际服绿涨红跌
+    "AutoSellFriendsPriceFirstArrowRecognition": {
+        "desc": "识别好友列表第一行对比本地的箭头",
         "recognition": "ColorMatch",
         "roi": "AutoSellFriendsPriceFirstTicketRecognition",
         "roi_offset": [
@@ -163,26 +164,47 @@
             10
         ],
         "lower": [
-            79,
-            197,
-            75
+            [
+                79,
+                197,
+                75
+            ],
+            [
+                215,
+                20,
+                40
+            ]
         ],
         "upper": [
-            99,
-            217,
-            95
+            [
+                99,
+                217,
+                95
+            ],
+            [
+                255,
+                75,
+                80
+            ]
         ],
         "connected": true,
         "count": 15
     },
+    // 国服与国际服的涨跌颜色相反（国服绿色是下降，国际服绿色是上升），不能按颜色判断方向，
+    // 由 AutoSellDownArrowRecognition 比较箭头上下两半的像素多少来判断
     "AutoSellFriendsPriceFirstLowerRecognition": {
-        "desc": "识别好友列表第一行（最高价）的对比本地是否为绿色下降箭头，即本地售价高于所有好友",
+        "desc": "识别好友列表第一行（最高价）的对比本地是否为下降箭头，即本地售价高于所有好友",
         "recognition": "And",
         "all_of": [
             "AutoSellFriendsPriceFirstTicketRecognition",
-            "AutoSellFriendsPriceFirstLowerArrowRecognition"
+            "AutoSellFriendsPriceFirstArrowRecognition",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "AutoSellDownArrowRecognition",
+                "roi": "AutoSellFriendsPriceFirstArrowRecognition"
+            }
         ],
-        "box_index": 1
+        "box_index": 2
     },
     "AutoSellOwnPriceTicketRecognition": {
         "desc": "识别出售物资界面今日售价旁的调度券图标",
