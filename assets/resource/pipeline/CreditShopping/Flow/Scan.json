@@ -24,6 +24,7 @@
             "CreditShoppingBuyPriority2",
             "CreditShoppingBuyPriority3",
             "CreditShoppingReserveCredit",
+            "CreditShoppingRefreshLimitReached",
             "CreditShoppingRefreshCountReached",
             "CreditShoppingPrudentRefresh",
             "CreditShoppingBuyBlacklist",

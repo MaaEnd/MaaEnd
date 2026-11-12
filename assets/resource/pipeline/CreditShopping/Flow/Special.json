@@ -16,8 +16,10 @@
         "enabled": false,
         "recognition": "And",
         "all_of": [
-            "RefreshText"
+            "RefreshText",
+            "CreditShoppingRefreshReserveCreditGate"
         ],
+        "box_index": 0,
         "action": "Click",
         "post_wait_freezes": {
             "time": 500,
