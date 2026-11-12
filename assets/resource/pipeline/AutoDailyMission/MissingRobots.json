@@ -450,7 +450,6 @@
                         290.039,
                         922.641
                     ],
-                    "target_deck_y": 131.4,
                     "required": true
                 },
                 {
@@ -459,7 +458,6 @@
                         296.845,
                         939.628
                     ],
-                    "target_deck_y": 108.185,
                     "required": true
                 },
                 {
@@ -494,7 +492,6 @@
                         316.877,
                         917.53
                     ],
-                    "target_deck_y": 106.646,
                     "required": true
                 }
             ]
@@ -560,7 +557,6 @@
                         261.206,
                         908.422
                     ],
-                    "target_deck_y": 114.309,
                     "required": true
                 },
                 {
@@ -602,7 +598,6 @@
                         642.516,
                         1001.461
                     ],
-                    "target_deck_y": 89.905,
                     "required": true
                 },
                 {
@@ -611,7 +606,6 @@
                         668.275,
                         1009.802
                     ],
-                    "target_deck_y": 93.305,
                     "required": true
                 },
                 {
@@ -653,7 +647,6 @@
                         628.704,
                         972.609
                     ],
-                    "target_deck_y": 90.4,
                     "required": true
                 },
                 {
@@ -695,7 +688,6 @@
                         612.32,
                         1010.373
                     ],
-                    "target_deck_y": 91.604,
                     "required": true
                 },
                 {
@@ -737,7 +729,6 @@
                         1025.781,
                         871.266
                     ],
-                    "target_deck_y": 73.53,
                     "required": true
                 },
                 {
@@ -746,7 +737,6 @@
                         1038.227,
                         869.536
                     ],
-                    "target_deck_y": 80.769,
                     "required": true
                 },
                 {
@@ -788,7 +778,6 @@
                         1036.952,
                         901.79
                     ],
-                    "target_deck_y": 87.156,
                     "required": true
                 },
                 {
@@ -830,7 +819,6 @@
                         1006.291,
                         860.171
                     ],
-                    "target_deck_y": 86.623,
                     "required": true
                 },
                 {
@@ -872,7 +860,6 @@
                         1059.539,
                         502.172
                     ],
-                    "target_deck_y": 31.6,
                     "required": true
                 },
                 {
@@ -1024,7 +1011,6 @@
                         540.984,
                         192.185
                     ],
-                    "target_deck_y": 166.13,
                     "required": true
                 },
                 {
@@ -1033,7 +1019,6 @@
                         538.889,
                         198.281
                     ],
-                    "target_deck_y": 167.742,
                     "required": true
                 },
                 {
@@ -1117,7 +1102,6 @@
                         527.554,
                         219.057
                     ],
-                    "target_deck_y": 167.952,
                     "required": true
                 },
                 {
