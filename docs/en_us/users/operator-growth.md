@@ -70,6 +70,27 @@ If the target operator or material source cannot be recognized, the flow may tim
 - Only the configured tab regions and scroll range are inspected; finishing the checks does not mean every development requirement is met.
 - Each return to the overview selects the operator and checks materials again to avoid repeatedly farming a material that is no longer missing; a single battle's rewards can still exceed the remaining shortage.
 - Operator options, Progression Overview entry recognition, and material source recognition include Simplified Chinese, Traditional Chinese, English, Japanese, and Korean; this does not mean every language has been verified in-game.
-- The task configuration allows Win32 foreground, the three Linux controllers, ADB, CloudADB, and PlayCover. The growth flow and templates are in the shared resource directory. Dedicated mobile templates and layout overrides for this task are not included, so recognition must be verified with each controller in-game.
+- The task configuration allows Win32 foreground, the three Linux controllers, ADB, CloudADB, and PlayCover. Mobile overview portraits, material templates, and ROI overrides are in `assets/resource_adb/`, shared by ADB, CloudADB, and PlayCover. Sharing resources does not mean all these controllers have been verified in-game.
 
-See the [task options](../../../assets/tasks/OperatorGrowth.json), [task entry](../../../assets/resource/pipeline/OperatorGrowth.json), and [growth flow](../../../assets/resource/pipeline/OperatorGrowth/Growth.json) for the implementation. Operator portraits and material templates are stored in `assets/resource/image/OperatorGrowth/Operators/` and `assets/resource/image/OperatorGrowth/Materials/`, respectively; team selection, combat, and reward claims reuse shared Protocol Space nodes.
+## Resources and Adaptation
+
+See the [task options](../../../assets/tasks/OperatorGrowth.json), [task entry](../../../assets/resource/pipeline/OperatorGrowth.json), [growth flow](../../../assets/resource/pipeline/OperatorGrowth/Growth.json), and [mobile overrides](../../../assets/resource_adb/pipeline/OperatorGrowth/Growth.json) for the implementation. The task entry is in the `pipeline` root, while its internal flow and images are in their respective `OperatorGrowth` directories. Team selection, combat, and reward claims reuse shared Protocol Space nodes.
+
+| Resource | Directory | Current contents |
+| --- | --- | --- |
+| Desktop portraits | `assets/resource/image/OperatorGrowth/Operators/` | Portrait templates for the desktop Progression Overview |
+| Desktop materials | `assets/resource/image/OperatorGrowth/Materials/` | Material templates for the desktop Progression Overview |
+| Mobile portraits | `assets/resource_adb/image/OperatorGrowth/Operators/` | 35 templates at `100×96` each, including both Endministrator portraits |
+| Mobile materials | `assets/resource_adb/image/OperatorGrowth/Materials/` | 16 templates at `80×55` each, covering the current material icon whitelist |
+
+Mobile portraits are sampled directly from `152×212` CharIcon originals using scale and offsets calibrated against screenshots, with green masks drawn over profession and status markers. Do not substitute enlarged desktop portraits. The current repository does not include a generator specifically for these growth portraits.
+
+Mobile material templates are cropped directly from the top icon region of material cards in `1280×720` Progression Overview screenshots, preserving the original pixels and excluding required quantities and owned-quantity text. Template filenames match the desktop whitelist. Source screenshots are not templates and should not be added to the recognition list.
+
+The desktop ROI for the Progression Overview entry, `OperatorGrowthOverviewOCR`, is `[1100, 10, 180, 40]`; the mobile ROI is `[1010, 12, 180, 48]`. Both use `roi` directly without `roi_offset`. On mobile, the flow waits for the same region to stabilize before recognizing the entry. Portraits, names, selected tabs, and material quantities have separate region overrides.
+
+## Verification Status
+
+The supplied mobile screenshots have been used to calibrate portraits, material crops, and overview ROIs. The latest entry screenshot recognizes the complete text 「培养总览」. Screenshot recognition does not establish that the in-game flow works; entry clicks, material source popups, and the complete farming loop still require in-game verification.
+
+The current repository has no screenshot regression cases for this task. Other languages and controllers also require separate verification.

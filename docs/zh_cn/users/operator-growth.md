@@ -70,6 +70,27 @@
 - 只检查当前配置覆盖的分页区域和滑动范围；检查结束不代表所有培养条件都满足。
 - 每次返回总览都会重新选人、检查材料，避免连续刷取已经不再短缺的材料；单场奖励仍可能超过实际缺口。
 - 干员选项、培养总览入口及材料来源识别已配置简中、繁中、英文、日文和韩文；这不代表各语言均已完成实机验证。
-- 任务配置允许 Win32 前台、三种 Linux 控制器、ADB、CloudADB 和 PlayCover。培养流程和模板位于公共资源目录，移动端尚无此任务专用的模板与布局覆盖，实际识别效果需要按控制器实机验证。
+- 任务配置允许 Win32 前台、三种 Linux 控制器、ADB、CloudADB 和 PlayCover。移动端总览的头像、材料模板和 ROI 覆盖位于 `assets/resource_adb/`，由 ADB、CloudADB 和 PlayCover 共用；资源共用不代表这些控制器均已完成实机验证。
 
-相关实现见 [任务选项](../../../assets/tasks/OperatorGrowth.json)、[任务入口](../../../assets/resource/pipeline/OperatorGrowth.json) 和 [培养流程](../../../assets/resource/pipeline/OperatorGrowth/Growth.json)。干员头像和材料模板分别位于 `assets/resource/image/OperatorGrowth/Operators/` 与 `assets/resource/image/OperatorGrowth/Materials/`，编队、战斗和领奖流程复用协议空间的公共节点。
+## 资源与适配说明
+
+相关实现见 [任务选项](../../../assets/tasks/OperatorGrowth.json)、[任务入口](../../../assets/resource/pipeline/OperatorGrowth.json)、[培养流程](../../../assets/resource/pipeline/OperatorGrowth/Growth.json) 和 [移动端覆盖](../../../assets/resource_adb/pipeline/OperatorGrowth/Growth.json)。任务入口放在 `pipeline` 根目录，内部流程与图片放在各自的 `OperatorGrowth` 目录；编队、战斗和领奖流程复用协议空间的公共节点。
+
+| 资源 | 目录 | 当前说明 |
+| --- | --- | --- |
+| 桌面头像 | `assets/resource/image/OperatorGrowth/Operators/` | 桌面培养总览使用的头像模板 |
+| 桌面材料 | `assets/resource/image/OperatorGrowth/Materials/` | 桌面培养总览使用的材料模板 |
+| 移动端头像 | `assets/resource_adb/image/OperatorGrowth/Operators/` | 35 张模板，每张 `100×96`，包含管理员男女头像 |
+| 移动端材料 | `assets/resource_adb/image/OperatorGrowth/Materials/` | 16 张模板，每张 `80×55`，覆盖当前材料图标白名单 |
+
+移动端头像按截图校准缩放与偏移，从 `152×212` 的 CharIcon 原图直接采样，再对职业和状态标记绘制绿色遮罩；不要放大桌面头像代替。当前仓库未包含专用于这些培养头像的生成脚本。
+
+移动端材料模板从 `1280×720` 的培养总览截图中直接裁取材料卡片顶部图标区域，保留原始像素，避开需求数量和「拥有」文字。模板文件名与桌面白名单对应；原始截图不属于模板，不应加入识别列表。
+
+培养总览入口 `OperatorGrowthOverviewOCR` 的桌面 ROI 为 `[1100, 10, 180, 40]`，移动端为 `[1010, 12, 180, 48]`，均直接使用 `roi`，不再设置 `roi_offset`。移动端在同一区域等待画面稳定后识别入口；头像、姓名、分页选中状态以及材料数量的区域另有独立覆盖。
+
+## 验证状态
+
+已使用提供的移动端截图校准头像、材料裁图及总览相关 ROI；最新入口截图能够识别完整的「培养总览」文字。截图识别结果不等同于实机流程通过，入口点击、材料来源弹窗和完整刷取循环仍需实机验证。
+
+当前仓库尚无本任务的截图回归用例；其他语言及控制器也需要分别验证。
