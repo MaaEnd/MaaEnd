@@ -2112,6 +2112,7 @@
     "task.AutoDailyMission.focus.tianshi_pillar_tianshi_bureau_academy": "Daily: Sky Pole Tracking - heading to the Sky Pole near Tianshi Bureau Academy, Wuling City",
     "task.AutoDailyMission.focus.tianshi_pillar_treasure_grotto": "Daily: Sky Pole Tracking - heading to the Sky Pole near Treasure Grotto, Jingyu Valley",
     "task.AutoDailyMission.focus.tianshi_pillar_zhailing_islet": "Daily: Sky Pole Tracking - heading to the Sky Pole near Zhailing Islet, Jingyu Valley",
+    "task.AutoDailyMission.focus.unsupported": "The daily mission in the list is not supported yet",
     "task.AutoDailyMission.label": "📆 Auto Daily Missions",
     "task.AutoDelivery.focus.delivery_completed": "🚛 **Cargo delivered successfully**",
     "task.AutoDelivery.focus.destination_map_opened": "🚛 Job location opened",

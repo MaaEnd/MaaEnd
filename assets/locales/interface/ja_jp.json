@@ -2112,6 +2112,7 @@
     "task.AutoDailyMission.focus.tianshi_pillar_tianshi_bureau_academy": "日常・天杭追跡：武陵城・天師府学院付近の天杭へ向かいます",
     "task.AutoDailyMission.focus.tianshi_pillar_treasure_grotto": "日常・天杭追跡：景玉谷・集宝洞付近の天杭へ向かいます",
     "task.AutoDailyMission.focus.tianshi_pillar_zhailing_islet": "日常・天杭追跡：景玉谷・菱摘島付近の天杭へ向かいます",
+    "task.AutoDailyMission.focus.unsupported": "リストにある日常任務はまだ対応していません",
     "task.AutoDailyMission.label": "📆日常任務を自動で行う",
     "task.AutoDelivery.focus.delivery_completed": "🚛 **貨物の配送が完了しました**",
     "task.AutoDelivery.focus.destination_map_opened": "🚛 任務位置を開きました",

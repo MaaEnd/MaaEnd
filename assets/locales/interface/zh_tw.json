@@ -2112,6 +2112,7 @@
     "task.AutoDailyMission.focus.tianshi_pillar_tianshi_bureau_academy": "日常·天樁追蹤：前往武陵城·天師府學院附近的天樁",
     "task.AutoDailyMission.focus.tianshi_pillar_treasure_grotto": "日常·天樁追蹤：前往景玉谷·聚寶窟附近的天樁",
     "task.AutoDailyMission.focus.tianshi_pillar_zhailing_islet": "日常·天樁追蹤：前往景玉谷·摘菱嶼附近的天樁",
+    "task.AutoDailyMission.focus.unsupported": "列表裡的日常任務暫不支援",
     "task.AutoDailyMission.label": "📆自動日常任務",
     "task.AutoDelivery.focus.delivery_completed": "🚛 **貨物已成功送達**",
     "task.AutoDelivery.focus.destination_map_opened": "🚛 已開啟任務位置",

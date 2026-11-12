@@ -2112,6 +2112,7 @@
     "task.AutoDailyMission.focus.tianshi_pillar_tianshi_bureau_academy": "일상 · 천장을 찾습니다: 무릉성 · 천사부 학원 근처의 천장으로 이동합니다",
     "task.AutoDailyMission.focus.tianshi_pillar_treasure_grotto": "일상 · 천장을 찾습니다: 경옥 골짜기 · 보물의 심장부 근처의 천장으로 이동합니다",
     "task.AutoDailyMission.focus.tianshi_pillar_zhailing_islet": "일상 · 천장을 찾습니다: 경옥 골짜기 · 적릉서 근처의 천장으로 이동합니다",
+    "task.AutoDailyMission.focus.unsupported": "목록의 일상 임무는 아직 지원하지 않습니다",
     "task.AutoDailyMission.label": "📆일상 임무 자동 수행",
     "task.AutoDelivery.focus.delivery_completed": "🚛 **화물 배송을 완료했습니다**",
     "task.AutoDelivery.focus.destination_map_opened": "🚛 임무 위치를 열었습니다",

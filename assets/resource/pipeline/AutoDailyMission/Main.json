@@ -36,8 +36,22 @@
             "AutoDailyMissionSprayAndCleanEntry",
             "AutoDailyMissionHerbalRemediesEntry",
             "AutoDailyMissionAuthenticMedsEntry",
+            "AutoDailyMissionUnsupported",
             "AutoDailyMissionEnd"
         ]
+    },
+    "AutoDailyMissionUnsupported": {
+        "desc": "列表里有日常任务但都不是已适配的日常，任务失败",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionListItem"
+        ],
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.unsupported"
+        }
     },
     "AutoDailyMissionEnd": {
         "desc": "没有可做的日常任务，结束",
