@@ -33,6 +33,7 @@
         "next": [
             "AutoDailyMissionTianshiPillarEntry",
             "AutoDailyMissionMissingRobotsEntry",
+            "AutoDailyMissionSprayAndCleanEntry",
             "AutoDailyMissionEnd"
         ]
     },
@@ -41,6 +42,105 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "AutoDailyMissionSnsStep": {
+        "desc": "任务详情当前步骤是查看某人发来的消息",
+        "recognition": "OCR",
+        "roi": [
+            455,
+            160,
+            790,
+            40
+        ],
+        // 完整文本形如："查看环卫职工发来的消息" / "查看環衛職工傳來的訊息" / "Read the urban sanitation worker's message" / "清掃員から届いたメッセージを確認する" / "환경미화원이 보낸 메시지를 확인하기"
+        // 各日常只是人名不同，按格式匹配
+        "expected": [
+            // @i18n-skip
+            "^查看.+发来的消息$",
+            "^查看.+傳來的訊息$",
+            "(?i)^Read\\b.*message$",
+            "から届いたメッセージを確認する$",
+            "보낸\\s*메시지를\\s*확인하기$"
+        ]
+    },
+    "AutoDailyMissionSnsTracked": {
+        "desc": "当前步骤是查看消息且任务已追踪，先点击停止追踪",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionSnsStep",
+            "AlreadyTrackedMissionButton"
+        ],
+        "box_index": 2,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "AutoDailyMissionSnsStartTracking"
+        ]
+    },
+    "AutoDailyMissionSnsUntracked": {
+        "desc": "当前步骤是查看消息且任务未追踪，点击开始追踪进入会话",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionSnsStep",
+            "TrackMissionButton"
+        ],
+        "box_index": 2,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionSnsInBaker"
+        ]
+    },
+    "AutoDailyMissionSnsStartTracking": {
+        "desc": "停止追踪后再点击开始追踪进入会话",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionSnsInBaker"
+        ]
+    },
+    "AutoDailyMissionSnsInBaker": {
+        "desc": "已进入 Baker，推进会话到结束后重新分发",
+        "recognition": "And",
+        "all_of": [
+            "InBakerHome"
+        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "BakerChatUntilOver"
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMain"
+        ]
     },
     "AutoDailyMissionCheckFinished": {
         "desc": "日常任务做完后回到委派任务页签检查",

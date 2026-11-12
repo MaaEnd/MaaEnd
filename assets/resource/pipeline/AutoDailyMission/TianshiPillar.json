@@ -66,6 +66,8 @@
         "box_index": 1,
         "action": "Click",
         "next": [
+            "AutoDailyMissionSnsTracked",
+            "AutoDailyMissionSnsUntracked",
             "AutoDailyMissionTianshiPillarOpenMap",
             "AutoDailyMissionTianshiPillarStartTracking"
         ]

@@ -1,0 +1,243 @@
+{
+    "AutoDailyMissionSprayAndCleanListItem": {
+        "desc": "委派任务列表里的日常·涤垢洗瑕",
+        "recognition": "OCR",
+        "roi": [
+            42,
+            70,
+            360,
+            590
+        ],
+        // 完整文本："日常·涤垢洗瑕" / "日常·滌垢洗瑕" / "Daily: Spray and Clean" / "日常・汚れを濯ぐ" / "일상 · 정화 작업"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "涤垢洗瑕",
+            "滌垢洗瑕",
+            "(?i)Spray\\s*and\\s*Clean",
+            "汚れを濯ぐ",
+            "정화\\s*작업"
+        ]
+    },
+    "AutoDailyMissionSprayAndCleanDetail": {
+        "desc": "右侧详情已选中日常·涤垢洗瑕",
+        "recognition": "OCR",
+        "roi": [
+            410,
+            55,
+            400,
+            45
+        ],
+        "expected": [
+            "日常·涤垢洗瑕",
+            "日常·滌垢洗瑕",
+            "(?i)Daily:\\s*Spray\\s*and\\s*Clean",
+            "日常・汚れを濯ぐ",
+            "일상\\s*·\\s*정화\\s*작업"
+        ]
+    },
+    "AutoDailyMissionSprayAndCleanMapPanel": {
+        "desc": "任务地图右侧详情栏是日常·涤垢洗瑕",
+        "recognition": "OCR",
+        "roi": [
+            950,
+            45,
+            320,
+            45
+        ],
+        // 完整文本："日常·涤垢洗瑕" / "日常·滌垢洗瑕" / "Daily: Spray and Clean" / "日常・汚れを濯ぐ" / "일상 · 정화 작업"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "涤垢洗瑕",
+            "滌垢洗瑕",
+            "(?i)Spray\\s*and\\s*Clean",
+            "汚れを濯ぐ",
+            "정화\\s*작업"
+        ]
+    },
+    "AutoDailyMissionSprayAndCleanEntry": {
+        "desc": "在委派任务列表中点击日常·涤垢洗瑕",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionSprayAndCleanListItem"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionSnsTracked",
+            "AutoDailyMissionSnsUntracked",
+            "AutoDailyMissionSprayAndCleanOpenMap",
+            "AutoDailyMissionSprayAndCleanStartTracking"
+        ]
+    },
+    "AutoDailyMissionSprayAndCleanOpenMap": {
+        "desc": "点击定位按钮打开涤垢洗瑕的任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionSprayAndCleanDetail",
+            "TrackedMissionMapButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionSprayAndCleanMapOpened"
+        ]
+    },
+    "AutoDailyMissionSprayAndCleanStartTracking": {
+        "desc": "涤垢洗瑕还没追踪时点击开始追踪，打开任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionSprayAndCleanDetail",
+            "AutoDailyMissionStartTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionSprayAndCleanMapOpened"
+        ]
+    },
+    "AutoDailyMissionSprayAndCleanMapOpened": {
+        "desc": "已打开涤垢洗瑕的任务地图，准备前往方兴衢附近",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionSprayAndCleanMapPanel"
+        ],
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionSprayAndCleanRouteStainA"
+        },
+        "next": [
+            "AutoDailyMissionQuickTeleport"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.spray_and_clean_fangxing_avenue"
+        }
+    },
+    "AutoDailyMissionSprayAndCleanRouteStainA": {
+        "desc": "走到方兴衢附近的第一处污渍",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        652.4,
+                        1711.3
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionSprayAndCleanRouteStainB"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.stain_arrived"
+        }
+    },
+    "AutoDailyMissionSprayAndCleanRouteStainB": {
+        "desc": "走到方兴衢附近的第二处污渍",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        652.7,
+                        1685.5
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionSprayAndCleanRouteStainC"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.stain_arrived"
+        }
+    },
+    "AutoDailyMissionSprayAndCleanRouteStainC": {
+        "desc": "走到方兴衢附近的第三处污渍",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        613.3,
+                        1700.3
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionSprayAndCleanRouteStainD"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.stain_arrived"
+        }
+    },
+    "AutoDailyMissionSprayAndCleanRouteStainD": {
+        "desc": "走到方兴衢附近的第四处污渍",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        636.9,
+                        1735.2
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.stain_arrived"
+        }
+    }
+}
