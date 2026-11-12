@@ -666,6 +666,31 @@
         }
     },
     "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon3": {
+        "desc": "走到南部草甸附近的第三个定位信标，有敌人时先自动战斗",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        612.32,
+                        1010.373
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon3Interact"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon3Interact": {
         "desc": "放置南部草甸附近的第三个定位信标",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -681,14 +706,6 @@
                 {
                     "action": "ZONE",
                     "zone_id": "ValleyIV_Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        612.32,
-                        1010.373
-                    ],
-                    "required": true
                 },
                 {
                     "action": "INTERACT",
@@ -756,6 +773,31 @@
         }
     },
     "AutoDailyMissionMissingRobotsRouteRoute5Beacon2": {
+        "desc": "走到五号公路附近的第二个定位信标，有敌人时先自动战斗",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1036.952,
+                        901.79
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoDailyMissionMissingRobotsRouteRoute5Beacon2Interact"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsRouteRoute5Beacon2Interact": {
         "desc": "放置五号公路附近的第二个定位信标",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -771,14 +813,6 @@
                 {
                     "action": "ZONE",
                     "zone_id": "ValleyIV_Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1036.952,
-                        901.79
-                    ],
-                    "required": true
                 },
                 {
                     "action": "INTERACT",
