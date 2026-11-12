@@ -1,5 +1,5 @@
 {
-    "ProtocolSpaceGrowthCheckOverview": {
+    "OperatorGrowthCheckOverview": {
         "desc": "确认位于干员页并等待顶部入口区域稳定，再检查培养总览是否可用",
         "recognition": {
             "type": "And",
@@ -22,11 +22,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthOpenOverview",
-            "ProtocolSpaceGrowthOverviewUnavailable"
+            "OperatorGrowthOpenOverview",
+            "OperatorGrowthOverviewUnavailable"
         ]
     },
-    "ProtocolSpaceGrowthOverviewUnavailable": {
+    "OperatorGrowthOverviewUnavailable": {
         "desc": "干员页稳定后未找到培养总览入口，提示并结束培养任务",
         "recognition": {
             "type": "And",
@@ -40,17 +40,17 @@
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
-            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.growth_overview_unavailable"
+            "Node.Recognition.Succeeded": "$task.OperatorGrowth.focus.overview_unavailable"
         }
     },
-    "ProtocolSpaceGrowthOpenOverview": {
+    "OperatorGrowthOpenOverview": {
         "desc": "每次进入培养总览前通过子任务清零回顶和下滑节点命中计数",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "InOperator",
-                    "ProtocolSpaceGrowthOverviewOCR"
+                    "OperatorGrowthOverviewOCR"
                 ],
                 "box_index": 1
             }
@@ -62,7 +62,7 @@
                 "custom_action": "SubTask",
                 "custom_action_param": {
                     "sub": [
-                        "ProtocolSpaceGrowthResetScrollCount"
+                        "OperatorGrowthResetScrollCount"
                     ]
                 }
             }
@@ -70,10 +70,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthClickOverview"
+            "OperatorGrowthClickOverview"
         ]
     },
-    "ProtocolSpaceGrowthOverviewOCR": {
+    "OperatorGrowthOverviewOCR": {
         "desc": "培养总览入口文字",
         "recognition": {
             "type": "OCR",
@@ -100,13 +100,13 @@
             }
         }
     },
-    "ProtocolSpaceGrowthClickOverview": {
+    "OperatorGrowthClickOverview": {
         "desc": "点击培养总览入口并确认已进入总览页面",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthOpenOverview"
+                    "OperatorGrowthOpenOverview"
                 ]
             }
         },
@@ -117,11 +117,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthTopReached",
-            "ProtocolSpaceGrowthScrollUp"
+            "OperatorGrowthTopReached",
+            "OperatorGrowthScrollUp"
         ]
     },
-    "ProtocolSpaceGrowthResetScrollCount": {
+    "OperatorGrowthResetScrollCount": {
         "desc": "每次进入培养总览前，统一清零左侧回顶、下滑和三个材料分页下滑节点命中计数",
         "pre_delay": 0,
         "action": {
@@ -130,11 +130,11 @@
                 "custom_action": "ClearHitCount",
                 "custom_action_param": {
                     "nodes": [
-                        "ProtocolSpaceGrowthScrollUp",
-                        "ProtocolSpaceGrowthScrollDown",
-                        "ProtocolSpaceGrowthOperatorLevelScrollDown",
-                        "ProtocolSpaceGrowthSkillsScrollDown",
-                        "ProtocolSpaceGrowthWeaponLevelScrollDown"
+                        "OperatorGrowthScrollUp",
+                        "OperatorGrowthScrollDown",
+                        "OperatorGrowthOperatorLevelScrollDown",
+                        "OperatorGrowthSkillsScrollDown",
+                        "OperatorGrowthWeaponLevelScrollDown"
                     ]
                 }
             }
@@ -142,7 +142,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthInOverview": {
+    "OperatorGrowthInOverview": {
         "desc": "培养总览页面左上角标题",
         "recognition": {
             "type": "OCR",
@@ -163,7 +163,7 @@
             }
         }
     },
-    "ProtocolSpaceGrowthAllOCR": {
+    "OperatorGrowthAllOCR": {
         "desc": "左侧干员列表上方的全部标题，作为回顶完成标志",
         "recognition": {
             "type": "OCR",
@@ -183,29 +183,29 @@
             }
         }
     },
-    "ProtocolSpaceGrowthTopReached": {
+    "OperatorGrowthTopReached": {
         "desc": "在培养总览左侧识别到全部后开始查找目标干员",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthInOverview",
-                    "ProtocolSpaceGrowthAllOCR"
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthAllOCR"
                 ]
             }
         },
         "next": [
-            "ProtocolSpaceGrowthSearchOperator"
+            "OperatorGrowthSearchOperator"
         ]
     },
-    "ProtocolSpaceGrowthScrollUp": {
+    "OperatorGrowthScrollUp": {
         "desc": "未看到全部时向列表顶部滑动 240 像素，静止后重新检查；每次进入总览时重置计数",
         "max_hit": 10,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthInOverview"
+                    "OperatorGrowthInOverview"
                 ]
             }
         },
@@ -233,27 +233,27 @@
             ]
         },
         "next": [
-            "ProtocolSpaceGrowthTopReached",
-            "ProtocolSpaceGrowthScrollUp"
+            "OperatorGrowthTopReached",
+            "OperatorGrowthScrollUp"
         ]
     },
-    "ProtocolSpaceGrowthSearchOperator": {
+    "OperatorGrowthSearchOperator": {
         "desc": "每屏先检查选中姓名和目标头像，未找到时在滑动次数上限内继续向下滚动",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthInOverview"
+                    "OperatorGrowthInOverview"
                 ]
             }
         },
         "next": [
-            "ProtocolSpaceGrowthSelected",
-            "ProtocolSpaceGrowthSelectOperator",
-            "ProtocolSpaceGrowthScrollDown"
+            "OperatorGrowthSelected",
+            "OperatorGrowthSelectOperator",
+            "OperatorGrowthScrollDown"
         ]
     },
-    "ProtocolSpaceGrowthTargetAvatar": {
+    "OperatorGrowthTargetAvatar": {
         "desc": "左侧干员卡片头像，由培养干员选项覆盖模板",
         "recognition": {
             "type": "TemplateMatch",
@@ -265,20 +265,20 @@
                     565
                 ],
                 "template": [
-                    "ProtocolSpace/Operators/Perlica.png"
+                    "OperatorGrowth/Operators/Perlica.png"
                 ],
                 "green_mask": true
             }
         }
     },
-    "ProtocolSpaceGrowthSelectOperator": {
+    "OperatorGrowthSelectOperator": {
         "desc": "确认培养总览页面后点击目标头像",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthInOverview",
-                    "ProtocolSpaceGrowthTargetAvatar"
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthTargetAvatar"
                 ],
                 "box_index": 1
             }
@@ -288,10 +288,10 @@
             "type": "Click"
         },
         "next": [
-            "ProtocolSpaceGrowthSelected"
+            "OperatorGrowthSelected"
         ]
     },
-    "ProtocolSpaceGrowthTargetName": {
+    "OperatorGrowthTargetName": {
         "desc": "右侧详情顶部的目标干员姓名，由培养干员选项覆盖",
         "recognition": {
             "type": "OCR",
@@ -312,29 +312,29 @@
             }
         }
     },
-    "ProtocolSpaceGrowthSelected": {
+    "OperatorGrowthSelected": {
         "desc": "右侧姓名与用户选择一致，确认目标干员已选中",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthInOverview",
-                    "ProtocolSpaceGrowthTargetName"
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthTargetName"
                 ]
             }
         },
         "next": [
-            "ProtocolSpaceGrowthClickOperatorLevel"
+            "OperatorGrowthClickOperatorLevel"
         ]
     },
-    "ProtocolSpaceGrowthScrollDown": {
+    "OperatorGrowthScrollDown": {
         "desc": "左侧列表每次下滑 240 像素，最多 10 次，保留相邻页重叠区域避免漏掉跨页头像；每次进入培养总览前重置计数",
         "max_hit": 10,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthInOverview"
+                    "OperatorGrowthInOverview"
                 ]
             }
         },
@@ -362,15 +362,15 @@
             ]
         },
         "next": [
-            "ProtocolSpaceGrowthSearchOperator"
+            "OperatorGrowthSearchOperator"
         ]
     },
-    "ProtocolSpaceGrowthRedQuantity": {
+    "OperatorGrowthRedQuantity": {
         "desc": "在全部材料模板匹配结果下方检查拥有数量的红色",
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": "ProtocolSpaceGrowthMaterialTemplates",
+                "roi": "OperatorGrowthMaterialTemplates",
                 "roi_offset": [
                     0,
                     65,
@@ -411,7 +411,7 @@
         "rate_limit": 0
     },
 
-    "ProtocolSpaceGrowthMaterialTemplates": {
+    "OperatorGrowthMaterialTemplates": {
         "desc": "协议空间材料模板白名单，含危机演练专精材料；全部从培养总览截图直接裁剪顶部 64×44 像素，避开下方数量",
         "recognition": {
             "type": "TemplateMatch",
@@ -423,22 +423,22 @@
                     412
                 ],
                 "template": [
-                    "ProtocolSpace/Materials/item_char_break_stage_1_2.png",
-                    "ProtocolSpace/Materials/item_char_break_stage_3_4.png",
-                    "ProtocolSpace/Materials/item_char_skill_level_1_6.png",
-                    "ProtocolSpace/Materials/item_char_skill_level_7_12.png",
-                    "ProtocolSpace/Materials/item_char_skill_specialize_1.png",
-                    "ProtocolSpace/Materials/item_char_skill_specialize_2.png",
-                    "ProtocolSpace/Materials/item_char_skill_specialize_3.png",
-                    "ProtocolSpace/Materials/item_char_skill_specialize_4.png",
-                    "ProtocolSpace/Materials/item_char_skill_specialize_5.png",
-                    "ProtocolSpace/Materials/item_char_skill_specialize_6.png",
-                    "ProtocolSpace/Materials/item_expcard_stage1_low.png",
-                    "ProtocolSpace/Materials/item_expcard_stage2_low.png",
-                    "ProtocolSpace/Materials/item_gold.png",
-                    "ProtocolSpace/Materials/item_weapon_break_high.png",
-                    "ProtocolSpace/Materials/item_weapon_break_low.png",
-                    "ProtocolSpace/Materials/item_weapon_expcard_low.png"
+                    "OperatorGrowth/Materials/item_char_break_stage_1_2.png",
+                    "OperatorGrowth/Materials/item_char_break_stage_3_4.png",
+                    "OperatorGrowth/Materials/item_char_skill_level_1_6.png",
+                    "OperatorGrowth/Materials/item_char_skill_level_7_12.png",
+                    "OperatorGrowth/Materials/item_char_skill_specialize_1.png",
+                    "OperatorGrowth/Materials/item_char_skill_specialize_2.png",
+                    "OperatorGrowth/Materials/item_char_skill_specialize_3.png",
+                    "OperatorGrowth/Materials/item_char_skill_specialize_4.png",
+                    "OperatorGrowth/Materials/item_char_skill_specialize_5.png",
+                    "OperatorGrowth/Materials/item_char_skill_specialize_6.png",
+                    "OperatorGrowth/Materials/item_expcard_stage1_low.png",
+                    "OperatorGrowth/Materials/item_expcard_stage2_low.png",
+                    "OperatorGrowth/Materials/item_gold.png",
+                    "OperatorGrowth/Materials/item_weapon_break_high.png",
+                    "OperatorGrowth/Materials/item_weapon_break_low.png",
+                    "OperatorGrowth/Materials/item_weapon_expcard_low.png"
                 ],
                 "threshold": 0.8,
                 "order_by": "Vertical"
@@ -448,14 +448,14 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthClickInsufficientMaterial": {
+    "OperatorGrowthClickInsufficientMaterial": {
         "desc": "发现协议空间材料拥有数量为红色时点击该材料图片",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthMaterialTemplates",
-                    "ProtocolSpaceGrowthRedQuantity"
+                    "OperatorGrowthMaterialTemplates",
+                    "OperatorGrowthRedQuantity"
                 ],
                 "box_index": 1
             }
@@ -475,12 +475,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthConfigureRewardA",
-            "ProtocolSpaceGrowthConfigureRewardB",
-            "ProtocolSpaceGrowthOpenDirectRewardSource"
+            "OperatorGrowthConfigureRewardA",
+            "OperatorGrowthConfigureRewardB",
+            "OperatorGrowthOpenDirectRewardSource"
         ]
     },
-    "ProtocolSpaceGrowthOptionalRewardSource": {
+    "OperatorGrowthOptionalRewardSource": {
         "desc": "需要切换 A/B 奖励的普通协议空间来源：干员经验、干员进阶、技能提升、武器进阶",
         "recognition": {
             "type": "OCR",
@@ -522,14 +522,14 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthOpenOptionalRewardSource": {
+    "OperatorGrowthOpenOptionalRewardSource": {
         "desc": "确认仍在培养总览后点击材料弹窗中需要切换 A/B 奖励的协议空间来源",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthInOverview",
-                    "ProtocolSpaceGrowthOptionalRewardSource"
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthOptionalRewardSource"
                 ],
                 "box_index": 1
             }
@@ -545,14 +545,14 @@
             "[JumpBack]SceneWaitLoadingExit"
         ]
     },
-    "ProtocolSpaceGrowthOpenDirectRewardSource": {
+    "OperatorGrowthOpenDirectRewardSource": {
         "desc": "钱币、武器经验和深潜材料直接点击来源入场，跳过等级和 A/B 奖励选择",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthInOverview",
-                    "ProtocolSpaceGrowthDirectRewardSource"
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthDirectRewardSource"
                 ],
                 "box_index": 1
             }
@@ -569,7 +569,7 @@
             "[JumpBack]SceneWaitLoadingExit"
         ]
     },
-    "ProtocolSpaceGrowthOperatorLevelTab": {
+    "OperatorGrowthOperatorLevelTab": {
         "recognition": {
             "type": "OCR",
             "param": {
@@ -593,13 +593,13 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthOperatorLevelSelected": {
+    "OperatorGrowthOperatorLevelSelected": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthSelected",
-                    "ProtocolSpaceGrowthOperatorLevelTab",
+                    "OperatorGrowthSelected",
+                    "OperatorGrowthOperatorLevelTab",
                     {
                         "recognition": {
                             "type": "ColorMatch",
@@ -632,13 +632,13 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthClickOperatorLevel": {
+    "OperatorGrowthClickOperatorLevel": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthSelected",
-                    "ProtocolSpaceGrowthOperatorLevelTab"
+                    "OperatorGrowthSelected",
+                    "OperatorGrowthOperatorLevelTab"
                 ],
                 "box_index": 1
             }
@@ -659,15 +659,15 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthOperatorLevelCheckTop"
+            "OperatorGrowthOperatorLevelCheckTop"
         ]
     },
-    "ProtocolSpaceGrowthOperatorLevelCheckTop": {
+    "OperatorGrowthOperatorLevelCheckTop": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthOperatorLevelSelected"
+                    "OperatorGrowthOperatorLevelSelected"
                 ]
             }
         },
@@ -675,19 +675,19 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthClickInsufficientMaterial",
-            "[JumpBack]ProtocolSpaceGrowthOperatorLevelScrollDown",
-            "ProtocolSpaceGrowthClickSkills"
+            "OperatorGrowthClickInsufficientMaterial",
+            "[JumpBack]OperatorGrowthOperatorLevelScrollDown",
+            "OperatorGrowthClickSkills"
         ]
     },
-    "ProtocolSpaceGrowthOperatorLevelScrollDown": {
+    "OperatorGrowthOperatorLevelScrollDown": {
         "desc": "当前可见材料无不足时，下滑一次查看其余材料",
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthOperatorLevelSelected"
+                    "OperatorGrowthOperatorLevelSelected"
                 ]
             }
         },
@@ -718,7 +718,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthSkillsTab": {
+    "OperatorGrowthSkillsTab": {
         "recognition": {
             "type": "OCR",
             "param": {
@@ -742,12 +742,12 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthSkillsSelected": {
+    "OperatorGrowthSkillsSelected": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthSkillsTab",
+                    "OperatorGrowthSkillsTab",
                     {
                         "recognition": {
                             "type": "ColorMatch",
@@ -780,13 +780,13 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthClickSkills": {
+    "OperatorGrowthClickSkills": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthSelected",
-                    "ProtocolSpaceGrowthSkillsTab"
+                    "OperatorGrowthSelected",
+                    "OperatorGrowthSkillsTab"
                 ],
                 "box_index": 1
             }
@@ -807,15 +807,15 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthSkillsCheckTop"
+            "OperatorGrowthSkillsCheckTop"
         ]
     },
-    "ProtocolSpaceGrowthSkillsCheckTop": {
+    "OperatorGrowthSkillsCheckTop": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthSkillsSelected"
+                    "OperatorGrowthSkillsSelected"
                 ]
             }
         },
@@ -823,19 +823,19 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthClickInsufficientMaterial",
-            "[JumpBack]ProtocolSpaceGrowthSkillsScrollDown",
-            "ProtocolSpaceGrowthClickWeaponLevel"
+            "OperatorGrowthClickInsufficientMaterial",
+            "[JumpBack]OperatorGrowthSkillsScrollDown",
+            "OperatorGrowthClickWeaponLevel"
         ]
     },
-    "ProtocolSpaceGrowthSkillsScrollDown": {
+    "OperatorGrowthSkillsScrollDown": {
         "desc": "当前可见材料无不足时，下滑一次查看其余材料",
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthSkillsSelected"
+                    "OperatorGrowthSkillsSelected"
                 ]
             }
         },
@@ -866,7 +866,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthWeaponLevelTab": {
+    "OperatorGrowthWeaponLevelTab": {
         "recognition": {
             "type": "OCR",
             "param": {
@@ -890,12 +890,12 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthWeaponLevelSelected": {
+    "OperatorGrowthWeaponLevelSelected": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthWeaponLevelTab",
+                    "OperatorGrowthWeaponLevelTab",
                     {
                         "recognition": {
                             "type": "ColorMatch",
@@ -928,13 +928,13 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthClickWeaponLevel": {
+    "OperatorGrowthClickWeaponLevel": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthSelected",
-                    "ProtocolSpaceGrowthWeaponLevelTab"
+                    "OperatorGrowthSelected",
+                    "OperatorGrowthWeaponLevelTab"
                 ],
                 "box_index": 1
             }
@@ -955,15 +955,15 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthWeaponLevelCheckTop"
+            "OperatorGrowthWeaponLevelCheckTop"
         ]
     },
-    "ProtocolSpaceGrowthWeaponLevelCheckTop": {
+    "OperatorGrowthWeaponLevelCheckTop": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthWeaponLevelSelected"
+                    "OperatorGrowthWeaponLevelSelected"
                 ]
             }
         },
@@ -971,19 +971,19 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthClickInsufficientMaterial",
-            "[JumpBack]ProtocolSpaceGrowthWeaponLevelScrollDown",
-            "ProtocolSpaceGrowthMaterialsSufficient"
+            "OperatorGrowthClickInsufficientMaterial",
+            "[JumpBack]OperatorGrowthWeaponLevelScrollDown",
+            "OperatorGrowthMaterialsSufficient"
         ]
     },
-    "ProtocolSpaceGrowthWeaponLevelScrollDown": {
+    "OperatorGrowthWeaponLevelScrollDown": {
         "desc": "当前可见材料无不足时，下滑一次查看其余材料",
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthWeaponLevelSelected"
+                    "OperatorGrowthWeaponLevelSelected"
                 ]
             }
         },
@@ -1014,7 +1014,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthFinishBattle": {
+    "OperatorGrowthFinishBattle": {
         "desc": "培养模式单场奖励领取成功后退出，重新检查材料需求",
         "recognition": {
             "type": "And",
@@ -1033,11 +1033,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthBattleCompletedInWorld",
+            "OperatorGrowthBattleCompletedInWorld",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
-    "ProtocolSpaceGrowthBattleCompletedInWorld": {
+    "OperatorGrowthBattleCompletedInWorld": {
         "desc": "确认单场刷取后回到大世界，再从干员页面重新进入培养总览",
         "recognition": {
             "type": "And",
@@ -1051,16 +1051,16 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthEntry"
+            "OperatorGrowthEntry"
         ]
     },
-    "ProtocolSpaceGrowthMaterialsSufficient": {
+    "OperatorGrowthMaterialsSufficient": {
         "desc": "三个分页各检查上下两屏，未发现协议空间材料不足",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthWeaponLevelSelected"
+                    "OperatorGrowthWeaponLevelSelected"
                 ]
             }
         },
@@ -1068,7 +1068,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthRewardAName": {
+    "OperatorGrowthRewardAName": {
         "desc": "材料弹窗中对应五级奖励 A 的完整物品名称，映射与目标库存模式保持一致",
         "recognition": {
             "type": "OCR",
@@ -1115,15 +1115,15 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthConfigureRewardA": {
+    "OperatorGrowthConfigureRewardA": {
         "desc": "按目标材料设置奖励 A，复用目标库存模式的奖励切换流程",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthInOverview",
-                    "ProtocolSpaceGrowthOptionalRewardSource",
-                    "ProtocolSpaceGrowthRewardAName"
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthOptionalRewardSource",
+                    "OperatorGrowthRewardAName"
                 ]
             }
         },
@@ -1146,10 +1146,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthOpenOptionalRewardSource"
+            "OperatorGrowthOpenOptionalRewardSource"
         ]
     },
-    "ProtocolSpaceGrowthRewardBName": {
+    "OperatorGrowthRewardBName": {
         "desc": "材料弹窗中对应五级奖励 B 的完整物品名称，映射与目标库存模式保持一致",
         "recognition": {
             "type": "OCR",
@@ -1201,15 +1201,15 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "ProtocolSpaceGrowthConfigureRewardB": {
+    "OperatorGrowthConfigureRewardB": {
         "desc": "按目标材料设置奖励 B，复用目标库存模式的奖励切换流程",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "ProtocolSpaceGrowthInOverview",
-                    "ProtocolSpaceGrowthOptionalRewardSource",
-                    "ProtocolSpaceGrowthRewardBName"
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthOptionalRewardSource",
+                    "OperatorGrowthRewardBName"
                 ]
             }
         },
@@ -1232,10 +1232,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceGrowthOpenOptionalRewardSource"
+            "OperatorGrowthOpenOptionalRewardSource"
         ]
     },
-    "ProtocolSpaceGrowthDirectRewardSource": {
+    "OperatorGrowthDirectRewardSource": {
         "desc": "不需选择等级或切换 A/B 奖励的来源：钱币、武器经验和六类高危材料",
         "recognition": {
             "type": "OCR",

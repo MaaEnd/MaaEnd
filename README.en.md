@@ -55,7 +55,8 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 🗡️ **Trial of Swordmancy**: Automatically clears daily Trial of Swordmancy / coating farming for regional development routines.
 - 🀄 **Arena of Games**: Draws cards automatically on the card draw screen, restarts once no target hand is reachable, and stops as soon as one is made.
 - 🌿 **Environment Monitoring**: Automatically clears environment monitoring tasks so routine combat-and-travel work can be handed off.
-- ⚔️ **Protocol Space**: Automatically spends sanity on Protocol Space runs with selectable reward routes, and can use limited-time potions when sanity runs out, making stamina cleanup much easier. It also farms materials based on a selected operator's shortages; see the [Growth mode guide](./docs/en_us/users/protocol-space-growth.md).
+- ⚔️ **Protocol Space**: Automatically spends sanity on Protocol Space runs with selectable reward routes, and can use limited-time potions when sanity runs out, making stamina cleanup much easier.
+- 🌱 **Operator Growth**: Automatically farms Protocol Space materials based on the selected operator's shortages in Progression Overview, checking requirements again after each battle's rewards are claimed. See the [Operator Growth guide](./docs/en_us/users/operator-growth.md).
 - 🗿 **Umbral Monument**: Automatically challenges uncleared normal stages of Umbral Monument, with selectable monument and team, plus configurable retries on failure.
 - 🥀 **War Echo**: Automatically challenges uncleared Normal and Hard difficulties of War Echo, skipping cleared ones, with configurable retries on failure.
 - 💾 **Extract Sanity**: Automatically extracts Sanity Essence, a blessing for Monthly Pass hoarders!
