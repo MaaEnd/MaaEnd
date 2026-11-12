@@ -14,7 +14,9 @@
 #include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
-#include "WorldMapSolver.h"
+#include "WorldMapAssets.h"
+#include "WorldMapIcon.h"
+#include "WorldMapViewport.h"
 #include "utils.h"
 
 namespace worldmap
@@ -383,27 +385,53 @@ struct MapView
     std::optional<Viewport> previous;
     cv::Point2d issued { 0.0, 0.0 };
     double gain = 1.0;
-    int stallX = 0;
-    int stallY = 0;
+    int stall_x = 0;
+    int stall_y = 0;
 };
 
 // 一次调用里所有候选共用的东西
 struct FindSession
 {
     MaaController* controller = nullptr;
-    WorldMapSolver* solver = nullptr;
-    ViewportConfig viewportCfg {};
+    WorldMapAssets* assets = nullptr;
+    ViewportConfig viewport_cfg {};
     const FindParam* param = nullptr;
     std::optional<IconSpec> spec;
     MapView view;
 };
 
+std::optional<Viewport>
+    solve_on_tiers(WorldMapAssets* assets, const cv::Mat& screen, const std::string& zone, const ViewportConfig& cfg, const cv::Point2d& at)
+{
+    std::lock_guard guard(assets->mutex);
+    const cv::Mat* base = LoadZoneBase(assets, zone);
+    if (base == nullptr) {
+        return std::nullopt;
+    }
+    return SolveViewportOnTiers(LoadZoneTiers(assets, zone, *base), screen, zone, cfg, at);
+}
+
+std::optional<Viewport> solve_on_base(WorldMapAssets* assets, const cv::Mat& screen, const std::string& zone, const ViewportConfig& cfg)
+{
+    if (screen.empty()) {
+        LogError << "WorldMap: empty screen image";
+        return std::nullopt;
+    }
+
+    std::lock_guard guard(assets->mutex);
+    const cv::Mat* base = LoadZoneBase(assets, zone);
+    if (base == nullptr) {
+        return std::nullopt;
+    }
+    return SolveViewport(*base, screen, zone, cfg);
+}
+
 std::optional<Viewport> SolveForTarget(const FindSession& session, const cv::Mat& screen, const ViewportConfig& cfg, const Target& target)
 {
-    if (auto vp = session.solver->SolveViewportOnTiers(screen, session.param->zone, cfg, target.at)) {
+    if (auto vp = solve_on_tiers(session.assets, screen, session.param->zone, cfg, target.at)) {
         return vp;
     }
-    return session.solver->SolveViewport(screen, session.param->zone, cfg);
+    return solve_on_base(session.assets, screen, session.param->zone, cfg);
 }
 
 // 把一个候选认到底。重试、平移、放弃都只影响这一个候选，画面与视口留给下一个接着用
@@ -428,7 +456,7 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
             view.viewport.reset();
         }
 
-        const cv::Rect safe = WorldMapSolver::SafeArea(view.screen.size(), kIconArea, kIconMargin);
+        const cv::Rect safe = SafeArea(view.screen.size(), kIconArea, kIconMargin);
         if (safe.empty()) {
             LogError << "WorldMap: safe area degenerated" << VAR(view.screen.cols) << VAR(view.screen.rows);
             return Probe::Fatal;
@@ -438,15 +466,15 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
             // 拖动只挪地图，缩放进图时压到底就不再动，上一趟解出来的尺度照旧成立。
             // 钉住它只搜位置，整条尺度阶梯都省了；缩放真被动过则这一趟解不出来，下一趟按整条阶梯解
             if (view.previous) {
-                ViewportConfig pinned = session.viewportCfg;
-                pinned.scaleHint = view.previous->scale;
+                ViewportConfig pinned = session.viewport_cfg;
+                pinned.scale_hint = view.previous->scale;
                 view.viewport = SolveForTarget(session, view.screen, pinned, target);
                 if (!view.viewport) {
                     LogInfo << "WorldMap: pinned scale rejected, rescanning full ladder" << VAR(view.previous->scale);
                 }
             }
             if (!view.viewport) {
-                view.viewport = SolveForTarget(session, view.screen, session.viewportCfg, target);
+                view.viewport = SolveForTarget(session, view.screen, session.viewport_cfg, target);
             }
             if (!view.viewport) {
                 view.previous.reset();
@@ -470,10 +498,10 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
             if (view.previous && std::abs(view.previous->scale - view.viewport->scale) < 1e-6
                 && std::hypot(view.issued.x, view.issued.y) >= 1.0) {
                 const cv::Point2d moved(
-                    (view.previous->baseOrigin.x - view.viewport->baseOrigin.x) / view.viewport->scale,
-                    (view.previous->baseOrigin.y - view.viewport->baseOrigin.y) / view.viewport->scale);
-                view.stallX = std::abs(view.issued.x) >= kPinCommand && std::abs(moved.x) < kPinMoved ? view.stallX + 1 : 0;
-                view.stallY = std::abs(view.issued.y) >= kPinCommand && std::abs(moved.y) < kPinMoved ? view.stallY + 1 : 0;
+                    (view.previous->base_origin.x - view.viewport->base_origin.x) / view.viewport->scale,
+                    (view.previous->base_origin.y - view.viewport->base_origin.y) / view.viewport->scale);
+                view.stall_x = std::abs(view.issued.x) >= kPinCommand && std::abs(moved.x) < kPinMoved ? view.stall_x + 1 : 0;
+                view.stall_y = std::abs(view.issued.y) >= kPinCommand && std::abs(moved.y) < kPinMoved ? view.stall_y + 1 : 0;
 
                 const double want = std::hypot(view.issued.x, view.issued.y);
                 const double got = std::hypot(moved.x, moved.y);
@@ -481,32 +509,32 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
                     view.gain = std::clamp(want / got, 1.0, kGainMax);
                 }
                 LogInfo << "WorldMap: drag delivered" << VAR(view.issued.x) << VAR(view.issued.y) << VAR(moved.x) << VAR(moved.y)
-                        << VAR(view.gain) << VAR(view.stallX) << VAR(view.stallY);
+                        << VAR(view.gain) << VAR(view.stall_x) << VAR(view.stall_y);
             }
             view.previous = view.viewport;
             view.issued = { 0.0, 0.0 };
         }
 
         const Viewport& viewport = *view.viewport;
-        const cv::Point2d expected = viewport.toScreen(target.at);
+        const cv::Point2d expected = ViewportToScreen(viewport, target.at);
         const cv::Point2d need = PanDelta(safe, expected);
         if (std::hypot(need.x, need.y) >= 1.0) {
             // 换了几条路径还是纹丝不动，才认这根轴真到边了；只零一拍多半是触控被压在起手点上的控件吃了
-            const bool pinnedX = view.stallX >= kPinStreak;
-            const bool pinnedY = view.stallY >= kPinStreak;
+            const bool pinnedX = view.stall_x >= kPinStreak;
+            const bool pinnedY = view.stall_y >= kPinStreak;
             const bool stuck = (std::abs(need.x) < 1.0 || pinnedX) && (std::abs(need.y) < 1.0 || pinnedY);
             if (pans >= kMaxPans || stuck) {
                 // 挪不动了也别空手回去。出了安全区不等于出了能点的地方——那圈边距是留给识别的余量，
                 // 目标只要还落在可用区里就照常认、照常点
-                const cv::Rect usable = WorldMapSolver::SafeArea(view.screen.size(), kIconArea, 0);
+                const cv::Rect usable = SafeArea(view.screen.size(), kIconArea, 0);
                 const cv::Point at(static_cast<int>(std::lround(expected.x)), static_cast<int>(std::lround(expected.y)));
                 if (!usable.contains(at)) {
                     LogWarn << "WorldMap: the map will not pan any further and the target is out of reach" << VAR(param.zone) << VAR(index)
-                            << VAR(pans) << VAR(expected.x) << VAR(expected.y) << VAR(view.stallX) << VAR(view.stallY);
+                            << VAR(pans) << VAR(expected.x) << VAR(expected.y) << VAR(view.stall_x) << VAR(view.stall_y);
                     return Probe::Miss;
                 }
                 LogWarn << "WorldMap: the map will not pan any further, taking the target where it stands" << VAR(param.zone) << VAR(pans)
-                        << VAR(expected.x) << VAR(expected.y) << VAR(view.stallX) << VAR(view.stallY);
+                        << VAR(expected.x) << VAR(expected.y) << VAR(view.stall_x) << VAR(view.stall_y);
             }
             else {
                 ++pans;
@@ -546,16 +574,16 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
             return Probe::Hit;
         }
 
-        const auto icon = session.solver->ConfirmSpot(view.screen, expected, viewport.scale, session.spec->spot);
+        const auto icon = ConfirmSpot(session.assets, view.screen, expected, viewport.scale, session.spec->spot);
         if (icon && icon->unlocked != wantUnlocked) {
             // 解锁与否是规则不是识别失败，重试多少次都一样，立刻收场
             LogWarn << "WorldMap: the icon is here but not in the requested state" << VAR(param.zone) << VAR(param.icon)
-                    << VAR(icon->unlocked) << VAR(wantUnlocked) << VAR(icon->goldRatio);
+                    << VAR(icon->unlocked) << VAR(wantUnlocked) << VAR(icon->gold_ratio);
             return Probe::Miss;
         }
         if (icon) {
             detail.emplace("icon", param.icon);
-            detail.emplace("template", icon->templateName);
+            detail.emplace("template", icon->template_name);
             detail.emplace("score", icon->score);
             detail.emplace("unlocked", icon->unlocked);
             detail.emplace("click", json::array { icon->hotspot.x, icon->hotspot.y });
@@ -568,13 +596,13 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
 
         // 角色标记画在图标之上，它落在期望位置就是图标认不出来的原因：人已经站在这了。
         // 认不出图标的其他原因不会命中这一支
-        if (session.spec->occludedByPlayer && wantUnlocked) {
+        if (session.spec->occluded_by_player && wantUnlocked) {
             PlayerMarkerConfig markerCfg {};
-            if (session.spec->spot.radiusBase > 0.0) {
+            if (session.spec->spot.radius_base > 0.0) {
                 // 图标浮动多远，压在它上面的角色标记就离目标多远，窗口得跟着放到浮动区那么宽
-                markerCfg.searchRadius = static_cast<int>(std::lround(session.spec->spot.radiusBase / viewport.scale));
+                markerCfg.search_radius = static_cast<int>(std::lround(session.spec->spot.radius_base / viewport.scale));
             }
-            const auto marker = WorldMapSolver::DetectPlayerMarker(view.screen, expected, markerCfg);
+            const auto marker = DetectPlayerMarker(view.screen, expected, markerCfg);
             if (marker) {
                 // 图标被标记盖住认不出，但标记落在这里就佐证了视口没解错，可以照期望位置交坐标
                 LogInfo << "WorldMap: player marker covers the icon, taking the expected position" << VAR(param.zone)
@@ -628,18 +656,18 @@ MaaBool MAA_CALL MapFindRun(
         return false;
     }
 
-    WorldMapSolver& solver = GetSolver(ControllerType(controller));
+    WorldMapAssets* assets = SharedAssets(ControllerType(controller));
 
     // 图标名给了就必须在表里查得到：查不到照样跑下去等于把认图标这一步悄悄跳过
     std::optional<IconSpec> spec;
     if (!param.icon.empty()) {
-        spec = solver.ResolveIcon(param.icon);
+        spec = ResolveIcon(assets, param.icon);
         if (!spec) {
             return false;
         }
     }
 
-    if (!param.state.empty() && spec && spec->spot.minGoldRatio <= 0.0) {
+    if (!param.state.empty() && spec && spec->spot.min_gold_ratio <= 0.0) {
         LogError << "WorldMap: this icon has no unlock threshold, 'state' cannot be judged" << VAR(param.icon) << VAR(param.state);
         return false;
     }
@@ -651,7 +679,7 @@ MaaBool MAA_CALL MapFindRun(
 
     FindSession session;
     session.controller = controller;
-    session.solver = &solver;
+    session.assets = assets;
     session.param = &param;
     session.spec = spec;
 
