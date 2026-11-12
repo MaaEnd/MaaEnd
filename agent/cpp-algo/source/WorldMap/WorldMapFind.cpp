@@ -48,9 +48,10 @@ struct FindParam
 
     std::string icon;
     std::string state;
+    std::string tier;
     int max_attempts = 4;
 
-    MEO_JSONIZATION(zone, MEO_OPT at, MEO_OPT candidates, MEO_OPT icon, MEO_OPT state, MEO_OPT max_attempts);
+    MEO_JSONIZATION(zone, MEO_OPT at, MEO_OPT candidates, MEO_OPT icon, MEO_OPT state, MEO_OPT tier, MEO_OPT max_attempts);
 };
 
 // 解析后的统一形态：单点写法归一成一个不带 next 的候选，往下只认这一种
@@ -151,6 +152,7 @@ struct FindSession
     std::mt19937* rng = nullptr;
     const FindParam* param = nullptr;
     std::optional<IconSpec> spec;
+    const TierPatch* tier = nullptr;
     MapView view;
 };
 
@@ -430,6 +432,22 @@ std::optional<IconSpec> load_icon_spec(WorldMapAssets* assets, const std::string
     return LoadIconSpec(assets, name);
 }
 
+const TierPatch* load_named_tier(WorldMapAssets* assets, const std::string& zone, const std::string& tier)
+{
+    std::lock_guard guard(assets->mutex);
+    const cv::Mat* base = LoadZoneBase(assets, zone);
+    if (base == nullptr) {
+        return nullptr;
+    }
+    const std::vector<TierPatch>& tiers = LoadZoneTiers(assets, zone, *base);
+    const auto it = std::ranges::find(tiers, tier, &TierPatch::name);
+    if (it == tiers.end()) {
+        LogError << "WorldMap: no such tier in the zone" << VAR(zone) << VAR(tier);
+        return nullptr;
+    }
+    return &*it;
+}
+
 std::optional<Viewport>
     solve_on_tiers(WorldMapAssets* assets, const cv::Mat& screen, const std::string& zone, const ViewportConfig& cfg, const cv::Point2d& at)
 {
@@ -459,6 +477,9 @@ std::optional<Viewport> solve_on_base(WorldMapAssets* assets, const cv::Mat& scr
 std::optional<Viewport> solve_for_target(FindSession* session, const ViewportConfig& cfg, const cv::Point2d& at)
 {
     const std::string& zone = session->param->zone;
+    if (session->tier != nullptr) {
+        return SolveViewportOnTier(*session->tier, session->view.screen, zone, cfg);
+    }
     std::optional<Viewport> viewport = solve_on_tiers(session->assets, session->view.screen, zone, cfg, at);
     if (viewport) {
         return viewport;
@@ -769,13 +790,22 @@ MaaBool MAA_CALL MapFindRun(
         return false;
     }
 
+    const TierPatch* tier = nullptr;
+    if (!param.tier.empty()) {
+        tier = load_named_tier(assets, param.zone, param.tier);
+        if (tier == nullptr) {
+            return false;
+        }
+    }
+
     const std::vector<Target> targets = build_targets(param);
-    LogInfo << "WorldMap: find" << VAR(param.zone) << VAR(targets.size()) << VAR(param.icon) << VAR(param.state) << VAR(param.max_attempts);
+    LogInfo << "WorldMap: find" << VAR(param.zone) << VAR(targets.size()) << VAR(param.icon) << VAR(param.state) << VAR(param.tier)
+            << VAR(param.max_attempts);
 
     zoom_map_out(context);
 
     static thread_local std::mt19937 rng(std::random_device {}());
-    FindSession session { .controller = controller, .assets = assets, .rng = &rng, .param = &param, .spec = spec };
+    FindSession session { .controller = controller, .assets = assets, .rng = &rng, .param = &param, .spec = spec, .tier = tier };
 
     // 一组候选共用这一次缩放，也共用它留下的画面：缩放那几趟自己会截屏，框架给进来的那一帧已过期。
     // 认下来一个就收场，剩下的候选连地图都不用再挪

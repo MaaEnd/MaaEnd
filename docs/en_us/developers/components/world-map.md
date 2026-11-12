@@ -46,6 +46,7 @@ Optional (`custom_recognition_param`):
 | -------------- | ------------ | ----------------------------------------------------------------------------------- |
 | `icon` | none | An icon name from the [icon table](#icon-table). Omit it to only solve the coordinate, confirming no icon at all |
 | `state` | `"unlocked"` | Which unlock state counts as a hit. Requires an icon carrying `gold_ratio` in the table, since nothing else tells the two states apart |
+| `tier` | none | The tier layer the map has already been switched to. When given, the viewport is solved on that tier only, see [Tier layers](#tier-layers) |
 | `max_attempts` | `4` | Recognition attempts. Panning the map is not charged against it |
 
 Thresholds, templates and calibrated scales never appear in the node: they belong to the icon and live in the icon table. A new kind of icon is one table entry, not a fistful of node parameters.
@@ -278,5 +279,7 @@ When the map sits on a tier layer, that layer is lit, everything else is dimmed 
 So when `at` lies inside a tier, the viewport is first solved as if the map sat on that tier: the original tier image is pasted onto the base map where it belongs, with 300 base pixels around it, giving what the world map looks like with that layer selected, and matched with the same thresholds as the base map. If the score falls short, the frame is showing the main layer, and the base map is solved as described above. When `at` lies inside several overlapping tiers they are tried one by one, and if two of their solutions lie more than 10 base pixels apart the frame is rejected. When `at` lies in no tier the base map is used directly.
 
 The tier images are the same ones MapLocator uses (`MapLocator/<zone>/LvNNNTierMMM.png` and the like); where each sits on the base map is read from the zone table of the navigation pack `base.nav.gz`, once per zone the first time it is needed. `viewport_tier` in the recognition detail is the tier the viewport was solved on, and empty when the base map solved it.
+
+When the caller has already switched the map to a tier, name it with `tier`: the viewport is then solved on that tier only, neither picked from `at` nor falling back to the base map. This is how to write it when several tiers are stacked on the same spot (such as `IndieDg007Tier336` to `IndieDg007Tier338` in 首墩 (Shoudun)). The names are the same as `viewport_tier`: the tier image's file name without `.png`, with `LvNNNTierMMM` written as `<zone>_L<N>_<M>`. `at` stays in the zone's base map frame. If the zone has no such tier, the node fails outright.
 
 When the map is on the main layer, the content of a tier (a cave under the tree canopy, say) is not on screen, so only the base map applies then.
