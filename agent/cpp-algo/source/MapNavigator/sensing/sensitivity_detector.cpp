@@ -9,6 +9,52 @@ namespace mapnavigator
 namespace sensitivity
 {
 
+namespace
+{
+
+std::optional<Estimate> estimate_turn_ratio(const Detector& detector)
+{
+    const size_t count = detector.samples.size();
+    if (count < static_cast<size_t>(detector.config.min_samples)) {
+        return std::nullopt;
+    }
+    std::vector<double> sorted = detector.samples;
+    std::sort(sorted.begin(), sorted.end());
+    const double center = static_cast<double>(count) / 2.0;
+    const double half_width = detector.config.sigma_margin * std::sqrt(static_cast<double>(count)) / 2.0;
+    const size_t low_rank = static_cast<size_t>(std::max(0.0, std::floor(center - half_width)));
+    const size_t high_rank = std::min(count - 1, static_cast<size_t>(std::ceil(center + half_width)) - 1);
+
+    Estimate estimate;
+    estimate.ratio = sorted[count / 2];
+    estimate.low = sorted[low_rank];
+    estimate.high = sorted[high_rank];
+    estimate.sample_count = static_cast<int>(count);
+    return estimate;
+}
+
+bool verdict_due(const Detector& detector, const Estimate& estimate)
+{
+    const bool too_fast = estimate.low > detector.config.overshoot_ratio && estimate.ratio <= detector.config.max_ratio;
+    const bool too_slow = estimate.high < detector.config.undershoot_ratio && estimate.ratio >= detector.config.min_ratio;
+    return !detector.fired && (too_fast || too_slow);
+}
+
+Verdict fire_verdict(Detector* detector, const Estimate& estimate)
+{
+    Verdict verdict;
+    verdict.ratio = estimate.ratio;
+    verdict.ratio_percent = static_cast<int>(std::lround(estimate.ratio * 100.0));
+    verdict.sample_count = estimate.sample_count;
+    detector->fired = true;
+    // 校正后重新估计, 便于从日志看出倍率是否回到 1
+    detector->samples.clear();
+    detector->next_log_at = static_cast<size_t>(detector->config.min_samples);
+    return verdict;
+}
+
+} // namespace
+
 double NormalizeDeg(double deg)
 {
     double out = std::fmod(deg + 180.0, 360.0);
@@ -18,120 +64,99 @@ double NormalizeDeg(double deg)
     return out - 180.0;
 }
 
-Detector::Detector(Config config)
-    : config_(config)
-    , next_log_at_(static_cast<size_t>(config.min_samples))
+void BeginDetectorRun(Detector* detector)
 {
+    detector->has_prev_tick = false;
+    detector->pending.reset();
+    detector->issued_since_record = 0.0;
 }
 
-void Detector::beginRun()
+void NoteDetectorIssued(Detector* detector, double delta_deg)
 {
-    has_prev_tick_ = false;
-    pending_.reset();
-    issued_since_record_ = 0.0;
+    detector->issued_since_record += delta_deg;
 }
 
-void Detector::noteIssued(double delta_deg)
-{
-    issued_since_record_ += delta_deg;
-}
-
-std::optional<Estimate> Detector::takeLastEstimate()
+std::optional<Estimate> TakeLastEstimate(Detector* detector)
 {
     std::optional<Estimate> out;
-    out.swap(last_estimate_);
+    out.swap(detector->last_estimate);
     return out;
 }
 
-std::optional<Verdict>
-    Detector::recordTick(uint64_t tick_seq, std::optional<double> camera_heading_deg, double issued_delta_deg, bool degraded_fix)
+std::optional<Verdict> RecordDetectorTick(
+    Detector* detector,
+    uint64_t tick_seq,
+    std::optional<double> camera_heading_deg,
+    double issued_delta_deg,
+    bool degraded_fix)
 {
-    const double issued_total = issued_since_record_;
-    issued_since_record_ = 0.0;
-    const bool foreign_issued = std::abs(issued_total - issued_delta_deg) > config_.issued_match_tol_deg;
-    const bool consecutive = has_prev_tick_ && tick_seq == prev_tick_seq_ + 1;
-    prev_tick_seq_ = tick_seq;
-    has_prev_tick_ = true;
+    const double issued_total = detector->issued_since_record;
+    detector->issued_since_record = 0.0;
+    const bool foreign_issued = std::abs(issued_total - issued_delta_deg) > detector->config.issued_match_tol_deg;
+    const bool consecutive = detector->has_prev_tick && tick_seq == detector->prev_tick_seq + 1;
+    detector->prev_tick_seq = tick_seq;
+    detector->has_prev_tick = true;
 
     if (degraded_fix || !camera_heading_deg || foreign_issued) {
-        pending_.reset();
+        detector->pending.reset();
         return std::nullopt;
     }
     const double heading = *camera_heading_deg;
 
     // 漏掉的拍里可能发过转向
-    if (pending_ && !consecutive) {
-        pending_.reset();
+    if (detector->pending && !consecutive) {
+        detector->pending.reset();
     }
     bool sample_added = false;
-    if (pending_) {
+    if (detector->pending) {
         if (issued_delta_deg != 0.0) {
-            pending_.reset();
+            detector->pending.reset();
         }
-        else if (++pending_->quiet_ticks >= config_.quiet_ticks) {
-            samples_.push_back(NormalizeDeg(heading - pending_->start_heading_deg) / pending_->command_deg);
-            pending_.reset();
+        else if (++detector->pending->quiet_ticks >= detector->config.quiet_ticks) {
+            detector->samples.push_back(NormalizeDeg(heading - detector->pending->start_heading_deg) / detector->pending->command_deg);
+            detector->pending.reset();
             sample_added = true;
         }
     }
     const double magnitude = std::abs(issued_delta_deg);
-    if (!pending_ && magnitude >= config_.min_command_deg && magnitude <= config_.max_command_deg) {
-        pending_ = PendingTurn { .start_heading_deg = heading, .command_deg = issued_delta_deg };
+    if (!detector->pending && magnitude >= detector->config.min_command_deg && magnitude <= detector->config.max_command_deg) {
+        detector->pending = PendingTurn { .start_heading_deg = heading, .command_deg = issued_delta_deg };
     }
 
     if (!sample_added) {
         return std::nullopt;
     }
-    const bool log_due = samples_.size() >= next_log_at_;
+    const bool log_due = detector->samples.size() >= detector->next_log_at;
     if (log_due) {
-        next_log_at_ *= 2;
+        detector->next_log_at *= 2;
     }
-    return evaluate(log_due);
-}
-
-std::optional<Verdict> Detector::endRun()
-{
-    pending_.reset();
-    return evaluate(true);
-}
-
-std::optional<Verdict> Detector::evaluate(bool log_estimate)
-{
-    const size_t count = samples_.size();
-    if (count < static_cast<size_t>(config_.min_samples)) {
+    const std::optional<Estimate> estimate = estimate_turn_ratio(*detector);
+    if (!estimate) {
         return std::nullopt;
     }
-    std::vector<double> sorted = samples_;
-    std::sort(sorted.begin(), sorted.end());
-    const double center = static_cast<double>(count) / 2.0;
-    const double half_width = config_.sigma_margin * std::sqrt(static_cast<double>(count)) / 2.0;
-    const size_t low_rank = static_cast<size_t>(std::max(0.0, std::floor(center - half_width)));
-    const size_t high_rank = std::min(count - 1, static_cast<size_t>(std::ceil(center + half_width)) - 1);
-
-    Estimate estimate;
-    estimate.ratio = sorted[count / 2];
-    estimate.low = sorted[low_rank];
-    estimate.high = sorted[high_rank];
-    estimate.sample_count = static_cast<int>(count);
-    const bool too_fast = estimate.low > config_.overshoot_ratio && estimate.ratio <= config_.max_ratio;
-    const bool too_slow = estimate.high < config_.undershoot_ratio && estimate.ratio >= config_.min_ratio;
-    const bool decided = !fired_ && (too_fast || too_slow);
-    if (log_estimate || decided) {
-        last_estimate_ = estimate;
+    const bool decided = verdict_due(*detector, *estimate);
+    if (log_due || decided) {
+        detector->last_estimate = *estimate;
     }
     if (!decided) {
         return std::nullopt;
     }
+    return fire_verdict(detector, *estimate);
+}
 
-    Verdict verdict;
-    verdict.ratio = estimate.ratio;
-    verdict.ratio_percent = static_cast<int>(std::lround(estimate.ratio * 100.0));
-    verdict.sample_count = estimate.sample_count;
-    fired_ = true;
-    // 校正后重新估计, 便于从日志看出倍率是否回到 1
-    samples_.clear();
-    next_log_at_ = static_cast<size_t>(config_.min_samples);
-    return verdict;
+std::optional<Verdict> EndDetectorRun(Detector* detector)
+{
+    detector->pending.reset();
+    const std::optional<Estimate> estimate = estimate_turn_ratio(*detector);
+    if (!estimate) {
+        return std::nullopt;
+    }
+    const bool decided = verdict_due(*detector, *estimate);
+    detector->last_estimate = *estimate;
+    if (!decided) {
+        return std::nullopt;
+    }
+    return fire_verdict(detector, *estimate);
 }
 
 } // namespace sensitivity

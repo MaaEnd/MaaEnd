@@ -874,7 +874,7 @@ def install_mxu(
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
 
-        if mxu_path.exists():
+        if mxu_path.exists() or mxu_path.is_symlink():
             def _delete_mxu():
                 print(Console.info(t("inf_delete_old_file", path=mxu_path)))
                 mxu_path.unlink()
@@ -900,7 +900,14 @@ def install_mxu(
 
             copied = False
             for item in extract_root.iterdir():
-                if item.name.lower() in [f.lower() for f in target_files]:
+                if OS_KEYWORD == "macos" and item.name.lower() == "mxu.app":
+                    dest = real_install_root / item.name
+                    remove_directory_or_link(dest)
+                    shutil.copytree(item, dest, symlinks=True)
+                    mxu_path.symlink_to(Path(item.name) / "Contents" / "MacOS" / MXU_DIST_NAME)
+                    copied = mxu_path.is_file()
+                    print(Console.ok(t("inf_updated_file", name=item.name)))
+                elif item.name.lower() in [f.lower() for f in target_files]:
                     dest = real_install_root / item.name
                     shutil.copy2(item, dest)
                     print(Console.ok(t("inf_updated_file", name=item.name)))

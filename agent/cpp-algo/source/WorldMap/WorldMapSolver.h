@@ -13,14 +13,30 @@
 namespace worldmap
 {
 
+// 选中某个分层时的大地图：分层贴回底图，四周压暗
+struct TierPatch
+{
+    std::string name;
+    // 分层在底图上的范围
+    cv::Rect area;
+    // gray 左上角在底图上的坐标
+    cv::Point origin { 0, 0 };
+    cv::Mat gray;
+};
+
 // 大地图求解器：先由画面解出屏幕与区域底图之间的相似变换，再到解出来的期望位置上确认图标。
 // 求不出或确认不上就不给坐标。这一层只看图，不碰控制器
 class WorldMapSolver
 {
 public:
-    explicit WorldMapSolver(std::vector<std::filesystem::path> imageRoots);
+    // navmeshPack 提供分层在底图上的摆放
+    WorldMapSolver(std::vector<std::filesystem::path> imageRoots, std::filesystem::path navmeshPack);
 
     std::optional<Viewport> SolveViewport(const cv::Mat& screen, const std::string& zone, const ViewportConfig& cfg);
+
+    // 在 at 所在的分层上解视口，at 不在任何分层里时返回空
+    std::optional<Viewport>
+        SolveViewportOnTiers(const cv::Mat& screen, const std::string& zone, const ViewportConfig& cfg, const cv::Point2d& at);
 
     std::optional<SpotHit> ConfirmSpot(const cv::Mat& screen, const cv::Point2d& expected, double viewportScale, const SpotConfig& cfg);
 
@@ -49,13 +65,18 @@ private:
     };
 
     const cv::Mat* LoadZoneBase(const std::string& zone);
+    const std::vector<TierPatch>& LoadZoneTiers(const std::string& zone, const cv::Mat& base);
     const IconTemplate* LoadIconTemplate(const std::string& name);
     void LoadIconTable();
 
     // 控制器自己的资源层排在基础层之前, 同名图标由前者胜出
     std::vector<std::filesystem::path> _imageRoots;
+    std::filesystem::path _navmeshPack;
     std::mutex _mutex;
     std::map<std::string, cv::Mat> _zoneBases;
+
+    // 没有分层的区域也留一条空记录
+    std::map<std::string, std::vector<TierPatch>> _zoneTiers;
 
     // 加载失败的也留一条空记录，免得每帧都去翻一遍磁盘
     std::map<std::string, IconTemplate> _icons;

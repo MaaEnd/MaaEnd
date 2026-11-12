@@ -21,6 +21,7 @@ const NMSH_HEADER_BYTES = 16;
  * @typedef {Object} Zone
  * @property {number} zone_id
  * @property {string} name
+ * @property {string} map_zone  base zone name of the map this zone belongs to
  * @property {boolean} is_tier
  * @property {number} geometry_zone_id  parent geometry zone (self for base zones)
  * @property {number} width  image width in this zone's own px
@@ -57,6 +58,11 @@ export class NavmeshField {
   /** @param {string} name @returns {?Zone} */
   zoneByName(name) {
     return this._byName.get(name) || null;
+  }
+
+  /** @returns {Object<string, string>} zone name → base zone name of the map it belongs to */
+  mapZones() {
+    return Object.fromEntries(this.zones.map((zone) => [zone.name, zone.map_zone || zone.name]));
   }
 
   /** @param {number} id @returns {boolean} */

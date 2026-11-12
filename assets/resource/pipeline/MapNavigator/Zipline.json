@@ -220,5 +220,14 @@
         },
         "post_delay": 200,
         "rate_limit": 0
+    },
+    "MapNavigatorZiplineCaptureUid": {
+        "desc": "读不到当前账号标识时由 MapNavigator 调用，读取 UID 并写入 CurrentAccountIdentity",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CaptureUid",
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

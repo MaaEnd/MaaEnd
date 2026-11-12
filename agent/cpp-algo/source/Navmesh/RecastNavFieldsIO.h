@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -63,13 +64,13 @@ struct FieldsZone
     std::vector<uint32_t> wall_key; // 升序: 区内三角号 * 3 + 边内序
     std::vector<uint32_t> wall_rid_start;
     std::vector<uint32_t> wall_rid;
-
-    // 下标是分量号, 0 位不用, rid 或 s0 越界时返回空表
-    std::vector<uint8_t> reachFrom(uint32_t rid, uint32_t s0) const;
-
-    // 不在表里的边属于数据不一致, known 置 false
-    bool wallKeep(int32_t tri, int k, uint32_t rid, bool& known) const;
 };
+
+// 下标是分量号, 0 位不用, rid 或 s0 越界时返回空表
+std::vector<uint8_t> FieldsZoneReachFrom(const FieldsZone& zone, uint32_t rid, uint32_t s0);
+
+// 不在表里的边属于数据不一致, known 置 false
+bool FieldsZoneWallKeep(bool* known, const FieldsZone& zone, int32_t tri, int k, uint32_t rid);
 
 // 离网连接的一端, gx/gy 与 BGRD 瓦片同为全局格号
 struct FieldsLinkSide
@@ -134,47 +135,40 @@ struct FieldsOpenRec
 // p 须按 (gy, gx, h 位模式) 升序
 const FieldsOpenRec* FindOpen(const FieldsOpenRec* p, size_t n, int32_t gx, int32_t gy, float h);
 
-class FieldsPack
+struct FieldsPack
 {
-public:
-    bool load(const std::filesystem::path& path, const BaseNavPack& main, const GridPack& grid, std::string& err);
-
-    bool valid() const { return loaded_; }
-
-    const FieldsZoneDir* findZone(const std::string& name) const;
-
-    bool decodeTile(const FieldsTileRef& t, FieldsTile& out) const;
-
-    bool loadZone(const FieldsZoneDir& z, FieldsZone& out, std::string& err) const;
-
-    // 按 BOML 下标升序, 没有时 n = 0
-    const FieldsLinkRec* linksOfZone(uint16_t zone_id, size_t& n) const;
-
-    const std::vector<FieldsLinkRec>& links() const { return links_; }
-
-    // 按 (gy, gx, h) 升序, 没有时 n = 0
-    const FieldsOpenRec* opensOfZone(uint16_t zone_id, size_t& n) const;
-
-    const FieldsRopeRec* ropesOfZone(uint16_t zone_id, size_t& n) const;
-
-private:
-    std::vector<uint8_t> bytes_;
-    bool loaded_ = false;
-    uint16_t flags_ = 0;
-    std::vector<FieldsZoneDir> zones_;
-    std::vector<FieldsLinkRec> links_;
-    std::vector<FieldsLinkZone> link_zones_;
-    std::vector<FieldsOpenRec> opens_;
-    std::vector<FieldsLinkZone> open_zones_;
-    std::vector<FieldsRopeRec> ropes_;
-    std::vector<FieldsLinkZone> rope_zones_;
+    std::vector<uint8_t> bytes;
+    bool loaded = false;
+    uint16_t flags = 0;
+    std::vector<FieldsZoneDir> zones;
+    std::vector<FieldsLinkRec> links;
+    std::vector<FieldsLinkZone> link_zones;
+    std::vector<FieldsOpenRec> opens;
+    std::vector<FieldsLinkZone> open_zones;
+    std::vector<FieldsRopeRec> ropes;
+    std::vector<FieldsLinkZone> rope_zones;
 };
 
+bool LoadFieldsPack(FieldsPack* pack, const std::filesystem::path& path, const BaseNavPack& main, const GridPack& grid);
+
+const FieldsZoneDir* FindFieldsZone(const FieldsPack& pack, const std::string& name);
+
+bool DecodeFieldsTile(FieldsTile* out, const FieldsTileRef& tile);
+
+bool LoadFieldsZone(FieldsZone* out, const FieldsPack& pack, const FieldsZoneDir& zone);
+
+// 按 BOML 下标升序, 没有时为空
+std::span<const FieldsLinkRec> FieldsLinksOfZone(const FieldsPack& pack, uint16_t zone_id);
+
+// 按 (gy, gx, h) 升序, 没有时为空
+std::span<const FieldsOpenRec> FieldsOpensOfZone(const FieldsPack& pack, uint16_t zone_id);
+
+std::span<const FieldsRopeRec> FieldsRopesOfZone(const FieldsPack& pack, uint16_t zone_id);
+
 bool LoadSharedFieldsPack(
+    std::shared_ptr<const FieldsPack>* out,
     const std::filesystem::path& path,
     const BaseNavPack& main,
-    const GridPack& grid,
-    std::shared_ptr<const FieldsPack>& out,
-    std::string& err);
+    const GridPack& grid);
 
 }

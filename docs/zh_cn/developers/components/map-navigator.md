@@ -171,7 +171,7 @@ uv run map-navigator --port 9000 --no-browser
 ```
 
 - 数值从 MapNavigator 工具读：点中目标后地图右上角的 `选中对象` 卡片列出该点的重叠面，选一项可在画布上高亮那一层，确认后点「选择」写进字段。不要手估。
-- 匹配按高度最近且相差不超过 2px（实测相邻面间距 8~9px）。带内没有可走面时报「目标面不可达」，既不退回按格搜索、也不被盲走兜底吸收 —— 响亮失败优于静默走到另一张面。
+- 匹配按高度最近且相差不超过 2px（实测相邻面间距 8~9px）。带内没有可走面时报 `target deck is unreachable`，既不退回按格搜索、也不被盲走兜底吸收 —— 响亮失败优于静默走到另一张面。
 - 只有一张面的点不需要填；工具在不存在重叠时不会显示这个列表。
 - 字段也接受驼峰写法 `targetDeckY`，与 `target_tier` 可同时使用。
 
@@ -209,7 +209,7 @@ uv run map-navigator --port 9000 --no-browser
 
 `FIGHT`、`TRANSFER`、`HEADING` 等业务语义较强的点**不会在录制时自动判定**，需在停止录制后在页面中手动修改。
 
-点击 `停止录制` 后，工具会整理原始轨迹：统一为 canonical 格式，将跨区域边界两侧的点标记为 `PORTAL`，并按区域分段显示。
+点击 `停止录制` 后，工具会整理原始轨迹：统一为 canonical 格式，将跨地图边界两侧的点标记为 `PORTAL`（同一张地图上的层与底图之间不标记），并按区域分段显示。
 
 ### 编辑路径点
 
@@ -226,7 +226,7 @@ uv run map-navigator --port 9000 --no-browser
 - 实机轨迹：试跑时「实时实际路径」持续绘制 MapLocator 的真实定位与当前位置；新一轮试跑会清空上一轮轨迹，定位空窗不会用预测点补齐。
 - 滑索开关：侧栏的 `滑索规划` 决定预览与实机试跑是否考虑滑索，勾选时携带 `zip: true`，不勾时携带 `zip: false`；复制完整参数只在勾选时进行。没有滑索数据或滑索不占优时按运行时规则保持作者路线。
 - 滑索架图层：路径编辑、断言模式和日志分析共用 `图层` 中的滑索架开关。路径编辑与断言模式显示当前安装目录记录，日志分析显示本次选择和同组 ZIP 快照中的滑索架；三种 2D 模式都可单击滑索架查看底图 / 世界坐标、导航高度、模板与 Level，并共用 A / B 选择、可能中心跨度和几何连接判断。图层与路线级滑索开关相互独立，不改变预览参数、复制内容或实机试跑；记录候选可能未供电或已被运行时排除，几何可连接也不等于实际可用。
-- 多账号滑索：官方地图导入从 `/map/mark/list` 的 `roleId` 生成伪匿名账号标识，游戏运行时由场景初始化捕获 UID 并生成相同标识。规划器先按账号、再按地图筛选。旧版没有账号字段的记录不会被导入直接归属，而是在开启滑索寻路时由当前账号认领：当前账号名下一条记录都没有时，这些旧坐标整体归属给它并就地落盘，升级后无需重新导入；当前账号名下已有记录时不做认领，避免两套坐标混用后随换号静默失效。认领成功后会给出一条提示，详见 `ZiplineStore::claimLegacyRecords`。离线路线预览无法读取游戏 UID，可在 `滑索规划` 旁的账号下拉框中选择导入过的伪匿名账号，默认使用最近一次导入并在浏览器中记忆选择；该选择同时用于当前安装目录的滑索架图层，但不会写入复制参数或覆盖实机运行时账号。日志分析仍按对应运行日志中的账号标识过滤快照。Windows 端导入由 cpp-algo 的内嵌浏览器完成；Linux 端由 `agent/go-service/ziplineimport` 的本地受限 MITM 代理抄取同一接口，账号标识同样取自请求 URL 的 `roleId`，记录同样按 `(account_id, map_id)` 落盘，一次导入只接受唯一 `roleId`，否则整批拒绝。Windows 端每次导入都会清除内置浏览器的站点登录态；Linux 端每次导入都使用临时 Firefox 配置，登录态同样不会保留。
+- 多账号滑索：官方地图导入从 `/map/mark/list` 的 `roleId` 生成伪匿名账号标识，游戏运行时由场景初始化捕获 UID 并生成相同标识；开启滑索寻路时若还没有账号标识，寻路会先调用一次 `CaptureUid`。规划器先按账号、再按地图筛选。旧版没有账号字段的记录不会被导入直接归属，而是在开启滑索寻路时由当前账号认领：当前账号名下一条记录都没有时，这些旧坐标整体归属给它并就地落盘，升级后无需重新导入；当前账号名下已有记录时不做认领，避免两套坐标混用后随换号静默失效。认领成功后会给出一条提示，详见 `ZiplineStore::claimLegacyRecords`。离线路线预览无法读取游戏 UID，可在 `滑索规划` 旁的账号下拉框中选择导入过的伪匿名账号，默认使用最近一次导入并在浏览器中记忆选择；该选择同时用于当前安装目录的滑索架图层，但不会写入复制参数或覆盖实机运行时账号。日志分析仍按对应运行日志中的账号标识过滤快照。Windows 端导入由 cpp-algo 的内嵌浏览器完成；Linux 端由 `agent/go-service/ziplineimport` 的本地受限 MITM 代理抄取同一接口，账号标识同样取自请求 URL 的 `roleId`，记录同样按 `(account_id, map_id)` 落盘，一次导入只接受唯一 `roleId`，否则整批拒绝。Windows 端每次导入都会清除内置浏览器的站点登录态；Linux 端每次导入都使用临时 Firefox 配置，登录态同样不会保留。
 
 通常需要修改的只有三处：
 
@@ -348,7 +348,7 @@ uv run map-navigator --port 9000 --no-browser
 | `NAVMESH` | 从当前定位自动规划路线并移动到 `target`；必须使用上方对象格式 |
 | `TRANSFER` | 原地等待外力（剧情、传送等）将角色送至下一段，再从后续点继续 |
 | `JUMP_PAD` | 跳板：站到板心，需要时按跳，没起飞就补步重按，落地后从后续点继续，见[跳板](#跳板-jump_pad) |
-| `PORTAL` | 过图点，触发后盲走一小段并等待区域切换 |
+| `PORTAL` | 过图点，触发后盲走一小段，等定位到路线后面某个 `ZONE` 声明的地图；定位到别的地图时继续等，直到超时 |
 | `HEADING` | 将镜头转到指定朝向，再按一次 `W` 使朝向生效 |
 
 ### 执行顺序与 `required`
@@ -406,7 +406,7 @@ uv run map-navigator --port 9000 --no-browser
 }
 ```
 
-该节点不产生移动，仅为后续路径点提供区域**校验**上下文。录制导出的 `path` 一般已包含。
+该节点不产生移动，仅为后续路径点提供区域**校验**上下文。录制导出的 `path` 一般已包含。区域按所在地图判定：同一张地图上的层与底图视为同一区域，`zone_id` 写层名（如 `Wuling_L4_328`）与写底图名（`Wuling_Base`）等价。
 
 ### 调整朝向：`HEADING`
 
@@ -435,7 +435,7 @@ uv run map-navigator --port 9000 --no-browser
 
 > [!NOTE]
 >
-> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`FIND` 的 `find_target` / `find_text` / `find_stop` / `find_arrive` 与 `TRIGGER` 的 `trigger_node` 同样要导出后手写，工具只负责原样保留。
+> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明：`ZONE` 写所在地图的底图区名，坐标在层上的点导出时自动带上 `target_tier`。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`FIND` 的 `find_target` / `find_text` / `find_stop` / `find_arrive` 与 `TRIGGER` 的 `trigger_node` 同样要导出后手写，工具只负责原样保留。
 
 ---
 
@@ -586,7 +586,7 @@ uv run map-navigator --port 9000 --no-browser
 
 ## 采集与挖掘 `COLLECT` / `DIG`
 
-`COLLECT` 与 `DIG` 是 MapNavigator 内置的采集 / 挖掘语义点。在 `path` 中将采集坐标的第三位写为对应动作，导航器精确到点后自动停止、同步触发对应的 Pipeline 子任务，完成后继续下一段，**全程不退出 NaviController**：
+`COLLECT` 与 `DIG` 是 MapNavigator 内置的采集 / 挖掘语义点。在 `path` 中将采集坐标的第三位写为对应动作，导航器精确到点后自动停止、同步触发对应的 Pipeline 子任务，完成后继续下一段，**全程不退出导航（`RunNavigation`）**：
 
 ```json
 "path": [
@@ -638,7 +638,7 @@ uv run map-navigator --port 9000 --no-browser
 
 **`AutoCollectClickEnd` 的 `next` 不可修改。** 它指向 `[Anchor]AutoCollectClickAfter` 是为了兼容旧的 anchor 链调用。从 `MaaContextRunTask` 子任务调用时，cpp-algo 会通过 `pipeline_override` 将该 `next` 临时置空，使子任务干净退出。修改后会影响仍在使用旧写法的其他路线。
 
-**疾跑由运行时控制。** 所有 `COLLECT`、`DIG` 与严格到达点之前的整段路，自动疾跑由 cpp-algo 在 `NavigationStateMachine` 层面强制禁用，路线作者无法也无需控制。
+**疾跑由运行时控制。** 所有 `COLLECT`、`DIG` 与严格到达点之前的整段路，自动疾跑由 cpp-algo 在导航状态机（`state_machine/`）层面强制禁用，路线作者无法也无需控制。
 
 ### 新增采集路线
 

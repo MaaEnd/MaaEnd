@@ -73,15 +73,15 @@ void ParallelChunks(int64_t n, size_t workers, F&& fn)
 
 // 按块序拼接各桶, 结果与线程数无关
 template <class T>
-void ConcatBins(const std::vector<std::vector<T>>& bins, std::vector<T>& out)
+void ConcatBins(std::vector<T>* out, const std::vector<std::vector<T>>& bins)
 {
-    size_t total = out.size();
+    size_t total = out->size();
     for (const std::vector<T>& bin : bins) {
         total += bin.size();
     }
-    out.reserve(total);
+    out->reserve(total);
     for (const std::vector<T>& bin : bins) {
-        out.insert(out.end(), bin.begin(), bin.end());
+        out->insert(out->end(), bin.begin(), bin.end());
     }
 }
 

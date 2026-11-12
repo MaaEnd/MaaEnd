@@ -44,16 +44,13 @@
         ]
     },
     "UseConsumableUseStart": {
-        "recognition": "And",
-        "all_of": [
-            "InWorld"
-        ],
+        "recognition": "DirectHit",
         "next": [
-            "UseConsumableUseBackpackAlreadyOpen",
+            "UseConsumableUseBackpackReady",
             "UseConsumableUseOpenBagMenu"
         ]
     },
-    "UseConsumableUseBackpackAlreadyOpen": {
+    "UseConsumableUseBackpackReady": {
         "recognition": "And",
         "all_of": [
             "InBackpack"
@@ -76,14 +73,11 @@
             "wait_node": "UseConsumableUseOpenBagMenuIcon"
         },
         "next": [
-            "UseConsumableUseBagReady"
+            "UseConsumableUseBackpackReady"
         ]
     },
     "UseConsumableUseBagReady": {
-        "recognition": "And",
-        "all_of": [
-            "InBackpack"
-        ],
+        "recognition": "DirectHit",
         "next": [
             "UseConsumableUseStartSlot1",
             "UseConsumableUseSkipSlot1"

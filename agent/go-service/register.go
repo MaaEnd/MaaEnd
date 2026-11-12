@@ -36,7 +36,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/textinput"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/deliveryjobs"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dijiangrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
@@ -56,6 +55,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/processcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/taskfail"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/visitfriends"
 	webevent202605 "github.com/MaaXYZ/MaaEnd/agent/go-service/webevent/202605"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/ziplineimport"
 	"github.com/rs/zerolog/log"
@@ -119,13 +119,13 @@ func registerAll() {
 	intelarchive.Register()
 	itemtransfer.Register()
 	outposttrading.Register()
-	creditshopping.Register()
 	webevent202605.Register()
 	ziplineimport.Register()
 	pullcount.Register()
 	trialofswordmancy.Register()
 	restaurant.Register()
 	countdown.Register()
+	visitfriends.Register()
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }

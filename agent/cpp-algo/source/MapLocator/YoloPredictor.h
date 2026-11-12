@@ -14,52 +14,45 @@
 namespace maplocator
 {
 
-class YoloPredictor
+struct YoloTileRegion
 {
-public:
-    explicit YoloPredictor(const std::string& yoloModelPath, double confThreshold = 0.60, int threads = 1);
-    ~YoloPredictor() = default;
+    std::string base_class;
+    int x = 0;
+    int y = 0;
+    int w = 0;
+    int h = 0;
+    int infer_margin = 0;
 
-    YoloCoarseResult predictCoarseByYOLO(const cv::Mat& minimap);
-
-    bool isLoaded() const { return isYoloLoaded; }
-
-    void SetConfThreshold(double threshold) { yoloConfThreshold = threshold; }
-
-    // Convert a YOLO class name to an internal zone ID.
-    std::string convertYoloNameToZoneId(const std::string& yoloName);
-
-private:
-    struct TileRegion
-    {
-        std::string base_class;
-        int x = 0;
-        int y = 0;
-        int w = 0;
-        int h = 0;
-        int infer_margin = 0;
-
-        MEO_JSONIZATION(MEO_OPT base_class, MEO_OPT x, MEO_OPT y, MEO_OPT w, MEO_OPT h, MEO_OPT infer_margin)
-    };
-
-    std::unique_ptr<Ort::Env> ortEnv;
-    std::unique_ptr<Ort::Session> ortSession;
-    std::vector<std::string> inputNodeNames;
-    std::vector<std::string> outputNodeNames;
-
-    bool isYoloLoaded = false;
-    std::vector<std::string> yoloClassNames;
-    std::unordered_map<std::string, std::string> regionMapping;
-    std::unordered_map<std::string, TileRegion> tileRegions;
-
-    std::mutex yoloMutex;
-    cv::Mat canvasScratch;
-    cv::Mat maskScratch;
-    cv::Mat processedScratch;
-    cv::Mat rgbScratch;
-    cv::Mat floatScratch;
-    std::vector<float> inputTensorScratch;
-    double yoloConfThreshold;
+    MEO_JSONIZATION(MEO_OPT base_class, MEO_OPT x, MEO_OPT y, MEO_OPT w, MEO_OPT h, MEO_OPT infer_margin)
 };
+
+struct YoloModel
+{
+    std::unique_ptr<Ort::Env> env;
+    std::unique_ptr<Ort::Session> session;
+    std::vector<std::string> input_names;
+    std::vector<std::string> output_names;
+
+    bool loaded = false;
+    std::vector<std::string> class_names;
+    std::unordered_map<std::string, std::string> region_mapping;
+    std::unordered_map<std::string, YoloTileRegion> tile_regions;
+
+    std::mutex mutex;
+    cv::Mat canvas_scratch;
+    cv::Mat mask_scratch;
+    cv::Mat processed_scratch;
+    cv::Mat rgb_scratch;
+    cv::Mat float_scratch;
+    std::vector<float> input_tensor_scratch;
+    double conf_threshold = 0.60;
+};
+
+std::unique_ptr<YoloModel> LoadYoloModel(const std::string& yoloModelPath, double confThreshold, int threads);
+
+YoloCoarseResult PredictCoarseByYolo(YoloModel* model, const cv::Mat& minimap);
+
+// Convert a YOLO class name to an internal zone ID.
+std::string YoloNameToZoneId(const YoloModel& model, const std::string& yoloName);
 
 } // namespace maplocator

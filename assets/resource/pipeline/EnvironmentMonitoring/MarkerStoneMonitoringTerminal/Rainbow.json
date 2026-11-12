@@ -389,7 +389,7 @@
             "path": [
                 {
                     "action": "ZONE",
-                    "zone_id": "Wuling_L4_328"
+                    "zone_id": "Wuling_Base"
                 },
                 {
                     "action": "NAVMESH",
@@ -444,7 +444,7 @@
             "path": [
                 {
                     "action": "ZONE",
-                    "zone_id": "Wuling_L4_328"
+                    "zone_id": "Wuling_Base"
                 },
                 {
                     "action": "NAVMESH",

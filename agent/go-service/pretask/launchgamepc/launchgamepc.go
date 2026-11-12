@@ -183,8 +183,9 @@ func Run(args []string) bool {
 		Msg("MAA framework initialized")
 
 	// 无显示器时/部分DP显示器关闭后，系统判断显示器断开，启动器窗口不绘制，所有截图方案均不可用
+	// 控制台（即 MXU 界面）只输出 Error 及以上级别，用 Error 让用户在 MXU 中看到该提示；流程仍继续
 	if !hasActiveMonitor() {
-		log.Warn().
+		log.Error().
 			Str("component", component).
 			Msg("未检测到显示器，可能无法识别启动器画面 / No monitor detected, the launcher screen may not be recognized")
 	}

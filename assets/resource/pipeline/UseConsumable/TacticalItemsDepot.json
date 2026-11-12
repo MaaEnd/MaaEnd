@@ -1,0 +1,221 @@
+{
+    "UseConsumableTacticalEnsureWulingDepot": {
+        "desc": "确认仓库为武陵并选择可用道具分类",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTacticalWulingDepotReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotWulingUsable"
+        ]
+    },
+    "UseConsumableTacticalWulingDepotReady": {
+        "desc": "确认已进入武陵仓库的可用道具分类",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotWulingUsable"
+        ],
+        "next": [
+            "UseConsumableTacticalStockSearchStart"
+        ]
+    },
+    "UseConsumableTacticalStockSearchStart": {
+        "desc": "重置仓库滚动位置并开始查找选定战术物品",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "UseConsumableTacticalStockSearchPage": {
+                    "enabled": true
+                },
+                "ItemTransferRepoTopReached": {
+                    "next": [
+                        "UseConsumableTacticalStockSearchPage"
+                    ]
+                },
+                "ItemTransferRepoBottomReached": {
+                    "next": [
+                        "UseConsumableTacticalEnsureValleyIVDepot"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "ItemTransferResetRepoScanBoundaries"
+        ]
+    },
+    "UseConsumableTacticalStockSearchPage": {
+        "desc": "遍历当前仓库页并识别选定战术物品",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "UseConsumableTacticalFindDepotItem",
+            "ItemTransferRepoBottomReached",
+            "[JumpBack]ItemTransferScrollDownwardRepo",
+            "ItemTransferStop"
+        ]
+    },
+    "UseConsumableTacticalFindDepotItem": {
+        "desc": "识别当前仓库中的选定战术物品",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_recheck_filters": [
+                        "Normal:Usable"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    154,
+                    202,
+                    585,
+                    291
+                ]
+            }
+        },
+        "next": [
+            "UseConsumableTacticalDepotTransferBegin"
+        ]
+    },
+    "UseConsumableTacticalDepotTransferBegin": {
+        "desc": "按住仓库中的目标物品准备转入背包",
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 16,
+        "post_delay": 50,
+        "next": [
+            "UseConsumableTacticalDepotTransferClick"
+        ]
+    },
+    "UseConsumableTacticalDepotTransferClick": {
+        "desc": "Shift 单击仓库中的目标物品",
+        "action": "Click",
+        "target": "UseConsumableTacticalFindDepotItem",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "post_delay": 50,
+        "next": [
+            "UseConsumableTacticalDepotTransferRelease"
+        ]
+    },
+    "UseConsumableTacticalDepotTransferRelease": {
+        "desc": "释放 Shift 并完成战术物品补充",
+        "action": "KeyUp",
+        "key": 16,
+        "next": [
+            "UseConsumableTacticalFinish"
+        ]
+    },
+    "UseConsumableTacticalEnsureValleyIVDepot": {
+        "desc": "切换至四号谷地仓库并选择可用道具分类",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTacticalValleyIVDepotReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotValleyIVUsable"
+        ]
+    },
+    "UseConsumableTacticalValleyIVDepotReady": {
+        "desc": "确认已进入四号谷地仓库的可用道具分类",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotValleyIVUsable"
+        ],
+        "next": [
+            "UseConsumableTacticalValleyIVSearchStart"
+        ]
+    },
+    "UseConsumableTacticalValleyIVSearchStart": {
+        "desc": "重置仓库滚动位置并开始查找选定战术物品",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "ItemTransferRepoTopReached": {
+                    "next": [
+                        "UseConsumableTacticalStockSearchPage"
+                    ]
+                },
+                "ItemTransferRepoBottomReached": {
+                    "next": [
+                        "UseConsumableTacticalStockNotFound"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "ItemTransferResetRepoScanBoundaries"
+        ]
+    },
+    "UseConsumableTacticalStockNotFound": {
+        "desc": "记录未找到的战术物品并继续后续流程",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableRecordMissingTacticalItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.UseConsumable.focus.tactical_item_not_found"
+        }
+    },
+    "UseConsumableTacticalFinish": {
+        "desc": "恢复消耗品背包入口并进入槽位检查",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "allow_next": true,
+            "patch": {
+                "UseConsumableUseBagReady": {
+                    "next": [
+                        "UseConsumableUseStartSlot1",
+                        "UseConsumableUseSkipSlot1"
+                    ]
+                },
+                "UseConsumableTacticalBackpackSearchPage": {
+                    "enabled": false
+                },
+                "UseConsumableTacticalStockSearchPage": {
+                    "enabled": false
+                },
+                "ItemTransferBagTopReached": {
+                    "next": [
+                        "ItemTransferBagScanFromTop"
+                    ]
+                },
+                "ItemTransferBagBottomReached": {
+                    "next": [
+                        "[Anchor]ItemTransferCurrentBagNotFound"
+                    ]
+                },
+                "ItemTransferRepoTopReached": {
+                    "next": [
+                        "ItemTransferRepoScanFromTop"
+                    ]
+                },
+                "ItemTransferRepoBottomReached": {
+                    "next": [
+                        "[Anchor]ItemTransferCurrentRepoNotFound"
+                    ]
+                },
+                "UseConsumableTacticalItemsEnabled": {
+                    "enabled": false
+                }
+            }
+        },
+        "next": [
+            "UseConsumableTaskStart"
+        ]
+    }
+}
