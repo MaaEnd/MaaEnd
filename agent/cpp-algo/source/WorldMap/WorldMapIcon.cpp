@@ -73,12 +73,20 @@ double gold_ratio(const cv::Mat& screen, const cv::Mat& templ_sat, const cv::Mat
     return static_cast<double>(cv::countNonZero(lit)) / total;
 }
 
-struct IconWindowInput
+struct IconSearch
 {
     cv::Mat gray;
     cv::Point2d expected { 0.0, 0.0 };
     double viewport_scale = 0.0;
     std::vector<double> ladder;
+    SpotConfig spot;
+};
+
+struct TemplateMatch
+{
+    std::string name;
+    const IconTemplate* templ = nullptr;
+    ScanHit hit;
 };
 
 struct IconCandidate
@@ -88,64 +96,139 @@ struct IconCandidate
     cv::Rect live;
 };
 
-// 在期望位置开个半径 radius 的窗口扫一遍，只出结果不做判定
-std::optional<IconCandidate> scan_icon_window(WorldMapAssets* assets, const IconWindowInput& input, const SpotConfig& cfg, int radius)
+cv::Rect window_around(const cv::Point2d& center, int radius, const cv::Size& screen_size)
 {
-    cv::Rect window(
-        static_cast<int>(std::lround(input.expected.x)) - radius,
-        static_cast<int>(std::lround(input.expected.y)) - radius,
+    const cv::Rect window(
+        static_cast<int>(std::lround(center.x)) - radius,
+        static_cast<int>(std::lround(center.y)) - radius,
         radius * 2,
         radius * 2);
-    window &= cv::Rect(0, 0, input.gray.cols, input.gray.rows);
-    if (window.empty()) {
-        LogWarn << "WorldMap: confirm window off screen" << VAR(input.expected.x) << VAR(input.expected.y);
-        return std::nullopt;
-    }
+    return window & cv::Rect(0, 0, screen_size.width, screen_size.height);
+}
 
-    const cv::Mat patch = input.gray(window);
-    const IconTemplate* pick = nullptr;
-    std::string pick_name;
-    std::optional<ScanHit> best;
-    for (const std::string& name : cfg.templates) {
+std::optional<TemplateMatch> best_template(
+    WorldMapAssets* assets,
+    const cv::Mat& patch,
+    const std::vector<std::string>& templates,
+    const std::vector<double>& ladder)
+{
+    std::optional<TemplateMatch> best;
+    for (const std::string& name : templates) {
         const IconTemplate* templ = LoadIconTemplate(assets, name);
         if (templ == nullptr) {
             continue;
         }
-        if (window.width < templ->gray.cols || window.height < templ->gray.rows) {
-            LogWarn << "WorldMap: confirm window smaller than template" << VAR(name) << VAR(window.width) << VAR(window.height);
+        if (patch.cols < templ->gray.cols || patch.rows < templ->gray.rows) {
+            LogWarn << "WorldMap: confirm window smaller than template" << VAR(name) << VAR(patch.cols) << VAR(patch.rows);
             continue;
         }
-        const auto hit = scan_icon_scales(patch, templ->gray, templ->mask, input.ladder);
-        if (hit && (!best || hit->score > best->score)) {
-            best = hit;
-            pick = templ;
-            pick_name = name;
+        const auto hit = scan_icon_scales(patch, templ->gray, templ->mask, ladder);
+        if (hit && (!best || hit->score > best->hit.score)) {
+            best = TemplateMatch { .name = name, .templ = templ, .hit = *hit };
         }
     }
-    if (!best) {
-        LogWarn << "WorldMap: no icon candidate in the confirm window" << VAR(radius);
-        return std::nullopt;
-    }
-    if (best->score < cfg.min_score) {
-        LogWarn << "WorldMap: icon score below floor" << VAR(pick_name) << VAR(best->score) << VAR(cfg.min_score) << VAR(radius);
+    return best;
+}
+
+IconCandidate candidate_in_window(const TemplateMatch& match, const cv::Rect& window, const IconSearch& search)
+{
+    const ScanHit& best = match.hit;
+    IconCandidate found;
+    found.templ = match.templ;
+    found.live = cv::Rect(
+        window.x + static_cast<int>(std::lround(best.loc.x)),
+        window.y + static_cast<int>(std::lround(best.loc.y)),
+        best.size.width,
+        best.size.height);
+    found.hit.template_name = match.name;
+    found.hit.center = cv::Point2d(window.x + best.loc.x + best.size.width / 2.0, window.y + best.loc.y + best.size.height / 2.0);
+    found.hit.hotspot = found.hit.center + match.templ->hotspot * best.scale;
+    found.hit.size = best.size;
+    found.hit.score = best.score;
+    found.hit.match_scale = best.scale;
+    found.hit.offset_base =
+        std::hypot(found.hit.center.x - search.expected.x, found.hit.center.y - search.expected.y) * search.viewport_scale;
+    return found;
+}
+
+// 在期望位置开个半径 radius 的窗口扫一遍，只出结果不做判定
+std::optional<IconCandidate> scan_icon_window(WorldMapAssets* assets, const IconSearch& search, int radius)
+{
+    const cv::Rect window = window_around(search.expected, radius, search.gray.size());
+    if (window.empty()) {
+        LogWarn << "WorldMap: confirm window off screen" << VAR(search.expected.x) << VAR(search.expected.y);
         return std::nullopt;
     }
 
-    IconCandidate found;
-    found.templ = pick;
-    found.live = cv::Rect(
-        window.x + static_cast<int>(std::lround(best->loc.x)),
-        window.y + static_cast<int>(std::lround(best->loc.y)),
-        best->size.width,
-        best->size.height);
-    found.hit.template_name = pick_name;
-    found.hit.center = cv::Point2d(window.x + best->loc.x + best->size.width / 2.0, window.y + best->loc.y + best->size.height / 2.0);
-    found.hit.hotspot = found.hit.center + pick->hotspot * best->scale;
-    found.hit.size = best->size;
-    found.hit.score = best->score;
-    found.hit.match_scale = best->scale;
-    found.hit.offset_base = std::hypot(found.hit.center.x - input.expected.x, found.hit.center.y - input.expected.y) * input.viewport_scale;
+    const auto match = best_template(assets, search.gray(window), search.spot.templates, search.ladder);
+    if (!match) {
+        LogWarn << "WorldMap: no icon candidate in the confirm window" << VAR(radius);
+        return std::nullopt;
+    }
+    if (match->hit.score < search.spot.min_score) {
+        LogWarn << "WorldMap: icon score below floor" << VAR(match->name) << VAR(match->hit.score) << VAR(search.spot.min_score)
+                << VAR(radius);
+        return std::nullopt;
+    }
+    return candidate_in_window(*match, window, search);
+}
+
+// 窗口比判定圈宽得多，里面坐着同类图标时取最高分未必取到期望的那个：
+// 实测过隔壁传送点只高 0.024 分就把正对着期望位置的那个挤掉了。
+// 判定圈外的先别扔，按判定圈的尺度再看一次近处——只多一次观测，近处没有就还用原来那个
+IconCandidate look_closer_in(WorldMapAssets* assets, const IconSearch& search, int radius, const IconCandidate& found)
+{
+    const int tight = std::max(static_cast<int>(std::lround(search.spot.gate_base / search.viewport_scale)), kMinTemplateSide);
+    if (tight >= radius) {
+        return found;
+    }
+    LogInfo << "WorldMap: nearest icon sits outside the gate, looking again closer in" << VAR(found.hit.offset_base)
+            << VAR(search.spot.gate_base) << VAR(radius) << VAR(tight);
+    const auto closer = scan_icon_window(assets, search, tight);
+    if (closer && closer->hit.offset_base < found.hit.offset_base) {
+        return *closer;
+    }
     return found;
+}
+
+std::optional<cv::Mat> white_pixels(cv::Mat patch, int white_floor)
+{
+    if (patch.channels() == 4) {
+        cv::cvtColor(patch, patch, cv::COLOR_BGRA2BGR);
+    }
+    if (patch.channels() != 3) {
+        LogWarn << "WorldMap: player marker needs a colour image" << VAR(patch.channels());
+        return std::nullopt;
+    }
+
+    cv::Mat mask;
+    cv::inRange(patch, cv::Scalar(white_floor, white_floor, white_floor), cv::Scalar(255, 255, 255), mask);
+    return mask;
+}
+
+// 同亮度同面积的白色地图装饰过得了面积关，过不了这一关：
+// 角色标记是实心三角，装饰的轮廓带大块凹陷
+std::optional<double> blob_solidity(const cv::Mat& labels, const cv::Mat& stats, int label)
+{
+    const cv::Rect box(
+        stats.at<int>(label, cv::CC_STAT_LEFT),
+        stats.at<int>(label, cv::CC_STAT_TOP),
+        stats.at<int>(label, cv::CC_STAT_WIDTH),
+        stats.at<int>(label, cv::CC_STAT_HEIGHT));
+    const cv::Mat blob = labels(box) == label;
+
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(blob, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+    if (contours.empty()) {
+        return std::nullopt;
+    }
+    const auto outer = std::ranges::max_element(contours, {}, [](const auto& c) { return cv::contourArea(c); });
+
+    std::vector<cv::Point> hull;
+    cv::convexHull(*outer, hull);
+    const double hull_area = cv::contourArea(hull);
+    const int area = stats.at<int>(label, cv::CC_STAT_AREA);
+    return hull_area > 0.0 ? area / hull_area : 0.0;
 }
 
 } // namespace
@@ -158,35 +241,23 @@ std::optional<SpotHit>
     }
 
     std::lock_guard guard(assets->mutex);
-    const IconWindowInput input {
+    const IconSearch search {
         .gray = ToGray(screen),
         .expected = expected,
         .viewport_scale = viewport_scale,
         .ladder =
             LinearLadder(cfg.scale_min, cfg.scale_max, static_cast<int>(std::lround((cfg.scale_max - cfg.scale_min) / cfg.scale_step)) + 1),
+        .spot = cfg,
     };
 
     // 浮动的点位在一片范围里找，坐标只圈得住范围；钉死的点位就在期望位置开个小窗确认
     const bool floating = cfg.radius_base > 0.0;
     const int radius =
         floating ? static_cast<int>(std::lround(cfg.radius_base / viewport_scale)) : std::max(cfg.radius_screen, kMinTemplateSide);
-    auto found = scan_icon_window(assets, input, cfg, radius);
-
-    // 窗口比判定圈宽得多，里面坐着同类图标时取最高分未必取到期望的那个：
-    // 实测过隔壁传送点只高 0.024 分就把正对着期望位置的那个挤掉了。
-    // 判定圈外的先别扔，按判定圈的尺度再看一次近处——只多一次观测，近处没有就还用原来那个
+    std::optional<IconCandidate> found = scan_icon_window(assets, search, radius);
     if (found && !floating && found->hit.offset_base > cfg.gate_base) {
-        const int tight = std::max(static_cast<int>(std::lround(cfg.gate_base / viewport_scale)), kMinTemplateSide);
-        if (tight < radius) {
-            LogInfo << "WorldMap: nearest icon sits outside the gate, looking again closer in" << VAR(found->hit.offset_base)
-                    << VAR(cfg.gate_base) << VAR(radius) << VAR(tight);
-            const auto closer = scan_icon_window(assets, input, cfg, tight);
-            if (closer && closer->hit.offset_base < found->hit.offset_base) {
-                found = closer;
-            }
-        }
+        found = look_closer_in(assets, search, radius, *found);
     }
-
     if (!found) {
         return std::nullopt;
     }
@@ -216,32 +287,20 @@ std::optional<PlayerMarkerHit> DetectPlayerMarker(const cv::Mat& screen, const c
         return std::nullopt;
     }
 
-    cv::Rect window(
-        static_cast<int>(std::lround(expected.x)) - cfg.search_radius,
-        static_cast<int>(std::lround(expected.y)) - cfg.search_radius,
-        cfg.search_radius * 2,
-        cfg.search_radius * 2);
-    window &= cv::Rect(0, 0, screen.cols, screen.rows);
+    const cv::Rect window = window_around(expected, cfg.search_radius, screen.size());
     if (window.empty()) {
         return std::nullopt;
     }
 
-    cv::Mat patch = screen(window);
-    if (patch.channels() == 4) {
-        cv::cvtColor(patch, patch, cv::COLOR_BGRA2BGR);
-    }
-    if (patch.channels() != 3) {
-        LogWarn << "WorldMap: player marker needs a colour image" << VAR(patch.channels());
+    const std::optional<cv::Mat> mask = white_pixels(screen(window), cfg.white_floor);
+    if (!mask) {
         return std::nullopt;
     }
-
-    cv::Mat mask;
-    cv::inRange(patch, cv::Scalar(cfg.white_floor, cfg.white_floor, cfg.white_floor), cv::Scalar(255, 255, 255), mask);
 
     cv::Mat labels;
     cv::Mat stats;
     cv::Mat centroids;
-    const int count = cv::connectedComponentsWithStats(mask, labels, stats, centroids, 8, CV_32S);
+    const int count = cv::connectedComponentsWithStats(*mask, labels, stats, centroids, 8, CV_32S);
 
     std::optional<PlayerMarkerHit> best;
     for (int i = 1; i < count; ++i) {
@@ -249,35 +308,15 @@ std::optional<PlayerMarkerHit> DetectPlayerMarker(const cv::Mat& screen, const c
         if (area < cfg.min_area || area > cfg.max_area || (best && area <= best->area)) {
             continue;
         }
-
-        // 同亮度同面积的白色地图装饰过得了面积关，过不了这一关：
-        // 角色标记是实心三角，装饰的轮廓带大块凹陷
-        const cv::Rect box(
-            stats.at<int>(i, cv::CC_STAT_LEFT),
-            stats.at<int>(i, cv::CC_STAT_TOP),
-            stats.at<int>(i, cv::CC_STAT_WIDTH),
-            stats.at<int>(i, cv::CC_STAT_HEIGHT));
-        const cv::Mat blob = labels(box) == i;
-
-        std::vector<std::vector<cv::Point>> contours;
-        cv::findContours(blob, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-        if (contours.empty()) {
-            continue;
-        }
-        const auto outer = std::ranges::max_element(contours, {}, [](const auto& c) { return cv::contourArea(c); });
-
-        std::vector<cv::Point> hull;
-        cv::convexHull(*outer, hull);
-        const double hull_area = cv::contourArea(hull);
-        const double solidity = hull_area > 0.0 ? area / hull_area : 0.0;
-        if (solidity < cfg.min_solidity) {
+        const std::optional<double> solidity = blob_solidity(labels, stats, i);
+        if (!solidity || *solidity < cfg.min_solidity) {
             continue;
         }
 
         best = PlayerMarkerHit {
             .center = cv::Point2d(window.x + centroids.at<double>(i, 0), window.y + centroids.at<double>(i, 1)),
             .area = area,
-            .solidity = solidity,
+            .solidity = *solidity,
         };
     }
     return best;

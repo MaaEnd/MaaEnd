@@ -161,10 +161,6 @@ struct TargetProbe
     int attempt = 0;
     int pans = 0;
     int nudges = 0;
-};
-
-struct FindHit
-{
     json::object detail;
     MaaRect box {};
 };
@@ -409,6 +405,9 @@ bool hand_back_next(MaaContext* context, const char* node_name, const std::strin
 // 读不出来一律当开着：这一步是替使用者省事的，不该反过来把候选判没
 bool candidate_enabled(MaaContext* context, const std::string& node_name)
 {
+    if (node_name.empty()) {
+        return true;
+    }
     ScopedStringBuffer buffer;
     if (buffer.Get() == nullptr || !MaaContextGetNodeData(context, node_name.c_str(), buffer.Get())) {
         return true;
@@ -423,6 +422,12 @@ bool candidate_enabled(MaaContext* context, const std::string& node_name)
         return true;
     }
     return data->get("enabled", true);
+}
+
+std::optional<IconSpec> load_icon_spec(WorldMapAssets* assets, const std::string& name)
+{
+    std::lock_guard guard(assets->mutex);
+    return LoadIconSpec(assets, name);
 }
 
 std::optional<Viewport>
@@ -532,9 +537,26 @@ void record_drag_delivered(MapView* view)
     }
 }
 
+// 挪不动了也别空手回去。出了安全区不等于出了能点的地方——那圈边距是留给识别的余量，
+// 目标只要还落在可用区里就照常认、照常点
+bool reachable_in_place(const FindSession& session, const TargetProbe& probe, const cv::Point2d& expected)
+{
+    const FindParam& param = *session.param;
+    const MapView& view = session.view;
+    const cv::Rect usable = SafeArea(view.screen.size(), kIconArea, 0);
+    const cv::Point at(static_cast<int>(std::lround(expected.x)), static_cast<int>(std::lround(expected.y)));
+    if (!usable.contains(at)) {
+        LogWarn << "WorldMap: the map will not pan any further and the target is out of reach" << VAR(param.zone) << VAR(probe.index)
+                << VAR(probe.pans) << VAR(expected.x) << VAR(expected.y) << VAR(view.stall_x) << VAR(view.stall_y);
+        return false;
+    }
+    LogWarn << "WorldMap: the map will not pan any further, taking the target where it stands" << VAR(param.zone) << VAR(probe.pans)
+            << VAR(expected.x) << VAR(expected.y) << VAR(view.stall_x) << VAR(view.stall_y);
+    return true;
+}
+
 ProbeStep pan_toward(FindSession* session, TargetProbe* probe, const cv::Rect& safe, const cv::Point2d& expected)
 {
-    const FindParam& param = *session->param;
     MapView& view = session->view;
     const cv::Point2d need = pan_delta(safe, expected);
     if (std::hypot(need.x, need.y) < 1.0) {
@@ -545,34 +567,57 @@ ProbeStep pan_toward(FindSession* session, TargetProbe* probe, const cv::Rect& s
     const bool pinned_x = view.stall_x >= kPinStreak;
     const bool pinned_y = view.stall_y >= kPinStreak;
     const bool stuck = (std::abs(need.x) < 1.0 || pinned_x) && (std::abs(need.y) < 1.0 || pinned_y);
-    if (probe->pans < kMaxPans && !stuck) {
-        ++probe->pans;
-        LogInfo << "WorldMap: target outside safe area, panning" << VAR(expected.x) << VAR(expected.y) << VAR(need.x) << VAR(need.y)
-                << VAR(view.gain);
-        view.screen.release();
-        view.issued = drag_map(session->controller, session->rng, safe, need * view.gain);
-        if (std::hypot(view.issued.x, view.issued.y) < 1.0) {
-            LogWarn << "WorldMap: target outside safe area but pan distance is degenerate" << VAR(probe->index);
-            return ProbeStep::Miss;
-        }
-        return ProbeStep::Again;
+    if (probe->pans >= kMaxPans || stuck) {
+        return reachable_in_place(*session, *probe, expected) ? ProbeStep::Next : ProbeStep::Miss;
     }
 
-    // 挪不动了也别空手回去。出了安全区不等于出了能点的地方——那圈边距是留给识别的余量，
-    // 目标只要还落在可用区里就照常认、照常点
-    const cv::Rect usable = SafeArea(view.screen.size(), kIconArea, 0);
-    const cv::Point at(static_cast<int>(std::lround(expected.x)), static_cast<int>(std::lround(expected.y)));
-    if (!usable.contains(at)) {
-        LogWarn << "WorldMap: the map will not pan any further and the target is out of reach" << VAR(param.zone) << VAR(probe->index)
-                << VAR(probe->pans) << VAR(expected.x) << VAR(expected.y) << VAR(view.stall_x) << VAR(view.stall_y);
+    ++probe->pans;
+    LogInfo << "WorldMap: target outside safe area, panning" << VAR(expected.x) << VAR(expected.y) << VAR(need.x) << VAR(need.y)
+            << VAR(view.gain);
+    view.screen.release();
+    view.issued = drag_map(session->controller, session->rng, safe, need * view.gain);
+    if (std::hypot(view.issued.x, view.issued.y) < 1.0) {
+        LogWarn << "WorldMap: target outside safe area but pan distance is degenerate" << VAR(probe->index);
         return ProbeStep::Miss;
     }
-    LogWarn << "WorldMap: the map will not pan any further, taking the target where it stands" << VAR(param.zone) << VAR(probe->pans)
-            << VAR(expected.x) << VAR(expected.y) << VAR(view.stall_x) << VAR(view.stall_y);
-    return ProbeStep::Next;
+    return ProbeStep::Again;
 }
 
-ProbeStep confirm_target(FindSession* session, TargetProbe* probe, const cv::Point2d& expected, FindHit* hit)
+json::object probe_detail(const FindParam& param, const TargetProbe& probe, const cv::Point2d& expected, const Viewport& viewport)
+{
+    json::object detail {
+        { "zone", param.zone },
+        { "index", static_cast<int>(probe.index) },
+        { "at", json::array { probe.target.at.x, probe.target.at.y } },
+        { "screen", json::array { expected.x, expected.y } },
+        { "viewport_scale", viewport.scale },
+        { "viewport_tier", viewport.tier },
+    };
+    if (!probe.target.next.empty()) {
+        detail.emplace("next", probe.target.next);
+    }
+    return detail;
+}
+
+std::optional<PlayerMarkerHit>
+    marker_over_target(const IconSpec& spec, const cv::Mat& screen, const cv::Point2d& expected, double viewport_scale)
+{
+    PlayerMarkerConfig marker_cfg {};
+    if (spec.spot.radius_base > 0.0) {
+        // 图标浮动多远，压在它上面的角色标记就离目标多远，窗口得跟着放到浮动区那么宽
+        marker_cfg.search_radius = static_cast<int>(std::lround(spec.spot.radius_base / viewport_scale));
+    }
+    return DetectPlayerMarker(screen, expected, marker_cfg);
+}
+
+ProbeStep record_hit(TargetProbe* probe, const json::object& detail, const MaaRect& box)
+{
+    probe->detail = detail;
+    probe->box = box;
+    return ProbeStep::Hit;
+}
+
+ProbeStep confirm_target(FindSession* session, TargetProbe* probe, const cv::Point2d& expected)
 {
     const FindParam& param = *session->param;
     MapView& view = session->view;
@@ -580,24 +625,12 @@ ProbeStep confirm_target(FindSession* session, TargetProbe* probe, const cv::Poi
     const bool want_unlocked = param.state != "locked";
 
     ++probe->attempt;
-
-    json::object detail {
-        { "zone", param.zone },
-        { "index", static_cast<int>(probe->index) },
-        { "at", json::array { probe->target.at.x, probe->target.at.y } },
-        { "screen", json::array { expected.x, expected.y } },
-        { "viewport_scale", viewport.scale },
-        { "viewport_tier", viewport.tier },
-    };
-    if (!probe->target.next.empty()) {
-        detail.emplace("next", probe->target.next);
-    }
+    json::object detail = probe_detail(param, *probe, expected, viewport);
 
     // 图标名没给就只把坐标解出来，认不认得出图标由调用方自己接着判
     if (!session->spec) {
-        *hit = FindHit { .detail = detail, .box = point_box(expected) };
         LogInfo << "WorldMap: located" << VAR(param.zone) << VAR(expected.x) << VAR(expected.y);
-        return ProbeStep::Hit;
+        return record_hit(probe, detail, point_box(expected));
     }
 
     const auto icon = ConfirmSpot(session->assets, view.screen, expected, viewport.scale, session->spec->spot);
@@ -613,27 +646,20 @@ ProbeStep confirm_target(FindSession* session, TargetProbe* probe, const cv::Poi
         detail.emplace("score", icon->score);
         detail.emplace("unlocked", icon->unlocked);
         detail.emplace("click", json::array { icon->hotspot.x, icon->hotspot.y });
-        *hit = FindHit { .detail = detail, .box = spot_box(*icon) };
-        return ProbeStep::Hit;
+        return record_hit(probe, detail, spot_box(*icon));
     }
 
     // 角色标记画在图标之上，它落在期望位置就是图标认不出来的原因：人已经站在这了。
     // 认不出图标的其他原因不会命中这一支
     if (session->spec->occluded_by_player && want_unlocked) {
-        PlayerMarkerConfig marker_cfg {};
-        if (session->spec->spot.radius_base > 0.0) {
-            // 图标浮动多远，压在它上面的角色标记就离目标多远，窗口得跟着放到浮动区那么宽
-            marker_cfg.search_radius = static_cast<int>(std::lround(session->spec->spot.radius_base / viewport.scale));
-        }
-        const auto marker = DetectPlayerMarker(view.screen, expected, marker_cfg);
+        const auto marker = marker_over_target(*session->spec, view.screen, expected, viewport.scale);
         if (marker) {
             // 图标被标记盖住认不出，但标记落在这里就佐证了视口没解错，可以照期望位置交坐标
             LogInfo << "WorldMap: player marker covers the icon, taking the expected position" << VAR(param.zone) << VAR(marker->center.x)
                     << VAR(marker->center.y) << VAR(marker->area) << VAR(marker->solidity);
             detail.emplace("icon", param.icon);
             detail.emplace("player_marker", true);
-            *hit = FindHit { .detail = detail, .box = point_box(expected) };
-            return ProbeStep::Hit;
+            return record_hit(probe, detail, point_box(expected));
         }
     }
 
@@ -644,7 +670,7 @@ ProbeStep confirm_target(FindSession* session, TargetProbe* probe, const cv::Poi
     return ProbeStep::Again;
 }
 
-ProbeStep probe_once(FindSession* session, TargetProbe* probe, FindHit* hit)
+ProbeStep probe_once(FindSession* session, TargetProbe* probe)
 {
     MapView& view = session->view;
     const ProbeStep captured = capture_if_released(session, probe);
@@ -675,15 +701,14 @@ ProbeStep probe_once(FindSession* session, TargetProbe* probe, FindHit* hit)
     if (panned != ProbeStep::Next) {
         return panned;
     }
-    return confirm_target(session, probe, expected, hit);
+    return confirm_target(session, probe, expected);
 }
 
 // 把一个候选认到底。重试、平移、放弃都只影响这一个候选，画面与视口留给下一个接着用
-Probe probe_target(FindSession* session, const Target& target, std::size_t index, FindHit* hit)
+Probe probe_target(FindSession* session, TargetProbe* probe)
 {
-    TargetProbe probe { .target = target, .index = index };
-    while (probe.attempt < session->param->max_attempts) {
-        switch (probe_once(session, &probe, hit)) {
+    while (probe->attempt < session->param->max_attempts) {
+        switch (probe_once(session, probe)) {
         case ProbeStep::Next:
         case ProbeStep::Again:
             break;
@@ -733,7 +758,7 @@ MaaBool MAA_CALL MapFindRun(
     // 图标名给了就必须在表里查得到：查不到照样跑下去等于把认图标这一步悄悄跳过
     std::optional<IconSpec> spec;
     if (!param.icon.empty()) {
-        spec = ResolveIcon(assets, param.icon);
+        spec = load_icon_spec(assets, param.icon);
         if (!spec) {
             return false;
         }
@@ -756,13 +781,13 @@ MaaBool MAA_CALL MapFindRun(
     // 认下来一个就收场，剩下的候选连地图都不用再挪
     for (std::size_t index = 0; index < targets.size(); ++index) {
         const Target& target = targets[index];
-        if (!target.next.empty() && !candidate_enabled(context, target.next)) {
+        if (!candidate_enabled(context, target.next)) {
             LogInfo << "WorldMap: candidate turned off, skipping it" << VAR(index) << VAR(target.next);
             continue;
         }
 
-        FindHit hit;
-        switch (probe_target(&session, target, index, &hit)) {
+        TargetProbe probe { .target = target, .index = index };
+        switch (probe_target(&session, &probe)) {
         case Probe::Fatal:
             return false;
         case Probe::Miss:
@@ -771,9 +796,9 @@ MaaBool MAA_CALL MapFindRun(
             break;
         }
 
-        write_detail(out_detail, hit.detail);
+        write_detail(out_detail, probe.detail);
         if (out_box != nullptr) {
-            *out_box = hit.box;
+            *out_box = probe.box;
         }
         if (target.next.empty()) {
             return true;

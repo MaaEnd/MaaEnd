@@ -123,21 +123,56 @@ int coarse_slack(const ViewportConfig& cfg)
     return std::max(1, static_cast<int>(std::lround(cfg.scan_slack / static_cast<double>(std::max(1, cfg.coarse_downscale)))));
 }
 
-// 粗解在降采样图上定位置，细解回到原尺度定尺度，再拿粗解各档判这个解唯不唯一
-std::optional<Viewport> scan_viewport(
-    const ScanBase& base,
-    const cv::Mat& roi,
-    const cv::Mat& roi_small,
-    const cv::Rect& roi_rect,
-    const ViewportConfig& cfg,
-    const std::string& zone)
+// 尺度只需覆盖到相邻两档粗解之间，再宽就是白扫
+double fine_span(const ScanHit& coarse, const ViewportConfig& cfg)
+{
+    return coarse.scale * (cfg.coarse_ratio - 1.0) * 1.2;
+}
+
+// 细解：回到原尺度，搜索窗只覆盖粗解落点附近，两侧各留一个降采样格的不确定度
+cv::Rect fine_window(const ScanHit& coarse, const cv::Size& roi_size, const cv::Size& base_size, const ViewportConfig& cfg)
 {
     const int down = std::max(1, cfg.coarse_downscale);
+    const int pad = down * 3;
+    const double span = fine_span(coarse, cfg);
+    const int window_x = std::max(0, static_cast<int>(std::lround(coarse.loc.x * down)) - pad);
+    const int window_y = std::max(0, static_cast<int>(std::lround(coarse.loc.y * down)) - pad);
+    return cv::Rect(
+        window_x,
+        window_y,
+        std::min(static_cast<int>(std::lround(roi_size.width * (coarse.scale + span))) + pad * 2, base_size.width - window_x),
+        std::min(static_cast<int>(std::lround(roi_size.height * (coarse.scale + span))) + pad * 2, base_size.height - window_y));
+}
 
+// 钉尺度时细解钉的是给定值本身，不跟着粗解落档走：缩放变了就该让分数掉下去被拒，
+// 跟过去反倒会拿一个差着一档的尺度算出错位置
+std::vector<double> fine_ladder(const ScanHit& coarse, const ViewportConfig& cfg)
+{
+    const double span = fine_span(coarse, cfg);
+    return cfg.scale_hint ? std::vector<double> { *cfg.scale_hint }
+                          : LinearLadder(std::max(cfg.scale_min, coarse.scale - span), coarse.scale + span, cfg.fine_steps);
+}
+
+// 可信度只能拿粗解档来算：细解各档彼此相差不到一成，分数几乎一样高，
+// 互为次高分毫无意义。与尺度差 6% 以上的粗解档比，才说明这个解真的唯一
+double best_rival_score(const std::vector<ScanRung>& rungs, double scale)
+{
+    double rival_best = 0.0;
+    for (const ScanRung& rung : rungs) {
+        if (std::abs(rung.scale - scale) > 0.06 * scale) {
+            rival_best = std::max(rival_best, rung.score);
+        }
+    }
+    return rival_best;
+}
+
+// 粗解在降采样图上定位置，细解回到原尺度定尺度，再拿粗解各档判这个解唯不唯一
+std::optional<Viewport> scan_viewport(const ScanBase& base, const ScreenRoi& roi, const ViewportConfig& cfg, const std::string& zone)
+{
     std::vector<ScanRung> coarse_rungs;
     const auto coarse = scan_viewport_scales(
         base.small,
-        roi_small,
+        roi.small,
         coarse_ladder(cfg),
         coarse_slack(cfg),
         maplocator::PeakRefineMode::Parabola,
@@ -147,64 +182,51 @@ std::optional<Viewport> scan_viewport(
         return std::nullopt;
     }
 
-    // 细解：回到原尺度，搜索窗只覆盖粗解落点附近，两侧各留一个降采样格的不确定度。
-    // 尺度只需覆盖到相邻两档粗解之间，再宽就是白扫
-    const int pad = down * 3;
-    const double span = coarse->scale * (cfg.coarse_ratio - 1.0) * 1.2;
-    const int window_x = std::max(0, static_cast<int>(std::lround(coarse->loc.x * down)) - pad);
-    const int window_y = std::max(0, static_cast<int>(std::lround(coarse->loc.y * down)) - pad);
-    const cv::Rect window(
-        window_x,
-        window_y,
-        std::min(static_cast<int>(std::lround(roi.cols * (coarse->scale + span))) + pad * 2, base.full.cols - window_x),
-        std::min(static_cast<int>(std::lround(roi.rows * (coarse->scale + span))) + pad * 2, base.full.rows - window_y));
+    const cv::Rect window = fine_window(*coarse, roi.full.size(), base.full.size(), cfg);
     if (window.width < kMinTemplateSide || window.height < kMinTemplateSide) {
         LogWarn << "WorldMap: fine window degenerated" << VAR(window.width) << VAR(window.height);
         return std::nullopt;
     }
 
-    // 钉尺度时细解钉的是给定值本身，不跟着粗解落档走：缩放变了就该让分数掉下去被拒，
-    // 跟过去反倒会拿一个差着一档的尺度算出错位置
-    const std::vector<double> fine_ladder =
-        cfg.scale_hint ? std::vector<double> { *cfg.scale_hint }
-                       : LinearLadder(std::max(cfg.scale_min, coarse->scale - span), coarse->scale + span, cfg.fine_steps);
-
     // 细解窗口是照模板尺寸开的，本来就贴边，可落位置已由粗解锚定，不需要再留余量
-    const auto fine = scan_viewport_scales(base.full(window), roi, fine_ladder, 0, maplocator::PeakRefineMode::Continuous, nullptr);
+    const auto fine =
+        scan_viewport_scales(base.full(window), roi.full, fine_ladder(*coarse, cfg), 0, maplocator::PeakRefineMode::Continuous, nullptr);
     if (!fine) {
         LogWarn << "WorldMap: fine viewport scan found nothing" << VAR(zone) << VAR(base.tier);
         return std::nullopt;
     }
 
-    // 可信度只能拿粗解档来算：细解各档彼此相差不到一成，分数几乎一样高，
-    // 互为次高分毫无意义。与尺度差 6% 以上的粗解档比，才说明这个解真的唯一
-    double rival_best = 0.0;
-    for (const ScanRung& rung : coarse_rungs) {
-        if (std::abs(rung.scale - fine->scale) > 0.06 * fine->scale) {
-            rival_best = std::max(rival_best, rung.score);
-        }
-    }
-    const double delta = fine->score - rival_best;
-
+    const double delta = fine->score - best_rival_score(coarse_rungs, fine->scale);
     if (fine->score < cfg.min_score || delta < cfg.min_delta) {
         LogWarn << "WorldMap: viewport rejected" << VAR(zone) << VAR(base.tier) << VAR(fine->score) << VAR(delta) << VAR(fine->psr)
                 << VAR(fine->scale) << VAR(cfg.min_score) << VAR(cfg.min_delta);
         return std::nullopt;
     }
 
-    Viewport vp;
-    vp.scale = fine->scale;
-    vp.roi_origin = cv::Point2d(roi_rect.x, roi_rect.y);
-    vp.base_origin = cv::Point2d(base.origin.x + window.x + fine->loc.x, base.origin.y + window.y + fine->loc.y);
-    vp.roi_size = roi_rect.size();
-    vp.score = fine->score;
-    vp.delta = delta;
-    vp.psr = fine->psr;
-    vp.tier = base.tier;
-
+    const Viewport vp {
+        .scale = fine->scale,
+        .roi_origin = cv::Point2d(roi.rect.x, roi.rect.y),
+        .base_origin = cv::Point2d(base.origin.x + window.x + fine->loc.x, base.origin.y + window.y + fine->loc.y),
+        .roi_size = roi.rect.size(),
+        .score = fine->score,
+        .delta = delta,
+        .psr = fine->psr,
+        .tier = base.tier,
+    };
     LogInfo << "WorldMap: viewport solved" << VAR(zone) << VAR(vp.tier) << VAR(vp.scale) << VAR(vp.base_origin.x) << VAR(vp.base_origin.y)
             << VAR(vp.score) << VAR(vp.delta) << VAR(vp.psr);
     return vp;
+}
+
+std::vector<const TierPatch*> tiers_covering(const std::vector<TierPatch>& tiers, const cv::Point2d& at)
+{
+    std::vector<const TierPatch*> covering;
+    for (const TierPatch& tier : tiers) {
+        if (cv::Rect2d(tier.area).contains(at)) {
+            covering.push_back(&tier);
+        }
+    }
+    return covering;
 }
 
 } // namespace
@@ -229,12 +251,11 @@ cv::Point2d ViewportToScreen(const Viewport& viewport, const cv::Point2d& base)
 
 std::optional<Viewport> SolveViewport(const cv::Mat& base, const cv::Mat& screen, const std::string& zone, const ViewportConfig& cfg)
 {
-    const std::optional<ScreenRoi> screen_roi = crop_screen_roi(screen, cfg);
-    if (!screen_roi) {
+    const std::optional<ScreenRoi> roi = crop_screen_roi(screen, cfg);
+    if (!roi) {
         return std::nullopt;
     }
-    const auto& [roi_rect, roi, roi_small] = *screen_roi;
-    return scan_viewport(scan_base(base, { 0, 0 }, {}, cfg), roi, roi_small, roi_rect, cfg, zone);
+    return scan_viewport(scan_base(base, { 0, 0 }, {}, cfg), *roi, cfg, zone);
 }
 
 std::optional<Viewport> SolveViewportOnTiers(
@@ -244,26 +265,20 @@ std::optional<Viewport> SolveViewportOnTiers(
     const ViewportConfig& cfg,
     const cv::Point2d& at)
 {
-    std::vector<const TierPatch*> covering;
-    for (const TierPatch& tier : tiers) {
-        if (cv::Rect2d(tier.area).contains(at)) {
-            covering.push_back(&tier);
-        }
-    }
+    const std::vector<const TierPatch*> covering = tiers_covering(tiers, at);
     if (covering.empty()) {
         return std::nullopt;
     }
-    const std::optional<ScreenRoi> screen_roi = crop_screen_roi(screen, cfg);
-    if (!screen_roi) {
+    const std::optional<ScreenRoi> roi = crop_screen_roi(screen, cfg);
+    if (!roi) {
         return std::nullopt;
     }
-    const auto& [roi_rect, roi, roi_small] = *screen_roi;
 
     std::optional<Viewport> best;
     for (const TierPatch* tier : covering) {
         const ScanBase candidate = scan_base(tier->gray, tier->origin, tier->name, cfg);
         LogInfo << "WorldMap: solving the viewport on the target's tier" << VAR(zone) << VAR(tier->name) << VAR(at.x) << VAR(at.y);
-        auto vp = scan_viewport(candidate, roi, roi_small, roi_rect, cfg, zone);
+        auto vp = scan_viewport(candidate, *roi, cfg, zone);
         if (!vp) {
             continue;
         }

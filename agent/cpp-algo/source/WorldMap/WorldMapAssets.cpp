@@ -62,21 +62,8 @@ struct IconEntry
         MEO_OPT occluded_by_player);
 };
 
-// 图标本体上最厚实的那一点，相对模板中心。取掩膜最大连通块（本体），
-// 再取块内离边缘最远处：定居点核心的模板是「金雕像 + 等级牌」两块夹着一片空档，
-// 框中心正落在空档里，交整框出去就会点到图标旁边的地面上。
-// 距离并列时取最靠近本体重心的那个——全不透明的模板整条中轴线并列，取首会偏到一边
-cv::Point2d body_hotspot(const cv::Mat& mask, const cv::Size& size)
+int largest_component(const cv::Mat& stats, int count)
 {
-    const cv::Point2d center((size.width - 1) / 2.0, (size.height - 1) / 2.0);
-    if (mask.empty() || mask.size() != size) {
-        return { 0.0, 0.0 };
-    }
-
-    cv::Mat labels;
-    cv::Mat stats;
-    cv::Mat centroids;
-    const int count = cv::connectedComponentsWithStats(mask, labels, stats, centroids, 8, CV_32S);
     int body = 0;
     int body_area = 0;
     for (int i = 1; i < count; ++i) {
@@ -86,19 +73,14 @@ cv::Point2d body_hotspot(const cv::Mat& mask, const cv::Size& size)
             body = i;
         }
     }
-    if (body == 0) {
-        return { 0.0, 0.0 };
-    }
+    return body;
+}
 
-    // 补一圈零再做距离变换，免得贴着模板边的图标被当成离边缘很远
-    cv::Mat padded;
-    cv::copyMakeBorder(labels == body, padded, 1, 1, 1, 1, cv::BORDER_CONSTANT, cv::Scalar(0));
-    cv::Mat dist;
-    cv::distanceTransform(padded, dist, cv::DIST_L2, 5);
-
+// dist 四周比 size 多补了一圈
+cv::Point2d deepest_point_nearest(const cv::Mat& dist, const cv::Point2d& anchor, const cv::Size& size)
+{
     double peak = 0.0;
     cv::minMaxLoc(dist, nullptr, &peak);
-    const cv::Point2d anchor(centroids.at<double>(body, 0), centroids.at<double>(body, 1));
     cv::Point2d best = anchor;
     double best_gap = -1.0;
     for (int y = 0; y < size.height; ++y) {
@@ -114,7 +96,37 @@ cv::Point2d body_hotspot(const cv::Mat& mask, const cv::Size& size)
             }
         }
     }
-    return best - center;
+    return best;
+}
+
+// 图标本体上最厚实的那一点，相对模板中心。取掩膜最大连通块（本体），
+// 再取块内离边缘最远处：定居点核心的模板是「金雕像 + 等级牌」两块夹着一片空档，
+// 框中心正落在空档里，交整框出去就会点到图标旁边的地面上。
+// 距离并列时取最靠近本体重心的那个——全不透明的模板整条中轴线并列，取首会偏到一边
+cv::Point2d body_hotspot(const cv::Mat& mask, const cv::Size& size)
+{
+    const cv::Point2d center((size.width - 1) / 2.0, (size.height - 1) / 2.0);
+    if (mask.empty() || mask.size() != size) {
+        return { 0.0, 0.0 };
+    }
+
+    cv::Mat labels;
+    cv::Mat stats;
+    cv::Mat centroids;
+    const int count = cv::connectedComponentsWithStats(mask, labels, stats, centroids, 8, CV_32S);
+    const int body = largest_component(stats, count);
+    if (body == 0) {
+        return { 0.0, 0.0 };
+    }
+
+    // 补一圈零再做距离变换，免得贴着模板边的图标被当成离边缘很远
+    cv::Mat padded;
+    cv::copyMakeBorder(labels == body, padded, 1, 1, 1, 1, cv::BORDER_CONSTANT, cv::Scalar(0));
+    cv::Mat dist;
+    cv::distanceTransform(padded, dist, cv::DIST_L2, 5);
+
+    const cv::Point2d anchor(centroids.at<double>(body, 0), centroids.at<double>(body, 1));
+    return deepest_point_nearest(dist, anchor, size) - center;
 }
 
 cv::Mat base_gray(const cv::Mat& image)
@@ -214,6 +226,65 @@ TierPatch make_tier_patch(const std::string& name, const cv::Mat& image, const n
     return patch;
 }
 
+IconSpec spec_from_entry(const IconEntry& entry)
+{
+    IconSpec spec {};
+    spec.spot.templates = entry.templates;
+    if (entry.scale.size() == 2 && entry.scale[0] > 0.0 && entry.scale[1] >= entry.scale[0]) {
+        spec.spot.scale_min = entry.scale[0];
+        spec.spot.scale_max = entry.scale[1];
+    }
+    if (entry.scale_step > 0.0) {
+        spec.spot.scale_step = entry.scale_step;
+    }
+    if (entry.threshold > 0.0) {
+        spec.spot.min_score = entry.threshold;
+    }
+    if (entry.gate > 0.0) {
+        spec.spot.gate_base = entry.gate;
+    }
+    spec.spot.radius_base = entry.radius;
+    spec.spot.min_gold_ratio = entry.gold_ratio;
+    spec.occluded_by_player = entry.occluded_by_player;
+    return spec;
+}
+
+std::vector<std::pair<std::string, fs::path>> tier_files(const std::string& zone, const std::optional<fs::path>& zone_dir)
+{
+    std::vector<std::pair<std::string, fs::path>> files;
+    std::error_code ec;
+    for (const auto& entry : fs::directory_iterator(zone_dir.value_or(fs::path()), ec)) {
+        if (std::string name = tier_zone_name(zone, entry.path()); !name.empty()) {
+            files.emplace_back(std::move(name), entry.path());
+        }
+    }
+    return files;
+}
+
+std::vector<TierPatch> make_tier_patches(
+    const std::string& zone,
+    const std::vector<std::pair<std::string, fs::path>>& files,
+    const std::vector<navmesh::BaseNavZone>& placements,
+    const cv::Mat& base)
+{
+    std::vector<TierPatch> tiers;
+    for (const auto& [name, file] : files) {
+        const navmesh::BaseNavZone* placement = find_tier_placement(placements, name);
+        if (placement == nullptr) {
+            LogWarn << "WorldMap: tier image has no placement in the navmesh pack" << VAR(zone) << VAR(name);
+            continue;
+        }
+        const cv::Mat image = MAA_NS::imread(file, cv::IMREAD_UNCHANGED);
+        if (image.empty()) {
+            LogError << "WorldMap: failed to read tier image" << VAR(MAA_NS::path_to_utf8_string(file));
+            continue;
+        }
+        tiers.push_back(make_tier_patch(name, image, *placement, base));
+    }
+    std::ranges::sort(tiers, {}, &TierPatch::name);
+    return tiers;
+}
+
 void load_icon_table(WorldMapAssets* assets)
 {
     if (assets->icon_table_loaded) {
@@ -241,25 +312,7 @@ void load_icon_table(WorldMapAssets* assets)
             continue;
         }
 
-        IconSpec spec {};
-        spec.spot.templates = entry.templates;
-        if (entry.scale.size() == 2 && entry.scale[0] > 0.0 && entry.scale[1] >= entry.scale[0]) {
-            spec.spot.scale_min = entry.scale[0];
-            spec.spot.scale_max = entry.scale[1];
-        }
-        if (entry.scale_step > 0.0) {
-            spec.spot.scale_step = entry.scale_step;
-        }
-        if (entry.threshold > 0.0) {
-            spec.spot.min_score = entry.threshold;
-        }
-        if (entry.gate > 0.0) {
-            spec.spot.gate_base = entry.gate;
-        }
-        spec.spot.radius_base = entry.radius;
-        spec.spot.min_gold_ratio = entry.gold_ratio;
-        spec.occluded_by_player = entry.occluded_by_player;
-        assets->icon_table.emplace(name, std::move(spec));
+        assets->icon_table.emplace(name, spec_from_entry(entry));
     }
 
     LogInfo << "WorldMap: icon table loaded" << VAR(MAA_NS::path_to_utf8_string(*file)) << VAR(assets->icon_table.size());
@@ -310,13 +363,7 @@ const std::vector<TierPatch>& LoadZoneTiers(WorldMapAssets* assets, const std::s
     std::vector<TierPatch>& tiers = assets->zone_tiers[zone];
 
     const auto zone_dir = mapnavigator::ResolveResourceImage(assets->image_roots, fs::path("MapLocator") / MAA_NS::path(zone));
-    std::vector<std::pair<std::string, fs::path>> files;
-    std::error_code ec;
-    for (const auto& entry : fs::directory_iterator(zone_dir.value_or(fs::path()), ec)) {
-        if (std::string name = tier_zone_name(zone, entry.path()); !name.empty()) {
-            files.emplace_back(std::move(name), entry.path());
-        }
-    }
+    const std::vector<std::pair<std::string, fs::path>> files = tier_files(zone, zone_dir);
     const std::string navmesh_zone = mapnavigator::InferBaseNavZone(zone, {});
     if (files.empty() || navmesh_zone.empty()) {
         LogInfo << "WorldMap: zone has no tier images" << VAR(zone) << VAR(navmesh_zone);
@@ -329,21 +376,7 @@ const std::vector<TierPatch>& LoadZoneTiers(WorldMapAssets* assets, const std::s
         return tiers;
     }
 
-    for (const auto& [name, file] : files) {
-        const navmesh::BaseNavZone* placement = find_tier_placement(loaded.pack->zones, name);
-        if (placement == nullptr) {
-            LogWarn << "WorldMap: tier image has no placement in the navmesh pack" << VAR(zone) << VAR(name);
-            continue;
-        }
-        const cv::Mat image = MAA_NS::imread(file, cv::IMREAD_UNCHANGED);
-        if (image.empty()) {
-            LogError << "WorldMap: failed to read tier image" << VAR(MAA_NS::path_to_utf8_string(file));
-            continue;
-        }
-        tiers.push_back(make_tier_patch(name, image, *placement, base));
-    }
-    std::ranges::sort(tiers, {}, &TierPatch::name);
-
+    tiers = make_tier_patches(zone, files, loaded.pack->zones, base);
     LogInfo << "WorldMap: zone tiers loaded" << VAR(zone) << VAR(navmesh_zone) << VAR(tiers.size());
     return tiers;
 }
@@ -378,9 +411,8 @@ const IconTemplate* LoadIconTemplate(WorldMapAssets* assets, const std::string& 
     return &slot;
 }
 
-std::optional<IconSpec> ResolveIcon(WorldMapAssets* assets, const std::string& name)
+std::optional<IconSpec> LoadIconSpec(WorldMapAssets* assets, const std::string& name)
 {
-    std::lock_guard guard(assets->mutex);
     load_icon_table(assets);
 
     const auto it = assets->icon_table.find(name);
