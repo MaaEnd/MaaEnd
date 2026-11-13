@@ -35,7 +35,10 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackResetUsableItemsLimitedHitCount"
+        ]
     },
     "StashBackpackStashQuickSubTask": {
         "desc": "一键存放背包任务入口",
@@ -110,7 +113,15 @@
         ],
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 200,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                741,
+                116,
+                385,
+                416
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -138,7 +149,7 @@
     },
     "StashBackpackUsableItemsLimitedDrag": {
         "desc": "按住 Shift 准备快速移动物品",
-        "max_hit": 5, //防止重复拖动物品导致卡住
+        "max_hit": 10, //防止重复拖动物品导致卡住
         "recognition": "And",
         "all_of": [
             {
@@ -220,5 +231,16 @@
         },
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "StashBackpackResetUsableItemsLimitedHitCount": {
+        "desc": "清空少量可用物品拖动次数",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "StashBackpackUsableItemsLimitedDrag"
+            ]
+        }
     }
 }
