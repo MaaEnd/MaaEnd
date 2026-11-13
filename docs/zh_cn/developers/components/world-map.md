@@ -280,6 +280,8 @@ WorldMap 属于识别层，只负责在已经打开的大地图上把坐标解�
 
 分层图与 MapLocator 用的是同一批（`MapLocator/<区域>/LvNNNTierMMM.png` 等），它们在底图上的摆放从导航包 `base.nav.gz` 的区表里读，每个区域第一次用到时读一次。识别详情里的 `viewport_tier` 是解出视口所用的分层，Base 解出时为空。
 
-调用方已经把地图切到某张分层时，用 `tier` 点名它：视口只在这张分层上解，不再按 `at` 挑分层，也不退回 Base。几张分层叠在同一块位置时（如首墩的 `IndieDg007Tier336`～`IndieDg007Tier338`）应当这样写。名字与 `viewport_tier` 同一套：分层图文件名去掉 `.png`，`LvNNNTierMMM` 记作 `<区域>_L<N>_<M>`。`at` 照旧写区域底图坐标。区域里没有这张分层时节点直接失败。
+调用方已经把地图切到某张分层时，用 `tier` 点名它：视口只在这张分层上解，不再按 `at` 挑分层，也不退回 Base。几张分层叠在同一块位置时（如首墩的 `IndieDg007Tier336`～`IndieDg007Tier338`）应当这样写。名字与 `viewport_tier` 同一套：分层图文件名去掉 `.png`，`LvNNNTierMMM` 记作 `<区域>_L<N>_<M>`。区域里没有这张分层时节点直接失败。
+
+给了 `tier` 时，`at` 和各候选的 `at` 都写这张分层图自己的坐标，即在 MapNavigator 工具里切到这一层后直接点选的坐标，与 `MapNavigateAction` 的 `target_tier` 同一个约定；运行时用导航包里的仿射换算回底图。不写 `tier` 时仍写区域底图坐标。
 
 地图停在主图层时，分层里的内容（比如树冠下面的山洞）不在画面上，这时只能靠 Base。

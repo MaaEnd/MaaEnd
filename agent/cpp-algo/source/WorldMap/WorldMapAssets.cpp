@@ -220,6 +220,8 @@ TierPatch make_tier_patch(const std::string& name, const cv::Mat& image, const n
     TierPatch patch;
     patch.name = name;
     patch.area = rect;
+    patch.scale = cv::Point2d(sx, sy);
+    patch.offset = cv::Point2d(tx, ty);
     patch.origin = crop.tl();
     patch.gray = base(crop) * kTierDimRatio;
     gray(pasted - rect.tl()).copyTo(patch.gray(pasted - crop.tl()), opaque(pasted - rect.tl()));

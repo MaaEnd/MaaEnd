@@ -85,7 +85,7 @@
                 },
                 "tier": {
                     "title": "Tier",
-                    "description": "The tier layer the map has already been switched to, named like viewport_tier in the recognition detail: the tier image's file name without .png, e.g. IndieDg007Tier337, and <zone>_L<N>_<M> for LvNNNTierMMM files. The viewport is then solved on that tier only, never picked from the coordinate and never falling back to the base map. Coordinates stay in the zone's base map frame. A name the zone does not have fails the node. Optional; omit it to pick the tier from the coordinate.",
+                    "description": "The tier layer the map has already been switched to, named like viewport_tier in the recognition detail: the tier image's file name without .png, e.g. IndieDg007Tier337, and <zone>_L<N>_<M> for LvNNNTierMMM files. The viewport is then solved on that tier only, never picked from the coordinate and never falling back to the base map, and at and every candidate's at are in that tier image's own pixel frame, as picked in the MapNavigator tool with that layer selected (the same as target_tier in MapNavigateAction). A name the zone does not have fails the node. Optional; omit it to pick the tier from the coordinate, with coordinates in the base map frame.",
                     "type": "string",
                     "minLength": 1
                 },

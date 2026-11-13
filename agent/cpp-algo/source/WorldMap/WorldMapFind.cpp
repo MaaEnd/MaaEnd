@@ -390,6 +390,13 @@ std::vector<Target> build_targets(const FindParam& param)
     return targets;
 }
 
+void project_targets_to_base(std::vector<Target>* targets, const TierPatch& tier)
+{
+    for (Target& target : *targets) {
+        target.at = cv::Point2d(target.at.x * tier.scale.x + tier.offset.x, target.at.y * tier.scale.y + tier.offset.y);
+    }
+}
+
 // 把命中项交回框架当 next，顶掉节点自己写的那份
 bool hand_back_next(MaaContext* context, const char* node_name, const std::string& next)
 {
@@ -798,7 +805,10 @@ MaaBool MAA_CALL MapFindRun(
         }
     }
 
-    const std::vector<Target> targets = build_targets(param);
+    std::vector<Target> targets = build_targets(param);
+    if (tier != nullptr) {
+        project_targets_to_base(&targets, *tier);
+    }
     LogInfo << "WorldMap: find" << VAR(param.zone) << VAR(targets.size()) << VAR(param.icon) << VAR(param.state) << VAR(param.tier)
             << VAR(param.max_attempts);
 
