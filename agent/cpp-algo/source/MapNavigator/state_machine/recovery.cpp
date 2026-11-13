@@ -257,6 +257,9 @@ std::optional<bool> run_stray_tower_step(Navigator* nav)
     LogWarn << "Recovery found a zipline tower outside any hop; stepping off." << VAR(nav->position->x) << VAR(nav->position->y);
     NoteFailure(&nav->failure_trail, std::chrono::steady_clock::now(), "recovery stray tower");
     semantic_nodes::StepOffZiplineTower(nav);
+    if (semantic_nodes::ScreenShowsZiplineTower(nav)) {
+        return true;
+    }
     return ResumeAfterEscape(nav, "recovery_stray_tower_escape");
 }
 
