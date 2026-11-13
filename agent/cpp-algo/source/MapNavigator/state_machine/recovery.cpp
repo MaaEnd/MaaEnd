@@ -246,11 +246,31 @@ std::optional<bool> run_device_removal_step(Navigator* nav, const NavigateTick& 
     return std::nullopt;
 }
 
+std::optional<bool> run_stray_tower_step(Navigator* nav)
+{
+    if (IsZiplineMounted(nav->runtime_state)) {
+        return std::nullopt;
+    }
+    if (!semantic_nodes::ScreenShowsZiplineTower(nav)) {
+        return std::nullopt;
+    }
+    LogWarn << "Recovery found a zipline tower outside any hop; stepping off." << VAR(nav->position->x) << VAR(nav->position->y);
+    NoteFailure(&nav->failure_trail, std::chrono::steady_clock::now(), "recovery stray tower");
+    semantic_nodes::StepOffZiplineTower(nav);
+    if (semantic_nodes::ScreenShowsZiplineTower(nav)) {
+        return true;
+    }
+    return ResumeAfterEscape(nav, "recovery_stray_tower_escape");
+}
+
 bool climb_recovery_ladder(Navigator* nav, const NavigateTick& tick)
 {
     const Waypoint& waypoint = tick.waypoint;
     const RouteMeasurement& route = tick.route;
     RecoveryEscalationState& escalation = nav->runtime_state.recovery_escalation;
+    if (const std::optional<bool> done = run_stray_tower_step(nav)) {
+        return *done;
+    }
     if (const std::optional<bool> done = run_device_removal_step(nav, tick)) {
         return *done;
     }
