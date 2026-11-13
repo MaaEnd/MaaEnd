@@ -1315,16 +1315,222 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
-                0,
-                0,
-                200,
-                100
+                130,
+                140,
+                1020,
+                40
             ]
         },
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "__ScenePrivateMenuOperationalManualEnterIndexTab": {
+        "desc": "在行动手册界面，切换到索引标签页",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            150,
+                            50,
+                            1000,
+                            150
+                        ],
+                        "expected": [
+                            "索引",
+                            "(?i)Index",
+                            "協約空間"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "__ScenePrivateAnyEnterMenuOperationalManualIndexSuccess"
+        ]
+    },
+    "__ScenePrivateMenuOperationalManualIndexTabSelected": {
+        "desc": "行动手册索引标签页处于选中状态",
+        "recognition": "ColorMatch",
+        "roi": [
+            481,
+            140,
+            160,
+            40
+        ],
+        "lower": [
+            230,
+            210,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            60
+        ],
+        "connected": true,
+        "count": 3000
+    },
+    "__ScenePrivateAnyEnterMenuOperationalManualIndexSuccess": {
+        "desc": "成功进入行动手册索引标签页",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            "__ScenePrivateMenuOperationalManualIndexTabSelected"
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                160,
+                185,
+                960,
+                430
+            ]
+        }
+    },
+    "__ScenePrivateMenuOperationalManualEnterDailyTab": {
+        "desc": "在行动手册界面，切换到日常标签页",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            150,
+                            50,
+                            1000,
+                            150
+                        ],
+                        "expected": [
+                            "日常",
+                            "Daily"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "__ScenePrivateAnyEnterMenuOperationalManualDailySuccess"
+        ]
+    },
+    "__ScenePrivateMenuOperationalManualDailyTabSelected": {
+        "desc": "行动手册日常标签页处于选中状态",
+        "recognition": "ColorMatch",
+        "roi": [
+            321,
+            140,
+            160,
+            40
+        ],
+        "lower": [
+            230,
+            210,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            60
+        ],
+        "connected": true,
+        "count": 3000
+    },
+    "__ScenePrivateAnyEnterMenuOperationalManualDailySuccess": {
+        "desc": "成功进入行动手册日常标签页",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            "__ScenePrivateMenuOperationalManualDailyTabSelected"
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                160,
+                185,
+                960,
+                430
+            ]
+        }
+    },
+    "__ScenePrivateMenuOperationalManualEnterSimulationTab": {
+        "desc": "在行动手册界面，切换到模拟标签页",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            150,
+                            50,
+                            1000,
+                            150
+                        ],
+                        "expected": [
+                            "模拟",
+                            "模擬",
+                            "(?i)Simulation"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "__ScenePrivateAnyEnterMenuOperationalManualSimulationSuccess"
+        ]
+    },
+    "__ScenePrivateMenuOperationalManualSimulationTabSelected": {
+        "desc": "行动手册模拟标签页处于选中状态",
+        "recognition": "ColorMatch",
+        "roi": [
+            801,
+            140,
+            158,
+            40
+        ],
+        "lower": [
+            230,
+            210,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            60
+        ],
+        "connected": true,
+        "count": 3000
+    },
+    "__ScenePrivateAnyEnterMenuOperationalManualSimulationSuccess": {
+        "desc": "成功进入行动手册模拟标签页",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            "__ScenePrivateMenuOperationalManualSimulationTabSelected"
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                160,
+                185,
+                960,
+                430
+            ]
+        }
     },
     "__ScenePrivateMenuOperationalManualEnterPermanentTab": {
         "desc": "在行动手册界面，切换到常驻标签页",
@@ -1356,7 +1562,45 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 200
+        "next": [
+            "__ScenePrivateMenuOperationalManualPermanentTabSelected"
+        ]
+    },
+    "__ScenePrivateMenuOperationalManualPermanentTabSelected": {
+        "desc": "常驻标签页已选中",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "__ScenePrivateMenuOperationalManualEnterPermanentTab",
+                "roi_offset": [
+                    -30,
+                    -10,
+                    60,
+                    20
+                ],
+                "lower": [
+                    230,
+                    210,
+                    0
+                ],
+                "upper": [
+                    255,
+                    255,
+                    60
+                ],
+                "connected": true,
+                "count": 2000
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                160,
+                185,
+                960,
+                430
+            ]
+        }
     },
     "__ScenePrivateMenuOperationalManualEnterUmbralMonument": {
         "desc": "在行动手册常驻标签页，进入影拓丰碑",
