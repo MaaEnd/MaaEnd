@@ -337,6 +337,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",
@@ -400,6 +401,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             // 植物长在分开的花坛上，花坛之间有坑，直线走过去会掉下去；每株先寻路到旁边的落脚点再采集
             "path": [
                 {
@@ -492,6 +494,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",
@@ -555,6 +558,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",
@@ -618,6 +622,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",
@@ -642,6 +647,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",

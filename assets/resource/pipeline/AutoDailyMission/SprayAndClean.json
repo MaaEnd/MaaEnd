@@ -137,6 +137,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",
@@ -164,6 +165,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",
@@ -191,6 +193,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",
@@ -218,6 +221,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",

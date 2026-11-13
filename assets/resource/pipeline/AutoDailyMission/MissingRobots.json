@@ -432,6 +432,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -481,6 +482,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",
@@ -506,6 +508,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -539,6 +542,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -580,6 +584,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -629,6 +634,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -670,6 +676,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",
@@ -695,6 +702,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -728,6 +736,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -777,6 +786,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",
@@ -802,6 +812,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -835,6 +846,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -876,6 +888,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -926,6 +939,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",
@@ -952,6 +966,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -985,6 +1000,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -1027,6 +1043,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -1076,6 +1093,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
@@ -1118,6 +1136,7 @@
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "heading_source": "camera",
             "interact_text": [
                 "^放置定位信标$",
                 "^放置定位信標$",
