@@ -128,6 +128,36 @@
                 }
             }
         },
+        "SetItemQuantityParam": {
+            "type": "object",
+            "title": "SetItemQuantity Param",
+            "description": "Parameters for SetItemQuantity action (A4). Writes one cached item quantity as an absolute value into the in-process IMS cache. Memory only: never persists IMS.json, never changes readiness / updated_at, and never touches the A2 scan gates, so a later A2 sync stays authoritative. value is optional: an integer, an expression string (same syntax as R1; {ITEM_ID} placeholders read the cache before the write), or omitted to read the number from this node's own recognition result (OCR, or And resolved along box_index; magnitude suffixes such as 1.38万 are supported). Negative results clamp to 0. A recognition read failure fails the action without writing.",
+            "additionalProperties": false,
+            "required": [
+                "item"
+            ],
+            "properties": {
+                "item": {
+                    "title": "Item",
+                    "description": "IconRecognition item ID used as the cache key. Not validated against the catalog, same as UpdateItemQuantity.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "value": {
+                    "title": "Value",
+                    "description": "Absolute quantity. Integer literal, or an expression string evaluated over cached item quantities (must evaluate to an integer). Omit to read the number from the recognition result of the node this action runs on.",
+                    "oneOf": [
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    ]
+                }
+            }
+        },
         "SyncItemDataParam": {
             "type": "object",
             "title": "SyncItemData Param",
