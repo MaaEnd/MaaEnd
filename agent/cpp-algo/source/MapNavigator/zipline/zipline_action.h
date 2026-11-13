@@ -16,6 +16,10 @@ Result AdvanceMountSpot(Navigator* nav, const Waypoint& waypoint, const char* re
 
 Result AbandonZipline(Navigator* nav, const char* reason, const char* detail);
 
+bool ScreenShowsZiplineTower(Navigator* nav);
+
+void StepOffZiplineTower(Navigator* nav);
+
 // 没站在架子上时什么也不发
 void LeaveZiplineTower(Navigator* nav);
 
