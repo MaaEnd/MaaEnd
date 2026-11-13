@@ -1,0 +1,270 @@
+{
+    // CloudWeb 启动任务：把游戏流页面从登录/落地页/启动等待/标题/月卡推进到开放大世界。
+    // 分工：
+    // - cloud_start.js（pretask 注入）：只解除落地页「开始游戏」按钮上的空文本透明遮罩，
+    //   并点掉启动期的「知道了」「登录」弹窗；不点「开始游戏」。
+    // - 本 Pipeline：开始游戏/标题/月卡/排队/登录提示的唯一点击与状态推进方。
+    // 启动/SDK 界面文案不在 i18n 语言表内，保持简中，不宣称多语言。
+    // 所有识别基于 1280x720 客户区；不使用假帧，到点判定复用主资源 InWorld 节点。
+    "CloudWebStartGame": {
+        "desc": "CloudWeb：等待登录/启动/标题/月卡推进到开放大世界",
+        // 根节点保留总量兜底；排队失败由 CloudWebStartingWait 的 15 分钟预算给出
+        "max_hit": 100000,
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        // 单拍识别预算；排队阶段的 15 分钟总预算由 CloudWebStartingWait 的 timeout 接管
+        "timeout": 600000,
+        "rate_limit": 0,
+        "next": [
+            "CloudWebWorldReady",
+            "CloudWebLoginClick",
+            "CloudWebAckClick",
+            "CloudWebRetryClick",
+            "CloudWebStartButtonClick",
+            "CloudWebTitleClick",
+            "CloudWebMonthlyClick",
+            "CloudWebStartingWait"
+        ]
+    },
+    "CloudWebLoginClick": {
+        "desc": "CloudWeb：SDK 快速登录弹窗，识别说明文字后点击登录按钮固定落点（待补截图后改为按钮态识别）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    400,
+                    340,
+                    600,
+                    110
+                ],
+                "expected": [
+                    "快速登录",
+                    "您可使用当前鹰角账号"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    620,
+                    396,
+                    40,
+                    40
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["CloudWebStartGame"]
+    },
+    "CloudWebAckClick": {
+        "desc": "CloudWeb：数据/提示弹窗，点击「知道了」",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                // 与基座 CloudEndfieldRetryButton 相同的 SDK 弹窗区域
+                "roi": [
+                    410,
+                    227,
+                    459,
+                    262
+                ],
+                "expected": ["知道了"]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["CloudWebStartGame"]
+    },
+    "CloudWebRetryClick": {
+        "desc": "CloudWeb：连接超时提示，点击「重试连接」",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                // SDK 连接弹窗与「知道了」弹窗同区域
+                "roi": [
+                    410,
+                    227,
+                    459,
+                    262
+                ],
+                "expected": ["重试连接"]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["CloudWebStartGame"]
+    },
+    "CloudWebStartingWait": {
+        "desc": "CloudWeb：游戏启动中/排队/连接超时，保持等待，不重复点击；超过 15 分钟明确失败",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                // 与基座 CloudEndfieldWaitStartGame 相同的启动/网络检查弹窗区域
+                "roi": [
+                    350,
+                    233,
+                    572,
+                    346
+                ],
+                "roi_offset": [
+                    0,
+                    0,
+                    143,
+                    0
+                ],
+                "expected": [
+                    "正在连接",
+                    "正在連接",
+                    "(?i)Connecting",
+                    "接続中",
+                    "游戏启动中",
+                    "检查网络环境",
+                    "请耐心等待",
+                    "正在排队",
+                    "连接服务器超时",
+                    "数据正在处理中",
+                    "游戏已重连"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        // timeout 只覆盖本节点的 next 识别循环：排队画面不消失时最多等 15 分钟，
+        // 超时后走 on_error 明确失败。不能写自环 next——自环会立即命中并重置计时。
+        "timeout": 900000,
+        "rate_limit": 1000,
+        "next": [
+            "CloudWebWorldReady",
+            "CloudWebLoginClick",
+            "CloudWebAckClick",
+            "CloudWebRetryClick",
+            "CloudWebStartButtonClick",
+            "CloudWebTitleClick",
+            "CloudWebMonthlyClick"
+        ],
+        "on_error": ["CloudWebStartStuck"]
+    },
+    "CloudWebStartButtonClick": {
+        "desc": "CloudWeb：落地页「开始游戏」，复用基座 OCR 并按识别框点击（cloud_start.js 已解除空文本遮罩）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": ["CloudEndfieldStartGame"]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["CloudWebStartGame"]
+    },
+    "CloudWebTitleClick": {
+        "desc": "CloudWeb：点击标题界面「点击任意位置继续」",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "expected": [
+                    "点击任意位置继续",
+                    "按下任意位置繼續",
+                    "Click to continue",
+                    "クリックして続ける",
+                    "아무 곳이나 눌러 계속하기"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["CloudWebStartGame"]
+    },
+    "CloudWebMonthlyClick": {
+        "desc": "CloudWeb：点击今日月卡奖励确认；只点一次，避免影响下一层弹窗",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                // 与基座 __ScenePrivateLoginMonthlyPassConfirm 相同区域
+                "roi": [
+                    400,
+                    180,
+                    500,
+                    362
+                ],
+                "expected": [
+                    "月卡剩余天数",
+                    "月卡剩餘天數",
+                    "(?i)Monthly\\s*Pass\\s*Day\\s*\\(\\s*s\\s*\\)\\s*Left",
+                    "月パス残り",
+                    "今日月卡奖励",
+                    "今日月卡獎勵",
+                    "(?i)Daily\\s*Monthly\\s*Pass\\s*Rewards",
+                    "本日報酬"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["CloudWebStartGame"]
+    },
+    "CloudWebWorldReady": {
+        "desc": "CloudWeb：已进入大世界，启动完成",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": ["InWorld"]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        // 终止节点：不写 next，命中即任务成功
+        "rate_limit": 0
+    },
+    "CloudWebStartStuck": {
+        "desc": "CloudWeb：排队/启动超过 15 分钟，终止任务并留下失败记录",
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": {
+            "type": "StopTask"
+        }
+    },
+    // 复用基座开始游戏节点：仅补充 CloudWeb 下的后续节点，不改变点击通道
+    "CloudEndfieldStartGame": {
+        "next": ["CloudWebStartGame"]
+    }
+}

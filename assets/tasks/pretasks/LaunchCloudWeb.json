@@ -1,0 +1,15 @@
+{
+    "pretask": {
+        "controller": [
+            "CloudWeb"
+        ],
+        "exec": "agent/go-service",
+        "args": [
+            "--pretask",
+            "LaunchCloudWeb"
+        ],
+        "name": "LaunchCloudWeb",
+        "label": "$pretask.LaunchCloudWeb.label",
+        "description": "$pretask.LaunchCloudWeb.description"
+    }
+}
