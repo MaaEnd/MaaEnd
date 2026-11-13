@@ -16,7 +16,7 @@ struct ZiplineIo;
 // hint_nodes 是这一帧定位优先搜索的位置
 ZiplineObservation ZiplineIoObserveTracked(ZiplineIo* io, const std::vector<ZiplineNodeRef>& hint_nodes);
 ZiplineObservation ZiplineIoObserveGlobal(ZiplineIo* io, const std::vector<ZiplineNodeRef>& hint_nodes);
-// 只在上索与下索确认期间调, 每次都要跑识别, 开销比一帧定位高
+// 每次都要跑识别, 开销比一帧定位高
 MountVerdict ZiplineIoCheckMounted(ZiplineIo* io);
 void ZiplineIoResetTracking(ZiplineIo* io);
 // 每个动作同步发出、发完即回, 到没到位靠后续观测
