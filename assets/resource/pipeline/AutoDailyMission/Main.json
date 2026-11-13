@@ -36,6 +36,7 @@
             "AutoDailyMissionSprayAndCleanEntry",
             "AutoDailyMissionHerbalRemediesEntry",
             "AutoDailyMissionAuthenticMedsEntry",
+            "AutoDailyMissionLostRobotsEntry",
             "AutoDailyMissionUnsupported",
             "AutoDailyMissionEnd"
         ]
@@ -69,12 +70,13 @@
             40
         ],
         // 完整文本形如："查看环卫职工发来的消息" / "查看環衛職工傳來的訊息" / "Read the urban sanitation worker's message" / "清掃員から届いたメッセージを確認する" / "환경미화원이 보낸 메시지를 확인하기"
+        // 英文有的日常是复数："Read Lin Hu's messages"
         // 各日常只是人名不同，按格式匹配
         "expected": [
             // @i18n-skip
             "^查看.+发来的消息$",
             "^查看.+傳來的訊息$",
-            "(?i)^Read\\b.*message$",
+            "(?i)^Read\\b.*messages?$",
             "から届いたメッセージを確認する$",
             "보낸\\s*메시지를\\s*확인하기$"
         ]

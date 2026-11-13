@@ -1,0 +1,246 @@
+{
+    "AutoDailyMissionLostRobotsListItem": {
+        "desc": "委派任务列表里的日常·失落机器人",
+        "recognition": "OCR",
+        "roi": [
+            42,
+            70,
+            360,
+            590
+        ],
+        // 完整文本："日常·失落机器人" / "日常·失落機器人" / "Daily: Lost Robots" / "日常・失われたロボット" / "일상 · 길 잃은 로봇"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "失落机器人",
+            "失落機器人",
+            "(?i)Lost\\s*Robots",
+            "失われたロボット",
+            "길\\s*잃은\\s*로봇"
+        ]
+    },
+    "AutoDailyMissionLostRobotsDetail": {
+        "desc": "右侧详情已选中日常·失落机器人",
+        "recognition": "OCR",
+        "roi": [
+            410,
+            55,
+            400,
+            45
+        ],
+        "expected": [
+            "日常·失落机器人",
+            "日常·失落機器人",
+            "(?i)Daily:\\s*Lost\\s*Robots",
+            "日常・失われたロボット",
+            "일상\\s*·\\s*길\\s*잃은\\s*로봇"
+        ]
+    },
+    "AutoDailyMissionLostRobotsMapPanel": {
+        "desc": "任务地图右侧详情栏是日常·失落机器人",
+        "recognition": "OCR",
+        "roi": [
+            950,
+            45,
+            320,
+            45
+        ],
+        // 完整文本："日常·失落机器人" / "日常·失落機器人" / "Daily: Lost Robots" / "日常・失われたロボット" / "일상 · 길 잃은 로봇"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "失落机器人",
+            "失落機器人",
+            "(?i)Lost\\s*Robots",
+            "失われたロボット",
+            "길\\s*잃은\\s*로봇"
+        ]
+    },
+    "AutoDailyMissionLostRobotsEntry": {
+        "desc": "在委派任务列表中点击日常·失落机器人",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionLostRobotsListItem"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionSnsTracked",
+            "AutoDailyMissionSnsUntracked",
+            "AutoDailyMissionLostRobotsOpenMap",
+            "AutoDailyMissionLostRobotsStartTracking"
+        ]
+    },
+    "AutoDailyMissionLostRobotsOpenMap": {
+        "desc": "点击定位按钮打开失落机器人的任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionLostRobotsDetail",
+            "TrackedMissionMapButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionLostRobotsOnMap"
+        ]
+    },
+    "AutoDailyMissionLostRobotsStartTracking": {
+        "desc": "失落机器人还没追踪时点击开始追踪，打开任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionLostRobotsDetail",
+            "AutoDailyMissionStartTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionLostRobotsOnMap"
+        ]
+    },
+    "AutoDailyMissionLostRobotsOnMap": {
+        "desc": "确认已打开失落机器人的任务地图，只有藏剑谷一处，直接前往传送",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionLostRobotsMapPanel"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                45,
+                320,
+                45
+            ]
+        },
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionLostRobotsRouteSos"
+        },
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.lost_robots_east_gorge_ruins"
+        }
+    },
+    "AutoDailyMissionLostRobotsRouteSos": {
+        "desc": "走到求救信号的位置",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1822.731,
+                        2770.573
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionLostRobotsScan"
+        ]
+    },
+    "AutoDailyMissionLostRobotsScan": {
+        "desc": "在求救信号处打开扫描寻找痕迹",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoMissionOpenScan"
+            ]
+        },
+        "next": [
+            "AutoDailyMissionLostRobotsRouteTrail"
+        ]
+    },
+    "AutoDailyMissionLostRobotsRouteTrail": {
+        "desc": "沿痕迹和散落的物资走到山犼兽附近，有敌人时先自动战斗",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1869.044,
+                        2797.603
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1883.269,
+                        2776.341
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1895.716,
+                        2735.641
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1888.097,
+                        2733.964
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1877.687,
+                        2723.713
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1887.436,
+                        2707.511
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoDailyMissionCheckFinished"
+        ]
+    }
+}
