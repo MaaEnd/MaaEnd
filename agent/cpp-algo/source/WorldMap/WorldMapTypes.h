@@ -150,6 +150,9 @@ struct TierPatch
     std::string name;
     // 分层在底图上的范围
     cv::Rect area;
+    // base = tier * scale + offset
+    cv::Point2d scale { 1.0, 1.0 };
+    cv::Point2d offset { 0.0, 0.0 };
     // gray 左上角在底图上的坐标
     cv::Point origin { 0, 0 };
     cv::Mat gray;

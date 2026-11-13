@@ -258,6 +258,16 @@ std::optional<Viewport> SolveViewport(const cv::Mat& base, const cv::Mat& screen
     return scan_viewport(scan_base(base, { 0, 0 }, {}, cfg), *roi, cfg, zone);
 }
 
+std::optional<Viewport>
+    SolveViewportOnTier(const TierPatch& tier, const cv::Mat& screen, const std::string& zone, const ViewportConfig& cfg)
+{
+    const std::optional<ScreenRoi> roi = crop_screen_roi(screen, cfg);
+    if (!roi) {
+        return std::nullopt;
+    }
+    return scan_viewport(scan_base(tier.gray, tier.origin, tier.name, cfg), *roi, cfg, zone);
+}
+
 std::optional<Viewport> SolveViewportOnTiers(
     const std::vector<TierPatch>& tiers,
     const cv::Mat& screen,
