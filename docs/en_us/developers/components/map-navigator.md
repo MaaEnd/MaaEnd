@@ -171,7 +171,7 @@ The game is three-dimensional, the map is not: a walkway, a bridge and a rooftop
 ```
 
 - Read the number from the MapNavigator GUI: click the target and the `选中对象` (Selected Object) card in the top-right corner of the map lists the overlapping decks; selecting one highlights that deck on the canvas, and the `选择` (Select) button writes the value into the field. Do not estimate it by hand.
-- A deck matches when it is the nearest surface and within 2px (measured spacing between adjacent decks is 8–9px). When nothing matches, the route fails with `目标面不可达` (target deck unreachable) — it does not fall back to the cell-level search and is not absorbed by the blind-walk fallback. Failing loudly beats silently walking onto another deck.
+- A deck matches when it is the nearest surface and within 2px (measured spacing between adjacent decks is 8–9px). When nothing matches, the route fails with `target deck is unreachable` — it does not fall back to the cell-level search and is not absorbed by the blind-walk fallback. Failing loudly beats silently walking onto another deck.
 - Points with a single surface do not need it; the GUI hides the list when there is no overlap.
 - The field also supports camelCase writing `targetDeckY`, and can be combined with `target_tier`.
 
@@ -209,7 +209,7 @@ There are two hotkeys during recording:
 
 Points with stronger business semantics such as `FIGHT`, `TRANSFER`, and `HEADING` **are not determined automatically during recording**; change them manually on the page after stopping the recording.
 
-After you click `停止录制` (Stop Recording), the tool organizes the raw trajectory: it normalizes it into the canonical format, marks the points on both sides of a cross-area boundary as `PORTAL`, and displays it segmented by area.
+After you click `停止录制` (Stop Recording), the tool organizes the raw trajectory: it normalizes it into the canonical format, marks the points on both sides of a cross-map boundary as `PORTAL` (a switch between a tier and the basemap of the same map is not marked), and displays it segmented by area.
 
 ### Editing Path Points
 
@@ -348,7 +348,7 @@ Only `INTERACT` points can take these fields — on any other action they are ig
 | `NAVMESH` | Plans a route automatically from the current localization and moves to `target`; must use the object form above |
 | `TRANSFER` | Waits in place for an external force (story, teleport, etc.) to move the character to the next segment, then continues from the following points |
 | `JUMP_PAD` | Jump pad: stands on the pad center, jumps when needed, steps and retries if it did not launch, then continues from the following points after landing; see [Jump Pads](#jump-pads-jump_pad) |
-| `PORTAL` | Map transition point: after triggering, walks blind for a short distance and waits for the area switch |
+| `PORTAL` | Map transition point: after triggering, walks blind for a short distance and waits until localization reaches a map declared by a later `ZONE`; any other map keeps it waiting until the timeout |
 | `HEADING` | Turns the camera to the specified orientation, then presses `W` once to make the orientation take effect |
 
 ### Execution Order and `required`
@@ -406,7 +406,7 @@ Use `ZONE` to specify the map area of the following points:
 }
 ```
 
-This node produces no movement and only provides area **verification** context for the following path points. A `path` exported from a recording usually contains it already.
+This node produces no movement and only provides area **verification** context for the following path points. A `path` exported from a recording usually contains it already. Areas are compared by map: tiers and the basemap of the same map count as one area, so a tier name (such as `Wuling_L4_328`) in `zone_id` is equivalent to the basemap name (`Wuling_Base`).
 
 ### Adjusting Orientation: `HEADING`
 
@@ -435,7 +435,7 @@ You can also give a coordinate to turn in the direction "current position → th
 
 > [!NOTE]
 >
-> Point editing on the page covers path points with coordinates (`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER / NAVMESH`): it can edit `required` and `target_tier` per point, choose `target_deck_y` for a single `NAVMESH` target, and derive `ZONE` declarations from area information. `HEADING` is a non-coordinate control node outside this editing model; it is recommended to add and maintain it manually after exporting the `path`. Likewise, the `find_target` / `find_text` / `find_stop` / `find_arrive` fields of `FIND` and the `trigger_node` of `TRIGGER` are written by hand after exporting — the tool only preserves them as they are.
+> Point editing on the page covers path points with coordinates (`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER / NAVMESH`): it can edit `required` and `target_tier` per point, choose `target_deck_y` for a single `NAVMESH` target, and derive `ZONE` declarations from area information: `ZONE` names the basemap zone of the map, and points whose coordinates are on a tier get `target_tier` on export. `HEADING` is a non-coordinate control node outside this editing model; it is recommended to add and maintain it manually after exporting the `path`. Likewise, the `find_target` / `find_text` / `find_stop` / `find_arrive` fields of `FIND` and the `trigger_node` of `TRIGGER` are written by hand after exporting — the tool only preserves them as they are.
 
 ---
 

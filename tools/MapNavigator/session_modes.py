@@ -78,6 +78,7 @@ def _build_navtest(runtime: Any, emit: Emit, log: Log, start: dict) -> Any:
         heading_source=start.get("heading_source", "character"),
         assert_target=start.get("assert_target"),
         zipline_account_id=str(start.get("zipline_account_id") or ""),
+        map_zones=start.get("map_zones") or {},
     )
     service.start(session_config_from_payload(start.get("config") or {}))
     return service

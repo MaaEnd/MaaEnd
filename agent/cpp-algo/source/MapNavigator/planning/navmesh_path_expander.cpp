@@ -40,6 +40,7 @@ struct LegState
     // 本字段和 route_start_deck_y 只有整条链的头一腿有值
     std::optional<double> route_start_floor_y;
     std::optional<double> route_start_deck_y;
+    std::optional<double> zone_floor_y;
     std::string current_zone;
     std::string navmesh_zone;
 };
@@ -60,6 +61,7 @@ RouteEndpoints leg_endpoints(const LegState& state, const navmesh::WorldPoint& g
         .goal = goal,
         .goal_floor_y = goal_floor_y,
         .goal_deck_y = goal_deck_y,
+        .zone_floor_y = state.zone_floor_y,
     };
 }
 
@@ -86,6 +88,14 @@ NavmeshExpansionFailure zone_failure(std::string code, std::string message, cons
         .message = std::move(message),
         .zone_id = state.current_zone,
     };
+}
+
+float zone_floor(const navmesh::BaseNavPack& pack, const std::string& zone, std::optional<double> zone_floor_y)
+{
+    if (zone_floor_y) {
+        return static_cast<float>(*zone_floor_y);
+    }
+    return navmesh::FloorYForZoneName(pack, zone);
 }
 
 navmesh::BaseNavRouteRequest build_route_request(
@@ -117,7 +127,7 @@ navmesh::BaseNavRouteRequest build_route_request(
     if (endpoints.start_deck_y) {
         request.start_deck_y = static_cast<float>(*endpoints.start_deck_y);
     }
-    const float zone_floor_y = navmesh::FloorYForZoneName(pack, locator_zone);
+    const float zone_floor_y = zone_floor(pack, locator_zone, endpoints.zone_floor_y);
     request.start_floor_y = endpoints.start_floor_y ? static_cast<float>(*endpoints.start_floor_y) : zone_floor_y;
     // 终点兜底取 zone 主层, 被覆盖的起点高度只代表人站在哪
     request.goal_floor_y = endpoints.goal_floor_y > navmesh::kBaseNavFloorYValidMin ? endpoints.goal_floor_y : zone_floor_y;
@@ -188,7 +198,7 @@ void fail_waypoint(
     }
     if (route_result != nullptr) {
         recorded.route_status = navmesh::ToString(route_result->status);
-        recorded.route_error = route_result->error;
+        recorded.route_error = navmesh::ToString(route_result->failure);
         recorded.gap_start = route_result->gap_start;
         recorded.gap_goal = route_result->gap_goal;
         recorded.gap_distance = route_result->gap_distance;
@@ -218,7 +228,8 @@ bool has_explicit_coordinate_frame(const Waypoint& waypoint)
 
 std::string route_error_text(const navmesh::BaseNavRouteResult& route_result)
 {
-    return route_result.error.empty() ? navmesh::ToString(route_result.status) : route_result.error;
+    return route_result.failure == navmesh::RouteFailure::None ? navmesh::ToString(route_result.status)
+                                                               : navmesh::ToString(route_result.failure);
 }
 
 std::vector<std::vector<double>> path_points_for_log(const navmesh::WorldPath& path)
@@ -238,6 +249,7 @@ void update_state_from_regular_waypoint(LegState* state, const Waypoint& waypoin
     }
     if (!waypoint.zone_id.empty()) {
         state->current_zone = waypoint.zone_id;
+        state->zone_floor_y = waypoint.zone_floor_y;
     }
 }
 
@@ -325,8 +337,9 @@ navmesh::BaseNavRouteResult plan_corridor_route(
     navmesh::BaseNavRouteResult result;
     const navmesh::BaseNavZone* zone = navmesh::FindBaseNavZoneByName(mesh.pack, request.zone_name);
     if (zone == nullptr) {
+        LogWarn << "NAVMESH zone not found." << VAR(request.zone_name);
         result.status = navmesh::BaseNavRouteStatus::ZoneNotFound;
-        result.error = "未找到 navmesh 区域: " + request.zone_name;
+        result.failure = navmesh::RouteFailure::ZoneNotFound;
         return result;
     }
     const float start_floor = request.start_floor_y > navmesh::kBaseNavFloorYValidMin ? request.start_floor_y : request.floor_y;
@@ -352,11 +365,12 @@ navmesh::BaseNavRouteResult plan_corridor_route(
     result.gap_goal = plan.debug.gap_goal;
     result.gap_distance = plan.debug.gap_distance;
     if (!plan.ok || plan.points.size() < 2) {
-        result.error = plan.error.empty() ? "规划结果没有可执行路径点" : plan.error;
+        result.failure = plan.failure == navmesh::RouteFailure::None ? navmesh::RouteFailure::NoUsablePath : plan.failure;
         if (plan.no_go) {
             result.status = navmesh::BaseNavRouteStatus::NoGo;
         }
-        LogWarn << "RECAST plan failed." << VAR(request.zone_name) << VAR(request.no_go_discs.size()) << VAR(result.error);
+        const char* reason = navmesh::ToString(result.failure);
+        LogWarn << "RECAST plan failed." << VAR(request.zone_name) << VAR(request.no_go_discs.size()) << VAR(reason);
         return result;
     }
     for (const std::string& warning : plan.warnings) {
@@ -622,8 +636,9 @@ bool append_blind_target_fallback(
         return fail_with(out_error, "找不到当前区域的 navmesh");
     }
     const double snap_radius = std::max(ctx->param->navmesh_snap_radius, kBlindTargetFallbackSnapRadius);
-    const float snap_floor =
-        goal_floor_y > navmesh::kBaseNavFloorYValidMin ? goal_floor_y : navmesh::FloorYForZoneName(ctx->mesh->pack, state->current_zone);
+    const float snap_floor = goal_floor_y > navmesh::kBaseNavFloorYValidMin
+                                 ? goal_floor_y
+                                 : zone_floor(ctx->mesh->pack, state->current_zone, state->zone_floor_y);
 
     // 探针剩余缺口至少是 offset - snap_radius, 超出这个上限的探针必然过不了缺口检查
     const double probe_limit = std::min(total, kBlindTargetMaxExtension + snap_radius);
@@ -810,6 +825,7 @@ bool try_append_zipline_leg(
             .goal_deck_y = target.deck_y,
             .start_floor_y = state->route_start_floor_y,
             .start_deck_y = state->route_start_deck_y,
+            .zone_floor_y = state->zone_floor_y,
             .maa_context = ctx->maa_context,
             .capture_diagnostics = ctx->diagnostics != nullptr,
             .no_go = ctx->no_go,
@@ -883,12 +899,13 @@ bool handle_unreachable_leg(
 {
     // 下面的兜底都不看可走面, 禁区必须先拦下, 否则会穿过禁区
     if (leg.route_result.status == navmesh::BaseNavRouteStatus::NoGo) {
+        const char* reason = navmesh::ToString(leg.route_result.failure);
         LogError << "NAVMESH waypoint rejected by a virtual no-go zone." << VAR(state->navmesh_zone) << VAR(state->current_zone)
-                 << VAR(leg.target.point.x) << VAR(leg.target.point.y) << VAR(leg.route_result.error);
+                 << VAR(leg.target.point.x) << VAR(leg.target.point.y) << VAR(reason);
         fail_waypoint(
             ctx,
             "route_no_go",
-            " 无法规划：" + leg.route_result.error,
+            std::string(" 无法规划：") + reason,
             waypoint,
             authored_index,
             *state,
@@ -1162,6 +1179,7 @@ bool append_replaceable_span(ExpansionContext* ctx, LegState* state, std::vector
 void append_zone_declaration(LegState* state, std::vector<Waypoint>* out_path, const Waypoint& waypoint)
 {
     state->current_zone = waypoint.zone_id;
+    state->zone_floor_y = waypoint.zone_floor_y;
     out_path->push_back(waypoint);
 }
 
@@ -1281,8 +1299,9 @@ bool ExpandNavmeshWaypoints(
     const std::string current_zone = initial_pos.zone_id.empty() ? param.map_name : initial_pos.zone_id;
     LegState state {
         .route_start = { .x = initial_pos.x, .y = initial_pos.y },
-        .route_start_floor_y = initial_pos.floor_y,
+        .route_start_floor_y = initial_pos.floor_y ? initial_pos.floor_y : initial_pos.zone_floor_y,
         .route_start_deck_y = start_deck_y,
+        .zone_floor_y = initial_pos.zone_floor_y,
         .current_zone = current_zone,
         .navmesh_zone = InferBaseNavZone(current_zone, param.map_name),
     };

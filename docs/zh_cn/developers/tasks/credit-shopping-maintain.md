@@ -2,14 +2,13 @@
 
 本文说明 `CreditShopping` 的文件分布与执行流程。  
 购买条件不是几个独立开关，而是从 `Item/` 串到 `Flow/` 的整条筛选链，维护时需按链路理解。  
-该文档更新于 2026 年 11 月 9 日。
+该文档更新于 2026 年 11 月 10 日。
 
 ## 文件路径
 
 ```text
 CreditShopping/
 ├── Flow/                  # 主购物流程
-│   ├── ApplyPriorityItems.json # 勾选商品 → 各档 item_ids（Custom：CreditShoppingApplyPriorityItemsAction）
 │   ├── Entry.json         # 页签检测 + 进入扫描循环
 │   ├── Scan.json          # 货架扫描门控（触发购买决策循环）
 │   ├── BuyAction.json     # 三档购买 / 强制购买 / 稳健刷新 / 次数用尽
@@ -35,14 +34,13 @@ CreditShopping/
 | --------------------------------------------------------- | -------------------------------------- |
 | `assets/interface.json` | 任务挂载（`other_menu` 组；另被 `DailyFull` / `QuickDaily` 预设引用） |
 | `assets/tasks/CreditShopping.json` | 任务入口、三档购买、保留阈值、刷新选项 |
-| `agent/go-service/creditshopping/` | 把勾选商品复制成各档 `IconRecognition` 的 `item_ids`（唯一 CustomAction） |
 | `assets/resource/pipeline/DijiangRewards/Entry.json`（`NeedCredit`）、`ReceptionRoom.json` | 信用不足时回基建补信用 |
 | `assets/locales/interface/*.json` | 任务、选项与 focus 文案 |
 
 ## 执行流程
 
 1. 进入信用交易所页签；若不在商店则先导航（`GoToShop.json`），再[领取待收取信用](#领取信用)（`Credit/ClaimCredit.json`）。
-2. 进入扫描循环前，[一次性把各档勾选商品写成 `item_ids`](#物品勾选与初始化)（`Flow/ApplyPriorityItems.json` + Go）。
+2. 勾选商品由[各档物品节点的 `attach`](#物品勾选)直接覆盖 `item_ids`，扫描前不再需要额外的初始化步骤。
 3. 每轮扫描当前货架，按固定优先级依次判断（`Flow/Scan.json` → `Flow/BuyAction.json`）：
     - 某档开启了「自动获取信用点」，且该档目标商品[买不起（信用不够）](#自动补信用) → 跳基建补信用后回来；未开启的档位不做此判断。
     - 是否命中[购买物品选项 1 / 2 / 3](#三档购买优先级) → 直接确认购买。
@@ -59,12 +57,13 @@ CreditShopping/
 
 实现位于 `Credit/ClaimCredit.json`。进入信用交易所后先尝试领取待收取信用；没有可领项则直接进入扫描，不阻塞主流程。
 
-### 物品勾选与初始化
+### 物品勾选
 
-1. 用户在三档 checkbox 里勾选商品，每个 case 的 `pipeline_override` 往 `CreditShoppingApplyPriorityItems` 节点写一条 `attach`（`priority1__<CaseID>: <CaseID>`）。
-2. `Flow/ApplyPriorityItems.json` 的 CustomAction 读取该节点的 `attach`，把 CaseID 换成 IconRecognition catalog 里的 `item_ids`，再用 `OverridePipeline` 覆盖 `CreditShoppingPriority1/2/3Item`。Go 只做这一次复制，不参与任何购买判断。
-3. 三档都设了 `min_count: 1`，界面上每档至少要勾 1 件。某档没有勾选时不会覆盖该档节点，节点保留 Pipeline 默认 `item_ids`（`Priority1` 默认 `item_gold`）。
-4. `item_ids` 的数组顺序取决于 `attach` 的遍历顺序，不影响识别（节点用 `order_by: natural`，按货架位置排序）。
+1. 用户在三档 checkbox 里勾选商品，每个 case 的 `pipeline_override` 往对应档位的 `CreditShoppingPriority{N}Item` 节点写一条 `attach`（`IconRecognition.item_ids.<item_id>: true`）。
+2. `IconRecognition` 在识别时读取**调用节点**的 `attach`，把 `IconRecognition.item_ids.*` 覆盖为该档的 `item_ids` 数组，因此勾选即生效，不需要额外的 CustomAction 或启动时 `OverridePipeline`。
+3. `attach` 是字典合并（dict merge），多个 case 的键会累积；某档一个都没勾时不会覆盖该档节点，节点保留 Pipeline 默认 `item_ids`（`Priority1` 默认 `item_gold`）。
+4. `<item_id>` 必须与 `assets/data/IconRecognition/recognition_items.json` 的顶层键一致；写错时该档每次识别都会失败并在日志里报 `unknown item_id`，但任务本身不会中止，表现为该档一直买不到东西。
+5. 三档都设了 `min_count: 1`，界面上每档至少要勾 1 件；`item_ids` 的数组顺序取决于 `attach` 的合并顺序，不影响识别（节点用 `order_by: natural`，按货架位置排序）。
 
 ### 商品识别链
 
@@ -79,7 +78,7 @@ CreditShopping/
 
 `CreditShoppingBuyPriority{N}` 是 And 链：物品 → 买得起 → 折扣 → 保留阈值门控，`box_index: 0` 保证点击落在物品格中心。**前层未命中则整条链失效**，排查时按 物品 → 买得起 → 折扣 顺序看。
 
-控制器差异分开维护：ADB 的 IconRecognition ROI 在 `assets/resource_adb/pipeline/CreditShopping/IconRecognitionRoi.json`，云端颜色阈值在 `assets/resource_cloud/pipeline/CreditShopping/Item.json`。Pipeline 与 Go 都不写死 ROI，改区域时只改对应资源覆盖。
+控制器差异分开维护：ADB 的 IconRecognition ROI 在 `assets/resource_adb/pipeline/CreditShopping/IconRecognitionRoi.json`，云端颜色阈值在 `assets/resource_cloud/pipeline/CreditShopping/Item.json`。Pipeline 不写死 ROI，改区域时只改对应资源覆盖。
 
 ### 三档购买优先级
 
@@ -134,20 +133,20 @@ CreditShopping/
 
 ## 新增商品时需改的路径
 
-1. `assets/tasks/CreditShopping.json` — 在对应档位 checkbox 增加 case，`pipeline_override` 写一条 `attach`（`priority<N>__<CaseID>`）
+1. `assets/tasks/CreditShopping.json` — 在对应档位 checkbox 增加 case，`icon` 指向 `resource/image/UI/Item/<item_id>.png`，`pipeline_override` 往该档 `CreditShoppingPriority<N>Item` 写一条 `attach`（`IconRecognition.item_ids.<item_id>: true`）
 2. `assets/locales/interface/*.json` — `option.CreditShoppingItems.cases.*.label`
 
-勾选后由 Go 复制成 `item_ids` 即可购买；奖励播报与数量累加由 IMS A3（`ClaimCredit.json`）负责，不必再为弹窗单独加商品 OCR。
+`attach` 里的 `<item_id>` 必须与 `icon` 文件名、`assets/data/IconRecognition/recognition_items.json` 的顶层键三者一致；该档勾选后即可购买，奖励播报与数量累加由 IMS A3（`ClaimCredit.json`）负责，不必再为弹窗单独加商品 OCR。
 新增 case 后记得检查 `default_case` 是否也要纳入新商品。
 
 ## 维护要点
 
 | 现象 | 优先查 |
 | ---------------- | --------------------------------------------------------------- |
-| 识别不到目标商品 | 该档 `item_ids`（勾选 → Go 覆盖后的节点）与 `IconRecognition` ROI |
+| 识别不到目标商品 | 该档物品节点的 `attach`（`IconRecognition.item_ids.*`）与 `IconRecognition` ROI |
 | 买得起却不买 | 该档保留阈值 / 无条件购买开关 |
 | 买不起不补信用 | 该档 AutoGetCredits 开关；买不起侧折扣与价格颜色阈值 |
 | 刷新行为异常 | `CreditShoppingForce`；稳健刷新阈值 |
 | 选项间行为不一致 | `CreditShopping.json` 的 `pipeline_override` 与扫描 `next` 顺序 |
 
-维护时分四层定位：入口（`GoToShop.json`）→ 扫描决策（`Flow/`）→ 识别链（`Item/` + `ShelfChecks.json`）→ 参数装配（任务选项 + Go）。
+维护时分四层定位：入口（`GoToShop.json`）→ 扫描决策（`Flow/`）→ 识别链（`Item/` + `ShelfChecks.json`）→ 参数装配（任务选项 `attach`）。

@@ -36,7 +36,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/textinput"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/deliveryjobs"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dijiangrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
@@ -120,7 +119,6 @@ func registerAll() {
 	intelarchive.Register()
 	itemtransfer.Register()
 	outposttrading.Register()
-	creditshopping.Register()
 	webevent202605.Register()
 	ziplineimport.Register()
 	pullcount.Register()

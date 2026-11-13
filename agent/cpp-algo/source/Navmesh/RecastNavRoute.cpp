@@ -19,10 +19,10 @@
 #include <set>
 #include <tuple>
 
-#include <cstdio>
 #include <cstdlib>
 
 #include <MaaFramework/MaaAPI.h>
+#include <MaaUtils/Logger.h>
 
 #if defined(__APPLE__)
 #include <malloc/malloc.h>
@@ -253,9 +253,14 @@ struct WindowInfo
     uint32_t links_dropped = 0; // 两端在窗内但选不出落脚 span 的条数
 };
 
+RouteFailure or_route_failed(RouteFailure failure)
+{
+    return failure == RouteFailure::None ? RouteFailure::RouteFailed : failure;
+}
+
 struct RouteDiag
 {
-    std::string err;
+    RouteFailure failure = RouteFailure::None;
     std::vector<std::string> warn;
     std::vector<double> clearance;
     std::vector<double> height;      // 逐点所在面的高度, 逐层追踪失败时清空
@@ -643,7 +648,7 @@ struct RegionSeed
 
 // 终点声明了面时改由终点定类, 免得起点二维吸附落在屋顶把线拉到别层
 std::optional<RegionSeed> pick_region(
-    std::string* err,
+    RouteFailure* failure,
     const GridPatch& ps,
     const GridPatch& pg,
     const WorldPoint& s,
@@ -656,7 +661,8 @@ std::optional<RegionSeed> pick_region(
     int64_t gy = 0;
     const int64_t start_rec = seed_rec(&gx, &gy, ps, s, s_snap, h0);
     if (start_rec < 0) {
-        *err = "起点附近无可走体素 (gx=" + std::to_string(gx) + ",gy=" + std::to_string(gy) + ")";
+        LogDebug << "No walkable voxel near the start." << VAR(gx) << VAR(gy);
+        *failure = RouteFailure::NoWalkableVoxelNearStart;
         return std::nullopt;
     }
     const GridSpanRec& sr = ps.gw.rec[static_cast<size_t>(start_rec)];
@@ -675,7 +681,8 @@ std::optional<RegionSeed> pick_region(
             static_cast<int64_t>((g.y - pg.y0) / kCS),
             *goal_deck);
         if (deck_rec < 0) {
-            *err = "终点附近没有声明的面 (deck=" + std::to_string(*goal_deck) + ")";
+            LogDebug << "No declared deck near the goal." << VAR(*goal_deck);
+            *failure = RouteFailure::NoDeclaredDeckNearGoal;
             return std::nullopt;
         }
         seed.region = pg.gw.rec[static_cast<size_t>(deck_rec)].rid;
@@ -797,7 +804,7 @@ int64_t link_span(const WindowInfo& info, int64_t cell, float h)
 }
 
 std::optional<WindowInfo> build_window(
-    std::string* err,
+    RouteFailure* failure,
     const GridPack& gp,
     const GridZoneDir& gz,
     const FieldsPack& fp,
@@ -832,13 +839,13 @@ std::optional<WindowInfo> build_window(
     GridWindow& gw = pw.gw;
     const std::span<const FieldsOpenRec> opn = FieldsOpensOfZone(fp, zc.zone_id);
     if (!load_grid_window(&gw, gp, gz, &fzd, opn.data(), opn.size(), wgx0, wgy0, nx, ny)) {
-        *err = "预烘格图或旁包解不开";
+        *failure = RouteFailure::WindowDecodeFailed;
         return std::nullopt;
     }
 
     const int64_t cell0 = (seed_gy - wgy0) * nx + (seed_gx - wgx0);
     if (seed_gx < wgx0 || seed_gx >= wgx0 + nx || seed_gy < wgy0 || seed_gy >= wgy0 + ny) {
-        *err = "起点种子格落在窗外";
+        *failure = RouteFailure::StartSeedOutsideWindow;
         return std::nullopt;
     }
     gw.head = std::vector<int32_t>();
@@ -924,7 +931,8 @@ std::optional<WindowInfo> build_window(
         bool known = false;
         const bool keep = FieldsZoneWallKeep(&known, fz, walls.tri[i], walls.k[i], region);
         if (!known) {
-            *err = "旁包留墙表没有这条边 (tri " + std::to_string(walls.tri[i]) + ")";
+            LogError << "Fields wall table lacks an edge." << VAR(walls.tri[i]) << VAR(walls.k[i]) << VAR(region);
+            *failure = RouteFailure::WallTableMissingEdge;
             return std::nullopt;
         }
         if (keep) {
@@ -1000,7 +1008,7 @@ std::optional<WindowInfo> build_window(
     segbits = std::vector<uint8_t>();
     const int64_t seed3 = seed_span(info.st3, info.vis3, cell0, seed_h);
     if (seed3 < 0) {
-        *err = "起点格没有与终点同类的面";
+        *failure = RouteFailure::StartCellNotInGoalRegion;
         return std::nullopt;
     }
     // 跳边单价不得低于 1, 否则启发式不可采纳
@@ -1042,7 +1050,7 @@ std::optional<WindowInfo> build_window(
     {
         const std::vector<uint8_t> hit = FieldsZoneReachFrom(fz, region, sp_scc[static_cast<size_t>(seed3)]);
         if (hit.empty()) {
-            *err = "旁包分量图里没有起点面所在的分量";
+            *failure = RouteFailure::StartComponentMissing;
             return std::nullopt;
         }
         info.reach3.assign(info.vis3.size(), 0);
@@ -1052,7 +1060,7 @@ std::optional<WindowInfo> build_window(
             }
             const uint32_t comp = sp_scc[sid];
             if (comp == 0 || comp >= hit.size()) {
-                *err = "旁包分量号越界";
+                *failure = RouteFailure::ComponentIdOutOfBounds;
                 return std::nullopt;
             }
             info.reach3[sid] = hit[comp];
@@ -1630,7 +1638,7 @@ RecastPlanResult join_drop_hop(RecastPlanResult a, const RecastPlanResult& b, do
     const size_t base = a.points.size();
     RecastPlanResult r = join_head(std::move(a), b);
     r.drops.push_back({ .index = base, .height = land_h });
-    join_tail(&r, b, base, "台沿下落换类");
+    join_tail(&r, b, base, "ledge drop into another region");
     return r;
 }
 
@@ -1642,7 +1650,7 @@ RecastPlanResult join_rope_hop(RecastPlanResult a, const RecastPlanResult& b, co
                         .top_height = static_cast<double>(rope.top.h),
                         .uid = rope.uid_bottom,
                         .ride_s = static_cast<double>(rope.ride_s) });
-    join_tail(&r, b, base, "升降索换层");
+    join_tail(&r, b, base, "rope ride to another layer");
     return r;
 }
 
@@ -2072,13 +2080,13 @@ std::optional<std::vector<int64_t>> access_chain(RouteDiag* dg, const RouteWindo
     }
     if (hit < 0) {
         if (rw.strict) {
-            escalate(dg, "接入链接不通");
+            escalate(dg, "access chain is broken");
         }
         return std::nullopt;
     }
     const double chain_len = static_cast<double>(cs[static_cast<size_t>(hit)]) / 100.0;
     if (rw.bounded && chain_len >= rw.limit) {
-        escalate(dg, "接入链碰边");
+        escalate(dg, "access chain hits the window edge");
         return std::nullopt;
     }
     std::vector<int64_t> ch;
@@ -2299,19 +2307,19 @@ std::optional<WindowTopo> solve_spans(RouteDiag* dg, const RouteWindow& rw, cons
     if (!sq.has_value()) {
         // 小窗里的退档可能是窗口切出来的假失败
         if (rw.strict) {
-            escalate(dg, "walk 断开");
+            escalate(dg, "walk mask is disconnected");
             return std::nullopt;
         }
         sq = run_span_search(&corn, &cost, rw, search, uc, c3);
         if (sq.has_value()) {
             t.on3 = c3;
-            t.warn.push_back("walk 断开→退回 core");
+            t.warn.push_back("walk mask is disconnected -> fell back to core");
         }
     }
     if (sq.has_value()) {
         // 搜索从吸附锚点出发, 焦点却取端点格, 两段吸附偏移并入代价
         if (rw.bounded && cost + (rw.dsa + rw.dga) / kCS >= rw.limit2) {
-            escalate(dg, "搜索碰边");
+            escalate(dg, "search hits the window edge");
             return std::nullopt;
         }
         t.q.reserve(sq->size());
@@ -2331,7 +2339,7 @@ std::optional<WindowTopo> solve_channel(RouteDiag* dg, RouteWindow* rw, const To
 {
     if (!ends_linked(rw, lim)) {
         if (rw->strict) {
-            escalate(dg, "掩膜内两端不连通");
+            escalate(dg, "endpoints are disconnected within the mask");
         }
         return std::nullopt;
     }
@@ -2362,7 +2370,7 @@ std::optional<WindowTopo> solve_baseline(RouteDiag* dg, RouteWindow* rw, const T
         return std::nullopt;
     }
     if (rw->strict) {
-        escalate(dg, "层不连通");
+        escalate(dg, "layers are disconnected");
         return std::nullopt;
     }
     std::tie(rw->as, rw->dsa) = nearest_cell(*rw, wl, rw->sc);
@@ -2383,13 +2391,13 @@ std::optional<WindowTopo> solve_baseline(RouteDiag* dg, RouteWindow* rw, const T
         t2.on3 = cr;
         qc = CostAstar(cr, *rw->as, *rw->ag, *search.price, search.banned, search.bnp, rw->faces, nullptr, rw->jcell);
         if (qc.has_value()) {
-            t2.warn.push_back("walk 断开→退回 core");
+            t2.warn.push_back("walk mask is disconnected -> fell back to core");
         }
     }
     if (!qc.has_value()) {
         return std::nullopt;
     }
-    t2.warn.push_back("层不连通→退回格级");
+    t2.warn.push_back("layers are disconnected -> fell back to cell level");
     t2.q = std::move(*qc);
     return t2;
 }
@@ -2715,7 +2723,7 @@ std::optional<std::vector<WorldPoint>> route_window(
     rw.limit = static_cast<double>(edge - dg->margin);
     rw.limit2 = rw.tentative ? ellipse_floor(rw.sc, rw.gc, dg->margin, rw.nx, rw.ny) : 0.0;
     if (rw.tentative && rw.limit <= 0.0) {
-        escalate(dg, "端点离窗边不足");
+        escalate(dg, "endpoint is too close to the window edge");
         return std::nullopt;
     }
 
@@ -2731,11 +2739,11 @@ std::optional<std::vector<WorldPoint>> route_window(
     const bool goal_off_deck = rw.goal_deck.has_value() && rw.gc.x >= 0 && rw.gc.y >= 0 && rw.gc.x < rw.nx && rw.gc.y < rw.ny
                                && !cell_has_deck(rw, rw.gc, *rw.goal_deck);
     if (!snap0.first.has_value()) {
-        dg->err = rw.start_deck.has_value() ? "起点附近没有未封堵的声明面" : "walk 掩膜为空";
+        dg->failure = rw.start_deck.has_value() ? RouteFailure::NoUnblockedDeckNearStart : RouteFailure::WalkMaskEmpty;
         return std::nullopt;
     }
     if (!snap1.first.has_value()) {
-        dg->err = rw.goal_deck.has_value() ? "目标附近没有未封堵的声明面" : "walk 掩膜为空";
+        dg->failure = rw.goal_deck.has_value() ? RouteFailure::NoUnblockedDeckNearGoal : RouteFailure::WalkMaskEmpty;
         return std::nullopt;
     }
     rw.as = snap0.first;
@@ -2743,7 +2751,7 @@ std::optional<std::vector<WorldPoint>> route_window(
     rw.dsa = snap0.second;
     rw.dga = snap1.second;
     if (rw.bounded && (rw.dsa / kCS >= rw.limit || rw.dga / kCS >= rw.limit)) {
-        escalate(dg, "吸附距离碰边");
+        escalate(dg, "snap distance hits the window edge");
         return std::nullopt;
     }
 
@@ -2760,7 +2768,7 @@ std::optional<std::vector<WorldPoint>> route_window(
     const PriceField unit {};
     const std::optional<WindowTopo> base = solve_baseline(dg, &rw, TopoSearch { .price = &unit }, all);
     if (rw.strict && !base.has_value()) {
-        escalate(dg, "基线不通");
+        escalate(dg, "baseline route is blocked");
         return std::nullopt;
     }
     if (!base.has_value()) {
@@ -2775,18 +2783,11 @@ std::optional<std::vector<WorldPoint>> route_window(
             }
             std::sort(hv.begin(), hv.end());
             hv.erase(std::unique(hv.begin(), hv.end()), hv.end());
-            std::string list;
-            char buf[32];
-            for (const float h : hv) {
-                std::snprintf(buf, sizeof(buf), "%.2f", static_cast<double>(h));
-                list += (list.empty() ? "" : ", ") + std::string(buf);
-            }
-            std::snprintf(buf, sizeof(buf), "%.2f", *rw.goal_deck);
-            dg->err =
-                "目标面不可达 (声明 " + std::string(buf) + ", 终点格里的面 " + (list.empty() ? std::string("无") : "[" + list + "]") + ")";
+            LogDebug << "Declared goal deck is unreachable." << VAR(*rw.goal_deck) << VAR(hv);
+            dg->failure = RouteFailure::TargetDeckUnreachable;
             return std::nullopt;
         }
-        dg->err = "不连通";
+        dg->failure = RouteFailure::Disconnected;
         return std::nullopt;
     }
     useW = std::vector<uint8_t>();
@@ -2837,13 +2838,13 @@ std::optional<std::vector<WorldPoint>> route_window(
     chan0 = Mask();
     std::optional<WindowTopo> vv = solve_channel(dg, &rw, TopoSearch { .price = &multw, .banned = bn, .bnp = bpw }, limw);
     if (rw.strict && !vv.has_value()) {
-        escalate(dg, "通道未接通");
+        escalate(dg, "channel is not connected");
         return std::nullopt;
     }
     if (!vv.has_value()) {
         limw = Mask(rw.nx, rw.ny, 1);
         vv = solve_channel(dg, &rw, TopoSearch { .price = &multw, .banned = bn, .bnp = bpw }, limw);
-        dg->warn.emplace_back("通道未接通, 退到全图亏欠计价");
+        dg->warn.emplace_back("channel is not connected -> fell back to whole-window deficit cost");
     }
     {
         const WindowTopo& tp = vv.has_value() ? *vv : *base;
@@ -2881,7 +2882,7 @@ std::optional<std::vector<WorldPoint>> route_window(
             for (int64_t y = 0; y < rw.ny; ++y) {
                 for (int64_t x = 0; x < rw.nx; ++x) {
                     if (band.at(y, x) != 0 && (x < m || y < m || x >= rw.nx - m || y >= rw.ny - m)) {
-                        escalate(dg, "走廊碰边");
+                        escalate(dg, "corridor hits the window edge");
                         return std::nullopt;
                     }
                 }
@@ -2901,7 +2902,7 @@ std::optional<std::vector<WorldPoint>> route_window(
         band = Mask();
         std::optional<WindowTopo> tt = solve_channel(dg, &rw, TopoSearch { .price = &mult, .banned = bn, .bnp = bp, .vis = &vis }, limg);
         if (rw.strict && !tt.has_value()) {
-            escalate(dg, "走廊内几何不通");
+            escalate(dg, "corridor geometry is blocked");
             return std::nullopt;
         }
         if (!tt.has_value()) {
@@ -2935,10 +2936,12 @@ std::optional<std::vector<WorldPoint>> route_window(
         }
     }
     if (!bad.empty()) {
-        dg->warn.push_back("不可避立面 " + std::to_string(bad.size()) + " 步");
+        LogDebug << "Route crosses unavoidable step faces." << VAR(bad.size());
+        dg->warn.push_back("route crosses an unavoidable step face");
     }
     if (info->links_dropped != 0) {
-        dg->warn.push_back("离网连接 " + std::to_string(info->links_dropped) + " 条落不到面");
+        LogDebug << "Off-mesh links failed to land on a face." << VAR(info->links_dropped);
+        dg->warn.push_back("some off-mesh links do not land on a face");
     }
     dg->crossed_barrier = !bad.empty();
 
@@ -3161,12 +3164,9 @@ RecastZoneEntry& zone_entry(RecastNavEngine* engine, const BaseNavPack& pack, co
         e.zc = std::make_unique<ZoneClean>(BuildZoneClean(pack, planner, name));
         if (const FieldsZoneDir* fzd = FindFieldsZone(*engine->fields, name); fzd != nullptr) {
             e.fz = std::make_unique<FieldsZone>();
-            if (!LoadFieldsZone(e.fz.get(), &e.fields_error, *engine->fields, *fzd)) {
+            if (!LoadFieldsZone(e.fz.get(), *engine->fields, *fzd)) {
                 e.fz.reset();
             }
-        }
-        else {
-            e.fields_error = "旁包里没有这个区";
         }
         it = engine->zones.emplace(name, std::move(e)).first;
     }
@@ -3519,22 +3519,22 @@ RecastPlanResult plan_locked(
     const double t_all0 = now_ms();
     RecastPlanResult res;
     if (!GridPackParsed(engine->grid)) {
-        res.error = engine->grid_error;
+        res.failure = RouteFailure::GridUnavailable;
         return res;
     }
     const GridZoneDir* gz = FindGridZone(engine->grid, zone_name);
     if (gz == nullptr) {
-        res.error = "区没有预烘格图 (" + zone_name + ")";
+        res.failure = RouteFailure::ZoneHasNoGrid;
         return res;
     }
     RecastZoneEntry& ze = zone_entry(engine, pack, planner, zone_name);
     if (!ZoneCleanValid(*ze.zc)) {
-        res.error = ze.zc->error;
+        res.failure = RouteFailure::ZoneMeshUnusable;
         return res;
     }
     const FieldsZoneDir* fzd = FindFieldsZone(*engine->fields, zone_name);
     if (fzd == nullptr || ze.fz == nullptr) {
-        res.error = "旁包读不出这个区 (" + zone_name + "): " + ze.fields_error;
+        res.failure = RouteFailure::FieldsZoneUnusable;
         return res;
     }
     const FieldsZone* fz = ze.fz.get();
@@ -3583,12 +3583,12 @@ RecastPlanResult plan_locked(
         ss = ZoneSnap(zc, start, kSnapRadius, sfl);
     }
     if (!ss.has_value()) {
-        res.error = "起点不在网格附近";
+        res.failure = RouteFailure::StartOffMesh;
         return res;
     }
     const auto gs = ZoneSnap(zc, goal, kSnapRadius, gfl);
     if (!gs.has_value()) {
-        res.error = "终点不在网格附近";
+        res.failure = RouteFailure::GoalOffMesh;
         return res;
     }
     const double h0 = tri_height_of(zc.mesh, ss->tri);
@@ -3598,11 +3598,9 @@ RecastPlanResult plan_locked(
         std::string hit;
         const bool in_start = NoGoContains(&hit, *nogo, start, h0);
         if (in_start || NoGoContains(&hit, *nogo, goal, tri_height_of(zc.mesh, gs->tri))) {
+            LogDebug << "Plan endpoint is inside a virtual no-go zone." << VAR(zone_name) << VAR(in_start) << VAR(hit);
             res.no_go = true;
-            res.error = std::string(in_start ? "起点" : "终点") + "在虚拟禁区内";
-            if (!hit.empty()) {
-                res.error += " (" + hit + ")";
-            }
+            res.failure = in_start ? RouteFailure::StartInNoGo : RouteFailure::GoalInNoGo;
             return res;
         }
     }
@@ -3614,22 +3612,21 @@ RecastPlanResult plan_locked(
     // 全区锚距是任何窗口里锚距的下界, 过不了这道闸的腿换多大窗口也接不上
     const auto [zsa, zga] = core_anchor_px(engine->grid, *gz, { start, goal });
     if (zsa > kSnapRadius || zga > kSnapRadius) {
-        char buf[128];
-        std::snprintf(buf, sizeof(buf), "端点接不上可走层 (起 %.1fpx / 终 %.1fpx)", zsa, zga);
-        res.error = buf;
+        LogDebug << "Plan endpoints are too far from the walkable layer." << VAR(zsa) << VAR(zga);
+        res.failure = RouteFailure::EndpointsOffWalkableLayer;
         return res;
     }
 
     if (!patched
         && (!load_patch(&ps, engine->grid, *gz, zone_opens, start, ss->point, kSnapRadius)
             || (gdk.has_value() && !load_patch(&pg, engine->grid, *gz, zone_opens, goal, goal, kSnapRadius)))) {
-        res.error = "预烘格图解不开";
+        res.failure = RouteFailure::GridDecodeFailed;
         return res;
     }
-    std::string err;
-    const std::optional<RegionSeed> seed = pick_region(&err, ps, pg, start, ss->point, goal, h0, gdk);
+    RouteFailure failure = RouteFailure::None;
+    const std::optional<RegionSeed> seed = pick_region(&failure, ps, pg, start, ss->point, goal, h0, gdk);
     if (!seed) {
-        res.error = err;
+        res.failure = failure;
         return res;
     }
     const uint32_t region = seed->region;
@@ -3647,7 +3644,7 @@ RecastPlanResult plan_locked(
     }
     const ZoneBoundsPx zb = zbit->second;
     if (ZoneBoundsEmpty(zb)) {
-        res.error = "类内没有格图";
+        res.failure = RouteFailure::RegionHasNoGridCells;
         return res;
     }
     const int64_t rgx0 = zb.x0 - kFieldHalo;
@@ -3704,7 +3701,8 @@ RecastPlanResult plan_locked(
         const bool local = kind != WindowKind::Full;
         const bool capped = kind == WindowKind::Capped;
         if (!local && window_cells(region_rect) > kMaxCells) {
-            res.error = "类过大 (" + std::to_string(rnx) + "×" + std::to_string(rny) + " 格)";
+            LogDebug << "Region window is too large." << VAR(rnx) << VAR(rny);
+            res.failure = RouteFailure::RegionTooLarge;
             return res;
         }
         const int64_t gx0 = cur.x0;
@@ -3712,7 +3710,7 @@ RecastPlanResult plan_locked(
         const int64_t nx = cur.nx;
         const int64_t ny = cur.ny;
         if (plan_stopping(scope.stop_context)) {
-            res.error = "规划已取消";
+            res.failure = RouteFailure::Cancelled;
             return res;
         }
         const double x0 = static_cast<double>(gx0) * kCS;
@@ -3722,21 +3720,21 @@ RecastPlanResult plan_locked(
         const int64_t margin = local ? kTrustMargin : 0;
 
         const double t_win0 = now_ms();
-        info = build_window(&err, engine->grid, *gz, *engine->fields, *fzd, *fz, zc, *seed, h0, x0, y0, x1, y1, nogo, no_go_discs);
+        info = build_window(&failure, engine->grid, *gz, *engine->fields, *fzd, *fz, zc, *seed, h0, x0, y0, x1, y1, nogo, no_go_discs);
         const double window_ms = now_ms() - t_win0;
         const uint16_t zone_id = zc.zone_id;
         if (!info.has_value()) {
             if (local && !capped) {
-                res.debug.tier_notes.push_back(err);
+                res.debug.tier_notes.push_back(ToString(failure));
                 ++level;
                 continue;
             }
             if (local) {
-                res.debug.tier_notes.push_back(err + "→整类窗口");
+                res.debug.tier_notes.push_back(std::string(ToString(failure)) + " -> whole-region window");
                 last_resort = true;
                 continue;
             }
-            res.error = err.empty() ? "路线失败" : err;
+            res.failure = or_route_failed(failure);
             return res;
         }
         if (pz != nullptr) {
@@ -3754,7 +3752,7 @@ RecastPlanResult plan_locked(
                 why = dg.escalate_why;
             }
             else if (!line.has_value()) {
-                why = dg.err.empty() ? "路线失败" : dg.err;
+                why = ToString(or_route_failed(dg.failure));
             }
             if (!why.empty()) {
                 info.reset();
@@ -3766,12 +3764,12 @@ RecastPlanResult plan_locked(
         // 封顶档窗内不通可能是绕路出了窗, 整类窗口放得下就退整类再判
         if (local && capped && !line.has_value() && window_cells(region_rect) <= kMaxCells) {
             info.reset();
-            res.debug.tier_notes.push_back((dg.err.empty() ? std::string("路线失败") : dg.err) + "→整类窗口");
+            res.debug.tier_notes.push_back(std::string(ToString(or_route_failed(dg.failure))) + " -> whole-region window");
             last_resort = true;
             continue;
         }
         if (!line.has_value()) {
-            res.error = dg.err.empty() ? "路线失败" : dg.err;
+            res.failure = or_route_failed(dg.failure);
             fill_debug(&res, &dg, cur, tier, window_ms, t_all0);
             return res;
         }
@@ -3801,7 +3799,7 @@ RecastPlanResult plan_locked(
 
                 std::optional<RecastPlanResult> dropped = plan_drop_hops(engine, pack, planner, scope, req, hops);
                 if (!dropped && plan_stopping(scope.stop_context)) {
-                    res.error = "规划已取消";
+                    res.failure = RouteFailure::Cancelled;
                     return res;
                 }
                 std::optional<RecastPlanResult> roped = try_ropes(
@@ -3822,15 +3820,8 @@ RecastPlanResult plan_locked(
                     return r;
                 }
             }
-            char buf[160];
-            std::snprintf(
-                buf,
-                sizeof(buf),
-                "从起点走不到终点 (端点%s, 可达区距 起 %.1fpx / 终 %.1fpx)",
-                dg.hop_barrier ? "被禁行边隔开" : "在可走面上",
-                dg.snap_start,
-                dg.snap_goal);
-            res.error = buf;
+            LogDebug << "Goal is unreachable from the start." << VAR(dg.hop_barrier) << VAR(dg.snap_start) << VAR(dg.snap_goal);
+            res.failure = dg.hop_barrier ? RouteFailure::SeparatedByBarrier : RouteFailure::GoalUnreachable;
             fill_debug(&res, &dg, cur, tier, window_ms, t_all0);
             return res;
         }
@@ -3881,19 +3872,14 @@ void LoadRecastNavEngine(RecastNavEngine* engine, const BaseNavPack& pack, const
 {
     const BaseNavSection* sec = FindBaseNavSection(pack, kGridSectionTag);
     if (sec == nullptr || sec->bytes == nullptr) {
-        engine->grid_error = "包里没有预烘格图段";
+        LogError << "Navmesh pack has no baked grid section.";
         return;
     }
-    if (!ParseGridPack(&engine->grid, &engine->grid_error, sec->bytes->data(), sec->bytes->size())) {
+    if (!ParseGridPack(&engine->grid, sec->bytes->data(), sec->bytes->size())
+        || !LoadSharedFieldsPack(&engine->fields, FieldsSidecarPath(pack.path), pack, engine->grid)
+        || !LoadNoGoTable(&engine->nogo, nogo_table, pack)) {
         engine->grid = GridPack();
-        return;
-    }
-    if (!LoadSharedFieldsPack(&engine->fields, &engine->grid_error, FieldsSidecarPath(pack.path), pack, engine->grid)) {
-        engine->grid = GridPack();
-        return;
-    }
-    if (!LoadNoGoTable(&engine->nogo, &engine->grid_error, nogo_table, pack)) {
-        engine->grid = GridPack();
+        LogError << "Navmesh grid is unavailable, planning is disabled.";
     }
 }
 

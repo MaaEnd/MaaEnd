@@ -2,14 +2,13 @@
 
 This document describes the file layout and execution flow of `CreditShopping`.  
 Purchase conditions are not a few independent switches but a whole filter chain running from `Item/` to `Flow/`; maintenance must be understood along that chain.  
-This document was updated on November 9, 2026.
+This document was updated on November 10, 2026.
 
 ## File Paths
 
 ```text
 CreditShopping/
 ├── Flow/                  # Main shopping flow
-│   ├── ApplyPriorityItems.json # Selected items → per-tier item_ids (Custom: CreditShoppingApplyPriorityItemsAction)
 │   ├── Entry.json         # Tab detection + enter scan loop
 │   ├── Scan.json          # Shelf scan gate (triggers the buy decision loop)
 │   ├── BuyAction.json     # Three-tier purchase / forced purchase / prudent refresh / attempts exhausted
@@ -35,14 +34,13 @@ Other related files:
 | --------------------------------------------------------- | -------------------------------------------------------------------- |
 | `assets/interface.json` | Task mounting (`other_menu` group; also in the `DailyFull` / `QuickDaily` presets) |
 | `assets/tasks/CreditShopping.json` | Task entry, three-tier purchases, reserve threshold, refresh options |
-| `agent/go-service/creditshopping/` | Copies selected items into each tier's `IconRecognition` `item_ids` (the only CustomAction) |
 | `assets/resource/pipeline/DijiangRewards/Entry.json` (`NeedCredit`), `ReceptionRoom.json` | Return to base to replenish credit when insufficient |
 | `assets/locales/interface/*.json` | Task, option, and focus text |
 
 ## Execution Flow
 
 1. Enter the credit exchange tab; if not in the shop, navigate first (`GoToShop.json`), then [claim pending credits](#claiming-credits) (`Credit/ClaimCredit.json`).
-2. Before entering the scan loop, [write each tier's selected items into `item_ids` once](#item-selection-and-initialization) (`Flow/ApplyPriorityItems.json` + Go).
+2. Selected items are applied directly to `item_ids` through each tier item node's [`attach`](#item-selection), so no separate initialization step runs before the scan loop.
 3. In each round, scan the current shelf and evaluate in a fixed priority order (`Flow/Scan.json` → `Flow/BuyAction.json`):
     - A tier has "Automatically collect credits" enabled and its target item [is unaffordable (not enough credit)](#automatic-credit-replenishment) → jump to base to replenish credit and return; tiers with it disabled skip this check.
     - Whether it matches [Purchase Item Option 1 / 2 / 3](#three-tier-purchase-priority) → confirm purchase directly.
@@ -59,12 +57,13 @@ Other related files:
 
 Implemented in `Credit/ClaimCredit.json`. After entering the credit exchange, first attempt to claim pending credits; if none are available, proceed directly to scanning without blocking the main flow.
 
-### Item Selection and Initialization
+### Item Selection
 
-1. The user selects items in the three tier checkboxes; each case's `pipeline_override` writes one `attach` entry (`priority1__<CaseID>: <CaseID>`) onto the `CreditShoppingApplyPriorityItems` node.
-2. The CustomAction in `Flow/ApplyPriorityItems.json` reads that node's `attach`, maps each CaseID to the catalog `item_ids` used by IconRecognition, and overwrites `CreditShoppingPriority1/2/3Item` via `OverridePipeline`. Go only performs this copy; it takes no part in purchase decisions.
-3. All three checkboxes set `min_count: 1`, so the UI requires at least one selected item per tier. A tier with nothing selected is not overwritten and keeps the Pipeline default `item_ids` (`Priority1` defaults to `item_gold`).
-4. The array order of `item_ids` follows `attach` iteration order and does not affect recognition (the nodes use `order_by: natural`, i.e. shelf position).
+1. The user selects items in the three tier checkboxes; each case's `pipeline_override` writes one `attach` entry (`IconRecognition.item_ids.<item_id>: true`) onto that tier's `CreditShoppingPriority{N}Item` node.
+2. `IconRecognition` reads the **calling node's** `attach` at recognition time and replaces `IconRecognition.item_ids.*` with that tier's `item_ids` array. Selection therefore takes effect immediately; no CustomAction or startup `OverridePipeline` is needed.
+3. `attach` is a dict merge, so keys from multiple cases accumulate. A tier with nothing selected is not overridden and keeps the Pipeline default `item_ids` (`Priority1` defaults to `item_gold`).
+4. `<item_id>` must match a top-level key of `assets/data/IconRecognition/recognition_items.json`; a typo makes that tier's recognition fail on every attempt with an `unknown item_id` error in the log, but the task itself keeps running, so the tier simply never buys anything.
+5. All three checkboxes set `min_count: 1`, so the UI requires at least one selected item per tier; the array order of `item_ids` follows the `attach` merge order and does not affect recognition (the nodes use `order_by: natural`, i.e. shelf position).
 
 ### Item Recognition Chain
 
@@ -79,7 +78,7 @@ Sold-out cards (dimmed card + "Sold Out") are not matched by IconRecognition, so
 
 `CreditShoppingBuyPriority{N}` is an And chain: item → affordable → discount → reserve gate, with `box_index: 0` so the click lands on the item cell center. **If a preceding layer misses, the whole chain fails**; troubleshoot in order item → affordable → discount.
 
-Controller differences are maintained separately: the ADB IconRecognition ROI lives in `assets/resource_adb/pipeline/CreditShopping/IconRecognitionRoi.json`, cloud color thresholds in `assets/resource_cloud/pipeline/CreditShopping/Item.json`. Neither the Pipeline nor Go pins a ROI, so region changes belong in those resource overrides.
+Controller differences are maintained separately: the ADB IconRecognition ROI lives in `assets/resource_adb/pipeline/CreditShopping/IconRecognitionRoi.json`, cloud color thresholds in `assets/resource_cloud/pipeline/CreditShopping/Item.json`. The Pipeline does not pin a ROI, so region changes belong in those resource overrides.
 
 ### Three-Tier Purchase Priority
 
@@ -134,20 +133,20 @@ This threshold and "Reserved Credits" are two independent conditions; do not mix
 
 ## Paths to Modify When Adding New Items
 
-1. `assets/tasks/CreditShopping.json` — Add a case in the corresponding tier's checkbox; its `pipeline_override` writes one `attach` entry (`priority<N>__<CaseID>`)
+1. `assets/tasks/CreditShopping.json` — Add a case in the corresponding tier's checkbox; `icon` points to `resource/image/UI/Item/<item_id>.png`, and `pipeline_override` writes one `attach` entry (`IconRecognition.item_ids.<item_id>: true`) onto that tier's `CreditShoppingPriority<N>Item`
 2. `assets/locales/interface/*.json` — `option.CreditShoppingItems.cases.*.label`
 
-Once selected, Go copies it into `item_ids` and it becomes purchasable; reward announcements and quantity adds are handled by IMS A3 (`ClaimCredit.json`). No per-item popup OCR is needed.
+`<item_id>` in `attach` must match both the `icon` file name and a top-level key of `assets/data/IconRecognition/recognition_items.json`. Once selected, the item becomes purchasable; reward announcements and quantity adds are handled by IMS A3 (`ClaimCredit.json`). No per-item popup OCR is needed.
 After adding a case, remember to check whether `default_case` also needs to include the new item.
 
 ## Maintenance Key Points
 
 | Phenomenon | Priority Check |
 | ---------------------------------------- | -------------------------------------------------------------------------------- |
-| Target item not recognized | The tier's `item_ids` (node after the Go override) and the `IconRecognition` ROI |
+| Target item not recognized | The tier item node's `attach` (`IconRecognition.item_ids.*`) and the `IconRecognition` ROI |
 | Affordable but not purchasing | The tier's reserve threshold / unconditional purchase switch |
 | Unaffordable but not replenishing credit | The tier's AutoGetCredits switch; the unaffordable side's discount and price color thresholds |
 | Abnormal refresh behavior | `CreditShoppingForce`; prudent refresh threshold |
 | Inconsistent behavior between options | `CreditShopping.json`'s `pipeline_override` and scan `next` order |
 
-Maintenance location is done in four layers: Entry (`GoToShop.json`) → Scan Decision (`Flow/`) → Recognition Chain (`Item/` + `ShelfChecks.json`) → Parameter Assembly (task options + Go).
+Maintenance location is done in four layers: Entry (`GoToShop.json`) → Scan Decision (`Flow/`) → Recognition Chain (`Item/` + `ShelfChecks.json`) → Parameter Assembly (task options `attach`).

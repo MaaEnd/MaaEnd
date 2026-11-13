@@ -9,7 +9,8 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - 通过统一的录制连接层在 `Win32`、`ADB` 与 `Linux-Gamescope` 之间切换。
 - 录制地图路径并按区域切换浏览。
 - 导入已有 JSON/JSONC，递归搜索可识别的 `path` 数据并显示。
-- 在跨区域边界自动将前一区域的最后一个点和后一区域的第一个点标记为 `PORTAL`。
+- 在跨地图边界自动将前一张地图的最后一个点和后一张地图的第一个点标记为 `PORTAL`；同一张地图上的层与底图之间不标记。
+- 导出时 `ZONE` 写所在地图的底图区名，坐标在层上的点自动带上 `target_tier`。
 - GUI 动作编辑主要面向坐标点动作：`NAVMESH / RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER`。
 - `FIND` 是"只有识别框、没有坐标"的寻找语义点：地图上配置的是搜索锚点，`find_target` / `find_text` / `find_stop` / `find_arrive` 字段需在导出的 `path` 中手工维护，工具仅负责原样保留。
 - `TRIGGER` 放在路线末尾：边走边识别 `trigger_node`，命中就算导航成功；地图上的坐标是一直没命中时走到并等待的位置。`trigger_node` 同样在导出的 `path` 中手工维护。

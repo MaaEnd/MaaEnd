@@ -639,6 +639,7 @@ class MapNavigatorApp {
         {
           loadPoints: (points, options) => this._importLoadPoints(points, options),
           applyAssert: (zoneId, target) => this._importApplyAssert(zoneId, target),
+          mapZones: () => this.state.mapZones,
         },
       );
       this.importer.init();
@@ -699,6 +700,8 @@ class MapNavigatorApp {
       return;
     }
     this.field = new NavmeshField(payload && payload.zones ? payload.zones : []);
+    this.state.mapZones = this.field.mapZones();
+    this.state.reindex();
     this._populateDisplayZoneCombo();
     this._syncMapControls();
     this._refreshZoneLabel();
@@ -4961,7 +4964,7 @@ class MapNavigatorApp {
 
     try {
       // 默认模式把第一个作者点视作已抵达的起点；手动起点则保留全部作者点为目标。
-      const exported = await exportPath(plan.targets);
+      const exported = await exportPath(plan.targets, this.state.mapZones);
       const customActionParam = {path: exported.nodes || [], zip: this.els.chkEditZipline.checked};
       const result = await postRoutePreview({
         position: plan.position,
@@ -5968,7 +5971,7 @@ class MapNavigatorApp {
       return;
     }
     try {
-      const result = await exportPath(this.state.points);
+      const result = await exportPath(this.state.points, this.state.mapZones);
       if (this.els.chkEditZipline.checked) {
         const param = {path: result.nodes, zip: true};
         await this._copyText(JSON.stringify(param, null, 4));
@@ -6033,6 +6036,7 @@ class MapNavigatorApp {
     return {
       path: this.state.points,
       exported: false,
+      map_zones: this.state.mapZones,
       zip: this.els.chkEditZipline.checked,
       zipline_account_id: this.els.chkEditZipline.checked ? this.ziplineAccountId : "",
       heading_source: this.els.navtestHeadingSource.value,

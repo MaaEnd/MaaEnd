@@ -62,6 +62,25 @@ bool matches_expected_zone_selector(const std::string& expected_zone_selector, c
     return coarse.raw_class.starts_with(expected_zone_selector);
 }
 
+bool zone_accepted(const std::vector<std::string>& accepted_zone_ids, const std::string& zone_id)
+{
+    return std::ranges::find(accepted_zone_ids, zone_id) != accepted_zone_ids.end();
+}
+
+bool zone_expected(const std::string& expected_zone_id, const std::vector<std::string>& accepted_zone_ids, const std::string& zone_id)
+{
+    return expected_zone_id.empty() || zone_id == expected_zone_id || zone_accepted(accepted_zone_ids, zone_id);
+}
+
+// YOLO 认出的区域在接受范围内时，这一帧按它认出的区域找
+std::string expected_zone_for(const std::string& expected_zone, const std::vector<std::string>& accepted_zone_ids, const YoloCoarseResult& coarse)
+{
+    if (coarse.valid && zone_accepted(accepted_zone_ids, coarse.zone_id)) {
+        return coarse.zone_id;
+    }
+    return expected_zone;
+}
+
 std::string normalize_expected_zone_id(const std::string& expected_zone_selector, const YoloModel* predictor)
 {
     if (expected_zone_selector.empty() || predictor == nullptr) {
@@ -1072,6 +1091,7 @@ struct FrameSearchInput
     std::shared_ptr<FrameTemplateFeatures> template_features;
     std::string expected_zone_selector;
     std::string expected_zone_id;
+    std::vector<std::string> accepted_zone_ids;
     StrategyConfigs configs;
     SearchThreads threads = SearchThreads::All;
 };
@@ -1106,7 +1126,7 @@ std::optional<GlobalSearchCandidates>
         return std::nullopt;
     }
 
-    std::string targetZoneId = input.expected_zone_id;
+    std::string targetZoneId = expected_zone_for(input.expected_zone_id, input.accepted_zone_ids, coarse);
     if (targetZoneId.empty() && coarse.valid) {
         targetZoneId = coarse.zone_id;
     }
@@ -1114,7 +1134,8 @@ std::optional<GlobalSearchCandidates>
         return std::nullopt;
     }
 
-    const SearchConstraint constraint = build_search_constraint(*resources, input.expected_zone_selector, targetZoneId, coarse);
+    const std::string expectedZoneSelector = expected_zone_for(input.expected_zone_selector, input.accepted_zone_ids, coarse);
+    const SearchConstraint constraint = build_search_constraint(*resources, expectedZoneSelector, targetZoneId, coarse);
     if (coarse.valid && !coarse.is_none && !constraint.yolo_validated) {
         return std::nullopt;
     }
@@ -1251,6 +1272,7 @@ struct FrameContext
     TimePoint now {};
     std::string expected_zone_selector;
     std::string expected_zone_id;
+    std::vector<std::string> accepted_zone_ids;
     std::shared_ptr<FrameTemplateFeatures> template_features = std::make_shared<FrameTemplateFeatures>();
     std::optional<AsyncYoloHandle> same_frame_yolo;
     std::shared_ptr<FrameSearch> search;
@@ -1325,7 +1347,7 @@ bool should_search_before_tracking(const MapLocator& locator, const FrameContext
 {
     const int trackingLostLimit = IsPathHeatmapZone(locator.zone_id) ? 10 : frame.options.max_lost_frames;
     const bool trackerUnavailable = locator.zone_id.empty() || !IsTracking(locator.track, trackingLostLimit);
-    const bool expectedZoneMismatch = !frame.expected_zone_id.empty() && locator.zone_id != frame.expected_zone_id;
+    const bool expectedZoneMismatch = !zone_expected(frame.expected_zone_id, frame.accepted_zone_ids, locator.zone_id);
     return frame.options.force_global_search || trackerUnavailable || expectedZoneMismatch;
 }
 
@@ -1338,6 +1360,7 @@ void start_frame_search(MapLocator* locator, FrameContext* frame, SearchThreads 
         .template_features = frame->template_features,
         .expected_zone_selector = frame->expected_zone_selector,
         .expected_zone_id = frame->expected_zone_id,
+        .accepted_zone_ids = frame->accepted_zone_ids,
         .configs = current_strategy_configs(*locator),
         .threads = threads,
     };
@@ -1363,7 +1386,7 @@ TrackingLocate try_tracking_locate(MapLocator* locator, FrameContext* frame)
     if (locator->zone_id.empty()) {
         return out;
     }
-    if (!frame->expected_zone_id.empty() && locator->zone_id != frame->expected_zone_id) {
+    if (!zone_expected(frame->expected_zone_id, frame->accepted_zone_ids, locator->zone_id)) {
         return out;
     }
 
@@ -1573,12 +1596,12 @@ LocateResult accept_global_result(
 // 跟踪没给出结果时：按 YOLO 定区域、校验约束，再全局搜索并决定是否采用
 LocateResult locate_globally(MapLocator* locator, FrameContext* frame, const std::shared_future<double>& angle_future)
 {
-    std::string targetZoneId = frame->expected_zone_id;
     const YoloCoarseResult coarse = frame_coarse(locator, *frame);
     if (coarse.valid && coarse.is_none) {
         return drop_tracking_for_absent_minimap(locator);
     }
 
+    std::string targetZoneId = expected_zone_for(frame->expected_zone_id, frame->accepted_zone_ids, coarse);
     if (targetZoneId.empty() && coarse.valid) {
         targetZoneId = coarse.zone_id;
     }
@@ -1593,8 +1616,9 @@ LocateResult locate_globally(MapLocator* locator, FrameContext* frame, const std
         return hold_for_ui_occlusion(locator, frame->now);
     }
 
-    const SearchConstraint constraint = build_search_constraint(locator->resources, frame->expected_zone_selector, targetZoneId, coarse);
-    log_search_constraint(constraint, frame->expected_zone_selector, targetZoneId, coarse);
+    const std::string expectedZoneSelector = expected_zone_for(frame->expected_zone_selector, frame->accepted_zone_ids, coarse);
+    const SearchConstraint constraint = build_search_constraint(locator->resources, expectedZoneSelector, targetZoneId, coarse);
+    log_search_constraint(constraint, expectedZoneSelector, targetZoneId, coarse);
     if (coarse.valid && !coarse.is_none && !constraint.yolo_validated) {
         return LocateResult { .status = LocateStatus::YoloFailed,
                               .debug_message = "YOLO is confident but zone validation failed. Aborting before broad search." };
@@ -1643,6 +1667,7 @@ LocateResult
         .now = now,
         .expected_zone_selector = options.expected_zone_id,
         .expected_zone_id = normalize_expected_zone_id(options.expected_zone_id, locator->resources.yolo.get()),
+        .accepted_zone_ids = options.accepted_zone_ids,
     };
     const CancelFrameSearchOnExit cancelOnExit { &frame.search, &*locator->resources.executor };
 

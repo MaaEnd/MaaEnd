@@ -151,6 +151,7 @@ json::object build_zones(const navmesh::BaseNavPack& pack)
         json::object item {
             { "zone_id", zone.zone_id },
             { "name", zone.name },
+            { "map_zone", mapnavigator::BaseZoneName(pack, zone.name) },
             { "is_tier", navmesh::IsTierZone(zone) },
             { "geometry_zone_id", navmesh::GeometryZoneId(pack, zone.zone_id) },
             { "width", static_cast<double>(zone.width) },
@@ -383,7 +384,7 @@ json::object build_route(QueryContext* context, const QueryParam& param)
     if (!plan.ok) {
         return json::object {
             { "ok", false },
-            { "error", plan.error },
+            { "error", navmesh::ToString(plan.failure) },
             { "off_mesh",
               json::object {
                   { "start",
@@ -739,6 +740,7 @@ json::object build_route_preview(const QueryParam& query)
         return fail("route_preview 的 path 不能为空");
     }
     fill_preview_param(&param, query);
+    mapnavigator::FlattenWaypointZones(&param.path, param);
 
     const mapnavigator::NaviPosition position = preview_start_position(query, param);
 

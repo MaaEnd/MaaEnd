@@ -321,7 +321,7 @@
             "RestaurantShopScan"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.priority_storage_enabled"
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.priority_storage_enabled"
         }
     },
     "RestaurantShopPriorityStorageUnchecked": {
@@ -348,7 +348,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopScan"
+            "RestaurantShopPriorityStorageChecked"
         ],
         "on_error": [
             "FailedNode"

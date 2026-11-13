@@ -49,6 +49,8 @@ struct LocateOptions
     bool force_global_search = false; // 是否强制放弃当前追踪，进行全局全图搜
     int max_lost_frames = 3;          // 允许丢失追踪的帧数
     std::string expected_zone_id;     // 非空时仅接受该区域的定位结果
+    // 仅供 C++ 调用方控制；这些区域与 expected_zone_id 同样接受。
+    std::vector<std::string> accepted_zone_ids;
     std::vector<SearchHint> search_hints;
     // 镜头方位角先验（北为 0 度）；只在预期方向存在真实双峰候选时消歧。
     // 仅供 C++ 调用方控制，不暴露为 Recognition 参数：它必须是一次观测，取值只能是「上一次成功识别到的

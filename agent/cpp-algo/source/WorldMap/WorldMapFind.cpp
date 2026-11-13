@@ -4,6 +4,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstring>
+#include <mutex>
 #include <optional>
 #include <random>
 #include <string>
@@ -14,7 +15,9 @@
 #include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
-#include "WorldMapSolver.h"
+#include "WorldMapAssets.h"
+#include "WorldMapIcon.h"
+#include "WorldMapViewport.h"
 #include "utils.h"
 
 namespace worldmap
@@ -45,13 +48,10 @@ struct FindParam
 
     std::string icon;
     std::string state;
+    std::string tier;
     int max_attempts = 4;
 
-    // 整窗解不出来时用几乘几的分块投票再解一次。置 1 关掉这条回退路径：
-    // 单个点位要是被它坑了可以就地关掉，不必等下一版
-    int vote_grid = ViewportConfig {}.voteGrid;
-
-    MEO_JSONIZATION(zone, MEO_OPT at, MEO_OPT candidates, MEO_OPT icon, MEO_OPT state, MEO_OPT max_attempts, MEO_OPT vote_grid);
+    MEO_JSONIZATION(zone, MEO_OPT at, MEO_OPT candidates, MEO_OPT icon, MEO_OPT state, MEO_OPT tier, MEO_OPT max_attempts);
 };
 
 // 解析后的统一形态：单点写法归一成一个不带 next 的候选，往下只认这一种
@@ -112,7 +112,62 @@ constexpr double kNudgeRatio = 0.35;
 // 交给 pipeline 的 SceneMapZoomOutWithoutReco 处理，cpp 只触发一次子任务
 constexpr const char* kZoomOutNode = "SceneMapZoomOutWithoutReco";
 
-bool ParseParam(const char* raw, FindParam* out)
+// 一个候选的三种收场：认出来了、这次没认出来、不该再往下跑的硬错
+enum class Probe
+{
+    Hit,
+    Miss,
+    Fatal,
+};
+
+// Next 接着走本拍的下一步，Again 回到循环开头再来一拍
+enum class ProbeStep
+{
+    Next,
+    Again,
+    Hit,
+    Miss,
+    Fatal,
+};
+
+// 跨候选留着的画面状态。画面没动就不重截屏、不重解视口，拖动兑现率也接着上一次记账。
+// screen 是 buffer 那块裸数据的视图，两者必须同生共死
+struct MapView
+{
+    ScopedImageBuffer buffer;
+    cv::Mat screen;
+    std::optional<Viewport> viewport;
+    std::optional<Viewport> previous;
+    cv::Point2d issued { 0.0, 0.0 };
+    double gain = 1.0;
+    int stall_x = 0;
+    int stall_y = 0;
+};
+
+// 一次调用里所有候选共用的东西
+struct FindSession
+{
+    MaaController* controller = nullptr;
+    WorldMapAssets* assets = nullptr;
+    std::mt19937* rng = nullptr;
+    const FindParam* param = nullptr;
+    std::optional<IconSpec> spec;
+    const TierPatch* tier = nullptr;
+    MapView view;
+};
+
+struct TargetProbe
+{
+    Target target;
+    std::size_t index = 0;
+    int attempt = 0;
+    int pans = 0;
+    int nudges = 0;
+    json::object detail;
+    MaaRect box {};
+};
+
+bool parse_param(const char* raw, FindParam* out)
 {
     if (raw == nullptr || std::strlen(raw) == 0) {
         LogError << "WorldMap: empty custom_recognition_param";
@@ -171,7 +226,7 @@ bool ParseParam(const char* raw, FindParam* out)
 
 // 控制器自带的资源层要靠它选出来。句柄由调用方传进来：为了拿这一个字符串再去取一次控制器,
 // 会把上一个取回来的控制器就地析构掉, 长期持有它的人当场悬垂
-std::string ControllerType(MaaController* controller)
+std::string controller_type(MaaController* controller)
 {
     // 取不到就只剩基础资源层可用, 端上那层图会被静默跳过, 所以每条空路径都得留下痕迹
     ScopedStringBuffer buffer;
@@ -198,7 +253,7 @@ std::string ControllerType(MaaController* controller)
     return info->at("type").as_string();
 }
 
-bool CaptureScreen(MaaController* controller, ScopedImageBuffer* buffer, cv::Mat* out)
+bool capture_screen(MaaController* controller, ScopedImageBuffer* buffer, cv::Mat* out)
 {
     const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller);
     if (MaaControllerWait(controller, screencap_id) != MaaStatus_Succeeded) {
@@ -214,39 +269,38 @@ bool CaptureScreen(MaaController* controller, ScopedImageBuffer* buffer, cv::Mat
     return !out->empty();
 }
 
-void ZoomMapOut(MaaContext* context)
+void zoom_map_out(MaaContext* context)
 {
     if (MaaContextRunTask(context, kZoomOutNode, "{}") == MaaInvalidId) {
         LogWarn << "WorldMap: zoom-out subtask failed to dispatch" << VAR(kZoomOutNode);
     }
 }
 
-double RandomIn(double lo, double hi)
+double random_in(std::mt19937* rng, double lo, double hi)
 {
     if (!(hi > lo)) {
         return (lo + hi) / 2.0;
     }
-    static thread_local std::mt19937 rng(std::random_device {}());
-    return std::uniform_real_distribution<double>(lo, hi)(rng);
+    return std::uniform_real_distribution<double>(lo, hi)(*rng);
 }
 
 // 把 delta 钳到单次可拖的范围内，返回实际发出的位移。
 // 线段在安全区里的落位每次随机取：起手压在图标或连线上时触控会被那个控件吃掉，
 // 而钉死在正中心的话重试逐位重复同一条路径，吃掉一次就永远吃
-cv::Point2d DragMap(MaaController* controller, const cv::Rect& safe, const cv::Point2d& delta)
+cv::Point2d drag_map(MaaController* controller, std::mt19937* rng, const cv::Rect& safe, const cv::Point2d& delta)
 {
-    const double maxX = safe.width * kSwipeSpanRatio;
-    const double maxY = safe.height * kSwipeSpanRatio;
-    const double dx = std::clamp(delta.x, -maxX, maxX);
-    const double dy = std::clamp(delta.y, -maxY, maxY);
+    const double max_x = safe.width * kSwipeSpanRatio;
+    const double max_y = safe.height * kSwipeSpanRatio;
+    const double dx = std::clamp(delta.x, -max_x, max_x);
+    const double dy = std::clamp(delta.y, -max_y, max_y);
     if (std::hypot(dx, dy) < 1.0) {
         return { 0.0, 0.0 };
     }
 
     // 中点能落的范围＝安全区往里缩掉半个线段，这样两端都还在安全区内
     const cv::Point2d center(
-        RandomIn(safe.x + std::abs(dx) / 2.0, safe.x + safe.width - std::abs(dx) / 2.0),
-        RandomIn(safe.y + std::abs(dy) / 2.0, safe.y + safe.height - std::abs(dy) / 2.0));
+        random_in(rng, safe.x + std::abs(dx) / 2.0, safe.x + safe.width - std::abs(dx) / 2.0),
+        random_in(rng, safe.y + std::abs(dy) / 2.0, safe.y + safe.height - std::abs(dy) / 2.0));
     const cv::Point from(static_cast<int>(std::lround(center.x - dx / 2.0)), static_cast<int>(std::lround(center.y - dy / 2.0)));
     const cv::Point to(static_cast<int>(std::lround(center.x + dx / 2.0)), static_cast<int>(std::lround(center.y + dy / 2.0)));
 
@@ -262,7 +316,7 @@ cv::Point2d DragMap(MaaController* controller, const cv::Rect& safe, const cv::P
 
 // 只把出了可用区的那根轴挪回中心。另一根轴本来就在画面里，跟着动一下纯属白挪，
 // 还会把画面推到地图边界或没渲染的地方去
-cv::Point2d PanDelta(const cv::Rect& safe, const cv::Point2d& expected)
+cv::Point2d pan_delta(const cv::Rect& safe, const cv::Point2d& expected)
 {
     const cv::Point2d center(safe.x + safe.width / 2.0, safe.y + safe.height / 2.0);
     cv::Point2d need { 0.0, 0.0 };
@@ -276,7 +330,7 @@ cv::Point2d PanDelta(const cv::Rect& safe, const cv::Point2d& expected)
 }
 
 // 解不出来时先把上一拍拖过去的挪回一半——那边刚解出来过；没拖过就绕四个方向轮着试
-cv::Point2d NudgeDelta(const cv::Rect& safe, const cv::Point2d& last, int index)
+cv::Point2d nudge_delta(const cv::Rect& safe, const cv::Point2d& last, int index)
 {
     if (index == 0 && std::hypot(last.x, last.y) >= 1.0) {
         return { -last.x / 2.0, -last.y / 2.0 };
@@ -296,7 +350,7 @@ cv::Point2d NudgeDelta(const cv::Rect& safe, const cv::Point2d& last, int index)
     }
 }
 
-MaaRect PointBox(const cv::Point2d& point)
+MaaRect point_box(const cv::Point2d& point)
 {
     return MaaRect {
         .x = static_cast<int32_t>(std::lround(point.x)),
@@ -308,12 +362,12 @@ MaaRect PointBox(const cv::Point2d& point)
 
 // 交图标本体上的那一点，不交整个模板框：框架会在给它的框里随机取点落指，
 // 而定居点核心的图标只占模板框的一成多，交整框就是在图标旁边的地面上掷骰子
-MaaRect SpotBox(const SpotHit& hit)
+MaaRect spot_box(const SpotHit& hit)
 {
-    return PointBox(hit.hotspot);
+    return point_box(hit.hotspot);
 }
 
-void WriteDetail(MaaStringBuffer* out_detail, const json::object& payload)
+void write_detail(MaaStringBuffer* out_detail, const json::object& payload)
 {
     if (out_detail == nullptr) {
         return;
@@ -322,7 +376,7 @@ void WriteDetail(MaaStringBuffer* out_detail, const json::object& payload)
     MaaStringBufferSetEx(out_detail, text.c_str(), static_cast<MaaSize>(text.size()));
 }
 
-std::vector<Target> BuildTargets(const FindParam& param)
+std::vector<Target> build_targets(const FindParam& param)
 {
     if (param.candidates.empty()) {
         return { Target { cv::Point2d(param.at[0], param.at[1]), {} } };
@@ -336,8 +390,15 @@ std::vector<Target> BuildTargets(const FindParam& param)
     return targets;
 }
 
+void project_targets_to_base(std::vector<Target>* targets, const TierPatch& tier)
+{
+    for (Target& target : *targets) {
+        target.at = cv::Point2d(target.at.x * tier.scale.x + tier.offset.x, target.at.y * tier.scale.y + tier.offset.y);
+    }
+}
+
 // 把命中项交回框架当 next，顶掉节点自己写的那份
-bool HandBackNext(MaaContext* context, const char* node_name, const std::string& next)
+bool hand_back_next(MaaContext* context, const char* node_name, const std::string& next)
 {
     ScopedStringBuffer item;
     ScopedStringListBuffer list;
@@ -351,8 +412,11 @@ bool HandBackNext(MaaContext* context, const char* node_name, const std::string&
 // 候选归它的 next 节点管开关：那个节点被 enabled:false 关掉，这个候选就整个跳过。
 // 认了再交回一个不会跑的节点是不行的——命中即停，那样排在后面的候选一并被废掉。
 // 读不出来一律当开着：这一步是替使用者省事的，不该反过来把候选判没
-bool CandidateEnabled(MaaContext* context, const std::string& node_name)
+bool candidate_enabled(MaaContext* context, const std::string& node_name)
 {
+    if (node_name.empty()) {
+        return true;
+    }
     ScopedStringBuffer buffer;
     if (buffer.Get() == nullptr || !MaaContextGetNodeData(context, node_name.c_str(), buffer.Get())) {
         return true;
@@ -369,229 +433,321 @@ bool CandidateEnabled(MaaContext* context, const std::string& node_name)
     return data->get("enabled", true);
 }
 
-// 一个候选的三种收场：认出来了、这次没认出来、不该再往下跑的硬错
-enum class Probe
+std::optional<IconSpec> load_icon_spec(WorldMapAssets* assets, const std::string& name)
 {
-    Hit,
-    Miss,
-    Fatal,
-};
+    std::lock_guard guard(assets->mutex);
+    return LoadIconSpec(assets, name);
+}
 
-// 跨候选留着的画面状态。画面没动就不重截屏、不重解视口，拖动兑现率也接着上一次记账。
-// screen 是 buffer 那块裸数据的视图，两者必须同生共死
-struct MapView
+const TierPatch* load_named_tier(WorldMapAssets* assets, const std::string& zone, const std::string& tier)
 {
-    ScopedImageBuffer buffer;
-    cv::Mat screen;
-    std::optional<Viewport> viewport;
-    std::optional<Viewport> previous;
-    cv::Point2d issued { 0.0, 0.0 };
-    double gain = 1.0;
-    int stallX = 0;
-    int stallY = 0;
-};
+    std::lock_guard guard(assets->mutex);
+    const cv::Mat* base = LoadZoneBase(assets, zone);
+    if (base == nullptr) {
+        return nullptr;
+    }
+    const std::vector<TierPatch>& tiers = LoadZoneTiers(assets, zone, *base);
+    const auto it = std::ranges::find(tiers, tier, &TierPatch::name);
+    if (it == tiers.end()) {
+        LogError << "WorldMap: no such tier in the zone" << VAR(zone) << VAR(tier);
+        return nullptr;
+    }
+    return &*it;
+}
 
-// 一次调用里所有候选共用的东西
-struct FindSession
+std::optional<Viewport>
+    solve_on_tiers(WorldMapAssets* assets, const cv::Mat& screen, const std::string& zone, const ViewportConfig& cfg, const cv::Point2d& at)
 {
-    MaaController* controller = nullptr;
-    WorldMapSolver* solver = nullptr;
-    ViewportConfig viewportCfg {};
-    const FindParam* param = nullptr;
-    std::optional<IconSpec> spec;
-    MapView view;
-};
+    std::lock_guard guard(assets->mutex);
+    const cv::Mat* base = LoadZoneBase(assets, zone);
+    if (base == nullptr) {
+        return std::nullopt;
+    }
+    return SolveViewportOnTiers(LoadZoneTiers(assets, zone, *base), screen, zone, cfg, at);
+}
 
-// 把一个候选认到底。重试、平移、放弃都只影响这一个候选，画面与视口留给下一个接着用
-Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index, MaaRect* out_box, MaaStringBuffer* out_detail)
+std::optional<Viewport> solve_on_base(WorldMapAssets* assets, const cv::Mat& screen, const std::string& zone, const ViewportConfig& cfg)
 {
-    const FindParam& param = *session.param;
-    MapView& view = session.view;
-    const bool wantUnlocked = param.state != "locked";
-
-    int attempt = 0;
-    int pans = 0;
-    int nudges = 0;
-
-    while (attempt < param.max_attempts) {
-        if (view.screen.empty()) {
-            if (!CaptureScreen(session.controller, &view.buffer, &view.screen)) {
-                ++attempt;
-                std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
-                continue;
-            }
-            // 换了画面，上一次解出来的视口跟着作废
-            view.viewport.reset();
-        }
-
-        const cv::Rect safe = WorldMapSolver::SafeArea(view.screen.size(), kIconArea, kIconMargin);
-        if (safe.empty()) {
-            LogError << "WorldMap: safe area degenerated" << VAR(view.screen.cols) << VAR(view.screen.rows);
-            return Probe::Fatal;
-        }
-
-        if (!view.viewport) {
-            // 拖动只挪地图，缩放进图时压到底就不再动，上一趟解出来的尺度照旧成立。
-            // 钉住它只搜位置，整条尺度阶梯都省了；缩放真被动过则这一趟解不出来，下一趟按整条阶梯解
-            if (view.previous) {
-                ViewportConfig pinned = session.viewportCfg;
-                pinned.scaleHint = view.previous->scale;
-                view.viewport = session.solver->SolveViewport(view.screen, param.zone, pinned);
-                if (!view.viewport) {
-                    LogInfo << "WorldMap: pinned scale rejected, rescanning full ladder" << VAR(view.previous->scale);
-                }
-            }
-            if (!view.viewport) {
-                view.viewport = session.solver->SolveViewport(view.screen, param.zone, session.viewportCfg);
-            }
-            if (!view.viewport) {
-                view.previous.reset();
-                view.screen.release();
-                if (nudges >= kMaxNudges) {
-                    ++attempt;
-                    LogWarn << "WorldMap: viewport still unsolved after nudging the map" << VAR(attempt) << VAR(nudges);
-                    std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
-                    continue;
-                }
-                LogInfo << "WorldMap: viewport unsolved, nudging the map" << VAR(nudges);
-                const cv::Point2d moved = DragMap(session.controller, safe, NudgeDelta(safe, view.issued, nudges));
-                ++nudges;
-                view.issued = moved;
-                if (std::hypot(moved.x, moved.y) < 1.0) {
-                    ++attempt;
-                }
-                continue;
-            }
-            // 上一拍发出的位移兑现了多少：不动的那根轴是顶到了地图边界，兑现不足的比例现补回去
-            if (view.previous && std::abs(view.previous->scale - view.viewport->scale) < 1e-6
-                && std::hypot(view.issued.x, view.issued.y) >= 1.0) {
-                const cv::Point2d moved(
-                    (view.previous->baseOrigin.x - view.viewport->baseOrigin.x) / view.viewport->scale,
-                    (view.previous->baseOrigin.y - view.viewport->baseOrigin.y) / view.viewport->scale);
-                view.stallX = std::abs(view.issued.x) >= kPinCommand && std::abs(moved.x) < kPinMoved ? view.stallX + 1 : 0;
-                view.stallY = std::abs(view.issued.y) >= kPinCommand && std::abs(moved.y) < kPinMoved ? view.stallY + 1 : 0;
-
-                const double want = std::hypot(view.issued.x, view.issued.y);
-                const double got = std::hypot(moved.x, moved.y);
-                if (want >= kGainMinSpan && got >= want * kGainMinRatio) {
-                    view.gain = std::clamp(want / got, 1.0, kGainMax);
-                }
-                LogInfo << "WorldMap: drag delivered" << VAR(view.issued.x) << VAR(view.issued.y) << VAR(moved.x) << VAR(moved.y)
-                        << VAR(view.gain) << VAR(view.stallX) << VAR(view.stallY);
-            }
-            view.previous = view.viewport;
-            view.issued = { 0.0, 0.0 };
-        }
-
-        const Viewport& viewport = *view.viewport;
-        const cv::Point2d expected = viewport.toScreen(target.at);
-        const cv::Point2d need = PanDelta(safe, expected);
-        if (std::hypot(need.x, need.y) >= 1.0) {
-            // 换了几条路径还是纹丝不动，才认这根轴真到边了；只零一拍多半是触控被压在起手点上的控件吃了
-            const bool pinnedX = view.stallX >= kPinStreak;
-            const bool pinnedY = view.stallY >= kPinStreak;
-            const bool stuck = (std::abs(need.x) < 1.0 || pinnedX) && (std::abs(need.y) < 1.0 || pinnedY);
-            if (pans >= kMaxPans || stuck) {
-                // 挪不动了也别空手回去。出了安全区不等于出了能点的地方——那圈边距是留给识别的余量，
-                // 目标只要还落在可用区里就照常认、照常点
-                const cv::Rect usable = WorldMapSolver::SafeArea(view.screen.size(), kIconArea, 0);
-                const cv::Point at(static_cast<int>(std::lround(expected.x)), static_cast<int>(std::lround(expected.y)));
-                if (!usable.contains(at)) {
-                    LogWarn << "WorldMap: the map will not pan any further and the target is out of reach" << VAR(param.zone) << VAR(index)
-                            << VAR(pans) << VAR(expected.x) << VAR(expected.y) << VAR(view.stallX) << VAR(view.stallY);
-                    return Probe::Miss;
-                }
-                LogWarn << "WorldMap: the map will not pan any further, taking the target where it stands" << VAR(param.zone) << VAR(pans)
-                        << VAR(expected.x) << VAR(expected.y) << VAR(view.stallX) << VAR(view.stallY);
-            }
-            else {
-                ++pans;
-                LogInfo << "WorldMap: target outside safe area, panning" << VAR(expected.x) << VAR(expected.y) << VAR(need.x) << VAR(need.y)
-                        << VAR(view.gain);
-                view.screen.release();
-                view.issued = DragMap(session.controller, safe, need * view.gain);
-                if (std::hypot(view.issued.x, view.issued.y) < 1.0) {
-                    LogWarn << "WorldMap: target outside safe area but pan distance is degenerate" << VAR(index);
-                    return Probe::Miss;
-                }
-                continue;
-            }
-        }
-
-        ++attempt;
-
-        json::object detail {
-            { "zone", param.zone },
-            { "index", static_cast<int>(index) },
-            { "at", json::array { target.at.x, target.at.y } },
-            { "screen", json::array { expected.x, expected.y } },
-            { "viewport_scale", viewport.scale },
-            { "viewport_vote", viewport.voteGrid },
-            { "viewport_fog", viewport.fogRatio },
-        };
-        if (!target.next.empty()) {
-            detail.emplace("next", target.next);
-        }
-
-        // 图标名没给就只把坐标解出来，认不认得出图标由调用方自己接着判
-        if (!session.spec) {
-            WriteDetail(out_detail, detail);
-            if (out_box != nullptr) {
-                *out_box = PointBox(expected);
-            }
-            LogInfo << "WorldMap: located" << VAR(param.zone) << VAR(expected.x) << VAR(expected.y);
-            return Probe::Hit;
-        }
-
-        const auto icon = session.solver->ConfirmSpot(view.screen, expected, viewport.scale, session.spec->spot);
-        if (icon && icon->unlocked != wantUnlocked) {
-            // 解锁与否是规则不是识别失败，重试多少次都一样，立刻收场
-            LogWarn << "WorldMap: the icon is here but not in the requested state" << VAR(param.zone) << VAR(param.icon)
-                    << VAR(icon->unlocked) << VAR(wantUnlocked) << VAR(icon->goldRatio);
-            return Probe::Miss;
-        }
-        if (icon) {
-            detail.emplace("icon", param.icon);
-            detail.emplace("template", icon->templateName);
-            detail.emplace("score", icon->score);
-            detail.emplace("unlocked", icon->unlocked);
-            detail.emplace("click", json::array { icon->hotspot.x, icon->hotspot.y });
-            WriteDetail(out_detail, detail);
-            if (out_box != nullptr) {
-                *out_box = SpotBox(*icon);
-            }
-            return Probe::Hit;
-        }
-
-        // 角色标记画在图标之上，它落在期望位置就是图标认不出来的原因：人已经站在这了。
-        // 认不出图标的其他原因不会命中这一支
-        if (session.spec->occludedByPlayer && wantUnlocked) {
-            PlayerMarkerConfig markerCfg {};
-            if (session.spec->spot.radiusBase > 0.0) {
-                // 图标浮动多远，压在它上面的角色标记就离目标多远，窗口得跟着放到浮动区那么宽
-                markerCfg.searchRadius = static_cast<int>(std::lround(session.spec->spot.radiusBase / viewport.scale));
-            }
-            const auto marker = WorldMapSolver::DetectPlayerMarker(view.screen, expected, markerCfg);
-            if (marker) {
-                // 图标被标记盖住认不出，但标记落在这里就佐证了视口没解错，可以照期望位置交坐标
-                LogInfo << "WorldMap: player marker covers the icon, taking the expected position" << VAR(param.zone)
-                        << VAR(marker->center.x) << VAR(marker->center.y) << VAR(marker->area) << VAR(marker->solidity);
-                detail.emplace("icon", param.icon);
-                detail.emplace("player_marker", true);
-                WriteDetail(out_detail, detail);
-                if (out_box != nullptr) {
-                    *out_box = PointBox(expected);
-                }
-                return Probe::Hit;
-            }
-        }
-
-        LogWarn << "WorldMap: icon not confirmed at expected position" << VAR(attempt) << VAR(index) << VAR(expected.x) << VAR(expected.y)
-                << VAR(viewport.voteGrid) << VAR(viewport.fogRatio);
-        view.screen.release();
-        std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
+    if (screen.empty()) {
+        LogError << "WorldMap: empty screen image";
+        return std::nullopt;
     }
 
+    std::lock_guard guard(assets->mutex);
+    const cv::Mat* base = LoadZoneBase(assets, zone);
+    if (base == nullptr) {
+        return std::nullopt;
+    }
+    return SolveViewport(*base, screen, zone, cfg);
+}
+
+std::optional<Viewport> solve_for_target(FindSession* session, const ViewportConfig& cfg, const cv::Point2d& at)
+{
+    const std::string& zone = session->param->zone;
+    if (session->tier != nullptr) {
+        return SolveViewportOnTier(*session->tier, session->view.screen, zone, cfg);
+    }
+    std::optional<Viewport> viewport = solve_on_tiers(session->assets, session->view.screen, zone, cfg, at);
+    if (viewport) {
+        return viewport;
+    }
+    return solve_on_base(session->assets, session->view.screen, zone, cfg);
+}
+
+// 拖动只挪地图，缩放进图时压到底就不再动，上一趟解出来的尺度照旧成立。
+// 钉住它只搜位置，整条尺度阶梯都省了；缩放真被动过则这一趟解不出来，下一趟按整条阶梯解
+std::optional<Viewport> solve_view(FindSession* session, const Target& target)
+{
+    const MapView& view = session->view;
+    if (view.previous) {
+        const ViewportConfig pinned { .scale_hint = view.previous->scale };
+        std::optional<Viewport> viewport = solve_for_target(session, pinned, target.at);
+        if (viewport) {
+            return viewport;
+        }
+        LogInfo << "WorldMap: pinned scale rejected, rescanning full ladder" << VAR(view.previous->scale);
+    }
+    return solve_for_target(session, ViewportConfig {}, target.at);
+}
+
+ProbeStep capture_if_released(FindSession* session, TargetProbe* probe)
+{
+    MapView& view = session->view;
+    if (!view.screen.empty()) {
+        return ProbeStep::Next;
+    }
+    if (!capture_screen(session->controller, &view.buffer, &view.screen)) {
+        ++probe->attempt;
+        std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
+        return ProbeStep::Again;
+    }
+    // 换了画面，上一次解出来的视口跟着作废
+    view.viewport.reset();
+    return ProbeStep::Next;
+}
+
+ProbeStep nudge_or_retry(FindSession* session, TargetProbe* probe, const cv::Rect& safe)
+{
+    if (probe->nudges >= kMaxNudges) {
+        ++probe->attempt;
+        LogWarn << "WorldMap: viewport still unsolved after nudging the map" << VAR(probe->attempt) << VAR(probe->nudges);
+        std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
+        return ProbeStep::Again;
+    }
+    LogInfo << "WorldMap: viewport unsolved, nudging the map" << VAR(probe->nudges);
+    const cv::Point2d moved = drag_map(session->controller, session->rng, safe, nudge_delta(safe, session->view.issued, probe->nudges));
+    ++probe->nudges;
+    session->view.issued = moved;
+    if (std::hypot(moved.x, moved.y) < 1.0) {
+        ++probe->attempt;
+    }
+    return ProbeStep::Again;
+}
+
+// 上一拍发出的位移兑现了多少：不动的那根轴是顶到了地图边界，兑现不足的比例现补回去
+void record_drag_delivered(MapView* view)
+{
+    if (view->previous && std::abs(view->previous->scale - view->viewport->scale) < 1e-6
+        && std::hypot(view->issued.x, view->issued.y) >= 1.0) {
+        const cv::Point2d moved(
+            (view->previous->base_origin.x - view->viewport->base_origin.x) / view->viewport->scale,
+            (view->previous->base_origin.y - view->viewport->base_origin.y) / view->viewport->scale);
+        view->stall_x = std::abs(view->issued.x) >= kPinCommand && std::abs(moved.x) < kPinMoved ? view->stall_x + 1 : 0;
+        view->stall_y = std::abs(view->issued.y) >= kPinCommand && std::abs(moved.y) < kPinMoved ? view->stall_y + 1 : 0;
+
+        const double want = std::hypot(view->issued.x, view->issued.y);
+        const double got = std::hypot(moved.x, moved.y);
+        if (want >= kGainMinSpan && got >= want * kGainMinRatio) {
+            view->gain = std::clamp(want / got, 1.0, kGainMax);
+        }
+        LogInfo << "WorldMap: drag delivered" << VAR(view->issued.x) << VAR(view->issued.y) << VAR(moved.x) << VAR(moved.y)
+                << VAR(view->gain) << VAR(view->stall_x) << VAR(view->stall_y);
+    }
+}
+
+// 挪不动了也别空手回去。出了安全区不等于出了能点的地方——那圈边距是留给识别的余量，
+// 目标只要还落在可用区里就照常认、照常点
+bool reachable_in_place(const FindSession& session, const TargetProbe& probe, const cv::Point2d& expected)
+{
+    const FindParam& param = *session.param;
+    const MapView& view = session.view;
+    const cv::Rect usable = SafeArea(view.screen.size(), kIconArea, 0);
+    const cv::Point at(static_cast<int>(std::lround(expected.x)), static_cast<int>(std::lround(expected.y)));
+    if (!usable.contains(at)) {
+        LogWarn << "WorldMap: the map will not pan any further and the target is out of reach" << VAR(param.zone) << VAR(probe.index)
+                << VAR(probe.pans) << VAR(expected.x) << VAR(expected.y) << VAR(view.stall_x) << VAR(view.stall_y);
+        return false;
+    }
+    LogWarn << "WorldMap: the map will not pan any further, taking the target where it stands" << VAR(param.zone) << VAR(probe.pans)
+            << VAR(expected.x) << VAR(expected.y) << VAR(view.stall_x) << VAR(view.stall_y);
+    return true;
+}
+
+ProbeStep pan_toward(FindSession* session, TargetProbe* probe, const cv::Rect& safe, const cv::Point2d& expected)
+{
+    MapView& view = session->view;
+    const cv::Point2d need = pan_delta(safe, expected);
+    if (std::hypot(need.x, need.y) < 1.0) {
+        return ProbeStep::Next;
+    }
+
+    // 换了几条路径还是纹丝不动，才认这根轴真到边了；只零一拍多半是触控被压在起手点上的控件吃了
+    const bool pinned_x = view.stall_x >= kPinStreak;
+    const bool pinned_y = view.stall_y >= kPinStreak;
+    const bool stuck = (std::abs(need.x) < 1.0 || pinned_x) && (std::abs(need.y) < 1.0 || pinned_y);
+    if (probe->pans >= kMaxPans || stuck) {
+        return reachable_in_place(*session, *probe, expected) ? ProbeStep::Next : ProbeStep::Miss;
+    }
+
+    ++probe->pans;
+    LogInfo << "WorldMap: target outside safe area, panning" << VAR(expected.x) << VAR(expected.y) << VAR(need.x) << VAR(need.y)
+            << VAR(view.gain);
+    view.screen.release();
+    view.issued = drag_map(session->controller, session->rng, safe, need * view.gain);
+    if (std::hypot(view.issued.x, view.issued.y) < 1.0) {
+        LogWarn << "WorldMap: target outside safe area but pan distance is degenerate" << VAR(probe->index);
+        return ProbeStep::Miss;
+    }
+    return ProbeStep::Again;
+}
+
+json::object probe_detail(const FindParam& param, const TargetProbe& probe, const cv::Point2d& expected, const Viewport& viewport)
+{
+    json::object detail {
+        { "zone", param.zone },
+        { "index", static_cast<int>(probe.index) },
+        { "at", json::array { probe.target.at.x, probe.target.at.y } },
+        { "screen", json::array { expected.x, expected.y } },
+        { "viewport_scale", viewport.scale },
+        { "viewport_tier", viewport.tier },
+    };
+    if (!probe.target.next.empty()) {
+        detail.emplace("next", probe.target.next);
+    }
+    return detail;
+}
+
+std::optional<PlayerMarkerHit>
+    marker_over_target(const IconSpec& spec, const cv::Mat& screen, const cv::Point2d& expected, double viewport_scale)
+{
+    PlayerMarkerConfig marker_cfg {};
+    if (spec.spot.radius_base > 0.0) {
+        // 图标浮动多远，压在它上面的角色标记就离目标多远，窗口得跟着放到浮动区那么宽
+        marker_cfg.search_radius = static_cast<int>(std::lround(spec.spot.radius_base / viewport_scale));
+    }
+    return DetectPlayerMarker(screen, expected, marker_cfg);
+}
+
+ProbeStep record_hit(TargetProbe* probe, const json::object& detail, const MaaRect& box)
+{
+    probe->detail = detail;
+    probe->box = box;
+    return ProbeStep::Hit;
+}
+
+ProbeStep confirm_target(FindSession* session, TargetProbe* probe, const cv::Point2d& expected)
+{
+    const FindParam& param = *session->param;
+    MapView& view = session->view;
+    const Viewport& viewport = *view.viewport;
+    const bool want_unlocked = param.state != "locked";
+
+    ++probe->attempt;
+    json::object detail = probe_detail(param, *probe, expected, viewport);
+
+    // 图标名没给就只把坐标解出来，认不认得出图标由调用方自己接着判
+    if (!session->spec) {
+        LogInfo << "WorldMap: located" << VAR(param.zone) << VAR(expected.x) << VAR(expected.y);
+        return record_hit(probe, detail, point_box(expected));
+    }
+
+    const auto icon = ConfirmSpot(session->assets, view.screen, expected, viewport.scale, session->spec->spot);
+    if (icon && icon->unlocked != want_unlocked) {
+        // 解锁与否是规则不是识别失败，重试多少次都一样，立刻收场
+        LogWarn << "WorldMap: the icon is here but not in the requested state" << VAR(param.zone) << VAR(param.icon) << VAR(icon->unlocked)
+                << VAR(want_unlocked) << VAR(icon->gold_ratio);
+        return ProbeStep::Miss;
+    }
+    if (icon) {
+        detail.emplace("icon", param.icon);
+        detail.emplace("template", icon->template_name);
+        detail.emplace("score", icon->score);
+        detail.emplace("unlocked", icon->unlocked);
+        detail.emplace("click", json::array { icon->hotspot.x, icon->hotspot.y });
+        return record_hit(probe, detail, spot_box(*icon));
+    }
+
+    // 角色标记画在图标之上，它落在期望位置就是图标认不出来的原因：人已经站在这了。
+    // 认不出图标的其他原因不会命中这一支
+    if (session->spec->occluded_by_player && want_unlocked) {
+        const auto marker = marker_over_target(*session->spec, view.screen, expected, viewport.scale);
+        if (marker) {
+            // 图标被标记盖住认不出，但标记落在这里就佐证了视口没解错，可以照期望位置交坐标
+            LogInfo << "WorldMap: player marker covers the icon, taking the expected position" << VAR(param.zone) << VAR(marker->center.x)
+                    << VAR(marker->center.y) << VAR(marker->area) << VAR(marker->solidity);
+            detail.emplace("icon", param.icon);
+            detail.emplace("player_marker", true);
+            return record_hit(probe, detail, point_box(expected));
+        }
+    }
+
+    LogWarn << "WorldMap: icon not confirmed at expected position" << VAR(probe->attempt) << VAR(probe->index) << VAR(expected.x)
+            << VAR(expected.y) << VAR(viewport.tier);
+    view.screen.release();
+    std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
+    return ProbeStep::Again;
+}
+
+ProbeStep probe_once(FindSession* session, TargetProbe* probe)
+{
+    MapView& view = session->view;
+    const ProbeStep captured = capture_if_released(session, probe);
+    if (captured != ProbeStep::Next) {
+        return captured;
+    }
+
+    const cv::Rect safe = SafeArea(view.screen.size(), kIconArea, kIconMargin);
+    if (safe.empty()) {
+        LogError << "WorldMap: safe area degenerated" << VAR(view.screen.cols) << VAR(view.screen.rows);
+        return ProbeStep::Fatal;
+    }
+
+    if (!view.viewport) {
+        view.viewport = solve_view(session, probe->target);
+        if (!view.viewport) {
+            view.previous.reset();
+            view.screen.release();
+            return nudge_or_retry(session, probe, safe);
+        }
+        record_drag_delivered(&view);
+        view.previous = view.viewport;
+        view.issued = { 0.0, 0.0 };
+    }
+
+    const cv::Point2d expected = ViewportToScreen(*view.viewport, probe->target.at);
+    const ProbeStep panned = pan_toward(session, probe, safe, expected);
+    if (panned != ProbeStep::Next) {
+        return panned;
+    }
+    return confirm_target(session, probe, expected);
+}
+
+// 把一个候选认到底。重试、平移、放弃都只影响这一个候选，画面与视口留给下一个接着用
+Probe probe_target(FindSession* session, TargetProbe* probe)
+{
+    while (probe->attempt < session->param->max_attempts) {
+        switch (probe_once(session, probe)) {
+        case ProbeStep::Next:
+        case ProbeStep::Again:
+            break;
+        case ProbeStep::Hit:
+            return Probe::Hit;
+        case ProbeStep::Miss:
+            return Probe::Miss;
+        case ProbeStep::Fatal:
+            return Probe::Fatal;
+        }
+    }
     return Probe::Miss;
 }
 
@@ -615,7 +771,7 @@ MaaBool MAA_CALL MapFindRun(
     }
 
     FindParam param;
-    if (!ParseParam(custom_recognition_param, &param)) {
+    if (!parse_param(custom_recognition_param, &param)) {
         return false;
     }
 
@@ -625,54 +781,71 @@ MaaBool MAA_CALL MapFindRun(
         return false;
     }
 
-    WorldMapSolver& solver = GetSolver(ControllerType(controller));
-    ViewportConfig viewportCfg {};
-    viewportCfg.voteGrid = param.vote_grid;
+    WorldMapAssets* assets = SharedAssets(controller_type(controller));
 
     // 图标名给了就必须在表里查得到：查不到照样跑下去等于把认图标这一步悄悄跳过
     std::optional<IconSpec> spec;
     if (!param.icon.empty()) {
-        spec = solver.ResolveIcon(param.icon);
+        spec = load_icon_spec(assets, param.icon);
         if (!spec) {
             return false;
         }
     }
 
-    if (!param.state.empty() && spec && spec->spot.minGoldRatio <= 0.0) {
+    if (!param.state.empty() && spec && spec->spot.min_gold_ratio <= 0.0) {
         LogError << "WorldMap: this icon has no unlock threshold, 'state' cannot be judged" << VAR(param.icon) << VAR(param.state);
         return false;
     }
 
-    const std::vector<Target> targets = BuildTargets(param);
-    LogInfo << "WorldMap: find" << VAR(param.zone) << VAR(targets.size()) << VAR(param.icon) << VAR(param.state) << VAR(param.max_attempts);
+    const TierPatch* tier = nullptr;
+    if (!param.tier.empty()) {
+        tier = load_named_tier(assets, param.zone, param.tier);
+        if (tier == nullptr) {
+            return false;
+        }
+    }
 
-    ZoomMapOut(context);
+    std::vector<Target> targets = build_targets(param);
+    if (tier != nullptr) {
+        project_targets_to_base(&targets, *tier);
+    }
+    LogInfo << "WorldMap: find" << VAR(param.zone) << VAR(targets.size()) << VAR(param.icon) << VAR(param.state) << VAR(param.tier)
+            << VAR(param.max_attempts);
 
-    FindSession session;
-    session.controller = controller;
-    session.solver = &solver;
-    session.viewportCfg = viewportCfg;
-    session.param = &param;
-    session.spec = spec;
+    zoom_map_out(context);
+
+    static thread_local std::mt19937 rng(std::random_device {}());
+    FindSession session { .controller = controller, .assets = assets, .rng = &rng, .param = &param, .spec = spec, .tier = tier };
 
     // 一组候选共用这一次缩放，也共用它留下的画面：缩放那几趟自己会截屏，框架给进来的那一帧已过期。
     // 认下来一个就收场，剩下的候选连地图都不用再挪
     for (std::size_t index = 0; index < targets.size(); ++index) {
         const Target& target = targets[index];
-        if (!target.next.empty() && !CandidateEnabled(context, target.next)) {
+        if (!candidate_enabled(context, target.next)) {
             LogInfo << "WorldMap: candidate turned off, skipping it" << VAR(index) << VAR(target.next);
             continue;
         }
-        const Probe probe = ProbeTarget(session, target, index, out_box, out_detail);
-        if (probe == Probe::Fatal) {
+
+        TargetProbe probe { .target = target, .index = index };
+        switch (probe_target(&session, &probe)) {
+        case Probe::Fatal:
             return false;
-        }
-        if (probe == Probe::Miss) {
+        case Probe::Miss:
             continue;
+        case Probe::Hit:
+            break;
+        }
+
+        write_detail(out_detail, probe.detail);
+        if (out_box != nullptr) {
+            *out_box = probe.box;
+        }
+        if (target.next.empty()) {
+            return true;
         }
         // 交不回去就不算认出来。命中即停，后面的候选已经没机会了，此时报成功等于让
         // 上层拿着这个位置去走节点自己那份 next——点的是这个候选，走的是别处
-        if (!target.next.empty() && !HandBackNext(context, node_name, target.next)) {
+        if (!hand_back_next(context, node_name, target.next)) {
             LogError << "WorldMap: failed to hand the hit back to the pipeline" << VAR(target.next);
             return false;
         }

@@ -73,6 +73,7 @@ bool apply_overlay_to_anchor(
             .start_deck_y = LandedTowerDeckY(*nav->session, *nav->position),
             .goal = goal,
             .goal_deck_y = anchor.target_deck_y,
+            .zone_floor_y = nav->position->zone_floor_y,
         },
         nullptr,
         &nav->runtime_state.virtual_no_go,
@@ -132,7 +133,7 @@ double fit_no_go_outside(const NaviPosition& position, const NaviPosition& origi
 // 判成够不着就丢链改走路, 返回 true 表示这一拍已处理完
 bool give_up_unreachable_zipline(Navigator* nav, const char* reason)
 {
-    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(*nav->param, *nav->session, *nav->position);
+    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(*nav->session, *nav->position);
     if (!anchor || anchor->second.action != ActionType::ZIPLINE) {
         return false;
     }
@@ -261,7 +262,7 @@ bool TryApplyDynamicOverlayToAnchor(Navigator* nav, const char* reason, size_t c
 
 bool TryApplyDynamicOverlayToNextAnchor(Navigator* nav, const char* reason)
 {
-    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(*nav->param, *nav->session, *nav->position);
+    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(*nav->session, *nav->position);
     if (!anchor) {
         ClearDynamicReplanRequest(&nav->runtime_state);
         LogInfo << "Dynamic navmesh overlay skipped: no future anchor." << VAR(reason) << VAR(nav->position->x) << VAR(nav->position->y)
