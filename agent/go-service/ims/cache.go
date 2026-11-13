@@ -81,6 +81,23 @@ func (c *cache) applyDelta(item string, delta int) (before, after int, clamped b
 	return before, after, clamped, items, c.lastSync, c.hasData
 }
 
+// setAbsolute overwrites item quantity with an absolute value, clamped to >= 0.
+// Memory only: A4 is a volatile register, so it never persists IMS.json and never
+// changes hasData / lastSync (only A2 marks a real sync).
+func (c *cache) setAbsolute(item string, value int) (before, after int, clamped bool, hasData bool, lastSync time.Time) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	before = c.items[item]
+	after = value
+	if after < 0 {
+		after = 0
+		clamped = true
+	}
+	c.items[item] = after
+	return before, after, clamped, c.hasData, c.lastSync
+}
+
 // setItemsOnly replaces item quantities without changing hasData / lastSync.
 func (c *cache) setItemsOnly(items map[string]int) {
 	c.mu.Lock()

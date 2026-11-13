@@ -1,0 +1,19 @@
+{
+    "SetItemQuantity": {
+        "desc": "IMS A4：把一个绝对值写入内存缓存（不落盘、不改就绪、不占 A2 扫描名额）。模板节点：调用方覆盖 custom_action_param.item；value 可省略（从本节点识别结果取 OCR 数值）或填整数/表达式，并自行覆盖 next",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetItemQuantity",
+                "custom_action_param": {
+                    "item": "item_char_break_stage_1_2"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    }
+}
