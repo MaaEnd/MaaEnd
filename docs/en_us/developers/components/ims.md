@@ -2,13 +2,14 @@
 
 IMS (Item Management System) keeps a cache of counts for cultivation items and other items inside the go-service process so tasks can answer “is it enough?” and “should we farm?”. Pipeline still owns flow control; IMS only provides recognitions and actions.
 
-There are **2 recognitions + 3 actions**:
+There are **2 recognitions + 4 actions**:
 
 | Code | Registered name | Role |
 | --- | --- | --- |
 | **A2** | `SyncItemData` | Core: scan the current screen and write the full cache |
 | **A1** | `UpdateItemQuantity` | Add/subtract one item in the cache |
 | **A3** | `AddItemData` | Scan the current screen and **add** recognized counts into the cache |
+| **A4** | `SetItemQuantity` | Write an absolute value into the cache (memory only, not persisted) |
 | **R1** | `ItemQuantitySatisfied` | Whether cached counts meet a boolean expression |
 | **R2** | `ItemDataReady` | Whether the whole cache is usable (exists + not expired) |
 
@@ -152,6 +153,8 @@ When you already know a gain or spend, adjust one cached item without a full res
 
 Result is clamped to `>= 0`. On success it writes back to memory and updates `items` in `IMS.json`, but does **not** change readiness / sync timestamp (`hasData` / `updated_at` are still established only by A2).
 
+> To write an absolute value instead of a delta, use A4 `SetItemQuantity` (see the A4 section below).
+
 ---
 
 ## A3: `AddItemData`
@@ -188,6 +191,63 @@ With a cache it also prints one summary; no Pipeline Starting/Succeeded Focus is
 > Reference Pipeline: `AddItemDataOnRewards` → `AddItemDataCloseRewards`.
 >
 > Close-reward paths already wired to A3: `SceneNoticeRewardsConfirm` (Claim Daily Rewards, etc.), `DijiangRewardsFastCollectAddItemData` (base Fast Collect, separate candidates), `CreditShoppingClaimConfirm` (Credit Shop: Oroberyl / T-Creds / Arsenal Ticket / Credits + `ValuableDepot:SpecialItem`), `MFGCabinClaimRewardClose`, `GrowthChamberClaimRewardClose`, `SceneNoticeRewardsConfirmWithAnchor`, `ReceptionRoomSendCluesQuickGiveClose` (Reception Room quick gift), `AutoDeliveryCloseRewardDialog` (automatic delivery), `ProtocolSpaceRewardAddItemData` (Protocol Space), `TrialOfSwordmancyFightSuccess` (Trial of Swordmancy), `AutoStockStapleQuantityControlCloseRewards` (stable-material purchase: `Normal:Usable` + `ValuableDepot:CommercialItem` + `ValuableDepot:SpecialItem`, replacing the old “Buy X” Focus broadcast on each item's buy node).
+
+---
+
+## A4: `SetItemQuantity`
+
+Writes one **absolute** quantity into the cache instead of adding/subtracting. Its main use is carrying a number known only at runtime (typically a freshly OCR'd count) into IMS so R1 can compare it later, for example "how much this checklist entry still needs".
+
+| Param | Meaning |
+| --- | --- |
+| `item` | Cache key; not validated against the catalog, same as A1 |
+| `value` | Optional. An integer, or an expression string with the same syntax as R1 (`{ITEM_ID}` reads the cache **before** the write); **omitted** reads the number from this node's own recognition result |
+
+When `value` is omitted the number is read the way `ExpressionRecognition` does it: `And` nodes are resolved along their native `box_index`, and magnitude suffixes such as `1.38万` / `13.8K` are supported. A failed read (no recognition detail, no parseable OCR number) **fails the action without writing**, so "not recognized" never turns into `0`.
+
+Example: OCR a live count into the cache, then compare it with the cached inventory in R1.
+
+```json
+{
+    "MyChecklistDemand": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [100, 200, 120, 40],
+                "expected": ["^\\d+$"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetItemQuantity",
+                "custom_action_param": {
+                    "item": "scratch_demand_item_char_break_stage_1_2"
+                }
+            }
+        },
+        "next": ["MyChecklistCompare"]
+    }
+}
+```
+
+```json
+{
+    "custom_recognition": "ItemQuantitySatisfied",
+    "custom_recognition_param": {
+        "expression": "{item_char_break_stage_1_2}<{scratch_demand_item_char_break_stage_1_2}"
+    }
+}
+```
+
+### Key semantics
+
+- **Memory only, never persisted**: A4 does not write `IMS.json` and does not change `hasData` / `updated_at`. The real snapshot is still established by A2 only, and the next A2 run overwrites A4 values with the on-screen truth.
+- **Does not consume the A2 scan slot**: A4 never touches the `Sync*` Begin locks, so other tasks still scan the screen.
+- **Lost on process restart**: A4 is a volatile register; it is visible across tasks in the same process and reads as `0` after a restart.
+- Result is clamped to `0`; negative values are stored as `0`.
+- Difference from A1: A1 is a delta and persists; A4 is absolute and memory only.
+- `item` is static per node given by the caller (one node per item — the node hitting identifies the item); A4 does not derive item IDs from recognition results.
 
 ---
 
@@ -301,6 +361,7 @@ Task entry
             ├─ R2 ItemDataReady          (optional: confirm the cache is valid)
             ├─ R1 ItemQuantitySatisfied  (enough?)
             ├─ A1 UpdateItemQuantity     (adjust on a known spend/gain)
+            ├─ A4 SetItemQuantity        (write a runtime / OCR number into memory)
             └─ A3 AddItemData            (add / announce on the rewards screen)
 ```
 
@@ -336,6 +397,7 @@ When you need “ready and quantity satisfied”:
 | `SyncValuablesItemData.json` | A2 Valuables-tab entry |
 | `SyncDepotItemData.json` | A2 entry for combined normal collectables in the Dijiang Valley IV + Wuling left-side depots |
 | `UpdateItemQuantity.json` | A1 |
+| `SetItemQuantity.json` | A4 (callers override `item`, optionally `value`) |
 | `AddItemData.json` | A3 best practice (close rewards) |
 | `ItemQuantitySatisfied.json` | R1 (callers override `expression`) |
 | `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |
@@ -345,6 +407,7 @@ When you need “ready and quantity satisfied”:
 
 - In-session, process memory is authoritative; hot paths do not reread disk.
 - Successful writes by non-transactional A2 calls, A2 transactional `commit`, A1, and A3 (when `hasData`) are also persisted for the next cold start; A2 transactional `begin` / `continue` do not modify the formal cache.
+- A4 only writes memory: nothing is persisted and readiness is unchanged, so values are not kept across restarts.
 - `ClearCache` clears memory and does **not** reload from disk.
 - Small drift in the cache is acceptable; periodic A2 corrects it.
 

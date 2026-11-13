@@ -55,7 +55,7 @@ The following nodes are implemented based on Go/C++ and have high business-speci
 | WorldMap | World map coordinate recognition: given a zone and a base map coordinate, confirms the icon and hands back its screen position | [components/world-map.md](./components/world-map.md) |
 | RecoGrid / GridTracker / EssenceGrid | C++ single-frame grid recognition, cross-frame tracking, and Essence integration | [components/recogrid-engine.md](./components/recogrid-engine.md) |
 | IconRecognition | C++ item icon recognition, fixed ROI, and Maa Custom Recognition | [components/icon-recognition.md](./components/icon-recognition.md) |
-| IMS | Item Management System: A2 sync / A1 delta / A3 add, R1 quantity / R2 readiness | [components/ims.md](./components/ims.md) |
+| IMS | Item Management System: A2 sync / A1 delta / A3 add / A4 set, R1 quantity / R2 readiness | [components/ims.md](./components/ims.md) |
 
 ## Task Maintenance Documentation
 
