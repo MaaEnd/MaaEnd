@@ -150,14 +150,9 @@
                         "properties": {
                             "key": {"type": "string", "minLength": 1},
                             "every": {
-                                "type": [
-                                    "integer",
-                                    "string"
-                                ],
+                                "type": "integer",
                                 "minimum": 1,
-                                "maximum": 2147483647,
-                                "minLength": 1,
-                                "pattern": "^\\s*[0-9]*[1-9][0-9]*\\s*$"
+                                "maximum": 2147483647
                             }
                         }
                     }
