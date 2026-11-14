@@ -176,16 +176,17 @@ func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int
 	rememberLastTarget(box, farTargetWidth)
 
 	if farTargetWidth != nil && box.Width() < *farTargetWidth {
-		// Keep original single W press, then Shift-sprint three times with gaps.
+		// Keep original single W press, then Shift-sprint twice.
+		// 两次冲刺间隔 2 秒：间隔太短时部分干员（如明河）会连续冲刺很久。
 		moveAxis(ctx, 200)
-		for i := 0; i < 3; i++ {
-			time.Sleep(300 * time.Millisecond)
-			sprintForward(ctx)
-		}
+		time.Sleep(300 * time.Millisecond)
+		sprintForward(ctx)
+		time.Sleep(2 * time.Second)
+		sprintForward(ctx)
 		log.Debug().
 			Int("width", box.Width()).
 			Int("far_target_width", *farTargetWidth).
-			Msg("target too far — walk, then shift-sprint x3")
+			Msg("target too far — walk, then shift-sprint x2")
 		return true
 	}
 
