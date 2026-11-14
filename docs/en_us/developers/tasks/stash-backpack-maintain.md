@@ -64,7 +64,7 @@ The ADB overlay replaces four nodes with a different implementation:
 - `StashBackpackUsableItemsLimitedQuickMoveClick` never clicks a cell; it looks for the transfer-to-warehouse icon and clicks it with `RepeatUntilNotFoundAction`, at most five times
 - `StashBackpackUsableItemsLimitedQuickMoveKeyUp` switches to `TouchUp` to release contact 4 instead of releasing Shift
 
-Mind the limit on the third node: `repeat_count` is 5 and `interval_ms` is 500. If the icon is still there after the fifth click, the action fails outright instead of retrying. When an item did not get moved, count how many times this node fired first.
+Mind how the third node decides: `repeat_count` is 5 and `interval_ms` is 500. After each click it keeps recognizing that icon for up to 500 ms, and a single miss counts as success; the action only fails when every one of the five windows still sees the icon. In other words, a recognition error, a failed screencap, or a blurry frame is taken as "already moved". When an item did not get moved, count how many times this node fired first.
 
 Check whether ADB has its own copy before tuning parameters, and do not change only one side.
 

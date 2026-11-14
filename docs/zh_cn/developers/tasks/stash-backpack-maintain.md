@@ -64,7 +64,7 @@ ADB 那份覆盖动了四个地方，和 PC 不是一个实现：
 - `StashBackpackUsableItemsLimitedQuickMoveClick` 完全不点格子，改成找「转移到仓库」图标，用 `RepeatUntilNotFoundAction` 反复点，最多五次
 - `StashBackpackUsableItemsLimitedQuickMoveKeyUp` 跟着换成 `TouchUp` 释放触点 4，不再是释放 Shift
 
-第三个节点要注意上限：`repeat_count` 是 5、`interval_ms` 是 500。图标点五次还在，动作直接判失败，不会继续试。排查「物品没搬过去」时先数这条命中了几次。
+第三个节点要注意判定方式：`repeat_count` 是 5、`interval_ms` 是 500。每次点击后会在 500 毫秒内反复识别那个图标，只要有一次认不到就直接算成功；只有五个窗口里每次都还认得到，动作才判失败。也就是说识别本身出错、截图失败或画面刚好模糊，都会被当成「已经搬走了」。排查「物品没搬过去」时先数这条命中了几次。
 
 所以调参数前先确认 ADB 有没有自己那份，别只改一边。
 
