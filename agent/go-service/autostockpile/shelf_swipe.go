@@ -3,7 +3,6 @@ package autostockpile
 import (
 	"fmt"
 	"image"
-	"strings"
 	"time"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -13,6 +12,11 @@ import (
 // shelfFrameCompareStep 是判断「货架有没有动」时的采样步长（像素）。
 // 逐像素比较整屏开销过大，而滚动一屏必然改变大量采样点，隔点采样已足够。
 const shelfFrameCompareStep = 4
+
+// shelfMaxScrollSteps 是逐屏扫描允许的最大下滑次数。
+// 正常终止只看画面是否还在滚动，与货架具体有几屏无关；该上限仅用于兜底，
+// 避免画面因动画等干扰持续变化时无限下滑。
+const shelfMaxScrollSteps = 10
 
 const (
 	// shelfRestoreTolerance 是复原后「市场」标题允许的纵向误差（像素）。
@@ -25,10 +29,6 @@ const (
 	// shelfRestoreMinDrag 是单次微调的最小拖动距离（像素）；更小的拖动会被触控阈值吞掉。
 	shelfRestoreMinDrag = 40
 )
-
-// shelfSwipeDownNodes 是货架逐屏下滑的节点顺序：先小幅下滑露出次屏，再一直滑到底。
-// 下标即「露出该屏需要下滑的次数」，与 mergeGoodsPages 产出的 SwipeCountToReveal 一致。
-var shelfSwipeDownNodes = []string{swipeShelfDownNodeName, swipeShelfToBottomNodeName}
 
 func runShelfSwipe(ctx *maa.Context, nodeName string) error {
 	if ctx == nil {
@@ -289,16 +289,13 @@ func scanGoodsAcrossShelfPages(
 	}()
 
 	previousImg := firstImg
-	for index, nodeName := range shelfSwipeDownNodes {
-		pageIndex := index + 1
-
-		if swipeErr := runShelfSwipe(ctx, nodeName); swipeErr != nil {
+	for scroll := 0; scroll < shelfMaxScrollSteps; scroll++ {
+		if swipeErr := runShelfSwipe(ctx, swipeShelfDownNodeName); swipeErr != nil {
 			log.Warn().
 				Err(swipeErr).
 				Str("component", autoStockpileComponent).
 				Str("step", "shelf_swipe_down").
-				Str("node", nodeName).
-				Int("page", pageIndex).
+				Str("node", swipeShelfDownNodeName).
 				Int("scanned_pages", len(pages)).
 				Msg("shelf swipe down failed, keep scanned pages only")
 			break
@@ -310,18 +307,17 @@ func scanGoodsAcrossShelfPages(
 				Err(capErr).
 				Str("component", autoStockpileComponent).
 				Str("step", "shelf_screencap").
-				Int("page", pageIndex).
 				Int("scanned_pages", len(pages)).
 				Msg("shelf screencap failed, keep scanned pages only")
 			break
 		}
 
+		// 画面没有变化说明已经到底（或当前控制器本来就不需要滑动），继续识别只会重复扫同一屏。
 		if shelfFramesLookIdentical(previousImg, currentImg) {
 			log.Info().
 				Str("component", autoStockpileComponent).
 				Str("step", "shelf_swipe_skip").
-				Str("node", nodeName).
-				Int("page", pageIndex).
+				Int("scanned_pages", len(pages)).
 				Msg("shelf did not move after swipe, stop scanning further pages")
 			break
 		}
@@ -334,7 +330,6 @@ func scanGoodsAcrossShelfPages(
 				Str("component", autoStockpileComponent).
 				Str("step", "scan_page").
 				Str("abort_reason", string(pageAbort)).
-				Int("page", pageIndex).
 				Int("scanned_pages", len(pages)).
 				Msg("page scan failed, keep scanned pages only")
 			break
@@ -355,26 +350,23 @@ func scanGoodsAcrossShelfPages(
 		Int("swipe_count_to_reveal", len(swipeCountToReveal)).
 		Msg("shelf goods scan merged")
 
+	if swiped >= shelfMaxScrollSteps {
+		log.Warn().
+			Str("component", autoStockpileComponent).
+			Str("step", "shelf_scan_capped").
+			Int("max_scroll_steps", shelfMaxScrollSteps).
+			Msg("shelf scan reached step cap, goods on later pages may be unscanned")
+	}
+
 	restoreShelf(ctx, swiped, initialTitleY, hasInitialTitle)
 	restored = true
 
 	return goods, swipeCountToReveal, AbortReasonNone, nil
 }
 
-// marketTitleTexts 是各语言下市场标题的候选文本，与 AutoStockpileFindMarketTitle 的 expected 保持一致。
-var marketTitleTexts = []string{"市场", "市場", "Market", "マーケット", "시장", "마켓"}
-
-// isMarketTitle 判断 OCR 文本是否为市场标题。
-func isMarketTitle(text string) bool {
-	for _, title := range marketTitleTexts {
-		if strings.Contains(text, title) {
-			return true
-		}
-	}
-	return false
-}
-
 // runFindMarketTitle 在当前画面上定位「市场」标题，返回其文本框。
+// 标题文本由节点 AutoStockpileFindMarketTitle 的 expected 统一维护（含多语言），
+// 这里只取识别结果，避免在 Go 中再维护一份语言列表。
 // 模板图 MarketMark.png 在 ADB 侧长期匹配不到，而标题文字稳定存在，因此用 OCR 作为滚动位置锚点。
 func runFindMarketTitle(ctx *maa.Context, img image.Image) (maa.Rect, bool, error) {
 	detail, err := ctx.RunRecognition(findMarketTitleNodeName, img, nil)
@@ -390,24 +382,20 @@ func runFindMarketTitle(ctx *maa.Context, img image.Image) (maa.Rect, bool, erro
 			return maa.Rect{}, false
 		}
 		ocr, ok := result.AsOCR()
-		if !ok || ocr == nil || !isMarketTitle(ocr.Text) {
+		if !ok || ocr == nil {
 			return maa.Rect{}, false
 		}
 		return ocr.Box, true
 	}
 
-	if box, ok := boxOf(detail.Results.Best); ok {
-		return box, true, nil
-	}
+	// expected 已过滤掉 ROI 内的其他文字，优先使用过滤结果。
 	for _, result := range detail.Results.Filtered {
 		if box, ok := boxOf(result); ok {
 			return box, true, nil
 		}
 	}
-	for _, result := range detail.Results.All {
-		if box, ok := boxOf(result); ok {
-			return box, true, nil
-		}
+	if box, ok := boxOf(detail.Results.Best); ok {
+		return box, true, nil
 	}
 	return maa.Rect{}, false, nil
 }

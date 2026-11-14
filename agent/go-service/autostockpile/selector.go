@@ -206,13 +206,15 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Str("product_name", selection.ProductName).
 			Int("swipe_count", swipeCount).
 			Msg("selected goods is not on the first page, swipe shelf down before click")
-		for i := 0; i < swipeCount && i < len(shelfSwipeDownNodes); i++ {
-			if swipeErr := runShelfSwipe(ctx, shelfSwipeDownNodes[i]); swipeErr != nil {
+		for i := 0; i < swipeCount; i++ {
+			if swipeErr := runShelfSwipe(ctx, swipeShelfDownNodeName); swipeErr != nil {
 				log.Error().
 					Err(swipeErr).
 					Str("component", "autostockpile").
 					Str("product_id", selection.ProductID).
-					Str("node", shelfSwipeDownNodes[i]).
+					Str("node", swipeShelfDownNodeName).
+					Int("swipe_index", i).
+					Int("swipe_count", swipeCount).
 					Str("step", "shelf_swipe_down_before_click").
 					Msg("failed to reveal selected goods before click")
 				return false

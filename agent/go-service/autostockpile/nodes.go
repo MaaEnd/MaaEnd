@@ -22,6 +22,5 @@ const (
 	locateGoodsNodeName            = "AutoStockpileLocateGoods"
 	goodsPriceNodeName             = "AutoStockpileGetGoods"
 	swipeShelfDownNodeName         = "AutoStockpileSwipeShelfDown"
-	swipeShelfToBottomNodeName     = "AutoStockpileSwipeShelfToBottom"
 	swipeShelfUpNodeName           = "AutoStockpileSwipeShelfUp"
 )

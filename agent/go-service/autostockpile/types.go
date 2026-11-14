@@ -59,8 +59,8 @@ type RecognitionData struct {
 	Quota QuotaInfo   `json:"Quota"`
 	Goods []GoodsItem `json:"Goods"`
 	// SwipeCountToReveal 首屏看不到、必须下滑若干次才出现的商品 ID → 下滑次数。
-	// 选中这类商品后需先按下滑次数把货架滑到它所在的屏再点击；
-	// 首屏可见的商品不在其中。次数与 shelfSwipeDownNodes 的前缀长度一致。
+	// 选中这类商品后需先按该次数执行 AutoStockpileSwipeShelfDown 再点击；
+	// 首屏可见的商品不在其中。次数与逐屏扫描时实际执行的下滑次数一致。
 	SwipeCountToReveal map[string]int `json:"SwipeCountToReveal,omitempty"`
 }
 

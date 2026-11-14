@@ -1,7 +1,7 @@
 # 开发手册 - AutoStockpile 维护文档
 
 本文说明 `AutoStockpile` 如何在版本更新时进行维护  
-该文档更新于 2026 年 11 月 8 日。
+该文档更新于 2026 年 11 月 12 日。
 
 ## 概念说明
 
@@ -183,14 +183,15 @@ var regionBases = map[string]int{
 
 ## 货架逐屏扫描
 
-识别阶段会对弹性货架做**逐屏扫描**（最多三屏，对应下滑两次），避免清单超出一屏时漏扫商品：
+识别阶段会对弹性货架做**逐屏扫描**，滑到货架不再变化为止，不依赖具体屏数：
 
-1. 对首屏截图执行 OCR + 模板匹配。
-2. 调用 `AutoStockpileSwipeShelfDown` 小幅下滑一次（约露出一屏，确保下一屏的两行商品都可读）。
-3. 再截图扫描次屏。
-4. 调用 `AutoStockpileSwipeShelfToBottom` 一次滑到底，扫描末屏（清单只有两屏时这次下滑不会改变画面，会直接跳过重复识别）。
-5. 按商品 **ID 去重合并**（同 ID 保留首屏结果；仅第 N 屏（0-based）才出现的 ID 记入 `SwipeCountToReveal`，值为需要下滑的次数）。
-6. 复原到扫描起始位置：先按实际下滑次数调用 `AutoStockpileSwipeShelfUp`，再用 `AutoStockpileFindMarketTitle` 识别「市场」标题的纵坐标，与扫描开始时记下的位置比较；偏差超过 40px 时用慢速拖动微调，直到回到原位。
+1. 对首屏截图执行 OCR + 模板匹配，并记录画面上「市场」标题的纵坐标，作为扫描起始位置锚点。
+2. 调用 `AutoStockpileSwipeShelfDown` 下滑一段，再截图与上一屏比较；画面没有变化说明已经到底（或当前控制器本来就不需要滑动，如 Win32），结束扫描。
+3. 画面有变化则扫描该屏，随后重复第 2 步。单次下滑距离远小于识别区高度，任意一行商品都会在至少一屏里完整出现，不会跳行。
+4. 按商品 **ID 去重合并**（同 ID 保留首屏结果；仅第 N 屏（0-based）才出现的 ID 记入 `SwipeCountToReveal`，值为需要下滑的次数）。
+5. 复原到扫描起始位置：先按实际下滑次数调用 `AutoStockpileSwipeShelfUp`，再用 `AutoStockpileFindMarketTitle` 识别「市场」标题的纵坐标，与扫描开始时记下的位置比较；偏差超过 40px 时用慢速拖动微调，直到回到原位。
+
+逐屏扫描最多下滑 10 次（`shelfMaxScrollSteps`），仅作为防死循环的兜底；正常情况由「画面不再变化」终止。货架继续变长时不需要改这段逻辑，只需确认 ADB 侧 `AutoStockpileSwipeShelfDown` 的单次滚动量仍明显小于识别区高度。
 
 快速滑动带惯性，手势距离和实际滚动量并不成正比，单靠「下滑几次就上滑几次」会越过市场顶部、滑进上方的「当前拥有」区域；因此 ADB 侧上滑手势只有下滑的一半左右，并用标题锚点收敛。扫描起始位置同时也是点击前补滑的基准位置（不一定是市场顶部）。
 
@@ -198,10 +199,10 @@ var regionBases = map[string]int{
 
 选中商品后：
 
-- 若商品在 `SwipeCountToReveal` 中（首屏看不到），点击前会按记录的次数依次执行 `AutoStockpileSwipeShelfDown`、`AutoStockpileSwipeShelfToBottom`，再交给 `AutoStockpileSelectedGoodsClick` 做模板点击。
+- 若商品在 `SwipeCountToReveal` 中（首屏看不到），点击前会按记录的次数重复执行 `AutoStockpileSwipeShelfDown`，再交给 `AutoStockpileSelectedGoodsClick` 做模板点击。
 - 若首屏（page0）已有该商品，则不额外滑动。
 
 滑动节点：
 
-- Win32 默认：`assets/resource/pipeline/AutoStockpile/Helper.json` 中三个 `AutoStockpileSwipeShelf*` 节点均为 `DoNothing`（一屏可看全），`AutoStockpileFindMarketTitle` 仍按 OCR 识别。
+- Win32 默认：`assets/resource/pipeline/AutoStockpile/Helper.json` 中 `AutoStockpileSwipeShelfDown` / `AutoStockpileSwipeShelfUp` 均为 `DoNothing`（一屏可看全），逐屏扫描第一次比较就会判定「没有滚动」并结束；`AutoStockpileFindMarketTitle` 仍按 OCR 识别。
 - ADB / PlayCover：`assets/resource_adb/pipeline/AutoStockpile/Helper.json` 覆盖为真实 `Swipe`（含横向收尾与 `end_hold`），其中上滑距离约为下滑的一半，避免复原时越过市场顶部。坐标基于 720p，实机若漏扫或过量重复，优先微调 ADB 侧 `begin` / `end` 与 `post_wait_freezes.target`。
