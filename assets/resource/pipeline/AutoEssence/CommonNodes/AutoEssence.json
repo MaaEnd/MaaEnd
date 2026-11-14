@@ -122,11 +122,8 @@
                 "custom_action": "PipelineOverride",
                 "custom_action_param": {
                     "patch": {
-                        "EssenceFilterInventoryInit": {
+                        "EssenceFilterInventoryEntry": {
                             "enabled": true
-                        },
-                        "EssenceFilterInit": {
-                            "enabled": false
                         },
                         "EssenceFilterCheckItemOCRFallback": {
                             "action": "StopTask"
@@ -136,10 +133,7 @@
                                 "EssenceFilterCheckItemOCRFallback"
                             ]
                         },
-                        "EssenceFilterMainFailed": {
-                            "action": "StopTask"
-                        },
-                        "EssenceFilterNavigateToInventory": {
+                        "EssenceFilterNavigateToInventoryFailed": {
                             "action": "StopTask"
                         }
                     }

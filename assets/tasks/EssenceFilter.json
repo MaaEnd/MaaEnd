@@ -33,11 +33,8 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "EssenceFilterInventoryInit": {
+                        "EssenceFilterInventoryEntry": {
                             "enabled": true
-                        },
-                        "EssenceFilterInit": {
-                            "enabled": false
                         },
                         "EssenceFilterCheckItemOCRFallback": {
                             "action": "StopTask"
@@ -47,10 +44,7 @@
                                 "EssenceFilterCheckItemOCRFallback"
                             ]
                         },
-                        "EssenceFilterMainFailed": {
-                            "action": "StopTask"
-                        },
-                        "EssenceFilterNavigateToInventory": {
+                        "EssenceFilterNavigateToInventoryFailed": {
                             "action": "StopTask"
                         }
                     }
@@ -65,10 +59,7 @@
                         "SkipThumbDiscard"
                     ],
                     "pipeline_override": {
-                        "EssenceFilterInventoryInit": {
-                            "enabled": false
-                        },
-                        "EssenceFilterInit": {
+                        "EssenceFilterEntry": {
                             "enabled": true
                         }
                     }
