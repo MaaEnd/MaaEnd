@@ -21,6 +21,7 @@
             ],
             "option": [
                 "AutoStockStapleSchedule",
+                "AutoStockStapleStashBackpackSubTask",
                 "AutoStockStapleValleyIV",
                 "AutoStockStapleWuling"
             ]
@@ -4190,6 +4191,33 @@
                 }
             ],
             "default_case": "-95%"
+        },
+        "AutoStockStapleStashBackpackSubTask": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockStapleStashBackpackSubTask.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "StashBackpackType",
+                        "StashBackpackArea"
+                    ],
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
         }
     }
 }

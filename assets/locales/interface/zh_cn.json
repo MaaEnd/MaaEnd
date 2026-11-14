@@ -2318,6 +2318,7 @@
     "task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.label": "最低保留数量",
     "task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.pattern_msg": "请输入 240000-999999999 的整数。",
     "task.AutoStockStaple.option.AutoStockReserveWuling.label": "保留调度券",
+    "task.AutoStockStaple.option.AutoStockStapleStashBackpackSubTask.label": "购买前存放背包",
     "task.AutoStockStaple.option.AutoStockStapleValleyIV.description": "仅购买四号谷地每周刷新的物品",
     "task.AutoStockStaple.option.AutoStockStapleValleyIV.label": "四号谷地稳定物资购买",
     "task.AutoStockStaple.option.AutoStockStapleWuling.description": "仅购买武陵每周刷新的物品",
