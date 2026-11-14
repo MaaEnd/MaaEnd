@@ -1,0 +1,748 @@
+{
+    "AutoDailyMissionAuthenticMedsListItem": {
+        "desc": "委派任务列表里的日常·道地药材",
+        "recognition": "OCR",
+        "roi": [
+            42,
+            70,
+            360,
+            590
+        ],
+        // 完整文本："日常·道地药材" / "日常·道地藥材" / "Daily: Authentic Meds" / "日常・本場の薬" / "일상 · 정통 약재"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "道地药材",
+            "道地藥材",
+            "(?i)Authentic\\s*Meds",
+            "本場の薬",
+            "정통\\s*약재"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsDetail": {
+        "desc": "右侧详情已选中日常·道地药材",
+        "recognition": "OCR",
+        "roi": [
+            410,
+            55,
+            400,
+            45
+        ],
+        "expected": [
+            "日常·道地药材",
+            "日常·道地藥材",
+            "(?i)Daily:\\s*Authentic\\s*Meds",
+            "日常・本場の薬",
+            "일상\\s*·\\s*정통\\s*약재"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsMapPanel": {
+        "desc": "任务地图右侧详情栏是日常·道地药材",
+        "recognition": "OCR",
+        "roi": [
+            950,
+            45,
+            320,
+            45
+        ],
+        // 完整文本："日常·道地药材" / "日常·道地藥材" / "Daily: Authentic Meds" / "日常・本場の薬" / "일상 · 정통 약재"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "道地药材",
+            "道地藥材",
+            "(?i)Authentic\\s*Meds",
+            "本場の薬",
+            "정통\\s*약재"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsEntry": {
+        "desc": "在委派任务列表中点击日常·道地药材",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionAuthenticMedsListItem"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionAuthenticMedsTalkOpenMap",
+            "AutoDailyMissionAuthenticMedsTalkStartTracking",
+            "AutoDailyMissionAuthenticMedsOpenMap",
+            "AutoDailyMissionAuthenticMedsStartTracking"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsTalkStep": {
+        "desc": "任务详情当前步骤是与米格尔交谈",
+        "recognition": "OCR",
+        "roi": [
+            455,
+            160,
+            790,
+            40
+        ],
+        "expected": [
+            "与米格尔交谈",
+            "與米格爾交談",
+            "(?i)Talk\\s*to\\s*Miguel",
+            "ミゲルと話す",
+            "미겔과\\s*대화하기"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsTalkOpenMap": {
+        "desc": "当前步骤是与米格尔交谈，点击定位按钮打开任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionAuthenticMedsDetail",
+            "AutoDailyMissionAuthenticMedsTalkStep",
+            "TrackedMissionMapButton"
+        ],
+        "box_index": 2,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionAuthenticMedsTalkRoute"
+        },
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsTalkStartTracking": {
+        "desc": "当前步骤是与米格尔交谈且还没追踪，点击开始追踪打开任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionAuthenticMedsDetail",
+            "AutoDailyMissionAuthenticMedsTalkStep",
+            "AutoDailyMissionStartTrackingButton"
+        ],
+        "box_index": 2,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionAuthenticMedsTalkRoute"
+        },
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsTalkRoute": {
+        "desc": "走到工人之家附近的米格尔身边交谈",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^米格尔$",
+                "^米格爾$",
+                "(?i)^Miguel$",
+                "^ミゲル$",
+                "^미겔$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        701.43,
+                        1023.532
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        701.43,
+                        1023.532
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionAuthenticMedsTalkSkipStory"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsTalkSkipStory": {
+        "desc": "与米格尔的剧情中识别到跳过按钮后，从画面中心悬停移过去并点击",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1140,
+            0,
+            120,
+            90
+        ],
+        "template": "RealTimeTask/AutoSkipEsc.png",
+        "pre_delay": 1000, // 刚进剧情时跳过按钮点了不生效，等一会再点
+        "action": "Custom",
+        "custom_action": "AutoSwipeClickAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionAuthenticMedsTalkSkipStoryConfirm"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsTalkSkipStoryConfirm": {
+        "desc": "确认跳过与米格尔的剧情",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_delay": 1000, // 等待画面过渡
+        "next": [
+            "AutoDailyMissionAuthenticMedsTalkBackInWorld"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsTalkBackInWorld": {
+        "desc": "跳过剧情回到大世界，回到委派任务页签重新分发",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "AutoDailyMissionMain"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsOpenMap": {
+        "desc": "点击定位按钮打开道地药材的任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionAuthenticMedsDetail",
+            "TrackedMissionMapButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionAuthenticMedsClosePanel"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsStartTracking": {
+        "desc": "道地药材还没追踪时点击开始追踪，打开任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionAuthenticMedsDetail",
+            "AutoDailyMissionStartTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionAuthenticMedsClosePanel"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsClosePanel": {
+        "desc": "确认已打开道地药材的任务地图，关闭右侧详情栏",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "AutoDailyMissionAuthenticMedsMapPanel"
+        ],
+        "box_index": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoDailyMissionAuthenticMedsRegionOriginLodespring",
+            "AutoDailyMissionAuthenticMedsRegionValleyPass"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsRegionOriginLodespring": {
+        "desc": "地图左上角子区域是矿脉源区",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "矿脉源区",
+            "礦脈源區",
+            "(?i)Origin\\s*Lodespring",
+            "鉱山エリア",
+            "광맥\\s*구역"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionAuthenticMedsCandidatesOriginLodespring"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsCandidatesOriginLodespring": {
+        "desc": "在地图上确认今天的道地药材是矿脉源区里的哪一处",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        978.936,
+                        385.03
+                    ],
+                    "next": "AutoDailyMissionAuthenticMedsLogisticsArea"
+                },
+                {
+                    "at": [
+                        1143.143,
+                        524.787
+                    ],
+                    "next": "AutoDailyMissionAuthenticMedsMiningAreaClinic"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionAuthenticMedsRegionValleyPass": {
+        "desc": "地图左上角子区域是谷地通道",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "谷地通道",
+            "(?i)Valley\\s*Pass",
+            "谷地通路",
+            "협곡길"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionAuthenticMedsCandidatesValleyPass"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsCandidatesValleyPass": {
+        "desc": "在地图上确认今天的道地药材是谷地通道里的哪一处",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        89.346,
+                        603.12
+                    ],
+                    "next": "AutoDailyMissionAuthenticMedsValleyFortNorth"
+                },
+                {
+                    "at": [
+                        104.74,
+                        649.673
+                    ],
+                    "next": "AutoDailyMissionAuthenticMedsValleyFortSouth"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionAuthenticMedsLogisticsArea": {
+        "desc": "今天的道地药材在运输区附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionAuthenticMedsRouteLogisticsArea"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.authentic_meds_logistics_area"
+        }
+    },
+    "AutoDailyMissionAuthenticMedsMiningAreaClinic": {
+        "desc": "今天的道地药材在矿区医疗站附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionAuthenticMedsRouteMiningAreaClinic"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.authentic_meds_mining_area_clinic"
+        }
+    },
+    "AutoDailyMissionAuthenticMedsValleyFortNorth": {
+        "desc": "今天的道地药材在谷地要塞北侧附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionAuthenticMedsRouteValleyFortNorth"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.authentic_meds_valley_fort_north"
+        }
+    },
+    "AutoDailyMissionAuthenticMedsValleyFortSouth": {
+        "desc": "今天的道地药材在谷地要塞南侧附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionAuthenticMedsRouteValleyFortSouth"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.authentic_meds_valley_fort_south"
+        }
+    },
+    "AutoDailyMissionAuthenticMedsRouteLogisticsArea": {
+        "desc": "走到运输区附近的任务区域，采集 5 株黯银柑实",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        981.629,
+                        386.352
+                    ]
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        981.629,
+                        386.352
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        982.652,
+                        388.287
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        983.278,
+                        389.932
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        985.528,
+                        389.749
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        984.466,
+                        387.689
+                    ],
+                    "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsRouteMiningAreaClinic": {
+        "desc": "走到矿区医疗站附近的任务区域，采集 5 株黯银柑实",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1145.77,
+                        526.071
+                    ]
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        1145.77,
+                        526.071
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        1151.381,
+                        527.743
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        1148.896,
+                        520.97
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        1146.051,
+                        516.456
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        1134.648,
+                        528.408
+                    ],
+                    "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsRouteValleyFortNorth": {
+        "desc": "走到谷地要塞北侧附近的任务区域，有敌人时先自动战斗",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        85.101,
+                        601.166
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect": {
+        "desc": "在谷地要塞北侧附近采集 5 株映火荞花",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        85.101,
+                        601.166
+                    ]
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        85.101,
+                        601.166
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        83.586,
+                        602.378
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        89.414,
+                        596.848
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        95.991,
+                        600.546
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        89.632,
+                        609.128
+                    ],
+                    "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsRouteValleyFortSouth": {
+        "desc": "走到谷地要塞南侧附近的任务区域，采集 5 株映火荞花",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        101.313,
+                        648.624
+                    ]
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        101.313,
+                        648.624
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        103.113,
+                        646.228
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        100.765,
+                        652.437
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        111.663,
+                        654.602
+                    ],
+                    "strict": true
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        112.008,
+                        645.441
+                    ],
+                    "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ]
+    }
+}
