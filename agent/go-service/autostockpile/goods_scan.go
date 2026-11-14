@@ -14,6 +14,10 @@ import (
 
 const maxGoodsPriceDistance = 120
 
+// goodsRecognitionBaseROI 是商品识别区域的 720p 基准矩形，
+// 既用于按市场图标微调识别区域，也用于判断货架滑动后画面是否真的变化。
+var goodsRecognitionBaseROI = []int{63, 162, 1177, 553}
+
 type goodsCandidate struct {
 	item GoodsItem
 	box  maa.Rect
@@ -196,7 +200,7 @@ func scanGoodsOnImage(ctx *maa.Context, img image.Image, region string, itemMap 
 }
 
 func resolveGoodsRecognitionROI(ctx *maa.Context, img image.Image) []int {
-	baseROI := []int{63, 162, 1177, 553}
+	baseROI := append([]int(nil), goodsRecognitionBaseROI...)
 	marketMarkBox, found, err := runFindMarketMark(ctx, img)
 	if err != nil {
 		log.Warn().

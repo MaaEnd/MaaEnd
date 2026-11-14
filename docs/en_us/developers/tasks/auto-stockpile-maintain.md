@@ -1,6 +1,7 @@
 # Development Manual - AutoStockpile Maintenance Documentation
 
-This document explains how to maintain `AutoStockpile` during version updates.
+This document explains how to maintain `AutoStockpile` during version updates.  
+This document was updated on November 14, 2026.
 
 ## Concept Explanation
 
@@ -180,24 +181,29 @@ File: `docs/zh_cn/protocol/autostockpile-daily-storage/daily_storage.schema.json
 
 Add the new region identifier (e.g., `"NewRegion"`) to the `enum` list of the `region` field to ensure third-party tools can validate data for the new region via the Schema.
 
-## Dual-page Shelf Scan
+## Page-by-page Shelf Scan
 
-Recognition scans the elastic goods shelf for **at most two pages** so items below the fold are not missed:
+Recognition scans the elastic goods shelf **page by page**: at most 3 frames (the entry frame plus one frame after each of two swipes down), independent of how many goods were recognized.
 
 1. OCR + template match on the first-screen screenshot.
-2. Run `AutoStockpileSwipeShelfDown` once (`post_wait_freezes` waits for list settle).
-3. Screencap and scan the second screen.
-4. Merge by goods **ID** (on duplicates keep the first-screen entry; IDs seen only after the swipe go into `SecondPageOnlyIDs`). Internally screens are page0 = first screen, page1 = second screen (0-based); the field means **second-screen-only (page1)**, not the first screen (page0).
-5. Run `AutoStockpileSwipeShelfUp` to restore the first screen.
+2. Run `AutoStockpileSwipeShelfDown` to scroll one step, then screencap and compare with the previous screen; if the pixels are identical, the shelf is already at the bottom (or the current controller does not scroll at all, e.g. Win32) and scanning stops.
+3. If the pixels differ, scan that screen and then compare its goods ID set with the previous screen: an identical set means the swipe did not advance the shelf (the ValleyIV view has micro-animations, so the pixel comparison alone keeps reporting "changed"), and scanning also stops.
+4. If the shelf really advanced, keep that screen and repeat step 2. One scroll step is far smaller than the recognition ROI, so every row appears fully in at least one screen and no row is skipped.
+5. Merge by goods **ID** (on duplicates keep the first-screen entry; IDs seen only on page N (0-based) go into `SwipeCountToReveal`, whose value is the number of swipes down needed).
+6. Restore the shelf: run `AutoStockpileSwipeShelfUp` as many times as the **effective swipes down** of this scan, using the same distance in the opposite direction, so the list returns to the scan origin.
 
-If the swipe down or the second-screen capture/scan fails, fall back to first-screen results without aborting; a failed swipe back up only logs a warning, and the merged results are still used.
+Page scanning always performs two swipes down (`shelfScanSwipeTimes`): the entry frame plus one frame per swipe. Scanning stops early when the shelf stops advancing, logged as `shelf_swipe_skip` (`reason` is `frame_unchanged` or `goods_unchanged`), so Win32 (full list on one screen) only recognizes one frame. If the frames are not enough, raise `shelfScanSwipeTimes` and confirm that `AutoStockpileSwipeShelfDown` on ADB still scrolls clearly less than the recognition ROI height.
+
+Restoration relies on the swipe down and the swipe up covering the same distance: both are a 200 px slow drag with `duration: 700`, so dragging back the same number of times returns to the origin, which is what makes `SwipeCountToReveal` ("swipe down N times from the origin") valid. Do not restore by clicking the market entry: it is a fixed sidebar entry, and clicking the already-selected entry does not re-render the list at the top. Recognizing it is also unreliable because the "unselected" template never matches the selected icon.
+
+If a swipe, a screencap or a page scan fails, keep the pages already scanned without aborting; a failed swipe up only logs a warning and stops the remaining restoration, and the merged results are still used.
 
 After selection:
 
-- If the chosen ID is in `SecondPageOnlyIDs` (visible only on the second screen / page1, e.g. the last row), `AutoStockpileSwipeShelfDown` runs once more before the click, and `AutoStockpileSelectedGoodsClick` then performs the template click.
+- If the chosen ID is in `SwipeCountToReveal` (not visible on the first screen), `AutoStockpileSwipeShelfDown` runs that many times before the click, and `AutoStockpileSelectedGoodsClick` then performs the template click.
 - If the item was already on the first screen (page0), click without an extra swipe.
 
 Swipe nodes:
 
-- Win32 default: `DoNothing` in `assets/resource/pipeline/AutoStockpile/Helper.json` (full list fits one screen).
-- ADB / PlayCover: real `Swipe` override in `assets/resource_adb/pipeline/AutoStockpile/Helper.json` (with horizontal end segment and `end_hold`). Coordinates are 720p; if real devices miss items or show too many duplicates, first tune the ADB-side `begin` / `end` and `post_wait_freezes.target`.
+- Win32 default: `AutoStockpileSwipeShelfDown` / `AutoStockpileSwipeShelfUp` are `DoNothing` in `assets/resource/pipeline/AutoStockpile/Helper.json` (full list fits one screen), so the first frame comparison of page scanning reports "not scrolling" and stops, and no restoration drag is triggered.
+- ADB / PlayCover: real `Swipe` overrides in `assets/resource_adb/pipeline/AutoStockpile/Helper.json`: both the swipe down and the swipe up are a 200 px slow drag with `duration: 700` and `end_hold: 200` (the swipe down is the scan step, the swipe up is used only for restoration). Coordinates are 720p; if real devices miss items, first tune the ADB-side `begin` / `end`, `duration` and `post_wait_freezes.target`; if the restoration does not reach the origin, first confirm both nodes still use the same drag distance.
