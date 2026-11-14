@@ -108,6 +108,7 @@ flowchart TD
 | [SeizeDeliveryJobs 抢委托送货](./tasks/seize-delivery-jobs-maintain.md) | 终点数据驱动生成、地标名称维护、回退文案与多语言同步 |
 | [GiftOperator 赠送干员礼物](./tasks/gift-operator-maintain.md) | 导航寻路、联络选人、送礼收礼分支与干员扩展维护 |
 | [DeliveryJobs 转交委托](./tasks/delivery-jobs-maintain.md) | 仓储节点处理方式、anchor 落点规则、报价分支与装箱优先级维护 |
+| [StashBackpack 存放背包](./tasks/stash-backpack-maintain.md) | 一键存放与只存 ≤4 两条链路、整理回流与仓库满横幅两个已知问题 |
 
 ### 第三方协议文档（`protocol/`）
 
