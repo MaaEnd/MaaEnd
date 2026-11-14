@@ -27,6 +27,7 @@ RARE_SHOWING_TYPE = "Nurturance"
 
 HAND_WRITTEN_OPTIONS = (
     "AutoCollectSchedule",
+    "AutoCollectSwitchTeam",
     "AutoCollectStashBackpackSubTask",
     "AutoCollectMode",
     "AutoCollectTargetInventory",

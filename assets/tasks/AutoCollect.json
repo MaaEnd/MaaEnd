@@ -22,6 +22,7 @@
                 "AutoCollectValleyIV",
                 "AutoCollectWuling",
                 "AutoCollectMode",
+                "AutoCollectSwitchTeam",
                 "AutoCollectStashBackpackSubTask"
             ]
         }
@@ -118,6 +119,32 @@
                 "AutoCollectScheduleSaturday",
                 "AutoCollectScheduleSunday"
             ]
+        },
+        "AutoCollectSwitchTeam": {
+            "type": "switch",
+            "label": "$task.AutoCollect.option.AutoCollectSwitchTeam.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SwitchTeamTeamChoose"
+                    ],
+                    "pipeline_override": {
+                        "SwitchTeamMain": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SwitchTeamMain": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
         },
         "AutoCollectStashBackpackSubTask": {
             "type": "switch",

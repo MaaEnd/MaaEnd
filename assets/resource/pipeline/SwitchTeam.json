@@ -37,6 +37,16 @@
         "pre_delay": 0,
         "post_delay": 0
     },
+    "SwitchTeamSubTask": {
+        "desc": "被子任务调用的入口，用于设置 SwitchTeamMain 的 enable",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SwitchTeamMain",
+            "EmptyNode"
+        ]
+    },
     "SwitchTeamMain": {
         "desc": "切换编队入口",
         "pre_delay": 0,

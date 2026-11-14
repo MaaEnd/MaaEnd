@@ -2029,6 +2029,7 @@
     "task.AutoCollect.item.item_plant_tundra_insect_2.skipped": "Scorchbug — target inventory reached, skipped this run",
     "task.AutoCollect.label": "🧺 Auto Collect",
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "Stash backpack before and after task",
+    "task.AutoCollect.option.AutoCollectSwitchTeam.label": "Switch team before task",
     "task.AutoCollect.route.ValleyIVAuronyx1.failed": "<span style=\"color: red; font-weight: bold;\">Auronyx collection failed</span>",
     "task.AutoCollect.route.ValleyIVAuronyx1.label": "Collecting Auronyx",
     "task.AutoCollect.route.ValleyIVChrysodendra1.failed": "<span style=\"color: red; font-weight: bold;\">Chrysodendra collection failed</span>",
