@@ -113,6 +113,9 @@
         "next": [
             "GiftOperatorReceiveDialog",
             "GiftOperatorBagFull"
+        ],
+        "on_error": [
+            "GiftOperatorLeave"
         ]
     },
     "GiftOperatorClickGift": {
