@@ -10,7 +10,8 @@
 - 任务定义：`assets/tasks/OperatorGrowth.json`
 - 主流程：`assets/resource/pipeline/OperatorGrowth/Growth.json`（另有 `OperatorGrowth.json` 收纳 `OperatorGrowthMaterialsSufficient`）
 - ADB 覆盖：`assets/resource_adb/pipeline/OperatorGrowth/Growth.json`
-- 材料数据：`tools/zmdmap/data/operator_growth.json` 与 `datasets/operator_growth.py`
+
+注意 `tools/zmdmap/data/operator_growth.json`（干员培养的数值参考，等级经验与逐级消耗）不是任务运行的数据，它由 `datasets/operator_growth.py` 从 TableCfg 生成，目前没有被 pipeline 或用户文档引用。
 
 ## 两个选项
 
