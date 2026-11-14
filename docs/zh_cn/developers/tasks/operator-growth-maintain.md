@@ -14,9 +14,9 @@
 ## 两个选项
 
 - `OperatorGrowthSchedule`：每周几跑，checkbox 类型，七个日选各自生成一个 `pipeline_override` 覆盖 `OperatorGrowthSchedule*` 节点。
-- `OperatorGrowthOperator`：培养哪个干员，`select` 覆盖 34 个干员，每个 case 用 `pipeline_override` 把 `OperatorGrowthTargetAvatar` 和 `OperatorGrowthTargetName` 的 `template` 换成对应截图。
+- `OperatorGrowthOperator`：培养哪个干员，`select` 覆盖 34 个干员，每个 case 用 `pipeline_override` 把 `OperatorGrowthTargetAvatar` 的 `template` 换成头像截图、把 `OperatorGrowthTargetName` 的 `expected` 换成干员姓名文本。
 
-新增干员需要新截图两张（左侧头像、右侧姓名），不改节点结构。
+新增干员需要一张头像截图（换 `OperatorGrowthTargetAvatar` 的 `template`），并把姓名加进 `OperatorGrowthTargetName` 的 `expected` 列表，不改节点结构。
 
 ## 主流程
 

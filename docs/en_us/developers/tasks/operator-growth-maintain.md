@@ -14,9 +14,9 @@ Operator Growth is a pure-Pipeline task with no Go-side code: enter the growth o
 ## The two options
 
 - `OperatorGrowthSchedule`: which weekdays to run, a `checkbox` with seven day selections, each one producing a `pipeline_override` that fills in an `OperatorGrowthSchedule*` node.
-- `OperatorGrowthOperator`: which operator to grow, a `select` over 34 operators; each case uses `pipeline_override` to swap the `template` of `OperatorGrowthTargetAvatar` and `OperatorGrowthTargetName` to that operator's screenshots.
+- `OperatorGrowthOperator`: which operator to grow, a `select` over 34 operators; each case uses `pipeline_override` to swap the `template` of `OperatorGrowthTargetAvatar` to the avatar screenshot and the `expected` of `OperatorGrowthTargetName` to that operator's name text.
 
-Adding an operator needs two new screenshots (the left-side avatar and the right-side name) and no node changes.
+Adding an operator needs one avatar screenshot (for `OperatorGrowthTargetAvatar`'s `template`) and the name added to `OperatorGrowthTargetName`'s `expected` list; no node changes.
 
 ## Main flow
 
