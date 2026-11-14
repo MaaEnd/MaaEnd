@@ -41,7 +41,7 @@
         "rate_limit": 0
     },
     "AutoStockpileSwipeShelfUp": {
-        "desc": "货架向上大幅滑动，用于重置前把市场入口带回可视区（ADB）",
+        "desc": "货架向上大幅快速滑动，靠惯性甩回列表顶部附近（ADB）",
         "recognition": {
             "type": "DirectHit",
             "param": {}
@@ -63,8 +63,7 @@
                         760,
                         150
                     ]
-                ],
-                "end_hold": 200
+                ]
             }
         },
         "post_wait_freezes": {
