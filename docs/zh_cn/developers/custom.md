@@ -254,6 +254,17 @@ PC 上悬停滑动从画面中心移到当前识别框，等待 200 毫秒后点
 
 目标位置由 Pipeline 节点的 `box` 决定。
 
+### EveryNthHitReset
+
+`EveryNthHitReset` 实现位于 `agent/go-service/common/everynthhit`，用于把 `EveryNthHit` 在指定 `key` 上的计数清零，让下一趟从第 1 次重新开始数。
+
+- 参数：
+    - `key: string`：计数器标识，必填。须与 `EveryNthHit` 使用同一个 `key` 才能复位对应计数。
+
+对应 `key` 还没有计数时同样直接返回成功；`key` 为空或 `custom_action_param` 不是合法 JSON 时记录 error 日志并返回失败。
+
+示例文件：[`EveryNthHit.json`](../../../assets/resource/pipeline/Interface/Example/EveryNthHit.json)
+
 ---
 
 ## Custom Recognition
@@ -605,6 +616,29 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 }
 ```
 
+### EveryNthHit
+
+`EveryNthHit` 实现位于 `agent/go-service/common/everynthhit`，用于「每评估 N 次命中一次」的计数节流：该节点每被评估一次，对应 `key` 的计数加一，数到第 `every` 次时返回命中并把计数清零。
+
+**命中语义：`true` = 本次正好数到第 N 次（计数已清零）；`false` = 其余所有情况。**
+
+参数：
+
+- `key: string`：计数器标识，必填。计数按 `key` 隔离，不同 `key` 互不影响。
+- `every: int`：每评估多少次命中一次，必填。必须为正整数（`>= 1`）。
+
+行为：
+
+1. 计数保存在 go-service 进程内，按 `key` 隔离，不写入 Pipeline 的 `attach`；任务停止或重新进入不会自动清零。
+2. `every <= 0` 时不计数、不命中，识别始终返回 `false`，并记录一条 warn 日志；非整数值在 JSON 解析阶段就失败。
+3. 第 N 次命中后计数归零，下一次评估从 `1` 重新开始。
+4. 命中时以原生 `roi` 作为 `Box` 返回。
+5. 需要每趟都从干净计数开始时，用 `EveryNthHitReset` 复位同一个 `key`。
+
+注意：计数只随「评估」增长，节点被主循环反复轮询同样会消耗计数；只希望在真正走到该节点时计数，应把它放在明确的流程分支上。`key` 为空或 `custom_recognition_param` 不是合法 JSON 时记录 error 日志并返回未命中，不会 panic。
+
+示例文件：[`EveryNthHit.json`](../../../assets/resource/pipeline/Interface/Example/EveryNthHit.json)
+
 ## 小结
 
 写 Pipeline 时，内置的 `TemplateMatch` / `OCR` / `Click` / `Swipe` 能解决绝大多数需求。遇到它们搞不定的——比如要比较两个 OCR 数值、运行时动态调参数、批量跑子任务——再来查这篇，看有没有现成的 Custom 能用。
@@ -631,5 +665,7 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 | Alt + 滑动 | `AutoAltSwipeAction` |
 | 从画面中心悬停到识别框后再点击 | `AutoSwipeClickAction` |
 | 阻塞倒计时等待 | `CountDownAction` |
+| 每评估 N 次命中一次 | `EveryNthHit` |
+| 清零 EveryNthHit 的计数 | `EveryNthHitReset` |
 
 所有 Custom 的 Go 代码实现在 `agent/go-service/` 下，Pipeline 作者不需要关心，照文档参数写 JSON 就行。

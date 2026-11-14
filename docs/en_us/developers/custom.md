@@ -254,6 +254,17 @@ On PC, the hover swipe moves from the screen center to the current recognition b
 
 The target position is determined by the Pipeline node's `box`.
 
+### EveryNthHitReset
+
+The `EveryNthHitReset` implementation is located in `agent/go-service/common/everynthhit`. It clears the `EveryNthHit` counter of the given `key` so the next run starts counting again from 1.
+
+- Parameters:
+    - `key: string`: Counter identifier. Required. It must match the `key` used by `EveryNthHit`.
+
+It still returns success when that `key` has no counter yet; an empty `key` or a `custom_action_param` that is not valid JSON logs an error and returns failure.
+
+Example file: [`EveryNthHit.json`](../../../assets/resource/pipeline/Interface/Example/EveryNthHit.json)
+
 ---
 
 ## Custom Recognition
@@ -605,6 +616,29 @@ Example:
 }
 ```
 
+### EveryNthHit
+
+The `EveryNthHit` implementation is located in `agent/go-service/common/everynthhit`. It provides count-based throttling: every time the node is evaluated, the counter for its `key` increases by one; the Nth evaluation hits and resets the counter.
+
+**Hit semantics: `true` = this evaluation is exactly the Nth one (the counter has been reset); `false` = everything else.**
+
+Parameters:
+
+- `key: string`: Counter identifier. Required. Counters are isolated per `key`, so different keys never affect each other.
+- `every: int`: How many evaluations produce one hit. Required. Must be a positive integer (`>= 1`).
+
+Behavior:
+
+1. Counters live inside the go-service process, are isolated per `key`, and are not written to Pipeline `attach`; stopping or re-entering a task does not clear them automatically.
+2. When `every <= 0`, nothing is counted and recognition always returns `false`, with a warn log entry; non-integer values already fail during JSON parsing.
+3. After the Nth hit the counter resets to zero, and the next evaluation starts again at `1`.
+4. On a hit, the native `roi` is returned as the `Box`.
+5. Use `EveryNthHitReset` on the same `key` when every run must start from a clean count.
+
+Note: the counter only grows by evaluation, so a node that the main loop keeps polling also consumes counts; put it on an explicit flow branch if it should count only when the flow really reaches it. An empty `key` or a `custom_recognition_param` that is not valid JSON logs an error and returns no match; it never panics.
+
+Example file: [`EveryNthHit.json`](../../../assets/resource/pipeline/Interface/Example/EveryNthHit.json)
+
 ## Summary
 
 When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe` can handle most needs. When they fall short—for example, comparing two OCR values, dynamically adjusting parameters at runtime, or batch running subtasks—then refer to this document to see if there's an existing Custom action or recognition to use.
@@ -631,5 +665,7 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Alt + Swipe | `AutoAltSwipeAction` |
 | Hover from the screen center to the recognition box, then click | `AutoSwipeClickAction` |
 | Blocking Countdown Delay | `CountDownAction` |
+| Hit once every N evaluations | `EveryNthHit` |
+| Clear an EveryNthHit counter | `EveryNthHitReset` |
 
 All Custom Go code implementations are located under `agent/go-service/`. Pipeline authors do not need to concern themselves with this; just write the JSON according to the documentation parameters.

@@ -56,6 +56,7 @@ The following nodes are implemented based on Go/C++ and have high business-speci
 | RecoGrid / GridTracker / EssenceGrid | C++ single-frame grid recognition, cross-frame tracking, and Essence integration | [components/recogrid-engine.md](./components/recogrid-engine.md) |
 | IconRecognition | C++ item icon recognition, fixed ROI, and Maa Custom Recognition | [components/icon-recognition.md](./components/icon-recognition.md) |
 | IMS | Item Management System: A2 sync / A1 delta / A3 add, R1 quantity / R2 readiness | [components/ims.md](./components/ims.md) |
+| EveryNthHit / EveryNthHitReset | Hit once every N evaluations / clear the counter | [custom.md](./custom.md) |
 
 ## Task Maintenance Documentation
 

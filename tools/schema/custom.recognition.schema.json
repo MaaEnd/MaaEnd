@@ -19,6 +19,7 @@
                 "EssenceFilterAfterBattleNthRecognition",
                 "EssenceGridAdvanceRecognition",
                 "EssenceGridPendingRecognition",
+                "EveryNthHit",
                 "ExpendableRecognition",
                 "ExpressionRecognition",
                 "IconRecognition",
@@ -125,6 +126,35 @@
                                 "type": "integer",
                                 "minimum": 0,
                                 "maximum": 5
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "EveryNthHit"}}
+            },
+            "then": {
+                "type": "object",
+                "required": ["custom_recognition_param"],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "key",
+                            "every"
+                        ],
+                        "properties": {
+                            "key": {"type": "string", "minLength": 1},
+                            "every": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
                             }
                         }
                     }
