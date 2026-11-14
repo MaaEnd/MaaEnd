@@ -114,12 +114,13 @@ The first complete repeat returns `ConfirmingEnd`, and Pipeline scrolls once mor
 
 ## EssenceGrid: the essence business instance
 
-`main.cpp` creates one `EssenceGrid` and registers both of these through `trans_arg`:
+`main.cpp` creates one `EssenceGrid` and registers all of these through `trans_arg`:
 
 - `EssenceGridAdvanceRecognition`;
-- `EssenceGridPendingRecognition`.
+- `EssenceGridPendingRecognition`;
+- `EssenceGridResetAction`.
 
-The instance holds the tracker, task id, merged configuration, thumbnail templates, current page queue, and pending cell. A change of task id resets the tracker and the queue.
+The instance holds the tracker, task id, merged configuration, thumbnail templates, current page queue, and pending cell. A change of task id resets the tracker and the queue; running `EssenceGridResetAction` from Pipeline clears the same tracking state immediately so the next `EssenceGridAdvanceRecognition` scans from scratch, while loaded templates and configuration stay cached.
 
 ### `EssenceGridAdvance.attach`
 

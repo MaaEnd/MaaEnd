@@ -118,8 +118,9 @@ Tracker 在前一帧中枚举非负行偏移，按以下顺序选择候选：
 
 - `EssenceGridAdvanceRecognition`
 - `EssenceGridPendingRecognition`
+- `EssenceGridResetAction`
 
-实例持有 Tracker、任务 id、合并后的配置、缩略图模板、当前页队列和 pending cell。任务 id 变化时会重置 Tracker 与队列。
+实例持有 Tracker、任务 id、合并后的配置、缩略图模板、当前页队列和 pending cell。任务 id 变化时会重置 Tracker 与队列；Pipeline 执行 `EssenceGridResetAction` 时也会立即清空这些追踪状态，让下一次 `EssenceGridAdvanceRecognition` 从头扫描，已加载的模板与配置保留。
 
 ### `EssenceGridAdvance.attach`
 

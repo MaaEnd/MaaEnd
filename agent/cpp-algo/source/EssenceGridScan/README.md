@@ -7,12 +7,14 @@ RecoGrid and GridTracker. It converts Maa screenshots and merged Pipeline
 ## Ownership
 
 One `EssenceGrid` is created in `main.cpp`. The same instance is passed through
-`trans_arg` to both registered custom recognitions:
+`trans_arg` to the registered custom recognitions and action:
 
 - `EssenceGridAdvanceRecognition` scans or consumes the current queue and
   chooses the next Pipeline node;
 - `EssenceGridPendingRecognition` returns the exact rectangle of the selected
-  cell so Pipeline can click it.
+  cell so Pipeline can click it;
+- `EssenceGridResetAction` clears the tracking state, so the next advance starts
+  a fresh scan. Loaded templates and configuration stay cached.
 
 The instance owns:
 

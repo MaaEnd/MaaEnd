@@ -232,11 +232,8 @@ EssenceTemplateConfig make_template_config(const EssenceGridConfig& config)
     };
 }
 
-void reset_session_for_new_task(EssenceGridState& state, MaaTaskId task_id)
+void reset_tracking(EssenceGridState& state)
 {
-    if (task_id == state.task_id_) {
-        return;
-    }
     state.issued_cells_ = 0;
     state.pending_cell_.reset();
     state.last_scan_result_.reset();
@@ -245,6 +242,14 @@ void reset_session_for_new_task(EssenceGridState& state, MaaTaskId task_id)
     state.current_page_queue_index_ = 0;
     state.scan_required_ = true;
     state.tracker_.reset();
+}
+
+void reset_session_for_new_task(EssenceGridState& state, MaaTaskId task_id)
+{
+    if (task_id == state.task_id_) {
+        return;
+    }
+    reset_tracking(state);
     state.task_id_ = task_id;
     LogInfo << "EssenceGridScan reset session" << VAR(task_id);
 }
@@ -762,6 +767,19 @@ MaaBool EssenceGrid::advance(
     }
 }
 
+MaaBool MAA_CALL EssenceGrid::resetActionRun(
+    [[maybe_unused]] MaaContext* context,
+    MaaTaskId task_id,
+    const char* node_name,
+    [[maybe_unused]] const char* custom_action_name,
+    [[maybe_unused]] const char* custom_action_param,
+    [[maybe_unused]] MaaRecoId reco_id,
+    [[maybe_unused]] const MaaRect* box,
+    void* trans_arg)
+{
+    return static_cast<EssenceGrid*>(trans_arg)->resetTracking(task_id, node_name);
+}
+
 MaaBool MAA_CALL EssenceGrid::pendingRecognitionRun(
     [[maybe_unused]] MaaContext* context,
     [[maybe_unused]] MaaTaskId task_id,
@@ -793,6 +811,15 @@ MaaBool EssenceGrid::pending(MaaRect* out_box, MaaStringBuffer* out_detail)
     write_pending_detail(out_detail, state, true, "Pending Essence grid cell");
     LogInfo << "EssenceGridScan pending" << VAR(state.pending_cell_->grid_.frame_index) << VAR(box.x) << VAR(box.y) << VAR(box.width)
             << VAR(box.height);
+    return 1;
+}
+
+MaaBool EssenceGrid::resetTracking(MaaTaskId task_id, const char* node_name)
+{
+    EssenceGridState& state = *state_;
+    reset_tracking(state);
+    state.task_id_ = MaaInvalidId;
+    LogInfo << "EssenceGridScan tracking reset" << VAR(task_id) << VAR(node_name);
     return 1;
 }
 
