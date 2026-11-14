@@ -183,7 +183,7 @@ Add the new region identifier (e.g., `"NewRegion"`) to the `enum` list of the `r
 
 ## Page-by-page Shelf Scan
 
-Recognition scans the elastic goods shelf **page by page** until the shelf stops moving, so the number of pages does not matter:
+Recognition scans the elastic goods shelf **page by page**: at most 3 frames (the entry frame plus one frame after each of two swipes down), independent of how many goods were recognized.
 
 1. OCR + template match on the first-screen screenshot.
 2. Run `AutoStockpileSwipeShelfDown` to scroll one step, then screencap and compare with the previous screen; if nothing changed, the shelf is already at the bottom (or the current controller does not scroll at all, e.g. Win32) and scanning stops.
@@ -191,7 +191,7 @@ Recognition scans the elastic goods shelf **page by page** until the shelf stops
 4. Merge by goods **ID** (on duplicates keep the first-screen entry; IDs seen only on page N (0-based) go into `SwipeCountToReveal`, whose value is the number of swipes down needed).
 5. Reset the shelf: swipe up until `AutoStockpileResetShelf` (the market entry) is visible again (at most `shelfResetMaxSwipes` times), then click it to re-enter the purchasable-goods view so the UI re-renders the list at the top.
 
-Page scanning performs at most 10 swipes down (`shelfMaxScrollSteps`), which is only a safety net against endless loops; normal termination is "the frame stopped changing". A longer shelf needs no change to this logic, only a check that `AutoStockpileSwipeShelfDown` on ADB scrolls clearly less than the recognition ROI height.
+Page scanning always performs two swipes down (`shelfScanSwipeTimes`): the entry frame plus one frame per swipe. Scanning stops early when the frame stops changing, so Win32 (full list on one screen) only recognizes one frame. If the frames are not enough, raise `shelfScanSwipeTimes` and confirm that `AutoStockpileSwipeShelfDown` on ADB still scrolls clearly less than the recognition ROI height.
 
 The reset does not rely on swipe counts cancelling out: the position is guaranteed by re-rendering the list after clicking the market entry, and the swipes only need to bring that entry back into view. Swiping up too many times scrolls past the top of the list into the `当前拥有` (Currently Owned) area, so reduce `shelfResetMaxSwipes` first when tuning on a device.
 

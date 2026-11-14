@@ -12,10 +12,10 @@ import (
 // 逐像素比较整屏开销过大，而滚动一屏必然改变大量采样点，隔点采样已足够。
 const shelfFrameCompareStep = 4
 
-// shelfMaxScrollSteps 是逐屏扫描允许的最大下滑次数。
-// 正常终止只看画面是否还在滚动，与货架具体有几屏无关；该上限仅用于兜底，
-// 避免画面因动画等干扰持续变化时无限下滑。
-const shelfMaxScrollSteps = 10
+// shelfScanSwipeTimes 是逐屏扫描固定下滑的次数：进入时 1 帧 + 每次滑动各 1 帧。
+// 与识别到的商品数量无关，多出来的帧由商品 ID 去重消化；
+// 画面没有变化时提前结束，避免在不需要滑动的控制器上重复识别同一屏。
+const shelfScanSwipeTimes = 2
 
 func runShelfSwipe(ctx *maa.Context, nodeName string) error {
 	if ctx == nil {
@@ -144,8 +144,9 @@ func resetShelf(ctx *maa.Context) {
 	}
 }
 
-// scanGoodsAcrossShelfPages 从首屏开始逐屏下滑扫描，按商品 ID 合并所有屏结果，
-// 返回合并后的商品与「露出该商品需要下滑的次数」，并把货架重置回顶部。
+// scanGoodsAcrossShelfPages 固定扫描最多 3 帧（进入 1 帧 + 两次下滑各 1 帧），
+// 按商品 ID 合并所有帧结果，返回合并后的商品与「露出该商品需要下滑的次数」，并把货架重置回顶部。
+// 是否继续下滑只看画面有没有变化，与识别到的商品数量无关。
 func scanGoodsAcrossShelfPages(
 	ctx *maa.Context,
 	firstImg image.Image,
@@ -174,7 +175,7 @@ func scanGoodsAcrossShelfPages(
 	}()
 
 	previousImg := firstImg
-	for scroll := 0; scroll < shelfMaxScrollSteps; scroll++ {
+	for scroll := 0; scroll < shelfScanSwipeTimes; scroll++ {
 		if swipeErr := runShelfSwipe(ctx, swipeShelfDownNodeName); swipeErr != nil {
 			log.Warn().
 				Err(swipeErr).
@@ -234,14 +235,6 @@ func scanGoodsAcrossShelfPages(
 		Int("merged_count", len(goods)).
 		Int("swipe_count_to_reveal", len(swipeCountToReveal)).
 		Msg("shelf goods scan merged")
-
-	if swiped >= shelfMaxScrollSteps {
-		log.Warn().
-			Str("component", autoStockpileComponent).
-			Str("step", "shelf_scan_capped").
-			Int("max_scroll_steps", shelfMaxScrollSteps).
-			Msg("shelf scan reached step cap, goods on later pages may be unscanned")
-	}
 
 	resetShelf(ctx)
 	resetDone = true

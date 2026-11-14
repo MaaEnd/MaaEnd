@@ -183,7 +183,7 @@ var regionBases = map[string]int{
 
 ## 货架逐屏扫描
 
-识别阶段会对弹性货架做**逐屏扫描**，滑到货架不再变化为止，不依赖具体屏数：
+识别阶段会对弹性货架做**逐屏扫描**：固定最多 3 帧（进入时 1 帧 + 两次下滑各 1 帧），与识别到的商品数量无关。
 
 1. 对首屏截图执行 OCR + 模板匹配。
 2. 调用 `AutoStockpileSwipeShelfDown` 下滑一段，再截图与上一屏比较；画面没有变化说明已经到底（或当前控制器本来就不需要滑动，如 Win32），结束扫描。
@@ -191,7 +191,7 @@ var regionBases = map[string]int{
 4. 按商品 **ID 去重合并**（同 ID 保留首屏结果；仅第 N 屏（0-based）才出现的 ID 记入 `SwipeCountToReveal`，值为需要下滑的次数）。
 5. 重置货架：向上滑动直到 `AutoStockpileResetShelf`（市场入口）重新可见（最多 `shelfResetMaxSwipes` 次），再点击它重新进入可购买物资视图，让列表由 UI 重新渲染回顶部。
 
-逐屏扫描最多下滑 10 次（`shelfMaxScrollSteps`），仅作为防死循环的兜底；正常情况由「画面不再变化」终止。货架继续变长时不需要改这段逻辑，只需确认 ADB 侧 `AutoStockpileSwipeShelfDown` 的单次滚动量仍明显小于识别区高度。
+逐屏扫描固定下滑两次（`shelfScanSwipeTimes`）：进入时 1 帧 + 两次滑动各 1 帧。画面没有变化时提前结束，Win32 一屏可见因此只识别 1 帧。帧数不够时调大 `shelfScanSwipeTimes`，同时确认 ADB 侧 `AutoStockpileSwipeShelfDown` 的单次滚动量仍明显小于识别区高度。
 
 重置不依赖滑动次数的精确抵消：位置由点击市场入口后的 UI 重新渲染保证，上滑只负责把入口带回画面。上滑次数过多会把货架滑出列表顶部（进入「当前拥有」区域），实机调整时优先减小 `shelfResetMaxSwipes`。
 
