@@ -2318,6 +2318,7 @@
     "task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.label": "최소 보유 수량",
     "task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.pattern_msg": "240000~999999999 사이의 정수를 입력하세요.",
     "task.AutoStockStaple.option.AutoStockReserveWuling.label": "조달권 보유",
+    "task.AutoStockStaple.option.AutoStockStapleStashBackpackSubTask.label": "구매 전 배낭 보관",
     "task.AutoStockStaple.option.AutoStockStapleValleyIV.description": "제4 계곡에서 매주 갱신되는 물자만 구매합니다",
     "task.AutoStockStaple.option.AutoStockStapleValleyIV.label": "제4 계곡 안정 물자 구매",
     "task.AutoStockStaple.option.AutoStockStapleWuling.description": "무릉에서 매주 갱신되는 물자만 구매합니다",

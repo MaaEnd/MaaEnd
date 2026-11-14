@@ -2318,6 +2318,7 @@
     "task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.label": "Minimum reserved amount",
     "task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.pattern_msg": "Please enter an integer from 240000 to 999999999.",
     "task.AutoStockStaple.option.AutoStockReserveWuling.label": "Reserved dispatch vouchers",
+    "task.AutoStockStaple.option.AutoStockStapleStashBackpackSubTask.label": "Stash backpack before purchase",
     "task.AutoStockStaple.option.AutoStockStapleValleyIV.description": "Only purchase weekly refreshed items in Valley IV",
     "task.AutoStockStaple.option.AutoStockStapleValleyIV.label": "Valley IV staple goods purchase",
     "task.AutoStockStaple.option.AutoStockStapleWuling.description": "Only purchase weekly refreshed items in Wuling",
