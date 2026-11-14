@@ -1518,7 +1518,8 @@
                     "label": "$option.CreditShoppingForce.cases.Refresh.label",
                     "option": [
                         "PrudentRefresh",
-                        "CreditShoppingRefreshCheckPrice"
+                        "CreditShoppingRefreshCheckPrice",
+                        "CreditShoppingRefreshLimit"
                     ],
                     "pipeline_override": {
                         "CreditShoppingBuyBlacklist": {
@@ -1540,6 +1541,46 @@
                 }
             ],
             "default_case": "Refresh"
+        },
+        "CreditShoppingRefreshLimit": {
+            "type": "switch",
+            "label": "$option.CreditShoppingRefreshLimit.label",
+            "description": "$option.CreditShoppingRefreshLimit.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CreditShoppingRefreshLimitReached": {
+                            "enabled": true
+                        },
+                        "CreditShoppingRefreshReserveCreditGate": {
+                            "recognition": {
+                                "type": "And",
+                                "param": {
+                                    "all_of": [
+                                        "RefreshCost",
+                                        "CreditShoppingReserveCreditOCRInternal"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingRefreshLimitReached": {
+                            "enabled": false
+                        },
+                        "CreditShoppingRefreshReserveCreditGate": {
+                            "recognition": {
+                                "type": "DirectHit"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
         },
         "CreditShoppingRefreshCheckPrice": {
             "type": "switch",
@@ -1700,6 +1741,15 @@
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{CreditShoppingReserveCreditOCRInternal}-{CreditShoppingBuyItemPriceOCR}<{ReserveCreditThreshold}"
+                            }
+                        }
+                    }
+                },
+                "CreditShoppingRefreshLimitReached": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<{ReserveCreditThreshold}"
                             }
                         }
                     }
