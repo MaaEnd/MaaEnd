@@ -108,6 +108,8 @@ Only required when maintaining the corresponding task.
 | [SeizeDeliveryJobs](./tasks/seize-delivery-jobs-maintain.md) | Data-driven endpoint generation, landmark-name maintenance, fallback text, and locale synchronization |
 | [GiftOperator](./tasks/gift-operator-maintain.md) | Navigation pathfinding, contact operator selection, gift giving/receiving branches, and operator extension maintenance |
 | [DeliveryJobs](./tasks/delivery-jobs-maintain.md) | Depot node handling modes, anchor landing rules, bid branches, and cargo packing priority maintenance |
+| [StashBackpack](./tasks/stash-backpack-maintain.md) | Quick stash and "usable items ≤4" chains, plus the sort-reflow and warehouse-full banner pitfalls |
+| [OperatorGrowth](./tasks/operator-growth-maintain.md) | The two-option template override, the red-count check, and the A/B reward switching flow |
 
 ### Third-Party Protocol Documents (`protocol/`)
 
