@@ -41,7 +41,7 @@
         "rate_limit": 0
     },
     "AutoStockpileSwipeShelfUp": {
-        "desc": "货架向上滑动一页，回到上一屏（ADB）。与下滑使用相同的慢速拖动距离，复原时按次数反向拖动即可",
+        "desc": "货架向上大幅滑动，用于重置前把市场入口带回可视区（ADB）",
         "recognition": {
             "type": "DirectHit",
             "param": {}
@@ -52,20 +52,19 @@
             "param": {
                 "begin": [
                     640,
-                    320
+                    650
                 ],
                 "end": [
                     [
                         640,
-                        520
+                        150
                     ],
                     [
                         760,
-                        520
+                        150
                     ]
                 ],
-                "end_hold": 200,
-                "duration": 700
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {

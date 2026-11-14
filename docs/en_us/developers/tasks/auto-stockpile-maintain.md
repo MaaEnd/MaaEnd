@@ -189,13 +189,13 @@ Recognition scans the elastic goods shelf **page by page** until the shelf stops
 2. Run `AutoStockpileSwipeShelfDown` to scroll one step, then screencap and compare with the previous screen; if nothing changed, the shelf is already at the bottom (or the current controller does not scroll at all, e.g. Win32) and scanning stops.
 3. If the frame changed, scan that screen and repeat step 2. One scroll step is far smaller than the recognition ROI, so every row appears fully in at least one screen and no row is skipped.
 4. Merge by goods **ID** (on duplicates keep the first-screen entry; IDs seen only on page N (0-based) go into `SwipeCountToReveal`, whose value is the number of swipes down needed).
-5. Restore the pre-scan position: run `AutoStockpileSwipeShelfUp` for each actual swipe down. Both directions use the same slow drag (`duration`), so momentum is negligible and replaying the same number of steps returns to the start.
+5. Reset the shelf: swipe up until `AutoStockpileResetShelf` (the market entry) is visible again (at most `shelfResetMaxSwipes` times), then click it to re-enter the purchasable-goods view so the UI re-renders the list at the top.
 
 Page scanning performs at most 10 swipes down (`shelfMaxScrollSteps`), which is only a safety net against endless loops; normal termination is "the frame stopped changing". A longer shelf needs no change to this logic, only a check that `AutoStockpileSwipeShelfDown` on ADB scrolls clearly less than the recognition ROI height.
 
-The restore only needs to be approximately right: the pre-click swipes use `SwipeCountToReveal`, and the click ROI covers the whole shelf, so a few rows of error do not break the template match. That is why there is no OCR-anchor calibration.
+The reset does not rely on swipe counts cancelling out: the position is guaranteed by re-rendering the list after clicking the market entry, and the swipes only need to bring that entry back into view. Swiping up too many times scrolls past the top of the list into the `当前拥有` (Currently Owned) area, so reduce `shelfResetMaxSwipes` first when tuning on a device.
 
-If a swipe, a screencap or a page scan fails, keep the pages already scanned without aborting; a failed restore only logs a warning, and the merged results are still used.
+If a swipe, a screencap or a page scan fails, keep the pages already scanned without aborting; a failed reset only logs a warning, and the merged results are still used.
 
 After selection:
 
@@ -204,5 +204,5 @@ After selection:
 
 Swipe nodes:
 
-- Win32 default: `AutoStockpileSwipeShelfDown` / `AutoStockpileSwipeShelfUp` are `DoNothing` in `assets/resource/pipeline/AutoStockpile/Helper.json` (full list fits one screen), so the first frame comparison of page scanning reports "not scrolling" and stops.
-- ADB / PlayCover: real `Swipe` overrides in `assets/resource_adb/pipeline/AutoStockpile/Helper.json`: both directions are equal-distance slow drags (200 px, `duration: 700`, `end_hold: 200`) to keep momentum out of the displacement. Coordinates are 720p; if real devices miss items or the restore drifts, first tune the ADB-side `begin` / `end` / `duration` and `post_wait_freezes.target`.
+- Win32 default: `AutoStockpileSwipeShelfDown` / `AutoStockpileSwipeShelfUp` are `DoNothing` in `assets/resource/pipeline/AutoStockpile/Helper.json` (full list fits one screen), so the first frame comparison of page scanning reports "not scrolling" and stops, and no reset click is triggered.
+- ADB / PlayCover: real `Swipe` overrides in `assets/resource_adb/pipeline/AutoStockpile/Helper.json`: the swipe down is a 200 px slow drag (`duration: 700`) used as the scan step, and the swipe up is a 500 px fast swipe used only to bring the market entry back into view. Coordinates are 720p; if real devices miss items or the entry is still invisible after the reset, first tune the ADB-side `begin` / `end`, `duration` and `post_wait_freezes.target`.

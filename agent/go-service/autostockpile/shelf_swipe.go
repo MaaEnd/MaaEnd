@@ -87,27 +87,65 @@ func samePixel(a, b image.Image, x, y int) bool {
 	return ar == br && ag == bg && ab == bb && aa == ba
 }
 
-// restoreShelf 按实际下滑次数把货架滑回扫描起始位置。
-// 下滑与上滑使用等距、慢速的拖动，几乎没有惯性，位移与手势距离基本一致，
-// 因此按次数反向拖动即可回到原位；该位置是后续点击商品的前提，
-// 复原失败只记录日志，不阻断本次识别结果。
-func restoreShelf(ctx *maa.Context, times int) {
-	for i := 0; i < times; i++ {
-		if err := swipeShelfUp(ctx); err != nil {
+// shelfResetMaxSwipes 是重置货架时最多向上滑动的次数。
+// 循环在「市场入口重新可见」时提前结束，该上限只用于兜底，
+// 避免入口一直不可见时无限上滑；实机若滑出列表顶部，优先减小该值。
+const shelfResetMaxSwipes = 4
+
+// resetShelf 把货架重置回顶部：先向上滑动到市场入口重新可见，再点击入口让列表重新渲染。
+// 位置由 UI 重置保证，不依赖下滑次数与上滑次数的精确抵消。
+// 重置失败只记录日志，不阻断本次识别结果（后续点击可能因此偏位）。
+func resetShelf(ctx *maa.Context) {
+	for i := 0; i < shelfResetMaxSwipes; i++ {
+		img, capErr := screencapShelf(ctx)
+		if capErr != nil {
 			log.Warn().
-				Err(err).
+				Err(capErr).
 				Str("component", autoStockpileComponent).
-				Str("step", "shelf_swipe_up").
-				Int("restore_index", i).
-				Int("restore_times", times).
-				Msg("failed to restore shelf to start position")
+				Str("step", "shelf_reset_screencap").
+				Msg("failed to screencap during shelf reset")
 			return
 		}
+
+		detail, recErr := ctx.RunRecognition(shelfResetNodeName, img, nil)
+		if recErr != nil {
+			log.Warn().
+				Err(recErr).
+				Str("component", autoStockpileComponent).
+				Str("step", "shelf_reset_market").
+				Str("node", shelfResetNodeName).
+				Msg("failed to locate market entry during shelf reset")
+			return
+		}
+		// 市场入口重新可见后不再继续上滑，避免越过列表顶部滑进「当前拥有」区域。
+		if detail != nil && detail.Hit {
+			break
+		}
+
+		if swipeErr := swipeShelfUp(ctx); swipeErr != nil {
+			log.Warn().
+				Err(swipeErr).
+				Str("component", autoStockpileComponent).
+				Str("step", "shelf_reset_swipe").
+				Int("swipe_index", i).
+				Msg("failed to swipe up during shelf reset")
+			return
+		}
+	}
+
+	detail, err := ctx.RunTask(shelfResetNodeName)
+	if err != nil || detail == nil || !detail.Status.Success() {
+		log.Warn().
+			Err(err).
+			Str("component", autoStockpileComponent).
+			Str("step", "shelf_reset_click").
+			Str("node", shelfResetNodeName).
+			Msg("failed to re-enter market view after shelf reset")
 	}
 }
 
 // scanGoodsAcrossShelfPages 从首屏开始逐屏下滑扫描，按商品 ID 合并所有屏结果，
-// 返回合并后的商品与「露出该商品需要下滑的次数」，并把货架滑回扫描起始位置。
+// 返回合并后的商品与「露出该商品需要下滑的次数」，并把货架重置回顶部。
 func scanGoodsAcrossShelfPages(
 	ctx *maa.Context,
 	firstImg image.Image,
@@ -125,14 +163,14 @@ func scanGoodsAcrossShelfPages(
 
 	pages := [][]GoodsItem{firstPage}
 	swiped := 0
-	restored := false
+	resetDone := false
 
-	// 下游要按首屏结果点击商品，因此无论后面是否降级，都要尽量把货架滑回起始位置。
+	// 下游要按首屏结果点击商品，因此无论后面是否降级，都要把货架重置回顶部。
 	defer func() {
-		if restored || swiped == 0 {
+		if resetDone || swiped == 0 {
 			return
 		}
-		restoreShelf(ctx, swiped)
+		resetShelf(ctx)
 	}()
 
 	previousImg := firstImg
@@ -205,8 +243,8 @@ func scanGoodsAcrossShelfPages(
 			Msg("shelf scan reached step cap, goods on later pages may be unscanned")
 	}
 
-	restoreShelf(ctx, swiped)
-	restored = true
+	resetShelf(ctx)
+	resetDone = true
 
 	return goods, swipeCountToReveal, AbortReasonNone, nil
 }
