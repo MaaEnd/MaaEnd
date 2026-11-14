@@ -1,5 +1,8 @@
 # Development Manual - Stash Backpack Maintenance
 
+This document describes the file layout and both stash routes of `StashBackpack`.  
+Last updated on November 14, 2026.
+
 Stash Backpack has two modes: quick stash, and stashing only usable items whose count is 4 or less. The second one sorts first and then moves items one at a time, so its node chain is longer and all the known pitfalls live there.
 
 ## File paths
@@ -11,7 +14,7 @@ Stash Backpack has two modes: quick stash, and stashing only usable items whose 
 ## Main flow
 
 `StashBackpackSubTask` is the entry used when another task runs this one as a sub task; it brings up `StashBackpackMain`.
-`StashBackpackMain` tries `StashBackpackEnterSuccess` first, and falls back to `[JumpBack]SceneEnterMenuBackpackWithDepot` to open the backpack.
+`StashBackpackMain` tries `StashBackpackEnterSuccess` first, and falls back to `[JumpBack]SceneEnterMenuBackpackWithDepot` to open the backpack. When the area option is set to `ValleyIV` or `Wuling`, that fallback node is replaced by `SceneEnterMenuBackpackWithDepotValleyIV` / `SceneEnterMenuBackpackWithDepotWuling`, so check the actual option before debugging navigation.
 
 Once inside the backpack, `StashBackpackEnterSuccess` runs both modes through SubTask in order, then finishes with `StashBackpackResetUsableItemsLimitedHitCount` to clear the drag counter so the next run still gets a full ten attempts.
 
@@ -44,21 +47,24 @@ After the drag comes `QuickMoveClick`, which clicks 24 pixels above the drag box
 
 On some machines the reflow caused by sorting only starts after more than a second. At 200 ms the frame is still the old layout, the freeze check passes early, and the drag that follows reads a pre-sort cell and moves the wrong item.
 
-#7280 enlarged the region but left the duration alone, so the window is still there.
+Pull request 7280 enlarged the region but left the duration alone, so the window is still there.
 
 ### The warehouse-full banner is never recognized
 
 `StashBackpackUsableItemsStoreFull` OCRs for "目标空间已满，部分物品未能完全移动" inside roi `[319, 0, 601, 122]`, a strip near the top of the screen.
 
-In the log attached to #7284 this node failed on all eleven heartbeats, returning only fragments like `M`, `T`, `CN`, `4`. Without a hit the flow keeps dragging, `max_hit` gets consumed by one item that cannot be stored, and the task falls through to the fallback sort node, reporting success while items are still sitting in the backpack.
+In the log attached to issue 7284 this node failed on all eleven heartbeats, returning only fragments like `M`, `T`, `CN`, `4`. Without a hit the flow keeps dragging, `max_hit` gets consumed by one item that cannot be stored, and the task falls through to the fallback sort node, reporting success while items are still sitting in the backpack.
 
 ## ADB differences
 
-The ADB overlay replaces three nodes with a different implementation:
+The ADB overlay replaces four nodes with a different implementation:
 
 - `StashBackpackEnterSuccess` does not use `InBackpack`; it confirms the backpack with the `StashBackpack/QuickStash.png` template
 - `StashBackpackUsableItemsLimitedDrag` does not press Shift; it uses `TouchDown` on contact 4 with `auto_up`
-- `StashBackpackUsableItemsLimitedQuickMoveClick` never clicks a cell; it looks for the transfer-to-warehouse icon and clicks it with `RepeatUntilNotFoundAction` until the icon disappears
+- `StashBackpackUsableItemsLimitedQuickMoveClick` never clicks a cell; it looks for the transfer-to-warehouse icon and clicks it with `RepeatUntilNotFoundAction`, at most five times
+- `StashBackpackUsableItemsLimitedQuickMoveKeyUp` switches to `TouchUp` to release contact 4 instead of releasing Shift
+
+Mind the limit on the third node: `repeat_count` is 5 and `interval_ms` is 500. If the icon is still there after the fifth click, the action fails outright instead of retrying. When an item did not get moved, count how many times this node fired first.
 
 Check whether ADB has its own copy before tuning parameters, and do not change only one side.
 
