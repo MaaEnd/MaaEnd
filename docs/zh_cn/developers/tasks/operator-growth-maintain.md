@@ -8,15 +8,13 @@
 ## 文件路径
 
 - 任务定义：`assets/tasks/OperatorGrowth.json`
-- 主流程：`assets/resource/pipeline/OperatorGrowth/Growth.json`（另有 `OperatorGrowth.json` 收纳 `OperatorGrowthMaterialsSufficient`）
+- 主流程：`assets/resource/pipeline/OperatorGrowth/Growth.json`（`OperatorGrowthMaterialsSufficient` 节点也定义在这个文件里）
 - ADB 覆盖：`assets/resource_adb/pipeline/OperatorGrowth/Growth.json`
-
-注意 `tools/zmdmap/data/operator_growth.json`（干员培养的数值参考，等级经验与逐级消耗）不是任务运行的数据，它由 `datasets/operator_growth.py` 从 TableCfg 生成，目前没有被 pipeline 或用户文档引用。
 
 ## 两个选项
 
 - `OperatorGrowthSchedule`：每周几跑，checkbox 类型，七个日选各自生成一个 `pipeline_override` 覆盖 `OperatorGrowthSchedule*` 节点。
-- `OperatorGrowthOperator`：培养哪个干员，`select` 八个干员，每个 case 用 `pipeline_override` 把 `OperatorGrowthTargetAvatar` 和 `OperatorGrowthTargetName` 的 `template` 换成对应截图。
+- `OperatorGrowthOperator`：培养哪个干员，`select` 覆盖 34 个干员，每个 case 用 `pipeline_override` 把 `OperatorGrowthTargetAvatar` 和 `OperatorGrowthTargetName` 的 `template` 换成对应截图。
 
 新增干员需要新截图两张（左侧头像、右侧姓名），不改节点结构。
 
