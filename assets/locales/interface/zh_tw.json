@@ -2019,6 +2019,7 @@
     "task.AutoCollect.item.item_plant_tundra_insect_2.skipped": "灼殼蟲 庫存已達目標，本次跳過",
     "task.AutoCollect.label": "🧺自動採集",
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "任務前後存放背包",
+    "task.AutoCollect.option.AutoCollectSwitchTeam.label": "任務開始前切換編隊",
     "task.AutoCollect.route.ValleyIVAuronyx1.failed": "<span style=\"color: red; font-weight: bold;\">中黯石採集失敗</span>",
     "task.AutoCollect.route.ValleyIVAuronyx1.label": "採集中黯石",
     "task.AutoCollect.route.ValleyIVChrysodendra1.failed": "<span style=\"color: red; font-weight: bold;\">純晶多齒葉採集失敗</span>",

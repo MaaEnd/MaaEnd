@@ -2019,6 +2019,7 @@
     "task.AutoCollect.item.item_plant_tundra_insect_2.skipped": "アブリムシ 在庫が目標に達したため、今回はスキップします",
     "task.AutoCollect.label": "🧺自動収集",
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "タスク前後にバックパックを収納",
+    "task.AutoCollect.option.AutoCollectSwitchTeam.label": "タスク開始前に編成を切り替える",
     "task.AutoCollect.route.ValleyIVAuronyx1.failed": "<span style=\"color: red; font-weight: bold;\">中闇石：採集失敗</span>",
     "task.AutoCollect.route.ValleyIVAuronyx1.label": "中闇石を採集",
     "task.AutoCollect.route.ValleyIVChrysodendra1.failed": "<span style=\"color: red; font-weight: bold;\">純晶鋭葉：採集失敗</span>",

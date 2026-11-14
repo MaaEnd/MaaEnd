@@ -40,6 +40,22 @@
             "key": "AutoCollect"
         },
         "next": [
+            "AutoCollectBeforeSwitchTeam"
+        ]
+    },
+    "AutoCollectBeforeSwitchTeam": {
+        "desc": "自动采集前切换编队",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SwitchTeamSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "AutoCollectBeforeStashBackpack"
         ]
     },
