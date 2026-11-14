@@ -98,7 +98,34 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SceneNoticeRewardsConfirmClick"
+            "SceneNoticeRewardsConfirmClick",
+            // 横幅已关闭回基地地图时的出口；必须排在 ConfirmClick 之后：
+            // 横幅还在时先走正常关闭路径（横幅是顶栏 banner，地图文字仍可读）
+            "DijiangRewardsNoticeGoneAtNexus"
+        ]
+    },
+    "DijiangRewardsNoticeGoneAtNexus": {
+        "desc": "[迪江·快速收取] 奖励横幅已关闭、回到基地地图(收取完成/无可收取) → 走分支出口，别空等横幅",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    140
+                ],
+                "expected": [
+                    "总控中枢",
+                    "运转报告",
+                    "总控事项",
+                    "總控中樞",
+                    "運轉報告"
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateNextTrue"
         ]
     },
     "DijiangRewardsFastCollectClues": {
