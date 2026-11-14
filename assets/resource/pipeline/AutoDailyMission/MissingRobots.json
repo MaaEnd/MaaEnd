@@ -498,6 +498,8 @@
                 }
             ]
         },
+        // 到达后敌人可能还没出现，固定等待 3 秒再判断是否需要自动战斗
+        "post_delay": 3000,
         "next": [
             "[JumpBack]AutoFight",
             "AutoDailyMissionMissingRobotsRouteOriginiumByproductProcessingCenterBeacon2Interact"
