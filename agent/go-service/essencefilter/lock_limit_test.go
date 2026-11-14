@@ -95,7 +95,7 @@ func TestLockLimitPlannerRankingByExpectedAttempts(t *testing.T) {
 	}
 }
 
-func TestLockLimitPlannerOverLimitReminderOnce(t *testing.T) {
+func TestLockLimitPlannerUnlockNeeded(t *testing.T) {
 	combo := [3]int{1, 2, 3}
 	weapons := []matchapi.WeaponData{
 		testWeapon("w6", 6, combo),
@@ -122,12 +122,12 @@ func TestLockLimitPlannerOverLimitReminderOnce(t *testing.T) {
 		{levels: [3]int{1, 1, 1}, locked: true},
 	}
 	wantLock := []bool{false, true, true, false}
-	wantRemind := []bool{true, false, false, false}
+	wantUnlock := []bool{true, false, false, true}
 	for i, step := range steps {
 		got := planner.decide(ids, step.levels, step.locked)
-		if got.Lock != wantLock[i] || got.OverLimit != wantRemind[i] {
-			t.Fatalf("step %d %+v: got lock=%v remind=%v, want lock=%v remind=%v",
-				i, step, got.Lock, got.OverLimit, wantLock[i], wantRemind[i])
+		if got.Lock != wantLock[i] || got.NeedsUnlock != wantUnlock[i] {
+			t.Fatalf("step %d %+v: got lock=%v unlock=%v, want lock=%v unlock=%v",
+				i, step, got.Lock, got.NeedsUnlock, wantLock[i], wantUnlock[i])
 		}
 	}
 
@@ -138,6 +138,9 @@ func TestLockLimitPlannerOverLimitReminderOnce(t *testing.T) {
 	got := summaries[0]
 	if got.Quota != 2 || got.Locked != 3 || got.Excess != 1 {
 		t.Fatalf("summary = %+v, want quota 2, locked 3, excess 1", got)
+	}
+	if len(got.Rows) != 1 || got.Rows[0].Levels != [3]int{1, 1, 1} || got.Rows[0].Count != 1 {
+		t.Fatalf("summary rows = %+v, want one +1/+1/+1 row with count 1", got.Rows)
 	}
 }
 

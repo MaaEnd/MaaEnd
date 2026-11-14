@@ -358,20 +358,20 @@ func applyLockLimit(
 		return false
 	}
 	verdict := planner.decide(match.SkillIDs, match.Levels, locked)
+	levels := match.Levels
 	switch {
 	case verdict.MissingGroup:
 		reportColoredByKey(ctx, "#ff9f43", "lock_limit.warn_missing_group", verdict.Quota)
 		return skip()
 	case verdict.MissingRow:
-		levels := match.Levels
 		reportColoredByKey(ctx, "#ff9f43", "lock_limit.warn_missing_row", levels[0], levels[1], levels[2])
 		return skip()
 	}
-	if verdict.OverLimit {
-		reportColoredByKey(ctx, "#ff4d4f", "lock_limit.over_limit", verdict.Quota)
-	}
 	if locked {
-		if !verdict.OverLimit {
+		if verdict.NeedsUnlock {
+			reportColoredByKey(ctx, "#ff4d4f", "lock_limit.unlock_needed",
+				strings.Join(match.SkillsChinese, i18n.Separator()), levels[0], levels[1], levels[2])
+		} else {
 			reportSimpleByKey(ctx, "lock_limit.already_locked")
 		}
 		return skip()
@@ -380,7 +380,7 @@ func applyLockLimit(
 		reportSimpleByKey(ctx, "lock_limit.not_in_quota", verdict.Quota)
 		return skip()
 	}
-	reportSimpleByKey(ctx, "lock_limit.in_quota", verdict.Quota, fmt.Sprintf("%.1f", verdict.Expected))
+	reportSimpleByKey(ctx, "lock_limit.in_quota", verdict.Quota)
 	return true
 }
 
@@ -403,5 +403,9 @@ func reportFinishLockLimit(ctx *maa.Context, st *RunState) {
 			summary.Locked,
 			summary.Excess,
 		)
+		for _, row := range summary.Rows {
+			reportSimpleByKey(ctx, "lock_limit.summary_level",
+				row.Levels[0], row.Levels[1], row.Levels[2], row.Count)
+		}
 	}
 }

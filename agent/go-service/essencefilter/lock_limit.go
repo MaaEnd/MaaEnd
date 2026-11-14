@@ -61,7 +61,6 @@ type lockLimitCombination struct {
 	ordered        []*lockLimitRow
 	snapshotLocked int
 	excess         int
-	reminded       bool
 }
 
 // lockLimitDecision is the lock-limit verdict for one scanned essence.
@@ -71,10 +70,9 @@ type lockLimitDecision struct {
 	MissingGroup bool
 	// MissingRow marks a level triple absent from its inventory group.
 	MissingRow bool
-	// OverLimit marks the first encounter of a combination's over-quota row in this run.
-	OverLimit bool
-	Quota     int
-	Expected  float64
+	// NeedsUnlock marks a locked essence that sits outside the lock quota.
+	NeedsUnlock bool
+	Quota       int
 }
 
 // lockLimitPlanner decides lock or skip for exact-matching essences under the
@@ -197,12 +195,8 @@ func (p *lockLimitPlanner) decide(skillIDs []int, levels [3]int, locked bool) lo
 		decision.MissingRow = true
 		return decision
 	}
-	decision.Expected = row.expected
 	if locked {
-		if row.locked > row.inTop && !combo.reminded {
-			decision.OverLimit = true
-			combo.reminded = true
-		}
+		decision.NeedsUnlock = row.locked > row.inTop
 		return decision
 	}
 	if row.lockedThisRun < row.needLock {
@@ -237,13 +231,20 @@ func skillsTriple(skills []string) ([3]string, bool) {
 	return [3]string{skills[0], skills[1], skills[2]}, true
 }
 
-// lockLimitSummary is one over-quota combination for the end-of-run report.
+// lockLimitSummary is one combination holding essences that need unlocking.
 type lockLimitSummary struct {
 	Skills  [3]string
 	Weapons []string
 	Quota   int
 	Locked  int
 	Excess  int
+	Rows    []lockLimitSummaryRow
+}
+
+// lockLimitSummaryRow names the level triple and the count of essences that need unlocking.
+type lockLimitSummaryRow struct {
+	Levels [3]int
+	Count  int
 }
 
 // lockedTotal returns the combination's locked essences, counting the locks made in this run.
@@ -255,20 +256,33 @@ func (c *lockLimitCombination) lockedTotal() int {
 	return total
 }
 
-// overLimitSummaries lists the combinations holding locked suboptimal essences, ordered by skill IDs.
+// overLimitSummaries lists what needs unlocking, ordered by skill combination and levels.
 func (p *lockLimitPlanner) overLimitSummaries() []lockLimitSummary {
 	var summaries []lockLimitSummary
 	for _, combo := range p.combinations {
 		if combo.excess == 0 {
 			continue
 		}
-		summaries = append(summaries, lockLimitSummary{
+		summary := lockLimitSummary{
 			Skills:  combo.skills,
 			Weapons: combo.weapons,
 			Quota:   combo.quota,
 			Locked:  combo.lockedTotal(),
 			Excess:  combo.excess,
+		}
+		for _, row := range combo.ordered {
+			if row.locked <= row.inTop {
+				continue
+			}
+			summary.Rows = append(summary.Rows, lockLimitSummaryRow{
+				Levels: row.levels,
+				Count:  row.locked - row.inTop,
+			})
+		}
+		sort.Slice(summary.Rows, func(i, j int) bool {
+			return slices.Compare(summary.Rows[i].Levels[:], summary.Rows[j].Levels[:]) < 0
 		})
+		summaries = append(summaries, summary)
 	}
 	sort.Slice(summaries, func(i, j int) bool {
 		return slices.Compare(summaries[i].Skills[:], summaries[j].Skills[:]) < 0
