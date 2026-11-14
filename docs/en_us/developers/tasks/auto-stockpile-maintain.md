@@ -186,16 +186,17 @@ Add the new region identifier (e.g., `"NewRegion"`) to the `enum` list of the `r
 Recognition scans the elastic goods shelf **page by page**: at most 3 frames (the entry frame plus one frame after each of two swipes down), independent of how many goods were recognized.
 
 1. OCR + template match on the first-screen screenshot.
-2. Run `AutoStockpileSwipeShelfDown` to scroll one step, then screencap and compare with the previous screen; if nothing changed, the shelf is already at the bottom (or the current controller does not scroll at all, e.g. Win32) and scanning stops.
-3. If the frame changed, scan that screen and repeat step 2. One scroll step is far smaller than the recognition ROI, so every row appears fully in at least one screen and no row is skipped.
-4. Merge by goods **ID** (on duplicates keep the first-screen entry; IDs seen only on page N (0-based) go into `SwipeCountToReveal`, whose value is the number of swipes down needed).
-5. Reset the shelf: swipe up until `AutoStockpileResetShelf` (the market entry) is visible again (at most `shelfResetMaxSwipes` times), then click it to re-enter the purchasable-goods view so the UI re-renders the list at the top.
+2. Run `AutoStockpileSwipeShelfDown` to scroll one step, then screencap and compare with the previous screen; if the pixels are identical, the shelf is already at the bottom (or the current controller does not scroll at all, e.g. Win32) and scanning stops.
+3. If the pixels differ, scan that screen and then compare its goods ID set with the previous screen: an identical set means the swipe did not advance the shelf (the ValleyIV view has micro-animations, so the pixel comparison alone keeps reporting "changed"), and scanning also stops.
+4. If the shelf really advanced, keep that screen and repeat step 2. One scroll step is far smaller than the recognition ROI, so every row appears fully in at least one screen and no row is skipped.
+5. Merge by goods **ID** (on duplicates keep the first-screen entry; IDs seen only on page N (0-based) go into `SwipeCountToReveal`, whose value is the number of swipes down needed).
+6. Restore the shelf: run `AutoStockpileSwipeShelfUp` as many times as the **effective swipes down** of this scan, using the same distance in the opposite direction, so the list returns to the scan origin.
 
-Page scanning always performs two swipes down (`shelfScanSwipeTimes`): the entry frame plus one frame per swipe. Scanning stops early when the frame stops changing, so Win32 (full list on one screen) only recognizes one frame. If the frames are not enough, raise `shelfScanSwipeTimes` and confirm that `AutoStockpileSwipeShelfDown` on ADB still scrolls clearly less than the recognition ROI height.
+Page scanning always performs two swipes down (`shelfScanSwipeTimes`): the entry frame plus one frame per swipe. Scanning stops early when the shelf stops advancing, logged as `shelf_swipe_skip` (`reason` is `frame_unchanged` or `goods_unchanged`), so Win32 (full list on one screen) only recognizes one frame. If the frames are not enough, raise `shelfScanSwipeTimes` and confirm that `AutoStockpileSwipeShelfDown` on ADB still scrolls clearly less than the recognition ROI height.
 
-The reset does not rely on swipe counts cancelling out: the position is guaranteed by re-rendering the list after clicking the market entry, and the swipes only need to bring that entry back into view. Swiping up too many times scrolls past the top of the list into the `当前拥有` (Currently Owned) area, so reduce `shelfResetMaxSwipes` first when tuning on a device.
+Restoration relies on the swipe down and the swipe up covering the same distance: both are a 200 px slow drag with `duration: 700`, so dragging back the same number of times returns to the origin, which is what makes `SwipeCountToReveal` ("swipe down N times from the origin") valid. Do not restore by clicking the market entry: it is a fixed sidebar entry, and clicking the already-selected entry does not re-render the list at the top. Recognizing it is also unreliable because the "unselected" template never matches the selected icon.
 
-If a swipe, a screencap or a page scan fails, keep the pages already scanned without aborting; a failed reset only logs a warning, and the merged results are still used.
+If a swipe, a screencap or a page scan fails, keep the pages already scanned without aborting; a failed swipe up only logs a warning and stops the remaining restoration, and the merged results are still used.
 
 After selection:
 
@@ -204,5 +205,5 @@ After selection:
 
 Swipe nodes:
 
-- Win32 default: `AutoStockpileSwipeShelfDown` / `AutoStockpileSwipeShelfUp` are `DoNothing` in `assets/resource/pipeline/AutoStockpile/Helper.json` (full list fits one screen), so the first frame comparison of page scanning reports "not scrolling" and stops, and no reset click is triggered.
-- ADB / PlayCover: real `Swipe` overrides in `assets/resource_adb/pipeline/AutoStockpile/Helper.json`: the swipe down is a 200 px slow drag (`duration: 700`) used as the scan step, and the swipe up is a 500 px fast swipe used only to bring the market entry back into view. Coordinates are 720p; if real devices miss items or the entry is still invisible after the reset, first tune the ADB-side `begin` / `end`, `duration` and `post_wait_freezes.target`.
+- Win32 default: `AutoStockpileSwipeShelfDown` / `AutoStockpileSwipeShelfUp` are `DoNothing` in `assets/resource/pipeline/AutoStockpile/Helper.json` (full list fits one screen), so the first frame comparison of page scanning reports "not scrolling" and stops, and no restoration drag is triggered.
+- ADB / PlayCover: real `Swipe` overrides in `assets/resource_adb/pipeline/AutoStockpile/Helper.json`: both the swipe down and the swipe up are a 200 px slow drag with `duration: 700` and `end_hold: 200` (the swipe down is the scan step, the swipe up is used only for restoration). Coordinates are 720p; if real devices miss items, first tune the ADB-side `begin` / `end`, `duration` and `post_wait_freezes.target`; if the restoration does not reach the origin, first confirm both nodes still use the same drag distance.

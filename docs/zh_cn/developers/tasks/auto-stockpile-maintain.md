@@ -186,16 +186,17 @@ var regionBases = map[string]int{
 识别阶段会对弹性货架做**逐屏扫描**：固定最多 3 帧（进入时 1 帧 + 两次下滑各 1 帧），与识别到的商品数量无关。
 
 1. 对首屏截图执行 OCR + 模板匹配。
-2. 调用 `AutoStockpileSwipeShelfDown` 下滑一段，再截图与上一屏比较；画面没有变化说明已经到底（或当前控制器本来就不需要滑动，如 Win32），结束扫描。
-3. 画面有变化则扫描该屏，随后重复第 2 步。单次下滑距离远小于识别区高度，任意一行商品都会在至少一屏里完整出现，不会跳行。
-4. 按商品 **ID 去重合并**（同 ID 保留首屏结果；仅第 N 屏（0-based）才出现的 ID 记入 `SwipeCountToReveal`，值为需要下滑的次数）。
-5. 重置货架：向上滑动直到 `AutoStockpileResetShelf`（市场入口）重新可见（最多 `shelfResetMaxSwipes` 次），再点击它重新进入可购买物资视图，让列表由 UI 重新渲染回顶部。
+2. 调用 `AutoStockpileSwipeShelfDown` 下滑一段，再截图与上一屏比较；像素完全一致说明已经到底（或当前控制器本来就不需要滑动，如 Win32），结束扫描。
+3. 像素有差异时扫描该屏，再把本屏商品 ID 集合与上一屏比较：集合相同说明这次下滑没有让货架前进（谷地界面存在微动画，单靠像素比较会一直判为「有变化」），同样结束扫描。
+4. 货架确实前进则记录该屏，随后重复第 2 步。单次下滑距离远小于识别区高度，任意一行商品都会在至少一屏里完整出现，不会跳行。
+5. 按商品 **ID 去重合并**（同 ID 保留首屏结果；仅第 N 屏（0-based）才出现的 ID 记入 `SwipeCountToReveal`，值为需要下滑的次数）。
+6. 复位货架：按本次**有效下滑次数**用 `AutoStockpileSwipeShelfUp` 反向等距拖动同样次数，把列表送回扫描起点。
 
-逐屏扫描固定下滑两次（`shelfScanSwipeTimes`）：进入时 1 帧 + 两次滑动各 1 帧。画面没有变化时提前结束，Win32 一屏可见因此只识别 1 帧。帧数不够时调大 `shelfScanSwipeTimes`，同时确认 ADB 侧 `AutoStockpileSwipeShelfDown` 的单次滚动量仍明显小于识别区高度。
+逐屏扫描固定下滑两次（`shelfScanSwipeTimes`）：进入时 1 帧 + 两次滑动各 1 帧。货架没有前进时提前结束，日志里记为 `shelf_swipe_skip`（`reason` 为 `frame_unchanged` 或 `goods_unchanged`）；Win32 一屏可见因此只识别 1 帧。帧数不够时调大 `shelfScanSwipeTimes`，同时确认 ADB 侧 `AutoStockpileSwipeShelfDown` 的单次滚动量仍明显小于识别区高度。
 
-重置不依赖滑动次数的精确抵消：位置由点击市场入口后的 UI 重新渲染保证，上滑只负责把入口带回画面。上滑次数过多会把货架滑出列表顶部（进入「当前拥有」区域），实机调整时优先减小 `shelfResetMaxSwipes`。
+复位依赖「下滑与上滑等距」：两者都是 200px、`duration: 700` 的慢速拖动，按有效下滑次数反向拖动即可回到起点，`SwipeCountToReveal` 的「从起点下滑 N 次」语义由此成立。不要改用点击市场入口复位：市场入口是固定侧边栏，点击已选中的入口不会让列表重新渲染回顶部，识别它还会因为「未选中」模板与「已选中」图标不一致而永远不命中。
 
-下滑、截图或某一屏扫描失败时降级为已扫到的结果，不中断任务；重置失败只记录警告，仍使用合并结果。
+下滑、截图或某一屏扫描失败时降级为已扫到的结果，不中断任务；某次上滑失败只记录警告并停止后续复原，仍使用合并结果。
 
 选中商品后：
 
@@ -204,5 +205,5 @@ var regionBases = map[string]int{
 
 滑动节点：
 
-- Win32 默认：`assets/resource/pipeline/AutoStockpile/Helper.json` 中 `AutoStockpileSwipeShelfDown` / `AutoStockpileSwipeShelfUp` 均为 `DoNothing`（一屏可看全），逐屏扫描第一次比较就会判定「没有滚动」并结束，因此也不会触发重置点击。
-- ADB / PlayCover：`assets/resource_adb/pipeline/AutoStockpile/Helper.json` 覆盖为真实 `Swipe`：下滑是 200px、`duration: 700` 的慢速拖动（扫描步长），上滑是 500px 的大幅快速滑动（只用于把市场入口带回画面）。坐标基于 720p，实机若漏扫或重置后入口仍不可见，优先微调 ADB 侧 `begin` / `end`、`duration` 与 `post_wait_freezes.target`。
+- Win32 默认：`assets/resource/pipeline/AutoStockpile/Helper.json` 中 `AutoStockpileSwipeShelfDown` / `AutoStockpileSwipeShelfUp` 均为 `DoNothing`（一屏可看全），逐屏扫描第一次比较就会判定「没有滚动」并结束，因此也不会触发复位拖动。
+- ADB / PlayCover：`assets/resource_adb/pipeline/AutoStockpile/Helper.json` 覆盖为真实 `Swipe`：下滑与上滑都是 200px、`duration: 700`、`end_hold: 200` 的等距慢速拖动（下滑是扫描步长，上滑只用于复位）。坐标基于 720p，实机若漏扫，优先微调 `begin` / `end`、`duration` 与 `post_wait_freezes.target`；若复位回不到起点，先确认两个节点的拖动距离仍然一致。
