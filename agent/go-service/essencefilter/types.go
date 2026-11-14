@@ -35,6 +35,8 @@ type EssenceFilterOptions struct {
 	LockSlot3Practical bool `json:"lock_slot3_practical"`
 	// 未匹配时废弃而非跳过
 	DiscardUnmatched bool `json:"discard_unmatched"`
+	// 限制相同词条基质的锁定数量：筛选前须已有基质库存，按适配武器数作为每个词条组合的锁定名额
+	LimitLockedPerCombination bool `json:"limit_locked_per_combination"`
 	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）；开启时会同时写入用户数据目录 debug/record/EssencePlan.html（每次覆盖）
 	ExportCalculatorScript bool `json:"export_calculator_script"`
 	// InputLanguage is game/OCR language for skill matching: CN|TC|EN|JP|KR.

@@ -254,6 +254,11 @@ func runUnifiedSkillDecision(
 
 	switch matchResult.Kind {
 	case matchapi.MatchExact:
+		if st.LockLimit != nil && !applyLockLimit(ctx, arg.CurrentTaskName, st.LockLimit, matchResult, st.CurrentLocked, next) {
+			st.CurrentSkills = [3]string{}
+			st.CurrentSkillLevels = [3]int{}
+			return true
+		}
 		st.MatchedCount++
 		reportMatchedWeapons(ctx, matchResult.Weapons)
 
@@ -337,4 +342,66 @@ func loadMatchEngine(ctx *maa.Context, opts *EssenceFilterOptions) (*matchapi.En
 		return nil, fmt.Errorf("load match engine: %w", err)
 	}
 	return engine, nil
+}
+
+// applyLockLimit reports the quota verdict for one exact match and returns whether to lock it.
+func applyLockLimit(
+	ctx *maa.Context,
+	taskName string,
+	planner *lockLimitPlanner,
+	match *matchapi.MatchResult,
+	locked bool,
+	next decisionNextNodes,
+) bool {
+	skip := func() bool {
+		ctx.OverrideNext(taskName, []maa.NextItem{{Name: next.Skip}})
+		return false
+	}
+	verdict := planner.decide(match.SkillIDs, match.Levels, locked)
+	switch {
+	case verdict.MissingGroup:
+		reportColoredByKey(ctx, "#ff9f43", "lock_limit.warn_missing_group", verdict.Quota)
+		return skip()
+	case verdict.MissingRow:
+		levels := match.Levels
+		reportColoredByKey(ctx, "#ff9f43", "lock_limit.warn_missing_row", levels[0], levels[1], levels[2])
+		return skip()
+	}
+	if verdict.OverLimit {
+		reportColoredByKey(ctx, "#ff4d4f", "lock_limit.over_limit", verdict.Quota)
+	}
+	if locked {
+		if !verdict.OverLimit {
+			reportSimpleByKey(ctx, "lock_limit.already_locked")
+		}
+		return skip()
+	}
+	if !verdict.Lock {
+		reportSimpleByKey(ctx, "lock_limit.not_in_quota", verdict.Quota)
+		return skip()
+	}
+	reportSimpleByKey(ctx, "lock_limit.in_quota", verdict.Quota, fmt.Sprintf("%.1f", verdict.Expected))
+	return true
+}
+
+// reportFinishLockLimit lists the combinations holding locked suboptimal essences.
+func reportFinishLockLimit(ctx *maa.Context, st *RunState) {
+	if st.LockLimit == nil {
+		return
+	}
+	summaries := st.LockLimit.overLimitSummaries()
+	if len(summaries) == 0 {
+		reportSimpleByKey(ctx, "lock_limit.summary_none")
+		return
+	}
+	reportColoredByKey(ctx, "#ff9f43", "lock_limit.summary_title")
+	for _, summary := range summaries {
+		reportSimpleByKey(ctx, "lock_limit.summary_row",
+			strings.Join(summary.Skills[:], i18n.Separator()),
+			strings.Join(summary.Weapons, i18n.Separator()),
+			summary.Quota,
+			summary.Locked,
+			summary.Excess,
+		)
+	}
 }

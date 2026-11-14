@@ -1749,6 +1749,8 @@
     "option.LaunchGamePlayCoverLaunchDelay.label": "Wait after launch (seconds)",
     "option.LevelUpOperatorMaxLevelThreshold.inputs.MaxLevelThreshold.label": "Max Level Threshold",
     "option.LevelUpOperatorMaxLevelThreshold.label": "Level Setting",
+    "option.LimitLockedPerCombination.description": "For each skill combination, lock at most as many matrices as the **number of compatible weapons**; lock priority is ranked by the expected sanity needed to enhance it to the maximum levels. The \"Skip locked\" and \"Skip discarded\" options are not accepted. Matches 5–6★ weapons only.",
+    "option.LimitLockedPerCombination.label": "Limit locks per identical skill combination",
     "option.LockFuturePromising.description": "When off, do nothing when this rule hits.",
     "option.LockFuturePromising.label": "Lock Future-Promising Hits",
     "option.LockSlot3Practical.description": "When off, do nothing when this rule hits.",

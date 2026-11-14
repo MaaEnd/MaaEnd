@@ -1749,6 +1749,8 @@
     "option.LaunchGamePlayCoverLaunchDelay.label": "실행 후 대기 시간 (초)",
     "option.LevelUpOperatorMaxLevelThreshold.inputs.MaxLevelThreshold.label": "최대 레벨 제한",
     "option.LevelUpOperatorMaxLevelThreshold.label": "등급 설정",
+    "option.LimitLockedPerCombination.description": "동일한 스킬 조합마다 **적용 무기 수**와 같은 수까지만 기질을 잠급니다. 잠금 우선순위는 최고 레벨까지 강화하는 데 필요한 이성의 기댓값으로 계산합니다. 「잠금 건너뛰기」 및 「폐기 건너뛰기」 옵션은 지원하지 않습니다. 5~6★ 무기만 매칭합니다.",
+    "option.LimitLockedPerCombination.label": "동일 스킬 조합의 잠금 수 제한",
     "option.LockFuturePromising.description": "끄면 이 규칙이 맞아도 아무 동작을 하지 않습니다.",
     "option.LockFuturePromising.label": "미래 유망 히트 시 잠금",
     "option.LockSlot3Practical.description": "끄면 이 규칙이 맞아도 아무 동작을 하지 않습니다.",

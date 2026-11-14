@@ -101,6 +101,18 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	st.MatchEngine = engine
 	st.EssenceMode = essenceMode
 
+	if opts.Mode == InitModeFilter && opts.LimitLockedPerCombination {
+		groups, loadErr := loadInventoryGroupsRequired(InventoryPath())
+		if loadErr != nil {
+			err = fmt.Errorf("load essence inventory: %w", loadErr)
+			log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadInventory").Msg("load essence inventory failed")
+			reportFocusByKey(ctx, "lock_limit.inventory_unavailable", err.Error())
+			return false
+		}
+		st.LockLimit = newLockLimitPlanner(groups, engine.Weapons())
+		reportSimpleByKey(ctx, "lock_limit.loaded", len(groups))
+	}
+
 	matchOpts := matchOptsFromPipeline(opts)
 	st.TargetSkillCombinations = engine.BuildTargets(matchOpts)
 	st.MatchedCombinationSummary = make(map[string]*matchapi.SkillCombinationSummary)
@@ -218,7 +230,7 @@ type EssenceFilterReadLockStateAction struct{}
 
 func (a *EssenceFilterReadLockStateAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
 	st := currentRun
-	if st == nil || st.Inventory == nil {
+	if st == nil || (st.Inventory == nil && st.LockLimit == nil) {
 		return true
 	}
 	locked, ok := readSelectedLockState(arg.RecognitionDetail)
@@ -304,6 +316,7 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 		reportColoredByKey(ctx, "#11cf00", "focus.finish.summary", st.MatchedCount)
 		reportFinishExtRuleStats(ctx, st)
 		reportFinishArtifacts(ctx, st)
+		reportFinishLockLimit(ctx, st)
 	}
 	currentRun = nil
 	return true

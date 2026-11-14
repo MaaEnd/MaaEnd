@@ -53,16 +53,64 @@
                     "name": "No",
                     "option": [
                         "SelectWeaponRarity",
-                        "SelectEssence",
                         "SelectExtraRules",
-                        "SkipThumbLock",
-                        "SkipThumbDiscard"
+                        "LimitLockedPerCombination"
                     ],
                     "pipeline_override": {
                         "EssenceFilterEntry": {
                             "enabled": true
                         }
                     }
+                }
+            ],
+            "default_case": "No"
+        },
+        "LimitLockedPerCombination": {
+            "type": "switch",
+            "label": "$option.LimitLockedPerCombination.label",
+            "description": "$option.LimitLockedPerCombination.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInventoryEntry": {
+                            "enabled": true
+                        },
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "limit_locked_per_combination": true,
+                                "flawless_essence": true,
+                                "pure_essence": false
+                            }
+                        },
+                        "EssenceGridAdvance": {
+                            "attach": {
+                                "flawless_essence": true,
+                                "pure_essence": false,
+                                "skip_thumb_lock": false,
+                                "skip_thumb_discard": true
+                            }
+                        },
+                        "EssenceFilterCheckItemOCRFallback": {
+                            "action": "StopTask"
+                        },
+                        "EssenceGridClickPending": {
+                            "on_error": [
+                                "EssenceFilterCheckItemOCRFallback"
+                            ]
+                        },
+                        "EssenceFilterNavigateToInventoryFailed": {
+                            "action": "StopTask"
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "option": [
+                        "SelectEssence",
+                        "SkipThumbLock",
+                        "SkipThumbDiscard"
+                    ]
                 }
             ],
             "default_case": "No"

@@ -1749,6 +1749,8 @@
     "option.LaunchGamePlayCoverLaunchDelay.label": "启动后等待（秒）",
     "option.LevelUpOperatorMaxLevelThreshold.inputs.MaxLevelThreshold.label": "最大等级限制",
     "option.LevelUpOperatorMaxLevelThreshold.label": "等级设置",
+    "option.LimitLockedPerCombination.description": "同一词条组合，最多锁定与**适配武器数**相同的基质；锁定优先级根据强化至最高等级所需理智进行计算。不接受“跳过已锁定”“跳过已弃置”选项。只匹配 5–6★ 武器。",
+    "option.LimitLockedPerCombination.label": "限制相同词条基质的锁定数量",
     "option.LockFuturePromising.description": "关闭时命中后不操作",
     "option.LockFuturePromising.label": "未来可期命中后锁定",
     "option.LockSlot3Practical.description": "关闭时命中后不操作",

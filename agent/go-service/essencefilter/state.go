@@ -34,6 +34,9 @@ type RunState struct {
 	// CurrentLocked is the lock state of the grid cell chosen by the C++ scanner.
 	CurrentLocked bool
 
+	// LockLimit is the per-combination quota plan; nil unless the lock-limit option is enabled.
+	LockLimit *lockLimitPlanner
+
 	// After-battle grid cache
 	RowBoxes [][4]int
 	RowIndex int
