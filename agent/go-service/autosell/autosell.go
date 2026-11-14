@@ -2,17 +2,23 @@ package autosell
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/ocrnum"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 var (
 	regionItemMap = make(map[string][]string)
+
+	// 好友价格识别节点：由 ExpressionRecognition 求值时经嵌套识别子任务运行。
+	priceRecognitionNode = "AutoSellFriendsPriceRecognition"
 )
 
 type AutoSellScanItemRecognition struct{}
@@ -107,6 +113,7 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 	}
 
 	hasError := false
+	soldCount, skippedCount, unknownCount, unconfirmedCount := 0, 0, 0, 0
 	for _, name := range names {
 		// 翻译有缘再写
 		targetPrice := 9999
@@ -130,6 +137,7 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 				Str("item_name", name).
 				Msg("unknown item, default price")
 			maafocus.Print(ctx, i18n.T("autosell.check_item_price_unknown", name))
+			unknownCount++
 			continue
 		}
 
@@ -154,9 +162,11 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			},
 			"AutoSellFriendsPricesExpected": map[string]any{
 				"custom_recognition_param": map[string]any{
-					"expression":                          "{AutoSellFriendsPriceRecognition} >= " + strconv.Itoa(targetPrice),
-					"focus_matched_resolved_expression":   true,
-					"focus_unmatched_resolved_expression": true,
+					"expression":                        "{AutoSellFriendsPriceRecognition} >= " + strconv.Itoa(targetPrice),
+					"focus_matched_resolved_expression": true,
+					// 未达标时由 autosell 输出带物资名与价格的明确跳过文案，
+					// 关闭通用「不匹配」提示，避免被误读为故障。
+					"focus_unmatched_resolved_expression": false,
 				},
 			},
 			"AutoSellFriendsPricesExpectedBuy": map[string]any{
@@ -192,12 +202,147 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			hasError = true
 			break
 		}
+
+		sold, price, lowPrice, err := inspectItemTaskResult(ctx, detail, targetPrice)
+		if err != nil {
+			// 汇总信息读取失败不改变已执行的售卖流程，也不能推断未成交原因。
+			log.Warn().Err(err).
+				Str("component", "autosell").
+				Str("step", "inspect_item_result").
+				Str("item_name", name).
+				Int64("task_id", detail.ID).
+				Msg("could not determine item sell result")
+			unconfirmedCount++
+			maafocus.Print(ctx, i18n.T("autosell.item_not_sold", name))
+			continue
+		}
+		if sold {
+			soldCount++
+			continue
+		}
+		skippedCount++
+		if lowPrice {
+			maafocus.Print(ctx, i18n.T("autosell.item_skipped_low_price", name, price, targetPrice))
+			log.Info().
+				Str("component", "autosell").
+				Str("step", "execute_sell").
+				Str("item_name", name).
+				Int("best_price", price).
+				Int("target_price", targetPrice).
+				Msg("item skipped, price below minimum")
+		} else {
+			maafocus.Print(ctx, i18n.T("autosell.item_not_sold", name))
+			log.Info().
+				Str("component", "autosell").
+				Str("step", "execute_sell").
+				Str("item_name", name).
+				Int("target_price", targetPrice).
+				Msg("item sale not confirmed")
+		}
 	}
 	if hasError {
 		return false
 	}
 
+	if len(names) > 0 {
+		regionName := i18n.T("autosell.region_wuling")
+		if param.Region == "ValleyIV" {
+			regionName = i18n.T("autosell.region_valley_iv")
+		}
+		if unconfirmedCount > 0 {
+			maafocus.Print(ctx, i18n.T("autosell.finish_summary_unconfirmed", regionName, len(names), soldCount, skippedCount, unknownCount, unconfirmedCount))
+		} else if unknownCount > 0 {
+			maafocus.Print(ctx, i18n.T("autosell.finish_summary_unknown", regionName, len(names), soldCount, skippedCount, unknownCount))
+		} else {
+			maafocus.Print(ctx, i18n.T("autosell.finish_summary", regionName, len(names), soldCount, skippedCount))
+		}
+		log.Info().
+			Str("component", "autosell").
+			Str("step", "execute_sell").
+			Str("region", param.Region).
+			Int("total", len(names)).
+			Int("sold", soldCount).
+			Int("skipped", skippedCount).
+			Int("unknown", unknownCount).
+			Int("unconfirmed", unconfirmedCount).
+			Msg("region sell summary")
+	}
+
 	return true
+}
+
+// inspectItemTaskResult 仅在价格拒绝分支和本次有效低价读数同时成立时确认低价跳过。
+// 价格 OCR 属于嵌套识别子任务，不在父任务节点列表中；用父任务首尾节点 ID
+// 限定 GetLatestNode 的读数范围，避免引用其他物资或其他任务的缓存价格。
+func inspectItemTaskResult(ctx *maa.Context, detail *maa.TaskDetail, targetPrice int) (sold bool, price int, lowPrice bool, err error) {
+	if detail == nil {
+		return false, 0, false, fmt.Errorf("item task detail is empty")
+	}
+	nodes := make([]*maa.NodeDetail, 0, len(detail.Nodes))
+	for _, ref := range detail.Nodes {
+		nd, err := ref.GetDetail()
+		if err != nil {
+			return false, 0, false, fmt.Errorf("get item task node %d: %w", ref.ID(), err)
+		}
+		if nd == nil {
+			return false, 0, false, fmt.Errorf("item task node %d detail is empty", ref.ID())
+		}
+		nodes = append(nodes, nd)
+	}
+	sold, priceRejected := itemTaskOutcome(nodes)
+	if sold || !priceRejected {
+		return sold, 0, false, nil
+	}
+
+	if ctx == nil {
+		return false, 0, false, fmt.Errorf("get %s: context is nil", priceRecognitionNode)
+	}
+	tasker := ctx.GetTasker()
+	if tasker == nil {
+		return false, 0, false, fmt.Errorf("get %s: tasker is nil", priceRecognitionNode)
+	}
+	nd, err := tasker.GetLatestNode(priceRecognitionNode)
+	if err != nil {
+		return false, 0, false, fmt.Errorf("get latest %s: %w", priceRecognitionNode, err)
+	}
+	if nd == nil || nd.Recognition == nil || !nd.Recognition.Hit {
+		return false, 0, false, fmt.Errorf("%s has no valid price recognition", priceRecognitionNode)
+	}
+	if nd.ID <= nodes[0].ID || nd.ID >= nodes[len(nodes)-1].ID {
+		return false, 0, false, fmt.Errorf("%s node %d is outside item task node range [%d, %d]", priceRecognitionNode, nd.ID, nodes[0].ID, nodes[len(nodes)-1].ID)
+	}
+	selected, err := recogtarget.SelectDetail(ctx, priceRecognitionNode, nd.Recognition)
+	if err != nil {
+		return false, 0, false, fmt.Errorf("select %s OCR detail: %w", priceRecognitionNode, err)
+	}
+	value, err := ocrnum.Extract(selected)
+	if err != nil {
+		return false, 0, false, fmt.Errorf("extract %s price: %w", priceRecognitionNode, err)
+	}
+	if value >= targetPrice {
+		return false, 0, false, fmt.Errorf("%s price %d is not below minimum %d", priceRecognitionNode, value, targetPrice)
+	}
+	return false, value, true, nil
+}
+
+// itemTaskOutcome 只根据已完成的 Pipeline 节点判断成交和价格拒绝分支。
+func itemTaskOutcome(nodes []*maa.NodeDetail) (sold, lowPrice bool) {
+	for _, node := range nodes {
+		if node == nil || !node.RunCompleted {
+			continue
+		}
+		switch node.Name {
+		case "AutoSellFriendsPricesExpectedBuyClick":
+			if node.Action != nil && node.Action.Success {
+				return true, false
+			}
+		case "AutoSellFriendsPricesUnExpected":
+			lowPrice = true
+		case "AutoSellFriendsPricesExpected", "AutoSellSellGoodsEmpty":
+			lowPrice = false
+		}
+	}
+	return false, lowPrice
 }
 
 // firstContainedKeyword 按 subs 顺序返回首个被 s 包含的关键词，无匹配则返回空串。
