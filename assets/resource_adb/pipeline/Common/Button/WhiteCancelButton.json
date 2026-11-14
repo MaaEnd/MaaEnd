@@ -1,7 +1,7 @@
 {
     "__WhiteCancelButtonType1Icon": {
         "template": "AdbOnly/Common/Button/CancelButtonType1.png",
-        "threshold": 0.7
+        "threshold": 0.68
     },
     "__WhiteCancelButtonType1HoverIcon": {
         "threshold": 0.7
