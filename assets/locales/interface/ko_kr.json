@@ -1336,6 +1336,7 @@
     "option.AutoFightDodgeCompat.label": "호환 모드",
     "option.AutoFightEndSkill.label": "궁극기 자동 사용",
     "option.AutoFightHealthDangerousSwitch.label": "체력 낮은 오퍼레이터 후방 자동 전환",
+    "option.AutoFightKeepSpecialForm.label": "스킬 형태 자동 유지",
     "option.AutoFightLockTarget.description": "적이 시야 밖에 있으면 자동으로 적을 찾아 가까이 다가가며, 적이 시야 안에 있을 때만 전투 스킬과 궁극기를 사용합니다.",
     "option.AutoFightLockTarget.label": "타깃 자동 고정",
     "option.AutoFightReserveSkillLevel.label": "스킬 에너지 보존",

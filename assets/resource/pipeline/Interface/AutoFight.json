@@ -17,6 +17,7 @@
             "enable_dodge_compat": false,
             "enable_break_accumulating_power": true,
             "enable_skill": true,
+            "enable_keep_special_form": false,
             "enable_health_dangerous_switch": true,
             "reserve_skill_level": 1,
             "enable_end_skill": true,
