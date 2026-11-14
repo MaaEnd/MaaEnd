@@ -162,10 +162,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    330,
-                    520,
-                    500,
-                    100
+                    300,
+                    560,
+                    560,
+                    80
                 ],
                 "expected": [
                     "今日活跃度已达上限",
@@ -244,6 +244,7 @@
         "post_delay": 0,
         "timeout": 10000,
         "next": [
+            "DailyTaskActivityLimitReached",
             "DailyTaskUpgradeWeapon",
             "DailyTaskCreation",
             "DailyTaskAssemble",
