@@ -625,12 +625,12 @@ The `EveryNthHit` implementation is located in `agent/go-service/common/everynth
 Parameters:
 
 - `key: string`: Counter identifier. Required. Counters are isolated per `key`, so different keys never affect each other.
-- `every: int | string`: How many evaluations produce one hit. Required. Must be a positive integer (`>= 1`), written either as a number or as a numeric string such as `"6"`.
+- `every: int`: How many evaluations produce one hit. Required. Must be a positive integer (`>= 1`).
 
 Behavior:
 
 1. Counters live inside the go-service process, are isolated per `key`, and are not written to Pipeline `attach`; stopping or re-entering a task does not clear them automatically.
-2. When `every <= 0` or cannot be parsed as an integer (fractions, non-numeric strings, booleans, and so on), nothing is counted and recognition always returns `false`, with a warn log entry.
+2. When `every <= 0`, nothing is counted and recognition always returns `false`, with a warn log entry; non-integer values already fail during JSON parsing.
 3. After the Nth hit the counter resets to zero, and the next evaluation starts again at `1`.
 4. On a hit, the native `roi` is returned as the `Box`.
 5. Use `EveryNthHitReset` on the same `key` when every run must start from a clean count.

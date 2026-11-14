@@ -7,7 +7,7 @@
                 "custom_recognition": "EveryNthHit",
                 "custom_recognition_param": {
                     "key": "Example",
-                    // 每评估 6 次命中一次；正整数，运行期也接受数字字符串
+                    // 每评估 6 次命中一次；正整数
                     "every": 6
                 }
             }
