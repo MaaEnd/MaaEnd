@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <utility>
 
 #include <MaaUtils/Logger.h>
@@ -18,12 +19,6 @@ namespace
 
 // 两个分层解出的视口相距超过它就判失败，单位底图像素
 constexpr double kTierAgreeBase = 10.0;
-
-struct ScanRung
-{
-    double scale = 0.0;
-    double score = -1.0;
-};
 
 std::vector<double> geometric_ladder(double lo, double hi, double ratio)
 {
@@ -43,7 +38,7 @@ std::optional<ScanHit> scan_viewport_scales(
     const std::vector<double>& scales,
     int slack,
     maplocator::PeakRefineMode refine_mode,
-    std::vector<ScanRung>* rungs)
+    std::vector<ScanHit>* rungs)
 {
     if (haystack.empty() || needle.empty()) {
         return std::nullopt;
@@ -66,7 +61,7 @@ std::optional<ScanHit> scan_viewport_scales(
             continue;
         }
         if (rungs != nullptr) {
-            rungs->push_back(ScanRung { .scale = scale, .score = hit->score });
+            rungs->push_back(ScanHit { .score = hit->score, .psr = hit->psr, .scale = scale, .loc = hit->loc, .size = size });
         }
         KeepBest(&best, *hit, scale, size);
     }
@@ -155,12 +150,30 @@ std::vector<double> fine_ladder(const ScanHit& coarse, const ViewportConfig& cfg
 
 // 可信度只能拿粗解档来算：细解各档彼此相差不到一成，分数几乎一样高，
 // 互为次高分毫无意义。与尺度差 6% 以上的粗解档比，才说明这个解真的唯一
-double best_rival_score(const std::vector<ScanRung>& rungs, double scale)
+double
+    best_rival_score(const ScanBase& base, const ScreenRoi& roi, const ViewportConfig& cfg, std::vector<ScanHit> rungs, const ScanHit& fine)
 {
+    std::ranges::sort(rungs, std::greater {}, &ScanHit::score);
+    const double same_scale_gap = 0.06 * fine.scale;
+    const double reject_at = fine.score - cfg.min_delta;
     double rival_best = 0.0;
-    for (const ScanRung& rung : rungs) {
-        if (std::abs(rung.scale - scale) > 0.06 * scale) {
-            rival_best = std::max(rival_best, rung.score);
+    for (const ScanHit& rung : rungs) {
+        if (std::abs(rung.scale - fine.scale) <= same_scale_gap) {
+            continue;
+        }
+        if (rung.score < reject_at) {
+            return std::max(rival_best, rung.score);
+        }
+        // 降采样图上的分数偏高，逼近细解的旁档回原尺度重新打分
+        const double span = fine_span(rung, cfg);
+        std::vector<double> scales = LinearLadder(std::max(cfg.scale_min, rung.scale - span), rung.scale + span, cfg.fine_steps);
+        std::erase_if(scales, [&fine, same_scale_gap](double scale) { return std::abs(scale - fine.scale) <= same_scale_gap; });
+        const cv::Rect window = fine_window(rung, roi.full.size(), base.full.size(), cfg);
+        const std::optional<ScanHit> rescored =
+            scan_viewport_scales(base.full(window), roi.full, scales, 0, maplocator::PeakRefineMode::Continuous, nullptr);
+        rival_best = std::max(rival_best, rescored ? rescored->score : 0.0);
+        if (rival_best >= reject_at) {
+            return rival_best;
         }
     }
     return rival_best;
@@ -169,7 +182,7 @@ double best_rival_score(const std::vector<ScanRung>& rungs, double scale)
 // 粗解在降采样图上定位置，细解回到原尺度定尺度，再拿粗解各档判这个解唯不唯一
 std::optional<Viewport> scan_viewport(const ScanBase& base, const ScreenRoi& roi, const ViewportConfig& cfg, const std::string& zone)
 {
-    std::vector<ScanRung> coarse_rungs;
+    std::vector<ScanHit> coarse_rungs;
     const auto coarse = scan_viewport_scales(
         base.small,
         roi.small,
@@ -196,10 +209,15 @@ std::optional<Viewport> scan_viewport(const ScanBase& base, const ScreenRoi& roi
         return std::nullopt;
     }
 
-    const double delta = fine->score - best_rival_score(coarse_rungs, fine->scale);
-    if (fine->score < cfg.min_score || delta < cfg.min_delta) {
-        LogWarn << "WorldMap: viewport rejected" << VAR(zone) << VAR(base.tier) << VAR(fine->score) << VAR(delta) << VAR(fine->psr)
-                << VAR(fine->scale) << VAR(cfg.min_score) << VAR(cfg.min_delta);
+    if (fine->score < cfg.min_score) {
+        LogWarn << "WorldMap: viewport score too low" << VAR(zone) << VAR(base.tier) << VAR(fine->score) << VAR(fine->psr)
+                << VAR(fine->scale) << VAR(cfg.min_score);
+        return std::nullopt;
+    }
+    const double delta = fine->score - best_rival_score(base, roi, cfg, coarse_rungs, *fine);
+    if (delta < cfg.min_delta) {
+        LogWarn << "WorldMap: viewport not unique" << VAR(zone) << VAR(base.tier) << VAR(fine->score) << VAR(delta) << VAR(fine->psr)
+                << VAR(fine->scale) << VAR(cfg.min_delta);
         return std::nullopt;
     }
 

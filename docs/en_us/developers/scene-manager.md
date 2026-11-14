@@ -87,6 +87,9 @@ Files in the `SceneManager` folder (such as `SceneCommon.json`, `SceneMenu.json`
 | Menu | `SceneEnterMenuSettingPlatformAccount` | Enter Settings - Platform & Account (PC only). |
 | Menu | `SceneEnterMenuSettingOthers` | Enter Settings - Others (PC only). |
 | Menu | `SceneEnterMenuHeadhunt` | Enter Operator Headhunt screen. |
+| Menu | `SceneEnterMenuOperationalManualIndex` | Enter Operational Manual - Index. |
+| Menu | `SceneEnterMenuOperationalManualDaily` | Enter Operational Manual - Daily. |
+| Menu | `SceneEnterMenuOperationalManualSimulation` | Enter Operational Manual - Simulation. |
 | Menu | `SceneEnterMenuOperationalManualUmbralMonument` | Enter Operational Manual - Umbral Monument. |
 | Menu | `SceneEnterMenuOperationalManualWarEcho` | Enter Operational Manual - War Echo. |
 | Helper | `SceneDialogConfirm` | Click confirm button in dialogs. |
