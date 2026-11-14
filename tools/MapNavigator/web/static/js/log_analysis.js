@@ -1,7 +1,6 @@
 /**
  * Parse cpp-algo MaaFramework logs into MapNavigator runs that can be inspected on
- * the existing basemap. The parser is deliberately independent from DOM APIs so a
- * real log fragment can be covered by Node tests.
+ * the existing basemap.
  *
  * @module log_analysis
  */
@@ -345,7 +344,7 @@ function addObservedPosition(run, line) {
 
   const sample = {
     point,
-    zone: valueOf(line, "position.zoneId") || "",
+    zone: valueOf(line, "position.zone_id") || valueOf(line, "position.zoneId") || "",
   };
   if (run._ziplineInFlight) {
     run._ziplineLastPosition = sample;

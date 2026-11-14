@@ -6,7 +6,7 @@
 #include <MaaUtils/NoWarningCV.hpp>
 
 #include "../../navi_config.h"
-#include "../backend.h"
+#include "../backend_types.h"
 
 namespace mapnavigator::backend::adb
 {
@@ -26,46 +26,28 @@ struct AdbVirtualJoystickDriverConfig
     int release_settle_ms = 32;
 };
 
-class AdbVirtualJoystickDriver
+struct JoystickControlGeometry
 {
-public:
-    explicit AdbVirtualJoystickDriver(MaaController* controller, AdbVirtualJoystickDriverConfig config = {});
-    ~AdbVirtualJoystickDriver();
-
-    bool setMovementState(MovementState state, int delay_millis);
-    bool pulseForward(int hold_millis);
-    bool release(int delay_millis);
-    bool setWalking(bool walking);
-
-    bool walking() const { return walking_; }
-
-private:
-    struct ControlGeometry
-    {
-        cv::Point control_origin {};
-        cv::Rect control_roi {};
-        cv::Size frame_size {};
-    };
-
-    std::optional<ControlGeometry> acquireControlGeometry();
-    bool beginDirectionalDrag(cv::Point direction);
-    bool updateDirectionalDrag(cv::Point direction);
-    void clearContact();
-    bool postTouchDown(const cv::Point& point) const;
-    bool postTouchMove(const cv::Point& point) const;
-    bool postTouchUp() const;
-    cv::Point computeTargetPoint(cv::Point direction) const;
-    int computeDragRadius() const;
-    static cv::Point clampPoint(cv::Point point, const cv::Size& bounds);
-
-    MaaController* controller_ = nullptr;
-    AdbVirtualJoystickDriverConfig config_;
-    // 推杆方向, x 向右为正, y 向后为正, 分量只取 -1/0/1, 零向量表示没推
-    cv::Point active_direction_ {};
-    bool touch_active_ = false;
-    bool walking_ = false;
-    std::optional<ControlGeometry> active_geometry_;
-    cv::Point active_touch_point_ {};
+    cv::Point control_origin {};
+    cv::Rect control_roi {};
+    cv::Size frame_size {};
 };
+
+struct AdbVirtualJoystickDriver
+{
+    MaaController* controller = nullptr;
+    AdbVirtualJoystickDriverConfig config;
+    // 推杆方向, x 向右为正, y 向后为正, 分量只取 -1/0/1, 零向量表示没推
+    cv::Point active_direction {};
+    bool touch_active = false;
+    bool walking = false;
+    std::optional<JoystickControlGeometry> active_geometry;
+    cv::Point active_touch_point {};
+};
+
+bool SetJoystickMovementState(AdbVirtualJoystickDriver* joystick, MovementState state, int delay_millis);
+bool PulseJoystickForward(AdbVirtualJoystickDriver* joystick, int hold_millis);
+bool ReleaseJoystick(AdbVirtualJoystickDriver* joystick, int delay_millis);
+bool SetJoystickWalking(AdbVirtualJoystickDriver* joystick, bool walking);
 
 } // namespace mapnavigator::backend::adb

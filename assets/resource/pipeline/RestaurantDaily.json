@@ -417,7 +417,10 @@
         "next": [
             "RestaurantOpenCounter",
             "RestaurantCounterPromptApproach"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.navigate_counter"
+        }
     },
     // 每次前进前先检查柜台提示；最多短按前进 5 次。
     "RestaurantCounterPromptApproach": {
@@ -767,7 +770,10 @@
         "rate_limit": 0,
         "next": [
             "RestaurantFormalStart"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.theme_selected"
+        }
     },
     "RestaurantPatronageInsufficient": {
         "desc": "判断客源不足，转入关闭主题界面流程。",
@@ -783,7 +789,7 @@
             "RestaurantCloseTheme"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "当前客源小于60，结束经营流程"
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.theme_selected"
         }
     },
     "RestaurantCloseTheme": {
@@ -806,6 +812,9 @@
         "target": true,
         "post_delay": 0,
         "rate_limit": 0,
+        "focus": {
+            "Node.Action.Starting": "当前客源小于60，结束经营流程"
+        },
         "next": [
             "RestaurantShopAfterRounds",
             "StopNode"
@@ -844,6 +853,9 @@
         "next": [
             "RestaurantManagementReady"
         ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.patronage_available"
+        },
         "on_error": [
             "FailedNode"
         ]
@@ -870,7 +882,10 @@
         "next": [
             "RestaurantEmptySetup",
             "RestaurantClearPreviousSetup"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.management_ready"
+        }
     },
     "RestaurantClearPreviousSetup": {
         "desc": "点击清空上局人员和菜单设置。",
@@ -2136,6 +2151,9 @@
             "RestaurantGameEnded",
             "RestaurantKitchenPanelReady"
         ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.business_started"
+        },
         "on_error": [
             "FailedNode"
         ]
@@ -2237,7 +2255,10 @@
         "rate_limit": 0,
         "next": [
             "RestaurantSettlementComplete"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.business_ended"
+        }
     },
     "RestaurantSettlementComplete": {
         "desc": "点击结算界面的完成按钮。",
@@ -2301,7 +2322,10 @@
             "RestaurantRoundGate",
             "RestaurantShopAfterRounds",
             "StopNode"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.returned_world"
+        }
     },
     "RestaurantMenuDishesComplete": {
         "desc": "标记菜品类别选择完成，并接入饮品选择。",

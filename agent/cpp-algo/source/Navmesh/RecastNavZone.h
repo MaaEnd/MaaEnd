@@ -2,7 +2,6 @@
 
 #include <array>
 #include <cstdint>
-#include <functional>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -28,75 +27,46 @@ struct PolyMesh
     std::vector<BaseNavVertex> vown;
     int64_t nv = 0;
     std::vector<std::array<int32_t, 3>> T;
-    // NB 只在构造期存在, 之后压成 bnd, 第 k 位为 1 表示第 k 条边无邻居
+    // NB 只在建网格期间存在, 之后压成 bnd, 第 k 位为 1 表示第 k 条边无邻居
     std::vector<std::array<int32_t, 3>> NB;
     std::vector<uint8_t> bnd;
-
-    PolyMesh() = default;
-    // dup 非空时标出重复出现的有向边, 长 3*三角数, 按 i*3+k 索引
-    PolyMesh(const BaseNavVertex* vb, int64_t nv, std::vector<std::array<int32_t, 3>> t, std::vector<uint8_t>* dup = nullptr);
-    PolyMesh(std::vector<BaseNavVertex> own, std::vector<std::array<int32_t, 3>> t, std::vector<uint8_t>* dup = nullptr);
-
-    const BaseNavVertex* verts() const { return vown.empty() ? vb : vown.data(); }
-
-    WorldPoint v(int32_t i) const
-    {
-        const BaseNavVertex& p = verts()[i];
-        return { static_cast<double>(p.u), static_cast<double>(p.v) };
-    }
-
-    double h(int32_t i) const { return static_cast<double>(verts()[i].height); }
-
-    void buildNb(std::vector<uint8_t>* dup);
-    void foldNb();                                                                    // NB → bnd, 然后释放 NB
-    std::vector<int32_t> trisNear(const WorldPoint& p, double r) const;               // 升序去重
-    std::vector<int32_t> trisInBox(double x0, double y0, double x1, double y1) const; // 升序去重
-
-    // 三角分桶的方格边长 px
-    static constexpr double kGridCell = 24.0;
+    // 三角分桶的方格表
     int64_t gox = 0;
     int64_t goy = 0;
     int64_t gnx = 0;
     int64_t gny = 0;
     std::vector<int32_t> goff;
     std::vector<int32_t> gtris;
-
-private:
-    void buildGrid();
 };
 
-class ZoneClean
+inline const BaseNavVertex* MeshVertices(const PolyMesh& mesh)
 {
-public:
-    ZoneClean(
-        const BaseNavPack& pack,
-        const BaseNavPlanner& planner,
-        const std::string& zone_name,
-        uint32_t walkable_flags = kWalkableFlagsDefault);
+    return mesh.vown.empty() ? mesh.vb : mesh.vown.data();
+}
 
-    bool valid() const { return error_.empty(); }
+inline WorldPoint MeshPoint(const PolyMesh& mesh, int32_t i)
+{
+    const BaseNavVertex& p = MeshVertices(mesh)[i];
+    return { static_cast<double>(p.u), static_cast<double>(p.v) };
+}
 
-    const std::string& error() const { return error_; }
+inline double MeshHeight(const PolyMesh& mesh, int32_t i)
+{
+    return static_cast<double>(MeshVertices(mesh)[i].height);
+}
 
-    struct SnapHit
-    {
-        int32_t tri = -1;
-        WorldPoint point;
-        double dist = 0.0;
-    };
+std::vector<int32_t> TrisNear(const PolyMesh& mesh, const WorldPoint& p, double r);               // 升序去重
+std::vector<int32_t> TrisInBox(const PolyMesh& mesh, double x0, double y0, double x1, double y1); // 升序去重
 
-    // accept 非空时只在它放行的面里挑, 入参是三角号与三角上离 p 最近的点
-    std::optional<SnapHit> snap(
-        const WorldPoint& p,
-        double radius,
-        std::optional<double> floor_y,
-        const std::function<bool(int32_t, const WorldPoint&)>& accept = {}) const;
-    // 优先取与 deck_y 相差 kDeckBand 内的面, 再按距离
-    std::optional<SnapHit> snapOnDeck(const WorldPoint& p, double radius, double deck_y) const;
+struct ZoneSnapHit
+{
+    int32_t tri = -1;
+    WorldPoint point;
+    double dist = 0.0;
+};
 
-    // 之后不得再读几何与逐三角表, 区号等标量仍可用
-    void release();
-
+struct ZoneClean
+{
     std::string name;
     uint16_t zone_id = 0;
     int64_t lo = 0;
@@ -106,10 +76,24 @@ public:
     // 与 mesh.T 同长同序, 下游按 (全局三角号 - lo) 索引, 不得压缩重排
     std::vector<uint8_t> walkable;
     uint32_t walkable_flags = kWalkableFlagsDefault;
-    std::string stats;
-
-private:
-    std::string error_;
+    // 为真表示没建成, 此时其余字段不可用
+    bool failed = false;
 };
+
+ZoneClean BuildZoneClean(
+    const BaseNavPack& pack,
+    const BaseNavPlanner& planner,
+    const std::string& zone_name,
+    uint32_t walkable_flags = kWalkableFlagsDefault);
+
+bool ZoneCleanValid(const ZoneClean& zc);
+
+std::optional<ZoneSnapHit> ZoneSnap(const ZoneClean& zc, const WorldPoint& p, double radius, std::optional<double> floor_y);
+
+// 按 ZoneSnap 的尝试次序列出全部候选: 先是 radius 一圈, 再是兜底半径一圈, 圈内按吸附优先级排
+std::vector<ZoneSnapHit> ZoneSnapCandidates(const ZoneClean& zc, const WorldPoint& p, double radius, std::optional<double> floor_y);
+
+// 优先取与 deck_y 相差 kDeckBand 内的面, 再按距离
+std::optional<ZoneSnapHit> ZoneSnapOnDeck(const ZoneClean& zc, const WorldPoint& p, double radius, double deck_y);
 
 }

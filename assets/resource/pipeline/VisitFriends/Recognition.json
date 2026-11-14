@@ -292,19 +292,5 @@
             "\\d"
         ],
         "only_rec": true
-    },
-    "VisitFriendsBtwSellQuantityRecognition": {
-        "desc": "顺便出售：识别出售物资界面的当前选择数量",
-        "recognition": "OCR",
-        "roi": [
-            370,
-            510,
-            60,
-            35
-        ],
-        "expected": [
-            "\\d"
-        ],
-        "only_rec": true
     }
 }

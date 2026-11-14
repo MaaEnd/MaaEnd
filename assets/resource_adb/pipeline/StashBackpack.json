@@ -16,5 +16,43 @@
                 "order_by": "Score"
             }
         ]
+    },
+    "StashBackpackUsableItemsLimitedDrag": {
+        "desc": "ADB 触点 4 按住背包中的目标可用物品",
+        "action": "TouchDown",
+        "contact": 4,
+        "auto_up": true,
+        "post_delay": 1000
+    },
+    "StashBackpackUsableItemsLimitedQuickMoveClick": {
+        "desc": "ADB 触点 0 点击转移到仓库图标，直到图标消失",
+        "recognition": "TemplateMatch",
+        "roi": [
+            34,
+            128,
+            309,
+            212
+        ],
+        "template": "UseConsumable/TransferToBackpack.png",
+        "threshold": 0.8,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "StashBackpackUsableItemsLimitedQuickMoveClick",
+            "repeat_count": 5,
+            "interval_ms": 500
+        },
+        "rate_limit": 250
+    },
+    "StashBackpackUsableItemsLimitedQuickMoveKeyUp": {
+        "desc": "ADB 释放物品触点并等待存放完成",
+        "recognition": "DirectHit",
+        "action": "TouchUp",
+        "contact": 4,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": "StashBackpackUsableItemsLimitedDrag"
+        }
     }
 }

@@ -856,6 +856,9 @@
                         },
                         "AutoCollectWulingVitrodendra1Start": {
                             "enabled": true
+                        },
+                        "AutoCollectWulingVitrodendra2Start": {
+                            "enabled": true
                         }
                     }
                 },
@@ -888,6 +891,9 @@
                         },
                         "AutoCollectWulingBloodcapWulingstone1Start": {
                             "enabled": true
+                        },
+                        "AutoCollectWulingBloodcap1Start": {
+                            "enabled": true
                         }
                     }
                 },
@@ -903,6 +909,9 @@
                             "enabled": true
                         },
                         "AutoCollectWulingCosmagaric1Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectWulingCosmagaric2Start": {
                             "enabled": true
                         }
                     }
@@ -983,6 +992,9 @@
                             "enabled": true
                         },
                         "AutoCollectWulingIgneosite1Start": {
+                            "enabled": true
+                        },
+                        "AutoCollectWulingIgneosite2Start": {
                             "enabled": true
                         }
                     }

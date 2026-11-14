@@ -8,19 +8,23 @@ namespace mapnavigator
 namespace semantic_nodes
 {
 
-Result StartZiplineHop(const Context& ctx, const Waypoint& waypoint, double actual_distance);
+Result StartZiplineHop(Navigator* nav, const Waypoint& waypoint, double actual_distance);
 
-Result TickZiplineRide(const Context& ctx);
+Result TickZiplineRide(Navigator* nav);
 
-Result AdvanceMountSpot(const Context& ctx, const Waypoint& waypoint, const char* reason);
+Result AdvanceMountSpot(Navigator* nav, const Waypoint& waypoint, const char* reason);
 
-Result AbandonZipline(const Context& ctx, const char* reason, const char* detail);
+Result AbandonZipline(Navigator* nav, const char* reason, const char* detail);
+
+bool ScreenShowsZiplineTower(Navigator* nav);
+
+void StepOffZiplineTower(Navigator* nav);
 
 // 没站在架子上时什么也不发
-void LeaveZiplineTower(const Context& ctx);
+void LeaveZiplineTower(Navigator* nav);
 
 // 链首从脚下这根架子起滑时跳过它前面的接近点, 返回 true
-bool SkipToHopUnderfoot(const Context& ctx, const char* reason);
+bool SkipToHopUnderfoot(Navigator* nav, const char* reason);
 
 } // namespace semantic_nodes
 

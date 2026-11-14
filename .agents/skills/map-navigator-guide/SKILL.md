@@ -94,7 +94,7 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 - `semantic_nodes.cpp`：各语义点（`COLLECT`/`DIG`/`INTERACT` 等）到达后的执行逻辑；
 - `find_action.cpp`：`FIND` 的搜索与接近（按帧跑识别节点取框、转视角、前进脉冲），以及退出时的记账作废；
 - `trigger_action.cpp`：`TRIGGER` 的行进中识别与到点完成；
-    - `NavigationStateMachine`：到点判定、疾跑控制、失败与恢复。
+    - `state_machine/`（`Navigator` 与 `RunNavigator`）：到点判定、疾跑控制、失败与恢复。
 - `Navmesh` 目录：BaseNav 三角图寻路核心；
     - `BaseNavReader.cpp`：`.nav` / `.nav.gz` 二进制包解析（magic 为 `BNAV`）；
     - `BaseNavPack.cpp`：zone 索引与楼层高度查询（`floorYForZoneName`）；
@@ -138,14 +138,152 @@ MapNavigator 的位置输入完全来自 MapLocator 的逐帧识别结果。**�
 
 ### 日志改动要同步日志分析工具
 
-`tools/MapNavigator` 的 `日志分析` 按固定子串匹配 cpp-algo 日志行（行头函数名、消息文本、`[key=value]` 字段）来还原实测轨迹、规划决策和滑索跳，任一处变化都会让它静默失效：拆分 `PositionProvider::Capture` 就曾让实测地面轨迹整段消失，而 `test_log_analysis.mjs` 用的是手写日志片段，不会替你发现真实日志的漂移。
+`tools/MapNavigator` 的 `日志分析` 按固定子串匹配 cpp-algo 日志行（行头函数名、消息文本、`[key=value]` 字段）来还原实测轨迹、规划决策和滑索跳，任一处变化都会让它静默失效：拆分 `PositionProvider::Capture` 就曾让实测地面轨迹整段消失。
 
 改动 MapNavigator / MapLocator 的日志输出（增删改日志行、调整 `VAR(...)` 字段、把日志挪进别的函数或改名）时，即使用户没有提出要求，也主动提醒用户同步：
 
 - `tools/MapNavigator/web/static/js/log_analysis.js` 的解析逻辑；
-- `tools/MapNavigator/web/test_log_analysis.mjs` 的回归用例；
 - `docs/zh_cn/developers/components/map-navigator.md`、`docs/en_us/` 对应文档和 `tools/MapNavigator/README.md` 中的日志分析描述。
 
 ### C++ 编码规范
 
-本目录下的代码遵循 `docs/zh_cn/developers/coding-standards.md`，另可参考 `cpp-algo-style` 技能。通用的 RAII 辅助设施（`ScopedImageBuffer` / `ScopedStringBuffer` / `to_mat`）统一放在 `source/utils.h`，路径基准统一用 `Common/paths.h` 的 `common::InstallPath` / `common::UserDataPath`，**直接复用，不要在各自的 TU 里重新声明一份**。
+本目录下的代码遵循 `docs/zh_cn/developers/coding-standards.md`，另可参考 `cpp-algo-style` 技能。通用的 RAII 辅助设施（`ScopedImageBuffer` / `ScopedStringBuffer` / `to_mat`）统一放在 `source/utils.h`，路径基准统一用 `Common/paths.h` 的 `common::InstallPath` / `common::UserDataPath`，**直接复用，不要在各自的 TU 里重新声明一份**。MapNavigator 的代码组织方式见下一节。
+
+## MapNavigator 的代码写法
+
+`agent/cpp-algo/source/MapNavigator/` 全部写成数据结构加自由函数，状态从参数显式传入。在这个目录里新增或修改代码，都照本节写。
+
+### 判断标准：显式
+
+一个函数只做它名字说的事。它读什么、改什么，在签名和调用处都看得见：数据从哪来、被谁改、到哪去，看签名就知道，不熟 C++ 的人也能从上往下读懂。
+
+看着做 A、实际顺带做了 B 的函数，要么把 B 写进名字，要么把 B 挪到调用方显式调用。写新代码和审查时，先问一句：这个函数有没有偷偷干别的。
+
+### 数据和函数
+
+- 结构体只放数据：字段带默认值，没有成员函数、构造函数和私有字段。字段名 snake_case，不加尾下划线。
+- 函数都是自由函数，状态从参数显式传入：
+    - 只读的判断写成 `bool Xxx(const T&)`。名字像查询的（`Has`、`Is`、`Get`）不改任何状态。
+    - 修改写成 `void Xxx(T*)`，调用处写 `&x`，一个函数只改一件事。要改的状态一律用指针传，不用非 const 引用参数。
+    - 结果用返回值，可能没有结果时用 `std::optional`。
+    - 要调用方去做的事用 `enum class` 返回。调用方 `switch`，不写 `default`，`switch` 后补一行返回。
+- 参数顺序：被改的状态（指针）在前，只读依赖（`const&`）其次，再是值，时间点放最后。
+- 一个参数用来切换两种行为时，拆成两个函数，不传 `bool` 模式参数。
+- 有副作用的调用单独写一句，不塞进复合条件。
+
+`planning/navigation_session.h`（节选）：
+
+```cpp
+struct Session
+{
+    std::vector<Waypoint> current_path;
+    size_t current_node_idx = 0;
+    NaviPhase phase = NaviPhase::Bootstrap;
+    bool success = false;
+    // ...
+};
+
+bool HasCurrentWaypoint(const Session& session);
+bool FinalSuccessReady(const Session& session, const NaviPosition& position);
+void CommitFinalSuccess(Session* session, const NaviPosition& position, const char* reason);
+void LeaveCurrentWaypoint(Session* session, ActionType expected_action, const char* reason);
+```
+
+模块只给出结论，怎么处理由编排层决定（`state_machine/navigation_runtime_state.h`、`state_machine/recovery.cpp`，省略了日志和失败参数）：
+
+```cpp
+enum class WedgeAction
+{
+    None,
+    Replan,
+    Fail,
+};
+
+WedgeAction StepWedge(OffRouteWedgeState* wedge, double progress, TimePoint now);
+```
+
+```cpp
+switch (StepWedge(&nav->runtime_state.offroute, route.progress_distance, tick.now)) {
+case WedgeAction::None:
+    return TickStep::Next;
+case WedgeAction::Fail:
+    return EndTickWith(FailNavigation(nav, ...));
+case WedgeAction::Replan:
+    HandleDynamicReplanRequest(nav, "offroute_wedge");
+    return TickStep::EndTick;
+}
+return TickStep::Next;
+```
+
+### 文件
+
+- 一个模块一对文件。头文件只放结构体、`enum class` 和对外函数声明，看头文件就知道模块能干什么。
+- 对外函数 PascalCase，写进头文件；内部函数 snake_case，放 `.cpp` 的匿名命名空间。
+- `.cpp` 里内部小函数在前，对外函数在后，主函数放最后，读起来是一串步骤。
+
+### 分层
+
+- 编排层：`state_machine/`、`semantic/`、`zipline/zipline_action.cpp` 和导航入口 `navi_controller.cpp`。可以收 `Navigator*`，按顺序调用各模块。
+- 模块层：其余全部。只收自己的结构体、显式传入的依赖（例如运动控制收 `InputBackend*`）和值，不认识 `Navigator`，结构体里也不存别的模块的指针。
+- 把 `Navigator*` 传进模块层，等于把 `this` 换了个名字，审查时专门盯这一条。要动角色、会话的流程放在编排层。
+
+### 共享状态
+
+- 被两个以上文件写的字段只留一个写入函数，其他地方都调它，搜函数名就能找到全部写入点。例如阶段只经 `UpdatePhase` 改，传送等待只经 `BeginTransferWait` 开始。新加这种字段时，同时加它的写入函数。
+- 跨导航保留的状态只在入口留一个实例（`MapNavigator.cpp` 的 `g_process_state`），用指针一路传下去。加载后只读的资源可以放进函数内 `static` 缓存并配一把锁，如 `planning/navmesh_cache.cpp`。
+
+### 拆分
+
+- 一个函数依次做几件不相干的事时才拆。一整段算法（循环、几何计算、拼 JSON）留在一起。
+- 拆之前过三道刹车，任一条成立就不拆：拆出的函数要超过 4 个参数；要靠出参把局部变量传回；名字不比函数体好懂。只用一次、本身就清楚的一行赋值留在主函数。
+- 主函数读成一串具名步骤。每步返回 `enum class`，第一个不是“继续”的结果就是整个函数的结果：
+
+```cpp
+TickStep run_navigate_steps(Navigator* nav, NavigateTick* tick)
+{
+    TickStep step = run_semantic_flow(nav);
+    if (step != TickStep::Next) {
+        return step;
+    }
+    step = CaptureNavigateFix(nav, tick);
+    if (step != TickStep::Next) {
+        return step;
+    }
+    // ...
+    tick->heading_error = SteerAlongCorridor(nav, *tick);
+    return finish_navigate_tick(nav, *tick);
+}
+```
+
+### 保留的写法
+
+- 守卫结构体：只用来在退出时收尾，相当于 Rust 的 `Drop`。字段是要收尾的对象的指针，不设默认值；拿到要收尾的东西之后立刻创建，创建时一次写全所有字段，不先默认构造再赋值。析构函数只有一行，名字写明退出时做什么：
+
+    ```cpp
+    struct LeaveNavigationOnExit
+    {
+        NavigatingTaskers* navigating;
+        MaaTasker* tasker;
+
+        ~LeaveNavigationOnExit() { LeaveNavigation(navigating, tasker); }
+    };
+
+    if (!TryEnterNavigation(&process->navigating, tasker)) {
+        return false;
+    }
+    const LeaveNavigationOnExit leave_on_exit { &process->navigating, tasker };
+    ```
+
+- `sensing/roi_template_scanner` 自己持有工作线程，析构时停线程，保留类的写法。
+- `std::any_of`、`std::erase_if` 这类标准算法配一行只读判断的 lambda 可以用。当局部小函数用的 lambda、会改外面变量的 lambda，改成具名函数。
+- 不传存起来的回调：查停止传 `MaaContext*` 调 `TaskStopping`；原来靠回调带进去的东西，改成结构体字段或参数，例如取位用的 `CaptureParts`。
+- 外部模块的接口照原样用：MapLocator、Navmesh、OpenCV、meojson、MaaFramework。meojson 输入结构体里的 `check_json`、`from_json` 是库要求的写法，保留。
+- 标准库的锁、线程、原子量、容器照常用。
+
+### 审查清单
+
+- [ ] 结构体只放数据，函数是自由函数；要改的状态用指针传，只读的用 `const&`，看签名就知道改不改
+- [ ] 函数只做名字说的事，没有顺带改别的状态
+- [ ] 模块层没有收 `Navigator*`，结构体里没有存别的模块的指针
+- [ ] 两个以上文件写的字段都经它的写入函数修改
+- [ ] 没有 `bool` 模式参数、当局部函数用的 lambda、存起来的回调、新的可变全局变量
