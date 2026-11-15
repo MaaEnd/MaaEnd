@@ -19,11 +19,18 @@ type inventoryDelta struct {
 	Locked    int
 }
 
+// inventoryIncrement says what one after-battle decision adds to the inventory: holding the
+// essence in this loot round, locking it in this run, or both.
+type inventoryIncrement struct {
+	Held   bool
+	Locked bool
+}
+
 // afterBattleInventoryDelta maps one after-battle decision to an inventory increment.
 // Only exact matches and kept slot-3 practical matches have a weapon combination and
 // levels that EssenceInventory.json can express; future-promising, unmatched and
-// discarded essences produce no entry. A locked decision counts once in Locked.
-func afterBattleInventoryDelta(result *matchapi.MatchResult) (inventoryDelta, bool) {
+// discarded essences produce no entry.
+func afterBattleInventoryDelta(result *matchapi.MatchResult, increment inventoryIncrement) (inventoryDelta, bool) {
 	if result == nil {
 		return inventoryDelta{}, false
 	}
@@ -44,9 +51,15 @@ func afterBattleInventoryDelta(result *matchapi.MatchResult) (inventoryDelta, bo
 		return inventoryDelta{}, false
 	}
 
-	delta := inventoryDelta{WeaponIDs: ids, Levels: result.Levels, Count: 1}
-	if result.ShouldLock {
+	delta := inventoryDelta{WeaponIDs: ids, Levels: result.Levels}
+	if increment.Held {
+		delta.Count = 1
+	}
+	if increment.Locked {
 		delta.Locked = 1
+	}
+	if delta.Count == 0 && delta.Locked == 0 {
+		return inventoryDelta{}, false
 	}
 	return delta, true
 }

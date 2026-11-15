@@ -1749,6 +1749,8 @@
     "option.LaunchGamePlayCoverLaunchDelay.label": "啟動後等待（秒）",
     "option.LevelUpOperatorMaxLevelThreshold.inputs.MaxLevelThreshold.label": "最大等級限制",
     "option.LevelUpOperatorMaxLevelThreshold.label": "等級設置",
+    "option.LimitLockedPerCombination.description": "同一詞條組合，最多鎖定與**適配武器數**相同數量的基質；鎖定優先級按強化至最高等級所需理智進行計算。只匹配 5–6★ 武器。",
+    "option.LimitLockedPerCombination.label": "限制相同詞條基質的鎖定數量",
     "option.LockFuturePromising.description": "關閉時命中後不操作",
     "option.LockFuturePromising.label": "未來可期命中後鎖定",
     "option.LockSlot3Practical.description": "關閉時命中後不操作",

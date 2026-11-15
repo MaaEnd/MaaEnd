@@ -27,6 +27,53 @@ func afterBattleInitResetPerLoot(st *RunState) {
 	st.PendingInventory = nil
 }
 
+// essenceModeFromOptions derives which essence tiers a run processes.
+func essenceModeFromOptions(opts *EssenceFilterOptions) EssenceMode {
+	switch {
+	case opts.FlawlessEssence && opts.PureEssence:
+		return EssenceModeBoth
+	case opts.FlawlessEssence:
+		return EssenceModeFlawlessOnly
+	default:
+		return EssenceModePureOnly
+	}
+}
+
+// parseAfterBattlePass normalizes attach.after_battle_pass; an empty value is the execute pass.
+func parseAfterBattlePass(pass AfterBattlePass) (AfterBattlePass, error) {
+	switch pass {
+	case "", AfterBattlePassExecute:
+		return AfterBattlePassExecute, nil
+	case AfterBattlePassReadOnly:
+		return AfterBattlePassReadOnly, nil
+	default:
+		return "", fmt.Errorf("unknown attach.after_battle_pass %q", pass)
+	}
+}
+
+// prepareLockLimit reloads the inventory snapshot and rebuilds the per-combination quota plan.
+// The after-battle readonly pass only validates the snapshot: it records held essences and never locks.
+func prepareLockLimit(ctx *maa.Context, st *RunState, opts *EssenceFilterOptions) bool {
+	if !opts.LimitLockedPerCombination {
+		st.LockLimit = nil
+		return true
+	}
+	groups, err := loadInventoryGroupsRequired(InventoryPath())
+	if err != nil {
+		err = fmt.Errorf("load essence inventory: %w", err)
+		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadInventory").Msg("load essence inventory failed")
+		reportFocusByKey(ctx, "lock_limit.inventory_unavailable", err.Error())
+		return false
+	}
+	if opts.Mode == InitModeAfterBattle && opts.AfterBattlePass == AfterBattlePassReadOnly {
+		st.LockLimit = nil
+		return true
+	}
+	st.LockLimit = newLockLimitPlanner(groups, st.MatchEngine.Weapons())
+	reportSimpleByKey(ctx, "lock_limit.loaded", len(groups))
+	return true
+}
+
 func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Str("component", "EssenceFilter").Msg("init start")
 
@@ -40,9 +87,23 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	switch opts.Mode {
 	case InitModeFilter, InitModeInventory:
 	case InitModeAfterBattle:
+		pass, passErr := parseAfterBattlePass(opts.AfterBattlePass)
+		if passErr != nil {
+			log.Error().Err(passErr).Str("component", "EssenceFilter").Str("step", "ValidatePass").Msg("invalid after battle pass")
+			reportFocusByKey(ctx, "focus.error.load_engine_failed", passErr.Error())
+			return false
+		}
+		opts.AfterBattlePass = pass
 		// 同一任务内再次进入战利品流程时只清本轮 UI 状态；首次进入继续做完整初始化。
 		if st := currentRun; st != nil && st.TaskID == arg.TaskID {
 			afterBattleInitResetPerLoot(st)
+			st.PipelineOpts = *opts
+			st.EssenceMode = essenceModeFromOptions(opts)
+			if !prepareLockLimit(ctx, st, opts) {
+				return false
+			}
+			log.Info().Str("component", "EssenceFilter").Str("after_battle_pass", string(pass)).
+				Bool("limit_locked_per_combination", opts.LimitLockedPerCombination).Msg("after battle pass prepared")
 			return true
 		}
 	default:
@@ -86,20 +147,14 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		return false
 	}
 
-	var essenceMode EssenceMode
-	switch {
-	case opts.FlawlessEssence && opts.PureEssence:
-		essenceMode = EssenceModeBoth
-	case opts.FlawlessEssence:
-		essenceMode = EssenceModeFlawlessOnly
-	default:
-		essenceMode = EssenceModePureOnly
-	}
-
 	st := &RunState{TaskID: arg.TaskID}
 	st.PipelineOpts = *opts
 	st.MatchEngine = engine
-	st.EssenceMode = essenceMode
+	st.EssenceMode = essenceModeFromOptions(opts)
+
+	if !prepareLockLimit(ctx, st, opts) {
+		return false
+	}
 
 	matchOpts := matchOptsFromPipeline(opts)
 	st.TargetSkillCombinations = engine.BuildTargets(matchOpts)
@@ -121,7 +176,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	reportInitWeapons(ctx, filteredWeapons)
 
 	log.Info().Str("component", "EssenceFilter").Str("step", "BuildSkillCombinations").Int("combinations", len(st.TargetSkillCombinations)).Msg("skill combinations built")
-	log.Info().Str("component", "EssenceFilter").Msg("init done")
+	log.Info().Str("component", "EssenceFilter").Str("after_battle_pass", string(opts.AfterBattlePass)).Bool("limit_locked_per_combination", opts.LimitLockedPerCombination).Msg("init done")
 
 	reportInitSkillList(ctx, vm.SlotSkills)
 	reportDataVersionNotice(ctx, st)
@@ -218,7 +273,7 @@ type EssenceFilterReadLockStateAction struct{}
 
 func (a *EssenceFilterReadLockStateAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
 	st := currentRun
-	if st == nil || st.Inventory == nil {
+	if st == nil || (st.Inventory == nil && st.LockLimit == nil) {
 		return true
 	}
 	locked, ok := readSelectedLockState(arg.RecognitionDetail)
@@ -304,6 +359,7 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 		reportColoredByKey(ctx, "#11cf00", "focus.finish.summary", st.MatchedCount)
 		reportFinishExtRuleStats(ctx, st)
 		reportFinishArtifacts(ctx, st)
+		reportFinishLockLimit(ctx, st)
 	}
 	currentRun = nil
 	return true

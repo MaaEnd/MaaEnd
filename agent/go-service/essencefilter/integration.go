@@ -222,6 +222,9 @@ type decisionNextNodes struct {
 	Skip    string
 	// AfterBattle marks the after-battle flow, whose decisions are recorded as inventory increments.
 	AfterBattle bool
+	// ReadOnly marks the after-battle readonly pass: it records this round's held essences, locks nothing
+	// and discards nothing.
+	ReadOnly bool
 }
 
 func runUnifiedSkillDecision(
@@ -246,28 +249,31 @@ func runUnifiedSkillDecision(
 
 	reportOCRSkills(ctx, skills, ocr.Levels, matchResult.Kind != matchapi.MatchNone)
 
-	if next.AfterBattle {
-		if delta, ok := afterBattleInventoryDelta(matchResult); ok {
-			st.PendingInventory = append(st.PendingInventory, delta)
-		}
-	}
-
+	locked := false
 	switch matchResult.Kind {
 	case matchapi.MatchExact:
-		st.MatchedCount++
+		if st.LockLimit != nil && !applyLockLimit(ctx, arg.CurrentTaskName, st.LockLimit, matchResult, st.CurrentLocked, next) {
+			st.CurrentSkills = [3]string{}
+			st.CurrentSkillLevels = [3]int{}
+			return true
+		}
+		locked = matchResult.ShouldLock && !next.ReadOnly
 		reportMatchedWeapons(ctx, matchResult.Weapons)
+		if !next.ReadOnly {
+			st.MatchedCount++
 
-		key := skillCombinationKey(matchResult.SkillIDs)
-		if key != "" {
-			if s, ok := st.MatchedCombinationSummary[key]; ok {
-				s.Count++
-			} else {
-				st.MatchedCombinationSummary[key] = &matchapi.SkillCombinationSummary{
-					SkillIDs:      append([]int(nil), matchResult.SkillIDs...),
-					SkillsChinese: append([]string(nil), matchResult.SkillsChinese...),
-					OCRSkills:     append([]string(nil), skills...),
-					Weapons:       append([]matchapi.WeaponData(nil), matchResult.Weapons...),
-					Count:         1,
+			key := skillCombinationKey(matchResult.SkillIDs)
+			if key != "" {
+				if s, ok := st.MatchedCombinationSummary[key]; ok {
+					s.Count++
+				} else {
+					st.MatchedCombinationSummary[key] = &matchapi.SkillCombinationSummary{
+						SkillIDs:      append([]int(nil), matchResult.SkillIDs...),
+						SkillsChinese: append([]string(nil), matchResult.SkillsChinese...),
+						OCRSkills:     append([]string(nil), skills...),
+						Weapons:       append([]matchapi.WeaponData(nil), matchResult.Weapons...),
+						Count:         1,
+					}
 				}
 			}
 		}
@@ -276,16 +282,21 @@ func runUnifiedSkillDecision(
 	case matchapi.MatchFuturePromising, matchapi.MatchSlot3Level3Practical:
 		var reason string
 		if matchResult.Kind == matchapi.MatchFuturePromising {
-			st.ExtFuturePromisingCount++
+			if !next.ReadOnly {
+				st.ExtFuturePromisingCount++
+			}
 			reason = i18n.T("essencefilter.reason.future_promising",
 				matchResult.ExtLevelSum, matchResult.ExtMinTotal)
 		} else {
-			st.ExtSlot3PracticalCount++
+			if !next.ReadOnly {
+				st.ExtSlot3PracticalCount++
+			}
 			reason = i18n.T("essencefilter.reason.slot3_practical",
 				matchResult.SkillsChinese[2], matchResult.ExtSlot3Lv, matchResult.ExtMinLevel)
 		}
 
-		if matchResult.ShouldLock {
+		if matchResult.ShouldLock && !next.ReadOnly {
+			locked = true
 			st.MatchedCount++
 			// 与精准匹配相同，均用 skillCombinationKey（未来可期时 SkillIDs 为各槽池解析出的 ID，未识别槽为 0）。
 			key := skillCombinationKey(matchResult.SkillIDs)
@@ -315,12 +326,23 @@ func runUnifiedSkillDecision(
 		}
 
 	case matchapi.MatchNone:
-		if matchResult.ShouldDiscard {
+		if matchResult.ShouldDiscard && !next.ReadOnly {
 			reportNoMatch(ctx, true)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Discard}})
 		} else {
 			reportNoMatch(ctx, false)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
+		}
+	}
+
+	if next.AfterBattle {
+		// 分遍模式由只读遍记录本轮持有份数，执行遍只记它实际落成的锁定；单遍模式两种增量一起记。
+		increment := inventoryIncrement{
+			Held:   next.ReadOnly || !st.PipelineOpts.LimitLockedPerCombination,
+			Locked: locked,
+		}
+		if delta, ok := afterBattleInventoryDelta(matchResult, increment); ok {
+			st.PendingInventory = append(st.PendingInventory, delta)
 		}
 	}
 
@@ -337,4 +359,70 @@ func loadMatchEngine(ctx *maa.Context, opts *EssenceFilterOptions) (*matchapi.En
 		return nil, fmt.Errorf("load match engine: %w", err)
 	}
 	return engine, nil
+}
+
+// applyLockLimit reports the quota verdict for one exact match and returns whether to lock it.
+func applyLockLimit(
+	ctx *maa.Context,
+	taskName string,
+	planner *lockLimitPlanner,
+	match *matchapi.MatchResult,
+	locked bool,
+	next decisionNextNodes,
+) bool {
+	skip := func() bool {
+		ctx.OverrideNext(taskName, []maa.NextItem{{Name: next.Skip}})
+		return false
+	}
+	verdict := planner.decide(match.SkillIDs, match.Levels, locked)
+	levels := match.Levels
+	switch {
+	case verdict.MissingGroup:
+		reportColoredByKey(ctx, "#ff9f43", "lock_limit.warn_missing_group", verdict.Quota)
+		return skip()
+	case verdict.MissingRow:
+		reportColoredByKey(ctx, "#ff9f43", "lock_limit.warn_missing_row", levels[0], levels[1], levels[2])
+		return skip()
+	}
+	if locked {
+		if verdict.NeedsUnlock {
+			reportColoredByKey(ctx, "#ff4d4f", "lock_limit.unlock_needed",
+				strings.Join(match.SkillsChinese, i18n.Separator()), levels[0], levels[1], levels[2])
+		} else {
+			reportSimpleByKey(ctx, "lock_limit.already_locked")
+		}
+		return skip()
+	}
+	if !verdict.Lock {
+		reportSimpleByKey(ctx, "lock_limit.not_in_quota", verdict.Quota)
+		return skip()
+	}
+	reportSimpleByKey(ctx, "lock_limit.in_quota", verdict.Quota)
+	return true
+}
+
+// reportFinishLockLimit lists the combinations holding locked suboptimal essences.
+func reportFinishLockLimit(ctx *maa.Context, st *RunState) {
+	if st.LockLimit == nil {
+		return
+	}
+	summaries := st.LockLimit.overLimitSummaries()
+	if len(summaries) == 0 {
+		reportSimpleByKey(ctx, "lock_limit.summary_none")
+		return
+	}
+	reportColoredByKey(ctx, "#ff9f43", "lock_limit.summary_title")
+	for _, summary := range summaries {
+		reportSimpleByKey(ctx, "lock_limit.summary_row",
+			strings.Join(summary.Skills[:], i18n.Separator()),
+			strings.Join(summary.Weapons, i18n.Separator()),
+			summary.Quota,
+			summary.Locked,
+			summary.Excess,
+		)
+		for _, row := range summary.Rows {
+			reportSimpleByKey(ctx, "lock_limit.summary_level",
+				row.Levels[0], row.Levels[1], row.Levels[2], row.Count)
+		}
+	}
 }

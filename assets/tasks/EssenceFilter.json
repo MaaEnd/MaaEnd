@@ -52,17 +52,69 @@
                 {
                     "name": "No",
                     "option": [
-                        "SelectWeaponRarity",
-                        "SelectEssence",
                         "SelectExtraRules",
-                        "SkipThumbLock",
-                        "SkipThumbDiscard"
+                        "LimitLockedPerCombination"
                     ],
                     "pipeline_override": {
                         "EssenceFilterEntry": {
                             "enabled": true
                         }
                     }
+                }
+            ],
+            "default_case": "No"
+        },
+        "LimitLockedPerCombination": {
+            "type": "switch",
+            "label": "$option.LimitLockedPerCombination.label",
+            "description": "$option.LimitLockedPerCombination.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    //品质与稀有度口径钉死为无瑕 + 5–6 星：名额按全部五六星武器数计算，两者选项都不在本分支下
+                    "pipeline_override": {
+                        "EssenceFilterInventoryEntry": {
+                            "enabled": true
+                        },
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "rarity6_weapon": true,
+                                "rarity5_weapon": true,
+                                "rarity4_weapon": false,
+                                "limit_locked_per_combination": true,
+                                "flawless_essence": true,
+                                "pure_essence": false
+                            }
+                        },
+                        "EssenceGridAdvance": {
+                            "attach": {
+                                "flawless_essence": true,
+                                "pure_essence": false,
+                                "skip_thumb_lock": false,
+                                "skip_thumb_discard": true
+                            }
+                        },
+                        "EssenceFilterCheckItemOCRFallback": {
+                            "action": "StopTask"
+                        },
+                        "EssenceGridClickPending": {
+                            "on_error": [
+                                "EssenceFilterCheckItemOCRFallback"
+                            ]
+                        },
+                        "EssenceFilterNavigateToInventoryFailed": {
+                            "action": "StopTask"
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "option": [
+                        "SelectWeaponRarity",
+                        "SelectEssence",
+                        "SkipThumbLock",
+                        "SkipThumbDiscard"
+                    ]
                 }
             ],
             "default_case": "No"

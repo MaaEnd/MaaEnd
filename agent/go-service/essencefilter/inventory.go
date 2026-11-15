@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
@@ -152,21 +153,37 @@ func finishInventory(ctx *maa.Context, st *RunState) bool {
 
 // loadInventoryGroups reads an inventory export. A missing or empty file is an empty inventory.
 func loadInventoryGroups(path string) ([]inventoryGroup, error) {
+	groups, err := loadInventoryGroupsRequired(path)
+	switch {
+	case err == nil:
+		return groups, nil
+	case errors.Is(err, os.ErrNotExist), errors.Is(err, errInventoryEmpty):
+		return nil, nil
+	default:
+		return nil, err
+	}
+}
+
+var errInventoryEmpty = errors.New("inventory export is empty")
+
+// loadInventoryGroupsRequired reads an inventory export, failing when it is missing, empty or malformed.
+// The lock-limit filter must not degrade into "lock nothing" when its ranking source is gone.
+func loadInventoryGroupsRequired(path string) ([]inventoryGroup, error) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return nil, nil
-		}
 		return nil, err
 	}
 	if len(bytes.TrimSpace(raw)) == 0 {
-		return nil, nil
+		return nil, fmt.Errorf("%w: %s", errInventoryEmpty, path)
 	}
-	var groups []inventoryGroup
+	var groups *[]inventoryGroup
 	if err := json.Unmarshal(raw, &groups); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parse inventory export %s: %w", path, err)
 	}
-	return groups, nil
+	if groups == nil {
+		return nil, fmt.Errorf("%w: %s", errInventoryEmpty, path)
+	}
+	return *groups, nil
 }
 
 // writeInventoryFile replaces the export only after the temporary file has been written,

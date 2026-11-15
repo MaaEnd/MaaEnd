@@ -46,7 +46,7 @@
         "next": [
             "EssenceFilterAfterBattleIsflawless",
             "EssenceFilterAfterBattleIsPure",
-            "EssenceFilterAfterBattleRowNextItem"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
         ],
         "focus": {
             "Node.Action.Succeeded": "基质未锁定"
@@ -80,7 +80,7 @@
             "EssenceFilterAfterBattleTierGateFlawless"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleRowNextItem"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "是无瑕基质"
@@ -114,7 +114,7 @@
             "EssenceFilterAfterBattleTierGatePure"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleRowNextItem"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "是高纯基质"
@@ -167,7 +167,7 @@
         "post_delay": 0,
         "next": [
             "EssenceFilterAfterBattleCloseDetailThenExit",
-            "EssenceFilterAfterBattleCommitInventory"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassTail"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.EssenceFilter.focus.afterbattle_tier_boundary_flawless"
@@ -194,7 +194,7 @@
             }
         },
         "next": [
-            "EssenceFilterAfterBattleCommitInventory"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassTail"
         ]
     },
     "EssenceFilterAfterBattleTierSkipPureOnlyNotice": {
@@ -209,7 +209,7 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleRowNextItem"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.EssenceFilter.focus.afterbattle_tier_skip_pure_only"
@@ -570,7 +570,7 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleRowNextItem"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
         ]
     },
     "EssenceFilterAfterBattleSkillDecision": {
@@ -584,7 +584,7 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleRowNextItem"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
         ]
     }
 }
