@@ -38,7 +38,7 @@ The following nodes can be called directly within Pipelines. It is recommended t
 | Common Buttons | White/yellow confirm, cancel, close, teleport, etc. | [common-buttons.md](./common-buttons.md) |
 | InScene | Universal scene recognition: determines the current screen scene | [in-scene.md](./in-scene.md) |
 | SceneManager | Universal navigation: automatically navigates to the target scene from any interface | [scene-manager.md](./scene-manager.md) |
-| Inventory | Item transfer and scrolling in the depot and backpack | [components/inventory.md](./components/inventory.md) |
+| Inventory | Item transfer between the depot and backpack | [components/inventory.md](./components/inventory.md) |
 
 ## Custom Reusable Nodes
 

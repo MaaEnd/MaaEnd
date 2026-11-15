@@ -1,16 +1,14 @@
-# 开发手册 - Inventory 物品转移与滚动组件
+# 开发手册 - Inventory 物品转移组件
 
-Inventory 提供仓库与背包界面中的公共转移和滚动节点。每个入口执行一次操作；调用方负责进入正确界面、识别物品以及验证操作结果。
+Inventory 提供仓库与背包界面中的公共物品转移动作。每个动作执行一次转移；调用方负责进入正确界面、识别物品以及验证操作结果。
 
 ## 公共入口
 
-| 名称 | 类型 | 作用 |
-| --- | --- | --- |
-| `InventoryTransferAll` | Custom 动作 | 转移识别框中物品的全部同类物品 |
-| `InventoryTransferStack` | Custom 动作 | 转移识别框中物品的一组 |
-| `InventoryTransferHalf` | Custom 动作 | 转移识别框中物品的一半 |
-| `InventoryBagScrollUpward` / `InventoryBagScrollDownward` | 节点 | 背包向上 / 向下滚动一次 |
-| `InventoryRepoScrollUpward` / `InventoryRepoScrollDownward` | 节点 | 仓库向上 / 向下滚动一次 |
+| 动作 | 作用 |
+| --- | --- |
+| `InventoryTransferAll` | 转移识别框中物品的全部同类物品 |
+| `InventoryTransferStack` | 转移识别框中物品的一组 |
+| `InventoryTransferHalf` | 转移识别框中物品的一半 |
 
 ## 调用转移动作
 
@@ -39,6 +37,3 @@ Inventory 提供仓库与背包界面中的公共转移和滚动节点。每个�
 - 操作失败时，动作尝试释放已按下的按键或触点并返回失败，调用方节点进入 `on_error`。
 - 动作执行成功不代表物品已转移到目标位置；调用方应重新识别并验证结果。
 
-## 调用滚动节点
-
-滚动节点面向仓库与背包并排的界面，使用 1280×720 基准坐标。桌面端使用滚轮，ADB 使用滑动手势。调用方负责等待画面稳定、判断是否到达边界，以及决定是否继续滚动。

@@ -73,7 +73,7 @@ The most commonly used reusable nodes in daily development. All Pipeline develop
 | [Common Buttons](./common-buttons.md) | White/yellow confirm, cancel, close, teleport and other common button nodes |
 | [InScene Recognition](./in-scene.md) | Universal scene recognition, determines the current screen's scene |
 | [SceneManager Navigation](./scene-manager.md) | Universal navigation mechanism, automatically navigate/teleport from any interface to target scene/UI |
-| [Inventory Transfer](./components/inventory.md) | Item transfer and scrolling in the depot and backpack |
+| [Inventory Transfer](./components/inventory.md) | Item transfer between the depot and backpack |
 | [Custom Actions & Recognition](./custom.md) | Common Custom nodes like SubTask, ClearHitCount, ExpressionRecognition, etc. |
 
 ### Advanced Component Reference (`components/`)
