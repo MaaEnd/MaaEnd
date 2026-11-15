@@ -1749,7 +1749,7 @@
     "option.LaunchGamePlayCoverLaunchDelay.label": "起動後の待機時間（秒）",
     "option.LevelUpOperatorMaxLevelThreshold.inputs.MaxLevelThreshold.label": "最大レベル制限",
     "option.LevelUpOperatorMaxLevelThreshold.label": "レベル設定",
-    "option.LimitLockedPerCombination.description": "同一のスキル構成につき、**適合武器数**と同じ数までしか基質をロックしません。ロック優先度は最大レベルまで強化するのに必要な理性の期待値で計算します。「ロック済みをスキップ」「廃棄済みをスキップ」オプションは受け付けません。星5～6武器のみを照合します。",
+    "option.LimitLockedPerCombination.description": "同一のスキル構成につき、**適合武器数**と同じ数までしか基質をロックしません。ロック優先度は最大レベルまで強化するのに必要な理性の期待値で計算します。星5～6武器のみを照合します。",
     "option.LimitLockedPerCombination.label": "同一スキル構成のロック数制限",
     "option.LockFuturePromising.description": "オフ時は命中しても操作しません。",
     "option.LockFuturePromising.label": "有望基質ヒット時にロック",
