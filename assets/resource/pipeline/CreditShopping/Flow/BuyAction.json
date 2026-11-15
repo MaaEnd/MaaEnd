@@ -8,9 +8,17 @@
             "CreditShoppingPriority1Discount",
             "CreditShoppingPriority1ReserveCreditGate"
         ],
-        "box_index": 0,
+        // 锚点取折扣标签框（第 3 个子识别），再用 target_offset 平移到该格中心；
+        // 折扣 OCR 的 roi 来自物品识别的命中格，因此该标签一定属于勾选的物品格。
+        "box_index": 2,
         "pre_wait_freezes": 100,
         "action": "Click",
+        "target_offset": [
+            -45,
+            58,
+            0,
+            0
+        ],
         "next": [
             "CreditShoppingBuyFailed",
             "CreditShoppingBuyConfirm"
@@ -25,9 +33,15 @@
             "CreditShoppingPriority2Discount",
             "CreditShoppingPriority2ReserveCreditGate"
         ],
-        "box_index": 0,
+        "box_index": 2,
         "pre_wait_freezes": 100,
         "action": "Click",
+        "target_offset": [
+            -45,
+            58,
+            0,
+            0
+        ],
         "next": [
             "CreditShoppingBuyFailed",
             "CreditShoppingBuyConfirm"
@@ -42,9 +56,15 @@
             "CreditShoppingPriority3Discount",
             "CreditShoppingPriority3ReserveCreditGate"
         ],
-        "box_index": 0,
+        "box_index": 2,
         "pre_wait_freezes": 100,
         "action": "Click",
+        "target_offset": [
+            -45,
+            58,
+            0,
+            0
+        ],
         "next": [
             "CreditShoppingBuyFailed",
             "CreditShoppingBuyConfirm"
