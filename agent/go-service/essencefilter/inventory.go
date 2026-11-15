@@ -96,7 +96,7 @@ func inventoryFailed(err error) bool {
 
 func finishInventory(ctx *maa.Context, st *RunState) bool {
 	groups, total, locked := st.Inventory.exportGroups()
-	path := fsutil.UserDataPath(inventoryExportPath)
+	path := fsutil.UserDataPath("debug", "record", inventoryExportPath)
 	if err := writeInventoryFile(path, groups); err != nil {
 		return inventoryFailed(err)
 	}
@@ -109,6 +109,9 @@ func finishInventory(ctx *maa.Context, st *RunState) bool {
 func writeInventoryFile(path string, groups []inventoryGroup) error {
 	data, err := json.MarshalIndent(groups, "", "    ")
 	if err != nil {
+		return err
+	}
+	if err = os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return err
 	}
 	// Follow the existing snapshot writers: replace only after the temporary

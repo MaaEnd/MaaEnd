@@ -343,7 +343,7 @@ func logCalculatorResult(ctx *maa.Context, st *RunState) {
 		"Sections":           sections,
 	})
 	LogMXUHTML(ctx, planHTML)
-	path := fsutil.UserDataPath(planRecommendHTMLPath)
+	path := fsutil.UserDataPath("debug", "record", planRecommendHTMLPath)
 	if err := writePlanRecommendHTMLFile(path, planHTML); err != nil {
 		log.Warn().
 			Str("component", "EssenceFilter").

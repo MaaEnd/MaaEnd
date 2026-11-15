@@ -105,7 +105,7 @@
     "essencefilter.focus.ocr_skills": "OCRスキル: %s(+%d) | %s(+%d) | %s(+%d)",
     "essencefilter.focus.plan.html_notice": "上のログと同じ内容。実行のたびに上書きします。",
     "essencefilter.focus.plan.html_save_failed": "<span style=\"color:#ff4d4f;font-weight:700;\">EssencePlan.html の保存に失敗しました</span><br/>パス：%s<br/>エラー：%s",
-    "essencefilter.focus.plan.html_saved": "同じ内容を作業ディレクトリの EssencePlan.html に保存しました。",
+    "essencefilter.focus.plan.html_saved": "同じ内容を debug/record の EssencePlan.html に保存しました。",
     "essencefilter.focus.plan.html_title": "プレ刻印プラン",
     "essencefilter.focus.plan.no_feasible_location_plans": "実行可能な地点プランがありません。未卒業武器リストのみ表示します。",
     "essencefilter.focus.warn.language_detect_failed": "画面からゲーム言語を判定できませんでした。簡体字中国語にフォールバックします。基質インベントリまたは戦利品画面で実行してください。",
