@@ -36,4 +36,3 @@ The transfer actions are provided by go-service; start the project's Agent befor
 - ADB holds the item with the first contact and, once the transfer buttons appear, taps one with a second contact while the first contact stays pressed; buttons on either side of the item can be recognized.
 - On failure, the action attempts to release pressed keys or contacts and returns failure, so the caller node enters `on_error`.
 - A successful action does not prove that the item reached its destination; the caller should recognize the screen again and verify the result.
-
