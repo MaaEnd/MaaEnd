@@ -104,7 +104,7 @@
                     "CreditShoppingShelfAnyItem",
                     "CreditShoppingShelfAnyCanAfford"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "pre_wait_freezes": 100,
@@ -130,7 +130,7 @@
                     "CreditShoppingShelfAnyItem",
                     "CreditShoppingShelfAnyCanAfford"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "pre_wait_freezes": 100,
