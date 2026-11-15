@@ -96,6 +96,8 @@ Example (Progression tab):
 
 Hits emit one HTML Focus summary after the scan finishes by default (16px item icons + quantities, template `ims.sync_item_summary`), instead of one line per item. Pass `notify_ui: false` to silence (omit defaults to `true`); the side cache taken during the shop universal jump uses `SyncShopItemDataRunNoNotify`. Transactional `begin` / `continue` calls may stay silent and set `notify_ui: true` only on `commit`; after persistence succeeds, that prints one summary of the final deduplicated quantities of items actually hit by the transaction and excludes other IMS cache regions. If `notify_ui` is also enabled on `begin` / `continue`, each page prints its own page summary.
 
+Icons are downscaled to 16×16 and encoded as PNG data URLs by the Go side before they enter the HTML: the client persists rendered Focus HTML in localStorage, so inlining the original 128×128 or 256×256 PNGs would cost tens of KB per item on every summary.
+
 ### Write mode and paging (`merge_mode` + `page_dedup`)
 
 | `merge_mode` | `page_dedup` | Mode | Behavior |

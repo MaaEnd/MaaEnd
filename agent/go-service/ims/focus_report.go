@@ -1,10 +1,7 @@
 package ims
 
 import (
-	"fmt"
-	"path/filepath"
 	"sort"
-	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
@@ -13,7 +10,8 @@ import (
 )
 
 const (
-	// focusItemIconSizePx is the Focus HTML <img> width/height in px.
+	// focusItemIconSizePx is the size (in px) that item icons are downscaled to
+	// before being inlined into the Focus HTML, and the <img> width/height.
 	focusItemIconSizePx = 16
 )
 
@@ -74,33 +72,4 @@ func reportItemFocusSummary(ctx *maa.Context, templateKey string, items map[stri
 	})
 	maafocus.Print(ctx, html)
 	return len(rows)
-}
-
-// itemIconSrc returns an install-root-relative path for MXU Focus <img src>.
-// Runtime layout is install/{mxu, resource}/… — never prefix with assets/.
-// MXU resolves the path against basePath and inlines the image.
-func itemIconSrc(itemID string) string {
-	itemID = strings.TrimSpace(itemID)
-	if itemID == "" {
-		return ""
-	}
-	catalog, err := loadRecognitionItems()
-	if err != nil {
-		return ""
-	}
-	meta, ok := catalog[itemID]
-	if !ok {
-		return ""
-	}
-	iconID := strings.TrimSpace(meta.IconID)
-	if iconID == "" || meta.Rarity <= 0 {
-		return ""
-	}
-	return filepath.ToSlash(filepath.Join(
-		"resource",
-		"image",
-		"IconRecognition",
-		fmt.Sprintf("%d", meta.Rarity),
-		iconID+".png",
-	))
 }
