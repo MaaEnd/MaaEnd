@@ -1,0 +1,121 @@
+{
+    "__InventoryTransferAllBeginAction": {
+        "action": "TouchDown",
+        "contact": 0,
+        "pressure": 1,
+        "auto_up": true,
+        "timeout": 5000,
+        "next": [
+            "__InventoryTransferAllButtonLeft",
+            "__InventoryTransferAllButtonRight"
+        ],
+        "on_error": [
+            "__InventoryTransferErrorButtonTouchUp"
+        ]
+    },
+    "__InventoryTransferAllEndAction": {
+        "action": "TouchUp",
+        "contact": 0,
+        "on_error": [
+            "__InventoryTransferErrorButtonTouchUp"
+        ]
+    },
+    "__InventoryTransferStackBeginAction": {
+        "action": "TouchDown",
+        "contact": 0,
+        "pressure": 1,
+        "auto_up": true,
+        "timeout": 5000,
+        "next": [
+            "__InventoryTransferStackButtonLeft",
+            "__InventoryTransferStackButtonRight"
+        ],
+        "on_error": [
+            "__InventoryTransferErrorButtonTouchUp"
+        ]
+    },
+    "__InventoryTransferStackEndAction": {
+        "action": "TouchUp",
+        "contact": 0,
+        "on_error": [
+            "__InventoryTransferErrorButtonTouchUp"
+        ]
+    },
+    "__InventoryTransferHalfBeginAction": {
+        "action": "TouchDown",
+        "contact": 0,
+        "pressure": 1,
+        "auto_up": true,
+        "timeout": 5000,
+        "next": [
+            "__InventoryTransferHalfButtonLeft",
+            "__InventoryTransferHalfButtonRight"
+        ],
+        "on_error": [
+            "__InventoryTransferErrorButtonTouchUp"
+        ]
+    },
+    "__InventoryTransferHalfEndAction": {
+        "action": "TouchUp",
+        "contact": 0,
+        "on_error": [
+            "__InventoryTransferErrorButtonTouchUp"
+        ]
+    },
+    "__InventoryTransferButtonTouchUp": {
+        "pre_delay": 0,
+        "action": "TouchUp",
+        "contact": 1,
+        "post_delay": 100,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__InventoryTransferEnd"
+        ],
+        "on_error": [
+            "__InventoryTransferErrorButtonTouchUp"
+        ]
+    },
+    "__InventoryTransferErrorButtonTouchUp": {
+        "pre_delay": 0,
+        "action": "TouchUp",
+        "contact": 1,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferErrorSourceTouchUp"
+        ],
+        "on_error": [
+            "__InventoryTransferErrorSourceTouchUpFallback"
+        ]
+    },
+    "__InventoryTransferErrorSourceTouchUp": {
+        "pre_delay": 0,
+        "action": "TouchUp",
+        "contact": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferFailed"
+        ]
+    },
+    "__InventoryTransferErrorSourceTouchUpFallback": {
+        "pre_delay": 0,
+        "action": "TouchUp",
+        "contact": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferFailed"
+        ],
+        "on_error": [
+            "__InventoryTransferFailedOnCleanupError"
+        ]
+    },
+    "__InventoryTransferFailedOnCleanupError": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

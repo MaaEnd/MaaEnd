@@ -1,0 +1,80 @@
+{
+    "InventoryTransferAll": {
+        "desc": "将已识别物品的全部同类物品转移到另一侧；调用前设置 InventoryTransferSource 锚点。",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferAllBeginAction"
+        ]
+    },
+    "InventoryTransferStack": {
+        "desc": "将已识别物品的一组转移到另一侧；调用前设置 InventoryTransferSource 锚点。",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferStackBeginAction"
+        ]
+    },
+    "InventoryTransferHalf": {
+        "desc": "将已识别物品的一半转移到另一侧；调用前设置 InventoryTransferSource 锚点。",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferHalfBeginAction"
+        ]
+    },
+    "InventoryBagScrollUpward": {
+        "desc": "背包向上滚动一次；调用方负责等待画面稳定和判断是否到边界",
+        "pre_delay": 0,
+        "action": "Scroll",
+        "target": [
+            837,
+            350
+        ],
+        "dy": 180,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InventoryBagScrollDownward": {
+        "desc": "背包向下滚动一次；调用方负责等待画面稳定和判断是否到边界",
+        "pre_delay": 0,
+        "action": "Scroll",
+        "target": [
+            837,
+            350
+        ],
+        "dy": -180,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InventoryRepoScrollUpward": {
+        "desc": "仓库向上滚动一次；调用方负责等待画面稳定和判断是否到边界",
+        "pre_delay": 0,
+        "action": "Scroll",
+        "target": [
+            640,
+            350
+        ],
+        "dy": 180,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InventoryRepoScrollDownward": {
+        "desc": "仓库向下滚动一次；调用方负责等待画面稳定和判断是否到边界",
+        "pre_delay": 0,
+        "action": "Scroll",
+        "target": [
+            640,
+            350
+        ],
+        "dy": -180,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
