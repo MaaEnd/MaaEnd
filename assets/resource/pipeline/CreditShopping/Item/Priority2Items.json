@@ -1,6 +1,6 @@
 {
     "CreditShoppingPriority2Item": {
-        "desc": "优先购买2物品。item_ids 由任务勾选经 attach 覆盖（IconRecognition.item_ids.<item_id>）",
+        "desc": "优先购买2物品。item_ids 由任务勾选经 attach 覆盖（IconRecognition.item_ids.<item_id>）。不做同款去重，避免同款占多格时丢掉折扣更深的那格",
         "recognition": "Custom",
         "custom_recognition": "IconRecognition",
         "custom_recognition_param": {
@@ -9,7 +9,7 @@
                 "item_gold"
             ],
             "order_by": "natural",
-            "deduplicate": true
+            "deduplicate": false
         },
         "roi": [
             70,
