@@ -17,7 +17,12 @@
             ]
         },
         "pre_delay": 0,
-        "action": "DoNothing",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterReadLockStateAction"
+            }
+        },
         "post_delay": 0,
         "next": [
             "EssenceFilterFinish"

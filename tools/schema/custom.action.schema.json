@@ -55,6 +55,7 @@
                 "EssenceFilterCheckItemLevelAction",
                 "EssenceFilterFinishAction",
                 "EssenceFilterInitAction",
+                "EssenceFilterReadLockStateAction",
                 "EssenceFilterSkillDecisionAction",
                 "EveryNthHitReset",
                 "ExitGameLauncherAction",

@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "MaaEnd 无瑕基质库存导出",
-    "description": "扫描未标记弃置的无瑕基质，包含已锁定的基质；仅导出能精确匹配当前支持武器的组合。每个词条组合一组，组内按三个等级合并计数。空数组表示完整扫描后没有符合条件的基质。",
+    "description": "扫描未标记弃置的无瑕基质，包含已锁定的基质；仅导出能精确匹配当前支持武器的组合。每个词条组合一组，组内按三个等级合并计数，并记录其中已锁定的份数。空数组表示完整扫描后没有符合条件的基质。",
     "$comment": "框架与网格扫描器负责遍历和去重，Pipeline 在识别或操作失败时终止盘点。导出按词条组合及等级聚合，武器列表完整且升序；JSON Schema 校验结构和取值。仅正常扫描结束时更新文件。",
     "type": "array",
     "items": {
@@ -31,7 +31,8 @@
                     "additionalProperties": false,
                     "required": [
                         "levels",
-                        "count"
+                        "count",
+                        "locked"
                     ],
                     "properties": {
                         "levels": {
@@ -61,6 +62,11 @@
                             "description": "本组中三个等级完全相同、未标记弃置的基质持有份数，包含已锁定的基质；不能乘以武器数。",
                             "type": "integer",
                             "minimum": 1
+                        },
+                        "locked": {
+                            "description": "本组中三个等级完全相同、已锁定的基质份数，包含在 count 中。",
+                            "type": "integer",
+                            "minimum": 0
                         }
                     }
                 }
@@ -82,7 +88,8 @@
                             2,
                             1
                         ],
-                        "count": 2
+                        "count": 2,
+                        "locked": 1
                     },
                     {
                         "levels": [
@@ -90,7 +97,8 @@
                             6,
                             3
                         ],
-                        "count": 1
+                        "count": 1,
+                        "locked": 0
                     }
                 ]
             }
