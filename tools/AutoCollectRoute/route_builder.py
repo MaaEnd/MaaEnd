@@ -59,10 +59,11 @@ class WalkDistances:
     连通关系随查询记录：已知不连通的一对，与两端各自连通的点之间不再查询。
     """
 
-    def __init__(self, zone_id: str, nodes: list[dict[str, Any]], walk: WalkFn) -> None:
+    def __init__(self, zone_id: str, nodes: list[dict[str, Any]], walk: WalkFn, short_leg_px: float = SHORT_LEG_PX) -> None:
         self.zone_id = zone_id
         self.nodes = nodes
         self.walk = walk
+        self.short_leg_px = short_leg_px
         self._sorting: dict[tuple[int, int], float] = {}
         self._measured: dict[tuple[int, int], float] = {}
         self._parent = list(range(len(nodes)))
@@ -87,7 +88,7 @@ class WalkDistances:
         key = (min(i, j), max(i, j))
         if key not in self._sorting:
             straight = self.lower(i, j)
-            if straight < SHORT_LEG_PX:
+            if straight < self.short_leg_px:
                 length = straight
             elif self._known_apart(i, j):
                 length = math.inf
@@ -299,7 +300,7 @@ class Library:
             cv = sum(points[i]["v"] for i in members) / len(members)
             reps.append(points[min(members, key=lambda i: math.hypot(points[i]["u"] - cu, points[i]["v"] - cv))])
         candidates = sorted(anchors, key=reach)[:ANCHOR_CANDIDATES]
-        dist = WalkDistances(zone_id, [*reps, *candidates], walk)
+        dist = WalkDistances(zone_id, [*reps, *candidates], walk, short_leg_px=0.0)
 
         def first_leg(start: int) -> float:
             """从传送点走到最近一簇的步行长度；直线下界剪掉不可能更近的簇。"""
@@ -307,7 +308,7 @@ class Library:
             for c in sorted(range(len(reps)), key=lambda index: dist.lower(start, index)):
                 if dist.lower(start, c) >= best:
                     break
-                best = min(best, dist.exact(start, c))
+                best = min(best, dist.measure(start, c))
             return best
 
         # 起点取首段步行最短的传送点，只排一次序
