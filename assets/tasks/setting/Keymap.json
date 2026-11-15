@@ -27,6 +27,18 @@
                 "EnterCameraModeKeyUp": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
+                "__WorldToolSprayHoldR": {
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "__WorldToolSprayKeyUp": {
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "__WorldToolFillWaterHoldR": {
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "__WorldToolFillWaterKeyUp": {
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
                 "AutoCollectClickKey": {
                     "key": "{KeymapInteract.primary}"
                 },

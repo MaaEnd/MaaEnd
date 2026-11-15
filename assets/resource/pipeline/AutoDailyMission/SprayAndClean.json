@@ -57,6 +57,33 @@
         ]
     },
     "AutoDailyMissionSprayAndCleanEntry": {
+        "desc": "委派任务列表里有日常·涤垢洗瑕，先取空蓝铁瓶装水",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionSprayAndCleanListItem"
+        ],
+        "anchor": {
+            "WorldToolFillWaterDone": "AutoDailyMissionSprayAndCleanBackToMission"
+        },
+        "next": [
+            "WorldToolFillWater"
+        ]
+    },
+    "AutoDailyMissionSprayAndCleanBackToMission": {
+        "desc": "装完水回到委派任务页签",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuMissionCommission"
+            ]
+        },
+        "next": [
+            "AutoDailyMissionSprayAndCleanSelect"
+        ]
+    },
+    "AutoDailyMissionSprayAndCleanSelect": {
         "desc": "在委派任务列表中点击日常·涤垢洗瑕",
         "recognition": "And",
         "all_of": [
@@ -64,6 +91,15 @@
             "AutoDailyMissionSprayAndCleanListItem"
         ],
         "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                42,
+                70,
+                360,
+                590
+            ]
+        },
         "action": "Click",
         "next": [
             "AutoDailyMissionSnsTracked",
@@ -133,7 +169,7 @@
         }
     },
     "AutoDailyMissionSprayAndCleanRouteStainA": {
-        "desc": "走到方兴衢附近的第一处污渍",
+        "desc": "走到方兴衢附近的第一处污渍并转向上方墙面",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
@@ -146,15 +182,23 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        652.4,
-                        1711.3
+                        652.8,
+                        1704.7
                     ],
                     "required": true
+                },
+                {
+                    // 污渍在上方墙面，转向墙面后再喷
+                    "action": "HEADING",
+                    "angle": 165
                 }
             ]
         },
+        "anchor": {
+            "WorldToolSprayDone": "AutoDailyMissionSprayAndCleanRouteStainB"
+        },
         "next": [
-            "AutoDailyMissionSprayAndCleanRouteStainB"
+            "WorldToolSprayUpperWall"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.stain_arrived"
@@ -175,14 +219,22 @@
                     "action": "NAVMESH",
                     "target": [
                         652.7,
-                        1685.5
+                        1690.0
                     ],
                     "required": true
+                },
+                {
+                    // 在污渍前稍远处停下再转向；进入喷洒后视角中点会往右偏，在正对污渍的角度（0°）上往左 20°
+                    "action": "HEADING",
+                    "angle": 340
                 }
             ]
         },
+        "anchor": {
+            "WorldToolSprayDone": "AutoDailyMissionSprayAndCleanRouteStainC"
+        },
         "next": [
-            "AutoDailyMissionSprayAndCleanRouteStainC"
+            "WorldToolSprayStain"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.stain_arrived"
@@ -202,15 +254,25 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        613.3,
-                        1700.3
+                        615.5,
+                        1698.0
                     ],
+                    // 污渍在楼梯上面的平台，停在平台上污渍前面
+                    "target_deck_y": 293.75,
                     "required": true
+                },
+                {
+                    // 实测朝向 214°；进入喷洒后视角中点会往右偏，再往左 20°
+                    "action": "HEADING",
+                    "angle": 194
                 }
             ]
         },
+        "anchor": {
+            "WorldToolSprayDone": "AutoDailyMissionSprayAndCleanRouteStainD"
+        },
         "next": [
-            "AutoDailyMissionSprayAndCleanRouteStainD"
+            "WorldToolSprayStain"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.stain_arrived"
@@ -230,15 +292,23 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        636.9,
-                        1735.2
+                        634.4,
+                        1731.5
                     ],
                     "required": true
+                },
+                {
+                    // 在污渍前稍远处停下再转向；进入喷洒后视角中点会往右偏，在正对污渍的角度上往左 20°
+                    "action": "HEADING",
+                    "angle": 126
                 }
             ]
         },
+        "anchor": {
+            "WorldToolSprayDone": "AutoDailyMissionCheckFinished"
+        },
         "next": [
-            "AutoDailyMissionCheckFinished"
+            "WorldToolSprayStain"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.stain_arrived"

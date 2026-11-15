@@ -97,6 +97,7 @@
                 "VisitFriendsBtwSellSettleAction",
                 "VisitFriendsBtwSellSlidingAction",
                 "WebEvent202605Action",
+                "WorldToolSprayScanAction",
                 "ZiplineImport",
                 "autoEcoFarmInterruptibleSleep",
                 "autoEcoFarmOverrideTargetTemplate",
@@ -147,6 +148,30 @@
                         "$ref": "./components/auto_delivery.schema.json#/$defs/ResolveDestinationParam"
                     }
                 }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "WorldToolSprayScanAction"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "pattern": {"enum": [
+                                    "upper_wall",
+                                    "ground"
+                                ]}
+                        },
+                        "required": ["pattern"],
+                        "additionalProperties": false
+                    }
+                },
+                "required": ["custom_action_param"]
             }
         },
         {

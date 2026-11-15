@@ -34,6 +34,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/poststop"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/repeataction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/sprayscan"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/textinput"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/deliveryjobs"
@@ -87,6 +88,7 @@ func registerAll() {
 	textinput.Register()
 	autoalt.Register()
 	camerascan.Register()
+	sprayscan.Register()
 	charactercontroller.Register()
 	falseaction.Register()
 	repeataction.Register()
