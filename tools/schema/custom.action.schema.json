@@ -58,6 +58,7 @@
                 "EssenceFilterInitAction",
                 "EssenceFilterReadLockStateAction",
                 "EssenceFilterSkillDecisionAction",
+                "EssenceGridResetAction",
                 "EveryNthHitReset",
                 "ExitGameLauncherAction",
                 "FailureCollectorFinish",

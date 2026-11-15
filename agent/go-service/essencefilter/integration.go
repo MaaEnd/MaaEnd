@@ -329,17 +329,12 @@ func runUnifiedSkillDecision(
 	return true
 }
 
-func loadMatchEngine(ctx *maa.Context, nodeName string) (*matchapi.Engine, *EssenceFilterOptions, error) {
-	opts, err := getOptionsFromAttach(ctx, nodeName)
-	if err != nil {
-		return nil, nil, fmt.Errorf("load options from %s: %w", nodeName, err)
-	}
-
+func loadMatchEngine(ctx *maa.Context, opts *EssenceFilterOptions) (*matchapi.Engine, error) {
 	locale := resolveInputLanguage(ctx, opts.InputLanguage)
 	opts.InputLanguage = locale
 	engine, err := matchapi.NewEngineFromDirWithLocale(essenceFilterDataDir, locale)
 	if err != nil {
-		return nil, nil, fmt.Errorf("load match engine: %w", err)
+		return nil, fmt.Errorf("load match engine: %w", err)
 	}
-	return engine, opts, nil
+	return engine, nil
 }

@@ -25,7 +25,7 @@ Go 只通过 `ctx.OverrideNext` 选择 Pipeline 分支：
 
 | 文件 | 职责 |
 | --- | --- |
-| `actions.go` | 库存 Init、技能 OCR 写入、等级写入、匹配决策和 Finish |
+| `actions.go` | 库存/战后 Init、技能 OCR 写入、等级写入、匹配决策和 Finish |
 | `actionsAfterBattle.go` | 战后品质门禁、匹配决策与库存提交动作 |
 | `recognitionAfterBattle.go` | 战后按顺序返回识别框 |
 | `integration.go` | 匹配调用、OverrideNext、统计与展示适配 |
@@ -40,7 +40,7 @@ Go 只通过 `ctx.OverrideNext` 选择 Pipeline 分支：
 
 ## 运行流程
 
-1. `EssenceFilterInitAction` 从界面 OCR 探测游戏语言（`__EssenceFilterDetectLang*`），或尊重 `attach.input_language` 显式覆盖；再从 `EssenceFilterInit.attach` 读取其余选项并加载 `data/EssenceFilter`。
+1. `EssenceFilterInitAction` 先读当前 Init 节点 `attach.mode` 决定分支：`filter` 普通筛选、`inventory` 库存盘点、`after_battle` 战后（同一任务内重复进入只清本轮状态），未知值直接判失败。随后从界面 OCR 探测游戏语言（`__EssenceFilterDetectLang*`），或尊重 `attach.input_language` 显式覆盖；再从当前 Init 节点 `attach` 读取其余选项并加载 `data/EssenceFilter`。
 2. Pipeline 对 C++ 选中的格子依次 OCR 三个技能和等级。
 3. `runUnifiedSkillDecision` 调用 `matchapi.Engine.MatchOCR`。
 4. Go 根据 `MatchResult` 覆盖下一 Pipeline 节点。
@@ -51,7 +51,7 @@ Agent 回调按当前框架模型串行执行，因此 `currentRun` 不加锁。
 
 ## 输出基质库存
 
-任务顶层的「输出基质库存」默认关闭。开启时 UI 隐藏原筛选选项，关闭后重新显示。游戏语言由 Init 时界面 OCR 自动识别。盘点使用固定预设：只读取未标记弃置的无瑕基质（包括已锁定的基质），匹配全部四至六星武器，不执行锁定、弃置、扩展规则和预刻写推荐。弃置项在缩略图阶段排除，不点击、不调用 OCR、不计入库存。网格参数只覆盖品质与跳过标志，保留控制器对应的 ROI 和滑动配置。
+任务顶层的「输出基质库存」默认关闭。开启时 UI 隐藏原筛选选项，关闭后重新显示。游戏语言由 Init 时界面 OCR 自动识别。开启后走 `EssenceFilterInventoryInit`（`attach.mode = inventory`），固定预设直接写在该节点的 `attach`：只读取未标记弃置的无瑕基质（包括已锁定的基质），匹配全部四至六星武器，不执行锁定、弃置、扩展规则和预刻写推荐。弃置项在缩略图阶段排除，不点击、不调用 OCR、不计入库存。盘点的品质与缩略图口径就是 `EssenceGridAdvance.attach` 的默认值（无瑕、跳过弃置、不跳过已锁定），普通筛选由 `FlawlessEssence` / `PureEssence` / `SkipThumbLock` / `SkipThumbDiscard` 选项覆盖；ROI 与滑动配置保留控制器对应的值。
 
 输出为用户数据目录（`PI_USER_DATA_DIR`，未注入时为安装根目录）下 `debug/record/EssenceInventory.json`，结构见 [库存 Schema](../../../tools/schema/essence_inventory.schema.json)。每个词条组合一组，武器共享该组的 `essences` 等级与数量分布；数量不乘以武器数。等级依次为基础属性、附加属性、技能属性。`count` 包含已锁定的基质，`locked` 只统计其中已锁定的部分，不会超过 `count`。无匹配结果输出 `[]`。
 
@@ -80,9 +80,9 @@ Init 语言探测节点见 Pipeline `EssenceFilter/DetectLanguage.json`（库存
 
 ## 运行选项
 
-`EssenceFilterOptions` 来自 MaaFramework 已合并的 `EssenceFilterInit.attach`，包括武器稀有度、基质品质、扩展规则、未匹配废弃、导出选项。`input_language` 可选：省略或 `AUTO` 时由屏幕 OCR 探测；显式 `CN|TC|EN|JP|KR` 则强制该语言。
+`EssenceFilterOptions` 来自 MaaFramework 已合并的 Init 节点 `attach`（`EssenceFilterInit` / `EssenceFilterInventoryInit` / `EssenceFilterAfterBattleInit`），包括 `mode`、武器稀有度、基质品质、扩展规则、未匹配废弃、导出选项。`mode` 由节点显式声明，Go 不再按节点名推断：`filter` 普通筛选、`inventory` 库存盘点、`after_battle` 战后。`input_language` 可选：省略或 `AUTO` 时由屏幕 OCR 探测；显式 `CN|TC|EN|JP|KR` 则强制该语言。
 
-`skip_thumb_lock` / `skip_thumb_discard` 属于 C++ `EssenceGridAdvance.attach`，不在 Go 状态中重复保存。
+`flawless_essence` / `pure_essence` / `skip_thumb_lock` / `skip_thumb_discard` 属于 C++ `EssenceGridAdvance.attach`，默认值即库存盘点口径，不在 Go 状态中重复保存；普通筛选通过选项覆盖。
 
 ## 开发约束
 

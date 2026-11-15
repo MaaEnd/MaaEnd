@@ -2,6 +2,7 @@ package essencefilter
 
 import (
 	"encoding/json"
+	"fmt"
 	"regexp"
 	"strconv"
 
@@ -14,7 +15,7 @@ var levelParseRe = regexp.MustCompile(`\+?(\d+)`)
 
 // --- Init ---
 
-// EssenceFilterInitAction - initialize filter
+// EssenceFilterInitAction initializes a run according to attach.mode (filter / inventory / after_battle).
 type EssenceFilterInitAction struct{}
 
 // afterBattleInitResetPerLoot clears state that must be fresh for each战后战利品界面；引擎与锁定汇总保留在 RunState 上由首次完整 Init 建立。
@@ -29,22 +30,35 @@ func afterBattleInitResetPerLoot(st *RunState) {
 func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Str("component", "EssenceFilter").Msg("init start")
 
-	// EssenceFilterAfterBattleInit：每次战利品流程都会进入；仅首次做下方完整初始化，之后每次只做 afterBattleInitResetPerLoot。
-	if arg.CurrentTaskName == "EssenceFilterAfterBattleInit" {
+	opts, err := getOptionsFromAttach(ctx, arg.CurrentTaskName)
+	if err != nil {
+		err = fmt.Errorf("load options from %s: %w", arg.CurrentTaskName, err)
+		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadOptions").Msg("load options failed")
+		reportFocusByKey(ctx, "focus.error.load_engine_failed", err.Error())
+		return false
+	}
+	switch opts.Mode {
+	case InitModeFilter, InitModeInventory:
+	case InitModeAfterBattle:
+		// 同一任务内再次进入战利品流程时只清本轮 UI 状态；首次进入继续做完整初始化。
 		if st := currentRun; st != nil && st.TaskID == arg.TaskID {
 			afterBattleInitResetPerLoot(st)
 			return true
 		}
+	default:
+		err := fmt.Errorf("unknown attach.mode %q on %s", opts.Mode, arg.CurrentTaskName)
+		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "ValidateMode").Msg("invalid init mode")
+		reportFocusByKey(ctx, "focus.error.load_engine_failed", err.Error())
+		return false
 	}
 	currentRun = nil
 
-	engine, opts, err := loadMatchEngine(ctx, arg.CurrentTaskName)
+	engine, err := loadMatchEngine(ctx, opts)
 	if err != nil {
 		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadMatchEngine").Msg("load match data failed")
 		reportFocusByKey(ctx, "focus.error.load_engine_failed", err.Error())
 		return false
 	}
-	*opts = inventoryPreset(*opts)
 	inputLocale := engine.Locale()
 
 	log.Info().Str("component", "EssenceFilter").Str("input_language", inputLocale).Msg("match engine ready")
@@ -91,11 +105,8 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	st.TargetSkillCombinations = engine.BuildTargets(matchOpts)
 	st.MatchedCombinationSummary = make(map[string]*matchapi.SkillCombinationSummary)
 	currentRun = st
-	if opts.ExportInventory {
+	if opts.Mode == InitModeInventory {
 		st.Inventory = &inventoryState{groups: make(map[[3]int]*inventoryCounts)}
-		if err := ctx.OverridePipeline(inventoryGridOverride()); err != nil {
-			return inventoryFailed(err)
-		}
 		reportSimpleByKey(ctx, "inventory.started")
 	}
 	reportInitSelection(ctx, weaponRarity, essenceTypes)

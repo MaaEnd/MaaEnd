@@ -4,11 +4,35 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "[JumpBack]EssenceFilterInventoryEntry",
+            "[JumpBack]EssenceFilterEntry",
+            "EmptyNode"
+        ]
+    },
+    "EssenceFilterNavigateToInventory": {
+        "desc": "进入基质界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
             "EssenceFilterSwitchTab",
             "EssenceFilterInitNormalize",
             "[JumpBack]SceneEnterMenuValuables"
         ],
-        "on_error": "EssenceFilterMainFailed"
+        "on_error": "EssenceFilterNavigateToInventoryFailed"
+    },
+    "EssenceFilterNavigateToInventoryFailed": {
+        "desc": "入口点失败",
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterFinish"
+        ],
+        "focus": {
+            "Node.Action.Failed": "未能进入基质界面，结束任务"
+        }
     },
     "EssenceFilterInitNormalize": {
         "desc": "初始化：若在基质栏位则先切武器库再切回基质页，否则直接切基质页（已选中武器基质页签）",
@@ -84,5 +108,32 @@
         "next": [
             "EssenceFilterCheckInInventory"
         ]
+    },
+    "EssenceFilterCheckInInventory": {
+        "desc": "检查是否在背包Essence页（已选中武器基质页签）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    435,
+                    3,
+                    150,
+                    49
+                ],
+                "template": "EssenceFilter/EssenceTabChoose.png",
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceGridResetAction"
+            }
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "确认在基质界面"
+        }
     }
 }

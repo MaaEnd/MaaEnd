@@ -41,7 +41,7 @@ type RunState struct {
 	// EssenceMode derived from selection: flawless_only / pure_only / both
 	EssenceMode EssenceMode
 
-	// PipelineOpts is a copy of EssenceFilterInit attach JSON; filled in Init for the run (avoids re-parsing).
+	// PipelineOpts is a copy of the init node's attach JSON; filled in Init for the run (avoids re-parsing).
 	PipelineOpts EssenceFilterOptions
 }
 

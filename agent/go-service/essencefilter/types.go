@@ -1,8 +1,19 @@
 package essencefilter
 
+// InitMode is the init node's attach.mode, selecting how EssenceFilterInitAction initializes a run.
+type InitMode string
+
+const (
+	InitModeFilter      InitMode = "filter"
+	InitModeInventory   InitMode = "inventory"
+	InitModeAfterBattle InitMode = "after_battle"
+)
+
 // EssenceFilterOptions is unmarshaled from Pipeline node attach JSON (full UI / filter options).
 // Matching uses the subset type matchapi.EssenceFilterOptions; see actions.go for the mapping.
 type EssenceFilterOptions struct {
+	Mode InitMode `json:"mode"`
+
 	Rarity6Weapon   bool `json:"rarity6_weapon"`
 	Rarity5Weapon   bool `json:"rarity5_weapon"`
 	Rarity4Weapon   bool `json:"rarity4_weapon"`
@@ -26,8 +37,6 @@ type EssenceFilterOptions struct {
 	DiscardUnmatched bool `json:"discard_unmatched"`
 	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）；开启时会同时写入用户数据目录 debug/record/EssencePlan.html（每次覆盖）
 	ExportCalculatorScript bool `json:"export_calculator_script"`
-	// ExportInventory selects the read-only flawless inventory preset.
-	ExportInventory bool `json:"export_inventory"`
 	// InputLanguage is game/OCR language for skill matching: CN|TC|EN|JP|KR.
 	// Empty / omitted / AUTO: detect via __EssenceFilterDetectLang* OCR nodes at Init.
 	// Explicit CN|TC|EN|JP|KR: force that locale (debug / override).
