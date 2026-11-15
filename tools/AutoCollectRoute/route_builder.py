@@ -12,6 +12,7 @@ from registry import COLLECT_POINTS_PATH, PROJECT_ROOT, read_json, read_jsonc, r
 
 # (zone_id, 起点, 终点) -> 运行时规划出的步行长度（底图像素），不连通为 None
 WalkFn = Callable[[str, dict[str, Any], dict[str, Any]], "float | None"]
+DeckFn = Callable[[str, dict[str, Any]], "float | None"]
 
 TELEPORT_ANCHORS_PATH = PROJECT_ROOT / "tools" / "zmdmap" / "data" / "teleport_anchors.json"
 ANCHOR_NAMES_PATH = PROJECT_ROOT / "tools" / "pipeline-generate" / "SceneTeleport" / "anchors.json"
@@ -27,7 +28,7 @@ CLUSTER_PX = 20.0
 # 直线距离小于此值的两点按直线计，不查询规划器
 SHORT_LEG_PX = 12.0
 ASSERT_HALF_PX = 10.0
-ANCHOR_CANDIDATES = 3
+ANCHOR_CANDIDATES = 6
 TWO_OPT_ROUNDS = 50
 TWO_OPT_NEIGHBORS = 6
 
@@ -47,6 +48,10 @@ def straight_walk(zone_id: str, a: dict[str, Any], b: dict[str, Any]) -> float:
     return math.hypot(a["u"] - b["u"], a["v"] - b["v"])
 
 
+def no_deck(zone_id: str, point: dict[str, Any]) -> float | None:
+    return None
+
+
 class WalkDistances:
     """节点间的步行距离：按需向规划器要实走长度，直线距离是它的下界，用来剪掉不必问的点对。
 
@@ -54,10 +59,11 @@ class WalkDistances:
     连通关系随查询记录：已知不连通的一对，与两端各自连通的点之间不再查询。
     """
 
-    def __init__(self, zone_id: str, nodes: list[dict[str, Any]], walk: WalkFn) -> None:
+    def __init__(self, zone_id: str, nodes: list[dict[str, Any]], walk: WalkFn, short_leg_px: float = SHORT_LEG_PX) -> None:
         self.zone_id = zone_id
         self.nodes = nodes
         self.walk = walk
+        self.short_leg_px = short_leg_px
         self._sorting: dict[tuple[int, int], float] = {}
         self._measured: dict[tuple[int, int], float] = {}
         self._parent = list(range(len(nodes)))
@@ -82,7 +88,7 @@ class WalkDistances:
         key = (min(i, j), max(i, j))
         if key not in self._sorting:
             straight = self.lower(i, j)
-            if straight < SHORT_LEG_PX:
+            if straight < self.short_leg_px:
                 length = straight
             elif self._known_apart(i, j):
                 length = math.inf
@@ -174,16 +180,16 @@ def clusters_of(points: list[dict[str, Any]]) -> list[list[int]]:
     return list(groups.values())
 
 
-def sweep_cluster(points: list[dict[str, Any]], members: list[int], entry: dict[str, Any]) -> list[int]:
-    """簇内顺序：从离入口最近的点开始，按直线最近邻走完。"""
-    rest = set(members)
-    order: list[int] = []
-    here = entry
+def sweep_cluster(legs: WalkDistances, members: list[int], entry: int) -> list[int]:
+    """簇内顺序：从离入口最近的可达点开始，按直线最近邻走完。"""
+    by_entry = sorted(members, key=lambda index: legs.lower(entry, index))
+    first = next((index for index in by_entry if not math.isinf(legs.measure(entry, index))), by_entry[0])
+    rest = set(members) - {first}
+    order = [first]
     while rest:
-        nearest = min(rest, key=lambda index: straight_walk("", here, points[index]))
+        nearest = min(rest, key=lambda index: legs.lower(order[-1], index))
         rest.remove(nearest)
         order.append(nearest)
-        here = points[nearest]
     return order
 
 
@@ -259,7 +265,12 @@ class Library:
         return math.sqrt((a["u"] - b["u"]) ** 2 + (a["v"] - b["v"]) ** 2 + rise**2)
 
     def plan(
-        self, map_id: str, point_ids: list[str], walk: WalkFn = straight_walk, kind: str | None = None
+        self,
+        map_id: str,
+        point_ids: list[str],
+        walk: WalkFn = straight_walk,
+        target_deck: DeckFn = no_deck,
+        kind: str | None = None,
     ) -> dict[str, Any]:
         region = self.regions.get(map_id)
         if region is None:
@@ -289,7 +300,7 @@ class Library:
             cv = sum(points[i]["v"] for i in members) / len(members)
             reps.append(points[min(members, key=lambda i: math.hypot(points[i]["u"] - cu, points[i]["v"] - cv))])
         candidates = sorted(anchors, key=reach)[:ANCHOR_CANDIDATES]
-        dist = WalkDistances(zone_id, [*reps, *candidates], walk)
+        dist = WalkDistances(zone_id, [*reps, *candidates], walk, short_leg_px=0.0)
 
         def first_leg(start: int) -> float:
             """从传送点走到最近一簇的步行长度；直线下界剪掉不可能更近的簇。"""
@@ -297,7 +308,7 @@ class Library:
             for c in sorted(range(len(reps)), key=lambda index: dist.lower(start, index)):
                 if dist.lower(start, c) >= best:
                     break
-                best = min(best, dist.exact(start, c))
+                best = min(best, dist.measure(start, c))
             return best
 
         # 起点取首段步行最短的传送点，只排一次序
@@ -307,18 +318,18 @@ class Library:
         order, cut_off = walk_order(dist, start, range(len(reps)))
         cluster_order = order[1:]
         anchor = dist.nodes[start]
+        legs = WalkDistances(zone_id, [*points, anchor], walk)
+        origin = len(points)
         indices: list[int] = []
-        here = anchor
+        here = origin
         for c in cluster_order:
-            swept = sweep_cluster(points, groups[c], here)
+            swept = sweep_cluster(legs, groups[c], here)
             indices += swept
-            here = points[swept[-1]]
+            here = swept[-1]
         unreachable = [i for c in cut_off for i in groups[c]]
 
         # 首点与超出直走上限的一段补 NAVMESH，由运行时规划；其余直走的一段按真实方向实测，
         # 需绕行时同样补 NAVMESH，实测不连通的点单独报出并排除在路线外
-        legs = WalkDistances(zone_id, [*points, anchor], walk)
-        origin = len(points)
         path: list[Any] = [{"action": "ZONE", "zone_id": zone_id}]
         order: list[dict[str, Any]] = []
         blocked: list[str] = []
@@ -327,18 +338,24 @@ class Library:
             point = points[index]
             straight = legs.lower(previous, index)
             navmesh = previous == origin or self.distance(legs.nodes[previous], point) > STRAIGHT_LEG_MAX_PX
-            if not navmesh and straight >= SHORT_LEG_PX:
+            if navmesh or straight >= SHORT_LEG_PX:
                 walked = legs.measure(previous, index)
                 if math.isinf(walked):
                     blocked.append(point["id"])
                     continue
-                navmesh = walked > straight * DETOUR_RATIO + DETOUR_SLACK_PX
+                navmesh = navmesh or walked > straight * DETOUR_RATIO + DETOUR_SLACK_PX
             target = [round(point["u"], 2), round(point["v"], 2)]
             if navmesh:
-                path.append({"action": "NAVMESH", "target": target, "target_deck_y": round(point["y"], 2)})
+                step: dict[str, Any] = {"action": "NAVMESH", "target": target}
+                deck_y = target_deck(zone_id, point)
+                if deck_y is not None:
+                    step["target_deck_y"] = deck_y
+                path.append(step)
             path.append([*target, self.types[point["detail_id"]]["action"], True])
             order.append(point)
             previous = index
+        if not order:
+            raise RouteError("所选采集物与附近的传送点均不连通")
 
         return {
             "map": map_id,
@@ -442,12 +459,13 @@ def preview(
     point_ids: list[str],
     kind: str,
     walk: WalkFn = straight_walk,
+    target_deck: DeckFn = no_deck,
     replace: str | None = None,
 ) -> dict[str, Any]:
     """replace 给出已登记的路线时，生成结果用来替换它：采集物不变就沿用原 id，否则按新的采集物重新命名。"""
     if kind not in KIND_NAMES:
         raise RouteError(f"未知的路线类别 {kind}")
-    plan = library.plan(map_id, point_ids, walk, kind)
+    plan = library.plan(map_id, point_ids, walk, target_deck, kind)
     item_ids = [item["item"] for item in plan["items"]]
     old = registry.route_entry(replace) if replace else None
     if old is not None and old["region"] != plan["region"]:
@@ -488,10 +506,11 @@ def apply(
     point_ids: list[str],
     kind: str,
     walk: WalkFn = straight_walk,
+    target_deck: DeckFn = no_deck,
     replace: str | None = None,
 ) -> dict[str, Any]:
     with APPLY_LOCK:
-        result = preview(library, map_id, point_ids, kind, walk, replace)
+        result = preview(library, map_id, point_ids, kind, walk, target_deck, replace)
         route_id = result["id"]
         route_path = PROJECT_ROOT / result["route_file"]
         if route_id != replace and route_path.exists():

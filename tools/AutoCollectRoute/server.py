@@ -71,12 +71,12 @@ app.add_middleware(NoStoreMiddleware)
 
 # --- 步行长度 -------------------------------------------------------------------------
 # 排序用的步行长度缓存；navmesh 包或禁区表变化后路径可能不同，整份作废
-_walks: dict[str, Any] = {"version": None, "lengths": {}}
+_walks: dict[str, Any] = {"version": None, "lengths": {}, "decks": {}, "zones": {}}
 # 当前这次生成实际发出的规划查询数，供页面显示进度
 _progress = {"queries": 0}
 
 
-def walk_length() -> route_builder.WalkFn:
+def planner() -> tuple[route_builder.WalkFn, route_builder.DeckFn]:
     """两点间的步行长度：交给运行时按 NAVMESH 展开一段（与路线展开同一套规划），量展开后的折线。"""
 
     def stamp(path: Path) -> int:
@@ -89,14 +89,41 @@ def walk_length() -> route_builder.WalkFn:
     if _walks["version"] != version:
         _walks["version"] = version
         _walks["lengths"] = {}
+        _walks["decks"] = {}
+        _walks["zones"] = {}
     lengths: dict[tuple[str, str, str], float | None] = _walks["lengths"]
+    decks: dict[tuple[str, float, float], bool] = _walks["decks"]
+    zones: dict[str, int] = _walks["zones"]
+
+    def target_deck(zone_id: str, point: dict[str, Any]) -> float | None:
+        if "y" not in point:
+            return None
+        key = (zone_id, point["u"], point["v"])
+        if key not in decks:
+            if not zones:
+                try:
+                    loaded = navmesh_backend.query("zones").get("zones", [])
+                except RuntimeError as exc:
+                    raise route_builder.RouteError(f"navmesh 尚未就绪，无法查询区域: {exc}") from exc
+                zones.update({zone["name"]: zone["zone_id"] for zone in loaded})
+            if zone_id not in zones:
+                raise route_builder.RouteError(f"navmesh 包中没有区域 {zone_id}")
+            try:
+                probe = navmesh_backend.query("deck_probe", zone_id=zones[zone_id], point=[point["u"], point["v"]])
+            except RuntimeError as exc:
+                raise route_builder.RouteError(f"navmesh 尚未就绪，无法查询可走面: {exc}") from exc
+            if not probe.get("ok"):
+                raise route_builder.RouteError(probe.get("error") or "无法查询可走面")
+            decks[key] = len(probe.get("decks", [])) >= 2
+        return round(point["y"], 2) if decks[key] else None
 
     def walk(zone_id: str, start: dict[str, Any], goal: dict[str, Any]) -> float | None:
         key = (zone_id, start["id"], goal["id"])
         if key not in lengths:
             target: dict[str, Any] = {"action": "NAVMESH", "target": [goal["u"], goal["v"]]}
-            if "y" in goal:
-                target["target_deck_y"] = goal["y"]
+            deck_y = target_deck(zone_id, goal)
+            if deck_y is not None:
+                target["target_deck_y"] = deck_y
             _progress["queries"] += 1
             try:
                 result = navmesh_backend.route_preview(
@@ -111,7 +138,7 @@ def walk_length() -> route_builder.WalkFn:
             lengths[key] = None if points is None else sum(math.dist(a[:2], b[:2]) for a, b in itertools.pairwise(points))
         return lengths[key]
 
-    return walk
+    return walk, target_deck
 
 
 # 分层区域 -> navmesh 包里的 [sx, tx, sy, ty]，底图坐标 = s·分层坐标 + t
@@ -161,9 +188,12 @@ async def api_routes() -> dict[str, Any]:
 async def api_preview(payload: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
     map_id, ids, kind, replace = _route_request(payload)
     _progress["queries"] = 0
-    return await _run(
-        lambda: route_builder.preview(route_builder.Library(), map_id, ids, kind, walk_length(), replace)
-    )
+
+    def _preview() -> dict[str, Any]:
+        walk, target_deck = planner()
+        return route_builder.preview(route_builder.Library(), map_id, ids, kind, walk, target_deck, replace)
+
+    return await _run(_preview)
 
 
 @app.get("/api/progress")
@@ -174,9 +204,12 @@ async def api_progress() -> dict[str, int]:
 @app.post("/api/apply")
 async def api_apply(payload: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
     map_id, ids, kind, replace = _route_request(payload)
-    return await _run(
-        lambda: route_builder.apply(route_builder.Library(), map_id, ids, kind, walk_length(), replace)
-    )
+
+    def _apply() -> dict[str, Any]:
+        walk, target_deck = planner()
+        return route_builder.apply(route_builder.Library(), map_id, ids, kind, walk, target_deck, replace)
+
+    return await _run(_apply)
 
 
 @app.post("/api/remove")
