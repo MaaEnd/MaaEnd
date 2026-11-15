@@ -138,9 +138,9 @@ MapNavigator 的位置输入完全来自 MapLocator 的逐帧识别结果。**�
 
 ### 日志改动要同步日志分析工具
 
-`tools/MapNavigator` 的 `日志分析` 按固定子串匹配 cpp-algo 日志行（行头函数名、消息文本、`[key=value]` 字段）来还原实测轨迹、规划决策和滑索跳，任一处变化都会让它静默失效：拆分 `PositionProvider::Capture` 就曾让实测地面轨迹整段消失。
+`tools/MapNavigator` 的 `日志分析` 按固定子串匹配 cpp-algo 日志正文与字段（消息文本、`[key=value]` 字段，以及少数仍依赖行头函数名的记录如 `FailNavigation]`）来还原实测轨迹、规划决策和滑索跳，任一处变化都会让它静默失效：拆分 `PositionProvider::Capture` 和将定位日志移入 `LogLocateResult`（后重命名为 `log_locate_result`）都曾让按行头函数名匹配的实测地面轨迹整段消失（现已改为按日志正文 `MapLocator [status=` 匹配）。
 
-改动 MapNavigator / MapLocator 的日志输出（增删改日志行、调整 `VAR(...)` 字段、把日志挪进别的函数或改名）时，即使用户没有提出要求，也主动提醒用户同步：
+新增日志解析应优先匹配日志正文与 `[key=value]` 字段，避免依赖行头函数名。改动 MapNavigator / MapLocator 的日志输出（增删改日志行、调整 `VAR(...)` 字段、改变日志正文前缀或行头仍被引用的函数名）时，即使用户没有提出要求，也主动提醒用户同步：
 
 - `tools/MapNavigator/web/static/js/log_analysis.js` 的解析逻辑；
 - `docs/zh_cn/developers/components/map-navigator.md`、`docs/en_us/` 对应文档和 `tools/MapNavigator/README.md` 中的日志分析描述。
