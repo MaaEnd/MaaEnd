@@ -99,8 +99,7 @@ type dailyHandState struct {
 
 var dailyHand = &dailyHandState{}
 
-// 游戏内每日内容（含今日好运牌型）在本地时间 04:00 轮换，与 creditshopping、
-// common/schedule 的游戏日边界保持一致。
+// 游戏内每日内容（含今日好运牌型）在本地时间 04:00 轮换，与 common/schedule 的游戏日边界保持一致。
 const gameDayBoundaryHour = 4
 
 // gameDay 给出「游戏日」（当日 04:00 至次日 04:00 为同一天）的 YYYYMMDD 整数，

@@ -15,7 +15,7 @@ BakedWalls BakeWalls(const ZoneClean& zc, double x0, double y0, int64_t nx, int6
     const double bx1 = x0 + static_cast<double>(nx) * kCS + 4;
     const double by1 = y0 + static_cast<double>(ny) * kCS + 4;
     const PolyMesh& mesh = zc.mesh;
-    for (const int32_t t : mesh.trisInBox(bx0, by0, bx1, by1)) {
+    for (const int32_t t : TrisInBox(mesh, bx0, by0, bx1, by1)) {
         const auto i = static_cast<size_t>(t);
         if (zc.walkable[i] == 0) {
             // 与可走面的缝已在 ZoneClean 割断, 这条边由可走面一侧收成墙
@@ -27,14 +27,14 @@ BakedWalls BakeWalls(const ZoneClean& zc, double x0, double y0, int64_t nx, int6
             }
             const int32_t a = mesh.T[i][k];
             const int32_t b = mesh.T[i][(k + 1) % 3];
-            const WorldPoint p0 = mesh.v(a);
-            const WorldPoint p1 = mesh.v(b);
+            const WorldPoint p0 = MeshPoint(mesh, a);
+            const WorldPoint p1 = MeshPoint(mesh, b);
             if (std::max(p0.x, p1.x) >= bx0 && std::min(p0.x, p1.x) <= bx1 && std::max(p0.y, p1.y) >= by0 && std::min(p0.y, p1.y) <= by1) {
                 out.p0.push_back(p0);
                 out.p1.push_back(p1);
-                out.h0.push_back(mesh.h(a));
-                out.h1.push_back(mesh.h(b));
-                out.hh.push_back((mesh.h(a) + mesh.h(b)) / 2.0);
+                out.h0.push_back(MeshHeight(mesh, a));
+                out.h1.push_back(MeshHeight(mesh, b));
+                out.hh.push_back((MeshHeight(mesh, a) + MeshHeight(mesh, b)) / 2.0);
                 out.tri.push_back(t);
                 out.k.push_back(static_cast<uint8_t>(k));
             }
@@ -50,8 +50,8 @@ BakedCells BakeCells(const ZoneClean& zc, double x0, double y0, int64_t nx, int6
     out.y0 = y0;
     out.nx = nx;
     out.ny = ny;
-    out.rcs = Rasterize(zc.mesh.verts(), zc.mesh.T, x0, y0, nx, ny, &zc.walkable);
-    AppendSeamBridge(out.rcs, nx, ny);
+    out.rcs = Rasterize(MeshVertices(zc.mesh), zc.mesh.T, x0, y0, nx, ny, &zc.walkable);
+    AppendSeamBridge(&out.rcs, nx, ny);
     out.st = BuildSpans(out.rcs.cell, out.rcs.h);
 
     BakedWalls walls = BakeWalls(zc, x0, y0, nx, ny);

@@ -1,0 +1,50 @@
+{
+    "OperatorGrowthSchedule": {
+        "desc": "培养干员计划任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "OperatorGrowthScheduleEnabled",
+            "OperatorGrowthScheduleEnd"
+        ]
+    },
+    "OperatorGrowthScheduleEnabled": {
+        "desc": "培养干员计划任务命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "OperatorGrowthEntry"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "OperatorGrowthScheduleEnd": {
+        "desc": "培养干员计划任务跳过",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "OperatorGrowthEntry": {
+        "desc": "培养干员任务入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthCheckOverview",
+            "[JumpBack]SceneEnterMenuOperator"
+        ]
+    }
+}

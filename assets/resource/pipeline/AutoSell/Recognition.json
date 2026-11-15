@@ -152,6 +152,114 @@
         ],
         "box_index": 1
     },
+    // 红绿两组颜色都要认：国服红涨绿跌，国际服绿涨红跌
+    "AutoSellFriendsPriceFirstArrowRecognition": {
+        "desc": "识别好友列表第一行对比本地的箭头",
+        "recognition": "ColorMatch",
+        "roi": "AutoSellFriendsPriceFirstTicketRecognition",
+        "roi_offset": [
+            110,
+            -5,
+            10,
+            10
+        ],
+        "lower": [
+            [
+                79,
+                197,
+                75
+            ],
+            [
+                215,
+                20,
+                40
+            ]
+        ],
+        "upper": [
+            [
+                99,
+                217,
+                95
+            ],
+            [
+                255,
+                75,
+                80
+            ]
+        ],
+        "connected": true,
+        "count": 15
+    },
+    // 国服与国际服的涨跌颜色相反（国服绿色是下降，国际服绿色是上升），不能按颜色判断方向，
+    // 由 AutoSellDownArrowRecognition 比较箭头上下两半的像素多少来判断
+    "AutoSellFriendsPriceFirstLowerRecognition": {
+        "desc": "识别好友列表第一行（最高价）的对比本地是否为下降箭头，即本地售价高于所有好友",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellFriendsPriceFirstTicketRecognition",
+            "AutoSellFriendsPriceFirstArrowRecognition",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "AutoSellDownArrowRecognition",
+                "roi": "AutoSellFriendsPriceFirstArrowRecognition"
+            }
+        ],
+        "box_index": 2
+    },
+    "AutoSellOwnPriceTicketRecognition": {
+        "desc": "识别出售物资界面今日售价旁的调度券图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            800,
+            230,
+            300,
+            45
+        ],
+        "template": [
+            "AutoSell/SellPriceTicketValleyIV.png",
+            "AutoSell/SellPriceTicketWuling.png"
+        ],
+        "threshold": 0.8
+    },
+    "AutoSellOwnPriceTextRecognition": {
+        "desc": "按文字颜色定位今日售价数字区域，方便 only_rec 识别",
+        "recognition": "ColorMatch",
+        "roi": "AutoSellOwnPriceTicketRecognition",
+        "roi_offset": [
+            22,
+            -3,
+            50,
+            3
+        ],
+        "lower": [
+            48,
+            48,
+            48
+        ],
+        "upper": [
+            110,
+            110,
+            110
+        ],
+        "count": 20
+    },
+    "AutoSellOwnPriceRecognition": {
+        "desc": "识别出售物资界面的今日售价",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellOwnPriceTicketRecognition",
+            "AutoSellOwnPriceTextRecognition",
+            {
+                "recognition": "OCR",
+                "roi": "AutoSellOwnPriceTextRecognition",
+                "expected": [
+                    "\\d"
+                ],
+                "only_rec": true
+            }
+        ],
+        "box_index": 2
+    },
     "AutoSellFriendsPricesExpectedGoToHighlightRecognition": {
         "desc": "识别好友列表最高价行是否为当前选中高亮",
         "recognition": "ColorMatch",

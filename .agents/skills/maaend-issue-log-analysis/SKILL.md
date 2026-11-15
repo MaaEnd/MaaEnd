@@ -306,7 +306,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
     - 通用选项描述：`option.<OptionId>.description`
     - 任务内选项：`task.<TaskId>.option.<OptionId>.label` / `.description`
     - 任务运行提示或状态文案：优先按完整 key 查，例如 `task.<TaskId>.*`
-- 输出时优先写中文，必要时在括号里补原始 id，例如 `📅日常奖励领取（DailyRewards）`。
+- 输出时优先写中文，必要时在括号里补原始 id，例如 `🏅日常奖励领取（DailyRewards）`。
 - 如果 `zh_cn.json` 没有对应 key，再退回原始 id 或代码里的英文字符串，并明确说明“未在 `zh_cn.json` 找到对应文案”。
 
 ## Linking Code Evidence

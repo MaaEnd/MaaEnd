@@ -1,0 +1,1294 @@
+{
+    "OperatorGrowthCheckOverview": {
+        "desc": "确认位于干员页并等待顶部入口区域稳定，再检查培养总览是否可用",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InOperator"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                1280,
+                80
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthOpenOverview",
+            "OperatorGrowthOverviewUnavailable"
+        ]
+    },
+    "OperatorGrowthOverviewUnavailable": {
+        "desc": "干员页稳定后未找到培养总览入口，提示并结束培养任务",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InOperator"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.OperatorGrowth.focus.overview_unavailable"
+        }
+    },
+    "OperatorGrowthOpenOverview": {
+        "desc": "每次进入培养总览前通过子任务清零回顶和下滑节点命中计数",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InOperator",
+                    "OperatorGrowthOverviewOCR"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "OperatorGrowthResetScrollCount"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthClickOverview"
+        ]
+    },
+    "OperatorGrowthOverviewOCR": {
+        "desc": "培养总览入口文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1100,
+                    10,
+                    180,
+                    40
+                ],
+                "expected": [
+                    "培养总览",
+                    "培養總覽",
+                    "(?i)Progression\\s*Overview",
+                    "育成強化一覧",
+                    "육성 확인"
+                ]
+            }
+        }
+    },
+    "OperatorGrowthClickOverview": {
+        "desc": "点击培养总览入口并确认已进入总览页面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthOpenOverview"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthTopReached",
+            "OperatorGrowthScrollUp"
+        ]
+    },
+    "OperatorGrowthResetScrollCount": {
+        "desc": "每次进入培养总览前，统一清零左侧回顶、下滑和三个材料分页下滑节点命中计数",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "OperatorGrowthScrollUp",
+                        "OperatorGrowthScrollDown",
+                        "OperatorGrowthOperatorLevelScrollDown",
+                        "OperatorGrowthSkillsScrollDown",
+                        "OperatorGrowthWeaponLevelScrollDown"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthInOverview": {
+        "desc": "培养总览页面左上角标题",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    30,
+                    12,
+                    350,
+                    45
+                ],
+                "expected": [
+                    "培养总览",
+                    "培養總覽",
+                    "(?i)Progression\\s*Overview",
+                    "育成強化一覧",
+                    "육성 확인"
+                ]
+            }
+        }
+    },
+    "OperatorGrowthAllOCR": {
+        "desc": "左侧干员列表上方的全部标题，作为回顶完成标志",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    25,
+                    65,
+                    180,
+                    190
+                ],
+                "expected": [
+                    "全部",
+                    "(?i)All",
+                    "すべて",
+                    "전체"
+                ]
+            }
+        }
+    },
+    "OperatorGrowthTopReached": {
+        "desc": "在培养总览左侧识别到全部后开始查找目标干员",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthAllOCR"
+                ]
+            }
+        },
+        "next": [
+            "OperatorGrowthSearchOperator"
+        ]
+    },
+    "OperatorGrowthScrollUp": {
+        "desc": "未看到全部时向列表顶部滑动 240 像素，静止后重新检查；每次进入总览时重置计数",
+        "max_hit": 10,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthInOverview"
+                ]
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    205,
+                    180
+                ],
+                "end": [
+                    205,
+                    420
+                ],
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                30,
+                65,
+                365,
+                570
+            ]
+        },
+        "next": [
+            "OperatorGrowthTopReached",
+            "OperatorGrowthScrollUp"
+        ]
+    },
+    "OperatorGrowthSearchOperator": {
+        "desc": "每屏先检查选中姓名和目标头像，未找到时在滑动次数上限内继续向下滚动",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthInOverview"
+                ]
+            }
+        },
+        "next": [
+            "OperatorGrowthSelected",
+            "OperatorGrowthSelectOperator",
+            "OperatorGrowthScrollDown"
+        ]
+    },
+    "OperatorGrowthTargetAvatar": {
+        "desc": "左侧干员卡片头像，由培养干员选项覆盖模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    30,
+                    70,
+                    350,
+                    565
+                ],
+                "template": [
+                    "OperatorGrowth/Operators/Perlica.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "OperatorGrowthSelectOperator": {
+        "desc": "确认培养总览页面后点击目标头像",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthTargetAvatar"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "OperatorGrowthSelected"
+        ]
+    },
+    "OperatorGrowthTargetName": {
+        "desc": "右侧详情顶部的目标干员姓名，由培养干员选项覆盖",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    475,
+                    65,
+                    360,
+                    35
+                ],
+                "expected": [
+                    "佩丽卡",
+                    "佩麗卡",
+                    "Perlica",
+                    "ペリカ",
+                    "펠리카"
+                ]
+            }
+        }
+    },
+    "OperatorGrowthSelected": {
+        "desc": "右侧姓名与用户选择一致，确认目标干员已选中",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthTargetName"
+                ]
+            }
+        },
+        "next": [
+            "OperatorGrowthClickOperatorLevel"
+        ]
+    },
+    "OperatorGrowthScrollDown": {
+        "desc": "左侧列表每次下滑 240 像素，最多 10 次，保留相邻页重叠区域避免漏掉跨页头像；每次进入培养总览前重置计数",
+        "max_hit": 10,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthInOverview"
+                ]
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    205,
+                    580
+                ],
+                "end": [
+                    205,
+                    340
+                ],
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                30,
+                65,
+                365,
+                570
+            ]
+        },
+        "next": [
+            "OperatorGrowthSearchOperator"
+        ]
+    },
+    "OperatorGrowthRedQuantity": {
+        "desc": "在全部材料模板匹配结果下方检查拥有数量的红色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "OperatorGrowthMaterialTemplates",
+                "roi_offset": [
+                    0,
+                    65,
+                    0,
+                    -22
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        80,
+                        130
+                    ],
+                    [
+                        175,
+                        80,
+                        130
+                    ]
+                ],
+                "upper": [
+                    [
+                        5,
+                        255,
+                        255
+                    ],
+                    [
+                        180,
+                        255,
+                        255
+                    ]
+                ],
+                "count": 12,
+                "order_by": "Vertical"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+
+    "OperatorGrowthMaterialTemplates": {
+        "desc": "协议空间材料模板白名单，含危机演练专精材料；全部从培养总览截图直接裁剪顶部 64×44 像素，避开下方数量",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    740,
+                    210,
+                    315,
+                    412
+                ],
+                "template": [
+                    "OperatorGrowth/Materials/item_char_break_stage_1_2.png",
+                    "OperatorGrowth/Materials/item_char_break_stage_3_4.png",
+                    "OperatorGrowth/Materials/item_char_skill_level_1_6.png",
+                    "OperatorGrowth/Materials/item_char_skill_level_7_12.png",
+                    "OperatorGrowth/Materials/item_char_skill_specialize_1.png",
+                    "OperatorGrowth/Materials/item_char_skill_specialize_2.png",
+                    "OperatorGrowth/Materials/item_char_skill_specialize_3.png",
+                    "OperatorGrowth/Materials/item_char_skill_specialize_4.png",
+                    "OperatorGrowth/Materials/item_char_skill_specialize_5.png",
+                    "OperatorGrowth/Materials/item_char_skill_specialize_6.png",
+                    "OperatorGrowth/Materials/item_expcard_stage1_low.png",
+                    "OperatorGrowth/Materials/item_expcard_stage2_low.png",
+                    "OperatorGrowth/Materials/item_gold.png",
+                    "OperatorGrowth/Materials/item_weapon_break_high.png",
+                    "OperatorGrowth/Materials/item_weapon_break_low.png",
+                    "OperatorGrowth/Materials/item_weapon_expcard_low.png"
+                ],
+                "threshold": 0.8,
+                "order_by": "Vertical"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthClickInsufficientMaterial": {
+        "desc": "发现协议空间材料拥有数量为红色时点击该材料图片",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthMaterialTemplates",
+                    "OperatorGrowthRedQuantity"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    -65,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthConfigureRewardA",
+            "OperatorGrowthConfigureRewardB",
+            "OperatorGrowthOpenDirectRewardSource"
+        ]
+    },
+    "OperatorGrowthOptionalRewardSource": {
+        "desc": "需要切换 A/B 奖励的普通协议空间来源：干员经验、干员进阶、技能提升、武器进阶",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    430,
+                    180,
+                    805,
+                    510
+                ],
+                // 完整原文：协议空间·干员经验；协议空间·干员进阶；协议空间·技能提升；协议空间·武器进阶
+                // 按同一文本 ID 同步五语译名，使用 . 匹配一个分隔字符，英文空白允许 OCR 省略。
+                "expected": [
+                    // @i18n-skip
+                    "协议空间.干员经验",
+                    "协议空间.干员进阶",
+                    "协议空间.技能提升",
+                    "协议空间.武器进阶",
+                    "協議空間.幹員經驗",
+                    "協議空間.幹員進階",
+                    "協議空間.技能提升",
+                    "協議空間.武器進階",
+                    "(?i)Protocol\\s*Space.\\s*Operator\\s*EXP",
+                    "(?i)Protocol\\s*Space.\\s*Promotions",
+                    "(?i)Protocol\\s*Space.\\s*Skill\\s*Up",
+                    "(?i)Protocol\\s*Space.\\s*Weapon\\s*Tune",
+                    "協約空間.経験値",
+                    "協約空間.昇進素材",
+                    "協約空間.スキル強化",
+                    "協約空間.武器突破",
+                    "프로토콜 공간 . 오퍼레이터 경험치",
+                    "프로토콜 공간 . 오퍼레이터 돌파",
+                    "프로토콜 공간 . 스킬 업그레이드",
+                    "프로토콜 공간 . 무기 돌파"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthOpenOptionalRewardSource": {
+        "desc": "确认仍在培养总览后点击材料弹窗中需要切换 A/B 奖励的协议空间来源",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthOptionalRewardSource"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceNormalPrepareEnter",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "OperatorGrowthOpenDirectRewardSource": {
+        "desc": "钱币、武器经验和深潜材料直接点击来源入场，跳过等级和 A/B 奖励选择",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthDirectRewardSource"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpacePrepareLock",
+            "ProtocolSpaceEnterSpacePrepare",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "OperatorGrowthOperatorLevelTab": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    440,
+                    148,
+                    192,
+                    36
+                ],
+                "expected": [
+                    "干员等级",
+                    "幹員等級",
+                    "(?i)Operator\\s*LV",
+                    "(?i)Operator\\s*Level",
+                    "人材育成",
+                    "오퍼레이터 레벨"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthOperatorLevelSelected": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthSelected",
+                    "OperatorGrowthOperatorLevelTab",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    444,
+                                    153,
+                                    184,
+                                    25
+                                ],
+                                "method": 40,
+                                "lower": [
+                                    0,
+                                    0,
+                                    220
+                                ],
+                                "upper": [
+                                    180,
+                                    35,
+                                    255
+                                ],
+                                "count": 2000
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthClickOperatorLevel": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthSelected",
+                    "OperatorGrowthOperatorLevelTab"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                430,
+                148,
+                815,
+                520
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthOperatorLevelCheckTop"
+        ]
+    },
+    "OperatorGrowthOperatorLevelCheckTop": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthOperatorLevelSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthClickInsufficientMaterial",
+            "[JumpBack]OperatorGrowthOperatorLevelScrollDown",
+            "OperatorGrowthClickSkills"
+        ]
+    },
+    "OperatorGrowthOperatorLevelScrollDown": {
+        "desc": "当前可见材料无不足时，下滑一次查看其余材料",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthOperatorLevelSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1150,
+                    640
+                ],
+                "end": [
+                    1150,
+                    450
+                ],
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                430,
+                210,
+                815,
+                455
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthSkillsTab": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    636,
+                    148,
+                    192,
+                    36
+                ],
+                "expected": [
+                    "技能与天赋",
+                    "技能與天賦",
+                    "(?i)Skills\\s*&\\s*Talents",
+                    "(?i)Skills\\s*and\\s*Talents",
+                    "スキル・素質",
+                    "스킬 및 재능"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthSkillsSelected": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthSkillsTab",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    640,
+                                    153,
+                                    184,
+                                    25
+                                ],
+                                "method": 40,
+                                "lower": [
+                                    0,
+                                    0,
+                                    220
+                                ],
+                                "upper": [
+                                    180,
+                                    35,
+                                    255
+                                ],
+                                "count": 2000
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthClickSkills": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthSelected",
+                    "OperatorGrowthSkillsTab"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                430,
+                148,
+                815,
+                520
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthSkillsCheckTop"
+        ]
+    },
+    "OperatorGrowthSkillsCheckTop": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthSkillsSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthClickInsufficientMaterial",
+            "[JumpBack]OperatorGrowthSkillsScrollDown",
+            "OperatorGrowthClickWeaponLevel"
+        ]
+    },
+    "OperatorGrowthSkillsScrollDown": {
+        "desc": "当前可见材料无不足时，下滑一次查看其余材料",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthSkillsSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1150,
+                    640
+                ],
+                "end": [
+                    1150,
+                    450
+                ],
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                430,
+                210,
+                815,
+                455
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthWeaponLevelTab": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    832,
+                    148,
+                    192,
+                    36
+                ],
+                "expected": [
+                    "武器等级",
+                    "武器等級",
+                    "(?i)Weapon\\s*LV",
+                    "(?i)Weapon\\s*Level",
+                    "武器強化",
+                    "무기 레벨"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthWeaponLevelSelected": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthWeaponLevelTab",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    836,
+                                    153,
+                                    184,
+                                    25
+                                ],
+                                "method": 40,
+                                "lower": [
+                                    0,
+                                    0,
+                                    220
+                                ],
+                                "upper": [
+                                    180,
+                                    35,
+                                    255
+                                ],
+                                "count": 2000
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthClickWeaponLevel": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthSelected",
+                    "OperatorGrowthWeaponLevelTab"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                430,
+                148,
+                815,
+                520
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthWeaponLevelCheckTop"
+        ]
+    },
+    "OperatorGrowthWeaponLevelCheckTop": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthWeaponLevelSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthClickInsufficientMaterial",
+            "[JumpBack]OperatorGrowthWeaponLevelScrollDown",
+            "OperatorGrowthMaterialsSufficient"
+        ]
+    },
+    "OperatorGrowthWeaponLevelScrollDown": {
+        "desc": "当前可见材料无不足时，下滑一次查看其余材料",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthWeaponLevelSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1150,
+                    640
+                ],
+                "end": [
+                    1150,
+                    450
+                ],
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                430,
+                210,
+                815,
+                455
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthFinishBattle": {
+        "desc": "培养模式单场奖励领取成功后退出，重新检查材料需求",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ProtocolSpaceRewardClaimSuccess",
+                    "WhiteCancelButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthBattleCompletedInWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "OperatorGrowthBattleCompletedInWorld": {
+        "desc": "确认单场刷取后回到大世界，再从干员页面重新进入培养总览",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthEntry"
+        ]
+    },
+    "OperatorGrowthMaterialsSufficient": {
+        "desc": "三个分页各检查上下两屏，未发现协议空间材料不足",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthWeaponLevelSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthRewardAName": {
+        "desc": "材料弹窗中对应五级奖励 A 的完整物品名称，映射与目标库存模式保持一致",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    680
+                ],
+                // 完整原文：高级认知载体；初级认知载体；协议圆盘组；协议棱柱组；重型强固模具
+                // 完整匹配以区分 A/B 材料（如协议圆盘和协议圆盘组），英文空白允许 OCR 省略。
+                "expected": [
+                    // @i18n-skip
+                    "^高级认知载体$",
+                    "^初级认知载体$",
+                    "^协议圆盘组$",
+                    "^协议棱柱组$",
+                    "^重型强固模具$",
+                    "^高級認知載體$",
+                    "^初級認知載體$",
+                    "^協議圓盤組$",
+                    "^協議稜柱組$",
+                    "^重型強固模具$",
+                    "(?i)^Advanced\\s*Cognitive\\s*Carrier$",
+                    "(?i)^Elementary\\s*Cognitive\\s*Carrier$",
+                    "(?i)^Protoset$",
+                    "(?i)^Protohedron$",
+                    "(?i)^Heavy\\s*Cast\\s*Die$",
+                    "^上級認識媒体$",
+                    "^初級認識媒体$",
+                    "^協約ディスクセット$",
+                    "^協約角柱セット$",
+                    "^重硬質金型$",
+                    "^고급 인지 매개체$",
+                    "^초급 인지 매개체$",
+                    "^프로토콜 디스크 세트$",
+                    "^프로토콜 프리즘 세트$",
+                    "^중형 모형 틀$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthConfigureRewardA": {
+        "desc": "按目标材料设置奖励 A，复用目标库存模式的奖励切换流程",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthOptionalRewardSource",
+                    "OperatorGrowthRewardAName"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "A"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthOpenOptionalRewardSource"
+        ]
+    },
+    "OperatorGrowthRewardBName": {
+        "desc": "材料弹窗中对应五级奖励 B 的完整物品名称，映射与目标库存模式保持一致",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    680
+                ],
+                // 完整原文：高级作战记录；中级作战记录；初级作战记录；协议圆盘；协议棱柱；强固模具
+                // 完整匹配以区分 A/B 材料（如协议圆盘和协议圆盘组），英文空白允许 OCR 省略。
+                "expected": [
+                    // @i18n-skip
+                    "^高级作战记录$",
+                    "^中级作战记录$",
+                    "^初级作战记录$",
+                    "^协议圆盘$",
+                    "^协议棱柱$",
+                    "^强固模具$",
+                    "^高級作戰紀錄$",
+                    "^中級作戰紀錄$",
+                    "^初級作戰紀錄$",
+                    "^協議圓盤$",
+                    "^協議稜柱$",
+                    "^強固模具$",
+                    "(?i)^Advanced\\s*Combat\\s*Record$",
+                    "(?i)^Intermediate\\s*Combat\\s*Record$",
+                    "(?i)^Elementary\\s*Combat\\s*Record$",
+                    "(?i)^Protodisk$",
+                    "(?i)^Protoprism$",
+                    "(?i)^Cast\\s*Die$",
+                    "^上級作戦記録$",
+                    "^中級作戦記録$",
+                    "^初級作戦記録$",
+                    "^協約ディスク$",
+                    "^協約角柱$",
+                    "^硬質金型$",
+                    "^고급 작전 기록$",
+                    "^중급 작전 기록$",
+                    "^초급 작전 기록$",
+                    "^프로토콜 디스크$",
+                    "^프로토콜 프리즘$",
+                    "^모형 틀$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthConfigureRewardB": {
+        "desc": "按目标材料设置奖励 B，复用目标库存模式的奖励切换流程",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "OperatorGrowthInOverview",
+                    "OperatorGrowthOptionalRewardSource",
+                    "OperatorGrowthRewardBName"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "B"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthOpenOptionalRewardSource"
+        ]
+    },
+    "OperatorGrowthDirectRewardSource": {
+        "desc": "不需选择等级或切换 A/B 奖励的来源：钱币、武器经验和六类高危材料",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    430,
+                    180,
+                    805,
+                    510
+                ],
+                // 完整原文：协议空间·钱币收集；协议空间·武器经验；协议空间·高危材料收集处；协议空间·高危材料填埋场；协议空间·高危材料管理室；协议空间·高危材料研究所；协议空间·高危材料封存库；协议空间·高危材料溶解池
+                // 按同一文本 ID 同步五语译名，使用 . 匹配一个分隔字符，英文空白允许 OCR 省略。
+                "expected": [
+                    // @i18n-skip
+                    "协议空间.钱币收集",
+                    "协议空间.武器经验",
+                    "协议空间.高危材料收集处",
+                    "协议空间.高危材料填埋场",
+                    "协议空间.高危材料管理室",
+                    "协议空间.高危材料研究所",
+                    "协议空间.高危材料封存库",
+                    "协议空间.高危材料溶解池",
+                    "協議空間.錢幣收集",
+                    "協議空間.武器經驗",
+                    "協議空間.高危險材料收集處",
+                    "協議空間.高危險材料掩埋場",
+                    "協議空間.高危險材料管理室",
+                    "協議空間.高危險材料研究所",
+                    "協議空間.高危險材料封存庫",
+                    "協議空間.高危險材料溶解池",
+                    "(?i)Protocol\\s*Space.\\s*T\\s*-\\s*Creds",
+                    "(?i)Protocol\\s*Space.\\s*Weapon\\s*EXP",
+                    "(?i)Protocol\\s*Space.\\s*Hazardous\\s*Material\\s*Collection\\s*Site",
+                    "(?i)Protocol\\s*Space.\\s*Hazardous\\s*Material\\s*Landfill",
+                    "(?i)Protocol\\s*Space.\\s*Hazardous\\s*Material\\s*Management\\s*Room",
+                    "(?i)Protocol\\s*Space.\\s*Hazardous\\s*Material\\s*Institute",
+                    "(?i)Protocol\\s*Space.\\s*Hazardous\\s*Material\\s*Containment\\s*Vault",
+                    "(?i)Protocol\\s*Space.\\s*Hazardous\\s*Material\\s*Dissolving\\s*Pool",
+                    "協約空間.通貨",
+                    "協約空間.武器経験値",
+                    "協約空間.危険素材回収場",
+                    "協約空間.危険素材処理場",
+                    "協約空間.危険素材管理室",
+                    "協約空間.危険素材研究所",
+                    "協約空間.危険素材保存場",
+                    "協約空間.危険素材処理槽",
+                    "프로토콜 공간 . 화폐 수집",
+                    "프로토콜 공간 . 무기 경험치",
+                    "프로토콜 공간 . 고위험 재료 수집소",
+                    "프로토콜 공간 . 고위험 재료 매립장",
+                    "프로토콜 공간 . 고위험 재료 관리실",
+                    "프로토콜 공간 . 고위험 재료 연구소",
+                    "프로토콜 공간 . 고위험 재료 보관 창고",
+                    "프로토콜 공간 . 고위험 재료 용해조"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

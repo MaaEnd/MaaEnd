@@ -77,7 +77,7 @@ std::string build_navmesh_cache_key(const std::filesystem::path& navmesh_path, c
 std::shared_ptr<CachedNavmesh> load_navmesh_pack(const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
 {
     const auto load_result = navmesh::LoadBaseNavPack(navmesh_path, navmesh_zone);
-    if (!load_result.ok()) {
+    if (!navmesh::LoadSucceeded(load_result)) {
         LogError << "Failed to load navmesh pack." << VAR(navmesh_path) << VAR(navmesh_zone) << VAR(load_result.message);
         return nullptr;
     }

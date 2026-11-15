@@ -55,8 +55,22 @@
             "[JumpBack]UseConsumableStockValleyIVResolveMissing"
         ]
     },
+    "UseConsumableRecordMissingTacticalItem": {
+        "desc": "将未找到的战术物品记录到最终任务失败汇总",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "UseConsumable",
+            "task": "UseConsumableFailureProbe",
+            "failure_task": "UseConsumableFailureNotification"
+        },
+        "next": [
+            "UseConsumableTacticalFinish"
+        ]
+    },
     "UseConsumableFailureCollectorReset": {
-        "desc": "重置本次缺失消耗品失败记录",
+        "desc": "重置本次缺失道具记录并检查战术物品补充选项",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "FailureCollectorReset",
@@ -64,21 +78,22 @@
             "key": "UseConsumable"
         },
         "next": [
+            "UseConsumableTacticalItemsEnabled",
             "UseConsumableTaskStart"
         ]
     },
     "UseConsumableFailureProbe": {
-        "desc": "缺失消耗品的失败探针",
+        "desc": "缺失道具的失败探针",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "FalseAction"
     },
     "UseConsumableFailureNotification": {
-        "desc": "缺失消耗品失败提示已在缺项节点输出",
+        "desc": "缺失道具提示已在对应节点输出",
         "recognition": "DirectHit"
     },
     "UseConsumableFailureCollectorFinish": {
-        "desc": "在使用流程完成后汇总缺失消耗品并返回任务状态",
+        "desc": "在流程完成后汇总缺失道具并返回任务状态",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "FailureCollectorFinish",

@@ -1,7 +1,7 @@
 import {readFileSync} from "node:fs";
 import {resolve} from "node:path";
 
-import {dataDir} from "../utils/paths.mjs";
+import {dataDir, repoRoot} from "../utils/paths.mjs";
 
 function loadUsableItems() {
     const sourcePath = resolve(dataDir, "usable_items.json");
@@ -23,8 +23,63 @@ function loadUsableItems() {
     return items;
 }
 
+function loadTacticalItemIds() {
+    const sourcePath = resolve(dataDir, "item_mini_table.json");
+    let data;
+    try {
+        data = JSON.parse(readFileSync(sourcePath, "utf8"));
+    } catch (cause) {
+        throw new Error(`[UseConsumable] 无法读取 ${sourcePath}，请先生成 item_mini_table.json`, {cause});
+    }
+    const records = Object.entries(data).filter(
+        ([
+            ,
+            item,
+        ]) => item && typeof item === "object",
+    );
+    if (
+        records.length === 0 ||
+        records.some(
+            ([
+                ,
+                item,
+            ]) => !("type" in item),
+        )
+    ) {
+        throw new Error(`[UseConsumable] ${sourcePath} 缺少完整的 ItemTable.type 字段，请更新物品数据表`);
+    }
+
+    const ids = records
+        .filter(
+            ([
+                ,
+                item,
+            ]) => item.storageKind === "Normal" && item.categoryType === "Usable" && item.type === "TacticalItem",
+        )
+        .map(([itemId]) => itemId);
+    const catalogPath = resolve(repoRoot, "assets/data/IconRecognition/recognition_items.json");
+    const catalog = JSON.parse(readFileSync(catalogPath, "utf8"));
+    const missing = ids.filter((itemId) => !catalog[itemId]);
+    if (missing.length > 0) {
+        throw new Error(`[UseConsumable] 以下战术物品缺少 IconRecognition 数据：${missing.join(", ")}`);
+    }
+    if (ids.length === 0) {
+        throw new Error(`[UseConsumable] ${sourcePath} 中没有 TacticalItem`);
+    }
+    return ids.sort((a, b) => {
+        const left = catalog[a];
+        const right = catalog[b];
+        return (
+            (right.sortId1 ?? 0) - (left.sortId1 ?? 0) ||
+            (right.sortId2 ?? 0) - (left.sortId2 ?? 0) ||
+            b.localeCompare(a)
+        );
+    });
+}
+
 const items = loadUsableItems();
 const itemIds = Object.keys(items).sort();
+const tacticalItemIds = loadTacticalItemIds();
 const slots = [
     1,
     2,
@@ -39,9 +94,12 @@ const regions = [
 const LOCALE_TEXTS = {
     zh_cn: {
         suffix: "CN",
-        label: "💊使用消耗品",
-        description: "选择需要使用的消耗品，并自动喂给选定的干员",
+        label: "💊取用可用道具",
+        description: "选择需要取用的消耗品或战术物品",
         itemLabel: "选择使用的消耗品",
+        tacticalItemsLabel: "补充战术物品",
+        tacticalItemLabel: "选择需要补充的战术物品",
+        enabledLabel: "使用消耗品",
         slotLabels: [
             "一号位",
             "二号位",
@@ -54,9 +112,12 @@ const LOCALE_TEXTS = {
     },
     zh_tw: {
         suffix: "TC",
-        label: "💊使用消耗品",
-        description: "選擇需要使用的消耗品，並自動餵給選定的幹員",
+        label: "💊取用可用道具",
+        description: "選擇需要取用的消耗品或戰術物品",
         itemLabel: "選擇使用的消耗品",
+        tacticalItemsLabel: "補充戰術物品",
+        tacticalItemLabel: "選擇需要補充的戰術物品",
+        enabledLabel: "使用消耗品",
         slotLabels: [
             "一號位",
             "二號位",
@@ -69,9 +130,12 @@ const LOCALE_TEXTS = {
     },
     en_us: {
         suffix: "EN",
-        label: "💊 Use Consumable",
-        description: "Choose the consumable to use and automatically give it to the selected operators.",
+        label: "💊 Retrieve Usable Items",
+        description: "Choose the consumables or tactical items to retrieve.",
         itemLabel: "Consumable to Use",
+        tacticalItemsLabel: "Restock Tactical Items",
+        tacticalItemLabel: "Tactical Item to Restock",
+        enabledLabel: "Use Consumables",
         slotLabels: [
             "Slot 1",
             "Slot 2",
@@ -84,9 +148,12 @@ const LOCALE_TEXTS = {
     },
     ja_jp: {
         suffix: "JP",
-        label: "💊消耗品を使用",
-        description: "使用する消耗品を選択し、選んだオペレーターに自動で使用します。",
+        label: "💊使用可能アイテムを取得",
+        description: "取得する消耗品または戦術物品を選択します。",
         itemLabel: "使用する消耗品",
+        tacticalItemsLabel: "戦術アイテムを補充",
+        tacticalItemLabel: "補充する戦術アイテム",
+        enabledLabel: "消耗品を使用",
         slotLabels: [
             "1番目の枠",
             "2番目の枠",
@@ -99,9 +166,12 @@ const LOCALE_TEXTS = {
     },
     ko_kr: {
         suffix: "KR",
-        label: "💊 소모품 사용",
-        description: "사용할 소모품을 선택하면 선택한 오퍼레이터에게 자동으로 사용합니다.",
+        label: "💊사용 가능 아이템 가져오기",
+        description: "가져올 소모품 또는 전술 물품을 선택합니다.",
         itemLabel: "사용할 소모품",
+        tacticalItemsLabel: "전술 아이템 보충",
+        tacticalItemLabel: "보충할 전술 아이템",
+        enabledLabel: "소모품 사용",
         slotLabels: [
             "1번 슬롯",
             "2번 슬롯",
@@ -125,6 +195,9 @@ export const useConsumableLocaleMessages = Object.fromEntries(
                 "task.UseConsumable.description": texts.description,
                 "task.UseConsumable.focus.usable_item_not_found": texts.notFound,
                 "option.UseConsumableItem.label": texts.itemLabel,
+                "option.UseConsumableTacticalItems.label": texts.tacticalItemsLabel,
+                "option.UseConsumableTacticalItem.label": texts.tacticalItemLabel,
+                "option.UseConsumableEnabled.label": texts.enabledLabel,
                 "option.UseConsumableRegion.label": texts.regionLabel,
             };
             for (const slot of slots) {
@@ -148,7 +221,7 @@ export default [
     {
         name: "UseConsumable",
         label: "$task.UseConsumable.label",
-        entry: "UseConsumableFailureCollectorReset",
+        entry: "UseConsumableBeforeStashBackpack",
         description: "$task.UseConsumable.description",
         group: ["backpack"],
         controller: [
@@ -164,6 +237,7 @@ export default [
         defaultSlotCase: "Yes",
         itemIds,
         defaultItemId: itemIds[0],
+        tacticalItemIds,
         regions,
         defaultRegion: "ValleyIV",
     },

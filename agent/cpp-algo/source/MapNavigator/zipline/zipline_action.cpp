@@ -370,20 +370,28 @@ Result AbandonZipline(Navigator* nav, const char* reason, const char* detail)
     return abandon_chain_from_ground(nav, reason, detail);
 }
 
+bool ScreenShowsZiplineTower(Navigator* nav)
+{
+    ZiplineIo io { nav };
+    return ZiplineIoCheckMounted(&io) == MountVerdict::OnTower;
+}
+
+void StepOffZiplineTower(Navigator* nav)
+{
+    ZiplineIo io { nav };
+    ZiplineIoDismount(&io);
+    // 刚下来的那几百毫秒移动指令还会被架子吃掉
+    SleepFor(kZiplineLaunchSettleMs);
+}
+
 void LeaveZiplineTower(Navigator* nav)
 {
     ZiplineRide* ride = &nav->runtime_state.zipline_ride;
-    const bool was_on_tower = ZiplineOnTower(*ride);
-    ZiplineIo io { nav };
-    if (was_on_tower) {
-        ZiplineIoDismount(&io);
+    if (ZiplineOnTower(*ride)) {
+        StepOffZiplineTower(nav);
     }
     RecordDismissedHop(ride);
     ResetZiplineHop(ride);
-    // 刚下来的那几百毫秒移动指令还会被架子吃掉
-    if (was_on_tower) {
-        SleepFor(kZiplineLaunchSettleMs);
-    }
 }
 
 Result StartZiplineHop(Navigator* nav, const Waypoint& waypoint, double actual_distance)

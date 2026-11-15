@@ -114,13 +114,13 @@ struct BaseNavOffMeshLink
     uint8_t dir_ok = 0;
     uint32_t start_triangle = kBaseNavOffMeshTriangleNone;
     uint32_t end_triangle = kBaseNavOffMeshTriangleNone;
-
-    bool anchored() const
-    {
-        return start_triangle != kBaseNavOffMeshTriangleNone && end_triangle != kBaseNavOffMeshTriangleNone
-               && start_triangle != end_triangle;
-    }
 };
+
+inline bool OffMeshLinkAnchored(const BaseNavOffMeshLink& link)
+{
+    return link.start_triangle != kBaseNavOffMeshTriangleNone && link.end_triangle != kBaseNavOffMeshTriangleNone
+           && link.start_triangle != link.end_triangle;
+}
 
 // v4 起包尾的附加段, 由头里的段目录定位, 认不出的 tag 跳过
 struct BaseNavSection
@@ -131,93 +131,47 @@ struct BaseNavSection
     std::shared_ptr<const std::vector<uint8_t>> bytes;
 };
 
-class BaseNavPack;
-
-namespace detail
+struct BaseNavPack
 {
-
-BaseNavPack MakeBaseNavPack(
-    std::filesystem::path path,
-    std::vector<BaseNavZone> zones,
-    std::vector<BaseNavVertex> vertices,
-    std::vector<BaseNavTriangle> triangles,
-    std::vector<BaseNavLink> links,
-    std::vector<BaseNavSurface> surfaces,
-    std::vector<BaseNavOffMeshLink> off_mesh_links,
-    std::vector<BaseNavSection> sections,
-    uint64_t build_hash,
-    uint64_t file_fnv);
-
-}
-
-class BaseNavPack
-{
-public:
-    BaseNavPack() = default;
-
-    const std::vector<BaseNavZone>& zones() const;
-    const std::vector<BaseNavVertex>& vertices() const;
-    const std::vector<BaseNavTriangle>& triangles() const;
-    const std::vector<BaseNavLink>& links() const;
-    const std::vector<BaseNavSurface>& surfaces() const;
-    const std::vector<BaseNavOffMeshLink>& offMeshLinks() const;
-    const BaseNavZone* findZone(uint16_t zone_id) const;
-    const BaseNavZone* findZoneByName(const std::string& name) const;
-
-    // 非 tier 与未知 id 原样返回
-    uint16_t geometryZoneId(uint16_t zone_id) const;
-
-    // 几何区原样返回, 未知区返回 std::nullopt
-    std::optional<BaseNavBaseProjection> projectToBase(const std::string& zone_name, double x, double y) const;
-
-    // 没有烘焙楼层高的区与未知区返回 kBaseNavFloorYNone
-    float floorYForZoneName(const std::string& zone_name) const;
-
-    const BaseNavSection* section(const char (&tag)[5]) const;
-
-    // 只能在 BaseNavPlanner 建完 CSR 邻接后调用
-    void releaseLinks();
-
-    // fileFnv 是解压后整份字节的 FNV-1a, 按区裁剪载入也按整份文件算
-    const std::filesystem::path& path() const { return path_; }
-
-    uint64_t buildHash() const { return build_hash_; }
-
-    uint64_t fileFnv() const { return file_fnv_; }
-
-private:
-    friend BaseNavPack detail::MakeBaseNavPack(
-        std::filesystem::path path,
-        std::vector<BaseNavZone> zones,
-        std::vector<BaseNavVertex> vertices,
-        std::vector<BaseNavTriangle> triangles,
-        std::vector<BaseNavLink> links,
-        std::vector<BaseNavSurface> surfaces,
-        std::vector<BaseNavOffMeshLink> off_mesh_links,
-        std::vector<BaseNavSection> sections,
-        uint64_t build_hash,
-        uint64_t file_fnv);
-
-    std::filesystem::path path_;
-    uint64_t build_hash_ = 0;
-    uint64_t file_fnv_ = 0;
-    std::vector<BaseNavZone> zones_;
-    std::vector<BaseNavVertex> vertices_;
-    std::vector<BaseNavTriangle> triangles_;
-    std::vector<BaseNavLink> links_;
-    std::vector<BaseNavSurface> surfaces_;
-    std::vector<BaseNavOffMeshLink> off_mesh_links_;
-    std::vector<BaseNavSection> sections_;
+    std::filesystem::path path;
+    uint64_t build_hash = 0;
+    // 解压后整份字节的 FNV-1a, 按区裁剪载入也按整份文件算
+    uint64_t file_fnv = 0;
+    std::vector<BaseNavZone> zones;
+    std::vector<BaseNavVertex> vertices;
+    std::vector<BaseNavTriangle> triangles;
+    // 只供 BuildBaseNavPlanner 移走一次
+    std::vector<BaseNavLink> links;
+    std::vector<BaseNavSurface> surfaces;
+    std::vector<BaseNavOffMeshLink> off_mesh_links;
+    std::vector<BaseNavSection> sections;
 };
+
+const BaseNavZone* FindBaseNavZone(const BaseNavPack& pack, uint16_t zone_id);
+const BaseNavZone* FindBaseNavZoneByName(const BaseNavPack& pack, const std::string& name);
+
+// 非 tier 与未知 id 原样返回
+uint16_t GeometryZoneId(const BaseNavPack& pack, uint16_t zone_id);
+
+// 几何区原样返回, 未知区返回 std::nullopt
+std::optional<BaseNavBaseProjection> ProjectToBase(const BaseNavPack& pack, const std::string& zone_name, double x, double y);
+
+// 没有烘焙楼层高的区与未知区返回 kBaseNavFloorYNone
+float FloorYForZoneName(const BaseNavPack& pack, const std::string& zone_name);
+
+const BaseNavSection* FindBaseNavSection(const BaseNavPack& pack, const char (&tag)[5]);
 
 struct BaseNavLoadResult
 {
     BaseNavLoadStatus status = BaseNavLoadStatus::Success;
     std::string message;
     std::optional<BaseNavPack> pack;
-
-    bool ok() const { return status == BaseNavLoadStatus::Success && pack.has_value(); }
 };
+
+inline bool LoadSucceeded(const BaseNavLoadResult& result)
+{
+    return result.status == BaseNavLoadStatus::Success && result.pack.has_value();
+}
 
 const char* ToString(BaseNavLoadStatus status);
 

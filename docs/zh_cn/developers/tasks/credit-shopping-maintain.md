@@ -2,29 +2,29 @@
 
 本文说明 `CreditShopping` 的文件分布与执行流程。  
 购买条件不是几个独立开关，而是从 `Item/` 串到 `Flow/` 的整条筛选链，维护时需按链路理解。  
-该文档更新于 2026 年 10 月 15 日。
+该文档更新于 2026 年 11 月 10 日。
 
 ## 文件路径
 
 ```text
 CreditShopping/
 ├── Flow/                  # 主购物流程
-│   ├── Entry.json         # 入口检测 + 白名单初始化
-│   ├── Scan.json          # 货架扫描门控 + 快照（触发购买决策循环）
-│   ├── BuyAction.json     # 三档购买 / 黑名单 / 稳健刷新 / 无物可买
-│   ├── BuyItem.json       # 购买确认 / 失败 / 强制购买价格阈值检查
-│   └── Special.json       # ADB 滑动 / 货架滑动工具节点 / 刷新时无法购买 / 刷新商品
+│   ├── Entry.json         # 页签检测 + 进入扫描循环
+│   ├── Scan.json          # 货架扫描门控（触发购买决策循环）
+│   ├── BuyAction.json     # 三档购买 / 强制购买 / 稳健刷新 / 次数用尽
+│   ├── BuyItem.json       # 购买确认 / 保留阈值检查
+│   └── Special.json       # 刷新时无法购买 / 刷新商品
 ├── Credit/                # 信用点管理
 │   ├── Reserve.json       # 保留阈值检测 + 当前信用点 OCR
 │   ├── AutoGetCredits.json# 自动补信用（买不起时跳基建）
 │   └── ClaimCredit.json   # 领取待收取信用（含 IMS A3 累加）
 ├── Item/                  # 货架商品识别（识别链）
-│   ├── ShelfBase.json     # 锚点 CreditIcon + 售罄 + 价格判断
-│   ├── Priority1.json     # 购买物品选项1 白名单 + 折扣
-│   ├── Priority2.json     # 购买物品选项2 白名单 + 折扣
-│   └── Priority3.json     # 购买物品选项3 白名单 + 折扣
+│   ├── Priority1Items.json# 购买物品选项1：IconRecognition item_ids
+│   ├── Priority2Items.json# 购买物品选项2：IconRecognition item_ids
+│   ├── Priority3Items.json# 购买物品选项3：IconRecognition item_ids
+│   ├── AnyItems.json      # 任意可买物品：全 catalog IconRecognition
+│   └── ShelfChecks.json   # 买得起 / 折扣（相对物品框偏移）
 ├── GoToShop.json           # 导航到商店并切到信用交易所页签
-├── record.json             # 货架快照时记录商品名与折扣
 └── Reflash.json            # 刷新按钮 / 花费 / 次数用尽 / 无法刷新
 ```
 
@@ -35,14 +35,13 @@ CreditShopping/
 | `assets/interface.json` | 任务挂载（`other_menu` 组；另被 `DailyFull` / `QuickDaily` 预设引用） |
 | `assets/tasks/CreditShopping.json` | 任务入口、三档购买、保留阈值、刷新选项 |
 | `assets/resource/pipeline/DijiangRewards/Entry.json`（`NeedCredit`）、`ReceptionRoom.json` | 信用不足时回基建补信用 |
-| `agent/go-service/common/attachregex/action.go` | attach 关键词合并为 OCR 白名单正则 |
 | `assets/locales/interface/*.json` | 任务、选项与 focus 文案 |
 
 ## 执行流程
 
 1. 进入信用交易所页签；若不在商店则先导航（`GoToShop.json`），再[领取待收取信用](#领取信用)（`Credit/ClaimCredit.json`）。
-2. 进入扫描循环前，[一次性初始化各档商品名白名单](#attach-与白名单初始化)（`Flow/Entry.json` + `attachregex/action.go`）。
-3. 每轮对当前货架快照，按固定优先级依次判断（`Flow/Scan.json` → `Flow/BuyAction.json`）：
+2. 勾选商品由[各档物品节点的 `attach`](#物品勾选)直接覆盖 `item_ids`，扫描前不再需要额外的初始化步骤。
+3. 每轮扫描当前货架，按固定优先级依次判断（`Flow/Scan.json` → `Flow/BuyAction.json`）：
     - 某档开启了「自动获取信用点」，且该档目标商品[买不起（信用不够）](#自动补信用) → 跳基建补信用后回来；未开启的档位不做此判断。
     - 是否命中[购买物品选项 1 / 2 / 3](#三档购买优先级) → 直接确认购买。
     - 当前信用是否[低于保留阈值](#保留信用点阈值) → 结束任务。
@@ -58,52 +57,28 @@ CreditShopping/
 
 实现位于 `Credit/ClaimCredit.json`。进入信用交易所后先尝试领取待收取信用；没有可领项则直接进入扫描，不阻塞主流程。
 
-### 货架快照与两屏合并
+### 物品勾选
 
-ADB 一屏装不下两排商品：第一排的名称和折扣完整可见时看不到第二排名称，滑到第二排完整可见时又看不到第一排折扣，所以 `RecordShelfSnapshotsAction`（`Flow/Scan.json` 的 `CreditShoppingScanItemAction`）在 ADB 下分两次截图，再按 slot 合并。快照只写入 `CreditShoppingShelfSnapshots.json` 供分析，不参与购买判断；「保留货架记录」关闭时该节点改为 `DoNothing`。
-
-滑动不直接操作控制器，而是 `ctx.RunAction` 调两个工具节点：两次截图之间调 `CreditShoppingSwipeShelfDown`，第二次截图后调 `CreditShoppingSwipeShelfUp` 滑回首屏。base 里两者是 Win32 的 `DoNothing`（一屏可见），实际的滑动参数与稳定等待由 `resource_adb` 覆盖。平台差异因此留在资源包里：Go 侧不直接滑动，只用 `isADBController` 选择单屏或两屏路径。
-
-Win32 走 `slotAssignPC` 单屏路径，不经过这两个节点。
-
-### attach 与白名单初始化
-
-1. 用户在 `CreditShopping.json` 勾选商品 → 各语言名称写入对应档位的 `attach`。
-2. 扫描前串行执行 `AttachToExpectedRegexAction`，把 attach 合并为 `^(别名1|别名2|...)$` 覆盖到商品名 OCR 节点。
-3. 每档同时维护「买得起」与「买不起」两侧白名单；某档未勾选任何商品时，正则改为 `a^`（永不匹配）。
-
-Go 只负责参数装配；何时买、怎么买由 Pipeline 决定。
+1. 用户在三档 checkbox 里勾选商品，每个 case 的 `pipeline_override` 往对应档位的 `CreditShoppingPriority{N}Item` 节点写一条 `attach`（`IconRecognition.item_ids.<item_id>: true`）。
+2. `IconRecognition` 在识别时读取**调用节点**的 `attach`，把 `IconRecognition.item_ids.*` 覆盖为该档的 `item_ids` 数组，因此勾选即生效，不需要额外的 CustomAction 或启动时 `OverridePipeline`。
+3. `attach` 是字典合并（dict merge），多个 case 的键会累积；某档一个都没勾时不会覆盖该档节点，节点保留 Pipeline 默认 `item_ids`（`Priority1` 默认 `item_gold`）。
+4. `<item_id>` 必须与 `assets/data/IconRecognition/recognition_items.json` 的顶层键一致；写错时该档每次识别都会失败并在日志里报 `unknown item_id`，但任务本身不会中止，表现为该档一直买不到东西。
+5. 三档都设了 `min_count: 1`，界面上每档至少要勾 1 件；`item_ids` 的数组顺序取决于 `attach` 的合并顺序，不影响识别（节点用 `order_by: natural`，按货架位置排序）。
 
 ### 商品识别链
 
-实现位于 `Item/` 目录。读图顺序：**先锚点，再一路偏移**；前后层依赖，前层未命中则后续全部失效。
+实现位于 `Item/` 与 `Item/ShelfChecks.json`，识别分两层：
 
-颜色约定（维护文档与截图对照用）：
+1. **物品**：`IconRecognition`（`grid_type: credit_trade`）在 `roi` 内识别整排卡片，返回每格的 `cell_box` / `row` / `column` / `item_id`。`CreditShoppingPriority{N}Item` 只认该档 `item_ids`，`CreditShoppingShelfAnyItem` 认全 catalog，两者都取 `index: 0`（货架自然顺序的第一个命中）。
+2. **判定**：`ShelfChecks.json` 以物品框为基准偏移，依次给出
+    - 买得起 `*CanAfford` / 买不起 `*CanNotAfford`（价格文字颜色）
+    - 折扣 `*Discount`（OCR 角标）
 
-- 黑：信用点商品卡片锚点（`Item/ShelfBase.json` — `CreditIcon`）
-- 蓝：是否未售罄（`Item/ShelfBase.json` — `NotSoldOut`）
-- 红：买得起 / 买不起（`Item/ShelfBase.json` — `CanAfford` / `CanNotAfford`，两条链在此分叉）
-- 绿：商品名 OCR（白名单，各档 `Item/Priority{N}.json`）
-- 粉：折扣 OCR（各档 `Item/Priority{N}.json`）
+售罄卡（卡片变暗 + 「售罄」）不会被 IconRecognition 命中，所以 Pipeline 不再单独判断未售罄。
 
-#### 购买链
+`CreditShoppingBuyPriority{N}` 是 And 链：物品 → 买得起 → 折扣 → 保留阈值门控，`box_index: 0` 保证点击落在物品格中心。**前层未命中则整条链失效**，排查时按 物品 → 买得起 → 折扣 顺序看。
 
-![购买识别链](https://github.com/user-attachments/assets/0e9f7e50-9b08-451f-abd4-2cb49b01986f)
-
-```text
-ShelfBase → 白名单 → 折扣 → 进入购买判断
-```
-
-#### 补信用链
-
-![补信用识别链](https://github.com/user-attachments/assets/37235adf-9f1c-40ed-aaaa-9f713a80d5a7)
-
-```text
-ShelfBase → 白名单 → 折扣 → 进入补信用判断
-```
-
-两链的商品名与折扣语义必须保持一致，否则会出现「买得起时是目标、买不起时不是」的矛盾。  
-每档需同时维护两侧节点；排查时按黑 → 蓝 → 红 → 绿 → 粉顺序逐层看。
+控制器差异分开维护：ADB 的 IconRecognition ROI 在 `assets/resource_adb/pipeline/CreditShopping/IconRecognitionRoi.json`，云端颜色阈值在 `assets/resource_cloud/pipeline/CreditShopping/Item.json`。Pipeline 不写死 ROI，改区域时只改对应资源覆盖。
 
 ### 三档购买优先级
 
@@ -115,7 +90,7 @@ ShelfBase → 白名单 → 折扣 → 进入补信用判断
 | 购买物品选项2 | 关 | 关 | 需满足保留阈值才买 |
 | 购买物品选项3 | 关 | 关 | 同上，更低优先级 |
 
-每档可独立配置：勾选商品、最低折扣、是否跳过保留阈值、买不起时是否允许补信用。  
+每档可独立配置：勾选商品（每档至少 1 件）、最低折扣、是否跳过保留阈值、买不起时是否允许补信用。  
 三档都未命中后，才由统一的保留阈值节点负责兜底退出。
 
 ### 保留信用点阈值
@@ -126,7 +101,7 @@ ShelfBase → 白名单 → 折扣 → 进入补信用判断
 
 ### 自动补信用
 
-某档开启了「自动获取信用点」，且[补信用识别链](#补信用链)命中时，经 `GoToNeedCredit`（`Credit/AutoGetCredits.json`）跳转到 `NeedCredit` 节点（`DijiangRewards/Entry.json`）：
+某档开启了「自动获取信用点」，且该档「买得起」链命中时，经 `GoToNeedCredit`（`Credit/AutoGetCredits.json`）跳转到 `NeedCredit` 节点（`DijiangRewards/Entry.json`）：
 
 1. 回基建会客室，按配置赠送线索或开启线索交流。
 2. 逐条赠送次数由 `CreditShoppingClueSend` 控制（`0` = 不逐条赠送；开启「快速赠予重复线索」时仍会一键赠送）。
@@ -137,8 +112,8 @@ ShelfBase → 白名单 → 折扣 → 进入补信用判断
 
 ### 折扣选项
 
-每档的折扣选项改写对应档位的折扣 OCR `expected`，或改为 ColorMatch（「任意折扣」）。  
-「任意折扣」用颜色匹配而非宽松 OCR，是为保留偏移锚点 ROI。  
+每档的折扣选项改写对应档位的折扣 OCR `expected`，或切到「任意」档。
+数值档只改写 `expected`（如「-25%及以上」）；「任意」档把折扣节点整体换成 `DirectHit`，**不再检查折扣角标**——未打折的商品也会被购买，与 `AutoStockStaple` 的「任意」语义一致。
 折扣规则须同时覆盖买得起与买不起两侧。
 
 ### 强制策略与刷新
@@ -148,30 +123,30 @@ ShelfBase → 白名单 → 折扣 → 进入补信用判断
 | 策略 | 行为 |
 | ---------- | -------------------------------- |
 | 退出 | 不买任意品、不刷新，直接结束 |
-| 购买所有物品 | 购买任意买得起且未售罄的商品；确认前用 `BuyItemBelowReserve` 按「持有 − 价格」检查保留阈值，不足则取消并停止 |
+| 购买所有物品 | 购买任意买得起的商品（售罄卡不会被识别）；确认前用 `BuyItemBelowReserve` 按「持有 − 价格」检查保留阈值，不足则取消并停止 |
 | 执行刷新 | 尝试刷新货架；可展开「稳健模式刷新」「直购前检查价格」 |
 
-**稳健刷新**：若「当前信用 − 刷新花费 < 稳健刷新阈值」且架上仍有可买品，则不刷新、改为直接购买。  
+**稳健刷新**：若「当前信用 − 刷新花费 < 稳健刷新阈值」且架上仍有可买品，则不刷新、改为直接购买。
 该阈值与「保留信用点」是两套独立条件，不要混用。
 
 **直购前检查价格**（刷新子选项，默认开）：开启后，刷新用尽直购 / 稳健改直购在确认前按「持有 − 价格」检查保留阈值，不足则取消并停止；关闭则先买，买完后再由「保留信用点」节点决定是否结束。
 
 ## 新增商品时需改的路径
 
-1. `assets/tasks/CreditShopping.json` — 在对应档位 checkbox 增加 case，同时写「买得起」与「买不起」两侧的 `attach`
+1. `assets/tasks/CreditShopping.json` — 在对应档位 checkbox 增加 case，`icon` 指向 `resource/image/UI/Item/<item_id>.png`，`pipeline_override` 往该档 `CreditShoppingPriority<N>Item` 写一条 `attach`（`IconRecognition.item_ids.<item_id>: true`）
 2. `assets/locales/interface/*.json` — `option.CreditShoppingItems.cases.*.label`
 
-货架白名单改完即可购买；奖励播报与数量累加由 IMS A3（`ClaimCredit.json`）负责，不必再为弹窗单独加商品 OCR。  
+`attach` 里的 `<item_id>` 必须与 `icon` 文件名、`assets/data/IconRecognition/recognition_items.json` 的顶层键三者一致；该档勾选后即可购买，奖励播报与数量累加由 IMS A3（`ClaimCredit.json`）负责，不必再为弹窗单独加商品 OCR。
 新增 case 后记得检查 `default_case` 是否也要纳入新商品。
 
 ## 维护要点
 
 | 现象 | 优先查 |
 | ---------------- | --------------------------------------------------------------- |
-| 识别不到目标商品 | attach 合并后的正则；识别链黑→粉逐层 |
+| 识别不到目标商品 | 该档物品节点的 `attach`（`IconRecognition.item_ids.*`）与 `IconRecognition` ROI |
 | 买得起却不买 | 该档保留阈值 / 无条件购买开关 |
-| 买不起不补信用 | 该档 AutoGetCredits 开关；买不起侧白名单与折扣 |
+| 买不起不补信用 | 该档 AutoGetCredits 开关；买不起侧折扣与价格颜色阈值 |
 | 刷新行为异常 | `CreditShoppingForce`；稳健刷新阈值 |
 | 选项间行为不一致 | `CreditShopping.json` 的 `pipeline_override` 与扫描 `next` 顺序 |
 
-维护时分四层定位：入口（`GoToShop.json`）→ 扫描决策（`Flow/`）→ 识别链（`Item/`）→ 参数装配（任务选项 + Go）。
+维护时分四层定位：入口（`GoToShop.json`）→ 扫描决策（`Flow/`）→ 识别链（`Item/` + `ShelfChecks.json`）→ 参数装配（任务选项 `attach`）。

@@ -62,6 +62,8 @@ struct RouteEndpoints
     navmesh::WorldPoint goal;
     float goal_floor_y = navmesh::kBaseNavFloorYNone;
     std::optional<double> goal_deck_y;
+    // 起终点都没给楼层时按它兜底, 为空时取区域主层
+    std::optional<double> zone_floor_y;
 };
 
 // 给了 out_start_recovery_entry 时, 起点锚不上网格就改从盲走范围内最近的网格点规划, 该点由此传回

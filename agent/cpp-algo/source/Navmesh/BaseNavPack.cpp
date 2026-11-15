@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <optional>
-#include <utility>
 
 #include "BaseNavPack.h"
 
@@ -9,95 +8,35 @@
 namespace navmesh
 {
 
-namespace detail
+const BaseNavZone* FindBaseNavZone(const BaseNavPack& pack, uint16_t zone_id)
 {
-
-BaseNavPack MakeBaseNavPack(
-    std::filesystem::path path,
-    std::vector<BaseNavZone> zones,
-    std::vector<BaseNavVertex> vertices,
-    std::vector<BaseNavTriangle> triangles,
-    std::vector<BaseNavLink> links,
-    std::vector<BaseNavSurface> surfaces,
-    std::vector<BaseNavOffMeshLink> off_mesh_links,
-    std::vector<BaseNavSection> sections,
-    uint64_t build_hash,
-    uint64_t file_fnv)
-{
-    BaseNavPack pack;
-    pack.path_ = std::move(path);
-    pack.build_hash_ = build_hash;
-    pack.file_fnv_ = file_fnv;
-    pack.zones_ = std::move(zones);
-    pack.vertices_ = std::move(vertices);
-    pack.triangles_ = std::move(triangles);
-    pack.links_ = std::move(links);
-    pack.surfaces_ = std::move(surfaces);
-    pack.off_mesh_links_ = std::move(off_mesh_links);
-    pack.sections_ = std::move(sections);
-    return pack;
+    const auto iter =
+        std::find_if(pack.zones.begin(), pack.zones.end(), [zone_id](const BaseNavZone& zone) { return zone.zone_id == zone_id; });
+    return iter == pack.zones.end() ? nullptr : &*iter;
 }
 
+const BaseNavZone* FindBaseNavZoneByName(const BaseNavPack& pack, const std::string& name)
+{
+    const auto iter = std::find_if(pack.zones.begin(), pack.zones.end(), [&name](const BaseNavZone& zone) { return zone.name == name; });
+    return iter == pack.zones.end() ? nullptr : &*iter;
 }
 
-const std::vector<BaseNavZone>& BaseNavPack::zones() const
+uint16_t GeometryZoneId(const BaseNavPack& pack, uint16_t zone_id)
 {
-    return zones_;
-}
-
-const std::vector<BaseNavVertex>& BaseNavPack::vertices() const
-{
-    return vertices_;
-}
-
-const std::vector<BaseNavTriangle>& BaseNavPack::triangles() const
-{
-    return triangles_;
-}
-
-const std::vector<BaseNavLink>& BaseNavPack::links() const
-{
-    return links_;
-}
-
-const std::vector<BaseNavSurface>& BaseNavPack::surfaces() const
-{
-    return surfaces_;
-}
-
-const std::vector<BaseNavOffMeshLink>& BaseNavPack::offMeshLinks() const
-{
-    return off_mesh_links_;
-}
-
-const BaseNavZone* BaseNavPack::findZone(uint16_t zone_id) const
-{
-    const auto iter = std::find_if(zones_.begin(), zones_.end(), [zone_id](const BaseNavZone& zone) { return zone.zone_id == zone_id; });
-    return iter == zones_.end() ? nullptr : &*iter;
-}
-
-const BaseNavZone* BaseNavPack::findZoneByName(const std::string& name) const
-{
-    const auto iter = std::find_if(zones_.begin(), zones_.end(), [&name](const BaseNavZone& zone) { return zone.name == name; });
-    return iter == zones_.end() ? nullptr : &*iter;
-}
-
-uint16_t BaseNavPack::geometryZoneId(uint16_t zone_id) const
-{
-    const BaseNavZone* zone = findZone(zone_id);
+    const BaseNavZone* zone = FindBaseNavZone(pack, zone_id);
     return zone != nullptr && IsTierZone(*zone) ? static_cast<uint16_t>(zone->component_count) : zone_id;
 }
 
-std::optional<BaseNavBaseProjection> BaseNavPack::projectToBase(const std::string& zone_name, double x, double y) const
+std::optional<BaseNavBaseProjection> ProjectToBase(const BaseNavPack& pack, const std::string& zone_name, double x, double y)
 {
-    const BaseNavZone* zone = findZoneByName(zone_name);
+    const BaseNavZone* zone = FindBaseNavZoneByName(pack, zone_name);
     if (zone == nullptr) {
         return std::nullopt;
     }
     if (!IsTierZone(*zone)) {
         return BaseNavBaseProjection { zone, x, y, false };
     }
-    const BaseNavZone* parent = findZone(static_cast<uint16_t>(zone->component_count));
+    const BaseNavZone* parent = FindBaseNavZone(pack, static_cast<uint16_t>(zone->component_count));
     if (parent == nullptr) {
         return std::nullopt;
     }
@@ -111,9 +50,9 @@ std::optional<BaseNavBaseProjection> BaseNavPack::projectToBase(const std::strin
     };
 }
 
-float BaseNavPack::floorYForZoneName(const std::string& zone_name) const
+float FloorYForZoneName(const BaseNavPack& pack, const std::string& zone_name)
 {
-    const BaseNavZone* zone = findZoneByName(zone_name);
+    const BaseNavZone* zone = FindBaseNavZoneByName(pack, zone_name);
     if (zone == nullptr || zone->floor_y <= kBaseNavFloorYValidMin) {
         return kBaseNavFloorYNone;
     }
@@ -147,15 +86,9 @@ const char* ToString(BaseNavLoadStatus status)
     return "unknown";
 }
 
-void BaseNavPack::releaseLinks()
+const BaseNavSection* FindBaseNavSection(const BaseNavPack& pack, const char (&tag)[5])
 {
-    // swap 空容器才能释放容量, = {} 只清 size
-    std::vector<BaseNavLink>().swap(links_);
-}
-
-const BaseNavSection* BaseNavPack::section(const char (&tag)[5]) const
-{
-    for (const BaseNavSection& s : sections_) {
+    for (const BaseNavSection& s : pack.sections) {
         if (std::memcmp(s.tag.data(), tag, 4) == 0) {
             return &s;
         }

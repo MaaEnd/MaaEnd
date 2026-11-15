@@ -11,6 +11,7 @@
                 "ArenaOfGames.CheckHand",
                 "AutoFightEntryRecognition",
                 "AutoMissionMatchQuest",
+                "AutoSellDownArrowRecognition",
                 "AutoSellPriceCompareRecognition",
                 "AutoSellScanItemRecognition",
                 "AutoStockpile.Recognition",
@@ -18,6 +19,7 @@
                 "EssenceFilterAfterBattleNthRecognition",
                 "EssenceGridAdvanceRecognition",
                 "EssenceGridPendingRecognition",
+                "EveryNthHit",
                 "ExpendableRecognition",
                 "ExpressionRecognition",
                 "IconRecognition",
@@ -54,6 +56,7 @@
                 "TrialOfSwordmancy.Recognize",
                 "TrialOfSwordmancy.RecognizeAband",
                 "TrialOfSwordmancy.RecognizeDeck",
+                "VisitFriendsBtwSellFinishedRecognition",
                 "autoEcoFarmCalculateSwipeTarget",
                 "autoEcoFarmFindNearestRecognitionResult"
             ]
@@ -123,6 +126,35 @@
                                 "type": "integer",
                                 "minimum": 0,
                                 "maximum": 5
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": ["custom_recognition"],
+                "properties": {"custom_recognition": {"const": "EveryNthHit"}}
+            },
+            "then": {
+                "type": "object",
+                "required": ["custom_recognition_param"],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "key",
+                            "every"
+                        ],
+                        "properties": {
+                            "key": {"type": "string", "minLength": 1},
+                            "every": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
                             }
                         }
                     }
@@ -310,6 +342,19 @@
                                 "default": false,
                                 "title": "Deduplicate",
                                 "description": "Keep only the highest-scoring match for each item ID."
+                            },
+                            "order_by": {
+                                "type": "string",
+                                "enum": [ "score", "natural" ],
+                                "default": "score",
+                                "title": "Result Order",
+                                "description": "Sort accepted results by descending score, or in natural row-by-row order from left to right. Does not change which match deduplication keeps."
+                            },
+                            "reverse": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "Reverse Results",
+                                "description": "Reverse the final result order after filtering and deduplication."
                             },
                             "debug": {
                                 "type": "boolean",

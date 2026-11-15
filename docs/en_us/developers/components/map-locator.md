@@ -101,10 +101,10 @@ Required parameters (`custom_recognition_param`):
 
 | Parameter | Description |
 | --------- | --------------------------------------------------------------------- |
-| `zone_id` | Target zone name; must exactly match the localized zone name |
+| `zone_id` | Target zone name; `target` is given in this zone's coordinates |
 | `target` | Array of 4 numbers `[x, y, w, h]`: rectangle top-left corner and size |
 
-There are no optional parameters. The assertion always forces a global search and only accepts localization results inside `zone_id`; the match score and YOLO confidence use the locator defaults, matching how `MapNavigator` captures positions.
+There are no optional parameters. The assertion always forces a global search and accepts localization results on the same map as `zone_id`: when the result lands on another tier of that map, both the position and `target` are converted to the basemap before comparison. The match score and YOLO confidence use the locator defaults, matching how `MapNavigator` captures positions.
 
 ### Return Value (out_detail)
 

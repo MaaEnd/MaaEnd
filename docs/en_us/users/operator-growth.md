@@ -1,0 +1,96 @@
+# Operator Growth
+
+**🌱Operator Growth** is a standalone task that farms Protocol Space materials for a selected operator based on the shortages shown in the in-game Progression Overview. It checks requirements again after each battle's rewards are claimed and selects the next missing material automatically; it does not level up operators, upgrade skills, or enhance weapons.
+
+This document describes the current Operator Growth task implementation and was updated on November 12, 2026.
+
+## Differences from the Protocol Space Task
+
+| Task / mode | Farming criteria | Task configuration |
+| --- | --- | --- |
+| Protocol Space: By run count | Selected stage and number of runs | Select the stage, rewards, and run count manually |
+| Protocol Space: Target inventory | Target inventory for each item | Enter the material quantities to keep |
+| Operator Growth | Material shortages for the selected operator in Progression Overview | Select the operator and reward claim mode |
+
+## How to Use
+
+1. In the game, confirm that Progression Overview is unlocked for the account, the target operator's displayed material requirements match your goals, and the required Protocol Space stages are unlocked.
+2. Add the **🌱Operator Growth** task in MaaEnd. This task runs on its own; adding **⚔️Protocol Space** alongside it is unnecessary.
+3. Select **Operator to develop**, then configure **Reward Claim Mode** and what to do when Sanity is insufficient.
+4. Configure **Execution cycle (game time)**, **Select Team**, and **Auto Combat Settings** as needed, then run the task.
+
+The Operator Growth task handles one operator at a time, does not read the target inventory options, and provides no run count limit. It detects shortages from red quantity text below material icons in Progression Overview rather than calculating the exact missing quantities. Farming continues until the scan finds no shortages, the Sanity policy prevents further runs, or the flow ends because of an error.
+
+Operator Growth and Protocol Space are separate tasks, each with its own execution cycle and option selections. Target inventory or run counts configured in Protocol Space do not determine when Operator Growth ends.
+
+## Available Options
+
+| Option | Behavior | Default |
+| --- | --- | --- |
+| Execution cycle (game time) | Check the selected weekdays when the task runs; skip if the current game day is not selected | All seven weekdays selected |
+| Select Team | **Default** keeps the current team; a team from 01 to 07 can also be selected | Default |
+| Operator to develop | Select a target from the configured operator list; both male and female Endministrator portraits are supported | Perlica |
+| Reward Claim Mode | **Prefer Double Claim** or **Single Claim**; the Operator Growth task always claims rewards and has no combat-only option | Prefer Double Claim |
+| When Sanity Insufficient | **End Task** or **Use Limited-Time Potion to Restore** | Use Limited-Time Potion to Restore |
+| Within days | When using limited-time potions, select all, within 10 days, within 7 days, within 3 days, or within 1 day | Within 3 days |
+
+The execution cycle uses the local time of the device running MaaEnd, with each game day starting at 04:00. It checks whether to run when the task starts; selecting weekdays does not schedule the task to start automatically.
+
+Reward claim and limited-time potion rules reuse the Protocol Space implementation, with options selected separately in Operator Growth. **Within days** appears only when **Use Limited-Time Potion to Restore** is selected and limits eligible limited-time potions; potions without an expiry are excluded.
+
+**Prefer Double Claim** attempts to use a Sanity Usage Permit. If Sanity is insufficient while claiming rewards and no Sanity is restored after following the selected policy, the flow falls back to a single claim without a permit; it ends if that claim also cannot be completed. If Sanity is already insufficient before entry and cannot be restored under the configured policy, the task ends immediately instead of entering combat and falling back afterward. **Single Claim** does not use permits.
+
+## Execution Flow
+
+1. Check the execution cycle first. If execution is allowed, open the operator screen and wait for the top entry area to stabilize before checking for Progression Overview; enter it when found, resetting list scroll counters before each entry.
+2. Return the left operator list to the top, find the target by portrait, and confirm the selection using the name on the right.
+3. Check the operator level, skills and talents, and weapon level tabs in order. If no shortage is recognized in the current view, make at most one short swipe per tab to check further. A shortage in any view starts farming that material immediately, before the remaining tabs are scanned.
+4. Identify shortages using the material icon whitelist and red quantity text, then click the Protocol Space source in the material popup.
+5. Select the entry flow for that material type and reuse the existing team, combat, and reward claim flows.
+6. After claiming one battle's rewards, exit and return to Progression Overview to check shortages again before choosing the next run.
+
+If the same material is still missing, farming continues. Once it is sufficient, the task looks for the next shortage in tab and recognition order rather than ranking shortages by ratio.
+
+## Stage Selection and Exit Conditions
+
+| Material source | Entry rule |
+| --- | --- |
+| Operator EXP, Promotions, Skill Up, Weapon Tune | Select level five and set reward A/B from the item name in the popup; end if level five is locked |
+| T-Creds, Weapon EXP, and the six hazardous material sources | Enter the stage linked by the source directly, without changing its level or switching A/B rewards |
+
+The task ends when its checks of all three tabs recognize no shortages of whitelisted materials. This means only that no shortage was recognized within the scanned area, not that all development materials are sufficient. It also ends when rewards cannot be claimed under the configured Sanity policy, the target stage is locked, or combat fails. The Operator Growth task does not automatically retry failed battles or switch to a lower stage when level five is locked.
+
+If the Progression Overview entry is still missing after the operator screen stabilizes, the task displays a message that the feature may not be unlocked for the account or the entry could not be recognized, then ends the Operator Growth task.
+
+If the target operator or material source cannot be recognized, the flow may time out and exit. This does not mean all development materials are sufficient.
+
+## Current Scope
+
+- Only materials obtainable from Protocol Space and included in the icon whitelist are replenished; materials from other sources are not handled.
+- Only the configured tab regions and scroll range are inspected; finishing the checks does not mean every development requirement is met.
+- Each return to the overview selects the operator and checks materials again to avoid repeatedly farming a material that is no longer missing; a single battle's rewards can still exceed the remaining shortage.
+- Operator options, Progression Overview entry recognition, and material source recognition include Simplified Chinese, Traditional Chinese, English, Japanese, and Korean; this does not mean every language has been verified in-game.
+- The task configuration allows Win32 foreground, the three Linux controllers, ADB, CloudADB, and PlayCover. Mobile overview portraits, material templates, and ROI overrides are in `assets/resource_adb/`, shared by ADB, CloudADB, and PlayCover. Sharing resources does not mean all these controllers have been verified in-game.
+
+## Resources and Adaptation
+
+See the [task options](../../../assets/tasks/OperatorGrowth.json), [task entry](../../../assets/resource/pipeline/OperatorGrowth.json), [growth flow](../../../assets/resource/pipeline/OperatorGrowth/Growth.json), and [mobile overrides](../../../assets/resource_adb/pipeline/OperatorGrowth/Growth.json) for the implementation. The task entry is in the `pipeline` root, while its internal flow and images are in their respective `OperatorGrowth` directories. Team selection, combat, and reward claims reuse shared Protocol Space nodes.
+
+| Resource | Directory | Current contents |
+| --- | --- | --- |
+| Desktop portraits | `assets/resource/image/OperatorGrowth/Operators/` | Portrait templates for the desktop Progression Overview |
+| Desktop materials | `assets/resource/image/OperatorGrowth/Materials/` | Material templates for the desktop Progression Overview |
+| Mobile portraits | `assets/resource_adb/image/OperatorGrowth/Operators/` | 35 templates at `100×96` each, including both Endministrator portraits |
+| Mobile materials | `assets/resource_adb/image/OperatorGrowth/Materials/` | 16 templates at `80×55` each, covering the current material icon whitelist |
+
+Mobile portraits are sampled directly from `152×212` CharIcon originals using scale and offsets calibrated against screenshots, with green masks drawn over profession and status markers. Do not substitute enlarged desktop portraits. The current repository does not include a generator specifically for these growth portraits.
+
+Mobile material templates are cropped directly from the top icon region of material cards in `1280×720` Progression Overview screenshots, preserving the original pixels and excluding required quantities and owned-quantity text. Template filenames match the desktop whitelist. Source screenshots are not templates and should not be added to the recognition list.
+
+The desktop ROI for the Progression Overview entry, `OperatorGrowthOverviewOCR`, is `[1100, 10, 180, 40]`; the mobile ROI is `[1010, 12, 180, 48]`. Both use `roi` directly without `roi_offset`. On mobile, the flow waits for the same region to stabilize before recognizing the entry. Portraits, names, selected tabs, and material quantities have separate region overrides.
+
+## Verification Status
+
+The supplied mobile screenshots have been used to calibrate portraits, material crops, and overview ROIs. The latest entry screenshot recognizes the complete text 「培养总览」. Screenshot recognition does not establish that the in-game flow works; entry clicks, material source popups, and the complete farming loop still require in-game verification.
+
+The current repository has no screenshot regression cases for this task. Other languages and controllers also require separate verification.

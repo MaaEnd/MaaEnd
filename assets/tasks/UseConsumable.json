@@ -3,7 +3,7 @@
         {
             "name": "UseConsumable",
             "label": "$task.UseConsumable.label",
-            "entry": "UseConsumableFailureCollectorReset",
+            "entry": "UseConsumableBeforeStashBackpack",
             "description": "$task.UseConsumable.description",
             "group": [
                 "backpack"
@@ -18,11 +18,9 @@
                 "Win32-Front"
             ],
             "option": [
-                "UseConsumableSlot1",
-                "UseConsumableSlot2",
-                "UseConsumableSlot3",
-                "UseConsumableSlot4",
-                "UseConsumableRegion"
+                "StashBackpackSubTask",
+                "UseConsumableTacticalItems",
+                "UseConsumableEnabled"
             ]
         }
     ],
@@ -5811,6 +5809,2007 @@
                 }
             ],
             "default_case": "ValleyIV"
+        },
+        "UseConsumableTacticalItems": {
+            "type": "switch",
+            "label": "$option.UseConsumableTacticalItems.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "UseConsumableTacticalItem"
+                    ],
+                    "pipeline_override": {
+                        "UseConsumableTacticalItemsEnabled": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "UseConsumableTacticalItemsEnabled": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
+        "UseConsumableTacticalItem": {
+            "type": "select",
+            "label": "$option.UseConsumableTacticalItem.label",
+            "cases": [
+                {
+                    "name": "item_plant_grass_spc_powder_2",
+                    "label": "$iconRecognition.name.item_plant_grass_spc_powder_2",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_grass_spc_powder_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_grass_spc_powder_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_plant_grass_spc_powder_1",
+                    "label": "$iconRecognition.name.item_plant_grass_spc_powder_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_grass_spc_powder_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_grass_spc_powder_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_plant_grass_powder_2",
+                    "label": "$iconRecognition.name.item_plant_grass_powder_2",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_grass_powder_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_grass_powder_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_plant_grass_powder_1",
+                    "label": "$iconRecognition.name.item_plant_grass_powder_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_grass_powder_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_grass_powder_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_plant_moss_spc_powder_2",
+                    "label": "$iconRecognition.name.item_plant_moss_spc_powder_2",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_moss_spc_powder_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_moss_spc_powder_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_plant_moss_spc_powder_1",
+                    "label": "$iconRecognition.name.item_plant_moss_spc_powder_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_moss_spc_powder_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_moss_spc_powder_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_plant_moss_powder_2",
+                    "label": "$iconRecognition.name.item_plant_moss_powder_2",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_moss_powder_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_moss_powder_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_plant_moss_powder_1",
+                    "label": "$iconRecognition.name.item_plant_moss_powder_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_moss_powder_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_plant_moss_powder_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_slwood_1_hshog_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_slwood_1_hshog_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inkbiter_1_wgshoal_1_1",
+                    "label": "$iconRecognition.name.item_inkbiter_1_wgshoal_1_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_inkbiter_1_wgshoal_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_inkbiter_1_wgshoal_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_dog_hsmob_corp_1",
+                    "label": "$iconRecognition.name.item_dog_hsmob_corp_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_dog_hsmob_corp_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_dog_hsmob_corp_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp4_spc",
+                    "label": "$iconRecognition.name.item_corp4_spc",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_corp4_spc"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_corp4_spc"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp2_animal_1",
+                    "label": "$iconRecognition.name.item_corp2_animal_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_corp2_animal_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_corp2_animal_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp1_animal_1",
+                    "label": "$iconRecognition.name.item_corp1_animal_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_corp1_animal_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_corp1_animal_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_wgslime_1_hsmob_1_grass_2_1",
+                    "label": "$iconRecognition.name.item_wgslime_1_hsmob_1_grass_2_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_wgslime_1_hsmob_1_grass_2_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_wgslime_1_hsmob_1_grass_2_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_hscrane_1_hsmob_1_grass_1_1",
+                    "label": "$iconRecognition.name.item_hscrane_1_hsmob_1_grass_1_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_hscrane_1_hsmob_1_grass_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_hscrane_1_hsmob_1_grass_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_hsmob_1_grass_2_1",
+                    "label": "$iconRecognition.name.item_hsmob_1_grass_2_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_hsmob_1_grass_2_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_hsmob_1_grass_2_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp4_grass2_1",
+                    "label": "$iconRecognition.name.item_corp4_grass2_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_corp4_grass2_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_corp4_grass2_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_slimeml_1_erhound_1_agfly_1_1",
+                    "label": "$iconRecognition.name.item_slimeml_1_erhound_1_agfly_1_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_slimeml_1_erhound_1_agfly_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_slimeml_1_erhound_1_agfly_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_sp_2_moss_2_agrange_1_1",
+                    "label": "$iconRecognition.name.item_sp_2_moss_2_agrange_1_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_sp_2_moss_2_agrange_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_sp_2_moss_2_agrange_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_sp_1_moss_1_agmelee_1_1",
+                    "label": "$iconRecognition.name.item_sp_1_moss_1_agmelee_1_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_sp_1_moss_1_agmelee_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_sp_1_moss_1_agmelee_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_insec1_2",
+                    "label": "$iconRecognition.name.item_bottled_insec1_2",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_insec1_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_insec1_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_moss_2_animal_1",
+                    "label": "$iconRecognition.name.item_bottled_moss_2_animal_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_moss_2_animal_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_moss_2_animal_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_lbmob_1_moss_2_bottled_1",
+                    "label": "$iconRecognition.name.item_lbmob_1_moss_2_bottled_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_lbmob_1_moss_2_bottled_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_lbmob_1_moss_2_bottled_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_agfly_1_agmelee_1_moss_2_1",
+                    "label": "$iconRecognition.name.item_agfly_1_agmelee_1_moss_2_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_agfly_1_agmelee_1_moss_2_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_agfly_1_agmelee_1_moss_2_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_lbmob_1_lbshamman_1_sp_1_1",
+                    "label": "$iconRecognition.name.item_lbmob_1_lbshamman_1_sp_1_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_lbmob_1_lbshamman_1_sp_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_lbmob_1_lbshamman_1_sp_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_insec1_1",
+                    "label": "$iconRecognition.name.item_bottled_insec1_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_insec1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_insec1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_slimeml_1_agrange_1_moss_2_1",
+                    "label": "$iconRecognition.name.item_slimeml_1_agrange_1_moss_2_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_slimeml_1_agrange_1_moss_2_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_slimeml_1_agrange_1_moss_2_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_dog_1_slimeml_1_1",
+                    "label": "$iconRecognition.name.item_dog_1_slimeml_1_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_dog_1_slimeml_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_dog_1_slimeml_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_lbshamman_1_agmelee_1_1",
+                    "label": "$iconRecognition.name.item_lbshamman_1_agmelee_1_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_lbshamman_1_agmelee_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_lbshamman_1_agmelee_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_agmelee_1_moss_1_lbmob_1_1",
+                    "label": "$iconRecognition.name.item_agmelee_1_moss_1_lbmob_1_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_agmelee_1_moss_1_lbmob_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_agmelee_1_moss_1_lbmob_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_grass2spc_2",
+                    "label": "$iconRecognition.name.item_bottled_grass2spc_2",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_grass2spc_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_grass2spc_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_grass2spc_1",
+                    "label": "$iconRecognition.name.item_bottled_grass2spc_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_grass2spc_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_grass2spc_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_grass1spc_2",
+                    "label": "$iconRecognition.name.item_bottled_grass1spc_2",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_grass1spc_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_grass1spc_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_grass1spc_1",
+                    "label": "$iconRecognition.name.item_bottled_grass1spc_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_grass1spc_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_grass1spc_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_flower2spc_3",
+                    "label": "$iconRecognition.name.item_bottled_flower2spc_3",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_flower2spc_3"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_flower2spc_3"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_flower2spc_2",
+                    "label": "$iconRecognition.name.item_bottled_flower2spc_2",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_flower2spc_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_flower2spc_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_flower2spc_1",
+                    "label": "$iconRecognition.name.item_bottled_flower2spc_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_flower2spc_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_flower2spc_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_flower1spc_3",
+                    "label": "$iconRecognition.name.item_bottled_flower1spc_3",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_flower1spc_3"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_flower1spc_3"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_flower1spc_2",
+                    "label": "$iconRecognition.name.item_bottled_flower1spc_2",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_flower1spc_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_flower1spc_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_flower1spc_1",
+                    "label": "$iconRecognition.name.item_bottled_flower1spc_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_flower1spc_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_flower1spc_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_rec_hp_5",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_5",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_rec_hp_5"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_rec_hp_5"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_rec_hp_4",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_4",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_rec_hp_4"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_rec_hp_4"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_rec_hp_3",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_3",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_rec_hp_3"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_rec_hp_3"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_rec_hp_2",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_2",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_rec_hp_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_rec_hp_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_rec_hp_1",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_rec_hp_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_rec_hp_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_food_5",
+                    "label": "$iconRecognition.name.item_bottled_food_5",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_food_5"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_food_5"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_food_4",
+                    "label": "$iconRecognition.name.item_bottled_food_4",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_food_4"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_food_4"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_food_3",
+                    "label": "$iconRecognition.name.item_bottled_food_3",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_food_3"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_food_3"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_food_2",
+                    "label": "$iconRecognition.name.item_bottled_food_2",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_food_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_food_2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_bottled_food_1",
+                    "label": "$iconRecognition.name.item_bottled_food_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_food_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_bottled_food_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "item_plant_grass_spc_powder_2"
+        },
+        "UseConsumableEnabled": {
+            "type": "switch",
+            "label": "$option.UseConsumableEnabled.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "UseConsumableSlot1",
+                        "UseConsumableSlot2",
+                        "UseConsumableSlot3",
+                        "UseConsumableSlot4",
+                        "UseConsumableRegion"
+                    ],
+                    "pipeline_override": {
+                        "UseConsumableTaskConsumablesEnabled": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "UseConsumableTaskConsumablesEnabled": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
         }
     }
 }

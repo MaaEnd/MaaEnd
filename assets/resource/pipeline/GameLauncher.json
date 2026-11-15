@@ -85,7 +85,50 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "GameLauncherClickStartGame"
+            "GameLauncherClickStartGame",
+            "GameLauncherClickUpdateGame"
+        ]
+    },
+    "GameLauncherClickUpdateGame": {
+        "desc": "右下角按钮显示更新游戏，点击更新",
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherStartGameYellow",
+            "GameLauncherUpdateGameText"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 500,
+        "action": "Click",
+        "next": [
+            "GameLauncherUpdateConfirm"
+        ]
+    },
+    "GameLauncherUpdateConfirm": {
+        "desc": "点击更新游戏后弹出系统提示（所需空间），点击确认开始下载",
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherUpdateConfirmTitle",
+            "GameLauncherUpdateConfirmText"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "GameLauncherUpdating"
+        ]
+    },
+    "GameLauncherUpdating": {
+        "desc": "更新进行中（下载/解压/安装/校验），等待按钮变回开始游戏",
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherStartGameYellow",
+            "GameLauncherUpdatingText"
+        ],
+        // 更新耗时取决于补丁大小与网速，可达数十分钟，放慢识别频率
+        "rate_limit": 5000,
+        "next": [
+            "GameLauncherClickStartGame",
+            "GameLauncherUpdating"
         ]
     },
     "GameLauncherClickStartGame": {
@@ -203,6 +246,72 @@
             "开始游戏",
             "開始遊戲",
             "(?i)\\bPlay\\b"
+        ]
+    },
+    "GameLauncherUpdateGameText": {
+        "desc": "右下角更新游戏按钮",
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // @i18n-skip
+            "更新游戏",
+            "更新遊戲"
+        ]
+    },
+    "GameLauncherUpdatingText": {
+        "desc": "右下角按钮显示更新进度状态",
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // @i18n-skip
+            "正在下载",
+            "正在下載",
+            "解压中",
+            "解壓中",
+            "安装中",
+            "安裝中",
+            "校验中",
+            "校驗中"
+        ]
+    },
+    "GameLauncherUpdateConfirmTitle": {
+        "desc": "更新确认弹窗标题",
+        "recognition": "OCR",
+        "roi": [
+            560,
+            240,
+            160,
+            50
+        ],
+        "expected": [
+            // @i18n-skip
+            "系统提示",
+            "系統提示"
+        ]
+    },
+    "GameLauncherUpdateConfirmText": {
+        "desc": "更新确认弹窗的确认按钮",
+        "recognition": "OCR",
+        "roi": [
+            640,
+            420,
+            220,
+            60
+        ],
+        "expected": [
+            // @i18n-skip
+            "确认",
+            "確認"
         ]
     }
 }

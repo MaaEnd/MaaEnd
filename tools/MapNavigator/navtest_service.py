@@ -98,7 +98,7 @@ class NavTestService:
         self._navigation_phase_reported = False
 
     _POSITION_RE = re.compile(
-        r"MapLocator \[status=0\].*?\[position\.zoneId=(.*?)\] "
+        r"MapLocator \[status=0\].*?\[position\.(?:zone_id|zoneId)=(.*?)\] "
         r"\[position\.x=([-+0-9.eE]+)\] \[position\.y=([-+0-9.eE]+)\].*?"
         r"\[position\.angle=([-+0-9.eE]+)\]"
     )
@@ -232,6 +232,7 @@ class NavTestService:
         heading_source: str = "character",
         assert_target: dict | None = None,
         zipline_account_id: str = "",
+        map_zones: dict[str, str] | None = None,
     ) -> None:
         """装载待跑的东西: 有断言框就装框, 否则装线。F3 跑的就是这一份。
 
@@ -252,7 +253,7 @@ class NavTestService:
             nodes, kind = list(points), "route"
         else:
             try:
-                nodes = export_path_nodes(points)
+                nodes = export_path_nodes(points, map_zones)
             except Exception as exc:
                 self._on_status(f"路线导出失败, 未装载: {exc}", "#ef4444")
                 return
@@ -294,6 +295,7 @@ class NavTestService:
                     zip_enabled=bool(msg.get("zip")),
                     heading_source=msg.get("heading_source", "character"),
                     zipline_account_id=str(msg.get("zipline_account_id") or ""),
+                    map_zones=msg.get("map_zones") or {},
                 )
             if kind == "run":
                 self.trigger_run()

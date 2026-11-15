@@ -1,0 +1,136 @@
+{
+    "ItemTransferRepoTopReached": {
+        "roi": [
+            732,
+            216,
+            5,
+            262
+        ]
+    },
+    "ItemTransferRepoBottomReached": {
+        "roi": [
+            732,
+            216,
+            5,
+            262
+        ]
+    },
+    "ItemTransferBagTopReached": {
+        "roi": [
+            1240,
+            220,
+            5,
+            255
+        ]
+    },
+    "ItemTransferBagBottomReached": {
+        "roi": [
+            1240,
+            220,
+            5,
+            255
+        ]
+    },
+    "ItemTransferScrollDownwardRepo": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    480
+                ],
+                "end": [
+                    640,
+                    260
+                ],
+                "end_hold": 200,
+                "duration": 400
+            }
+        }
+    },
+    "ItemTransferScrollUpwardRepo": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    260
+                ],
+                "end": [
+                    640,
+                    480
+                ],
+                "end_hold": 200,
+                "duration": 400
+            }
+        }
+    },
+    "ItemTransferScrollDownwardBag": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1000,
+                    480
+                ],
+                "end": [
+                    1000,
+                    260
+                ],
+                "end_hold": 200,
+                "duration": 400
+            }
+        }
+    },
+    "ItemTransferScrollUpwardBag": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1000,
+                    260
+                ],
+                "end": [
+                    1000,
+                    480
+                ],
+                "end_hold": 200,
+                "duration": 400
+            }
+        }
+    },
+    "ItemTransferScrollDownwardBagReturn": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1000,
+                    480
+                ],
+                "end": [
+                    1000,
+                    260
+                ],
+                "end_hold": 200,
+                "duration": 400
+            }
+        }
+    },
+    "ItemTransferScrollUpwardBagReturn": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1000,
+                    260
+                ],
+                "end": [
+                    1000,
+                    480
+                ],
+                "end_hold": 200,
+                "duration": 400
+            }
+        }
+    }
+}
