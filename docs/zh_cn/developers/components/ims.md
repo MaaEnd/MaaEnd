@@ -189,6 +189,18 @@ A3 **不要求 IMS 缓存已经存在**。
 >
 > 已接入 A3 的关闭奖励路径：`SceneNoticeRewardsConfirm`（日常奖励等）、`DijiangRewardsFastCollectAddItemData`（基建快速收取，独立候选）、`CreditShoppingClaimConfirm`（信用商店：玉/折金票/武库配额/信用 + `ValuableDepot:SpecialItem`）、`MFGCabinClaimRewardClose`、`GrowthChamberClaimRewardClose`、`SceneNoticeRewardsConfirmWithAnchor`、`ReceptionRoomSendCluesQuickGiveClose`（会客室快速赠予）、`AutoDeliveryCloseRewardDialog`（自动送货）、`ProtocolSpaceRewardAddItemData`（协议空间）、`TrialOfSwordmancyFightSuccess`（选剑演武）、`AutoStockStapleQuantityControlCloseRewards`（稳定物资购买：`Normal:Usable` + `ValuableDepot:CommercialItem` + `ValuableDepot:SpecialItem`，取代原先各物品买节点上的「购买 XXX」Focus 播报）。
 
+### 批次总收获汇总
+
+A3 命中的物品还会累计到进程级批次汇总，与 IMS 缓存是否已就绪无关。批次结束时按稀有度降序（最稀有在最上方）输出一条 HTML 汇总，包含图标、名称与数量。
+
+触发方式：
+
+- **客户端精确触发**：批次结束后投递 Pipeline 入口 `GainSummaryFlush`（`DirectHit` + `Custom GainSummaryFlush`），agent 立即输出并清空累计。`OnTaskerTask` 会忽略该收尾任务自身的事件，避免再次触发防抖。
+- **防抖兜底**：没有收到 `GainSummaryFlush` 时，任意真实任务 `Succeeded` / `Failed`（含用户中止）后等待 5 秒；期间有新的 `Tasker.Task.Starting` 则取消，否则输出并清空。
+- **关闭兜底**：agent 正常关闭前也会 flush。只要本轮有任务运行过，即使没有识别到任何物品，也会输出空收获提示；若上次 flush 后没有新任务则保持静默。MXU 在批次结束时会立即停止 agent，因此关闭路径是 MXU 上的实际触发点。
+
+> 仅统计经过 A3 奖励界面识别的物品；野外直接拾取等不经过奖励界面的来源不计入。
+
 ---
 
 ## R1：`ItemQuantitySatisfied`
@@ -337,6 +349,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 | `SyncDepotItemData.json` | A2 帝江号四号谷地 + 武陵两座左侧仓库普通采集物总量入口 |
 | `UpdateItemQuantity.json` | A1 |
 | `AddItemData.json` | A3 最佳实践（领奖后关闭） |
+| `common.json` | 通用颜色锚点与 `GainSummaryFlush` 批次收尾入口 |
 | `ItemQuantitySatisfied.json` | R1（调用方覆盖 `expression`） |
 | `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |
 | `item/*.json` | 定点 OCR（`item_gold` / `item_diamond` / `item_originium_recharge`） |

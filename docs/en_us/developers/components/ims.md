@@ -189,6 +189,18 @@ With a cache it also prints one summary; no Pipeline Starting/Succeeded Focus is
 >
 > Close-reward paths already wired to A3: `SceneNoticeRewardsConfirm` (Claim Daily Rewards, etc.), `DijiangRewardsFastCollectAddItemData` (base Fast Collect, separate candidates), `CreditShoppingClaimConfirm` (Credit Shop: Oroberyl / T-Creds / Arsenal Ticket / Credits + `ValuableDepot:SpecialItem`), `MFGCabinClaimRewardClose`, `GrowthChamberClaimRewardClose`, `SceneNoticeRewardsConfirmWithAnchor`, `ReceptionRoomSendCluesQuickGiveClose` (Reception Room quick gift), `AutoDeliveryCloseRewardDialog` (automatic delivery), `ProtocolSpaceRewardAddItemData` (Protocol Space), `TrialOfSwordmancyFightSuccess` (Trial of Swordmancy), `AutoStockStapleQuantityControlCloseRewards` (stable-material purchase: `Normal:Usable` + `ValuableDepot:CommercialItem` + `ValuableDepot:SpecialItem`, replacing the old “Buy X” Focus broadcast on each item's buy node).
 
+### Batch gain summary
+
+Items matched by A3 also accumulate into a process-wide batch summary, independent of IMS cache readiness. At the end of a batch the agent prints one HTML summary sorted by rarity descending (rarest at the top), with icon, localized name, and quantity.
+
+Triggers:
+
+- **Exact client trigger**: post the Pipeline entry `GainSummaryFlush` (`DirectHit` + `Custom GainSummaryFlush`) after the batch ends. The agent prints immediately and clears the totals. `OnTaskerTask` ignores this final task's own events so it does not re-arm the idle timer.
+- **Idle fallback**: without `GainSummaryFlush`, any real task ending in `Succeeded` or `Failed` (including user abort) arms a 5-second timer; a new `Tasker.Task.Starting` cancels it, otherwise the summary is printed and cleared.
+- **Shutdown fallback**: the agent also flushes on normal shutdown. If any task ran since the last flush, it emits the summary even when no items were recognized (empty message); if no task ran since the last flush, it stays silent. MXU stops the agent immediately when a batch ends, so this shutdown path is the effective trigger on MXU.
+
+> Only items recognized on A3 reward screens are counted. Direct pickups that never open the rewards UI are not included.
+
 ---
 
 ## R1: `ItemQuantitySatisfied`
@@ -337,6 +349,7 @@ When you need “ready and quantity satisfied”:
 | `SyncDepotItemData.json` | A2 entry for combined normal collectables in the Dijiang Valley IV + Wuling left-side depots |
 | `UpdateItemQuantity.json` | A1 |
 | `AddItemData.json` | A3 best practice (close rewards) |
+| `common.json` | Shared color anchors and the `GainSummaryFlush` batch-final entry |
 | `ItemQuantitySatisfied.json` | R1 (callers override `expression`) |
 | `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |
 | `item/*.json` | Anchored OCR (`item_gold` / `item_diamond` / `item_originium_recharge`) |

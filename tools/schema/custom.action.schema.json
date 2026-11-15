@@ -63,6 +63,7 @@
                 "FailureCollectorRunTask",
                 "FalseAction",
                 "FocusOCRAction",
+                "GainSummaryFlush",
                 "ImageCheckSetResultAction",
                 "ImportBluePrintsEnterCodeAction",
                 "ImportBluePrintsFinishAction",

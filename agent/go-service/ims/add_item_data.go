@@ -176,6 +176,7 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		pageReport[h.ItemID] += h.Qty
 		addedTotal += h.Qty
 		applied++
+		recordGain(h.ItemID, h.Qty)
 
 		if !cacheReady {
 			log.Info().

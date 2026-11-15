@@ -54,6 +54,7 @@ var htmlTemplates = map[string]string{
 	"dijiangrewards.wait_exchange_countdown":  "HTML/dijiangrewards-wait-exchange-countdown.html",
 	"ims.sync_item_summary":                   "HTML/ims-sync-item-summary.html",
 	"ims.add_item_summary":                    "HTML/ims-add-item-summary.html",
+	"ims.batch_gain_summary":                  "HTML/ims-batch-gain-summary.html",
 	"dynamic_html_log.log":                    "HTML/dynamic-log.html",
 }
 

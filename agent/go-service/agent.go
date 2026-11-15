@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/ims"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/bytedance/sonic"
@@ -60,6 +61,9 @@ func runAgent(identifier string) {
 		Msg("Agent server started")
 
 	maa.AgentServerJoin()
+
+	// 客户端断开时兜底输出尚未刷出的批次收获；空批次不输出。
+	ims.FlushBatchGainSummary()
 
 	maa.AgentServerShutDown()
 	log.Info().

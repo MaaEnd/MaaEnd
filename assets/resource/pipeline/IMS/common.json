@@ -222,5 +222,14 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "GainSummaryFlush": {
+        "desc": "IMS：客户端在批次结束时投递此入口，立即输出本轮总收获并清空累计；未投递时由 agent 空闲防抖兜底",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "GainSummaryFlush",
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

@@ -1,0 +1,15 @@
+<div style="color:#00bfff;font-weight:600;margin:2px 0;">{{t "title"}}</div>
+{{- if .Items}}
+<div style="display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;">
+{{- range .Items -}}
+<span style="display:inline-flex;align-items:center;gap:4px;line-height:1.2;">
+{{- if .IconSrc -}}
+<img src="{{.IconSrc}}" alt="" width="{{$.IconSize}}" height="{{$.IconSize}}" style="margin:0;" />
+{{- end -}}
+<span>{{escapeHTML .Name}} ×{{.Quantity}}</span>
+</span>
+{{- end -}}
+</div>
+{{- else}}
+<div style="color:#888;">{{t "empty"}}</div>
+{{- end}}
