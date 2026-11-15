@@ -96,6 +96,8 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 命中时默认会在本次扫描结束后通过 UI Focus 输出一条 HTML 汇总（含 16px 物品图标与数量，模板 `ims.sync_item_summary`），不再逐件刷屏。可用参数 `notify_ui: false` 关闭（省略默认 `true`）；商店万能跳转顺手缓存使用 `SyncShopItemDataRunNoNotify`。事务模式可让 `begin` / `continue` 保持静默，并在 `commit` 设置 `notify_ui: true`；此时仅在持久化成功后，汇总播报本事务实际命中物品的最终去重数量，不包含其他 IMS 缓存区域。若 `begin` / `continue` 也开启 `notify_ui`，则按页各输出一次当页汇总。
 
+图标在播报前由 Go 侧缩放到 16×16 并编码成 PNG data URL 再写进 HTML：客户端会把渲染后的 Focus HTML 存进 localStorage，直接内联原始尺寸（128×128 或 256×256）的 PNG 会让每条汇总按物品数占用十几到几十 KB。
+
 ### 写入模式与分页（`merge_mode` + `page_dedup`）
 
 | `merge_mode` | `page_dedup` | 模式 | 行为 |
