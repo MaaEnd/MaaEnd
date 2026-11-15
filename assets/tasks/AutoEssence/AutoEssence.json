@@ -620,9 +620,8 @@
             "cases": [
                 {
                     "name": "Yes",
-                    // 两遍共用同一套单格节点，因此武器稀有度与扩展规则必须一致：凡是覆盖 EssenceFilterAfterBattleInit.attach 的选项，同时覆盖只读遍初始化节点 EssenceFilterAfterBattleReadonlyInit
+                    // 两遍共用同一套单格节点，因此扩展规则等选项必须让两遍一致：凡是覆盖 EssenceFilterAfterBattleInit.attach 的选项，同时覆盖只读遍初始化节点 EssenceFilterAfterBattleReadonlyInit
                     "option": [
-                        "EssenceFilterAfterBattleSelectWeaponRarity",
                         "EssenceFilterAfterBattleLockLimit",
                         "EssenceFilterAfterBattleSelectExtraRules"
                     ],
@@ -786,6 +785,7 @@
                 {
                     "name": "Yes",
                     //品质口径钉死为只处理无瑕：Init 的 attach 喂运行期门禁，门禁把无瑕送进槽位识别、高纯走品质边界收尾；品质选项不在本分支下，不会与它冲突
+                    //稀有度口径钉死为只匹配 5–6 星：名额按全部五六星武器数计算，稀有度选项同样不在本分支下
                     "pipeline_override": {
                         "EssenceFilterAfterBattleStart": {
                             "next": [
@@ -795,10 +795,20 @@
                         },
                         "EssenceFilterAfterBattleInit": {
                             "attach": {
+                                "rarity6_weapon": true,
+                                "rarity5_weapon": true,
+                                "rarity4_weapon": false,
                                 "after_battle_pass": "execute",
                                 "limit_locked_per_combination": true,
                                 "flawless_essence": true,
                                 "pure_essence": false
+                            }
+                        },
+                        "EssenceFilterAfterBattleReadonlyInit": {
+                            "attach": {
+                                "rarity6_weapon": true,
+                                "rarity5_weapon": true,
+                                "rarity4_weapon": false
                             }
                         },
                         "EssenceFilterInventoryEntry": {
@@ -826,6 +836,7 @@
                 {
                     "name": "No",
                     "option": [
+                        "EssenceFilterAfterBattleSelectWeaponRarity",
                         "EssenceFilterAfterBattleSelectEssence"
                     ]
                 }
