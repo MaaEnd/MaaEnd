@@ -9,6 +9,16 @@ const (
 	InitModeAfterBattle InitMode = "after_battle"
 )
 
+// AfterBattlePass is attach.after_battle_pass, selecting one of the two after-battle loot passes.
+type AfterBattlePass string
+
+const (
+	// AfterBattlePassReadOnly records what the loot round holds without locking or discarding.
+	AfterBattlePassReadOnly AfterBattlePass = "readonly"
+	// AfterBattlePassExecute locks and discards under the per-combination quota.
+	AfterBattlePassExecute AfterBattlePass = "execute"
+)
+
 // EssenceFilterOptions is unmarshaled from Pipeline node attach JSON (full UI / filter options).
 // Matching uses the subset type matchapi.EssenceFilterOptions; see actions.go for the mapping.
 type EssenceFilterOptions struct {
@@ -37,6 +47,8 @@ type EssenceFilterOptions struct {
 	DiscardUnmatched bool `json:"discard_unmatched"`
 	// 限制相同词条基质的锁定数量：筛选前须已有基质库存，按适配武器数作为每个词条组合的锁定名额
 	LimitLockedPerCombination bool `json:"limit_locked_per_combination"`
+	// 战后筛选遍次：只读遍只记录本轮持有份数，执行遍按名额落锁；留空等同执行遍
+	AfterBattlePass AfterBattlePass `json:"after_battle_pass"`
 	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）；开启时会同时写入用户数据目录 debug/record/EssencePlan.html（每次覆盖）
 	ExportCalculatorScript bool `json:"export_calculator_script"`
 	// InputLanguage is game/OCR language for skill matching: CN|TC|EN|JP|KR.

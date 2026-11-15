@@ -222,6 +222,9 @@ type decisionNextNodes struct {
 	Skip    string
 	// AfterBattle marks the after-battle flow, whose decisions are recorded as inventory increments.
 	AfterBattle bool
+	// ReadOnly marks the after-battle readonly pass: it records this round's held essences, locks nothing
+	// and discards nothing.
+	ReadOnly bool
 }
 
 func runUnifiedSkillDecision(
@@ -246,12 +249,7 @@ func runUnifiedSkillDecision(
 
 	reportOCRSkills(ctx, skills, ocr.Levels, matchResult.Kind != matchapi.MatchNone)
 
-	if next.AfterBattle {
-		if delta, ok := afterBattleInventoryDelta(matchResult); ok {
-			st.PendingInventory = append(st.PendingInventory, delta)
-		}
-	}
-
+	locked := false
 	switch matchResult.Kind {
 	case matchapi.MatchExact:
 		if st.LockLimit != nil && !applyLockLimit(ctx, arg.CurrentTaskName, st.LockLimit, matchResult, st.CurrentLocked, next) {
@@ -259,20 +257,23 @@ func runUnifiedSkillDecision(
 			st.CurrentSkillLevels = [3]int{}
 			return true
 		}
-		st.MatchedCount++
+		locked = matchResult.ShouldLock && !next.ReadOnly
 		reportMatchedWeapons(ctx, matchResult.Weapons)
+		if !next.ReadOnly {
+			st.MatchedCount++
 
-		key := skillCombinationKey(matchResult.SkillIDs)
-		if key != "" {
-			if s, ok := st.MatchedCombinationSummary[key]; ok {
-				s.Count++
-			} else {
-				st.MatchedCombinationSummary[key] = &matchapi.SkillCombinationSummary{
-					SkillIDs:      append([]int(nil), matchResult.SkillIDs...),
-					SkillsChinese: append([]string(nil), matchResult.SkillsChinese...),
-					OCRSkills:     append([]string(nil), skills...),
-					Weapons:       append([]matchapi.WeaponData(nil), matchResult.Weapons...),
-					Count:         1,
+			key := skillCombinationKey(matchResult.SkillIDs)
+			if key != "" {
+				if s, ok := st.MatchedCombinationSummary[key]; ok {
+					s.Count++
+				} else {
+					st.MatchedCombinationSummary[key] = &matchapi.SkillCombinationSummary{
+						SkillIDs:      append([]int(nil), matchResult.SkillIDs...),
+						SkillsChinese: append([]string(nil), matchResult.SkillsChinese...),
+						OCRSkills:     append([]string(nil), skills...),
+						Weapons:       append([]matchapi.WeaponData(nil), matchResult.Weapons...),
+						Count:         1,
+					}
 				}
 			}
 		}
@@ -281,16 +282,21 @@ func runUnifiedSkillDecision(
 	case matchapi.MatchFuturePromising, matchapi.MatchSlot3Level3Practical:
 		var reason string
 		if matchResult.Kind == matchapi.MatchFuturePromising {
-			st.ExtFuturePromisingCount++
+			if !next.ReadOnly {
+				st.ExtFuturePromisingCount++
+			}
 			reason = i18n.T("essencefilter.reason.future_promising",
 				matchResult.ExtLevelSum, matchResult.ExtMinTotal)
 		} else {
-			st.ExtSlot3PracticalCount++
+			if !next.ReadOnly {
+				st.ExtSlot3PracticalCount++
+			}
 			reason = i18n.T("essencefilter.reason.slot3_practical",
 				matchResult.SkillsChinese[2], matchResult.ExtSlot3Lv, matchResult.ExtMinLevel)
 		}
 
-		if matchResult.ShouldLock {
+		if matchResult.ShouldLock && !next.ReadOnly {
+			locked = true
 			st.MatchedCount++
 			// 与精准匹配相同，均用 skillCombinationKey（未来可期时 SkillIDs 为各槽池解析出的 ID，未识别槽为 0）。
 			key := skillCombinationKey(matchResult.SkillIDs)
@@ -320,12 +326,23 @@ func runUnifiedSkillDecision(
 		}
 
 	case matchapi.MatchNone:
-		if matchResult.ShouldDiscard {
+		if matchResult.ShouldDiscard && !next.ReadOnly {
 			reportNoMatch(ctx, true)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Discard}})
 		} else {
 			reportNoMatch(ctx, false)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
+		}
+	}
+
+	if next.AfterBattle {
+		// 分遍模式由只读遍记录本轮持有份数，执行遍只记它实际落成的锁定；单遍模式两种增量一起记。
+		increment := inventoryIncrement{
+			Held:   next.ReadOnly || !st.PipelineOpts.LimitLockedPerCombination,
+			Locked: locked,
+		}
+		if delta, ok := afterBattleInventoryDelta(matchResult, increment); ok {
+			st.PendingInventory = append(st.PendingInventory, delta)
 		}
 	}
 

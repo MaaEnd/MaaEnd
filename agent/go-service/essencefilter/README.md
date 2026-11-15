@@ -70,13 +70,36 @@ Agent 回调按当前框架模型串行执行，因此 `currentRun` 不加锁。
 
 「基质精确命中五六星组合但库存没有该分组」「分组存在但没有该等级三元组的行」以及等级非法的行都按「理应被记录却查不到」处理：输出警告并跳过该基质，不做本轮次数与库存 `count` 的一致性判定。扩展规则（未来可期、技能 3 实用）与未匹配出口不受名额约束。
 
-开启本选项会让任务时长接近翻倍（先全量盘点、再全量筛选），战后筛选与 AutoEssence 的选项透传本轮不变。
+开启本选项会让任务时长接近翻倍（先全量盘点、再全量筛选）。
+
+## 战后模式：限制相同词条基质的锁定数量
+
+AutoEssence 的战后筛选开关下挂着同名选项（`EssenceFilterAfterBattleLockLimit`），文案与战前模式的同名选项逐字一致。开启后每轮战利品界面走两遍，两遍共用同一套单格节点：
+
+1. **只读遍**（`attach.after_battle_pass = readonly`）：只识别、只记录本轮获得的无瑕基质并关闭详情，不点击锁定、不点击弃置；结束时提交一次库存，把本轮持有份数（`count`，`locked` 记 0）合并进 `EssenceInventory.json`。
+2. **执行遍**（`attach.after_battle_pass = execute`）：初始化时从库存严格重载并重建名额计划（运行期已锁计数从零开始，不跨轮累积），按整轮份数决定锁哪几份并落锁/弃置；结束时再提交一次，只记录本轮实际落成的 `locked` 增量。
+
+两遍首尾由节点锚点 `EssenceFilterAfterBattleCurrentPassHead` / `EssenceFilterAfterBattleCurrentPassTail` 决定：只读遍由 `EssenceFilterAfterBattleReadonlyInit` 指向只读遍提交节点，执行遍由 `EssenceFilterAfterBattleInit` 指向既有提交节点。单格回落边与品质边界早退边都用锚点，因此同一套边在两遍里各回各的遍首遍尾，不需要运行时改边。
+
+开启时战后口径固定为「只处理无瑕」：两遍初始化 `attach` 都只选无瑕，选项树不再展示基质品质，于是品质门禁把无瑕送进槽位识别、高纯则走品质边界节点收尾（`EssenceFilterAfterBattleTierBoundaryFlawlessNotice` → 关闭详情 → 当前遍尾），两遍都不去点本来就不会锁的高纯基质。战后沿用既有的「已锁格在识别层跳过」口径，因此不产生「需要手动解锁」的提醒。
+
+库存由任务开头的盘点保证：选项开启时同时启用 `EssenceFilterInventoryEntry` 并沿用盘点的严格失败 override（`AutoEssenceBeforeStashBackpack` 后接 `[JumpBack]AutoEssenceRunInventoryFilter` → `EssenceFilterMain`），盘点失败即 `StopTask`。只读遍初始化先严格校验库存再提交：文件缺失、为空或无法解析都输出错误并让动作失败，不降级为「一颗都不锁」；这也是严格加载放在只读遍而不是执行遍的原因（先校验再提交，否则提交会先把文件造出来）。
+
+关闭选项时流程图、节点开关与 attach 均与既有单遍实现一致：执行遍就是既有战后初始化节点，增量映射回到单遍口径。
 
 ## 战后写入库存
 
-战后筛选在离开战利品界面之前经过 `EssenceFilterAfterBattleCommitInventory`（`EssenceFilterAfterBattleInventoryCommitAction`），把本轮决策合并进同一份 `EssenceInventory.json`。决策动作只把条目追加到 `RunState.PendingInventory`：精确匹配与「技能 3 实用」按决策累加 `count`，其中上锁的同时累加 `locked`；未来可期、无匹配与弃置不产生条目。战后 Init 进入时清空增量，提交成功后清空。
+战后筛选在离开战利品界面之前经过 `EssenceFilterAfterBattleCommitInventory`（`EssenceFilterAfterBattleInventoryCommitAction`），把本轮决策合并进同一份 `EssenceInventory.json`。决策动作只把条目追加到 `RunState.PendingInventory`，增量口径按遍次区分：
 
-合并按 `weapon_ids` 排序后组成组键，组内按 `levels` 找行累加，既有的组和行原样保留，输出按组与等级排序。文件不存在或为空时从零开始合并；文件无法解析或写入失败时返回动作失败并保留旧文件，由提交节点的 `on_error` 路由到退出节点，不卡在战利品界面。每轮只提交一次，进程被杀或中途停止时丢失的本轮增量不做兜底，由下一次盘点覆盖纠正。
+| 遍次 | 精确匹配 | 技能 3 实用 | 未来可期 | 无匹配 / 弃置 |
+| --- | --- | --- | --- | --- |
+| 只读遍 | `count +1` | `count +1` | 不产生条目 | 不产生条目 |
+| 执行遍（分遍模式） | 落锁时 `locked +1` | 落锁时 `locked +1` | 不产生条目 | 不产生条目 |
+| 单遍（选项关闭） | `count +1`，落锁时 `locked +1` | 同左 | 不产生条目 | 不产生条目 |
+
+名额否决的基质不再计入 `locked`：`locked` 只反映最终决策（是否真的落锁），不反映引擎最初的意见。只读遍只记持有份数（`count`，`locked` 记 0），执行遍只记它实际落成的 `locked`，不重复记只读遍已经记过的持有份数。战后 Init 进入时清空增量，提交成功后清空。
+
+合并按 `weapon_ids` 排序后组成组键，组内按 `levels` 找行累加，既有的组和行原样保留，输出按组与等级排序。文件不存在或为空时从零开始合并；文件无法解析或写入失败时返回动作失败并保留旧文件。每轮只提交一次，进程被杀或中途停止时丢失的本轮增量不做兜底，由下一次盘点覆盖纠正；开启锁定名额时每轮提交两次，只读遍与执行遍各一次。
 
 ## 匹配数据
 
@@ -93,7 +116,7 @@ Init 语言探测节点见 Pipeline `EssenceFilter/DetectLanguage.json`（库存
 
 ## 运行选项
 
-`EssenceFilterOptions` 来自 MaaFramework 已合并的 Init 节点 `attach`（`EssenceFilterInit` / `EssenceFilterInventoryInit` / `EssenceFilterAfterBattleInit`），包括 `mode`、武器稀有度、基质品质、扩展规则、未匹配废弃、导出选项。`mode` 由节点显式声明，Go 不再按节点名推断：`filter` 普通筛选、`inventory` 库存盘点、`after_battle` 战后。`input_language` 可选：省略或 `AUTO` 时由屏幕 OCR 探测；显式 `CN|TC|EN|JP|KR` 则强制该语言。
+`EssenceFilterOptions` 来自 MaaFramework 已合并的 Init 节点 `attach`（`EssenceFilterInit` / `EssenceFilterInventoryInit` / `EssenceFilterAfterBattleInit` / `EssenceFilterAfterBattleReadonlyInit`），包括 `mode`、`after_battle_pass`、武器稀有度、基质品质、扩展规则、未匹配废弃、导出选项。`mode` 由节点显式声明，Go 不再按节点名推断：`filter` 普通筛选、`inventory` 库存盘点、`after_battle` 战后。`after_battle_pass` 只由战后模式读取：`readonly` 只读遍、`execute`（留空同义）执行遍。`input_language` 可选：省略或 `AUTO` 时由屏幕 OCR 探测；显式 `CN|TC|EN|JP|KR` 则强制该语言。
 
 `flawless_essence` / `pure_essence` / `skip_thumb_lock` / `skip_thumb_discard` 属于 C++ `EssenceGridAdvance.attach`，默认值即库存盘点口径，不在 Go 状态中重复保存；普通筛选通过选项覆盖。
 

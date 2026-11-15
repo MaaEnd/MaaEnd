@@ -143,18 +143,18 @@
         "post_delay": 0,
         "next": [
             // 盘点只做一次：该节点 max_hit=1，[JumpBack] 回跳后重扫 next 时会被跳过，落到加载仓储
-            "[JumpBack]AutoEssenceTargetRunInventoryFilter",
+            "[JumpBack]AutoEssenceRunInventoryFilter",
             "AutoEssenceTargetLoadInventory"
         ],
         "on_error": [
-            "AutoEssenceTargetPrepareFailed"
+            "AutoEssenceInventoryScanFailed"
         ],
         "focus": {
             "Node.Action.Starting": "📦目标模式：开始盘点基质库存"
         }
     },
-    "AutoEssenceTargetRunInventoryFilter": {
-        "desc": "目标模式：内联执行 EssenceFilterMain（库存导出）；max_hit=1 保证 [JumpBack] 回跳后不再重跑",
+    "AutoEssenceRunInventoryFilter": {
+        "desc": "任务开头盘点一次基质库存：内联执行 EssenceFilterMain（EssenceFilterInventoryEntry 由选项或 PipelineOverride 启用，max_hit=1）；max_hit=1 保证 [JumpBack] 回跳后不再重跑",
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
@@ -162,7 +162,7 @@
             "EssenceFilterMain"
         ],
         "on_error": [
-            "AutoEssenceTargetPrepareFailed"
+            "AutoEssenceInventoryScanFailed"
         ]
     },
     "AutoEssenceTargetLoadInventory": {
@@ -179,17 +179,17 @@
             "AutoEssenceTargetPlan"
         ],
         "on_error": [
-            "AutoEssenceTargetPrepareFailed"
+            "AutoEssenceInventoryScanFailed"
         ],
         "focus": {
             "Node.Action.Succeeded": "📦目标模式：基质仓储已加载"
         }
     },
-    "AutoEssenceTargetPrepareFailed": {
-        "desc": "目标模式库存盘点失败，禁止空库存开刷",
+    "AutoEssenceInventoryScanFailed": {
+        "desc": "基质库存盘点失败，禁止空库存开刷（目标模式与战后锁定名额共用）",
         "action": "StopTask",
         "focus": {
-            "Node.Action.Starting": "❌**目标模式：基质库存盘点失败**\n请确认已在基质界面可盘点后重试"
+            "Node.Action.Starting": "❌**基质库存盘点失败**\n请确认已在基质界面可盘点后重试"
         }
     },
     "AutoEssenceTargetPlan": {

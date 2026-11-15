@@ -56,7 +56,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleRowNextItem"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
         ],
         "on_error": [
             "EssenceFilterAfterBattleClickLockItem"
@@ -121,7 +121,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleRowNextItem"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
         ],
         "on_error": [
             "EssenceFilterAfterBattleClickDiscardItem"
@@ -148,7 +148,7 @@
             }
         },
         "next": [
-            "EssenceFilterAfterBattleRowNextItem"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
         ]
     },
     "EssenceFilterCloseDetailFourth": {
@@ -211,7 +211,7 @@
         "next": [
             "[JumpBack]EssenceFilterAfterBattleCloseDetailJumpback",
             "EssenceFilterAfterBattleNthRecognition",
-            "EssenceFilterAfterBattleCommitInventory"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassTail"
         ]
     },
     "EssenceFilterAfterBattleNthRecognition": {
@@ -233,10 +233,10 @@
         "post_delay": 0,
         "next": [
             "EssenceFindLockItem",
-            "EssenceFilterAfterBattleRowNextItem"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleCommitInventory"
+            "[Anchor]EssenceFilterAfterBattleCurrentPassTail"
         ]
     }
 }
