@@ -14,15 +14,15 @@
         "action": "TouchDown",
         "contact": 1,
         "pressure": 1,
-        "auto_up": true,
         "post_delay": 100,
         "rate_limit": 0,
         "next": [
-            "__InventoryTransferButtonTouchUp"
+            "__InventoryTransferButtonUp"
         ],
         "on_error": [
-            "__InventoryTransferErrorButtonTouchUp"
-        ]
+            "__InventoryTransferButtonErrorUp"
+        ],
+        "auto_up": true
     },
     "__InventoryTransferStackButtonRight": {
         "recognition": "TemplateMatch",
@@ -39,15 +39,15 @@
         "action": "TouchDown",
         "contact": 1,
         "pressure": 1,
-        "auto_up": true,
         "post_delay": 100,
         "rate_limit": 0,
         "next": [
-            "__InventoryTransferButtonTouchUp"
+            "__InventoryTransferButtonUp"
         ],
         "on_error": [
-            "__InventoryTransferErrorButtonTouchUp"
-        ]
+            "__InventoryTransferButtonErrorUp"
+        ],
+        "auto_up": true
     },
     "__InventoryTransferAllButtonLeft": {
         "recognition": "TemplateMatch",
@@ -64,15 +64,15 @@
         "action": "TouchDown",
         "contact": 1,
         "pressure": 1,
-        "auto_up": true,
         "post_delay": 100,
-        "rate_limit": 100,
+        "rate_limit": 0,
         "next": [
-            "__InventoryTransferButtonTouchUp"
+            "__InventoryTransferButtonUp"
         ],
         "on_error": [
-            "__InventoryTransferErrorButtonTouchUp"
-        ]
+            "__InventoryTransferButtonErrorUp"
+        ],
+        "auto_up": true
     },
     "__InventoryTransferAllButtonRight": {
         "recognition": "TemplateMatch",
@@ -89,15 +89,15 @@
         "action": "TouchDown",
         "contact": 1,
         "pressure": 1,
-        "auto_up": true,
         "post_delay": 100,
-        "rate_limit": 100,
+        "rate_limit": 0,
         "next": [
-            "__InventoryTransferButtonTouchUp"
+            "__InventoryTransferButtonUp"
         ],
         "on_error": [
-            "__InventoryTransferErrorButtonTouchUp"
-        ]
+            "__InventoryTransferButtonErrorUp"
+        ],
+        "auto_up": true
     },
     "__InventoryTransferHalfButtonLeft": {
         "recognition": "TemplateMatch",
@@ -114,15 +114,15 @@
         "action": "TouchDown",
         "contact": 1,
         "pressure": 1,
-        "auto_up": true,
         "post_delay": 100,
         "rate_limit": 0,
         "next": [
-            "__InventoryTransferButtonTouchUp"
+            "__InventoryTransferButtonUp"
         ],
         "on_error": [
-            "__InventoryTransferErrorButtonTouchUp"
-        ]
+            "__InventoryTransferButtonErrorUp"
+        ],
+        "auto_up": true
     },
     "__InventoryTransferHalfButtonRight": {
         "recognition": "TemplateMatch",
@@ -139,14 +139,14 @@
         "action": "TouchDown",
         "contact": 1,
         "pressure": 1,
-        "auto_up": true,
         "post_delay": 100,
         "rate_limit": 0,
         "next": [
-            "__InventoryTransferButtonTouchUp"
+            "__InventoryTransferButtonUp"
         ],
         "on_error": [
-            "__InventoryTransferErrorButtonTouchUp"
-        ]
+            "__InventoryTransferButtonErrorUp"
+        ],
+        "auto_up": true
     }
 }

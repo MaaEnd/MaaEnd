@@ -746,7 +746,7 @@
             }
         }
     },
-    "__InventoryTransferAllBeginAction": {
+    "__InventoryTransferAllPress": {
         "action": {
             "type": "KeyDown",
             "param": {
@@ -754,7 +754,7 @@
             }
         }
     },
-    "__InventoryTransferAllEndAction": {
+    "__InventoryTransferAllRelease": {
         "action": {
             "type": "KeyUp",
             "param": {
@@ -762,15 +762,7 @@
             }
         }
     },
-    "__InventoryTransferAllErrorEndAction": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 59
-            }
-        }
-    },
-    "__InventoryTransferHalfBeginAction": {
+    "__InventoryTransferHalfPress": {
         "action": {
             "type": "KeyDown",
             "param": {
@@ -778,7 +770,7 @@
             }
         }
     },
-    "__InventoryTransferHalfEndAction": {
+    "__InventoryTransferHalfRelease": {
         "action": {
             "type": "KeyUp",
             "param": {
@@ -786,15 +778,7 @@
             }
         }
     },
-    "__InventoryTransferHalfErrorEndAction": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "__InventoryTransferStackBeginAction": {
+    "__InventoryTransferStackPress": {
         "action": {
             "type": "KeyDown",
             "param": {
@@ -802,15 +786,7 @@
             }
         }
     },
-    "__InventoryTransferStackEndAction": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 56
-            }
-        }
-    },
-    "__InventoryTransferStackErrorEndAction": {
+    "__InventoryTransferStackRelease": {
         "action": {
             "type": "KeyUp",
             "param": {

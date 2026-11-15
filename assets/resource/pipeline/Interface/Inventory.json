@@ -1,44 +1,4 @@
 {
-    "InventoryTransferAll": {
-        "desc": "将已识别物品的全部同类物品转移到另一侧；调用前设置 InventoryTransferSource 锚点。",
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__InventoryTransferAllBeginAction"
-        ]
-    },
-    "InventoryTransferStack": {
-        "desc": "将已识别物品的一组转移到另一侧；调用前设置 InventoryTransferSource 锚点。",
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__InventoryTransferStackBeginAction"
-        ]
-    },
-    "InventoryTransferHalf": {
-        "desc": "将已识别物品的一半转移到另一侧；调用前设置 InventoryTransferSource 锚点。",
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__InventoryTransferHalfBeginAction"
-        ]
-    },
-    "InventoryTransferClearSource": {
-        "desc": "按需清除物品转移的源锚点。",
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "anchor": {
-            "InventoryTransferSource": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "InventoryBagScrollUpward": {
         "desc": "背包向上滚动一次；调用方负责等待画面稳定和判断是否到边界",
         "pre_delay": 0,

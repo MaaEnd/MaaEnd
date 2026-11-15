@@ -4,42 +4,25 @@ Inventory provides reusable transfer and scroll nodes for the depot and backpack
 
 ## Public Entries
 
-| Node | Purpose |
-| --- | --- |
-| `InventoryTransferAll` | Transfer all items of the same type as the source item |
-| `InventoryTransferStack` | Transfer one stack of the source item |
-| `InventoryTransferHalf` | Transfer half of the source item |
-| `InventoryTransferClearSource` | Clear the bound source item anchor when needed |
-| `InventoryBagScrollUpward` / `InventoryBagScrollDownward` | Scroll the backpack up / down once |
-| `InventoryRepoScrollUpward` / `InventoryRepoScrollDownward` | Scroll the depot up / down once |
+| Name | Type | Purpose |
+| --- | --- | --- |
+| `InventoryTransferAll` | Custom action | Transfer all items of the same type as the item in the recognition box |
+| `InventoryTransferStack` | Custom action | Transfer one stack of the item in the recognition box |
+| `InventoryTransferHalf` | Custom action | Transfer half of the item in the recognition box |
+| `InventoryBagScrollUpward` / `InventoryBagScrollDownward` | Node | Scroll the backpack up / down once |
+| `InventoryRepoScrollUpward` / `InventoryRepoScrollDownward` | Node | Scroll the depot up / down once |
 
-## Calling Transfer Nodes
+## Calling Transfer Actions
 
-Before calling an entry, open the screen where the depot and backpack appear side by side and recognize the source item. If the recognition result box is suitable for clicking, bind the `InventoryTransferSource` anchor directly to the recognition node and call the desired transfer entry from a subsequent node.
-
-The following fragment omits the existing recognition configuration of `ExampleFindInventoryItem`; `ExampleVerifyInventoryTransfer` is the caller's transfer verification node:
+Before calling, open the screen where the depot and backpack appear side by side. Use the transfer action directly on the node that recognizes the source item; the action transfers the item in that node's recognition box. `ExampleVerifyInventoryTransfer` is the caller's transfer verification node:
 
 ```json
 {
     "ExampleFindInventoryItem": {
-        "anchor": {
-            "InventoryTransferSource": "ExampleFindInventoryItem"
-        },
-        "next": [
-            "ExampleRunInventoryTransfer"
-        ]
-    },
-    "ExampleRunInventoryTransfer": {
-        "pre_delay": 0,
+        "recognition": "TemplateMatch",
+        "template": "Example/Item.png",
         "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "InventoryTransferAll"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
+        "custom_action": "InventoryTransferAll",
         "next": [
             "ExampleVerifyInventoryTransfer"
         ]
@@ -47,17 +30,13 @@ The following fragment omits the existing recognition configuration of `ExampleF
 }
 ```
 
-If the recognition box needs adjustment with `roi_offset`, add a `DirectHit` node after recognition, point its `roi` to the recognition node, and bind the anchor to it; no extra node is needed when the box is already suitable. Anchors are updated after the node's action, so the transfer entry cannot be called in the same action that sets the anchor. A caller may also use `JumpBack`, but must control repeated entry and verify the result after it returns.
-
-`InventoryTransferClearSource` is an optional cleanup entry and is not called automatically during transfer. After clearing the anchor, the caller must bind a recognized source item again before another transfer.
-
-The `SubTask` in the example and the component's `FalseAction` failure path are provided by go-service; start the project's Agent before using them.
+The transfer actions are provided by go-service; start the project's Agent before using them.
 
 ## Platforms and Failure Handling
 
-- Win32 uses Ctrl, Shift, or Alt with a click; macOS uses the corresponding platform key mappings.
-- ADB holds the source item and uses a second contact to click the corresponding transfer menu button; buttons on either side of the item can be recognized.
-- On failure, the component attempts to release pressed keys or contacts and returns failure. `auto_up` also releases unmatched input when supported by the framework.
+- Win32 holds Ctrl, Shift, or Alt and clicks the item; macOS uses the corresponding platform key mappings.
+- ADB holds the item with the first contact and, once the transfer buttons appear, taps one with a second contact while the first contact stays pressed; buttons on either side of the item can be recognized.
+- On failure, the action attempts to release pressed keys or contacts and returns failure, so the caller node enters `on_error`.
 - A successful action does not prove that the item reached its destination; the caller should recognize the screen again and verify the result.
 
 ## Calling Scroll Nodes

@@ -7,4 +7,7 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("AutoAltSwipeAction", &AutoAltSwipeAction{})
 	maa.AgentServerRegisterCustomAction("AutoCtrlClickAction", &AutoCtrlClickAction{})
 	maa.AgentServerRegisterCustomAction("AutoSwipeClickAction", &AutoSwipeClickAction{})
+	maa.AgentServerRegisterCustomAction("InventoryTransferAll", newInventoryTransferAction("InventoryTransferAll", "All"))
+	maa.AgentServerRegisterCustomAction("InventoryTransferStack", newInventoryTransferAction("InventoryTransferStack", "Stack"))
+	maa.AgentServerRegisterCustomAction("InventoryTransferHalf", newInventoryTransferAction("InventoryTransferHalf", "Half"))
 }
