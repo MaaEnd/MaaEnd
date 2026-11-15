@@ -260,7 +260,6 @@ func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 	var ctrl *maa.Controller
 	for extra := 0; ; extra++ {
 		if screenAnalyzer.GetEnergyLevel(false) >= 0 &&
-			len(screenAnalyzer.GetCharacterComboFull()) > 0 &&
 			!screenAnalyzer.GetCharacterLevel() {
 			return &maa.CustomRecognitionResult{
 				Box:    arg.Roi,
