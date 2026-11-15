@@ -3,6 +3,8 @@ package ims
 import (
 	"os"
 	"path/filepath"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"text/template"
 	"time"
@@ -274,6 +276,61 @@ func TestShutdownFlushSkipsWithoutAnyTask(t *testing.T) {
 	case got := <-events:
 		t.Fatalf("shutdown flush without tasks must stay silent, got %q", got)
 	case <-time.After(50 * time.Millisecond):
+	}
+}
+
+func TestShutdownFlushWaitsForInFlightIdleFlush(t *testing.T) {
+	resetBatchGainTestState(t)
+	batchFlushDelay = 20 * time.Millisecond
+
+	var emitCount atomic.Int32
+	var releaseOnce sync.Once
+	emitStarted := make(chan struct{}, 1)
+	releaseEmit := make(chan struct{})
+	release := func() { releaseOnce.Do(func() { close(releaseEmit) }) }
+	defer release()
+
+	emitBatchGainSummary = func(string) {
+		emitCount.Add(1)
+		select {
+		case emitStarted <- struct{}{}:
+		default:
+		}
+		<-releaseEmit
+	}
+	renderBatchGainSummary = func([]batchGainRow) string { return "batch-summary" }
+
+	recordGain("item_a", 2)
+	sink := &gainSummarySink{}
+	sink.OnTaskerTask(nil, maa.EventStatusSucceeded, maa.TaskerTaskDetail{Entry: "TaskA"})
+
+	select {
+	case <-emitStarted:
+	case <-time.After(time.Second):
+		t.Fatal("expected the idle flush to start emitting")
+	}
+
+	flushDone := make(chan struct{})
+	go func() {
+		FlushBatchGainSummary()
+		close(flushDone)
+	}()
+
+	select {
+	case <-flushDone:
+		t.Fatal("shutdown flush must wait for the in-flight idle emit")
+	case <-time.After(50 * time.Millisecond):
+	}
+
+	release()
+	select {
+	case <-flushDone:
+	case <-time.After(time.Second):
+		t.Fatal("shutdown flush did not return after the idle emit finished")
+	}
+
+	if got := emitCount.Load(); got != 1 {
+		t.Fatalf("emit count = %d, want 1 (shutdown must not repeat the summary)", got)
 	}
 }
 

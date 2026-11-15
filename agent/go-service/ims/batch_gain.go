@@ -26,6 +26,12 @@ var defaultBatchFlushDelay = 5 * time.Second
 var batchFlushDelay = defaultBatchFlushDelay
 
 var (
+	// batchEmitMu serializes taking a batch with emitting its summary, so the
+	// shutdown hook waits for an in-flight idle flush instead of racing it and
+	// losing an already-taken summary at process exit. It must always be
+	// acquired before batchGainMu; no path may acquire it while holding
+	// batchGainMu.
+	batchEmitMu     sync.Mutex
 	batchGainMu     sync.Mutex
 	batchGains      = make(map[string]int)
 	batchHasTasks   bool
@@ -159,8 +165,12 @@ func emitBatchGainSummaryRows(items map[string]int) {
 // force is false and the batch has nothing to report, it returns silently
 // (shutdown best-effort path). The task flag is read in the same critical
 // section that takes the gains, so a concurrent flush cannot make this call
-// emit a duplicate empty message.
+// emit a duplicate empty message. batchEmitMu waits for an in-flight idle
+// flush, so a summary already taken by the timer is emitted before shutdown.
 func flushBatchGainSummary(force bool) {
+	batchEmitMu.Lock()
+	defer batchEmitMu.Unlock()
+
 	items, hadTasks := takeBatchGains()
 	if len(items) == 0 && !hadTasks && !force {
 		return
@@ -197,6 +207,11 @@ func armBatchFlush() {
 		batchFlushTimer.Stop()
 	}
 	batchFlushTimer = time.AfterFunc(batchFlushDelay, func() {
+		// Hold batchEmitMu across take + emit so the shutdown hook cannot take
+		// an empty batch and exit while this summary is still being emitted.
+		batchEmitMu.Lock()
+		defer batchEmitMu.Unlock()
+
 		batchGainMu.Lock()
 		if seq != batchFlushSeq {
 			batchGainMu.Unlock()
