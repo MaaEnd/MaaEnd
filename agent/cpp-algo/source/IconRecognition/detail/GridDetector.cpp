@@ -177,8 +177,6 @@ constexpr int kCreditTradeCardMinimumHeight = 150;
 constexpr int kCreditTradeCardMaximumHeight = 180;
 // 卡片亮区的最小连通面积（像素）；调高抑制噪声，也会拒绝破碎卡片。
 constexpr int kCreditTradeCardMinimumArea = 5000;
-// 使用卡片相位前所需的最少卡片数；不足时退回通用晶格检测。
-constexpr std::size_t kCreditTradeMinimumCardCount = 2;
 // 少于该数量时使用相位一致性校验，避免少量卡片直接生成错误晶格。
 constexpr std::size_t kCreditTradeSparseCardCount = 5;
 // 首行达到该卡片数时补全该截图已观测到的列跨度，兼容已售罄卡片造成的亮区缺失。
@@ -1174,8 +1172,8 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
             cards.emplace_back(stats.at<int>(index, cv::CC_STAT_LEFT) + roi.x, stats.at<int>(index, cv::CC_STAT_TOP) + roi.y);
         }
     }
-    if (cards.size() < kCreditTradeMinimumCardCount) {
-        return DetectSingleLattice(image, GridType::CreditTrade, roi);
+    if (cards.empty()) {
+        return {};
     }
     std::vector<double> x_phases;
     std::vector<double> y_phases;
