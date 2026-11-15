@@ -58,3 +58,46 @@ Run nodes individually as described in `docs/en_us/developers/node-testing.md`. 
 - Stuck while finding the operator: check whether `OperatorGrowthScrollDown`'s hit count was already consumed by earlier overview entries, and whether `OperatorGrowthResetScrollCount` actually ran
 - Red check misses: `OperatorGrowthMaterialTemplates` template boxes and `roi_offset` are a pair — changing a template's height means changing the offset
 - Not returning after a run: `OperatorGrowthBattleCompletedInWorld` relies on the open-world screen; if that step fails, the re-entry into the overview never happens either
+
+## Caveats
+
+These are the things that bite when you edit this module but do not show up from a quick read of the code.
+
+### Cross-module dependency on Protocol Space
+
+OperatorGrowth rewrites a lot of Protocol Space nodes, and it does so through two separate mechanisms — do not conflate them:
+
+- The `pipeline_override` at task start (declared in the options of `tasks/OperatorGrowth.json`) statically overrides the operator avatar/name and Protocol Space's `enabled`, `next`, and `ProtocolSpaceLevelChoose.index`.
+- The runtime `PipelineOverride` action (`OperatorGrowthConfigureRewardA` and `OperatorGrowthConfigureRewardB` in `Growth.json`) dynamically sets `ProtocolSpaceNormalPrepareChooseRewardABText`'s `expected` to `A` or `B`, and only for the current task run.
+
+Before changing any Protocol Space behavior, figure out which mechanism you are touching. If you use `PipelineOverride` and also want to change a node's `next`, note that it defaults to `allow_next: false`, which silently strips `next` from the patch; you must set `allow_next: true` explicitly for it to take.
+
+### Scheduling
+
+`OperatorGrowthScheduleEnabled` uses `ScheduleRecognition`, and the weekday switches live in its own `attach` (all seven default to false), overridden per-case by the seven cases of `OperatorGrowthSchedule`. Put the weekday on a different node, or change `default_case` and miss a day, and that day simply does not run — no error.
+
+Scheduling follows the game day, which cuts over at 04:00 local time: before 04:00 the day counts as the previous one. Picking "Monday" actually means Monday 04:00 through Tuesday 04:00; a run just after midnight lands on Sunday.
+
+### Scroll counters
+
+`OperatorGrowthResetScrollCount` calls `ClearHitCount` to reset the `max_hit` of the scroll-up, scroll-down and three tab scroll nodes. That action defaults to `strict: false`: a mistyped or missing node name still succeeds, but that node's counter is not reset, so finding the operator can stall at `max_hit` without any error. When adding nodes to the `nodes` list or editing names, check each one.
+
+### Recognition sensitivities
+
+- Nine nodes use `box_index: 1`, taking the second matched box (OpenOverview, SelectOperator, ClickInsufficientMaterial, OpenOptionalRewardSource, OpenDirectRewardSource, ClickOperatorLevel, ClickSkills, ClickWeaponLevel, FinishBattle). If the on-screen order of similar elements changes, the wrong one gets clicked.
+- The three selected nodes (level, skills, weapon) rely on a `ColorMatch` blue highlight `lower [0,0,220] upper [180,35,255]`. A theme change or different highlight color breaks recognition — check here before touching templates.
+- Reward A/B names are a five-language `^...$` regex allowlist (`OperatorGrowthRewardAName` / `OperatorGrowthRewardBName`), tied to the target-stockpile mode mapping. If Protocol Space adds or renames a material, `ConfigureRewardA/B` will not recognize it and growth stops at that step.
+
+### Adding operators and changing config
+
+Adding an operator touches three places: a case in the task options, an avatar at `OperatorGrowth/Operators/<Name>.png`, and `operator.<Name>` in all five language files under `assets/locales/interface/*.json`. Skip the locale and the option shows the raw key. Some operators have more than one avatar — Endministrator has both Male and Female.
+
+The insufficient-material click offset differs between sides: the main file uses `[0,-65,0,0]`, ADB uses `[0,-81,0,0]` (16 px apart). When changing screenshots or resolution-dependent parameters, check both PC and ADB.
+
+### Format and scope
+
+Pipeline files are JSONC — comments and trailing commas are allowed, and a plain JSON validator will error. Run `tools/validate_schema.py` after editing.
+
+The task's `controller` covers ADB, CloudADB, PlayCover, several Linux backends and Win32-Front, and its `group` is `sanity_sink` (the auto-check group). Any flow change must run on all those backends, or CI's sanity_sink fails.
+
+The only node that explicitly ends the task is `OperatorGrowthOverviewUnavailable` (ends when the overview entry is not found). The other nodes that look terminal are just recognition primitives referenced by `all_of` with no `next`. The loop goes `FinishBattle`, back to `BattleCompletedInWorld`, then `OperatorGrowthEntry`, growing the same operator indefinitely with no built-in stop.

@@ -58,3 +58,46 @@ ADB 覆盖了 14 个节点，全是识别侧：总览入口与「全部」标题
 - 找干员卡住：看 `OperatorGrowthScrollDown` 的命中次数是不是被前几次进总览用掉了，`OperatorGrowthResetScrollCount` 有没有跑
 - 红色判定漏：`OperatorGrowthMaterialTemplates` 的模板框和 `roi_offset` 是一对，改模板图高度就要动 offset
 - 刷完不回来：`OperatorGrowthBattleCompletedInWorld` 靠大世界画面确认，如果这一步失败，后续的重新进总览也不会发生
+
+## 注意事项
+
+下面是改这个模块时容易踩、但看代码一眼看不出来的地方。
+
+### 跨模块依赖 ProtocolSpace
+
+OperatorGrowth 大量改写 ProtocolSpace 的节点，而且是两套机制，别混：
+
+- 任务启动时的 `pipeline_override`（写在 `tasks/OperatorGrowth.json` 的选项里）静态覆盖干员头像/姓名，以及 ProtocolSpace 的 `enabled`、`next`、`ProtocolSpaceLevelChoose.index`。
+- 运行时的 `PipelineOverride` 动作（`Growth.json` 里 `OperatorGrowthConfigureRewardA` 和 `OperatorGrowthConfigureRewardB`）把 `ProtocolSpaceNormalPrepareChooseRewardABText` 的 `expected` 动态改成 `A` 或 `B`，只对当前任务这次运行有效。
+
+要改 ProtocolSpace 相关行为，先确认你动的是哪一种。用 `PipelineOverride` 想顺手改某个节点的 `next` 时要注意：它默认 `allow_next: false`，会把 patch 里的 `next` 直接剥掉，得显式设 `allow_next: true` 才生效。
+
+### 排程
+
+`OperatorGrowthScheduleEnabled` 用 `ScheduleRecognition`，星期开关就在它自己的 `attach` 里（默认七天全 false），由 `OperatorGrowthSchedule` 选项的七个 case 各自覆盖。把星期写到别的节点、或者改了 `default_case` 漏掉某天，那天就静默不跑，不会有任何报错。
+
+排程按游戏日的 04:00 算：本地时间 04:00 之前算作前一天。选了「周一」实际是周一 04:00 到周二 04:00，凌晨跑会被归到周日。
+
+### 滚动计数
+
+`OperatorGrowthResetScrollCount` 调 `ClearHitCount` 清掉回顶、下滑和三个分页下滑节点的 `max_hit`。这个动作 `strict` 默认 false：节点名写错或不存在时动作照样成功，但那个节点的计数没清掉，找干员可能卡在 `max_hit` 不再滑动，而且不报错。在 `nodes` 列表里加节点或拼错名字要逐一核对。
+
+### 识别敏感点
+
+- 九个节点用了 `box_index: 1`，取第二个匹配框（OpenOverview、SelectOperator、ClickInsufficientMaterial、OpenOptionalRewardSource、OpenDirectRewardSource、ClickOperatorLevel、ClickSkills、ClickWeaponLevel、FinishBattle）。界面同类元素顺序一旦变化，会点到错的那个。
+- 三个选中节点（等级、技能、武器）靠 `ColorMatch` 蓝高亮 `lower [0,0,220] upper [180,35,255]` 认。游戏换主题或高亮色变了就认不到，先查这里而不是改模板。
+- 奖励 A/B 名是五语言 `^...$` 正则白名单（`OperatorGrowthRewardAName` / `OperatorGrowthRewardBName`），和「目标库存」模式的映射绑死。协议空间新增或改名材料，`ConfigureRewardA/B` 会认不到，培养直接断在这一步。
+
+### 加干员与改配置
+
+加干员要三处一起改：任务选项里加 case、放 `OperatorGrowth/Operators/<Name>.png` 头像、在 `assets/locales/interface/*.json` 五个语言文件补 `operator.<Name>`。漏掉 locale 选项里会显示原始键名。有的干员不止一张头像，比如 Endministrator 有 Male 和 Female 两张。
+
+材料不足点击的偏移两侧不一样：主文件 `[0,-65,0,0]`，ADB `[0,-81,0,0]`（差 16 像素）。改截图或分辨率相关参数，PC 和 ADB 都要看。
+
+### 格式与适用范围
+
+Pipeline 文件是 JSONC，允许注释和尾逗号，普通 JSON 校验器会报错。改完用 `tools/validate_schema.py` 过一遍。
+
+任务 controller 覆盖 ADB、CloudADB、PlayCover、几个 Linux 后端和 Win32-Front，`group` 是 `sanity_sink`（自动校验组）。改流程要确认多端都能跑，不然 CI 的 sanity_sink 会挂。
+
+唯一显式结束任务的节点是 `OperatorGrowthOverviewUnavailable`（找不到总览入口就结束）。其余看着像终点的节点只是被 `all_of` 引用的识别原语，没有 `next`。循环是 `FinishBattle` 认完战斗回到 `BattleCompletedInWorld`，再进 `OperatorGrowthEntry`，会对同一个干员一直培养下去，没有内置的「停」。
