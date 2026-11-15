@@ -264,6 +264,13 @@
             "items": [
                 "item_plant_mushroom_2_2"
             ]
+        },
+        {
+            "id": "WulingAmberRice2",
+            "region": "Wuling",
+            "items": [
+                "item_plant_sp_4"
+            ]
         }
     ]
 }

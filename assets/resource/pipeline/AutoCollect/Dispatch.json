@@ -1227,6 +1227,7 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]__AutoCollectWulingAmberRice1Run",
+            "[JumpBack]__AutoCollectWulingAmberRice2Run",
             "AutoCollectEnd"
         ]
     },
@@ -2179,7 +2180,7 @@
         }
     },
     "__AutoCollectWulingAmberRice1Run": {
-        "desc": "执行路线 金石稻，同一轮只执行一次，失败计入汇总",
+        "desc": "执行路线 金石稻（路线1），同一轮只执行一次，失败计入汇总",
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -2202,7 +2203,7 @@
         ]
     },
     "__AutoCollectWulingAmberRice1Failed": {
-        "desc": "路线 金石稻 失败提示",
+        "desc": "路线 金石稻（路线1） 失败提示",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -2464,6 +2465,38 @@
         "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCosmagaric2.failed"
+        }
+    },
+    "__AutoCollectWulingAmberRice2Run": {
+        "desc": "执行路线 金石稻（路线2），同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingAmberRice2Start",
+                    "failure_task": "__AutoCollectWulingAmberRice2Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingAmberRice2Failed": {
+        "desc": "路线 金石稻（路线2） 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingAmberRice2.failed"
         }
     }
 }

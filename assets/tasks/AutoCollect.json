@@ -1169,6 +1169,9 @@
                         },
                         "AutoCollectWulingAmberRice1Start": {
                             "enabled": true
+                        },
+                        "AutoCollectWulingAmberRice2Start": {
+                            "enabled": true
                         }
                     }
                 },

@@ -1,0 +1,258 @@
+{
+    "AutoCollectWulingAmberRice2Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingSisPaintingRaintapGrottoBF"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingAmberRice2AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingAmberRice2.label"
+        }
+    },
+    "AutoCollectWulingAmberRice2End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingAmberRice2AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                2351.49,
+                517.02,
+                20.0,
+                20.0
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingAmberRice2Goto"
+        ]
+    },
+    "AutoCollectWulingAmberRice2Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                2328.52,
+                                439.02
+                            ],
+                            "target_deck_y": 369.12
+                        },
+                        [
+                            2328.52,
+                            439.02,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2327.13,
+                            430.39,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2332.65,
+                            431.09,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2328.82,
+                            423.94,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2335.75,
+                            423.53,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2336.49,
+                            419.66,
+                            "COLLECT",
+                            true
+                        ],
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                2295.61,
+                                428.49
+                            ],
+                            "target_deck_y": 364.08
+                        },
+                        [
+                            2295.61,
+                            428.49,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2294.91,
+                            431.87,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2294.12,
+                            434.42,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2296.25,
+                            439.52,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2293.17,
+                            442.18,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2287.05,
+                            432.53,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2286.46,
+                            422.31,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2283.96,
+                            419.58,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2283.07,
+                            414.01,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2281.84,
+                            412.62,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2283.57,
+                            410.32,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2288.01,
+                            415.09,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2275.31,
+                            418.63,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2272.45,
+                            424.27,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2269.87,
+                            423.53,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2264.99,
+                            423.5,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2268.23,
+                            429.33,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2266.81,
+                            430.63,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2265.21,
+                            434.19,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2270.14,
+                            434.41,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2271.93,
+                            430.04,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2274.8,
+                            429.7,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            2276.35,
+                            433.83,
+                            "COLLECT",
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingAmberRice2End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}
