@@ -83,6 +83,8 @@ AutoEssence 的战后筛选开关下挂着同名选项（`EssenceFilterAfterBatt
 
 开启时战后口径固定为「只处理无瑕、只匹配 5–6 星」：两遍初始化 `attach` 都只选无瑕并把稀有度钉死为 5、6 星，选项树不再展示基质品质与武器稀有度，于是品质门禁把无瑕送进槽位识别、高纯则走品质边界节点收尾（`EssenceFilterAfterBattleTierBoundaryFlawlessNotice` → 关闭详情 → 当前遍尾），两遍都不去点本来就不会锁的高纯基质。战后沿用既有的「已锁格在识别层跳过」口径，因此不产生「需要手动解锁」的提醒。
 
+AutoEssence 的目标模式不复用共享开关：`default_case` 是选项级的，共享选项无法只在目标模式里默认开启，所以另开 `AutoEssenceTargetAfterBattle`，子树只到 `AutoEssenceTargetLockLimit`（默认开启）与扩展规则，不再提供武器稀有度与基质品质：目标模式的口径固定在 5–6 星、只处理无瑕。目标模式始终要跑只读遍把本轮持有份数写进库存，因此关闭战后筛选只关执行遍：只读遍记完份数直接离开；关闭名额限制则回到单遍，只跑执行遍。目标模式的开局盘点由 `AutoEssenceTargetPrepare` 完成，因此目标模式的限制分支不挂盘点 Entry 与严格失败 override。
+
 库存由任务开头的盘点保证：选项开启时同时启用 `EssenceFilterInventoryEntry` 并沿用盘点的严格失败 override（`AutoEssenceBeforeStashBackpack` 后接 `[JumpBack]AutoEssenceRunInventoryFilter` → `EssenceFilterMain`），盘点失败即 `StopTask`。只读遍初始化先严格校验库存再提交：文件缺失、为空或无法解析都输出错误并让动作失败，不降级为「一颗都不锁」；这也是严格加载放在只读遍而不是执行遍的原因（先校验再提交，否则提交会先把文件造出来）。
 
 关闭选项时流程图、节点开关与 attach 均与既有单遍实现一致：执行遍就是既有战后初始化节点，增量映射回到单遍口径。

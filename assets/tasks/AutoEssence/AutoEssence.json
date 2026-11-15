@@ -179,7 +179,8 @@
                         "AutoEssenceWeaponTypePistol",
                         "AutoEssenceWeaponTypeWand",
                         "AutoEssenceWeaponTypeLance",
-                        "AutoEssenceObtainModeClaimOnlyForcedFilter"
+                        "AutoEssenceObtainModeClaimOnlyForcedFilter",
+                        "AutoEssenceTargetAfterBattle"
                     ],
                     "pipeline_override": {
                         "AutoEssenceMain": {
@@ -201,7 +202,8 @@
                                 "Node.Action.Starting": "🎉**目标模式：基质目标已满足或任务结束**"
                             }
                         },
-                        // 目标模式依赖战后写入的 EssenceInventory.json 更新库存，强制开启战后基质筛选
+                        // 目标模式始终要跑只读遍把本轮持有份数写进库存（缺了它目标缺口推不动），因此这里只固定入口；
+                        // 是否再走执行遍（落锁/弃置）由 AutoEssenceTargetAfterBattle 决定
                         "EssenceFilterAfterBattleStart": {
                             "enabled": true
                         },
@@ -433,6 +435,87 @@
                 }
             ],
             "default_case": "ObtainScaling2"
+        },
+        //目标模式专用：关闭时只跑只读遍记录库存，开启时再由执行遍落锁/弃置
+        "AutoEssenceTargetAfterBattle": {
+            "type": "switch",
+            "label": "$option.EssenceFilterAfterBattle.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    //目标模式口径固定为只匹配 5–6 星、只处理无瑕，子树不再提供武器稀有度与基质品质
+                    "option": [
+                        "AutoEssenceTargetLockLimit",
+                        "EssenceFilterAfterBattleSelectExtraRules"
+                    ],
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "rarity6_weapon": true,
+                                "rarity5_weapon": true,
+                                "rarity4_weapon": false,
+                                "flawless_essence": true,
+                                "pure_essence": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    //只读遍照跑，记完本轮持有份数直接离开，不进入执行遍
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleStart": {
+                            "next": [
+                                "EssenceFilterAfterBattleReadonlyInit",
+                                "EssenceFilterAfterBattleExit"
+                            ]
+                        },
+                        "EssenceFilterAfterBattleReadonlyCommitInventory": {
+                            "next": [
+                                "EssenceFilterAfterBattleExit"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
+        },
+        //目标模式的锁定名额开关：默认开启，Yes 分支与 EssenceFilterAfterBattleLockLimit 同一套口径
+        "AutoEssenceTargetLockLimit": {
+            "type": "switch",
+            "label": "$option.LimitLockedPerCombination.label",
+            "description": "$option.LimitLockedPerCombination.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    //盘点与严格失败 patch 由 AutoEssenceTargetPrepare 在运行期完成，这里不重复挂盘点 Entry
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleStart": {
+                            "next": [
+                                "EssenceFilterAfterBattleReadonlyInit",
+                                "EssenceFilterAfterBattleExit"
+                            ]
+                        },
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "after_battle_pass": "execute",
+                                "limit_locked_per_combination": true
+                            }
+                        },
+                        "EssenceFilterAfterBattleReadonlyInit": {
+                            "attach": {
+                                "rarity6_weapon": true,
+                                "rarity5_weapon": true,
+                                "rarity4_weapon": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "Yes"
         },
         "AutoUseSpMedication": {
             "type": "select",
