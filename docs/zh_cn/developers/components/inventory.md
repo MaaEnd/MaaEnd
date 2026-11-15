@@ -9,6 +9,7 @@ Inventory 提供仓库与背包界面中的公共转移和滚动节点。每个�
 | `InventoryTransferAll` | 转移源物品的全部同类物品 |
 | `InventoryTransferStack` | 转移源物品的一组 |
 | `InventoryTransferHalf` | 转移源物品的一半 |
+| `InventoryTransferClearSource` | 按需清除已绑定的源物品锚点 |
 | `InventoryBagScrollUpward` / `InventoryBagScrollDownward` | 背包向上 / 向下滚动一次 |
 | `InventoryRepoScrollUpward` / `InventoryRepoScrollDownward` | 仓库向上 / 向下滚动一次 |
 
@@ -47,6 +48,8 @@ Inventory 提供仓库与背包界面中的公共转移和滚动节点。每个�
 ```
 
 如果需要用 `roi_offset` 调整识别框，可以在识别节点后增加 `DirectHit` 节点，将其 `roi` 指向识别节点并将锚点绑定到它；不需要调整时无需增加此节点。锚点在节点动作执行后更新，因此不能在设置锚点的同一个动作中调用转移入口。也可以使用 `JumpBack` 调用，但调用方需要控制重复进入并在返回后验证结果。
+
+`InventoryTransferClearSource` 是可选的清理入口，转移流程不会自动调用它。清除锚点后，如需再次转移，调用方需要先重新绑定源物品的识别结果。
 
 示例中的 `SubTask` 和组件失败路径中的 `FalseAction` 由 go-service 提供，使用前需要启动项目的 Agent。
 

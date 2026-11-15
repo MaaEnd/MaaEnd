@@ -29,6 +29,16 @@
             "__InventoryTransferHalfBeginAction"
         ]
     },
+    "InventoryTransferClearSource": {
+        "desc": "按需清除物品转移的源锚点。",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "InventoryTransferSource": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "InventoryBagScrollUpward": {
         "desc": "背包向上滚动一次；调用方负责等待画面稳定和判断是否到边界",
         "pre_delay": 0,

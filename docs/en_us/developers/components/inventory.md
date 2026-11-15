@@ -9,6 +9,7 @@ Inventory provides reusable transfer and scroll nodes for the depot and backpack
 | `InventoryTransferAll` | Transfer all items of the same type as the source item |
 | `InventoryTransferStack` | Transfer one stack of the source item |
 | `InventoryTransferHalf` | Transfer half of the source item |
+| `InventoryTransferClearSource` | Clear the bound source item anchor when needed |
 | `InventoryBagScrollUpward` / `InventoryBagScrollDownward` | Scroll the backpack up / down once |
 | `InventoryRepoScrollUpward` / `InventoryRepoScrollDownward` | Scroll the depot up / down once |
 
@@ -47,6 +48,8 @@ The following fragment omits the existing recognition configuration of `ExampleF
 ```
 
 If the recognition box needs adjustment with `roi_offset`, add a `DirectHit` node after recognition, point its `roi` to the recognition node, and bind the anchor to it; no extra node is needed when the box is already suitable. Anchors are updated after the node's action, so the transfer entry cannot be called in the same action that sets the anchor. A caller may also use `JumpBack`, but must control repeated entry and verify the result after it returns.
+
+`InventoryTransferClearSource` is an optional cleanup entry and is not called automatically during transfer. After clearing the anchor, the caller must bind a recognized source item again before another transfer.
 
 The `SubTask` in the example and the component's `FalseAction` failure path are provided by go-service; start the project's Agent before using them.
 
