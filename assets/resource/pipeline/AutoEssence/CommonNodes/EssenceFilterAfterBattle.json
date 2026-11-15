@@ -13,6 +13,7 @@
     //5、Jumpback回来后因开始节点识别失败跳过自身，继续你后面的任务
     //6、如果不想强制退出战利品界面，那就不加[Jumpback]，把"EssenceFilterAfterBattleExit"的next改成你想要的下一个节点
     //7、EssenceFilterInitAction 对 EssenceFilterAfterBattleInit：首次进入战后流程时完整初始化；同一任务内再次进入时仅清本轮 UI 遍历状态并保留累计锁定统计；基质刷取开启「战后基质筛选」时由 AutoEssenceAfterBattleRunEndLootReport（[JumpBack]、max_hit=1，体力不足与整次结束共用）调用 EssenceFilterFinishAction 输出汇总
+    //8、每次离开战利品界面前会经过 EssenceFilterAfterBattleCommitInventory，把本轮的锁定与保留决策按词条组合和等级合并写入 EssenceInventory.json；要改变退出行为请改 EssenceFilterAfterBattleExit 的 next，写入节点仍会执行
     "EssenceFilterAfterBattleStart": {
         "desc": "识别画面中是否有基质，是的话开始任务,完成后会自动退出战利品界面",
         "enabled": false,
@@ -91,6 +92,26 @@
             //是否丢弃不匹配的基质
             "discard_unmatched": false
         }
+    },
+    //离开战利品界面之前，先并入本轮筛选结果
+    "EssenceFilterAfterBattleCommitInventory": {
+        "desc": "把本轮战后决策按词条组合与等级合并写入 EssenceInventory.json",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterAfterBattleInventoryCommitAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EssenceFilterAfterBattleExit"
+        ]
     },
     //节点出口，如果不加jumpback，那就得把这个出口节点的next接到你想要的下一个节点上
     "EssenceFilterAfterBattleExit": {

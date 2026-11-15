@@ -120,6 +120,10 @@ type MatchResult struct {
 	SkillsChinese []string
 	Weapons       []WeaponData
 
+	// Levels are the OCR levels in slot1..slot3 order, i.e. reordered together with the
+	// skills when the engine infers slot pools from the OCR text.
+	Levels [3]int
+
 	// Extension rule detail — only populated for the corresponding Kind.
 	ExtLevelSum int // MatchFuturePromising: sum of three slot levels
 	ExtMinTotal int // MatchFuturePromising: required minimum

@@ -167,7 +167,7 @@
         "post_delay": 0,
         "next": [
             "EssenceFilterAfterBattleCloseDetailThenExit",
-            "EssenceFilterAfterBattleExit"
+            "EssenceFilterAfterBattleCommitInventory"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.EssenceFilter.focus.afterbattle_tier_boundary_flawless"
@@ -194,7 +194,7 @@
             }
         },
         "next": [
-            "EssenceFilterAfterBattleExit"
+            "EssenceFilterAfterBattleCommitInventory"
         ]
     },
     "EssenceFilterAfterBattleTierSkipPureOnlyNotice": {

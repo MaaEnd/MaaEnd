@@ -1,6 +1,7 @@
 package autoessence
 
 import (
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -11,7 +12,7 @@ var _ maa.CustomActionRunner = &LoadInventoryAction{}
 type LoadInventoryAction struct{}
 
 func (a *LoadInventoryAction) Run(_ *maa.Context, _ *maa.CustomActionArg) bool {
-	path := defaultInventoryPath()
+	path := essencefilter.InventoryPath()
 	if err := LoadFile(path); err != nil {
 		log.Error().
 			Err(err).

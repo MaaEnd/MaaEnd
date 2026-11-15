@@ -14,6 +14,8 @@ var currentRun *RunState
 type RunState struct {
 	TaskID    int64
 	Inventory *inventoryState
+	// PendingInventory holds the after-battle increments of the current loot run until they are committed.
+	PendingInventory []inventoryDelta
 	// Stats
 	MatchedCount            int
 	ExtFuturePromisingCount int

@@ -20,7 +20,6 @@ func testDataDir(t *testing.T) string {
 }
 
 func TestSelectBestPlanCoversMissing(t *testing.T) {
-	t.Cleanup(Reset)
 	engine, err := matchapi.NewEngineFromDirWithLocale(testDataDir(t), "CN")
 	if err != nil {
 		t.Fatal(err)
@@ -99,55 +98,6 @@ func TestSelectBestPlanNilWhenNoMissing(t *testing.T) {
 	if plan != nil {
 		t.Fatal("expected nil plan for empty missing")
 	}
-}
-
-func TestMissingSatisfiedByInventory(t *testing.T) {
-	t.Cleanup(Reset)
-	engine, err := matchapi.NewEngineFromDirWithLocale(testDataDir(t), "CN")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var sample string
-	var peerIDs []string
-	for _, w := range engine.Weapons() {
-		if w.Rarity != 6 || len(w.SkillIDs) != 3 {
-			continue
-		}
-		if sample == "" {
-			sample = w.InternalID
-			continue
-		}
-		// Collect weapons that share the exact skill combo with sample.
-		sw := findWeapon(engine, sample)
-		if sw != nil && sameSkills(sw.SkillIDs, w.SkillIDs) {
-			peerIDs = append(peerIDs, w.InternalID)
-		}
-	}
-	if sample == "" {
-		t.Fatal("no sample")
-	}
-	ids := append([]string{sample}, peerIDs...)
-	Add(ids, 1)
-	if Count([]string{sample}) < 1 {
-		t.Fatal("expected inventory count >= 1 after Add")
-	}
-}
-
-func findWeapon(engine *matchapi.Engine, id string) *matchapi.WeaponData {
-	for i := range engine.Weapons() {
-		w := engine.Weapons()[i]
-		if w.InternalID == id {
-			return &w
-		}
-	}
-	return nil
-}
-
-func sameSkills(a, b []int) bool {
-	if len(a) != 3 || len(b) != 3 {
-		return false
-	}
-	return a[0] == b[0] && a[1] == b[1] && a[2] == b[2]
 }
 
 func TestBuildEngraveOverride(t *testing.T) {

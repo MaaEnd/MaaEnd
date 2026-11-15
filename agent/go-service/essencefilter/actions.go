@@ -23,6 +23,7 @@ func afterBattleInitResetPerLoot(st *RunState) {
 	st.RowIndex = 0
 	st.CurrentSkills = [3]string{}
 	st.CurrentSkillLevels = [3]int{}
+	st.PendingInventory = nil
 }
 
 func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {

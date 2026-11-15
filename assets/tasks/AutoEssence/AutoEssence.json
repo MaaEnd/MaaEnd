@@ -201,7 +201,7 @@
                                 "Node.Action.Starting": "🎉**目标模式：基质目标已满足或任务结束**"
                             }
                         },
-                        // 目标模式依赖战后精确匹配 Add 更新内存库存，强制开启战后基质筛选
+                        // 目标模式依赖战后写入的 EssenceInventory.json 更新库存，强制开启战后基质筛选
                         "EssenceFilterAfterBattleStart": {
                             "enabled": true
                         },
