@@ -1,52 +1,15 @@
 {
     "ProtocolSpaceOperationalManualOpen": {
-        "desc": "进入行动手册菜单",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    215,
-                    60
-                ],
-                "expected": [
-                    "行动手册",
-                    "行動手冊",
-                    "(?i)Operational\\s*Manual",
-                    "案内所",
-                    "작전 매뉴얼"
-                ]
-            }
-        },
+        "desc": "清零右侧列表的滚动次数上限",
         "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "ProtocolSpaceOperationalManualSwitchIndexTab"
-        ]
-    },
-    "ProtocolSpaceOperationalManualSwitchIndexTab": {
-        "desc": "在行动手册界面，切换到索引标签页",
-        "recognition": "OCR",
-        "roi": [
-            150,
-            50,
-            1000,
-            150
-        ],
-        "expected": [
-            "索引",
-            "(?i)Index",
-            "協約空間"
-        ],
         "action": "Custom",
-        "custom_action": "RepeatUntilFoundAction",
+        "custom_action": "ClearHitCount",
         "custom_action_param": {
-            "action": "Click",
-            "wait_nodes": [
-                "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab"
+            "nodes": [
+                "ProtocolSpaceOperationalManualScrollList"
             ]
         },
+        "post_delay": 0,
         "next": [
             "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab"
         ]
@@ -76,11 +39,13 @@
             "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor",
             "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor",
             "ProtocolSpaceOperationalManualScrollEnd",
-            "[JumpBack]ProtocolSpaceOperationalManualScrollList"
+            "[JumpBack]ProtocolSpaceOperationalManualScrollList",
+            "ProtocolSpaceOperationalManualScrollNotFound"
         ]
     },
     "ProtocolSpaceOperationalManualScrollList": {
-        "desc": "滚动右侧模拟空间列表",
+        "desc": "滚动右侧模拟空间列表；最多 12 次（max_hit，每次进入行动手册时由 ProtocolSpaceOperationalManualOpen 清零），用尽后由 ProtocolSpaceOperationalManualScrollNotFound 按未找到收尾，避免模板不命中时无限滚动",
+        "max_hit": 12,
         "action": "Swipe",
         "begin": [
             950,
@@ -101,6 +66,15 @@
             ]
         }
     },
+    "ProtocolSpaceOperationalManualScrollNotFound": {
+        "desc": "滚动次数用尽仍未找到目标条目，抛出任务失败退出",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sim_entry_not_found"
+        }
+    },
     "ProtocolSpaceOperationalManualScrollEnd": {
         "desc": "右侧滚动模拟空间列表找到最后一个item图标，表示到末尾了",
         "recognition": "TemplateMatch",
@@ -111,7 +85,7 @@
             500
         ],
         "template": "ProtocolSpace/SkillUp.png",
-        "threshold": 0.9,
+        "threshold": 0.8,
         "focus": {
             "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sim_entry_not_found"
         }
@@ -126,7 +100,7 @@
             500
         ],
         "template": "ProtocolSpace/OperatorEXP.png",
-        "threshold": 0.9
+        "threshold": 0.8
     },
     "ProtocolSpaceEnterButtonEnableRecognition": {
         "desc": "找协议空间入口已解锁按钮",

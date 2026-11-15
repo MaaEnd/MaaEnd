@@ -48,48 +48,45 @@ struct Estimate
     int sample_count = 0;
 };
 
-// 只用孤立转向的样本估倍率, 样本跨导航在进程内累积
-class Detector
+struct PendingTurn
 {
-public:
-    explicit Detector(Config config = {});
-
-    // 每次导航开始调用, 未完成的样本作废, 已攒样本保留
-    void beginRun();
-    // 所有路径发出的偏航度数都要报
-    void noteIssued(double delta_deg);
-    // camera_heading_deg 是本拍决策前读到的镜头朝向, 没读到传空
-    std::optional<Verdict>
-        recordTick(uint64_t tick_seq, std::optional<double> camera_heading_deg, double issued_delta_deg, bool degraded_fix);
-    std::optional<Verdict> endRun();
-
-    std::optional<Estimate> takeLastEstimate();
-
-private:
-    struct PendingTurn
-    {
-        double start_heading_deg = 0.0;
-        double command_deg = 0.0;
-        int quiet_ticks = 0;
-    };
-
-    std::optional<Verdict> evaluate(bool log_estimate);
-
-    Config config_;
-
-    uint64_t prev_tick_seq_ = 0;
-    bool has_prev_tick_ = false;
-    double issued_since_record_ = 0.0;
-
-    std::optional<PendingTurn> pending_;
-    // 每条是一次孤立转向的实测转角与指令之比
-    std::vector<double> samples_;
-    // 样本数每翻一倍打一次估计值日志
-    size_t next_log_at_ = 0;
-
-    std::optional<Estimate> last_estimate_;
-    bool fired_ = false;
+    double start_heading_deg = 0.0;
+    double command_deg = 0.0;
+    int quiet_ticks = 0;
 };
+
+// 只用孤立转向的样本估倍率, 样本跨导航在进程内累积
+struct Detector
+{
+    Config config;
+
+    uint64_t prev_tick_seq = 0;
+    bool has_prev_tick = false;
+    double issued_since_record = 0.0;
+
+    std::optional<PendingTurn> pending;
+    // 每条是一次孤立转向的实测转角与指令之比
+    std::vector<double> samples;
+    // 样本数每翻一倍打一次估计值日志
+    size_t next_log_at = static_cast<size_t>(config.min_samples);
+
+    std::optional<Estimate> last_estimate;
+    bool fired = false;
+};
+
+// 每次导航开始调用, 未完成的样本作废, 已攒样本保留
+void BeginDetectorRun(Detector* detector);
+// 所有路径发出的偏航度数都要报
+void NoteDetectorIssued(Detector* detector, double delta_deg);
+// camera_heading_deg 是本拍决策前读到的镜头朝向, 没读到传空
+std::optional<Verdict> RecordDetectorTick(
+    Detector* detector,
+    uint64_t tick_seq,
+    std::optional<double> camera_heading_deg,
+    double issued_delta_deg,
+    bool degraded_fix);
+std::optional<Verdict> EndDetectorRun(Detector* detector);
+std::optional<Estimate> TakeLastEstimate(Detector* detector);
 
 // 归一到 (-180, 180]
 double NormalizeDeg(double deg);

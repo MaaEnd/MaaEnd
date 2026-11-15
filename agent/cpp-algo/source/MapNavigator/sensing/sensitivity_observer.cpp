@@ -1,6 +1,5 @@
 #include "sensitivity_observer.h"
 
-#include <atomic>
 #include <mutex>
 #include <optional>
 
@@ -18,16 +17,12 @@ namespace sensitivity
 namespace
 {
 
-std::mutex g_mutex;
-Detector g_detector;
-std::atomic<double> g_turn_units_scale { 1.0 };
-
-void publish_verdict(MaaContext* context, const Verdict& verdict)
+void publish_verdict(SensitivityRun* run, MaaContext* context, const Verdict& verdict)
 {
     const int ratio_percent = verdict.ratio_percent;
     const int sample_count = verdict.sample_count;
     const double scale = 1.0 / verdict.ratio;
-    g_turn_units_scale.store(scale);
+    run->turn_units_scale.store(scale);
     LogInfo << "Turn sensitivity corrected." << VAR(ratio_percent) << VAR(sample_count) << VAR(scale);
 
     common::notice::Publish(context, common::notice::Text("navigation.sensitivity_corrected", { ratio_percent, sample_count }));
@@ -47,28 +42,29 @@ void log_estimate(const std::optional<Estimate>& estimate)
 
 } // namespace
 
-void BeginRun()
+void BeginRun(SensitivityRun* run)
 {
-    const double scale = g_turn_units_scale.load();
+    const double scale = run->turn_units_scale.load();
     if (scale != 1.0) {
         LogInfo << "Turn sensitivity scale in effect." << VAR(scale);
     }
-    const std::lock_guard<std::mutex> guard(g_mutex);
-    g_detector.beginRun();
+    const std::lock_guard<std::mutex> guard(run->mutex);
+    BeginDetectorRun(&run->detector);
 }
 
-void NoteTurnIssued(double delta_deg)
+void NoteTurnIssued(SensitivityRun* run, double delta_deg)
 {
-    const std::lock_guard<std::mutex> guard(g_mutex);
-    g_detector.noteIssued(delta_deg);
+    const std::lock_guard<std::mutex> guard(run->mutex);
+    NoteDetectorIssued(&run->detector, delta_deg);
 }
 
-double TurnUnitsScale()
+double TurnUnitsScale(const SensitivityRun& run)
 {
-    return g_turn_units_scale.load();
+    return run.turn_units_scale.load();
 }
 
 void RecordTick(
+    SensitivityRun* run,
     MaaContext* context,
     uint64_t tick_seq,
     std::optional<double> camera_heading_deg,
@@ -78,30 +74,30 @@ void RecordTick(
     std::optional<Verdict> verdict;
     std::optional<Estimate> estimate;
     {
-        const std::lock_guard<std::mutex> guard(g_mutex);
-        verdict = g_detector.recordTick(tick_seq, camera_heading_deg, issued_delta_deg, degraded_fix);
-        estimate = g_detector.takeLastEstimate();
+        const std::lock_guard<std::mutex> guard(run->mutex);
+        verdict = RecordDetectorTick(&run->detector, tick_seq, camera_heading_deg, issued_delta_deg, degraded_fix);
+        estimate = TakeLastEstimate(&run->detector);
     }
 
     log_estimate(estimate);
     if (verdict) {
-        publish_verdict(context, *verdict);
+        publish_verdict(run, context, *verdict);
     }
 }
 
-void EndRun(MaaContext* context)
+void EndRun(SensitivityRun* run, MaaContext* context)
 {
     std::optional<Verdict> verdict;
     std::optional<Estimate> estimate;
     {
-        const std::lock_guard<std::mutex> guard(g_mutex);
-        verdict = g_detector.endRun();
-        estimate = g_detector.takeLastEstimate();
+        const std::lock_guard<std::mutex> guard(run->mutex);
+        verdict = EndDetectorRun(&run->detector);
+        estimate = TakeLastEstimate(&run->detector);
     }
 
     log_estimate(estimate);
     if (verdict) {
-        publish_verdict(context, *verdict);
+        publish_verdict(run, context, *verdict);
     }
 }
 

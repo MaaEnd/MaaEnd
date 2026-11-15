@@ -4,12 +4,12 @@
 #include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
 
-#include "../control/action_wrapper.h"
+#include "../Backend/backend.h"
 #include "../control/motion_controller.h"
 #include "../navi_config.h"
 #include "../navi_math.h"
 #include "../navi_time.h"
-#include "../semantic/action_executor.h"
+#include "../process_state.h"
 #include "../semantic/async_prompt_action.h"
 #include "../semantic/heading_turn.h"
 #include "../semantic/semantic_helpers.h"
@@ -18,121 +18,293 @@
 #include "../sensing/latency_observer.h"
 #include "../sensing/position_provider.h"
 #include "../sensing/sensitivity_observer.h"
+#include "../sensing/task_stop.h"
+#include "bootstrap.h"
 #include "internal.h"
+#include "localization.h"
+#include "prompts.h"
+#include "recovery.h"
+#include "replan.h"
+#include "steering.h"
+#include "tracking.h"
 
 namespace mapnavigator
 {
 
-NavigationStateMachine::NavigationStateMachine(
+namespace
+{
+
+NavigateTick begin_navigate_tick(Navigator* nav)
+{
+    NavigateTick tick;
+    tick.started_at = std::chrono::steady_clock::now();
+    tick.gap_ms =
+        nav->runtime_state.flow.last_tick_started_at.time_since_epoch().count() > 0
+            ? std::chrono::duration_cast<std::chrono::milliseconds>(tick.started_at - nav->runtime_state.flow.last_tick_started_at).count()
+            : 0;
+    nav->runtime_state.flow.last_tick_started_at = tick.started_at;
+    ++nav->runtime_state.flow.tick_seq;
+    return tick;
+}
+
+TickStep conclude_semantic_step(Navigator* nav, const semantic_nodes::Result& result)
+{
+    if (result.request_failure) {
+        return EndTickWith(FailNavigation(nav, result.failure_reason, result.failure_log_message, 0.0, 0.0, 0));
+    }
+    // 必须在下面的重规划分支之前, 那里会提前返回
+    if (result.stay_in_current_tick) {
+        ForgetDwellSample(&nav->runtime_state.dwell);
+    }
+    if (nav->runtime_state.dynamic_replan_requested) {
+        return EndTickWith(
+            nav->runtime_state.zipline_recovery.pending ? HandleZiplineRecoveryReplan(nav)
+                                                        : HandleDynamicReplanRequest(nav, "dynamic_replan"));
+    }
+    if (result.stay_in_current_tick) {
+        return TickStep::EndTick;
+    }
+    return TickStep::Next;
+}
+
+TickStep run_semantic_flow(Navigator* nav)
+{
+    if (!HasCurrentWaypoint(*nav->session)) {
+        ConcludeRouteTail(nav->session, *nav->position, "route_tail_consumed");
+        return TickStep::EndTick;
+    }
+    return conclude_semantic_step(nav, semantic_nodes::TickPortalTransit(nav));
+}
+
+TickStep run_inline_semantics(Navigator* nav)
+{
+    // 先对齐镜头, 后面的 HEADING 转身才从对齐后的朝向算起
+    if (nav->runtime_state.camera_align_pending) {
+        ClearCameraAlignRequest(&nav->runtime_state);
+        semantic_nodes::AlignCameraAndRecapture(nav);
+        if (!nav->position->valid) {
+            return EndTickWith(HandleLocalizationLoss(nav));
+        }
+    }
+    const TickStep step = conclude_semantic_step(nav, semantic_nodes::ConsumeInlineSemantics(nav));
+    if (step != TickStep::Next) {
+        return step;
+    }
+    if (!nav->position->valid) {
+        return EndTickWith(HandleLocalizationLoss(nav));
+    }
+    if (!HasCurrentWaypoint(*nav->session)) {
+        ConcludeRouteTail(nav->session, *nav->position, "route_tail_consumed");
+        return TickStep::EndTick;
+    }
+    return TickStep::Next;
+}
+
+TickStep idle_while_not_walking(const Navigator& nav)
+{
+    if (IsPortalTransitActive(nav.runtime_state.semantic.portal) || nav.session->phase != NaviPhase::Navigate) {
+        SleepFor(kTargetTickMs);
+        return TickStep::EndTick;
+    }
+    return TickStep::Next;
+}
+
+TickStep finish_navigate_tick(Navigator* nav, const NavigateTick& tick)
+{
+    // 必须在冲刺判定之前
+    const bool approaching_prompt = ApproachingPrompt(*nav);
+    if (approaching_prompt && SprintCancellable(*nav->motion_controller)) {
+        CancelSprint(nav->motion_controller);
+    }
+    nav->motion_controller->sprint_suppressed = approaching_prompt;
+    UpdateAutoSprint(nav, tick);
+
+    if (nav->param->arrival_timeout > 0 && tick.stalled_ms > nav->param->arrival_timeout) {
+        return EndTickWith(FailNavigation(
+            nav,
+            "no_progress_timeout",
+            "No progress timeout reached and navigation was terminated.",
+            tick.route.progress_distance,
+            NormalizeAngle(tick.route.route_heading - tick.fix.current_heading),
+            tick.stalled_ms));
+    }
+
+    SleepFor(kTargetTickMs);
+    return TickStep::EndTick;
+}
+
+// 依次执行, 第一个不是 Next 的结果就是这一拍的结果
+TickStep run_navigate_steps(Navigator* nav, NavigateTick* tick)
+{
+    TickStep step = run_semantic_flow(nav);
+    if (step != TickStep::Next) {
+        return step;
+    }
+    step = CaptureNavigateFix(nav, tick);
+    if (step != TickStep::Next) {
+        return step;
+    }
+    step = RunDwellWatchdog(nav);
+    if (step != TickStep::Next) {
+        return step;
+    }
+    step = run_inline_semantics(nav);
+    if (step != TickStep::Next) {
+        return step;
+    }
+    step = idle_while_not_walking(*nav);
+    if (step != TickStep::Next) {
+        return step;
+    }
+    TrackRoute(nav, tick);
+    step = RunRouteProgress(nav, tick);
+    if (step != TickStep::Next) {
+        return step;
+    }
+    tick->waypoint = CurrentWaypoint(*nav->session);
+    step = HandlePrompts(nav, *tick);
+    if (step != TickStep::Next) {
+        return step;
+    }
+    tick->arrival_distance = ResolveArrivalDistance(*nav, *tick);
+    step = HandleWaypointArrival(nav, tick);
+    if (step != TickStep::Next) {
+        return step;
+    }
+    step = RunRiverFallRecovery(nav, *tick);
+    if (step != TickStep::Next) {
+        return step;
+    }
+    step = RunOffRouteWedge(nav, *tick);
+    if (step != TickStep::Next) {
+        return step;
+    }
+    step = RunObstacleRecovery(nav, *tick);
+    if (step != TickStep::Next) {
+        return step;
+    }
+    tick->heading_error = SteerAlongCorridor(nav, *tick);
+    return finish_navigate_tick(nav, *tick);
+}
+
+bool tick_navigate(Navigator* nav)
+{
+    NavigateTick tick = begin_navigate_tick(nav);
+    const TickStep step = run_navigate_steps(nav, &tick);
+    return step != TickStep::Abort;
+}
+
+} // namespace
+
+Navigator MakeNavigator(
     const NaviParam& param,
-    ActionWrapper* action_wrapper,
-    PositionProvider* position_provider,
-    NavigationSession* session,
-    MotionController* motion_controller,
-    ActionExecutor* action_executor,
+    InputBackend* input_backend,
+    PositionSensor* position_provider,
+    Session* session,
+    Motion* motion_controller,
     NaviPosition* position,
-    std::function<bool()> should_stop,
+    NavProcessState* process,
+    ZiplineOutcome* zipline_outcome,
     MaaContext* maa_context)
-    : param_(param)
-    , action_wrapper_(action_wrapper)
-    , position_provider_(position_provider)
-    , session_(session)
-    , motion_controller_(motion_controller)
-    , action_executor_(action_executor)
-    , position_(position)
-    , should_stop_(std::move(should_stop))
-    , maa_context_(maa_context)
-    , collect_prompt_(kCollectPromptSpec, maa_context, session, position)
-    , interact_prompt_(kInteractPromptSpec, maa_context, session, position)
-    , device_recovery_(maa_context, motion_controller, position_provider, session, position)
-    , walk_mode_(action_wrapper)
 {
-    LogInfo << "Navigation route runner selected. backend=orchestrated";
-}
-
-NavigationStateMachine::~NavigationStateMachine()
-{
-    // 帧回调里持有 this, 析构前必须先拆掉
-    stopScanners();
-}
-
-semantic_nodes::Context NavigationStateMachine::semanticContext()
-{
-    return {
-        .action_wrapper = action_wrapper_,
-        .position_provider = position_provider_,
-        .session = session_,
-        .motion_controller = motion_controller_,
-        .action_executor = action_executor_,
-        .position = position_,
-        .runtime_state = &runtime_state_,
-        .maa_context = maa_context_,
+    return Navigator {
+        .param = &param,
+        .input_backend = input_backend,
+        .position_provider = position_provider,
+        .session = session,
+        .motion_controller = motion_controller,
+        .position = position,
+        .process = process,
+        .zipline_outcome = zipline_outcome,
+        .maa_context = maa_context,
+        .collect_prompt = MakeAsyncPromptAction(kCollectPromptSpec),
+        .interact_prompt = MakeAsyncPromptAction(kInteractPromptSpec),
+        .device_recovery = MakeDeviceRecovery(),
     };
 }
 
-bool NavigationStateMachine::run()
+CaptureParts CapturePartsOf(const Navigator& nav)
 {
-    latency::BeginRun();
+    return {
+        .sensor = nav.position_provider,
+        .frame_sinks = nav.frame_sinks ? &*nav.frame_sinks : nullptr,
+        .latency = &nav.process->latency,
+        .normalize_param = nav.param->normalize_position_via_navmesh ? nav.param : nullptr,
+    };
+}
 
-    if (!bootstrap()) {
-        stopMotion();
-        sensitivity::EndRun(maa_context_);
+bool RunNavigator(Navigator* nav)
+{
+    latency::BeginRun(&nav->process->latency);
+
+    if (!Bootstrap(nav)) {
+        HoldPosition(nav->motion_controller);
+        sensitivity::EndRun(&nav->process->sensitivity, nav->maa_context);
         return false;
     }
 
-    preWarmPromptRecognition();
+    PreWarmPrompts(nav);
 
-    startScanners();
+    StartScanners(nav);
 
-    while (!should_stop_() && session_->phase() != NaviPhase::Finished && session_->phase() != NaviPhase::Failed) {
-        if (!tickPhase(session_->phase())) {
-            stopScanners();
-            stopMotion();
-            sensitivity::EndRun(maa_context_);
+    while (!TaskStopping(nav->maa_context) && nav->session->phase != NaviPhase::Finished && nav->session->phase != NaviPhase::Failed) {
+        const NaviPhase phase = nav->session->phase;
+        AdvanceHeadingEpochOnPhaseChange(nav, phase);
+        if (!TickPhase(nav, phase)) {
+            StopScanners(nav);
+            nav->motion_controller->sprint_suppressed = false;
+            HoldPosition(nav->motion_controller);
+            sensitivity::EndRun(&nav->process->sensitivity, nav->maa_context);
             return false;
         }
     }
 
-    if (!should_stop_() && session_->phase() != NaviPhase::Failed) {
-        session_->hasSatisfiedFinalSuccess(*position_, "navigation_complete");
+    if (!TaskStopping(nav->maa_context) && nav->session->phase != NaviPhase::Failed) {
+        if (FinalSuccessReady(*nav->session, *nav->position)) {
+            CommitFinalSuccess(nav->session, *nav->position, "navigation_complete");
+        }
     }
 
-    tryRunPromptSubtaskAtRouteTail();
+    TryRunPromptSubtaskAtRouteTail(nav);
 
-    stopScanners();
-    stopMotion();
+    StopScanners(nav);
+    nav->motion_controller->sprint_suppressed = false;
+    HoldPosition(nav->motion_controller);
 
-    const bool succeeded = !should_stop_() && session_->success();
-    sensitivity::EndRun(maa_context_);
+    const bool succeeded = !TaskStopping(nav->maa_context) && nav->session->success;
+    sensitivity::EndRun(&nav->process->sensitivity, nav->maa_context);
     return succeeded;
 }
 
-bool NavigationStateMachine::tickPhase(NaviPhase phase)
+void AdvanceHeadingEpochOnPhaseChange(Navigator* nav, NaviPhase phase)
 {
-    if (!last_tick_phase_ || *last_tick_phase_ != phase) {
-        last_tick_phase_ = phase;
-        action_wrapper_->noteHeadingDisturbed();
+    if (!nav->last_tick_phase || *nav->last_tick_phase != phase) {
+        nav->last_tick_phase = phase;
+        AdvanceHeadingEpoch(nav->input_backend);
     }
+}
+
+bool TickPhase(Navigator* nav, NaviPhase phase)
+{
     // 放在所有提前返回之前, 否则可能一直停在走路模式
-    updateWalkMode(phase);
+    UpdateWalkMode(nav, phase);
 
     switch (phase) {
     case NaviPhase::Bootstrap:
-        selectPhaseForCurrentWaypoint("bootstrap_dispatch");
+        semantic_nodes::SelectPhaseOrFinishRoute(nav, "bootstrap_dispatch");
         return true;
     case NaviPhase::Navigate:
-        return tickNavigate();
+        return tick_navigate(nav);
     case NaviPhase::WaitTransfer:
     case NaviPhase::WaitZipline:
     case NaviPhase::WaitFind:
     case NaviPhase::WaitJumpPad:
     case NaviPhase::WaitRope: {
-        runtime_state_.flow.motionless_hold_ticks = 0;
-        runtime_state_.flow.futile_forward_reasserts = 0;
-        device_recovery_.forgetObservation();
-        const semantic_nodes::Result semantic_result = semantic_nodes::TickWaitPhase(semanticContext(), phase);
+        ResetStallCounters(&nav->runtime_state.flow);
+        ForgetDeviceObservation(&nav->device_recovery);
+        const semantic_nodes::Result semantic_result = semantic_nodes::TickWaitPhase(nav, phase);
         if (semantic_result.request_failure) {
-            return failNavigation(semantic_result.failure_reason, semantic_result.failure_log_message, 0.0, 0.0, 0);
+            return FailNavigation(nav, semantic_result.failure_reason, semantic_result.failure_log_message, 0.0, 0.0, 0);
         }
         return true;
     }
@@ -144,157 +316,33 @@ bool NavigationStateMachine::tickPhase(NaviPhase phase)
     return false;
 }
 
-bool NavigationStateMachine::tickNavigate()
+bool ResumeAfterEscape(Navigator* nav, const char* reason)
 {
-    NavigateTick tick = beginNavigateTick();
-    const TickStep step = FirstToClaim(
-        [&] { return runSemanticFlow(); },
-        [&] { return captureNavigateFix(tick); },
-        [&] { return checkDwellWatchdog(); },
-        [&] { return runInlineSemantics(); },
-        [&] { return idleWhileNotWalking(); },
-        [&] { trackRoute(tick); },
-        [&] { return checkRouteProgress(tick); },
-        [&] { tick.waypoint = session_->currentWaypoint(); },
-        [&] { return handlePrompts(tick); },
-        [&] { tick.arrival_distance = resolveArrivalDistance(tick); },
-        [&] { return handleWaypointArrival(tick); },
-        [&] { return runRiverFallRecovery(tick); },
-        [&] { return checkOffRouteWedge(tick); },
-        [&] { return runObstacleRecovery(tick); },
-        [&] { tick.heading_error = steerAlongCorridor(tick); },
-        [&] { return finishNavigateTick(tick); });
-    return step != TickStep::Abort;
-}
-
-NavigationStateMachine::NavigateTick NavigationStateMachine::beginNavigateTick()
-{
-    NavigateTick tick;
-    tick.started_at = std::chrono::steady_clock::now();
-    tick.gap_ms =
-        runtime_state_.flow.last_tick_started_at.time_since_epoch().count() > 0
-            ? std::chrono::duration_cast<std::chrono::milliseconds>(tick.started_at - runtime_state_.flow.last_tick_started_at).count()
-            : 0;
-    runtime_state_.flow.last_tick_started_at = tick.started_at;
-    ++runtime_state_.flow.tick_seq;
-    return tick;
-}
-
-TickStep NavigationStateMachine::runSemanticFlow()
-{
-    if (!session_->hasCurrentWaypoint()) {
-        session_->noteRouteTailConsumed(*position_, "route_tail_consumed");
-        return TickStep::EndTick;
-    }
-    return concludeSemanticStep(semantic_nodes::TickPortalTransit(semanticContext()));
-}
-
-TickStep NavigationStateMachine::concludeSemanticStep(const semantic_nodes::Result& result)
-{
-    if (result.request_failure) {
-        return EndTickWith(failNavigation(result.failure_reason, result.failure_log_message, 0.0, 0.0, 0));
-    }
-    // 必须在下面的重规划分支之前, 那里会提前返回
-    if (result.stay_in_current_tick) {
-        runtime_state_.dwell.last_usable = {};
-    }
-    if (runtime_state_.dynamic_replan_requested) {
-        return EndTickWith(
-            runtime_state_.zipline_recovery.pending ? handleZiplineRecoveryReplan() : handleDynamicReplanRequest("dynamic_replan"));
-    }
-    if (result.stay_in_current_tick) {
-        return TickStep::EndTick;
-    }
-    return TickStep::Next;
-}
-
-TickStep NavigationStateMachine::runInlineSemantics()
-{
-    // 先对齐镜头, 后面的 HEADING 转身才从对齐后的朝向算起
-    if (runtime_state_.camera_align_pending) {
-        runtime_state_.camera_align_pending = false;
-        semantic_nodes::AlignCameraToHeadingOnce(semanticContext());
-        if (!position_->valid) {
-            return EndTickWith(handleLocalizationLoss());
-        }
-    }
-    endCrossTierEscapeAtRejoin();
-    if (const TickStep step = concludeSemanticStep(semantic_nodes::ConsumeInlineSemantics(semanticContext())); step != TickStep::Next) {
-        return step;
-    }
-    if (!position_->valid) {
-        return EndTickWith(handleLocalizationLoss());
-    }
-    if (!session_->hasCurrentWaypoint()) {
-        session_->noteRouteTailConsumed(*position_, "route_tail_consumed");
-        return TickStep::EndTick;
-    }
-    return TickStep::Next;
-}
-
-TickStep NavigationStateMachine::idleWhileNotWalking()
-{
-    if (runtime_state_.semantic.portal.active() || session_->phase() != NaviPhase::Navigate) {
-        SleepFor(kTargetTickMs);
-        return TickStep::EndTick;
-    }
-    return TickStep::Next;
-}
-
-TickStep NavigationStateMachine::finishNavigateTick(const NavigateTick& tick)
-{
-    // 必须在冲刺判定之前
-    updatePromptSprintSuppression();
-    updateAutoSprint(tick);
-
-    if (param_.arrival_timeout > 0 && tick.stalled_ms > param_.arrival_timeout) {
-        return EndTickWith(failNavigation(
-            "no_progress_timeout",
-            "No progress timeout reached and navigation was terminated.",
-            tick.route.progress_distance,
-            NaviMath::normalizeAngle(tick.route.route_heading - tick.fix.current_heading),
-            tick.stalled_ms));
-    }
-
-    SleepFor(kTargetTickMs);
-    return TickStep::EndTick;
-}
-
-void NavigationStateMachine::selectPhaseForCurrentWaypoint(const char* reason)
-{
-    semantic_nodes::SelectPhaseForCurrentWaypoint(semanticContext(), reason);
-}
-
-bool NavigationStateMachine::resumeAfterEscape(const char* reason)
-{
-    runtime_state_.flow.futile_forward_reasserts = 0;
-    runtime_state_.flow.motionless_hold_ticks = 0;
-    runtime_state_.recovery.reset();
-    runtime_state_.recovery_escalation.reset();
-    runtime_state_.route.resetTracking();
-    runtime_state_.dynamic_replan_requested = false;
-    runtime_state_.nav_run_dirty = true;
-    session_->resetProgress();
-    selectPhaseForCurrentWaypoint(reason);
+    ResetStallCounters(&nav->runtime_state.flow);
+    ClearDynamicRecovery(&nav->runtime_state.recovery);
+    ResetRecoveryEscalation(&nav->runtime_state.recovery_escalation);
+    ResetRouteTracking(&nav->runtime_state.route);
+    ClearDynamicReplanRequest(&nav->runtime_state);
+    MarkNavRunDirty(&nav->runtime_state);
+    ResetProgress(nav->session);
+    semantic_nodes::SelectPhaseOrFinishRoute(nav, reason);
     return true;
 }
 
-void NavigationStateMachine::stopMotion()
-{
-    motion_controller_->setForwardState(false);
-}
-
-bool NavigationStateMachine::failNavigation(
+bool FailNavigation(
+    Navigator* nav,
     const char* reason,
     const char* log_message,
     double current_distance,
     double yaw_error,
     int64_t stalled_ms)
 {
-    stopMotion();
-    runtime_state_.resetNavigationAssistState();
-    session_->updatePhase(NaviPhase::Failed, reason);
-    failure_trail_.log(std::chrono::steady_clock::now());
+    HoldPosition(nav->motion_controller);
+    ResetNavigationAssistState(&nav->runtime_state);
+    UpdatePhase(nav->session, NaviPhase::Failed, reason);
+    const TimePoint failed_at = std::chrono::steady_clock::now();
+    PruneFailureTrail(&nav->failure_trail, failed_at);
+    LogFailureTrail(nav->failure_trail, failed_at);
     LogError << log_message << VAR(current_distance) << VAR(yaw_error) << VAR(stalled_ms);
     return true;
 }

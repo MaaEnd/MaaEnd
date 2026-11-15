@@ -2,10 +2,11 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include <MaaFramework/MaaAPI.h>
 
 #include "../../Navmesh/BaseNavPlanner.h"
 #include "../navi_domain_types.h"
@@ -15,8 +16,8 @@ namespace mapnavigator
 {
 
 struct NaviParam;
+struct ZiplineOutcome;
 
-// 按线程记录, ExpandNavmeshWaypoints 开头清空, 返回 false 后立即读取
 struct NavmeshExpansionFailure
 {
     std::string code;
@@ -41,16 +42,17 @@ inline constexpr double kBlindTargetMaxExtension = 30.0;
 
 std::string InitialExpectedZone(const NaviParam& param);
 void PreloadNavmeshWaypoints(const NaviParam& param);
-// should_stop 在路点之间轮询, 状态机还没建好, 规划期间只有这里能响应停止
+// maa_context 在路点之间查停止, 状态机还没建好, 规划期间只有这里能响应停止
 bool ExpandNavmeshWaypoints(
+    std::vector<Waypoint>* out_path,
+    NavmeshExpansionFailure* out_failure,
+    ZiplineOutcome* zipline_outcome,
     const NaviParam& param,
     const NaviPosition& initial_pos,
-    const std::function<bool()>& should_stop,
-    std::vector<Waypoint>& out_path,
+    MaaContext* maa_context,
     std::vector<NavmeshRouteDiagnostic>* out_diagnostics = nullptr,
     const std::vector<VirtualNoGoDisc>* no_go = nullptr,
     std::optional<double> start_deck_y = std::nullopt);
-NavmeshExpansionFailure CurrentNavmeshExpansionFailure();
 
 struct RouteEndpoints
 {
@@ -60,6 +62,8 @@ struct RouteEndpoints
     navmesh::WorldPoint goal;
     float goal_floor_y = navmesh::kBaseNavFloorYNone;
     std::optional<double> goal_deck_y;
+    // 起终点都没给楼层时按它兜底, 为空时取区域主层
+    std::optional<double> zone_floor_y;
 };
 
 // 给了 out_start_recovery_entry 时, 起点锚不上网格就改从盲走范围内最近的网格点规划, 该点由此传回
@@ -74,15 +78,14 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
 struct GeneratedWaypointOptions
 {
     bool include_goal = true;
-    bool emit_interior_corners = false;
     bool strict_segment_breaks = true;
 };
 
 bool AppendGeneratedNavmeshWaypoints(
+    std::vector<Waypoint>* out_path,
     const NaviParam& param,
     const std::string& locator_zone,
     const navmesh::BaseNavRouteResult& route,
-    std::vector<Waypoint>& out_path,
     const GeneratedWaypointOptions& options);
 
 } // namespace mapnavigator

@@ -14,13 +14,13 @@ constexpr double kNavigationCameraMinConfidence = 0.3;
 
 constexpr double kTurn360UnitsPerWidth = 2.23006;
 constexpr double kTurnDegreesPerCircle = 360.0;
-constexpr double kPitchDegreesPerRange = 180.0;
+// 鼠标上下拖镜头的速度是左右的这么多倍
+constexpr double kMouseVerticalDragSpeedRatio = 0.7;
 
 struct AdbTouchTurnProfile
 {
     double default_units_per_degree = 3.0;
-    double default_pitch_units_per_degree =
-        default_units_per_degree * kTurnDegreesPerCircle * kWorkHeight / (kWorkWidth * kPitchDegreesPerRange);
+    double default_pitch_range_units = default_units_per_degree * kTurnDegreesPerCircle * kWorkHeight / kWorkWidth;
     int32_t swipe_duration_ms = 70;
     int32_t post_swipe_settle_ms = 0;
     // 移动指令后这段时间内发的转向会被游戏吞掉
@@ -46,14 +46,14 @@ inline double ComputeDefaultUnitsPerDegree()
     return ComputeUnitsPerDegreeForWidth(kWorkWidth);
 }
 
-inline double ComputeUnitsPerDegreeForHeight(int32_t screen_height)
+inline double ComputePitchRangeUnitsForHeight(int32_t screen_height)
 {
-    return kTurn360UnitsPerWidth * static_cast<double>(screen_height) / kPitchDegreesPerRange;
+    return kTurn360UnitsPerWidth * static_cast<double>(screen_height) / kMouseVerticalDragSpeedRatio;
 }
 
-inline double ComputeDefaultPitchUnitsPerDegree()
+inline double ComputeDefaultPitchRangeUnits()
 {
-    return ComputeUnitsPerDegreeForHeight(kWorkHeight);
+    return ComputePitchRangeUnitsForHeight(kWorkHeight);
 }
 
 constexpr int32_t kActionSprintPressMs = 30;
@@ -162,6 +162,7 @@ constexpr double kMinArrivalBand = 1.0;
 constexpr int32_t kObstacleRecoveryMinTriggerMs = 3500;
 constexpr int32_t kDynamicRecoveryRetryIntervalMs = kObstacleRecoveryMinTriggerMs;
 constexpr int32_t kDynamicRecoveryTotalTimeoutMs = 30000;
+constexpr int32_t kNearTargetRecoveryBudgetMs = 12000;
 constexpr int32_t kRecoveryJumpAttemptsBeforeDetour = 2;
 constexpr double kDynamicRecoveryResetDistance = 2.0;
 constexpr int32_t kRecoveryDetourAttemptsBeforeUnstick = 3;
@@ -204,9 +205,6 @@ constexpr int32_t kFailureTrailWindowMs = 90000;
 constexpr int32_t kFailureTrailSampleIntervalMs = 1000;
 constexpr int32_t kFailureTrailSlowArrivalMs = 200; // 短于此的到点动作不记
 
-// 跨层脱困的到达距离, 须同时已回到基础区才算退出
-constexpr double kCrossTierEscapeArrivalM = 3.0;
-constexpr int32_t kCrossTierEscapeHardStallMs = 12000;
 // 路点无推进期间全局重定位达到这么多次就失败
 constexpr int32_t kLocalizationThrashFailCount = 5;
 
@@ -282,12 +280,10 @@ constexpr double kZiplineAimResponseMinCmdDeg = 2.0;
 constexpr double kZiplineExitAimToleranceDeg = 15.0;
 constexpr int32_t kZiplineTurnBudgetBaseMs = 1500;
 constexpr double kZiplineTurnBudgetPerDegMs = 45.0;
-// 俯仰开环控制, 以上仰硬限位为 +90 度基准
+// 俯仰开环控制, 以上仰硬限位为基准
 constexpr double kZiplinePitchDeadbandDeg = 8.0;
-constexpr double kZiplinePitchMaximumElevationDeg = 90.0;
-constexpr double kZiplinePitchMaximumDepressionDeg = 60.0;
-// 复位时超出硬限位多发的角度, 撞到限位后不会再转
-constexpr double kZiplinePitchResetOvershootDeg = 30.0;
+// 复位按整段竖直行程的这么多倍发, 撞到限位后多出的不起作用
+constexpr double kZiplinePitchResetRangeScale = 1.2;
 // 三次依次用算出的仰角、反向、不动俯仰
 constexpr int32_t kZiplineLaunchAttempts = 3;
 // 连续这么多拍位移都小于此值算滑行结束
@@ -379,6 +375,7 @@ constexpr double kPromptIconMatchThreshold = 0.75;
 constexpr const char* kInteractScanNode = "MapNavigatorInteractScan";
 // 检测触发尝试的唯一节流, 只有真正尝试时才计时
 constexpr int32_t kPromptScanIntervalMs = 1200;
+constexpr int32_t kPromptRecognizedRepeatLimit = 5;
 constexpr double kCollectArrivalBandWu = 1.5;
 // 这么久无进展就退回常规判定圈
 constexpr int32_t kCollectArrivalRelaxMs = 6000;

@@ -15,6 +15,41 @@ namespace
 // 慢拍占比的置信下界超过此值才算这一窗慢
 constexpr double kSlowTickMajority = 0.5;
 
+void push(const Config& config, std::vector<int64_t>* history, int64_t value)
+{
+    history->push_back(value);
+    if (history->size() > config.history_size) {
+        history->erase(history->begin());
+    }
+}
+
+void clear_history(Detector* detector)
+{
+    detector->tick_history.clear();
+    for (auto& history : detector->stage_history) {
+        history.clear();
+    }
+    detector->total_samples = 0;
+}
+
+Verdict build_verdict(const Detector& detector)
+{
+    Verdict verdict;
+    verdict.tick_median_ms = Median(detector.tick_history);
+    for (std::size_t i = 0; i < kStageCount; ++i) {
+        verdict.stage_median_ms[i] = Median(detector.stage_history[i]);
+    }
+    verdict.sample_count = detector.total_samples;
+    if (!detector.tick_history.empty()) {
+        const int64_t slow_tick_ms = detector.config.slow_tick_ms;
+        const auto slow = std::count_if(detector.tick_history.begin(), detector.tick_history.end(), [slow_tick_ms](int64_t ms) {
+            return ms > slow_tick_ms;
+        });
+        verdict.slow_percent = static_cast<int>(slow * 100 / static_cast<int64_t>(detector.tick_history.size()));
+    }
+    return verdict;
+}
+
 } // namespace
 
 int64_t Median(const std::vector<int64_t>& samples)
@@ -41,110 +76,73 @@ double WilsonLowerBound(int64_t hits, int64_t total, double z)
     return std::max(0.0, (centre - margin) / (1.0 + z2 / n));
 }
 
-Detector::Detector(Config config)
-    : config_(config)
+void BeginDetectorRun(Detector* detector)
 {
+    detector->warmup_until = std::chrono::steady_clock::now() + std::chrono::milliseconds(detector->config.warmup_ms);
+    detector->has_prev_tick = false;
+    detector->has_window = false;
+    detector->window_samples = 0;
+    detector->window_slow = 0;
 }
 
-void Detector::beginRun()
+void RecordDetectorStage(Detector* detector, Stage stage, int64_t elapsed_ms)
 {
-    warmup_until_ = Clock::now() + std::chrono::milliseconds(config_.warmup_ms);
-    has_prev_tick_ = false;
-    has_window_ = false;
-    window_samples_ = 0;
-    window_slow_ = 0;
-}
-
-void Detector::push(std::vector<int64_t>& history, int64_t value) const
-{
-    history.push_back(value);
-    if (history.size() > config_.history_size) {
-        history.erase(history.begin());
-    }
-}
-
-void Detector::recordStage(Stage stage, int64_t elapsed_ms)
-{
-    if (fired_ || elapsed_ms < 0) {
+    if (detector->fired || elapsed_ms < 0) {
         return;
     }
-    push(stage_history_[static_cast<std::size_t>(stage)], elapsed_ms);
+    push(detector->config, &detector->stage_history[static_cast<std::size_t>(stage)], elapsed_ms);
 }
 
-std::optional<Verdict> Detector::recordTick(uint64_t tick_seq, int64_t tick_gap_ms)
+std::optional<Verdict> RecordDetectorTick(Detector* detector, uint64_t tick_seq, int64_t tick_gap_ms)
 {
     // 只收紧挨上一拍的样本, 跳过的拍间隔里混着跳跃、攀爬等耗时
-    const bool consecutive = has_prev_tick_ && tick_seq == prev_tick_seq_ + 1;
-    prev_tick_seq_ = tick_seq;
-    has_prev_tick_ = true;
+    const bool consecutive = detector->has_prev_tick && tick_seq == detector->prev_tick_seq + 1;
+    detector->prev_tick_seq = tick_seq;
+    detector->has_prev_tick = true;
 
-    if (fired_ || !consecutive || tick_gap_ms <= 0) {
+    if (detector->fired || !consecutive || tick_gap_ms <= 0) {
         return std::nullopt;
     }
-    const auto now = Clock::now();
-    if (now < warmup_until_) {
+    const auto now = std::chrono::steady_clock::now();
+    if (now < detector->warmup_until) {
         return std::nullopt;
     }
-    if (!has_window_) {
-        window_started_at_ = now;
-        has_window_ = true;
+    if (!detector->has_window) {
+        detector->window_started_at = now;
+        detector->has_window = true;
     }
 
-    push(tick_history_, tick_gap_ms);
-    ++total_samples_;
-    ++window_samples_;
-    if (tick_gap_ms > config_.slow_tick_ms) {
-        ++window_slow_;
+    push(detector->config, &detector->tick_history, tick_gap_ms);
+    ++detector->total_samples;
+    ++detector->window_samples;
+    if (tick_gap_ms > detector->config.slow_tick_ms) {
+        ++detector->window_slow;
     }
 
-    const int64_t window_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - window_started_at_).count();
-    if (window_elapsed_ms < config_.window_ms || window_samples_ < config_.window_min_ticks) {
+    const int64_t window_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - detector->window_started_at).count();
+    if (window_elapsed_ms < detector->config.window_ms || detector->window_samples < detector->config.window_min_ticks) {
         return std::nullopt;
     }
 
-    const bool window_slow = WilsonLowerBound(window_slow_, window_samples_, config_.confidence_z) > kSlowTickMajority;
+    const bool window_slow =
+        WilsonLowerBound(detector->window_slow, detector->window_samples, detector->config.confidence_z) > kSlowTickMajority;
     if (window_slow) {
-        ++slow_windows_;
+        ++detector->slow_windows;
     }
     else {
         // 采样一起清掉, 让报告的中位数只来自判定所依据的那几窗
-        slow_windows_ = 0;
-        clearHistory();
+        detector->slow_windows = 0;
+        clear_history(detector);
     }
-    window_samples_ = 0;
-    window_slow_ = 0;
-    window_started_at_ = now;
-    if (slow_windows_ < config_.required_windows) {
+    detector->window_samples = 0;
+    detector->window_slow = 0;
+    detector->window_started_at = now;
+    if (detector->slow_windows < detector->config.required_windows) {
         return std::nullopt;
     }
 
-    fired_ = true;
-    return buildVerdict();
-}
-
-void Detector::clearHistory()
-{
-    tick_history_.clear();
-    for (auto& history : stage_history_) {
-        history.clear();
-    }
-    total_samples_ = 0;
-}
-
-Verdict Detector::buildVerdict() const
-{
-    Verdict verdict;
-    verdict.tick_median_ms = Median(tick_history_);
-    for (std::size_t i = 0; i < kStageCount; ++i) {
-        verdict.stage_median_ms[i] = Median(stage_history_[i]);
-    }
-    verdict.sample_count = total_samples_;
-    if (!tick_history_.empty()) {
-        const auto slow =
-            std::count_if(tick_history_.begin(), tick_history_.end(), [this](int64_t ms) { return ms > config_.slow_tick_ms; });
-        verdict.slow_percent = static_cast<int>(slow * 100 / static_cast<int64_t>(tick_history_.size()));
-    }
-    return verdict;
+    detector->fired = true;
+    return build_verdict(*detector);
 }
 
 } // namespace latency

@@ -73,6 +73,40 @@
             "AutoCollectInventoryReleaseSnapshot"
         ]
     },
+    "AutoCollectMidSweepStashCheck": {
+        "desc": "每完成 every 条采集路线后存放一次背包",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "EveryNthHit",
+                "custom_recognition_param": {
+                    "key": "AutoCollect",
+                    "every": 6
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "StashBackpackSubTask"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "on_error": [
+            "AutoCollectEnd"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.focus.mid_sweep_stash"
+        }
+    },
     "__AutoCollectValleyIVPinkBoleteDispatch": {
         "desc": "轻红柱状菌调度入口：勾选后启用，依次执行名下路线",
         "enabled": false,
@@ -516,6 +550,7 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]__AutoCollectWulingVitrodendra1Run",
+            "[JumpBack]__AutoCollectWulingVitrodendra2Run",
             "AutoCollectEnd"
         ]
     },
@@ -612,6 +647,7 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]__AutoCollectWulingBloodcapWulingstone1Run",
+            "[JumpBack]__AutoCollectWulingBloodcap1Run",
             "AutoCollectEnd"
         ]
     },
@@ -660,6 +696,7 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]__AutoCollectWulingCosmagaric1Run",
+            "[JumpBack]__AutoCollectWulingCosmagaric2Run",
             "AutoCollectEnd"
         ]
     },
@@ -900,6 +937,7 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]__AutoCollectWulingIgneosite1Run",
+            "[JumpBack]__AutoCollectWulingIgneosite2Run",
             "AutoCollectEnd"
         ]
     },
@@ -1389,7 +1427,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectValleyIVChrysodendra1Failed": {
         "desc": "路线 纯晶多齿叶 失败提示",
@@ -1417,7 +1459,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectValleyIVKalkonyx1Failed": {
         "desc": "路线 轻黯石 失败提示",
@@ -1445,7 +1491,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectValleyIVPinkBolete1Failed": {
         "desc": "路线 轻红柱状菌 失败提示",
@@ -1473,7 +1523,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectValleyIVAuronyx1Failed": {
         "desc": "路线 中黯石 失败提示",
@@ -1501,7 +1555,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectValleyIVKalkodendra1Failed": {
         "desc": "路线 晶化多齿叶 失败提示",
@@ -1529,7 +1587,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectValleyIVFirebuckle1Failed": {
         "desc": "路线 映火荞花 失败提示",
@@ -1557,7 +1619,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectValleyIVUmbraline1Failed": {
         "desc": "路线 黯银柑实 失败提示",
@@ -1585,7 +1651,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingBlightedJadeleaf1Failed": {
         "desc": "路线 受蚀玉化叶 失败提示",
@@ -1613,7 +1683,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingFalseAggela1Failed": {
         "desc": "路线 岩天使叶 失败提示",
@@ -1625,7 +1699,7 @@
         }
     },
     "__AutoCollectWulingVitrodendra1Run": {
-        "desc": "执行路线 至晶多齿叶，同一轮只执行一次，失败计入汇总",
+        "desc": "执行路线 至晶多齿叶（路线1），同一轮只执行一次，失败计入汇总",
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1641,10 +1715,14 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingVitrodendra1Failed": {
-        "desc": "路线 至晶多齿叶 失败提示",
+        "desc": "路线 至晶多齿叶（路线1） 失败提示",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -1669,7 +1747,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingBloodcapWulingstone1Failed": {
         "desc": "路线 血菌、武陵石 失败提示",
@@ -1681,7 +1763,7 @@
         }
     },
     "__AutoCollectWulingCosmagaric1Run": {
-        "desc": "执行路线 星门菌，同一轮只执行一次，失败计入汇总",
+        "desc": "执行路线 星门菌（路线1），同一轮只执行一次，失败计入汇总",
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1697,10 +1779,14 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingCosmagaric1Failed": {
-        "desc": "路线 星门菌 失败提示",
+        "desc": "路线 星门菌（路线1） 失败提示",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -1709,7 +1795,7 @@
         }
     },
     "__AutoCollectWulingIgneosite1Run": {
-        "desc": "执行路线 燎石，同一轮只执行一次，失败计入汇总",
+        "desc": "执行路线 燎石（路线1），同一轮只执行一次，失败计入汇总",
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1725,10 +1811,14 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingIgneosite1Failed": {
-        "desc": "路线 燎石 失败提示",
+        "desc": "路线 燎石（路线1） 失败提示",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -1753,7 +1843,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingRubyBolete1Failed": {
         "desc": "路线 重红柱状菌 失败提示",
@@ -1781,7 +1875,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingUmbronyx1Failed": {
         "desc": "路线 重黯石 失败提示",
@@ -1809,7 +1907,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingRedBolete1Failed": {
         "desc": "路线 中红柱状菌 失败提示",
@@ -1837,7 +1939,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingCrimsonSpearleaf1Failed": {
         "desc": "路线 红矛叶 失败提示",
@@ -1865,7 +1971,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingProtocolith1Failed": {
         "desc": "路线 协议纹石（路线1） 失败提示",
@@ -1893,7 +2003,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingTalosCap1Failed": {
         "desc": "路线 塔罗斯菌 失败提示",
@@ -1921,7 +2035,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingScorchbug1Failed": {
         "desc": "路线 灼壳虫 失败提示",
@@ -1949,7 +2067,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingGlowbug1Failed": {
         "desc": "路线 萤壳虫 失败提示",
@@ -1977,7 +2099,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingFluffedJincao1Failed": {
         "desc": "路线 蓬茸锦草 失败提示",
@@ -2005,7 +2131,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingRedjadeGinseng1Failed": {
         "desc": "路线 琼叶参 失败提示",
@@ -2033,7 +2163,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingThornyYazhen1Failed": {
         "desc": "路线 荆刺芽针 失败提示",
@@ -2061,7 +2195,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingAmberRice1Failed": {
         "desc": "路线 金石稻 失败提示",
@@ -2089,7 +2227,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingFarmerCrate1Failed": {
         "desc": "路线 种植食材箱（路线1） 失败提示",
@@ -2117,7 +2259,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingFarmerCrate2Failed": {
         "desc": "路线 种植食材箱（路线2） 失败提示",
@@ -2145,7 +2291,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingFarmerCrate3Failed": {
         "desc": "路线 种植食材箱（路线3） 失败提示",
@@ -2173,7 +2323,11 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
     },
     "__AutoCollectWulingProtocolith2Failed": {
         "desc": "路线 协议纹石（路线2） 失败提示",
@@ -2182,6 +2336,134 @@
         "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingProtocolith2.failed"
+        }
+    },
+    "__AutoCollectWulingBloodcap1Run": {
+        "desc": "执行路线 血菌，同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingBloodcap1Start",
+                    "failure_task": "__AutoCollectWulingBloodcap1Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingBloodcap1Failed": {
+        "desc": "路线 血菌 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingBloodcap1.failed"
+        }
+    },
+    "__AutoCollectWulingVitrodendra2Run": {
+        "desc": "执行路线 至晶多齿叶（路线2），同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingVitrodendra2Start",
+                    "failure_task": "__AutoCollectWulingVitrodendra2Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra2Failed": {
+        "desc": "路线 至晶多齿叶（路线2） 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingVitrodendra2.failed"
+        }
+    },
+    "__AutoCollectWulingIgneosite2Run": {
+        "desc": "执行路线 燎石（路线2），同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingIgneosite2Start",
+                    "failure_task": "__AutoCollectWulingIgneosite2Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingIgneosite2Failed": {
+        "desc": "路线 燎石（路线2） 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingIgneosite2.failed"
+        }
+    },
+    "__AutoCollectWulingCosmagaric2Run": {
+        "desc": "执行路线 星门菌（路线2），同一轮只执行一次，失败计入汇总",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FailureCollectorRunTask",
+                "custom_action_param": {
+                    "key": "AutoCollect",
+                    "task": "AutoCollectWulingCosmagaric2Start",
+                    "failure_task": "__AutoCollectWulingCosmagaric2Failed"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectMidSweepStashCheck",
+            "AutoCollectEnd"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric2Failed": {
+        "desc": "路线 星门菌（路线2） 失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCosmagaric2.failed"
         }
     }
 }

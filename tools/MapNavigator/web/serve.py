@@ -867,6 +867,15 @@ def _unresolved_zone_ids(points: list) -> list[str]:
     return [z for z in zone_ids if resolve_zone_image(z, MAP_IMAGE_DIR) is None]
 
 
+def _map_zones(payload: dict[str, Any]) -> dict[str, str]:
+    """区名 -> 所在地图的底图区名, 由前端随请求带上它从 /api/zones 取到的表。"""
+
+    map_zones = payload.get("map_zones")
+    if not isinstance(map_zones, dict) or not map_zones:
+        raise ValueError("地图区表还没加载完, 请稍后再试")
+    return {str(zone): str(map_zone) for zone, map_zone in map_zones.items()}
+
+
 def _unresolved_zone_message(unresolved: list[str]) -> str:
     text = "、".join(unresolved[:6])
     if len(unresolved) > 6:
@@ -891,13 +900,17 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
             load_points_from_json_file,
             split_route_into_segments,
         )
-        from model import normalize_path_points
+        from model import assign_point_frames, normalize_path_points
 
+        try:
+            map_zones = _map_zones(payload)
+        except ValueError as exc:
+            return {"ok": False, "error": str(exc)}
         tmp = _write_temp_json(text)
         try:
             # 先按路线导入, 失败再退回 Assert
             try:
-                route = load_points_from_json_file(tmp)
+                route = load_points_from_json_file(tmp, map_zones)
             except Exception as route_exc:
                 try:
                     location = load_assert_location_from_json_file(tmp)
@@ -946,7 +959,7 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
                     }
                 # 无片段/无可选区域 -> 沿用原点位直接归一化
 
-            final_points = normalize_path_points(imported_points)
+            final_points = normalize_path_points(assign_point_frames(imported_points, map_zones), map_zones)
             unresolved = _unresolved_zone_ids(final_points)
             if unresolved:
                 return {"ok": False, "error": _unresolved_zone_message(unresolved)}
@@ -974,7 +987,7 @@ async def api_import_finalize(payload: dict[str, Any] = Body(default_factory=dic
         raise HTTPException(status_code=400, detail="raw_points / zone_assignments 需为数组")
 
     def _run() -> dict[str, Any]:
-        from model import normalize_path_points
+        from model import assign_point_frames, normalize_path_points
 
         assigned_points = [dict(point) for point in raw_points]
         selected_zone_names: list[str] = []
@@ -992,7 +1005,11 @@ async def api_import_finalize(payload: dict[str, Any] = Body(default_factory=dic
         if not selected_zone_names:
             return {"ok": False, "error": "当前没有任何可用区域映射。"}
 
-        final_points = normalize_path_points(assigned_points)
+        try:
+            map_zones = _map_zones(payload)
+        except ValueError as exc:
+            return {"ok": False, "error": str(exc)}
+        final_points = normalize_path_points(assign_point_frames(assigned_points, map_zones), map_zones)
         unresolved = _unresolved_zone_ids(final_points)
         if unresolved:
             return {"ok": False, "error": _unresolved_zone_message(unresolved)}
@@ -1006,11 +1023,15 @@ async def api_export_path(payload: dict[str, Any] = Body(default_factory=dict)) 
     points = payload.get("points", [])
     if not isinstance(points, list):
         raise HTTPException(status_code=400, detail="points 需为数组")
+    try:
+        map_zones = _map_zones(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     def _run() -> dict[str, Any]:
         from json_import import export_path_nodes
 
-        nodes = export_path_nodes(points)
+        nodes = export_path_nodes(points, map_zones)
         # indent=4, ensure_ascii=False —— 与 tk 工具 (app_tk.py) 的复制格式逐字节一致
         text = json.dumps(nodes, indent=4, ensure_ascii=False)
         return {"nodes": nodes, "text": text}
@@ -1209,6 +1230,7 @@ async def _ws_session(websocket: WebSocket, mode: SessionMode) -> None:
         payload = inner if isinstance(inner, dict) else first
         path = first.get("path")
         assert_target = first.get("assert_target")
+        map_zones = first.get("map_zones")
         start_msg = {
             "type": "start",
             "config": payload,
@@ -1219,6 +1241,7 @@ async def _ws_session(websocket: WebSocket, mode: SessionMode) -> None:
             "zipline_account_id": str(first.get("zipline_account_id") or ""),
             "heading_source": first.get("heading_source", "character"),
             "assert_target": assert_target if isinstance(assert_target, dict) else None,
+            "map_zones": map_zones if isinstance(map_zones, dict) else {},
             "live_only": bool(first.get("live_only")),
         }
 

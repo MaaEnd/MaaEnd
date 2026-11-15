@@ -1,7 +1,5 @@
 #pragma once
 
-#include <algorithm>
-#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <optional>
@@ -12,13 +10,30 @@
 #include "../../Navmesh/OccluderPack.h"
 #include "../navi_domain_types.h"
 
+namespace navmesh
+{
+struct BaseNavPack;
+}
+
 namespace mapnavigator
 {
 
 struct NaviParam;
 
-// 原地把 tier 模板像素坐标换算到 navmesh 底图像素系, 其他 zone 原样不动
-void NormalizeLivePositionToBase(const NaviParam& param, NaviPosition& pos);
+// 同一地图的层都归到坐标与底图一致的那个区名, 包里查不到的区原样返回
+std::string BaseZoneName(const navmesh::BaseNavPack& pack, const std::string& zone_id);
+
+// 原地把层上的位置换成所在地图底图的坐标和区名, 层的主楼面高记进 zone_floor_y, 其他 zone 原样不动
+void NormalizeLivePositionToBase(NaviPosition* pos, const NaviParam& param);
+
+// 与 zone_id 同在一张地图上的全部区名, 包里查不到时为空
+std::vector<std::string> ZonesOnSameMap(const NaviParam& param, const std::string& zone_id);
+
+// 原地把路点的区名换成所在地图底图的区名, 原层的主楼面高记进 zone_floor_y
+void FlattenWaypointZones(std::vector<Waypoint>* path, const NaviParam& param);
+
+// zone_id 那张图上的点换成所在地图底图的坐标, 包里查不到时为空
+std::optional<navmesh::WorldPoint> ProjectToMapBase(const NaviParam& param, const std::string& zone_id, double x, double y);
 
 // distance 是平面距离, height 与 BaseNavRouteRequest::floor_y 同一量纲
 struct NavmeshSnap
@@ -55,28 +70,6 @@ std::vector<std::vector<double>> NavmeshGroundHeights(
 // 两点的连通类集合不相交就必然规划不通, 空集表示无从判断, 应当允许尝试
 std::vector<std::vector<uint32_t>>
     NavmeshRegionsNear(const NaviParam& param, const std::string& locator_zone, const std::vector<navmesh::WorldPoint>& points);
-float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone);
-bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b);
-
-template <typename Fn>
-void ForEachResampledPoint(const std::vector<navmesh::WorldPoint>& poly, double step, Fn&& fn)
-{
-    if (poly.empty()) {
-        return;
-    }
-    const double safe_step = std::max(step, 0.1);
-    fn(poly.front());
-    for (size_t i = 0; i + 1 < poly.size(); ++i) {
-        const navmesh::WorldPoint& a = poly[i];
-        const navmesh::WorldPoint& b = poly[i + 1];
-        const double seg = std::hypot(b.x - a.x, b.y - a.y);
-        const int steps = static_cast<int>(std::ceil(seg / safe_step));
-        for (int k = 1; k <= steps; ++k) {
-            const double t = static_cast<double>(k) / static_cast<double>(steps);
-            fn(navmesh::WorldPoint { .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t });
-        }
-    }
-}
 
 // 不在 navmesh 上的采样比例, zone 解析不了或线为空时返回 0
 double NavmeshOffMeshFraction(

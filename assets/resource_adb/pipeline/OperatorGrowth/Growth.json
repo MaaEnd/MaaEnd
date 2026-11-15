@@ -1,0 +1,239 @@
+{
+    "OperatorGrowthCheckOverview": {
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                1010,
+                12,
+                180,
+                48
+            ]
+        }
+    },
+    "OperatorGrowthOverviewOCR": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    1010,
+                    12,
+                    180,
+                    48
+                ]
+            }
+        }
+    },
+    "OperatorGrowthAllOCR": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    25,
+                    75,
+                    340,
+                    540
+                ]
+            }
+        }
+    },
+    "OperatorGrowthTargetAvatar": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    40,
+                    110,
+                    325,
+                    505
+                ]
+            }
+        }
+    },
+    "OperatorGrowthTargetName": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    485,
+                    85,
+                    360,
+                    40
+                ]
+            }
+        }
+    },
+    "OperatorGrowthMaterialTemplates": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    620,
+                    250,
+                    375,
+                    420
+                ]
+            }
+        }
+    },
+    "OperatorGrowthRedQuantity": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    81,
+                    0,
+                    -27
+                ],
+                "count": 19
+            }
+        }
+    },
+    "OperatorGrowthClickInsufficientMaterial": {
+        "action": {
+            "param": {
+                "target_offset": [
+                    0,
+                    -81,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOperatorLevelTab": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    440,
+                    185,
+                    190,
+                    46
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOperatorLevelSelected": {
+        "recognition": {
+            "param": {
+                "all_of": [
+                    "OperatorGrowthSelected",
+                    "OperatorGrowthOperatorLevelTab",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    444,
+                                    193,
+                                    176,
+                                    27
+                                ],
+                                "method": 40,
+                                "lower": [
+                                    0,
+                                    0,
+                                    220
+                                ],
+                                "upper": [
+                                    180,
+                                    35,
+                                    255
+                                ],
+                                "count": 2000
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "OperatorGrowthSkillsTab": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    632,
+                    185,
+                    190,
+                    46
+                ]
+            }
+        }
+    },
+    "OperatorGrowthSkillsSelected": {
+        "recognition": {
+            "param": {
+                "all_of": [
+                    "OperatorGrowthSelected",
+                    "OperatorGrowthSkillsTab",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    638,
+                                    193,
+                                    176,
+                                    27
+                                ],
+                                "method": 40,
+                                "lower": [
+                                    0,
+                                    0,
+                                    220
+                                ],
+                                "upper": [
+                                    180,
+                                    35,
+                                    255
+                                ],
+                                "count": 2000
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "OperatorGrowthWeaponLevelTab": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    824,
+                    185,
+                    190,
+                    46
+                ]
+            }
+        }
+    },
+    "OperatorGrowthWeaponLevelSelected": {
+        "recognition": {
+            "param": {
+                "all_of": [
+                    "OperatorGrowthSelected",
+                    "OperatorGrowthWeaponLevelTab",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    830,
+                                    193,
+                                    176,
+                                    27
+                                ],
+                                "method": 40,
+                                "lower": [
+                                    0,
+                                    0,
+                                    220
+                                ],
+                                "upper": [
+                                    180,
+                                    35,
+                                    255
+                                ],
+                                "count": 2000
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

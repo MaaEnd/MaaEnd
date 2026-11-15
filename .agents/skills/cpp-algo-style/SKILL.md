@@ -117,7 +117,7 @@ private:
 
 ### 需要改进的点
 
-- `NavigationStateMachine` 持有多个裸指针（`ActionWrapper*` 等），生命周期依赖调用者保证——应添加注释说明所有权语义，或使用 `std::shared_ptr` / `std::weak_ptr`
+- `Navigator` 持有多个裸指针（`InputBackend*` 等），生命周期依赖调用者保证——应添加注释说明所有权语义，或使用 `std::shared_ptr` / `std::weak_ptr`
 - 全局单例 `getOrInitLocator()` 使用 `static std::shared_ptr`——可接受但应注意线程安全和测试性
 
 ## 6. 日志规范

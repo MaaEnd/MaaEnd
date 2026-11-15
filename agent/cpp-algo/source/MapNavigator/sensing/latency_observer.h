@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <mutex>
 
 #include <MaaFramework/MaaDef.h>
 
@@ -12,11 +13,17 @@ namespace mapnavigator
 namespace latency
 {
 
-void BeginRun();
-void RecordStage(Stage stage, int64_t elapsed_ms);
+struct LatencyRun
+{
+    std::mutex mutex;
+    Detector detector;
+};
+
+void BeginRun(LatencyRun* run);
+void RecordStage(LatencyRun* run, Stage stage, int64_t elapsed_ms);
 
 // 判定成立时就地给客户端发提示
-void RecordTick(MaaContext* context, uint64_t tick_seq, int64_t tick_gap_ms);
+void RecordTick(LatencyRun* run, MaaContext* context, uint64_t tick_seq, int64_t tick_gap_ms);
 
 } // namespace latency
 

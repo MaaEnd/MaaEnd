@@ -5,7 +5,7 @@
 namespace mapnavigator
 {
 
-double NaviMath::calcTargetRotation(double from_x, double from_y, double to_x, double to_y)
+double CalcTargetRotation(double from_x, double from_y, double to_x, double to_y)
 {
     const double dx = to_x - from_x;
     const double dy = to_y - from_y;
@@ -16,12 +16,12 @@ double NaviMath::calcTargetRotation(double from_x, double from_y, double to_x, d
     return std::fmod(std::round(angle_deg), 360.0);
 }
 
-double NaviMath::calcDeltaRotation(double current, double target)
+double CalcDeltaRotation(double current, double target)
 {
-    return normalizeAngle(target - current);
+    return NormalizeAngle(target - current);
 }
 
-double NaviMath::normalizeAngle(double angle)
+double NormalizeAngle(double angle)
 {
     while (angle > 180.0) {
         angle -= 360.0;
@@ -32,7 +32,7 @@ double NaviMath::normalizeAngle(double angle)
     return angle;
 }
 
-double NaviMath::normalizeHeading(double angle)
+double NormalizeHeading(double angle)
 {
     angle = std::fmod(angle, 360.0);
     if (angle < 0.0) {
@@ -42,7 +42,7 @@ double NaviMath::normalizeHeading(double angle)
 }
 
 // 仰角只能用世界坐标算, 平面 x/y 按地图比例缩放过, 和高度不同尺
-double NaviMath::calcElevation(const ZiplineNodeRef& from, const ZiplineNodeRef& to)
+double CalcElevation(const ZiplineNodeRef& from, const ZiplineNodeRef& to)
 {
     if (!from.has_world || !to.has_world) {
         return 0.0;

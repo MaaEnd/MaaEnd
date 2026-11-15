@@ -7,16 +7,9 @@
 namespace mapnavigator
 {
 
-class NaviController
-{
-public:
-    explicit NaviController(MaaContext* ctx);
-    ~NaviController() = default;
+struct NavProcessState;
+struct ZiplineOutcome;
 
-    bool navigate(const NaviParam& requested_param);
-
-private:
-    MaaContext* ctx_;
-};
+bool RunNavigation(NavProcessState* process, ZiplineOutcome* zipline_outcome, MaaContext* context, const NaviParam& requested_param);
 
 } // namespace mapnavigator

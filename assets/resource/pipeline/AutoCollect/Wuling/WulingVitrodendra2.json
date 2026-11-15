@@ -1,0 +1,136 @@
+{
+    "AutoCollectWulingVitrodendra2Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValleyZhailingIslet"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingVitrodendra2AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingVitrodendra2.label"
+        }
+    },
+    "AutoCollectWulingVitrodendra2End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingVitrodendra2AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                743.89,
+                2585.41,
+                20.0,
+                20.0
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingVitrodendra2Goto"
+        ]
+    },
+    "AutoCollectWulingVitrodendra2Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                849.14,
+                                2525.84
+                            ],
+                            "target_deck_y": 227.46
+                        },
+                        [
+                            849.14,
+                            2525.84,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            849.61,
+                            2525.07,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            847.87,
+                            2523.73,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            849.68,
+                            2522.33,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            849.63,
+                            2521.2,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            846.25,
+                            2521.72,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            845.21,
+                            2517.28,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            844.39,
+                            2515.79,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            844.15,
+                            2514.69,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            846.23,
+                            2515.2,
+                            "COLLECT",
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingVitrodendra2End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

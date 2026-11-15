@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <iterator>
 #include <numbers>
@@ -31,29 +32,9 @@ constexpr float kSecondaryPeakRatio = 0.05f;
 // 参考资产缺失或非 BGRA 时的占位输入：1x1 全 0 BGRA。采样窗不可能落在这块资产里，
 // 参考条带据此全为「参考缺失」。
 const cv::Mat kUnavailableAsset(1, 1, CV_8UC4, cv::Scalar::all(0));
-} // namespace
 
-CameraOrientationPredictor::CameraOrientationPredictor(const std::string& refModelPath, int threads)
-{
-    try {
-        ortEnv = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "MapLocatorCameraOrientation");
-    }
-    catch (const Ort::Exception& e) {
-        LogError << "CameraOrientation: failed to create ONNX environment" << VAR(e.what());
-        return;
-    }
-
-    Ort::SessionOptions sessionOptions;
-    sessionOptions.SetIntraOpNumThreads(std::max(1, threads));
-    sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
-
-    if (!loadSession(refModelPath, "polar_with_ref", sessionOptions, &refSession)) {
-        LogError << "CameraOrientation: predictor disabled";
-        ortEnv.reset();
-    }
-}
-
-bool CameraOrientationPredictor::loadSession(
+bool load_session(
+    OrientationModel* model,
     const std::string& modelPath,
     const char* tag,
     const Ort::SessionOptions& options,
@@ -65,7 +46,7 @@ bool CameraOrientationPredictor::loadSession(
 
     try {
         auto osModelPath = MAA_NS::to_osstring(modelPath);
-        *out_session = std::make_unique<Ort::Session>(*ortEnv, osModelPath.c_str(), options);
+        *out_session = std::make_unique<Ort::Session>(*model->env, osModelPath.c_str(), options);
         LogInfo << "CameraOrientation model loaded successfully." << VAR(tag) << VAR(modelPath);
         return true;
     }
@@ -76,108 +57,7 @@ bool CameraOrientationPredictor::loadSession(
     }
 }
 
-std::optional<CameraOrientation> CameraOrientationPredictor::predict(
-    const cv::Mat& minimap,
-    const cv::Mat& referenceAsset,
-    double x,
-    double y,
-    double scale,
-    const std::string& zoneId,
-    std::optional<double> camera_heading_prior)
-{
-    const bool assetUsable = !referenceAsset.empty() && referenceAsset.type() == CV_8UC4;
-    const cv::Mat& asset = assetUsable ? referenceAsset : kUnavailableAsset;
-    return infer(minimap, asset, x, y, scale, zoneId, camera_heading_prior);
-}
-
-std::optional<CameraOrientation> CameraOrientationPredictor::infer(
-    const cv::Mat& minimap,
-    const cv::Mat& asset,
-    double x,
-    double y,
-    double scale,
-    const std::string& zoneId,
-    std::optional<double> camera_heading_prior)
-{
-    std::lock_guard<std::mutex> lock(predictMutex);
-
-    if (!isLoaded()) {
-        LogError << "CameraOrientation Error: Model is NOT loaded.";
-        return std::nullopt;
-    }
-    if (minimap.empty() || (minimap.channels() != 3 && minimap.channels() != 4)) {
-        LogError << "CameraOrientation Error: invalid minimap input" << VAR(minimap.cols) << VAR(minimap.rows) << VAR(minimap.channels());
-        return std::nullopt;
-    }
-
-    // 预处理输入契约是 BGR HWC uint8；BGRA 先转 3 通道（机械类型转换）。
-    cv::Mat minimapBgr = minimap;
-    cv::Mat converted;
-    if (minimapBgr.channels() == 4) {
-        cv::cvtColor(minimapBgr, converted, cv::COLOR_BGRA2BGR);
-        minimapBgr = converted;
-    }
-
-    // 展开为极坐标条带（见 CameraOrientationPreprocess.h）。
-    if (!BuildOrientationStrips(minimapBgr, asset, static_cast<float>(x), static_cast<float>(y), static_cast<float>(scale), stripScratch)) {
-        LogError << "CameraOrientation: invalid preprocess input" << VAR(minimapBgr.cols) << VAR(minimapBgr.rows) << VAR(asset.cols)
-                 << VAR(asset.rows) << VAR(x) << VAR(y) << VAR(scale);
-        return std::nullopt;
-    }
-
-    try {
-        auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
-
-        const std::uint8_t* referenceData = stripScratch.reference.ptr<std::uint8_t>();
-        const size_t stripPixels = stripScratch.reference.total();
-
-        // 缺口占比：参考条带 alpha（第 4 通道）< 255 的像素占比，仅作诊断日志。
-        int64_t gapPixels = 0;
-        for (size_t i = 0; i < stripPixels; ++i) {
-            if (referenceData[i * 4 + 3] < 255) {
-                ++gapPixels;
-            }
-        }
-        const double gapFraction = static_cast<double>(gapPixels) / static_cast<double>(stripPixels);
-        LogInfo << "CameraOrientation ref:" << VAR(zoneId) << VAR(x) << VAR(y) << VAR(scale) << VAR(gapFraction);
-
-        // 分类器输入固定为 7 通道参考配对 [obs.BGR, ref.BGR, ref.A]。
-        refInputScratch.create(kOrientationStripHeight, kOrientationStripWidth, CV_MAKETYPE(CV_8U, 7));
-        const cv::Mat sources[] = { stripScratch.observed, stripScratch.reference };
-        // 源通道跨矩阵连续编号：[0,3) 观测 BGR、[3,7) 参考 BGR + alpha，因此恒等映射。
-        const int fromTo[] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6 };
-        cv::mixChannels(sources, std::size(sources), &refInputScratch, 1, fromTo, 7);
-        std::uint8_t* classifierData = refInputScratch.ptr<std::uint8_t>();
-        const int classifierChannels = 7;
-
-        const std::array<int64_t, 4> classifierShape { 1, kOrientationStripHeight, kOrientationStripWidth, classifierChannels };
-        Ort::Value classifierInput = Ort::Value::CreateTensor<std::uint8_t>(
-            memoryInfo,
-            classifierData,
-            stripPixels * classifierChannels,
-            classifierShape.data(),
-            classifierShape.size());
-        const char* classifierInputNames[] = { kClassifierInputName };
-        const char* classifierOutputNames[] = { kClassifierOutputName };
-        auto outputTensors =
-            refSession->Run(Ort::RunOptions { nullptr }, classifierInputNames, &classifierInput, 1, classifierOutputNames, 1);
-        if (outputTensors.empty()) {
-            LogError << "CameraOrientation: empty inference output.";
-            return std::nullopt;
-        }
-
-        const float* pmf = outputTensors.front().GetTensorData<float>();
-        const size_t count = outputTensors.front().GetTensorTypeAndShapeInfo().GetElementCount();
-        return decodePmf(pmf, count, camera_heading_prior);
-    }
-    catch (const Ort::Exception& e) {
-        LogError << "CameraOrientation: inference failed" << VAR(zoneId) << VAR(e.what());
-        return std::nullopt;
-    }
-}
-
-std::optional<CameraOrientation>
-    CameraOrientationPredictor::decodePmf(const float* pmf, size_t count, std::optional<double> camera_heading_prior) const
+std::optional<CameraOrientation> decode_pmf(const float* pmf, size_t count, std::optional<double> camera_heading_prior)
 {
     if (pmf == nullptr || count == 0) {
         LogError << "CameraOrientation: unexpected pmf size" << VAR(count);
@@ -299,6 +179,143 @@ std::optional<CameraOrientation>
              << VAR(camera_heading_prior);
 
     return CameraOrientation { .rot = decoded, .confidence = confidence };
+}
+
+std::optional<CameraOrientation> infer_orientation(
+    OrientationModel* model,
+    const cv::Mat& minimap,
+    const cv::Mat& asset,
+    double x,
+    double y,
+    double scale,
+    const std::string& zoneId,
+    std::optional<double> camera_heading_prior)
+{
+    std::lock_guard<std::mutex> lock(model->predict_mutex);
+
+    if (!OrientationModelLoaded(*model)) {
+        LogError << "CameraOrientation Error: Model is NOT loaded.";
+        return std::nullopt;
+    }
+    if (minimap.empty() || (minimap.channels() != 3 && minimap.channels() != 4)) {
+        LogError << "CameraOrientation Error: invalid minimap input" << VAR(minimap.cols) << VAR(minimap.rows) << VAR(minimap.channels());
+        return std::nullopt;
+    }
+
+    // 预处理输入契约是 BGR HWC uint8；BGRA 先转 3 通道（机械类型转换）。
+    cv::Mat minimapBgr = minimap;
+    cv::Mat converted;
+    if (minimapBgr.channels() == 4) {
+        cv::cvtColor(minimapBgr, converted, cv::COLOR_BGRA2BGR);
+        minimapBgr = converted;
+    }
+
+    // 展开为极坐标条带（见 CameraOrientationPreprocess.h）。
+    if (!BuildOrientationStrips(
+            minimapBgr,
+            asset,
+            static_cast<float>(x),
+            static_cast<float>(y),
+            static_cast<float>(scale),
+            model->strip_scratch)) {
+        LogError << "CameraOrientation: invalid preprocess input" << VAR(minimapBgr.cols) << VAR(minimapBgr.rows) << VAR(asset.cols)
+                 << VAR(asset.rows) << VAR(x) << VAR(y) << VAR(scale);
+        return std::nullopt;
+    }
+
+    try {
+        auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
+
+        const std::uint8_t* referenceData = model->strip_scratch.reference.ptr<std::uint8_t>();
+        const size_t stripPixels = model->strip_scratch.reference.total();
+
+        // 缺口占比：参考条带 alpha（第 4 通道）< 255 的像素占比，仅作诊断日志。
+        int64_t gapPixels = 0;
+        for (size_t i = 0; i < stripPixels; ++i) {
+            if (referenceData[i * 4 + 3] < 255) {
+                ++gapPixels;
+            }
+        }
+        const double gapFraction = static_cast<double>(gapPixels) / static_cast<double>(stripPixels);
+        LogInfo << "CameraOrientation ref:" << VAR(zoneId) << VAR(x) << VAR(y) << VAR(scale) << VAR(gapFraction);
+
+        // 分类器输入固定为 7 通道参考配对 [obs.BGR, ref.BGR, ref.A]。
+        model->ref_input_scratch.create(kOrientationStripHeight, kOrientationStripWidth, CV_MAKETYPE(CV_8U, 7));
+        const cv::Mat sources[] = { model->strip_scratch.observed, model->strip_scratch.reference };
+        // 源通道跨矩阵连续编号：[0,3) 观测 BGR、[3,7) 参考 BGR + alpha，因此恒等映射。
+        const int fromTo[] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6 };
+        cv::mixChannels(sources, std::size(sources), &model->ref_input_scratch, 1, fromTo, 7);
+        std::uint8_t* classifierData = model->ref_input_scratch.ptr<std::uint8_t>();
+        const int classifierChannels = 7;
+
+        const std::array<int64_t, 4> classifierShape { 1, kOrientationStripHeight, kOrientationStripWidth, classifierChannels };
+        Ort::Value classifierInput = Ort::Value::CreateTensor<std::uint8_t>(
+            memoryInfo,
+            classifierData,
+            stripPixels * classifierChannels,
+            classifierShape.data(),
+            classifierShape.size());
+        const char* classifierInputNames[] = { kClassifierInputName };
+        const char* classifierOutputNames[] = { kClassifierOutputName };
+        auto outputTensors =
+            model->ref_session->Run(Ort::RunOptions { nullptr }, classifierInputNames, &classifierInput, 1, classifierOutputNames, 1);
+        if (outputTensors.empty()) {
+            LogError << "CameraOrientation: empty inference output.";
+            return std::nullopt;
+        }
+
+        const float* pmf = outputTensors.front().GetTensorData<float>();
+        const size_t count = outputTensors.front().GetTensorTypeAndShapeInfo().GetElementCount();
+        return decode_pmf(pmf, count, camera_heading_prior);
+    }
+    catch (const Ort::Exception& e) {
+        LogError << "CameraOrientation: inference failed" << VAR(zoneId) << VAR(e.what());
+        return std::nullopt;
+    }
+}
+} // namespace
+
+std::unique_ptr<OrientationModel> LoadOrientationModel(const std::string& refModelPath, int threads)
+{
+    auto model = std::make_unique<OrientationModel>();
+
+    try {
+        model->env = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "MapLocatorCameraOrientation");
+    }
+    catch (const Ort::Exception& e) {
+        LogError << "CameraOrientation: failed to create ONNX environment" << VAR(e.what());
+        return model;
+    }
+
+    Ort::SessionOptions sessionOptions;
+    sessionOptions.SetIntraOpNumThreads(std::max(1, threads));
+    sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
+
+    if (!load_session(model.get(), refModelPath, "polar_with_ref", sessionOptions, &model->ref_session)) {
+        LogError << "CameraOrientation: predictor disabled";
+        model->env.reset();
+    }
+    return model;
+}
+
+bool OrientationModelLoaded(const OrientationModel& model)
+{
+    return model.ref_session != nullptr;
+}
+
+std::optional<CameraOrientation> PredictCameraOrientation(
+    OrientationModel* model,
+    const cv::Mat& minimap,
+    const cv::Mat& referenceAsset,
+    double x,
+    double y,
+    double scale,
+    const std::string& zoneId,
+    std::optional<double> camera_heading_prior)
+{
+    const bool assetUsable = !referenceAsset.empty() && referenceAsset.type() == CV_8UC4;
+    const cv::Mat& asset = assetUsable ? referenceAsset : kUnavailableAsset;
+    return infer_orientation(model, minimap, asset, x, y, scale, zoneId, camera_heading_prior);
 }
 
 } // namespace maplocator

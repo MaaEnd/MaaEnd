@@ -5,16 +5,23 @@
 
 #include <MaaUtils/NoWarningCV.hpp>
 
-#include "../backend.h"
+#include "../backend_types.h"
 #include "adb_camera_swipe_driver.h"
 #include "adb_virtual_joystick_driver.h"
 
 namespace maplocator
 {
 
-class MapLocator;
+struct MapLocator;
 
 } // namespace maplocator
+
+namespace mapnavigator
+{
+
+struct InputBackend;
+
+} // namespace mapnavigator
 
 namespace mapnavigator::backend::adb
 {
@@ -37,53 +44,29 @@ struct AdbActionButtonLayout
     int post_action_delay_ms = 0;
 };
 
-class AdbInputBackend final : public IInputBackend
+struct AdbBackend
 {
-public:
-    AdbInputBackend(MaaController* ctrl, std::string controller_type, std::shared_ptr<maplocator::MapLocator> locator);
-
-    MaaController* getCtrl() const override;
-    const std::string& controllerType() const override;
-    bool usesTouchBackend() const override;
-    bool isSupported() const override;
-    const std::string& unsupportedReason() const override;
-    double defaultTurnUnitsPerDegree() const override;
-    double defaultPitchUnitsPerDegree() const override;
-    SteeringTransportProfile steeringProfile() const override;
-
-    bool supportsWalkToggle() const override { return true; }
-
-    void setMovementStateSync(MovementState state, int delay_millis) override;
-    void triggerJumpSync(int hold_millis) override;
-    void triggerInteractSync(int hold_millis) override;
-    void pulseForwardSync(int hold_millis) override;
-    void triggerSprintSync() override;
-
-    void toggleWalkModeSync() override { joystick_driver_.setWalking(!joystick_driver_.walking()); }
-
-    void resetForwardWalkSync(int release_millis) override;
-    void clickMouseLeftSync() override;
-    void triggerZiplineLaunchSync() override;
-    void triggerZiplineDismountSync(int hold_millis) override;
-    bool sendViewDeltaSync(int dx, int dy) override;
-
-private:
-    void applyMovementState(MovementState state, int delay_millis);
-    bool clickTargetSync(const AdbTapTarget& target, int hold_millis, int delay_millis);
-    bool touchDownTargetSync(const AdbTapTarget& target) const;
-    bool waitForControllerAction(MaaCtrlId ctrl_id, const char* action_name) const;
-
-    MaaController* ctrl_ = nullptr;
-    std::string controller_type_;
-    std::string unsupported_reason_;
-    double default_turn_units_per_degree_ = 0.0;
-    bool has_locator_ = false;
-    AdbCameraSwipeDriver camera_swipe_driver_;
-    AdbVirtualJoystickDriver joystick_driver_;
-    AdbActionButtonLayout action_buttons_ {};
+    bool has_locator = false;
+    AdbCameraSwipeDriver camera_swipe;
+    AdbVirtualJoystickDriver joystick;
+    AdbActionButtonLayout action_buttons {};
 };
 
-std::unique_ptr<IInputBackend>
-    CreateAdbInputBackend(MaaController* ctrl, std::string controller_type, std::shared_ptr<maplocator::MapLocator> locator);
+InputBackend OpenAdbInputBackend(MaaController* ctrl, std::string controller_type, std::shared_ptr<maplocator::MapLocator> locator);
+void CloseAdbInputBackend(InputBackend* backend);
+
+SteeringTransportProfile AdbSteeringProfile();
+
+void SetAdbMovementStateSync(InputBackend* backend, MovementState state, int delay_millis);
+void TriggerAdbJumpSync(const InputBackend& backend, int hold_millis);
+void TriggerAdbInteractSync(const InputBackend& backend, int hold_millis);
+void PulseAdbForwardSync(InputBackend* backend, int hold_millis);
+void TriggerAdbSprintSync(InputBackend* backend);
+void ToggleAdbWalkModeSync(InputBackend* backend);
+void ResetAdbForwardWalkSync(InputBackend* backend, int release_millis);
+void ClickAdbMouseLeftSync(const InputBackend& backend);
+void TriggerAdbZiplineLaunchSync(const InputBackend& backend);
+void TriggerAdbZiplineDismountSync(const InputBackend& backend, int hold_millis);
+bool SendAdbViewDeltaSync(const InputBackend& backend, int dx, int dy);
 
 } // namespace mapnavigator::backend::adb

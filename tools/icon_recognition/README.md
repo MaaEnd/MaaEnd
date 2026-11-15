@@ -62,6 +62,10 @@ python tools/icon_recognition/publish.py --fixed-only
 
 有特殊目录需求时运行 `python tools/icon_recognition/publish.py --help` 覆盖单个路径。`catalog.py` 与 `localization.py` 仍可用于单独调试生成阶段，普通发布不需要分别调用。
 
+## 取用可用道具任务
+
+运行 `pnpm generate:UseConsumable` 时，任务模板会从 zmdmap 的 `item_mini_table.json` 按 `storageKind == "Normal"`、`categoryType == "Usable"`、`type == "TacticalItem"` 生成战术物品选项，并校验物品已加入 IconRecognition catalog。四个消耗品选项继续由现有的消耗品数据生成。
+
 ## 发布数据结构
 
 `recognition_items.json` 的顶层 key 是识别 API 使用的 `item_id`。每项包含：

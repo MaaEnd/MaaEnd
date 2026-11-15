@@ -2,33 +2,34 @@
 
 namespace mapnavigator
 {
-class ActionWrapper;
+struct InputBackend;
 }
 
 namespace mapnavigator::walkmode
 {
 
-bool Engaged();
+struct WalkBelief
+{
+    bool walking = false;
+};
+
+bool Engaged(const WalkBelief& belief);
 
 // 冲刺会自动退出走路, 只更新记录不发键
-void NoteSprintTriggered();
+void NoteSprintTriggered(WalkBelief* belief);
 
-class Toggle
+// 幂等, 后端无走路键时不生效, 记录只随真实按键变化
+void RequestWalk(WalkBelief* belief, InputBackend* input_backend, bool walk);
+
+void RestoreJogIfBeliefSurvived(WalkBelief* belief, InputBackend* input_backend);
+
+// 导航中途异常退出也须恢复跑步
+struct RestoreJogOnExit
 {
-public:
-    explicit Toggle(ActionWrapper* action_wrapper);
-    ~Toggle();
+    WalkBelief* belief;
+    InputBackend* input_backend;
 
-    Toggle(const Toggle&) = delete;
-    Toggle& operator=(const Toggle&) = delete;
-
-    // 幂等, 后端无走路键时不生效, 记录只随真实按键变化
-    void request(bool walk);
-
-    bool engaged() const { return Engaged(); }
-
-private:
-    ActionWrapper* action_wrapper_ = nullptr;
+    ~RestoreJogOnExit() { RequestWalk(belief, input_backend, false); }
 };
 
 } // namespace mapnavigator::walkmode

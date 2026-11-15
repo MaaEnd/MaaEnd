@@ -432,14 +432,25 @@ function syncPortalFlags(point) {
 }
 
 /**
- * Clean every point and auto-insert PORTAL actions at cross-zone boundaries.
+ * Base zone name of the map `zone` belongs to; zones missing from the table are their own map.
+ * @param {string} zone
+ * @param {Object<string, string>} mapZones
+ * @returns {string}
+ */
+export function mapZoneOf(zone, mapZones) {
+  return mapZones[zone] || zone;
+}
+
+/**
+ * Clean every point and auto-insert PORTAL actions at cross-map boundaries.
  * Four passes, ported verbatim from `model.normalize_path_points`:
  *   (A) per-point clean + flag sync, (B) boundary set, (C) boundary auto-PORTAL /
  *   non-boundary revert, (D) merge adjacent duplicates.
  * @param {PathPoint[]} points
+ * @param {?Object<string, string>} [mapZones] zone name → base zone name of its map; null leaves boundaries unmarked
  * @returns {PathPoint[]}
  */
-export function normalizePathPoints(points) {
+export function normalizePathPoints(points, mapZones = {}) {
   /** @type {PathPoint[]} */
   const normalized = [];
   for (const point of points) {
@@ -480,7 +491,7 @@ export function normalizePathPoints(points) {
   for (let idx = 0; idx < normalized.length - 1; idx += 1) {
     const currentZone = normalized[idx].zone;
     const nextZone = normalized[idx + 1].zone;
-    if (currentZone && nextZone && currentZone !== nextZone) {
+    if (mapZones && currentZone && nextZone && mapZoneOf(currentZone, mapZones) !== mapZoneOf(nextZone, mapZones)) {
       boundaryIndices.add(idx);
       boundaryIndices.add(idx + 1);
     }

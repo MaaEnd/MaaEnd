@@ -22,12 +22,8 @@ constexpr double kTurnLatchExitDeg = 120.0;
 
 } // namespace
 
-SteeringCommand SteeringController::update(
-    double heading_error,
-    double heading_rate_deg,
-    bool moving_forward,
-    int& turn_latch_sign,
-    double pending_turn_deg)
+SteeringCommand
+    UpdateSteering(int* turn_latch_sign, double heading_error, double heading_rate_deg, bool moving_forward, double pending_turn_deg)
 {
     SteeringCommand command;
     const double rate_magnitude = std::abs(heading_rate_deg);
@@ -38,13 +34,13 @@ SteeringCommand SteeringController::update(
     }
 
     if (std::abs(heading_error) < kTurnLatchExitDeg) {
-        turn_latch_sign = 0;
+        *turn_latch_sign = 0;
     }
-    else if (turn_latch_sign == 0 && std::abs(heading_error) >= kTurnLatchEnterDeg) {
-        turn_latch_sign = heading_error >= 0.0 ? 1 : -1;
+    else if (*turn_latch_sign == 0 && std::abs(heading_error) >= kTurnLatchEnterDeg) {
+        *turn_latch_sign = heading_error >= 0.0 ? 1 : -1;
     }
-    if (turn_latch_sign != 0) {
-        heading_error = std::abs(heading_error) * turn_latch_sign;
+    if (*turn_latch_sign != 0) {
+        heading_error = std::abs(heading_error) * *turn_latch_sign;
     }
 
     // 扣掉已发但朝向还没体现的转向, 夹在零与误差之间, 只会减弱指令
@@ -57,7 +53,7 @@ SteeringCommand SteeringController::update(
     command.yaw_delta_deg = cmd;
     command.issued = std::abs(cmd) >= 2.0;
     LogDebug << "SteeringController update." << VAR(heading_error) << VAR(pending) << VAR(heading_rate_deg) << VAR(moving_forward)
-             << VAR(turn_latch_sign) << VAR(cmd);
+             << VAR(*turn_latch_sign) << VAR(cmd);
     return command;
 }
 

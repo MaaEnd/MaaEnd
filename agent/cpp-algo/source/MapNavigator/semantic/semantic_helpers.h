@@ -10,12 +10,12 @@ namespace mapnavigator
 namespace semantic_nodes
 {
 
-void StopMotionAndCommitment(const Context& ctx);
-void SelectPhaseForCurrentWaypoint(const Context& ctx, const char* reason);
-Result CompleteArrival(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, const char* reason);
-void ConsumeMatchedZoneNodes(const Context& ctx);
+void HoldAndArmCameraAlign(Navigator* nav);
+void SelectPhaseOrFinishRoute(Navigator* nav, const char* reason);
+void CompleteArrival(Navigator* nav, const Waypoint& waypoint, const std::optional<size_t>& node_idx, const char* reason);
+void ConsumeMatchedZoneNodes(Navigator* nav);
 Result WaitNextFix(int interval_ms);
-Result ResumeAfterRelocation(const Context& ctx, const char* reason);
+void ResumeAfterRelocation(Navigator* nav, const char* reason);
 
 } // namespace semantic_nodes
 

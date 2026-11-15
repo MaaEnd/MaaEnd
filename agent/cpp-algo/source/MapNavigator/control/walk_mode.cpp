@@ -2,57 +2,46 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "action_wrapper.h"
+#include "../Backend/backend.h"
 
 namespace mapnavigator::walkmode
 {
 
-namespace
+bool Engaged(const WalkBelief& belief)
 {
-// 游戏的走路切换状态跨导航保留, 所以放在进程级
-bool g_walking = false;
+    return belief.walking;
 }
 
-bool Engaged()
+void NoteSprintTriggered(WalkBelief* belief)
 {
-    return g_walking;
-}
-
-void NoteSprintTriggered()
-{
-    if (!g_walking) {
+    if (!belief->walking) {
         return;
     }
-    g_walking = false;
+    belief->walking = false;
     LogInfo << "Walk mode cleared by sprint (the game leaves walking on its own).";
 }
 
-Toggle::Toggle(ActionWrapper* action_wrapper)
-    : action_wrapper_(action_wrapper)
+void RequestWalk(WalkBelief* belief, InputBackend* input_backend, bool walk)
 {
-    if (g_walking) {
-        LogWarn << "Walk mode belief survived the previous run; restoring jogging before navigating.";
-        request(false);
-    }
-}
-
-Toggle::~Toggle()
-{
-    request(false);
-}
-
-void Toggle::request(bool walk)
-{
-    if (walk == g_walking) {
+    if (walk == belief->walking) {
         return;
     }
-    if (action_wrapper_ == nullptr || !action_wrapper_->supportsWalkToggle()) {
+    if (input_backend == nullptr || !SupportsWalkToggle(*input_backend)) {
         return;
     }
 
-    action_wrapper_->toggleWalkModeSync();
-    g_walking = walk;
+    ToggleWalkModeSync(input_backend);
+    belief->walking = walk;
     LogInfo << (walk ? "Walk mode engaged (game walking speed)." : "Walk mode released (back to jogging).");
+}
+
+void RestoreJogIfBeliefSurvived(WalkBelief* belief, InputBackend* input_backend)
+{
+    if (!belief->walking) {
+        return;
+    }
+    LogWarn << "Walk mode belief survived the previous run; restoring jogging before navigating.";
+    RequestWalk(belief, input_backend, false);
 }
 
 } // namespace mapnavigator::walkmode

@@ -5,31 +5,28 @@
 namespace mapnavigator
 {
 
-class ActionWrapper;
-class MotionController;
+struct Motion;
+struct InputBackend;
 
-class RiverFallRecovery
+namespace sensitivity
 {
-public:
-    enum class Step
-    {
-        Cleared,
-        Escaping,
-    };
 
-    RiverFallRecovery(
-        RiverFallRecoveryState& state,
-        ActionWrapper* action_wrapper,
-        MotionController* motion_controller,
-        const NaviPosition* position);
+struct SensitivityRun;
 
-    Step advance(double current_heading);
+} // namespace sensitivity
 
-private:
-    RiverFallRecoveryState& state_;
-    ActionWrapper* action_wrapper_;
-    MotionController* motion_controller_;
-    const NaviPosition* position_;
+enum class RiverFallStep
+{
+    Cleared,
+    Escaping,
 };
+
+RiverFallStep AdvanceRiverFallRecovery(
+    RiverFallRecoveryState* state,
+    InputBackend* input_backend,
+    Motion* motion_controller,
+    sensitivity::SensitivityRun* sensitivity,
+    const NaviPosition& position,
+    double current_heading);
 
 } // namespace mapnavigator

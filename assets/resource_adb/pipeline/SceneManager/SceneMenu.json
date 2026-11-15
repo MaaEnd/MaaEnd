@@ -1,4 +1,39 @@
 {
+    "__ScenePrivateAnyEnterMenuOperationalManualSuccess": {
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                40,
+                85,
+                1200,
+                48
+            ]
+        }
+    },
+    "__ScenePrivateMenuOperationalManualIndexTabSelected": {
+        "roi": [
+            441,
+            85,
+            199,
+            48
+        ]
+    },
+    "__ScenePrivateMenuOperationalManualDailyTabSelected": {
+        "roi": [
+            242,
+            85,
+            199,
+            48
+        ]
+    },
+    "__ScenePrivateMenuOperationalManualSimulationTabSelected": {
+        "roi": [
+            840,
+            85,
+            199,
+            48
+        ]
+    },
     "__ScenePrivateMenuValuablesEnterValuableTab": {
         "roi": [
             0,

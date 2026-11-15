@@ -1,10 +1,7 @@
 {
     "UseConsumableUseStartSlot1": {
         "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "InBackpack"
-        ],
+        "recognition": "DirectHit",
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset",
             "ItemTransferCurrentBagFind": "UseConsumableFindItemSlot1",
@@ -18,7 +15,6 @@
     "UseConsumableUseSkipSlot1": {
         "recognition": "And",
         "all_of": [
-            "InBackpack",
             "UseConsumableSlot1Disabled"
         ],
         "next": [
@@ -36,10 +32,9 @@
     "UseConsumableUseSelectItemSlot1": {
         "recognition": "And",
         "all_of": [
-            "InBackpack",
             "UseConsumableFindItemSlot1"
         ],
-        "box_index": 1,
+        "box_index": 0,
         "action": "Click",
         "next": [
             "UseConsumableUseClickUseButtonSlot1"
@@ -117,10 +112,7 @@
     },
     "UseConsumableUseStartSlot2": {
         "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "InBackpack"
-        ],
+        "recognition": "DirectHit",
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset",
             "ItemTransferCurrentBagFind": "UseConsumableFindItemSlot2",
@@ -134,7 +126,6 @@
     "UseConsumableUseSkipSlot2": {
         "recognition": "And",
         "all_of": [
-            "InBackpack",
             "UseConsumableSlot2Disabled"
         ],
         "next": [
@@ -152,10 +143,9 @@
     "UseConsumableUseSelectItemSlot2": {
         "recognition": "And",
         "all_of": [
-            "InBackpack",
             "UseConsumableFindItemSlot2"
         ],
-        "box_index": 1,
+        "box_index": 0,
         "action": "Click",
         "next": [
             "UseConsumableUseClickUseButtonSlot2"
@@ -233,10 +223,7 @@
     },
     "UseConsumableUseStartSlot3": {
         "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "InBackpack"
-        ],
+        "recognition": "DirectHit",
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset",
             "ItemTransferCurrentBagFind": "UseConsumableFindItemSlot3",
@@ -250,7 +237,6 @@
     "UseConsumableUseSkipSlot3": {
         "recognition": "And",
         "all_of": [
-            "InBackpack",
             "UseConsumableSlot3Disabled"
         ],
         "next": [
@@ -268,10 +254,9 @@
     "UseConsumableUseSelectItemSlot3": {
         "recognition": "And",
         "all_of": [
-            "InBackpack",
             "UseConsumableFindItemSlot3"
         ],
-        "box_index": 1,
+        "box_index": 0,
         "action": "Click",
         "next": [
             "UseConsumableUseClickUseButtonSlot3"
@@ -349,10 +334,7 @@
     },
     "UseConsumableUseStartSlot4": {
         "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "InBackpack"
-        ],
+        "recognition": "DirectHit",
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset",
             "ItemTransferCurrentBagFind": "UseConsumableFindItemSlot4",
@@ -366,7 +348,6 @@
     "UseConsumableUseSkipSlot4": {
         "recognition": "And",
         "all_of": [
-            "InBackpack",
             "UseConsumableSlot4Disabled"
         ],
         "next": [
@@ -382,10 +363,9 @@
     "UseConsumableUseSelectItemSlot4": {
         "recognition": "And",
         "all_of": [
-            "InBackpack",
             "UseConsumableFindItemSlot4"
         ],
-        "box_index": 1,
+        "box_index": 0,
         "action": "Click",
         "next": [
             "UseConsumableUseClickUseButtonSlot4"

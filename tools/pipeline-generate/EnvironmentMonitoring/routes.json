@@ -512,7 +512,7 @@
         "NavPath": [
             {
                 "action": "ZONE",
-                "zone_id": "Wuling_L4_328"
+                "zone_id": "Wuling_Base"
             },
             {
                 "action": "NAVMESH",

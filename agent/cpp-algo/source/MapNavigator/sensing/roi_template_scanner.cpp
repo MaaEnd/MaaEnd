@@ -81,9 +81,12 @@ bool match_normalized(const cv::Mat& crop, const cv::Size& base_size, const std:
         cv::resize(crop, normalized, base_size, 0, 0, cv::INTER_AREA);
     }
     const cv::Mat gray = to_gray(normalized);
-    return std::ranges::any_of(icons, [&](const ScanIcon& icon) {
-        return matches_template(gray, icon.templ, icon.mask, icon.threshold, tag);
-    });
+    for (const ScanIcon& icon : icons) {
+        if (matches_template(gray, icon.templ, icon.mask, icon.threshold, tag)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 } // namespace

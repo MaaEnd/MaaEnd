@@ -78,6 +78,7 @@ export class Importer {
    *   @param {(points:Array<Object>)=>({text?:string, color?:string}|void)} hooks.loadPoints
    *     take a finished route; may return a status lead-in (+ color) replacing the default
    *   @param {(zoneId:string, target:number[])=>void} hooks.applyAssert enter assert mode with a rect
+   *   @param {()=>?Object<string, string>} hooks.mapZones zone name → base zone name of its map
    */
   constructor(els, hooks) {
     this.els = els;
@@ -356,7 +357,7 @@ export class Importer {
   async analyzeText(text, sourceLabel = "") {
     let result;
     try {
-      result = await importAnalyze(text);
+      result = await importAnalyze(text, this.hooks.mapZones());
     } catch (err) {
       setStatus(`导入失败: ${err && err.message ? err.message : err}`, "#ef4444");
       return;
@@ -437,7 +438,7 @@ export class Importer {
   async _finalize(rawPoints, assignments, routeCount, sourceLabel = "", zipEnabled = false) {
     let result;
     try {
-      result = await importFinalize(rawPoints, assignments);
+      result = await importFinalize(rawPoints, assignments, this.hooks.mapZones());
     } catch (err) {
       setStatus(`导入失败: ${err && err.message ? err.message : err}`, "#ef4444");
       return;

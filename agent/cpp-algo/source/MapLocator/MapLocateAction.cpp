@@ -18,6 +18,8 @@
 #endif
 
 #include "../Common/paths.h"
+#include "../MapNavigator/navi_param.h"
+#include "../MapNavigator/planning/navmesh_queries.h"
 #include "../utils.h"
 
 #include "MapLocateAction.h"
@@ -106,7 +108,7 @@ struct MapLocateAssertLocationOutput
 
 // 参数由 pipeline 提供，字段类型不由本模块保证。解析失败退回默认值，与不传参数同路。
 template <typename T>
-T ParseCustomRecognitionParam(const char* custom_recognition_param)
+T parse_custom_recognition_param(const char* custom_recognition_param)
 {
     if (custom_recognition_param == nullptr || std::strlen(custom_recognition_param) == 0) {
         return T {};
@@ -123,7 +125,7 @@ T ParseCustomRecognitionParam(const char* custom_recognition_param)
 }
 
 template <typename T>
-void WriteJsonDetail(MaaStringBuffer* out_detail, const T& payload)
+void write_json_detail(MaaStringBuffer* out_detail, const T& payload)
 {
     if (out_detail == nullptr) {
         return;
@@ -142,36 +144,37 @@ void WriteJsonDetail(MaaStringBuffer* out_detail, const T& payload)
     MaaStringBufferSet(out_detail, json_text.c_str());
 }
 
-LocateOutput BuildLocateOutput(const LocateResult& result)
+LocateOutput build_locate_output(const LocateResult& result)
 {
     LocateOutput output;
     output.status = static_cast<int>(result.status);
-    output.message = result.debugMessage;
+    output.message = result.debug_message;
     output.rot = result.rot;
     if (!result.position.has_value()) {
         return output;
     }
 
     const auto& pos = result.position.value();
-    output.mapName = pos.zoneId;
+    output.mapName = pos.zone_id;
     output.x = pos.x;
     output.y = pos.y;
     output.locConf = pos.score;
-    output.latencyMs = static_cast<int>(pos.latencyMs);
-    if (result.camRot.has_value()) {
-        output.camRot = result.camRot->rot;
-        output.camRotConf = result.camRot->confidence;
+    output.latencyMs = static_cast<int>(pos.latency_ms);
+    if (result.cam_rot.has_value()) {
+        output.camRot = result.cam_rot->rot;
+        output.camRotConf = result.cam_rot->confidence;
     }
     return output;
 }
 
-MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& result, const MapLocateAssertLocationParam& param, bool matched)
+MapLocateAssertLocationOutput
+    build_assert_location_output(const LocateResult& result, const MapLocateAssertLocationParam& param, bool matched)
 {
     MapLocateAssertLocationOutput output;
     output.status = static_cast<int>(result.status);
     output.matched = matched;
     output.inTarget = matched;
-    output.message = result.debugMessage;
+    output.message = result.debug_message;
     output.zoneId = param.zone_id;
     output.target = param.target;
     output.rot = result.rot;
@@ -183,15 +186,15 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& resu
     output.x = pos.x;
     output.y = pos.y;
     output.locConf = pos.score;
-    output.latencyMs = static_cast<int>(pos.latencyMs);
-    if (result.camRot.has_value()) {
-        output.camRot = result.camRot->rot;
-        output.camRotConf = result.camRot->confidence;
+    output.latencyMs = static_cast<int>(pos.latency_ms);
+    if (result.cam_rot.has_value()) {
+        output.camRot = result.cam_rot->rot;
+        output.camRotConf = result.cam_rot->confidence;
     }
     return output;
 }
 
-MaaRect MakePointBox(const MapPosition& position)
+MaaRect make_point_box(const MapPosition& position)
 {
     return {
         static_cast<int>(std::lround(position.x)),
@@ -201,7 +204,7 @@ MaaRect MakePointBox(const MapPosition& position)
     };
 }
 
-bool TryBuildAssertRect(const MapLocateAssertLocationParam& param, MaaRect* out_rect)
+bool try_build_assert_rect(const MapLocateAssertLocationParam& param, MaaRect* out_rect)
 {
     if (out_rect == nullptr || param.target.size() != 4) {
         return false;
@@ -220,7 +223,7 @@ bool TryBuildAssertRect(const MapLocateAssertLocationParam& param, MaaRect* out_
     return true;
 }
 
-bool IsPositionInsideRect(const MapPosition& position, const MaaRect& rect)
+bool is_position_inside_rect(const MapPosition& position, const MaaRect& rect)
 {
     const double left = static_cast<double>(rect.x);
     const double top = static_cast<double>(rect.y);
@@ -229,11 +232,30 @@ bool IsPositionInsideRect(const MapPosition& position, const MaaRect& rect)
     return position.x >= left && position.x < right && position.y >= top && position.y < bottom;
 }
 
+// 定位落在同一地图的别的层上时, 位置和框都换到底图再比
+bool is_position_inside_target(
+    const MapPosition& position,
+    const std::string& target_zone,
+    const MaaRect& rect,
+    const mapnavigator::NaviParam& navi_param)
+{
+    if (position.zone_id == target_zone) {
+        return is_position_inside_rect(position, rect);
+    }
+    const auto at = mapnavigator::ProjectToMapBase(navi_param, position.zone_id, position.x, position.y);
+    const auto top_left = mapnavigator::ProjectToMapBase(navi_param, target_zone, rect.x, rect.y);
+    const auto bottom_right = mapnavigator::ProjectToMapBase(navi_param, target_zone, rect.x + rect.width, rect.y + rect.height);
+    if (!at || !top_left || !bottom_right) {
+        return false;
+    }
+    return at->x >= top_left->x && at->x < bottom_right->x && at->y >= top_left->y && at->y < bottom_right->y;
+}
+
 // 传送落地后区域横幅会压住小地图，定位在横幅散掉之前拿不到可用结果，预算要覆盖这段等待。
 constexpr int kAssertLocateMaxFrames = 60;
 constexpr auto kAssertLocatePollDelay = std::chrono::milliseconds(250);
 
-std::string DetectControllerType(MaaContext* context)
+std::string detect_controller_type(MaaContext* context)
 {
     if (context == nullptr) {
         return {};
@@ -269,7 +291,7 @@ std::string DetectControllerType(MaaContext* context)
     return controller_type;
 }
 
-bool UsesAdbMinimapRoi(std::string_view controller_type)
+bool uses_adb_minimap_roi(std::string_view controller_type)
 {
     auto equals_ignore_case = [controller_type](std::string_view candidate) {
         return controller_type.size() == candidate.size() && std::ranges::equal(controller_type, candidate, [](char lhs, char rhs) {
@@ -281,7 +303,7 @@ bool UsesAdbMinimapRoi(std::string_view controller_type)
            || equals_ignore_case("native_android");
 }
 
-bool TryLocateOnMinimap(MaaContext* context, const MaaImageBuffer* image, const LocateOptions& options, LocateResult* out_result)
+bool try_locate_on_minimap(MaaContext* context, const MaaImageBuffer* image, const LocateOptions& options, LocateResult* out_result)
 {
     if (out_result == nullptr) {
         return false;
@@ -313,12 +335,12 @@ bool TryLocateOnMinimap(MaaContext* context, const MaaImageBuffer* image, const 
 
     cv::Mat minimap;
     const cv::Mat image_mat = to_mat(actual_image);
-    if (!TryExtractMinimap(image_mat, UsesAdbMinimapRoi(DetectControllerType(context)), &minimap)) {
+    if (!TryExtractMinimap(image_mat, uses_adb_minimap_roi(detect_controller_type(context)), &minimap)) {
         LogError << "MapLocateRecognition: ROI empty";
         return false;
     }
 
-    *out_result = locator->locate(minimap, options);
+    *out_result = Locate(locator.get(), minimap, options);
     return true;
 }
 
@@ -343,14 +365,14 @@ std::shared_ptr<MapLocator> getOrInitLocator()
                 << (cameraOrientationRefModelStr.empty() ? "(not found)" : cameraOrientationRefModelStr);
 
         MapLocatorConfig cfg;
-        cfg.mapResourceDir = mapRootStr;
-        cfg.yoloModelPath = yoloModelStr;
-        cfg.cameraOrientationRefModelPath = cameraOrientationRefModelStr;
+        cfg.map_resource_dir = mapRootStr;
+        cfg.yolo_model_path = yoloModelStr;
+        cfg.camera_orientation_ref_model_path = cameraOrientationRefModelStr;
         const unsigned hardwareThreads = std::thread::hardware_concurrency();
-        cfg.yoloThreads = (hardwareThreads >= 8) ? 4 : ((hardwareThreads >= 4) ? 2 : 1);
+        cfg.yolo_threads = (hardwareThreads >= 8) ? 4 : ((hardwareThreads >= 4) ? 2 : 1);
 
         auto loc = std::make_shared<MapLocator>();
-        bool ok = loc->initialize(cfg);
+        bool ok = InitializeLocator(loc.get(), cfg);
         if (!ok) {
             LogError << "Initialize failed!";
         }
@@ -373,21 +395,21 @@ MaaBool MAA_CALL MapLocateRecognitionRun(
     MaaRect* out_box,
     MaaStringBuffer* out_detail)
 {
-    const LocateOptions options = ParseCustomRecognitionParam<LocateOptions>(custom_recognition_param);
+    const LocateOptions options = parse_custom_recognition_param<LocateOptions>(custom_recognition_param);
 
     LocateResult result;
-    if (!TryLocateOnMinimap(context, image, options, &result)) {
+    if (!try_locate_on_minimap(context, image, options, &result)) {
         return MAA_FALSE;
     }
 
-    WriteJsonDetail(out_detail, BuildLocateOutput(result));
+    write_json_detail(out_detail, build_locate_output(result));
 
     if (result.status == LocateStatus::Success && result.position.has_value()) {
         if (out_box != nullptr) {
-            *out_box = MakePointBox(result.position.value());
+            *out_box = make_point_box(result.position.value());
         }
-        LogInfo << "OK " << VAR(result.position->zoneId) << VAR(result.position->x) << VAR(result.position->y)
-                << VAR(result.position->angle) << VAR(result.position->score) << VAR(result.position->latencyMs);
+        LogInfo << "OK " << VAR(result.position->zone_id) << VAR(result.position->x) << VAR(result.position->y)
+                << VAR(result.position->angle) << VAR(result.position->score) << VAR(result.position->latency_ms);
         return MAA_TRUE;
     }
     if (result.status == LocateStatus::ScreenBlocked) {
@@ -395,7 +417,7 @@ MaaBool MAA_CALL MapLocateRecognitionRun(
         return MAA_FALSE;
     }
 
-    LogWarn << "failed: " << result.debugMessage;
+    LogWarn << "failed: " << result.debug_message;
     return MAA_FALSE;
 }
 
@@ -411,10 +433,10 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
     MaaRect* out_box,
     MaaStringBuffer* out_detail)
 {
-    const auto param = ParseCustomRecognitionParam<MapLocateAssertLocationParam>(custom_recognition_param);
+    const auto param = parse_custom_recognition_param<MapLocateAssertLocationParam>(custom_recognition_param);
 
     MaaRect target_rect {};
-    if (param.zone_id.empty() || !TryBuildAssertRect(param, &target_rect)) {
+    if (param.zone_id.empty() || !try_build_assert_rect(param, &target_rect)) {
         LogError << "MapLocateAssertLocation: invalid param" << VAR(param.zone_id) << VAR(param.target.size());
         return MAA_FALSE;
     }
@@ -424,10 +446,12 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
         LogError << "MapLocateAssertLocation: Locator init failed";
         return MAA_FALSE;
     }
-    locator->resetTrackingState();
+    ResetTrackingState(locator.get());
 
+    const mapnavigator::NaviParam navi_param;
     LocateOptions options;
     options.expected_zone_id = param.zone_id;
+    options.accepted_zone_ids = mapnavigator::ZonesOnSameMap(navi_param, param.zone_id);
     options.force_global_search = true;
 
     LocateResult result;
@@ -435,27 +459,27 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
 
     for (int frame = 0; frame < kAssertLocateMaxFrames; ++frame) {
         const MaaImageBuffer* frame_image = frame == 0 ? image : nullptr;
-        if (!TryLocateOnMinimap(context, frame_image, options, &result)) {
+        if (!try_locate_on_minimap(context, frame_image, options, &result)) {
             return MAA_FALSE;
         }
 
         const bool located = result.status == LocateStatus::Success && result.position.has_value();
-        if (located && IsPositionInsideRect(result.position.value(), target_rect)) {
+        if (located && is_position_inside_target(result.position.value(), param.zone_id, target_rect, navi_param)) {
             matched = true;
             break;
         }
 
-        LogInfo << "MapLocateAssertLocation waiting" << VAR(frame) << VAR(param.zone_id) << VAR(located) << VAR(result.debugMessage);
+        LogInfo << "MapLocateAssertLocation waiting" << VAR(frame) << VAR(param.zone_id) << VAR(located) << VAR(result.debug_message);
         if (frame + 1 < kAssertLocateMaxFrames) {
             std::this_thread::sleep_for(kAssertLocatePollDelay);
         }
     }
 
-    WriteJsonDetail(out_detail, BuildAssertLocationOutput(result, param, matched));
+    write_json_detail(out_detail, build_assert_location_output(result, param, matched));
 
     if (!matched) {
         LogInfo << "MapLocateAssertLocation miss" << VAR(param.zone_id) << VAR(target_rect.x) << VAR(target_rect.y)
-                << VAR(target_rect.width) << VAR(target_rect.height) << VAR(result.debugMessage);
+                << VAR(target_rect.width) << VAR(target_rect.height) << VAR(result.debug_message);
         return MAA_FALSE;
     }
 

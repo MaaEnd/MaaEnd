@@ -132,8 +132,7 @@
                         ],
                         "CreditShoppingPriority2DiscountValue": "-95%",
                         "PrudentRefresh": "Yes",
-                        "CreditShoppingRefreshCheckPrice": "No",
-                        "CreditShoppingKeepShelfRecord": "No"
+                        "CreditShoppingRefreshCheckPrice": "No"
                     }
                 },
                 {

@@ -3,7 +3,6 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
-#include <functional>
 #include <limits>
 #include <optional>
 #include <string>
@@ -15,8 +14,9 @@
 namespace mapnavigator
 {
 
+struct Motion;
 struct NaviParam;
-struct NavigationSession;
+struct Session;
 struct NavigationRuntimeState;
 struct RouteMeasurement;
 
@@ -80,61 +80,28 @@ struct NavRunTickResult
     std::chrono::steady_clock::duration planning {};
 };
 
-class NavRunController
+struct NavRun
 {
-public:
-    // halt 在同步规划前调用, 用来松开前进键
-    NavRunTickResult tick(
-        NavigationSession* session,
-        NavigationRuntimeState* runtime,
-        const NaviPosition& position,
-        const RouteMeasurement& route,
-        const NaviParam& param,
-        size_t anchor_index,
-        const Waypoint& anchor,
-        std::chrono::steady_clock::time_point now,
-        const std::function<void()>& halt);
-
-    void invalidate();
-
-private:
-    struct TickInput
-    {
-        NavigationSession& session;
-        const NavigationRuntimeState& runtime;
-        const NaviPosition& position;
-        const RouteMeasurement& route;
-        const NaviParam& param;
-        size_t anchor_index = 0;
-        const Waypoint& anchor;
-        const std::function<void()>& halt;
-    };
-
-    // 同步规划的耗时计入 result.planning, 并把 now 顺延同样的时长
-    bool buildPlan(const TickInput& input, NavRunReplanReason reason, std::chrono::steady_clock::time_point& now, NavRunTickResult& result);
-    bool ensurePlan(const TickInput& input, std::chrono::steady_clock::time_point& now, NavRunTickResult& result);
-    // 重建成功时返回触发原因, 否则返回 None
-    NavRunReplanReason
-        softReplanIfDue(const TickInput& input, double cross_track, std::chrono::steady_clock::time_point& now, NavRunTickResult& result);
-    void trackProgress(double remaining, std::chrono::steady_clock::time_point now);
-    void restartProgressWatch(std::chrono::steady_clock::time_point now);
-
-    NavRunReplanReason detectReplanTrigger(const RouteMeasurement& route, std::chrono::steady_clock::time_point now) const;
-
-    double chooseLookaheadDistance(const RouteMeasurement& route, std::optional<double> step) const;
-    double chooseTurnCommitDistance(double lookahead_distance, std::optional<double> step) const;
-
-    void recordSpeedSample(const NaviPosition& position, std::chrono::steady_clock::time_point now);
-
-    std::optional<double> estimateStepPerTick() const;
-
-    NavRunPlan plan_;
-    std::vector<NavRunSpeedSample> speed_samples_;
-    uint64_t tick_seq_ = 0;
-    std::chrono::steady_clock::time_point last_progress_seen_ {};
-    double last_remaining_to_anchor_ = std::numeric_limits<double>::infinity();
-    size_t failed_build_anchor_ = std::numeric_limits<size_t>::max();
-    std::chrono::steady_clock::time_point failed_build_at_ {};
+    NavRunPlan plan;
+    std::vector<NavRunSpeedSample> speed_samples;
+    uint64_t tick_seq = 0;
+    std::chrono::steady_clock::time_point last_progress_seen {};
+    double last_remaining_to_anchor = std::numeric_limits<double>::infinity();
+    size_t failed_build_anchor = std::numeric_limits<size_t>::max();
+    std::chrono::steady_clock::time_point failed_build_at {};
 };
+
+// 同步规划前对 motion 停车, motion 为空时不停
+NavRunTickResult TickNavRun(
+    NavRun* nav_run,
+    Session* session,
+    NavigationRuntimeState* runtime,
+    Motion* motion,
+    const NaviPosition& position,
+    const RouteMeasurement& route,
+    const NaviParam& param,
+    const Waypoint& anchor,
+    size_t anchor_index,
+    std::chrono::steady_clock::time_point now);
 
 } // namespace mapnavigator
