@@ -72,27 +72,35 @@ func batchGainSnapshot() map[string]int {
 }
 
 // takeBatchGains atomically steals the current totals and cancels any pending
-// idle flush.
-func takeBatchGains() map[string]int {
+// idle flush. The returned flag reports whether a task ran since the previous
+// take, so callers can decide whether an empty batch is worth reporting without
+// racing a concurrent flush.
+func takeBatchGains() (map[string]int, bool) {
 	batchGainMu.Lock()
 	defer batchGainMu.Unlock()
+	return takeBatchGainsLocked()
+}
 
-	batchFlushSeq++
-	if batchFlushTimer != nil {
-		batchFlushTimer.Stop()
-		batchFlushTimer = nil
-	}
+// takeBatchGainsLocked is takeBatchGains for callers that already hold
+// batchGainMu.
+func takeBatchGainsLocked() (map[string]int, bool) {
+	cancelBatchFlushLocked()
 
+	hadTasks := batchHasTasks
 	out := batchGains
 	batchGains = make(map[string]int)
 	batchHasTasks = false
-	return out
+	return out, hadTasks
 }
 
+// markBatchTaskStarted flags the batch as active and cancels any idle flush in
+// the same critical section, so a timer that already passed its sequence check
+// cannot steal the new task's gains.
 func markBatchTaskStarted() {
 	batchGainMu.Lock()
+	defer batchGainMu.Unlock()
 	batchHasTasks = true
-	batchGainMu.Unlock()
+	cancelBatchFlushLocked()
 }
 
 // buildBatchGainRows resolves display metadata and sorts by rarity descending so
@@ -136,15 +144,9 @@ func buildBatchGainRows(items map[string]int) []batchGainRow {
 	return rows
 }
 
-// flushBatchGainSummary emits the accumulated totals and clears them. When
-// force is false and there is nothing to report, it returns silently (shutdown
-// best-effort path).
-func flushBatchGainSummary(force bool) {
-	items := takeBatchGains()
-	if len(items) == 0 && !force {
-		return
-	}
-
+// emitBatchGainSummaryRows renders and emits one batch. It must be called
+// without batchGainMu held because rendering loads i18n templates.
+func emitBatchGainSummaryRows(items map[string]int) {
 	rows := buildBatchGainRows(items)
 	emitBatchGainSummary(renderBatchGainSummary(rows))
 	log.Info().
@@ -153,15 +155,25 @@ func flushBatchGainSummary(force bool) {
 		Msg("batch gain summary flushed")
 }
 
+// flushBatchGainSummary emits the accumulated totals and clears them. When
+// force is false and the batch has nothing to report, it returns silently
+// (shutdown best-effort path). The task flag is read in the same critical
+// section that takes the gains, so a concurrent flush cannot make this call
+// emit a duplicate empty message.
+func flushBatchGainSummary(force bool) {
+	items, hadTasks := takeBatchGains()
+	if len(items) == 0 && !hadTasks && !force {
+		return
+	}
+	emitBatchGainSummaryRows(items)
+}
+
 // FlushBatchGainSummary is the shutdown hook. MXU stops the agent immediately
 // after the last task, so this is often the only chance to report the batch.
 // If no task ran since the last flush, it stays silent; if a task ran but
 // produced no recognized items, it still emits the empty message.
 func FlushBatchGainSummary() {
-	batchGainMu.Lock()
-	hadTasks := batchHasTasks
-	batchGainMu.Unlock()
-	flushBatchGainSummary(hadTasks)
+	flushBatchGainSummary(false)
 }
 
 func renderBatchGainSummaryHTML(rows []batchGainRow) string {
@@ -191,21 +203,32 @@ func armBatchFlush() {
 			return
 		}
 		batchFlushTimer = nil
+		// Take the batch in the same critical section as the sequence check:
+		// a task starting right after this callback must not lose its gains
+		// to a flush that was already committed.
+		items, _ := takeBatchGainsLocked()
 		batchGainMu.Unlock()
 
-		flushBatchGainSummary(true)
+		// A task just ended, so the idle flush always reports, even when the
+		// batch produced no recognized items.
+		emitBatchGainSummaryRows(items)
 	})
 	batchGainMu.Unlock()
 }
 
-func cancelBatchFlush() {
-	batchGainMu.Lock()
-	defer batchGainMu.Unlock()
+// cancelBatchFlushLocked requires batchGainMu held.
+func cancelBatchFlushLocked() {
 	batchFlushSeq++
 	if batchFlushTimer != nil {
 		batchFlushTimer.Stop()
 		batchFlushTimer = nil
 	}
+}
+
+func cancelBatchFlush() {
+	batchGainMu.Lock()
+	defer batchGainMu.Unlock()
+	cancelBatchFlushLocked()
 }
 
 // gainSummarySink tracks task boundaries. A normal task ending arms the idle
@@ -226,7 +249,6 @@ func (*gainSummarySink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detai
 	switch event {
 	case maa.EventStatusStarting:
 		markBatchTaskStarted()
-		cancelBatchFlush()
 	case maa.EventStatusSucceeded, maa.EventStatusFailed:
 		armBatchFlush()
 	}

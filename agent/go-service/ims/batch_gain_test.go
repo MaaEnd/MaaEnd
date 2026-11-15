@@ -277,6 +277,28 @@ func TestShutdownFlushSkipsWithoutAnyTask(t *testing.T) {
 	}
 }
 
+func TestShutdownFlushDoesNotRepeatAfterIdleFlush(t *testing.T) {
+	resetBatchGainTestState(t)
+	batchFlushDelay = 20 * time.Millisecond
+	events := captureBatchGainEmit(t)
+	sink := &gainSummarySink{}
+
+	sink.OnTaskerTask(nil, maa.EventStatusStarting, maa.TaskerTaskDetail{Entry: "TaskA"})
+	sink.OnTaskerTask(nil, maa.EventStatusSucceeded, maa.TaskerTaskDetail{Entry: "TaskA"})
+	select {
+	case <-events:
+	case <-time.After(time.Second):
+		t.Fatal("expected idle flush after task end")
+	}
+
+	FlushBatchGainSummary()
+	select {
+	case got := <-events:
+		t.Fatalf("shutdown flush after an idle flush must not repeat, got %q", got)
+	case <-time.After(50 * time.Millisecond):
+	}
+}
+
 func TestShutdownFlushDoesNotRepeatAfterFlush(t *testing.T) {
 	resetBatchGainTestState(t)
 	events := captureBatchGainEmit(t)
