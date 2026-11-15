@@ -1,6 +1,6 @@
 {
     "CreditShoppingShelfAnyItem": {
-        "desc": "任意可买物品。IconRecognition 全 catalog，按货架自然顺序取首格（index 0）",
+        "desc": "任意可买物品。IconRecognition 全 catalog，按货架自然顺序取首格（index 0）。不做同款去重，避免同款占多格时丢掉更便宜的那格",
         "recognition": "Custom",
         "custom_recognition": "IconRecognition",
         "custom_recognition_param": {
@@ -22,7 +22,7 @@
                 "item_gold"
             ],
             "order_by": "natural",
-            "deduplicate": true
+            "deduplicate": false
         },
         "roi": [
             70,
