@@ -222,6 +222,8 @@ uv run autocollect-route generate
 
 它会重写 `Dispatch.json`、`assets/tasks/AutoCollect.json` 和五份 locale，并校验登记表。报错时按提示修正路线文件或登记表，不要手改生成的文件。
 
+生成的每个 `__AutoCollect<路线 id>Run` 还会把 `next` 指向 `AutoCollectMidSweepStashCheck`：是否在采集途中存放背包，由「任务前后存放背包」开关下的 `AutoCollectMidSweepStash` / `AutoCollectMidSweepStashEvery` 控制，默认关闭。这个检查节点同样由生成器产出，不要手改。
+
 ## 检查清单
 
 - [ ] 路线 id 与地区、`items` 一致，文件放在对应地区目录

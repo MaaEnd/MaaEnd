@@ -29,9 +29,6 @@ type DynamicHtmlLog struct {
 	// 每个实例中的id一致且实例间隔离，用于实现旧日志隐藏
 	// 将id写入到输出的html文本中，再使用css查询器隐藏非最后一条日志
 	id string
-	// 标记style tag是否已经输出，以实现多次输出日志时，只有第一次才会输出style
-	// 避免每次输出日志都写一遍style，那样会很丑
-	styleIsInit bool
 	// 最后一次输出的日志，防止输出重复日志
 	lastMessage string
 }
@@ -81,24 +78,17 @@ func (data *DynamicHtmlLogData) Print() {
 	if data.log.lastMessage == data.message {
 		return
 	}
-	// 输出日志
-	// 如果style tag尚未输出，加个锁
-	if !data.log.styleIsInit {
-		mu.Lock()
-		defer mu.Unlock()
-	}
+	// 每条日志都携带隐藏样式，避免客户端裁切旧日志后丢失样式。
 	if data.class == "" {
 		data.class = defClass
 	}
 	maafocus.PrintLargeContentTrimNewline(
 		i18n.RenderHTML(templateKey, map[string]any{
-			"id":          data.log.id,
-			"styleIsInit": data.log.styleIsInit,
-			"class":       data.class,
-			"style":       data.style,
-			"message":     data.message,
+			"id":      data.log.id,
+			"class":   data.class,
+			"style":   data.style,
+			"message": data.message,
 		}),
 	)
-	data.log.styleIsInit = true
 	data.log.lastMessage = data.message
 }

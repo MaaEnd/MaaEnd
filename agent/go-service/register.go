@@ -23,6 +23,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/clearhitcount"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/closegame"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/countdown"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/everynthhit"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/exitlauncher"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expendable"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expressionrecognition"
@@ -76,6 +77,7 @@ func registerAll() {
 	subtask.Register()
 	failurecollector.Register()
 	clearhitcount.Register()
+	everynthhit.Register()
 	closegame.Register()
 	exitlauncher.Register()
 	pipelineoverride.Register()

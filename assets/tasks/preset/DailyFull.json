@@ -107,7 +107,8 @@
                     "name": "DeliveryJobs"
                 },
                 {
-                    "name": "SeizeDeliveryJobs"
+                    "name": "SeizeDeliveryJobs",
+                    "enabled": false
                 },
                 {
                     "name": "CreditShoppingN2",
