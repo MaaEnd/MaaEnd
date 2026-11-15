@@ -353,6 +353,8 @@ class Library:
             path.append([*target, self.types[point["detail_id"]]["action"], True])
             order.append(point)
             previous = index
+        if not order:
+            raise RouteError("所选采集物与附近的传送点均不连通")
 
         return {
             "map": map_id,

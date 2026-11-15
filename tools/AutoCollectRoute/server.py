@@ -92,13 +92,13 @@ def planner() -> tuple[route_builder.WalkFn, route_builder.DeckFn]:
         _walks["decks"] = {}
         _walks["zones"] = {}
     lengths: dict[tuple[str, str, str], float | None] = _walks["lengths"]
-    decks: dict[tuple[str, str], float | None] = _walks["decks"]
+    decks: dict[tuple[str, float, float], bool] = _walks["decks"]
     zones: dict[str, int] = _walks["zones"]
 
     def target_deck(zone_id: str, point: dict[str, Any]) -> float | None:
         if "y" not in point:
             return None
-        key = (zone_id, point["id"])
+        key = (zone_id, point["u"], point["v"])
         if key not in decks:
             if not zones:
                 try:
@@ -114,8 +114,8 @@ def planner() -> tuple[route_builder.WalkFn, route_builder.DeckFn]:
                 raise route_builder.RouteError(f"navmesh 尚未就绪，无法查询可走面: {exc}") from exc
             if not probe.get("ok"):
                 raise route_builder.RouteError(probe.get("error") or "无法查询可走面")
-            decks[key] = round(point["y"], 2) if len(probe.get("decks", [])) >= 2 else None
-        return decks[key]
+            decks[key] = len(probe.get("decks", [])) >= 2
+        return round(point["y"], 2) if decks[key] else None
 
     def walk(zone_id: str, start: dict[str, Any], goal: dict[str, Any]) -> float | None:
         key = (zone_id, start["id"], goal["id"])
