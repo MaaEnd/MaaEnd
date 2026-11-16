@@ -498,6 +498,15 @@
                     "label": "$option.DiscountValue.cases.Any.label",
                     "description": "$option.DiscountValue.cases.Any.description",
                     "pipeline_override": {
+                        "CreditShoppingBuyPriority1": {
+                            "box_index": 0,
+                            "target_offset": [
+                                0,
+                                0,
+                                0,
+                                0
+                            ]
+                        },
                         "CreditShoppingPriority1Discount": {
                             "recognition": "DirectHit"
                         },
@@ -933,6 +942,15 @@
                     "label": "$option.DiscountValue.cases.Any.label",
                     "description": "$option.DiscountValue.cases.Any.description",
                     "pipeline_override": {
+                        "CreditShoppingBuyPriority2": {
+                            "box_index": 0,
+                            "target_offset": [
+                                0,
+                                0,
+                                0,
+                                0
+                            ]
+                        },
                         "CreditShoppingPriority2Discount": {
                             "recognition": "DirectHit"
                         },
@@ -1356,6 +1374,15 @@
                     "label": "$option.DiscountValue.cases.Any.label",
                     "description": "$option.DiscountValue.cases.Any.description",
                     "pipeline_override": {
+                        "CreditShoppingBuyPriority3": {
+                            "box_index": 0,
+                            "target_offset": [
+                                0,
+                                0,
+                                0,
+                                0
+                            ]
+                        },
                         "CreditShoppingPriority3Discount": {
                             "recognition": "DirectHit"
                         },
