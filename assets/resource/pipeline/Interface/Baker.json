@@ -1,0 +1,8 @@
+{
+    "BakerChatUntilOver": {
+        "desc": "在当前打开的 Baker 会话中一直推进，直到会话结束",
+        "next": [
+            "__BakerChatCheckPage"
+        ]
+    }
+}

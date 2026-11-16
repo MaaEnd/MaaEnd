@@ -62,6 +62,12 @@ Files in the `SceneManager` folder (such as `SceneCommon.json`, `SceneMenu.json`
 | Map | `SceneEnterMapValleyIVTheHub` | Enter Valley IV - The Hub map screen. |
 | Menu | `SceneEnterMenuList` | Enter main menu list. |
 | Menu | `SceneEnterMenuMission` | Enter the Missions screen. |
+| Menu | `SceneEnterMenuMissionAll` | Enter the Missions screen - In Progress (ALL) tab. |
+| Menu | `SceneEnterMenuMissionMain` | Enter the Missions screen - Main Missions tab. |
+| Menu | `SceneEnterMenuMissionExploration` | Enter the Missions screen - Exploration Missions tab. |
+| Menu | `SceneEnterMenuMissionSide` | Enter the Missions screen - Side Missions tab. |
+| Menu | `SceneEnterMenuMissionEvent` | Enter the Missions screen - Event Missions tab. |
+| Menu | `SceneEnterMenuMissionCommission` | Enter the Missions screen - Commissions tab. |
 | Menu | `SceneEnterMenuRegionalDevelopment` | Enter Regional Development menu. |
 | Menu | `SceneEnterMenuEvent` | Enter Events menu. |
 | Menu | `SceneEnterMenuProtocolPass` | Enter Protocol Pass menu. |

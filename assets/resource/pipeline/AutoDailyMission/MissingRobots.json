@@ -1,0 +1,1178 @@
+{
+    "AutoDailyMissionMissingRobotsListItem": {
+        "desc": "委派任务列表里的日常·寻机启事",
+        "recognition": "OCR",
+        "roi": [
+            42,
+            70,
+            360,
+            590
+        ],
+        // 完整文本："日常·寻机启事" / "日常·尋機啟事" / "Daily: Missing Robots" / "日常・ロボット探索" / "일상 · 로봇을 찾습니다"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "寻机启事",
+            "尋機啟事",
+            "(?i)Missing\\s*Robots",
+            "ロボット探索",
+            "로봇을\\s*찾습니다"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsDetail": {
+        "desc": "右侧详情已选中日常·寻机启事",
+        "recognition": "OCR",
+        "roi": [
+            410,
+            55,
+            400,
+            45
+        ],
+        "expected": [
+            "日常·寻机启事",
+            "日常·尋機啟事",
+            "(?i)Daily:\\s*Missing\\s*Robots",
+            "日常・ロボット探索",
+            "일상\\s*·\\s*로봇을\\s*찾습니다"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsMapPanel": {
+        "desc": "任务地图右侧详情栏是日常·寻机启事",
+        "recognition": "OCR",
+        "roi": [
+            950,
+            45,
+            320,
+            45
+        ],
+        // 完整文本："日常·寻机启事" / "日常·尋機啟事" / "Daily: Missing Robots" / "日常・ロボット探索" / "일상 · 로봇을 찾습니다"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "寻机启事",
+            "尋機啟事",
+            "(?i)Missing\\s*Robots",
+            "ロボット探索",
+            "로봇을\\s*찾습니다"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsEntry": {
+        "desc": "在委派任务列表中点击日常·寻机启事",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionMissingRobotsListItem"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionSnsTracked",
+            "AutoDailyMissionSnsUntracked",
+            "AutoDailyMissionMissingRobotsOpenMap",
+            "AutoDailyMissionMissingRobotsStartTracking"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsOpenMap": {
+        "desc": "点击定位按钮打开寻机启事的任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionMissingRobotsDetail",
+            "TrackedMissionMapButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionMissingRobotsClosePanel"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsStartTracking": {
+        "desc": "寻机启事还没追踪时点击开始追踪，打开任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionMissingRobotsDetail",
+            "AutoDailyMissionStartTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionMissingRobotsClosePanel"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsClosePanel": {
+        "desc": "确认已打开寻机启事的任务地图，关闭右侧详情栏",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "AutoDailyMissionMissingRobotsMapPanel"
+        ],
+        "box_index": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoDailyMissionMissingRobotsRegionTheHub",
+            "AutoDailyMissionMissingRobotsRegionOriginiumSciencePark",
+            "AutoDailyMissionMissingRobotsRegionOriginLodespring",
+            "AutoDailyMissionMissingRobotsRegionPowerPlateau"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsRegionTheHub": {
+        "desc": "地图左上角子区域是枢纽区",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "枢纽区",
+            "樞紐區",
+            "(?i)The\\s*Hub",
+            "中枢エリア",
+            "거점\\s*지역"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionMissingRobotsCandidatesTheHub"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsCandidatesTheHub": {
+        "desc": "在地图上确认枢纽区里哪个机器人是今天的任务",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        290.039,
+                        922.641
+                    ],
+                    "next": "AutoDailyMissionMissingRobotsOriginiumByproductProcessingCenter"
+                },
+                {
+                    "at": [
+                        642.516,
+                        1001.461
+                    ],
+                    "next": "AutoDailyMissionMissingRobotsSouthernMeadows"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionMissingRobotsRegionOriginiumSciencePark": {
+        "desc": "地图左上角子区域是源石研究园",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "源石研究园",
+            "源石研究園",
+            "(?i)Originium\\s*Science\\s*Park",
+            "源石研究パーク",
+            "오리지늄\\s*연구\\s*구역"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionMissingRobotsCandidatesOriginiumSciencePark"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsCandidatesOriginiumSciencePark": {
+        "desc": "在地图上确认源石研究园里哪个机器人是今天的任务",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        1025.781,
+                        871.266
+                    ],
+                    "next": "AutoDailyMissionMissingRobotsRoute5"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionMissingRobotsRegionOriginLodespring": {
+        "desc": "地图左上角子区域是矿脉源区",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "矿脉源区",
+            "礦脈源區",
+            "(?i)Origin\\s*Lodespring",
+            "鉱山エリア",
+            "광맥\\s*구역"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionMissingRobotsCandidatesOriginLodespring"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsCandidatesOriginLodespring": {
+        "desc": "在地图上确认矿脉源区里哪个机器人是今天的任务",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        1059.539,
+                        502.172
+                    ],
+                    "next": "AutoDailyMissionMissingRobotsMiningAreaClinic"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionMissingRobotsRegionPowerPlateau": {
+        "desc": "地图左上角子区域是供能高地",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "供能高地",
+            "(?i)Power\\s*Plateau",
+            "エネルギー高地",
+            "에너지\\s*공급\\s*고지"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionMissingRobotsCandidatesPowerPlateau"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsCandidatesPowerPlateau": {
+        "desc": "在地图上确认供能高地里哪个机器人是今天的任务",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        540.984,
+                        192.185
+                    ],
+                    "next": "AutoDailyMissionMissingRobotsUnitedParkingLot"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionMissingRobotsOriginiumByproductProcessingCenter": {
+        "desc": "今天的寻机启事在源石副产物中心附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionMissingRobotsRouteOriginiumByproductProcessingCenterBeacon1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.missing_robots_originium_byproduct_processing_center"
+        }
+    },
+    "AutoDailyMissionMissingRobotsSouthernMeadows": {
+        "desc": "今天的寻机启事在南部草甸附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.missing_robots_southern_meadows"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRoute5": {
+        "desc": "今天的寻机启事在五号公路附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionMissingRobotsRouteRoute5Beacon1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.missing_robots_route_5"
+        }
+    },
+    "AutoDailyMissionMissingRobotsMiningAreaClinic": {
+        "desc": "今天的寻机启事在矿区医疗站附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionMissingRobotsRouteMiningAreaClinicBeacon1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.missing_robots_mining_area_clinic"
+        }
+    },
+    "AutoDailyMissionMissingRobotsUnitedParkingLot": {
+        "desc": "今天的寻机启事在联盟停车场附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionMissingRobotsRouteUnitedParkingLotBeacon1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.missing_robots_united_parking_lot"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteOriginiumByproductProcessingCenterBeacon1": {
+        "desc": "走到源石副产物中心附近的寻机启事区域，放置第一个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        290.039,
+                        922.641
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        296.845,
+                        939.628
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        296.845,
+                        939.628
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMissingRobotsRouteOriginiumByproductProcessingCenterBeacon2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteOriginiumByproductProcessingCenterBeacon2": {
+        "desc": "走到源石副产物中心附近的第二个定位信标，有敌人时先自动战斗",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        316.877,
+                        917.53
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        // 到达后敌人可能还没出现，固定等待 3 秒再判断是否需要自动战斗
+        "post_delay": 3000,
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoDailyMissionMissingRobotsRouteOriginiumByproductProcessingCenterBeacon2Interact"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsRouteOriginiumByproductProcessingCenterBeacon2Interact": {
+        "desc": "放置源石副产物中心附近的第二个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        316.877,
+                        917.53
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMissingRobotsRouteOriginiumByproductProcessingCenterBeacon3"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteOriginiumByproductProcessingCenterBeacon3": {
+        "desc": "放置源石副产物中心附近的第三个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        261.206,
+                        908.422
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        261.206,
+                        908.422
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon1": {
+        "desc": "走到南部草甸附近的寻机启事区域，放置第一个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        642.516,
+                        1001.461
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        668.275,
+                        1009.802
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        668.275,
+                        1009.802
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon2": {
+        "desc": "放置南部草甸附近的第二个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        628.704,
+                        972.609
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        628.704,
+                        972.609
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon3"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon3": {
+        "desc": "走到南部草甸附近的第三个定位信标，有敌人时先自动战斗",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        612.32,
+                        1010.373
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon3Interact"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon3Interact": {
+        "desc": "放置南部草甸附近的第三个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        612.32,
+                        1010.373
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteRoute5Beacon1": {
+        "desc": "走到五号公路附近的寻机启事区域，放置第一个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1025.781,
+                        871.266
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1038.227,
+                        869.536
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1038.227,
+                        869.536
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMissingRobotsRouteRoute5Beacon2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteRoute5Beacon2": {
+        "desc": "走到五号公路附近的第二个定位信标，有敌人时先自动战斗",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1036.952,
+                        901.79
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoDailyMissionMissingRobotsRouteRoute5Beacon2Interact"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsRouteRoute5Beacon2Interact": {
+        "desc": "放置五号公路附近的第二个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1036.952,
+                        901.79
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMissingRobotsRouteRoute5Beacon3"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteRoute5Beacon3": {
+        "desc": "放置五号公路附近的第三个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1006.291,
+                        860.171
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1006.291,
+                        860.171
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteMiningAreaClinicBeacon1": {
+        "desc": "走到矿区医疗站附近的寻机启事区域，放置第一个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1059.539,
+                        502.172
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1061.708,
+                        508.802
+                    ],
+                    "target_deck_y": 27.904,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1061.708,
+                        508.802
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMissingRobotsRouteMiningAreaClinicBeacon2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteMiningAreaClinicBeacon2": {
+        "desc": "走到矿区医疗站附近的第二个定位信标，有敌人时先自动战斗",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1040.261,
+                        535.245
+                    ],
+                    "target_deck_y": 31.14,
+                    "required": true
+                }
+            ]
+        },
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoDailyMissionMissingRobotsRouteMiningAreaClinicBeacon2Interact"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsRouteMiningAreaClinicBeacon2Interact": {
+        "desc": "放置矿区医疗站附近的第二个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1040.261,
+                        535.245
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMissingRobotsRouteMiningAreaClinicBeacon3"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteMiningAreaClinicBeacon3": {
+        "desc": "放置矿区医疗站附近的第三个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1042.038,
+                        476.283
+                    ],
+                    "target_deck_y": 36.315,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1042.038,
+                        476.283
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteUnitedParkingLotBeacon1": {
+        "desc": "走到联盟停车场附近的寻机启事区域，放置第一个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        540.984,
+                        192.185
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        538.889,
+                        198.281
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        538.889,
+                        198.281
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMissingRobotsRouteUnitedParkingLotBeacon2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteUnitedParkingLotBeacon2": {
+        "desc": "放置联盟停车场附近的第二个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        543.203,
+                        183.052
+                    ],
+                    "target_deck_y": 178.823,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        543.203,
+                        183.052
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionMissingRobotsRouteUnitedParkingLotBeacon3"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    },
+    "AutoDailyMissionMissingRobotsRouteUnitedParkingLotBeacon3": {
+        "desc": "放置联盟停车场附近的第三个定位信标",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": [
+                "^放置定位信标$",
+                "^放置定位信標$",
+                "(?i)^Place\\s*positioning\\s*beacon$",
+                "^ビーコンを設置$",
+                "^위치\\s*신호기\\s*배치$"
+            ],
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_L7_135"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        527.554,
+                        219.057
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        527.554,
+                        219.057
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
+        }
+    }
+}
