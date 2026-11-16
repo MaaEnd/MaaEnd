@@ -2,7 +2,7 @@
 
 本文说明 `CreditShopping` 的文件分布与执行流程。  
 购买条件不是几个独立开关，而是从 `Item/` 串到 `Flow/` 的整条筛选链，维护时需按链路理解。  
-该文档更新于 2026 年 11 月 10 日。
+该文档更新于 2026 年 11 月 16 日。
 
 ## 文件路径
 
@@ -76,7 +76,7 @@ CreditShopping/
 
 售罄卡（卡片变暗 + 「售罄」）不会被 IconRecognition 命中，所以 Pipeline 不再单独判断未售罄。
 
-`CreditShoppingBuyPriority{N}` 是 And 链：物品 → 买得起 → 折扣 → 保留阈值门控，`box_index: 0` 保证点击落在物品格中心。**前层未命中则整条链失效**，排查时按 物品 → 买得起 → 折扣 顺序看。
+`CreditShoppingBuyPriority{N}` 是 And 链：物品 → 买得起 → 折扣 → 保留阈值门控。点击取折扣节点的识别框（`box_index: 2`），再按 `target_offset: [-45, 58, 0, 0]` 偏移到物品图标区，所以**折扣节点的识别框必须落在物品格上**——「任意」档换成恒真的颜色匹配时，必须把 `roi` 一起写进覆写（见[折扣选项](#折扣选项)）。**前层未命中则整条链失效**，排查时按 物品 → 买得起 → 折扣 顺序看。
 
 控制器差异分开维护：ADB 的 IconRecognition ROI 在 `assets/resource_adb/pipeline/CreditShopping/IconRecognitionRoi.json`，云端颜色阈值在 `assets/resource_cloud/pipeline/CreditShopping/Item.json`。Pipeline 不写死 ROI，改区域时只改对应资源覆盖。
 
@@ -113,8 +113,8 @@ CreditShopping/
 ### 折扣选项
 
 每档的折扣选项改写对应档位的折扣 OCR `expected`，或切到「任意」档。
-数值档只改写 `expected`（如「-25%及以上」）；「任意」档把折扣节点整体换成 `DirectHit`，**不再检查折扣角标**——未打折的商品也会被购买，与 `AutoStockStaple` 的「任意」语义一致。
-折扣规则须同时覆盖买得起与买不起两侧。
+数值档只改写 `expected`（如「-25%及以上」）；「任意」档**不再检查折扣角标**——未打折的商品也会被购买，与 `AutoStockStaple` 的「任意」语义一致。它写的是全色域 `ColorMatch`（`method: 4`、`lower: [0, 0, 0]`、`upper: [255, 255, 255]`），并且**必须在同一个覆写里写死 `roi` 与 `roi_offset`**：覆改写掉 `recognition` 类型时，MaaFramework 会按新类型重新解析识别参数，节点原有的 `roi` / `roi_offset`（含 `assets/resource_adb` 的控制器覆盖）不会被继承，缺省的 `roi` 会在整屏上匹配、识别框退化成整屏，`box_index: 2` 的偏移点击就变成在大框里随机取点。
+折扣规则须同时覆盖买得起与买不起两侧（`*Discount` 与 `*DiscountCannotAfford` 一起改）。
 
 ### 强制策略与刷新
 

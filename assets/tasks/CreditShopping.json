@@ -499,10 +499,46 @@
                     "description": "$option.DiscountValue.cases.Any.description",
                     "pipeline_override": {
                         "CreditShoppingPriority1Discount": {
-                            "recognition": "DirectHit"
+                            "recognition": "ColorMatch",
+                            "roi": "CreditShoppingPriority1Item",
+                            "roi_offset": [
+                                78,
+                                -14,
+                                -66,
+                                -88
+                            ],
+                            "method": 4,
+                            "lower": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "upper": [
+                                255,
+                                255,
+                                255
+                            ]
                         },
                         "CreditShoppingPriority1DiscountCannotAfford": {
-                            "recognition": "DirectHit"
+                            "recognition": "ColorMatch",
+                            "roi": "CreditShoppingPriority1Item",
+                            "roi_offset": [
+                                78,
+                                -14,
+                                -66,
+                                -88
+                            ],
+                            "method": 4,
+                            "lower": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "upper": [
+                                255,
+                                255,
+                                255
+                            ]
                         }
                     }
                 },
@@ -934,10 +970,46 @@
                     "description": "$option.DiscountValue.cases.Any.description",
                     "pipeline_override": {
                         "CreditShoppingPriority2Discount": {
-                            "recognition": "DirectHit"
+                            "recognition": "ColorMatch",
+                            "roi": "CreditShoppingPriority2Item",
+                            "roi_offset": [
+                                78,
+                                -14,
+                                -66,
+                                -88
+                            ],
+                            "method": 4,
+                            "lower": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "upper": [
+                                255,
+                                255,
+                                255
+                            ]
                         },
                         "CreditShoppingPriority2DiscountCannotAfford": {
-                            "recognition": "DirectHit"
+                            "recognition": "ColorMatch",
+                            "roi": "CreditShoppingPriority2Item",
+                            "roi_offset": [
+                                78,
+                                -14,
+                                -66,
+                                -88
+                            ],
+                            "method": 4,
+                            "lower": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "upper": [
+                                255,
+                                255,
+                                255
+                            ]
                         }
                     }
                 },
@@ -1357,10 +1429,46 @@
                     "description": "$option.DiscountValue.cases.Any.description",
                     "pipeline_override": {
                         "CreditShoppingPriority3Discount": {
-                            "recognition": "DirectHit"
+                            "recognition": "ColorMatch",
+                            "roi": "CreditShoppingPriority3Item",
+                            "roi_offset": [
+                                78,
+                                -14,
+                                -66,
+                                -88
+                            ],
+                            "method": 4,
+                            "lower": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "upper": [
+                                255,
+                                255,
+                                255
+                            ]
                         },
                         "CreditShoppingPriority3DiscountCannotAfford": {
-                            "recognition": "DirectHit"
+                            "recognition": "ColorMatch",
+                            "roi": "CreditShoppingPriority3Item",
+                            "roi_offset": [
+                                78,
+                                -14,
+                                -66,
+                                -88
+                            ],
+                            "method": 4,
+                            "lower": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "upper": [
+                                255,
+                                255,
+                                255
+                            ]
                         }
                     }
                 },
