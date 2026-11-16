@@ -500,6 +500,13 @@
                     "pipeline_override": {
                         "CreditShoppingPriority1Discount": {
                             "recognition": "ColorMatch",
+                            "roi": "CreditShoppingPriority1Item",
+                            "roi_offset": [
+                                78,
+                                -14,
+                                -66,
+                                -88
+                            ],
                             "method": 4,
                             "lower": [
                                 0,
@@ -514,6 +521,13 @@
                         },
                         "CreditShoppingPriority1DiscountCannotAfford": {
                             "recognition": "ColorMatch",
+                            "roi": "CreditShoppingPriority1Item",
+                            "roi_offset": [
+                                78,
+                                -14,
+                                -66,
+                                -88
+                            ],
                             "method": 4,
                             "lower": [
                                 0,
@@ -957,6 +971,13 @@
                     "pipeline_override": {
                         "CreditShoppingPriority2Discount": {
                             "recognition": "ColorMatch",
+                            "roi": "CreditShoppingPriority2Item",
+                            "roi_offset": [
+                                78,
+                                -14,
+                                -66,
+                                -88
+                            ],
                             "method": 4,
                             "lower": [
                                 0,
@@ -971,6 +992,13 @@
                         },
                         "CreditShoppingPriority2DiscountCannotAfford": {
                             "recognition": "ColorMatch",
+                            "roi": "CreditShoppingPriority2Item",
+                            "roi_offset": [
+                                78,
+                                -14,
+                                -66,
+                                -88
+                            ],
                             "method": 4,
                             "lower": [
                                 0,
@@ -1402,6 +1430,13 @@
                     "pipeline_override": {
                         "CreditShoppingPriority3Discount": {
                             "recognition": "ColorMatch",
+                            "roi": "CreditShoppingPriority3Item",
+                            "roi_offset": [
+                                78,
+                                -14,
+                                -66,
+                                -88
+                            ],
                             "method": 4,
                             "lower": [
                                 0,
@@ -1416,6 +1451,13 @@
                         },
                         "CreditShoppingPriority3DiscountCannotAfford": {
                             "recognition": "ColorMatch",
+                            "roi": "CreditShoppingPriority3Item",
+                            "roi_offset": [
+                                78,
+                                -14,
+                                -66,
+                                -88
+                            ],
                             "method": 4,
                             "lower": [
                                 0,
