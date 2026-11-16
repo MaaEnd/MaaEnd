@@ -37,9 +37,10 @@ namespace
 struct LegState
 {
     navmesh::WorldPoint route_start;
-    // 本字段和 route_start_deck_y 只有整条链的头一腿有值
+    // 以下三个字段只有整条链的头一腿有值
     std::optional<double> route_start_floor_y;
     std::optional<double> route_start_deck_y;
+    std::optional<ZiplineNodeRef> route_start_tower;
     std::optional<double> zone_floor_y;
     std::string current_zone;
     std::string navmesh_zone;
@@ -50,6 +51,7 @@ void move_route_start(LegState* state, const navmesh::WorldPoint& point)
     state->route_start = point;
     state->route_start_floor_y.reset();
     state->route_start_deck_y.reset();
+    state->route_start_tower.reset();
 }
 
 RouteEndpoints leg_endpoints(const LegState& state, const navmesh::WorldPoint& goal, float goal_floor_y, std::optional<double> goal_deck_y)
@@ -825,6 +827,7 @@ bool try_append_zipline_leg(
             .goal_deck_y = target.deck_y,
             .start_floor_y = state->route_start_floor_y,
             .start_deck_y = state->route_start_deck_y,
+            .start_tower = state->route_start_tower,
             .zone_floor_y = state->zone_floor_y,
             .maa_context = ctx->maa_context,
             .capture_diagnostics = ctx->diagnostics != nullptr,
@@ -1301,6 +1304,7 @@ bool ExpandNavmeshWaypoints(
         .route_start = { .x = initial_pos.x, .y = initial_pos.y },
         .route_start_floor_y = initial_pos.floor_y ? initial_pos.floor_y : initial_pos.zone_floor_y,
         .route_start_deck_y = start_deck_y,
+        .route_start_tower = param.zipline_standing_tower,
         .zone_floor_y = initial_pos.zone_floor_y,
         .current_zone = current_zone,
         .navmesh_zone = InferBaseNavZone(current_zone, param.map_name),
