@@ -187,6 +187,7 @@ NaviParam make_replan_param(const Navigator* nav, const std::vector<Waypoint>& a
     else {
         replan_param.zipline_ledger = ledger;
     }
+    replan_param.zipline_standing_tower = ZiplineTowerUnderfoot(nav->runtime_state.zipline_ride);
     replan_param.rope_off.insert(replan_param.rope_off.end(), nav->rope_off.begin(), nav->rope_off.end());
     replan_param.path.assign(authored.begin() + static_cast<std::ptrdiff_t>(slice_begin), authored.end());
     return replan_param;

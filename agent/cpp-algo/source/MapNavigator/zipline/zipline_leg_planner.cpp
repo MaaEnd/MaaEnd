@@ -741,6 +741,18 @@ void drop_unboardable(TowerSites* sites, const NaviParam& param)
     }
 }
 
+void board_only_at(TowerSites* sites, const ZiplineNodeRef& tower, const navmesh::WorldPoint& start)
+{
+    for (size_t i = 0; i < sites->nodes.size(); ++i) {
+        sites->board_spots[i].clear();
+        if (SameTower(ToNodeRef(sites->nodes[i]), tower)) {
+            sites->board_spots[i].push_back(sites->spots.size());
+            sites->spots.push_back(start);
+            sites->spot_tower.push_back(i);
+        }
+    }
+}
+
 bool none_usable(const std::vector<std::vector<size_t>>& per_tower)
 {
     return std::all_of(per_tower.begin(), per_tower.end(), [](const std::vector<size_t>& v) { return v.empty(); });
@@ -909,6 +921,9 @@ std::vector<Candidate> collect_candidates(const PlanInputs& in, const TowerSites
 
 std::optional<PlannedLeg> plan_approach(const PlanInputs& in, const TowerSites& sites, size_t spot)
 {
+    if (in.request.start_tower) {
+        return PlannedLeg { .path = navmesh::WorldPath { .points = { in.request.start } } };
+    }
     NavmeshRouteDiagnostic diagnostic;
     auto route = PlanNavmeshRoute(
         in.param,
@@ -1235,6 +1250,9 @@ std::optional<ZiplineRoute> PlanZiplineRoute(ZiplineOutcome* outcome, const Navi
 
     split_by_region(&sites, in);
     drop_unboardable(&sites, param);
+    if (request.start_tower) {
+        board_only_at(&sites, *request.start_tower, request.start);
+    }
     if (none_usable(sites.board_spots) || none_usable(sites.land_spots)) {
         return no_zipline(
             outcome,
