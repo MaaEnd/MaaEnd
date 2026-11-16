@@ -2019,7 +2019,7 @@
                             "recognition": {
                                 "param": {
                                     "custom_recognition_param": {
-                                        "expression": "({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)<{scratch_demand_item}"
+                                        "expression": "({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)<{scratch_demand_item}*200"
                                     }
                                 }
                             }
@@ -2076,7 +2076,7 @@
                             "recognition": {
                                 "param": {
                                     "custom_recognition_param": {
-                                        "expression": "({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)<{scratch_demand_item}"
+                                        "expression": "({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)<{scratch_demand_item}*1000"
                                     }
                                 }
                             }
@@ -2313,7 +2313,7 @@
                             "recognition": {
                                 "param": {
                                     "custom_recognition_param": {
-                                        "expression": "({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)<{scratch_demand_item}"
+                                        "expression": "({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)<{scratch_demand_item}*200"
                                     }
                                 }
                             }
