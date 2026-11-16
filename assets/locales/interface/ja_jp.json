@@ -2103,6 +2103,7 @@
     "task.AutoDailyMission.focus.authentic_meds_valley_fort_north": "日常・本場の薬：谷地通路・谷地要塞北側付近で火映蕎花を採集します",
     "task.AutoDailyMission.focus.authentic_meds_valley_fort_south": "日常・本場の薬：谷地通路・谷地要塞南側付近で火映蕎花を採集します",
     "task.AutoDailyMission.focus.beacon_arrived": "ビーコン設置地点に到着しました",
+    "task.AutoDailyMission.focus.emergency_repairs_zhailing_islet_zipline_required": "<span style=\"color: red; font-weight: bold;\">日常・緊急修理：景玉谷・菱摘島付近の故障ロボットへはジップラインでしか行けません</span>。「🚡 ジップライン座標をインポート／更新」を実行済みで、ジップラインを設置しているか確認してください",
     "task.AutoDailyMission.focus.herbal_remedies_ecological_research_station": "日常・治療良薬：景玉谷・生態研究所付近で毛羽錦草を採集します",
     "task.AutoDailyMission.focus.herbal_remedies_everwater_brook": "日常・治療良薬：景玉谷・水沢谷付近で茨芽針を採集します",
     "task.AutoDailyMission.focus.herbal_remedies_field_logistics_depot": "日常・治療良薬：武陵城・備蓄施設付近で毛羽錦草を採集します",

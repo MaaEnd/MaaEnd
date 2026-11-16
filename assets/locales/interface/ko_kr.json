@@ -2103,6 +2103,7 @@
     "task.AutoDailyMission.focus.authentic_meds_valley_fort_north": "일상 · 정통 약재: 협곡길 · 협곡 요새 북쪽 근처에서 화염 메밀꽃 채집하러 이동합니다",
     "task.AutoDailyMission.focus.authentic_meds_valley_fort_south": "일상 · 정통 약재: 협곡길 · 협곡 요새 남쪽 근처에서 화염 메밀꽃 채집하러 이동합니다",
     "task.AutoDailyMission.focus.beacon_arrived": "위치 신호기 지점 도착",
+    "task.AutoDailyMission.focus.emergency_repairs_zhailing_islet_zipline_required": "<span style=\"color: red; font-weight: bold;\">일상 · 긴급 수리: 경옥 골짜기 · 적릉서 근처의 고장 난 로봇에는 집라인으로만 갈 수 있습니다</span>. \"🚡 짚라인 좌표 가져오기/갱신\"을 실행하고 집라인을 설치했는지 확인하세요",
     "task.AutoDailyMission.focus.herbal_remedies_ecological_research_station": "일상 · 상처 치료에 좋은 약: 경옥 골짜기 · 생태 실험실 근처에서 우거진 금초 채집하러 이동합니다",
     "task.AutoDailyMission.focus.herbal_remedies_everwater_brook": "일상 · 상처 치료에 좋은 약: 경옥 골짜기 · 수택 계곡 근처에서 가시 야침 채집하러 이동합니다",
     "task.AutoDailyMission.focus.herbal_remedies_field_logistics_depot": "일상 · 상처 치료에 좋은 약: 무릉성 · 보급소 근처에서 우거진 금초 채집하러 이동합니다",

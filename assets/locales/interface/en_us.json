@@ -2103,6 +2103,7 @@
     "task.AutoDailyMission.focus.authentic_meds_valley_fort_north": "Daily: Authentic Meds - heading near the north side of Valley Fort, Valley Pass to gather Firebuckle",
     "task.AutoDailyMission.focus.authentic_meds_valley_fort_south": "Daily: Authentic Meds - heading near the south side of Valley Fort, Valley Pass to gather Firebuckle",
     "task.AutoDailyMission.focus.beacon_arrived": "Reached positioning beacon",
+    "task.AutoDailyMission.focus.emergency_repairs_zhailing_islet_zipline_required": "<span style=\"color: red; font-weight: bold;\">Daily: Emergency Repairs - the broken robot near Zhailing Islet, Jingyu Valley can only be reached by zipline</span>. Make sure you have run \"🚡 Import / Update Zipline Coordinates\" and placed ziplines",
     "task.AutoDailyMission.focus.herbal_remedies_ecological_research_station": "Daily: Herbal Remedies - heading near Ecological Research Station, Jingyu Valley to gather Fluffed Jincao",
     "task.AutoDailyMission.focus.herbal_remedies_everwater_brook": "Daily: Herbal Remedies - heading near Everwater Brook, Jingyu Valley to gather Thorny Yazhen",
     "task.AutoDailyMission.focus.herbal_remedies_field_logistics_depot": "Daily: Herbal Remedies - heading near Field Logistics Depot, Wuling City to gather Fluffed Jincao",

@@ -2103,6 +2103,7 @@
     "task.AutoDailyMission.focus.authentic_meds_valley_fort_north": "日常·道地藥材：前往谷地通道·谷地要塞北側附近採集映火蕎花",
     "task.AutoDailyMission.focus.authentic_meds_valley_fort_south": "日常·道地藥材：前往谷地通道·谷地要塞南側附近採集映火蕎花",
     "task.AutoDailyMission.focus.beacon_arrived": "已到達定位信標",
+    "task.AutoDailyMission.focus.emergency_repairs_zhailing_islet_zipline_required": "<span style=\"color: red; font-weight: bold;\">日常·緊急搶修：景玉谷·摘菱嶼的故障機器人只能搭滑索抵達</span>，請確認已執行「🚡匯入/更新滑索座標」並放置滑索",
     "task.AutoDailyMission.focus.herbal_remedies_ecological_research_station": "日常·療傷良藥：前往景玉谷·生態實驗站附近採集蓬茸錦草",
     "task.AutoDailyMission.focus.herbal_remedies_everwater_brook": "日常·療傷良藥：前往景玉谷·水澤澗附近採集荊刺芽針",
     "task.AutoDailyMission.focus.herbal_remedies_field_logistics_depot": "日常·療傷良藥：前往武陵城·儲備站附近採集蓬茸錦草",

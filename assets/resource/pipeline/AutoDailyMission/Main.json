@@ -38,6 +38,8 @@
             "AutoDailyMissionAuthenticMedsEntry",
             "AutoDailyMissionLostRobotsEntry",
             "AutoDailyMissionAethilluStudiesEntry",
+            "AutoDailyMissionFriendOfBotsEntry",
+            "AutoDailyMissionEmergencyRepairsEntry",
             "AutoDailyMissionUnsupported",
             "AutoDailyMissionEnd"
         ]
@@ -273,6 +275,54 @@
         "next": [
             "AutoDailyMissionArrived",
             "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "AutoDailyMissionRepairRobotInteractText": {
+        "desc": "故障机器人的修复交互提示",
+        "recognition": "OCR",
+        "roi": [
+            755,
+            330,
+            297,
+            312
+        ],
+        "expected": [
+            "^修复$",
+            "^修復$",
+            "(?i)^Repair$",
+            "^修理$",
+            "^수리$"
+        ]
+    },
+    "AutoDailyMissionRepairRobotPuzzle": {
+        "desc": "修复故障机器人的电路拼图，有第二盘时再解一次",
+        // 一个机器人最多两盘，解不出时别无限重试
+        "max_hit": 4,
+        "recognition": "Or",
+        "any_of": [
+            "PuzzleSolverOnScenePrepare",
+            "PuzzleSolverOnSceneMain"
+        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "PuzzleSolverMain"
+            ]
+        },
+        "next": [
+            "AutoDailyMissionRepairRobotPuzzle",
+            "AutoDailyMissionRepairRobotDone"
+        ]
+    },
+    "AutoDailyMissionRepairRobotDone": {
+        "desc": "拼图都解完回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "AutoDailyMissionCheckFinished"
         ]
     },
     "AutoDailyMissionArrived": {
