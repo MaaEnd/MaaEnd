@@ -1,3 +1,26 @@
+// 取用道具子任务开关，与 StashBackpackTaskSubTask 并列，控制 UseConsumableMain 是否启用。
+function buildUseConsumableSubTaskOption() {
+    return {
+        type: "switch",
+        label: "$task.StashBackpack.option.UseConsumableSubTask.label",
+        cases: [
+            {
+                name: "Yes",
+                option: [
+                    "UseConsumableTacticalItems",
+                    "UseConsumableEnabled",
+                ],
+                pipeline_override: {UseConsumableMain: {enabled: true}},
+            },
+            {
+                name: "No",
+                pipeline_override: {UseConsumableMain: {enabled: false}},
+            },
+        ],
+        default_case: "No",
+    };
+}
+
 function buildSlotOverride(slot, enabled) {
     return {
         [`UseConsumableSlot${slot}Enabled`]: {enabled},
@@ -152,7 +175,7 @@ function buildUseConsumableEnabledOption(slots) {
     };
 }
 
-export default function buildUseConsumableTask({
+export default function buildStashBackpackTask({
     slots,
     defaultSlotCase,
     itemIds,
@@ -160,9 +183,17 @@ export default function buildUseConsumableTask({
     tacticalItemIds,
     regions,
     defaultRegion,
+    stashBackpackOptions,
     ...task
 }) {
-    const options = {};
+    const options = {
+        ...stashBackpackOptions,
+        StashBackpackTaskSubTask: {
+            ...stashBackpackOptions.StashBackpackSubTask,
+            label: "$task.StashBackpack.option.StashBackpackTaskSubTask.label",
+        },
+        UseConsumableSubTask: buildUseConsumableSubTaskOption(),
+    };
     for (const slot of slots) {
         options[`UseConsumableSlot${slot}`] = buildSlotOption(slot, defaultSlotCase);
         options[`UseConsumableSlot${slot}Item`] = buildItemOption(slot, itemIds, defaultItemId);
@@ -177,9 +208,8 @@ export default function buildUseConsumableTask({
             {
                 ...task,
                 option: [
-                    "StashBackpackSubTask",
-                    "UseConsumableTacticalItems",
-                    "UseConsumableEnabled",
+                    "StashBackpackTaskSubTask",
+                    "UseConsumableSubTask",
                 ],
             },
         ],

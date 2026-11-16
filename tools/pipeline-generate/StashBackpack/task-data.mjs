@@ -9,16 +9,16 @@ function loadUsableItems() {
     try {
         data = JSON.parse(readFileSync(sourcePath, "utf8"));
     } catch (cause) {
-        throw new Error(`[UseConsumable] 无法读取 ${sourcePath}，请先运行 uv run zmdmap generate --only usable_items`, {
+        throw new Error(`[StashBackpack] 无法读取 ${sourcePath}，请先运行 uv run zmdmap generate --only usable_items`, {
             cause,
         });
     }
     const items = data?.items;
     if (!items || typeof items !== "object" || Array.isArray(items)) {
-        throw new Error(`[UseConsumable] ${sourcePath} 的 items 必须是对象`);
+        throw new Error(`[StashBackpack] ${sourcePath} 的 items 必须是对象`);
     }
     if (Object.keys(items).length === 0) {
-        throw new Error(`[UseConsumable] ${sourcePath} 中没有可供选择的主动持续增幅道具`);
+        throw new Error(`[StashBackpack] ${sourcePath} 中没有可供选择的主动持续增幅道具`);
     }
     return items;
 }
@@ -29,7 +29,7 @@ function loadTacticalItemIds() {
     try {
         data = JSON.parse(readFileSync(sourcePath, "utf8"));
     } catch (cause) {
-        throw new Error(`[UseConsumable] 无法读取 ${sourcePath}，请先生成 item_mini_table.json`, {cause});
+        throw new Error(`[StashBackpack] 无法读取 ${sourcePath}，请先生成 item_mini_table.json`, {cause});
     }
     const records = Object.entries(data).filter(
         ([
@@ -46,7 +46,7 @@ function loadTacticalItemIds() {
             ]) => !("type" in item),
         )
     ) {
-        throw new Error(`[UseConsumable] ${sourcePath} 缺少完整的 ItemTable.type 字段，请更新物品数据表`);
+        throw new Error(`[StashBackpack] ${sourcePath} 缺少完整的 ItemTable.type 字段，请更新物品数据表`);
     }
 
     const ids = records
@@ -61,10 +61,10 @@ function loadTacticalItemIds() {
     const catalog = JSON.parse(readFileSync(catalogPath, "utf8"));
     const missing = ids.filter((itemId) => !catalog[itemId]);
     if (missing.length > 0) {
-        throw new Error(`[UseConsumable] 以下战术物品缺少 IconRecognition 数据：${missing.join(", ")}`);
+        throw new Error(`[StashBackpack] 以下战术物品缺少 IconRecognition 数据：${missing.join(", ")}`);
     }
     if (ids.length === 0) {
-        throw new Error(`[UseConsumable] ${sourcePath} 中没有 TacticalItem`);
+        throw new Error(`[StashBackpack] ${sourcePath} 中没有 TacticalItem`);
     }
     return ids.sort((a, b) => {
         const left = catalog[a];
@@ -91,11 +91,19 @@ const regions = [
     {id: "Wuling", scene: "SceneEnterWorldWulingWulingCityFangxingAvenue"},
 ];
 
+// 存放背包的三个选项被 AutoCollect、AutoEssence、AutoStockStaple、GiftOperator、ItemTransfer 等任务引用，
+// 以 JSON 原文维护在 stash-backpack-options.json，生成时原样写入。
+const stashBackpackOptions = JSON.parse(
+    readFileSync(new URL("./stash-backpack-options.json", import.meta.url), "utf8"),
+);
+
 const LOCALE_TEXTS = {
     zh_cn: {
         suffix: "CN",
-        label: "💊取用可用道具",
-        description: "选择需要取用的消耗品或战术物品",
+        label: "🎒背包存取与补给",
+        description: "存放背包物资，并可按需补充战术物品、为干员使用消耗品",
+        stashSubTaskLabel: "存放背包",
+        useConsumableSubTaskLabel: "取用可用道具",
         itemLabel: "选择使用的消耗品",
         tacticalItemsLabel: "补充战术物品",
         tacticalItemLabel: "选择需要补充的战术物品",
@@ -112,8 +120,10 @@ const LOCALE_TEXTS = {
     },
     zh_tw: {
         suffix: "TC",
-        label: "💊取用可用道具",
-        description: "選擇需要取用的消耗品或戰術物品",
+        label: "🎒背包存取與補給",
+        description: "存放背包物資，並可按需補充戰術物品、為幹員使用消耗品",
+        stashSubTaskLabel: "存放背包",
+        useConsumableSubTaskLabel: "取用可用道具",
         itemLabel: "選擇使用的消耗品",
         tacticalItemsLabel: "補充戰術物品",
         tacticalItemLabel: "選擇需要補充的戰術物品",
@@ -130,8 +140,10 @@ const LOCALE_TEXTS = {
     },
     en_us: {
         suffix: "EN",
-        label: "💊 Retrieve Usable Items",
-        description: "Choose the consumables or tactical items to retrieve.",
+        label: "🎒Stash & Resupply",
+        description: "Stash backpack items, and optionally restock tactical items and use consumables on operators.",
+        stashSubTaskLabel: "Stash backpack",
+        useConsumableSubTaskLabel: "Retrieve usable items",
         itemLabel: "Consumable to Use",
         tacticalItemsLabel: "Restock Tactical Items",
         tacticalItemLabel: "Tactical Item to Restock",
@@ -148,8 +160,11 @@ const LOCALE_TEXTS = {
     },
     ja_jp: {
         suffix: "JP",
-        label: "💊使用可能アイテムを取得",
-        description: "取得する消耗品または戦術物品を選択します。",
+        label: "🎒バックパック収納と補給",
+        description:
+            "バックパックのアイテムを収納し、必要に応じて戦術アイテムの補充やオペレーターへの消耗品使用も行います。",
+        stashSubTaskLabel: "バックパックを収納",
+        useConsumableSubTaskLabel: "使用可能アイテムを取得",
         itemLabel: "使用する消耗品",
         tacticalItemsLabel: "戦術アイテムを補充",
         tacticalItemLabel: "補充する戦術アイテム",
@@ -166,8 +181,10 @@ const LOCALE_TEXTS = {
     },
     ko_kr: {
         suffix: "KR",
-        label: "💊사용 가능 아이템 가져오기",
-        description: "가져올 소모품 또는 전술 물품을 선택합니다.",
+        label: "🎒배낭 보관 및 보급",
+        description: "배낭 물품을 보관하고, 필요에 따라 전술 아이템을 보충하거나 오퍼레이터에게 소모품을 사용합니다.",
+        stashSubTaskLabel: "배낭 보관",
+        useConsumableSubTaskLabel: "사용 가능 아이템 가져오기",
         itemLabel: "사용할 소모품",
         tacticalItemsLabel: "전술 아이템 보충",
         tacticalItemLabel: "보충할 전술 아이템",
@@ -184,15 +201,17 @@ const LOCALE_TEXTS = {
     },
 };
 
-export const useConsumableLocaleMessages = Object.fromEntries(
+export const stashBackpackLocaleMessages = Object.fromEntries(
     Object.entries(LOCALE_TEXTS).map(
         ([
             locale,
             texts,
         ]) => {
             const messages = {
-                "task.UseConsumable.label": texts.label,
-                "task.UseConsumable.description": texts.description,
+                "task.StashBackpack.label": texts.label,
+                "task.StashBackpack.description": texts.description,
+                "task.StashBackpack.option.StashBackpackTaskSubTask.label": texts.stashSubTaskLabel,
+                "task.StashBackpack.option.UseConsumableSubTask.label": texts.useConsumableSubTaskLabel,
                 "task.UseConsumable.focus.usable_item_not_found": texts.notFound,
                 "option.UseConsumableItem.label": texts.itemLabel,
                 "option.UseConsumableTacticalItems.label": texts.tacticalItemsLabel,
@@ -219,10 +238,10 @@ export const useConsumableLocaleMessages = Object.fromEntries(
 
 export default [
     {
-        name: "UseConsumable",
-        label: "$task.UseConsumable.label",
-        entry: "UseConsumableBeforeStashBackpack",
-        description: "$task.UseConsumable.description",
+        name: "StashBackpack",
+        label: "$task.StashBackpack.label",
+        entry: "StashBackpackEntry",
+        description: "$task.StashBackpack.description",
         group: ["backpack"],
         controller: [
             "ADB",
@@ -231,6 +250,8 @@ export default [
             "Linux-Gamescope",
             "Linux-ScreenCast",
             "Linux-Wlroots",
+            "MacOS-Background",
+            "MacOS-Front",
             "Win32-Front",
         ],
         slots,
@@ -240,5 +261,6 @@ export default [
         tacticalItemIds,
         regions,
         defaultRegion: "ValleyIV",
+        stashBackpackOptions,
     },
 ];
