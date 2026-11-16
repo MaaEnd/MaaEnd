@@ -618,7 +618,36 @@
         ]
     },
     "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStation": {
-        "desc": "走到生态实验站附近最后一株的位置引出敌人，有敌人时先自动战斗",
+        "desc": "走到生态实验站附近的采集区域引出敌人，有敌人时先自动战斗",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        873.43,
+                        2215.82
+                    ]
+                }
+            ]
+        },
+        // 到达后敌人可能还没出现，固定等待 3 秒再判断是否需要自动战斗
+        "post_delay": 3000,
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStationCollect1"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStationCollect1": {
+        "desc": "采集生态实验站附近第 1 株蓬茸锦草",
+        // 自动战斗后人停在哪不确定，寻路启动时会把离起点近的路点当成已走过，
+        // 多株写在同一条路线里会被跳过，所以每株单独一个节点
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
@@ -634,16 +663,23 @@
                         881.31,
                         2209.185
                     ]
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        881.31,
+                        2209.185
+                    ],
+                    "strict": true
                 }
             ]
         },
         "next": [
-            "[JumpBack]AutoFight",
-            "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStationCollect"
+            "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStationCollect2"
         ]
     },
-    "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStationCollect": {
-        "desc": "在生态实验站附近采集 5 株蓬茸锦草",
+    "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStationCollect2": {
+        "desc": "采集生态实验站附近第 2 株蓬茸锦草",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
@@ -656,33 +692,9 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        860.73,
-                        2221.2
+                        877.912,
+                        2225.52
                     ]
-                },
-                {
-                    "action": "COLLECT",
-                    "target": [
-                        860.73,
-                        2221.2
-                    ],
-                    "strict": true
-                },
-                {
-                    "action": "COLLECT",
-                    "target": [
-                        851.1,
-                        2225.325
-                    ],
-                    "strict": true
-                },
-                {
-                    "action": "COLLECT",
-                    "target": [
-                        867.217,
-                        2241.023
-                    ],
-                    "strict": true
                 },
                 {
                     "action": "COLLECT",
@@ -691,12 +703,100 @@
                         2225.52
                     ],
                     "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStationCollect3"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStationCollect3": {
+        "desc": "采集生态实验站附近第 3 株蓬茸锦草",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        867.217,
+                        2241.023
+                    ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        881.31,
-                        2209.185
+                        867.217,
+                        2241.023
+                    ],
+                    "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStationCollect4"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStationCollect4": {
+        "desc": "采集生态实验站附近第 4 株蓬茸锦草",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        851.1,
+                        2225.325
+                    ]
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        851.1,
+                        2225.325
+                    ],
+                    "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStationCollect5"
+        ]
+    },
+    "AutoDailyMissionHerbalRemediesRouteEcologicalResearchStationCollect5": {
+        "desc": "采集生态实验站附近第 5 株蓬茸锦草",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        860.73,
+                        2221.2
+                    ]
+                },
+                {
+                    "action": "COLLECT",
+                    "target": [
+                        860.73,
+                        2221.2
                     ],
                     "strict": true
                 }

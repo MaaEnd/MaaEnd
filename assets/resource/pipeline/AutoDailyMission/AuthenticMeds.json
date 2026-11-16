@@ -614,11 +614,13 @@
         },
         "next": [
             "[JumpBack]AutoFight",
-            "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect"
+            "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect1"
         ]
     },
-    "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect": {
-        "desc": "在谷地要塞北侧附近采集 5 株映火荞花",
+    "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect1": {
+        "desc": "采集谷地要塞北侧附近第 1 株映火荞花",
+        // 自动战斗后人停在哪不确定，寻路启动时会把离起点近的路点当成已走过，
+        // 多株写在同一条路线里会被跳过，所以每株单独一个节点
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
@@ -642,6 +644,30 @@
                         601.166
                     ],
                     "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect2"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect2": {
+        "desc": "采集谷地要塞北侧附近第 2 株映火荞花",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        83.586,
+                        602.378
+                    ]
                 },
                 {
                     "action": "COLLECT",
@@ -650,6 +676,30 @@
                         602.378
                     ],
                     "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect3"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect3": {
+        "desc": "采集谷地要塞北侧附近第 3 株映火荞花",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        89.414,
+                        596.848
+                    ]
                 },
                 {
                     "action": "COLLECT",
@@ -658,6 +708,30 @@
                         596.848
                     ],
                     "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect4"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect4": {
+        "desc": "采集谷地要塞北侧附近第 4 株映火荞花",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        95.991,
+                        600.546
+                    ]
                 },
                 {
                     "action": "COLLECT",
@@ -666,6 +740,30 @@
                         600.546
                     ],
                     "strict": true
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect5"
+        ]
+    },
+    "AutoDailyMissionAuthenticMedsRouteValleyFortNorthCollect5": {
+        "desc": "采集谷地要塞北侧附近第 5 株映火荞花",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        89.632,
+                        609.128
+                    ]
                 },
                 {
                     "action": "COLLECT",
