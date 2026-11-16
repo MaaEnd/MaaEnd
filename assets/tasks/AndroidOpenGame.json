@@ -6,7 +6,7 @@
             "entry": "OpenGame",
             "description": "$task.AndroidOpenGame.description",
             "group": [
-                "other_menu"
+                "game_launch"
             ],
             "controller": [
                 "ADB",
