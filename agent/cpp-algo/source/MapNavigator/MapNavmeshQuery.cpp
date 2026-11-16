@@ -674,14 +674,15 @@ PreviewSegments collect_preview_segments(const std::vector<mapnavigator::Waypoin
         append_distinct(&current_walk, point);
         if (waypoint.rope_ride && index + 1 < expanded.size()) {
             const mapnavigator::Waypoint& top = expanded[index + 1];
-            rope_segments.emplace_back(json::object {
-                { "from", json::array { point.x, point.y } },
-                { "to", json::array { top.x, top.y } },
-                { "from_height", waypoint.route_floor_y ? json::value(*waypoint.route_floor_y) : json::value() },
-                { "to_height", waypoint.rope_ride->top_height },
-                { "uid", waypoint.rope_ride->uid },
-                { "ride_s", waypoint.rope_ride->ride_s },
-            });
+            rope_segments.emplace_back(
+                json::object {
+                    { "from", json::array { point.x, point.y } },
+                    { "to", json::array { top.x, top.y } },
+                    { "from_height", waypoint.route_floor_y ? json::value(*waypoint.route_floor_y) : json::value() },
+                    { "to_height", waypoint.rope_ride->top_height },
+                    { "uid", waypoint.rope_ride->uid },
+                    { "ride_s", waypoint.rope_ride->ride_s },
+                });
         }
 
         if (waypoint.action != mapnavigator::ActionType::ZIPLINE) {

@@ -17,13 +17,6 @@
                 "Linux-Wlroots",
                 "Win32-Front"
             ],
-            "option": [
-                "OperatorGrowthSchedule",
-                "AutoFightSetting",
-                "ProtocolSpaceTeamChoose",
-                "ProtocolSpaceObtainModeClaim",
-                "OperatorGrowthOperator"
-            ],
             "pipeline_override": {
                 "ProtocolSpaceRewardClaimSuccessNext": {
                     "next": [
@@ -52,7 +45,14 @@
                         }
                     }
                 }
-            }
+            },
+            "option": [
+                "OperatorGrowthSchedule",
+                "AutoFightSetting",
+                "ProtocolSpaceTeamChoose",
+                "ProtocolSpaceObtainModeClaim",
+                "OperatorGrowthOperator"
+            ]
         }
     ],
     "option": {

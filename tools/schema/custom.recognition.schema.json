@@ -345,7 +345,10 @@
                             },
                             "order_by": {
                                 "type": "string",
-                                "enum": [ "score", "natural" ],
+                                "enum": [
+                                    "score",
+                                    "natural"
+                                ],
                                 "default": "score",
                                 "title": "Result Order",
                                 "description": "Sort accepted results by descending score, or in natural row-by-row order from left to right. Does not change which match deduplication keeps."

@@ -1646,10 +1646,11 @@ RecastPlanResult join_rope_hop(RecastPlanResult a, const RecastPlanResult& b, co
 {
     const size_t base = a.points.size();
     RecastPlanResult r = join_head(std::move(a), b);
-    r.ropes.push_back({ .index = base,
-                        .top_height = static_cast<double>(rope.top.h),
-                        .uid = rope.uid_bottom,
-                        .ride_s = static_cast<double>(rope.ride_s) });
+    r.ropes.push_back(
+        { .index = base,
+          .top_height = static_cast<double>(rope.top.h),
+          .uid = rope.uid_bottom,
+          .ride_s = static_cast<double>(rope.ride_s) });
     join_tail(&r, b, base, "rope ride to another layer");
     return r;
 }
@@ -1854,10 +1855,11 @@ double ellipse_floor(const CellPt& sc, const CellPt& gc, int64_t margin, int64_t
     const double ry0 = static_cast<double>(margin - 1);
     const double rx1 = static_cast<double>(nx - margin);
     const double ry1 = static_cast<double>(ny - margin);
-    return std::min({ min_focal_sum_on_edge(sc, gc, rx0, ry0, rx1, ry0),
-                      min_focal_sum_on_edge(sc, gc, rx1, ry0, rx1, ry1),
-                      min_focal_sum_on_edge(sc, gc, rx1, ry1, rx0, ry1),
-                      min_focal_sum_on_edge(sc, gc, rx0, ry1, rx0, ry0) })
+    return std::min(
+               { min_focal_sum_on_edge(sc, gc, rx0, ry0, rx1, ry0),
+                 min_focal_sum_on_edge(sc, gc, rx1, ry0, rx1, ry1),
+                 min_focal_sum_on_edge(sc, gc, rx1, ry1, rx0, ry1),
+                 min_focal_sum_on_edge(sc, gc, rx0, ry1, rx0, ry0) })
            - 1.0;
 }
 
@@ -3560,12 +3562,12 @@ RecastPlanResult plan_locked(
         patched = load_patch(&ps, engine->grid, *gz, zone_opens, start, start, kSnapFallbackRadius + kSnapRadius)
                   && load_patch(&pg, engine->grid, *gz, zone_opens, goal, goal, kSnapRadius);
         const int64_t deck_rec = patched ? pick_deck_rec(
-                                     pg.gw,
-                                     pg.nx,
-                                     pg.ny,
-                                     static_cast<int64_t>((goal.x - pg.x0) / kCS),
-                                     static_cast<int64_t>((goal.y - pg.y0) / kCS),
-                                     *gdk)
+                                               pg.gw,
+                                               pg.nx,
+                                               pg.ny,
+                                               static_cast<int64_t>((goal.x - pg.x0) / kCS),
+                                               static_cast<int64_t>((goal.y - pg.y0) / kCS),
+                                               *gdk)
                                          : -1;
         if (deck_rec >= 0) {
             deck_region = pg.gw.rec[static_cast<size_t>(deck_rec)].rid;
@@ -3778,12 +3780,12 @@ RecastPlanResult plan_locked(
                 GridPatch pq;
                 const bool goal_patched = load_patch(&pq, engine->grid, *gz, zone_opens, goal, goal, kSnapRadius);
                 const int64_t qrec = goal_patched ? pick_start_rec(
-                                         pq.gw,
-                                         pq.nx,
-                                         pq.ny,
-                                         static_cast<int64_t>((goal.x - pq.x0) / kCS),
-                                         static_cast<int64_t>((goal.y - pq.y0) / kCS),
-                                         tri_height_of(zc.mesh, gs->tri))
+                                                        pq.gw,
+                                                        pq.nx,
+                                                        pq.ny,
+                                                        static_cast<int64_t>((goal.x - pq.x0) / kCS),
+                                                        static_cast<int64_t>((goal.y - pq.y0) / kCS),
+                                                        tri_height_of(zc.mesh, gs->tri))
                                                   : -1;
                 const uint32_t peer = qrec >= 0 ? pq.gw.rec[static_cast<size_t>(qrec)].rid : region;
                 pq = GridPatch {};

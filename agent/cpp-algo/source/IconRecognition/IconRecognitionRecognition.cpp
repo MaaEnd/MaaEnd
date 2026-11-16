@@ -152,10 +152,11 @@ void WriteMultiResultDetail(MaaStringBuffer* buffer, const RecognitionResult& re
 
     json::array filtered;
     for (const auto& match : result.matches) {
-        filtered.emplace_back(json::object {
-            { "box", RectToJson(match.cell_box) },
-            { "detail", match.to_json() },
-        });
+        filtered.emplace_back(
+            json::object {
+                { "box", RectToJson(match.cell_box) },
+                { "detail", match.to_json() },
+            });
     }
     const std::string text = json::value(json::object { { "$filtered", std::move(filtered) } }).dumps();
     MaaStringBufferSet(buffer, text.c_str());

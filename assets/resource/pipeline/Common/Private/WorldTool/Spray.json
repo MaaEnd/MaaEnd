@@ -2,11 +2,11 @@
     "__WorldToolSprayHoldR": {
         "desc": "长按 R 打开工具轮盘准备喷洒",
         "action": "KeyDown",
+        "auto_up": true,
         "key": 82, // R 0x52
         "next": [
             "__WorldToolSprayInSelectTool"
-        ],
-        "auto_up": true
+        ]
     },
     "__WorldToolSprayInSelectTool": {
         "desc": "已打开工具轮盘",
@@ -159,12 +159,12 @@
         "desc": "按住 Alt 放出光标",
         "pre_delay": 0,
         "action": "KeyDown",
+        "auto_up": true,
         "key": 18, // Alt
         "post_delay": 0,
         "next": [
             "__WorldToolSprayRecenterMove"
-        ],
-        "auto_up": true
+        ]
     },
     "__WorldToolSprayRecenterMove": {
         "desc": "按住 Alt 时把光标移回屏幕中心",

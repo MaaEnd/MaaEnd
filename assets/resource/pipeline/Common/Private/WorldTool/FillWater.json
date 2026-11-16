@@ -57,12 +57,12 @@
             }
         },
         "action": "KeyDown",
+        "auto_up": true,
         "key": 16, // Shift
         "post_delay": 50,
         "next": [
             "__WorldToolFillWaterTakeBottleClick"
-        ],
-        "auto_up": true
+        ]
     },
     "__WorldToolFillWaterTakeBottleClick": {
         "desc": "Shift + 单击空蓝铁瓶移一组到背包",
@@ -148,11 +148,11 @@
     "__WorldToolFillWaterHoldR": {
         "desc": "长按 R 打开工具轮盘准备装水",
         "action": "KeyDown",
+        "auto_up": true,
         "key": 82, // R 0x52
         "next": [
             "__WorldToolFillWaterInSelectTool"
-        ],
-        "auto_up": true
+        ]
     },
     "__WorldToolFillWaterInSelectTool": {
         "desc": "已打开工具轮盘",

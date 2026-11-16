@@ -129,24 +129,27 @@ int RunIconRecognitionTypesTest()
     Check(!disabled_object.contains("disabled"), "region-unavailable match must not serialize disabled");
     Check(!disabled_object.contains("aliases"), "matches without duplicate icons must omit aliases");
 
-    result.matches.push_back(ItemMatch {
-        .item = ItemInfo { .item_id = "item_a" },
-        .cell_box = cv::Rect(30, 40, 64, 64),
-        .score = 0.9,
-    });
+    result.matches.push_back(
+        ItemMatch {
+            .item = ItemInfo { .item_id = "item_a" },
+            .cell_box = cv::Rect(30, 40, 64, 64),
+            .score = 0.9,
+        });
     std::stable_sort(result.matches.begin(), result.matches.end(), ItemMatchLess {});
     Check(result.matches.front().item.item_id == "item_a", "stable match ordering must use item_id as a tiebreaker");
 
-    result.matches.push_back(ItemMatch {
-        .item = ItemInfo { .item_id = "item_a" },
-        .cell_box = cv::Rect(100, 40, 64, 64),
-        .score = 0.8,
-    });
-    result.matches.push_back(ItemMatch {
-        .item = ItemInfo { .item_id = "item_c" },
-        .cell_box = cv::Rect(170, 40, 64, 64),
-        .score = 0.7,
-    });
+    result.matches.push_back(
+        ItemMatch {
+            .item = ItemInfo { .item_id = "item_a" },
+            .cell_box = cv::Rect(100, 40, 64, 64),
+            .score = 0.8,
+        });
+    result.matches.push_back(
+        ItemMatch {
+            .item = ItemInfo { .item_id = "item_c" },
+            .cell_box = cv::Rect(170, 40, 64, 64),
+            .score = 0.7,
+        });
     DeduplicateMatches(result.matches);
     Check(result.matches.size() == 3, "deduplication must keep one result per item_id");
     Check(result.matches.at(0).item.item_id == "item_a", "deduplicated item_a ordering mismatch");

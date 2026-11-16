@@ -78,28 +78,29 @@ void TestDebugCaptureKeepsSynchronizedGroups()
         .result_sort_ms = 0.25,
         .cell_count = 1,
     };
-    result.diagnostics->cells.push_back(iconrecognition::detail::CellRecognitionDiagnostics {
-        .cell_box = cv::Rect(4, 5, 16, 16),
-        .candidate_box = cv::Rect(6, 7, 12, 12),
-        .best_candidate_id = "fixture_item",
-        .baseline_score = 0.71,
-        .score = 0.83,
-        .top2_margin = 0.12,
-        .candidate_count = 3,
-        .fallback_used = true,
-        .best_phase = cv::Point2d(0.25, -0.5),
-        .rejected_reason = std::nullopt,
-        .foreground_texture = 18.0,
-        .rarity = 3,
-        .rarity_coverage = 1.0,
-        .rarity_row_offset = 0,
-        .mask_kind = "lower_extended",
-        .edge_occlusion_side = "top",
-        .edge_occlusion_cutoff = 4,
-        .edge_occlusion_residual_ratio = 6.5,
-        .row = 0,
-        .column = 1,
-    });
+    result.diagnostics->cells.push_back(
+        iconrecognition::detail::CellRecognitionDiagnostics {
+            .cell_box = cv::Rect(4, 5, 16, 16),
+            .candidate_box = cv::Rect(6, 7, 12, 12),
+            .best_candidate_id = "fixture_item",
+            .baseline_score = 0.71,
+            .score = 0.83,
+            .top2_margin = 0.12,
+            .candidate_count = 3,
+            .fallback_used = true,
+            .best_phase = cv::Point2d(0.25, -0.5),
+            .rejected_reason = std::nullopt,
+            .foreground_texture = 18.0,
+            .rarity = 3,
+            .rarity_coverage = 1.0,
+            .rarity_row_offset = 0,
+            .mask_kind = "lower_extended",
+            .edge_occlusion_side = "top",
+            .edge_occlusion_cutoff = 4,
+            .edge_occlusion_residual_ratio = 6.5,
+            .row = 0,
+            .column = 1,
+        });
     // 保存机制使用真实截图验证，避免重新引入合成图片输入。
     const cv::Mat screenshot = cv::imread(ICON_RECOGNITION_TEST_FIXTURE_IMAGE);
     Require(!screenshot.empty(), "real debug screenshot must be readable");

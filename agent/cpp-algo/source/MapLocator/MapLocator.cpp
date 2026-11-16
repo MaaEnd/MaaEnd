@@ -73,7 +73,8 @@ bool zone_expected(const std::string& expected_zone_id, const std::vector<std::s
 }
 
 // YOLO 认出的区域在接受范围内时，这一帧按它认出的区域找
-std::string expected_zone_for(const std::string& expected_zone, const std::vector<std::string>& accepted_zone_ids, const YoloCoarseResult& coarse)
+std::string
+    expected_zone_for(const std::string& expected_zone, const std::vector<std::string>& accepted_zone_ids, const YoloCoarseResult& coarse)
 {
     if (coarse.valid && zone_accepted(accepted_zone_ids, coarse.zone_id)) {
         return coarse.zone_id;

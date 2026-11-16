@@ -181,13 +181,14 @@ void AppendGridCases(
                 throw std::runtime_error(
                     "rois.json does not define " + std::string(roi_name) + " ROI for " + std::string(GridTypeName(grid_type)));
             }
-            output.push_back(ManualRunnerCase {
-                .grid_type = grid_type,
-                .image_path = image_path,
-                .roi = ReadRoi(roi_set.at(std::string(roi_name)), GridTypeName(grid_type)),
-                .roi_name = std::string(roi_name),
-                .candidates = ReadImageCandidates(image_path),
-            });
+            output.push_back(
+                ManualRunnerCase {
+                    .grid_type = grid_type,
+                    .image_path = image_path,
+                    .roi = ReadRoi(roi_set.at(std::string(roi_name)), GridTypeName(grid_type)),
+                    .roi_name = std::string(roi_name),
+                    .candidates = ReadImageCandidates(image_path),
+                });
         }
     }
 }
@@ -212,13 +213,14 @@ void AppendSingleRoiCases(
         const cv::Rect roi = ParseSingleRoiDirectory(directory);
         for (const auto& image_path : ListPngFiles(directory)) {
             if (IsSelectedImage(image_path, options)) {
-                output.push_back(ManualRunnerCase {
-                    .grid_type = GridType::SingleRoi,
-                    .image_path = image_path,
-                    .roi = roi,
-                    .roi_name = directory.filename().string(),
-                    .candidates = ReadImageCandidates(image_path),
-                });
+                output.push_back(
+                    ManualRunnerCase {
+                        .grid_type = GridType::SingleRoi,
+                        .image_path = image_path,
+                        .roi = roi,
+                        .roi_name = directory.filename().string(),
+                        .candidates = ReadImageCandidates(image_path),
+                    });
             }
         }
     }

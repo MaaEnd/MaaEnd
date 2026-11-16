@@ -613,13 +613,14 @@ TowerSites collect_powered_towers(const NaviParam& param, const ZiplineData& dat
         for (const auto& mark : record.marks) {
             const zipline::ZiplinePowerSource* source = data.frames.powerSource(mark.template_id);
             if (source != nullptr) {
-                supplies.push_back(SupplyPoint {
-                    .x = mark.x,
-                    .z = mark.z,
-                    .radius = source->radius,
-                    .footprint = source->footprint,
-                    .coverage_size = source->coverage_size,
-                });
+                supplies.push_back(
+                    SupplyPoint {
+                        .x = mark.x,
+                        .z = mark.z,
+                        .radius = source->radius,
+                        .footprint = source->footprint,
+                        .coverage_size = source->coverage_size,
+                    });
                 supply_points.push_back(to_world(frame.project(mark)));
             }
         }

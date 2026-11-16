@@ -81,15 +81,16 @@ GridFrame RecognizeGrid(const cv::Mat& image, const GridRecognitionOptions& opti
             }
 
             const cv::Mat cell_image = ApplyIgnoreMask(detected.roi(roi_rect), options.mask);
-            frame.cells.push_back({
-                row,
-                col,
-                index,
-                RoiToScreen(detected.cells[index], options.detect, image.size()),
-                ComputeHash(cell_image),
-                ComputeCellFeature(cell_image),
-                is_occupied(detected.roi(roi_rect), options),
-            });
+            frame.cells.push_back(
+                {
+                    row,
+                    col,
+                    index,
+                    RoiToScreen(detected.cells[index], options.detect, image.size()),
+                    ComputeHash(cell_image),
+                    ComputeCellFeature(cell_image),
+                    is_occupied(detected.roi(roi_rect), options),
+                });
         }
     }
 
