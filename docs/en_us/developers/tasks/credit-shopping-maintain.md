@@ -2,7 +2,7 @@
 
 This document describes the file layout and execution flow of `CreditShopping`.  
 Purchase conditions are not a few independent switches but a whole filter chain running from `Item/` to `Flow/`; maintenance must be understood along that chain.  
-This document was updated on November 10, 2026.
+This document was updated on November 16, 2026.
 
 ## File Paths
 
@@ -76,7 +76,7 @@ Implemented in `Item/` plus `Item/ShelfChecks.json`; recognition has two layers:
 
 Sold-out cards (dimmed card + "Sold Out") are not matched by IconRecognition, so the Pipeline no longer checks sold-out state separately.
 
-`CreditShoppingBuyPriority{N}` is an And chain: item → affordable → discount → reserve gate, with `box_index: 0` so the click lands on the item cell center. **If a preceding layer misses, the whole chain fails**; troubleshoot in order item → affordable → discount.
+`CreditShoppingBuyPriority{N}` is an And chain: item → affordable → discount → reserve gate. The click takes the discount node's box (`box_index: 2`) and offsets it with `target_offset: [-45, 58, 0, 0]` into the item icon area, so **the discount node must return a box** — that is why the "Any" case cannot switch it to `DirectHit` (see [Discount Options](#discount-options)). **If a preceding layer misses, the whole chain fails**; troubleshoot in order item → affordable → discount.
 
 Controller differences are maintained separately: the ADB IconRecognition ROI lives in `assets/resource_adb/pipeline/CreditShopping/IconRecognitionRoi.json`, cloud color thresholds in `assets/resource_cloud/pipeline/CreditShopping/Item.json`. The Pipeline does not pin a ROI, so region changes belong in those resource overrides.
 
@@ -113,8 +113,8 @@ Each tier has its own independent switch; insufficient refresh cost **will not**
 ### Discount Options
 
 The discount option for each tier modifies the corresponding tier's discount OCR `expected`, or switches to the "Any" case.
-Numeric tiers only rewrite `expected` (e.g. "-25% and above"); the "Any" case replaces the discount node with `DirectHit`, so **no discount badge is checked** — items without a discount are purchased too, matching the "Any" semantics of `AutoStockStaple`.
-Discount rules must cover both the affordable and unaffordable sides.
+Numeric tiers only rewrite `expected` (e.g. "-25% and above"); the "Any" case **stops checking the discount badge** — items without a discount are purchased too, matching the "Any" semantics of `AutoStockStaple`. It writes a full-range `ColorMatch` (`method: 4`, `lower: [0, 0, 0]`, `upper: [255, 255, 255]`) instead of `DirectHit`, because the purchase node clicks relative to the discount node's box and `DirectHit` returns no box, which drops the offset anchor. The override only replaces `recognition` and the color parameters; do not add `roi` / `roi_offset`, since those are the node's own relative region and the `assets/resource_adb` controller override still applies to it.
+Discount rules must cover both the affordable and unaffordable sides (`*Discount` together with `*DiscountCannotAfford`).
 
 ### Force Strategy and Refresh
 
