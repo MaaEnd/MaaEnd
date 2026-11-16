@@ -268,11 +268,17 @@ std::optional<bool> walk_lands(const FallGate& gate, const SpanTable& st, int64_
     const WorldPoint pa = fall_cell_centre(gate, a);
     const WorldPoint pb = fall_cell_centre(gate, b);
     const double len = std::hypot(pb.x - pa.x, pb.y - pa.y);
+    const double bottom = hb - kClimb;
     if (len <= 0.0) {
-        return true;
+        const OccluderPoint q { .x = (pa.x - gate.tx) / gate.sx, .y = ha, .z = (gate.ty - pa.y) / gate.sy };
+        const std::optional<double> solid = OccluderFloorAt(*gate.solid, q, bottom, ha - kFallClimb);
+        const std::optional<double> mesh = span_floor_at(st, a, bottom, ha - kFallClimb);
+        if (!solid.has_value() && !mesh.has_value()) {
+            return false;
+        }
+        return std::fabs(std::fmax(solid.value_or(bottom), mesh.value_or(bottom)) - hb) <= kClimb;
     }
     const double reach = std::fmax(len, 4.0 * kFallRadius * std::fabs(gate.sx));
-    const double bottom = hb - kClimb;
     double foot = ha;
     double d = 0.0;
     while (d < reach) {
