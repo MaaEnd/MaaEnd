@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -94,6 +95,8 @@ std::vector<OccluderHit> OccluderLineHits(const OccluderScene& scene, const Occl
 double OccluderGroundHeight(const OccluderScene& scene, const OccluderPoint& base);
 
 bool OccluderDropBlocked(const OccluderScene& scene, const OccluderPoint& take, const OccluderPoint& land, double climb, double height);
+
+std::optional<double> OccluderFloorAt(const OccluderScene& scene, const OccluderPoint& at, double bottom, double top);
 
 // 输入须是解压后的整份容器, 数据有误返回 nullptr
 std::shared_ptr<const OccluderScene> DecodeOccluderScene(const uint8_t* data, size_t size, std::string_view zone_name);

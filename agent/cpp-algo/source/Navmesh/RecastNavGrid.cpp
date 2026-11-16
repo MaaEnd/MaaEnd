@@ -98,6 +98,9 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
         if (st.fall != nullptr && !FallClear(st.fall, cid, cid + dy * nx + dx, h0, h1)) {
             return false;
         }
+        if (st.fall != nullptr && !FallLands(st.fall, st, cid, cid + dy * nx + dx, h0, h1)) {
+            return false;
+        }
     }
     // 坡度口径内立面与平地结论相同, 所以可以先于立面判据放行
     if (dh <= kSlope * kCS) {

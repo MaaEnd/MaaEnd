@@ -1283,6 +1283,17 @@ bool OccluderDropBlocked(const OccluderScene& scene, const OccluderPoint& take, 
     return false;
 }
 
+std::optional<double> OccluderFloorAt(const OccluderScene& scene, const OccluderPoint& at, double bottom, double top)
+{
+    std::optional<double> best;
+    for (const Level& level : column_levels(scene, at, bottom, top)) {
+        if (level.up && (!best.has_value() || level.y > *best)) {
+            best = level.y;
+        }
+    }
+    return best;
+}
+
 std::shared_ptr<const OccluderScene> DecodeOccluderScene(const uint8_t* data, size_t size, std::string_view zone_name)
 {
     if (size < kContainerHeaderSize || std::memcmp(data, kContainerTag, sizeof(kContainerTag)) != 0) {

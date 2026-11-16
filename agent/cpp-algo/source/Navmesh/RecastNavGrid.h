@@ -124,6 +124,9 @@ struct SpanTable
     FallGate* fall = nullptr;
 };
 
+// 台沿下落能否落到对端那层, 格号是窗口内格号; 会写 gate 的记忆表
+bool FallLands(FallGate* gate, const SpanTable& st, int64_t from, int64_t to, float h_from, float h_to);
+
 inline int64_t OccupiedCount(const SpanTable& st)
 {
     return st.cs.empty() ? 0 : static_cast<int64_t>(st.cs.size()) - 1;
