@@ -155,7 +155,7 @@ for (const [
             action: {
                 type: "Custom",
                 param: {
-                    custom_action: "PipelineOverrideAction",
+                    custom_action: "PipelineOverride",
                     custom_action_param: {patch: {GiftOperatorName: entry.pipeline_override.GiftOperatorName}},
                 },
             },
@@ -181,7 +181,7 @@ for (const [
             action: {
                 type: "Custom",
                 param: {
-                    custom_action: "PipelineOverrideAction",
+                    custom_action: "PipelineOverride",
                     custom_action_param: {
                         patch: {
                             GiftOperatorSelectSpecifiedOp: {template},

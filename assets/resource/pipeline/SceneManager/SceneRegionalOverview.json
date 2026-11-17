@@ -94,7 +94,7 @@
     "__ScenePrivateMenuRegionalOverviewAnyResetListComplete": {
         "desc": "重置 ListComplete 识别的 ready 状态",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "__ScenePrivateMenuRegionalOverviewAnyListComplete": {

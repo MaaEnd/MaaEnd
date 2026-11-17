@@ -55,7 +55,7 @@
         // attach.ready 是识别器的运行期状态：首次执行时 ListCompleteRecognition 把 roi 内画面截成模板
         // ListCompleteRecognition/AutoDeliveryCheckDeliveryMissionListComplete.png 并置 ready=true，
         // 之后每轮用该模板判断列表是否已停住。
-        // AutoDeliverySelectDeliveryMissionFromList 在开始新一轮查找前用 PipelineOverrideAction 置回 false，
+        // AutoDeliverySelectDeliveryMissionFromList 在开始新一轮查找前用 PipelineOverride 置回 false，
         // 使固定画面被重新采集（否则上一轮的模板会一直沿用）。
         "attach": {
             "ready": false
@@ -284,7 +284,7 @@
         "desc": "在任务列表中查找送货任务，并确认右侧详情已经选中该任务",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "AutoDeliveryCheckDeliveryMissionListComplete": {

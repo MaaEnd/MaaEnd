@@ -54,7 +54,7 @@ This task does not rely on runtime concatenation of user input strings, but rath
 3. Keys where `attach` is `false` are excluded and no longer enter the whitelist.
 
 The Exclude branch (when an item has reached its target or is removed due to insufficient stock bills) also triggers re-initialization, ensuring subsequent list scans do not click on excluded items.  
-The exclusion action uses `PipelineOverrideAction` to set `attach.{slug}` to `false` in the item's discount group.
+The exclusion action uses `PipelineOverride` to set `attach.{slug}` to `false` in the item's discount group.
 
 ### Stock Bill Retention Threshold
 
@@ -136,7 +136,7 @@ Matched when `limit <= current_held_quantity`:
 | -------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
 | Task Entry | `AttachToExpectedRegexAction` | Merge attach per group → that group's item name OCR regex |
 | Task Entry | Option `pipeline_override` (category switch / group discount select) | When a category is off, its overrides are not collected; a group's numeric tier rewrites that group's discount OCR `expected`, and the "Any" tier replaces that group's discount recognition node with an always-matching `ColorMatch` |
-| After Item Exclusion | `PipelineOverrideAction` + then `AttachToExpectedRegexAction` | Remove the attach key from its group and refresh all group whitelists |
+| After Item Exclusion | `PipelineOverride` + then `AttachToExpectedRegexAction` | Remove the attach key from its group and refresh all group whitelists |
 | Before Confirming Purchase | `AutoStockStapleQuantityControlAction` | Calculate difference and override BetterSliding target quantity |
 
 ## Data Source and Incremental Updates
@@ -322,7 +322,7 @@ After the purchase quantity adjustment is complete, `next` enters `AutoStockStap
 
 Flow:
 
-1. `{Item}RemoveFilter`: Calls `PipelineOverrideAction`, setting the item's attach key in its discount group to `false`, effectively removing it from that group's whitelist.
+1. `{Item}RemoveFilter`: Calls `PipelineOverride`, setting the item's attach key in its discount group to `false`, effectively removing it from that group's whitelist.
 2. `AutoStockStapleQuantityControlResetRecognitionParams`: Executes `AttachToExpectedRegexAction` again (`targets` covers every group), **regenerating** each group's `AutoStockInStapleItemName{Group}.expected` regex based on the latest attach state.
 3. Close the purchase popup, return to the list to continue scanning other items.
 
@@ -336,7 +336,7 @@ This task involves several types of runtime overrides; do not confuse them durin
 | -------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------ |
 | Option `pipeline_override` (declared in `interface.json`) | Task option collection (MXU render stage) | When a category is off, its overrides are not collected; a group's numeric tier rewrites that group's discount OCR `expected`, and the "Any" tier replaces that group's discount recognition node with `ColorMatch` |
 | `AttachToExpectedRegexAction` | `AutoStockStapleMain` entry; Exclude → Reset node | Merge attach keywords per group → that group's OCR whitelist regex |
-| `PipelineOverrideAction` | Each item's `{Item}RemoveFilter` | Set the specified attach key to `false` in its group, excluding the item |
+| `PipelineOverride` | Each item's `{Item}RemoveFilter` | Set the specified attach key to `false` in its group, excluding the item |
 | `AutoStockStapleQuantityControlAction` | Each item's `{Item}Buy` | Calculate difference and override BetterSliding's `TargetQuantity` / `enabled` |
 
 `attach` semantics (see `attachregex/action.go`):

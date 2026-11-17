@@ -54,7 +54,7 @@
 3. `attach` 为 `false` 的键会被排除，不再进入白名单。
 
 Exclude 分支（物品已达标或券不足被剔除）也会触发重新初始化，保证后续列表扫描不会再点已排除的物品。  
-排除动作通过 `PipelineOverrideAction` 将该物品所属分组的 `attach.{slug}` 设为 `false`。
+排除动作通过 `PipelineOverride` 将该物品所属分组的 `attach.{slug}` 设为 `false`。
 
 ### 调度券保留阈值
 
@@ -136,7 +136,7 @@ Exclude 分支（物品已达标或券不足被剔除）也会触发重新初始
 | ------------ | ------------------------------------------------------------- | ---------------------------------------- |
 | 任务入口 | `AttachToExpectedRegexAction` | 逐个分组合并 attach → 该分组商品名 OCR 正则 |
 | 任务入口 | 类目 switch / 分组折扣 select 的 `pipeline_override` | 类目关闭时不收集该类 override；分组折扣数值档改写该分组折扣 OCR 的 `expected`，「任意」档把该分组折扣识别节点替换为恒定命中的 `ColorMatch` |
-| 物品被排除后 | `PipelineOverrideAction` + 再次 `AttachToExpectedRegexAction` | 在所属分组剔除 attach 键并刷新全部分组白名单 |
+| 物品被排除后 | `PipelineOverride` + 再次 `AttachToExpectedRegexAction` | 在所属分组剔除 attach 键并刷新全部分组白名单 |
 | 确认购买前 | `AutoStockStapleQuantityControlAction` | 算差值并 override BetterSliding 目标数量 |
 
 ## 数据来源与增量更新
@@ -322,7 +322,7 @@ Go **不再** `RunTask` 执行滑动；数量调节由低代码分支完成：
 
 流程：
 
-1. `{Item}RemoveFilter`：调用 `PipelineOverrideAction`，将该物品在所属分组的 attach 键设为 `false`，等效于从该组白名单移除。
+1. `{Item}RemoveFilter`：调用 `PipelineOverride`，将该物品在所属分组的 attach 键设为 `false`，等效于从该组白名单移除。
 2. `AutoStockStapleQuantityControlResetRecognitionParams`：再次执行 `AttachToExpectedRegexAction`（`targets` 覆盖全部分组），基于最新 attach 状态 **重新生成** 各分组 `AutoStockInStapleItemName{Group}.expected` 正则。
 3. 关闭购买弹窗，回到列表继续扫描其他物品。
 
@@ -336,7 +336,7 @@ Exclude 分支 **不会** 购买，仅把“已达标”的物品从本轮扫描
 | -------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------- |
 | 选项的 `pipeline_override`（`interface.json` 声明） | 任务选项收集（MXU 渲染阶段） | 类目关闭时不收集该类 override；分组折扣数值档改写该分组折扣 OCR 的 `expected`；「任意」档把该分组折扣识别节点替换为 `ColorMatch` |
 | `AttachToExpectedRegexAction` | `AutoStockStapleMain` 入口；Exclude 后 Reset 节点 | 逐个分组合并 attach 关键词 → 该分组 OCR 白名单正则 |
-| `PipelineOverrideAction` | 各物品 `{Item}RemoveFilter` | 在所属分组将指定 attach 键设为 `false`，排除该物品 |
+| `PipelineOverride` | 各物品 `{Item}RemoveFilter` | 在所属分组将指定 attach 键设为 `false`，排除该物品 |
 | `AutoStockStapleQuantityControlAction` | 各物品 `{Item}Buy` | 计算差值并 override BetterSliding 的 `TargetQuantity` / `enabled` |
 
 `attach` 语义（见 `attachregex/action.go`）：

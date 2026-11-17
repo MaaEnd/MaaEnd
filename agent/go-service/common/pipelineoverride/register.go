@@ -6,12 +6,8 @@ import (
 )
 
 func Register() {
-	runner := &PipelineOverrideAction{}
-
-	// Keep backward compatibility with pipeline json naming.
-	maa.AgentServerRegisterCustomAction("PipelineOverride", runner)
-	maa.AgentServerRegisterCustomAction("PipelineOverrideAction", runner)
+	maa.AgentServerRegisterCustomAction("PipelineOverride", &PipelineOverrideAction{})
 	log.Info().
 		Str("component", "PipelineOverride").
-		Msg("registered custom actions: PipelineOverride, PipelineOverrideAction")
+		Msg("registered custom action: PipelineOverride")
 }
