@@ -1,28 +1,4 @@
 {
-    "TrialOfSwordmancyCoatingMain": {
-        "desc": "自动刷镀层主入口",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "TrialOfSwordmancyCoatingRewardMode",
-            "TrialOfSwordmancyCoating1"
-        ]
-    },
-    "TrialOfSwordmancyCoatingRewardMode": {
-        "desc": "处于奖励演算模式",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyInRewardMode"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [],
-        "focus": {
-            "Node.Action.Succeeded": "今日还有奖励次数未用尽，请先完成奖励演算"
-        }
-    },
     "TrialOfSwordmancyCoating1": {
         "desc": "刷镀层第1次抽取铭牌",
         "recognition": "And",
