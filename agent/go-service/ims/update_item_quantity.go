@@ -20,8 +20,12 @@ type updateItemQuantityParam struct {
 	Delta int    `json:"delta"`
 }
 
-// UpdateItemQuantity applies a signed delta to one cached item quantity (A1).
+// UpdateItemQuantity applies a signed delta to one item quantity (A1).
 // Result is clamped to >= 0. Does not change readiness / last_sync (only A2 marks sync).
+//
+// The key decides the storage layer: scratch_ keys are virtual items and stay in
+// memory (nothing is persisted), everything else is an inventory item and is
+// written back to IMS.json exactly as before.
 type UpdateItemQuantity struct{}
 
 // Run implements maa.CustomActionRunner.
@@ -51,8 +55,23 @@ func (a *UpdateItemQuantity) Run(_ *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
+	if IsScratchKey(params.Item) {
+		before, after, clamped := globalCache.applyDeltaScratch(params.Item, params.Delta)
+
+		log.Info().
+			Str("component", componentUpdateItemQuantity).
+			Str("item", params.Item).
+			Str("scope", "scratch").
+			Int("delta", params.Delta).
+			Int("before", before).
+			Int("after", after).
+			Bool("clamped", clamped).
+			Msg("virtual item quantity updated in memory")
+		return true
+	}
+
 	before, after, clamped, items, lastSync, hasData := globalCache.applyDelta(params.Item, params.Delta)
-	if err := persistItemsPreserveSync(items, lastSync, hasData); err != nil {
+	if err := persistItemsPreserveSync(componentUpdateItemQuantity, items, lastSync, hasData); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentUpdateItemQuantity).
@@ -90,7 +109,8 @@ func parseUpdateItemQuantityParam(raw string) (updateItemQuantityParam, error) {
 
 // persistItemsPreserveSync writes IMS.json without changing readiness semantics.
 // When hasData is true, UpdatedAt follows lastSync; otherwise keep existing file UpdatedAt if any.
-func persistItemsPreserveSync(items map[string]int, lastSync time.Time, hasData bool) error {
+// component is only used for logging so A1 / A4 remain distinguishable.
+func persistItemsPreserveSync(component string, items map[string]int, lastSync time.Time, hasData bool) error {
 	recordMu.Lock()
 	defer recordMu.Unlock()
 
@@ -100,7 +120,7 @@ func persistItemsPreserveSync(items map[string]int, lastSync time.Time, hasData 
 		if err != nil {
 			log.Warn().
 				Err(err).
-				Str("component", componentUpdateItemQuantity).
+				Str("component", component).
 				Msg("ims record corrupt while preserving sync timestamp, ignoring old timestamp")
 		} else if !rec.UpdatedAt.IsZero() {
 			updatedAt = rec.UpdatedAt

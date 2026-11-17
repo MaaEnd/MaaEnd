@@ -92,6 +92,7 @@
                 "SceneManagerMenuListClickItemAction",
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
+                "SetItemQuantity",
                 "SubTask",
                 "SyncItemData",
                 "TextInputAction",
@@ -101,6 +102,7 @@
                 "VisitFriendsBtwSellSettleAction",
                 "VisitFriendsBtwSellSlidingAction",
                 "WebEvent202605Action",
+                "WorldToolSprayScanAction",
                 "ZiplineImport",
                 "autoEcoFarmInterruptibleSleep",
                 "autoEcoFarmOverrideTargetTemplate",
@@ -151,6 +153,30 @@
                         "$ref": "./components/auto_delivery.schema.json#/$defs/ResolveDestinationParam"
                     }
                 }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "WorldToolSprayScanAction"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "pattern": {"enum": [
+                                    "upper_wall",
+                                    "ground"
+                                ]}
+                        },
+                        "required": ["pattern"],
+                        "additionalProperties": false
+                    }
+                },
+                "required": ["custom_action_param"]
             }
         },
         {
@@ -558,6 +584,20 @@
                         }
                     }
                 }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "SetItemQuantity"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {"$ref": "./components/ims.schema.json#/$defs/SetItemQuantityParam"}
+                },
+                "required": ["custom_action_param"]
             }
         },
         {

@@ -1,0 +1,273 @@
+{
+    "__WorldToolSprayHoldR": {
+        "desc": "长按 R 打开工具轮盘准备喷洒",
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 82, // R 0x52
+        "next": [
+            "__WorldToolSprayInSelectTool"
+        ]
+    },
+    "__WorldToolSprayInSelectTool": {
+        "desc": "已打开工具轮盘",
+        "recognition": "And",
+        "all_of": [
+            "InSelectTool"
+        ],
+        "next": [
+            "__WorldToolSprayChooseSpray"
+        ]
+    },
+    "__WorldToolSprayChooseSpray": {
+        "desc": "在工具轮盘中选择喷洒",
+        "recognition": "TemplateMatch",
+        "roi": [
+            404,
+            117,
+            463,
+            464
+        ],
+        "template": "Common/WorldTool/SprayToolIcon.png",
+        "threshold": 0.8,
+        "order_by": "Score",
+        "pre_wait_freezes": 80,
+        "action": "Click",
+        "next": [
+            "__WorldToolSprayKeyUp"
+        ]
+    },
+    "__WorldToolSprayKeyUp": {
+        "desc": "松开 R 进入喷洒界面",
+        "action": "KeyUp",
+        "key": 82, // R 0x52
+        "next": [
+            "__WorldToolSprayPickWater",
+            "__WorldToolSprayOpenLiquid"
+        ]
+    },
+    // 右侧鼠标提示是半透明的，亮背景下认不出；优先认供给量里的水滴，没有清水时再靠鼠标提示
+    "__WorldToolSprayInSpray": {
+        "desc": "在喷洒界面",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    520,
+                    440,
+                    240,
+                    80
+                ],
+                "template": "Common/WorldTool/SprayWaterSupply.png",
+                "threshold": 0.8
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    1180,
+                    215,
+                    100,
+                    50
+                ],
+                "template": "Common/WorldTool/SprayHintMouse.png",
+                "threshold": 0.8
+            }
+        ]
+    },
+    // 第一次使用喷洒会弹出选液体面板；之前用过其他液体时也要换回清水，所以进入喷洒后都按 Q 打开面板选清水
+    "__WorldToolSprayOpenLiquid": {
+        "desc": "在喷洒界面按 Q 打开选液体面板",
+        "recognition": "And",
+        "all_of": [
+            "__WorldToolSprayInSpray"
+        ],
+        "action": "ClickKey",
+        "key": 81, // Q
+        "next": [
+            "__WorldToolSprayPickWater"
+        ]
+    },
+    "__WorldToolSprayPickWater": {
+        "desc": "在选液体面板中点击清水",
+        // 识别格子下方的液体名，点击上方的物品图标
+        "recognition": "OCR",
+        "roi": [
+            0,
+            640,
+            1280,
+            30
+        ],
+        "expected": [
+            "^清水$",
+            "(?i)^Clean\\s*Water$",
+            "^水$",
+            "^청정수$"
+        ],
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        "target_offset": [
+            0,
+            -75,
+            0,
+            0
+        ],
+        "next": [
+            "__WorldToolSprayReady"
+        ]
+    },
+    "__WorldToolSprayReady": {
+        "desc": "喷洒界面有清水供给",
+        "recognition": "TemplateMatch",
+        "roi": [
+            520,
+            440,
+            240,
+            80
+        ],
+        "template": "Common/WorldTool/SprayWaterSupply.png",
+        "threshold": 0.8,
+        "next": [
+            "[Anchor]__WorldToolSprayScanAnchor"
+        ]
+    },
+    // 准心对准污渍时是黄绿色，在射程内没对准是白色，超出射程只剩白色四角
+    "__WorldToolSprayCrosshairOnStain": {
+        "desc": "喷洒准心变绿，对准了污渍",
+        "recognition": "ColorMatch",
+        "roi": [
+            620,
+            340,
+            40,
+            40
+        ],
+        "method": 40,
+        "lower": [
+            30,
+            180,
+            150
+        ],
+        "upper": [
+            45,
+            255,
+            255
+        ],
+        "count": 40
+    },
+    // 喷洒界面里光标跳动也会转镜头；按住 Alt 移动光标镜头不动，每一步前先归位到屏幕中心
+    // 由 WorldToolSprayScanAction 每走一步前调用，纯键鼠操作，延迟都设为 0
+    "__WorldToolSprayRecenterAltDown": {
+        "desc": "按住 Alt 放出光标",
+        "pre_delay": 0,
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 18, // Alt
+        "post_delay": 0,
+        "next": [
+            "__WorldToolSprayRecenterMove"
+        ]
+    },
+    "__WorldToolSprayRecenterMove": {
+        "desc": "按住 Alt 时把光标移回屏幕中心",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            640,
+            360
+        ],
+        "end": [
+            640,
+            360
+        ],
+        "only_hover": true,
+        "duration": 50,
+        "post_delay": 0,
+        "next": [
+            "__WorldToolSprayRecenterAltUp"
+        ]
+    },
+    "__WorldToolSprayRecenterAltUp": {
+        "desc": "松开 Alt",
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 18, // Alt
+        "post_delay": 0
+    },
+    // 逐格转动镜头找污渍、准心变绿就按住喷洒由 WorldToolSprayScanAction 完成，下面是它调用的节点
+    "__WorldToolSprayScanMove": {
+        "desc": "从屏幕中心移动光标转动镜头，终点由 WorldToolSprayScanAction 覆盖",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            640,
+            360
+        ],
+        "end": [
+            640,
+            360
+        ],
+        "only_hover": true,
+        "duration": 100,
+        // 大世界画面不一定静止，用不了 wait_freezes；转完稍等游戏反应再识别准心
+        "post_delay": 50
+    },
+    "__WorldToolSprayHoldPress": {
+        "desc": "在屏幕中心按住左键喷洒 2 秒",
+        // 松开 Alt 后游戏要一点时间重新锁定鼠标，马上按下会被吞掉
+        "pre_delay": 100,
+        "action": "Swipe",
+        "begin": [
+            640,
+            360
+        ],
+        "end": [
+            640,
+            360
+        ],
+        "duration": 2000,
+        "post_delay": 0
+    },
+    "__WorldToolSprayScanGround": {
+        "desc": "镜头压到最低，在正前方从下往上蛇形找地面的污渍并喷洒",
+        "action": "Custom",
+        "custom_action": "WorldToolSprayScanAction",
+        "custom_action_param": {
+            "pattern": "ground"
+        },
+        "next": [
+            "__WorldToolSprayExit"
+        ]
+    },
+    "__WorldToolSprayScanUpperWall": {
+        "desc": "镜头抬到最高，在正前方从上往下蛇形找上方墙面的污渍并喷洒",
+        "action": "Custom",
+        "custom_action": "WorldToolSprayScanAction",
+        "custom_action_param": {
+            "pattern": "upper_wall"
+        },
+        "next": [
+            "__WorldToolSprayExit"
+        ]
+    },
+    "__WorldToolSprayExit": {
+        "desc": "按 ESC 退出喷洒界面",
+        "recognition": "And",
+        "all_of": [
+            "__WorldToolSprayInSpray"
+        ],
+        "action": "ClickKey",
+        "key": 27, // ESC
+        "next": [
+            "__WorldToolSprayBackToWorld"
+        ]
+    },
+    "__WorldToolSprayBackToWorld": {
+        "desc": "已退出喷洒界面回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "[Anchor]WorldToolSprayDone"
+        ]
+    }
+}

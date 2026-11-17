@@ -33,30 +33,33 @@ iconrecognition::RecognitionResult MakeMatchResult()
     result.grid_type = iconrecognition::GridType::Transfer;
     result.roi = cv::Rect(10, 20, 300, 200);
     result.matched = true;
-    result.matches.push_back(iconrecognition::ItemMatch {
-        .item = iconrecognition::ItemInfo { .item_id = "item_a" },
-        .cell_box = cv::Rect(11, 21, 64, 64),
-        .item_box = cv::Rect(12, 22, 64, 64),
-        .score = 0.91,
-        .row = 0,
-        .column = 1,
-    });
-    result.matches.push_back(iconrecognition::ItemMatch {
-        .item = iconrecognition::ItemInfo { .item_id = "item_b" },
-        .cell_box = cv::Rect(80, 21, 64, 64),
-        .item_box = cv::Rect(81, 22, 64, 64),
-        .score = 0.90,
-        .row = 0,
-        .column = 2,
-    });
-    result.matches.push_back(iconrecognition::ItemMatch {
-        .item = iconrecognition::ItemInfo { .item_id = "item_a" },
-        .cell_box = cv::Rect(149, 21, 64, 64),
-        .item_box = cv::Rect(150, 22, 64, 64),
-        .score = 0.89,
-        .row = 0,
-        .column = 3,
-    });
+    result.matches.push_back(
+        iconrecognition::ItemMatch {
+            .item = iconrecognition::ItemInfo { .item_id = "item_a" },
+            .cell_box = cv::Rect(11, 21, 64, 64),
+            .item_box = cv::Rect(12, 22, 64, 64),
+            .score = 0.91,
+            .row = 0,
+            .column = 1,
+        });
+    result.matches.push_back(
+        iconrecognition::ItemMatch {
+            .item = iconrecognition::ItemInfo { .item_id = "item_b" },
+            .cell_box = cv::Rect(80, 21, 64, 64),
+            .item_box = cv::Rect(81, 22, 64, 64),
+            .score = 0.90,
+            .row = 0,
+            .column = 2,
+        });
+    result.matches.push_back(
+        iconrecognition::ItemMatch {
+            .item = iconrecognition::ItemInfo { .item_id = "item_a" },
+            .cell_box = cv::Rect(149, 21, 64, 64),
+            .item_box = cv::Rect(150, 22, 64, 64),
+            .score = 0.89,
+            .row = 0,
+            .column = 3,
+        });
     return result;
 }
 

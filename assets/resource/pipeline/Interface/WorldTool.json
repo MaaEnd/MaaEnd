@@ -1,0 +1,53 @@
+{
+    // 大世界工具（R 键工具轮盘）的公共接口，实现位于 Common/Private/WorldTool/
+    // 所有接口结束时都会跳到调用方设置的 [Anchor]，调用前需在上游节点设置对应 anchor
+
+    // 调用前：角色站在大世界地面上（水里无法喷洒），镜头水平方向已对准地面污渍所在的方向，背包里有装着清水的容器
+    // 调用后：镜头压到最低，在正前方左右约 34° 内从下往上蛇形找污渍，准心变绿就按住喷 2 秒，退出喷洒界面，回到大世界，跳到 [Anchor]WorldToolSprayDone
+    "WorldToolSprayStain": {
+        "desc": "准备在正前方地面找污渍喷洒",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "anchor": {
+            "__WorldToolSprayScanAnchor": "__WorldToolSprayScanGround"
+        },
+        "next": [
+            "__WorldToolSprayHoldR"
+        ]
+    },
+    // 调用前：角色站在大世界地面上（水里无法喷洒），镜头水平方向已对准上方墙面所在的方向，背包里有装着清水的容器
+    // 调用后：镜头抬到最高，在正前方左右约 34° 内从上往下蛇形找污渍，准心变绿就按住喷 2 秒，退出喷洒界面，回到大世界，跳到 [Anchor]WorldToolSprayDone
+    "WorldToolSprayUpperWall": {
+        "desc": "准备在正前方上方墙面找污渍喷洒",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "anchor": {
+            "__WorldToolSprayScanAnchor": "__WorldToolSprayScanUpperWall"
+        },
+        "next": [
+            "__WorldToolSprayHoldR"
+        ]
+    },
+    // 调用前：任意界面
+    // 调用后：一键存放背包，从四号谷地仓库取一组（50 个）空蓝铁瓶，传送到方兴衢走进水池，装 5 轮（每轮 10 份）清水，停在水池里，跳到 [Anchor]WorldToolFillWaterDone
+    "WorldToolFillWater": {
+        "desc": "进入四号谷地仓库的产物分类，准备取空蓝铁瓶",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuBackpackWithDepotValleyIVProduct"
+            ]
+        },
+        "next": [
+            "__WorldToolFillWaterQuickStash"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.WorldTool.focus.take_iron_bottle"
+        }
+    }
+}

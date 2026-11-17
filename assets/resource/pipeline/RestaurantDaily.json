@@ -812,13 +812,13 @@
         "target": true,
         "post_delay": 0,
         "rate_limit": 0,
-        "focus": {
-            "Node.Action.Starting": "当前客源小于60，结束经营流程"
-        },
         "next": [
             "RestaurantShopAfterRounds",
             "StopNode"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "当前客源小于60，结束经营流程"
+        }
     },
     "RestaurantFormalStart": {
         "desc": "点击“正式经营”。",
@@ -853,12 +853,12 @@
         "next": [
             "RestaurantManagementReady"
         ],
-        "focus": {
-            "Node.Action.Starting": "$task.RestaurantDaily.focus.patronage_available"
-        },
         "on_error": [
             "FailedNode"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.patronage_available"
+        }
     },
     "RestaurantManagementReady": {
         "desc": "确认“营业设定”页面已打开，并判断是否需要清除上局设置。",
@@ -2151,12 +2151,12 @@
             "RestaurantGameEnded",
             "RestaurantKitchenPanelReady"
         ],
-        "focus": {
-            "Node.Action.Starting": "$task.RestaurantDaily.focus.business_started"
-        },
         "on_error": [
             "FailedNode"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.RestaurantDaily.focus.business_started"
+        }
     },
     "RestaurantKitchenPanelReady": {
         "desc": "识别厨房面板已打开。",

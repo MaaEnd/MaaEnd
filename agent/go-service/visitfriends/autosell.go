@@ -18,9 +18,9 @@ const (
 )
 
 var (
-	mu         sync.Mutex
-	remaining  = target
-	sellPrice  int
+	mu        sync.Mutex
+	remaining = target
+	sellPrice int
 )
 
 // Sliding 从节点识别结果取单价，按差值计算本次售卖数量并覆写滑条目标

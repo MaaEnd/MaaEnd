@@ -48,5 +48,10 @@
         "templates": [
             "../AutoEcoFarm/Ranch.png"
         ]
+    },
+    "MissionTrack": {
+        "templates": [
+            "../AutoDailyMission/MissionTrack.png"
+        ]
     }
 }

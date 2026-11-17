@@ -59,6 +59,8 @@ struct ZiplineLegRequest
     std::optional<double> goal_deck_y;
     std::optional<double> start_floor_y;
     std::optional<double> start_deck_y;
+    // 有值时只从这根架子起滑, 上索不用走
+    std::optional<ZiplineNodeRef> start_tower;
     std::optional<double> zone_floor_y;
     MaaContext* maa_context = nullptr;
     bool capture_diagnostics = false;

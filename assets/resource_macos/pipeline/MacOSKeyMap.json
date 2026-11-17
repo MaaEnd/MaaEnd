@@ -801,5 +801,85 @@
                 "key": 122
             }
         }
+    },
+    "__WorldToolFillWaterHoldR": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "__WorldToolFillWaterKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "__WorldToolFillWaterShiftDown": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "__WorldToolFillWaterShiftUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "__WorldToolSprayExit": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 53
+            }
+        }
+    },
+    "__WorldToolSprayHoldR": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "__WorldToolSprayKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "__WorldToolSprayOpenLiquid": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 12
+            }
+        }
+    },
+    "__WorldToolSprayRecenterAltDown": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 58
+            }
+        }
+    },
+    "__WorldToolSprayRecenterAltUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 58
+            }
+        }
     }
 }

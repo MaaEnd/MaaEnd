@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -33,6 +34,7 @@ struct NaviParam
     std::vector<Waypoint> authored_path;
     // 本次导航各跳的记录, 重展开时用来排除出过问题的索
     HopLedger zipline_ledger;
+    std::optional<ZiplineNodeRef> zipline_standing_tower;
     // 为空则本次规划不用升降索
     std::vector<std::string> rope_interact_text;
     // 本次导航中认不出提示的升降索底端 uid, 后续规划不再选

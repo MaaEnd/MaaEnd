@@ -228,18 +228,19 @@ std::vector<TrustedRarityStrip> DetectTrustedRarityStrips(const cv::Mat& image, 
                     if (backgrounds.size() == 1) {
                         confidence *= kSingleBackgroundPenalty;
                     }
-                    candidates.push_back(TrustedRarityStrip {
-                        .box = box,
-                        .rarity = static_cast<int>(prototype_index + 1),
-                        .color_coverage = coverage,
-                        .continuity = continuity,
-                        .background_delta = background_delta,
-                        .edge_response = edge_response,
-                        .thickness = box.height,
-                        .confidence = confidence,
-                        .trusted = true,
-                        .can_seed_lattice = prototype_index != 0,
-                    });
+                    candidates.push_back(
+                        TrustedRarityStrip {
+                            .box = box,
+                            .rarity = static_cast<int>(prototype_index + 1),
+                            .color_coverage = coverage,
+                            .continuity = continuity,
+                            .background_delta = background_delta,
+                            .edge_response = edge_response,
+                            .thickness = box.height,
+                            .confidence = confidence,
+                            .trusted = true,
+                            .can_seed_lattice = prototype_index != 0,
+                        });
                 }
                 begin = end;
             }

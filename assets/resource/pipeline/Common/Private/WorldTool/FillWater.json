@@ -1,0 +1,357 @@
+{
+    "__WorldToolFillWaterQuickStash": {
+        "desc": "点击一键存放，防止背包满了放不下蓝铁瓶",
+        "recognition": "TemplateMatch",
+        "roi": [
+            871,
+            472,
+            162,
+            125
+        ],
+        "template": "StashBackpack/QuickStash.png",
+        "order_by": "Score",
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        // 一键存放会改变仓库格子排布，等格子稳定后再找蓝铁瓶
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ],
+            "timeout": 3000
+        },
+        "next": [
+            "__WorldToolFillWaterShiftDown"
+        ],
+        // next 只有找蓝铁瓶，超时未命中即为仓库里找不到蓝铁瓶
+        "focus": {
+            "Node.NextList.Failed": "$task.WorldTool.focus.no_iron_bottle"
+        }
+    },
+    "__WorldToolFillWaterShiftDown": {
+        "desc": "在仓库中找到空蓝铁瓶，按住 Shift 准备快速移动",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_ids": [
+                        "item_iron_bottle"
+                    ],
+                    // 装了液体的蓝铁瓶外观相近，用产物分类复核，避免取成装了液体的瓶子
+                    "item_recheck_filters": [
+                        "Normal:Product"
+                    ],
+                    "deduplicate": true
+                },
+                "roi": [
+                    154,
+                    202,
+                    585,
+                    291
+                ]
+            }
+        },
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 16, // Shift
+        "post_delay": 50,
+        "next": [
+            "__WorldToolFillWaterTakeBottleClick"
+        ]
+    },
+    "__WorldToolFillWaterTakeBottleClick": {
+        "desc": "Shift + 单击空蓝铁瓶移一组到背包",
+        "action": "Click",
+        "target": "__WorldToolFillWaterShiftDown",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "post_delay": 50,
+        "next": [
+            "__WorldToolFillWaterShiftUp"
+        ]
+    },
+    "__WorldToolFillWaterShiftUp": {
+        "desc": "松开 Shift 并等待物品移动完成",
+        "action": "KeyUp",
+        "key": 16, // Shift
+        "next": [
+            "__WorldToolFillWaterTeleport"
+        ]
+    },
+    "__WorldToolFillWaterTeleport": {
+        "desc": "传送到武陵城方兴衢",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCityFangxingAvenue"
+            ]
+        },
+        "next": [
+            "__WorldToolFillWaterRoute"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.WorldTool.focus.fill_water"
+        }
+    },
+    "__WorldToolFillWaterRoute": {
+        "desc": "走到方兴衢的水池里",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        703.5,
+                        1601.2
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        "next": [
+            "__WorldToolFillWaterReset"
+        ]
+    },
+    "__WorldToolFillWaterReset": {
+        "desc": "重置装水轮数",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "__WorldToolFillWaterSelectContainer"
+            ]
+        },
+        "next": [
+            "__WorldToolFillWaterHoldR"
+        ]
+    },
+    "__WorldToolFillWaterHoldR": {
+        "desc": "长按 R 打开工具轮盘准备装水",
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 82, // R 0x52
+        "next": [
+            "__WorldToolFillWaterInSelectTool"
+        ]
+    },
+    "__WorldToolFillWaterInSelectTool": {
+        "desc": "已打开工具轮盘",
+        "recognition": "And",
+        "all_of": [
+            "InSelectTool"
+        ],
+        "next": [
+            "__WorldToolFillWaterChooseFill"
+        ]
+    },
+    "__WorldToolFillWaterChooseFill": {
+        "desc": "在工具轮盘中选择盛装",
+        "recognition": "TemplateMatch",
+        "roi": [
+            404,
+            117,
+            463,
+            464
+        ],
+        "template": "Common/WorldTool/FillToolIcon.png",
+        "threshold": 0.8,
+        "order_by": "Score",
+        "pre_wait_freezes": 80,
+        "action": "Click",
+        "next": [
+            "__WorldToolFillWaterKeyUp"
+        ]
+    },
+    "__WorldToolFillWaterKeyUp": {
+        "desc": "松开 R 打开液体盛装面板",
+        "action": "KeyUp",
+        "key": 82, // R 0x52
+        "next": [
+            "__WorldToolFillWaterSelectContainer"
+        ]
+    },
+    "__WorldToolFillWaterPanel": {
+        "desc": "液体盛装面板",
+        "recognition": "TemplateMatch",
+        "roi": [
+            840,
+            40,
+            100,
+            90
+        ],
+        "template": "Common/WorldTool/LiquidFillTitle.png",
+        "threshold": 0.8
+    },
+    "__WorldToolFillWaterSelectContainer": {
+        "desc": "点击选择空容器",
+        "max_hit": 5, // 每轮装 10 份，最多装 50 份
+        "recognition": "And",
+        "all_of": [
+            "__WorldToolFillWaterPanel",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    1030,
+                    205,
+                    215,
+                    220
+                ],
+                "template": "Common/WorldTool/SelectContainerPlus.png",
+                "threshold": 0.8
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                500,
+                1280,
+                140
+            ]
+        },
+        "next": [
+            "__WorldToolFillWaterHoldBottle",
+            "__WorldToolFillWaterCloseList"
+        ]
+    },
+    "__WorldToolFillWaterHoldBottle": {
+        "desc": "长按空蓝铁瓶选满 10 份",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            605,
+            1280,
+            35
+        ],
+        "expected": [
+            "^蓝铁瓶$",
+            "^藍鐵瓶$",
+            "(?i)^Ferrium\\s*Bottle$",
+            "^青鉄製ボトル$",
+            "^페리움\\s*병$"
+        ],
+        "action": "LongPress",
+        "target_offset": [
+            0,
+            -60,
+            0,
+            0
+        ],
+        "duration": 3000,
+        "next": [
+            "__WorldToolFillWaterConfirm"
+        ]
+    },
+    "__WorldToolFillWaterContainerList": {
+        "desc": "左下角有背包，处于选择空容器的二级菜单",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            460,
+            60,
+            45
+        ],
+        "template": "Common/WorldTool/ContainerListBackpack.png",
+        "threshold": 0.8
+    },
+    "__WorldToolFillWaterCloseList": {
+        "desc": "二级菜单里没有空蓝铁瓶，点右上角退回一级菜单",
+        "recognition": "And",
+        "all_of": [
+            "__WorldToolFillWaterContainerList",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        "next": [
+            "__WorldToolFillWaterClosePanel"
+        ]
+    },
+    "__WorldToolFillWaterConfirm": {
+        "desc": "确认选择的容器",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        "next": [
+            "__WorldToolFillWaterStart"
+        ]
+    },
+    "__WorldToolFillWaterStart": {
+        "desc": "点击盛装",
+        "recognition": "And",
+        "all_of": [
+            "__WorldToolFillWaterPanel",
+            "YellowConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        "next": [
+            "__WorldToolFillWaterCloseReward"
+        ]
+    },
+    "__WorldToolFillWaterCloseReward": {
+        "desc": "关闭装水结算",
+        "recognition": "And",
+        "all_of": [
+            "CloseRewardsButton"
+        ],
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        "next": [
+            "__WorldToolFillWaterSelectContainer",
+            "__WorldToolFillWaterClosePanel"
+        ]
+    },
+    "__WorldToolFillWaterClosePanel": {
+        "desc": "一级菜单点右上角关闭液体盛装面板",
+        "recognition": "And",
+        "all_of": [
+            "__WorldToolFillWaterPanel",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        "next": [
+            "__WorldToolFillWaterBackToWorld"
+        ]
+    },
+    "__WorldToolFillWaterBackToWorld": {
+        "desc": "已关闭液体盛装面板回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "[Anchor]WorldToolFillWaterDone"
+        ]
+    }
+}

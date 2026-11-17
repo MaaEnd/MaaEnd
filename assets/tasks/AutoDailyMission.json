@@ -1,0 +1,17 @@
+{
+    "task": [
+        {
+            "name": "AutoDailyMission",
+            "label": "$task.AutoDailyMission.label",
+            "entry": "AutoDailyMissionMain",
+            "description": "$task.AutoDailyMission.description",
+            "group": [
+                "open_world"
+            ],
+            "controller": [
+                "Win32-Front"
+            ]
+        }
+    ],
+    "option": {}
+}

@@ -119,19 +119,20 @@ bool TemplateCatalog::InitializeUnlocked()
         const std::string fluid_icon_id = object.at("fluidIconId").is_string()
                                               ? object.at("fluidIconId").as_string()
                                               : throw std::runtime_error("catalog fluidIconId invalid: " + item_id);
-        records_.push_back(TemplateRecord {
-            .item_id = item_id,
-            .name_key = "iconRecognition.name." + item_id,
-            .category = get_string("category"),
-            .storage_kind = get_string("storageKind"),
-            .category_type = get_string("categoryType"),
-            .rarity = rarity,
-            .icon_id = icon_id,
-            .fluid_icon_id = fluid_icon_id,
-            .sort_id_1 = has_sort_id1 ? std::optional<int>(object.at("sortId1").as_integer()) : std::nullopt,
-            .sort_id_2 = has_sort_id2 ? std::optional<int>(object.at("sortId2").as_integer()) : std::nullopt,
-            .region_restricted = object.contains("regionRestricted") && object.at("regionRestricted").as_boolean(),
-        });
+        records_.push_back(
+            TemplateRecord {
+                .item_id = item_id,
+                .name_key = "iconRecognition.name." + item_id,
+                .category = get_string("category"),
+                .storage_kind = get_string("storageKind"),
+                .category_type = get_string("categoryType"),
+                .rarity = rarity,
+                .icon_id = icon_id,
+                .fluid_icon_id = fluid_icon_id,
+                .sort_id_1 = has_sort_id1 ? std::optional<int>(object.at("sortId1").as_integer()) : std::nullopt,
+                .sort_id_2 = has_sort_id2 ? std::optional<int>(object.at("sortId2").as_integer()) : std::nullopt,
+                .region_restricted = object.contains("regionRestricted") && object.at("regionRestricted").as_boolean(),
+            });
     }
     if (records_.empty()) {
         throw std::runtime_error("recognition catalog is empty");

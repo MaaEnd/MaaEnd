@@ -41,6 +41,43 @@
             "AutoStockpileEnaureElasticClicked"
         ]
     },
+    "AutoStockpileResetShelf": {
+        "desc": "重置货架位置：点击市场入口（整页顶部时为未选中/灰色态），让列表跳回市场段顶部",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockpileFindMarketSidebar",
+                    "AutoStockpileElasticGoodsSelected"
+                ]
+            }
+        },
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    5,
+                    5,
+                    -10,
+                    -10
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                63,
+                162,
+                1177,
+                553
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "AutoStockpileTask": {
         "desc": "开始自动囤货任务",
         "pre_delay": 0,

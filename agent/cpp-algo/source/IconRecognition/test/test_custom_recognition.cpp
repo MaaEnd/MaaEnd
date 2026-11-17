@@ -461,21 +461,22 @@ void TestSuccessfulSingleRoiRecognitionHonorsRecheckFilters()
 void TestGridDiagnosticsSerializeSelectionEvidence()
 {
     iconrecognition::detail::RecognitionDiagnostics diagnostics;
-    diagnostics.grids.push_back(iconrecognition::detail::GridSelectionDiagnostics {
-        .origin = cv::Point2d(161.0, 217.0),
-        .pitch = cv::Point2d(69.0, 69.0),
-        .rows = 2,
-        .columns = 1,
-        .best_score = 0.91,
-        .second_score = 0.42,
-        .score_margin = 0.49,
-        .structure_score = 0.72,
-        .rarity_score = 0.95,
-        .consistency_score = 1.0,
-        .trusted_rarity_cells = { 0, 1, 0, 0, 0, 0 },
-        .fallback_used = false,
-        .rejected_reasons = { "legacy-conflict" },
-    });
+    diagnostics.grids.push_back(
+        iconrecognition::detail::GridSelectionDiagnostics {
+            .origin = cv::Point2d(161.0, 217.0),
+            .pitch = cv::Point2d(69.0, 69.0),
+            .rows = 2,
+            .columns = 1,
+            .best_score = 0.91,
+            .second_score = 0.42,
+            .score_margin = 0.49,
+            .structure_score = 0.72,
+            .rarity_score = 0.95,
+            .consistency_score = 1.0,
+            .trusted_rarity_cells = { 0, 1, 0, 0, 0, 0 },
+            .fallback_used = false,
+            .rejected_reasons = { "legacy-conflict" },
+        });
 
     const auto object = diagnostics.to_json().as_object();
     Require(!object.contains("performance"), "normal diagnostics must not serialize debug performance data");

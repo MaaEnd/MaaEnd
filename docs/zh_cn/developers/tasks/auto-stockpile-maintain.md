@@ -1,6 +1,7 @@
 # 开发手册 - AutoStockpile 维护文档
 
-本文说明 `AutoStockpile` 如何在版本更新时进行维护
+本文说明 `AutoStockpile` 如何在版本更新时进行维护  
+该文档更新于 2026 年 11 月 14 日。
 
 ## 概念说明
 
@@ -180,24 +181,31 @@ var regionBases = map[string]int{
 
 在 `region` 字段的 `enum` 列表中加入新地区标识（如 `"NewRegion"`），确保第三方工具能通过 Schema 校验新增地区的数据。
 
-## 货架双页扫描
+## 货架逐屏扫描
 
-识别阶段会对弹性货架做**最多两页**扫描，避免清单超出一屏时漏扫商品：
+识别阶段会对弹性货架做**逐屏扫描**：固定最多 3 帧（进入时 1 帧 + 两次下滑各 1 帧），与识别到的商品数量无关。
 
 1. 对首屏截图执行 OCR + 模板匹配。
-2. 调用 `AutoStockpileSwipeShelfDown` 下滑一次（`post_wait_freezes` 等待列表稳定）。
-3. 再截图扫描次屏。
-4. 按商品 **ID 去重合并**（同 ID 保留首屏结果；仅下滑后次屏才出现的 ID 记入 `SecondPageOnlyIDs`）。内部扫屏顺序为 page0=首屏、page1=次屏（0-based）；字段名表示**仅第二屏（page1）**，不是第一屏（page0）。
-5. 调用 `AutoStockpileSwipeShelfUp` 滑回首屏。
+2. 调用 `AutoStockpileSwipeShelfDown` 下滑一段，再截图与上一屏比较；像素完全一致说明已经到底（或当前控制器本来就不需要滑动，如 Win32），结束扫描。
+3. 像素有差异时扫描该屏，再把本屏商品 ID 集合与上一屏比较：集合相同说明这次下滑没有让货架前进（谷地界面存在微动画，单靠像素比较会一直判为「有变化」），同样结束扫描。
+4. 货架确实前进则记录该屏，随后重复第 2 步。单次下滑距离远小于识别区高度，任意一行商品都会在至少一屏里完整出现，不会跳行。
+5. 按商品 **ID 去重合并**（同 ID 保留首屏结果；仅第 N 屏（0-based）才出现的 ID 记入 `SwipeCountToReveal`，值为需要下滑的次数）。
+6. 复位货架：先用 `AutoStockpileSwipeShelfUp` 上滑固定两次回到整页顶部（列表顶部会夹紧，多滑不会越界），再点击 `AutoStockpileResetShelf`（市场入口）让 UI 跳到**市场段顶部**，作为下一次扫描与点击的固定起点。
 
-下滑或次屏截图/扫描失败时降级为仅首屏结果，不中断任务；滑回首屏失败只记录警告，仍使用合并结果。
+逐屏扫描固定下滑两次（`shelfScanSwipeTimes`）：进入时 1 帧 + 两次滑动各 1 帧。货架没有前进时提前结束，日志里记为 `shelf_swipe_skip`（`reason` 为 `frame_unchanged` 或 `goods_unchanged`）；Win32 一屏可见因此只识别 1 帧。帧数不够时调大 `shelfScanSwipeTimes`，同时确认 ADB 侧 `AutoStockpileSwipeShelfDown` 的单次滚动量仍明显小于识别区高度。
+
+复位不能只靠反向拖动的次数抵消：单次拖动距离与扫描时的下滑并不严格对称，滑得不够会停在市场段中间，后续点击就会偏位。正确做法是先上滑到整页顶部（顶部夹紧保证必然到位），再点击市场入口跳转——市场入口只有在整页顶部点击才会跳转，这也是两步顺序不能颠倒的原因。固定起点同时让 `SwipeCountToReveal` 的「从市场段顶部下滑 N 次」语义稳定。
+
+市场入口图标会随滚动状态换样：列表在整页顶部（`当前拥有` 可见）时是**未选中/深灰**态（`ElasticGoodsButtonSide.png`），市场段成为当前视图时才是**选中/浅色**态（`ElasticGoodsButtonSideSelected.png`）。复位点击发生在整页顶部，因此 `AutoStockpileResetShelf` 的识别必须用未选中模板（`AutoStockpileFindMarketSidebar`）；`AutoStockpileEnaureElasticClicked` 是「已点击成功」的校验节点、用浅色模板，在整页顶部只有约 0.57，不能拿来当复位识别。
+
+下滑、截图或某一屏扫描失败时降级为已扫到的结果，不中断任务；某次上滑失败只记录警告并停止后续复原，仍使用合并结果。
 
 选中商品后：
 
-- 若商品 ID 在 `SecondPageOnlyIDs` 中（仅第二屏 / page1 可见，例如最后一排），点击前会再执行一次 `AutoStockpileSwipeShelfDown`，再交给 `AutoStockpileSelectedGoodsClick` 做模板点击。
+- 若商品在 `SwipeCountToReveal` 中（首屏看不到），点击前会按记录的次数重复执行 `AutoStockpileSwipeShelfDown`，再交给 `AutoStockpileSelectedGoodsClick` 做模板点击。
 - 若首屏（page0）已有该商品，则不额外滑动。
 
 滑动节点：
 
-- Win32 默认：`assets/resource/pipeline/AutoStockpile/Helper.json` 中为 `DoNothing`（一屏可看全）。
-- ADB / PlayCover：`assets/resource_adb/pipeline/AutoStockpile/Helper.json` 覆盖为真实 `Swipe`（含横向收尾与 `end_hold`）。坐标基于 720p，实机若漏扫或过量重复，优先微调 ADB 侧 `begin` / `end` 与 `post_wait_freezes.target`。
+- Win32 默认：`assets/resource/pipeline/AutoStockpile/Helper.json` 中 `AutoStockpileSwipeShelfDown` / `AutoStockpileSwipeShelfUp` 均为 `DoNothing`（一屏可看全），逐屏扫描第一次比较就会判定「没有滚动」并结束，因此也不会触发复位上滑。
+- ADB / PlayCover：`assets/resource_adb/pipeline/AutoStockpile/Helper.json` 覆盖为真实 `Swipe`：下滑是 200px、`duration: 700`、`end_hold: 200` 的慢速拖动（扫描步长），上滑是 320px、`duration: 700`、`end_hold: 200` 的拖动（只用于回到整页顶部，距离要足以跨越整页滚动范围）。坐标基于 720p，实机若漏扫，优先微调 `begin` / `end`、`duration` 与 `post_wait_freezes.target`；若复位后没跳到市场段顶部，先确认上滑确实回到了整页顶部（`shelf_reset_market` 会打印市场入口是否可见）。

@@ -1,27 +1,30 @@
 package autostockpile
 
-// mergeGoodsByID 合并两页商品：保留首屏条目，仅追加次屏新 ID，并返回仅第二屏出现的 ID 列表。
-func mergeGoodsByID(page0, page1 []GoodsItem) (goods []GoodsItem, secondPageOnlyIDs []string) {
-	seen := make(map[string]struct{}, len(page0)+len(page1))
-	goods = make([]GoodsItem, 0, len(page0)+len(page1))
-	secondPageOnlyIDs = make([]string, 0)
-
-	for _, item := range page0 {
-		if _, ok := seen[item.ID]; ok {
-			continue
-		}
-		seen[item.ID] = struct{}{}
-		goods = append(goods, item)
+// mergeGoodsPages 按商品 ID 合并多屏扫描结果：同一 ID 保留首次出现的条目，
+// 并返回仅在第 N 屏（0-based）才扫到的 ID → 露出该商品需要下滑的次数 N。
+func mergeGoodsPages(pages [][]GoodsItem) (goods []GoodsItem, swipeCountToReveal map[string]int) {
+	total := 0
+	for _, page := range pages {
+		total += len(page)
 	}
 
-	for _, item := range page1 {
-		if _, ok := seen[item.ID]; ok {
-			continue
+	seen := make(map[string]struct{}, total)
+	goods = make([]GoodsItem, 0, total)
+	swipeCountToReveal = make(map[string]int)
+
+	for pageIndex, page := range pages {
+		for _, item := range page {
+			if _, ok := seen[item.ID]; ok {
+				continue
+			}
+			seen[item.ID] = struct{}{}
+			goods = append(goods, item)
+			// pageIndex 即发现该屏所需的下滑次数：每多扫一屏必然多下滑一次。
+			if pageIndex > 0 {
+				swipeCountToReveal[item.ID] = pageIndex
+			}
 		}
-		seen[item.ID] = struct{}{}
-		goods = append(goods, item)
-		secondPageOnlyIDs = append(secondPageOnlyIDs, item.ID)
 	}
 
-	return goods, secondPageOnlyIDs
+	return goods, swipeCountToReveal
 }

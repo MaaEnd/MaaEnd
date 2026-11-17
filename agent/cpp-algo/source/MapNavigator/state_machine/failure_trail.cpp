@@ -65,15 +65,16 @@ void SampleFailureTrail(
     if (!trail->samples.empty() && now - trail->samples.back().at < std::chrono::milliseconds(kFailureTrailSampleIntervalMs)) {
         return;
     }
-    trail->samples.push_back(FailureTrailSample {
-        .at = now,
-        .x = position.x,
-        .y = position.y,
-        .score = position.score,
-        .captured = captured,
-        .locate_message = std::string(locate_message),
-        .node_idx = node_idx,
-    });
+    trail->samples.push_back(
+        FailureTrailSample {
+            .at = now,
+            .x = position.x,
+            .y = position.y,
+            .score = position.score,
+            .captured = captured,
+            .locate_message = std::string(locate_message),
+            .node_idx = node_idx,
+        });
     PruneFailureTrail(trail, now);
 }
 
