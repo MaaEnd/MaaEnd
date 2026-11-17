@@ -3115,7 +3115,8 @@ std::optional<std::vector<WorldPoint>> route_window(
             const WorldPoint& b = ded[i];
             const WorldPoint& c = ded[i + 1];
             const double cr = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
-            if (std::fabs(cr) > 1e-9 * std::max(1.0, std::hypot(c.x - a.x, c.y - a.y))) {
+            const double dot = (b.x - a.x) * (c.x - b.x) + (b.y - a.y) * (c.y - b.y);
+            if (std::fabs(cr) > 1e-9 * std::max(1.0, std::hypot(c.x - a.x, c.y - a.y)) || dot <= 0.0) {
                 out.push_back(b);
             }
         }
