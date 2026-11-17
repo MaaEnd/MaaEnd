@@ -250,7 +250,6 @@ Keys starting with `scratch_` are **virtual items**: A1 / A4 write them into a s
 | Persistence | Never writes `IMS.json` | Writes `IMS.json` (`updated_at` unchanged) |
 | Catalog validation | None | A4 requires a catalog hit, else it fails |
 | A2 region rebuild | Not involved, never cleared on a miss | Involved |
-| Cold start | Lost, reads as `0` | Restored from disk |
 
 `item` is static per node given by the caller (one node per item — the node hitting identifies the item); A4 does not derive item IDs from recognition results. Catalog validation only proves the ID exists, not that the quantity is correct right now — that is the caller's responsibility.
 
@@ -421,7 +420,7 @@ When you need “ready and quantity satisfied”:
 
 - In-session, process memory is authoritative; hot paths do not reread disk.
 - Successful writes by non-transactional A2 calls, A2 transactional `commit`, A1, A3 (when `hasData`) and A4 with a catalog key are also persisted for the next cold start; A2 transactional `begin` / `continue` do not modify the formal cache.
-- `scratch_` virtual keys stay in memory: **nothing is persisted**, readiness is unchanged, and values are not kept across restarts.
+- `scratch_` virtual keys stay in memory: **nothing is persisted** and readiness is unchanged.
 - `ClearCache` clears memory and does **not** reload from disk.
 - Small drift in the cache is acceptable; periodic A2 corrects it.
 
