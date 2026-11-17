@@ -2878,6 +2878,7 @@
     "task.StashBackpack.option.StashBackpackSubTask.label": "タスク開始前にバックパックを収納",
     "task.SwitchTeam.label": "🔄 編成切替",
     "task.TrialOfSwordmancy.description": "デイリー剣術演武 / コーティング周回を自動完了",
+    "task.TrialOfSwordmancy.focus.coating_reward_mode": "本日分の報酬回数が残っています。先に報酬演算を完了してください",
     "task.TrialOfSwordmancy.focus.operation_failed": "<span style=\"color: red; font-weight: bold;\">作戦失敗</span>",
     "task.TrialOfSwordmancy.focus.overflow_stopped": "<span style=\"color: red; font-weight: bold;\">今回の手札はオーバーフローしており保持されています。手動で演算を開始してください。</span>",
     "task.TrialOfSwordmancy.label": "🗡️剣術演武",

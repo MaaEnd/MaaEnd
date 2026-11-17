@@ -86,9 +86,11 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [],
+        "next": [
+            "FailedNode"
+        ],
         "focus": {
-            "Node.Action.Succeeded": "今日还有奖励次数未用尽，请先完成奖励演算"
+            "Node.Action.Succeeded": "$task.TrialOfSwordmancy.focus.coating_reward_mode"
         }
     }
 }

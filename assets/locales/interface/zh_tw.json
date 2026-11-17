@@ -2878,6 +2878,7 @@
     "task.StashBackpack.option.StashBackpackSubTask.label": "任務開始前存放背包",
     "task.SwitchTeam.label": "🔄切換編隊",
     "task.TrialOfSwordmancy.description": "自動完成每日選劍演武 / 刷刻章鍍層",
+    "task.TrialOfSwordmancy.focus.coating_reward_mode": "今日還有獎勵次數未用盡，請先完成獎勵演算",
     "task.TrialOfSwordmancy.focus.operation_failed": "<span style=\"color: red; font-weight: bold;\">行動失敗</span>",
     "task.TrialOfSwordmancy.focus.overflow_stopped": "<span style=\"color: red; font-weight: bold;\">本局已溢出並保留手牌，請手動開始演算。</span>",
     "task.TrialOfSwordmancy.label": "🗡️選劍演武",

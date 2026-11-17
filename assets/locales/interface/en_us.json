@@ -2878,6 +2878,7 @@
     "task.StashBackpack.option.StashBackpackSubTask.label": "Stash backpack before task starts",
     "task.SwitchTeam.label": "🔄 Switch Team",
     "task.TrialOfSwordmancy.description": "Automatically complete Daily Trial of Swordmancy / Farm Coating",
+    "task.TrialOfSwordmancy.focus.coating_reward_mode": "There are still reward attempts left today. Please complete the reward trial first.",
     "task.TrialOfSwordmancy.focus.operation_failed": "<span style=\"color: red; font-weight: bold;\">Operation failed</span>",
     "task.TrialOfSwordmancy.focus.overflow_stopped": "<span style=\"color: red; font-weight: bold;\">This overflowed hand has been preserved. Please start the trial manually.</span>",
     "task.TrialOfSwordmancy.label": "🗡️Trial of Swordmancy",
