@@ -243,7 +243,8 @@
         "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyFightSuccessContinue",
-            "TrialOfSwordmancyFightSuccessLeave"
+            "TrialOfSwordmancyFightSuccessLeave",
+            "WhiteCancelButton" // 绕过 Leave 节点的退出路径，自由演算达到循环次数后由此退出
         ]
     },
     "TrialOfSwordmancyFightSuccessContinue": {

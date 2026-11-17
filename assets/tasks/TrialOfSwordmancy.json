@@ -48,7 +48,7 @@
                     "name": "FreeCalc",
                     "label": "$option.TrialOfSwordmancyMode.cases.FreeCalc.label",
                     "option": [
-                        // "TrialOfSwordmancyAutoFight",
+                        "TrialOfSwordmancyAutoFight",
                         "TrialOfSwordmancyFreeCalcBounds"
                     ],
                     "pipeline_override": {
@@ -216,16 +216,21 @@
                     "label": "$option.TrialOfSwordmancyFreeCalcBounds.TrialOfSwordmancyFreeCalcLowerBound.label",
                     "default": "21",
                     "pipeline_type": "int",
-                    "verify": "^(?:[1-9]|1\\d|2[0-5])$",
-                    "pattern_msg": "$option.TrialOfSwordmancyFreeCalcBounds.pattern_msg"
+                    "verify": "^(?:[1-9]|1\\d|2[0-5])$"
                 },
                 {
                     "name": "TrialOfSwordmancyFreeCalcUpperBound",
                     "label": "$option.TrialOfSwordmancyFreeCalcBounds.TrialOfSwordmancyFreeCalcUpperBound.label",
                     "default": "21",
                     "pipeline_type": "int",
-                    "verify": "^(?:[1-9]|1\\d|2[0-5])$",
-                    "pattern_msg": "$option.TrialOfSwordmancyFreeCalcBounds.pattern_msg"
+                    "verify": "^(?:[1-9]|1\\d|2[0-5])$"
+                },
+                {
+                    "name": "TrialOfSwordmancyFreeCalcRepeatCount",
+                    "label": "$option.TrialOfSwordmancyFreeCalcBounds.TrialOfSwordmancyFreeCalcRepeatCount.label",
+                    "default": "0",
+                    "pipeline_type": "int",
+                    "verify": "^(?:0|[1-9]\\d*)$"
                 }
             ],
             "pipeline_override": {
@@ -234,6 +239,12 @@
                         "lower_bound": "{TrialOfSwordmancyFreeCalcLowerBound}",
                         "upper_bound": "{TrialOfSwordmancyFreeCalcUpperBound}"
                     }
+                },
+                "TrialOfSwordmancyFightSuccessContinue": {
+                    "max_hit": "{TrialOfSwordmancyFreeCalcRepeatCount}"
+                },
+                "TrialOfSwordmancyFightSuccessLeave": {
+                    "max_hit": "{TrialOfSwordmancyFreeCalcRepeatCount}"
                 }
             }
         }
