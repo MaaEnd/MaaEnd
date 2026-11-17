@@ -24,8 +24,7 @@
         "ClientVersion": {
             "type": "select",
             "controller": [
-                "ADB",
-                "PlayCover"
+                "ADB"
             ],
             "label": "$option.ClientVersion.label",
             "cases": [
@@ -33,6 +32,14 @@
                     "name": "CN",
                     "label": "$option.ClientVersion.cases.CN.label",
                     "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGame"
+                            ]
+                        },
                         "StartUpGame": {
                             "action": {
                                 "type": "StartApp",
@@ -55,6 +62,14 @@
                     "name": "Bilibili",
                     "label": "$option.ClientVersion.cases.Bilibili.label",
                     "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGame"
+                            ]
+                        },
                         "StartUpGame": {
                             "action": {
                                 "type": "StartApp",
@@ -77,6 +92,14 @@
                     "name": "Global",
                     "label": "$option.ClientVersion.cases.Global.label",
                     "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGame"
+                            ]
+                        },
                         "StartUpGame": {
                             "action": {
                                 "type": "StartApp",
@@ -99,6 +122,14 @@
                     "name": "VN",
                     "label": "$option.ClientVersion.cases.VN.label",
                     "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGame"
+                            ]
+                        },
                         "StartUpGame": {
                             "action": {
                                 "type": "StartApp",

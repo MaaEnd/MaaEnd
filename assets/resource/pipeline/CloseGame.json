@@ -1,0 +1,18 @@
+{
+    "CloseGameEntry": {
+        "desc": "仅与当前控制器匹配的设置生成关闭动作；查看其他控制器时不执行关闭操作。",
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FalseAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    }
+}

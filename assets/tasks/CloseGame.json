@@ -3,19 +3,255 @@
         {
             "name": "CloseGame",
             "label": "$task.CloseGame.label",
-            "entry": "CloseGame",
+            "entry": "CloseGameEntry",
             "description": "$task.CloseGame.description",
             "group": [
                 "other_menu"
             ],
             "controller": [
                 "ADB",
-                "CloudADB"
+                "CloudADB",
+                "Win32-Front",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "PlayCover"
             ],
             "option": [
-                "ClientVersion",
-                "ClientVersionCloudLocked"
+                "CloseGameController"
             ]
         }
-    ]
+    ],
+    "option": {
+        "CloseGameController": {
+            "type": "select",
+            "label": "$option.CloseGameController.label",
+            "cases": [
+                {
+                    "name": "Win32-Front",
+                    "label": "Win-Front",
+                    "option": [
+                        "CloseGamePCCloseLauncher",
+                        "CloseGamePCApplyGameSetting"
+                    ]
+                },
+                {
+                    "name": "ADB",
+                    "option": [
+                        "ClientVersion"
+                    ]
+                },
+                {
+                    "name": "CloudADB",
+                    "option": [
+                        "CloseGameCloudClientVersion"
+                    ]
+                },
+                {
+                    "name": "PlayCover",
+                    "option": [
+                        "CloseGamePlayCoverClientVersion"
+                    ]
+                },
+                {
+                    "name": "Linux-Gamescope",
+                    "option": [
+                        "CloseGameLinuxGamescopeCloseLauncher"
+                    ]
+                },
+                {
+                    "name": "Linux-ScreenCast",
+                    "option": [
+                        "CloseGameLinuxScreenCastCloseLauncher"
+                    ]
+                },
+                {
+                    "name": "Linux-Wlroots",
+                    "option": [
+                        "CloseGameLinuxWlrootsCloseLauncher"
+                    ]
+                },
+                {
+                    "name": "Desktop",
+                    "label": "$option.CloseGameController.cases.Desktop.label",
+                    "option": [
+                        "CloseGameDesktopCloseLauncher",
+                        "CloseGamePCApplyGameSetting"
+                    ]
+                }
+            ],
+            "default_case": "Win32-Front"
+        },
+        "CloseGameCloudClientVersion": {
+            "type": "select",
+            "controller": [
+                "CloudADB"
+            ],
+            "label": "$option.ClientVersionCloudLocked.label",
+            "description": "$option.ClientVersionCloudLocked.description",
+            "cases": [
+                {
+                    "name": "Cloud",
+                    "label": "$option.ClientVersion.cases.Cloud.label",
+                    "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGame"
+                            ]
+                        },
+                        "CloseGame": {
+                            "action": {
+                                "type": "StopApp",
+                                "param": {
+                                    "package": "com.hypergryph.cloud.endfield"
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Cloud"
+        },
+        "CloseGameLinuxGamescopeCloseLauncher": {
+            "type": "switch",
+            "label": "$option.CloseGamePCCloseLauncher.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGamePC"
+                            ]
+                        },
+                        "CloseGamePC": {
+                            "attach": {
+                                "CloseLauncher": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGamePC"
+                            ]
+                        },
+                        "CloseGamePC": {
+                            "attach": {
+                                "CloseLauncher": false
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "No",
+            "controller": [
+                "Linux-Gamescope"
+            ]
+        },
+        "CloseGameLinuxScreenCastCloseLauncher": {
+            "type": "switch",
+            "label": "$option.CloseGamePCCloseLauncher.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGamePC"
+                            ]
+                        },
+                        "CloseGamePC": {
+                            "attach": {
+                                "CloseLauncher": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGamePC"
+                            ]
+                        },
+                        "CloseGamePC": {
+                            "attach": {
+                                "CloseLauncher": false
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "No",
+            "controller": [
+                "Linux-ScreenCast"
+            ]
+        },
+        "CloseGameLinuxWlrootsCloseLauncher": {
+            "type": "switch",
+            "label": "$option.CloseGamePCCloseLauncher.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGamePC"
+                            ]
+                        },
+                        "CloseGamePC": {
+                            "attach": {
+                                "CloseLauncher": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGamePC"
+                            ]
+                        },
+                        "CloseGamePC": {
+                            "attach": {
+                                "CloseLauncher": false
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "No",
+            "controller": [
+                "Linux-Wlroots"
+            ]
+        }
+    }
 }

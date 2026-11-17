@@ -1,16 +1,28 @@
 {
-    "task": [
-        {
-            "name": "CloseGamePlayCover",
-            "label": "$task.CloseGamePlayCover.label",
-            "entry": "CloseGamePlayCover",
-            "description": "$task.CloseGamePlayCover.description",
-            "group": [
-                "other_menu"
-            ],
+    "option": {
+        "CloseGamePlayCoverClientVersion": {
+            "type": "select",
             "controller": [
                 "PlayCover"
-            ]
+            ],
+            "label": "$option.ClientVersion.label",
+            "cases": [
+                {
+                    "name": "CN",
+                    "label": "$option.ClientVersion.cases.CN.label",
+                    "pipeline_override": {
+                        "CloseGameEntry": {
+                            "action": {
+                                "type": "DoNothing"
+                            },
+                            "next": [
+                                "CloseGamePlayCover"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "CN"
         }
-    ]
+    }
 }
