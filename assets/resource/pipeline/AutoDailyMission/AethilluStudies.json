@@ -211,12 +211,33 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDailyMissionQuickTeleport",
-            "AutoDailyMissionSelectTrackedMission"
+            "AutoDailyMissionAethilluStudiesMainSection3Anchor"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.aethillu_studies_main_section_3"
         }
+    },
+    "AutoDailyMissionAethilluStudiesMainSection3Anchor": {
+        "desc": "在地图上点击第二个异常点旁的传送点",
+        // 前往传送会选中第三个异常点正上方的传送点，从那里下楼要绕很远；
+        // 而且起点和异常点上下重叠，寻路会把起点吸到异常点那层、原地判定到达，不好处理。
+        // 所以改为手动选第二个异常点旁的传送点
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "IndieDg007",
+            "tier": "IndieDg007Tier337",
+            "icon": "TeleportAnchor",
+            "at": [
+                97.775,
+                185.577
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoDailyMissionTeleport"
+        ]
     },
     "AutoDailyMissionAethilluStudiesMainSection4": {
         "desc": "今天的表象研究在中层主区的第四个异常点",
@@ -345,7 +366,7 @@
         "desc": "从传送点沿走廊走到通往第三个异常点的楼梯口",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
-        // 和第二个异常点共用传送点，同样要先单独直线走到楼梯口再寻路，原因见第二个异常点
+        // 手动传送到第二个异常点旁的传送点，同样要先单独直线走到楼梯口再寻路，原因见第二个异常点
         "custom_action_param": {
             "heading_source": "camera",
             "enable_bootstrap_navmesh": false,
@@ -397,20 +418,21 @@
         "desc": "自动战斗后走回第三个异常点",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
+        // 异常点和上层平面重叠，寻路会把起点吸到上层、绕楼上走；打完架人就在异常点旁边同一层，直线走回去
         "custom_action_param": {
             "heading_source": "camera",
+            "enable_bootstrap_navmesh": false,
             "path": [
                 {
                     "action": "ZONE",
                     "zone_id": "IndieDg007Base"
                 },
                 {
-                    "action": "NAVMESH",
+                    "action": "RUN",
                     "target": [
                         358.495,
                         414.882
-                    ],
-                    "target_deck_y": 138.573
+                    ]
                 }
             ]
         },
