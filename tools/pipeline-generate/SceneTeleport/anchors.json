@@ -47,8 +47,7 @@
         "map01_lv005": {
             "region": "ValleyIV",
             "sub_region": "OriginiumSciencePark",
-            "anchors": {},
-            "manual": {
+            "anchors": {
                 "CliffsideTrail": "3400010189",
                 "OriginiumSciencePark": "3400020747",
                 "MountainPathSlope": "3400020743",
@@ -60,9 +59,7 @@
             "region": "ValleyIV",
             "sub_region": "OriginLodespring",
             "anchors": {
-                "MiningAreaClinic": "3500031060"
-            },
-            "manual": {
+                "MiningAreaClinic": "3500031060",
                 "OriginiumPassage": "3500031058",
                 "LogisticsArea": "3500031059",
                 "OldMines": "3500031061",
@@ -73,9 +70,7 @@
             "region": "ValleyIV",
             "sub_region": "PowerPlateau",
             "anchors": {
-                "EvacuationZone": "2800001519"
-            },
-            "manual": {
+                "EvacuationZone": "2800001519",
                 "PowerPlantCommStation": "2800001292",
                 "PlateauTrunkway": "2800001509",
                 "UnitedParkingLot": "2800001338"
