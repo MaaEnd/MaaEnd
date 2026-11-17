@@ -22,6 +22,7 @@ inline constexpr double kDrop = 1.0e9;          // 相邻格可向下连通最�
 inline constexpr int64_t kSeamCells = 4;        // 下落前探格数: 出发那层在这么多格内回来即路面上一道缝
 inline constexpr double kSlope = 1.0;           // 可攀爬坡度上限 tanθ, 抬升超过水平位移的这个倍数即立面
 inline constexpr double kStepUp = 0.5;          // 可直接迈上的台阶高 px
+inline constexpr double kFallHeight = 2.1;      // 角色身高 px, 上下两层相隔不到它时下层站不下人
 inline constexpr double kBumpUp = 1.25;         // 跨过路面窄凸起/浅坑允许的抬升 px, 仅在落差不延伸时生效
 inline constexpr int64_t kBumpCells = 3;        // 前探格数: 抬升在这么多格内回到出发高度即窄凸起
 inline constexpr int64_t kDipCells = 2;         // 后探格数: 目标高度在身后这么多格内出现即浅坑

@@ -47,7 +47,6 @@ constexpr int64_t kEdtCells = static_cast<int64_t>(kEdtCap / kCS) + 1;
 
 // 台沿下落用的角色尺寸, 米
 constexpr double kFallClimb = 0.39;
-constexpr double kFallHeight = 2.1;
 constexpr double kFallRadius = 0.41;
 
 double tri_height_at(const PolyMesh& mesh, int32_t t, const WorldPoint& p)
@@ -873,10 +872,7 @@ bool link_lands(FallGate* fall, const SpanTable& st, int64_t from, int64_t to, i
     const float h_from = st.sp_h[static_cast<size_t>(from_span)];
     const float h_to = st.sp_h[static_cast<size_t>(to_span)];
     const auto dh = static_cast<double>(h_from - h_to);
-    if (dh <= kStepUp) {
-        return true;
-    }
-    if (span_floor_at(st, to, h_from - kStepUp, h_from + kStepUp).has_value()) {
+    if (dh > kFallHeight && span_floor_at(st, to, h_from - kStepUp, h_from + kStepUp).has_value()) {
         return false;
     }
     if (fall == nullptr || dh <= kClimb) {
