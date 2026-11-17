@@ -9,7 +9,7 @@ IMS（Item Management System）在 go-service 进程内维护培养道具等物�
 | **A2** | `SyncItemData` | 核心：扫当前界面，写入整表缓存 |
 | **A1** | `UpdateItemQuantity` | 对单个物品做加减 |
 | **A3** | `AddItemData` | 扫当前界面，把识别到的数量**累加**进缓存 |
-| **A4** | `SetItemQuantity` | 把一个绝对值写进缓存（内存暂存，不落盘） |
+| **A4** | `SetItemQuantity` | 把一个绝对值写进缓存；`scratch_` 键只写内存，catalog 键落盘 |
 | **R1** | `ItemQuantitySatisfied` | 用条件表达式判断缓存数量是否达标 |
 | **R2** | `ItemDataReady` | 判断整份缓存是否可用（有没有、过没过期） |
 
@@ -148,10 +148,10 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 | 参数 | 说明 |
 | --- | --- |
-| `item` | 物品 ID |
+| `item` | 物品 ID，或 `scratch_` 前缀的虚拟键 |
 | `delta` | 有符号变化量：正数增加，负数减少 |
 
-结果下限为 `0`。成功后写回内存并更新 `IMS.json` 的 `items`，**但不会改**就绪状态与同步时间戳（`hasData` / `updated_at` 仍只由 A2 确立）。
+结果下限为 `0`。物品 ID 成功后写回内存并更新 `IMS.json` 的 `items`，**但不会改**就绪状态与同步时间戳（`hasData` / `updated_at` 仍只由 A2 确立）；`scratch_` 虚拟键只改内存，不落盘，见下文「虚拟物品」一节。
 
 > 要写的是「某个绝对值」而不是加减时，用 A4 `SetItemQuantity`，见下文 A4 一节。
 
@@ -196,16 +196,16 @@ A3 **不要求 IMS 缓存已经存在**。
 
 ## A4：`SetItemQuantity`
 
-把一个**绝对值**写进缓存，不做加减。它主要用来把运行期才知道的数字（尤其是现场 OCR 出来的数量）带进 IMS，供后续 R1 比较，例如「清单上这项现在还差多少」。
+把一个**绝对值**写进缓存，不做加减。写进哪一层由键名决定：`scratch_` 前缀是虚拟物品（只存内存），其它键是 IconRecognition catalog 里的真实物品（与 A1 一样落盘）。它主要用来把运行期才知道的数字（尤其是现场 OCR 出来的数量）带进 IMS，供后续 R1 比较，例如「清单上这项现在还差多少」。
 
 | 参数 | 说明 |
 | --- | --- |
-| `item` | 缓存键；与 A1 一样不校验 catalog |
-| `value` | 可选。整数，或与 R1 同语法的表达式（`{物品ID}` 读**写入前**的缓存）；**省略时**从本节点自身的识别结果取数值 |
+| `item` | `scratch_` 前缀的虚拟键，或 catalog 里的物品 ID；真实物品会先校验 catalog，未命中直接失败 |
+| `value` | 可选。整数，或与 R1 同语法的表达式（`{物品ID}` 读**写入前**的缓存，两层都能读）；**省略时**从本节点自身的识别结果取数值 |
 
 `value` 省略时按 `ExpressionRecognition` 相同的方式取数：`And` 节点沿原生 `box_index` 下钻，OCR 数值支持 `1.38万`、`13.8K` 这类缩写。取数失败（没有识别结果、没有可解析的 OCR 数值）会让**动作失败且不写缓存**，不会把「没识别到」当成 `0`。
 
-示例：现场 OCR 出一个数量写进缓存，再由 R1 和库存比较。
+示例：现场 OCR 出一个数量写进虚拟键，再由 R1 和库存比较。
 
 ```json
 {
@@ -240,14 +240,27 @@ A3 **不要求 IMS 缓存已经存在**。
 }
 ```
 
+### 虚拟物品（`scratch_` 前缀）
+
+键名以 `scratch_` 开头时，A1 / A4 写入的是**虚拟物品**：它和真实物品共用同一套运算、表达式和 R1 读取，只是存在另一层。
+
+| | 虚拟物品（`scratch_`） | 真实物品（catalog ID） |
+| --- | --- | --- |
+| 写入方式 | A1 加减 / A4 绝对值 | A1 加减 / A4 绝对值 |
+| 落盘 | 不写 `IMS.json` | 写 `IMS.json`（`updated_at` 不变） |
+| catalog 校验 | 不做 | A4 必须命中，否则失败 |
+| A2 区域重建 | 不参与，不会被「未命中删除」 | 参与 |
+| 冷启动 | 丢失，读数即 `0` | 从磁盘恢复 |
+
+`item` 由调用方按节点静态给定（一个物品一个节点，节点命中即代表该物品）；A4 不负责从识别结果反推物品 ID。真实物品的 catalog 校验只保证 ID 存在，不保证数量此刻正确——数量是否准确由调用方负责。
+
 ### 关键语义
 
-- **只写内存，不落盘**：A4 不写 `IMS.json`，也不改 `hasData` / `updated_at`。真实库存快照仍只由 A2 建立，下一次 A2 会把它覆盖成屏幕真值。
+- **虚拟物品参与同一套运算**：`{scratch_demand_item}` 可以和 `{item_char_break_stage_1_2}` 出现在同一个 R1 表达式或 A4 的 `value` 表达式里，语法一致。
+- **真实物品写入不是一次同步**：`updated_at` 保持原值、`hasData` 不变，真实库存快照仍只由 A2 建立，下一次 A2 会把它覆盖成屏幕真值。
 - **不占 A2 扫描名额**：A4 不碰各 `Sync*` 的 Begin 锁，其它任务照常真正扫库。
-- **进程重启即丢**：A4 是易失暂存，跨任务（同进程）有效，重启后按缺失处理（读数即 `0`）。
 - 结果下限为 `0`；负数按 `0` 落值。
-- 与 A1 的区别：A1 是增量且会落盘；A4 是绝对值且只写内存。
-- `item` 由调用方按节点静态给定（一个物品一个节点，节点命中即代表该物品）；A4 不负责从识别结果反推物品 ID。
+- 与 A1 的区别：A1 是增量，A4 是绝对值；写入哪一层由键名决定，动作本身不区分。
 
 ---
 
@@ -255,7 +268,7 @@ A3 **不要求 IMS 缓存已经存在**。
 
 判断缓存里的物品数量是否满足条件表达式；也可进入只播报模式。
 
-与通用识别器 [`ExpressionRecognition`](../custom.md#expressionrecognition) 语法相同，但占位符读取的是 **IMS 缓存中的 IconRecognition 物品 ID**，而不是画面 OCR 节点。
+与通用识别器 [`ExpressionRecognition`](../custom.md#expressionrecognition) 语法相同，但占位符读取的是 **IMS 缓存中的物品键**（IconRecognition 物品 ID 或 `scratch_` 虚拟键），而不是画面 OCR 节点。
 
 | 参数 | 说明 |
 | --- | --- |
@@ -361,7 +374,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
             ├─ R2 ItemDataReady          （可选：确认缓存合格）
             ├─ R1 ItemQuantitySatisfied  （够不够）
             ├─ A1 UpdateItemQuantity     （已知消耗/获得时微调）
-            ├─ A4 SetItemQuantity        （把运行期数值 / 现场 OCR 写进内存）
+            ├─ A4 SetItemQuantity        （绝对值写入：虚拟键只写内存，catalog 键落盘）
             └─ A3 AddItemData            （领奖界面累加 / 播报）
 ```
 
@@ -397,7 +410,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 | `SyncValuablesItemData.json` | A2 珍贵物品页入口 |
 | `SyncDepotItemData.json` | A2 帝江号四号谷地 + 武陵两座左侧仓库普通采集物总量入口 |
 | `UpdateItemQuantity.json` | A1 |
-| `SetItemQuantity.json` | A4（调用方覆盖 `item`，可选 `value`） |
+| `SetItemQuantity.json` | A4（调用方覆盖 `item`：`scratch_` 虚拟键或 catalog 键；可选 `value`） |
 | `AddItemData.json` | A3 最佳实践（领奖后关闭） |
 | `ItemQuantitySatisfied.json` | R1（调用方覆盖 `expression`） |
 | `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |
@@ -406,8 +419,8 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 ### 缓存约定
 
 - 会话内以进程内存为准；热路径不反复读盘。
-- A2 非事务调用、A2 事务 `commit`、A1、A3（在 `hasData` 时）成功写入会同步落盘，供下次冷启动恢复；A2 的事务 `begin` / `continue` 不会修改正式缓存。
-- A4 只写内存，**不落盘**、不改就绪状态；重启后不保留。
+- A2 非事务调用、A2 事务 `commit`、A1、A3（在 `hasData` 时）、A4 写 catalog 键成功时都会同步落盘，供下次冷启动恢复；A2 的事务 `begin` / `continue` 不会修改正式缓存。
+- `scratch_` 虚拟键只写内存：**不落盘**、不改就绪状态，重启后不保留。
 - `ClearCache` 清空内存，且**不会**再从磁盘灌回。
 - 缓存允许小幅偏差，靠周期 A2 纠偏。
 

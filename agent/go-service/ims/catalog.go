@@ -72,6 +72,20 @@ func loadRecognitionItems() (map[string]recognitionItemMeta, error) {
 	return recognitionItemsCache, nil
 }
 
+// validateInventoryItemID reports whether item is a known IconRecognition catalog key.
+// A4 uses it to catch typos before writing an inventory quantity; virtual keys skip it.
+// A missing or empty catalog is an error: without it an id cannot be told apart from a typo.
+func validateInventoryItemID(item string) error {
+	catalog, err := loadRecognitionItems()
+	if err != nil {
+		return fmt.Errorf("cannot validate item %q without the IconRecognition catalog: %w", item, err)
+	}
+	if _, ok := catalog[item]; !ok {
+		return fmt.Errorf("item %q is not in the IconRecognition catalog; use a %q prefixed key for virtual items", item, scratchPrefix)
+	}
+	return nil
+}
+
 // itemIDsMatchingFilters returns recognition_items.json top-level keys matching
 // any of the IconRecognition item_filters (union). Used only for A2 region
 // rebuild miss-clear — recognition itself is not filtered by this list.

@@ -9,7 +9,7 @@ There are **2 recognitions + 4 actions**:
 | **A2** | `SyncItemData` | Core: scan the current screen and write the full cache |
 | **A1** | `UpdateItemQuantity` | Add/subtract one item in the cache |
 | **A3** | `AddItemData` | Scan the current screen and **add** recognized counts into the cache |
-| **A4** | `SetItemQuantity` | Write an absolute value into the cache (memory only, not persisted) |
+| **A4** | `SetItemQuantity` | Write an absolute value into the cache; `scratch_` keys stay in memory, catalog keys are persisted |
 | **R1** | `ItemQuantitySatisfied` | Whether cached counts meet a boolean expression |
 | **R2** | `ItemDataReady` | Whether the whole cache is usable (exists + not expired) |
 
@@ -148,10 +148,10 @@ When you already know a gain or spend, adjust one cached item without a full res
 
 | Param | Meaning |
 | --- | --- |
-| `item` | Item ID |
+| `item` | Item ID, or a `scratch_` prefixed virtual key |
 | `delta` | Signed change (positive gain, negative spend) |
 
-Result is clamped to `>= 0`. On success it writes back to memory and updates `items` in `IMS.json`, but does **not** change readiness / sync timestamp (`hasData` / `updated_at` are still established only by A2).
+Result is clamped to `>= 0`. An item ID writes back to memory and updates `items` in `IMS.json`, but does **not** change readiness / sync timestamp (`hasData` / `updated_at` are still established only by A2); a `scratch_` virtual key stays in memory and is never persisted, see "Virtual items" below.
 
 > To write an absolute value instead of a delta, use A4 `SetItemQuantity` (see the A4 section below).
 
@@ -196,16 +196,16 @@ With a cache it also prints one summary; no Pipeline Starting/Succeeded Focus is
 
 ## A4: `SetItemQuantity`
 
-Writes one **absolute** quantity into the cache instead of adding/subtracting. Its main use is carrying a number known only at runtime (typically a freshly OCR'd count) into IMS so R1 can compare it later, for example "how much this checklist entry still needs".
+Writes one **absolute** quantity into the cache instead of adding/subtracting. The key decides the layer: a `scratch_` prefix is a virtual item (memory only), any other key is a real item from the IconRecognition catalog (persisted like A1). Its main use is carrying a number known only at runtime (typically a freshly OCR'd count) into IMS so R1 can compare it later, for example "how much this checklist entry still needs".
 
 | Param | Meaning |
 | --- | --- |
-| `item` | Cache key; not validated against the catalog, same as A1 |
-| `value` | Optional. An integer, or an expression string with the same syntax as R1 (`{ITEM_ID}` reads the cache **before** the write); **omitted** reads the number from this node's own recognition result |
+| `item` | A `scratch_` prefixed virtual key, or a catalog item ID; catalog ids are validated first and an unknown id fails the action |
+| `value` | Optional. An integer, or an expression string with the same syntax as R1 (`{ITEM_ID}` reads the cache **before** the write, both layers); **omitted** reads the number from this node's own recognition result |
 
 When `value` is omitted the number is read the way `ExpressionRecognition` does it: `And` nodes are resolved along their native `box_index`, and magnitude suffixes such as `1.38万` / `13.8K` are supported. A failed read (no recognition detail, no parseable OCR number) **fails the action without writing**, so "not recognized" never turns into `0`.
 
-Example: OCR a live count into the cache, then compare it with the cached inventory in R1.
+Example: OCR a live count into a virtual key, then compare it with the cached inventory in R1.
 
 ```json
 {
@@ -240,14 +240,27 @@ Example: OCR a live count into the cache, then compare it with the cached invent
 }
 ```
 
+### Virtual items (`scratch_` prefix)
+
+Keys starting with `scratch_` are **virtual items**: A1 / A4 write them into a separate in-memory layer, but they share the same arithmetic, expressions and R1 reads as real items.
+
+| | Virtual item (`scratch_`) | Real item (catalog ID) |
+| --- | --- | --- |
+| Write mode | A1 delta / A4 absolute | A1 delta / A4 absolute |
+| Persistence | Never writes `IMS.json` | Writes `IMS.json` (`updated_at` unchanged) |
+| Catalog validation | None | A4 requires a catalog hit, else it fails |
+| A2 region rebuild | Not involved, never cleared on a miss | Involved |
+| Cold start | Lost, reads as `0` | Restored from disk |
+
+`item` is static per node given by the caller (one node per item — the node hitting identifies the item); A4 does not derive item IDs from recognition results. Catalog validation only proves the ID exists, not that the quantity is correct right now — that is the caller's responsibility.
+
 ### Key semantics
 
-- **Memory only, never persisted**: A4 does not write `IMS.json` and does not change `hasData` / `updated_at`. The real snapshot is still established by A2 only, and the next A2 run overwrites A4 values with the on-screen truth.
+- **Virtual items share one set of operations**: `{scratch_demand_item}` and `{item_char_break_stage_1_2}` can appear in the same R1 expression or A4 `value` expression, with identical syntax.
+- **An inventory write is not a sync**: `updated_at` keeps its value and `hasData` is untouched; the real snapshot is still established by A2 only, and the next A2 run overwrites A4 values with the on-screen truth.
 - **Does not consume the A2 scan slot**: A4 never touches the `Sync*` Begin locks, so other tasks still scan the screen.
-- **Lost on process restart**: A4 is a volatile register; it is visible across tasks in the same process and reads as `0` after a restart.
 - Result is clamped to `0`; negative values are stored as `0`.
-- Difference from A1: A1 is a delta and persists; A4 is absolute and memory only.
-- `item` is static per node given by the caller (one node per item — the node hitting identifies the item); A4 does not derive item IDs from recognition results.
+- Difference from A1: A1 is a delta, A4 is absolute; the key decides the layer, the action itself does not.
 
 ---
 
@@ -255,7 +268,7 @@ Example: OCR a live count into the cache, then compare it with the cached invent
 
 Checks whether cached item quantities meet a conditional expression; it can also run in announce-only mode.
 
-Same syntax as the generic recognition [`ExpressionRecognition`](../custom.md#expressionrecognition), but placeholders read **IconRecognition item IDs in the IMS cache**, not on-screen OCR nodes.
+Same syntax as the generic recognition [`ExpressionRecognition`](../custom.md#expressionrecognition), but placeholders read **IMS cache keys** (IconRecognition item IDs or `scratch_` virtual keys), not on-screen OCR nodes.
 
 | Field | Notes |
 | --- | --- |
@@ -361,7 +374,7 @@ Task entry
             ├─ R2 ItemDataReady          (optional: confirm the cache is valid)
             ├─ R1 ItemQuantitySatisfied  (enough?)
             ├─ A1 UpdateItemQuantity     (adjust on a known spend/gain)
-            ├─ A4 SetItemQuantity        (write a runtime / OCR number into memory)
+            ├─ A4 SetItemQuantity        (absolute write: virtual keys stay in memory, catalog keys persist)
             └─ A3 AddItemData            (add / announce on the rewards screen)
 ```
 
@@ -397,7 +410,7 @@ When you need “ready and quantity satisfied”:
 | `SyncValuablesItemData.json` | A2 Valuables-tab entry |
 | `SyncDepotItemData.json` | A2 entry for combined normal collectables in the Dijiang Valley IV + Wuling left-side depots |
 | `UpdateItemQuantity.json` | A1 |
-| `SetItemQuantity.json` | A4 (callers override `item`, optionally `value`) |
+| `SetItemQuantity.json` | A4 (callers override `item`: a `scratch_` virtual key or a catalog key; optionally `value`) |
 | `AddItemData.json` | A3 best practice (close rewards) |
 | `ItemQuantitySatisfied.json` | R1 (callers override `expression`) |
 | `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |
@@ -406,8 +419,8 @@ When you need “ready and quantity satisfied”:
 ### Cache conventions
 
 - In-session, process memory is authoritative; hot paths do not reread disk.
-- Successful writes by non-transactional A2 calls, A2 transactional `commit`, A1, and A3 (when `hasData`) are also persisted for the next cold start; A2 transactional `begin` / `continue` do not modify the formal cache.
-- A4 only writes memory: nothing is persisted and readiness is unchanged, so values are not kept across restarts.
+- Successful writes by non-transactional A2 calls, A2 transactional `commit`, A1, A3 (when `hasData`) and A4 with a catalog key are also persisted for the next cold start; A2 transactional `begin` / `continue` do not modify the formal cache.
+- `scratch_` virtual keys stay in memory: **nothing is persisted**, readiness is unchanged, and values are not kept across restarts.
 - `ClearCache` clears memory and does **not** reload from disk.
 - Small drift in the cache is acceptable; periodic A2 corrects it.
 

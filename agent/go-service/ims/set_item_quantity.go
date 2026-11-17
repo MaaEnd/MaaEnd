@@ -34,12 +34,17 @@ const (
 	valueSourceRecognition valueSource = "recognition"
 )
 
-// SetItemQuantity writes one item quantity as an absolute value into the
-// in-process IMS cache (A4).
+// SetItemQuantity writes one item quantity as an absolute value (A4).
 //
-// It is a volatile register: it never persists IMS.json, never changes readiness
-// (hasData / updated_at) and never touches the A2 scan gates, so a later A2 sync
-// stays authoritative and other tasks still scan the screen.
+// The key decides the storage layer:
+//   - scratch_ keys are virtual items: they live in the in-memory virtual layer,
+//     are never persisted and never hydrated, and participate in the same
+//     arithmetic and expressions as inventory items.
+//   - catalog keys are inventory items: the id must exist in the IconRecognition
+//     catalog, and the value is written to the inventory layer and persisted with
+//     the same rules as A1 (updated_at is preserved, readiness is unchanged).
+//
+// Neither layer touches the A2 scan gates, so a later A2 sync stays authoritative.
 type SetItemQuantity struct{}
 
 // Run implements maa.CustomActionRunner.
@@ -61,6 +66,17 @@ func (a *SetItemQuantity) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
+	if !IsScratchKey(params.Item) {
+		if err := validateInventoryItemID(params.Item); err != nil {
+			log.Error().
+				Err(err).
+				Str("component", componentSetItemQuantity).
+				Str("item", params.Item).
+				Msg("failed to validate inventory item id")
+			return false
+		}
+	}
+
 	if err := ensureHydrated(); err != nil {
 		log.Error().
 			Err(err).
@@ -80,11 +96,36 @@ func (a *SetItemQuantity) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	before, after, clamped, hasData, lastSync := globalCache.setAbsolute(params.Item, value)
+	if IsScratchKey(params.Item) {
+		before, after, clamped := globalCache.setScratch(params.Item, value)
+
+		log.Info().
+			Str("component", componentSetItemQuantity).
+			Str("item", params.Item).
+			Str("scope", "scratch").
+			Str("source", string(source)).
+			Str("resolved_value", resolved).
+			Int("before", before).
+			Int("after", after).
+			Bool("clamped", clamped).
+			Msg("virtual item quantity set in memory")
+		return true
+	}
+
+	before, after, clamped, items, lastSync, hasData := globalCache.setAbsolute(params.Item, value)
+	if err := persistItemsPreserveSync(componentSetItemQuantity, items, lastSync, hasData); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentSetItemQuantity).
+			Str("item", params.Item).
+			Msg("failed to persist item quantity")
+		return false
+	}
 
 	log.Info().
 		Str("component", componentSetItemQuantity).
 		Str("item", params.Item).
+		Str("scope", "inventory").
 		Str("source", string(source)).
 		Str("resolved_value", resolved).
 		Int("before", before).
@@ -92,7 +133,7 @@ func (a *SetItemQuantity) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		Bool("clamped", clamped).
 		Bool("has_data", hasData).
 		Time("last_sync", lastSync).
-		Msg("item quantity set in memory")
+		Msg("inventory item quantity set")
 	return true
 }
 
