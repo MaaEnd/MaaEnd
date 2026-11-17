@@ -88,6 +88,10 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
     if (dh < -kDrop) {
         return false;
     }
+    // 出发那层延伸进落脚格时人会站在它上面, 下层在它底下
+    if (dh < -kFallHeight && level_at(st, nx, ny, cid, dx, dy, 1, h0, kStepUp)) {
+        return false;
+    }
     // 出发那层几格内又回来说明脚下只是一道缝, 不许掉进去
     if (dh < -kClimb) {
         for (int64_t s = 1; s <= kSeamCells; ++s) {
@@ -96,6 +100,9 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
             }
         }
         if (st.fall != nullptr && !FallClear(st.fall, cid, cid + dy * nx + dx, h0, h1)) {
+            return false;
+        }
+        if (st.fall != nullptr && !FallLands(st.fall, st, cid, cid + dy * nx + dx, h0, h1)) {
             return false;
         }
     }
@@ -140,7 +147,7 @@ static_assert(kClimb <= kDrop);
 inline bool rise_ok_fast(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, float h0, float h1)
 {
     const double dh = static_cast<double>(h1) - static_cast<double>(h0);
-    return (dh >= -kClimb && dh <= kSlope * kCS) || RiseOk(st, nx, ny, cid, dx, dy, h0, h1);
+    return (dh >= -kFallHeight && dh <= kSlope * kCS) || RiseOk(st, nx, ny, cid, dx, dy, h0, h1);
 }
 
 struct HeapNode
@@ -1090,10 +1097,35 @@ bool by_jump(const JumpEdges* jumps, int64_t p, int64_t u)
     return jumps != nullptr && !JumpEdgesEmpty(*jumps) && p >= 0 && HasJumpEdge(*jumps, p, u);
 }
 
-// 台沿下落那一步视线必然被台沿挡住, 与跳边同样豁免
 bool by_fall(const SpanTable& st, int64_t p, int64_t u)
 {
     return p >= 0 && static_cast<double>(st.sp_h[static_cast<size_t>(p)]) - static_cast<double>(st.sp_h[static_cast<size_t>(u)]) > kClimb;
+}
+
+// 台沿下落那一步视线必然被台沿挡住, 与跳边同样豁免
+bool by_fall_step(const SpanTable& st, int64_t nx, int64_t ny, int64_t p, int64_t u)
+{
+    if (!by_fall(st, p, u)) {
+        return false;
+    }
+    const int64_t cp = st.sp_cell[static_cast<size_t>(p)];
+    const int64_t cu = st.sp_cell[static_cast<size_t>(u)];
+    const int64_t dx = cu % nx - cp % nx, dy = cu / nx - cp / nx;
+    return cp != cu && std::abs(dx) <= 1 && std::abs(dy) <= 1
+           && rise_ok_fast(st, nx, ny, cp, dx, dy, st.sp_h[static_cast<size_t>(p)], st.sp_h[static_cast<size_t>(u)]);
+}
+
+// 落差超过一步的弦只验走层
+bool chord_ok(Visibility* vis, const SpanTable& st, int64_t p, int64_t u)
+{
+    const WorldPoint a = VisibilityCellCenter(*vis, st.sp_cell[static_cast<size_t>(p)]);
+    const WorldPoint b = VisibilityCellCenter(*vis, st.sp_cell[static_cast<size_t>(u)]);
+    const float ha = st.sp_h[static_cast<size_t>(p)];
+    const float hb = st.sp_h[static_cast<size_t>(u)];
+    if (by_fall(st, p, u)) {
+        return vis->lyo == nullptr || LayerStepOk(*vis->lyo, a, b, ha, hb);
+    }
+    return ChordVisible(vis, a, b, ha, hb);
 }
 
 // Lazy Theta* 的 SetVertex, 祖父直连验不过时从已关闭的邻格里挑最便宜的当父亲
@@ -1221,13 +1253,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 continue;
             }
             const int64_t p = prev[static_cast<size_t>(u)];
-            if (p >= 0 && !by_jump(jumps, p, u) && !by_fall(st, p, u)
-                && !ChordVisible(
-                    vis,
-                    VisibilityCellCenter(*vis, st.sp_cell[static_cast<size_t>(p)]),
-                    VisibilityCellCenter(*vis, cu),
-                    st.sp_h[static_cast<size_t>(p)],
-                    st.sp_h[static_cast<size_t>(u)])) {
+            if (p >= 0 && !by_jump(jumps, p, u) && !by_fall_step(st, nx, ny, p, u) && !chord_ok(vis, st, p, u)) {
                 reparent(&dist, &prev, closed, search, u, cu);
             }
             closed[static_cast<size_t>(u)] = 1;
@@ -1947,6 +1973,13 @@ void cell_span_heights(std::vector<float>* nb, const SpanTable& st, int64_t j)
     }
 }
 
+bool has_level(const std::vector<float>& nb, float h)
+{
+    return std::any_of(nb.begin(), nb.end(), [&](float v) {
+        return std::fabs(static_cast<double>(v) - static_cast<double>(h)) <= kStepUp;
+    });
+}
+
 bool seam_returns(const LayerOracle& lyo, CellPt pc, int64_t sx, int64_t sy, float c)
 {
     for (int64_t s = 1; s <= kSeamCells; ++s) {
@@ -1985,7 +2018,7 @@ std::optional<std::vector<float>> LayerWalk(const LayerOracle& lyo, const std::v
         for (const float t : nb) {
             for (const float c : cur) {
                 const float dh = t - c;
-                if (static_cast<double>(dh) > up) {
+                if (static_cast<double>(dh) > up || (static_cast<double>(dh) < -kFallHeight && has_level(nb, c))) {
                     continue;
                 }
                 if (dh >= -static_cast<float>(kClimb)) {
@@ -2028,7 +2061,7 @@ std::vector<float> LayerWalkFalling(const LayerOracle& lyo, const std::vector<Wo
         for (const float t : nb) {
             for (const float c : cur) {
                 const float dh = t - c;
-                if (static_cast<double>(dh) > up) {
+                if (static_cast<double>(dh) > up || (static_cast<double>(dh) < -kFallHeight && has_level(nb, c))) {
                     continue;
                 }
                 if (dh >= -static_cast<float>(kClimb)) {

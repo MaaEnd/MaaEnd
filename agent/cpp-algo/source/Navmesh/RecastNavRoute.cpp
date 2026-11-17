@@ -47,7 +47,6 @@ constexpr int64_t kEdtCells = static_cast<int64_t>(kEdtCap / kCS) + 1;
 
 // 台沿下落用的角色尺寸, 米
 constexpr double kFallClimb = 0.39;
-constexpr double kFallHeight = 2.1;
 constexpr double kFallRadius = 0.41;
 
 double tri_height_at(const PolyMesh& mesh, int32_t t, const WorldPoint& p)
@@ -156,6 +155,7 @@ struct FallCache
 {
     std::unordered_map<FallPointKey, OccluderPoint, FallPointHash> points;
     std::unordered_map<FallEdgeKey, bool, FallEdgeHash> memo;
+    std::unordered_map<FallEdgeKey, bool, FallEdgeHash> lands;
 };
 
 }
@@ -174,6 +174,7 @@ struct FallGate
     double x0 = 0.0;
     double y0 = 0.0;
     int64_t nx = 0;
+    int64_t ny = 0;
     std::shared_ptr<FallCache> cache;
 };
 
@@ -188,6 +189,7 @@ std::optional<FallGate> make_fall_gate(
     int64_t gx0,
     int64_t gy0,
     int64_t nx,
+    int64_t ny,
     std::shared_ptr<FallCache> cache)
 {
     const double sx = tf[0];
@@ -211,8 +213,14 @@ std::optional<FallGate> make_fall_gate(
         .x0 = x0,
         .y0 = y0,
         .nx = nx,
+        .ny = ny,
         .cache = std::move(cache),
     };
+}
+
+WorldPoint fall_cell_centre(const FallGate& gate, int64_t c)
+{
+    return { gate.x0 + (static_cast<double>(c % gate.nx) + 0.5) * kCS, gate.y0 + (static_cast<double>(c / gate.nx) + 0.5) * kCS };
 }
 
 OccluderPoint fall_point(FallGate* gate, int64_t c, const FallPointKey& pk)
@@ -220,12 +228,68 @@ OccluderPoint fall_point(FallGate* gate, int64_t c, const FallPointKey& pk)
     if (const auto hit = gate->cache->points.find(pk); hit != gate->cache->points.end()) {
         return hit->second;
     }
-    const WorldPoint p { gate->x0 + (static_cast<double>(c % gate->nx) + 0.5) * kCS,
-                         gate->y0 + (static_cast<double>(c / gate->nx) + 0.5) * kCS };
+    const WorldPoint p = fall_cell_centre(*gate, c);
     const auto m = mesh_point_at(*gate->zc, p, static_cast<double>(pk.h)).value_or(std::make_pair(p, static_cast<double>(pk.h)));
     const OccluderPoint q { .x = (m.first.x - gate->tx) / gate->sx, .y = m.second, .z = (gate->ty - m.first.y) / gate->sy };
     gate->cache->points.emplace(pk, q);
     return q;
+}
+
+std::optional<int64_t> window_cell(const FallGate& gate, const WorldPoint& p)
+{
+    const auto cx = static_cast<int64_t>(std::floor((p.x - gate.x0) / kCS));
+    const auto cy = static_cast<int64_t>(std::floor((p.y - gate.y0) / kCS));
+    if (cx < 0 || cx >= gate.nx || cy < 0 || cy >= gate.ny) {
+        return std::nullopt;
+    }
+    return cy * gate.nx + cx;
+}
+
+std::optional<double> span_floor_at(const SpanTable& st, int64_t c, double bottom, double top)
+{
+    const int64_t j = OccupiedIndex(st, c);
+    if (j < 0) {
+        return std::nullopt;
+    }
+    std::optional<double> best;
+    for (int64_t k = CellSpanStart(st, j), kn = k + CellSpanCount(st, j); k < kn; ++k) {
+        const auto h = static_cast<double>(st.sp_h[static_cast<size_t>(k)]);
+        if (h > bottom && h < top && (!best.has_value() || h > *best)) {
+            best = h;
+        }
+    }
+    return best;
+}
+
+// 走出窗口就查不到 span, 不下结论
+std::optional<bool> walk_lands(const FallGate& gate, const SpanTable& st, int64_t a, int64_t b, double ha, double hb)
+{
+    const WorldPoint pa = fall_cell_centre(gate, a);
+    const WorldPoint pb = fall_cell_centre(gate, b);
+    const double len = std::hypot(pb.x - pa.x, pb.y - pa.y);
+    const double bottom = hb - kClimb;
+    const double reach = std::fmax(len, 4.0 * kFallRadius * std::fabs(gate.sx));
+    double foot = ha;
+    double d = 0.0;
+    while (d < reach) {
+        d = d < len ? std::fmin(d + kCS, len) : std::fmin(d + kCS, reach);
+        const WorldPoint p { pa.x + (pb.x - pa.x) * d / len, pa.y + (pb.y - pa.y) * d / len };
+        const std::optional<int64_t> c = window_cell(gate, p);
+        if (!c.has_value()) {
+            return std::nullopt;
+        }
+        const OccluderPoint q { .x = (p.x - gate.tx) / gate.sx, .y = foot, .z = (gate.ty - p.y) / gate.sy };
+        const std::optional<double> solid = OccluderFloorAt(*gate.solid, q, bottom, foot + kFallClimb);
+        const std::optional<double> mesh = span_floor_at(st, *c, bottom, foot + kFallClimb);
+        if (!solid.has_value() && !mesh.has_value()) {
+            return false;
+        }
+        foot = std::fmax(solid.value_or(bottom), mesh.value_or(bottom));
+        if (d >= len && std::fabs(foot - hb) <= kClimb) {
+            return true;
+        }
+    }
+    return false;
 }
 
 struct WindowInfo
@@ -803,8 +867,23 @@ int64_t link_span(const WindowInfo& info, int64_t cell, float h)
     return best;
 }
 
+bool link_lands(FallGate* fall, const SpanTable& st, int64_t from, int64_t to, int64_t from_span, int64_t to_span)
+{
+    const float h_from = st.sp_h[static_cast<size_t>(from_span)];
+    const float h_to = st.sp_h[static_cast<size_t>(to_span)];
+    const auto dh = static_cast<double>(h_from - h_to);
+    if (dh > kFallHeight && span_floor_at(st, to, h_from - kStepUp, h_from + kStepUp).has_value()) {
+        return false;
+    }
+    if (fall == nullptr || dh <= kClimb) {
+        return true;
+    }
+    return FallLands(fall, st, from, to, h_from, h_to);
+}
+
 std::optional<WindowInfo> build_window(
     RouteFailure* failure,
+    FallGate* fall,
     const GridPack& gp,
     const GridZoneDir& gz,
     const FieldsPack& fp,
@@ -1034,10 +1113,12 @@ std::optional<WindowInfo> build_window(
             }
             const float cost = std::max(r.cost_modifier, 1.0F)
                                * static_cast<float>(std::hypot(static_cast<double>(hx - lx), static_cast<double>(hy - ly)));
-            AddJumpEdge(&info.links_cell, cl, ch, cost);
-            AddJumpEdge(&info.links_span, sl, sh, cost);
-            AddJumpEdge(&info.links_span_rev, sh, sl, cost);
-            if (r.bidirectional != 0) {
+            if (link_lands(fall, info.st3, cl, ch, sl, sh)) {
+                AddJumpEdge(&info.links_cell, cl, ch, cost);
+                AddJumpEdge(&info.links_span, sl, sh, cost);
+                AddJumpEdge(&info.links_span_rev, sh, sl, cost);
+            }
+            if (r.bidirectional != 0 && link_lands(fall, info.st3, ch, cl, sh, sl)) {
                 AddJumpEdge(&info.links_cell, ch, cl, cost);
                 AddJumpEdge(&info.links_span, sh, sl, cost);
                 AddJumpEdge(&info.links_span_rev, sl, sh, cost);
@@ -1185,7 +1266,7 @@ bool upper_at(const LayerOracle& lyo, int64_t gx, int64_t gy, double h, double h
     }
     for (int64_t k = CellSpanStart(st, j), ke = k + CellSpanCount(st, j); k < ke; ++k) {
         const double v = static_cast<double>(st.sp_h[static_cast<size_t>(k)]);
-        if (v > h + kClimb && v <= h_up + kClimb) {
+        if (v > std::min(h + kClimb, h_up - kStepUp) && v <= h_up + kClimb) {
             return true;
         }
     }
@@ -3028,7 +3109,8 @@ std::optional<std::vector<WorldPoint>> route_window(
             const WorldPoint& b = ded[i];
             const WorldPoint& c = ded[i + 1];
             const double cr = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
-            if (std::fabs(cr) > 1e-9 * std::max(1.0, std::hypot(c.x - a.x, c.y - a.y))) {
+            const double dot = (b.x - a.x) * (c.x - b.x) + (b.y - a.y) * (c.y - b.y);
+            if (std::fabs(cr) > 1e-9 * std::max(1.0, std::hypot(c.x - a.x, c.y - a.y)) || dot <= 0.0) {
                 out.push_back(b);
             }
         }
@@ -3721,8 +3803,13 @@ RecastPlanResult plan_locked(
         const double y1 = static_cast<double>(gy0 + ny) * kCS;
         const int64_t margin = local ? kTrustMargin : 0;
 
+        if (pz != nullptr) {
+            fall_gate = make_fall_gate(solid, zc, pz->transform, gx0, gy0, nx, ny, fall_cache);
+        }
+        FallGate* const fall = fall_gate.has_value() ? &*fall_gate : nullptr;
         const double t_win0 = now_ms();
-        info = build_window(&failure, engine->grid, *gz, *engine->fields, *fzd, *fz, zc, *seed, h0, x0, y0, x1, y1, nogo, no_go_discs);
+        info =
+            build_window(&failure, fall, engine->grid, *gz, *engine->fields, *fzd, *fz, zc, *seed, h0, x0, y0, x1, y1, nogo, no_go_discs);
         const double window_ms = now_ms() - t_win0;
         const uint16_t zone_id = zc.zone_id;
         if (!info.has_value()) {
@@ -3740,8 +3827,7 @@ RecastPlanResult plan_locked(
             return res;
         }
         if (pz != nullptr) {
-            fall_gate = make_fall_gate(solid, zc, pz->transform, gx0, gy0, nx, fall_cache);
-            info->st3.fall = fall_gate.has_value() ? &*fall_gate : nullptr;
+            info->st3.fall = fall;
             info->fall_r = kFallRadius * std::fabs(static_cast<double>(pz->transform[0]));
         }
         RouteDiag dg;
@@ -3868,6 +3954,22 @@ bool FallClear(FallGate* gate, int64_t a, int64_t b, float ha, float hb)
     const bool ok = !OccluderDropBlocked(*gate->solid, pa, pb, kFallClimb, kFallHeight);
     gate->cache->memo.emplace(key, ok);
     return ok;
+}
+
+bool FallLands(FallGate* gate, const SpanTable& st, int64_t a, int64_t b, float ha, float hb)
+{
+    const FallPointKey ka { gate->gx0 + a % gate->nx, gate->gy0 + a / gate->nx, ha };
+    const FallPointKey kb { gate->gx0 + b % gate->nx, gate->gy0 + b / gate->nx, hb };
+    const FallEdgeKey key { ka, kb };
+    if (const auto it = gate->cache->lands.find(key); it != gate->cache->lands.end()) {
+        return it->second;
+    }
+    const std::optional<bool> ok = walk_lands(*gate, st, a, b, ha, hb);
+    if (!ok.has_value()) {
+        return false;
+    }
+    gate->cache->lands.emplace(key, *ok);
+    return *ok;
 }
 
 void LoadRecastNavEngine(RecastNavEngine* engine, const BaseNavPack& pack, const std::filesystem::path& nogo_table)
