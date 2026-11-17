@@ -101,7 +101,14 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "DailyEmailAlreadyInEmail"
+                    ],
+                    "interval_ms": 6000
+                }
             }
         },
         "post_wait_freezes": 400,
