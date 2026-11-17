@@ -18,6 +18,25 @@
             "잔영\\s*연구"
         ]
     },
+    "AutoDailyMissionAethilluStudiesNotFinished": {
+        "desc": "做完后列表里仍有日常·表象研究，任务失败",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionAethilluStudiesListItem"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                42,
+                70,
+                360,
+                590
+            ]
+        },
+        "action": "Custom",
+        "custom_action": "FalseAction"
+    },
     "AutoDailyMissionAethilluStudiesDetail": {
         "desc": "右侧详情已选中日常·表象研究",
         "recognition": "OCR",

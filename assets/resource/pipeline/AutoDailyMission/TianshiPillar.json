@@ -19,6 +19,25 @@
             "천장을\\s*찾습니다"
         ]
     },
+    "AutoDailyMissionTianshiPillarNotFinished": {
+        "desc": "做完后列表里仍有日常·天桩追踪，任务失败",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionTianshiPillarListItem"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                42,
+                70,
+                360,
+                590
+            ]
+        },
+        "action": "Custom",
+        "custom_action": "FalseAction"
+    },
     "AutoDailyMissionTianshiPillarDetail": {
         "desc": "右侧详情已选中日常·天桩追踪",
         "recognition": "OCR",
@@ -889,25 +908,16 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        880.275,
-                        2270.925
+                        866.885,
+                        2292.184
                     ],
-                    "required": true
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        868.064,
-                        2263.012
-                    ],
-                    "target_deck_y": 225.024,
                     "required": true
                 },
                 {
                     "action": "INTERACT",
                     "target": [
-                        868.064,
-                        2263.012
+                        866.885,
+                        2292.184
                     ]
                 }
             ]
@@ -940,16 +950,16 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        866.885,
-                        2292.184
+                        919.921,
+                        2265.062
                     ],
                     "required": true
                 },
                 {
                     "action": "INTERACT",
                     "target": [
-                        866.885,
-                        2292.184
+                        919.921,
+                        2265.062
                     ]
                 }
             ]
@@ -982,16 +992,25 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        919.921,
-                        2265.062
+                        880.275,
+                        2270.925
                     ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        868.064,
+                        2263.012
+                    ],
+                    "target_deck_y": 225.024,
                     "required": true
                 },
                 {
                     "action": "INTERACT",
                     "target": [
-                        919.921,
-                        2265.062
+                        868.064,
+                        2263.012
                     ]
                 }
             ]

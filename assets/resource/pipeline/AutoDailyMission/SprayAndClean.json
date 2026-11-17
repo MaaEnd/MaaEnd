@@ -19,6 +19,25 @@
             "정화\\s*작업"
         ]
     },
+    "AutoDailyMissionSprayAndCleanNotFinished": {
+        "desc": "做完后列表里仍有日常·涤垢洗瑕，任务失败",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionSprayAndCleanListItem"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                42,
+                70,
+                360,
+                590
+            ]
+        },
+        "action": "Custom",
+        "custom_action": "FalseAction"
+    },
     "AutoDailyMissionSprayAndCleanDetail": {
         "desc": "右侧详情已选中日常·涤垢洗瑕",
         "recognition": "OCR",

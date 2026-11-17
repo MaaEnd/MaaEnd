@@ -19,6 +19,25 @@
             "정통\\s*약재"
         ]
     },
+    "AutoDailyMissionAuthenticMedsNotFinished": {
+        "desc": "做完后列表里仍有日常·道地药材，任务失败",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionAuthenticMedsListItem"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                42,
+                70,
+                360,
+                590
+            ]
+        },
+        "action": "Custom",
+        "custom_action": "FalseAction"
+    },
     "AutoDailyMissionAuthenticMedsDetail": {
         "desc": "右侧详情已选中日常·道地药材",
         "recognition": "OCR",
