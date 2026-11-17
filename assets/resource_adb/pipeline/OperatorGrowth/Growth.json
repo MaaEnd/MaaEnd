@@ -235,5 +235,65 @@
                 ]
             }
         }
+    },
+    "OperatorGrowthRewardAName": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthRewardBName": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthGetInsufficientMaterialItemPosition": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    620,
+                    250,
+                    375,
+                    420
+                ]
+            }
+        }
+    },
+    "OperatorGrowthSetInsufficientMaterialItemQuantity": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    56,
+                    0,
+                    -30
+                ]
+            }
+        }
+    },
+    "OperatorGrowthReopenMaterialSource": {
+        "action": {
+            "param": {
+                "target_offset": [
+                    0,
+                    -81,
+                    0,
+                    0
+                ]
+            }
+        }
     }
 }
