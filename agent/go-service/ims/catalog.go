@@ -26,9 +26,11 @@ type recognitionItemMeta struct {
 
 var (
 	recognitionItemsPathFunc = defaultRecognitionItemsPath
-	recognitionItemsOnce     sync.Once
+	recognitionItemsMu       sync.Mutex
 	recognitionItemsCache    map[string]recognitionItemMeta
-	recognitionItemsErr      error
+	// recognitionItemsLogged guards the failure log: retries must stay quiet
+	// because every A2 page rebuild resolves filters again.
+	recognitionItemsLogged bool
 )
 
 func defaultRecognitionItemsPath() string {
@@ -36,40 +38,52 @@ func defaultRecognitionItemsPath() string {
 }
 
 func resetRecognitionItemsForTest() {
-	recognitionItemsOnce = sync.Once{}
+	recognitionItemsMu.Lock()
+	defer recognitionItemsMu.Unlock()
 	recognitionItemsCache = nil
-	recognitionItemsErr = nil
+	recognitionItemsLogged = false
 }
 
+// loadRecognitionItems loads the IconRecognition catalog once and caches it.
+// A failed load is NOT cached: the next call retries, so a Resource that is not
+// ready yet during startup cannot disable catalog-dependent components (A4's
+// inventory writes) for the rest of the process.
 func loadRecognitionItems() (map[string]recognitionItemMeta, error) {
-	recognitionItemsOnce.Do(func() {
-		path := recognitionItemsPathFunc()
-		var raw map[string]recognitionItemMeta
-		if err := resource.ReadJsonResource(path, &raw); err != nil {
-			recognitionItemsErr = fmt.Errorf("%w: load IconRecognition catalog %s: %w", errRecognitionCatalogUnavailable, path, err)
-			log.Error().
-				Err(recognitionItemsErr).
-				Str("path", path).
-				Msg("failed to load IconRecognition recognition_items")
-			return
-		}
-		if len(raw) == 0 {
-			recognitionItemsErr = fmt.Errorf("%w: IconRecognition catalog %s is empty", errRecognitionCatalogUnavailable, path)
-			return
-		}
-		recognitionItemsCache = raw
-		log.Info().
+	recognitionItemsMu.Lock()
+	defer recognitionItemsMu.Unlock()
+	if recognitionItemsCache != nil {
+		return recognitionItemsCache, nil
+	}
+
+	path := recognitionItemsPathFunc()
+	var raw map[string]recognitionItemMeta
+	if err := resource.ReadJsonResource(path, &raw); err != nil {
+		return nil, reportCatalogLoadFailure(path, fmt.Errorf("%w: load IconRecognition catalog %s: %w", errRecognitionCatalogUnavailable, path, err))
+	}
+	if len(raw) == 0 {
+		return nil, reportCatalogLoadFailure(path, fmt.Errorf("%w: IconRecognition catalog %s is empty", errRecognitionCatalogUnavailable, path))
+	}
+
+	recognitionItemsCache = raw
+	recognitionItemsLogged = false
+	log.Info().
+		Str("path", path).
+		Int("item_count", len(raw)).
+		Msg("IconRecognition catalog loaded for IMS region rebuild")
+	return raw, nil
+}
+
+// reportCatalogLoadFailure logs the first failure only. Callers retry on the next
+// call, and a missing catalog would otherwise spam one error per scanned page.
+func reportCatalogLoadFailure(path string, err error) error {
+	if !recognitionItemsLogged {
+		recognitionItemsLogged = true
+		log.Error().
+			Err(err).
 			Str("path", path).
-			Int("item_count", len(raw)).
-			Msg("IconRecognition catalog loaded for IMS region rebuild")
-	})
-	if recognitionItemsErr != nil {
-		return nil, recognitionItemsErr
+			Msg("failed to load IconRecognition recognition_items, retrying on next call")
 	}
-	if recognitionItemsCache == nil {
-		return nil, fmt.Errorf("%w: IconRecognition catalog not loaded", errRecognitionCatalogUnavailable)
-	}
-	return recognitionItemsCache, nil
+	return err
 }
 
 // validateInventoryItemID reports whether item is a known IconRecognition catalog key.

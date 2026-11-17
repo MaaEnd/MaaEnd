@@ -259,6 +259,7 @@ Keys starting with `scratch_` are **virtual items**: A1 / A4 write them into a s
 - **Virtual items share one set of operations**: `{scratch_demand_item}` and `{item_char_break_stage_1_2}` can appear in the same R1 expression or A4 `value` expression, with identical syntax.
 - **An inventory write is not a sync**: `updated_at` keeps its value and `hasData` is untouched; the real snapshot is still established by A2 only, and the next A2 run overwrites A4 values with the on-screen truth.
 - **Does not consume the A2 scan slot**: A4 never touches the `Sync*` Begin locks, so other tasks still scan the screen.
+- **A failed catalog load is not cached**: the next call retries, so a Resource that is not ready during startup cannot permanently disable A4's inventory writes.
 - Result is clamped to `0`; negative values are stored as `0`.
 - Difference from A1: A1 is a delta, A4 is absolute; the key decides the layer, the action itself does not.
 
