@@ -1115,6 +1115,19 @@ bool by_fall_step(const SpanTable& st, int64_t nx, int64_t ny, int64_t p, int64_
            && rise_ok_fast(st, nx, ny, cp, dx, dy, st.sp_h[static_cast<size_t>(p)], st.sp_h[static_cast<size_t>(u)]);
 }
 
+// 落差超过一步的弦只验走层
+bool chord_ok(Visibility* vis, const SpanTable& st, int64_t p, int64_t u)
+{
+    const WorldPoint a = VisibilityCellCenter(*vis, st.sp_cell[static_cast<size_t>(p)]);
+    const WorldPoint b = VisibilityCellCenter(*vis, st.sp_cell[static_cast<size_t>(u)]);
+    const float ha = st.sp_h[static_cast<size_t>(p)];
+    const float hb = st.sp_h[static_cast<size_t>(u)];
+    if (by_fall(st, p, u)) {
+        return vis->lyo == nullptr || LayerStepOk(*vis->lyo, a, b, ha, hb);
+    }
+    return ChordVisible(vis, a, b, ha, hb);
+}
+
 // Lazy Theta* 的 SetVertex, 祖父直连验不过时从已关闭的邻格里挑最便宜的当父亲
 void reparent(
     std::vector<double>* dist,
@@ -1240,13 +1253,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 continue;
             }
             const int64_t p = prev[static_cast<size_t>(u)];
-            if (p >= 0 && !by_jump(jumps, p, u) && !by_fall_step(st, nx, ny, p, u)
-                && !ChordVisible(
-                    vis,
-                    VisibilityCellCenter(*vis, st.sp_cell[static_cast<size_t>(p)]),
-                    VisibilityCellCenter(*vis, cu),
-                    st.sp_h[static_cast<size_t>(p)],
-                    st.sp_h[static_cast<size_t>(u)])) {
+            if (p >= 0 && !by_jump(jumps, p, u) && !by_fall_step(st, nx, ny, p, u) && !chord_ok(vis, st, p, u)) {
                 reparent(&dist, &prev, closed, search, u, cu);
             }
             closed[static_cast<size_t>(u)] = 1;
