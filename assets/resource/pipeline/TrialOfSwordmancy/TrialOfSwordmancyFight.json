@@ -33,12 +33,10 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "RepeatUntilFoundAction",
+        "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "wait_nodes": [
-                "TrialOfSwordmancyPrepareTeam"
-            ]
+            "wait_node": "TrialOfSwordmancyStartTrialButton"
         },
         "post_delay": 0,
         "rate_limit": 0,
