@@ -78,7 +78,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 🌆 **Commission snatching**: Automatically grabs commissions from the list and can continue with depot-node routing when configured.
 - 💳 **Credit shop purchasing**: Auto-buy credit shop items with support for priorities, discounts, reserve thresholds, and credit-gain linkage.
 - 🐌 **Inventory transfer**: Move warehouse stock across regions on the Di Jiang ship in batches - great for batteries, ores, sand leaves, and other stored goods.
-- 🎒 **Stash Backpack**: One-click backpack tidy-and-stash, useful before/after other tasks.
+- 🎒 **Stash & Resupply**: One-click backpack tidy-and-stash, useful before/after other tasks. It can also restock from the depot, give consumables to the selected operators, and refill tactical items.
 - 📐 **Blueprint porter**: Batch import blueprints, intelligently parse share codes or messy text, and get building plans in place with far less manual work.
 - 🎁 **Base tasks**: Collect base outputs, restock, and manage clue collection/placement/gifting in one go.
 - 🍽️ **Yuanyuan Manor Innkeeping**: Configures kitchens and menus, then queues dishes based on table orders to clear daily patrons and farm Spirit Money (requires Inn Level 4 and all three kitchens unlocked).
@@ -90,7 +90,6 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 🧮 **Pull count calculator**: Reads headhunt resources and warehouse vouchers to estimate pulls for the current / next pool.
 - 🔑 **Auto account switch**: Log out and switch to a specified account automatically (phone on CN, email on Global).
 - 📅 **Daily automation**: Daily rewards, Simulation Space rewards, encyclopedia red dots, production manual rewards, and more can all be cleaned up in one sweep. ✅
-- 💊 **Use Consumable**: Choose a consumable and automatically give it to the selected operators. 💊
 - 💻 **Multi-platform support**: Supports PC (`Win32`), Android (`ADB`), Linux, macOS, and more, so MaaEnd can tag along wherever you play. 🐟
 
 ## 🛠️ Developer Guide

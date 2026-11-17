@@ -3,6 +3,6 @@
     "template": "task-template.mjs",
     "data": "task-data.mjs",
     "outputDir": "../../../assets/tasks",
-    "outputFile": "UseConsumable.json",
+    "outputFile": "StashBackpack.json",
     "format": true
 }

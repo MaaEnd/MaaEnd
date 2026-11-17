@@ -1,4 +1,18 @@
 {
+    "StashBackpackEntry": {
+        "desc": "背包存取与补给任务入口，按选项依次执行存放与取用子任务",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask",
+                "UseConsumableSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "StashBackpackSubTask": {
         "desc": "被子任务调用的入口，用于设置 StashBackpackMain 的 enable",
         "pre_delay": 0,

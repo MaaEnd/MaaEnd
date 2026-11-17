@@ -1,13 +1,21 @@
 {
-    "UseConsumableBeforeStashBackpack": {
-        "desc": "按任务选项整理背包后进入道具补充与取用流程",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "StashBackpackSubTask"
-            ]
-        },
+    "UseConsumableSubTask": {
+        "desc": "被子任务调用的入口，用于设置 UseConsumableMain 的 enable",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "UseConsumableMain",
+            "EmptyNode"
+        ]
+    },
+    "UseConsumableMain": {
+        "desc": "进入道具补充与取用流程",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "UseConsumableFailureCollectorReset"
         ]

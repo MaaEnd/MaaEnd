@@ -31,7 +31,7 @@ var feedbackHintEntries = map[string]struct{}{
 	"ProdManualStart":             {},
 	"ResourceRecycleStationStart": {},
 	"OutpostTradingSchedule":      {},
-	"StashBackpackMain":           {},
+	"StashBackpackEntry":          {},
 	"SwitchTeamSchedule":          {},
 	"VisitFriendsMain":            {},
 	"WeaponUpgradeStart":          {},

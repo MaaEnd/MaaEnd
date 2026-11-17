@@ -17,7 +17,7 @@
         "fetch:zmdmap": "uv run --no-default-groups zmdmap fetch",
         "generate:MacOS": "node tools/pipeline-generate/macos-keymap.mjs",
         "generate:BatchUseDetector": "node tools/pipeline-generate/run-all.mjs BatchUseDetector",
-        "generate:UseConsumable": "node tools/pipeline-generate/UseConsumable/sync-locales.mjs && node tools/pipeline-generate/run-all.mjs UseConsumable",
+        "generate:StashBackpack": "node tools/pipeline-generate/StashBackpack/sync-locales.mjs && node tools/pipeline-generate/run-all.mjs StashBackpack",
         "generate:AutoStockStaple": "pnpm fetch:zmdmap --only stock_staple && node tools/pipeline-generate/AutoStockStaple/generate.mjs",
         "generate:AutoDelivery": "pnpm fetch:zmdmap --only delivery_destinations && node tools/pipeline-generate/AutoDelivery/sync-routes.mjs && node tools/pipeline-generate/AutoDelivery/sync-catalog.mjs && node tools/pipeline-generate/run-all.mjs AutoDelivery",
         "generate:DeliveryJobs": "pnpm generate:AutoDelivery && pnpm fetch:zmdmap --only delivery_jobs && node tools/pipeline-generate/DeliveryJobs/sync-locales.mjs && node tools/pipeline-generate/DeliveryJobs/prepare.mjs && node tools/pipeline-generate/run-all.mjs DeliveryJobs",
