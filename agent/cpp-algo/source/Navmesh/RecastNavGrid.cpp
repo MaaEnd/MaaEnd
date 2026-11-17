@@ -1097,12 +1097,12 @@ bool by_jump(const JumpEdges* jumps, int64_t p, int64_t u)
     return jumps != nullptr && !JumpEdgesEmpty(*jumps) && p >= 0 && HasJumpEdge(*jumps, p, u);
 }
 
-// 台沿下落那一步视线必然被台沿挡住, 与跳边同样豁免
 bool by_fall(const SpanTable& st, int64_t p, int64_t u)
 {
     return p >= 0 && static_cast<double>(st.sp_h[static_cast<size_t>(p)]) - static_cast<double>(st.sp_h[static_cast<size_t>(u)]) > kClimb;
 }
 
+// 台沿下落那一步视线必然被台沿挡住, 与跳边同样豁免
 bool by_fall_step(const SpanTable& st, int64_t nx, int64_t ny, int64_t p, int64_t u)
 {
     if (!by_fall(st, p, u)) {
@@ -1975,7 +1975,9 @@ void cell_span_heights(std::vector<float>* nb, const SpanTable& st, int64_t j)
 
 bool has_level(const std::vector<float>& nb, float h)
 {
-    return std::any_of(nb.begin(), nb.end(), [&](float v) { return std::fabs(static_cast<double>(v) - static_cast<double>(h)) <= kStepUp; });
+    return std::any_of(nb.begin(), nb.end(), [&](float v) {
+        return std::fabs(static_cast<double>(v) - static_cast<double>(h)) <= kStepUp;
+    });
 }
 
 bool seam_returns(const LayerOracle& lyo, CellPt pc, int64_t sx, int64_t sy, float c)
