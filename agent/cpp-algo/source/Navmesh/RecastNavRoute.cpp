@@ -269,15 +269,6 @@ std::optional<bool> walk_lands(const FallGate& gate, const SpanTable& st, int64_
     const WorldPoint pb = fall_cell_centre(gate, b);
     const double len = std::hypot(pb.x - pa.x, pb.y - pa.y);
     const double bottom = hb - kClimb;
-    if (len <= 0.0) {
-        const OccluderPoint q { .x = (pa.x - gate.tx) / gate.sx, .y = ha, .z = (gate.ty - pa.y) / gate.sy };
-        const std::optional<double> solid = OccluderFloorAt(*gate.solid, q, bottom, ha - kFallClimb);
-        const std::optional<double> mesh = span_floor_at(st, a, bottom, ha - kFallClimb);
-        if (!solid.has_value() && !mesh.has_value()) {
-            return false;
-        }
-        return std::fabs(std::fmax(solid.value_or(bottom), mesh.value_or(bottom)) - hb) <= kClimb;
-    }
     const double reach = std::fmax(len, 4.0 * kFallRadius * std::fabs(gate.sx));
     double foot = ha;
     double d = 0.0;
@@ -881,7 +872,14 @@ bool link_lands(FallGate* fall, const SpanTable& st, int64_t from, int64_t to, i
 {
     const float h_from = st.sp_h[static_cast<size_t>(from_span)];
     const float h_to = st.sp_h[static_cast<size_t>(to_span)];
-    if (fall == nullptr || static_cast<double>(h_from - h_to) <= kClimb) {
+    const auto dh = static_cast<double>(h_from - h_to);
+    if (dh <= kStepUp) {
+        return true;
+    }
+    if (span_floor_at(st, to, h_from - kStepUp, h_from + kStepUp).has_value()) {
+        return false;
+    }
+    if (fall == nullptr || dh <= kClimb) {
         return true;
     }
     return FallLands(fall, st, from, to, h_from, h_to);
@@ -1272,7 +1270,7 @@ bool upper_at(const LayerOracle& lyo, int64_t gx, int64_t gy, double h, double h
     }
     for (int64_t k = CellSpanStart(st, j), ke = k + CellSpanCount(st, j); k < ke; ++k) {
         const double v = static_cast<double>(st.sp_h[static_cast<size_t>(k)]);
-        if (v > h + kClimb && v <= h_up + kClimb) {
+        if (v > std::min(h + kClimb, h_up - kStepUp) && v <= h_up + kClimb) {
             return true;
         }
     }
