@@ -58,6 +58,7 @@
     "autostockpile.no_qualifying_product": "조건에 맞는 상품을 찾지 못했습니다 (%s)",
     "autostockpile.product_selected": "「%s」%s (가격 %d)",
     "autostockpile.qty_below_threshold_buy": "임계값보다 낮아 구매합니다",
+    "autostockpile.qty_min_buy_fallback": "일일 최소 구매 수량을 완료했습니다",
     "autostockpile.qty_overflow_buy": "오버플로 방지 수량만큼 구매합니다",
     "autostockpile.recognition_done": "인식 완료, 총 %d개의 상품을 인식했습니다",
     "autostockpile.recognition_early_end": "인식 단계가 조기 종료되었습니다",

@@ -58,6 +58,7 @@
     "autostockpile.no_qualifying_product": "条件を満たす商品がありません (%s)",
     "autostockpile.product_selected": "「%s」%s (価格 %d)",
     "autostockpile.qty_below_threshold_buy": "しきい値を下回っているため購入します",
+    "autostockpile.qty_min_buy_fallback": "毎日の最低購入数量を完了しました",
     "autostockpile.qty_overflow_buy": "オーバーフロー防止数量で購入します",
     "autostockpile.recognition_done": "認識完了。商品を%d件検出しました",
     "autostockpile.recognition_early_end": "認識フェーズが早期終了しました",
