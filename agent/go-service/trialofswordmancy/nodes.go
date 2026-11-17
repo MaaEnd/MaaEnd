@@ -24,7 +24,7 @@ const (
 	nodeDoDoubleReward  = "TrialOfSwordmancyDoDoubleReward"
 	nodeDrawCardSuccess = "TrialOfSwordmancyDrawCardSuccess"
 
-	nodeAbandon       = "TrialOfSwordmancyDailyAbandon"
+	nodeAbandon       = "TrialOfSwordmancyAbandon"
 	nodePreStartTrial = "TrialOfSwordmancyPreStartTrial"
 
 	nodeFinishOnOverflow = "TrialOfSwordmancyFinishOnOverflow"

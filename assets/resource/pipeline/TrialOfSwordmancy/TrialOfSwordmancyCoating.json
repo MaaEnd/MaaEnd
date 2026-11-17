@@ -56,7 +56,7 @@
         "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck1",
-            "TrialOfSwordmancyCoatingAbandon"
+            "TrialOfSwordmancyAbandon"
         ]
     },
     "TrialOfSwordmancyCoatingCheck1": {
@@ -109,7 +109,7 @@
         "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck2",
-            "TrialOfSwordmancyCoatingAbandon"
+            "TrialOfSwordmancyAbandon"
         ]
     },
     "TrialOfSwordmancyCoatingCheck2": {
@@ -162,7 +162,7 @@
         "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck3",
-            "TrialOfSwordmancyCoatingAbandon"
+            "TrialOfSwordmancyAbandon"
         ]
     },
     "TrialOfSwordmancyCoatingCheck3": {
@@ -215,7 +215,7 @@
         "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck4",
-            "TrialOfSwordmancyCoatingAbandon"
+            "TrialOfSwordmancyAbandon"
         ]
     },
     "TrialOfSwordmancyCoatingCheck4": {
@@ -268,7 +268,7 @@
         "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck5",
-            "TrialOfSwordmancyCoatingAbandon"
+            "TrialOfSwordmancyAbandon"
         ]
     },
     "TrialOfSwordmancyCoatingCheck5": {
@@ -286,25 +286,5 @@
         "focus": {
             "Node.Action.Succeeded": "成功刷出目标点数"
         }
-    },
-    "TrialOfSwordmancyCoatingAbandon": {
-        "desc": "刷镀层放弃当前抽取",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyAbandonButton"
-        ],
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "RepeatUntilNotFoundAction",
-        "custom_action_param": {
-            "action": "Click",
-            "interval_ms": 1500,
-            "wait_node": "TrialOfSwordmancyAbandonButton"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "TrialOfSwordmancyAbandonSuccess"
-        ]
     }
 }
