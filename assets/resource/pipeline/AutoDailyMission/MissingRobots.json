@@ -19,6 +19,25 @@
             "로봇을\\s*찾습니다"
         ]
     },
+    "AutoDailyMissionMissingRobotsNotFinished": {
+        "desc": "做完后列表里仍有日常·寻机启事，任务失败",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionMissingRobotsListItem"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                42,
+                70,
+                360,
+                590
+            ]
+        },
+        "action": "Custom",
+        "custom_action": "FalseAction"
+    },
     "AutoDailyMissionMissingRobotsDetail": {
         "desc": "右侧详情已选中日常·寻机启事",
         "recognition": "OCR",

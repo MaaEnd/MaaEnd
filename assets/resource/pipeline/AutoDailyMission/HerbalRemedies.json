@@ -19,6 +19,25 @@
             "상처\\s*치료에\\s*좋은\\s*약"
         ]
     },
+    "AutoDailyMissionHerbalRemediesNotFinished": {
+        "desc": "做完后列表里仍有日常·疗伤良药，任务失败",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionHerbalRemediesListItem"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                42,
+                70,
+                360,
+                590
+            ]
+        },
+        "action": "Custom",
+        "custom_action": "FalseAction"
+    },
     "AutoDailyMissionHerbalRemediesDetail": {
         "desc": "右侧详情已选中日常·疗伤良药",
         "recognition": "OCR",
