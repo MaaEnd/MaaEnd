@@ -2,7 +2,7 @@
     // ===========================================================================
     // 每轮仅一次完整牌库识别，随后求解本轮 MDP
     // ===========================================================================
-    "TrialOfSwordmancyDailyRecognizeDeck": {
+    "TrialOfSwordmancyRecognizeFullDeck": {
         "desc": "识别牌库并求解",
         "recognition": "Custom",
         "custom_recognition": "TrialOfSwordmancy.RecognizeFullDeck",
@@ -15,9 +15,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyEnsureFirstCard",
-            "TrialOfSwordmancyProbeAbandon",
-            "TrialOfSwordmancyDecide"
+            "TrialOfSwordmancyDrawFirstCardSuccess",
+            "TrialOfSwordmancyEnsureFirstCard"
         ]
     },
     // ===========================================================================
@@ -27,19 +26,15 @@
         "desc": "空手则先抽一张",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyEnemyCard1"
+            "TrialOfSwordmancyDrawCardButton"
         ],
-        "inverse": true,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "interval_ms": 200,
-            "repeat_count": 20,
             "wait_node": "TrialOfSwordmancyBattlePts0"
         },
-        "target": "TrialOfSwordmancyDrawCardButton",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
