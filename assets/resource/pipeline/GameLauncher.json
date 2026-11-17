@@ -1,8 +1,14 @@
 {
     "GameLauncherWakeMain": {
         "desc": "Windows 第一阶段（前台截图+前台输入）：息屏时点击唤醒显示器，直到看到左侧终末地图标",
-        "pre_delay": 0,
-        "post_delay": 0,
+        // 光标停在右侧栏工具箱图标上会悬停展开工具面板并遮挡开始游戏按钮，先把光标移到窗口左上角
+        "action": "TouchMove",
+        "target": [
+            10,
+            10,
+            1,
+            1
+        ],
         "next": [
             "GameLauncherEndfieldIconVisible",
             "GameLauncherBlackScreenClick"
