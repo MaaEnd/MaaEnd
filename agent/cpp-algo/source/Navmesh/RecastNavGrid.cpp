@@ -1099,6 +1099,18 @@ bool by_fall(const SpanTable& st, int64_t p, int64_t u)
     return p >= 0 && static_cast<double>(st.sp_h[static_cast<size_t>(p)]) - static_cast<double>(st.sp_h[static_cast<size_t>(u)]) > kClimb;
 }
 
+bool by_fall_step(const SpanTable& st, int64_t nx, int64_t ny, int64_t p, int64_t u)
+{
+    if (!by_fall(st, p, u)) {
+        return false;
+    }
+    const int64_t cp = st.sp_cell[static_cast<size_t>(p)];
+    const int64_t cu = st.sp_cell[static_cast<size_t>(u)];
+    const int64_t dx = cu % nx - cp % nx, dy = cu / nx - cp / nx;
+    return cp != cu && std::abs(dx) <= 1 && std::abs(dy) <= 1
+           && rise_ok_fast(st, nx, ny, cp, dx, dy, st.sp_h[static_cast<size_t>(p)], st.sp_h[static_cast<size_t>(u)]);
+}
+
 // Lazy Theta* 的 SetVertex, 祖父直连验不过时从已关闭的邻格里挑最便宜的当父亲
 void reparent(
     std::vector<double>* dist,
@@ -1224,7 +1236,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 continue;
             }
             const int64_t p = prev[static_cast<size_t>(u)];
-            if (p >= 0 && !by_jump(jumps, p, u) && !by_fall(st, p, u)
+            if (p >= 0 && !by_jump(jumps, p, u) && !by_fall_step(st, nx, ny, p, u)
                 && !ChordVisible(
                     vis,
                     VisibilityCellCenter(*vis, st.sp_cell[static_cast<size_t>(p)]),
