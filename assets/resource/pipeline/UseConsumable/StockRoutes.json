@@ -103,7 +103,7 @@
         "desc": "开始一次武陵仓库扫描",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "allow_next": true,
             "patch": {
@@ -140,7 +140,7 @@
         "desc": "武陵仓库未找到该槽位物品，标记为待查四号谷地",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableNeedStockSlot1": {
@@ -165,7 +165,7 @@
         "desc": "武陵仓库未找到该槽位物品，标记为待查四号谷地",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableNeedStockSlot2": {
@@ -190,7 +190,7 @@
         "desc": "武陵仓库未找到该槽位物品，标记为待查四号谷地",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableNeedStockSlot3": {
@@ -215,7 +215,7 @@
         "desc": "武陵仓库未找到该槽位物品，标记为待查四号谷地",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableNeedStockSlot4": {
@@ -240,7 +240,7 @@
         "desc": "只扫描武陵仓库未找到项目的四号谷地仓库",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "allow_next": true,
             "patch": {
@@ -264,7 +264,7 @@
         "desc": "四号谷地仓库未找到该槽位物品，跳过该槽位并记录任务失败",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableNeedValleyIVSlot1": {
@@ -289,7 +289,7 @@
         "desc": "四号谷地仓库未找到该槽位物品，跳过该槽位并记录任务失败",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableNeedValleyIVSlot2": {
@@ -314,7 +314,7 @@
         "desc": "四号谷地仓库未找到该槽位物品，跳过该槽位并记录任务失败",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableNeedValleyIVSlot3": {
@@ -339,7 +339,7 @@
         "desc": "四号谷地仓库未找到该槽位物品，跳过该槽位并记录任务失败",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableNeedValleyIVSlot4": {
@@ -364,7 +364,7 @@
         "desc": "武陵背包确认完成，汇总仍缺少的消耗品",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "allow_next": true,
             "patch": {

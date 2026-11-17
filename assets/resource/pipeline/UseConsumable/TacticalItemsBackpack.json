@@ -48,7 +48,7 @@
         "desc": "识别背包入口并打开背包",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "allow_next": true,
             "patch": {
@@ -67,7 +67,7 @@
         "desc": "重置背包滚动位置并开始查找选定战术物品",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "allow_next": true,
             "patch": {

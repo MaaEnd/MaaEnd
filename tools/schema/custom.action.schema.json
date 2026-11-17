@@ -81,7 +81,6 @@
                 "OutpostTradingPrioritySession",
                 "OutpostTradingReserveSession",
                 "PipelineOverride",
-                "PipelineOverrideAction",
                 "PostStop",
                 "PullCountCalculatorAction",
                 "PuzzleAction",

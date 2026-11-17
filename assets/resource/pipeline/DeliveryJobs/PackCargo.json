@@ -205,7 +205,7 @@
         // 本节点第一次执行时，ListCompleteRecognition 会把 roi 内画面截成模板
         // ListCompleteRecognition/DeliveryJobsItemListAtTop.png 并把 ready 置为 true；
         // 此后每轮都用该模板与当前画面比对，判断列表是否已停住，比对不过就重新截模板。
-        // 装箱流程开始新一轮扫描时（DeliveryJobsStartFill{地区}Priority{N} 的 PipelineOverrideAction）置回 false，
+        // 装箱流程开始新一轮扫描时（DeliveryJobsStartFill{地区}Priority{N} 的 PipelineOverride）置回 false，
         // 强制重新截模板。这里写死只会影响首次运行前的初值，改动不影响运行期判定。
         "attach": {
             "ready": false
@@ -266,7 +266,7 @@
         ],
         // 与 DeliveryJobsItemListAtTop 同一套运行期状态，模板为
         // ListCompleteRecognition/DeliveryJobsItemListAtBottom.png：首次执行截模板并置 ready=true，
-        // 装箱流程开始新一轮扫描时由 PipelineOverrideAction 置回 false。
+        // 装箱流程开始新一轮扫描时由 PipelineOverride 置回 false。
         "attach": {
             "ready": false
         }

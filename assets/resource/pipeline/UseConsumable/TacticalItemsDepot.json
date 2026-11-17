@@ -21,7 +21,7 @@
         "desc": "重置仓库滚动位置并开始查找选定战术物品",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "allow_next": true,
             "patch": {
@@ -139,7 +139,7 @@
         "desc": "重置仓库滚动位置并开始查找选定战术物品",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "allow_next": true,
             "patch": {
@@ -173,7 +173,7 @@
         "desc": "恢复消耗品背包入口并进入槽位检查",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "allow_next": true,
             "patch": {

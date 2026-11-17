@@ -174,7 +174,7 @@ const customActParser: PropSelector = (name, param, utils) => {
     // String 恒为节点引用（taskRef）；Object 内的 template 仍需按模板登记。
     tryAddRecognitionParamFields(param, utils, result, recognitionParamFields)
     tryAddRecognitionParamFields(param, utils, result, buttonParamFields)
-  } else if (name === 'PipelineOverride' || name === 'PipelineOverrideAction') {
+  } else if (name === 'PipelineOverride') {
     tryAddPipelineOverrideTemplates(param, utils, result)
   }
 

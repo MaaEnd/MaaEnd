@@ -88,7 +88,7 @@
         "desc": "一号位物品已在背包中，跳过仓库取货并继续使用流程",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableNeedStockSlot1": {
@@ -145,7 +145,7 @@
         "desc": "二号位物品已在背包中，跳过仓库取货并继续使用流程",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableNeedStockSlot2": {
@@ -202,7 +202,7 @@
         "desc": "三号位物品已在背包中，跳过仓库取货并继续使用流程",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableNeedStockSlot3": {
@@ -259,7 +259,7 @@
         "desc": "四号位物品已在背包中，跳过仓库取货并继续使用流程",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableNeedStockSlot4": {
@@ -280,7 +280,7 @@
     "UseConsumablePrecheckFinish": {
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "allow_next": true,
             "patch": {
@@ -335,7 +335,7 @@
         "desc": "重置背包滚动状态，从顶部开始一次完整扫描",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "allow_next": true,
             "patch": {

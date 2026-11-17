@@ -4,7 +4,7 @@
         "enabled": true,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "DeliveryJobsItemListAtTop": {
@@ -82,7 +82,7 @@
         "enabled": false,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "DeliveryJobsItemListAtTop": {
@@ -159,7 +159,7 @@
         "enabled": false,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "DeliveryJobsItemListAtTop": {
@@ -235,7 +235,7 @@
         "enabled": false,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "DeliveryJobsItemListAtTop": {
@@ -310,7 +310,7 @@
         "enabled": true,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "DeliveryJobsItemListAtTop": {
@@ -388,7 +388,7 @@
         "enabled": false,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "DeliveryJobsItemListAtTop": {
@@ -465,7 +465,7 @@
         "enabled": false,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "DeliveryJobsItemListAtTop": {
@@ -541,7 +541,7 @@
         "enabled": false,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "DeliveryJobsItemListAtTop": {

@@ -215,7 +215,7 @@
         "desc": "结束该槽当前仓库搜索，继续扫描下一项",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableStockFindItemSlot1": {
@@ -231,7 +231,7 @@
         "desc": "结束该槽当前仓库搜索，继续扫描下一项",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableStockFindItemSlot2": {
@@ -247,7 +247,7 @@
         "desc": "结束该槽当前仓库搜索，继续扫描下一项",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableStockFindItemSlot3": {
@@ -263,7 +263,7 @@
         "desc": "结束该槽当前仓库搜索，继续扫描下一项",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "UseConsumableStockFindItemSlot4": {

@@ -616,7 +616,7 @@
     "ItemTransferResetRepoScanBoundaries": {
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "ItemTransferRepoTopReached": {
@@ -759,7 +759,7 @@
     "ItemTransferForwardItemNotFound": {
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "ItemTransferForwardGate": {
@@ -777,7 +777,7 @@
     "ItemTransferReturnItemNotFound": {
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "ItemTransferReturnGate": {
@@ -1031,7 +1031,7 @@
     "ItemTransferResetBagScanBoundaries": {
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "ItemTransferBagTopReached": {
@@ -1294,7 +1294,7 @@
     "ItemTransferForwardTargetFull": {
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "ItemTransferForwardGate": {
@@ -1315,7 +1315,7 @@
     "ItemTransferReturnTargetFull": {
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "ItemTransferReturnGate": {
@@ -1336,7 +1336,7 @@
     "ItemTransferForwardStoreUnverified": {
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "ItemTransferForwardGate": {
@@ -1357,7 +1357,7 @@
     "ItemTransferReturnStoreUnverified": {
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "ItemTransferReturnGate": {
