@@ -54,6 +54,7 @@
                 "SeizeDeliveryJobsScanTargetRecognition",
                 "TextInputExhaustedRecognition",
                 "TrialOfSwordmancy.RecognizeBoard",
+                "TrialOfSwordmancy.RecognizeDeck",
                 "TrialOfSwordmancy.RecognizeFullDeck",
                 "TrialOfSwordmancy.RecognizeRemainAbandon",
                 "VisitFriendsBtwSellFinishedRecognition",

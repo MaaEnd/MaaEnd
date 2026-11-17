@@ -104,11 +104,8 @@ type stepReadings struct {
 // 唯一失败面是 Deck - remainDeck 矛盾（负值或总张数 > 5），两个读数必有一个读错，不在矛盾信息上做决策；
 // 其余自洽但越界的读数原样送入，由求解器判为不可达。
 func deriveGameState(r stepReadings) (GameState, bool) {
-	var hand [5]int
-	for i := range hand {
-		hand[i] = r.deck[i] - r.remainDeck[i]
-	}
-	if !validHand(hand) {
+	hand, ok := deriveHand(r.deck, r.remainDeck)
+	if !ok {
 		return GameState{}, false
 	}
 
@@ -133,6 +130,15 @@ func validHand(hand [5]int) bool {
 		total += c
 	}
 	return total <= 5
+}
+
+// deriveHand 由总牌库与当前剩余库存推导手牌：牌库面板显示的是抽走后的库存，差值即手牌。
+// ok=false 表示两个读数矛盾（负值或总张数超 5）。
+func deriveHand(deck, remainDeck [5]int) (hand [5]int, ok bool) {
+	for i := range hand {
+		hand[i] = deck[i] - remainDeck[i]
+	}
+	return hand, validHand(hand)
 }
 
 func synthesizeHandRaw(hand [5]int) (handRaw [5]int) {
@@ -313,6 +319,49 @@ type deckDetail struct {
 	RemainDeck [5]int `json:"remainDeck"`
 	Hand       [5]int `json:"hand"`
 	HandRaw    [5]int `json:"handRaw"`
+}
+
+var _ maa.CustomRecognitionRunner = &DeckRecognition{}
+
+// DeckRecognition 读当前剩余牌库库存，连同本轮缓存的总牌库一起经 Detail 传给 FreeCalcDecide。
+type DeckRecognition struct{}
+
+func (r *DeckRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || arg.Img == nil {
+		log.Error().Str("component", component).Msg("deck recognition arg or image is nil")
+		return nil, false
+	}
+
+	deck, ok := roundState.Deck()
+	if !ok {
+		log.Error().Str("component", component).Msg("deck cache missing")
+		return nil, false
+	}
+
+	remainDeck, ok := recognizeDeck(ctx, arg.Img)
+	if !ok {
+		return nil, recognitionFailed(ctx, "牌库 OCR 失败")
+	}
+
+	detailBytes, err := json.Marshal(deckReading{Deck: deck, RemainDeck: remainDeck})
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Msg("failed to marshal deck reading")
+		return nil, false
+	}
+
+	log.Info().
+		Str("component", component).
+		Ints("deck", deck[:]).
+		Ints("remainDeck", remainDeck[:]).
+		Msg("remaining deck recognized")
+
+	return &maa.CustomRecognitionResult{Box: arg.Roi, Detail: string(detailBytes)}, true
+}
+
+// deckReading 是 DeckRecognition 写进 Detail 的观测载体：总牌库 + 当前剩余库存，手牌由两者差值推导。
+type deckReading struct {
+	Deck       [5]int `json:"deck"`
+	RemainDeck [5]int `json:"remainDeck"`
 }
 
 var _ maa.CustomRecognitionRunner = &RemainAbandonRecognition{}

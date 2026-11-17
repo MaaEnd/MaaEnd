@@ -311,3 +311,173 @@ func rawJSONToString(raw json.RawMessage) string {
 	}
 	return string(raw)
 }
+
+const (
+	// freeCalcMaxTotal 是 5 张铭牌点数之和的上限。
+	freeCalcMaxTotal = 25
+	// freeCalcMaxHand 是手牌落位槽数，即一轮最多能抽到的张数。
+	freeCalcMaxHand = 5
+)
+
+// freeCalcParam 是 FreeCalcDecide 的目标点数区间，闭区间，按手牌点数之和计算。
+type freeCalcParam struct {
+	LowerBound int `json:"lower_bound"`
+	UpperBound int `json:"upper_bound"`
+}
+
+var _ maa.CustomActionRunner = &FreeCalcDecideAction{}
+
+// FreeCalcDecideAction 按目标点数区间做单步决策：已达标即开始演算，剩余牌库仍能凑进区间即抽牌，否则放弃。
+// 手牌由识别器经 Detail 传来的总牌库与剩余牌库库存推导，本动作不重复识别。
+type FreeCalcDecideAction struct{}
+
+// Run 解析目标区间与牌库读数，判定单步决策并路由到执行节点。
+func (a *FreeCalcDecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	if ctx == nil || arg == nil {
+		log.Error().Str("component", component).Msg("free calc decide context or arg is nil")
+		return false
+	}
+
+	param, ok := parseFreeCalcParam(arg.CustomActionParam)
+	if !ok {
+		return false
+	}
+
+	reading, ok := parseDeckReading(arg.RecognitionDetail)
+	if !ok {
+		return false
+	}
+
+	// 整个总牌库都凑不出目标区间时，放弃也只会重开同一副牌，直接报错退出。
+	if !canReachRange(reading.Deck, freeCalcMaxHand, param.LowerBound, param.UpperBound) {
+		log.Error().
+			Str("component", component).
+			Int("lowerBound", param.LowerBound).
+			Int("upperBound", param.UpperBound).
+			Ints("deck", reading.Deck[:]).
+			Msg("free calc target range unreachable with current deck")
+		maafocus.Print(ctx, i18n.T("trialofswordmancy.free_calc_unreachable",
+			param.LowerBound, param.UpperBound, deckDisplay(reading.Deck)))
+		return false
+	}
+
+	hand, ok := deriveHand(reading.Deck, reading.RemainDeck)
+	if !ok {
+		log.Error().
+			Str("component", component).
+			Ints("deck", reading.Deck[:]).
+			Ints("remainDeck", reading.RemainDeck[:]).
+			Msg("derived hand invalid")
+		return false
+	}
+
+	best := decideFreeCalc(hand, reading.RemainDeck, param)
+
+	if best == solver.DrawCard {
+		if err := overrideDrawCardNodes(ctx, hand); err != nil {
+			log.Error().Err(err).Str("component", component).Msg("override draw card nodes failed")
+			return false
+		}
+	}
+
+	if err := routeDecision(ctx, arg.CurrentTaskName, best); err != nil {
+		log.Error().Err(err).Str("component", component).Str("action", best.String()).Msg("failed to route free calc decision")
+		return false
+	}
+
+	log.Info().
+		Str("component", component).
+		Str("action", best.String()).
+		Int("lowerBound", param.LowerBound).
+		Int("upperBound", param.UpperBound).
+		Int("totalScore", solver.TotalScore(hand)).
+		Ints("hand", hand[:]).
+		Ints("remainDeck", reading.RemainDeck[:]).
+		Msg("free calc decision made")
+
+	return true
+}
+
+// parseFreeCalcParam 读取目标点数区间；越界或倒置即 pipeline 配置错误。
+func parseFreeCalcParam(param string) (freeCalcParam, bool) {
+	var p freeCalcParam
+	if err := json.Unmarshal([]byte(param), &p); err != nil {
+		log.Error().Err(err).Str("component", component).Msg("failed to parse free calc param")
+		return freeCalcParam{}, false
+	}
+	if p.LowerBound < 1 || p.UpperBound > freeCalcMaxTotal || p.LowerBound > p.UpperBound {
+		log.Error().
+			Str("component", component).
+			Int("lowerBound", p.LowerBound).
+			Int("upperBound", p.UpperBound).
+			Msg("free calc target range is invalid")
+		return freeCalcParam{}, false
+	}
+	return p, true
+}
+
+// parseDeckReading 取出 RecognizeDeck 写进 Detail 的牌库读数。
+func parseDeckReading(detail *maa.RecognitionDetail) (deckReading, bool) {
+	detailJSON := unwrapCustomDetail(detail)
+	if detailJSON == "" {
+		log.Error().Str("component", component).Msg("recognition detail json is empty")
+		return deckReading{}, false
+	}
+	var reading deckReading
+	if err := json.Unmarshal([]byte(detailJSON), &reading); err != nil {
+		log.Error().Err(err).Str("component", component).Msg("failed to parse deck reading")
+		return deckReading{}, false
+	}
+	return reading, true
+}
+
+// decideFreeCalc 按闭区间目标判定单步决策：达标即演算；低于下界且仍能凑进区间就抽牌；其余（超出上界或已凑不出）放弃。
+func decideFreeCalc(hand, remainDeck [5]int, param freeCalcParam) solver.Action {
+	total := solver.TotalScore(hand)
+	if total >= param.LowerBound && total <= param.UpperBound {
+		return solver.Calculate
+	}
+	if total < param.LowerBound &&
+		canReachRange(remainDeck, freeCalcMaxHand-handCount(hand), param.LowerBound-total, param.UpperBound-total) {
+		return solver.DrawCard
+	}
+	return solver.Abandon
+}
+
+// canReachRange 判断剩余牌库里存在张数不超过 maxDraws、点数和落在 [low, high] 的抽取组合。
+func canReachRange(remainDeck [5]int, maxDraws, low, high int) bool {
+	if maxDraws <= 0 {
+		return false
+	}
+
+	// reach[draws][sum]：抽 draws 张凑出 sum 是否可行（每张牌按库存逐张做 0/1 背包）。
+	var reach [freeCalcMaxHand + 1][freeCalcMaxTotal + 1]bool
+	reach[0][0] = true
+	for point := 1; point <= 5; point++ {
+		for count := 0; count < remainDeck[point-1] && count < maxDraws; count++ {
+			for draws := maxDraws - 1; draws >= 0; draws-- {
+				for sum := freeCalcMaxTotal - point; sum >= 0; sum-- {
+					if reach[draws][sum] {
+						reach[draws+1][sum+point] = true
+					}
+				}
+			}
+		}
+	}
+
+	for draws := 1; draws <= maxDraws; draws++ {
+		for sum := 0; sum <= freeCalcMaxTotal; sum++ {
+			if reach[draws][sum] && sum >= low && sum <= high {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func handCount(hand [5]int) (n int) {
+	for _, c := range hand {
+		n += c
+	}
+	return n
+}

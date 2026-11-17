@@ -52,7 +52,8 @@
         "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyProbeAbandon",
-            "TrialOfSwordmancyDecide"
+            "TrialOfSwordmancyDecide",
+            "TrialOfSwordmancyFreeCalcDecide"
         ]
     },
     // ===========================================================================
@@ -114,7 +115,8 @@
         "post_delay": 200, // 过渡动画在命中 EnemeyCard1 后仍持续约 6 帧（帧率 60）
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyDecide"
+            "TrialOfSwordmancyDecide",
+            "TrialOfSwordmancyFreeCalcDecide"
         ]
     },
     // ===========================================================================
@@ -122,6 +124,7 @@
     // ===========================================================================
     "TrialOfSwordmancyDecide": {
         "desc": "选剑演武单步决策",
+        "enabled": false,
         "recognition": "Custom",
         "custom_recognition": "TrialOfSwordmancy.RecognizeBoard",
         "pre_delay": 0,
@@ -131,6 +134,24 @@
         "rate_limit": 0,
         // next 由 go 运行时 override，按决策分派到：
         //   抽牌 → DrawCard ｜ 翻倍 → DoDoubleReward ｜ 放弃 → Abandon ｜ 开始演算 → PreStartTrial（Fight.json）
+        "next": []
+    },
+    "TrialOfSwordmancyFreeCalcDecide": {
+        "desc": "选剑演武自由演算单步决策",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "TrialOfSwordmancy.RecognizeDeck",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "TrialOfSwordmancy.FreeCalcDecide",
+        "custom_action_param": {
+            "lower_bound": 1,
+            "upper_bound": 25
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        // next 由 go 运行时 override，按决策分派到：
+        //   抽牌 → DrawCard ｜ 放弃 → Abandon ｜ 开始演算 → PreStartTrial（Fight.json）
         "next": []
     },
     // ===========================================================================
@@ -189,7 +210,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyDecide"
+            "TrialOfSwordmancyDecide",
+            "TrialOfSwordmancyFreeCalcDecide"
         ]
     },
     // ===========================================================================

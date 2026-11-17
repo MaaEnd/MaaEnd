@@ -13,9 +13,11 @@ const (
 	component = "trialofswordmancy"
 
 	recognizeBoardName         = "TrialOfSwordmancy.RecognizeBoard"
+	recognizeDeckName          = "TrialOfSwordmancy.RecognizeDeck"
 	recognizeFullDeckName      = "TrialOfSwordmancy.RecognizeFullDeck"
 	recognizeRemainAbandonName = "TrialOfSwordmancy.RecognizeRemainAbandon"
 	decideName                 = "TrialOfSwordmancy.Decide"
+	freeCalcDecideName         = "TrialOfSwordmancy.FreeCalcDecide"
 	initSolverName             = "TrialOfSwordmancy.InitSolver"
 )
 

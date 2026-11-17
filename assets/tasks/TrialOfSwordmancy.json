@@ -38,49 +38,31 @@
                     "pipeline_override": {
                         "TrialOfSwordmancyDaily": {
                             "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "Coating",
-                    "label": "$option.TrialOfSwordmancyMode.cases.Coating.label",
-                    "pipeline_override": {
-                        "TrialOfSwordmancyCoating": {
+                        },
+                        "TrialOfSwordmancyDecide": {
                             "enabled": true
                         }
                     }
                 },
                 {
-                    "name": "Farm25",
-                    "label": "$option.TrialOfSwordmancyMode.cases.Farm25.label",
+                    "name": "FreeCalc",
+                    "label": "$option.TrialOfSwordmancyMode.cases.FreeCalc.label",
+                    "option": [
+                        // "TrialOfSwordmancyAutoFight",
+                        "TrialOfSwordmancyFreeCalcBounds"
+                    ],
                     "pipeline_override": {
-                        "TrialOfSwordmancyCoating": {
+                        "TrialOfSwordmancyFreeCalc": {
                             "enabled": true
                         },
-                        "TrialOfSwordmancyCoatingCheck1": {
-                            "any_of": [
-                                "TrialOfSwordmancyBattlePts5"
-                            ]
+                        "TrialOfSwordmancyFreeCalcDecide": {
+                            "enabled": true
                         },
-                        "TrialOfSwordmancyCoatingCheck2": {
-                            "any_of": [
-                                "TrialOfSwordmancyBattlePts10"
-                            ]
+                        "TrialOfSwordmancyRecognizeFullDeck": {
+                            "action": "DoNothing"
                         },
-                        "TrialOfSwordmancyCoatingCheck3": {
-                            "any_of": [
-                                "TrialOfSwordmancyBattlePts4"
-                            ]
-                        },
-                        "TrialOfSwordmancyCoatingCheck4": {
-                            "any_of": [
-                                "TrialOfSwordmancyBattlePts9"
-                            ]
-                        },
-                        "TrialOfSwordmancyCoatingCheck5": {
-                            "any_of": [
-                                "TrialOfSwordmancyBattlePts3"
-                            ]
+                        "TrialOfSwordmancyProbeAbandon": {
+                            "enabled": false
                         }
                     }
                 }
@@ -221,6 +203,36 @@
                 }
             ],
             "default_case": "No"
+        },
+        "TrialOfSwordmancyFreeCalcBounds": {
+            "type": "input",
+            "label": "$option.TrialOfSwordmancyFreeCalcBounds.label",
+            "inputs": [
+                {
+                    "name": "TrialOfSwordmancyFreeCalcLowerBound",
+                    "label": "$option.TrialOfSwordmancyFreeCalcBounds.TrialOfSwordmancyFreeCalcLowerBound.label",
+                    "default": "21",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[1-9]|1\\d|2[0-5])$",
+                    "pattern_msg": "$option.TrialOfSwordmancyFreeCalcBounds.pattern_msg"
+                },
+                {
+                    "name": "TrialOfSwordmancyFreeCalcUpperBound",
+                    "label": "$option.TrialOfSwordmancyFreeCalcBounds.TrialOfSwordmancyFreeCalcUpperBound.label",
+                    "default": "21",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[1-9]|1\\d|2[0-5])$",
+                    "pattern_msg": "$option.TrialOfSwordmancyFreeCalcBounds.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "TrialOfSwordmancyFreeCalcDecide": {
+                    "custom_action_param": {
+                        "lower_bound": "{TrialOfSwordmancyFreeCalcLowerBound}",
+                        "upper_bound": "{TrialOfSwordmancyFreeCalcUpperBound}"
+                    }
+                }
+            }
         }
     }
 }

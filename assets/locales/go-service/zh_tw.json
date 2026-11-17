@@ -239,6 +239,7 @@
     "trialofswordmancy.action.unreachable": "狀態不可達",
     "trialofswordmancy.doubled": "已翻倍",
     "trialofswordmancy.focus": "選劍演武\n手牌 %s\n牌庫 %s\n演算%d 翻倍%d 放棄%s %s\n抽牌決策 → %s",
+    "trialofswordmancy.free_calc_unreachable": "選劍演武：目標點數區間 %d-%d 在牌庫 %s 中無法湊出",
     "trialofswordmancy.hand_empty": "空",
     "trialofswordmancy.recognition_failed": "選劍演武：識別失敗",
     "trialofswordmancy.undoubled": "未翻倍",

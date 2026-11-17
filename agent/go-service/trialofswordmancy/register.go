@@ -10,9 +10,11 @@ import (
 // Register 注册选剑演武的自定义识别器与动作。
 func Register() {
 	maa.AgentServerRegisterCustomRecognition(recognizeBoardName, &BoardRecognition{})
+	maa.AgentServerRegisterCustomRecognition(recognizeDeckName, &DeckRecognition{})
 	maa.AgentServerRegisterCustomRecognition(recognizeFullDeckName, &FullDeckRecognition{})
 	maa.AgentServerRegisterCustomRecognition(recognizeRemainAbandonName, &RemainAbandonRecognition{})
 	maa.AgentServerRegisterCustomAction(decideName, &DecideAction{})
+	maa.AgentServerRegisterCustomAction(freeCalcDecideName, &FreeCalcDecideAction{})
 	maa.AgentServerRegisterCustomAction(initSolverName, &InitSolverAction{})
 
 	log.Info().

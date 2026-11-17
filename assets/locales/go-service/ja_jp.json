@@ -239,6 +239,7 @@
     "trialofswordmancy.action.unreachable": "到達不能状態",
     "trialofswordmancy.doubled": "ダブル中",
     "trialofswordmancy.focus": "剣術演武\n手札 %s\n山札 %s\n演算%d ダブル%d 放棄%s %s\nドロー判断 → %s",
+    "trialofswordmancy.free_calc_unreachable": "剣術演武：目標点数範囲 %d-%d は山札 %s では達成できません",
     "trialofswordmancy.hand_empty": "空",
     "trialofswordmancy.recognition_failed": "剣術演武：認識失敗",
     "trialofswordmancy.undoubled": "ダブルなし",

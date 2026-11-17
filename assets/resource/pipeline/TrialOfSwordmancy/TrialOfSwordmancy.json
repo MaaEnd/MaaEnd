@@ -13,7 +13,7 @@
         "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDaily",
-            "TrialOfSwordmancyCoating"
+            "TrialOfSwordmancyFreeCalc"
         ]
     },
     "TrialOfSwordmancyDaily": {
@@ -66,15 +66,15 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "TrialOfSwordmancyCoating": {
-        "desc": "自动刷镀层/刷25点",
+    "TrialOfSwordmancyFreeCalc": {
+        "desc": "自由演算",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingRewardMode",
-            "TrialOfSwordmancyCoating1"
+            "TrialOfSwordmancyRecognizeFullDeck"
         ]
     },
     "TrialOfSwordmancyCoatingRewardMode": {

@@ -240,6 +240,7 @@
     "trialofswordmancy.action.unreachable": "状态不可达",
     "trialofswordmancy.doubled": "已翻倍",
     "trialofswordmancy.focus": "选剑演武\n手牌 %s\n牌库 %s\n演算%d 翻倍%d 放弃%s %s\n抽牌决策 → %s",
+    "trialofswordmancy.free_calc_unreachable": "选剑演武：目标点数区间 %d-%d 在牌库 %s 中无法凑出",
     "trialofswordmancy.hand_empty": "空",
     "trialofswordmancy.recognition_failed": "选剑演武：识别失败",
     "trialofswordmancy.undoubled": "未翻倍",
