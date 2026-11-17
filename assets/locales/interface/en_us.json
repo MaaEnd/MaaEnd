@@ -1910,7 +1910,7 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "Accept at most 2 overflows",
     "option.TrialOfSwordmancyOverflow.description": "#### Data Overflow Handling\n\nEnabling data overflow can yield a higher expected return, but <b style='font-size:1.0em;color:#f0903a'>auto-battle is highly likely to fail</b>",
     "option.TrialOfSwordmancyOverflow.label": " ",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "Teleport to heal after each battle",
+    "option.TrialOfSwordmancyRecoverAfterBattle.label": "Teleport to heal after each battle",
     "option.TrialOfSwordmancyReturnToWorld.label": "Return to open world after drawing cards",
     "option.TrialOfSwordmancyStopOnOverflow.description": "When the solver decides to start the trial and the hand has overflowed, the current hand is preserved and the task ends. <b style='font-size:1.0em;color:#f0903a'>Please start the trial manually</b>",
     "option.TrialOfSwordmancyStopOnOverflow.label": "Auto-battle only without overflow",

@@ -1910,7 +1910,7 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "接受至多2次溢出",
     "option.TrialOfSwordmancyOverflow.description": "#### 数据溢出处理\n\n开启数据溢出可以取得更高的预期收益，但<b style='font-size:1.0em;color:#f0903a'>自动战斗大概率失败</b>",
     "option.TrialOfSwordmancyOverflow.label": " ",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "每次战斗后传送回复血量",
+    "option.TrialOfSwordmancyRecoverAfterBattle.label": "每次战斗后传送回复血量",
     "option.TrialOfSwordmancyReturnToWorld.label": "抽牌结束后返回大世界",
     "option.TrialOfSwordmancyStopOnOverflow.description": "决策器开战且手牌溢出时，会保留当前手牌并结束任务，<b style='font-size:1.0em;color:#f0903a'>请手动开始演算</b>",
     "option.TrialOfSwordmancyStopOnOverflow.label": "仅未溢出时自动战斗",

@@ -242,11 +242,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyFightSuccessContinue"
+            "TrialOfSwordmancyFightSuccessContinue",
+            "TrialOfSwordmancyFightSuccessLeave"
         ]
     },
     "TrialOfSwordmancyFightSuccessContinue": {
         "desc": "战斗胜利后，点击再次演算",
+        "enabled": false,
         "recognition": "And",
         "all_of": [
             "WhiteConfirmButtonType1"
@@ -289,6 +291,7 @@
     },
     "TrialOfSwordmancyFightSuccessLeave": {
         "desc": "战斗胜利后，点击离开",
+        "enabled": false,
         "recognition": "And",
         "all_of": [
             "WhiteCancelButton"

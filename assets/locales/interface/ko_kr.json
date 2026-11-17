@@ -1910,7 +1910,7 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "최대 2회 오버플로우 허용",
     "option.TrialOfSwordmancyOverflow.description": "#### 오버플로우 처리\n\n데이터 오버플로우를 활성화하면 기대 수익이 높아지지만, <b style='font-size:1.0em;color:#f0903a'>자동 전투는 실패할 가능성이 매우 높습니다</b>",
     "option.TrialOfSwordmancyOverflow.label": " ",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "전투 후마다 순간이동해 체력 회복",
+    "option.TrialOfSwordmancyRecoverAfterBattle.label": "전투 후마다 순간이동해 체력 회복",
     "option.TrialOfSwordmancyReturnToWorld.label": "카드 뽑기 종료 후 대월드로 복귀",
     "option.TrialOfSwordmancyStopOnOverflow.description": "결정기가 연산을 시작하기로 했고 패가 오버플로우된 경우, 현재 패를 유지한 채 작업을 종료합니다. <b style='font-size:1.0em;color:#f0903a'>수동으로 연산을 시작해 주세요</b>",
     "option.TrialOfSwordmancyStopOnOverflow.label": "오버플로우가 없을 때만 자동 전투",

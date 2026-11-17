@@ -1910,7 +1910,7 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "最大2回オーバーフローを許可",
     "option.TrialOfSwordmancyOverflow.description": "#### オーバーフロー処理\n\nデータオーバーフローを有効にすると期待収益が高くなりますが、<b style='font-size:1.0em;color:#f0903a'>自動戦闘は高確率で失敗します</b>",
     "option.TrialOfSwordmancyOverflow.label": " ",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "各戦闘後にテレポートしてHP回復",
+    "option.TrialOfSwordmancyRecoverAfterBattle.label": "各戦闘後にテレポートしてHP回復",
     "option.TrialOfSwordmancyReturnToWorld.label": "カード抽選終了後に大世界へ戻る",
     "option.TrialOfSwordmancyStopOnOverflow.description": "演算開始を決定した時点で手札がオーバーフローしている場合、手札を保持してタスクを終了します。<b style='font-size:1.0em;color:#f0903a'>手動で演算を開始してください</b>",
     "option.TrialOfSwordmancyStopOnOverflow.label": "オーバーフローしていない場合のみ自動戦闘",
