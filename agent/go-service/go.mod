@@ -4,7 +4,7 @@ go 1.25.6
 
 require (
 	github.com/MaaXYZ/maa-framework-go/v4 v4.0.0-beta.19
-	github.com/bytedance/sonic v1.15.0
+	github.com/bytedance/sonic v1.15.5
 	github.com/elazarl/goproxy v1.9.0
 	github.com/rs/zerolog v1.34.0
 	github.com/shirou/gopsutil/v4 v4.26.2
@@ -14,7 +14,7 @@ require (
 
 require (
 	github.com/bytedance/gopkg v0.1.3 // indirect
-	github.com/bytedance/sonic/loader v0.5.0 // indirect
+	github.com/bytedance/sonic/loader v0.5.3 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/ebitengine/purego v0.10.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
