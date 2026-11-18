@@ -58,6 +58,7 @@
     "autostockpile.no_qualifying_product": "未找到符合條件的商品 (%s)",
     "autostockpile.product_selected": "「%s」%s (價格 %d)",
     "autostockpile.qty_below_threshold_buy": "低於閾值購買",
+    "autostockpile.qty_min_buy_fallback": "已完成每日最低購買數量",
     "autostockpile.qty_overflow_buy": "按防溢出數量購買",
     "autostockpile.recognition_done": "識別完成，共識別到 %d 個商品",
     "autostockpile.recognition_early_end": "識別階段提前結束",
