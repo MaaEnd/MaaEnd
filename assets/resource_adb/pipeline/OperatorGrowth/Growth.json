@@ -310,14 +310,47 @@
             ]
         }
     },
-    "OperatorGrowthReopenMaterialSource": {
+    "OperatorGrowthClickRedQuantity": {
+        "action": {
+            "type": "DoNothing"
+        }
+    },
+    "OperatorGrowthScrollDown": {
         "action": {
             "param": {
-                "target_offset": [
-                    0,
-                    -81,
-                    0,
-                    0
+                "end": [
+                    205,
+                    220
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOperatorLevelScrollDown": {
+        "action": {
+            "param": {
+                "end": [
+                    1150,
+                    300
+                ]
+            }
+        }
+    },
+    "OperatorGrowthSkillsScrollDown": {
+        "action": {
+            "param": {
+                "end": [
+                    1150,
+                    300
+                ]
+            }
+        }
+    },
+    "OperatorGrowthWeaponLevelScrollDown": {
+        "action": {
+            "param": {
+                "end": [
+                    1150,
+                    300
                 ]
             }
         }
