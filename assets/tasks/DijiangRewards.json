@@ -545,9 +545,6 @@
                         },
                         "ReceptionRoomSendCluesQuickGiveDuplicates": {
                             "enabled": false
-                        },
-                        "ReceptionRoomSendCluesSwipe": {
-                            "enabled": false
                         }
                     }
                 },
