@@ -1,1 +1,142 @@
-{}
+{
+    // 云·终末地网页版（CloudWeb）覆盖层：只覆盖云画面与原生客户端不一致的识别参数。
+    // 节点名与基础资源保持一致；动作、next 等流程字段沿用基础资源。
+    // 数值来自浏览器版（Chromium + PrintWindow 1280x720）实测；CloudShell 使用同一渲染内核与截图方式。
+    "InOperationalManual": {
+        // 云端把标题栏裁掉了一部分，原生 roi [0,0,215,60] 会漏掉标题
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [0, 30, 240, 80],
+                "expected": [
+                    "行动手册",
+                    "行動手冊",
+                    "(?i)Operational\\s*Manual",
+                    "案内所",
+                    "작전 매뉴얼"
+                ]
+            }
+        }
+    },
+    "InEventCenter": {
+        // 同标题栏问题；活动中心标题在 y≈50
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [0, 30, 240, 80],
+                "expected": [
+                    "活动中心",
+                    "活動中心",
+                    "(?i)Event\\s*Center",
+                    "イベント",
+                    "이벤트 센터"
+                ]
+            }
+        }
+    },
+    "__ScenePrivateMenuListEnterMenuOperationalManual": {
+        // 云端 OCR 常把「行动手册」读成「行动手」，补进 expected；格式与基础节点一致（legacy And）
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [-400, 0, 400, 720],
+                        "expected": [
+                            "行动手册",
+                            "行动手",
+                            "行動手",
+                            "(?i)Operational\\s*Manual",
+                            "案内所",
+                            "작전 매뉴얼"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1
+    },
+    "__ScenePrivateMenuOperationalManualDailyTabSelected": {
+        // 云端标签页高亮区域比原生宽，原 roi 只覆盖到一部分
+        "roi": [300, 150, 240, 70]
+    },
+    "DailyEmailWorldEnterMenuEmail": {
+        // 大世界判断统一用 InWorld，避免云画面下世界菜单按钮模板匹配不稳定
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": ["InWorld"]
+            }
+        }
+    },
+    "DailyEmailHasUnreadMessage": {
+        // 云画面下邮件图标位置略低，roi 下移并加高
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [0, 31, 400, 120],
+                "template": ["CheckEmail/email.png", "CheckEmail/email2.png"]
+            }
+        }
+    },
+    "DailyEmailNoUnreadMessage": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [0, 31, 400, 120],
+                "template": ["CheckEmail/email.png"]
+            }
+        }
+    },
+    "ProtosyncMenuButton": {
+        // 云画面下大世界菜单按钮的模板与原生不同，使用云端截图重制的模板
+        "roi": [-200, 31, 200, 200],
+        "template": "Web/WorldMenu.png",
+        "green_mask": true,
+        "threshold": 0.6
+    },
+    "__RegionalDevelopmentLevelButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [470, 330, 260, 140],
+                "template": ["Web/RegionLevelButton.png"]
+            }
+        }
+    },
+    "__RegionalDevelopmentLevelButtonHover": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [470, 330, 260, 140],
+                "template": ["Web/RegionLevelButton.png"]
+            }
+        }
+    },
+    "DepotButton": {
+        // 仓储节点入口在云画面下更靠右，模板同样需要重制
+        "roi": [1000, 310, 240, 100],
+        "template": "Web/DepotButton.png"
+    },
+    "DailyRewardStart": {
+        // 云游戏进入游戏/加载明显慢于客户端，给日常总入口更长超时
+        "timeout": 600000
+    },
+    "DailyEmailRewardSub": {
+        "timeout": 300000
+    },
+    "DailyTaskRewardSub": {
+        "timeout": 300000
+    },
+    "DailyClaimDeliveryJobsRewardSub": {
+        "timeout": 300000
+    },
+    "DailyEventRewardSub": {
+        "timeout": 300000
+    },
+    "DailyProtocolPassRewardSub": {
+        "timeout": 300000
+    }
+}
