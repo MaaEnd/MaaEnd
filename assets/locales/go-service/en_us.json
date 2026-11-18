@@ -240,6 +240,7 @@
     "trialofswordmancy.action.unreachable": "Unreachable state",
     "trialofswordmancy.doubled": "Doubled",
     "trialofswordmancy.focus": "Trial of Swordmancy\nHand %s\nDeck %s\nCalc %d Double %d Aband %s %s\nDraw decision → %s",
+    "trialofswordmancy.free_calc_unreachable": "Trial of Swordmancy: target range %d-%d cannot be reached with deck %s",
     "trialofswordmancy.hand_empty": "empty",
     "trialofswordmancy.recognition_failed": "Trial of Swordmancy: recognition failed",
     "trialofswordmancy.undoubled": "Not doubled",

@@ -39,49 +39,31 @@
                     "pipeline_override": {
                         "TrialOfSwordmancyDaily": {
                             "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "Coating",
-                    "label": "$option.TrialOfSwordmancyMode.cases.Coating.label",
-                    "pipeline_override": {
-                        "TrialOfSwordmancyCoating": {
+                        },
+                        "TrialOfSwordmancyDecide": {
                             "enabled": true
                         }
                     }
                 },
                 {
-                    "name": "Farm25",
-                    "label": "$option.TrialOfSwordmancyMode.cases.Farm25.label",
+                    "name": "FreeCalc",
+                    "label": "$option.TrialOfSwordmancyMode.cases.FreeCalc.label",
+                    "option": [
+                        "TrialOfSwordmancyAutoFight",
+                        "TrialOfSwordmancyFreeCalcBounds"
+                    ],
                     "pipeline_override": {
-                        "TrialOfSwordmancyCoating": {
+                        "TrialOfSwordmancyFreeCalc": {
                             "enabled": true
                         },
-                        "TrialOfSwordmancyCoatingCheck1": {
-                            "any_of": [
-                                "TrialOfSwordmancyBattlePts5"
-                            ]
+                        "TrialOfSwordmancyFreeCalcDecide": {
+                            "enabled": true
                         },
-                        "TrialOfSwordmancyCoatingCheck2": {
-                            "any_of": [
-                                "TrialOfSwordmancyBattlePts10"
-                            ]
+                        "TrialOfSwordmancyRecognizeFullDeck": {
+                            "action": "DoNothing"
                         },
-                        "TrialOfSwordmancyCoatingCheck3": {
-                            "any_of": [
-                                "TrialOfSwordmancyBattlePts4"
-                            ]
-                        },
-                        "TrialOfSwordmancyCoatingCheck4": {
-                            "any_of": [
-                                "TrialOfSwordmancyBattlePts9"
-                            ]
-                        },
-                        "TrialOfSwordmancyCoatingCheck5": {
-                            "any_of": [
-                                "TrialOfSwordmancyBattlePts3"
-                            ]
+                        "TrialOfSwordmancyProbeAbandon": {
+                            "enabled": false
                         }
                     }
                 }
@@ -97,7 +79,7 @@
                     "name": "None",
                     "label": "$option.TrialOfSwordmancyOverflow.cases.None.label",
                     "pipeline_override": {
-                        "TrialOfSwordmancyDecide": {
+                        "TrialOfSwordmancyRecognizeFullDeck": {
                             "custom_action_param": {
                                 "overflowMode": "OverflowNone"
                             }
@@ -111,7 +93,7 @@
                         "TrialOfSwordmancyStopOnOverflow"
                     ],
                     "pipeline_override": {
-                        "TrialOfSwordmancyDecide": {
+                        "TrialOfSwordmancyRecognizeFullDeck": {
                             "custom_action_param": {
                                 "overflowMode": "OverflowOnce"
                             }
@@ -168,7 +150,7 @@
                     "name": "Yes",
                     "option": [
                         "AutoFightSetting",
-                        "TrialOfSwordmancyRecoverBeforeBattle"
+                        "TrialOfSwordmancyRecoverAfterBattle"
                     ],
                     "pipeline_override": {
                         "AutoFight": {
@@ -183,20 +165,23 @@
             ],
             "default_case": "Yes"
         },
-        "TrialOfSwordmancyRecoverBeforeBattle": {
+        "TrialOfSwordmancyRecoverAfterBattle": {
             "type": "switch",
-            "label": "$option.TrialOfSwordmancyRecoverBeforeBattle.label",
+            "label": "$option.TrialOfSwordmancyRecoverAfterBattle.label",
             "cases": [
                 {
-                    "name": "No"
+                    "name": "No",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyFightSuccessContinue": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "TrialOfSwordmancyFightSuccess": {
-                            "next": [
-                                "TrialOfSwordmancyFightSuccessLeave"
-                            ]
+                        "TrialOfSwordmancyFightSuccessLeave": {
+                            "enabled": true
                         }
                     }
                 }
@@ -222,6 +207,47 @@
                 }
             ],
             "default_case": "No"
+        },
+        "TrialOfSwordmancyFreeCalcBounds": {
+            "type": "input",
+            "label": "$option.TrialOfSwordmancyFreeCalcBounds.label",
+            "inputs": [
+                {
+                    "name": "TrialOfSwordmancyFreeCalcLowerBound",
+                    "label": "$option.TrialOfSwordmancyFreeCalcBounds.TrialOfSwordmancyFreeCalcLowerBound.label",
+                    "default": "21",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[1-9]|1\\d|2[0-5])$"
+                },
+                {
+                    "name": "TrialOfSwordmancyFreeCalcUpperBound",
+                    "label": "$option.TrialOfSwordmancyFreeCalcBounds.TrialOfSwordmancyFreeCalcUpperBound.label",
+                    "default": "21",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[1-9]|1\\d|2[0-5])$"
+                },
+                {
+                    "name": "TrialOfSwordmancyFreeCalcRepeatCount",
+                    "label": "$option.TrialOfSwordmancyFreeCalcBounds.TrialOfSwordmancyFreeCalcRepeatCount.label",
+                    "default": "0",
+                    "pipeline_type": "int",
+                    "verify": "^(?:0|[1-9]\\d*)$"
+                }
+            ],
+            "pipeline_override": {
+                "TrialOfSwordmancyFreeCalcDecide": {
+                    "custom_action_param": {
+                        "lower_bound": "{TrialOfSwordmancyFreeCalcLowerBound}",
+                        "upper_bound": "{TrialOfSwordmancyFreeCalcUpperBound}"
+                    }
+                },
+                "TrialOfSwordmancyFightSuccessContinue": {
+                    "max_hit": "{TrialOfSwordmancyFreeCalcRepeatCount}"
+                },
+                "TrialOfSwordmancyFightSuccessLeave": {
+                    "max_hit": "{TrialOfSwordmancyFreeCalcRepeatCount}"
+                }
+            }
         }
     }
 }

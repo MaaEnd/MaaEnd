@@ -1,67 +1,22 @@
 {
-    "TrialOfSwordmancyDailyMain": {
-        "desc": "日常选剑演武入口",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "TrialOfSwordmancyDailyRewardMode",
-            "TrialOfSwordmancyRetryRewardMode",
-            "TrialOfSwordmancyDailyFinish"
-        ]
-    },
-    "TrialOfSwordmancyRetryRewardMode": {
-        "desc": "仅一次，放弃当前自由演算（跨日残局）",
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyEnemyCard1"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "TrialOfSwordmancyCoatingAbandon"
-        ]
-    },
-    // 奖励耗尽 → 结束（CheckRewardMode 见非奖励模式 / Fight.json 战后 RewardExhausted 汇入）
-    "TrialOfSwordmancyDailyFinish": {
-        "desc": "奖励演算结束",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyInTrialMenu"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "TrialOfSwordmancyDailyRewardMode": {
-        "desc": "处于奖励演算模式",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyInRewardMode"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "TrialOfSwordmancyDailyRecognizeDeck"
-        ]
-    },
     // ===========================================================================
-    // 唯一一处完整牌库识别
+    // 每轮仅一次完整牌库识别，随后求解本轮 MDP
     // ===========================================================================
-    "TrialOfSwordmancyDailyRecognizeDeck": {
-        "desc": "识别完整牌库",
+    "TrialOfSwordmancyRecognizeFullDeck": {
+        "desc": "识别牌库并求解",
         "recognition": "Custom",
-        "custom_recognition": "TrialOfSwordmancy.RecognizeDeck",
+        "custom_recognition": "TrialOfSwordmancy.RecognizeFullDeck",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "TrialOfSwordmancy.InitSolver",
+        "custom_action_param": {
+            "overflowMode": "OverflowTwice"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyEnsureFirstCard",
-            "TrialOfSwordmancyProbeAbandon",
-            "TrialOfSwordmancyDecide"
+            "TrialOfSwordmancyDrawFirstCardSuccess",
+            "TrialOfSwordmancyEnsureFirstCard"
         ]
     },
     // ===========================================================================
@@ -71,19 +26,15 @@
         "desc": "空手则先抽一张",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyEnemyCard1"
+            "TrialOfSwordmancyDrawCardButton"
         ],
-        "inverse": true,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "interval_ms": 200,
-            "repeat_count": 20,
             "wait_node": "TrialOfSwordmancyBattlePts0"
         },
-        "target": "TrialOfSwordmancyDrawCardButton",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -101,7 +52,8 @@
         "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyProbeAbandon",
-            "TrialOfSwordmancyDecide"
+            "TrialOfSwordmancyDecide",
+            "TrialOfSwordmancyFreeCalcDecide"
         ]
     },
     // ===========================================================================
@@ -135,7 +87,7 @@
             "YellowConfirmButtonType1",
             {
                 "recognition": "Custom",
-                "custom_recognition": "TrialOfSwordmancy.RecognizeAband"
+                "custom_recognition": "TrialOfSwordmancy.RecognizeRemainAbandon"
             }
         ],
         "pre_delay": 0,
@@ -163,7 +115,8 @@
         "post_delay": 200, // 过渡动画在命中 EnemeyCard1 后仍持续约 6 帧（帧率 60）
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyDecide"
+            "TrialOfSwordmancyDecide",
+            "TrialOfSwordmancyFreeCalcDecide"
         ]
     },
     // ===========================================================================
@@ -171,18 +124,34 @@
     // ===========================================================================
     "TrialOfSwordmancyDecide": {
         "desc": "选剑演武单步决策",
+        "enabled": false,
         "recognition": "Custom",
-        "custom_recognition": "TrialOfSwordmancy.Recognize",
+        "custom_recognition": "TrialOfSwordmancy.RecognizeBoard",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "TrialOfSwordmancy.Decide",
+        "post_delay": 0,
+        "rate_limit": 0,
+        // next 由 go 运行时 override，按决策分派到：
+        //   抽牌 → DrawCard ｜ 翻倍 → DoDoubleReward ｜ 放弃 → Abandon ｜ 开始演算 → PreStartTrial（Fight.json）
+        "next": []
+    },
+    "TrialOfSwordmancyFreeCalcDecide": {
+        "desc": "选剑演武自由演算单步决策",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "TrialOfSwordmancy.RecognizeDeck",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "TrialOfSwordmancy.FreeCalcDecide",
         "custom_action_param": {
-            "overflowMode": "OverflowTwice"
+            "lower_bound": 1,
+            "upper_bound": 25
         },
         "post_delay": 0,
         "rate_limit": 0,
         // next 由 go 运行时 override，按决策分派到：
-        //   抽牌 → DrawCard ｜ 翻倍 → DoDoubleReward ｜ 放弃 → DailyAbandon ｜ 开始演算 → PreStartTrial（Fight.json）
+        //   抽牌 → DrawCard ｜ 放弃 → Abandon ｜ 开始演算 → PreStartTrial（Fight.json）
         "next": []
     },
     // ===========================================================================
@@ -241,7 +210,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyDecide"
+            "TrialOfSwordmancyDecide",
+            "TrialOfSwordmancyFreeCalcDecide"
         ]
     },
     // ===========================================================================
@@ -271,7 +241,7 @@
     // ===========================================================================
     // 放弃动作
     // ===========================================================================
-    "TrialOfSwordmancyDailyAbandon": {
+    "TrialOfSwordmancyAbandon": {
         "desc": "放弃当前演算",
         "recognition": "And",
         "all_of": [
@@ -287,7 +257,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyAbandonPopupConfirm"
+            "TrialOfSwordmancyAbandonPopupConfirm",
+            "TrialOfSwordmancyAbandonSuccess"
         ]
     },
     "TrialOfSwordmancyAbandonPopupConfirm": {
@@ -296,7 +267,6 @@
         "all_of": [
             "YellowConfirmButtonType1"
         ],
-        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,

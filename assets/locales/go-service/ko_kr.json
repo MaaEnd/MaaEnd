@@ -239,6 +239,7 @@
     "trialofswordmancy.action.unreachable": "상태 도달 불가",
     "trialofswordmancy.doubled": "더블됨",
     "trialofswordmancy.focus": "검술 연무\n패 %s\n덱 %s\n연산%d 더블%d 포기%s %s\n드로우 결정 → %s",
+    "trialofswordmancy.free_calc_unreachable": "검술 연무: 목표 점수 범위 %d-%d은(는) 덱 %s로 달성할 수 없습니다",
     "trialofswordmancy.hand_empty": "없음",
     "trialofswordmancy.recognition_failed": "검술 연무: 인식 실패",
     "trialofswordmancy.undoubled": "더블 아님",

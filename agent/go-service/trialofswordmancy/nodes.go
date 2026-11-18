@@ -1,55 +1,110 @@
 package trialofswordmancy
 
-// 日志 component 与 Custom 组件注册名。
+import (
+	"encoding/json"
+	"strconv"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy/solver"
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
+)
+
 const (
 	component = "trialofswordmancy"
 
-	recognitionName      = "TrialOfSwordmancy.Recognize"      // pipeline 节点的 custom_recognition
-	deckRecognitionName  = "TrialOfSwordmancy.RecognizeDeck"  // 完整牌库识别 custom_recognition（缓存 Deck）
-	abandRecognitionName = "TrialOfSwordmancy.RecognizeAband" // 放弃弹窗文本 custom_recognition
-	decideName           = "TrialOfSwordmancy.Decide"         // pipeline 节点的 custom_action
+	recognizeBoardName         = "TrialOfSwordmancy.RecognizeBoard"
+	recognizeDeckName          = "TrialOfSwordmancy.RecognizeDeck"
+	recognizeFullDeckName      = "TrialOfSwordmancy.RecognizeFullDeck"
+	recognizeRemainAbandonName = "TrialOfSwordmancy.RecognizeRemainAbandon"
+	decideName                 = "TrialOfSwordmancy.Decide"
+	freeCalcDecideName         = "TrialOfSwordmancy.FreeCalcDecide"
+	initSolverName             = "TrialOfSwordmancy.InitSolver"
 )
 
-// pipeline 节点名常量。
 const (
-	// 决策执行节点（节点自行点击按钮 + 等动画，完成后 next 回 Decide）。
-	nodeDrawCard       = "TrialOfSwordmancyDrawCard"       // 抽一张牌
-	nodeDoDoubleReward = "TrialOfSwordmancyDoDoubleReward" // 选择本局翻倍
-
-	// 抽牌成功等待节点；Decide 决策抽牌时按落位槽覆盖其 all_of。
+	nodeDrawCard        = "TrialOfSwordmancyDrawCard"
+	nodeDoDoubleReward  = "TrialOfSwordmancyDoDoubleReward"
 	nodeDrawCardSuccess = "TrialOfSwordmancyDrawCardSuccess"
 
-	// 决策节点：异步预求解要读它的 custom_action_param.overflowMode 来构造求解配置
-	// （action.go decideOverflowMode）——预求解配置必须与决策配置同源，读不到即中止。
-	nodeDecide = "TrialOfSwordmancyDecide"
+	nodeAbandon       = "TrialOfSwordmancyAbandon"
+	nodePreStartTrial = "TrialOfSwordmancyPreStartTrial"
 
-	// 既有执行链入口。
-	nodeAbandon       = "TrialOfSwordmancyDailyAbandon"  // 放弃本局 → 确认 → 重置寻路 → 回主入口
-	nodePreStartTrial = "TrialOfSwordmancyPreStartTrial" // 开始演算：溢出检查 → 点击开始 → 编队 → 战斗 → 领奖
-
-	// 溢出结束分支：enabled 由任务选项控制，inverse 由 Decide 按手牌总分覆盖。
 	nodeFinishOnOverflow = "TrialOfSwordmancyFinishOnOverflow"
 
-	// 第 N 张在场卡牌（定义在 Common.json）；+ "1".."5" 组成 EnemyCardN。
-	// Decide 覆盖 DrawCardSuccess 的 all_of 用，标识第 N 张牌已落地。
+	// 以下前缀 + 序号组成完整节点名（EnemyCard1-5 / BattlePts0-10）。
 	nodeEnemyCardPrefix = "TrialOfSwordmancyEnemyCard"
-
-	// 战力点锚点（Common.json）；+ "0".."10" 组成 BattlePtsN，命中 ⟺ 战力点 == N
-	// （手牌点数总和 % 11，见 solver.PowerOf）。Decide 覆盖 DrawCard 的 wait_node 用。
 	nodeBattlePtsPrefix = "TrialOfSwordmancyBattlePts"
 )
 
-// go-service 专用识别节点名（定义在 TrialOfSwordmancyCommon.json，ROI/模板都在 JSON 里）。
-// Go 经 ctx.RunRecognition 按名调用并解析结果，不硬编码坐标。
 const (
-	nodeRemainCalcText        = "TrialOfSwordmancyRemainCalcText"        // OCR：本日剩余演算次数
-	nodeRemainDoubleText      = "TrialOfSwordmancyRemainDoubleText"      // OCR：剩余翻倍次数
-	nodeAbandonPopupText      = "TrialOfSwordmancyAbandonPopupText"      // OCR：放弃确认弹窗文本
-	nodeAbandonPopupExhausted = "TrialOfSwordmancyAbandonPopupExhausted" // ColorMatch：放弃次数耗尽时的红色文本
-	nodeIsDoubled             = "TrialOfSwordmancyIsDoubled"             // 模板：已翻倍指示
+	nodeRemainCalcText        = "TrialOfSwordmancyRemainCalcText"
+	nodeRemainDoubleText      = "TrialOfSwordmancyRemainDoubleText"
+	nodeAbandonPopupText      = "TrialOfSwordmancyAbandonPopupText"
+	nodeAbandonPopupExhausted = "TrialOfSwordmancyAbandonPopupExhausted"
+	nodeIsDoubled             = "TrialOfSwordmancyIsDoubled"
 
-	nodeDeck               = "TrialOfSwordmancyDeck"         // OCR：牌库整列库存数
-	nodeDeckCountPrefix    = "TrialOfSwordmancyDeckCount"    // + "1".."5"：牌库各点数库存数 OCR
-	nodeHandPointPrefix    = "TrialOfSwordmancyHandPoint"    // + "1".."5"：各点数模板整行匹配
-	nodeHandPositionPrefix = "TrialOfSwordmancyHandPosition" // + "1".."5"：手牌槽位 ROI
+	nodeDeck               = "TrialOfSwordmancyDeck"
+	nodeDeckCountPrefix    = "TrialOfSwordmancyDeckCount"
+	nodeHandPointPrefix    = "TrialOfSwordmancyHandPoint"
+	nodeHandPositionPrefix = "TrialOfSwordmancyHandPosition"
 )
+
+// nodeROI 读取节点（JSON 中定义）的识别 ROI，供 Go 按名调用识别后筛选结果。
+func nodeROI(ctx *maa.Context, nodeName string) (maa.Rect, error) {
+	raw, err := ctx.GetNodeJSON(nodeName)
+	if err != nil {
+		return maa.Rect{}, err
+	}
+	var node struct {
+		Recognition struct {
+			Param struct {
+				ROI maa.Rect `json:"roi"`
+			} `json:"param"`
+		} `json:"recognition"`
+	}
+	if err := json.Unmarshal([]byte(raw), &node); err != nil {
+		return maa.Rect{}, err
+	}
+	return node.Recognition.Param.ROI, nil
+}
+
+// overrideDrawCardNodes 按当前手牌覆盖抽牌节点在静态 JSON 里会失效的两个等待锚点：
+// 落位槽随抽牌递增，战力点随手牌变化。override 为字段级浅合并，custom_action_param 需全量给出。
+func overrideDrawCardNodes(ctx *maa.Context, hand [5]int) error {
+	slot := 1
+	for _, c := range hand {
+		slot += c
+	}
+	if slot > 5 {
+		slot = 5
+	}
+	enemyCard := nodeEnemyCardPrefix + strconv.Itoa(slot)
+
+	power := solver.PowerOf(hand)
+	waitNode := nodeBattlePtsPrefix + strconv.Itoa(power)
+
+	if err := ctx.OverridePipeline(map[string]any{
+		nodeDrawCard: map[string]any{
+			"custom_action_param": map[string]any{
+				"action":       "Click",
+				"interval_ms":  200,
+				"repeat_count": 20,
+				"wait_node":    waitNode,
+			},
+		},
+		nodeDrawCardSuccess: map[string]any{
+			"all_of": []string{enemyCard},
+		},
+	}); err != nil {
+		return err
+	}
+
+	log.Debug().
+		Str("component", component).
+		Int("slot", slot).
+		Str("allOf", enemyCard).
+		Int("power", power).
+		Str("waitNode", waitNode).
+		Msg("draw card nodes overridden")
+	return nil
+}
