@@ -48,7 +48,7 @@
             }
         },
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideTriphasicNanoflake": {
@@ -100,7 +100,7 @@
             }
         },
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideProtoset": {
@@ -157,7 +157,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideProtoprism": {
@@ -214,7 +214,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideProtohedron": {
@@ -271,7 +271,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideMetadiastimaPhotoemissionTube": {
@@ -328,7 +328,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideD96SteelSample4": {
@@ -385,7 +385,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideTachyonScreeningLattice": {
@@ -442,7 +442,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideQuadrantFittingFluid": {
@@ -499,7 +499,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideWarpPlasmaCoatedSlide": {
@@ -556,7 +556,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideCombatRecordEXP": {
@@ -613,7 +613,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideCognitiveCarrierEXP": {
@@ -670,7 +670,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideTCreds": {
@@ -726,7 +726,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideHeavyCastDie": {
@@ -783,7 +783,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideCastDie": {
@@ -840,7 +840,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     },
     "OperatorGrowthOverrideWeaponEXP": {
@@ -907,7 +907,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "OperatorGrowthClickRedQuantity"
+            "OperatorGrowthMoveToRedQuantity"
         ]
     }
 }

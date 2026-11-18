@@ -310,7 +310,7 @@
             ]
         }
     },
-    "OperatorGrowthClickRedQuantity": {
+    "OperatorGrowthMoveToRedQuantity": {
         "action": {
             "type": "DoNothing"
         }

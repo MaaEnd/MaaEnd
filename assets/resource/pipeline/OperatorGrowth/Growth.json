@@ -497,7 +497,7 @@
             "OperatorGrowthOverrideWeaponEXP"
         ]
     },
-    "OperatorGrowthClickRedQuantity": {
+    "OperatorGrowthMoveToRedQuantity": {
         "desc": "悬停红色数量框",
         "action": {
             "type": "Swipe",
