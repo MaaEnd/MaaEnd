@@ -74,7 +74,6 @@
         }
     },
     "CreditShoppingRefreshBalanceGate": {
-        "desc": "刷新前检查余额：信用点扣除下一次刷新花费后低于余额阈值（选项：刷新前检查余额）。命中后走哪条路线由 next 决定：改买=是 → 稳健改买动作节点，改买=否 → 直接结束",
         "enabled": false,
         "recognition": {
             "type": "Custom",
@@ -93,7 +92,7 @@
         }
     },
     "CreditShoppingRefreshReserveCreditGate": {
-        "desc": "刷新商品的准入判断（选项：刷新前检查余额 → 余额不足时改为购买任意物品=否）",
+        "desc": "刷新商品的保留信用点准入判断（选项：刷新前检查保留信用点）",
         "recognition": "DirectHit"
     },
     "RefreshColor": {

@@ -1593,7 +1593,7 @@
                             "enabled": false //不进入刷新的无法购买流程
                         },
                         "CreditShoppingPrudentRefresh": {
-                            "enabled": false //不进入余额不足改买流程
+                            "enabled": false //不进入稳健刷新流程
                         },
                         "CreditShoppingRefreshCountReached": {
                             "enabled": false //不进入刷新次数达到上限流程
@@ -1614,7 +1614,7 @@
                             "enabled": false //不进入刷新的无法购买流程
                         },
                         "CreditShoppingPrudentRefresh": {
-                            "enabled": false //不进入余额不足改买流程
+                            "enabled": false //不进入稳健刷新流程
                         },
                         "CreditShoppingRefreshCountReached": {
                             "enabled": false //不进入刷新次数达到上限流程
@@ -1639,7 +1639,7 @@
                             "enabled": true //进入刷新的无法购买流程
                         },
                         "CreditShoppingPrudentRefresh": {
-                            "enabled": true //余额不足时由「刷新前检查余额」的子选项决定是否改买
+                            "enabled": true //进入稳健刷新流程
                         },
                         "CreditShoppingRefreshCountReached": {
                             "enabled": true //进入刷新次数达到上限流程
