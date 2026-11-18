@@ -438,6 +438,9 @@
         "action": {
             "type": "Click"
         },
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "post_wait_freezes": {
             "time": 200,
             "target": [
@@ -450,6 +453,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
             "GiftOperatorTrustFilterApplied"
         ]
     },
@@ -587,6 +591,9 @@
         "action": {
             "type": "Click"
         },
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "post_wait_freezes": {
             "time": 200,
             "target": [
@@ -599,8 +606,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorTrustRestored",
-            "GiftOperatorTrustFilterMouseMoveOut"
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "GiftOperatorTrustRestored"
         ]
     },
     // 清理后优先识别较大的选中序号，未命中时关闭联络界面。
@@ -622,39 +629,6 @@
             "GiftOperatorTrustVerifySelected2",
             "GiftOperatorTrustVerifySelected1",
             "GiftOperatorTrustCloseContact"
-        ]
-    },
-    // 保存后面板关闭时鼠标可能正停在筛选按钮上，按钮会渲染成模板未收录的悬停态；
-    // 这里作为筛选按钮识别的同级兜底，先把鼠标移开再重试；ADB 无鼠标，覆盖为 DoNothing。
-    "GiftOperatorTrustFilterMouseMoveOut": {
-        "desc": "把鼠标移出筛选按钮，避免悬停态让筛选按钮识别不到",
-        "max_hit": 5,
-        "pre_delay": 0,
-        "action": {
-            "type": "TouchMove",
-            "param": {
-                "target": [
-                    0,
-                    0,
-                    1,
-                    1
-                ]
-            }
-        },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                1040,
-                495,
-                60,
-                60
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GiftOperatorTrustRestored",
-            "GiftOperatorTrustFilterMouseMoveOut"
         ]
     },
     "GiftOperatorTrustVerifySelected1": {
