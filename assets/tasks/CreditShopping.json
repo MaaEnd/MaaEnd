@@ -1593,7 +1593,7 @@
                             "enabled": false //不进入刷新的无法购买流程
                         },
                         "CreditShoppingPrudentRefresh": {
-                            "enabled": false //不进入稳健刷新流程
+                            "enabled": false //不进入余额不足改买流程
                         },
                         "CreditShoppingRefreshCountReached": {
                             "enabled": false //不进入刷新次数达到上限流程
@@ -1614,7 +1614,7 @@
                             "enabled": false //不进入刷新的无法购买流程
                         },
                         "CreditShoppingPrudentRefresh": {
-                            "enabled": false //不进入稳健刷新流程
+                            "enabled": false //不进入余额不足改买流程
                         },
                         "CreditShoppingRefreshCountReached": {
                             "enabled": false //不进入刷新次数达到上限流程
@@ -1639,7 +1639,7 @@
                             "enabled": true //进入刷新的无法购买流程
                         },
                         "CreditShoppingPrudentRefresh": {
-                            "enabled": true //进入稳健刷新流程
+                            "enabled": true //余额不足时由「刷新前检查余额」的子选项决定是否改买
                         },
                         "CreditShoppingRefreshCountReached": {
                             "enabled": true //进入刷新次数达到上限流程
@@ -1660,32 +1660,15 @@
                         "CreditShoppingRefreshBalanceBuy"
                     ],
                     "pipeline_override": {
-                        "CreditShoppingRefreshLimitReached": {
+                        "CreditShoppingRefreshBalanceGate": {
                             "enabled": true
-                        },
-                        "CreditShoppingPrudentRefresh": {
-                            "enabled": false
-                        },
-                        "CreditShoppingRefreshReserveCreditGate": {
-                            "recognition": {
-                                "type": "And",
-                                "param": {
-                                    "all_of": [
-                                        "RefreshCost",
-                                        "CreditShoppingReserveCreditOCRInternal"
-                                    ]
-                                }
-                            }
                         }
                     }
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "CreditShoppingRefreshLimitReached": {
-                            "enabled": false
-                        },
-                        "CreditShoppingPrudentRefresh": {
+                        "CreditShoppingRefreshBalanceGate": {
                             "enabled": false
                         },
                         "CreditShoppingRefreshReserveCreditGate": {
@@ -1705,11 +1688,14 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "CreditShoppingRefreshLimitReached": {
-                            "enabled": false
-                        },
-                        "CreditShoppingPrudentRefresh": {
-                            "enabled": true
+                        "CreditShoppingRefreshBalanceGate": {
+                            "next": [
+                                "CreditShoppingPrudentRefresh",
+                                "RefreshItem"
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "$task.CreditShopping.prudent_refresh_triggered"
+                            }
                         },
                         "CreditShoppingRefreshReserveCreditGate": {
                             "recognition": {
@@ -1721,11 +1707,13 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "CreditShoppingRefreshLimitReached": {
-                            "enabled": true
-                        },
-                        "CreditShoppingPrudentRefresh": {
-                            "enabled": false
+                        "CreditShoppingRefreshBalanceGate": {
+                            "next": [
+                                "CreditShoppingNothingToBuy"
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "$task.CreditShopping.refresh_limit_reached"
+                            }
                         },
                         "CreditShoppingRefreshReserveCreditGate": {
                             "recognition": {
@@ -1756,45 +1744,14 @@
                 }
             ],
             "pipeline_override": {
-                "CreditShoppingRefreshLimitReached": {
+                "CreditShoppingRefreshBalanceGate": {
                     "recognition": {
+                        "type": "Custom",
                         "param": {
+                            "custom_recognition": "ExpressionRecognition",
                             "custom_recognition_param": {
                                 "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<{RefreshBalanceThreshold}"
                             }
-                        }
-                    }
-                },
-                "CreditShoppingPrudentRefresh": {
-                    "recognition": {
-                        "type": "And",
-                        "param": {
-                            "all_of": [
-                                {
-                                    "recognition": {
-                                        "type": "Custom",
-                                        "param": {
-                                            "custom_recognition": "ExpressionRecognition",
-                                            "custom_recognition_param": {
-                                                "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<{RefreshBalanceThreshold}"
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "recognition": {
-                                        "type": "And",
-                                        "param": {
-                                            "all_of": [
-                                                "CreditShoppingShelfAnyItem",
-                                                "CreditShoppingShelfAnyCanAfford"
-                                            ],
-                                            "box_index": 0
-                                        }
-                                    }
-                                }
-                            ],
-                            "box_index": 1
                         }
                     }
                 }

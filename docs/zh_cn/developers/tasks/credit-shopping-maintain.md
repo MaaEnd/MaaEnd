@@ -126,12 +126,12 @@ CreditShopping/
 | 购买所有物品 | 购买任意买得起的商品（售罄卡不会被识别）；确认前用 `BuyItemBelowReserve` 按「持有 − 价格」检查保留阈值，不足则取消并停止 |
 | 执行刷新 | 尝试刷新货架；可展开「刷新前检查余额」「直购前检查价格」 |
 
-**刷新前检查余额**（刷新子选项，默认关）：判据是「当前信用 − 刷新花费 < 余额阈值」，阈值由 `CreditShoppingRefreshBalanceThreshold` 单独输入（默认 400）。命中后走哪条路线，由子选项「余额不足时改为购买任意物品」决定：
+**刷新前检查余额**（刷新子选项，默认关）：判据是「当前信用 − 刷新花费 < 余额阈值」，由唯一的门节点 `CreditShoppingRefreshBalanceGate` 判定，阈值来自 `CreditShoppingRefreshBalanceThreshold`（默认 400）。命中后走哪条路线，由子选项「余额不足时改为购买任意物品」改写这个门节点的 `next` 决定：
 
-- 关闭（默认）：不再刷新，`CreditShoppingRefreshLimitReached` 直接结束任务；刷新前还要求 `CreditShoppingRefreshReserveCreditGate` 同时读到刷新花费与当前信用，读不到就不刷新。
-- 开启：不刷新，改为购买架上任意可买品（`CreditShoppingPrudentRefresh`，含无折扣）。
+- 关闭（默认）：`next` 直接指向 `CreditShoppingNothingToBuy`，结束任务；同时要求 `CreditShoppingRefreshReserveCreditGate` 读到刷新花费与当前信用，读不到就不刷新。
+- 开启：`next` 指向 `CreditShoppingPrudentRefresh` 和 `RefreshItem`——`CreditShoppingPrudentRefresh` 只负责点架上任意可买品（含无折扣），买不到才继续刷新。
 
-两条路线共用同一个余额阈值。该阈值与「保留信用点」是两套独立条件，不要混用。
+两条路线共用一个门节点和一个余额阈值；该阈值与「保留信用点」是两套独立条件，不要混用。
 
 **直购前检查价格**（刷新子选项，默认开）：开启后，刷新用尽直购 / 余额不足改直购在确认前按「持有 − 价格」检查保留阈值，不足则取消并停止；关闭则先买，买完后再由「保留信用点」节点决定是否结束。
 
@@ -150,7 +150,7 @@ CreditShopping/
 | 识别不到目标商品 | 该档物品节点的 `attach`（`IconRecognition.item_ids.*`）与 `IconRecognition` ROI |
 | 买得起却不买 | 该档保留阈值 / 无条件购买开关 |
 | 买不起不补信用 | 该档 AutoGetCredits 开关；买不起侧折扣与价格颜色阈值 |
-| 刷新行为异常 | `CreditShoppingForce`；`CreditShoppingRefreshBalance`（含余额阈值） |
+| 刷新行为异常 | `CreditShoppingForce`；`CreditShoppingRefreshBalanceGate`（含余额阈值） |
 | 选项间行为不一致 | `CreditShopping.json` 的 `pipeline_override` 与扫描 `next` 顺序 |
 
 维护时分四层定位：入口（`GoToShop.json`）→ 扫描决策（`Flow/`）→ 识别链（`Item/` + `ShelfChecks.json`）→ 参数装配（任务选项 `attach`）。

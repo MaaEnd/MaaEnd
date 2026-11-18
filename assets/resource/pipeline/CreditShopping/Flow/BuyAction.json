@@ -85,26 +85,15 @@
         ]
     },
     "CreditShoppingPrudentRefresh": {
-        "desc": "余额不足时改为购买任意物品，含无折扣（选项：刷新前检查余额 → 余额不足时改为购买任意物品；是否购前检查价格由「直购前检查价格」控制）",
+        "desc": "余额不足时改买的动作节点：点击架上任意可买品（选项：刷新前检查余额 → 余额不足时改为购买任意物品；是否购前检查价格由「直购前检查价格」控制）",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    {
-                        "recognition": {
-                            "type": "Custom",
-                            "param": {
-                                "custom_recognition": "ExpressionRecognition",
-                                "custom_recognition_param": {
-                                    "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<400"
-                                }
-                            }
-                        }
-                    },
                     "CreditShoppingShelfAnyItem",
                     "CreditShoppingShelfAnyCanAfford"
                 ],
-                "box_index": 2
+                "box_index": 0
             }
         },
         "pre_wait_freezes": 100,

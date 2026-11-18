@@ -126,12 +126,12 @@ The fallback after all three tiers fail to match is determined by `CreditShoppin
 | Buy any item | Purchase any affordable item (sold-out cards are not recognized); before confirm, `BuyItemBelowReserve` checks reserve via "held − price", and cancels/stops if insufficient |
 | Strictly buy by whitelist and enable refresh | Attempt to refresh the shelf; can expand to "Check balance before refreshing" and "Check price before direct buy" |
 
-**Check balance before refreshing** (Refresh sub-option, default off): the condition is "Current credit − Refresh cost < Balance threshold", and the threshold is a separate input in `CreditShoppingRefreshBalanceThreshold` (default 400). Which route it takes is decided by the nested "Buy any item when the balance runs short" switch:
+**Check balance before refreshing** (Refresh sub-option, default off): the condition is "Current credit − Refresh cost < Balance threshold", decided by the single gate node `CreditShoppingRefreshBalanceGate`; the threshold comes from `CreditShoppingRefreshBalanceThreshold` (default 400). Which route it takes is decided by the nested "Buy any item when the balance runs short" switch, which rewrites that gate node's `next`:
 
-- Off (default): do not refresh; `CreditShoppingRefreshLimitReached` ends the task. Before refreshing, `CreditShoppingRefreshReserveCreditGate` also requires both the refresh cost and the current credits to be readable; if either cannot be read, it does not refresh.
-- On: do not refresh; buy any affordable item on the shelf instead (`CreditShoppingPrudentRefresh`, non-discounted items included).
+- Off (default): `next` points straight at `CreditShoppingNothingToBuy`, ending the task; `CreditShoppingRefreshReserveCreditGate` then also requires the refresh cost and the current credits to be readable, otherwise it does not refresh.
+- On: `next` points at `CreditShoppingPrudentRefresh` and then `RefreshItem` — `CreditShoppingPrudentRefresh` only clicks any affordable item on the shelf (non-discounted included), and only when nothing is affordable does it continue to refresh.
 
-Both routes share the same balance threshold. It and "Reserved Credits" are two independent conditions; do not mix them.
+Both routes share one gate node and one balance threshold. It and "Reserved Credits" are two independent conditions; do not mix them.
 
 **Check price before direct buy** (Refresh sub-option, default on): When enabled, refresh-exhausted / balance-short direct buys check reserve via "held − price" before confirm and cancel/stop if insufficient; when disabled, buy first, then the "Reserved Credits" node decides whether to stop.
 
@@ -150,7 +150,7 @@ After adding a case, remember to check whether `default_case` also needs to incl
 | Target item not recognized | The tier item node's `attach` (`IconRecognition.item_ids.*`) and the `IconRecognition` ROI |
 | Affordable but not purchasing | The tier's reserve threshold / unconditional purchase switch |
 | Unaffordable but not replenishing credit | The tier's AutoGetCredits switch; the unaffordable side's discount and price color thresholds |
-| Abnormal refresh behavior | `CreditShoppingForce`; `CreditShoppingRefreshBalance` (including the balance threshold) |
+| Abnormal refresh behavior | `CreditShoppingForce`; `CreditShoppingRefreshBalanceGate` (including the balance threshold) |
 | Inconsistent behavior between options | `CreditShopping.json`'s `pipeline_override` and scan `next` order |
 
 Maintenance location is done in four layers: Entry (`GoToShop.json`) → Scan Decision (`Flow/`) → Recognition Chain (`Item/` + `ShelfChecks.json`) → Parameter Assembly (task options `attach`).
