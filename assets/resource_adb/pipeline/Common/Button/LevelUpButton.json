@@ -1,6 +1,5 @@
 {
     "__LevelUpButton": {
-        "template": "AdbOnly/Common/Button/LevelUpButton.png",
         "threshold": 0.7
     },
     "__LevelUpButtonHover": {
