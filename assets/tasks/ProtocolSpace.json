@@ -127,6 +127,7 @@
                     "name": "Yes",
                     "option": [
                         "AutoFightHealthDangerousSwitch",
+                        "AutoFightStartOperator",
                         "AutoFightDodge",
                         "AutoFightLockTarget",
                         "AutoFightAxis"

@@ -12,6 +12,21 @@
         "template": "AutoFight/CharacterBar.png",
         "green_mask": true
     },
+    "__AutoFightRecognitionSwitchOffOperator": {
+        "desc": "战斗结束后需要切走的干员头像，在go内设置为当前激活号位的roi",
+        "recognition": "TemplateMatch",
+        "roi": [
+            15,
+            580,
+            80,
+            100
+        ],
+        // 庄方宜：终结技结束后会向后位移，切走后终结技在后台继续，切上来的干员不会位移
+        "template": [
+            "AutoFight/SwitchOffOperator/ZhuangFangyi.png"
+        ],
+        "threshold": 0.85
+    },
     "__AutoFightRecognitionEnergyLevel0": {
         "desc": "能量条空正在恢复，白色 [255, 255, 255]",
         "recognition": "ColorMatch",
