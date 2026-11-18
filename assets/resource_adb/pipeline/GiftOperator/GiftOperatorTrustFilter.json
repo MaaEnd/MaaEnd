@@ -1,0 +1,14 @@
+{
+    "GiftOperatorTrustFilterMouseMoveOut": {
+        "desc": "ADB 没有鼠标光标遮挡，不需要把鼠标移出筛选按钮",
+        "max_hit": 5,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorTrustRestored",
+            "GiftOperatorTrustFilterMouseMoveOut"
+        ]
+    }
+}
