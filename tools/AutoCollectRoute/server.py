@@ -74,6 +74,7 @@ app.add_middleware(NoStoreMiddleware)
 _walks: dict[str, Any] = {"version": None, "lengths": {}, "decks": {}, "zones": {}}
 # 当前这次生成实际发出的规划查询数，供页面显示进度
 _progress = {"queries": 0}
+_SAME_POINT_PX = 1e-3
 
 
 def planner() -> tuple[route_builder.WalkFn, route_builder.DeckFn]:
@@ -129,13 +130,22 @@ def planner() -> tuple[route_builder.WalkFn, route_builder.DeckFn]:
                 result = navmesh_backend.route_preview(
                     [start["u"], start["v"]],
                     zone_id,
-                    {"path": [{"action": "ZONE", "zone_id": zone_id}, target]},
+                    {"path": [{"action": "ZONE", "zone_id": zone_id}, target], "zip": False},
                     floor_y=start.get("y"),
                 )
             except RuntimeError as exc:
                 raise route_builder.RouteError(f"navmesh 尚未就绪，无法按步行距离排序: {exc}") from exc
-            points = result.get("points") or [] if result.get("ok") else None
-            lengths[key] = None if points is None else sum(math.dist(a[:2], b[:2]) for a, b in itertools.pairwise(points))
+            pieces = result.get("diagnostics") or []
+            # 规划不通时展开会用直线补上断开的部分，只认一段从起点规划到终点的结果
+            joined = (
+                result.get("ok")
+                and len(pieces) == 1
+                and math.dist(pieces[0]["start"], [start["u"], start["v"]]) < _SAME_POINT_PX
+                and math.dist(pieces[0]["goal"], [goal["u"], goal["v"]]) < _SAME_POINT_PX
+            )
+            lengths[key] = (
+                sum(math.dist(a[:2], b[:2]) for a, b in itertools.pairwise(result["points"])) if joined else None
+            )
         return lengths[key]
 
     return walk, target_deck
