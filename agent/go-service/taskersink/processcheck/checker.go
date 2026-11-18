@@ -25,6 +25,7 @@ var blacklist = []blacklistEntry{
 	{"DNFAutoFire.exe", "DNFAutoFire.exe", "recommend_1"}, // 会让alt按键事件失效
 	{"DAF连发工具.exe", "DAF连发工具.exe", "recommend_1"},         // 会让alt按键事件失效
 	{"AltSnap.exe", "AltSnap.exe", "recommend_1"},         // 会让alt按键事件失效
+	{"AutoGLM.exe", "AutoGLM.exe", "recommend_autoglm"},   // 免按模式快捷键默认 Alt+Space，会让游戏内 Alt 无法释放鼠标
 	{"RTSS.exe", "RTSS.exe", "recommend_rtss"},            // MSI Afterburner / RivaTuner OSD 可能遮挡识别
 }
 

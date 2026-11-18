@@ -228,6 +228,7 @@
     "tasker.multi_instance_warning.recommend": "여분의 MaaEnd를 종료하고 하나만 남긴 뒤 작업을 실행하세요.",
     "tasker.multi_instance_warning.title": "⚠️ 주의: MaaEnd가 여러 개 실행 중입니다",
     "tasker.process_warning.recommend_1": "ℹ️ 이 프로그램들은 작업 실행에 영향을 줍니다",
+    "tasker.process_warning.recommend_autoglm": "ℹ️ AutoGLM의 \"설정 → 일반 → 핸즈프리 모드\" 단축키 기본값은 Alt+Space입니다. 변경하지 않았다면 게임 내에서 Alt로 마우스를 해제하지 못할 수 있습니다. 단축키를 변경하거나 AutoGLM을 종료하는 것을 권장합니다",
     "tasker.process_warning.recommend_rtss": "ℹ️ OSD를 켜면 화면 인식에 영향을 주어 작업이 실패할 수 있습니다",
     "tasker.process_warning.title": "⚠️ 주의: 다음 프로세스가 실행 중입니다",
     "tasker.task_failed_feedback_hint.after_link": " 하거나 설정 - 정보 - 사용자 그룹에서 해 주세요.",

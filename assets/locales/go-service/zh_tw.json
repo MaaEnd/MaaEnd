@@ -228,6 +228,7 @@
     "tasker.multi_instance_warning.recommend": "請關閉多餘的 MaaEnd，只保留一個實例後再執行任務。",
     "tasker.multi_instance_warning.title": "⚠️ 注意：偵測到多個 MaaEnd 正在執行",
     "tasker.process_warning.recommend_1": "ℹ️ 這些程式會影響任務執行",
+    "tasker.process_warning.recommend_autoglm": "ℹ️ AutoGLM「設定 → 通用 → 免按模式」的快捷鍵預設為 Alt+Space，若未修改，可能導致遊戲內按 Alt 無法釋放滑鼠，建議修改該快捷鍵或退出 AutoGLM",
     "tasker.process_warning.recommend_rtss": "ℹ️ 開啟 OSD 會影響螢幕辨識，導致任務失敗",
     "tasker.process_warning.title": "⚠️ 注意：偵測到以下程式正在執行",
     "tasker.task_failed_feedback_hint.after_link": " 或在設定-關於-用戶群進行回饋。",
