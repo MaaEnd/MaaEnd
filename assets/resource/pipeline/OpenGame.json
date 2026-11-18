@@ -8,6 +8,7 @@
             "[JumpBack]CloudEndfieldStartGame",
             "[JumpBack]CloudEndfieldTrafficTip",
             "[JumpBack]CloudEndfieldWaitStartGame",
+            "[JumpBack]CloudEndfieldQueue",
             "[JumpBack]CloudEndfieldRetry",
             "EnterGameStuck",
             "StartUpGame"
@@ -207,6 +208,7 @@
             "[JumpBack]CloudEndfieldStartGame",
             "[JumpBack]CloudEndfieldTrafficTip",
             "[JumpBack]CloudEndfieldWaitStartGame",
+            "[JumpBack]CloudEndfieldQueue",
             "[JumpBack]CloudEndfieldRetry",
             "EnterGameStuck"
         ],
@@ -269,6 +271,24 @@
                 "expected": [
                     "检查网络环境",
                     "游戏启动中"
+                ]
+            }
+        }
+    },
+    "CloudEndfieldQueue": {
+        // 排队面板没有开始按钮，队列走完游戏自己进；认出排队就继续等，别让外层 90 秒超时判成卡死
+        "desc": "云终末地排队中，继续等待",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    600,
+                    240,
+                    680,
+                    160
+                ],
+                "expected": [
+                    "预计等待时间"
                 ]
             }
         }
