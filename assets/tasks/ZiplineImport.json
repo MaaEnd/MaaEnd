@@ -13,7 +13,7 @@
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
                 "Win32-Front",
-                "CloudWeb",
+                // "CloudWeb",
                 "ADB",
                 "PlayCover"
             ],
@@ -27,7 +27,7 @@
             "type": "switch",
             "controller": [
                 "Win32-Front",
-                "CloudWeb",
+                // "CloudWeb",
                 "ADB",
                 "PlayCover"
             ],

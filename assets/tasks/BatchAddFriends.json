@@ -9,7 +9,7 @@
                 "dijiang_ship"
             ],
             "controller": [
-                "CloudWeb",
+                // "CloudWeb",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",

@@ -15,8 +15,8 @@
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
-                "Win32-Front",
-                "CloudWeb"
+                // "CloudWeb",
+                "Win32-Front"
             ],
             "option": [
                 "ProtocolSpaceSchedule",

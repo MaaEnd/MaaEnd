@@ -11,7 +11,7 @@
             "controller": [
                 "ADB",
                 "CloudADB",
-                "CloudWeb",
+                // "CloudWeb",
                 "PlayCover",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",

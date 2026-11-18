@@ -9,7 +9,7 @@
                 "other_menu"
             ],
             "controller": [
-                "CloudWeb",
+                // "CloudWeb",
                 "Win32-Front"
             ],
             "option": [
