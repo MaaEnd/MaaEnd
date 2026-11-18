@@ -35,7 +35,7 @@ func run() bool {
 		return true
 	}
 
-	exePath := fsutil.OutputPath("cloud-shell", "cloud-shell.exe")
+	exePath := fsutil.InstallPath("cloud-shell", "cloud-shell.exe")
 	if _, err := os.Stat(exePath); err != nil {
 		log.Error().
 			Err(err).
@@ -104,7 +104,7 @@ func run() bool {
 func startDetached(exePath string) (*os.Process, error) {
 	start := func(flags uint32) (*os.Process, error) {
 		cmd := exec.Command(exePath)
-		cmd.Dir = fsutil.OutputPath()
+		cmd.Dir = fsutil.InstallPath()
 		cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: flags}
 		if err := cmd.Start(); err != nil {
 			return nil, err
