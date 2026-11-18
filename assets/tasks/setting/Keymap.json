@@ -60,9 +60,6 @@
                 "ProtocolSpaceTouchExitTouch": {
                     "key": "{KeymapInteract.primary}"
                 },
-                "ProtocolSpaceTouchExitTouchRetry": {
-                    "key": "{KeymapInteract.primary}"
-                },
                 "AutoMissionNpcProxyTrackCurrentMission": {
                     "key": "{KeymapTrackCurrentMission.primary}"
                 }
