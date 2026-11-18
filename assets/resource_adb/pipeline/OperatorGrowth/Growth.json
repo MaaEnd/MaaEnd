@@ -284,6 +284,32 @@
             }
         }
     },
+    "OperatorGrowthSwipePreciousMaterialsRight": {
+        "action": {
+            "param": {
+                "begin_offset": [
+                    180,
+                    0,
+                    0,
+                    0
+                ],
+                "end_offset": [
+                    350,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                620,
+                250,
+                375,
+                420
+            ]
+        }
+    },
     "OperatorGrowthReopenMaterialSource": {
         "action": {
             "param": {

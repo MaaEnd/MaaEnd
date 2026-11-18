@@ -128,7 +128,8 @@
                         "OperatorGrowthScrollDown",
                         "OperatorGrowthOperatorLevelScrollDown",
                         "OperatorGrowthSkillsScrollDown",
-                        "OperatorGrowthWeaponLevelScrollDown"
+                        "OperatorGrowthWeaponLevelScrollDown",
+                        "OperatorGrowthSwipePreciousMaterialsRight"
                     ]
                 }
             }
@@ -796,6 +797,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]OperatorGrowthSwipePreciousMaterialsRight",
             "OperatorGrowthClickInsufficientMaterial",
             "[JumpBack]OperatorGrowthOperatorLevelScrollDown",
             "OperatorGrowthClickSkills"
@@ -837,7 +839,10 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthClearPreciousMaterialsSwipeCount"
+        ]
     },
     "OperatorGrowthSkillsTab": {
         "recognition": {
@@ -944,6 +949,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]OperatorGrowthSwipePreciousMaterialsRight",
             "OperatorGrowthClickInsufficientMaterial",
             "[JumpBack]OperatorGrowthSkillsScrollDown",
             "OperatorGrowthClickWeaponLevel"
@@ -985,7 +991,10 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthClearPreciousMaterialsSwipeCount"
+        ]
     },
     "OperatorGrowthWeaponLevelTab": {
         "recognition": {
@@ -1092,6 +1101,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]OperatorGrowthSwipePreciousMaterialsRight",
             "OperatorGrowthClickInsufficientMaterial",
             "[JumpBack]OperatorGrowthWeaponLevelScrollDown",
             "OperatorGrowthMaterialsSufficient"
@@ -1133,7 +1143,10 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthClearPreciousMaterialsSwipeCount"
+        ]
     },
     "OperatorGrowthFinishBattle": {
         "desc": "当前材料达标后退出，返回培养总览复核需求",
@@ -1415,6 +1428,73 @@
             }
         },
         "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthSwipePreciousMaterialsRight": {
+        "desc": "识别珍贵培养素材后，在该行材料区域向右滑动一次",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    430,
+                    250,
+                    200,
+                    420
+                ],
+                "expected": [
+                    "珍贵培养素材"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": true,
+                "begin_offset": [
+                    300,
+                    0,
+                    0,
+                    0
+                ],
+                "end": true,
+                "end_offset": [
+                    450,
+                    0,
+                    0,
+                    0
+                ],
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                740,
+                210,
+                315,
+                455
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthClearPreciousMaterialsSwipeCount": {
+        "desc": "下滑后清空珍贵培养素材右滑节点命中次数",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "OperatorGrowthSwipePreciousMaterialsRight"
+                    ]
+                }
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0
     }
