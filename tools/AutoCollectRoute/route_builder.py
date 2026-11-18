@@ -10,8 +10,8 @@ from typing import Any
 import registry
 from registry import COLLECT_POINTS_PATH, PROJECT_ROOT, read_json, read_jsonc, route_kind
 
-# (zone_id, 起点, 终点) -> 运行时规划出的步行长度（底图像素），不连通为 None
-WalkFn = Callable[[str, dict[str, Any], dict[str, Any]], "float | None"]
+# (zone_id, 起点, 终点) -> 运行时规划出的步行长度（底图像素），规划失败时为失败类别
+WalkFn = Callable[[str, dict[str, Any], dict[str, Any]], "float | str"]
 DeckFn = Callable[[str, dict[str, Any]], "float | None"]
 
 TELEPORT_ANCHORS_PATH = PROJECT_ROOT / "tools" / "zmdmap" / "data" / "teleport_anchors.json"
@@ -20,13 +20,17 @@ ANCHOR_NAMES_PATH = PROJECT_ROOT / "tools" / "pipeline-generate" / "SceneTelepor
 # 相邻两点（含高度折算）超过此距离就补一个 NAVMESH，由运行时规划前往。
 # 现有手写路线里采集点之间直走的段最长 13.1 px，更远的都靠录制的路点或 NAVMESH
 STRAIGHT_LEG_MAX_PX = 15.0
-# 步行长度超出直线这么多即需绕行，直走会被地形挡住，同样补 NAVMESH
-DETOUR_RATIO = 1.15
-DETOUR_SLACK_PX = 3.0
-# 直线距离在这以内的点归成一簇：簇与簇之间按步行距离排，簇内按直线排
+# 步行长度比直线多出这么多即需绕行，直走会被地形挡住，同样补 NAVMESH
+BEND_SLACK_PX = 1.0
+# 规划失败的类别：端点不在可走面上，规划器无从判断；端点在禁行区内；两端确实不连通
+OFF_MESH = "off_mesh"
+NO_GO = "no_go"
+APART = "apart"
+# 判不连通、但相距与高差都在此以内的两点站在一处就能采到，按寻路地图缺块处理，照直走
+SAME_SPOT_PX = 1.0
+LEVEL_GAP_M = 2.0
+# 直线距离在这以内的点归成一簇：簇与簇之间按步行距离排，簇内按直线排、绕开走不到的点
 CLUSTER_PX = 20.0
-# 直线距离小于此值的两点按直线计，不查询规划器
-SHORT_LEG_PX = 12.0
 ASSERT_HALF_PX = 10.0
 ANCHOR_CANDIDATES = 6
 TWO_OPT_ROUNDS = 50
@@ -52,18 +56,23 @@ def no_deck(zone_id: str, point: dict[str, Any]) -> float | None:
     return None
 
 
+def same_spot(a: dict[str, Any], b: dict[str, Any]) -> bool:
+    if "y" not in a or "y" not in b:
+        return False
+    return math.hypot(a["u"] - b["u"], a["v"] - b["v"]) <= SAME_SPOT_PX and abs(a["y"] - b["y"]) <= LEVEL_GAP_M
+
+
 class WalkDistances:
     """节点间的步行距离：按需向规划器要实走长度，直线距离是它的下界，用来剪掉不必问的点对。
 
-    排序阶段把距离当作对称的、近处按直线算；最终路线逐段用 measure 按真实方向实测。
+    簇与簇之间排序时把距离当作对称的；簇内顺序与最终路线逐段用 measure 按真实方向实测。
     连通关系随查询记录：已知不连通的一对，与两端各自连通的点之间不再查询。
     """
 
-    def __init__(self, zone_id: str, nodes: list[dict[str, Any]], walk: WalkFn, short_leg_px: float = SHORT_LEG_PX) -> None:
+    def __init__(self, zone_id: str, nodes: list[dict[str, Any]], walk: WalkFn) -> None:
         self.zone_id = zone_id
         self.nodes = nodes
         self.walk = walk
-        self.short_leg_px = short_leg_px
         self._sorting: dict[tuple[int, int], float] = {}
         self._measured: dict[tuple[int, int], float] = {}
         self._parent = list(range(len(nodes)))
@@ -87,13 +96,7 @@ class WalkDistances:
     def exact(self, i: int, j: int) -> float:
         key = (min(i, j), max(i, j))
         if key not in self._sorting:
-            straight = self.lower(i, j)
-            if straight < self.short_leg_px:
-                length = straight
-            elif self._known_apart(i, j):
-                length = math.inf
-            else:
-                length = self.measure(i, j)
+            length = math.inf if self._known_apart(i, j) else self.measure(i, j)
             if math.isinf(length):
                 self._apart.append((i, j))
             else:
@@ -104,8 +107,11 @@ class WalkDistances:
     def measure(self, i: int, j: int) -> float:
         """从 i 走到 j 的实走长度，不连通为 inf。"""
         if (i, j) not in self._measured:
-            walked = self.walk(self.zone_id, self.nodes[i], self.nodes[j])
-            self._measured[(i, j)] = math.inf if walked is None else walked
+            a, b = self.nodes[i], self.nodes[j]
+            walked = self.walk(self.zone_id, a, b)
+            if walked == OFF_MESH or (walked == APART and same_spot(a, b)):
+                walked = self.lower(i, j)
+            self._measured[(i, j)] = math.inf if isinstance(walked, str) else walked
         return self._measured[(i, j)]
 
 
@@ -180,17 +186,33 @@ def clusters_of(points: list[dict[str, Any]]) -> list[list[int]]:
     return list(groups.values())
 
 
-def sweep_cluster(legs: WalkDistances, members: list[int], entry: int) -> list[int]:
-    """簇内顺序：从离入口最近的可达点开始，按直线最近邻走完。"""
-    by_entry = sorted(members, key=lambda index: legs.lower(entry, index))
-    first = next((index for index in by_entry if not math.isinf(legs.measure(entry, index))), by_entry[0])
-    rest = set(members) - {first}
-    order = [first]
+def reaches_all(legs: WalkDistances, start: int, targets: set[int]) -> bool:
+    """从 start 出发、途经 targets 里的点能否走遍 targets。"""
+    seen, frontier = {start}, [start]
+    while frontier:
+        here = frontier.pop()
+        for j in targets - seen:
+            if not math.isinf(legs.measure(here, j)):
+                seen.add(j)
+                frontier.append(j)
+    return targets <= seen
+
+
+def sweep_cluster(legs: WalkDistances, members: list[int], entry: int) -> tuple[list[int], list[int]]:
+    """簇内顺序：按直线最近邻走到可达点，优先选走过去后其余点仍都到得了的；返回 (走得到的顺序, 走不到的点)。"""
+    rest = set(members)
+    order: list[int] = []
+    here = entry
     while rest:
-        nearest = min(rest, key=lambda index: legs.lower(order[-1], index))
-        rest.remove(nearest)
-        order.append(nearest)
-    return order
+        nearest = sorted(rest, key=lambda j: legs.lower(here, j))
+        reachable = [j for j in nearest if not math.isinf(legs.measure(here, j))]
+        if not reachable:
+            break
+        keeps = (c for c in reachable if reaches_all(legs, c, rest - {c}))
+        here = next(keeps, reachable[0])
+        rest.remove(here)
+        order.append(here)
+    return order, sorted(rest)
 
 
 class Library:
@@ -300,7 +322,7 @@ class Library:
             cv = sum(points[i]["v"] for i in members) / len(members)
             reps.append(points[min(members, key=lambda i: math.hypot(points[i]["u"] - cu, points[i]["v"] - cv))])
         candidates = sorted(anchors, key=reach)[:ANCHOR_CANDIDATES]
-        dist = WalkDistances(zone_id, [*reps, *candidates], walk, short_leg_px=0.0)
+        dist = WalkDistances(zone_id, [*reps, *candidates], walk)
 
         def first_leg(start: int) -> float:
             """从传送点走到最近一簇的步行长度；直线下界剪掉不可能更近的簇。"""
@@ -323,9 +345,10 @@ class Library:
         indices: list[int] = []
         here = origin
         for c in cluster_order:
-            swept = sweep_cluster(legs, groups[c], here)
-            indices += swept
-            here = swept[-1]
+            swept, stranded = sweep_cluster(legs, groups[c], here)
+            indices += swept + stranded
+            if swept:
+                here = swept[-1]
         unreachable = [i for c in cut_off for i in groups[c]]
 
         # 首点与超出直走上限的一段补 NAVMESH，由运行时规划；其余直走的一段按真实方向实测，
@@ -337,13 +360,15 @@ class Library:
         for index in indices:
             point = points[index]
             straight = legs.lower(previous, index)
-            navmesh = previous == origin or self.distance(legs.nodes[previous], point) > STRAIGHT_LEG_MAX_PX
-            if navmesh or straight >= SHORT_LEG_PX:
-                walked = legs.measure(previous, index)
-                if math.isinf(walked):
-                    blocked.append(point["id"])
-                    continue
-                navmesh = navmesh or walked > straight * DETOUR_RATIO + DETOUR_SLACK_PX
+            walked = legs.measure(previous, index)
+            if math.isinf(walked):
+                blocked.append(point["id"])
+                continue
+            navmesh = (
+                previous == origin
+                or self.distance(legs.nodes[previous], point) > STRAIGHT_LEG_MAX_PX
+                or walked > straight + BEND_SLACK_PX
+            )
             target = [round(point["u"], 2), round(point["v"], 2)]
             if navmesh:
                 step: dict[str, Any] = {"action": "NAVMESH", "target": target}
