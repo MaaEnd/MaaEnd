@@ -10,8 +10,8 @@ from typing import Any
 import registry
 from registry import COLLECT_POINTS_PATH, PROJECT_ROOT, read_json, read_jsonc, route_kind
 
-# (zone_id, 起点, 终点) -> 运行时规划出的步行长度（底图像素），不连通为 None
-WalkFn = Callable[[str, dict[str, Any], dict[str, Any]], "float | None"]
+# (zone_id, 起点, 终点) -> 运行时规划出的步行长度（底图像素），规划失败时为失败类别
+WalkFn = Callable[[str, dict[str, Any], dict[str, Any]], "float | str"]
 DeckFn = Callable[[str, dict[str, Any]], "float | None"]
 
 TELEPORT_ANCHORS_PATH = PROJECT_ROOT / "tools" / "zmdmap" / "data" / "teleport_anchors.json"
@@ -22,7 +22,11 @@ ANCHOR_NAMES_PATH = PROJECT_ROOT / "tools" / "pipeline-generate" / "SceneTelepor
 STRAIGHT_LEG_MAX_PX = 15.0
 # 步行长度比直线多出这么多即需绕行，直走会被地形挡住，同样补 NAVMESH
 BEND_SLACK_PX = 1.0
-# 规划器判不通、但相距与高差都在此以内的两点站在一处就能采到，按寻路地图缺块处理，照直走
+# 规划失败的类别：端点不在可走面上，规划器无从判断；端点在禁行区内；两端确实不连通
+OFF_MESH = "off_mesh"
+NO_GO = "no_go"
+APART = "apart"
+# 判不连通、但相距与高差都在此以内的两点站在一处就能采到，按寻路地图缺块处理，照直走
 SAME_SPOT_PX = 1.0
 LEVEL_GAP_M = 2.0
 # 直线距离在这以内的点归成一簇：簇与簇之间按步行距离排，簇内按直线排、绕开走不到的点
@@ -50,6 +54,12 @@ def straight_walk(zone_id: str, a: dict[str, Any], b: dict[str, Any]) -> float:
 
 def no_deck(zone_id: str, point: dict[str, Any]) -> float | None:
     return None
+
+
+def same_spot(a: dict[str, Any], b: dict[str, Any]) -> bool:
+    if "y" not in a or "y" not in b:
+        return False
+    return math.hypot(a["u"] - b["u"], a["v"] - b["v"]) <= SAME_SPOT_PX and abs(a["y"] - b["y"]) <= LEVEL_GAP_M
 
 
 class WalkDistances:
@@ -99,16 +109,9 @@ class WalkDistances:
         if (i, j) not in self._measured:
             a, b = self.nodes[i], self.nodes[j]
             walked = self.walk(self.zone_id, a, b)
-            straight = self.lower(i, j)
-            if (
-                walked is None
-                and straight <= SAME_SPOT_PX
-                and "y" in a
-                and "y" in b
-                and abs(a["y"] - b["y"]) <= LEVEL_GAP_M
-            ):
-                walked = straight
-            self._measured[(i, j)] = math.inf if walked is None else walked
+            if walked == OFF_MESH or (walked == APART and same_spot(a, b)):
+                walked = self.lower(i, j)
+            self._measured[(i, j)] = math.inf if isinstance(walked, str) else walked
         return self._measured[(i, j)]
 
 
@@ -195,8 +198,8 @@ def reaches_all(legs: WalkDistances, start: int, targets: set[int]) -> bool:
     return targets <= seen
 
 
-def sweep_cluster(legs: WalkDistances, members: list[int], entry: int) -> list[int]:
-    """簇内顺序：按直线最近邻走，跳过走不到的点和走过去后其余点有到不了的点；走不到的点排在最后。"""
+def sweep_cluster(legs: WalkDistances, members: list[int], entry: int) -> tuple[list[int], list[int]]:
+    """簇内顺序：按直线最近邻走到可达点，优先选走过去后其余点仍都到得了的；返回 (走得到的顺序, 走不到的点)。"""
     rest = set(members)
     order: list[int] = []
     here = entry
@@ -209,7 +212,7 @@ def sweep_cluster(legs: WalkDistances, members: list[int], entry: int) -> list[i
         here = next(keeps, reachable[0])
         rest.remove(here)
         order.append(here)
-    return order + sorted(rest)
+    return order, sorted(rest)
 
 
 class Library:
@@ -342,9 +345,10 @@ class Library:
         indices: list[int] = []
         here = origin
         for c in cluster_order:
-            swept = sweep_cluster(legs, groups[c], here)
-            indices += swept
-            here = swept[-1]
+            swept, stranded = sweep_cluster(legs, groups[c], here)
+            indices += swept + stranded
+            if swept:
+                here = swept[-1]
         unreachable = [i for c in cut_off for i in groups[c]]
 
         # 首点与超出直走上限的一段补 NAVMESH，由运行时规划；其余直走的一段按真实方向实测，
