@@ -7,7 +7,6 @@
     // （奖励面板行数不同、面板高度不同），并集 [618,586,44,87] 再四周各留 5px
     // 抖动余量 -> [613,581,54,97]（原 ROI 为 209x182）。
     "DectedCloseRewardsImage": {
-        "template": "AdbOnly/Common/Button/CloseRewardImage.png",
         "threshold": 0.7
     },
     "__CloseRewardsButtonStable": {
@@ -17,7 +16,6 @@
             54,
             97
         ],
-        "template": "AdbOnly/Common/Button/CloseRewardButton.png",
         "threshold": 0.75
     }
     // 悬停态沿用原版模板与原版阈值，不在此放宽：ADB 没有鼠标悬停态，

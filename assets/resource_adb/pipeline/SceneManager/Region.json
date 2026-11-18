@@ -1,10 +1,5 @@
 {
     "InNoticeRewards": {
-        "template": [
-            "AdbOnly/InScene/NoticeRewardsIcon.png",
-            "InScene/NoticeRewardsIcon2.png",
-            "InScene/NoticeRewardsIcon3.png"
-        ],
         "threshold": 0.7
     }
 }
