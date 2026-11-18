@@ -1371,6 +1371,8 @@
     "option.AutoPick.label": "Auto Pick Up",
     "option.AutoPuzzleSolving.description": "Automatically clears the puzzle minigame for you (equivalent to enabling the ⌈🧩 Solve Puzzle⌋ task in Loop mode).",
     "option.AutoPuzzleSolving.label": "Solve Puzzle",
+    "option.AutoSellMaxSellQuantity.inputs.AutoSellMaxSellQuantityValue.label": "Max sell quantity",
+    "option.AutoSellMaxSellQuantity.label": "Max sell quantity per item",
     "option.AutoSellPriceGlobal.inputs.AutoSellPriceGlobalValue.label": "Minimum selling price",
     "option.AutoSellPriceGlobal.label": "Selling price",
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryLargePriceVolatilityValue.label": "Minimum selling price (large volatility)",

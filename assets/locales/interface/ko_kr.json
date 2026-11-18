@@ -1371,6 +1371,8 @@
     "option.AutoPick.label": "자동 줍기",
     "option.AutoPuzzleSolving.description": "퍼즐 미니게임을 자동으로 클리어합니다(⌈🧩 퍼즐 해결⌋ 작업을 반복 실행으로 켜는 것과 동일).",
     "option.AutoPuzzleSolving.label": "퍼즐 해결",
+    "option.AutoSellMaxSellQuantity.inputs.AutoSellMaxSellQuantityValue.label": "최대 판매 수량",
+    "option.AutoSellMaxSellQuantity.label": "물품당 최대 판매 수량",
     "option.AutoSellPriceGlobal.inputs.AutoSellPriceGlobalValue.label": "최저 판매 가격",
     "option.AutoSellPriceGlobal.label": "판매 가격",
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryLargePriceVolatilityValue.label": "가격 변동이 큰 물자 최저 판매 가격",
