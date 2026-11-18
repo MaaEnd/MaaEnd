@@ -1625,9 +1625,8 @@
                     "name": "Refresh",
                     "label": "$option.CreditShoppingForce.cases.Refresh.label",
                     "option": [
-                        "PrudentRefresh",
-                        "CreditShoppingRefreshCheckPrice",
-                        "CreditShoppingRefreshLimit"
+                        "CreditShoppingRefreshBalance",
+                        "CreditShoppingRefreshCheckPrice"
                     ],
                     "pipeline_override": {
                         "CreditShoppingBuyBlacklist": {
@@ -1650,16 +1649,22 @@
             ],
             "default_case": "Refresh"
         },
-        "CreditShoppingRefreshLimit": {
+        "CreditShoppingRefreshBalance": {
             "type": "switch",
-            "label": "$option.CreditShoppingRefreshLimit.label",
-            "description": "$option.CreditShoppingRefreshLimit.description",
+            "label": "$option.CreditShoppingRefreshBalance.label",
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "CreditShoppingRefreshBalanceThreshold",
+                        "CreditShoppingRefreshBalanceBuy"
+                    ],
                     "pipeline_override": {
                         "CreditShoppingRefreshLimitReached": {
                             "enabled": true
+                        },
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": false
                         },
                         "CreditShoppingRefreshReserveCreditGate": {
                             "recognition": {
@@ -1680,6 +1685,9 @@
                         "CreditShoppingRefreshLimitReached": {
                             "enabled": false
                         },
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": false
+                        },
                         "CreditShoppingRefreshReserveCreditGate": {
                             "recognition": {
                                 "type": "DirectHit"
@@ -1689,6 +1697,108 @@
                 }
             ],
             "default_case": "No"
+        },
+        "CreditShoppingRefreshBalanceBuy": {
+            "type": "switch",
+            "label": "$option.CreditShoppingRefreshBalanceBuy.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CreditShoppingRefreshLimitReached": {
+                            "enabled": false
+                        },
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": true
+                        },
+                        "CreditShoppingRefreshReserveCreditGate": {
+                            "recognition": {
+                                "type": "DirectHit"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingRefreshLimitReached": {
+                            "enabled": true
+                        },
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": false
+                        },
+                        "CreditShoppingRefreshReserveCreditGate": {
+                            "recognition": {
+                                "type": "And",
+                                "param": {
+                                    "all_of": [
+                                        "RefreshCost",
+                                        "CreditShoppingReserveCreditOCRInternal"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
+        "CreditShoppingRefreshBalanceThreshold": {
+            "type": "input",
+            "label": "$option.CreditShoppingRefreshBalanceThreshold.label",
+            "inputs": [
+                {
+                    "name": "RefreshBalanceThreshold",
+                    "label": "$option.CreditShoppingRefreshBalanceThreshold.inputs.RefreshBalanceThreshold.label",
+                    "default": "400",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$"
+                }
+            ],
+            "pipeline_override": {
+                "CreditShoppingRefreshLimitReached": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<{RefreshBalanceThreshold}"
+                            }
+                        }
+                    }
+                },
+                "CreditShoppingPrudentRefresh": {
+                    "recognition": {
+                        "type": "And",
+                        "param": {
+                            "all_of": [
+                                {
+                                    "recognition": {
+                                        "type": "Custom",
+                                        "param": {
+                                            "custom_recognition": "ExpressionRecognition",
+                                            "custom_recognition_param": {
+                                                "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<{RefreshBalanceThreshold}"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "recognition": {
+                                        "type": "And",
+                                        "param": {
+                                            "all_of": [
+                                                "CreditShoppingShelfAnyItem",
+                                                "CreditShoppingShelfAnyCanAfford"
+                                            ],
+                                            "box_index": 0
+                                        }
+                                    }
+                                }
+                            ],
+                            "box_index": 1
+                        }
+                    }
+                }
+            }
         },
         "CreditShoppingRefreshCheckPrice": {
             "type": "switch",
@@ -1734,83 +1844,6 @@
             ],
             "default_case": "Yes"
         },
-        "PrudentRefresh": {
-            "type": "switch",
-            "label": "$option.PrudentRefresh.label",
-            "description": "$option.PrudentRefresh.description",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "PrudentRefreshThreshold"
-                    ],
-                    "pipeline_override": {
-                        "CreditShoppingPrudentRefresh": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "CreditShoppingPrudentRefresh": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ],
-            "default_case": "No"
-        },
-        "PrudentRefreshThreshold": {
-            "type": "input",
-            "label": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.label",
-            "description": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.description",
-            "inputs": [
-                {
-                    "name": "PrudentRefreshThreshold",
-                    "label": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.label",
-                    "description": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.description",
-                    "default": "400",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$"
-                }
-            ],
-            "pipeline_override": {
-                "CreditShoppingPrudentRefresh": {
-                    "recognition": {
-                        "type": "And",
-                        "param": {
-                            "all_of": [
-                                {
-                                    "recognition": {
-                                        "type": "Custom",
-                                        "param": {
-                                            "custom_recognition": "ExpressionRecognition",
-                                            "custom_recognition_param": {
-                                                "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<{PrudentRefreshThreshold}"
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "recognition": {
-                                        "type": "And",
-                                        "param": {
-                                            "all_of": [
-                                                "CreditShoppingShelfAnyItem",
-                                                "CreditShoppingShelfAnyCanAfford"
-                                            ],
-                                            "box_index": 0
-                                        }
-                                    }
-                                }
-                            ],
-                            "box_index": 1
-                        }
-                    }
-                }
-            }
-        },
         "CreditShoppingReserve": {
             "type": "input",
             "label": "$option.CreditShoppingReserve.label",
@@ -1849,15 +1882,6 @@
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "{CreditShoppingReserveCreditOCRInternal}-{CreditShoppingBuyItemPriceOCR}<{ReserveCreditThreshold}"
-                            }
-                        }
-                    }
-                },
-                "CreditShoppingRefreshLimitReached": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<{ReserveCreditThreshold}"
                             }
                         }
                     }

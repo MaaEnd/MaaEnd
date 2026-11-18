@@ -74,14 +74,14 @@
         }
     },
     "CreditShoppingRefreshLimitReached": {
-        "desc": "下一次刷新后信用点将低于保留阈值（选项：刷新前检查保留信用点），不再刷新，结束任务",
+        "desc": "下一次刷新后余额将低于余额阈值（选项：刷新前检查余额 → 余额不足时改为购买任意物品=否），不再刷新，结束任务",
         "enabled": false,
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<300"
+                    "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<400"
                 }
             }
         },
@@ -93,7 +93,7 @@
         }
     },
     "CreditShoppingRefreshReserveCreditGate": {
-        "desc": "刷新商品的保留信用点准入判断（选项：刷新前检查保留信用点）",
+        "desc": "刷新商品的准入判断（选项：刷新前检查余额，走「余额不足时停止刷新」路线）",
         "recognition": "DirectHit"
     },
     "RefreshColor": {
