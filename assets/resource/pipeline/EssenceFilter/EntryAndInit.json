@@ -15,6 +15,9 @@
                 }
             }
         },
+        "anchor": {
+            "EssenceFilterScanResult": "FailedNode"
+        },
         "post_delay": 0,
         "next": [
             "EssenceFilterInit"
@@ -35,6 +38,9 @@
                     ]
                 }
             }
+        },
+        "anchor": {
+            "EssenceFilterScanResult": "FailedNode"
         },
         "post_delay": 0,
         "next": [
@@ -70,7 +76,7 @@
         }
     },
     "EssenceFilterInventoryInit": {
-        "desc": "初始化：库存盘点模式（只读扫描无瑕基质，匹配四至六星武器）",
+        "desc": "初始化：库存盘点模式（只读扫描全部基质，匹配四至六星武器）",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -113,8 +119,21 @@
             }
         },
         "post_delay": 0,
+        "next": [
+            "EssenceFilterScanCompleted"
+        ],
+        "on_error": [
+            "FailedNode"
+        ],
         "focus": {
             "Node.Action.Succeeded": "任务完成"
         }
+    },
+    "EssenceFilterScanCompleted": {
+        "pre_delay": 0,
+        "anchor": {
+            "EssenceFilterScanResult": "EmptyNode"
+        },
+        "post_delay": 0
     }
 }

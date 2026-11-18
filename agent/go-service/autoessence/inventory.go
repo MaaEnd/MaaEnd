@@ -2,14 +2,20 @@ package autoessence
 
 import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 const componentInventory = "AutoEssenceInventory"
 
-// stock is the essence stock of the most recently loaded EssenceInventory.json.
-// Gap checks read only from it, so the file is the single source of truth.
+// stock is the most recently loaded account inventory or explicitly imported file.
 var stock *essencefilter.InventoryStock
+
+func loadAccountStock(ctx *maa.Context, taskID int64) error {
+	loaded, err := essencefilter.LoadAccountInventory(ctx, taskID)
+	stock = loaded
+	return err
+}
 
 // LoadFile loads EssenceInventory.json into memory; a missing file yields an empty stock.
 func LoadFile(path string) error {

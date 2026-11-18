@@ -74,7 +74,7 @@ Public entry point:
 ```cpp
 gridtracker::Result observe(
     const recogrid::GridFrame& frame,
-    const gridtracker::Options& options = {});
+    const gridtracker::Options& options);
 ```
 
 Each scrolling task holds one `GridTracker`. Call `reset()` when a new task starts.
@@ -83,34 +83,23 @@ Each scrolling task holds one `GridTracker`. Call `reset()` when a new task star
 
 | Status | Meaning | EssenceGrid route |
 | --- | --- | --- |
-| `Initial` | First valid frame | Process new cells; scroll if there are no candidates |
-| `Advanced` | Forward progress, or a baseline refresh at zero offset without a complete repeat (e.g., a row count change) | Process new cells; scroll if there are no candidates |
-| `ConfirmingEnd` | First complete repeat | Scroll once more to confirm |
-| `Repeated` | Second consecutive complete repeat | Finish |
-| `Rejected` | Empty frame, column count change, low-confidence alignment, or a complete zero-offset repeat below `repeat_match_ratio` | Return recognition failure and let Maa retry on the same screen |
+| `Initial` | Top confirmed and first frame placed | Process new cells |
+| `Advanced` | Additional positions verified | Process new cells |
+| `Stalled` | Frame aligned with no additional positions | Try one short swipe, then fail if still stalled |
+| `Complete` | Bottom confirmed and unique positions match the inventory count | Drain the queue and verify completion |
+| `Rejected` | Origin, grid or overlap could not be verified | Seek the top on entry or scroll back to recover overlap |
 
 ### Alignment and deduplication
 
-The tracker enumerates non-negative row offsets in the previous frame and chooses a candidate in this order:
+The controller's first cell, card pitch and scrollbar identify the layout. Complete card contours locate rows, and each column is tested for occupancy. The thumb position bounds the possible absolute row offsets. When the thumb and counter admit exactly one row offset, a complete row of matching cores confirms the overlap. With multiple possible offsets, at least two rows and a unique visual match are required. Ambiguous offsets preserve the last accepted state. Only positions consistent with a densely packed inventory of the displayed size enter the coordinate map.
 
-1. higher ratio of matched cells;
-2. lower average feature distance;
-3. more cells taking part in the comparison.
+### Completion conditions
 
-A candidate must also satisfy minimum overlap rows and `min_match_ratio`. Once a positive offset is accepted, local rows are mapped to `viewport_start_row + local_row`.
+Coverage starts at the verified top and continues across overlapping pages. The adapter records each position when a configured filter excludes it or when its selection is confirmed and detail processing returns successfully. At the bottom it checks the count, current page, bottom position and resolved count again. An inventory that fits on one screen can finish without scrolling.
 
-The business layer only consumes `Result::new_cells`. The tracker has already deduplicated by global `(row, col)`; the outer layer must not maintain a second deduplication table.
+Warehouse scans and regular filtering enable `collect_inventory` to read both qualities and all marks. `selected_for_filter` determines whether the item enters the marking flow. Go verifies the number of OCR observations against the inventory counter before committing.
 
-### Why the end is confirmed twice
-
-`row_offset == 0` alone does not prove the end has been reached. A complete repeat requires all of:
-
-- identical row and column shape;
-- complete `rows * cols` cell vectors in both frames;
-- every cell participating in comparison;
-- `repeat_match_ratio` being met.
-
-The first complete repeat returns `ConfirmingEnd`, and Pipeline scrolls once more. Only a second consecutive repeat returns `Repeated`. Any valid progress, shape change, or failed recognition clears pending confirmation.
+`EssenceFilterMain` requires at least one enabled scan mode to finish successfully. When inventory export and filtering are both enabled, the inventory pass completes before filtering starts. Either pass can fail the task.
 
 ## EssenceGrid: the essence business instance
 
@@ -126,8 +115,8 @@ The instance holds the tracker, task id, merged configuration, thumbnail templat
 
 | Field | Purpose |
 | --- | --- |
-| `roi`, `normalized_size`, row/column thresholds, segment parameters | Build the RecoGrid options |
-| `repeat_match_ratio` | Build the GridTracker options |
+| `roi`, `normalized_size`, `first_cell`, `row_pitch`, `scrollbar_track` | Locate cards and the scrollbar |
+| `preview_core` | Essence symbol in the detail panel |
 | `thumb_lock_template_paths` | Recognize locked thumbnails |
 | `thumb_discard_template_path` | Recognize discarded thumbnails |
 | `flawless_essence` / `pure_essence` | Quality filter |
@@ -143,7 +132,7 @@ EssenceGrid processes only tracker `new_cells`:
 2. match lock/discard thumbnails in the lower-left cell region;
 3. apply the quality and skip options;
 4. enqueue accepted cells;
-5. `PendingRecognition` returns the screen rectangle and Pipeline performs the click.
+5. Pipeline clicks the center of the pending cell. The scanner compares the pre-click symbol at that coordinate with the detail panel. Selection marks or changes in the long edges distinguish cells with the same symbol. OCR starts after confirmation. The scanner checks the selection and scrollbar again when processing returns.
 
 ## Go and Pipeline
 

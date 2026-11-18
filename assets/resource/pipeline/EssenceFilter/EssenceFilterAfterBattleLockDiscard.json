@@ -54,6 +54,12 @@
             }
         },
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterConfirmMarkAction"
+            }
+        },
         "post_delay": 0,
         "next": [
             "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
@@ -119,6 +125,12 @@
         },
         "pre_wait_freezes": 100,
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterConfirmMarkAction"
+            }
+        },
         "post_delay": 0,
         "next": [
             "[Anchor]EssenceFilterAfterBattleCurrentPassHead"

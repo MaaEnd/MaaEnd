@@ -62,8 +62,8 @@ type EssenceMode int
 
 const (
 	EssenceModeBoth         EssenceMode = iota // both flawless + pure selected
-	EssenceModeFlawlessOnly                    // only flawless selected; stop when pure encountered
-	EssenceModePureOnly                        // only pure selected; skip flawless until pure appears
+	EssenceModeFlawlessOnly                    // mark flawless items only
+	EssenceModePureOnly                        // mark pure items only
 )
 
 const (

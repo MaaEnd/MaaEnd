@@ -14,7 +14,7 @@
             "EssenceFilterCheckItemSlot1Level"
         ],
         "on_error": [
-            "EssenceFilterCheckItemOCRFallback"
+            "FailedNode"
         ]
     },
     "EssenceFilterCheckItemSlot1Level": {
@@ -32,7 +32,7 @@
             "EssenceFilterCheckItemSlot2"
         ],
         "on_error": [
-            "EssenceFilterCheckItemOCRFallback"
+            "FailedNode"
         ]
     },
     "EssenceFilterCheckItemSlot2": {
@@ -50,7 +50,7 @@
             "EssenceFilterCheckItemSlot2Level"
         ],
         "on_error": [
-            "EssenceFilterCheckItemOCRFallback"
+            "FailedNode"
         ]
     },
     "EssenceFilterCheckItemSlot2Level": {
@@ -68,7 +68,7 @@
             "EssenceFilterCheckItemSlot3"
         ],
         "on_error": [
-            "EssenceFilterCheckItemOCRFallback"
+            "FailedNode"
         ]
     },
     "EssenceFilterCheckItemSlot3": {
@@ -86,7 +86,7 @@
             "EssenceFilterCheckItemSlot3Level"
         ],
         "on_error": [
-            "EssenceFilterCheckItemOCRFallback"
+            "FailedNode"
         ]
     },
     "EssenceFilterCheckItemSlot3Level": {
@@ -104,7 +104,7 @@
             "EssenceFilterSkillDecision"
         ],
         "on_error": [
-            "EssenceFilterCheckItemOCRFallback"
+            "FailedNode"
         ]
     }
 }

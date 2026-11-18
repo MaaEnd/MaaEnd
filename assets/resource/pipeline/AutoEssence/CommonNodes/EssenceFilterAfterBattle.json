@@ -13,7 +13,7 @@
     //5、Jumpback回来后因开始节点识别失败跳过自身，继续你后面的任务
     //6、如果不想强制退出战利品界面，那就不加[Jumpback]，把"EssenceFilterAfterBattleExit"的next改成你想要的下一个节点
     //7、EssenceFilterInitAction 按 attach.mode 分支处理：EssenceFilterAfterBattleInit 的 mode 为 after_battle，首次进入战后流程时完整初始化；同一任务内再次进入时仅清本轮 UI 遍历状态并保留累计锁定统计；基质刷取开启「战后基质筛选」时由 AutoEssenceAfterBattleRunEndLootReport（[JumpBack]、max_hit=1，体力不足与整次结束共用）调用 EssenceFilterFinishAction 输出汇总
-    //8、每次离开战利品界面前会经过 EssenceFilterAfterBattleCommitInventory，把本轮的锁定与保留决策按词条组合和等级合并写入 EssenceInventory.json；要改变退出行为请改 EssenceFilterAfterBattleExit 的 next，写入节点仍会执行
+    //8、每次离开战利品界面前会经过 EssenceFilterAfterBattleCommitInventory，核对并提交当前账号的逐件奖励和实际标记；要改变退出行为请改 EssenceFilterAfterBattleExit 的 next，写入节点仍会执行
     //9、开启「限制相同词条基质的锁定数量」时每轮走两遍：只读遍（EssenceFilterAfterBattleReadonlyInit 起，只记录本轮持有份数并提交）结束后接执行遍（EssenceFilterAfterBattleInit 起，按名额落锁并提交）；两遍共用同一套单格节点，遍首遍尾由 EssenceFilterAfterBattleCurrentPassHead / EssenceFilterAfterBattleCurrentPassTail 锚点指向当前遍
     "EssenceFilterAfterBattleStart": {
         "desc": "识别画面中是否有基质，是的话开始任务,完成后会自动退出战利品界面",
@@ -41,7 +41,7 @@
             "Node.Recognition.Succeeded": "$task.AutoEssence.focus.essence_filter_after_battle_start"
         }
     },
-    //只读遍初始化：只识别、只记录本轮持有份数、只关闭详情，不锁定也不弃置；结束后由只读遍写入节点提交并接执行遍
+    //只读遍初始化：只识别、只记录本轮持有份数、只关闭详情，不锁定也不弃置；需要执行遍时暂存本轮奖励
     //武器稀有度与扩展规则必须与执行遍初始化节点逐项一致（选项树同时覆盖两个节点）：只读遍记下的份数是执行遍排名的依据
     "EssenceFilterAfterBattleReadonlyInit": {
         "desc": "只读遍初始化：加载数据与预设，只记录本轮持有份数",
@@ -167,9 +167,9 @@
             "discard_unmatched": false
         }
     },
-    //只读遍结束：先把本轮持有份数写进基质库存，再进入执行遍（执行遍 Init 重建名额计划时就能看到本轮份数）
+    //只读遍结束：有执行遍时暂存本轮奖励，只有只读遍时直接提交
     "EssenceFilterAfterBattleReadonlyCommitInventory": {
-        "desc": "把只读遍记录的本轮持有份数合并写入 EssenceInventory.json",
+        "desc": "暂存或提交只读遍观察到的逐件奖励",
         "recognition": {
             "type": "DirectHit",
             "param": {}
@@ -189,7 +189,7 @@
     },
     //离开战利品界面之前，先并入本轮筛选结果
     "EssenceFilterAfterBattleCommitInventory": {
-        "desc": "把本轮战后决策按词条组合与等级合并写入 EssenceInventory.json",
+        "desc": "核对奖励覆盖并更新账号库存",
         "recognition": {
             "type": "DirectHit",
             "param": {}

@@ -2,6 +2,7 @@ package essencefilter
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -10,7 +11,7 @@ import (
 
 type EssenceFilterAfterBattleSkillDecisionAction struct{}
 
-// EssenceFilterAfterBattleInventoryCommitAction merges this loot run's decisions into EssenceInventory.json.
+// EssenceFilterAfterBattleInventoryCommitAction stages or commits the observed rewards.
 type EssenceFilterAfterBattleInventoryCommitAction struct{}
 
 // EssenceFilterAfterBattleTierGateAction gates after-battle items by essence tier.
@@ -26,7 +27,7 @@ var (
 
 func (a *EssenceFilterAfterBattleTierGateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	st := currentRun
-	if st == nil {
+	if st == nil || st.TaskID != arg.TaskID {
 		return false
 	}
 	var params struct {
@@ -45,31 +46,41 @@ func (a *EssenceFilterAfterBattleTierGateAction) Run(ctx *maa.Context, arg *maa.
 		return false
 	}
 
-	switch st.EssenceMode {
-	case EssenceModeFlawlessOnly:
-		if params.Tier == "pure" {
-			log.Info().Str("component", "EssenceFilter").Str("action", "AfterBattleTierGate").
-				Msg("flawless-only: pure item detected, exiting after-battle")
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterAfterBattleTierBoundaryFlawlessNotice"}})
-			return true
+	if st.Loot == nil {
+		return false
+	}
+	st.Loot.quality = gold
+	if params.Tier == "pure" {
+		st.Loot.quality = purple
+	}
+	// Use the confirmed detail-panel anchor for both buttons on one frame.
+	ctrl := ctx.GetTasker().GetController()
+	img, err := ctrl.CacheImage()
+	if err != nil || img == nil {
+		return false
+	}
+	for _, candidate := range []struct{ node, mark string }{
+		{"EssenceFilterAfterBattleCheckLocked", lockedMark},
+		{"EssenceFilterAfterBattleCheckDiscarded", discarded},
+		{"EssenceFilterAfterBattleClickDiscardItem", unmarked},
+	} {
+		res, err := ctx.RunRecognition(candidate.node, img, nil)
+		if err != nil {
+			return inventoryFailed(err)
 		}
-	case EssenceModePureOnly:
-		if params.Tier == "flawless" {
-			log.Info().Str("component", "EssenceFilter").Str("action", "AfterBattleTierGate").
-				Msg("pure-only: flawless item detected, skipping")
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterAfterBattleTierSkipPureOnlyNotice"}})
+		if res != nil && res.Hit {
+			st.Loot.mark = candidate.mark
+			st.CurrentLocked = candidate.mark == lockedMark
 			return true
 		}
 	}
-
-	ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceAfterBattleYellowSlot1"}})
-	return true
+	return false
 }
 
 func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// 获取当前运行状态，如果状态为空则无法继续，直接返回
 	st := currentRun
-	if st == nil {
+	if st == nil || st.TaskID != arg.TaskID {
 		reportFocusByKey(ctx, "focus.error.no_run_state")
 		return false
 	}
@@ -84,28 +95,44 @@ func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg 
 		reportFocusByKey(ctx, "focus.error.no_match_engine")
 		return false
 	}
-	next := decisionNextNodes{
-		Lock:        "EssenceFilterAfterBattleLockItem",
-		Discard:     "EssenceFilterAfterBattleDiscardItem",
-		Skip:        "EssenceFilterAfterBattleCloseDetail",
-		AfterBattle: true,
-		ReadOnly:    st.PipelineOpts.AfterBattlePass == AfterBattlePassReadOnly,
+	if st.Loot == nil {
+		return false
 	}
-	if next.ReadOnly {
-		// 只读遍不落锁也不弃置：两种出口一律改为关闭详情
-		next.Lock = next.Skip
-		next.Discard = next.Skip
+	if err := captureRewardItem(st, ocr); err != nil {
+		return inventoryFailed(err)
+	}
+	markEligible := st.EssenceMode == EssenceModeBoth ||
+		st.EssenceMode == EssenceModeFlawlessOnly && st.Loot.quality == gold ||
+		st.EssenceMode == EssenceModePureOnly && st.Loot.quality == purple
+	if st.PipelineOpts.AfterBattlePass == AfterBattlePassReadOnly || st.Loot.mark != unmarked || !markEligible {
+		return ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterAfterBattleCloseDetail"}}) == nil
+	}
+	next := decisionNextNodes{
+		Lock:    "EssenceFilterAfterBattleLockItem",
+		Discard: "EssenceFilterAfterBattleDiscardItem",
+		Skip:    "EssenceFilterAfterBattleCloseDetail",
 	}
 	return runUnifiedSkillDecision(ctx, arg, st, st.MatchEngine, ocr, next)
 }
 
-func (a *EssenceFilterAfterBattleInventoryCommitAction) Run(ctx *maa.Context, _ *maa.CustomActionArg) bool {
+func (a *EssenceFilterAfterBattleInventoryCommitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	st := currentRun
-	if st == nil {
+	if st == nil || st.TaskID != arg.TaskID {
 		log.Error().Str("component", "EssenceFilter").Str("action", "AfterBattleInventoryCommit").
 			Msg("no run state")
 		reportFocusByKey(ctx, "focus.error.no_run_state")
 		return false
 	}
-	return commitAfterBattleInventory(ctx, st)
+	if !st.Account.stillCurrent() {
+		return inventoryFailed(fmt.Errorf("account changed during reward scan"))
+	}
+	stage := false
+	if st.PipelineOpts.AfterBattlePass == AfterBattlePassReadOnly {
+		node, err := ctx.GetNode(arg.CurrentTaskName)
+		if err != nil {
+			return inventoryFailed(err)
+		}
+		stage = len(node.Next) == 1 && node.Next[0].Name == "EssenceFilterAfterBattleInit"
+	}
+	return commitAfterBattleInventory(st, stage)
 }

@@ -24,7 +24,7 @@ matchapi 只返回结构化匹配结果；面向用户的文案由上层 `essenc
 
 ## 最简单用法：只调用匹配
 
-库存盘点使用 `engine.MatchInventoryOCR(ocr)`：固定匹配全部四至六星武器，返回 `InventoryMatch` 中的组合 ID、按基础属性／附加属性／技能属性排列的等级，以及全部适配武器。已识别但不匹配的组合返回 `(nil, nil)`；无法解析的词条或非法等级返回错误。此入口不返回锁定或弃置指令。
+`engine.InventorySkills(ocr)` 按显示顺序解析三条词条，每条保留池、ID 和等级。重复词条池也完整返回。`engine.InventoryMatch(skills)` 给出精确适配的四至六星武器。旧入口 `engine.MatchInventoryOCR(ocr)` 组合这两步，继续向调用方返回精确匹配、无匹配或解析错误。
 
 ```go
 engine, err := matchapi.NewDefaultEngine()

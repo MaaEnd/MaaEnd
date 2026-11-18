@@ -180,6 +180,7 @@
                         "AutoEssenceWeaponTypeWand",
                         "AutoEssenceWeaponTypeLance",
                         "AutoEssenceObtainModeClaimOnlyForcedFilter",
+                        "AutoEssenceRefreshInventory",
                         "AutoEssenceTargetAfterBattle"
                     ],
                     "pipeline_override": {
@@ -202,8 +203,8 @@
                                 "Node.Action.Starting": "🎉**目标模式：基质目标已满足或任务结束**"
                             }
                         },
-                        // 目标模式始终要跑只读遍把本轮持有份数写进库存（缺了它目标缺口推不动），因此这里只固定入口；
-                        // 是否再走执行遍（落锁/弃置）由 AutoEssenceTargetAfterBattle 决定
+                        // 目标模式每轮读取奖励并更新当前账号的库存。
+                        // AutoEssenceTargetAfterBattle 控制是否执行标记。
                         "EssenceFilterAfterBattleStart": {
                             "enabled": true
                         },
@@ -436,6 +437,26 @@
             ],
             "default_case": "ObtainScaling2"
         },
+        "AutoEssenceRefreshInventory": {
+            "type": "switch",
+            "label": "$option.AutoEssenceRefreshInventory.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPrepare": {
+                            "attach": {
+                                "force_refresh": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
         //目标模式专用：关闭时只跑只读遍记录库存，开启时再由执行遍落锁/弃置
         "AutoEssenceTargetAfterBattle": {
             "type": "switch",
@@ -480,7 +501,7 @@
             ],
             "default_case": "Yes"
         },
-        //目标模式的锁定名额开关：默认开启，Yes 分支与 EssenceFilterAfterBattleLockLimit 同一套口径
+        //目标模式的锁定名额开关：手动开启，Yes 分支与 EssenceFilterAfterBattleLockLimit 同一套口径
         "AutoEssenceTargetLockLimit": {
             "type": "switch",
             "label": "$option.LimitLockedPerCombination.label",
@@ -515,7 +536,7 @@
                     "name": "No"
                 }
             ],
-            "default_case": "Yes"
+            "default_case": "No"
         },
         "AutoUseSpMedication": {
             "type": "select",
@@ -896,17 +917,6 @@
                         },
                         "EssenceFilterInventoryEntry": {
                             "enabled": true
-                        },
-                        "EssenceFilterCheckItemOCRFallback": {
-                            "action": "StopTask"
-                        },
-                        "EssenceGridClickPending": {
-                            "on_error": [
-                                "EssenceFilterCheckItemOCRFallback"
-                            ]
-                        },
-                        "EssenceFilterNavigateToInventoryFailed": {
-                            "action": "StopTask"
                         },
                         "AutoEssenceBeforeStashBackpack": {
                             "next": [

@@ -1,0 +1,127 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "MaaEnd 基质库存明细",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "version",
+        "data_version",
+        "updated_at",
+        "scanned_at",
+        "pending",
+        "items"
+    ],
+    "properties": {
+        "version": {
+            "const": 1
+        },
+        "account_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{16}$"
+        },
+        "data_version": {
+            "type": "string"
+        },
+        "updated_at": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "scanned_at": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "flawless_gold": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "high_purity_purple": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        },
+        "pending": {
+            "type": "boolean"
+        },
+        "items": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "quality",
+                    "mark",
+                    "skills",
+                    "weapon_ids"
+                ],
+                "properties": {
+                    "quality": {
+                        "enum": [
+                            "flawless_gold",
+                            "high_purity_purple"
+                        ]
+                    },
+                    "mark": {
+                        "enum": [
+                            "none",
+                            "lock",
+                            "discard"
+                        ]
+                    },
+                    "skills": {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                                "pool",
+                                "id",
+                                "level"
+                            ],
+                            "properties": {
+                                "pool": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 3
+                                },
+                                "id": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "level": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 6
+                                }
+                            },
+                            "if": {
+                                "properties": {
+                                    "pool": {
+                                        "const": 3
+                                    }
+                                }
+                            },
+                            "then": {
+                                "properties": {
+                                    "level": {
+                                        "maximum": 3
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "weapon_ids": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "items": {
+                            "type": "string",
+                            "pattern": "^wpn_[a-z0-9_]+$"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

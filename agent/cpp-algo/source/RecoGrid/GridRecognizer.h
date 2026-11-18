@@ -13,6 +13,8 @@
 namespace recogrid
 {
 
+inline constexpr int kAlignmentTileSize = 48;
+
 struct GridRecognitionOptions
 {
     GridDetectOptions detect;
@@ -41,10 +43,12 @@ struct GridFrame
     int col_width = 0;
     std::vector<GridCell> cells;
     std::string message;
+    cv::Mat alignment_tiles; // BGR tiles in grid order, including the gap after each card
 
     [[nodiscard]] bool empty() const { return rows <= 0 || cols <= 0 || cells.empty(); }
 };
 
 GridFrame RecognizeGrid(const cv::Mat& image, const GridRecognitionOptions& options = {});
+GridFrame RecognizeGrid(const cv::Mat& image, const GridRecognitionOptions& options, const GridResult& detected);
 
 } // namespace recogrid

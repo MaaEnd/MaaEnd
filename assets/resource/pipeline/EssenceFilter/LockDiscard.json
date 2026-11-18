@@ -55,12 +55,18 @@
             }
         },
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterConfirmMarkAction"
+            }
+        },
         "post_delay": 0,
         "next": [
             "EssenceGridAdvance"
         ],
         "on_error": [
-            "EssenceFilterClickLockItem"
+            "FailedNode"
         ],
         "focus": {
             "Node.Action.Succeeded": "已确认上锁"
@@ -122,12 +128,18 @@
             }
         },
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterConfirmMarkAction"
+            }
+        },
         "post_delay": 0,
         "next": [
             "EssenceGridAdvance"
         ],
         "on_error": [
-            "EssenceFilterClickDiscardItem"
+            "FailedNode"
         ],
         "focus": {
             "Node.Action.Succeeded": "已确认废弃"

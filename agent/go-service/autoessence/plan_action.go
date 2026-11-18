@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -71,9 +70,9 @@ func (a *TargetPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
-	// 每轮都从文件重新加载库存，让上一轮战后筛选写入的基质参与本轮缺口计算。
-	if err := LoadFile(essencefilter.InventoryPath()); err != nil {
-		log.Error().Str("component", componentPlan).Msg("failed to load inventory before planning")
+	// 按当前账号读取已确认库存，让上一轮领取的基质参与缺口计算。
+	if err := loadAccountStock(ctx, arg.TaskID); err != nil {
+		log.Error().Err(err).Str("component", componentPlan).Msg("failed to load inventory before planning")
 		return false
 	}
 

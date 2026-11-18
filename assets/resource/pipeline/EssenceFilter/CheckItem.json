@@ -32,8 +32,7 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterCheckItemSlot1Level",
-            "EssenceFilterCheckItemOCRFallback"
+            "EssenceFilterCheckItemSlot1Level"
         ]
     },
     "EssenceFilterCheckItemSlot1Level": {
@@ -68,8 +67,7 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterCheckItemSlot2",
-            "EssenceFilterCheckItemOCRFallback"
+            "EssenceFilterCheckItemSlot2"
         ]
     },
     "EssenceFilterCheckItemSlot2": {
@@ -105,8 +103,7 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterCheckItemSlot2Level",
-            "EssenceFilterCheckItemOCRFallback"
+            "EssenceFilterCheckItemSlot2Level"
         ]
     },
     "EssenceFilterCheckItemSlot2Level": {
@@ -141,8 +138,7 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterCheckItemSlot3",
-            "EssenceFilterCheckItemOCRFallback"
+            "EssenceFilterCheckItemSlot3"
         ]
     },
     "EssenceFilterCheckItemSlot3": {
@@ -178,8 +174,7 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterCheckItemSlot3Level",
-            "EssenceFilterCheckItemOCRFallback"
+            "EssenceFilterCheckItemSlot3Level"
         ]
     },
     "EssenceFilterCheckItemSlot3Level": {
@@ -214,23 +209,7 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterSkillDecision",
-            "EssenceFilterCheckItemOCRFallback"
-        ]
-    },
-    "EssenceFilterCheckItemOCRFallback": {
-        "desc": "OCR 超时：跳过",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {}
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing"
-        },
-        "post_delay": 0,
-        "next": [
-            "EssenceGridAdvance"
+            "EssenceFilterSkillDecision"
         ]
     },
     "EssenceFilterSkillDecision": {

@@ -113,31 +113,13 @@
         }
     },
     "AutoEssenceTargetPrepare": {
-        "desc": "目标模式：首次强制盘点无瑕基质库存（EssenceFilterInventoryInit）后加载内存仓储；max_hit=1",
+        "desc": "目标模式：复用当前账号库存，缺失或要求刷新时盘点一次",
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "EssenceFilterInventoryEntry": {
-                            "enabled": true
-                        },
-                        "EssenceFilterCheckItemOCRFallback": {
-                            "action": "StopTask"
-                        },
-                        "EssenceGridClickPending": {
-                            "on_error": [
-                                "EssenceFilterCheckItemOCRFallback"
-                            ]
-                        },
-                        "EssenceFilterNavigateToInventoryFailed": {
-                            "action": "StopTask"
-                        }
-                    }
-                }
+                "custom_action": "AutoEssencePrepareInventoryAction"
             }
         },
         "post_delay": 0,
@@ -150,7 +132,7 @@
             "AutoEssenceInventoryScanFailed"
         ],
         "focus": {
-            "Node.Action.Starting": "📦目标模式：开始盘点基质库存"
+            "Node.Action.Starting": "📦目标模式：检查当前账号的基质库存"
         }
     },
     "AutoEssenceRunInventoryFilter": {
@@ -166,7 +148,7 @@
         ]
     },
     "AutoEssenceTargetLoadInventory": {
-        "desc": "目标模式：将 EssenceInventory.json 载入内存仓储",
+        "desc": "目标模式：加载已验证的账号库存",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -1476,6 +1458,26 @@
                 "template": "Common/Button/YellowConfirmButtonType1.png"
             }
         },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceInventoryBeginRewardAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceClickConfirmedObtain"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "AutoEssenceClickConfirmedObtain": {
+        "recognition": "And",
+        "all_of": [
+            "AutoEssenceConfirmObtain"
+        ],
         "action": {
             "type": "Click"
         },
@@ -1554,6 +1556,12 @@
             "__AutoEssenceLowSpDialog"
         ],
         "inverse": true,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceInventoryCancelRewardAction"
+            }
+        },
         "next": [
             "AutoEssenceLowSpUseMedication",
             "AutoEssenceLowSpNoMedication"
@@ -1599,6 +1607,26 @@
         "all_of": [
             "AutoEssenceConfirmObtain"
         ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceInventoryBeginRewardAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceLowSpClickConfirmedObtain"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "AutoEssenceLowSpClickConfirmedObtain": {
+        "recognition": "And",
+        "all_of": [
+            "AutoEssenceConfirmObtain"
+        ],
         "action": "Click",
         "post_wait_freezes": {
             "time": 1000,
@@ -1636,6 +1664,12 @@
             "__AutoEssenceLowSpDialog"
         ],
         "inverse": true,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceInventoryCancelRewardAction"
+            }
+        },
         "next": [
             "AutoEssenceLowSpCancelObtain"
         ]

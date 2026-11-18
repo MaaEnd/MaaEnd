@@ -24,7 +24,7 @@ func afterBattleInitResetPerLoot(st *RunState) {
 	st.RowIndex = 0
 	st.CurrentSkills = [3]string{}
 	st.CurrentSkillLevels = [3]int{}
-	st.PendingInventory = nil
+	st.CurrentLocked = false
 }
 
 // essenceModeFromOptions derives which essence tiers a run processes.
@@ -58,7 +58,14 @@ func prepareLockLimit(ctx *maa.Context, st *RunState, opts *EssenceFilterOptions
 		st.LockLimit = nil
 		return true
 	}
-	groups, err := loadInventoryGroupsRequired(InventoryPath())
+	snapshot := st.Account.base
+	var err error
+	if snapshot == nil {
+		snapshot, err = st.Account.load()
+	}
+	if err == nil && (snapshot.ScannedAt[gold].IsZero() || snapshot.DataVersion != st.MatchEngine.DataVersion() || snapshot.Pending && st.Account.base == nil) {
+		err = fmt.Errorf("missing verified gold inventory")
+	}
 	if err != nil {
 		err = fmt.Errorf("load essence inventory: %w", err)
 		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadInventory").Msg("load essence inventory failed")
@@ -69,6 +76,10 @@ func prepareLockLimit(ctx *maa.Context, st *RunState, opts *EssenceFilterOptions
 		st.LockLimit = nil
 		return true
 	}
+	if st.Loot != nil && st.Loot.staged {
+		snapshot = st.Loot.appendTo(snapshot, st.MatchEngine.DataVersion())
+	}
+	groups := snapshot.groups()
 	st.LockLimit = newLockLimitPlanner(groups, st.MatchEngine.Weapons())
 	reportSimpleByKey(ctx, "lock_limit.loaded", len(groups))
 	return true
@@ -95,10 +106,13 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		}
 		opts.AfterBattlePass = pass
 		// 同一任务内再次进入战利品流程时只清本轮 UI 状态；首次进入继续做完整初始化。
-		if st := currentRun; st != nil && st.TaskID == arg.TaskID {
+		if st := currentRun; st != nil && st.TaskID == arg.TaskID && st.Account == accountFor(ctx, arg.TaskID) {
 			afterBattleInitResetPerLoot(st)
 			st.PipelineOpts = *opts
 			st.EssenceMode = essenceModeFromOptions(opts)
+			if err := prepareReward(st); err != nil {
+				return inventoryFailed(err)
+			}
 			if !prepareLockLimit(ctx, st, opts) {
 				return false
 			}
@@ -147,13 +161,27 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		return false
 	}
 
-	st := &RunState{TaskID: arg.TaskID}
+	st := &RunState{TaskID: arg.TaskID, Account: accountFor(ctx, arg.TaskID)}
 	st.PipelineOpts = *opts
 	st.MatchEngine = engine
 	st.EssenceMode = essenceModeFromOptions(opts)
 
+	if opts.Mode == InitModeAfterBattle {
+		if err := prepareReward(st); err != nil {
+			return inventoryFailed(err)
+		}
+	}
 	if !prepareLockLimit(ctx, st, opts) {
 		return false
+	}
+	if opts.Mode != InitModeAfterBattle {
+		if err := ctx.OverridePipeline(map[string]any{"EssenceGridAdvance": map[string]any{"attach": map[string]any{"collect_inventory": true}}}); err != nil {
+			return inventoryFailed(err)
+		}
+		if err := st.Account.begin(); err != nil {
+			return inventoryFailed(err)
+		}
+		st.Scan = newWarehouseScan()
 	}
 
 	matchOpts := matchOptsFromPipeline(opts)
@@ -161,7 +189,6 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	st.MatchedCombinationSummary = make(map[string]*matchapi.SkillCombinationSummary)
 	currentRun = st
 	if opts.Mode == InitModeInventory {
-		st.Inventory = &inventoryState{groups: make(map[[3]int]*inventoryCounts)}
 		reportSimpleByKey(ctx, "inventory.started")
 	}
 	reportInitSelection(ctx, weaponRarity, essenceTypes)
@@ -198,7 +225,7 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 	}
 	log.Info().Str("component", "EssenceFilter").Str("action", "CheckItem").Msg("start")
 	st := currentRun
-	if st == nil {
+	if st == nil || st.TaskID != arg.TaskID {
 		log.Error().Str("component", "EssenceFilter").Str("action", "CheckItem").Msg("no run state")
 		return false
 	}
@@ -254,7 +281,7 @@ func (a *EssenceFilterCheckItemLevelAction) Run(ctx *maa.Context, arg *maa.Custo
 		return false
 	}
 	st := currentRun
-	if st == nil {
+	if st == nil || st.TaskID != arg.TaskID {
 		return false
 	}
 	if m := levelParseRe.FindStringSubmatch(rawText); len(m) >= 2 {
@@ -268,50 +295,12 @@ func (a *EssenceFilterCheckItemLevelAction) Run(ctx *maa.Context, arg *maa.Custo
 	return false
 }
 
-// EssenceFilterReadLockStateAction - read the lock state of the cell chosen by the C++ grid scanner
-type EssenceFilterReadLockStateAction struct{}
-
-func (a *EssenceFilterReadLockStateAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
-	st := currentRun
-	if st == nil || (st.Inventory == nil && st.LockLimit == nil) {
-		return true
-	}
-	locked, ok := readSelectedLockState(arg.RecognitionDetail)
-	if !ok {
-		log.Error().Str("component", "EssenceFilter").Str("action", "ReadLockState").Msg("advance detail has no thumb state")
-		return false
-	}
-	st.CurrentLocked = locked
-	return true
-}
-
-func readSelectedLockState(detail *maa.RecognitionDetail) (bool, bool) {
-	if detail == nil || detail.Results == nil || detail.Results.Best == nil {
-		return false, false
-	}
-	custom, ok := detail.Results.Best.AsCustom()
-	if !ok || custom == nil || custom.Detail == "" {
-		return false, false
-	}
-	return parseSelectedThumbState(custom.Detail)
-}
-
-func parseSelectedThumbState(raw string) (bool, bool) {
-	var parsed struct {
-		SelectedThumbState *string `json:"selected_thumb_state"`
-	}
-	if err := json.Unmarshal([]byte(raw), &parsed); err != nil || parsed.SelectedThumbState == nil {
-		return false, false
-	}
-	return *parsed.SelectedThumbState == "lock", true
-}
-
 // EssenceFilterSkillDecisionAction - match skills then decide lock or skip
 type EssenceFilterSkillDecisionAction struct{}
 
 func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	st := currentRun
-	if st == nil {
+	if st == nil || st.TaskID != arg.TaskID {
 		reportFocusByKey(ctx, "focus.error.no_run_state")
 		return false
 	}
@@ -324,13 +313,14 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 		reportFocusByKey(ctx, "focus.error.no_match_engine")
 		return false
 	}
-	if st.Inventory != nil {
-		match, err := st.MatchEngine.MatchInventoryOCR(ocr)
-		if err != nil {
-			return inventoryFailed(err)
-		}
-		st.Inventory.record(match, st.CurrentLocked)
-		return true
+	if st.Scan == nil {
+		return false
+	}
+	if err := st.Scan.observe(st.MatchEngine, ocr); err != nil {
+		return inventoryFailed(err)
+	}
+	if st.PipelineOpts.Mode == InitModeInventory || !st.Scan.current.Filter {
+		return ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceGridAdvance"}}) == nil
 	}
 	return runUnifiedSkillDecision(ctx, arg, st, st.MatchEngine, ocr, decisionNextNodes{
 		Lock:    "EssenceFilterLockItem",
@@ -350,11 +340,13 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 	if st == nil {
 		return true
 	}
-	if st.Inventory != nil {
-		if !finishInventory(ctx, st) {
-			return false
-		}
-	} else {
+	if st.TaskID != arg.TaskID {
+		return false
+	}
+	if st.Scan != nil && !finishWarehouse(ctx, st) {
+		return false
+	}
+	if st.PipelineOpts.Mode != InitModeInventory {
 		log.Info().Str("component", "EssenceFilter").Int("matched_total", st.MatchedCount).Msg("locked items")
 		reportColoredByKey(ctx, "#11cf00", "focus.finish.summary", st.MatchedCount)
 		reportFinishExtRuleStats(ctx, st)

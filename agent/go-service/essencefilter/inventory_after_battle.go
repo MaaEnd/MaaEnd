@@ -2,150 +2,149 @@ package essencefilter
 
 import (
 	"fmt"
-	"slices"
-	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
-	"github.com/rs/zerolog/log"
 )
 
-// inventoryDelta is one after-battle inventory increment: one skill combination, one
-// level triple, and how many of them are held and locked.
-type inventoryDelta struct {
-	WeaponIDs []string
-	Levels    [3]int
-	Count     int
-	Locked    int
+// Reward rows are indexed within one claim. A second pass can update marks but
+// must see the same items before the batch is appended once.
+type rewardInventory struct {
+	items     map[int]inventoryItem
+	seen      map[int]bool
+	expected  int
+	quality   string
+	mark      string
+	staged    bool
+	committed bool
 }
 
-// inventoryIncrement says what one after-battle decision adds to the inventory: holding the
-// essence in this loot round, locking it in this run, or both.
-type inventoryIncrement struct {
-	Held   bool
-	Locked bool
+func newRewardInventory() *rewardInventory {
+	return &rewardInventory{items: make(map[int]inventoryItem), seen: make(map[int]bool)}
 }
 
-// afterBattleInventoryDelta maps one after-battle decision to an inventory increment.
-// Only exact matches and kept slot-3 practical matches have a weapon combination and
-// levels that EssenceInventory.json can express; future-promising, unmatched and
-// discarded essences produce no entry.
-func afterBattleInventoryDelta(result *matchapi.MatchResult, increment inventoryIncrement) (inventoryDelta, bool) {
-	if result == nil {
-		return inventoryDelta{}, false
+func (r *rewardInventory) observe(row int, item inventoryItem) error {
+	if row < 1 {
+		return fmt.Errorf("missing reward position")
 	}
-	switch result.Kind {
-	case matchapi.MatchExact, matchapi.MatchSlot3Level3Practical:
-	default:
-		return inventoryDelta{}, false
+	if prev, ok := r.items[row]; ok && (prev.Skills != item.Skills || prev.Quality != item.Quality) {
+		return fmt.Errorf("reward at position %d changed between passes", row)
 	}
+	r.items[row] = item
+	r.seen[row] = true
+	return nil
+}
 
-	ids := make([]string, 0, len(result.Weapons))
-	for _, weapon := range result.Weapons {
-		if weapon.InternalID != "" {
-			ids = append(ids, weapon.InternalID)
+func (r *rewardInventory) check(count int) error {
+	if count < 1 || r.expected != 0 && count != r.expected || len(r.seen) != count {
+		return fmt.Errorf("reward coverage: saw %d of %d positions (first pass %d)", len(r.seen), count, r.expected)
+	}
+	for i := 1; i <= count; i++ {
+		if !r.seen[i] {
+			return fmt.Errorf("missing reward at position %d", i)
 		}
 	}
-	ids = normalizeWeaponIDs(ids)
-	if len(ids) == 0 {
-		return inventoryDelta{}, false
-	}
-
-	delta := inventoryDelta{WeaponIDs: ids, Levels: result.Levels}
-	if increment.Held {
-		delta.Count = 1
-	}
-	if increment.Locked {
-		delta.Locked = 1
-	}
-	if delta.Count == 0 && delta.Locked == 0 {
-		return inventoryDelta{}, false
-	}
-	return delta, true
+	return nil
 }
 
-// mergeInventoryGroups merges increments into existing groups. Existing groups and rows
-// are kept; the result is normalized: groups sorted by weapon IDs, rows sorted by levels.
-func mergeInventoryGroups(groups []inventoryGroup, deltas []inventoryDelta) []inventoryGroup {
-	merged := make(map[string]*inventoryGroup, len(groups))
-	for _, group := range groups {
-		mergeInventoryRows(merged, group.WeaponIDs, group.Essences)
+func (r *rewardInventory) appendTo(s *inventorySnapshot, version string) *inventorySnapshot {
+	out := *s
+	out.Items = append([]inventoryItem{}, s.Items...)
+	if s.DataVersion != version {
+		out = *newSnapshot(s.Account)
 	}
-	for _, delta := range deltas {
-		mergeInventoryRows(merged, delta.WeaponIDs, []inventoryEssence{{
-			Levels: delta.Levels,
-			Count:  delta.Count,
-			Locked: delta.Locked,
-		}})
+	out.DataVersion = version
+	for i := 1; i <= len(r.items); i++ {
+		out.Items = append(out.Items, r.items[i])
 	}
-
-	out := make([]inventoryGroup, 0, len(merged))
-	for _, group := range merged {
-		out = append(out, *group)
-	}
-	sortInventoryGroups(out)
-	return out
+	return &out
 }
 
-// mergeInventoryRows adds rows to the group identified by weaponIDs, creating the group
-// and its rows on demand.
-func mergeInventoryRows(merged map[string]*inventoryGroup, weaponIDs []string, essences []inventoryEssence) {
-	ids := normalizeWeaponIDs(weaponIDs)
-	if len(ids) == 0 {
-		return
+// Acquire the journal before the claim click. Closing loot without observing it
+// leaves Pending on disk, so the next target run must re-establish its baseline.
+type EssenceInventoryBeginRewardAction struct{}
+
+func (*EssenceInventoryBeginRewardAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	a := accountFor(ctx, arg.TaskID)
+	a.release()
+	if err := a.begin(); err != nil {
+		return inventoryFailed(err)
 	}
-	key := strings.Join(ids, "\x00")
-	group := merged[key]
-	if group == nil {
-		group = &inventoryGroup{WeaponIDs: ids}
-		merged[key] = group
+	if currentRun != nil && currentRun.TaskID == arg.TaskID {
+		currentRun.Loot = nil
 	}
-	for _, essence := range essences {
-		idx := slices.IndexFunc(group.Essences, func(row inventoryEssence) bool {
-			return row.Levels == essence.Levels
-		})
-		if idx < 0 {
-			group.Essences = append(group.Essences, essence)
-			continue
+	return true
+}
+
+// A recognized insufficient-stamina dialog proves the claim was rejected. Keep
+// the previous coverage so ending a farming session on low stamina is resumable.
+type EssenceInventoryCancelRewardAction struct{}
+
+func (*EssenceInventoryCancelRewardAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	a := accountFor(ctx, arg.TaskID)
+	if err := a.cancelClaim(); err != nil {
+		return inventoryFailed(err)
+	}
+	return true
+}
+
+func (a *inventoryAccount) cancelClaim() error {
+	if a.base == nil {
+		return nil
+	}
+	defer a.release()
+	s := *a.base
+	s.Pending = false
+	return a.save(&s)
+}
+
+func prepareReward(st *RunState) error {
+	if st.Account.base == nil {
+		if err := st.Account.begin(); err != nil {
+			return err
 		}
-		group.Essences[idx].Count += essence.Count
-		group.Essences[idx].Locked += essence.Locked
 	}
+	if st.Loot == nil || st.Loot.committed {
+		st.Loot = newRewardInventory()
+	} else if st.Loot.staged && st.PipelineOpts.AfterBattlePass == AfterBattlePassExecute {
+		clear(st.Loot.seen)
+	} else {
+		return fmt.Errorf("unexpected re-entry into reward scan")
+	}
+	return nil
 }
 
-// mergeInventoryFile merges after-battle increments into the export at path and returns
-// the merged groups. A missing or empty file is merged from scratch; an unreadable or
-// invalid file is left untouched.
-func mergeInventoryFile(path string, deltas []inventoryDelta) ([]inventoryGroup, error) {
-	existing, err := loadInventoryGroups(path)
-	if err != nil {
-		return nil, fmt.Errorf("load inventory: %w", err)
-	}
-	groups := mergeInventoryGroups(existing, deltas)
-	if err := writeInventoryFile(path, groups); err != nil {
-		return nil, fmt.Errorf("write inventory: %w", err)
-	}
-	return groups, nil
-}
-
-// commitAfterBattleInventory writes the increments of this loot run into EssenceInventory.json.
-func commitAfterBattleInventory(ctx *maa.Context, st *RunState) bool {
-	// 盘点模式由 Finish 覆盖写全量快照，这里不参与。
-	if st.Inventory != nil || len(st.PendingInventory) == 0 {
-		return true
-	}
-	path := InventoryPath()
-	groups, err := mergeInventoryFile(path, st.PendingInventory)
-	if err != nil {
-		log.Error().Err(err).Str("component", "EssenceInventory").Str("path", path).
-			Msg("after-battle inventory not committed")
-		reportFocusByKey(ctx, "inventory.failed")
+func commitAfterBattleInventory(st *RunState, stage bool) bool {
+	r := st.Loot
+	if r == nil {
 		return false
 	}
-	st.PendingInventory = nil
-	total, locked := inventoryTotals(groups)
-	log.Info().Str("component", "EssenceInventory").Str("path", path).
-		Int("groups", len(groups)).Int("count", total).Int("locked", locked).
-		Msg("after-battle inventory committed")
+	if r.committed {
+		return true
+	}
+	if err := r.check(len(st.RowBoxes)); err != nil {
+		return inventoryFailed(err)
+	}
+	if stage {
+		r.expected = len(st.RowBoxes)
+		r.staged = true
+		return true
+	}
+	if st.Account.base == nil {
+		return inventoryFailed(fmt.Errorf("reward journal missing"))
+	}
+	if err := st.Account.commit(r.appendTo(st.Account.base, st.MatchEngine.DataVersion()), false); err != nil {
+		return inventoryFailed(err)
+	}
+	r.committed = true
 	return true
+}
+
+func captureRewardItem(st *RunState, ocr matchapi.OCRInput) error {
+	r := st.Loot
+	item, err := observeItem(st.MatchEngine, ocr, r.quality, r.mark)
+	if err != nil {
+		return err
+	}
+	return r.observe(st.RowIndex, item)
 }

@@ -12,10 +12,10 @@ var currentRun *RunState
 // RunState holds all runtime state for a single EssenceFilter run.
 // Init allocates it; Finish clears it. Agent callbacks execute serially.
 type RunState struct {
-	TaskID    int64
-	Inventory *inventoryState
-	// PendingInventory holds the after-battle increments of the current loot run until they are committed.
-	PendingInventory []inventoryDelta
+	TaskID  int64
+	Account *inventoryAccount
+	Scan    *warehouseScan
+	Loot    *rewardInventory
 	// Stats
 	MatchedCount            int
 	ExtFuturePromisingCount int
@@ -57,12 +57,13 @@ func (*runStateResetSink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, det
 	if event != maa.EventStatusSucceeded && event != maa.EventStatusFailed {
 		return
 	}
+	releaseInventoryTask(int64(detail.TaskID))
 	st := currentRun
 	if st == nil || st.TaskID != int64(detail.TaskID) {
 		return
 	}
 	currentRun = nil
-	if st.Inventory != nil {
+	if st.Scan != nil {
 		maafocus.PrintLargeContent(i18n.T("essencefilter.inventory.failed"))
 	}
 }

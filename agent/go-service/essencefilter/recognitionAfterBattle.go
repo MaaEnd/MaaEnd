@@ -15,7 +15,7 @@ type essenceAfterBattleNthParams struct {
 
 // EssenceFilterAfterBattleNthRecognition 在战斗结算后按行序依次返回全屏识别结果中的第 N 个框。
 // 识别节点只提供目标区域。点击顺序由 sortBoxesByRow 决定：先上后下，同一行从左到右。
-// 框缓存在 RowBoxes 中，通过递增 RowIndex 逐个吐出；缓存用尽后重新识别并刷新。
+// 框缓存在 RowBoxes 中，通过递增 RowIndex 逐个吐出；同一遍次只在首格采样，缓存用尽后回到本遍结束节点。
 type EssenceFilterAfterBattleNthRecognition struct{}
 
 var _ maa.CustomRecognitionRunner = &EssenceFilterAfterBattleNthRecognition{}
@@ -43,7 +43,10 @@ func (r *EssenceFilterAfterBattleNthRecognition) Run(ctx *maa.Context, arg *maa.
 		return nil, false
 	}
 
-	if st.RowIndex < len(st.RowBoxes) {
+	if len(st.RowBoxes) > 0 {
+		if st.RowIndex >= len(st.RowBoxes) {
+			return nil, false
+		}
 		box := st.RowBoxes[st.RowIndex]
 		st.RowIndex++
 		return &maa.CustomRecognitionResult{

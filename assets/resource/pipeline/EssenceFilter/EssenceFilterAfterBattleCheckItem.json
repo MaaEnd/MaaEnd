@@ -22,7 +22,7 @@
         "post_delay": 0
     },
     "EssenceFindLockItem": {
-        "desc": "查找上锁的图标，已上锁就跳过",
+        "desc": "定位详情页锁按钮，作为品质和标记的识别锚点",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -33,7 +33,10 @@
                     972,
                     486
                 ],
-                "template": "EssenceFilter/LockButton.png",
+                "template": [
+                    "EssenceFilter/LockButton.png",
+                    "EssenceFilter/LockButtonLocked.png"
+                ],
                 "threshold": 0.9,
                 "order_by": "Score"
             }
@@ -49,7 +52,7 @@
             "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
         ],
         "focus": {
-            "Node.Action.Succeeded": "基质未锁定"
+            "Node.Action.Succeeded": "已定位基质详情"
         }
     },
     "EssenceFilterAfterBattleIsflawless": {
@@ -153,67 +156,6 @@
         "next": [
             "EssenceAfterBattleYellowSlot1"
         ]
-    },
-    "EssenceFilterAfterBattleTierBoundaryFlawlessNotice": {
-        "desc": "仅选无瑕：战后检测到高纯基质，关闭详情后退出",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {}
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing"
-        },
-        "post_delay": 0,
-        "next": [
-            "EssenceFilterAfterBattleCloseDetailThenExit",
-            "[Anchor]EssenceFilterAfterBattleCurrentPassTail"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "$task.EssenceFilter.focus.afterbattle_tier_boundary_flawless"
-        }
-    },
-    "EssenceFilterAfterBattleCloseDetailThenExit": {
-        "desc": "关闭详情页后退出（边界停扫专用）",
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    "EssenceFilterCloseDetailFourth",
-                    "EssenceFilterCloseDetailWuling"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    0,
-                    0
-                ]
-            }
-        },
-        "next": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassTail"
-        ]
-    },
-    "EssenceFilterAfterBattleTierSkipPureOnlyNotice": {
-        "desc": "仅选高纯：战后检测到无瑕基质，跳过",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {}
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing"
-        },
-        "post_delay": 0,
-        "next": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "$task.EssenceFilter.focus.afterbattle_tier_skip_pure_only"
-        }
     },
     "EssenceAfterBattleYellowSlot1": {
         "desc": "基于锁下方颜色匹配定位槽位1黄点（HSV中心: [28, 222, 239]）",

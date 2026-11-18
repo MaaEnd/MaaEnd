@@ -57,6 +57,12 @@ func fileExists(p string) bool {
 	return err == nil
 }
 
+// InventoryDataVersion identifies the dictionaries used to resolve stored skills and weapons.
+func InventoryDataVersion(dataDir string) (string, error) {
+	cfg, err := loadMatcherConfig(dataDir, defaultLoadLocale)
+	return cfg.DataVersion, err
+}
+
 func loadMatcherConfig(dataDir string, locale string) (MatcherConfig, error) {
 	b, err := resource.ReadResource(filepath.Join(dataDir, "matcher_config.json"))
 	if err != nil {

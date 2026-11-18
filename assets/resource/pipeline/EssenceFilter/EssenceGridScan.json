@@ -25,13 +25,32 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceFilterFinish"
+            "FailedNode"
         ],
         "attach": {
             "thumb_discard_template_path": "resource/image/EssenceFilter/ThumbDiscard.png",
             "thumb_lock_template_paths": [
                 "resource/image/EssenceFilter/ThumbLock.png",
                 "resource/image/EssenceFilter/LockPurple.png"
+            ],
+            "first_cell": [
+                36,
+                87,
+                96,
+                96
+            ],
+            "scrollbar_track": [
+                967,
+                87,
+                2,
+                550
+            ],
+            "row_pitch": 103.5,
+            "preview_core": [
+                1167,
+                110,
+                38,
+                38
             ],
             "roi": [
                 18,
@@ -43,12 +62,7 @@
                 1280,
                 720
             ],
-            "row_threshold_ratio": 0.2,
-            "col_threshold_ratio": 0.4,
-            "min_raw_segment_length": 10,
-            "min_kept_segment_ratio": 0.9,
-            "repeat_match_ratio": 0.95,
-            //品质与缩略图默认值即库存盘点口径；普通筛选由 FlawlessEssence / PureEssence / SkipThumbLock / SkipThumbDiscard 选项覆盖
+            //筛选选项只控制标记操作，仓库盘点读取两种品质和全部标记
             "flawless_essence": true,
             "pure_essence": false,
             "skip_thumb_lock": false,
@@ -65,16 +79,7 @@
         },
         "pre_delay": 0,
         "action": {
-            // target_offset 为 [dx, dy, dw, dh]：96x96 格子向中心收束为 48x48，避免落点偏散
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    24,
-                    24,
-                    -48,
-                    -48
-                ]
-            }
+            "type": "Click"
         },
         "post_wait_freezes": {
             "time": 50,
@@ -87,10 +92,10 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceFilterCheckItemSlot1"
+            "EssenceGridCheckSelection"
         ],
         "on_error": [
-            "EssenceGridAdvance"
+            "FailedNode"
         ]
     },
     "EssenceGridSwipeNext": {
@@ -125,6 +130,152 @@
             ]
         },
         "post_delay": 0,
+        "next": [
+            "EssenceGridAdvance"
+        ]
+    },
+    "EssenceGridCheckSelection": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "EssenceGridPendingRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterCheckItemSlot1"
+        ]
+    },
+    "EssenceGridVerifyComplete": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "EssenceGridAdvanceRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterReadLockStateAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterFinish"
+        ]
+    },
+    "EssenceGridInventoryCount": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    22,
+                    45,
+                    320,
+                    26
+                ],
+                // 显示格式：当前数量/容量，例如 536/2000
+                "expected": [
+                    // @i18n-skip
+                    "[0-9]+\\s*/\\s*[0-9]+\\s*$"
+                ]
+            }
+        }
+    },
+    "EssenceGridSwipeShort": {
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    405,
+                    392
+                ],
+                "end": [
+                    405,
+                    308
+                ],
+                "end_hold": 500,
+                "duration": 420
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                18,
+                72,
+                956,
+                570
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EssenceGridAdvance"
+        ]
+    },
+    "EssenceGridSwipeToTop": {
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    405,
+                    154
+                ],
+                "end": [
+                    405,
+                    556
+                ],
+                "end_hold": 500,
+                "duration": 420
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                18,
+                72,
+                956,
+                570
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EssenceGridAdvance"
+        ]
+    },
+    "EssenceGridSwipeBack": {
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    405,
+                    308
+                ],
+                "end": [
+                    405,
+                    392
+                ],
+                "end_hold": 500,
+                "duration": 420
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                18,
+                72,
+                956,
+                570
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EssenceGridAdvance"
         ]
