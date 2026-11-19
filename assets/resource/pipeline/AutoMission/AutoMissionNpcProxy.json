@@ -140,17 +140,17 @@
         ]
     },
     "AutoMissionNpcProxyActionTakePhoto": {
-        "desc": "这一步要拍照，复用环境监测的进拍照和拍照流程，拍完经锚点回到本流程；默认关闭，由 Go 按数据打开",
+        "desc": "这一步要拍照，调用公共拍照接口，拍完经锚点回到本流程；默认关闭，由 Go 按数据打开",
         "enabled": false,
         "recognition": "And",
         "all_of": [
             "InWorld"
         ],
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "AutoMissionNpcProxyActionPhotoDone"
+            "TakePhotoDone": "AutoMissionNpcProxyActionPhotoDone"
         },
         "next": [
-            "EnvironmentMonitoringTakePhotoDirectly"
+            "TakePhoto"
         ]
     },
     "AutoMissionNpcProxyActionScan": {
