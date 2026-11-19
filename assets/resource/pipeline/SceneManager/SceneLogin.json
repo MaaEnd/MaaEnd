@@ -57,7 +57,10 @@
             }
         ],
         "box_index": 1,
-        "action": "Click"
+        "action": "Click",
+        "focus": {
+            "Node.Action.Starting": "$task.SceneManager.focus.login_agreement_update"
+        }
     },
     "__ScenePrivateLoginContinue": {
         "desc": "等待登录界面 点击任意位置继续",
