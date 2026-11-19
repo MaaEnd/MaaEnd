@@ -1,0 +1,51 @@
+{
+    // 云终末地没有退出键：菜单列表里点不到退出按钮，也不会弹出「是否退出至登录界面」。
+    // 因此画面检查只保留 UID 捕获，语言/颜色/MOD/OSD/激活水印等检查各自关掉。
+    "__SceneImageCheck": {
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "focus": {
+            "Node.Recognition.Succeeded": ""
+        }
+    },
+    "__SceneImageCheckDialogIn": {
+        "recognition": "DirectHit",
+        "box_index": 0,
+        "action": "DoNothing"
+    },
+    "__SceneImageCheckFinishExit": {
+        "recognition": "DirectHit",
+        "action": "DoNothing"
+    },
+    // 云上没有弹窗，等灰色取消按钮消失会误判，直接命中结束
+    "__SceneImageCheckFinishExitSuccess": {
+        "recognition": "DirectHit",
+        "inverse": false
+    },
+    // 以下检查在云上全部关闭：识别到节点后直接落到空节点返回
+    "__SceneCheckOSD": {
+        "next": [
+            "EmptyNode"
+        ]
+    },
+    "__SceneImageCheckWindowsActivation": {
+        "next": [
+            "EmptyNode"
+        ]
+    },
+    "__SceneImageCheckAICPlanColor": {
+        "next": [
+            "EmptyNode"
+        ]
+    },
+    "__SceneImageCheckMod": {
+        "next": [
+            "EmptyNode"
+        ]
+    },
+    "__SceneImageCheckLanguage": {
+        "next": [
+            "EmptyNode"
+        ]
+    }
+}
