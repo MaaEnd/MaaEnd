@@ -288,7 +288,9 @@
                     44
                 ],
                 "expected": [
-                    ".{3,}" // 匹配三个及以上字符
+                    // 排除分组标题，避免底部「常驻活动」行被当成未读活动入口
+                    // @i18n-skip
+                    "^(?!(常驻活动|常駐活動|推荐活动|推薦活動|Permanent Event|Permanent Events|Permanent Activity|Permanent Activities|常設イベント|常時開放イベント|상시 이벤트|상설 이벤트)$).{3,}"
                 ]
             }
         }
@@ -307,7 +309,9 @@
                     44
                 ],
                 "expected": [
-                    ".{3,}" // 匹配三个及以上字符
+                    // 排除分组标题，避免底部「常驻活动」行被当成未读活动入口
+                    // @i18n-skip
+                    "^(?!(常驻活动|常駐活動|推荐活动|推薦活動|Permanent Event|Permanent Events|Permanent Activity|Permanent Activities|常設イベント|常時開放イベント|상시 이벤트|상설 이벤트)$).{3,}"
                 ]
             }
         }
