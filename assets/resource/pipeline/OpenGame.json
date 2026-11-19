@@ -6,7 +6,7 @@
             "OpenGameInGame",
             "EnterGame",
             // 启动/登录界面上常驻的公告、活动等多余按钮，先关掉再继续识别
-            "[JumpBack]OpenGameCloseButton",
+            "[JumpBack]CloseButtonType1",
             "[JumpBack]EnterGameResourceInitializeComplete",
             "[JumpBack]EnterGameRecognition",
             "[JumpBack]CloudEndfieldStartGame",
@@ -181,32 +181,6 @@
                     "SceneManager/NewsWithRedDot.png"
                 ]
             }
-        }
-    },
-    "OpenGameCloseButton": {
-        // 复用通用关闭按钮的 5 种右上角 X 变体，只取识别，动作与等待由本节点自己控制
-        "desc": "关闭启动/登录界面上的多余按钮",
-        // 点到点不掉的 X（残影、装饰性按钮）时不设上限会一直点下去
-        "max_hit": 10,
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    "CloseButtonType1"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
         }
     },
     "EnterGameStuck": {
