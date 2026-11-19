@@ -2,7 +2,11 @@
     "OpenGame": {
         "desc": "打开游戏",
         "next": [
+            // 已经在游戏里就别再走一遍启动流程（游戏还在后台、被别的任务留在世界时常见）
+            "OpenGameInGame",
             "EnterGame",
+            // 启动/登录界面上常驻的公告、活动等多余按钮，先关掉再继续识别
+            "[JumpBack]CloseButtonType1",
             "[JumpBack]EnterGameResourceInitializeComplete",
             "[JumpBack]EnterGameRecognition",
             "[JumpBack]CloudEndfieldStartGame",
@@ -13,6 +17,19 @@
             "EnterGameStuck",
             "StartUpGame"
         ]
+    },
+    "OpenGameInGame": {
+        // 谷地/武陵大世界与帝江号都算已经进入游戏；命中后任务直接结束，不去碰后台还在跑的游戏
+        "desc": "已经进入游戏",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "InWorld",
+                    "InDijiangWorld"
+                ]
+            }
+        }
     },
     "StuckRepairAction": {
         "desc": "尝试修复卡死",
