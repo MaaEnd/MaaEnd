@@ -20,9 +20,44 @@
             "__ScenePrivateLoginMaintenance",
             "[JumpBack]__ScenePrivateCloseErrorDialog",
             "[JumpBack]__ScenePrivateCloseLoginAnnouncement",
+            "[JumpBack]__ScenePrivateLoginAgreementUpdate",
             "__ScenePrivateLoginContinue",
             "__ScenePrivateLogin"
         ]
+    },
+    "__ScenePrivateLoginAgreementUpdate": {
+        "desc": "登录界面弹出协议更新，点击同意",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    440,
+                    60,
+                    400,
+                    200
+                ],
+                "expected": [
+                    "协议更新",
+                    "協議更新"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                // 弹窗垂直居中，协议条数不同时高度会变，标题和按钮会上下移动，竖直方向留足余量
+                "roi": [
+                    600,
+                    400,
+                    440,
+                    220
+                ],
+                "expected": [
+                    "同意"
+                ]
+            }
+        ],
+        "box_index": 1,
+        "action": "Click"
     },
     "__ScenePrivateLoginContinue": {
         "desc": "等待登录界面 点击任意位置继续",
