@@ -1,0 +1,14 @@
+{
+    "AutoSellFriendsPricesExpectedBuySlide": {
+        // 云端加号模板为 20x20，沿用公共节点的点击范围。
+        "target_offset": [
+            -70,
+            5,
+            -10,
+            -10
+        ],
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyClick"
+        ]
+    }
+}

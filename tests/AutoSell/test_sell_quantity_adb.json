@@ -1,0 +1,22 @@
+{
+    "configs": {
+        "name": "安卓出售数量拉满确认",
+        "resource": "官服",
+        "controller": "ADB"
+    },
+    "cases": [
+        {
+            "image": "武陵_物资调度_出售数量1.png",
+            "hits": [
+                "AutoSellFriendsPricesExpectedNeedSlide"
+            ]
+        },
+        {
+            "image": "武陵_物资调度_出售数量拉满.png",
+            "hits": [
+                "AutoSellFriendsPricesExpectedNeedSlide",
+                "AutoSellFriendsPricesExpectedBuySlideSuccess"
+            ]
+        }
+    ]
+}

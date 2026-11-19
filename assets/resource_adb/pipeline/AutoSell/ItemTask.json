@@ -1,4 +1,49 @@
 {
+    "AutoSellFriendsPricesExpectedBuySlide": {
+        "target_offset": [
+            -70,
+            15,
+            -35,
+            -30
+        ],
+        "next": [
+            "AutoSellFriendsPricesExpectedBuySlideSuccess"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedBuySlideSuccess": {
+        "desc": "加号变灰，确认出售数量已到上限",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods",
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    750,
+                    554,
+                    28,
+                    28
+                ],
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    90
+                ],
+                "upper": [
+                    179,
+                    30,
+                    165
+                ],
+                "count": 500
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyClick"
+        ]
+    },
     "AutoSellStockRedistributionItemOpenInFriendsSwipe": {
         "action": "Swipe",
         "begin": [
