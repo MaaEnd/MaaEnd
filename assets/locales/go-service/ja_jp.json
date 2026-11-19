@@ -230,6 +230,7 @@
     "tasker.multi_instance_warning.recommend": "余分な MaaEnd を終了し、1 つだけ残してからタスクを実行してください。",
     "tasker.multi_instance_warning.title": "⚠️ 注意：複数の MaaEnd が実行中です",
     "tasker.process_warning.recommend_1": "ℹ️ これらのプログラムはタスクの実行に影響します",
+    "tasker.process_warning.recommend_autoglm": "ℹ️ AutoGLM の「設定 → 一般 → ハンズフリーモード」のショートカットは既定で Alt+Space です。変更していない場合、ゲーム内で Alt を押してもマウスが解放されないことがあります。ショートカットを変更するか AutoGLM を終了することをおすすめします",
     "tasker.process_warning.recommend_rtss": "ℹ️ OSD を有効にすると画面認識に影響し、タスクが失敗する可能性があります",
     "tasker.process_warning.title": "⚠️ 注意：次のプロセスが実行中です",
     "tasker.task_failed_feedback_hint.after_link": " するか、設定 - このアプリについて - ユーザーグループからお願いします。",
