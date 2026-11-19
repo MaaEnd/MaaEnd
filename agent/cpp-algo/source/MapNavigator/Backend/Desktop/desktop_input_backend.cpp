@@ -201,32 +201,37 @@ InputBackend MakeDesktopInputBackend(BackendKind kind, MaaController* ctrl, std:
 
     if (backend.ctrl == nullptr) {
         backend.unsupported_reason = "controller handle is null";
-        return backend;
     }
+    return backend;
+}
 
-    if (is_mouse_lock_follow_supported(backend.ctrl)) {
-        desktop.mouse_lock_follow_enabled = try_set_mouse_lock_follow(backend.ctrl, true);
-        LogInfo << desktop.backend_name << " backend mouse lock follow." << VAR(backend.controller_type)
+void EnableDesktopBackgroundInput(InputBackend* backend)
+{
+    DesktopBackend& desktop = backend->desktop;
+    if (is_mouse_lock_follow_supported(backend->ctrl)) {
+        desktop.mouse_lock_follow_enabled = try_set_mouse_lock_follow(backend->ctrl, true);
+        LogInfo << desktop.backend_name << " backend mouse lock follow." << VAR(backend->controller_type)
                 << VAR(desktop.mouse_lock_follow_enabled);
     }
     else {
-        LogInfo << desktop.backend_name << " backend mouse lock follow skipped." << VAR(backend.controller_type);
+        LogInfo << desktop.backend_name << " backend mouse lock follow skipped." << VAR(backend->controller_type);
     }
 
     const std::vector<int32_t> managed_keys {
         desktop.key_codes.move_forward, desktop.key_codes.move_left, desktop.key_codes.move_backward, desktop.key_codes.move_right,
         desktop.key_codes.interact,     desktop.key_codes.jump,      desktop.key_codes.walk_toggle,
     };
-    desktop.background_managed_keys_enabled = try_set_background_managed_keys(backend.ctrl, managed_keys);
-    LogInfo << desktop.backend_name << " backend background managed keys." << VAR(backend.controller_type)
+    desktop.background_managed_keys_enabled = try_set_background_managed_keys(backend->ctrl, managed_keys);
+    LogInfo << desktop.backend_name << " backend background managed keys." << VAR(backend->controller_type)
             << VAR(desktop.background_managed_keys_enabled);
-    return backend;
 }
 
 InputBackend OpenDesktopInputBackend(MaaController* ctrl, std::string controller_type, std::string backend_name)
 {
     LogInfo << "MapNavigator input backend selected." << VAR(controller_type) << VAR(backend_name);
-    return MakeDesktopInputBackend(BackendKind::Desktop, ctrl, std::move(controller_type), std::move(backend_name));
+    InputBackend backend = MakeDesktopInputBackend(BackendKind::Desktop, ctrl, std::move(controller_type), std::move(backend_name));
+    EnableDesktopBackgroundInput(&backend);
+    return backend;
 }
 
 void CloseDesktopInputBackend(const InputBackend& backend)

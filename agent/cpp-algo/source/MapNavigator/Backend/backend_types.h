@@ -8,6 +8,7 @@ enum class BackendKind
     Desktop,
     Linux,
     Adb,
+    CloudWeb,
 };
 
 struct SteeringTransportProfile
