@@ -162,6 +162,14 @@
             }
         }
     },
+    "GameLauncherWakePressEsc": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 53
+            }
+        }
+    },
     "GiftOperatorBack": {
         "action": {
             "type": "ClickKey",
@@ -335,6 +343,38 @@
             "type": "KeyUp",
             "param": {
                 "key": 56
+            }
+        }
+    },
+    "SwitchTeamOperatorPos1Press": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 122
+            }
+        }
+    },
+    "SwitchTeamOperatorPos2Press": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 120
+            }
+        }
+    },
+    "SwitchTeamOperatorPos3Press": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 99
+            }
+        }
+    },
+    "SwitchTeamOperatorPos4Press": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 118
             }
         }
     },

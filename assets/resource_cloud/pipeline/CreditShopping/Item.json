@@ -1,15 +1,54 @@
 {
-    "CanAfford": {
-        // 价格数字是中性灰（色相 0）；云端画面压缩后带少量饱和度，S 放到 25
+    // 云端画面经视频压缩后，价格数字会带上少量饱和度、亮度也会抬高；
+    // 相对基础档放宽到 S<=70、V<=175（日志实测数字 V 最高 158、S 最高 25）。
+    // 节点名必须与 assets/resource/pipeline/CreditShopping/Item/ShelfChecks.json 一致，
+    // 写成旧的 `CanAfford` 会变成一个没人引用的孤儿节点，阈值等于没生效。
+    "CreditShoppingPriority1CanAfford": {
         "lower": [
             0,
             0,
-            70
+            60
         ],
         "upper": [
             180,
-            25,
-            150
+            70,
+            175
+        ]
+    },
+    "CreditShoppingPriority2CanAfford": {
+        "lower": [
+            0,
+            0,
+            60
+        ],
+        "upper": [
+            180,
+            70,
+            175
+        ]
+    },
+    "CreditShoppingPriority3CanAfford": {
+        "lower": [
+            0,
+            0,
+            60
+        ],
+        "upper": [
+            180,
+            70,
+            175
+        ]
+    },
+    "CreditShoppingShelfAnyCanAfford": {
+        "lower": [
+            0,
+            0,
+            60
+        ],
+        "upper": [
+            180,
+            70,
+            175
         ]
     }
 }

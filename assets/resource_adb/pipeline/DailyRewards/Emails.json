@@ -15,7 +15,7 @@
                             520,
                             80
                         ],
-                        "template": "AdbOnly/CheckEmail/email.png",
+                        "template": "CheckEmail/email.png",
                         "green_mask": true
                     },
                     {
@@ -59,7 +59,7 @@
                             520,
                             80
                         ],
-                        "template": "AdbOnly/CheckEmail/email.png",
+                        "template": "CheckEmail/email.png",
                         "green_mask": true
                     },
                     {

@@ -74,10 +74,19 @@ app.add_middleware(NoStoreMiddleware)
 _walks: dict[str, Any] = {"version": None, "lengths": {}, "decks": {}, "zones": {}}
 # 当前这次生成实际发出的规划查询数，供页面显示进度
 _progress = {"queries": 0}
+_SAME_POINT_PX = 1e-3
+# 规划器 route 查询的失败原因（BaseNavPlanner 的 RouteFailure 文本）
+_NO_GO_REASONS = {"start is inside a no-go zone", "goal is inside a no-go zone"}
+_OFF_MESH_REASONS = {
+    "start is not near the mesh",
+    "goal is not near the mesh",
+    "endpoints do not reach the walkable layer",
+    "no walkable voxel near the start",
+}
 
 
 def planner() -> tuple[route_builder.WalkFn, route_builder.DeckFn]:
-    """两点间的步行长度：交给运行时按 NAVMESH 展开一段（与路线展开同一套规划），量展开后的折线。"""
+    """两点间的步行长度：交给运行时按 NAVMESH 展开一段（与路线展开同一套规划），量展开后的折线；走不通时给出失败类别。"""
 
     def stamp(path: Path) -> int:
         try:
@@ -91,25 +100,30 @@ def planner() -> tuple[route_builder.WalkFn, route_builder.DeckFn]:
         _walks["lengths"] = {}
         _walks["decks"] = {}
         _walks["zones"] = {}
-    lengths: dict[tuple[str, str, str], float | None] = _walks["lengths"]
+    lengths: dict[tuple[str, str, str], float | str] = _walks["lengths"]
     decks: dict[tuple[str, float, float], bool] = _walks["decks"]
     zones: dict[str, int] = _walks["zones"]
+
+    def zone_number(zone_id: str) -> int:
+        if not zones:
+            try:
+                loaded = navmesh_backend.query("zones").get("zones", [])
+            except RuntimeError as exc:
+                raise route_builder.RouteError(f"navmesh 尚未就绪，无法查询区域: {exc}") from exc
+            zones.update({zone["name"]: zone["zone_id"] for zone in loaded})
+        if zone_id not in zones:
+            raise route_builder.RouteError(f"navmesh 包中没有区域 {zone_id}")
+        return zones[zone_id]
 
     def target_deck(zone_id: str, point: dict[str, Any]) -> float | None:
         if "y" not in point:
             return None
         key = (zone_id, point["u"], point["v"])
         if key not in decks:
-            if not zones:
-                try:
-                    loaded = navmesh_backend.query("zones").get("zones", [])
-                except RuntimeError as exc:
-                    raise route_builder.RouteError(f"navmesh 尚未就绪，无法查询区域: {exc}") from exc
-                zones.update({zone["name"]: zone["zone_id"] for zone in loaded})
-            if zone_id not in zones:
-                raise route_builder.RouteError(f"navmesh 包中没有区域 {zone_id}")
             try:
-                probe = navmesh_backend.query("deck_probe", zone_id=zones[zone_id], point=[point["u"], point["v"]])
+                probe = navmesh_backend.query(
+                    "deck_probe", zone_id=zone_number(zone_id), point=[point["u"], point["v"]]
+                )
             except RuntimeError as exc:
                 raise route_builder.RouteError(f"navmesh 尚未就绪，无法查询可走面: {exc}") from exc
             if not probe.get("ok"):
@@ -117,7 +131,31 @@ def planner() -> tuple[route_builder.WalkFn, route_builder.DeckFn]:
             decks[key] = len(probe.get("decks", [])) >= 2
         return round(point["y"], 2) if decks[key] else None
 
-    def walk(zone_id: str, start: dict[str, Any], goal: dict[str, Any]) -> float | None:
+    def failure(
+        zone_id: str, start: dict[str, Any], goal: dict[str, Any], deck_y: float | None, recovered: float | None
+    ) -> float | str:
+        """按规划器自己的失败原因归类；起点不在可走面上时运行时先走上去再规划，规划到了终点就照常计长。"""
+        try:
+            raw = navmesh_backend.query(
+                "route",
+                zone_id=zone_number(zone_id),
+                start=[start["u"], start["v"]],
+                goal=[goal["u"], goal["v"]],
+                floor_y=[start["y"]] if "y" in start else [],
+                goal_deck_y=[] if deck_y is None else [deck_y],
+            )
+        except RuntimeError as exc:
+            raise route_builder.RouteError(f"navmesh 尚未就绪，无法按步行距离排序: {exc}") from exc
+        if raw.get("ok"):
+            return float(raw["cost"])
+        reason = raw.get("error", "")
+        if reason in _NO_GO_REASONS:
+            return route_builder.NO_GO
+        if reason in _OFF_MESH_REASONS:
+            return route_builder.OFF_MESH if recovered is None else recovered
+        return route_builder.APART
+
+    def walk(zone_id: str, start: dict[str, Any], goal: dict[str, Any]) -> float | str:
         key = (zone_id, start["id"], goal["id"])
         if key not in lengths:
             target: dict[str, Any] = {"action": "NAVMESH", "target": [goal["u"], goal["v"]]}
@@ -129,13 +167,23 @@ def planner() -> tuple[route_builder.WalkFn, route_builder.DeckFn]:
                 result = navmesh_backend.route_preview(
                     [start["u"], start["v"]],
                     zone_id,
-                    {"path": [{"action": "ZONE", "zone_id": zone_id}, target]},
+                    {"path": [{"action": "ZONE", "zone_id": zone_id}, target], "zip": False},
                     floor_y=start.get("y"),
                 )
             except RuntimeError as exc:
                 raise route_builder.RouteError(f"navmesh 尚未就绪，无法按步行距离排序: {exc}") from exc
-            points = result.get("points") or [] if result.get("ok") else None
-            lengths[key] = None if points is None else sum(math.dist(a[:2], b[:2]) for a, b in itertools.pairwise(points))
+            pieces = result.get("diagnostics") or []
+            # 规划不通时展开会用直线补上断开的部分，只有一段从起点规划到终点的结果直接计长
+            reached = (
+                bool(result.get("ok"))
+                and len(pieces) == 1
+                and math.dist(pieces[0]["goal"], [goal["u"], goal["v"]]) < _SAME_POINT_PX
+            )
+            walked = sum(math.dist(a[:2], b[:2]) for a, b in itertools.pairwise(result["points"])) if reached else None
+            if reached and math.dist(pieces[0]["start"], [start["u"], start["v"]]) < _SAME_POINT_PX:
+                lengths[key] = walked
+            else:
+                lengths[key] = failure(zone_id, start, goal, deck_y, walked)
         return lengths[key]
 
     return walk, target_deck

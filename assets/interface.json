@@ -38,6 +38,24 @@
                 "keyboard": "Seize"
             }
         },
+        // 云·终末地网页版（CloudWeb）暂时不开放给用户，先注释掉控制器定义。
+        // 恢复时把这段取消注释，并同步放开各任务 controller 列表里的 "CloudWeb"。
+        // {
+        //     "name": "CloudWeb",
+        //     "label": "$controller.CloudWeb.label",
+        //     "description": "$controller.CloudWeb.description",
+        //     "type": "Win32",
+        //     "attach_resource_path": [
+        //         "./resource_cloud_web"
+        //     ],
+        //     "win32": {
+        //         "class_regex": "^MaaEnd\\.CloudShell$",
+        //         "window_regex": "^MaaEnd CloudShell",
+        //         "screencap": "PrintWindow",
+        //         "mouse": "PostMessage",
+        //         "keyboard": "PostMessage"
+        //     }
+        // },
         {
             "name": "ADB",
             "label": "$controller.ADB.label",
@@ -210,6 +228,8 @@
         // pretask
         "tasks/pretasks/LaunchGamePC.json",
         "tasks/pretasks/LaunchGamePlayCover.json",
+        // 云·终末地网页版暂时不开放给用户，这个 pretask 先不导入（与上方 CloudWeb 控制器一起恢复）
+        // "tasks/pretasks/LaunchCloudWeb.json",
         // group: regional_development
         "tasks/OutpostTrading.json",
         "tasks/DeliveryJobs.json",

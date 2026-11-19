@@ -154,6 +154,18 @@
                 },
                 "__AutoFightActionSwitchCharacterOperators4": {
                     "key": "{KeymapFightSwitchOperator4.primary}"
+                },
+                "SwitchTeamOperatorPos1Press": {
+                    "key": "{KeymapFightSwitchOperator1.primary}"
+                },
+                "SwitchTeamOperatorPos2Press": {
+                    "key": "{KeymapFightSwitchOperator2.primary}"
+                },
+                "SwitchTeamOperatorPos3Press": {
+                    "key": "{KeymapFightSwitchOperator3.primary}"
+                },
+                "SwitchTeamOperatorPos4Press": {
+                    "key": "{KeymapFightSwitchOperator4.primary}"
                 }
             }
         }

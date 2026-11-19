@@ -15,6 +15,7 @@
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
+                // "CloudWeb",
                 "Win32-Front"
             ],
             "option": [

@@ -1,13 +1,11 @@
 {
     "__WhiteConfirmButtonType1commonSearchAreas1Stable": {
-        "template": "AdbOnly/Common/Button/WhiteConfirmButtonType1.png",
         "threshold": 0.7
     },
     "__WhiteConfirmButtonType1commonSearchAreas1Hover": {
         "threshold": 0.7
     },
     "__WhiteConfirmButtonType1IconStable": {
-        "template": "AdbOnly/Common/Button/WhiteConfirmButtonType1.png",
         "threshold": 0.7
     },
     "__WhiteConfirmButtonType1IconHover": {
