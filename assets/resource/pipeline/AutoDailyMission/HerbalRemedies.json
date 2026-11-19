@@ -535,12 +535,26 @@
                     "strict": true
                 },
                 {
+                    "action": "NAVMESH",
+                    "target": [
+                        918.577,
+                        1730.265
+                    ]
+                },
+                {
                     "action": "COLLECT",
                     "target": [
                         918.577,
                         1730.265
                     ],
                     "strict": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        934.148,
+                        1723.905
+                    ]
                 },
                 {
                     "action": "COLLECT",
@@ -551,12 +565,26 @@
                     "strict": true
                 },
                 {
+                    "action": "NAVMESH",
+                    "target": [
+                        940.192,
+                        1744.253
+                    ]
+                },
+                {
                     "action": "COLLECT",
                     "target": [
                         940.192,
                         1744.253
                     ],
                     "strict": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        921.713,
+                        1749.638
+                    ]
                 },
                 {
                     "action": "COLLECT",
