@@ -1,8 +1,10 @@
 #pragma once
 
 #include <MaaFramework/MaaAPI.h>
+#include <MaaUtils/NoWarningCV.hpp>
 
 #include "../../navi_config.h"
+#include "../../navi_time.h"
 
 namespace mapnavigator::backend::adb
 {
@@ -17,8 +19,8 @@ struct AdbCameraSwipeDriverConfig
     int origin_y_numerator = 1;
     int origin_y_denominator = 2;
     int origin_y_offset = -96;
-    // 单笔过长时按下点会落进左侧摇杆区, 那一笔不转镜头
-    int max_stroke_dx = 270;
+    // 过完加载画面按着的手指不再转镜头, 闲置这么久就抬起重按
+    int held_idle_repress_ms = 2000;
 
     // 与按下或抬起同帧的位移会整步丢失, 两端停留须盖过一帧
     int touch_down_hold_ms = 100;
@@ -35,8 +37,12 @@ struct AdbCameraSwipeDriver
 {
     MaaController* controller = nullptr;
     AdbCameraSwipeDriverConfig config;
+    bool touch_active = false;
+    cv::Point touch_point {};
+    TimePoint last_touch_at {};
 };
 
-bool SwipeCameraByPixels(const AdbCameraSwipeDriver& driver, int dx, int dy);
+bool SwipeCameraByPixels(AdbCameraSwipeDriver* driver, int dx, int dy);
+bool ReleaseCameraTouch(AdbCameraSwipeDriver* driver);
 
 } // namespace mapnavigator::backend::adb
