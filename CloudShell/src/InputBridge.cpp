@@ -239,24 +239,29 @@ void InputBridge::onRelativeMove(LPARAM lparam)
     RECT client {};
     GetClientRect(hwnd_, &client);
     pointer_ = { client.right / 2, client.bottom / 2 };
+    POINT delta { GET_X_LPARAM(lparam) - pointer_.x, GET_Y_LPARAM(lparam) - pointer_.y };
 
-    // 每条相对移动的位移都要送达，不参与 dispatchMouse 的移动合并
-    evaluate(
-        std::format(
-            "window.__maaShellExpect&&window.__maaShellExpect({},{},{},{})",
-            pointer_.x,
-            pointer_.y,
-            GET_X_LPARAM(lparam) - pointer_.x,
-            GET_Y_LPARAM(lparam) - pointer_.y));
-    enqueue(
-        "Input.dispatchMouseEvent",
-        std::format(
-            R"({{"type":"mouseMoved","x":{},"y":{},"button":"{}","buttons":{},"modifiers":{}}})",
-            pointer_.x,
-            pointer_.y,
-            buttonName(buttons_ & -buttons_),
-            buttons_,
-            modifiers_));
+    // 位移不能丢：只与队尾还没发出的相对移动累加合并，不参与 dispatchMouse 的移动合并
+    if (queue_.size() >= 2 && queue_.back().relative && queue_[queue_.size() - 2].relative) {
+        delta.x += queue_.back().relative->x;
+        delta.y += queue_.back().relative->y;
+        queue_.pop_back();
+        queue_.pop_back();
+    }
+
+    const std::string expect =
+        std::format("window.__maaShellExpect&&window.__maaShellExpect({},{},{},{})", pointer_.x, pointer_.y, delta.x, delta.y);
+    std::string params = std::format(
+        R"({{"type":"mouseMoved","x":{},"y":{},"button":"{}","buttons":{},"modifiers":{}}})",
+        pointer_.x,
+        pointer_.y,
+        buttonName(buttons_ & -buttons_),
+        buttons_,
+        modifiers_);
+    queue_.push_back(
+        Command { .method = "Runtime.evaluate", .params = std::format(R"({{"expression":"{}"}})", jsonEscape(expect)), .relative = delta });
+    queue_.push_back(Command { .method = "Input.dispatchMouseEvent", .params = std::move(params), .relative = delta });
+    pump();
 }
 
 void InputBridge::onMouseWheel(bool horizontal, WPARAM wparam, LPARAM lparam)

@@ -60,9 +60,18 @@
                     return;
                 }
 
-                // SDK 丢弃位移为 0 的移动，控制器点击前的定位移动就不会带动镜头；拖动保留位移，相对移动用登记的位移
-                if (kMoveTypes.has(type) && (!event.buttons || entry.dx || entry.dy)) {
-                    Object.defineProperties(event, {movementX: {value: entry.dx}, movementY: {value: entry.dy}});
+                // 登记的位移只给同一次派发产生的指针与鼠标事件，它们的 timeStamp 相同
+                if (kMoveTypes.has(type) && (entry.dx || entry.dy)) {
+                    entry.dispatchTimeStamp ??= event.timeStamp;
+                    if (entry.dispatchTimeStamp === event.timeStamp) {
+                        Object.defineProperties(event, {movementX: {value: entry.dx}, movementY: {value: entry.dy}});
+                        return;
+                    }
+                }
+
+                // SDK 丢弃位移为 0 的移动，控制器点击前的定位移动就不会带动镜头；拖动保留位移
+                if (kMoveTypes.has(type) && !event.buttons) {
+                    Object.defineProperties(event, {movementX: {value: 0}, movementY: {value: 0}});
                 }
             },
             {capture: true, passive: false},

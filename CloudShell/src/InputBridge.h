@@ -34,6 +34,7 @@ private:
         std::string method;
         std::string params;
         bool move = false;
+        std::optional<POINT> relative {};
     };
 
     void onMouseButton(int raw_button, bool down, LPARAM lparam);
