@@ -12,13 +12,5 @@
                 "custom_action": "AutoAltClickAction"
             }
         }
-    },
-    "ProtocolSpaceTouchExitTouchRetry": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
-        }
     }
 }

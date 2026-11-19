@@ -459,6 +459,7 @@
                         "AutoFightDodge",
                         "AutoFightLockTarget",
                         "AutoFightHealthDangerousSwitch",
+                        "AutoFightStartOperator",
                         "AutoFightAxisFullSetting"
                     ]
                 },
@@ -964,6 +965,68 @@
                 }
             ],
             "default_case": "Yes"
+        },
+        "AutoFightStartOperator": {
+            "type": "select",
+            "label": "$option.AutoFightStartOperator.label",
+            "cases": [
+                {
+                    "name": "None",
+                    "label": "$option.AutoFightStartOperator.cases.None.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "start_operator": 0
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Operator1",
+                    "label": "$option.AutoFightStartOperator.cases.Operator1.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "start_operator": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Operator2",
+                    "label": "$option.AutoFightStartOperator.cases.Operator2.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "start_operator": 2
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Operator3",
+                    "label": "$option.AutoFightStartOperator.cases.Operator3.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "start_operator": 3
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Operator4",
+                    "label": "$option.AutoFightStartOperator.cases.Operator4.label",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "start_operator": 4
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "None"
         },
         "AutoFightHealthDangerousSwitch": {
             "type": "switch",
