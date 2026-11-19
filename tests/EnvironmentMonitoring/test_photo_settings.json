@@ -12,28 +12,28 @@
         {
             "image": "武陵_拍照模式_画面设置.png",
             "hits": [
-                "EnvironmentMonitoringPhotoSettingsTab",
-                "EnvironmentMonitoringOpenPhotoSettings",
-                "EnvironmentMonitoringPhotoSettingsOpened",
-                "EnvironmentMonitoringPhotoSettingsShowAllOperators"
+                "__TakePhotoSettingsTab",
+                "__TakePhotoOpenSettings",
+                "__TakePhotoSettingsOpened",
+                "__TakePhotoSettingsShowAllOperators"
             ]
         },
         {
             "image": "武陵_拍照模式_隐藏全部.png",
             "hits": [
-                "EnvironmentMonitoringPhotoSettingsTab",
-                "EnvironmentMonitoringOpenPhotoSettings",
-                "EnvironmentMonitoringPhotoSettingsOpened",
-                "EnvironmentMonitoringPhotoSettingsOperatorsHidden",
-                "EnvironmentMonitoringClosePhotoSettingsWithOperatorsHidden"
+                "__TakePhotoSettingsTab",
+                "__TakePhotoOpenSettings",
+                "__TakePhotoSettingsOpened",
+                "__TakePhotoSettingsOperatorsHidden",
+                "__TakePhotoCloseSettingsWithOperatorsHidden"
             ]
         },
         {
             "name": "拍照模式初始界面：画面设置未打开",
             "image": "武陵_拍照模式.png",
             "hits": [
-                "EnvironmentMonitoringPhotoSettingsTab",
-                "EnvironmentMonitoringOpenPhotoSettings"
+                "__TakePhotoSettingsTab",
+                "__TakePhotoOpenSettings"
             ]
         }
     ]

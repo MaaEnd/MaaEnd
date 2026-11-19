@@ -1,0 +1,22 @@
+{
+    "InSelectTool": {
+        "desc": "在选择工具界面中",
+        "recognition": "OCR",
+        "roi": [
+            572,
+            319,
+            134,
+            71
+        ],
+        "expected": [
+            "选择工具",
+            "選擇工具",
+            "Select Tool",
+            "ツール選択",
+            "도구 선택"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

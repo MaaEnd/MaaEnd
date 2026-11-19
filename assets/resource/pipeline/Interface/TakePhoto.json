@@ -1,0 +1,31 @@
+{
+    // 拍照模式的公共接口，实现位于 Common/Private/TakePhoto/
+    // 所有接口结束时都会跳到调用方设置的 [Anchor]TakePhotoDone，调用前需在上游节点设置该 anchor
+
+    // 调用前：在大世界，或已经在拍照模式里
+    // 调用后：进入拍照模式；拍照目标未达成时先在画面设置里隐藏全部干员，仍未达成再扫描镜头，达成后按快门，跳到 [Anchor]TakePhotoDone（停在照片预览）
+    "TakePhoto": {
+        "desc": "进入拍照模式，必要时隐藏干员后拍照",
+        "anchor": {
+            "__TakePhotoTargetMissedAnchor": "__TakePhotoOpenSettings"
+        },
+        "next": [
+            "__TakePhotoWaitShutterButton",
+            "__TakePhotoEnterCameraModeClick",
+            "__TakePhotoHoldR"
+        ]
+    },
+    // 调用前：在大世界，或已经在拍照模式里
+    // 调用后：进入拍照模式；拍照目标未达成时不改画面设置，直接扫描镜头，达成后按快门，跳到 [Anchor]TakePhotoDone（停在照片预览）
+    "TakePhotoShowOperators": {
+        "desc": "进入拍照模式，不隐藏干员直接拍照",
+        "anchor": {
+            "__TakePhotoTargetMissedAnchor": "__TakePhotoCameraScan"
+        },
+        "next": [
+            "__TakePhotoWaitShutterButton",
+            "__TakePhotoEnterCameraModeClick",
+            "__TakePhotoHoldR"
+        ]
+    }
+}

@@ -1,43 +1,6 @@
 {
-    "EnvironmentMonitoringTakePhoto": {
-        "desc": "环境监测拍照",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            // 暂时取消掉这个方法
-            // 因为当前寻路存在惯性，可能会出现识别到之后往前走一步无法单击的情况。
-            // "EnvironmentMonitoringEnterCameraMode",
-            "EnvironmentMonitoringTakePhotoDirectly"
-        ]
-    },
-    "EnvironmentMonitoringTakePhotoDirectly": {
-        "desc": "直接进入拍照模式，如果朝向不对会失败",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "EnterCameraModeClick",
-            "EnterCameraModeLongPress"
-        ]
-    },
-    "EnvironmentMonitoringEnterCameraMode": {
-        "desc": "进入拍照模式，会自动朝向任务目标",
-        "recognition": "And",
-        "all_of": [
-            "EnterCameraModeMenuButton",
-            "InWorld"
-        ],
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "AutoAltClickAction",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "EnvironmentMonitoringWaitShutterButton"
-        ]
-    },
-    "EnterCameraModeClick": {
+    // 拍照接口的实现，对外入口见 Interface/TakePhoto.json
+    "__TakePhotoEnterCameraModeClick": {
         "desc": "通过点击进入拍照模式",
         "recognition": "And",
         "all_of": [
@@ -50,10 +13,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringWaitShutterButton"
+            "__TakePhotoWaitShutterButton"
         ]
     },
-    "EnterCameraModeLongPress": {
+    "__TakePhotoHoldR": {
         "desc": "通过长按进入拍照模式",
         "recognition": "And",
         "all_of": [
@@ -61,15 +24,15 @@
         ],
         "pre_delay": 0,
         "action": "KeyDown",
-        "auto_up": true,
         "key": 82, // R 0x52
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnterCameraModeInSelectTool"
-        ]
+            "__TakePhotoInSelectTool"
+        ],
+        "auto_up": true
     },
-    "EnterCameraModeInSelectTool": {
+    "__TakePhotoInSelectTool": {
         "desc": "进入拍照模式，在选择工具界面中",
         "recognition": "And",
         "all_of": [
@@ -80,10 +43,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnterCameraModeChooseCamera"
+            "__TakePhotoChooseCamera"
         ]
     },
-    "EnterCameraModeChooseCamera": {
+    "__TakePhotoChooseCamera": {
         "desc": "进入拍照模式，选择拍照",
         "recognition": "TemplateMatch",
         "roi": [
@@ -100,10 +63,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnterCameraModeKeyUp"
+            "__TakePhotoKeyUp"
         ]
     },
-    "EnterCameraModeKeyUp": {
+    "__TakePhotoKeyUp": {
         "desc": "进入拍照模式，退出按键",
         "pre_delay": 0,
         "action": "KeyUp",
@@ -111,10 +74,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringWaitShutterButton"
+            "__TakePhotoWaitShutterButton"
         ]
     },
-    "EnvironmentMonitoringWaitShutterButton": {
+    "__TakePhotoWaitShutterButton": {
         "desc": "拍照按钮出现后等待稳定",
         "recognition": "And",
         "all_of": [
@@ -125,11 +88,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringShutterButtonPhotographyTarget",
-            "EnvironmentMonitoringOpenPhotoSettings"
+            "__TakePhotoShutter",
+            // 入口设置：隐藏干员时先去画面设置，不隐藏时直接扫描镜头
+            "[Anchor]__TakePhotoTargetMissedAnchor"
         ]
     },
-    "EnvironmentMonitoringPhotoSettingsTab": {
+    "__TakePhotoSettingsTab": {
         "desc": "拍照设置中的画面标签",
         "recognition": "OCR",
         "roi": [
@@ -148,7 +112,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "EnvironmentMonitoringPhotoSettingsPanelClosed": {
+    "__TakePhotoSettingsPanelClosed": {
         "desc": "拍照画面设置已关闭，inverse 必须由该节点独立执行",
         "recognition": "OCR",
         "roi": [
@@ -169,14 +133,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringWaitShutterButtonAfterHidingOperators"
+            "__TakePhotoWaitShutterButtonAfterHidingOperators"
         ]
     },
-    "EnvironmentMonitoringOpenPhotoSettings": {
+    "__TakePhotoOpenSettings": {
         "desc": "拍照目标未达成，打开画面设置",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringPhotoSettingsTab"
+            "__TakePhotoSettingsTab"
         ],
         "box_index": 0,
         "pre_delay": 0,
@@ -184,10 +148,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringPhotoSettingsOpened"
+            "__TakePhotoSettingsOpened"
         ]
     },
-    "EnvironmentMonitoringPhotoSettingsOpened": {
+    "__TakePhotoSettingsOpened": {
         "desc": "拍照目标未达成，画面设置已打开",
         "recognition": "ColorMatch",
         "roi": [
@@ -223,11 +187,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringPhotoSettingsShowAllOperators",
-            "EnvironmentMonitoringClosePhotoSettingsWithOperatorsHidden"
+            "__TakePhotoSettingsShowAllOperators",
+            "__TakePhotoCloseSettingsWithOperatorsHidden"
         ]
     },
-    "EnvironmentMonitoringPhotoSettingsShowAllOperators": {
+    "__TakePhotoSettingsShowAllOperators": {
         "desc": "拍照画面设置当前显示全部干员",
         "recognition": "OCR",
         "roi": [
@@ -248,10 +212,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringPhotoSettingsHideAllOperators"
+            "__TakePhotoSettingsHideAllOperators"
         ]
     },
-    "EnvironmentMonitoringPhotoSettingsHideAllOperators": {
+    "__TakePhotoSettingsHideAllOperators": {
         "desc": "在显示干员下拉框中选择隐藏全部",
         "recognition": "OCR",
         "roi": [
@@ -272,10 +236,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringClosePhotoSettingsWithOperatorsHidden"
+            "__TakePhotoCloseSettingsWithOperatorsHidden"
         ]
     },
-    "EnvironmentMonitoringPhotoSettingsOperatorsHidden": {
+    "__TakePhotoSettingsOperatorsHidden": {
         "desc": "拍照画面设置当前隐藏全部干员",
         "recognition": "OCR",
         "roi": [
@@ -295,12 +259,12 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "EnvironmentMonitoringClosePhotoSettingsWithOperatorsHidden": {
+    "__TakePhotoCloseSettingsWithOperatorsHidden": {
         "desc": "确认干员已全部隐藏后关闭画面设置",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringPhotoSettingsOperatorsHidden",
-            "EnvironmentMonitoringPhotoSettingsTab"
+            "__TakePhotoSettingsOperatorsHidden",
+            "__TakePhotoSettingsTab"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -308,10 +272,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringPhotoSettingsPanelClosed"
+            "__TakePhotoSettingsPanelClosed"
         ]
     },
-    "EnvironmentMonitoringWaitShutterButtonAfterHidingOperators": {
+    "__TakePhotoWaitShutterButtonAfterHidingOperators": {
         "desc": "隐藏全部干员后重新检查拍照目标",
         "recognition": "And",
         "all_of": [
@@ -322,27 +286,27 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringShutterButtonPhotographyTarget",
-            "EnvironmentMonitoringCameraScan"
+            "__TakePhotoShutter",
+            "__TakePhotoCameraScan"
         ]
     },
-    "EnvironmentMonitoringCameraScan": {
+    "__TakePhotoCameraScan": {
         "desc": "扫描拍照视角并检查是否达成拍照目标",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "CameraScanAction",
         "custom_action_param": {
             "wait_nodes": [
-                "EnvironmentMonitoringShutterButtonPhotographyTarget"
+                "__TakePhotoShutter"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringShutterButtonPhotographyTarget"
+            "__TakePhotoShutter"
         ]
     },
-    "EnvironmentMonitoringCheckPhotographyTarget": {
+    "__TakePhotoCheckTarget": {
         "desc": "检查是否达成拍照目标",
         "recognition": "TemplateMatch",
         "roi": [
@@ -351,44 +315,24 @@
             150,
             580
         ],
-        "template": "EnvironmentMonitoring/TargetChecked.png",
+        "template": "Common/TakePhoto/TargetChecked.png",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
-    "EnvironmentMonitoringShutterButtonPhotographyTarget": {
+    "__TakePhotoShutter": {
         "desc": "拍照目标达成，拍照",
         "recognition": "And",
         "all_of": [
             "ShutterButton",
-            "EnvironmentMonitoringCheckPhotographyTarget"
+            "__TakePhotoCheckTarget"
         ],
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]EnvironmentMonitoringBackToTerminal"
+            "[Anchor]TakePhotoDone"
         ]
-    },
-    "InSelectTool": {
-        "desc": "在选择工具界面中",
-        "recognition": "OCR",
-        "roi": [
-            572,
-            319,
-            134,
-            71
-        ],
-        "expected": [
-            "选择工具",
-            "選擇工具",
-            "Select Tool",
-            "ツール選択",
-            "도구 선택"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
     }
 }

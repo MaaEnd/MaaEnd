@@ -146,7 +146,7 @@
             }
         }
     },
-    "EnterCameraModeKeyUp": {
+    "__TakePhotoKeyUp": {
         "action": {
             "type": "KeyUp",
             "param": {
@@ -154,7 +154,7 @@
             }
         }
     },
-    "EnterCameraModeLongPress": {
+    "__TakePhotoHoldR": {
         "action": {
             "type": "KeyDown",
             "param": {
