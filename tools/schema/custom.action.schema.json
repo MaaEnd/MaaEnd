@@ -60,6 +60,7 @@
                 "EssenceFilterInitAction",
                 "EssenceFilterReadLockStateAction",
                 "EssenceFilterSkillDecisionAction",
+                "EssenceFilterUnreadPurpleAction",
                 "EssenceInventoryBeginRewardAction",
                 "EssenceInventoryCancelRewardAction",
                 "EssenceGridResetAction",

@@ -5,7 +5,7 @@
 - 输入的 energy_point_gems.json 中，slot2 来自 secAttrTermNames（如「攻击提升」），
   slot3 来自 skillTermNames（如「强攻」）。
 - 仅保留 costStamina > 0（重度）词条，并按 pointName 去重（同地点多 worldLevel 只取一条）。
-- 输出：每个 location 含 name、level_id、slot2_ids/slot3_ids（当前 skill_pools 的 id）、slot2/slot3（完整条目）。
+- 输出：每个 location 含 name、level_id、slot2_ids/slot3_ids（当前 skill_pools 的 id）、slot2/slot3（多语言名称与 id）。
 """
 
 import argparse
@@ -43,6 +43,10 @@ SLOT2_STEM_ALIAS: dict[str, str] = {
     "源石技艺": "源石技艺强度",
     "终结技": "终结技充能",
 }
+
+
+def _location_skill(entry: dict) -> dict:
+    return {key: entry[key] for key in ("cn", "tc", "en", "jp", "kr", "id") if key in entry}
 
 
 def _norm(s: str) -> str:
@@ -158,7 +162,7 @@ def main() -> int:
             if matched is None:
                 missing_slot2.append(raw)
                 continue
-            slot2_entries.append(matched)
+            slot2_entries.append(_location_skill(matched))
 
         missing_slot3: list[str] = []
         for raw in skill_terms:
@@ -169,7 +173,7 @@ def main() -> int:
             if matched is None:
                 missing_slot3.append(raw)
                 continue
-            slot3_entries.append(matched)
+            slot3_entries.append(_location_skill(matched))
 
         if missing_slot2 or missing_slot3:
             if args.debug:

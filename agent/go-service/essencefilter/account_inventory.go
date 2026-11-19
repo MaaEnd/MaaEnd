@@ -19,6 +19,7 @@ import (
 )
 
 const (
+	inventoryFormat  = "maaend.essence_inventory"
 	inventoryVersion = 1
 	gold             = "flawless_gold"
 	purple           = "high_purity_purple"
@@ -27,11 +28,47 @@ const (
 	discarded        = "discard"
 )
 
+type inventoryTerm struct {
+	ID    string `json:"id"`
+	Level int    `json:"level"`
+}
+
 type inventoryItem struct {
-	Quality   string                     `json:"quality"`
-	Mark      string                     `json:"mark"`
-	Skills    [3]matchapi.InventorySkill `json:"skills"`
-	WeaponIDs []string                   `json:"weapon_ids"`
+	Quality string          `json:"quality"`
+	Mark    string          `json:"mark"`
+	Skills  []inventoryTerm `json:"skills"`
+
+	resolved  [3]matchapi.InventorySkill
+	weaponIDs []string
+}
+
+// JSON field names in the protocol are case sensitive. Look up required fields
+// explicitly so a future field such as "ID" cannot replace a known "id".
+func readInventoryFields(data []byte, fields map[string]any) error {
+	var object map[string]json.RawMessage
+	if err := json.Unmarshal(data, &object); err != nil {
+		return err
+	}
+	for name, dest := range fields {
+		raw := object[name]
+		if len(raw) == 0 || string(raw) == "null" {
+			return fmt.Errorf("missing inventory field %q", name)
+		}
+		if err := json.Unmarshal(raw, dest); err != nil {
+			return fmt.Errorf("%s: %w", name, err)
+		}
+	}
+	return nil
+}
+
+func (s *inventoryTerm) UnmarshalJSON(data []byte) error {
+	return readInventoryFields(data, map[string]any{"id": &s.ID, "level": &s.Level})
+}
+
+func (item *inventoryItem) UnmarshalJSON(data []byte) error {
+	return readInventoryFields(data, map[string]any{
+		"quality": &item.Quality, "mark": &item.Mark, "skills": &item.Skills,
+	})
 }
 
 func observeItem(engine *matchapi.Engine, ocr matchapi.OCRInput, quality, mark string) (inventoryItem, error) {
@@ -42,53 +79,141 @@ func observeItem(engine *matchapi.Engine, ocr matchapi.OCRInput, quality, mark s
 	if err != nil {
 		return inventoryItem{}, err
 	}
-	item := inventoryItem{Quality: quality, Mark: mark, Skills: skills, WeaponIDs: []string{}}
-	if match := engine.InventoryMatch(skills); match != nil {
-		for _, weapon := range match.Weapons {
-			item.WeaponIDs = append(item.WeaponIDs, weapon.InternalID)
+	item := inventoryItem{Quality: quality, Mark: mark, resolved: skills}
+	for _, skill := range skills {
+		term, ok := engine.TermID(skill.Pool, skill.ID)
+		if !ok {
+			return inventoryItem{}, fmt.Errorf("missing term ID for skill %d in pool %d", skill.ID, skill.Pool)
 		}
-		slices.Sort(item.WeaponIDs)
+		item.Skills = append(item.Skills, inventoryTerm{ID: term, Level: skill.Level})
 	}
+	item.matchWeapons(engine)
 	return item, nil
+}
+
+func (item *inventoryItem) matchWeapons(engine *matchapi.Engine) {
+	if match := engine.InventoryMatch(item.resolved); match != nil {
+		for _, weapon := range match.Weapons {
+			item.weaponIDs = append(item.weaponIDs, weapon.InternalID)
+		}
+		slices.Sort(item.weaponIDs)
+	}
+}
+
+func (item *inventoryItem) resolve(engine *matchapi.Engine) error {
+	if !validQualityAndMark(item.Quality, item.Mark) || len(item.Skills) != len(item.resolved) {
+		return errInvalidSnapshot
+	}
+	for i, skill := range item.Skills {
+		pool, id, ok := engine.ResolveTermID(skill.ID)
+		if !ok || skill.Level < 1 || skill.Level > 6 || pool == 3 && skill.Level > 3 {
+			return errInvalidSnapshot
+		}
+		item.resolved[i] = matchapi.InventorySkill{Pool: pool, ID: id, Level: skill.Level}
+	}
+	item.matchWeapons(engine)
+	return nil
 }
 
 func validQualityAndMark(quality, mark string) bool {
 	return (quality == gold || quality == purple) && (mark == unmarked || mark == lockedMark || mark == discarded)
 }
 
+type tierCoverage struct {
+	CompleteAt *time.Time `json:"complete_at,omitempty"`
+	Unread     int        `json:"unread,omitempty"`
+}
+
+// Distinguish absent optional fields from explicit null or zero in the wire format.
+func (c *tierCoverage) UnmarshalJSON(data []byte) error {
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil || fields == nil {
+		return errInvalidSnapshot
+	}
+	var coverage tierCoverage
+	if raw, ok := fields["complete_at"]; ok {
+		if err := json.Unmarshal(raw, &coverage.CompleteAt); err != nil || coverage.CompleteAt == nil || !validInventoryTime(*coverage.CompleteAt) {
+			return errInvalidSnapshot
+		}
+	}
+	if raw, ok := fields["unread"]; ok {
+		if err := json.Unmarshal(raw, &coverage.Unread); err != nil || coverage.Unread < 1 || coverage.CompleteAt != nil {
+			return errInvalidSnapshot
+		}
+	}
+	*c = coverage
+	return nil
+}
+
+func validInventoryTime(t time.Time) bool {
+	_, offset := t.Zone()
+	return offset == 0
+}
+
 type inventorySnapshot struct {
-	Version     int       `json:"version"`
-	Account     string    `json:"account_id,omitempty"`
-	DataVersion string    `json:"data_version"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	// The time of the last exhaustive warehouse observation for each still-covered tier.
-	ScannedAt map[string]time.Time `json:"scanned_at"`
-	Pending   bool                 `json:"pending"`
-	Items     []inventoryItem      `json:"items"`
+	Format    string                  `json:"format"`
+	Version   int                     `json:"version"`
+	Account   string                  `json:"account_id,omitempty"`
+	UpdatedAt time.Time               `json:"updated_at"`
+	Coverage  map[string]tierCoverage `json:"coverage"`
+	Items     []inventoryItem         `json:"items"`
 }
 
 func newSnapshot(id string) *inventorySnapshot {
-	return &inventorySnapshot{Version: inventoryVersion, Account: id, ScannedAt: map[string]time.Time{}, Items: []inventoryItem{}}
+	return &inventorySnapshot{
+		Format:    inventoryFormat,
+		Version:   inventoryVersion,
+		Account:   id,
+		UpdatedAt: time.Now().UTC(),
+		Coverage:  make(map[string]tierCoverage),
+		Items:     []inventoryItem{},
+	}
 }
 
-func (s *inventorySnapshot) targetReady(version string) bool {
-	return !s.Pending && version != "" && s.DataVersion == version && !s.ScannedAt[gold].IsZero()
+func (s *inventorySnapshot) targetReady() bool {
+	return s.Coverage[gold].CompleteAt != nil
 }
 
-func (s *inventorySnapshot) groups() []inventoryGroup {
+// A confirmed purple position without observed skills contributes only to coverage.
+func (s *inventorySnapshot) appendObservation(item inventoryItem) {
+	if item.Quality == purple && len(item.Skills) == 0 {
+		s.Coverage[purple] = tierCoverage{Unread: s.Coverage[purple].Unread + 1}
+		return
+	}
+	s.Items = append(s.Items, item)
+}
+
+func (item inventoryItem) groupRow() inventoryEssence {
+	row := inventoryEssence{Count: 1}
+	for _, skill := range item.resolved {
+		row.Levels[skill.Pool-1] = skill.Level
+	}
+	if item.Mark == lockedMark {
+		row.Locked = 1
+	}
+	return row
+}
+
+// Only confirmed locks for five- and six-star weapons are available for farming.
+func (s *inventorySnapshot) groups(weapons []matchapi.WeaponData) []inventoryGroup {
+	eligible := make(map[string]bool, len(weapons))
+	for _, w := range weapons {
+		eligible[w.InternalID] = w.Rarity == 5 || w.Rarity == 6
+	}
 	merged := make(map[string]*inventoryGroup)
 	for _, item := range s.Items {
-		if item.Quality != gold || item.Mark == discarded || len(item.WeaponIDs) == 0 {
+		if item.Quality != gold || item.Mark != lockedMark || len(item.weaponIDs) == 0 {
 			continue
 		}
-		row := inventoryEssence{Count: 1}
-		for _, skill := range item.Skills {
-			row.Levels[skill.Pool-1] = skill.Level
+		var ids []string
+		for _, id := range item.weaponIDs {
+			if eligible[id] {
+				ids = append(ids, id)
+			}
 		}
-		if item.Mark == lockedMark {
-			row.Locked = 1
+		if len(ids) > 0 {
+			mergeInventoryRows(merged, ids, []inventoryEssence{item.groupRow()})
 		}
-		mergeInventoryRows(merged, item.WeaponIDs, []inventoryEssence{row})
 	}
 	groups := make([]inventoryGroup, 0, len(merged))
 	for _, group := range merged {
@@ -99,14 +224,16 @@ func (s *inventorySnapshot) groups() []inventoryGroup {
 }
 
 var errInvalidSnapshot = errors.New("invalid essence inventory snapshot")
+var errInventoryAccountChanged = errors.New("cannot confirm the original essence inventory account")
 
 // A task with no verified account can reuse only its own in-memory snapshot.
 type inventoryAccount struct {
-	id    string
-	dir   string
-	local *inventorySnapshot
-	base  *inventorySnapshot
-	lock  *flock.Flock
+	id         string
+	generation uint64
+	dir        string
+	local      *inventorySnapshot
+	base       *inventorySnapshot
+	lock       *flock.Flock
 }
 
 var inventoryTasks = struct {
@@ -114,33 +241,46 @@ var inventoryTasks = struct {
 	byID map[int64]*inventoryAccount
 }{byID: make(map[int64]*inventoryAccount)}
 
-func accountFor(ctx *maa.Context, taskID int64) *inventoryAccount {
-	cached := captureuid.GetCachedUID(captureuid.OutputTypeHashed)
-	return bindInventoryAccount(taskID, filepath.Dir(InventoryPath()), cached, func() string {
-		ctrl := ctx.GetTasker().GetController()
-		sampled, err := captureuid.Capture(ctx, ctrl, true, true, true, captureuid.OutputTypeHashed)
-		if err != nil || sampled == "unknown" {
-			return ""
-		}
-		return sampled
-	})
+func taskController(ctx *maa.Context) *maa.Controller {
+	if ctx == nil {
+		return nil
+	}
+	tasker := ctx.GetTasker()
+	if tasker == nil {
+		return nil
+	}
+	return tasker.GetController()
 }
 
-func bindInventoryAccount(taskID int64, dir, cached string, sample func() string) *inventoryAccount {
+func currentInventoryUID(ctx *maa.Context, ctrl *maa.Controller) string {
+	if ctrl == nil {
+		return ""
+	}
+	uid, err := captureuid.Capture(ctx, ctrl, false, true, true, captureuid.OutputTypeHashed)
+	if err != nil || uid == "unknown" {
+		return ""
+	}
+	return uid
+}
+
+func accountFor(ctx *maa.Context, ctrl *maa.Controller, taskID int64) (*inventoryAccount, error) {
+	return bindInventoryAccount(taskID, fsutil.UserDataPath("debug", "record"), func() string { return currentInventoryUID(ctx, ctrl) })
+}
+
+// Bind once per task. A switch requires a new task, even when the user switches back.
+func bindInventoryAccount(taskID int64, dir string, sample func() string) (*inventoryAccount, error) {
 	inventoryTasks.Lock()
 	defer inventoryTasks.Unlock()
 	if previous := inventoryTasks.byID[taskID]; previous != nil {
-		if previous.id == cached {
-			return previous
+		if previous.generation != captureuid.CacheGeneration() {
+			return nil, errInventoryAccountChanged
 		}
-		previous.release()
+		return previous, nil
 	}
-	if cached == "" {
-		cached = sample()
-	}
-	account := &inventoryAccount{id: cached, dir: dir}
+	uid := sample()
+	account := &inventoryAccount{id: uid, generation: captureuid.CacheGeneration(), dir: dir}
 	inventoryTasks.byID[taskID] = account
-	return account
+	return account, nil
 }
 
 func releaseInventoryTask(taskID int64) {
@@ -152,15 +292,27 @@ func releaseInventoryTask(taskID int64) {
 	}
 }
 
-func (a *inventoryAccount) stillCurrent() bool {
-	return a.id == captureuid.GetCachedUID(captureuid.OutputTypeHashed)
+// Anonymous tasks never publish under a UID discovered later in the run.
+func (a *inventoryAccount) observedUID(ctx *maa.Context, ctrl *maa.Controller) string {
+	if a.id == "" {
+		return ""
+	}
+	return currentInventoryUID(ctx, ctrl)
+}
+
+func (a *inventoryAccount) matchesUID(uid string) bool {
+	return a.id == uid && a.generation == captureuid.CacheGeneration()
 }
 
 func (a *inventoryAccount) path() string {
-	return filepath.Join(a.dir, "EssenceInventory", a.id+".json")
+	name := a.id
+	if name == "" {
+		name = "unverified"
+	}
+	return filepath.Join(a.dir, "EssenceInventory", name+".json")
 }
 
-func (a *inventoryAccount) load() (*inventorySnapshot, error) {
+func (a *inventoryAccount) load(engine *matchapi.Engine) (*inventorySnapshot, error) {
 	if a.id == "" {
 		if a.local == nil {
 			return newSnapshot(""), nil
@@ -175,27 +327,35 @@ func (a *inventoryAccount) load() (*inventorySnapshot, error) {
 		return nil, err
 	}
 	var s inventorySnapshot
-	if err := json.Unmarshal(data, &s); err != nil {
+	// Only verified account files are read, so account_id is required here.
+	if err := readInventoryFields(data, map[string]any{
+		"format": &s.Format, "version": &s.Version, "account_id": &s.Account,
+		"updated_at": &s.UpdatedAt, "coverage": &s.Coverage, "items": &s.Items,
+	}); err != nil {
 		return nil, fmt.Errorf("%w: %v", errInvalidSnapshot, err)
 	}
-	if s.Account != a.id || s.Version != inventoryVersion || s.ScannedAt == nil || s.Items == nil {
+	if s.Format != inventoryFormat || s.Version != inventoryVersion || s.Account != a.id ||
+		!validInventoryTime(s.UpdatedAt) {
 		return nil, errInvalidSnapshot
 	}
-	for _, item := range s.Items {
-		if !validQualityAndMark(item.Quality, item.Mark) || item.WeaponIDs == nil {
+	for quality, coverage := range s.Coverage {
+		if quality != gold && quality != purple {
 			return nil, errInvalidSnapshot
 		}
-		for _, skill := range item.Skills {
-			if skill.ID < 1 || skill.Pool < 1 || skill.Pool > 3 || skill.Level < 1 || skill.Level > 6 || skill.Pool == 3 && skill.Level > 3 {
-				return nil, errInvalidSnapshot
-			}
+		if coverage == (tierCoverage{}) {
+			delete(s.Coverage, quality)
+		}
+	}
+	for i := range s.Items {
+		if err := s.Items[i].resolve(engine); err != nil {
+			return nil, err
 		}
 	}
 	return &s, nil
 }
 
-func writeInventoryJSON(path string, value any) error {
-	data, err := json.MarshalIndent(value, "", "    ")
+func writeInventoryJSON(path string, s *inventorySnapshot) error {
+	data, err := json.MarshalIndent(s, "", "    ")
 	if err != nil {
 		return err
 	}
@@ -215,7 +375,7 @@ func (a *inventoryAccount) save(s *inventorySnapshot) error {
 
 // Mark the account before a scan or claim can change the warehouse. An OS lock
 // covers game interactions and is released by the OS if the agent exits.
-func (a *inventoryAccount) begin() error {
+func (a *inventoryAccount) begin(engine *matchapi.Engine) error {
 	if a.base != nil {
 		return fmt.Errorf("inventory update already in progress")
 	}
@@ -233,7 +393,7 @@ func (a *inventoryAccount) begin() error {
 		}
 		a.lock = lock
 	}
-	s, err := a.load()
+	s, err := a.load(engine)
 	if errors.Is(err, errInvalidSnapshot) {
 		log.Warn().Err(err).Str("component", "EssenceInventory").Msg("discarding unusable inventory baseline")
 		s, err = newSnapshot(a.id), nil
@@ -242,11 +402,15 @@ func (a *inventoryAccount) begin() error {
 		a.release()
 		return err
 	}
-	if s.Pending {
-		clear(s.ScannedAt)
+	// Keep the verified baseline in memory until the game confirms the update.
+	incomplete := *s
+	incomplete.Coverage = make(map[string]tierCoverage)
+	for quality, coverage := range s.Coverage {
+		if coverage.Unread > 0 {
+			incomplete.Coverage[quality] = tierCoverage{Unread: coverage.Unread}
+		}
 	}
-	s.Pending = true
-	if err := a.save(s); err != nil {
+	if err := a.save(&incomplete); err != nil {
 		a.release()
 		return err
 	}
@@ -264,47 +428,51 @@ func (a *inventoryAccount) release() {
 	}
 }
 
-// Keep the persisted pending marker until both public projections have been
-// replaced. A publication failure therefore cannot authorize cache reuse.
-func (a *inventoryAccount) commit(s *inventorySnapshot, explicitExport bool) error {
+// commit rechecks the account before publishing the confirmed warehouse state.
+func (a *inventoryAccount) commit(s *inventorySnapshot, explicitReport bool, observedUID string) error {
 	if a.base == nil {
 		return fmt.Errorf("inventory transaction missing")
 	}
 	defer a.release()
-	s.Pending = false
+	if s.Account != a.id || !a.matchesUID(observedUID) {
+		return errInventoryAccountChanged
+	}
 	s.UpdatedAt = time.Now().UTC()
-	if s.targetReady(s.DataVersion) && (a.id != "" || explicitExport) {
-		if err := os.MkdirAll(a.dir, 0755); err != nil {
-			return err
-		}
-		lock := flock.New(filepath.Join(a.dir, ".EssenceInventory-export.lock"))
-		if err := lock.Lock(); err != nil {
-			return err
-		}
-		defer lock.Unlock()
-		if err := writeInventoryJSON(filepath.Join(a.dir, inventoryFullExportPath), s); err != nil {
-			return err
-		}
-		if err := writeInventoryFile(filepath.Join(a.dir, inventoryExportPath), s.groups()); err != nil {
+	if a.id == "" && explicitReport {
+		if err := writeInventoryJSON(a.path(), s); err != nil {
 			return err
 		}
 	}
-	return a.save(s)
+	if err := a.save(s); err != nil {
+		return err
+	}
+	if a.id != "" {
+		for _, name := range []string{"EssenceInventory.json", "EssenceInventoryFull.json"} {
+			path := filepath.Join(a.dir, name)
+			if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
+				log.Warn().Err(err).Str("path", path).Msg("could not remove legacy essence inventory")
+			}
+		}
+	}
+	return nil
 }
 
-// LoadAccountInventory reads covered gold stock for the active account. The public
-// exports are intentionally portable and cannot establish an account identity.
+// LoadAccountInventory reads verified gold stock using the current weapon data.
 func LoadAccountInventory(ctx *maa.Context, taskID int64) (*InventoryStock, error) {
-	version, err := matchapi.InventoryDataVersion(essenceFilterDataDir)
+	engine, err := matchapi.NewEngineFromDir(essenceFilterDataDir)
 	if err != nil {
 		return nil, err
 	}
-	s, err := accountFor(ctx, taskID).load()
+	account, err := accountFor(ctx, taskController(ctx), taskID)
 	if err != nil {
 		return nil, err
 	}
-	if !s.targetReady(version) {
+	s, err := account.load(engine)
+	if err != nil {
+		return nil, err
+	}
+	if !s.targetReady() {
 		return nil, fmt.Errorf("gold inventory needs a verified scan")
 	}
-	return stockFromGroups(s.groups()), nil
+	return stockFromGroups(s.groups(engine.Weapons())), nil
 }

@@ -1,0 +1,23 @@
+{
+    "configs": {
+        "name": "战后奖励中的无瑕和高纯基质",
+        "controller": "Win32",
+        "resource": "官服",
+        "imageRoot": "IconRecognition/rewards"
+    },
+    "cases": [
+        {
+            "name": "同时领取无瑕与高纯基质",
+            "image": "138.png",
+            "hits": [
+                "EssenceFilterAfterBattleStart",
+                "EssenceFullScreenDetectAll"
+            ]
+        },
+        {
+            "name": "普通物资奖励",
+            "image": "143.png",
+            "hits": []
+        }
+    ]
+}

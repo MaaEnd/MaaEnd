@@ -12,6 +12,7 @@ type WeaponData struct {
 
 // SkillPool is a canonical skill pool entry for a slot.
 type SkillPool struct {
+	TermID  string `json:"term_id,omitempty"`
 	ID      int    `json:"id"`
 	English string `json:"english"`
 	Chinese string `json:"chinese"`
@@ -70,9 +71,6 @@ type EssenceFilterOptions struct {
 	Rarity6Weapon bool `json:"rarity6_weapon"`
 	Rarity5Weapon bool `json:"rarity5_weapon"`
 	Rarity4Weapon bool `json:"rarity4_weapon"`
-
-	// Min total level to lock an exact match.
-	PerfectMinLevelTotal int `json:"perfect_min_level_total"`
 
 	// Future Promising extension.
 	KeepFuturePromising     bool `json:"keep_future_promising"`

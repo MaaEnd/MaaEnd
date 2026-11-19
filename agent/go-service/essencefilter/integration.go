@@ -2,6 +2,7 @@ package essencefilter
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 
@@ -222,34 +223,67 @@ type decisionNextNodes struct {
 	Skip    string
 }
 
-func runUnifiedSkillDecision(
-	ctx *maa.Context,
-	arg *maa.CustomActionArg,
-	st *RunState,
-	engine *matchapi.Engine,
-	ocr matchapi.OCRInput,
-	next decisionNextNodes,
-) bool {
-	skills := []string{ocr.Skills[0], ocr.Skills[1], ocr.Skills[2]}
+func (next decisionNextNodes) route(ctx *maa.Context, task, mark string) bool {
+	node := next.Skip
+	switch mark {
+	case lockedMark:
+		node = next.Lock
+	case discarded:
+		node = next.Discard
+	}
+	if err := ctx.OverrideNext(task, []maa.NextItem{{Name: node}}); err != nil {
+		return inventoryFailed(err)
+	}
+	return true
+}
 
-	matchResult, err := engine.MatchOCR(ocr, buildMatchOptions(st))
+func decideSkillMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput) (string, bool) {
+	matchResult, err := st.MatchEngine.MatchOCR(ocr, buildMatchOptions(st))
 	if err != nil || matchResult == nil {
 		if err != nil {
 			reportFocusByKey(ctx, "focus.error.match_failed", err.Error())
 		} else {
 			reportFocusByKey(ctx, "focus.error.match_failed", "nil match result")
 		}
-		return false
+		return "", false
 	}
+	return applySkillMark(ctx, st, ocr, matchResult)
+}
 
+// Mark from the same resolved weapon IDs that go into the report and target stock.
+func decideInventoryMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput, item inventoryItem) (string, bool) {
+	result := &matchapi.MatchResult{Kind: matchapi.MatchNone}
+	for _, weapon := range st.MatchEngine.Weapons() {
+		if (weapon.Rarity == 5 || weapon.Rarity == 6) && slices.Contains(item.weaponIDs, weapon.InternalID) {
+			result.Weapons = append(result.Weapons, weapon)
+		}
+	}
+	if len(result.Weapons) > 0 {
+		weapon := result.Weapons[0]
+		result.Kind, result.ShouldLock = matchapi.MatchExact, true
+		result.SkillIDs, result.SkillsChinese = weapon.SkillIDs, weapon.SkillsChinese
+		result.Levels = item.groupRow().Levels
+	}
+	return applySkillMark(ctx, st, ocr, result)
+}
+
+func applySkillMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput, matchResult *matchapi.MatchResult) (string, bool) {
+	skills := ocr.Skills[:]
 	reportOCRSkills(ctx, skills, ocr.Levels, matchResult.Kind != matchapi.MatchNone)
 
 	switch matchResult.Kind {
 	case matchapi.MatchExact:
-		if st.LockLimit != nil && !applyLockLimit(ctx, arg.CurrentTaskName, st.LockLimit, matchResult, st.CurrentLocked, next) {
-			st.CurrentSkills = [3]string{}
-			st.CurrentSkillLevels = [3]int{}
-			return true
+		if verdict := st.LockLimit.applyToExact(matchResult, st.CurrentLocked); verdict.Quota > 0 {
+			reportLockLimit(ctx, verdict, matchResult, st.CurrentLocked)
+			if verdict.MissingGroup || verdict.MissingRow {
+				return "", false
+			}
+			if !matchResult.ShouldLock {
+				break
+			}
+			matchResult.Weapons = slices.DeleteFunc(slices.Clone(matchResult.Weapons), func(weapon matchapi.WeaponData) bool {
+				return !isLockLimitTarget(weapon, st.PipelineOpts.LockLimitWeaponIDs)
+			})
 		}
 		reportMatchedWeapons(ctx, matchResult.Weapons)
 		st.MatchedCount++
@@ -268,8 +302,6 @@ func runUnifiedSkillDecision(
 				}
 			}
 		}
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Lock}})
-
 	case matchapi.MatchFuturePromising, matchapi.MatchSlot3Level3Practical:
 		var reason string
 		if matchResult.Kind == matchapi.MatchFuturePromising {
@@ -305,29 +337,28 @@ func runUnifiedSkillDecision(
 				}
 			}
 			reportExtRule(ctx, reason, true)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Lock}})
 		} else {
 			reportExtRule(ctx, reason, false)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
 		}
 
 	case matchapi.MatchNone:
-		if matchResult.ShouldDiscard {
-			reportNoMatch(ctx, true)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Discard}})
-		} else {
-			reportNoMatch(ctx, false)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
-		}
+		reportNoMatch(ctx, matchResult.ShouldDiscard)
 	}
 
 	st.CurrentSkills = [3]string{}
 	st.CurrentSkillLevels = [3]int{}
-	return true
+	switch {
+	case matchResult.ShouldLock:
+		return lockedMark, true
+	case matchResult.ShouldDiscard:
+		return discarded, true
+	default:
+		return unmarked, true
+	}
 }
 
-func loadMatchEngine(ctx *maa.Context, opts *EssenceFilterOptions) (*matchapi.Engine, error) {
-	locale := resolveInputLanguage(ctx, opts.InputLanguage)
+func loadMatchEngine(ctx *maa.Context, ctrl *maa.Controller, opts *EssenceFilterOptions) (*matchapi.Engine, error) {
+	locale := resolveInputLanguage(ctx, ctrl, opts.InputLanguage)
 	opts.InputLanguage = locale
 	engine, err := matchapi.NewEngineFromDirWithLocale(essenceFilterDataDir, locale)
 	if err != nil {
@@ -336,44 +367,25 @@ func loadMatchEngine(ctx *maa.Context, opts *EssenceFilterOptions) (*matchapi.En
 	return engine, nil
 }
 
-// applyLockLimit reports the quota verdict for one exact match and returns whether to lock it.
-func applyLockLimit(
-	ctx *maa.Context,
-	taskName string,
-	planner *lockLimitPlanner,
-	match *matchapi.MatchResult,
-	locked bool,
-	next decisionNextNodes,
-) bool {
-	skip := func() bool {
-		ctx.OverrideNext(taskName, []maa.NextItem{{Name: next.Skip}})
-		return false
-	}
-	verdict := planner.decide(match.SkillIDs, match.Levels, locked)
+func reportLockLimit(ctx *maa.Context, verdict lockLimitDecision, match *matchapi.MatchResult, locked bool) {
 	levels := match.Levels
 	switch {
 	case verdict.MissingGroup:
 		reportColoredByKey(ctx, "#ff9f43", "lock_limit.warn_missing_group", verdict.Quota)
-		return skip()
 	case verdict.MissingRow:
 		reportColoredByKey(ctx, "#ff9f43", "lock_limit.warn_missing_row", levels[0], levels[1], levels[2])
-		return skip()
-	}
-	if locked {
+	case locked:
 		if verdict.NeedsUnlock {
 			reportColoredByKey(ctx, "#ff4d4f", "lock_limit.unlock_needed",
 				strings.Join(match.SkillsChinese, i18n.Separator()), levels[0], levels[1], levels[2])
 		} else {
 			reportSimpleByKey(ctx, "lock_limit.already_locked")
 		}
-		return skip()
-	}
-	if !verdict.Lock {
+	case !verdict.Lock:
 		reportSimpleByKey(ctx, "lock_limit.not_in_quota", verdict.Quota)
-		return skip()
+	default:
+		reportSimpleByKey(ctx, "lock_limit.in_quota", verdict.Quota)
 	}
-	reportSimpleByKey(ctx, "lock_limit.in_quota", verdict.Quota)
-	return true
 }
 
 // reportFinishLockLimit lists the combinations holding locked suboptimal essences.

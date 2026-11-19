@@ -48,7 +48,7 @@ type lockLimitRow struct {
 	expected      float64
 	count         int
 	locked        int
-	inTop         int
+	keptLocked    int
 	needLock      int
 	lockedThisRun int
 }
@@ -82,9 +82,13 @@ type lockLimitPlanner struct {
 	combinations map[[3]int]*lockLimitCombination
 }
 
-// newLockLimitPlanner builds quota plans from an inventory snapshot and the engine weapon table.
-// Quotas count five- and six-star weapons only, so four-star-only combinations are never planned.
-func newLockLimitPlanner(groups []inventoryGroup, weapons []matchapi.WeaponData) *lockLimitPlanner {
+// isLockLimitTarget reports whether a weapon contributes a place to this farming task's quota.
+func isLockLimitTarget(weapon matchapi.WeaponData, selected []string) bool {
+	return (weapon.Rarity == 5 || weapon.Rarity == 6) && slices.Contains(selected, weapon.InternalID)
+}
+
+// newLockLimitPlanner resolves inventory groups against the full catalog and counts only selected weapons.
+func newLockLimitPlanner(groups []inventoryGroup, weapons []matchapi.WeaponData, selected []string) *lockLimitPlanner {
 	p := &lockLimitPlanner{
 		references:   make(map[[3]int]*lockLimitReference),
 		combinations: make(map[[3]int]*lockLimitCombination),
@@ -92,7 +96,7 @@ func newLockLimitPlanner(groups []inventoryGroup, weapons []matchapi.WeaponData)
 	weaponByID := make(map[string]matchapi.WeaponData, len(weapons))
 	for _, weapon := range weapons {
 		weaponByID[weapon.InternalID] = weapon
-		if weapon.Rarity != 5 && weapon.Rarity != 6 {
+		if !isLockLimitTarget(weapon, selected) {
 			continue
 		}
 		ids, ok := skillIDsTriple(weapon.SkillIDs)
@@ -129,7 +133,7 @@ func newLockLimitPlanner(groups []inventoryGroup, weapons []matchapi.WeaponData)
 			p.combinations[ids] = combo
 		}
 		for _, essence := range group.Essences {
-			if essence.Count <= 0 || essence.Locked < 0 {
+			if essence.Count <= 0 || essence.Locked < 0 || essence.Locked > essence.Count {
 				continue
 			}
 			expected, ok := ExpectedEnhanceAttempts(essence.Levels)
@@ -151,11 +155,13 @@ func newLockLimitPlanner(groups []inventoryGroup, weapons []matchapi.WeaponData)
 	return p
 }
 
-// buildRanking sorts rows by expected attempts and assigns each row its share of the top N.
+// Existing locks occupy the quota first. Rank only this claim's unmarked
+// candidates for the remaining places.
 func (c *lockLimitCombination) buildRanking() {
 	c.ordered = make([]*lockLimitRow, 0, len(c.rows))
 	for _, row := range c.rows {
 		c.ordered = append(c.ordered, row)
+		c.snapshotLocked += row.locked
 	}
 	sort.Slice(c.ordered, func(i, j int) bool {
 		if c.ordered[i].expected != c.ordered[j].expected {
@@ -163,14 +169,27 @@ func (c *lockLimitCombination) buildRanking() {
 		}
 		return slices.Compare(c.ordered[i].levels[:], c.ordered[j].levels[:]) < 0
 	})
-	better := 0
+	keepLocked := c.quota
+	free := max(c.quota-c.snapshotLocked, 0)
 	for _, row := range c.ordered {
-		row.inTop = min(row.count, max(c.quota-better, 0))
-		row.needLock = max(row.inTop-row.locked, 0)
-		better += row.count
-		c.snapshotLocked += row.locked
-		c.excess += max(row.locked-row.inTop, 0)
+		row.keptLocked = min(row.locked, keepLocked)
+		keepLocked -= row.keptLocked
+		c.excess += row.locked - row.keptLocked
+		row.needLock = min(row.count-row.locked, free)
+		free -= row.needLock
 	}
+}
+
+// applyToExact limits locks only for combinations shared by selected weapons.
+func (p *lockLimitPlanner) applyToExact(match *matchapi.MatchResult, locked bool) lockLimitDecision {
+	if p == nil {
+		return lockLimitDecision{}
+	}
+	verdict := p.decide(match.SkillIDs, match.Levels, locked)
+	if verdict.Quota > 0 {
+		match.ShouldLock = verdict.Lock
+	}
+	return verdict
 }
 
 // decide returns the verdict for one scanned essence and records the run progress.
@@ -182,7 +201,7 @@ func (p *lockLimitPlanner) decide(skillIDs []int, levels [3]int, locked bool) lo
 	}
 	combo := p.combinations[ids]
 	if combo == nil {
-		// A four-star-only combination has no quota and is reported as a plain mismatch.
+		// Only a combination used by a selected weapon is expected in the snapshot.
 		if ref := p.references[ids]; ref != nil && ref.quota > 0 {
 			decision.MissingGroup = true
 			decision.Quota = ref.quota
@@ -196,7 +215,7 @@ func (p *lockLimitPlanner) decide(skillIDs []int, levels [3]int, locked bool) lo
 		return decision
 	}
 	if locked {
-		decision.NeedsUnlock = row.locked > row.inTop
+		decision.NeedsUnlock = row.locked > row.keptLocked
 		return decision
 	}
 	if row.lockedThisRun < row.needLock {
@@ -271,12 +290,12 @@ func (p *lockLimitPlanner) overLimitSummaries() []lockLimitSummary {
 			Excess:  combo.excess,
 		}
 		for _, row := range combo.ordered {
-			if row.locked <= row.inTop {
+			if row.locked <= row.keptLocked {
 				continue
 			}
 			summary.Rows = append(summary.Rows, lockLimitSummaryRow{
 				Levels: row.levels,
-				Count:  row.locked - row.inTop,
+				Count:  row.locked - row.keptLocked,
 			})
 		}
 		sort.Slice(summary.Rows, func(i, j int) bool {

@@ -46,6 +46,30 @@ func (e *Engine) SkillPools() SkillPools {
 	return e.data.SkillPools
 }
 
+// TermID returns the game term ID for a skill in the given pool.
+func (e *Engine) TermID(pool, id int) (string, bool) {
+	for _, skill := range poolBySlot(e.data.SkillPools, pool) {
+		if skill.ID == id && skill.TermID != "" {
+			return skill.TermID, true
+		}
+	}
+	return "", false
+}
+
+// ResolveTermID looks up a game term ID in the current skill pools.
+func (e *Engine) ResolveTermID(termID string) (pool, id int, ok bool) {
+	if termID != "" {
+		for pool := 1; pool <= 3; pool++ {
+			for _, skill := range poolBySlot(e.data.SkillPools, pool) {
+				if skill.TermID == termID {
+					return pool, skill.ID, true
+				}
+			}
+		}
+	}
+	return 0, 0, false
+}
+
 // Weapons returns the weapon rows currently loaded in this engine.
 // The returned slice aliases the engine's backing array; callers must treat it as read-only.
 func (e *Engine) Weapons() []WeaponData {
@@ -136,7 +160,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 			exact = exactMatched
 		}
 	}
-	if exact != nil && ocrLevels[0]+ocrLevels[1]+ocrLevels[2] >= opts.PerfectMinLevelTotal {
+	if exact != nil {
 		return &MatchResult{
 			Kind:          MatchExact,
 			SkillIDs:      exact.SkillIDs,

@@ -1,0 +1,102 @@
+{
+    "format": "maaend.essence_inventory",
+    "version": 1,
+    "account_id": "3f9c2a7b5d1e8a40",
+    "updated_at": "2027-03-01T08:00:00Z",
+    "coverage": {
+        "flawless_gold": {
+            "complete_at": "2027-03-01T07:55:00Z"
+        },
+        "some_future_quality": {
+            "complete_at": "2027-03-01T07:55:00Z"
+        }
+    },
+    "items": [
+        {
+            "quality": "flawless_gold",
+            "mark": "lock",
+            "skills": [
+                {
+                    "id": "gat_passive_attr_agi",
+                    "level": 6
+                },
+                {
+                    "id": "gat_passive_attr_atk",
+                    "level": 6
+                },
+                {
+                    "id": "gst_passive_magabn",
+                    "level": 3
+                }
+            ]
+        },
+        {
+            "quality": "some_future_quality",
+            "mark": "none",
+            "skills": [
+                {
+                    "id": "gat_passive_attr_agi",
+                    "level": 1
+                },
+                {
+                    "id": "gat_passive_attr_atk",
+                    "level": 1
+                },
+                {
+                    "id": "gst_passive_magabn",
+                    "level": 1
+                }
+            ]
+        },
+        {
+            "quality": "flawless_gold",
+            "mark": "some_future_mark",
+            "skills": [
+                {
+                    "id": "gat_passive_attr_agi",
+                    "level": 1
+                },
+                {
+                    "id": "gat_passive_attr_atk",
+                    "level": 1
+                },
+                {
+                    "id": "gst_passive_magabn",
+                    "level": 1
+                }
+            ]
+        },
+        {
+            "quality": "flawless_gold",
+            "mark": "none",
+            "skills": [
+                {
+                    "id": "gat_passive_attr_some_future_term",
+                    "level": 1
+                },
+                {
+                    "id": "gat_passive_attr_atk",
+                    "level": 1
+                },
+                {
+                    "id": "gst_passive_magabn",
+                    "level": 1
+                }
+            ]
+        },
+        {
+            "quality": "flawless_gold",
+            "mark": "none",
+            "skills": [
+                {
+                    "id": "gat_passive_attr_main",
+                    "level": 1
+                },
+                {
+                    "id": "gst_passive_force",
+                    "level": 1
+                }
+            ]
+        }
+    ]
+}

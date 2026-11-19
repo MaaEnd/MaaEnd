@@ -24,7 +24,7 @@ matchapi 只返回结构化匹配结果；面向用户的文案由上层 `essenc
 
 ## 最简单用法：只调用匹配
 
-`engine.InventorySkills(ocr)` 按显示顺序解析三条词条，每条保留池、ID 和等级。重复词条池也完整返回。`engine.InventoryMatch(skills)` 给出精确适配的四至六星武器。旧入口 `engine.MatchInventoryOCR(ocr)` 组合这两步，继续向调用方返回精确匹配、无匹配或解析错误。
+`engine.InventorySkills(ocr)` 按显示顺序解析三条词条，每条保留池、ID 和等级。重复词条池也完整返回。技能池的 `term_id` 对应游戏 GemTable 的 `gemTermId`。`engine.TermID(pool, id)` 和 `engine.ResolveTermID(termID)` 用于双向查询，缺少映射时返回 `false`。`engine.InventoryMatch(skills)` 给出精确适配的四至六星武器。旧入口 `engine.MatchInventoryOCR(ocr)` 组合这两步，继续向调用方返回精确匹配、无匹配或解析错误。
 
 ```go
 engine, err := matchapi.NewDefaultEngine()

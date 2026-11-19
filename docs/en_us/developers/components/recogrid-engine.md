@@ -97,9 +97,9 @@ The controller's first cell, card pitch and scrollbar identify the layout. Compl
 
 Coverage starts at the verified top and continues across overlapping pages. The adapter records each position when a configured filter excludes it or when its selection is confirmed and detail processing returns successfully. At the bottom it checks the count, current page, bottom position and resolved count again. An inventory that fits on one screen can finish without scrolling.
 
-Warehouse scans and regular filtering enable `collect_inventory` to read both qualities and all marks. `selected_for_filter` determines whether the item enters the marking flow. Go verifies the number of OCR observations against the inventory counter before committing.
+The vault option “Filter Flawless Essences for all 5- and 6-star weapons and generate a report” and the read-only scan in Target mode both enable `collect_inventory`. Each reads both qualities and all marks in a single traversal. The vault option locks unmarked exact matches. Target mode reads existing marks. Go verifies position coverage before committing. The account file records the quality, mark, skills and levels of each observed Essence with known skills. When Flawless coverage has a completion timestamp, Target mode uses the current weapon data to count eligible locked Essences.
 
-`EssenceFilterMain` requires at least one enabled scan mode to finish successfully. When inventory export and filtering are both enabled, the inventory pass completes before filtering starts. Either pass can fail the task.
+Custom filtering dispatches cells according to the user’s settings. After custom filtering, “Rescan essence inventory before farming” refreshes the current account’s stock from the marks observed in the vault.
 
 ## EssenceGrid: the essence business instance
 
@@ -132,11 +132,11 @@ EssenceGrid processes only tracker `new_cells`:
 2. match lock/discard thumbnails in the lower-left cell region;
 3. apply the quality and skip options;
 4. enqueue accepted cells;
-5. Pipeline clicks the center of the pending cell. The scanner compares the pre-click symbol at that coordinate with the detail panel. Selection marks or changes in the long edges distinguish cells with the same symbol. OCR starts after confirmation. The scanner checks the selection and scrollbar again when processing returns.
+5. Pipeline clicks the center of the pending cell. The scanner compares the pre-click symbol at that coordinate with the detail panel. Four selection corners or changes in the long edges distinguish cells with the same symbol. All four corners use one vertical offset to account for uncertainty in the row position. If the selection is unconfirmed, Pipeline can click the same coordinate once more. Both attempts compare against the original frame. OCR starts after confirmation. The scanner checks the selection and scrollbar again when processing returns.
 
 ## Go and Pipeline
 
-After Pipeline clicks a cell, OCR nodes read the three skills and their levels. Go's `runUnifiedSkillDecision` only decides the branch:
+After Pipeline clicks a cell, OCR nodes read the three skills and their levels. The Go function `decideSkillMark` chooses the mark to apply.
 
 - target matched: go to `EssenceFilterLockItem`;
 - no match and discarding enabled: go to `EssenceFilterDiscardItem`;

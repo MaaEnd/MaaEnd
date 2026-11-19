@@ -1,8 +1,8 @@
 package autoessence
 
 import (
-	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
@@ -76,24 +76,20 @@ func (a *TargetPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
-	selected, err := readSelectedWeapons(ctx, arg.CurrentTaskName)
+	node, err := ctx.GetNode(arg.CurrentTaskName)
 	if err != nil {
 		log.Error().Err(err).Str("component", componentPlan).Msg("failed to read attach")
 		return false
 	}
 
+	selected := selectedWeaponIDs(node.Attach)
 	if len(selected) == 0 {
 		log.Error().Str("component", componentPlan).Msg("no weapons selected in attach")
 		maafocus.Print(ctx, "🎯目标模式：未勾选任何武器，结束任务")
 		return overrideNextFinish(ctx, arg.CurrentTaskName)
 	}
 
-	missing := make([]string, 0, len(selected))
-	for _, id := range selected {
-		if Count([]string{id}) < 1 {
-			missing = append(missing, id)
-		}
-	}
+	missing := stock.MissingWeapons(selected)
 	if len(missing) == 0 {
 		log.Info().Str("component", componentPlan).Int("selected", len(selected)).Msg("all targets satisfied")
 		maafocus.Print(ctx, "🎯目标模式：勾选武器的基质均已满足，结束任务")
@@ -126,6 +122,12 @@ func (a *TargetPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	if err != nil {
 		log.Error().Err(err).Str("component", componentPlan).Msg("failed to build engrave override")
 		return false
+	}
+	if node.Attach["limit_locked_per_combination"] == true {
+		// Both loot passes use the full selection, including weapons already present in inventory.
+		for _, initNode := range []string{"EssenceFilterAfterBattleReadonlyInit", "EssenceFilterAfterBattleInit"} {
+			engravePatch[initNode] = map[string]any{"attach": map[string]any{"lock_limit_weapon_ids": selected}}
+		}
 	}
 
 	// 换了淤积点：清零「整次任务只传送一次」的计数，让分发器先把人送到新点的最近锚点。
@@ -232,27 +234,13 @@ func overrideNextFinish(ctx *maa.Context, current string) bool {
 	return true
 }
 
-func readSelectedWeapons(ctx *maa.Context, nodeName string) ([]string, error) {
-	raw, err := ctx.GetNodeJSON(nodeName)
-	if err != nil {
-		return nil, err
-	}
-	var wrapper struct {
-		Attach map[string]json.RawMessage `json:"attach"`
-	}
-	if err := json.Unmarshal([]byte(raw), &wrapper); err != nil {
-		return nil, err
-	}
-	out := make([]string, 0)
-	for key, val := range wrapper.Attach {
-		if !strings.HasPrefix(key, "wpn_") {
-			continue
+func selectedWeaponIDs(attach map[string]any) []string {
+	var selected []string
+	for key, enabled := range attach {
+		if strings.HasPrefix(key, "wpn_") && enabled == true {
+			selected = append(selected, key)
 		}
-		var on bool
-		if err := json.Unmarshal(val, &on); err != nil || !on {
-			continue
-		}
-		out = append(out, key)
 	}
-	return out, nil
+	slices.Sort(selected)
+	return selected
 }

@@ -5,7 +5,7 @@
 #include <MaaUtils/NoWarningCV.hpp>
 
 #include <cstddef>
-#include <map>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -79,7 +79,7 @@ public:
 private:
     recogrid::GridFrame previous_frame_;
     int viewport_start_row_ = 0;
-    std::map<std::pair<int, int>, Cell> cells_;
+    std::set<std::pair<int, int>> seen_positions_;
 };
 
 const char* ToString(Status status);

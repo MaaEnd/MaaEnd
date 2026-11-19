@@ -57,12 +57,6 @@ func fileExists(p string) bool {
 	return err == nil
 }
 
-// InventoryDataVersion identifies the dictionaries used to resolve stored skills and weapons.
-func InventoryDataVersion(dataDir string) (string, error) {
-	cfg, err := loadMatcherConfig(dataDir, defaultLoadLocale)
-	return cfg.DataVersion, err
-}
-
 func loadMatcherConfig(dataDir string, locale string) (MatcherConfig, error) {
 	b, err := resource.ReadResource(filepath.Join(dataDir, "matcher_config.json"))
 	if err != nil {
@@ -144,6 +138,7 @@ func pickSuffixStopwords(stopMap map[string][]string, locale string) []string {
 }
 
 type skillPoolJSON struct {
+	TermID  string `json:"term_id"`
 	ID      int    `json:"id"`
 	English string `json:"english"`
 	Chinese string `json:"chinese"`
@@ -244,6 +239,7 @@ func loadSkillPools(dataDir string, locale string) (SkillPools, error) {
 			en := pickSkillPoolEnglish(s)
 			out = append(out, SkillPool{
 				ID:      s.ID,
+				TermID:  s.TermID,
 				English: en,
 				Chinese: display, // locale display string used for matching (field name kept for JSON compat)
 			})

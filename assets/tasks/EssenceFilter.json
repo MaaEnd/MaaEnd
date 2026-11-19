@@ -20,67 +20,25 @@
                 "Win32-Front"
             ],
             "option": [
-                "ExportInventory"
+                "ScreenFlawlessAndReport"
             ]
         }
     ],
     "option": {
-        "ExportInventory": {
+        "ScreenFlawlessAndReport": {
             "type": "switch",
-            "label": "$option.ExportInventory.label",
-            "description": "$option.ExportInventory.description",
+            "label": "$option.ScreenFlawlessAndReport.label",
+            "description": "$option.ScreenFlawlessAndReport.description",
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {
-                        "EssenceFilterInventoryEntry": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "option": [
-                        "SelectExtraRules",
-                        "LimitLockedPerCombination"
-                    ],
                     "pipeline_override": {
                         "EssenceFilterEntry": {
-                            "enabled": true
-                        }
-                    }
-                }
-            ],
-            "default_case": "No"
-        },
-        "LimitLockedPerCombination": {
-            "type": "switch",
-            "label": "$option.LimitLockedPerCombination.label",
-            "description": "$option.LimitLockedPerCombination.description",
-            "cases": [
-                {
-                    "name": "Yes",
-                    //品质与稀有度口径钉死为无瑕 + 5–6 星：名额按全部五六星武器数计算，两者选项都不在本分支下
-                    "pipeline_override": {
-                        "EssenceFilterInventoryEntry": {
                             "enabled": true
                         },
                         "EssenceFilterInit": {
                             "attach": {
-                                "rarity6_weapon": true,
-                                "rarity5_weapon": true,
-                                "rarity4_weapon": false,
-                                "limit_locked_per_combination": true,
-                                "flawless_essence": true,
-                                "pure_essence": false
-                            }
-                        },
-                        "EssenceGridAdvance": {
-                            "attach": {
-                                "flawless_essence": true,
-                                "pure_essence": false,
-                                "skip_thumb_lock": false,
-                                "skip_thumb_discard": true
+                                "mode": "screen_and_report"
                             }
                         }
                     }
@@ -90,9 +48,20 @@
                     "option": [
                         "SelectWeaponRarity",
                         "SelectEssence",
+                        "SelectExtraRules",
                         "SkipThumbLock",
                         "SkipThumbDiscard"
-                    ]
+                    ],
+                    "pipeline_override": {
+                        "EssenceFilterEntry": {
+                            "enabled": true
+                        },
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "mode": "filter"
+                            }
+                        }
+                    }
                 }
             ],
             "default_case": "No"
@@ -350,7 +319,6 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "PerfectMinLevelTotal",
                         "KeepFuturePromising",
                         "KeepSlot3Level3Practical",
                         "DiscardUnmatched",
@@ -362,26 +330,6 @@
                 }
             ],
             "default_case": "No"
-        },
-        "PerfectMinLevelTotal": {
-            "type": "input",
-            "label": "$option.PerfectMinLevelTotal.label",
-            "inputs": [
-                {
-                    "name": "PerfectMinLevelTotal",
-                    "label": "$option.PerfectMinLevelTotal.inputs.PerfectMinLevelTotal.label",
-                    "default": "3",
-                    "pipeline_type": "int",
-                    "verify": "^[3-9]$|^1[0-5]$"
-                }
-            ],
-            "pipeline_override": {
-                "EssenceFilterInit": {
-                    "attach": {
-                        "perfect_min_level_total": "{PerfectMinLevelTotal}"
-                    }
-                }
-            }
         },
         "KeepFuturePromising": {
             "type": "switch",

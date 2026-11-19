@@ -76,7 +76,7 @@
         }
     },
     "EssenceFilterInventoryInit": {
-        "desc": "初始化：库存盘点模式（只读扫描全部基质，匹配四至六星武器）",
+        "desc": "只读盘点无瑕和高纯基质，按已锁的五星、六星武器适配基质计算库存",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -103,8 +103,7 @@
         "attach": {
             "mode": "inventory",
             "flawless_essence": true,
-            "pure_essence": false,
-            "rarity4_weapon": true,
+            "pure_essence": true,
             "rarity5_weapon": true,
             "rarity6_weapon": true
         }

@@ -51,7 +51,7 @@ coordinates that genuinely differ from the base resource.
 4. Direct callers receive cells passing the configured quality and thumbnail
    filters. A warehouse scan opts into `collect_inventory` and dispatches every
    occupied cell. `selected_for_filter` preserves the user's marking policy.
-5. Pipeline clicks the pending coordinate. EssenceGrid compares its pre-click symbol with the detail panel. Cells with the same symbol need spatial evidence from the selection marks or the change in card edges. OCR starts once selection is confirmed.
+5. Pipeline clicks the pending coordinate. EssenceGrid compares its pre-click symbol with the detail panel. Cells with the same symbol need spatial evidence from the selection marks or the change in card edges. If that check fails, Pipeline can click the same coordinate once more. Both attempts use the original frame. OCR starts only after confirmation.
 6. Go decides `Lock`, `Discard`, or `Skip`.
 7. Pipeline performs and verifies the chosen UI action. The scanner acknowledges that coordinate after checking the selection, the page icons and the scrollbar again.
 

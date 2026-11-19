@@ -1,0 +1,27 @@
+{
+    "format": "maaend.essence_inventory",
+    "version": 1,
+    "account_id": "3f9c2a7b5d1e8a40",
+    "updated_at": "2026-11-19T13:20:00Z",
+    "coverage": {},
+    "items": [
+        {
+            "quality": "flawless_gold",
+            "mark": "lock",
+            "skills": [
+                {
+                    "id": "gat_passive_attr_agi",
+                    "level": 1
+                },
+                {
+                    "id": "gat_passive_attr_atk",
+                    "level": 1
+                },
+                {
+                    "id": "gst_passive_magabn",
+                    "level": 1
+                }
+            ]
+        }
+    ]
+}

@@ -119,6 +119,7 @@ struct EssenceGridState
     cv::Size page_size_;
     cv::Range page_thumb_;
     bool selection_confirmed_ = false;
+    int pending_clicks_ = 0;
     cv::Mat before_click_;
     std::optional<std::pair<int, int>> last_selected_;
     bool failed_ = false;
@@ -924,6 +925,7 @@ MaaBool EssenceGrid::advance(
 
         if (selected) {
             state.pending_cell_ = selected;
+            state.pending_clicks_ = 0;
             ++state.issued_cells_;
             next_node = kClickNextNode;
             if (out_box != nullptr) {
@@ -1002,8 +1004,15 @@ MaaBool MAA_CALL EssenceGrid::pendingRecognitionRun(
             }
             state.selection_confirmed_ = true;
         }
-        else {
-            state.before_click_ = frame.clone();
+        else if (std::string_view(node_name) == kClickNextNode) {
+            if (state.pending_clicks_ >= 2) {
+                write_error(out_detail, "Pending inventory cell still unconfirmed after reclick");
+                return 0;
+            }
+            if (state.pending_clicks_ == 0) {
+                state.before_click_ = frame.clone();
+            }
+            ++state.pending_clicks_;
         }
         const auto hit = grid->pending(out_box, out_detail);
         if (hit && out_box && std::string_view(node_name) == kClickNextNode) {

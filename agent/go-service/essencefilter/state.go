@@ -41,9 +41,6 @@ type RunState struct {
 	RowBoxes [][4]int
 	RowIndex int
 
-	// EssenceMode derived from selection: flawless_only / pure_only / both
-	EssenceMode EssenceMode
-
 	// PipelineOpts is a copy of the init node's attach JSON; filled in Init for the run (avoids re-parsing).
 	PipelineOpts EssenceFilterOptions
 }

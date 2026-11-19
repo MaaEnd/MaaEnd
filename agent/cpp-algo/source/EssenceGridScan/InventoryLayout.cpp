@@ -172,13 +172,13 @@ InventoryPage ReadInventoryPage(
     return page;
 }
 
-bool IsSelectedCell(const cv::Mat& image, const cv::Rect& cell)
+namespace
+{
+
+bool has_selection_caps(const cv::Mat& image, const cv::Rect& cell)
 {
     // Each rounded bracket has a cap above or below its own corner. A neighbour
     // can light the shared vertical gap, but cannot supply these four inward caps.
-    if (image.depth() != CV_8U || (image.channels() != 3 && image.channels() != 4) || cell.empty()) {
-        return false;
-    }
     constexpr int kMinCapContrast = 24;
     const cv::Rect bounds({}, image.size());
     for (const int dy : { -1, 1 }) {
@@ -207,6 +207,29 @@ bool IsSelectedCell(const cv::Mat& image, const cv::Rect& cell)
         }
     }
     return true;
+}
+
+} // namespace
+
+bool IsSelectedCell(const cv::Mat& image, const cv::Rect& cell)
+{
+    if (image.depth() != CV_8U || (image.channels() != 3 && image.channels() != 4) || cell.empty()) {
+        return false;
+    }
+    // Columns are fixed. The vertical position is inferred from the contours of
+    // the whole row, which can shift when the rarity strip blends into the gap.
+    // Keep all four caps at the same offset from that row.
+    if (has_selection_caps(image, cell)) {
+        return true;
+    }
+    const int tolerance = cvRound(kEdgeTolerance * image.rows / 720.0);
+    for (int offset = 1; offset <= tolerance; ++offset) {
+        const cv::Point shift(0, offset);
+        if (has_selection_caps(image, cell + shift) || has_selection_caps(image, cell - shift)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 } // namespace essencegridscan

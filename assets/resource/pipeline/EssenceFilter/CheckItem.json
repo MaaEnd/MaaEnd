@@ -33,6 +33,9 @@
         "rate_limit": 300,
         "next": [
             "EssenceFilterCheckItemSlot1Level"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
         ]
     },
     "EssenceFilterCheckItemSlot1Level": {
@@ -68,6 +71,9 @@
         "rate_limit": 300,
         "next": [
             "EssenceFilterCheckItemSlot2"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
         ]
     },
     "EssenceFilterCheckItemSlot2": {
@@ -104,6 +110,9 @@
         "rate_limit": 300,
         "next": [
             "EssenceFilterCheckItemSlot2Level"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
         ]
     },
     "EssenceFilterCheckItemSlot2Level": {
@@ -139,6 +148,9 @@
         "rate_limit": 300,
         "next": [
             "EssenceFilterCheckItemSlot3"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
         ]
     },
     "EssenceFilterCheckItemSlot3": {
@@ -175,6 +187,9 @@
         "rate_limit": 300,
         "next": [
             "EssenceFilterCheckItemSlot3Level"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
         ]
     },
     "EssenceFilterCheckItemSlot3Level": {
@@ -210,6 +225,9 @@
         "rate_limit": 300,
         "next": [
             "EssenceFilterSkillDecision"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
         ]
     },
     "EssenceFilterSkillDecision": {
@@ -224,6 +242,25 @@
         "post_delay": 0,
         "next": [
             "EssenceGridAdvance"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
+        ]
+    },
+    "EssenceFilterUnreadPurple": {
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterUnreadPurpleAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceGridAdvance"
+        ],
+        "on_error": [
+            "FailedNode"
         ]
     }
 }

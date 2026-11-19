@@ -10,9 +10,13 @@
                     1210,
                     522
                 ],
-                "template": "EssenceFilter/EssenceGeneral.png",
+                "template": [
+                    "EssenceFilter/EssenceGeneral.png",
+                    "EssenceFilter/EssenceRewardHighPurity.png"
+                ],
+                "green_mask": true,
                 "method": 5,
-                "threshold": 0.35
+                "threshold": 0.7
             }
         },
         "pre_delay": 0,
@@ -48,8 +52,7 @@
         "post_wait_freezes": 300,
         "next": [
             "EssenceFilterAfterBattleIsflawless",
-            "EssenceFilterAfterBattleIsPure",
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
+            "EssenceFilterAfterBattleIsPure"
         ],
         "focus": {
             "Node.Action.Succeeded": "已定位基质详情"
@@ -82,9 +85,6 @@
         "next": [
             "EssenceFilterAfterBattleTierGateFlawless"
         ],
-        "on_error": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
-        ],
         "focus": {
             "Node.Recognition.Succeeded": "是无瑕基质"
         }
@@ -116,15 +116,12 @@
         "next": [
             "EssenceFilterAfterBattleTierGatePure"
         ],
-        "on_error": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
-        ],
         "focus": {
             "Node.Recognition.Succeeded": "是高纯基质"
         }
     },
     "EssenceFilterAfterBattleTierGateFlawless": {
-        "desc": "Tier gate: flawless detected, check mode before proceeding",
+        "desc": "读取无瑕基质的当前标记",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -141,7 +138,7 @@
         ]
     },
     "EssenceFilterAfterBattleTierGatePure": {
-        "desc": "Tier gate: pure detected, check mode before proceeding",
+        "desc": "读取高纯基质的当前标记",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -155,6 +152,9 @@
         "post_delay": 0,
         "next": [
             "EssenceAfterBattleYellowSlot1"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleUnreadPurple"
         ]
     },
     "EssenceAfterBattleYellowSlot1": {
@@ -195,7 +195,7 @@
             "EssenceFilterAfterBattleCheckItemSlot1"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceFilterAfterBattleUnreadPurple"
         ]
     },
     "EssenceAfterBattleYellowSlot2": {
@@ -235,7 +235,7 @@
             "EssenceFilterAfterBattleCheckItemSlot2"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceFilterAfterBattleUnreadPurple"
         ]
     },
     "EssenceAfterBattleYellowSlot3": {
@@ -275,7 +275,7 @@
             "EssenceFilterAfterBattleCheckItemSlot3"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceFilterAfterBattleUnreadPurple"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot1": {
@@ -311,8 +311,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterAfterBattleCheckItemSlot1Level",
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceFilterAfterBattleCheckItemSlot1Level"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleUnreadPurple"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot1Level": {
@@ -348,8 +350,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceAfterBattleYellowSlot2",
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceAfterBattleYellowSlot2"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleUnreadPurple"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot2": {
@@ -385,8 +389,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterAfterBattleCheckItemSlot2Level",
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceFilterAfterBattleCheckItemSlot2Level"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleUnreadPurple"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot2Level": {
@@ -422,8 +428,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceAfterBattleYellowSlot3",
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceAfterBattleYellowSlot3"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleUnreadPurple"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot3": {
@@ -459,8 +467,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterAfterBattleCheckItemSlot3Level",
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceFilterAfterBattleCheckItemSlot3Level"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleUnreadPurple"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot3Level": {
@@ -496,23 +506,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterAfterBattleSkillDecision",
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
-        ]
-    },
-    "EssenceFilterAfterBattleCheckItemOCRFallback": {
-        "desc": "OCR 超时：跳过",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {}
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing"
-        },
-        "post_delay": 0,
-        "next": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
+            "EssenceFilterAfterBattleSkillDecision"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleUnreadPurple"
         ]
     },
     "EssenceFilterAfterBattleSkillDecision": {
@@ -526,7 +523,26 @@
         },
         "post_delay": 0,
         "next": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
+            "FailedNode"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleUnreadPurple"
+        ]
+    },
+    "EssenceFilterAfterBattleUnreadPurple": {
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterUnreadPurpleAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleCloseDetail"
+        ],
+        "on_error": [
+            "FailedNode"
         ]
     }
 }

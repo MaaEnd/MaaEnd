@@ -36,6 +36,7 @@ var (
 	// capturedUid 缓存 OCR 或注册表得到的原始 UID 数字；未捕获或失败时为空字符串。
 	capturedUid   string
 	capturedUidMu sync.Mutex
+	uidGeneration uint64
 
 	uidDigitRe = regexp.MustCompile(`\d+`)
 )
@@ -110,6 +111,9 @@ func cacheAndFormat(raw string, allowUnknown bool, outputType OutputType) (strin
 		return captureErr(allowUnknown, "uid is not a valid 8-12 digit uid (len=%d)", len(raw))
 	}
 	capturedUidMu.Lock()
+	if capturedUid != raw {
+		uidGeneration++
+	}
 	capturedUid = raw
 	capturedUidMu.Unlock()
 	uid, err := formatUID(raw, outputType)
@@ -124,8 +128,16 @@ func cacheAndFormat(raw string, allowUnknown bool, outputType OutputType) (strin
 func ClearCache() {
 	capturedUidMu.Lock()
 	capturedUid = ""
+	uidGeneration++
 	capturedUidMu.Unlock()
 	log.Info().Str("component", component).Msg("uid cache cleared")
+}
+
+// CacheGeneration changes when a different UID is observed or the login session is cleared.
+func CacheGeneration() uint64 {
+	capturedUidMu.Lock()
+	defer capturedUidMu.Unlock()
+	return uidGeneration
 }
 
 // GetCachedUID 返回最近捕获的原始 UID 按 outputType 转换后的结果（线程安全）。

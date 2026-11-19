@@ -111,13 +111,9 @@ std::vector<Cell> place_cells(const recogrid::GridFrame& frame, int viewport_sta
     return cells;
 }
 
-int count_rows(const std::map<std::pair<int, int>, Cell>& cells)
+int count_rows(const std::set<std::pair<int, int>>& positions)
 {
-    int rows = 0;
-    for (const auto& [key, _] : cells) {
-        rows = std::max(rows, key.first + 1);
-    }
-    return rows;
+    return positions.empty() ? 0 : positions.rbegin()->first + 1;
 }
 
 bool matches_inventory(const recogrid::GridFrame& frame, int start_row, int count)
@@ -181,8 +177,8 @@ Result GridTracker::observe(const recogrid::GridFrame& frame, const Options& opt
     result.frame_cols = frame.cols;
     result.previous_viewport_start_row = viewport_start_row_;
     result.viewport_start_row = viewport_start_row_;
-    result.tracked_cells = static_cast<int>(cells_.size());
-    result.tracked_rows = count_rows(cells_);
+    result.tracked_cells = static_cast<int>(seen_positions_.size());
+    result.tracked_rows = count_rows(seen_positions_);
     const bool initial = previous_frame_.empty();
     if (frame.empty() || options.expected_cells < 0) {
         result.reason = "grid_missing";
@@ -216,13 +212,13 @@ Result GridTracker::observe(const recogrid::GridFrame& frame, const Options& opt
 
     result.visible_cells = place_cells(frame, result.viewport_start_row);
     for (const Cell& cell : result.visible_cells) {
-        if (cells_.insert_or_assign({ cell.row, cell.col }, cell).second) {
+        if (seen_positions_.emplace(cell.row, cell.col).second) {
             result.new_cells.push_back(cell);
         }
     }
     viewport_start_row_ = result.viewport_start_row;
-    result.tracked_cells = static_cast<int>(cells_.size());
-    result.tracked_rows = count_rows(cells_);
+    result.tracked_cells = static_cast<int>(seen_positions_.size());
+    result.tracked_rows = count_rows(seen_positions_);
     if (options.at_bottom && result.tracked_cells == options.expected_cells) {
         result.status = Status::Complete;
         result.message = "All inventory positions accounted for at bottom";
@@ -253,7 +249,7 @@ void GridTracker::reset()
 {
     previous_frame_ = {};
     viewport_start_row_ = 0;
-    cells_.clear();
+    seen_positions_.clear();
 }
 
 const char* ToString(Status status)

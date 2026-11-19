@@ -62,7 +62,7 @@
                 1280,
                 720
             ],
-            //筛选选项只控制标记操作，仓库盘点读取两种品质和全部标记
+            //自定义筛选仅打开符合条件的格位，盘点和生成报告时逐格读取
             "flawless_essence": true,
             "pure_essence": false,
             "skip_thumb_lock": false,
@@ -92,7 +92,8 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceGridCheckSelection"
+            "EssenceGridCheckSelection",
+            "EssenceGridClickPending"
         ],
         "on_error": [
             "FailedNode"
@@ -145,6 +146,9 @@
         "post_delay": 0,
         "next": [
             "EssenceFilterCheckItemSlot1"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
         ]
     },
     "EssenceGridVerifyComplete": {

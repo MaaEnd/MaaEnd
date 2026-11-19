@@ -32,6 +32,7 @@ func (*PrepareInventoryAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		}
 	}
 	return ctx.OverridePipeline(map[string]any{
+		"EssenceFilterEntry":          map[string]any{"enabled": false},
 		"EssenceFilterInventoryEntry": map[string]any{"enabled": true},
 		arg.CurrentTaskName:           map[string]any{"next": []string{"[JumpBack]AutoEssenceRunInventoryFilter", "AutoEssenceTargetLoadInventory"}},
 	}) == nil

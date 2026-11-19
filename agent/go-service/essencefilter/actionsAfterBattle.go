@@ -2,7 +2,6 @@ package essencefilter
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -49,12 +48,20 @@ func (a *EssenceFilterAfterBattleTierGateAction) Run(ctx *maa.Context, arg *maa.
 	if st.Loot == nil {
 		return false
 	}
+	st.Loot.mark = ""
 	st.Loot.quality = gold
 	if params.Tier == "pure" {
 		st.Loot.quality = purple
 	}
 	// Use the confirmed detail-panel anchor for both buttons on one frame.
-	ctrl := ctx.GetTasker().GetController()
+	tasker := ctx.GetTasker()
+	if tasker == nil {
+		return false
+	}
+	ctrl := tasker.GetController()
+	if ctrl == nil {
+		return false
+	}
 	img, err := ctrl.CacheImage()
 	if err != nil || img == nil {
 		return false
@@ -98,21 +105,20 @@ func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg 
 	if st.Loot == nil {
 		return false
 	}
-	if err := captureRewardItem(st, ocr); err != nil {
-		return inventoryFailed(err)
-	}
-	markEligible := st.EssenceMode == EssenceModeBoth ||
-		st.EssenceMode == EssenceModeFlawlessOnly && st.Loot.quality == gold ||
-		st.EssenceMode == EssenceModePureOnly && st.Loot.quality == purple
-	if st.PipelineOpts.AfterBattlePass == AfterBattlePassReadOnly || st.Loot.mark != unmarked || !markEligible {
-		return ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterAfterBattleCloseDetail"}}) == nil
+	mark, ok := decideRewardMark(ctx, st, ocr)
+	if !ok {
+		return false
 	}
 	next := decisionNextNodes{
 		Lock:    "EssenceFilterAfterBattleLockItem",
 		Discard: "EssenceFilterAfterBattleDiscardItem",
 		Skip:    "EssenceFilterAfterBattleCloseDetail",
 	}
-	return runUnifiedSkillDecision(ctx, arg, st, st.MatchEngine, ocr, next)
+	if !next.route(ctx, arg.CurrentTaskName, mark) {
+		delete(st.Loot.expectedMarks, st.RowIndex)
+		return false
+	}
+	return true
 }
 
 func (a *EssenceFilterAfterBattleInventoryCommitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -123,16 +129,5 @@ func (a *EssenceFilterAfterBattleInventoryCommitAction) Run(ctx *maa.Context, ar
 		reportFocusByKey(ctx, "focus.error.no_run_state")
 		return false
 	}
-	if !st.Account.stillCurrent() {
-		return inventoryFailed(fmt.Errorf("account changed during reward scan"))
-	}
-	stage := false
-	if st.PipelineOpts.AfterBattlePass == AfterBattlePassReadOnly {
-		node, err := ctx.GetNode(arg.CurrentTaskName)
-		if err != nil {
-			return inventoryFailed(err)
-		}
-		stage = len(node.Next) == 1 && node.Next[0].Name == "EssenceFilterAfterBattleInit"
-	}
-	return commitAfterBattleInventory(st, stage)
+	return commitAfterBattleInventory(st, st.Account.observedUID(ctx, taskController(ctx)))
 }

@@ -11,6 +11,7 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("EssenceInventoryCancelRewardAction", &EssenceInventoryCancelRewardAction{})
 	maa.AgentServerRegisterCustomAction("EssenceInventoryBeginRewardAction", &EssenceInventoryBeginRewardAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterReadLockStateAction", &EssenceFilterReadLockStateAction{})
+	maa.AgentServerRegisterCustomAction("EssenceFilterUnreadPurpleAction", &EssenceFilterUnreadPurpleAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterSkillDecisionAction", &EssenceFilterSkillDecisionAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterFinishAction", &EssenceFilterFinishAction{})
 

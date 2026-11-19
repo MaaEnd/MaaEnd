@@ -2,7 +2,6 @@ package essencefilter
 
 import (
 	"math"
-	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -74,7 +73,7 @@ func TestLockLimitPlannerRankingByExpectedAttempts(t *testing.T) {
 			inventoryEssence{Levels: [3]int{6, 6, 3}, Count: 1},
 		),
 	}
-	planner := newLockLimitPlanner(groups, weapons)
+	planner := newLockLimitPlanner(groups, weapons, []string{"w5", "w6"})
 
 	ids := []int{combo[0], combo[1], combo[2]}
 	scan := []lockLimitScan{
@@ -95,7 +94,7 @@ func TestLockLimitPlannerRankingByExpectedAttempts(t *testing.T) {
 	}
 }
 
-func TestLockLimitPlannerUnlockNeeded(t *testing.T) {
+func TestLockLimitPlannerKeepsExistingLocks(t *testing.T) {
 	combo := [3]int{1, 2, 3}
 	weapons := []matchapi.WeaponData{
 		testWeapon("w6", 6, combo),
@@ -108,7 +107,7 @@ func TestLockLimitPlannerUnlockNeeded(t *testing.T) {
 			inventoryEssence{Levels: [3]int{6, 6, 3}, Count: 1},
 		),
 	}
-	planner := newLockLimitPlanner(groups, weapons)
+	planner := newLockLimitPlanner(groups, weapons, []string{"w5", "w6"})
 	ids := []int{combo[0], combo[1], combo[2]}
 
 	type scanStep struct {
@@ -121,26 +120,15 @@ func TestLockLimitPlannerUnlockNeeded(t *testing.T) {
 		{levels: [3]int{6, 6, 3}},
 		{levels: [3]int{1, 1, 1}, locked: true},
 	}
-	wantLock := []bool{false, true, true, false}
-	wantUnlock := []bool{true, false, false, true}
+	wantLock := []bool{false, false, true, false}
 	for i, step := range steps {
 		got := planner.decide(ids, step.levels, step.locked)
-		if got.Lock != wantLock[i] || got.NeedsUnlock != wantUnlock[i] {
-			t.Fatalf("step %d %+v: got lock=%v unlock=%v, want lock=%v unlock=%v",
-				i, step, got.Lock, got.NeedsUnlock, wantLock[i], wantUnlock[i])
+		if got.Lock != wantLock[i] || got.NeedsUnlock {
+			t.Fatalf("step %d %+v: got %+v, want lock=%v", i, step, got, wantLock[i])
 		}
 	}
-
-	summaries := planner.overLimitSummaries()
-	if len(summaries) != 1 {
-		t.Fatalf("summary count = %d, want 1", len(summaries))
-	}
-	got := summaries[0]
-	if got.Quota != 2 || got.Locked != 3 || got.Excess != 1 {
-		t.Fatalf("summary = %+v, want quota 2, locked 3, excess 1", got)
-	}
-	if len(got.Rows) != 1 || got.Rows[0].Levels != [3]int{1, 1, 1} || got.Rows[0].Count != 1 {
-		t.Fatalf("summary rows = %+v, want one +1/+1/+1 row with count 1", got.Rows)
+	if summaries := planner.overLimitSummaries(); len(summaries) != 0 {
+		t.Fatalf("existing low-level lock was displaced: %+v", summaries)
 	}
 }
 
@@ -160,7 +148,7 @@ func TestLockLimitPlannerLockedCopiesConsumeQuota(t *testing.T) {
 			inventoryEssence{Levels: [3]int{6, 6, 3}, Count: 3, Locked: 1},
 		),
 	}
-	planner := newLockLimitPlanner(groups, weapons)
+	planner := newLockLimitPlanner(groups, weapons, []string{"a6", "b5", "b6"})
 	soloIDs := []int{solo[0], solo[1], solo[2]}
 	duoIDs := []int{duo[0], duo[1], duo[2]}
 
@@ -188,7 +176,7 @@ func TestLockLimitPlannerCombinationsAreIndependent(t *testing.T) {
 		testGroup([]string{"a6"}, inventoryEssence{Levels: [3]int{1, 1, 1}, Count: 2}),
 		testGroup([]string{"b6"}, inventoryEssence{Levels: [3]int{1, 1, 1}, Count: 2}),
 	}
-	planner := newLockLimitPlanner(groups, weapons)
+	planner := newLockLimitPlanner(groups, weapons, []string{"a6", "b6"})
 	firstIDs := []int{first[0], first[1], first[2]}
 	secondIDs := []int{second[0], second[1], second[2]}
 
@@ -221,7 +209,7 @@ func TestLockLimitPlannerMissingInventoryAndFourStarOnly(t *testing.T) {
 			inventoryEssence{Levels: [3]int{1, 1, 4}, Count: 5, Locked: 5},
 		),
 	}
-	planner := newLockLimitPlanner(groups, weapons)
+	planner := newLockLimitPlanner(groups, weapons, []string{"w4", "w5", "w6"})
 
 	knownIDs := []int{known[0], known[1], known[2]}
 	absentIDs := []int{absent[0], absent[1], absent[2]}
@@ -258,9 +246,10 @@ func TestLockLimitPlannerQuotaFromEngineWeapons(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	planner := newLockLimitPlanner(nil, engine.Weapons())
+	var selected []string
 	highRarity := make(map[[3]int]bool)
 	for _, weapon := range engine.Weapons() {
+		selected = append(selected, weapon.InternalID)
 		ids, ok := skillIDsTriple(weapon.SkillIDs)
 		if !ok || (weapon.Rarity != 5 && weapon.Rarity != 6) {
 			continue
@@ -268,6 +257,7 @@ func TestLockLimitPlannerQuotaFromEngineWeapons(t *testing.T) {
 		highRarity[ids] = true
 	}
 
+	planner := newLockLimitPlanner(nil, engine.Weapons(), selected)
 	var sixStar, fourStarOnly [3]int
 	var hasSixStar, hasFourStarOnly bool
 	for _, weapon := range engine.Weapons() {
@@ -294,38 +284,27 @@ func TestLockLimitPlannerQuotaFromEngineWeapons(t *testing.T) {
 	}
 }
 
-func TestLoadInventoryGroupsRequired(t *testing.T) {
-	dir := t.TempDir()
-	missing := filepath.Join(dir, "missing.json")
-	empty := filepath.Join(dir, "empty.json")
-	broken := filepath.Join(dir, "broken.json")
-	valid := filepath.Join(dir, "valid.json")
-	null := filepath.Join(dir, "null.json")
-	for path, content := range map[string]string{empty: "  \n", null: "null", broken: "{", valid: `[{"weapon_ids":["w6"],"essences":[{"levels":[6,6,3],"count":1,"locked":0}]}]`} {
-		if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
-			t.Fatal(err)
+func TestLockLimitQuotaUsesSelectedWeaponsSharingSkills(t *testing.T) {
+	skills := [3]int{1, 2, 3}
+	weapons := []matchapi.WeaponData{testWeapon("w4", 4, skills), testWeapon("w5", 5, skills), testWeapon("w6", 6, skills)}
+	levels := [3]int{6, 6, 3}
+	// The stored group can be resolved through a weapon outside the selection.
+	groups := []inventoryGroup{testGroup([]string{"w4"}, inventoryEssence{Levels: levels, Count: 3})}
+	for _, tc := range []struct {
+		selected []string
+		quota    int
+	}{
+		{nil, 0},
+		{[]string{"w4", "unknown"}, 0},
+		{[]string{"w5", "w5"}, 1},
+		{[]string{"w5", "w6"}, 2},
+	} {
+		planner := newLockLimitPlanner(groups, weapons, tc.selected)
+		for i := 0; i < 3; i++ {
+			got := planner.decide(skills[:], levels, false)
+			if got.Quota != tc.quota || got.Lock != (i < tc.quota) || got.MissingGroup {
+				t.Fatalf("selection %v, item %d: decision %+v, want quota %d", tc.selected, i, got, tc.quota)
+			}
 		}
-	}
-
-	for name, path := range map[string]string{"missing": missing, "empty": empty, "null": null, "broken": broken} {
-		if _, err := loadInventoryGroupsRequired(path); err == nil {
-			t.Fatalf("%s inventory: want error, got nil", name)
-		}
-	}
-	for name, path := range map[string]string{"missing": missing, "empty": empty, "null": null} {
-		if groups, err := loadInventoryGroups(path); err != nil || groups != nil {
-			t.Fatalf("%s inventory (tolerant read): got (%v, %v), want (nil, nil)", name, groups, err)
-		}
-	}
-	if _, err := loadInventoryGroups(broken); err == nil {
-		t.Fatalf("broken inventory (tolerant read): want error, got nil")
-	}
-
-	groups, err := loadInventoryGroupsRequired(valid)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(groups) != 1 || groups[0].Essences[0].Count != 1 {
-		t.Fatalf("valid inventory: got %+v", groups)
 	}
 }

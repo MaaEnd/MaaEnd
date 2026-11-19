@@ -136,7 +136,7 @@
         }
     },
     "AutoEssenceRunInventoryFilter": {
-        "desc": "任务开头盘点一次基质库存：内联执行 EssenceFilterMain（EssenceFilterInventoryEntry 由选项或 PipelineOverride 启用，max_hit=1）；max_hit=1 保证 [JumpBack] 回跳后不再重跑",
+        "desc": "目标模式需要刷新账号库存时执行一次基质盘点",
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
@@ -168,7 +168,7 @@
         }
     },
     "AutoEssenceInventoryScanFailed": {
-        "desc": "基质库存盘点失败，禁止空库存开刷（目标模式与战后锁定名额共用）",
+        "desc": "目标模式无法确认基质库存时结束刷取",
         "action": "StopTask",
         "focus": {
             "Node.Action.Starting": "❌**基质库存盘点失败**\n请确认已在基质界面可盘点后重试"
@@ -1493,10 +1493,7 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceLowSp",
-            //基质筛选开启时进入基质筛选线，完成后自己退出战利品界面并next到"AutoEssenceOnSuccess"
-            "EssenceFilterAfterBattleStart",
-            //基质筛选未开启或进入失败时直接关闭战利品界面
-            "AutoEssenceCloseObtainDialog"
+            "EssenceFilterAfterBattleStart"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击确认领取按钮"
@@ -1640,8 +1637,7 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceLowSpFallbackLowSp",
-            "EssenceFilterAfterBattleStart",
-            "AutoEssenceCloseObtainDialog"
+            "EssenceFilterAfterBattleStart"
         ]
     },
     "AutoEssenceLowSpFallbackLowSp": {
@@ -1706,35 +1702,6 @@
             "Node.Action.Starting": "😴**体力不足，任务结束**\n如需继续刷取，请补充足够的体力值~"
         }
     },
-    "AutoEssenceCloseObtainDialog": {
-        "desc": "识别并点击关闭战利品界面的按钮",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    630,
-                    430,
-                    420,
-                    260
-                ],
-                "template": [
-                    "Common/Button/CancelButtonType1.png",
-                    "Common/Button/CancelButtonType1Hover.png"
-                ]
-            }
-        },
-        "pre_wait_freezes": 2000,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 1000,
-        "next": [
-            "AutoEssenceOnSuccess"
-        ],
-        "focus": {
-            "Node.Action.Starting": "👆点击离开按钮"
-        }
-    },
     "AutoEssenceOnSuccess": {
         "desc": "成功完成一次基质刷取后的守卫节点",
         "pre_delay": 0,
@@ -1748,8 +1715,7 @@
         }
     },
     "AutoEssenceAfterBattleRunEndLootReport": {
-        "desc": "战后筛选整次任务汇总：EssenceFilterFinishAction；max_hit=1 全任务仅输出一次；须由父节点以 [JumpBack] 引用以便继续后续结束流程或体力不足 StopTask；默认关闭",
-        "enabled": false,
+        "desc": "战后筛选整次任务汇总：EssenceFilterFinishAction；max_hit=1 全任务仅输出一次；须由父节点以 [JumpBack] 引用以便继续后续结束流程或体力不足 StopTask",
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
