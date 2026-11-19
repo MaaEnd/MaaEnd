@@ -1377,6 +1377,8 @@
     "option.AutoPick.label": "自動拾取",
     "option.AutoPuzzleSolving.description": "パズルミニゲームを自動でクリアします（⌈🧩 パズル解決⌋タスクの繰り返し実行を有効にするのと同等）。",
     "option.AutoPuzzleSolving.label": "パズル解決",
+    "option.AutoSellMaxSellQuantity.inputs.AutoSellMaxSellQuantityValue.label": "最大販売数",
+    "option.AutoSellMaxSellQuantity.label": "1品目あたりの最大販売数",
     "option.AutoSellPriceGlobal.inputs.AutoSellPriceGlobalValue.label": "最低販売価格",
     "option.AutoSellPriceGlobal.label": "販売価格",
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryLargePriceVolatilityValue.label": "価格変動が大きい物資の最低販売価格",

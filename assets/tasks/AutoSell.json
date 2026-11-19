@@ -20,7 +20,8 @@
             "option": [
                 "AutoSellValleyIV",
                 "AutoSellWuling",
-                "AutoSellPriceType"
+                "AutoSellPriceType",
+                "AutoSellMaxSellQuantity"
             ]
         }
     ],
@@ -148,6 +149,26 @@
                     "custom_recognition_param": {
                         "expression": "{AutoSellTicketOverflowWulingValue} < {AutoSellOwnTicketCountRecognition}",
                         "focus_matched_resolved_expression": true
+                    }
+                }
+            }
+        },
+        "AutoSellMaxSellQuantity": {
+            "type": "input",
+            "label": "$option.AutoSellMaxSellQuantity.label",
+            "inputs": [
+                {
+                    "name": "AutoSellMaxSellQuantityValue",
+                    "label": "$option.AutoSellMaxSellQuantity.inputs.AutoSellMaxSellQuantityValue.label",
+                    "default": "100",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9]\\d{0,17}$"
+                }
+            ],
+            "pipeline_override": {
+                "AutoSellFriendsPricesExpectedBuySlide": {
+                    "attach": {
+                        "TargetQuantity": "{AutoSellMaxSellQuantityValue}"
                     }
                 }
             }
