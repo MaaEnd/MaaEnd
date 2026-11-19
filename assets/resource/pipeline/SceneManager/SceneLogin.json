@@ -20,13 +20,13 @@
             "__ScenePrivateLoginMaintenance",
             "[JumpBack]__ScenePrivateCloseErrorDialog",
             "[JumpBack]__ScenePrivateCloseLoginAnnouncement",
-            "[JumpBack]__ScenePrivateLoginAgreementUpdate",
+            "__ScenePrivateLoginAgreementUpdate",
             "__ScenePrivateLoginContinue",
             "__ScenePrivateLogin"
         ]
     },
     "__ScenePrivateLoginAgreementUpdate": {
-        "desc": "登录界面弹出协议更新，点击同意",
+        "desc": "登录界面弹出协议更新，提示用户手动同意并停止任务",
         "recognition": "And",
         "all_of": [
             {
@@ -56,10 +56,14 @@
                 ]
             }
         ],
-        "box_index": 1,
-        "action": "Click",
+        "next": [
+            "__SceneCheckAbortPipeline"
+        ],
         "focus": {
-            "Node.Action.Starting": "$task.SceneManager.focus.login_agreement_update"
+            "Node.Recognition.Succeeded": {
+                "content": "$task.SceneManager.focus.login_agreement_update",
+                "display": "modal"
+            }
         }
     },
     "__ScenePrivateLoginContinue": {
