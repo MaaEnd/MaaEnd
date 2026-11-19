@@ -20,7 +20,7 @@ constexpr double kMouseVerticalDragSpeedRatio = 0.7;
 struct AdbTouchTurnProfile
 {
     double default_units_per_degree = 3.0;
-    double default_pitch_range_units = default_units_per_degree * kTurnDegreesPerCircle * kWorkHeight / kWorkWidth;
+    double default_pitch_range_units = 2.0 * kWorkHeight;
     int32_t swipe_duration_ms = 70;
     int32_t post_swipe_settle_ms = 0;
     // 移动指令后这段时间内发的转向会被游戏吞掉
