@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -94,7 +95,17 @@ func (a *CharacterControllerRelativeMoveAction) Run(ctx *maa.Context, arg *maa.C
 	return true
 }
 
+// mobileMinMoveDuration 移动端摇杆起步要先加速，长按太短几乎走不动，每步至少按这么久（毫秒）。
+const mobileMinMoveDuration = 600
+
 func moveAxis(ctx *maa.Context, duration int) {
+	if pienv.IsAdbLikeControllerType(pienv.ResolveControllerKind(ctx.GetTasker().GetController())) {
+		if duration > 0 {
+			duration = max(duration, mobileMinMoveDuration)
+		} else if duration < 0 {
+			duration = min(duration, -mobileMinMoveDuration)
+		}
+	}
 	if duration > 0 {
 		override := map[string]any{
 			"__CharacterControllerAxisLongPressForwardAction": map[string]any{
